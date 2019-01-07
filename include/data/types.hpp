@@ -9,7 +9,7 @@ namespace data
 {
     
     template<typename X>
-    using vector = const std::vector<X>;
+    using sequence = const std::vector<X>;
 
     using byte = uint8_t;
 
