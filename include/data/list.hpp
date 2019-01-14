@@ -15,7 +15,7 @@ namespace data {
                         return l.empty();
                 }
                     
-                N size(L l) const {
+                uint size(L l) const {
                     return l.size();
                 }
             };
@@ -26,7 +26,7 @@ namespace data {
                     return l == nullptr;
                 }
 
-                N size(L l) const {
+                uint size(L l) const {
                     if (l == nullptr) return 0;
                     return l->size();
                 }
@@ -171,7 +171,7 @@ namespace data {
         }
 
         template <typename L>
-        L from(L l, N n) {
+        L from(L l, uint n) {
             if (n > l.size()) return {};
             L o = l;
             for (int i = 0; i < n; i++) o = rest(o);
@@ -219,7 +219,7 @@ namespace data {
             
         template <typename times, typename L1, typename L2, typename plus, typename value>
         value inner(times t, L1 l1, L2 l2, plus p) {
-            N size = l1.size();
+            uint size = l1.size();
             if (size != l2.size()) return value{};
             if (size == 0) return value{};
                 

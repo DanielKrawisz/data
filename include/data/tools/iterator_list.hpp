@@ -40,7 +40,7 @@ namespace data {
             return Next == l.Next && End == l.End;
         }
             
-        iterator_list<X, it> from(N n) const {
+        iterator_list<X, it> from(uint n) const {
             if (empty()) return nullptr;
             if (n == 0) return this;
             return rest().from(n - 1);

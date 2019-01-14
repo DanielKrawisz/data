@@ -59,7 +59,7 @@ namespace data
             constexpr static const ::data::list::definition::list<list, X> is_list{}; 
             
             slice<X>& Slice;
-            N Index;
+            uint Index;
             
             list(slice<X>& s, N n) : Slice(s), Index(n) {}
             list(const slice<X>& s, N n) : Slice(const_cast<slice<X>&>(s)), Index(n) {}
