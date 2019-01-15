@@ -74,17 +74,7 @@ namespace data {
             }; 
 
             template <typename M, typename key, typename value>
-            struct map<ptr<M>, key, value> : public set::definition::set<ptr<M>, key> {
-                value get(M m, key k) const {
-                    if (m == nullptr) return value{};
-                    return m->get(k);
-                }
-
-                M insert(M m, key k, value v) const {
-                    if (m == nullptr) return new map{{k, v}};
-                    return m->insert(k, v);
-                }
-            }; 
+            struct map<ptr<M>, key, value> : public set::definition::set<ptr<M>, key>, public map<M*, key, value> {}; 
 
             // For some kinds of maps, it's possible to count over
             // all the elements, in which case the map can be treated
@@ -106,12 +96,7 @@ namespace data {
             }; 
 
             template <typename M, typename key, typename value, typename L>
-            struct countable<ptr<M>, key, value, L> : public map<ptr<M>, key, value> {
-                L entries(M m) const {
-                    static const list::definition::list<L, entry<key, value>> requirement{};
-                    return m->entries();
-                }
-            }; 
+            struct countable<ptr<M>, key, value, L> : public map<ptr<M>, key, value>, public countable<M*, key, value, L> {}; 
 
             template <typename M, typename key>
             struct removable : public data::set::definition::removable<M, key> {};

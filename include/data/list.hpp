@@ -1,6 +1,7 @@
 #ifndef DATA_LIST_HPP
 #define DATA_LIST_HPP
 
+#include <type_traits>
 #include "types.hpp"
 
 namespace data {
@@ -33,20 +34,11 @@ namespace data {
             };
 
             template <typename L>
-            struct existence<ptr<L>> {
-                bool empty(L l) const {
-                    return l == nullptr;
-                }
-
-                N size(L l) const {
-                    if (l == nullptr) return 0;
-                    return l->size();
-                }
-            };
+            struct existence<ptr<L>> : existence<L*> {};
 
             template <typename L, typename X>
             struct list : public existence<L> {
-                X& first(L l) const {
+                X& first(L l) {
                     return l.first();
                 }
                     
@@ -57,7 +49,7 @@ namespace data {
                 
             template <typename L, typename X>
             struct list<L*, X> : public existence<L*> {
-                X& first(L l) const {
+                X& first(L l) {
                     return l->First;
                 }
                     
@@ -68,16 +60,7 @@ namespace data {
             };
                 
             template <typename L, typename X>
-            struct list<ptr<L>, X> : public existence<ptr<L>> {
-                X& first(L l) const {
-                    return l->First;
-                }
-                    
-                L rest(L l) const {
-                    if (l == nullptr) return nullptr;
-                    return l->rest();
-                }
-            };
+            struct list<ptr<L>, X> : public existence<ptr<L>>, public list<L*, X> {};
                 
             template <typename L, typename X>
             struct extendable : public list<L, X> {                
@@ -95,13 +78,8 @@ namespace data {
             };
                 
             template <typename L, typename X>
-            struct extendable<ptr<L>, X> : public list<ptr<L>, X> {
-                L append(L l, X x) const {
-                    if (l == nullptr) return x;
-                    return l->append(x);
-                }
-            };
-                
+            struct extendable<ptr<L>, X> : public list<ptr<L>, X>, public extendable<L*, X> {};
+
             template <typename L, typename X, typename it>
             struct iterable : public list<L, X> {
                 it begin(L l) const {
@@ -127,28 +105,46 @@ namespace data {
             };
                 
             template <typename L, typename X, typename it>
-            struct iterable<ptr<L>, X, it> : public list<ptr<L>, X> {
-                it begin(L l) const {
-                    if (l == nullptr) return it{};
-                    return l->begin();
-                }
-                
-                it end(L l) const {
-                    if (l == nullptr) return it{};
-                    return l->end();
-                }
-            };
+            struct iterable<ptr<L>, X, it> : public list<ptr<L>, X>, public iterable<L*, X, it> {};
                 
             template <typename L, typename X, typename it>
             struct complete : public extendable<L, X>, public iterable<L, X, it> {};
             
             template <typename L, typename X, typename it>
-            struct complete<L*, X, it> : public extendable<L, X>, public iterable<L, X, it> {};
+            struct complete<L*, X, it> : public extendable<L*, X>, public iterable<L*, X, it> {};
             
             template <typename L, typename X, typename it>
-            struct complete<ptr<L>, X, it> : public extendable<L, X>, public iterable<L, X, it> {};
+            struct complete<ptr<L>, X, it> : public extendable<ptr<L>, X>, public iterable<ptr<L>, X, it> {};
             
         }
+            
+        template <typename L>
+        struct is_list {
+            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&L::first), L>::type>::type;
+            constexpr static definition::list<L, element> IsList{};
+        };
+        
+        template <typename L>
+        struct is_list<L*> {
+            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&L::first), L>::type>::type;
+            constexpr static definition::list<L, element> IsList{};
+        };
+        
+        template <typename L>
+        struct is_list<ptr<L>> : public is_list<L*> {
+            using element = typename is_list<L*>::element;
+        };
+            
+        template <typename L>
+        struct is_extendible : public is_list<L> {
+            constexpr static definition::extendable<L, typename is_list<L>::element> IsExtendableList{};
+        };
+        
+        template <typename L>
+        struct is_iterable : public is_list<L> {
+            using iterator = typename std::__invoke_result<typename L::first>::type;
+            constexpr static definition::iterable<L, typename is_list<L>::Element, iterator> IsIterableList{};
+        };
             
         template <typename L> 
         inline bool empty(L l) {
