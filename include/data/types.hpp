@@ -5,8 +5,7 @@
 #include <memory>
 #include <string>
 
-namespace data 
-{
+namespace data {
     
     template<typename X>
     using sequence = const std::vector<X>;
@@ -18,10 +17,11 @@ namespace data
 
     using string = const std::string;
     
-    using N = unsigned long long int;
+    using uint = unsigned long long int;
     
-    inline const N plus(const N n, const N m) {
-        return n + m;
+    template <typename X>
+    inline X plus(X a, X b) {
+        return a + b;
     }
 
 }

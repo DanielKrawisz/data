@@ -195,7 +195,7 @@ namespace data {
         }
             
         template <typename function, typename from, typename to> 
-        inline to for_each_indexed(N index, function f, from l) {
+        inline to for_each_indexed(uint index, function f, from l) {
             if (empty(l)) return nullptr;
             return for_each_indexed(index + 1, f, rest(l)) + f(index, *first(l));
         }

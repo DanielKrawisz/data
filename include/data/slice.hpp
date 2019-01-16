@@ -20,22 +20,22 @@ namespace data
     public:
         slice(std::vector<X>& v) : invalid(0), data(v.data()), len(v.size()) {};
         
-        static const slice make(sequence<X>& v) {
+        static const slice make(vector<X>& v) {
             return slice(const_cast<std::vector<X>&>(v));
         }
         
         slice() : invalid(0), data(nullptr), len(0) {};
         
-        const N size() const {
+        const uint size() const {
             return len;
         }
 
-        X& operator[](N n) const {
+        X& operator[](uint n) const {
             if (n >= len) return invalid;
             return data[n];
         }
 
-        slice<X> range(N begin, N end) const {
+        slice<X> range(uint begin, uint end) const {
             if (begin >= len || end >= len || begin >= end) return slice();
 
             return slice(data[begin], end - begin);
@@ -61,15 +61,15 @@ namespace data
             slice<X>& Slice;
             uint Index;
             
-            list(slice<X>& s, N n) : Slice(s), Index(n) {}
-            list(const slice<X>& s, N n) : Slice(const_cast<slice<X>&>(s)), Index(n) {}
+            list(slice<X>& s, uint n) : Slice(s), Index(n) {}
+            list(const slice<X>& s, uint n) : Slice(const_cast<slice<X>&>(s)), Index(n) {}
             
         public:
-            static list make(slice<X>& s, N n) {
+            static list make(slice<X>& s, uint n) {
                 return list{s, n};
             }
             
-            static const list make(const slice<X>& s, N n) {
+            static const list make(const slice<X>& s, uint n) {
                 return list{s, n};
             }
             
@@ -107,7 +107,7 @@ namespace data
         using iterator = data::list::iterator<list, X>;
 
         iterator begin() {
-            return iterator{list::make(*this, N(0))};
+            return iterator{list::make(*this, uint(0))};
         }
             
         iterator end() {
@@ -115,7 +115,7 @@ namespace data
         }
 
         const iterator begin() const {
-            return iterator{list::make(*this, N(0))};
+            return iterator{list::make(*this, uint(0))};
         }
             
         const iterator end() const {

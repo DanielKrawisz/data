@@ -64,13 +64,13 @@ namespace data {
             return Next == l.Next;
         }
             
-        const linked_list<X> from(N n) const {
+        const linked_list<X> from(uint n) const {
             if (empty()) return nullptr;
             if (n == 0) return this;
             return rest().from(n - 1);
         }
                 
-        const X operator[](N n) const {
+        const X operator[](uint n) const {
             auto l = from(n);
             if (l.empty()) return X{};
             return l.first();
