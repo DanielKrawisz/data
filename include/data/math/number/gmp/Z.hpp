@@ -73,7 +73,7 @@ namespace data {
                 Z operator/(const Z& n) const {
                     return divide(n).Quotient;
                 }
-                
+               
                 Z operator%(const Z& n) const {
                     return divide(n).Remainder;
                 }

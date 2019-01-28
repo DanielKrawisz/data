@@ -53,6 +53,14 @@ namespace data {
                 
                 bool operator>=(gmp_uint) const;
                 
+                bool operator<(uint n) const;
+                
+                bool operator>(uint n) const;
+                
+                bool operator<=(uint n) const;
+                
+                bool operator>=(uint n) const;
+                
                 N successor() const;
                 
                 N operator+(const N&&) const;
