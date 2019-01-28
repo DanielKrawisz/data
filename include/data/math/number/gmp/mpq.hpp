@@ -12,10 +12,10 @@ namespace data {
             const __mpq_struct MPQInvalid = __mpq_struct{MPZInvalid, MPZInvalid};
             
             inline bool equal(const __mpq_struct& a, const __mpq_struct& b) {
-                return a._mp_num == b._mp_num && a._mp_den == b._mp_den;
+                return equal(a._mp_num, b._mp_num) && equal(a._mp_den, b._mp_den);
             }
             
-            inline bool valid(__mpq_struct& mpq) {
+            inline bool valid(const __mpq_struct& mpq) {
                 return valid(mpq._mp_den) && valid(mpq._mp_num);
             }
             
