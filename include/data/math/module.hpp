@@ -16,6 +16,13 @@ namespace data {
                 return m * r;
             }
         };
+
+        template <typename M, typename R>
+        struct algebra : public module<M, R> {                
+            M times(M a, M b) const {
+                return a * b;
+            }
+        };
     
     }
     
