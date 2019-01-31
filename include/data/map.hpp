@@ -102,6 +102,37 @@ namespace data {
             struct removable : public data::set::definition::removable<M, key> {};
 
         }
+        
+        template <typename M>
+        struct is_map {
+            using entries = typename std::__invoke_result<decltype(&M::entries), M>::type;
+            using required = list::is_list<entries>;
+            constexpr static required Pass{};
+            
+            using entry = typename required::element;
+            using key = decltype(entry::Key);
+            using value = decltype(entry::Value);
+        };
+        
+        template <typename M>
+        struct is_map<M*> {
+            using entries = typename std::__invoke_result<decltype(&M::entries), M>::type;
+            using required = list::is_list<entries>;
+            constexpr static required Pass{};
+            
+            using entry = typename required::element;
+            using key = decltype(entry::Key);
+            using value = decltype(entry::Value);
+        };
+        
+        template <typename M>
+        struct is_map<ptr<M>> : public is_map<M*> {};
+        
+        // functions that can be satisfied by maps. 
+        template <typename M>
+        inline bool empty(M m) {
+            return set::definition::existence<M>{}.empty(m);
+        }
 
         template <typename M, typename K, typename V> 
         inline V get(M m, K k) {
