@@ -12,22 +12,22 @@ namespace data {
                 
             template <typename L>
             struct existence {
-                bool empty(L l) const {
+                bool empty(const L l) const {
                         return l.empty();
                 }
                     
-                uint size(L l) const {
+                uint size(const L l) const {
                     return l.size();
                 }
             };
 
             template <typename L>
             struct existence<L*> {
-                bool empty(L l) const {
+                bool empty(const L l) const {
                     return l == nullptr;
                 }
 
-                uint size(L l) const {
+                uint size(const L l) const {
                     if (l == nullptr) return 0;
                     return l->size();
                 }
@@ -42,7 +42,7 @@ namespace data {
                     return l.first();
                 }
                     
-                L rest(L l) const {
+                L rest(const L l) const {
                     return l.rest();
                 }
             };
@@ -53,7 +53,7 @@ namespace data {
                     return l->First;
                 }
                     
-                L rest(L l) const {
+                L rest(const L l) const {
                     if (l == nullptr) return nullptr;
                     return l->rest();
                 }
@@ -64,14 +64,14 @@ namespace data {
                 
             template <typename L, typename X>
             struct extendable : public list<L, X> {                
-                L preppend(L l, X x) const {
+                L prepend(const L l, X x) const {
                     return l + x;
                 }
             };
                 
             template <typename L, typename X>
             struct extendable<L*, X> : public list<L*, X> {
-                L prepend(L l, X x) const {
+                L prepend(const L l, X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
                 }

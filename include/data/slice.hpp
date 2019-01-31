@@ -142,5 +142,3 @@ namespace data
 }
 
 #endif
-
-

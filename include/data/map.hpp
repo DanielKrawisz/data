@@ -39,15 +39,15 @@ namespace data {
             
             template <typename M, typename key, typename value>
             struct map : public set::definition::set<M, key> {
-                value get(M m, key k) const {
+                value get(const M m, const key k) const {
                     return m[k];
                 }
 
-                M insert(M m, key k, value v) {
+                M insert(const M m, const key k, const value v) {
                     return m.insert(k, v);
                 }
 
-                M plus(M m, entry<key, value> e) {
+                M plus(const M m, const entry<key, value> e) {
                     return m + e;
                 }
 
@@ -55,19 +55,19 @@ namespace data {
                     return M{};
                 }
 
-                M initializer_list_constructor(std::initializer_list<std::pair<key, value> > init) const {
+                M initializer_list_constructor(const std::initializer_list<std::pair<key, value> > init) const {
                     return M{init};
                 }
             }; 
 
             template <typename M, typename key, typename value>
             struct map<M*, key, value> : public set::definition::set<M*, key> {
-                value get(map m, key k) const {
+                value get(const map m, const key k) const {
                     if (m == nullptr) return value{};
                     return m->get(k);
                 }
                         
-                map insert(map m, key k, value v) const {
+                map insert(const map m, const key k, const value v) const {
                     if (m == nullptr) return new map{{k, v}};
                     return m->insert(k, v);
                 }
@@ -81,7 +81,7 @@ namespace data {
             // as a list of entries. 
             template <typename M, typename key, typename value, typename L>
             struct countable : public map<M, key, value> {
-                L entries(M m) const {
+                L entries(const M m) const {
                     static const list::definition::list<L, entry<key, value>> requirement{};
                     return m.entries();
                 }
@@ -89,7 +89,7 @@ namespace data {
 
             template <typename M, typename key, typename value, typename L>
             struct countable<M*, key, value, L> : public map<M*, key, value> {
-                L entries(M m) const {
+                L entries(const M m) const {
                     static const list::definition::list<L, entry<key, value>> requirement{};
                     return m->entries();
                 }
