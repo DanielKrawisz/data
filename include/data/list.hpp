@@ -185,20 +185,6 @@ namespace data {
             for (int i = 0; i < n; i++) o = rest(o);
             return o;
         }
-        
-        template<typename function, typename list, typename value>
-        value reduce(function plus, list l) {
-            if (empty(l)) return value{};
-            
-            return plus(reduce(plus, rest(l)), value{first(l)});
-        }
-            
-        template<typename list, typename value>
-        value reduce(list l) {
-            if (empty(l)) return value{};
-            
-            return reduce(plus, rest(l)) + value{first(l)};
-        }
                 
         template <typename function, typename from, typename to> 
         to for_each(function f, from l) {
