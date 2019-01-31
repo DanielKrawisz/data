@@ -219,7 +219,7 @@ namespace data {
                 
             return p(t(l1.first(), l2.first()), inner(t, rest(l1), rest(l2), p));
         }
-            
+        
         // this is an iterator that could go with a list. 
         template <typename L, typename E>
         struct iterator {
