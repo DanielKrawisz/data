@@ -41,12 +41,12 @@ namespace data {
             return Next;
         }
             
-        linked_list<X> append(X x) const {
+        linked_list<X> prepend(X x) const {
             return linked_list<X>(std::make_shared<list::node<X, linked_list>>(list::node<X, linked_list>{x, *this}));
         }
                 
         linked_list<X> operator+(X x) const {
-            return append(x);
+            return prepend(x);
         }
                 
         bool contains(X x) const {
@@ -105,8 +105,8 @@ namespace data {
     }
 
     template <typename X>
-    inline const data::linked_list<X> append(const data::linked_list<X> l, const X elem) {
-        return l.append(elem);
+    inline const data::linked_list<X> prepend(const data::linked_list<X> l, const X elem) {
+        return l.prepend(elem);
     }
 
 }

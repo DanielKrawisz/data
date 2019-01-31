@@ -64,14 +64,14 @@ namespace data {
                 
             template <typename L, typename X>
             struct extendable : public list<L, X> {                
-                L append(L l, X x) const {
+                L preppend(L l, X x) const {
                     return l + x;
                 }
             };
                 
             template <typename L, typename X>
             struct extendable<L*, X> : public list<L*, X> {
-                L append(L l, X x) const {
+                L prepend(L l, X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
                 }
@@ -164,6 +164,18 @@ namespace data {
         template <typename L, typename X> 
         inline L rest(L l) {
             return definition::list<L, X>{}.rest(l);
+        }
+        
+        template <typename L, typename X> 
+        inline L prepend(L list, X value) {
+            return definition::extendable<L, X>{}.prepend(list, value);
+        }
+        
+        template <typename L, typename X>
+        L append(L list, X value) {
+            if (empty(list)) return L{{value}};
+            
+            return append(first(list), append(rest(list), value));
         }
 
         template <typename L>
