@@ -177,6 +177,21 @@ namespace data {
             
             return append(first(list), append(rest(list), value));
         }
+        
+        template <typename L>
+        L reverse(L list) {
+            using requirement = is_extendible<L>;
+            constexpr static requirement satisfied{};
+            
+            struct inner {
+                L operator()(L reversed, L list) {
+                    if (empty(list)) return reversed;
+                    return inner{}(reversed + first(list), rest(list));
+                }
+            };
+            
+            return inner{}(L{}, list);
+        }
 
         template <typename L>
         L from(L l, uint n) {

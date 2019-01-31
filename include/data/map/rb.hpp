@@ -1,10 +1,11 @@
-#ifndef MILEWSKI_DATA_MILEWSKI_MILEWSKI_HPP
-#define MILEWSKI_DATA_MILEWSKI_MILEWSKI_HPP
+#ifndef DATA_MAP_RB_HPP
+#define DATA_MAP_RB_HPP
 
 #include <milewski/rb.hpp>
 #include <data/list.hpp>
 #include <data/tools/iterator_list.hpp>
 #include <data/map.hpp>
+#include <data/fold.hpp>
     
 namespace data {
         
@@ -39,9 +40,9 @@ namespace data {
         rb_map() : Map{} {};
             
         template <typename list>
-        rb_map(list l) : Map{list::template reduce(map::insert, l)} {}
+        rb_map(list l) : Map{reduce(map::insert, l)} {}
             
-        rb_map(std::initializer_list<std::pair<K, V> > init);
+        rb_map(std::initializer_list<std::pair<K, V> > init) : rb_map(make_iterator_list(init)) {}
             
     };
     

@@ -4,6 +4,7 @@
 #include <data/list.hpp>
 #include <data/types.hpp>
 #include <data/tools/iterator_list.hpp>
+#include <data/fold.hpp>
 #include <type_traits>
     
 namespace data {
@@ -77,6 +78,7 @@ namespace data {
         }
         
         linked_list() : Next{nullptr} {}
+        linked_list(const std::initializer_list<X> l) : Next{reverse(fold(plus, linked_list{}, make_iterator_list(l)))} {}
             
         list::iterator<linked_list<X>, X> begin() {
             return {*this};
@@ -87,7 +89,6 @@ namespace data {
         }
             
     };
-        
 
     template <typename X>
     inline bool empty(const data::linked_list<X> l) {
