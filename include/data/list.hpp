@@ -200,23 +200,6 @@ namespace data {
             for (int i = 0; i < n; i++) o = rest(o);
             return o;
         }
-                
-        template <typename function, typename from, typename to> 
-        to for_each(function f, from l) {
-            if (empty(l)) return nullptr;
-            return for_each(f, rest(l)) + f(*first(l));
-        }
-            
-        template <typename function, typename from, typename to> 
-        inline to for_each_indexed(uint index, function f, from l) {
-            if (empty(l)) return nullptr;
-            return for_each_indexed(index + 1, f, rest(l)) + f(index, *first(l));
-        }
-            
-        template <typename function, typename from, typename to> 
-        inline to for_each_indexed(function f, from l) {
-            return for_each_indexed(0, f, l);
-        }
             
         template <typename function, typename list, typename value>
         value find(function satisfies, list l) {
