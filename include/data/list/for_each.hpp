@@ -9,10 +9,9 @@ namespace data {
     namespace list {
                 
         template <typename function, typename from, typename to> 
-        struct for_each {
+        struct for_each : public is_buildable<to> {
             using input_element = typename is_list<from>::element;
             using output_element = std::__invoke_result<function, input_element>;
-            constexpr static is_extendible<to> required{};
             
             to operator()(function f, from l) {
                 if (empty(l)) return {};

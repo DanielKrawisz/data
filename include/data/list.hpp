@@ -63,14 +63,18 @@ namespace data {
             struct list<ptr<L>, X> : public existence<ptr<L>>, public list<L*, X> {};
                 
             template <typename L, typename X>
-            struct extendable : public list<L, X> {                
+            struct extendable : public existence<L> {
+                L make_empty() const {
+                    return {};
+                }
+                
                 L prepend(const L l, X x) const {
                     return l + x;
                 }
             };
                 
             template <typename L, typename X>
-            struct extendable<L*, X> : public list<L*, X> {
+            struct extendable<L*, X> : public existence<L*> {
                 L prepend(const L l, X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
@@ -78,7 +82,7 @@ namespace data {
             };
                 
             template <typename L, typename X>
-            struct extendable<ptr<L>, X> : public list<ptr<L>, X>, public extendable<L*, X> {};
+            struct extendable<ptr<L>, X> : public extendable<L*, X> {};
 
             template <typename L, typename X, typename it>
             struct iterable : public list<L, X> {
@@ -136,7 +140,7 @@ namespace data {
         };
             
         template <typename L>
-        struct is_extendible : public is_list<L> {
+        struct is_buildable : public is_list<L> {
             constexpr static definition::extendable<L, typename is_list<L>::element> IsExtendableList{};
         };
         
@@ -152,7 +156,7 @@ namespace data {
         }
             
         template <typename L> 
-        inline bool size(L l) {
+        inline uint size(L l) {
             return definition::existence<L>{}.size(l);
         }
             
@@ -180,7 +184,7 @@ namespace data {
         
         template <typename L>
         L reverse(L list) {
-            using requirement = is_extendible<L>;
+            using requirement = is_buildable<L>;
             constexpr static requirement satisfied{};
             
             struct inner {
