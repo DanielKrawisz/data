@@ -12,97 +12,78 @@ namespace data {
                     
             template <typename A>
             struct existence {
-                bool empty(A a) const {
+                bool empty(const A a) const {
                     return a.empty();
                 }
             };
                     
             template <typename A>
             struct existence<A*> {
-                bool empty(A a) const {
+                bool empty(const A* a) const {
                     return a == nullptr;
                 }
             };
 
             template <typename A>
-            struct existence<ptr<A>> {
-                bool empty(A a) const {
-                    return a == nullptr;
-                }
-            };
+            struct existence<ptr<A>> : virtual public existence<A*> {};
 
             template <typename A, typename X>
             struct set : public existence<A> {
-                bool contains(A a, X x) const {
+                bool contains(const A a, const X x) const {
                     return a.contains(x);
                 }
             };
                     
             template <typename A, typename X>
-            struct set<A*, X> : public existence<A*> {
-                bool contains(A a, X x) const {
+            struct set<A*, X> : virtual public existence<A*> {
+                bool contains(const A* a, const X x) const {
                     if (a == nullptr) return false;
                     return a->contains(x);
                 }
             };
                     
             template <typename A, typename X>
-            struct set<ptr<A>, X> : public existence<ptr<X>> {
-                bool contains(A a, X x) const {
-                    if (a == nullptr) return false;
-                    return a->contains(x);
-                }
-            };
+            struct set<ptr<A>, X> : public existence<ptr<X>>, virtual public set<A*, X> {};
                     
             template <typename A, typename X>
             struct removable : public set<A, X> {
-                A remove(A a, X x) const {
+                A remove(const A a, const X x) const {
                     return a.remove(x);
                 }
             };
                     
             template <typename A, typename X>
-            struct removable<A*, X> : public set<A*, X> {
-                A remove(A a, X x) const {
+            struct removable<A*, X> : virtual public set<A*, X> {
+                A* remove(const A* a, const X x) const {
                     if (a == nullptr) return nullptr;
                     return a->remove(x);
                 }
             };
                     
             template <typename A, typename X>
-            struct removable<ptr<A>, X> : public set<ptr<A>, X> {
-                A remove(A a, X x) const {
-                    if (a == nullptr) return nullptr;
-                    return a->remove(x);
-                }
-            };
+            struct removable<ptr<A>, X> : public set<ptr<A>, X>, public removable<A*, X> {};
                     
             template <typename A, typename X>
             struct insertable : public set<A, X> {
-                A add(A a, X x) const {
+                A add(const A a, const X x) const {
                     return a.add(x);
                 }
                         
-                A plus(A a, X x) {
+                A plus(const A a, const X x) const {
                     return a + x;
                 }
             };
                     
             template <typename A, typename X>
-            struct insertable<A*, X> : public set<A*, X> {
-                A add(A a, X x) const {
+            struct insertable<A*, X> : virtual public set<A*, X> {
+                A* add(const A* a, const X x) const {
                     if (a == nullptr) return nullptr;
                     return a->add(x);
                 }
             };
 
             template <typename A, typename X>
-            struct insertable<ptr<A>, X> : public set<ptr<A>, X> {
-                A add(A a, X x) const {
-                    if (a == nullptr) return nullptr;
-                    return a->add(x);
-                }
-            };
+            struct insertable<ptr<A>, X> : public set<ptr<A>, X>, virtual public insertable<A*, X> {};
 
             template <typename A, typename X, typename L>
             struct countable : public set<A, X> {
@@ -113,20 +94,15 @@ namespace data {
             }; 
 
             template <typename A, typename X, typename L>
-            struct countable<A*, X, L> : public set<A*, X> {
-                L members(A a) const {
+            struct countable<A*, X, L> : virtual public set<A*, X> {
+                L members(const A* a) const {
                     static const list::definition::list<L, X> requirement{};
                     return a->members();
                 }
             }; 
 
             template <typename A, typename X, typename L>
-            struct countable<ptr<A>, X, L> : public set<ptr<A>, X> {
-                L members(A a) const {
-                    static const list::definition::list<L, X> requirement{};
-                    return a->members();
-                }
-            }; 
+            struct countable<ptr<A>, X, L> : public set<ptr<A>, X>, public countable<A*, X, L> {}; 
 
         }
 

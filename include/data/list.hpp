@@ -23,18 +23,18 @@ namespace data {
 
             template <typename L>
             struct existence<L*> {
-                bool empty(const L l) const {
+                bool empty(const L* l) const {
                     return l == nullptr;
                 }
 
-                uint size(const L l) const {
+                uint size(const L* l) const {
                     if (l == nullptr) return 0;
                     return l->size();
                 }
             };
 
             template <typename L>
-            struct existence<ptr<L>> : existence<L*> {};
+            struct existence<ptr<L>> : virtual public existence<L*> {};
 
             template <typename L, typename X>
             struct list : public existence<L> {
@@ -48,19 +48,19 @@ namespace data {
             };
                 
             template <typename L, typename X>
-            struct list<L*, X> : public existence<L*> {
-                X& first(L l) {
+            struct list<L*, X> : virtual public existence<L*> {
+                X& first(L* l) {
                     return l->First;
                 }
                     
-                L rest(const L l) const {
+                L rest(const L* l) const {
                     if (l == nullptr) return nullptr;
                     return l->rest();
                 }
             };
                 
             template <typename L, typename X>
-            struct list<ptr<L>, X> : public existence<ptr<L>>, public list<L*, X> {};
+            struct list<ptr<L>, X> : virtual public existence<ptr<L>>, virtual public list<L*, X> {};
                 
             template <typename L, typename X>
             struct extendable : public existence<L> {
@@ -68,41 +68,41 @@ namespace data {
                     return {};
                 }
                 
-                L prepend(const L l, X x) const {
+                L prepend(L l, X x) const {
                     return l + x;
                 }
             };
                 
             template <typename L, typename X>
-            struct extendable<L*, X> : public existence<L*> {
-                L prepend(const L l, X x) const {
+            struct extendable<L*, X> : virtual public existence<L*> {
+                L prepend(const L* l, X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
                 }
             };
                 
             template <typename L, typename X>
-            struct extendable<ptr<L>, X> : public extendable<L*, X> {};
+            struct extendable<ptr<L>, X> : virtual public extendable<L*, X> {};
 
             template <typename L, typename X, typename it>
             struct iterable : public list<L, X> {
-                it begin(L l) const {
+                it begin(L l) {
                     return l.begin();
                 }
                 
-                it end(L l) const {
+                it end(L l) {
                     return l.end();
                 }
             };
                 
             template <typename L, typename X, typename it>
-            struct iterable<L*, X, it> : public list<L*, X> {
-                it begin(L l) const {
+            struct iterable<L*, X, it> : virtual public list<L*, X> {
+                it begin(L* l) {
                     if (l == nullptr) return it{};
                     return l->begin();
                 }
                 
-                it end(L l) const {
+                it end(L* l) {
                     if (l == nullptr) return it{};
                     return l->end();
                 }
@@ -115,10 +115,10 @@ namespace data {
             struct complete : public extendable<L, X>, public iterable<L, X, it> {};
             
             template <typename L, typename X, typename it>
-            struct complete<L*, X, it> : public extendable<L*, X>, public iterable<L*, X, it> {};
+            struct complete<L*, X, it> : virtual public extendable<L*, X>, public iterable<L*, X, it> {};
             
             template <typename L, typename X, typename it>
-            struct complete<ptr<L>, X, it> : public extendable<ptr<L>, X>, public iterable<ptr<L>, X, it> {};
+            struct complete<ptr<L>, X, it> : complete<L*, X, it>, public extendable<ptr<L>, X>, public iterable<ptr<L>, X, it> {};
             
         }
             

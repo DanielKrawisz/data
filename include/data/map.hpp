@@ -62,14 +62,18 @@ namespace data {
 
             template <typename M, typename key, typename value>
             struct map<M*, key, value> : public set::definition::set<M*, key> {
-                value get(const map m, const key k) const {
+                value get(const M* m, const key k) const {
                     if (m == nullptr) return value{};
                     return m->get(k);
                 }
                         
-                map insert(const map m, const key k, const value v) const {
+                map insert(const M* m, const key k, const value v) const {
                     if (m == nullptr) return new map{{k, v}};
                     return m->insert(k, v);
+                }
+
+                M* initializer_list_constructor(const std::initializer_list<std::pair<key, value> > init) const {
+                    return new M{init};
                 }
             }; 
 
@@ -89,7 +93,7 @@ namespace data {
 
             template <typename M, typename key, typename value, typename L>
             struct countable<M*, key, value, L> : public map<M*, key, value> {
-                L entries(const M m) const {
+                L entries(const M* m) const {
                     static const list::definition::list<L, entry<key, value>> requirement{};
                     return m->entries();
                 }
