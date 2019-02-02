@@ -13,7 +13,7 @@ namespace data {
     using byte = uint8_t;
 
     template<typename X>
-    using ptr = const std::shared_ptr<X>;
+    using ptr = std::shared_ptr<X>;
 
     using string = const std::string;
     

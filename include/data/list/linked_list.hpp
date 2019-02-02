@@ -11,7 +11,7 @@ namespace data {
         
     template <typename X>
     struct linked_list {
-        constexpr static const list::definition::complete<linked_list<X>, X, list::iterator<linked_list<X>, X>> is_list{};
+        constexpr static list::definition::complete<linked_list<X>, X, list::iterator<linked_list<X>, X>> is_list{};
         
         using next = ptr<list::node<X, linked_list>>;
             

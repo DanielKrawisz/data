@@ -142,18 +142,6 @@ namespace data {
             tree Left;
             tree Right;
             
-            value& root() const {
-                return Value;
-            }
-            
-            tree left() const {
-                return Left;
-            } 
-            
-            tree right() const {
-                return Right;
-            }
-            
             template <typename L>
             iterator<tree, L, value> begin() const {
                 return {*this};
