@@ -10,14 +10,18 @@ namespace data {
         namespace definition {
                 
             template <typename Q, typename X>
-            struct queue : public list::definition::list<Q, X>, public list::definition::extendable<Q, X> {                
+            struct queue : public list::definition::list<Q, X> {
+                Q make_empty() const {
+                    return {};
+                }
+                
                 Q append(const Q l, const X x) const {
                     return l + x;
                 }
             };
-                
+
             template <typename Q, typename X>
-            struct queue<Q*, X> : public list::definition::list<Q*, X>, public list::definition::extendable<Q, X> {
+            struct queue<Q*, X> : public list::definition::list<Q*, X> {
                 Q append(const Q l, const X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
@@ -31,19 +35,19 @@ namespace data {
             
         template <typename Q>
         struct is_queue {
-            using Element = std::remove_reference<std::__invoke_result<typename Q::first>>;
-            constexpr static definition::queue<Q, Element> IsQueue{};
+            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&Q::first), Q>::type>::type;
+            constexpr static definition::queue<Q, element> IsQueue{};
         };
         
         template <typename Q>
         struct is_queue<Q*> {
-            using Element = std::remove_reference<std::__invoke_result<typename std::remove_pointer<Q>::first>>;
-            constexpr static definition::queue<Q, Element> IsQueue{};
+            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&Q::first), Q>::type>::type;
+            constexpr static definition::queue<Q, element> IsQueue{};
         };
         
         template <typename Q>
         struct is_queue<ptr<Q>> : public is_queue<Q*> {
-            using Element = typename is_queue<Q*>::Element;
+            using element = typename is_queue<Q*>::Element;
         };
             
         template <typename Q, typename X> 

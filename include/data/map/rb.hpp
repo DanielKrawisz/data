@@ -1,18 +1,18 @@
 #ifndef DATA_MAP_RB_HPP
 #define DATA_MAP_RB_HPP
 
-#include <milewski/rb.hpp>
 #include <data/list.hpp>
 #include <data/tools/iterator_list.hpp>
 #include <data/map.hpp>
 #include <data/fold.hpp>
+#include <milewski/RBMap/RBMap.h>
     
 namespace data {
         
     template <typename K, typename V>
     class rb_map {
         RBMap<K, V> Map;
-        constexpr static const ::data::map::definition::map<rb_map, K, V> require_is_map{};
+        constexpr static const data::map::definition::map<rb_map, K, V> require_is_map{};
             
         rb_map(RBMap<K, V> m) : Map{m} {}
             
@@ -33,11 +33,11 @@ namespace data {
             return Map.member(k);
         }
             
-        bool empty() {
+        bool empty() const {
             return Map.isEmpty();
         }
             
-        rb_map() : Map{} {};
+        rb_map() : Map{} {}
             
         template <typename list>
         rb_map(list l) : Map{reduce(map::insert, l)} {}
@@ -49,4 +49,3 @@ namespace data {
 }
 
 #endif
-

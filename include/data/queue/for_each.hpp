@@ -1,21 +1,22 @@
-#ifndef DATA_LIST_FOR_EACH_HPP
-#define DATA_LIST_FOR_EACH_HPP
+#ifndef DATA_QUEUE_FOR_EACH_HPP
+#define DATA_QUEUE_FOR_EACH_HPP
 
-#include <data/list.hpp>
+#include <data/queue.hpp>
+#include <data/fold.hpp>
 #include <type_traits>
 
 namespace data {
     
-    namespace list {
+    namespace queue {
                 
         template <typename function, typename from, typename to> 
-        struct for_each : public is_buildable<to> {
-            using input_element = typename is_list<from>::element;
+        struct for_each : public queue::is_queue<to> {
+            using input_element = typename list::is_list<from>::element;
             using output_element = std::__invoke_result<function, input_element>;
             
             to operator()(function f, from l) {
                 if (empty(l)) return {};
-                return for_each(f, rest(l)) + f(*first(l));
+                return reduce(plus, to{}, l);
             }
         };
         
