@@ -32,6 +32,22 @@ namespace data {
                 if (Key == k) return Value;
                 return value{};
             }
+            
+            bool operator<(entry<key, value> e) const {
+                return Key < e.Key;
+            }
+            
+            bool operator>(entry<key, value> e) const {
+                return Key > e.Key;
+            }
+            
+            bool operator<=(entry<key, value> e) const {
+                return Key < e.Key;
+            }
+            
+            bool operator>=(entry<key, value> e) const {
+                return Key > e.Key;
+            }
 
         };
 

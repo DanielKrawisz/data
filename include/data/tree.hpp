@@ -86,6 +86,25 @@ namespace data {
             return definition::tree<T>{}.root(t);
         }
         
+        template <typename T>
+        inline T left(T t) {
+            return definition::tree<T>{}.left(t);
+        }
+        
+        template <typename T>
+        inline T right(T t) {
+            return definition::tree<T>{}.right(t);
+        }
+        
+        template <typename T, typename X>
+        T insert(T t, X x) {
+            if (empty(t)) return T{x, T{}, T{}};
+            X& r = root(t);
+            if (x == r) return t;
+            if (x < r) return T{r, insert(left(t), x), right(t)};
+            if (x > r) return T{r, left(t), insert(right(t))};
+        }
+        
         template <typename T, typename L, typename E>
         struct iterator {
             static T Invalid;
