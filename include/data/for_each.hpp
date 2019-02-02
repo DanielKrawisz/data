@@ -10,6 +10,7 @@
 #include <data/map/rb.hpp>
 #include <data/queue/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
+#include <data/tools/iterator_list.hpp>
 
 namespace data {
     
@@ -18,14 +19,27 @@ namespace data {
         // we always know how to construct linked lists,
         // so we can always form a list::for_each
         // type using a linked list as the return type. 
-        template <typename function, typename from> 
+        template <typename function, typename input> 
         struct for_each_list {
-            using input_element = typename list::is_list<from>::element;
+            using input_element = typename list::is_list<input>::element;
             using output_element = typename std::__invoke_result<function, input_element>::type;
             using output = linked_list<output_element>;
             
-            output operator()(const function f, const from l) const {
-                return list::for_each<function, from, output>{}(f, l);
+            output operator()(const function f, const input l) const {
+                return list::for_each<function, input, output>{}(f, l);
+            }
+        };
+        
+        template <typename function, typename input> 
+        struct for_each_iterable {
+            using condition = is_iterable<input>;
+            using input_element = typename condition::element;
+            using output_element = typename std::__invoke_result<function, input_element>::type;
+            using output = linked_list<output_element>;
+            using iterator_list = typename condition::iterator_list;
+            
+            output operator()(const function f, const input i) const {
+                return list::for_each<function, iterator_list, output>{}(f, make_iterator_list(i));
             }
         };
         
@@ -74,7 +88,11 @@ namespace data {
         
         template <typename function, typename from> 
         struct for_each {
-            using inner_function = typename Which<for_each_queue<function, from>, for_each_list<function, from>, for_each_map<function, from>>::result;
+            using inner_function = typename Which<
+                for_each_queue<function, from>,
+                for_each_list<function, from>,
+                for_each_map<function, from>, 
+                for_each_iterable<function, from>>::result;
             using output = typename inner_function::output;
             
             output operator()(const function f, const from m) const {
@@ -137,6 +155,18 @@ namespace data {
             
             rb_map<Key, B> use_case(f fun, Map ka) {
                 return data::for_each(fun, ka);
+            }
+            
+        };
+        
+        template <typename A, typename B, typename f, typename i>
+        struct for_each_iterable :
+            public data:: function_definition<f, A, B>,
+            public is_iterable<i>, 
+            public meta::Equal<typename is_iterable<i>::element, A> {
+            
+            linked_list<B> use_case(f fun, i a) {
+                return data::for_each(fun, a);
             }
             
         };
