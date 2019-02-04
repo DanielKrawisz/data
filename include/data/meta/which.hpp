@@ -12,7 +12,7 @@ namespace data {
             template <bool b, typename A>
             struct Which<b, A> {
                 using result = A;
-                static const result Constructable{};
+                constexpr static result Constructable{};
             };
             
             template <bool b, typename first, typename ... rest>
@@ -23,7 +23,7 @@ namespace data {
             template <typename first, typename ... rest>
             struct Which<true, first, rest...> {
                 using result = first;
-                static const result Constructable{};
+                constexpr static result Constructable{};
             };
         }
         
