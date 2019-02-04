@@ -13,7 +13,7 @@ namespace data {
             
             template <uint32_t size>
             struct bounded : public std::array<uint64_t, size> {                
-                uint64_t& operator[](const uint32_t n) const {
+                const uint64_t& operator[](const uint32_t n) const {
                     return std::array<uint64_t, size>::operator[](n);
                 }
                 
@@ -22,7 +22,7 @@ namespace data {
                     this->operator[](size - 1) = x;
                 }
                 
-                bounded(array<byte, 4 * size> b);
+                bounded(std::array<byte, 4 * size> b);
                 
                 static bounded zero() {
                     return bounded{};
