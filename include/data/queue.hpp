@@ -35,13 +35,13 @@ namespace data {
             
         template <typename Q>
         struct is_queue {
-            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&Q::first), Q>::type>::type;
+            using element = typename std::remove_reference<typename std::invoke_result<decltype(&Q::first), Q>::type>::type;
             constexpr static definition::queue<Q, element> IsQueue{};
         };
         
         template <typename Q>
         struct is_queue<Q*> {
-            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&Q::first), Q>::type>::type;
+            using element = typename std::remove_reference<typename std::invoke_result<decltype(&Q::first), Q>::type>::type;
             constexpr static definition::queue<Q, element> IsQueue{};
         };
         

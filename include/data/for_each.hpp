@@ -71,11 +71,11 @@ namespace data {
         struct for_each_value {
             using input_element = typename list::is_list<input>::element;
             constexpr static Equal<input_element, map::entry<key, value>> required{};
-            using entry_function = entry_function<key, function, value>;
-            using output_element = typename std::__invoke_result<entry_function, input_element>::type;
+            using inner_function = entry_function<key, function, value>;
+            using output_element = typename std::invoke_result<inner_function, input_element>::type;
             
             linked_list<output_element> operator()(const function f, const input l) const {
-                return for_each_list<entry_function, input>{}(entry_function{f}, l);
+                return for_each_list<inner_function, input>{}(inner_function{f}, l);
             }
         };
         

@@ -36,31 +36,40 @@ namespace data {
             template <typename L>
             struct existence<ptr<L>> : virtual public existence<L*> {};
 
-            template <typename L, typename X>
-            struct list : public existence<L> {
-                X& first(L l) {
-                    return l.first();
-                }
-                    
+            template <typename L>
+            struct retractable : public existence<L> {
                 L rest(const L l) const {
                     return l.rest();
                 }
             };
                 
-            template <typename L, typename X>
-            struct list<L*, X> : virtual public existence<L*> {
-                X& first(L* l) {
-                    return l->First;
-                }
-                    
+            template <typename L>
+            struct retractable<L*> : virtual public existence<L*> {
                 L rest(const L* l) const {
                     if (l == nullptr) return nullptr;
                     return l->rest();
                 }
             };
                 
+            template <typename L>
+            struct retractable<ptr<L>> : virtual public existence<ptr<L>>, virtual public retractable<L*> {};
+
             template <typename L, typename X>
-            struct list<ptr<L>, X> : virtual public existence<ptr<L>>, virtual public list<L*, X> {};
+            struct list : public retractable<L> {
+                X& first(L l) {
+                    return l.first();
+                }
+            };
+                
+            template <typename L, typename X>
+            struct list<L*, X> : virtual public retractable<L*> {
+                X& first(L* l) {
+                    return l->First;
+                }
+            };
+                
+            template <typename L, typename X>
+            struct list<ptr<L>, X> : virtual public retractable<ptr<L>>, virtual public list<L*, X> {};
                 
             template <typename L, typename X>
             struct extendable : public existence<L> {
@@ -124,13 +133,13 @@ namespace data {
             
         template <typename L>
         struct is_list {
-            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&L::first), L>::type>::type;
+            using element = typename std::remove_reference<typename std::invoke_result<decltype(&L::first), L>::type>::type;
             constexpr static definition::list<L, element> IsList{};
         };
         
         template <typename L>
         struct is_list<L*> {
-            using element = typename std::remove_reference<typename std::__invoke_result<decltype(&L::first), L>::type>::type;
+            using element = typename std::remove_reference<typename std::invoke_result<decltype(&L::first), L>::type>::type;
             constexpr static definition::list<L, element> IsList{};
         };
         
@@ -146,7 +155,7 @@ namespace data {
         
         template <typename L>
         struct is_iterable : public is_list<L> {
-            using iterator = typename std::__invoke_result<typename L::first>::type;
+            using iterator = typename std::invoke_result<typename L::first>::type;
             constexpr static definition::iterable<L, typename is_list<L>::Element, iterator> IsIterableList{};
         };
             
@@ -165,9 +174,9 @@ namespace data {
             return definition::list<L, X>{}.first(l);
         }
             
-        template <typename L, typename X> 
+        template <typename L> 
         inline L rest(L l) {
-            return definition::list<L, X>{}.rest(l);
+            return definition::retractable<L>{}.rest(l);
         }
         
         template <typename L, typename X> 

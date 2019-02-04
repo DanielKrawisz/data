@@ -16,7 +16,7 @@ namespace data {
             
             to operator()(function f, from l) {
                 if (empty(l)) return {};
-                return reduce(plus, to{}, l);
+                return fold(f, to{}, l);
             }
         };
         
