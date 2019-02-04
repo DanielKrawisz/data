@@ -2,25 +2,13 @@
 #define DATA_MATH_NUMBER_NATURAL_HPP
 
 #include <data/types.hpp>
+#include <data/math/number/division.hpp>
 
 namespace data {
     
     namespace math {
     
         namespace number {
-            
-            template <typename N>
-            struct division {
-                N Quotient;
-                N Remainder;
-                
-                division(N q, N r) : Quotient{q}, Remainder{r} {}
-                division() : Quotient{}, Remainder{} {}
-                
-                bool valid() const {
-                    return Quotient.valid() && Remainder.valid();
-                }
-            };
             
             template <typename N>
             struct natural {
