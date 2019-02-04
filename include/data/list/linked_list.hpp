@@ -29,7 +29,7 @@ namespace data {
         }
             
         const linked_list rest() const {
-            if (empty()) return nullptr;
+            if (empty()) return {};
                 
             return Next->Rest;
         }
@@ -43,7 +43,7 @@ namespace data {
         }
             
         linked_list<X> prepend(X x) const {
-            return linked_list<X>(std::make_shared<list::node<X, linked_list>>(list::node<X, linked_list>{x, *this}));
+            return linked_list<X>{std::make_shared<list::node<X, linked_list>>(list::node<X, linked_list>{x, *this})};
         }
                 
         linked_list<X> operator+(X x) const {
@@ -87,7 +87,9 @@ namespace data {
         list::iterator<linked_list<X>, X> end() {
             return {};
         }
-            
+        
+    private:
+        linked_list(next n) : Next{n} {}
     };
 
     template <typename X>

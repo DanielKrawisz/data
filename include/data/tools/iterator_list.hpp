@@ -1,8 +1,8 @@
 #ifndef DATA_TOOLS_ITERATOR_LIST_HPP
 #define DATA_TOOLS_ITERATOR_LIST_HPP
 
-#include <data/list.hpp>
 #include <type_traits>
+#include <data/list.hpp>
 
 namespace data {
         
@@ -67,9 +67,9 @@ namespace data {
     
     template <typename container>
     struct is_iterable {
-        using iterator = typename std::__invoke_result<decltype(&container::begin), container>::type;
-        using element = typename std::remove_reference<typename std::__invoke_result<decltype(&iterator::operator*), iterator>::type>::type;
-        using iterator_list = iterator_list<iterator>;
+        using iterator = typename std::invoke_result<decltype(&container::begin), container>::type;
+        using element = typename std::remove_reference<typename std::invoke_result<decltype(&iterator::operator*), iterator>::type>::type;
+        using list = iterator_list<iterator>;
     };
     
     template <typename container>
