@@ -8,15 +8,23 @@
 namespace data {
     
     namespace queue {
+        
+        template <typename function, typename Q, typename X>
+        struct fold_queue {
+            function Function;
+            
+            Q operator()(Q q, X x) {
+                return queue::append(q, Function(x));
+            }
+        };
                 
         template <typename function, typename from, typename to> 
         struct for_each : public queue::is_queue<to> {
             using input_element = typename list::is_list<from>::element;
-            using output_element = std::__invoke_result<function, input_element>;
+            using output_element = std::invoke_result<function, input_element>;
             
             to operator()(function f, from l) {
-                if (empty(l)) return {};
-                return fold(f, to{}, l);
+                return fold(fold_queue<function, to, input_element>{f}, to{}, l);
             }
         };
         

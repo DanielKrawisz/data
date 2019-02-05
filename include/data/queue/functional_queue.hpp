@@ -44,6 +44,7 @@ namespace data {
         static functional_queue check(L const & l, L const & r) {
             if (l.empty()) {
                 if (!r.empty()) return functional_queue{list::reverse(r), L{}};
+                return functional_queue{};
             } else return functional_queue(l, r);
         }
         
@@ -85,7 +86,7 @@ namespace data {
     }
             
     template <typename L> 
-    inline L rest(functional_queue<L> q) {
+    inline functional_queue<L> rest(functional_queue<L> q) {
         return q.rest();
     }
             
