@@ -24,7 +24,7 @@ namespace data {
         template <typename function, typename input> 
         struct for_each_list {
             using input_element = typename list::is_list<input>::element;
-            using output_element = typename std::__invoke_result<function, input_element>::type;
+            using output_element = typename std::invoke_result<function, input_element>::type;
             using output = linked_list<output_element>;
             
             output operator()(const function f, const input l) const {
@@ -33,22 +33,20 @@ namespace data {
         };
         
         template <typename function, typename input> 
-        struct for_each_iterable {
-            using condition = is_iterable<input>;
-            using input_element = typename condition::element;
-            using output_element = typename std::__invoke_result<function, input_element>::type;
+        struct for_each_container {
+            using input_element = typename input::value_type;
+            using output_element = typename std::invoke_result<function, input_element>::type;
             using output = linked_list<output_element>;
-            using iterator_list = typename condition::iterator_list;
             
             output operator()(const function f, const input i) const {
-                return list::for_each<function, iterator_list, output>{}(f, make_iterator_list(i));
+                return list::for_each<function, iterator_list<decltype(i.begin()), input_element>, output>{}(f, iterator_list<decltype(i.begin()), input_element>{i.begin(), i.end()});
             }
         };
         
         template <typename function, typename input> 
         struct for_each_queue {
             using input_element = typename list::is_list<input>::element;
-            using output_element = typename std::__invoke_result<function, input_element>::type;
+            using output_element = typename std::invoke_result<function, input_element>::type;
             using output = functional_queue<linked_list<output_element>>;
             
             output operator()(const function f, const input l) const {
@@ -58,8 +56,8 @@ namespace data {
         
         template <typename function, typename input> 
         struct for_each_tree {
-            using input_element = typename tree::definition::buildable<input>::element;
-            using output_element = typename std::__invoke_result<function, input_element>::type;
+            using input_element = typename tree::is_tree<input>::element;
+            using output_element = typename std::invoke_result<function, input_element>::type;
             using output = linked_tree<output_element>;
             
             output operator()(const function f, const input l) const {
@@ -105,7 +103,7 @@ namespace data {
                 for_each_queue<function, input>,
                 for_each_list<function, input>,
                 for_each_map<function, input>, 
-                for_each_iterable<function, input>, 
+                for_each_container<function, input>, 
                 for_each_tree<function, input>>::result;
             using output = typename inner_function::output;
             
@@ -176,23 +174,10 @@ namespace data {
         template <typename A, typename B, typename f, typename T>
         struct for_each_tree :
             public data::function_definition<f, A, B>,
-            public tree::definition::buildable<T>, 
-            public meta::Equal<typename tree::definition::buildable<T>::element, A> {
+            public tree::definition::buildable<T, A> {
             
             linked_tree<B> use_case(f fun, T t) {
                 return data::for_each(fun, t);
-            }
-            
-        };
-        
-        template <typename A, typename B, typename f, typename i>
-        struct for_each_iterable :
-            public data::function_definition<f, A, B>,
-            public is_iterable<i>, 
-            public meta::Equal<typename is_iterable<i>::element, A> {
-            
-            linked_list<B> use_case(f fun, i a) {
-                return data::for_each(fun, a);
             }
             
         };

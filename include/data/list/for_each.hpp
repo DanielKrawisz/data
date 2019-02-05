@@ -11,7 +11,7 @@ namespace data {
         template <typename function, typename from, typename to> 
         struct for_each : public is_buildable<to> {
             using input_element = typename is_list<from>::element;
-            using output_element = std::__invoke_result<function, input_element>;
+            using output_element = std::invoke_result<function, input_element>;
             
             to operator()(function f, from l) {
                 if (empty(l)) return {};
