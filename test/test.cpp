@@ -1,5 +1,6 @@
 #include <data/list/linked_list.hpp>
 #include <data/queue/functional_queue.hpp>
+#include <data/tree/linked_tree.hpp>
 
 std::vector<std::string> read_options(int argc, char *argv[]) {
     std::vector<std::string> options{static_cast<size_t>(argc)};
@@ -23,6 +24,8 @@ int test_main(std::vector<std::string> options) {
     auto e = options.end();
     
     auto il = iterator_list<decltype(b)>(b, e);
+    
+    linked_tree<int> tr{};
     
     return 0;
 }

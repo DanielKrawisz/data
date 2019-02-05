@@ -13,12 +13,10 @@ namespace data {
         
         namespace definition {
             
-            template <typename T>
-            struct tree : public set::definition::existence<T>, public is_iterable<T> {
+            template <typename T, typename E>
+            struct tree : public set::definition::existence<T> {                
                 
-                using element = typename is_iterable<T>::element;
-                
-                element& root(const T t) const {
+                E& root(const T t) const {
                     return t.root();
                 }
                 
@@ -32,12 +30,10 @@ namespace data {
                 
             };
             
-            template <typename T>
-            struct tree<T*> : public set::definition::existence<T*>, public is_iterable<T*> {
+            template <typename T, typename E>
+            struct tree<T*, E> : public set::definition::existence<T*> {
                 
-                using element = typename is_iterable<T>::element;
-                
-                element& root(const T* t) const {
+                E& root(const T* t) const {
                     return t->root();
                 }
                 
@@ -50,50 +46,54 @@ namespace data {
                 }
             };
             
-            template <typename T>
-            struct tree<ptr<T>> : virtual public tree<T*>, virtual public set::definition::existence<ptr<T>>, public is_iterable<ptr<T>> {
-                using element = typename is_iterable<ptr<T>>::element;
+            template <typename T, typename E>
+            struct tree<ptr<T>, E> : virtual public tree<T*, E>, virtual public set::definition::existence<ptr<T>> {
+                using element = typename tree<T*, E>::element;
             };
             
-            template <typename T>
-            struct buildable : public tree<T> {
-                using element = typename tree<T>::element;
-                T make(element e, T left, T right) {
+            template <typename T, typename E>
+            struct buildable : public tree<T, E> {
+                T make(E e, T left, T right) {
                     return {e, left, right};
                 }
             };
             
-            template <typename T>
-            struct buildable<T*> : virtual public tree<T*> {
-                using element = typename tree<T*>::element;
-                T* make(element e, T left, T right) {
+            template <typename T, typename E>
+            struct buildable<T*, E> : virtual public tree<T*, E> {
+                T* make(E e, T left, T right) {
                     return new T{e, left, right};
                 };
             };
             
-            template <typename T>
-            struct buildable<ptr<T>> : public buildable<T*>, public tree<ptr<T>> {};
+            template <typename T, typename E>
+            struct buildable<ptr<T>, E> : public buildable<T*, E>, public tree<ptr<T>, E> {};
             
         }
         
         template <typename T>
+        struct is_tree {
+            using element = typename std::remove_reference<typename std::invoke_result<decltype(&T::root), T>::type>::type;
+            constexpr static definition::tree<T, element> IsList{};
+        };
+        
+        template <typename T>
         inline bool empty(T t) {
-            return definition::tree<T>{}.empty(t);
+            return list::empty(t);
         }
         
-        template <typename T>
-        inline typename definition::tree<T>::element& root(T t) {
-            return definition::tree<T>{}.root(t);
+        template <typename T, typename E>
+        inline typename definition::tree<T, E>::element& root(T t) {
+            return definition::tree<T, E>{}.root(t);
         }
         
-        template <typename T>
+        template <typename T, typename E>
         inline T left(T t) {
-            return definition::tree<T>{}.left(t);
+            return definition::tree<T, E>{}.left(t);
         }
         
-        template <typename T>
+        template <typename T, typename E>
         inline T right(T t) {
-            return definition::tree<T>{}.right(t);
+            return definition::tree<T, E>{}.right(t);
         }
         
         template <typename T, typename X>

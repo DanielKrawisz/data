@@ -7,7 +7,7 @@ namespace data {
 
     template <typename value>
     struct linked_tree {
-        constexpr static tree::definition::buildable<linked_tree<value>> is_tree{};
+        constexpr static tree::definition::buildable<linked_tree<value>, value> is_tree{};
         
         using node = ptr<tree::node<value, linked_tree<value>>>;
         
@@ -37,10 +37,11 @@ namespace data {
             Node = m;
         }
         
+        linked_tree() : Node{nullptr} {}
         linked_tree(value v, linked_tree<value> l, linked_tree<value> r) : Node{new tree::node<value, linked_tree<value>>{v, l, r}} {}
             
         using iterator = tree::iterator<linked_tree<value>, linked_list<linked_tree<value>&>, value>;
-            
+
         iterator begin() const {
             return {*this};
         } 
