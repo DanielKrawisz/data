@@ -2,7 +2,7 @@
 #define DATA_LIST_LINKED_LIST_HPP
 
 #include <data/list.hpp>
-#include <data/types.hpp>
+#include <data/data.hpp>
 #include <data/tools/iterator_list.hpp>
 #include <data/fold.hpp>
 #include <type_traits>
@@ -45,11 +45,11 @@ namespace data {
         linked_list<X> prepend(X x) const {
             return linked_list<X>{std::make_shared<list::node<X, linked_list>>(list::node<X, linked_list>{x, *this})};
         }
-                
+
         linked_list<X> operator+(X x) const {
             return prepend(x);
         }
-                
+
         bool contains(X x) const {
             if (empty()) return false;
                 
@@ -78,7 +78,17 @@ namespace data {
         }
         
         linked_list() : Next{nullptr} {}
-        linked_list(const std::initializer_list<X> l) : Next{reverse(fold(plus, linked_list{}, make_iterator_list(l)))} {}
+        linked_list(const linked_list<X>& l) : Next{l.Next} {}
+        linked_list(linked_list<X>&& l) : Next{l.Next} {
+            l.Next = nullptr;
+        }
+        
+        linked_list(std::initializer_list<X> l);
+        
+        linked_list<X>& operator=(const linked_list<X>& l) {
+            Next = l.Next;
+            return *this;
+        }
             
         list::iterator<linked_list<X>, X> begin() {
             return {*this};
@@ -111,6 +121,9 @@ namespace data {
     inline const data::linked_list<X> prepend(const data::linked_list<X> l, const X elem) {
         return l.prepend(elem);
     }
+    
+    template <typename X>
+    linked_list<X>::linked_list(std::initializer_list<X> l) : linked_list(list::reverse(fold(plus<linked_list<X>, X>, linked_list{}, iterator_list<decltype(l.begin()), X>(l.begin(), l.end())))) {}
 
 }
 

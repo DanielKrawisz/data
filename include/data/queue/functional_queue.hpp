@@ -37,7 +37,7 @@ namespace data {
             return list::first(Left);
         }
         
-        functional_queue(const std::initializer_list<element> l) : functional_queue(reverse(fold(plus, L{}, make_iterator_list(l)))) {}
+        functional_queue(std::initializer_list<element> l);
         
     private:
         
@@ -61,7 +61,7 @@ namespace data {
         }
 
         functional_queue reverse() const {
-            return check(functional_queue{list::reverse(Left), list::reverse(Right)});
+            return check(list::reverse(Left), list::reverse(Right));
         }
 
         constexpr static data::queue::definition::queue<functional_queue, element> require_is_queue{};
@@ -98,6 +98,9 @@ namespace data {
     inline functional_queue<L> reverse(functional_queue<L> q) {
         return q.reverse();
     }
+    
+    template <typename L>
+    functional_queue<L>::functional_queue(std::initializer_list<functional_queue<L>::element> l) : functional_queue{list::reverse(fold(plus<L, functional_queue<L>::element>, L{}, iterator_list<decltype(l.begin()), functional_queue<L>::element>(l.begin(), l.end())))} {}
     
 }
 
