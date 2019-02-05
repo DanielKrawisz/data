@@ -16,10 +16,11 @@ namespace data {
         
         using requirement = list::is_buildable<L>;
         constexpr static requirement Satisfied{};
-        using element = typename requirement::element;
 
         functional_queue(L l, L r) : Left{l}, Right{r} {}
     public:
+        using element = typename requirement::element;
+        
         functional_queue() : Left{}, Right{} {}
 
         functional_queue(L l) : Left{l}, Right{} {}
@@ -64,6 +65,7 @@ namespace data {
         }
 
         constexpr static data::queue::definition::queue<functional_queue, element> require_is_queue{};
+        constexpr static data::list::definition::extendable<functional_queue, element> require_is_buildable{};
 
     };
             
@@ -77,9 +79,9 @@ namespace data {
         return q.size();
     }
 
-    template <typename L, typename X> 
-    inline X& first(functional_queue<L> q) {
-        return q.first;
+    template <typename L> 
+    inline typename functional_queue<L>::element& first(functional_queue<L> q) {
+        return q.first();
     }
             
     template <typename L> 

@@ -7,14 +7,12 @@
 namespace data {
         
     template <typename it>
-    class iterator_list {
+    struct iterator_list {
         
         it Next;
         it End;
 
         iterator_list(it n, it e) : Next{n}, End{e} {}
-        
-    public:
         using Element = typename it::value_type;
         constexpr static const list::definition::list<iterator_list<it>, Element> is_list{};
             
@@ -51,9 +49,6 @@ namespace data {
             if (n == 0) return this;
             return rest().from(n - 1);
         }
-        
-        template <typename container>
-        explicit iterator_list(container c) : iterator_list(std::begin(c), std::end(c)) {}
             
         it begin() {
             return Next;
@@ -64,18 +59,6 @@ namespace data {
         }
             
     };
-    
-    template <typename container>
-    struct is_iterable {
-        using iterator = typename std::invoke_result<decltype(&container::begin), container>::type;
-        using element = typename std::remove_reference<typename std::invoke_result<decltype(&iterator::operator*), iterator>::type>::type;
-        using list = iterator_list<iterator>;
-    };
-    
-    template <typename container>
-    inline typename is_iterable<container>::iterator_list make_iterator_list(container c) {
-        return iterator_list<typename is_iterable<container>::iterator>{c};
-    }
 
     template <typename it>
     inline bool empty(const data::iterator_list<it> l) {

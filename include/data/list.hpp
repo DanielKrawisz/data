@@ -169,9 +169,9 @@ namespace data {
             return definition::existence<L>{}.size(l);
         }
             
-        template <typename L, typename X> 
-        inline X& first(L l) {
-            return definition::list<L, X>{}.first(l);
+        template <typename L> 
+        inline typename is_list<L>::element& first(L l) {
+            return definition::list<L, typename is_list<L>::element>{}.first(l);
         }
             
         template <typename L> 
@@ -246,7 +246,7 @@ namespace data {
             }
                     
             E& operator*() {
-                return first<L, E>(List);
+                return first(List);
             }
      
             bool operator==(const iterator i) const {

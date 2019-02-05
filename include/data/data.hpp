@@ -14,14 +14,14 @@ namespace data {
     template <typename Any>
     bool valid(Any);
     
-    template <typename List, typename Element>
+    /*template <typename List, typename Element>
     typename list::is_list<List>::element& first(List);
     
     template <typename List>
     List rest();
     
     template <typename Container>
-    bool empty();
+    bool empty();*/
     
     template <typename List>
     List reverse(List);
