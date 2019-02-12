@@ -1,7 +1,7 @@
 # data
 wrappers and high-level programming constructs in c++
 
-This library depends on boost, gmp and on Bartosz Milewski's implementation of Okasaki
+This library depends on boost, gmp, crypto++, libbitcoin, and on Bartosz Milewski's implementation of Okasaki
 https://github.com/BartoszMilewski/Okasaki
 
 ## data structures
