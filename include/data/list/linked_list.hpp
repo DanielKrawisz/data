@@ -89,7 +89,7 @@ namespace data {
             Next = l.Next;
             return *this;
         }
-            
+
         list::iterator<linked_list<X>, X> begin() {
             return {*this};
         }
