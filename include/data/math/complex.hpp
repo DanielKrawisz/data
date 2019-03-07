@@ -80,6 +80,11 @@ namespace data {
                 return (*this) * x.inverse();
             }
         };
+        
+        template <typename R>
+        inline nonnegative<R> norm(complex<R> z) {
+            z.norm();
+        }
     
     }
 

@@ -89,6 +89,10 @@ namespace data {
             return r.abs();
         }
         
+        inline number::gmp::R conjugate(number::gmp::R r) {
+            return r;
+        }
+        
         nonnegative<number::gmp::R> square(number::gmp::R r);
         
     }
