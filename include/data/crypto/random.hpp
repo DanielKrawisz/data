@@ -1,7 +1,7 @@
 #ifndef DATA_CRYPTO_RANDOM_HPP
 #define DATA_CRYPTO_RANDOM_HPP
 
-#include <data/types.hpp>
+#include <data/data.hpp>
 
 namespace data {
     
@@ -43,7 +43,7 @@ namespace data {
             template <typename X>
             random& operator>>(X& x) {
                 do operator>>(static_cast<std::vector<byte>&>(x)); 
-                while (!x.valid());
+                while (!valid(x));
                 return *this;
             }
         };

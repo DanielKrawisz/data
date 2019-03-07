@@ -3,7 +3,7 @@
 
 #include <data/types.hpp>
 #include <data/math/number/division.hpp>
-#include <data/valid.hpp>
+#include <data/data.hpp>
 
 namespace data {
     
@@ -18,7 +18,7 @@ namespace data {
                 Z BezoutT;
                     
                 bool valid() const {
-                    return data::valid(GCD) && data::valid(BezoutS) && data::valid(BezoutT);
+                    return valid(GCD) && valid(BezoutS) && valid(BezoutT);
                 }
                 
                 extended_euclidian(Z a, Z b, Z gcd, Z s, Z t) : GCD{gcd}, BezoutS{s}, BezoutT{s} {

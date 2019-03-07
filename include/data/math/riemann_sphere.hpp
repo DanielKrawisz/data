@@ -1,7 +1,7 @@
 #ifndef DATA_MATH_RIEMANN_SPHERE_HPP
 #define DATA_MATH_RIEMANN_SPHERE_HPP
 
-#include <data/types.hpp>
+#include <data/data.hpp>
 #include <data/math/complex.hpp>
 
 namespace data {
@@ -19,7 +19,7 @@ namespace data {
                 point(const double x) : Complex{x}, Infinite{false} {}
                 
                 bool valid() const {
-                    return Complex.valid();
+                    return valid(Complex);
                 }
                 
                 bool infinite() const {

@@ -2,9 +2,9 @@
 #define DATA_ENCODING_ASCII_HPP
 
 #include <string>
-#include <abstractions/bytestring.hpp>
+#include <data/encoding/bytestring.hpp>
 
-namespace abstractions {
+namespace data {
     
     namespace encoding {
         
@@ -21,7 +21,7 @@ namespace abstractions {
                 return c <= max;
             }
             
-            struct string : public vector<character> {
+            struct string : public std::vector<character> {
                 bool valid() const {
                     for (character x : *this) if (!ascii::valid(x)) return false;
                     
@@ -29,11 +29,11 @@ namespace abstractions {
                 }
                 
                 string() {}
-                string(N n) : vector<character>(n) {}
-                string(std::string s) : vector<character>(s.size()) {
+                string(uint n) : std::vector<character>(n) {}
+                string(std::string s) : std::vector<character>(s.size()) {
                     for (int i = 0; i < s.size(); i++) this->at(i) = s[i];
                 }
-                string(const string& s) : vector<character>(static_cast<vector<character>>(s)) {}
+                string(const string& s) : std::vector<character>(static_cast<std::vector<character>>(s)) {}
                 
                 bool operator==(const string& s) {
                     return static_cast<vector<character>>(*this) == static_cast<const vector<character>&>(s);
