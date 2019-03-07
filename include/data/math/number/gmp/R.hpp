@@ -6,74 +6,90 @@
 
 namespace data {
     
-    namespace number {
-        
-        namespace gmp {
+    namespace math {
+    
+        namespace number {
             
-            struct R final : public mpf {
-                R() : mpf() {}
+            namespace gmp {
                 
-                R(R&& q) {
-                    swap(mpf::MPF, q.MPF);
-                }
-                
-                R& operator=(const R& q) {
-                    mpf_set(&MPF, &q.MPF);
-                    return *this;
-                }
-                
-                R& operator=(const R&& q) {
-                    mpf_set(&MPF, &q.MPF);
-                    return *this;
-                }
-                
-                bool operator==(const R&&) const;
-                
-                bool operator<(const R&&) const;
-                
-                bool operator>(const R&&) const;
-                
-                bool operator<=(const R&&) const;
-                
-                bool operator>=(const R&&) const;
-                
-                R operator+(const R&&) const;
-                
-                R& operator+=(const R&&);
-                
-                R operator-(const R&&) const;
-                
-                R& operator-=(const R&&);
-                
-                R operator*(const R&&) const;
-                
-                R& operator*=(const R&&);
-                
-                R operator^(uint) const;
-                
-                R& operator^=(uint);
-                
-                R operator/(const R&&) const;
-                
-                R operator/(const R& q) const {
-                    return operator/((const R&&)(q));
-                }
-                
-                R& operator/=(const R q) {
-                    R z = this->operator/(q);
-                    return this->operator=(z);
-                }
-                
-                R& operator/=(const R& q) {
-                    R z = this->operator/(q);
-                    return this->operator=(z);
-                }
+                struct R final : public mpf {
+                    R() : mpf() {}
+                    
+                    R(R&& q) {
+                        swap(mpf::MPF, q.MPF);
+                    }
+                    
+                    R& operator=(const R& q) {
+                        mpf_set(&MPF, &q.MPF);
+                        return *this;
+                    }
+                    
+                    R& operator=(const R&& q) {
+                        mpf_set(&MPF, &q.MPF);
+                        return *this;
+                    }
+                    
+                    bool operator==(const R&&) const;
+                    
+                    bool operator<(const R&&) const;
+                    
+                    bool operator>(const R&&) const;
+                    
+                    bool operator<=(const R&&) const;
+                    
+                    bool operator>=(const R&&) const;
+                    
+                    R operator+(const R&&) const;
+                    
+                    R& operator+=(const R&&);
+                    
+                    R operator-(const R&&) const;
+                    
+                    R& operator-=(const R&&);
+                    
+                    R operator*(const R&&) const;
+                    
+                    R& operator*=(const R&&);
+                    
+                    R operator^(uint) const;
+                    
+                    R& operator^=(uint);
+                    
+                    R operator/(const R&&) const;
+                    
+                    R operator/(const R& q) const {
+                        return operator/((const R&&)(q));
+                    }
+                    
+                    R& operator/=(const R q) {
+                        R z = this->operator/(q);
+                        return this->operator=(z);
+                    }
+                    
+                    R& operator/=(const R& q) {
+                        R z = this->operator/(q);
+                        return this->operator=(z);
+                    }
+                    
+                    nonnegative<R> abs() const;
 
-            };
-              
-            constexpr static math::field<R> is_field{};
+                };
+                
+                constexpr static math::field<R> is_field{};
+                
+            }
             
         }
+        
+        inline nonnegative<number::gmp::R> abs(number::gmp::R r) {
+            return r.abs();
+        }
+        
+        inline nonnegative<number::gmp::R> norm(number::gmp::R r) {
+            return r.abs();
+        }
+        
+        nonnegative<number::gmp::R> square(number::gmp::R r);
         
     }
 

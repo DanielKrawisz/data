@@ -17,6 +17,10 @@ namespace data {
                     return Z{0};
                 }
                 
+                sign sign(Z z) {
+                    return z.sign();
+                }
+                
                 static Z times(Z a, Z b) {
                     return a * b;
                 }

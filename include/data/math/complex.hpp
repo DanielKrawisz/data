@@ -2,6 +2,7 @@
 #define DATA_MATH_COMPLEX_HPP
 
 #include <data/math/linear_algebra.hpp>
+#include <data/math/nonnegative.hpp>
 
 namespace data {
     
@@ -28,8 +29,8 @@ namespace data {
                 return *this;
             }
             
-            R norm() const {
-                return Re * Re + Im * Im;
+            nonnegative<R> norm() const {
+                return square(Re) + square(Im);
             }
             
             complex conjugate() const {

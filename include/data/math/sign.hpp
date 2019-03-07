@@ -6,10 +6,10 @@
 
 namespace data {
     
-    namespace number {
-        
+    namespace math {
+            
         enum sign : int8_t { zero = 0 , positive = 1 , negative = -1 };
-        
+    
     }
 
 }
