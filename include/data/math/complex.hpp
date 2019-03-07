@@ -10,9 +10,8 @@ namespace data {
     
         template <typename R>
         struct complex {
-            constexpr static field<R> r1{};
-            constexpr static field<complex> r2{};
             constexpr static vector<complex<R>, R> r3{};
+            constexpr static field<complex> r2{};
             
             R Re;
             R Im;
