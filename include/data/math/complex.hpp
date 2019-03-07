@@ -1,7 +1,7 @@
 #ifndef DATA_MATH_COMPLEX_HPP
 #define DATA_MATH_COMPLEX_HPP
 
-#include "field.hpp"
+#include <data/math/linear_algebra.hpp>
 
 namespace data {
     
@@ -9,8 +9,9 @@ namespace data {
     
         template <typename R>
         struct complex {
-            static const field<R> r1{};
-            static const field<complex> r2{};
+            constexpr static field<R> r1{};
+            constexpr static field<complex> r2{};
+            constexpr static vector<complex<R>, R> r3{};
             
             R Re;
             R Im;

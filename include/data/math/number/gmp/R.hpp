@@ -68,6 +68,7 @@ namespace data {
                     R z = this->operator/(q);
                     return this->operator=(z);
                 }
+
             };
               
             constexpr static math::field<R> is_field{};
