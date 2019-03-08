@@ -248,22 +248,3 @@ RBMap<K, V> fromListOfPairs(I beg, I end)
     return map;
 }
 
-template<class K, class V>
-void print(RBMap<K, V> const & map)
-{
-    forEach(map, [](K k, V v) {
-        std::cout << k << "-> " << v << std::endl;
-    });
-    std::cout << std::endl;
-}
-
-template<class K, class V>
-std::ostream& operator<<(std::ostream& os, RBMap<K, V> const & map)
-{
-    forEach(map, [&os](K k, V v) {
-        os << k << "-> " << v << std::endl;
-    });
-    os << std::endl;
-    return os;
-}
-

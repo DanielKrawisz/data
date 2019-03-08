@@ -5,7 +5,7 @@
 #include <data/slice.hpp>
 #include <data/crypto/concepts.hpp>
 #include <data/math/module.hpp>
-#include <bitcoin/bitcoin/math/elliptic_curve.hpp>
+#include <bitcoin/system/math/elliptic_curve.hpp>
 
 namespace data {
     
@@ -32,7 +32,7 @@ namespace data {
                 return *this;
             }
             
-            libbitcoin::ec_signature sign(const libbitcoin::hash_digest&) const;
+            libbitcoin::system::ec_signature sign(const libbitcoin::system::hash_digest&) const;
         };
 
         struct pubkey : public std::array<byte, pubkey_size> {
@@ -50,12 +50,12 @@ namespace data {
                 return *this;
             }
             
-            bool verify(const libbitcoin::hash_digest&, const libbitcoin::ec_signature&) const;
+            bool verify(const libbitcoin::system::hash_digest&, const libbitcoin::system::ec_signature&) const;
         };
         
         constexpr data::crypto::keypair<secret, pubkey> is_keypair{};
         constexpr data::math::module<pubkey, secret> is_module{};
-        constexpr data::crypto::signature_scheme<secret, pubkey, libbitcoin::hash_digest, libbitcoin::ec_signature> is_signature_scheme{};
+        constexpr data::crypto::signature_scheme<secret, pubkey, libbitcoin::system::hash_digest, libbitcoin::system::ec_signature> is_signature_scheme{};
         
         inline pubkey to_public(const secret& s) {
             return s.to_public();
