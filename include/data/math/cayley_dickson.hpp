@@ -1,7 +1,7 @@
 #ifndef DATA_MATH_CAYLEY_DICKSON_HPP
 #define DATA_MATH_CAYLEY_DICKSON_HPP
 
-#include <data/math/linear_algebra.hpp>
+#include <data/math/linear/inner.hpp>
 #include <data/math/algebra.hpp>
 
 namespace data {
@@ -10,8 +10,8 @@ namespace data {
     
         template <typename cd, typename r>
         struct cayley_dickson {
-            constexpr static vector<cd, r> r1{};
-            constexpr static vector<cayley_dickson<cd, r>, r> r2{};
+            constexpr static linear::space<cd, r> r1{};
+            constexpr static linear::space<cayley_dickson<cd, r>, r> r2{};
             constexpr static normed_division_algebra<cayley_dickson<cd, r>, r> r3{};
             
             cd Re;
