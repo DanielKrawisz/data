@@ -2,6 +2,7 @@
 #define DATA_TYPES_HPP
 
 #include <vector>
+#include <array>
 #include <memory>
 #include <string>
 #include <stdint.h>
@@ -10,6 +11,9 @@ namespace data {
     
     template<typename X>
     using vector = const std::vector<X>;
+    
+    template<typename X, uint32_t n>
+    using array = const std::array<X, n>;
 
     using byte = uint8_t;
 

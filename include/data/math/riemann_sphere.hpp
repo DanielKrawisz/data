@@ -8,8 +8,9 @@ namespace data {
     
     namespace math {
         
-        template <typename R>
         struct riemann_sphere {
+            
+            template <typename R>
             struct point {
                 complex<R> Complex;
                 bool Infinite;
@@ -35,33 +36,33 @@ namespace data {
                 }
                 
                 point inverse() {
-                    if (zero()) return Infinity;
+                    if (zero()) return infinity();
                     if (infinite()) return complex<R>{0};
                     return Complex.inverse();
                 }
                 
                 bool operator==(const point& p) const {
                     if (Infinite) return p.Infinite;
-                    return p.finite() && Complex == p.Complex;
+                    return Complex == p.Complex;
                 }
                 
                 point operator+(const point& p) const {
-                    if (Infinite || p.Infinite) return Infinity;
+                    if (Infinite || p.Infinite) return infinity();
                     return Complex + p.Complex;
                 }
                 
                 point operator-() const {
-                    if (Infinite) return Infinity;
+                    if (Infinite) return infinity();
                     return -Complex;
                 }
                 
                 point operator-(const point& p) const {
-                    if (Infinite || p.Infinite) return Infinity;
+                    if (Infinite || p.Infinite) return infinity();
                     return Complex - p.Complex;
                 }
                 
                 point operator*(const point& p) const {
-                    if (Infinite || p.Infinite) return Infinity;
+                    if (Infinite || p.Infinite) return infinity();
                     return Complex - p.Complex;
                 }
                 
@@ -70,14 +71,69 @@ namespace data {
                 }
                 
                 point operator^(const int32_t n) const {
-                    if (Infinite) return Infinity;
+                    if (Infinite) return infinity();
                     return Complex ^ n;
                 };
+                
+                static point infinity() {
+                    return point();
+                }
             private:
                 point() : Complex{}, Infinite{true} {};
             };
             
-            static point Infinity{};
+            template <typename R>
+            inline point<R> inverse(point<R> z) {
+                return z.inverse();
+            } 
+            
+            template <typename R>
+            struct translation {
+                point<R> Difference;
+                
+                translation(point<R> d) : Difference{d} {}
+                
+                point<R> operator()(point<R> z) {
+                    return z + Difference;
+                }
+            };
+            
+            template <typename R>
+            inline translation<R> translate(point<R> d) {
+                return translation<R>(d);
+            }
+            
+            template <typename R>
+            struct scaling {
+                R Scale;
+                
+                scaling(R x) : Scale{x} {}
+                
+                point<R> operator()(point<R> z) {
+                    return z * Scale;
+                }
+            };
+            
+            template <typename R>
+            inline scaling<R> scale(R x) {
+                return scaling<R>(x);
+            }
+            
+            template <typename R>
+            struct rotation {
+                point<R> Exp;
+                
+                rotation(R angle) : Exp{angle} {}
+                
+                point<R> operator()(point<R> z) {
+                    return Exp * z;
+                }
+            };
+            
+            template <typename R>
+            inline rotation<R> rotate(R angle) {
+                return rotation<R>(angle);
+            }
             
         };
     
