@@ -123,7 +123,7 @@ namespace data {
         
         template <typename A, typename B, typename f, typename List>
         struct for_each_list :
-            public data::function_definition<f, A, B>,
+            public data::function::definition<f, A, B>,
             public list::is_list<List>, 
             public meta::Equal<typename list::is_list<List>::element, A> {
             
@@ -135,7 +135,7 @@ namespace data {
         
         template <typename A, typename B, typename f, typename Queue>
         struct for_each_queue :
-            public data::function_definition<f, A, B>,
+            public data::function::definition<f, A, B>,
             public queue::is_queue<Queue>, 
             public meta::Equal<typename queue::is_queue<Queue>::element, A> {
             
@@ -147,7 +147,7 @@ namespace data {
         
         template <typename A, typename B, typename f, typename Key, typename Map>
         struct for_each_map_1 :
-            public data::function_definition<f, A, B>,
+            public data::function::definition<f, A, B>,
             public map::is_map<Map>, 
             public meta::Equal<typename map::is_map<Map>::key, Key>, 
             public meta::Equal<typename map::is_map<Map>::value, A> {
@@ -160,7 +160,7 @@ namespace data {
         
         template <typename A, typename B, typename f, typename Key, typename Map>
         struct for_each_map_2 :
-            public data::function_definition<f, map::entry<Key, A>, B>,
+            public data::function::definition<f, map::entry<Key, A>, B>,
             public map::is_map<Map>, 
             public meta::Equal<typename map::is_map<Map>::key, Key>, 
             public meta::Equal<typename map::is_map<Map>::value, A> {
@@ -173,7 +173,7 @@ namespace data {
         
         template <typename A, typename B, typename f, typename T>
         struct for_each_tree :
-            public data::function_definition<f, A, B>,
+            public data::function::definition<f, A, B>,
             public tree::definition::buildable<T, A> {
             
             linked_tree<B> use_case(f fun, T t) {

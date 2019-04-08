@@ -125,7 +125,7 @@ namespace data {
         
         template <typename M>
         struct is_map {
-            using entries = typename std::__invoke_result<decltype(&M::entries), M>::type;
+            using entries = typename std::invoke_result<decltype(&M::entries), M>::type;
             using required = list::is_list<entries>;
             constexpr static required Pass{};
             
@@ -136,7 +136,7 @@ namespace data {
         
         template <typename M>
         struct is_map<M*> {
-            using entries = typename std::__invoke_result<decltype(&M::entries), M>::type;
+            using entries = typename std::invoke_result<decltype(&M::entries), M>::type;
             using required = list::is_list<entries>;
             constexpr static required Pass{};
             

@@ -19,10 +19,6 @@ namespace data {
                     return m * v;
                 }
                     
-                M multiply(M m, M n) const {
-                    return m * n;
-                }
-                    
             };
             
         }

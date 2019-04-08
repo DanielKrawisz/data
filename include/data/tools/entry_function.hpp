@@ -8,15 +8,15 @@ namespace data {
         
     // value_function converts any function from X to Y to 
     // a function from map::entry<K, X> to map::entry<K, Y>
-    template <typename key, typename function, typename input_value>
+    template <typename key, typename base_function, typename input_value>
     struct value_function {
-        function Function;
+        base_function Function;
         
-        using output_value = typename std::__invoke_result<function, input_value>::type;
+        using output_value = typename std::invoke_result<base_function, input_value>::type;
         
-        constexpr static function_definition<function, input_value, output_value> required{};
+        constexpr static function::definition<base_function, input_value, output_value> required{};
         
-        value_function(function fun) : Function{fun} {}
+        value_function(base_function fun) : Function{fun} {}
         
         map::entry<key, output_value> operator()(map::entry<key, input_value> e){
             return {e.Key, Function(e.Value)};
@@ -25,15 +25,15 @@ namespace data {
         
     // entry_function converts any function from map::entry<K, X> to Y to 
     // a function from map::entry<K, X> to map::entry<K, Y>
-    template <typename key, typename function, typename input_value>
+    template <typename key, typename base_function, typename input_value>
     struct entry_function {
-        function Function;
+        base_function Function;
         
-        using output_value = typename std::__invoke_result<function, map::entry<key, input_value>>::type;
+        using output_value = typename std::invoke_result<base_function, map::entry<key, input_value>>::type;
         
-        constexpr static function_definition<function, input_value, output_value> required{};
+        constexpr static function::definition<base_function, input_value, output_value> required{};
         
-        entry_function(function fun) : Function{fun} {}
+        entry_function(base_function fun) : Function{fun} {}
         
         map::entry<key, output_value> operator()(map::entry<key, input_value> e){
             return {e.Key, Function(e)};
