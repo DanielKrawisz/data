@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_RING_HPP
-#define DATA_MATH_RING_HPP
+#ifndef DATA_MATH_RING
+#define DATA_MATH_RING
 
 #include "group.hpp"
 

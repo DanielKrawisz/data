@@ -1,5 +1,5 @@
-#ifndef DATA_PROOF_INTUITIONISTIC_HPP
-#define DATA_PROOF_INTUITIONISTIC_HPP
+#ifndef DATA_PROOF_INTUITIONISTIC
+#define DATA_PROOF_INTUITIONISTIC
 
 #include <truth/logic/intuitionistic.hpp>
 
@@ -81,62 +81,60 @@ namespace truth {
         illogical(string w) : What{w} {}
         
         const char* what() const noexcept final override {
-            return What.c_str();
-                }
-            };
-        
-            template <typename x, typename y> struct left_or : public Or<x, y> {
-                x Left;
-                virtual x left() const final override {
-                    return Left;
-                }
-                
-                virtual y right() const final override {
-                    throw illogical("wrong side");
-                }
-                
-                bool is_left() const final override (
-                    return true;
-                );
-            };
-        
-            template <typename x, typename y> struct right_or : public Or<x, y> {
-                y Right;
-                virtual x left() const final override {
-                    throw illogical("wrong side");
-                }
-                
-                virtual y right() const final override {
-                    return Right;
-                }
-                
-                bool is_left() const final override (
-                    return true;
-                );
-            };
-            
-            template <typename x, typename y> 
-            struct Implies<x, Or<x, y>&> {                
-                Or<x, y>& operator()(x a) const {
-                    return left_or<x, y>{a};
-                }
-            };
-            
-            template <typename x, typename y> 
-            struct Implies<y, Or<x, y>&> {                
-                Or<x, y>& operator()(y b) const {
-                    return right_or<x, y>{b};
-                }
-            };
-            
-            template <typename x>
-            struct Implies<contradiction, x> {
-                x operator()(contradiction c) {
-                    return illogical("contradictory");
-                }
-            };
+            return const_cast<std::string>(What).c_str();
         }
-    }
+    };
+    
+    template <typename x, typename y> struct left_or : public Or<x, y> {
+        x Left;
+        virtual x left() const final override {
+            return Left;
+        }
+        
+        virtual y right() const final override {
+            throw illogical("wrong side");
+        }
+        
+        bool is_left() const final override (
+            return true;
+        );
+    };
+
+    template <typename x, typename y> struct right_or : public Or<x, y> {
+        y Right;
+        virtual x left() const final override {
+            throw illogical("wrong side");
+        }
+        
+        virtual y right() const final override {
+            return Right;
+        }
+        
+        bool is_left() const final override (
+            return true;
+        );
+    };
+    
+    template <typename x, typename y> 
+    struct Implies<x, Or<x, y>&> {                
+        Or<x, y>& operator()(x a) const {
+            return left_or<x, y>{a};
+        }
+    };
+    
+    template <typename x, typename y> 
+    struct Implies<y, Or<x, y>&> {                
+        Or<x, y>& operator()(y b) const {
+            return right_or<x, y>{b};
+        }
+    };
+    
+    template <typename x>
+    struct Implies<contradiction, x> {
+        x operator()(contradiction c) {
+            return illogical("contradictory");
+        }
+    };
     
     namespace statement {
         template <typename x, typename y>
@@ -159,7 +157,7 @@ namespace truth {
                 return statement::write<operation<operand::Or, x, y>>();
             }
         };
-    }*/
+    }
 }
 
 #endif
