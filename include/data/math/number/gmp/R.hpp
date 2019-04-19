@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_NUMBER_GMP_R_HPP
-#define DATA_MATH_NUMBER_GMP_R_HPP
+#ifndef DATA_MATH_NUMBER_GMP_R
+#define DATA_MATH_NUMBER_GMP_R
 
 #include <data/math/number/gmp/mpf.hpp>
 #include <data/math/field.hpp>
@@ -75,7 +75,7 @@ namespace data {
 
                 };
                 
-                constexpr static math::field<R> is_field{};
+                const static math::field<R> is_field{};
                 
             }
             

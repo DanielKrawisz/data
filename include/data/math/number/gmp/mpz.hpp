@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_NUMBER_GMP_MPZ_HPP
-#define DATA_MATH_NUMBER_GMP_MPZ_HPP
+#ifndef DATA_MATH_NUMBER_GMP_MPZ
+#define DATA_MATH_NUMBER_GMP_MPZ
 
 #include <gmp.h>
 #include <data/types.hpp>

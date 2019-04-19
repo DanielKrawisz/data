@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_NUMBER_GMP_N_HPP
-#define DATA_MATH_NUMBER_GMP_N_HPP
+#ifndef DATA_MATH_NUMBER_GMP_N
+#define DATA_MATH_NUMBER_GMP_N
 
 #include <data/math/number/natural.hpp>
 #include <data/math/number/gmp/mpz.hpp>
@@ -40,7 +40,7 @@ namespace data {
                     N(mpz&& n) : mpz{n} {}
                     
                     bool valid() {
-                        return positive == sign();
+                        return sign::positive == sign();
                     }
                     
                     bool operator==(const N&&) const;
@@ -63,7 +63,7 @@ namespace data {
                     
                     N& operator+=(gmp_uint);
                     
-                    N operator*(const N&&) const;
+                    N operator*(const N&) const;
                     
                     N operator*(gmp_uint) const;
                     
@@ -113,9 +113,9 @@ namespace data {
                     
                     friend struct Z;
                     friend struct Q;
-                };
                 
-                constexpr static math::number::natural<N> is_natural{};
+                    const static math::number::natural<N> is_natural{};
+                };
                 
             }
             

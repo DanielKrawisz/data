@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_NUMBER_GMP_Z_HPP
-#define DATA_MATH_NUMBER_GMP_Z_HPP
+#ifndef DATA_MATH_NUMBER_GMP_Z
+#define DATA_MATH_NUMBER_GMP_Z
 
 #include <data/math/number/gmp/N.hpp>
 
@@ -46,7 +46,7 @@ namespace data {
                     
                     Z& operator+=(const Z&&);
                     
-                    Z operator*(const Z&&) const;
+                    Z operator*(const Z&) const;
                     
                     Z& operator*=(const Z&&);
                     
@@ -93,19 +93,21 @@ namespace data {
                     N abs() const;
                     
                     friend struct Q;
-                };
                 
-                constexpr static math::number::natural<Z> is_integer{};
+                    const static math::number::natural<Z> is_integer{};
+                };
                 
             }
             
         }
     
-        inline number::gmp::N abs(number::gmp::Z z) {
+        inline number::gmp::N abs(number::gmp::Z& z) {
             return z.abs();
         }
         
-        number::gmp::N square(number::gmp::Z z);
+        number::gmp::N square(number::gmp::Z& z) {
+            return z * z;
+        }
     }
 
 }

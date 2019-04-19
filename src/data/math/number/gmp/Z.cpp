@@ -39,7 +39,7 @@ namespace data {
                     return *this;
                 }
                     
-                Z Z::operator*(const Z&& z) const {
+                Z Z::operator*(const Z& z) const {
                     Z prod{};
                     __gmp_binary_multiplies::eval(&prod.MPZ, &MPZ, &z.MPZ);
                     return prod;

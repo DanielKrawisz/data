@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_NUMBER_GMP_Q_HPP
-#define DATA_MATH_NUMBER_GMP_Q_HPP
+#ifndef DATA_MATH_NUMBER_GMP_Q
+#define DATA_MATH_NUMBER_GMP_Q
 
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/gmp/mpq.hpp>
@@ -82,7 +82,7 @@ namespace data {
                     nonnegative<Q> abs() const;
                 };
                 
-                constexpr static math::field<Q> is_field{};
+                const static math::field<Q> is_field{};
                 
             }
             

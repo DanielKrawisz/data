@@ -18,7 +18,9 @@ namespace data
         slice(X* x, uint64_t size) : data{x}, len{size} {}
 
     public:
-        slice(std::vector<X>& v) : invalid(0), data(v.data()), len(v.size()) {};
+        slice(uint64_t l, X* d) : invalid(0), data(d), len(l) {} 
+        
+        slice(std::vector<X>& v) : slice(v.size(), v.data()) {} 
         
         static const slice make(vector<X>& v) {
             return slice(const_cast<std::vector<X>&>(v));

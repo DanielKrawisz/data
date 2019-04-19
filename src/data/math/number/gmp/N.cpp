@@ -11,11 +11,11 @@ namespace data {
                 bool N::operator==(const N&& n) const {
                     return __gmp_binary_equal::eval(&MPZ, &n.MPZ);
                 }
-                    
+                
                 bool N::operator<(const N&& n) const {
                     return __gmp_binary_less::eval(&MPZ, &n.MPZ);
                 }
-                    
+                
                 bool N::operator>(const N&& n) const {
                     return __gmp_binary_greater::eval(&MPZ, &n.MPZ);
                 }
@@ -23,23 +23,23 @@ namespace data {
                 bool N::operator<=(const N&& n) const {
                     return !__gmp_binary_greater::eval(&MPZ, &n.MPZ);
                 }
-                    
+                
                 bool N::operator>=(const N&& n) const {
                     return !__gmp_binary_less::eval(&MPZ, &n.MPZ);
                 }
-                    
+                
                 N N::operator+(const N&& n) const {
                     N sum{};
                     __gmp_binary_plus::eval(&sum.MPZ, &MPZ, &n.MPZ);
                     return sum;
                 }
-                    
+                
                 N N::operator+(gmp_uint n) const {
                     N sum{};
                     __gmp_binary_plus::eval(&sum.MPZ, &MPZ, n);
                     return sum;
                 }
-                    
+                
                 N& N::operator+=(const N&& n) {
                     __gmp_binary_plus::eval(&MPZ, &MPZ, &n.MPZ);
                     return *this;
@@ -49,33 +49,33 @@ namespace data {
                     __gmp_binary_plus::eval(&MPZ, &MPZ, n);
                     return *this;
                 }
-                    
+                
                 N N::successor() const {
                     return operator+(1);
                 }
-                    
-                N N::operator*(const N&& n) const {
+                
+                N N::operator*(const N& n) const {
                     N prod{};
                     __gmp_binary_multiplies::eval(&prod.MPZ, &MPZ, &n.MPZ);
                     return prod;
                 }
-                    
+                
                 N N::operator*(gmp_uint n) const {
                     N prod{};
                     __gmp_binary_multiplies::eval(&prod.MPZ, &MPZ, n);
                     return prod;
                 }
-                    
+                
                 N& N::operator*=(const N&& n) {
                     __gmp_binary_multiplies::eval(&MPZ, &MPZ, &n.MPZ);
                     return *this;
                 }
-                    
+                
                 N& N::operator*=(gmp_uint n) {
                     __gmp_binary_multiplies::eval(&MPZ, &MPZ, n);
                     return *this;
                 }
-                    
+                
                 N N::operator^(gmp_uint n) const {
                     N pow{};
                     mpz_pow_ui(&pow.MPZ, &MPZ, n);
