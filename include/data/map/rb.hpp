@@ -1,5 +1,5 @@
-#ifndef DATA_MAP_RB_HPP
-#define DATA_MAP_RB_HPP
+#ifndef DATA_MAP_RB
+#define DATA_MAP_RB
 
 #include <data/list.hpp>
 #include <data/tools/iterator_list.hpp>
@@ -39,10 +39,10 @@ namespace data {
             
         rb_map() : Map{} {}
             
-        template <typename list>
-        rb_map(list l) : Map{reduce(map::insert, l)} {}
+        /*template <typename list>
+        rb_map(list);*/
             
-        rb_map(std::initializer_list<std::pair<K, V> > init) : rb_map(make_iterator_list(init)) {}
+        rb_map(std::initializer_list<std::pair<K, V> > init);
             
     };
     

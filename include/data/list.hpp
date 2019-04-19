@@ -1,5 +1,5 @@
-#ifndef DATA_LIST_HPP
-#define DATA_LIST_HPP
+#ifndef DATA_LIST
+#define DATA_LIST
 
 #include <type_traits>
 #include "types.hpp"

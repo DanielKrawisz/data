@@ -1,5 +1,5 @@
-#ifndef DATA_KNOWLEDGE_CLAIM_HPP
-#define DATA_KNOWLEDGE_CLAIM_HPP
+#ifndef DATA_KNOWLEDGE_CLAIM
+#define DATA_KNOWLEDGE_CLAIM
 
 namespace data {
     
@@ -22,7 +22,7 @@ namespace data {
         
         template <typename quantifier, typename proposition, typename derivation>
         struct proof : public virtual claim<quantifier, proposition, derivation> {
-            using claim = claim<quantifier, proposition, derivation>;
+            using parent_claim = claim<quantifier, proposition, derivation>;
             
             derivation Derivation;
             
@@ -30,11 +30,11 @@ namespace data {
                 return verify(Derivation);
             }
             
-            proof(quantifier f, proposition r, derivation d) : claim{f, r}, Derivation{d} {}
-            proof() : claim{}, derivation{} {}
+            proof(quantifier f, proposition r, derivation d) : parent_claim{f, r}, Derivation{d} {}
+            proof() : parent_claim{}, derivation{} {}
             
-            claim make_claim() {
-                return claim{claim::Exist, claim::SuchThat};
+            parent_claim make_claim() {
+                return parent_claim{parent_claim::Exist, parent_claim::SuchThat};
             }
             
         };

@@ -1,7 +1,8 @@
-#ifndef DATA_TOOLS_ITERATOR_LIST_HPP
-#define DATA_TOOLS_ITERATOR_LIST_HPP
+#ifndef DATA_TOOLS_ITERATOR_LIST
+#define DATA_TOOLS_ITERATOR_LIST
 
 #include <type_traits>
+#include <iterator>
 #include <data/list.hpp>
 
 namespace data {
@@ -71,8 +72,16 @@ namespace data {
     }
 
     template <typename it, typename elem>
-    inline const data::iterator_list<it, elem> rest(const data::iterator_list<it, elem> l) {
+    inline const iterator_list<it, elem> rest(const iterator_list<it, elem> l) {
         return l.rest();
+    }
+    
+    template <typename iterable>
+    inline iterator_list<typename std::invoke_result<decltype(&iterable::begin), iterable>::type,
+        typename std::iterator_traits<
+            typename std::invoke_result<decltype(&iterable::begin), iterable>::type>::value_type>
+        make_iterator_list(iterable i) {
+        return {std::begin(i), std::end(i)};
     }
 
 }
