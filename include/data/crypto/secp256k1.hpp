@@ -1,9 +1,9 @@
-#ifndef DATA_CRYPTO_SECP256K1_HPP
-#define DATA_CRYPTO_SECP256K1_HPP
+#ifndef DATA_CRYPTO_SECP256K1
+#define DATA_CRYPTO_SECP256K1
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
-#include <data/crypto/concepts.hpp>
+#include <data/crypto/signature_scheme.hpp>
 #include <data/math/module.hpp>
 #include <bitcoin/system/math/elliptic_curve.hpp>
 
@@ -53,13 +53,8 @@ namespace data {
             bool verify(const libbitcoin::system::hash_digest&, const libbitcoin::system::ec_signature&) const;
         };
         
-        constexpr data::crypto::keypair<secret, pubkey> is_keypair{};
         constexpr data::math::module<pubkey, secret> is_module{};
         constexpr data::crypto::signature_scheme<secret, pubkey, libbitcoin::system::hash_digest, libbitcoin::system::ec_signature> is_signature_scheme{};
-        
-        inline pubkey to_public(const secret& s) {
-            return s.to_public();
-        }
     
     }
 

@@ -60,6 +60,7 @@ namespace data {
             input operator()(int argc, char *argv[]) {
                 input vm;
                 po::store(po::command_line_parser(argc, argv).options(Named).positional(Positional).run(), vm);
+                po::notify(vm);
                 return vm;
             }
             

@@ -27,6 +27,13 @@ namespace data {
                 return fun(arg);
             } 
         };
+        
+        template <typename x, typename y, typename f, typename g>
+        struct composition {
+            y operator()(x input) {
+                return f{}(g{}(input));
+            }
+        };
     
     }
 
