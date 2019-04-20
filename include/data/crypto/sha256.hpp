@@ -1,17 +1,10 @@
-#ifndef DATA_CRYPTO_SHA256_HPP
-#define DATA_CRYPTO_SHA256_HPP
+#ifndef DATA_CRYPTO_SHA256
+#define DATA_CRYPTO_SHA256
 
-#include <data/types.hpp>
+#include <data/data.hpp>
 #include <data/slice.hpp>
-#include <data/math/number/bounded.hpp>
 
 namespace data {
-    
-    struct uint256 : public math::number::bounded<4> {
-        byte operator[](const uint n) const {
-            return math::number::bounded<4>::operator[](n / 4) >> ((n % 4) * 8);
-        }
-    };
     
     namespace sha256 {
 
@@ -19,6 +12,30 @@ namespace data {
             bool valid() const;
             
             digest() {};
+            
+            bool operator==(const digest& d) const {
+                return uint256::operator==(static_cast<const uint256&>(d));
+            }
+            
+            bool operator!=(const digest& d) const {
+                return uint256::operator!=(static_cast<const uint256&>(d));
+            }
+            
+            bool operator>=(const digest& d) const {
+                return uint256::operator>=(static_cast<const uint256&>(d));
+            }
+            
+            bool operator<=(const digest& d) const {
+                return uint256::operator<=(static_cast<const uint256&>(d));
+            }
+            
+            bool operator>(const digest& d) const {
+                return uint256::operator>(static_cast<const uint256&>(d));
+            }
+            
+            bool operator<(const digest& d) const {
+                return uint256::operator<(static_cast<const uint256&>(d));
+            }
         };
         
         const digest zero = digest{};
@@ -26,7 +43,7 @@ namespace data {
         digest hash(const slice<byte>);
         
         inline bool digest::valid() const {
-            return *this != sha256::zero;
+            return operator!=(sha256::zero);
         }
     
     }

@@ -1,5 +1,5 @@
-#ifndef DATA_TYPES_HPP
-#define DATA_TYPES_HPP
+#ifndef DATA_TYPES
+#define DATA_TYPES
 
 #include <vector>
 #include <array>

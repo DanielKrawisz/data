@@ -1,7 +1,8 @@
-#ifndef DATA_DATA_HPP
-#define DATA_DATA_HPP
+#ifndef DATA_DATA
+#define DATA_DATA
 
 #include <data/types.hpp>
+#include <data/math/number/bounded.hpp>
 
 namespace data {
     
@@ -15,6 +16,8 @@ namespace data {
     
     template <typename List>
     List reverse(List);
+    
+    using uint256 = math::number::bounded<4>;
 
 }
 
