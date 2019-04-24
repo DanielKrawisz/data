@@ -11,15 +11,12 @@ namespace data {
     
         namespace number {
             
-            template <uint32_t size>
-            struct bounded : public std::array<uint64_t, size> {  
-                byte operator[](const uint n) const {
-                    return std::array<uint64_t, size>::operator[](n / 4) >> ((n % 4) * 8);
-                }
+            template <uint32_t size, typename parent = std::array<byte, size * 4>>
+            struct bounded : public parent {  
                 
-                bounded() : std::array<uint64_t, size>() {}
+                bounded() : parent() {}
                 bounded(uint64_t x) : bounded() {
-                    std::array<uint64_t, size>::operator[](size - 1) = x;
+                    parent::operator[](size - 1) = x;
                 }
                 
                 bounded(std::array<byte, 4 * size> b);
@@ -30,8 +27,8 @@ namespace data {
 
                 bool operator<(const bounded& d) const {
                     for (uint32_t i = 0; i < size; i++) {
-                        if (std::array<uint64_t, size>::operator[](i) < d[i]) return true;
-                        if (std::array<uint64_t, size>::operator[](i) > d[i]) return false;
+                        if (get(i) < d.get(i)) return true;
+                        if (get(i) > d.get(i)) return false;
                     }
                     
                     return false;
@@ -39,8 +36,8 @@ namespace data {
  
                 bool operator<=(const bounded& d) const {
                     for (uint32_t i = 0; i < size; i++) {
-                        if (std::array<uint64_t, size>::operator[](i) < d[i]) return true;
-                        if (std::array<uint64_t, size>::operator[](i) > d[i]) return false;
+                        if (get(i) < d.get(i)) return true;
+                        if (get(i) > d.get(i)) return false;
                     }
                     
                     return true;
@@ -55,11 +52,16 @@ namespace data {
                 }
                 
                 bool operator==(const bounded& d) const {
-                    return std::array<uint64_t, size>::operator==(static_cast<const std::array<uint64_t, size>&>(d));
+                    return static_cast<const parent&>(*this) == static_cast<const parent&>(d);
                 }
                 
                 bool operator!=(const bounded& d) const {
-                    return std::array<uint64_t, size>::operator!=(static_cast<const std::array<uint64_t, size>&>(d));
+                    return static_cast<const parent&>(*this) != static_cast<const parent&>(d);
+                }
+                
+            private:
+                uint64_t get(uint32_t i) const {
+                    return *(uint64_t*)(parent::data() + 4 * i);
                 }
             };
             

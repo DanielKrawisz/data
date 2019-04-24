@@ -90,11 +90,11 @@ namespace data {
             return *this;
         }
 
-        list::iterator<linked_list<X>, X> begin() {
+        list::iterator<linked_list<X>, X> begin() const {
             return {*this};
         }
             
-        list::iterator<linked_list<X>, X> end() {
+        list::iterator<linked_list<X>, X> end() const {
             return {};
         }
         
