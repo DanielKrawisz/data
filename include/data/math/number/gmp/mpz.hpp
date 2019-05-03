@@ -1,7 +1,7 @@
 #ifndef DATA_MATH_NUMBER_GMP_MPZ
 #define DATA_MATH_NUMBER_GMP_MPZ
 
-#include <gmp.h>
+#include <gmpxx.h>
 #include <data/types.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/number/natural.hpp>

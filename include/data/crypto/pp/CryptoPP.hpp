@@ -14,7 +14,7 @@ namespace data {
             // modified from cryptopp sha.hp. It is now possible to initialize the
             // object from an intermediate state. This means that there isn't really
             // a point in using secure memory but we can save the state of the
-            // random number generator. 
+            // random number generator. -- Daniel Krawisz
 
             /// \brief Fixed size stack-based SecBlock
             /// \tparam T class or type

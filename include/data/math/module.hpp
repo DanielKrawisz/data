@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_MODULE_HPP
-#define DATA_MATH_MODULE_HPP
+#ifndef DATA_MATH_MODULE
+#define DATA_MATH_MODULE
 
 #include "ring.hpp"
 
@@ -14,13 +14,6 @@ namespace data {
                 
             M times(M m, R r) const {
                 return m * r;
-            }
-        };
-
-        template <typename M, typename R>
-        struct algebra : public module<M, R> {                
-            M times(M a, M b) const {
-                return a * b;
             }
         };
     

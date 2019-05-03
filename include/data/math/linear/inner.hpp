@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_LINEAR_INNER_HPP
-#define DATA_MATH_LINEAR_INNER_HPP
+#ifndef DATA_MATH_LINEAR_INNER
+#define DATA_MATH_LINEAR_INNER
 
 #include <data/math/linear/space.hpp>
 

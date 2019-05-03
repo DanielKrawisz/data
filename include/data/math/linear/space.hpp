@@ -1,5 +1,5 @@
-#ifndef DATA_MATH_LINEAR_SPACE_HPP
-#define DATA_MATH_LINEAR_SPACE_HPP
+#ifndef DATA_MATH_LINEAR_SPACE
+#define DATA_MATH_LINEAR_SPACE
 
 #include <data/math/module.hpp>
 #include <data/math/field.hpp>
@@ -10,20 +10,20 @@ namespace data {
         
         namespace linear {
             
-            template <typename V, typename S>
+            template <typename vector, typename field>
             struct space {
-                static const module<V, S> r1{};
-                static const field<S> r2{};
+                static const module<vector, field> r1{};
+                static const math::field<field> r2{};
                     
-                V times(V v, S s) const {
+                vector times(vector v, field s) const {
                     return v * s;
                 }
                     
-                V plus(V a, V b) const {
+                vector plus(vector a, vector b) const {
                     return a + b;
                 }
                     
-                V zero() const {
+                vector zero() const {
                     return 0;
                 }
             };
