@@ -1,7 +1,13 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_FUNCTION_HPP
 #define DATA_FUNCTION_HPP
 
 #include <data/types.hpp>
+#include <meta/math/d.hpp>
+#include <meta/math/inverse.hpp>
 
 namespace data {
     
@@ -17,22 +23,20 @@ namespace data {
                 return fun(arg);
             }
         };
-        
-        // function from x^n to y^m. 
-        template<typename f, typename x, typename y, uint32_t n, uint32_t m>
-        struct definition<f, x, y, n, m> {
-            // type f must be callable, and must take an argument of type x
-            // and return an argument of type y. 
-            static const array<y, m> callable(const f fun, const array<x, n> arg) {
-                return fun(arg);
-            } 
+    
+        // function from x to y. 
+        template<typename x, typename y> struct abstract {
+            virtual y operator()(const x) const noexcept = 0;
         };
         
-        template <typename x, typename y, typename f, typename g>
-        struct composition {
-            y operator()(x input) {
-                return f{}(g{}(input));
-            }
+        // a contradiction is type that cannot exist. 
+        struct unconstructable final {
+            unconstructable() = delete;
+        };
+        
+        // functions to contradictions are not required to be noexcept.
+        template <typename x> struct abstract<x, unconstructable> {
+            virtual const unconstructable operator()(const x) const = 0;
         };
     
     }
