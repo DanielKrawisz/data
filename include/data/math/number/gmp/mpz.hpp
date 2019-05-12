@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MATH_NUMBER_GMP_MPZ
 #define DATA_MATH_NUMBER_GMP_MPZ
 
@@ -27,7 +31,7 @@ namespace data {
                     return mpz._mp_d != nullptr;
                 }
                 
-                inline number::sign sign(const __mpz_struct& mpz) {
+                inline math::sign sign(const __mpz_struct& mpz) {
                     return !valid(mpz) ? zero : mpz._mp_size < 0 ? negative : positive;
                 }
                 

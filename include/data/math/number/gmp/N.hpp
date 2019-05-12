@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MATH_NUMBER_GMP_N
 #define DATA_MATH_NUMBER_GMP_N
 
@@ -114,7 +118,7 @@ namespace data {
                     friend struct Z;
                     friend struct Q;
                 
-                    const static math::number::natural<N> is_natural{};
+                    constexpr static math::number::natural<N> is_natural{};
                 };
                 
             }

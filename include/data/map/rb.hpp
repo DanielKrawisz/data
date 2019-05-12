@@ -12,7 +12,8 @@ namespace data {
     template <typename K, typename V>
     class rb_map {
         RBMap<K, V> Map;
-        constexpr static const data::map::definition::map<rb_map, K, V> require_is_map{};
+        using list = linked_list<map::entry<K, V>>;
+        constexpr static const data::map::definition::countable<rb_map, K, V, list> require_is_map{};
             
         rb_map(RBMap<K, V> m) : Map{m} {}
             
@@ -38,11 +39,11 @@ namespace data {
         }
             
         rb_map() : Map{} {}
-            
-        /*template <typename list>
-        rb_map(list);*/
-            
-        rb_map(std::initializer_list<std::pair<K, V> > init);
+        rb_map(std::initializer_list<std::pair<K, V>> init);
+        
+        list entries() const;
+        
+        bool valid() const;
             
     };
     

@@ -6,8 +6,6 @@
 #define DATA_FUNCTION_HPP
 
 #include <data/types.hpp>
-#include <meta/math/d.hpp>
-#include <meta/math/inverse.hpp>
 
 namespace data {
     
