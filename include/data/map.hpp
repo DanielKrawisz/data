@@ -18,6 +18,10 @@ namespace data {
 
             // an invalid instance must exist for type value.
             entry(key k) : Key(k), Value{} {}
+            
+            bool valid() const {
+                return Value != value{};
+            }
 
             // Sorting is done with keys only. 
             bool operator<(entry<key, value> e) {

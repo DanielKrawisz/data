@@ -16,6 +16,8 @@ namespace data {
     using array = const std::array<X, n>;
 
     using byte = uint8_t;
+    
+    using bytes = vector<byte>;
 
     template<typename X>
     using ptr = std::shared_ptr<X>;

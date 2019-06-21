@@ -1,10 +1,13 @@
-#ifndef DATA_SLICE_HPP
-#define DATA_SLICE_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_SLICE
+#define DATA_SLICE
 
 #include "list.hpp"
 
-namespace data
-{
+namespace data {
 
     // Slice is an indexed section of an array which
     // can create smaller slices. 

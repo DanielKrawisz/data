@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_CRYPTO_SECP256K1
 #define DATA_CRYPTO_SECP256K1
 

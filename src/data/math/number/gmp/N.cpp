@@ -8,15 +8,15 @@ namespace data {
         namespace number {
             
             namespace gmp {
-                bool N::operator==(const N&& n) const {
+                bool N::operator==(const N& n) const {
                     return __gmp_binary_equal::eval(&MPZ, &n.MPZ);
                 }
                 
-                bool N::operator<(const N&& n) const {
+                bool N::operator<(const N& n) const {
                     return __gmp_binary_less::eval(&MPZ, &n.MPZ);
                 }
                 
-                bool N::operator>(const N&& n) const {
+                bool N::operator>(const N& n) const {
                     return __gmp_binary_greater::eval(&MPZ, &n.MPZ);
                 }
         
@@ -24,11 +24,11 @@ namespace data {
                     return !__gmp_binary_greater::eval(&MPZ, &n.MPZ);
                 }
                 
-                bool N::operator>=(const N&& n) const {
+                bool N::operator>=(const N& n) const {
                     return !__gmp_binary_less::eval(&MPZ, &n.MPZ);
                 }
                 
-                N N::operator+(const N&& n) const {
+                N N::operator+(const N& n) const {
                     N sum{};
                     __gmp_binary_plus::eval(&sum.MPZ, &MPZ, &n.MPZ);
                     return sum;
@@ -40,7 +40,7 @@ namespace data {
                     return sum;
                 }
                 
-                N& N::operator+=(const N&& n) {
+                N& N::operator+=(const N& n) {
                     __gmp_binary_plus::eval(&MPZ, &MPZ, &n.MPZ);
                     return *this;
                 }
@@ -66,7 +66,7 @@ namespace data {
                     return prod;
                 }
                 
-                N& N::operator*=(const N&& n) {
+                N& N::operator*=(const N& n) {
                     __gmp_binary_multiplies::eval(&MPZ, &MPZ, &n.MPZ);
                     return *this;
                 }
@@ -82,7 +82,7 @@ namespace data {
                     return pow;
                 }
 
-                math::number::division<N> N::divide(const N&& n) const {
+                math::number::division<N> N::divide(const N& n) const {
                     math::number::division<N> qr{};
                     mpz_cdiv_qr(&qr.Quotient.MPZ, &qr.Remainder.MPZ, &MPZ, &n.MPZ);
                     return qr;

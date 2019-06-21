@@ -10,9 +10,11 @@
 namespace data {
         
     template <typename K, typename V>
-    class rb_map {
+    struct rb_map {
+        using entry = map::entry<K, V>;
+    private:
         RBMap<K, V> Map;
-        using list = linked_list<map::entry<K, V>>;
+        using list = linked_list<entry>;
         constexpr static const data::map::definition::countable<rb_map, K, V, list> require_is_map{};
             
         rb_map(RBMap<K, V> m) : Map{m} {}
@@ -26,7 +28,7 @@ namespace data {
             return RBMap<K, V>{Map.inserted(k, v)};
         }
             
-        rb_map operator+(map::entry<K, V> e) {
+        rb_map operator+(entry e) {
             return RBMap<K, V>{Map.inserted(e.Key, e.Value)};
         }
             
