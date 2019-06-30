@@ -15,7 +15,7 @@ namespace data {
             struct bounded : public parent {  
                 
                 bounded() : parent() {}
-                bounded(uint64_t x) : bounded() {
+                bounded(uint32_t x) : bounded() {
                     parent::operator[](size - 1) = x;
                 }
                 

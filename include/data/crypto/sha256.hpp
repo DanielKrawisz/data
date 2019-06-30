@@ -9,9 +9,11 @@ namespace data {
     namespace sha256 {
 
         struct digest : public uint256 {
-            bool valid() const;
             
             digest() {};
+            digest(uint);
+            
+            bool valid() const;
             
             bool operator==(const digest& d) const {
                 return uint256::operator==(static_cast<const uint256&>(d));

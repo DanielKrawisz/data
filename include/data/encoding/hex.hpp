@@ -1,34 +1,64 @@
-#ifndef DATA_ENCODINGS_HEX_HPP
-#define DATA_ENCODINGS_HEX_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_ENCODINGS_HEX
+#define DATA_ENCODINGS_HEX
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
-#include <boost/algorithm/hex.hpp>
 
 namespace data {
     
     namespace encoding {
         
-        namespace hex {            
-            string write(slice<byte> x) noexcept {
-                try {
-                    std::string s{2 * x.size()};
-                    boost::algorithm::hex(x.begin(), x.end(), s.begin());
-                    return s;
-                } catch (boost::algorithm::hex_decode_error&) {
-                    return {};
-                }
-            }
+        namespace hex {
+            bool valid(const std::string&);
+            string write(const bytes&);
             
-            vector<byte> read(const string& s) noexcept {
-                try {
-                    std::vector<byte> v{static_cast<unsigned char>(s.size() / 2)};
-                    boost::algorithm::unhex(s.begin(), s.end(), v.begin());
-                    return v;
-                } catch (boost::algorithm::hex_decode_error&) {
-                    return {};
+            class invalid : std::exception {
+                std::string* String;
+                
+            public:
+                const char* what() const noexcept final override {
+                    if (String == nullptr) return "Invalid hex string";
+                    return (std::string{"Invalid hex string: "} + *String).c_str();
                 }
-            }
+            };
+            
+            class string {
+                std::string* ToString;
+                bytes* ToBytes;
+            public:
+                operator std::string() {
+                    if (ToString == nullptr) throw ;
+                    return *ToString;
+                }
+                
+                operator bytes() {
+                    if (ToBytes == nullptr) throw ;
+                    return *ToBytes;
+                }
+                
+                bool valid() const {
+                    return ToString != nullptr && ToBytes != nullptr;
+                }
+                
+            private:                                                           
+                std::string String;
+                bytes Bytes;
+            public:
+                string(std::string);
+                string(slice<byte>);
+                
+                string(std::string*);
+                string(slice<byte>*);
+                
+                string(string&);
+                string(string&&);
+                
+                string& operator=(string&);
+            };
         }
         
     }
