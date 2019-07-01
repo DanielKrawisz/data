@@ -264,9 +264,10 @@ namespace data {
         struct node {
             X First;
             Y Rest;
+            uint Size;
                     
-            node(X x, Y r) : First(x), Rest(r) {}
-            node(X x) : First(x), Rest{} {}
+            node(X x, Y r) : First(x), Rest(r), Size{size(r) + 1} {}
+            node(X x) : First(x), Rest{}, Size{1} {}
                     
             X first() const {
                 return First;

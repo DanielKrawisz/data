@@ -55,6 +55,12 @@ namespace data {
                 
             Next->contains(x);
         }
+
+        uint size() const {
+            if (empty()) return 0;
+                
+            return Next->size();
+        }
             
         bool operator==(const next n) {
             return Next == n;
