@@ -21,15 +21,17 @@ namespace data {
             inline ::libbitcoin::system::ec_compressed& libbitcoin(pubkey& s) {
                 return static_cast<std::array<byte, pubkey_size>&>(s);
             }
+            
+            const libbitcoin::system::hash_digest convert_to_libbitcoin(const sha256::digest& d);
         
         }
         
         bool secret::valid() const {
-            libbitcoin::system::verify(low::libbitcoin(*this));
+            return libbitcoin::system::verify(low::libbitcoin(*this));
         }
 
         bool pubkey::valid() const {
-            libbitcoin::system::verify(low::libbitcoin(*this));
+            return libbitcoin::system::verify(low::libbitcoin(*this));
         }
         
         inline pubkey secret::to_public() const {
@@ -62,14 +64,14 @@ namespace data {
             return x;
         }
         
-        libbitcoin::system::ec_signature secret::sign(const libbitcoin::system::hash_digest& h) const {
-            libbitcoin::system::ec_signature sig;
-            if (!libbitcoin::system::sign(sig, low::libbitcoin(*this), h)) return libbitcoin::system::ec_signature{};
+        libbitcoin::system::ec_signature secret::sign(const sha256::digest& d) const {
+            libbitcoin::system::ec_signature sig;;
+            if (!libbitcoin::system::sign(sig, low::libbitcoin(*this), low::convert_to_libbitcoin(d))) return libbitcoin::system::ec_signature{};
             return sig;
         }
 
-        bool pubkey::verify(const libbitcoin::system::hash_digest& d, const libbitcoin::system::ec_signature& s) const {
-            return libbitcoin::system::verify_signature(low::libbitcoin(*this), d, s);
+        bool pubkey::verify(const sha256::digest& d, const libbitcoin::system::ec_signature& s) const {
+            return libbitcoin::system::verify_signature(low::libbitcoin(*this), low::convert_to_libbitcoin(d), s);
         }
     
     }

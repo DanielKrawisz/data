@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MATH_NUMBER_BOUNDED
 #define DATA_MATH_NUMBER_BOUNDED
 
@@ -58,6 +62,8 @@ namespace data {
                 bool operator!=(const bounded& d) const {
                     return static_cast<const parent&>(*this) != static_cast<const parent&>(d);
                 }
+                
+                // TODO mod. Then can do other arithmetic operations. 
                 
             private:
                 uint64_t get(uint32_t i) const {

@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_DATA
 #define DATA_DATA
 
@@ -18,6 +22,7 @@ namespace data {
     List reverse(List);
     
     using uint256 = math::number::bounded<4>;
+    using uint512 = math::number::bounded<8>;
 
 }
 

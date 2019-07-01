@@ -9,6 +9,7 @@
 #include <data/slice.hpp>
 #include <data/crypto/signature_scheme.hpp>
 #include <data/math/module.hpp>
+#include <data/crypto/sha256.hpp>
 #include <bitcoin/system/math/elliptic_curve.hpp>
 
 namespace data {
@@ -20,7 +21,8 @@ namespace data {
         
         struct pubkey;
         
-        struct secret : std::array<byte, secret_size> {
+        struct secret : public std::array<byte, secret_size> {
+            using std::array<byte, secret_size>::operator[];
             bool valid() const;
             
             pubkey to_public() const;
@@ -36,10 +38,11 @@ namespace data {
                 return *this;
             }
             
-            libbitcoin::system::ec_signature sign(const libbitcoin::system::hash_digest&) const;
+            libbitcoin::system::ec_signature sign(const sha256::digest&) const;
         };
 
         struct pubkey : public std::array<byte, pubkey_size> {
+            using std::array<byte, pubkey_size>::operator[];
             bool valid() const;
             
             pubkey operator+(const pubkey&) const;
@@ -54,11 +57,11 @@ namespace data {
                 return *this;
             }
             
-            bool verify(const libbitcoin::system::hash_digest&, const libbitcoin::system::ec_signature&) const;
+            bool verify(const sha256::digest&, const libbitcoin::system::ec_signature&) const;
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};
-        constexpr data::crypto::signature_scheme<secret, pubkey, libbitcoin::system::hash_digest, libbitcoin::system::ec_signature> is_signature_scheme{};
+        constexpr data::crypto::signature_scheme<secret, pubkey, const sha256::digest, libbitcoin::system::ec_signature> is_signature_scheme{};
     
     }
 
