@@ -3,6 +3,7 @@
 
 #include <string>
 #include <data/encoding/bytestring.hpp>
+#include <boost/convert.hpp>
 
 namespace data {
     
