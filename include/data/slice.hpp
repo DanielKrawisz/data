@@ -6,6 +6,8 @@
 #define DATA_SLICE
 
 #include "list.hpp"
+#include "stream.hpp"
+#include "endian.hpp"
 
 namespace data {
 
@@ -143,6 +145,58 @@ namespace data {
     inline const typename slice<X>::list rest(const typename slice<X>::list l) {
         return l.rest();
     }
+    
+    template <typename X>
+    class slice_ostream : public virtual ostream<X> {
+        const slice<X> Slice;
+        typename slice<X>::iterator It;
+        void operator<<(X x) final override {
+            if (It == Slice.end()) throw end_of_stream{};
+            *It = x;
+            It++;
+        }
+        
+    public:
+        slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
+        slice_ostream(std::vector<X>& v) : slice_ostream{slice<X>{v}} {}
+    };
+    
+    template <typename X>
+    class slice_istream : public virtual istream<X> {
+        const slice<X> Slice;
+        typename slice<X>::iterator It;
+        void operator>>(X& x) final override {
+            if (It == Slice.end()) throw end_of_stream{};
+            x = *It;
+            It++;
+        }
+        
+    public:
+        slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
+        slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
+    };
+    
+    class slice_writer : public slice_ostream<byte>, public writer {
+        const endian::ness Endian;
+    public:
+        void operator<<(uint16_t) final override;
+        void operator<<(uint32_t) final override;
+        void operator<<(uint64_t) final override;
+        
+        slice_writer(slice<byte> s, endian::ness e) : slice_ostream<byte>{s}, Endian{e} {}
+        slice_writer(std::vector<byte>& v, endian::ness e) : slice_ostream<byte>{v}, Endian{e} {}
+    };
+    
+    class slice_reader : public slice_istream<byte>, public reader {
+        const endian::ness Endian;
+    public:
+        void operator>>(uint16_t&) final override;
+        void operator>>(uint32_t&) final override;
+        void operator>>(uint64_t&) final override;
+        
+        slice_reader(slice<byte> s, endian::ness e) : slice_istream<byte>{s}, Endian{e} {}
+        slice_reader(std::vector<byte>& v, endian::ness e) : slice_istream<byte>{v}, Endian{e} {}
+    };
 
 }
 

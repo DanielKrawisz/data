@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_LIST
 #define DATA_LIST
 
@@ -13,7 +17,7 @@ namespace data {
             template <typename L>
             struct existence {
                 bool empty(const L l) const {
-                        return l.empty();
+                    return l.empty();
                 }
                     
                 uint size(const L l) const {
@@ -245,7 +249,7 @@ namespace data {
                 return operator=(iterator{rest(List)});
             }
                     
-            E& operator*() {
+            E& operator*() const {
                 return first(List);
             }
      
