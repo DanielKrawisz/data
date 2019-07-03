@@ -21,6 +21,8 @@ namespace data {
         
         struct pubkey;
         
+        using signature = libbitcoin::system::ec_signature;
+        
         struct secret : public std::array<byte, secret_size> {
             using std::array<byte, secret_size>::operator[];
             bool valid() const;
@@ -38,7 +40,7 @@ namespace data {
                 return *this;
             }
             
-            libbitcoin::system::ec_signature sign(const sha256::digest&) const;
+            signature sign(const sha256::digest&) const;
         };
 
         struct pubkey : public std::array<byte, pubkey_size> {
@@ -57,7 +59,7 @@ namespace data {
                 return *this;
             }
             
-            bool verify(const sha256::digest&, const libbitcoin::system::ec_signature&) const;
+            bool verify(const sha256::digest&, const signature&) const;
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};
