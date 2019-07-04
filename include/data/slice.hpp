@@ -7,7 +7,7 @@
 
 #include "list.hpp"
 #include "stream.hpp"
-#include "endian.hpp"
+#include <boost/endian/conversion.hpp>
 
 namespace data {
 
@@ -180,25 +180,25 @@ namespace data {
     };
     
     class slice_writer : public slice_ostream<byte>, public writer {
-        const endian::ness Endian;
+        const boost::endian::order Endian;
     public:
         void operator<<(uint16_t) final override;
         void operator<<(uint32_t) final override;
         void operator<<(uint64_t) final override;
         
-        slice_writer(slice<byte> s, endian::ness e) : slice_ostream<byte>{s}, Endian{e} {}
-        slice_writer(std::vector<byte>& v, endian::ness e) : slice_ostream<byte>{v}, Endian{e} {}
+        slice_writer(slice<byte> s, boost::endian::order e) : slice_ostream<byte>{s}, Endian{e} {}
+        slice_writer(std::vector<byte>& v, boost::endian::order e) : slice_ostream<byte>{v}, Endian{e} {}
     };
     
     class slice_reader : public slice_istream<byte>, public reader {
-        const endian::ness Endian;
+        const boost::endian::order Endian;
     public:
         void operator>>(uint16_t&) final override;
         void operator>>(uint32_t&) final override;
         void operator>>(uint64_t&) final override;
         
-        slice_reader(slice<byte> s, endian::ness e) : slice_istream<byte>{s}, Endian{e} {}
-        slice_reader(std::vector<byte>& v, endian::ness e) : slice_istream<byte>{v}, Endian{e} {}
+        slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
+        slice_reader(std::vector<byte>& v, boost::endian::order e) : slice_istream<byte>{v}, Endian{e} {}
     };
 
 }

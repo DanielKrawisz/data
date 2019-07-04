@@ -69,5 +69,8 @@ ADD_LIBRARY(data STATIC
         include/data/math/number/gmp/N.hpp
         src/data/crypto/sha256.cpp
         src/data/math/number/gmp/N.cpp)
+
+ADD_EXECUTABLE(testData test/testLib.cpp)
+target_link_libraries(testData data ${CRYPTOPP_LIBRARIES})
 target_compile_features(data PUBLIC cxx_std_17)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS ON)

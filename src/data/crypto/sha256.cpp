@@ -11,6 +11,13 @@ namespace data {
             shaHash.CalculateDigest(hash.data(),data.getData(),data.size());
             return hash;
         }
+
+        digest hash(const bytes& data) {
+            digest hash;
+            CryptoPP::SHA256 shaHash;
+            shaHash.CalculateDigest(hash.data(),data.data(),data.size());
+            return hash;
+        }
     
     }
 
