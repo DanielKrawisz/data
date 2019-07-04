@@ -20,7 +20,7 @@ namespace data {
                     return __gmp_binary_greater::eval(&MPZ, &n.MPZ);
                 }
         
-                bool N::operator<=(const N&& n) const {
+                bool N::operator<=(const N& n) const {
                     return !__gmp_binary_greater::eval(&MPZ, &n.MPZ);
                 }
                 
