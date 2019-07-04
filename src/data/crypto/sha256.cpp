@@ -1,5 +1,5 @@
 #include <data/crypto/sha256.hpp>
-//#include "sha256.h"
+#include <crypto++/sha.h>
 
 namespace data {
     
@@ -7,7 +7,8 @@ namespace data {
 
         digest hash(const slice<byte> data) {
             digest hash;
-            SHA256_(data.data(), data.size(), hash.data());
+            CryptoPP::SHA256 shaHash;
+            shaHash.CalculateDigest(hash.data(),data.getData(),data.size());
             return hash;
         }
     
