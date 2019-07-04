@@ -7,7 +7,7 @@
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
-
+#include <boost/algorithm/hex.hpp>
 namespace data {
     
     namespace encoding {
@@ -19,11 +19,17 @@ namespace data {
             
             class invalid : std::exception {
                 std::string* String;
-                
+                const char* errorString;
             public:
+                invalid(std::string* str) {
+                    String=str;
+                    if (String == nullptr) errorString="Invalid hex string";
+                    std::string output=std::string{"Invalid hex string: "} + *String;
+                    errorString==output.c_str();
+                }
                 const char* what() const noexcept final override {
-                    if (String == nullptr) return "Invalid hex string";
-                    return (std::string{"Invalid hex string: "} + *String).c_str();
+
+                    return errorString;
                 }
             };
             
@@ -36,7 +42,7 @@ namespace data {
                     return *ToString;
                 }
                 
-                operator bytes() {
+                operator bytes() const {
                     if (ToBytes == nullptr) throw ;
                     return *ToBytes;
                 }

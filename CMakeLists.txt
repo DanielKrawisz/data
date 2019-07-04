@@ -28,7 +28,7 @@ set(Boost_USE_STATIC_RUNTIME    ON          CACHE BOOL "") # '-s' tag
 set(Boost_USE_DEBUG_RUNTIME     ON          CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
-find_package(Boost 1.60.0 COMPONENTS system REQUIRED)
+find_package(Boost 1.60.0 COMPONENTS system  REQUIRED)
 
 if(Boost_FOUND)
 
@@ -68,9 +68,10 @@ ADD_LIBRARY(data STATIC
         include/data/map/rb.hpp
         include/data/math/number/gmp/N.hpp
         src/data/crypto/sha256.cpp
-        src/data/math/number/gmp/N.cpp)
+        src/data/math/number/gmp/N.cpp
+        src/data/encoding/hex.cpp)
 
 ADD_EXECUTABLE(testData test/testLib.cpp)
-target_link_libraries(testData data ${CRYPTOPP_LIBRARIES})
+target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_features(data PUBLIC cxx_std_17)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS ON)
