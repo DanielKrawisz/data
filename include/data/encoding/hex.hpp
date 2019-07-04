@@ -19,13 +19,14 @@ namespace data {
             
             class invalid : std::exception {
                 std::string* String;
-                const char* errorString;
+                char* errorString;
             public:
                 invalid(std::string* str) {
                     String=str;
                     if (String == nullptr) errorString="Invalid hex string";
                     std::string output=std::string{"Invalid hex string: "} + *String;
-                    errorString==output.c_str();
+                    errorString=new char(output.size()+1);
+                    strcpy(errorString,output.c_str());
                 }
                 const char* what() const noexcept final override {
 
@@ -33,13 +34,13 @@ namespace data {
                 }
             };
             
-            class string {
-                std::string* ToString;
+            class string : std::string{
+
                 bytes* ToBytes;
             public:
                 operator std::string() {
-                    if (ToString == nullptr) throw ;
-                    return *ToString;
+                    if (this == nullptr) throw ;
+                    return *this;
                 }
                 
                 operator bytes() const {
@@ -48,7 +49,7 @@ namespace data {
                 }
                 
                 bool valid() const {
-                    return ToString != nullptr && ToBytes != nullptr;
+                    return this != nullptr && ToBytes != nullptr;
                 }
                 
             private:                                                           
@@ -56,13 +57,11 @@ namespace data {
                 bytes Bytes;
             public:
                 string(std::string);
-                string(slice<byte>);
+
+                string(std::string * sourceString):string(*sourceString){};
                 
-                string(std::string*);
-                string(slice<byte>*);
-                
-                string(string&);
-                string(string&&);
+                string(string& sourceString):string((std::string*)&sourceString){};
+                string(string&& sourceString):std::string(static_cast<std::string&&>(sourceString)){};
                 
                 string& operator=(string&);
             };

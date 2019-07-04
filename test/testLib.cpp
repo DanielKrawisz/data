@@ -43,15 +43,24 @@ int main(int argc, char *argv[]){
     }
     std::string myArray = ss2.str();
     std::cout << "Hex output is : " << myArray.c_str() << std::endl;
-    std::cout << "Test Exception handling " << std::endl;
+    std::cout << std::endl << "Test Exception handling " << std::endl << std::endl;
     std::cout << "Test array as malformed hex string: " << "0063EA172D63808" << std::endl;
     try {
         data::encoding::hex::string malformedHexString(std::string("0063EA172D63808"));
     }
     catch (data::encoding::hex::invalid inv) {
-        const char * exceptionError=inv.what();
-        std::cout << "Exception: " <<  *exceptionError << std::endl;
+        std::cout << "Exception: " <<  inv.what()<< std::endl;
     }
+
+    std::cout << std::endl << "Checking valid function" << std::endl << std::endl;
+    std::cout << "Valid string (lowercase) : " << data::encoding::hex::valid("012345abcd") << std::endl;
+    std::cout << "Valid string (uppercase) : " << data::encoding::hex::valid("012345ABCD") << std::endl;
+    std::cout << "Valid string (mixed) : " << data::encoding::hex::valid("012345aBcD") << std::endl;
+    std::cout << "String too short: " << data::encoding::hex::valid("012345abc") << std::endl;
+    std::cout << "Invalid character: " << data::encoding::hex::valid("012345aHcd") << std::endl;
+    std::cout << std::endl << "Test write function" << std::endl << std::endl;
+    data::bytes testArray{0,99,234,23,45,99,128,140};
+    std::cout << "Write function outputs: " << data::encoding::hex::write(testArray) << std::endl;
 
 
 }
