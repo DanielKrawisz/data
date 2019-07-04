@@ -58,7 +58,7 @@ find_package(GMP REQUIRED)
 if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
-add_executable(data
+ADD_LIBRARY(data STATIC
         include/data/crypto/sha256.hpp
         include/data/encoding/ascii.hpp
         include/data/encoding/hex.hpp
