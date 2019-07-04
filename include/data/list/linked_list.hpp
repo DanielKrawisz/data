@@ -90,6 +90,7 @@ namespace data {
         }
         
         linked_list(std::initializer_list<X> l);
+        linked_list(std::vector<X> v);
         
         linked_list<X>& operator=(const linked_list<X>& l) {
             Next = l.Next;
