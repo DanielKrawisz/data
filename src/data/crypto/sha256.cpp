@@ -8,7 +8,7 @@ namespace data {
         digest hash(const slice<byte> data) {
             digest hash;
             CryptoPP::SHA256 shaHash;
-            shaHash.CalculateDigest(hash.data(),data.getData(),data.size());
+            shaHash.CalculateDigest(hash.data(), data.get_data(),data.size());
             return hash;
         }
 

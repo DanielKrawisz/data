@@ -13,6 +13,18 @@ namespace  data {
     namespace encoding {
         namespace hex {
 
+            invalid::invalid(std::string *str) {
+                String=str;
+                if (String == nullptr) errorString="Invalid hex string";
+                std::string output=std::string{"Invalid hex string: "} + *String;
+                errorString=new char(output.size()+1);
+                strcpy(errorString,output.c_str());
+            }
+
+            invalid::~invalid() {
+                delete[] errorString;
+            }
+
             string::string(std::string sourceString):std::string(sourceString) {
                 std::vector<uint8_t> *tmp = new std::vector<uint8_t>();
                 try {

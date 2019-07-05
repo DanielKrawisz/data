@@ -23,7 +23,7 @@ namespace data {
         slice(X* x, uint64_t size) : data{x}, len{size} {}
 
     public:
-        X * getData() const {
+        X * get_data() const {
             return data;
         }
         slice(uint64_t l, X* d) : invalid(0), data(d), len(l) {} 

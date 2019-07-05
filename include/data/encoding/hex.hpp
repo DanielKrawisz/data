@@ -21,13 +21,8 @@ namespace data {
                 std::string* String;
                 char* errorString;
             public:
-                invalid(std::string* str) {
-                    String=str;
-                    if (String == nullptr) errorString="Invalid hex string";
-                    std::string output=std::string{"Invalid hex string: "} + *String;
-                    errorString=new char(output.size()+1);
-                    strcpy(errorString,output.c_str());
-                }
+                invalid(std::string* str);
+                ~invalid();
                 const char* what() const noexcept final override {
 
                     return errorString;
@@ -49,7 +44,7 @@ namespace data {
                 }
                 
                 bool valid() const {
-                    return this != nullptr && ToBytes != nullptr;
+                    return ToBytes != nullptr;
                 }
                 
             private:                                                           
