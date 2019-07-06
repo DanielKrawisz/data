@@ -1,13 +1,13 @@
 #include <data/crypto/sha256.hpp>
-#include "sha256.h"
+#include <crypto++/sha.h>
 
 namespace data {
     
     namespace sha256 {
-
-        digest hash(const slice<byte> data) {
+        digest hash(const bytes& data) {
             digest hash;
-            SHA256_(data.data(), data.size(), hash.data());
+            CryptoPP::SHA256 shaHash;
+            shaHash.CalculateDigest(hash.data(),data.data(),data.size());
             return hash;
         }
     

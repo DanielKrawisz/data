@@ -3,7 +3,7 @@
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
-#include <data/encoding/endian.hpp>
+#include <data/endian.hpp>
 
 namespace data {
     

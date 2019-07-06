@@ -32,8 +32,7 @@ namespace data {
         };
         
         const digest Zero = digest{};
-        
-        digest hash(const slice<byte>);
+
         digest hash(const bytes&);
         
         template <uint32_t n>

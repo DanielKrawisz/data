@@ -245,7 +245,11 @@ namespace data {
                 return *this;
             }
                     
-            iterator& operator++() {
+            iterator& operator++(int i) { // Postfix
+                return operator=(iterator{rest(List)});
+            }
+
+            iterator& operator++() { // Prefix
                 return operator=(iterator{rest(List)});
             }
                     

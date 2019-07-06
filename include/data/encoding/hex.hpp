@@ -7,7 +7,7 @@
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
-
+#include <boost/algorithm/hex.hpp>
 namespace data {
     
     namespace encoding {
@@ -19,30 +19,32 @@ namespace data {
             
             class invalid : std::exception {
                 std::string* String;
-                
+                char* errorString;
             public:
+                invalid(std::string* str);
+                ~invalid();
                 const char* what() const noexcept final override {
-                    if (String == nullptr) return "Invalid hex string";
-                    return (std::string{"Invalid hex string: "} + *String).c_str();
+
+                    return errorString;
                 }
             };
             
-            class string {
-                std::string* ToString;
+            class string : std::string{
+
                 bytes* ToBytes;
             public:
                 operator std::string() {
-                    if (ToString == nullptr) throw ;
-                    return *ToString;
+                    if (this == nullptr) throw ;
+                    return *this;
                 }
                 
-                operator bytes() {
+                operator bytes() const {
                     if (ToBytes == nullptr) throw ;
                     return *ToBytes;
                 }
                 
                 bool valid() const {
-                    return ToString != nullptr && ToBytes != nullptr;
+                    return ToBytes != nullptr;
                 }
                 
             private:                                                           
@@ -50,13 +52,11 @@ namespace data {
                 bytes Bytes;
             public:
                 string(std::string);
-                string(slice<byte>);
+
+                string(std::string * sourceString):string(*sourceString){};
                 
-                string(std::string*);
-                string(slice<byte>*);
-                
-                string(string&);
-                string(string&&);
+                string(string& sourceString):string((std::string*)&sourceString){};
+                string(string&& sourceString):std::string(static_cast<std::string&&>(sourceString)){};
                 
                 string& operator=(string&);
             };
