@@ -103,9 +103,10 @@ ADD_LIBRARY(data STATIC
         include/data/math/number/gmp/N.hpp
         src/data/crypto/sha256.cpp
         src/data/math/number/gmp/N.cpp
-        src/data/encoding/hex.cpp)
+        src/data/encoding/hex.cpp
+        src/data/encoding/ascii.cpp)
 
-ADD_EXECUTABLE(testData test/testHex.cpp test/testLib.cpp )
+ADD_EXECUTABLE(testData test/testHex.cpp test/testAscii.cpp test/testLib.cpp )
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} gmock_main)
 enable_testing()
 target_compile_features(data PUBLIC cxx_std_17)
@@ -114,3 +115,6 @@ add_test(NAME HexToArray COMMAND testData)
 add_test(NAME ValidHexString COMMAND testData)
 add_test(NAME InvalidExceptionOnError COMMAND testData)
 add_test(NAME WriteBytes COMMAND testData)
+add_test(NAME InvalidAscii COMMAND testData)
+add_test(NAME ValidAscii COMMAND testData)
+add_test(NAME CastToBytes COMMAND testData)
