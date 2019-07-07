@@ -13,11 +13,13 @@ namespace data {
     template <typename x>
     struct istream {
         virtual void operator>>(x&) = 0;
+        virtual void operator>>(std::vector<x>&) = 0;
     };
     
     template <typename x> 
     struct ostream {
-        virtual void operator<<(x) = 0;
+        virtual void operator<<(const x) = 0;
+        virtual void operator<<(const std::vector<x>&) = 0;
     };
     
     class reader : public virtual istream<byte> {
@@ -27,9 +29,9 @@ namespace data {
     };
     
     class writer : public virtual ostream<byte> {
-        virtual void operator<<(uint16_t) = 0;
-        virtual void operator<<(uint32_t) = 0;
-        virtual void operator<<(uint64_t) = 0;
+        virtual void operator<<(const uint16_t) = 0;
+        virtual void operator<<(const uint32_t) = 0;
+        virtual void operator<<(const uint64_t) = 0;
     };
     
     static const string EndOfStreamError = string{"End of stream"};
