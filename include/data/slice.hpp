@@ -182,6 +182,7 @@ namespace data {
         void operator<<(uint16_t) final override;
         void operator<<(uint32_t) final override;
         void operator<<(uint64_t) final override;
+        void operator<<(bytes&) final override;
         
         slice_writer(slice<byte> s, endian::ness e) : slice_ostream<byte>{s}, Endian{e} {}
         slice_writer(std::vector<byte>& v, endian::ness e) : slice_ostream<byte>{v}, Endian{e} {}
@@ -193,6 +194,7 @@ namespace data {
         void operator>>(uint16_t&) final override;
         void operator>>(uint32_t&) final override;
         void operator>>(uint64_t&) final override;
+        void operator>>(bytes&) final override;
         
         slice_reader(slice<byte> s, endian::ness e) : slice_istream<byte>{s}, Endian{e} {}
         slice_reader(std::vector<byte>& v, endian::ness e) : slice_istream<byte>{v}, Endian{e} {}
