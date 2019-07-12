@@ -194,7 +194,7 @@ namespace data {
         void operator>>(uint16_t&) final override;
         void operator>>(uint32_t&) final override;
         void operator>>(uint64_t&) final override;
-        void operator>>(bytes&) final override;
+        void operator>>(std::vector<byte>&) final override;
         
         slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
         slice_reader(std::vector<byte>& v, boost::endian::order e) : slice_istream<byte>{v}, Endian{e} {}

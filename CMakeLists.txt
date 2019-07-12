@@ -1,26 +1,65 @@
-cmake_minimum_required(VERSION 3.14)
-project(data)
+cmake_minimum_required(VERSION 3.1...3.14)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# Back compatibility for VERSION range
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
 
+project(data 	VERSION 1.0
+		DESCRIPTION "wrappers and high-level programming constructs in c++"
+		LANGUAGES CXX)
 
-include_directories(include)
-include_directories(include/data)
-include_directories(include/data/crypto)
-include_directories(include/data/crypto/nist)
+# Set cmake as import path for Find*.cmake files
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-include_directories(include/data/encoding)
-include_directories(include/data/io)
+### Require out-of-source builds
+file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
+if(EXISTS "${LOC_PATH}")
+    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
+endif()
 
-include_directories(include/data/list)
-include_directories(include/data/map)
-include_directories(include/data/math)
-include_directories(include/data/math/number)
-include_directories(include/data/math/number/gmp)
-include_directories(src/data/encoding)
-include_directories(src/data/encoding/utf8)
+## Check if GTests is installed. If not, install it
+
+option(PACKAGE_TESTS "Build the tests" ON)
+if(NOT TARGET gtest_main AND PACKAGE_TESTS)
+	# Download and unpack googletest at configure time
+	configure_file(cmake/gtests.txt.in googletest-download/CMakeLists.txt)
+	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+			RESULT_VARIABLE result
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+	if(result)
+		message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+	endif()
+	execute_process(COMMAND ${CMAKE_COMMAND} --build .
+			RESULT_VARIABLE result
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+	if(result)
+		message(FATAL_ERROR "Build step for googletest failed: ${result}")
+	endif()
+
+	# Prevent overriding the parent project's compiler/linker
+	# settings on Windows
+	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+	
+	# Add googletest directly to our build. This defines
+	# the gtest and gtest_main targets.
+	add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+			${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
+endif()
+
+## Enable testing
+include(CTest)
+
+if(PACKAGE_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+	
+
+endif()
+
+# Include libraries
+
+# Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
 set(Boost_USE_STATIC_LIBS       ON          CACHE BOOL "")
@@ -28,6 +67,7 @@ set(Boost_USE_STATIC_RUNTIME    ON          CACHE BOOL "") # '-s' tag
 set(Boost_USE_DEBUG_RUNTIME     ON          CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
+# Include Boost
 find_package(Boost 1.60.0 COMPONENTS system  REQUIRED)
 
 if(Boost_FOUND)
@@ -40,7 +80,9 @@ if(Boost_FOUND)
     add_definitions("-DHAS_BOOST")
 
 endif()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/contrib/cmake")
+
+
+# Find Crypto++
 find_package(CryptoPP REQUIRED)
 if(CRYPTOPP_INCLUDE_DIRS)
 
@@ -48,49 +90,21 @@ if(CRYPTOPP_INCLUDE_DIRS)
     include_directories(${CRYPTOPP_INCLUDE_DIRS})
 endif()
 
+# Find LibBitcoin
 set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIB_BITCOIN REQUIRED libbitcoin-system)
 include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
 
+# Find GMP
 find_package(GMP REQUIRED)
 if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
 
 
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
-
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-
-# The gtest/gtest_main targets carry header search path
-# dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif()
+#  Add Library source files here
 
 ADD_LIBRARY(data STATIC
         include/data/crypto/sha256.hpp
@@ -106,15 +120,9 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp)
 
-ADD_EXECUTABLE(testData test/testHex.cpp test/testAscii.cpp test/testLib.cpp )
-target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} gmock_main)
-enable_testing()
+target_include_directories(data PUBLIC include)
+
+# Set C++ version
 target_compile_features(data PUBLIC cxx_std_17)
-set_target_properties(data PROPERTIES CXX_EXTENSIONS ON)
-add_test(NAME HexToArray COMMAND testData)
-add_test(NAME ValidHexString COMMAND testData)
-add_test(NAME InvalidExceptionOnError COMMAND testData)
-add_test(NAME WriteBytes COMMAND testData)
-add_test(NAME InvalidAscii COMMAND testData)
-add_test(NAME ValidAscii COMMAND testData)
-add_test(NAME CastToBytes COMMAND testData)
+set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
+
