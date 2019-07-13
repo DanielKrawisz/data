@@ -7,7 +7,7 @@
 #include "gmock/gmock-matchers.h"
 namespace {
 
-    TEST(AsciiTests,InvalidAscii) {
+    TEST(AsciiTests,AsciiInvalidAscii) {
         char temp[]="This is a test";
         temp[3]=-20;
         std::string temp2=temp;
@@ -15,7 +15,7 @@ namespace {
         ASSERT_FALSE(stringTest.isValid());
     }
 
-    TEST(AsciiTests,ValidAscii) {
+    TEST(AsciiTests,AsciiValidAscii) {
         char temp[]="This is a test";
         std::string temp2=temp;
         data::encoding::ascii::string stringTest(&temp2);
@@ -23,7 +23,7 @@ namespace {
     }
 
 
-    TEST(AsciiTests,CastToBytes) {
+    TEST(AsciiTests,AsciiCastToBytes) {
         char temp[]="This is a test";
         std::string temp2=temp;
         data::encoding::ascii::string stringTest(&temp2);
