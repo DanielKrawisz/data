@@ -6,13 +6,32 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 
-ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testLib.cpp )
+ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testLib.cpp )
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} gmock_main)
 
-add_test(NAME HexToArray COMMAND testData)
-add_test(NAME ValidHexString COMMAND testData)
-add_test(NAME InvalidExceptionOnError COMMAND testData)
-add_test(NAME WriteBytes COMMAND testData)
-add_test(NAME InvalidAscii COMMAND testData)
-add_test(NAME ValidAscii COMMAND testData)
-add_test(NAME CastToBytes COMMAND testData)
+# Test Hex
+add_test(NAME HexHexToArray COMMAND testData)
+add_test(NAME HexValidHexString COMMAND testData)
+add_test(NAME HexInvalidExceptionOnError COMMAND testData)
+add_test(NAME HexWriteBytes COMMAND testData)
+
+# Test Ascii
+add_test(NAME AsciiInvalidAscii COMMAND testData)
+add_test(NAME AsciiValidAscii COMMAND testData)
+add_test(NAME AsciiCastToBytes COMMAND testData)
+
+# Test Slice
+add_test(NAME SliceWriteUint16Big COMMAND testData)
+add_test(NAME SliceWriteUint16Little COMMAND testData)
+add_test(NAME SliceWriteUint32Big COMMAND testData)
+add_test(NAME SliceWriteUint32Little COMMAND testData)
+add_test(NAME SliceWriteUint64Big COMMAND testData)
+add_test(NAME SliceWriteUint64Little COMMAND testData)
+add_test(NAME SliceWriteBytes COMMAND testData)
+add_test(NAME SliceReadUint16Big COMMAND testData)
+add_test(NAME SliceReadUint16Little COMMAND testData)
+add_test(NAME SliceReadUint32Big COMMAND testData)
+add_test(NAME SliceReadUint32Little COMMAND testData)
+add_test(NAME SliceReadUint64Big COMMAND testData)
+add_test(NAME SliceReadUint64Little COMMAND testData)
+add_test(NAME SliceReadBytes COMMAND testData)

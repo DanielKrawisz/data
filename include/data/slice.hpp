@@ -18,7 +18,7 @@ namespace data {
         
         mutable X invalid;
         X* data;
-        uint64_t len; 
+        uint64_t len;
         
         slice(X* x, uint64_t size) : data{x}, len{size} {}
 
@@ -57,8 +57,7 @@ namespace data {
 
         bool operator==(const slice<X>& s) const {
             if (this == &s) return true;
-            if (data == s.data && len == s.len) return true;
-            return false;
+            return data == s.data && len == s.len;
         }
 
         // a construct which turns a slice into a list. 
@@ -148,41 +147,46 @@ namespace data {
     
     template <typename X>
     class slice_ostream : public virtual ostream<X> {
-        const slice<X> Slice;
-        typename slice<X>::iterator It;
-        void operator<<(X x) final override {
+
+        void operator<<(X x) final {
             if (It == Slice.end()) throw end_of_stream{};
             *It = x;
             It++;
         }
-        
+
+    protected:
+        const slice<X> Slice;
+        typename slice<X>::iterator It;
     public:
-        slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-        slice_ostream(std::vector<X>& v) : slice_ostream{slice<X>{v}} {}
+        explicit slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
+        explicit slice_ostream(std::vector<X>& v) : slice_ostream{slice<X>{v}} {}
     };
     
     template <typename X>
     class slice_istream : public virtual istream<X> {
-        const slice<X> Slice;
-        typename slice<X>::iterator It;
-        void operator>>(X& x) final override {
+
+        void operator>>(X& x) final {
             if (It == Slice.end()) throw end_of_stream{};
             x = *It;
             It++;
         }
-        
+    protected:
+        const slice<X> Slice;
+        typename slice<X>::iterator It;
     public:
-        slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-        slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
+        explicit slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
+        explicit slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
     };
     
     class slice_writer : public slice_ostream<byte>, public writer {
         const boost::endian::order Endian;
+    private:
+        void bytesIntoIterator(const char*,int);
     public:
-        void operator<<(uint16_t) final override;
-        void operator<<(uint32_t) final override;
-        void operator<<(uint64_t) final override;
-        void operator<<(bytes&) final override;
+        void operator<<(uint16_t) final ;
+        void operator<<(uint32_t) final ;
+        void operator<<(uint64_t) final ;
+        void operator<<(bytes&) final ;
         
         slice_writer(slice<byte> s, boost::endian::order e) : slice_ostream<byte>{s}, Endian{e} {}
         slice_writer(std::vector<byte>& v, boost::endian::order e) : slice_ostream<byte>{v}, Endian{e} {}
@@ -190,11 +194,13 @@ namespace data {
     
     class slice_reader : public slice_istream<byte>, public reader {
         const boost::endian::order Endian;
+    private:
+        char* iteratorToArray(int);
     public:
-        void operator>>(uint16_t&) final override;
-        void operator>>(uint32_t&) final override;
-        void operator>>(uint64_t&) final override;
-        void operator>>(std::vector<byte>&) final override;
+        void operator>>(uint16_t&) final ;
+        void operator>>(uint32_t&) final ;
+        void operator>>(uint64_t&) final ;
+        void operator>>(std::vector<byte>&) final ;
         
         slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
         slice_reader(std::vector<byte>& v, boost::endian::order e) : slice_istream<byte>{v}, Endian{e} {}

@@ -8,13 +8,13 @@
 #include "gmock/gmock-matchers.h"
 namespace {
 
-TEST(HexTest, HexToArray) {
+TEST(HexTest, HexHexToArray) {
     const char* inputHex="0063EA172D63808C";
     data::encoding::hex::string hexString(std::string("0063EA172D63808C"));
     ASSERT_THAT(static_cast<data::bytes>(hexString),::testing::ElementsAre(0,99,234,23,45,99,128,140));
 }
 
-TEST(HexTest, ValidHexString) {
+TEST(HexTest, HexValidHexString) {
     ASSERT_TRUE(data::encoding::hex::valid("012345abcd"));
     ASSERT_TRUE(data::encoding::hex::valid("012345ABCD"));
     ASSERT_TRUE(data::encoding::hex::valid("012345aBcD"));
@@ -22,11 +22,11 @@ TEST(HexTest, ValidHexString) {
     ASSERT_FALSE(data::encoding::hex::valid("012345aHcd"));
 }
 
-TEST(HexTest,InvalidExceptionOnError) {
+TEST(HexTest,HexInvalidExceptionOnError) {
     ASSERT_THROW(data::encoding::hex::string malformedHexString(std::string("0063EA172D63808")),data::encoding::hex::invalid );
 }
 
-TEST(HexTest,WriteBytes) {
+TEST(HexTest,HexWriteBytes) {
         data::bytes testArray{0,99,234,23,45,99,128,140};
         ASSERT_STREQ(data::encoding::hex::write(testArray).c_str(),"0063EA172D63808C");
 }
