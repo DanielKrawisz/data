@@ -253,7 +253,7 @@ namespace data {
                 return operator=(iterator{rest(List)});
             }
                     
-            E& operator*() const {
+            E& operator*() {
                 return first(List);
             }
      
