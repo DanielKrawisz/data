@@ -70,6 +70,10 @@ namespace data {
             if (this == &l) return true;
             return Next == l.Next;
         }
+
+        bool operator!=(const linked_list<X>& l) {
+            return !(this==l);
+        }
             
         const linked_list<X> from(uint n) const {
             if (empty()) return nullptr;
