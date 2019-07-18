@@ -65,13 +65,13 @@ namespace data {
         bool operator==(const next n) {
             return Next == n;
         }
-            
-        bool operator==(const linked_list<X>& l) {
+
+        const bool operator==(const linked_list<X>& l) {
             if (this == &l) return true;
             return Next == l.Next;
         }
 
-        bool operator!=(const linked_list<X>& l) {
+        const bool operator!=(const linked_list<X>& l) {
             return !(this==l);
         }
             
