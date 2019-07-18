@@ -252,8 +252,8 @@ namespace data {
             iterator& operator++() { // Prefix
                 return operator=(iterator{rest(List)});
             }
-                    
-            E& operator*() {
+
+            const E& operator*() const{
                 return first(List);
             }
      
