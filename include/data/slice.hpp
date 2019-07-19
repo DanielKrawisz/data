@@ -110,22 +110,60 @@ namespace data {
             }
         };
         
-        using iterator = data::list::iterator<list, X>;
+        struct iterator {
+            slice& Slice;
+            uint Index;
+                    
+            iterator& operator=(iterator i) {
+                Slice = i.Slice;
+                Index = i.Index;
+                return *this;
+            }
+                    
+            iterator operator++(int i) { // Postfix
+                iterator n = *this;
+                operator=(iterator{Slice, Index + 1});
+                return n;
+            }
+
+            iterator& operator++() { // Prefix
+                return operator=(iterator{Slice, Index});
+            }
+
+            X& operator*() {
+                return Slice[Index];
+            }
+
+            const X& operator*() const {
+                return Slice[Index];
+            }
+     
+            bool operator==(const iterator i) const {
+                return Slice == i.Slice && Index == i.Index;
+            }
+     
+            bool operator!=(const iterator i) const {
+                return !operator==(i);
+            }
+                
+        };
+        
+        //using iterator = data::list::iterator<list, X>;
 
         iterator begin() {
-            return iterator{list::make(*this, uint(0))};
+            return iterator{*this, uint(0)};
         }
             
         iterator end() {
-            return iterator{list::make(*this, size())};
+            return iterator{*this, size()};
         }
 
         const iterator begin() const {
-            return iterator{list::make(*this, uint(0))};
+            return iterator{*const_cast<slice*>(this), uint(0)};
         }
             
         const iterator end() const {
-            return iterator{list::make(*this, size())};
+            return iterator{*const_cast<slice*>(this), size()};
         }
             
     };
@@ -146,7 +184,9 @@ namespace data {
     }
     
     template <typename X>
-    class slice_ostream : public virtual ostream<X> {
+    struct slice_ostream : public virtual ostream<X> {
+        slice<X> Slice;
+        typename slice<X>::iterator It;
 
         void operator<<(X x) final {
             if (It == Slice.end()) throw end_of_stream{};
@@ -154,35 +194,30 @@ namespace data {
             It++;
         }
 
-    protected:
-        const slice<X> Slice;
-        typename slice<X>::iterator It;
-    public:
         explicit slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
         explicit slice_ostream(std::vector<X>& v) : slice_ostream{slice<X>{v}} {}
     };
     
     template <typename X>
-    class slice_istream : public virtual istream<X> {
+    struct slice_istream : public virtual istream<X> {
+        const slice<X> Slice;
+        typename slice<X>::iterator It;
 
         void operator>>(X& x) final {
             if (It == Slice.end()) throw end_of_stream{};
             x = *It;
             It++;
         }
-    protected:
-        const slice<X> Slice;
-        typename slice<X>::iterator It;
-    public:
+        
         explicit slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
         explicit slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
     };
     
     class slice_writer : public slice_ostream<byte>, public writer {
         const boost::endian::order Endian;
-    private:
         void bytesIntoIterator(const char*,int);
     public:
+        using slice_ostream<byte>::operator<<;
         void operator<<(uint16_t) final ;
         void operator<<(uint32_t) final ;
         void operator<<(uint64_t) final ;
@@ -194,9 +229,9 @@ namespace data {
     
     class slice_reader : public slice_istream<byte>, public reader {
         const boost::endian::order Endian;
-    private:
         char* iteratorToArray(int);
     public:
+        using slice_istream<byte>::operator>>;
         void operator>>(uint16_t&) final ;
         void operator>>(uint32_t&) final ;
         void operator>>(uint64_t&) final ;
