@@ -26,12 +26,18 @@ namespace data {
         virtual void operator>>(uint16_t&) = 0;
         virtual void operator>>(uint32_t&) = 0;
         virtual void operator>>(uint64_t&) = 0;
+        virtual void operator>>(int16_t&) = 0;
+        virtual void operator>>(int32_t&) = 0;
+        virtual void operator>>(int64_t&) = 0;
     };
     
     class writer : public virtual ostream<byte> {
         virtual void operator<<(const uint16_t) = 0;
         virtual void operator<<(const uint32_t) = 0;
         virtual void operator<<(const uint64_t) = 0;
+        virtual void operator<<(const int16_t) = 0;
+        virtual void operator<<(const int32_t) = 0;
+        virtual void operator<<(const int64_t) = 0;
     };
     
     static const string EndOfStreamError = string{"End of stream"};
