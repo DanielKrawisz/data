@@ -15,24 +15,24 @@ namespace data {
     // can create smaller slices. 
     template <typename X>
     class slice {
-
+        
         mutable X invalid;
         X* data;
         uint64_t len;
-
+        
         slice(X* x, uint64_t size) : data{x}, len{size} {}
 
     public:
-        slice(uint64_t l, X* d) : invalid(0), data(d), len(l) {}
-
-        slice(std::vector<X>& v) : slice(v.size(), v.data()) {}
-
+        slice(uint64_t l, X* d) : invalid(0), data(d), len(l) {} 
+        
+        slice(std::vector<X>& v) : slice(v.size(), v.data()) {} 
+        
         static const slice make(vector<X>& v) {
             return slice(const_cast<std::vector<X>&>(v));
         }
-
+        
         slice() : invalid(0), data(nullptr), len(0) {};
-
+        
         const uint size() const {
             return len;
         }
@@ -62,91 +62,131 @@ namespace data {
 
         // a construct which turns a slice into a list. 
         class list {
-            constexpr static const ::data::list::definition::list<list, X> is_list{};
-
+            constexpr static const ::data::list::definition::list<list, X> is_list{}; 
+            
             slice<X>& Slice;
             uint Index;
-
+            
             list(slice<X>& s, uint n) : Slice(s), Index(n) {}
             list(const slice<X>& s, uint n) : Slice(const_cast<slice<X>&>(s)), Index(n) {}
-
+            
         public:
             static list make(slice<X>& s, uint n) {
                 return list{s, n};
             }
-
+            
             static const list make(const slice<X>& s, uint n) {
                 return list{s, n};
             }
-
+            
             list& operator=(list i) {
                 Slice = i.Slice;
                 Index = i.Index;
                 return *this;
             }
-
+            
             bool empty() const {
                 return Index >= Slice.size();
             }
-
+            
             X& first() const {
                 if (empty()) return Slice.invalid;
-
+                
                 return Slice[Index];
             }
-
+            
             list rest() const {
                 if (empty()) return *this;
-
+                
                 return {Slice, Index + 1};
             }
-
+        
             bool operator==(const list& s) const {
                 return Slice == s.Slice && (Index == s.Index || (empty() && s.empty()));
             }
-
+        
             bool operator!=(const list& s) const {
                 return !((*this) == s);
             }
         };
+        
+        struct iterator {
+            slice& Slice;
+            uint Index;
+                    
+            iterator& operator=(iterator i) {
+                Slice = i.Slice;
+                Index = i.Index;
+                return *this;
+            }
+                    
+            iterator operator++(int i) { // Postfix
+                iterator n = *this;
+                operator=(iterator{Slice, Index + 1});
+                return n;
+            }
 
-        using iterator = data::list::iterator<list, X>;
+            iterator& operator++() { // Prefix
+                return operator=(iterator{Slice, Index});
+            }
+
+            X& operator*() {
+                return Slice[Index];
+            }
+
+            const X& operator*() const {
+                return Slice[Index];
+            }
+     
+            bool operator==(const iterator i) const {
+                return Slice == i.Slice && Index == i.Index;
+            }
+     
+            bool operator!=(const iterator i) const {
+                return !operator==(i);
+            }
+                
+        };
+        
+        //using iterator = data::list::iterator<list, X>;
 
         iterator begin() {
-            return iterator{list::make(*this, uint(0))};
+            return iterator{*this, uint(0)};
         }
-
+            
         iterator end() {
-            return iterator{list::make(*this, size())};
+            return iterator{*this, size()};
         }
 
         const iterator begin() const {
-            return iterator{list::make(*this, uint(0))};
+            return iterator{*const_cast<slice*>(this), uint(0)};
         }
-
+            
         const iterator end() const {
-            return iterator{list::make(*this, size())};
+            return iterator{*const_cast<slice*>(this), size()};
         }
-
+            
     };
-
+                
     template <typename X>
     inline bool empty(const typename slice<X>::list l) {
         return l.empty();
     }
-
+                
     template <typename X>
     inline X& first(const typename slice<X>::list l) {
         return l.first();
     }
-
+                
     template <typename X>
     inline const typename slice<X>::list rest(const typename slice<X>::list l) {
         return l.rest();
     }
-
+    
     template <typename X>
-    class slice_ostream : public virtual ostream<X> {
+    struct slice_ostream : public virtual ostream<X> {
+        slice<X> Slice;
+        typename slice<X>::iterator It;
 
         void operator<<(X x) final {
             if (It == Slice.end()) throw end_of_stream{};
@@ -154,54 +194,49 @@ namespace data {
             It++;
         }
 
-    protected:
-        const slice<X> Slice;
-        typename slice<X>::iterator It;
-    public:
         explicit slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
         explicit slice_ostream(std::vector<X>& v) : slice_ostream{slice<X>{v}} {}
     };
-
+    
     template <typename X>
-    class slice_istream : public virtual istream<X> {
+    struct slice_istream : public virtual istream<X> {
+        const slice<X> Slice;
+        typename slice<X>::iterator It;
 
         void operator>>(X& x) final {
             if (It == Slice.end()) throw end_of_stream{};
             x = *It;
             It++;
         }
-    protected:
-        const slice<X> Slice;
-        typename slice<X>::iterator It;
-    public:
+        
         explicit slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
         explicit slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
     };
-
+    
     class slice_writer : public slice_ostream<byte>, public writer {
         const boost::endian::order Endian;
-    private:
         void bytesIntoIterator(const char*,int);
     public:
+        using slice_ostream<byte>::operator<<;
         void operator<<(uint16_t) final ;
         void operator<<(uint32_t) final ;
         void operator<<(uint64_t) final ;
         void operator<<(bytes&) final ;
-
+        
         slice_writer(slice<byte> s, boost::endian::order e) : slice_ostream<byte>{s}, Endian{e} {}
         slice_writer(std::vector<byte>& v, boost::endian::order e) : slice_ostream<byte>{v}, Endian{e} {}
     };
-
+    
     class slice_reader : public slice_istream<byte>, public reader {
         const boost::endian::order Endian;
-    private:
         char* iteratorToArray(int);
     public:
+        using slice_istream<byte>::operator>>;
         void operator>>(uint16_t&) final ;
         void operator>>(uint32_t&) final ;
         void operator>>(uint64_t&) final ;
         void operator>>(std::vector<byte>&) final ;
-
+        
         slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
         slice_reader(std::vector<byte>& v, boost::endian::order e) : slice_istream<byte>{v}, Endian{e} {}
     };
