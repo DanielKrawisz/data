@@ -185,9 +185,10 @@ namespace data {
     
     template <typename X>
     struct slice_ostream : public virtual ostream<X> {
+    protected:
         slice<X> Slice;
         typename slice<X>::iterator It;
-
+    public:
         void operator<<(X x) final {
             if (It == Slice.end()) throw end_of_stream{};
             *It = x;
@@ -195,13 +196,16 @@ namespace data {
         }
 
         explicit slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-        explicit slice_ostream(std::vector<X>& v) : slice_ostream{slice<X>{v}} {}
+
+        explicit slice_ostream(std::vector<X> &v) : slice_ostream{slice<X>{v}} {}
     };
     
     template <typename X>
     struct slice_istream : public virtual istream<X> {
+    protected:
         const slice<X> Slice;
         typename slice<X>::iterator It;
+    public:
 
         void operator>>(X& x) final {
             if (It == Slice.end()) throw end_of_stream{};
@@ -211,16 +215,20 @@ namespace data {
         
         explicit slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
         explicit slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
+
     };
     
     class slice_writer : public slice_ostream<byte>, public writer {
         const boost::endian::order Endian;
         void bytesIntoIterator(const char*,int);
     public:
-        using slice_ostream<byte>::operator<<;
+
         void operator<<(uint16_t) final ;
         void operator<<(uint32_t) final ;
         void operator<<(uint64_t) final ;
+        void operator<<(int16_t) final ;
+        void operator<<(int32_t) final ;
+        void operator<<(int64_t) final ;
         void operator<<(bytes&) final ;
         
         slice_writer(slice<byte> s, boost::endian::order e) : slice_ostream<byte>{s}, Endian{e} {}
@@ -231,10 +239,12 @@ namespace data {
         const boost::endian::order Endian;
         char* iteratorToArray(int);
     public:
-        using slice_istream<byte>::operator>>;
         void operator>>(uint16_t&) final ;
         void operator>>(uint32_t&) final ;
         void operator>>(uint64_t&) final ;
+        void operator>>(int16_t&) final ;
+        void operator>>(int32_t&) final ;
+        void operator>>(int64_t&) final ;
         void operator>>(std::vector<byte>&) final ;
         
         slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
