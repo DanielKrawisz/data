@@ -16,7 +16,6 @@ namespace data {
             using uint256::uint256;
             
             digest(uint32_t n) : uint256{n} {}
-            digest() : digest(0) {}
             digest(const digest&);
             digest(digest&&);
             
@@ -27,6 +26,9 @@ namespace data {
             bool operator<=(const digest& d) const;
             bool operator>(const digest& d) const;
             bool operator<(const digest& d) const;
+            
+            byte& operator[](uint32 i);
+            const byte& operator[](uint32 i) const;
             
             digest& operator=(const digest& d);
         };
@@ -69,6 +71,14 @@ namespace data {
         inline digest& digest::operator=(const digest& d) {
             uint256::operator=(static_cast<const uint256&>(d));
             return *this;
+        }
+        
+        inline byte& digest::operator[](uint32 i) {
+            return uint256::parent::operator[](i);
+        }
+        
+        inline const byte& digest::operator[](uint32 i) const {
+            return uint256::parent::operator[](i);
         }
     
     }

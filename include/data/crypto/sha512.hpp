@@ -13,9 +13,8 @@ namespace data {
     namespace sha512 {
 
         struct digest : public uint512 {
-            
+            using uint512::uint512;
             digest(uint32_t n) : uint512{n} {}
-            digest() : digest(0) {}
             digest(const digest&);
             digest(digest&&);
             
@@ -27,6 +26,9 @@ namespace data {
             bool operator<=(const digest& d) const;
             bool operator>(const digest& d) const;
             bool operator<(const digest& d) const;
+            
+            byte& operator[](uint32 i);
+            const byte& operator[](uint32 i) const;
             
             digest& operator=(const digest& d);
             
@@ -71,6 +73,14 @@ namespace data {
         inline digest& digest::operator=(const digest& d) {
             uint512::operator=(static_cast<const uint512&>(d));
             return *this;
+        }
+        
+        inline byte& digest::operator[](uint32 i) {
+            return uint512::parent::operator[](i);
+        }
+        
+        inline const byte& digest::operator[](uint32 i) const {
+            return uint512::parent::operator[](i);
         }
     
     }

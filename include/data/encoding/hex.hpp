@@ -33,10 +33,6 @@ namespace data {
 
                 bytes* ToBytes;
             public:
-                operator std::string() {
-                    if (this == nullptr) throw ;
-                    return *this;
-                }
                 
                 operator bytes() const {
                     if (ToBytes == nullptr) throw ;
