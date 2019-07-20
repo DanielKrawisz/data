@@ -72,7 +72,7 @@ namespace data {
         }
 
         bool operator!=(const linked_list<X>& l) const {
-            return !(this==l);
+            return !(*this==l);
         }
             
         const linked_list<X> from(uint n) const {
