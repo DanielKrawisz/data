@@ -96,41 +96,41 @@ namespace data {
 
 
     void slice_reader::operator>>(uint16_t &x) {
-        char* array=iteratorToArray(sizeof(uint16_t));
+        std::vector<byte> array=iteratorToArray(sizeof(uint16_t));
         if(this->Endian==boost::endian::order::big) {
             x=(array[0] << 8) + array[1];
-            delete[] array;
+            
         }
         else
         {
             x=(array[1] << 8) + array[0];
-            delete[] array;
+            
         }
     }
 
     void slice_reader::operator>>(uint32_t &x) {
-        char* array=iteratorToArray(sizeof(uint32_t));
+        std::vector<byte> array=iteratorToArray(sizeof(uint32_t));
         if(this->Endian==boost::endian::order::big) {
             x=(array[0] << 24) + (array[1] << 16) +(array[2] << 8) +array[3];
-            delete[] array;
+            
         }
         else
         {
             x=(array[3] << 24) + (array[2] << 16) +(array[1] << 8) +array[0];
-            delete[] array;
+            
         }
     }
 
     void slice_reader::operator>>(uint64_t &x) {
-        char* array=iteratorToArray(sizeof(uint64_t));
+        std::vector<byte> array=iteratorToArray(sizeof(uint64_t));
         if(this->Endian==boost::endian::order::big) {
             x= (((uint64_t)array[0]) << 56) + (((uint64_t)array[1]) << 48) +(((uint64_t)array[2]) << 40)+(((uint64_t)array[3]) << 32)+(((uint64_t)array[4]) << 24) + (((uint64_t)array[5]) << 16) +(((uint64_t)array[6]) << 8) +array[7];
-            delete[] array;
+            
         }
         else
         {
             x= (((uint64_t)array[7]) << 56) + (((uint64_t)array[6]) << 48) +(((uint64_t)array[5]) << 40)+(((uint64_t)array[4]) << 32)+(((uint64_t)array[3]) << 24) + (((uint64_t)array[2]) << 16) +(((uint64_t)array[1]) << 8) +array[0];
-            delete[] array;
+            
         }
     }
 
@@ -145,46 +145,46 @@ namespace data {
     }
 
     void slice_reader::operator>>(int16_t & x) {
-        char* array=iteratorToArray(sizeof(int16_t));
+        std::vector<byte> array=iteratorToArray(sizeof(int16_t));
         if(this->Endian==boost::endian::order::big) {
             x=(array[0] << 8) + array[1];
-            delete[] array;
+            
         }
         else
         {
             x=(array[1] << 8) + array[0];
-            delete[] array;
+            
         }
     }
 
     void slice_reader::operator>>(int32_t & x) {
-        char* array=iteratorToArray(sizeof(int32_t));
+        std::vector<byte> array=iteratorToArray(sizeof(int32_t));
         if(this->Endian==boost::endian::order::big) {
             x=(array[0] << 24) + (array[1] << 16) +(array[2] << 8) +array[3];
-            delete[] array;
+            
         }
         else
         {
             x=(array[3] << 24) + (array[2] << 16) +(array[1] << 8) +array[0];
-            delete[] array;
+            
         }
     }
 
     void slice_reader::operator>>(int64_t & x) {
-        char* array=iteratorToArray(sizeof(int64_t));
+        std::vector<byte> array=iteratorToArray(sizeof(int64_t));
         if(this->Endian==boost::endian::order::big) {
             x= (((uint64_t)array[0]) << 56) + (((uint64_t)array[1]) << 48) +(((uint64_t)array[2]) << 40)+(((uint64_t)array[3]) << 32)+(((uint64_t)array[4]) << 24) + (((uint64_t)array[5]) << 16) +(((uint64_t)array[6]) << 8) +array[7];
-            delete[] array;
+            
         }
         else
         {
             x= (((uint64_t)array[7]) << 56) + (((uint64_t)array[6]) << 48) +(((uint64_t)array[5]) << 40)+(((uint64_t)array[4]) << 32)+(((uint64_t)array[3]) << 24) + (((uint64_t)array[2]) << 16) +(((uint64_t)array[1]) << 8) +array[0];
-            delete[] array;
+            
         }
     }
 
-    char *slice_reader::iteratorToArray(int amount) {
-        char* array=new char[amount];
+    std::vector<byte> slice_reader::iteratorToArray(int amount) {
+        std::vector<byte> array(amount);
         for(int i=0;i<amount;i++)
         {
             if (It == Slice.end()) throw end_of_stream{};

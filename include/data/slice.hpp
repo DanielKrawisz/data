@@ -200,7 +200,7 @@ namespace data {
     
     class slice_reader : public slice_istream<byte>, public reader {
         const boost::endian::order Endian;
-        char* iteratorToArray(int);
+        std::vector<byte>  iteratorToArray(int);
     public:
         void operator>>(uint16_t&) final ;
         void operator>>(uint32_t&) final ;

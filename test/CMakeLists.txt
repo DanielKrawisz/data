@@ -5,7 +5,6 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-
 ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testLib.cpp )
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} gmock_main)
 
