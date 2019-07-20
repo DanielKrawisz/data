@@ -8,6 +8,7 @@
 #include "list.hpp"
 #include "stream.hpp"
 #include <boost/endian/conversion.hpp>
+#include <data/tools/index_iterator.hpp>
 
 namespace data {
 
@@ -110,45 +111,7 @@ namespace data {
             }
         };
         
-        struct iterator {
-            slice& Slice;
-            uint Index;
-                    
-            iterator& operator=(iterator i) {
-                Slice = i.Slice;
-                Index = i.Index;
-                return *this;
-            }
-                    
-            iterator operator++(int i) { // Postfix
-                iterator n = *this;
-                operator=(iterator{Slice, Index + 1});
-                return n;
-            }
-
-            iterator& operator++() { // Prefix
-                return operator=(iterator{Slice, Index});
-            }
-
-            X& operator*() {
-                return Slice[Index];
-            }
-
-            const X& operator*() const {
-                return Slice[Index];
-            }
-     
-            bool operator==(const iterator i) const {
-                return Slice == i.Slice && Index == i.Index;
-            }
-     
-            bool operator!=(const iterator i) const {
-                return !operator==(i);
-            }
-                
-        };
-        
-        //using iterator = data::list::iterator<list, X>;
+        using iterator = index_iterator<slice&, X&>;
 
         iterator begin() {
             return iterator{*this, uint(0)};
