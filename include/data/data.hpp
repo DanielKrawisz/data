@@ -21,9 +21,13 @@ namespace data {
     template <typename List>
     List reverse(List);
     
-    using uint160 = math::number::bounded<5>;
-    using uint256 = math::number::bounded<8>;
-    using uint512 = math::number::bounded<16>;
+    using uint160 = math::number::bounded::number<5, false>;
+    using uint256 = math::number::bounded::number<8, false>;
+    using uint512 = math::number::bounded::number<16, false>;
+    
+    using int160 = math::number::bounded::number<5, true>;
+    using int256 = math::number::bounded::number<8, true>;
+    using int512 = math::number::bounded::number<16, true>;
 
 }
 
