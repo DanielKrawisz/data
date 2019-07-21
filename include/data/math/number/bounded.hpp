@@ -11,7 +11,6 @@
 #include <data/math/number/endian.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/math/number/division.hpp>
-#include <data/math/number/extended_euclidian.hpp>
 
 namespace data::math::number::bounded {
     
@@ -87,6 +86,10 @@ namespace data::math::number::bounded {
         static void minus(const bounded&, const bounded&, bounded&);
         static void plus(const bounded&, const bounded&, bounded&);
         
+        math::number::division<bounded> divide(const bounded&) const;
+        bounded operator/(const bounded&) const;
+        bounded operator%(const bounded&) const;
+        
         using iterator = index_iterator<bounded&, bit32&>;
 
         iterator begin();
@@ -111,10 +114,6 @@ namespace data::math::number::bounded {
         
         bool operator<(const number<size, false>& d) const;
         bool operator<=(const number<size, false>& d) const;
-        
-        math::number::division<number<size, false>> divide(const number<size, false>&) const;
-        number<size, false> operator/(const number<size, false>&) const;
-        number<size, false> operator%(const number<size, false>&) const;
     };
     
     template <uint32_t size>
@@ -242,33 +241,19 @@ namespace data::math::number::bounded {
         return operator=(operator-(n));
     }
     
-    template <uint32_t size>
-    inline math::number::division<number<size, true>> number<size, true>::divide(const number<size, true>& n) const {
-        return math::number::extended_euclidian<number<size, true>>::divide(*this, n);
+    template <uint32_t size, typename bounded, typename bit32, typename bit64>
+    inline math::number::division<bounded> 
+    array<size, bounded, bit32, bit64>::divide(const bounded& n) const {
+        return math::number::division<number<size, true>>::divide(*this, n);
     }
     
-    template <uint32_t size>
-    inline math::number::division<number<size, false>> number<size, false>::divide(const number<size, false>& n) const {
-        return math::number::extended_euclidian<number<size, false>, number<size, true>>::divide(*this, n);
-    }
-    
-    template <uint32_t size>
-    inline number<size, false> number<size, false>::operator/(const number<size, false>& n) const {
+    template <uint32_t size, typename bounded, typename bit32, typename bit64>
+    inline bounded array<size, bounded, bit32, bit64>::operator/(const bounded& n) const {
         return divide(n).Quotient;
     }
     
-    template <uint32_t size>
-    inline number<size, false> number<size, false>::operator%(const number<size, false>& n) const {
-        return divide(n).Remainder;
-    }
-    
-    template <uint32_t size>
-    inline number<size, true> number<size, true>::operator/(const number<size, true>& n) const {
-        return divide(n).Quotient;
-    }
-    
-    template <uint32_t size>
-    inline number<size, true> number<size, true>::operator%(const number<size, true>& n) const {
+    template <uint32_t size, typename bounded, typename bit32, typename bit64>
+    inline bounded array<size, bounded, bit32, bit64>::operator%(const bounded& n) const {
         return divide(n).Remainder;
     }
 

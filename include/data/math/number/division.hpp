@@ -10,6 +10,7 @@
 namespace data {
     
     namespace math {
+        struct division_by_zero : std::exception {};
         
         namespace number {
             
@@ -17,13 +18,17 @@ namespace data {
             struct division {
                 N Quotient;
                 N Remainder;
-                
-                division(N q, N r) : Quotient{q}, Remainder{r} {}
-                division() : Quotient{}, Remainder{} {}
                     
                 bool valid() const {
                     return valid(Quotient) && valid(Remainder);
                 }
+                
+            private:
+                division(N q, N r) : Quotient{q}, Remainder{r} {}
+                division() : Quotient{}, Remainder{} {}
+            public:
+                
+                static division divide(const N Dividend, const N Divisor);
             };
         
         }
