@@ -5,26 +5,6 @@
 #include <data/math/number/bounded.hpp>
 
 namespace data::math::number::bounded {
-            
-    template <uint32_t size>
-    bool number<size, false>::operator<(const number<size, false>& n) const {
-        for (uint32_t i = 0; i < size; i++) {
-            if (array::operator[](i) < n[i]) return true;
-            if (array::operator[](i) > n[i]) return false;
-        }
-        
-        return false;
-    }
-    
-    template <uint32_t size>
-    bool number<size, false>::operator<=(const number<size, false>& n) const {
-        for (uint32_t i = 0; i < size; i++) {
-            if (array::operator[](i) > n.get(i)) return false;
-            if (array::operator[](i) < n.get(i)) return true;
-        }
-        
-        return true;
-    }
     
     template <uint32_t size, typename bounded, typename bit32, typename bit64>
     void array<size, bounded, bit32, bit64>::minus(const bounded& a, const bounded& b, bounded& result) {
@@ -44,6 +24,26 @@ namespace data::math::number::bounded {
             result[i] = remainder + lesser(w);
             remainder = greater(w);
         };
+    }
+            
+    template <uint32_t size>
+    bool number<size, false>::operator<(const number<size, false>& n) const {
+        for (uint32_t i = 0; i < size; i++) {
+            if (array::parent::operator[](i) < n[i]) return true;
+            if (array::parent::operator[](i) > n[i]) return false;
+        }
+        
+        return false;
+    }
+    
+    template <uint32_t size>
+    bool number<size, false>::operator<=(const number<size, false>& n) const {
+        for (uint32_t i = 0; i < size; i++) {
+            if (array::parent::operator[](i) > n.get(i)) return false;
+            if (array::parent::operator[](i) < n.get(i)) return true;
+        }
+        
+        return true;
     }
 
 }

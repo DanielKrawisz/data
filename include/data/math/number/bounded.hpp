@@ -105,7 +105,7 @@ namespace data::math::number::bounded {
     template <uint32_t size>
     struct number<size, false> : public array<size, number<size, false>, uint32, uint64> {
         using array = array<size, number<size, false>, uint32, uint64>;
-        using array::operator[];
+        using array::parent::operator[];
         using array::operator=;
         using array::operator|=;
         using array::operator^=;
@@ -119,7 +119,7 @@ namespace data::math::number::bounded {
     template <uint32_t size>
     struct number<size, true> : public array<size, number<size, true>, uint32, uint64> {
         using array = array<size, number<size, true>, uint32, uint64>;
-        using array::operator[];
+        using array::parent::operator[];
         using array::operator=;
         using array::operator|=;
         using array::operator^=;
@@ -129,7 +129,6 @@ namespace data::math::number::bounded {
         bool operator<(const number<size, true>& d) const;
         bool operator<=(const number<size, true>& d) const;
         
-        math::number::division<number<size, true>> divide(const number<size, true>&) const;
         number<size, true> operator/(const number<size, true>&) const;
         number<size, true> operator%(const number<size, true>&) const;
     };
@@ -166,12 +165,12 @@ namespace data::math::number::bounded {
     
     template <uint32_t size, typename bounded, typename bit32, typename bit64>
     inline const typename array<size, bounded, bit32, bit64>::iterator array<size, bounded, bit32, bit64>::begin() const {
-        return iterator{*const_cast<array*>(this), uint(0)};
+        return iterator{*this, uint(0)};
     }
     
     template <uint32_t size, typename bounded, typename bit32, typename bit64>
     inline const typename array<size, bounded, bit32, bit64>::iterator array<size, bounded, bit32, bit64>::end() const {
-        return iterator{*const_cast<array*>(this), size};
+        return iterator{*this, size};
     }
     
     template <uint32 size, typename bounded, typename bit32, typename bit64> 

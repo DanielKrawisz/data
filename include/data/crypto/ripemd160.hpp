@@ -28,6 +28,8 @@ namespace data {
             bool operator>(const digest& d) const;
             bool operator<(const digest& d) const;
             
+            using uint160::operator[];
+            
             digest& operator=(const digest& d);
         };
         
