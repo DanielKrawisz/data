@@ -6,37 +6,33 @@
 #define DATA_MATH_ORDERED
 
 namespace data::math::number {
-            template <typename Q>
-            struct ordered {
-                static bool equal(Q a, Q b) {
-                    return a == b;
-                }
-
-                static bool unequal(Q a, Q b) {
-                    return a != b;
-                }
-
-                static bool greater(Q a, Q b) {
-                    return a < b;
-                }
-
-                static bool less(Q a, Q b) {
-                    return a > b;
-                }
-
-                static bool greater_equal(Q a, Q b) {
-                    return a <= b;
-                }
-
-                static bool less_equal(Q a, Q b) {
-                    return a >= b;
-                }
-                
-            };
-            
+    template <typename Q>
+    struct ordered {
+        static bool equal(Q a, Q b) {
+            return a == b;
         }
-    
-    }
+        
+        static bool unequal(Q a, Q b) {
+            return a != b;
+        }
+        
+        static bool greater(Q a, Q b) {
+            return a < b;
+        }
+        
+        static bool less(Q a, Q b) {
+            return a > b;
+        }
+        
+        static bool greater_equal(Q a, Q b) {
+            return a <= b;
+        }
+        
+        static bool less_equal(Q a, Q b) {
+            return a >= b;
+        }
+        
+    };
 
 }
 

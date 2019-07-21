@@ -49,6 +49,15 @@ namespace data {
             
     };
     
+    template <typename K, typename V>
+    inline rb_map<K, V> insert_rb_map(rb_map<K, V> m, map::entry<K, V> e) {
+        m.insert(e);
+    }
+    
+    template <typename K, typename V>
+    inline rb_map<K, V>::rb_map(std::initializer_list<std::pair<K, V> > init)
+        : Map{reduce(insert_rb_map<K, V>, make_iterator_list(init))} {}
+    
 }
 
 #endif

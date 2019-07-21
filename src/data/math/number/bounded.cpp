@@ -29,8 +29,8 @@ namespace data::math::number::bounded {
     template <uint32_t size>
     bool number<size, false>::operator<(const number<size, false>& n) const {
         for (uint32_t i = 0; i < size; i++) {
-            if (array::parent::operator[](i) < n[i]) return true;
-            if (array::parent::operator[](i) > n[i]) return false;
+            if (ray::parent::operator[](i) < n[i]) return true;
+            if (ray::parent::operator[](i) > n[i]) return false;
         }
         
         return false;
@@ -39,8 +39,8 @@ namespace data::math::number::bounded {
     template <uint32_t size>
     bool number<size, false>::operator<=(const number<size, false>& n) const {
         for (uint32_t i = 0; i < size; i++) {
-            if (array::parent::operator[](i) > n.get(i)) return false;
-            if (array::parent::operator[](i) < n.get(i)) return true;
+            if (ray::parent::operator[](i) > n.get(i)) return false;
+            if (ray::parent::operator[](i) < n.get(i)) return true;
         }
         
         return true;

@@ -14,8 +14,7 @@ namespace data {
         
         namespace number {
             
-            template <typename N>
-            struct division {
+            template <typename N> struct division {
                 N Quotient;
                 N Remainder;
                     
@@ -23,10 +22,8 @@ namespace data {
                     return valid(Quotient) && valid(Remainder);
                 }
                 
-            private:
                 division(N q, N r) : Quotient{q}, Remainder{r} {}
                 division() : Quotient{}, Remainder{} {}
-            public:
                 
                 static division divide(const N Dividend, const N Divisor);
             };

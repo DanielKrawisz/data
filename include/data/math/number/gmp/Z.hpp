@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MATH_NUMBER_GMP_Z
 #define DATA_MATH_NUMBER_GMP_Z
 
@@ -32,60 +36,48 @@ namespace data {
                         return *this;
                     }
                     
-                    bool operator==(const Z&&) const;
+                    bool operator==(const Z&) const;
                     
-                    bool operator<(const Z&&) const;
+                    bool operator<(const Z&) const;
                     
-                    bool operator>(const Z&&) const;
+                    bool operator>(const Z&) const;
                     
-                    bool operator<=(const Z&&) const;
+                    bool operator<=(const Z&) const;
                     
-                    bool operator>=(const Z&&) const;
+                    bool operator>=(const Z&) const;
                     
-                    Z operator+(const Z&&) const;
+                    Z operator+(const Z&) const;
                     
-                    Z& operator+=(const Z&&);
+                    Z& operator+=(const Z&);
                     
                     Z operator*(const Z&) const;
                     
-                    Z& operator*=(const Z&&);
+                    Z& operator*=(const Z&);
                     
                     Z operator^(uint) const;
                     
                     Z& operator^=(uint);
                     
-                    math::number::division<Z> divide(const Z&&) const;
+                    math::number::division<Z> divide(const Z&) const;
                     
-                    math::number::division<Z> divide(const Z& z) const {
-                        return divide((const Z&&)(z));
-                    }
-                    
-                    bool operator|(const Z&& z) const {
+                    bool operator|(const Z& z) const {
                         return divide(z).Quotient == 0;
                     }
                     
-                    Z operator/(const Z&& z) const {
+                    Z operator/(const Z& z) const {
                         return divide(z).Quotient;
                     }
                     
-                    Z operator%(const Z&& z) const {
+                    Z operator%(const Z& z) const {
                         return divide(z).Remainder;
                     }
                     
-                    Z operator/(const Z& n) const {
-                        return divide(n).Quotient;
-                    }
-                
-                    Z operator%(const Z& n) const {
-                        return divide(n).Remainder;
-                    }
-                    
-                    Z& operator/=(const Z&& z) {
+                    Z& operator/=(const Z& z) {
                         Z q = operator/(z);
                         return operator=(q);
                     }
                     
-                    Z& operator%=(const Z&& z) {
+                    Z& operator%=(const Z& z) {
                         Z r = operator%(z);
                         return operator=(r);
                     }
@@ -94,7 +86,7 @@ namespace data {
                     
                     friend struct Q;
                 
-                    const static math::number::natural<Z> is_integer{};
+                    constexpr static math::number::natural<Z> is_integer{};
                 };
                 
             }

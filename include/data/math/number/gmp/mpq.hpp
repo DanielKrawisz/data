@@ -1,5 +1,9 @@
-#ifndef DATA_MATH_NUMBER_GMP_MPQ_HPP
-#define DATA_MATH_NUMBER_GMP_MPQ_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_MATH_NUMBER_GMP_MPQ
+#define DATA_MATH_NUMBER_GMP_MPQ
 
 #include <data/math/number/gmp/mpz.hpp>
 
@@ -21,8 +25,8 @@ namespace data {
                     return valid(mpq._mp_den) && valid(mpq._mp_num);
                 }
                 
-                inline number::sign sign(const __mpq_struct& mpq) {
-                    return !valid(mpq) ? zero : number::sign(sign(mpq._mp_num) * sign(mpq._mp_den));
+                inline math::sign sign(const __mpq_struct& mpq) {
+                    return !valid(mpq) ? zero : math::sign(sign(mpq._mp_num) * sign(mpq._mp_den));
                 }
                 
                 void swap(__mpq_struct& a, __mpq_struct& b) {

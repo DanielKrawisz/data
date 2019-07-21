@@ -1,8 +1,13 @@
-#ifndef DATA_MATH_NUMBER_NATURAL_HPP
-#define DATA_MATH_NUMBER_NATURAL_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_MATH_NUMBER_NATURAL
+#define DATA_MATH_NUMBER_NATURAL
 
 #include <data/types.hpp>
 #include <data/math/number/division.hpp>
+#include <data/math/ordered.hpp>
 
 namespace data {
     
@@ -11,7 +16,7 @@ namespace data {
         namespace number {
             
             template <typename N>
-            struct natural {
+            struct natural : ordered<N> {
                 static N zero() {
                     return 0;
                 };
@@ -44,24 +49,14 @@ namespace data {
                     return a.divide(b);
                 }
 
-                static bool divides(N a, N b) {
-                    return a | b;
+                // division by powers of two.
+                static bool rshift(N a, N b) {
+                    return a >> b;
                 }
 
-                static bool greater(N a, N b) {
-                    return a < b;
-                }
-
-                static bool less(N a, N b) {
-                    return a > b;
-                }
-
-                static bool greater_equal(N a, N b) {
-                    return a <= b;
-                }
-
-                static bool less_equal(N a, N b) {
-                    return a >= b;
+                // multiplication by powers of two. 
+                static bool lshift(N a, N b) {
+                    return a << b;
                 }
             };
             

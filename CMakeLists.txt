@@ -107,10 +107,17 @@ endif()
 #  Add Library source files here
 
 ADD_LIBRARY(data STATIC
-        src/data/crypto/sha256.cpp
-        src/data/math/number/gmp/N.cpp
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp
+        src/data/math/number/division.cpp
+        src/data/math/number/bounded.cpp
+        src/data/math/number/gmp/mpz.cpp
+        src/data/math/number/gmp/N.cpp
+        src/data/math/number/gmp/Z.cpp
+        src/data/math/number/gmp/mpq.cpp
+        src/data/math/number/gmp/Q.cpp
+        src/data/crypto/sha256.cpp
+        src/data/crypto/secp256k1.cpp
 		src/data/slice.cpp)
 
 target_include_directories(data PUBLIC include)

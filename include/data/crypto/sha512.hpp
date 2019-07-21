@@ -5,7 +5,7 @@
 #ifndef DATA_CRYPTO_SHA512
 #define DATA_CRYPTO_SHA512
 
-#include <data/data.hpp>
+#include <data/math/number/bounded.hpp>
 #include <data/slice.hpp>
 
 namespace data {
