@@ -11,6 +11,7 @@
 #include <data/math/number/endian.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/math/number/division.hpp>
+#include <data/math/number/extended_euclidian.hpp>
 
 namespace data::math::number::bounded {
     
@@ -242,23 +243,33 @@ namespace data::math::number::bounded {
     }
     
     template <uint32_t size>
-    inline number<size, false> number<size, false>::operator/(const number<size, false>&) const {
-        return divide().Quotient;
+    inline math::number::division<number<size, true>> number<size, true>::divide(const number<size, true>& n) const {
+        return math::number::extended_euclidian<number<size, true>>::divide(*this, n);
     }
     
     template <uint32_t size>
-    inline number<size, false> number<size, false>::operator%(const number<size, false>&) const {
-        return divide().Remainder;
+    inline math::number::division<number<size, false>> number<size, false>::divide(const number<size, false>& n) const {
+        return math::number::extended_euclidian<number<size, false>, number<size, true>>::divide(*this, n);
     }
     
     template <uint32_t size>
-    inline number<size, true> number<size, true>::operator/(const number<size, true>&) const {
-        return divide().Quotient;
+    inline number<size, false> number<size, false>::operator/(const number<size, false>& n) const {
+        return divide(n).Quotient;
     }
     
     template <uint32_t size>
-    inline number<size, true> number<size, true>::operator%(const number<size, true>&) const {
-        return divide().Remainder;
+    inline number<size, false> number<size, false>::operator%(const number<size, false>& n) const {
+        return divide(n).Remainder;
+    }
+    
+    template <uint32_t size>
+    inline number<size, true> number<size, true>::operator/(const number<size, true>& n) const {
+        return divide(n).Quotient;
+    }
+    
+    template <uint32_t size>
+    inline number<size, true> number<size, true>::operator%(const number<size, true>& n) const {
+        return divide(n).Remainder;
     }
 
 }
