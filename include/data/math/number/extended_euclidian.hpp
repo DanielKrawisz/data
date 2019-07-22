@@ -11,28 +11,31 @@
 
 namespace data::math {
     struct invalid_proof : std::exception {};
-    namespace number::euclidian {
-        namespace extended {
-            template <typename N, typename Z>
-            struct algorithm {
-                N GCD;
+    namespace number{
+        namespace euclidian {
+            template <typename ...> struct extended;
+            template <typename Z>
+            struct extended<Z> {
+                Z GCD;
                 Z S;
                 Z T;
                 
                 bool valid() const {
                     return valid(GCD) && valid(S) && valid(T);
                 }
+                static bool valid_proof(Z gcd, Z a, Z b, Z s, Z t) {
+                    return gcd == a * s + b * t;
+                }
                 
-                algorithm(N a, N b, Z gcd, Z s, Z t) : GCD{gcd}, S{s}, T{s} {
-                    if (!(a | gcd && b | gcd && gcd == a * s + b * t)) throw invalid_proof{};
+                extended(Z a, Z b, Z gcd, Z s, Z t) : GCD{gcd}, S{s}, T{s} {
+                    if (!valid_proof(gcd, a, b, s, t)) throw invalid_proof{};
                 }
                 
             private:
-                algorithm(N gcd, Z q, Z r) : GCD{gcd}, division<Z>{q, r} {}
-                algorithm() : GCD{}, division<Z>{} {} 
+                extended() : GCD{}, division<Z>{} {} 
                  
                 struct sequence {
-                    division<N> Div;
+                    division<Z> Div;
                     Z S;
                     Z T;
                 };
@@ -44,24 +47,39 @@ namespace data::math {
                     return loop(current, {div, {prev.S - current.S * div.Quotient, prev.T - current.T * div.Quotient}});
                 }
                 
-                static sequence init(const N R0, const N R1) {
-                    return loop(sequence{{0, R0}, 1, 0}, sequence{{0, R1}, 0, 1});
-                }
-                
-                static sequence pre(const N Dividend, const N Divisor) {
-                    if (Dividend > Divisor) return init(Dividend, Divisor);
-                    sequence euclidian = init(Divisor, Dividend);
-                    return {euclidian.Div, euclidian.T, euclidian.S};
+                static sequence run(const Z r0, const Z r1) {
+                    return loop(sequence{{0, r0}, 1, 0}, sequence{{0, r1}, 0, 1});
                 }
             public:
-                static algorithm run(const N Dividend, const N Divisor) {
-                    sequence e = algorithm::pre(Dividend, Divisor);
+                static extended algorithm(const Z a, const Z b) {
+                    sequence e = a < b ? run(b, a) : run(a, b);
                     return {e.Div.Quotient, e.S, e.T};
                 }
+            
+            };
+            
+            template <typename Z, typename N> 
+            N abs(Z);
+            
+            template <typename N, typename Z>
+            struct extended<N, Z> {
+                N GCD;
+                Z S;
+                Z T;
                 
-                static algorithm divide(const N Dividend, const N Divisor) {
-                    return pre(Dividend, Divisor).Div;
+                bool valid() const {
+                    return extended<Z>{GCD, S, T}.valid();
                 }
+                
+                extended(N a, N b, N gcd, Z s, Z t) : GCD{gcd}, S{s}, T{s} {
+                    if (!extended<Z>::valid_proof(gcd, a, b, s, t)) throw invalid_proof{};
+                }
+                
+                static extended algorithm(const N a, const N b) {
+                    extended<Z> e = extended<Z>::algorithm(a, b);
+                    return {abs<Z, N>(e.GCD), e.S, e.T};
+                }
+                
             };
         }
     }
