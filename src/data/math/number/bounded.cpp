@@ -6,8 +6,8 @@
 
 namespace data::math::number::bounded {
     
-    template <uint32_t size, typename bounded, typename bit32, typename bit64>
-    void array<size, bounded, bit32, bit64>::minus(const array& a, const array& b, array& result) {
+    template <uint32_t size, typename bit32, typename bit64>
+    void words<size, bit32, bit64>::minus(const words a, const words b, words result) {
         bit32 remainder{0};
         for (int32 i = last; i >= 0; i--) {
             word w = extend(a[i]) - extend(b[i]);
@@ -16,8 +16,8 @@ namespace data::math::number::bounded {
         };
     }
     
-    template <uint32_t size, typename bounded, typename bit32, typename bit64> 
-    void array<size, bounded, bit32, bit64>::plus(const array& a, const array& b, array& result) {
+    template <uint32_t size, typename bit32, typename bit64> 
+    void words<size, bit32, bit64>::plus(const words a, const words b, words result) {
         bit32 remainder{0};
         for (int32 i = last; i >= 0; i--) {
             word w = extend(a[i]) + extend(b[i]);
@@ -26,8 +26,18 @@ namespace data::math::number::bounded {
         };
     }
     
-    template <uint32_t size, typename bounded, typename bit32, typename bit64> 
-    void array<size, bounded, bit32, bit64>::times(const array& a, const array& b, array& result) {
+    template <uint32_t size, typename bit32, typename bit64> 
+    void words<size, bit32, bit64>::bit_shift_left(const words in, uint32 bits, words result) {
+        throw 0;
+    }
+    
+    template <uint32_t size, typename bit32, typename bit64> 
+    void words<size, bit32, bit64>::bit_shift_right(const words in, uint32 bits, words result) {
+        throw 0;
+    }
+    
+    template <uint32_t size, typename bit32, typename bit64> 
+    void words<size, bit32, bit64>::times(const words a, const words b, words result) {
         auto from_end = [](uint32 i)->uint32{return size - 1 - i;};
         bit32 remainder{0};
         for (int i = 0; i < size; i ++) {
@@ -40,9 +50,11 @@ namespace data::math::number::bounded {
     
     template <uint32_t size>
     bool number<size, false>::operator<(const number<size, false>& n) const {
+        words a{*this};
+        words b{n};
         for (uint32_t i = 0; i < size; i++) {
-            if (ray::parent::operator[](i) < n[i]) return true;
-            if (ray::parent::operator[](i) > n[i]) return false;
+            if (a[i] < b[i]) return true;
+            if (a[i] > b[i]) return false;
         }
         
         return false;
@@ -50,9 +62,11 @@ namespace data::math::number::bounded {
     
     template <uint32_t size>
     bool number<size, false>::operator<=(const number<size, false>& n) const {
+        words a{*this};
+        words b{n};
         for (uint32_t i = 0; i < size; i++) {
-            if (ray::parent::operator[](i) > n.get(i)) return false;
-            if (ray::parent::operator[](i) < n.get(i)) return true;
+            if (a[i] < b[i]) return true;
+            if (a[i] > b[i]) return false;
         }
         
         return true;
