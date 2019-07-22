@@ -83,9 +83,11 @@ namespace data {
                 
             bounded& operator+=(const bounded&);
             bounded& operator-=(const bounded&);
+            bounded& operator*=(const bounded&);
             
-            static void minus(const bounded&, const bounded&, bounded&);
-            static void plus(const bounded&, const bounded&, bounded&);
+            static void minus(const array&, const array&, array&);
+            static void plus(const array&, const array&, array&);
+            static void times(const array&, const array&, array&);
             
             math::number::division<bounded> divide(const bounded&) const;
             bounded operator/(const bounded&) const;
@@ -168,22 +170,26 @@ namespace data {
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
-        inline typename array<size, bounded, bit32, bit64>::iterator array<size, bounded, bit32, bit64>::begin() {
+        inline typename array<size, bounded, bit32, bit64>::iterator 
+        array<size, bounded, bit32, bit64>::begin() {
             return iterator{*this, uint(0)};
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
-        inline typename array<size, bounded, bit32, bit64>::iterator array<size, bounded, bit32, bit64>::end() {
+        inline typename array<size, bounded, bit32, bit64>::iterator 
+        array<size, bounded, bit32, bit64>::end() {
             return iterator{*this, size};
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
-        inline const typename array<size, bounded, bit32, bit64>::iterator array<size, bounded, bit32, bit64>::begin() const {
+        inline const typename array<size, bounded, bit32, bit64>::iterator 
+        array<size, bounded, bit32, bit64>::begin() const {
             return iterator{*this, uint(0)};
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
-        inline const typename array<size, bounded, bit32, bit64>::iterator array<size, bounded, bit32, bit64>::end() const {
+        inline const typename array<size, bounded, bit32, bit64>::iterator 
+        array<size, bounded, bit32, bit64>::end() const {
             return iterator{*this, size};
         }
         
@@ -236,22 +242,38 @@ namespace data {
         
         template <uint32 size, typename bounded, typename bit32, typename bit64> 
         inline bounded array<size, bounded, bit32, bit64>::operator+(const bounded& n) const {
-            throw 0;
+            bounded result;
+            array::plus(*this, n, result);
+            return result;
         }
         
         template <uint32 size, typename bounded, typename bit32, typename bit64> 
         inline bounded array<size, bounded, bit32, bit64>::operator-(const bounded& n) const {
-            throw 0;
+            bounded result;
+            array::minus(*this, n, result);
+            return result;
+        }
+    
+        template <uint32_t size, typename bounded, typename bit32, typename bit64>
+        inline bounded array<size, bounded, bit32, bit64>::operator*(const bounded& n) const {
+            bounded result;
+            array::times(*this, n, result);
+            return result;
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
         inline bounded& array<size, bounded, bit32, bit64>::operator+=(const bounded& n) {
-            return operator=(operator+(n));
+            return array::plus(*this, n,*this);
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
         inline bounded& array<size, bounded, bit32, bit64>::operator-=(const bounded& n) {
-            return operator=(operator-(n));
+            return array::plus(*this, n,*this);
+        }
+        
+        template <uint32_t size, typename bounded, typename bit32, typename bit64>
+        inline bounded& array<size, bounded, bit32, bit64>::operator*=(const bounded& n) {
+            return operator=(operator*(n));
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>

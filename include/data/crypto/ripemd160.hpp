@@ -17,7 +17,7 @@ namespace data {
             
             digest(uint32_t n) : uint160{n} {}
             digest() : digest(0) {}
-            digest(digest&);
+            digest(const digest& d) : uint160{d} {}
             digest(digest&&);
             
             bool valid() const;
