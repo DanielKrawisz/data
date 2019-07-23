@@ -7,7 +7,7 @@ namespace data::encoding::ascii{
     string::string(std::string const*input) {
         for(char c: *input)
         {
-            if(!valid(c))
+            if(!ascii::valid(c))
                 return;
         }
         innerString=input;

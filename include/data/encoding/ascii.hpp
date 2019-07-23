@@ -1,5 +1,9 @@
-#ifndef DATA_ENCODING_ASCII_HPP
-#define DATA_ENCODING_ASCII_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_ENCODING_ASCII
+#define DATA_ENCODING_ASCII
 
 #include <string>
 #include <data/types.hpp>
@@ -11,11 +15,11 @@ namespace data::encoding::ascii {
     using character = byte;
 
     inline bool valid(character b) {
-        return b <= max && b>=0;
+        return b <= max && b >= 0;
     }
 
     inline bool valid(char c) {
-        return c <= max && c>=0;
+        return c <= max && c >= 0;
     }
 
 
@@ -24,8 +28,8 @@ namespace data::encoding::ascii {
 
     public:
         string(std::string const* input);
-        inline bool isValid() {
-            return innerString!= nullptr;
+        bool valid() const {
+            return innerString != nullptr;
         }
 
         explicit operator std::string() {
