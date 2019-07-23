@@ -4,7 +4,7 @@
 
 #include <data/encoding/ascii.hpp>
 namespace data::encoding::ascii{
-    string::string(std::string *input) {
+    string::string(std::string const*input) {
         for(char c: *input)
         {
             if(!valid(c))

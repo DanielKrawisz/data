@@ -20,10 +20,10 @@ namespace data::encoding::ascii {
 
 
     class string {
-        std::string* innerString= nullptr;
+        std::string const* innerString= nullptr;
 
     public:
-        string(std::string* input);
+        string(std::string const* input);
         inline bool isValid() {
             return innerString!= nullptr;
         }
