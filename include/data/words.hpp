@@ -12,11 +12,11 @@
 namespace data {
     
     template <uint32_t size, typename bit32, typename bit64>
-    struct words {
+    class words {
+        std::array<byte, size * 4>* Words;
+    public:
         using word = data::number::endian::big<bit64>;
         using index = uint32;
-        
-        std::array<byte, size * 4>& Words;
         
         static const index last = size - 1;
         
@@ -25,7 +25,7 @@ namespace data {
         
         bit32& operator[](index i) {
             if (i >= size) throw 0;
-            return *(uint32*)(Words.data() + 4 * i);
+            return *(uint32*)(Words->data() + 4 * i);
         }
         
         static word extend(uint32);
@@ -34,7 +34,8 @@ namespace data {
             return greater(w) != 0;
         }
         
-        words(std::array<byte, 4 * size>& b) : Words{b} {}
+        words(std::array<byte, 4 * size>& b) : Words{&b} {}
+        words(const words& w) : Words{w.Words} {}
         
         static void bit_negate(words);
         static void bit_or(const words, const words, words);
@@ -56,6 +57,10 @@ namespace data {
         static void minus(const words, const words, words);
         static void plus(const words, const words, words);
         static void times(const words, const words, words);
+        
+        bool operator==(const words w) {
+            return Words == w.Words;
+        }
         
         using iterator = index_iterator<words&, bit32&>;
         

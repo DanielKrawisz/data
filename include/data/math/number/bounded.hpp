@@ -88,7 +88,11 @@ namespace data {
         
         template <uint32_t size>
         struct number<size, false> : public array<size, number<size, false>, uint32, uint64> {
-            using ray = array<size, number<size, false>, uint32, uint64>;
+            using bit32 = uint32;
+            using bit64 = uint64;
+            using words_type = data::words<size, bit32, bit64>;
+            
+            using ray = array<size, number<size, false>, bit32, bit64>;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
@@ -107,7 +111,11 @@ namespace data {
         
         template <uint32_t size>
         struct number<size, true> : public array<size, number<size, true>, int32, int64> {
-            using ray = array<size, number<size, true>, int32, int64>;
+            using bit32 = int32;
+            using bit64 = int64;
+            using words_type = data::words<size, bit32, bit64>;
+            
+            using ray = array<size, number<size, true>, bit32, bit64>;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
@@ -123,6 +131,11 @@ namespace data {
             bool operator<(const number<size, true>& d) const;
             bool operator<=(const number<size, true>& d) const;
         };
+    
+        template <uint32_t size, bool is_signed>
+        typename number<size, is_signed>::words_type words(number<size, is_signed>& n) {
+            return {n};
+        }
         
     }
 

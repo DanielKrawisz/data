@@ -27,7 +27,7 @@ namespace data {
         }
         
         index_iterator& operator++() { // Prefix
-            return operator=(index_iterator{Slice, Index});
+            return operator=(index_iterator{Slice, Index + 1});
         }
         
         X operator*() {

@@ -8,8 +8,8 @@ namespace data::math::number::bounded {
     
     template <uint32_t size>
     bool number<size, false>::operator<(const number<size, false>& n) const {
-        words a{*this};
-        words b{n};
+        data::words a{*this};
+        data::words b{n};
         for (uint32_t i = 0; i < size; i++) {
             if (a[i] < b[i]) return true;
             if (a[i] > b[i]) return false;
@@ -20,8 +20,8 @@ namespace data::math::number::bounded {
     
     template <uint32_t size>
     bool number<size, false>::operator<=(const number<size, false>& n) const {
-        words a{*this};
-        words b{n};
+        data::words a{*this};
+        data::words b{n};
         for (uint32_t i = 0; i < size; i++) {
             if (a[i] < b[i]) return true;
             if (a[i] > b[i]) return false;
