@@ -14,7 +14,7 @@ namespace data {
 
         struct digest : public uint512 {
             using uint512::uint512;
-            digest(uint32_t n) : uint512{n} {}
+            digest(uint32 n) : uint512{n} {}
             digest(const digest&);
             digest(digest&&);
             
@@ -35,10 +35,9 @@ namespace data {
         
         const digest Zero = digest{0};
         
-        digest hash(const slice<byte>);
-        digest hash(const bytes&);
+        digest hash(bytes&);
         
-        template <uint32_t n>
+        template <uint32 n>
         digest hash(const array<byte, n>&);
         
         inline bool digest::valid() const {

@@ -18,7 +18,8 @@ namespace data {
             digest(uint32_t n) : uint160{n} {}
             digest() : digest(0) {}
             digest(const digest& d) : uint160{d} {}
-            digest(digest&&);
+            digest(const std::array<byte, 20>& a) : uint160{a} {}
+            digest(digest&& d) : uint160{d} {};
             
             bool valid() const;
             bool operator==(const digest& d) const;
@@ -35,8 +36,7 @@ namespace data {
         
         const digest Zero = digest{};
         
-        digest hash(const slice<byte>);
-        digest hash(const bytes&);
+        digest hash(bytes&);
         
         template <uint32_t n>
         digest hash(const array<byte, n>&);
