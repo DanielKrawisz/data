@@ -34,9 +34,9 @@ namespace data {
         
         const digest Zero = digest{};
 
-        digest hash(const bytes&);
+        digest hash(bytes&);
         
-        template <uint32_t n>
+        template <uint32 n>
         digest hash(const array<byte, n>&);
         
         inline bool digest::valid() const {

@@ -21,7 +21,7 @@ namespace data {
     using int32 = int32_t;
     using int64 = int64_t;
     
-    using bytes = vector<byte>;
+    using bytes = const vector<byte>;
 
     template<typename X>
     using ptr = std::shared_ptr<X>;
