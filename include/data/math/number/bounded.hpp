@@ -28,7 +28,10 @@ namespace data {
                 w{*this}[last] = x;
             }
             
-            array(const std::array<byte, 4 * size>& b);
+            array(const array& a) : parent{static_cast<const parent&>(a)} {}
+            array(const parent& a) : parent{a} {}
+            array(array&& a) : parent{a} {}
+            array(parent&& a) : parent{a} {}
             array(vector<byte>& v);
             
             static array zero() {
@@ -92,21 +95,29 @@ namespace data {
             using bit64 = uint64;
             using words_type = data::words<size, bit32, bit64>;
             
-            using ray = array<size, number<size, false>, bit32, bit64>;
+            using ray = array<size, number, bit32, bit64>;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
             using ray::operator<<=;
             using ray::operator>>=;
             
-            number<size, false>& operator=(const number<size, false>&) const;
+            number() : ray{} {}
+            number(bit32 x) : ray{x} {}
+            number(const number& n) : ray{static_cast<const ray&>(n)} {}
+            number(number&& n) : ray{static_cast<ray&&>(n)} {}
+            number(const std::array<byte, size*4>& a) : ray{a} {};
+            number(std::array<byte, size*4>&& a) : ray{a} {};
+            number(vector<byte>& v) : ray{v} {};
+            
+            number& operator=(const number&) const;
             
             // power
-            number<size, false> operator^(const number<size, false>&) const;
-            number<size, false>& operator^=(const number<size, false>&);
+            number operator^(const number&) const;
+            number& operator^=(const number&);
             
-            bool operator<(const number<size, false>& d) const;
-            bool operator<=(const number<size, false>& d) const;
+            bool operator<(const number&) const;
+            bool operator<=(const number&) const;
         };
         
         template <uint32_t size>
@@ -122,14 +133,22 @@ namespace data {
             using ray::operator<<=;
             using ray::operator>>=;
             
-            number<size, true>& operator=(const number<size, true>&) const;
+            number() : ray{} {}
+            number(bit32 x) : ray{x} {}
+            number(const number& n) : ray{static_cast<const ray&>(n)} {}
+            number(number&& n) : ray{static_cast<ray&&>(n)} {}
+            number(const typename ray::parent& n) : ray{n} {}
+            number(typename ray::parent&& n) : ray{n} {}
+            number(vector<byte>& v) : ray{v} {};
+            
+            number& operator=(const number&) const;
             
             // power
-            number<size, true> operator^(const number<size, false>&) const;
-            number<size, true>& operator^=(const number<size, false>&);
+            number operator^(const number<size, false>&) const;
+            number& operator^=(const number<size, false>&);
             
-            bool operator<(const number<size, true>& d) const;
-            bool operator<=(const number<size, true>& d) const;
+            bool operator<(const number& d) const;
+            bool operator<=(const number& d) const;
         };
     
         template <uint32_t size, bool is_signed>
@@ -151,12 +170,12 @@ namespace data {
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
         inline bool array<size, bounded, bit32, bit64>::operator>(const bounded& d) const {
-            return d <= *this;
+            return d <= bounded{*this};
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>
         inline bool array<size, bounded, bit32, bit64>::operator>=(const bounded& d) const {
-            return d < *this;
+            return d < bounded{*this};
         }
         
         template <uint32_t size, typename bounded, typename bit32, typename bit64>

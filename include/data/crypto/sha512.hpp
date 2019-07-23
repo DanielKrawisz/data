@@ -13,10 +13,14 @@ namespace data {
     namespace sha512 {
 
         struct digest : public uint512 {
-            using uint512::uint512;
-            digest(uint32 n) : uint512{n} {}
-            digest(const digest&);
-            digest(digest&&);
+            
+            digest(uint32_t n) : uint512{n} {}
+            digest() : digest(0) {}
+            digest(const digest& d) : uint512{d} {}
+            digest(digest&& d) : uint512{static_cast<uint512&&>(d)} {};
+            digest(const std::array<byte, 64>& a) : uint512{a} {}
+            digest(std::array<byte, 64>&& a) : uint512{a} {}
+            digest(bytes& b) : uint512{b} {}
             
             bool valid() const;
             

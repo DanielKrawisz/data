@@ -13,11 +13,14 @@ namespace data {
     namespace sha256 {
 
         struct digest : public uint256 {
-            using uint256::uint256;
             
             digest(uint32_t n) : uint256{n} {}
-            digest(const digest&);
-            digest(digest&&);
+            digest() : digest(0) {}
+            digest(const digest& d) : uint256{d} {}
+            digest(digest&& d) : uint256{static_cast<uint256&&>(d)} {};
+            digest(const std::array<byte, 32>& a) : uint256{a} {}
+            digest(std::array<byte, 32>&& a) : uint256{a} {}
+            digest(bytes& b) : uint256{b} {}
             
             bool valid() const;
             bool operator==(const digest& d) const;
