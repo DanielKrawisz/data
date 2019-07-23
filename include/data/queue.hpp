@@ -1,5 +1,9 @@
-#ifndef DATA_QUEUE_HPP
-#define DATA_QUEUE_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_QUEUE
+#define DATA_QUEUE
 
 #include <data/list.hpp>
 

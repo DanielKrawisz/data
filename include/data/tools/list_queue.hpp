@@ -1,5 +1,9 @@
-#ifndef DATA_TOOLS_LIST_QUEUE_HPP
-#define DATA_TOOLS_LIST_QUEUE_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_TOOLS_LIST_QUEUE
+#define DATA_TOOLS_LIST_QUEUE
 
 #include <data/queue.hpp>
     
@@ -29,7 +33,7 @@ namespace data {
             return prepend(elem);
         }
         
-        list_queue append(e elem) {
+        list_queue append(e elem) const {
             return list_queue{list::append(List, elem)};
         }
 

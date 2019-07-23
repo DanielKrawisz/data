@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_FRACTION
-#define DATA_MATH_NUMBER_FRACTION
+#ifndef DATA_MATH_NUMBER_RATIONAL
+#define DATA_MATH_NUMBER_RATIONAL
 
 #include <data/types.hpp>
 #include <data/math/number/division.hpp>
@@ -126,6 +126,8 @@ namespace data::math {
             fraction& operator/=(const fraction& f) {
                 return operator=(operator/(f));
             }
+            
+            constexpr static rational<fraction> is_rational{};
             
         };
         

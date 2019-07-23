@@ -111,6 +111,7 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/ascii.cpp
         src/data/math/number/division.cpp
         src/data/math/number/bounded.cpp
+        src/data/math/number/eratosthenes.cpp
         src/data/math/number/gmp/mpz.cpp
         src/data/math/number/gmp/N.cpp
         src/data/math/number/gmp/Z.cpp
