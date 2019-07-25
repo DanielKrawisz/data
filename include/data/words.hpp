@@ -10,20 +10,37 @@
 #include <data/tools/index_iterator.hpp>
 
 namespace data {
+    static uint32 lesser(uint64 w);
+    static uint32 greater(uint64 w);
+    static uint16 lesser(uint32 w);
+    static uint16 greater(uint32 w);
+    static byte lesser(uint16 w);
+    static byte greater(uint16 w);
+    
+    static int32 lesser(int64 w);
+    static int32 greater(int64 w);
+    static int16 lesser(int32 w);
+    static int16 greater(int32 w);
+    static int8 lesser(int16 w);
+    static int8 greater(int16 w);
     
     template <uint32_t size, typename bit32, typename bit64>
     class words {
-        std::array<byte, size * 4>* Words;
+        using ar = std::array<byte, 4 * size>;
+        ar* Words;
+        words(const ar& b) : Words{&const_cast<ar&>(b)} {}
     public:
         using word = data::number::endian::big<bit64>;
         using index = uint32;
         
         static const index last = size - 1;
         
-        static bit32 lesser(word w);
-        static bit32 greater(word w);
-        
         bit32& operator[](index i) {
+            if (i >= size) throw 0;
+            return *(uint32*)(Words->data() + 4 * i);
+        }
+        
+        bit32 operator[](index i) const {
             if (i >= size) throw 0;
             return *(uint32*)(Words->data() + 4 * i);
         }
@@ -34,8 +51,16 @@ namespace data {
             return greater(w) != 0;
         }
         
-        words(std::array<byte, 4 * size>& b) : Words{&b} {}
+        words(ar& b) : Words{&b} {}
         words(const words& w) : Words{w.Words} {}
+        
+        static words make(ar& b) {
+            return {b};
+        }
+        
+        static const words make(const ar& b) {
+            return {b};
+        }
         
         static void bit_negate(words);
         static void bit_or(const words, const words, words);
@@ -46,12 +71,12 @@ namespace data {
         
         static void bit_shift_left(const words in, int32 bits, words w) {
             if (bits < 0) return bit_shift_right(in, -bits, w);
-            return bit_shift_left(uint32(in), bits, w);
+            return bit_shift_left(in, bits, w);
         }
         
         static void bit_shift_right(const words in, int32 bits, words w) {
             if (bits < 0) return bit_shift_left(in, -bits, w);
-            return bit_shift_right(uint32(in), bits, w);
+            return bit_shift_right(in, bits, w);
         }
         
         static void minus(const words, const words, words);

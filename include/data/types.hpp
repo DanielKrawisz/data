@@ -16,6 +16,7 @@ namespace data {
     using array = const std::array<X, n>;
 
     using byte = uint8_t;
+    using uint16 = uint16;
     using uint32 = uint32_t;
     using uint64 = uint64_t;
     using int32 = int32_t;
