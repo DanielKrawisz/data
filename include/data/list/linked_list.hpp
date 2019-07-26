@@ -24,7 +24,7 @@ namespace data {
         // if the list is empty, then this function
         // will dereference a nullptr. It is your
         // responsibility to check. 
-        const X& first() const {
+        const X first() const {
             return Next->First;
         }
             
@@ -119,7 +119,7 @@ namespace data {
     }
 
     template <typename X>
-    inline const X& first(const data::linked_list<X> l) {
+    inline const X first(const data::linked_list<X> l) {
         return l.first();
     }
 

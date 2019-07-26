@@ -60,14 +60,14 @@ namespace data {
 
             template <typename L, typename X>
             struct list : public retractable<L> {
-                X& first(L l) {
+                X first(L l) {
                     return l.first();
                 }
             };
                 
             template <typename L, typename X>
             struct list<L*, X> : virtual public retractable<L*> {
-                X& first(L* l) {
+                X first(L* l) {
                     return l->First;
                 }
             };
@@ -255,7 +255,7 @@ namespace data {
                 return operator=(iterator{rest(List)});
             }
 
-            const E& operator*() const{
+            const E operator*() const{
                 return first(List);
             }
      

@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MAP_RB
 #define DATA_MAP_RB
 
@@ -8,45 +12,46 @@
 #include <milewski/RBMap/RBMap.h>
     
 namespace data {
-        
+    
     template <typename K, typename V>
     struct rb_map {
         using entry = map::entry<K, V>;
+        using map = milewski::okasaki::RBMap<K, V>;
     private:
-        RBMap<K, V> Map;
+        map Map;
         using list = linked_list<entry>;
         constexpr static const data::map::definition::countable<rb_map, K, V, list> require_is_map{};
-            
-        rb_map(RBMap<K, V> m) : Map{m} {}
-            
+        
+        rb_map(map m) : Map{m} {}
+        
     public:
         V operator[](K k) const {
             return Map.findWithDefault(V{}, k);
         }
-            
+        
         rb_map insert(K k, V v) const {
-            return RBMap<K, V>{Map.inserted(k, v)};
+            return Map.inserted(k, v);
         }
-            
+        
         rb_map operator+(entry e) {
-            return RBMap<K, V>{Map.inserted(e.Key, e.Value)};
+            return Map.inserted(e.Key, e.Value);
         }
-            
+        
         bool contains(K k) const {
             return Map.member(k);
         }
-            
+        
         bool empty() const {
             return Map.isEmpty();
         }
-            
+        
         rb_map() : Map{} {}
         rb_map(std::initializer_list<std::pair<K, V>> init);
         
         list entries() const;
         
         bool valid() const;
-            
+        
     };
     
     template <typename K, typename V>
