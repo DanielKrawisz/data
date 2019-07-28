@@ -28,8 +28,9 @@ namespace data {
     class words {
         using ar = std::array<byte, 4 * size>;
         ar* Words;
-        words(const ar& b) : Words{&const_cast<ar&>(b)} {}
     public:
+        words(const ar& b) : Words{&const_cast<ar&>(b)} {}
+        
         using word = data::number::endian::big<bit64>;
         using index = uint32;
         
