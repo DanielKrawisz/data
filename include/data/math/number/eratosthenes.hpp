@@ -50,18 +50,7 @@ namespace data::math::number {
             return sieve.insert(prime, prime * 2);
         }; 
         
-        eratosthenes step() const {
-            N n = Max + 1;
-            heap sieve = Sieve;
-            entry e;
-            while (true) {
-                e = sieve.first();
-                if (e.Multiple >= n) break;
-                sieve = sieve.insert(entry{e.Prime, e.Multiple + e.Prime});
-            }
-            if (e.Multiple == n) return eratosthenes{Primes, n, sieve};
-            return eratosthenes{Primes.insert(prime<N>{n}), n, insert_prime(sieve, n)};
-        }
+        eratosthenes step() const ;
         
     public:
         eratosthenes() : Primes{}, Max{1}, Sieve{} {}

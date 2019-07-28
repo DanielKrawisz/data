@@ -10,7 +10,7 @@ namespace data::math::number {
     eratosthenes<N> eratosthenes<N>::step() const {
         N n = Max + 1;
         bool presumed_prime = true;
-        queue q = Queue;
+        queue q = queue();
         if (!q.empty()) do {
             N next = q.first().Priority;
             if (next > n) break;
