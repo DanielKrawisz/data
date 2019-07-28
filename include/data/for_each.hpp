@@ -1,5 +1,8 @@
-#ifndef DATA_FOR_EACH_HPP
-#define DATA_FOR_EACH_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+
+#ifndef DATA_FOR_EACH
+#define DATA_FOR_EACH
 
 #include <data/list/for_each.hpp>
 #include <data/queue/for_each.hpp>
