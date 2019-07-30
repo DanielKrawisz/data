@@ -22,6 +22,10 @@ namespace data {
                 Q append(const Q l, const X x) const {
                     return l + x;
                 }
+                
+                Q append(const Q l, const Q q) const {
+                    return l + q;
+                }
             };
 
             template <typename Q, typename X>
@@ -29,6 +33,11 @@ namespace data {
                 Q append(const Q l, const X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
+                }
+                
+                Q append(const Q l, const Q q) const {
+                    if (l == nullptr) return q;
+                    return l->append(q);
                 }
             };
                 

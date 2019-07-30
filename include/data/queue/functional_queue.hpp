@@ -1,5 +1,9 @@
-#ifndef DATA_MAP_QUEUE_HPP
-#define DATA_MAP_QUEUE_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_MAP_QUEUE
+#define DATA_MAP_QUEUE
 
 #include <data/list.hpp>
 #include <data/tools/iterator_list.hpp>
@@ -52,13 +56,31 @@ namespace data {
         functional_queue rest() const {
             return check(Left.rest(), Right);
         }
-            
+        
         functional_queue append(element e) const {
             return check(Left, Right + e);
         }
-            
+        
         functional_queue operator+(element e) const {
             return append(e);
+        }
+        
+        functional_queue append(L list) const {
+            if (list.empty()) return *this;
+            return append(list.first()).append(list.rest());
+        }
+        
+        functional_queue operator+(L list) const {
+            return append(list);
+        }
+        
+        functional_queue append(functional_queue q) const {
+            if (list.empty()) return *this;
+            return append(q.first()).append(q.rest());
+        }
+        
+        functional_queue operator+(functional_queue q) const {
+            return append(q);
         }
 
         functional_queue reverse() const {
