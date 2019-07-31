@@ -89,7 +89,7 @@ namespace data {
         using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64>;
         using word = math::number::ordered<bit64, endian::order::big>;
         using wrapper::index;
-        using ar = std::array<byte, 4 * size>;
+        using ar = std::array<byte, size>;
         words(ar& a) : wrapper{a} {}
         
         static word extend(uint32);

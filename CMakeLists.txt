@@ -120,8 +120,8 @@ ADD_LIBRARY(data STATIC
         src/data/crypto/ripemd160.cpp
         src/data/crypto/sha256.cpp
         src/data/crypto/sha512.cpp
-		src/data/slice.cpp
-		src/data/words.cpp)
+        src/data/slice.cpp
+        src/data/words.cpp)
 
 target_include_directories(data PUBLIC include)
 

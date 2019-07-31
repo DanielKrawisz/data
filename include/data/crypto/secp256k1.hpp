@@ -132,7 +132,7 @@ namespace data {
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
         inline bool pubkey<compressed_pubkey, pubkey_size>::verify(const sha256::digest& d, const signature& s) const {
-            return libbitcoin::system::verify_signature(low::libbitcoin(*this), low::convert_to_libbitcoin(d), s);
+            return libbitcoin::system::verify_signature(low::libbitcoin(*this), low::libbitcoin(d), s);
         }
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
