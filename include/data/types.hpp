@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+
 #ifndef DATA_TYPES
 #define DATA_TYPES
 
@@ -11,9 +14,6 @@ namespace data {
     
     template<typename X>
     using vector = const std::vector<X>;
-    
-    template<typename X, uint32_t n>
-    using array = const std::array<X, n>;
 
     using byte = uint8_t;
     using uint16 = uint16_t;

@@ -3,15 +3,15 @@
 
 namespace data::sha256 {
     digest hash(bytes& data) {
-        digest hash;
+        std::array<byte, 32> hash;
         CryptoPP::SHA256 shaHash;
         shaHash.CalculateDigest(hash.data(),data.data(),data.size());
         return hash;
     }
     
     template <uint32 n>
-    digest hash(const array<byte, n>& data) {
-        digest hash;
+    digest hash(const std::array<byte, n>& data) {
+        std::array<byte, 32> hash;
         CryptoPP::SHA256 shaHash;
         shaHash.CalculateDigest(hash.data(), data.data(), data.size());
         return hash;

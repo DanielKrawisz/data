@@ -9,37 +9,38 @@
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/number/division.hpp>
+#include <data/tools/managed.hpp>
 
 namespace data {
         
     namespace math::number::bounded {
     
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        struct array : public std::array<byte, size * 4> {
-            using parent = std::array<byte, size * 4>;
-            using word = data::number::endian::big<bit64>;
-            using w = words<size, bit32, bit64>;
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        struct array : managed::bytes<size> {
+            using parent = managed::bytes<size>;
+            using word = ordered<bit64, endian::order::big>;
+            using words = ::data::words<size, bit32, bit64>;
             using index = uint32;
             
             static const index last = size - 1;
             
-            array() : parent() {}
-            array(bit32 x) : array() {
-                w{*this}[last] = x;
-            }
+            array() : parent(std::array<byte, size>{}) {}
+            array(bit32 x); /* : array() {
+                words{parent::value()}.operator[](last) = x;
+            }*/
             
             array(const array& a) : parent{static_cast<const parent&>(a)} {}
-            array(const parent& a) : parent{a} {}
-            array(array&& a) : parent{a} {}
-            array(parent&& a) : parent{a} {}
+            array(const std::array<byte, size>& d) : parent{d} {}
+            array(array&& a) : parent{static_cast<const parent&&>(a)} {}
+            array(std::array<byte, size>&& d) : parent{d} {}
             array(vector<byte>& v);
             
             static array zero() {
                 return array{};
             }
             
-            bounded& operator=(const bounded&);
-
+            array& operator=(const array& a);
+            
             bool operator==(const bounded& d) const;
             bool operator!=(const bounded& d) const;
             
@@ -49,10 +50,10 @@ namespace data {
             
             bounded& operator|=(const bounded&);
             bounded& operator^=(const bounded&);
-                
+            
             bounded operator<<(uint32) const;
             bounded operator>>(uint32) const;
-                
+            
             bounded operator<<(int32) const;
             bounded operator>>(int32) const;
                 
@@ -90,12 +91,12 @@ namespace data {
         template <uint32 size, bool is_signed> struct number;
         
         template <uint32 size>
-        struct number<size, false> : public array<size, number<size, false>, uint32, uint64> {
+        struct number<size, false> : public array<number<size, false>, size, uint32, uint64> {
             using bit32 = uint32;
             using bit64 = uint64;
             using words_type = data::words<size, bit32, bit64>;
             
-            using ray = array<size, number, bit32, bit64>;
+            using ray = array<number, size, bit32, bit64>;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
@@ -106,8 +107,8 @@ namespace data {
             number(bit32 x) : ray{x} {}
             number(const number& n) : ray{static_cast<const ray&>(n)} {}
             number(number&& n) : ray{static_cast<ray&&>(n)} {}
-            number(const std::array<byte, size*4>& a) : ray{a} {};
-            number(std::array<byte, size*4>&& a) : ray{a} {};
+            number(const std::array<byte, size>& a) : ray{a} {};
+            number(std::array<byte, size>&& a) : ray{a} {};
             number(vector<byte>& v) : ray{v} {};
             
             number& operator=(const number&) const;
@@ -121,12 +122,12 @@ namespace data {
         };
         
         template <uint32 size>
-        struct number<size, true> : public array<size, number<size, true>, int32, int64> {
+        struct number<size, true> : public array<number<size, true>, size, int32, int64> {
             using bit32 = int32;
             using bit64 = int64;
             using words_type = data::words<size, bit32, bit64>;
             
-            using ray = array<size, number<size, true>, bit32, bit64>;
+            using ray = array<number, size, bit32, bit64>;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
@@ -137,8 +138,8 @@ namespace data {
             number(bit32 x) : ray{x} {}
             number(const number& n) : ray{static_cast<const ray&>(n)} {}
             number(number&& n) : ray{static_cast<ray&&>(n)} {}
-            number(const typename ray::parent& n) : ray{n} {}
-            number(typename ray::parent&& n) : ray{n} {}
+            number(const std::array<byte, size>& a) : ray{a} {};
+            number(std::array<byte, size>&& a) : ray{a} {};
             number(vector<byte>& v) : ray{v} {};
             
             number& operator=(const number&) const;
@@ -164,162 +165,162 @@ namespace data {
         template <uint32 size> using uint = number<size, false>;
         
     }
-
-    using uint160 = math::number::bounded::uint<5>;
-    using uint256 = math::number::bounded::uint<8>;
-    using uint512 = math::number::bounded::uint<16>;
     
-    using int160 = math::number::bounded::number<5, true>;
-    using int256 = math::number::bounded::number<8, true>;
-    using int512 = math::number::bounded::number<16, true>;
+    using uint160 = math::number::bounded::uint<20>;
+    using uint256 = math::number::bounded::uint<32>;
+    using uint512 = math::number::bounded::uint<64>;
+    
+    using int160 = math::number::bounded::number<20, true>;
+    using int256 = math::number::bounded::number<32, true>;
+    using int512 = math::number::bounded::number<64, true>;
 
     namespace math::number::bounded {
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bool array<size, bounded, bit32, bit64>::operator>(const bounded& d) const {
-            return d <= bounded{*this};
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bool array<bounded, size, bit32, bit64>::operator>(const bounded& d) const {
+            return d <= bounded{parent::value()};
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bool array<size, bounded, bit32, bit64>::operator>=(const bounded& d) const {
-            return d < bounded{*this};
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bool array<bounded, size, bit32, bit64>::operator>=(const bounded& d) const {
+            return d < bounded{parent::value()};
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bool array<size, bounded, bit32, bit64>::operator==(const bounded& d) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bool array<bounded, size, bit32, bit64>::operator==(const bounded& d) const {
             return static_cast<const parent&>(*this) == static_cast<const parent&>(d);
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bool array<size, bounded, bit32, bit64>::operator!=(const bounded& d) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bool array<bounded, size, bit32, bit64>::operator!=(const bounded& d) const {
             return static_cast<const parent&>(*this) != static_cast<const parent&>(d);
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64> 
-        inline bounded array<size, bounded, bit32, bit64>::operator-() const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, size, bit32, bit64>::operator-() const {
             return bounded{0} - *this;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64> 
-        inline bounded array<size, bounded, bit32, bit64>::operator~() const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, size, bit32, bit64>::operator~() const {
             bounded n = *this;
-            w{n}.bit_negate();
+            words{n}.bit_negate();
             return n;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator|=(const bounded& n) {
-            w::bit_and(*this, n, *this);
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator|=(const bounded& n) {
+            words::bit_and(*this, n, *this);
             return *this;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator^=(const bounded& n) {
-            w::bit_and(*this, n, *this);
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator^=(const bounded& n) {
+            words::bit_and(*this, n, *this);
             return *this;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64> 
-        inline bounded array<size, bounded, bit32, bit64>::operator+(const bounded& n) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, size, bit32, bit64>::operator+(const bounded& n) const {
             bounded result;
-            w::plus(*this, n, result);
+            words::plus(*this, n, result);
             return result;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64> 
-        inline bounded array<size, bounded, bit32, bit64>::operator<<(uint32 bits) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, size, bit32, bit64>::operator<<(uint32 bits) const {
             bounded result;
-            w::bit_shift_left(*this, bits, result);
-            return result;
-        }
-    
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded array<size, bounded, bit32, bit64>::operator>>(uint32 bits) const {
-            bounded result;
-            w::bit_shift_right(*this, bits, result);
-            return result;
-        }
-        
-        template <uint32 size, typename bounded, typename bit32, typename bit64> 
-        inline bounded array<size, bounded, bit32, bit64>::operator<<(int32 bits) const {
-            bounded result;
-            w::bit_shift_left(*this, bits, result);
+            words::bit_shift_left(*this, bits, result);
             return result;
         }
     
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded array<size, bounded, bit32, bit64>::operator>>(int32 bits) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded array<bounded, size, bit32, bit64>::operator>>(uint32 bits) const {
             bounded result;
-            w::bit_shift_right(*this, bits, result);
+            words::bit_shift_right(*this, bits, result);
             return result;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator<<=(uint32 bits) {
-            w::bit_shift_left(*this, bits, *this);
-            return *this;
-        }
-        
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator>>=(uint32 bits) {
-            w::bit_shift_right(*this, bits, *this);
-            return *this;
-        }
-        
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator<<=(int32 bits) {
-            w::bit_shift_left(*this, bits, *this);
-            return *this;
-        }
-        
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator>>=(int32 bits) {
-            w::bit_shift_right(*this, bits, *this);
-            return *this;
-        }
-        
-        template <uint32 size, typename bounded, typename bit32, typename bit64> 
-        inline bounded array<size, bounded, bit32, bit64>::operator-(const bounded& n) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, size, bit32, bit64>::operator<<(int32 bits) const {
             bounded result;
-            w::minus(*this, n, result);
+            words::bit_shift_left(*this, bits, result);
             return result;
         }
     
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded array<size, bounded, bit32, bit64>::operator*(const bounded& n) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded array<bounded, size, bit32, bit64>::operator>>(int32 bits) const {
+            bounded result;
+            words::bit_shift_right(*this, bits, result);
+            return result;
+        }
+        
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator<<=(uint32 bits) {
+            words::bit_shift_left(*this, bits, *this);
+            return *this;
+        }
+        
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator>>=(uint32 bits) {
+            words::bit_shift_right(*this, bits, *this);
+            return *this;
+        }
+        
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator<<=(int32 bits) {
+            words::bit_shift_left(*this, bits, *this);
+            return *this;
+        }
+        
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator>>=(int32 bits) {
+            words::bit_shift_right(*this, bits, *this);
+            return *this;
+        }
+        
+        template <typename bounded, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, size, bit32, bit64>::operator-(const bounded& n) const {
+            bounded result;
+            words::minus(*this, n, result);
+            return result;
+        }
+    
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded array<bounded, size, bit32, bit64>::operator*(const bounded& n) const {
             bounded result;
             array::times(*this, n, result);
             return result;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator+=(const bounded& n) {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator+=(const bounded& n) {
             return array::plus(*this, n,*this);
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator-=(const bounded& n) {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator-=(const bounded& n) {
             return array::plus(*this, n,*this);
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded& array<size, bounded, bit32, bit64>::operator*=(const bounded& n) {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, size, bit32, bit64>::operator*=(const bounded& n) {
             return operator=(operator*(n));
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
         inline math::number::division<bounded> 
-        array<size, bounded, bit32, bit64>::divide(const bounded& n) const {
+        array<bounded, size, bit32, bit64>::divide(const bounded& n) const {
             return math::number::division<number<size, true>>::divide(*this, n);
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded array<size, bounded, bit32, bit64>::operator/(const bounded& n) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded array<bounded, size, bit32, bit64>::operator/(const bounded& n) const {
             return divide(n).Quotient;
         }
         
-        template <uint32 size, typename bounded, typename bit32, typename bit64>
-        inline bounded array<size, bounded, bit32, bit64>::operator%(const bounded& n) const {
+        template <typename bounded, uint32 size, typename bit32, typename bit64>
+        inline bounded array<bounded, size, bit32, bit64>::operator%(const bounded& n) const {
             return divide(n).Remainder;
         }
         

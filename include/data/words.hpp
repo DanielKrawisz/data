@@ -8,59 +8,102 @@
 #include <data/types.hpp>
 #include <data/math/number/endian.hpp>
 #include <data/tools/index_iterator.hpp>
+#include <data/math/sign.hpp>
 
 namespace data {
-    static uint32 lesser(uint64 w);
-    static uint32 greater(uint64 w);
-    static uint16 lesser(uint32 w);
-    static uint16 greater(uint32 w);
-    static byte lesser(uint16 w);
-    static byte greater(uint16 w);
     
-    static int32 lesser(int64 w);
-    static int32 greater(int64 w);
-    static int16 lesser(int32 w);
-    static int16 greater(int32 w);
-    static int8 lesser(int16 w);
-    static int8 greater(int16 w);
+    template <uint32 left, uint32 right> struct equal {
+        equal() = delete;
+    };
+        
+    template <uint32 val> struct equal<val, val> {};
     
-    template <uint32_t size, typename bit32, typename bit64>
-    class words {
-        using ar = std::array<byte, 4 * size>;
+    template <uint32 left, uint32 right> struct unequal {};
+        
+    template <uint32 val> struct unequal<val, val> {
+        unequal() = delete;
+    };
+    
+    template <uint32 bytes, uint32 words, byte extra , typename bit32, typename bit64> class words_wrapper;
+    
+    template <uint32 bytes, uint32 words, typename bit32, typename bit64>
+    class words_wrapper<bytes, words, 0, bit32, bit64> : equal<bytes, words * 4>, endian::split<bit32, bit64> {
+        using ar = std::array<byte, bytes>;
         ar* Words;
     public:
-        words(const ar& b) : Words{&const_cast<ar&>(b)} {}
         
-        using word = data::number::endian::big<bit64>;
         using index = uint32;
         
-        static const index last = size - 1;
+        static const index last = words - 1;
+        
+        words_wrapper(ar& a) : Words{&a} {}
+        words_wrapper(const words_wrapper& xx) : Words{xx.Words} {}
         
         bit32& operator[](index i) {
-            if (i >= size) throw 0;
-            return *(uint32*)(Words->data() + 4 * i);
+            if (i >= words) throw std::out_of_range{""};
+            return *(bit32*)(Words->data() + 4 * i);
         }
         
-        bit32 operator[](index i) const {
-            if (i >= size) throw 0;
-            return *(uint32*)(Words->data() + 4 * i);
+        const bit32 operator[](index i) const {
+            if (i >= words) throw std::out_of_range{""};
+            return *(bit32*)(Words->data() + 4 * i);
         }
+        
+        void set(index i, bit32 x) {
+            operator[](i) = x;
+        }
+    };
+    
+    template <uint32 bytes, uint32 words, byte extra, typename bit32, typename bit64>
+    class words_wrapper : equal<bytes + extra, words * 4>, endian::split<bit32, bit64>, unequal<extra, 0> {
+        using ar = std::array<byte, bytes>;
+        ar* Words;
+        static const byte remainder = 4 - extra;
+        static const uint32 shift_right = 8 * extra;
+        static const uint32 shift_left = 8 * remainder;
+    public:
+        
+        using index = uint32;
+        
+        static const index last = words - 1;
+        
+        words_wrapper(ar& a) : Words{&a} {}
+        words_wrapper(const words_wrapper& xx) : Words{xx.Words} {}
+        
+        bit32 operator[](index i) const {
+            if (i >= words) throw std::out_of_range{""};
+            if (i == 0) return ((*(bit32*)(Words->data())) >> shift_right) + 
+                (endian::split<bit32, bit64>::is_signed && (((Words[0] & 0x8000) == 0x8000) ? 0xffffffff << shift_left : 0));
+            return *(bit32*)(Words->data() - remainder + 4 * i);
+        }
+        
+        void set(index i, bit32 x) {
+            if (i >= words) throw std::out_of_range{""};
+            //if (i == 0) ; // TODO!!
+            *(bit32*)(Words->data() - remainder + 4 * i) = x;
+        }
+    };
+    
+    template <uint32 size, typename bit32, typename bit64>
+    struct words : public words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64> {
+        using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64>;
+        using word = math::number::ordered<bit64, endian::order::big>;
+        using wrapper::index;
+        using ar = std::array<byte, 4 * size>;
+        words(ar& a) : wrapper{a} {}
         
         static word extend(uint32);
         
-        static bool overflow(word w) {
-            return greater(w) != 0;
+        static bool overflow(word x) {
+            return greater(x) != 0;
         }
         
-        words(ar& b) : Words{&b} {}
-        words(const words& w) : Words{w.Words} {}
-        
-        static words make(ar& b) {
-            return {b};
+        static words make(ar& a) {
+            return {a};
         }
         
-        static const words make(const ar& b) {
-            return {b};
+        static const words make(const ar& a) {
+            return {a};
         }
         
         static void bit_negate(words);
@@ -84,9 +127,9 @@ namespace data {
         static void plus(const words, const words, words);
         static void times(const words, const words, words);
         
-        bool operator==(const words w) {
-            return Words == w.Words;
-        }
+        bool operator==(const words& xx);
+        
+        using wrapper::last;
         
         using iterator = index_iterator<words&, bit32&>;
         
@@ -98,24 +141,24 @@ namespace data {
     };
     
     template <uint32 size, typename bit32, typename bit64> 
-    inline void words<size, bit32, bit64>::bit_negate(words w) {
-        for (bit32& u : w) u = ~u;
+    inline void words<size, bit32, bit64>::bit_negate(words xx) {
+        for (bit32& u : xx) u = ~u;
     }
     
     template <uint32 size, typename bit32, typename bit64> 
     inline void words<size, bit32, bit64>::bit_and(
-        const words a,
-        const words b, 
+        const words x,
+        const words y, 
         words result) {
-        for (uint32 i = 0; i < size; i++) result[i] = a[i]^b[i];
+        for (uint32 i = 0; i < size; i++) result[i] = x[i]^y[i];
     }
     
     template <uint32 size, typename bit32, typename bit64> 
     inline void words<size, bit32, bit64>::bit_or(
-        const words a,
-        const words b,
+        const words x,
+        const words y,
         words result) {
-        for (uint32 i = 0; i < size; i++) result[i] = a[i]|b[i];
+        for (uint32 i = 0; i < size; i++) result[i] = x[i]|y[i];
     }
     
 }

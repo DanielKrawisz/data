@@ -6,7 +6,7 @@
 
 namespace data {
     
-    template <uint32_t size, typename bit32, typename bit64>
+    template <uint32 size, typename bit32, typename bit64>
     void words<size, bit32, bit64>::minus(const words a, const words b, words result) {
         bit32 remainder{0};
         for (int32 i = last; i >= 0; i--) {
@@ -16,7 +16,7 @@ namespace data {
         };
     }
     
-    template <uint32_t size, typename bit32, typename bit64> 
+    template <uint32 size, typename bit32, typename bit64> 
     void words<size, bit32, bit64>::plus(const words a, const words b, words result) {
         bit32 remainder{0};
         for (int32 i = last; i >= 0; i--) {
@@ -26,17 +26,17 @@ namespace data {
         };
     }
     
-    template <uint32_t size, typename bit32, typename bit64> 
+    template <uint32 size, typename bit32, typename bit64> 
     void words<size, bit32, bit64>::bit_shift_left(const words in, uint32 bits, words result) {
         throw 0;
     }
     
-    template <uint32_t size, typename bit32, typename bit64> 
+    template <uint32 size, typename bit32, typename bit64> 
     void words<size, bit32, bit64>::bit_shift_right(const words in, uint32 bits, words result) {
         throw 0;
     }
     
-    template <uint32_t size, typename bit32, typename bit64> 
+    template <uint32 size, typename bit32, typename bit64> 
     void words<size, bit32, bit64>::times(const words a, const words b, words result) {
         auto from_end = [](uint32 i)->uint32{return size - 1 - i;};
         bit32 remainder{0};

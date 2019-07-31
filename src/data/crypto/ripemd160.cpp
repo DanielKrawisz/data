@@ -3,15 +3,15 @@
 
 namespace data::ripemd160 {
     digest hash(bytes& data) {
-        digest hash;
+        std::array<byte, 20> hash;
         CryptoPP::RIPEMD160 rhash;
-        rhash.CalculateDigest(hash.data(),data.data(),data.size());
+        rhash.CalculateDigest(hash.data(), data.data(), data.size());
         return hash;
     }
     
     template <uint32 n>
-    digest hash(const array<byte, n>& data) {
-        digest hash;
+    digest hash(const std::array<byte, n>& data) {
+        std::array<byte, 20> hash;
         CryptoPP::RIPEMD160 rhash;
         rhash.CalculateDigest(hash.data(), data.data(), data.size());
         return hash;

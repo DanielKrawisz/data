@@ -75,7 +75,7 @@ namespace data {
         }
         
         functional_queue append(functional_queue q) const {
-            if (list.empty()) return *this;
+            if (q.empty()) return *this;
             return append(q.first()).append(q.rest());
         }
         

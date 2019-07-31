@@ -42,7 +42,7 @@ namespace data {
         digest hash(bytes&);
         
         template <uint32 n>
-        digest hash(const array<byte, n>&);
+        digest hash(const std::array<byte, n>&);
         
         inline bool digest::valid() const {
             return operator!=(sha512::Zero);
