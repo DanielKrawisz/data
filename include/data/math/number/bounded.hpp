@@ -15,13 +15,14 @@ namespace data {
         
     namespace math::number::bounded {
     
-        template <typename bounded, uint32 size, typename bit32, typename bit64>
-        struct array : managed::bytes<size> {
-            using parent = managed::bytes<size>;
+        template <typename bounded, uint32 n, typename bit32, typename bit64>
+        struct array : managed::bytes<n> {
+            using parent = managed::bytes<n>;
             using word = ordered<bit64, endian::order::big>;
             using index = uint32;
             
-            static const index last = size - 1;
+            static const index size = n;
+            static const index last = n - 1;
             
             array() : parent(std::array<byte, size>{}) {}
             
