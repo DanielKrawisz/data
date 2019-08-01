@@ -96,6 +96,14 @@ namespace data {
                 words()[last] = x;
             }
             
+            operator std::array<byte, size>&() {
+                return value();
+            }
+            
+            operator const std::array<byte, size>&() {
+                return value();
+            }
+            
             constexpr static math::group::abelian<bounded> is_group{}; 
         };
         

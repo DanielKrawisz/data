@@ -88,7 +88,6 @@ namespace data {
     struct words : public words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64> {
         using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64>;
         using word = math::number::ordered<bit64, endian::order::big>;
-        using wrapper::index;
         using ar = std::array<byte, size>;
         words(ar& a) : wrapper{a} {}
         
@@ -130,7 +129,6 @@ namespace data {
         bool operator==(const words& xx);
         
         using wrapper::last;
-        
         using iterator = index_iterator<words&, bit32&>;
         
         iterator begin();
