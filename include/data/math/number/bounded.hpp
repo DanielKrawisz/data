@@ -90,7 +90,7 @@ namespace data {
             }
             
             const words_type words() const {
-                return words_type{value()};
+                return words_type{const_cast<std::array<byte, n>&>(value())};
             }
             
             array(bit32 x) : array() {
@@ -254,7 +254,7 @@ namespace data {
         template <typename bounded, uint32 size, typename bit32, typename bit64> 
         inline bounded array<bounded, size, bit32, bit64>::operator<<(int32 bits) const {
             bounded result;
-            words_type::bit_shift_left(*this, bits, result);
+            words_type::bit_shift_left(words(), bits, result.words());
             return result;
         }
     
