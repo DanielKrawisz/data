@@ -21,7 +21,13 @@ namespace data::crypto {
         
         bool valid() const;
         
-        digest& operator=(const digest& d);
+        digest& operator=(const digest&);
+        bool operator==(const digest&) const;
+        bool operator!=(const digest&) const;
+        bool operator<(const digest&) const;
+        bool operator>(const digest&) const;
+        bool operator<=(const digest&) const;
+        bool operator>=(const digest&) const;
     };
     
     template <uint32 size>
