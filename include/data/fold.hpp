@@ -1,7 +1,11 @@
-#ifndef DATA_FOLD_HPP
-#define DATA_FOLD_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data.hpp"
+#ifndef DATA_FOLD
+#define DATA_FOLD
+
+#include "types.hpp"
 
 namespace data {
 

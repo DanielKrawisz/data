@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_TOOLS_ITERATOR_LIST
 #define DATA_TOOLS_ITERATOR_LIST
 
@@ -45,7 +49,7 @@ namespace data {
             return Next == l.Next && End == l.End;
         }
         
-        iterator_list<it, elem> from(uint n) const {
+        iterator_list<it, elem> from(uint32 n) const {
             if (empty()) return {};
             if (n == 0) return this;
             return rest().from(n - 1);

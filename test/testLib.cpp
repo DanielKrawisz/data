@@ -3,6 +3,7 @@
 //
 
 #include <gtest/gtest.h>
+#include <data/data.hpp>
 
 int main(int argc, char *argv[]){
 

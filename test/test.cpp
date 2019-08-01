@@ -1,5 +1,4 @@
-#include <data/list/linked_list.hpp>
-#include <data/queue/functional_queue.hpp>
+#include <data/data.hpp>
 #include <data/tree/linked_tree.hpp>
 
 std::vector<std::string> read_options(int argc, char *argv[]) {

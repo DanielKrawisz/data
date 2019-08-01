@@ -19,8 +19,8 @@ namespace data {
                 bool empty(const L l) const {
                     return l.empty();
                 }
-                    
-                uint size(const L l) const {
+                
+                uint32 size(const L l) const {
                     return l.size();
                 }
             };
@@ -30,8 +30,8 @@ namespace data {
                 bool empty(const L* l) const {
                     return l == nullptr;
                 }
-
-                uint size(const L* l) const {
+                
+                uint32 size(const L* l) const {
                     if (l == nullptr) return 0;
                     return l->size();
                 }
@@ -169,7 +169,7 @@ namespace data {
         }
             
         template <typename L> 
-        inline uint size(L l) {
+        inline uint32 size(L l) {
             return definition::existence<L>{}.size(l);
         }
             
@@ -211,7 +211,7 @@ namespace data {
         }
 
         template <typename L>
-        L from(L l, uint n) {
+        L from(L l, uint32 n) {
             if (n > l.size()) return {};
             L o = l;
             for (int i = 0; i < n; i++) o = rest(o);
@@ -228,7 +228,7 @@ namespace data {
             
         template <typename times, typename L1, typename L2, typename plus, typename value>
         value inner(times t, L1 l1, L2 l2, plus p) {
-            uint size = l1.size();
+            uint32 size = l1.size();
             if (size != l2.size()) return value{};
             if (size == 0) return value{};
                 
@@ -274,7 +274,7 @@ namespace data {
         struct node {
             X First;
             Y Rest;
-            uint Size;
+            uint32 Size;
                     
             node(X x, Y r) : First(x), Rest(r), Size{size(r) + 1} {}
             node(X x) : First(x), Rest{}, Size{1} {}
@@ -285,6 +285,10 @@ namespace data {
                     
             Y rest() const {
                 return Rest;
+            }
+            
+            uint32 size() const {
+                return Size;
             }
                         
             bool contains(X x) const {

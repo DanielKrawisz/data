@@ -25,7 +25,7 @@ namespace data {
     
     namespace meta {
         
-        template <uint n, typename tuple> struct get; 
+        template <uint32 n, typename tuple> struct get; 
         
         template <typename first, typename... rest>
         struct get<0, tuple<first, rest...>> {
@@ -35,7 +35,7 @@ namespace data {
             }
         };
         
-        template <uint n, typename first, typename... rest>
+        template <uint32 n, typename first, typename... rest>
         struct get<n, tuple<first, tuple<rest...>>> {
             using type = typename get<n - 1, rest...>::type;
             type operator()(tuple<first, rest...> t) {
@@ -45,7 +45,7 @@ namespace data {
     
     }
     
-    template <uint n, typename tuple>
+    template <uint32 n, typename tuple>
     typename meta::get<n, tuple>::type get(tuple t) {
         return meta::get<n, tuple>{}(t);
     }

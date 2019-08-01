@@ -5,12 +5,13 @@
 #ifndef DATA_CRYPTO_SHA256
 #define DATA_CRYPTO_SHA256
 
-#include <data/math/number/bounded.hpp>
 #include <data/crypto/digest.hpp>
 
 namespace data::sha256 {
     
-    using digest = crypto::digest<32>;
+    const uint32 size = 32;
+    
+    using digest = crypto::digest<size>;
     
     const digest Zero = digest{};
     

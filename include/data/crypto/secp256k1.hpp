@@ -17,9 +17,9 @@ namespace data {
     namespace secp256k1 {
         
         // two pubkey formats: compressed and uncompressed. 
-        const uint uncompressed_pubkey_size = 65;
-        const uint compressed_pubkey_size = 33;
-        const uint secret_size = 32;
+        const uint32 uncompressed_pubkey_size = 65;
+        const uint32 compressed_pubkey_size = 33;
+        const uint32 secret_size = 32;
         
         using signature = libbitcoin::system::ec_signature;
         

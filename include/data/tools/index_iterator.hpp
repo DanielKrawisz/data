@@ -12,7 +12,7 @@ namespace data {
     template <typename slice, typename X>
     struct index_iterator {
         slice Slice;
-        uint Index;
+        uint32 Index;
         
         index_iterator& operator=(index_iterator i) {
             Slice = i.Slice;

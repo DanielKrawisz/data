@@ -10,7 +10,9 @@
 
 namespace data::ripemd160 {
     
-    using digest = crypto::digest<20>;
+    const uint32 size = 20;
+    
+    using digest = crypto::digest<size>;
     
     const digest Zero = digest{};
     

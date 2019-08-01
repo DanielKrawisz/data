@@ -1,8 +1,12 @@
-#ifndef DATA_LIST_LINKED_LIST_HPP
-#define DATA_LIST_LINKED_LIST_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/list.hpp>
-#include <data/data.hpp>
+#ifndef DATA_LIST_LINKED_LIST
+#define DATA_LIST_LINKED_LIST
+
+//#include <data/list.hpp>
+//#include <data/data.hpp>
 #include <data/tools/iterator_list.hpp>
 #include <data/fold.hpp>
 #include <type_traits>
@@ -56,7 +60,7 @@ namespace data {
             Next->contains(x);
         }
 
-        uint size() const {
+        uint32 size() const {
             if (empty()) return 0;
                 
             return Next->size();
@@ -75,13 +79,13 @@ namespace data {
             return !(*this==l);
         }
             
-        const linked_list<X> from(uint n) const {
-            if (empty()) return nullptr;
-            if (n == 0) return this;
+        const linked_list<X> from(uint32 n) const {
+            if (empty()) return {};
+            if (n == 0) return *this;
             return rest().from(n - 1);
         }
                 
-        const X operator[](uint n) const {
+        const X operator[](uint32 n) const {
             auto l = from(n);
             if (l.empty()) return X{};
             return l.first();

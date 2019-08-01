@@ -33,7 +33,7 @@ namespace data {
             return list::empty(Left);
         }
         
-        uint size() const {
+        uint32 size() const {
             return list::size(Left) + list::size(Right);
         }
         
@@ -98,7 +98,7 @@ namespace data {
     }
 
     template <typename L> 
-    inline uint size(functional_queue<L> q) {
+    inline uint32 size(functional_queue<L> q) {
         return q.size();
     }
 

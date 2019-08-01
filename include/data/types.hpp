@@ -31,7 +31,10 @@ namespace data {
 
     using string = const std::string;
     
-    using uint = unsigned long long int;
+    template <typename X, typename Y>
+    inline X plus(X a, Y b) {
+        return a + b;
+    }
 
 }
 

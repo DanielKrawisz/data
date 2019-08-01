@@ -5,21 +5,18 @@
 #ifndef DATA_DATA
 #define DATA_DATA
 
-#include <data/types.hpp>
-
-namespace data {
-    
-    template <typename X, typename Y>
-    inline X plus(X a, Y b) {
-        return a + b;
-    }
-    
-    template <typename Any>
-    bool valid(Any);
-    
-    template <typename List>
-    List reverse(List);
-
-}
+#include <data/math/number/bounded.hpp>
+#include <data/list/linked_list.hpp>
+#include <data/map/rb.hpp>
+#include <data/tools/map_set.hpp>
+#include <data/queue/functional_queue.hpp>
+#include <data/tree/linked_tree.hpp>
+#include <data/slice.hpp>
+#include <data/fold.hpp>
+#include <data/for_each.hpp>
+#include <data/crypto/ripemd160.hpp>
+#include <data/crypto/sha256.hpp>
+#include <data/crypto/sha512.hpp>
+#include <data/crypto/secp256k1.hpp>
 
 #endif

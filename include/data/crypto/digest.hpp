@@ -10,14 +10,14 @@
 namespace data::crypto {
     
     template <uint32 size>
-    struct digest : math::number::bounded::uint<size> {
-        using uint = math::number::bounded::uint<size>;
-        using uint::uint;
+    struct digest {
+        uint<size> Digest;
         
-        digest() : digest(0) {}
-        digest(const digest& d) : uint{d} {}
-        digest(digest&& d) : uint{static_cast<uint&&>(d)} {};
-        digest(bytes& b) : uint{b} {}
+        digest() : Digest(0) {}
+        digest(uint<size> d) : Digest{d} {}
+        digest(const digest& d) : Digest{d.Digest} {}
+        digest(digest&& d);
+        digest(bytes& b) : Digest{b} {}
         
         bool valid() const;
         
@@ -37,7 +37,7 @@ namespace data::crypto {
     
     template <uint32 size>
     inline digest<size>& digest<size>::operator=(const digest<size>& d) {
-        uint160::operator=(static_cast<const uint160&>(d));
+        Digest = d.Digest;
         return *this;
     }
 

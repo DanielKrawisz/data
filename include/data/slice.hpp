@@ -19,12 +19,12 @@ namespace data {
         
         mutable X invalid;
         X* data;
-        uint64_t len;
+        uint32 len;
         
-        slice(X* x, uint64_t size) : data{x}, len{size} {}
+        slice(X* x, uint32 size) : data{x}, len{size} {}
 
     public:
-        slice(uint64_t l, X* d) : invalid(0), data(d), len(l) {} 
+        slice(uint32 l, X* d) : invalid(0), data(d), len(l) {} 
         
         slice(std::vector<X>& v) : slice(v.size(), v.data()) {} 
         
@@ -34,16 +34,16 @@ namespace data {
         
         slice() : invalid(0), data(nullptr), len(0) {};
         
-        const uint size() const {
+        const uint32 size() const {
             return len;
         }
 
-        X& operator[](uint n) const {
+        X& operator[](uint32 n) const {
             if (n >= len) return invalid;
             return data[n];
         }
 
-        slice<X> range(uint begin, uint end) const {
+        slice<X> range(uint32 begin, uint32 end) const {
             if (begin >= len || end >= len || begin >= end) return slice();
 
             return slice(data[begin], end - begin);
@@ -66,17 +66,17 @@ namespace data {
             constexpr static const ::data::list::definition::list<list, X> is_list{}; 
             
             slice<X>& Slice;
-            uint Index;
+            uint32 Index;
             
-            list(slice<X>& s, uint n) : Slice(s), Index(n) {}
-            list(const slice<X>& s, uint n) : Slice(const_cast<slice<X>&>(s)), Index(n) {}
+            list(slice<X>& s, uint32 n) : Slice(s), Index(n) {}
+            list(const slice<X>& s, uint32 n) : Slice(const_cast<slice<X>&>(s)), Index(n) {}
             
         public:
-            static list make(slice<X>& s, uint n) {
+            static list make(slice<X>& s, uint32 n) {
                 return list{s, n};
             }
             
-            static const list make(const slice<X>& s, uint n) {
+            static const list make(const slice<X>& s, uint32 n) {
                 return list{s, n};
             }
             
@@ -114,7 +114,7 @@ namespace data {
         using iterator = index_iterator<slice&, X&>;
 
         iterator begin() {
-            return iterator{*this, uint(0)};
+            return iterator{*this, uint32(0)};
         }
             
         iterator end() {
@@ -122,7 +122,7 @@ namespace data {
         }
 
         const iterator begin() const {
-            return iterator{*const_cast<slice*>(this), uint(0)};
+            return iterator{*const_cast<slice*>(this), uint32(0)};
         }
             
         const iterator end() const {

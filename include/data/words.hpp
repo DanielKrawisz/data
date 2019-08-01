@@ -44,7 +44,7 @@ namespace data {
             return *(bit32*)(Words->data() + 4 * i);
         }
         
-        const bit32 operator[](index i) const {
+        const bit32& operator[](index i) const {
             if (i >= words) throw std::out_of_range{""};
             return *(bit32*)(Words->data() + 4 * i);
         }

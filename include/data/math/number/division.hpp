@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_DIVISION
 #define DATA_MATH_NUMBER_DIVISION
 
-#include <data/data.hpp>
+#include <data/types.hpp>
 
 namespace data {
     

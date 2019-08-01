@@ -5,12 +5,13 @@
 #ifndef DATA_CRYPTO_SHA512
 #define DATA_CRYPTO_SHA512
 
-#include <data/math/number/bounded.hpp>
 #include <data/crypto/digest.hpp>
 
 namespace data::sha512 {
     
-    using digest = crypto::digest<64>;
+    const uint32 size = 64;
+    
+    using digest = crypto::digest<size>;
     
     const digest Zero = digest{};
     

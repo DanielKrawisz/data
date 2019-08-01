@@ -335,6 +335,9 @@ namespace data {
         }
         
     }
+    
+    template <uint32 size> using uint = math::number::bounded::uint<size>;
+    template <uint32 size> using integer = math::number::bounded::number<size, true>;
 
 }
 #endif

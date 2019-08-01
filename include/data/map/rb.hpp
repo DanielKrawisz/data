@@ -5,8 +5,7 @@
 #ifndef DATA_MAP_RB
 #define DATA_MAP_RB
 
-#include <data/list.hpp>
-#include <data/tools/iterator_list.hpp>
+#include <data/list/linked_list.hpp>
 #include <data/map.hpp>
 #include <data/fold.hpp>
 #include <milewski/RBMap/RBMap.h>
