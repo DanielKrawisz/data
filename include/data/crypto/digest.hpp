@@ -9,12 +9,13 @@
 
 namespace data::crypto {
     
-    template <uint32 size>
+    template <uint32 s>
     struct digest {
-        uint<size> Digest;
+        uint<s> Digest;
+        static const uint32 size = s;
         
         digest() : Digest(0) {}
-        digest(uint<size> d) : Digest{d} {}
+        digest(uint<s> d) : Digest{d} {}
         digest(const digest& d) : Digest{d.Digest} {}
         digest(digest&& d);
         digest(bytes& b) : Digest{b} {}
@@ -30,13 +31,13 @@ namespace data::crypto {
         bool operator>=(const digest&) const;
     };
     
-    template <uint32 size>
-    inline bool digest<size>::valid() const {
+    template <uint32 s>
+    inline bool digest<s>::valid() const {
         return operator!=(digest{0});
     }
     
-    template <uint32 size>
-    inline digest<size>& digest<size>::operator=(const digest<size>& d) {
+    template <uint32 s>
+    inline digest<s>& digest<s>::operator=(const digest<s>& d) {
         Digest = d.Digest;
         return *this;
     }

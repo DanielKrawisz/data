@@ -196,13 +196,23 @@ namespace data {
     
     namespace endian {
         template <typename X>
-        inline math::number::ordered<X, endian::order::big> big(X x) {
-            return math::number::ordered<X, endian::order::big>{boost::endian::native_to_big(x)};
+        inline math::number::ordered<X, order::big> big(X x) {
+            return math::number::ordered<X, order::big>{boost::endian::native_to_big(x)};
         }
         
         template <typename X>
-        inline math::number::ordered<X, endian::order::little> little(X x) {
-            return math::number::ordered<X, endian::order::little>{boost::endian::native_to_big(x)};
+        inline math::number::ordered<X, order::little> little(X x) {
+            return math::number::ordered<X, order::little>{boost::endian::native_to_big(x)};
+        }
+        
+        template <typename half, typename whole, order o>
+        half lesser_half(whole w) {
+            return math::number::greater_half<half, whole, o>(math::number::ordered<whole, o>{w}).Value;
+        }
+        
+        template <typename half, typename whole, order o>
+        half greater_half(whole w) {
+            return math::number::greater_half<half, whole, o>(math::number::ordered<whole, o>{w}).Value;
         }
     }
 
