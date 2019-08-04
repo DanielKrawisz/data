@@ -36,6 +36,8 @@ namespace data {
             bool valid() const;
             
             pubkey to_public() const;
+            secp256k1::pubkey<true, compressed_pubkey_size> to_public_compressed() const;
+            secp256k1::pubkey<false, uncompressed_pubkey_size> to_public_uncompressed() const;
             
             secret operator+(const secret&) const;
             secret operator*(const secret&) const;
@@ -126,6 +128,22 @@ namespace data {
         inline pubkey<compressed_pubkey, pubkey_size>
         secret<compressed_pubkey, pubkey_size>::to_public() const {
             pubkey x;
+            libbitcoin::system::secret_to_public(low::libbitcoin(x), low::libbitcoin(*this));
+            return x;
+        }
+        
+        template <bool compressed_pubkey, uint32 pubkey_size> 
+        inline secp256k1::pubkey<true, compressed_pubkey_size>
+        secret<compressed_pubkey, pubkey_size>::to_public_compressed() const {
+            secp256k1::pubkey<true, compressed_pubkey_size> x;
+            libbitcoin::system::secret_to_public(low::libbitcoin(x), low::libbitcoin(*this));
+            return x;
+        }
+        
+        template <bool compressed_pubkey, uint32 pubkey_size> 
+        inline secp256k1::pubkey<false, uncompressed_pubkey_size>
+        secret<compressed_pubkey, pubkey_size>::to_public_uncompressed() const {
+            secp256k1::pubkey<false, uncompressed_pubkey_size> x;
             libbitcoin::system::secret_to_public(low::libbitcoin(x), low::libbitcoin(*this));
             return x;
         }

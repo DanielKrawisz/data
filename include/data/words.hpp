@@ -24,10 +24,10 @@ namespace data {
         unequal() = delete;
     };
     
-    template <uint32 bytes, uint32 words, byte extra , typename bit32, typename bit64> class words_wrapper;
+    template <uint32 bytes, uint32 words, byte extra , typename bit32, typename bit64, endian::order o> class words_wrapper;
     
-    template <uint32 bytes, uint32 words, typename bit32, typename bit64>
-    class words_wrapper<bytes, words, 0, bit32, bit64> : equal<bytes, words * 4>, endian::split<bit32, bit64> {
+    template <uint32 bytes, uint32 words, typename bit32, typename bit64, endian::order o>
+    class words_wrapper<bytes, words, 0, bit32, bit64, o> : equal<bytes, words * 4>, endian::halves<bit32, bit64, o> {
         using ar = std::array<byte, bytes>;
         ar* Words;
     public:
@@ -54,8 +54,8 @@ namespace data {
         }
     };
     
-    template <uint32 bytes, uint32 words, byte extra, typename bit32, typename bit64>
-    class words_wrapper : equal<bytes + extra, words * 4>, endian::split<bit32, bit64>, unequal<extra, 0> {
+    template <uint32 bytes, uint32 words, byte extra, typename bit32, typename bit64, endian::order o>
+    class words_wrapper : equal<bytes + extra, words * 4>, endian::halves<bit32, bit64, o>, unequal<extra, 0> {
         using ar = std::array<byte, bytes>;
         ar* Words;
         static const byte remainder = 4 - extra;
@@ -73,7 +73,7 @@ namespace data {
         bit32 operator[](index i) const {
             if (i >= words) throw std::out_of_range{""};
             if (i == 0) return ((*(bit32*)(Words->data())) >> shift_right) + 
-                (endian::split<bit32, bit64>::is_signed && (((Words[0] & 0x8000) == 0x8000) ? 0xffffffff << shift_left : 0));
+                (endian::halves<bit32, bit64, o>::is_signed && (((Words[0] & 0x8000) == 0x8000) ? 0xffffffff << shift_left : 0));
             return *(bit32*)(Words->data() - remainder + 4 * i);
         }
         
@@ -84,9 +84,9 @@ namespace data {
         }
     };
     
-    template <uint32 size, typename bit32, typename bit64>
-    struct words : public words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64> {
-        using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64>;
+    template <uint32 size, typename bit32, typename bit64, endian::order o>
+    struct words : public words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o> {
+        using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o>;
         using word = math::number::ordered<bit64, endian::order::big>;
         using ar = std::array<byte, size>;
         words(ar& a) : wrapper{a} {}
@@ -138,21 +138,21 @@ namespace data {
     
     };
     
-    template <uint32 size, typename bit32, typename bit64> 
-    inline void words<size, bit32, bit64>::bit_negate(words xx) {
+    template <uint32 size, typename bit32, typename bit64, endian::order o> 
+    inline void words<size, bit32, bit64, o>::bit_negate(words xx) {
         for (bit32& u : xx) u = ~u;
     }
     
-    template <uint32 size, typename bit32, typename bit64> 
-    inline void words<size, bit32, bit64>::bit_and(
+    template <uint32 size, typename bit32, typename bit64, endian::order o> 
+    inline void words<size, bit32, bit64, o>::bit_and(
         const words x,
         const words y, 
         words result) {
         for (uint32 i = 0; i < size; i++) result[i] = x[i]^y[i];
     }
     
-    template <uint32 size, typename bit32, typename bit64> 
-    inline void words<size, bit32, bit64>::bit_or(
+    template <uint32 size, typename bit32, typename bit64, endian::order o> 
+    inline void words<size, bit32, bit64, o>::bit_or(
         const words x,
         const words y,
         words result) {

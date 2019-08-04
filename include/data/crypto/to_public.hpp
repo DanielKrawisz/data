@@ -1,20 +1,20 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_CRYPTO_TO_PUBLIC
 #define DATA_CRYPTO_TO_PUBLIC
 
-namespace data {
-    
-    namespace crypto {
+namespace data::crypto {
         
-        // template specialize this if you have your
-        // own definition of to_public for your types. 
-        template <typename sk, typename pk>
-        struct to_public {
-            pk operator()(const sk s) const {
-                return s.to_public();
-            }
-        };
-    
-    }
+    // template specialize this if you have your
+    // own definition of to_public for your types. 
+    template <typename sk, typename pk>
+    struct to_public {
+        pk operator()(const sk s) const {
+            return s.to_public();
+        }
+    };
 
 }
 

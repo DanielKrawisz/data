@@ -18,6 +18,7 @@ namespace data {
         template <typename bounded, uint32 n, typename bit32, typename bit64>
         struct array : managed::bytes<n> {
             using parent = managed::bytes<n>;
+            static const data::endian::order endian = data::endian::order::big;
             using word = ordered<bit64, endian::order::big>;
             using index = uint32;
             
@@ -82,7 +83,7 @@ namespace data {
             bounded operator/(const bounded&) const;
             bounded operator%(const bounded&) const;
             
-            using words_type = ::data::words<size, bit32, bit64>;
+            using words_type = ::data::words<size, bit32, bit64, endian>;
             using parent::value;
             
             words_type words() {
@@ -114,7 +115,6 @@ namespace data {
         struct number<size, false> : public array<number<size, false>, size, uint32, uint64> {
             using bit32 = uint32;
             using bit64 = uint64;
-            using words_type = data::words<size, bit32, bit64>;
             
             using ray = array<number, size, bit32, bit64>;
             using ray::operator-=;
@@ -122,6 +122,8 @@ namespace data {
             using ray::operator*=;
             using ray::operator<<=;
             using ray::operator>>=;
+            
+            using words_type = data::words<size, bit32, bit64, ray::endian>;
             
             number() : ray{} {}
             number(bit32 x) : ray{x} {}
@@ -145,7 +147,6 @@ namespace data {
         struct number<size, true> : public array<number<size, true>, size, int32, int64> {
             using bit32 = int32;
             using bit64 = int64;
-            using words_type = data::words<size, bit32, bit64>;
             
             using ray = array<number, size, bit32, bit64>;
             using ray::operator-=;
@@ -153,6 +154,8 @@ namespace data {
             using ray::operator*=;
             using ray::operator<<=;
             using ray::operator>>=;
+            
+            using words_type = data::words<size, bit32, bit64, ray::endian>;
             
             number() : ray{} {}
             number(bit32 x) : ray{x} {}

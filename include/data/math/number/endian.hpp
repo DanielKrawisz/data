@@ -18,36 +18,40 @@ namespace data {
         template <typename X> math::number::ordered<X, endian::order::big> big(X x);
         template <typename X> math::number::ordered<X, endian::order::little> little(X x);
         
-        template <typename half, typename whole>
-        struct split {
-            split() = delete;
+        template <typename half, typename whole, endian::order o>
+        struct halves {
+            halves() = delete;
         };
         
-        template <> struct split<uint32, uint64> {
+        template <endian::order o> struct halves<uint32, uint64, o> {
             constexpr static bool is_signed = false;
             static uint32 greater(uint64);
             static uint32 lesser(uint64);
+            static uint64 combine(uint32, uint32);
         };
         
-        template <> struct split<int32, int64> {
+        template <endian::order o> struct halves<int32, int64, o> {
             constexpr static bool is_signed = true;
             static int32 greater(uint64);
             static int32 lesser(uint64);
+            static int64 combine(int32, int32);
         };
         
-        template <> struct split<uint16, uint32> {
+        template <endian::order o> struct halves<uint16, uint32, o> {
             constexpr static bool is_signed = false;
             static uint16 greater(uint32);
             static uint16 lesser(uint32);
+            static uint32 combine(uint16, uint16);
         };
         
-        template <> struct split<int16, int32> {
+        template <endian::order o> struct halves<int16, int32, o> {
             constexpr static bool is_signed = true;
             static int16 greater(uint32);
             static int16 lesser(uint32);
+            static int32 combine(int16, int16);
         };
         
-        template <typename X, boost::endian::order> struct native {
+        template <typename X, endian::order> struct native {
             static X from(const X);
             static X to(const X);
         };
