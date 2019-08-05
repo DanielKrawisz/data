@@ -27,7 +27,7 @@ namespace data {
         // if the list is empty, then this function
         // will dereference a nullptr. It is your
         // responsibility to check. 
-        const elem& first() const {
+        const elem first() const {
             return *Next;
         }
 
@@ -71,7 +71,7 @@ namespace data {
     }
 
     template <typename it, typename elem>
-    inline const elem& first(const data::iterator_list<it, elem> l) {
+    inline const elem first(const data::iterator_list<it, elem> l) {
         return l.first();
     }
 

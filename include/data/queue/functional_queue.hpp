@@ -37,7 +37,7 @@ namespace data {
             return list::size(Left) + list::size(Right);
         }
         
-        inline element& first() {
+        inline element first() {
             return list::first(Left);
         }
         
@@ -88,7 +88,6 @@ namespace data {
         }
 
         constexpr static data::queue::definition::queue<functional_queue, element> require_is_queue{};
-        constexpr static data::list::definition::extendable<functional_queue, element> require_is_buildable{};
 
     };
             

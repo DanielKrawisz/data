@@ -137,13 +137,13 @@ namespace data {
             
         template <typename L>
         struct is_list {
-            using element = typename std::remove_reference<typename std::invoke_result<decltype(&L::first), L>::type>::type;
+            using element = typename std::invoke_result<decltype(&L::first), L>::type;
             constexpr static definition::list<L, element> IsList{};
         };
         
         template <typename L>
         struct is_list<L*> {
-            using element = typename std::remove_reference<typename std::invoke_result<decltype(&L::first), L>::type>::type;
+            using element = typename std::invoke_result<decltype(&L::first), L>::type;
             constexpr static definition::list<L, element> IsList{};
         };
         
