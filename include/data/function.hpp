@@ -27,23 +27,23 @@ namespace data {
         };
     
         // function from x to y. 
-        template<typename y, typename x> struct abstract {
-            virtual y operator()(const x) const noexcept = 0;
+        template<typename y, typename ... x> struct abstract {
+            virtual y operator()(const x...) const noexcept = 0;
             
-            using domain = x;
+            using domain = tuple<x...>;
             using range = y;
             
-            constexpr static definition<abstract&, x, y> is_function{};
+            constexpr static definition<abstract&, y, x...> is_function{};
         };
         
         // functions to contradictions are not required to be noexcept.
-        template <typename x> struct abstract<x, unconstructable> {
-            virtual const unconstructable operator()(const x) const = 0;
+        template <typename ... x> struct abstract<unconstructable, x...> {
+            virtual const unconstructable operator()(const x...) const = 0;
             
-            using domain = x;
+            using domain = tuple<x...>;
             using range = unconstructable;
             
-            constexpr static definition<abstract&, x, unconstructable> is_function{};
+            constexpr static definition<abstract&, unconstructable, x...> is_function{};
         };
     
     }

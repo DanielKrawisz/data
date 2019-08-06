@@ -5,7 +5,6 @@
 #ifndef DATA_CRYPTO_RIPEMD160
 #define DATA_CRYPTO_RIPEMD160
 
-#include <data/math/number/bounded.hpp>
 #include <data/crypto/digest.hpp>
 
 namespace data::ripemd160 {
