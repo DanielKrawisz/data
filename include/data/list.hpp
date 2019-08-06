@@ -6,6 +6,7 @@
 #define DATA_LIST
 
 #include <type_traits>
+#include <data/meta/which.hpp>
 #include "types.hpp"
 
 namespace data {
@@ -27,11 +28,11 @@ namespace data {
 
             template <typename L>
             struct existence<L*> {
-                bool empty(const L* l) const {
+                bool empty(const L* const l) const {
                     return l == nullptr;
                 }
                 
-                uint32 size(const L* l) const {
+                uint32 size(const L* const l) const {
                     if (l == nullptr) return 0;
                     return l->size();
                 }
@@ -54,41 +55,41 @@ namespace data {
                     return l->rest();
                 }
             };
-                
+            
             template <typename L>
             struct retractable<ptr<L>> : virtual public existence<ptr<L>>, virtual public retractable<L*> {};
-
-            template <typename L, typename X>
+            
+            template <typename L, typename R>
             struct list : public retractable<L> {
-                X first(L l) {
+                R first(const L l) const {
                     return l.first();
                 }
             };
-                
-            template <typename L, typename X>
-            struct list<L*, X> : virtual public retractable<L*> {
-                X first(L* l) {
-                    return l->First;
+            
+            template <typename L, typename R>
+            struct list<L*, R> : virtual public retractable<L*> {
+                R first(const L* const l) const {
+                    return l->first();
                 }
             };
+            
+            template <typename L, typename R>
+            struct list<ptr<L>, R> : virtual public retractable<ptr<L>>, virtual public list<L*, R> {};
                 
             template <typename L, typename X>
-            struct list<ptr<L>, X> : virtual public retractable<ptr<L>>, virtual public list<L*, X> {};
-                
-            template <typename L, typename X>
-            struct extendable : public existence<L> {
+            struct extendable : virtual public existence<L> {
                 L make_empty() const {
                     return {};
                 }
                 
-                L prepend(L l, X x) const {
+                const L prepend(const L l, X x) const {
                     return l + x;
                 }
             };
                 
             template <typename L, typename X>
             struct extendable<L*, X> : virtual public existence<L*> {
-                L prepend(const L* l, X x) const {
+                const L prepend(const L* const l, X x) const {
                     if (l == nullptr) return x;
                     return l->append(x);
                 }
@@ -96,9 +97,12 @@ namespace data {
                 
             template <typename L, typename X>
             struct extendable<ptr<L>, X> : virtual public extendable<L*, X> {};
+            
+            template <typename L, typename X, typename R>
+            struct buildable : virtual public list<L, R>, public extendable<L, X> {};
 
-            template <typename L, typename X, typename it>
-            struct iterable : public list<L, X> {
+            template <typename L, typename R, typename it>
+            struct iterable : virtual public list<L, R> {
                 it begin(L l) {
                     return l.begin();
                 }
@@ -107,9 +111,9 @@ namespace data {
                     return l.end();
                 }
             };
-                
-            template <typename L, typename X, typename it>
-            struct iterable<L*, X, it> : virtual public list<L*, X> {
+            
+            template <typename L, typename R, typename it>
+            struct iterable<L*, R, it> : virtual public list<L*, R> {
                 it begin(L* l) {
                     if (l == nullptr) return it{};
                     return l->begin();
@@ -120,47 +124,45 @@ namespace data {
                     return l->end();
                 }
             };
-                
-            template <typename L, typename X, typename it>
-            struct iterable<ptr<L>, X, it> : public list<ptr<L>, X>, public iterable<L*, X, it> {};
-                
-            template <typename L, typename X, typename it>
-            struct complete : public extendable<L, X>, public iterable<L, X, it> {};
             
-            template <typename L, typename X, typename it>
-            struct complete<L*, X, it> : virtual public extendable<L*, X>, public iterable<L*, X, it> {};
+            template <typename L, typename R, typename it>
+            struct iterable<ptr<L>, R, it> : public list<ptr<L>, R>, public iterable<L*, R, it> {};
             
-            template <typename L, typename X, typename it>
-            struct complete<ptr<L>, X, it> : complete<L*, X, it>, public extendable<ptr<L>, X>, public iterable<ptr<L>, X, it> {};
+            // cannot use references with iterators. 
+            template <typename L, typename R, typename it>
+            struct iterable<L, R&, it> : virtual public list<L*, R&> {
+                iterable() = delete;
+            };
+                
+            template <typename L, typename X, typename R, typename it>
+            struct complete : public buildable<L, X, R>, public iterable<L, R, it> {};
             
         }
-            
+        
         template <typename L>
         struct is_list {
-            using element = typename std::invoke_result<decltype(&L::first), L>::type;
-            constexpr static definition::list<L, element> IsList{};
+            using returned = decltype(std::declval<L>().first());
+            constexpr static definition::list<L, returned> is{};
         };
         
         template <typename L>
         struct is_list<L*> {
-            using element = typename std::invoke_result<decltype(&L::first), L>::type;
-            constexpr static definition::list<L, element> IsList{};
+            using returned = decltype(std::declval<L>().first());
+            constexpr static definition::list<L*, returned> IsList{};
         };
         
         template <typename L>
-        struct is_list<ptr<L>> : public is_list<L*> {
-            using element = typename is_list<L*>::element;
-        };
+        struct is_list<ptr<L>> : public is_list<L*> {};
             
-        template <typename L>
-        struct is_buildable : public is_list<L> {
-            constexpr static definition::extendable<L, typename is_list<L>::element> IsExtendableList{};
+        template <typename L, typename X>
+        struct is_extendable : public is_list<L> {
+            constexpr static definition::extendable<L, X> IsExtendableList{};
         };
         
         template <typename L>
         struct is_iterable : public is_list<L> {
-            using iterator = typename std::invoke_result<typename L::first>::type;
-            constexpr static definition::iterable<L, typename is_list<L>::Element, iterator> IsIterableList{};
+            using iterator = typename std::invoke_result<decltype(&L::begin), L>::type;
+            constexpr static definition::iterable<L, typename is_list<L>::returned, iterator> IsIterableList{};
         };
             
         template <typename L> 
@@ -174,8 +176,8 @@ namespace data {
         }
             
         template <typename L> 
-        inline typename is_list<L>::element& first(L l) {
-            return definition::list<L, typename is_list<L>::element>{}.first(l);
+        inline typename is_list<L>::returned first(const L l) {
+            return definition::list<L, typename is_list<L>::returned>{}.first(l);
         }
             
         template <typename L> 
@@ -197,7 +199,7 @@ namespace data {
         
         template <typename L>
         L reverse(L list) {
-            using requirement = is_buildable<L>;
+            using requirement = is_extendable<L, typename is_list<L>::returned>;
             constexpr static requirement satisfied{};
             
             struct inner {
@@ -236,16 +238,20 @@ namespace data {
         }
         
         // this is an iterator that could go with a list. 
-        template <typename L, typename E>
+        template <typename L>
         struct iterator {
             L List;
+            
+            using requirement = is_iterable<L>;
+            using returned = typename requirement::returned;
+            constexpr static requirement Satisfied{};
                     
             iterator& operator=(iterator i) {
                 this->List = i.List;
                 return *this;
             }
                     
-            iterator operator++(int i) { // Postfix
+            iterator operator++(int) { // Postfix
                 iterator n = *this;
                 operator=(iterator{rest(List)});
                 return n;
@@ -255,7 +261,7 @@ namespace data {
                 return operator=(iterator{rest(List)});
             }
 
-            const E operator*() const{
+            const returned operator*() const{
                 return first(List);
             }
      
@@ -268,21 +274,25 @@ namespace data {
             }
                 
         };
-            
+        
         // This is a node that you could perhaps use to make a list. 
-        template <typename X, typename Y>
+        template <typename X, typename Y, typename R>
         struct node {
             X First;
             Y Rest;
             uint32 Size;
-                    
-            node(X x, Y r) : First(x), Rest(r), Size{size(r) + 1} {}
+            
+            node(X x, Y r) : First(x), Rest(r), Size{list::size(r) + 1} {}
             node(X x) : First(x), Rest{}, Size{1} {}
-                    
-            X first() const {
+            
+            const R first() const {
                 return First;
             }
-                    
+            
+            R first() {
+                return First;
+            }
+            
             Y rest() const {
                 return Rest;
             }
@@ -290,17 +300,17 @@ namespace data {
             uint32 size() const {
                 return Size;
             }
-                        
+            
             bool contains(X x) const {
                 if (x == First) return true;
-                            
+                
                 return contains(Rest, x);
             }
-                    
+            
             bool operator==(const node& n) const {
                 return First == n.First && Rest == n.Rest;
             }
-                        
+            
         };
     
     }

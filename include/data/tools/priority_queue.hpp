@@ -6,7 +6,7 @@
 #define DATA_TOOLS_PRIORITY_QUEUE
 
 #include <milewski/Leftist/LeftistHeap.hpp>
-#include <data/list/linked_list.hpp>
+#include <data/list/linked.hpp>
     
 namespace data {
     namespace priority {
@@ -52,7 +52,7 @@ namespace data {
             template <typename List>
             queue(List l) : queue{queue{}.insert(l)} {}
             
-            linked_list<x> all() const;
+            list::linked<x> all() const;
             
             queue& operator=(const queue& q) {
                 Heap = q.Heap;
@@ -71,8 +71,8 @@ namespace data {
         }
         
         template <typename x>
-        linked_list<x> queue<x>::all() const {
-            return priority::all<linked_list<x>, x>(*this);
+        list::linked<x> queue<x>::all() const {
+            return priority::all<list::linked<x>, x>(*this);
         }
     
     }

@@ -1,10 +1,14 @@
-#ifndef DATA_TREE_HPP
-#define DATA_TREE_HPP
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_TREE
+#define DATA_TREE
 
 #include <data/types.hpp>
 #include <data/list.hpp>
 #include <data/set.hpp>
-#include <data/list/linked_list.hpp>
+#include <data/list/linked.hpp>
 #include <data/tools/iterator_list.hpp>
     
 namespace data {

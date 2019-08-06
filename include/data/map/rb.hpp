@@ -5,7 +5,7 @@
 #ifndef DATA_MAP_RB
 #define DATA_MAP_RB
 
-#include <data/list/linked_list.hpp>
+#include <data/list/linked.hpp>
 #include <data/map.hpp>
 #include <data/fold.hpp>
 #include <milewski/RBMap/RBMap.h>
@@ -18,7 +18,7 @@ namespace data {
         using map = milewski::okasaki::RBMap<K, V>;
     private:
         map Map;
-        using list = linked_list<entry>;
+        using list = list::linked<entry>;
         constexpr static const data::map::definition::countable<rb_map, K, V, list> require_is_map{};
         
         rb_map(map m) : Map{m} {}

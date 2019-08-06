@@ -40,7 +40,7 @@ namespace data {
         linked_tree() : Node{nullptr} {}
         linked_tree(value v, linked_tree<value> l, linked_tree<value> r) : Node{new tree::node<value, linked_tree<value>>{v, l, r}} {}
             
-        using iterator = tree::iterator<linked_tree<value>, linked_list<linked_tree<value>&>, value>;
+        using iterator = tree::iterator<linked_tree<value>, list::linked<linked_tree<value>&>, value>;
 
         iterator begin() const {
             return {*this};

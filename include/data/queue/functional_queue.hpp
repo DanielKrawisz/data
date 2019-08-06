@@ -17,13 +17,12 @@ namespace data {
     class functional_queue {
         L Left;
         L Right;
-        
-        using requirement = list::is_buildable<L>;
-        constexpr static requirement Satisfied{};
 
         functional_queue(L l, L r) : Left{l}, Right{r} {}
     public:
-        using element = typename requirement::element;
+        using returned = typename list::is_list<L>::returned;
+        using requirement = list::is_extendable<L, returned>;
+        constexpr static requirement Satisfied{};
         
         functional_queue() : Left{}, Right{} {}
 
@@ -37,11 +36,11 @@ namespace data {
             return list::size(Left) + list::size(Right);
         }
         
-        inline element first() {
+        inline returned& first() {
             return list::first(Left);
         }
         
-        functional_queue(std::initializer_list<element> l);
+        functional_queue(std::initializer_list<returned> l);
         
     private:
         
@@ -57,11 +56,11 @@ namespace data {
             return check(Left.rest(), Right);
         }
         
-        functional_queue append(element e) const {
+        functional_queue append(returned e) const {
             return check(Left, Right + e);
         }
         
-        functional_queue operator+(element e) const {
+        functional_queue operator+(returned e) const {
             return append(e);
         }
         
@@ -87,7 +86,8 @@ namespace data {
             return check(list::reverse(Left), list::reverse(Right));
         }
 
-        constexpr static data::queue::definition::queue<functional_queue, element> require_is_queue{};
+        constexpr static data::queue::definition::queue<functional_queue, returned> require_is_queue{};
+        constexpr static data::list::definition::extendable<functional_queue, returned> require_is_buildable{};
 
     };
             
@@ -102,7 +102,7 @@ namespace data {
     }
 
     template <typename L> 
-    inline typename functional_queue<L>::element& first(functional_queue<L> q) {
+    inline typename functional_queue<L>::returned first(functional_queue<L> q) {
         return q.first();
     }
             
@@ -122,7 +122,8 @@ namespace data {
     }
     
     template <typename L>
-    functional_queue<L>::functional_queue(std::initializer_list<functional_queue<L>::element> l) : functional_queue{list::reverse(fold(plus<L, functional_queue<L>::element>, L{}, iterator_list<decltype(l.begin()), functional_queue<L>::element>(l.begin(), l.end())))} {}
+    functional_queue<L>::functional_queue(std::initializer_list<returned> l) : functional_queue{
+        list::reverse(fold(plus<L, returned>, L{}, iterator_list<decltype(l.begin()), returned>(l.begin(), l.end())))} {}
     
 }
 

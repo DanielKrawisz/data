@@ -31,6 +31,10 @@ namespace data {
             return *Next;
         }
 
+        elem first() {
+            return *Next;
+        }
+
         const iterator_list rest() const {
             if (empty()) return *this;
             auto i = iterator_list{End, Next};

@@ -10,7 +10,7 @@
 #include <data/map.hpp>
 #include <data/meta/which.hpp>
 #include <data/meta/equal.hpp>
-#include <data/list/linked_list.hpp>
+#include <data/list/linked.hpp>
 #include <data/map/rb.hpp>
 #include <data/queue/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
@@ -28,7 +28,7 @@ namespace data {
         struct for_each_list {
             using input_element = typename list::is_list<input>::element;
             using output_element = typename std::invoke_result<function, input_element>::type;
-            using output = linked_list<output_element>;
+            using output = list::linked<output_element>;
             
             output operator()(const function f, const input l) const {
                 return list::for_each<function, input, output>{}(f, l);
@@ -39,7 +39,7 @@ namespace data {
         struct for_each_container {
             using input_element = typename input::value_type;
             using output_element = typename std::invoke_result<function, input_element>::type;
-            using output = linked_list<output_element>;
+            using output = list::linked<output_element>;
             
             output operator()(const function f, const input i) const {
                 return list::for_each<function, iterator_list<decltype(i.begin()), input_element>, output>{}(f, iterator_list<decltype(i.begin()), input_element>{i.begin(), i.end()});
@@ -50,7 +50,7 @@ namespace data {
         struct for_each_queue {
             using input_element = typename list::is_list<input>::element;
             using output_element = typename std::invoke_result<function, input_element>::type;
-            using output = functional_queue<linked_list<output_element>>;
+            using output = functional_queue<list::linked<output_element>>;
             
             output operator()(const function f, const input l) const {
                 return queue::for_each<function, input, output>{}(f, l);
@@ -75,7 +75,7 @@ namespace data {
             using inner_function = entry_function<key, function, value>;
             using output_element = typename std::invoke_result<inner_function, input_element>::type;
             
-            linked_list<output_element> operator()(const function f, const input l) const {
+            list::linked<output_element> operator()(const function f, const input l) const {
                 return for_each_list<inner_function, input>{}(inner_function{f}, l);
             }
         };
@@ -130,7 +130,7 @@ namespace data {
             public list::is_list<List>, 
             public meta::Equal<typename list::is_list<List>::element, A> {
             
-            linked_list<B> use_case(f fun, List a) {
+            list::linked<B> use_case(f fun, List a) {
                 return data::for_each(fun, a);
             }
             
@@ -142,7 +142,7 @@ namespace data {
             public queue::is_queue<Queue>, 
             public meta::Equal<typename queue::is_queue<Queue>::element, A> {
             
-            functional_queue<linked_list<B>> use_case(f fun, Queue a) {
+            functional_queue<list::linked<B>> use_case(f fun, Queue a) {
                 return data::for_each(fun, a);
             }
             
