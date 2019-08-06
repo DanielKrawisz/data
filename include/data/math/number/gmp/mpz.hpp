@@ -62,7 +62,7 @@ namespace data {
                         mpz_init_set_si(&MPZ, n);
                     }
                     
-                    mpz(uint n) {
+                    mpz(uint32 n) {
                         throw 0;
                     }
                     
@@ -114,13 +114,13 @@ namespace data {
                     bool operator>=(mpz& n) const;
                     
                     // TODO
-                    bool operator<(uint n) const;
+                    bool operator<(uint32 n) const;
                     
-                    bool operator>(uint n) const;
+                    bool operator>(uint32 n) const;
                     
-                    bool operator<=(uint n) const;
+                    bool operator<=(uint32 n) const;
                     
-                    bool operator>=(uint n) const;
+                    bool operator>=(uint32 n) const;
                 };
                 
             }

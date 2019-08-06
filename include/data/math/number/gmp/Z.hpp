@@ -18,8 +18,8 @@ namespace data {
                 struct Z final : public mpz {
                     Z() : mpz() {}
                     
-                    Z(uint n) {
-                        if (n <= std::numeric_limits<uint>::max()) mpz_init_set_ui(&MPZ, n);
+                    Z(uint32 n) {
+                        if (n <= std::numeric_limits<uint32>::max()) mpz_init_set_ui(&MPZ, n);
                         throw 0;
                     }
                     
@@ -54,9 +54,9 @@ namespace data {
                     
                     Z& operator*=(const Z&);
                     
-                    Z operator^(uint) const;
+                    Z operator^(uint32) const;
                     
-                    Z& operator^=(uint);
+                    Z& operator^=(uint32);
                     
                     math::number::division<Z> divide(const Z&) const;
                     

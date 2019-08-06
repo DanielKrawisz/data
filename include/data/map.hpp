@@ -187,7 +187,7 @@ namespace data {
         inline L entries(M m) {
             return map::definition::countable<M, K, V, L>{}.entries(m);
         }
-            
+        
     }
     
 }

@@ -109,6 +109,7 @@ endif()
 ADD_LIBRARY(data STATIC
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp
+        src/data/encoding/words.cpp
         src/data/math/number/division.cpp
         src/data/math/number/bounded.cpp
         src/data/math/number/eratosthenes.cpp
@@ -120,8 +121,7 @@ ADD_LIBRARY(data STATIC
         src/data/crypto/ripemd160.cpp
         src/data/crypto/sha256.cpp
         src/data/crypto/sha512.cpp
-        src/data/slice.cpp
-        src/data/words.cpp)
+        src/data/slice.cpp)
 
 target_include_directories(data PUBLIC include)
 

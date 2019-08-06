@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BOUNDED
 #define DATA_MATH_NUMBER_BOUNDED
 
-#include <data/words.hpp>
+#include <data/encoding/words.hpp>
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/number/division.hpp>
@@ -19,7 +19,7 @@ namespace data {
         struct array : managed::bytes<n> {
             using parent = managed::bytes<n>;
             static const data::endian::order endian = data::endian::order::big;
-            using word = ordered<bit64, endian::order::big>;
+            using word = endian::ordered<bit64, endian::order::big>;
             using index = uint32;
             
             static const index size = n;

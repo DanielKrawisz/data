@@ -9,14 +9,12 @@
 
 namespace data {
     
-    namespace math::number {
-        template <typename X, boost::endian::order> struct ordered;
-    }
-    
     namespace endian {
+        template <typename X, boost::endian::order> struct ordered;
+        
         using order = boost::endian::order;
-        template <typename X> math::number::ordered<X, endian::order::big> big(X x);
-        template <typename X> math::number::ordered<X, endian::order::little> little(X x);
+        template <typename X> ordered<X, endian::order::big> big(X x);
+        template <typename X> ordered<X, endian::order::little> little(X x);
         
         template <typename half, typename whole, endian::order o>
         struct halves {
@@ -55,9 +53,6 @@ namespace data {
             static X from(const X);
             static X to(const X);
         };
-    }
-    
-    namespace math::number {
     
         template <typename X, endian::order o> struct ordered {
             X Value;
@@ -120,15 +115,19 @@ namespace data {
             ordered<X, o>& operator+=(const ordered<X, o>& x) {
                 return operator=(operator+(x));
             }
+            
             ordered<X, o>& operator-=(const ordered<X, o>& x) {
                 return operator=(operator-(x));
             }
+            
             ordered<X, o>& operator*=(const ordered<X, o>& x) {
                 return operator=(operator*(x));
             }
+            
             ordered<X, o>& operator/=(const ordered<X, o>& x) {
                 return operator=(operator/(x));
             }
+            
             ordered<X, o>& operator%=(const ordered<X, o>& x) {
                 return operator=(operator%(x));
             }
@@ -136,6 +135,7 @@ namespace data {
             ordered<X, o>& operator<<=(uint32 x) {
                 return operator=(operator<<(x));
             }
+            
             ordered<X, o>& operator>>=(uint32 x) {
                 return operator=(operator>>(x));
             }
@@ -196,27 +196,15 @@ namespace data {
             return endian::native<X, o>::from(
                 endian::native<X, o>::to(Value) % endian::native<X, o>::to(n.Value));
         }
-    }
-    
-    namespace endian {
+        
         template <typename X>
-        inline math::number::ordered<X, order::big> big(X x) {
-            return math::number::ordered<X, order::big>{boost::endian::native_to_big(x)};
+        inline ordered<X, order::big> big(X x) {
+            return ordered<X, order::big>{boost::endian::native_to_big(x)};
         }
         
         template <typename X>
-        inline math::number::ordered<X, order::little> little(X x) {
-            return math::number::ordered<X, order::little>{boost::endian::native_to_big(x)};
-        }
-        
-        template <typename half, typename whole, order o>
-        half lesser_half(whole w) {
-            return math::number::greater_half<half, whole, o>(math::number::ordered<whole, o>{w}).Value;
-        }
-        
-        template <typename half, typename whole, order o>
-        half greater_half(whole w) {
-            return math::number::greater_half<half, whole, o>(math::number::ordered<whole, o>{w}).Value;
+        inline ordered<X, order::little> little(X x) {
+            return ordered<X, order::little>{boost::endian::native_to_big(x)};
         }
     }
 

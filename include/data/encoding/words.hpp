@@ -6,7 +6,7 @@
 #define DATA_WORDS
 
 #include <data/types.hpp>
-#include <data/math/number/endian.hpp>
+#include <data/encoding/endian.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/math/sign.hpp>
 
@@ -87,7 +87,7 @@ namespace data {
     template <uint32 size, typename bit32, typename bit64, endian::order o>
     struct words : public words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o> {
         using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o>;
-        using word = math::number::ordered<bit64, endian::order::big>;
+        using word = endian::ordered<bit64, endian::order::big>;
         using ar = std::array<byte, size>;
         words(ar& a) : wrapper{a} {}
         

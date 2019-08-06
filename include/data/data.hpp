@@ -14,44 +14,45 @@
 #include <data/slice.hpp>
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
+#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/rational.hpp>
 #include <data/crypto/ripemd160.hpp>
 #include <data/crypto/sha256.hpp>
 #include <data/crypto/sha512.hpp>
 #include <data/crypto/secp256k1.hpp>
 
+// using namespace data::exported;
+// to get all complete features of this library conveniently. 
 namespace data::exported {
     
-    template <typename X>
-    using list = data::list::linked<X>;
-            
-    template <typename X>
-    using slice = data::slice<X>;
-        
-    template <typename K, typename V>
-    using map = data::rb_map<K, V>;
+    // a functional list. 
+    template <typename X> using list = data::list::linked<X>;
     
-    template <typename X>
-    using set = data::map_set<map<X, bool>, X>;
+    // functional queue built using the list. 
+    template <typename X> using queue = data::functional_queue<list<X>>;
     
-    template <typename X>
-    using queue = data::functional_queue<list<X>>;
-        
+    // a functional map implemented as a red-black tree
+    template <typename K, typename V> using map = data::rb_map<K, V>;
+    
+    // set implemented as a map. 
+    template <typename X> using set = data::map_set<map<X, bool>, X>;
+    
+    // Wrapper for a vector that allows for easy creation of subslices, similar to golang.  
+    template <typename X> using slice = data::slice<X>;
+    
+    // Natural numbers.
+    using N = math::number::gmp::N;
+    
+    // Integers. 
+    using Z = math::number::gmp::Z;
+    
+    // Rationals. 
+    using Q = math::number::fraction<Z, N>;
+    
+    // get all values from a map with the given keys. 
     template <typename key, typename value, typename map>
-    list<value> get_all(map m, list<key> k) {
-        struct inner {
-            map M;
-                    
-            inner(map m) : M{m} {}
-                    
-            list<value> operator()(key k, list<value> l) {
-                value v = M[k];
-                if (v == value{}) return l;
-                return l + v;
-            }
-        };
-                
-        return reduce(inner{m}, k);
-    }
+    list<value> get_all(map m, list<key> k);
 }
 
 #endif
