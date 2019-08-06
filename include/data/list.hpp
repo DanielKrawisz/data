@@ -169,17 +169,17 @@ namespace data {
         inline bool empty(L l) {
             return definition::existence<L>{}.empty(l);
         }
-            
+        
         template <typename L> 
         inline uint32 size(L l) {
             return definition::existence<L>{}.size(l);
         }
-            
+        
         template <typename L> 
         inline typename is_list<L>::returned first(const L l) {
             return definition::list<L, typename is_list<L>::returned>{}.first(l);
         }
-            
+        
         template <typename L> 
         inline L rest(L l) {
             return definition::retractable<L>{}.rest(l);
@@ -192,7 +192,7 @@ namespace data {
         
         template <typename L, typename X>
         L append(L list, X value) {
-            if (empty(list)) return L{{value}};
+            if (list::empty(list)) return L{{value}};
             
             return append(first(list), append(rest(list), value));
         }
@@ -204,7 +204,7 @@ namespace data {
             
             struct inner {
                 L operator()(L reversed, L list) {
-                    if (empty(list)) return reversed;
+                    if (list::empty(list)) return reversed;
                     return inner{}(reversed + first(list), rest(list));
                 }
             };
