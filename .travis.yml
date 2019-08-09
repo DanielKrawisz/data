@@ -1,0 +1,79 @@
+language: cpp
+
+env:
+  global:
+    # Ubuntu version
+    - LINUX_DIST=xenial
+    - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+    # Global build options and C++ flags
+    - CXX_FLAGS="-Wall -pedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
+    # Misc
+    - RUN_TESTS=true
+    - COVERAGE=false
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/usr/
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      env: CONDA_PYTHON_VERSION=3.6
+      sudo: true
+      compiler: gcc
+      addons:
+       apt:
+         packages: &precise_latest_boost_packages
+           - gcc-7
+           - g++-7
+           #- gcov-4.9
+           - clang-3.7
+           - valgrind
+           # Misc
+           - python-yaml
+           - lcov
+           - libopencv-dev
+           - swig
+           - libcrypto++-dev
+           - pkg-config
+           - cmake-data
+           - cmake
+         sources: &precise_latest_boost_sources
+           - ubuntu-toolchain-r-test
+           - llvm-toolchain-xenial-3.7
+          
+    
+before_install:
+    # Combine global build options with OS/compiler-dependent options
+    - export CMAKE_OPTIONS=${CMAKE_OPTIONS}" "${ENV_CMAKE_OPTIONS}
+    - export CXX_FLAGS=${CXX_FLAGS}" "${ENV_CXX_FLAGS}
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7 --slave /usr/bin/gcov gcov /usr/bin/gcov-7
+    
+
+install:
+    -  |
+        if [ ! -d "${TRAVIS_BUILD_DIR}/usr/include" ]; then
+            mkdir tmp;
+            cd tmp;
+            wget https://gist.githubusercontent.com/nekosune/9a2d3e841d2d305aee7a4aa71a984334/raw/db5fe5c24f55cde427fc7fd55fbe65d0133d6c73/install.sh ;
+            chmod +x install.sh ;
+            sudo ${TRAVIS_BUILD_DIR}/tmp/install.sh --prefix=${TRAVIS_BUILD_DIR}/usr/  --build-boost;
+        fi
+    - export PKG_CONFIG_PATH="${TRAVIS_BUILD_DIR}/usr/lib/pkgconfig:${PKG_CONFIG_PATH}" ;
+    - echo $PKG_CONFIG_PATH ;
+    - if [ "$CXX" = "clang++" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
+    - echo ${PATH}
+    - echo ${CXX}
+    - ${CXX} --version
+    - ${CXX} -v
+    - cd ${TRAVIS_BUILD_DIR}
+
+script:
+    ############################################################################
+    # Build main and tests
+    ############################################################################
+     - mkdir -p build
+     - cd build
+     - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DBOOST_ROOT=${TRAVIS_BUILD_DIR}/usr/ -DBUILD_TESTS=ON .. 
+     - make

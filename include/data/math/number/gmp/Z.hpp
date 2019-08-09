@@ -97,9 +97,7 @@ namespace data {
             return z.abs();
         }
         
-        number::gmp::N square(number::gmp::Z& z) {
-            return z * z;
-        }
+        number::gmp::N square(number::gmp::Z& z) ;
     }
 
 }

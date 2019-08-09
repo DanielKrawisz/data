@@ -47,23 +47,14 @@ if(NOT TARGET gtest_main AND PACKAGE_TESTS)
 			${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 endif()
 
-## Enable testing
-include(CTest)
-
-if(PACKAGE_TESTS)
-    enable_testing()
-    add_subdirectory(test)
-	
-
-endif()
 
 # Include libraries
 
 # Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
-set(Boost_USE_STATIC_LIBS       ON          CACHE BOOL "")
-set(Boost_USE_STATIC_RUNTIME    ON          CACHE BOOL "") # '-s' tag
+set(Boost_USE_STATIC_LIBS       OFF          CACHE BOOL "")
+set(Boost_USE_STATIC_RUNTIME    OFF          CACHE BOOL "") # '-s' tag
 set(Boost_USE_DEBUG_RUNTIME     ON          CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
@@ -102,6 +93,15 @@ find_package(GMP REQUIRED)
 if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
+## Enable testing
+include(CTest)
+
+if(PACKAGE_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+	
+
+endif()
 
 
 #  Add Library source files here
@@ -122,7 +122,7 @@ ADD_LIBRARY(data STATIC
         src/data/crypto/sha256.cpp
         src/data/crypto/sha512.cpp
         src/data/slice.cpp)
-
+		
 target_include_directories(data PUBLIC include)
 
 # Set C++ version
