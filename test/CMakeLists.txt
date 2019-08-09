@@ -7,7 +7,7 @@ endif()
 
 
 ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testLib.cpp )
-target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} gmock_main)
+target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} gmock_main)
 
 # Test Hex
 add_test(NAME HexHexToArray COMMAND testData)

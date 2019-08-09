@@ -10,13 +10,7 @@
 #include <data/math/sign.hpp>
 #include <data/math/number/natural.hpp>
 
-namespace data {
-    
-    namespace math {
-    
-        namespace number {
-            
-            namespace gmp {
+namespace data::math::number::gmp {
                 
                 typedef mp_limb_t gmp_uint;
                 typedef mp_limb_signed_t gmp_int;
@@ -35,11 +29,7 @@ namespace data {
                     return !valid(mpz) ? zero : mpz._mp_size < 0 ? negative : positive;
                 }
                 
-                void swap(__mpz_struct& a, __mpz_struct& b) {
-                    __mpz_struct MPZ_temp = a;
-                    a = b;
-                    b = MPZ_temp;
-                }
+                void swap(__mpz_struct& a, __mpz_struct& b);
                 
                 struct mpz {
                     __mpz_struct MPZ;
@@ -124,11 +114,5 @@ namespace data {
                 };
                 
             }
-            
-        }
-    
-    }
-
-}
 
 #endif
