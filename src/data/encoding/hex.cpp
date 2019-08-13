@@ -17,11 +17,12 @@ namespace  data {
                 String=str;
                 if (String == nullptr) errorString="Invalid hex string";
                 std::string output=std::string{"Invalid hex string: "} + *String;
-                errorString=new char(output.size()+1);
+                errorString=new char[output.size()+1];
                 strcpy(errorString,output.c_str());
             }
 
             invalid::~invalid() {
+                if(errorString!= nullptr)
                 delete[] errorString;
             }
 

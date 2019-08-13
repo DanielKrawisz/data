@@ -77,3 +77,4 @@ script:
      - cd build
      - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DBOOST_ROOT=${TRAVIS_BUILD_DIR}/usr/ -DBUILD_TESTS=ON .. 
      - make
+     - make test
