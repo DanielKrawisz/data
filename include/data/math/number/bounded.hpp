@@ -95,7 +95,7 @@ namespace data {
             }
             
             array(bit32 x) : array() {
-                words()[last] = x;
+                words()[words_type::last] = x;
             }
             
             operator std::array<byte, size>&() {

@@ -7,25 +7,23 @@
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
 namespace {
-    void DumpSliceToConsole(data::slice<data::byte> slice)
-    {
-        std::cout << std::endl;
-        for (int i = 0; i < slice.size(); i++)
-            std::cout << (int)slice[i] << ", ";
-        std::cout << std::endl;
-    }
-
 class SliceTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        test=std::vector<data::byte>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
-        sliceTest=data::slice<data::byte>(test);
+        test= std::vector<data::byte>({0,1,2});
+        test= std::vector<data::byte>();
+        for(int i=0;i<20;i++)
+            test.push_back(i+1);
+        sliceTest=data::slice<data::byte>::make(test);
     }
+
+    void TearDown() override {
+        std::cout << "Tearing down" << std::endl;
+    }
+
     std::vector<data::byte> test;
     data::slice<data::byte> sliceTest;
 };
-
-
     TEST_F(SliceTest, SliceWriteUint16Big) {
         data::slice_writer writer(sliceTest,boost::endian::order::big);
         writer << (uint16_t)4096;
@@ -76,13 +74,19 @@ protected:
 
     TEST_F(SliceTest, SliceWriteInt32Big) {
         data::slice_writer writer(sliceTest,boost::endian::order::big);
+        std::cout << "Got here 1" << std::endl;
         writer << (int32_t)2859322050;
+        std::cout << "Got here 2" << std::endl;
         EXPECT_THAT(test,::testing::ElementsAre(0xAA,0x6D,0xCA, 0xC2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
+        std::cout << "Got here 3" << std::endl;
         writer << (int32_t)-280539521;
+        std::cout << "Got here 4" << std::endl;
         EXPECT_THAT(test,::testing::ElementsAre(0xAA,0x6D,0xCA, 0xC2, 0xEF, 0x47, 0x4E, 0x7F, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
+        std::cout << "Got here 5" << std::endl;
     }
 
     TEST_F(SliceTest, WriteInt32Little) {
+        std::cout << "Got here 6" << std::endl;
         data::slice_writer writer(sliceTest,boost::endian::order::little);
         writer << (int32_t)2859322050;
         EXPECT_THAT(test,::testing::ElementsAre(0xC2,0xCA,0x6D,0xAA , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
