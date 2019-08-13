@@ -10,7 +10,6 @@ namespace {
 class SliceTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        test= std::vector<data::byte>({0,1,2});
         test= std::vector<data::byte>();
         for(int i=0;i<20;i++)
             test.push_back(i+1);
