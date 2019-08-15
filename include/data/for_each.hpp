@@ -50,7 +50,7 @@ namespace data {
         struct for_each_queue {
             using input_element = typename list::is_list<input>::element;
             using output_element = typename std::invoke_result<function, input_element>::type;
-            using output = functional_queue<list::linked<output_element>>;
+            using output = functional_queue<output_element, list::linked<output_element>>;
             
             output operator()(const function f, const input l) const {
                 return queue::for_each<function, input, output>{}(f, l);
@@ -142,7 +142,7 @@ namespace data {
             public queue::is_queue<Queue>, 
             public meta::Equal<typename queue::is_queue<Queue>::element, A> {
             
-            functional_queue<list::linked<B>> use_case(f fun, Queue a) {
+            functional_queue<B, list::linked<B>> use_case(f fun, Queue a) {
                 return data::for_each(fun, a);
             }
             

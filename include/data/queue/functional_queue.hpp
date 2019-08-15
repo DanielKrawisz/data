@@ -13,7 +13,7 @@
 namespace data {
     
     // functional queue based on Milewski's implementation of Okasaki. 
-    template <typename L>
+    template <typename X, typename L>
     class functional_queue {
         L Left;
         L Right;
@@ -36,11 +36,11 @@ namespace data {
             return list::size(Left) + list::size(Right);
         }
         
-        inline returned& first() {
+        inline returned first() {
             return list::first(Left);
         }
         
-        functional_queue(std::initializer_list<returned> l);
+        functional_queue(std::initializer_list<X> l);
         
     private:
         
@@ -81,48 +81,48 @@ namespace data {
         functional_queue operator+(functional_queue q) const {
             return append(q);
         }
-
+        
         functional_queue reverse() const {
             return check(list::reverse(Left), list::reverse(Right));
         }
-
+        
         constexpr static data::queue::definition::queue<functional_queue, returned> require_is_queue{};
         constexpr static data::list::definition::extendable<functional_queue, returned> require_is_buildable{};
-
+    
     };
-            
-    template <typename L> 
-    inline bool empty(functional_queue<L> q) {
+    
+    template <typename X, typename L> 
+    inline bool empty(functional_queue<X, L> q) {
         return q.empty();
     }
-
-    template <typename L> 
-    inline uint32 size(functional_queue<L> q) {
+    
+    template <typename X, typename L> 
+    inline uint32 size(functional_queue<X, L> q) {
         return q.size();
     }
-
-    template <typename L> 
-    inline typename functional_queue<L>::returned first(functional_queue<L> q) {
+    
+    template <typename X, typename L> 
+    inline typename functional_queue<X, L>::returned first(functional_queue<X, L> q) {
         return q.first();
     }
-            
-    template <typename L> 
-    inline functional_queue<L> rest(functional_queue<L> q) {
+    
+    template <typename X, typename L> 
+    inline functional_queue<X, L> rest(functional_queue<X, L> q) {
         return q.rest();
     }
-            
-    template <typename L, typename X> 
-    inline functional_queue<L> append(functional_queue<L> q, X x) {
+    
+    template <typename X, typename L> 
+    inline functional_queue<X, L> append(functional_queue<X, L> q, X x) {
         return q.append(x);
     }
-            
-    template <typename L> 
-    inline functional_queue<L> reverse(functional_queue<L> q) {
+    
+    template <typename X, typename L> 
+    inline functional_queue<X, L> reverse(functional_queue<X, L> q) {
         return q.reverse();
     }
     
-    template <typename L>
-    functional_queue<L>::functional_queue(std::initializer_list<returned> l) : functional_queue{
+    template <typename X, typename L>
+    functional_queue<X, L>::functional_queue(std::initializer_list<X> l) : functional_queue{
         list::reverse(fold(plus<L, returned>, L{}, iterator_list<decltype(l.begin()), returned>(l.begin(), l.end())))} {}
     
 }

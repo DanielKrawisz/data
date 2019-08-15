@@ -30,7 +30,7 @@ namespace data::exported {
     template <typename X> using list = data::list::linked<X>;
     
     // functional queue built using the list. 
-    template <typename X> using queue = data::functional_queue<list<X>>;
+    template <typename X> using queue = data::functional_queue<X, list<X>>;
     
     // a functional map implemented as a red-black tree
     template <typename K, typename V> using map = data::rb_map<K, V>;
