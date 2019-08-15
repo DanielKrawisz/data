@@ -74,7 +74,10 @@ namespace data {
             }
             
         }
-    
+
+        number::gmp::N square(number::gmp::Z &z) {
+            return z * z;
+        }
     }
     
 }
