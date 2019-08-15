@@ -40,12 +40,12 @@ namespace data {
         words_wrapper(const words_wrapper& xx) : Words{xx.Words} {}
         
         bit32& operator[](index i) {
-            if (i >= words) throw std::out_of_range{""};
+            if (i > words) throw std::out_of_range{""};
             return *(bit32*)(Words->data() + 4 * i);
         }
         
         const bit32& operator[](index i) const {
-            if (i >= words) throw std::out_of_range{""};
+            if (i > words) throw std::out_of_range{""};
             return *(bit32*)(Words->data() + 4 * i);
         }
         
@@ -71,14 +71,14 @@ namespace data {
         words_wrapper(const words_wrapper& xx) : Words{xx.Words} {}
         
         bit32 operator[](index i) const {
-            if (i >= words) throw std::out_of_range{""};
+            if (i > words) throw std::out_of_range{""};
             if (i == 0) return ((*(bit32*)(Words->data())) >> shift_right) + 
                 (endian::halves<bit32, bit64, o>::is_signed && (((Words[0] & 0x8000) == 0x8000) ? 0xffffffff << shift_left : 0));
             return *(bit32*)(Words->data() - remainder + 4 * i);
         }
         
         void set(index i, bit32 x) {
-            if (i >= words) throw std::out_of_range{""};
+            if (i > words) throw std::out_of_range{""};
             //if (i == 0) ; // TODO!!
             *(bit32*)(Words->data() - remainder + 4 * i) = x;
         }

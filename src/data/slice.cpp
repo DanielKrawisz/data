@@ -87,8 +87,13 @@ namespace data {
     void slice_writer::bytesIntoIterator(const char* data,int count) {
         for(int i=0;i<count;i++)
         {
-            if (It == Slice.end()) throw end_of_stream{};
-            *It = (unsigned char) *(data + i);
+            if (It == Slice.end())
+            {
+                throw end_of_stream{
+                };
+                return;
+            };
+            *It = (unsigned char) data[i];
             It++;
         }
     }
@@ -187,7 +192,10 @@ namespace data {
         char* array=new char[amount];
         for(int i=0;i<amount;i++)
         {
-            if (It == Slice.end()) throw end_of_stream{};
+            if (It == Slice.end()) {
+                throw end_of_stream{};
+                return 0;
+            }
             array[i]=*It;
             It++;
         }

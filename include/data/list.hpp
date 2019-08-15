@@ -156,7 +156,7 @@ namespace data::list {
     
     template <typename L, typename X>
     L append(L list, X value) {
-        if (empty(list)) return L{{value}};
+        if (list::empty(list)) return L{{value}};
         
         return append(first(list), append(rest(list), value));
     }
@@ -168,7 +168,7 @@ namespace data::list {
         
         struct inner {
             L operator()(L reversed, L list) {
-                if (empty(list)) return reversed;
+                if (list::empty(list)) return reversed;
                 return inner{}(reversed + first(list), rest(list));
             }
         };

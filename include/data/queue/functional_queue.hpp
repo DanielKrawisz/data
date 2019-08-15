@@ -25,8 +25,8 @@ namespace data {
         constexpr static requirement Satisfied{};
         
         functional_queue() : Left{}, Right{} {}
-
         functional_queue(L l) : Left{l}, Right{} {}
+        functional_queue(const functional_queue& q) : Left{q.Left}, Right{q.Right} {}
         
         bool empty() const {
             return list::empty(Left);

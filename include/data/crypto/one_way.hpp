@@ -16,7 +16,7 @@ namespace data::crypto {
     struct to_public : function::abstract<pk, sk> {
         to_public() = delete;
         
-        pk operator()(sk s) const final override;
+        pk operator()(sk s) const noexcept final override;
     };
     
     // keypair is an assertion that to_public

@@ -5,13 +5,7 @@
 #include <data/math/number/gmp/mpz.hpp>
 #include <gmp/gmpxx.h>
 
-namespace data {
-    
-    namespace math {
-    
-        namespace number {
-            
-            namespace gmp {
+namespace data::math::number::gmp {
                 bool mpz::operator==(gmp_uint n) const {
                     return __gmp_binary_equal::eval(&MPZ, n);
                 }
@@ -52,10 +46,9 @@ namespace data {
                     return !__gmp_binary_less::eval(&MPZ, &n.MPZ);
                 }
 
+                void swap(__mpz_struct &a, __mpz_struct &b) {
+                    __mpz_struct MPZ_temp = a;
+                    a = b;
+                    b = MPZ_temp;
+                }
             }
-            
-        }
-    
-    }
-
-}

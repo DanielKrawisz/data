@@ -4,7 +4,7 @@
 
 #ifndef DATA_CRYPTO_DIGEST
 #define DATA_CRYPTO_DIGEST
-
+#include "data/types.hpp"
 #include <data/math/number/bounded.hpp>
 
 namespace data::crypto {
@@ -16,6 +16,7 @@ namespace data::crypto {
         
         digest() : Digest(0) {}
         digest(uint<s> d) : Digest{d} {}
+        digest(uint32 d) : Digest{d} {}
         digest(const digest& d) : Digest{d.Digest} {}
         digest(digest&& d);
         digest(bytes& b) : Digest{b} {}
