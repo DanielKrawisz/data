@@ -11,25 +11,9 @@
     
 namespace data::list {
     
-    template <typename elem> struct returned {
-        using type = elem&;
-    };
-    
-    template <typename elem> struct returned<elem&> {
-        using type = elem&;
-    };
-    
-    template <typename elem> struct returned<elem*> {
-        using type = elem*;
-    };
-    
-    template <typename elem> struct returned<ptr<elem>> {
-        using type = ptr<elem>;
-    };
-    
     template <typename elem>
     struct linked {
-        using returned = typename list::returned<elem>::type;
+        using returned = typename container::returned<elem>::type;
         using requirement = data::list::definition::buildable<linked<elem>, elem, returned>;
         constexpr static requirement Satisfied{};
         
@@ -122,7 +106,7 @@ namespace data::list {
 }
 
 namespace data {
-
+    
     template <typename X>
     inline bool empty(const list::linked<X> l) {
         return l.empty();
