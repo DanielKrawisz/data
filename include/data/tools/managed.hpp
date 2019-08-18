@@ -85,6 +85,7 @@ namespace data::managed {
             return pointer<X>::value().end();
         }
         
+        indexed() : pointer<X>{} {}
         indexed(X* p) : pointer<X>{p} {}
         indexed(const X& d) : pointer<X>{d} {}
         indexed(const indexed& m) : pointer<X>{static_cast<const pointer<X>&>(m)} {}
