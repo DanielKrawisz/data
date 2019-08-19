@@ -10,98 +10,166 @@
 #include <type_traits>
     
 namespace data::list {
+    template <typename elem> struct linked;
+    
+    namespace base {
+        // base class of a linked list. 
+        // I want to support linked lists that can act as std::containers, 
+        // meaning that they support iterators as well as linked list
+        // that contain references, which makes a lot of sense with 
+        // functional programming. 
+        template <typename elem, typename derived>
+        struct linked {
+            using returned = typename container::returned<elem>::type;
+            using node = list::node<elem, derived, returned>;
+            using next = ptr<node>;
+            
+            next Next;
+        
+            // if the list is empty, then this function
+            // will dereference a nullptr. It is your
+            // responsibility to check. 
+            const returned first() const {
+                return Next->first();
+            }
+            
+            returned first() {
+                return Next->first();
+            }
+        
+            bool empty() const {
+                return Next == nullptr;
+            }
+            
+            const derived rest() const {
+                if (empty()) return {};
+                
+                return Next->rest();
+            }
+            
+            bool contains(elem x) const {
+                if (empty()) return false;
+                    
+                Next->contains(x);
+            }
+            
+            uint32 size() const {
+                if (empty()) return 0;
+                    
+                return Next->size();
+            }
+            
+            bool operator==(const next n) {
+                return Next == n;
+            }
+            
+            bool operator==(const linked& l) const {
+                if (this == &l) return true;
+                return Next == l.Next;
+            }
+            
+            bool operator!=(const linked& l) const {
+                return !(*this==l);
+            }
+            
+            const derived from(uint32 n) const {
+                if (empty()) return {};
+                if (n == 0) return *this;
+                return rest().from(n - 1);
+            }
+            
+            const returned operator[](uint32 n) const {
+                return from(n).first();
+            }
+        
+            linked() : Next{nullptr} {}
+            linked(linked&& l) : Next{l.Next} {
+                l.Next = nullptr;
+            }
+        
+        protected:
+            linked(next n) : Next{n} {}
+            // ensure the base class can't be constructed. 
+            virtual ~linked() = 0; 
+            
+            friend struct list::linked<elem>;
+        };
+        
+        template <typename elem, typename derived> linked<elem, derived>::~linked() {}
+    }
     
     template <typename elem>
-    struct linked {
-        using returned = typename container::returned<elem>::type;
-        using requirement = data::list::definition::buildable<linked<elem>, elem, returned>;
+    struct linked : public base::linked<elem, linked<elem>> {
+        using parent = base::linked<elem, linked<elem>>;
+        using requirement = data::list::definition::complete<
+            linked<elem>, elem, typename parent::returned, iterator<linked>, const iterator<linked>>;
         constexpr static requirement Satisfied{};
         
-        using node = list::node<elem, linked, returned>;
-        using next = ptr<node>;
-        
-        next Next;
-        
-        // if the list is empty, then this function
-        // will dereference a nullptr. It is your
-        // responsibility to check. 
-        const returned first() const {
-            return Next->first();
+        linked() : parent{} {}
+        linked(const linked& l) : parent{l.Next} {}
+        linked(linked&& l) : parent{static_cast<parent&&>(l)} {
+            l.Next = nullptr;
         }
         
-        returned first() {
-            return Next->first();
-        }
+        linked(std::initializer_list<elem> l) : linked{
+            list::reverse(fold(
+                plus<linked, elem>, 
+                linked{}, 
+                iterator_list<decltype(l.begin()), elem>(l.begin(), l.end())
+            ))
+        } {}
         
-        bool empty() const {
-            return Next == nullptr;
-        }
+        linked(std::vector<elem> v);
         
-        const linked rest() const {
-            if (empty()) return {};
-            
-            return Next->rest();
-        }
-        
-        bool contains(elem x) const {
-            if (empty()) return false;
-                
-            Next->contains(x);
-        }
-        
-        uint32 size() const {
-            if (empty()) return 0;
-                
-            return Next->size();
-        }
+        linked& operator=(const linked& l) {
+            parent::Next = l.Next;
+            return *this;
+        } 
         
         linked prepend(elem x) const {
-            return linked{std::make_shared<node>(node{x, *this})};
+            return linked{std::make_shared<typename parent::node>(typename parent::node{x, *this})};
         }
         
         linked operator+(elem x) const {
             return prepend(x);
         }
         
-        bool operator==(const next n) {
-            return Next == n;
-        }
+        iterator<linked> begin();
+        iterator<linked> end();
+        const iterator<linked> begin() const;
+        const iterator<linked> end() const;
         
-        bool operator==(const linked& l) const {
-            if (this == &l) return true;
-            return Next == l.Next;
-        }
+    private:
+        linked(typename parent::next n) : parent{n} {}
+    };
+    
+    template <typename elem>
+    struct linked<elem&> : public base::linked<elem, linked<elem>> {
+        using parent = base::linked<elem, linked<elem>>;
+        using requirement = data::list::definition::buildable<linked<elem>, elem, typename parent::returned>;
+        constexpr static requirement Satisfied{};
         
-        bool operator!=(const linked& l) const {
-            return !(*this==l);
-        }
-        
-        const linked from(uint32 n) const {
-            if (empty()) return {};
-            if (n == 0) return *this;
-            return rest().from(n - 1);
-        }
-        
-        const returned operator[](uint32 n) const {
-            return from(n).first();
-        }
-        
-        linked() : Next{nullptr} {}
-        linked(const linked& l) : Next{l.Next} {}
-        linked(linked&& l) : Next{l.Next} {
+        linked() : parent{} {}
+        linked(const linked& l) : parent{l.Next} {}
+        linked(linked&& l) : parent{static_cast<parent&&>(l)} {
             l.Next = nullptr;
         }
         
-        linked(std::initializer_list<elem> l);
-        linked(std::vector<elem> v);
-        
         linked& operator=(const linked& l) {
-            Next = l.Next;
+            parent::Next = l.Next;
             return *this;
         } 
         
+        linked prepend(elem x) const {
+            return linked{std::make_shared<typename parent::node>(typename parent::node{x, *this})};
+        }
+        
+        linked operator+(elem x) const {
+            return prepend(x);
+        }
+        
     private:
-        linked(next n) : Next{n} {}
+        linked(typename parent::next n) : parent{n} {}
     };
 }
 
@@ -126,10 +194,6 @@ namespace data {
     inline const list::linked<X> prepend(const list::linked<X> l, const X elem) {
         return l.prepend(elem);
     }
-    
-    template <typename X>
-    list::linked<X>::linked(std::initializer_list<X> l) : linked(
-        list::reverse(fold(plus<linked, X>, linked{}, iterator_list<decltype(l.begin()), X>(l.begin(), l.end())))) {}
 
 }
 

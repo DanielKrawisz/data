@@ -55,7 +55,7 @@ namespace data::list {
                 return {};
             }
             
-            const L prepend(const L l, X x) const {
+            const L prepend(const L l, const X x) const {
                 return l + x;
             }
         };
@@ -90,15 +90,15 @@ namespace data::list {
         struct iterable<ptr<L>, R, it, const_it> : 
             virtual public list<ptr<L>, R>, 
             public container::iterable<ptr<L>, it, const_it> {};
-        
-        // cannot use references with iterators. 
-        template <typename L, typename R, typename it, typename const_it>
-        struct iterable<L, R&, it, const_it> : virtual public list<L*, R&> {
-            iterable() = delete;
-        };
             
         template <typename L, typename X, typename R, typename it, typename const_it>
         struct complete : public buildable<L, X, R>, public iterable<L, R, it, const_it> {};
+        
+        // cannot use references with iterators. 
+        template <typename L, typename X, typename it, typename const_it>
+        struct complete<L, X&, X&, it, const_it> : virtual public list<L*, X&> {
+            complete() = delete;
+        };
         
     }
     
@@ -201,7 +201,7 @@ namespace data::list {
         return p(t(l1.first(), l2.first()), inner(t, rest(l1), rest(l2), p));
     }
     
-    // this is an iterator that could go with a list. 
+    // this is a const iterator that could go with a list. 
     template <typename L>
     struct iterator {
         L List;
@@ -225,7 +225,7 @@ namespace data::list {
             return operator=(iterator{rest(List)});
         }
         
-        const returned operator*() const{
+        const returned operator*() const {
             return first(List);
         }
         
