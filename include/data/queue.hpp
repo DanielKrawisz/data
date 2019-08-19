@@ -40,9 +40,12 @@ namespace data {
                     return l->append(q);
                 }
             };
-                
+            
             template <typename Q, typename X>
             struct queue<ptr<Q>, X> : public list::definition::list<ptr<Q>, X>, public queue<Q*, X> {};
+            
+            template <typename Q, typename X, typename it, typename const_it>
+            struct iterable : public queue<Q, X>, public container::iterable<Q, it, const_it> {};
             
         }
             

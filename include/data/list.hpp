@@ -78,10 +78,6 @@ namespace data::list {
         struct iterable : 
             public list<L, R>, 
             public container::iterable<L, it, const_it> {};
-        
-        template <typename L, typename R, typename it, typename const_it>
-        struct iterable<ptr<L>, R, it, const_it> : 
-            public iterable<L*, R, it, const_it> {};
             
         template <typename L, typename X, typename R, typename it, typename const_it>
         struct complete : public buildable<L, X, R>, public container::iterable<L, it, const_it> {};

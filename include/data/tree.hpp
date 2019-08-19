@@ -51,7 +51,7 @@ namespace data {
             };
             
             template <typename T, typename E>
-            struct tree<ptr<T>, E> : virtual public tree<T*, E>, virtual public set::definition::existence<ptr<T>> {
+            struct tree<ptr<T>, E> : virtual public tree<T*, E> {
                 using element = typename tree<T*, E>::element;
             };
             
