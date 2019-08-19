@@ -20,7 +20,7 @@ namespace data::list {
         };
         
         template <typename L>
-        struct retractable<L*> : virtual public container::existence<L*> {
+        struct retractable<L*> : public container::existence<L*> {
             L rest(const L* l) const {
                 if (l == nullptr) return nullptr;
                 return l->rest();
@@ -28,9 +28,7 @@ namespace data::list {
         };
         
         template <typename L>
-        struct retractable<ptr<L>> : 
-            virtual public container::existence<ptr<L>>, 
-            virtual public retractable<L*> {};
+        struct retractable<ptr<L>> : public retractable<L*> {};
         
         template <typename L, typename R>
         struct list : public retractable<L> {
@@ -40,17 +38,17 @@ namespace data::list {
         };
         
         template <typename L, typename R>
-        struct list<L*, R> : virtual public retractable<L*> {
+        struct list<L*, R> : public retractable<L*> {
             R first(const L* const l) const {
                 return l->first();
             }
         };
         
         template <typename L, typename R>
-        struct list<ptr<L>, R> : virtual public retractable<ptr<L>>, virtual public list<L*, R> {};
+        struct list<ptr<L>, R> : public list<L*, R> {};
         
         template <typename L, typename X>
-        struct extendable : virtual public container::existence<L> {
+        struct extendable {
             L make_empty() const {
                 return {};
             }
@@ -61,7 +59,7 @@ namespace data::list {
         };
         
         template <typename L, typename X>
-        struct extendable<L*, X> : virtual public container::existence<L*> {
+        struct extendable<L*, X> {
             const L prepend(const L* const l, X x) const {
                 if (l == nullptr) return x;
                 return l->append(x);
@@ -69,34 +67,28 @@ namespace data::list {
         };
         
         template <typename L, typename X>
-        struct extendable<ptr<L>, X> : virtual public extendable<L*, X> {};
+        struct extendable<ptr<L>, X> :  public extendable<L*, X> {};
         
         template <typename L, typename X, typename R>
         struct buildable :
-            virtual public list<L, R>, 
+            public list<L, R>, 
             public extendable<L, X> {};
         
         template <typename L, typename R, typename it, typename const_it>
         struct iterable : 
-            virtual public list<L, R>, 
+            public list<L, R>, 
             public container::iterable<L, it, const_it> {};
         
         template <typename L, typename R, typename it, typename const_it>
-        struct iterable<L*, R, it, const_it> : 
-            virtual public list<L*, R>, 
-            public container::iterable<L*, it, const_it> {};
-        
-        template <typename L, typename R, typename it, typename const_it>
         struct iterable<ptr<L>, R, it, const_it> : 
-            virtual public list<ptr<L>, R>, 
-            public container::iterable<ptr<L>, it, const_it> {};
+            public iterable<L*, R, it, const_it> {};
             
         template <typename L, typename X, typename R, typename it, typename const_it>
-        struct complete : public buildable<L, X, R>, public iterable<L, R, it, const_it> {};
+        struct complete : public buildable<L, X, R>, public container::iterable<L, it, const_it> {};
         
         // cannot use references with iterators. 
         template <typename L, typename X, typename it, typename const_it>
-        struct complete<L, X&, X&, it, const_it> : virtual public list<L*, X&> {
+        struct complete<L, X&, X&, it, const_it> {
             complete() = delete;
         };
         
