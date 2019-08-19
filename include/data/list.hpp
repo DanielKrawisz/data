@@ -118,8 +118,9 @@ namespace data::list {
     struct is_list<ptr<L>> : public is_list<L*> {};
     
     template <typename L, typename X>
-    struct is_extendable : public is_list<L> {
-        constexpr static definition::extendable<L, X> IsExtendableList{};
+    struct is_buildable : public is_list<L> {
+        using returned = typename is_list<L>::returned;
+        constexpr static definition::buildable<L, X, returned> IsBuildableList{};
     };
     
     template <typename L>
@@ -163,7 +164,7 @@ namespace data::list {
     
     template <typename L>
     L reverse(L list) {
-        using requirement = is_extendable<L, typename is_list<L>::returned>;
+        using requirement = definition::extendable<L, typename is_list<L>::returned>;
         constexpr static requirement satisfied{};
         
         struct inner {

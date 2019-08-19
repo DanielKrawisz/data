@@ -9,7 +9,7 @@ namespace data {
     namespace list {
                 
         template <typename function, typename from, typename to> 
-        struct for_each : public is_extendable<to, typename is_list<to>::returned> {
+        struct for_each : public definition::extendable<to, typename is_list<to>::returned> {
             using input_element = typename is_list<from>::element;
             using output_element = std::invoke_result<function, input_element>;
             

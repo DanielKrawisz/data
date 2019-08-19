@@ -20,9 +20,9 @@ namespace data {
 
         functional_queue(L l, L r) : Left{l}, Right{r} {}
     public:
-        using returned = typename list::is_list<L>::returned;
-        using requirement = list::is_extendable<L, returned>;
-        constexpr static requirement Satisfied{};
+        using required = list::is_buildable<L, X>;
+        using returned = typename required::returned;
+        constexpr static required Satisfied{};
         
         functional_queue() : Left{}, Right{} {}
         functional_queue(L l) : Left{l}, Right{} {}
@@ -39,8 +39,6 @@ namespace data {
         inline returned first() {
             return list::first(Left);
         }
-        
-        functional_queue(std::initializer_list<X> l);
         
     private:
         
@@ -120,11 +118,7 @@ namespace data {
     inline functional_queue<X, L> reverse(functional_queue<X, L> q) {
         return q.reverse();
     }
-    
-    template <typename X, typename L>
-    functional_queue<X, L>::functional_queue(std::initializer_list<X> l) : functional_queue{
-        list::reverse(fold(plus<L, returned>, L{}, iterator_list<decltype(l.begin()), returned>(l.begin(), l.end())))} {}
-    
+       
 }
 
 #endif
