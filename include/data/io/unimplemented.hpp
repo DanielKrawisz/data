@@ -7,12 +7,10 @@ namespace data {
      
     namespace method { 
         
-        class unimplemented : std::exception {
+        class unimplemented : std::logic_error {
             
         public:
-            const char* what() const noexcept final override {
-                return "Unimplemented method";
-            }
+            unimplemented() : std::logic_error("Function not yet implemented") { };
         };
     
     }
