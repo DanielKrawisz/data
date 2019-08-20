@@ -121,6 +121,7 @@ ADD_LIBRARY(data STATIC
         src/data/math/number/gmp/Q.cpp
         src/data/crypto/ripemd160.cpp
         src/data/crypto/sha256.cpp
+		src/data/crypto/digest.cpp
         src/data/crypto/sha512.cpp
         src/data/slice.cpp)
 		
