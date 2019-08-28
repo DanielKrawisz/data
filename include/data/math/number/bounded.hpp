@@ -29,16 +29,13 @@ namespace data {
             
             array(const array& a) : parent{static_cast<const parent&>(a)} {}
             array(const std::array<byte, size>& d) : parent{d} {}
-            array(array&& a) : parent{static_cast<const parent&&>(a)} {}
             array(std::array<byte, size>&& d) : parent{d} {}
             array(vector<byte>& v);
             
             static array zero() {
                 return array{};
             }
-            
-            array& operator=(const array& a);
-            
+
             bool operator==(const bounded& d) const;
             bool operator!=(const bounded& d) const;
             
@@ -128,13 +125,12 @@ namespace data {
             number() : ray{} {}
             number(bit32 x) : ray{x} {}
             number(const number& n) : ray{static_cast<const ray&>(n)} {}
-            number(number&& n) : ray{static_cast<ray&&>(n)} {}
             number(const std::array<byte, size>& a) : ray{a} {};
             number(std::array<byte, size>&& a) : ray{a} {};
             number(vector<byte>& v) : ray{v} {};
             
-            number& operator=(const number&) const;
-            
+
+
             // power
             number operator^(const number&) const;
             number& operator^=(const number&);
@@ -160,11 +156,10 @@ namespace data {
             number() : ray{} {}
             number(bit32 x) : ray{x} {}
             number(const number& n) : ray{static_cast<const ray&>(n)} {}
-            number(number&& n) : ray{static_cast<ray&&>(n)} {}
             number(const std::array<byte, size>& a) : ray{a} {};
             number(std::array<byte, size>&& a) : ray{a} {};
             number(vector<byte>& v) : ray{v} {};
-            
+
             number& operator=(const number&) const;
             
             // power

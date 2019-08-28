@@ -29,7 +29,9 @@ namespace data::math::number::bounded {
         
         return true;
     }
-    
+
+
+
     template <uint32_t size>
     bool number<size, true>::operator<(const number<size, true>& n) const {
         throw 0;
