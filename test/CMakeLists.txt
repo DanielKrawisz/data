@@ -6,7 +6,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 
-ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testLib.cpp )
+ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testDigest.cpp testLib.cpp )
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} gmock_main)
 
 # Test Hex

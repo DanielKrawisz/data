@@ -18,7 +18,6 @@ namespace data::crypto {
         digest(uint<s> d) : Digest{d} {}
         digest(uint32 d) : Digest{d} {}
         digest(const digest& d) : Digest{d.Digest} {}
-        digest(digest&& d);
         digest(bytes& b) : Digest{b} {}
         
         bool valid() const;
@@ -31,16 +30,37 @@ namespace data::crypto {
         bool operator<=(const digest&) const;
         bool operator>=(const digest&) const;
     };
-    
-    template <uint32 s>
+
+
+    template<uint32 s>
     inline bool digest<s>::valid() const {
         return operator!=(digest{0});
     }
-    
-    template <uint32 s>
+
+    template<uint32 s>
     inline digest<s>& digest<s>::operator=(const digest<s>& d) {
         Digest = d.Digest;
         return *this;
+    }
+
+    template<uint32 s>
+    inline bool digest<s>::operator==(const digest& other) const {
+        return Digest == other.Digest;
+    }
+
+    template<uint32 s>
+    inline bool digest<s>::operator!=(const digest& other) const {
+        return Digest!=other.Digest;
+    }
+
+    template<uint32 s>
+    inline bool digest<s>::operator<(const digest& other) const {
+        return Digest < other.Digest;
+    }
+
+    template<uint32 s>
+    inline bool digest<s>::operator>(const digest& other ) const {
+        return Digest > other.Digest;
     }
 
 }
