@@ -60,7 +60,7 @@ namespace data::managed {
     };
     
     template <typename X, typename x, typename iter, typename const_iter>
-    struct indexed : protected pointer<X> {        
+    struct indexed : public pointer<X> {        
         x operator[](uint32 n) {
             return pointer<X>::value()[n];
         }

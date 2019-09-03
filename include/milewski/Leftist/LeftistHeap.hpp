@@ -1,3 +1,6 @@
+#ifndef MILEWSKI_OKASAKI_HEAP
+#define MILEWSKI_OKASAKI_HEAP
+
 #include <memory>
 #include <cassert>
 namespace milewski::okasaki {
@@ -109,3 +112,5 @@ namespace milewski::okasaki {
     };
 
 }
+
+#endif

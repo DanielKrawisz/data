@@ -16,7 +16,7 @@ namespace data {
     namespace math::number::bounded {
     
         template <typename bounded, uint32 n, typename bit32, typename bit64>
-        struct array : managed::bytes<n> {
+        struct array : public managed::bytes<n> {
             using parent = managed::bytes<n>;
             static const data::endian::order endian = data::endian::order::big;
             using word = endian::ordered<bit64, endian::order::big>;

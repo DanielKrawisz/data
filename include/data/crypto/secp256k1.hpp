@@ -27,9 +27,8 @@ namespace data::crypto {
         
         using signature = libbitcoin::system::ec_signature;
         
-        struct secret : public std::array<byte, secret_size> {
+        struct secret : public uint<secret_size> {
             
-            using std::array<byte, secret_size>::operator[];
             bool valid() const;
             
             pubkey<true, compressed_pubkey_size> to_public_compressed() const;
@@ -38,13 +37,7 @@ namespace data::crypto {
             secret operator+(const secret&) const;
             secret operator*(const secret&) const;
             
-            secret() : std::array<byte, secret_size>{} {}
-            secret(std::array<byte, secret_size> a) : std::array<byte, secret_size>(a) {}
-            
-            secret& operator=(const secret& s) {
-                static_cast<std::array<byte, secret_size>&>(*this) = static_cast<const std::array<byte, secret_size>&>(s);
-                return *this;
-            }
+            using uint<secret_size>::number;
             
             signature sign(const sha256::digest&) const;
         };
@@ -133,7 +126,7 @@ namespace data::crypto {
         
             inline const std::array<byte, secret_size>& 
             libbitcoin(const secret& s) {
-                return static_cast<const std::array<byte, secret_size>&>(s);
+                return static_cast<const managed::array<byte, secret_size>&>(s).value();
             }
         
             template <bool compressed_pubkey, uint32 pubkey_size>
@@ -144,7 +137,7 @@ namespace data::crypto {
         
             inline std::array<byte, secret_size>& 
             libbitcoin(secret& s) {
-                return static_cast<std::array<byte, secret_size>&>(s);
+                return static_cast<managed::array<byte, secret_size>&>(s).value();
             }
         
             template <bool compressed_pubkey, uint32 pubkey_size>

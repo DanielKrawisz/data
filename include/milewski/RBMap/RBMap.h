@@ -1,3 +1,6 @@
+#ifndef MILEWSKI_OKASAKI_RBMAP
+#define MILEWSKI_OKASAKI_RBMAP
+
 #include <cassert>
 #include <memory>
 
@@ -251,3 +254,5 @@ namespace milewski::okasaki {
     }
     
 }
+
+#endif

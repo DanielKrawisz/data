@@ -6,7 +6,7 @@
 #include <boost/program_options.hpp>
 
 #include <data/types.hpp>
-#include <data/list/linked_list.hpp>
+#include <data/list/linked.hpp>
 
 // Ways of translating the c++ main function into something
 // a little more high-level. 
