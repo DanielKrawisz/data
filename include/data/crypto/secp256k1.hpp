@@ -124,20 +124,10 @@ namespace data::crypto {
         
         namespace low {
         
-            inline const std::array<byte, secret_size>& 
-            libbitcoin(const secret& s) {
-                return static_cast<const managed::array<byte, secret_size>&>(s).value();
-            }
-        
             template <bool compressed_pubkey, uint32 pubkey_size>
             inline const std::array<byte, pubkey_size>& 
             libbitcoin(const pubkey<compressed_pubkey, pubkey_size>& s) {
                 return static_cast<const std::array<byte, pubkey_size>&>(s);
-            }
-        
-            inline std::array<byte, secret_size>& 
-            libbitcoin(secret& s) {
-                return static_cast<managed::array<byte, secret_size>&>(s).value();
             }
         
             template <bool compressed_pubkey, uint32 pubkey_size>
@@ -145,6 +135,30 @@ namespace data::crypto {
             libbitcoin(pubkey<compressed_pubkey, pubkey_size>& s) {
                 return static_cast<std::array<byte, pubkey_size>&>(s);
             }
+            
+            template <typename A, typename B> struct compression;
+            
+            template <typename A> struct compression<A, A> {
+                const A& operator()(const A& a){
+                    return a;
+                }
+            };
+            
+            template <> struct compression<compressed_pubkey, uncompressed_pubkey> {
+                compressed_pubkey P;
+                compressed_pubkey& operator()(const uncompressed_pubkey& p) {
+                    libbitcoin::system::compress(P, p);
+                    return P;
+                }
+            };
+            
+            template <> struct compression<uncompressed_pubkey, compressed_pubkey> {
+                uncompressed_pubkey P;
+                uncompressed_pubkey& operator()(const compressed_pubkey& p) {
+                    libbitcoin::system::decompress(P, p);
+                    return P;
+                }
+            };
             
             const libbitcoin::system::hash_digest libbitcoin(const sha256::digest& d);
         
@@ -180,22 +194,23 @@ namespace data::crypto {
         
         inline secret secret::operator+(const secret& s) const {
             secret x = *this;
-            libbitcoin::system::ec_add(low::libbitcoin(x), low::libbitcoin(s));
+            libbitcoin::system::ec_add(x.value(), s.value());
             return x;
         }
         
         inline secret secret::operator*(const secret& s) const {
             secret x = *this;
-            libbitcoin::system::ec_multiply(low::libbitcoin(x), low::libbitcoin(s));
+            libbitcoin::system::ec_multiply(x.value(), s.value());
             return x;
         }
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
         inline pubkey<compressed_pubkey, pubkey_size>
         pubkey<compressed_pubkey, pubkey_size>::operator+(const pubkey& p) const {
-            pubkey x = *this;
-            if (!libbitcoin::system::ec_sum(low::libbitcoin(x), {low::libbitcoin(p)})) return pubkey{};
-            return x;
+            secp256k1::compressed_pubkey x = low::compression<secp256k1::compressed_pubkey, pubkey<compressed_pubkey, pubkey_size>>{}(*this);
+            low::compression<secp256k1::compressed_pubkey, pubkey<compressed_pubkey, pubkey_size>> l{};
+            if (!libbitcoin::system::ec_sum(low::libbitcoin(x), {l(low::libbitcoin(p))})) return pubkey{};
+            return low::compression<pubkey<compressed_pubkey, pubkey_size>, secp256k1::compressed_pubkey>{}(x);
         }
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
