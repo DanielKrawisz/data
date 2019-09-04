@@ -70,7 +70,9 @@ namespace data {
                     return Function(argc, argv);
                 } catch(std::exception& e) { 
                     return {true, e.what()}; 
-                } 
+                } catch (...) {
+                    return {true, "unknown error."};
+                }
             }
             
             catch_all(f& fun) : Function{fun} {}
@@ -80,7 +82,7 @@ namespace data {
             po::options_description Named; 
             po::positional_options_description Positional;
                 
-            input operator()(int argc, char *argv[]) const {
+            input operator()(int argc, char *argv[]) const final override {
                 input vm;
                 po::store(po::command_line_parser(argc, argv).options(Named).positional(Positional).run(), vm);
                 po::notify(vm);
@@ -93,7 +95,7 @@ namespace data {
         
         template <typename L>
         struct list_input_parser : public input_parser<L> {
-            L operator()(int argc, char *argv[]) {
+            L operator()(int argc, char *argv[]) const final override {
                 L list{};
                 for (uint i = 0; i < argc; i++){
                     list = list + std::string(argv[i]);

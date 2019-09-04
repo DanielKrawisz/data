@@ -102,6 +102,60 @@ namespace data::container {
     template <typename L, typename it, typename const_it>
     struct iterable<ptr<L>, it, const_it> : public iterable<L*, it, const_it> {};
     
+    template <typename L>
+    struct is_iterable {
+        using iterator = decltype(std::declval<L>().begin());
+        using const_iterator = decltype(std::declval<const L>().begin());
+        constexpr static iterable<L, iterator, const_iterator> Requirement{};
+    };
+    
+    // A way of treating arrays as containers (std::array is not a container)
+    // anything that behaves like an array can be consistently turned
+    // into something that can be inhereted from. 
+    template <typename indexed, typename elem, uint32 n>
+    struct array : public container::is_iterable<indexed> {
+        indexed Array;
+        
+        using iterator = typename container::is_iterable<indexed>::iterator;
+        using const_iterator = typename container::is_iterable<indexed>::const_iterator;
+        using returned = typename returned<elem>::type;
+        
+        iterator begin() {
+            return Array.begin();
+        }
+        
+        iterator end() {
+            return Array.end();
+        }
+            
+        const_iterator begin() const {
+            return Array.begin();
+        }
+            
+        const_iterator end() const {
+            return Array.end();
+        }
+            
+        using index = uint32;
+        
+        static const index size = n;
+        static const index last = n - 1;
+        
+        returned operator[](index i) {
+            return Array[i];
+        }
+            
+        const returned operator[](index i) const {
+            return Array[i];
+        }
+            
+        array() : Array{} {}
+        array(indexed& a) : Array{a} {}
+        
+        static array zero() {
+            return array{};
+        }
+    };
 }
 
 #endif

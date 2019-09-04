@@ -111,13 +111,6 @@ namespace data::list {
         constexpr static definition::buildable<L, X, returned> IsBuildableList{};
     };
     
-    template <typename L>
-    struct is_iterable : public is_list<L> {
-        using iterator = decltype(std::declval<L>().begin());
-        using const_iterator = decltype(std::declval<const L>().begin());
-        constexpr static definition::iterable<L, typename is_list<L>::returned, iterator, const_iterator> IsIterableList{};
-    };
-    
     template <typename L> 
     inline bool empty(L l) {
         return container::existence<L>{}.empty(l);
@@ -195,7 +188,7 @@ namespace data::list {
     struct iterator {
         L List;
         
-        using requirement = is_iterable<L>;
+        using requirement = container::is_iterable<L>;
         using returned = typename requirement::returned;
         constexpr static requirement Satisfied{};
         

@@ -10,6 +10,7 @@
 #include <data/math/sign.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/number/division.hpp>
+#include <data/container.hpp>
 
 namespace data {
         
@@ -22,23 +23,12 @@ namespace data {
             uint32 n,         // size (number of bytes)
             typename bit32,   // either int32 or uint32 
             typename bit64>   // either int64 or uint64
-        struct array {
-            indexed Array;
+        struct array : public container::array<indexed, byte, n> {
+            using container::array<indexed, byte, n>::array;
+            using container::array<indexed, byte, n>::Array;
+            
             static const data::endian::order endian = data::endian::order::big;
             using word = endian::ordered<bit64, endian::order::big>;
-            using index = uint32;
-            
-            static const index size = n;
-            static const index last = n - 1;
-            
-            array() : Array{} {}
-            
-            array(const std::array<byte, size>& d) : Array{d} {}
-            array(vector<byte>& v);
-            
-            static array zero() {
-                return array{};
-            }
 
             bool operator==(const bounded& d) const;
             bool operator!=(const bounded& d) const;
@@ -84,7 +74,7 @@ namespace data {
             bounded operator/(const bounded&) const;
             bounded operator%(const bounded&) const;
             
-            using words_type = ::data::words<size, bit32, bit64, endian>;
+            using words_type = ::data::words<n, bit32, bit64, endian>;
             
             words_type words() {
                 return words_type{Array.data()};
@@ -109,6 +99,7 @@ namespace data {
             using bit64 = uint64;
             
             using ray = array<number, indexed, size, bit32, bit64>;
+            using ray::ray;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
@@ -116,13 +107,6 @@ namespace data {
             using ray::operator>>=;
             
             using words_type = data::words<size, bit32, bit64, ray::endian>;
-            
-            number() : ray{} {}
-            number(bit32 x) : ray{x} {}
-            number(const number& n) : ray{static_cast<const ray&>(n)} {}
-            number(const std::array<byte, size>& a) : ray{a} {};
-            number(std::array<byte, size>&& a) : ray{a} {};
-            number(vector<byte>& v) : ray{v} {};
             
             // power
             number operator^(const number&) const;
@@ -138,6 +122,7 @@ namespace data {
             using bit64 = int64;
             
             using ray = array<number, indexed, size, bit32, bit64>;
+            using ray::ray;
             using ray::operator-=;
             using ray::operator+=;
             using ray::operator*=;
@@ -145,13 +130,6 @@ namespace data {
             using ray::operator>>=;
             
             using words_type = data::words<size, bit32, bit64, ray::endian>;
-            
-            number() : ray{} {}
-            number(bit32 x) : ray{x} {}
-            number(const number& n) : ray{static_cast<const ray&>(n)} {}
-            number(const std::array<byte, size>& a) : ray{a} {};
-            number(std::array<byte, size>&& a) : ray{a} {};
-            number(vector<byte>& v) : ray{v} {};
 
             number& operator=(const number&) const;
             
