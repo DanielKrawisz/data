@@ -6,8 +6,8 @@
 
 namespace data::math::number::bounded {
     
-    template <uint32_t size>
-    bool number<size, false>::operator<(const number<size, false>& n) const {
+    template <typename indexed, uint32_t size>
+    bool number<indexed, size, false>::operator<(const number& n) const {
         data::words a{*this};
         data::words b{n};
         for (uint32_t i = 0; i < size; i++) {
@@ -18,8 +18,8 @@ namespace data::math::number::bounded {
         return false;
     }
     
-    template <uint32_t size>
-    bool number<size, false>::operator<=(const number<size, false>& n) const {
+    template <typename indexed, uint32_t size>
+    bool number<indexed, size, false>::operator<=(const number& n) const {
         data::words a{*this};
         data::words b{n};
         for (uint32_t i = 0; i < size; i++) {
@@ -28,18 +28,6 @@ namespace data::math::number::bounded {
         }
         
         return true;
-    }
-
-
-
-    template <uint32_t size>
-    bool number<size, true>::operator<(const number<size, true>& n) const {
-        throw 0;
-    }
-    
-    template <uint32_t size>
-    bool number<size, true>::operator<=(const number<size, true>& n) const {
-        throw 0;
     }
 
 }

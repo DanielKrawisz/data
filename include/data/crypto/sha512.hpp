@@ -21,7 +21,7 @@ namespace data::sha512 {
     digest hash(const std::array<byte, n>&);
     
     template <uint32 n>
-    digest hash(const math::number::bounded::uint<n>&);
+    digest hash(const uint<n>&);
 
 }
 

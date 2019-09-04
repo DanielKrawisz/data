@@ -194,13 +194,13 @@ namespace data::crypto {
         
         inline secret secret::operator+(const secret& s) const {
             secret x = *this;
-            libbitcoin::system::ec_add(x.value(), s.value());
+            libbitcoin::system::ec_add(x.Array, s.Array);
             return x;
         }
         
         inline secret secret::operator*(const secret& s) const {
             secret x = *this;
-            libbitcoin::system::ec_multiply(x.value(), s.value());
+            libbitcoin::system::ec_multiply(x.Array, s.Array);
             return x;
         }
         

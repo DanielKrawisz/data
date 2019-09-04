@@ -24,72 +24,71 @@ namespace data {
         unequal() = delete;
     };
     
-    template <uint32 bytes, uint32 words, byte extra , typename bit32, typename bit64, endian::order o> class words_wrapper;
+    namespace low {
     
-    template <uint32 bytes, uint32 words, typename bit32, typename bit64, endian::order o>
-    class words_wrapper<bytes, words, 0, bit32, bit64, o> : equal<bytes, words * 4>, endian::halves<bit32, bit64, o> {
-        using ar = std::array<byte, bytes>;
-        ar* Words;
-    public:
+        template <uint32 bytes, uint32 words, byte extra, typename bit32, typename bit64, endian::order o> class wrapper;
         
-        using index = uint32;
+        template <uint32 bytes, uint32 words, typename bit32, typename bit64, endian::order o>
+        class wrapper<bytes, words, 0, bit32, bit64, o> : equal<bytes, words * 4>, endian::halves<bit32, bit64, o> {
+            byte* Words;
+        public:
+            
+            using index = uint32;
+            
+            static const index last = words - 1;
+            
+            wrapper(byte* a) : Words{a} {}
+            
+            bit32& operator[](index i) {
+                if (i > words) throw std::out_of_range{""};
+                return *(bit32*)(Words + 4 * i);
+            }
+            
+            const bit32& operator[](index i) const {
+                if (i > words) throw std::out_of_range{""};
+                return *(bit32*)(Words + 4 * i);
+            }
+            
+            void set(index i, bit32 x) {
+                operator[](i) = x;
+            }
+        };
         
-        static const index last = words - 1;
-        
-        words_wrapper(ar& a) : Words{&a} {}
-        words_wrapper(const words_wrapper& xx) : Words{xx.Words} {}
-        
-        bit32& operator[](index i) {
-            if (i > words) throw std::out_of_range{""};
-            return *(bit32*)(Words->data() + 4 * i);
-        }
-        
-        const bit32& operator[](index i) const {
-            if (i > words) throw std::out_of_range{""};
-            return *(bit32*)(Words->data() + 4 * i);
-        }
-        
-        void set(index i, bit32 x) {
-            operator[](i) = x;
-        }
-    };
+        template <uint32 bytes, uint32 words, byte extra, typename bit32, typename bit64, endian::order o>
+        class wrapper : equal<bytes + extra, words * 4>, endian::halves<bit32, bit64, o>, unequal<extra, 0> {
+            byte* Words;
+            static const byte remainder = 4 - extra;
+            static const uint32 shift_right = 8 * extra;
+            static const uint32 shift_left = 8 * remainder;
+        public:
+            
+            using index = uint32;
+            
+            static const index last = words - 1;
+            
+            wrapper(byte* a) : Words{a} {}
+            
+            bit32 operator[](index i) const {
+                if (i > words) throw std::out_of_range{""};
+                if (i == 0) return ((*(bit32*)(Words)) >> shift_right) + 
+                    (endian::halves<bit32, bit64, o>::is_signed && (((Words[0] & 0x8000) == 0x8000) ? 0xffffffff << shift_left : 0));
+                return *(bit32*)(Words - remainder + 4 * i);
+            }
+            
+            void set(index i, bit32 x) {
+                if (i > words) throw std::out_of_range{""};
+                //if (i == 0) ; // TODO!!
+                *(bit32*)(Words - remainder + 4 * i) = x;
+            }
+        };
     
-    template <uint32 bytes, uint32 words, byte extra, typename bit32, typename bit64, endian::order o>
-    class words_wrapper : equal<bytes + extra, words * 4>, endian::halves<bit32, bit64, o>, unequal<extra, 0> {
-        using ar = std::array<byte, bytes>;
-        ar* Words;
-        static const byte remainder = 4 - extra;
-        static const uint32 shift_right = 8 * extra;
-        static const uint32 shift_left = 8 * remainder;
-    public:
-        
-        using index = uint32;
-        
-        static const index last = words - 1;
-        
-        words_wrapper(ar& a) : Words{&a} {}
-        words_wrapper(const words_wrapper& xx) : Words{xx.Words} {}
-        
-        bit32 operator[](index i) const {
-            if (i > words) throw std::out_of_range{""};
-            if (i == 0) return ((*(bit32*)(Words->data())) >> shift_right) + 
-                (endian::halves<bit32, bit64, o>::is_signed && (((Words[0] & 0x8000) == 0x8000) ? 0xffffffff << shift_left : 0));
-            return *(bit32*)(Words->data() - remainder + 4 * i);
-        }
-        
-        void set(index i, bit32 x) {
-            if (i > words) throw std::out_of_range{""};
-            //if (i == 0) ; // TODO!!
-            *(bit32*)(Words->data() - remainder + 4 * i) = x;
-        }
-    };
+    }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o>
-    struct words : public words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o> {
-        using wrapper = words_wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o>;
+    struct words : public low::wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o> {
+        using wrapper = low::wrapper<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, bit64, o>;
         using word = endian::ordered<bit64, endian::order::big>;
-        using ar = std::array<byte, size>;
-        words(ar& a) : wrapper{a} {}
+        words(byte* a) : wrapper{a} {}
         
         static word extend(uint32);
         
@@ -97,11 +96,11 @@ namespace data {
             return greater(x) != 0;
         }
         
-        static words make(ar& a) {
+        static words make(byte* a) {
             return {a};
         }
         
-        static const words make(const ar& a) {
+        static const words make(const byte* const a) {
             return {a};
         }
         

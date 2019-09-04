@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_ORDERED
 #define DATA_MATH_ORDERED
 
-namespace data::math::number {
+namespace data::math {
     template <typename Q>
     struct ordered {
         static bool equal(Q a, Q b) {

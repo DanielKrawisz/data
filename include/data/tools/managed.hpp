@@ -5,12 +5,13 @@
 #ifndef DATA_MANAGED
 #define DATA_MANAGED
 
-#include <data/types.hpp>
+#include <data/container.hpp>
 
 namespace data::managed {
     
     template <typename X>
-    class pointer {
+    struct pointer {
+    protected:
         ptr<X> Pointer;
         X* Value;
     public:
@@ -52,15 +53,13 @@ namespace data::managed {
         bool operator!=(const pointer& p) const {
             return !operator==(p);
         }
-        
-    protected:
-        X* data() {
-            return Value;
-        }
     };
     
     template <typename X, typename x, typename iter, typename const_iter>
-    struct indexed : public pointer<X> {        
+    struct indexed : public pointer<X> {
+        constexpr static container::iterable<X, iter, const_iter> Given{};
+        constexpr static container::iterable<indexed, iter, const_iter> Required{};
+        
         x operator[](uint32 n) {
             return pointer<X>::value()[n];
         }
@@ -102,6 +101,10 @@ namespace data::managed {
         
         bool operator!=(const indexed& p) const {
             return pointer<X>::operator!=(static_cast<const pointer<X>&>(p));
+        }
+        
+        x* data() {
+            return pointer<X>::Value->data();
         }
     };
     
