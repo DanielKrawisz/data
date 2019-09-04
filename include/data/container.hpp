@@ -150,7 +150,7 @@ namespace data::container {
         }
             
         array() : Array{} {}
-        array(indexed& a) : Array{a} {}
+        array(const indexed& a) : Array{a} {}
         
         static array zero() {
             return array{};
