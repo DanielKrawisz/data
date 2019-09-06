@@ -143,7 +143,9 @@ namespace data::crypto {
                     return a;
                 }
             };
-            
+
+
+
             template <> struct compression<compressed_pubkey, uncompressed_pubkey> {
                 compressed_pubkey P;
                 compressed_pubkey& operator()(const uncompressed_pubkey& p) {
