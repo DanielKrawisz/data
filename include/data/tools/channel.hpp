@@ -10,40 +10,78 @@
 
 namespace data {
     // a golang-like communication channel between different threads.
-    template<class item>
-    class channel {
-    private:
-        std::list<item> queue;
-        std::mutex m;
-        std::condition_variable cv;
-        uint32 max_size;
-        bool closed;
+    template <class item> class channel {
+        struct inner {
+            std::list<item> Queue;
+            std::mutex M;
+            std::condition_variable Receive;
+            std::condition_variable Send;
+            uint32 Size; 
+            bool Closed;
+            
+            inner() : Size{0}, Closed{false} { }
+            inner(uint32 n) : Size{n}, Closed{false} {}
+            
+            void close();
+            bool closed() const;
+            void put(const item &i);
+            bool get(item &out, bool wait = true);
+        };
+        
     public:
-        channel() : closed(false) { }
+        class to {
+            ptr<inner> Inner;
+            to() : Inner{} {}
+            to(ptr<inner> i) : Inner{i} {}
+            
+        public:
+            void close() {
+                Inner->close();
+            }
+            
+            bool closed() const {
+                return Inner->closed();
+            }
+            
+            void put(const item &i) {
+                Inner->put(i);
+            }
+        };
+        
+        class from {
+            ptr<inner> Inner; 
+            from() : Inner{} {}
+            from(ptr<inner> i) : Inner{i} {}
+        public:
+            bool get(item &out, bool wait = true) {
+                return Inner->get(out, wait);
+            }
+        };
+        
+        to To;
+        from From;
+        
+    private:
+        channel(ptr<inner> i) : To{i}, From{i} {}
+        
+    public:
+        channel(uint32 size) : channel{std::make_shared<channel<item>::inner>(new channel<item>::inner(size))} {}
+        channel() : channel{0} {}
+        
         void close() {
-            std::unique_lock<std::mutex> lock(m);
-            closed = true;
-            cv.notify_all();
+            To.close();
         }
-        bool is_closed() {
-            std::unique_lock<std::mutex> lock(m);
-            return closed;
+        
+        bool closed() const {
+            return To.closed();
         }
+        
         void put(const item &i) {
-            std::unique_lock<std::mutex> lock(m);
-            if(closed)
-            throw std::logic_error("put to closed channel");
-            queue.push_back(i);
-            cv.notify_one();
+            To.put(i);
         }
+        
         bool get(item &out, bool wait = true) {
-            std::unique_lock<std::mutex> lock(m);
-            if(wait) cv.wait(lock, [&](){ return closed || !queue.empty(); });
-            if(queue.empty())
-            return false;
-            out = queue.front();
-            queue.pop_front();
-            return true;
+            return From.get(out, wait);
         }
     };
 

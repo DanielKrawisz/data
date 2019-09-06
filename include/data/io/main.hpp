@@ -41,6 +41,7 @@ namespace data {
             std::ostream& Error;
                 
             environment(std::istream& in, std::ostream& out, std::ostream& err) : In{in}, Out{out}, Error{err} {}
+            environment() : In{std::cin}, Out{std::cout}, Error{std::cerr} {}
             
             template <typename f> struct main;
             
@@ -52,11 +53,14 @@ namespace data {
         
         template <typename f>
         struct environment::main : public data::main {
-            f fun;
             environment Environment;
+            f Fun;
             
-            int operator()(int argc, char *argv[]){
-                output o = fun(argc, argv);
+            main(f fun) : Environment{}, Fun{fun} {}
+            main(environment env, f fun) : Environment{env}, Fun{fun} {}
+            
+            int operator()(int argc, char *argv[]) const final override {
+                output o = Fun(argc, argv);
                 (o.Error ? Environment.Error : Environment.Out) << o.Response << std::endl;
                 return o.Error;
             }
@@ -64,18 +68,15 @@ namespace data {
         
         template <typename f>
         struct catch_all {
-            f& Function;
-            output operator()(int argc, char *argv[]) {
+            output operator()(int argc, char *argv[]) const {
                 try {
-                    return Function(argc, argv);
+                    return f{}(argc, argv);
                 } catch(std::exception& e) { 
                     return {true, e.what()}; 
                 } catch (...) {
                     return {true, "unknown error."};
                 }
             }
-            
-            catch_all(f& fun) : Function{fun} {}
         };
         
         struct boost_input_parser : public input_parser<input> {
