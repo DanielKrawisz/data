@@ -58,6 +58,13 @@ namespace  data {
                 boost::algorithm::hex(sourceBytes.begin(),sourceBytes.end(),std::back_inserter(output));
                 return data::string(output);
             }
+
+            template<uint32 size>
+            string write(const std::array<byte, size>& a) {
+                std::string output;
+                boost::algorithm::hex(a.begin(), a.end(),std::back_inserter(output));
+                return data::string(output);
+            }
         }
     }
 }

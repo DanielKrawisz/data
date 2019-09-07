@@ -15,6 +15,8 @@ namespace data {
         namespace hex {
             bool valid(const std::string&);
             string write(const bytes&);
+            template<unsigned long size>
+            string write(const std::array<byte, size>&);
             bytes read(const std::string&);
             
             class invalid : std::exception {
