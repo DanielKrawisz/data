@@ -46,6 +46,8 @@ namespace data {
             void put(const item &i) {
                 Inner->put(i);
             }
+            
+            friend class channel;
         };
         
         class from {
@@ -56,6 +58,8 @@ namespace data {
             bool get(item &out, bool wait = true) {
                 return Inner->get(out, wait);
             }
+            
+            friend class channel;
         };
         
         to To;

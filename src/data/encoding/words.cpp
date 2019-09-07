@@ -37,4 +37,30 @@ namespace data {
             result[from_end(i)] = lesser(sum);
         }
     }
+    
+    template <uint32 size, typename bit32, typename bit64, endian::order o>
+    void words<size, bit32, bit64, o>::minus(const words a, const bit32 b, words result) {
+        bit32 remainder{0};
+        
+        word w = extend(a[last]) - extend(b);
+        result[last] = remainder + lesser(w);
+        remainder = greater(w);
+        
+        w = extend(a[last-1]);
+        result[last - 1] = remainder + lesser(w);
+        remainder = greater(w);
+    }
+    
+    template <uint32 size, typename bit32, typename bit64, endian::order o> 
+    void words<size, bit32, bit64, o>::plus(const words a, const bit32 b, words result) {
+        bit32 remainder{0};
+        
+        word w = extend(a[last]) + extend(b);
+        result[last] = remainder + lesser(w);
+        remainder = greater(w);
+        
+        w = extend(a[last-1]);
+        result[last - 1] = remainder + lesser(w);
+        remainder = greater(w);
+    }
 }

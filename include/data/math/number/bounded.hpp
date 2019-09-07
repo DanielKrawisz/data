@@ -70,6 +70,14 @@ namespace data {
             bounded& operator-=(const bounded&);
             bounded& operator*=(const bounded&);
             
+            bounded operator-(const bit32&) const;
+            bounded operator+(const bit32&) const;
+            bounded operator*(const bit32&) const;
+                
+            bounded& operator+=(const bit32&);
+            bounded& operator-=(const bit32&);
+            bounded& operator*=(const bit32&);
+            
             math::number::division<bounded> divide(const bounded&) const;
             bounded operator/(const bounded&) const;
             bounded operator%(const bounded&) const;
@@ -201,13 +209,6 @@ namespace data {
         }
         
         template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64> 
-        inline bounded array<bounded, indexed, size, bit32, bit64>::operator+(const bounded& n) const {
-            bounded result;
-            words_type::plus(*this, n, result);
-            return result;
-        }
-        
-        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64> 
         inline bounded array<bounded, indexed, size, bit32, bit64>::operator<<(uint32 bits) const {
             bounded result;
             words_type::bit_shift_left(*this, bits, result);
@@ -265,6 +266,13 @@ namespace data {
             words_type::minus(*this, n, result);
             return result;
         }
+        
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, indexed, size, bit32, bit64>::operator+(const bounded& n) const {
+            bounded result;
+            words_type::plus(*this, n, result);
+            return result;
+        }
     
         template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64>
         inline bounded array<bounded, indexed, size, bit32, bit64>::operator*(const bounded& n) const {
@@ -285,6 +293,42 @@ namespace data {
         
         template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64>
         inline bounded& array<bounded, indexed, size, bit32, bit64>::operator*=(const bounded& n) {
+            return operator=(operator*(n));
+        }
+        
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, indexed, size, bit32, bit64>::operator-(const bit32& n) const {
+            bounded result;
+            words_type::minus(*this, n, result);
+            return result;
+        }
+        
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64> 
+        inline bounded array<bounded, indexed, size, bit32, bit64>::operator+(const bit32& n) const {
+            bounded result;
+            words_type::plus(*this, n, result);
+            return result;
+        }
+    
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64>
+        inline bounded array<bounded, indexed, size, bit32, bit64>::operator*(const bit32& n) const {
+            bounded result;
+            array::times(*this, n, result);
+            return result;
+        }
+        
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, indexed, size, bit32, bit64>::operator+=(const bit32& n) {
+            return array::plus(*this, n,*this);
+        }
+        
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, indexed, size, bit32, bit64>::operator-=(const bit32& n) {
+            return array::plus(*this, n,*this);
+        }
+        
+        template <typename bounded, typename indexed, uint32 size, typename bit32, typename bit64>
+        inline bounded& array<bounded, indexed, size, bit32, bit64>::operator*=(const bit32& n) {
             return operator=(operator*(n));
         }
         

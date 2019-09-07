@@ -125,6 +125,10 @@ namespace data {
         static void plus(const words, const words, words);
         static void times(const words, const words, words);
         
+        static void minus(const words, const bit32, words);
+        static void plus(const words, const bit32, words);
+        static void times(const words, const bit32, words);
+        
         bool operator==(const words& xx);
         
         using wrapper::last;

@@ -27,7 +27,8 @@ namespace data::crypto {
         
         using signature = libbitcoin::system::ec_signature;
         
-        struct secret : public uint<secret_size> {
+        struct secret {
+            uint<secret_size> Value;
             
             bool valid() const;
             
@@ -36,8 +37,6 @@ namespace data::crypto {
             
             secret operator+(const secret&) const;
             secret operator*(const secret&) const;
-            
-            using uint<secret_size>::number;
             
             signature sign(const sha256::digest&) const;
         };
@@ -144,8 +143,6 @@ namespace data::crypto {
                 }
             };
 
-
-
             template <> struct compression<compressed_pubkey, uncompressed_pubkey> {
                 compressed_pubkey P;
                 compressed_pubkey& operator()(const uncompressed_pubkey& p) {
@@ -167,7 +164,7 @@ namespace data::crypto {
         }
         
         inline bool secret::valid() const {
-            return libbitcoin::system::verify(low::libbitcoin(*this));
+            return libbitcoin::system::verify(Value.Array);
         }
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
@@ -178,14 +175,14 @@ namespace data::crypto {
         inline secp256k1::pubkey<true, compressed_pubkey_size>
         secret::to_public_compressed() const {
             secp256k1::pubkey<true, compressed_pubkey_size> x;
-            libbitcoin::system::secret_to_public(low::libbitcoin(x), low::libbitcoin(*this));
+            libbitcoin::system::secret_to_public(low::libbitcoin(x), Value.Array);
             return x;
         }
         
         inline secp256k1::pubkey<false, uncompressed_pubkey_size>
         secret::to_public_uncompressed() const {
             secp256k1::pubkey<false, uncompressed_pubkey_size> x;
-            libbitcoin::system::secret_to_public(low::libbitcoin(x), low::libbitcoin(*this));
+            libbitcoin::system::secret_to_public(low::libbitcoin(x), Value.Array);
             return x;
         }
         
@@ -196,13 +193,13 @@ namespace data::crypto {
         
         inline secret secret::operator+(const secret& s) const {
             secret x = *this;
-            libbitcoin::system::ec_add(x.Array, s.Array);
+            libbitcoin::system::ec_add(x.Value.Array, s.Value.Array);
             return x;
         }
         
         inline secret secret::operator*(const secret& s) const {
             secret x = *this;
-            libbitcoin::system::ec_multiply(x.Array, s.Array);
+            libbitcoin::system::ec_multiply(x.Value.Array, s.Value.Array);
             return x;
         }
         
@@ -219,13 +216,13 @@ namespace data::crypto {
         inline pubkey<compressed_pubkey, pubkey_size> 
         pubkey<compressed_pubkey, pubkey_size>::operator*(const secret& s) const {
             pubkey x = *this;
-            if (!libbitcoin::system::ec_multiply(low::libbitcoin(x), low::libbitcoin(s))) return pubkey{};
+            if (!libbitcoin::system::ec_multiply(low::libbitcoin(x), s.Value.Array)) return pubkey{};
             return x;
         }
         
         inline signature secret::sign(const sha256::digest& d) const {
             signature sig;
-            if (!libbitcoin::system::sign(sig, low::libbitcoin(*this), low::libbitcoin(d))) return signature{};
+            if (!libbitcoin::system::sign(sig, Value.Array, low::libbitcoin(d))) return signature{};
             return sig;
         }
     

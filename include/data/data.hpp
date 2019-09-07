@@ -9,6 +9,7 @@
 #include <data/list/linked.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/map_set.hpp>
+#include <data/tools/channel.hpp>
 #include <data/queue/functional_queue.hpp>
 #include <data/tree/linked_tree.hpp>
 #include <data/slice.hpp>
@@ -38,8 +39,11 @@ namespace data::exported {
     // set implemented as a map. 
     template <typename X> using set = data::map_set<map<X, bool>, X>;
     
-    // Wrapper for a vector that allows for easy creation of subslices, similar to golang.  
+    // Wrapper for an array that allows for easy creation of subslices, similar to golang.  
     template <typename X> using slice = data::slice<X>;
+    
+    // Thread safe communication channel, similar to golang. 
+    template <typename X> using chan = channel<X>;
     
     // Natural numbers.
     using N = math::number::gmp::N;
