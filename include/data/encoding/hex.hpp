@@ -39,9 +39,15 @@ namespace data {
 
                 string(std::string * sourceString):string(*sourceString){};
                 
-                string(const string& s) : std::string{static_cast<const std::string&>(s)}, Bytes{s.Bytes}, ToBytes{&Bytes} {}
+                string(const string& s) : 
+                    std::string{static_cast<const std::string&>(s)}, 
+                    Bytes{s.Bytes}, 
+                    ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
                 
-                string(string&& s) : std::string{static_cast<std::string&&>(s)}, Bytes{s.Bytes}, ToBytes{&Bytes} {}
+                string(string&& s) : 
+                    std::string{static_cast<std::string&&>(s)}, 
+                    Bytes{s.Bytes}, 
+                    ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
                 
                 string& operator=(string&);
             };
