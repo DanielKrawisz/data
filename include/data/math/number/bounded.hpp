@@ -11,6 +11,7 @@
 #include <data/math/ordered.hpp>
 #include <data/math/number/division.hpp>
 #include <data/container.hpp>
+#include <type_traits>
 
 namespace data {
         
@@ -89,7 +90,7 @@ namespace data {
             }
             
             const words_type words() const {
-                return words_type{const_cast<indexed>(Array).data()};
+                return words_type{const_cast<byte*>(Array.data())};
             }
             
             array(bit32 x) : array() {
