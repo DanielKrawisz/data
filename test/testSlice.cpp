@@ -1,6 +1,6 @@
-//
-// Created by nekosune on 13/07/19.
-//
+// Copyright (c) 2019 Katrina Swales
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/slice.hpp"
 #include "gtest/gtest.h"

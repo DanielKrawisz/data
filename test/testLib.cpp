@@ -1,6 +1,6 @@
-//
-// Created by nekosune on 04/07/19.
-//
+// Copyright (c) 2019 Katrina Swales
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <gtest/gtest.h>
 #include <data/data.hpp>
