@@ -2,7 +2,9 @@
 // Created by nekosune on 04/07/19.
 //
 
-#include "data/encoding/hex.hpp"
+#include <data/encoding/hex.hpp>
+#include <data/encoding/invalid.hpp>
+#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iterator>
 #include <iostream>
@@ -13,27 +15,14 @@ namespace  data {
     namespace encoding {
         namespace hex {
 
-            invalid::invalid(std::string *str) {
-                String=str;
-                if (String == nullptr) errorString="Invalid hex string";
-                std::string output=std::string{"Invalid hex string: "} + *String;
-                errorString=new char[output.size()+1];
-                strcpy(errorString,output.c_str());
-            }
-
-            invalid::~invalid() {
-                if(errorString!= nullptr)
-                delete[] errorString;
-            }
-
             string::string(std::string sourceString):std::string(sourceString) {
                 std::vector<uint8_t> *tmp = new std::vector<uint8_t>();
                 try {
-                    boost::algorithm::unhex(this->c_str(), std::back_inserter(*tmp));
+                    boost::algorithm::unhex(std::string::c_str(), std::back_inserter(*tmp));
                 }
                 catch(boost::algorithm::hex_decode_error exception)
                 {
-                    throw invalid(this);
+                    throw invalid(format, *this);
                 }
                 ToBytes=tmp;
             }

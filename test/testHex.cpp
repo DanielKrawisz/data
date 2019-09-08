@@ -3,6 +3,7 @@
 //
 
 #include "data/encoding/hex.hpp"
+#include "data/encoding/invalid.hpp"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
@@ -23,7 +24,7 @@ TEST(HexTest, HexValidHexString) {
 }
 
 TEST(HexTest,HexInvalidExceptionOnError) {
-    ASSERT_THROW(data::encoding::hex::string malformedHexString(std::string("0063EA172D63808")),data::encoding::hex::invalid );
+    ASSERT_THROW(data::encoding::hex::string malformedHexString(std::string("0063EA172D63808")),data::encoding::invalid );
 }
 
 TEST(HexTest,HexWriteBytes) {
