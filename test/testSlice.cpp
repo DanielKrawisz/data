@@ -263,4 +263,22 @@ protected:
         reader >> testUint;
         EXPECT_THAT(testUint,::testing::ElementsAre(01,02,03,04));
     }
+
+    TEST_F(SliceTest,SliceGetPositiveRange) {
+        EXPECT_THAT(sliceTest.range(2,5),::testing::ElementsAre(3,4,5));
+        EXPECT_THAT(sliceTest.range(0,5),::testing::ElementsAre(1,2,3,4,5));
+        EXPECT_THAT(sliceTest.range(15,19),::testing::ElementsAre(16,17,18,19));
+        EXPECT_THAT(sliceTest.range(15,20),::testing::ElementsAre(16,17,18,19,20));
+        EXPECT_THAT(sliceTest.range(0,22),::testing::ElementsAre());
+    }
+    TEST_F(SliceTest, SliceReadUpToNegative) {
+        EXPECT_THAT(sliceTest.range(0,-4),::testing::ElementsAre(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
+        EXPECT_THAT(sliceTest.range(5,-12),::testing::ElementsAre(6,7,8));
+
+    }
+
+    TEST_F(SliceTest, SliceReadNegativeToEnd) {
+        EXPECT_THAT(sliceTest.range(-4),::testing::ElementsAre(17,18,19,20));
+        EXPECT_THAT(sliceTest.range(-20),::testing::ElementsAre(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20));
+    }
 }

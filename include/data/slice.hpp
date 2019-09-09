@@ -20,6 +20,7 @@ namespace data {
     template <typename X> struct slice<X> {
         using iterator = X*;
         using const_iterator = const X*;
+        using value_type = X;
     private:
         iterator Begin;
         iterator End;
@@ -49,11 +50,25 @@ namespace data {
             if (n >= size()) throw std::out_of_range{"index out of range"};
             return *(Begin + n);
         }
-        
-        slice<X> range(uint32 begin, uint32 end) const {
+
+        /// Selects a range from the current slice
+        /// \param begin range begins from this index inclusive
+        /// \param end range ends at this index excluisive
+        /// \return a slice containing the requested range
+        [[nodiscard]] slice<X> range(int32 begin, int32 end) const {
             uint32 len = size();
-            if (begin >= len || end >= len || begin >= end) return slice{};
-            return slice{Begin + begin, begin + end};
+            if(begin<0) begin=len+begin;
+            if(end<0) end=len+end;
+            if (begin >= len || end > len || begin >= end || begin < 0) return slice{};
+
+            return slice{Begin + begin, end-begin};
+        }
+
+        /// Selects a range from the current slice up to end of slice
+        /// \param begin  range begins from this index inclusive
+        /// \return a slice containing the requested range
+        [[nodiscard]] slice<X> range(int32 begin) const {
+            return range(begin,size());
         }
         
         slice& operator=(const slice<X>& s) {

@@ -7,6 +7,7 @@ endif()
 
 
 ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testDigest.cpp testBase58.cpp testLib.cpp )
+link_directories(${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
 
 # Test Hex
