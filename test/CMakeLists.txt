@@ -6,8 +6,8 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 
-ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testDigest.cpp testLib.cpp )
-target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} gmock_main)
+ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testSlice.cpp testDigest.cpp testBase58.cpp testLib.cpp )
+target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
 
 # Test Hex
 add_test(NAME HexHexToArray COMMAND testData)
@@ -19,6 +19,11 @@ add_test(NAME HexWriteBytes COMMAND testData)
 add_test(NAME AsciiInvalidAscii COMMAND testData)
 add_test(NAME AsciiValidAscii COMMAND testData)
 add_test(NAME AsciiCastToBytes COMMAND testData)
+
+# Test Base58
+add_test(NAME Base58HexToArray COMMAND testData)
+add_test(NAME Base58ValidHexString COMMAND testData)
+add_test(NAME Base58InvalidExceptionOnError COMMAND testData)
 
 # Test Slice
 add_test(NAME SliceWriteUint16Big COMMAND testData)

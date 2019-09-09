@@ -13,6 +13,7 @@ namespace data::encoding::base58 {
     
     bool valid(const std::string&);
     string write(const bytes&);
+
     template<unsigned long size>
     string write(const std::array<byte, size>&);
     bytes read(const std::string&);
@@ -22,7 +23,7 @@ namespace data::encoding::base58 {
         bytes* ToBytes;
         
     public:
-        operator bytes() const {
+        explicit operator bytes() const {
             if (ToBytes == nullptr) throw ;
             return *ToBytes;
         }
