@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <data/crypto/secp256k1.hpp>
 #include "data/encoding/hex.hpp"
 #include "data/encoding/invalid.hpp"
 #include "gtest/gtest.h"
@@ -29,7 +30,15 @@ TEST(HexTest,HexInvalidExceptionOnError) {
 
 TEST(HexTest,HexWriteBytes) {
         data::bytes testArray{0,99,234,23,45,99,128,140};
-        ASSERT_STREQ(data::encoding::hex::write(testArray).c_str(),"0063EA172D63808C");
+        data::encoding::hex::string testString(testArray);
+        ASSERT_STREQ(testString.c_str(),"0063EA172D63808C");
+}
+
+TEST(HexTest,HexWritePubKey) {
+        data::crypto::secp256k1::compressed_pubkey testKey(std::array<data::byte,33>({0x80,0x0C,0x28,0xFC,0xA3,0x86,0xC7,0xA2,0x27,0x60,0x0B,0x2F,0xE5,0x0B,0x7C,0xAE,0x11,0xEC,0x86,0xD3,0xBF,0x1F,0xBE,0x47,0x1B,0xE8,0x98,0x27,0xE1,0x9D,0x72,0xAA,0x1D}));
+        data::encoding::hex::string testString(testKey);
+        ASSERT_STREQ(testString.c_str(),"800C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D");
+
 }
 
 
