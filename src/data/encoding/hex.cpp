@@ -27,6 +27,13 @@ namespace  data {
                 ToBytes=tmp;
             }
 
+
+
+
+            string::~string() {
+                delete ToBytes;
+            }
+
             bool valid(const std::string &sourceString) {
 
                 if(sourceString.size() %2 ==1)
@@ -42,16 +49,9 @@ namespace  data {
                 return true;
             }
 
-            data::string write(const bytes & sourceBytes) {
+            std::string write(const bytes & sourceBytes) {
                 std::string output;
                 boost::algorithm::hex(sourceBytes.begin(),sourceBytes.end(),std::back_inserter(output));
-                return data::string(output);
-            }
-
-            template<uint32 size>
-            string write(const std::array<byte, size>& a) {
-                std::string output;
-                boost::algorithm::hex(a.begin(), a.end(),std::back_inserter(output));
                 return data::string(output);
             }
         }
