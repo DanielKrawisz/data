@@ -37,12 +37,12 @@ namespace data {
             return slice{const_cast<std::vector<X>&>(x)};
         }
         
-        template <uint32 n>
+        template <size_t n>
         static const slice<X> make(std::array<X, n>& x) {
             return slice{const_cast<std::array<X, n>&>(x)};
         }
         
-        virtual const uint32 size() const {
+        virtual const size_t size() const {
             return End - Begin;
         }
         
@@ -56,7 +56,7 @@ namespace data {
         /// \param end range ends at this index excluisive
         /// \return a slice containing the requested range
         [[nodiscard]] slice<X> range(int32 begin, int32 end) const {
-            uint32 len = size();
+            size_t len = size();
             if(begin<0) begin=len+begin;
             if(end<0) end=len+end;
             if (begin >= len || end > len || begin >= end || begin < 0) return slice{};
