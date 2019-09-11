@@ -10,7 +10,7 @@
 
 namespace data::sha256 {
     
-    const uint32 size = 32;
+    const size_t size = 32;
     
     using digest = crypto::digest<size>;
     
@@ -19,7 +19,7 @@ namespace data::sha256 {
     digest hash(bytes&);
     digest hash(data::slice<byte>&);
 
-    template <uint32 n>
+    template <size_t n>
     digest hash(const std::array<byte, n>& data){
         std::array<byte, size> hash;
         CryptoPP::SHA256 shaHash;
@@ -27,7 +27,7 @@ namespace data::sha256 {
         return uint<size>{hash};
     };
     
-    template <uint32 n>
+    template <size_t n>
     digest hash(const uint<n>& data){
         std::array<byte, size> hash;
         CryptoPP::SHA256 shaHash;
