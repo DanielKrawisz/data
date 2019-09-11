@@ -10,7 +10,7 @@ namespace data::sha256 {
         return uint<size>{hash};
     }
 
-    digest hash(slice<byte> data) {
+    digest hash(data::slice<byte>& data) {
         std::array<byte, size> hash;
         CryptoPP::SHA256 shaHash;
         shaHash.CalculateDigest(hash.data(),data.begin(),data.size());
