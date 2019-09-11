@@ -13,7 +13,7 @@
 namespace data {
     // Slice is an indexed section of an array which
     // can create smaller slices. 
-    template <typename X, uint32 ...> struct slice;
+    template <typename X, size_t ...> struct slice;
     
     // Slice is an indexed section of an array which
     // can create smaller slices. 
@@ -26,27 +26,27 @@ namespace data {
         iterator End;
     protected:
         slice(iterator b, iterator e) : Begin{b}, End{e} {}
-        slice(iterator b, uint32 size) : Begin{b}, End{b + size} {}
+        slice(iterator b, size_t size) : Begin{b}, End{b + size} {}
     public:
         slice() : Begin{nullptr}, End{nullptr} {}
         slice(std::vector<X>& x) : slice(x.data(), x.size()) {}
-        template <uint32 n>
+        template <size_t n>
         slice(std::array<X, n>& x) : slice(x.data(), x.size()) {} 
         
         static const slice make(vector<X>& x) {
             return slice{const_cast<std::vector<X>&>(x)};
         }
         
-        template <uint32 n>
+        template <size_t n>
         static const slice<X> make(std::array<X, n>& x) {
             return slice{const_cast<std::array<X, n>&>(x)};
         }
         
-        virtual const uint32 size() const {
+        virtual const size_t size() const {
             return End - Begin;
         }
         
-        X& operator[](uint32 n) const {
+        X& operator[](size_t n) const {
             if (n >= size()) throw std::out_of_range{"index out of range"};
             return *(Begin + n);
         }
@@ -56,7 +56,7 @@ namespace data {
         /// \param end range ends at this index excluisive
         /// \return a slice containing the requested range
         [[nodiscard]] slice<X> range(int32 begin, int32 end) const {
-            uint32 len = size();
+            size_t len = size();
             if(begin<0) begin=len+begin;
             if(end<0) end=len+end;
             if (begin >= len || end > len || begin >= end || begin < 0) return slice{};
@@ -99,8 +99,8 @@ namespace data {
         
     };
     
-    template <typename X, uint32 n> struct slice<X, n> : public slice<X> {
-        const uint32 size() const final override {
+    template <typename X, size_t n> struct slice<X, n> : public slice<X> {
+        const size_t size() const final override {
             return n;
         }
         
