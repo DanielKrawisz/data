@@ -28,7 +28,12 @@ namespace data::sha256 {
     };
     
     template <uint32 n>
-    digest hash(const uint<n>&);
+    digest hash(const uint<n>& data){
+        std::array<byte, size> hash;
+        CryptoPP::SHA256 shaHash;
+        shaHash.CalculateDigest(hash.data(), data.Array.data(), data.size);
+        return uint<size>{hash};
+    }
 
 }
 
