@@ -113,7 +113,6 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/words.cpp
         src/data/tools/channel.cpp
         src/data/math/number/division.cpp
-        src/data/math/number/bounded.cpp
         src/data/math/number/eratosthenes.cpp
         src/data/math/number/gmp/mpz.cpp
         src/data/math/number/gmp/N.cpp
