@@ -37,6 +37,7 @@ namespace data::crypto {
             
             secret operator+(const secret&) const;
             secret operator*(const secret&) const;
+            bool operator==(const secret&) const;
             
             signature sign(const sha256::digest&) const;
         };
@@ -202,6 +203,10 @@ namespace data::crypto {
             libbitcoin::system::ec_multiply(x.Value.Array, s.Value.Array);
             return x;
         }
+
+        inline bool secret::operator==(const secret &s) const {
+            return Value == s.Value;
+        }
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
         inline pubkey<compressed_pubkey, pubkey_size>
@@ -225,7 +230,9 @@ namespace data::crypto {
             if (!libbitcoin::system::sign(sig, Value.Array, low::libbitcoin(d))) return signature{};
             return sig;
         }
-    
+
+
+
     }
 
 }
