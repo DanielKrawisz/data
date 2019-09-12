@@ -78,7 +78,14 @@ namespace data {
         }
         
         bool operator==(const slice<X>& s) const {
-            return Begin == s.Begin && End == s.End;
+            if(Begin == s.Begin && End == s.End)
+                return true;
+            if(this->size()!=s.size())
+                return false;
+            for(int i=0;i<size();i++)
+                if(operator[](i)!=s[i])
+                    return false;
+            return true;
         }
         
         iterator begin() {
