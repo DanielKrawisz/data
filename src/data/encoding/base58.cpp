@@ -1,12 +1,12 @@
+// Copyright (c) 2019 Katrina Swales
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include <data/encoding/base58.hpp>
 #include <bitcoin/system/formats/base_58.hpp>
 #include <data/encoding/invalid.hpp>
 
-namespace data {
-    
-    namespace encoding {
-        
-        namespace base58 {
+namespace data::encoding::base58 {
             
             vector<byte> read(const string& s) {
                 std::vector<byte> out;
@@ -31,7 +31,3 @@ namespace data {
             }
 
         }
-        
-    }
-    
-}
