@@ -45,11 +45,12 @@ namespace data {
         
         X last() const {
             if (Size == 0) throw 0; // TODO should be index out of bounds exception. 
-            return last_private();;
+            return last_private();
         }
         
+        static constexpr list::definition::list<ordered_list, X> Required{};
     private:
-        X last_private() const {
+        X& last_private() const {
             if (Size == 1) return first();
             return rest().last_private();
         }
