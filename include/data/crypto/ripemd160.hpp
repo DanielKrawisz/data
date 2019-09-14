@@ -26,7 +26,12 @@ namespace data::ripemd160 {
     };
     
     template <uint32 n>
-    digest hash(const uint<n>&);
+    digest hash(const uint<n>& data){
+        std::array<byte, size> hash{};
+        CryptoPP::RIPEMD160 rhash;
+        rhash.CalculateDigest(hash.data(), data.begin(), data.size);
+        return uint<size>{hash};
+    };
 
 }
 
