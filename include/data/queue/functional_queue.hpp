@@ -36,7 +36,7 @@ namespace data {
             return list::size(Left) + list::size(Right);
         }
         
-        inline returned first() {
+        returned first() {
             return list::first(Left);
         }
         
@@ -53,7 +53,7 @@ namespace data {
             return check(Left.rest(), Right);
         }
         
-        functional_queue last() const {
+        returned last() const {
             return check(Right, Left).Left.first();
         }
         
