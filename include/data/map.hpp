@@ -9,47 +9,55 @@ namespace data {
 
     namespace map {
 
-        template <typename key, typename value>
+        template <typename K, typename V>
         struct entry {
-            key Key;
-            value Value;
+            K Key;
+            V Value;
 
-            entry(key k, value v) : Key(k), Value(v) {}
+            entry(K k, V v) : Key(k), Value(v) {}
 
             // an invalid instance must exist for type value.
-            entry(key k) : Key(k), Value{} {}
+            entry(K k) : Key(k), Value{} {}
             
             bool valid() const {
-                return Value != value{};
+                return Value != V{};
+            }
+            
+            K key() const {
+                return Key;
+            }
+            
+            V value() const {
+                return Value;
+            }
+
+            V operator[](K k) {
+                if (Key == k) return Value;
+                return V{};
             }
 
             // Sorting is done with keys only. 
-            bool operator<(entry<key, value> e) {
+            bool operator<(entry e) {
                 return Key < e.Key;
             }
 
-            bool operator==(entry<key, value> e) {
+            bool operator==(entry e) {
                 return Key == e.Key;
             }
-
-            value operator[](key k) {
-                if (Key == k) return Value;
-                return value{};
-            }
             
-            bool operator<(entry<key, value> e) const {
+            bool operator<(const entry e) const {
                 return Key < e.Key;
             }
             
-            bool operator>(entry<key, value> e) const {
+            bool operator>(const entry e) const {
                 return Key > e.Key;
             }
             
-            bool operator<=(entry<key, value> e) const {
+            bool operator<=(const entry e) const {
                 return Key < e.Key;
             }
             
-            bool operator>=(entry<key, value> e) const {
+            bool operator>=(const entry e) const {
                 return Key > e.Key;
             }
 
