@@ -45,6 +45,11 @@ namespace data::exported {
     // a functional map implemented as a red-black tree
     template <typename K, typename V> using map = data::rb_map<K, V>;
     
+    template <typename X>
+    inline bool empty(X x) {
+        return x.empty();
+    }
+    
     // get all values from a map with the given keys. 
     template <typename key, typename value, typename map>
     list<value> get_all(map m, list<key> k);
