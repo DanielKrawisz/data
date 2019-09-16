@@ -41,8 +41,7 @@ namespace data {
         }
         
     private:
-        
-        static functional_queue check(L const & l, L const & r) {
+        static functional_queue check(const L& l, const L& r) {
             if (l.empty()) {
                 if (!r.empty()) return functional_queue{list::reverse(r), L{}};
                 return functional_queue{};
@@ -52,6 +51,10 @@ namespace data {
     public:
         functional_queue rest() const {
             return check(Left.rest(), Right);
+        }
+        
+        functional_queue last() const {
+            return check(Right, Left).Left.first();
         }
         
         functional_queue append(returned e) const {

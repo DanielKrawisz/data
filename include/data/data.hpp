@@ -27,6 +27,15 @@
 // to get all complete features of this library conveniently. 
 namespace data::exported {
     
+    // Natural numbers.
+    using N = math::number::gmp::N;
+    
+    // Integers. 
+    using Z = math::number::gmp::Z;
+    
+    // Rationals. 
+    using Q = math::number::fraction<Z, N>;
+    
     // a functional list. 
     template <typename X> using list = data::list::linked<X>;
     
@@ -35,6 +44,10 @@ namespace data::exported {
     
     // a functional map implemented as a red-black tree
     template <typename K, typename V> using map = data::rb_map<K, V>;
+    
+    // get all values from a map with the given keys. 
+    template <typename key, typename value, typename map>
+    list<value> get_all(map m, list<key> k);
     
     // set implemented as a map. 
     template <typename X> using set = data::map_set<map<X, bool>, X>;
@@ -45,18 +58,20 @@ namespace data::exported {
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = channel<X>;
     
-    // Natural numbers.
-    using N = math::number::gmp::N;
+    template <typename f, typename x, typename l>
+    inline x fold(f fun, x init, l ls) {
+        return data::fold<f, x, l>(fun, init, ls);
+    }
     
-    // Integers. 
-    using Z = math::number::gmp::Z;
+    template <typename f, typename x, typename l>
+    inline x reduce(f fun, l ls) {
+        return data::reduce<f, x, l>(fun, ls);
+    }
     
-    // Rationals. 
-    using Q = math::number::fraction<Z, N>;
-    
-    // get all values from a map with the given keys. 
-    template <typename key, typename value, typename map>
-    list<value> get_all(map m, list<key> k);
+    template <typename f, typename d>
+    inline typename meta::for_each<f, d>::output for_each(const f fun, const d data) {
+        return data::for_each<f, d>(fun, data);
+    }
 }
 
 #endif

@@ -26,6 +26,10 @@ namespace data {
                 Q append(const Q l, const Q q) const {
                     return l + q;
                 }
+                
+                X last(const Q l) const {
+                    return l.last();
+                }
             };
 
             template <typename Q, typename X>
@@ -38,6 +42,10 @@ namespace data {
                 Q append(const Q l, const Q q) const {
                     if (l == nullptr) return q;
                     return l->append(q);
+                }
+                
+                X last(const Q l) const {
+                    return l->last();
                 }
             };
             
