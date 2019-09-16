@@ -57,11 +57,11 @@ namespace data {
             return check(Right, Left).Left.first();
         }
         
-        functional_queue append(returned e) const {
+        functional_queue append(X e) const {
             return check(Left, Right + e);
         }
         
-        functional_queue operator+(returned e) const {
+        functional_queue operator+(X e) const {
             return append(e);
         }
         
