@@ -62,21 +62,6 @@ namespace data::exported {
     
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = channel<X>;
-    
-    template <typename f, typename x, typename l>
-    inline x fold(f fun, x init, l ls) {
-        return data::fold<f, x, l>(fun, init, ls);
-    }
-    
-    template <typename f, typename x, typename l>
-    inline x reduce(f fun, l ls) {
-        return data::reduce<f, x, l>(fun, ls);
-    }
-    
-    template <typename f, typename d>
-    inline typename meta::for_each<f, d>::output for_each(const f fun, const d data) {
-        return data::for_each<f, d>(fun, data);
-    }
 }
 
 #endif
