@@ -87,6 +87,9 @@ namespace data {
             return check(list::reverse(Left), list::reverse(Right));
         }
         
+        template <typename ... M>
+        static functional_queue make(M...);
+        
         constexpr static data::queue::definition::queue<functional_queue, returned> require_is_queue{};
         constexpr static data::list::definition::extendable<functional_queue, returned> require_is_buildable{};
     
