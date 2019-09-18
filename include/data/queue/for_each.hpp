@@ -20,7 +20,7 @@ namespace data {
                 
         template <typename function, typename from, typename to> 
         struct for_each : public queue::is_queue<to> {
-            using input_element = typename list::is_list<from>::element;
+            using input_element = typename list::is_list<from>::returned;
             using output_element = std::invoke_result<function, input_element>;
             
             to operator()(function f, from l) {

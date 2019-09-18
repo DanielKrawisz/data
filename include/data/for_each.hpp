@@ -48,7 +48,7 @@ namespace data {
         
         template <typename function, typename input> 
         struct for_each_queue {
-            using input_element = typename list::is_list<input>::element;
+            using input_element = typename list::is_list<input>::returned;
             using output_element = typename std::invoke_result<function, input_element>::type;
             using output = functional_queue<output_element, list::linked<output_element>>;
             
