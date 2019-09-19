@@ -71,16 +71,6 @@ namespace data::list {
             bool operator!=(const linked& l) const {
                 return !(*this==l);
             }
-            
-            const derived from(uint32 n) const {
-                if (empty()) return {};
-                if (n == 0) return *this;
-                return rest().from(n - 1);
-            }
-            
-            const returned operator[](uint32 n) const {
-                return from(n).first();
-            }
         
             linked() : Next{nullptr} {}
             linked(linked&& l) : Next{l.Next} {
@@ -101,15 +91,13 @@ namespace data::list {
     template <typename elem>
     struct linked : public base::linked<elem, linked<elem>> {
         using parent = base::linked<elem, linked<elem>>;
+        using returned = typename parent::returned;
         using requirement = data::list::definition::complete<
-            linked<elem>, elem, typename parent::returned, iterator<linked>, const iterator<linked>>;
+            linked<elem>, elem, returned, iterator<linked>, const iterator<linked>>;
         constexpr static requirement Satisfied{};
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
-        linked(linked&& l) : parent{static_cast<parent&&>(l)} {
-            l.Next = nullptr;
-        }
         
         linked(std::initializer_list<elem> l) : linked{
             list::reverse(fold(
@@ -132,6 +120,16 @@ namespace data::list {
         
         linked operator+(elem x) const {
             return prepend(x);
+        }
+        
+        linked from(uint32 n) const {
+            if (parent::empty()) return {};
+            if (n == 0) return *this;
+            return parent::rest().from(n - 1);
+        }
+        
+        returned operator[](uint32 n) const {
+            return from(n).first();
         }
         
         iterator<linked> begin();

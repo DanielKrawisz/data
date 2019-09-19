@@ -40,6 +40,12 @@ namespace data {
             return list::first(Left);
         }
         
+        returned operator[](uint32 i) {
+            if (i >= size()) throw std::out_of_range("queue index");
+            uint32 left = Left.size();
+            if (i >= left) return Right[Right.size() - (i - left) - 1];
+        }
+        
     private:
         static functional_queue check(const L& l, const L& r) {
             if (l.empty()) {
