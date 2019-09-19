@@ -349,29 +349,29 @@ namespace data {
             return divide(n).Remainder;
         }
     
-    template <typename indexed, size_t size>
-    bool number<indexed, size, false>::operator<(const number& n) const {
-        data::words a{*this};
-        data::words b{n};
-        for (uint32_t i = 0; i < size; i++) {
-            if (a[i] < b[i]) return true;
-            if (a[i] > b[i]) return false;
+        template <typename indexed, size_t size>
+        bool number<indexed, size, false>::operator<(const number& n) const {
+            words_type a = ray::words();
+            words_type b = n.words();
+            for (uint32_t i = 0; i < size; i++) {
+                if (a[i] < b[i]) return true;
+                if (a[i] > b[i]) return false;
+            }
+            
+            return false;
         }
         
-        return false;
-    }
-    
-    template <typename indexed, size_t size>
-    bool number<indexed, size, false>::operator<=(const number& n) const {
-        data::words a{*this};
-        data::words b{n};
-        for (uint32_t i = 0; i < size; i++) {
-            if (a[i] < b[i]) return true;
-            if (a[i] > b[i]) return false;
+        template <typename indexed, size_t size>
+        bool number<indexed, size, false>::operator<=(const number& n) const {
+            words_type a = ray::words();
+            words_type b = n.words();
+            for (uint32_t i = 0; i < size; i++) {
+                if (a[i] < b[i]) return true;
+                if (a[i] > b[i]) return false;
+            }
+            
+            return true;
         }
-        
-        return true;
-    }
         
     }
 
