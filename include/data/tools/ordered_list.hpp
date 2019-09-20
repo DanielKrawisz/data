@@ -38,19 +38,19 @@ namespace data {
         }
         
         X operator[](uint32 n) const {
-            if (n >= Size) throw 0; // TODO should be index out of bounds exception. 
+            if (n >= Size) throw 0; std::out_of_range{"ordered list"};
             if (n == 0) return first();
             return rest()[n - 1];
         }
         
         X last() const {
-            if (Size == 0) throw 0; // TODO should be index out of bounds exception. 
+            if (Size == 0) throw std::out_of_range{"ordered list"};
             return last_private();
         }
         
         static constexpr list::definition::list<ordered_list, X> Required{};
     private:
-        X& last_private() const {
+        X last_private() const {
             if (Size == 1) return first();
             return rest().last_private();
         }

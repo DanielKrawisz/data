@@ -22,6 +22,7 @@ namespace data {
             inner() : Size{0}, Closed{false} { }
             inner(uint32 n) : Size{n}, Closed{false} {}
             
+            
             void close();
             bool closed() const;
             void put(const item &i);
@@ -69,8 +70,13 @@ namespace data {
         channel(ptr<inner> i) : To{i}, From{i} {}
         
     public:
-        channel(uint32 size) : channel{std::make_shared<channel<item>::inner>(new channel<item>::inner(size))} {}
+        channel(uint32 size) : channel{std::make_shared<channel<item>::inner>(size)} {}
         channel() : channel{0} {}
+        channel(const channel& c) : To{c.To}, From{c.From} {}
+        channel(channel&& c) : To{c.To}, From{c.From} {
+            c.To = to{};
+            c.From = from{};
+        }
         
         void close() {
             To.close();

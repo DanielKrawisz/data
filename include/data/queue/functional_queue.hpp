@@ -44,6 +44,7 @@ namespace data {
             if (i >= size()) throw std::out_of_range("queue index");
             uint32 left = Left.size();
             if (i >= left) return Right[Right.size() - (i - left) - 1];
+            return Left[i];
         }
         
     private:
