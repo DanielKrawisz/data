@@ -10,7 +10,14 @@
 namespace data {
     
     namespace math {
-        struct division_by_zero : std::exception {};
+        struct division_by_zero : std::exception {
+            static std::string error;
+            const char* what() const noexcept final override {
+                return error.c_str();
+            }
+        };
+        
+        std::string division_by_zero::error = "division by zero";
         
         namespace number {
             
