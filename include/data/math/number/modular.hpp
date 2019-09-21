@@ -9,12 +9,16 @@ namespace data::math::number {
     template <typename X, typename mod>
     struct modular {
         X Value;
+        static X modulus() { 
+            static X Mod = *mod{};
+            return Mod;
+        }
         
         modular() : Value{} {}
         modular(X x) : Value{x} {}
         
         bool valid() const {
-            return Value < *mod{};
+            return Value < modulus();
         }
         
         bool operator==(const modular& m) const {
@@ -42,15 +46,15 @@ namespace data::math::number {
         }
         
         modular operator+(const modular& m) const {
-            return (Value + m.Value) % *mod{};
+            return (Value + m.Value) % modulus();
         }
         
         modular operator*(const modular& m) const {
-            return (Value * m.Value) % *mod{};
+            return (Value * m.Value) % modulus();
         }
         
         modular operator-(const modular& m) const {
-            if (Value < m.Value) *mod{} - ((m.Value - Value) % *mod{});
+            if (Value < m.Value) return modulus() - ((m.Value - Value) % modulus());
             return Value - m.Value;
         }
         
