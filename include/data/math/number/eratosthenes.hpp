@@ -87,7 +87,6 @@ namespace data::math::number {
             if (next < multiple) return true;
             q = q.rest().insert(entry{q.first().increment()});
         } 
-        if (next == multiple) return false;
     }
     
     template <typename N>
