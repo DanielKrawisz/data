@@ -59,17 +59,16 @@ namespace data::list {
                 return Next->size();
             }
             
-            bool operator==(const next n) {
-                return Next == n;
-            }
-            
-            bool operator==(const linked& l) const {
+            bool operator==(const derived& l) const {
                 if (this == &l) return true;
-                return Next == l.Next;
+                if (size() != l.size()) return false;
+                if (Next == l.Next) return true;
+                if (Next == nullptr || l.Next == nullptr) return false;
+                return *Next == *l.Next;
             }
             
-            bool operator!=(const linked& l) const {
-                return !(*this==l);
+            bool operator!=(const derived& l) const {
+                return !operator==(l);
             }
         
             linked() : Next{nullptr} {}
@@ -83,6 +82,7 @@ namespace data::list {
             virtual ~linked() = 0; 
             
             friend struct list::linked<elem>;
+            
         };
         
         template <typename elem, typename derived> linked<elem, derived>::~linked() {}
@@ -120,6 +120,19 @@ namespace data::list {
         
         linked operator+(elem x) const {
             return prepend(x);
+        }
+        
+        linked prepend(linked l) const {
+            linked x = *this;
+            while (!l.empty()) {
+                x = x + l.first();
+                l = l.rest();
+            }
+            return x;
+        }
+        
+        linked operator+(linked l) const {
+            return prepend(l);
         }
         
         linked from(uint32 n) const {

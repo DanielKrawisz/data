@@ -8,6 +8,7 @@
 #include <data/types.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/queue/functional_queue.hpp>
+#include <data/list/linked.hpp>
 
 namespace data::math::number {
     template <typename N> struct eratosthenes;
@@ -54,19 +55,37 @@ namespace data::math::number {
         
     public:
         eratosthenes() : Primes{}, Max{1}, Sieve{} {}
+        eratosthenes(N n) : eratosthenes{eratosthenes{}.next(n)} {}
         
+        // generate next n primes. 
         eratosthenes next(N n) const {
-            N required = Primes.size() + n;
+            N required = n + Primes.size();
             eratosthenes e = *this;
-            while(e.Primes.size() < required) e = e.step();
+            while(required > e.Primes.size()) e = e.step();
             return e;
         }
         
+        // generate next prime. 
         eratosthenes next() const {
             return next(1);
         }
         
     };
+    
+    template <typename N>
+    eratosthenes<N> eratosthenes<N>::step() const {
+        N n = Max + 1;
+        bool presumed_prime = true;
+        queue q = queue();
+        if (!q.empty()) do {
+            N next = q.first().Priority;
+            if (next > n) break;
+            if (next == n) presumed_prime = false;
+            q = cycle(q);
+        } while (true);
+        if (presumed_prime) return {Primes.append(n), n, insert_prime(q, n)};
+        return {Primes, n, q};
+    }
     
 }
 

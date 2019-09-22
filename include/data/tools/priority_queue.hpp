@@ -59,7 +59,7 @@ namespace data {
                 Size = q.Size;
             }
             
-            static list::definition::list<queue, x> is_list{};
+            constexpr static list::definition::list<queue, x> is_list{};
         };
         
         template <typename List, typename x> 

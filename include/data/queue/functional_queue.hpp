@@ -94,6 +94,16 @@ namespace data {
             return check(list::reverse(Left), list::reverse(Right));
         }
         
+        bool operator==(functional_queue& q) const {
+            if (this == &q) return true;
+            if (size() != q.size()) return false;
+            return Right.prepend(Left) == q.Right.prepend(q.Left);
+        }
+        
+        bool operator!=(functional_queue& q) const {
+            return !operator=(q);
+        }
+        
         template <typename ... M>
         static functional_queue make(M...);
         

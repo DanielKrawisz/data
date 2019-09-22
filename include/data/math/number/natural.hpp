@@ -55,76 +55,76 @@ namespace data::math::number {
             return a << b;
         }
         
-        template <typename> struct construct;
-        
-        template <uint32 ...> struct Digits;
-        
-        template <typename> struct Successor;
-        
-        template <typename...> struct Plus;
-        
-        template <typename...> struct Times;
-        
-        template <typename, typename> struct Power;
-        
-        template <> struct construct<Digits<>> {
-            N operator()(N x) const {
-                return x;
-            }
-            
-            N operator*() {
-                return 0;
-            }
-        };
-        
-        template <uint32 big, uint32 ... rest> struct construct<Digits<big, rest...>> {
-            N operator()(N x) const {
-                return construct<Digits<rest...>>{}((x << 32) + N{big});
-            }
-            
-            N operator*() {
-                return operator()(0);
-            }
-        };
-        
-        template <typename X> struct construct<Successor<X>> {
-            N operator*() {
-                return *construct<X>{} + 1;
-            }
-        };
-        
-        template <typename first, typename second> struct construct<Plus<first, second>> {
-            N operator*() {
-                return *construct<first>{} + *construct<second>{};
-            }
-        };
-        
-        template <typename first, typename... rest> struct construct<Plus<first, rest...>> {
-            N operator*() {
-                return construct<first>{}* + *construct<Plus<rest...>>{};
-            }
-        };
-        
-        template <typename first, typename second> struct construct<Times<first, second>> {
-            N operator*() {
-                return *construct<first>{} * *construct<second>{};
-            }
-        };
-        
-        template <typename first, typename... rest> struct construct<Times<first, rest...>> {
-            N operator*() {
-                return *construct<first>{} * *construct<Times<rest...>>{};
-            }
-        };
-        
-        template <typename first, typename second> struct construct<Power<first, second>> {
-            N operator*() {
-                return *construct<first>{} ^ *construct<second>{};
-            }
-        };
-        
     };
     
+    template <typename N, typename> struct construct;
+    
+    template <uint32 ...> struct Digits;
+    
+    template <typename> struct Successor;
+    
+    template <typename...> struct Plus;
+    
+    template <typename...> struct Times;
+    
+    template <typename, typename> struct Power;
+
+    template <typename N> struct construct<N, Digits<>> {
+        N operator()(N x) const {
+            return x;
+        }
+        
+        N operator*() {
+            return 0;
+        }
+    };
+    
+    template <typename N, uint32 big, uint32 ... rest> struct construct<N, Digits<big, rest...>> {
+        N operator()(N x) const {
+            return construct<N, Digits<rest...>>{}((x << 32) + N{big});
+        }
+        
+        N operator*() {
+            return operator()(0);
+        }
+    };
+    
+    template <typename N, typename X> struct construct<N, Successor<X>> {
+        N operator*() {
+            return *construct<N, X>{} + 1;
+        }
+    };
+    
+    template <typename N, typename first, typename second> struct construct<N, Plus<first, second>> {
+        N operator*() {
+            return *construct<N, first>{} + *construct<N, second>{};
+        }
+    };
+    
+    template <typename N, typename first, typename... rest> struct construct<N, Plus<first, rest...>> {
+        N operator*() {
+            return construct<N, first>{}* + *construct<N, Plus<rest...>>{};
+        }
+    };
+    
+    template <typename N, typename first, typename second> struct construct<N, Times<first, second>> {
+        N operator*() {
+            return *construct<N, first>{} * *construct<N, second>{};
+        }
+    };
+    
+    template <typename N, typename first, typename... rest> struct construct<N, Times<first, rest...>> {
+        N operator*() {
+            return *construct<N, first>{} * *construct<N, Times<rest...>>{};
+        }
+    };
+    
+    template <typename N, typename first, typename second> struct construct<N, Power<first, second>> {
+        N operator*() {
+            return *construct<N, first>{} ^ *construct<N, second>{};
+        }
+    };
+
 }
 
 #endif

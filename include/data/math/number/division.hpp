@@ -11,13 +11,15 @@ namespace data {
     
     namespace math {
         struct division_by_zero : std::exception {
-            static std::string error;
+            static const char* error() {
+                static char Error[] {"division by zero"};
+                return Error;
+            }
+            
             const char* what() const noexcept final override {
-                return error.c_str();
+                return error();
             }
         };
-        
-        std::string division_by_zero::error = "division by zero";
         
         namespace number {
             

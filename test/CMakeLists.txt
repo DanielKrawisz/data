@@ -41,3 +41,6 @@ add_test(NAME SliceReadUint32Little COMMAND testData)
 add_test(NAME SliceReadUint64Big COMMAND testData)
 add_test(NAME SliceReadUint64Little COMMAND testData)
 add_test(NAME SliceReadBytes COMMAND testData)
+
+#Test Eratosthenes
+#add_test(name First100Primes command testData)
