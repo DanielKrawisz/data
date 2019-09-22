@@ -43,4 +43,4 @@ add_test(NAME SliceReadUint64Little COMMAND testData)
 add_test(NAME SliceReadBytes COMMAND testData)
 
 #Test Eratosthenes
-add_test(name First100Primes command testData)
+add_test(NAME First100Primes COMMAND testData)
