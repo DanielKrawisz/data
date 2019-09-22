@@ -34,7 +34,7 @@ namespace data {
                         swap(MPZ, n.MPZ);
                     }
                     
-                    N& operator=(N& n) {
+                    N& operator=(const N& n) {
                         mpz_set(&MPZ, &n.MPZ);
                         return *this;
                     }

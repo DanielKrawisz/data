@@ -31,7 +31,7 @@ namespace data::math::number {
         queue Primes;
         
     private:
-        N Max;
+        N Next;
         
         struct entry {
             N Prime;
@@ -40,21 +40,26 @@ namespace data::math::number {
             bool operator<=(const entry& e) const {
                 return Multiple <= e.Multiple;
             }
+            
+            entry increment() const {
+                return {Prime, Multiple + Prime};
+            }
         };
         
         using heap = priority::queue<entry>;
         heap Sieve;
         
-        eratosthenes(queue p, N m, heap sieve) : Primes{p}, Max{m}, Sieve{sieve} {}
+        eratosthenes(queue p, N m, heap sieve) : Primes{p}, Next{m}, Sieve{sieve} {}
         
         static heap insert_prime(heap sieve, N prime) {
-            return sieve.insert(prime, prime * 2);
+            return sieve.insert(entry{prime, prime * 2});
         }; 
         
         eratosthenes step() const ;
+        static bool test_next_prime(const N next, heap& q);
         
     public:
-        eratosthenes() : Primes{}, Max{1}, Sieve{} {}
+        eratosthenes() : Primes{}, Next{2}, Sieve{} {}
         eratosthenes(N n) : eratosthenes{eratosthenes{}.next(n)} {}
         
         // generate next n primes. 
@@ -73,18 +78,23 @@ namespace data::math::number {
     };
     
     template <typename N>
+    bool eratosthenes<N>::test_next_prime(const N next, heap& q) {
+        if (q.empty()) return true; 
+        N multiple;
+        while(true) {
+            multiple = q.first().Multiple; 
+            if (next == multiple) return false;
+            if (next < multiple) return true;
+            q = q.rest().insert(entry{q.first().increment()});
+        } 
+        if (next == multiple) return false;
+    }
+    
+    template <typename N>
     eratosthenes<N> eratosthenes<N>::step() const {
-        N n = Max + 1;
-        bool presumed_prime = true;
-        queue q = queue();
-        if (!q.empty()) do {
-            N next = q.first().Priority;
-            if (next > n) break;
-            if (next == n) presumed_prime = false;
-            q = cycle(q);
-        } while (true);
-        if (presumed_prime) return {Primes.append(n), n, insert_prime(q, n)};
-        return {Primes, n, q};
+        heap q = Sieve;
+        if (test_next_prime(Next, q)) return {Primes.append(Next), Next + 1, insert_prime(q, Next)};
+        else return {Primes, Next + 1, q};
     }
     
 }

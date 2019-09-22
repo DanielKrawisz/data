@@ -57,6 +57,7 @@ namespace data {
             queue& operator=(const queue& q) {
                 Heap = q.Heap;
                 Size = q.Size;
+                return *this;
             }
             
             constexpr static list::definition::list<queue, x> is_list{};
