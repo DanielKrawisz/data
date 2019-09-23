@@ -58,7 +58,7 @@ namespace data::exported {
     template <typename X> using set = data::map_set<map<X, bool>, X>;
     
     // Wrapper for an array that allows for easy creation of subslices, similar to golang.  
-    template <typename X> using slice = data::slice<X>;
+    template <typename X, size_t... size> using slice = data::slice<X, size...>; 
     
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = channel<X>;
