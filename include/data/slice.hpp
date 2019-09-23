@@ -9,6 +9,8 @@
 #include "stream.hpp"
 #include <boost/endian/conversion.hpp>
 #include <data/tools/index_iterator.hpp>
+#include <data/meta/greater.hpp>
+#include <data/meta/unsigned_minus.hpp>
 
 namespace data {
     // Slice is an indexed section of an array which
@@ -32,6 +34,8 @@ namespace data {
         slice(std::vector<X>& x) : slice(x.data(), x.size()) {}
         template <size_t n>
         slice(std::array<X, n>& x) : slice(x.data(), x.size()) {} 
+        template <typename A>
+        slice(A x) : slice(x.begin(), x.end()) {} 
         
         static const slice make(vector<X>& x) {
             return slice{const_cast<std::vector<X>&>(x)};
@@ -52,24 +56,27 @@ namespace data {
         }
 
         /// Selects a range from the current slice
-        /// \param begin range begins from this index inclusive
-        /// \param end range ends at this index excluisive
+        /// \param b range begins from this index inclusive
+        /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range(int32 begin, int32 end) const {
+        [[nodiscard]] slice<X> range(int32 b, int32 e) const {
             size_t len = size();
-            if(begin<0) begin=len+begin;
-            if(end<0) end=len+end;
-            if (begin >= len || end > len || begin >= end || begin < 0) return slice{};
+            if(b < 0) b = len + b;
+            if(e < 0) e = len + e;
+            if (b >= len || e > len || b >= e || b < 0) return slice{};
 
-            return slice{Begin + begin, end-begin};
+            return slice{Begin + b, e - b};
         }
 
         /// Selects a range from the current slice up to end of slice
-        /// \param begin  range begins from this index inclusive
+        /// \param b  range begins from this index inclusive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range(int32 begin) const {
-            return range(begin,size());
+        [[nodiscard]] slice<X> range(int32 b) const {
+            return range(b, size());
         }
+        
+        template <size_t b, size_t e>
+        slice<X, meta::unsigned_minus<e, b>::result> range() const;
         
         slice& operator=(const slice<X>& s) {
             Begin = s.Begin;
@@ -86,6 +93,10 @@ namespace data {
                 if(operator[](i)!=s[i])
                     return false;
             return true;
+        }
+        
+        bool operator!=(const slice<X>& s) const {
+            return !operator==(s);
         }
         
         iterator begin() {
@@ -182,6 +193,13 @@ namespace data {
         slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
         slice_reader(std::vector<byte>& v, boost::endian::order e) : slice_istream<byte>{v}, Endian{e} {}
     };
+    
+    template <typename X> 
+    template <size_t b, size_t e>
+    inline slice<X, meta::unsigned_minus<e, b>::result> slice<X>::range() const {
+        static meta::greater<e, b> requirement{};
+        return slice<X, meta::unsigned_minus<end, begin>::result>{slice<X>::Begin + b, e - b};
+    }
 
 }
 
