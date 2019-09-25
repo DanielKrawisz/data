@@ -6,8 +6,6 @@
 #define DATA_SLICE
 
 #include "list.hpp"
-#include "stream.hpp"
-#include <boost/endian/conversion.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/meta/greater.hpp>
 #include <data/meta/unsigned_minus.hpp>
@@ -123,75 +121,6 @@ namespace data {
         }
         
         slice(std::array<X, n>& x) : slice<X>{x} {}
-    };
-    
-    template <typename X>
-    struct slice_ostream : public virtual ostream<X> {
-    protected:
-        slice<X> Slice;
-        typename slice<X>::iterator It;
-    public:
-        void operator<<(X x) final {
-            if (It == Slice.end()) throw end_of_stream{};
-            *It = x;
-            It++;
-        }
-
-        explicit slice_ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-
-        explicit slice_ostream(std::vector<X> &v) : slice_ostream{slice<X>{v}} {}
-    };
-    
-    template <typename X>
-    struct slice_istream : public virtual istream<X> {
-    protected:
-        const slice<X> Slice;
-        typename slice<X>::const_iterator It;
-    public:
-
-        void operator>>(X& x) final {
-            if (It == Slice.end()) throw end_of_stream{};
-            x = *It;
-            It++;
-        }
-        
-        explicit slice_istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-        explicit slice_istream(std::vector<X>& v) : slice_istream{slice<X>{v}} {}
-
-    };
-    
-    class slice_writer : public slice_ostream<byte>, public writer {
-        void bytesIntoIterator(const char*,int);
-    public:
-        const boost::endian::order Endian;
-        using slice_ostream<byte>::operator<<;
-        void operator<<(uint16_t) final override;
-        void operator<<(uint32_t) final override;
-        void operator<<(uint64_t) final override;
-        void operator<<(int16_t) final override;
-        void operator<<(int32_t) final override;
-        void operator<<(int64_t) final override;
-        void operator<<(bytes&) final override;
-        
-        slice_writer(slice<byte> s, boost::endian::order e) : slice_ostream<byte>{s}, Endian{e} {}
-        slice_writer(std::vector<byte>& v, boost::endian::order e) : slice_ostream<byte>{v}, Endian{e} {}
-    };
-    
-    class slice_reader : public slice_istream<byte>, public reader {
-        char* iteratorToArray(int);
-    public:
-        const boost::endian::order Endian;
-        using slice_istream<byte>::operator>>;
-        void operator>>(uint16_t&) final override;
-        void operator>>(uint32_t&) final override;
-        void operator>>(uint64_t&) final override;
-        void operator>>(int16_t&) final override;
-        void operator>>(int32_t&) final override;
-        void operator>>(int64_t&) final override;
-        void operator>>(std::vector<byte>&) final override;
-        
-        slice_reader(slice<byte> s, boost::endian::order e) : slice_istream<byte>{s}, Endian{e} {}
-        slice_reader(std::vector<byte>& v, boost::endian::order e) : slice_istream<byte>{v}, Endian{e} {}
     };
     
     template <typename X> 

@@ -13,45 +13,45 @@ namespace data::endian {
     template <typename X, boost::endian::order> struct ordered;
     
     using order = boost::endian::order;
-    template <typename X> ordered<X, endian::order::big> big(X x);
-    template <typename X> ordered<X, endian::order::little> little(X x);
+    constexpr order big = boost::endian::order::big;
+    constexpr order little = boost::endian::order::little;
     
     // Can only be constructed if type half is half of type whole. 
     // Used to collect overflow bits when doing big number arithmetic.
-    template <typename half, typename whole, endian::order o>
+    template <typename half, typename whole, order o>
     struct halves {
         halves() = delete;
     };
     
-    template <endian::order o> struct halves<uint32, uint64, o> {
+    template <order o> struct halves<uint32, uint64, o> {
         constexpr static bool is_signed = false;
         static uint32 greater(uint64);
         static uint32 lesser(uint64);
         static uint64 combine(uint32, uint32);
     };
     
-    template <endian::order o> struct halves<int32, int64, o> {
+    template <order o> struct halves<int32, int64, o> {
         constexpr static bool is_signed = true;
         static int32 greater(uint64);
         static int32 lesser(uint64);
         static int64 combine(int32, int32);
     };
     
-    template <endian::order o> struct halves<uint16, uint32, o> {
+    template <order o> struct halves<uint16, uint32, o> {
         constexpr static bool is_signed = false;
         static uint16 greater(uint32);
         static uint16 lesser(uint32);
         static uint32 combine(uint16, uint16);
     };
     
-    template <endian::order o> struct halves<int16, int32, o> {
+    template <order o> struct halves<int16, int32, o> {
         constexpr static bool is_signed = true;
         static int16 greater(uint32);
         static int16 lesser(uint32);
         static int32 combine(int16, int16);
     };
     
-    template <endian::order o> struct halves<byte, uint16, o> {
+    template <order o> struct halves<byte, uint16, o> {
         constexpr static bool is_signed = false;
         static byte greater(uint32);
         static byte lesser(uint32);
@@ -59,24 +59,61 @@ namespace data::endian {
     };
     
     // convert native to and from the given endian ordering. 
-    template <typename X, endian::order> struct native {
-        static X from(const X);
-        static X to(const X);
+    template <typename X, order> struct native;
+    
+    template <typename X> struct native<X, big> {
+        static X from(const X x) {
+            return boost::endian::native_to_big(x);
+        }
+        
+        static X to(const X x) {
+            return boost::endian::big_to_native(x);
+        }
     };
     
-    template <typename X, endian::order o> struct ordered {
+    template <typename X> struct native<X, little> {
+        static X from(const X x) {
+            return boost::endian::native_to_little(x);
+        }
+        
+        static X to(const X x) {
+            return boost::endian::little_to_native(x);
+        }
+    };
+    
+    template <typename X, order o> struct ordered {
         X Value;
         
         ordered<X, o>() : Value{0} {}
         ordered<X, o>(X x) : Value{x} {}
+        
+        constexpr static order opposite = o == little ? big : little;
+        
+        ordered<X, o>& operator=(X x) {
+            Value = native<X, o>::from(x.Value); 
+            return *this;
+        }
         
         ordered<X, o>& operator=(ordered<X, o>& x) {
             Value = x.Value; 
             return *this;
         }
         
+        ordered<X, o>& operator=(ordered<X, opposite>& x) {
+            Value = boost::endian::endian_reverse(x.Value); 
+            return *this;
+        }
+        
         bool operator==(const ordered<X, o>& x) const {
             return Value == x.Value;
+        }
+        
+        bool operator==(const ordered<X, opposite>& x) const {
+            return Value == boost::endian::endian_reverse(x.Value);
+        }
+        
+        bool operator==(const X& x) const {
+            return Value == native<X, o>::from(x);
         }
         
         bool operator!=(const ordered<X, o>& x) const {
@@ -151,7 +188,7 @@ namespace data::endian {
         }
     };
     
-    template <> struct ordered<slice<byte>, endian::order::big> {
+    template <> struct ordered<slice<byte>, big> {
         slice<byte> Data;
         
         ordered(slice<byte> d) : Data{d} {}
@@ -177,7 +214,7 @@ namespace data::endian {
         }
     };
     
-    template <> struct ordered<slice<byte>, endian::order::little> {
+    template <> struct ordered<slice<byte>, little> {
         slice<byte> Data;
         
         ordered(slice<byte> d) : Data{d} {}
@@ -236,70 +273,60 @@ namespace data::endian {
         }
     };
     
-    template <typename half, typename whole, boost::endian::order o>
+    template <typename half, typename whole, order o>
     ordered<half, o> lesser_half(ordered<whole, o> w);
     
-    template <typename half, typename whole, boost::endian::order o>
+    template <typename half, typename whole, order o>
     ordered<half, o> greater_half(ordered<whole, o> w);
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline bool ordered<X, o>::operator<(const ordered<X, o>& n) const {
-        return endian::native<X, o>::to(Value) < endian::native<X, o>::to(n.Value);
+        return native<X, o>::to(Value) < native<X, o>::to(n.Value);
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline bool ordered<X, o>::operator>(const ordered<X, o>& n) const {
-        return endian::native<X, o>::to(Value) > endian::native<X, o>::to(n.Value);
+        return native<X, o>::to(Value) > native<X, o>::to(n.Value);
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline bool ordered<X, o>::operator<=(const ordered<X, o>& n) const {
-        return endian::native<X, o>::to(Value) <= endian::native<X, o>::to(n.Value);
+        return native<X, o>::to(Value) <= native<X, o>::to(n.Value);
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline bool ordered<X, o>::operator>=(const ordered<X, o>& n) const {
-        return endian::native<X, o>::to(Value) >= endian::native<X, o>::to(n.Value);
+        return native<X, o>::to(Value) >= native<X, o>::to(n.Value);
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline ordered<X, o> ordered<X, o>::operator+(const ordered<X, o>& n) const {
-        return endian::native<X, o>::from(
-            endian::native<X, o>::to(Value) + endian::native<X, o>::to(n.Value));
+        return native<X, o>::from(
+            native<X, o>::to(Value) + native<X, o>::to(n.Value));
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline ordered<X, o> ordered<X, o>::operator-(const ordered<X, o>& n) const {
-        return endian::native<X, o>::from(
-            endian::native<X, o>::to(Value) - endian::native<X, o>::to(n.Value));
+        return native<X, o>::from(
+            native<X, o>::to(Value) - native<X, o>::to(n.Value));
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline ordered<X, o> ordered<X, o>::operator*(const ordered<X, o>& n) const {
-        return endian::native<X, o>::from(
-            endian::native<X, o>::to(Value) * endian::native<X, o>::to(n.Value));
+        return native<X, o>::from(
+            native<X, o>::to(Value) * native<X, o>::to(n.Value));
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline ordered<X, o> ordered<X, o>::operator/(const ordered<X, o>& n) const {
-        return endian::native<X, o>::from(
-            endian::native<X, o>::to(Value) / endian::native<X, o>::to(n.Value));
+        return native<X, o>::from(
+            native<X, o>::to(Value) / native<X, o>::to(n.Value));
     }
     
-    template <typename X, endian::order o>
+    template <typename X, order o>
     inline ordered<X, o> ordered<X, o>::operator%(const ordered<X, o>& n) const {
-        return endian::native<X, o>::from(
-            endian::native<X, o>::to(Value) % endian::native<X, o>::to(n.Value));
-    }
-    
-    template <typename X>
-    inline ordered<X, order::big> big(X x) {
-        return ordered<X, order::big>{boost::endian::native_to_big(x)};
-    }
-    
-    template <typename X>
-    inline ordered<X, order::little> little(X x) {
-        return ordered<X, order::little>{boost::endian::native_to_big(x)};
+        return native<X, o>::from(
+            native<X, o>::to(Value) % native<X, o>::to(n.Value));
     }
     
 }

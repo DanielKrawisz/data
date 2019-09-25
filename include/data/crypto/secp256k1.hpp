@@ -62,6 +62,14 @@ namespace data::crypto {
             
             bool verify(const sha256::digest&, const signature&) const;
         };
+        
+        constexpr data::math::module<compressed_pubkey, secret> is_module_compressed{};
+        constexpr data::crypto::signature_scheme<secret, compressed_pubkey, const sha256::digest, signature> 
+            is_signature_scheme_compressed{};
+        
+        constexpr data::math::module<uncompressed_pubkey, secret> is_module_uncompressed{};
+        constexpr data::crypto::signature_scheme<secret, uncompressed_pubkey, const sha256::digest, signature> 
+            is_signature_scheme_uncompressed{};
     
     }
     
@@ -113,14 +121,6 @@ namespace data::crypto {
     };
     
     namespace secp256k1 { 
-    
-        constexpr data::math::module<compressed_pubkey, secret> is_module_compressed{};
-        constexpr data::crypto::signature_scheme<secret, compressed_pubkey, const sha256::digest, signature> 
-            is_signature_scheme_compressed{};
-        
-        constexpr data::math::module<uncompressed_pubkey, secret> is_module_uncompressed{};
-        constexpr data::crypto::signature_scheme<secret, uncompressed_pubkey, const sha256::digest, signature> 
-            is_signature_scheme_uncompressed{};
         
         namespace low {
         

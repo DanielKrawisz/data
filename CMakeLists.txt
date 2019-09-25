@@ -124,7 +124,7 @@ ADD_LIBRARY(data STATIC
 		src/data/crypto/digest.cpp
         src/data/crypto/sha512.cpp
         src/data/crypto/secp256k1.cpp
-        src/data/slice.cpp)
+        src/data/stream.cpp)
 		
 target_include_directories(data PUBLIC include)
 

@@ -135,7 +135,7 @@ namespace data::container {
         const_iterator end() const {
             return Array.end();
         }
-            
+        
         using index = uint32;
         
         static const index size = n;

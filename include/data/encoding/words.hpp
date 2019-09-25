@@ -36,11 +36,11 @@ namespace data::encoding {
         template <typename A>
         words(A a) : Data{endian::ordered<slice<byte, bytes>, o>{slice<byte, bytes>{a}}} {}
         
-        bit32& operator[](index i) {
+        endian::ordered<bit32&, o> operator[](index i) {
             return *(bit32*)(&Data[4 * i + displacement<o>::Value]);
         }
         
-        const bit32& operator[](index i) const {
+        const endian::ordered<bit32&, o> operator[](index i) const {
             return *(bit32*)(&Data[4 * i + displacement<o>::Value]);
         }
         
@@ -109,7 +109,7 @@ namespace data::encoding {
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
     inline void number<size, bit32, bit64, o>::bit_negate(words xx) {
-        for (bit32& u : xx) u = ~u;
+        for (endian::ordered<bit32&, o> u : xx) u = ~u;
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 

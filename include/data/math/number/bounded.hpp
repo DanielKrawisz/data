@@ -19,18 +19,61 @@ namespace data {
     
         // A type for treating sequences of bytes as numbers. 
         template <
+            typename indexed, // inner type. Some kind of array 
+            size_t n,         // size (number of bytes)
+            endian::order o>    // endianness. 
+        struct ordered : public container::array<indexed, byte, n> {
+            using container::array<indexed, byte, n>::array;
+            using container::array<indexed, byte, n>::Array;
+            
+            using order = typename data::endian::order;
+            
+            constexpr static order endian = o;
+            constexpr static order opposite_endian = endian == order::little ? order::big : order::little;
+            
+            ordered(ordered<indexed, n, opposite_endian> reversed) {
+                std::reverse_copy(reversed.begin(), reversed.end(), Array.begin());
+            } 
+            
+        };
+    
+        // A type for treating sequences of bytes as numbers. 
+        template <
             typename bounded, // type derived from array. 
             typename indexed, // inner type. Some kind of array 
             size_t n,         // size (number of bytes)
             typename bit32,   // either int32 or uint32 
             typename bit64,   // either int64 or uint64
             endian::order o>    // endianness. 
-        struct array : public container::array<indexed, byte, n> {
-            using container::array<indexed, byte, n>::array;
-            using container::array<indexed, byte, n>::Array;
+        struct array : public ordered<indexed, n, o> {
+            using ordered<indexed, n, o>::ordered;
+            using ordered<indexed, n, o>::Array;
+            using ordered<indexed, n, o>::endian;
+            using ordered<indexed, n, o>::opposite_endian;
             
-            constexpr static data::endian::order endian = o;
-            using word = endian::ordered<bit64, o>;
+            using word = endian::ordered<bit64, endian>;
+            using number_type = ::data::encoding::number<n, bit32, bit64, endian>;
+            using words_type = typename number_type::words;
+            
+            words_type words() {
+                return words_type{Array};
+            }
+            
+            const words_type words() const {
+                return words_type{Array};
+            }
+            
+            array(bit32 x) : array() {
+                words()[words_type::last].Value = x;
+            }
+            
+            array(endian::ordered<bit32, endian> x) : array() {
+                words()[words_type::last].Value = x.Value;
+            }
+            
+            array(endian::ordered<bit32, opposite_endian> x) : array() {
+                words()[words_type::last].Value = boost::endian::endian_reverse(x.Value);
+            }
 
             bool operator==(const bounded& d) const;
             bool operator!=(const bounded& d) const;
@@ -84,21 +127,6 @@ namespace data {
             bounded operator/(const bounded&) const;
             bounded operator%(const bounded&) const;
             
-            using number_type = ::data::encoding::number<n, bit32, bit64, endian>;
-            using words_type = typename number_type::words;
-            
-            words_type words() {
-                return words_type{Array};
-            }
-            
-            const words_type words() const {
-                return words_type{Array};
-            }
-            
-            array(bit32 x) : array() {
-                words()[words_type::last] = x;
-            }
-            
             constexpr static math::group::abelian<bounded> is_group{}; 
         };
         
@@ -118,6 +146,9 @@ namespace data {
             using ray::operator<<=;
             using ray::operator>>=;
             using typename ray::words_type;
+            
+            number(number<indexed, size, ray::opposite_endian, false> n) : 
+                number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
             // power
             number operator^(const number&) const;
@@ -139,8 +170,10 @@ namespace data {
             using ray::operator*=;
             using ray::operator<<=;
             using ray::operator>>=;
-            
             using typename ray::words_type;
+            
+            number(number<indexed, size, ray::opposite_endian, true> n) : 
+                number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
 
             number& operator=(const number&) const;
             
@@ -153,7 +186,7 @@ namespace data {
         };
         
     }
-        
+    
     template <size_t size> using uint = 
         math::number::bounded::number<std::array<byte, size>, size, endian::order::big, false>;
     template <size_t size> using integer = 
