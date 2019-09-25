@@ -131,7 +131,7 @@ namespace data::encoding {
     template <uint32 size, typename bit32, typename bit64, endian::order o>
     void number<size, bit32, bit64, o>::minus(const words a, const words b, words result) {
         bit32 remainder{0};
-        for (int32 i = last; i >= 0; i--) {
+        for (int32 i = 0; i < size; i++) {
             word w = extend(a[i]) - extend(b[i]);
             result[i] = remainder + lesser(w);
             remainder = greater(w);
@@ -141,7 +141,7 @@ namespace data::encoding {
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
     void number<size, bit32, bit64, o>::plus(const words a, const words b, words result) {
         bit32 remainder{0};
-        for (int32 i = last; i >= 0; i--) {
+        for (int32 i = 0; i < size; i++) {
             word w = extend(a[i]) + extend(b[i]);
             result[i] = remainder + lesser(w);
             remainder = greater(w);

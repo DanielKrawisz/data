@@ -64,15 +64,15 @@ namespace data {
             }
             
             array(bit32 x) : array() {
-                words()[words_type::last].Value = x;
+                words()[0].Value = endian::native<bit32, o>::to(x);
             }
             
             array(endian::ordered<bit32, endian> x) : array() {
-                words()[words_type::last].Value = x.Value;
+                words()[0].Value = x.Value;
             }
             
             array(endian::ordered<bit32, opposite_endian> x) : array() {
-                words()[words_type::last].Value = boost::endian::endian_reverse(x.Value);
+                words()[0].Value = boost::endian::endian_reverse(x.Value);
             }
 
             bool operator==(const bounded& d) const;
@@ -174,8 +174,6 @@ namespace data {
             
             number(number<indexed, size, ray::opposite_endian, true> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
-
-            number& operator=(const number&) const;
             
             // power
             number operator^(const number<indexed, size, o, false>&) const;
