@@ -4,26 +4,16 @@
 #ifndef DATA_VALID
 #define DATA_VALID
 
-#include <data/meta/which.hpp>
+#include <data/meta/equal.hpp>
 #include "types.hpp"
 
 namespace data {
     
-    namespace low {
+    namespace meta {
         
-        template <typename X>
-        struct has_valid_method {
-            bool operator()(const X x) const {
-                return x.valid();
-            }
-            
-            bool operator()(const X* x) const {
-                return x->valid();
-            }
-        };
+        template <typename X, bool has_valid_member, bool has_valid_method> struct is_valid;
         
-        template <typename X>
-        struct has_valid_member {
+        template <typename X, bool has_valid_method> struct is_valid<X, true, has_valid_method> {
             bool operator()(const X x) const {
                 return x.Valid;
             }
@@ -33,8 +23,17 @@ namespace data {
             }
         };
         
-        template <typename X>
-        struct default_valid {
+        template <typename X> struct is_valid<X, false, true> {
+            bool operator()(const X x) const {
+                return x.valid();
+            }
+            
+            bool operator()(const X* x) const {
+                return x->valid();
+            }
+        };
+        
+        template <typename X> struct is_valid<X, false, false> {
             bool operator()(const X) const {
                 return true;
             }
@@ -43,33 +42,44 @@ namespace data {
                 return true;
             }
         };
-    
+        
+        template <typename X, typename = int> struct has_valid_member {
+            constexpr static bool value = false;
+        };
+
         template <typename X>
-        struct check_valid {
-            bool operator()(const X x) const {
-                return typename data::meta::Which<has_valid_method<X>, default_valid<X>>::result{}(x);
+        struct has_valid_member<X, decltype((void) X::Valid, 0)> {
+            constexpr static bool value = true;
+        };
+        
+        template <typename X, typename = int> struct has_valid_method {
+            constexpr static bool value = false;
+        };
+
+        template <typename X>
+        struct has_valid_method<X, decltype((void) X::valid, 0)> {
+            constexpr static bool value = true;
+        };
+        
+        template <typename X> 
+        struct valid {
+            bool operator()(const X x) {
+                return is_valid<X, has_valid_member<X>::value, has_valid_method<X>::value>{}(x);
             }
         };
         
-        template <typename X>
-        struct check_valid<X*> {
-            bool operator()(const X* x) const {
-                return x != nullptr && typename data::meta::Which<has_valid_method<X>, default_valid<X>>::result{}(x);
-            }
-        };
-        
-        template <typename X>
-        struct check_valid<ptr<X>> {
-            bool operator()(const ptr<X> x) const {
-                return x != nullptr && typename data::meta::Which<has_valid_method<X>, default_valid<X>>::result{}(x);
+        template <typename X> 
+        struct valid<X*> {
+            bool operator()(const X* x) {
+                return is_valid<X, has_valid_member<X>::value, has_valid_method<X>::value>{}(x);
             }
         };
     
     }
 
     template <typename X>
-    inline bool valid(const X x) {      
-        return low::check_valid<X>{}(x);
+    inline bool valid(const X x) { 
+        return meta::valid<X>{}(x);
     }
 
 }
