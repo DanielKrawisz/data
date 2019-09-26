@@ -71,7 +71,7 @@ namespace data {
         template <typename X> 
         struct valid<X*> {
             bool operator()(const X* x) {
-                return is_valid<X, has_valid_member<X>::value, has_valid_method<X>::value>{}(x);
+                return x != nullptr && is_valid<X, has_valid_member<X>::value, has_valid_method<X>::value>{}(x);
             }
         };
     

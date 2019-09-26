@@ -6,6 +6,7 @@
 #define DATA_FOLD
 
 #include "types.hpp"
+#include <type_traits>
 
 namespace data {
 
@@ -15,9 +16,13 @@ namespace data {
         return fold(fun, fun(init, first(ls)), rest(ls));
     }
     
-    template <typename f, typename x, typename l>
-    x reduce(f fun, l ls) {
-        if (empty(ls)) return x{};
+    template <typename f, typename l>
+    typename std::invoke_result<f, 
+        decltype(std::declval<l>().first()), 
+        decltype(std::declval<l>().first())>::type reduce(f fun, l ls) {
+        if (empty(ls)) return typename std::invoke_result<f, 
+            decltype(std::declval<l>().first()), 
+            decltype(std::declval<l>().first())>::type{};
         return fun(first(ls), reduce(fun, rest(ls)));
     }
 
