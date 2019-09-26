@@ -15,6 +15,8 @@
 #include <data/slice.hpp>
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
+#include <data/valid.hpp>
+#include <data/plus.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/rational.hpp>

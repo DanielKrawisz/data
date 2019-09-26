@@ -26,7 +26,6 @@ namespace data {
         
         functional_queue() : Left{}, Right{} {}
         functional_queue(L l) : Left{l}, Right{} {}
-        functional_queue(const functional_queue& q) : Left{q.Left}, Right{q.Right} {}
         
         bool empty() const {
             return list::empty(Left);
@@ -34,6 +33,10 @@ namespace data {
         
         uint32 size() const {
             return list::size(Left) + list::size(Right);
+        }
+        
+        bool valid() const {
+            return Left.valid() && Right.valid();
         }
         
         returned first() {

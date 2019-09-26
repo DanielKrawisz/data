@@ -7,6 +7,7 @@
 
 #include <type_traits>
 #include <data/meta/which.hpp>
+#include <data/valid.hpp>
 #include "container.hpp"
 
 namespace data::list {
@@ -241,6 +242,10 @@ namespace data::list {
         
         Y rest() const {
             return Rest;
+        }
+        
+        bool valid() const {
+            return data::valid(First) && data::valid(Rest);
         }
         
         uint32 size() const {

@@ -30,11 +30,6 @@ namespace data {
     using ptr = std::shared_ptr<X>;
 
     using string = const std::string;
-    
-    template <typename X, typename Y>
-    inline X plus(X a, Y b) {
-        return a + b;
-    }
 
 }
 

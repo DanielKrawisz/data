@@ -47,6 +47,11 @@ namespace data::list {
                 return Next->rest();
             }
             
+            bool valid() const {
+                if (empty()) return true;
+                return Next->valid();
+            }
+            
             bool contains(elem x) const {
                 if (empty()) return false;
                     
@@ -101,8 +106,9 @@ namespace data::list {
         
         linked(std::initializer_list<elem> l) : linked{
             list::reverse(fold(
-                plus<linked, elem>, 
-                linked{}, 
+                [](linked l, elem x)->linked{
+                    return l + x;
+                }, linked{}, 
                 iterator_list<decltype(l.begin()), elem>(l.begin(), l.end())
             ))
         } {}

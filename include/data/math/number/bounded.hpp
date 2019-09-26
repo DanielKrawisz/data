@@ -26,7 +26,7 @@ namespace data {
             using container::array<indexed, byte, n>::array;
             using container::array<indexed, byte, n>::Array;
             
-            using order = typename data::endian::order;
+            using order = typename endian::order;
             
             constexpr static order endian = o;
             constexpr static order opposite_endian = endian == order::little ? order::big : order::little;

@@ -22,6 +22,7 @@ namespace data {
             template <bool b, typename first, typename ... rest>
             struct Which<b, first, rest...> {
                 using result = typename Which<b, rest...>::result;
+                constexpr static result Constructable{};
             };
             
             template <typename first, typename ... rest>
