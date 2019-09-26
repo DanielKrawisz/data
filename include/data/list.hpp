@@ -113,16 +113,6 @@ namespace data::list {
     };
     
     template <typename L> 
-    inline bool empty(L l) {
-        return container::existence<L>{}.empty(l);
-    }
-    
-    template <typename L> 
-    inline uint32 size(L l) {
-        return container::existence<L>{}.size(l);
-    }
-    
-    template <typename L> 
     inline typename is_list<L>::returned first(const L l) {
         return definition::list<L, typename is_list<L>::returned>{}.first(l);
     }
@@ -139,7 +129,7 @@ namespace data::list {
     
     template <typename L, typename X>
     L append(L list, X value) {
-        if (list::empty(list)) return L{{value}};
+        if (container::empty(list)) return L{{value}};
         
         return append(first(list), append(rest(list), value));
     }
@@ -151,7 +141,7 @@ namespace data::list {
         
         struct inner {
             L operator()(L reversed, L list) {
-                if (list::empty(list)) return reversed;
+                if (container::empty(list)) return reversed;
                 return inner{}(reversed + first(list), rest(list));
             }
         };
@@ -169,7 +159,7 @@ namespace data::list {
     
     template <typename function, typename list, typename value>
     value find(function satisfies, list l) {
-        if (empty(l)) return value{};
+        if (container::empty(l)) return value{};
         auto f0 = first(l);
         if (satisfies(f0)) return f0;
         return rest(l);
@@ -229,7 +219,7 @@ namespace data::list {
         Y Rest;
         uint32 Size;
         
-        node(X x, Y r) : First(x), Rest(r), Size{list::size(r) + 1} {}
+        node(X x, Y r) : First(x), Rest(r), Size{container::size(r) + 1} {}
         node(X x) : First(x), Rest{}, Size{1} {}
         
         const R first() const {

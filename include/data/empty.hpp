@@ -5,13 +5,23 @@
 #ifndef DATA_EMPTY
 #define DATA_EMPTY
 
-#include "types.hpp"
+#include "list.hpp"
 
 namespace data {
 
     template <typename X>
-    inline bool empty(X x) {
-        return x.empty();
+    inline bool empty(const X x) {
+        return container::empty(x);
+    }
+
+    template <typename X>
+    inline bool first(const X x) {
+        return list::first(x);
+    }
+
+    template <typename X>
+    inline bool rest(const X x) {
+        return list::rest(x);
     }
 
 }

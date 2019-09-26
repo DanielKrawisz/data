@@ -156,6 +156,16 @@ namespace data::container {
             return array{};
         }
     };
+    
+    template <typename L> 
+    inline bool empty(L l) {
+        return container::existence<L>{}.empty(l);
+    }
+    
+    template <typename L> 
+    inline uint32 size(L l) {
+        return container::existence<L>{}.size(l);
+    }
 }
 
 #endif

@@ -28,11 +28,11 @@ namespace data {
         functional_queue(L l) : Left{l}, Right{} {}
         
         bool empty() const {
-            return list::empty(Left);
+            return container::empty(Left);
         }
         
         uint32 size() const {
-            return list::size(Left) + list::size(Right);
+            return container::size(Left) + container::size(Right);
         }
         
         bool valid() const {
