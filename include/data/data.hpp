@@ -17,6 +17,7 @@
 #include <data/for_each.hpp>
 #include <data/valid.hpp>
 #include <data/plus.hpp>
+#include <data/empty.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/rational.hpp>
@@ -46,11 +47,6 @@ namespace data::exported {
     
     // a functional map implemented as a red-black tree
     template <typename K, typename V> using map = data::rb_map<K, V>;
-    
-    template <typename X>
-    inline bool empty(X x) {
-        return x.empty();
-    }
     
     // get all values from a map with the given keys. 
     template <typename key, typename value, typename map>
