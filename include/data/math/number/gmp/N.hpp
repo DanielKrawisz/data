@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_GMP_N
 
 #include <data/math/number/natural.hpp>
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <limits>
 
 namespace data {
@@ -17,70 +17,164 @@ namespace data {
             
             namespace gmp {
                 
-                struct Z;
                 struct Q;
                 
-                struct N final : public mpz {
-                    N() : mpz() {}
+                struct N {
+                    Z Value;
                     
-                    N(uint32 n) : mpz{n} {}
-                    N(string& s) : mpz{s} {}
+                    N() : Value{} {}
                     
-                    N(const N& n) : mpz(n.MPZ) {}
-                    
-                    N(N&& n) {
-                        swap(MPZ, n.MPZ);
-                    }
+                    N(gmp_uint n) : Value{n} {}
+                    explicit N(string& s) : Value{s} {}
                     
                     N& operator=(const N& n) {
-                        mpz_set(&MPZ, &n.MPZ);
+                        Value = n.Value;
                         return *this;
                     }
                     
-                    N(const mpz& n) : mpz{n} {}
-                    
-                    N(mpz&& n) : mpz{n} {}
-                    
                     bool valid() {
-                        return sign::positive == sign();
+                        return Value.valid() && Value >= 0;
                     }
                     
-                    bool operator==(const N&) const;
+                    bool operator==(uint64 n) const {
+                        return Value == n;
+                    }
                     
-                    bool operator<(const N&) const;
+                    bool operator==(const N& n) const {
+                        return Value == n.Value;
+                    }
                     
-                    bool operator>(const N&) const;
+                    bool operator==(const Z& z) const {
+                        if (z < 0) return false;
+                        return Value == z;
+                    }
                     
-                    bool operator<=(const N&) const;
+                    bool operator<(uint64 n) const {
+                        return Value < n;
+                    }
                     
-                    bool operator>=(const N&) const;
+                    bool operator<(const N& n) const {
+                        return Value < n.Value;
+                    }
                     
-                    N successor() const;
+                    bool operator<(const Z& z) const {
+                        if (z < 0) return false;
+                        return Value < z;
+                    }
                     
-                    N operator+(const N&) const;
+                    bool operator>(uint64 n) const {
+                        return Value > n;
+                    }
                     
-                    N operator+(gmp_uint) const;
+                    bool operator>(const N& n) const {
+                        return Value > n.Value;
+                    }
                     
-                    N& operator+=(const N&);
+                    bool operator>(const Z& z) const {
+                        if (z < 0) return true;
+                        return Value > z;
+                    }
                     
-                    N& operator+=(gmp_uint);
+                    bool operator<=(uint64 n) const {
+                        return Value <= n;
+                    }
                     
-                    N operator*(const N&) const;
+                    bool operator<=(const N& n) const {
+                        return Value <= n.Value;
+                    }
                     
-                    N operator*(gmp_uint) const;
+                    bool operator<=(const Z& z) const {
+                        if (z < 0) return false;
+                        return Value <= z;
+                    }
                     
-                    N& operator*=(const N&);
+                    bool operator>=(uint64 n) const {
+                        return Value >= n;
+                    }
                     
-                    N& operator*=(gmp_uint);
+                    bool operator>=(const N& n) const {
+                        return Value >= n.Value;
+                    }
                     
-                    N operator^(gmp_uint) const;
+                    bool operator>=(const Z& z) const {
+                        if (z < 0) return true;
+                        return Value == z;
+                    }
+        
+                    N& operator++() {
+                        ++Value;
+                        return *this;
+                    }
                     
-                    N& operator^=(gmp_uint);
+                    N& operator--() {
+                        if (Value != 0) --Value; 
+                        return *this;
+                    }
                     
-                    math::number::division<N> divide(const N&) const;
+                    N operator++(int) {
+                        Z z = *this;
+                        ++(*this);
+                        return N{z};
+                    }
+                    
+                    N operator--(int) {
+                        Z z = *this;
+                        ++(*this);
+                        return N{z};
+                    }
+                    
+                    N operator+(uint64 n) const {
+                        return N{Value + n};
+                    }
+                    
+                    N operator+(const N& n) const {
+                        return N{Value + n.Value};
+                    }
+                    
+                    N& operator+=(uint64 n) {
+                        Value += n;
+                        return *this;
+                    }
+                    
+                    N& operator+=(const N& n) {
+                        Value += n;
+                        return *this;
+                    }
+                    
+                    N operator*(uint64 n) const {
+                        return N{Value * n};
+                    }
+                    
+                    N operator*(const N& n) const {
+                        return N{Value * n.Value};
+                    }
+                    
+                    N& operator*=(uint64 n) {
+                        Value *= n;
+                        return *this;
+                    }
+                    
+                    N& operator*=(const N& n) {
+                        Value *= n.Value;
+                        return *this;
+                    }
+                    
+                    N operator^(uint32 n) const {
+                        return N{Value ^ n};
+                    }
+                    
+                    N& operator^=(uint32 n) {
+                        Value ^= n;
+                        return *this;
+                    };
+                    
+                    math::number::division<N> divide(const N& n) const {
+                        auto div = Value.divide(n.Value);
+                        return math::number::division<N>{N{div.Quotient}, N{div.Remainder}};
+                    }
                     
                     bool operator|(const N& n) const {
-                        return divide(n).Quotient == 0;
+                        return divide(n).Remainder == 0;
                     }
                     
                     N operator/(const N& n) const {
@@ -101,12 +195,70 @@ namespace data {
                         return operator=(r);
                     }
                     
-                    friend struct Z;
-                    friend struct Q;
+                    static N as(const Z& z) {
+                        if (z < 0) return N{0};
+                        return N{z};
+                    }
                 
                     constexpr static math::number::natural<N> is_natural{};
+                private:
+                    explicit N(const Z& z) : Value{z} {}
                 };
+            
+                inline bool Z::operator==(const N& n) const {
+                    return operator==(n.Value);
+                }
                 
+                inline bool Z::operator!=(const N& n) const {
+                    return operator!=(n.Value);
+                }
+                
+                inline bool Z::operator<(const N& n) const {
+                    return operator<(n.Value);
+                }
+                
+                inline bool Z::operator>(const N& n) const {
+                    return operator>(n.Value);
+                }
+                
+                inline bool Z::operator<=(const N& n) const {
+                    return operator<=(n.Value);
+                }
+                
+                inline bool Z::operator>=(const N& n) const {
+                    return operator>=(n.Value);
+                }
+                
+                inline Z Z::operator+(const N& n) const {
+                    return operator+(n.Value);
+                }
+                
+                inline Z& Z::operator+=(const N& n) {
+                    return operator+=(n.Value);
+                }
+                
+                inline Z Z::operator*(const N& n) const {
+                    return operator*(n.Value);
+                }
+                
+                inline Z& Z::operator*=(const N& n) {
+                    return operator*=(n.Value);
+                }
+        
+                inline math::number::division<Z> Z::divide(const N& n) const {
+                    return divide(n.Value);
+                }
+
+                inline N Z::abs() const {
+                    N n;
+                    __gmp_abs_function::eval(&n.Value.MPZ, &MPZ);
+                    return n;
+                }
+
+                inline N square(Z &z) {
+                    return N::as(z * z);
+                }
+            
             }
             
         }

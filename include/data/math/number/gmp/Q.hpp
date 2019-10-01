@@ -1,7 +1,11 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MATH_NUMBER_GMP_Q
 #define DATA_MATH_NUMBER_GMP_Q
 
-#include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/mpq.hpp>
 #include <data/math/field.hpp>
 #include <data/math/nonnegative.hpp>
@@ -17,7 +21,7 @@ namespace data {
                 struct Q final : public mpq {
                     Q() : mpq() {}
                     
-                    Q(const N& n) : mpq((const __mpz_struct&)(n.MPZ), 1) {}
+                    Q(const N& n) : mpq((const __mpz_struct&)(n.Value.MPZ), 1) {}
                     
                     Q(const Z& z) : mpq((const __mpz_struct&)(z.MPZ), 1) {}
                     
