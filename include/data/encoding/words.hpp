@@ -37,11 +37,11 @@ namespace data::encoding {
         words(A a) : Data{endian::ordered<slice<byte, bytes>, o>{slice<byte, bytes>{a}}} {}
         
         endian::ordered<bit32&, o> operator[](index i) {
-            return *(bit32*)(&Data[4 * i + displacement<o>::Value]);
+            return endian::ordered<bit32&, o>::as(*(bit32*)(&Data[4 * i + displacement<o>::Value]));
         }
         
         const endian::ordered<bit32&, o> operator[](index i) const {
-            return *(bit32*)(&Data[4 * i + displacement<o>::Value]);
+            return endian::ordered<bit32&, o>::as(*(bit32*)(&Data[4 * i + displacement<o>::Value]));
         }
         
         void set(index i, bit32 x) {

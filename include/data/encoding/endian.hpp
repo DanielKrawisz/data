@@ -83,9 +83,15 @@ namespace data::endian {
     
     template <typename X, order o> struct ordered {
         X Value;
+    private:
+        ordered<X, o>(X x) : Value{x} {}
+    public:
         
         ordered<X, o>() : Value{0} {}
-        ordered<X, o>(X x) : Value{x} {}
+        
+        static ordered as(X x) {
+            return ordered{x};
+        }
         
         constexpr static order opposite = o == little ? big : little;
         

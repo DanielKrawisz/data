@@ -23,10 +23,8 @@ namespace data {
                 struct N final : public mpz {
                     N() : mpz() {}
                     
-                    N(uint32 n) {
-                        if (n <= std::numeric_limits<uint32>::max()) mpz_init_set_ui(&MPZ, n);
-                        throw 0; // TODO
-                    }
+                    N(uint32 n) : mpz{n} {}
+                    N(string& s) : mpz{s} {}
                     
                     N(const N& n) : mpz(n.MPZ) {}
                     

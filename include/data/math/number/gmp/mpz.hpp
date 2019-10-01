@@ -9,6 +9,7 @@
 #include <data/types.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/number/natural.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math::number::gmp {
                 
@@ -21,6 +22,10 @@ namespace data::math::number::gmp {
                     return a._mp_alloc == b._mp_alloc && a._mp_size == b._mp_size && a._mp_d == b._mp_d;
                 }
                 
+                inline uint32 size(const __mpz_struct& a) {
+                    return a._mp_alloc;
+                }
+                
                 inline bool valid(const __mpz_struct& mpz) {
                     return mpz._mp_d != nullptr;
                 }
@@ -30,6 +35,15 @@ namespace data::math::number::gmp {
                 }
                 
                 void swap(__mpz_struct& a, __mpz_struct& b);
+                
+                __mpz_struct read_decimal(const string&);
+                
+                __mpz_struct read_hexidecimal(const string&);
+                
+                inline __mpz_struct read_string(const string& s) {
+                    __mpz_struct x = read_decimal(s);
+                    if (!valid(x)) return read_hexidecimal(s);
+                }
                 
                 struct mpz {
                     __mpz_struct MPZ;
@@ -52,8 +66,12 @@ namespace data::math::number::gmp {
                         mpz_init_set_si(&MPZ, n);
                     }
                     
-                    mpz(uint32 n) {
-                        throw 0;
+                    mpz(uint32 n) : mpz{} {
+                        if (n <= std::numeric_limits<uint32>::max()) mpz_init_set_ui(&MPZ, n);
+                    }
+                    
+                    mpz(int32 z) : mpz{} {
+                        if (z <= std::numeric_limits<int32>::max() && z >= std::numeric_limits<int32>::min()) mpz_init_set_si(&MPZ, z);
                     }
                     
                     mpz(const __mpz_struct& n) {
@@ -79,9 +97,31 @@ namespace data::math::number::gmp {
                         return *this;
                     }
                     
+                    mpz(string& x) : MPZ{read_string(x)} {}
+                    
                     math::sign sign() const {
                         return gmp::sign(MPZ);
                     }
+                    
+                    size_t size() const {
+                        return gmp::size(MPZ);
+                    }
+                    
+                    mp_limb_t* begin() {
+                        return MPZ._mp_d;
+                    }
+                    
+                    mp_limb_t* end() {
+                        return MPZ._mp_d + MPZ._mp_alloc;
+                    }
+                    
+                    const mp_limb_t* begin() const {
+                        return MPZ._mp_d;
+                    }
+                    
+                    const mp_limb_t* end() const {
+                        return MPZ._mp_d + MPZ._mp_alloc;
+                    };
                     
                     bool operator==(gmp_uint n) const;
                     

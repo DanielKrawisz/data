@@ -26,106 +26,106 @@ protected:
 
     TEST_F(StreamTest, StreamWriteUint16Big) {
         data::writer writer(sliceTest);
-        writer << data::ordered<uint16_t, data::big>{4096};
+        writer << data::ordered<uint16_t, data::big>::as(4096);
         EXPECT_THAT(test, ::testing::ElementsAre(0x10,00,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<uint16_t, data::big>{9023} ;
+        writer << data::ordered<uint16_t, data::big>::as(9023) ;
         EXPECT_THAT(test, ::testing::ElementsAre(0x10,00,0x23, 0x3F, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteUint16Little) {
         data::writer writer(sliceTest);
-        writer << data::ordered<uint16_t, data::little>{4096};
+        writer << data::ordered<uint16_t, data::little>::as(4096);
         EXPECT_THAT(test,::testing::ElementsAre(00,0x10,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<uint16_t, data::little>{9023};
+        writer << data::ordered<uint16_t, data::little>::as(9023);
         EXPECT_THAT(test,::testing::ElementsAre(00,0x10,0x3F, 0x23, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteInt16Big) {
         data::writer writer(sliceTest);
-        writer << data::ordered<int16_t, data::big>{4096};
+        writer << data::ordered<int16_t, data::big>::as(4096);
         EXPECT_THAT(test,::testing::ElementsAre(0x10,00,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<int16_t, data::big>{-9023};
+        writer << data::ordered<int16_t, data::big>::as(-9023);
         EXPECT_THAT(test,::testing::ElementsAre(0x10,00,0xDC, 0xC1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteInt16Little) {
         data::writer writer(sliceTest);
-        writer << data::ordered<int16_t, data::little>{4096};
+        writer << data::ordered<int16_t, data::little>::as(4096);
         EXPECT_THAT(test,::testing::ElementsAre(00,0x10,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<int16_t, data::little>{-9023};
+        writer << data::ordered<int16_t, data::little>::as(-9023);
         EXPECT_THAT(test,::testing::ElementsAre(00,0x10,0xC1, 0xDC, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, SliceWriteUint32Big) {
         data::writer writer(sliceTest);
-        writer << data::ordered<uint32_t, data::big>{2859322050};
+        writer << data::ordered<uint32_t, data::big>::as(2859322050);
         EXPECT_THAT(test,::testing::ElementsAre(0xAA,0x6D,0xCA, 0xC2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<uint32_t, data::big>{2805395218};
+        writer << data::ordered<uint32_t, data::big>::as(2805395218);
         EXPECT_THAT(test,::testing::ElementsAre(0xAA,0x6D,0xCA, 0xC2, 0xA7, 0x36, 0xEF, 0x12, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteUint32Little) {
         data::writer writer(sliceTest);
-        writer << data::ordered<uint32_t, data::little>{2859322050};
+        writer << data::ordered<uint32_t, data::little>::as(2859322050);
         EXPECT_THAT(test,::testing::ElementsAre(0xC2,0xCA,0x6D,0xAA , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<uint32_t, data::little>{2805395218};
+        writer << data::ordered<uint32_t, data::little>::as(2805395218);
         EXPECT_THAT(test,::testing::ElementsAre(0xC2,0xCA,0x6D,0xAA , 0x12, 0xEF, 0x36, 0xA7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteInt32Big) {
         data::writer writer(sliceTest);
-        writer << data::ordered<int32_t, data::big>{(int32_t)2859322050};
+        writer << data::ordered<int32_t, data::big>::as((int32_t)2859322050);
         EXPECT_THAT(test,::testing::ElementsAre(0xAA,0x6D,0xCA, 0xC2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<int32_t, data::big>{(int32_t)-280539521};
+        writer << data::ordered<int32_t, data::big>::as((int32_t)-280539521);
         EXPECT_THAT(test,::testing::ElementsAre(0xAA,0x6D,0xCA, 0xC2, 0xEF, 0x47, 0x4E, 0x7F, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteInt32Little) {
         data::writer writer(sliceTest);
-        writer << data::ordered<int32_t, data::little>{(int32_t)2859322050};
+        writer << data::ordered<int32_t, data::little>::as((int32_t)2859322050);
         EXPECT_THAT(test,::testing::ElementsAre(0xC2,0xCA,0x6D,0xAA , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<int32_t, data::little>{(int32_t)-280539521};
+        writer << data::ordered<int32_t, data::little>::as((int32_t)-280539521);
         EXPECT_THAT(test,::testing::ElementsAre(0xC2,0xCA,0x6D,0xAA , 0x7F, 0x4E, 0x47, 0xEF, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
 
     TEST_F(StreamTest, StreamWriteUint64Big) {
         data::writer writer(sliceTest);
-        writer << data::ordered<uint64_t, data::big>{2387559956438732708};
+        writer << data::ordered<uint64_t, data::big>::as(2387559956438732708);
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<uint64_t, data::big>{17900722797183299418};
+        writer << data::ordered<uint64_t, data::big>::as(17900722797183299418);
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 0xF8, 0x6C, 0x24, 0x8A, 0xBC, 0xD8, 0xEF, 0x5A, 17, 18, 19, 20));
-        auto o = data::ordered<uint64_t, data::big>{17906342797856292348};
+        auto o = data::ordered<uint64_t, data::big>::as(17906342797856292348);
         EXPECT_THROW(writer << o, data::end_of_stream);
     }
 
     TEST_F(StreamTest, StreamWriteUint64Little) {
         data::writer writer(sliceTest);
-        writer << data::ordered<uint64_t, data::little>{2387559956438732708};
+        writer << data::ordered<uint64_t, data::little>::as(2387559956438732708);
         EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<uint64_t, data::little>{17900722797183299418};
+        writer << data::ordered<uint64_t, data::little>::as(17900722797183299418);
         EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 0x5A, 0xEF, 0xD8, 0xBC, 0x8A, 0x24, 0x6C, 0xF8, 17, 18, 19, 20));
-        auto o = data::ordered<uint64_t, data::little>{17906342797856292348};
+        auto o = data::ordered<uint64_t, data::little>::as(17906342797856292348);
         EXPECT_THROW(writer << o, data::end_of_stream);
     }
 
     TEST_F(StreamTest, StreamWriteInt64Big) {
         data::writer writer(sliceTest);
-        writer << data::ordered<int64_t, data::big>{2387559956438732708};
+        writer << data::ordered<int64_t, data::big>::as(2387559956438732708);
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<int64_t, data::big>{-1790072279718329941};
+        writer << data::ordered<int64_t, data::big>::as(-1790072279718329941);
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 0xE7, 0x28, 0x62, 0xBE, 0xED, 0x1D, 0x81, 0xAB, 17, 18, 19, 20));
-        auto o = data::ordered<int64_t, data::big>{static_cast<long>(17906342797856292348)};
+        auto o = data::ordered<int64_t, data::big>::as(static_cast<long>(17906342797856292348));
         EXPECT_THROW(writer << o, data::end_of_stream);
     }
 
     TEST_F(StreamTest, StreamWriteInt64Little) {
         data::writer writer(sliceTest);
-        writer << data::ordered<int64_t, data::little>{2387559956438732708};
+        writer << data::ordered<int64_t, data::little>::as(2387559956438732708);
         EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer << data::ordered<int64_t, data::little>{-1790072279718329941};
+        writer << data::ordered<int64_t, data::little>::as(-1790072279718329941);
         EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 0xAB, 0x81, 0x1D, 0xED, 0xBE, 0x62, 0x28, 0xE7, 17, 18, 19, 20));
-        auto o = data::ordered<int64_t, data::little>{static_cast<long>(17906342797856292348)};
+        auto o = data::ordered<int64_t, data::little>::as(static_cast<long>(17906342797856292348));
         EXPECT_THROW(writer << o, data::end_of_stream);
     }
 

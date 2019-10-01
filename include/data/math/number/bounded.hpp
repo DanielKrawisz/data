@@ -11,6 +11,8 @@
 #include <data/math/ordered.hpp>
 #include <data/math/number/division.hpp>
 #include <data/container.hpp>
+#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <type_traits>
 
 namespace data {
@@ -150,12 +152,16 @@ namespace data {
             number(number<indexed, size, ray::opposite_endian, false> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
+            number(string& s);
+            
             // power
             number operator^(const number&) const;
             number& operator^=(const number&);
             
             bool operator<(const number&) const;
             bool operator<=(const number&) const;
+        private:
+            number(gmp::N n);
         };
         
         template <typename indexed, size_t size, endian::order o>
@@ -175,12 +181,16 @@ namespace data {
             number(number<indexed, size, ray::opposite_endian, true> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
+            number(string&);
+            
             // power
             number operator^(const number<indexed, size, o, false>&) const;
             number& operator^=(const number<indexed, size, o, false>&);
             
             bool operator<(const number& d) const;
             bool operator<=(const number& d) const;
+        private:
+            number(gmp::Z z);
         };
         
     }
@@ -407,6 +417,46 @@ namespace data {
             
             return true;
         }
+        
+        
+        template <typename indexed, size_t size, endian::order o, bool is_signed> struct read_string;
+        
+        template <typename indexed, size_t size, endian::order o> 
+        struct read_string<indexed, size, o, true> {
+            bool operator()(string& s, number<indexed, size, o, true>& num) {
+                gmp::N nat{s};
+                if (!nat.valid()) return false;
+                if (nat.size() > size) false;
+                // Have to check if this is correct. 
+                std::copy(nat.begin(), nat.end(), num.begin());
+                return true;
+            }
+        };
+        
+        template <typename indexed, size_t size, endian::order o> 
+        struct read_string<indexed, size, o, false> {
+            bool operator()(string& s, number<indexed, size, o, false>& num) {
+                gmp::Z nat{s};
+                if (!nat.valid()) return false;
+                if (nat.size() > size) false;
+                // Have to check if this is correct. 
+                std::copy(nat.begin(), nat.end(), num.begin());
+                return true;
+            }
+        };
+        
+        template <typename indexed, size_t size, endian::order o, bool is_signed> 
+        number<indexed, size, o, is_signed> read(string& s) {
+            number<indexed, size, o, is_signed> num;
+            if (!read_string<indexed, size, o, is_signed>{}(s, num)) return {};
+            return num;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        number<indexed, size, o, false>::number(string& s) : number{bounded::read<indexed, size, o, false>(s)} {}
+        
+        template <typename indexed, size_t size, endian::order o>
+        number<indexed, size, o, true>::number(string& s) : number{bounded::read<indexed, size, o, true>(s)} {}
         
     }
 
