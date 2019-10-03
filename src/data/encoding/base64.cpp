@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include <data/encoding/base64.hpp>
 #include <data/encoding/invalid.hpp>
-#include <cryptopp/base64.h>
+
 #include <bitcoin/system/formats/base_58.hpp>
 #include <bitcoin/system/formats/base_64.hpp>
 
@@ -16,10 +16,11 @@ namespace data::encoding::base64 {
     }
 
     string::string(std::string str) {
-        auto *tmp=new std::vector<uint8_t>() ;
-        if(!libbitcoin::system::decode_base64(*tmp,str))
+        libbitcoin::system::data_chunk out;
+        if(!libbitcoin::system::decode_base64(out,str))
             throw invalid(format, *this);
-        ToBytes=tmp;
+        Bytes=out;
+        ToBytes=&Bytes;
     }
 
     bool valid(const std::string &str) {

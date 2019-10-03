@@ -13,7 +13,7 @@
 namespace data {
     
     template<typename X>
-    using vector = const std::vector<X>;
+    using vector = std::vector<X>;
 
     using byte = uint8_t;
     using uint16 = uint16_t;
@@ -24,7 +24,7 @@ namespace data {
     using int32 = int32_t;
     using int64 = int64_t;
     
-    using bytes = const vector<byte>;
+    using bytes = vector<byte>;
 
     template<typename X>
     using ptr = std::shared_ptr<X>;
