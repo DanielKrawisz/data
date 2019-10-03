@@ -6,7 +6,7 @@
 #define DATA_WORDS
 
 #include <data/types.hpp>
-#include <data/encoding/endian.hpp>
+#include <data/encoding/halves.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/math/sign.hpp>
 #include <data/meta/equal.hpp>
@@ -40,7 +40,7 @@ namespace data::encoding {
     };
     
     template <uint32 size, typename bit32, typename bit64, endian::order o>
-    struct methods : public endian::halves<bit32, bit64, o> {
+    struct methods : public halves<bit32, bit64> {
         using words = encoding::words<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, o>;
         using word = endian::ordered<bit64, endian::order::big>;
         

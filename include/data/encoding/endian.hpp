@@ -16,48 +16,6 @@ namespace data::endian {
     constexpr order big = boost::endian::order::big;
     constexpr order little = boost::endian::order::little;
     
-    // Can only be constructed if type half is half of type whole. 
-    // Used to collect overflow bits when doing big number arithmetic.
-    template <typename half, typename whole, order o>
-    struct halves {
-        halves() = delete;
-    };
-    
-    template <order o> struct halves<uint32, uint64, o> {
-        constexpr static bool is_signed = false;
-        static uint32 greater(uint64);
-        static uint32 lesser(uint64);
-        static uint64 combine(uint32, uint32);
-    };
-    
-    template <order o> struct halves<int32, int64, o> {
-        constexpr static bool is_signed = true;
-        static int32 greater(uint64);
-        static int32 lesser(uint64);
-        static int64 combine(int32, int32);
-    };
-    
-    template <order o> struct halves<uint16, uint32, o> {
-        constexpr static bool is_signed = false;
-        static uint16 greater(uint32);
-        static uint16 lesser(uint32);
-        static uint32 combine(uint16, uint16);
-    };
-    
-    template <order o> struct halves<int16, int32, o> {
-        constexpr static bool is_signed = true;
-        static int16 greater(uint32);
-        static int16 lesser(uint32);
-        static int32 combine(int16, int16);
-    };
-    
-    template <order o> struct halves<byte, uint16, o> {
-        constexpr static bool is_signed = false;
-        static byte greater(uint32);
-        static byte lesser(uint32);
-        static uint16 combine(uint16, uint16);
-    };
-    
     // convert native to and from the given endian ordering. 
     template <typename X, order> struct native;
     

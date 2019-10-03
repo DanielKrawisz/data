@@ -117,8 +117,8 @@ namespace data {
             using typename ray::methods;
             
             number(uint64 x) : ray{} {
-                ray::words()[0] = endian::halves<uint32, uint64, endian::order::native>::lesser(x);
-                ray::words()[1] = endian::halves<uint32, uint64, endian::order::native>::greater(x);
+                ray::words()[0] = lesser(x);
+                ray::words()[1] = greater(x);
             }
             
             number(number<indexed, size, ray::opposite_endian, false> n) : 
@@ -188,8 +188,8 @@ namespace data {
             
             number(int64 x) : ray{} {
                 if (x < 0) operator--();
-                ray::words()[0] = endian::halves<int32, int64, endian::order::native>::lesser(x);
-                ray::words()[1] = endian::halves<int32, int64, endian::order::native>::greater(x);
+                ray::words()[0] = lesser(x);
+                ray::words()[1] = greater(x);
             }
             
             number(number<indexed, size, ray::opposite_endian, true> n) : 
