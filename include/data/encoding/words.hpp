@@ -13,16 +13,6 @@
 
 namespace data::encoding {
     
-    template <endian::order> struct displacement;
-    
-    template <> struct displacement<endian::order::big> {
-        constexpr static const uint32 Value = 0;
-    };
-    
-    template <> struct displacement<endian::order::little> {
-        constexpr static const uint32 Value = 3;
-    };
-    
     template <size_t bytes, size_t size, byte extra, typename bit32, endian::order o> struct words;
     
     template <size_t bytes, size_t size, typename bit32, endian::order o>
@@ -37,11 +27,11 @@ namespace data::encoding {
         words(A a) : Data{endian::ordered<slice<byte, bytes>, o>{slice<byte, bytes>{a}}} {}
         
         endian::ordered<bit32&, o> operator[](index i) {
-            return endian::ordered<bit32&, o>::as(*(bit32*)(&Data[4 * i + displacement<o>::Value]));
+            return endian::ordered<bit32&, o>::as(*(bit32*)(&Data[4 * i]));
         }
         
         const endian::ordered<bit32&, o> operator[](index i) const {
-            return endian::ordered<bit32&, o>::as(*(bit32*)(&Data[4 * i + displacement<o>::Value]));
+            return endian::ordered<bit32&, o>::as(*(bit32*)(&Data[4 * i]));
         }
         
         void set(index i, bit32 x) {
@@ -50,10 +40,9 @@ namespace data::encoding {
     };
     
     template <uint32 size, typename bit32, typename bit64, endian::order o>
-    struct number : public endian::halves<bit32, bit64, o> {
+    struct methods : public endian::halves<bit32, bit64, o> {
         using words = encoding::words<size, size / 4 + (0 != (size % 4)), (4 - (size % 4)) % 4, bit32, o>;
         using word = endian::ordered<bit64, endian::order::big>;
-        number(endian::ordered<slice<byte, size>, o> a) : words{a} {}
         
         constexpr static const uint32 last = size - 1;
         
@@ -61,14 +50,6 @@ namespace data::encoding {
         
         static bool overflow(word x) {
             return greater(x) != 0;
-        }
-        
-        static number make(byte* a) {
-            return {a};
-        }
-        
-        static const number make(const byte* const a) {
-            return {a};
         }
         
         static void bit_negate(words);
@@ -108,12 +89,12 @@ namespace data::encoding {
     };
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
-    inline void number<size, bit32, bit64, o>::bit_negate(words xx) {
+    inline void methods<size, bit32, bit64, o>::bit_negate(words xx) {
         for (endian::ordered<bit32&, o> u : xx) u = ~u;
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
-    inline void number<size, bit32, bit64, o>::bit_and(
+    inline void methods<size, bit32, bit64, o>::bit_and(
         const words x,
         const words y, 
         words result) {
@@ -121,7 +102,7 @@ namespace data::encoding {
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
-    inline void number<size, bit32, bit64, o>::bit_or(
+    inline void methods<size, bit32, bit64, o>::bit_or(
         const words x,
         const words y,
         words result) {
@@ -129,7 +110,7 @@ namespace data::encoding {
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o>
-    void number<size, bit32, bit64, o>::minus(const words a, const words b, words result) {
+    void methods<size, bit32, bit64, o>::minus(const words a, const words b, words result) {
         bit32 remainder{0};
         for (int32 i = 0; i < size; i++) {
             word w = extend(a[i]) - extend(b[i]);
@@ -139,7 +120,7 @@ namespace data::encoding {
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
-    void number<size, bit32, bit64, o>::plus(const words a, const words b, words result) {
+    void methods<size, bit32, bit64, o>::plus(const words a, const words b, words result) {
         bit32 remainder{0};
         for (int32 i = 0; i < size; i++) {
             word w = extend(a[i]) + extend(b[i]);
@@ -149,7 +130,7 @@ namespace data::encoding {
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
-    void number<size, bit32, bit64, o>::times(const words a, const words b, words result) {
+    void methods<size, bit32, bit64, o>::times(const words a, const words b, words result) {
         auto from_end = [](uint32 i)->uint32{return size - 1 - i;};
         bit32 remainder{0};
         for (int i = 0; i < size; i ++) {
@@ -161,7 +142,7 @@ namespace data::encoding {
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o>
-    void number<size, bit32, bit64, o>::minus(const words a, const bit32 b, words result) {
+    void methods<size, bit32, bit64, o>::minus(const words a, const bit32 b, words result) {
         bit32 remainder{0};
         
         word w = extend(a[last]) - extend(b);
@@ -174,7 +155,7 @@ namespace data::encoding {
     }
     
     template <uint32 size, typename bit32, typename bit64, endian::order o> 
-    void number<size, bit32, bit64, o>::plus(const words a, const bit32 b, words result) {
+    void methods<size, bit32, bit64, o>::plus(const words a, const bit32 b, words result) {
         bit32 remainder{0};
         
         word w = extend(a[last]) + extend(b);

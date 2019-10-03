@@ -95,17 +95,17 @@ namespace data::endian {
         
         constexpr static order opposite = o == little ? big : little;
         
-        ordered<X, o>& operator=(X x) {
-            Value = native<X, o>::from(x.Value); 
+        ordered<X, o>& operator=(const typename std::remove_reference<X>::type x) {
+            Value = native<typename std::remove_reference<X>::type, o>::from(x); 
             return *this;
         }
         
-        ordered<X, o>& operator=(ordered<X, o>& x) {
+        ordered<X, o>& operator=(const ordered<X, o>& x) {
             Value = x.Value; 
             return *this;
         }
         
-        ordered<X, o>& operator=(ordered<X, opposite>& x) {
+        ordered<X, o>& operator=(const ordered<X, opposite>& x) {
             Value = boost::endian::endian_reverse(x.Value); 
             return *this;
         }
