@@ -41,9 +41,7 @@ namespace data::endian {
     
     template <typename X, order o> struct ordered {
         X Value;
-    private:
         ordered<X, o>(X x) : Value{x} {}
-    public:
         
         ordered<X, o>() : Value{0} {}
         
@@ -66,6 +64,10 @@ namespace data::endian {
         ordered<X, o>& operator=(const ordered<X, opposite>& x) {
             Value = boost::endian::endian_reverse(x.Value); 
             return *this;
+        }
+        
+        operator X() {
+            return native<X, o>::to(Value);
         }
         
         bool operator==(const ordered<X, o>& x) const {
