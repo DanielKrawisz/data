@@ -155,9 +155,16 @@ namespace data::list {
         iterator<linked> end();
         const iterator<linked> begin() const;
         const iterator<linked> end() const;
-            
-        template <typename ... x>
-        static linked make(x... arg);
+        
+        template <typename first>
+        static linked make(first x) {
+            return linked{x};
+        }
+        
+        template <typename first, typename ... rest>
+        static linked make(first x, rest... r) {
+            return linked{x}.prepend(make(r...));
+        }
         
     private:
         linked(typename parent::next n) : parent{n} {}
@@ -187,7 +194,7 @@ namespace data::list {
         linked operator+(elem& x) const {
             return prepend(x);
         }
-            
+        
         template <typename ... x>
         static linked make(x... arg);
         

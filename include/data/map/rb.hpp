@@ -9,6 +9,7 @@
 #include <data/map.hpp>
 #include <data/fold.hpp>
 #include <milewski/RBMap/RBMap.h>
+#include <data/io/unimplemented.hpp>
     
 namespace data {
     
@@ -18,8 +19,7 @@ namespace data {
         using map = milewski::okasaki::RBMap<K, V>;
     private:
         map Map;
-        using list = list::linked<entry>;
-        constexpr static const data::map::definition::countable<rb_map, K, V, list> require_is_map{};
+        constexpr static const data::map::definition::countable<rb_map, K, V, list::linked<entry>> require_is_map{};
         
         rb_map(map m) : Map{m} {}
         
@@ -47,7 +47,15 @@ namespace data {
         rb_map() : Map{} {}
         rb_map(std::initializer_list<std::pair<K, V>> init);
         
-        list entries() const;
+        list::linked<entry> entries() const;
+        
+        list::linked<K> keys() const {
+            throw method::unimplemented{};
+        }
+        
+        list::linked<V> values() const {
+            throw method::unimplemented{};
+        }
         
         bool valid() const;
         

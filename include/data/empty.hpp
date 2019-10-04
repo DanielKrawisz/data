@@ -15,13 +15,18 @@ namespace data {
     }
 
     template <typename X>
-    inline bool first(const X x) {
+    inline X first(const X x) {
         return list::first(x);
     }
 
     template <typename X>
-    inline bool rest(const X x) {
+    inline X rest(const X x) {
         return list::rest(x);
+    }
+
+    template <typename X>
+    inline X reverse(const X x) {
+        return list::reverse(x);
     }
 
 }

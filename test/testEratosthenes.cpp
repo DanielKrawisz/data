@@ -6,7 +6,7 @@
 #include "data/data.hpp"
 #include "gtest/gtest.h"
 
-TEST(EratosthenesTest, DISABLED_First100Primes) {
+TEST(EratosthenesTest, First100Primes) {
     using namespace data::math::number;
     using namespace data::exported;
 

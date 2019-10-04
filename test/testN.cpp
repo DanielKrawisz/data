@@ -36,6 +36,5 @@ TEST(NTest, TestN) {
     EXPECT_FALSE(p == N{n_dec});
     EXPECT_FALSE(n == N{p_dec});
     
-    
 }
 

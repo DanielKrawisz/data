@@ -60,6 +60,11 @@ namespace data::exported {
     
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = channel<X>;
+    
+    template <typename X> 
+    list<X> sort(const list<X> x) {
+        return set<X>{x}.entries(); // This will remove duplicates.
+    }
 }
 
 #endif
