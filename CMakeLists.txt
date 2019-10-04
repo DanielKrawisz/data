@@ -112,6 +112,7 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/base58.cpp
 		src/data/encoding/base64.cpp
         src/data/tools/channel.cpp
+        src/data/math/number/gmp/mpz.cpp
         src/data/math/number/gmp/mpq.cpp
         src/data/math/number/gmp/Q.cpp
         src/data/crypto/digest.cpp

@@ -7,9 +7,21 @@
 
 #include <gmp.h>
 #include <gmp/gmpxx.h>
+
+#undef __GMP_DEFINE_UNARY_FUNCTION
+#undef __GMP_DEFINE_UNARY_TYPE_FUNCTION
+#undef __GMP_DEFINE_BINARY_FUNCTION
+#undef __GMPP_DEFINE_BINARY_FUNCTION
+#undef __GMPNN_DEFINE_BINARY_FUNCTION
+#undef __GMPNS_DEFINE_BINARY_FUNCTION
+#undef __GMPN_DEFINE_BINARY_FUNCTION
+#undef __GMPND_DEFINE_BINARY_FUNCTION
+
 #include <data/types.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/number/natural.hpp>
+#include <data/io/unimplemented.hpp>
+
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number::gmp {

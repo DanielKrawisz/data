@@ -181,6 +181,16 @@ namespace data::math::number::gmp {
         
         Z operator+(const N&) const;
         
+        Z operator-(const Z& n) const {
+            Z sum{};
+            __gmp_binary_minus::eval(&sum.MPZ, &MPZ, &n.MPZ);
+            return sum;
+        }
+        
+        Z operator-(const N&) const {
+            throw method::unimplemented{};
+        }
+        
         Z& operator++() {
             __gmp_unary_increment::eval(&MPZ);
             return *this;

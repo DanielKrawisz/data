@@ -131,6 +131,16 @@ namespace data {
                         return N{Value + n.Value};
                     }
                     
+                    N operator-(uint64 n) const {
+                        if (Value < n) return 0;
+                        return N{Value - n};
+                    }
+                    
+                    N operator-(const N& n) const {
+                        if (Value < n) return 0;
+                        return N{Value - n.Value};
+                    }
+                    
                     N& operator+=(uint64 n) {
                         Value += n;
                         return *this;
@@ -193,6 +203,22 @@ namespace data {
                     N& operator%=(const N& n) {
                         N r = operator%(n);
                         return operator=(r);
+                    }
+                    
+                    N operator<<(int64) const {
+                        throw method::unimplemented{};
+                    }
+                    
+                    N operator>>(int64) const {
+                        throw method::unimplemented{};
+                    }
+                    
+                    N& operator<<=(int64) {
+                        throw method::unimplemented{};
+                    }
+                    
+                    N& operator>>=(int64) {
+                        throw method::unimplemented{};
                     }
                     
                     static N as(const Z& z) {
