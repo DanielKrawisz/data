@@ -35,12 +35,12 @@ namespace data {
         template <typename A>
         slice(A x) : slice(x.begin(), x.end()) {} 
         
-        static const slice make(vector<X>& x) {
+        static const slice make(const vector<X>& x) {
             return slice{const_cast<std::vector<X>&>(x)};
         }
         
         template <size_t n>
-        static const slice<X> make(std::array<X, n>& x) {
+        static const slice<X> make(const std::array<X, n>& x) {
             return slice{const_cast<std::array<X, n>&>(x)};
         }
         
@@ -121,6 +121,10 @@ namespace data {
         }
         
         slice(std::array<X, n>& x) : slice<X>{x} {}
+        
+        static const slice make(const std::array<X, n>& x) {
+            return slice{const_cast<std::array<X, n>&>(x)};
+        }
     };
     
     template <typename X> 

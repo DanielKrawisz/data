@@ -2,7 +2,7 @@
 #include <crypto++/sha.h>
 
 namespace data::sha512 {
-    digest hash(bytes& data) {
+    digest hash(const bytes& data) {
         std::array<byte, size> hash;
         CryptoPP::SHA512 shaHash;
         shaHash.CalculateDigest(hash.data(),data.data(),data.size());

@@ -80,7 +80,8 @@ namespace data {
     
     template <typename List> 
     List sort(List x) {
-        priority::all<List, list::is_list<List>::element>(priority::queue<typename list::is_list<List>::element>{x});
+        priority::all<List, typename list::is_list<List>::element>(
+            priority::queue<typename list::is_list<List>::element>{x});
     }
 
 }

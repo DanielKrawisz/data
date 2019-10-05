@@ -8,7 +8,7 @@
 
 namespace data {
 
-    void writer::operator<<(bytes & x) {
+    void writer::operator<<(const bytes & x) {
         for (unsigned char i : x) {
             if (It == Slice.end()) throw end_of_stream{};
             *It = i;

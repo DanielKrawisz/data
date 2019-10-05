@@ -59,7 +59,8 @@ namespace data::math::number::gmp {
     
     inline __mpz_struct read_string(const string& s) {
         __mpz_struct x = read_decimal(s);
-        if (!valid(x)) return read_hexidecimal(s);
+        if (valid(x)) return x;
+        return read_hexidecimal(s);
     }
     
 }

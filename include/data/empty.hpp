@@ -15,7 +15,7 @@ namespace data {
     }
 
     template <typename X>
-    inline X first(const X x) {
+    inline typename list::is_list<X>::returned first(const X x) {
         return list::first(x);
     }
 

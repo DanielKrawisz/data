@@ -77,7 +77,7 @@ namespace data {
         void operator<<(const ordered<int16, little>);
         void operator<<(const ordered<int32, little>);
         void operator<<(const ordered<int64, little>);
-        void operator<<(bytes&);
+        void operator<<(const bytes&);
         
         writer(slice<byte> s) : ostream<byte>{s} {}
         writer(std::vector<byte>& v) : ostream<byte>{v} {}

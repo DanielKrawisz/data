@@ -15,7 +15,8 @@ namespace data::sha512 {
     
     const digest Zero = digest{};
     
-    digest hash(bytes&);
+    digest hash(const bytes&);
+    digest hash(string&);
     
     template <uint32 n>
     digest hash(const std::array<byte, n>&);

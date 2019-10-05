@@ -14,7 +14,7 @@ TEST(LinkedListTest, TestLinkedList) {
     EXPECT_FALSE(L1 == L2);
     EXPECT_TRUE(L1 == reverse(L2));
     
-    EXPECT_TRUE(list<int>::make(1, 2, 3, 4, 5) == sort(list<int>::make(4, 5, 1, 3, 2)));
-    EXPECT_TRUE(list<int>::make(1, 2, 3, 3, 4, 5) == sort(list<int>::make(4, 3, 5, 1, 3, 2)));
+    EXPECT_TRUE(list<int>::make(1, 2, 3, 4, 5) == data::sort(list<int>::make(4, 5, 1, 3, 2)));
+    EXPECT_TRUE(list<int>::make(1, 2, 3, 3, 4, 5) == data::sort(list<int>::make(4, 3, 5, 1, 3, 2)));
     
 }

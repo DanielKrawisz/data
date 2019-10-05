@@ -4,6 +4,7 @@
 
 #ifndef DATA_CRYPTO_SHA256
 #define DATA_CRYPTO_SHA256
+
 #include <data/slice.hpp>
 #include <data/crypto/digest.hpp>
 #include <crypto++/sha.h>
@@ -16,8 +17,9 @@ namespace data::sha256 {
     
     const digest Zero = digest{};
     
-    digest hash(bytes&);
+    digest hash(const bytes&);
     digest hash(data::slice<byte>&);
+    digest hash(string&);
 
     template <size_t n>
     digest hash(const std::array<byte, n>& data){

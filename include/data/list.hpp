@@ -94,12 +94,14 @@ namespace data::list {
     template <typename L>
     struct is_list {
         using returned = decltype(std::declval<L>().first());
+        using element = typename std::remove_reference<returned>::type;
         constexpr static definition::list<L, returned> is{};
     };
     
     template <typename L>
     struct is_list<L*> {
         using returned = decltype(std::declval<L>().first());
+        using element = typename std::remove_reference<returned>::type;
         constexpr static definition::list<L*, returned> IsList{};
     };
     
@@ -131,7 +133,7 @@ namespace data::list {
     L append(L list, X value) {
         if (container::empty(list)) return L{{value}};
         
-        return append(first(list), append(rest(list), value));
+        return append(append(rest(list), value), first(list));
     }
     
     template <typename L>

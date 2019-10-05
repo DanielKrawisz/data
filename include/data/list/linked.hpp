@@ -32,10 +32,6 @@ namespace data::list {
             const returned first() const {
                 return Next->first();
             }
-            
-            returned first() {
-                return Next->first();
-            }
         
             bool empty() const {
                 return Next == nullptr;
@@ -201,30 +197,6 @@ namespace data::list {
     private:
         linked(typename parent::next n) : parent{n} {}
     };
-}
-
-namespace data {
-    
-    template <typename X>
-    inline bool empty(const list::linked<X> l) {
-        return l.empty();
-    }
-    
-    template <typename X>
-    inline typename list::linked<X>::returned first(const list::linked<X> l) {
-        return l.first();
-    }
-    
-    template <typename X>
-    inline const list::linked<X> rest(const list::linked<X> l) {
-        return l.rest();
-    }
-    
-    template <typename X>
-    inline const list::linked<X> prepend(const list::linked<X> l, const X elem) {
-        return l.prepend(elem);
-    }
-
 }
 
 #endif

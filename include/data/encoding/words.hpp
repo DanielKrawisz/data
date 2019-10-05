@@ -21,6 +21,10 @@ namespace data::encoding {
         
         words(slice<byte, bytes> d) : Data{d} {}
         
+        static const words make(const slice<byte, bytes> d) {
+            return words(d);
+        }
+        
         using index = uint32;
         
         constexpr static const index last = size - 1;

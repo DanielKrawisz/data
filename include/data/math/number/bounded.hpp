@@ -5,6 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BOUNDED
 #define DATA_MATH_NUMBER_BOUNDED
 
+#include <type_traits>
 #include <data/encoding/words.hpp>
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
@@ -13,7 +14,7 @@
 #include <data/container.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
-#include <type_traits>
+#include <data/io/unimplemented.hpp>
 
 namespace data {
         
@@ -61,7 +62,7 @@ namespace data {
             }
             
             const words_type words() const {
-                return words_type{slice<byte, n>{Array}};
+                return words_type::make(slice<byte, n>::make(Array));
             }
 
             bool operator==(const bounded& d) const;
@@ -174,7 +175,9 @@ namespace data {
             number& operator>>=(int32);
             
         private:
-            explicit number(gmp::N n);
+            explicit number(gmp::N n) {
+                throw method::unimplemented{};
+            }
         };
         
         template <typename indexed, size_t size, endian::order o>
@@ -245,7 +248,9 @@ namespace data {
             number& operator>>=(int32);
             
         private:
-            explicit number(gmp::Z z);
+            explicit number(gmp::Z z) {
+                throw method::unimplemented{};
+            }
         };
         
     }

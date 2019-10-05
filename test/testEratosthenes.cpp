@@ -10,7 +10,9 @@ TEST(EratosthenesTest, First100Primes) {
     using namespace data::math::number;
     using namespace data::exported;
 
-    queue<prime<N>> primes = eratosthenes<N>{N{100}}.Primes;
+    queue<N> primes = for_each([](const prime<N> p)->N{
+            return p.Prime;
+        }, eratosthenes<N>{N{100}}.Primes);
     
     EXPECT_TRUE(primes.size() == 100);
     
@@ -23,8 +25,6 @@ TEST(EratosthenesTest, First100Primes) {
         383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 
         463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541);
     
-    EXPECT_TRUE(for_each([](prime<N> p)->N{
-            return p.Prime;
-        }, primes) == expected);
+    EXPECT_TRUE(primes == expected);
 }
 

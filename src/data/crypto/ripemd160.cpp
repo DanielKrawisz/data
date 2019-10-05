@@ -2,7 +2,7 @@
 #include <crypto++/ripemd.h>
 
 namespace data::ripemd160 {
-    digest hash(bytes& data) {
+    digest hash(const bytes& data) {
         std::array<byte, size> hash;
         CryptoPP::RIPEMD160 rhash;
         rhash.CalculateDigest(hash.data(), data.data(), data.size());

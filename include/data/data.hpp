@@ -18,6 +18,7 @@
 #include <data/valid.hpp>
 #include <data/plus.hpp>
 #include <data/empty.hpp>
+#include <data/tools/priority_queue.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/rational.hpp>
@@ -61,10 +62,6 @@ namespace data::exported {
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = channel<X>;
     
-    template <typename X> 
-    list<X> sort(const list<X> x) {
-        return set<X>{x}.entries(); // This will remove duplicates.
-    }
 }
 
 #endif

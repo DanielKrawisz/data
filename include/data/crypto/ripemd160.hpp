@@ -15,7 +15,7 @@ namespace data::ripemd160 {
     
     const digest Zero = digest{};
     
-    digest hash(bytes&);
+    digest hash(const bytes&);
     
     template <uint32 n>
     digest hash(const std::array<byte, n>& data){

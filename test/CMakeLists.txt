@@ -31,6 +31,12 @@ add_test(NAME Base64HexToArray COMMAND testData)
 add_test(NAME Base64ValidHexString COMMAND testData)
 add_test(NAME Base64InvalidExceptionOnError COMMAND testData)
 
+# Test Digest
+add_test(NAME DigestEqual COMMAND testData)
+add_test(NAME DigestNotEqual COMMAND testData)
+add_test(NAME DigestOrdering COMMAND testData)
+add_test(NAME SHA256 COMMAND testData)
+
 # Test Bounded
 add_test(NAME BoundedEqual COMMAND testData)
 add_test(NAME BoundedNotEqual COMMAND testData)

@@ -39,11 +39,11 @@ namespace data {
             return Left.valid() && Right.valid();
         }
         
-        returned first() {
+        const returned first() const {
             return list::first(Left);
         }
         
-        returned operator[](uint32 i) {
+        const returned operator[](uint32 i) {
             if (i >= size()) throw std::out_of_range("queue index");
             uint32 left = Left.size();
             if (i >= left) return Right[Right.size() - (i - left) - 1];

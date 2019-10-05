@@ -19,6 +19,7 @@ namespace data::crypto {
         digest(uint32 d) : Digest{d} {}
         digest(const digest& d) : Digest{d.Digest} {}
         digest(bytes& b) : Digest{b} {}
+        digest(const string& x) : Digest{x} {}
         
         bool valid() const;
         
