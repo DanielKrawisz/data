@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_ERATOSTHENES
 
 #include <data/types.hpp>
+#include <data/math/number/prime.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/queue/functional_queue.hpp>
 #include <data/list/linked.hpp>
