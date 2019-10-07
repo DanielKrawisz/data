@@ -178,9 +178,9 @@ namespace data {
                         return *this;
                     };
                     
-                    math::number::division<N> divide(const N& n) const {
+                    math::division<N> divide(const N& n) const {
                         auto div = Value.divide(n.Value);
-                        return math::number::division<N>{N{div.Quotient}, N{div.Remainder}};
+                        return math::division<N>{N{div.Quotient}, N{div.Remainder}};
                     }
                     
                     bool operator|(const N& n) const {
@@ -226,7 +226,7 @@ namespace data {
                         return N{z};
                     }
                 
-                    constexpr static math::number::natural<N> is_natural{};
+                    constexpr static math::number::natural::interface<N> is_natural{};
                 private:
                     explicit N(const Z& z) : Value{z} {}
                 };
@@ -271,7 +271,7 @@ namespace data {
                     return operator*=(n.Value);
                 }
         
-                inline math::number::division<Z> Z::divide(const N& n) const {
+                inline division<Z> Z::divide(const N& n) const {
                     return divide(n.Value);
                 }
 
@@ -284,21 +284,21 @@ namespace data {
                 inline N square(Z &z) {
                     return N::as(z * z);
                 }
+    
+                inline N abs(N n) {
+                    return n;
+                }
+                
+                inline N square(N n) {
+                    return n * n;
+                }
+                
+                inline N norm(N n) {
+                    return n;
+                }
             
             }
             
-        }
-    
-        inline number::gmp::N abs(number::gmp::N n) {
-            return n;
-        }
-        
-        inline number::gmp::N square(number::gmp::N n) {
-            return n * n;
-        }
-        
-        inline number::gmp::N norm(number::gmp::N n) {
-            return n;
         }
     }
 

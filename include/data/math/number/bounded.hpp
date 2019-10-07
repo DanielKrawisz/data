@@ -10,7 +10,7 @@
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/ordered.hpp>
-#include <data/math/number/division.hpp>
+#include <data/math/division.hpp>
 #include <data/container.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
@@ -96,7 +96,7 @@ namespace data {
             bounded operator+(const bit32&) const;
             bounded operator*(const bit32&) const;
             
-            math::number::division<bounded> divide(const bounded&) const;
+            math::division<bounded> divide(const bounded&) const;
             bounded operator/(const bounded&) const;
             bounded operator%(const bounded&) const;
             
@@ -373,9 +373,9 @@ namespace data {
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
-        inline math::number::division<bounded> 
+        inline math::division<bounded> 
         array<bounded, indexed, size, bit32, o>::divide(const bounded& n) const {
-            return math::number::division<number<indexed, size, o, true>>::divide(*this, n);
+            return math::division<number<indexed, size, o, true>>::divide(*this, n);
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>

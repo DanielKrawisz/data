@@ -5,13 +5,15 @@
 #ifndef DATA_MATH_POLYNOMIAL
 #define DATA_MATH_POLYNOMIAL
 
-#include <data/queue/functional_queue.hpp>
-#include <data/list/linked.hpp>
+#include <data/tools/ordered_list.hpp>
 #include <data/for_each.hpp>
 #include <data/fold.hpp>
 #include <data/plus.hpp>
+#include <data/math/division.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math {
+    
     template <typename A, typename N>
     struct polynomial {
         struct term {
@@ -20,6 +22,18 @@ namespace data::math {
             
             bool operator==(const term& t) const {
                 return Coefficient == t.Coefficient && Power == t.Power;
+            }
+            
+            bool operator==(const A& a) const {
+                return operator==(term{a, 0});
+            }
+            
+            bool operator!=(const term& t) const {
+                return !operator==(t);
+            }
+            
+            bool operator!=(const A& a) const {
+                return !operator==(term{a, 0});
             }
             
             A operator()(const A f) const{
@@ -41,60 +55,166 @@ namespace data::math {
             term(A a, N p) : Coefficient{a}, Power{p} {}
         };
         
-        using queue = functional_queue<term, list::linked<term>>;
-        queue Terms;
+    private:
+        // for ordering terms in the polynomial by power. 
+        struct ordering {
+            term Term;
+            
+            ordering(term t) : Term{t} {}
+            
+            bool operator==(const ordering& o) {
+                return Term.Power == o.Term.Power;
+            }
+            
+            bool operator>(const ordering& o) {
+                return Term.Power > o.Term.Power;
+            }
+            
+            bool operator<(const ordering& o) {
+                return Term.Power < o.Term.Power;
+            }
+            
+            bool operator<=(const ordering& o) {
+                return Term.Power <= o.Term.Power;
+            }
+            
+            bool operator>=(const ordering& o) {
+                return Term.Power >= o.Term.Power;
+            }
+            
+            division<ordering> operator/(const ordering& o) {
+                if (o.Term == 0) throw division_by_zero{};
+                if (Term.Power < o.Term.Power) return division<polynomial>{*this, o};
+                return division<ordering>{
+                    ordering{term{
+                        Term.Coefficient / o.Term.Coefficient, 
+                        Term.Power - o.Term.Power}}, 
+                    ordering{0}};
+            }
+        };
         
+        using terms = ordered_list<ordering>;
+        
+        terms Terms;
+        
+        polynomial(const terms l) : Terms{l} {}
+        
+    public:
         polynomial() : Terms{} {}
-        polynomial(const A a) : polynomial{{term{a, 0}}} {}
-        polynomial(const term t) : Terms{{t}} {}
-        polynomial(const queue q) : Terms{q} {}
+        polynomial(const A a) : Terms{terms{}.insert(ordering{term{a, 0}})} {}
+        polynomial(const term t) : Terms{terms{}.insert(ordering{t})} {}
         
-        bool operator==(const polynomial& p) {
-            return Terms == p.Terms;
+        constexpr static polynomial unit() {
+            return polynomial{term{1, 0}};
+        } 
+        
+        constexpr static polynomial zero() {
+            return polynomial{term{0, 0}};
         }
         
-        bool operator!=(const polynomial& p) {
-            return !operator==(p);
+        term first() const {
+            if (Terms.empty()) return term{0, 0};
+            return Terms.first().Term;
         }
         
-        polynomial operator+(const A a) const {
-            return operator+(term{a, 0});
+        polynomial rest() const {
+            return Terms.rest();
+        }
+        
+        uint32 degree() const {
+            if (Terms.empty()) return 0;
+            return Terms.first().Term.Power;
+        }
+        
+        static bool equal(const polynomial p, const polynomial q) {
+            if (p.degree() != q.degree()) return false;
+            if (p.Terms.empty()) return true;
+            if (p.first() != q.first()) return false;
+            return equal(p.rest(), q.rest());
+        }
+        
+        bool operator==(const polynomial p) const {
+            return equal(*this, p);
+        }
+        
+        bool operator!=(const polynomial p) const {
+            return !equal(*this, p);
+        }
+        
+    private:
+        polynomial insert(const term x) const {
+            if (Terms.empty()) return x;
+            if (x == term{0, 0}) return *this;
+            ordering first = Terms.first();
+            if (first == ordering{x}) 
+                return rest().insert(term{x.Coefficient + first.Term.Coefficient, x.Power});
+            return Terms.insert(ordering{x});
+        }
+        
+        list::linked<term> get_terms() const {
+            if (Terms.empty()) return {};
+            return rest().get_terms() + first();
+        }
+        
+        polynomial insert(list::linked<term> t) const {
+            if (t.empty()) return *this;
+            return insert(t.first()).insert(t.rest());
+        }
+        
+        polynomial insert(const polynomial p) const {
+            if (Terms.empty()) return *this;
+            return insert(list::reverse(p.get_terms()));
+        }
+        
+    public:
+        static polynomial plus(const polynomial p, const term x) {
+            return p.insert(x);
+        }
+        
+        static polynomial plus(const polynomial t, const A a) {
+            return plus(t, term{a, 0});
+        }
+        
+        static polynomial plus(const polynomial a, const polynomial b) {
+            return a.insert(b);
         }
         
         polynomial operator+(const term t) const {
-            return polynomial{plus(Terms, t)};
+            return plus(*this, t);
         };
         
-        static polynomial add(const polynomial a, const polynomial b) {
-            return polynomial{merge(a.Terms, b.Terms)};
+        polynomial operator+(const A a) const {
+            return plus(*this, a);
         }
         
         polynomial operator+(const polynomial p) const {
-            return add(*this, p);
+            return plus(*this, p);
         }
         
         polynomial operator*(const A x) const {
-            return polynomial{for_each([x](term t)->term{return t * x;}, Terms)};
+            return reduce(data::plus<polynomial>{}, 
+                for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const term x) const {
-            return polynomial{for_each([x](term t)->term{return t * x;}, Terms)};
+            return reduce(data::plus<polynomial>{}, 
+                for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const polynomial p) const {
             return reduce(data::plus<polynomial>{}, 
-                for_each([p](term t)->polynomial{
-                    return p * t;
+                for_each([p](ordering o)->polynomial{
+                    return p * o.Term;
                 }, Terms));
         }
         
-        polynomial operator^(N n) const {
-            if (n == 0) return 1;
+        polynomial operator^(const N n) const {
+            if (n == 0) return unit();
             if (n == 1) return *this;
             return operator*(*this)^(n - 1);
         }
         
-        polynomial operator()(A f) const {
+        polynomial operator()(const A f) const {
             if (empty(Terms)) return 0;
             return Terms.first()(f) + polynomial{Terms.rest()}(f);
         }
@@ -102,8 +222,36 @@ namespace data::math {
         // inefficient as it computes powers repeatedly. 
         polynomial operator()(const polynomial p) const {
             return reduce(data::plus<polynomial>{}, 
-                for_each([p](term t)->polynomial{
-                    return t(p);
+                for_each([p](ordering o)->polynomial{
+                    return o.Term(p);
+                }, Terms));
+        }
+        
+        bool operator==(const polynomial& p) {
+            return equal(Terms, p.Terms);
+        }
+        
+        bool operator!=(const polynomial& p) {
+            return !operator==(p);
+        }
+        
+        division<polynomial> divide(const polynomial Dividend, const polynomial Divisor) {
+            if (Divisor == 0) throw division_by_zero{};
+            if (Divisor.degree() > Dividend.degree()) return division<polynomial>{Dividend, Divisor};
+            term x = Divisor.first() / Dividend.first();
+            return polynomial{x} + divide(Dividend - Divisor * x, Divisor);
+        }
+        
+        division<polynomial> operator/(const polynomial p) const {
+            return divide(*this, p);
+        }
+        
+        polynomial derivative() const {
+            throw method::unimplemented{};
+            return reduce(data::plus<polynomial>{}, 
+                for_each([](ordering o)->polynomial{
+                    if (o.Term.Power == 0) return zero();
+                    return polynomial{term{o.Term.Coefficient * o.Term.Power, o.Term.Power - 1}};
                 }, Terms));
         }
         
@@ -112,49 +260,19 @@ namespace data::math {
             return build(polynomial{}, rest...);
         }
         
-    private:
-        static queue plus(queue l, term t) {
-            if (empty(l)) return queue{{t}};
-            if (t.Coefficient == 0) return l;
-            term f = l.first();
-            if (t.Power == f.Power) return append(l.rest(), term{t.Coefficient + f.Coefficient, t.Power});
-            return append(plus(l, t), f);
-        }
-        
-        static queue merge(queue a, queue b) {
-            queue r{}; 
-            while (!a.empty() && !b.empty()) {
-                term ta = a.first();
-                term tb = b.first();
-                if (ta.Power < tb.Power) {
-                    r = r + ta;
-                    a = a.rest();
-                } else if (ta.Power > tb.Power) {
-                    r = r + tb;
-                    b = b.rest();
-                } else {
-                    r = r + term{ta.Coefficient + tb.Coefficient, ta.Power};
-                    a = a.rest();
-                    b = b.rest();
-                }
-            }
-            if (!a.empty()) r = r.append(a);
-            if (!b.empty()) r = r.append(b);
-            return r;
-        }
-        
-        static polynomial build(polynomial p) {
+    private: 
+        static polynomial build(const polynomial p) {
             return p;
         }
         
         template <typename ... P>
-        static polynomial build(polynomial p, const A x, P... rest) {
-            build(p + x, rest...);
+        static polynomial build(const polynomial p, const A x, P... rest) {
+            return build(p + x, rest...);
         }
         
         template <typename ... P>
-        static polynomial build(polynomial p, const term x, P... rest) {
-            build(p + x, rest...);
+        static polynomial build(const polynomial p, const term x, P... rest) {
+            return build(p + x, rest...);
         }
     };
 

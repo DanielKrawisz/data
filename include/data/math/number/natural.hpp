@@ -6,13 +6,13 @@
 #define DATA_MATH_NUMBER_NATURAL
 
 #include <data/types.hpp>
-#include <data/math/number/division.hpp>
+#include <data/math/division.hpp>
 #include <data/math/ordered.hpp>
 
-namespace data::math::number {
+namespace data::math::number::natural {
     
-    template <typename N>
-    struct natural : ordered<N> {
+    // interface that must be satisfied by natural numbers. 
+    template <typename N> struct interface : ordered<N> {
         static N zero() {
             return 0;
         };
@@ -56,6 +56,29 @@ namespace data::math::number {
         }
         
     };
+    
+    // Generic division algorithm. 
+    template <typename N>
+    static division<N> divide(const N Dividend, const N Divisor) {
+        if (Divisor == 0) throw division_by_zero{};
+        N pow = 1;
+        N exp = Divisor;
+        N remainder = Dividend;
+        N quotient = 0;
+        while (exp <= remainder) {
+            exp<<=1;
+            pow<<=1;
+        } 
+        while (pow > 0) {
+            while (exp > remainder) {
+                exp>>=1;
+                pow>>=1;
+            }
+            quotient += pow;
+            remainder -= exp;
+        }
+        return {quotient, remainder};
+    }
     
     template <typename N, typename> struct construct;
     

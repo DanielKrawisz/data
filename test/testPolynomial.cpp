@@ -4,12 +4,13 @@
 
 #include "data/data.hpp"
 #include "data/math/polynomial.hpp"
+#include "data/math/number/rational.hpp"
 #include "gtest/gtest.h"
 
 TEST(PolynomialTest, TestPolynomial) {
     using namespace data::exported;
     
-    using polynomial = data::math::polynomial<int, data::uint32>;
+    using polynomial = data::math::polynomial<data::math::number::fraction<data::int64, data::uint64>, data::uint32>;
     using term = polynomial::term;
     
     polynomial p1 = polynomial::make(1, term{1, 2});

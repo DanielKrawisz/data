@@ -9,12 +9,24 @@
 #include <data/list/linked.hpp>
     
 namespace data {
+        
     template <typename X>
     struct ordered_list {
         uint32 Size;
         milewski::okasaki::OrdList<X> Ordered;
         
         ordered_list() : Size{0}, Ordered{} {}
+        
+        bool operator==(const ordered_list x) const {
+            if (Size != x.Size) return false;
+            if (Size == 0) return true;
+            if (first() != x.first()) return false;
+            return rest() == x.rest();
+        }
+        
+        bool operator!=(const ordered_list x) const {
+            return !operator==(x);
+        }
         
         bool empty() const {
             return Size == 0;

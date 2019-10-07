@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_GMP_Z
 
 #include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/integer.hpp>
 
 namespace data::math::number::gmp {
     
@@ -250,13 +251,13 @@ namespace data::math::number::gmp {
             return *this;
         }
         
-        math::number::division<Z> divide(const Z& z) const {
-            math::number::division<Z> qr{};
+        division<Z> divide(const Z& z) const {
+            division<Z> qr{};
             mpz_cdiv_qr(&qr.Quotient.MPZ, &qr.Remainder.MPZ, &MPZ, &z.MPZ);
             return qr;
         }
         
-        math::number::division<Z> divide(const N&) const;
+        division<Z> divide(const N&) const;
         
         bool operator|(const Z& z) const {
             return divide(z).Remainder == 0;
@@ -282,7 +283,7 @@ namespace data::math::number::gmp {
         
         N abs() const;
         
-        constexpr static math::number::natural<Z> is_integer{};
+        constexpr static math::number::integer<Z> is_integer{};
         
     };
     
