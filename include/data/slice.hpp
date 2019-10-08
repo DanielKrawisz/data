@@ -24,10 +24,9 @@ namespace data {
     private:
         iterator Begin;
         iterator End;
-    protected:
+    public:
         slice(iterator b, iterator e) : Begin{b}, End{e} {}
         slice(iterator b, size_t size) : Begin{b}, End{b + size} {}
-    public:
         slice() : Begin{nullptr}, End{nullptr} {}
         slice(std::vector<X>& x) : slice(x.data(), x.size()) {}
         template <size_t n>
@@ -35,13 +34,9 @@ namespace data {
         template <typename A>
         slice(A x) : slice(x.begin(), x.end()) {} 
         
-        static const slice make(const vector<X>& x) {
-            return slice{const_cast<std::vector<X>&>(x)};
-        }
-        
-        template <size_t n>
-        static const slice<X> make(const std::array<X, n>& x) {
-            return slice{const_cast<std::array<X, n>&>(x)};
+        template <typename A>
+        static const slice make(const A& x) {
+            return slice{const_cast<A&>(x)};
         }
         
         virtual const size_t size() const {

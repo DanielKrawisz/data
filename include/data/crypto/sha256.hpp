@@ -17,24 +17,29 @@ namespace data::sha256 {
     
     const digest Zero = digest{};
     
-    digest hash(const bytes&);
-    digest hash(data::slice<byte>&);
-    digest hash(string&);
+    digest hash(const slice<byte>&);
+    
+    inline digest hash(const bytes& b) {
+        return hash(slice<byte>::make(b));
+    }
+    
+    inline digest hash(const string& s) {
+        return hash(slice<byte>{(byte*)(const_cast<string&>(s).data()), s.size()});
+    }
 
     template <size_t n>
     digest hash(const std::array<byte, n>& data){
-        std::array<byte, size> hash;
-        CryptoPP::SHA256 shaHash;
-        shaHash.CalculateDigest(hash.data(), data.data(), data.size());
-        return uint<size>{hash};
+        return hash(slice<byte>::make(data));
     };
     
     template <size_t n>
     digest hash(const uint<n>& data){
-        std::array<byte, size> hash;
-        CryptoPP::SHA256 shaHash;
-        shaHash.CalculateDigest(hash.data(), data.Array.data(), data.size);
-        return uint<size>{hash};
+        return hash(slice<byte>::make(data.Array));
+    }
+    
+    template <typename A>
+    inline digest double_hash(A a) {
+        return hash<32>(hash(a).Digest);
     }
 
 }
