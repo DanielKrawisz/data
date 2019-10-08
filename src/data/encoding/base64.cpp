@@ -25,12 +25,12 @@ namespace data::encoding::base64 {
 
     bool valid(const std::string &str) {
         libbitcoin::system::data_chunk out;
-        return libbitcoin::system::decode_base58(out,str);
+        return libbitcoin::system::decode_base64(out,str);
     }
 
 
     data::string write(const bytes & sourceBytes) {
-        return libbitcoin::system::encode_base58(sourceBytes);
+        return libbitcoin::system::encode_base64(sourceBytes);
     }
 
 
