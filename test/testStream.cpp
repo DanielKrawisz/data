@@ -17,7 +17,6 @@ protected:
     }
 
     void TearDown() override {
-        std::cout << "Tearing down" << std::endl;
     }
 
     std::vector<data::byte> test;
