@@ -59,6 +59,7 @@ add_test(NAME StreamReadBytes COMMAND testData)
 
 #Test N
 add_test(NAME TestN COMMAND testData)
+add_test(NAME TestStringToN COMMAND testData)
 
 #Test LinkedList
 add_test(NAME TestLinkedList COMMAND testData)
