@@ -126,7 +126,7 @@ namespace data {
             number(number<indexed, size, ray::opposite_endian, false> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
-            explicit number(string& s) : number{gmp::N{s}} {}
+            explicit number(const string& s) : number{gmp::N{s}} {}
             
             // power
             number operator^(const number&) const;
@@ -199,7 +199,7 @@ namespace data {
             number(number<indexed, size, ray::opposite_endian, true> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
-            explicit number(string& s) : number{gmp::N{s}} {}
+            explicit number(const string& s) : number{gmp::N{s}} {}
             
             // power
             number operator^(const number<indexed, size, o, false>&) const;

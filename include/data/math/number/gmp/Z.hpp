@@ -58,7 +58,7 @@ namespace data::math::number::gmp {
             return *this;
         }
         
-        Z(string& x) : MPZ{read_string(x)} {}
+        Z(const string& x) : MPZ{read_string(x)} {}
         
         math::sign sign() const {
             return gmp::sign(MPZ);

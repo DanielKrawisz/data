@@ -25,7 +25,7 @@ namespace data {
                     N() : Value{} {}
                     
                     N(gmp_uint n) : Value{n} {}
-                    explicit N(string& s) : Value{s} {}
+                    explicit N(const string& s) : Value{s} {}
                     
                     N& operator=(const N& n) {
                         Value = n.Value;
