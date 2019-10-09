@@ -62,7 +62,8 @@ add_test(NAME TestN COMMAND testData)
 add_test(NAME TestStringToN COMMAND testData)
 
 #Test LinkedList
-add_test(NAME TestLinkedList COMMAND testData)
+add_test(NAME TestLinkedList1 COMMAND testData)
+add_test(NAME TestLinkedList2 COMMAND testData)
 
 #Test Polynomial
 add_test(NAME TestPolynomial COMMAND testData)

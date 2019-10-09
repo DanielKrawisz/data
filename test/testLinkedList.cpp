@@ -5,7 +5,21 @@
 #include "data/data.hpp"
 #include "gtest/gtest.h"
 
-TEST(LinkedListTest, TestLinkedList) {
+TEST(LinkedListTest, TestLinkedList1) {
+    using namespace data::exported;
+    
+    EXPECT_TRUE(list<int>{} == list<int>{});
+    EXPECT_TRUE(list<int>{1} == list<int>{1});
+    EXPECT_FALSE(list<int>{1} == list<int>{});
+    EXPECT_FALSE(list<int>{1} == list<int>{0});
+    
+    EXPECT_TRUE(list<int>{1}.first() == 1);
+    EXPECT_TRUE(list<int>{1}.rest() == list<int>{});
+    EXPECT_TRUE(list<int>{1}.size() == 1);
+    
+}
+
+TEST(LinkedListTest, TestLinkedList2) {
     using namespace data::exported;
     
     auto L1 = list<int>::make(1, 2, 3);
