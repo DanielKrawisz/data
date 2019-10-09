@@ -9,12 +9,14 @@
 #include <data/math/number/bounded.hpp>
 
 namespace data::crypto::aes {
-    bytes encrypt(bytes, uint<128>);
-    bytes decrypt(bytes, uint<128>);
-    bytes encrypt(bytes, uint<192>);
-    bytes decrypt(bytes, uint<192>);
-    bytes encrypt(bytes, uint<256>);
-    bytes decrypt(bytes, uint<256>);
+    bytes encrypt(const slice<byte>, uint<16>);
+    bytes decrypt(const slice<byte>, uint<16>);
+    bytes encrypt(const slice<byte>, uint<24>);
+    bytes decrypt(const slice<byte>, uint<24>);
+    bytes encrypt(const slice<byte>, uint<32>);
+    bytes decrypt(const slice<byte>, uint<32>);
+    
+    template <size_t keylen> bytes encrypt(const string, uint<keylen>);
 }
 
 #endif
