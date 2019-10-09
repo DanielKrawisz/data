@@ -8,10 +8,10 @@
 TEST(LinkedListTest, TestLinkedList1) {
     using namespace data::exported;
     
-    EXPECT_TRUE(list<int>{} == list<int>{});
-    EXPECT_TRUE(list<int>{1} == list<int>{1});
-    EXPECT_FALSE(list<int>{1} == list<int>{});
-    EXPECT_FALSE(list<int>{1} == list<int>{0});
+    EXPECT_TRUE(list<int>{} == list<int>{{}});
+    EXPECT_TRUE(list<int>{{1}} == list<int>{{1}});
+    EXPECT_FALSE(list<int>{{1}} == list<int>{});
+    EXPECT_FALSE(list<int>{{1}} == list<int>{{0}});
     
     EXPECT_TRUE(list<int>{1}.first() == 1);
     EXPECT_TRUE(list<int>{1}.rest() == list<int>{});
@@ -30,5 +30,23 @@ TEST(LinkedListTest, TestLinkedList2) {
     
     EXPECT_TRUE(list<int>::make(1, 2, 3, 4, 5) == data::sort(list<int>::make(4, 5, 1, 3, 2)));
     EXPECT_TRUE(list<int>::make(1, 2, 3, 3, 4, 5) == data::sort(list<int>::make(4, 3, 5, 1, 3, 2)));
+    
+}
+
+TEST(LinkedListTest, TestLinkedListR) {
+    using namespace data::exported;
+    
+    int One = 1;
+    int Zero = 0;
+    
+    EXPECT_TRUE(list<int&>{} == list<int&>{});
+    EXPECT_TRUE(list<int&>{}.prepend(One) == list<int&>{}.prepend(One));
+    EXPECT_FALSE(list<int&>{}.prepend(One) == list<int&>{});
+    EXPECT_FALSE(list<int&>{}.prepend(One) == list<int&>{}.prepend(Zero));
+    
+    EXPECT_TRUE(list<int>{1}.first() == 1);
+    EXPECT_TRUE(list<int>{}.prepend(One).rest() == list<int>{});
+    EXPECT_TRUE(list<int>{}.prepend(Zero).prepend(One).rest() == list<int>{}.prepend(Zero));
+    EXPECT_TRUE(list<int>{1}.size() == 1);
     
 }

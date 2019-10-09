@@ -167,8 +167,8 @@ namespace data::list {
     };
     
     template <typename elem>
-    struct linked<elem&> : public base::linked<elem&, linked<elem&>> {
-        using parent = base::linked<elem&, linked<elem&>>;
+    struct linked<elem&> : public base::linked<const elem&, linked<elem&>> {
+        using parent = base::linked<const elem&, linked<elem&>>;
         using requirement = data::list::definition::buildable<linked<elem&>, elem&, elem&>;
         constexpr static requirement Satisfied{};
         
@@ -183,11 +183,11 @@ namespace data::list {
             return *this;
         } 
         
-        linked prepend(elem& x) const {
+        linked prepend(const elem& x) const {
             return linked{std::make_shared<typename parent::node>(typename parent::node{x, *this})};
         }
         
-        linked operator+(elem& x) const {
+        linked operator+(const elem& x) const {
             return prepend(x);
         }
         
