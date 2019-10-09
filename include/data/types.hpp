@@ -24,13 +24,16 @@ namespace data {
     using int32 = int32_t;
     using int64 = int64_t;
     
-    using bytes = vector<byte>;
+    using bytes = std::basic_string<byte>;
 
     template<typename X>
     using ptr = std::shared_ptr<X>;
 
-    using string = const std::string;
-
+    using string = std::string;
+    using string_view = std::string_view;
+    
+    using bytes_view = std::basic_string_view<byte>;
+    
 }
 
 #endif

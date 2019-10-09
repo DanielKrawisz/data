@@ -12,14 +12,16 @@ namespace data::encoding::base64 {
     bytes read(const std::string & s) {
         libbitcoin::system::data_chunk out;
         if (!libbitcoin::system::decode_base64(out, s)) return {};
-        return out;
+        bytes b{out.size()};
+        std::copy(out.begin(), out.end(), b.begin());
+        return b;
     }
 
     string::string(std::string str) {
         libbitcoin::system::data_chunk out;
         if(!libbitcoin::system::decode_base64(out,str))
             throw invalid(format, *this);
-        Bytes=out;
+        std::copy(out.begin(), out.end(), Bytes.begin());
         ToBytes=&Bytes;
     }
 

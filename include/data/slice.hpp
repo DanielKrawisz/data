@@ -29,6 +29,7 @@ namespace data {
         slice(iterator b, size_t size) : Begin{b}, End{b + size} {}
         slice() : Begin{nullptr}, End{nullptr} {}
         slice(std::vector<X>& x) : slice(x.data(), x.size()) {}
+        slice(std::basic_string<X>& x) : slice(x.data(), x.size()) {}
         template <size_t n>
         slice(std::array<X, n>& x) : slice(x.data(), x.size()) {} 
         template <typename A>

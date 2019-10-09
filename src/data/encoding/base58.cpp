@@ -15,10 +15,11 @@ namespace data::encoding::base58 {
             }
 
             string::string(std::string str) {
-                auto *tmp=new std::vector<uint8_t>() ;
-                if(!libbitcoin::system::decode_base58(*tmp,str))
+                auto tmp = std::vector<uint8_t>() ;
+                if(!libbitcoin::system::decode_base58(tmp, str))
                     throw invalid(format, *this);
-                ToBytes=tmp;
+                std::copy(tmp.begin(), tmp.end(), Bytes.begin());
+                ToBytes = &Bytes;
             }
 
             bool valid(const std::string &str) {
