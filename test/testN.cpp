@@ -5,40 +5,36 @@
 #include "data/data.hpp"
 #include "gtest/gtest.h"
 
-// Note to Neko: 
-// These regexes determine valid string inputs for N and Z. 
-// "0|[1-9][0-9]+|0x[0-9A-Fa-f]";
-// "0|-?[1-9][0-9]+|-?0x[0-9A-Fa-f]";
-
 TEST(NTest, TestStringToN) {
     using namespace data::exported;
     
+    EXPECT_TRUE(N{}.valid());
+    EXPECT_TRUE(N{0}.valid());
     EXPECT_TRUE(N{""}.valid());
     EXPECT_TRUE(N{"0"}.valid());
     EXPECT_TRUE(N{"0x"}.valid());
     
-    EXPECT_FALSE(N{}.valid());
+    EXPECT_TRUE(N{0} == N{});
+    EXPECT_TRUE(N{0} == N{""});
+    EXPECT_TRUE(N{0} == N{"0"});
+    EXPECT_TRUE(N{0} == N{"0x"});
+    
     EXPECT_FALSE(N{"a"}.valid());
     EXPECT_FALSE(N{"-"}.valid());
     EXPECT_FALSE(N{"-1"}.valid());
     EXPECT_FALSE(N{"01"}.valid());
     EXPECT_FALSE(N{"0x1"}.valid());
     
-    EXPECT_TRUE(N{""}.valid());
-    EXPECT_TRUE(N{"0"}.valid());
-    EXPECT_TRUE(N{"0x"}.valid());
-    
-    EXPECT_TRUE(N{0} == N{""});
-    EXPECT_TRUE(N{0} == N{"0"});
-    EXPECT_TRUE(N{0} == N{"0x"});
-    
     EXPECT_TRUE(N{1} == N{"1"});
     EXPECT_TRUE(N{1} == N{"0x01"});
     EXPECT_TRUE(N{1} == N{"0x0001"});
     
+    EXPECT_FALSE(N{1} == N{""});
+    EXPECT_FALSE(N{0} == N{"1"});
+    
 }
 
-TEST(NTest, TestN) {
+TEST(NTest, DISABLED_TestN) {
     using namespace data::exported;
     
     // parameters from https://en.bitcoin.it/wiki/Secp256k1

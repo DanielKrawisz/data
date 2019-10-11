@@ -15,8 +15,7 @@ namespace data::math::number::gmp {
     struct Z {
         __mpz_struct MPZ;
         
-        Z() : Z{MPZInvalid} {}
-        
+        Z();
         Z(N);
         
         bool valid() const {
@@ -34,6 +33,8 @@ namespace data::math::number::gmp {
         explicit Z(gmp_int n) {
             mpz_init_set_si(&MPZ, n);
         }
+        
+        explicit Z(const string& x);
         
         Z(const __mpz_struct& n) {
             mpz_init(&MPZ);
@@ -57,8 +58,6 @@ namespace data::math::number::gmp {
             mpz_set(&MPZ, &n.MPZ);
             return *this;
         }
-        
-        Z(const string& x) : MPZ{read_string(x)} {}
         
         math::sign sign() const {
             return gmp::sign(MPZ);

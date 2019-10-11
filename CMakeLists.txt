@@ -93,6 +93,11 @@ find_package(GMP REQUIRED)
 if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
+
+# compile time regular expressions
+
+find_package(ctre REQUIRED)
+
 ## Enable testing
 include(CTest)
 
@@ -114,6 +119,8 @@ ADD_LIBRARY(data STATIC
         src/data/tools/channel.cpp
         src/data/math/number/gmp/mpz.cpp
         src/data/math/number/gmp/mpq.cpp
+        src/data/math/number/gmp/N.cpp
+        src/data/math/number/gmp/Z.cpp
         src/data/math/number/gmp/Q.cpp
         src/data/crypto/digest.cpp
         src/data/crypto/ripemd160.cpp
