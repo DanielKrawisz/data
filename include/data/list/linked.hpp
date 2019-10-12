@@ -5,8 +5,7 @@
 #ifndef DATA_LIST_LINKED
 #define DATA_LIST_LINKED
 
-#include <data/tools/iterator_list.hpp>
-#include <data/fold.hpp>
+#include <data/list.hpp>
 #include <type_traits>
     
 namespace data::list {
@@ -77,6 +76,20 @@ namespace data::list {
                 l.Next = nullptr;
             }
         
+            static derived make() {
+                return derived{};
+            }
+            
+            template <typename first>
+            static derived make(first x) {
+                return derived{}.prepend(x);
+            }
+            
+            template <typename first, typename ... rest>
+            static derived make(first x, rest... r) {
+                return make(r...).prepend(x);
+            }
+        
         protected:
             linked(next n) : Next{n} {}
             // ensure the base class can't be constructed. 
@@ -99,17 +112,6 @@ namespace data::list {
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
-        
-        linked(std::initializer_list<elem> l) : linked{
-            list::reverse(fold(
-                [](linked l, elem x)->linked{
-                    return l + x;
-                }, linked{}, 
-                iterator_list<decltype(l.begin()), elem>(l.begin(), l.end())
-            ))
-        } {}
-        
-        linked(std::vector<elem> v);
         
         linked& operator=(const linked& l) {
             parent::Next = l.Next;
@@ -152,16 +154,6 @@ namespace data::list {
         const iterator<linked> begin() const;
         const iterator<linked> end() const;
         
-        template <typename first>
-        static linked make(first x) {
-            return linked{x};
-        }
-        
-        template <typename first, typename ... rest>
-        static linked make(first x, rest... r) {
-            return linked{x}.prepend(make(r...));
-        }
-        
     private:
         linked(typename parent::next n) : parent{n} {}
     };
@@ -190,9 +182,6 @@ namespace data::list {
         linked operator+(const elem& x) const {
             return prepend(x);
         }
-        
-        template <typename ... x>
-        static linked make(x... arg);
         
     private:
         linked(typename parent::next n) : parent{n} {}

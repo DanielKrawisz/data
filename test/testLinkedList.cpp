@@ -8,18 +8,19 @@
 TEST(LinkedListTest, TestLinkedList1) {
     using namespace data::exported;
     
-    EXPECT_TRUE(list<int>{} == list<int>{{}});
-    EXPECT_TRUE(list<int>{{1}} == list<int>{{1}});
-    EXPECT_FALSE(list<int>{{1}} == list<int>{});
-    EXPECT_FALSE(list<int>{{1}} == list<int>{{0}});
+    EXPECT_TRUE(list<int>{} == list<int>::make());
     
-    EXPECT_TRUE(list<int>{1}.first() == 1);
-    EXPECT_TRUE(list<int>{1}.rest() == list<int>{});
-    EXPECT_TRUE(list<int>{1}.size() == 1);
+    EXPECT_TRUE(list<int>::make(1) == list<int>::make(1));
+    EXPECT_FALSE(list<int>::make(1) == list<int>{});
+    EXPECT_FALSE(list<int>::make(1) == list<int>::make(0));
+    
+    EXPECT_TRUE(list<int>::make(1).first() == 1);
+    EXPECT_TRUE(list<int>::make(1).rest() == list<int>{});
+    EXPECT_TRUE(list<int>::make(1).size() == 1);
     
 }
 
-TEST(LinkedListTest, TestLinkedList2) {
+TEST(LinkedListTest, DISABLED_TestLinkedList2) {
     using namespace data::exported;
     
     auto L1 = list<int>::make(1, 2, 3);
@@ -33,7 +34,11 @@ TEST(LinkedListTest, TestLinkedList2) {
     
 }
 
-TEST(LinkedListTest, TestLinkedListR) {
+// c++ containers aren't allowed to contain references. 
+// Functional data structures don't have to be c++ 
+// containers so we also have a version of functional
+// linked list for references. 
+TEST(LinkedListTest, DISABLED_TestLinkedListR) {
     using namespace data::exported;
     
     int One = 1;
@@ -44,9 +49,9 @@ TEST(LinkedListTest, TestLinkedListR) {
     EXPECT_FALSE(list<int&>{}.prepend(One) == list<int&>{});
     EXPECT_FALSE(list<int&>{}.prepend(One) == list<int&>{}.prepend(Zero));
     
-    EXPECT_TRUE(list<int>{1}.first() == 1);
-    EXPECT_TRUE(list<int>{}.prepend(One).rest() == list<int>{});
-    EXPECT_TRUE(list<int>{}.prepend(Zero).prepend(One).rest() == list<int>{}.prepend(Zero));
-    EXPECT_TRUE(list<int>{1}.size() == 1);
+    EXPECT_TRUE(list<int&>::make(One).first() == 1);
+    EXPECT_TRUE(list<int&>{}.prepend(One).rest() == list<int&>{});
+    EXPECT_TRUE(list<int&>{}.prepend(Zero).prepend(One).rest() == list<int&>{}.prepend(Zero));
+    EXPECT_TRUE(list<int&>::make(One).size() == 1);
     
 }
