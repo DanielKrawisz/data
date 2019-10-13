@@ -8,7 +8,7 @@ endif()
 
 ADD_EXECUTABLE(testData testHex.cpp testAscii.cpp testStream.cpp testBounded.cpp testDigest.cpp testBase58.cpp  testBase64.cpp testEratosthenes.cpp testN.cpp testLinkedList.cpp testPolynomial.cpp testLib.cpp )
 link_directories(${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
-target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
+target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
 
 # Test Hex
 add_test(NAME HexHexToArray COMMAND testData)
