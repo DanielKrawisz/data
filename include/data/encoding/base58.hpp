@@ -7,11 +7,91 @@
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
+#include <data/queue/functional_queue.hpp>
+#include <data/list/linked.hpp>
+#include <data/math/division.hpp>
+#include <ctre.hpp>
+#include <iostream>
 
 namespace data::encoding::base58 {
-    const std::string format = "base58";
     
-    bool valid(const std::string&);
+    static const std::string format{"base58"};
+    
+    static const std::string characters{"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"};
+    
+    static constexpr auto pattern = ctll::fixed_string{"[2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*"};
+    
+    static bool valid(const string_view s) {
+        return ctre::match<pattern>(s);
+    }
+    
+    static char digit(char c) {
+        return c < '1' ? -1 : c <= '9' ?  c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 : c < 'J' ? -1 : c <= 'N' ? c - 'J' + 17 : c < 'P' ? -1 : c <= 'Z' ? c - 'P' + 22 : c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
+    };
+    
+    template <typename N>
+    static functional_queue<N, list::linked<N>>& powers() {
+        static functional_queue<N, list::linked<N>> Powers = functional_queue<N, list::linked<N>>::make(N{1});
+        return Powers;
+    }
+    
+    template <typename N>
+    static N read(const string_view s) {
+        if (s.size() == 0) return N{};
+        
+        while (powers<N>().size() < s.size()) {
+            powers<N>() = powers<N>().append(powers<N>().last() * 58);
+        }
+        
+        functional_queue<N, list::linked<N>> Powers = powers<N>();
+        
+        N n{0};
+        
+        auto i = s.end();
+        while(i != s.begin()) {
+            i--;
+            char v = digit(*i);
+            if (v == -1) return N{0};
+            
+            n += Powers.first() * uint64(digit);
+            Powers = Powers.rest();
+        }
+        
+        return n;
+    }
+    
+    template <typename N>
+    string write(N n) {
+        if (n == 0) return "1";
+        functional_queue<N, list::linked<N>> Powers = powers<N>();
+        while(powers<N>().last() < n) {
+            powers<N>() = powers<N>().append(powers<N>().last() * 58);
+        }
+        
+        std::cout << "base 58 write; input =  " << std::dec << n << std::endl;
+        
+        uint32 size = 0;
+        Powers = powers<N>();
+        while(Powers.first() <= n) {
+            size ++;
+            Powers = Powers.rest();
+        }
+        
+        std::cout << "base 58 write: size of string is " << size << std::endl;
+        
+        string s{static_cast<char>(size)};
+        int i = size - 1;
+        math::division<N> div;
+        N x = n;
+        while(true) {
+            div = x.divide(58);
+            s[i] = characters[(uint64)(div.Remainder)];
+            i--;
+            x = div.Quotient;
+        }
+        return s;
+    };
+    
     string write(const bytes&);
 
     template<unsigned long size>
