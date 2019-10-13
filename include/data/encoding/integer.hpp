@@ -15,7 +15,7 @@
 
 namespace data::encoding {
     struct decimal {
-        static constexpr auto pattern = ctll::fixed_string{"0|([1-9][0-9]*)"};
+        static constexpr auto pattern = ctll::fixed_string{"^0|([1-9][0-9]*)$"};
         
         static bool valid(string_view s) {
             return ctre::match<pattern>(s);
@@ -31,13 +31,17 @@ namespace data::encoding {
     };
     
     struct hexidecimal {
-        static constexpr auto pattern = ctll::fixed_string{"0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
+        static constexpr auto pattern = ctll::fixed_string{"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
         
-        static constexpr auto zero_pattern = ctll::fixed_string{"0x(00)*"};
+        static constexpr auto zero_pattern = ctll::fixed_string{"^0x(00)*$"};
         
         static bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 
+        
+        static bool zero(string_view s) {
+            return ctre::match<zero_pattern>(s);
+        }
         
         static bool nonzero(string_view s) {
             return valid(s) && !ctre::match<zero_pattern>(s);
@@ -49,13 +53,18 @@ namespace data::encoding {
     };
     
     struct natural {
-        static constexpr auto pattern = ctll::fixed_string{"0|([1-9][0-9]*)|(0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
+        static constexpr auto pattern = ctll::fixed_string{
+            "^0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
         
-        static constexpr auto zero_pattern = ctll::fixed_string{"0|0x(00)*"};
+        static constexpr auto zero_pattern = ctll::fixed_string{"^0|0x(00)*$"};
         
         static bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 
+        
+        static bool zero(string_view s) {
+            return ctre::match<zero_pattern>(s);
+        }
         
         static bool nonzero(string_view s) {
             return valid(s) && !ctre::match<zero_pattern>(s);
@@ -68,13 +77,13 @@ namespace data::encoding {
     
     struct integer {
         static constexpr auto pattern = ctll::fixed_string{
-            "0|(-?[1-9][0-9]*)|(-?0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
+            "^0|(-?[1-9][0-9]*)|(-?0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
         
         static constexpr auto zero_pattern = ctll::fixed_string{
-            "0|0x(00)*"};
+            "^0|0x(00)*$"};
         
         static constexpr auto negative_pattern = ctll::fixed_string{
-            "-([1-9][0-9]*)|(0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
+            "-(([1-9][0-9]*)|(0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
         
         static bool valid(string_view s) {
             return ctre::match<pattern>(s);
@@ -82,6 +91,10 @@ namespace data::encoding {
         
         static bool negative(string_view s) {
             return ctre::match<negative_pattern>(s);
+        }
+        
+        static bool zero(string_view s) {
+            return ctre::match<zero_pattern>(s);
         }
         
         static bool nonzero(string_view s) {

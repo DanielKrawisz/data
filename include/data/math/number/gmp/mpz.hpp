@@ -63,6 +63,23 @@ namespace data::math::number::gmp {
         return read_hexidecimal(s);
     }
     
+    inline __mpz_struct mpz_make() {
+        __mpz_struct a;
+        mpz_init(&a);
+        return a;
+    }
+    
+    inline __mpz_struct mpz_make(uint64 n) {
+        __mpz_struct x = mpz_make();
+        __mpz_set_ui_safe(&x, n);
+        return x;
+    }
+    
+    inline __mpz_struct mpz_make(int64 n) {
+        __mpz_struct x = mpz_make();
+        __mpz_set_si_safe(&x, n);
+        return x;
+    }
 }
 
 #endif

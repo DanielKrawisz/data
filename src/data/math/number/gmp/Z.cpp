@@ -6,22 +6,42 @@
 #include <data/encoding/integer.hpp>
 
 namespace data::math::number::gmp {
-        
-    Z::Z() : MPZ{MPZInvalid} {
-        mpz_init(&MPZ);
-    }
     
     Z::Z(N n) : MPZ{n.Value.MPZ} {}
     
-    Z::Z(const string& x) : MPZ{MPZInvalid} {
-        if (!encoding::integer::valid(x)) return;
-        mpz_init(&MPZ);
-        if (x == "") return;
-        if (encoding::integer::negative(x)) {
-            mpz_set_str(&MPZ, x.c_str() + 1, 0);
-            MPZ._mp_size *= -1;
-        } else mpz_set_str(&MPZ, x.c_str(), 0);
+    Z Z_read_N_gmp(const string& s) {
+        __mpz_struct mpz;
+        mpz_init(&mpz);
+        mpz_set_str(&mpz, s.c_str(), 0);
+        return Z{mpz};
+    }
+    
+    Z Z_read_N_data(string_view x) {
+        if (encoding::decimal::valid(x)) {
+            string s{x};
+            return Z_read_N_gmp(s);
+        } 
         
+        if (encoding::hexidecimal::valid(x)) {
+            if (encoding::hexidecimal::zero(x)) return Z{0};
+            int first_nonzero_index = 2;
+            while (true) {
+                if (first_nonzero_index == x.size()) return Z{0};
+                if (x[first_nonzero_index] != '0') break;
+                first_nonzero_index++;
+            }
+            std::stringstream ss;
+            ss << "0x";
+            ss << x.substr(first_nonzero_index);
+            return Z_read_N_gmp(ss.str());
+        }
+        
+        return Z{}; // shouldn't really happen;
+    }
+    
+    Z Z::read(string_view x) {
+        if (!encoding::integer::valid(x)) return Z{};
+        return encoding::integer::negative(x) ? Z_read_N_data(x.substr(1)) : Z_read_N_data(x);
     }
 
 }

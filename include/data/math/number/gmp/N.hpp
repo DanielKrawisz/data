@@ -24,15 +24,16 @@ namespace data {
                     
                     N() : Value{} {}
                     
-                    N(gmp_uint n) : Value{n} {}
-                    explicit N(const string& s);
+                    N(gmp_uint n) : Value{mpz_make(n)} {}
+                    
+                    explicit N(string_view s);
                     
                     N& operator=(const N& n) {
                         Value = n.Value;
                         return *this;
                     }
                     
-                    bool valid() {
+                    bool valid() const {
                         return Value.valid() && Value >= 0;
                     }
                     
@@ -41,6 +42,8 @@ namespace data {
                     }
                     
                     bool operator==(const N& n) const {
+                        if (!valid() && !n.valid()) return true;
+                        if (!valid() || !n.valid()) return false;
                         return Value == n.Value;
                     }
                     
@@ -142,7 +145,7 @@ namespace data {
                     }
                     
                     N operator-(const N& n) const {
-                        if (Value < n) return 0;
+                        if (Value < n) return N{0};
                         return N{Value - n.Value};
                     }
                     
@@ -231,6 +234,8 @@ namespace data {
                         return N{z};
                     }
                 
+                    static void write(std::ostream& o, const N n);
+                
                     constexpr static math::number::natural::interface<N> is_natural{};
                 private:
                     explicit N(const Z& z) : Value{z} {}
@@ -303,14 +308,16 @@ namespace data {
                 }
                 
                 string write_hex(const N n);
+                
                 string write_dec(const N n);
             }
         }
     }
 }
 
-inline std::ostream& operator<< (std::ostream& o, const data::math::number::gmp::N n) {
-    return o << &n.Value.MPZ;
+inline std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N n) {
+    data::math::number::gmp::N::write(o, n);
+    return o;
 }
 
 #endif

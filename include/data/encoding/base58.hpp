@@ -53,7 +53,8 @@ namespace data::encoding::base58 {
             char v = digit(*i);
             if (v == -1) return N{0};
             
-            n += Powers.first() * uint64(digit);
+            n = n + (Powers.first() * uint64(digit));
+        
             Powers = Powers.rest();
         }
         
@@ -68,16 +69,12 @@ namespace data::encoding::base58 {
             powers<N>() = powers<N>().append(powers<N>().last() * 58);
         }
         
-        std::cout << "base 58 write; input =  " << std::dec << n << std::endl;
-        
         uint32 size = 0;
         Powers = powers<N>();
         while(Powers.first() <= n) {
             size ++;
             Powers = Powers.rest();
         }
-        
-        std::cout << "base 58 write: size of string is " << size << std::endl;
         
         string s{static_cast<char>(size)};
         int i = size - 1;

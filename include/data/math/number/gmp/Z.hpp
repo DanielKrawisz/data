@@ -15,7 +15,7 @@ namespace data::math::number::gmp {
     struct Z {
         __mpz_struct MPZ;
         
-        Z();
+        Z() : MPZ{MPZInvalid} {}
         Z(N);
         
         bool valid() const {
@@ -26,15 +26,11 @@ namespace data::math::number::gmp {
             if (valid()) mpz_clear(&MPZ);
         }
         
-        explicit Z(gmp_uint n) {
-            mpz_init_set_ui(&MPZ, n);
-        }
+        Z(gmp_int n) : MPZ{mpz_make(n)} {}
         
-        explicit Z(gmp_int n) {
-            mpz_init_set_si(&MPZ, n);
-        }
+        static Z read(string_view x);
         
-        explicit Z(const string& x);
+        explicit Z(string_view x) : Z{read(x)} {};
         
         Z(const __mpz_struct& n) {
             mpz_init(&MPZ);
@@ -100,6 +96,7 @@ namespace data::math::number::gmp {
         }
         
         bool operator==(const Z& z) const {
+            if (!valid() && !z.valid()) return true;
             return __gmp_binary_equal::eval(&MPZ, &z.MPZ);
         }
         
@@ -180,6 +177,12 @@ namespace data::math::number::gmp {
         }
         
         Z operator+(const N&) const;
+        
+        Z operator-(const gmp_int n) const {
+            Z sum{};
+            __gmp_binary_minus::eval(&sum.MPZ, &MPZ, n);
+            return sum;
+        }
         
         Z operator-(const Z& n) const {
             Z sum{};

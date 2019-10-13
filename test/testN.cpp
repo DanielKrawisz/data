@@ -4,37 +4,59 @@
 
 #include "data/data.hpp"
 #include "gtest/gtest.h"
+#include <iostream>
 
 TEST(NTest, TestStringToN) {
     using namespace data::exported;
     
-    EXPECT_TRUE(N{0}.valid());
-    EXPECT_TRUE(N{""}.valid());
-    EXPECT_TRUE(N{"0"}.valid());
-    EXPECT_TRUE(N{"0x"}.valid());
-    
-    EXPECT_TRUE(N{0} == N{""});
-    EXPECT_TRUE(N{0} == N{"0"});
-    EXPECT_TRUE(N{0} == N{"0x"});
-    
     EXPECT_FALSE(N{}.valid());
+    EXPECT_FALSE(N{""}.valid());
     EXPECT_FALSE(N{"a"}.valid());
     EXPECT_FALSE(N{"-"}.valid());
     EXPECT_FALSE(N{"-1"}.valid());
     EXPECT_FALSE(N{"01"}.valid());
     EXPECT_FALSE(N{"0x1"}.valid());
     
-    EXPECT_TRUE(N{1} == N{"1"});
-    EXPECT_TRUE(N{1} == N{"0x01"});
-    EXPECT_TRUE(N{1} == N{"0x0001"});
+    EXPECT_TRUE(N{0}.valid());
+    EXPECT_TRUE(N{"0"}.valid());
+    EXPECT_TRUE(N{"0x"}.valid());
     
-    EXPECT_FALSE(N{1} == N{""});
+    EXPECT_TRUE(N{} == N{""});
+    
+    EXPECT_TRUE(N{0} == N{"0"});
+    EXPECT_TRUE(N{0} == N{"0x"});
+    
+    EXPECT_FALSE(N{0} == N{""});
+    EXPECT_FALSE(N{1} == N{"0"});
     EXPECT_FALSE(N{0} == N{"1"});
     
     EXPECT_TRUE(data::math::number::gmp::write_hex(N{0}) == "0x00");
     EXPECT_TRUE(data::math::number::gmp::write_dec(N{0}) == "0");
     EXPECT_TRUE(data::math::number::gmp::write_hex(N{1}) == "0x01");
     EXPECT_TRUE(data::math::number::gmp::write_dec(N{1}) == "1");
+    
+    EXPECT_TRUE(N{1} == N{"1"});
+    EXPECT_TRUE(N{1} == N{"0x01"});
+    EXPECT_TRUE(N{1} == N{"0x0001"});
+    
+}
+
+TEST(NTest, TestMultiply) {
+    using namespace data::exported;
+    
+    EXPECT_TRUE(N{0} * N{0} == N{0});
+    EXPECT_TRUE(N{1} * N{0} == N{0});
+    EXPECT_TRUE(N{0} * N{1} == N{0});
+    EXPECT_TRUE(N{1} * N{1} == N{1});
+    
+    N n{0};
+    n++;
+    
+    EXPECT_TRUE(n == N{1});
+    
+    n += 1;
+    
+    EXPECT_TRUE(n == N{2});
     
 }
 

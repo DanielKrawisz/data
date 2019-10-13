@@ -19,7 +19,7 @@ namespace {
         EXPECT_FALSE(valid("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"));
     }
 
-    TEST(Base58Test, Invert) {
+    TEST(Base58Test, Base58Invert) {
         for (int i = 0; i < characters.size(); i++) {
             EXPECT_EQ(digit(characters[i]), i);
         }
