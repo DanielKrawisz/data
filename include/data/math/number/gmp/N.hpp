@@ -100,6 +100,11 @@ namespace data {
                         if (z < 0) return true;
                         return Value == z;
                     }
+                    
+                    explicit operator uint64() {
+                        if (operator>(std::numeric_limits<uint64>::max())) throw std::logic_error{"too big"};
+                        return mpz_get_ui(&Value.MPZ);
+                    } 
         
                     N& operator++() {
                         ++Value;
@@ -296,12 +301,16 @@ namespace data {
                 inline N norm(N n) {
                     return n;
                 }
-            
+                
+                string write_hex(const N n);
+                string write_dec(const N n);
             }
-            
         }
     }
+}
 
+inline std::ostream& operator<< (std::ostream& o, const data::math::number::gmp::N n) {
+    return o << &n.Value.MPZ;
 }
 
 #endif
