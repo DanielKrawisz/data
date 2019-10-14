@@ -43,6 +43,7 @@ add_test(NAME TestStringToN COMMAND testData)
 #Test LinkedList
 add_test(NAME TestLinkedList1 COMMAND testData)
 add_test(NAME TestLinkedList2 COMMAND testData)
+add_test(NAME TestLinkedListSort COMMAND testData)
 
 # Test Digest
 add_test(NAME DigestEqual COMMAND testData)
