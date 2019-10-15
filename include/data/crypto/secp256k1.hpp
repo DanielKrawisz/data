@@ -25,7 +25,7 @@ namespace data::crypto {
         using compressed_pubkey = pubkey<true, compressed_pubkey_size>;
         using uncompressed_pubkey = pubkey<false, uncompressed_pubkey_size>;
         
-        using signature = libbitcoin::system::ec_signature;
+        using signature = vector<byte>;
         
         struct secret {
             uint<secret_size> Value;
@@ -189,7 +189,9 @@ namespace data::crypto {
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
         inline bool pubkey<compressed_pubkey, pubkey_size>::verify(const sha256::digest& d, const signature& s) const {
-            return libbitcoin::system::verify_signature(low::libbitcoin(*this), low::libbitcoin(d), s);
+            std::array<byte, 64> sig;
+            std::copy(s.begin(), s.end(), sig.begin());
+            return libbitcoin::system::verify_signature(low::libbitcoin(*this), low::libbitcoin(d), sig);
         }
         
         inline secret secret::operator+(const secret& s) const {
@@ -226,8 +228,10 @@ namespace data::crypto {
         }
         
         inline signature secret::sign(const sha256::digest& d) const {
-            signature sig;
-            if (!libbitcoin::system::sign(sig, Value.Array, low::libbitcoin(d))) return signature{};
+            std::array<byte, 64> s;
+            if (!libbitcoin::system::sign(s, Value.Array, low::libbitcoin(d))) return signature{};
+            signature sig{};
+            std::copy(s.begin(), s.end(), sig.begin());
             return sig;
         }
 
