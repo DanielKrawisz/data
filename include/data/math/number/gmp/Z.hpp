@@ -23,7 +23,7 @@ namespace data::math::number::gmp {
         }
         
         virtual ~Z() {
-            if (valid()) mpz_clear(&MPZ);
+            if (!gmp::equal(MPZ, MPZInvalid)) mpz_clear(&MPZ);
         }
         
         Z(gmp_int n) : MPZ{mpz_make(n)} {}

@@ -27,6 +27,7 @@ namespace {
 
     TEST(Base58Test, Base58NToString) {
         EXPECT_TRUE(read<N>("") == N{});
+        EXPECT_TRUE(read<N>("1").valid());
         EXPECT_TRUE(read<N>("1") == N{0});
         EXPECT_TRUE(read<N>("2") == N{1});
         EXPECT_TRUE(read<N>("1") == N{"0"});

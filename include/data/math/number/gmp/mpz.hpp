@@ -7,16 +7,6 @@
 
 #include <gmp.h>
 #include <gmp/gmpxx.h>
-
-#undef __GMP_DEFINE_UNARY_FUNCTION
-#undef __GMP_DEFINE_UNARY_TYPE_FUNCTION
-#undef __GMP_DEFINE_BINARY_FUNCTION
-#undef __GMPP_DEFINE_BINARY_FUNCTION
-#undef __GMPNN_DEFINE_BINARY_FUNCTION
-#undef __GMPNS_DEFINE_BINARY_FUNCTION
-#undef __GMPN_DEFINE_BINARY_FUNCTION
-#undef __GMPND_DEFINE_BINARY_FUNCTION
-
 #include <data/types.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/number/natural.hpp>
@@ -64,22 +54,31 @@ namespace data::math::number::gmp {
     }
     
     inline __mpz_struct mpz_make() {
-        __mpz_struct a;
-        mpz_init(&a);
-        return a;
+        __mpz_struct x;
+        mpz_init(&x);
+        return x;
     }
     
     inline __mpz_struct mpz_make(uint64 n) {
-        __mpz_struct x = mpz_make();
-        __mpz_set_ui_safe(&x, n);
+        __mpz_struct x{MPZInvalid};
+        mpz_init_set_ui(&x, n);
         return x;
     }
     
     inline __mpz_struct mpz_make(int64 n) {
-        __mpz_struct x = mpz_make();
-        __mpz_set_si_safe(&x, n);
+        __mpz_struct x{MPZInvalid};
+        mpz_init_set_si(&x, n);
         return x;
     }
 }
+
+#undef __GMP_DEFINE_UNARY_FUNCTION
+#undef __GMP_DEFINE_UNARY_TYPE_FUNCTION
+#undef __GMP_DEFINE_BINARY_FUNCTION
+#undef __GMPP_DEFINE_BINARY_FUNCTION
+#undef __GMPNN_DEFINE_BINARY_FUNCTION
+#undef __GMPNS_DEFINE_BINARY_FUNCTION
+#undef __GMPN_DEFINE_BINARY_FUNCTION
+#undef __GMPND_DEFINE_BINARY_FUNCTION
 
 #endif

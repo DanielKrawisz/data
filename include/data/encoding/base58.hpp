@@ -29,38 +29,6 @@ namespace data::encoding::base58 {
         return c < '1' ? -1 : c <= '9' ?  c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 : c < 'J' ? -1 : c <= 'N' ? c - 'J' + 17 : c < 'P' ? -1 : c <= 'Z' ? c - 'P' + 22 : c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
     };
     
-    // cache of powers of 58.
-    template <typename N>
-    class power {
-        functional_queue<N, list::linked<N>>& Powers;
-        N First;
-        functional_queue<N, list::linked<N>> Rest;
-    public:
-        power(
-        functional_queue<N, list::linked<N>>& p, N n, 
-        functional_queue<N, list::linked<N>> r) : Powers{p}, First{n}, Rest{r} {}
-        
-        N first() const {
-            return First;
-        }
-        
-        power rest() const {
-            if (Rest.empty()) {
-                N next{First * 58};
-                Powers = Powers.append(next);
-                return power{Powers, next, Rest};
-            }
-            return power{Powers, Rest.first(), Rest.rest()};
-        }
-    };
-    
-    // note: not good for multithreading. 
-    template <typename N>
-    power<N> powers() {
-        static functional_queue<N, list::linked<N>> Powers = functional_queue<N, list::linked<N>>::make(N{1});
-        return power<N>{Powers, Powers.first(), Powers.rest()};
-    }
-    
     template <typename N>
     N read(const string_view s) {
         if (s.size() == 0) return N{};
