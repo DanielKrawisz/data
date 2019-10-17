@@ -7,6 +7,7 @@
 
 #include <data/math/number/natural.hpp>
 #include <data/math/number/gmp/Z.hpp>
+#include <data/encoding/endian.hpp>
 #include <limits>
 
 namespace data {
@@ -29,6 +30,8 @@ namespace data {
                     }
                     
                     explicit N(string_view s);
+                    
+                    explicit N(bytes_view, endian::order);
                     
                     N& operator=(const N& n) {
                         Value = n.Value;
@@ -56,7 +59,7 @@ namespace data {
                     }
                     
                     bool operator<(uint64 n) const {
-                        return Value < n;
+                        return __gmp_binary_less::eval(Value.MPZ, (unsigned long int)(n));
                     }
                     
                     bool operator<(const N& n) const {
@@ -69,7 +72,7 @@ namespace data {
                     }
                     
                     bool operator>(uint64 n) const {
-                        return Value > n;
+                        return __gmp_binary_greater::eval(Value.MPZ, (unsigned long int)(n));
                     }
                     
                     bool operator>(const N& n) const {
@@ -313,6 +316,8 @@ namespace data {
                 string write_hex(const N n);
                 
                 string write_dec(const N n);
+                
+                string write_bytes(const N n);
             }
         }
     }

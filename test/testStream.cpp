@@ -140,7 +140,6 @@ protected:
         data::reader reader(sliceTest);
         data::ordered<uint16_t, data::big> testUint;
         reader >> testUint;
-        std::cout << " **** test uint value is " << testUint.Value << std::endl;
         EXPECT_EQ(testUint, 0x102);
         reader >> testUint;
         EXPECT_EQ(testUint, 0x304);

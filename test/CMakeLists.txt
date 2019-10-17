@@ -38,6 +38,7 @@ add_test(NAME TestIntegerFormat COMMAND testData)
 #Test N
 add_test(NAME TestN COMMAND testData)
 add_test(NAME TestMultiply COMMAND testData)
+add_test(NAME TestDivision COMMAND testData)
 add_test(NAME TestStringToN COMMAND testData)
 
 #Test LinkedList
