@@ -252,7 +252,7 @@ namespace data::math::number::gmp {
         
         division<Z> divide(const Z& z) const {
             division<Z> qr{};
-            mpz_cdiv_qr(qr.Quotient.MPZ, qr.Remainder.MPZ, MPZ, z.MPZ);
+            mpz_fdiv_qr(qr.Quotient.MPZ, qr.Remainder.MPZ, MPZ, z.MPZ);
             return qr;
         }
         
