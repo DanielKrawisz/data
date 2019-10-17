@@ -126,6 +126,10 @@ namespace data::list {
             return prepend(x);
         }
         
+        linked& operator+=(elem x) {
+            return operator=(prepend(x));
+        }
+        
         linked prepend(linked l) const {
             linked x = *this;
             while (!l.empty()) {
@@ -181,6 +185,10 @@ namespace data::list {
         
         linked operator+(const elem& x) const {
             return prepend(x);
+        }
+        
+        linked& operator+=(elem x) {
+            return operator=(prepend(x));
         }
         
     private:

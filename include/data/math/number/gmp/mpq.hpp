@@ -35,6 +35,7 @@ namespace data {
                     b = MPQ_temp;
                 }
                 
+                // TODO: use mpq_t instead of __mpq_struct. 
                 struct mpq {
                     __mpq_struct MPQ;
                     
@@ -87,24 +88,9 @@ namespace data {
                     
                     mpq(const __mpz_struct& n) : mpq(n, 1) {}
                     
-                    mpq(__mpz_struct&& num, gmp_uint den) {
-                        swap(MPQ._mp_num, num);
-                        mpz_init_set_ui(&MPQ._mp_den, den);
-                    }
-                    
-                    mpq(__mpz_struct&& num) {
-                        swap(MPQ._mp_num, num);
-                        mpz_init_set_ui(&MPQ._mp_den, 1);
-                    }
-                    
                     mpq(const __mpz_struct& num, const __mpz_struct& den) {
                         mpz_set(&MPQ._mp_num, &num);
                         mpz_set(&MPQ._mp_den, &den);
-                    }
-                    
-                    mpq(__mpz_struct&& num, __mpz_struct&& den) {
-                        swap(MPQ._mp_num, num);
-                        swap(MPQ._mp_den, den);
                     }
                     
                     mpq& operator=(const mpq& q) {

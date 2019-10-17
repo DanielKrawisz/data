@@ -24,7 +24,9 @@ namespace data {
                     
                     N() : Value{} {}
                     
-                    N(gmp_uint n) : Value{mpz_make(n)} {}
+                    N(gmp_uint n) : Value{} {
+                        mpz_init_set_ui(Value.MPZ, n);
+                    }
                     
                     explicit N(string_view s);
                     
@@ -38,6 +40,7 @@ namespace data {
                     }
                     
                     bool operator==(uint64 n) const {
+                        if (!valid()) return false;
                         return Value == n;
                     }
                     
@@ -106,7 +109,7 @@ namespace data {
                     
                     explicit operator uint64() {
                         if (operator>(std::numeric_limits<uint64>::max())) throw std::logic_error{"too big"};
-                        return mpz_get_ui(&Value.MPZ);
+                        return mpz_get_ui(Value.MPZ);
                     } 
         
                     N& operator++() {
@@ -287,7 +290,7 @@ namespace data {
 
                 inline N Z::abs() const {
                     N n;
-                    __gmp_abs_function::eval(&n.Value.MPZ, &MPZ);
+                    __gmp_abs_function::eval(n.Value.MPZ, MPZ);
                     return n;
                 }
 

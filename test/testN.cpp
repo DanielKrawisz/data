@@ -6,6 +6,9 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
+namespace {
+    using N = data::math::number::gmp::N;
+
 TEST(NTest, TestStringToN) {
     using namespace data::exported;
     
@@ -30,10 +33,10 @@ TEST(NTest, TestStringToN) {
     EXPECT_FALSE(N{1} == N{"0"});
     EXPECT_FALSE(N{0} == N{"1"});
     
-    EXPECT_TRUE(data::math::number::gmp::write_hex(N{0}) == "0x00");
-    EXPECT_TRUE(data::math::number::gmp::write_dec(N{0}) == "0");
-    EXPECT_TRUE(data::math::number::gmp::write_hex(N{1}) == "0x01");
-    EXPECT_TRUE(data::math::number::gmp::write_dec(N{1}) == "1");
+    EXPECT_EQ(data::math::number::gmp::write_hex(N{0}), "0x00");
+    EXPECT_EQ(data::math::number::gmp::write_dec(N{0}), "0");
+    EXPECT_EQ(data::math::number::gmp::write_hex(N{1}), "0x01");
+    EXPECT_EQ(data::math::number::gmp::write_dec(N{1}), "1");
     
     EXPECT_TRUE(N{1} == N{"1"});
     EXPECT_TRUE(N{1} == N{"0x01"});
@@ -50,6 +53,9 @@ TEST(NTest, TestMultiply) {
     EXPECT_TRUE(N{1} * N{1} == N{1});
     
     N n{0};
+    
+    EXPECT_TRUE(n == N{0});
+    
     n++;
     
     EXPECT_TRUE(n == N{1});
@@ -93,3 +99,4 @@ TEST(NTest, DISABLED_TestN) {
     
 }
 
+}

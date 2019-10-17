@@ -11,7 +11,6 @@
 #include <data/math/sign.hpp>
 #include <data/math/number/natural.hpp>
 #include <data/io/unimplemented.hpp>
-
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number::gmp {
@@ -35,40 +34,6 @@ namespace data::math::number::gmp {
     
     inline math::sign sign(const __mpz_struct& mpz) {
         return !valid(mpz) ? zero : mpz._mp_size < 0 ? negative : positive;
-    }
-    
-    inline void swap(__mpz_struct &a, __mpz_struct &b) {
-        __mpz_struct MPZ_temp = a;
-        a = b;
-        b = MPZ_temp;
-    }
-    
-    __mpz_struct read_decimal(const string&);
-    
-    __mpz_struct read_hexidecimal(const string&);
-    
-    inline __mpz_struct read_string(const string& s) {
-        __mpz_struct x = read_decimal(s);
-        if (valid(x)) return x;
-        return read_hexidecimal(s);
-    }
-    
-    inline __mpz_struct mpz_make() {
-        __mpz_struct x;
-        mpz_init(&x);
-        return x;
-    }
-    
-    inline __mpz_struct mpz_make(uint64 n) {
-        __mpz_struct x{MPZInvalid};
-        mpz_init_set_ui(&x, n);
-        return x;
-    }
-    
-    inline __mpz_struct mpz_make(int64 n) {
-        __mpz_struct x{MPZInvalid};
-        mpz_init_set_si(&x, n);
-        return x;
     }
 }
 

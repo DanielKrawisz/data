@@ -10,12 +10,12 @@ namespace data::math::number::gmp {
     N::N(string_view x) : Value{encoding::integer::negative(x) ? Z{} : Z::read(x)} {}
     
     void N_write_dec(std::ostream& o, const N n) {
-        o << std::dec << &n.Value.MPZ;
+        o << std::dec << n.Value.MPZ;
     }
     
     void N_write_hex(std::ostream& o, const N n) {
         std::stringstream gmp_format_stream;
-        gmp_format_stream << std::hex << &n.Value.MPZ;
+        gmp_format_stream << std::hex << n.Value.MPZ;
         string gmp_format = gmp_format_stream.str();
         
         o << "0x";

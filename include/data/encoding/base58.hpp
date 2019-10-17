@@ -37,9 +37,9 @@ namespace data::encoding::base58 {
         
         N n{0};
         
-        for (char x : s) {
-            char v = digit(x);
-            if (v == -1) return N{0};
+        for (int i = s.size() - 1; i >= 0; i--) {
+            char v = digit(s[i]);
+            if (v == -1) return N{};
             n += power * uint64(v);
             power *= 58;
         }
@@ -53,21 +53,19 @@ namespace data::encoding::base58 {
         
         N power{1};
         
-        uint32 size = 0;
-        while(power <= n) {
-            size ++;
-            power *= 58;
-        }
+        list::linked<char> digits{};
         
-        string s{static_cast<char>(size)};
-        int i = size - 1;
         math::division<N> div;
         N x = n;
-        while(true) {
+        while(x > 0) {
             div = x.divide(58);
-            s[i] = characters[(uint64)(div.Remainder)];
-            i--;
+            digits += characters[(uint64)(div.Remainder)];
             x = div.Quotient;
+        }
+        string s{digits.size(), ' '};
+        for (char& i : s) {
+            i = digits.first();
+            digits = digits.rest();
         }
         return s;
     };

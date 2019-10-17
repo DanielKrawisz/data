@@ -7,13 +7,15 @@
 
 namespace data::math::number::gmp {
     
-    Z::Z(N n) : MPZ{n.Value.MPZ} {}
+    Z::Z(N n) {
+        mpz_set(MPZ, n.Value.MPZ);
+    }
     
     Z Z_read_N_gmp(const string& s) {
-        __mpz_struct mpz;
-        mpz_init(&mpz);
-        mpz_set_str(&mpz, s.c_str(), 0);
-        return Z{mpz};
+        Z z{};
+        mpz_init(z.MPZ);
+        mpz_set_str(z.MPZ, s.c_str(), 0);
+        return z;
     }
     
     Z Z_read_N_data(string_view x) {
