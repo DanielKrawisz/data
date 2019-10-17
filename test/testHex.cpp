@@ -13,20 +13,21 @@ namespace {
 TEST(HexTest, HexHexToArray) {
     const char* inputHex="0063EA172D63808C";
     data::encoding::hex::string hexString(std::string("0063EA172D63808C"));
-    ASSERT_FALSE(hexString.ToBytes == nullptr);
-    ASSERT_THAT(hexString.Bytes,::testing::ElementsAre(0,99,234,23,45,99,128,140));
+    ASSERT_TRUE(hexString.valid());
+    ASSERT_THAT((data::bytes)(hexString), ::testing::ElementsAre(0,99,234,23,45,99,128,140));
 }
 
 TEST(HexTest, HexValidHexString) {
     ASSERT_TRUE(data::encoding::hex::valid("012345abcd"));
     ASSERT_TRUE(data::encoding::hex::valid("012345ABCD"));
-    ASSERT_TRUE(data::encoding::hex::valid("012345aBcD"));
+    ASSERT_FALSE(data::encoding::hex::valid("012345aBcD"));
     ASSERT_FALSE(data::encoding::hex::valid("012345abc"));
     ASSERT_FALSE(data::encoding::hex::valid("012345aHcd"));
 }
 
 TEST(HexTest,HexInvalidExceptionOnError) {
-    ASSERT_THROW(data::encoding::hex::string malformedHexString(std::string("0063EA172D63808")),data::encoding::invalid );
+    data::encoding::hex::string malformedHexString(std::string("0063EA172D63808"));
+    ASSERT_THROW((data::bytes)(malformedHexString), data::encoding::invalid);
 }
 
 TEST(HexTest,HexWriteBytes) {

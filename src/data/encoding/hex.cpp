@@ -13,33 +13,18 @@
 
 namespace  data::encoding::hex {
     
-    string::string(const std::string& sourceString) : std::string(sourceString) {
+    string::string(string_view sourceString) : String{sourceString} {
         try {
-            boost::algorithm::unhex(std::string::begin(), std::string::end(), std::back_inserter(Bytes));
+            boost::algorithm::unhex(String.begin(), String.end(), std::back_inserter(Bytes));
         }
         catch(boost::algorithm::hex_decode_error exception)
         {
-            throw invalid(format, *this);
+            return;
         }
         ToBytes=&Bytes;
     }
     
-    bool valid(const std::string &sourceString) {
-        
-        if(sourceString.size() %2 ==1)
-            return false;
-        std::string upper=boost::to_upper_copy(sourceString);
-        for(int i=0;i<upper.size();i++)
-        {
-            if(upper[i]<48  || upper[i] > 70)
-                return false;
-            if(upper[i] > 57 && upper[i] < 65)
-                return false;
-        }
-        return true;
-    }
-    
-    std::string write(const bytes_view sourceBytes) {
+    std::string write(bytes_view sourceBytes) {
         std::string output;
         boost::algorithm::hex(sourceBytes.begin(),sourceBytes.end(),std::back_inserter(output));
         return data::string(output);
