@@ -36,10 +36,7 @@ namespace {
         EXPECT_EQ(read<N>("56"), N{"0xED"});
         EXPECT_EQ(read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"),  N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"});
         
-        // TODO this throws an exception / goes into an infinite loop.
-        // the problem is the division algorithm. 
-        /*
-        EXPECT_EQ(write<N>(read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),  "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");*/
+        EXPECT_EQ(write<N>(read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),  "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
     }
 
     TEST(Base58Test, DISABLED_Base58HexToArray) {

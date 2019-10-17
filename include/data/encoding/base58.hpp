@@ -12,6 +12,7 @@
 #include <data/math/division.hpp>
 #include <ctre.hpp>
 #include <iostream>
+#include <algorithm>
 
 namespace data::encoding::base58 {
     
@@ -53,21 +54,17 @@ namespace data::encoding::base58 {
         
         N power{1};
         
-        list::linked<char> digits{};
-        
-        math::division<N> div;
         N x = n;
+        string digits{};
+        math::division<N> div;
         while(x > 0) {
             div = x.divide(58);
             digits += characters[(uint64)(div.Remainder)];
             x = div.Quotient;
         }
-        string s{digits.size(), ' '};
-        for (char& i : s) {
-            i = digits.first();
-            digits = digits.rest();
-        }
-        return s;
+        
+        std::reverse(digits.begin(), digits.end());
+        return digits;
     };
     
     string write(const bytes&);
@@ -93,18 +90,6 @@ namespace data::encoding::base58 {
         string(std::string);
         
         string(std::string * sourceString):string(*sourceString){};
-        
-        string(const string& s) : 
-            std::string{static_cast<const std::string&>(s)}, 
-            Bytes{s.Bytes}, 
-            ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
-        
-        string(string&& s) : 
-            std::string{static_cast<std::string&&>(s)}, 
-            Bytes{s.Bytes}, 
-            ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
-        
-        string& operator=(string&);
     };
 }
 

@@ -53,7 +53,7 @@ namespace data::list {
                 Next->contains(x);
             }
             
-            uint32 size() const {
+            size_t size() const {
                 if (empty()) return 0;
                     
                 return Next->size();
