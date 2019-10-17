@@ -13,7 +13,7 @@
 
 namespace  data::encoding::hex {
     
-    string::string(string_view sourceString) : String{sourceString} {
+    string::string(string_view sourceString) : String{sourceString}, Bytes{}, ToBytes{nullptr} {
         try {
             boost::algorithm::unhex(String.begin(), String.end(), std::back_inserter(Bytes));
         }
