@@ -219,20 +219,26 @@ namespace data {
                         return operator=(r);
                     }
                     
-                    N operator<<(int64) const {
-                        throw method::unimplemented{};
+                    N operator<<(int64 x) const {
+                        N n = *this;
+                        __gmp_binary_lshift::eval(&n.Value.MPZ[0], &Value.MPZ[0], x);
+                        return n;
                     }
                     
-                    N operator>>(int64) const {
-                        throw method::unimplemented{};
+                    N operator>>(int64 x) const {
+                        N n = *this;
+                        __gmp_binary_rshift::eval(&n.Value.MPZ[0], &Value.MPZ[0], x);
+                        return n;
                     }
                     
-                    N& operator<<=(int64) {
-                        throw method::unimplemented{};
+                    N& operator<<=(int64 x) {
+                        __gmp_binary_lshift::eval(&Value.MPZ[0], &Value.MPZ[0], x);
+                        return *this;
                     }
                     
-                    N& operator>>=(int64) {
-                        throw method::unimplemented{};
+                    N& operator>>=(int64 x) {
+                        __gmp_binary_lshift::eval(&Value.MPZ[0], &Value.MPZ[0], x);
+                        return *this;
                     }
                     
                     static N as(const Z& z) {
