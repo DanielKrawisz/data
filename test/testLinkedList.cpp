@@ -43,7 +43,7 @@ TEST(LinkedListTest, DISABLED_TestLinkedListSort) {
 // Functional data structures don't have to be c++ 
 // containers so we also have a version of functional
 // linked list for references. 
-TEST(LinkedListTest, DISABLED_TestLinkedListR) {
+TEST(LinkedListTest, TestLinkedListR) {
     using namespace data::exported;
     
     int One = 1;
@@ -53,8 +53,9 @@ TEST(LinkedListTest, DISABLED_TestLinkedListR) {
     EXPECT_TRUE(list<int&>{}.prepend(One) == list<int&>{}.prepend(One));
     EXPECT_FALSE(list<int&>{}.prepend(One) == list<int&>{});
     EXPECT_FALSE(list<int&>{}.prepend(One) == list<int&>{}.prepend(Zero));
+    EXPECT_TRUE(list<int&>{}.prepend(One).first() == One);
     
-    EXPECT_TRUE(list<int&>::make(One).first() == 1);
+    EXPECT_TRUE(list<int&>::make(One).first() == One);
     EXPECT_TRUE(list<int&>{}.prepend(One).rest() == list<int&>{});
     EXPECT_TRUE(list<int&>{}.prepend(Zero).prepend(One).rest() == list<int&>{}.prepend(Zero));
     EXPECT_TRUE(list<int&>::make(One).size() == 1);

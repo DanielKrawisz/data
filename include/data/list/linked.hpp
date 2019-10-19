@@ -81,7 +81,7 @@ namespace data::list {
             }
             
             template <typename first>
-            static derived make(first x) {
+            static derived make(first& x) {
                 return derived{}.prepend(x);
             }
             
