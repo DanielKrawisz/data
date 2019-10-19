@@ -14,6 +14,7 @@
 #include <data/container.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
+#include <data/encoding/integer.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data {
@@ -126,9 +127,7 @@ namespace data {
             number(number<indexed, size, ray::opposite_endian, false> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
-            explicit number(string_view s) {
-                throw method::unimplemented{};
-            }
+            explicit number(string_view s);
             
             // power
             number operator^(const number&) const;
@@ -145,8 +144,13 @@ namespace data {
             number& operator-=(const uint32&);
             number& operator*=(const uint32&);
             
-            static number max();
-            static number min();
+            static number max() {
+                throw method::unimplemented{};
+            }
+            
+            static number min() {
+                throw method::unimplemented{};
+            }
             
             number& operator++() {
                 operator+=(1);
@@ -201,9 +205,7 @@ namespace data {
             number(number<indexed, size, ray::opposite_endian, true> n) : 
                 number{static_cast<ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
-            explicit number(string_view s) {
-                throw method::unimplemented{};
-            }
+            explicit number(string_view s);
             
             // power
             number operator^(const number<indexed, size, o, false>&) const;
@@ -220,8 +222,13 @@ namespace data {
             number& operator-=(const int32&);
             number& operator*=(const int32&);
             
-            static number max();
-            static number min();
+            static number max() {
+                throw method::unimplemented{};
+            }
+            
+            static number min() {
+                throw method::unimplemented{};
+            }
             
             number& operator++() {
                 operator+=(1);
@@ -499,6 +506,36 @@ namespace data {
             }
             
             return true;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        number<indexed, size, o, false>::number(string_view s) : number{} {
+            if (!encoding::natural::valid(s)) throw std::invalid_argument{"not a natural number"};
+            
+            if (encoding::hexidecimal::valid(s) && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
+            
+            gmp::N n{s};
+            if (n > gmp::N{max()}) throw std::invalid_argument{"number too big"};
+            
+            *this = number{n};
+            
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        number<indexed, size, o, true>::number(string_view s) : number{} {
+            if (!encoding::integer::valid(s)) throw std::invalid_argument{"not an integer"};
+            
+            // Is there a minus sign? 
+            bool negative = encoding::integer::negative(s);
+            bool hexidecimal = encoding::hexidecimal::valid(negative ? s.substr(1) : s);
+            
+            if (hexidecimal && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
+            
+            gmp::Z z{s};
+            if (z > gmp::Z{max()} || z < gmp::Z{min()}) throw std::invalid_argument{"number out of range"};
+            
+            *this = number{z};
+            
         }
         
     }

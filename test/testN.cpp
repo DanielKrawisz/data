@@ -8,6 +8,7 @@
 
 namespace {
     using N = data::math::number::gmp::N;
+    using N = data::math::number::gmp::N;
     using namespace data::exported;
 
     TEST(NTest, TestStringToN) {
@@ -41,6 +42,25 @@ namespace {
         EXPECT_TRUE(N{1} == N{"1"});
         EXPECT_TRUE(N{1} == N{"0x01"});
         EXPECT_TRUE(N{1} == N{"0x0001"});
+        
+    }
+
+    TEST(NTest, TestStringToZ) {
+        
+        EXPECT_FALSE(Z{}.valid());
+        EXPECT_FALSE(Z{""}.valid());
+        EXPECT_TRUE(Z{"-1"}.valid());
+        EXPECT_TRUE(Z{"-0x01"}.valid());
+        
+        EXPECT_EQ(Z{"-1"}, Z{"-0x01"});
+        EXPECT_EQ(N{}, N{""});
+        
+        EXPECT_EQ(data::math::number::gmp::write_hex(Z{0}), "0x00");
+        EXPECT_EQ(data::math::number::gmp::write_dec(Z{0}), "0");
+        EXPECT_EQ(data::math::number::gmp::write_hex(Z{1}), "0x01");
+        EXPECT_EQ(data::math::number::gmp::write_dec(Z{1}), "1");
+        EXPECT_EQ(data::math::number::gmp::write_hex(Z{-1}), "-0x01");
+        EXPECT_EQ(data::math::number::gmp::write_dec(Z{-1}), "-1");
         
     }
 

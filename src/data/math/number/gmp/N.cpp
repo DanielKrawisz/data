@@ -7,6 +7,8 @@
 
 namespace data::math::number::gmp {
     
+    Z::Z(const N& n) : Z{n.Value} {}
+    
     N::N(string_view x) : Value{encoding::integer::negative(x) ? Z{} : Z::read(x)} {}
     
     void N_write_dec(std::ostream& o, const N n) {
@@ -23,7 +25,7 @@ namespace data::math::number::gmp {
         o << gmp_format;
     }
     
-    void N::write(std::ostream& o, const N n) {
+    void N::write(std::ostream& o, const N& n) {
         if (o.flags() & std::ios::hex) {
             N_write_hex(o, n);
             return;
@@ -35,14 +37,14 @@ namespace data::math::number::gmp {
         o << &n.Value.MPZ;
     }
     
-    string write_hex(const N n) {
+    string write_hex(const N& n) {
         std::stringstream ss;
         ss << std::hex;
         N::write(ss, n);
         return ss.str();
     }
                 
-    string write_dec(const N n) {
+    string write_dec(const N& n) {
         std::stringstream ss;
         ss << std::dec;
         N::write(ss, n);

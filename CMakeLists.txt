@@ -115,7 +115,7 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp
         src/data/encoding/base58.cpp
-		src/data/encoding/base64.cpp
+        src/data/encoding/base64.cpp
         src/data/tools/channel.cpp
         src/data/math/number/gmp/mpq.cpp
         src/data/math/number/gmp/N.cpp
@@ -124,11 +124,11 @@ ADD_LIBRARY(data STATIC
         src/data/crypto/digest.cpp
         src/data/crypto/ripemd160.cpp
         src/data/crypto/sha256.cpp
-		src/data/crypto/digest.cpp
+        src/data/crypto/digest.cpp
         src/data/crypto/sha512.cpp
         src/data/crypto/secp256k1.cpp
         src/data/stream.cpp)
-		
+        
 target_include_directories(data PUBLIC include)
 
 # Set C++ version

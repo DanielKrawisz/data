@@ -7,10 +7,6 @@
 
 namespace data::math::number::gmp {
     
-    Z::Z(N n) {
-        mpz_set(MPZ, n.Value.MPZ);
-    }
-    
     Z Z_read_N_gmp(const string& s) {
         Z z{};
         mpz_init(z.MPZ);
@@ -44,6 +40,24 @@ namespace data::math::number::gmp {
     Z Z::read(string_view x) {
         if (!encoding::integer::valid(x)) return Z{};
         return encoding::integer::negative(x) ? Z_read_N_data(x.substr(1)) : Z_read_N_data(x);
+    }
+    
+    void Z::write(std::ostream& o, const Z& n) {
+        throw method::unimplemented{};
+    }
+    
+    string write_hex(const Z& n) {
+        std::stringstream ss;
+        ss << std::hex;
+        Z::write(ss, n);
+        return ss.str();
+    }
+                
+    string write_dec(const Z& n) {
+        std::stringstream ss;
+        ss << std::dec;
+        Z::write(ss, n);
+        return ss.str();
     }
 
 }

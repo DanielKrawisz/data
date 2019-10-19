@@ -19,7 +19,7 @@ namespace data::math::number::gmp {
             MPZ[0] = MPZInvalid;
         }
         
-        Z(N);
+        Z(const N&);
         
         bool valid() const {
             return gmp::valid(MPZ[0]);
@@ -191,6 +191,10 @@ namespace data::math::number::gmp {
             throw method::unimplemented{};
         }
         
+        Z operator-() const {
+            throw method::unimplemented{};
+        }
+        
         Z& operator++() {
             __gmp_unary_increment::eval(MPZ);
             return *this;
@@ -282,11 +286,26 @@ namespace data::math::number::gmp {
         
         N abs() const;
         
+        static void write(std::ostream& o, const Z& n);
+        
         constexpr static math::number::integer<Z> is_integer{};
         
+        template <typename indexed, size_t size, endian::order o> 
+        explicit Z(const bounded::number<indexed, size, o, true>&) {
+            throw method::unimplemented{};
+        }
+        
     };
+                
+    string write_hex(const Z& n);
+                
+    string write_dec(const Z& n);
     
-    N square(Z& z);
+    N square(const Z& z);
+    
+    N abs(const Z& z);
+    
+    N norm(const Z& z);
 
 }
 
