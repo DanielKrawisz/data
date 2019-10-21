@@ -240,12 +240,10 @@ namespace data::math::number::gmp {
             return N{z};
         }
         
-        static void write(std::ostream& o, const N& n);
-        
         constexpr static math::number::natural::interface<N> is_natural{};
         
         template <typename indexed, size_t size, endian::order o> 
-        explicit N(const bounded::number<indexed, size, o, false>&) {
+        explicit N(const bounded<indexed, size, o, false>&) {
             throw method::unimplemented{};
         }
         
@@ -333,17 +331,20 @@ namespace data::math::number::gmp {
         return n;
     }
     
-    string write_hex(const N& n);
+}
+
+namespace data::encoding::hexidecimal { 
     
-    string write_dec(const N& n);
-    
-    string write_bytes(const N& n);
+    string write(const math::number::gmp::N& n);
     
 }
 
-inline std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N n) {
-    data::math::number::gmp::N::write(o, n);
-    return o;
+namespace data::encoding::decimal {
+    
+    string write(const math::number::gmp::N& n);
+    
 }
+
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N n);
 
 #endif

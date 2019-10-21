@@ -48,10 +48,10 @@ namespace data::math::number::gmp {
 
 #include <data/encoding/endian.hpp>
 
-namespace data::math::number::bounded {
-    template <typename indexed, size_t size, endian::order o, bool is_signed> struct number;
-    template <typename indexed, size_t size, endian::order o> struct number<indexed, size, o, false>;
-    template <typename indexed, size_t size, endian::order o> struct number<indexed, size, o, true>;
+namespace data::math::number {
+    template <typename indexed, size_t size, endian::order o, bool is_signed> struct bounded;
+    template <typename indexed, size_t size, endian::order o> struct bounded<indexed, size, o, false>;
+    template <typename indexed, size_t size, endian::order o> struct bounded<indexed, size, o, true>;
 }
 
 #endif

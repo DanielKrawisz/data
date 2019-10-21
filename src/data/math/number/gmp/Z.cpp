@@ -42,22 +42,28 @@ namespace data::math::number::gmp {
         return encoding::integer::negative(x) ? Z_read_N_data(x.substr(1)) : Z_read_N_data(x);
     }
     
-    void Z::write(std::ostream& o, const Z& n) {
-        throw method::unimplemented{};
+}
+
+namespace data::encoding::hexidecimal {
+    
+    string write(const math::number::gmp::Z& n) {
+        std::stringstream ss;
+        ss << std::hex << n;
+        return ss.str();
     }
     
-    string write_hex(const Z& n) {
-        std::stringstream ss;
-        ss << std::hex;
-        Z::write(ss, n);
-        return ss.str();
-    }
-                
-    string write_dec(const Z& n) {
-        std::stringstream ss;
-        ss << std::dec;
-        Z::write(ss, n);
-        return ss.str();
-    }
+}
 
+namespace data::encoding::decimal {
+    
+    string write(const math::number::gmp::Z& n) {
+        std::stringstream ss;
+        ss << std::dec << n;
+        return ss.str();
+    }
+    
+}
+
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z n) {
+    throw data::method::unimplemented{};
 }

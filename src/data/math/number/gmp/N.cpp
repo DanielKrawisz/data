@@ -25,29 +25,37 @@ namespace data::math::number::gmp {
         o << gmp_format;
     }
     
-    void N::write(std::ostream& o, const N& n) {
-        if (o.flags() & std::ios::hex) {
-            N_write_hex(o, n);
-            return;
-        }
-        if (o.flags() & std::ios::dec) {
-            N_write_dec(o, n);
-            return;
-        }
-        o << &n.Value.MPZ;
+}
+
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N n) {
+    if (o.flags() & std::ios::hex) {
+        N_write_hex(o, n);
+        return o;
+    }
+    if (o.flags() & std::ios::dec) {
+        N_write_dec(o, n);
+        return o;
+    }
+    o << &n.Value.MPZ;
+    return o;
+}
+
+namespace data::encoding::hexidecimal { 
+    
+    string write(const math::number::gmp::N& n) {
+        std::stringstream ss;
+        ss << std::hex << n;
+        return ss.str();
     }
     
-    string write_hex(const N& n) {
+}
+
+namespace data::encoding::decimal {
+    
+    string write(const math::number::gmp::N& n) {
         std::stringstream ss;
-        ss << std::hex;
-        N::write(ss, n);
+        ss << std::dec << n;
         return ss.str();
     }
-                
-    string write_dec(const N& n) {
-        std::stringstream ss;
-        ss << std::dec;
-        N::write(ss, n);
-        return ss.str();
-    }
+    
 }

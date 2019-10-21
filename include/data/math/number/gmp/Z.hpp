@@ -286,20 +286,14 @@ namespace data::math::number::gmp {
         
         N abs() const;
         
-        static void write(std::ostream& o, const Z& n);
-        
         constexpr static math::number::integer<Z> is_integer{};
         
         template <typename indexed, size_t size, endian::order o> 
-        explicit Z(const bounded::number<indexed, size, o, true>&) {
+        explicit Z(const bounded<indexed, size, o, true>&) {
             throw method::unimplemented{};
         }
         
     };
-                
-    string write_hex(const Z& n);
-                
-    string write_dec(const Z& n);
     
     N square(const Z& z);
     
@@ -308,5 +302,19 @@ namespace data::math::number::gmp {
     N norm(const Z& z);
 
 }
+
+namespace data::encoding::hexidecimal {
+    
+    string write(const math::number::gmp::Z& n);
+    
+}
+
+namespace data::encoding::decimal {
+    
+    string write(const math::number::gmp::Z& n);
+    
+}
+
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z n);
 
 #endif

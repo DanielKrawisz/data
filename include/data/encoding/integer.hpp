@@ -14,96 +14,97 @@
 #include <ctre.hpp>
 
 namespace data::encoding {
-    struct decimal {
-        static constexpr auto pattern = ctll::fixed_string{"^0|([1-9][0-9]*)$"};
+    namespace decimal {
+        constexpr auto pattern = ctll::fixed_string{"^0|([1-9][0-9]*)$"};
         
-        static bool valid(string_view s) {
+        inline bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 
         
-        static bool nonzero(string_view s) {
+        inline bool nonzero(string_view s) {
             return valid(s) && s[0] != '0';
         }
         
-        static uint32 digits(string_view s) {
+        inline uint32 digits(string_view s) {
             return valid(s) ? s.size() : 0;
         }
     };
     
-    struct hexidecimal {
-        static constexpr auto pattern = ctll::fixed_string{"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
+    namespace hexidecimal {
+        constexpr auto pattern = ctll::fixed_string{"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
         
-        static constexpr auto zero_pattern = ctll::fixed_string{"^0x(00)*$"};
+        constexpr auto zero_pattern = ctll::fixed_string{"^0x(00)*$"};
         
-        static bool valid(string_view s) {
+        inline bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 
         
-        static bool zero(string_view s) {
+        inline bool zero(string_view s) {
             return ctre::match<zero_pattern>(s);
         }
         
-        static bool nonzero(string_view s) {
+        inline bool nonzero(string_view s) {
             return valid(s) && !ctre::match<zero_pattern>(s);
         }
         
-        static uint32 digits(string_view s) {
+        inline uint32 digits(string_view s) {
             return valid(s) ? s.size() - 2 : 0;
         }
     };
     
-    struct natural {
-        static constexpr auto pattern = ctll::fixed_string{
+    namespace natural {
+        constexpr auto pattern = ctll::fixed_string{
             "^0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
         
-        static constexpr auto zero_pattern = ctll::fixed_string{"^0|0x(00)*$"};
+        constexpr auto zero_pattern = ctll::fixed_string{"^0|0x(00)*$"};
         
-        static bool valid(string_view s) {
+        inline bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 
         
-        static bool zero(string_view s) {
+        inline bool zero(string_view s) {
             return ctre::match<zero_pattern>(s);
         }
         
-        static bool nonzero(string_view s) {
+        inline bool nonzero(string_view s) {
             return valid(s) && !ctre::match<zero_pattern>(s);
         }
         
-        static uint32 digits(string_view s) {
+        inline uint32 digits(string_view s) {
             return std::max(decimal::digits(s), hexidecimal::digits(s));
         }
     };
     
-    struct integer {
-        static constexpr auto pattern = ctll::fixed_string{
+    namespace integer {
+        constexpr auto pattern = ctll::fixed_string{
             "^0|(-?[1-9][0-9]*)|(-?0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
         
-        static constexpr auto zero_pattern = ctll::fixed_string{
+        constexpr auto zero_pattern = ctll::fixed_string{
             "^0|0x(00)*$"};
         
-        static constexpr auto negative_pattern = ctll::fixed_string{
+        constexpr auto negative_pattern = ctll::fixed_string{
             "-(([1-9][0-9]*)|(0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
         
-        static bool valid(string_view s) {
+        inline bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 
         
-        static bool negative(string_view s) {
+        inline bool negative(string_view s) {
             return ctre::match<negative_pattern>(s);
         }
         
-        static bool zero(string_view s) {
+        inline bool zero(string_view s) {
             return ctre::match<zero_pattern>(s);
         }
         
-        static bool nonzero(string_view s) {
+        inline bool nonzero(string_view s) {
             return valid(s) && !ctre::match<zero_pattern>(s);
         }
         
-        static uint32 digits(string_view s) {
+        inline uint32 digits(string_view s) {
             return negative(s) ? natural::digits(s.substr(1, s.size() - 1)) : natural::digits(s);
         }
+        
     };
     
 }

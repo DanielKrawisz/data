@@ -48,6 +48,6 @@ TEST_F(DigestTest, DigestOrdering) {
 }
 
 TEST_F(DigestTest, SHA256) {
-    EXPECT_TRUE(data::sha256::hash(std::string{}) == data::crypto::digest<32>{"0xa4debfde93df7b31f720884571a6752ac3b89cbf8cfe25ab72e89ea1d9835857"});
+    EXPECT_TRUE(data::sha256::hash(std::string{"Jackdaws love my big sphynx of quartz."}) == data::crypto::digest<32>{"0xa6db66ca9b32ea762f89c16f7cddca8a8d8c606fe0649ccda57178d8b7184282"});
     
 }
