@@ -179,9 +179,7 @@ namespace data {
             bounded& operator>>=(int32);
             
         private:
-            explicit bounded(gmp::N n) {
-                throw method::unimplemented{};
-            }
+            explicit bounded(const gmp::N& n);
         };
         
         template <typename indexed, size_t size, endian::order o>
@@ -253,9 +251,7 @@ namespace data {
             bounded& operator>>=(int32);
             
         private:
-            explicit bounded(gmp::Z z) {
-                throw method::unimplemented{};
-            }
+            explicit bounded(const gmp::Z& z);
         };
         
     }
@@ -526,6 +522,16 @@ namespace data {
             
             return true;
         }
+    
+        template <typename indexed, size_t size, endian::order o>
+        bool bounded<indexed, size, o, true>::operator<(const bounded& n) const {
+            throw method::unimplemented{};
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bool bounded<indexed, size, o, true>::operator<=(const bounded& n) const {
+            throw method::unimplemented{};
+        }
         
         template <typename indexed, size_t size, endian::order o>
         bounded<indexed, size, o, false>::bounded(string_view s) : bounded{} {
@@ -533,10 +539,7 @@ namespace data {
             
             if (encoding::hexidecimal::valid(s) && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
             
-            gmp::N n{s};
-            if (n > gmp::N{max()}) throw std::invalid_argument{"number too big"};
-            
-            *this = bounded{n};
+            *this = bounded{gmp::N{s}};
             
         }
         
@@ -550,10 +553,7 @@ namespace data {
             
             if (hexidecimal && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
             
-            gmp::Z z{s};
-            if (z > gmp::Z{max()} || z < gmp::Z{min()}) throw std::invalid_argument{"number out of range"};
-            
-            *this = bounded{z};
+            *this = bounded{gmp::Z{s}};
             
         }
         
@@ -586,6 +586,19 @@ namespace data {
             w.set(words_type::last, 0x7fffffff);
             for (int i = 0; i < words_type::last; i++) w.set(i, 0xffffffff);
             return b;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, false>::bounded(const gmp::N& n) {
+            if (n > gmp::N{max()}) throw std::invalid_argument{"too high."};
+            throw method::unimplemented{};
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, true>::bounded(const gmp::Z& n) {
+            if (n > gmp::Z{max()}) throw std::invalid_argument{"too high."};
+            if (n < gmp::Z{min()}) throw std::invalid_argument{"too low."};
+            throw method::unimplemented{};
         }
         
     }

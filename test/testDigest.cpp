@@ -43,8 +43,10 @@ TEST_F(DigestTest, DigestOrdering) {
     
     EXPECT_TRUE(min < max);
     EXPECT_TRUE(mid < max);
+    EXPECT_TRUE(min < mid);
     EXPECT_FALSE(max < min);
     EXPECT_FALSE(max < mid);
+    EXPECT_FALSE(mid < min);
 }
 
 TEST_F(DigestTest, SHA256) {

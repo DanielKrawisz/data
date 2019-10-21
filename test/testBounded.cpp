@@ -35,6 +35,18 @@ namespace {
         EXPECT_EQ(signed_bounded_8_big::max(),    signed_bounded_8_big{   "0x7FFFFFFFFFFFFFFF"});
         EXPECT_EQ(signed_bounded_8_little::max(), signed_bounded_8_little{"0x7FFFFFFFFFFFFFFF"});
         
+        EXPECT_TRUE(unsigned_bounded_8_big::max() > unsigned_bounded_8_big::min());
+        EXPECT_TRUE(unsigned_bounded_8_little::max() > unsigned_bounded_8_little::min());
+        
+        EXPECT_FALSE(unsigned_bounded_8_big::max() < unsigned_bounded_8_big::min());
+        EXPECT_FALSE(unsigned_bounded_8_little::max() < unsigned_bounded_8_little::min());
+        
+        EXPECT_TRUE(signed_bounded_8_big::max() > signed_bounded_8_big::min());
+        EXPECT_TRUE(signed_bounded_8_little::max() > signed_bounded_8_little::min());
+        
+        EXPECT_FALSE(signed_bounded_8_big::max() < signed_bounded_8_big::min());
+        EXPECT_FALSE(signed_bounded_8_little::max() < signed_bounded_8_little::min());
+        
     }
     
     TEST(BoundedTest, BoundedReadString) {
