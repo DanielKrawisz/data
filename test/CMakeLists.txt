@@ -54,8 +54,9 @@ add_test(NAME DigestOrdering COMMAND testData)
 add_test(NAME SHA256 COMMAND testData)
 
 # Test Bounded
-add_test(NAME BoundedEqual COMMAND testData)
-add_test(NAME BoundedNotEqual COMMAND testData)
+add_test(NAME BoundedMinMax COMMAND testData)
+add_test(NAME BoundedReadString COMMAND testData)
+add_test(NAME Bounded01 COMMAND testData)
 
 # Test Stream
 add_test(NAME StreamWriteUint16Big COMMAND testData)

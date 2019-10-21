@@ -147,13 +147,8 @@ namespace data {
             bounded& operator-=(const uint32&);
             bounded& operator*=(const uint32&);
             
-            static bounded max() {
-                throw method::unimplemented{};
-            }
-            
-            static bounded min() {
-                throw method::unimplemented{};
-            }
+            static bounded max();
+            static bounded min();
             
             bounded& operator++() {
                 operator+=(1);
@@ -226,13 +221,8 @@ namespace data {
             bounded& operator-=(const int32&);
             bounded& operator*=(const int32&);
             
-            static bounded max() {
-                throw method::unimplemented{};
-            }
-            
-            static bounded min() {
-                throw method::unimplemented{};
-            }
+            static bounded max();
+            static bounded min();
             
             bounded& operator++() {
                 operator+=(1);
@@ -567,7 +557,39 @@ namespace data {
             
         }
         
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, false> bounded<indexed, size, o, false>::min() {
+            return 0;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, false> bounded<indexed, size, o, false>::max() {
+            bounded b{};
+            words_type w = b.words();
+            for (int i = 0; i <= words_type::last; i++) w.set(i, 0xffffffff);
+            return b;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, true> bounded<indexed, size, o, true>::min() {
+            bounded b{};
+            words_type w = b.words();
+            w.set(words_type::last, 0x80000000);
+            for (int i = 0; i < words_type::last; i++) w.set(i, 0);
+            return b;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, true> bounded<indexed, size, o, true>::max() {
+            bounded b{};
+            words_type w = b.words();
+            w.set(words_type::last, 0x7fffffff);
+            for (int i = 0; i < words_type::last; i++) w.set(i, 0xffffffff);
+            return b;
+        }
+        
     }
 
 }
+
 #endif

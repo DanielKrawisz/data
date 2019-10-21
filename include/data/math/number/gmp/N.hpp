@@ -52,6 +52,18 @@ namespace data::math::number::gmp {
             return Value == z;
         }
         
+        bool operator!=(uint64 n) const {
+            return !operator==(n);
+        }
+        
+        bool operator!=(const N& n) const {
+            return !operator==(n);
+        }
+        
+        bool operator!=(const Z& z) const {
+            return !operator==(z);
+        }
+        
         bool operator<(uint64 n) const {
             return __gmp_binary_less::eval(Value.MPZ, (unsigned long int)(n));
         }

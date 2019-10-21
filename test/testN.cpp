@@ -10,7 +10,7 @@ namespace {
     using N = data::math::number::gmp::N;
     using N = data::math::number::gmp::N;
     using namespace data::exported;
-
+    
     TEST(NTest, TestStringToN) {
         
         EXPECT_FALSE(N{}.valid());
@@ -34,17 +34,17 @@ namespace {
         EXPECT_FALSE(N{1} == N{"0"});
         EXPECT_FALSE(N{0} == N{"1"});
         
-        EXPECT_EQ(data::math::number::gmp::write_hex(N{0}), "0x00");
-        EXPECT_EQ(data::math::number::gmp::write_dec(N{0}), "0");
-        EXPECT_EQ(data::math::number::gmp::write_hex(N{1}), "0x01");
-        EXPECT_EQ(data::math::number::gmp::write_dec(N{1}), "1");
+        EXPECT_EQ(data::encoding::hexidecimal::write(N{0}), "0x00");
+        EXPECT_EQ(data::encoding::decimal::write(N{0}), "0");
+        EXPECT_EQ(data::encoding::hexidecimal::write(N{1}), "0x01");
+        EXPECT_EQ(data::encoding::decimal::write(N{1}), "1");
         
         EXPECT_TRUE(N{1} == N{"1"});
         EXPECT_TRUE(N{1} == N{"0x01"});
         EXPECT_TRUE(N{1} == N{"0x0001"});
         
     }
-
+    
     TEST(NTest, TestStringToZ) {
         
         EXPECT_FALSE(Z{}.valid());
@@ -55,15 +55,15 @@ namespace {
         EXPECT_EQ(Z{"-1"}, Z{"-0x01"});
         EXPECT_EQ(N{}, N{""});
         
-        EXPECT_EQ(data::math::number::gmp::write_hex(Z{0}), "0x00");
-        EXPECT_EQ(data::math::number::gmp::write_dec(Z{0}), "0");
-        EXPECT_EQ(data::math::number::gmp::write_hex(Z{1}), "0x01");
-        EXPECT_EQ(data::math::number::gmp::write_dec(Z{1}), "1");
-        EXPECT_EQ(data::math::number::gmp::write_hex(Z{-1}), "-0x01");
-        EXPECT_EQ(data::math::number::gmp::write_dec(Z{-1}), "-1");
+        EXPECT_EQ(data::encoding::hexidecimal::write(Z{0}), "0x00");
+        EXPECT_EQ(data::encoding::decimal::write(Z{0}), "0");
+        EXPECT_EQ(data::encoding::hexidecimal::write(Z{1}), "0x01");
+        EXPECT_EQ(data::encoding::decimal::write(Z{1}), "1");
+        EXPECT_EQ(data::encoding::hexidecimal::write(Z{-1}), "-0x01");
+        EXPECT_EQ(data::encoding::decimal::write(Z{-1}), "-1");
         
     }
-
+    
     TEST(NTest, TestMultiply) {
         
         EXPECT_TRUE(N{0} * N{0} == N{0});
@@ -84,7 +84,7 @@ namespace {
         EXPECT_TRUE(n == N{2});
         
     }
-
+    
     TEST(NTest, TestDivision) {
         
         data::math::division<N> div = N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"}.divide(58);
@@ -93,7 +93,7 @@ namespace {
         EXPECT_EQ(div.Remainder, N{25});
         
     }
-
+    
     TEST(NTest, TestShift) {
         
         EXPECT_TRUE(N{1} >>  1 == N{"0x00000000000000000000"});
@@ -103,7 +103,7 @@ namespace {
         EXPECT_TRUE(N{1} << 79 == N{"0x80000000000000000000"});
         
     }
-
+    
     TEST(NTest, TestN) {
         
         // parameters from https://en.bitcoin.it/wiki/Secp256k1
@@ -135,5 +135,5 @@ namespace {
         EXPECT_FALSE(n == N{p_dec});
         
     }
-
+    
 }
