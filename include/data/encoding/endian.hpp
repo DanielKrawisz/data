@@ -66,7 +66,7 @@ namespace data::endian {
             return *this;
         }
         
-        operator X() {
+        operator X() const {
             return native<X, o>::to(Value);
         }
         

@@ -588,17 +588,47 @@ namespace data {
             return b;
         }
         
-        template <typename indexed, size_t size, endian::order o>
-        bounded<indexed, size, o, false>::bounded(const gmp::N& n) {
-            if (n > gmp::N{max()}) throw std::invalid_argument{"too high."};
-            throw method::unimplemented{};
+        namespace low {
+            
+            template <typename gmp_limb, typename bit32> struct mpz_to_words;
+            
+            template <typename bit32> struct mpz_to_words<uint64, bit32> {
+                template <size_t size, endian::order o>
+                void operator()(const gmp::Z& z, encoding::words<4 * size, size, 0, bit32, o> w) {
+                    if (z.size() * 2 <= size) {
+                        int j = 0;
+                        for (auto i = z.begin(); i != z.end(); i++) {
+                            w.set(j, lesser(*i));
+                            w.set(j + 1, greater(*i));
+                            j += 2;
+                        }
+                    } else {
+                        for (int j = 0; j <= size; j += 2) {
+                            uint64 word = z[j/2];
+                            w.set(j, lesser(word));
+                            w.set(j + 1, greater(word));
+                        }
+                        if (size % 2 == 1) w.set(size - 1, lesser(z[size / 2 + 1]));
+                    } 
+                }
+            };
+            
         }
         
         template <typename indexed, size_t size, endian::order o>
-        bounded<indexed, size, o, true>::bounded(const gmp::Z& n) {
-            if (n > gmp::Z{max()}) throw std::invalid_argument{"too high."};
+        bounded<indexed, size, o, false>::bounded(const gmp::N& n) : bounded{0} {
+            if (n > gmp::N{max()}) throw std::invalid_argument{"too high."};
+            
+            low::mpz_to_words<gmp::gmp_uint, uint32>{}(n, ray::words());
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        bounded<indexed, size, o, true>::bounded(const gmp::Z& n) : bounded{0} {
+            gmp::Z m{max()};
+            if (n > m) throw std::invalid_argument{"too high."};
             if (n < gmp::Z{min()}) throw std::invalid_argument{"too low."};
-            throw method::unimplemented{};
+            
+            low::mpz_to_words<gmp::gmp_uint, int32>{}(n < 0 ? m - n : n, ray::words());
         }
         
     }

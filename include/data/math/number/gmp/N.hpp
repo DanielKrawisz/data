@@ -226,15 +226,11 @@ namespace data::math::number::gmp {
         }
         
         N operator<<(int64 x) const {
-            N n{};
-            __gmp_binary_lshift::eval(&n.Value.MPZ[0], &Value.MPZ[0], x);
-            return n;
+            return N{Value << x};
         }
         
         N operator>>(int64 x) const {
-            N n{};
-            __gmp_binary_rshift::eval(&n.Value.MPZ[0], &Value.MPZ[0], x);
-            return n;
+            return N{Value >> x};
         }
         
         N& operator<<=(int64 x) {
@@ -255,9 +251,7 @@ namespace data::math::number::gmp {
         constexpr static math::number::natural::interface<N> is_natural{};
         
         template <typename indexed, size_t size, endian::order o> 
-        explicit N(const bounded<indexed, size, o, false>&) {
-            throw method::unimplemented{};
-        }
+        explicit N(const bounded<indexed, size, o, false>& b) : Value{b} {}
         
     private:
         explicit N(const Z& z) : Value{z} {}

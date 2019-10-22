@@ -284,13 +284,51 @@ namespace data::math::number::gmp {
             return operator=(r);
         }
         
+        Z operator<<(int64 x) const {
+            Z n{};
+            __gmp_binary_lshift::eval(&n.MPZ[0], &MPZ[0], x);
+            return n;
+        }
+        
+        Z operator>>(int64 x) const {
+            Z n{};
+            __gmp_binary_rshift::eval(&n.MPZ[0], &MPZ[0], x);
+            return n;
+        }
+        
+        Z& operator<<=(int64 x) {
+            __gmp_binary_lshift::eval(&MPZ[0], &MPZ[0], x);
+            return *this;
+        }
+        
+        Z& operator>>=(int64 x) {
+            __gmp_binary_lshift::eval(&MPZ[0], &MPZ[0], x);
+            return *this;
+        }
+        
         N abs() const;
         
         constexpr static math::number::integer<Z> is_integer{};
         
         template <typename indexed, size_t size, endian::order o> 
-        explicit Z(const bounded<indexed, size, o, true>&) {
-            throw method::unimplemented{};
+        explicit Z(const bounded<indexed, size, o, true>& b) : Z{0}{
+            typename bounded<indexed, size, o, true>::words_type w = b.words();
+            for (int i = bounded<indexed, size, o, true>::words_type::last; i > 0; i--) {
+                operator+=(uint32(int32(w[i])));
+                operator<<=(32);
+            }
+            operator+=(uint32(int32(w[0])));
+            if (b < 0) operator=(Z{bounded<indexed, size, o, true>::max()} - *this); 
+        }
+        
+        template <typename indexed, size_t size, endian::order o> 
+        explicit Z(const bounded<indexed, size, o, false>& b) : Z{0}{
+            typename bounded<indexed, size, o, false>::words_type w = b.words();
+            for (int i = bounded<indexed, size, o, false>::words_type::last; i > 0; i--) {
+                operator+=(uint32(w[i]));
+                operator<<=(32);
+            }
+            operator+=(uint32(w[0]));
         }
         
     };

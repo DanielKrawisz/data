@@ -15,23 +15,26 @@ namespace data::ripemd160 {
     
     const digest Zero = digest{};
     
-    digest hash(const bytes&);
+    digest hash(const bytes_view);
     
-    template <uint32 n>
+    inline digest hash(const string& s) {
+        return hash(bytes_view{(byte*)(const_cast<string&>(s).data()), s.size()});
+    }
+
+    template <size_t n>
     digest hash(const std::array<byte, n>& data){
-        std::array<byte, size> hash{};
-        CryptoPP::RIPEMD160 rhash;
-        rhash.CalculateDigest(hash.data(), data.data(), data.size());
-        return uint<size>{hash};
+        return hash(bytes_view(data.data(), data.size()));
     };
     
-    template <uint32 n>
+    template <size_t n>
     digest hash(const uint<n>& data){
-        std::array<byte, size> hash{};
-        CryptoPP::RIPEMD160 rhash;
-        rhash.CalculateDigest(hash.data(), data.begin(), data.size);
-        return uint<size>{hash};
-    };
+        return hash(data.Array);
+    }
+    
+    template <typename A>
+    inline digest double_hash(A a) {
+        return hash<size>(hash(a).Digest);
+    }
 
 }
 

@@ -5,10 +5,10 @@
 
 namespace data::sha256 {
 
-    digest hash(const data::slice<byte>& data) {
+    digest hash(const bytes_view data) {
+        static CryptoPP::SHA256 shaHash;
         std::array<byte, size> hash;
-        CryptoPP::SHA256 shaHash;
-        shaHash.CalculateDigest(hash.data(),data.begin(),data.size());
+        shaHash.CalculateDigest(hash.data(), data.begin(), data.size());
         return uint<size>{hash};
     }
 
