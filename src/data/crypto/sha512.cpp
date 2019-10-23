@@ -4,9 +4,8 @@
 namespace data::sha512 {
 
     digest hash(const bytes_view data) {
-        static CryptoPP::SHA512 shaHash;
         std::array<byte, size> hash;
-        shaHash.CalculateDigest(hash.data(),data.begin(),data.size());
+        CryptoPP::SHA512{}.CalculateDigest(hash.data(),data.begin(),data.size());
         return uint<size>{hash};
     }
 

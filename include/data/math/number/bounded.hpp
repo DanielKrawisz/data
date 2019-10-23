@@ -121,10 +121,8 @@ namespace data {
             using typename ray::methods;
             
             bounded(uint64 x) : ray{} {
-                uint32 l = lesser(x);
-                uint32 g = greater(x);
-                ray::words().set(0, endian::ordered<uint32, o>::as(l));
-                ray::words().set(1, endian::ordered<uint32, o>::as(g));
+                ray::words().set(0, endian::ordered<uint32, o>{lesser(x)});
+                ray::words().set(1, endian::ordered<uint32, o>{greater(x)});
             }
             
             bounded(bounded<indexed, size, ray::opposite_endian, false> n) : 
@@ -195,8 +193,8 @@ namespace data {
             
             bounded(int64 x) : ray{} {
                 if (x < 0) operator--();
-                ray::words().set(0, endian::ordered<int32, o>::as(lesser(x)));
-                ray::words().set(1, endian::ordered<int32, o>::as(greater(x)));
+                ray::words().set(0, endian::ordered<int32, o>{lesser(x)});
+                ray::words().set(1, endian::ordered<int32, o>{greater(x)});
             }
             
             bounded(bounded<indexed, size, ray::opposite_endian, true> n) : 

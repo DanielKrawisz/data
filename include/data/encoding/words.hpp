@@ -30,11 +30,12 @@ namespace data::encoding {
         constexpr static const index last = size - 1;
         
         const endian::ordered<bit32, o> operator[](index i) const {
-            return endian::ordered<bit32, o>::as(*(bit32*)(&Data[4 * i]));
+            // inefficient as o is known at compile time. 
+            return endian::ordered<bit32, o>::as(*(bit32*)(&Data[o == endian::little ? 4 * i : 4 * (last - i)]));
         }
         
         const endian::ordered<bit32, o> set(index i, endian::ordered<bit32, o> x) const {
-            return *(bit32*)(&Data[4 * i]) = x.Value;
+            return *(bit32*)(&Data[o == endian::little ? 4 * i : 4 * (last - i)]) = x.Value;
         }
     };
     

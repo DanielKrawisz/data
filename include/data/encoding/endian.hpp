@@ -41,12 +41,14 @@ namespace data::endian {
     
     template <typename X, order o> struct ordered {
         X Value;
-        ordered<X, o>(X x) : Value{x} {}
+        ordered<X, o>(X x) : Value{native<X, o>::from(x)} {}
         
         ordered<X, o>() : Value{0} {}
         
         static ordered as(X x) {
-            return ordered{x};
+            ordered oo{};
+            oo.Value = x;
+            return oo;
         }
         
         constexpr static order opposite = o == little ? big : little;

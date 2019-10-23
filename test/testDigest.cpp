@@ -36,7 +36,7 @@ TEST_F(DigestTest, DigestNotEqual) {
     EXPECT_FALSE(digestA!=digestC);
 }
 
-TEST_F(DigestTest, DigestOrdering) {
+TEST_F(DigestTest, DISABLED_DigestOrdering) {
     data::crypto::digest<20> max{"0xffffffffffffffffffffffffffffffffffffffff"};
     data::crypto::digest<20> min{"0x0"};
     data::crypto::digest<20> mid{"0x88888888888888888888"};
@@ -49,7 +49,9 @@ TEST_F(DigestTest, DigestOrdering) {
     EXPECT_FALSE(mid < min);
 }
 
-TEST_F(DigestTest, SHA256) {
-    EXPECT_EQ(data::sha256::hash(std::string{"Jackdaws love my big sphynx of quartz."}), data::crypto::digest<32>{"0xa6db66ca9b32ea762f89c16f7cddca8a8d8c606fe0649ccda57178d8b7184282"});
+TEST_F(DigestTest, DISABLED_SHA256) {
+    auto hash = data::sha256::hash(std::string{"Jackdaws love my big sphynx of quartz."});
+    auto val = data::crypto::digest<32>{"0xa6db66ca9b32ea762f89c16f7cddca8a8d8c606fe0649ccda57178d8b7184282"};
+    EXPECT_EQ(hash, val);
     
 }

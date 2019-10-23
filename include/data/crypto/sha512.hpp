@@ -18,7 +18,7 @@ namespace data::sha512 {
     digest hash(const bytes_view);
     
     inline digest hash(const string& s) {
-        return hash(bytes_view{(byte*)(const_cast<string&>(s).data()), s.size()});
+        return hash(bytes_view{(byte*)(const_cast<string&>(s).data()), s.size() * sizeof(char)});
     }
 
     template <size_t n>
