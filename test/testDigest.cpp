@@ -38,7 +38,7 @@ TEST_F(DigestTest, DigestNotEqual) {
     EXPECT_FALSE(digestA!=digestC);
 }
 
-TEST_F(DigestTest, DISABLED_DigestOrdering) {
+TEST_F(DigestTest, DigestOrdering) {
     data::crypto::digest<20> max{"0xffffffffffffffffffffffffffffffffffffffff"};
     data::crypto::digest<20> min{"0x0"};
     data::crypto::digest<20> mid{"0x88888888888888888888"};
@@ -51,7 +51,7 @@ TEST_F(DigestTest, DISABLED_DigestOrdering) {
     EXPECT_FALSE(mid < min);
 }
 
-TEST_F(DigestTest, DISABLED_Hash) {
+TEST_F(DigestTest, Hash) {
     std::string msg{"Jackdaws love my big sphynx of quartz."};
     
     auto SHA256_hash = data::sha256::hash(msg);

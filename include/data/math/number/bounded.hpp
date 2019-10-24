@@ -56,7 +56,7 @@ namespace data {
             
             using word = endian::ordered<bit32, endian>;
             using words_type = data::encoding::words<n, n / 4, 0, bit32, o>;
-            using methods = ::data::encoding::methods<n, endian::ordered<bit32, endian>, words_type>;
+            using methods = ::data::encoding::methods<n / 4, word, words_type>;
             
             words_type words() {
                 return words_type{slice<byte, n>{Array}};
@@ -238,7 +238,7 @@ namespace data {
             
             bounded operator--(int) {
                 bounded z = *this;
-                ++(*this);
+                --(*this);
                 return z;
             }
                 
@@ -523,12 +523,36 @@ namespace data {
     
         template <typename indexed, size_t size, endian::order o>
         bool bounded<indexed, size, o, true>::operator<(const bounded& n) const {
-            throw method::unimplemented{};
+            words_type a = ray::words();
+            words_type b = n.words();
+            int last = words_type::last;
+            
+            if (a[last] < b[last]) return true;
+            if (a[last] > b[last]) return false;
+            
+            for (int i = words_type::last - 1; i >= 0; i--) {
+                if (uint32(a[i]) < uint32(b[i])) return true;
+                if (uint32(a[i]) > uint32(b[i])) return false;
+            }
+            
+            return false;
         }
         
         template <typename indexed, size_t size, endian::order o>
         bool bounded<indexed, size, o, true>::operator<=(const bounded& n) const {
-            throw method::unimplemented{};
+            words_type a = ray::words();
+            words_type b = n.words();
+            int last = words_type::last;
+            
+            if (a[last] < b[last]) return true;
+            if (a[last] > b[last]) return false;
+            
+            for (int i = words_type::last - 1; i >= 0; i--) {
+                if (uint32(a[i]) < uint32(b[i])) return true;
+                if (uint32(a[i]) > uint32(b[i])) return false;
+            }
+            
+            return true;
         }
         
         template <typename indexed, size_t size, endian::order o>

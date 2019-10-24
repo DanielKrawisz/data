@@ -74,6 +74,18 @@ namespace {
         
     }
     
+    TEST(BoundedTest, BoundedSign) {
+        
+        EXPECT_FALSE(signed_bounded_8_big{0} < 0);
+        EXPECT_FALSE(signed_bounded_8_big{1} < 0);
+        EXPECT_TRUE(signed_bounded_8_big{-1} < 0);
+        
+        EXPECT_FALSE(signed_bounded_8_little{0} < 0);
+        EXPECT_FALSE(signed_bounded_8_little{1} < 0);
+        EXPECT_FALSE(signed_bounded_8_little{-1} < 0);
+        
+    }
+    
     TEST(BoundedTest, Bounded01) {
         
         EXPECT_EQ(N{unsigned_bounded_8_big{0}}, N{0});

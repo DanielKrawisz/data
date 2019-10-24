@@ -106,7 +106,7 @@ namespace data::encoding {
     template <uint32 size, typename word, typename words> 
     void methods<size, word, words>::minus(const words a, const words b, words result) {
         word remainder{0};
-        for (int32 i = 0; i < size; i++) {
+        for (int32 i = words::last; i >= 0; i--) {
             twice w = extend(a[i]) - extend(b[i]);
             result[i] = remainder + lesser(w);
             remainder = greater(w);
@@ -137,16 +137,16 @@ namespace data::encoding {
     
     template <uint32 size, typename word, typename words> 
     void methods<size, word, words>::minus(const words a, const word b, words result) {
-        word remainder{0};
+        int i = 0;
+        word remainder = b;
         
-        word wo = a[last];
-        twice w = extend(wo) - extend(b);
-        result.set(last, remainder + lesser(w));
-        remainder = greater(w);
-        
-        w = extend(a[last-1]);
-        result.set(last - 1, remainder + lesser(w));
-        remainder = greater(w);
+        while (i <= last && remainder != word{0}) {
+            word wo = a[i];
+            twice w = extend(wo) - extend(remainder);
+            result.set(i, lesser(w));
+            remainder = -greater(w);
+            i++;
+        }
     }
     
     template <uint32 size, typename word, typename words>  
