@@ -23,6 +23,10 @@ namespace data::encoding::hex {
     }
     
     std::string write(bytes_view);
+    std::string write(uint64);
+    std::string write(uint32);
+    std::string write(uint16);
+    std::string write(byte);
     
     class string {
         string_view String;

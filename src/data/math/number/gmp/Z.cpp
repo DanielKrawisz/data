@@ -81,7 +81,7 @@ namespace data::encoding::decimal {
     
 }
 
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z n) {
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
     if (o.flags() & std::ios::hex) {
         data::math::number::gmp::Z_write_hex(o, n);
         return o;

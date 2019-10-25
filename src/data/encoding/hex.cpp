@@ -4,6 +4,7 @@
 
 #include <data/encoding/hex.hpp>
 #include <data/encoding/invalid.hpp>
+#include <data/encoding/endian.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iterator>
@@ -28,5 +29,24 @@ namespace  data::encoding::hex {
         std::string output;
         boost::algorithm::hex(sourceBytes.begin(),sourceBytes.end(),std::back_inserter(output));
         return data::string(output);
+    }
+    
+    std::string write(uint64 x) {
+        auto o = endian::ordered<uint64, endian::big>{x};
+        return write(bytes_view{(byte*)(&o.Value), sizeof(uint64)});
+    }
+    
+    std::string write(uint32 x) {
+        auto o = endian::ordered<uint32, endian::big>{x};
+        return write(bytes_view{(byte*)(&o.Value), sizeof(uint32)});
+    }
+    
+    std::string write(uint16 x) {
+        auto o = endian::ordered<uint16, endian::big>{x};
+        return write(bytes_view{(byte*)(&o.Value), sizeof(uint16)});
+    }
+    
+    std::string write(byte x) {
+        return write(bytes_view{(byte*)(&x), sizeof(byte)});
     }
 }

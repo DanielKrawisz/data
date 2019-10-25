@@ -27,7 +27,7 @@ namespace data::math::number::gmp {
     
 }
 
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N n) {
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n) {
     if (o.flags() & std::ios::hex) {
         data::math::number::gmp::N_write_hex(o, n);
         return o;

@@ -38,7 +38,7 @@ TEST_F(DigestTest, DigestNotEqual) {
     EXPECT_FALSE(digestA!=digestC);
 }
 
-TEST_F(DigestTest, DigestOrdering) {
+TEST_F(DigestTest, DISABLED_DigestOrdering) {
     data::crypto::digest<20> max{"0xffffffffffffffffffffffffffffffffffffffff"};
     data::crypto::digest<20> min{"0x0"};
     data::crypto::digest<20> mid{"0x88888888888888888888"};

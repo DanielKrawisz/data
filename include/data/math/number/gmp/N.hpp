@@ -351,6 +351,6 @@ namespace data::encoding::decimal {
     
 }
 
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N n);
+std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n);
 
 #endif

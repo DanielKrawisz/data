@@ -267,6 +267,16 @@ namespace data {
     using int256 = integer<32>;
     using int512 = integer<64>;
     
+}
+
+template <size_t size>
+std::ostream& operator<<(std::ostream& o, const data::uint<size>& n);
+
+template <size_t size>
+std::ostream& operator<<(std::ostream& o, const data::integer<size>& n);
+
+namespace data {
+    
     namespace encoding::hexidecimal { 
         
         template <typename indexed, size_t size, endian::order o, bool is_signed>
@@ -653,8 +663,54 @@ namespace data {
             low::mpz_to_words<gmp::gmp_uint, int32>{}(n < 0 ? m - n : n, ray::words());
         }
         
+        namespace low {
+            template <size_t size, data::endian::order o>
+            void write_hex(std::ostream& s,
+                const math::number::bounded<std::array<data::byte, size>, size, o, false>& n) {
+                s << "0x";
+                using words_type = typename math::number::bounded<std::array<data::byte, size>, size, o, false> ::words_type;
+                words_type w = n.words();
+                for (int i = words_type::last; i >= 0; i--) s << encoding::hex::write(uint32(w[i]));
+            }
+            
+            template <size_t size, data::endian::order o>
+            void write_hex(std::ostream& s,
+                const math::number::bounded<std::array<data::byte, size>, size, o, true>& n) {
+                s << "0x";
+                using words_type = typename math::number::bounded<std::array<data::byte, size>, size, o, true>::words_type;
+                words_type w = n.words();
+                for (int i = words_type::last; i >= 0; i--) s << encoding::hex::write(uint32(int32(w[i])));
+            }
+            
+            template <size_t size, data::endian::order o>
+            void write_dec(std::ostream& s, 
+                const math::number::bounded<std::array<data::byte, size>, size, o, false>& n) {
+                s << std::dec << gmp::N{n};
+            }
+            
+            template <size_t size, data::endian::order o>
+            void write_dec(std::ostream& s,
+                const math::number::bounded<std::array<data::byte, size>, size, o, true>& n) {
+                s << std::dec << gmp::Z{n};
+            }
+        }
+        
     }
 
+}
+
+template <size_t size, data::endian::order o, bool is_signed>
+std::ostream& operator<<(std::ostream& s, 
+    const data::math::number::bounded<std::array<data::byte, size>, size, o, is_signed>& n) {
+    if (s.flags() & std::ios::hex) {
+        data::math::number::low::write_hex(s, n);
+        return s;
+    } 
+    if (s.flags() & std::ios::dec) {
+        data::math::number::low::write_dec(s, n);
+        return s;
+    }
+    return s;
 }
 
 #endif
