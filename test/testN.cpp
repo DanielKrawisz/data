@@ -52,8 +52,9 @@ namespace {
         EXPECT_TRUE(Z{"-1"}.valid());
         EXPECT_TRUE(Z{"-0x01"}.valid());
         
-        EXPECT_EQ(Z{"-1"}, Z{"-0x01"});
         EXPECT_EQ(N{}, N{""});
+        EXPECT_EQ(Z{-1}, Z{"-1"});
+        EXPECT_EQ(Z{"-1"}, Z{"-0x01"});
         
         EXPECT_EQ(data::encoding::hexidecimal::write(Z{0}), "0x00");
         EXPECT_EQ(data::encoding::decimal::write(Z{0}), "0");
@@ -61,6 +62,8 @@ namespace {
         EXPECT_EQ(data::encoding::decimal::write(Z{1}), "1");
         EXPECT_EQ(data::encoding::hexidecimal::write(Z{-1}), "-0x01");
         EXPECT_EQ(data::encoding::decimal::write(Z{-1}), "-1");
+        
+        EXPECT_TRUE(Z{"0x80000000000000000000"} > Z{"0x7fffffffffffffffffff"});
         
     }
     

@@ -59,7 +59,7 @@ namespace data {
             if(e < 0) e = len + e;
             if (b >= len || e > len || b >= e || b < 0) return slice{};
 
-            return slice{Begin + b, e - b};
+            return slice{Begin + b, static_cast<size_t>(e - b)};
         }
 
         /// Selects a range from the current slice up to end of slice

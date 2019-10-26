@@ -181,11 +181,18 @@ namespace data::math::number::gmp {
             return sum;
         }
         
+        Z& operator-=(const Z& n) {
+            __gmp_binary_minus::eval(MPZ, MPZ, n.MPZ);
+            return *this;
+        }
+        
         Z operator-(const Z& n) const {
             Z sum{};
             __gmp_binary_minus::eval(sum.MPZ, MPZ, n.MPZ);
             return sum;
         }
+        
+        Z& operator-=(const N&);
         
         Z operator-(const N&) const {
             throw method::unimplemented{};
@@ -318,7 +325,7 @@ namespace data::math::number::gmp {
                 operator<<=(32);
             }
             operator+=(uint32(int32(w[0])));
-            if (b < 0) operator=(Z{bounded<indexed, size, o, true>::max()} - *this); 
+            if (b < 0) operator-=(bounded<indexed, size, o, true>::modulus()); 
         }
         
         template <typename indexed, size_t size, endian::order o> 

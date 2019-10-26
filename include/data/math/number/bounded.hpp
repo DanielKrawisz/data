@@ -147,6 +147,7 @@ namespace data {
             
             static bounded max();
             static bounded min();
+            static gmp::N modulus();
             
             bounded& operator++() {
                 operator+=(1);
@@ -220,6 +221,10 @@ namespace data {
             static bounded max();
             static bounded min();
             
+            static gmp::N modulus() {
+                return bounded<indexed, size, o, false>::modulus();
+            }
+            
             bounded& operator++() {
                 operator+=(1);
                 return *this;
@@ -267,35 +272,17 @@ namespace data {
     using int256 = integer<32>;
     using int512 = integer<64>;
     
-}
-
-template <size_t size>
-std::ostream& operator<<(std::ostream& o, const data::uint<size>& n);
-
-template <size_t size>
-std::ostream& operator<<(std::ostream& o, const data::integer<size>& n);
-
-namespace data {
-    
     namespace encoding::hexidecimal { 
         
         template <typename indexed, size_t size, endian::order o, bool is_signed>
-        string write(const math::number::bounded<indexed, size, o, is_signed>& n) {
-            std::stringstream ss;
-            ss << std::hex << n;
-            return ss.str();
-        }
+        string write(const math::number::bounded<indexed, size, o, is_signed>& n);
         
     }
     
     namespace encoding::decimal {
         
         template <typename indexed, size_t size, endian::order o, bool is_signed>
-        string write(const math::number::bounded<indexed, size, o, is_signed>& n) {
-            std::stringstream ss;
-            ss << std::dec << n;
-            return ss.str();
-        }
+        string write(const math::number::bounded<indexed, size, o, is_signed>& n);
         
     }
     
@@ -570,7 +557,6 @@ namespace data {
             if (!encoding::natural::valid(s)) throw std::invalid_argument{"not a natural number"};
             
             if (encoding::hexidecimal::valid(s) && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
-            
             *this = bounded{gmp::N{s}};
             
         }
@@ -580,12 +566,14 @@ namespace data {
             if (!encoding::integer::valid(s)) throw std::invalid_argument{"not an integer"};
             
             // Is there a minus sign? 
-            bool negative = encoding::integer::negative(s);
-            bool hexidecimal = encoding::hexidecimal::valid(negative ? s.substr(1) : s);
+            bool minus_sign = encoding::integer::negative(s);
+            bool hexidecimal = encoding::hexidecimal::valid(minus_sign ? s.substr(1) : s);
             
             if (hexidecimal && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
             
-            *this = bounded{gmp::Z{s}};
+            gmp::Z z{s};
+            if (z > gmp::Z{max()}) z -= modulus();
+            *this = bounded{z};
             
         }
         
@@ -601,13 +589,20 @@ namespace data {
             for (int i = 0; i <= words_type::last; i++) w.set(i, 0xffffffff);
             return b;
         }
+            
+        
+        template <typename indexed, size_t size, endian::order o>
+        gmp::N bounded<indexed, size, o, false>::modulus() {
+            std::string one = std::string{"0x01"} + encoding::hexidecimal::write(bounded{0}).substr(2);
+            return gmp::N{one};
+        }
         
         template <typename indexed, size_t size, endian::order o>
         bounded<indexed, size, o, true> bounded<indexed, size, o, true>::min() {
             bounded b{};
             words_type w = b.words();
             w.set(words_type::last, 0x80000000);
-            for (int i = 0; i < words_type::last; i++) w.set(i, 0);
+            //for (int i = 0; i < words_type::last; i++) w.set(i, 0);
             return b;
         }
         
@@ -635,7 +630,7 @@ namespace data {
                             j += 2;
                         }
                     } else {
-                        for (int j = 0; j <= size; j += 2) {
+                        for (int j = 0; j < size; j += 2) {
                             uint64 word = z[j/2];
                             w.set(j, lesser(word));
                             w.set(j + 1, greater(word));
@@ -660,7 +655,7 @@ namespace data {
             if (n > m) throw std::invalid_argument{"too high."};
             if (n < gmp::Z{min()}) throw std::invalid_argument{"too low."};
             
-            low::mpz_to_words<gmp::gmp_uint, int32>{}(n < 0 ? m - n : n, ray::words());
+            low::mpz_to_words<gmp::gmp_uint, int32>{}(n < 0 ? n + modulus() : n, ray::words());
         }
         
         namespace low {
@@ -699,7 +694,7 @@ namespace data {
 
 }
 
-template <size_t size, data::endian::order o, bool is_signed>
+template <unsigned long size, data::endian::order o, bool is_signed>
 std::ostream& operator<<(std::ostream& s, 
     const data::math::number::bounded<std::array<data::byte, size>, size, o, is_signed>& n) {
     if (s.flags() & std::ios::hex) {
@@ -711,6 +706,43 @@ std::ostream& operator<<(std::ostream& s,
         return s;
     }
     return s;
+}
+
+// Explicit instantiation of the above template function. My understanding is that
+// this should not be necessary but I get linker errors when these are not here. 
+// I would like to be able to remove these. 
+template std::ostream& operator<<<8, data::endian::big, true>(std::ostream& s, const data::math::number::bounded<std::array<data::byte, 8>, 8, data::endian::big, true>& n);
+
+template std::ostream& operator<<<8, data::endian::big, false>(std::ostream& s, const data::math::number::bounded<std::array<data::byte, 8>, 8, data::endian::big, false>& n);
+
+template std::ostream& operator<<<8, data::endian::little, true>(std::ostream& s, const data::math::number::bounded<std::array<data::byte, 8>, 8, data::endian::little, true>& n);
+
+template std::ostream& operator<<<8, data::endian::little, false>(std::ostream& s, const data::math::number::bounded<std::array<data::byte, 8>, 8, data::endian::little, false>& n);
+
+namespace data {
+    
+    namespace encoding::hexidecimal { 
+        
+        template <typename indexed, size_t size, endian::order o, bool is_signed>
+        string write(const math::number::bounded<indexed, size, o, is_signed>& n) {
+            std::stringstream ss;
+            ss << std::hex << n;
+            return ss.str();
+        }
+        
+    }
+    
+    namespace encoding::decimal {
+        
+        template <typename indexed, size_t size, endian::order o, bool is_signed>
+        string write(const math::number::bounded<indexed, size, o, is_signed>& n) {
+            std::stringstream ss;
+            ss << std::dec << n;
+            return ss.str();
+        }
+        
+    }
+    
 }
 
 #endif
