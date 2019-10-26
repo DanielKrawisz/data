@@ -291,6 +291,10 @@ namespace data::math::number::gmp {
         return operator+=(n.Value);
     }
     
+    inline Z Z::operator-(const N& n) const {
+        return operator-(n.Value);
+    }
+    
     inline Z& Z::operator-=(const N& n) {
         return operator-=(n.Value);
     }

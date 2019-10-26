@@ -194,12 +194,12 @@ namespace data::math::number::gmp {
         
         Z& operator-=(const N&);
         
-        Z operator-(const N&) const {
-            throw method::unimplemented{};
-        }
+        Z operator-(const N&) const;
         
         Z operator-() const {
-            throw method::unimplemented{};
+            Z z{*this};
+            z.MPZ[0]._mp_size = -z.MPZ[0]._mp_size;
+            return z;
         }
         
         Z& operator++() {

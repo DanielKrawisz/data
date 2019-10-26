@@ -39,7 +39,7 @@ namespace data::math::number::gmp {
     
     Z Z::read(string_view x) {
         if (!encoding::integer::valid(x)) return Z{};
-        return encoding::integer::negative(x) ? Z_read_N_data(x.substr(1)) : Z_read_N_data(x);
+        return encoding::integer::negative(x) ? -Z_read_N_data(x.substr(1)) : Z_read_N_data(x);
     }
     
     void Z_write_dec(std::ostream& o, const Z& n) {
