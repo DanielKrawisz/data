@@ -5,8 +5,7 @@
 #ifndef DATA_LIST_LINKED
 #define DATA_LIST_LINKED
 
-#include <data/tools/iterator_list.hpp>
-#include <data/fold.hpp>
+#include <data/list.hpp>
 #include <type_traits>
     
 namespace data::list {
@@ -32,10 +31,6 @@ namespace data::list {
             const returned first() const {
                 return Next->first();
             }
-            
-            returned first() {
-                return Next->first();
-            }
         
             bool empty() const {
                 return Next == nullptr;
@@ -47,34 +42,52 @@ namespace data::list {
                 return Next->rest();
             }
             
+            bool valid() const {
+                if (empty()) return true;
+                return Next->valid();
+            }
+            
             bool contains(elem x) const {
                 if (empty()) return false;
                     
                 Next->contains(x);
             }
             
-            uint32 size() const {
+            size_t size() const {
                 if (empty()) return 0;
                     
                 return Next->size();
             }
             
-            bool operator==(const next n) {
-                return Next == n;
-            }
-            
-            bool operator==(const linked& l) const {
+            bool operator==(const derived& l) const {
                 if (this == &l) return true;
-                return Next == l.Next;
+                if (size() != l.size()) return false;
+                if (Next == l.Next) return true;
+                if (Next == nullptr || l.Next == nullptr) return false;
+                return *Next == *l.Next;
             }
             
-            bool operator!=(const linked& l) const {
-                return !(*this==l);
+            bool operator!=(const derived& l) const {
+                return !operator==(l);
             }
         
             linked() : Next{nullptr} {}
             linked(linked&& l) : Next{l.Next} {
                 l.Next = nullptr;
+            }
+        
+            static derived make() {
+                return derived{};
+            }
+            
+            template <typename first>
+            static derived make(first& x) {
+                return derived{}.prepend(x);
+            }
+            
+            template <typename first, typename ... rest>
+            static derived make(first x, rest... r) {
+                return make(r...).prepend(x);
             }
         
         protected:
@@ -83,6 +96,7 @@ namespace data::list {
             virtual ~linked() = 0; 
             
             friend struct list::linked<elem>;
+            
         };
         
         template <typename elem, typename derived> linked<elem, derived>::~linked() {}
@@ -99,16 +113,6 @@ namespace data::list {
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
         
-        linked(std::initializer_list<elem> l) : linked{
-            list::reverse(fold(
-                plus<linked, elem>, 
-                linked{}, 
-                iterator_list<decltype(l.begin()), elem>(l.begin(), l.end())
-            ))
-        } {}
-        
-        linked(std::vector<elem> v);
-        
         linked& operator=(const linked& l) {
             parent::Next = l.Next;
             return *this;
@@ -120,6 +124,23 @@ namespace data::list {
         
         linked operator+(elem x) const {
             return prepend(x);
+        }
+        
+        linked& operator+=(elem x) {
+            return operator=(prepend(x));
+        }
+        
+        linked prepend(linked l) const {
+            linked x = *this;
+            while (!l.empty()) {
+                x = x + l.first();
+                l = l.rest();
+            }
+            return x;
+        }
+        
+        linked operator+(linked l) const {
+            return prepend(l);
         }
         
         linked from(uint32 n) const {
@@ -136,17 +157,14 @@ namespace data::list {
         iterator<linked> end();
         const iterator<linked> begin() const;
         const iterator<linked> end() const;
-            
-        template <typename ... x>
-        static linked make(x... arg);
         
     private:
         linked(typename parent::next n) : parent{n} {}
     };
     
     template <typename elem>
-    struct linked<elem&> : public base::linked<elem&, linked<elem&>> {
-        using parent = base::linked<elem&, linked<elem&>>;
+    struct linked<elem&> : public base::linked<const elem&, linked<elem&>> {
+        using parent = base::linked<const elem&, linked<elem&>>;
         using requirement = data::list::definition::buildable<linked<elem&>, elem&, elem&>;
         constexpr static requirement Satisfied{};
         
@@ -161,44 +179,21 @@ namespace data::list {
             return *this;
         } 
         
-        linked prepend(elem& x) const {
+        linked prepend(const elem& x) const {
             return linked{std::make_shared<typename parent::node>(typename parent::node{x, *this})};
         }
         
-        linked operator+(elem& x) const {
+        linked operator+(const elem& x) const {
             return prepend(x);
         }
-            
-        template <typename ... x>
-        static linked make(x... arg);
+        
+        linked& operator+=(elem x) {
+            return operator=(prepend(x));
+        }
         
     private:
         linked(typename parent::next n) : parent{n} {}
     };
-}
-
-namespace data {
-    
-    template <typename X>
-    inline bool empty(const list::linked<X> l) {
-        return l.empty();
-    }
-    
-    template <typename X>
-    inline typename list::linked<X>::returned first(const list::linked<X> l) {
-        return l.first();
-    }
-    
-    template <typename X>
-    inline const list::linked<X> rest(const list::linked<X> l) {
-        return l.rest();
-    }
-    
-    template <typename X>
-    inline const list::linked<X> prepend(const list::linked<X> l, const X elem) {
-        return l.prepend(elem);
-    }
-
 }
 
 #endif

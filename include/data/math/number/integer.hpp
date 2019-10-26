@@ -10,38 +10,30 @@
 #include <data/math/sign.hpp>
 #include <data/math/ordered.hpp>
 
-namespace data {
+namespace data::math::number {
     
-    namespace math {
-    
-        namespace number {
-            
-            template <typename Z>
-            struct integer : algebra::integral_domain<Z>, ordered<Z> {
-                Z zero() const {
-                    return Z{0};
-                }
-                
-                sign sign(Z z) {
-                    return z.sign();
-                }
-
-                Z power(Z a, Z b) {
-                    return a ^ b;
-                }
-
-                Z mod(Z a, Z b) {
-                    return a % b;
-                }
-
-                bool divides(Z a, Z b) {
-                    return a | b;
-                }
-            };
-            
+    template <typename Z>
+    struct integer : algebra::integral_domain<Z>, ordered<Z> {
+        Z zero() const {
+            return Z{0};
         }
-    
-    }
+        
+        math::sign sign(Z z) {
+            return z.sign();
+        }
+        
+        Z power(Z a, Z b) {
+            return a ^ b;
+        }
+        
+        Z mod(Z a, Z b) {
+            return a % b;
+        }
+        
+        bool divides(Z a, Z b) {
+            return a | b;
+        }
+    };
 
 }
 

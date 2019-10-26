@@ -18,7 +18,12 @@ namespace data::crypto {
         digest(uint<s> d) : Digest{d} {}
         digest(uint32 d) : Digest{d} {}
         digest(const digest& d) : Digest{d.Digest} {}
-        digest(bytes& b) : Digest{b} {}
+        
+        digest(bytes_view b) : Digest{0} {
+            if (b.size() == s) std::copy(b.begin(), b.end(), Digest.begin());
+        }
+        
+        explicit digest(string_view x) : Digest{x} {}
         
         bool valid() const;
         

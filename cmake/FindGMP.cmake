@@ -7,9 +7,12 @@ find_path(GMP_INCLUDE_DIR gmp.h gmpxx.h
 find_library(GMP_LIBRARY NAMES gmp libgmp
         PATHS ${GMP_PREFIX}/lib /usr/lib /usr/local/lib)
 
-
+find_library(GMPXX_LIBRARY NAMES gmpxx libgmpxx
+        PATHS ${GMP_PREFIX}/lib /usr/lib /usr/local/lib)
+        
 if(GMP_INCLUDE_DIR AND GMP_LIBRARY)
     get_filename_component(GMP_LIBRARY_DIR ${GMP_LIBRARY} PATH)
+    get_filename_component(GMPXX_LIBRARY_DIR ${GMPXX_LIBRARY} PATH)
     set(GMP_FOUND TRUE)
 endif()
 

@@ -11,60 +11,40 @@
 #include <data/encoding/invalid.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <ctre.hpp>
 
 namespace data::encoding::hex {
-            const std::string format = "hex";
-            
-            bool valid(const std::string&);
-            std::string write(const bytes&);
-            template<unsigned long size>
-            std::string write(const std::array<data::byte, size>& a) {
-                std::string output;
-                boost::algorithm::hex(a.begin(), a.end(),std::back_inserter(output));
-                return data::string(output);
-            }
-            bytes read(const std::string&);
-            
-            class string : public std::string {
-                bytes Bytes;
-                bytes *ToBytes;
-
-            public:
-                operator bytes() const {
-                    if (ToBytes == nullptr) throw;
-                    return *ToBytes;
-                }
-
-                bool valid() const {
-                    return ToBytes != nullptr;
-                }
-
-                string(std::string);
-
-                string(std::string *sourceString) : string(*sourceString) {};
-
-                string(const string &s) :
-                        std::string{static_cast<const std::string &>(s)},
-                        Bytes{s.Bytes},
-                        ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
-
-                string(string &&s) :
-                        std::string{static_cast<std::string &&>(s)},
-                        Bytes{s.Bytes},
-                        ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
-
-                string(const bytes &input):
-                        ToBytes{new std::vector<byte>(input.begin(),input.end())},
-                        std::string{data::encoding::hex::write(input)} {}
-
-                template<unsigned long s>
-                string(const std::array<byte, s>& input):
-                        ToBytes{new std::vector<byte>(input.begin(),input.end())},
-                        std::string{data::encoding::hex::write(input)} {}
-                ~string();
-
-                string &operator=(string &);
-            };
+    const std::string format = "hex";
+    
+    constexpr auto pattern = ctll::fixed_string{"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
+    
+    inline bool valid(string_view s) {
+        return ctre::match<pattern>(s);
+    }
+    
+    std::string write(bytes_view);
+    std::string write(uint64);
+    std::string write(uint32);
+    std::string write(uint16);
+    std::string write(byte);
+    
+    class string {
+        string_view String;
+        bytes Bytes;
+        bytes *ToBytes;
+    public:
+        
+        explicit operator bytes() const {
+            if (ToBytes == nullptr) throw invalid{format, String};
+            return *ToBytes;
         }
+        
+        bool valid() const {
+            return ToBytes != nullptr;
+        }
+        
+        string(string_view);
+    };
+}
 
 #endif

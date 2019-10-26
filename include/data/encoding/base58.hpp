@@ -7,11 +7,66 @@
 
 #include <data/types.hpp>
 #include <data/slice.hpp>
+#include <data/queue/functional_queue.hpp>
+#include <data/list/linked.hpp>
+#include <data/math/division.hpp>
+#include <ctre.hpp>
+#include <iostream>
+#include <algorithm>
 
 namespace data::encoding::base58 {
-    const std::string format = "base58";
     
-    bool valid(const std::string&);
+    const std::string format{"base58"};
+    
+    const std::string characters{"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"};
+    
+    constexpr auto pattern = ctll::fixed_string{"[2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*"};
+    
+    inline bool valid(const string_view s) {
+        return ctre::match<pattern>(s);
+    }
+    
+    inline char digit(char c) {
+        return c < '1' ? -1 : c <= '9' ?  c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 : c < 'J' ? -1 : c <= 'N' ? c - 'J' + 17 : c < 'P' ? -1 : c <= 'Z' ? c - 'P' + 22 : c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
+    };
+    
+    template <typename N>
+    N read(const string_view s) {
+        if (s.size() == 0) return N{};
+        
+        N power{1};
+        
+        N n{0};
+        
+        for (int i = s.size() - 1; i >= 0; i--) {
+            char v = digit(s[i]);
+            if (v == -1) return N{};
+            n += power * uint64(v);
+            power *= 58;
+        }
+        
+        return n;
+    }
+    
+    template <typename N>
+    string write(N n) {
+        if (n == 0) return "1";
+        
+        N power{1};
+        
+        N x = n;
+        string digits{};
+        math::division<N> div;
+        while(x > 0) {
+            div = x.divide(58);
+            digits += characters[(uint64)(div.Remainder)];
+            x = div.Quotient;
+        }
+        
+        std::reverse(digits.begin(), digits.end());
+        return digits;
+    };
+    
     string write(const bytes&);
 
     template<unsigned long size>
@@ -35,18 +90,6 @@ namespace data::encoding::base58 {
         string(std::string);
         
         string(std::string * sourceString):string(*sourceString){};
-        
-        string(const string& s) : 
-            std::string{static_cast<const std::string&>(s)}, 
-            Bytes{s.Bytes}, 
-            ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
-        
-        string(string&& s) : 
-            std::string{static_cast<std::string&&>(s)}, 
-            Bytes{s.Bytes}, 
-            ToBytes{s.ToBytes == nullptr ? nullptr : &Bytes} {}
-        
-        string& operator=(string&);
     };
 }
 

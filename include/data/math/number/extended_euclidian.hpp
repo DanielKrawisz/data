@@ -5,8 +5,8 @@
 #ifndef DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 #define DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 
-#include <data/types.hpp>
-#include <data/math/number/division.hpp>
+#include <data/math/number/abs.hpp>
+#include <data/math/number/natural.hpp>
 #include <data/data.hpp>
 
 namespace data::math {
@@ -32,7 +32,9 @@ namespace data::math {
                 }
                 
             private:
-                extended() : GCD{}, division<Z>{} {} 
+                extended() : GCD{}, S{}, T{} {}
+                
+                extended(const Z gcd, const Z s, const Z t) : GCD{gcd}, S{s}, T{t} {} 
                  
                 struct sequence {
                     division<Z> Div;
@@ -42,9 +44,9 @@ namespace data::math {
                 
                 // must provide prev.Div.Remainder > current.Div.Remainder.
                 static sequence loop(const sequence prev, const sequence current) {
-                    division<Z> div = prev.Div.Remainder / current.Div.Remainder;
+                    division<Z> div = natural::divide(prev.Div.Remainder, current.Div.Remainder);
                     if (div.Remainder == 0) return current;
-                    return loop(current, {div, {prev.S - current.S * div.Quotient, prev.T - current.T * div.Quotient}});
+                    return loop(current, sequence{div, prev.S - current.S * div.Quotient, prev.T - current.T * div.Quotient});
                 }
                 
                 static sequence run(const Z r0, const Z r1) {
@@ -53,13 +55,10 @@ namespace data::math {
             public:
                 static extended algorithm(const Z a, const Z b) {
                     sequence e = a < b ? run(b, a) : run(a, b);
-                    return {e.Div.Quotient, e.S, e.T};
+                    return extended{e.Div.Quotient, e.S, e.T};
                 }
             
             };
-            
-            template <typename Z, typename N> 
-            N abs(Z);
             
             template <typename N, typename Z>
             struct extended<N, Z> {
@@ -77,9 +76,13 @@ namespace data::math {
                 
                 static extended algorithm(const N a, const N b) {
                     extended<Z> e = extended<Z>::algorithm(a, b);
-                    return {abs<Z, N>(e.GCD), e.S, e.T};
+                    return extended{abs<Z, N>(e.GCD), e.S, e.T};
                 }
                 
+            private:
+                extended() : GCD{}, S{}, T{} {}
+                
+                extended(const N gcd, const Z s, const Z t) : GCD{gcd}, S{s}, T{t} {} 
             };
         }
     }

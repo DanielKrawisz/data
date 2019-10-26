@@ -7,6 +7,7 @@
 
 #include <type_traits>
 #include <data/meta/which.hpp>
+#include <data/valid.hpp>
 #include "container.hpp"
 
 namespace data::list {
@@ -93,12 +94,14 @@ namespace data::list {
     template <typename L>
     struct is_list {
         using returned = decltype(std::declval<L>().first());
+        using element = typename std::remove_reference<returned>::type;
         constexpr static definition::list<L, returned> is{};
     };
     
     template <typename L>
     struct is_list<L*> {
         using returned = decltype(std::declval<L>().first());
+        using element = typename std::remove_reference<returned>::type;
         constexpr static definition::list<L*, returned> IsList{};
     };
     
@@ -110,16 +113,6 @@ namespace data::list {
         using returned = typename is_list<L>::returned;
         constexpr static definition::buildable<L, X, returned> IsBuildableList{};
     };
-    
-    template <typename L> 
-    inline bool empty(L l) {
-        return container::existence<L>{}.empty(l);
-    }
-    
-    template <typename L> 
-    inline uint32 size(L l) {
-        return container::existence<L>{}.size(l);
-    }
     
     template <typename L> 
     inline typename is_list<L>::returned first(const L l) {
@@ -138,9 +131,9 @@ namespace data::list {
     
     template <typename L, typename X>
     L append(L list, X value) {
-        if (list::empty(list)) return L{{value}};
+        if (container::empty(list)) return L{{value}};
         
-        return append(first(list), append(rest(list), value));
+        return append(append(rest(list), value), first(list));
     }
     
     template <typename L>
@@ -150,7 +143,7 @@ namespace data::list {
         
         struct inner {
             L operator()(L reversed, L list) {
-                if (list::empty(list)) return reversed;
+                if (container::empty(list)) return reversed;
                 return inner{}(reversed + first(list), rest(list));
             }
         };
@@ -168,7 +161,7 @@ namespace data::list {
     
     template <typename function, typename list, typename value>
     value find(function satisfies, list l) {
-        if (empty(l)) return value{};
+        if (container::empty(l)) return value{};
         auto f0 = first(l);
         if (satisfies(f0)) return f0;
         return rest(l);
@@ -228,7 +221,7 @@ namespace data::list {
         Y Rest;
         uint32 Size;
         
-        node(X x, Y r) : First(x), Rest(r), Size{list::size(r) + 1} {}
+        node(X x, Y r) : First(x), Rest(r), Size{container::size(r) + 1} {}
         node(X x) : First(x), Rest{}, Size{1} {}
         
         const R first() const {
@@ -241,6 +234,10 @@ namespace data::list {
         
         Y rest() const {
             return Rest;
+        }
+        
+        bool valid() const {
+            return data::valid(First) && data::valid(Rest);
         }
         
         uint32 size() const {

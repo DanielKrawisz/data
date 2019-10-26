@@ -16,21 +16,21 @@ namespace data {
         bool empty() const {
             return Node == nullptr;
         }
-            
+        
         value& root() const {
             return Node->Value;
         }
-            
+        
         linked_tree<value> left() const {
             return Node->Left;
         } 
-            
+        
         linked_tree<value> right() const {
             return Node->Right;
         }
-            
+        
         linked_tree(const linked_tree<value>& n) : Node{n.Node} {}
-            
+        
         linked_tree(linked_tree<value>&& n) {
             node m = n.Node;
             n.Node = Node;
@@ -39,13 +39,13 @@ namespace data {
         
         linked_tree() : Node{nullptr} {}
         linked_tree(value v, linked_tree<value> l, linked_tree<value> r) : Node{new tree::node<value, linked_tree<value>>{v, l, r}} {}
-            
+        
         using iterator = tree::iterator<linked_tree<value>, list::linked<linked_tree<value>&>, value>;
-
+        
         iterator begin() const {
             return {*this};
         } 
-
+        
         iterator end() const {
             return {};
         }

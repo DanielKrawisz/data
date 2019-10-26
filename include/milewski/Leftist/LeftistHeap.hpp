@@ -93,7 +93,7 @@ namespace milewski::okasaki {
         {
             return merged(left(), right()); 
         }
-        Heap inserted(T x)
+        Heap inserted(T x) const
         {
             return merged(Heap(x), *this);
         }

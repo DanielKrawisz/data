@@ -81,12 +81,12 @@ namespace data {
             
         template <typename Q> 
         inline bool empty(Q q) {
-            return list::empty(q);
+            return container::empty(q);
         }
             
         template <typename Q> 
         inline bool size(Q q) {
-            return list::size(q);
+            return container::size(q);
         }
             
         template <typename Q, typename X> 

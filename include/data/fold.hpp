@@ -5,20 +5,25 @@
 #ifndef DATA_FOLD
 #define DATA_FOLD
 
-#include "types.hpp"
+#include "empty.hpp"
+#include <type_traits>
 
 namespace data {
 
     template <typename f, typename x, typename l>
     x fold(f fun, x init, l ls) {
-        if (empty(ls)) return init;
-        return fold(fun, fun(init, first(ls)), rest(ls));
+        if (data::empty(ls)) return init;
+        return fold(fun, fun(init, data::first(ls)), data::rest(ls));
     }
     
-    template <typename f, typename x, typename l>
-    x reduce(f fun, l ls) {
-        if (empty(ls)) return x{};
-        return fun(first(ls), reduce(fun, rest(ls)));
+    template <typename f, typename l>
+    typename std::invoke_result<f, 
+        decltype(std::declval<l>().first()), 
+        decltype(std::declval<l>().first())>::type reduce(f fun, l ls) {
+        if (data::empty(ls)) return typename std::invoke_result<f, 
+            decltype(std::declval<l>().first()), 
+            decltype(std::declval<l>().first())>::type{};
+        return fun(data::first(ls), reduce(fun, data::rest(ls)));
     }
 
 }

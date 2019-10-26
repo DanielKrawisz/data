@@ -13,7 +13,7 @@
 namespace data {
     
     template<typename X>
-    using vector = const std::vector<X>;
+    using vector = std::vector<X>;
 
     using byte = uint8_t;
     using uint16 = uint16_t;
@@ -24,18 +24,16 @@ namespace data {
     using int32 = int32_t;
     using int64 = int64_t;
     
-    using bytes = const vector<byte>;
+    using bytes = std::basic_string<byte>;
 
     template<typename X>
     using ptr = std::shared_ptr<X>;
 
-    using string = const std::string;
+    using string = std::string;
+    using string_view = std::string_view;
     
-    template <typename X, typename Y>
-    inline X plus(X a, Y b) {
-        return a + b;
-    }
-
+    using bytes_view = std::basic_string_view<byte>;
+    
 }
 
 #endif

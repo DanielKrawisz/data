@@ -3,13 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
-#ifndef DATA_BASE32_H
-#define DATA_BASE32_H
+#ifndef DATA_BASE64_H
+#define DATA_BASE64_H
 #include <data/types.hpp>
 #include <data/slice.hpp>
 
-namespace data::encoding::base32 {
-    const std::string format = "base32";
+namespace data::encoding::base64 {
+    const std::string format = "base64";
 
     bool valid(const std::string&);
     string write(const bytes&);

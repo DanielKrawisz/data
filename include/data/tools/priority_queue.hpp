@@ -57,9 +57,10 @@ namespace data {
             queue& operator=(const queue& q) {
                 Heap = q.Heap;
                 Size = q.Size;
+                return *this;
             }
             
-            static list::definition::list<queue, x> is_list{};
+            constexpr static list::definition::list<queue, x> is_list{};
         };
         
         template <typename List, typename x> 
@@ -79,7 +80,8 @@ namespace data {
     
     template <typename List> 
     List sort(List x) {
-        priority::all<List, list::is_list<List>::element>(priority::queue<typename list::is_list<List>::element>{x});
+        priority::all<List, typename list::is_list<List>::element>(
+            priority::queue<typename list::is_list<List>::element>{x});
     }
 
 }

@@ -82,7 +82,7 @@ namespace data {
         
         template <typename T>
         inline bool empty(T t) {
-            return list::empty(t);
+            return container::empty(t);
         }
         
         template <typename T, typename E>
@@ -139,7 +139,7 @@ namespace data {
             iterator next() {
                 if (empty(left(Tree))) {
                     if (empty(right(Tree))) {
-                        if (list::empty(List)) return {};
+                        if (container::empty(List)) return {};
                         else return {list::first(List), list::rest(List)};
                     } else return {right(Tree), List};
                 } else return {left(Tree), empty(right(Tree)) ? List : List + right(Tree)};

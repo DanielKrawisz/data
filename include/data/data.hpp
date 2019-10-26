@@ -15,6 +15,10 @@
 #include <data/slice.hpp>
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
+#include <data/valid.hpp>
+#include <data/plus.hpp>
+#include <data/empty.hpp>
+#include <data/tools/priority_queue.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/rational.hpp>
@@ -45,11 +49,6 @@ namespace data::exported {
     // a functional map implemented as a red-black tree
     template <typename K, typename V> using map = data::rb_map<K, V>;
     
-    template <typename X>
-    inline bool empty(X x) {
-        return x.empty();
-    }
-    
     // get all values from a map with the given keys. 
     template <typename key, typename value, typename map>
     list<value> get_all(map m, list<key> k);
@@ -58,10 +57,11 @@ namespace data::exported {
     template <typename X> using set = data::map_set<map<X, bool>, X>;
     
     // Wrapper for an array that allows for easy creation of subslices, similar to golang.  
-    template <typename X> using slice = data::slice<X>;
+    template <typename X, size_t... size> using slice = data::slice<X, size...>; 
     
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = channel<X>;
+    
 }
 
 #endif

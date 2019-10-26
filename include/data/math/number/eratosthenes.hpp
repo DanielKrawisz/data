@@ -6,8 +6,10 @@
 #define DATA_MATH_NUMBER_ERATOSTHENES
 
 #include <data/types.hpp>
+#include <data/math/number/prime.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/queue/functional_queue.hpp>
+#include <data/list/linked.hpp>
 
 namespace data::math::number {
     template <typename N> struct eratosthenes;
@@ -30,7 +32,7 @@ namespace data::math::number {
         queue Primes;
         
     private:
-        N Max;
+        N Next;
         
         struct entry {
             N Prime;
@@ -39,34 +41,61 @@ namespace data::math::number {
             bool operator<=(const entry& e) const {
                 return Multiple <= e.Multiple;
             }
+            
+            entry increment() const {
+                return {Prime, Multiple + Prime};
+            }
         };
         
         using heap = priority::queue<entry>;
         heap Sieve;
         
-        eratosthenes(queue p, N m, heap sieve) : Primes{p}, Max{m}, Sieve{sieve} {}
+        eratosthenes(queue p, N m, heap sieve) : Primes{p}, Next{m}, Sieve{sieve} {}
         
         static heap insert_prime(heap sieve, N prime) {
-            return sieve.insert(prime, prime * 2);
+            return sieve.insert(entry{prime, prime * 2});
         }; 
         
         eratosthenes step() const ;
+        static bool test_next_prime(const N next, heap& q);
         
     public:
-        eratosthenes() : Primes{}, Max{1}, Sieve{} {}
+        eratosthenes() : Primes{}, Next{2}, Sieve{} {}
+        eratosthenes(N n) : eratosthenes{eratosthenes{}.next(n)} {}
         
+        // generate next n primes. 
         eratosthenes next(N n) const {
-            N required = Primes.size() + n;
+            N required = n + Primes.size();
             eratosthenes e = *this;
-            while(e.Primes.size() < required) e = e.step();
+            while(required > e.Primes.size()) e = e.step();
             return e;
         }
         
+        // generate next prime. 
         eratosthenes next() const {
             return next(1);
         }
         
     };
+    
+    template <typename N>
+    bool eratosthenes<N>::test_next_prime(const N next, heap& q) {
+        if (q.empty()) return true; 
+        N multiple;
+        while(true) {
+            multiple = q.first().Multiple; 
+            if (next == multiple) return false;
+            if (next < multiple) return true;
+            q = q.rest().insert(entry{q.first().increment()});
+        } 
+    }
+    
+    template <typename N>
+    eratosthenes<N> eratosthenes<N>::step() const {
+        heap q = Sieve;
+        if (test_next_prime(Next, q)) return {Primes.append(Next), Next + 1, insert_prime(q, Next)};
+        else return {Primes, Next + 1, q};
+    }
     
 }
 

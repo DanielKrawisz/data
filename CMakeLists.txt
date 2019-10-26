@@ -93,6 +93,11 @@ find_package(GMP REQUIRED)
 if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
+
+# compile time regular expressions
+
+find_package(ctre REQUIRED)
+
 ## Enable testing
 include(CTest)
 
@@ -110,24 +115,20 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp
         src/data/encoding/base58.cpp
-		src/data/encoding/base32.cpp
-        src/data/encoding/words.cpp
+        src/data/encoding/base64.cpp
         src/data/tools/channel.cpp
-        src/data/math/number/division.cpp
-        src/data/math/number/eratosthenes.cpp
-        src/data/math/number/gmp/mpz.cpp
+        src/data/math/number/gmp/mpq.cpp
         src/data/math/number/gmp/N.cpp
         src/data/math/number/gmp/Z.cpp
-        src/data/math/number/gmp/mpq.cpp
         src/data/math/number/gmp/Q.cpp
         src/data/crypto/digest.cpp
         src/data/crypto/ripemd160.cpp
         src/data/crypto/sha256.cpp
-		src/data/crypto/digest.cpp
+        src/data/crypto/digest.cpp
         src/data/crypto/sha512.cpp
         src/data/crypto/secp256k1.cpp
-        src/data/slice.cpp)
-		
+        src/data/stream.cpp)
+        
 target_include_directories(data PUBLIC include)
 
 # Set C++ version
