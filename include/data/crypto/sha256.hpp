@@ -5,9 +5,7 @@
 #ifndef DATA_CRYPTO_SHA256
 #define DATA_CRYPTO_SHA256
 
-#include <data/slice.hpp>
 #include <data/crypto/digest.hpp>
-#include <crypto++/sha.h>
 
 namespace data::sha256 {
     
@@ -19,8 +17,8 @@ namespace data::sha256 {
     
     digest hash(const bytes_view);
     
-    inline digest hash(const string& s) {
-        return hash(bytes_view{(byte*)(const_cast<string&>(s).data()), s.size() * sizeof(char)});
+    inline digest hash(const string_view s) {
+        return hash(bytes_view{(byte*)(s.data()), s.size() * sizeof(char)});
     }
 
     template <size_t n>
