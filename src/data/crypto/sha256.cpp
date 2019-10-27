@@ -1,6 +1,5 @@
 #include <data/crypto/sha256.hpp>
 #include <crypto++/sha.h>
-#include <data/slice.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::sha256 {
