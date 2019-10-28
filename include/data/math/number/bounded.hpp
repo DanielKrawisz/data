@@ -630,12 +630,12 @@ namespace data {
                             j += 2;
                         }
                     } else {
-                        for (int j = 0; j < size; j += 2) {
+                        for (int j = 0; j <= size - 2; j += 2) {
                             uint64 word = z[j/2];
                             w.set(j, lesser(word));
                             w.set(j + 1, greater(word));
                         }
-                        if (size % 2 == 1) w.set(size - 1, lesser(z[size / 2 + 1]));
+                        if (size % 2 == 1) w.set(size - 1, lesser(z[size / 2]));
                     } 
                 }
             };

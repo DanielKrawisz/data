@@ -78,6 +78,7 @@ find_package(CryptoPP REQUIRED)
 if(CRYPTOPP_INCLUDE_DIRS)
 
     message(STATUS "Crypto++ INCLUIDE DIRS: ${CRYPTOPP_INCLUDE_DIRS}")
+    MESSAGE(STATUS "Found Crypto++: ${CRYPTOPP_LIBRARY}")
     include_directories(${CRYPTOPP_INCLUDE_DIRS})
 endif()
 
