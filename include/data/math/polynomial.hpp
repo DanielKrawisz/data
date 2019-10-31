@@ -10,7 +10,6 @@
 #include <data/fold.hpp>
 #include <data/plus.hpp>
 #include <data/math/division.hpp>
-#include <data/io/unimplemented.hpp>
 
 namespace data::math {
     
@@ -247,7 +246,6 @@ namespace data::math {
         }
         
         polynomial derivative() const {
-            throw method::unimplemented{};
             return reduce(data::plus<polynomial>{}, 
                 for_each([](ordering o)->polynomial{
                     if (o.Term.Power == 0) return zero();

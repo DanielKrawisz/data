@@ -14,6 +14,9 @@
 namespace data::math::number {
     template <typename N> struct eratosthenes;
     
+    // A number that is known to be prime. 
+    // So far eratosthenes is the only way
+    // to construct this type. 
     template <typename N> 
     struct prime {
         N Prime;

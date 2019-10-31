@@ -256,6 +256,21 @@ namespace data::list {
         
     };
 
+    template <typename L> 
+    std::ostream& write(std::ostream& o, L n) {
+        o << string{"{"};
+        if (!empty(n)) {
+            o << n.first();
+            L r = n.rest();
+            while (!empty(r)) {
+                o << string{", "} << r.first();
+                r = r.rest();
+            }
+        } 
+        o << string{"}"};
+        return o;
+    }
+
 }
 
 #endif

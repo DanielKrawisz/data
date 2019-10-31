@@ -5,16 +5,19 @@
 #include "data/math/number/eratosthenes.hpp"
 #include "data/data.hpp"
 #include "gtest/gtest.h"
+#include <iostream>
 
 TEST(EratosthenesTest, First100Primes) {
-    using namespace data::math::number;
+    //using namespace data::math::number;
     using namespace data::exported;
 
-    queue<N> primes = for_each([](const prime<N> p)->N{
-            return p.Prime;
-        }, eratosthenes<N>{N{100}}.Primes);
+    const uint max_primes = 100;
     
-    EXPECT_TRUE(primes.size() == 100);
+    queue<N> primes = for_each([](const prime p)->N{
+            return p.Prime;
+        }, eratosthenes{N{max_primes}}.Primes);
+    
+    EXPECT_TRUE(primes.size() == max_primes);
     
     queue<N> expected = queue<N>::make(
         2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 
@@ -25,6 +28,6 @@ TEST(EratosthenesTest, First100Primes) {
         383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 
         463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541);
     
-    EXPECT_TRUE(primes == expected);
+    EXPECT_EQ(primes, expected);
 }
 

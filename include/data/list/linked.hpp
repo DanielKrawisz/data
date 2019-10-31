@@ -196,4 +196,9 @@ namespace data::list {
     };
 }
 
+template <typename X> 
+std::ostream& operator<<(std::ostream& o, const data::list::linked<X> n) {
+    return data::list::write(o, n);
+}
+
 #endif

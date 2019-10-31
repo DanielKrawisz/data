@@ -104,7 +104,8 @@ namespace data {
         bool operator==(const functional_queue& q) const {
             if (this == &q) return true;
             if (size() != q.size()) return false;
-            return Right.prepend(Left) == q.Right.prepend(q.Left);
+            if (first() != q.first()) return false;
+            return rest() == q.rest();
         }
         
         bool operator!=(const functional_queue& q) const {
@@ -155,6 +156,11 @@ namespace data {
         return q.reverse();
     }
        
+}
+
+template <typename X, typename L> 
+std::ostream& operator<<(std::ostream& o, const data::functional_queue<X, L> n) {
+    return data::list::write(o, n);
 }
 
 #endif
