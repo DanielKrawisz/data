@@ -30,10 +30,8 @@ namespace data {
             using container::array<indexed, byte, n>::array;
             using container::array<indexed, byte, n>::Array;
             
-            using order = typename endian::order;
-            
-            constexpr static order endian = o;
-            constexpr static order opposite_endian = endian == order::little ? order::big : order::little;
+            constexpr static endian::order endian = o;
+            constexpr static endian::order opposite_endian = endian == endian::order::little ? endian::order::big : endian::order::little;
             
             ordered(ordered<indexed, n, opposite_endian> reversed) {
                 std::reverse_copy(reversed.begin(), reversed.end(), Array.begin());
