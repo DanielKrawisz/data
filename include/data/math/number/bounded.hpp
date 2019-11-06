@@ -15,7 +15,6 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/integer.hpp>
-#include <data/io/unimplemented.hpp>
 
 namespace data {
         
@@ -496,7 +495,7 @@ namespace data {
         bool bounded<indexed, size, o, false>::operator<(const bounded& n) const {
             words_type a = ray::words();
             words_type b = n.words();
-            for (uint32_t i = 0; i < size; i++) {
+            for (uint32_t i = words_type::last; i >= 0; i--) {
                 if (a[i] < b[i]) return true;
                 if (a[i] > b[i]) return false;
             }
@@ -508,7 +507,7 @@ namespace data {
         bool bounded<indexed, size, o, false>::operator<=(const bounded& n) const {
             words_type a = ray::words();
             words_type b = n.words();
-            for (uint32_t i = 0; i < size; i++) {
+            for (uint32_t i = words_type::last; i >= 0; i--) {
                 if (a[i] < b[i]) return true;
                 if (a[i] > b[i]) return false;
             }
