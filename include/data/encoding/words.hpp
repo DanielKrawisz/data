@@ -10,6 +10,7 @@
 #include <data/tools/index_iterator.hpp>
 #include <data/math/sign.hpp>
 #include <data/meta/equal.hpp>
+#include <data/slice.hpp>
 
 namespace data::encoding {
     

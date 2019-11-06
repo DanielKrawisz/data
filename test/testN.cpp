@@ -137,6 +137,23 @@ namespace {
         EXPECT_FALSE(p == N{n_dec});
         EXPECT_FALSE(n == N{p_dec});
         
+        using namespace data;
+        
+        bytes p_bytes = bytes(encoding::hex::string{p_hex.substr(2)});
+        bytes n_bytes = bytes(encoding::hex::string{n_hex.substr(2)});
+        
+        N p_from_big = N{p_bytes, endian::order::big};
+        N n_from_big = N{n_bytes, endian::order::big};
+        
+        N p_from_little = N{p_from_big.write(endian::order::little), endian::order::little};
+        N n_from_little = N{n_from_big.write(endian::order::little), endian::order::little};
+        
+        EXPECT_EQ(p_bytes, p_from_big.write(endian::order::big));
+        EXPECT_EQ(n_bytes, n_from_big.write(endian::order::big));
+        
+        EXPECT_EQ(p_from_big, p_from_little);
+        EXPECT_EQ(n_from_big, n_from_little);
+        
     }
     
 }

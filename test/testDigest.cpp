@@ -38,10 +38,10 @@ TEST_F(DigestTest, DigestNotEqual) {
     EXPECT_FALSE(digestA!=digestC);
 }
 
-TEST_F(DigestTest, DISABLED_DigestOrdering) {
+TEST_F(DigestTest, DigestOrdering) {
     data::crypto::digest<20> max{"0xffffffffffffffffffffffffffffffffffffffff"};
-    data::crypto::digest<20> min{"0x0"};
     data::crypto::digest<20> mid{"0x88888888888888888888"};
+    data::crypto::digest<20> min{"0x0"};
     
     EXPECT_TRUE(min < max);
     EXPECT_TRUE(mid < max);
@@ -49,6 +49,13 @@ TEST_F(DigestTest, DISABLED_DigestOrdering) {
     EXPECT_FALSE(max < min);
     EXPECT_FALSE(max < mid);
     EXPECT_FALSE(mid < min);
+    
+    EXPECT_FALSE(min > max);
+    EXPECT_FALSE(mid > max);
+    EXPECT_FALSE(min > mid);
+    EXPECT_TRUE(max > min);
+    EXPECT_TRUE(max > mid);
+    EXPECT_TRUE(mid > min);
 }
 
 #include <data/crypto/sha256.hpp>

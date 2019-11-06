@@ -17,7 +17,7 @@ TEST(HexTest, HexHexToArray) {
     ASSERT_THAT((data::bytes)(hexString), ::testing::ElementsAre(0,99,234,23,45,99,128,140));
 }
 
-TEST(HexTest, HexValidHexString) {
+TEST(HexTest, HexValidString) {
     ASSERT_TRUE(data::encoding::hex::valid("012345abcd"));
     ASSERT_TRUE(data::encoding::hex::valid("012345ABCD"));
     ASSERT_FALSE(data::encoding::hex::valid("012345aBcD"));

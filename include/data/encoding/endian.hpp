@@ -6,7 +6,6 @@
 #define DATA_ENDIAN
 
 #include <boost/endian/buffers.hpp>
-#include <data/slice.hpp>
 
 namespace data::endian {
     // A number that has a set endian ordering. 
@@ -153,91 +152,6 @@ namespace data::endian {
         
         ordered<X, o>& operator>>=(uint32 x) {
             return operator=(operator>>(x));
-        }
-    };
-    
-    template <> struct ordered<slice<byte>, big> {
-        slice<byte> Data;
-        
-        ordered(slice<byte> d) : Data{d} {}
-        
-        size_t size() const {
-            return Data.size();
-        }
-        
-        byte& operator[](uint32 index) {
-            return Data[index];
-        }
-        
-        const byte& operator[](uint32 index) const {
-            return Data[index];
-        }
-
-        ordered range(int32 begin, int32 end) const {
-            return Data.range(begin, end);
-        }
-
-        ordered range(int32 begin) const {
-            return Data.range(begin);
-        }
-    };
-    
-    template <> struct ordered<slice<byte>, little> {
-        slice<byte> Data;
-        
-        ordered(slice<byte> d) : Data{d} {}
-        
-        size_t size() const {
-            return Data.size();
-        }
-        
-        byte& operator[](uint32 index) {
-            return Data[size() - index - 1];
-        }
-        
-        const byte& operator[](uint32 index) const {
-            return Data[size() - index - 1];
-        }
-
-        ordered range(int32 begin, int32 end) const {
-            size_t s = size();
-            return Data.range((s - end - 1) % s, (s - begin - 1) % s);
-        }
-
-        ordered range(int32 begin) const {
-            size_t s = size();
-            return Data.range(0, (s - begin - 1) % s);
-        }
-    };
-    
-    template <size_t Size, endian::order o> struct ordered<slice<byte, Size>, o> {
-        slice<byte, Size> Data;
-        
-        ordered(slice<byte, Size> d) : Data{d} {}
-        
-        size_t size() const {
-            return Size;
-        }
-        
-        byte& operator[](uint32 index) {
-            return ordered<slice<byte>, o>{slice<byte>{Data}}[index];
-        }
-        
-        const byte& operator[](uint32 index) const {
-            return ordered<slice<byte>, o>{slice<byte>{Data}}[index];
-        }
-
-        ordered range(int32 b, int32 e) const {
-            return ordered<slice<byte>, o>{slice<byte>{Data}}.range(b, e);
-        }
-
-        ordered range(int32 b) const {
-            return ordered<slice<byte>, o>{slice<byte>{Data}}.range(b);
-        }
-        
-        template <size_t b, size_t e>
-        ordered<slice<byte, meta::unsigned_minus<e, b>::result>, o> range() const {
-            return slice<byte>{Data}.range<(Size - e - 1) % Size, (Size - b - 1) % Size>();
         }
     };
     

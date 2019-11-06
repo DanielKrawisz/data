@@ -12,7 +12,7 @@ target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${G
 
 # Test Hex
 add_test(NAME HexHexToArray COMMAND testData)
-add_test(NAME HexValidHexString COMMAND testData)
+add_test(NAME HexValidString COMMAND testData)
 add_test(NAME HexInvalidExceptionOnError COMMAND testData)
 add_test(NAME HexWriteBytes COMMAND testData)
 
@@ -23,13 +23,13 @@ add_test(NAME AsciiCastToBytes COMMAND testData)
 
 # Test Base58
 add_test(NAME Base58Invert COMMAND testData)
-add_test(NAME Base58HexToArray COMMAND testData)
-add_test(NAME Base58ValidHexString COMMAND testData)
+add_test(NAME Base58ToArray COMMAND testData)
+add_test(NAME Base58ValidString COMMAND testData)
 add_test(NAME Base58InvalidExceptionOnError COMMAND testData)
 
 # Test Base64
-add_test(NAME Base64HexToArray COMMAND testData)
-add_test(NAME Base64ValidHexString COMMAND testData)
+add_test(NAME Base64ToArray COMMAND testData)
+add_test(NAME Base64ValidString COMMAND testData)
 add_test(NAME Base64InvalidExceptionOnError COMMAND testData)
 
 #Test Integer Format

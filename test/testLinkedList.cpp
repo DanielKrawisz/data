@@ -31,7 +31,7 @@ TEST(LinkedListTest, TestLinkedList2) {
     
 }
 
-TEST(LinkedListTest, DISABLED_TestLinkedListSort) {
+TEST(LinkedListTest, TestLinkedListSort) {
     using namespace data::exported;
     
     EXPECT_TRUE(list<int>::make(1, 2, 3, 4, 5) == data::sort(list<int>::make(4, 5, 1, 3, 2)));

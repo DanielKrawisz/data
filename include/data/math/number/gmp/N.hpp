@@ -25,8 +25,6 @@ namespace data::math::number::gmp {
         
         explicit N(string_view s);
         
-        explicit N(bytes_view, endian::order);
-        
         N& operator=(const N& n) {
             Value = n.Value;
             return *this;
@@ -247,6 +245,10 @@ namespace data::math::number::gmp {
             if (z < 0) return N{0};
             return N{z};
         }
+        
+        explicit N(bytes_view, endian::order);
+        
+        bytes write(endian::order) const;
         
         constexpr static math::number::natural::interface<N> is_natural{};
         

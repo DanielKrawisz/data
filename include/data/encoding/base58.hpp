@@ -6,10 +6,8 @@
 #define DATA_ENCODING_BASE58
 
 #include <data/types.hpp>
-#include <data/slice.hpp>
-#include <data/queue/functional_queue.hpp>
-#include <data/list/linked.hpp>
-#include <data/math/division.hpp>
+#include <data/encoding/invalid.hpp>
+#include <data/math/number/gmp/N.hpp>
 #include <ctre.hpp>
 #include <iostream>
 #include <algorithm>
@@ -67,19 +65,27 @@ namespace data::encoding::base58 {
         return digits;
     };
     
-    string write(const bytes&);
-
-    template<unsigned long size>
-    string write(const std::array<byte, size>&);
-    bytes read(const std::string&);
+    inline string write(const bytes_view b) {
+        using namespace math::number::gmp;
+        return write<N>(N{b, endian::big});
+    }
     
-    class string : public std::string {
+    template<unsigned long size>
+    inline string write(const std::array<byte, size>& x) {
+        return write(bytes_view{x.data(), size});
+    }
+    inline string write(const bytes& b) {
+        return write(bytes_view{b});
+    }
+    
+    class string {
+        string_view String;
         bytes Bytes;
-        bytes* ToBytes;
+        bytes *ToBytes;
         
     public:
         explicit operator bytes() const {
-            if (ToBytes == nullptr) throw ;
+            if (ToBytes == nullptr) throw invalid{format, String};
             return *ToBytes;
         }
         
@@ -87,10 +93,14 @@ namespace data::encoding::base58 {
             return ToBytes != nullptr;
         }
         
-        string(std::string);
-        
-        string(std::string * sourceString):string(*sourceString){};
+        string(string_view s) : String{s}, Bytes{}, ToBytes{nullptr} {
+            if (base58::valid(s)) {
+                Bytes = read<math::number::gmp::N>(s).write(endian::order::big);
+                ToBytes = &Bytes;
+            }
+        }
     };
+    
 }
 
 #endif
