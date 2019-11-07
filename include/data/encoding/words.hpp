@@ -11,6 +11,7 @@
 #include <data/math/sign.hpp>
 #include <data/meta/equal.hpp>
 #include <data/slice.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::encoding {
     
@@ -58,17 +59,11 @@ namespace data::encoding {
         static void bit_or(const words, const words, words);
         static void bit_and(const words, const words, words);
         
-        static void bit_shift_left(const words, uint32, words);
-        static void bit_shift_right(const words, uint32, words);
+        static void bit_shift(const words, uint32, words);
         
-        static void bit_shift_left(const words in, int32 bits, words w) {
-            if (bits < 0) return bit_shift_right(in, -bits, w);
-            return bit_shift_left(in, bits, w);
-        }
-        
-        static void bit_shift_right(const words in, int32 bits, words w) {
-            if (bits < 0) return bit_shift_left(in, -bits, w);
-            return bit_shift_right(in, bits, w);
+        static void bit_shift(const words in, int32 bits, words w) {
+            if (bits < 0) return bit_shift(in, -bits, w);
+            return bit_shift(in, bits, w);
         }
         
         static void minus(const words, const words, words);
@@ -161,6 +156,11 @@ namespace data::encoding {
         w = extend(a[last-1]);
         result.set(last - 1, remainder + lesser(w));
         remainder = greater(w);
+    }
+    
+    template <uint32 size, typename word, typename words>  
+    void methods<size, word, words>::bit_shift(const words, uint32, words) {
+        throw method::unimplemented{};
     }
     
 }

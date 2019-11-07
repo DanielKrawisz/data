@@ -318,34 +318,6 @@ namespace data {
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
-        inline bounded array<bounded, indexed, size, bit32, o>::operator<<(uint32 bits) const {
-            bounded result;
-            methods::bit_shift_left(words(), bits, result.words());
-            return result;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
-        inline bounded array<bounded, indexed, size, bit32, o>::operator>>(uint32 bits) const {
-            bounded result;
-            methods::bit_shift_right(words(), bits, result.words());
-            return result;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
-        inline bounded array<bounded, indexed, size, bit32, o>::operator<<(int32 bits) const {
-            bounded result;
-            methods::bit_shift_left(words(), bits, result.words());
-            return result;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
-        inline bounded array<bounded, indexed, size, bit32, o>::operator>>(int32 bits) const {
-            bounded result;
-            methods::bit_shift_right(words(), bits, result.words());
-            return result;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
         inline bounded array<bounded, indexed, size, bit32, o>::operator-(const bounded& n) const {
             bounded result;
             words_type::minus(words(), n, result.words());
@@ -402,6 +374,34 @@ namespace data {
         inline bounded array<bounded, indexed, size, bit32, o>::operator%(const bounded& n) const {
             return divide(n).Remainder;
         }
+        
+        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
+        inline bounded array<bounded, indexed, size, bit32, o>::operator<<(uint32 bits) const {
+            bounded result;
+            methods::bit_shift(words(), bits, result.words());
+            return result;
+        }
+        
+        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
+        inline bounded array<bounded, indexed, size, bit32, o>::operator>>(uint32 bits) const {
+            bounded result;
+            methods::bit_shift(words(), -bits, result.words());
+            return result;
+        }
+        
+        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
+        inline bounded array<bounded, indexed, size, bit32, o>::operator<<(int32 bits) const {
+            bounded result;
+            methods::bit_shift(words(), bits, result.words());
+            return result;
+        }
+        
+        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
+        inline bounded array<bounded, indexed, size, bit32, o>::operator>>(int32 bits) const {
+            bounded result;
+            methods::bit_shift(words(), -bits, result.words());
+            return result;
+        }
     }
     
     namespace math::number {
@@ -409,28 +409,28 @@ namespace data {
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator<<=(uint32 bits) {
-            methods::bit_shift_left(ray::words(), bits, ray::words);
+            methods::bit_shift(ray::words(), bits, ray::words);
             return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator>>=(uint32 bits) {
-            methods::bit_shift_right(ray::words(), bits, ray::words);
+            methods::bit_shift(ray::words(), -bits, ray::words);
             return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator<<=(int32 bits) {
-            methods::bit_shift_left(ray::words(), bits, ray::words());
+            methods::bit_shift(ray::words(), bits, ray::words());
             return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator>>=(int32 bits) {
-            methods::bit_shift_right(ray::words(), bits, ray::words());
+            methods::bit_shift(ray::words(), -bits, ray::words());
             return *this;
         }
         

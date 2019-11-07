@@ -58,6 +58,7 @@ add_test(NAME BoundedMinMax COMMAND testData)
 add_test(NAME BoundedReadString COMMAND testData)
 add_test(NAME Bounded01 COMMAND testData)
 add_test(NAME BoundedSign COMMAND testData)
+add_test(NAME BoundedBitShift COMMAND testData)
 
 # Test Stream
 add_test(NAME StreamWriteUint16Big COMMAND testData)
