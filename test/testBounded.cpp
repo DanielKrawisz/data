@@ -117,7 +117,7 @@ namespace {
         
     }
     
-    TEST(BoundedTest, DISABLED_BoundedBitShift) {
+    TEST(BoundedTest, BoundedBitShift) {
         using u12l = bounded<12, data::endian::little, false>;
         using u12b = bounded<12, data::endian::big, false>;
         
