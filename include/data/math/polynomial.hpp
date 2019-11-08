@@ -277,4 +277,3 @@ namespace data::math {
 }
 
 #endif
-

@@ -59,7 +59,7 @@ namespace data::math::number {
         
         static fraction divide(Z n, positive<N> d) {
             if (n == 0) return fraction{0, 1};
-            N gcd_ab = gcd(abs<N>(n), d.Number);
+            N gcd_ab = gcd(abs<N, Z>{}(n), d.Number);
             return fraction{n / gcd_ab, positive{d / gcd_ab}};
         }
         

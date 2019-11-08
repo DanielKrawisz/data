@@ -76,7 +76,7 @@ namespace data::math {
                 
                 static extended algorithm(const N a, const N b) {
                     extended<Z> e = extended<Z>::algorithm(a, b);
-                    return extended{abs<Z, N>(e.GCD), e.S, e.T};
+                    return extended{abs<N, Z>{}(e.GCD), e.S, e.T};
                 }
                 
             private:

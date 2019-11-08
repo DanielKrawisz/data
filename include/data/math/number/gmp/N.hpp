@@ -8,6 +8,7 @@
 #include <data/math/number/natural.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/endian.hpp>
+#include <data/math/number/abs.hpp>
 #include <limits>
 
 namespace data::math::number::gmp {
@@ -347,6 +348,15 @@ namespace data::math::number::gmp {
         return n;
     }
     
+}
+
+namespace data::math::number {
+    template <> 
+    struct abs<gmp::N, gmp::Z> {
+        gmp::N operator()(const gmp::Z& i) {
+            gmp::abs(i);
+        }
+    };
 }
 
 namespace data::encoding::hexidecimal { 

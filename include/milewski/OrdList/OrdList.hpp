@@ -4,6 +4,7 @@
 #include <cassert>
 #include <memory>
 #include <initializer_list>
+
 namespace milewski::okasaki {
     template<class T>
     // requires Ord<T>

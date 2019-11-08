@@ -11,10 +11,11 @@
 namespace data::math::number {
 
     template <typename N, typename Z> 
-    N abs(Z) {
-        throw method::unimplemented{};
-    }
-    
+    struct abs {
+        N operator()(const Z i) {
+            return i < 0 ? -i : i;
+        }
+    };
 }
 
 #endif

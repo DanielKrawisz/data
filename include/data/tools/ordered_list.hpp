@@ -50,7 +50,7 @@ namespace data {
         }
         
         X operator[](uint32 n) const {
-            if (n >= Size) throw 0; std::out_of_range{"ordered list"};
+            if (n >= Size) throw std::out_of_range{"ordered list"};
             if (n == 0) return first();
             return rest()[n - 1];
         }
