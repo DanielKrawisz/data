@@ -354,7 +354,7 @@ namespace data::math::number {
     template <> 
     struct abs<gmp::N, gmp::Z> {
         gmp::N operator()(const gmp::Z& i) {
-            gmp::abs(i);
+            return gmp::abs(i);
         }
     };
 }

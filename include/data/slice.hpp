@@ -28,6 +28,7 @@ namespace data {
         slice(iterator b, iterator e) : Begin{b}, End{e} {}
         slice(iterator b, size_t size) : Begin{b}, End{b + size} {}
         slice() : Begin{nullptr}, End{nullptr} {}
+        slice(bytes_view b) : slice(b.data(), b.size()) {}
         slice(std::vector<X>& x) : slice(x.data(), x.size()) {}
         slice(std::basic_string<X>& x) : slice(x.data(), x.size()) {}
         template <size_t n>

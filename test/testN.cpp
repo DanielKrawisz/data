@@ -7,8 +7,6 @@
 #include <iostream>
 
 namespace {
-    using N = data::math::number::gmp::N;
-    using N = data::math::number::gmp::N;
     using namespace data::exported;
     
     TEST(NTest, TestStringToN) {

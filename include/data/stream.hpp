@@ -28,27 +28,22 @@ namespace data {
     
     template <typename X>
     struct ostream {
-    protected:
         slice<X> Slice;
-        typename slice<X>::iterator It;
-    public:
-        void operator<<(X x) {
-            if (It == Slice.end()) throw end_of_stream{};
-            *It = x;
-            It++;
-        }
+        using it = typename slice<X>::iterator;
+        it It;
+        ostream(slice<X> s, it i) : Slice{s}, It{i} {}
+        
+        ostream operator<<(X x) const;
 
         explicit ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-
-        explicit ostream(std::vector<X> &v) : ostream{slice<X>{v}} {}
     };
     
     template <typename X>
     struct istream {
-    protected:
-        const slice<X> Slice;
-        typename slice<X>::const_iterator It;
-    public:
+        bytes_view Slice;
+        using it = typename bytes_view::const_iterator;
+        it It;
+        istream(bytes_view s, it i) : Slice{s}, It{i} {}
 
         void operator>>(X& x) {
             if (It == Slice.end()) throw end_of_stream{};
@@ -56,31 +51,32 @@ namespace data {
             It++;
         }
         
-        explicit istream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
-        explicit istream(std::vector<X>& v) : istream{slice<X>{v}} {}
-
+        explicit istream(bytes_view s) : Slice{s}, It{Slice.begin()} {}
     };
     
-    class writer : public ostream<byte> {
-        void bytesIntoIterator(const char*,int);
+    class writer {
+        ostream<byte> Writer;
+        using it = ostream<byte>::it;
+        writer(ostream<byte> w) : Writer{w} {};
     public:
-        using ostream<byte>::operator<<;
-        void operator<<(const ordered<uint16, big>);
-        void operator<<(const ordered<uint32, big>);
-        void operator<<(const ordered<uint64, big>);
-        void operator<<(const ordered<int16, big>);
-        void operator<<(const ordered<int32, big>);
-        void operator<<(const ordered<int64, big>);
-        void operator<<(const ordered<uint16, little>);
-        void operator<<(const ordered<uint32, little>);
-        void operator<<(const ordered<uint64, little>);
-        void operator<<(const ordered<int16, little>);
-        void operator<<(const ordered<int32, little>);
-        void operator<<(const ordered<int64, little>);
-        void operator<<(const bytes&);
+        writer operator<<(const ordered<uint16, big>) const;
+        writer operator<<(const ordered<uint32, big>) const;
+        writer operator<<(const ordered<uint64, big>) const;
+        writer operator<<(const ordered<int16, big>) const;
+        writer operator<<(const ordered<int32, big>) const;
+        writer operator<<(const ordered<int64, big>) const;
+        writer operator<<(const ordered<uint16, little>) const;
+        writer operator<<(const ordered<uint32, little>) const;
+        writer operator<<(const ordered<uint64, little>) const;
+        writer operator<<(const ordered<int16, little>) const;
+        writer operator<<(const ordered<int32, little>) const;
+        writer operator<<(const ordered<int64, little>) const;
+        writer operator<<(const bytes_view) const;
+        writer operator<<(const byte b) const {
+            return writer{Writer << b};
+        }
         
-        writer(slice<byte> s) : ostream<byte>{s} {}
-        writer(std::vector<byte>& v) : ostream<byte>{v} {}
+        writer(slice<byte> s) : Writer{s} {}
     };
     
     struct reader : public istream<byte> {
@@ -99,9 +95,17 @@ namespace data {
         void operator>>(ordered<int64, little>&);
         void operator>>(std::vector<byte>&);
         
-        reader(slice<byte> s) : istream<byte>{s} {}
-        reader(std::vector<byte>& v) : istream<byte>{v} {}
+        reader(bytes_view s) : istream<byte>{s} {}
     };
+    
+    template <typename X>
+    ostream<X> ostream<X>::operator<<(X x) const {
+        it I = It;
+        if (I == Slice.end()) throw end_of_stream{};
+        *I = x;
+        I++;
+        return ostream{Slice, I};
+    }
 
 }
 

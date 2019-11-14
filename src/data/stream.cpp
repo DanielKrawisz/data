@@ -8,74 +8,58 @@
 
 namespace data {
 
-    void writer::operator<<(const bytes & x) {
-        for (unsigned char i : x) {
-            if (It == Slice.end()) throw end_of_stream{};
-            *It = i;
-            It++;
-        }
+    writer writer::operator<<(bytes_view x) const {
+        ostream<byte> w = Writer;
+        for(bytes_view::iterator i = x.begin(); i != x.end(); i++) w = w << *i;
+        return writer{w};
     }
 
-    void writer::operator<<(const ordered<uint16, big> x) {
-        bytesIntoIterator(boost::endian::big_uint16_buf_t{x.Value}.data(), sizeof(uint16));
+    writer writer::operator<<(const ordered<uint16, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_uint16_buf_t{x.Value}.data(), sizeof(uint16)});
     }
         
-    void writer::operator<<(const ordered<uint16, little> x) {
-        bytesIntoIterator(boost::endian::little_uint16_buf_t{x.Value}.data(), sizeof(uint16));
+    writer writer::operator<<(const ordered<uint16, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_uint16_buf_t{x.Value}.data(), sizeof(uint16)});
     }
 
-    void writer::operator<<(const ordered<uint32, big> x) {
-        bytesIntoIterator(boost::endian::big_uint32_buf_t{x.Value}.data(), sizeof(uint32));
+    writer writer::operator<<(const ordered<uint32, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_uint32_buf_t{x.Value}.data(), sizeof(uint32)});
     }
         
-    void writer::operator<<(const ordered<uint32, little> x) {
-        bytesIntoIterator(boost::endian::little_uint32_buf_t{x.Value}.data(), sizeof(uint32));
+    writer writer::operator<<(const ordered<uint32, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_uint32_buf_t{x.Value}.data(), sizeof(uint32)});
     }
 
-    void writer::operator<<(const ordered<uint64, big> x) {
-        bytesIntoIterator(boost::endian::big_uint64_buf_t{x.Value}.data(), sizeof(uint64));
+    writer writer::operator<<(const ordered<uint64, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_uint64_buf_t{x.Value}.data(), sizeof(uint64)});
     }
         
-    void writer::operator<<(const ordered<uint64, little> x) {
-        bytesIntoIterator(boost::endian::little_uint64_buf_t{x.Value}.data(), sizeof(uint64));
+    writer writer::operator<<(const ordered<uint64, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_uint64_buf_t{x.Value}.data(), sizeof(uint64)});
     }
 
-    void writer::operator<<(const ordered<int16, big> x) {
-        bytesIntoIterator(boost::endian::big_int16_buf_t{x.Value}.data(), sizeof(int16));
+    writer writer::operator<<(const ordered<int16, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_int16_buf_t{x.Value}.data(), sizeof(int16)});
     }
         
-    void writer::operator<<(const ordered<int16, little> x) {
-        bytesIntoIterator(boost::endian::little_int16_buf_t{x.Value}.data(), sizeof(int16));
+    writer writer::operator<<(const ordered<int16, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_int16_buf_t{x.Value}.data(), sizeof(int16)});
     }
 
-    void writer::operator<<(const ordered<int32, big> x) {
-        bytesIntoIterator(boost::endian::big_int32_buf_t{x.Value}.data(), sizeof(int32));
+    writer writer::operator<<(const ordered<int32, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_int32_buf_t{x.Value}.data(), sizeof(int32)});
     }
         
-    void writer::operator<<(const ordered<int32, little> x) {
-        bytesIntoIterator(boost::endian::little_int32_buf_t{x.Value}.data(), sizeof(int32));
+    writer writer::operator<<(const ordered<int32, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_int32_buf_t{x.Value}.data(), sizeof(int32)});
     }
 
-    void writer::operator<<(const ordered<int64, big> x) {
-        bytesIntoIterator(boost::endian::big_int64_buf_t{x.Value}.data(), sizeof(int64));
+    writer writer::operator<<(const ordered<int64, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_int64_buf_t{x.Value}.data(), sizeof(int64)});
     }
         
-    void writer::operator<<(const ordered<int64, little> x) {
-        bytesIntoIterator(boost::endian::little_int64_buf_t{x.Value}.data(), sizeof(int64));
-    }
-
-    void writer::bytesIntoIterator(const char* data, int count) {
-        for(int i=0; i<count; i++)
-        {
-            if (It == Slice.end())
-            {
-                throw end_of_stream{
-                };
-                return;
-            };
-            *It = (unsigned char) data[i];
-            It++;
-        }
+    writer writer::operator<<(const ordered<int64, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_int64_buf_t{x.Value}.data(), sizeof(int64)});
     }
 
     void reader::operator>>(std::vector<byte> &x) {
@@ -88,7 +72,7 @@ namespace data {
 
     }
 
-    void forward(const slice<byte> Slice, slice<byte>::const_iterator& It, int amount, char* to) {
+    void forward(const bytes_view Slice, slice<byte>::const_iterator& It, int amount, char* to) {
         for(int i=0;i<amount;i++)
         {
             if (It == Slice.end()) {
