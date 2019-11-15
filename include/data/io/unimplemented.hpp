@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Daniel Krawisz
+// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+
 #ifndef DATA_PROGRAM_UNIMPLEMENTED
 #define DATA_PROGRAM_UNIMPLEMENTED
 
@@ -7,10 +10,8 @@ namespace data {
      
     namespace method { 
         
-        class unimplemented : std::logic_error {
-            
-        public:
-            unimplemented() : std::logic_error("Function not yet implemented") { };
+        struct unimplemented : std::logic_error {
+            unimplemented(string func) : std::logic_error(func + " not yet implemented") { };
         };
     
     }
