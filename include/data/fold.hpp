@@ -25,6 +25,12 @@ namespace data {
             decltype(std::declval<l>().first())>::type{};
         return fun(data::first(ls), reduce(fun, data::rest(ls)));
     }
+    
+    template <typename f, typename x>
+    x nest(f fun, x init, uint32 rounds) {
+        if (rounds == 0) return init;
+        return nest(fun, fun(init), rounds - 1);
+    }
 
 }
 
