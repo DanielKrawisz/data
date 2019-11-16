@@ -114,62 +114,62 @@ namespace data {
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<uint16, big> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::big_uint16_buf_t{x.Value}.data(), sizeof(uint16)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint16)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<uint16, little> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::little_uint16_buf_t{x.Value}.data(), sizeof(uint16)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint16)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<uint32, big> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::big_uint32_buf_t{x.Value}.data(), sizeof(uint32)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint32)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<uint32, little> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::little_uint32_buf_t{x.Value}.data(), sizeof(uint32)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint32)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<uint64, big> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::big_uint64_buf_t{x.Value}.data(), sizeof(uint64)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint64)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<uint64, little> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::little_uint64_buf_t{x.Value}.data(), sizeof(uint64)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint64)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<int16, big> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::big_int16_buf_t{x.Value}.data(), sizeof(int16)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int16)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<int16, little> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::little_int16_buf_t{x.Value}.data(), sizeof(int16)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int16)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<int32, big> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::big_int32_buf_t{x.Value}.data(), sizeof(int32)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int32)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<int32, little> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::little_int32_buf_t{x.Value}.data(), sizeof(int32)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int32)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<int64, big> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::big_int64_buf_t{x.Value}.data(), sizeof(int64)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int64)});
     }
     
     template <typename it>
     writer<it> writer<it>::operator<<(const ordered<int64, little> x) const {
-        return operator<<(bytes_view{(const byte*)boost::endian::little_int64_buf_t{x.Value}.data(), sizeof(int64)});
+        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int64)});
     }
 
 }
