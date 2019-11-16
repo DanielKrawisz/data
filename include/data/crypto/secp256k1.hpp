@@ -25,7 +25,7 @@ namespace data::crypto {
         using compressed_pubkey = pubkey<true, compressed_pubkey_size>;
         using uncompressed_pubkey = pubkey<false, uncompressed_pubkey_size>;
         
-        using signature = vector<byte>;
+        using signature = bytes;
         
         struct secret {
             uint<secret_size> Value;
