@@ -140,124 +140,125 @@ namespace {
 
 
     TEST_F(StreamTest, StreamReadUint16Big) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint16_t, big> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 0x102);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 0x304);
     }
 
     TEST_F(StreamTest, StreamReadUint16Little) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint16_t, little> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 513);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 1027);
     }
 
     TEST_F(StreamTest, StreamReadInt16Big) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<int16_t, big> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 258);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 772);
     }
 
     TEST_F(StreamTest, StreamReadInt16Little) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<int16_t, little> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint,513);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint,1027);
     }
 
     TEST_F(StreamTest, StreamReadUint32Big) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint32_t, big> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 16909060);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 84281096);
     }
 
     TEST_F(StreamTest, StreamReadUint32Little) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint32_t, little> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 67305985);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 134678021);
     }
 
 
     TEST_F(StreamTest, StreamReadInt32Big) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<int32_t, big> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 16909060);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 84281096);
     }
 
     TEST_F(StreamTest, StreamReadInt32Little) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint32_t, little> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 67305985);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 134678021);
     }
 
     TEST_F(StreamTest, StreamReadUint64Big) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint64_t, big> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 72623859790382856);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 651345242494996240);
         EXPECT_THROW(reader >> testUint,end_of_stream);
 
     }
 
     TEST_F(StreamTest, StreamReadUint64Little) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<uint64_t, little> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 578437695752307201);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 1157159078456920585);
         EXPECT_THROW(reader >> testUint,end_of_stream);
     }
 
     TEST_F(StreamTest, StreamReadInt64Big) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<int64_t, big> testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 72623859790382856);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 651345242494996240);
         EXPECT_THROW(reader >> testUint, end_of_stream);
 
     }
 
     TEST_F(StreamTest, StreamReadInt64Little) {
-        reader reader(sliceTestRead);
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
         ordered<int64_t, little>  testUint;
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 578437695752307201);
-        reader >> testUint;
+        reader = reader >> testUint;
         EXPECT_EQ(testUint, 1157159078456920585);
         EXPECT_THROW(reader >> testUint, end_of_stream);
     }
 
     TEST_F(StreamTest, StreamReadBytes) {
-        reader reader(sliceTestRead);
-        std::vector<byte> testUint(4);
-        reader >> testUint;
+        reader reader(sliceTestRead.begin(), sliceTestRead.end());
+        bytes testUint;
+        testUint.resize(4);
+        reader = reader >> testUint;
         EXPECT_THAT(testUint,::testing::ElementsAre(01,02,03,04));
     }
 
