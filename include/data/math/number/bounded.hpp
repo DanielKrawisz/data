@@ -279,13 +279,21 @@ namespace data {
         private:
             explicit bounded(const gmp::Z& z);
         };
+    
+        template <size_t size> using uint_big = 
+            math::number::bounded<std::array<byte, size>, size, endian::order::big, false>;
+        template <size_t size> using integer_big = 
+            math::number::bounded<std::array<byte, size>, size, endian::order::big, true>;
+    
+        template <size_t size> using uint_little = 
+            math::number::bounded<std::array<byte, size>, size, endian::order::little, false>;
+        template <size_t size> using integer_little = 
+            math::number::bounded<std::array<byte, size>, size, endian::order::little, true>;
         
     }
     
-    template <size_t size> using uint = 
-        math::number::bounded<std::array<byte, size>, size, endian::order::big, false>;
-    template <size_t size> using integer = 
-        math::number::bounded<std::array<byte, size>, size, endian::order::big, true>;
+    template <size_t size> using uint = math::number::uint_big<size>;
+    template <size_t size> using integer = math::number::uint_big<size>;
     
     using uint160 = uint<20>;
     using uint256 = uint<32>;

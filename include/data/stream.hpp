@@ -26,16 +26,13 @@ namespace data {
         }
     };
     
-    template <typename X>
+    template <typename X, typename it>
     struct ostream {
-        slice<X> Slice;
-        using it = typename slice<X>::iterator;
-        it It;
-        ostream(slice<X> s, it i) : Slice{s}, It{i} {}
+        it Begin;
+        it End;
+        ostream(it b, it e) : Begin{b}, End{e} {}
         
         ostream operator<<(X x) const;
-
-        explicit ostream(slice<X> s) : Slice{s}, It{Slice.begin()} {}
     };
     
     template <typename X>
@@ -54,11 +51,18 @@ namespace data {
         explicit istream(bytes_view s) : Slice{s}, It{Slice.begin()} {}
     };
     
-    class writer {
-        ostream<byte> Writer;
-        using it = ostream<byte>::it;
-        writer(ostream<byte> w) : Writer{w} {};
-    public:
+    template <typename it>
+    struct writer {
+        ostream<byte, it> Writer;
+        
+        writer(ostream<byte, it> w) : Writer{w} {};
+        writer(it b, it e) : Writer{b, e} {}
+        
+        writer operator<<(bytes_view) const;
+        writer operator<<(const byte b) const {
+            return writer{Writer << b};
+        }
+        
         writer operator<<(const ordered<uint16, big>) const;
         writer operator<<(const ordered<uint32, big>) const;
         writer operator<<(const ordered<uint64, big>) const;
@@ -71,12 +75,6 @@ namespace data {
         writer operator<<(const ordered<int16, little>) const;
         writer operator<<(const ordered<int32, little>) const;
         writer operator<<(const ordered<int64, little>) const;
-        writer operator<<(const bytes_view) const;
-        writer operator<<(const byte b) const {
-            return writer{Writer << b};
-        }
-        
-        writer(slice<byte> s) : Writer{s} {}
     };
     
     struct reader : public istream<byte> {
@@ -98,13 +96,80 @@ namespace data {
         reader(bytes_view s) : istream<byte>{s} {}
     };
     
-    template <typename X>
-    ostream<X> ostream<X>::operator<<(X x) const {
-        it I = It;
-        if (I == Slice.end()) throw end_of_stream{};
+    template <typename X, typename it>
+    ostream<X, it> ostream<X, it>::operator<<(X x) const {
+        it I = Begin;
+        if (I == End) throw end_of_stream{};
         *I = x;
         I++;
-        return ostream{Slice, I};
+        return ostream{I, End};
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(bytes_view x) const {
+        ostream<byte, it> w = Writer;
+        for(bytes_view::iterator i = x.begin(); i != x.end(); i++) w = w << *i;
+        return writer{w};
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<uint16, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_uint16_buf_t{x.Value}.data(), sizeof(uint16)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<uint16, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_uint16_buf_t{x.Value}.data(), sizeof(uint16)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<uint32, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_uint32_buf_t{x.Value}.data(), sizeof(uint32)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<uint32, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_uint32_buf_t{x.Value}.data(), sizeof(uint32)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<uint64, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_uint64_buf_t{x.Value}.data(), sizeof(uint64)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<uint64, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_uint64_buf_t{x.Value}.data(), sizeof(uint64)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<int16, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_int16_buf_t{x.Value}.data(), sizeof(int16)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<int16, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_int16_buf_t{x.Value}.data(), sizeof(int16)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<int32, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_int32_buf_t{x.Value}.data(), sizeof(int32)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<int32, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_int32_buf_t{x.Value}.data(), sizeof(int32)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<int64, big> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::big_int64_buf_t{x.Value}.data(), sizeof(int64)});
+    }
+    
+    template <typename it>
+    writer<it> writer<it>::operator<<(const ordered<int64, little> x) const {
+        return operator<<(bytes_view{(const byte*)boost::endian::little_int64_buf_t{x.Value}.data(), sizeof(int64)});
     }
 
 }
