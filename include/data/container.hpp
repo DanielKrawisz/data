@@ -155,6 +155,10 @@ namespace data::container {
         static array zero() {
             return array{};
         }
+            
+        operator bytes_view() const {
+            return bytes_view{Array.data(), n};
+        }
     };
     
     template <typename L> 

@@ -16,9 +16,9 @@ namespace data::crypto {
     namespace secp256k1 {
     
         // two pubkey formats: compressed and uncompressed. 
-        const uint32 uncompressed_pubkey_size = 65;
-        const uint32 compressed_pubkey_size = 33;
-        const uint32 secret_size = 32;
+        const size_t uncompressed_pubkey_size = 65;
+        const size_t compressed_pubkey_size = 33;
+        const size_t secret_size = 32;
         
         template <bool compressed_pubkey, uint32 pubkey_size> struct pubkey;
         
@@ -40,27 +40,47 @@ namespace data::crypto {
             bool operator==(const secret&) const;
             
             signature sign(const sha256::digest&) const;
+            
+            operator bytes_view() const {
+                return bytes_view(Value);
+            }
         };
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
-        struct pubkey : public std::array<byte, pubkey_size> {
+        struct pubkey {
+            std::array<byte, pubkey_size> Value;
             
-            using std::array<byte, pubkey_size>::operator[];
+            byte& operator[](int x) {
+                return Value[x];
+            }
+            
+            const byte& operator[](int x) const {
+                return Value[x];
+            }
+            
             bool valid() const;
             
             pubkey operator+(const pubkey&) const;
             
             pubkey operator*(const secret&) const;
             
-            pubkey() : std::array<byte, pubkey_size>{} {}
-            pubkey(std::array<byte, pubkey_size> a) : std::array<byte, pubkey_size>(a) {}
+            pubkey() : Value{} {}
+            pubkey(std::array<byte, pubkey_size> a) : Value{a} {}
             
             pubkey& operator=(const pubkey& p) {
-                static_cast<std::array<byte, pubkey_size>&>(*this) = static_cast<const std::array<byte, pubkey_size>&>(p);
+                Value = p.Value;
                 return *this;
             }
             
+            bool operator==(const pubkey& p) const {
+                return Value == p.Value;
+            }
+            
             bool verify(const sha256::digest&, const signature&) const;
+            
+            operator bytes_view() const {
+                return bytes_view{Value.data(), Value.size()};
+            }
         };
         
         constexpr data::math::module<compressed_pubkey, secret> is_module_compressed{};
@@ -123,18 +143,6 @@ namespace data::crypto {
     namespace secp256k1 { 
         
         namespace low {
-        
-            template <bool compressed_pubkey, uint32 pubkey_size>
-            inline const std::array<byte, pubkey_size>& 
-            libbitcoin(const pubkey<compressed_pubkey, pubkey_size>& s) {
-                return static_cast<const std::array<byte, pubkey_size>&>(s);
-            }
-        
-            template <bool compressed_pubkey, uint32 pubkey_size>
-            inline std::array<byte, pubkey_size>& 
-            libbitcoin(pubkey<compressed_pubkey, pubkey_size>& s) {
-                return static_cast<std::array<byte, pubkey_size>&>(s);
-            }
             
             template <typename A, typename B> struct compression;
             
@@ -147,7 +155,7 @@ namespace data::crypto {
             template <> struct compression<compressed_pubkey, uncompressed_pubkey> {
                 compressed_pubkey P;
                 compressed_pubkey& operator()(const uncompressed_pubkey& p) {
-                    libbitcoin::system::compress(P, p);
+                    libbitcoin::system::compress(P.Value, p.Value);
                     return P;
                 }
             };
@@ -155,7 +163,7 @@ namespace data::crypto {
             template <> struct compression<uncompressed_pubkey, compressed_pubkey> {
                 uncompressed_pubkey P;
                 uncompressed_pubkey& operator()(const compressed_pubkey& p) {
-                    libbitcoin::system::decompress(P, p);
+                    libbitcoin::system::decompress(P.Value, p.Value);
                     return P;
                 }
             };
@@ -170,20 +178,20 @@ namespace data::crypto {
         
         template <bool compressed_pubkey, uint32 pubkey_size> 
         inline bool pubkey<compressed_pubkey, pubkey_size>::valid() const {
-            return libbitcoin::system::verify(low::libbitcoin(*this));
+            return libbitcoin::system::verify(Value);
         }
         
         inline secp256k1::pubkey<true, compressed_pubkey_size>
         secret::to_public_compressed() const {
             secp256k1::pubkey<true, compressed_pubkey_size> x;
-            libbitcoin::system::secret_to_public(low::libbitcoin(x), Value.Array);
+            libbitcoin::system::secret_to_public(x.Value, Value.Array);
             return x;
         }
         
         inline secp256k1::pubkey<false, uncompressed_pubkey_size>
         secret::to_public_uncompressed() const {
             secp256k1::pubkey<false, uncompressed_pubkey_size> x;
-            libbitcoin::system::secret_to_public(low::libbitcoin(x), Value.Array);
+            libbitcoin::system::secret_to_public(x.Value, Value.Array);
             return x;
         }
         
@@ -191,7 +199,7 @@ namespace data::crypto {
         inline bool pubkey<compressed_pubkey, pubkey_size>::verify(const sha256::digest& d, const signature& s) const {
             std::array<byte, 64> sig;
             std::copy(s.begin(), s.end(), sig.begin());
-            return libbitcoin::system::verify_signature(low::libbitcoin(*this), low::libbitcoin(d), sig);
+            return libbitcoin::system::verify_signature(Value, d.Digest.Array, sig);
         }
         
         inline secret secret::operator+(const secret& s) const {
@@ -215,7 +223,7 @@ namespace data::crypto {
         pubkey<compressed_pubkey, pubkey_size>::operator+(const pubkey& p) const {
             secp256k1::compressed_pubkey x = low::compression<secp256k1::compressed_pubkey, pubkey<compressed_pubkey, pubkey_size>>{}(*this);
             low::compression<secp256k1::compressed_pubkey, pubkey<compressed_pubkey, pubkey_size>> l{};
-            if (!libbitcoin::system::ec_sum(low::libbitcoin(x), {l(low::libbitcoin(p))})) return pubkey{};
+            if (!libbitcoin::system::ec_sum(x.Value, {l(p).Value})) return pubkey{};
             return low::compression<pubkey<compressed_pubkey, pubkey_size>, secp256k1::compressed_pubkey>{}(x);
         }
         
@@ -223,13 +231,13 @@ namespace data::crypto {
         inline pubkey<compressed_pubkey, pubkey_size> 
         pubkey<compressed_pubkey, pubkey_size>::operator*(const secret& s) const {
             pubkey x = *this;
-            if (!libbitcoin::system::ec_multiply(low::libbitcoin(x), s.Value.Array)) return pubkey{};
+            if (!libbitcoin::system::ec_multiply(x.Value, s.Value.Array)) return pubkey{};
             return x;
         }
         
         inline signature secret::sign(const sha256::digest& d) const {
             std::array<byte, 64> s;
-            if (!libbitcoin::system::sign(s, Value.Array, low::libbitcoin(d))) return signature{};
+            if (!libbitcoin::system::sign(s, Value.Array, d.Digest.Array)) return signature{};
             signature sig{};
             std::copy(s.begin(), s.end(), sig.begin());
             return sig;
