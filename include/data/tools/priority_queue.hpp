@@ -79,8 +79,8 @@ namespace data {
     }
     
     template <typename List> 
-    List sort(List x) {
-        priority::all<List, typename list::is_list<List>::element>(
+    inline List sort(List x) {
+        return priority::all<List, typename list::is_list<List>::element>(
             priority::queue<typename list::is_list<List>::element>{x});
     }
 

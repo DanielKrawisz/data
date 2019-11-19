@@ -9,7 +9,6 @@
 #include <data/encoding/invalid.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <ctre.hpp>
-#include <iostream>
 #include <algorithm>
 
 namespace data::encoding::base58 {
@@ -70,12 +69,13 @@ namespace data::encoding::base58 {
         return write<N>(N{b, endian::big});
     }
     
+    inline string write(const bytes& b) {
+        return write(bytes_view{b});
+    }
+    
     template<unsigned long size>
     inline string write(const std::array<byte, size>& x) {
         return write(bytes_view{x.data(), size});
-    }
-    inline string write(const bytes& b) {
-        return write(bytes_view{b});
     }
     
     class string {
