@@ -108,6 +108,28 @@ namespace data {
         }
     };
     
+    namespace stream {
+    
+        template <typename X>
+        inline writer<char *> write_all(writer<char*> w) {
+            return w;
+        }
+        
+        template <typename X, typename ... P>
+        inline writer<char*> write_all(writer<char*> w, X x, P... p) {
+            return write_all(w << x, p...);
+        }
+        
+        template <typename ... P>
+        bytes write(uint32 size, P... p) {
+            bytes Data;
+            Data.resize(size);
+            write_all(writer{Data.begin(), Data.end()}, p...);
+            return Data;
+        };
+    
+    }
+        
     template <typename X, typename it>
     ostream<X, it> ostream<X, it>::operator<<(X x) const {
         it I = Begin;
