@@ -121,7 +121,15 @@ namespace data {
         }
         
         template <typename ... P>
-        bytes write(uint32 size, P... p) {
+        string write_string(uint32 size, P... p) {
+            string Data;
+            Data.resize(size);
+            write_all(writer{Data.begin(), Data.end()}, p...);
+            return Data;
+        };
+        
+        template <typename ... P>
+        bytes write_bytes(uint32 size, P... p) {
             bytes Data;
             Data.resize(size);
             write_all(writer{Data.begin(), Data.end()}, p...);
