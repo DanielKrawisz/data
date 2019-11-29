@@ -7,7 +7,8 @@
 
 #include <data/types.hpp>
 #include <data/encoding/invalid.hpp>
-#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/gmp.hpp>
+#include <data/math/number/bytes/N.hpp>
 #include <ctre.hpp>
 #include <algorithm>
 
@@ -65,8 +66,8 @@ namespace data::encoding::base58 {
     };
     
     inline string write(const bytes_view b) {
-        using namespace math::number::gmp;
-        return write<N>(N{b, endian::big});
+        using namespace math::number;
+        return write<N>(N{N_bytes<endian::big>{b}});
     }
     
     inline string write(const bytes& b) {
@@ -94,8 +95,9 @@ namespace data::encoding::base58 {
         }
         
         string(string_view s) : String{s}, Bytes{}, ToBytes{nullptr} {
+            using namespace math::number;
             if (base58::valid(s)) {
-                Bytes = read<math::number::gmp::N>(s).write(endian::order::big);
+                Bytes = bytes_view(N_bytes<endian::big>{read<N>(s)});
                 ToBytes = &Bytes;
             }
         }

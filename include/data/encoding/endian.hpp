@@ -15,6 +15,10 @@ namespace data::endian {
     constexpr order big = boost::endian::order::big;
     constexpr order little = boost::endian::order::little;
     
+    constexpr inline order opposite(order o) {
+        return o == big ? little : big;
+    } 
+    
     // convert native to and from the given endian ordering. 
     template <typename X, order> struct native;
     
@@ -50,7 +54,7 @@ namespace data::endian {
             return oo;
         }
         
-        constexpr static order opposite = o == little ? big : little;
+        constexpr static order opposite = endian::opposite(o);
         
         ordered<X, o>& operator=(const typename std::remove_reference<X>::type x) {
             Value = native<typename std::remove_reference<X>::type, o>::from(x); 

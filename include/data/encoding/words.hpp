@@ -15,7 +15,7 @@
 
 namespace data::encoding {
     
-    template <size_t bytes, size_t size, byte extra, typename bit32, endian::order o> struct words;
+    template <size_t bytes, size_t size, byte remainder, typename bit32, endian::order o> struct words;
     
     template <size_t bytes, size_t size, typename bit32, endian::order o>
     struct words<bytes, size, 0, bit32, o> : meta::equal<bytes, size * 4> {

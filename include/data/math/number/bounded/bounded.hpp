@@ -5,15 +5,13 @@
 #ifndef DATA_MATH_NUMBER_BOUNDED
 #define DATA_MATH_NUMBER_BOUNDED
 
-#include <type_traits>
-#include <data/encoding/words.hpp>
+#include <type_traits> 
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/division.hpp>
 #include <data/iterable.hpp>
-#include <data/math/number/gmp/N.hpp>
-#include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
@@ -32,7 +30,7 @@ namespace data {
             using container::array<indexed, byte, n>::Array;
             
             constexpr static endian::order endian = o;
-            constexpr static endian::order opposite_endian = endian == endian::order::little ? endian::order::big : endian::order::little;
+            constexpr static endian::order opposite_endian = endian::opposite(o);
             
             ordered(ordered<indexed, n, opposite_endian> reversed) {
                 std::reverse_copy(reversed.begin(), reversed.end(), Array.begin());
@@ -96,6 +94,7 @@ namespace data {
             
             constexpr static math::group::abelian<bounded> is_group{}; 
         };
+        
     }
     
     namespace math::number {
@@ -140,7 +139,7 @@ namespace data {
             
             static bounded max();
             static bounded min();
-            static gmp::N modulus();
+            static N_bytes<o> modulus();
             
             bounded& operator++() {
                 operator+=(1);
@@ -187,7 +186,7 @@ namespace data {
             }
             
         private:
-            explicit bounded(const gmp::N& n);
+            explicit bounded(const N_bytes<o>& n);
         };
         
         template <typename indexed, size_t size, endian::order o>
@@ -230,7 +229,7 @@ namespace data {
             static bounded max();
             static bounded min();
             
-            static gmp::N modulus() {
+            static N_bytes<o> modulus() {
                 return bounded<indexed, size, o, false>::modulus();
             }
             
@@ -279,24 +278,13 @@ namespace data {
             }
             
         private:
-            explicit bounded(const gmp::Z& z);
+            explicit bounded(const Z_bytes<o>&);
         };
-    
-        template <size_t size> using uint_big = 
-            math::number::bounded<std::array<byte, size>, size, endian::order::big, false>;
-        template <size_t size> using integer_big = 
-            math::number::bounded<std::array<byte, size>, size, endian::order::big, true>;
-    
-        template <size_t size> using uint_little = 
-            math::number::bounded<std::array<byte, size>, size, endian::order::little, false>;
-        template <size_t size> using integer_little = 
-            math::number::bounded<std::array<byte, size>, size, endian::order::little, true>;
         
     }
     
-    template <size_t size> using uint = math::number::uint_big<size>;
-    template <size_t size> using integer = math::number::uint_big<size>;
-    
+    template <size_t size> using uint = math::number::bounded<std::array<byte, size>, size, endian::big, false>;
+    template <size_t size> using integer = math::number::bounded<std::array<byte, size>, size, endian::big, true>;
     using uint160 = uint<20>;
     using uint256 = uint<32>;
     using uint512 = uint<64>;
@@ -410,32 +398,34 @@ namespace data {
         inline bounded array<bounded, indexed, size, bit32, o>::operator%(const bounded& n) const {
             return divide(n).Remainder;
         }
+        
     }
     
     namespace math::number {
+        
         // bit shift operations are inefficient but easy to make work. 
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>
         bounded<indexed, size, o, false>::operator<<(uint32 bits) const {
-            return bounded{(gmp::N{*this} << bits) % modulus()};
+            return bounded{N_bytes<o>{(N{*this} << bits) % N{modulus()}}};
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>
         bounded<indexed, size, o, false>::operator>>(uint32 bits) const {
-            return bounded{gmp::N{*this} >> bits};
+            return bounded{N_bytes<o>{N{*this} >> bits}};
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>
         bounded<indexed, size, o, true>::operator<<(uint32 bits) const {
-            return bounded{(gmp::Z{*this} << bits) % modulus()};
+            return bounded{Z_bytes<o>{(Z{*this} << bits) % Z{modulus()}}};
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>
         bounded<indexed, size, o, true>::operator>>(uint32 bits) const {
-            return bounded{gmp::Z{*this} >> bits};
+            return bounded{Z_bytes<o>{Z{*this} >> bits}};
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -582,8 +572,7 @@ namespace data {
             if (!encoding::natural::valid(s)) throw std::invalid_argument{"not a natural number"};
             
             if (encoding::hexidecimal::valid(s) && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
-            *this = bounded{gmp::N{s}};
-            
+            *this = bounded{N_bytes<o>{s}};
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -596,10 +585,9 @@ namespace data {
             
             if (hexidecimal && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
             
-            gmp::Z z{s};
-            if (z > gmp::Z{max()}) z -= modulus();
+            Z_bytes<o> z{s};
+            if (z > Z_bytes<o>{max()}) z -= modulus();
             *this = bounded{z};
-            
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -617,9 +605,9 @@ namespace data {
             
         
         template <typename indexed, size_t size, endian::order o>
-        gmp::N bounded<indexed, size, o, false>::modulus() {
+        N_bytes<o> bounded<indexed, size, o, false>::modulus() {
             std::string one = std::string{"0x01"} + encoding::hexidecimal::write(bounded{0}).substr(2);
-            return gmp::N{one};
+            return N_bytes<o>{one};
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -627,7 +615,6 @@ namespace data {
             bounded b{};
             words_type w = b.words();
             w.set(words_type::last, 0x80000000);
-            //for (int i = 0; i < words_type::last; i++) w.set(i, 0);
             return b;
         }
         
@@ -639,14 +626,14 @@ namespace data {
             for (int i = 0; i < words_type::last; i++) w.set(i, 0xffffffff);
             return b;
         }
-        
+        /*
         namespace low {
             
             template <typename gmp_limb, typename bit32> struct mpz_to_words;
             
             template <typename bit32> struct mpz_to_words<uint64, bit32> {
                 template <size_t size, endian::order o>
-                void operator()(const gmp::Z& z, encoding::words<4 * size, size, 0, bit32, o> w) {
+                void operator()(const Z& z, encoding::words<4 * size, size, 0, bit32, o> w) {
                     if (z.size() * 2 <= size) {
                         int j = 0;
                         for (auto i = z.begin(); i != z.end(); i++) {
@@ -665,23 +652,23 @@ namespace data {
                 }
             };
             
-        }
-        
+        }*/
+        /*
         template <typename indexed, size_t size, endian::order o>
-        bounded<indexed, size, o, false>::bounded(const gmp::N& n) : bounded{0} {
-            if (n > gmp::N{max()}) throw std::invalid_argument{"too high."};
+        bounded<indexed, size, o, false>::bounded(const N_bytes<o>& n) : bounded{0} {
+            if (n > N_bytes<o>{max()}) throw std::invalid_argument{"too high."};
             
-            low::mpz_to_words<gmp::gmp_uint, uint32>{}(n, ray::words());
+            low::mpz_to_words<math::number::gmp::gmp_uint, uint32>{}(n, ray::words());
         }
         
         template <typename indexed, size_t size, endian::order o>
-        bounded<indexed, size, o, true>::bounded(const gmp::Z& n) : bounded{0} {
-            gmp::Z m{max()};
+        bounded<indexed, size, o, true>::bounded(const Z_bytes<o>& n) : bounded{0} {
+            Z_bytes<o> m{max()};
             if (n > m) throw std::invalid_argument{"too high."};
-            if (n < gmp::Z{min()}) throw std::invalid_argument{"too low."};
+            if (n < Z_bytes<o>{min()}) throw std::invalid_argument{"too low."};
             
-            low::mpz_to_words<gmp::gmp_uint, int32>{}(n < 0 ? n + modulus() : n, ray::words());
-        }
+            low::mpz_to_words<math::number::gmp::gmp_uint, int32>{}(n < 0 ? n + modulus() : n, ray::words());
+        }*/
         
         namespace low {
             template <size_t size, data::endian::order o>
@@ -705,13 +692,13 @@ namespace data {
             template <size_t size, data::endian::order o>
             void write_dec(std::ostream& s, 
                 const math::number::bounded<std::array<data::byte, size>, size, o, false>& n) {
-                s << std::dec << gmp::N{n};
+                s << std::dec << N_bytes<o>{n};
             }
             
             template <size_t size, data::endian::order o>
             void write_dec(std::ostream& s,
                 const math::number::bounded<std::array<data::byte, size>, size, o, true>& n) {
-                s << std::dec << gmp::Z{n};
+                s << std::dec << Z_bytes<o>{n};
             }
         }
         
@@ -736,6 +723,7 @@ std::ostream& operator<<(std::ostream& s,
 // Explicit instantiation of the above template function. My understanding is that
 // this should not be necessary but I get linker errors when these are not here. 
 // I would like to be able to remove these. 
+// Note: the reason probably has to do with the order in which the object files are linked. 
 template std::ostream& operator<<<8, data::endian::big, true>(std::ostream& s, const data::math::number::bounded<std::array<data::byte, 8>, 8, data::endian::big, true>& n);
 
 template std::ostream& operator<<<8, data::endian::big, false>(std::ostream& s, const data::math::number::bounded<std::array<data::byte, 8>, 8, data::endian::big, false>& n);

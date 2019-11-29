@@ -9,8 +9,6 @@
 #include <stdexcept>
 
 namespace {
-    using N = data::math::number::gmp::N;
-    using Z = data::math::number::gmp::Z;
     using namespace data::exported;
     
     template<size_t size, data::endian::order o, bool is_signed> 
@@ -114,54 +112,6 @@ namespace {
         
         EXPECT_THROW(s8b{"0x000000000000000001"}, std::invalid_argument);
         EXPECT_THROW(s8l{"0x000000000000000001"}, std::invalid_argument);
-        
-    }
-    
-    TEST(BoundedTest, BoundedBitShift) {
-        using u12l = bounded<12, data::endian::little, false>;
-        using u12b = bounded<12, data::endian::big, false>;
-        
-        std::string     base_value{"0x100000000001000000000001"};
-        std::string  shift_1_right{"0x080000000000800000000000"};
-        std::string   shift_1_left{"0x200000000002000000000002"};
-        std::string  shift_2_right{"0x040000000000400000000000"};
-        std::string   shift_2_left{"0x400000000004000000000004"};
-        std::string  shift_4_right{"0x010000000000100000000000"};
-        std::string   shift_4_left{"0x000000000010000000000010"};
-        std::string shift_33_right{"0x000000000800000000008000"};
-        std::string  shift_33_left{"0x000200000000000200000000"};
-        std::string shift_66_right{"0x000000000000000004000000"};
-        std::string  shift_66_left{"0x000000040000000000000000"};
-        
-        EXPECT_EQ(u12l{base_value} >> 1, u12l{shift_1_right});
-        EXPECT_EQ(u12b{base_value} >> 1, u12b{shift_1_right});
-        
-        EXPECT_EQ(u12l{base_value} >> 2, u12l{shift_2_right});
-        EXPECT_EQ(u12b{base_value} >> 2, u12b{shift_2_right});
-        
-        EXPECT_EQ(u12l{base_value} >> 4, u12l{shift_4_right});
-        EXPECT_EQ(u12b{base_value} >> 4, u12b{shift_4_right});
-        
-        EXPECT_EQ(u12l{base_value} >> 33, u12l{shift_33_right});
-        EXPECT_EQ(u12b{base_value} >> 33, u12b{shift_33_right});
-        
-        EXPECT_EQ(u12l{base_value} >> 66, u12l{shift_66_right});
-        EXPECT_EQ(u12b{base_value} >> 66, u12b{shift_66_right});
-        
-        EXPECT_EQ(u12l{base_value} << 1, u12l{shift_1_left});
-        EXPECT_EQ(u12b{base_value} << 1, u12b{shift_1_left});
-        
-        EXPECT_EQ(u12l{base_value} << 2, u12l{shift_2_left});
-        EXPECT_EQ(u12b{base_value} << 2, u12b{shift_2_left});
-        
-        EXPECT_EQ(u12l{base_value} << 4, u12l{shift_4_left});
-        EXPECT_EQ(u12b{base_value} << 4, u12b{shift_4_left});
-        
-        EXPECT_EQ(u12l{base_value} << 33, u12l{shift_33_left});
-        EXPECT_EQ(u12b{base_value} << 33, u12b{shift_33_left});
-        
-        EXPECT_EQ(u12l{base_value} << 66, u12l{shift_66_left});
-        EXPECT_EQ(u12b{base_value} << 66, u12b{shift_66_left});
         
     }
     

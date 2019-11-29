@@ -5,7 +5,7 @@
 #ifndef DATA_DATA
 #define DATA_DATA
 
-#include <data/math/number/bounded.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include <data/list/linked.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/map_set.hpp>
@@ -16,8 +16,7 @@
 #include <data/plus.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/tools/ordered_list.hpp>
-#include <data/math/number/gmp/N.hpp>
-#include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/rational.hpp>
 #include <data/math/number/eratosthenes.hpp>
 #include <data/math/polynomial.hpp>
@@ -33,16 +32,16 @@
 // to get all complete features of this library conveniently. 
 namespace data::exported {
     
-    // Natural numbers (GMP)
-    using N = math::number::gmp::N;
+    // Natural numbers
+    using N = math::number::N;
     
-    // Integers (GMP)
-    using Z = math::number::gmp::Z;
+    // Integers
+    using Z = math::number::Z;
     
     // Rationals. 
     using Q = math::number::fraction<Z, N>;
     
-    // Gaussian rationals (complex rationals)
+    // Gaussian numbers (complex rationals)
     using G = math::complex<Q>;
     
     // Primes

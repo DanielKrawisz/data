@@ -5,7 +5,7 @@
 #ifndef DATA_CRYPTO_DIGEST
 #define DATA_CRYPTO_DIGEST
 #include "data/types.hpp"
-#include <data/math/number/bounded.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 
 namespace data::crypto {
     

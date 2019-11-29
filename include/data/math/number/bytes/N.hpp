@@ -8,59 +8,175 @@
 #include <data/math/number/natural.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/math/number/abs.hpp>
+#include <data/math/number/gmp/gmp.hpp>
+#include <data/encoding/words.hpp>
 #include <limits>
 
 namespace data::math::number {
     
-    template <endian::order o> struct Z_bytes;
+    template <endian::order r> struct Z_bytes;
     
-    template <endian::order o>
+    template <endian::order r>
     struct N_bytes {
         bytes Value;
         
-        N_bytes();
+        N_bytes() : Value{} {}
         
         N_bytes(uint64 n);
         
-        explicit N_bytes(string_view s);
+        explicit N_bytes(const N&);
+        
+        static N_bytes read(string_view x);
+        
+        explicit N_bytes(string_view s) : N_bytes{read(s)} {}
+        
+        explicit N_bytes(bytes_view b) : Value{b} {}
+        
+        explicit operator bytes_view() const {
+            return bytes_view{Value};
+        }
+        
+        math::sign sign() const {
+            return operator==(0) ? math::zero : math::positive;
+        }
+        
+        size_t size() const {
+            return Value.size();
+        }
+        
+        using index = uint32;
+        
+        byte& operator[](index i) {
+            return Value[i];
+        }
+        
+        const byte& operator[](index i) const {
+            return Value[i];
+        }
+        
+        bytes::iterator begin() {
+            return Value.begin();
+        }
+        
+        bytes::iterator end() {
+            return Value.end();
+        }
+        
+        bytes::const_iterator begin() const {
+            return Value.begin();
+        }
+        
+        bytes::const_iterator end() const {
+            return Value.end();
+        }
+        
+        constexpr static endian::order opposite = endian::opposite(r);
+        
+        explicit N_bytes(const N_bytes<opposite>&);
+        
+        N_bytes<opposite> reverse() const;
         
         N_bytes& operator=(const N_bytes& n);
+        
+        N_bytes& operator=(const N_bytes<opposite>& n);
+        
+        N_bytes& operator=(const N& n);
         
         bool operator==(uint64 n) const;
         
         bool operator==(const N_bytes& n) const;
         
-        bool operator==(const Z_bytes<o>& z) const ;
+        bool operator==(const Z_bytes<r>& z) const {
+            return z < 0 ? false : operator==(z.abs());
+        }
         
-        bool operator!=(uint64 n) const;
+        bool operator==(const N_bytes<opposite>& n) const;
         
-        bool operator!=(const N_bytes& n) const;
+        bool operator==(const Z_bytes<opposite>& z) const {
+            return z < 0 ? false : operator==(z.abs());
+        }
         
-        bool operator!=(const Z_bytes<o>& z) const;
+        bool operator==(const N& n) const;
+        
+        bool operator==(const Z& z) const {
+            return z < 0 ? false : operator==(z.abs());
+        }
+        
+        bool operator!=(uint64 n) const {
+            return !operator==(n);
+        }
+        
+        bool operator!=(const N_bytes& n) const {
+            return !operator==(n);
+        }
+        
+        bool operator!=(const Z_bytes<r>& z) const {
+            return !operator==(z);
+        };
+        
+        bool operator!=(const N_bytes<opposite>& n) const {
+            return !operator==(n);
+        }
+        
+        bool operator!=(const Z_bytes<opposite>& z) const {
+            return !operator==(z);
+        }
         
         bool operator<(uint64 n) const;
         
         bool operator<(const N_bytes& n) const;
         
-        bool operator<(const Z_bytes<o>& z) const;
+        bool operator<(const Z_bytes<r>& z) const;
+        
+        bool operator<(const N_bytes<opposite>&) const;
+        
+        bool operator<(const Z_bytes<opposite>&) const;
+        
+        bool operator<(const N&) const;
+        
+        bool operator<(const Z&) const;
         
         bool operator>(uint64 n) const;
         
-        bool operator>(const N_bytes& n) const;
+        bool operator>(const N_bytes&) const;
         
-        bool operator>(const Z_bytes<o>& z) const;
+        bool operator>(const Z_bytes<r>&) const;
+        
+        bool operator>(const N_bytes<opposite>&) const;
+        
+        bool operator>(const Z_bytes<opposite>&) const;
+        
+        bool operator>(const N&) const;
+        
+        bool operator>(const Z&) const;
         
         bool operator<=(uint64 n) const;
         
         bool operator<=(const N_bytes& n) const;
         
-        bool operator<=(const Z_bytes<o>& z) const;
+        bool operator<=(const Z_bytes<r>& z) const;
+        
+        bool operator<=(const N_bytes<opposite>&) const;
+        
+        bool operator<=(const Z_bytes<opposite>&) const;
+        
+        bool operator<=(const N&) const;
+        
+        bool operator<=(const Z&) const;
         
         bool operator>=(uint64 n) const;
         
         bool operator>=(const N_bytes& n) const;
         
-        bool operator>=(const Z_bytes<o>& z) const;
+        bool operator>=(const Z_bytes<r>& z) const;
+        
+        bool operator>=(const N_bytes<opposite>&) const;
+        
+        bool operator>=(const Z_bytes<opposite>&) const;
+        
+        bool operator>=(const N&) const;
+        
+        bool operator>=(const Z&) const;
         
         explicit operator uint64();
         
@@ -68,35 +184,151 @@ namespace data::math::number {
         
         N_bytes& operator--();
         
-        N_bytes operator++(int);
+        N_bytes operator++(int) {
+            N_bytes z = *this;
+            ++(*this);
+            return z;
+        }
         
-        N_bytes operator--(int);
+        N_bytes operator--(int) {
+            N_bytes z = *this;
+            ++(*this);
+            return z;
+        }
         
         N_bytes operator+(uint64 n) const;
         
-        N_bytes operator+(const N_bytes& n) const;
+        N_bytes operator+(const N_bytes&) const;
+        
+        N_bytes operator+(const Z_bytes<r>&) const;
+        
+        N_bytes operator+(const N_bytes<opposite>&) const;
+        
+        N_bytes operator+(const Z_bytes<opposite>&) const;
+        
+        N_bytes operator+(const N&) const;
+        
+        N_bytes operator+(const Z&) const;
+        
+        N_bytes& operator+=(uint64 n) {
+            return operator=(operator+(n));
+        } 
+        
+        N_bytes& operator+=(const N_bytes& n) {
+            return operator=(operator+(n));
+        }
+        
+        N_bytes& operator+=(const Z_bytes<r>& n) {
+            return operator=(operator+(n));
+        }
+        
+        N_bytes& operator+=(const N_bytes<opposite>& n) {
+            return operator=(operator+(n));
+        }
+        
+        N_bytes& operator+=(const Z_bytes<opposite>& n) {
+            return operator=(operator+(n));
+        }
+        
+        N_bytes& operator+=(const N& n) {
+            return operator=(operator+(n));
+        }
+        
+        N_bytes& operator+=(const Z& n) {
+            return operator=(operator+(n));
+        }
         
         N_bytes operator-(uint64 n) const;
         
-        N_bytes operator-(const N_bytes& n) const;
+        N_bytes operator-(const N_bytes&) const;
         
-        N_bytes& operator+=(uint64 n);
+        N_bytes operator-(const Z_bytes<r>&) const;
         
-        N_bytes& operator+=(const N_bytes& n);
+        N_bytes operator-(const N_bytes<opposite>&) const;
+        
+        N_bytes operator-(const Z_bytes<opposite>&) const;
+        
+        N_bytes operator-(const N&) const;
+        
+        N_bytes operator-(const Z&) const;
+        
+        N_bytes& operator-=(uint64 n) {
+            return operator=(operator-(n));
+        }
+        
+        N_bytes& operator-=(const N_bytes& n) {
+            return operator=(operator-(n));
+        }
+        
+        N_bytes& operator-=(const Z_bytes<r>& n) {
+            return operator=(operator-(n));
+        }
+        
+        N_bytes& operator-=(const N_bytes<opposite>& n) {
+            return operator=(operator-(n));
+        }
+        
+        N_bytes& operator-=(const Z_bytes<opposite>& n) {
+            return operator=(operator-(n));
+        }
+        
+        N_bytes& operator-=(const N& n) {
+            return operator=(operator-(n));
+        }
+        
+        N_bytes& operator-=(const Z& n) {
+            return operator=(operator-(n));
+        }
         
         N_bytes operator*(uint64 n) const;
         
-        N_bytes operator*(const N_bytes& n) const;
+        N_bytes operator*(const N_bytes&) const;
         
-        N_bytes& operator*=(uint64 n);
+        N_bytes operator*(const N_bytes<opposite>&) const;
         
-        N_bytes& operator*=(const N_bytes& n);
+        N_bytes operator*(const Z_bytes<r>&) const;
+        
+        N_bytes operator*(const Z_bytes<opposite>&) const;
+        
+        N_bytes operator*(const N&) const;
+        
+        N_bytes operator*(const Z&) const;
+        
+        N_bytes& operator*=(uint64 n) {
+            return operator=(operator*(n));
+        }
+        
+        N_bytes& operator*=(const N_bytes& n) {
+            return operator=(operator*(n));
+        }
+        
+        N_bytes& operator*=(const N_bytes<opposite>& n) {
+            return operator=(operator*(n));
+        }
+        
+        N_bytes& operator*=(const Z_bytes<r>& n) const {
+            return operator=(operator*(n));
+        }
+        
+        N_bytes& operator*=(const Z_bytes<opposite>& n) const {
+            return operator=(operator*(n));
+        }
+        
+        N_bytes& operator*=(const N& n) {
+            return operator=(operator*(n));
+        }
+        
+        N_bytes& operator*=(const Z& n) const {
+            return operator=(operator*(n));
+        }
         
         N_bytes operator^(uint32 n) const;
         
-        N_bytes& operator^=(uint32 n);
+        N_bytes& operator^=(uint32 n) {
+            return operator=(operator^(n));
+        }
         
-        math::division<N_bytes> divide(const N_bytes& n) const;
+        math::division<N_bytes> divide(const N_bytes&) const;
         
         bool operator|(const N_bytes& n) const {
             return divide(n).Remainder == 0;
@@ -111,29 +343,58 @@ namespace data::math::number {
         }
         
         N_bytes& operator/=(const N_bytes& n) {
-            N_bytes q = operator/(n);
-            return operator=(q);
+            return operator=(operator/(n));
         }
         
         N_bytes& operator%=(const N_bytes& n) {
-            N_bytes r = operator%(n);
-            return operator=(r);
+            return operator=(operator%(n));
         }
         
-        N_bytes operator<<(int64 x) const;
+        N_bytes operator/(const N_bytes<opposite>&) const;
+        
+        N_bytes operator%(const N_bytes<opposite>&) const;
+        
+        N_bytes& operator/=(const N_bytes<opposite>& n) {
+            return operator=(operator/(n));
+        }
+        
+        N_bytes& operator%=(const N_bytes<opposite>& n) {
+            return operator=(operator%(n));
+        }
+        
+        N_bytes operator/(const N&) const;
+        
+        N_bytes operator%(const N&) const;
+        
+        N_bytes& operator/=(const N& n) {
+            return operator=(operator/(n));
+        }
+        
+        N_bytes& operator%=(const N& n) {
+            return operator=(operator%(n));
+        }
+        
+        N_bytes operator<<(int64 x) const; 
         
         N_bytes operator>>(int64 x) const;
         
-        N_bytes& operator<<=(int64 x);
+        N_bytes& operator<<=(int64 x) {
+            return operator=(operator<<(x));
+        }
         
-        N_bytes& operator>>=(int64 x);
+        N_bytes& operator>>=(int64 x) {
+            return operator=(operator>>(x));
+        }
         
-        explicit N_bytes(bytes_view, endian::order);
+        bytes write(endian::order) const; 
         
-        bytes write(endian::order) const;
+        template <typename indexed, size_t size, endian::order o> 
+        explicit N_bytes(const bounded<indexed, size, o, false>& b) : N_bytes{bytes_view{b.Array.data(), size}, o} {}
         
         constexpr static math::number::natural::interface<N_bytes> is_natural{};
-        
+
+    private:
+        N_bytes(bytes_view, endian::order);
     };
     
     template <endian::order o> 
@@ -158,6 +419,18 @@ namespace data::encoding::decimal {
 
 template <data::endian::order o>
 std::ostream& operator<<(std::ostream& s, const data::math::number::N_bytes<o>& n);
+
+namespace data::math::number {
+    
+    template <endian::order r>
+    N_bytes<r>::N_bytes(const N& n) : Value{n.write(r)} {}
+    
+    template <endian::order r>
+    N_bytes<r> N_bytes<r>::read(string_view s) {
+        throw method::unimplemented{"N_bytes::read"};
+    }
+    
+}
 
 #endif
 

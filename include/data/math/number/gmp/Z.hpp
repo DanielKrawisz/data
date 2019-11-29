@@ -149,59 +149,6 @@ namespace data::math::number::gmp {
         
         bool operator>=(const N&) const;
         
-        Z& operator+=(int64 n) {
-            __gmp_binary_plus::eval(MPZ, MPZ, (signed long int)(n));
-            return *this;
-        }
-        
-        Z& operator+=(const Z& n) {
-            __gmp_binary_plus::eval(MPZ, MPZ, n.MPZ);
-            return *this;
-        }
-        
-        Z& operator+=(const N&);
-        
-        Z operator+(int64 n) const {
-            Z sum{};
-            __gmp_binary_plus::eval(sum.MPZ, MPZ, (signed long int)(n));
-            return sum;
-        }
-        
-        Z operator+(const Z& n) const {
-            Z sum{};
-            __gmp_binary_plus::eval(sum.MPZ, MPZ, n.MPZ);
-            return sum;
-        }
-        
-        Z operator+(const N&) const;
-        
-        Z operator-(const gmp_int n) const {
-            Z sum{};
-            __gmp_binary_minus::eval(sum.MPZ, MPZ, n);
-            return sum;
-        }
-        
-        Z& operator-=(const Z& n) {
-            __gmp_binary_minus::eval(MPZ, MPZ, n.MPZ);
-            return *this;
-        }
-        
-        Z operator-(const Z& n) const {
-            Z sum{};
-            __gmp_binary_minus::eval(sum.MPZ, MPZ, n.MPZ);
-            return sum;
-        }
-        
-        Z& operator-=(const N&);
-        
-        Z operator-(const N&) const;
-        
-        Z operator-() const {
-            Z z{*this};
-            z.MPZ[0]._mp_size = -z.MPZ[0]._mp_size;
-            return z;
-        }
-        
         Z& operator++() {
             __gmp_unary_increment::eval(MPZ);
             return *this;
@@ -223,6 +170,59 @@ namespace data::math::number::gmp {
             ++(*this);
             return z;
         }
+        
+        Z operator+(int64 n) const {
+            Z sum{};
+            __gmp_binary_plus::eval(sum.MPZ, MPZ, (signed long int)(n));
+            return sum;
+        }
+        
+        Z operator+(const Z& n) const {
+            Z sum{};
+            __gmp_binary_plus::eval(sum.MPZ, MPZ, n.MPZ);
+            return sum;
+        }
+        
+        Z operator+(const N&) const;
+        
+        Z& operator+=(int64 n) {
+            __gmp_binary_plus::eval(MPZ, MPZ, (signed long int)(n));
+            return *this;
+        }
+        
+        Z& operator+=(const Z& n) {
+            __gmp_binary_plus::eval(MPZ, MPZ, n.MPZ);
+            return *this;
+        }
+        
+        Z& operator+=(const N&);
+        
+        Z operator-(const gmp_int n) const {
+            Z sum{};
+            __gmp_binary_minus::eval(sum.MPZ, MPZ, n);
+            return sum;
+        }
+        
+        Z operator-(const Z& n) const {
+            Z sum{};
+            __gmp_binary_minus::eval(sum.MPZ, MPZ, n.MPZ);
+            return sum;
+        }
+        
+        Z operator-(const N&) const;
+        
+        Z operator-() const {
+            Z z{*this};
+            z.MPZ[0]._mp_size = -z.MPZ[0]._mp_size;
+            return z;
+        }
+        
+        Z& operator-=(const Z& n) {
+            __gmp_binary_minus::eval(MPZ, MPZ, n.MPZ);
+            return *this;
+        }
+        
+        Z& operator-=(const N&);
         
         Z operator*(int64 n) const {
             Z prod{};
@@ -315,28 +315,30 @@ namespace data::math::number::gmp {
         
         N abs() const;
         
+        template <endian::order o> 
+        explicit Z(const Z_bytes<o>& b) : Z{bytes_view{b}, o} {}
+        
+        template <endian::order o> 
+        explicit Z(const N_bytes<o>& b);
+        
         constexpr static math::number::integer<Z> is_integer{};
         
         template <typename indexed, size_t size, endian::order o> 
-        explicit Z(const bounded<indexed, size, o, true>& b) : Z{0}{
-            typename bounded<indexed, size, o, true>::words_type w = b.words();
-            for (int i = bounded<indexed, size, o, true>::words_type::last; i > 0; i--) {
-                operator+=(uint32(int32(w[i])));
-                operator<<=(32);
-            }
-            operator+=(uint32(int32(w[0])));
-            if (b < 0) operator-=(bounded<indexed, size, o, true>::modulus()); 
-        }
+        explicit Z(const bounded<indexed, size, o, true>& b) : Z{Z_bytes<o>{b}} {}
         
         template <typename indexed, size_t size, endian::order o> 
-        explicit Z(const bounded<indexed, size, o, false>& b) : Z{0}{
-            typename bounded<indexed, size, o, false>::words_type w = b.words();
-            for (int i = bounded<indexed, size, o, false>::words_type::last; i > 0; i--) {
-                operator+=(uint32(w[i]));
-                operator<<=(32);
-            }
-            operator+=(uint32(w[0]));
-        }
+        explicit Z(const bounded<indexed, size, o, false>& b) : Z{Z_bytes<o>{b}} {}
+        
+    private:
+        Z(bytes_view, endian::order);
+        
+        bytes write(endian::order) const;
+        
+        friend struct N_bytes<endian::big>;
+        friend struct N_bytes<endian::little>;
+        
+        friend struct Z_bytes<endian::big>;
+        friend struct Z_bytes<endian::little>;
         
     };
     

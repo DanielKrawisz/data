@@ -6,8 +6,13 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-namespace {
-    using namespace data::exported;
+#include <data/math/number/bytes/N.hpp>
+
+namespace data {
+    using namespace exported;
+    
+    template <endian::order o>
+    using N_bytes = math::number::N_bytes<o>;
     
     TEST(NTest, TestStringToN) {
         
@@ -32,10 +37,10 @@ namespace {
         EXPECT_FALSE(N{1} == N{"0"});
         EXPECT_FALSE(N{0} == N{"1"});
         
-        EXPECT_EQ(data::encoding::hexidecimal::write(N{0}), "0x00");
-        EXPECT_EQ(data::encoding::decimal::write(N{0}), "0");
-        EXPECT_EQ(data::encoding::hexidecimal::write(N{1}), "0x01");
-        EXPECT_EQ(data::encoding::decimal::write(N{1}), "1");
+        EXPECT_EQ(encoding::hexidecimal::write(N{0}), "0x00");
+        EXPECT_EQ(encoding::decimal::write(N{0}), "0");
+        EXPECT_EQ(encoding::hexidecimal::write(N{1}), "0x01");
+        EXPECT_EQ(encoding::decimal::write(N{1}), "1");
         
         EXPECT_TRUE(N{1} == N{"1"});
         EXPECT_TRUE(N{1} == N{"0x01"});
@@ -54,12 +59,12 @@ namespace {
         EXPECT_EQ(Z{-1}, Z{"-1"});
         EXPECT_EQ(Z{"-1"}, Z{"-0x01"});
         
-        EXPECT_EQ(data::encoding::hexidecimal::write(Z{0}), "0x00");
-        EXPECT_EQ(data::encoding::decimal::write(Z{0}), "0");
-        EXPECT_EQ(data::encoding::hexidecimal::write(Z{1}), "0x01");
-        EXPECT_EQ(data::encoding::decimal::write(Z{1}), "1");
-        EXPECT_EQ(data::encoding::hexidecimal::write(Z{-1}), "-0x01");
-        EXPECT_EQ(data::encoding::decimal::write(Z{-1}), "-1");
+        EXPECT_EQ(encoding::hexidecimal::write(Z{0}), "0x00");
+        EXPECT_EQ(encoding::decimal::write(Z{0}), "0");
+        EXPECT_EQ(encoding::hexidecimal::write(Z{1}), "0x01");
+        EXPECT_EQ(encoding::decimal::write(Z{1}), "1");
+        EXPECT_EQ(encoding::hexidecimal::write(Z{-1}), "-0x01");
+        EXPECT_EQ(encoding::decimal::write(Z{-1}), "-1");
         
         EXPECT_TRUE(Z{"0x80000000000000000000"} > Z{"0x7fffffffffffffffffff"});
         
@@ -88,7 +93,7 @@ namespace {
     
     TEST(NTest, TestDivision) {
         
-        data::math::division<N> div = N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"}.divide(58);
+        math::division<N> div = N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"}.divide(58);
         
         EXPECT_EQ(div.Quotient, N{"281747799128083566676930618873129531941258515171631968206030619132595956076515625422029804"});
         EXPECT_EQ(div.Remainder, N{25});
@@ -135,19 +140,17 @@ namespace {
         EXPECT_FALSE(p == N{n_dec});
         EXPECT_FALSE(n == N{p_dec});
         
-        using namespace data;
+        N_bytes<endian::big> p_bytes{p_hex};
+        N_bytes<endian::big> n_bytes{n_hex};
         
-        bytes p_bytes = bytes(encoding::hex::string{p_hex.substr(2)});
-        bytes n_bytes = bytes(encoding::hex::string{n_hex.substr(2)});
+        N p_from_big{p_bytes};
+        N n_from_big{n_bytes};
         
-        N p_from_big = N{p_bytes, endian::order::big};
-        N n_from_big = N{n_bytes, endian::order::big};
+        N p_from_little{N_bytes<endian::little>{p_from_big}};
+        N n_from_little{N_bytes<endian::little>{n_from_big}};
         
-        N p_from_little = N{p_from_big.write(endian::order::little), endian::order::little};
-        N n_from_little = N{n_from_big.write(endian::order::little), endian::order::little};
-        
-        EXPECT_EQ(p_bytes, p_from_big.write(endian::order::big));
-        EXPECT_EQ(n_bytes, n_from_big.write(endian::order::big));
+        EXPECT_EQ(p_bytes, N_bytes<endian::big>{p_from_big});
+        EXPECT_EQ(n_bytes, N_bytes<endian::big>{n_from_big});
         
         EXPECT_EQ(p_from_big, p_from_little);
         EXPECT_EQ(n_from_big, n_from_little);

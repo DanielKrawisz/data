@@ -247,11 +247,10 @@ namespace data::math::number::gmp {
             return N{z};
         }
         
-        explicit N(bytes_view, endian::order);
-        
-        bytes write(endian::order) const;
-        
         constexpr static math::number::natural::interface<N> is_natural{};
+        
+        template <endian::order o>
+        explicit N(const N_bytes<o>& n) : N{bytes_view(n), o} {}
         
         template <typename indexed, size_t size, endian::order o> 
         explicit N(const bounded<indexed, size, o, false>& b) : Value{b} {}
@@ -259,7 +258,13 @@ namespace data::math::number::gmp {
     private:
         explicit N(const Z& z) : Value{z} {}
         
+        N(bytes_view, endian::order);
+        
+        bytes write(endian::order) const;
+        
         friend struct Z;
+        friend struct N_bytes<endian::big>;
+        friend struct N_bytes<endian::little>;
     };
     
     inline bool Z::operator==(const N& n) const {
@@ -347,6 +352,9 @@ namespace data::math::number::gmp {
     inline N abs(const N& n) {
         return n;
     }
+        
+    template <endian::order o> 
+    Z::Z(const N_bytes<o>& b) : Z{N{b}.Value} {}
     
 }
 
