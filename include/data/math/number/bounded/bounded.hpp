@@ -52,8 +52,8 @@ namespace data {
             using ordered<indexed, n, o>::opposite_endian;
             
             using word = endian::ordered<bit32, endian>;
-            using words_type = data::encoding::words<n, n / 4, 0, bit32, o>;
-            using methods = ::data::encoding::methods<n / 4, word, words_type>;
+            using words_type = arithmetic::fixed_words<n, n / 4, n % 4, bit32, o>;
+            using methods = arithmetic::unoriented<words_type, word>;
             
             words_type words() {
                 return words_type{slice<byte, n>{Array}};
@@ -113,8 +113,8 @@ namespace data {
             using typename ray::methods;
             
             bounded(uint64 x) : ray{} {
-                ray::words().set(0, endian::ordered<uint32, o>{lesser(x)});
-                ray::words().set(1, endian::ordered<uint32, o>{greater(x)});
+                ray::words().set(0, endian::ordered<uint32, o>{lesser_half(x)});
+                ray::words().set(1, endian::ordered<uint32, o>{greater_half(x)});
             }
             
             bounded(bounded<indexed, size, ray::opposite_endian, false> n) : 
@@ -186,7 +186,9 @@ namespace data {
             }
             
         private:
-            explicit bounded(const N_bytes<o>& n);
+            explicit bounded(const N_bytes<o>& n) {
+                throw method::unimplemented{"bounded{N_bytes}"};
+            }
         };
         
         template <typename indexed, size_t size, endian::order o>
@@ -202,8 +204,8 @@ namespace data {
             
             bounded(int64 x) : ray{} {
                 if (x < 0) operator--();
-                ray::words().set(0, endian::ordered<int32, o>{lesser(x)});
-                ray::words().set(1, endian::ordered<int32, o>{greater(x)});
+                ray::words().set(0, endian::ordered<int32, o>{lesser_half(x)});
+                ray::words().set(1, endian::ordered<int32, o>{greater_half(x)});
             }
             
             bounded(bounded<indexed, size, ray::opposite_endian, true> n) : 
@@ -278,7 +280,9 @@ namespace data {
             }
             
         private:
-            explicit bounded(const Z_bytes<o>&);
+            explicit bounded(const Z_bytes<o>&) {
+                throw method::unimplemented{"bounded{Z_bytes}"};
+            }
         };
         
     }
@@ -455,19 +459,19 @@ namespace data {
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>&
         bounded<indexed, size, o, false>::operator+=(const bounded<indexed, size, o, false>& n) {
-            return methods::plus(ray::words(), n, ray::words());
+            return methods::plus(size, ray::words(), n, ray::words());
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>&
         bounded<indexed, size, o, false>::operator-=(const bounded<indexed, size, o, false>& n) {
-            return methods::plus(ray::words(), n, ray::words());
+            return methods::plus(size, ray::words(), n, ray::words());
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>&
         bounded<indexed, size, o, true>::operator-=(const bounded<indexed, size, o, true>& n) {
-            return methods::plus(ray::words(), n, ray::words());
+            return methods::plus(size, ray::words(), n, ray::words());
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -479,92 +483,55 @@ namespace data {
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator+=(const bit32& n) {
-            return methods::plus(ray::words(), n, ray::words());
+            return methods::plus(size, ray::words(), n, ray::words());
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>& 
         bounded<indexed, size, o, true>::operator+=(const bit32& n) {
-            return methods::plus(ray::words(), n, ray::words());
+            return methods::plus(size, ray::words(), n, ray::words());
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator-=(const bit32& n) {
-            methods::minus(ray::words(), n, ray::words());
+            methods::minus(size, ray::words(), n, ray::words());
             return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>& 
         bounded<indexed, size, o, true>::operator-=(const bit32& n) {
-            methods::minus(ray::words(), n, ray::words());
+            words_type out = ray::words();
+            methods::minus(size, ray::words(), n, out);
             return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator*=(const bit32& n) {
-            methods::times(ray::words(), n, ray::words());
+            methods::times(size, ray::words(), n, ray::words());
             return *this;
         }
     
         template <typename indexed, size_t size, endian::order o>
         bool bounded<indexed, size, o, false>::operator<(const bounded& n) const {
-            words_type a = ray::words();
-            words_type b = n.words();
-            for (uint32_t i = words_type::last; i >= 0; i--) {
-                if (a[i] < b[i]) return true;
-                if (a[i] > b[i]) return false;
-            }
-            
-            return false;
+            return methods::less(words_type::Last, ray::words(), n.words());
         }
         
         template <typename indexed, size_t size, endian::order o>
         bool bounded<indexed, size, o, false>::operator<=(const bounded& n) const {
-            words_type a = ray::words();
-            words_type b = n.words();
-            for (uint32_t i = words_type::last; i >= 0; i--) {
-                if (a[i] < b[i]) return true;
-                if (a[i] > b[i]) return false;
-            }
-            
-            return true;
+            return methods::less_equal(words_type::Last, ray::words(), n.words());
         }
     
         template <typename indexed, size_t size, endian::order o>
         bool bounded<indexed, size, o, true>::operator<(const bounded& n) const {
-            words_type a = ray::words();
-            words_type b = n.words();
-            int last = words_type::last;
-            
-            if (a[last] < b[last]) return true;
-            if (a[last] > b[last]) return false;
-            
-            for (int i = words_type::last - 1; i >= 0; i--) {
-                if (uint32(a[i]) < uint32(b[i])) return true;
-                if (uint32(a[i]) > uint32(b[i])) return false;
-            }
-            
-            return false;
+            return methods::less(words_type::Last, ray::words(), n.words());
         }
         
         template <typename indexed, size_t size, endian::order o>
         bool bounded<indexed, size, o, true>::operator<=(const bounded& n) const {
-            words_type a = ray::words();
-            words_type b = n.words();
-            int last = words_type::last;
-            
-            if (a[last] < b[last]) return true;
-            if (a[last] > b[last]) return false;
-            
-            for (int i = words_type::last - 1; i >= 0; i--) {
-                if (uint32(a[i]) < uint32(b[i])) return true;
-                if (uint32(a[i]) > uint32(b[i])) return false;
-            }
-            
-            return true;
+            return methods::less_equal(words_type::Last, ray::words(), n.words());
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -599,10 +566,9 @@ namespace data {
         bounded<indexed, size, o, false> bounded<indexed, size, o, false>::max() {
             bounded b{};
             words_type w = b.words();
-            for (int i = 0; i <= words_type::last; i++) w.set(i, 0xffffffff);
+            for (int i = 0; i <= words_type::Last; i++) w.set(i, 0xffffffff);
             return b;
         }
-            
         
         template <typename indexed, size_t size, endian::order o>
         N_bytes<o> bounded<indexed, size, o, false>::modulus() {
@@ -614,7 +580,7 @@ namespace data {
         bounded<indexed, size, o, true> bounded<indexed, size, o, true>::min() {
             bounded b{};
             words_type w = b.words();
-            w.set(words_type::last, 0x80000000);
+            w.set(words_type::Last, 0x80000000);
             return b;
         }
         
@@ -622,53 +588,10 @@ namespace data {
         bounded<indexed, size, o, true> bounded<indexed, size, o, true>::max() {
             bounded b{};
             words_type w = b.words();
-            w.set(words_type::last, 0x7fffffff);
-            for (int i = 0; i < words_type::last; i++) w.set(i, 0xffffffff);
+            w.set(words_type::Last, 0x7fffffff);
+            for (int i = 0; i < words_type::Last; i++) w.set(i, 0xffffffff);
             return b;
         }
-        /*
-        namespace low {
-            
-            template <typename gmp_limb, typename bit32> struct mpz_to_words;
-            
-            template <typename bit32> struct mpz_to_words<uint64, bit32> {
-                template <size_t size, endian::order o>
-                void operator()(const Z& z, encoding::words<4 * size, size, 0, bit32, o> w) {
-                    if (z.size() * 2 <= size) {
-                        int j = 0;
-                        for (auto i = z.begin(); i != z.end(); i++) {
-                            w.set(j, lesser(*i));
-                            w.set(j + 1, greater(*i));
-                            j += 2;
-                        }
-                    } else {
-                        for (int j = 0; j <= size - 2; j += 2) {
-                            uint64 word = z[j/2];
-                            w.set(j, lesser(word));
-                            w.set(j + 1, greater(word));
-                        }
-                        if (size % 2 == 1) w.set(size - 1, lesser(z[size / 2]));
-                    } 
-                }
-            };
-            
-        }*/
-        /*
-        template <typename indexed, size_t size, endian::order o>
-        bounded<indexed, size, o, false>::bounded(const N_bytes<o>& n) : bounded{0} {
-            if (n > N_bytes<o>{max()}) throw std::invalid_argument{"too high."};
-            
-            low::mpz_to_words<math::number::gmp::gmp_uint, uint32>{}(n, ray::words());
-        }
-        
-        template <typename indexed, size_t size, endian::order o>
-        bounded<indexed, size, o, true>::bounded(const Z_bytes<o>& n) : bounded{0} {
-            Z_bytes<o> m{max()};
-            if (n > m) throw std::invalid_argument{"too high."};
-            if (n < Z_bytes<o>{min()}) throw std::invalid_argument{"too low."};
-            
-            low::mpz_to_words<math::number::gmp::gmp_uint, int32>{}(n < 0 ? n + modulus() : n, ray::words());
-        }*/
         
         namespace low {
             template <size_t size, data::endian::order o>
@@ -677,7 +600,7 @@ namespace data {
                 s << "0x";
                 using words_type = typename math::number::bounded<std::array<data::byte, size>, size, o, false> ::words_type;
                 words_type w = n.words();
-                for (int i = words_type::last; i >= 0; i--) s << encoding::hex::write(uint32(w[i]));
+                for (int i = words_type::Last; i >= 0; i--) s << encoding::hex::write(uint32(w[i]));
             }
             
             template <size_t size, data::endian::order o>
@@ -686,7 +609,7 @@ namespace data {
                 s << "0x";
                 using words_type = typename math::number::bounded<std::array<data::byte, size>, size, o, true>::words_type;
                 words_type w = n.words();
-                for (int i = words_type::last; i >= 0; i--) s << encoding::hex::write(uint32(int32(w[i])));
+                for (int i = words_type::Last; i >= 0; i--) s << encoding::hex::write(uint32(int32(w[i])));
             }
             
             template <size_t size, data::endian::order o>

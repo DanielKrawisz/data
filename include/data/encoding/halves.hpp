@@ -175,12 +175,12 @@ namespace data {
     };
     
     template<typename whole>
-    typename half_of<whole>::type greater(whole w) {
+    typename half_of<whole>::type greater_half(whole w) {
         return half_of<whole>::greater(w);
     };
     
     template<typename whole>
-    typename half_of<whole>::type lesser(whole w) {
+    typename half_of<whole>::type lesser_half(whole w) {
         return half_of<whole>::lesser(w);
     };
     

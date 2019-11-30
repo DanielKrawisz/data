@@ -7,6 +7,7 @@
 
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/integer.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math::number::gmp {
     
@@ -330,9 +331,13 @@ namespace data::math::number::gmp {
         explicit Z(const bounded<indexed, size, o, false>& b) : Z{Z_bytes<o>{b}} {}
         
     private:
-        Z(bytes_view, endian::order);
+        Z(bytes_view, endian::order) {
+            throw method::unimplemented{"Z::Z{bytes_view, endian::order}"};
+        }
         
-        bytes write(endian::order) const;
+        bytes write(endian::order) const {
+            throw method::unimplemented{"Z::write"};
+        }
         
         friend struct N_bytes<endian::big>;
         friend struct N_bytes<endian::little>;

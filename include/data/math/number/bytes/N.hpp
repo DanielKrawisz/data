@@ -76,21 +76,33 @@ namespace data::math::number {
         
         N_bytes<opposite> reverse() const;
         
-        N_bytes& operator=(const N_bytes& n);
+        N_bytes& operator=(const N_bytes& n) {
+            throw method::unimplemented{"N_bytes::="};
+        }
         
-        N_bytes& operator=(const N_bytes<opposite>& n);
+        N_bytes& operator=(const N_bytes<opposite>& n) {
+            return operator=(n.reverse());
+        }
         
-        N_bytes& operator=(const N& n);
+        N_bytes& operator=(const N& n) {
+            return operator=(N_bytes{n});
+        }
         
-        bool operator==(uint64 n) const;
+        bool operator==(uint64 n) const {
+            return operator==(N_bytes{n});
+        }
         
-        bool operator==(const N_bytes& n) const;
+        bool operator==(const N_bytes& n) const {
+            throw method::unimplemented{"N_bytes == N_bytes"};
+        }
         
         bool operator==(const Z_bytes<r>& z) const {
             return z < 0 ? false : operator==(z.abs());
         }
         
-        bool operator==(const N_bytes<opposite>& n) const;
+        bool operator==(const N_bytes<opposite>& n) const {
+            return operator==(n.reverse());
+        }
         
         bool operator==(const Z_bytes<opposite>& z) const {
             return z < 0 ? false : operator==(z.abs());
@@ -122,33 +134,53 @@ namespace data::math::number {
             return !operator==(z);
         }
         
-        bool operator<(uint64 n) const;
+        bool operator<(uint64 n) const {
+            return operator<(N_bytes<r>{n});
+        }
         
         bool operator<(const N_bytes& n) const;
         
         bool operator<(const Z_bytes<r>& z) const;
         
-        bool operator<(const N_bytes<opposite>&) const;
+        bool operator<(const N_bytes<opposite>& n) const {
+            return operator<(n.reverse());
+        }
         
-        bool operator<(const Z_bytes<opposite>&) const;
+        bool operator<(const Z_bytes<opposite>& n) const {
+            return operator<(n.reverse());
+        }
         
         bool operator<(const N&) const;
         
         bool operator<(const Z&) const;
         
-        bool operator>(uint64 n) const;
+        bool operator>(uint64 n) const {
+            return !operator<=(n);
+        }
         
-        bool operator>(const N_bytes&) const;
+        bool operator>(const N_bytes& n) const {
+            return !operator<=(n);
+        }
         
-        bool operator>(const Z_bytes<r>&) const;
+        bool operator>(const Z_bytes<r>& n) const {
+            return !operator<=(n);
+        }
         
-        bool operator>(const N_bytes<opposite>&) const;
+        bool operator>(const N_bytes<opposite>& n) const {
+            return operator>(n.reverse());
+        }
         
-        bool operator>(const Z_bytes<opposite>&) const;
+        bool operator>(const Z_bytes<opposite>& n) const {
+            return operator>(n.reverse());
+        }
         
-        bool operator>(const N&) const;
+        bool operator>(const N& n) const {
+            return !operator<=(n);
+        }
         
-        bool operator>(const Z&) const;
+        bool operator>(const Z& n) const {
+            return !operator<=(n);
+        }
         
         bool operator<=(uint64 n) const;
         
@@ -156,9 +188,13 @@ namespace data::math::number {
         
         bool operator<=(const Z_bytes<r>& z) const;
         
-        bool operator<=(const N_bytes<opposite>&) const;
+        bool operator<=(const N_bytes<opposite>& n) const {
+            return operator<=(n.reverse());
+        }
         
-        bool operator<=(const Z_bytes<opposite>&) const;
+        bool operator<=(const Z_bytes<opposite>& n) const {
+            return operator<=(n.reverse());
+        }
         
         bool operator<=(const N&) const;
         
@@ -170,19 +206,27 @@ namespace data::math::number {
         
         bool operator>=(const Z_bytes<r>& z) const;
         
-        bool operator>=(const N_bytes<opposite>&) const;
+        bool operator>=(const N_bytes<opposite>& n) const {
+            return operator>=(n.reverse());
+        }
         
-        bool operator>=(const Z_bytes<opposite>&) const;
+        bool operator>=(const Z_bytes<opposite>& n) const {
+            return operator>=(n.reverse());
+        }
         
         bool operator>=(const N&) const;
         
         bool operator>=(const Z&) const;
         
-        explicit operator uint64();
+        N_bytes& operator++() {
+            operator+=(1);
+            return *this;
+        }
         
-        N_bytes& operator++();
-        
-        N_bytes& operator--();
+        N_bytes& operator--() {
+            operator+=(1);
+            return *this;
+        }
         
         N_bytes operator++(int) {
             N_bytes z = *this;
@@ -198,13 +242,17 @@ namespace data::math::number {
         
         N_bytes operator+(uint64 n) const;
         
-        N_bytes operator+(const N_bytes&) const;
+        N_bytes operator+(const N_bytes& n) const;
         
         N_bytes operator+(const Z_bytes<r>&) const;
         
-        N_bytes operator+(const N_bytes<opposite>&) const;
+        N_bytes operator+(const N_bytes<opposite>& n) const {
+            return operator+(n.reverse());
+        }
         
-        N_bytes operator+(const Z_bytes<opposite>&) const;
+        N_bytes operator+(const Z_bytes<opposite>& n) const {
+            return operator+(n.reverse());
+        }
         
         N_bytes operator+(const N&) const;
         
@@ -238,19 +286,33 @@ namespace data::math::number {
             return operator=(operator+(n));
         }
         
-        N_bytes operator-(uint64 n) const;
+        N_bytes operator-(uint64 n) const {
+            return operator-(N_bytes{n});
+        }
         
-        N_bytes operator-(const N_bytes&) const;
+        N_bytes operator-(const N_bytes& n) const;
         
-        N_bytes operator-(const Z_bytes<r>&) const;
+        N_bytes operator-(const Z_bytes<r>& n) const {
+            if (operator<(n)) return 0;
+            throw method::unimplemented{"N_bytes::operator-"};
+        }
         
-        N_bytes operator-(const N_bytes<opposite>&) const;
+        N_bytes operator-(const N_bytes<opposite>& n) const {
+            return operator-(n.reverse());
+        }
         
-        N_bytes operator-(const Z_bytes<opposite>&) const;
+        N_bytes operator-(const Z_bytes<opposite>& n) const {
+            return operator-(n.reverse());
+        }
         
-        N_bytes operator-(const N&) const;
+        N_bytes operator-(const N& n) const {
+            return operator-(N_bytes{n});
+        }
         
-        N_bytes operator-(const Z&) const;
+        N_bytes operator-(const Z& n) const {
+            if (operator<(n)) return 0;
+            throw method::unimplemented{"N_bytes::operator-"};
+        }
         
         N_bytes& operator-=(uint64 n) {
             return operator=(operator-(n));
@@ -284,11 +346,15 @@ namespace data::math::number {
         
         N_bytes operator*(const N_bytes&) const;
         
-        N_bytes operator*(const N_bytes<opposite>&) const;
+        N_bytes operator*(const N_bytes<opposite>& n) const {
+            return operator*(n.reverse());
+        }
         
         N_bytes operator*(const Z_bytes<r>&) const;
         
-        N_bytes operator*(const Z_bytes<opposite>&) const;
+        N_bytes operator*(const Z_bytes<opposite>& n) const {
+            return operator*(n.reverse());
+        }
         
         N_bytes operator*(const N&) const;
         
@@ -350,9 +416,13 @@ namespace data::math::number {
             return operator=(operator%(n));
         }
         
-        N_bytes operator/(const N_bytes<opposite>&) const;
+        N_bytes operator/(const N_bytes<opposite>& n) const {
+            return operator/(n.reverse());
+        }
         
-        N_bytes operator%(const N_bytes<opposite>&) const;
+        N_bytes operator%(const N_bytes<opposite>& n) const {
+            return operator/(n.reverse());
+        }
         
         N_bytes& operator/=(const N_bytes<opposite>& n) {
             return operator=(operator/(n));
@@ -374,9 +444,13 @@ namespace data::math::number {
             return operator=(operator%(n));
         }
         
-        N_bytes operator<<(int64 x) const; 
+        N_bytes operator<<(int64 x) const {
+            throw method::unimplemented{"N_bytes::<<"};
+        }
         
-        N_bytes operator>>(int64 x) const;
+        N_bytes operator>>(int64 x) const {
+            throw method::unimplemented{"N_bytes::>>"};
+        }
         
         N_bytes& operator<<=(int64 x) {
             return operator=(operator<<(x));
@@ -394,7 +468,15 @@ namespace data::math::number {
         constexpr static math::number::natural::interface<N_bytes> is_natural{};
 
     private:
-        N_bytes(bytes_view, endian::order);
+        N_bytes(bytes_view, endian::order) {
+            throw method::unimplemented{"N_bytes read bytes and endian ordering."};
+        }
+        
+        using word = endian::ordered<uint32, r>;
+        using words_type = arithmetic::unfixed_words<uint32, r>;
+        using methods = arithmetic::unoriented<words_type, word>;
+        
+        words_type words() const;
     };
     
     template <endian::order o> 
@@ -418,7 +500,9 @@ namespace data::encoding::decimal {
 }
 
 template <data::endian::order o>
-std::ostream& operator<<(std::ostream& s, const data::math::number::N_bytes<o>& n);
+std::ostream& operator<<(std::ostream& s, const data::math::number::N_bytes<o>& n) {
+    throw data::method::unimplemented{"std::ostream << N_bytes"};
+}
 
 namespace data::math::number {
     
