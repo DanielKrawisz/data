@@ -9,6 +9,7 @@
 #include <data/types.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/encoding/invalid.hpp>
+#include <data/encoding/endian.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <ctre.hpp>
@@ -28,6 +29,8 @@ namespace data::encoding {
         inline uint32 digits(string_view s) {
             return valid(s) ? s.size() : 0;
         }
+        
+        bytes read(string_view s, endian::order r);
     };
     
     namespace hexidecimal {
@@ -50,6 +53,10 @@ namespace data::encoding {
         inline uint32 digits(string_view s) {
             return valid(s) ? s.size() - 2 : 0;
         }
+        
+        bytes read(string_view s, endian::order r);
+        
+        void write(std::ostream& o, bytes_view b, endian::order r);
     };
     
     namespace natural {
@@ -73,17 +80,19 @@ namespace data::encoding {
         inline uint32 digits(string_view s) {
             return std::max(decimal::digits(s), hexidecimal::digits(s));
         }
+        
+        bytes read(string_view s, endian::order r);
     };
     
     namespace integer {
         constexpr auto pattern = ctll::fixed_string{
-            "^0|(-?[1-9][0-9]*)|(-?0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
+            "^0|(-?[1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
         
         constexpr auto zero_pattern = ctll::fixed_string{
             "^0|0x(00)*$"};
         
         constexpr auto negative_pattern = ctll::fixed_string{
-            "-(([1-9][0-9]*)|(0x(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
+            "^(-([1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
         
         inline bool valid(string_view s) {
             return ctre::match<pattern>(s);
@@ -104,6 +113,8 @@ namespace data::encoding {
         inline uint32 digits(string_view s) {
             return negative(s) ? natural::digits(s.substr(1, s.size() - 1)) : natural::digits(s);
         }
+        
+        bytes read(string_view s, endian::order r);
         
     };
     

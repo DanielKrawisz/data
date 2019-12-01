@@ -16,8 +16,14 @@
 
 namespace data::arithmetic {
     
+    const endian::order big = endian::big;
+    const endian::order little = endian::little;
+    
     template <size_t bytes, size_t size, size_t remainder, typename bit32, endian::order o>
-    struct fixed_words {
+    struct fixed_words;
+    
+    template <size_t bytes, size_t size, typename bit32>
+    struct fixed_words<bytes, size, 0, bit32, big> {
         slice<byte, bytes> Data;
         
         fixed_words(slice<byte, bytes> d) : Data{d} {}
@@ -34,19 +40,124 @@ namespace data::arithmetic {
             return Last;
         }
         
-        const endian::ordered<bit32, o> default_value() const {
-            return endian::ordered<bit32, o>::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
+        using element = endian::ordered<bit32, big>;
+        
+        const element default_value() const {
+            return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
         }
         
-        const endian::ordered<bit32, o> operator[](index i) const {
+        const element operator[](index i) const {
+            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * (Last - i)]));
+        }
+        
+        const element set(index i, element x) {
+            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * (Last - i)]) = x.Value);
+        }
+    };
+    
+    template <size_t bytes, size_t size, typename bit32>
+    struct fixed_words<bytes, size, 0, bit32, little> {
+        slice<byte, bytes> Data;
+        
+        fixed_words(slice<byte, bytes> d) : Data{d} {}
+        
+        static const fixed_words make(const slice<byte, bytes> d) {
+            return fixed_words(d);
+        }
+        
+        using index = uint32;
+        
+        constexpr static const index Last = size - 1;
+        
+        index last() const {
+            return Last;
+        }
+        
+        using element = endian::ordered<bit32, little>;
+        
+        const element default_value() const {
+            return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
+        }
+        
+        const element operator[](index i) const {
+            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * i]));
+        }
+        
+        const element set(index i, element x) {
+            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * i]) = x.Value);
+        }
+    };
+    
+    template <size_t bytes, size_t size, size_t remainder, typename bit32>
+    struct fixed_words<bytes, size, remainder, bit32, big> {
+        slice<byte, bytes> Data;
+        
+        fixed_words(slice<byte, bytes> d) : Data{d} {}
+        
+        static const fixed_words make(const slice<byte, bytes> d) {
+            return fixed_words(d);
+        }
+        
+        using index = uint32;
+        
+        constexpr static const index Last = size - 1;
+        
+        index last() const {
+            return Last;
+        }
+        
+        using element = endian::ordered<bit32, big>;
+        
+        const element default_value() const {
+            return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
+        }
+        
+        const element operator[](index i) const {
             if (i > Last) return default_value(); 
-            if (i < Last) return endian::ordered<bit32, o>::as(*(bit32*)(&Data[o == endian::little ? 4 * i : 4 * (Last - i)]));
+            if (i < Last) return element::as(*(bit32*)(&Data[4 * (Last - i)]));
             throw method::unimplemented{"fixed_words[]"};
         }
         
-        const endian::ordered<bit32, o> set(index i, endian::ordered<bit32, o> x) {
+        const element set(index i, element x) {
             if (i > Last) return default_value();
-            if (i < Last) return endian::ordered<bit32, o>::as(*(bit32*)(&Data[o == endian::little ? 4 * i : 4 * (Last - i)]) = x.Value);
+            if (i < Last) return element::as(*(bit32*)(&Data[4 * (Last - i)]) = x.Value);
+            throw method::unimplemented{"fixed_words set"};
+        }
+    };
+    
+    template <size_t bytes, size_t size, size_t remainder, typename bit32>
+    struct fixed_words<bytes, size, remainder, bit32, little> {
+        slice<byte, bytes> Data;
+        
+        fixed_words(slice<byte, bytes> d) : Data{d} {}
+        
+        static const fixed_words make(const slice<byte, bytes> d) {
+            return fixed_words(d);
+        }
+        
+        using index = uint32;
+        
+        constexpr static const index Last = size - 1;
+        
+        index last() const {
+            return Last;
+        }
+        
+        using element = endian::ordered<bit32, little>;
+        
+        const element default_value() const {
+            return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
+        }
+        
+        const element operator[](index i) const {
+            if (i > Last) return default_value(); 
+            if (i < Last) return element::as(*(bit32*)(&Data[4 * i]));
+            throw method::unimplemented{"fixed_words[]"};
+        }
+        
+        const element set(index i, element x) {
+            if (i > Last) return default_value();
+            if (i < Last) return element::as(*(bit32*)(&Data[4 * i]) = x.Value);
             throw method::unimplemented{"fixed_words set"};
         }
     };
@@ -90,43 +201,40 @@ namespace data::arithmetic {
         static twice extend(word w) {
             return data::twice<word>::extend(w);
         }
-        static bool less(uint32 last, const words&, const words&);
         
-        static bool less_equal(uint32 last, const words&, const words&);
+        static bool less(uint32 last, const words, const words);
         
-        static void bit_not(uint32 last, const words&, words&);
+        static bool less_equal(uint32 last, const words, const words);
         
-        static void bit_and(uint32 last, const words&, const words&, words&);
+        static void bit_not(uint32 last, const words, words);
         
-        static void bit_or(uint32 last, const words&, const words&, words&);
+        static void bit_and(uint32 last, const words, const words, words);
         
-        static void plus(uint32 last, const words&, const words&, words&);
+        static void bit_or(uint32 last, const words, const words, words);
         
-        static void plus(uint32 last, const words&, const word, words&);
+        static void plus(uint32 last, const words, const words, words);
         
-        static void minus(uint32 last, const words&, const words&, words&);
+        static void plus(uint32 last, const words, const word, words);
         
-        static void minus(uint32 last, const words&, const word, words&);
+        static void minus(uint32 last, const words, const words, words);
         
-        static void times(uint32 last, const words&, const words&, words&);
-    };
-    
-    template <typename words, typename word, endian::order o>
-    struct bit_shift {
+        static void minus(uint32 last, const words, const word, words);
+        
+        static void times(uint32 last, const words, const words, words);
+        
         using index = uint32;
         
-        void left(const words& a, const uint32 i, words& out);
+        static void down(uint32 last, const words a, const uint32 i, words out) {
+            throw method::unimplemented{"methods::down"};
+        }
         
-        void right(const words& a, const uint32 i, words& out);
-        
-        void operator()(const words& a, const int32 i, words& out) {
-            if (i < 0) return right(a, -i, out);
-            return left(a, i, out);
+        static void up(uint32 last, const words a, const uint32 i, words out) {
+            throw method::unimplemented{"methods::up"};
         }
     };
     
     template <typename words, typename word>
-    bool unoriented<words, word>::less(uint32 last, const words& a, const words& b) {
+    bool unoriented<words, word>::less(uint32 last, const words a, const words b) {
         if (a[last] < b[last]) return true;
         if (a[last] > b[last]) return false;
         
@@ -139,7 +247,7 @@ namespace data::arithmetic {
     }
     
     template <typename words, typename word>
-    bool unoriented<words, word>::less_equal(uint32 last, const words& a, const words& b) {
+    bool unoriented<words, word>::less_equal(uint32 last, const words a, const words b) {
         if (a[last] < b[last]) return true;
         if (a[last] > b[last]) return false;
         
@@ -152,22 +260,22 @@ namespace data::arithmetic {
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::bit_not(uint32 last, const words& xx, words& out) {
+    void unoriented<words, word>::bit_not(uint32 last, const words xx, words out) {
         for (uint32 i = 0; i <= last; i++) out.set(i, ~xx[i]);
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::bit_and(uint32 last, const words& x, const words& y, words& out) {
+    void unoriented<words, word>::bit_and(uint32 last, const words x, const words y, words out) {
         for (uint32 i = 0; i <= last; i++) out.set(i, x[i]^y[i]);
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::bit_or(uint32 last, const words& x, const words& y, words& out) {
+    void unoriented<words, word>::bit_or(uint32 last, const words x, const words y, words out) {
         for (uint32 i = 0; i <= last; i++) out.set(i, x[i]|y[i]);
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::plus(uint32 last, const words& a, const words& b, words& result) {
+    void unoriented<words, word>::plus(uint32 last, const words a, const words b, words result) {
         word remainder{0};
         for (int32 i = 0; i <= last; i++) {
             twice w = extend(a[i]) + extend(b[i]);
@@ -177,7 +285,7 @@ namespace data::arithmetic {
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::plus(uint32 last, const words& a, const word b, words& result) {
+    void unoriented<words, word>::plus(uint32 last, const words a, const word b, words result) {
         word remainder{0};
         
         twice w = extend(a[0]) + extend(b);
@@ -192,17 +300,17 @@ namespace data::arithmetic {
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::minus(uint32 last, const words& a, const words& b, words& result) {
+    void unoriented<words, word>::minus(uint32 last, const words a, const words b, words result) {
         word remainder{0};
         for (int32 i = last; i >= 0; i--) {
             twice w = extend(a[i]) - extend(b[i]);
-            result[i] = remainder + lesser_half(w);
+            result.set(i, remainder + lesser_half(w));
             remainder = greater_half(w);
         };
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::minus(uint32 last, const words& a, const word b, words& result) {
+    void unoriented<words, word>::minus(uint32 last, const words a, const word b, words result) {
         int i = 0;
         word remainder = b;
         
@@ -216,7 +324,7 @@ namespace data::arithmetic {
     }
     
     template <typename words, typename word>
-    void unoriented<words, word>::times(uint32 last, const words& a, const words& b, words& result) {
+    void unoriented<words, word>::times(uint32 last, const words a, const words b, words result) {
         auto from_end = [last](uint32 i)->uint32{return last - i;};
         word remainder{0};
         for (int i = 0; i <= last; i ++) {

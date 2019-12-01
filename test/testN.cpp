@@ -53,11 +53,11 @@ namespace data {
         EXPECT_FALSE(Z{}.valid());
         EXPECT_FALSE(Z{""}.valid());
         EXPECT_TRUE(Z{"-1"}.valid());
-        EXPECT_TRUE(Z{"-0x01"}.valid());
+        EXPECT_FALSE(Z{"-0x01"}.valid());
         
         EXPECT_EQ(N{}, N{""});
         EXPECT_EQ(Z{-1}, Z{"-1"});
-        EXPECT_EQ(Z{"-1"}, Z{"-0x01"});
+        EXPECT_EQ(Z{"-1"}, Z{"0xff"});
         
         EXPECT_EQ(encoding::hexidecimal::write(Z{0}), "0x00");
         EXPECT_EQ(encoding::decimal::write(Z{0}), "0");
@@ -66,7 +66,7 @@ namespace data {
         EXPECT_EQ(encoding::hexidecimal::write(Z{-1}), "-0x01");
         EXPECT_EQ(encoding::decimal::write(Z{-1}), "-1");
         
-        EXPECT_TRUE(Z{"0x80000000000000000000"} > Z{"0x7fffffffffffffffffff"});
+        EXPECT_TRUE(Z{"0x80000000000000000000"} < Z{"0x7fffffffffffffffffff"});
         
     }
     

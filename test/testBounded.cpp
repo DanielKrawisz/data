@@ -19,6 +19,11 @@ namespace {
     using s8l = bounded<8, data::endian::little, true>;
     using s8b  = bounded<8, data::endian::big, true>;
     
+    using nl = data::math::number::N_bytes<data::endian::little>;
+    using nb = data::math::number::N_bytes<data::endian::big>;
+    using zl = data::math::number::Z_bytes<data::endian::little>;
+    using zb = data::math::number::Z_bytes<data::endian::big>;
+    
     TEST(BoundedTest, Bounded01) {
         
         EXPECT_EQ(N{u8b{0}}, N{0});
@@ -48,6 +53,34 @@ namespace {
         EXPECT_NE(Z{s8l{0}}, Z{1});
         EXPECT_GT(Z{s8l{1}}, Z{0});
         EXPECT_LT(Z{s8l{0}}, Z{1});
+        
+        EXPECT_EQ(N{u8l{0}}, N{0});
+        EXPECT_EQ(N{u8l{1}}, N{1});
+        EXPECT_NE(N{u8l{1}}, N{0});
+        EXPECT_NE(N{u8l{0}}, N{1});
+        EXPECT_GT(N{u8l{1}}, N{0});
+        EXPECT_LT(N{u8l{0}}, N{1});
+        
+        EXPECT_EQ(N{nl{0}}, N{0});
+        EXPECT_EQ(N{nl{1}}, N{1});
+        EXPECT_NE(N{nl{1}}, N{0});
+        EXPECT_NE(N{nl{0}}, N{1});
+        EXPECT_GT(N{nl{1}}, N{0});
+        EXPECT_LT(N{nl{0}}, N{1});
+        
+        EXPECT_EQ(Z{s8b{0}}, Z{0});
+        EXPECT_EQ(Z{s8b{1}}, Z{1});
+        EXPECT_NE(Z{s8b{1}}, Z{0});
+        EXPECT_NE(Z{s8b{0}}, Z{1});
+        EXPECT_GT(Z{s8b{1}}, Z{0});
+        EXPECT_LT(Z{s8b{0}}, Z{1});
+        
+        EXPECT_EQ(Z{zl{0}}, Z{0});
+        EXPECT_EQ(Z{zl{1}}, Z{1});
+        EXPECT_NE(Z{zl{1}}, Z{0});
+        EXPECT_NE(Z{zl{0}}, Z{1});
+        EXPECT_GT(Z{zl{1}}, Z{0});
+        EXPECT_LT(Z{zl{0}}, Z{1});
         
     }
     
@@ -88,6 +121,14 @@ namespace {
         EXPECT_FALSE(s8l{1} < 0);
         EXPECT_TRUE(s8l{-1} < 0);
         
+        EXPECT_FALSE(zb{0} < 0);
+        EXPECT_FALSE(zb{1} < 0);
+        EXPECT_TRUE(zb{-1} < 0);
+        
+        EXPECT_FALSE(zl{0} < 0);
+        EXPECT_FALSE(zl{1} < 0);
+        EXPECT_TRUE(zl{-1} < 0);
+        
     }
     
     TEST(BoundedTest, BoundedReadString) {
@@ -95,8 +136,8 @@ namespace {
         EXPECT_THROW(u8b{"-1"}, std::invalid_argument);
         EXPECT_THROW(u8l{"-1"}, std::invalid_argument);
         
-        EXPECT_EQ(s8b{"-0x01"}, s8b{"-1"});
-        EXPECT_EQ(s8l{"-0x01"}, s8l{"-1"});
+        EXPECT_EQ(s8b{"0xff"}, s8b{"-1"});
+        EXPECT_EQ(s8l{"0xff"}, s8l{"-1"});
         
         EXPECT_THROW(u8b{"-0x01"}, std::invalid_argument);
         EXPECT_THROW(u8l{"-0x01"}, std::invalid_argument);

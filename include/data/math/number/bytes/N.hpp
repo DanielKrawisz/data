@@ -7,6 +7,7 @@
 
 #include <data/math/number/natural.hpp>
 #include <data/encoding/endian.hpp>
+#include <data/encoding/integer.hpp>
 #include <data/math/number/abs.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/encoding/words.hpp>
@@ -22,11 +23,16 @@ namespace data::math::number {
         
         N_bytes() : Value{} {}
         
-        N_bytes(uint64 n);
+        N_bytes(uint64 x) {
+            Value.resize(8);
+            *(uint64*)(Value.data()) = endian::native<uint64, r>{}.from(x);
+        }
         
-        explicit N_bytes(const N&);
+        explicit N_bytes(const N& n) : Value{n.write(r)} {}
         
-        static N_bytes read(string_view x);
+        static N_bytes read(string_view x) {
+            return N_bytes<r>{encoding::natural::read(x, r)};
+        }
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
         
@@ -77,7 +83,8 @@ namespace data::math::number {
         N_bytes<opposite> reverse() const;
         
         N_bytes& operator=(const N_bytes& n) {
-            throw method::unimplemented{"N_bytes::="};
+            Value = n.Value;
+            return *this;
         }
         
         N_bytes& operator=(const N_bytes<opposite>& n) {
@@ -93,7 +100,7 @@ namespace data::math::number {
         }
         
         bool operator==(const N_bytes& n) const {
-            throw method::unimplemented{"N_bytes == N_bytes"};
+            return N{*this} == N{n}; // Inefficient
         }
         
         bool operator==(const Z_bytes<r>& z) const {
@@ -108,7 +115,9 @@ namespace data::math::number {
             return z < 0 ? false : operator==(z.abs());
         }
         
-        bool operator==(const N& n) const;
+        bool operator==(const N& n) const {
+            return N{*this} == n;
+        }
         
         bool operator==(const Z& z) const {
             return z < 0 ? false : operator==(z.abs());
@@ -134,13 +143,31 @@ namespace data::math::number {
             return !operator==(z);
         }
         
+    private:
+        using word = endian::ordered<uint32, r>;
+        using words_type = arithmetic::unfixed_words<uint32, r>;
+        using methods = arithmetic::unoriented<words_type, word>;
+            
+        words_type words() {
+            return words_type{slice<byte>{Value}};
+        }
+        
+        const words_type words() const {
+            return words_type::make(slice<byte>::make(Value));
+        }
+        
+    public:
         bool operator<(uint64 n) const {
             return operator<(N_bytes<r>{n});
         }
         
-        bool operator<(const N_bytes& n) const;
+        bool operator<(const N_bytes& n) const {
+            return methods::less(std::max(Value.size(), n.Value.size()), words(), n.words());
+        }
         
-        bool operator<(const Z_bytes<r>& z) const;
+        bool operator<(const Z_bytes<r>& z) const {
+            return z.is_negative() ? false : operator<(N_bytes{z.Value});
+        }
         
         bool operator<(const N_bytes<opposite>& n) const {
             return operator<(n.reverse());
@@ -150,9 +177,13 @@ namespace data::math::number {
             return operator<(n.reverse());
         }
         
-        bool operator<(const N&) const;
+        bool operator<(const N& n) const {
+            return N{*this} < n;
+        }
         
-        bool operator<(const Z&) const;
+        bool operator<(const Z& n) const {
+            return N{*this} < n;
+        }
         
         bool operator>(uint64 n) const {
             return !operator<=(n);
@@ -182,11 +213,17 @@ namespace data::math::number {
             return !operator<=(n);
         }
         
-        bool operator<=(uint64 n) const;
+        bool operator<=(uint64 n) const {
+            return operator<=(N_bytes{n});
+        }
         
-        bool operator<=(const N_bytes& n) const;
+        bool operator<=(const N_bytes& n) const {
+            return methods::less_equal(std::max(Value.size(), n.Value.size()), words(), n.words());
+        }
         
-        bool operator<=(const Z_bytes<r>& z) const;
+        bool operator<=(const Z_bytes<r>& z) const {
+            return z.is_negative() ? false : operator<=(N_bytes{z.Value});
+        }
         
         bool operator<=(const N_bytes<opposite>& n) const {
             return operator<=(n.reverse());
@@ -196,11 +233,17 @@ namespace data::math::number {
             return operator<=(n.reverse());
         }
         
-        bool operator<=(const N&) const;
+        bool operator<=(const N& n) const {
+            return N{*this} <= n;
+        }
         
-        bool operator<=(const Z&) const;
+        bool operator<=(const Z& n) const {
+            return N{*this} <= n;
+        }
         
-        bool operator>=(uint64 n) const;
+        bool operator>=(uint64 n) const {
+            return operator>=(N_bytes{n});
+        }
         
         bool operator>=(const N_bytes& n) const;
         
@@ -214,9 +257,13 @@ namespace data::math::number {
             return operator>=(n.reverse());
         }
         
-        bool operator>=(const N&) const;
+        bool operator>=(const N& n) const {
+            return N{*this} >= n;
+        }
         
-        bool operator>=(const Z&) const;
+        bool operator>=(const Z& n) const {
+            return N{*this} >= n;
+        }
         
         N_bytes& operator++() {
             operator+=(1);
@@ -462,58 +509,86 @@ namespace data::math::number {
         
         bytes write(endian::order) const; 
         
+        N_bytes trim() const;
+        
         template <typename indexed, size_t size, endian::order o> 
         explicit N_bytes(const bounded<indexed, size, o, false>& b) : N_bytes{bytes_view{b.Array.data(), size}, o} {}
         
         constexpr static math::number::natural::interface<N_bytes> is_natural{};
 
     private:
-        N_bytes(bytes_view, endian::order) {
-            throw method::unimplemented{"N_bytes read bytes and endian ordering."};
+        N_bytes(bytes_view b, endian::order o) {
+            Value.resize(b.size());
+            std::copy(b.begin(), b.end(), Value.begin());
+            if (o != r) std::reverse(Value.begin(), Value.end());
         }
-        
-        using word = endian::ordered<uint32, r>;
-        using words_type = arithmetic::unfixed_words<uint32, r>;
-        using methods = arithmetic::unoriented<words_type, word>;
-        
-        words_type words() const;
     };
     
     template <endian::order o> 
     struct abs<N_bytes<o>, Z_bytes<o>> {
         N_bytes<o> operator()(const Z_bytes<o>& i);
     };
+    
+    namespace low {
+        template <typename B, typename E, typename O>
+        void trim(uint32 size, B b, E e, O o) {
+            while(*b == 0) {
+                size--;
+                b++;
+            }
+            std::copy(b, e, o);
+        }
+    }
+    
+    template <endian::order r> 
+    N_bytes<r> N_bytes<r>::trim() const {
+        uint32 size = Value.size();
+        if (size == 0) return N_bytes{bytes{}};
+        N_bytes re{};
+        if (r == endian::big) {
+            auto b = Value.begin();
+            while (*b == 0) {
+                size--;
+                b++;
+            }
+            re.Value.resize(size);
+            std::copy(b, Value.end(), re.Value.begin());
+        } else {
+            auto b = Value.rbegin();
+            while (*b == 0) {
+                size--;
+                b++;
+            }
+            re.Value.resize(size);
+            std::copy(b, Value.rend(), re.Value.rend());
+        }
+        return re;
+    }
 }
 
 namespace data::encoding::hexidecimal { 
     
     template <endian::order o>
-    string write(const math::number::N_bytes<o>& n);
+    string write(const math::number::N_bytes<o>& n) {
+        throw method::unimplemented{"hexidecimal::write(N_bytes)"};
+    }
     
 }
 
 namespace data::encoding::decimal {
     
     template <endian::order o>
-    string write(const math::number::Z_bytes<o>& n);
-    
-}
-
-template <data::endian::order o>
-std::ostream& operator<<(std::ostream& s, const data::math::number::N_bytes<o>& n) {
-    throw data::method::unimplemented{"std::ostream << N_bytes"};
-}
-
-namespace data::math::number {
-    
-    template <endian::order r>
-    N_bytes<r>::N_bytes(const N& n) : Value{n.write(r)} {}
-    
-    template <endian::order r>
-    N_bytes<r> N_bytes<r>::read(string_view s) {
-        throw method::unimplemented{"N_bytes::read"};
+    string write(const math::number::N_bytes<o>& n) {
+        throw method::unimplemented{"decimal::write(N_bytes)"};
     }
     
+}
+
+template <data::endian::order r>
+std::ostream& operator<<(std::ostream& o, const data::math::number::N_bytes<r>& n) {
+    if (o.flags() & std::ios::hex) o << data::encoding::decimal::write(n);
+    if (o.flags() & std::ios::dec) o << data::encoding::hexidecimal::write(n);
+    return o;
 }
 
 #endif

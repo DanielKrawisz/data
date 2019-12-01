@@ -50,18 +50,6 @@ namespace data {
             using ordered<indexed, n, o>::Array;
             using ordered<indexed, n, o>::endian;
             using ordered<indexed, n, o>::opposite_endian;
-            
-            using word = endian::ordered<bit32, endian>;
-            using words_type = arithmetic::fixed_words<n, n / 4, n % 4, bit32, o>;
-            using methods = arithmetic::unoriented<words_type, word>;
-            
-            words_type words() {
-                return words_type{slice<byte, n>{Array}};
-            }
-            
-            const words_type words() const {
-                return words_type::make(slice<byte, n>::make(Array));
-            }
 
             bool operator==(const bounded& d) const;
             bool operator!=(const bounded& d) const;
@@ -92,7 +80,23 @@ namespace data {
             bounded operator/(const bounded&) const;
             bounded operator%(const bounded&) const;
             
+            bounded operator<<(int32) const;
+            bounded operator>>(int32) const;
+            
             constexpr static math::group::abelian<bounded> is_group{}; 
+            
+        protected:
+            using word = endian::ordered<bit32, endian>;
+            using words_type = arithmetic::fixed_words<n, n / 4, n % 4, bit32, o>;
+            using methods = arithmetic::unoriented<words_type, word>;
+            
+            words_type words() {
+                return words_type{slice<byte, n>{Array}};
+            }
+            
+            const words_type words() const {
+                return words_type::make(slice<byte, n>::make(Array));
+            }
         };
         
     }
@@ -162,31 +166,13 @@ namespace data {
                 ++(*this);
                 return n;
             }
-            
-            bounded operator<<(uint32) const;
-            bounded operator>>(uint32) const;
                 
-            bounded& operator<<=(uint32);
-            bounded& operator>>=(uint32);
-            
-            bounded operator<<(int32 i) const {
-                return i < 0 ? operator>>(uint32(-i)) : operator<<(uint32(i));
-            }
-            
-            bounded operator>>(int32 i) const {
-                return i < 0 ? operator<<(uint32(-i)) : operator>>(uint32(i));
-            }
-                
-            bounded& operator<<=(int32 i) {
-                return i < 0 ? operator>>=(uint32(-i)) : operator<<=(uint32(i));
-            }
-            
-            bounded& operator>>=(int32 i) {
-                return i < 0 ? operator<<=(uint32(-i)) : operator>>=(uint32(i));
-            }
+            bounded& operator<<=(int32);
+            bounded& operator>>=(int32);
             
         private:
             explicit bounded(const N_bytes<o>& n) {
+                if (n > N_bytes<o>{max()}) throw std::out_of_range{"N_bytes too big"};
                 throw method::unimplemented{"bounded{N_bytes}"};
             }
         };
@@ -256,31 +242,13 @@ namespace data {
                 --(*this);
                 return z;
             }
-            
-            bounded operator<<(uint32) const;
-            bounded operator>>(uint32) const;
                 
-            bounded& operator<<=(uint32);
-            bounded& operator>>=(uint32);
-            
-            bounded operator<<(int32 i) const {
-                return i < 0 ? operator>>(uint32(-i)) : operator<<(uint32(i));
-            }
-            
-            bounded operator>>(int32 i) const {
-                return i < 0 ? operator<<(uint32(-i)) : operator>>(uint32(i));
-            }
-                
-            bounded& operator<<=(int32 i) {
-                return i < 0 ? operator>>=(uint32(-i)) : operator<<=(uint32(i));
-            }
-            
-            bounded& operator>>=(int32 i) {
-                return i < 0 ? operator<<=(uint32(-i)) : operator>>=(uint32(i));
-            }
+            bounded& operator<<=(int32);
+            bounded& operator>>=(int32);
             
         private:
-            explicit bounded(const Z_bytes<o>&) {
+            explicit bounded(const Z_bytes<o>& z) {
+                if (z > Z_bytes<o>{max()} || z < Z_bytes<o>{min()}) throw std::out_of_range{"Z_bytes too big"};
                 throw method::unimplemented{"bounded{Z_bytes}"};
             }
         };
@@ -403,57 +371,52 @@ namespace data {
             return divide(n).Remainder;
         }
         
+        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
+        inline bounded array<bounded, indexed, size, bit32, o>::operator<<(int32 bits) const {
+            bounded result;
+            words_type w = result.words();
+            if ((bits < 0 && o == endian::little) || (bits >= 0 && o == endian::big)) 
+                methods::up(size, words(), bits, w);
+            else methods::down(size, words(), bits, w);
+            return result;
+        }
+        
+        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
+        inline bounded array<bounded, indexed, size, bit32, o>::operator>>(int32 bits) const {
+            bounded result;
+            words_type w = result.words();
+            if ((bits < 0 && o == endian::little) || (bits >= 0 && o == endian::big)) 
+                methods::down(size, words(), bits, w);
+            else methods::up(size, words(), bits, w);
+            return result;
+        }
+        
     }
     
     namespace math::number {
         
-        // bit shift operations are inefficient but easy to make work. 
         template <typename indexed, size_t size, endian::order o>
-        inline bounded<indexed, size, o, false>
-        bounded<indexed, size, o, false>::operator<<(uint32 bits) const {
-            return bounded{N_bytes<o>{(N{*this} << bits) % N{modulus()}}};
-        }
-        
-        template <typename indexed, size_t size, endian::order o>
-        inline bounded<indexed, size, o, false>
-        bounded<indexed, size, o, false>::operator>>(uint32 bits) const {
-            return bounded{N_bytes<o>{N{*this} >> bits}};
-        }
-        
-        template <typename indexed, size_t size, endian::order o>
-        inline bounded<indexed, size, o, true>
-        bounded<indexed, size, o, true>::operator<<(uint32 bits) const {
-            return bounded{Z_bytes<o>{(Z{*this} << bits) % Z{modulus()}}};
-        }
-        
-        template <typename indexed, size_t size, endian::order o>
-        inline bounded<indexed, size, o, true>
-        bounded<indexed, size, o, true>::operator>>(uint32 bits) const {
-            return bounded{Z_bytes<o>{Z{*this} >> bits}};
+        inline bounded<indexed, size, o, false>& 
+        bounded<indexed, size, o, false>::operator<<=(int32 bits) {
+            return operator=(ray::operator<<(bits));
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>& 
-        bounded<indexed, size, o, false>::operator<<=(uint32 bits) {
-            return operator=(operator<<(bits));
-        }
-        
-        template <typename indexed, size_t size, endian::order o>
-        inline bounded<indexed, size, o, false>& 
-        bounded<indexed, size, o, false>::operator>>=(uint32 bits) {
-            return operator=(operator>>(bits));
+        bounded<indexed, size, o, false>::operator>>=(int32 bits) {
+            return operator=(ray::operator>>(bits));
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>& 
-        bounded<indexed, size, o, true>::operator<<=(uint32 bits) {
-            return operator=(operator<<(bits));
+        bounded<indexed, size, o, true>::operator<<=(int32 bits) {
+            return operator=(ray::operator<<(bits));
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>& 
-        bounded<indexed, size, o, true>::operator>>=(uint32 bits) {
-            return operator=(operator>>(bits));
+        bounded<indexed, size, o, true>::operator>>=(int32 bits) {
+            return operator=(ray::operator>>(bits));
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -594,23 +557,6 @@ namespace data {
         }
         
         namespace low {
-            template <size_t size, data::endian::order o>
-            void write_hex(std::ostream& s,
-                const math::number::bounded<std::array<data::byte, size>, size, o, false>& n) {
-                s << "0x";
-                using words_type = typename math::number::bounded<std::array<data::byte, size>, size, o, false> ::words_type;
-                words_type w = n.words();
-                for (int i = words_type::Last; i >= 0; i--) s << encoding::hex::write(uint32(w[i]));
-            }
-            
-            template <size_t size, data::endian::order o>
-            void write_hex(std::ostream& s,
-                const math::number::bounded<std::array<data::byte, size>, size, o, true>& n) {
-                s << "0x";
-                using words_type = typename math::number::bounded<std::array<data::byte, size>, size, o, true>::words_type;
-                words_type w = n.words();
-                for (int i = words_type::Last; i >= 0; i--) s << encoding::hex::write(uint32(int32(w[i])));
-            }
             
             template <size_t size, data::endian::order o>
             void write_dec(std::ostream& s, 
@@ -633,7 +579,7 @@ template <unsigned long size, data::endian::order o, bool is_signed>
 std::ostream& operator<<(std::ostream& s, 
     const data::math::number::bounded<std::array<data::byte, size>, size, o, is_signed>& n) {
     if (s.flags() & std::ios::hex) {
-        data::math::number::low::write_hex(s, n);
+        data::encoding::hexidecimal::write(s, data::bytes_view(n.Array.data(), size), o);
         return s;
     } 
     if (s.flags() & std::ios::dec) {

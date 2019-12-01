@@ -331,11 +331,19 @@ namespace data::math::number::gmp {
         explicit Z(const bounded<indexed, size, o, false>& b) : Z{Z_bytes<o>{b}} {}
         
     private:
-        Z(bytes_view, endian::order) {
-            throw method::unimplemented{"Z::Z{bytes_view, endian::order}"};
+        Z(bytes_view b, endian::order o) : Z{0} {
+            int i;
+            if (o == endian::little) for(i = 0; i < b.size() - 1; i++) {
+                operator+=(b[i]);
+                operator<<(8);
+            } else for(i = b.size() - 1; i > 0; i--) {
+                operator+=(b[i]);
+                operator<<(8);
+            }
+            operator+=(b[i]);
         }
         
-        bytes write(endian::order) const {
+        bytes write(endian::order o) const {
             throw method::unimplemented{"Z::write"};
         }
         

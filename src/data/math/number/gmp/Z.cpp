@@ -3,14 +3,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/math/number/gmp/N.hpp>
+#include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
 
 namespace data::math::number::gmp {
     
-    Z Z_read_N_gmp(const string& s) {
+    Z Z_read_N_gmp(string_view s) {
         Z z{};
         mpz_init(z.MPZ);
-        mpz_set_str(z.MPZ, s.c_str(), 0);
+        mpz_set_str(z.MPZ, string{s}.c_str(), 0);
         return z;
     }
     
@@ -37,9 +38,24 @@ namespace data::math::number::gmp {
         return Z{}; // shouldn't really happen;
     }
     
-    Z Z::read(string_view x) {
-        if (!encoding::integer::valid(x)) return Z{};
-        return encoding::integer::negative(x) ? -Z_read_N_data(x.substr(1)) : Z_read_N_data(x);
+    Z Z_read_hex(string_view x) {
+        if (encoding::hexidecimal::zero(x)) return Z{0};
+        int first_nonzero_index = 2;
+        while (true) {
+            if (first_nonzero_index == x.size()) return Z{0};
+            if (x[first_nonzero_index] != '0') break;
+            first_nonzero_index++;
+        }
+        std::stringstream ss;
+        ss << "0x";
+        ss << x.substr(first_nonzero_index);
+        return Z_read_N_gmp(ss.str());
+    }
+    
+    Z Z::read(string_view s) {
+        if (!encoding::integer::valid(s)) return Z{};
+        if (encoding::hexidecimal::valid(s)) return Z_read_hex(s);
+        return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
     
     void Z_write_dec(std::ostream& o, const Z& n) {
