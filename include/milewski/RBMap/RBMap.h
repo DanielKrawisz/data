@@ -44,7 +44,7 @@ namespace milewski::okasaki {
             assert(rgt.isEmpty() || key < rgt.rootKey());
         }
         bool isEmpty() const { return !_root; }
-        K rootKey() const
+        const K& rootKey() const
         {
             assert(!isEmpty());
             return _root->_key;

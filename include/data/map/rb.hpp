@@ -49,12 +49,16 @@ namespace data {
         
         list::linked<entry> entries() const;
         
-        list::linked<K> keys() const {
-            throw method::unimplemented{};
+        list::linked<const K&> keys() const {
+            list::linked<K&> kk{};
+            milewski::okasaki::forEach(Map, [&kk](const K& k, V)->void{
+                kk = kk + k;
+            });
+            return kk;
         }
         
         list::linked<V> values() const {
-            throw method::unimplemented{};
+            throw method::unimplemented{"rb_map::values"};
         }
         
         bool valid() const;
