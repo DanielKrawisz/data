@@ -11,7 +11,7 @@
 
 namespace data::math {
     struct invalid_proof : std::exception {};
-    namespace number{
+    namespace number {
         namespace euclidian {
             template <typename ...> struct extended;
             template <typename Z>
@@ -23,6 +23,7 @@ namespace data::math {
                 bool valid() const {
                     return valid(GCD) && valid(S) && valid(T);
                 }
+                
                 static bool valid_proof(Z gcd, Z a, Z b, Z s, Z t) {
                     return gcd == a * s + b * t;
                 }
@@ -75,7 +76,7 @@ namespace data::math {
                 }
                 
                 static extended algorithm(const N a, const N b) {
-                    extended<Z> e = extended<Z>::algorithm(a, b);
+                    extended<Z> e = extended<Z>::algorithm(Z{a}, Z{b});
                     return extended{abs<N, Z>{}(e.GCD), e.S, e.T};
                 }
                 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Katrina Swales
+// Copyright (c) 2019 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,10 +8,9 @@
 #include <iostream>
 
 TEST(EratosthenesTest, DISABLED_First100Primes) {
-    //using namespace data::math::number;
     using namespace data::exported;
 
-    const uint max_primes = 100;
+    const data::uint32 max_primes = 100;
     
     queue<N> primes = for_each([](const prime p)->N{
             return p.Prime;

@@ -51,6 +51,10 @@ namespace data::exported {
     // The sieve of Eratosthenes.
     using eratosthenes = math::number::eratosthenes<N>;
     
+    // fixed-size numbers of any size. 
+    template <size_t size> using uint = data::uint<size>;
+    template <size_t size> using integer = data::integer<size>;
+    
     // Polynomials
     template <typename X> 
     using polynomial = math::polynomial<X, N>;
