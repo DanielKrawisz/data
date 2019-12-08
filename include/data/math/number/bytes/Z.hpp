@@ -204,7 +204,7 @@ namespace data::encoding::decimal {
 }
 
 template <data::endian::order o>
-std::ostream& operator<<(std::ostream& s, const data::math::number::Z_bytes& n);
+std::ostream& operator<<(std::ostream& s, const data::math::number::Z_bytes<o>& n);
 
 #endif
 

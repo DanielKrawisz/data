@@ -90,7 +90,7 @@ namespace data::math::number {
         
         N_bytes& operator*=(uint64 n);
         
-        N_bytes& operator*=(const N& n);
+        N_bytes& operator*=(const N_bytes& n);
         
         N_bytes operator^(uint32 n) const;
         
@@ -120,13 +120,9 @@ namespace data::math::number {
             return operator=(r);
         }
         
-        N_bytes operator<<(int64 x) const {
-            return N_bytes{Value << x};
-        }
+        N_bytes operator<<(int64 x) const;
         
-        N_bytes operator>>(int64 x) const {
-            return N_bytes{Value >> x};
-        }
+        N_bytes operator>>(int64 x) const;
         
         N_bytes& operator<<=(int64 x);
         
