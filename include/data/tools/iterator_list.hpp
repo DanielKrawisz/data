@@ -18,7 +18,6 @@ namespace data {
         it End;
 
         iterator_list(it n, it e) : Next{n}, End{e} {}
-        constexpr static const list::definition::list<iterator_list<it, elem>, elem> is_list{};
 
         bool empty() const {
             return Next == End;

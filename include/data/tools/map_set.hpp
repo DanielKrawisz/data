@@ -11,43 +11,51 @@
 namespace data {
         
     // turn any map into a set. 
-    template <typename M, typename key>
+    template <typename M>
     struct map_set {
+        using key = typename interface::map<M>::key;
+        using value  = typename interface::map<M>::value;
+        using entry = data::entry<key, value>;
+        
         M Map;
-            
-        // proof that map_set is a set. 
-        constexpr static const set::definition::insertable<map_set<key, key>, key> r1{};
-        constexpr static const map::definition::map<M, key, bool> r2{};
-            
+        
         bool empty() const {
-            return map::empty(Map);
+            return Map.empty();
         }
-            
+        
         bool contains(key k) const {
-            return map::contains(Map, k);
+            return Map.contains(k);
         }
         
-        map_set add(key k) const {
-            return map_set{map::insert(Map, k, true)};
+        uint32 size() const {
+            return Map.size();
         }
         
-        map_set add(list::linked<key> keys) const {
+        map_set insert(key k) const {
+            return map_set{Map.insert(k, true)};
+        }
+        
+        map_set insert(list::linked<key> keys) const {
             if (keys.empty()) return *this;
             return add(keys.first()).add(keys.rest());
         }
-            
-        map_set operator+(key k) const {
-            return add(k);
+        
+        map_set operator<<(key k) const {
+            return insert(k);
         }
         
-        list::linked<key> entries() const {
+        list::linked<key> keys() const {
             return Map.keys();
         }
-            
-        map_set(M m) : Map(m) {}
+        
+        list::linked<entry> values() const {
+            return Map.values();
+        }
+        
         map_set() : Map{} {}
+        map_set(M m) : Map(m) {}
         map_set(list::linked<key> keys) : Map{} {
-            add(keys);
+            insert(keys);
         }
     };
 

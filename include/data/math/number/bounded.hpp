@@ -11,9 +11,11 @@
 #include <data/math/sign.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/division.hpp>
-#include <data/container.hpp>
+#include <data/iterable.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/bytes/N.hpp>
+#include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
 
 namespace data {

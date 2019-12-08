@@ -11,10 +11,11 @@
 #include <data/tools/map_set.hpp>
 #include <data/tools/channel.hpp>
 #include <data/queue/functional_queue.hpp>
-#include <data/tree/linked_tree.hpp>
+#include <data/tree/linked.hpp>
 #include <data/valid.hpp>
 #include <data/plus.hpp>
 #include <data/tools/priority_queue.hpp>
+#include <data/tools/ordered_list.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/rational.hpp>
@@ -62,7 +63,10 @@ namespace data::exported {
     template <typename X> using list = data::list::linked<X>;
     
     // functional queue built using the list. 
-    template <typename X> using queue = data::functional_queue<X, list<X>>;
+    template <typename X> using queue = data::functional_queue<list<X>>;
+    
+    // tree. 
+    template <typename X> using tree = data::tree::linked<X>;
     
     // a functional map implemented as a red-black tree
     // wrapper of Milewski's implementation of Okasaki.
@@ -71,12 +75,15 @@ namespace data::exported {
     // priority queue. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using priority_queue = data::priority::queue<X>;
     
+    // ordered_list. wrapper of Milewski's implementation of Okasaki.
+    template <typename X> using ordered_list = data::ordered_list<X>;
+    
     // get all values from a map with the given keys. 
     template <typename key, typename value, typename map>
     list<value> get_all(map m, list<key> k);
     
     // set implemented as a map. 
-    template <typename X> using set = data::map_set<map<X, bool>, X>;
+    template <typename X> using set = data::map_set<map<X, bool>>;
     
     // for_each applies a function to the members of a data structure and 
     // constructs another data structure of the same shape containing the outputs. 

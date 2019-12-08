@@ -19,8 +19,8 @@ namespace data::list {
         // functional programming. 
         template <typename elem, typename derived>
         struct linked {
-            using returned = typename container::returned<elem>::type;
-            using node = list::node<elem, derived, returned>;
+            
+            using node = list::node<elem, derived>;
             using next = ptr<node>;
             
             next Next;
@@ -28,15 +28,15 @@ namespace data::list {
             // if the list is empty, then this function
             // will dereference a nullptr. It is your
             // responsibility to check. 
-            const returned first() const {
-                return Next->first();
+            const elem& first() const {
+                return Next->First;
             }
         
             bool empty() const {
                 return Next == nullptr;
             }
             
-            const derived rest() const {
+            derived rest() const {
                 if (empty()) return {};
                 
                 return Next->rest();
@@ -53,7 +53,7 @@ namespace data::list {
                 Next->contains(x);
             }
             
-            size_t size() const {
+            uint32 size() const {
                 if (empty()) return 0;
                     
                 return Next->size();
@@ -82,12 +82,12 @@ namespace data::list {
             
             template <typename first>
             static derived make(first& x) {
-                return derived{}.prepend(x);
+                return {x, derived{}};
             }
             
             template <typename first, typename ... rest>
             static derived make(first x, rest... r) {
-                return make(r...).prepend(x);
+                return derived{x, make(r...)};
             }
         
         protected:
@@ -105,28 +105,22 @@ namespace data::list {
     template <typename elem>
     struct linked : public base::linked<elem, linked<elem>> {
         using parent = base::linked<elem, linked<elem>>;
-        using returned = typename parent::returned;
-        using requirement = data::list::definition::complete<
-            linked<elem>, elem, returned, iterator<linked>, const iterator<linked>>;
-        constexpr static requirement Satisfied{};
+        using node = typename parent::node;
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
+        linked(const elem& e, const linked& l) : parent{std::make_shared<node>(node{e, l})} {}
         
         linked& operator=(const linked& l) {
             parent::Next = l.Next;
             return *this;
         } 
         
-        linked prepend(elem x) const {
-            return linked{std::make_shared<typename parent::node>(typename parent::node{x, *this})};
+        linked operator<<(elem x) const {
+            return {x, *this};
         }
         
-        linked operator+(elem x) const {
-            return prepend(x);
-        }
-        
-        linked& operator+=(elem x) {
+        linked& operator<<=(elem x) {
             return operator=(prepend(x));
         }
         
@@ -149,14 +143,12 @@ namespace data::list {
             return parent::rest().from(n - 1);
         }
         
-        returned operator[](uint32 n) const {
+        const elem& operator[](uint32 n) const {
             return from(n).first();
         }
         
-        iterator<linked> begin();
-        iterator<linked> end();
-        const iterator<linked> begin() const;
-        const iterator<linked> end() const;
+        iterator<linked> begin() const;
+        iterator<linked> end() const;
         
     private:
         linked(typename parent::next n) : parent{n} {}
@@ -165,8 +157,7 @@ namespace data::list {
     template <typename elem>
     struct linked<elem&> : public base::linked<const elem&, linked<elem&>> {
         using parent = base::linked<const elem&, linked<elem&>>;
-        using requirement = data::list::definition::buildable<linked<elem&>, elem&, elem&>;
-        constexpr static requirement Satisfied{};
+        using node = typename parent::node;
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
@@ -174,20 +165,18 @@ namespace data::list {
             l.Next = nullptr;
         }
         
+        linked(const elem& e, const linked& l) : parent{std::make_shared<node>(node{e, l})} {}
+        
         linked& operator=(const linked& l) {
             parent::Next = l.Next;
             return *this;
         } 
         
-        linked prepend(const elem& x) const {
-            return linked{std::make_shared<typename parent::node>(typename parent::node{x, *this})};
-        }
-        
         linked operator+(const elem& x) const {
             return prepend(x);
         }
         
-        linked& operator+=(elem x) {
+        linked& operator<<=(elem x) {
             return operator=(prepend(x));
         }
         

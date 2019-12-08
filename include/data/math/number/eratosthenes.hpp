@@ -30,7 +30,7 @@ namespace data::math::number {
     template <typename N>
     struct eratosthenes {
         using list = data::list::linked<N>;
-        using queue = functional_queue<prime<N>, data::list::linked<prime<N>>>;
+        using queue = functional_queue<data::list::linked<prime<N>>>;
         
         queue Primes;
         

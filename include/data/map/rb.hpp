@@ -15,49 +15,67 @@ namespace data {
     
     template <typename K, typename V>
     struct rb_map {
-        using entry = map::entry<K, V>;
+        using entry = data::entry<K, V>;
         using map = milewski::okasaki::RBMap<K, V>;
     private:
         map Map;
-        constexpr static const data::map::definition::countable<rb_map, K, V, list::linked<entry>> require_is_map{};
+        uint32 Size;
         
-        rb_map(map m) : Map{m} {}
+        rb_map(map m, uint32 x) : Map{m}, Size{x} {}
         
     public:
-        V operator[](K k) const {
+        V operator[](const K& k) const {
             return Map.findWithDefault(V{}, k);
         }
         
-        rb_map insert(K k, V v) const {
-            return Map.inserted(k, v);
-        }
-        
-        rb_map operator+(entry e) {
-            return Map.inserted(e.Key, e.Value);
-        }
-        
-        bool contains(K k) const {
+        bool contains(const K& k) const {
             return Map.member(k);
+        }
+        
+        bool contains(const entry& e) const {
+            return operator[](e.Key) == e.Value;
+        }
+        
+        rb_map insert(const K& k, const V& v) const {
+            return contains(k) ? *this : rb_map{Map.inserted(k, v), Size + 1};
+        }
+        
+        rb_map insert(const entry& e) const {
+            return insert(e.Key, e.Value);
+        }
+        
+        rb_map remove(const K& k) const {
+            throw method::unimplemented{"rb_map::remove"};
+        }
+        
+        rb_map remove(const entry& e) const {
+            return operator[](e.Key) == e.Value ? remove(e.Key) : *this;
+        }
+        
+        rb_map operator<<(entry e) {
+            return Map.inserted(e.Key, e.Value);
         }
         
         bool empty() const {
             return Map.isEmpty();
         }
         
+        uint32 size() const {
+            return Size;
+        }
+        
         rb_map() : Map{} {}
         rb_map(std::initializer_list<std::pair<K, V>> init);
         
-        list::linked<entry> entries() const;
-        
         list::linked<const K&> keys() const {
-            list::linked<K&> kk{};
+            list::linked<const K&> kk{};
             milewski::okasaki::forEach(Map, [&kk](const K& k, V)->void{
-                kk = kk + k;
+                kk = kk << k;
             });
             return kk;
         }
         
-        list::linked<V> values() const {
+        list::linked<entry> values() const {
             throw method::unimplemented{"rb_map::values"};
         }
         
@@ -66,7 +84,7 @@ namespace data {
     };
     
     template <typename K, typename V>
-    inline rb_map<K, V> insert_rb_map(rb_map<K, V> m, map::entry<K, V> e) {
+    inline rb_map<K, V> insert_rb_map(rb_map<K, V> m, entry<K, V> e) {
         m.insert(e);
     }
     

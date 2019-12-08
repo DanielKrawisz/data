@@ -6,145 +6,43 @@
 #define DATA_LIST
 
 #include <type_traits>
-#include <data/meta/which.hpp>
 #include <data/valid.hpp>
-#include "container.hpp"
+#include <data/iterable.hpp>
+
+namespace data::meta {
+    
+    template <typename list, typename element>
+    class has_list_constructor {
+        template <typename X> static auto test(int) -> decltype((void)(X{std::declval<const element>(), std::declval<const X>()}), yes());
+        template <typename> static no test(...);
+    public:
+        static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
+    };
+}
+
+namespace data::interface {
+    
+    // TODO need constructor. 
+    // TODO no prepend method needed. 
+    template <typename L>
+    struct list : sequence<L> {
+        using element = typename sequence<L>::element;
+    private:
+        using require_default_constructable = typename std::enable_if<std::is_default_constructible<L>::value, bool>::type;
+        //using require_list_constructor = typename std::enable_if<meta::has_list_constructor<L, element>::value, bool>::type;
+    }; 
+}
 
 namespace data::list {
-    namespace definition {
-    
-        template <typename L>
-        struct retractable : public container::existence<L> {
-            L rest(const L l) const {
-                return l.rest();
-            }
-        };
-        
-        template <typename L>
-        struct retractable<L*> : public container::existence<L*> {
-            L rest(const L* l) const {
-                if (l == nullptr) return nullptr;
-                return l->rest();
-            }
-        };
-        
-        template <typename L>
-        struct retractable<ptr<L>> : public retractable<L*> {};
-        
-        template <typename L, typename R>
-        struct list : public retractable<L> {
-            R first(const L l) const {
-                return l.first();
-            }
-        };
-        
-        template <typename L, typename R>
-        struct list<L*, R> : public retractable<L*> {
-            R first(const L* const l) const {
-                return l->first();
-            }
-        };
-        
-        template <typename L, typename R>
-        struct list<ptr<L>, R> : public list<L*, R> {};
-        
-        template <typename L, typename X>
-        struct extendable {
-            L make_empty() const {
-                return {};
-            }
-            
-            const L prepend(const L l, const X x) const {
-                return l + x;
-            }
-        };
-        
-        template <typename L, typename X>
-        struct extendable<L*, X> {
-            const L prepend(const L* const l, X x) const {
-                if (l == nullptr) return x;
-                return l->append(x);
-            }
-        };
-        
-        template <typename L, typename X>
-        struct extendable<ptr<L>, X> :  public extendable<L*, X> {};
-        
-        template <typename L, typename X, typename R>
-        struct buildable :
-            public list<L, R>, 
-            public extendable<L, X> {};
-        
-        template <typename L, typename R, typename it, typename const_it>
-        struct iterable : 
-            public list<L, R>, 
-            public container::iterable<L, it, const_it> {};
-            
-        template <typename L, typename X, typename R, typename it, typename const_it>
-        struct complete : public buildable<L, X, R>, public container::iterable<L, it, const_it> {};
-        
-        // cannot use references with iterators. 
-        template <typename L, typename X, typename it, typename const_it>
-        struct complete<L, X&, X&, it, const_it> {
-            complete() = delete;
-        };
-        
-    }
-    
-    template <typename L>
-    struct is_list {
-        using returned = decltype(std::declval<L>().first());
-        using element = typename std::remove_reference<returned>::type;
-        constexpr static definition::list<L, returned> is{};
-    };
-    
-    template <typename L>
-    struct is_list<L*> {
-        using returned = decltype(std::declval<L>().first());
-        using element = typename std::remove_reference<returned>::type;
-        constexpr static definition::list<L*, returned> IsList{};
-    };
-    
-    template <typename L>
-    struct is_list<ptr<L>> : public is_list<L*> {};
-    
-    template <typename L, typename X>
-    struct is_buildable : public is_list<L> {
-        using returned = typename is_list<L>::returned;
-        constexpr static definition::buildable<L, X, returned> IsBuildableList{};
-    };
-    
-    template <typename L> 
-    inline typename is_list<L>::returned first(const L l) {
-        return definition::list<L, typename is_list<L>::returned>{}.first(l);
-    }
-    
-    template <typename L> 
-    inline L rest(L l) {
-        return definition::retractable<L>{}.rest(l);
-    }
-    
-    template <typename L, typename X> 
-    inline L prepend(L list, X value) {
-        return definition::extendable<L, X>{}.prepend(list, value);
-    }
-    
-    template <typename L, typename X>
-    L append(L list, X value) {
-        if (container::empty(list)) return L{{value}};
-        
-        return append(append(rest(list), value), first(list));
-    }
     
     template <typename L>
     L reverse(L list) {
-        using requirement = definition::extendable<L, typename is_list<L>::returned>;
-        constexpr static requirement satisfied{};
+        constexpr static interface::list<L> Required{};
         
         struct inner {
             L operator()(L reversed, L list) {
-                if (container::empty(list)) return reversed;
-                return inner{}(reversed + first(list), rest(list));
+                if (data::empty(list)) return reversed;
+                return inner{}(reversed << first(list), rest(list));
             }
         };
         
@@ -161,7 +59,7 @@ namespace data::list {
     
     template <typename function, typename list, typename value>
     value find(function satisfies, list l) {
-        if (container::empty(l)) return value{};
+        if (data::empty(l)) return value{};
         auto f0 = first(l);
         if (satisfies(f0)) return f0;
         return rest(l);
@@ -179,11 +77,11 @@ namespace data::list {
     // this is a const iterator that could go with a list. 
     template <typename L>
     struct iterator {
-        L List;
+        constexpr static interface::list<L> Requirement1{};
+        constexpr static interface::iterable<L> Requirement2{};
+        using element = typename interface::list<L>::element;
         
-        using requirement = container::is_iterable<L>;
-        using returned = typename requirement::returned;
-        constexpr static requirement Satisfied{};
+        L List;
         
         iterator& operator=(iterator i) {
             this->List = i.List;
@@ -200,7 +98,7 @@ namespace data::list {
             return operator=(iterator{rest(List)});
         }
         
-        const returned operator*() const {
+        const element operator*() const {
             return first(List);
         }
         
@@ -215,20 +113,16 @@ namespace data::list {
     };
     
     // This is a node that you could perhaps use to make a list. 
-    template <typename X, typename Y, typename R>
+    template <typename X, typename Y>
     struct node {
-        X First;
+        const X First;
         Y Rest;
         uint32 Size;
         
-        node(X x, Y r) : First(x), Rest(r), Size{container::size(r) + 1} {}
+        node(X x, Y r) : First(x), Rest(r), Size{data::size(r) + 1} {}
         node(X x) : First(x), Rest{}, Size{1} {}
         
-        const R first() const {
-            return First;
-        }
-        
-        R first() {
+        const X& first() const {
             return First;
         }
         
@@ -259,10 +153,10 @@ namespace data::list {
     template <typename L> 
     std::ostream& write(std::ostream& o, L n) {
         o << string{"{"};
-        if (!empty(n)) {
+        if (!data::empty(n)) {
             o << n.first();
             L r = n.rest();
-            while (!empty(r)) {
+            while (!data::empty(r)) {
                 o << string{", "} << r.first();
                 r = r.rest();
             }
@@ -271,6 +165,59 @@ namespace data::list {
         return o;
     }
 
+}
+
+namespace data::meta {
+    
+    template <typename list>
+    class has_reverse_method {
+        template <typename X> static auto test(int) -> typename 
+            std::enable_if<std::is_same<decltype(std::declval<const X>().reverse()), list>::value, yes>::type;
+        template <typename> static no test(...);
+    public:
+        static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
+    };
+    
+    template <typename list>
+    class has_sort_method {
+        template <typename X> static auto test(int) -> typename 
+            std::enable_if<std::is_same<decltype(std::declval<const X>().sort()), list>::value, yes>::type;
+        template <typename> static no test(...);
+    public:
+        static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
+    };
+    
+    template <typename X, bool is_list, bool has_reverse_method> struct reverse {
+        X operator()(const X& x){
+            return x;
+        }
+    };
+    
+    template <typename X, bool has_reverse_method> struct reverse<X, true, has_reverse_method> {
+        X operator()(const X& x){
+            return list::reverse(x);
+        }
+    };
+    
+    template <typename X> struct reverse<X, true, true> {
+        X operator()(const X& x){
+            return x.reverse();
+        }
+    };
+}
+
+namespace data {
+    
+    // list doesn't need a prepend method. 
+    template <typename L, typename X>
+    inline L prepend(const L& l, const X& x) {
+        return l.prepend(x);
+    }
+    
+    template <typename X>
+    inline X reverse(const X x) {
+        return list::reverse(x);
+    }
 }
 
 #endif

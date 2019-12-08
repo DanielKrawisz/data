@@ -17,12 +17,10 @@ namespace data {
     }
     
     template <typename f, typename l>
-    typename std::invoke_result<f, 
-        decltype(std::declval<l>().first()), 
-        decltype(std::declval<l>().first())>::type reduce(f fun, l ls) {
-        if (data::empty(ls)) return typename std::invoke_result<f, 
-            decltype(std::declval<l>().first()), 
-            decltype(std::declval<l>().first())>::type{};
+    decltype(std::declval<f>()(std::declval<const l>().first()), 
+        std::declval<const l>().first()) reduce(f fun, l ls) {
+        if (data::empty(ls)) return decltype(std::declval<const f>()(std::declval<const l>().first()), 
+        std::declval<const l>().first()){};
         return fun(data::first(ls), reduce(fun, data::rest(ls)));
     }
     

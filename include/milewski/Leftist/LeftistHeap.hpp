@@ -88,7 +88,7 @@ namespace milewski::okasaki {
             if (isEmpty()) return 0;
             else return _tree->_rank;
         }
-        T front() const { return _tree->_v; }
+        const T& front() const { return _tree->_v; }
         Heap popped_front() const 
         {
             return merged(left(), right()); 

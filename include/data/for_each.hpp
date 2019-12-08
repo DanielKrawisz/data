@@ -1,5 +1,6 @@
 // Copyright (c) 2019 Daniel Krawisz
-// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_FOR_EACH
 #define DATA_FOR_EACH
@@ -15,7 +16,7 @@
 #include <data/queue/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
 #include <data/tools/iterator_list.hpp>
-#include <data/tree/linked_tree.hpp>
+#include <data/tree/linked.hpp>
 
 namespace data {
     
@@ -26,7 +27,7 @@ namespace data {
         // type using a linked list as the return type. 
         template <typename function, typename input> 
         struct for_each_list {
-            using input_element = typename list::is_list<input>::element;
+            using input_element = typename interface::list<input>::element;
             using output_element = typename std::invoke_result<function, input_element>::type;
             using output = list::linked<output_element>;
             
@@ -48,9 +49,9 @@ namespace data {
         
         template <typename function, typename input> 
         struct for_each_queue {
-            using input_element = typename list::is_list<input>::returned;
+            using input_element = typename interface::list<input>::element;
             using output_element = typename std::invoke_result<function, input_element>::type;
-            using output = functional_queue<output_element, list::linked<output_element>>;
+            using output = functional_queue<list::linked<output_element>>;
             
             output operator()(const function f, const input l) const {
                 return queue::for_each<function, input, output>{}(f, l);
@@ -59,9 +60,9 @@ namespace data {
         
         template <typename function, typename input> 
         struct for_each_tree {
-            using input_element = typename tree::is_tree<input>::element;
+            using input_element = typename interface::tree<input>::element;
             using output_element = typename std::invoke_result<function, input_element>::type;
-            using output = linked_tree<output_element>;
+            using output = tree::linked<output_element>;
             
             output operator()(const function f, const input l) const {
                 return tree::for_each<function, input, output>{}(f, l);
@@ -70,8 +71,8 @@ namespace data {
         
         template <typename function, typename input, typename key, typename value> 
         struct for_each_value {
-            using input_element = typename list::is_list<input>::element;
-            constexpr static Equal<input_element, map::entry<key, value>> required{};
+            using input_element = typename interface::list<input>::element;
+            constexpr static Equal<input_element, entry<key, value>> required{};
             using inner_function = entry_function<key, function, value>;
             using output_element = typename std::invoke_result<inner_function, input_element>::type;
             
@@ -84,7 +85,7 @@ namespace data {
         // do for_each on a map. 
         template <typename function, typename input> 
         struct for_each_map {
-            using requirement = map::is_map<input>;
+            using requirement = interface::map<input>;
             constexpr static requirement Satisfied{};
             using entry = typename requirement::entry;
             using key = typename requirement::key;
@@ -96,7 +97,7 @@ namespace data {
             using output = rb_map<key, output_value>;
             
             output operator()(const function f, const input m) const {
-                return {outer_function{}(inner_function{f}, map::entries(m))};
+                return {outer_function{}(inner_function{f}, values(m))};
             }
         };
         
@@ -127,8 +128,8 @@ namespace data {
         template <typename A, typename B, typename f, typename List>
         struct for_each_list :
             public data::function::definition<f, A, B>,
-            public list::is_list<List>, 
-            public meta::Equal<typename list::is_list<List>::element, A> {
+            public interface::list<List>, 
+            public meta::Equal<typename interface::list<List>::element, A> {
             
             list::linked<B> use_case(f fun, List a) {
                 return data::for_each(fun, a);
@@ -139,10 +140,10 @@ namespace data {
         template <typename A, typename B, typename f, typename Queue>
         struct for_each_queue :
             public data::function::definition<f, A, B>,
-            public queue::is_queue<Queue>, 
-            public meta::Equal<typename queue::is_queue<Queue>::element, A> {
+            public interface::queue<Queue>, 
+            public meta::Equal<typename interface::queue<Queue>::element, A> {
             
-            functional_queue<B, list::linked<B>> use_case(f fun, Queue a) {
+            functional_queue<list::linked<B>> use_case(f fun, Queue a) {
                 return data::for_each(fun, a);
             }
             
@@ -151,9 +152,9 @@ namespace data {
         template <typename A, typename B, typename f, typename Key, typename Map>
         struct for_each_map_1 :
             public data::function::definition<f, A, B>,
-            public map::is_map<Map>, 
-            public meta::Equal<typename map::is_map<Map>::key, Key>, 
-            public meta::Equal<typename map::is_map<Map>::value, A> {
+            public interface::map<Map>, 
+            public meta::Equal<typename interface::map<Map>::key, Key>, 
+            public meta::Equal<typename interface::map<Map>::value, A> {
             
             rb_map<Key, B> use_case(f fun, Map ka) {
                 return data::for_each(fun, ka);
@@ -163,10 +164,10 @@ namespace data {
         
         template <typename A, typename B, typename f, typename Key, typename Map>
         struct for_each_map_2 :
-            public data::function::definition<f, map::entry<Key, A>, B>,
-            public map::is_map<Map>, 
-            public meta::Equal<typename map::is_map<Map>::key, Key>, 
-            public meta::Equal<typename map::is_map<Map>::value, A> {
+            public data::function::definition<f, entry<Key, A>, B>,
+            public interface::map<Map>, 
+            public meta::Equal<typename interface::map<Map>::key, Key>, 
+            public meta::Equal<typename interface::map<Map>::value, A> {
             
             rb_map<Key, B> use_case(f fun, Map ka) {
                 return data::for_each(fun, ka);
@@ -177,9 +178,9 @@ namespace data {
         template <typename A, typename B, typename f, typename T>
         struct for_each_tree :
             public data::function::definition<f, A, B>,
-            public tree::definition::buildable<T, A> {
+            public interface::tree<T> {
             
-            linked_tree<B> use_case(f fun, T t) {
+            tree::linked<B> use_case(f fun, T t) {
                 return data::for_each(fun, t);
             }
             

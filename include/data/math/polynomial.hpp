@@ -186,22 +186,22 @@ namespace data::math {
             return plus(*this, a);
         }
         
-        polynomial operator+(const polynomial p) const {
+        polynomial operator+(const polynomial& p) const {
             return plus(*this, p);
         }
         
         polynomial operator*(const A x) const {
-            return reduce(data::plus<polynomial>{}, 
+            return reduce(data::plus<const polynomial>{}, 
                 for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const term x) const {
-            return reduce(data::plus<polynomial>{}, 
+            return reduce(data::plus<const polynomial>{}, 
                 for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const polynomial p) const {
-            return reduce(data::plus<polynomial>{}, 
+            return reduce(data::plus<const polynomial>{}, 
                 for_each([p](ordering o)->polynomial{
                     return p * o.Term;
                 }, Terms));

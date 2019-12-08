@@ -10,6 +10,8 @@
 namespace data {
     
     namespace meta {
+        using yes = std::true_type;
+        using no = std::false_type;
         
         template <typename X, bool has_valid_member, bool has_valid_method> struct is_valid;
         
@@ -43,22 +45,20 @@ namespace data {
             }
         };
         
-        template <typename X, typename = int> struct has_valid_member {
-            constexpr static bool value = false;
-        };
-
         template <typename X>
-        struct has_valid_member<X, decltype((void) X::Valid, 0)> {
-            constexpr static bool value = true;
+        class has_valid_method {
+            template <typename U> static auto test(int) -> decltype((void)(std::declval<U>().valid() == true), yes());
+            template <typename> static no test(...);
+        public:
+            static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
         };
         
-        template <typename X, typename = int> struct has_valid_method {
-            constexpr static bool value = false;
-        };
-
         template <typename X>
-        struct has_valid_method<X, decltype((void) X::valid, 0)> {
-            constexpr static bool value = true;
+        class has_valid_member {
+            template <typename U> static auto test(int) -> decltype((void)(std::declval<U>().Valid == true), yes());
+            template <typename> static no test(...);
+        public:
+            static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
         };
         
         template <typename X> 

@@ -7,10 +7,10 @@
 namespace data {
     
     namespace list {
-                
+        
         template <typename function, typename from, typename to> 
-        struct for_each : public definition::extendable<to, typename is_list<to>::returned> {
-            using input_element = typename is_list<from>::element;
+        struct for_each : public interface::sequence<to> {
+            using input_element = typename interface::list<from>::element;
             using output_element = std::invoke_result<function, input_element>;
             
             to operator()(function f, from l) {

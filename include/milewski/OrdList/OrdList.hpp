@@ -27,7 +27,7 @@ namespace milewski::okasaki {
             assert(tail.isEmpty() || v <= tail.front());
         }
         bool isEmpty() const { return !_head; } // conversion to bool
-        T front() const
+        const T& front() const
         {
             assert(!isEmpty());
             return _head->_val;

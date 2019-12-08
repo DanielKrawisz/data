@@ -14,13 +14,13 @@ namespace data {
             function Function;
             
             Q operator()(Q q, X x) {
-                return queue::append(q, Function(x));
+                return append(q, Function(x));
             }
         };
                 
         template <typename function, typename from, typename to> 
-        struct for_each : public queue::is_queue<to> {
-            using input_element = typename list::is_list<from>::returned;
+        struct for_each : public interface::queue<to> {
+            using input_element = typename interface::list<from>::element;
             using output_element = std::invoke_result<function, input_element>;
             
             to operator()(function f, from l) {

@@ -30,7 +30,7 @@ namespace data {
             queue(std::initializer_list<x> init) : Heap{init}, Size{init.size()} {}
             queue(const queue& q) : Heap{q.Heap}, Size{q.Size} {}
                 
-            x first() const {
+            const x& first() const {
                 return Heap.front();
             }
 
@@ -44,7 +44,7 @@ namespace data {
             
             template <typename List>
             queue insert(List l) const {
-                static list::definition::list<List, x> is_list{};
+                static interface::sequence<List> is_list{};
                 if (l.empty()) return *this;
                 return insert(l.first()).insert(l.rest());
             }
@@ -59,29 +59,8 @@ namespace data {
                 Size = q.Size;
                 return *this;
             }
-            
-            constexpr static list::definition::list<queue, x> is_list{};
         };
-        
-        template <typename List, typename x> 
-        List all(const queue<x> q) {
-            static list::definition::list<List, x> is_list{};
-            List l{};
-            for (queue<x> i = q; !i.empty(); i = i.rest()) l = l + i.first();
-            return l;
-        }
-        
-        template <typename x>
-        list::linked<x> queue<x>::all() const {
-            return priority::all<list::linked<x>, x>(*this);
-        }
     
-    }
-    
-    template <typename List> 
-    inline List sort(List x) {
-        return priority::all<List, typename list::is_list<List>::element>(
-            priority::queue<typename list::is_list<List>::element>{x});
     }
 
 }
