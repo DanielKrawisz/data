@@ -14,7 +14,6 @@
 #include <data/tree/linked_tree.hpp>
 #include <data/valid.hpp>
 #include <data/plus.hpp>
-#include <data/empty.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
