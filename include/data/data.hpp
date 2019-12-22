@@ -24,7 +24,6 @@
 #include <data/crypto/ripemd160.hpp>
 #include <data/crypto/sha256.hpp>
 #include <data/crypto/sha512.hpp>
-#include <data/crypto/secp256k1.hpp>
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
 

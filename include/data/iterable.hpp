@@ -78,7 +78,7 @@ namespace data {
                 return array{};
             }
                 
-            explicit operator bytes_view() const {
+            operator bytes_view() const {
                 return bytes_view{Array.data(), n};
             }
         };

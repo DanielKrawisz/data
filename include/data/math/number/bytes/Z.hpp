@@ -38,9 +38,9 @@ namespace data::math::number {
         
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}
         
-        explicit Z_bytes(bytes_view b) : Value{b} {}
+        Z_bytes(bytes_view b) : Value{b} {}
         
-        explicit operator bytes_view() const {
+        operator bytes_view() const {
             return bytes_view(Value);
         }
         

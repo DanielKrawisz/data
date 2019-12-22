@@ -82,9 +82,6 @@ if(CRYPTOPP_INCLUDE_DIRS)
     include_directories(${CRYPTOPP_INCLUDE_DIRS})
 endif()
 
-# Find LibBitcoin
-set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
-
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIB_BITCOIN REQUIRED libbitcoin-system)
 include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
@@ -126,8 +123,7 @@ ADD_LIBRARY(data STATIC
         src/data/crypto/ripemd160.cpp
         src/data/crypto/sha256.cpp
         src/data/crypto/digest.cpp
-        src/data/crypto/sha512.cpp
-        src/data/crypto/secp256k1.cpp)
+        src/data/crypto/sha512.cpp)
         
 target_include_directories(data PUBLIC include)
 

@@ -36,9 +36,9 @@ namespace data::math::number {
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
         
-        explicit N_bytes(bytes_view b) : Value{b} {}
+        N_bytes(bytes_view b) : Value{b} {}
         
-        explicit operator bytes_view() const {
+        operator bytes_view() const {
             return bytes_view{Value};
         }
         
