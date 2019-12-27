@@ -76,7 +76,7 @@ namespace milewski::okasaki {
             else
                 return true;
         }
-        V findWithDefault(V dflt, K key) const
+        V findWithDefault(V dflt, const K& key) const
         {
             if (isEmpty())
                 return dflt;
