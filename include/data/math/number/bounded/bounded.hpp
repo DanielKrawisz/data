@@ -196,6 +196,7 @@ namespace data {
             
             bounded(bounded<indexed, size, ray::opposite_endian, true> n) : 
                 bounded{static_cast<data::bounded::ordered<indexed, size, ray::opposite_endian>>(n)} {}
+            bounded(const bounded<indexed, size, o, false>&);
             
             explicit bounded(string_view s);
             

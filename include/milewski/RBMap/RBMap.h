@@ -19,7 +19,7 @@ namespace milewski::okasaki {
         {
             Node(Color c,
                 std::shared_ptr<const Node> const & lft,
-                K key, V val,
+                const K key, V val,
                 std::shared_ptr<const Node> const & rgt)
                 : _c(c), _lft(lft), _key(key), _val(val), _rgt(rgt)
             {}

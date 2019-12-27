@@ -50,7 +50,7 @@ namespace data::math::number {
         fraction(Z n, positive<N> d) : Numerator{n}, Denominator{d} {}
         fraction(Z n, N d) : Numerator{n}, Denominator{positive{d}} {}
         fraction() : Numerator{0}, Denominator{1} {}
-        fraction(Z n) : Numerator{n}, Denominator{1} {}
+        fraction(Z n) : Numerator{n}, Denominator{uint64{1}} {}
         fraction(const fraction& f) : Numerator{f.Numerator}, Denominator{f.Denominator} {}
         
         static N gcd(N a, N b) {
