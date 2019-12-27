@@ -110,21 +110,13 @@ namespace data {
     
     namespace stream {
     
-        inline writer<char*> write_all(writer<char*> w) {
+        template <typename it>
+        inline writer<it> write_all(writer<it> w) {
             return w;
         }
         
-        template <typename X, typename ... P>
-        inline writer<char*> write_all(writer<char*> w, X x, P... p) {
-            return write_all(w << x, p...);
-        }
-    
-        inline writer<byte*> write_all(writer<byte*> w) {
-            return w;
-        }
-        
-        template <typename X, typename ... P>
-        inline writer<byte*> write_all(writer<byte*> w, X x, P... p) {
+        template <typename it, typename X, typename ... P>
+        inline writer<it> write_all(writer<it> w, X x, P... p) {
             return write_all(w << x, p...);
         }
         
