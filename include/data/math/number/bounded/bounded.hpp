@@ -126,6 +126,8 @@ namespace data {
             
             explicit bounded(string_view s);
             
+            bounded& operator=(const bounded& d);
+            
             // power
             bounded operator^(const bounded&) const;
             bounded& operator^=(const bounded&);
@@ -199,6 +201,8 @@ namespace data {
             bounded(const bounded<indexed, size, o, false>&);
             
             explicit bounded(string_view s);
+            
+            bounded& operator=(const bounded& d);
             
             // power
             bounded operator^(const bounded<indexed, size, o, false>&) const;
