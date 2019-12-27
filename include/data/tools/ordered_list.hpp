@@ -36,7 +36,11 @@ namespace data {
             return Size;
         }
         
-        ordered_list insert(X x) const {
+        ordered_list insert(const X& x) const {
+            return {Size + 1, Ordered.inserted(x)};
+        };
+        
+        ordered_list operator<<(const X& x) const {
             return {Size + 1, Ordered.inserted(x)};
         };
         
