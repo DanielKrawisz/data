@@ -52,7 +52,7 @@ namespace data {
             return operator[](e.Key) == e.Value ? remove(e.Key) : *this;
         }
         
-        rb_map operator<<(entry e) {
+        rb_map operator<<(const entry& e) {
             return Map.inserted(e.Key, e.Value);
         }
         

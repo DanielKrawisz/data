@@ -11,6 +11,7 @@
 #include <data/math/ordered.hpp>
 #include <data/math/division.hpp>
 #include <data/iterable.hpp>
+#include <data/math/number/abs.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/math/number/bytes/Z.hpp>
@@ -66,8 +67,7 @@ namespace data {
                 if (bounded{Array} > 0) return math::positive;
                 return math::zero;
             }
-                
-            bounded operator-() const;
+            
             bounded operator-(const bounded&) const;
             bounded operator+(const bounded&) const;
             bounded operator*(const bounded&) const;
@@ -125,6 +125,10 @@ namespace data {
                 bounded{static_cast<data::bounded::ordered<indexed, size, ray::opposite_endian>>(n)} {}
             
             explicit bounded(string_view s);
+            
+            bounded& operator=(const bounded& d) {
+                throw method::unimplemented{"bounded::operator="};
+            }
             
             // power
             bounded operator^(const bounded&) const;
@@ -196,9 +200,18 @@ namespace data {
             
             bounded(bounded<indexed, size, ray::opposite_endian, true> n) : 
                 bounded{static_cast<data::bounded::ordered<indexed, size, ray::opposite_endian>>(n)} {}
-            bounded(const bounded<indexed, size, o, false>&);
+            bounded(const bounded<indexed, size, o, false>&) {
+                throw method::unimplemented{"signed bounded from unsigned bounded"};
+            }
             
             explicit bounded(string_view s);
+            
+            bounded& operator=(const bounded& d) {
+                throw method::unimplemented{"bounded::operator="};
+            }
+            
+            bounded operator-() const;
+            using ray::operator-;
             
             // power
             bounded operator^(const bounded<indexed, size, o, false>&) const;
@@ -253,6 +266,13 @@ namespace data {
                 throw method::unimplemented{"bounded{Z_bytes}"};
             }
         };
+
+        template <typename indexed, size_t size, endian::order o> 
+        struct abs<bounded<indexed, size, o, false>, bounded<indexed, size, o, true>> {
+            bounded<indexed, size, o, false> operator()(const bounded<indexed, size, o, true>& i) {
+                throw method::unimplemented{"abs<bounded>"};
+            }
+        };
         
     }
     
@@ -303,35 +323,30 @@ namespace data {
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
-        inline bounded array<bounded, indexed, size, bit32, o>::operator-() const {
-            return bounded{0} - *this;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
         inline bounded array<bounded, indexed, size, bit32, o>::operator~() const {
-            bounded n = *this;
-            methods::bit_negate(n.words());
+            bounded n{};
+            methods::bit_not(words_type::Last, words(), n.words());
             return n;
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
         inline bounded array<bounded, indexed, size, bit32, o>::operator-(const bounded& n) const {
             bounded result;
-            words_type::minus(words(), n, result.words());
+            methods::minus(words_type::Last, words(), n.words(), result.words());
             return result;
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
         inline bounded array<bounded, indexed, size, bit32, o>::operator+(const bounded& n) const {
             bounded result;
-            words_type::plus(words(), n, result.words());
+            methods::plus(words_type::Last, words_type::Last, words(), n.words(), result.words());
             return result;
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
         inline bounded array<bounded, indexed, size, bit32, o>::operator*(const bounded& n) const {
             bounded result;
-            words_type::times(words(), n, result.words());
+            methods::times(words_type::Last, words(), n.words(), result.words());
             return result;
         }
         
@@ -345,7 +360,7 @@ namespace data {
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
         inline bounded array<bounded, indexed, size, bit32, o>::operator+(const bit32& n) const {
             bounded result;
-            methods::plus(words(), n, result.words());
+            methods::plus(words_type::Last, words(), n, result.words());
             return result;
         }
         
@@ -423,19 +438,29 @@ namespace data {
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>&
         bounded<indexed, size, o, false>::operator+=(const bounded<indexed, size, o, false>& n) {
-            return methods::plus(size, ray::words(), n, ray::words());
+            methods::plus(size, ray::words(), n.words(), ray::words());
+            return *this;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        inline bounded<indexed, size, o, true>&
+        bounded<indexed, size, o, true>::operator+=(const bounded<indexed, size, o, true>& n) {
+            methods::plus(size, ray::words(), n.words(), ray::words());
+            return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, false>&
         bounded<indexed, size, o, false>::operator-=(const bounded<indexed, size, o, false>& n) {
-            return methods::plus(size, ray::words(), n, ray::words());
+            methods::plus(size, ray::words(), n.words(), ray::words());
+            return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
         inline bounded<indexed, size, o, true>&
         bounded<indexed, size, o, true>::operator-=(const bounded<indexed, size, o, true>& n) {
-            return methods::plus(size, ray::words(), n, ray::words());
+            methods::plus(ray::words_type::Last, ray::words(), n.words(), ray::words());
+            return *this;
         }
         
         template <typename indexed, size_t size, endian::order o>
@@ -448,6 +473,12 @@ namespace data {
         inline bounded<indexed, size, o, false>& 
         bounded<indexed, size, o, false>::operator+=(const bit32& n) {
             return methods::plus(size, ray::words(), n, ray::words());
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        inline bounded<indexed, size, o, true> 
+        bounded<indexed, size, o, true>::operator-() const {
+            return ray::operator~() + 1;
         }
         
         template <typename indexed, size_t size, endian::order o>

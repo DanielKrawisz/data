@@ -13,7 +13,7 @@ namespace data::math::number {
     template <typename N, typename Z> 
     struct abs {
         N operator()(const Z i) {
-            return N{i < 0 ? -i : i};
+            return i < 0 ? -i : i;
         }
     };
 }

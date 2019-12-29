@@ -6,6 +6,7 @@
 #define DATA_ENDIAN
 
 #include <boost/endian/buffers.hpp>
+#include <boost/endian/conversion.hpp>
 
 namespace data::endian {
     // A number that has a set endian ordering. 
@@ -24,21 +25,21 @@ namespace data::endian {
     
     template <typename X> struct native<X, big> {
         static X from(const X x) {
-            return boost::endian::native_to_big(x);
+            return boost::endian::native_to_big<X>(x);
         }
         
         static X to(const X x) {
-            return boost::endian::big_to_native(x);
+            return boost::endian::big_to_native<X>(x);
         }
     };
     
     template <typename X> struct native<X, little> {
         static X from(const X x) {
-            return boost::endian::native_to_little(x);
+            return boost::endian::native_to_little<X>(x);
         }
         
         static X to(const X x) {
-            return boost::endian::little_to_native(x);
+            return boost::endian::little_to_native<X>(x);
         }
     };
     

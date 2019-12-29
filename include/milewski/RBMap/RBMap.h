@@ -88,7 +88,7 @@ namespace milewski::okasaki {
             else
                 return rootValue();
         }
-        RBMap inserted(K x, V v) const
+        RBMap inserted(const K& x, const V& v) const
         {
             RBMap t = ins(x, v);
             return RBMap(B, t.left(), t.rootKey(), t.rootValue(), t.right());
@@ -127,7 +127,7 @@ namespace milewski::okasaki {
             return (rootColor() == B) ? 1 + lft : lft;
         }
     private:
-        RBMap ins(K x, V v) const
+        RBMap ins(const K& x, const V& v) const
         {
             assert1();
             if (isEmpty())
@@ -155,7 +155,7 @@ namespace milewski::okasaki {
             }
         }
         template<class F>
-        RBMap insWith(K x, V v, F combine) const
+        RBMap insWith(const K& x, const V& v, F combine) const
         {
             assert1();
             if (isEmpty())

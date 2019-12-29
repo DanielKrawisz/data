@@ -53,13 +53,13 @@ endif()
 # Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
-set(Boost_USE_STATIC_LIBS       OFF          CACHE BOOL "")
-set(Boost_USE_STATIC_RUNTIME    OFF          CACHE BOOL "") # '-s' tag
-set(Boost_USE_DEBUG_RUNTIME     ON          CACHE BOOL "") # '-g' tag
+set(Boost_USE_STATIC_LIBS       ON          CACHE BOOL "")
+set(Boost_USE_STATIC_RUNTIME    OFF         CACHE BOOL "") # '-s' tag
+set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
 # Include Boost
-find_package(Boost 1.60.0 COMPONENTS system  REQUIRED)
+find_package(Boost 1.72.0 COMPONENTS system  REQUIRED)
 
 if(Boost_FOUND)
 
@@ -83,8 +83,6 @@ if(CRYPTOPP_INCLUDE_DIRS)
 endif()
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIB_BITCOIN REQUIRED libbitcoin-system)
-include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
 
 # Find GMP
 find_package(GMP REQUIRED)
@@ -112,7 +110,6 @@ endif()
 ADD_LIBRARY(data STATIC
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp
-        src/data/encoding/base64.cpp
         src/data/encoding/integer.cpp
         src/data/tools/channel.cpp
         src/data/math/number/gmp/mpq.cpp
