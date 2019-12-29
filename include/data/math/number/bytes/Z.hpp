@@ -10,6 +10,7 @@
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/division.hpp>
 #include <data/encoding/words.hpp>
+#include <data/math/number/abs.hpp>
 #include <algorithm>
 
 namespace data::math::number {
@@ -531,7 +532,9 @@ namespace data::math::number {
             return operator=(operator>>(x));
         }
         
-        N_bytes<r> abs() const;
+        N_bytes<r> abs() const {
+            throw method::unimplemented{"Z_bytes::abs"};
+        }
         
         Z_bytes trim() const;
         
@@ -576,6 +579,13 @@ namespace data::math::number {
         if (!is_negative()) return Z_bytes{N_bytes<r>{Value}.trim().Value};
         throw method::unimplemented{"Z_bytes::trim"};
     }
+
+    template <endian::order r> 
+    struct abs<N_bytes<r>, Z_bytes<r>> {
+        N_bytes<r> operator()(const Z_bytes<r>& i) {
+            return i.abs();
+        }
+    };
 
 }
 

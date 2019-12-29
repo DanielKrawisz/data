@@ -216,11 +216,15 @@ namespace data::arithmetic {
         
         static void plus(uint32 last, const words, const word, words);
         
+        static void plus(uint32 last, const words, const uint64, words);
+        
         static void minus(uint32 last, const words, const words, words);
         
         static void minus(uint32 last, const words, const word, words);
         
         static void times(uint32 last, const words, const words, words);
+        
+        static void times(uint32 last, const words, const word, words);
         
         using index = uint32;
         
@@ -325,14 +329,15 @@ namespace data::arithmetic {
     
     template <typename words, typename word>
     void unoriented<words, word>::times(uint32 last, const words a, const words b, words result) {
-        auto from_end = [last](uint32 i)->uint32{return last - i;};
+        throw method::unimplemented{"unoriented::times"};
+        /*auto from_end = [last](uint32 i)->uint32{return last - i;};
         word remainder{0};
         for (int i = 0; i <= last; i ++) {
             twice sum = extend(remainder);
             for (int j = 0; j <= i; j++) sum += a[from_end(j)]*b[from_end(i - j)];
             remainder = greater_half(sum);
             result[from_end(i)] = lesser_half(sum);
-        }
+        }*/
     }
 }
 

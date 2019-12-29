@@ -524,11 +524,6 @@ namespace data::math::number {
         }
     };
     
-    template <endian::order o> 
-    struct abs<N_bytes<o>, Z_bytes<o>> {
-        N_bytes<o> operator()(const Z_bytes<o>& i);
-    };
-    
     namespace low {
         template <typename B, typename E, typename O>
         void trim(uint32 size, B b, E e, O o) {
