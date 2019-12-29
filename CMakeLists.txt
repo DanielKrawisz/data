@@ -110,7 +110,6 @@ endif()
 ADD_LIBRARY(data STATIC
         src/data/encoding/hex.cpp
         src/data/encoding/ascii.cpp
-        src/data/encoding/base64.cpp
         src/data/encoding/integer.cpp
         src/data/tools/channel.cpp
         src/data/math/number/gmp/mpq.cpp
