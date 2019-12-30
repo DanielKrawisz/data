@@ -109,7 +109,11 @@ namespace data::list {
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
+        linked(const elem& e);
         linked(const elem& e, const linked& l) : parent{std::make_shared<node>(node{e, l})} {}
+        
+        template<typename ... P>
+        linked(const elem& e, P... p) : linked{e, linked{p...}} {} 
         
         linked& operator=(const linked& l) {
             parent::Next = l.Next;
