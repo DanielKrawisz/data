@@ -55,6 +55,7 @@ namespace data::tree {
         
         linked() : Node{nullptr} {}
         linked(value v, linked<value> l, linked<value> r) : Node{new tree::node<value, linked<value>>{v, l, r}} {}
+        linked(value v) : linked{v, {}, {}} {}
         
         bool operator==(const linked<value>& t) {
             if (Node == t.Node) return true;
