@@ -130,6 +130,8 @@ namespace data {
                 throw method::unimplemented{"bounded::operator="};
             }
             
+            operator slice<byte, size>() const;
+            
             // power
             bounded operator^(const bounded&) const;
             bounded& operator^=(const bounded&);
@@ -205,6 +207,8 @@ namespace data {
             }
             
             explicit bounded(string_view s);
+            
+            operator slice<byte, size>() const;
             
             bounded& operator=(const bounded& d) {
                 throw method::unimplemented{"bounded::operator="};
