@@ -8,16 +8,8 @@
 #include <exception>
 #include "list.hpp"
 #include "slice.hpp"
-#include <data/encoding/endian.hpp>
 
 namespace data {
-    
-    constexpr endian::order big = endian::order::big;
-    constexpr endian::order little = endian::order::little;
-    
-    template <typename X, endian::order o>
-    using ordered = endian::ordered<X, o>;
-    
     static const string EndOfStreamError = string{"End of stream"};
     
     struct end_of_stream : std::exception {
@@ -65,18 +57,41 @@ namespace data {
             return writer{Writer << b};
         }
         
-        writer operator<<(const ordered<uint16, big>) const;
-        writer operator<<(const ordered<uint32, big>) const;
-        writer operator<<(const ordered<uint64, big>) const;
-        writer operator<<(const ordered<int16, big>) const;
-        writer operator<<(const ordered<int32, big>) const;
-        writer operator<<(const ordered<int64, big>) const;
-        writer operator<<(const ordered<uint16, little>) const;
-        writer operator<<(const ordered<uint32, little>) const;
-        writer operator<<(const ordered<uint64, little>) const;
-        writer operator<<(const ordered<int16, little>) const;
-        writer operator<<(const ordered<int32, little>) const;
-        writer operator<<(const ordered<int64, little>) const;
+        writer operator<<(const uint8_big) const;
+        writer operator<<(const uint16_big) const;
+        writer operator<<(const uint24_big) const;
+        writer operator<<(const uint32_big) const;
+        writer operator<<(const uint40_big) const;
+        writer operator<<(const uint48_big) const;
+        writer operator<<(const uint56_big) const;
+        writer operator<<(const uint64_big) const;
+
+        writer operator<<(const int8_big) const;
+        writer operator<<(const int16_big) const;
+        writer operator<<(const int24_big) const;
+        writer operator<<(const int32_big) const;
+        writer operator<<(const int40_big) const;
+        writer operator<<(const int48_big) const;
+        writer operator<<(const int56_big) const;
+        writer operator<<(const int64_big) const;
+
+        writer operator<<(const uint8_little) const;
+        writer operator<<(const uint16_little) const;
+        writer operator<<(const uint24_little) const;
+        writer operator<<(const uint32_little) const;
+        writer operator<<(const uint40_little) const;
+        writer operator<<(const uint48_little) const;
+        writer operator<<(const uint56_little) const;
+        writer operator<<(const uint64_little) const;
+
+        writer operator<<(const int8_little) const;
+        writer operator<<(const int16_little) const;
+        writer operator<<(const int24_little) const;
+        writer operator<<(const int32_little) const;
+        writer operator<<(const int40_little) const;
+        writer operator<<(const int48_little) const;
+        writer operator<<(const int56_little) const;
+        writer operator<<(const int64_little) const;
     };
     
     template <typename it>
@@ -86,18 +101,42 @@ namespace data {
         reader(istream<byte, it> r) : Reader{r} {}
         reader(it b, it e) : Reader{b, e} {}
         
-        reader operator>>(ordered<uint16, big>&) const;
-        reader operator>>(ordered<uint32, big>&) const;
-        reader operator>>(ordered<uint64, big>&) const;
-        reader operator>>(ordered<int16, big>&) const;
-        reader operator>>(ordered<int32, big>&) const;
-        reader operator>>(ordered<int64, big>&) const;
-        reader operator>>(ordered<uint16, little>&) const;
-        reader operator>>(ordered<uint32, little>&) const;
-        reader operator>>(ordered<uint64, little>&) const;
-        reader operator>>(ordered<int16, little>&) const;
-        reader operator>>(ordered<int32, little>&) const;
-        reader operator>>(ordered<int64, little>&) const;
+        reader operator>>(uint8_big&) const;
+        reader operator>>(uint16_big&) const;
+        reader operator>>(uint24_big&) const;
+        reader operator>>(uint32_big&) const;
+        reader operator>>(uint40_big&) const;
+        reader operator>>(uint48_big&) const;
+        reader operator>>(uint56_big&) const;
+        reader operator>>(uint64_big&) const;
+
+        reader operator>>(int8_big&) const;
+        reader operator>>(int16_big&) const;
+        reader operator>>(int24_big&) const;
+        reader operator>>(int32_big&) const;
+        reader operator>>(int40_big&) const;
+        reader operator>>(int48_big&) const;
+        reader operator>>(int56_big&) const;
+        reader operator>>(int64_big&) const;
+
+        reader operator>>(uint8_little&) const;
+        reader operator>>(uint16_little&) const;
+        reader operator>>(uint24_little&) const;
+        reader operator>>(uint32_little&) const;
+        reader operator>>(uint40_little&) const;
+        reader operator>>(uint48_little&) const;
+        reader operator>>(uint56_little&) const;
+        reader operator>>(uint64_little&) const;
+
+        reader operator>>(int8_little&) const;
+        reader operator>>(int16_little&) const;
+        reader operator>>(int24_little&) const;
+        reader operator>>(int32_little&) const;
+        reader operator>>(int40_little&) const;
+        reader operator>>(int48_little&) const;
+        reader operator>>(int56_little&) const;
+        reader operator>>(int64_little&) const;
+
         reader operator>>(bytes&) const;
         reader operator>>(byte& b) const {
             return reader{Reader >> b};
@@ -155,65 +194,165 @@ namespace data {
     }
     
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<uint16, big> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint16)});
+    writer<it> writer<it>::operator<<(const uint8_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<uint16, little> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint16)});
+    writer<it> writer<it>::operator<<(const uint16_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<uint32, big> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint32)});
+    writer<it> writer<it>::operator<<(const uint24_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<uint32, little> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint32)});
+    writer<it> writer<it>::operator<<(const uint32_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<uint64, big> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint64)});
+    writer<it> writer<it>::operator<<(const uint40_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<uint64, little> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(uint64)});
+    writer<it> writer<it>::operator<<(const uint48_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<int16, big> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int16)});
+    writer<it> writer<it>::operator<<(const uint56_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<int16, little> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int16)});
+    writer<it> writer<it>::operator<<(const uint64_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<int32, big> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int32)});
+    writer<it> writer<it>::operator<<(const int8_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<int32, little> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int32)});
+    writer<it> writer<it>::operator<<(const int16_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<int64, big> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int64)});
+    writer<it> writer<it>::operator<<(const int24_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
     template <typename it>
-    writer<it> writer<it>::operator<<(const ordered<int64, little> x) const {
-        return operator<<(bytes_view{(const byte*)&x.Value, sizeof(int64)});
+    writer<it> writer<it>::operator<<(const int32_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
     }
-    
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int40_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int48_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int56_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int64_big x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint8_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint16_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint24_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint32_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint40_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint48_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint56_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const uint64_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int8_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int16_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int24_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int32_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int40_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int48_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int56_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
+    template <typename it>
+    writer<it> writer<it>::operator<<(const int64_little x) const {
+        return operator<<(bytes_view{(const byte*)x.data(), sizeof(x)});
+    }
+
     template <typename it>
     reader<it> reader<it>::operator>>(bytes &x) const {
         istream<byte, it> is = Reader;
@@ -236,65 +375,165 @@ namespace data {
     }
     
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<uint16, little>& x) const {
-        return low::forward(Reader, sizeof(uint16), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint8_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<uint16, big>& x) const {
-        return low::forward(Reader, sizeof(uint16), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint16_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<uint32, little>& x) const {
-        return low::forward(Reader, sizeof(uint32), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint24_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<uint32, big>& x) const {
-        return low::forward(Reader, sizeof(uint32), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint32_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<uint64, big>& x) const {
-        return low::forward(Reader, sizeof(uint64), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint40_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<uint64, little>& x) const {
-        return low::forward(Reader, sizeof(uint64), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint48_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<int16, big>& x) const {
-        return low::forward(Reader, sizeof(int16), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint56_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<int16, little>& x) const {
-        return low::forward(Reader, sizeof(int16), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(uint64_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<int32, big>& x) const {
-        return low::forward(Reader, sizeof(int32), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(int8_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<int32, little>& x) const {
-        return low::forward(Reader, sizeof(int32), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(int16_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<int64, big>& x) const {
-        return low::forward(Reader, sizeof(int64), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(int24_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
     template <typename it>
-    reader<it> reader<it>::operator>>(ordered<int64, little>& x) const {
-        return low::forward(Reader, sizeof(int64), (byte*)(&x.Value));
+    reader<it> reader<it>::operator>>(int32_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
     }
-    
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int40_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int48_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int56_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int64_big& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint8_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint16_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint24_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint32_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint40_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint48_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint56_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(uint64_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int8_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int16_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int24_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int32_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int40_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int48_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int56_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
+
+    template <typename it>
+    reader<it> reader<it>::operator>>(int64_little& x) const {
+        return low::forward(Reader, sizeof(x), (byte*)(x.data()));
+    }
 }
 
 #endif
+
