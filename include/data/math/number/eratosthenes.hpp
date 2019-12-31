@@ -96,7 +96,7 @@ namespace data::math::number {
     template <typename N>
     eratosthenes<N> eratosthenes<N>::step() const {
         heap q = Sieve;
-        if (test_next_prime(Next, q)) return {Primes.append(Next), Next + 1, insert_prime(q, Next)};
+        if (test_next_prime(Next, q)) return {Primes.append(prime<N>{Next}), Next + 1, insert_prime(q, Next)};
         else return {Primes, Next + 1, q};
     }
     
