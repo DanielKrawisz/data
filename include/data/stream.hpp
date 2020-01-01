@@ -56,6 +56,9 @@ namespace data {
         writer operator<<(const byte b) const {
             return writer{Writer << b};
         }
+
+        writer operator<<(char&) const;
+        writer operator<<(string& b) const;
         
         writer operator<<(const uint8_big) const;
         writer operator<<(const uint16_big) const;
@@ -141,6 +144,9 @@ namespace data {
         reader operator>>(byte& b) const {
             return reader{Reader >> b};
         }
+
+        reader operator>>(char&) const;
+        reader operator>>(string& b) const;
         
         bool empty() const {
             return Reader.empty();
