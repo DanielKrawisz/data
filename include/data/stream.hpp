@@ -51,6 +51,7 @@ namespace data {
         
         writer(ostream<byte, it> w) : Writer{w} {};
         writer(it b, it e) : Writer{b, e} {}
+        writer(const writer& w) : Writer{w.Writer} {}
         
         writer operator<<(bytes_view) const;
         writer operator<<(const byte b) const {
@@ -103,6 +104,7 @@ namespace data {
         
         reader(istream<byte, it> r) : Reader{r} {}
         reader(it b, it e) : Reader{b, e} {}
+        reader(const reader& r) : Reader{r.Reader} {}
         
         reader operator>>(uint8_big&) const;
         reader operator>>(uint16_big&) const;
