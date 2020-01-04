@@ -67,9 +67,13 @@ namespace data::math::number {
             return Numerator == f.Numerator && (Numerator == 0 || Denominator == f.Denominator);
         }
         
+        bool operator==(const Z& z) const {
+            return operator==(fraction{z});
+        }
+        
         static fraction inverse(const fraction& f) {
             if (f == 0) throw division_by_zero{};
-            return fraction{f.Denominator.Number, {f.Numerator}};
+            return fraction{Z{f.Denominator.Number} * arg<Z>{}(f.Numerator), positive{abs<N, Z>{}(f.Numerator)}};
         }
         
         bool operator!=(const fraction& f) const {
@@ -102,16 +106,32 @@ namespace data::math::number {
                 (fraction{Denominator.Number * f.Denominator.Number} / gcd_rr);
         }
         
+        fraction operator+(const Z& z) const {
+            return operator+(fraction{z});
+        }
+        
         fraction operator-(const fraction& f) const {
             return (*this)+(-f);
+        }
+        
+        fraction operator-(const Z& z) const {
+            return operator-(fraction{z});
         }
         
         fraction operator*(const fraction& f) const {
             return divide(Numerator * f.Numerator, Denominator * f.Denominator);
         }
         
+        fraction operator*(const Z& z) const {
+            return operator*(fraction{z});
+        }
+        
         fraction operator/(const fraction& f) const {
             return (*this)*inverse(f);
+        }
+        
+        fraction operator/(const Z& z) const {
+            return operator/(fraction{z});
         }
         
         fraction& operator=(const fraction& f) {

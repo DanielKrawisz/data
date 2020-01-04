@@ -150,6 +150,9 @@ namespace data {
         reader operator>>(char&) const;
         reader operator>>(string& b) const;
         
+        template <size_t size>
+        reader operator>>(std::array<byte, size>&) const;
+        
         bool empty() const {
             return Reader.empty();
         }

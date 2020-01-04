@@ -37,7 +37,7 @@ namespace milewski::okasaki {
         }
     public:
         RBMap() {}
-        RBMap(Color c, RBMap const & lft, K key, V val, RBMap const & rgt)
+        RBMap(Color c, RBMap const & lft, const K& key, const V& val, RBMap const & rgt)
             : _root(std::make_shared<const Node>(c, lft._root, key, val, rgt._root))
         {
             assert(lft.isEmpty() || lft.rootKey() < key);
@@ -49,7 +49,7 @@ namespace milewski::okasaki {
             assert(!isEmpty());
             return _root->_key;
         }
-        V rootValue() const
+        const V& rootValue() const
         {
             assert(!isEmpty());
             return _root->_val;
@@ -64,7 +64,7 @@ namespace milewski::okasaki {
             assert(!isEmpty());
             return RBMap(_root->_rgt);
         }
-        bool member(K x) const
+        bool member(const K& x) const
         {
             if (isEmpty())
                 return false;
@@ -76,7 +76,7 @@ namespace milewski::okasaki {
             else
                 return true;
         }
-        V findWithDefault(V dflt, const K& key) const
+        const V& findWithDefault(const V& dflt, const K& key) const
         {
             if (isEmpty())
                 return dflt;

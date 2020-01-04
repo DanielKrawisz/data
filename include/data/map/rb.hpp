@@ -15,8 +15,8 @@ namespace data {
     
     template <typename K, typename V>
     struct rb_map {
-        using entry = data::entry<K, V>;
-        using map = milewski::okasaki::RBMap<K, V>;
+        using entry = data::entry<const K, const V>;
+        using map = milewski::okasaki::RBMap<const K, const V>;
     private:
         map Map;
         uint32 Size;
@@ -24,7 +24,7 @@ namespace data {
         rb_map(map m, uint32 x) : Map{m}, Size{x} {}
         
     public:
-        V operator[](const K& k) const {
+        const V& operator[](const K& k) const {
             return Map.findWithDefault(V{}, k);
         }
         

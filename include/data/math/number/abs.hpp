@@ -12,8 +12,15 @@ namespace data::math::number {
 
     template <typename N, typename Z> 
     struct abs {
-        N operator()(const Z i) {
+        N operator()(const Z i) const {
             return i < 0 ? -i : i;
+        }
+    };
+
+    template <typename Z> 
+    struct arg {
+        Z operator()(const Z i) const {
+            throw method::unimplemented{"arg"};
         }
     };
 }

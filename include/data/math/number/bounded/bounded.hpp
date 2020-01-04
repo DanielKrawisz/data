@@ -343,7 +343,7 @@ namespace data {
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
         inline bounded array<bounded, indexed, size, bit32, o>::operator+(const bounded& n) const {
             bounded result;
-            methods::plus(words_type::Last, words_type::Last, words(), n.words(), result.words());
+            methods::plus(words_type::Last, words(), n.words(), result.words());
             return result;
         }
         

@@ -3050,7 +3050,7 @@ __GMP_DEFINE_INCREMENT_OPERATOR(mpf, fun, eval_fun)
 /**************** Arithmetic operators and functions ****************/
 
 // non-member operators and functions
-
+/*
 __GMP_DEFINE_UNARY_FUNCTION(operator+, __gmp_unary_plus)
 __GMP_DEFINE_UNARY_FUNCTION(operator-, __gmp_unary_minus)
 __GMP_DEFINE_UNARY_FUNCTION(operator~, __gmp_unary_com)
@@ -3085,13 +3085,13 @@ __GMP_DEFINE_BINARY_FUNCTION(lcm, __gmp_lcm_function)
 
 __GMP_DEFINE_UNARY_TYPE_FUNCTION(int, sgn, __gmp_sgn_function)
 __GMP_DEFINE_BINARY_TYPE_FUNCTION(int, cmp, __gmp_cmp_function)
-
+*/
 template <class T>
 void swap(__gmp_expr<T, T>& x, __gmp_expr<T, T>& y) __GMPXX_NOEXCEPT
 { x.swap(y); }
 
 // member operators for mpz_class
-
+/*
 __GMPZ_DEFINE_COMPOUND_OPERATOR(operator+=, __gmp_binary_plus)
 __GMPZ_DEFINE_COMPOUND_OPERATOR(operator-=, __gmp_binary_minus)
 __GMPZ_DEFINE_COMPOUND_OPERATOR(operator*=, __gmp_binary_multiplies)
@@ -3133,7 +3133,7 @@ __GMPF_DEFINE_COMPOUND_OPERATOR_UI(operator>>=, __gmp_binary_rshift)
 
 __GMPF_DEFINE_INCREMENT_OPERATOR(operator++, __gmp_unary_increment)
 __GMPF_DEFINE_INCREMENT_OPERATOR(operator--, __gmp_unary_decrement)
-
+*/
 
 
 /**************** Class wrapper for gmp_randstate_t ****************/
