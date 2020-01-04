@@ -532,7 +532,7 @@ namespace data::math::number {
             return operator=(operator>>(x));
         }
         
-        N_bytes<r> abs() const {
+        Z_bytes<r> abs() const {
             throw method::unimplemented{"Z_bytes::abs"};
         }
         
@@ -577,6 +577,13 @@ namespace data::math::number {
         if (!is_negative()) return Z_bytes{N_bytes<r>{Value}.trim().Value};
         throw method::unimplemented{"Z_bytes::trim"};
     }
+
+    template <endian::order r> 
+    struct abs<Z_bytes<r>, Z_bytes<r>> {
+        Z_bytes<r> operator()(const Z_bytes<r>& i) {
+            return i.abs();
+        }
+    };
 
     template <endian::order r> 
     struct abs<N_bytes<r>, Z_bytes<r>> {

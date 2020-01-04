@@ -25,8 +25,8 @@ namespace milewski::okasaki {
             {}
             Color _c;
             std::shared_ptr<const Node> _lft;
-            K _key;
-            V _val;
+            const K _key;
+            const V _val;
             std::shared_ptr<const Node> _rgt;
         };
         explicit RBMap(std::shared_ptr<const Node> const & node) : _root(node) {}

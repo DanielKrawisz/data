@@ -314,7 +314,7 @@ namespace data::math::number::gmp {
             return *this;
         }
         
-        N abs() const;
+        Z abs() const;
         
         Z arg() const {
             if (sign() == math::zero) throw division_by_zero{};
@@ -358,11 +358,11 @@ namespace data::math::number::gmp {
         
     };
     
-    N square(const Z& z);
-    
-    N abs(const Z& z);
-    
-    N norm(const Z& z);
+    inline Z Z::abs() const {
+        Z n;
+        __gmp_abs_function::eval(n.MPZ, MPZ);
+        return n;
+    }
 
 }
 

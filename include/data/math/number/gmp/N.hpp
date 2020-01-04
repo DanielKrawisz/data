@@ -256,7 +256,7 @@ namespace data::math::number::gmp {
         explicit N(const bounded<indexed, size, o, false>& b) : Value{b} {}
         
     private:
-        explicit N(const Z& z) : Value{z} {}
+        N(const Z& z) : Value{z} {}
         
         N(bytes_view, endian::order);
         
@@ -265,6 +265,7 @@ namespace data::math::number::gmp {
         friend struct Z;
         friend struct N_bytes<endian::big>;
         friend struct N_bytes<endian::little>;
+        friend struct number::abs<N, Z>;
     };
     
     inline bool Z::operator==(const N& n) const {
@@ -318,44 +319,6 @@ namespace data::math::number::gmp {
     inline division<Z> Z::divide(const N& n) const {
         return divide(n.Value);
     }
-    
-    inline N Z::abs() const {
-        N n;
-        __gmp_abs_function::eval(n.Value.MPZ, MPZ);
-        return n;
-    }
-    
-    inline N square(Z &z) {
-        return N::as(z * z);
-    }
-    
-    inline N abs(N n) {
-        return n;
-    }
-    
-    inline N square(const N& n) {
-        return n * n;
-    }
-    
-    inline N norm(const N& n) {
-        return n;
-    }
-    
-    inline N norm(const Z& z) {
-        return z.abs();
-    }
-    
-    inline N abs(const Z& z) {
-        return z.abs();
-    }
-    
-    inline N abs(const N& n) {
-        return n;
-    }
-    
-    inline N arg(const N& n) {
-        return 1;
-    }
         
     template <endian::order o> 
     Z::Z(const N_bytes<o>& b) : Z{N{b}.Value} {}
@@ -366,14 +329,14 @@ namespace data::math::number {
     template <> 
     struct abs<gmp::N, gmp::Z> {
         gmp::N operator()(const gmp::Z& i) {
-            return gmp::abs(i);
+            return i.abs();
         }
     };
     
     template <> 
-    struct arg<gmp::Z> {
+    struct abs<gmp::Z, gmp::Z> {
         gmp::Z operator()(const gmp::Z& i) {
-            return i.arg();
+            return i.abs();
         }
     };
 }

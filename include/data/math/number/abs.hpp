@@ -20,7 +20,8 @@ namespace data::math::number {
     template <typename Z> 
     struct arg {
         Z operator()(const Z i) const {
-            throw method::unimplemented{"arg"};
+            if (i == 0) throw division_by_zero{};
+            return i / abs<Z, Z>{}(i);
         }
     };
 }

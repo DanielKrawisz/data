@@ -216,7 +216,9 @@ namespace data::arithmetic {
         
         static void plus(uint32 last, const words, const word, words);
         
-        static void plus(uint32 last, const words, const uint64, words);
+        static void plus(uint32 last, const words, const uint64, words) {
+            throw method::unimplemented{"unoriented::plus"};
+        }
         
         static void minus(uint32 last, const words, const words, words);
         

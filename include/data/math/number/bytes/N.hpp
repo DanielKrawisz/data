@@ -522,6 +522,12 @@ namespace data::math::number {
             std::copy(b.begin(), b.end(), Value.begin());
             if (o != r) std::reverse(Value.begin(), Value.end());
         }
+        
+        N_bytes(const Z_bytes<r>& z) {
+            throw method::unimplemented{"N_bytes{Z_bytes}"};
+        }
+        
+        friend struct abs<N_bytes, Z_bytes<r>>;
     };
     
     namespace low {

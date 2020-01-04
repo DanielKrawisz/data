@@ -187,6 +187,12 @@ namespace data {
                 if (n > N_bytes<o>{max()}) throw std::out_of_range{"N_bytes too big"};
                 throw method::unimplemented{"bounded{N_bytes}"};
             }
+            
+            bounded(const bounded<indexed, size, o, true>) {
+                throw method::unimplemented{"boundedbounded<indexed, size, o, false>{bounded<indexed, size, o, true>}"};
+            }
+            
+            friend struct abs<bounded<indexed, size, o, false>, bounded<indexed, size, o, true>>;
         };
         
         template <typename indexed, size_t size, endian::order o>
@@ -287,17 +293,11 @@ namespace data {
             }
         };
 
-        template <typename indexed, size_t size, endian::order o> 
-        struct abs<bounded<indexed, size, o, false>, bounded<indexed, size, o, true>> {
-            bounded<indexed, size, o, false> operator()(const bounded<indexed, size, o, true>& i) {
-                throw method::unimplemented{"abs<bounded>"};
-            }
-        };
-
         template <typename indexed, size_t size, endian::order o, bool is_signed> 
         struct arg<bounded<indexed, size, o, is_signed>> {
             bounded<indexed, size, o, false> operator()(const bounded<indexed, size, o, is_signed>& i) {
-                throw method::unimplemented{"arg<bounded>"};
+                if (i == 0) throw division_by_zero{};
+                return i.sign() == math::negative ? -1 : 1;
             }
         };
         
