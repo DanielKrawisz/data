@@ -37,7 +37,6 @@ add_test(NAME TestLinkedListSort COMMAND testData)
 #Test N
 add_test(NAME TestN COMMAND testData)
 add_test(NAME TestMultiply COMMAND testData)
-add_test(NAME TestDivision COMMAND testData)
 add_test(NAME TestShift COMMAND testData)
 add_test(NAME TestStringToN COMMAND testData)
 
@@ -71,6 +70,9 @@ add_test(NAME StreamReadUint64Little COMMAND testData)
 add_test(NAME StreamReadBytes COMMAND testData)
 
 #Test Extended Euclidian
+add_test(NAME TestAbs COMMAND testData)
+add_test(NAME TestArg COMMAND testData)
+add_test(NAME TestDivision COMMAND testData)
 add_test(NAME TestExtendedEuclidian COMMAND testData)
 
 #Test Polynomial

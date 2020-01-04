@@ -10,9 +10,9 @@
 #include <data/math/sign.hpp>
 #include <data/math/ordered.hpp>
 
-namespace data::math::number {
+namespace data::math::number::integer {
     
-    template <typename Z>
+    /*template <typename Z>
     struct integer : algebra::integral_domain<Z>, ordered<Z> {
         Z zero() const {
             return Z{0};
@@ -33,7 +33,10 @@ namespace data::math::number {
         bool divides(Z a, Z b) {
             return a | b;
         }
-    };
+    };*/
+    
+    template <typename Z>
+    static division<Z> divide(const Z Dividend, const Z Divisor);
 
 }
 

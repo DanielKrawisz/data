@@ -58,6 +58,8 @@ namespace data::math::number::natural {
     };
     
     // Generic division algorithm. 
+    // TODO this assumes that << and >> are multiplications and divisions by 2. 
+    // Not necessarily the case. 
     template <typename N>
     static division<N> divide(const N Dividend, const N Divisor) {
         if (Divisor == 0) throw division_by_zero{};

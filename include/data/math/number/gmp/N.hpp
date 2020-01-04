@@ -352,6 +352,10 @@ namespace data::math::number::gmp {
     inline N abs(const N& n) {
         return n;
     }
+    
+    inline N arg(const N& n) {
+        return 1;
+    }
         
     template <endian::order o> 
     Z::Z(const N_bytes<o>& b) : Z{N{b}.Value} {}
@@ -363,6 +367,13 @@ namespace data::math::number {
     struct abs<gmp::N, gmp::Z> {
         gmp::N operator()(const gmp::Z& i) {
             return gmp::abs(i);
+        }
+    };
+    
+    template <> 
+    struct arg<gmp::Z> {
+        gmp::Z operator()(const gmp::Z& i) {
+            return i.arg();
         }
     };
 }

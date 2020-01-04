@@ -39,6 +39,59 @@ namespace data {
         
     }
     
+    // TODO gaussian rationals
+    TEST(ExtendedEuclinianTest, TestArg) {
+        using namespace data::exported;
+        using namespace data::math::number;
+        abs<data::uint64, data::int64> arg_i{};
+        abs<data::uint<20>, data::integer<20>> arg_b{};
+        abs<N, Z> arg_z{};
+        abs<N_bytes<data::endian::order::little>, Z_bytes<data::endian::order::little>> arg_zbl{};
+        abs<N_bytes<data::endian::order::big>, Z_bytes<data::endian::order::big>> arg_zbb{};
+        
+        EXPECT_THROW(arg_i(0), math::division_by_zero);
+        EXPECT_THROW(arg_b(0), math::division_by_zero);
+        EXPECT_THROW(arg_z(0), math::division_by_zero);
+        EXPECT_THROW(arg_zbl(0), math::division_by_zero);
+        EXPECT_THROW(arg_zbb(0), math::division_by_zero);
+        
+        EXPECT_EQ(arg_i(1), 1);
+        EXPECT_EQ(arg_b(1), 1);
+        EXPECT_EQ(arg_z(1), 1);
+        EXPECT_EQ(arg_zbl(1), 1);
+        EXPECT_EQ(arg_zbb(1), 1);
+        
+        EXPECT_EQ(arg_i(-1), 1);
+        EXPECT_EQ(arg_b(-1), 1);
+        EXPECT_EQ(arg_z(-1), 1);
+        EXPECT_EQ(arg_zbl(-1), 1);
+        EXPECT_EQ(arg_zbb(-1), 1);
+        
+        EXPECT_EQ(arg_i(2), 1);
+        EXPECT_EQ(arg_b(2), 1);
+        EXPECT_EQ(arg_z(2), 1);
+        EXPECT_EQ(arg_zbl(2), 1);
+        EXPECT_EQ(arg_zbb(2), 1);
+        
+        EXPECT_EQ(arg_i(-2), 1);
+        EXPECT_EQ(arg_b(-2), 1);
+        EXPECT_EQ(arg_z(-2), 1);
+        EXPECT_EQ(arg_zbl(-2), 1);
+        EXPECT_EQ(arg_zbb(-2), 1);
+        
+    }
+    
+    TEST(NTest, TestDivision) {
+        using namespace data::exported;
+        using namespace data::math::number;
+        
+        math::division<N> div = N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"}.divide(58);
+        
+        EXPECT_EQ(div.Quotient, N{"281747799128083566676930618873129531941258515171631968206030619132595956076515625422029804"});
+        EXPECT_EQ(div.Remainder, N{25});
+        
+    }
+    
     TEST(ExtendedEuclinianTest, TestExtendedEuclidian) {
         using namespace data::exported;
         using namespace data::math::number;

@@ -316,13 +316,16 @@ namespace data::math::number::gmp {
         
         N abs() const;
         
+        Z arg() const {
+            if (sign() == math::zero) throw division_by_zero{};
+            return sign() == math::positive ? 1 : -1;
+        }
+        
         template <endian::order o> 
         explicit Z(const Z_bytes<o>& b) : Z{bytes_view{b}, o} {}
         
         template <endian::order o> 
         explicit Z(const N_bytes<o>& b);
-        
-        constexpr static math::number::integer<Z> is_integer{};
         
         template <typename indexed, size_t size, endian::order o> 
         explicit Z(const bounded<indexed, size, o, true>& b) : Z{Z_bytes<o>{b}} {}

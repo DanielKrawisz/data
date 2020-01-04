@@ -76,10 +76,6 @@ namespace data {
             bounded operator+(const bit32&) const;
             bounded operator*(const bit32&) const;
             
-            math::division<bounded> divide(const bounded&) const;
-            bounded operator/(const bounded&) const;
-            bounded operator%(const bounded&) const;
-            
             bounded operator<<(int32) const;
             bounded operator>>(int32) const;
             
@@ -176,6 +172,16 @@ namespace data {
             bounded& operator<<=(int32);
             bounded& operator>>=(int32);
             
+            math::division<bounded> divide(const bounded&) const;
+            
+            bounded operator/(const bounded& n) const {
+                return divide(n).Quotient;
+            }
+            
+            bounded operator%(const bounded& n) const {
+                return divide(n).Remainder;
+            }
+            
         private:
             explicit bounded(const N_bytes<o>& n) {
                 if (n > N_bytes<o>{max()}) throw std::out_of_range{"N_bytes too big"};
@@ -264,6 +270,16 @@ namespace data {
             bounded& operator<<=(int32);
             bounded& operator>>=(int32);
             
+            math::division<bounded> divide(const bounded&) const;
+            
+            bounded operator/(const bounded& n) const {
+                return divide(n).Quotient;
+            }
+            
+            bounded operator%(const bounded& n) const {
+                return divide(n).Remainder;
+            }
+            
         private:
             explicit bounded(const Z_bytes<o>& z) {
                 if (z > Z_bytes<o>{max()} || z < Z_bytes<o>{min()}) throw std::out_of_range{"Z_bytes too big"};
@@ -275,6 +291,13 @@ namespace data {
         struct abs<bounded<indexed, size, o, false>, bounded<indexed, size, o, true>> {
             bounded<indexed, size, o, false> operator()(const bounded<indexed, size, o, true>& i) {
                 throw method::unimplemented{"abs<bounded>"};
+            }
+        };
+
+        template <typename indexed, size_t size, endian::order o, bool is_signed> 
+        struct arg<bounded<indexed, size, o, is_signed>> {
+            bounded<indexed, size, o, false> operator()(const bounded<indexed, size, o, is_signed>& i) {
+                throw method::unimplemented{"arg<bounded>"};
             }
         };
         
@@ -373,22 +396,6 @@ namespace data {
             bounded result;
             methods::times(words(), n, result.words());
             return result;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
-        inline math::division<bounded> 
-        array<bounded, indexed, size, bit32, o>::divide(const bounded& n) const {
-            return math::division<bounded>::divide(*this, n);
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
-        inline bounded array<bounded, indexed, size, bit32, o>::operator/(const bounded& n) const {
-            return divide(n).Quotient;
-        }
-        
-        template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o>
-        inline bounded array<bounded, indexed, size, bit32, o>::operator%(const bounded& n) const {
-            return divide(n).Remainder;
         }
         
         template <typename bounded, typename indexed, size_t size, typename bit32, endian::order o> 
@@ -511,6 +518,18 @@ namespace data {
         bounded<indexed, size, o, false>::operator*=(const bit32& n) {
             methods::times(size, ray::words(), n, ray::words());
             return *this;
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        inline math::division<bounded<indexed, size, o, false>> 
+        bounded<indexed, size, o, false>::divide(const bounded& n) const {
+            return math::number::natural::divide(*this, n);
+        }
+        
+        template <typename indexed, size_t size, endian::order o>
+        inline math::division<bounded<indexed, size, o, true>> 
+        bounded<indexed, size, o, true>::divide(const bounded& n) const {
+            return math::number::integer::divide(*this, n);
         }
     
         template <typename indexed, size_t size, endian::order o>

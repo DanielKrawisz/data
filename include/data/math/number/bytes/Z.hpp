@@ -543,8 +543,6 @@ namespace data::math::number {
         
         template <typename indexed, size_t size, endian::order o> 
         explicit Z_bytes(const bounded<indexed, size, o, false>& b) : Z_bytes{bytes_view(b), o} {}
-        
-        constexpr static math::number::integer<Z_bytes> is_integer{};
     };
     
     template <endian::order r> 

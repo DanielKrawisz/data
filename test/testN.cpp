@@ -91,15 +91,6 @@ namespace data {
         
     }
     
-    TEST(NTest, TestDivision) {
-        
-        math::division<N> div = N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"}.divide(58);
-        
-        EXPECT_EQ(div.Quotient, N{"281747799128083566676930618873129531941258515171631968206030619132595956076515625422029804"});
-        EXPECT_EQ(div.Remainder, N{25});
-        
-    }
-    
     TEST(NTest, TestShift) {
         
         EXPECT_TRUE(N{1} >>  1 == N{"0x00000000000000000000"});
