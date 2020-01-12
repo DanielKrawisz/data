@@ -18,7 +18,7 @@ namespace data {
             uint32 Size;
             queue(heap h, uint32 size) : Heap{h}, Size{size} {}
         public:
-            uint32 size() const {
+            size_t size() const {
                 return Size;
             }
             

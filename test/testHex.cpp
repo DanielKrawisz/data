@@ -30,8 +30,8 @@ TEST(HexTest,HexInvalidExceptionOnError) {
 }
 
 TEST(HexTest,HexWriteBytes) {
-        data::bytes testArray{0, 99, 234, 23, 45, 99, 128, 140};
-        std::string written = data::encoding::hex::write(data::bytes_view{testArray.data(), testArray.size()});
+        std::vector<data::byte> testVector{0, 99, 234, 23, 45, 99, 128, 140};
+        std::string written = data::encoding::hex::write(data::bytes_view{testVector.data(), testVector.size()});
         ASSERT_STREQ(written.c_str(),"0063EA172D63808C");
 }
 

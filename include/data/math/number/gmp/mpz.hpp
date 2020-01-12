@@ -47,9 +47,9 @@ namespace data::math::number::gmp {
 #include <data/encoding/endian.hpp>
 
 namespace data::math::number {
-    template <typename indexed, size_t size, endian::order o, bool is_signed> struct bounded;
-    template <typename indexed, size_t size, endian::order o> struct bounded<indexed, size, o, false>;
-    template <typename indexed, size_t size, endian::order o> struct bounded<indexed, size, o, true>;
+    template <size_t size, endian::order o, bool is_signed> struct bounded;
+    template <size_t size, endian::order o> struct bounded<size, o, false>;
+    template <size_t size, endian::order o> struct bounded<size, o, true>;
     
     template <endian::order o> struct N_bytes;
     template <endian::order o> struct Z_bytes;

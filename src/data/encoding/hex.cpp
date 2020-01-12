@@ -14,9 +14,9 @@
 
 namespace  data::encoding::hex {
     
-    string::string(string_view sourceString) : String{sourceString}, Bytes{}, ToBytes{nullptr} {
+    string::string(string_view sourceString) : String{sourceString}, Bytes{(sourceString.size() + 1) / 2}, ToBytes{nullptr} {
         try {
-            boost::algorithm::unhex(String.begin(), String.end(), std::back_inserter(Bytes));
+            boost::algorithm::unhex(String.begin(), String.end(), Bytes.begin());
         }
         catch(boost::algorithm::hex_decode_error exception)
         {
@@ -27,8 +27,9 @@ namespace  data::encoding::hex {
     
     std::string write(bytes_view sourceBytes) {
         std::string output;
-        boost::algorithm::hex(sourceBytes.begin(),sourceBytes.end(),std::back_inserter(output));
-        return data::string(output);
+        output.resize(sourceBytes.size() * 2);
+        boost::algorithm::hex(sourceBytes.begin(), sourceBytes.end(), output.begin());
+        return output;
     }
     
     std::string write(uint64 x) {

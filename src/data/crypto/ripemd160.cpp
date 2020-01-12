@@ -4,9 +4,9 @@
 namespace data::ripemd160 {
 
     digest hash(const bytes_view data) {
-        std::array<byte, size> hash;
+        uint<size> hash{};
         CryptoPP::RIPEMD160{}.CalculateDigest(hash.data(), data.begin(), data.size());
-        return uint<size>{hash};
+        return hash;
     }
 
 

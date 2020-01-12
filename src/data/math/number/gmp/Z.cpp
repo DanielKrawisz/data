@@ -11,7 +11,7 @@ namespace data::math::number::gmp {
     Z Z_read_N_gmp(string_view s) {
         Z z{};
         mpz_init(z.MPZ);
-        mpz_set_str(z.MPZ, string{s}.c_str(), 0);
+        mpz_set_str(z.MPZ, std::string{s}.c_str(), 0);
         return z;
     }
     
@@ -65,7 +65,7 @@ namespace data::math::number::gmp {
     void Z_write_hex(std::ostream& o, const Z& n) {
         std::stringstream gmp_format_stream;
         gmp_format_stream << std::hex << n.MPZ;
-        string gmp_format = gmp_format_stream.str();
+        std::string gmp_format = gmp_format_stream.str();
         
         bool negative = n < 0;
         if (negative) o << "-";
@@ -79,7 +79,7 @@ namespace data::math::number::gmp {
 
 namespace data::encoding::hexidecimal {
     
-    string write(const math::number::gmp::Z& n) {
+    std::string write(const math::number::gmp::Z& n) {
         std::stringstream ss;
         ss << std::hex << n;
         return ss.str();
@@ -89,7 +89,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::decimal {
     
-    string write(const math::number::gmp::Z& n) {
+    std::string write(const math::number::gmp::Z& n) {
         std::stringstream ss;
         ss << std::dec << n;
         return ss.str();

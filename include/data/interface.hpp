@@ -26,7 +26,7 @@ namespace data {
         template <typename X>
         class has_size_method {
             template <typename U> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<const U>().size()), uint32>::value, yes>::type;
+                std::enable_if<std::is_same<decltype(std::declval<const U>().size()), size_t>::value, yes>::type;
             template <typename> static no test(...);
         public:
             static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
@@ -167,21 +167,21 @@ namespace data {
         };
         
         template <typename X, bool has_size_method> struct size {
-            int32 operator()(const X&) {
+            size_t operator()(const X&) {
                 return 0;
             }
             
-            int32 operator()(const X*) {
+            size_t operator()(const X*) {
                 return 0;
             }
         };
         
         template <typename X> struct size<X, true> {
-            int32 operator()(const X& x) {
+            size_t operator()(const X& x) {
                 return x.size();
             }
             
-            int32 operator()(const X* x){
+            size_t operator()(const X* x){
                 return x == nullptr ? 0 : x->size();
             }
         };
@@ -278,7 +278,7 @@ namespace data {
     }
 
     template <typename X>
-    inline int32 size(const X& x) {
+    inline size_t size(const X& x) {
         return meta::size<X, meta::has_size_method<X>::value>{}(x);
     }
 

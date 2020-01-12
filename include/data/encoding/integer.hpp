@@ -56,7 +56,7 @@ namespace data::encoding {
         
         bytes read(string_view s, endian::order r);
         
-        void write(std::ostream& o, bytes_view b, endian::order r);
+        std::ostream& write(std::ostream& o, bytes_view b, endian::order r);
     };
     
     namespace natural {

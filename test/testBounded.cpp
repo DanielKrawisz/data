@@ -12,7 +12,7 @@ namespace {
     using namespace data::exported;
     
     template<size_t size, data::endian::order o, bool is_signed> 
-    using bounded = data::math::number::bounded<std::array<data::byte, size>, size, o, is_signed>;
+    using bounded = data::math::number::bounded<size, o, is_signed>;
     
     using u8l = bounded<8, data::endian::little, false>;
     using u8b = bounded<8, data::endian::big, false>;

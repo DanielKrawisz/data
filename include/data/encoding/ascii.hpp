@@ -6,7 +6,7 @@
 #define DATA_ENCODING_ASCII
 
 #include <string>
-#include <data/types.hpp>
+#include <data/string.hpp>
 #include <boost/convert.hpp>
 
 namespace data::encoding::ascii {

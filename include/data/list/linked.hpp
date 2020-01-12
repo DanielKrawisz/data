@@ -53,7 +53,7 @@ namespace data::list {
                 Next->contains(x);
             }
             
-            uint32 size() const {
+            size_t size() const {
                 if (empty()) return 0;
                     
                 return Next->size();
@@ -109,8 +109,8 @@ namespace data::list {
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
-        linked(const elem& e);
         linked(const elem& e, const linked& l) : parent{std::make_shared<node>(node{e, l})} {}
+        linked(const elem& e) : linked{e, {}} {}
         
         template<typename ... P>
         linked(const elem& e, P... p) : linked{e, linked{p...}} {} 
@@ -170,6 +170,7 @@ namespace data::list {
         }
         
         linked(const elem& e, const linked& l) : parent{std::make_shared<node>(node{e, l})} {}
+        linked(const elem& e) : linked{e, {}} {}
         
         linked& operator=(const linked& l) {
             parent::Next = l.Next;

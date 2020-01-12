@@ -6,8 +6,7 @@
 #ifndef DATA_ENCODING_HEX
 #define DATA_ENCODING_HEX
 
-#include <data/types.hpp>
-#include <data/encoding/hex.hpp>
+#include <data/string.hpp>
 #include <data/encoding/invalid.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>

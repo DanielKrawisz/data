@@ -7,6 +7,7 @@
 
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/integer.hpp>
+#include <data/string.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number::gmp {
@@ -327,11 +328,11 @@ namespace data::math::number::gmp {
         template <endian::order o> 
         explicit Z(const N_bytes<o>& b);
         
-        template <typename indexed, size_t size, endian::order o> 
-        explicit Z(const bounded<indexed, size, o, true>& b) : Z{Z_bytes<o>{b}} {}
+        template <size_t size, endian::order o> 
+        explicit Z(const bounded<size, o, true>& b) : Z{Z_bytes<o>{b}} {}
         
-        template <typename indexed, size_t size, endian::order o> 
-        explicit Z(const bounded<indexed, size, o, false>& b) : Z{Z_bytes<o>{b}} {}
+        template <size_t size, endian::order o> 
+        explicit Z(const bounded<size, o, false>& b) : Z{Z_bytes<o>{b}} {}
         
     private:
         Z(bytes_view b, endian::order o) : Z{0} {
@@ -346,7 +347,8 @@ namespace data::math::number::gmp {
             operator+=(b[i]);
         }
         
-        bytes write(endian::order o) const {
+        void write_bytes(bytes&, endian::order o) const {
+            // if negative, size should be 1 greater. 
             throw method::unimplemented{"Z::write"};
         }
         
@@ -368,13 +370,13 @@ namespace data::math::number::gmp {
 
 namespace data::encoding::hexidecimal {
     
-    string write(const math::number::gmp::Z& n);
+    std::string write(const math::number::gmp::Z& n);
     
 }
 
 namespace data::encoding::decimal {
     
-    string write(const math::number::gmp::Z& n);
+    std::string write(const math::number::gmp::Z& n);
     
 }
 

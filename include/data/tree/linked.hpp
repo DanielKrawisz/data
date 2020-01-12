@@ -41,7 +41,7 @@ namespace data::tree {
             return Node->Right.contains(v);
         }
         
-        uint32 size() const {
+        size_t size() const {
             return Node == nullptr ? 0 : 1 + left().size() + right().size();
         }
         

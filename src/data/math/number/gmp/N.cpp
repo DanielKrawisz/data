@@ -18,7 +18,7 @@ namespace data::math::number::gmp {
     void N_write_hex(std::ostream& o, const N& n) {
         std::stringstream gmp_format_stream;
         gmp_format_stream << std::hex << n.Value.MPZ;
-        string gmp_format = gmp_format_stream.str();
+        std::string gmp_format = gmp_format_stream.str();
         
         o << "0x";
         if (gmp_format.size() % 2 == 1) o << "0";
@@ -63,19 +63,18 @@ namespace data::math::number::gmp {
     
     N::N(bytes_view x, endian::order o) : Value{read_bytes(x, o).Value} {}
     
-    bytes N_write_big(const N& n) {
-        return bytes(data::encoding::hex::string{data::encoding::hexidecimal::write(n).substr(2)});
+    void N_write_big(bytes& b, const N& n) {
+        b = bytes(data::encoding::hex::string{data::encoding::hexidecimal::write(n).substr(2)});
     }
     
-    bytes N_write_little(const N& n) {
-        bytes b = N_write_big(n);
+    void N_write_little(bytes& b, const N& n) {
+        N_write_big(b, n);
         std::reverse(b.begin(), b.end());
-        return b;
     }
         
-    bytes N::write(endian::order o) const {
-        if (o == endian::order::big) return N_write_big(*this);
-        return N_write_little(*this);
+    void N::write_bytes(bytes& b, endian::order o) const {
+        if (o == endian::order::big) N_write_big(b, *this);
+        N_write_little(b, *this);
         
         /* I didn't finish this because it was getting too confusing. But it's more efficient. 
         int last = Value.size() - 1;
@@ -106,7 +105,7 @@ std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n) {
 
 namespace data::encoding::hexidecimal { 
     
-    string write(const math::number::gmp::N& n) {
+    std::string write(const math::number::gmp::N& n) {
         std::stringstream ss;
         ss << std::hex << n;
         return ss.str();
@@ -116,7 +115,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::decimal {
     
-    string write(const math::number::gmp::N& n) {
+    std::string write(const math::number::gmp::N& n) {
         std::stringstream ss;
         ss << std::dec << n;
         return ss.str();

@@ -32,7 +32,7 @@ namespace data {
             return Size == 0;
         }
         
-        uint32 size() const {
+        size_t size() const {
             return Size;
         }
         

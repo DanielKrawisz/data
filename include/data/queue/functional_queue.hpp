@@ -33,7 +33,7 @@ namespace data {
             return data::empty(Left);
         }
         
-        uint32 size() const {
+        size_t size() const {
             return data::size(Left) + data::size(Right);
         }
         

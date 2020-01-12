@@ -14,7 +14,7 @@ namespace {
             test= std::vector<byte>();
             for(int i=0;i<20;i++)
                 test.push_back(i+1);
-            sliceTestWrite = slice<byte>::make(test);
+            sliceTestWrite = slice<byte>(test);
             sliceTestRead = bytes_view{test.data(), test.size()};
         }
 
@@ -133,12 +133,11 @@ namespace {
 
     TEST_F(StreamTest, StreamWriteBytes) {
         writer<slice<byte>::iterator> writer(sliceTestWrite.begin(), sliceTestWrite.end());
-        bytes enter{0xab,0xcd,0xef,0x01};
+        std::basic_string<byte> enter{0xab,0xcd,0xef,0x01};
         writer << enter;
         EXPECT_THAT(test,::testing::ElementsAre(0xab,0xcd,0xef,0x01, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
-
-
+    
     TEST_F(StreamTest, StreamReadUint16Big) {
         reader reader(sliceTestRead.begin(), sliceTestRead.end());
         uint16_big testUint;
@@ -256,8 +255,7 @@ namespace {
 
     TEST_F(StreamTest, StreamReadBytes) {
         reader reader(sliceTestRead.begin(), sliceTestRead.end());
-        bytes testUint;
-        testUint.resize(4);
+        bytes testUint{4};
         reader = reader >> testUint;
         EXPECT_THAT(testUint,::testing::ElementsAre(01,02,03,04));
     }

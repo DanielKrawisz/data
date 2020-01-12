@@ -252,15 +252,15 @@ namespace data::math::number::gmp {
         template <endian::order o>
         explicit N(const N_bytes<o>& n) : N{bytes_view(n), o} {}
         
-        template <typename indexed, size_t size, endian::order o> 
-        explicit N(const bounded<indexed, size, o, false>& b) : Value{b} {}
+        template <size_t size, endian::order o> 
+        explicit N(const bounded<size, o, false>& b) : Value{b} {}
         
     private:
         N(const Z& z) : Value{z} {}
         
         N(bytes_view, endian::order);
         
-        bytes write(endian::order) const;
+        void write_bytes(bytes&, endian::order) const;
         
         friend struct Z;
         friend struct N_bytes<endian::big>;
@@ -343,13 +343,13 @@ namespace data::math::number {
 
 namespace data::encoding::hexidecimal { 
     
-    string write(const math::number::gmp::N& n);
+    std::string write(const math::number::gmp::N& n);
     
 }
 
 namespace data::encoding::decimal {
     
-    string write(const math::number::gmp::N& n);
+    std::string write(const math::number::gmp::N& n);
     
 }
 

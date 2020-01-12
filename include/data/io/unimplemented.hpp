@@ -11,7 +11,7 @@ namespace data {
     namespace method { 
         
         struct unimplemented : std::logic_error {
-            unimplemented(string func) : std::logic_error(func + " not yet implemented") { };
+            unimplemented(std::string func) : std::logic_error(func + " not yet implemented") { };
         };
     
     }

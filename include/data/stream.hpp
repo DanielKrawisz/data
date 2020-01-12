@@ -10,7 +10,7 @@
 #include "slice.hpp"
 
 namespace data {
-    static const string EndOfStreamError = string{"End of stream"};
+    static const std::string EndOfStreamError{"End of stream"};
     
     struct end_of_stream : std::exception {
         const char* what() const noexcept final override {
@@ -58,8 +58,13 @@ namespace data {
             return writer{Writer << b};
         }
 
-        writer operator<<(char&) const;
-        writer operator<<(string& b) const;
+        writer operator<<(const char& c) const {
+            return operator<<(static_cast<const byte&>(c));
+        }
+        
+        writer operator<<(string& b) const {
+            throw method::unimplemented{"writer << string"};
+        }
         
         writer operator<<(const uint8_big) const;
         writer operator<<(const uint16_big) const;
@@ -147,11 +152,21 @@ namespace data {
             return reader{Reader >> b};
         }
 
-        reader operator>>(char&) const;
-        reader operator>>(string& b) const;
+        reader operator>>(char& x) const {
+            byte b;
+            auto r = operator>>(b);
+            x = b;
+            return r;
+        }
+        
+        reader operator>>(string& b) const {
+            throw method::unimplemented{"reader >> string"};
+        }
         
         template <size_t size>
-        reader operator>>(std::array<byte, size>&) const;
+        reader operator>>(std::array<byte, size>&) const {
+            throw method::unimplemented{"reader >> array"};
+        }
         
         bool empty() const {
             return Reader.empty();
@@ -180,8 +195,7 @@ namespace data {
         
         template <typename ... P>
         bytes write_bytes(uint32 size, P... p) {
-            bytes Data;
-            Data.resize(size);
+            bytes Data{size};
             write_all(writer{Data.begin(), Data.end()}, p...);
             return Data;
         };

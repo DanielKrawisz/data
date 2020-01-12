@@ -6,8 +6,9 @@
 #define DATA_LIST
 
 #include <type_traits>
-#include <data/valid.hpp>
 #include <data/iterable.hpp>
+#include <data/valid.hpp>
+#include <data/string.hpp>
 
 namespace data::meta {
     
@@ -117,7 +118,7 @@ namespace data::list {
     struct node {
         const X First;
         Y Rest;
-        uint32 Size;
+        size_t Size;
         
         node(X x, Y r) : First(x), Rest(r), Size{data::size(r) + 1} {}
         node(X x) : First(x), Rest{}, Size{1} {}

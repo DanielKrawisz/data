@@ -15,10 +15,10 @@ namespace data::ripemd160 {
     
     const digest Zero = digest{};
     
-    digest hash(const bytes_view);
+    digest hash(bytes_view);
     
-    inline digest hash(const string& s) {
-        return hash(bytes_view{(byte*)(const_cast<string&>(s).data()), s.size() * sizeof(char)});
+    inline digest hash(string_view s) {
+        return hash(bytes_view{(byte*)(s.data()), s.size() * sizeof(char)});
     }
 
     template <size_t n>

@@ -3,6 +3,7 @@
 //
 
 #include <data/encoding/ascii.hpp>
+
 namespace data::encoding::ascii{
     string::string(std::string const*input) {
         for(char c: *input)
@@ -14,12 +15,7 @@ namespace data::encoding::ascii{
     }
 
     string::operator bytes() {
-        if(innerString!= nullptr) {
-            bytes retVal(innerString->data(), innerString->data() + innerString->size());
-
-            return retVal;
-        }
-        return bytes();
+        return innerString!= nullptr ? bytes(slice<byte>((byte*)innerString->data(), innerString->size())) : bytes();
     }
 
 

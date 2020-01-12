@@ -17,18 +17,19 @@ namespace data::encoding {
         bytes read(string_view s, endian::order r) {
             if (!valid(s)) throw std::invalid_argument{"not decimal"};
             math::number::N_bytes<endian::big> n{math::number::N{s}};
-            if (r == endian::little) std::reverse(n.Value.begin(), n.Value.end());
-            return n.Value;
+            if (r == endian::little) std::reverse(n.begin(), n.end());
+            return std::move(n);
         }
         
     };
     
     namespace hexidecimal {
         
-        void write(std::ostream& o, bytes_view b, endian::order r) {
+        std::ostream& write(std::ostream& o, bytes_view b, endian::order r) {
             o << "0x";
             if (r == endian::order::big) for (int i = 0; i < b.size(); i++) o << hex::write(b[i]);
             else for(int i = b.size() - 1; i >= 0; i--) o << hex::write(b[i]);
+            return o;
         }
         
         bytes read(string_view s, endian::order r) {
@@ -58,8 +59,8 @@ namespace data::encoding {
             if (hexidecimal::valid(s)) return hexidecimal::read(s, r);
             if (negative(s)) {
                 math::number::Z_bytes<endian::big> n{math::number::Z{s}};
-                if (r == endian::little) std::reverse(n.Value.begin(), n.Value.end());
-                return n.Value;
+                if (r == endian::little) std::reverse(n.begin(), n.end());
+                return n;
             }
             return decimal::read(s, r);
         }

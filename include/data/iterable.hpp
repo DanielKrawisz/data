@@ -30,17 +30,19 @@ namespace data {
         struct array : iterable<X>, indexed<X, e> {};
     }
     
-    namespace container { 
+    namespace iterable { 
         // A way of treating arrays as containers (std::array is not a container)
         // anything that behaves like an array can be consistently turned
         // into something that can be inhereted from. 
-        template <typename indexed, typename elem, uint32 n>
+        template <typename indexed, typename elem, size_t n>
         struct array {
-            
-            indexed Array;
             
             using iterator = typename interface::iterable<indexed>::iterator;
             using const_iterator = typename interface::iterable<indexed>::const_iterator;
+            
+            indexed Array;
+            
+            array(const indexed& a) : Array{a} {}
             
             constexpr iterator begin() {
                 return Array.begin();
@@ -70,9 +72,6 @@ namespace data {
             constexpr const elem& operator[](index i) const {
                 return Array[i];
             }
-                
-            array() : Array{} {}
-            array(const indexed& a) : Array{a} {}
             
             static array zero() {
                 return array{};

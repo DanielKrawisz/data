@@ -47,13 +47,13 @@ namespace data::encoding::base58 {
     }
     
     template <typename N>
-    string write(N n) {
+    std::string write(N n) {
         if (n == 0) return "1";
         
         N power{1};
         
         N x = n;
-        string digits{};
+        std::string digits{};
         math::division<N> div;
         while(x > 0) {
             div = x.divide(58);
@@ -65,17 +65,13 @@ namespace data::encoding::base58 {
         return digits;
     };
     
-    inline string write(const bytes_view b) {
+    inline std::string write(const bytes_view b) {
         using namespace math::number;
         return write<N>(N{N_bytes<endian::big>{b}});
     }
     
-    inline string write(const bytes& b) {
-        return write(bytes_view{b});
-    }
-    
     template<unsigned long size>
-    inline string write(const std::array<byte, size>& x) {
+    inline std::string write(const std::array<byte, size>& x) {
         return write(bytes_view{x.data(), size});
     }
     
