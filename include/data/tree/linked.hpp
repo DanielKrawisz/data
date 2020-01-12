@@ -45,25 +45,17 @@ namespace data::tree {
             return Node == nullptr ? 0 : 1 + left().size() + right().size();
         }
         
-        linked(const linked<value>& n) : Node{n.Node} {}
-        
-        linked(linked<value>&& n) {
-            node m = n.Node;
-            n.Node = Node;
-            Node = m;
-        }
-        
         linked() : Node{nullptr} {}
-        linked(value v, linked<value> l, linked<value> r) : Node{new tree::node<value, linked<value>>{v, l, r}} {}
+        linked(value v, linked<value> l, linked<value> r) : Node{new tree::node<value, linked>{v, l, r}} {}
         linked(value v) : linked{v, {}, {}} {}
         
-        bool operator==(const linked<value>& t) {
+        bool operator==(const linked& t) {
             if (Node == t.Node) return true;
             if (Node == nullptr || t.Node == nullptr) return false;
             return Node->operator==(*t.Node);
         }
         
-        bool operator!=(const linked<value>& t) {
+        bool operator!=(const linked& t) {
             return ! operator==(t);
         }
         
