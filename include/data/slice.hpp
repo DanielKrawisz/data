@@ -143,7 +143,7 @@ namespace data {
     template <size_t b, size_t e>
     inline slice<X, meta::unsigned_minus<e, b>::result> slice<X>::range() const {
         static meta::greater<e, b> requirement{};
-        return slice<X, meta::unsigned_minus<end, begin>::result>{slice<X>::Data + b, e - b};
+        return slice<X, meta::unsigned_minus<e, b>::result>{slice<X>::Data + b};
     }
 
 }

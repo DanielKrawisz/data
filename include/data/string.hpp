@@ -42,22 +42,6 @@ namespace data::iterable {
             std::copy(x.data(), x.end(), slice<X>::begin());
         }
         
-        string substr(size_t begin, size_t end) {
-            return string{slice<X>::range(begin, end)};
-        }
-        
-        string substr(size_t begin) {
-            return string{slice<X>::range(begin)};
-        }
-        
-        const string substr(size_t begin, size_t end) const {
-            return string{slice<X>::range(begin, end)};
-        }
-        
-        const string substr(size_t begin) const {
-            return string{slice<X>::range(begin)};
-        }
-        
         bool operator==(const string&) const {
             throw method::unimplemented{"string == "};
         }

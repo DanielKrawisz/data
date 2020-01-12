@@ -36,6 +36,8 @@ namespace data {
                 std::reverse_copy(reversed.begin(), reversed.end(), begin());
             } 
             
+            ordered(slice<byte, n> s) : bytes{static_cast<slice<byte>>(s)} {}
+            
         };
     
         // A type for treating sequences of bytes as numbers. 
