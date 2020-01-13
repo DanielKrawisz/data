@@ -61,7 +61,7 @@ namespace data::math::number {
             if (o != r) std::reverse(begin(), end());
         }
         
-        using word = endian::ordered<int32, r>;
+        using word = boost::endian::endian_arithmetic<r, int32, 32>;
         using words_type = arithmetic::unfixed_words<int32, r>;
         using methods = arithmetic::unoriented<words_type, word>;
             

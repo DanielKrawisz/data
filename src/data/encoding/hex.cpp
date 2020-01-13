@@ -33,18 +33,15 @@ namespace  data::encoding::hex {
     }
     
     std::string write(uint64 x) {
-        auto o = endian::ordered<uint64, endian::big>{x};
-        return write(bytes_view{(byte*)(&o.Value), sizeof(uint64)});
+        return write(bytes_view{uint64_big{x}.data(), sizeof(uint64)});
     }
     
     std::string write(uint32 x) {
-        auto o = endian::ordered<uint32, endian::big>{x};
-        return write(bytes_view{(byte*)(&o.Value), sizeof(uint32)});
+        return write(bytes_view{uint32_big{x}.data(), sizeof(uint32)});
     }
     
     std::string write(uint16 x) {
-        auto o = endian::ordered<uint16, endian::big>{x};
-        return write(bytes_view{(byte*)(&o.Value), sizeof(uint16)});
+        return write(bytes_view{uint16_big{x}.data(), sizeof(uint16)});
     }
     
     std::string write(byte x) {

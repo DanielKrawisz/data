@@ -105,7 +105,7 @@ namespace data::math::number {
         }
         
     private:
-        using word = endian::ordered<uint32, r>;
+        using word = boost::endian::endian_arithmetic<r, uint32, 32>;
         using words_type = arithmetic::unfixed_words<uint32, r>;
         using methods = arithmetic::unoriented<words_type, word>;
             

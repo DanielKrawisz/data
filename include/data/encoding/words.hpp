@@ -40,18 +40,23 @@ namespace data::arithmetic {
             return Last;
         }
         
-        using element = endian::ordered<bit32, big>;
+        using element = boost::endian::endian_arithmetic<big, bit32, 32>;
         
         const element default_value() const {
-            return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
+            return std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0;
         }
         
         const element operator[](index i) const {
-            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * (Last - i)]));
+            if (i > Last) return default_value();
+            element x;
+            std::copy_n(&Data[4 * (Last - i)], 4, x.data());
+            return x;
         }
         
         const element set(index i, element x) {
-            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * (Last - i)]) = x.Value);
+            if (i > Last) return default_value();
+            std::copy_n(x.data(), 4, &Data[4 * (Last - i)]);
+            return x;
         }
     };
     
@@ -73,18 +78,23 @@ namespace data::arithmetic {
             return Last;
         }
         
-        using element = endian::ordered<bit32, little>;
+        using element = boost::endian::endian_arithmetic<little, bit32, 32>;
         
         const element default_value() const {
-            return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
+            return std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0;
         }
         
         const element operator[](index i) const {
-            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * i]));
+            if (i > Last) return default_value();
+            element x;
+            std::copy_n(&Data[4 * i], 4, x.data());
+            return x;
         }
         
         const element set(index i, element x) {
-            return i > Last ? default_value() : element::as(*(bit32*)(&Data[4 * i]) = x.Value);
+            if (i > Last) return default_value();
+            std::copy_n(x.data(), 4, &Data[4 * i]);
+            return x;
         }
     };
     
@@ -106,7 +116,7 @@ namespace data::arithmetic {
             return Last;
         }
         
-        using element = endian::ordered<bit32, big>;
+        using element = boost::endian::endian_arithmetic<big, bit32, 32>;
         
         const element default_value() const {
             return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
@@ -143,7 +153,7 @@ namespace data::arithmetic {
             return Last;
         }
         
-        using element = endian::ordered<bit32, little>;
+        using element = boost::endian::endian_arithmetic<little, bit32, 32>;
         
         const element default_value() const {
             return element::as(std::is_signed<bit32>::value && Data[Last] < 0 ? -1 : 0);
@@ -181,15 +191,17 @@ namespace data::arithmetic {
             return Size - 1;
         }
         
-        const endian::ordered<bit32, o> default_value() const {
-            return endian::ordered<bit32, o>::as(std::is_signed<bit32>::value && Data[last()] < 0 ? -1 : 0);
+        using element = boost::endian::endian_arithmetic<o, bit32, 32>;
+        
+        const element default_value() const {
+            return std::is_signed<bit32>::value && Data[last()] < 0 ? -1 : 0;
         }
         
-        const endian::ordered<bit32, o> operator[](index i) const {
+        const element operator[](index i) const {
             throw method::unimplemented{"unfixed_words[]"};
         }
         
-        const endian::ordered<bit32, o> set(index i, endian::ordered<bit32, o> x) {
+        const element set(index i, element x) {
             throw method::unimplemented{"unfixed_words set"};
         }
     };

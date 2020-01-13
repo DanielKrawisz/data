@@ -51,9 +51,9 @@ namespace data {
         constexpr static size_t value = 8;
     };
     
-    template <typename X, endian::order o> struct digits<endian::ordered<X, o>> {
+    template <typename X, endian::order o, size_t size> struct digits<boost::endian::endian_arithmetic<o, X, size>> {
         constexpr static bool is_signed = digits<X>::is_signed;
-        constexpr static size_t value = digits<X>::value;
+        constexpr static size_t value = size;
     };
     
     template <typename half, typename whole> struct halves;
@@ -156,22 +156,15 @@ namespace data {
         }
     };
     
-    template <typename X, endian::order o> struct half_of<endian::ordered<X, o>> {
-        using type = endian::ordered<typename half_of<X>::type, o>;
-        static type greater(endian::ordered<X, o> u) {
+    template <typename X, endian::order o, size_t size> struct half_of<boost::endian::endian_arithmetic<o, X, size>> {
+        using type = boost::endian::endian_arithmetic<o, typename half_of<X>::type, digits<typename half_of<X>::type>::value>;
+        static type greater(boost::endian::endian_arithmetic<o, X, size> u) {
             return type{half_of<X>::greater((X)(u))};
         }
         
-        static type lesser(endian::ordered<X, o> u) {
+        static type lesser(boost::endian::endian_arithmetic<o, X, size> u) {
             return type{half_of<X>::lesser((X)(u))};
         }
-    };
-    
-    template <typename X, endian::order o> 
-    struct halves<typename half_of<endian::ordered<X, o>>::type, endian::ordered<X, o>> {
-        constexpr static bool is_signed = halves<typename half_of<X>::type, X>::is_signed;
-        constexpr static endian::ordered<X, o> greater = halves<typename half_of<X>::type, X>::greater;
-        constexpr static endian::ordered<X, o> lesser = halves<typename half_of<X>::type, X>::lesser;
     };
     
     template<typename whole>
@@ -228,10 +221,10 @@ namespace data {
         }
     };
     
-    template <typename X, endian::order o> struct twice<endian::ordered<X, o>> {
-        using type = endian::ordered<typename twice<X>::type, o>;
-        static type extend(endian::ordered<X, o> x) {
-            return (typename twice<X>::type)(endian::native<X, o>::to(x.Value));
+    template <typename X, endian::order o, size_t size> struct twice<boost::endian::endian_arithmetic<o, X, size>> {
+        using type = boost::endian::endian_arithmetic<o, typename twice<X>::type, 2 * size>;
+        static type extend(boost::endian::endian_arithmetic<o, X, size> x) {
+            return (typename twice<X>::type)(x);
         }
     };
     
