@@ -77,18 +77,18 @@ namespace data {
         
         template <typename M>
         struct map {
-            using values = typename set<M>::values;
+            using values = typename container<M>::values;
             using keys = decltype(std::declval<M>().keys());
             using key = decltype(std::declval<keys>().first());
             using value = typename indexed<M, key>::value;
-            using element = entry<typename std::remove_const<key>::type, value>&;
+            using element = typename sequence<values>::element;
+            // TODO ensure element is entry<key, value>
         private:
-            using require_default_constructable = typename std::enable_if<std::is_default_constructible<M>::value, bool>::type;
-            using require_element_type = typename std::enable_if<
-                std::is_same<typename set<M>::element, element>::value, bool>::type;
-            using require_insert_and_remove = typename std::enable_if<
-                meta::has_insert_method<M, key, value>::value && 
-                meta::has_remove_method<M, key>::value, bool>::type;
+            using require_default_constructable = typename std::enable_if<std::is_default_constructible<M>::value, void>::type;
+            using require_insert_method = typename std::enable_if<
+                meta::has_insert_method<M, key, value>::value, void>::type;
+            using require_remove_method = typename std::enable_if<
+                meta::has_remove_method<M, key>::value, void>::type;
         }; 
     }
     

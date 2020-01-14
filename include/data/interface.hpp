@@ -90,20 +90,21 @@ namespace data {
             static constexpr bool value = std::is_same<decltype(test<map>(0)), yes>::value;
         };
         
-        template <typename list, typename element>
+        template <typename set, typename element>
         class has_contains_method {
             template <typename X> static auto test(int) -> decltype((void)(std::declval<const X>().contains(std::declval<const element>()) == true), yes());
             template <typename> static no test(...);
         public:
-            static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
+            static constexpr bool value = std::is_same<decltype(test<set>(0)), yes>::value;
         };
         
-        template <typename list, typename element>
+        template <typename set, typename key>
         class has_remove_method {
-            template <typename X> static auto test(int) -> decltype((void)(std::declval<const X>().remove(std::declval<const element>()) == std::declval<list>()), yes());
+            template <typename X> static auto test(int) -> typename std::enable_if<
+                std::is_same<decltype(std::declval<const X>().remove(std::declval<const key>())), set>::value, yes>::type;
             template <typename> static no test(...);
         public:
-            static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
+            static constexpr bool value = std::is_same<decltype(test<set>(0)), yes>::value;
         };
         
         template <typename list, typename element>
@@ -250,9 +251,9 @@ namespace data {
         struct sequence {
             using element = decltype(std::declval<const L>().first());
         private:
-            using require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, bool>::type;
-            using require_size_method = typename std::enable_if<meta::has_size_method<L>::value, bool>::type;
-            using require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, bool>::type;
+            using require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type;
+            using require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type;
+            using require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, void>::type;
         }; 
         
         template <typename L>
@@ -260,9 +261,9 @@ namespace data {
             using values = decltype(std::declval<const L>().values());
             using element = typename sequence<values>::element;
         private:
-            using require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, bool>::type; 
-            using require_size_method = typename std::enable_if<meta::has_size_method<L>::value, bool>::type;
-            using require_contains_method = typename std::enable_if<meta::has_contains_method<L, element>::value, bool>::type; 
+            using require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type; 
+            using require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type;
+            using require_contains_method = typename std::enable_if<meta::has_contains_method<L, element>::value, void>::type; 
         }; 
         
         template <typename M, typename key>

@@ -19,9 +19,9 @@ namespace data {
         using map = milewski::okasaki::RBMap<const K, const V>;
     private:
         map Map;
-        uint32 Size;
+        size_t Size;
         
-        rb_map(map m, uint32 x) : Map{m}, Size{x} {}
+        rb_map(map m, size_t x) : Map{m}, Size{x} {}
         
     public:
         const V& operator[](const K& k) const {
@@ -60,7 +60,7 @@ namespace data {
             return Map.isEmpty();
         }
         
-        uint32 size() const {
+        size_t size() const {
             return Size;
         }
         

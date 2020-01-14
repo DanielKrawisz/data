@@ -19,6 +19,21 @@ namespace {
     using s8l = bounded<8, data::endian::little, true>;
     using s8b  = bounded<8, data::endian::big, true>;
     
+    using u7l = bounded<7, data::endian::little, false>;
+    using u7b = bounded<7, data::endian::big, false>;
+    using s7l = bounded<7, data::endian::little, true>;
+    using s7b  = bounded<7, data::endian::big, true>;
+    
+    using u6l = bounded<6, data::endian::little, false>;
+    using u6b = bounded<6, data::endian::big, false>;
+    using s6l = bounded<6, data::endian::little, true>;
+    using s6b  = bounded<6, data::endian::big, true>;
+    
+    using u5l = bounded<5, data::endian::little, false>;
+    using u5b = bounded<5, data::endian::big, false>;
+    using s5l = bounded<5, data::endian::little, true>;
+    using s5b  = bounded<5, data::endian::big, true>;
+    
     using nl = data::math::number::N_bytes<data::endian::little>;
     using nb = data::math::number::N_bytes<data::endian::big>;
     using zl = data::math::number::Z_bytes<data::endian::little>;
@@ -121,6 +136,30 @@ namespace {
         EXPECT_FALSE(s8l{1} < 0);
         EXPECT_TRUE(s8l{-1} < 0);
         
+        EXPECT_FALSE(s7b{0} < 0);
+        EXPECT_FALSE(s7b{1} < 0);
+        EXPECT_TRUE(s7b{-1} < 0);
+        
+        EXPECT_FALSE(s7l{0} < 0);
+        EXPECT_FALSE(s7l{1} < 0);
+        EXPECT_TRUE(s7l{-1} < 0);
+        
+        EXPECT_FALSE(s6b{0} < 0);
+        EXPECT_FALSE(s6b{1} < 0);
+        EXPECT_TRUE(s6b{-1} < 0);
+        
+        EXPECT_FALSE(s6l{0} < 0);
+        EXPECT_FALSE(s6l{1} < 0);
+        EXPECT_TRUE(s6l{-1} < 0);
+        
+        EXPECT_FALSE(s5b{0} < 0);
+        EXPECT_FALSE(s5b{1} < 0);
+        EXPECT_TRUE(s5b{-1} < 0);
+        
+        EXPECT_FALSE(s5l{0} < 0);
+        EXPECT_FALSE(s5l{1} < 0);
+        EXPECT_TRUE(s5l{-1} < 0);
+        
         EXPECT_FALSE(zb{0} < 0);
         EXPECT_FALSE(zb{1} < 0);
         EXPECT_TRUE(zb{-1} < 0);
@@ -153,6 +192,40 @@ namespace {
         
         EXPECT_THROW(s8b{"0x000000000000000001"}, std::invalid_argument);
         EXPECT_THROW(s8l{"0x000000000000000001"}, std::invalid_argument);
+        
+    }
+    
+    TEST(BoundedTest, BoundedNegativeTest) {
+        
+        EXPECT_EQ(-s8b{"1"}, s8b{"-1"});
+        EXPECT_EQ(-s8b{"-1"}, s8b{"1"});
+        
+        EXPECT_EQ(-s7b{"1"}, s7b{"-1"});
+        EXPECT_EQ(-s7b{"-1"}, s7b{"1"});
+        
+        EXPECT_EQ(-s6b{"1"}, s6b{"-1"});
+        EXPECT_EQ(-s6b{"-1"}, s6b{"1"});
+        
+        EXPECT_EQ(-s5b{"1"}, s5b{"-1"});
+        EXPECT_EQ(-s5b{"-1"}, s5b{"1"});
+        
+        EXPECT_EQ(-zb{"1"}, zb{"-1"});
+        EXPECT_EQ(-zb{"-1"}, zb{"1"});
+        
+        EXPECT_EQ(-s8l{"1"}, s8l{"-1"});
+        EXPECT_EQ(-s8l{"-1"}, s8l{"1"});
+        
+        EXPECT_EQ(-s7l{"1"}, s7l{"-1"});
+        EXPECT_EQ(-s7l{"-1"}, s7l{"1"});
+        
+        EXPECT_EQ(-s6l{"1"}, s6l{"-1"});
+        EXPECT_EQ(-s6l{"-1"}, s6l{"1"});
+        
+        EXPECT_EQ(-s5l{"1"}, s5l{"-1"});
+        EXPECT_EQ(-s5l{"-1"}, s5l{"1"});
+        
+        EXPECT_EQ(-zl{"1"}, zl{"-1"});
+        EXPECT_EQ(-zl{"-1"}, zl{"1"});
         
     }
     

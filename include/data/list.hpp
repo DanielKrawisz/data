@@ -23,14 +23,12 @@ namespace data::meta {
 
 namespace data::interface {
     
-    // TODO need constructor. 
-    // TODO no prepend method needed. 
     template <typename L>
     struct list : sequence<L> {
         using element = typename sequence<L>::element;
     private:
-        using require_default_constructable = typename std::enable_if<std::is_default_constructible<L>::value, bool>::type;
-        //using require_list_constructor = typename std::enable_if<meta::has_list_constructor<L, element>::value, bool>::type;
+        using require_default_constructable = typename std::enable_if<std::is_default_constructible<L>::value, void>::type;
+        using require_list_constructor = typename std::enable_if<meta::has_list_constructor<L, element>::value, void>::type;
     }; 
 }
 

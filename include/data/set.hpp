@@ -15,11 +15,13 @@ namespace data {
         struct set {
             using element = typename container<X>::element;
             using values = typename container<X>::values;
+            // TODO ensure values is a list of elements. 
         private:
-            using require_default_constructable = typename std::enable_if<std::is_default_constructible<X>::value, bool>::type;
-            using require_insert_and_remove = typename std::enable_if<
-                meta::has_insert_method<X, element>::value && 
-                meta::has_remove_method<X, element>::value, bool>::type;
+            using require_default_constructable = typename std::enable_if<std::is_default_constructible<X>::value, void>::type;
+            using require_insert_method = typename std::enable_if<
+                meta::has_insert_method<X, element>::value, void>::type;
+            using require_remove_method = typename std::enable_if<
+                meta::has_remove_method<X, element>::value, void>::type;
         }; 
         
     }

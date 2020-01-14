@@ -9,13 +9,13 @@
 #include <data/map.hpp>
     
 namespace data {
-        
+    struct unit {};
+    
     // turn any map into a set. 
     template <typename M>
     struct map_set {
         using key = typename interface::map<M>::key;
         using value  = typename interface::map<M>::value;
-        using entry = data::entry<key, value>;
         
         M Map;
         
@@ -23,16 +23,20 @@ namespace data {
             return Map.empty();
         }
         
-        bool contains(key k) const {
+        bool contains(const key& k) const {
             return Map.contains(k);
         }
         
-        uint32 size() const {
+        size_t size() const {
             return Map.size();
         }
         
-        map_set insert(key k) const {
-            return map_set{Map.insert(k, true)};
+        map_set insert(const key& k) const {
+            return map_set{Map.insert(k, value{})};
+        }
+        
+        map_set remove(const key& k) const {
+            return map_set{Map.remove(k, value{})};
         }
         
         map_set insert(list::linked<key> keys) const {
@@ -40,16 +44,12 @@ namespace data {
             return add(keys.first()).add(keys.rest());
         }
         
-        map_set operator<<(key k) const {
+        map_set operator<<(const key& k) const {
             return insert(k);
         }
         
-        list::linked<key> keys() const {
+        list::linked<const key&> values() const {
             return Map.keys();
-        }
-        
-        list::linked<entry> values() const {
-            return Map.values();
         }
         
         map_set() : Map{} {}

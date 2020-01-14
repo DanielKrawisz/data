@@ -40,17 +40,17 @@ void constructability_tests() {
     data::interface::tree<tree<string>> linked_tree_is_tree{};
     data::interface::tree<tree<const string&>> linked_tree_ref_is_tree{};
     
-    /*map<string, string> test_rb_map{};
-    map<const string&, string> test_rb_map_reference{};
+    map<string, string> test_rb_map{};
+    map<string&, string> test_rb_map_reference{};
     
     data::interface::map<map<string, string>> rb_map_is_map{};
     data::interface::map<map<const string&, string>> rb_map_ref_is_map{};
     
     set<string> test_map_set{};
-    set<const string&> test_map_set_reference{};
+    //set<string&> test_map_set_reference{};
     
-    data::interface::set<set<string>> map_set_is_map{};
-    data::interface::set<set<const string&>> map_set_ref_is_map{};*/
+    data::interface::set<set<string>> map_set_is_set{};
+    //data::interface::set<set<string&>> map_set_ref_is_set{};
     
     // iterater_list must satisfy interface sequence. 
     

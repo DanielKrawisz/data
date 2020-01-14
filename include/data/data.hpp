@@ -81,7 +81,7 @@ namespace data::exported {
     list<value> get_all(map m, list<key> k);
     
     // set implemented as a map. 
-    template <typename X> using set = data::map_set<map<X, bool>>;
+    template <typename X> using set = data::map_set<map<X, unit>>;
     
     // for_each applies a function to the members of a data structure and 
     // constructs another data structure of the same shape containing the outputs. 
