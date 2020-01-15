@@ -21,7 +21,7 @@ namespace data::iterable {
         
         string& operator=(const string& x) {
             delete[] String;
-            static_cast<slice<X>>(*this) = slice<X>{new X[x.size()], x.size()};
+            slice<X>::operator=(slice<X>{new X[x.size()], x.size()});
             String = slice<X>::data();
             std::copy(x.begin(), x.end(), slice<X>::begin());
             return *this;
@@ -42,8 +42,8 @@ namespace data::iterable {
             std::copy(x.data(), x.end(), slice<X>::begin());
         }
         
-        bool operator==(const string&) const {
-            throw method::unimplemented{"string == "};
+        bool operator==(const string& s) const {
+            return slice<X>::operator==(static_cast<slice<X>>(s));
         }
         
         bool operator!=(const string& s) const {

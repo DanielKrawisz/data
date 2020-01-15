@@ -98,7 +98,7 @@ namespace data {
         }
         
         iterator end() {
-            return Data + Size;
+            return Data + Size * sizeof(X);
         }
         
         const_iterator begin() const {
@@ -106,11 +106,11 @@ namespace data {
         }
         
         const_iterator end() const {
-            return Data + Size;
+            return Data + Size * sizeof(X);
         }
         
         reverse_iterator rbegin() {
-            return reverse_iterator{Data + Size};
+            return reverse_iterator{Data + Size * sizeof(X)};
         }
         
         reverse_iterator rend() {
@@ -118,7 +118,7 @@ namespace data {
         }
         
         const_reverse_iterator rbegin() const {
-            return reverse_iterator{Data + Size};
+            return reverse_iterator{Data + Size * sizeof(X)};
         }
         
         const_reverse_iterator rend() const {
@@ -126,7 +126,7 @@ namespace data {
         }
         
         operator std::basic_string_view<X>() const {
-            return std::basic_string_view<X>{Data, Size};
+            return std::basic_string_view<X>{Data, Size * sizeof(X)};
         }
         
     };

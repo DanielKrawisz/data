@@ -12,6 +12,7 @@
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/encoding/words.hpp>
 #include <limits>
+#include <iostream>
 
 namespace data::math::number {
     
@@ -31,7 +32,7 @@ namespace data::math::number {
         }
         
         static N_bytes read(string_view x) {
-            return N_bytes<r>{encoding::natural::read(x, r)};
+            return x == "" ? 0 : N_bytes<r>{encoding::natural::read(x, r)};
         }
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
@@ -56,52 +57,12 @@ namespace data::math::number {
             return operator=(N_bytes{n});
         }
         
-        /*bool operator==(uint64 n) const {
-            return operator==(N_bytes{n});
-        }*/
-        
         bool operator==(const N_bytes& n) const {
             return N{*this} == N{n}; // Inefficient
         }
         
-        /*bool operator==(const Z_bytes<r>& z) const {
-            return z < 0 ? false : operator==(z.abs());
-        }
-        
-        bool operator==(const N_bytes<opposite>& n) const {
-            return operator==(n.reverse());
-        }
-        
-        bool operator==(const Z_bytes<opposite>& z) const {
-            return z < 0 ? false : operator==(z.abs());
-        }
-        
-        bool operator==(const N& n) const {
-            return N{*this} == n;
-        }
-        
-        bool operator==(const Z& z) const {
-            return z < 0 ? false : operator==(z.abs());
-        }*/
-        
         bool operator!=(uint64 n) const {
             return !operator==(n);
-        }
-        
-        bool operator!=(const N_bytes& n) const {
-            return !operator==(n);
-        }
-        
-        bool operator!=(const Z_bytes<r>& z) const {
-            return !operator==(z);
-        };
-        
-        bool operator!=(const N_bytes<opposite>& n) const {
-            return !operator==(n);
-        }
-        
-        bool operator!=(const Z_bytes<opposite>& z) const {
-            return !operator==(z);
         }
         
     private:

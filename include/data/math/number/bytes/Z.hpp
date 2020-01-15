@@ -38,7 +38,7 @@ namespace data::math::number {
         }
         
         static Z_bytes read(string_view x) {
-            return Z_bytes<r>{encoding::integer::read(x, r)};
+            return x == "" ? 0 : Z_bytes<r>{encoding::integer::read(x, r)};
         }
         
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}

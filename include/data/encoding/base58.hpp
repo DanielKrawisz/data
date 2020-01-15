@@ -93,7 +93,7 @@ namespace data::encoding::base58 {
         string(string_view s) : String{s}, Bytes{}, ToBytes{nullptr} {
             using namespace math::number;
             if (base58::valid(s)) {
-                Bytes = bytes_view(N_bytes<endian::big>{read<N>(s)});
+                Bytes = N_bytes<endian::big>{read<N>(s)};
                 ToBytes = &Bytes;
             }
         }

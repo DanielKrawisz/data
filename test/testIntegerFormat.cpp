@@ -21,6 +21,17 @@ TEST(IntegerTest, TestIntegerFormat) {
     EXPECT_FALSE(data::encoding::hexidecimal::valid("0xa"));
     EXPECT_FALSE(data::encoding::hexidecimal::valid("0xaF"));
     EXPECT_FALSE(data::encoding::integer::valid(""));
+    EXPECT_TRUE(data::encoding::integer::valid("-1"));
+    EXPECT_FALSE(data::encoding::integer::valid("-0xaf"));
+    
+    EXPECT_FALSE(data::encoding::integer::negative("0"));
+    EXPECT_FALSE(data::encoding::integer::negative("0x00"));
+    EXPECT_FALSE(data::encoding::integer::negative("-0"));
+    EXPECT_TRUE(data::encoding::integer::negative("-1"));
+    EXPECT_TRUE(data::encoding::integer::negative("-01"));
+    EXPECT_TRUE(data::encoding::integer::negative("0xff"));
+    EXPECT_TRUE(data::encoding::integer::negative("0x8000"));
+    EXPECT_FALSE(data::encoding::integer::negative("0x7fff"));
     
 }
 

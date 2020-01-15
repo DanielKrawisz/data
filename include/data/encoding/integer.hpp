@@ -92,7 +92,7 @@ namespace data::encoding {
             "^0|0x(00)*$"};
         
         constexpr auto negative_pattern = ctll::fixed_string{
-            "^(-([1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
+            "^(-(0*[1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
         
         inline bool valid(string_view s) {
             return ctre::match<pattern>(s);

@@ -108,19 +108,20 @@ endif()
 #  Add Library source files here
 
 ADD_LIBRARY(data STATIC
-        src/data/encoding/hex.cpp
-        src/data/encoding/ascii.cpp
-        src/data/encoding/integer.cpp
-        src/data/tools/channel.cpp
-        src/data/math/number/gmp/mpq.cpp
-        src/data/math/number/gmp/N.cpp
-        src/data/math/number/gmp/Z.cpp
-        src/data/math/number/gmp/Q.cpp
-        src/data/crypto/digest.cpp
-        src/data/crypto/ripemd160.cpp
-        src/data/crypto/sha256.cpp
-        src/data/crypto/digest.cpp
-        src/data/crypto/sha512.cpp)
+    src/data/encoding/hex.cpp
+    src/data/encoding/ascii.cpp
+    src/data/encoding/integer.cpp
+    src/data/tools/channel.cpp
+    src/data/math/number/gmp/mpq.cpp
+    src/data/math/number/gmp/N.cpp
+    src/data/math/number/gmp/Z.cpp
+    src/data/math/number/gmp/Q.cpp
+    src/data/crypto/digest.cpp
+    src/data/crypto/ripemd160.cpp
+    src/data/crypto/sha256.cpp
+    src/data/crypto/digest.cpp
+    src/data/crypto/sha512.cpp
+)
         
 target_include_directories(data PUBLIC include)
 
