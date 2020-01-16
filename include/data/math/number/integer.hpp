@@ -12,31 +12,25 @@
 
 namespace data::math::number::integer {
     
-    /*template <typename Z>
-    struct integer : algebra::integral_domain<Z>, ordered<Z> {
-        Z zero() const {
-            return Z{0};
-        }
-        
-        math::sign sign(Z z) {
-            return z.sign();
-        }
-        
-        Z power(Z a, Z b) {
-            return a ^ b;
-        }
-        
-        Z mod(Z a, Z b) {
-            return a % b;
-        }
-        
-        bool divides(Z a, Z b) {
-            return a | b;
-        }
-    };*/
-    
     template <typename Z>
-    static division<Z> divide(const Z Dividend, const Z Divisor);
+    static division<Z> divide(const Z Dividend, const Z Divisor) {
+        if (Dividend < 0) {
+            if (Divisor < 0) {
+                division<Z> d{natural::divide<Z>(-Dividend, -Divisor)};
+                return {d.Quotient + 1, Divisor - d.Remainder};
+            }
+            
+            division<Z> d{natural::divide<Z>(-Dividend, Divisor)};
+            return {-(d.Quotient + 1), Divisor - d.Remainder};
+        }
+        
+        if (Divisor < 0) {
+            division<Z> d{natural::divide<Z>(Dividend, -Divisor)};
+            return {-d.Quotient, d.Remainder};
+        }
+        
+        return natural::divide<Z>(Dividend, Divisor);
+    }
 
 }
 

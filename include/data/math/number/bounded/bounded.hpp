@@ -54,6 +54,14 @@ namespace data {
             bounded operator~() const;
             bounded operator|(const bounded&) const;
             bounded operator^(const bounded&) const;
+            
+            bool operator==(const bounded& d) const {
+                return bytes::operator==(static_cast<const bytes&>(d));
+            }
+            
+            bool operator!=(const bounded& d) const {
+                return !operator==(d);
+            }
 
             bool operator>(const bounded& d) const;
             bool operator>=(const bounded& d) const;
@@ -103,8 +111,8 @@ namespace data {
             using typename ray::methods;
 
             bounded(uint64 x) : ray{} {
-                ray::words().set(0, boost::endian::endian_arithmetic<o, uint32, 32>{lesser_half(x)});
-                ray::words().set(1, boost::endian::endian_arithmetic<o, uint32, 32>{greater_half(x)});
+                ray::words().set(0, lesser_half(boost::endian::endian_arithmetic<o, uint64, 64>{x}));
+                ray::words().set(1, greater_half(boost::endian::endian_arithmetic<o, uint64, 64>{x}));
             }
 
             explicit bounded(string_view s);
@@ -114,10 +122,12 @@ namespace data {
             }
 
             operator slice<byte, size>() const {
-                throw method::unimplemented{"bounded operator slice"};
+                return slice<byte>::data();
             }
 
-            math::sign sign() const;
+            math::sign sign() const {
+                return ray::operator==(0) ? math::zero : math::positive;
+            }
 
             // power
             bounded operator^(const bounded&) const;
@@ -199,8 +209,8 @@ namespace data {
 
             bounded(int64 x) : ray{} {
                 if (x < 0) operator--();
-                ray::words().set(0, boost::endian::endian_arithmetic<o, int32, 32>{lesser_half(x)});
-                ray::words().set(1, boost::endian::endian_arithmetic<o, int32, 32>{greater_half(x)});
+                ray::words().set(0, lesser_half(boost::endian::endian_arithmetic<o, int64, 64>{x}));
+                ray::words().set(1, greater_half(boost::endian::endian_arithmetic<o, int64, 64>{x}));
             }
 
             bounded(const bounded<size, o, false>&) {
@@ -211,7 +221,9 @@ namespace data {
 
             explicit bounded(slice<byte, size>);
 
-            operator slice<byte, size>() const;
+            operator slice<byte, size>() const {
+                return slice<byte>::data();
+            }
 
             bounded& operator=(const bounded& d) {
                 throw method::unimplemented{"bounded::operator="};
@@ -287,6 +299,13 @@ namespace data {
         };
 
         template <size_t size, endian::order o, bool is_signed>
+        struct sign<bounded<size, o, is_signed>> {
+            math::sign operator()(const bounded<size, o, is_signed>& i) {
+                return i.sign();
+            }
+        };
+
+        template <size_t size, endian::order o, bool is_signed>
         struct arg<bounded<size, o, is_signed>> {
             bounded<size, o, false> operator()(const bounded<size, o, is_signed>& i) {
                 if (i == 0) throw division_by_zero{};
@@ -305,28 +324,28 @@ namespace data {
     using int160 = integer<20>;
     using int256 = integer<32>;
     using int512 = integer<64>;
-
+    
     namespace encoding::hexidecimal {
-
-        template <size_t size, endian::order o, bool is_signed>
-        std::string write(const math::number::bounded<size, o, is_signed>& n);
-
-        }
-
-        namespace encoding::decimal {
-
+        
         template <size_t size, endian::order o, bool is_signed>
         std::string write(const math::number::bounded<size, o, is_signed>& n);
 
     }
-
+    
+    namespace encoding::decimal {
+        
+        template <size_t size, endian::order o, bool is_signed>
+        std::string write(const math::number::bounded<size, o, is_signed>& n);
+        
+    }
+    
     namespace bounded {
-
+        
         template <typename bounded, size_t size, typename bit32, endian::order o>
         inline bool array<bounded, size, bit32, o>::operator>(const bounded& d) const {
             return d <= bounded{*this};
         }
-
+        
         template <typename bounded, size_t size, typename bit32, endian::order o>
         inline bool array<bounded, size, bit32, o>::operator>=(const bounded& d) const {
             return d < bounded{*this};
@@ -546,13 +565,13 @@ namespace data {
         template <size_t size, endian::order o>
         bounded<size, o, true>::bounded(string_view s) : bounded{} {
             if (!encoding::integer::valid(s)) throw std::invalid_argument{"not an integer"};
-
+            
             // Is there a minus sign?
             bool minus_sign = encoding::integer::negative(s);
             bool hexidecimal = encoding::hexidecimal::valid(minus_sign ? s.substr(1) : s);
-
+            
             if (hexidecimal && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
-
+            
             Z_bytes<o> z{s};
             if (z > Z_bytes<o> {max()}) z -= modulus();
             *this = bounded{z};
@@ -594,50 +613,19 @@ namespace data {
             return b;
         }
 
-        namespace low {
-
-            template <size_t size, data::endian::order o>
-            void write_dec(std::ostream& s,
-                        const math::number::bounded<size, o, false>& n) {
-                s << std::dec << N_bytes<o> {n};
-            }
-
-            template <size_t size, data::endian::order o>
-            void write_dec(std::ostream& s,
-                        const math::number::bounded<size, o, true>& n) {
-                s << std::dec << Z_bytes<o> {n};
-            }
-        }
-
     }
 
 }
 
-template <unsigned long size, data::endian::order o, bool is_signed>
-std::ostream& operator<<(std::ostream& s,
-                         const data::math::number::bounded<size, o, is_signed>& n) {
-    if (s.flags() & std::ios::hex) {
-        data::encoding::hexidecimal::write(s, data::bytes_view(n), o);
-        return s;
-    }
-    if (s.flags() & std::ios::dec) {
-        data::math::number::low::write_dec(s, n);
-        return s;
-    }
-    return s;
+template <unsigned long size, data::endian::order o>
+std::ostream& operator<<(std::ostream& s, const data::math::number::bounded<size, o, true>& n) {
+    return s << data::math::number::Z_bytes<o>{n};
 }
 
-// Explicit instantiation of the above template function. My understanding is that
-// this should not be necessary but I get linker errors when these are not here.
-// I would like to be able to remove these.
-// Note: the reason probably has to do with the order in which the object files are linked.
-template std::ostream& operator<<<8, data::endian::big, true>(std::ostream& s, const data::math::number::bounded<8, data::endian::big, true>& n);
-
-template std::ostream& operator<<<8, data::endian::big, false>(std::ostream& s, const data::math::number::bounded<8, data::endian::big, false>& n);
-
-template std::ostream& operator<<<8, data::endian::little, true>(std::ostream& s, const data::math::number::bounded<8, data::endian::little, true>& n);
-
-template std::ostream& operator<<<8, data::endian::little, false>(std::ostream& s, const data::math::number::bounded<8, data::endian::little, false>& n);
+template <unsigned long size, data::endian::order o>
+std::ostream& operator<<(std::ostream& s, const data::math::number::bounded<size, o, false>& n) {
+    return s << data::math::number::N_bytes<o>{n};
+}
 
 namespace data {
 
@@ -661,6 +649,16 @@ namespace data {
             return ss.str();
         }
 
+    }
+    
+    namespace math::number {
+        
+        template <size_t size, endian::order o>
+        math::sign bounded<size, o, true>::sign() const {
+            if (ray::operator==(0)) return math::zero;
+            return bytes::operator[](o == endian::big ? 0 : size - 1) < 0x80 ? math::positive : math::negative;
+        }
+        
     }
 
 }

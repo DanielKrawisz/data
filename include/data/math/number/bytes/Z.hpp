@@ -109,28 +109,7 @@ namespace data::math::number {
             return operator=(Z_bytes{n});
         }
         
-        /*bool operator==(int64 i) const {
-            return operator==(Z_bytes{i});
-        }*/
-        
-        bool operator==(const Z_bytes& z) const {
-            bool negative_left = is_negative();
-            bool negative_right = z.is_negative();
-            if (negative_left != negative_right) return false; 
-            throw method::unimplemented{"Z_bytes == "};
-        }
-        
-        /*bool operator==(const Z_bytes<opposite>& n) const {
-            return operator==(n.reverse());
-        }
-        
-        bool operator==(const N_bytes<opposite>& n) const {
-            return operator==(n.reverse());
-        }
-        
-        bool operator==(const Z&) const;
-        
-        bool operator==(const N&) const;*/
+        bool operator==(const Z_bytes& z) const;
         
         bool operator!=(int64 z) const {
             return !operator==(z);
@@ -282,140 +261,26 @@ namespace data::math::number {
             return z;
         }
         
-        Z_bytes operator+(int64 n) const;
-        
         Z_bytes operator+(const Z_bytes&) const;
-        
-        Z_bytes operator+(const Z_bytes<opposite>& n) const {
-            return operator+(n.reverse());
-        }
-        
-        Z_bytes operator+(const N_bytes<opposite>& n) const {
-            return operator+(n.reverse());
-        }
-        
-        Z_bytes operator+(const Z&) const;
-        
-        Z_bytes operator+(const N&) const;
-        
-        Z_bytes& operator+=(int64 n) {
-            return operator=(operator+(n));
-        }
         
         Z_bytes& operator+=(const Z_bytes& n) {
             return operator=(operator+(n));
         }
         
-        Z_bytes& operator+=(const Z_bytes<opposite>& n) {
-            return operator=(operator+(n));
-        }
-        
-        Z_bytes& operator+=(const N_bytes<opposite>& n) {
-            return operator=(operator+(n));
-        }
-        
-        Z_bytes& operator+=(const Z& n) {
-            return operator=(operator+(n));
-        }
-        
-        Z_bytes& operator+=(const N& n) {
-            return operator=(operator+(n));
-        }
-        
-        Z_bytes operator-(const int64 n) const {
-            return operator-(Z_bytes{n});
-        }
-        
         Z_bytes operator-(const Z_bytes& z) const;
-        
-        Z_bytes operator-(const Z_bytes<opposite>& n) const {
-            return operator-(n.reverse());
-        }
-        
-        Z_bytes operator-(const N_bytes<opposite>& n) const {
-            return operator-(n.reverse());
-        }
-        
-        Z_bytes operator-(const Z& z) const {
-            return Z{*this} - z;
-        }
-        
-        Z_bytes operator-(const N& z) const {
-            return Z{*this} - z;
-        }
         
         Z_bytes operator-() const {
             return Z_bytes{0} - *this;
-        }
-        
-        Z_bytes& operator-=(int64 n) {
-            return operator=(operator-(n));
         }
         
         Z_bytes& operator-=(const Z_bytes& n) {
             return operator=(operator-(n));
         }
         
-        Z_bytes& operator-=(const Z_bytes<opposite>& n) {
-            return operator=(operator-(n));
-        }
-        
-        Z_bytes& operator-=(const N_bytes<opposite>& n) {
-            return operator=(operator-(n));
-        }
-        
-        Z_bytes& operator-=(const Z& n) {
-            return operator=(operator-(n));
-        }
-        
-        Z_bytes& operator-=(const N& n) {
-            return operator=(operator-(n));
-        }
-        
-        Z_bytes operator*(int64 n) const;
-        
         Z_bytes operator*(const Z_bytes&) const;
-        
-        Z_bytes operator*(const N_bytes<r>&) const;
-        
-        Z_bytes operator*(const Z_bytes<opposite>& n) const {
-            return operator*(n.reverse());
-        }
-        
-        Z_bytes operator*(const N_bytes<opposite>& n) const {
-            return operator*(n.reverse());
-        }
-        
-        Z_bytes operator*(const Z&) const;
-        
-        Z_bytes operator*(const N&) const;
-        
-        Z_bytes& operator*=(int64 n) {
-            return operator=(operator*(n));
-        }
         
         Z_bytes& operator*=(const Z_bytes& z) {
             return operator=(operator*(z));
-        }
-        
-        Z_bytes& operator*=(const N_bytes<r>& n) {
-            return operator=(operator*(n));
-        }
-        
-        Z_bytes& operator*=(const Z_bytes<opposite>& z) {
-            return operator=(operator*(z));
-        }
-        
-        Z_bytes& operator*=(const N_bytes<opposite>& n) {
-            return operator=(operator*(n));
-        }
-        
-        Z_bytes& operator*=(const Z& z) {
-            return operator=(operator*(z));
-        }
-        
-        Z_bytes& operator*=(const N& n) {
-            return operator=(operator*(n));
         }
         
         Z_bytes operator^(uint32 n) const;
@@ -424,7 +289,9 @@ namespace data::math::number {
             return operator=(operator^(n));
         }
         
-        division<Z_bytes> divide(const Z_bytes&) const;
+        division<Z_bytes> divide(const Z_bytes& z) const {
+            return integer::divide<Z_bytes>(*this, z);
+        }
         
         bool operator|(const Z_bytes& z) const {
             return divide(z).Remainder == 0;
@@ -444,38 +311,6 @@ namespace data::math::number {
         }
         
         Z_bytes& operator%=(const Z_bytes& z) {
-            return operator=(operator%(z));
-        }
-        
-        Z_bytes operator/(const Z_bytes<opposite>& n) const {
-            return operator/(n.reverse());
-        }
-        
-        Z_bytes operator%(const Z_bytes<opposite>& n) const {
-            return operator%(n.reverse());
-        }
-        
-        Z_bytes& operator/=(const Z_bytes<opposite>& z) {
-            return operator=(operator/(z));
-        }
-        
-        Z_bytes& operator%=(const Z_bytes<opposite>& z) {
-            return operator=(operator%(z));
-        }
-        
-        Z_bytes operator/(const Z& z) const {
-            return Z{*this} / z;
-        }
-        
-        Z_bytes operator%(const Z& z) const {
-            return Z{*this} % z;
-        }
-        
-        Z_bytes& operator/=(const Z& z) {
-            return operator=(operator/(z));
-        }
-        
-        Z_bytes& operator%=(const Z& z) {
             return operator=(operator%(z));
         }
         
@@ -550,22 +385,53 @@ namespace data::math::number {
             return i.abs();
         }
     };
+    
+    template <endian::order r>
+    bool Z_bytes<r>::operator==(const Z_bytes& z) const {
+        bool negative_left = is_negative();
+        bool negative_right = z.is_negative();
+        if (negative_left != negative_right) return false; 
+        size_t left_size = bytes::size();
+        size_t right_size = z.size();
+        size_t left_begin;
+        size_t right_begin;
+        size_t left_end;
+        size_t right_end;
+        size_t min_size = std::min(left_size, right_size);
+        if (r == endian::big) {
+            left_begin = 0;
+            right_begin = 0;
+            left_end = min_size;
+            right_end = min_size;
+        } else {
+            left_end = left_size;
+            right_end = right_size;
+            if (left_size > right_size) {
+                left_begin = left_end - min_size;
+                right_begin = 0;
+            } else {
+                left_begin = 0;
+                right_begin = right_end - min_size;
+            }
+        }
+        return slice<byte>::range(left_begin, left_end) == static_cast<slice<byte>>(z).range(right_begin, right_end);
+    }
 
 }
 
 namespace data::encoding::hexidecimal {
     
-    template <endian::order o>
-    std::string write(const math::number::Z_bytes<o>& n) {
-        throw method::unimplemented{"hexidecimal::write(Z_bytes)"};
+    template <endian::order r>
+    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
+        return encoding::hexidecimal::write(o, n, r);
     }
     
 }
 
 namespace data::encoding::decimal {
     
-    template <endian::order o>
-    std::string write(const math::number::Z_bytes<o>& n) {
+    template <endian::order r>
+    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
         throw method::unimplemented{"decimal::write(Z_bytes)"};
     }
     
@@ -573,8 +439,8 @@ namespace data::encoding::decimal {
 
 template <data::endian::order r>
 inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
-    if (o.flags() & std::ios::hex) o << data::encoding::decimal::write(n);
-    if (o.flags() & std::ios::dec) o << data::encoding::hexidecimal::write(n);
+    if (o.flags() & std::ios::dec) return data::encoding::decimal::write(o, n);
+    if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
     return o;
 }
 

@@ -10,6 +10,7 @@ ADD_EXECUTABLE(testData
     testAscii.cpp 
     testStream.cpp 
     testIntegerFormat.cpp 
+    testSign.cpp
     testN.cpp 
     testBounded.cpp 
     testBitShift.cpp 
@@ -22,6 +23,22 @@ ADD_EXECUTABLE(testData
     testLib.cpp )
 link_directories(${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
+
+# Test Stream
+add_test(NAME StreamWriteUint16Big COMMAND testData)
+add_test(NAME StreamWriteUint16Little COMMAND testData)
+add_test(NAME StreamWriteUint32Big COMMAND testData)
+add_test(NAME StreamWriteUint32Little COMMAND testData)
+add_test(NAME StreamWriteUint64Big COMMAND testData)
+add_test(NAME StreamWriteUint64Little COMMAND testData)
+add_test(NAME StreamWriteBytes COMMAND testData)
+add_test(NAME StreamReadUint16Big COMMAND testData)
+add_test(NAME StreamReadUint16Little COMMAND testData)
+add_test(NAME StreamReadUint32Big COMMAND testData)
+add_test(NAME StreamReadUint32Little COMMAND testData)
+add_test(NAME StreamReadUint64Big COMMAND testData)
+add_test(NAME StreamReadUint64Little COMMAND testData)
+add_test(NAME StreamReadBytes COMMAND testData)
 
 # Test Hex
 add_test(NAME HexHexToArray COMMAND testData)
@@ -48,6 +65,11 @@ add_test(NAME TestLinkedList1 COMMAND testData)
 add_test(NAME TestLinkedList2 COMMAND testData)
 add_test(NAME TestLinkedListSort COMMAND testData)
 
+#Test Sign
+add_test(NAME TestAbs COMMAND testData)
+add_test(NAME TestArg COMMAND testData)
+add_test(NAME TestSign COMMAND testData)
+
 #Test N
 add_test(NAME TestN COMMAND testData)
 add_test(NAME TestMultiply COMMAND testData)
@@ -68,25 +90,7 @@ add_test(NAME Bounded01 COMMAND testData)
 add_test(NAME BoundedSign COMMAND testData)
 add_test(NAME BoundedBitShift COMMAND testData)
 
-# Test Stream
-add_test(NAME StreamWriteUint16Big COMMAND testData)
-add_test(NAME StreamWriteUint16Little COMMAND testData)
-add_test(NAME StreamWriteUint32Big COMMAND testData)
-add_test(NAME StreamWriteUint32Little COMMAND testData)
-add_test(NAME StreamWriteUint64Big COMMAND testData)
-add_test(NAME StreamWriteUint64Little COMMAND testData)
-add_test(NAME StreamWriteBytes COMMAND testData)
-add_test(NAME StreamReadUint16Big COMMAND testData)
-add_test(NAME StreamReadUint16Little COMMAND testData)
-add_test(NAME StreamReadUint32Big COMMAND testData)
-add_test(NAME StreamReadUint32Little COMMAND testData)
-add_test(NAME StreamReadUint64Big COMMAND testData)
-add_test(NAME StreamReadUint64Little COMMAND testData)
-add_test(NAME StreamReadBytes COMMAND testData)
-
 #Test Extended Euclidian
-add_test(NAME TestAbs COMMAND testData)
-add_test(NAME TestArg COMMAND testData)
 add_test(NAME TestDivision COMMAND testData)
 add_test(NAME TestExtendedEuclidian COMMAND testData)
 

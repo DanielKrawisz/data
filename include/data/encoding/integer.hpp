@@ -115,7 +115,6 @@ namespace data::encoding {
         }
         
         bytes read(string_view s, endian::order r);
-        
     };
     
 }
