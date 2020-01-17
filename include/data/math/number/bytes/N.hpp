@@ -209,151 +209,25 @@ namespace data::math::number {
             return z;
         }
         
-        N_bytes operator+(uint64 n) const;
-        
-        N_bytes operator+(const N_bytes& n) const;
-        
-        N_bytes operator+(const Z_bytes<r>&) const;
-        
-        N_bytes operator+(const N_bytes<opposite>& n) const {
-            return operator+(n.reverse());
+        N_bytes operator+(const N_bytes& n) const {
+            throw method::unimplemented{"N_bytes::+"};
         }
-        
-        N_bytes operator+(const Z_bytes<opposite>& n) const {
-            return operator+(n.reverse());
-        }
-        
-        N_bytes operator+(const N&) const;
-        
-        N_bytes operator+(const Z&) const;
-        
-        N_bytes& operator+=(uint64 n) {
-            return operator=(operator+(n));
-        } 
         
         N_bytes& operator+=(const N_bytes& n) {
             return operator=(operator+(n));
         }
         
-        N_bytes& operator+=(const Z_bytes<r>& n) {
-            return operator=(operator+(n));
-        }
-        
-        N_bytes& operator+=(const N_bytes<opposite>& n) {
-            return operator=(operator+(n));
-        }
-        
-        N_bytes& operator+=(const Z_bytes<opposite>& n) {
-            return operator=(operator+(n));
-        }
-        
-        N_bytes& operator+=(const N& n) {
-            return operator=(operator+(n));
-        }
-        
-        N_bytes& operator+=(const Z& n) {
-            return operator=(operator+(n));
-        }
-        
-        N_bytes operator-(uint64 n) const {
-            return operator-(N_bytes{n});
-        }
-        
-        N_bytes operator-(const N_bytes& n) const;
-        
-        N_bytes operator-(const Z_bytes<r>& n) const {
-            if (operator<(n)) return 0;
-            throw method::unimplemented{"N_bytes::operator-"};
-        }
-        
-        N_bytes operator-(const N_bytes<opposite>& n) const {
-            return operator-(n.reverse());
-        }
-        
-        N_bytes operator-(const Z_bytes<opposite>& n) const {
-            return operator-(n.reverse());
-        }
-        
-        N_bytes operator-(const N& n) const {
-            return operator-(N_bytes{n});
-        }
-        
-        N_bytes operator-(const Z& n) const {
-            if (operator<(n)) return 0;
-            throw method::unimplemented{"N_bytes::operator-"};
-        }
-        
-        N_bytes& operator-=(uint64 n) {
-            return operator=(operator-(n));
+        N_bytes operator-(const N_bytes& n) const {
+            throw method::unimplemented{"N_bytes::-"};
         }
         
         N_bytes& operator-=(const N_bytes& n) {
             return operator=(operator-(n));
         }
         
-        N_bytes& operator-=(const Z_bytes<r>& n) {
-            return operator=(operator-(n));
-        }
-        
-        N_bytes& operator-=(const N_bytes<opposite>& n) {
-            return operator=(operator-(n));
-        }
-        
-        N_bytes& operator-=(const Z_bytes<opposite>& n) {
-            return operator=(operator-(n));
-        }
-        
-        N_bytes& operator-=(const N& n) {
-            return operator=(operator-(n));
-        }
-        
-        N_bytes& operator-=(const Z& n) {
-            return operator=(operator-(n));
-        }
-        
-        N_bytes operator*(uint64 n) const;
-        
         N_bytes operator*(const N_bytes&) const;
         
-        N_bytes operator*(const N_bytes<opposite>& n) const {
-            return operator*(n.reverse());
-        }
-        
-        N_bytes operator*(const Z_bytes<r>&) const;
-        
-        N_bytes operator*(const Z_bytes<opposite>& n) const {
-            return operator*(n.reverse());
-        }
-        
-        N_bytes operator*(const N&) const;
-        
-        N_bytes operator*(const Z&) const;
-        
-        N_bytes& operator*=(uint64 n) {
-            return operator=(operator*(n));
-        }
-        
         N_bytes& operator*=(const N_bytes& n) {
-            return operator=(operator*(n));
-        }
-        
-        N_bytes& operator*=(const N_bytes<opposite>& n) {
-            return operator=(operator*(n));
-        }
-        
-        N_bytes& operator*=(const Z_bytes<r>& n) const {
-            return operator=(operator*(n));
-        }
-        
-        N_bytes& operator*=(const Z_bytes<opposite>& n) const {
-            return operator=(operator*(n));
-        }
-        
-        N_bytes& operator*=(const N& n) {
-            return operator=(operator*(n));
-        }
-        
-        N_bytes& operator*=(const Z& n) const {
             return operator=(operator*(n));
         }
         

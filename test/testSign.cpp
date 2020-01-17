@@ -24,6 +24,23 @@ namespace data::exported {
         EXPECT_EQ(integer_little<10>{0}--, integer_little<10>{"0xffffffffffffffffffff"});
         EXPECT_EQ(integer_little<11>{0}--, integer_little<11>{"0xffffffffffffffffffffff"});
         EXPECT_EQ(integer_little<20>{0}--, integer_little<20>{"0xffffffffffffffffffffffffffffffffffffffff"});
+        
+        EXPECT_LT(integer<9>{"0x800000000000000000"}, 
+                  integer<9>{"0x7fffffffffffffffff"});
+        EXPECT_LT(integer<10>{"0x80000000000000000000"}, 
+                  integer<10>{"0x7fffffffffffffffffff"});
+        EXPECT_LT(integer<11>{"0x8000000000000000000000"}, 
+                  integer<11>{"0x7fffffffffffffffffffff"});
+        EXPECT_LT(integer<20>{"0x8000000000000000000000000000000000000000"},
+                  integer<20>{"0x7fffffffffffffffffffffffffffffffffffffff"});
+        EXPECT_LT(integer_little<9>{"0x800000000000000000"}, 
+                  integer_little<9>{"0x7fffffffffffffffff"});
+        EXPECT_EQ(integer_little<10>{"0x80000000000000000000"}, 
+                  integer_little<10>{"0x7fffffffffffffffffff"});
+        EXPECT_EQ(integer_little<11>{"0x8000000000000000000000"}, 
+                  integer_little<11>{"0x7fffffffffffffffffffff"});
+        EXPECT_EQ(integer_little<20>{"0x8000000000000000000000000000000000000000"}, 
+                  integer_little<20>{"0x7fffffffffffffffffffffffffffffffffffffff"});
     }
     
     TEST(SignTest, TestSign) {

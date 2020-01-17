@@ -245,7 +245,7 @@ namespace data::math::number {
         }
         
         Z_bytes& operator--() {
-            operator+=(1);
+            operator-=(1);
             return *this;
         }
         
@@ -257,7 +257,7 @@ namespace data::math::number {
         
         Z_bytes operator--(int) {
             Z_bytes z = *this;
-            ++(*this);
+            --(*this);
             return z;
         }
         
