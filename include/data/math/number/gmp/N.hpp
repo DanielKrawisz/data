@@ -24,7 +24,7 @@ namespace data::math::number::gmp {
             mpz_init_set_ui(Value.MPZ, n);
         }
         
-        explicit N(string_view s);
+        N(string_view x);
         
         N& operator=(const N& n) {
             Value = n.Value;
