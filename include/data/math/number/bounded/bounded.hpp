@@ -122,7 +122,7 @@ namespace data {
             }
 
             operator slice<byte, size>() const {
-                return slice<byte>::data();
+                return slice<byte, size>{const_cast<byte*>(slice<byte>::data())};
             }
 
             math::sign sign() const {

@@ -47,7 +47,13 @@ namespace data::math::number {
         
         explicit N_bytes(const N_bytes<opposite>&);
         
-        N_bytes<opposite> reverse() const;
+    private: 
+        N_bytes(size_t size, byte fill) : bytes{size, fill} {}
+        
+    public:
+        static N_bytes zero(size_t size) {
+            return N_bytes{0, size};
+        }
         
         N_bytes& operator=(const N_bytes<opposite>& n) {
             return operator=(n.reverse());
@@ -61,7 +67,7 @@ namespace data::math::number {
             return N{*this} == N{n}; // Inefficient
         }
         
-        bool operator!=(uint64 n) const {
+        bool operator!=(const N_bytes& n) const {
             return !operator==(n);
         }
         
