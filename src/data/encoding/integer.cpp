@@ -18,7 +18,7 @@ namespace data::encoding {
             if (!valid(s)) throw std::invalid_argument{"not decimal"};
             math::number::N_bytes<endian::big> n{math::number::N{s}};
             if (r == endian::little) std::reverse(n.begin(), n.end());
-            return std::move(n);
+            return static_cast<bytes>(n);
         }
         
     };

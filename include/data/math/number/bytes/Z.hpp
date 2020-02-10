@@ -426,20 +426,30 @@ namespace data::encoding::hexidecimal {
         return encoding::hexidecimal::write(o, n, r);
     }
     
+    template <endian::order r>
+    std::string write(const math::number::Z_bytes<r>& n){
+        throw method::unimplemented{"decimal::write(N_bytes)"};
+    }
+    
 }
 
-namespace data::encoding::decimal {
+namespace data::encoding::integer {
     
     template <endian::order r>
     std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
         throw method::unimplemented{"decimal::write(Z_bytes)"};
     }
     
+    template <endian::order r>
+    std::string write(const math::number::Z_bytes<r>& n){
+        throw method::unimplemented{"decimal::write(N_bytes)"};
+    }
+    
 }
 
 template <data::endian::order r>
 inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
-    if (o.flags() & std::ios::dec) return data::encoding::decimal::write(o, n);
+    if (o.flags() & std::ios::dec) return data::encoding::integer::write(o, n);
     if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
     return o;
 }

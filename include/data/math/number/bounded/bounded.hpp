@@ -118,7 +118,8 @@ namespace data {
             explicit bounded(string_view s);
 
             bounded& operator=(const bounded& d) {
-                throw method::unimplemented{"bounded::operator="};
+                bytes::operator=(static_cast<const bytes&>(d));
+                return *this;
             }
 
             operator slice<byte, size>() const {
@@ -184,9 +185,20 @@ namespace data {
             }
 
         private:
-            explicit bounded(const N_bytes<o>& n) {
+            explicit bounded(const N_bytes<o>& n) : bounded{} {
+                if (n.size() <= size) {
+                    if (o == endian::little) {
+                        std::copy(n.begin(), n.end(), bytes::begin());
+                    } else {
+                        std::copy(n.begin(), n.end(), bytes::begin() + (size - n.size()));
+                    }
+                }
                 if (n > N_bytes<o> {max()}) throw std::out_of_range{"N_bytes too big"};
-                throw method::unimplemented{"bounded{N_bytes}"};
+                if (o == endian::little) {
+                    std::copy(n.begin(), n.begin() + size, bytes::begin());
+                } else {
+                    std::copy(n.begin() + (n.size() - size), n.end(), bytes::begin());
+                }
             }
 
             bounded(const bounded<size, o, true>) {
@@ -226,7 +238,8 @@ namespace data {
             }
 
             bounded& operator=(const bounded& d) {
-                throw method::unimplemented{"bounded::operator="};
+                bytes::operator=(static_cast<const bytes&>(d));
+                return *this;
             }
 
             bounded operator-() const;

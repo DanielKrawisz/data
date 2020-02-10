@@ -5,7 +5,6 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
-#include <iostream>
 
 namespace data::math::number::gmp {
     
@@ -106,7 +105,7 @@ namespace data::encoding::hexidecimal {
     
 }
 
-namespace data::encoding::decimal {
+namespace data::encoding::integer {
     
     std::string write(const math::number::gmp::Z& n) {
         std::stringstream ss;
@@ -207,7 +206,11 @@ namespace data::math::number::gmp {
     }
         
     void N::write_bytes(bytes& b, endian::order o) const {
-        if (o == endian::order::big) N_write_big(b, *this);
+        if (o == endian::order::big) {
+            N_write_big(b, *this);
+            return;
+        }
+        
         N_write_little(b, *this);
         
         /* I didn't finish this because it was getting too confusing. But it's more efficient. 
@@ -247,7 +250,7 @@ namespace data::encoding::hexidecimal {
     
 }
 
-namespace data::encoding::decimal {
+namespace data::encoding::integer {
     
     std::string write(const math::number::gmp::N& n) {
         std::stringstream ss;

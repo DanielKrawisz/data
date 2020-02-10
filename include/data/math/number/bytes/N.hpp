@@ -216,7 +216,8 @@ namespace data::math::number {
         }
         
         N_bytes operator+(const N_bytes& n) const {
-            throw method::unimplemented{"N_bytes::+"};
+            // TODO very inefficient. 
+            return N_bytes{N{*this} + N{n}};
         }
         
         N_bytes& operator+=(const N_bytes& n) {
@@ -372,23 +373,33 @@ namespace data::encoding::hexidecimal {
     
     template <endian::order r>
     std::ostream& write(std::ostream& o, const math::number::N_bytes<r>& n) {
-        return encoding::hexidecimal::write(o, n, r);
+         return encoding::hexidecimal::write(o, n, r);
+    }
+    
+    template <endian::order r>
+    std::string write(const math::number::N_bytes<r>& n){
+        throw method::unimplemented{"decimal::write(N_bytes)"};
     }
     
 }
 
-namespace data::encoding::decimal {
+namespace data::encoding::integer {
     
     template <endian::order r>
     std::ostream& write(std::ostream& o, const math::number::N_bytes<r>& n) {
-        throw method::unimplemented{"decimal::write(N_bytes)"};
+        return write(o, math::number::gmp::N{n});
+    }
+    
+    template <endian::order r>
+    std::string write(const math::number::N_bytes<r>& n){
+        return write(math::number::gmp::N{n});
     }
     
 }
 
 template <data::endian::order r>
 std::ostream& operator<<(std::ostream& o, const data::math::number::N_bytes<r>& n) {
-    if (o.flags() & std::ios::hex) return data::encoding::decimal::write(o, n);
+    if (o.flags() & std::ios::hex) return data::encoding::integer::write(o, n);
     if (o.flags() & std::ios::dec) return data::encoding::hexidecimal::write(o, n);
     return o;
 }

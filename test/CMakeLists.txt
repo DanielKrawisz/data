@@ -10,9 +10,9 @@ ADD_EXECUTABLE(testData
     testAscii.cpp 
     testStream.cpp 
     testIntegerFormat.cpp 
-    testSign.cpp
     testN.cpp 
     testBounded.cpp 
+    testSign.cpp
     testBitShift.cpp 
     testDigest.cpp 
     testBase58.cpp 

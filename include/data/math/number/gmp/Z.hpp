@@ -374,7 +374,7 @@ namespace data::encoding::hexidecimal {
     
 }
 
-namespace data::encoding::decimal {
+namespace data::encoding::integer {
     
     std::string write(const math::number::gmp::Z& n);
     

@@ -345,11 +345,19 @@ namespace data::encoding::hexidecimal {
     
     std::string write(const math::number::gmp::N& n);
     
+    inline std::ostream& write(std::ostream& o, const math::number::gmp::N& n) {
+        return o << write(n);
+    }
+    
 }
 
-namespace data::encoding::decimal {
+namespace data::encoding::integer {
     
     std::string write(const math::number::gmp::N& n);
+    
+    inline std::ostream& write(std::ostream& o, const math::number::gmp::N& n) {
+        return o << write(n);
+    }
     
 }
 
