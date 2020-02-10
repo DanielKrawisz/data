@@ -41,7 +41,7 @@ namespace data::math::number {
             return positive{Number / p.Number};
         }
     };
-        
+    
     template <typename Z, typename N>
     struct fraction {
         Z Numerator;
@@ -54,13 +54,13 @@ namespace data::math::number {
         fraction(const fraction& f) : Numerator{f.Numerator}, Denominator{f.Denominator} {}
         
         static N gcd(N a, N b) {
-            return euclidian::extended<N, Z>::algorithm(a, b).GCD;
+            return euclidian::extended<N, Z>::algorithm(a, Z{b}).GCD;
         }
         
         static fraction divide(Z n, positive<N> d) {
             if (n == 0) return fraction{0, 1};
             N gcd_ab = gcd(abs<N, Z>{}(n), d.Number);
-            return fraction{n / gcd_ab, positive{d / gcd_ab}};
+            return fraction{n / Z{gcd_ab}, positive{d / gcd_ab}};
         }
         
         bool operator==(const fraction& f) const {
@@ -102,7 +102,7 @@ namespace data::math::number {
         
         fraction operator+(const fraction& f) const {
             N gcd_rr = gcd(Denominator.Number, f.Denominator.Number);
-            return (fraction{f.Numerator * Denominator.Number + Numerator * f.Denominator.Number} / gcd_rr) /  
+            return (fraction{f.Numerator * Z{Denominator.Number} + Numerator * Z{f.Denominator.Number}} / gcd_rr) /  
                 (fraction{Denominator.Number * f.Denominator.Number} / gcd_rr);
         }
         
@@ -154,8 +154,6 @@ namespace data::math::number {
         fraction& operator/=(const fraction& f) {
             return operator=(operator/(f));
         }
-        
-        constexpr static rational<fraction> is_rational{};
         
     };
     
