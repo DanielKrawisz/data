@@ -13,7 +13,7 @@
 
 namespace data::math::number::gmp {
     
-    struct Q;
+    //struct Q;
     
     struct N {
         Z Value;

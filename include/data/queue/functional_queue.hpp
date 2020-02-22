@@ -27,7 +27,9 @@ namespace data {
         functional_queue(L l) : Left{l}, Right{} {}
         
         template <typename ... P>
-        functional_queue(P... p) : functional_queue{L{p...}} {}
+        functional_queue(P... p) : functional_queue{} {
+            append(p...);
+        }
         
         bool empty() const {
             return data::empty(Left);
@@ -93,6 +95,11 @@ namespace data {
         functional_queue append(functional_queue q) const {
             if (q.empty()) return *this;
             return append(q.first()).append(q.rest());
+        }
+        
+        template <typename ... P>
+        functional_queue append(P... p) const {
+            return check(Left, Right.prepend(p...));
         }
         
         functional_queue operator + (functional_queue q) const {

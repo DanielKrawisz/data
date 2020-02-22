@@ -54,11 +54,11 @@ namespace data::math::number {
         fraction(const fraction& f) : Numerator{f.Numerator}, Denominator{f.Denominator} {}
         
         static N gcd(N a, N b) {
-            return euclidian::extended<N, Z>::algorithm(a, Z{b}).GCD;
+            return euclidian::extended<N, Z>::algorithm(a, b).GCD;
         }
         
         static fraction divide(Z n, positive<N> d) {
-            if (n == 0) return fraction{0, 1};
+            if (n == 0) return fraction{Z{0}, N{1}};
             N gcd_ab = gcd(abs<N, Z>{}(n), d.Number);
             return fraction{n / Z{gcd_ab}, positive{d / gcd_ab}};
         }
@@ -132,6 +132,10 @@ namespace data::math::number {
         
         fraction operator/(const Z& z) const {
             return operator/(fraction{z});
+        }
+        
+        fraction operator/(const N& n) const {
+            return fraction{Numerator, Denominator * n};
         }
         
         fraction& operator=(const fraction& f) {

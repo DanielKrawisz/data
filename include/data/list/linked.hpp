@@ -124,6 +124,10 @@ namespace data::list {
             return {x, *this};
         }
         
+        linked prepend(elem x) const {
+            return {x, *this};
+        }
+        
         linked& operator<<=(elem x) {
             return operator=(prepend(x));
         }
@@ -135,6 +139,11 @@ namespace data::list {
                 l = l.rest();
             }
             return x;
+        }
+        
+        template <typename X, typename ... P>
+        linked prepend(X x, P ... p) const {
+            return prepend(x).prepend(p...);
         }
         
         linked operator+(linked l) const {
@@ -155,7 +164,12 @@ namespace data::list {
         iterator<linked> end() const;
         
     private:
-        linked(typename parent::next n) : parent{n} {}
+        using next = typename parent::next;
+        linked(next n) : parent{n} {}
+        
+        linked prepend() const {
+            return *this;
+        }
     };
     
     template <typename elem>
