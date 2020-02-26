@@ -11,7 +11,7 @@
 #include <milewski/RBMap/RBMap.h>
 #include <data/io/unimplemented.hpp>
     
-namespace data {
+namespace data::functional {
     
     template <typename K, typename V>
     struct rb_map {
@@ -67,15 +67,15 @@ namespace data {
         rb_map() : Map{} {}
         rb_map(std::initializer_list<std::pair<K, V>> init);
         
-        list::linked<const K&> keys() const {
-            list::linked<const K&> kk{};
+        stack::linked<const K&> keys() const {
+            stack::linked<const K&> kk{};
             milewski::okasaki::forEach(Map, [&kk](const K& k, V)->void{
                 kk = kk << k;
             });
             return kk;
         }
         
-        list::linked<entry> values() const {
+        stack::linked<entry> values() const {
             throw method::unimplemented{"rb_map::values"};
         }
         

@@ -1,30 +1,35 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MAP_QUEUE
 #define DATA_MAP_QUEUE
 
+#include <data/stack.hpp>
 #include <data/list.hpp>
-#include <data/queue.hpp>
 #include <data/fold.hpp>
     
-namespace data {
+namespace data::tool {
     
     // functional queue based on Milewski's implementation of Okasaki. 
-    template <typename L>
+    // it is built out of any stack. 
+    template <typename stack>
     class functional_queue {
-        using is_list = typename interface::list<L>;
         
-        L Left;
-        L Right;
+        // construction of functional_queue will fail if L 
+        // does not satisfy the stack interface. 
+        using is_stack = typename interface::stack<stack>;
+        constexpr static is_stack Required{};
+        
+        stack Left;
+        stack Right;
 
-        functional_queue(L l, L r) : Left{l}, Right{r} {}
+        functional_queue(stack l, stack r) : Left{l}, Right{r} {}
     public:
-        using element = typename interface::list<L>::element;
+        using element = typename interface::stack<stack>::element;
         
         functional_queue() : Left{}, Right{} {}
-        functional_queue(L l) : Left{l}, Right{} {}
+        functional_queue(stack l) : Left{l}, Right{} {}
         
         template <typename ... P>
         functional_queue(P... p) : functional_queue{} {
@@ -55,9 +60,9 @@ namespace data {
         }
         
     private:
-        static functional_queue check(const L& l, const L& r) {
+        static functional_queue check(const stack& l, const stack& r) {
             if (l.empty()) {
-                if (!r.empty()) return functional_queue{list::reverse(r), L{}};
+                if (!r.empty()) return functional_queue{functional::stack::reverse(r), stack{}};
                 return functional_queue{};
             } else return functional_queue(l, r);
         }
@@ -83,12 +88,12 @@ namespace data {
             return append(e);
         }
         
-        functional_queue append(L list) const {
+        functional_queue append(stack list) const {
             if (list.empty()) return *this;
             return append(list.first()).append(list.rest());
         }
         
-        functional_queue operator<<(L list) const {
+        functional_queue operator<<(stack list) const {
             return append(list);
         }
         
@@ -107,7 +112,7 @@ namespace data {
         }
         
         functional_queue reverse() const {
-            return check(list::reverse(Left), list::reverse(Right));
+            return check(functional::stack::reverse(Left), functional::stack::reverse(Right));
         }
         
         bool operator==(const functional_queue& q) const {
@@ -135,8 +140,8 @@ namespace data {
 }
 
 template <typename X, typename L> 
-std::ostream& operator<<(std::ostream& o, const data::functional_queue<X> n) {
-    return data::list::write(o, n);
+std::ostream& operator<<(std::ostream& o, const data::tool::functional_queue<X> n) {
+    return data::functional::stack::write(o, n);
 }
 
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,13 +7,9 @@
 
 #include <data/types.hpp>
 
-namespace data {
-    
-    namespace math {
+namespace data::math {
             
-        enum sign : int8_t { zero = 0 , positive = 1 , negative = -1 };
-    
-    }
+    enum sign : int8_t { zero = 0 , positive = 1 , negative = -1 };
 
 }
 

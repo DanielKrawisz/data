@@ -5,88 +5,68 @@
 #ifndef DATA_MATH_COMPLEX
 #define DATA_MATH_COMPLEX
 
-#include <data/math/linear/inner.hpp>
-#include <data/math/nonnegative.hpp>
+#include <data/math/cayley_dickson.hpp>
 
 namespace data::math {
     
+    template <typename R, typename X> struct im;
+    
     template <typename R>
-    struct complex {
-        constexpr static linear::space<complex<R>, R> r3{};
-        constexpr static field<complex> r2{};
+    struct complex : cayley_dickson<R, R> {
         
-        R Re;
-        R Im;
+        constexpr static complex I = {0, 1};
         
-        static const complex I = {0, 1};
+        complex() : cayley_dickson<R, R>{} {}
+        complex(const R& r) : cayley_dickson<R, R>{r} {}
+        complex(R r, R i) : cayley_dickson<R, R>{r, i} {}
+        complex(const cayley_dickson<R, R>& c) : cayley_dickson<R, R>{c} {}
         
-        complex() : Re{0}, Im{0} {}
-        complex(R r) : Re{r}, Im{0} {}
-        complex(R r, R i) : Re{r}, Im{i} {}
-        
-        complex& operator=(complex x) {
-            Re = x.Re;
-            Im = x.Im;
-            return *this;
+        operator cayley_dickson<R, R>() {
+            return static_cast<cayley_dickson<R, R>>(*this);
         }
         
-        nonnegative<R> norm() const {
-            return square(Re) + square(Im);
+        R im() const {
+            return cayley_dickson<R, R>::Im;
         }
         
         complex conjugate() const {
-            return {Re, -Im};
+            return cayley_dickson<R, R>::conjugate();
         }
         
         complex operator~() const {
             return conjugate();
         }
         
-        complex operator+(R x) const {
-            return {Re + x, Im};
-        }
-        
-        complex operator+(complex x) const {
-            return {Re + x.Re, Im + x.Im};
+        complex operator+(const complex& x) const {
+            return cayley_dickson<R, R>::operator+(x);
         }
         
         complex operator-() const {
-            return {-Re, -Im};
+            return cayley_dickson<R, R>::operator-();
         }
         
-        complex operator-(R x) const {
-            return {Re - x, Im};
+        complex operator-(const complex& x) const {
+            return cayley_dickson<R, R>::operator-(x);
         }
         
-        complex operator-(complex x) const {
-            return {Re - x.Re, Im - x.Im};
-        }
-        
-        complex operator*(R x) const {
-            return {Re * x, Im * x};
-        }
-        
-        complex operator*(complex x) const {
-            return {Re * x.Real - Im * x.Im, Re * x.Im + Im * x.Re};
-        }
-        
-        complex operator/(R x) const {
-            return {Re / x, Im / x};
+        complex operator*(const complex& x) const {
+            return cayley_dickson<R, R>::operator*(x);
         }
         
         complex inverse() const {
-            return conjugate() / norm();
+            return cayley_dickson<R, R>::inverse();
         }
         
-        complex operator/(complex x) const {
-            return (*this) * x.inverse();
+        complex operator/(const complex& x) const {
+            return cayley_dickson<R, R>::operator/(x);
         }
     };
     
-    template <typename R>
-    inline nonnegative<R> norm(complex<R> z) {
-        z.norm();
-    }
+    template <typename R> struct im<R, complex<R>> {
+        R operator()(const complex<R>& x) {
+            return x.im();
+        }
+    };
 
 }
 

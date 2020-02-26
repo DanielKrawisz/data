@@ -8,17 +8,17 @@
 #include <iostream>
 
 TEST(EratosthenesTest, DISABLED_First100Primes) {
-    using namespace data::exported;
+    using namespace data;
 
     const data::uint32 max_primes = 100;
     
-    queue<N> primes = for_each([](const prime p)->N{
+    list<N> primes = for_each([](const prime p)->N{
             return p.Prime;
-        }, eratosthenes{N{max_primes}}.Primes);
+        }, Eratosthenes{N{max_primes}}.Primes);
     
     EXPECT_TRUE(primes.size() == max_primes);
     
-    queue<N> expected = queue<N>::make(
+    list<N> expected = list<N>::make(
         2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 
         67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 
         139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 

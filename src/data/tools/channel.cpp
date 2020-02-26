@@ -1,6 +1,6 @@
 #include <data/tools/channel.hpp>
 
-namespace data {
+namespace data::tool {
 
     template <class item> 
     void channel<item>::inner::close() {

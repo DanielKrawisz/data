@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <data/types.hpp>
 
-namespace data {
+namespace data::tool {
     // a golang-like communication channel between different threads.
     template <class item> class channel {
         struct inner {

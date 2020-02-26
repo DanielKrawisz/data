@@ -53,7 +53,7 @@ endif()
 # Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
-set(Boost_USE_STATIC_LIBS       ON          CACHE BOOL "")
+set(Boost_USE_STATIC_LIBS       OFF         CACHE BOOL "")
 set(Boost_USE_STATIC_RUNTIME    OFF         CACHE BOOL "") # '-s' tag
 set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
@@ -114,12 +114,6 @@ ADD_LIBRARY(data STATIC
     src/data/tools/channel.cpp
     src/data/math/number/gmp/mpq.cpp
     src/data/math/number/gmp/N.cpp
-    src/data/math/number/gmp/Q.cpp
-    src/data/crypto/digest.cpp
-    src/data/crypto/ripemd160.cpp
-    src/data/crypto/sha256.cpp
-    src/data/crypto/digest.cpp
-    src/data/crypto/sha512.cpp
 )
         
 target_include_directories(data PUBLIC include)

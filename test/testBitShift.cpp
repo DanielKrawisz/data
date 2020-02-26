@@ -10,8 +10,7 @@
 #include "gmock/gmock-matchers.h"
 #include <stdexcept>
 
-namespace {
-    using namespace data::exported;
+namespace data {
     
     template<size_t size, data::endian::order o, bool is_signed> 
     using bounded = data::math::number::bounded<size, o, is_signed>;

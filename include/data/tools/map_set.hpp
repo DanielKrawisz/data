@@ -8,8 +8,7 @@
 #include <data/list/linked.hpp>
 #include <data/map.hpp>
     
-namespace data {
-    struct unit {};
+namespace data::tool {
     
     // turn any map into a set. 
     template <typename M>
@@ -39,7 +38,7 @@ namespace data {
             return map_set{Map.remove(k, value{})};
         }
         
-        map_set insert(list::linked<key> keys) const {
+        map_set insert(functional::stack::linked<key> keys) const {
             if (keys.empty()) return *this;
             return add(keys.first()).add(keys.rest());
         }
@@ -48,13 +47,13 @@ namespace data {
             return insert(k);
         }
         
-        list::linked<const key&> values() const {
+        functional::stack::linked<const key&> values() const {
             return Map.keys();
         }
         
         map_set() : Map{} {}
         map_set(M m) : Map(m) {}
-        map_set(list::linked<key> keys) : Map{} {
+        map_set(functional::stack::linked<key> keys) : Map{} {
             insert(keys);
         }
     };

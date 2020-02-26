@@ -1,9 +1,11 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MATH_NUMBER_MODULAR
 #define DATA_MATH_NUMBER_MODULAR
+
+#include <data/math/number/prime.hpp>
 
 namespace data::math::number {
     template <typename X, typename mod>
@@ -59,6 +61,8 @@ namespace data::math::number {
         }
         
     };
+    
+    // TODO prime fields
     
 }
 

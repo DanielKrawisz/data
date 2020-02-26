@@ -1,8 +1,11 @@
-#ifndef DATA_MAP_HPP
-#define DATA_MAP_HPP
+// Copyright (c) 2019-2020 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_MAP
+#define DATA_MAP
 
 #include "types.hpp"
-#include "list.hpp"
 #include "set.hpp"
     
 namespace data {

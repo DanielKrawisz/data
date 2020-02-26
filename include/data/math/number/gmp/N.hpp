@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_GMP_N
 
 #include <data/math/number/natural.hpp>
+#include <data/math/number/abs.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/math/number/abs.hpp>
@@ -247,8 +248,6 @@ namespace data::math::number::gmp {
             return N{z};
         }
         
-        constexpr static math::number::natural::interface<N> is_natural{};
-        
         template <endian::order o>
         explicit N(const N_bytes<o>& n) : N{bytes_view(n), o} {}
         
@@ -263,8 +262,6 @@ namespace data::math::number::gmp {
         void write_bytes(bytes&, endian::order) const;
         
         friend struct Z;
-        friend struct N_bytes<endian::big>;
-        friend struct N_bytes<endian::little>;
         friend struct number::abs<N, Z>;
     };
     
@@ -327,6 +324,13 @@ namespace data::math::number::gmp {
 
 namespace data::math::number {
     template <> 
+    struct abs<gmp::N, gmp::N> {
+        gmp::N operator()(const gmp::N& i) {
+            return i;
+        }
+    };
+    
+    template <> 
     struct abs<gmp::N, gmp::Z> {
         gmp::N operator()(const gmp::Z& i) {
             return i.abs();
@@ -339,6 +343,14 @@ namespace data::math::number {
             return i.abs();
         }
     };
+}
+
+// Declare associativity and commutivity of operators + and * on N. 
+namespace data::math {
+    template <> struct commutative<data::plus<math::number::gmp::N>, math::number::gmp::N> {};
+    template <> struct associative<data::plus<math::number::gmp::N>, math::number::gmp::N> {};
+    template <> struct commutative<data::times<math::number::gmp::N>, math::number::gmp::N> {};
+    template <> struct associative<data::times<math::number::gmp::N>, math::number::gmp::N> {};
 }
 
 namespace data::encoding::hexidecimal { 

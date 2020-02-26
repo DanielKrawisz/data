@@ -1,69 +1,94 @@
-#ifndef DATA_MATH_CAYLEY_DICKSON_HPP
-#define DATA_MATH_CAYLEY_DICKSON_HPP
+// Copyright (c) 2019-2020 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/math/linear/inner.hpp>
-#include <data/math/algebra.hpp>
+#ifndef DATA_MATH_CAYLEY_DICKSON
+#define DATA_MATH_CAYLEY_DICKSON
 
-namespace data {
+#include <data/math/nonnegative.hpp>
+#include <data/math/commutative.hpp>
+#include <data/math/associative.hpp>
+
+namespace data::math {
     
-    namespace math {
+    template <typename X> struct conjugate;
     
-        template <typename cd, typename r>
-        struct cayley_dickson {
-            constexpr static linear::space<cd, r> r1{};
-            constexpr static linear::space<cayley_dickson<cd, r>, r> r2{};
-            constexpr static normed_division_algebra<cayley_dickson<cd, r>, r> r3{};
-            
-            cd Re;
-            cd Im;
-            
-            cayley_dickson() : Re{0}, Im{0} {}
-            cayley_dickson(cd re, cd im) : Re{re}, Im{im} {}
-            
-            cayley_dickson conjugate() const {
-                return {Re.conjugate(), -Im};
-            }
-            
-            cayley_dickson operator~() const {
-                return conjugate();
-            }
-            
-            nonnegative<r> norm() const {
-                return square(Re) + square(Im);
-            }
-            
-            cayley_dickson operator+(cayley_dickson x) const {
-                return {Re + x.Re, Im + x.Im};
-            }
-            
-            cayley_dickson operator-() const {
-                return {-Re, -Im};
-            }
-            
-            cayley_dickson operator-(cayley_dickson x) const {
-                return {Re - x.Re, Im - x.Im};
-            }
-            
-            cayley_dickson operator*(cayley_dickson x) const {
-                return {Re * x.Re - x.Im * ~Im, ~Re * x.Im + x.Re * Im};
-            }
-            
-            cayley_dickson inverse() const {
-                return conjugate() / norm();
-            }
-            
-            cayley_dickson operator/(cayley_dickson x) const {
-                return operator*(x.inverse());
-            }
-        };
+    template <typename R, typename X> struct quadrance;
+    
+    template <typename R, typename X> struct re;
+    
+    template <typename nda, typename q>
+    struct cayley_dickson : interface::ordered<q> {
+        // TODO use proper interfaces: 
+        //   nda is a normed division algebra. 
+        //   q is not just ordered but it is also a field. 
         
-        template <typename cd, typename r>
-        inline nonnegative<r> norm(cayley_dickson<cd, r> z) {
-            z.norm();
+        nda Re;
+        nda Im;
+        
+        cayley_dickson() : Re{0}, Im{0} {}
+        cayley_dickson(const nda& re, const nda& im) : Re{re}, Im{im} {}
+        cayley_dickson(const q& x) : Re{x}, Im{0} {}
+        
+        cayley_dickson conjugate() const {
+            return {math::conjugate<q>{}(Re), -Im};
         }
+        
+        cayley_dickson operator~() const {
+            return conjugate();
+        }
+        
+        q re() const {
+            return math::re(Re);
+        }
+        
+        cayley_dickson operator+(const cayley_dickson& x) const {
+            return {Re + x.Re, Im + x.Im};
+        }
+        
+        cayley_dickson operator-() const {
+            return {-Re, -Im};
+        }
+        
+        cayley_dickson operator-(const cayley_dickson& x) const {
+            return {Re - x.Re, Im - x.Im};
+        }
+        
+        cayley_dickson operator*(const cayley_dickson& x) const {
+            return {Re * x.Re - x.Im * ~Im, ~Re * x.Im + x.Re * Im};
+        }
+        
+        nonnegative<q> quadrance() const {
+            return operator*(conjugate()).real_part();
+        }
+        
+        cayley_dickson inverse() const {
+            return conjugate() / q(quadrance());
+        }
+        
+        cayley_dickson operator/(const cayley_dickson& x) const {
+            return operator*(x.inverse());
+        }
+    };
     
-    }
-
+    template <typename nda, typename q> struct conjugate<cayley_dickson<nda, q>> {
+        cayley_dickson<nda, q> operator()(const cayley_dickson<nda, q>& x) {
+            return x.conjugate();
+        }
+    };
+    
+    template <typename nda, typename q> struct quadrance<q, cayley_dickson<nda, q>> {
+        nonnegative<q> operator()(const cayley_dickson<nda, q>& x) {
+            return x.quadrance();
+        }
+    };
+    
+    template <typename nda, typename q> struct re<q, cayley_dickson<nda, q>> {
+        q operator()(const cayley_dickson<nda, q>& x) {
+            return x.re();
+        }
+    };
+    
 }
 
 #endif

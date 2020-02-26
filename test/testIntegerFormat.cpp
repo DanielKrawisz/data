@@ -8,30 +8,30 @@
 #include <data/encoding/integer.hpp>
 
 TEST(IntegerTest, TestIntegerFormat) {
-    using namespace data::exported;
+    using namespace data::encoding;
     
-    EXPECT_FALSE(data::encoding::decimal::valid(""));
-    EXPECT_TRUE(data::encoding::decimal::valid("0"));
-    EXPECT_FALSE(data::encoding::decimal::valid("01"));
-    EXPECT_TRUE(data::encoding::decimal::valid("1"));
-    EXPECT_FALSE(data::encoding::hexidecimal::valid(""));
-    EXPECT_TRUE(data::encoding::hexidecimal::valid("0x"));
-    EXPECT_TRUE(data::encoding::hexidecimal::valid("0xaf"));
-    EXPECT_TRUE(data::encoding::hexidecimal::valid("0xAF"));
-    EXPECT_FALSE(data::encoding::hexidecimal::valid("0xa"));
-    EXPECT_FALSE(data::encoding::hexidecimal::valid("0xaF"));
-    EXPECT_FALSE(data::encoding::integer::valid(""));
-    EXPECT_TRUE(data::encoding::integer::valid("-1"));
-    EXPECT_FALSE(data::encoding::integer::valid("-0xaf"));
+    EXPECT_FALSE(decimal::valid(""));
+    EXPECT_TRUE(decimal::valid("0"));
+    EXPECT_FALSE(decimal::valid("01"));
+    EXPECT_TRUE(decimal::valid("1"));
+    EXPECT_FALSE(hexidecimal::valid(""));
+    EXPECT_TRUE(hexidecimal::valid("0x"));
+    EXPECT_TRUE(hexidecimal::valid("0xaf"));
+    EXPECT_TRUE(hexidecimal::valid("0xAF"));
+    EXPECT_FALSE(hexidecimal::valid("0xa"));
+    EXPECT_FALSE(hexidecimal::valid("0xaF"));
+    EXPECT_FALSE(integer::valid(""));
+    EXPECT_TRUE(integer::valid("-1"));
+    EXPECT_FALSE(integer::valid("-0xaf"));
     
-    EXPECT_FALSE(data::encoding::integer::negative("0"));
-    EXPECT_FALSE(data::encoding::integer::negative("0x00"));
-    EXPECT_FALSE(data::encoding::integer::negative("-0"));
-    EXPECT_TRUE(data::encoding::integer::negative("-1"));
-    EXPECT_TRUE(data::encoding::integer::negative("-01"));
-    EXPECT_TRUE(data::encoding::integer::negative("0xff"));
-    EXPECT_TRUE(data::encoding::integer::negative("0x8000"));
-    EXPECT_FALSE(data::encoding::integer::negative("0x7fff"));
+    EXPECT_FALSE(integer::negative("0"));
+    EXPECT_FALSE(integer::negative("0x00"));
+    EXPECT_FALSE(integer::negative("-0"));
+    EXPECT_TRUE(integer::negative("-1"));
+    EXPECT_TRUE(integer::negative("-01"));
+    EXPECT_TRUE(integer::negative("0xff"));
+    EXPECT_TRUE(integer::negative("0x8000"));
+    EXPECT_FALSE(integer::negative("0x7fff"));
     
 }
 

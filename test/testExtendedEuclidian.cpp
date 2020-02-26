@@ -12,8 +12,6 @@ namespace data {
     
     TEST(NTest, TestDivision) {
         
-        using namespace data::exported;
-        using namespace data::math::number;
         
         math::division<N> div = N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"}.divide(58);
         
@@ -24,13 +22,11 @@ namespace data {
     
     TEST(ExtendedEuclinianTest, TestExtendedEuclidian) {
         
-        using namespace data::exported;
-        using namespace data::math::number;
         //using extended_i = euclidian::extended<data::uint64, data::int64>;
-        using extended_b = euclidian::extended<data::uint<20>, data::integer<20>>;
-        using extended_z = euclidian::extended<N, Z>;
-        using extended_zbl = euclidian::extended<N_bytes<data::endian::order::little>, Z_bytes<data::endian::order::little>>;
-        using extended_zbb = euclidian::extended<N_bytes<data::endian::order::big>, Z_bytes<data::endian::order::big>>;
+        using extended_b = math::number::euclidian::extended<data::uint<20>, data::integer<20>>;
+        using extended_z = math::number::euclidian::extended<N, Z>;
+        using extended_zbl = math::number::euclidian::extended<N_bytes<data::endian::order::little>, Z_bytes<data::endian::order::little>>;
+        using extended_zbb = math::number::euclidian::extended<N_bytes<data::endian::order::big>, Z_bytes<data::endian::order::big>>;
         
         //EXPECT_EQ(extended_i::algorithm(0, 0).GCD, 0);
         EXPECT_EQ(extended_b::algorithm(0, 0).GCD, 0);

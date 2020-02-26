@@ -1,5 +1,6 @@
-// Copyright (c) 2019 Daniel Krawisz
-// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+// Copyright (c) 2019-2020 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_TYPES
 #define DATA_TYPES
@@ -9,17 +10,16 @@
 #include <memory>
 #include <string>
 #include <stdint.h>
+#include <algorithm>
 #include <boost/endian/arithmetic.hpp>
 
 namespace data {
-    
-    template<typename X>
-    using vector = std::vector<X>;
 
     using byte = uint8_t;
     using uint16 = uint16_t;
     using uint32 = uint32_t;
     using uint64 = uint64_t;
+    
     using int8 = int8_t ;
     using int16 = int16_t;
     using int32 = int32_t;
@@ -28,10 +28,33 @@ namespace data {
     template<typename X>
     using ptr = std::shared_ptr<X>;
 
-    using string = std::string;
-    using string_view = std::string_view;
+    template<typename X>
+    using view = std::basic_string_view<X>;
     
-    using bytes_view = std::basic_string_view<byte>;
+    using string = std::string;
+    using string_view = std::basic_string_view<char>;
+    
+    namespace meta {
+        using yes = std::true_type;
+        using no = std::false_type;
+    }
+    
+    struct unit {};
+    
+    template <typename X>
+    inline bool operator!=(const X& a, const X&b) {
+        return ! (a == b);
+    }
+    
+    template <typename X>
+    inline bool operator<=(const X& a, const X&b) {
+        return ! (a > b);
+    }
+    
+    template <typename X>
+    inline bool operator>=(const X& a, const X&b) {
+        return ! (a < b);
+    }
     
     typedef boost::endian::big_uint8_t uint8_big;
     typedef boost::endian::big_uint16_t uint16_big;
@@ -68,6 +91,7 @@ namespace data {
     typedef boost::endian::little_int48_t int48_little;
     typedef boost::endian::little_int56_t int56_little;
     typedef boost::endian::little_int64_t int64_little;
+    
 }
 
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,56 +6,32 @@
 #define DATA_MATH_NUMBER_NATURAL
 
 #include <data/types.hpp>
-#include <data/math/division.hpp>
+#include <data/math/countable.hpp>
+#include <data/math/arithmetic.hpp>
 #include <data/math/ordered.hpp>
+#include <data/math/ring.hpp>
+#include <data/math/division.hpp>
+#include <data/math/commutative.hpp>
+#include <data/math/associative.hpp>
+
+namespace data::interface {
+    template <typename N>
+    struct natural : 
+        countable<N>, ordered<N>, 
+        math::associative<plus<N>, N>, 
+        math::commutative<plus<N>, N>, 
+        math::associative<times<N>, N>, 
+        math::commutative<times<N>, N> {
+    private:
+        using require_plus_operator = typename std::enable_if<meta::has_plus_operator<N>::value, void>::type;
+        using require_minus_operator = typename std::enable_if<meta::has_minus_operator<N>::value, void>::type;
+        using require_times_operator = typename std::enable_if<meta::has_times_operator<N>::value, void>::type;
+        using require_division_operator = typename std::enable_if<meta::has_divide_operator<N, N, N>::value, void>::type;
+        using require_mod_operator = typename std::enable_if<meta::has_mod_operator<N, N, N>::value, void>::type;
+    };
+}
 
 namespace data::math::number::natural {
-    
-    // interface that must be satisfied by natural numbers. 
-    template <typename N> struct interface : ordered<N> {
-        static N zero() {
-            return 0;
-        };
-        
-        static N successor(N n) {
-            return n.successor();
-        }
-        
-        static N plus(N a, N b) {
-            return a + b;
-        }
-        
-        static N times(N a, N b) {
-            return a * b;
-        }
-        
-        static N power(N a, N b) {
-            return a ^ b;
-        }
-        
-        static N mod(N a, N b) {
-            return a % b;
-        }
-        
-        static N divide(N a, N b) {
-            return a / b;
-        }
-        
-        static division<N> moddiv(N a, N b) {
-            return a.divide(b);
-        }
-        
-        // division by powers of two.
-        static bool rshift(N a, N b) {
-            return a >> b;
-        }
-        
-        // multiplication by powers of two. 
-        static bool lshift(N a, N b) {
-            return a << b;
-        }
-        
-    };
     
     // Generic division algorithm. 
     // TODO this assumes that << and >> are multiplications and divisions by 2. 
@@ -81,7 +57,7 @@ namespace data::math::number::natural {
         }
         return {quotient, remainder};
     }
-    
+    /*
     template <typename N, typename> struct construct;
     
     template <uint32 ...> struct Digits;
@@ -149,7 +125,7 @@ namespace data::math::number::natural {
             return *construct<N, first>{} ^ *construct<N, second>{};
         }
     };
-
+    */
 }
 
 #endif

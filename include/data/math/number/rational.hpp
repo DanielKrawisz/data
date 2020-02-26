@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +13,7 @@
 
 namespace data::math::number {
     template <typename Q>
-    struct rational : field<Q>, ordered<Q> {};
+    struct rational : interface::field<Q, plus<Q>, times<Q>>, interface::ordered<Q> {};
         
     template <typename N>
     struct positive {
@@ -161,6 +161,20 @@ namespace data::math::number {
         
     };
     
+}
+// TODO fill in these types correctly. 
+namespace data::math {
+    template <typename Z, typename N> 
+    struct commutative<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    
+    template <typename Z, typename N> 
+    struct associative<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    
+    template <typename Z, typename N> 
+    struct commutative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    
+    template <typename Z, typename N> 
+    struct associative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>>;
 }
 
 #endif

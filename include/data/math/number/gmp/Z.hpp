@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,7 +7,7 @@
 
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/integer.hpp>
-#include <data/string.hpp>
+#include <data/iterable.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number::gmp {
@@ -349,14 +349,8 @@ namespace data::math::number::gmp {
         
         void write_bytes(bytes&, endian::order o) const {
             // if negative, size should be 1 greater. 
-            throw method::unimplemented{"Z::write"};
+            throw method::unimplemented{"Z::write_bytes"};
         }
-        
-        friend struct N_bytes<endian::big>;
-        friend struct N_bytes<endian::little>;
-        
-        friend struct Z_bytes<endian::big>;
-        friend struct Z_bytes<endian::little>;
         
     };
     
@@ -366,6 +360,13 @@ namespace data::math::number::gmp {
         return n;
     }
 
+}
+
+namespace data::math {
+    template <> struct commutative<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {};
+    template <> struct associative<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {};
+    template <> struct commutative<data::times<math::number::gmp::Z>, math::number::gmp::Z> {};
+    template <> struct associative<data::times<math::number::gmp::Z>, math::number::gmp::Z> {};
 }
 
 namespace data::encoding::hexidecimal {

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -86,7 +86,7 @@ namespace data::encoding::base58 {
             return *ToBytes;
         }
         
-        bool valid() const {
+        bool valid() const noexcept {
             return ToBytes != nullptr;
         }
         

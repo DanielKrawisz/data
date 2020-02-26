@@ -8,7 +8,7 @@
 #include <milewski/OrdList/OrdList.hpp>
 #include <data/list/linked.hpp>
     
-namespace data {
+namespace data::tool {
         
     template <typename X>
     struct ordered_list {

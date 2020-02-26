@@ -1,28 +1,28 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MATH_RING
 #define DATA_MATH_RING
 
-#include "group.hpp"
+#include <data/math/group.hpp>
 
-namespace data {
+namespace data::interface {
     
-    namespace math {
-            
-        template <typename x>
-        struct ring : public group::abelian<x> {
-            x one() const {
-                return 1;
-            }
-                
-            x times(x a, x b) const {
-                return a * b;
-            }
-        };
-    
-    }
+    template <typename elem, typename plus, typename times>
+    class ring : 
+        public abelian<elem, plus>, 
+        public math::associative<times, elem> {
+        using require_zero_element = typename std::enable_if<meta::has_identity<plus, elem>::value, void>::type;
+        using require_unit_element = typename std::enable_if<meta::has_identity<times, elem>::value, void>::type;
+        using require_plus_operator = typename std::enable_if<meta::has_plus_operator<elem>::value, void>::type;
+        using require_minus_operator = typename std::enable_if<meta::has_minus_operator<elem>::value, void>::type;
+        using require_times_operator = typename std::enable_if<meta::has_times_operator<elem>::value, void>::type;
+    public:
+        static elem zero() {
+            return times::Identity;
+        }
+    };
     
 }
 

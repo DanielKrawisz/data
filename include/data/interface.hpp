@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,8 +11,6 @@
 namespace data {
     
     namespace meta {
-        using yes = std::true_type;
-        using no = std::false_type;
         
         template <typename X>
         class has_empty_method {
@@ -243,6 +241,26 @@ namespace data {
             }
         };
         
+        template <typename X, typename E, bool has_contains_method> struct contains {
+            bool operator()(const X& x, const E& e) {
+                return false;
+            }
+        };
+        
+        template <typename X, typename E> struct contains<X, E, true> {
+            X operator()(const X& x, const E& e) {
+                return x.contains(e);
+            }
+        };
+        
+        template <typename X, typename E, bool has_insert_method> struct insert;
+        
+        template <typename X, typename E> struct insert<X, E, true> {
+            X operator()(const X& x, const E& e) {
+                return x.insert(e);
+            }
+        };
+        
     }
     
     namespace interface {
@@ -310,12 +328,12 @@ namespace data {
 
     template <typename X, typename E>
     inline bool contains(const X& x, const E& e) {
-        return x.contains(e);
+        return meta::contains<X, E, meta::has_contains_method<X, E>::value>{}(x, e);
     }
 
     template <typename X, typename E>
     inline X insert(const X& x, const E& e) {
-        return x.insert(e);
+        return meta::insert<X, E, meta::has_insert_method<X, E>::value>{}(x, e);
     }
 
 }

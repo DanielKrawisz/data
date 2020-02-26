@@ -14,8 +14,6 @@ namespace data {
         
         using output_value = typename std::invoke_result<base_function, input_value>::type;
         
-        constexpr static function::definition<base_function, input_value, output_value> required{};
-        
         value_function(base_function fun) : Function{fun} {}
         
         entry<key, output_value> operator()(entry<key, input_value> e){
@@ -30,8 +28,6 @@ namespace data {
         base_function Function;
         
         using output_value = typename std::invoke_result<base_function, entry<key, input_value>>::type;
-        
-        constexpr static function::definition<base_function, input_value, output_value> required{};
         
         entry_function(base_function fun) : Function{fun} {}
         

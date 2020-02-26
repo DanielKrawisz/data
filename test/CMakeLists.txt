@@ -10,17 +10,16 @@ ADD_EXECUTABLE(testData
     testAscii.cpp 
     testStream.cpp 
     testIntegerFormat.cpp 
+    testLinkedStack.cpp 
     testN.cpp 
     testBounded.cpp 
     testSign.cpp
     testBitShift.cpp 
-    testDigest.cpp 
     testBase58.cpp 
     testExtendedEuclidian.cpp 
     testEratosthenes.cpp 
-    testLinkedList.cpp 
-    testPolynomial.cpp 
-    testLib.cpp )
+    #testPolynomial.cpp 
+    testLib.cpp)
 link_directories(${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
 target_link_libraries(testData data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
 
@@ -60,10 +59,11 @@ add_test(NAME Base58InvalidExceptionOnError COMMAND testData)
 #Test Integer Format
 add_test(NAME TestIntegerFormat COMMAND testData)
 
-#Test LinkedList
-add_test(NAME TestLinkedList1 COMMAND testData)
-add_test(NAME TestLinkedList2 COMMAND testData)
-add_test(NAME TestLinkedListSort COMMAND testData)
+#Test Linked Stack
+add_test(NAME TestLinkedStack1 COMMAND testData)
+add_test(NAME TestLinkedStack2 COMMAND testData)
+add_test(NAME TestLinkedStackR COMMAND testData)
+add_test(NAME TestLinkedStackSort COMMAND testData)
 
 #Test Sign
 add_test(NAME TestAbs COMMAND testData)

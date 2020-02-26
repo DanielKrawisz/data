@@ -8,11 +8,10 @@
 #include "gmock/gmock-matchers.h"
 #include <stdexcept>
 
-namespace {
-    using namespace data::exported;
+namespace data {
     
-    template<size_t size, data::endian::order o, bool is_signed> 
-    using bounded = data::math::number::bounded<size, o, is_signed>;
+    template<size_t size, endian::order o, bool is_signed> 
+    using bounded = math::number::bounded<size, o, is_signed>;
     
     using u8l = bounded<8, data::endian::little, false>;
     using u8b = bounded<8, data::endian::big, false>;
@@ -34,68 +33,68 @@ namespace {
     using s5l = bounded<5, data::endian::little, true>;
     using s5b  = bounded<5, data::endian::big, true>;
     
-    using nl = data::math::number::N_bytes<data::endian::little>;
-    using nb = data::math::number::N_bytes<data::endian::big>;
-    using zl = data::math::number::Z_bytes<data::endian::little>;
-    using zb = data::math::number::Z_bytes<data::endian::big>;
+    using nl = math::number::N_bytes<data::endian::little>;
+    using nb = math::number::N_bytes<data::endian::big>;
+    using zl = math::number::Z_bytes<data::endian::little>;
+    using zb = math::number::Z_bytes<data::endian::big>;
     
     TEST(BoundedTest, Bounded01) {
         
-        EXPECT_EQ(N{u8b{0}}, N{0});
-        EXPECT_EQ(N{u8b{1}}, N{1});
-        EXPECT_NE(N{u8b{1}}, N{0});
-        EXPECT_NE(N{u8b{0}}, N{1});
-        EXPECT_GT(N{u8b{1}}, N{0});
-        EXPECT_LT(N{u8b{0}}, N{1});
+        EXPECT_EQ(N(u8b(0)), N(0));
+        EXPECT_EQ(N(u8b(1)), N(1));
+        EXPECT_NE(N(u8b(1)), N(0));
+        EXPECT_NE(N(u8b(0)), N(1));
+        EXPECT_GT(N(u8b(1)), N(0));
+        EXPECT_LT(N(u8b(0)), N(1));
         
-        EXPECT_EQ(N{u8l{0}}, N{0});
-        EXPECT_EQ(N{u8l{1}}, N{1});
-        EXPECT_NE(N{u8l{1}}, N{0});
-        EXPECT_NE(N{u8l{0}}, N{1});
-        EXPECT_GT(N{u8l{1}}, N{0});
-        EXPECT_LT(N{u8l{0}}, N{1});
+        EXPECT_EQ(N(u8l(0)), N(0));
+        EXPECT_EQ(N(u8l(1)), N(1));
+        EXPECT_NE(N(u8l(1)), N(0));
+        EXPECT_NE(N(u8l(0)), N(1));
+        EXPECT_GT(N(u8l(1)), N(0));
+        EXPECT_LT(N(u8l(0)), N(1));
         
-        EXPECT_EQ(Z{s8b{0}}, Z{0});
-        EXPECT_EQ(Z{s8b{1}}, Z{1});
-        EXPECT_NE(Z{s8b{1}}, Z{0});
-        EXPECT_NE(Z{s8b{0}}, Z{1});
-        EXPECT_GT(Z{s8b{1}}, Z{0});
-        EXPECT_LT(Z{s8b{0}}, Z{1});
+        EXPECT_EQ(Z(s8b(0)), Z(0));
+        EXPECT_EQ(Z(s8b(1)), Z(1));
+        EXPECT_NE(Z(s8b(1)), Z(0));
+        EXPECT_NE(Z(s8b(0)), Z(1));
+        EXPECT_GT(Z(s8b(1)), Z(0));
+        EXPECT_LT(Z(s8b(0)), Z(1));
         
-        EXPECT_EQ(Z{s8l{0}}, Z{0});
-        EXPECT_EQ(Z{s8l{1}}, Z{1});
-        EXPECT_NE(Z{s8l{1}}, Z{0});
-        EXPECT_NE(Z{s8l{0}}, Z{1});
-        EXPECT_GT(Z{s8l{1}}, Z{0});
-        EXPECT_LT(Z{s8l{0}}, Z{1});
+        EXPECT_EQ(Z(s8l(0)), Z(0));
+        EXPECT_EQ(Z(s8l(1)), Z(1));
+        EXPECT_NE(Z(s8l(1)), Z(0));
+        EXPECT_NE(Z(s8l(0)), Z(1));
+        EXPECT_GT(Z(s8l(1)), Z(0));
+        EXPECT_LT(Z(s8l(0)), Z(1));
         
-        EXPECT_EQ(N{u8l{0}}, N{0});
-        EXPECT_EQ(N{u8l{1}}, N{1});
-        EXPECT_NE(N{u8l{1}}, N{0});
-        EXPECT_NE(N{u8l{0}}, N{1});
-        EXPECT_GT(N{u8l{1}}, N{0});
-        EXPECT_LT(N{u8l{0}}, N{1});
+        EXPECT_EQ(N(u8l(0)), N(0));
+        EXPECT_EQ(N(u8l(1)), N(1));
+        EXPECT_NE(N(u8l(1)), N(0));
+        EXPECT_NE(N(u8l(0)), N(1));
+        EXPECT_GT(N(u8l(1)), N(0));
+        EXPECT_LT(N(u8l(0)), N(1));
         
-        EXPECT_EQ(N{nl{0}}, N{0});
-        EXPECT_EQ(N{nl{1}}, N{1});
-        EXPECT_NE(N{nl{1}}, N{0});
-        EXPECT_NE(N{nl{0}}, N{1});
-        EXPECT_GT(N{nl{1}}, N{0});
-        EXPECT_LT(N{nl{0}}, N{1});
+        EXPECT_EQ(N(nl(0)), N(0));
+        EXPECT_EQ(N(nl(1)), N(1));
+        EXPECT_NE(N(nl(1)), N(0));
+        EXPECT_NE(N(nl(0)), N(1));
+        EXPECT_GT(N(nl(1)), N(0));
+        EXPECT_LT(N(nl(0)), N(1));
         
-        EXPECT_EQ(Z{s8b{0}}, Z{0});
-        EXPECT_EQ(Z{s8b{1}}, Z{1});
-        EXPECT_NE(Z{s8b{1}}, Z{0});
-        EXPECT_NE(Z{s8b{0}}, Z{1});
-        EXPECT_GT(Z{s8b{1}}, Z{0});
-        EXPECT_LT(Z{s8b{0}}, Z{1});
+        EXPECT_EQ(Z(s8b(0)), Z(0));
+        EXPECT_EQ(Z(s8b(1)), Z(1));
+        EXPECT_NE(Z(s8b(1)), Z(0));
+        EXPECT_NE(Z(s8b(0)), Z(1));
+        EXPECT_GT(Z(s8b(1)), Z(0));
+        EXPECT_LT(Z(s8b(0)), Z(1));
         
-        EXPECT_EQ(Z{zl{0}}, Z{0});
-        EXPECT_EQ(Z{zl{1}}, Z{1});
-        EXPECT_NE(Z{zl{1}}, Z{0});
-        EXPECT_NE(Z{zl{0}}, Z{1});
-        EXPECT_GT(Z{zl{1}}, Z{0});
-        EXPECT_LT(Z{zl{0}}, Z{1});
+        EXPECT_EQ(Z(zl(0)), Z(0));
+        EXPECT_EQ(Z(zl(1)), Z(1));
+        EXPECT_NE(Z(zl(1)), Z(0));
+        EXPECT_NE(Z(zl(0)), Z(1));
+        EXPECT_GT(Z(zl(1)), Z(0));
+        EXPECT_LT(Z(zl(0)), Z(1));
         
     }
     
@@ -127,7 +126,7 @@ namespace {
     }
     
     TEST(BoundedTest, BoundedSign) {
-        /*
+        
         EXPECT_FALSE(s8b{0} < 0);
         EXPECT_FALSE(s8b{1} < 0);
         EXPECT_TRUE(s8b{-1} < 0);
@@ -167,7 +166,7 @@ namespace {
         EXPECT_FALSE(zl{0} < 0);
         EXPECT_FALSE(zl{1} < 0);
         EXPECT_TRUE(zl{-1} < 0);
-        */
+        
     }
     
     TEST(BoundedTest, BoundedReadString) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,25 +12,11 @@
 #include <data/list/linked.hpp>
 
 namespace data::math::number {
-    template <typename N> struct eratosthenes;
-    
-    // A number that is known to be prime. 
-    // So far eratosthenes is the only way
-    // to construct this type. 
-    template <typename N> 
-    struct prime {
-        N Prime;
-        
-    private:
-        prime(N p) : Prime{p} {}
-        
-        friend struct eratosthenes<N>;
-    };
     
     template <typename N>
     struct eratosthenes {
-        using list = data::list::linked<N>;
-        using queue = functional_queue<data::list::linked<prime<N>>>;
+        using stack = functional::stack::linked<N>;
+        using queue = tool::functional_queue<functional::stack::linked<prime<N>>>;
         
         queue Primes;
         
@@ -50,7 +36,7 @@ namespace data::math::number {
             }
         };
         
-        using heap = priority::queue<entry>;
+        using heap = tool::priority_queue<entry, functional::stack::linked<entry>>;
         heap Sieve;
         
         eratosthenes(queue p, N m, heap sieve) : Primes{p}, Next{m}, Sieve{sieve} {}

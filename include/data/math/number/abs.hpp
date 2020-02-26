@@ -6,27 +6,28 @@
 #define DATA_MATH_NUMBER_ABS
 
 #include <data/types.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/math/sign.hpp>
+#include <data/math/division.hpp>
 
 namespace data::math::number {
 
     template <typename N, typename Z> 
     struct abs {
-        N operator()(const Z i) const {
-            return i < 0 ? -i : i;
+        N operator()(const Z& i) const {
+            return N{i < Z{0} ? -i : i};
         }
     };
 
     template <typename Z> 
     struct sign {
-        math::sign operator()(const Z i) const {
-            return i == 0 ? math::zero : i < 0 ? math::negative : math::positive;
+        math::sign operator()(const Z& i) const {
+            return i == Z{0} ? math::zero : i < Z{0} ? math::negative : math::positive;
         }
     };
 
     template <typename Z> 
     struct arg {
-        Z operator()(const Z i) const {
+        Z operator()(const Z& i) const {
             if (i == 0) throw division_by_zero{};
             return i / abs<Z, Z>{}(i);
         }

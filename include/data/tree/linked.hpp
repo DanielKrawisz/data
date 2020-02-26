@@ -9,7 +9,7 @@
 #include <data/list/linked.hpp>
 #include <data/io/unimplemented.hpp>
     
-namespace data::tree {
+namespace data::functional::tree {
 
     template <typename value>
     struct linked {
@@ -59,11 +59,11 @@ namespace data::tree {
             return ! operator==(t);
         }
         
-        list::linked<value> values() const {
+        stack::linked<value> values() const {
             throw method::unimplemented{"linked tree values"};
         }
         
-        using iterator = list::iterator<list::linked<value>>;
+        using iterator = stack::iterator<stack::linked<value>>;
         
         iterator begin() const {
             return values().begin();

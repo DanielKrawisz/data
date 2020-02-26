@@ -5,10 +5,10 @@
 #ifndef DATA_LIST_LINKED
 #define DATA_LIST_LINKED
 
-#include <data/list.hpp>
+#include <data/stack.hpp>
 #include <type_traits>
     
-namespace data::list {
+namespace data::functional::stack {
     template <typename elem> struct linked;
     
     namespace base {
@@ -20,7 +20,7 @@ namespace data::list {
         template <typename elem, typename derived>
         struct linked {
             
-            using node = list::node<elem, derived>;
+            using node = stack::node<elem, derived>;
             using next = ptr<node>;
             
             next Next;
@@ -95,7 +95,7 @@ namespace data::list {
             // ensure the base class can't be constructed. 
             virtual ~linked() = 0; 
             
-            friend struct list::linked<elem>;
+            friend struct stack::linked<elem>;
             
         };
         
@@ -205,8 +205,8 @@ namespace data::list {
 }
 
 template <typename X> 
-std::ostream& operator<<(std::ostream& o, const data::list::linked<X> n) {
-    return data::list::write(o, n);
+std::ostream& operator<<(std::ostream& o, const data::functional::stack::linked<X> n) {
+    return data::functional::stack::write(o, n);
 }
 
 #endif

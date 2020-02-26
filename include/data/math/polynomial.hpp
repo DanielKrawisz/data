@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,8 +8,8 @@
 #include <data/tools/ordered_list.hpp>
 #include <data/for_each.hpp>
 #include <data/fold.hpp>
-#include <data/plus.hpp>
 #include <data/math/division.hpp>
+#include <data/math/arithmetic.hpp>
 
 namespace data::math {
     
@@ -92,7 +92,7 @@ namespace data::math {
             }
         };
         
-        using terms = ordered_list<ordering>;
+        using terms = tool::ordered_list<ordering>;
         
         terms Terms;
         
@@ -150,19 +150,19 @@ namespace data::math {
             return Terms.insert(ordering{x});
         }
         
-        list::linked<term> get_terms() const {
+        functional::stack::linked<term> get_terms() const {
             if (Terms.empty()) return {};
             return rest().get_terms() + first();
         }
         
-        polynomial insert(list::linked<term> t) const {
+        polynomial insert(functional::stack::linked<term> t) const {
             if (t.empty()) return *this;
             return insert(t.first()).insert(t.rest());
         }
         
         polynomial insert(const polynomial p) const {
             if (Terms.empty()) return *this;
-            return insert(list::reverse(p.get_terms()));
+            return insert(functional::stack::reverse(p.get_terms()));
         }
         
     public:
@@ -191,18 +191,18 @@ namespace data::math {
         }
         
         polynomial operator*(const A x) const {
-            return reduce(data::plus<const polynomial>{}, 
-                for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
+            return functional::reduce(data::plus<polynomial>{}, 
+                functional::for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const term x) const {
-            return reduce(data::plus<const polynomial>{}, 
-                for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
+            return functional::reduce(data::plus<polynomial>{}, 
+                functional::for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const polynomial p) const {
-            return reduce(data::plus<const polynomial>{}, 
-                for_each([p](ordering o)->polynomial{
+            return functional::reduce(data::plus<polynomial>{}, 
+                functional::for_each([p](ordering o)->polynomial{
                     return p * o.Term;
                 }, Terms));
         }
@@ -220,7 +220,7 @@ namespace data::math {
         
         // inefficient as it computes powers repeatedly. 
         polynomial operator()(const polynomial p) const {
-            return reduce(data::plus<polynomial>{}, 
+            return functional::reduce<polynomial>(data::plus<polynomial>{}, 
                 for_each([p](ordering o)->polynomial{
                     return o.Term(p);
                 }, Terms));
@@ -246,7 +246,7 @@ namespace data::math {
         }
         
         polynomial derivative() const {
-            return reduce(data::plus<polynomial>{}, 
+            return functional::reduce(data::plus<polynomial>{}, 
                 for_each([](ordering o)->polynomial{
                     if (o.Term.Power == 0) return zero();
                     return polynomial{term{o.Term.Coefficient * o.Term.Power, o.Term.Power - 1}};

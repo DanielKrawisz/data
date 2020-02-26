@@ -1,55 +1,34 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MATH_GROUP
 #define DATA_MATH_GROUP
 
-#include <data/types.hpp>
+#include <data/math/associative.hpp>
+#include <data/math/commutative.hpp>
+#include <data/math/arithmetic.hpp>
 
-namespace data {
+namespace data::interface {
     
-    namespace math {
-        
-        namespace group {
-            
-            template <typename x>
-            struct abelian {
-                x zero() const {
-                    return x{};
-                }
+    template <typename elem, typename op>
+    class group : math::associative<op, elem> {
+        using require_binary_identity = typename std::enable_if<meta::has_identity<op, elem>::value, void>::type;
 
-                x plus(x a, x b) const {
-                    return a + b;
-                }
-
-                x minus(x a, x b) const {
-                    return a - b;
-                }
-                
-                x negative(x a) const {
-                    return -a;
-                }
-            };
-            
-            template <typename x>
-            struct nonabelian {
-                x identity() const {
-                    return x::identity();
-                }
-                
-                x times(x a, x b) const {
-                    return a * b;
-                }
-                
-                x inverse(x a) const {
-                    return a.inverse();
-                }
-            };
-            
+    public:
+        static elem identity() {
+            return op::Identity;
         }
+        
+        using invert = data::inverse<action<op, elem>, elem, elem>;
+        
+        static elem inverse(const elem& e) {
+            return invert{op{}, identity()}(e);
+        }
+    };
     
-    }
+    template <typename elem, typename op>
+    struct abelian : group<elem, op>, math::commutative<op, elem> {};
     
 }
 

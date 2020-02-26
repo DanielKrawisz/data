@@ -1,25 +1,19 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MATH_FIELD
 #define DATA_MATH_FIELD
 
-#include "ring.hpp"
-#include <data/types.hpp>
+#include <data/math/ring.hpp>
+#include <data/math/nonnegative.hpp>
 
-namespace data {
+namespace data::interface {
     
-    namespace math {
-            
-        template <typename x>
-        struct field : public ring<x> {
-            x divide(x a, x b) const {
-                return a / b;
-            }
-        };
+    // TODO division algebra. 
     
-    }
+    template <typename elem, typename plus, typename times>
+    struct field : ring<elem, plus, times>, group<math::nonzero<elem>, times> {};
     
 }
 

@@ -6,7 +6,8 @@
 #define DATA_STREAM
 
 #include <exception>
-#include "list.hpp"
+
+#include <data/stack.hpp>
 #include "slice.hpp"
 
 namespace data {

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,7 +6,7 @@
 #define DATA_ENCODING_ASCII
 
 #include <string>
-#include <data/string.hpp>
+#include <data/iterable.hpp>
 #include <boost/convert.hpp>
 
 namespace data::encoding::ascii {

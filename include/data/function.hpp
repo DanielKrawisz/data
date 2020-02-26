@@ -6,65 +6,77 @@
 #define DATA_FUNCTION
 
 #include <data/types.hpp>
-#include <data/tuple.hpp>
+
+namespace data::meta {
+    
+    template <typename range, typename function, typename ... domain> class is_function;
+    
+    template <typename range, typename function, typename domain>
+    class is_function<range, function, domain> {
+        template <typename U> static auto test(int) -> typename 
+            std::enable_if<std::is_same<decltype(std::declval<const U>()(std::declval<const domain>())), range>::value, yes>::type;
+        template <typename> static no test(...);
+    public:
+        static constexpr bool value = std::is_same<decltype(test<function>(0)), yes>::value;
+    };
+    
+    template <typename range, typename function, typename x, typename y>
+    class is_function<range, function, x, y> {
+        template <typename U> static auto test(int) -> typename 
+            std::enable_if<std::is_same<decltype(std::declval<const U>()(std::declval<const x>(), std::declval<const y>())), range>::value, yes>::type;
+        template <typename> static no test(...);
+    public:
+        static constexpr bool value = std::is_same<decltype(test<function>(0)), yes>::value;
+    };
+    
+    template <typename F, typename x> using is_binary_operation = is_function<x, F, x, x>;
+    
+    template <typename F, typename x>
+    class has_identity {
+        template <typename U> static auto test(int) -> typename 
+            std::enable_if<std::is_same<decltype(F::identity()), const x>::value, yes>::type;
+        template <typename> static no test(...);
+    public:
+        static constexpr bool value = std::is_same<decltype(test<F>(0)), yes>::value && is_binary_operation<F, x>::value;
+    };
+    
+}
 
 namespace data {
     
-    // return type for functions that can never really return. 
-    struct unconstructable final {
-        unconstructable() = delete;
-    };
-    
-    namespace function {
-        
-        // function from x to y. 
-        template<typename f, typename y, typename ... x> struct definition {
-            // type f must be callable, and must take an argument of type x
-            // and return an argument of type y. 
-            static y callable(f fun, x... arg) {
-                return fun(arg...);
-            }
-        };
-    
-        // function from x to y. 
-        template<typename y, typename ... x> struct abstract {
-            virtual y operator()(const x...) const noexcept = 0;
-            
-            using domain = tuple<x...>;
-            using range = y;
-            
-            constexpr static definition<abstract&, y, x...> is_function{};
-        };
-        
-        // functions to contradictions are not required to be noexcept.
-        template <typename ... x> struct abstract<unconstructable, x...> {
-            virtual const unconstructable operator()(const x...) const = 0;
-            
-            using domain = tuple<x...>;
-            using range = unconstructable;
-            
-            constexpr static definition<abstract&, unconstructable, x...> is_function{};
-        };
-    
-    }
-    
     // It is always possible to construct the identity function. 
     template <typename X>
-    struct identity : function::abstract<X, X> {
-        X operator()(X x) const {
+    struct identity {
+        X operator()(const X& x) const {
             return x;
         }
     };
     
     // Given an element of Y, we can construct a function from X to Y. 
     template <typename X, typename Y>
-    struct constant : function::abstract<X, Y> {
+    struct constant {
         Y Constant;
         
         constant(Y c) : Constant{c} {}
         
-        Y operator()(X) const {
+        Y operator()(const X&) const {
             return Constant;
+        }
+    };
+    
+    template <typename F, typename X, typename Y> struct inverse;
+    
+    template <typename X> struct inverse<identity<X>, X, X> {
+        X operator()(const X& x) {
+            return identity<X>{}(x);
+        }
+    };
+    
+    template <typename F, typename X> struct action {
+        F Function;
+        X Value;
+        X operator()(const X& x) {
+            return Function(Value, x);
         }
     };
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Copyright (c) 2019 Katrina Swales
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -6,10 +6,11 @@
 #ifndef DATA_ENCODING_HEX
 #define DATA_ENCODING_HEX
 
-#include <data/string.hpp>
+#include <data/types.hpp>
 #include <data/encoding/invalid.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <data/iterable.hpp>
 #include <ctre.hpp>
 
 namespace data::encoding::hex {
@@ -38,7 +39,7 @@ namespace data::encoding::hex {
             return *ToBytes;
         }
         
-        bool valid() const {
+        bool valid() const noexcept {
             return ToBytes != nullptr;
         }
         

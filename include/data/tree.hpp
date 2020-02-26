@@ -45,7 +45,7 @@ namespace data::interface {
     }; 
 }
 
-namespace data::tree {
+namespace data::functional::tree {
     
     template <typename T, typename X>
     T insert(T t, X x) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Daniel Krawisz
+// Copyright (c) 2018-2020 Daniel Krawisz
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #ifndef DATA_VALID
@@ -10,8 +10,6 @@
 namespace data {
     
     namespace meta {
-        using yes = std::true_type;
-        using no = std::false_type;
         
         template <typename X, bool has_valid_member, bool has_valid_method> struct is_valid;
         
@@ -45,6 +43,7 @@ namespace data {
             }
         };
         
+        // TODO check for noexcept. I don't know how to do that yet. 
         template <typename X>
         class has_valid_method {
             template <typename U> static auto test(int) -> decltype((void)(std::declval<U>().valid() == true), yes());
