@@ -7,12 +7,12 @@
 
 #include <data/interface.hpp>
 
-namespace data::functional {
+namespace data {
 
     template <typename x, typename f, typename l>
-    inline x fold(f fun, l ls, x init) {
+    inline x fold(f fun, x init, l ls) {
         if (data::empty(ls)) return init;
-        return fold(fun, data::rest(ls), fun(init, data::first(ls)));
+        return fold(fun, fun(init, data::first(ls)), data::rest(ls));
     }
     
     template <typename x, typename f>

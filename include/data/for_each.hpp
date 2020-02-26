@@ -18,8 +18,8 @@
 #include <data/tools/iterator_list.hpp>
 #include <data/tree/linked.hpp>
 
-namespace data::functional::meta {
-    using namespace data::meta;
+namespace data::meta::functional {
+    using namespace data::functional;
     
     // we always know how to construct linked lists,
     // so we can always form a list::for_each
@@ -28,10 +28,10 @@ namespace data::functional::meta {
     struct for_each_list {
         using input_element = typename interface::sequence<input>::element;
         using output_element = typename std::invoke_result<function, input_element>::type;
-        using output = stack::linked<output_element>;
+        using output = functional::stack::linked<output_element>;
         
         output operator()(const function f, const input l) const {
-            return list::for_each<function, input, output>{}(f, l);
+            return functional::list::for_each<function, input, output>{}(f, l);
         }
     };
     
@@ -61,10 +61,10 @@ namespace data::functional::meta {
     struct for_each_tree {
         using input_element = typename interface::tree<input>::element;
         using output_element = typename std::invoke_result<function, input_element>::type;
-        using output = functional::tree::linked<output_element>;
+        using output = data::functional::tree::linked<output_element>;
         
         output operator()(const function f, const input l) const {
-            return tree::for_each<function, input, output>{}(f, l);
+            return functional::tree::for_each<function, input, output>{}(f, l);
         }
     };
     
@@ -100,14 +100,18 @@ namespace data::functional::meta {
         }
     };
     
+}
+
+namespace data::meta {
+    
     template <typename function, typename input> 
     struct for_each {
         using inner_function = typename Which<
-            for_each_queue<function, input>,
-            for_each_list<function, input>,
-            for_each_map<function, input>, 
-            for_each_container<function, input>, 
-            for_each_tree<function, input>>::result;
+            functional::for_each_queue<function, input>,
+            functional::for_each_list<function, input>,
+            functional::for_each_map<function, input>, 
+            functional::for_each_container<function, input>, 
+            functional::for_each_tree<function, input>>::result;
         using output = typename inner_function::output;
         
         output operator()(const function f, const input m) const {
@@ -117,10 +121,10 @@ namespace data::functional::meta {
     
 }
 
-namespace data::functional {
+namespace data {
 
     template <typename f, typename d>
-    inline typename meta::for_each<f, d>::output for_each(const f fun, const d data) {
+    inline auto for_each(const f fun, const d data) -> decltype(meta::for_each<f, d>{}(fun, data)) {
         return meta::for_each<f, d>{}(fun, data);
     }
     
@@ -184,7 +188,7 @@ namespace data::meta::documentation {
         public meta::is_function<A, f, B>,
         public interface::tree<T> {
         
-        functional::tree::linked<B> use_case(f fun, T t) {
+        data::functional::tree::linked<B> use_case(f fun, T t) {
             return  for_each(fun, t);
         }
         

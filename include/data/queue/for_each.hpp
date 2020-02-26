@@ -9,7 +9,7 @@
 #include <data/fold.hpp>
 #include <type_traits>
 
-namespace data::functional::meta::queue {
+namespace data::meta::functional::queue {
     
     template <typename function, typename Q, typename X>
     struct fold_queue {
@@ -26,7 +26,7 @@ namespace data::functional::meta::queue {
         using output_element = std::invoke_result<function, input_element>;
         
         to operator()(function f, from l) {
-            return functional::fold(fold_queue<function, to, input_element>{f}, l, to{});
+            return fold(fold_queue<function, to, input_element>{f}, to{}, l);
         }
     };
     

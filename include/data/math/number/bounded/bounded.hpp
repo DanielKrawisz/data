@@ -36,6 +36,7 @@ namespace data::math::number {
         
         bounded(const array& r) : array{r} {}
         
+        explicit bounded(slice<byte, size>);
         explicit bounded(string_view s);
         
         bounded& operator=(const bounded& d) {
@@ -44,7 +45,7 @@ namespace data::math::number {
         }
         
         operator slice<byte, size>() const {
-            return slice<byte, size>{const_cast<byte*>(slice<byte>::data())};
+            return slice<byte, size>{const_cast<byte*>(array::data())};
         }
         
         math::sign sign() const;

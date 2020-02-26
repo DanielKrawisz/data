@@ -5,33 +5,35 @@
 #ifndef DATA_MATH_NONNEGATIVE
 #define DATA_MATH_NONNEGATIVE
 
+#include <data/valid.hpp>
 #include <data/math/ordered.hpp>
 
 namespace data::math {
     
     template <typename R> struct nonnegative : interface::ordered<R> {
-        R Number;
+        R Value;
         
-        nonnegative(const R& n) : Number{n} {}
+        nonnegative(const R& n) : Value{n} {}
+        nonnegative() : Value{} {}
         
         bool valid() {
-            return data::valid(Number) && Number >= R{0};
+            return data::valid(Value) && Value >= R(0);
         }
         
         operator R() const {
-            return Number;
+            return Value;
         }
         
         nonnegative operator+(const nonnegative& n) const {
-            return Number + n.Number;
+            return Value + n.Value;
         }
         
         nonnegative operator*(const nonnegative& n) const {
-            return Number * n.Number;
+            return Value * n.Value;
         }
         
         bool operator==(const nonnegative& n) const {
-            return Number == n.Number;
+            return Value == n.Value;
         }
         
         bool operator!=(const nonnegative& n) const {
@@ -39,41 +41,42 @@ namespace data::math {
         }
         
         bool operator>(const nonnegative& n) const {
-            return Number > n.Number;
+            return Value > n.Value;
         }
         
         bool operator>=(const nonnegative& n) const {
-            return Number >= n.Number;
+            return Value >= n.Value;
         }
         
         bool operator<(const nonnegative& n) const {
-            return Number < n.Number;
+            return Value < n.Value;
         }
         
         bool operator<=(const nonnegative& n) const {
-            return Number <= n.Number;
+            return Value <= n.Value;
         }
     };
     
     template <typename R> struct nonzero {
-        R Number;
+        R Value;
         
-        nonzero(const R& n) : Number{n} {}
+        nonzero(const R& n) : Value{n} {}
+        nonzero() : Value{} {}
         
-        bool valid() {
-            return data::valid(Number) && Number != 0;
+        bool valid() const {
+            return data::valid(Value) && Value != R(0);
         }
         
         operator R() const {
-            return Number;
+            return Value;
         }
         
         nonzero operator*(const nonzero& n) const {
-            return Number * n.Number;
+            return Value * n.Value;
         }
         
         bool operator==(const nonzero& n) const {
-            return Number == n.Number;
+            return Value == n.Value;
         }
         
         bool operator!=(const nonzero& n) const {

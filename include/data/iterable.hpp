@@ -54,6 +54,12 @@ namespace data {
         explicit operator slice<X>() {
             return slice<X>(static_cast<std::vector<X>&>(*this));
         }
+        
+        view<X> range(int64) const;
+        view<X> range(int64, int64) const;
+        
+        slice<X> range(int64);
+        slice<X> range(int64, int64);
     };
     
     using bytes = cross<byte>;
@@ -73,12 +79,6 @@ namespace data {
         
         explicit operator ordered<X, opposite_endian>() {
             return ordered<X, opposite_endian>{*this};
-        }
-        
-        // cannot cast to view without losing information. 
-        // therefore cast is no longer automatic. 
-        explicit operator view<X>() const {
-            return cross<X>::operator view<X>();
         }
         
     private:

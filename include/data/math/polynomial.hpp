@@ -191,18 +191,18 @@ namespace data::math {
         }
         
         polynomial operator*(const A x) const {
-            return functional::reduce(data::plus<polynomial>{}, 
-                functional::for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
+            return reduce(data::plus<polynomial>{}, 
+                for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const term x) const {
-            return functional::reduce(data::plus<polynomial>{}, 
-                functional::for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
+            return reduce(data::plus<polynomial>{}, 
+                for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
         }
         
         polynomial operator*(const polynomial p) const {
-            return functional::reduce(data::plus<polynomial>{}, 
-                functional::for_each([p](ordering o)->polynomial{
+            return reduce(data::plus<polynomial>{}, 
+                for_each([p](ordering o)->polynomial{
                     return p * o.Term;
                 }, Terms));
         }
@@ -220,7 +220,7 @@ namespace data::math {
         
         // inefficient as it computes powers repeatedly. 
         polynomial operator()(const polynomial p) const {
-            return functional::reduce<polynomial>(data::plus<polynomial>{}, 
+            return reduce<polynomial>(data::plus<polynomial>{}, 
                 for_each([p](ordering o)->polynomial{
                     return o.Term(p);
                 }, Terms));
@@ -246,7 +246,7 @@ namespace data::math {
         }
         
         polynomial derivative() const {
-            return functional::reduce(data::plus<polynomial>{}, 
+            return reduce(data::plus<polynomial>{}, 
                 for_each([](ordering o)->polynomial{
                     if (o.Term.Power == 0) return zero();
                     return polynomial{term{o.Term.Coefficient * o.Term.Power, o.Term.Power - 1}};

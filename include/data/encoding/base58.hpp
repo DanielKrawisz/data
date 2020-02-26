@@ -7,8 +7,8 @@
 
 #include <data/types.hpp>
 #include <data/encoding/invalid.hpp>
-#include <data/math/number/gmp/gmp.hpp>
-#include <data/math/number/bytes/N.hpp>
+#include <data/math/division.hpp>
+#include <data/iterable.hpp>
 #include <ctre.hpp>
 #include <algorithm>
 
@@ -65,10 +65,7 @@ namespace data::encoding::base58 {
         return digits;
     };
     
-    inline std::string write(const bytes_view b) {
-        using namespace math::number;
-        return write<N>(N{N_bytes<endian::big>{b}});
-    }
+    std::string write(const bytes_view b);
     
     template<unsigned long size>
     inline std::string write(const std::array<byte, size>& x) {
@@ -90,13 +87,7 @@ namespace data::encoding::base58 {
             return ToBytes != nullptr;
         }
         
-        string(string_view s) : String{s}, Bytes{}, ToBytes{nullptr} {
-            using namespace math::number;
-            if (base58::valid(s)) {
-                Bytes = N_bytes<endian::big>{read<N>(s)};
-                ToBytes = &Bytes;
-            }
-        }
+        string(string_view s);
     };
     
 }

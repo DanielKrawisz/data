@@ -8,7 +8,7 @@
 #include <data/stack.hpp>
 #include <type_traits>
 
-namespace data::functional::meta::list {
+namespace data::meta::functional::list {
     
     template <typename function, typename from, typename to> 
     struct for_each : public interface::sequence<to> {

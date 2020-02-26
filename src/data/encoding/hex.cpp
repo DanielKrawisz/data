@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 
-namespace  data::encoding::hex {
+namespace data::encoding::hex {
     
     string::string(string_view sourceString) : String{sourceString}, Bytes{(sourceString.size() + 1) / 2}, ToBytes{nullptr} {
         try {

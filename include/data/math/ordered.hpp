@@ -13,7 +13,7 @@ namespace data::meta {
     template <typename X>
     class has_less_operator {
         template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>().operator<(std::declval<const U>())), bool>::value, yes>::type;
+            std::enable_if<std::is_same<decltype(std::declval<const U>() < std::declval<const U>()), bool>::value, yes>::type;
         template <typename> static no test(...);
     public:
         static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
@@ -22,7 +22,7 @@ namespace data::meta {
     template <typename X>
     class has_greater_operator {
         template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>().operator>(std::declval<const U>())), bool>::value, yes>::type;
+            std::enable_if<std::is_same<decltype(std::declval<const U>() > std::declval<const U>()), bool>::value, yes>::type;
         template <typename> static no test(...);
     public:
         static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
@@ -31,7 +31,7 @@ namespace data::meta {
     template <typename X>
     class has_less_equal_operator {
         template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>().operator<=(std::declval<const U>())), bool>::value, yes>::type;
+            std::enable_if<std::is_same<decltype(std::declval<const U>() <= std::declval<const U>()), bool>::value, yes>::type;
         template <typename> static no test(...);
     public:
         static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
@@ -40,7 +40,7 @@ namespace data::meta {
     template <typename X>
     class has_greater_equal_operator {
         template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>().operator>=(std::declval<const U>())), bool>::value, yes>::type;
+            std::enable_if<std::is_same<decltype(std::declval<const U>() >= std::declval<const U>()), bool>::value, yes>::type;
         template <typename> static no test(...);
     public:
         static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
@@ -49,7 +49,7 @@ namespace data::meta {
     template <typename X>
     class has_equal_operator {
         template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>().operator==(std::declval<const U>())), bool>::value, yes>::type;
+            std::enable_if<std::is_same<decltype(std::declval<const U>() == std::declval<const U>()), bool>::value, yes>::type;
         template <typename> static no test(...);
     public:
         static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
@@ -58,7 +58,7 @@ namespace data::meta {
     template <typename X>
     class has_unequal_operator {
         template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>().operator!=(std::declval<const U>())), bool>::value, yes>::type;
+            std::enable_if<std::is_same<decltype(std::declval<const U>() != std::declval<const U>()), bool>::value, yes>::type;
         template <typename> static no test(...);
     public:
         static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;

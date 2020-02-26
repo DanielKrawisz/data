@@ -67,7 +67,7 @@ namespace data::math::number {
             return words_type::make(slice<byte>(*const_cast<N_bytes*>(this)));
         }
         
-        N_bytes(size_t size, byte fill) : bytes(size, fill) {}
+        N_bytes(size_t size, byte fill) : ordered<byte, r>(size, fill) {}
         
     public:
         

@@ -55,43 +55,6 @@ namespace data {
     inline bool operator>=(const X& a, const X&b) {
         return ! (a < b);
     }
-    
-    typedef boost::endian::big_uint8_t uint8_big;
-    typedef boost::endian::big_uint16_t uint16_big;
-    typedef boost::endian::big_uint24_t uint24_big;
-    typedef boost::endian::big_uint32_t uint32_big;
-    typedef boost::endian::big_uint40_t uint40_big;
-    typedef boost::endian::big_uint48_t uint48_big;
-    typedef boost::endian::big_uint56_t uint56_big;
-    typedef boost::endian::big_uint64_t uint64_big;
-
-    typedef boost::endian::big_int8_t int8_big;
-    typedef boost::endian::big_int16_t int16_big;
-    typedef boost::endian::big_int24_t int24_big;
-    typedef boost::endian::big_int32_t int32_big;
-    typedef boost::endian::big_int40_t int40_big;
-    typedef boost::endian::big_int48_t int48_big;
-    typedef boost::endian::big_int56_t int56_big;
-    typedef boost::endian::big_int64_t int64_big;
-
-    typedef boost::endian::little_uint8_t uint8_little;
-    typedef boost::endian::little_uint16_t uint16_little;
-    typedef boost::endian::little_uint24_t uint24_little;
-    typedef boost::endian::little_uint32_t uint32_little;
-    typedef boost::endian::little_uint40_t uint40_little;
-    typedef boost::endian::little_uint48_t uint48_little;
-    typedef boost::endian::little_uint56_t uint56_little;
-    typedef boost::endian::little_uint64_t uint64_little;
-
-    typedef boost::endian::little_int8_t int8_little;
-    typedef boost::endian::little_int16_t int16_little;
-    typedef boost::endian::little_int24_t int24_little;
-    typedef boost::endian::little_int32_t int32_little;
-    typedef boost::endian::little_int40_t int40_little;
-    typedef boost::endian::little_int48_t int48_little;
-    typedef boost::endian::little_int56_t int56_little;
-    typedef boost::endian::little_int64_t int64_little;
-    
 }
 
 #endif

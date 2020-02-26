@@ -5,6 +5,12 @@
 #ifndef DATA_DATA
 #define DATA_DATA
 
+// basic types
+#include <data/types.hpp>
+
+// endian types
+#include <data/encoding/endian.hpp>
+
 // This library uses a valid() method and a Valid member in a stereotyped way. 
 #include <data/valid.hpp>
 
@@ -56,37 +62,6 @@ namespace data {
 // functional constructs
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
-
-namespace data {
-    
-    // fold takes a function, an initial value, and a list and 
-    // successively applies the function to the accumulated output
-    // and the next element of the list. 
-    template <typename x, typename f, typename l>
-    inline x fold(f fun, l ls, x init) {
-        return data::functional::fold(fun, ls, init);
-    }
-    
-    template <typename x, typename f>
-    inline x nest(f fun, uint32 rounds, x init) {
-        return data::functional::fold(fun, rounds, init);
-    }
-    
-    // reduce is like fold except that it does not take an initial
-    // value. 
-    template <typename x, typename f, typename l>
-    inline x reduce(f fun, l ls) {
-        return data::functional::fold(fun, ls);
-    }
-    
-    // for_each applies a function to the members of a data structure and 
-    // constructs another data structure of the same shape containing the outputs. 
-    template <typename f, typename d>
-    inline auto for_each(const f fun, const d data) -> decltype(data::functional::for_each(fun, data)) {
-        return data::functional::for_each(fun, data);
-    }
-    
-}
 
 // We have several different representations of numbers. 
 #include <data/math/number/bytes/Z.hpp>
@@ -180,13 +155,6 @@ namespace data {
         return math::number::arg<X>{}(x);
     }
     
-}
-
-// cryptography (not much here yet);
-namespace data {
-    using digest160 = math::nonzero<uint160>;
-    using digest256 = math::nonzero<uint256>;
-    using digest512 = math::nonzero<uint512>;
 }
 
 #include <data/tools/channel.hpp>

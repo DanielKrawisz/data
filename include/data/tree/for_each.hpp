@@ -8,7 +8,7 @@
 #include <data/tree.hpp>
 #include <type_traits>
 
-namespace data::functional::meta::tree {
+namespace data::meta::functional::tree {
     
     template <typename function, typename from, typename to> 
     struct for_each : public interface::tree<from> {
