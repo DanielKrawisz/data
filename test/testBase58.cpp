@@ -5,57 +5,55 @@
 #include "data/encoding/base58.hpp"
 #include "data/math/number/gmp/N.hpp"
 #include "data/encoding/invalid.hpp"
+#include <data/data.hpp>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
 
-namespace {
-    using N = data::math::number::gmp::N;
-    using namespace data::encoding::base58;
+namespace data::encoding {
     
     TEST(Base58Test, Base58ValidString) {
-        EXPECT_TRUE(valid("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"));
-        EXPECT_TRUE(valid("3m8npvpNDU6k8zcAH8RBcUZeDLWx"));
-        EXPECT_FALSE(valid("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"));
+        EXPECT_TRUE(base58::valid("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"));
+        EXPECT_TRUE(base58::valid("3m8npvpNDU6k8zcAH8RBcUZeDLWx"));
+        EXPECT_FALSE(base58::valid("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"));
     }
     
     TEST(Base58Test, Base58Invert) {
-        for (int i = 0; i < characters.size(); i++) {
-            EXPECT_EQ(digit(characters[i]), i);
+        for (int i = 0; i < base58::characters.size(); i++) {
+            EXPECT_EQ(base58::digit(base58::characters[i]), i);
         }
     }
     
     TEST(Base58Test, Base58NToString) {
-        EXPECT_EQ(read<N>(""), N{});
-        EXPECT_EQ(read<N>("1"), N{0});
-        EXPECT_EQ(read<N>("2"), N{1});
-        EXPECT_EQ(read<N>("1"), N{"0"});
-        EXPECT_EQ(read<N>("2"), N{"1"});
-        EXPECT_EQ(read<N>("1"), N{"0x"});
-        EXPECT_EQ(read<N>("2"), N{"0x01"});
-        EXPECT_EQ(read<N>("56"), N{"0xED"});
-        EXPECT_EQ(read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"),  N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"});
+        EXPECT_EQ(base58::read<N>(""), N{});
+        EXPECT_EQ(base58::read<N>("1"), N{0});
+        EXPECT_EQ(base58::read<N>("2"), N{1});
+        EXPECT_EQ(base58::read<N>("1"), N{"0"});
+        EXPECT_EQ(base58::read<N>("2"), N{"1"});
+        EXPECT_EQ(base58::read<N>("1"), N{"0x"});
+        EXPECT_EQ(base58::read<N>("2"), N{"0x01"});
+        EXPECT_EQ(base58::read<N>("56"), N{"0xED"});
+        EXPECT_EQ(base58::read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"),  N{"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"});
         
-        EXPECT_EQ(write<N>(read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),  "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
+        EXPECT_EQ(base58::write<N>(base58::read<N>("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),  "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
     }
     
     TEST(Base58Test, Base58ToArray) {
         EXPECT_EQ(
-            data::bytes(string{std::string("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")}),
-            data::bytes(data::encoding::hex::string{std::string("805aa786a57b3bfc0dfdf2ec86760339f018114a7e30c2d2701cf294dc60829d9b011cd8e391")})
+            bytes(base58::string{std::string("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")}),
+            bytes(hex::string{std::string("805aa786a57b3bfc0dfdf2ec86760339f018114a7e30c2d2701cf294dc60829d9b011cd8e391")})
         );
     }
     
     TEST(Base58Test, Base58InvalidExceptionOnError) {
-        using namespace data;
         std::string invalid{"KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"};
-        EXPECT_FALSE(encoding::base58::valid(invalid));
-        EXPECT_THROW(bytes(encoding::base58::string{invalid}), encoding::invalid);
+        EXPECT_FALSE(base58::valid(invalid));
+        EXPECT_THROW(bytes(base58::string{invalid}), encoding::invalid);
     }
     
     TEST(Base58Test, Base58WriteBytes) {
-        std::basic_string<data::byte> testArray{0x80,0x5A,0xA7,0x86,0xA5,0x7B,0x3B,0xFC,0x0D,0xFD,0xF2,0xEC,0x86,0x76,0x03,0x39,0xF0,0x18,0x11,0x4A,0x7E,0x30,0xC2,0xD2,0x70,0x1C,0xF2,0x94,0xDC,0x60,0x82,0x9D,0x9B,0x01,0x1C,0xD8,0xE3,0x91};
-        ASSERT_STREQ(data::encoding::base58::write(data::bytes_view(testArray)).c_str(),"KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
+        std::basic_string<byte> testArray{0x80,0x5A,0xA7,0x86,0xA5,0x7B,0x3B,0xFC,0x0D,0xFD,0xF2,0xEC,0x86,0x76,0x03,0x39,0xF0,0x18,0x11,0x4A,0x7E,0x30,0xC2,0xD2,0x70,0x1C,0xF2,0x94,0xDC,0x60,0x82,0x9D,0x9B,0x01,0x1C,0xD8,0xE3,0x91};
+        ASSERT_STREQ(base58::write(bytes_view(testArray)).c_str(),"KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
     }
     
 }

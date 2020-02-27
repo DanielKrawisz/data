@@ -13,7 +13,7 @@ namespace data::math {
     template <typename R> struct nonnegative : interface::ordered<R> {
         R Value;
         
-        nonnegative(const R& n) : Value{n} {}
+        explicit nonnegative(const R& n) : Value{n} {}
         nonnegative() : Value{} {}
         
         bool valid() {
@@ -60,7 +60,7 @@ namespace data::math {
     template <typename R> struct nonzero {
         R Value;
         
-        nonzero(const R& n) : Value{n} {}
+        explicit nonzero(const R& n) : Value{n} {}
         nonzero() : Value{} {}
         
         bool valid() const {
@@ -73,6 +73,14 @@ namespace data::math {
         
         nonzero operator*(const nonzero& n) const {
             return Value * n.Value;
+        }
+        
+        R operator+(const R& n) const {
+            return Value + n;
+        }
+        
+        R operator*(const R& n) const {
+            return Value * n;
         }
         
         bool operator==(const nonzero& n) const {

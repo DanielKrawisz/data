@@ -24,7 +24,7 @@ namespace data {
     template <typename x, typename f, typename l>
     inline x reduce(f fun, l ls) {
         if (data::empty(ls)) return x{};
-        return fun(data::first(ls), reduce(fun, data::rest(ls)));
+        return fun(data::first(ls), reduce<x>(fun, data::rest(ls)));
     }
 
 }

@@ -24,8 +24,8 @@ namespace data::meta::functional {
     // we always know how to construct linked lists,
     // so we can always form a list::for_each
     // type using a linked list as the return type. 
-    template <typename function, typename input> 
-    struct for_each_list {
+    /*template <typename function, typename input> 
+    struct for_each_list : interface::sequence<input> {
         using input_element = typename interface::sequence<input>::element;
         using output_element = typename std::invoke_result<function, input_element>::type;
         using output = functional::stack::linked<output_element>;
@@ -33,7 +33,7 @@ namespace data::meta::functional {
         output operator()(const function f, const input l) const {
             return functional::list::for_each<function, input, output>{}(f, l);
         }
-    };
+    };*/
     
     template <typename function, typename input> 
     struct for_each_container {
@@ -46,9 +46,9 @@ namespace data::meta::functional {
         }
     };
     
-    template <typename function, typename input> 
-    struct for_each_queue {
-        using input_element = typename interface::list<input>::element;
+    template <typename function, typename input, typename proof = interface::list<input>> 
+    struct for_each_queue  {
+        using input_element = typename interface::sequence<input>::element;
         using output_element = typename std::invoke_result<function, input_element>::type;
         using output = tool::functional_queue<functional::stack::linked<output_element>>;
         
@@ -76,7 +76,7 @@ namespace data::meta::functional {
         using output_element = typename std::invoke_result<inner_function, input_element>::type;
         
         functional::stack::linked<output_element> operator()(const function f, const input l) const {
-            return for_each_list<inner_function, input>{}(inner_function{f}, l);
+            return for_each_queue<inner_function, input>{}(inner_function{f}, l);
         }
     };
     
@@ -90,7 +90,7 @@ namespace data::meta::functional {
         using key = typename requirement::key;
         using value = typename requirement::value;
         using list = typename requirement::list;
-        using outer_function = typename Which<for_each_list<entry_function<key, function, value>, list>, for_each_list<value_function<key, function, value>, list>>::result;
+        using outer_function = typename Which<for_each_queue<entry_function<key, function, value>, list>, for_each_queue<value_function<key, function, value>, list>>::result;
         using inner_function = decltype(outer_function::Function);
         using output_value = typename inner_function::output_element::value;
         using output = functional::rb_map<key, output_value>;
@@ -108,7 +108,6 @@ namespace data::meta {
     struct for_each {
         using inner_function = typename Which<
             functional::for_each_queue<function, input>,
-            functional::for_each_list<function, input>,
             functional::for_each_map<function, input>, 
             functional::for_each_container<function, input>, 
             functional::for_each_tree<function, input>>::result;

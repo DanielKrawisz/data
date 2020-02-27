@@ -124,8 +124,8 @@ namespace data {
     // Polynomials 
     // TODO there is a problem with this type having to do with
     // for_each on ordered_list.
-    /*template <typename X> 
-    using polynomial = data::math::polynomial<X, N>;*/
+    template <typename X> 
+    using polynomial = data::math::polynomial<X, N>;
     
     template <typename X, size_t size>
     using vector = data::math::vector<X, size>;

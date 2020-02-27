@@ -12,7 +12,7 @@ namespace data::interface {
     
     // TODO division algebra. 
     
-    template <typename elem, typename plus, typename times>
+    template <typename elem, typename plus = data::plus<elem>, typename times = data::times<elem>>
     struct field : ring<elem, plus, times>, group<math::nonzero<elem>, times> {};
     
 }

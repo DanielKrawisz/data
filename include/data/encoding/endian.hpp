@@ -47,26 +47,24 @@ namespace data::endian {
         using boost_arith = boost::endian::endian_arithmetic<Order, T, n_bits, boost::endian::align::no>;
         using boost_arith::data;
         using boost_arith::boost_arith;
-        
         using iterator = std::vector<byte>::iterator;
-        using const_iterator = std::vector<byte>::const_iterator;
         
         arithmetic(const boost_arith& x) : boost_arith(x) {}
         
         iterator begin() {
-            return iterator{data()};
+            return iterator(data());
         }
         
-        const_iterator begin() const {
-            return iterator{data()};
+        const iterator begin() const {
+            return iterator(data());
         }
         
         iterator end() {
-            return iterator{data() + n_bits};
+            return iterator(data() + n_bits);
         }
         
-        const_iterator end() const {
-            return iterator{data() + n_bits};
+        const iterator end() const {
+            return iterator(data() + n_bits);
         }
     };
     

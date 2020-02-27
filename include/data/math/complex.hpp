@@ -53,12 +53,16 @@ namespace data::math {
             return cayley_dickson<R, R>::operator*(x);
         }
         
+        complex operator/(const complex& x) const {
+            return cayley_dickson<R, R>::operator/(x);
+        }
+        
         complex inverse() const {
             return cayley_dickson<R, R>::inverse();
         }
         
-        complex operator/(const complex& x) const {
-            return cayley_dickson<R, R>::operator/(x);
+        complex quadrance() const {
+            return cayley_dickson<R, R>::quadrance();
         }
     };
     

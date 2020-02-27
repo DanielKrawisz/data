@@ -62,12 +62,16 @@ namespace data::math {
             return oct::operator*(x);
         }
         
+        octonion operator/(octonion x) const {
+            return oct::operator/(x);
+        }
+        
         octonion inverse() const {
             return oct::inverse();
         }
         
-        octonion operator/(octonion x) const {
-            return oct::operator/(x);
+        octonion quadrance() const {
+            return oct::quadrance();
         }
     };
     

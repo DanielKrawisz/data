@@ -49,16 +49,20 @@ namespace data::math {
             return hamiltonian::operator-(x);
         }
         
-        Hamiltonian operator*(Hamiltonian x) const {
+        Hamiltonian operator*(const Hamiltonian& x) const {
             return hamiltonian::operator*(x);
+        }
+        
+        Hamiltonian operator/(const Hamiltonian& x) const {
+            return hamiltonian::operator/(x);
         }
         
         Hamiltonian inverse() const {
             return hamiltonian::inverse();
         }
         
-        Hamiltonian operator/(Hamiltonian x) const {
-            return hamiltonian::operator/(x);
+        Hamiltonian quadrance() const {
+            return hamiltonian::quadrance();
         }
     };
     

@@ -8,6 +8,7 @@
 #include <data/math/nonnegative.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
+#include <data/math/field.hpp>
 
 namespace data::math {
     
@@ -18,10 +19,9 @@ namespace data::math {
     template <typename R, typename X> struct re;
     
     template <typename nda, typename q>
-    struct cayley_dickson : interface::ordered<q> {
+    struct cayley_dickson : interface::ordered<q>, interface::field<q> {
         // TODO use proper interfaces: 
         //   nda is a normed division algebra. 
-        //   q is not just ordered but it is also a field. 
         
         nda Re;
         nda Im;
@@ -58,6 +58,7 @@ namespace data::math {
             return {Re * x.Re - x.Im * ~Im, ~Re * x.Im + x.Re * Im};
         }
         
+    protected:
         nonnegative<q> quadrance() const {
             return operator*(conjugate()).real_part();
         }
