@@ -43,6 +43,8 @@ namespace data {
             for (auto it = std::vector<X>::begin(); it < std::vector<X>::end(); it++) *it = fill;
         }
         
+        cross(std::initializer_list<X> x) : std::vector<X>{x} {}
+        
         cross(view<X> b) : std::vector<X>(b.size()) {
             std::copy(b.begin(), b.end(), std::vector<X>::begin());
         };
@@ -63,7 +65,49 @@ namespace data {
     };
     
     using bytes = cross<byte>;
-    using bytes_view = view<byte>;
+    
+    struct bytestring : cross<byte> {
+        using cross<byte>::cross;
+        bytestring(string_view s) : cross<byte>(s.size()) {
+            std::copy(s.data(), s.data() + s.size(), cross<byte>::data());
+        }
+    };
+    
+    template <typename X, uint32 n> struct section;
+    
+    template <typename X> struct section<X, 1> : slice<X> {
+        template <uint32>
+        uint32 dimension() const;
+        const X operator[](uint32 x) const;
+        X operator[](uint32 x);
+    };
+    
+    template <typename X, uint32 n> struct section : slice<X> {
+        template <uint32>
+        uint32 dimension() const;
+        const section<X, n - 1> operator[](uint32 x) const;
+        section<X, n - 1> operator[](uint32 x);
+    };
+    
+    template <typename X, uint32 n> struct tensor;
+    
+    template <typename X> struct tensor<X, 1> : cross<X> {
+        tensor(uint32);
+        template <uint32>
+        uint32 dimension() const;
+        const X operator[](uint32 x) const;
+        X operator[](uint32 x);
+        operator section<X, 1>() const;
+    };
+    
+    template <typename X, uint32 n> struct tensor : cross<X> {
+        tensor(std::initializer_list<X>);
+        template <uint32>
+        uint32 dimension() const;
+        const section<X, n - 1> operator[](uint32 x) const;
+        section<X, n - 1> operator[](uint32 x);
+        operator section<X, n>() const;
+    };
 
     // A type for treating sequences of bytes as numbers.
     template <typename X, endian::order r>

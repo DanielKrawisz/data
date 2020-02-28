@@ -11,7 +11,7 @@
 
 namespace data::encoding::hex {
     
-    string::string(string_view sourceString) : String{sourceString}, Bytes{(sourceString.size() + 1) / 2}, ToBytes{nullptr} {
+    string::string(string_view sourceString) : String{sourceString}, Bytes((sourceString.size() + 1) / 2), ToBytes{nullptr} {
         try {
             boost::algorithm::unhex(String.begin(), String.end(), Bytes.begin());
         }

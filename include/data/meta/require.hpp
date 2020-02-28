@@ -12,10 +12,6 @@ namespace data::meta {
     // type that can only be constructed if the assertian is true. 
     template <bool value> struct require;
     
-    template <> struct require<false> {
-        require() = delete;
-    };
-    
     template <> struct require<true> {};
     
 }

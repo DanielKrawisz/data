@@ -28,17 +28,17 @@ namespace {
 
     TEST_F(StreamTest, StreamWriteUint16Big) {
         writer<slice<byte>::iterator> writer(sliceTestWrite.begin(), sliceTestWrite.end());
-        writer = writer << uint16_big{4096};
+        writer = writer << uint16_big{0x1000};
         EXPECT_THAT(test, ::testing::ElementsAre(0x10,00,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer = writer << uint16_big{9023} ;
+        writer = writer << uint16_big{0x233f} ;
         EXPECT_THAT(test, ::testing::ElementsAre(0x10,00,0x23, 0x3F, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
     TEST_F(StreamTest, StreamWriteUint16Little) {
         writer<slice<byte>::iterator> writer(sliceTestWrite.begin(), sliceTestWrite.end());
-        writer = writer << uint16_little{4096};
+        writer = writer << uint16_little{0x1000};
         EXPECT_THAT(test,::testing::ElementsAre(00,0x10,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer = writer << uint16_little{9023};
+        writer = writer << uint16_little{0x233f};
         EXPECT_THAT(test,::testing::ElementsAre(00,0x10,0x3F, 0x23, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
     }
 
@@ -255,13 +255,13 @@ namespace {
 
     TEST_F(StreamTest, StreamReadBytes) {
         reader reader(sliceTestRead.begin(), sliceTestRead.end());
-        bytes testUint{4};
+        bytes testUint(4);
         reader = reader >> testUint;
         EXPECT_THAT(testUint,::testing::ElementsAre(01,02,03,04));
     }
 
     TEST_F(StreamTest, StreamGetPositiveRange) {
-        EXPECT_THAT(sliceTestWrite.range(2,5),::testing::ElementsAre(3,4,5));
+        EXPECT_THAT(sliceTestWrite.range(2,5),::testing::ElementsAre(3, 4, 5));
         EXPECT_THAT(sliceTestWrite.range(0,5),::testing::ElementsAre(1,2,3,4,5));
         EXPECT_THAT(sliceTestWrite.range(15,19),::testing::ElementsAre(16,17,18,19));
         EXPECT_THAT(sliceTestWrite.range(15,20),::testing::ElementsAre(16,17,18,19,20));
@@ -274,7 +274,8 @@ namespace {
     }
 
     TEST_F(StreamTest, StreamReadNegativeToEnd) {
-        EXPECT_THAT(sliceTestWrite.range(-4),::testing::ElementsAre(17,18,19,20));
-        EXPECT_THAT(sliceTestWrite.range(-20),::testing::ElementsAre(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20));
+        EXPECT_THAT(sliceTestWrite.range(-4),::testing::ElementsAre(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
+        EXPECT_THAT(sliceTestWrite.range(-13),::testing::ElementsAre(1,2,3,4,5,6,7));
+        EXPECT_THAT(sliceTestWrite.range(-20),::testing::ElementsAre());
     }
 }

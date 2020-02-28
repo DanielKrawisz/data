@@ -38,104 +38,104 @@ namespace data {
         std::string  shift_66_left{"0x000000040000000000000000"};
         
         EXPECT_EQ(u12l{base_value} << 1, u12l{shift_1_right});
-        EXPECT_EQ(u12b{base_value} >> 1, u12b{shift_1_right});
+        EXPECT_EQ(u12b{base_value} << 1, u12b{shift_1_right});
         EXPECT_EQ(s12l{base_value} << 1, s12l{shift_1_right});
-        EXPECT_EQ(s12b{base_value} >> 1, s12b{shift_1_right});
+        EXPECT_EQ(s12b{base_value} << 1, s12b{shift_1_right});
         
         EXPECT_EQ(nl{base_value} << 1, nl{shift_1_right});
-        EXPECT_EQ(nb{base_value} >> 1, nb{shift_1_right});
+        EXPECT_EQ(nb{base_value} << 1, nb{shift_1_right});
         EXPECT_EQ(zl{base_value} << 1, zl{shift_1_right});
-        EXPECT_EQ(zb{base_value} >> 1, zb{shift_1_right});
+        EXPECT_EQ(zb{base_value} << 1, zb{shift_1_right});
         
         EXPECT_EQ(u12l{base_value} << 2, u12l{shift_2_right});
-        EXPECT_EQ(u12b{base_value} >> 2, u12b{shift_2_right});
+        EXPECT_EQ(u12b{base_value} << 2, u12b{shift_2_right});
         EXPECT_EQ(s12l{base_value} << 2, s12l{shift_2_right});
-        EXPECT_EQ(s12b{base_value} >> 2, s12b{shift_2_right});
+        EXPECT_EQ(s12b{base_value} << 2, s12b{shift_2_right});
         
         EXPECT_EQ(nl{base_value} << 2, nl{shift_2_right});
-        EXPECT_EQ(nb{base_value} >> 2, nb{shift_2_right});
+        EXPECT_EQ(nb{base_value} << 2, nb{shift_2_right});
         EXPECT_EQ(zl{base_value} << 2, zl{shift_2_right});
-        EXPECT_EQ(zb{base_value} >> 2, zb{shift_2_right});
+        EXPECT_EQ(zb{base_value} << 2, zb{shift_2_right});
         
         EXPECT_EQ(u12l{base_value} << 4, u12l{shift_4_right});
-        EXPECT_EQ(u12b{base_value} >> 4, u12b{shift_4_right});
+        EXPECT_EQ(u12b{base_value} << 4, u12b{shift_4_right});
         EXPECT_EQ(s12l{base_value} << 4, s12l{shift_4_right});
-        EXPECT_EQ(s12b{base_value} >> 4, s12b{shift_4_right});
+        EXPECT_EQ(s12b{base_value} << 4, s12b{shift_4_right});
         
         EXPECT_EQ(nl{base_value} << 4, nl{shift_4_right});
-        EXPECT_EQ(nb{base_value} >> 4, nb{shift_4_right});
+        EXPECT_EQ(nb{base_value} << 4, nb{shift_4_right});
         EXPECT_EQ(zl{base_value} << 4, zl{shift_4_right});
-        EXPECT_EQ(zb{base_value} >> 4, zb{shift_4_right});
+        EXPECT_EQ(zb{base_value} << 4, zb{shift_4_right});
         
         EXPECT_EQ(u12l{base_value} << 33, u12l{shift_33_right});
-        EXPECT_EQ(u12b{base_value} >> 33, u12b{shift_33_right});
+        EXPECT_EQ(u12b{base_value} << 33, u12b{shift_33_right});
         EXPECT_EQ(s12l{base_value} << 33, s12l{shift_33_right});
-        EXPECT_EQ(s12b{base_value} >> 33, s12b{shift_33_right});
+        EXPECT_EQ(s12b{base_value} << 33, s12b{shift_33_right});
         
         EXPECT_EQ(nl{base_value} << 33, nl{shift_33_right});
-        EXPECT_EQ(nb{base_value} >> 33, nb{shift_33_right});
+        EXPECT_EQ(nb{base_value} << 33, nb{shift_33_right});
         EXPECT_EQ(zl{base_value} << 33, zl{shift_33_right});
-        EXPECT_EQ(zb{base_value} >> 33, zb{shift_33_right});
+        EXPECT_EQ(zb{base_value} << 33, zb{shift_33_right});
         
         EXPECT_EQ(u12l{base_value} << 66, u12l{shift_66_right});
-        EXPECT_EQ(u12b{base_value} >> 66, u12b{shift_66_right});
+        EXPECT_EQ(u12b{base_value} << 66, u12b{shift_66_right});
         EXPECT_EQ(s12l{base_value} << 66, s12l{shift_66_right});
-        EXPECT_EQ(s12b{base_value} >> 66, s12b{shift_66_right});
+        EXPECT_EQ(s12b{base_value} << 66, s12b{shift_66_right});
         
         EXPECT_EQ(nl{base_value} << 66, nl{shift_66_right});
-        EXPECT_EQ(nb{base_value} >> 66, nb{shift_66_right});
+        EXPECT_EQ(nb{base_value} << 66, nb{shift_66_right});
         EXPECT_EQ(zl{base_value} << 66, zl{shift_66_right});
-        EXPECT_EQ(zb{base_value} >> 66, zb{shift_66_right});
+        EXPECT_EQ(zb{base_value} << 66, zb{shift_66_right});
         
         EXPECT_EQ(u12l{base_value} >> 1, u12l{shift_1_left});
-        EXPECT_EQ(u12b{base_value} << 1, u12b{shift_1_left});
+        EXPECT_EQ(u12b{base_value} >> 1, u12b{shift_1_left});
         EXPECT_EQ(s12l{base_value} >> 1, s12l{shift_1_left});
-        EXPECT_EQ(s12b{base_value} << 1, s12b{shift_1_left});
+        EXPECT_EQ(s12b{base_value} >> 1, s12b{shift_1_left});
         
         EXPECT_EQ(nl{base_value} >> 1, nl{shift_1_left});
-        EXPECT_EQ(nb{base_value} << 1, nb{shift_1_left});
+        EXPECT_EQ(nb{base_value} >> 1, nb{shift_1_left});
         EXPECT_EQ(zl{base_value} >> 1, zl{shift_1_left});
-        EXPECT_EQ(zb{base_value} << 1, zb{shift_1_left});
+        EXPECT_EQ(zb{base_value} >> 1, zb{shift_1_left});
         
         EXPECT_EQ(u12l{base_value} >> 2, u12l{shift_2_left});
-        EXPECT_EQ(u12b{base_value} << 2, u12b{shift_2_left});
+        EXPECT_EQ(u12b{base_value} >> 2, u12b{shift_2_left});
         EXPECT_EQ(s12l{base_value} >> 2, s12l{shift_2_left});
         EXPECT_EQ(s12b{base_value} << 2, s12b{shift_2_left});
         
         EXPECT_EQ(nl{base_value} >> 2, nl{shift_2_left});
-        EXPECT_EQ(nb{base_value} << 2, nb{shift_2_left});
+        EXPECT_EQ(nb{base_value} >> 2, nb{shift_2_left});
         EXPECT_EQ(zl{base_value} >> 2, zl{shift_2_left});
-        EXPECT_EQ(zb{base_value} << 2, zb{shift_2_left});
+        EXPECT_EQ(zb{base_value} >> 2, zb{shift_2_left});
         
         EXPECT_EQ(u12l{base_value} >> 4, u12l{shift_4_left});
-        EXPECT_EQ(u12b{base_value} << 4, u12b{shift_4_left});
+        EXPECT_EQ(u12b{base_value} >> 4, u12b{shift_4_left});
         EXPECT_EQ(s12l{base_value} >> 4, s12l{shift_4_left});
-        EXPECT_EQ(s12b{base_value} << 4, s12b{shift_4_left});
+        EXPECT_EQ(s12b{base_value} >> 4, s12b{shift_4_left});
         
         EXPECT_EQ(nl{base_value} >> 4, nl{shift_4_left});
-        EXPECT_EQ(nb{base_value} << 4, nb{shift_4_left});
+        EXPECT_EQ(nb{base_value} >> 4, nb{shift_4_left});
         EXPECT_EQ(zl{base_value} >> 4, zl{shift_4_left});
-        EXPECT_EQ(zb{base_value} << 4, zb{shift_4_left});
+        EXPECT_EQ(zb{base_value} >> 4, zb{shift_4_left});
         
         EXPECT_EQ(u12l{base_value} >> 33, u12l{shift_33_left});
-        EXPECT_EQ(u12b{base_value} << 33, u12b{shift_33_left});
+        EXPECT_EQ(u12b{base_value} >> 33, u12b{shift_33_left});
         EXPECT_EQ(s12l{base_value} >> 33, s12l{shift_33_left});
-        EXPECT_EQ(s12b{base_value} << 33, s12b{shift_33_left});
+        EXPECT_EQ(s12b{base_value} >> 33, s12b{shift_33_left});
         
         EXPECT_EQ(nl{base_value} >> 33, nl{shift_33_left});
-        EXPECT_EQ(nb{base_value} << 33, nb{shift_33_left});
+        EXPECT_EQ(nb{base_value} >> 33, nb{shift_33_left});
         EXPECT_EQ(zl{base_value} >> 33, zl{shift_33_left});
-        EXPECT_EQ(zb{base_value} << 33, zb{shift_33_left});
+        EXPECT_EQ(zb{base_value} >> 33, zb{shift_33_left});
         
         EXPECT_EQ(u12l{base_value} >> 66, u12l{shift_66_left});
-        EXPECT_EQ(u12b{base_value} << 66, u12b{shift_66_left});
+        EXPECT_EQ(u12b{base_value} >> 66, u12b{shift_66_left});
         EXPECT_EQ(s12l{base_value} >> 66, s12l{shift_66_left});
-        EXPECT_EQ(s12b{base_value} << 66, s12b{shift_66_left});
+        EXPECT_EQ(s12b{base_value} >> 66, s12b{shift_66_left});
         
         EXPECT_EQ(nl{base_value} >> 66, nl{shift_66_left});
-        EXPECT_EQ(nb{base_value} << 66, nb{shift_66_left});
+        EXPECT_EQ(nb{base_value} >> 66, nb{shift_66_left});
         EXPECT_EQ(zl{base_value} >> 66, zl{shift_66_left});
-        EXPECT_EQ(zb{base_value} << 66, zb{shift_66_left});
+        EXPECT_EQ(zb{base_value} >> 66, zb{shift_66_left});
         
     }
     

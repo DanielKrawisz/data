@@ -26,24 +26,19 @@ namespace data::math::number {
             *(uint64*)(bytes::data()) = endian::native<uint64, r>{}.from(x);
         }
         
-        explicit N_bytes(const N& n) : ordered<byte, r>{} {
-            throw method::unimplemented{"N_bytes{N}"};
-        }
-        
         static N_bytes read(string_view x) {
             return x.size() == 0 ? 0 : N_bytes<r>{encoding::natural::read(x, r)};
         }
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
         
+        // A bit inefficient. 
+        explicit N_bytes(const N& n) : N_bytes(data::encoding::hexidecimal::write(n)) {}
+        
         N_bytes(bytes_view b) : ordered<byte, r>{b} {}
         
         math::sign sign() const {
             return operator==(0) ? math::zero : math::positive;
-        }
-        
-        N_bytes& operator=(const N& n) {
-            return operator=(N_bytes(n));
         }
         
         bool operator==(const N_bytes& n) const {

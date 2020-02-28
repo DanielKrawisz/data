@@ -32,8 +32,8 @@ namespace data::encoding::hex {
         string_view String;
         bytes Bytes;
         bytes *ToBytes;
-    public:
         
+    public:
         explicit operator bytes() const {
             if (ToBytes == nullptr) throw invalid{format, String};
             return *ToBytes;

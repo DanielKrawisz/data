@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-TEST(EratosthenesTest, DISABLED_First100Primes) {
+TEST(EratosthenesTest, First100Primes) {
     using namespace data;
 
     const data::uint32 max_primes = 100;

@@ -10,25 +10,31 @@
 #include "gtest/gtest.h"
 
 namespace data::exported {
-    /*template <size_t size> 
-    using integer = math::number::bounded<size, endian::big, true>;*/
     
     template <size_t size> 
     using integer_little = data::math::number::bounded<size, endian::little, true>;
     
+    template <size_t size> 
+    using integer_big = data::math::number::bounded<size, endian::big, true>;
+    
+    template <size_t size> 
+    using uint_little = data::math::number::bounded<size, endian::little, false>;
+    
+    template <size_t size> 
+    using uint_big = data::math::number::bounded<size, endian::big, false>;
+    
     TEST(SignTest, TestDecrement) {
-        
-        EXPECT_EQ(        integer<9>{0}--,         integer<9>{"0xffffffffffffffffff"});
-        EXPECT_EQ(       integer<10>{0}--,        integer<10>{"0xffffffffffffffffffff"});
-        EXPECT_EQ(       integer<11>{0}--,        integer<11>{"0xffffffffffffffffffffff"});
-        EXPECT_EQ(       integer<20>{0}--,        integer<20>{"0xffffffffffffffffffffffffffffffffffffffff"});
+        EXPECT_EQ(    integer_big<9>{0}--,     integer_big<9>{"0xffffffffffffffffff"});
+        EXPECT_EQ(   integer_big<10>{0}--,    integer_big<10>{"0xffffffffffffffffffff"});
+        EXPECT_EQ(   integer_big<11>{0}--,    integer_big<11>{"0xffffffffffffffffffffff"});
+        EXPECT_EQ(   integer_big<20>{0}--,    integer_big<20>{"0xffffffffffffffffffffffffffffffffffffffff"});
         EXPECT_EQ( integer_little<9>{0}--,  integer_little<9>{"0xffffffffffffffffff"});
         EXPECT_EQ(integer_little<10>{0}--, integer_little<10>{"0xffffffffffffffffffff"});
         EXPECT_EQ(integer_little<11>{0}--, integer_little<11>{"0xffffffffffffffffffffff"});
         EXPECT_EQ(integer_little<20>{0}--, integer_little<20>{"0xffffffffffffffffffffffffffffffffffffffff"});
         
-        EXPECT_LT(integer<9>{"0x800000000000000000"}, 
-                  integer<9>{"0x7fffffffffffffffff"});
+        EXPECT_LT(integer_big<9>{"0x800000000000000000"}, 
+                  integer_big<9>{"0x7fffffffffffffffff"});
         EXPECT_LT(integer<10>{"0x80000000000000000000"}, 
                   integer<10>{"0x7fffffffffffffffffff"});
         EXPECT_LT(integer<11>{"0x8000000000000000000000"}, 
@@ -37,42 +43,41 @@ namespace data::exported {
                   integer<20>{"0x7fffffffffffffffffffffffffffffffffffffff"});
         EXPECT_LT(integer_little<9>{"0x800000000000000000"}, 
                   integer_little<9>{"0x7fffffffffffffffff"});
-        EXPECT_EQ(integer_little<10>{"0x80000000000000000000"}, 
+        EXPECT_LT(integer_little<10>{"0x80000000000000000000"}, 
                   integer_little<10>{"0x7fffffffffffffffffff"});
-        EXPECT_EQ(integer_little<11>{"0x8000000000000000000000"}, 
+        EXPECT_LT(integer_little<11>{"0x8000000000000000000000"}, 
                   integer_little<11>{"0x7fffffffffffffffffffff"});
-        EXPECT_EQ(integer_little<20>{"0x8000000000000000000000000000000000000000"}, 
+        EXPECT_LT(integer_little<20>{"0x8000000000000000000000000000000000000000"}, 
                   integer_little<20>{"0x7fffffffffffffffffffffffffffffffffffffff"});
     }
     
     TEST(SignTest, TestSign) {
-        /*
-        sign<int64> s_i{};
-        sign<integer<9>> s_b09{};
-        sign<integer<10>> s_b10{};
-        sign<integer<11>> s_b11{};
-        sign<integer<20>> s_b20{};
-        sign<math::number::bounded<9, endian::little, true>> s_l09{};
-        sign<math::number::bounded<10, endian::little, true>> s_l10{};
-        sign<math::number::bounded<11, endian::little, true>> s_l11{};
-        sign<math::number::bounded<20, endian::little, true>> s_l20{};
-        sign<Z> s_z{};
-        sign<Z_bytes<endian::order::little>> s_zbl{};
-        sign<Z_bytes<endian::order::big>> s_zbb{};
+        math::number::sign<int64> s_i;
+        math::number::sign<integer_big<9>> s_b09;
+        math::number::sign<integer_big<10>> s_b10;
+        math::number::sign<integer_big<11>> s_b11;
+        math::number::sign<integer_big<20>> s_b20;
+        math::number::sign<integer_little<9>> s_l09;
+        math::number::sign<integer_little<10>> s_l10;
+        math::number::sign<integer_little<11>> s_l11;
+        math::number::sign<integer_little<20>> s_l20;
+        math::number::sign<Z> s_z;
+        math::number::sign<Z_bytes<endian::order::little>> s_zbl;
+        math::number::sign<Z_bytes<endian::order::big>> s_zbb;
         
-        sign<uint64> s_u{};
-        sign<uint<9>> s_ub09{};
-        sign<uint<10>> s_ub10{};
-        sign<uint<11>> s_ub11{};
-        sign<uint<20>> s_ub20{};
-        sign<math::number::bounded<9, endian::little, false>> s_ul09{};
-        sign<math::number::bounded<10, endian::little, false>> s_ul10{};
-        sign<math::number::bounded<11, endian::little, false>> s_ul11{};
-        sign<math::number::bounded<20, endian::little, false>> s_ul20{};
-        sign<N> s_n{};
-        sign<N_bytes<endian::order::little>> s_nbl{};
-        sign<N_bytes<endian::order::big>> s_nbb{};*/
-        /*
+        math::number::sign<uint64> s_u;
+        math::number::sign<uint_big<9>> s_ub09;
+        math::number::sign<uint_big<10>> s_ub10;
+        math::number::sign<uint_big<11>> s_ub11;
+        math::number::sign<uint_big<20>> s_ub20;
+        math::number::sign<uint_little<9>> s_ul09;
+        math::number::sign<uint_little<10>> s_ul10;
+        math::number::sign<uint_little<11>> s_ul11;
+        math::number::sign<uint_little<20>> s_ul20;
+        math::number::sign<N> s_n;
+        math::number::sign<N_bytes<endian::order::little>> s_nbl;
+        math::number::sign<N_bytes<endian::order::big>> s_nbb;
+        
         EXPECT_EQ(s_i(0),    math::zero);
         EXPECT_EQ(s_z(0),    math::zero);
         EXPECT_EQ(s_zbl(0),  math::zero);
@@ -214,17 +219,17 @@ namespace data::exported {
         EXPECT_EQ(s_l09(-7076852110923542), math::negative);
         EXPECT_EQ(s_l10(-7076852110923542), math::negative);
         EXPECT_EQ(s_l11(-7076852110923542), math::negative);
-        EXPECT_EQ(s_l20(-7076852110923542), math::negative);*/
+        EXPECT_EQ(s_l20(-7076852110923542), math::negative);
         
     }
 
     TEST(SignTest, TestAbs) {
-        /*
+        
         abs<uint64, int64> abs_i{};
-        abs<uint<20>, integer<20>> abs_b20{};
-        abs<uint<9>, integer<9>> abs_b09{};
-        abs<uint<10>, integer<10>> abs_b10{};
-        abs<uint<11>, integer<11>> abs_b11{};
+        abs<uint_big<20>, integer_big<20>> abs_b20{};
+        abs<uint_big<9>, integer_big<9>> abs_b09{};
+        abs<uint_big<10>, integer_big<10>> abs_b10{};
+        abs<uint_big<11>, integer_big<11>> abs_b11{};
         abs<math::number::bounded<20, endian::order::little, false>, 
             math::number::bounded<20, endian::order::little, true>> abs_l20{};
         abs<math::number::bounded<9, endian::order::little, false>, 
@@ -235,8 +240,8 @@ namespace data::exported {
             math::number::bounded<11, endian::order::little, true>> abs_l11{};
         abs<N, Z> abs_z{};
         abs<N_bytes<endian::order::little>, Z_bytes<endian::order::little>> abs_zbl{};
-        abs<N_bytes<endian::order::big>, Z_bytes<endian::order::big>> abs_zbb{};*/
-        /*
+        abs<N_bytes<endian::order::big>, Z_bytes<endian::order::big>> abs_zbb{};
+        
         EXPECT_EQ(abs_i(0), 0);
         EXPECT_EQ(abs_z(0), 0);
         EXPECT_EQ(abs_zbl(0), 0);
@@ -301,11 +306,11 @@ namespace data::exported {
         EXPECT_EQ(abs_l10(-7076852110923542), 7076852110923542);
         EXPECT_EQ(abs_l11(-7076852110923542), 7076852110923542);
         EXPECT_EQ(abs_l20(-7076852110923542), 7076852110923542);
-        */
+        
     }
     
     TEST(SignTest, TestArg) {
-        /*
+        
         arg<int64> arg_i{};
         arg<integer<9>> arg_b09{};
         arg<integer<10>> arg_b10{};
@@ -317,8 +322,8 @@ namespace data::exported {
         arg<math::number::bounded<20, endian::little, true>> arg_l20{};
         arg<Z> arg_z{};
         arg<Z_bytes<endian::order::little>> arg_zbl{};
-        arg<Z_bytes<endian::order::big>> arg_zbb{};*/
-        /*
+        arg<Z_bytes<endian::order::big>> arg_zbb{};
+        
         EXPECT_THROW(arg_i(0),   math::division_by_zero);
         EXPECT_THROW(arg_z(0),   math::division_by_zero);
         EXPECT_THROW(arg_zbl(0), math::division_by_zero);
@@ -409,11 +414,11 @@ namespace data::exported {
         EXPECT_EQ(arg_l11(-7076852110923542), -1);
         EXPECT_EQ(arg_l10(-7076852110923542), -1);
         EXPECT_EQ(arg_l09(-7076852110923542), -1);
-        */
+        
     }
     
     TEST(SignTest, TestMinus) {
-        /*
+        
         EXPECT_EQ(-Z{0}, Z{0});
         EXPECT_EQ(-Z_bytes<endian::big>{0}, Z_bytes<endian::big>{0});
         EXPECT_EQ(-Z_bytes<endian::little>{0}, Z_bytes<endian::little>{0});
@@ -497,6 +502,6 @@ namespace data::exported {
         EXPECT_EQ(-integer_little<10>{-7076852110923542}, integer_little<10>{7076852110923542});
         EXPECT_EQ(-integer_little<11>{-7076852110923542}, integer_little<11>{7076852110923542});
         EXPECT_EQ(-integer_little<20>{-7076852110923542}, integer_little<20>{7076852110923542});
-        */
+        
     }
 }

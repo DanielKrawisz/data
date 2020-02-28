@@ -9,8 +9,8 @@
 
 namespace data::meta {
     
-    template <uint32 left, uint32 right> struct unsigned_minus {
-        constexpr static uint32 result = left > right ? left - right : 0;
+    template <int left, int right> struct unsigned_minus {
+        constexpr static int64 result = left > right ? static_cast<int64>(left - right) : 0;
     };
     
 }

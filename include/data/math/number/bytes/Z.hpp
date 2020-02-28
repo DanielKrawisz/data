@@ -28,14 +28,9 @@ namespace data::math::number {
             *(int64*)(bytes::data()) = endian::native<int64, r>{}.from(x);
         }
         
-        // TODO should be able to write directly
-        explicit Z_bytes(const N& n) : ordered<byte, r>{} {
-            throw method::unimplemented{"Z_bytes(N)"};
-        }
-        
-        explicit Z_bytes(const Z& n) : ordered<byte, r>{} {
-            throw method::unimplemented{"Z_bytes(N)"};
-        }
+        // A bit inefficient. 
+        explicit Z_bytes(const Z& z) : Z_bytes(data::encoding::hexidecimal::write(z)) {}
+        explicit Z_bytes(const N& n) : Z_bytes(Z(n)) {}
         
         static Z_bytes read(string_view x) {
             return x == "" ? 0 : Z_bytes<r>{encoding::integer::read(x, r)};

@@ -48,10 +48,10 @@ namespace data {
         /// \param b range begins from this index inclusive
         /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range(size_t b, size_t e) const {
-            if(b < 0) b = Size + b;
-            if(e < 0) e = Size + e;
-            if (b >= Size || e > Size || b >= e || b < 0) return slice{};
+        [[nodiscard]] slice<X> range(int b, int e) const {
+            if (b < 0) b = Size + b;
+            if (e < 0) e = Size + e;
+            if (e > Size || b > e || b < 0 || e < 0) return slice{};
 
             return slice{Data + b, static_cast<size_t>(e - b)};
         }
@@ -60,10 +60,10 @@ namespace data {
         /// \param b  range begins from this index inclusive
         /// \return a slice containing the requested range
         [[nodiscard]] slice<X> range(int32 b) const {
-            return range(b, size());
+            return range(0, b);
         }
         
-        template <size_t b, size_t e>
+        template <int b, int e>
         slice<X, meta::unsigned_minus<e, b>::result> range() const;
         
         slice& operator=(const slice<X>& s) {
@@ -140,7 +140,7 @@ namespace data {
     };
     
     template <typename X> 
-    template <size_t b, size_t e>
+    template <int b, int e>
     inline slice<X, meta::unsigned_minus<e, b>::result> slice<X>::range() const {
         static meta::greater<e, b> requirement{};
         return slice<X, meta::unsigned_minus<e, b>::result>{slice<X>::Data + b};

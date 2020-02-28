@@ -34,6 +34,8 @@ namespace data {
     using string = std::string;
     using string_view = std::basic_string_view<char>;
     
+    using bytes_view = view<byte>;
+    
     namespace meta {
         using yes = std::true_type;
         using no = std::false_type;

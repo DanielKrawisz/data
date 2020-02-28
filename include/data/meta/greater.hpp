@@ -10,7 +10,7 @@
 namespace data::meta {
         
     // type that can only be constructed left is greater than right. 
-    template <uint32 left, uint32 right> struct greater : require<(left > right)> {};
+    template <int left, int right> struct greater : require<(left > right)> {};
     
 }
 

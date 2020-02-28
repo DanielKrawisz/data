@@ -115,6 +115,7 @@ ADD_LIBRARY(data STATIC
     src/data/tools/channel.cpp
     src/data/math/number/gmp/mpq.cpp
     src/data/math/number/gmp/N.cpp
+    src/data/data.cpp
 )
         
 target_include_directories(data PUBLIC include)
