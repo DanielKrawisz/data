@@ -101,7 +101,7 @@ namespace data {
     };
     
     template <typename X, uint32 n> struct tensor : cross<X> {
-        tensor(std::initializer_list<X>);
+        tensor(std::initializer_list<uint32>);
         template <uint32>
         uint32 dimension() const;
         const section<X, n - 1> operator[](uint32 x) const;

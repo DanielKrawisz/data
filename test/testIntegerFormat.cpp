@@ -24,6 +24,19 @@ TEST(IntegerTest, TestIntegerFormat) {
     EXPECT_TRUE(integer::valid("-1"));
     EXPECT_FALSE(integer::valid("-0xaf"));
     
+    EXPECT_TRUE(integer::valid("0"));
+    EXPECT_TRUE(integer::valid("0x00"));
+    EXPECT_TRUE(integer::valid("-1"));
+    EXPECT_TRUE(integer::valid("0xff"));
+    EXPECT_TRUE(integer::valid("0x8000"));
+    EXPECT_TRUE(integer::valid("0x7fff"));
+    
+    EXPECT_FALSE(integer::valid("00"));
+    EXPECT_FALSE(integer::valid(""));
+    EXPECT_FALSE(integer::valid("-01"));
+    EXPECT_FALSE(integer::valid("-0xff"));
+    EXPECT_FALSE(integer::valid("-0"));
+    
     EXPECT_FALSE(integer::negative("0"));
     EXPECT_FALSE(integer::negative("0x00"));
     EXPECT_FALSE(integer::negative("-0"));

@@ -29,6 +29,13 @@ namespace data::encoding::hex {
         return output;
     }
     
+    std::string write(bytes_view sourceBytes, endian::order r) {
+        if (r == endian::big) return write(sourceBytes);
+        bytes reversed(sourceBytes.size());
+        std::copy(sourceBytes.rbegin(), sourceBytes.rend(), reversed.begin());
+        return write(reversed);
+    }
+    
     std::string write(uint64 x) {
         return write(bytes_view{uint64_big{x}.data(), sizeof(uint64)});
     }

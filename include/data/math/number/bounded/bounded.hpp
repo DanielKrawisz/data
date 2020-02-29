@@ -469,13 +469,17 @@ namespace data::math::number {
             
         // Is there a minus sign?
         bool minus_sign = encoding::integer::negative(s);
-        bool hexidecimal = encoding::hexidecimal::valid(minus_sign ? s.substr(1) : s);
+        bool hexidecimal = encoding::hexidecimal::valid(s);
         
-        if (hexidecimal && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
+        if (hexidecimal) {
+            if (s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
+            byte fill = minus_sign ? 0xff : 0x00;
+            for (int i = 0; i < size; i++) this->operator[](i) = fill;
+            bytes b{encoding::hexidecimal::read(s, o)};
+        } else {
+            *this = bounded{Z_bytes<o>{s}};
+        }
         
-        Z_bytes<o> z{s};
-        if (z > Z_bytes<o> {max()}) z -= modulus();
-        *this = bounded{z};
     }
 
     template <size_t size, endian::order o>

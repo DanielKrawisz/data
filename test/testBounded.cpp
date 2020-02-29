@@ -38,8 +38,38 @@ namespace data {
     using zl = math::number::Z_bytes<data::endian::little>;
     using zb = math::number::Z_bytes<data::endian::big>;
     
+    TEST(BoundedTest, BoundedReadString) {
+        
+        EXPECT_THROW(u8b{"-1"}, std::invalid_argument);
+        EXPECT_THROW(u8l{"-1"}, std::invalid_argument);
+        
+        auto a = s8b{"0xff"};
+        auto b = s8b{"-1"};
+        auto c = s8l{"0xff"};
+        auto d = s8l{"-1"};
+        
+        EXPECT_EQ(a, b);
+        EXPECT_EQ(c, d);
+        
+        EXPECT_THROW(u8b{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(u8l{"-0x01"}, std::invalid_argument);
+        
+        EXPECT_EQ(s8b{"0xffffffffffffffff"}, s8b{"-1"});
+        EXPECT_EQ(s8l{"0xffffffffffffffff"}, s8l{"-1"});
+        
+        EXPECT_THROW(s8b{"-0xffffffffffffffff"}, std::invalid_argument);
+        EXPECT_THROW(s8l{"-0xffffffffffffffff"}, std::invalid_argument);
+        
+        EXPECT_THROW(u8b{"0x000000000000000001"}, std::invalid_argument);
+        EXPECT_THROW(u8l{"0x000000000000000001"}, std::invalid_argument);
+        
+        EXPECT_THROW(s8b{"0x000000000000000001"}, std::invalid_argument);
+        EXPECT_THROW(s8l{"0x000000000000000001"}, std::invalid_argument);
+        
+    }
+    
     TEST(BoundedTest, Bounded01) {
-        /* segmentation fault!! 
+        
         EXPECT_EQ(N(u8b(0)), N(0));
         EXPECT_EQ(N(u8b(1)), N(1));
         EXPECT_NE(N(u8b(1)), N(0));
@@ -95,10 +125,11 @@ namespace data {
         EXPECT_NE(Z(zl(0)), Z(1));
         EXPECT_GT(Z(zl(1)), Z(0));
         EXPECT_LT(Z(zl(0)), Z(1));
-        */
+        
     }
     
-    TEST(BoundedTest, BoundedMinMax) {/*
+    TEST(BoundedTest, BoundedMinMax) {
+        
         EXPECT_TRUE(u8b::max() > u8b::min());
         EXPECT_TRUE(u8l::max() > u8l::min());
         
@@ -122,11 +153,11 @@ namespace data {
         
         EXPECT_EQ(s8b::max(), s8b{"0x7FFFFFFFFFFFFFFF"});
         EXPECT_EQ(s8l::max(), s8l{"0x7FFFFFFFFFFFFFFF"});
-        */
+        
     }
     
     TEST(BoundedTest, BoundedSign) {
-        /* segmentation fault! 
+        
         EXPECT_FALSE(s8b{0} < 0);
         EXPECT_FALSE(s8b{1} < 0);
         EXPECT_TRUE(s8b{-1} < 0);
@@ -166,31 +197,6 @@ namespace data {
         EXPECT_FALSE(zl{0} < 0);
         EXPECT_FALSE(zl{1} < 0);
         EXPECT_TRUE(zl{-1} < 0);
-        */
-    }
-    
-    TEST(BoundedTest, BoundedReadString) {
-        
-        EXPECT_THROW(u8b{"-1"}, std::invalid_argument);
-        EXPECT_THROW(u8l{"-1"}, std::invalid_argument);
-        
-        EXPECT_EQ(s8b{"0xff"}, s8b{"-1"});
-        EXPECT_EQ(s8l{"0xff"}, s8l{"-1"});
-        
-        EXPECT_THROW(u8b{"-0x01"}, std::invalid_argument);
-        EXPECT_THROW(u8l{"-0x01"}, std::invalid_argument);
-        
-        EXPECT_EQ(s8b{"0xffffffffffffffff"}, s8b{"-1"});
-        EXPECT_EQ(s8l{"0xffffffffffffffff"}, s8l{"-1"});
-        
-        EXPECT_THROW(s8b{"-0xffffffffffffffff"}, std::invalid_argument);
-        EXPECT_THROW(s8l{"-0xffffffffffffffff"}, std::invalid_argument);
-        
-        EXPECT_THROW(u8b{"0x000000000000000001"}, std::invalid_argument);
-        EXPECT_THROW(u8l{"0x000000000000000001"}, std::invalid_argument);
-        
-        EXPECT_THROW(s8b{"0x000000000000000001"}, std::invalid_argument);
-        EXPECT_THROW(s8l{"0x000000000000000001"}, std::invalid_argument);
         
     }
     

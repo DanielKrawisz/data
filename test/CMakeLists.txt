@@ -12,9 +12,9 @@ ADD_EXECUTABLE(testData
     testIntegerFormat.cpp 
     testLinkedStack.cpp 
     testN.cpp 
-    testBounded.cpp 
+    testBase58.cpp 
+    #testBounded.cpp 
     #testBitShift.cpp 
-    #testBase58.cpp 
     #testSign.cpp
     #testExtendedEuclidian.cpp 
     #testEratosthenes.cpp 
@@ -71,11 +71,11 @@ add_test(NAME TestArg COMMAND testData)
 add_test(NAME TestSign COMMAND testData)
 
 #Test N
-add_test(NAME TestN COMMAND testData)
+add_test(NAME TestStringToN COMMAND testData)
 add_test(NAME TestMultiply COMMAND testData)
 add_test(NAME TestShift COMMAND testData)
-add_test(NAME TestStringToN COMMAND testData)
 add_test(NAME TestNToNBytes COMMAND testData)
+add_test(NAME TestN COMMAND testData)
 
 # Test Digest
 add_test(NAME DigestEqual COMMAND testData)

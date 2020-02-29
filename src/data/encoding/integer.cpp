@@ -55,12 +55,18 @@ namespace data::encoding {
     namespace integer {
         
         bytes read(string_view s, endian::order r) {
+            //std::cout << "reading in integer string \"" << s << "\"" << std::endl;
             if (!valid(s)) throw std::invalid_argument{"not an integer"};
             if (hexidecimal::valid(s)) return hexidecimal::read(s, r);
             if (negative(s)) {
-                math::number::Z_bytes<endian::big> n{math::number::Z{s}};
+                //std::cout << "reading in negative decimal integer string \"" << s << "\"" << std::endl;
+                math::number::Z z{s};
+                //std::cout << "reading in Z " << z << std::endl;
+                math::number::Z_bytes<endian::big> n{z};
+                //std::cout << "reading in Z_bytes " << n << std::endl;
                 if (r == endian::little) std::reverse(n.begin(), n.end());
-                return n;
+                //std::cout << "reading in negative decimal integer string ; about to return" << std::endl;
+                return static_cast<bytes>(n);
             }
             return decimal::read(s, r);
         }

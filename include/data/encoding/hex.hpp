@@ -6,7 +6,7 @@
 #ifndef DATA_ENCODING_HEX
 #define DATA_ENCODING_HEX
 
-#include <data/types.hpp>
+#include <data/encoding/endian.hpp>
 #include <data/encoding/invalid.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
@@ -21,6 +21,8 @@ namespace data::encoding::hex {
     inline bool valid(string_view s) {
         return ctre::match<pattern>(s);
     }
+    
+    std::string write(bytes_view, endian::order);
     
     std::string write(bytes_view);
     std::string write(uint64);

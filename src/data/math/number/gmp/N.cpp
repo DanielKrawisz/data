@@ -12,6 +12,7 @@ namespace data::math::number::gmp {
     
     Z Z_read_N_gmp(string_view s) {
         Z z{};
+        //std::cout << "    Z_read_N_gmp: " << s << std::endl;
         mpz_init(z.MPZ);
         mpz_set_str(z.MPZ, std::string{s}.c_str(), 0);
         return z;
@@ -73,6 +74,7 @@ namespace data::math::number::gmp {
         if (!encoding::integer::valid(s)) return Z{};
         //std::cout << "  representation is valid " << s << std::endl;
         if (encoding::hexidecimal::valid(s)) return Z_read_hex(s);
+        //std::cout << "  representation is not hexidecimal " << s << std::endl;
         return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
     

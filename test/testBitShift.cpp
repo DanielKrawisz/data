@@ -9,6 +9,7 @@
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
 #include <stdexcept>
+#include <iostream>
 
 namespace data {
     
@@ -20,6 +21,7 @@ namespace data {
         using u12b = bounded<12, data::endian::big, false>;
         using s12l = bounded<12, data::endian::little, true>;
         using s12b = bounded<12, data::endian::big, true>;
+        
         using nl = data::math::number::N_bytes<data::endian::little>;
         using nb = data::math::number::N_bytes<data::endian::big>;
         using zl = data::math::number::Z_bytes<data::endian::little>;

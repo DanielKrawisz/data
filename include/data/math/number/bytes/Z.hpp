@@ -29,7 +29,11 @@ namespace data::math::number {
         }
         
         // A bit inefficient. 
-        explicit Z_bytes(const Z& z) : Z_bytes(data::encoding::hexidecimal::write(z)) {}
+        explicit Z_bytes(const Z& z) : Z_bytes() {
+            if (!z.valid()) throw std::invalid_argument{"invalid Z provided"};
+            *this = Z_bytes(data::encoding::hexidecimal::write(z));
+        }
+        
         explicit Z_bytes(const N& n) : Z_bytes(Z(n)) {}
         
         static Z_bytes read(string_view x) {
@@ -395,12 +399,14 @@ namespace data::encoding::hexidecimal {
     
     template <endian::order r>
     std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
-        return encoding::hexidecimal::write(o, n, r);
+        return o << "0x" << hex::write(bytes_view(n), r);
     }
     
     template <endian::order r>
     std::string write(const math::number::Z_bytes<r>& n){
-        throw method::unimplemented{"decimal::write(N_bytes)"};
+        std::stringstream ss;
+        write(ss, n);
+        return ss.str();
     }
     
 }
@@ -414,7 +420,7 @@ namespace data::encoding::integer {
     
     template <endian::order r>
     std::string write(const math::number::Z_bytes<r>& n){
-        throw method::unimplemented{"decimal::write(N_bytes)"};
+        throw method::unimplemented{"decimal::write(Z_bytes)"};
     }
     
 }
