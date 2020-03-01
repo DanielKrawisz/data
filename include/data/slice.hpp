@@ -10,7 +10,35 @@
 #include <data/meta/unsigned_minus.hpp>
 #include <data/io/unimplemented.hpp>
 
+namespace data::meta {
+
+    template <uint32 X, uint32 ceil>
+    struct ceiling {
+        constexpr static uint32 result = (X % ceil == 0 ? X : X % ceil);
+    };
+    
+}
+
 namespace data {
+    
+    struct range {
+        int Begin;
+        int End;
+        
+        range(int b, int e) : Begin{b}, End{e} {}
+        
+        int size() const {
+            return End - Begin;
+        }
+        
+        range operator%(size_t Size) const {
+            range x(Begin % static_cast<int>(Size), End % static_cast<int>(Size));
+            if (x.Begin < 0) x.Begin += Size;
+            if (x.End < 0) x.End += Size;
+            return x;
+        }
+    };
+    
     // Slice is an indexed section of an array which
     // can create smaller slices. 
     template <typename X, size_t ...> struct slice;
@@ -23,20 +51,21 @@ namespace data {
         using const_iterator = const X*;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = const std::reverse_iterator<iterator>;
-    private:
+    protected:
         X* Data;
-        size_t Size;
     public:
-        slice(iterator b, size_t size) : Data{b}, Size{size} {}
+        size_t Size;
         slice() : Data{nullptr}, Size{0} {}
+        slice(iterator b, size_t size) : Data{b}, Size{size} {}
         
         slice(std::vector<X>& x) : slice{x.data(), x.size()} {}
         
-        /*template <typename A>
-        slice(A& x) : slice(x.data(), x.size()) {} */
-        
-        virtual const size_t size() const {
+        const size_t size() const {
             return Size;
+        }
+        
+        bool valid() const {
+            return Data != nullptr && Size >= 0;
         }
         
         X& operator[](size_t n) const {
@@ -49,11 +78,9 @@ namespace data {
         /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
         [[nodiscard]] slice<X> range(int b, int e) const {
-            if (b < 0) b = Size + b;
-            if (e < 0) e = Size + e;
-            if (e > Size || b > e || b < 0 || e < 0) return slice{};
-
-            return slice{Data + b, static_cast<size_t>(e - b)};
+            data::range x = data::range{b, e} % Size;
+            int new_size = x.size();
+            return new_size < 0 ? slice{} : slice{Data + x.Begin, static_cast<size_t>(new_size)};
         }
 
         /// Selects a range from the current slice up to end of slice
@@ -63,7 +90,7 @@ namespace data {
             return range(0, b);
         }
         
-        template <int b, int e>
+        template <size_t b, size_t e>
         slice<X, meta::unsigned_minus<e, b>::result> range() const;
         
         slice& operator=(const slice<X>& s) {
@@ -132,18 +159,32 @@ namespace data {
     };
     
     template <typename X, size_t n> struct slice<X, n> : public slice<X> {
-        const size_t size() const final override {
-            return n;
+        bool valid() const {
+            return slice<X>::valid() && slice<X>::Size == n;
         }
         
         slice(X* x) : slice<X>{x, n} {}
+        
+        template <int b, int e>
+        slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result> range() const;
+        
+        using slice<X>::range;
     };
     
     template <typename X> 
-    template <int b, int e>
+    template <size_t b, size_t e>
     inline slice<X, meta::unsigned_minus<e, b>::result> slice<X>::range() const {
         static meta::greater<e, b> requirement{};
         return slice<X, meta::unsigned_minus<e, b>::result>{slice<X>::Data + b};
+    }
+    
+    template <typename X, size_t n> 
+    template <int b, int e>
+    inline slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result> 
+    slice<X, n>::range() const {
+        static meta::greater<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value> requirement{};
+        return slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result>{
+            slice<X>::Data + meta::ceiling<b, n>::value};
     }
 
 }

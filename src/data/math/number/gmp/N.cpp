@@ -83,16 +83,19 @@ namespace data::math::number::gmp {
     }
     
     void Z_write_hex(std::ostream& o, const Z& n) {
+        if (n < 0) {
+            // Very inefficient
+            o << std::hex << -Z_bytes<endian::big>(data::encoding::hexidecimal::write(-n));
+            return;
+        }
+        
         std::stringstream gmp_format_stream;
         gmp_format_stream << std::hex << n.MPZ;
         std::string gmp_format = gmp_format_stream.str();
         
-        bool negative = n < 0;
-        if (negative) o << "-";
-        
         o << "0x";
-        if (gmp_format.size() % 2 == (negative ? 0 : 1)) o << "0";
-        o << (negative ? string_view{gmp_format}.substr(1) : gmp_format);
+        if (gmp_format.size() % 2 == 1) o << "0";
+        o << gmp_format;
     }
     
 }

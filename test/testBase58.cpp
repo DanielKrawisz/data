@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/encoding/base58.hpp"
+#include "data/encoding/hex.hpp"
 #include "data/math/number/gmp/N.hpp"
 #include "data/encoding/invalid.hpp"
 #include <data/data.hpp>

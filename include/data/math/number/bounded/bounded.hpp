@@ -19,13 +19,11 @@ namespace data::math::number {
     template <size_t size, endian::order o, bool is_signed> struct bounded;
     
     template <size_t size, endian::order o>
-    struct bounded<size, o, false> : public data::array<size, uint32, o> {
+    struct bounded<size, o, false> : protected data::array<uint32, o, size> {
         using bit32 = uint32;
         using bit64 = uint64;
         
-        using array = data::array<size, bit32, o>;
-        using typename array::words_type;
-        using typename array::methods;
+        using array = data::array<bit32, o, size>;
         
         bounded() : array(0x00) {}
         
@@ -133,13 +131,11 @@ namespace data::math::number {
     };
     
     template <size_t size, endian::order o>
-    struct bounded<size, o, true> : public data::array<size, int32, o> {
+    struct bounded<size, o, true> : protected data::array<int32, o> {
         using bit32 = int32;
         using bit64 = int64;
         
-        using array = data::array<size, bit32, o>;
-        using typename array::words_type;
-        using typename array::methods;
+        using array = data::array<bit32, o, size>;
         
         bounded() : array{0} {}
         
@@ -168,7 +164,6 @@ namespace data::math::number {
         }
         
         bounded operator-() const;
-        using array::operator-;
         
         math::sign sign() const;
         
@@ -273,7 +268,7 @@ inline std::ostream& operator<<(std::ostream& s, const data::math::number::bound
 }
 
 namespace data::math::number {
-    
+    /*
     template <size_t size, endian::order o>
     inline math::sign bounded<size, o, false>::sign() const {
         return *this == 0 ? math::zero : math::positive;
@@ -306,7 +301,7 @@ namespace data::math::number {
             return i.sign() == math::negative ? -1 : 1;
         }
     };
-    
+    */
 }
     
 namespace data::encoding::hexidecimal {
@@ -324,7 +319,7 @@ namespace data::encoding::decimal {
 }
     
 namespace data::math::number {
-
+/*
     template <size_t size, endian::order o>
     inline bounded<size, o, false>&
     bounded<size, o, false>::operator<<=(int32 bits) {
@@ -517,7 +512,7 @@ namespace data::math::number {
         for (int i = 0; i < words_type::Last; i++) w.set(i, 0xffffffff);
         return b;
     }
-
+*/
 }
 
 namespace data {

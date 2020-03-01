@@ -8,7 +8,6 @@
 #include <data/interface.hpp>
 #include <data/slice.hpp>
 #include <data/encoding/endian.hpp>
-#include <data/encoding/words.hpp>
 
 namespace data {
     
@@ -57,212 +56,150 @@ namespace data {
             return slice<X>(static_cast<std::vector<X>&>(*this));
         }
         
-        view<X> range(int64) const;
-        view<X> range(int64, int64) const;
+        view<X> range(int) const;
+        view<X> range(int, int) const;
         
-        slice<X> range(int64);
-        slice<X> range(int64, int64);
+        slice<X> range(int);
+        slice<X> range(int, int);
     };
     
     using bytes = cross<byte>;
     
-    struct bytestring : cross<byte> {
-        using cross<byte>::cross;
-        bytestring(string_view s) : cross<byte>(s.size()) {
-            std::copy(s.data(), s.data() + s.size(), cross<byte>::data());
+    // An array is like a slice but it includes the data 
+    // that it refers to. 
+    template <typename X, size_t ...> struct section;
+    
+    template <typename X> struct section<X> : slice<X> {
+        cross<X> Data;
+        section() : slice<X>(), Data() {} // invalid value
+        section(const cross<X>& d) : slice<X>(), Data() {
+            Data = d;
+            slice<X>::operator=(slice<X>(Data));
+        }
+        
+        section(const cross<X>& d, int begin, int end) : section(d, range(begin, end) % d.size()) {}
+        section(size_t size, X fill) : section(cross<X>(size, fill), 0, size) {}
+        section(view<X> v) : section(cross<X>(v)) {}
+        
+        bool valid() const {
+            return slice<X>::valid() && slice<X>::size() <= Data.size();
+        }
+        
+    private:
+        section(const cross<X>& d, slice<X> s) : slice<X>(s), Data{d} {}
+        section(const cross<X>& d, range r) : section{r.size() < 0 || r.Begin < 0 || r.End < 0 || r.Begin > d.size() || r.End > d.size(), section{}, section{d, slice<X>{d.data() + r.Begin, static_cast<size_t>(r.size())}}} {}
+    };
+    
+    template <typename X, size_t size> struct section<X, size> : section<X> {
+        section() : section<X>{size} {}
+        section(X fill) : section<X>{size, fill} {}
+        section(const cross<X>& d, int begin);
+        bool valid() const {
+            return section<X>::valid() && section<X>::size() == size;
         }
     };
     
-    template <typename X, uint32 n> struct section;
-    
-    template <typename X> struct section<X, 1> : slice<X> {
-        template <uint32>
-        uint32 dimension() const;
-        const X operator[](uint32 x) const;
-        X operator[](uint32 x);
-    };
-    
-    template <typename X, uint32 n> struct section : slice<X> {
-        template <uint32>
-        uint32 dimension() const;
-        const section<X, n - 1> operator[](uint32 x) const;
-        section<X, n - 1> operator[](uint32 x);
+    template <size_t ... sizes> 
+    struct bytestring : section<byte, sizes...> {
+        using section<byte, sizes...>::section;
+        bytestring(string_view s) : section<byte, sizes...>(s.size(), 0, s.size()) {
+            std::copy(s.data(), s.data() + s.size(), cross<byte>::data());
+        }
+        
+        bytestring operator~() const;
     };
     
     template <typename X, uint32 n> struct tensor;
     
-    template <typename X> struct tensor<X, 1> : cross<X> {
-        tensor(uint32);
+    template <typename X> struct tensor<X, 1> : slice<X> {
         template <uint32>
         uint32 dimension() const;
         const X operator[](uint32 x) const;
         X operator[](uint32 x);
-        operator section<X, 1>() const;
     };
     
-    template <typename X, uint32 n> struct tensor : cross<X> {
-        tensor(std::initializer_list<uint32>);
+    template <typename X, uint32 n> struct tensor : slice<X> {
         template <uint32>
         uint32 dimension() const;
-        const section<X, n - 1> operator[](uint32 x) const;
-        section<X, n - 1> operator[](uint32 x);
-        operator section<X, n>() const;
+        const tensor<X, n - 1> operator[](uint32 x) const;
+        tensor<X, n - 1> operator[](uint32 x);
     };
-
-    // A type for treating sequences of bytes as numbers.
-    template <typename X, endian::order r>
-    struct ordered : public cross<X> {
+    
+    // a bytestring with a concept of endian ordering. 
+    template <endian::order r, size_t ... sizes>
+    struct ordered : public section<byte, sizes...> {
         
         constexpr static endian::order endian = r;
-        constexpr static endian::order opposite_endian = endian::opposite(r);
+        constexpr static endian::order opposite = endian::opposite(r);
         
-        ordered() : cross<X>{} {}
-        ordered(size_t size) : cross<X>(size) {}
-        ordered(size_t size, X fill) : cross<X>(size, fill) {}
-        ordered(view<X> v) : cross<X>{v} {}
+        ordered() : section<byte, sizes...>{} {}
+        ordered(const section<byte, sizes...>&);
+        ordered(size_t size) : section<byte, sizes...>(size) {}
+        ordered(size_t size, byte fill) : section<byte, sizes...>(size, fill) {}
+        ordered(bytes_view v) : section<byte, sizes...>{v} {}
         
-        explicit operator ordered<X, opposite_endian>() {
-            return ordered<X, opposite_endian>{*this};
-        }
+        ordered(const string_view hex);
         
-    private:
-        ordered(ordered<X, opposite_endian> reversed) : bytes{} {
-            std::reverse_copy(reversed.begin(), reversed.end(), cross<X>::begin());
+        ordered operator~() const;
+        
+        ordered operator<<(int32) const;
+        ordered operator>>(int32) const;
+        
+        ordered(ordered<opposite> reversed) : section<byte, sizes...>(reversed.size()) {
+            std::reverse_copy(reversed.begin(), reversed.end(), section<byte, sizes...>::begin());
         }
     
     };
 
     // A type for treating sequences of bytes as numbers.
-    template <
-        size_t n,         // size (number of bytes)
-        typename bit32,   // either int32 or uint32
-        endian::order o>    // endianness.
-    struct array : public ordered<byte, o> {
-        using ordered<byte, o>::ordered;
-        using ordered<byte, o>::endian;
-        using ordered<byte, o>::opposite_endian;
+    template <typename bit32, endian::order o, size_t ... sizes>
+    struct array : public ordered<o> {
+        using ordered<o>::ordered;
+        using ordered<o>::endian;
+        using ordered<o>::opposite;
         
-        array operator~() const;
-        array operator|(const array&) const;
-        array operator^(const array&) const;
-        
-        bool operator>(const array& d) const;
-        bool operator>=(const array& d) const;
-        
-        array operator-(const array&) const;
-        array operator+(const array&) const;
-        array operator*(const array&) const;
+        array(const ordered<o>&);
         
         array operator-(const bit32&) const;
         array operator+(const bit32&) const;
         array operator*(const bit32&) const;
-        
-        array operator<<(int32) const;
-        array operator>>(int32) const;
-        
-    protected:
-        using word = boost::endian::endian_arithmetic<o, bit32, 32>;
-        using words_type = arithmetic::fixed_words<n, n / 4, n % 4, bit32, o>;
-        using methods = arithmetic::unoriented<words_type, word>;
-        
-        words_type words() {
-            return words_type{slice<byte, n>{bytes::data()}};
-        }
-        
-        const words_type words() const {
-            return words_type::make(slice<byte, n> {const_cast<byte*>(bytes::data())});
-        }
     };
-    
-    template <size_t size, typename bit32, endian::order o>
-    inline bool array<size, bit32, o>::operator>(const array& d) const {
-        return d <= *this;
-    }
-    
-    template <size_t size, typename bit32, endian::order o>
-    inline bool array<size, bit32, o>::operator>=(const array& d) const {
-        return d < *this;
-    }
-    
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator~() const {
-        array n{};
-        methods::bit_not(words_type::Last, words(), n.words());
-        return n;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator-(const array& n) const {
-        array result;
-        methods::minus(words_type::Last, words(), n.words(), result.words());
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator+(const array& n) const {
-        array result;
-        methods::plus(words_type::Last, words(), n.words(), result.words());
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator*(const array& n) const {
-        array result;
-        methods::times(words_type::Last, words(), n.words(), result.words());
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator-(const bit32& n) const {
-        array result;
-        methods::minus(*this, n, result);
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator+(const bit32& n) const {
-        array<size, bit32, o> result;
-        methods::plus(words_type::Last, words(), n, result.words());
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator*(const bit32& n) const {
-        array result;
-        methods::times(words(), n, result.words());
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator<<(int32 bits) const {
-        array result;
-        words_type w = result.words();
-        if ((bits < 0 && o == endian::little) || (bits >= 0 && o == endian::big))
-            methods::up(size, words(), bits, w);
-        else methods::down(size, words(), bits, w);
-        return result;
-    }
-
-    template <size_t size, typename bit32, endian::order o>
-    inline array<size, bit32, o> array<size, bit32, o>::operator>>(int32 bits) const {
-        array result;
-        words_type w = result.words();
-        if ((bits < 0 && o == endian::little) || (bits >= 0 && o == endian::big))
-            methods::down(size, words(), bits, w);
-        else methods::up(size, words(), bits, w);
-        return result;
-    }
 }
 
 template <typename X>
-bool operator==(const data::ordered<X, data::endian::big>& x, const data::ordered<X, data::endian::little>& y) {
-    return x == data::ordered<X, data::endian::big>(y);
+bool operator==(const data::ordered<data::endian::big>& x, const data::ordered<data::endian::little>& y) {
+    return x == data::ordered<data::endian::big>(y);
 }
 
 template <typename X>
-bool operator==(const data::ordered<X, data::endian::little>& x, const data::ordered<X, data::endian::big>& y) {
-    return x == data::ordered<X, data::endian::little>(y);
+bool operator==(const data::ordered<data::endian::little>& x, const data::ordered<data::endian::big>& y) {
+    return x == data::ordered<data::endian::little>(y);
 }
+
+template <data::endian::order r, size_t ... sizes>
+data::ordered<r, sizes...> operator|(
+    const data::ordered<r, sizes...>&, 
+    const data::ordered<r, sizes...>&);
+        
+template <data::endian::order r, size_t ... sizes>
+data::ordered<r, sizes...> operator^(
+    const data::ordered<r, sizes...>&, 
+    const data::ordered<r, sizes...>&);
+
+template <typename bit32, data::endian::order o, size_t ... sizes>
+data::array<bit32, o, sizes...> operator-(
+    const data::array<bit32, o, sizes...>&, 
+    const data::array<bit32, o, sizes...>&);
+
+template <typename bit32, data::endian::order o, size_t ... sizes>
+data::array<bit32, o, sizes...> operator+(
+    const data::array<bit32, o, sizes...>&, 
+    const data::array<bit32, o, sizes...>&);
+
+template <typename bit32, data::endian::order o, size_t ... sizes>
+data::array<bit32, o, sizes...> operator*(
+    const data::array<bit32, o, sizes...>&, 
+    const data::array<bit32, o, sizes...>&);
 
 #endif
 

@@ -66,7 +66,7 @@ namespace data::encoding {
                 //std::cout << "reading in Z_bytes " << n << std::endl;
                 if (r == endian::little) std::reverse(n.begin(), n.end());
                 //std::cout << "reading in negative decimal integer string ; about to return" << std::endl;
-                return static_cast<bytes>(n);
+                return bytes(bytes_view(n));
             }
             return decimal::read(s, r);
         }

@@ -16,7 +16,33 @@ namespace data {
     template<size_t size, data::endian::order o, bool is_signed> 
     using bounded = data::math::number::bounded<size, o, is_signed>;
     
+    template <size_t size> 
+    using integer_little = data::math::number::bounded<size, endian::little, true>;
+    
+    template <size_t size> 
+    using integer_big = data::math::number::bounded<size, endian::big, true>;
+    
+    template <size_t size> 
+    using uint_little = data::math::number::bounded<size, endian::little, false>;
+    
+    template <size_t size> 
+    using uint_big = data::math::number::bounded<size, endian::big, false>;
+    
+    TEST(BoundedTest, BitNegate) {
+        
+        EXPECT_EQ(~N_bytes<endian::big>{"0x00"}, N_bytes<endian::big>{"0xff"});
+        EXPECT_EQ(~N_bytes<endian::little>{"0x00"}, N_bytes<endian::little>{"0xff"});
+        EXPECT_EQ(~N_bytes<endian::big>{"0xff"}, N_bytes<endian::big>{"0x00"});
+        EXPECT_EQ(~N_bytes<endian::little>{"0xff"}, N_bytes<endian::little>{"0x00"});
+        EXPECT_EQ(~Z_bytes<endian::big>{"0x00"}, Z_bytes<endian::big>{"0xff"});
+        EXPECT_EQ(~Z_bytes<endian::little>{"0x00"}, Z_bytes<endian::little>{"0xff"});
+        EXPECT_EQ(~Z_bytes<endian::big>{"0xff"}, Z_bytes<endian::big>{"0x00"});
+        EXPECT_EQ(~Z_bytes<endian::little>{"0xff"}, Z_bytes<endian::little>{"0x00"});
+        
+    }
+    
     TEST(BoundedTest, BitShift) {
+        
         using u12l = bounded<12, data::endian::little, false>;
         using u12b = bounded<12, data::endian::big, false>;
         using s12l = bounded<12, data::endian::little, true>;

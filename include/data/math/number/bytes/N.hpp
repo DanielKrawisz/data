@@ -11,7 +11,6 @@
 #include <data/math/number/abs.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bytes/Z.hpp>
-#include <data/encoding/words.hpp>
 #include <limits>
 #include <iostream>
 #include <data/list/linked.hpp>
@@ -19,12 +18,12 @@
 namespace data::math::number {
     
     template <endian::order r>
-    struct N_bytes : ordered<byte, r> {
+    struct N_bytes : protected array<uint32, r> {
         
-        N_bytes() : ordered<byte, r>{} {}
+        N_bytes() : array<uint32, r>{} {}
         
-        N_bytes(const uint64 x) : ordered<byte, r>(8) {
-            *(uint64*)(bytes::data()) = endian::native<uint64, r>{}.from(x);
+        N_bytes(const uint64 x) : array<uint32, r>(8) {
+            *(uint64*)(array<uint32, r>::data()) = endian::native<uint64, r>{}.from(x);
         }
         
         static N_bytes read(string_view x) {
@@ -36,7 +35,9 @@ namespace data::math::number {
         // A bit inefficient. 
         explicit N_bytes(const N& n) : N_bytes(data::encoding::hexidecimal::write(n)) {}
         
-        N_bytes(bytes_view b) : ordered<byte, r>{b} {}
+        explicit N_bytes(bytes_view b) : array<uint32, r>{b} {}
+        
+        operator bytes_view() const;
         
         math::sign sign() const {
             return operator==(0) ? math::zero : math::positive;
@@ -51,27 +52,16 @@ namespace data::math::number {
         }
         
     private:
-        using word = boost::endian::endian_arithmetic<r, uint32, 32>;
-        using words_type = arithmetic::unfixed_words<uint32, r>;
-        using methods = arithmetic::unoriented<words_type, word>;
-            
-        words_type words() {
-            return words_type{slice<byte>(*this)};
-        }
         
-        const words_type words() const {
-            return words_type::make(slice<byte>(*const_cast<N_bytes*>(this)));
-        }
-        
-        N_bytes(size_t size, byte fill) : ordered<byte, r>(size, fill) {}
+        N_bytes(size_t size, byte fill) : ordered<r>(size, fill) {}
         
     public:
         
-        using ordered<byte, r>::size;
-        using ordered<byte, r>::begin;
-        using ordered<byte, r>::end;
-        using ordered<byte, r>::rbegin;
-        using ordered<byte, r>::rend;
+        using array<uint32, r>::size;
+        using array<uint32, r>::begin;
+        using array<uint32, r>::end;
+        using array<uint32, r>::rbegin;
+        using array<uint32, r>::rend;
         
         static N_bytes zero(size_t size) {
             return N_bytes(size, 0x00);
@@ -81,9 +71,7 @@ namespace data::math::number {
             return operator<(N_bytes<r>{n});
         }
         
-        bool operator<(const N_bytes& n) const {
-            return methods::less(std::max(size(), n.size()), words(), n.words());
-        }
+        bool operator<(const N_bytes& n) const;
         
         bool operator<(const Z_bytes<r>& z) const {
             return z.is_negative() ? false : operator<(N_bytes{z.Value});
@@ -121,9 +109,7 @@ namespace data::math::number {
             return operator<=(N_bytes{n});
         }
         
-        bool operator<=(const N_bytes& n) const {
-            return methods::less_equal(std::max(size(), n.size()), words(), n.words());
-        }
+        bool operator<=(const N_bytes& n) const;
         
         bool operator<=(const Z_bytes<r>& z) const {
             return z.is_negative() ? false : operator<=(N_bytes{z});
@@ -153,6 +139,8 @@ namespace data::math::number {
             return N{*this} >= n;
         }
         
+        N_bytes operator~() const;
+        
         N_bytes& operator++() {
             operator+=(1);
             return *this;
@@ -163,13 +151,13 @@ namespace data::math::number {
             return *this;
         }
         
-        N_bytes operator++(int) {
+        N_bytes operator++(int) const {
             N_bytes z = *this;
             ++(*this);
             return z;
         }
         
-        N_bytes operator--(int) {
+        N_bytes operator--(int) const {
             N_bytes z = *this;
             ++(*this);
             return z;
@@ -264,7 +252,7 @@ namespace data::math::number {
         explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}
 
     private:
-        N_bytes(bytes_view b, endian::order o) : ordered<byte, r>{b.size()} {
+        N_bytes(bytes_view b, endian::order o) : ordered<r>{b.size()} {
             std::copy(b.begin(), b.end(), begin());
             if (o != r) std::reverse(begin(), end());
         }

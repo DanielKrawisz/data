@@ -64,13 +64,15 @@ namespace data {
 #include <data/for_each.hpp>
 
 // We have several different representations of numbers. 
+/*
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/math/number/bounded/bounded.hpp>
+*/
 #include <data/math/number/gmp/gmp.hpp>
 
 namespace data {
-    
+    /*
     // fixed-size numbers of any size. 
     template <size_t size> using uint = math::number::bounded<size, endian::little, false>;
     template <size_t size> using integer = math::number::bounded<size, endian::little, true>;
@@ -85,7 +87,7 @@ namespace data {
 
     // representations of the naturals and integers of any size as byte strings. 
     template <endian::order o> using N_bytes = math::number::N_bytes<o>;
-    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;
+    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;*/
     
     // Natural numbers
     using N = math::number::N;
@@ -171,7 +173,7 @@ namespace data {
     
     template math::sign sign<N>(const N&);
     template math::sign sign<Z>(const Z&);
-    
+    /*
     template math::sign sign<N_bytes<endian::big>>(const N_bytes<endian::big>&);
     template math::sign sign<Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
     
@@ -185,13 +187,13 @@ namespace data {
     template math::sign sign<int256>(const int256&);
     
     template math::sign sign<uint512>(const uint512&);
-    template math::sign sign<int512>(const int512&);
+    template math::sign sign<int512>(const int512&);*/
     
     template math::sign sign<Q>(const Q&);
     
     template N abs<N, N>(const N&);
     template N abs<N, Z>(const Z&);
-    
+    /*
     template N_bytes<endian::big> abs<N_bytes<endian::big>, N_bytes<endian::big>>(const N_bytes<endian::big>&);
     template N_bytes<endian::big> abs<N_bytes<endian::big>, Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
     
@@ -205,13 +207,13 @@ namespace data {
     template uint256 abs<uint256, int256>(const int256&);
     
     template uint512 abs<uint512, uint512>(const uint512&);
-    template uint512 abs<uint512, int512>(const int512&);
+    template uint512 abs<uint512, int512>(const int512&);*/
 
     template Q abs<Q, Q>(const Q&);
     
     template N arg<N>(const N&);
     template Z arg<Z>(const Z&);
-    
+    /*
     template N_bytes<endian::big> arg<N_bytes<endian::big>>(const N_bytes<endian::big>&);
     template Z_bytes<endian::big> arg<Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
     
@@ -225,7 +227,7 @@ namespace data {
     template int256 arg<int256>(const int256&);
     
     template uint512 arg<uint512>(const uint512&);
-    template int512 arg<int512>(const int512&);
+    template int512 arg<int512>(const int512&);*/
     
     template Q arg<Q>(const Q&);
     

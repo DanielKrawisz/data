@@ -18,14 +18,14 @@ namespace data::math::number {
     template <endian::order r> struct N_bytes;
     
     template <endian::order r>
-    struct Z_bytes : ordered<byte, r> {
+    struct Z_bytes : protected array<int32, r> {
         
-        Z_bytes() : ordered<byte, r>{} {}
+        Z_bytes() : array<int32, r>{} {}
         
         Z_bytes(const N_bytes<r>& n);
         
-        Z_bytes(int64 x) : ordered<byte, r>(8) {
-            *(int64*)(bytes::data()) = endian::native<int64, r>{}.from(x);
+        Z_bytes(int64 x) : array<int32, r>(8) {
+            *(int64*)(array<int32, r>::data()) = endian::native<int64, r>{}.from(x);
         }
         
         // A bit inefficient. 
@@ -42,16 +42,16 @@ namespace data::math::number {
         
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}
         
-        Z_bytes(bytes_view b) : ordered<byte, r>(b) {}
+        Z_bytes(bytes_view b) : array<int32, r>(b) {}
         
         explicit operator bytes_view() const {
-            return ordered<byte, r>::operator bytes_view();
+            return array<int32, r>::operator bytes_view();
         }
         
-        using ordered<byte, r>::size;
-        using ordered<byte, r>::begin;
-        using ordered<byte, r>::end;
-        using ordered<byte, r>::operator[];
+        using array<int32, r>::size;
+        using array<int32, r>::begin;
+        using array<int32, r>::end;
+        using array<int32, r>::operator[];
         
     private:
         
@@ -65,13 +65,13 @@ namespace data::math::number {
             return true;
         }
         
-        Z_bytes(bytes_view b, endian::order o) : ordered<byte, r>(b.size()) {
+        Z_bytes(bytes_view b, endian::order o) : ordered<r>(b.size()) {
             std::copy(b.begin(), b.end(), begin());
             if (o != r) std::reverse(begin(), end());
         }
         
         using word = boost::endian::endian_arithmetic<r, int32, 32>;
-        using words_type = arithmetic::unfixed_words<int32, r>;
+        using words_type = arithmetic::words<int32, r>;
         using methods = arithmetic::unoriented<words_type, word>;
             
         words_type words() {
@@ -86,7 +86,7 @@ namespace data::math::number {
         
         Z_bytes<opposite> reverse() const;
         
-        Z_bytes(size_t size, byte fill) : bytes(size, fill) {}
+        Z_bytes(size_t size, byte fill) : ordered<r>(size, fill) {}
         
     public:
         static Z_bytes zero(size_t size) {
@@ -206,6 +206,8 @@ namespace data::math::number {
             return !operator<(n);
         }
         
+        Z_bytes operator~() const;
+        
         Z_bytes& operator++() {
             operator+=(1);
             return *this;
@@ -216,13 +218,13 @@ namespace data::math::number {
             return *this;
         }
         
-        Z_bytes operator++(int) {
+        Z_bytes operator++(int) const {
             Z_bytes z = *this;
             ++(*this);
             return z;
         }
         
-        Z_bytes operator--(int) {
+        Z_bytes operator--(int) const {
             Z_bytes z = *this;
             --(*this);
             return z;
@@ -237,7 +239,7 @@ namespace data::math::number {
         Z_bytes operator-(const Z_bytes& z) const;
         
         Z_bytes operator-() const {
-            return Z_bytes{0} - *this;
+            return ++(~Z_bytes{0});
         }
         
         Z_bytes& operator-=(const Z_bytes& n) {
@@ -336,7 +338,13 @@ namespace data::math::number {
     
     template <endian::order r> 
     Z_bytes<r> Z_bytes<r>::trim() const {
-        throw method::unimplemented{"Z_bytes::trim"};
+        byte fill = is_negative() ? 0xff : 0x00;
+        int extra_room = 0;
+        while (extra_room < size() && operator[](extra_room) == fill) extra_room++;
+        Z_bytes<r> ru(size() - extra_room, fill);
+        if (r == endian::big) std::copy(this->begin() + extra_room, this->end(), ru.begin());
+        else std::copy(this->begin(), this->begin() + size() - extra_room, ru.begin());
+        return ru;
     }
 
     template <endian::order r> 
