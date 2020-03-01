@@ -16,23 +16,23 @@
 
 namespace data::math::number {
     
-    template <size_t size, endian::order o, bool is_signed> struct bounded;
+    template <bool is_signed, endian::order, size_t size> struct bounded;
     
-    template <size_t size, endian::order o>
-    struct bounded<size, o, false> : protected data::array<uint32, o, size> {
+    template <endian::order r, size_t size>
+    struct bounded<false, r, size> : protected data::bytestring<r, size> {
         using bit32 = uint32;
         using bit64 = uint64;
         
-        using array = data::array<bit32, o, size>;
+        using array = data::bytestring<r, size>;
         
         bounded() : array(0x00) {}
         
-        bounded(const uint64 x) : array(0x00) {
-            array::words().set(0, lesser_half(boost::endian::endian_arithmetic<o, uint64, 64>{x}));
-            array::words().set(1, greater_half(boost::endian::endian_arithmetic<o, uint64, 64>{x}));
-        }
+        bounded(const uint64 x);/* : array(0x00) {
+            array::words().set(0, lesser_half(boost::endian::endian_arithmetic<r, uint64, 64>{x}));
+            array::words().set(1, greater_half(boost::endian::endian_arithmetic<r, uint64, 64>{x}));
+        }*/
         
-        bounded(const array& r) : array{r} {}
+        bounded(const array& b) : array{b} {}
         
         explicit bounded(slice<byte, size>);
         explicit bounded(string_view s);
@@ -69,7 +69,7 @@ namespace data::math::number {
         
         static bounded max();
         static bounded min();
-        static N_bytes<o> modulus();
+        static N_bytes<r> modulus();
         
         bounded& operator++() {
             operator+=(1);
@@ -107,46 +107,46 @@ namespace data::math::number {
         }
         
     private:
-        explicit bounded(const N_bytes<o>& n) : bounded{} {
+        explicit bounded(const N_bytes<r>& n) : bounded{} {
             if (n.size() <= size) {
-                if (o == endian::little) {
+                if (r == endian::little) {
                     std::copy(n.begin(), n.end(), bytes::begin());
                 } else {
                     std::copy(n.begin(), n.end(), bytes::begin() + (size - n.size()));
                 }
             }
-            if (n > N_bytes<o> {max()}) throw std::out_of_range{"N_bytes too big"};
-            if (o == endian::little) {
+            if (n > N_bytes<r> {max()}) throw std::out_of_range{"N_bytes too big"};
+            if (r == endian::little) {
                 std::copy(n.begin(), n.begin() + size, bytes::begin());
             } else {
                 std::copy(n.begin() + (n.size() - size), n.end(), bytes::begin());
             }
         }
         
-        bounded(const bounded<size, o, true>&) {
+        bounded(const bounded<true, r, size>&) {
             throw method::unimplemented{"bounded<size, o, false>{bounded<size, o, true>}"};
         }
         
-        friend struct abs<bounded<size, o, false>, bounded<size, o, true>>;
+        friend struct abs<bounded<false, r, size>, bounded<true, r, size>>;
     };
     
-    template <size_t size, endian::order o>
-    struct bounded<size, o, true> : protected data::array<int32, o> {
+    template <endian::order r, size_t size>
+    struct bounded<true, r, size> : protected data::bytestring<r, size> {
         using bit32 = int32;
         using bit64 = int64;
         
-        using array = data::array<bit32, o, size>;
+        using array = data::bytestring<r, size>;
         
         bounded() : array{0} {}
         
-        bounded(const int64 x) : array(x < 0 ? 0xff : 0x00) {
+        bounded(const int64 x); /* : array(x < 0 ? 0xff : 0x00) {
             array::words().set(0, lesser_half(boost::endian::endian_arithmetic<o, int64, 64>{x}));
             array::words().set(1, greater_half(boost::endian::endian_arithmetic<o, int64, 64>{x}));
-        }
+        }*/
         
-        bounded(const array& r) : array{r} {}
+        bounded(const array& x) : array{x} {}
         
-        bounded(const bounded<size, o, false>&) {
+        bounded(const bounded<false, r, size>&) {
             throw method::unimplemented{"signed bounded from unsigned bounded"};
         }
         
@@ -168,12 +168,12 @@ namespace data::math::number {
         math::sign sign() const;
         
         bool operator==(const int64 x) const {
-            return *this == data::math::number::bounded<size, o, true>(x);
+            return *this == data::math::number::bounded<true, r, size>(x);
         }
         
         // power
-        bounded operator^(const bounded<size, o, false>&) const;
-        bounded& operator^=(const bounded<size, o, false>&);
+        bounded operator^(const bounded<size, r, false>&) const;
+        bounded& operator^=(const bounded<size, r, false>&);
 
         bool operator<(const bounded& d) const;
         bool operator<=(const bounded& d) const;
@@ -189,8 +189,8 @@ namespace data::math::number {
         static bounded max();
         static bounded min();
 
-        static N_bytes<o> modulus() {
-            return bounded<size, o, false>::modulus();
+        static N_bytes<r> modulus() {
+            return bounded<false, r, size>::modulus();
         }
 
         bounded& operator++() {
@@ -229,8 +229,8 @@ namespace data::math::number {
         }
         
     private:
-        explicit bounded(const Z_bytes<o>& z) {
-            if (z > Z_bytes<o> {max()} || z < Z_bytes<o> {min()}) throw std::out_of_range{"Z_bytes too big"};
+        explicit bounded(const Z_bytes<r>& z) {
+            if (z > Z_bytes<r> {max()} || z < Z_bytes<r> {min()}) throw std::out_of_range{"Z_bytes too big"};
             throw method::unimplemented{"bounded{Z_bytes}"};
         }
     };
@@ -240,31 +240,31 @@ namespace data::math::number {
 // Declare the plus and times operations on these types
 // as satisfying the expected relations. 
 namespace data::math {
-    template <size_t size, endian::order o, bool is_signed> 
-    struct commutative<data::plus<math::number::bounded<size, o, is_signed>>, 
-        math::number::bounded<size, o, is_signed>> {};
+    template <bool is_signed, endian::order r, size_t size> 
+    struct commutative<data::plus<math::number::bounded<is_signed, r, size>>, 
+        math::number::bounded<is_signed, r, size>> {};
     
-    template <size_t size, endian::order o, bool is_signed> 
-    struct associative<data::plus<math::number::bounded<size, o, is_signed>>, 
-        math::number::bounded<size, o, is_signed>> {};
+    template <bool is_signed, endian::order r, size_t size> 
+    struct associative<data::plus<math::number::bounded<is_signed, r, size>>, 
+        math::number::bounded<is_signed, r, size>> {};
     
-    template <size_t size, endian::order o, bool is_signed> 
-    struct commutative<data::times<math::number::bounded<size, o, is_signed>>, 
-        math::number::bounded<size, o, is_signed>> {};
+    template <bool is_signed, endian::order r, size_t size> 
+    struct commutative<data::times<math::number::bounded<is_signed, r, size>>, 
+        math::number::bounded<is_signed, r, size>> {};
     
-    template <size_t size, endian::order o, bool is_signed> 
-    struct associative<data::times<math::number::bounded<size, o, is_signed>>, 
-        math::number::bounded<size, o, is_signed>> {};
+    template <bool is_signed, endian::order r, size_t size> 
+    struct associative<data::times<math::number::bounded<is_signed, r, size>>, 
+        math::number::bounded<is_signed, r, size>> {};
 }
 
-template <size_t size, data::endian::order o>
-inline std::ostream& operator<<(std::ostream& s, const data::math::number::bounded<size, o, true>& n) {
-    return s << data::math::number::Z_bytes<o>{n};
+template <data::endian::order r, size_t size>
+inline std::ostream& operator<<(std::ostream& s, const data::math::number::bounded<true, r, size>& n) {
+    return s << data::math::number::Z_bytes<r>{n};
 }
 
-template <size_t size, data::endian::order o>
-inline std::ostream& operator<<(std::ostream& s, const data::math::number::bounded<size, o, false>& n) {
-    return s << data::math::number::N_bytes<o>{n};
+template <data::endian::order r, size_t size>
+inline std::ostream& operator<<(std::ostream& s, const data::math::number::bounded<false, r, size>& n) {
+    return s << data::math::number::N_bytes<r>{n};
 }
 
 namespace data::math::number {
@@ -306,15 +306,15 @@ namespace data::math::number {
     
 namespace data::encoding::hexidecimal {
     
-    template <size_t size, endian::order o, bool is_signed>
-    std::string write(const math::number::bounded<size, o, is_signed>& n);
+    template <bool is_signed, endian::order r, size_t size>
+    std::string write(const math::number::bounded<is_signed, r, size>& n);
 
 }
 
 namespace data::encoding::decimal {
     
-    template <size_t size, endian::order o, bool is_signed>
-    std::string write(const math::number::bounded<size, o, is_signed>& n);
+    template <bool is_signed, endian::order r, size_t size>
+    std::string write(const math::number::bounded<is_signed, r, size>& n);
     
 }
     
@@ -519,8 +519,8 @@ namespace data {
 
     namespace encoding::hexidecimal {
 
-        template <size_t size, endian::order o, bool is_signed>
-        std::string write(const math::number::bounded<size, o, is_signed>& n) {
+        template <bool is_signed, endian::order r, size_t size>
+        std::string write(const math::number::bounded<is_signed, r, size>& n) {
             std::stringstream ss;
             ss << std::hex << n;
             return ss.str();
@@ -530,8 +530,8 @@ namespace data {
 
     namespace encoding::decimal {
 
-        template <size_t size, endian::order o, bool is_signed>
-        std::string write(const math::number::bounded<size, o, is_signed>& n) {
+        template <bool is_signed, endian::order r, size_t size>
+        std::string write(const math::number::bounded<is_signed, r, size>& n) {
             std::stringstream ss;
             ss << std::dec << n;
             return ss.str();

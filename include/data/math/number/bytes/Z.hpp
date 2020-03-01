@@ -9,7 +9,7 @@
 #include <data/math/number/integer.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/division.hpp>
-#include <data/encoding/words.hpp>
+#include <data/bytestring.hpp>
 #include <data/math/number/abs.hpp>
 #include <algorithm>
 
@@ -18,15 +18,17 @@ namespace data::math::number {
     template <endian::order r> struct N_bytes;
     
     template <endian::order r>
-    struct Z_bytes : protected array<int32, r> {
+    struct Z_bytes : protected bytestring<r> {
         
-        Z_bytes() : array<int32, r>{} {}
+        Z_bytes() : bytestring<r>{} {}
         
-        Z_bytes(const N_bytes<r>& n);
+        Z_bytes(const N_bytes<r>&);
         
-        Z_bytes(int64 x) : array<int32, r>(8) {
-            *(int64*)(array<int32, r>::data()) = endian::native<int64, r>{}.from(x);
+        Z_bytes(int64 x) : bytestring<r>(8, x < 0 ? 0xff : 0x00) {
+            *(int64*)(bytestring<r>::data()) = endian::native<int64, r>{}.from(x);
         }
+        
+        Z_bytes(const bytestring<r>& x) : bytestring<r>(x) {}
         
         // A bit inefficient. 
         explicit Z_bytes(const Z& z) : Z_bytes() {
@@ -42,16 +44,16 @@ namespace data::math::number {
         
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}
         
-        Z_bytes(bytes_view b) : array<int32, r>(b) {}
+        Z_bytes(bytes_view b) : bytestring<r>(b) {}
         
         explicit operator bytes_view() const {
-            return array<int32, r>::operator bytes_view();
+            return bytestring<r>::operator bytes_view();
         }
         
-        using array<int32, r>::size;
-        using array<int32, r>::begin;
-        using array<int32, r>::end;
-        using array<int32, r>::operator[];
+        using bytestring<r>::size;
+        using bytestring<r>::begin;
+        using bytestring<r>::end;
+        using bytestring<r>::operator[];
         
     private:
         
@@ -65,28 +67,7 @@ namespace data::math::number {
             return true;
         }
         
-        Z_bytes(bytes_view b, endian::order o) : ordered<r>(b.size()) {
-            std::copy(b.begin(), b.end(), begin());
-            if (o != r) std::reverse(begin(), end());
-        }
-        
-        using word = boost::endian::endian_arithmetic<r, int32, 32>;
-        using words_type = arithmetic::words<int32, r>;
-        using methods = arithmetic::unoriented<words_type, word>;
-            
-        words_type words() {
-            return words_type{slice<byte>(*this)};
-        }
-        
-        const words_type words() const {
-            return words_type::make(slice<byte>(*const_cast<Z_bytes*>(this)));
-        }
-        
-        constexpr static endian::order opposite = endian::opposite(r);
-        
-        Z_bytes<opposite> reverse() const;
-        
-        Z_bytes(size_t size, byte fill) : ordered<r>(size, fill) {}
+        Z_bytes(size_t size, byte fill) : bytestring<r>(size, fill) {}
         
     public:
         static Z_bytes zero(size_t size) {
@@ -100,109 +81,33 @@ namespace data::math::number {
             return math::positive;
         }
         
-        Z_bytes& operator=(const N_bytes<r>& n) {
-            return operator=(Z_bytes{static_cast<const bytes&>(n)});
-        }
-        
-        Z_bytes& operator=(const N& n) {
-            return operator=(Z_bytes{n});
-        }
-        
-        Z_bytes& operator=(const Z& n) {
-            return operator=(Z_bytes{n});
-        }
-        
         bool operator==(const Z_bytes& z) const;
-        
-        bool operator!=(int64 z) const {
-            return !operator==(z);
-        }
         
         bool operator!=(const Z_bytes& z) const {
             return !operator==(z);
         }
         
-        bool operator!=(const Z& z) const {
-            return !operator==(z);
-        }
-        
-        bool operator!=(const N& z) const {
-            return !operator==(z);
-        }
-        
-        bool operator<(int64 n) const {
-            return operator<(Z_bytes<r>{n});
-        }
-        
-        bool operator<(const Z_bytes& z) const {
+        bool operator<(const Z_bytes& z) const; /*{
             bool na = is_negative();
             bool nz = z.is_negative();
             return na != nz ? na : methods::less(std::max(size(), z.size()), words(), z.words());
-        }
-        
-        bool operator<(const N_bytes<r>& z) const {
-            return is_negative() ? true : methods::less(std::max(size(), z.size()), words(), z.words());
-        }
-        
-        bool operator<(const N& n) const {
-            return Z{*this} < n;
-        }
-        
-        bool operator<(const Z& n) const {
-            return Z{*this} < n;
-        }
-        
-        bool operator>(int64 n) const {
-            return !operator<=(n);
-        }
+        }*/
         
         bool operator>(const Z_bytes& n) const {
             return !operator<=(n);
         }
         
-        bool operator>(const N& n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator>(const Z& n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator<=(int64 n) const {
-            return operator<=(Z_bytes<r>{n});
-        }
-        
-        bool operator<=(const Z_bytes& z) const {
+        bool operator<=(const Z_bytes& z) const;/* {
             bool na = is_negative();
             bool nz = z.is_negative();
             return na != nz ? na : methods::less_equal(std::max(size(), z.size()), words(), z.words());
-        }
+        }*/
         
-        bool operator<=(const N_bytes<r>& z) const {
+        bool operator<=(const N_bytes<r>& z) const; /*{
             return is_negative() ? true : methods::less_equal(std::max(size(), z.size()), words(), z.words());
-        }
-        
-        bool operator<=(const N& n) const {
-            return Z{*this} <= n;
-        }
-        
-        bool operator<=(const Z& n) const {
-            return Z{*this} <= n;
-        }
-        
-        bool operator>=(int64 n) const {
-            return !operator<(n);
-        }
+        }*/ 
         
         bool operator>=(const Z_bytes& n) const {
-            return !operator<(n);
-        }
-        
-        bool operator>=(const N& n) const {
-            return !operator<(n);
-        }
-        
-        bool operator>=(const Z& n) const {
             return !operator<(n);
         }
         
@@ -311,7 +216,7 @@ namespace data::math::number {
         template <size_t size, endian::order o> 
         explicit Z_bytes(const bounded<size, o, false>& b) : Z_bytes{bytes_view(b), o} {}
     };
-    
+    /*
     template <endian::order r> 
     Z_bytes<r> Z_bytes<r>::operator+(const Z_bytes& z) const {
         uint32 s = std::max(size(), z.size()) + 1;
@@ -335,7 +240,7 @@ namespace data::math::number {
         methods::times(s, words(), z.words(), re.words());
         return re.trim();
     }
-    
+    */
     template <endian::order r> 
     Z_bytes<r> Z_bytes<r>::trim() const {
         byte fill = is_negative() ? 0xff : 0x00;
@@ -366,7 +271,7 @@ namespace data::math::number {
         bool negative_left = is_negative();
         bool negative_right = z.is_negative();
         if (negative_left != negative_right) return false; 
-        size_t left_size = bytes::size();
+        size_t left_size = size();
         size_t right_size = z.size();
         size_t left_begin;
         size_t right_begin;

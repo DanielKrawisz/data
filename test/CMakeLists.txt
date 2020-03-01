@@ -10,6 +10,7 @@ ADD_EXECUTABLE(testData
     testAscii.cpp 
     testStream.cpp 
     testIntegerFormat.cpp 
+    testBytestring.cpp
     testLinkedStack.cpp 
     #testN.cpp 
     testBase58.cpp 

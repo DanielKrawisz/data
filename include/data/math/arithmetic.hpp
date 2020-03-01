@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_ARITHMETIC
 #define DATA_MATH_ARITHMETIC
 
-#include <data/types.hpp>
+#include <data/iterable.hpp>
 #include <type_traits>
 
 namespace data {
@@ -149,6 +149,67 @@ namespace data {
     };
 
 }
+
+namespace data::math::arithmetic {
+    
+    template <typename word, endian::order r> struct number;
+    
+    template <> struct number<uint32, endian::big> {
+        slice<byte> Data;
+        size_t Size; 
+        
+        constexpr static endian::order endian = endian::big;
+        constexpr static endian::order opposite = endian::little;
+        
+        const uint32_big operator[](uint32) const;
+        
+        void set(uint32, uint32_big);
+        
+    };
+    
+    template <> struct number<uint32, endian::little> {
+        slice<byte> Data;
+        size_t Size; 
+        
+        constexpr static endian::order endian = endian::little;
+        constexpr static endian::order opposite = endian::big;
+        
+        const uint32_little operator[](uint32) const;
+        
+        void set(uint32, uint32_little);
+    };
+    
+    template <typename word, endian::order r>
+    void bit_negate(number<word, r>, const number<word, r> a);
+    
+    template <typename word, endian::order r>
+    void negate(number<word, r>, const number<word, r> a);
+    
+    template <typename word, endian::order r>
+    void bit_and(number<word, r>, const number<word, r> a, const number<word, r> b);
+    
+    template <typename word, endian::order r>
+    void bit_or(number<word, r>, const number<word, r> a, const number<word, r> b);
+    
+    template <typename word, endian::order r>
+    void plus(number<word, r>, const number<word, r> a, word b);
+    
+    template <typename word, endian::order r>
+    void times(number<word, r>, const number<word, r> a, word b);
+    
+    template <typename word, endian::order r>
+    void minus(number<word, r>, const number<word, r> a, word b);
+    
+    template <typename word, endian::order r>
+    void plus(number<word, r>, const number<word, r> a, number<word, r> b);
+    
+    template <typename word, endian::order r>
+    void times(const number<word, r> a, number<word, r> b);
+    
+    template <typename word, endian::order r>
+    void minus(const number<word, r> a, number<word, r> b);
+    
+};
 
 #endif
 

@@ -64,11 +64,11 @@ namespace data {
 #include <data/for_each.hpp>
 
 // We have several different representations of numbers. 
-/*
+
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/math/number/bounded/bounded.hpp>
-*/
+
 #include <data/math/number/gmp/gmp.hpp>
 
 namespace data {
@@ -83,11 +83,11 @@ namespace data {
 
     using int160 = integer<20>;
     using int256 = integer<32>;
-    using int512 = integer<64>;
+    using int512 = integer<64>;*/
 
     // representations of the naturals and integers of any size as byte strings. 
     template <endian::order o> using N_bytes = math::number::N_bytes<o>;
-    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;*/
+    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;
     
     // Natural numbers
     using N = math::number::N;
@@ -178,8 +178,8 @@ namespace data {
     template math::sign sign<Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
     
     template math::sign sign<N_bytes<endian::little>>(const N_bytes<endian::little>&);
-    template math::sign sign<Z_bytes<endian::little>>(const Z_bytes<endian::little>&);
-    
+    template math::sign sign<Z_bytes<endian::little>>(const Z_bytes<endian::little>&);*/
+    /*
     template math::sign sign<uint160>(const uint160&);
     template math::sign sign<int160>(const int160&);
     
@@ -198,8 +198,8 @@ namespace data {
     template N_bytes<endian::big> abs<N_bytes<endian::big>, Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
     
     template N_bytes<endian::little> abs<N_bytes<endian::little>, N_bytes<endian::little>>(const N_bytes<endian::little>&);
-    template N_bytes<endian::little> abs<N_bytes<endian::little>, Z_bytes<endian::little>>(const Z_bytes<endian::little>&);
-    
+    template N_bytes<endian::little> abs<N_bytes<endian::little>, Z_bytes<endian::little>>(const Z_bytes<endian::little>&);*/
+    /*
     template uint160 abs<uint160, uint160>(const uint160&);
     template uint160 abs<uint160, int160>(const int160&);
     
@@ -218,8 +218,8 @@ namespace data {
     template Z_bytes<endian::big> arg<Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
     
     template N_bytes<endian::little> arg<N_bytes<endian::little>>(const N_bytes<endian::little>&);
-    template Z_bytes<endian::little> arg<Z_bytes<endian::little>>(const Z_bytes<endian::little>&);
-    
+    template Z_bytes<endian::little> arg<Z_bytes<endian::little>>(const Z_bytes<endian::little>&);*/
+    /*
     template uint160 arg<uint160>(const uint160&);
     template int160 arg<int160>(const int160&);
     

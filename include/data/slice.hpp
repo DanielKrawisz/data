@@ -57,6 +57,7 @@ namespace data {
         size_t Size;
         slice() : Data{nullptr}, Size{0} {}
         slice(iterator b, size_t size) : Data{b}, Size{size} {}
+        slice(const slice& x) : Data{x.Data}, Size{x.Size} {}
         
         slice(std::vector<X>& x) : slice{x.data(), x.size()} {}
         
@@ -77,8 +78,14 @@ namespace data {
         /// \param b range begins from this index inclusive
         /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range(int b, int e) const {
+        [[nodiscard]] slice<X> range(int b, int e) {
             data::range x = data::range{b, e} % Size;
+            int new_size = x.size();
+            return new_size < 0 ? slice{} : slice{Data + x.Begin, static_cast<size_t>(new_size)};
+        }
+        
+        slice<X> range(data::range r) {
+            data::range x = r % Size;
             int new_size = x.size();
             return new_size < 0 ? slice{} : slice{Data + x.Begin, static_cast<size_t>(new_size)};
         }
@@ -86,7 +93,7 @@ namespace data {
         /// Selects a range from the current slice up to end of slice
         /// \param b  range begins from this index inclusive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range(int32 b) const {
+        [[nodiscard]] slice<X> range(int32 b) {
             return range(0, b);
         }
         
@@ -99,7 +106,13 @@ namespace data {
             return *this;
         }
         
-        bool operator==(const slice<X>& s) const {
+        slice& operator=(const slice<X>&& s) {
+            Data = s.Data;
+            Size = s.Size;
+            return *this;
+        }
+        
+        bool operator==(const slice<X> s) const {
             if(Data == s.Data && Size == s.Size) return true;
             if(this->Size != s.Size) return false;
             for(int i=0;i<size();i++)
@@ -108,7 +121,7 @@ namespace data {
             return true;
         }
         
-        bool operator!=(const slice<X>& s) const {
+        bool operator!=(const slice<X> s) const {
             return !operator==(s);
         }
         
@@ -169,6 +182,14 @@ namespace data {
         slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result> range() const;
         
         using slice<X>::range;
+        
+        bool operator==(const slice<X, n> s) const {
+            return slice<X>::operator==(static_cast<slice<X>>(s));
+        }
+        
+        bool operator!=(const slice<X, n> s) const {
+            return !operator==(s);
+        }
     };
     
     template <typename X> 
