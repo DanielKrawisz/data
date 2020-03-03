@@ -57,7 +57,9 @@ namespace data {
     
     struct bytes : cross<byte> {
         using cross<byte>::cross;
-        operator bytes_view() const;
+        operator bytes_view() const {
+            return bytes_view(cross<byte>::data(), cross<byte>::size());
+        }
     };
     
     // A section is both a container of data and a view of data. 
@@ -125,7 +127,7 @@ namespace data {
         section(X fill) : section(std::make_shared<cross<X>>(size, fill)) {}
         
     private:
-        section(ptr<cross<X>> d) : slice<X>(slice<X>(*d)), Data(d) {}
+        section(ptr<cross<X>> d) : slice<X, size>(d->data()), Data(d) {}
         
     };
     

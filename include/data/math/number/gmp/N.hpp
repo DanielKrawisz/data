@@ -251,8 +251,8 @@ namespace data::math::number::gmp {
         template <endian::order o>
         explicit N(const N_bytes<o>& n) : N{bytes_view(n), o} {}
         
-        template <size_t size, endian::order o> 
-        explicit N(const bounded<size, o, false>& b) : Value{b} {}
+        template <endian::order o, size_t size> 
+        explicit N(const bounded<false, o, size>& b) : Value{b} {}
         
     private:
         N(const Z& z) : Value{z} {}

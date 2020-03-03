@@ -19,7 +19,7 @@ namespace data::math::number {
     template <bool is_signed, endian::order, size_t size> struct bounded;
     
     template <endian::order r, size_t size>
-    struct bounded<false, r, size> : protected data::bytestring<r, size> {
+    struct bounded<false, r, size> : data::bytestring<r, size> {
         using bit32 = uint32;
         using bit64 = uint64;
         
@@ -131,7 +131,7 @@ namespace data::math::number {
     };
     
     template <endian::order r, size_t size>
-    struct bounded<true, r, size> : protected data::bytestring<r, size> {
+    struct bounded<true, r, size> : data::bytestring<r, size> {
         using bit32 = int32;
         using bit64 = int64;
         

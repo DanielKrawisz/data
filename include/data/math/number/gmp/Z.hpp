@@ -328,11 +328,11 @@ namespace data::math::number::gmp {
         template <endian::order o> 
         explicit Z(const N_bytes<o>& b);
         
-        template <size_t size, endian::order o> 
-        explicit Z(const bounded<size, o, true>& b) : Z{Z_bytes<o>{b}} {}
+        template <endian::order o, size_t size> 
+        explicit Z(const bounded<true, o, size>& b) : Z{Z_bytes<o>{b}} {}
         
-        template <size_t size, endian::order o> 
-        explicit Z(const bounded<size, o, false>& b) : Z{Z_bytes<o>{b}} {}
+        template <endian::order o, size_t size> 
+        explicit Z(const bounded<false, o, size>& b) : Z{Z_bytes<o>{b}} {}
         
     private:
         Z(bytes_view b, endian::order o) : Z{0} {

@@ -57,6 +57,12 @@ namespace data::encoding {
         bytes read(string_view s, endian::order r);
         
         std::ostream& write(std::ostream& o, bytes_view b, endian::order r);
+        
+        inline std::string write(bytes_view b, endian::order r) {
+            std::stringstream ss;
+            write(ss, b, r);
+            return ss.str();
+        }
     };
     
     namespace natural {
