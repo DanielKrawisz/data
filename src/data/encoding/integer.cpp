@@ -53,7 +53,7 @@ namespace data::encoding {
     };
     
     namespace integer {
-        
+        /*
         bytes read(string_view s, endian::order r) {
             //std::cout << "reading in integer string \"" << s << "\"" << std::endl;
             if (!valid(s)) throw std::invalid_argument{"not an integer"};
@@ -69,7 +69,7 @@ namespace data::encoding {
                 return bytes(bytes_view(n));
             }
             return decimal::read(s, r);
-        }
+        }*/
         
     };
     

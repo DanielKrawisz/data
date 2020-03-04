@@ -81,7 +81,7 @@ namespace data::math::number::gmp {
     void Z_write_dec(std::ostream& o, const Z& n) {
         o << std::dec << n.MPZ;
     }
-    
+    /*
     void Z_write_hex(std::ostream& o, const Z& n) {
         if (n < 0) {
             // Very inefficient
@@ -96,10 +96,10 @@ namespace data::math::number::gmp {
         o << "0x";
         if (gmp_format.size() % 2 == 1) o << "0";
         o << gmp_format;
-    }
+    }*/
     
 }
-
+/*
 namespace data::encoding::hexidecimal {
     
     std::string write(const math::number::gmp::Z& n) {
@@ -118,8 +118,8 @@ namespace data::encoding::integer {
         return ss.str();
     }
     
-}
-
+}*/
+/*
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
     if (o.flags() & std::ios::hex) {
         data::math::number::gmp::Z_write_hex(o, n);
@@ -131,7 +131,7 @@ std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
     }
     o << &n.MPZ;
     return o;
-}
+}*/
 
 namespace data::math::number::gmp {
     

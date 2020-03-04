@@ -35,7 +35,7 @@ namespace data::math::number {
         
         explicit N_bytes(bytes_view b) : bytestring<r>{b} {}
         
-        operator bytes_view() const;
+        using bytestring<r>::operator bytes_view;
         
         math::sign sign() const {
             return operator==(0) ? math::zero : math::positive;

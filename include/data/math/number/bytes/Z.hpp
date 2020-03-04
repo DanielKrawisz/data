@@ -31,10 +31,10 @@ namespace data::math::number {
         Z_bytes(const bytestring<r>& x) : bytestring<r>(x) {}
         
         // A bit inefficient. 
-        explicit Z_bytes(const Z& z) : Z_bytes() {
+        explicit Z_bytes(const Z& z); /* : Z_bytes() {
             if (!z.valid()) throw std::invalid_argument{"invalid Z provided"};
             *this = Z_bytes(data::encoding::hexidecimal::write(z));
-        }
+        }*/
         
         explicit Z_bytes(const N& n) : Z_bytes(Z(n)) {}
         
@@ -111,7 +111,11 @@ namespace data::math::number {
             return !operator<(n);
         }
         
-        Z_bytes operator~() const;
+        Z_bytes operator~() const; /*{
+            Z_bytes z(size(), 0);
+            arithmetic::bit_negate(arithmetic::number(z), arithmetic::number(*this));
+            return z;
+        }*/
         
         Z_bytes& operator++() {
             operator+=(1);
@@ -311,16 +315,16 @@ namespace data::math {
 namespace data::encoding::hexidecimal {
     
     template <endian::order r>
-    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
+    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n); /*{
         return o << "0x" << hex::write(bytes_view(n), r);
-    }
+    }*/
     
     template <endian::order r>
-    std::string write(const math::number::Z_bytes<r>& n){
+    std::string write(const math::number::Z_bytes<r>& n); /*{
         std::stringstream ss;
         write(ss, n);
         return ss.str();
-    }
+    }*/
     
 }
 
