@@ -32,10 +32,16 @@ namespace data {
     namespace encoding::hexidecimal {
     
         template<endian::order r>
-        bytestring<r> read(string_view);
+        bytestring<r> read(string_view s) {
+            return bytestring<r>(read(s, r));
+        }
         
         template<endian::order r, uint32 size>
-        bytestring<r, size> read(string_view);
+        bytestring<r, size> read(string_view s) {
+            bytes b(read(s, r));
+            if (b.size() != size) return bytestring<r, size>();
+            return bytestring<r, size>(b);
+        }
     
     }
     

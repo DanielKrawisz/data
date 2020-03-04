@@ -60,6 +60,9 @@ namespace data {
         operator bytes_view() const {
             return bytes_view(cross<byte>::data(), cross<byte>::size());
         }
+        bytes(string_view x) : cross<byte>(x.size()) {
+            std::copy(x.begin(), x.end(), cross<byte>::begin());
+        }
     };
     
     // A section is both a container of data and a view of data. 
