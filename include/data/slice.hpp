@@ -32,7 +32,7 @@ namespace data {
         }
         
         range operator%(size_t Size) const {
-            range x(Begin % static_cast<int>(Size), End % static_cast<int>(Size));
+            range x(Begin, End);
             if (x.Begin < 0) x.Begin += Size;
             if (x.End < 0) x.End += Size;
             return x;
@@ -79,6 +79,7 @@ namespace data {
         /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
         [[nodiscard]] slice<X> range(int b, int e) {
+            if (b > static_cast<int>(Size) || e > static_cast<int>(Size)) return slice {};
             data::range x = data::range{b, e} % Size;
             int new_size = x.size();
             return new_size < 0 ? slice{} : slice{Data + x.Begin, static_cast<size_t>(new_size)};

@@ -51,7 +51,7 @@ namespace data {
         constexpr static size_t value = 8;
     };
     
-    template <typename X, endian::order o, size_t size> struct digits<boost::endian::endian_arithmetic<o, X, size>> {
+    template <typename X, endian::order o, size_t size> struct digits<endian::arithmetic<o, X, size>> {
         constexpr static bool is_signed = digits<X>::is_signed;
         constexpr static size_t value = size;
     };
@@ -156,13 +156,13 @@ namespace data {
         }
     };
     
-    template <typename X, endian::order o, size_t size> struct half_of<boost::endian::endian_arithmetic<o, X, size>> {
-        using type = boost::endian::endian_arithmetic<o, typename half_of<X>::type, digits<typename half_of<X>::type>::value>;
-        static type greater(boost::endian::endian_arithmetic<o, X, size> u) {
+    template <typename X, endian::order o, size_t size> struct half_of<endian::arithmetic<o, X, size>> {
+        using type = endian::arithmetic<o, typename half_of<X>::type, digits<typename half_of<X>::type>::value>;
+        static type greater(endian::arithmetic<o, X, size> u) {
             return type{half_of<X>::greater((X)(u))};
         }
         
-        static type lesser(boost::endian::endian_arithmetic<o, X, size> u) {
+        static type lesser(endian::arithmetic<o, X, size> u) {
             return type{half_of<X>::lesser((X)(u))};
         }
     };
@@ -221,9 +221,9 @@ namespace data {
         }
     };
     
-    template <typename X, endian::order o, size_t size> struct twice<boost::endian::endian_arithmetic<o, X, size>> {
-        using type = boost::endian::endian_arithmetic<o, typename twice<X>::type, 2 * size>;
-        static type extend(boost::endian::endian_arithmetic<o, X, size> x) {
+    template <typename X, endian::order o, size_t size> struct twice<endian::arithmetic<o, X, size>> {
+        using type = endian::arithmetic<o, typename twice<X>::type, 2 * size>;
+        static type extend(endian::arithmetic<o, X, size> x) {
             return (typename twice<X>::type)(x);
         }
     };
