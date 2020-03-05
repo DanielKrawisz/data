@@ -109,11 +109,11 @@ namespace data::functional::stack {
         
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
-        linked(const elem& e, const linked& l) : parent{std::make_shared<node>(node{e, l})} {}
+        linked(const elem& e, const linked& l) : parent{std::make_shared<node>(e, l)} {}
         linked(const elem& e) : linked{e, {}} {}
         
         template<typename ... P>
-        linked(const elem& e, P... p) : linked{e, linked{p...}} {} 
+        linked(const elem& a, const elem& b, P... p) : linked{a, linked{b, linked{p...}}} {} 
         
         linked& operator=(const linked& l) {
             parent::Next = l.Next;
@@ -141,9 +141,9 @@ namespace data::functional::stack {
             return x;
         }
         
-        template <typename X, typename ... P>
-        linked prepend(X x, P ... p) const {
-            return prepend(x).prepend(p...);
+        template <typename X, typename Y, typename ... P>
+        linked prepend(X x, Y y, P ... p) const {
+            return prepend(x).prepend(y, p...);
         }
         
         linked operator+(linked l) const {

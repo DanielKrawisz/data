@@ -31,9 +31,9 @@ namespace data::tool {
         functional_queue() : Left{}, Right{} {}
         functional_queue(stack l) : Left{l}, Right{} {}
         
-        template <typename ... P>
-        functional_queue(P... p) : functional_queue{} {
-            append(p...);
+        template <typename X, typename Y, typename ... P>
+        functional_queue(X x, Y y, P... p) : functional_queue{} {
+            append(x, y, p...);
         }
         
         bool empty() const {
@@ -88,23 +88,14 @@ namespace data::tool {
             return append(e);
         }
         
-        functional_queue append(stack list) const {
-            if (list.empty()) return *this;
-            return append(list.first()).append(list.rest());
-        }
-        
-        functional_queue operator<<(stack list) const {
-            return append(list);
-        }
-        
         functional_queue append(functional_queue q) const {
             if (q.empty()) return *this;
             return append(q.first()).append(q.rest());
         }
         
-        template <typename ... P>
-        functional_queue append(P... p) const {
-            return check(Left, Right.prepend(p...));
+        template <typename X, typename Y, typename ... P>
+        functional_queue append(X x, Y y, P... p) const {
+            return append(x).append(y, p...);
         }
         
         functional_queue operator + (functional_queue q) const {
