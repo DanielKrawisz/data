@@ -20,7 +20,7 @@ TEST(IntegerTest, TestIntegerFormat) {
     EXPECT_TRUE(hexidecimal::valid("0xAF"));
     EXPECT_FALSE(hexidecimal::valid("0xa"));
     EXPECT_FALSE(hexidecimal::valid("0xaF"));
-    /*
+    
     EXPECT_FALSE(integer::valid(""));
     EXPECT_TRUE(integer::valid("-1"));
     EXPECT_FALSE(integer::valid("-0xaf"));
@@ -46,6 +46,6 @@ TEST(IntegerTest, TestIntegerFormat) {
     EXPECT_TRUE(integer::negative("0xff"));
     EXPECT_TRUE(integer::negative("0x8000"));
     EXPECT_FALSE(integer::negative("0x7fff"));
-    */
+    
 }
 

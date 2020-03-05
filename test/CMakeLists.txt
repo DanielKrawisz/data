@@ -15,6 +15,7 @@ ADD_EXECUTABLE(testData
     #testN.cpp 
     testBase58.cpp 
     #testBounded.cpp 
+    #testZ.cpp
     #testBitShift.cpp 
     #testSign.cpp
     #testExtendedEuclidian.cpp 
