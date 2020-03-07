@@ -66,6 +66,10 @@ namespace data::endian {
         const iterator end() const {
             return iterator(data() + n_bits);
         }
+        
+        explicit operator bytes_view() const {
+            return bytes_view(data(), n_bits / 8);
+        }
     };
     
 }

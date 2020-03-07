@@ -62,14 +62,10 @@ namespace data {
         writer operator<<(const char& c) const {
             return operator<<(static_cast<const byte&>(c));
         }
-        
-        writer operator<<(string& b) const {
-            return operator<<(bytes_view{(const byte*)b.data(), b.size()});
-        }
     
         template <boost::endian::order Order, class T, std::size_t n_bits>
         writer operator<<(const endian::arithmetic<Order, T, n_bits> x) const {
-            return operator<<(bytes_view{(const byte*)x.data(), n_bits / 8});
+            return operator<<(bytes_view(x));
         }
         
     };
@@ -95,15 +91,6 @@ namespace data {
             auto r = operator>>(b);
             x = b;
             return r;
-        }
-        
-        reader operator>>(string& b) const {
-            throw method::unimplemented{"reader >> string"};
-        }
-        
-        template <size_t size>
-        reader operator>>(std::array<byte, size>&) const {
-            throw method::unimplemented{"reader >> array"};
         }
         
         bool empty() const {
