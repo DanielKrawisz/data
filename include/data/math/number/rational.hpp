@@ -55,6 +55,10 @@ namespace data::math::number {
         fraction(Z n) : Numerator{n}, Denominator{uint64{1}} {}
         fraction(const fraction& f) : Numerator{f.Numerator}, Denominator{f.Denominator} {}
         
+        bool valid() const {
+            return data::valid(Numerator) && Denominator.valid();
+        }
+        
         static N gcd(N a, N b) {
             return euclidian::extended<N, Z>::algorithm(a, b).GCD;
         }
@@ -82,20 +86,18 @@ namespace data::math::number {
             return !operator==(f);
         }
         
-        bool operator<(const fraction& f) const {
-            return Numerator * Denominator.Number < Denominator.Number * f.Numerator;
-        }
+        bool operator<(const fraction& f) const;
         
         bool operator>(const fraction& f) const{
-            return Numerator * Denominator.Number > Denominator.Number * f.Numerator;
+            return Numerator * f.Denominator.Number > Denominator.Number * f.Numerator;
         }
         
         bool operator<=(const fraction& f) const{
-            return Numerator * Denominator.Number <= Denominator.Number * f.Numerator;
+            return Numerator * f.Denominator.Number <= Denominator.Number * f.Numerator;
         }
         
         bool operator>=(const fraction& f) const{
-            return Numerator * Denominator.Number >= Denominator.Number * f.Numerator;
+            return Numerator * f.Denominator.Number >= Denominator.Number * f.Numerator;
         }
         
         fraction operator-() const {
@@ -183,6 +185,13 @@ namespace data::math {
 template <typename Z, typename N>
 inline std::ostream& operator<<(std::ostream& o, const data::math::number::fraction<N, Z>& x) {
     return o << "fraction{" << x.Numerator << ", " << x.Denominator.Number << "}";
+}
+
+namespace data::math::number {
+    template <typename Z, typename N>
+    inline bool fraction<Z, N>::operator<(const fraction& f) const {
+        return Numerator * f.Denominator.Number < Denominator.Number * f.Numerator;
+    }
 }
 
 #endif

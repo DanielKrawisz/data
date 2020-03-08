@@ -119,19 +119,19 @@ namespace data::encoding::integer {
     }
     
 }*/
-/*
+
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
-    if (o.flags() & std::ios::hex) {
+    /*if (o.flags() & std::ios::hex) {
         data::math::number::gmp::Z_write_hex(o, n);
         return o;
-    }
+    }*/
     if (o.flags() & std::ios::dec) {
         data::math::number::gmp::Z_write_dec(o, n);
         return o;
     }
     o << &n.MPZ;
     return o;
-}*/
+}
 
 namespace data::math::number::gmp {
     
