@@ -367,6 +367,18 @@ namespace data::math {
     template <> struct associative<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {};
     template <> struct commutative<data::times<math::number::gmp::Z>, math::number::gmp::Z> {};
     template <> struct associative<data::times<math::number::gmp::Z>, math::number::gmp::Z> {};
+    
+    template <> struct identity<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {
+        static const math::number::gmp::Z value() {
+            return 1;
+        }
+    };
+    
+    template <> struct identity<data::times<math::number::gmp::Z>, math::number::gmp::Z> {
+        static const math::number::gmp::Z value() {
+            return 0;
+        }
+    };
 }
 
 namespace data::encoding::hexidecimal {

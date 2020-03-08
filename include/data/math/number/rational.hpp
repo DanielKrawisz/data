@@ -42,8 +42,10 @@ namespace data::math::number {
         }
     };
     
+    // TODO: note that N is the type of abs(Z)
+    // I don't have a way of doing that yet. 
     template <typename Z, typename N>
-    struct fraction {
+    struct fraction : interface::ring<Z, data::plus<Z>, data::times<Z>>, interface::ordered<Z> {
         Z Numerator;
         positive<N> Denominator;
         
@@ -81,19 +83,19 @@ namespace data::math::number {
         }
         
         bool operator<(const fraction& f) const {
-            return f.Numerator * Denominator.Number < Numerator * f.Denominator.Number;
+            return Numerator * Denominator.Number < Denominator.Number * f.Numerator;
         }
         
         bool operator>(const fraction& f) const{
-            return f.Numerator * Denominator.Number > Numerator * f.Denominator.Number;
+            return Numerator * Denominator.Number > Denominator.Number * f.Numerator;
         }
         
         bool operator<=(const fraction& f) const{
-            return f.Numerator * Denominator.Number <= Numerator * f.Denominator.Number;
+            return Numerator * Denominator.Number <= Denominator.Number * f.Numerator;
         }
         
         bool operator>=(const fraction& f) const{
-            return f.Numerator * Denominator.Number >= Numerator * f.Denominator.Number;
+            return Numerator * Denominator.Number >= Denominator.Number * f.Numerator;
         }
         
         fraction operator-() const {
@@ -162,6 +164,7 @@ namespace data::math::number {
     };
     
 }
+
 // TODO fill in these types correctly. 
 namespace data::math {
     template <typename Z, typename N> 
@@ -175,6 +178,11 @@ namespace data::math {
     
     template <typename Z, typename N> 
     struct associative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>>;
+}
+
+template <typename Z, typename N>
+inline std::ostream& operator<<(std::ostream& o, const data::math::number::fraction<N, Z>& x) {
+    return o << "fraction{" << x.Numerator << ", " << x.Denominator.Number << "}";
 }
 
 #endif

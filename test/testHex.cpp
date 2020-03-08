@@ -12,7 +12,8 @@ namespace data {
 TEST(HexTest, HexHexToArray) {
     data::encoding::hex::string hexString(std::string("0063EA172D63808C"));
     ASSERT_TRUE(hexString.valid());
-    ASSERT_THAT((bytes)(hexString), ::testing::ElementsAre(0x00, 0x63, 0xEA, 0x17, 0x2D, 0x63, 0x80, 0x8C));
+    data::bytes b = (bytes_view)(hexString);
+    ASSERT_THAT(b, ::testing::ElementsAre(0x00, 0x63, 0xEA, 0x17, 0x2D, 0x63, 0x80, 0x8C));
 }
 
 TEST(HexTest, HexValidString) {
@@ -25,7 +26,7 @@ TEST(HexTest, HexValidString) {
 
 TEST(HexTest, HexInvalidExceptionOnError) {
     data::encoding::hex::string malformedHexString(std::string("0063EA172D63808"));
-    ASSERT_THROW((bytes)(malformedHexString), data::encoding::invalid);
+    ASSERT_THROW((bytes_view)(malformedHexString), data::encoding::invalid);
 }
 
 TEST(HexTest, HexWriteBytes) {

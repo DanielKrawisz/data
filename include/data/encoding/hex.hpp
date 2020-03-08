@@ -36,9 +36,9 @@ namespace data::encoding::hex {
         bytes *ToBytes;
         
     public:
-        explicit operator bytes() const {
+        explicit operator bytes_view() const {
             if (ToBytes == nullptr) throw invalid{format, String};
-            return *ToBytes;
+            return bytes_view(*ToBytes);
         }
         
         bool valid() const noexcept {

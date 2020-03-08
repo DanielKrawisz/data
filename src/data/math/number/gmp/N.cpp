@@ -202,7 +202,7 @@ namespace data::math::number::gmp {
     N::N(bytes_view x, endian::order o) : Value{read_bytes(x, o).Value} {}
     
     void N_write_big(bytes& b, const N& n) {
-        b = bytes(data::encoding::hex::string{data::encoding::hexidecimal::write(n).substr(2)});
+        b = bytes_view(data::encoding::hex::string{data::encoding::hexidecimal::write(n).substr(2)});
     }
     
     void N_write_little(bytes& b, const N& n) {

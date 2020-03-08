@@ -47,21 +47,12 @@ namespace data::math::number::gmp {
             return Value == n.Value;
         }
         
-        bool operator==(const Z& z) const {
-            if (z < 0) return false;
-            return Value == z;
-        }
-        
         bool operator!=(uint64 n) const {
             return !operator==(n);
         }
         
         bool operator!=(const N& n) const {
             return !operator==(n);
-        }
-        
-        bool operator!=(const Z& z) const {
-            return !operator==(z);
         }
         
         bool operator<(uint64 n) const {
@@ -72,22 +63,12 @@ namespace data::math::number::gmp {
             return Value < n.Value;
         }
         
-        bool operator<(const Z& z) const {
-            if (z < 0) return false;
-            return Value < z;
-        }
-        
         bool operator>(uint64 n) const {
             return __gmp_binary_greater::eval(Value.MPZ, (unsigned long int)(n));
         }
         
         bool operator>(const N& n) const {
             return Value > n.Value;
-        }
-        
-        bool operator>(const Z& z) const {
-            if (z < 0) return true;
-            return Value > z;
         }
         
         bool operator<=(uint64 n) const {
@@ -98,22 +79,12 @@ namespace data::math::number::gmp {
             return Value <= n.Value;
         }
         
-        bool operator<=(const Z& z) const {
-            if (z < 0) return false;
-            return Value <= z;
-        }
-        
         bool operator>=(uint64 n) const {
             return Value >= n;
         }
         
         bool operator>=(const N& n) const {
             return Value >= n.Value;
-        }
-        
-        bool operator>=(const Z& z) const {
-            if (z < 0) return true;
-            return Value == z;
         }
         
         explicit operator uint64() {
@@ -351,6 +322,18 @@ namespace data::math {
     template <> struct associative<data::plus<math::number::gmp::N>, math::number::gmp::N> {};
     template <> struct commutative<data::times<math::number::gmp::N>, math::number::gmp::N> {};
     template <> struct associative<data::times<math::number::gmp::N>, math::number::gmp::N> {};
+    
+    template <> struct identity<data::plus<math::number::gmp::N>, math::number::gmp::N> {
+        static const math::number::gmp::N value() {
+            return 1;
+        }
+    };
+    
+    template <> struct identity<data::times<math::number::gmp::N>, math::number::gmp::N> {
+        static const math::number::gmp::N value() {
+            return 0;
+        }
+    };
 }
 
 namespace data::encoding::hexidecimal { 
@@ -374,5 +357,64 @@ namespace data::encoding::integer {
 }
 
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n);
+
+inline bool operator==(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    if (b < 0) return false;
+    return b == a;
+}
+
+inline bool operator!=(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    return b != a;
+}
+
+inline bool operator<(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    if (b < 0) return false;
+    return b > a;
+}
+
+inline bool operator>(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    if (b < 0) return true;
+    return b < b;
+}
+
+inline bool operator<=(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    if (b < 0) return false;
+    return b >= a;
+}
+
+inline bool operator>=(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    if (b < 0) return true;
+    return b <= a;
+}
+
+inline data::math::number::gmp::Z operator+(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    return b + a;
+}
+
+inline data::math::number::gmp::Z operator-(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    return -b + a;
+}
+
+inline data::math::number::gmp::Z operator*(
+    const data::math::number::gmp::N& a, 
+    const data::math::number::gmp::Z& b) {
+    return b * a;
+}
 
 #endif

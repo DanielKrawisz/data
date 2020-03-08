@@ -10,11 +10,9 @@
 namespace data::interface {
     
     template <typename elem, typename plus, typename times>
-    class ring : 
+    class ring : math::identity<times, elem>, 
         public abelian<elem, plus>, 
         public math::associative<times, elem> {
-        using require_zero_element = typename std::enable_if<meta::has_identity<plus, elem>::value, void>::type;
-        using require_unit_element = typename std::enable_if<meta::has_identity<times, elem>::value, void>::type;
         using require_plus_operator = typename std::enable_if<meta::has_plus_operator<elem>::value, void>::type;
         using require_minus_operator = typename std::enable_if<meta::has_minus_operator<elem>::value, void>::type;
         using require_times_operator = typename std::enable_if<meta::has_times_operator<elem>::value, void>::type;

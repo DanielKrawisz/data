@@ -31,15 +31,6 @@ namespace data::meta {
     
     template <typename F, typename x> using is_binary_operation = is_function<x, F, x, x>;
     
-    template <typename F, typename x>
-    class has_identity {
-        template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(F::identity()), const x>::value, yes>::type;
-        template <typename> static no test(...);
-    public:
-        static constexpr bool value = std::is_same<decltype(test<F>(0)), yes>::value && is_binary_operation<F, x>::value;
-    };
-    
 }
 
 namespace data {

@@ -9,15 +9,17 @@
 #include <data/math/commutative.hpp>
 #include <data/math/arithmetic.hpp>
 
+namespace data::math {
+    
+    template <typename F, typename x> struct identity;
+}
+
 namespace data::interface {
     
     template <typename elem, typename op>
-    class group : math::associative<op, elem> {
-        using require_binary_identity = typename std::enable_if<meta::has_identity<op, elem>::value, void>::type;
-
-    public:
+    struct group : math::associative<op, elem>, math::identity<op, elem> {
         static elem identity() {
-            return op::Identity;
+            return math::identity<op, elem>::Identity;
         }
         
         using invert = data::inverse<action<op, elem>, elem, elem>;
