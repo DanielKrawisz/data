@@ -39,6 +39,7 @@ namespace data::math::number::natural {
     template <typename N>
     static division<N> divide(const N Dividend, const N Divisor) {
         if (Divisor == 0) throw division_by_zero{};
+        if (Divisor == 1) return {Dividend, 0};
         N pow = 1;
         N exp = Divisor;
         N remainder = Dividend;

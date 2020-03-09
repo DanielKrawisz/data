@@ -78,6 +78,18 @@ namespace data {
         
     }
     
+    TEST(ZTest, TestZeroSize) {
+        
+        EXPECT_EQ(Z_bytes<endian::big>{"0x"}.size(), 0);
+        EXPECT_EQ(Z_bytes<endian::big>{"0x00"}.size(), 1);
+        EXPECT_EQ(Z_bytes<endian::big>{"0x000000"}.size(), 3);
+        
+        EXPECT_EQ(Z_bytes<endian::little>{"0x"}.size(), 0);
+        EXPECT_EQ(Z_bytes<endian::little>{"0x00"}.size(), 1);
+        EXPECT_EQ(Z_bytes<endian::little>{"0x000000"}.size(), 3);
+        
+    }
+    
     TEST(ZTest, TestZeroAndNegativeZ) {
         
         EXPECT_EQ(Z_bytes<endian::big>{"0x"}, Z_bytes<endian::big>{0});

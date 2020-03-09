@@ -151,6 +151,12 @@ namespace data::math::number::gmp {
         
         bool operator>=(const N&) const;
         
+        explicit operator int64() {
+            if (operator>(std::numeric_limits<int64>::max())) throw std::logic_error{"too big"};
+            if (operator<(std::numeric_limits<int64>::min())) throw std::logic_error{"too big"};
+            return mpz_get_si(MPZ);
+        } 
+        
         Z& operator++() {
             __gmp_unary_increment::eval(MPZ);
             return *this;
@@ -268,8 +274,6 @@ namespace data::math::number::gmp {
             mpz_fdiv_qr(qr.Quotient.MPZ, qr.Remainder.MPZ, MPZ, z.MPZ);
             return qr;
         }
-        
-        division<Z> divide(const N&) const;
         
         bool operator|(const Z& z) const {
             return divide(z).Remainder == 0;

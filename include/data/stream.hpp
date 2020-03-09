@@ -120,7 +120,7 @@ namespace data {
         
         template <typename ... P>
         bytes write_bytes(uint32 size, P... p) {
-            bytes Data{size};
+            bytes Data(size);
             write_all(writer{Data.begin(), Data.end()}, p...);
             return Data;
         };
@@ -139,14 +139,14 @@ namespace data {
     template <typename it>
     writer<it> writer<it>::operator<<(bytes_view x) const {
         ostream<byte, it> w = Writer;
-        for(bytes_view::iterator i = x.begin(); i != x.end(); i++) w = w << *i;
+        for(bytes_view::iterator i = x.begin(); i != x.end(); ++i) w = w << *i;
         return writer{w};
     }
 
     template <typename it>
     reader<it> reader<it>::operator>>(bytes &x) const {
         istream<byte, it> is = Reader;
-        for(int i=0;i<x.size();i++) is = is >> x[i];
+        for(int i=0; i<x.size(); i++) is = is >> x[i];
         return reader{is};
     }
     

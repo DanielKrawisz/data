@@ -5,6 +5,7 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/list/linked.hpp>
 
 namespace data::math::number::gmp {
     
@@ -78,8 +79,21 @@ namespace data::math::number::gmp {
         return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
     
-    void Z_write_dec(std::ostream& o, const Z& n) {
-        o << std::dec << n.MPZ;
+    std::ostream& Z_write_dec(std::ostream& o, const Z& n) {
+        if (n == 0) return o << "0";
+        if (n < 0) return Z_write_dec(o << "-", -n);
+        Z z = n;
+        functional::stack::linked<int32> digits;
+        while (z > 0) {
+            division<Z> d = z.divide(10);
+            digits = digits.prepend((int64)(d.Remainder));
+            z = d.Quotient;
+        }
+        while (!digits.empty()) {
+            o << digits.first();
+            digits = digits.rest();
+        }
+        return o;
     }
     /*
     void Z_write_hex(std::ostream& o, const Z& n) {
@@ -126,8 +140,7 @@ std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
         return o;
     }*/
     if (o.flags() & std::ios::dec) {
-        data::math::number::gmp::Z_write_dec(o, n);
-        return o;
+        return data::math::number::gmp::Z_write_dec(o, n);
     }
     o << &n.MPZ;
     return o;
@@ -149,10 +162,10 @@ namespace data::math::number::gmp {
     
     N::N(string_view x) : Value{N_read(x)} {}
     
-    void N_write_dec(std::ostream& o, const N& n) {
-        o << std::dec << n.Value.MPZ;
+    std::ostream& N_write_dec(std::ostream& o, const N& n) {
+        return Z_write_dec(o, n.Value);
     }
-    
+    /*
     void N_write_hex(std::ostream& o, const N& n) {
         std::stringstream gmp_format_stream;
         gmp_format_stream << std::hex << n.Value.MPZ;
@@ -161,7 +174,7 @@ namespace data::math::number::gmp {
         o << "0x";
         if (gmp_format.size() % 2 == 1) o << "0";
         o << gmp_format;
-    }
+    }*/
     
     // inefficient but easier to write and more certain to be correct. 
     N read_bytes_big(bytes_view x) {
@@ -233,10 +246,10 @@ namespace data::math::number::gmp {
 }
 
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n) {
-    if (o.flags() & std::ios::hex) {
+    /*if (o.flags() & std::ios::hex) {
         data::math::number::gmp::N_write_hex(o, n);
         return o;
-    }
+    }*/
     if (o.flags() & std::ios::dec) {
         data::math::number::gmp::N_write_dec(o, n);
         return o;

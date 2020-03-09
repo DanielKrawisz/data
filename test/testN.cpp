@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,18 +18,6 @@ namespace data {
         EXPECT_FALSE(N{"01"}.valid());
         EXPECT_FALSE(N{"0x1"}.valid());
         
-        EXPECT_THROW(N_bytes<endian::big>{"a"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::big>{"-"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::big>{"-1"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::big>{"01"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::big>{"0x1"}, std::invalid_argument);
-        
-        EXPECT_THROW(N_bytes<endian::little>{"a"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::little>{"-"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::little>{"-1"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::little>{"01"}, std::invalid_argument);
-        EXPECT_THROW(N_bytes<endian::little>{"0x1"}, std::invalid_argument);
-        
         EXPECT_TRUE(N{0}.valid());
         EXPECT_TRUE(N{"0"}.valid());
         EXPECT_TRUE(N{"0x"}.valid());
@@ -48,30 +36,6 @@ namespace data {
         EXPECT_EQ(N{1}, N{"0x0001"});
         EXPECT_EQ(N{255}, N{"0xff"});
         
-        EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{});
-        EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{""});
-        EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{"0"});
-        EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{"0x"});
-        
-        EXPECT_FALSE(N_bytes<endian::big>{1} == N_bytes<endian::big>{"0"});
-        EXPECT_FALSE(N_bytes<endian::big>{0} == N_bytes<endian::big>{"1"});
-        
-        EXPECT_TRUE(N_bytes<endian::big>{1} == N_bytes<endian::big>{"1"});
-        EXPECT_TRUE(N_bytes<endian::big>{1} == N_bytes<endian::big>{"0x01"});
-        EXPECT_TRUE(N_bytes<endian::big>{1} == N_bytes<endian::big>{"0x0001"});
-        
-        EXPECT_EQ(N_bytes<endian::little>{0}, N_bytes<endian::little>{});
-        EXPECT_EQ(N_bytes<endian::little>{0}, N_bytes<endian::little>{""});
-        EXPECT_EQ(N_bytes<endian::little>{0}, N_bytes<endian::little>{"0"});
-        EXPECT_EQ(N_bytes<endian::little>{0}, N_bytes<endian::little>{"0x"});
-        
-        EXPECT_FALSE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"0"});
-        EXPECT_FALSE(N_bytes<endian::little>{0} == N_bytes<endian::little>{"1"});
-        
-        EXPECT_TRUE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"1"});
-        EXPECT_TRUE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"0x01"});
-        EXPECT_TRUE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"0x0001"});
-        
         EXPECT_EQ(encoding::hexidecimal::write(N{0}), "0x00");
         EXPECT_EQ(encoding::integer::write(N{0}), "0");
         EXPECT_EQ(encoding::hexidecimal::write(N{1}), "0x01");
@@ -85,107 +49,19 @@ namespace data {
         EXPECT_EQ(encoding::hexidecimal::write(N{"127"}), std::string{"0x7f"});
         EXPECT_EQ(encoding::hexidecimal::write(N{"128"}), std::string{"0x80"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"0"}), std::string{"0x00"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"127"}), std::string{"0x7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"128"}), std::string{"0x80"});
-        
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"0"}), std::string{"0x00"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"127"}), std::string{"0x7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"128"}), std::string{"0x80"});
-        
     }
     
-    TEST(NTest, TestZeroSize) {
+    TEST(NTest, TestNNegativeHex) {
         
-        EXPECT_EQ(N_bytes<endian::big>{"0x"}.size(), 0);
-        EXPECT_EQ(N_bytes<endian::big>{"0x00"}.size(), 1);
-        EXPECT_EQ(N_bytes<endian::big>{"0x000000"}.size(), 3);
+        EXPECT_NE(N{"0x8000000000000000000000000000000000000000000000000000000000000000"}, N(0));
+        EXPECT_NE(N{"0x80000000000000000000000000000000000000000000000000000000000000"}, N(0));
+        EXPECT_NE(N{"0x80000000000000000000000000000000000000000000000000000000"}, N(0));
+        EXPECT_NE(N{"0x8000000000000000000000000000000000000000000000"}, N(0));
+        EXPECT_NE(N{"0x8000000000000000000000000000"}, N(0));
+        EXPECT_NE(N{"0x8000000000"}, N(0));
+        EXPECT_NE(N{"0x8000"}, N(0));
+        EXPECT_NE(N{"0x80"}, N(0));
         
-        EXPECT_EQ(N_bytes<endian::little>{"0x"}.size(), 0);
-        EXPECT_EQ(N_bytes<endian::little>{"0x00"}.size(), 1);
-        EXPECT_EQ(N_bytes<endian::little>{"0x000000"}.size(), 3);
-        
-        EXPECT_EQ(Z_bytes<endian::big>{"0x"}.size(), 0);
-        EXPECT_EQ(Z_bytes<endian::big>{"0x00"}.size(), 1);
-        EXPECT_EQ(Z_bytes<endian::big>{"0x000000"}.size(), 3);
-        
-        EXPECT_EQ(Z_bytes<endian::little>{"0x"}.size(), 0);
-        EXPECT_EQ(Z_bytes<endian::little>{"0x00"}.size(), 1);
-        EXPECT_EQ(Z_bytes<endian::little>{"0x000000"}.size(), 3);
-        
-    }
-    
-    TEST(NTest, TestZeroAndNegativeN) {
-        
-        EXPECT_EQ(N_bytes<endian::big>{"0x"}, N_bytes<endian::big>{0});
-        EXPECT_EQ(N_bytes<endian::big>{"0x00"}, N_bytes<endian::big>{0});
-        EXPECT_EQ(N_bytes<endian::big>{"0x000000"}, N_bytes<endian::big>{0});
-        EXPECT_EQ(N_bytes<endian::little>{"0x"}, N_bytes<endian::little>{0});
-        EXPECT_EQ(N_bytes<endian::little>{"0x00"}, N_bytes<endian::little>{0});
-        EXPECT_EQ(N_bytes<endian::little>{"0x000000"}, N_bytes<endian::little>{0});
-        
-        EXPECT_EQ(N_bytes<endian::big>{"0x01"}, N_bytes<endian::big>{1});
-        EXPECT_EQ(N_bytes<endian::big>{"0x0001"}, N_bytes<endian::big>{1});
-        EXPECT_EQ(N_bytes<endian::big>{"0x00000001"}, N_bytes<endian::big>{1});
-        EXPECT_EQ(N_bytes<endian::little>{"0x01"}, N_bytes<endian::little>{1});
-        EXPECT_EQ(N_bytes<endian::little>{"0x0001"}, N_bytes<endian::little>{1});
-        EXPECT_EQ(N_bytes<endian::little>{"0x00000001"}, N_bytes<endian::little>{1});
-        
-    }
-    
-    // Problem: string reversal not happening correctly for some reason!!
-    TEST(NTest, TestNToNBytes) {
-        
-        EXPECT_EQ(N_bytes<endian::big>{N{"1"}}, N_bytes<endian::big>{"1"});
-        EXPECT_EQ(N_bytes<endian::little>{N{"1"}}, N_bytes<endian::little>{"1"});
-        EXPECT_EQ(N_bytes<endian::big>{N{"23"}}, N_bytes<endian::big>{"23"});
-        EXPECT_EQ(N_bytes<endian::little>{N{"23"}}, N_bytes<endian::little>{"23"});
-        EXPECT_EQ(N_bytes<endian::big>{N{"5704566599993321"}}, N_bytes<endian::big>{"5704566599993321"});
-        EXPECT_EQ(N_bytes<endian::little>{N{"5704566599993321"}}, N_bytes<endian::little>{"5704566599993321"});
-        
-    }
-    
-    TEST(NTest, TestNBytesToString) {
-        
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"1"}), std::string{"1"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{"1"}), std::string{"1"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"23"}), std::string{"23"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{"23"}), std::string{"23"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"5704566599993321"}), std::string{"5704566599993321"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{"5704566599993321"}), std::string{"5704566599993321"});
-        
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"1"}), std::string{"0x01"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"1"}), std::string{"0x01"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"23"}), std::string{"0x17"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"23"}), std::string{"0x17"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"5704566599993321"}), std::string{"144445e9ca47e9"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"5704566599993321"}), std::string{"144445e9ca47e9"});
-        
-    }
-    
-    TEST(NTest, TestIncrement) {
-        
-        EXPECT_EQ(++N_bytes<endian::big>{"0x"}, N_bytes<endian::big>{1});
-        EXPECT_EQ(++N_bytes<endian::big>{"0x00"}, N_bytes<endian::big>{1});
-        EXPECT_EQ(++N_bytes<endian::big>{"0x000000"}, N_bytes<endian::big>{1});
-        EXPECT_EQ(++N_bytes<endian::little>{"0x"}, N_bytes<endian::little>{1});
-        EXPECT_EQ(++N_bytes<endian::little>{"0x00"}, N_bytes<endian::little>{1});
-        EXPECT_EQ(++N_bytes<endian::little>{"0x000000"}, N_bytes<endian::little>{1});
-        
-    }
-    
-    TEST(NTest, TestNBytesToN) {
-        /* segmentation fault!! 
-        EXPECT_EQ(N{N_bytes<endian::big>{}}, N{0});
-        EXPECT_EQ(N{N_bytes<endian::big>{""}}, N{0});
-        EXPECT_EQ(N{N_bytes<endian::little>{}}, N{0});
-        EXPECT_EQ(N{N_bytes<endian::little>{""}}, N{0});
-        
-        EXPECT_EQ(Z{Z_bytes<endian::big>{}}, Z{0});
-        EXPECT_EQ(Z{Z_bytes<endian::big>{""}}, Z{0});
-        EXPECT_EQ(Z{Z_bytes<endian::little>{}}, Z{0});
-        EXPECT_EQ(Z{Z_bytes<endian::little>{""}}, Z{0});
-        */
     }
     
     TEST(NTest, TestMultiply) {
@@ -209,7 +85,6 @@ namespace data {
         
     }
     
-    // TODO needs to be changed because << and >> need to be removed from N. 
     TEST(NTest, TestShift) {
         
         EXPECT_TRUE(N{1} >>  1 == N{"0x00000000000000000000"});
@@ -220,9 +95,8 @@ namespace data {
         
     }
     
-    // TODO same.
     TEST(NTest, TestN) {
-        /*
+        
         // parameters from https://en.bitcoin.it/wiki/Secp256k1
         
         N p = (N{1} << 256) - (N{1} << 32) - (N{1} << 9) - (N{1} << 8) - (N{1} << 7) - (N{1} << 6) - (N{1} << 4) - 1;
@@ -250,7 +124,7 @@ namespace data {
         
         EXPECT_FALSE(p == N{n_dec});
         EXPECT_FALSE(n == N{p_dec});
-        
+        /*
         N_bytes<endian::big> p_bytes{p_hex};
         N_bytes<endian::big> n_bytes{n_hex};
         
@@ -264,8 +138,12 @@ namespace data {
         EXPECT_EQ(n_bytes, N_bytes<endian::big>{n_from_big});
         
         EXPECT_EQ(p_from_big, p_from_little);
-        EXPECT_EQ(n_from_big, n_from_little);
-        */
+        EXPECT_EQ(n_from_big, n_from_little);*/
+        
+    }
+    
+    TEST(NTest, TestNDivision) {
+        // 26959946667150639794667015087019630673637144422540572481103610249215 / 1
     }
     
 }

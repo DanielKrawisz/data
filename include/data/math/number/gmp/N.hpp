@@ -283,10 +283,6 @@ namespace data::math::number::gmp {
     inline Z& Z::operator*=(const N& n) {
         return operator*=(n.Value);
     }
-    
-    inline division<Z> Z::divide(const N& n) const {
-        return divide(n.Value);
-    }
         
     template <endian::order o> 
     Z::Z(const N_bytes<o>& b) : Z{N{b}.Value} {}

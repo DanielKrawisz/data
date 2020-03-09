@@ -12,8 +12,9 @@ ADD_EXECUTABLE(testData
     testIntegerFormat.cpp 
     testBytestring.cpp
     testLinkedStack.cpp 
-    #testN.cpp 
+    testN.cpp 
     testBase58.cpp 
+    #testNBytes.cpp 
     #testBounded.cpp 
     #testZ.cpp
     #testBitShift.cpp 
