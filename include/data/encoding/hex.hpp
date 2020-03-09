@@ -16,6 +16,14 @@
 namespace data::encoding::hex {
     const std::string format = "hex";
     
+    inline std::string characters_lower() {
+        return "0123456789abcdef";
+    }
+    
+    inline std::string characters_upper() {
+        return "0123456789ABCDEF";
+    }
+    
     constexpr auto pattern = ctll::fixed_string{"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
     
     inline bool valid(string_view s) {

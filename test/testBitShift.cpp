@@ -13,8 +13,8 @@
 
 namespace data {
     
-    template<size_t size, data::endian::order o, bool is_signed> 
-    using bounded = data::math::number::bounded<size, o, is_signed>;
+    template<bool is_signed, data::endian::order o, size_t size> 
+    using bounded = data::math::number::bounded<is_signed, o, size>;
     
     template <size_t size> 
     using integer_little = data::math::number::bounded<size, endian::little, true>;
@@ -43,10 +43,10 @@ namespace data {
     
     TEST(BoundedTest, BitShift) {
         
-        using u12l = bounded<12, data::endian::little, false>;
-        using u12b = bounded<12, data::endian::big, false>;
-        using s12l = bounded<12, data::endian::little, true>;
-        using s12b = bounded<12, data::endian::big, true>;
+        using u12l = bounded<false, data::endian::little, 12>;
+        using u12b = bounded<false, data::endian::big, 12>;
+        using s12l = bounded<true, data::endian::little, 12>;
+        using s12b = bounded<true, data::endian::big, 12>;
         
         using nl = data::math::number::N_bytes<data::endian::little>;
         using nb = data::math::number::N_bytes<data::endian::big>;

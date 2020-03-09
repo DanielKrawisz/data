@@ -87,9 +87,8 @@ namespace data::math::number::gmp {
             return Value >= n.Value;
         }
         
-        explicit operator uint64() {
-            if (operator>(std::numeric_limits<uint64>::max())) throw std::logic_error{"too big"};
-            return mpz_get_ui(Value.MPZ);
+        explicit operator uint64() const {
+            return uint64(Value);
         } 
         
         N& operator++() {

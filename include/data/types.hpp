@@ -11,6 +11,7 @@
 #include <string>
 #include <stdint.h>
 #include <algorithm>
+#include <iostream>
 #include <boost/endian/arithmetic.hpp>
 
 namespace data {

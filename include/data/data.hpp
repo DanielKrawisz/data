@@ -37,10 +37,6 @@ namespace data {
     // functional queue built using the list. 
     template <typename X> using list = tool::functional_queue<stack<X>>;
     
-    // get all values from a map with the given keys. 
-    template <typename key, typename value, typename map>
-    list<value> get_all(map m, list<key> k);
-    
     // tree. 
     template <typename X> using tree = functional::tree::linked<X>;
     
@@ -56,6 +52,24 @@ namespace data {
     
     // set implemented as a map. 
     template <typename X> using set = tool::map_set<map<X, unit>>;
+    
+    // get all values from a map with the given keys. 
+    template <typename key, typename value, typename map>
+    list<value> get_all(map m, list<key> k) {
+        struct inner {
+            map M;
+                    
+            inner(map m) : M{m} {}
+                    
+            list<value> operator()(key k, list<value> l) {
+                value v = M[k];
+                if (v == value{}) return l;
+                return l + v;
+            }
+        };
+                
+        return reduce(inner{m}, k);
+    }
 
 }
 

@@ -25,7 +25,12 @@ namespace data::math::number {
         }
         
         static N_bytes read(string_view x) {
-            return x.size() == 0 ? 0 : N_bytes<r>{encoding::natural::read(x, r)};
+            if (x.size() == 0) return 0;
+            try {
+                return N_bytes<r>{encoding::natural::read(x, r)};
+            } catch (std::invalid_argument&) {
+                return N_bytes(); // Invalid value. 
+            }
         }
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
@@ -60,6 +65,8 @@ namespace data::math::number {
         using bytestring<r>::end;
         using bytestring<r>::rbegin;
         using bytestring<r>::rend;
+        using bytestring<r>::operator[];
+        using bytestring<r>::valid;
         
         static N_bytes zero(size_t size) {
             return N_bytes(size, 0x00);
@@ -337,7 +344,7 @@ namespace data::encoding::hexidecimal {
 }
 
 namespace data::encoding::integer {
-    
+    /*
     template <endian::order r>
     std::ostream& write(std::ostream& o, const math::number::N_bytes<r>& n) {
         static const cross<math::number::N_bytes<r>> digits{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -370,11 +377,11 @@ namespace data::encoding::integer {
         }
         return o;
     }
-    
+    */
     template <endian::order r>
     std::string write(const math::number::N_bytes<r>& n){
         std::stringstream ss;
-        write(ss, n);
+        write(ss, data::math::number::gmp::N{n}); // Inefficient.
         return ss.str();
     }
     
@@ -382,8 +389,9 @@ namespace data::encoding::integer {
 
 template <data::endian::order r>
 std::ostream& operator<<(std::ostream& o, const data::math::number::N_bytes<r>& n) {
-    if (o.flags() & std::ios::hex) return data::encoding::integer::write(o, n);
-    if (o.flags() & std::ios::dec) return data::encoding::hexidecimal::write(o, n);
+    if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
+    // TODO for dec, we convert N_bytes to N. This is inefficient but it works for now. 
+    if (o.flags() & std::ios::dec) return data::encoding::integer::write(o, data::math::number::gmp::N{n});
     return o;
 }
 

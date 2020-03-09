@@ -33,4 +33,9 @@ namespace data::math {
     
 }
 
+template <typename N>
+inline std::ostream& operator<<(std::ostream& o, const data::math::division<N> x) {
+    return o << "division{Quotient: " << x.Quotient << ", Remainder: " << x.Remainder << "}";
+}
+
 #endif

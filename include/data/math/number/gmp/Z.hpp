@@ -152,11 +152,9 @@ namespace data::math::number::gmp {
         
         bool operator>=(const N&) const;
         
-        explicit operator int64() {
-            if (operator>(std::numeric_limits<int64>::max())) throw std::logic_error{"too big"};
-            if (operator<(std::numeric_limits<int64>::min())) throw std::logic_error{"too big"};
-            return mpz_get_si(MPZ);
-        } 
+        explicit operator int64() const;
+        
+        explicit operator uint64() const;
         
         Z& operator++() {
             __gmp_unary_increment::eval(MPZ);
@@ -328,7 +326,10 @@ namespace data::math::number::gmp {
         }
         
         template <endian::order o> 
-        explicit Z(const Z_bytes<o>& b);
+        explicit Z(const Z_bytes<o>& b) : Z(bytes_view(b), o) {
+            if (b[0] < 0x80) return;
+            *this -= (Z{2} << (b.size() * 8));
+        }
         
         template <endian::order o> 
         explicit Z(const N_bytes<o>& b) : Z(bytes_view(b), o) {}

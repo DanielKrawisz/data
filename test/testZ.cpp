@@ -116,7 +116,7 @@ namespace data {
     }
     
     // Problem: string reversal not happening correctly for some reason!!
-    TEST(ZTest, TestZToNBytes) {
+    TEST(ZTest, TestZToZBytes) {
         
         EXPECT_EQ(Z_bytes<endian::big>{Z{"1"}}, Z_bytes<endian::big>{"1"});
         EXPECT_EQ(Z_bytes<endian::little>{Z{"1"}}, Z_bytes<endian::little>{"1"});
@@ -130,7 +130,7 @@ namespace data {
         EXPECT_EQ(Z_bytes<endian::little>{Z{"-3393939987200333"}}, Z_bytes<endian::little>{"-3393939987200333"});
         
     }
-    
+    /*
     TEST(ZTest, TestIncrementAndDecrement) {
         
         EXPECT_EQ(++Z_bytes<endian::big>{"0x"}, Z_bytes<endian::big>{1});
@@ -147,7 +147,7 @@ namespace data {
         EXPECT_EQ(--Z_bytes<endian::little>{"0x00"}, Z_bytes<endian::little>{-1});
         EXPECT_EQ(--Z_bytes<endian::little>{"0x000000"}, Z_bytes<endian::little>{-1});
         
-    }
+    }*/
     
     TEST(ZTest, TestZBytesToString) {
         
@@ -160,7 +160,7 @@ namespace data {
         EXPECT_EQ(encoding::integer::write(Z_bytes<endian::big>{"-1"}), std::string{"-1"});
         EXPECT_EQ(encoding::integer::write(Z_bytes<endian::little>{"-1"}), std::string{"-1"});
         EXPECT_EQ(encoding::integer::write(Z_bytes<endian::big>{"-3393939987200333"}), std::string{"-3393939987200333"});
-        EXPECT_EQ(encoding::integer::write(Z_bytes<endian::little>{"-3393939987200333"}), std::string{"-3393939987200333"});*
+        EXPECT_EQ(encoding::integer::write(Z_bytes<endian::little>{"-3393939987200333"}), std::string{"-3393939987200333"});
         
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"1"}), std::string{"0x01"});
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"1"}), std::string{"0x01"});

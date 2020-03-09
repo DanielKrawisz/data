@@ -18,6 +18,10 @@ namespace data::encoding {
     namespace decimal {
         constexpr auto pattern = ctll::fixed_string{"^0|([1-9][0-9]*)$"};
         
+        inline std::string characters() {
+            return "0123456789";
+        }
+        
         inline bool valid(string_view s) {
             return ctre::match<pattern>(s);
         } 

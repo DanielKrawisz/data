@@ -178,6 +178,8 @@ namespace data {
     };
 }
 
+std::ostream& operator<<(std::ostream& o, const data::bytes_view s);
+
 template <typename X>
 inline bool operator==(
     const data::oriented<X, data::endian::big>& a, 

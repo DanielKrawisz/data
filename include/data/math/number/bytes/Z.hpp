@@ -30,11 +30,12 @@ namespace data::math::number {
         
         Z_bytes(const bytestring<r>& x) : bytestring<r>(x) {}
         
-        // A bit inefficient. 
-        explicit Z_bytes(const Z& z); /* : Z_bytes() {
+        // First we write the Z as hex and then read it in again. 
+        // A bit inefficient but it's really not that bad. 
+        explicit Z_bytes(const Z& z) : Z_bytes() {
             if (!z.valid()) throw std::invalid_argument{"invalid Z provided"};
             *this = Z_bytes(data::encoding::hexidecimal::write(z));
-        }*/
+        }
         
         explicit Z_bytes(const N& n) : Z_bytes(Z(n)) {}
         
@@ -53,7 +54,10 @@ namespace data::math::number {
         using bytestring<r>::size;
         using bytestring<r>::begin;
         using bytestring<r>::end;
+        using bytestring<r>::rbegin;
+        using bytestring<r>::rend;
         using bytestring<r>::operator[];
+        using bytestring<r>::valid;
         
     private:
         
@@ -102,10 +106,6 @@ namespace data::math::number {
             bool nz = z.is_negative();
             return na != nz ? na : methods::less_equal(std::max(size(), z.size()), words(), z.words());
         }*/
-        
-        bool operator<=(const N_bytes<r>& z) const; /*{
-            return is_negative() ? true : methods::less_equal(std::max(size(), z.size()), words(), z.words());
-        }*/ 
         
         bool operator>=(const Z_bytes& n) const {
             return !operator<(n);
@@ -315,16 +315,16 @@ namespace data::math {
 namespace data::encoding::hexidecimal {
     
     template <endian::order r>
-    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n); /*{
+    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
         return o << "0x" << hex::write(bytes_view(n), r);
-    }*/
+    }
     
     template <endian::order r>
-    std::string write(const math::number::Z_bytes<r>& n); /*{
+    std::string write(const math::number::Z_bytes<r>& n) {
         std::stringstream ss;
         write(ss, n);
         return ss.str();
-    }*/
+    }
     
 }
 

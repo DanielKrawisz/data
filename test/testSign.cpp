@@ -9,19 +9,19 @@
 #include "data/math/number/bounded/bounded.hpp"
 #include "gtest/gtest.h"
 
-namespace data::exported {
+namespace data {
     
     template <size_t size> 
-    using integer_little = data::math::number::bounded<size, endian::little, true>;
+    using integer_little = data::math::number::bounded<true, endian::little, size>;
     
     template <size_t size> 
-    using integer_big = data::math::number::bounded<size, endian::big, true>;
+    using integer_big = data::math::number::bounded<true, endian::big, size>;
     
     template <size_t size> 
-    using uint_little = data::math::number::bounded<size, endian::little, false>;
+    using uint_little = data::math::number::bounded<false, endian::little, size>;
     
     template <size_t size> 
-    using uint_big = data::math::number::bounded<size, endian::big, false>;
+    using uint_big = data::math::number::bounded<false, endian::big, size>;
     
     TEST(SignTest, TestDecrement) {
         EXPECT_EQ(    integer_big<9>{0}--,     integer_big<9>{"0xffffffffffffffffff"});

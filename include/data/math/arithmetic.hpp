@@ -154,29 +154,27 @@ namespace data::math::arithmetic {
     
     template <typename word, endian::order r> struct number;
     
-    template <> struct number<uint32, endian::big> {
-        slice<byte> Data;
-        size_t Size; 
+    template <typename word> struct number<word, endian::big> {
+        slice<word> Data;
         
         constexpr static endian::order endian = endian::big;
         constexpr static endian::order opposite = endian::little;
         
-        const uint32_big operator[](uint32) const;
+        const word& operator[](uint32) const;
         
-        void set(uint32, uint32_big);
+        word& operator[](uint32);
         
     };
     
-    template <> struct number<uint32, endian::little> {
-        slice<byte> Data;
-        size_t Size; 
+    template <typename word> struct number<word, endian::little> {
+        slice<word> Data;
         
         constexpr static endian::order endian = endian::little;
         constexpr static endian::order opposite = endian::big;
         
-        const uint32_little operator[](uint32) const;
+        const word& operator[](uint32) const;
         
-        void set(uint32, uint32_little);
+        word& operator[](uint32);
     };
     
     template <typename word, endian::order r>

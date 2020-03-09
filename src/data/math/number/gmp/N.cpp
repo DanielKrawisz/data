@@ -5,6 +5,8 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/encoding/digits.hpp>
+#include <data/encoding/integer.hpp>
 #include <data/list/linked.hpp>
 
 namespace data::math::number::gmp {
@@ -82,38 +84,38 @@ namespace data::math::number::gmp {
     std::ostream& Z_write_dec(std::ostream& o, const Z& n) {
         if (n == 0) return o << "0";
         if (n < 0) return Z_write_dec(o << "-", -n);
-        Z z = n;
-        functional::stack::linked<int32> digits;
-        while (z > 0) {
-            division<Z> d = z.divide(10);
-            digits = digits.prepend((int64)(d.Remainder));
-            z = d.Quotient;
-        }
-        while (!digits.empty()) {
-            o << digits.first();
-            digits = digits.rest();
-        }
-        return o;
+        return o << encoding::write_base<Z>(n, encoding::decimal::characters());
     }
-    /*
-    void Z_write_hex(std::ostream& o, const Z& n) {
-        if (n < 0) {
-            // Very inefficient
-            o << std::hex << -Z_bytes<endian::big>(data::encoding::hexidecimal::write(-n));
-            return;
-        }
+    
+    std::ostream& Z_write_hexidecimal(std::ostream& o, const Z& n) {
+        if (n == 0) return o << "0x00";
+        std::string str;
+        char fill;
+        if (n > 0) {
+            str = encoding::write_base<Z>(n, encoding::hex::characters_lower());
+            fill = '0';
+        } else { 
+            Z z = -n; // positive 
+            uint32 digits = 0;
+            Z pow = 1;
+            
+            // find the smallest power of 256 bigger than z. 
+            while (pow < z) {
+                pow = pow << 8; 
+                digits ++;
+            }
         
-        std::stringstream gmp_format_stream;
-        gmp_format_stream << std::hex << n.MPZ;
-        std::string gmp_format = gmp_format_stream.str();
-        
+            std::string p_str = encoding::write_base<Z>(pow + n, encoding::hex::characters_lower());
+            str = p_str.substr(p_str.size() - digits, p_str.size());
+            fill = 'f';
+        } 
         o << "0x";
-        if (gmp_format.size() % 2 == 1) o << "0";
-        o << gmp_format;
-    }*/
+        if (str.size() % 2 != 0) o << fill;
+        return o << str;
+    }
     
 }
-/*
+
 namespace data::encoding::hexidecimal {
     
     std::string write(const math::number::gmp::Z& n) {
@@ -132,13 +134,13 @@ namespace data::encoding::integer {
         return ss.str();
     }
     
-}*/
+}
 
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
-    /*if (o.flags() & std::ios::hex) {
-        data::math::number::gmp::Z_write_hex(o, n);
+    if (o.flags() & std::ios::hex) {
+        data::math::number::gmp::Z_write_hexidecimal(o, n);
         return o;
-    }*/
+    }
     if (o.flags() & std::ios::dec) {
         return data::math::number::gmp::Z_write_dec(o, n);
     }
@@ -165,16 +167,6 @@ namespace data::math::number::gmp {
     std::ostream& N_write_dec(std::ostream& o, const N& n) {
         return Z_write_dec(o, n.Value);
     }
-    /*
-    void N_write_hex(std::ostream& o, const N& n) {
-        std::stringstream gmp_format_stream;
-        gmp_format_stream << std::hex << n.Value.MPZ;
-        std::string gmp_format = gmp_format_stream.str();
-        
-        o << "0x";
-        if (gmp_format.size() % 2 == 1) o << "0";
-        o << gmp_format;
-    }*/
     
     // inefficient but easier to write and more certain to be correct. 
     N read_bytes_big(bytes_view x) {
@@ -242,16 +234,29 @@ namespace data::math::number::gmp {
         bytes b{size, ' '};
         */
     }
+        
+    Z::operator int64() const {
+        if (operator>(std::numeric_limits<int64>::max())) throw std::logic_error{"too big"};
+        if (operator<(std::numeric_limits<int64>::min())) throw std::logic_error{"too big"};
+        return mpz_get_si(MPZ);
+    } 
+    
+    Z::operator uint64() const {
+        if (__gmp_binary_greater::eval(MPZ, (unsigned long int)(std::numeric_limits<uint64>::max())))
+            throw std::logic_error{"too big"};
+        if (operator<(0)) throw std::logic_error{"too big"};
+        return mpz_get_ui(MPZ);
+    } 
     
 }
 
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n) {
-    /*if (o.flags() & std::ios::hex) {
-        data::math::number::gmp::N_write_hex(o, n);
+    if (o.flags() & std::ios::hex) {
+        data::math::number::gmp::Z_write_hexidecimal(o, n.Value);
         return o;
-    }*/
+    }
     if (o.flags() & std::ios::dec) {
-        data::math::number::gmp::N_write_dec(o, n);
+        data::math::number::gmp::Z_write_dec(o, n.Value);
         return o;
     }
     o << &n.Value.MPZ;
