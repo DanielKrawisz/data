@@ -210,7 +210,7 @@ namespace data::math::number::gmp {
         }
         
         N& operator>>=(int64 x) {
-            __gmp_binary_lshift::eval(&Value.MPZ[0], &Value.MPZ[0], x);
+            __gmp_binary_rshift::eval(&Value.MPZ[0], &Value.MPZ[0], x);
             return *this;
         }
         
@@ -283,9 +283,6 @@ namespace data::math::number::gmp {
     inline Z& Z::operator*=(const N& n) {
         return operator*=(n.Value);
     }
-        
-    template <endian::order o> 
-    Z::Z(const N_bytes<o>& b) : Z{N{b}.Value} {}
     
 }
 

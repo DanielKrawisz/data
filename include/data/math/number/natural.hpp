@@ -44,7 +44,7 @@ namespace data::math::number::natural {
         N exp = Divisor;
         N remainder = Dividend;
         N quotient = 0;
-        while (exp <= remainder) {
+        while (exp <= remainder) { // TODO there is definitely a faster way of doing this!! 
             exp<<=1;
             pow<<=1;
         } 
@@ -52,10 +52,12 @@ namespace data::math::number::natural {
             while (exp > remainder) {
                 exp>>=1;
                 pow>>=1;
+                if (pow == 0) goto out;
             }
             quotient += pow;
             remainder -= exp;
         }
+        out: 
         return {quotient, remainder};
     }
     /*

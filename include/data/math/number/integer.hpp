@@ -22,6 +22,7 @@ namespace data::math::number::integer {
     
     template <typename Z>
     static division<Z> divide(const Z Dividend, const Z Divisor) {
+        
         if (Dividend < 0) {
             if (Divisor < 0) {
                 division<Z> d{natural::divide<Z>(-Dividend, -Divisor)};

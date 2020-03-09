@@ -9,6 +9,7 @@
 #include <data/math/number/integer.hpp>
 #include <data/iterable.hpp>
 #include <data/io/unimplemented.hpp>
+#include <iostream>
 
 namespace data::math::number::gmp {
     
@@ -315,7 +316,7 @@ namespace data::math::number::gmp {
         }
         
         Z& operator>>=(int64 x) {
-            __gmp_binary_lshift::eval(&MPZ[0], &MPZ[0], x);
+            __gmp_binary_rshift::eval(&MPZ[0], &MPZ[0], x);
             return *this;
         }
         
@@ -327,21 +328,22 @@ namespace data::math::number::gmp {
         }
         
         template <endian::order o> 
-        explicit Z(const Z_bytes<o>& b) : Z{bytes_view{b}, o} {}
+        explicit Z(const Z_bytes<o>& b);
         
         template <endian::order o> 
-        explicit Z(const N_bytes<o>& b);
+        explicit Z(const N_bytes<o>& b) : Z(bytes_view(b), o) {}
         
         template <endian::order o, size_t size> 
         explicit Z(const bounded<true, o, size>& b) : Z{Z_bytes<o>{b}} {}
         
         template <endian::order o, size_t size> 
-        explicit Z(const bounded<false, o, size>& b) : Z{Z_bytes<o>{b}} {}
+        explicit Z(const bounded<false, o, size>& b) : Z(bytes_view(b), o) {}
         
     private:
         Z(bytes_view b, endian::order o) : Z{0} {
+            std::cout << "Calling private Z constructor..." << std::endl;
             int i;
-            if (o == endian::little) for(i = 0; i < b.size() - 1; i++) {
+            if (o == endian::big) for(i = 0; i < b.size() - 1; i++) {
                 operator+=(b[i]);
                 operator<<(8);
             } else for(i = b.size() - 1; i > 0; i--) {

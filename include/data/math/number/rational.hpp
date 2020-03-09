@@ -22,7 +22,7 @@ namespace data::math::number {
         positive(N n) : Number{n} {}
         
         bool valid() const {
-            return Number > 0;
+            return data::valid(Number) && Number > 0;
         }
         
         bool operator==(const positive& p) const {
@@ -49,25 +49,29 @@ namespace data::math::number {
         Z Numerator;
         positive<N> Denominator;
         
-        fraction(Z n, positive<N> d) : Numerator{n}, Denominator{d} {}
-        fraction(Z n, N d) : Numerator{n}, Denominator{positive{d}} {}
-        fraction() : Numerator{0}, Denominator{1} {}
-        fraction(Z n) : Numerator{n}, Denominator{uint64{1}} {}
-        fraction(const fraction& f) : Numerator{f.Numerator}, Denominator{f.Denominator} {}
-        
         bool valid() const {
             return data::valid(Numerator) && Denominator.valid();
         }
+        
+        fraction() : Numerator{0}, Denominator{1} {}
+        
+    private:
+        fraction(Z n, positive<N> d) : Numerator{n}, Denominator{d} {}
         
         static N gcd(N a, N b) {
             return euclidian::extended<N, Z>::algorithm(a, b).GCD;
         }
         
-        static fraction divide(Z n, positive<N> d) {
-            if (n == 0) return fraction{Z{0}, N{1}};
-            N gcd_ab = gcd(abs<N, Z>{}(n), d.Number);
-            return fraction{n / Z{gcd_ab}, positive{d / gcd_ab}};
+        static fraction divide(Z n, N d) {
+            if (d == 0) return fraction{Z{0}, positive<N>{N{0}}}; // Invalid value. 
+            if (n == 0) return fraction{Z{0}, positive<N>{N{1}}};
+            N gcd_ab = gcd(abs<N, Z>{}(n), d);
+            return fraction(n / Z(gcd_ab), positive(d / gcd_ab));
         }
+        
+    public:
+        fraction(Z n, N d) : fraction(divide(n, d)) {}
+        fraction(Z n) : Numerator{n}, Denominator{uint64{1}} {}
         
         bool operator==(const fraction& f) const {
             return Numerator == f.Numerator && (Numerator == 0 || Denominator == f.Denominator);
@@ -88,26 +92,19 @@ namespace data::math::number {
         
         bool operator<(const fraction& f) const;
         
-        bool operator>(const fraction& f) const{
-            return Numerator * f.Denominator.Number > Denominator.Number * f.Numerator;
-        }
+        bool operator>(const fraction& f) const;
         
-        bool operator<=(const fraction& f) const{
-            return Numerator * f.Denominator.Number <= Denominator.Number * f.Numerator;
-        }
+        bool operator<=(const fraction& f) const;
         
-        bool operator>=(const fraction& f) const{
-            return Numerator * f.Denominator.Number >= Denominator.Number * f.Numerator;
-        }
+        bool operator>=(const fraction& f) const;
         
         fraction operator-() const {
             return {-Numerator, Denominator};
         }
         
         fraction operator+(const fraction& f) const {
-            N gcd_rr = gcd(Denominator.Number, f.Denominator.Number);
-            return (fraction{f.Numerator * Z{Denominator.Number} + Numerator * Z{f.Denominator.Number}} / gcd_rr) /  
-                (fraction{Denominator.Number * f.Denominator.Number} / gcd_rr);
+            return divide(f.Numerator * Denominator.Number + Numerator * f.Denominator.Number,   
+                Denominator.Number * f.Denominator.Number);
         }
         
         fraction operator+(const Z& z) const {
@@ -122,13 +119,9 @@ namespace data::math::number {
             return operator-(fraction{z});
         }
         
-        fraction operator*(const fraction& f) const {
-            return divide(Numerator * f.Numerator, Denominator * f.Denominator);
-        }
+        fraction operator*(const fraction& f) const;
         
-        fraction operator*(const Z& z) const {
-            return operator*(fraction{z});
-        }
+        fraction operator*(const Z& z) const;
         
         fraction operator/(const fraction& f) const {
             return (*this)*inverse(f);
@@ -162,7 +155,6 @@ namespace data::math::number {
         fraction& operator/=(const fraction& f) {
             return operator=(operator/(f));
         }
-        
     };
     
 }
@@ -191,6 +183,31 @@ namespace data::math::number {
     template <typename Z, typename N>
     inline bool fraction<Z, N>::operator<(const fraction& f) const {
         return Numerator * f.Denominator.Number < Denominator.Number * f.Numerator;
+    }
+    
+    template <typename Z, typename N>
+    inline bool fraction<Z, N>::operator>(const fraction& f) const{
+        return Numerator * f.Denominator.Number > Denominator.Number * f.Numerator;
+    }
+    
+    template <typename Z, typename N>
+    inline bool fraction<Z, N>::operator<=(const fraction& f) const{
+        return Numerator * f.Denominator.Number <= Denominator.Number * f.Numerator;
+    }
+    
+    template <typename Z, typename N>
+    inline bool fraction<Z, N>::operator>=(const fraction& f) const{
+        return Numerator * f.Denominator.Number >= Denominator.Number * f.Numerator;
+    }
+    
+    template <typename Z, typename N>
+    inline fraction<Z, N> fraction<Z, N>::operator*(const fraction& f) const {
+        return divide(Numerator * f.Numerator, Denominator.Number * f.Denominator.Number);
+    }
+    
+    template <typename Z, typename N>
+    inline fraction<Z, N> fraction<Z, N>::operator*(const Z& z) const {
+        return operator*(fraction{z});
     }
 }
 

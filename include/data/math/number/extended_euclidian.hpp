@@ -6,8 +6,7 @@
 #define DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 
 #include <data/math/number/abs.hpp>
-#include <data/math/number/natural.hpp>
-#include <data/data.hpp>
+#include <data/math/number/integer.hpp>
 
 namespace data::math {
     struct invalid_proof : std::exception {};
@@ -45,13 +44,13 @@ namespace data::math {
                 
                 // must provide prev.Div.Remainder > current.Div.Remainder.
                 static sequence loop(const sequence prev, const sequence current) {
-                    division<Z> div = natural::divide(prev.Div.Remainder, current.Div.Remainder);
+                    division<Z> div = integer::divide(prev.Div.Remainder, current.Div.Remainder);
                     if (div.Remainder == 0) return current;
                     return loop(current, sequence{div, prev.S - current.S * div.Quotient, prev.T - current.T * div.Quotient});
                 }
                 
                 static sequence run(const Z r0, const Z r1) {
-                    return loop(sequence{{0, r0}, 1, 0}, sequence{{0, r1}, 0, 1});
+                    return loop(sequence{{0, r0}, 1, 0}, sequence{{Z{1}, r1}, 0, 1});
                 }
             public:
                 static extended algorithm(const Z a, const Z b) {
