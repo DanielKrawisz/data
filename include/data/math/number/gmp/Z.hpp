@@ -342,7 +342,6 @@ namespace data::math::number::gmp {
         
     private:
         Z(bytes_view b, endian::order o) : Z{0} {
-            std::cout << "Calling private Z constructor..." << std::endl;
             int i;
             if (o == endian::big) for(i = 0; i < b.size() - 1; i++) {
                 operator+=(b[i]);

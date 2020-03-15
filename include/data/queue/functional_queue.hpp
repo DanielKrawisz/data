@@ -32,9 +32,7 @@ namespace data::tool {
         functional_queue(stack l) : Left{l}, Right{} {}
         
         template <typename X, typename Y, typename ... P>
-        functional_queue(X x, Y y, P... p) : functional_queue{} {
-            append(x, y, p...);
-        }
+        functional_queue(X x, Y y, P... p) : functional_queue{functional_queue{}.append(x, y, p...)} {}
         
         bool empty() const {
             return data::empty(Left);
