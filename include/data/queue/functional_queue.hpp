@@ -107,6 +107,7 @@ namespace data::tool {
         bool operator==(const functional_queue& q) const {
             if (this == &q) return true;
             if (size() != q.size()) return false;
+            if (size() == 0) return true;
             if (first() != q.first()) return false;
             return rest() == q.rest();
         }
