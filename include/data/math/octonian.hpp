@@ -5,14 +5,14 @@
 #ifndef DATA_MATH_OCTONIAN
 #define DATA_MATH_OCTONIAN
 
-#include <data/math/hamiltonian.hpp>
+#include <data/math/quaternion.hpp>
 
 namespace data::math {
 
     template <typename R>
-    class octonion : public cayley_dickson<Hamiltonian<R>, R> {
+    class octonion : public cayley_dickson<quaternion<R>, R> {
         using com = complex<R>;
-        using ham = Hamiltonian<R>;
+        using ham = quaternion<R>;
         using oct = cayley_dickson<ham, R>;
     public:
         

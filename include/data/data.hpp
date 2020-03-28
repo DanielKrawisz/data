@@ -101,8 +101,8 @@ namespace data {
     // Gaussian numbers (complex rationals)
     using G = math::complex<Q>;
         
-    // rational Hamiltonians
-    using H = math::Hamiltonian<Q>;
+    // rational quaternions
+    using H = math::quaternion<Q>;
         
     // rational octonions
     using O = math::octonion<Q>;
