@@ -9,7 +9,7 @@
 
 namespace data::interface {
     
-    template <typename elem, typename plus, typename times>
+    template <typename elem, typename plus = data::plus<elem>, typename times = data::times<elem>>
     class ring : math::identity<times, elem>, 
         public abelian<elem, plus>, 
         public math::associative<times, elem> {

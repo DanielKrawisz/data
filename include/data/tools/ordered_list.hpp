@@ -6,7 +6,6 @@
 #define DATA_TOOLS_ORDERED_LIST
 
 #include <milewski/OrdList/OrdList.hpp>
-#include <data/list/linked.hpp>
     
 namespace data::tool {
         
@@ -72,6 +71,21 @@ namespace data::tool {
         ordered_list(uint32 size, milewski::okasaki::OrdList<X> ordered) : Size{size}, Ordered{ordered} {}
     };
 
+}
+
+template <typename X>
+std::ostream& operator<<(std::ostream& o, const data::tool::ordered_list<X>& l) {
+    o << "ordered_list{";
+    if (!l.empty()) {
+        data::tool::ordered_list<X> x = l;
+        while(true) {
+            o << x.first();
+            x = x.rest();
+            if (x.empty()) break;
+            o << ", ";
+        }
+    }
+    return o << "}";
 }
 
 #endif

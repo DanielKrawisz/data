@@ -7,6 +7,7 @@
 
 #include <data/math/number/abs.hpp>
 #include <data/math/number/integer.hpp>
+#include <data/valid.hpp>
 
 namespace data::math {
     struct invalid_proof : std::exception {};
@@ -16,73 +17,104 @@ namespace data::math {
             template <typename Z>
             struct extended<Z> {
                 Z GCD;
-                Z S;
-                Z T;
+                Z BezoutS;
+                Z BezoutT;
                 
                 bool valid() const {
-                    return valid(GCD) && valid(S) && valid(T);
+                    return data::valid(GCD) && data::valid(BezoutS) && data::valid(BezoutT);
                 }
                 
                 static bool valid_proof(Z gcd, Z a, Z b, Z s, Z t) {
                     return gcd == a * s + b * t;
                 }
                 
-                extended(Z a, Z b, Z gcd, Z s, Z t) : GCD{gcd}, S{s}, T{s} {
+                extended(Z a, Z b, Z gcd, Z s, Z t) : GCD{gcd}, BezoutS{s}, BezoutT{s} {
                     if (!valid_proof(gcd, a, b, s, t)) throw invalid_proof{};
                 }
                 
             private:
-                extended() : GCD{}, S{}, T{} {}
+                extended() : GCD{}, BezoutS{}, BezoutT{} {}
                 
-                extended(const Z gcd, const Z s, const Z t) : GCD{gcd}, S{s}, T{t} {} 
-                 
+                extended(const Z gcd, const Z s, const Z t) : GCD{gcd}, BezoutS{s}, BezoutT{t} {} 
+                
                 struct sequence {
                     division<Z> Div;
-                    Z S;
-                    Z T;
+                    Z BezoutS;
+                    Z BezoutT;
+                    
+                    sequence operator/(const sequence& s) const {
+                        auto div = integer::divide(Div.Remainder, s.Div.Remainder);
+                        return {div, BezoutS - div.Quotient * s.BezoutS, BezoutT - div.Quotient * s.BezoutT};
+                    }
                 };
                 
                 // must provide prev.Div.Remainder > current.Div.Remainder.
-                static sequence loop(const sequence prev, const sequence current) {
-                    division<Z> div = integer::divide(prev.Div.Remainder, current.Div.Remainder);
-                    if (div.Remainder == 0) return current;
-                    return loop(current, sequence{div, prev.S - current.S * div.Quotient, prev.T - current.T * div.Quotient});
+                static extended loop(const sequence prev, const sequence current) {
+                    sequence next = prev / current;
+                    if (next.Div.Remainder == 0) return extended{current.Div.Remainder, current.BezoutS, current.BezoutT};
+                    return loop(current, next);
                 }
                 
-                static sequence run(const Z r0, const Z r1) {
-                    return loop(sequence{{0, r0}, 1, 0}, sequence{{Z{1}, r1}, 0, 1});
+                // we know that a >= b
+                static extended run(const Z a, const Z b) {
+                    return loop(sequence{{0, a}, 1, 0}, sequence{{0, b}, 0, 1});
                 }
+                
             public:
                 static extended algorithm(const Z a, const Z b) {
-                    sequence e = a < b ? run(b, a) : run(a, b);
-                    return extended{e.Div.Quotient, e.S, e.T};
+                    return a < b ? run(b, a) : run(a, b);
                 }
-            
             };
             
             template <typename N, typename Z>
             struct extended<N, Z> {
                 N GCD;
-                Z S;
-                Z T;
+                Z BezoutS;
+                Z BezoutT;
                 
                 bool valid() const {
-                    return extended<Z>{GCD, S, T}.valid();
+                    return data::valid(GCD) && data::valid(BezoutS) && data::valid(BezoutT);
                 }
                 
-                extended(N a, N b, N gcd, Z s, Z t) : GCD{gcd}, S{s}, T{s} {
+                extended(N a, N b, N gcd, Z s, Z t) : GCD{gcd}, BezoutS{s}, BezoutT{s} {
                     if (!extended<Z>::valid_proof(gcd, a, b, s, t)) throw invalid_proof{};
                 }
                 
                 static extended algorithm(const N a, const N b) {
                     extended<Z> e = extended<Z>::algorithm(Z{a}, Z{b});
-                    return extended{abs<N, Z>{}(e.GCD), e.S, e.T};
+                    return extended{abs<N, Z>{}(e.GCD), e.BezoutS, e.BezoutT};
                 }
                 
             private:
-                extended() : GCD{}, S{}, T{} {}
+                extended() : GCD{}, BezoutS{}, BezoutT{} {}
                 
-                extended(const N gcd, const Z s, const Z t) : GCD{gcd}, S{s}, T{t} {} 
+                extended(const N gcd, const Z s, const Z t) : GCD{gcd}, BezoutS{s}, BezoutT{t} {} 
+            };
+            
+            template <>
+            struct extended<uint64, int64> {
+                uint64 GCD;
+                int64 BezoutS;
+                int64 BezoutT;
+                
+                bool valid() const {
+                    if(GCD > 0x7fffffffffffffff) return false;
+                }
+                
+                extended(uint64 a, uint64 b, uint64 gcd, int64 s, int64 t) : GCD{gcd}, BezoutS{s}, BezoutT{s} {
+                    if (!extended<int64>::valid_proof(gcd, a, b, s, t)) throw invalid_proof{};
+                }
+                
+                static extended algorithm(const uint64 a, const uint64 b) {
+                    if(a > 0x7fffffffffffffff || b > 0x7fffffffffffffff) return {};
+                    extended<int64> e = extended<int64>::algorithm(static_cast<int64>(a), static_cast<int64>(b));
+                    return extended{abs<uint64, int64>{}(e.GCD), e.BezoutS, e.BezoutT};
+                }
+                
+            private:
+                extended() : GCD{}, BezoutS{}, BezoutT{} {}
+                
+                extended(const uint64 gcd, const int64 s, const int64 t) : GCD{gcd}, BezoutS{s}, BezoutT{t} {} 
             };
         }
     }

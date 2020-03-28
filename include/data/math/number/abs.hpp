@@ -18,6 +18,20 @@ namespace data::math::number {
         }
     };
 
+    template <> 
+    struct abs<uint64, int64> {
+        uint64 operator()(const int64& i) const {
+            return static_cast<uint64>(i < 0 ? -i : i);
+        }
+    };
+
+    template <> 
+    struct abs<int64, int64> {
+        int64 operator()(const int64& i) const {
+            return i < 0 ? -i : i;
+        }
+    };
+
     template <typename Z> 
     struct sign {
         math::sign operator()(const Z& i) const {

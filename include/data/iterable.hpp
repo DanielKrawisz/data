@@ -160,22 +160,6 @@ namespace data {
     
     template <typename X> 
     oriented<X, endian::big> trim(oriented<X, endian::big>, X fill);
-    
-    template <typename X, uint32 n> struct tensor;
-    
-    template <typename X> struct tensor<X, 1> : slice<X> {
-        template <uint32>
-        uint32 dimension() const;
-        const X operator[](uint32 x) const;
-        X operator[](uint32 x);
-    };
-    
-    template <typename X, uint32 n> struct tensor : slice<X> {
-        template <uint32>
-        uint32 dimension() const;
-        const tensor<X, n - 1> operator[](uint32 x) const;
-        tensor<X, n - 1> operator[](uint32 x);
-    };
 }
 
 std::ostream& operator<<(std::ostream& o, const data::bytes_view s);

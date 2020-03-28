@@ -10,13 +10,13 @@
 namespace data::interface {
     
     template <
-        typename ring_plus, 
-        typename ring_times, 
         typename ring_elem, 
-        typename group_plus, 
-        typename group_elem>
+        typename group_elem,
+        typename ring_plus = data::plus<ring_elem>, 
+        typename ring_times = data::times<ring_elem>, 
+        typename group_plus = data::plus<group_elem>>
     struct module : 
-        ring<ring_plus, ring_times, ring_elem>, 
+        ring<ring_elem, ring_plus, ring_times>, 
         group<group_plus, group_elem> {
         // TODO
     };

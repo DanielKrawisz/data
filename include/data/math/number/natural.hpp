@@ -34,30 +34,47 @@ namespace data::interface {
 namespace data::math::number::natural {
     
     // Generic division algorithm. 
-    // TODO this assumes that << and >> are multiplications and divisions by 2. 
-    // Not necessarily the case. 
     template <typename N>
     static division<N> divide(const N Dividend, const N Divisor) {
         if (Divisor == 0) throw division_by_zero{};
         if (Divisor == 1) return {Dividend, 0};
+        
         N pow = 1;
         N exp = Divisor;
         N remainder = Dividend;
         N quotient = 0;
-        while (exp <= remainder) { // TODO there is definitely a faster way of doing this!! 
-            exp<<=1;
-            pow<<=1;
+        uint64 digits = 1;
+        
+        while (exp <= remainder) { 
+            exp<<=digits;
+            pow<<=digits;
+            digits<<=1;
         } 
+        
+        while(true) {
+            digits >>= 1;
+            if (digits == 0) break;
+            if (exp > remainder) {
+                exp>>=digits;
+                pow>>=digits;
+            } else { 
+                exp<<=digits;
+                pow<<=digits;
+            }
+        }
+        
         while (pow > 0) {
             while (exp > remainder) {
                 exp>>=1;
                 pow>>=1;
                 if (pow == 0) goto out;
             }
+            
             quotient += pow;
             remainder -= exp;
         }
         out: 
+        
         return {quotient, remainder};
     }
     /*

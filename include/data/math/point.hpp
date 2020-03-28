@@ -6,15 +6,10 @@
 #define DATA_POINT
 
 #include <data/types.hpp>
-
-namespace data::interface {
-    struct linear {
-        // TODO
-    };
-}
+#include <data/math/linear/space.hpp>
 
 namespace data::math {
-
+    
     template <typename X, size_t size> struct vector : cross<X> {
         vector() : cross<X>(size) {}
         vector(X fill) : cross<X>(size, fill) {}

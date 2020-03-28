@@ -19,6 +19,11 @@ namespace data::math::number {
     struct prime {
         N Prime;
         
+        bool valid() const {
+            return Prime != N{0};
+        }
+        
+        prime() : Prime{0} {}
     private:
         prime(N p) : Prime{p} {}
         

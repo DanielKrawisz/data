@@ -77,47 +77,23 @@ namespace data {
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
 
-// We have several different representations of numbers. 
-
-#include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/bytes/N.hpp>
-#include <data/math/number/bounded/bounded.hpp>
-
 #include <data/math/number/gmp/gmp.hpp>
-
-namespace data {
-    /*
-    // fixed-size numbers of any size. 
-    template <size_t size> using uint = math::number::bounded<size, endian::little, false>;
-    template <size_t size> using integer = math::number::bounded<size, endian::little, true>;
-    
-    using uint160 = uint<20>;
-    using uint256 = uint<32>;
-    using uint512 = uint<64>;
-
-    using int160 = integer<20>;
-    using int256 = integer<32>;
-    using int512 = integer<64>;*/
-
-    // representations of the naturals and integers of any size as byte strings. 
-    template <endian::order o> using N_bytes = math::number::N_bytes<o>;
-    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;
-    
-    // Natural numbers
-    using N = math::number::N;
-    
-    using Z = math::number::Z;
-    
-}
 
 #include <data/math/number/rational.hpp>
 #include <data/math/number/eratosthenes.hpp>
 #include <data/math/octonian.hpp>
+#include <data/math/algebra/finite_field.hpp>
 
 #include <data/math/point.hpp>
 #include <data/math/polynomial.hpp>
 
 namespace data {
+    
+    // Natural numbers
+    using N = math::number::N;
+    
+    // Integers
+    using Z = math::number::Z;
         
     // Rationals. 
     using Q = math::number::fraction<Z, N>;
@@ -137,9 +113,14 @@ namespace data {
     // The sieve of Eratosthenes.
     using Eratosthenes = math::number::eratosthenes<N>;
     
+    // prime fields (we can only do primes in uint64 for now)
+    template <uint64 prime>
+    using prime_field_element = math::algebra::prime_field_element<uint64, int64, prime>;
+    
+    template <uint64 prime>
+    using prime_field = math::algebra::prime_field<uint64, int64, prime>;
+    
     // Polynomials 
-    // TODO there is a problem with this type having to do with
-    // for_each on ordered_list.
     template <typename X> 
     using polynomial = data::math::polynomial<X, N>;
     
@@ -179,6 +160,32 @@ namespace data {
     
     // Thread safe communication channel, similar to golang. 
     template <typename X> using chan = tool::channel<X>;
+    
+}
+
+// Other representations of numbers that don't work yet. 
+
+#include <data/math/number/bytes/Z.hpp>
+#include <data/math/number/bytes/N.hpp>
+#include <data/math/number/bounded/bounded.hpp>
+
+namespace data {
+    /*
+    // fixed-size numbers of any size. 
+    template <size_t size> using uint = math::number::bounded<size, endian::little, false>;
+    template <size_t size> using integer = math::number::bounded<size, endian::little, true>;
+    
+    using uint160 = uint<20>;
+    using uint256 = uint<32>;
+    using uint512 = uint<64>;
+
+    using int160 = integer<20>;
+    using int256 = integer<32>;
+    using int512 = integer<64>;*/
+
+    // representations of the naturals and integers of any size as byte strings. 
+    template <endian::order o> using N_bytes = math::number::N_bytes<o>;
+    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;
     
 }
 
