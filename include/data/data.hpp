@@ -77,8 +77,25 @@ namespace data {
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
 
+// Natural numbers and integers
 #include <data/math/number/gmp/gmp.hpp>
+#include <data/math/number/gmp/aks.hpp>
 
+namespace data {
+    // we use a wrapper around gmp for natural numbers and integers. 
+    
+    // Natural numbers
+    using N = math::number::N;
+    
+    // Primality testing. 
+    using AKS = math::number::AKS<N>;
+    
+    // Integers
+    using Z = math::number::Z;
+    
+}
+
+// Algebra 
 #include <data/math/number/rational.hpp>
 #include <data/math/number/eratosthenes.hpp>
 #include <data/math/octonian.hpp>

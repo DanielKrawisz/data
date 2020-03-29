@@ -10,6 +10,7 @@
 
 #include "aks.h"
 #include "sieve.h"
+#include <iostream>
 
 int aks(mpz_class n)
 {
@@ -17,6 +18,7 @@ int aks(mpz_class n)
     if(mpz_perfect_power_p(n.get_mpz_t())) {
         return 0;
     }
+    
     sieve s;
     mpz_class r = 2;
     mpz_class logn = mpz_sizeinbase(n.get_mpz_t(),2);
@@ -28,27 +30,26 @@ int aks(mpz_class n)
     while(r<n) {
         if(mpz_divisible_p(n.get_mpz_t(), r.get_mpz_t())) {
             return 0;
-    }
-
-    int failed = 0;
-    if(s.isPrime(r)) {
-        mpz_class i = 1;
-        for( ; i<=limit; i++) {
-            mpz_class res = 0;
-            mpz_powm(res.get_mpz_t(), n.get_mpz_t(),
-                i.get_mpz_t(), r.get_mpz_t());
-            if(res == 1){
-                    failed = 1;
-            break;
         }
-    }
 
-    if(!failed)
-        break;
- 
-    }
+        int failed = 0;
+        if(s.isPrime(r)) {
+            mpz_class i = 1;
+            for( ; i<=limit; i++) {
+                mpz_class res = 0;
+                mpz_powm(res.get_mpz_t(), n.get_mpz_t(),
+                    i.get_mpz_t(), r.get_mpz_t());
+                if(res == 1){
+                    failed = 1;
+                    break;
+                }
+            }
 
-    r++;
+        if(!failed) break;
+    
+        }
+
+        r++;
 
     }
 

@@ -177,4 +177,40 @@ namespace data {
             N("464826666675011030942534742879648804717881800388630560019027762917"), N{58});
     }
     
+    TEST(NTest, TestAKS) {
+        math::number::AKS<N> aks{};
+        
+        EXPECT_FALSE(aks.is_prime(N{"0"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"1"}).valid());
+        EXPECT_TRUE(aks.is_prime(N{"2"}).valid());
+        EXPECT_TRUE(aks.is_prime(N{"3"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"4"}).valid());
+        EXPECT_TRUE(aks.is_prime(N{"5"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"6"}).valid());
+        EXPECT_TRUE(aks.is_prime(N{"7"}).valid());
+        
+        EXPECT_TRUE(aks.is_prime(N{"23"}).valid());
+        EXPECT_TRUE(aks.is_prime(N{"101"}).valid());
+        
+        EXPECT_FALSE(aks.is_prime(N{"519"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"3439"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"988320843"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"2904873984723454089"}).valid());
+        EXPECT_FALSE(aks.is_prime(N{"4095842309824958234058934985234958304985083"}).valid());
+        
+        // These tests are commented out because they run too slow for practical use. 
+        /*EXPECT_TRUE(aks.is_prime(N{"523"}).valid());
+        
+        EXPECT_TRUE(aks.is_prime(N{"3449"}).valid());
+        
+        EXPECT_TRUE(aks.is_prime(N{"988320847"}).valid());
+        
+        EXPECT_TRUE(aks.is_prime(N{"2904873984723454103"}).valid());
+        
+        EXPECT_TRUE(aks.is_prime(N{"4095842309824958234058934985234958304985117"}).valid());
+        
+        EXPECT_TRUE(aks.is_prime(N{"0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"}).valid());*/
+        
+    }
+    
 }

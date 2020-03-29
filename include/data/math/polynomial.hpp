@@ -43,35 +43,6 @@ namespace data::math {
             term operator*(const A x) const;
         };
         
-    private:
-        // for ordering terms in the polynomial by power. 
-        struct ordering {
-            term Term;
-            
-            ordering(term t);
-            
-            bool operator==(const ordering& o) const;
-            bool operator>(const ordering& o) const;
-            bool operator<(const ordering& o) const;
-            bool operator<=(const ordering& o) const;
-            bool operator>=(const ordering& o) const;
-            
-            division<ordering> operator/(const ordering& o) const;
-        };
-        
-        using terms = tool::ordered_list<ordering>;
-        
-        terms Terms;
-        
-        term first() const;
-        
-        polynomial rest() const;
-        
-        polynomial(const terms l);
-        
-        friend std::ostream& operator<<<A, N>(std::ostream& o, const polynomial& p);
-        
-    public:
         polynomial();
         polynomial(const A a);
         polynomial(const term t);
@@ -87,12 +58,6 @@ namespace data::math {
         bool operator==(const polynomial p) const;
         bool operator!=(const polynomial p) const;
         
-    private:
-        polynomial insert(const term x) const;
-        polynomial insert(const terms x) const;
-        polynomial insert(const polynomial p) const;
-        
-    public:
         static polynomial plus(const polynomial p, const term x);
         static polynomial plus(const polynomial t, const A a);
         static polynomial plus(const polynomial a, const polynomial b);
@@ -123,7 +88,38 @@ namespace data::math {
         template <typename ... P>
         static polynomial make(P... rest);
         
-    private: 
+    private:
+        // for ordering terms in the polynomial by power. 
+        struct ordering {
+            term Term;
+            
+            ordering(term t);
+            
+            bool operator==(const ordering& o) const;
+            bool operator>(const ordering& o) const;
+            bool operator<(const ordering& o) const;
+            bool operator<=(const ordering& o) const;
+            bool operator>=(const ordering& o) const;
+            
+            division<ordering> operator/(const ordering& o) const;
+        };
+        
+        using terms = tool::ordered_list<ordering>;
+        
+        terms Terms;
+        
+        term first() const;
+        
+        polynomial rest() const;
+        
+        polynomial(const terms l);
+        
+        friend std::ostream& operator<<<A, N>(std::ostream& o, const polynomial& p);
+        
+        polynomial insert(const term x) const;
+        polynomial insert(const terms x) const;
+        polynomial insert(const polynomial p) const;
+        
         static polynomial build(const polynomial p);
         
         template <typename ... P>
