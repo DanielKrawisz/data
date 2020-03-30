@@ -77,75 +77,59 @@ namespace data::math::number::natural {
         
         return {quotient, remainder};
     }
-    /*
-    template <typename N, typename> struct construct;
     
-    template <uint32 ...> struct Digits;
-    
-    template <typename> struct Successor;
-    
-    template <typename...> struct Plus;
-    
-    template <typename...> struct Times;
-    
-    template <typename, typename> struct Power;
+}
 
-    template <typename N> struct construct<N, Digits<>> {
-        N operator()(N x) const {
+namespace data {
+    
+    template <size_t size> struct decimal {
+        char Value[size] = {};
+        bool Valid{false};
+        
+        constexpr decimal(const char (&input)[size]) noexcept {
+            if (input[0] < '1' || input[0] > '9') return;
+            for (size_t i{1}; i < size - 1; ++i) {
+                if (input[i] < '1' || input[i] > '9') return;
+            }
+            if (input[size - 1] != 0) return;
+            Valid = true;
+            for (size_t i{0}; i < size; ++i) Value[i] = input[i];
+        }
+        
+        constexpr operator uint64() const {
+            if (size > 20) return 0;
+            uint64 x{0};
+            uint64 digit{1};
+            for (int i{size-2}; i >= 0; --i) {
+                x += digit * static_cast<uint64>(Value[i] - '0');
+                digit *= 10;
+            }
             return x;
         }
+    };
+
+    template <> struct decimal<0>;
+    template <> struct decimal<1>;
+    
+    template <> struct decimal<2> {
+        char Value[2] = {};
+        bool Valid{false};
         
-        N operator*() {
-            return 0;
-        }
-    };
-    
-    template <typename N, uint32 big, uint32 ... rest> struct construct<N, Digits<big, rest...>> {
-        N operator()(N x) const {
-            return construct<N, Digits<rest...>>{}((x << 32) + N{big});
+        constexpr decimal(const char (&input)[2]) noexcept {
+            if (input[0] < '0' || input[0] > '9') return;
+            if (input[1] != 0) return;
+            Valid = true;
+            Value[0] = input[0];
+            Value[1] = input[1];
         }
         
-        N operator*() {
-            return operator()(0);
+        constexpr operator uint64() const {
+            return static_cast<uint64>(Value[0] - '0');
         }
     };
     
-    template <typename N, typename X> struct construct<N, Successor<X>> {
-        N operator*() {
-            return *construct<N, X>{} + 1;
-        }
-    };
-    
-    template <typename N, typename first, typename second> struct construct<N, Plus<first, second>> {
-        N operator*() {
-            return *construct<N, first>{} + *construct<N, second>{};
-        }
-    };
-    
-    template <typename N, typename first, typename... rest> struct construct<N, Plus<first, rest...>> {
-        N operator*() {
-            return construct<N, first>{}* + *construct<N, Plus<rest...>>{};
-        }
-    };
-    
-    template <typename N, typename first, typename second> struct construct<N, Times<first, second>> {
-        N operator*() {
-            return *construct<N, first>{} * *construct<N, second>{};
-        }
-    };
-    
-    template <typename N, typename first, typename... rest> struct construct<N, Times<first, rest...>> {
-        N operator*() {
-            return *construct<N, first>{} * *construct<N, Times<rest...>>{};
-        }
-    };
-    
-    template <typename N, typename first, typename second> struct construct<N, Power<first, second>> {
-        N operator*() {
-            return *construct<N, first>{} ^ *construct<N, second>{};
-        }
-    };
-    */
+    template <size_t N> decimal(const char (&)[N]) -> decimal<N>;
+    template <size_t N> decimal(decimal<N>) -> decimal<N>;
 }
 
 #endif

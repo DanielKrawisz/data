@@ -130,12 +130,11 @@ namespace data {
     // The sieve of Eratosthenes.
     using Eratosthenes = math::number::eratosthenes<N>;
     
-    // prime fields (we can only do primes in uint64 for now)
-    template <uint64 prime>
-    using prime_field_element = math::algebra::prime_field_element<uint64, int64, prime>;
+    template <auto & mod>
+    using prime_field_element = math::algebra::prime_field_element<N, Z, mod>;
     
-    template <uint64 prime>
-    using prime_field = math::algebra::prime_field<uint64, int64, prime>;
+    template <auto & mod>
+    using prime_field = math::algebra::prime_field<N, Z, mod>;
     
     // Polynomials 
     template <typename X> 

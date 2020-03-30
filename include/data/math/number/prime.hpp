@@ -20,7 +20,7 @@ namespace data::math::number {
         N Prime;
         
         bool valid() const {
-            return Prime != N{0};
+            return Prime != N(0);
         }
         
         prime() : Prime{0} {}

@@ -27,6 +27,9 @@ namespace data::math::number::gmp {
         
         N(string_view x);
         
+        template <size_t size>
+        explicit N(decimal<size> d) : N{std::string{d.Value}} {}
+        
         N& operator=(const N& n) {
             Value = n.Value;
             return *this;

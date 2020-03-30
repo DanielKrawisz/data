@@ -7,37 +7,86 @@
 #include "gtest/gtest.h"
 
 namespace data {
+    // representations of numbers. 
+    constexpr auto d2 = decimal{"2"};
+    constexpr auto d3 = decimal{"3"};
+    constexpr auto d4 = decimal{"4"};
+    constexpr auto d5 = decimal{"5"};
+    constexpr auto d6 = decimal{"6"};
+    constexpr auto d7 = decimal{"7"};
+    constexpr auto d8 = decimal{"8"};
+    constexpr auto d9 = decimal{"9"};
+    constexpr auto d10 = decimal{"10"};
+    constexpr auto d11 = decimal{"11"};
+    constexpr auto d12 = decimal{"12"};
+    constexpr auto d13 = decimal{"13"};
+    constexpr auto d14 = decimal{"14"};
+    constexpr auto d15 = decimal{"15"};
+    constexpr auto d16 = decimal{"16"};
+    constexpr auto d17 = decimal{"17"};
+    constexpr auto d18 = decimal{"18"};
+    constexpr auto d19 = decimal{"19"};
+    
+    template <auto & mod>
+    using element = math::algebra::prime_field_element<uint64, int64, mod>;
+    
+    template <auto & mod>
+    using field = math::algebra::prime_field<uint64, int64, mod>;
     
     TEST(PrimeFieldTest, TestPrimeField) {
-        
+        // We have to prove that a number is prime in order to 
+        // construct a prime field, so we generate the first 8 primes. 
         list<math::number::prime<uint64>> primes = math::number::eratosthenes<uint64>{8}.Primes;
         
-        prime_field<2> f2{primes[0]};
-        prime_field<3> f3{primes[1]};
-        prime_field<5> f5{primes[2]};
-        prime_field<7> f7{primes[3]};
-        prime_field<11> f11{primes[4]};
-        prime_field<13> f13{primes[5]};
-        prime_field<17> f17{primes[6]};
-        prime_field<19> f19{primes[7]};
+        field<d2> f2{primes[0]};
+        field<d3> f3{primes[1]};
+        field<d4> f4{math::number::prime<uint64>{}};
+        field<d5> f5{primes[2]};
+        field<d6> f6{math::number::prime<uint64>{}};
+        field<d7> f7{primes[3]};
+        field<d8> f8{math::number::prime<uint64>{}};
+        field<d9> f9{math::number::prime<uint64>{}};
+        field<d10> f10{math::number::prime<uint64>{}};
+        field<d11> f11{primes[4]};
+        field<d12> f12{math::number::prime<uint64>{}};
+        field<d13> f13{primes[5]};
+        field<d14> f14{math::number::prime<uint64>{}};
+        field<d15> f15{math::number::prime<uint64>{}};
+        field<d16> f16{math::number::prime<uint64>{}};
+        field<d17> f17{primes[6]};
+        field<d16> f18{math::number::prime<uint64>{}};
+        field<d19> f19{primes[7]};
         
+        // fields are only valid when we have given 
+        // a proof for the correct prime number. 
         EXPECT_TRUE(f2.valid());
         EXPECT_TRUE(f3.valid());
+        EXPECT_FALSE(f4.valid());
         EXPECT_TRUE(f5.valid());
+        EXPECT_FALSE(f6.valid());
         EXPECT_TRUE(f7.valid());
+        EXPECT_FALSE(f8.valid());
+        EXPECT_FALSE(f9.valid());
+        EXPECT_FALSE(f10.valid());
         EXPECT_TRUE(f11.valid());
+        EXPECT_FALSE(f12.valid());
         EXPECT_TRUE(f13.valid());
+        EXPECT_FALSE(f14.valid());
+        EXPECT_FALSE(f15.valid());
+        EXPECT_FALSE(f16.valid());
         EXPECT_TRUE(f17.valid());
+        EXPECT_FALSE(f18.valid());
         EXPECT_TRUE(f19.valid());
         
-        prime_field_element<2> f2_0 = f2.make(0);
-        prime_field_element<3> f3_0 = f3.make(0);
-        prime_field_element<5> f5_0 = f5.make(0);
-        prime_field_element<7> f7_0 = f7.make(0);
-        prime_field_element<11> f11_0 = f11.make(0);
-        prime_field_element<13> f13_0 = f13.make(0);
-        prime_field_element<17> f17_0 = f17.make(0);
-        prime_field_element<19> f19_0 = f19.make(0);
+        // make the zero element for each prime field. 
+        element<d2> f2_0 = f2.make(0);
+        element<d3> f3_0 = f3.make(0);
+        element<d5> f5_0 = f5.make(0);
+        element<d7> f7_0 = f7.make(0);
+        element<d11> f11_0 = f11.make(0);
+        element<d13> f13_0 = f13.make(0);
+        element<d17> f17_0 = f17.make(0);
+        element<d19> f19_0 = f19.make(0);
         
         EXPECT_TRUE(f2_0.valid());
         EXPECT_TRUE(f3_0.valid());
@@ -84,14 +133,15 @@ namespace data {
         EXPECT_THROW(f17_0.inverse(), math::division_by_zero);
         EXPECT_THROW(f19_0.inverse(), math::division_by_zero);
         
-        prime_field_element<2> f2_1 = f2.make(1);
-        prime_field_element<3> f3_1 = f3.make(1);
-        prime_field_element<5> f5_1 = f5.make(1);
-        prime_field_element<7> f7_1 = f7.make(1);
-        prime_field_element<11> f11_1 = f11.make(1);
-        prime_field_element<13> f13_1 = f13.make(1);
-        prime_field_element<17> f17_1 = f17.make(1);
-        prime_field_element<19> f19_1 = f19.make(1);
+        // make the 1 element for each prime field. 
+        element<d2> f2_1 = f2.make(1);
+        element<d3> f3_1 = f3.make(1);
+        element<d5> f5_1 = f5.make(1);
+        element<d7> f7_1 = f7.make(1);
+        element<d11> f11_1 = f11.make(1);
+        element<d13> f13_1 = f13.make(1);
+        element<d17> f17_1 = f17.make(1);
+        element<d19> f19_1 = f19.make(1);
         
         EXPECT_TRUE(f2_1.valid());
         EXPECT_TRUE(f3_1.valid());
@@ -147,13 +197,13 @@ namespace data {
         EXPECT_EQ(f17_1 * f17_1, f17_1);
         EXPECT_EQ(f19_1 * f19_1, f19_1);
         
-        prime_field_element<3> f3_2 = f3.make(2);
-        prime_field_element<5> f5_2 = f5.make(2);
-        prime_field_element<7> f7_2 = f7.make(2);
-        prime_field_element<11> f11_2 = f11.make(2);
-        prime_field_element<13> f13_2 = f13.make(2);
-        prime_field_element<17> f17_2 = f17.make(2);
-        prime_field_element<19> f19_2 = f19.make(2);
+        element<d3> f3_2 = f3.make(2);
+        element<d5> f5_2 = f5.make(2);
+        element<d7> f7_2 = f7.make(2);
+        element<d11> f11_2 = f11.make(2);
+        element<d13> f13_2 = f13.make(2);
+        element<d17> f17_2 = f17.make(2);
+        element<d19> f19_2 = f19.make(2);
         
         EXPECT_EQ(f2_1 + f2_1, f2_0);
         EXPECT_EQ(f3_1 + f3_1, f3_2);

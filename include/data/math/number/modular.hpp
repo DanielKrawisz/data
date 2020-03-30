@@ -6,14 +6,15 @@
 #define DATA_MATH_NUMBER_MODULAR
 
 #include <data/types.hpp>
+#include <data/math/number/natural.hpp>
 
 namespace data::math::number {
-    // TODO use a construction type instead of a uint64
-    template <typename X, uint64 mod>
+    
+    template <typename X, auto & mod>
     struct modular {
         X Value;
         static X modulus() { 
-            static X Mod{mod};
+            static X Mod(mod);
             return Mod;
         }
         
@@ -65,8 +66,9 @@ namespace data::math::number {
     
 }
 
-template <typename X, data::uint64 mod>
-inline std::ostream& operator<<(std::ostream& o, const data::math::number::modular<X, mod>& m) {
+template <typename X, auto & mod>
+inline std::ostream& operator<<(std::ostream& o, 
+    const data::math::number::modular<X, mod>& m) {
     return o << m.Value;
 }
 

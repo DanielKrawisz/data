@@ -14,9 +14,9 @@
 
 namespace data::math::algebra {
     // TODO use construction type. 
-    template <typename N, typename Z, uint64 prime> struct prime_field;
+    template <typename N, typename Z, auto & prime> struct prime_field;
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct prime_field_element : number::modular<N, prime> {
         
         prime_field_element operator+(const prime_field_element& e) const;
@@ -34,14 +34,14 @@ namespace data::math::algebra {
         friend struct prime_field<N, Z, prime>;
     };
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct prime_field {
         number::prime<N> Modulus;
         
-        prime_field(number::prime<N> p) : Modulus{p.Prime == N{prime} ? p : number::prime<N>{}} {}
+        prime_field(number::prime<N> p) : Modulus{p.Prime == N(prime) ? p : number::prime<N>{}} {}
         
         bool valid() const {
-            return Modulus.valid() && Modulus.Prime == N{prime};
+            return Modulus.valid() && Modulus.Prime == N(prime);
         }
         
         prime_field_element<N, Z, prime> make(N n);
@@ -49,37 +49,37 @@ namespace data::math::algebra {
     
 }
 
-template <typename N, typename Z, data::uint64 prime>
+template <typename N, typename Z, auto & prime>
 inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::prime_field_element<N, Z, prime>& m) {
     return o << "f<"<<prime<<">{"<<m.Value<<"}";
 }
 
 namespace data::math {
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct commutative<plus<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
         : commutative<plus<N>, N> {};
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct associative<
         data::plus<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
         : associative<data::plus<N>, N> {};
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct commutative<
         data::times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
         : commutative<data::times<N>, N> {};;
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct associative<
         data::times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
         : associative<data::times<N>, N> {};
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct identity<
         data::plus<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
@@ -89,7 +89,7 @@ namespace data::math {
         }
     };
     
-    template <typename N, typename Z, uint64 prime>
+    template <typename N, typename Z, auto & prime>
     struct identity< 
         data::times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
@@ -102,25 +102,25 @@ namespace data::math {
 }
 
 namespace data::math::algebra {
-    template <typename N, typename Z, uint64 prime> 
+    template <typename N, typename Z, auto & prime> 
     inline prime_field_element<N, Z, prime> 
     prime_field_element<N, Z, prime>::operator+(const prime_field_element& e) const {
         return {number::modular<N, prime>::operator+(e)};
     }
     
-    template <typename N, typename Z, uint64 prime> 
+    template <typename N, typename Z, auto & prime> 
     inline prime_field_element<N, Z, prime> 
     prime_field_element<N, Z, prime>::operator-(const prime_field_element& e) const {
         return {number::modular<N, prime>::operator-(e)};
     }
     
-    template <typename N, typename Z, uint64 prime> 
+    template <typename N, typename Z, auto & prime> 
     inline prime_field_element<N, Z, prime> 
     prime_field_element<N, Z, prime>::operator*(const prime_field_element& e) const {
         return {number::modular<N, prime>::operator*(e)};
     }
     
-    template <typename N, typename Z, uint64 prime> 
+    template <typename N, typename Z, auto & prime> 
     prime_field_element<N, Z, prime> 
     prime_field_element<N, Z, prime>::inverse() const {
         if (*this == 0) throw division_by_zero{};
@@ -130,13 +130,13 @@ namespace data::math::algebra {
         return prime_field_element{number::abs<N, Z>{}(bt)};
     }
     
-    template <typename N, typename Z, uint64 prime> 
+    template <typename N, typename Z, auto & prime> 
     inline prime_field_element<N, Z, prime> 
     prime_field_element<N, Z, prime>::operator/(const prime_field_element& e) const {
         return operator*(e.inverse());
     }
     
-    template <typename N, typename Z, uint64 prime> 
+    template <typename N, typename Z, auto & prime> 
     inline prime_field_element<N, Z, prime> prime_field<N, Z, prime>::make(N n) {
         if (!valid()) return prime_field_element<N, Z, prime>{};
         return prime_field_element<N, Z, prime>{n};
