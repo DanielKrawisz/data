@@ -9,7 +9,6 @@
 #include <data/math/number/abs.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/endian.hpp>
-#include <data/math/number/abs.hpp>
 #include <limits>
 
 namespace data::math::number::gmp {

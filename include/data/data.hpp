@@ -79,6 +79,8 @@ namespace data {
 
 // Natural numbers and integers
 #include <data/math/number/gmp/gmp.hpp>
+#include <data/math/number/extended_euclidian.hpp>
+#include <data/math/number/eratosthenes.hpp>
 #include <data/math/number/gmp/aks.hpp>
 
 namespace data {
@@ -87,30 +89,36 @@ namespace data {
     // Natural numbers
     using N = math::number::N;
     
-    // Primality testing. 
-    using AKS = math::number::AKS<N>;
-    
     // Integers
     using Z = math::number::Z;
+    
+    // Primes
+    using prime = math::number::prime<N>;
+    
+    // right now there are only two ways to generate primes
+    // and neither is all that useful. 
+    
+    // The sieve of Eratosthenes.
+    // Good for generating all primes in sequence. 
+    using Eratosthenes = math::number::eratosthenes<N>;
+    
+    // Primality testing. AKS is polynomial time but still too 
+    // slow for practical use. 
+    using AKS = math::number::AKS<N>;
     
 }
 
 // Algebra 
 #include <data/math/number/rational.hpp>
-#include <data/math/number/eratosthenes.hpp>
 #include <data/math/octonian.hpp>
 #include <data/math/algebra/finite_field.hpp>
-
-#include <data/math/point.hpp>
 #include <data/math/polynomial.hpp>
+#include <data/math/permutation.hpp>
+
+// Geometry
+#include <data/math/point.hpp>
 
 namespace data {
-    
-    // Natural numbers
-    using N = math::number::N;
-    
-    // Integers
-    using Z = math::number::Z;
         
     // Rationals. 
     using Q = math::number::fraction<Z, N>;
@@ -124,12 +132,6 @@ namespace data {
     // rational octonions
     using O = math::octonion<Q>;
     
-    // Primes
-    using prime = math::number::prime<N>;
-    
-    // The sieve of Eratosthenes.
-    using Eratosthenes = math::number::eratosthenes<N>;
-    
     template <auto & mod>
     using prime_field_element = math::algebra::prime_field_element<N, Z, mod>;
     
@@ -140,6 +142,17 @@ namespace data {
     template <typename X> 
     using polynomial = data::math::polynomial<X, N>;
     
+    // permutations
+    template <typename X>
+    using permutation = data::math::permutation<X>;
+    
+}
+
+// Geometry
+#include <data/math/point.hpp>
+
+namespace data {
+    
     template <typename X, size_t size>
     using vector = data::math::vector<X, size>;
     
@@ -149,7 +162,6 @@ namespace data {
 
 // Some important math functions. 
 #include <data/math/number/abs.hpp>
-#include <data/math/number/extended_euclidian.hpp>
 
 namespace data {
     
@@ -230,6 +242,7 @@ namespace data {
     
     template N abs<N, N>(const N&);
     template N abs<N, Z>(const Z&);
+    template Z abs<Z, Z>(const Z&);
     /*
     template N_bytes<endian::big> abs<N_bytes<endian::big>, N_bytes<endian::big>>(const N_bytes<endian::big>&);
     template N_bytes<endian::big> abs<N_bytes<endian::big>, Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
