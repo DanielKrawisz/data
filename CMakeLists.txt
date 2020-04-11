@@ -53,7 +53,7 @@ endif()
 # Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
-set(Boost_USE_STATIC_LIBS       OFF         CACHE BOOL "")
+set(Boost_USE_STATIC_LIBS       ON         CACHE BOOL "")
 set(Boost_USE_STATIC_RUNTIME    OFF         CACHE BOOL "") # '-s' tag
 set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
@@ -90,6 +90,10 @@ if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
 
+find_package(NTL REQUIRED)
+if(NTL_FOUND)
+	include_directories(${NTL_INCLUDE_DIR})
+endif()
 # compile time regular expressions
 
 find_package(ctre REQUIRED)
