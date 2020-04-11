@@ -14,7 +14,7 @@ namespace data::encoding {
         string_view String;
         std::string Format;
     public:
-        invalid(std::string format, string_view str) : Format{format}, String{str} {}
+        invalid(std::string format, string_view str) : String{str}, Format{format} {}
         const char* what() const noexcept final override {
             return (std::string{"Invalid "} + Format + " string: " + std::string{String}).c_str();
         }

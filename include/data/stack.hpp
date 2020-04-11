@@ -40,9 +40,7 @@ namespace data {
 namespace data::functional::stack {
     
     template <typename L>
-    L reverse(L list) {
-        constexpr static interface::stack<L> Required{};
-        
+    L reverse(L list) {        
         struct inner {
             L operator()(L reversed, L list) {
                 if (data::empty(list)) return reversed;
@@ -55,8 +53,6 @@ namespace data::functional::stack {
     
     template <typename L>
     L sort(L list) {
-        constexpr static interface::stack<L> Required{};
-        
         return data::merge_sort(list);
     }
     
@@ -107,10 +103,6 @@ namespace data::functional::stack {
     // this is a const iterator that could go with a list. 
     template <typename L>
     struct iterator {
-        constexpr static interface::stack<L> require_is_stack{};
-        
-        constexpr static interface::iterable<L> require_is_iterable{};
-        
         using element = typename interface::stack<L>::element;
         
         L List;

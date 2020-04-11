@@ -66,12 +66,12 @@ namespace data::math::number::gmp {
         using index = uint32;
         
         mp_limb_t& operator[](index i) {
-            if (i >= MPZ[0]._mp_alloc) throw std::out_of_range{"Z"};
+            if (static_cast<int>(i) >= MPZ[0]._mp_alloc) throw std::out_of_range{"Z"};
             return *(MPZ[0]._mp_d + i);
         }
         
         const mp_limb_t& operator[](index i) const {
-            if (i >= MPZ[0]._mp_alloc) throw std::out_of_range{"Z"};
+            if (static_cast<int>(i) >= MPZ[0]._mp_alloc) throw std::out_of_range{"Z"};
             return *(MPZ[0]._mp_d + i);
         }
         
@@ -343,7 +343,7 @@ namespace data::math::number::gmp {
     private:
         Z(bytes_view b, endian::order o) : Z{0} {
             int i;
-            if (o == endian::big) for(i = 0; i < b.size() - 1; i++) {
+            if (o == endian::big) for(i = 0; i < static_cast<int>(b.size()) - 1; i++) {
                 operator+=(b[i]);
                 operator<<(8);
             } else for(i = b.size() - 1; i > 0; i--) {

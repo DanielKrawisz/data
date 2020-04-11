@@ -132,4 +132,70 @@ namespace data {
     template <size_t N> decimal(decimal<N>) -> decimal<N>;
 }
 
+// Peano axioms. 
+namespace data::math::number::peano {
+    
+    constexpr decimal zero{"0"};
+    
+    template <auto&> struct 
+    number;
+    
+    template <typename> struct 
+    natural;
+    
+    // axiom 1: zero is a natural number. 
+    template <> struct 
+    natural<number<zero>> {};
+    
+    template <typename, typename> struct 
+    equal;
+    
+    // axiom 2: equality is reflexive.
+    template <typename x> struct 
+    equal<x, x> {};
+    
+    // axiom 3: equality is symmetric. 
+    template <typename x, typename y> 
+    equal<y, x> symmetric_equal(equal<x, y>);
+    
+    // axiom 4: equality is transitive. 
+    template <typename x, typename y, typename z> 
+    equal<x, z> transitive_equal(equal<x, y>, equal<y, z>);
+    
+    template <typename x, typename y> 
+    natural<y> closed_equal(equal<x, y>, natural<x>);
+    
+    template <typename> struct 
+    suc;
+    
+    template <typename x> 
+    natural<suc<x>> closed_successor(natural<x>);
+    
+    template <typename x, typename y>
+    equal<suc<x>, suc<y>> injection_up(equal<x, y>);
+    
+    template <typename x, typename y>
+    equal<x, y> injection_down(equal<suc<x>, suc<y>>);
+    
+    template <template<typename> typename predicate, typename x, typename y> 
+    predicate<x> induction(natural<x>, predicate<number<zero>>, predicate<suc<y>> (*)(natural<y>, predicate<y>));
+    
+    template <typename, typename> struct add;
+    
+    template <typename x> struct
+    equal<add<x, number<zero>>, x> {};
+    
+    template <typename x, typename y> struct
+    equal<add<x, successor<y>>, successor<add<x, y>>> {};
+    
+    template <typename, typename> struct mul;
+    
+    template <typename x> struct
+    equal<mul<x, number<zero>>, number<zero>> {};
+    
+    template <typename x, typename y> struct
+    equal<mul<x, successor<y>>, add<x, mul<x, y>>> {};
+    
+}
+
 #endif

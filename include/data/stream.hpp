@@ -146,15 +146,15 @@ namespace data {
     template <typename it>
     reader<it> reader<it>::operator>>(bytes &x) const {
         istream<byte, it> is = Reader;
-        for(int i=0; i<x.size(); i++) is = is >> x[i];
+        for(uint32 i=0; i<x.size(); i++) is = is >> x[i];
         return reader{is};
     }
     
     namespace low {
     
         template <typename it>
-        reader<it> forward(istream<byte, it> is, int amount, byte* to) {
-            for(int i=0;i<amount;i++)
+        reader<it> forward(istream<byte, it> is, uint32 amount, byte* to) {
+            for(uint32 i=0;i<amount;i++)
             {
                 is = is >> *to;
                 to++;
