@@ -195,7 +195,7 @@ namespace data::functional::stack {
             return prepend(x);
         }
         
-        linked& operator<<=(elem x) {
+        linked& operator<<=(elem& x) {
             return operator=(prepend(x));
         }
         
