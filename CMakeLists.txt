@@ -53,7 +53,7 @@ endif()
 # Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
-set(Boost_USE_STATIC_LIBS       OFF         CACHE BOOL "")
+set(Boost_USE_STATIC_LIBS       ON         CACHE BOOL "")
 set(Boost_USE_STATIC_RUNTIME    OFF         CACHE BOOL "") # '-s' tag
 set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
@@ -90,6 +90,10 @@ if(GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
 
+find_package(NTL REQUIRED)
+if(NTL_FOUND)
+	include_directories(${NTL_INCLUDE_DIR})
+endif()
 # compile time regular expressions
 
 find_package(ctre REQUIRED)
@@ -124,6 +128,7 @@ ADD_LIBRARY(data STATIC
         
 target_include_directories(data PUBLIC include)
 
+target_link_libraries(data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY})
 # Set C++ version
 target_compile_features(data PUBLIC cxx_std_17)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
