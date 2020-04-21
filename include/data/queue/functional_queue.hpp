@@ -113,7 +113,7 @@ namespace data::tool {
         }
         
         bool operator!=(const functional_queue& q) const {
-            return !operator=(q);
+            return !operator==(q);
         }
         
         static functional_queue make() {
