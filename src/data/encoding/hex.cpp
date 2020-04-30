@@ -1,13 +1,16 @@
 // Copyright (c) 2019 Katrina Swales
+// Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/encoding/hex.hpp>
-#include <data/encoding/invalid.hpp>
 #include <iterator>
 #include <iostream>
 #include <vector>
 #include <string>
+
+#include <data/encoding/hex.hpp>
+#include <data/encoding/endian.hpp>
+#include <boost/algorithm/hex.hpp>
 
 namespace data::encoding::hex {
     

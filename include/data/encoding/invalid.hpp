@@ -9,6 +9,8 @@
 #include <exception>
 #include <string>
 
+#include <data/types.hpp>
+
 namespace data::encoding {
     class invalid : std::exception {
         string_view String;

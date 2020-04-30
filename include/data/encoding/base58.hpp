@@ -16,11 +16,11 @@
 
 namespace data::encoding::base58 {
     
-    const std::string format{"base58"};
+    const std::string Format{"base58"};
     
     inline std::string characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
     
-    constexpr auto pattern = ctll::fixed_string{"1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)"};
+    constexpr auto pattern = ctll::fixed_string{"^1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)$"};
     
     inline bool valid(const string_view s) {
         return ctre::match<pattern>(s);
@@ -62,7 +62,7 @@ namespace data::encoding::base58 {
         
     public:
         explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{format, String};
+            if (ToBytes == nullptr) throw invalid{Format, String};
             return bytes_view(*ToBytes);
         }
         

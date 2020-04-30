@@ -115,6 +115,7 @@ ADD_LIBRARY(data STATIC
     src/data/encoding/hex.cpp
     src/data/encoding/ascii.cpp
     src/data/encoding/base58.cpp
+    src/data/encoding/base64.cpp
     src/data/encoding/integer.cpp
     src/data/iterable.cpp
     src/data/tools/channel.cpp
