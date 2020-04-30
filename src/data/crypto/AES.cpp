@@ -10,14 +10,13 @@
 namespace data::crypto::aes {
     
     template <size_t keylen> struct aes {
-        bytes encrypt(const slice<byte> b, uint<keylen> k) const {
-            byte iv[ CryptoPP::AES::BLOCKSIZE ];
-            memset( iv, 0x00, CryptoPP::AES::BLOCKSIZE );
-            CryptoPP::AES::Encryption aesEncryption(k.Array.data(), keylen);
-            CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption( aesEncryption, iv );
+        bytes encrypt(bytes_view b, const key<keylen>& k, const initialization_vector& iv) const {
+
+            CryptoPP::AES::Encryption aesEncryption(k.data(), keylen);
+            CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption( aesEncryption, iv.data() );
             
             size_t size = b.size();
-            bytes cyphertext{static_cast<unsigned char>(size)};
+            bytes cyphertext(static_cast<unsigned char>(size));
             
             CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, 
                 new CryptoPP::ArraySink(cyphertext.data(), size));
@@ -27,15 +26,13 @@ namespace data::crypto::aes {
             return cyphertext;
         }
         
-        bytes decrypt(const slice<byte> b, uint<keylen> k) const {
-            byte iv[ CryptoPP::AES::BLOCKSIZE ];
-            memset( iv, 0x00, CryptoPP::AES::BLOCKSIZE );
+        bytes decrypt(bytes_view b, const key<keylen>& k, const initialization_vector& iv) const {
             
-            CryptoPP::AES::Decryption aesDecryption(k.Array.data(), keylen);
-            CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption( aesDecryption, iv );
+            CryptoPP::AES::Decryption aesDecryption(k.data(), keylen);
+            CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption( aesDecryption, iv.data() );
             
             size_t size = b.size();
-            bytes decryptedtext{static_cast<unsigned char>(size)};
+            bytes decryptedtext(static_cast<unsigned char>(size));
 
             CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, 
                 new CryptoPP::ArraySink(decryptedtext.data(), size));
@@ -46,28 +43,29 @@ namespace data::crypto::aes {
         }
     };
     
-    bytes encrypt(const slice<byte> b, uint<16> k) {
-        return aes<16>{}.encrypt(b, k);
+    bytes encrypt(bytes_view b, const key<16>& k, const initialization_vector& iv) {
+        return aes<16>{}.encrypt(b, k, iv);
     }
     
-    bytes decrypt(const slice<byte> b, uint<16> k) {
-        return aes<16>{}.decrypt(b, k);
+    bytes decrypt(bytes_view b, const key<16>& k, const initialization_vector& iv) {
+        return aes<16>{}.decrypt(b, k, iv);
     }
     
-    bytes encrypt(const slice<byte> b, uint<24> k) {
-        return aes<24>{}.encrypt(b, k);
+    bytes encrypt(bytes_view b, const key<24>& k, const initialization_vector& iv) {
+        return aes<24>{}.encrypt(b, k, iv);
     }
     
-    bytes decrypt(const slice<byte> b, uint<24> k) {
-        return aes<24>{}.decrypt(b, k);
+    bytes decrypt(bytes_view b, const key<24>& k, const initialization_vector& iv) {
+        return aes<24>{}.decrypt(b, k, iv);
     }
     
-    bytes encrypt(const slice<byte> b, uint<32> k) {
-        return aes<32>{}.encrypt(b, k);
+    bytes encrypt(bytes_view b, const key<32>& k, const initialization_vector& iv) {
+        return aes<32>{}.encrypt(b, k, iv);
     }
     
-    bytes decrypt(const slice<byte> b, uint<32> k) {
-        return aes<32>{}.decrypt(b, k);
+    bytes decrypt(bytes_view b, const key<32>& k, const initialization_vector& iv) {
+        return aes<32>{}.decrypt(b, k, iv);
     }
+    
 }
 

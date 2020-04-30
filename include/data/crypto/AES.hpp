@@ -5,18 +5,21 @@
 #ifndef DATA_CRYPTO_AES
 #define DATA_CRYPTO_AES
 
-#include "data/types.hpp"
-#include <data/math/number/bounded.hpp>
+#include "data/iterable.hpp"
+
+namespace data::crypto {
+    template <size_t size> using key = array<byte, size>;
+}
 
 namespace data::crypto::aes {
-    bytes encrypt(const slice<byte>, uint<16>);
-    bytes decrypt(const slice<byte>, uint<16>);
-    bytes encrypt(const slice<byte>, uint<24>);
-    bytes decrypt(const slice<byte>, uint<24>);
-    bytes encrypt(const slice<byte>, uint<32>);
-    bytes decrypt(const slice<byte>, uint<32>);
+    using initialization_vector = array<byte, 32>;
     
-    template <size_t keylen> bytes encrypt(const string, uint<keylen>);
+    bytes encrypt(bytes_view, const key<16>&, const initialization_vector&);
+    bytes decrypt(bytes_view, const key<16>&, const initialization_vector&);
+    bytes encrypt(bytes_view, const key<24>&, const initialization_vector&);
+    bytes decrypt(bytes_view, const key<24>&, const initialization_vector&);
+    bytes encrypt(bytes_view, const key<32>&, const initialization_vector&);
+    bytes decrypt(bytes_view, const key<32>&, const initialization_vector&);
 }
 
 #endif

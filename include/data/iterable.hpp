@@ -55,6 +55,11 @@ namespace data {
         slice<X> range(data::range r);
     };
     
+    template <typename X, size_t size> struct array : public cross<X> {
+        array() : cross<X>{size} {}
+        array(X fill) : cross<X>{size, fill} {}
+    };
+    
     struct bytes : cross<byte> {
         using cross<byte>::cross;
         operator bytes_view() const {
