@@ -13,7 +13,7 @@ ADD_EXECUTABLE(testData
     testBytestring.cpp
     testLinkedStack.cpp 
     testN.cpp 
-    testNBytes.cpp 
+    #testNBytes.cpp 
     testBase58.cpp 
     #testBounded.cpp 
     #testBitShift.cpp 

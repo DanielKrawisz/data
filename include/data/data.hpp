@@ -115,9 +115,6 @@ namespace data {
 #include <data/math/polynomial.hpp>
 #include <data/math/permutation.hpp>
 
-// Geometry
-#include <data/math/point.hpp>
-
 namespace data {
         
     // Rationals. 
@@ -191,93 +188,22 @@ namespace data {
     
 }
 
-// Other representations of numbers that don't work yet. 
-
-#include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/bytes/N.hpp>
-#include <data/math/number/bounded/bounded.hpp>
-
-namespace data {
-    /*
-    // fixed-size numbers of any size. 
-    template <size_t size> using uint = math::number::bounded<size, endian::little, false>;
-    template <size_t size> using integer = math::number::bounded<size, endian::little, true>;
-    
-    using uint160 = uint<20>;
-    using uint256 = uint<32>;
-    using uint512 = uint<64>;
-
-    using int160 = integer<20>;
-    using int256 = integer<32>;
-    using int512 = integer<64>;*/
-
-    // representations of the naturals and integers of any size as byte strings. 
-    template <endian::order o> using N_bytes = math::number::N_bytes<o>;
-    template <endian::order o> using Z_bytes = math::number::Z_bytes<o>;
-    
-}
-
 // explicit function instantiations. 
 namespace data {
     
     template math::sign sign<N>(const N&);
     template math::sign sign<Z>(const Z&);
-    /*
-    template math::sign sign<N_bytes<endian::big>>(const N_bytes<endian::big>&);
-    template math::sign sign<Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
-    
-    template math::sign sign<N_bytes<endian::little>>(const N_bytes<endian::little>&);
-    template math::sign sign<Z_bytes<endian::little>>(const Z_bytes<endian::little>&);*/
-    /*
-    template math::sign sign<uint160>(const uint160&);
-    template math::sign sign<int160>(const int160&);
-    
-    template math::sign sign<uint256>(const uint256&);
-    template math::sign sign<int256>(const int256&);
-    
-    template math::sign sign<uint512>(const uint512&);
-    template math::sign sign<int512>(const int512&);*/
     
     template math::sign sign<Q>(const Q&);
     
     template N abs<N, N>(const N&);
     template N abs<N, Z>(const Z&);
     template Z abs<Z, Z>(const Z&);
-    /*
-    template N_bytes<endian::big> abs<N_bytes<endian::big>, N_bytes<endian::big>>(const N_bytes<endian::big>&);
-    template N_bytes<endian::big> abs<N_bytes<endian::big>, Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
-    
-    template N_bytes<endian::little> abs<N_bytes<endian::little>, N_bytes<endian::little>>(const N_bytes<endian::little>&);
-    template N_bytes<endian::little> abs<N_bytes<endian::little>, Z_bytes<endian::little>>(const Z_bytes<endian::little>&);*/
-    /*
-    template uint160 abs<uint160, uint160>(const uint160&);
-    template uint160 abs<uint160, int160>(const int160&);
-    
-    template uint256 abs<uint256, uint256>(const uint256&);
-    template uint256 abs<uint256, int256>(const int256&);
-    
-    template uint512 abs<uint512, uint512>(const uint512&);
-    template uint512 abs<uint512, int512>(const int512&);*/
 
     template Q abs<Q, Q>(const Q&);
     
     template N arg<N>(const N&);
     template Z arg<Z>(const Z&);
-    /*
-    template N_bytes<endian::big> arg<N_bytes<endian::big>>(const N_bytes<endian::big>&);
-    template Z_bytes<endian::big> arg<Z_bytes<endian::big>>(const Z_bytes<endian::big>&);
-    
-    template N_bytes<endian::little> arg<N_bytes<endian::little>>(const N_bytes<endian::little>&);
-    template Z_bytes<endian::little> arg<Z_bytes<endian::little>>(const Z_bytes<endian::little>&);*/
-    /*
-    template uint160 arg<uint160>(const uint160&);
-    template int160 arg<int160>(const int160&);
-    
-    template uint256 arg<uint256>(const uint256&);
-    template int256 arg<int256>(const int256&);
-    
-    template uint512 arg<uint512>(const uint512&);
-    template int512 arg<int512>(const int512&);*/
     
     template Q arg<Q>(const Q&);
     
