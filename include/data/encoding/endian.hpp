@@ -6,7 +6,6 @@
 #define DATA_ENDIAN
 
 #include <data/types.hpp>
-#include <boost/endian/buffers.hpp>
 #include <boost/endian/conversion.hpp>
 
 namespace data::endian {
@@ -115,7 +114,7 @@ namespace data {
   typedef endian::arithmetic<endian::little, uint_least64_t, 48>  uint48_little;
   typedef endian::arithmetic<endian::little, uint_least64_t, 56>  uint56_little;
   typedef endian::arithmetic<endian::little, uint_least64_t, 64>  uint64_little;
-};
+}
 
 #endif
 
