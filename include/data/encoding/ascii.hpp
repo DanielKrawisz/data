@@ -7,7 +7,6 @@
 
 #include <string>
 #include <data/iterable.hpp>
-#include <boost/convert.hpp>
 
 namespace data::encoding::ascii {
     const byte max = 0x7f;
