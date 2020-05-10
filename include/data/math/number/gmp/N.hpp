@@ -235,6 +235,7 @@ namespace data::math::number::gmp {
         
         friend struct Z;
         friend struct number::abs<N, Z>;
+        template <endian::order o> friend struct N_bytes;
     };
     
     inline bool Z::operator==(const N& n) const {
