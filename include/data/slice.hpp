@@ -179,6 +179,10 @@ namespace data {
         
         slice(X* x) : slice<X>{x, n} {}
         
+        static const slice make(const X* x) {
+            return slice{const_cast<X*>(x)};
+        }
+        
         template <int b, int e>
         slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result> range() const;
         
