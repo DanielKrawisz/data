@@ -2,12 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/math/number/gmp/N.hpp>
+#include <data/data.hpp>
 #include <data/math/number/bytes/Z.hpp>
-#include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
-#include <data/encoding/integer.hpp>
-#include <data/list/linked.hpp>
 
 namespace data::math::number::gmp {
     
@@ -84,7 +81,7 @@ namespace data::math::number::gmp {
     std::ostream& Z_write_dec(std::ostream& o, const Z& n) {
         if (n == 0) return o << "0";
         if (n < 0) return Z_write_dec(o << "-", -n);
-        return o << encoding::write_base<Z>(n, encoding::decimal::characters());
+        return o << encoding::write_base<N>(abs<N, Z>{}(n), encoding::decimal::characters());
     }
     
     std::ostream& Z_write_hexidecimal(std::ostream& o, const Z& n) {
@@ -92,10 +89,10 @@ namespace data::math::number::gmp {
         std::string str;
         char fill;
         if (n > 0) {
-            str = encoding::write_base<Z>(n, encoding::hex::characters_lower());
+            str = encoding::write_base<N>(abs<N, Z>{}(n), encoding::hex::characters_lower());
             fill = '0';
         } else { 
-            Z z = -n; // positive 
+            Z z = n; // positive 
             uint32 digits = 0;
             Z pow = 1;
             
@@ -105,7 +102,7 @@ namespace data::math::number::gmp {
                 digits ++;
             }
         
-            std::string p_str = encoding::write_base<Z>(pow + n, encoding::hex::characters_lower());
+            std::string p_str = encoding::write_base<N>(abs<N, Z>{}(pow + n), encoding::hex::characters_lower());
             str = p_str.substr(p_str.size() - digits, p_str.size());
             fill = 'f';
         } 

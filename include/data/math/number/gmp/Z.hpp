@@ -154,8 +154,6 @@ namespace data::math::number::gmp {
         
         explicit operator int64() const;
         
-        explicit operator uint64() const;
-        
         explicit operator double() const {
             return mpz_get_d(MPZ);
         }
@@ -345,6 +343,9 @@ namespace data::math::number::gmp {
         explicit Z(const bounded<false, o, size>& b) : Z(bytes_view(b), o) {}
         
     private:
+        
+        explicit operator uint64() const;
+        
         Z(bytes_view b, endian::order o) : Z{0} {
             int i;
             if (o == endian::big) for(i = 0; i < static_cast<int>(b.size()) - 1; i++) {
@@ -362,6 +363,7 @@ namespace data::math::number::gmp {
             throw method::unimplemented{"Z::write_bytes"};
         }
         
+        friend struct N;
     };
     
     inline Z Z::abs() const {
