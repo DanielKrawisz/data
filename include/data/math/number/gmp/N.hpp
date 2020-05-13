@@ -93,6 +93,10 @@ namespace data::math::number::gmp {
             return uint64(Value);
         } 
         
+        explicit operator double() const {
+            return double(Value);
+        }
+        
         N& operator++() {
             ++Value;
             return *this;

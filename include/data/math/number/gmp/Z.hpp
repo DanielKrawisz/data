@@ -156,6 +156,10 @@ namespace data::math::number::gmp {
         
         explicit operator uint64() const;
         
+        explicit operator double() const {
+            return mpz_get_d(MPZ);
+        }
+                
         Z& operator++() {
             __gmp_unary_increment::eval(MPZ);
             return *this;
