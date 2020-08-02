@@ -62,6 +62,10 @@ namespace data::math::number {
             return Value - m.Value;
         }
         
+        modular operator-() const {
+            return {modulus() - Value};
+        }
+        
     };
     
 }

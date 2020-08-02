@@ -84,30 +84,35 @@ namespace data::math::number::gmp {
         return o << encoding::write_base<N>(abs<N, Z>{}(n), encoding::decimal::characters());
     }
     
-    std::ostream& Z_write_hexidecimal(std::ostream& o, const Z& n) {
-        if (n == 0) return o << "0x00";
+    std::ostream& Z_write_hexidecimal(std::ostream& o, const Z& z) {
+        if (z == 0) return o << "0x00";
         std::string str;
         char fill;
-        if (n > 0) {
-            str = encoding::write_base<N>(abs<N, Z>{}(n), encoding::hex::characters_lower());
+        o << "0x";
+        if (z > 0) {
             fill = '0';
+            str = encoding::write_base<N>(abs<N, Z>{}(z), encoding::hex::characters_lower());
+            if (str[0] > '7') o << "00";
         } else { 
-            Z z = n; // positive 
-            uint32 digits = 0;
-            Z pow = 1;
+            fill = 'f';
+            N n = abs<N, Z>{}(z); 
+            N pow = 1;
             
             // find the smallest power of 256 bigger than z. 
-            while (pow < z) {
-                pow = pow << 8; 
-                digits ++;
-            }
+            while (pow <= n) pow = pow << 8; 
         
-            std::string p_str = encoding::write_base<N>(abs<N, Z>{}(pow + n), encoding::hex::characters_lower());
-            str = p_str.substr(p_str.size() - digits, p_str.size());
-            fill = 'f';
+            str = encoding::write_base<N>(abs<N, Z>{}(pow.Value + z), encoding::hex::characters_lower());
+            if (str[0] <= '7') o << "ff";
         } 
-        o << "0x";
         if (str.size() % 2 != 0) o << fill;
+        return o << str;
+    }
+    
+    std::ostream& N_write_hexidecimal(std::ostream& o, const N& n) {
+        if (n == 0) return o << "0x00";
+        o << "0x";
+        std::string str = encoding::write_base<N>(n, encoding::hex::characters_lower());
+        if (str.size() % 2 != 0) o << '0';
         return o << str;
     }
     
@@ -249,7 +254,7 @@ namespace data::math::number::gmp {
 
 std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n) {
     if (o.flags() & std::ios::hex) {
-        data::math::number::gmp::Z_write_hexidecimal(o, n.Value);
+        data::math::number::gmp::N_write_hexidecimal(o, n);
         return o;
     }
     if (o.flags() & std::ios::dec) {

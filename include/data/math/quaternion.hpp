@@ -61,7 +61,7 @@ namespace data::math {
             return hamiltonian::inverse();
         }
         
-        quaternion quadrance() const {
+        nonnegative<R> quadrance() const {
             return hamiltonian::quadrance();
         }
     };

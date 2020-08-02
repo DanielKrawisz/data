@@ -81,9 +81,9 @@ namespace data::math::number {
             return operator==(fraction{z});
         }
         
-        static fraction inverse(const fraction& f) {
-            if (f == 0) throw division_by_zero{};
-            return fraction{Z{f.Denominator.Number} * arg<Z>{}(f.Numerator), positive{abs<N, Z>{}(f.Numerator)}};
+        static ptr<fraction> inverse(const fraction& f) {
+            if (f == 0) return nullptr;
+            return std::make_shared<fraction>(fraction{Z{f.Denominator.Number} * arg<Z>{}(f.Numerator), positive{abs<N, Z>{}(f.Numerator)}});
         }
         
         bool operator!=(const fraction& f) const {
@@ -123,8 +123,9 @@ namespace data::math::number {
         
         fraction operator*(const Z& z) const;
         
-        fraction operator/(const fraction& f) const {
-            return (*this)*inverse(f);
+        fraction operator/(const nonzero<fraction>& f) const {
+            if (f.Value == fraction{0}) throw division_by_zero{};
+            return (*this) * *inverse(f);
         }
         
         fraction operator/(const Z& z) const {
@@ -133,6 +134,10 @@ namespace data::math::number {
         
         fraction operator/(const N& n) const {
             return fraction{Numerator, Denominator * n};
+        }
+        
+        nonnegative<fraction> quadrance() const {
+            return fraction{Numerator * Numerator, Denominator * Denominator};
         }
         
         fraction& operator=(const fraction& f) {
@@ -162,16 +167,30 @@ namespace data::math::number {
 // TODO fill in these types correctly. 
 namespace data::math {
     template <typename Z, typename N> 
-    struct commutative<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    struct commutative<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>> : commutative<data::plus<Z>, Z> {};
     
     template <typename Z, typename N> 
-    struct associative<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    struct associative<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>> : associative<data::plus<Z>, Z> {};
     
     template <typename Z, typename N> 
-    struct commutative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    struct commutative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>> : commutative<data::times<Z>, Z>{};
     
     template <typename Z, typename N> 
-    struct associative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>>;
+    struct associative<data::times<number::fraction<Z, N>>, number::fraction<Z, N>> : associative<data::times<Z>, Z>{};
+    
+    template <typename Z, typename N> 
+    struct identity<data::plus<number::fraction<Z, N>>, number::fraction<Z, N>> {
+        static const math::number::gmp::Z value() {
+            return {identity<data::plus<Z>, Z>::value()};
+        }
+    };
+    
+    template <typename Z, typename N> 
+    struct identity<data::times<number::fraction<Z, N>>, number::fraction<Z, N>> {
+        static const math::number::gmp::Z value() {
+            return {identity<data::times<Z>, Z>::value()};
+        }
+    };
 }
 
 template <typename Z, typename N>

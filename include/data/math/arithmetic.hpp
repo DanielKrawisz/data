@@ -104,6 +104,15 @@ namespace data {
             }
         };
         
+        template <typename F, typename Q>
+        class has_quadrance_method {
+            template <typename U> static auto test(int) -> typename 
+                std::enable_if<std::is_same<decltype(std::declval<const U>().quadrance()), Q>::value, yes>::type;
+            template <typename> static no test(...);
+        public:
+            static constexpr bool value = std::is_same<decltype(test<F>(0)), yes>::value;
+        };
+        
     }
 
     template <typename X> struct plus {

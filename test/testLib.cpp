@@ -59,12 +59,24 @@ void constructability_tests() {
     //data::interface::set<set<string&>> map_set_ref_is_set;
     
     // TODO prove that vector is linear. 
+    
+    //data::interface::natural<N> N_is_natural;
+    data::interface::integer<Z> Z_is_integer;
+    
+    //data::interface::field<Q> Q_is_field;
+    
+    //data::interface::normed_division_algebra<Q, Q> Q_is_normed_division_algebra_over_Q;
+    
+    //data::interface::field<G> G_is_field;
+    
+    //data::interface::normed_division_algebra<G, Q> Q_is_normed_division_algebra_over_Q;
+    
+    //data::interface::normed_division_algebra<H, G> H_is_normed_division_algebra_over_Q;
+    
     /*
-    data::interface::natural<N> N_is_natural;
     data::interface::natural<N_bytes<data::endian::little>> N_bytes_little_is_natural;
     data::interface::natural<N_bytes<data::endian::big>> N_bytes_big_is_natural;
     
-    data::interface::integer<Z> Z_is_ordered;
     data::interface::integer<Z_bytes<data::endian::little>> Z_bytes_little_is_integer;
     data::interface::integer<Z_bytes<data::endian::big>> Z_bytes_big_is_integer;
     
@@ -97,13 +109,11 @@ void constructability_tests() {
     //data::interface::field<G, data::plus<G>, data::times<G>> G_is_field;
     
     // TODO prove that complex is linear over R. 
+     
+    // TODO prove that quaternions are linear over R. 
+     
+    // TODO prove that octonions are linear over R. 
     
-    // TODO prove that hamiltonian is a division algebra. 
-    // TODO prove that complex is linear over R. 
-    
-    // TODO prove that octonion is a divion algebra. 
-    // TODO prove that complex is linear over R. 
-        
     //data::interface::ring<polynomial<Z>, data::plus<polynomial<Z>>, data::times<polynomial<Z>>> polynomial_Z_is_ring;
     //data::interface::ring<polynomial<Q>, data::plus<polynomial<Q>>, data::times<polynomial<Q>>> polynomial_Q_is_ring;
     

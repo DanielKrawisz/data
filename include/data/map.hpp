@@ -82,7 +82,7 @@ namespace data {
         struct map {
             using values = typename container<M>::values;
             using keys = decltype(std::declval<M>().keys());
-            using key = decltype(std::declval<keys>().first());
+            using key = typename std::remove_const<typename std::remove_reference<decltype(std::declval<keys>().first())>::type>::type;
             using value = typename indexed<M, key>::value;
             using element = typename sequence<values>::element;
             // TODO ensure element is entry<key, value>

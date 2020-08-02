@@ -8,6 +8,7 @@
 #include <data/interface.hpp>
 #include <data/slice.hpp>
 #include <data/encoding/endian.hpp>
+#include <data/valid.hpp>
 
 namespace data {
     
@@ -43,6 +44,11 @@ namespace data {
         cross(std::initializer_list<X> x);
         
         cross(view<X> b);
+        
+        bool valid() const {
+            for (const X& x : *this) if (!data::valid(x)) return false;
+            return true;
+        }
         
         explicit operator slice<X>();
         

@@ -122,8 +122,8 @@ namespace data::functional::stack {
             return operator=(iterator{rest(List)});
         }
         
-        const element operator*() const {
-            return first(List);
+        const element& operator*() const {
+            return List.first();
         }
         
         bool operator==(const iterator i) const {

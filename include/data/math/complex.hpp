@@ -61,7 +61,7 @@ namespace data::math {
             return cayley_dickson<R, R>::inverse();
         }
         
-        complex quadrance() const {
+        nonnegative<R> quadrance() const {
             return cayley_dickson<R, R>::quadrance();
         }
     };

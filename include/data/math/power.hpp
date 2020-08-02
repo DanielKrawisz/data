@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_POWER
 #define DATA_MATH_POWER
 
-#include <data/math/number/division.hpp>
+#include <data/math/division.hpp>
 
 namespace data::math {
     template <typename X, typename N>
@@ -16,7 +16,7 @@ namespace data::math {
         
         static X pow(X so_far, X pow_2n, N p) {
             if (p == 0) return so_far;
-            number::division d = p / 2;
+            division d = p / 2;
             return pow(d.Remainder == 1 ? so_far + pow_2n : so_far, square(pow_2n), d.Quotient);
         }
         

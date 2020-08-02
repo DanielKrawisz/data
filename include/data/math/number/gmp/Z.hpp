@@ -382,13 +382,13 @@ namespace data::math {
     
     template <> struct identity<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {
         static const math::number::gmp::Z value() {
-            return 1;
+            return 0;
         }
     };
     
     template <> struct identity<data::times<math::number::gmp::Z>, math::number::gmp::Z> {
         static const math::number::gmp::Z value() {
-            return 0;
+            return 1;
         }
     };
 }

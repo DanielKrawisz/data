@@ -13,7 +13,7 @@
 #include <data/meta/equal.hpp>
 #include <data/list/linked.hpp>
 #include <data/map/rb.hpp>
-#include <data/queue/functional_queue.hpp>
+#include <data/tools/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
 #include <data/tools/iterator_list.hpp>
 #include <data/tree/linked.hpp>

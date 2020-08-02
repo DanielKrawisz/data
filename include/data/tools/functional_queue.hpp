@@ -46,11 +46,11 @@ namespace data::tool {
             return Left.valid() && Right.valid();
         }
         
-        const element first() const {
+        const element& first() const {
             return data::first(Left);
         }
         
-        const element operator[](uint32 i) {
+        const element& operator[](uint32 i) {
             if (i >= size()) throw std::out_of_range("queue index");
             uint32 left = Left.size();
             if (i >= left) return Right[Right.size() - (i - left) - 1];
@@ -82,10 +82,6 @@ namespace data::tool {
             return check(Left << e, Right);
         }
         
-        functional_queue operator<<(const element e) const {
-            return append(e);
-        }
-        
         functional_queue append(functional_queue q) const {
             if (q.empty()) return *this;
             return append(q.first()).append(q.rest());
@@ -96,7 +92,11 @@ namespace data::tool {
             return append(x).append(y, p...);
         }
         
-        functional_queue operator + (functional_queue q) const {
+        functional_queue operator<<(const element e) const {
+            return append(e);
+        }
+        
+        functional_queue operator<<(const functional_queue q) const {
             return append(q);
         }
         
@@ -129,7 +129,7 @@ namespace data::tool {
        
 }
 
-template <typename X, typename L> 
+template <typename X> 
 std::ostream& operator<<(std::ostream& o, const data::tool::functional_queue<X> n) {
     return data::functional::stack::write(o, n);
 }

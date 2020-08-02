@@ -177,6 +177,47 @@ namespace data {
             N("464826666675011030942534742879648804717881800388630560019027762917"), N{58});
     }
     
+    TEST(NTest, TestRoot) {
+        auto root_17_0 = math::number::gmp::root(N("17"), 0);
+        auto root_25_0 = math::number::gmp::root(N("25"), 0);
+        auto root_422_1 = math::number::gmp::root(N("422"), 1);
+        auto root_4_2 = math::number::gmp::root(N("4"), 2);
+        auto root_16_2 = math::number::gmp::root(N("16"), 2);
+        auto root_25_2 = math::number::gmp::root(N("25"), 2);
+        auto root_27_2 = math::number::gmp::root(N("27"), 2);
+        auto root_125_3 = math::number::gmp::root(N("125"), 3);
+        auto root_128_3 = math::number::gmp::root(N("128"), 3);
+        auto root_128_7 = math::number::gmp::root(N("128"), 7);
+        auto root_1798307508862833999690304313948111955510002315423096853_19 =
+            math::number::gmp::root(N("1798307508862833999690304313948111955510002315423096853"), 19);
+        auto root_1798307508862833999690304313948111955510002315423096853_18 =
+            math::number::gmp::root(N("1798307508862833999690304313948111955510002315423096853"), 18);
+        auto root_1798307508862833999690304313948111955510002315423096851_19 =
+            math::number::gmp::root(N("1798307508862833999690304313948111955510002315423096851"), 19);
+        
+        EXPECT_FALSE(root_17_0.valid());
+        EXPECT_FALSE(root_25_0.valid());
+        EXPECT_TRUE(root_422_1.valid());
+        EXPECT_TRUE(root_4_2.valid());
+        EXPECT_TRUE(root_16_2.valid());
+        EXPECT_TRUE(root_25_2.valid());
+        EXPECT_FALSE(root_27_2.valid());
+        EXPECT_TRUE(root_125_3.valid());
+        EXPECT_FALSE(root_128_3.valid());
+        EXPECT_TRUE(root_128_7.valid());
+        EXPECT_TRUE(root_1798307508862833999690304313948111955510002315423096853_19.valid());
+        EXPECT_FALSE(root_1798307508862833999690304313948111955510002315423096853_18.valid());
+        EXPECT_FALSE(root_1798307508862833999690304313948111955510002315423096851_19.valid());
+        
+        EXPECT_EQ(root_422_1, N("422"));
+        EXPECT_EQ(root_4_2, N("2"));
+        EXPECT_EQ(root_16_2, N("4"));
+        EXPECT_EQ(root_25_2, N("5"));
+        EXPECT_EQ(root_125_3, N("5"));
+        EXPECT_EQ(root_128_7, N("2"));
+        EXPECT_EQ(root_1798307508862833999690304313948111955510002315423096853_19, N("717"));
+    }
+    
     TEST(NTest, TestAKS) {
         math::number::AKS<N> aks{};
         

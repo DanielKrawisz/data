@@ -5,20 +5,14 @@
 #ifndef DATA_MATH_NUMBER_ERATOSTHENES
 #define DATA_MATH_NUMBER_ERATOSTHENES
 
-#include <data/types.hpp>
+#include <data/tools.hpp>
 #include <data/math/number/prime.hpp>
-#include <data/tools/priority_queue.hpp>
-#include <data/queue/functional_queue.hpp>
-#include <data/list/linked.hpp>
 
 namespace data::math::number {
     
     template <typename N>
     struct eratosthenes {
-        using stack = functional::stack::linked<N>;
-        using queue = tool::functional_queue<functional::stack::linked<prime<N>>>;
-        
-        queue Primes;
+        list<prime<N>> Primes;
         
     private:
         N Next;
@@ -39,7 +33,7 @@ namespace data::math::number {
         using heap = tool::priority_queue<entry, functional::stack::linked<entry>>;
         heap Sieve;
         
-        eratosthenes(queue p, N m, heap sieve) : Primes{p}, Next{m}, Sieve{sieve} {}
+        eratosthenes(list<prime<N>> p, N m, heap sieve) : Primes{p}, Next{m}, Sieve{sieve} {}
         
         static heap insert_prime(heap sieve, N prime) {
             return sieve.insert(entry{prime, prime * 2});

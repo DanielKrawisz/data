@@ -1,20 +1,34 @@
-#ifndef DATA_MATH_NUMBER_GMP_SQRT_HPP
-#define DATA_MATH_NUMBER_GMP_SQRT_HPP
+// Copyright (c) 2020 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_MATH_NUMBER_GMP_SQRT
+#define DATA_MATH_NUMBER_GMP_SQRT
 
 #include <data/math/number/gmp/N.hpp>
-#include <data/math/number/gmp/Q.hpp>
-#include <data/math/number/gmp/R.hpp>
+#include <data/math/number/sqrt.hpp>
 
-namespace data {
-    
-    namespace math {
+namespace data::math::number::gmp {
         
-        number::gmp::R sqrt(number::gmp::N n);
+    N sqrt(const N& n);
+    N root(const N& n, uint32 p);
+
+}
+
+namespace data::math::number {
         
-        number::gmp::R sqrt(number::gmp::Q n);
+    template <> struct sqrt<gmp::N, gmp::N> {
+        gmp::N operator()(const gmp::N& n) {
+            return gmp::sqrt(n);
+        }
+    };
         
-        number::gmp::R sqrt(number::gmp::R n);
-    }
+    template <> struct sqrt<gmp::N, gmp::Z> {
+        gmp::N operator()(const gmp::Z& z) {
+            if (z < 0) return gmp::N{};
+            return gmp::sqrt(gmp::N{z});
+        }
+    };
 
 }
 

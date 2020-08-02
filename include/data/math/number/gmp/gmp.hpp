@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_GMP
 
 #include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/sqrt.hpp>
 
 // Include this file if you want GMP to be used as the
 // standard representation of integers and naturals.

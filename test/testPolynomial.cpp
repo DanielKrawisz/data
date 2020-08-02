@@ -25,5 +25,7 @@ TEST(PolynomialTest, TestPolynomial) {
     EXPECT_TRUE(p1 * p2 == expected_product);
     EXPECT_TRUE(p1(p2) == expected_composition);
     
+    // TODO polynomial long division
+    
 }
 

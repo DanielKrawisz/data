@@ -13,4 +13,9 @@ namespace data::math {
 
 }
 
+inline data::math::sign operator*(data::math::sign a, data::math::sign b) {
+    return a == data::math::zero || b == data::math::zero ? data::math::zero : 
+        a == b ? data::math::positive : data::math::negative;
+}
+
 #endif

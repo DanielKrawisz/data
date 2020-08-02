@@ -8,6 +8,7 @@
 #include <data/types.hpp>
 #include <data/math/sign.hpp>
 #include <data/math/division.hpp>
+#include <data/math/nonnegative.hpp>
 
 namespace data::math::number {
 
@@ -43,7 +44,7 @@ namespace data::math::number {
     struct arg {
         Z operator()(const Z& i) const {
             if (i == 0) throw division_by_zero{};
-            return i / abs<Z, Z>{}(i);
+            return i / nonzero{abs<Z, Z>{}(i)};
         }
     };
 }

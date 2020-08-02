@@ -5,9 +5,9 @@
 #ifndef DATA_MATH_PERMUTATION
 #define DATA_MATH_PERMUTATION
 
-#include <data/types.hpp>
-#include <data/queue/functional_queue.hpp>
-#include <data/tools/map_set.hpp>
+#include <data/tools.hpp>
+#include <data/tools/cycle.hpp>
+
 #include <data/math/arithmetic.hpp>
 #include <data/math/associative.hpp>
 
@@ -15,82 +15,91 @@ namespace data::math {
 
     template <typename elem>
     struct permutation {
-        struct cycle {
-            tool::functional_queue<elem> Cycle;
-            cycle(std::initializer_list<elem>);
-        private:
-            cycle(tool::functional_queue<elem> c) : Cycle{c} {}
-            friend struct permutation<elem>;
+        struct cycle : tool::cycle<elem> {
+            using tool::cycle<elem>::cycle;
+            
+            cycle(const tool::cycle<elem>& c) : tool::cycle<elem>{c} {}
+            
+            bool valid() const;
+        
+            elem operator*(const elem e) const;
+        
+            permutation operator*(const cycle& c) const {
+                throw method::unimplemented{"cycle * cycle"};
+            }
+            
+            cycle inverse() const {
+                return {tool::cycle<elem>::reverse()};
+            }
+            
+            bool operator==(const cycle& c) const {
+                return tool::cycle<elem>::operator==(c);
+            }
+            
+            bool operator!=(const cycle& c) const {
+                return tool::cycle<elem>::operator!=(c);
+            }
+            
+            set<elem> elements() const {
+                auto x = set<elem>{tool::cycle<elem>::Cycle};
+                if (x.size() == 0) return set<elem>{};
+                return x;
+            }
+            
+            // the identity cycle is the same as all cycles
+            // consisting of repetitions of a single element.
+            cycle normalize() const;
+        
+            permutation operator*(const permutation& p) const {
+                throw method::unimplemented{"cycle * perm"};
+            }
         };
         
-        tool::functional_queue<cycle> Cycles;
+        list<cycle> Cycles;
         
-        permutation();
-        permutation(std::initializer_list<cycle>);
+        permutation() : Cycles{} {}
+        permutation(std::initializer_list<cycle> x);
         
-        bool valid() const {
-            tool::map_set<elem> elements = {};
-            for (cycle c : Cycles) {
-                if (c.empty()) return false;
-                for (elem x : c) {
-                    if (elements.contains(x)) return false;
-                    elements = elements.insert(x);
-                }
-            }
-            return true;
-        }
+        bool valid() const;
+        
+        math::sign signature() const;
         
         static permutation identity() {
             return permutation();
         }
         
-        permutation inverse() const {
-            return for_each([](const cycle c) -> cycle {
-                return {functional::stack::reverse(c.Cycle)};
-            }, Cycles);
+        permutation normalize() const;
+        
+        permutation inverse() const;
+        
+        set<elem> elements() const {
+            return data::fold<set<elem>>([](set<elem> x, const cycle& c) -> set<elem> {
+                return x & c.elements();
+            }, {}, Cycles);
         }
         
-        permutation operator*(const elem e) const {
-            tool::functional_queue<cycle> apply = Cycles;
-            while (!apply.empty()) {
-                tool::functional_queue<elem> cycle = apply.first();
-                while (!cycle.empty()) {
-                    elem a = cycle.first();
-                    cycle = cycle.rest();
-                    if (e == a) return cycle.empty() ? apply.first().first() : cycle.first();
-                }
-            }
-            return e;
+        static bool commute(const cycle& a, const cycle& b) {
+            return (a.elements() | b.elements()) == set<elem>{};
         }
         
-        permutation operator*(const cycle c) const {
-            tool::functional_queue<elem> output{};
-            tool::functional_queue<elem> input = c.Cycle;
-            while (!input.empty()) {
-                output = output << operator*(input.first());
-                input = input.rest();
-            }
-            return {output};
+        static bool commute(const permutation& a, const permutation& b) {
+            return (a.elements() | b.elements()) == set<elem>{};
         }
         
-        permutation operator*(const permutation p) const {
-            tool::functional_queue<cycle> output{};
-            tool::functional_queue<cycle> input = p.Cycles;
-            while (!input.empty()) {
-                output = output << operator*(input.first());
-                input = input.rest();
-            }
-            return {output};
-        }
+        elem operator*(const elem& e) const;
         
-        permutation operator*(const cross<elem> v) const {
-            cross<elem> output(v.size());
-            for(int i = 0; i < v.size(); ++i) output[i] = operator*(v[i]);
-            return output;
-        }
+        permutation operator*(const permutation& p) const;
+        
+        permutation operator*(const cross<elem>& v) const;
+        
+        bool operator==(const permutation& p) const;
+        
+        bool operator!=(const permutation& p) const;
         
     private:
-        permutation(tool::functional_queue<cycle> c) : Cycles{c} {}
+        permutation(list<cycle> c) : Cycles{c} {}
+        
+        permutation operator*(const cycle& p) const;
     };
     
 }
@@ -108,7 +117,146 @@ namespace data::math {
         static const permutation<elem> value() {
             return permutation<elem>::identity();
         }
-    };
+    }; 
+    
+    template <typename elem> 
+    bool permutation<elem>::cycle::valid() const {
+        if (!tool::cycle<elem>::valid()) return false;
+        set<elem> el = elements();
+        return el.size() == tool::cycle<elem>::size() || el.size() == 1;
+    }
+    
+    template <typename elem> 
+    elem permutation<elem>::cycle::operator*(const elem e) const {
+        list<elem> c = tool::cycle<elem>::Cycle;
+        while (!c.empty()) {
+            elem a = c.first();
+            list<elem> c = c.rest();
+            if (e == a) return c.empty() ? tool::cycle<elem>::Cycle.first() : c.first();
+        }
+        return e;
+    }
+    
+    template <typename elem> 
+    typename permutation<elem>::cycle
+    permutation<elem>::cycle::normalize() const {
+        if (tool::cycle<elem>::size() == 0 || tool::cycle<elem>::size() == 1) return cycle{};
+        
+        elem first = tool::cycle<elem>::Cycle.first();
+        list<elem> rest = tool::cycle<elem>::Cycle.rest();
+        while (!rest.empty()) if (first != tool::cycle<elem>::Cycle.first()) return *this;
+        else rest = rest.rest();
+        
+        return cycle{};
+    }
+    
+    template <typename elem> 
+    permutation<elem>::permutation(std::initializer_list<cycle> x) : Cycles{} {
+        permutation p{};
+        for (cycle c : x) p = p * c;
+        Cycles = p.Cycles;
+    } 
+    
+    template <typename elem>     
+    bool permutation<elem>::valid() const {
+        set<elem> elements{};
+        list<cycle> cycles = Cycles;
+        while (!cycles.empty()) {
+            cycle c = cycles.first().normalize();
+            cycles = cycles.rest();
+            if (!c.valid()) return false;
+            
+            list<elem> e = c.Cycle;
+            while (!e.empty()) {
+                elem x = e.first();
+                if (elements.contains(x)) return false;
+                elements = elements.insert(x);
+            }
+        }
+        return true;
+    }
+    
+    template <typename elem>    
+    inline permutation<elem> 
+    permutation<elem>::normalize() const {
+        return for_each([](const cycle c) -> cycle {
+            return c.normalize();
+        }, Cycles);
+    }
+    
+    template <typename elem> 
+    inline permutation<elem> 
+    permutation<elem>::inverse() const {
+        return for_each([](const cycle c) -> cycle {
+            return c.inverse();
+        }, Cycles);
+    }
+        
+    template <typename elem> 
+    elem permutation<elem>::operator*(const elem& e) const {
+        list<cycle> apply = Cycles;
+        while (!apply.empty()) {
+            cycle c = apply.first();
+            elem a = c * e;
+            if (a != e) return a;
+        }
+        return e;
+    }
+    
+    template <typename elem> 
+    permutation<elem> 
+    permutation<elem>::operator*(const permutation& p) const {
+        permutation left{this->normalize()};
+        if (left.Cycles.empty()) return p;
+        
+        permutation right = p.normalize();
+        if (right.Cycles.empty()) return left;
+        
+        if (commute(left, right)) return permutation{left.Cycles << right.Cycles};
+        
+        while (!right.Cycles.empty()) {
+            left = left * right.Cycles.first();
+            right.Cycles = right.Cycles.rest();
+        }
+        
+        return left;
+    }
+        
+    template <typename elem> 
+    inline permutation<elem> 
+    permutation<elem>::operator*(const cross<elem>& v) const {
+        cross<elem> output(v.size());
+        for(int i = 0; i < v.size(); ++i) output[i] = operator*(v[i]);
+        return output;
+    }
+    
+    template <typename elem> 
+    bool permutation<elem>::operator==(const permutation& p) const {
+        if (Cycles.size() != p.Cycles.size()) return false;
+        if (Cycles.size() == 0) return true;
+        return permutation{} == operator*(p.inverse());
+    }
+    
+    template <typename elem> 
+    inline bool permutation<elem>::operator!=(const permutation& p) const {
+        return !operator==(p);
+    }
+    
+    template <typename elem> 
+    permutation<elem> 
+    permutation<elem>::operator*(const cycle& c) const {
+        list<cycle> cycles = Cycles;
+        if (!cycles.empty()) return permutation{c};
+        
+        permutation p = cycles.first() * c;
+        cycles = cycles.rest();
+        while (!cycles.empty()) {
+            cycle x = cycles.first();
+            p = x * p;
+            cycles = cycles.rest();
+        }
+        return p;
+    }
 }
 
 #endif

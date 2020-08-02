@@ -11,6 +11,7 @@ namespace data::crypto {
     template <size_t size> using key = array<byte, size>;
 }
 
+// AES in cypher block chaining (CBC) mode. 
 namespace data::crypto::aes {
     using initialization_vector = array<byte, 32>;
     

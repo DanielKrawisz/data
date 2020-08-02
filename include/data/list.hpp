@@ -16,5 +16,43 @@ namespace data::interface {
     }; 
 }
 
+namespace data::functional::list {
+    
+    template <typename L>
+    L rotate_left(const L x) {
+        size_t s = size(x);
+        if (s == 0 || s == 1) return x; 
+        
+        return data::append(data::rest(x), data::first(x));
+    }
+    
+    template <typename L>
+    inline L rotate_right(const L x) {
+        return data::reverse(rotate_left(data::reverse(x)));
+    }
+    
+    template <typename L>
+    L rotate_left(const L x, uint32 n) {
+        if (n == 0) return x;
+        
+        size_t s = size(x);
+        if (s == 0 || s == 1) return x; 
+        
+        if (n > s) return rotate_left(x, n % s);
+        return rotate_left(rotate_left(x, n - 1));
+    }
+    
+    template <typename L>
+    L rotate_right(const L x, uint32 n) {
+        if (n == 0) return x;
+        
+        size_t s = size(x);
+        if (s == 0 || s == 1) return x; 
+        
+        if (n > s) return rotate_right(x, n % s);
+        return rotate_right(rotate_right(x, n - 1));
+    }
+}
+
 #endif
 

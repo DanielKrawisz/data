@@ -85,6 +85,11 @@ namespace data::math {
         
         polynomial derivative() const;
         
+        bool operator>(const polynomial p) const;
+        bool operator<(const polynomial p) const;
+        bool operator<=(const polynomial p) const;
+        bool operator>=(const polynomial p) const;
+        
         template <typename ... P>
         static polynomial make(P... rest);
         

@@ -13,7 +13,7 @@ namespace data::crypto::aes {
         bytes encrypt(bytes_view b, const key<keylen>& k, const initialization_vector& iv) const {
 
             CryptoPP::AES::Encryption aesEncryption(k.data(), keylen);
-            CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption( aesEncryption, iv.data() );
+            CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data() );
             
             size_t size = b.size();
             bytes cyphertext(static_cast<unsigned char>(size));
@@ -29,7 +29,7 @@ namespace data::crypto::aes {
         bytes decrypt(bytes_view b, const key<keylen>& k, const initialization_vector& iv) const {
             
             CryptoPP::AES::Decryption aesDecryption(k.data(), keylen);
-            CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption( aesDecryption, iv.data() );
+            CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data() );
             
             size_t size = b.size();
             bytes decryptedtext(static_cast<unsigned char>(size));

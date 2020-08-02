@@ -67,8 +67,9 @@ namespace data::functional {
         rb_map() : Map{} {}
         rb_map(std::initializer_list<std::pair<K, V>> init);
         
-        stack::linked<const K&> keys() const {
-            stack::linked<const K&> kk{};
+        // TODO make this a list<const k&>
+        stack::linked<K> keys() const {
+            stack::linked<K> kk{};
             milewski::okasaki::forEach(Map, [&kk](const K& k, V)->void{
                 kk = kk << k;
             });

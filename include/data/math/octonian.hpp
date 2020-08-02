@@ -70,7 +70,7 @@ namespace data::math {
             return oct::inverse();
         }
         
-        octonion quadrance() const {
+        nonnegative<R> quadrance() const {
             return oct::quadrance();
         }
     };

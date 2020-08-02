@@ -6,7 +6,8 @@
 #define DATA_TOOLS_MAP_SET
 
 #include <data/list/linked.hpp>
-#include <data/map.hpp>
+#include <data/map/rb.hpp>
+#include <data/tools/functional_queue.hpp>
     
 namespace data::tool {
     
@@ -15,6 +16,9 @@ namespace data::tool {
     struct map_set {
         using key = typename interface::map<M>::key;
         using value  = typename interface::map<M>::value;
+        
+        // functional queue built using the list. 
+        template <typename X> using list = tool::functional_queue<functional::stack::linked<X>>;
         
         M Map;
         
@@ -34,27 +38,85 @@ namespace data::tool {
             return map_set{Map.insert(k, value{})};
         }
         
-        map_set remove(const key& k) const {
-            return map_set{Map.remove(k, value{})};
+        map_set insert(list<key> keys) const {
+            if (keys.empty()) return *this;
+            return insert(keys.first()).insert(keys.rest());
         }
         
-        map_set insert(functional::stack::linked<key> keys) const {
-            if (keys.empty()) return *this;
-            return add(keys.first()).add(keys.rest());
+        map_set insert(map_set<M> m) const {
+            auto v = m.values();
+            auto q = *this;
+            while (!v.empty()) {
+                q = q.insert(v.first());
+                v = v.rest();
+            }
+            return q;
         }
         
         map_set operator<<(const key& k) const {
             return insert(k);
         }
         
-        functional::stack::linked<const key&> values() const {
+        map_set remove(const key& k) const {
+            return map_set{Map.remove(k, value{})};
+        }
+        
+        // TODO make this a list<const key&> 
+        list<key> values() const {
             return Map.keys();
         }
         
         map_set() : Map{} {}
         map_set(M m) : Map(m) {}
-        map_set(functional::stack::linked<key> keys) : Map{} {
+        map_set(list<key> keys) : Map{} {
             insert(keys);
+        }
+        
+        bool operator==(const map_set& m) const {
+            if (size() != m.size()) return false;
+            if (size() == 0) return true;
+            auto left_entry = values().first();
+            auto right_entry = m.values().first();
+            auto left = values().rest();
+            auto right = m.values().rest();
+            while(true) {
+                if (left_entry == right_entry) {
+                    if (left.empty()) return true;
+                    left_entry = left.first();
+                    right_entry = right.first();
+                    left = left.rest();
+                    right = right.rest();
+                } else {
+                    auto left_look_ahead = left;
+                    auto left_look_ahead_entry = left_entry;
+                    while (true) {
+                        if (left_look_ahead_entry > right_entry) return false;
+                        if (left_look_ahead.empty()) return false;
+                        left_look_ahead = left_look_ahead.rest();
+                        left_look_ahead_entry = left_look_ahead.first();
+                        if (left_look_ahead_entry == right_entry) goto loop;
+                    }
+                    return false;
+                } 
+                loop:;
+            }
+            
+        }
+        
+        bool operator!=(const map_set& m) const {
+            return !operator==(m);
+        }
+        
+        map_set operator&(const map_set& m) const {
+            return map_set{}.insert(*this).insert(m);
+        }
+        
+        map_set operator|(const map_set& m) const {
+            throw method::unimplemented{""};
+        }
+        
+        map_set operator-(const map_set& m) const {
+            throw method::unimplemented{""};
         }
     };
 
