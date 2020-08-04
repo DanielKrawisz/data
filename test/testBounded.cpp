@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/data.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
@@ -10,34 +11,34 @@
 
 namespace data {
     
-    template<size_t size, endian::order o, bool is_signed> 
-    using bounded = math::number::bounded<size, o, is_signed>;
+    template<bool is_signed, endian::order o, size_t size> 
+    using bounded = math::number::bounded<is_signed, o, size>;
     
-    using u8l = bounded<8, data::endian::little, false>;
-    using u8b = bounded<8, data::endian::big, false>;
-    using s8l = bounded<8, data::endian::little, true>;
-    using s8b  = bounded<8, data::endian::big, true>;
+    using u8l = bounded<false, data::endian::little, 8>;
+    using u8b = bounded<false, data::endian::big, 8>;
+    using s8l = bounded<true, data::endian::little, 8>;
+    using s8b  = bounded<true, data::endian::big, 8>;
     
-    using u7l = bounded<7, data::endian::little, false>;
-    using u7b = bounded<7, data::endian::big, false>;
-    using s7l = bounded<7, data::endian::little, true>;
-    using s7b  = bounded<7, data::endian::big, true>;
+    using u7l = bounded<false, data::endian::little, 7>;
+    using u7b = bounded<false, data::endian::big, 7>;
+    using s7l = bounded<true, data::endian::little, 7>;
+    using s7b  = bounded<true, data::endian::big, 7>;
     
-    using u6l = bounded<6, data::endian::little, false>;
-    using u6b = bounded<6, data::endian::big, false>;
-    using s6l = bounded<6, data::endian::little, true>;
-    using s6b  = bounded<6, data::endian::big, true>;
+    using u6l = bounded<false, data::endian::little, 6>;
+    using u6b = bounded<false, data::endian::big, 6>;
+    using s6l = bounded<true, data::endian::little, 6>;
+    using s6b  = bounded<true, data::endian::big, 6>;
     
-    using u5l = bounded<5, data::endian::little, false>;
-    using u5b = bounded<5, data::endian::big, false>;
-    using s5l = bounded<5, data::endian::little, true>;
-    using s5b  = bounded<5, data::endian::big, true>;
-    
+    using u5l = bounded<false, data::endian::little, 5>;
+    using u5b = bounded<false, data::endian::big, 5>;
+    using s5l = bounded<true, data::endian::little, 5>;
+    using s5b  = bounded<true, data::endian::big, 5>;
+    /*
     using nl = math::number::N_bytes<data::endian::little>;
     using nb = math::number::N_bytes<data::endian::big>;
     using zl = math::number::Z_bytes<data::endian::little>;
     using zb = math::number::Z_bytes<data::endian::big>;
-    
+    */
     TEST(BoundedTest, BoundedReadString) {
         
         EXPECT_THROW(u8b{"-1"}, std::invalid_argument);
@@ -105,6 +106,13 @@ namespace data {
         EXPECT_GT(N(u8l(1)), N(0));
         EXPECT_LT(N(u8l(0)), N(1));
         
+        EXPECT_EQ(Z(s8b(0)), Z(0));
+        EXPECT_EQ(Z(s8b(1)), Z(1));
+        EXPECT_NE(Z(s8b(1)), Z(0));
+        EXPECT_NE(Z(s8b(0)), Z(1));
+        EXPECT_GT(Z(s8b(1)), Z(0));
+        EXPECT_LT(Z(s8b(0)), Z(1));
+        /*
         EXPECT_EQ(N(nl(0)), N(0));
         EXPECT_EQ(N(nl(1)), N(1));
         EXPECT_NE(N(nl(1)), N(0));
@@ -112,19 +120,12 @@ namespace data {
         EXPECT_GT(N(nl(1)), N(0));
         EXPECT_LT(N(nl(0)), N(1));
         
-        EXPECT_EQ(Z(s8b(0)), Z(0));
-        EXPECT_EQ(Z(s8b(1)), Z(1));
-        EXPECT_NE(Z(s8b(1)), Z(0));
-        EXPECT_NE(Z(s8b(0)), Z(1));
-        EXPECT_GT(Z(s8b(1)), Z(0));
-        EXPECT_LT(Z(s8b(0)), Z(1));
-        
         EXPECT_EQ(Z(zl(0)), Z(0));
         EXPECT_EQ(Z(zl(1)), Z(1));
         EXPECT_NE(Z(zl(1)), Z(0));
         EXPECT_NE(Z(zl(0)), Z(1));
         EXPECT_GT(Z(zl(1)), Z(0));
-        EXPECT_LT(Z(zl(0)), Z(1));
+        EXPECT_LT(Z(zl(0)), Z(1));*/
         
     }
     
@@ -189,14 +190,14 @@ namespace data {
         EXPECT_FALSE(s5l{0} < 0);
         EXPECT_FALSE(s5l{1} < 0);
         EXPECT_TRUE(s5l{-1} < 0);
-        
+        /*
         EXPECT_FALSE(zb{0} < 0);
         EXPECT_FALSE(zb{1} < 0);
         EXPECT_TRUE(zb{-1} < 0);
         
         EXPECT_FALSE(zl{0} < 0);
         EXPECT_FALSE(zl{1} < 0);
-        EXPECT_TRUE(zl{-1} < 0);
+        EXPECT_TRUE(zl{-1} < 0);*/
         
     }
     
@@ -214,9 +215,6 @@ namespace data {
         EXPECT_EQ(-s5b{"1"}, s5b{"-1"});
         EXPECT_EQ(-s5b{"-1"}, s5b{"1"});
         
-        EXPECT_EQ(-zb{"1"}, zb{"-1"});
-        EXPECT_EQ(-zb{"-1"}, zb{"1"});
-        
         EXPECT_EQ(-s8l{"1"}, s8l{"-1"});
         EXPECT_EQ(-s8l{"-1"}, s8l{"1"});
         
@@ -228,9 +226,12 @@ namespace data {
         
         EXPECT_EQ(-s5l{"1"}, s5l{"-1"});
         EXPECT_EQ(-s5l{"-1"}, s5l{"1"});
+        /*
+        EXPECT_EQ(-zb{"1"}, zb{"-1"});
+        EXPECT_EQ(-zb{"-1"}, zb{"1"});
         
         EXPECT_EQ(-zl{"1"}, zl{"-1"});
-        EXPECT_EQ(-zl{"-1"}, zl{"1"});
+        EXPECT_EQ(-zl{"-1"}, zl{"1"});*/
         
     }
     

@@ -108,8 +108,8 @@ namespace data {
         perm p1234 = perm{cycle{1, 2}, {3, 4}};
         
         EXPECT_TRUE(valid(p1234));
-    }
-    
+    }*/
+    /*
     TEST(PermutationTest, TestSymmetric) {
         
     }

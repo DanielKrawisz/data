@@ -15,16 +15,16 @@ ADD_EXECUTABLE(testData
     testN.cpp 
     testZ.cpp
     #testBounded.cpp 
-    #testBitShift.cpp 
-    #testSign.cpp
-    #testNBytes.cpp 
-    #testZBytes.cpp 
     testBase58.cpp 
     testExtendedEuclidian.cpp 
     testEratosthenes.cpp 
     testFiniteField.cpp 
     testPolynomial.cpp 
     testPermutation.cpp 
+    #testBitShift.cpp 
+    #testSign.cpp
+    #testNBytes.cpp 
+    #testZBytes.cpp 
     testLib.cpp)
 link_directories(${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
 target_link_libraries(testData data gmock_main)

@@ -129,8 +129,8 @@ namespace data {
     using polynomial = data::math::polynomial<X, N>;
     
     // permutations
-    //template <typename X>
-    //using permutation = data::math::permutation<X>;
+    template <typename X>
+    using permutation = data::math::permutation<X>;
     
 }
 

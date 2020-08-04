@@ -6,6 +6,8 @@
 #define DATA_BYTESTRING
 
 #include <data/math/arithmetic.hpp>
+#include <data/iterable.hpp>
+#include <data/encoding/endian.hpp>
 
 namespace data {
     

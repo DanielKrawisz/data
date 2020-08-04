@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_BOUNDED
 
 #include <type_traits>
-#include <data/iterable.hpp>
+#include <data/bytestring.hpp>
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
 #include <data/types.hpp>
@@ -53,6 +53,9 @@ namespace data::math::number {
         
         bool operator<(const bounded&) const;
         bool operator<=(const bounded&) const;
+
+        bool operator>(const bounded& d) const;
+        bool operator>=(const bounded& d) const;
         
         bounded& operator+=(const bounded&);
         bounded& operator-=(const bounded&);
@@ -172,6 +175,9 @@ namespace data::math::number {
 
         bool operator<(const bounded& d) const;
         bool operator<=(const bounded& d) const;
+
+        bool operator>(const bounded& d) const;
+        bool operator>=(const bounded& d) const;
 
         bounded& operator+=(const bounded&);
         bounded& operator-=(const bounded&);

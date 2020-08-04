@@ -7,24 +7,20 @@
 
 #include "interface.hpp"
 
-namespace data {
-    
-    namespace interface {
+namespace data::interface {
         
-        template <typename X>
-        struct set {
-            using element = typename container<X>::element;
-            //using values = typename container<X>::values;
-            // TODO ensure values is a list of elements. 
-        private:
-            using require_default_constructable = typename std::enable_if<std::is_default_constructible<X>::value, void>::type;
-            using require_insert_method = typename std::enable_if<
-                meta::has_insert_method<X, element>::value, void>::type;
-            /*using require_remove_method = typename std::enable_if<
-                meta::has_remove_method<X, element>::value, void>::type;*/
-        }; 
-        
-    }
+    template <typename X>
+    struct set {
+        using element = typename container<X>::element;
+        //using values = typename container<X>::values;
+        // TODO ensure values is a list of elements. 
+    private:
+        using require_default_constructable = typename std::enable_if<std::is_default_constructible<X>::value, void>::type;
+        using require_insert_method = typename std::enable_if<
+            meta::has_insert_method<X, element>::value, void>::type;
+        /*using require_remove_method = typename std::enable_if<
+            meta::has_remove_method<X, element>::value, void>::type;*/
+    }; 
     
 }
 

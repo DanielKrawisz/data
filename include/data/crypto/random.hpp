@@ -5,13 +5,9 @@
 #ifndef DATA_CRYPTO_RANDOM
 #define DATA_CRYPTO_RANDOM
 
-#include <data/data.hpp>
+#include <data/iterable.hpp>
 
 namespace data::crypto {
-    
-    struct entropy {
-        virtual bytes get(size_t) = 0;
-    };
     
     struct random {
         random& operator>>(byte& x) {
@@ -41,6 +37,14 @@ namespace data::crypto {
         
     protected: 
         virtual void get(byte*, size_t) = 0;
+    };
+    
+    struct entropy {
+        struct fail : std::exception {
+            
+        };
+        
+        virtual bytes get(size_t) = 0;
     };
 
 }
