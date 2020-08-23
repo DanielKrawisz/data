@@ -5,22 +5,17 @@
 #ifndef DATA_CRYPTO_AES
 #define DATA_CRYPTO_AES
 
-#include "data/iterable.hpp"
-
-namespace data::crypto {
-    template <size_t size> using key = array<byte, size>;
-}
+#include "encrypted.hpp"
 
 // AES in cypher block chaining (CBC) mode. 
 namespace data::crypto::aes {
-    using initialization_vector = array<byte, 32>;
     
-    bytes encrypt(bytes_view, const key<16>&, const initialization_vector&);
-    bytes decrypt(bytes_view, const key<16>&, const initialization_vector&);
-    bytes encrypt(bytes_view, const key<24>&, const initialization_vector&);
-    bytes decrypt(bytes_view, const key<24>&, const initialization_vector&);
-    bytes encrypt(bytes_view, const key<32>&, const initialization_vector&);
-    bytes decrypt(bytes_view, const key<32>&, const initialization_vector&);
+    bytes encrypt(bytes_view, const symmetric_key<16>&, const initialization_vector&);
+    decrypted decrypt(bytes_view, const symmetric_key<16>&, const initialization_vector&);
+    bytes encrypt(bytes_view, const symmetric_key<24>&, const initialization_vector&);
+    decrypted decrypt(bytes_view, const symmetric_key<24>&, const initialization_vector&);
+    bytes encrypt(bytes_view, const symmetric_key<32>&, const initialization_vector&);
+    decrypted decrypt(bytes_view, const symmetric_key<32>&, const initialization_vector&);
 }
 
 #endif

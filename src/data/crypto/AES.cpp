@@ -10,7 +10,7 @@
 namespace data::crypto::aes {
     
     template <size_t keylen> struct aes {
-        bytes encrypt(bytes_view b, const key<keylen>& k, const initialization_vector& iv) const {
+        bytes encrypt(bytes_view b, const symmetric_key<keylen>& k, const initialization_vector& iv) const {
 
             CryptoPP::AES::Encryption aesEncryption(k.data(), keylen);
             CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data() );
@@ -26,13 +26,13 @@ namespace data::crypto::aes {
             return cyphertext;
         }
         
-        bytes decrypt(bytes_view b, const key<keylen>& k, const initialization_vector& iv) const {
+        decrypted decrypt(bytes_view b, const symmetric_key<keylen>& k, const initialization_vector& iv) const {
             
             CryptoPP::AES::Decryption aesDecryption(k.data(), keylen);
             CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data() );
             
             size_t size = b.size();
-            bytes decryptedtext(static_cast<unsigned char>(size));
+            decrypted decryptedtext(static_cast<unsigned char>(size));
 
             CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, 
                 new CryptoPP::ArraySink(decryptedtext.data(), size));
@@ -43,27 +43,27 @@ namespace data::crypto::aes {
         }
     };
     
-    bytes encrypt(bytes_view b, const key<16>& k, const initialization_vector& iv) {
+    bytes encrypt(bytes_view b, const symmetric_key<16>& k, const initialization_vector& iv) {
         return aes<16>{}.encrypt(b, k, iv);
     }
     
-    bytes decrypt(bytes_view b, const key<16>& k, const initialization_vector& iv) {
+    decrypted decrypt(bytes_view b, const symmetric_key<16>& k, const initialization_vector& iv) {
         return aes<16>{}.decrypt(b, k, iv);
     }
     
-    bytes encrypt(bytes_view b, const key<24>& k, const initialization_vector& iv) {
+    bytes encrypt(bytes_view b, const symmetric_key<24>& k, const initialization_vector& iv) {
         return aes<24>{}.encrypt(b, k, iv);
     }
     
-    bytes decrypt(bytes_view b, const key<24>& k, const initialization_vector& iv) {
+    decrypted decrypt(bytes_view b, const symmetric_key<24>& k, const initialization_vector& iv) {
         return aes<24>{}.decrypt(b, k, iv);
     }
     
-    bytes encrypt(bytes_view b, const key<32>& k, const initialization_vector& iv) {
+    bytes encrypt(bytes_view b, const symmetric_key<32>& k, const initialization_vector& iv) {
         return aes<32>{}.encrypt(b, k, iv);
     }
     
-    bytes decrypt(bytes_view b, const key<32>& k, const initialization_vector& iv) {
+    decrypted decrypt(bytes_view b, const symmetric_key<32>& k, const initialization_vector& iv) {
         return aes<32>{}.decrypt(b, k, iv);
     }
     
