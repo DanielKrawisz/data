@@ -8,6 +8,7 @@
 #include <data/math/arithmetic.hpp>
 #include <data/iterable.hpp>
 #include <data/encoding/endian.hpp>
+#include <data/encoding/integer.hpp>
 
 namespace data {
     
@@ -34,12 +35,12 @@ namespace data {
     namespace encoding::hexidecimal {
     
         template<endian::order r>
-        bytestring<r> read(string_view s) {
+        bytestring<r> read_bytestring(string_view s) {
             return bytestring<r>(read(s, r));
         }
         
         template<endian::order r, uint32 size>
-        bytestring<r, size> read(string_view s) {
+        bytestring<r, size> read_bytestring(string_view s) {
             bytes b(read(s, r));
             if (b.size() != size) return bytestring<r, size>();
             return bytestring<r, size>(b);
@@ -49,7 +50,7 @@ namespace data {
     
     template <endian::order r, size_t ... sizes>
     inline bytestring<r, sizes...>::bytestring(string_view hexidecimal) : 
-        bytestring{encoding::hexidecimal::read<r, sizes...>(hexidecimal)} {}
+        bytestring{encoding::hexidecimal::read_bytestring<r, sizes...>(hexidecimal)} {}
     
 }
 

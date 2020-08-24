@@ -10,30 +10,21 @@
 namespace data::crypto {
     
     template <size_t s>
-    struct digest {
-        uint<s> Digest;
+    struct digest : uint<s> {
         static const uint32 size = s;
         
-        digest() : Digest(0) {}
-        digest(uint<s> d) : Digest{d} {}
-        digest(uint32 d) : Digest{d} {}
-        digest(const digest& d) : Digest{d.Digest} {}
+        using uint<s>::uint;
         
-        digest(bytes_view b) : Digest{0} {
-            if (b.size() == s) std::copy(b.begin(), b.end(), Digest.begin());
+        digest() : uint<s>(0) {}
+        digest(const digest& d) : uint<s>{static_cast<uint<s>&>(d)} {}
+        
+        digest(bytes_view b) : uint<s>{0} {
+            if (b.size() == s) std::copy(b.begin(), b.end(), uint<s>::begin());
         }
-        
-        explicit digest(string_view x) : Digest{x} {}
         
         bool valid() const;
         
         digest& operator=(const digest&);
-        bool operator==(const digest&) const;
-        bool operator!=(const digest&) const;
-        bool operator<(const digest&) const;
-        bool operator>(const digest&) const;
-        bool operator<=(const digest&) const;
-        bool operator>=(const digest&) const;
     };
 
 
@@ -44,28 +35,8 @@ namespace data::crypto {
 
     template<size_t s>
     inline digest<s>& digest<s>::operator=(const digest<s>& d) {
-        Digest = d.Digest;
+        uint<s>::operator=(d);
         return *this;
-    }
-
-    template<size_t s>
-    inline bool digest<s>::operator==(const digest& other) const {
-        return Digest == other.Digest;
-    }
-
-    template<size_t s>
-    inline bool digest<s>::operator!=(const digest& other) const {
-        return Digest!=other.Digest;
-    }
-
-    template<size_t s>
-    inline bool digest<s>::operator<(const digest& other) const {
-        return Digest < other.Digest;
-    }
-
-    template<size_t s>
-    inline bool digest<s>::operator>(const digest& other ) const {
-        return Digest > other.Digest;
     }
 
 }

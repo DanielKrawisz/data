@@ -11,11 +11,11 @@
 namespace data::crypto::aes {
     
     bytes encrypt(bytes_view, const symmetric_key<16>&, const initialization_vector&);
-    decrypted decrypt(bytes_view, const symmetric_key<16>&, const initialization_vector&);
+    bytes decrypt(bytes_view, const symmetric_key<16>&, const initialization_vector&);
     bytes encrypt(bytes_view, const symmetric_key<24>&, const initialization_vector&);
-    decrypted decrypt(bytes_view, const symmetric_key<24>&, const initialization_vector&);
+    bytes decrypt(bytes_view, const symmetric_key<24>&, const initialization_vector&);
     bytes encrypt(bytes_view, const symmetric_key<32>&, const initialization_vector&);
-    decrypted decrypt(bytes_view, const symmetric_key<32>&, const initialization_vector&);
+    bytes decrypt(bytes_view, const symmetric_key<32>&, const initialization_vector&);
 }
 
 #endif

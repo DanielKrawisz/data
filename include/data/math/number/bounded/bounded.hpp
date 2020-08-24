@@ -9,28 +9,28 @@
 #include <data/bytestring.hpp>
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
-#include <data/types.hpp>
+#include <data/encoding/halves.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bytes/N.hpp>
-#include <data/encoding/integer.hpp>
+#include <data/encoding/words.hpp>
 
 namespace data::math::number {
     
     template <bool is_signed, endian::order, size_t size> struct bounded;
     
     template <endian::order r, size_t size>
-    struct bounded<false, r, size> : data::bytestring<r, size> {
+    struct bounded<false, r, size> : bytestring<r, size> {
         using bit32 = uint32;
         using bit64 = uint64;
         
-        using array = data::bytestring<r, size>;
+        using array = bytestring<r, size>;
         
         bounded() : array(0x00) {}
         
-        bounded(const uint64 x);/* : array(0x00) {
-            array::words().set(0, lesser_half(boost::endian::endian_arithmetic<r, uint64, 64>{x}));
-            array::words().set(1, greater_half(boost::endian::endian_arithmetic<r, uint64, 64>{x}));
-        }*/
+        bounded(const uint64 x) : array(0x00) {
+            words()[0] = lesser_half(endian::arithmetic<r, uint64, 64>{x});
+            words()[1] = greater_half(endian::arithmetic<r, uint64, 64>{x});
+        }
         
         bounded(const array& b) : array{b} {}
         
@@ -126,6 +126,8 @@ namespace data::math::number {
         }
         
         friend struct abs<bounded<false, r, size>, bounded<true, r, size>>;
+        
+        arithmetic::words<uint32, r> words();
     };
     
     template <endian::order r, size_t size>
@@ -516,6 +518,9 @@ namespace data::math::number {
 }
 
 namespace data {
+    
+    template <size_t size> using uint = math::number::bounded<false, endian::order::big, size>;
+    template <size_t size> using integer = math::number::bounded<true, endian::order::big, size>;
 
     namespace encoding::hexidecimal {
 

@@ -1,7 +1,7 @@
 #include <data/crypto/sha256.hpp>
 #include <crypto++/sha.h>
 
-namespace data::sha256 {
+namespace data::crypto::sha256 {
 
     digest hash(const bytes_view data) {
         uint<size> hash{};

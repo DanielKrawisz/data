@@ -7,7 +7,7 @@
 
 #include <data/crypto/digest.hpp>
 
-namespace data::sha256 {
+namespace data::crypto::sha256 {
     
     const size_t size = 32;
     
