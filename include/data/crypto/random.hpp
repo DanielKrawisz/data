@@ -30,7 +30,8 @@ namespace data::crypto {
             return *this;
         }
         
-        random& operator>>(bytes& x) {
+        template <typename X>
+        random& operator>>(X& x) {
             get(x.data(), x.size());
             return *this;
         }

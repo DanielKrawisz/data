@@ -28,8 +28,8 @@ namespace data::math::number {
         bounded() : array(0x00) {}
         
         bounded(const uint64 x) : array(0x00) {
-            words()[0] = lesser_half(endian::arithmetic<r, uint64, 64>{x});
-            words()[1] = greater_half(endian::arithmetic<r, uint64, 64>{x});
+            words().set(0, lesser_half(endian::arithmetic<r, uint64, 64>{x}));
+            words().set(1, greater_half(endian::arithmetic<r, uint64, 64>{x}));
         }
         
         bounded(const array& b) : array{b} {}
@@ -127,7 +127,9 @@ namespace data::math::number {
         
         friend struct abs<bounded<false, r, size>, bounded<true, r, size>>;
         
-        arithmetic::words<uint32, r> words();
+        data::arithmetic::words<uint32, r> words() {
+            throw method::unimplemented{"words"};
+        }
     };
     
     template <endian::order r, size_t size>
@@ -139,10 +141,10 @@ namespace data::math::number {
         
         bounded() : array{0} {}
         
-        bounded(const int64 x); /* : array(x < 0 ? 0xff : 0x00) {
-            array::words().set(0, lesser_half(boost::endian::endian_arithmetic<o, int64, 64>{x}));
-            array::words().set(1, greater_half(boost::endian::endian_arithmetic<o, int64, 64>{x}));
-        }*/
+        bounded(const int64 x) : array(x < 0 ? 0xff : 0x00) {
+            words().set(0, lesser_half(endian::arithmetic<r, int64, 64>{x}));
+            words().set(1, greater_half(endian::arithmetic<r, int64, 64>{x}));
+        }
         
         bounded(const array& x) : array{x} {}
         
@@ -235,6 +237,10 @@ namespace data::math::number {
         explicit bounded(const Z_bytes<r>& z) {
             if (z > Z_bytes<r> {max()} || z < Z_bytes<r> {min()}) throw std::out_of_range{"Z_bytes too big"};
             throw method::unimplemented{"bounded{Z_bytes}"};
+        }
+        
+        data::arithmetic::words<int32, r> words() {
+            throw method::unimplemented{"words"};
         }
     };
     

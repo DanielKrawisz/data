@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_WORDS
-#define DATA_WORDS
+#ifndef DATA_ENCODING_WORDS
+#define DATA_ENCODING_WORDS
 
 #include <type_traits>
 #include <data/types.hpp>

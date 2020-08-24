@@ -15,7 +15,7 @@ namespace data::crypto {
         
         using uint<s>::uint;
         
-        digest() : uint<s>(0) {}
+        digest() : uint<s>() {}
         digest(const digest& d) : uint<s>{static_cast<uint<s>&>(d)} {}
         
         digest(bytes_view b) : uint<s>{0} {
