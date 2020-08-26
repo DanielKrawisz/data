@@ -9,7 +9,6 @@
 #include <data/stream.hpp>
 #include <data/crypto/sha256.hpp>
 
-// AES in cypher block chaining (CBC) mode. 
 namespace data::crypto {
     
     template <size_t size> 
@@ -35,7 +34,7 @@ namespace data::crypto {
     
     template <size_t size>
     inline encrypted encrypt(bytes_view b, encryption<size> e, const symmetric_key<size>& k, const initialization_vector& iv) {
-        return {e(stream::write_bytes(8 + b.size(), uint64_big{0}, uint64_big{b.size()}, b), k, iv), iv};
+        return {e(stream::write_bytes(12 + b.size(), uint64_big{0}, uint64_big{b.size()}, b, uint64_big{0}), k, iv), iv};
     }
     
     struct decrypted;
@@ -43,15 +42,17 @@ namespace data::crypto {
     template <size_t size>
     decrypted decrypt(const encrypted& e, decryption<size> d, const symmetric_key<size>& k);
     
-    struct decrypted {
-        bytes Data;
-        bool Valid;
-        decrypted() : Data{}, Valid{false} {}
+    struct decrypted : bytes {
+        struct fail : std::exception {
+            const char* what() const noexcept override {
+                return "decryption failure";
+            }
+        };
         
         decrypted(decrypted&&) = default;
         
     private:
-        decrypted(const bytes& d) : Data{d}, Valid{true} {} 
+        decrypted(const size_t size) : bytes(size) {} 
         decrypted(const decrypted&) = delete;
         
         template <size_t size>
@@ -62,14 +63,18 @@ namespace data::crypto {
     decrypted decrypt(const encrypted& e, decryption<size> d, const symmetric_key<size>& k) {
         bytes x = d(e.Data, k, e.IV);
         reader<bytes::iterator> r(x.begin(), x.end());
-        uint64_big check;
-        r >> check;
-        if (check != 0) return decrypted{};
+        uint64_big check_start;
+        r >> check_start;
+        if (check_start != 0) throw decrypted::fail{};
         uint64_big len;
         r >> len;
-        bytes data(len);
+        if (len > e.Data.size()) throw decrypted::fail{};
+        decrypted data(len);
         r >> data;
-        return decrypted{data};
+        uint64_big check_end;
+        r >> check_end;
+        if (check_end != 0) throw decrypted::fail{};
+        return data;
     }
     
     template <size_t size>
@@ -84,6 +89,15 @@ namespace data::crypto {
             initialization_vector iv, 
             crypto::decryption<size> d, 
             ptr<retriever<size>> r) : encrypted{b, iv}, Retriever{r}, Decrypt{d} {}
+    };
+    
+    template <size_t size>
+    struct trivial_retriever : retriever<size> {
+        symmetric_key<size> Key;
+        
+        symmetric_key<size> retrieve() override {
+            return Key;
+        }
     };
     
     // A key retriever that prints a message to the user and then reads a passphrase. 
