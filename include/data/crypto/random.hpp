@@ -68,6 +68,9 @@ namespace data::crypto {
         std::ostream& Cout;
         std::istream& Cin;
         
+        user_entropy(std::string ask, std::string confirm, std::ostream& out, std::istream& in) : 
+            UserMessageAsk{ask}, UserMessageConfirm{confirm}, Cout{out}, Cin{in} {}
+        
         bytes get(size_t x) override {
             Cout << UserMessageAsk;
             bytes b(x * 4);

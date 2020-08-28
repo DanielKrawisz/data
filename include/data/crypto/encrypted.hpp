@@ -114,6 +114,9 @@ namespace data::crypto {
         std::ostream& Cout;
         std::istream& Cin;
         
+        user_passphrase(std::string user_message, std::ostream& out, std::istream& in) : 
+            UserMessage {user_message}, Cout{out}, Cin{in} {}
+        
         symmetric_key<32> retrieve() override {
             Cout << UserMessage;
             std::string line;
