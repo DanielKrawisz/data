@@ -80,7 +80,7 @@ namespace data::math::algebra {
     }
     
     template <typename N, auto & natural> 
-    cyclic_group<N, natural> 
+    inline cyclic_group<N, natural> 
     cyclic_group<N, natural>::inverse() const {
         return {number::modular<N, natural>::operator-()};
     }
