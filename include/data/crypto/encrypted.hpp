@@ -30,6 +30,14 @@ namespace data::crypto {
     struct encrypted {
         bytes Data;
         initialization_vector& IV;
+        
+        bool operator==(const encrypted& e) const {
+            return Data == e.Data && IV == e.IV;
+        }
+        
+        bool operator!=(const encrypted& e) const {
+            return !operator==(e);
+        }
     };
     
     template <size_t size>
@@ -92,7 +100,7 @@ namespace data::crypto {
     };
     
     template <size_t size>
-    struct trivial_retriever : retriever<size> {
+    struct trivial_passphrase : retriever<size> {
         symmetric_key<size> Key;
         
         symmetric_key<size> retrieve() override {
@@ -101,7 +109,7 @@ namespace data::crypto {
     };
     
     // A key retriever that prints a message to the user and then reads a passphrase. 
-    struct read_passphrase : retriever<32> {
+    struct user_passphrase : retriever<32> {
         std::string UserMessage;
         std::ostream& Cout;
         std::istream& Cin;
@@ -115,6 +123,12 @@ namespace data::crypto {
             std::copy(d.begin(), d.end(), x.begin());
             return x;
         }
+    };
+    
+    // a key retriever that caches the key for a certain amount of time. 
+    template <size_t size>
+    struct cached_passphrase : retriever<size> {
+        symmetric_key<size> retrieve() override;
     };
     
 }

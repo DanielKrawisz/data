@@ -14,22 +14,38 @@ namespace data::crypto::nist {
         // supported rngs
         enum type {
             HMAC_DRBG, 
-            HASH_DRBG
+            Hash_DRBG
         };
         
+        uint32 BytesBeforeReseed;
         ptr<entropy> Entropy;
         ptr<CryptoPP::NIST_DRBG> Random;
-        uint32 BytesBeforeReseed;
         
-        drbg(type, ptr<entropy>, bytes personalization, uint32 nonce) {
-            
-        }
+        drbg(type t, ptr<entropy> e, bytes personalization, uint32_little nonce) : 
+            BytesBeforeReseed{65536}, Entropy{e}, Random{nullptr} {
+                if (t == HMAC_DRBG) {
+                    bytes entropy = Entropy->get(Random->SecurityStrength());
+                    Random = std::static_pointer_cast<CryptoPP::NIST_DRBG>(
+                        std::make_shared<CryptoPP::HMAC_DRBG>(
+                            entropy.data(), entropy.size(), 
+                            personalization.data(), personalization.size(), 
+                            nonce.data(), nonce.size()));
+                } else if (t == Hash_DRBG) {
+                    bytes entropy = Entropy->get(Random->SecurityStrength());
+                    Random = std::static_pointer_cast<CryptoPP::NIST_DRBG>(
+                        std::make_shared<CryptoPP::Hash_DRBG>(
+                            entropy.data(), entropy.size(), 
+                            personalization.data(), personalization.size(), 
+                            nonce.data(), nonce.size()));
+                }
+            }
         
         bool valid() const {
             return Entropy != nullptr && Random != nullptr;
         }
         
     private:
+        
         void get(byte* b, size_t x) override {
             if (BytesBeforeReseed < x) { 
                 bytes entropy = Entropy->get(Random->SecurityStrength());

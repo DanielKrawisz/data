@@ -61,6 +61,23 @@ namespace data::crypto {
             return stream::write_bytes(left.size() + right.size(), left, right);
         }
     };
+    
+    struct user_entropy : entropy {
+        std::string UserMessageAsk;
+        std::string UserMessageConfirm;
+        std::ostream& Cout;
+        std::istream& Cin;
+        
+        bytes get(size_t x) override {
+            Cout << UserMessageAsk;
+            bytes b(x * 4);
+            for (uint32 i = 0; i < x * 4; i++) Cin >> b[i];
+            Cout << UserMessageConfirm;
+            Cin.seekg(0, std::ios::end);
+            Cin.clear();
+            return b;
+        }
+    };
 
 }
 
