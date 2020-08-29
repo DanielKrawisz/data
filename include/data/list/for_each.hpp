@@ -5,14 +5,14 @@
 #ifndef DATA_LIST_FOR_EACH
 #define DATA_LIST_FOR_EACH
 
-#include <data/stack.hpp>
 #include <type_traits>
+#include <data/stack.hpp>
 
 namespace data::meta::functional::list {
     
-    template <typename function, typename from, typename to> 
-    struct for_each : public interface::sequence<to> {
-        using input_element = typename interface::sequence<from>::element;
+    template <typename function, typename from, typename to> requires data::sequence<to>
+    struct for_each {
+        using input_element = decltype(std::declval<from>().first());
         using output_element = std::invoke_result<function, input_element>;
         
         to operator()(function f, from l) {

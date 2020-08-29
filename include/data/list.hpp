@@ -12,7 +12,7 @@ namespace data::interface {
     template <typename Q>
     struct list : stack<Q> {
         using element = typename std::enable_if<
-            meta::has_append_method<Q, typename sequence<Q>::element>::value, typename sequence<Q>::element>::type;
+            meta::has_append_method<Q, typename stack<Q>::element>::value, typename stack<Q>::element>::type;
     }; 
 }
 

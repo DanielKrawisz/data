@@ -48,7 +48,7 @@ namespace data::meta::functional {
     
     template <typename function, typename input, typename proof = interface::list<input>> 
     struct for_each_queue  {
-        using input_element = typename interface::sequence<input>::element;
+        using input_element = decltype(std::declval<input>().first());
         using output_element = typename std::invoke_result<function, input_element>::type;
         using output = tool::functional_queue<tool::linked_stack<output_element>>;
         

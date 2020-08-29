@@ -9,9 +9,8 @@
 
 namespace data::interface {
         
-    template <typename X>
+    template <typename X, typename element = decltype(std::declval<X>().values().first())> requires container<X, element>
     struct set {
-        using element = typename container<X>::element;
         //using values = typename container<X>::values;
         // TODO ensure values is a list of elements. 
     private:

@@ -6,8 +6,7 @@
 #define DATA_INTERFACE
 
 #include <type_traits>
-#include <data/empty.hpp>
-#include <data/size.hpp>
+#include <data/container.hpp>
 
 namespace data {
     
@@ -33,24 +32,6 @@ namespace data {
             static constexpr bool value = std::is_same<decltype(test<X, it>(0)), yes>::value;
         };
         
-        template <typename list, typename element>
-        class has_first_method {
-            template <typename X> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<const X>().first()), const element>::value, yes>::type;
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
-        };
-        
-        template <typename list>
-        class has_rest_method {
-            template <typename X> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<const X>().rest()), list>::value, yes>::type;
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<list>(0)), yes>::value;
-        };
-        
         template <typename...> class has_insert_method;
         
         template <typename list, typename element>
@@ -69,14 +50,6 @@ namespace data {
             template <typename> static no test(...);
         public:
             static constexpr bool value = std::is_same<decltype(test<map>(0)), yes>::value;
-        };
-        
-        template <typename set, typename element>
-        class has_contains_method {
-            template <typename X> static auto test(int) -> decltype((void)(std::declval<const X>().contains(std::declval<const element>()) == true), yes());
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<set>(0)), yes>::value;
         };
         
         template <typename set, typename key>
@@ -128,26 +101,6 @@ namespace data {
             static constexpr bool value = std::is_same<decltype(test<con>(0)), yes>::value;
         };
         
-        template <typename X, bool has_rest_method> struct rest {
-            X operator()(const X& x) {
-                return x;
-            }
-            
-            const X* operator()(const X* x) {
-                return x;
-            }
-        };
-        
-        template <typename X> struct rest<X, true> {
-            X operator()(const X& x) {
-                return x.rest();
-            }
-            
-            const X* operator()(const X* x) {
-                return x == nullptr ? nullptr : x->rest();
-            }
-        };
-        
         template <typename X, bool has_right_method> struct right {
             X operator()(const X& x) {
                 return x;
@@ -184,18 +137,6 @@ namespace data {
             }
         };
         
-        template <typename X, typename E, bool has_contains_method> struct contains {
-            bool operator()(const X& x, const E& e) {
-                return false;
-            }
-        };
-        
-        template <typename X, typename E> struct contains<X, E, true> {
-            X operator()(const X& x, const E& e) {
-                return x.contains(e);
-            }
-        };
-        
         template <typename X, typename E, bool has_insert_method> struct insert;
         
         template <typename X, typename E> struct insert<X, E, true> {
@@ -208,24 +149,6 @@ namespace data {
     
     namespace interface {
         
-        template <typename L, 
-            typename elem = decltype(std::declval<const L>().first()), 
-            typename require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, void>::type>
-            requires has_empty_method<L> && has_size_method<L>
-        struct sequence {
-            using element = elem;
-        }; 
-        
-        template <typename L, 
-            typename vals = decltype(std::declval<const L>().values()), 
-            typename elem = typename sequence<vals>::element, 
-            typename require_contains_method = typename std::enable_if<meta::has_contains_method<L, elem>::value, void>::type>
-            requires has_empty_method<L> && has_size_method<L>
-        struct container {
-            using values = vals;
-            using element = elem;
-        }; 
-        
         template <typename M, typename key, typename val = decltype(std::declval<const M>()[std::declval<const key>()])>
         struct indexed {
             using value = val;
@@ -233,19 +156,9 @@ namespace data {
         
     }
 
-    template <typename X>
-    inline const decltype(std::declval<const X>().first()) first(const X& x) {
-        return x.first();
-    }
-
     template <typename L, typename X>
     inline L append(const L& l, const X& x) {
         return l.append(x);
-    }
-
-    template <typename X>
-    inline X rest(const X& x) {
-        return meta::rest<X, meta::has_rest_method<X>::value>{}(x);
     }
 
     template <typename X>
@@ -256,11 +169,6 @@ namespace data {
     template <typename X>
     inline X left(const X& x) {
         return meta::left<X, meta::has_left_method<X>::value>{}(x);
-    }
-
-    template <typename X, typename E>
-    inline bool contains(const X& x, const E& e) {
-        return meta::contains<X, E, meta::has_contains_method<X, E>::value>{}(x, e);
     }
 
     template <typename X, typename E>

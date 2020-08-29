@@ -28,7 +28,7 @@ namespace data {
     constexpr auto d19 = decimal{"19"};
     
     template <auto & mod>
-    using element = math::algebra::prime_field_element<uint64, int64, mod>;
+    using prime_field_element = math::algebra::prime_field_element<uint64, int64, mod>;
     
     template <auto & mod>
     using field = math::algebra::prime_field<uint64, int64, mod>;
@@ -79,14 +79,14 @@ namespace data {
         EXPECT_TRUE(f19.valid());
         
         // make the zero element for each prime field. 
-        element<d2> f2_0 = f2.make(0);
-        element<d3> f3_0 = f3.make(0);
-        element<d5> f5_0 = f5.make(0);
-        element<d7> f7_0 = f7.make(0);
-        element<d11> f11_0 = f11.make(0);
-        element<d13> f13_0 = f13.make(0);
-        element<d17> f17_0 = f17.make(0);
-        element<d19> f19_0 = f19.make(0);
+        prime_field_element<d2> f2_0 = f2.make(0);
+        prime_field_element<d3> f3_0 = f3.make(0);
+        prime_field_element<d5> f5_0 = f5.make(0);
+        prime_field_element<d7> f7_0 = f7.make(0);
+        prime_field_element<d11> f11_0 = f11.make(0);
+        prime_field_element<d13> f13_0 = f13.make(0);
+        prime_field_element<d17> f17_0 = f17.make(0);
+        prime_field_element<d19> f19_0 = f19.make(0);
         
         EXPECT_TRUE(f2_0.valid());
         EXPECT_TRUE(f3_0.valid());
@@ -134,14 +134,14 @@ namespace data {
         EXPECT_EQ(f19_0.inverse(), nullptr);
         
         // make the 1 element for each prime field. 
-        element<d2> f2_1 = f2.make(1);
-        element<d3> f3_1 = f3.make(1);
-        element<d5> f5_1 = f5.make(1);
-        element<d7> f7_1 = f7.make(1);
-        element<d11> f11_1 = f11.make(1);
-        element<d13> f13_1 = f13.make(1);
-        element<d17> f17_1 = f17.make(1);
-        element<d19> f19_1 = f19.make(1);
+        prime_field_element<d2> f2_1 = f2.make(1);
+        prime_field_element<d3> f3_1 = f3.make(1);
+        prime_field_element<d5> f5_1 = f5.make(1);
+        prime_field_element<d7> f7_1 = f7.make(1);
+        prime_field_element<d11> f11_1 = f11.make(1);
+        prime_field_element<d13> f13_1 = f13.make(1);
+        prime_field_element<d17> f17_1 = f17.make(1);
+        prime_field_element<d19> f19_1 = f19.make(1);
         
         EXPECT_TRUE(f2_1.valid());
         EXPECT_TRUE(f3_1.valid());
@@ -197,13 +197,13 @@ namespace data {
         EXPECT_EQ(f17_1 * f17_1, f17_1);
         EXPECT_EQ(f19_1 * f19_1, f19_1);
         
-        element<d3> f3_2 = f3.make(2);
-        element<d5> f5_2 = f5.make(2);
-        element<d7> f7_2 = f7.make(2);
-        element<d11> f11_2 = f11.make(2);
-        element<d13> f13_2 = f13.make(2);
-        element<d17> f17_2 = f17.make(2);
-        element<d19> f19_2 = f19.make(2);
+        prime_field_element<d3> f3_2 = f3.make(2);
+        prime_field_element<d5> f5_2 = f5.make(2);
+        prime_field_element<d7> f7_2 = f7.make(2);
+        prime_field_element<d11> f11_2 = f11.make(2);
+        prime_field_element<d13> f13_2 = f13.make(2);
+        prime_field_element<d17> f17_2 = f17.make(2);
+        prime_field_element<d19> f19_2 = f19.make(2);
         
         EXPECT_EQ(f2_1 + f2_1, f2_0);
         EXPECT_EQ(f3_1 + f3_1, f3_2);

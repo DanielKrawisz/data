@@ -10,7 +10,7 @@
     
 namespace data::tool {
     
-    template <typename x, typename stack>
+    template <typename x, typename stack> 
     class priority_queue {
         using heap = milewski::okasaki::Heap<x>;
         heap Heap;
@@ -40,14 +40,13 @@ namespace data::tool {
             return {Heap.inserted(elem), Size + 1};
         }
         
-        template <typename List>
+        template <typename List> requires sequence<List, x>
         priority_queue insert(List l) const {
-            static interface::sequence<List> is_list{};
             if (l.empty()) return *this;
             return insert(l.first()).insert(l.rest());
         }
         
-        template <typename List>
+        template <typename List> requires sequence<List, x> 
         priority_queue(List l) : priority_queue{priority_queue{}.insert(l)} {}
         
         stack values() const {

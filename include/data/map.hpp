@@ -82,13 +82,12 @@ namespace data {
     
     namespace interface {
         
-        template <typename M>
+        template <typename M, 
+            typename key = decltype(std::declval<M>().values().first().Key), 
+            typename value = decltype(std::declval<M>().values().first().Value)> requires container<M, key> 
         struct map {
-            using values = typename container<M>::values;
+            using values = decltype(std::declval<M>().values());
             using keys = decltype(std::declval<M>().keys());
-            using key = typename std::remove_const<typename std::remove_reference<decltype(std::declval<keys>().first())>::type>::type;
-            using value = typename indexed<M, key>::value;
-            using element = typename sequence<values>::element;
             // TODO ensure element is entry<key, value>
         private:
             using require_default_constructable = typename std::enable_if<std::is_default_constructible<M>::value, void>::type;

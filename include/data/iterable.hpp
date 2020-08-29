@@ -6,6 +6,7 @@
 #define DATA_ITERABLE
 
 #include <data/interface.hpp>
+#include <data/sequence.hpp>
 #include <data/slice.hpp>
 #include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>

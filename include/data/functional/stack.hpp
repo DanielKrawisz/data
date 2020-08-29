@@ -117,7 +117,7 @@ namespace data::functional {
     inline bool stack_node<X, Y>::contains(X x) const {
         if (x == First) return true;
         
-        return contains(Rest, x);
+        return data::functional::contains(Rest, x);
     }
     
     // an iterator that could go with a list. 

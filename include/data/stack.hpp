@@ -24,9 +24,9 @@ namespace data::meta {
 
 namespace data::interface {
     
-    template <typename L>
-    struct stack : sequence<L> {
-        using element = typename sequence<L>::element;
+    template <sequence L> 
+    struct stack {
+        using element = decltype(std::declval<const L>().first());
     private:
         using require_default_constructable = typename std::enable_if<std::is_default_constructible<L>::value, void>::type;
         using require_list_constructor = typename std::enable_if<meta::has_stack_constructor<L, element>::value, void>::type;

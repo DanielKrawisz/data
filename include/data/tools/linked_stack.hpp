@@ -143,7 +143,7 @@ namespace data::tool {
     inline bool linked_stack<elem>::contains(elem x) const {
         if (empty()) return false;
             
-        Next->contains(x);
+        return Next->contains(x);
     }
     
     template <typename elem>

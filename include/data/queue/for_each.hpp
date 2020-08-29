@@ -22,7 +22,7 @@ namespace data::meta::functional::queue {
     
     template <typename function, typename from, typename to> 
     struct for_each : public interface::list<to> {
-        using input_element = typename interface::sequence<from>::element;
+        using input_element = decltype(std::declval<from>().first());
         using output_element = std::invoke_result<function, input_element>;
         
         to operator()(function f, from l) {

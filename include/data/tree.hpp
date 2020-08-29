@@ -34,10 +34,8 @@ namespace data::meta {
 namespace data::interface {
     
     // need constructor. 
-    template <typename T>
+    template <typename T, typename element = decltype(std::declval<T>().root())> requires container<T, element> && std::totally_ordered<element>
     struct tree {
-        using element = decltype(std::declval<const T>().root());
-        using values = typename container<T>::values;
     private:
         using require_left_method = typename std::enable_if<meta::has_left_method<T>::value, bool>::type;
         using require_right_method = typename std::enable_if<meta::has_right_method<T>::value, bool>::type;
