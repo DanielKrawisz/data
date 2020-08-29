@@ -5,7 +5,6 @@
 #include <string>
 
 #include <data/encoding/base64.hpp>
-#include <data/encoding/endian.hpp>
 
 namespace data::encoding::base64 {
     

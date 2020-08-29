@@ -17,15 +17,22 @@ namespace data::math::number {
     // TODO support AKS.
     template <typename N> 
     struct prime {
+        enum likelihood {
+            certain, 
+            probable, 
+            impossible
+        };
+        
         N Prime;
+        likelihood Likelihood;
         
         bool valid() const {
-            return Prime != N(0);
+            return Likelihood != impossible;
         }
         
-        prime() : Prime{0} {}
+        prime() : Prime{0}, Likelihood{impossible} {}
     private:
-        prime(N p) : Prime{p} {}
+        prime(N p, likelihood l) : Prime{p}, Likelihood{l} {}
         
         friend struct eratosthenes<N>;
         friend struct AKS<N>;

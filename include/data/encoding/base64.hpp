@@ -6,21 +6,23 @@
 #ifndef DATA_ENCODING_BASE64
 #define DATA_ENCODING_BASE64
 
+#include <ctre.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/iterable.hpp>
-#include <ctre.hpp>
 
-namespace data::encoding::base64 {
+namespace data::encoding::base64 {      
     const std::string Format{"base64"};
     
     inline std::string characters() {
         static std::string Characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         return Characters;
     }
-
+    
     constexpr static char Pad = '=';
     
-    constexpr auto pattern = ctll::fixed_string{"^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/]{4}(([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/]{2}==)|([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/]{3}=))$"};
+    constexpr auto pattern = ctll::fixed_string{"^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"};
+    
+    bool valid(string_view s);
     
     inline bool valid(string_view s) {
         return ctre::match<pattern>(s);

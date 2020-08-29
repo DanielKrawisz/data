@@ -23,13 +23,13 @@ namespace data::math::number {
     
     template <> struct AKS<gmp::N> {
         prime<gmp::N> is_prime(const gmp::N n) {
-            return gmp::aks_is_prime(n) ? prime<gmp::N>{n} : prime<gmp::N>{};
+            return gmp::aks_is_prime(n) ? prime<gmp::N>{n, prime<gmp::N>::certain} : prime<gmp::N>{};
         }
     };
     
     template <> struct AKS<gmp::Z> {
         prime<gmp::Z> is_prime(const gmp::Z z) {
-            return gmp::aks_is_prime(z) ? prime<gmp::Z>{z} : prime<gmp::Z>{};
+            return gmp::aks_is_prime(z) ? prime<gmp::Z>{z, prime<gmp::Z>::certain} : prime<gmp::Z>{};
         }
     };
     
