@@ -7,6 +7,7 @@
 
 #include <data/interface.hpp>
 #include <data/sequence.hpp>
+#include <data/indexed.hpp>
 #include <data/slice.hpp>
 #include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
@@ -30,8 +31,8 @@ namespace data {
             using require_const_iterable = typename std::enable_if<meta::is_const_iterable<X, const_iterator>::value, bool>::type;
         };
         
-        template <typename X, typename e>
-        struct array : iterable<X>, indexed<X, e> {};
+        template <typename X, typename e> requires indexed<X, e>
+        struct array : iterable<X> {};
     }
     
 }

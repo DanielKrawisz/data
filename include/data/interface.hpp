@@ -146,15 +146,6 @@ namespace data {
         };
         
     }
-    
-    namespace interface {
-        
-        template <typename M, typename key, typename val = decltype(std::declval<const M>()[std::declval<const key>()])>
-        struct indexed {
-            using value = val;
-        }; 
-        
-    }
 
     template <typename L, typename X>
     inline L append(const L& l, const X& x) {

@@ -8,6 +8,9 @@
 #include "types.hpp"
 #include "set.hpp"
 
+#include <data/container.hpp>
+#include <data/indexed.hpp>
+
 namespace data {
 
     template <typename K, typename V>
@@ -84,7 +87,7 @@ namespace data {
         
         template <typename M, 
             typename key = decltype(std::declval<M>().values().first().Key), 
-            typename value = decltype(std::declval<M>().values().first().Value)> requires container<M, key> 
+            typename value = decltype(std::declval<M>().values().first().Value)> requires container<M, key> && indexed<M, key, value>
         struct map {
             using values = decltype(std::declval<M>().values());
             using keys = decltype(std::declval<M>().keys());
