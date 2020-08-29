@@ -6,7 +6,7 @@
 #define DATA_EMPTY
 
 #include <concepts>
-#include <data/types.hpp>
+#include <data/size.hpp>
 
 namespace data {
     
@@ -38,6 +38,27 @@ namespace data {
             
             bool operator()(const X* x) {
                 return x == nullptr ? true : x->empty();
+            }
+        };
+        
+        template <typename X> requires interface::has_empty_method<X> && interface::has_size_method<X>
+        struct is_empty<X> {
+            bool operator()(const X& x) {
+                return x.empty();
+            }
+            
+            bool operator()(const X* x) {
+                return x == nullptr ? true : x->empty();
+            }
+        };
+        
+        template <interface::has_size_method X> struct is_empty<X> {
+            bool operator()(const X& x) {
+                return x.size() == 0;
+            }
+            
+            bool operator()(const X* x) {
+                return x == nullptr ? true : x->size() == 0;
             }
         };
         

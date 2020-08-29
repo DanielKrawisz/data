@@ -5,21 +5,13 @@
 #ifndef DATA_INTERFACE
 #define DATA_INTERFACE
 
-#include <data/empty.hpp>
 #include <type_traits>
+#include <data/empty.hpp>
+#include <data/size.hpp>
 
 namespace data {
     
     namespace meta {
-        
-        template <typename X>
-        class has_size_method {
-            template <typename U> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<const U>().size()), size_t>::value, yes>::type;
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
-        };
         
         template <typename X, typename it>
         class is_iterable {
@@ -136,26 +128,6 @@ namespace data {
             static constexpr bool value = std::is_same<decltype(test<con>(0)), yes>::value;
         };
         
-        template <typename X, bool has_size_method> struct size {
-            size_t operator()(const X&) {
-                return 0;
-            }
-            
-            size_t operator()(const X*) {
-                return 0;
-            }
-        };
-        
-        template <typename X> struct size<X, true> {
-            size_t operator()(const X& x) {
-                return x.size();
-            }
-            
-            size_t operator()(const X* x){
-                return x == nullptr ? 0 : x->size();
-            }
-        };
-        
         template <typename X, bool has_rest_method> struct rest {
             X operator()(const X& x) {
                 return x;
@@ -238,9 +210,8 @@ namespace data {
         
         template <typename L, 
             typename elem = decltype(std::declval<const L>().first()), 
-            typename require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type,
             typename require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, void>::type>
-            requires has_empty_method<L>
+            requires has_empty_method<L> && has_size_method<L>
         struct sequence {
             using element = elem;
         }; 
@@ -248,9 +219,8 @@ namespace data {
         template <typename L, 
             typename vals = decltype(std::declval<const L>().values()), 
             typename elem = typename sequence<vals>::element, 
-            typename require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type, 
             typename require_contains_method = typename std::enable_if<meta::has_contains_method<L, elem>::value, void>::type>
-            requires has_empty_method<L>
+            requires has_empty_method<L> && has_size_method<L>
         struct container {
             using values = vals;
             using element = elem;
@@ -261,11 +231,6 @@ namespace data {
             using value = val;
         }; 
         
-    }
-
-    template <typename X>
-    inline size_t size(const X& x) {
-        return meta::size<X, meta::has_size_method<X>::value>{}(x);
     }
 
     template <typename X>

@@ -158,7 +158,7 @@ namespace data::functional::stack {
             return data::valid(First) && data::valid(Rest);
         }
         
-        uint32 size() const {
+        size_t size() const {
             return Size;
         }
         
