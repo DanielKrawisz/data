@@ -5,21 +5,12 @@
 #ifndef DATA_INTERFACE
 #define DATA_INTERFACE
 
-#include <data/types.hpp>
+#include <data/empty.hpp>
 #include <type_traits>
 
 namespace data {
     
     namespace meta {
-        
-        template <typename X>
-        class has_empty_method {
-            template <typename U> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<const U>().empty()), bool>::value, yes>::type;
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
-        };
         
         template <typename X>
         class has_size_method {
@@ -145,26 +136,6 @@ namespace data {
             static constexpr bool value = std::is_same<decltype(test<con>(0)), yes>::value;
         };
         
-        template <typename X, bool has_empty_method> struct is_empty {
-            bool operator()(const X&) {
-                return true;
-            }
-            
-            bool operator()(const X*) {
-                return true;
-            }
-        };
-        
-        template <typename X> struct is_empty<X, true> {
-            bool operator()(const X& x) {
-                return x.empty();
-            }
-            
-            bool operator()(const X* x) {
-                return x == nullptr ? true : x->empty();
-            }
-        };
-        
         template <typename X, bool has_size_method> struct size {
             size_t operator()(const X&) {
                 return 0;
@@ -267,9 +238,9 @@ namespace data {
         
         template <typename L, 
             typename elem = decltype(std::declval<const L>().first()), 
-            typename require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type,
             typename require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type,
             typename require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, void>::type>
+            requires has_empty_method<L>
         struct sequence {
             using element = elem;
         }; 
@@ -277,9 +248,9 @@ namespace data {
         template <typename L, 
             typename vals = decltype(std::declval<const L>().values()), 
             typename elem = typename sequence<vals>::element, 
-            typename require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type,  
             typename require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type, 
             typename require_contains_method = typename std::enable_if<meta::has_contains_method<L, elem>::value, void>::type>
+            requires has_empty_method<L>
         struct container {
             using values = vals;
             using element = elem;
@@ -290,11 +261,6 @@ namespace data {
             using value = val;
         }; 
         
-    }
-
-    template <typename X>
-    inline bool empty(const X& x) {
-        return meta::is_empty<X, meta::has_empty_method<X>::value>{}(x);
     }
 
     template <typename X>
