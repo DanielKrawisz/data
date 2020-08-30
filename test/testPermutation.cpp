@@ -8,12 +8,12 @@
 namespace data {
     
     TEST(PermutationTest, TestCycle) {
-        using cycle = tool::cycle<uint32>;
+        using ucycle = cycle<uint32>;
         
-        cycle c{};
-        cycle c1{1};
-        cycle c0{0};
-        cycle c11{1, 1};
+        ucycle c{};
+        ucycle c1{1};
+        ucycle c0{0};
+        ucycle c11{1, 1};
         
         EXPECT_EQ(c, c);
         EXPECT_EQ(c1, c1);
@@ -21,8 +21,8 @@ namespace data {
         EXPECT_NE(c1, c11);
         EXPECT_NE(c0, c1);
         
-        cycle c12{1, 2};
-        cycle c21{2, 1};
+        ucycle c12{1, 2};
+        ucycle c21{2, 1};
         
         EXPECT_EQ(c12.head(), 1);
         EXPECT_EQ(c21.head(), 2);
@@ -35,12 +35,12 @@ namespace data {
         EXPECT_EQ(c21.reverse(), c12);
         EXPECT_EQ(c21.reverse(), c21);
         
-        cycle c123{1, 2, 3};
-        cycle c231{2, 3, 1};
-        cycle c312{3, 1, 2};
-        cycle c321{3, 2, 1};
-        cycle c213{2, 1, 3};
-        cycle c132{1, 3, 2};
+        ucycle c123{1, 2, 3};
+        ucycle c231{2, 3, 1};
+        ucycle c312{3, 1, 2};
+        ucycle c321{3, 2, 1};
+        ucycle c213{2, 1, 3};
+        ucycle c132{1, 3, 2};
         
         EXPECT_EQ(c123, c123);
         EXPECT_EQ(c123, c231);

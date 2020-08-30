@@ -10,7 +10,7 @@
     
 namespace data::tool {
     
-    template <typename x, typename stack> 
+    template <typename x, typename stack = linked_stack<x>> requires sequence<stack, x>
     class priority_queue {
         using heap = milewski::okasaki::Heap<x>;
         heap Heap;
@@ -26,8 +26,8 @@ namespace data::tool {
         }
         
         priority_queue() : Heap{}, Size{0} {}
-        priority_queue(std::initializer_list<x> init) : Heap{init}, Size{init.size()} {}
-            
+        //priority_queue(std::initializer_list<x> init) : Heap{init}, Size{init.size()} {}
+        
         const x& first() const {
             return Heap.front();
         }

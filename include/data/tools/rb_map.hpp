@@ -6,7 +6,7 @@
 #define DATA_MAP_RB
 
 #include <data/tools/ordered_list.hpp>
-#include <data/map.hpp>
+#include <data/functional/map.hpp>
 #include <data/fold.hpp>
 #include <milewski/RBMap/RBMap.h>
     
@@ -58,7 +58,7 @@ namespace data::tool {
             return !(*this == map);
         }
         
-        using const_iterator = typename ordered_list<entry>::const_iterator;
+        using const_iterator = ordered_list<entry>::const_iterator;
         
         const_iterator begin() const;
         const_iterator end() const;
@@ -67,7 +67,7 @@ namespace data::tool {
     
     template <typename K, typename V>
     inline std::ostream& operator<<(std::ostream& o, const rb_map<K, V>& x) {
-        return functional::stack::write(o << "map", x.values());
+        return functional::write(o << "map", x.values());
     }
     
     template <typename K, typename V>
@@ -169,7 +169,7 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    inline typename rb_map<K, V>::const_iterator rb_map<K, V>::begin() const {
+    inline rb_map<K, V>::const_iterator rb_map<K, V>::begin() const {
         return values().begin();
     } 
     

@@ -5,13 +5,14 @@
 #ifndef DATA_TOOLS_ORDERED_LIST
 #define DATA_TOOLS_ORDERED_LIST
 
+#include <concepts>
 #include <milewski/OrdList/OrdList.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/linked_stack.hpp>
     
 namespace data::tool {
     
-    template <typename element> 
+    template <std::totally_ordered element>
     class ordered_list {
         uint32 Size;
         milewski::okasaki::OrdList<element> Ordered;

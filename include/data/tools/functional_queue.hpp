@@ -5,7 +5,7 @@
 #ifndef DATA_TOOLS_FUNCTIONAL_QUEUE
 #define DATA_TOOLS_FUNCTIONAL_QUEUE
 
-#include <data/functional/stack.hpp>
+#include <data/functional/list.hpp>
 #include <data/fold.hpp>
     
 namespace data::tool {
@@ -14,6 +14,7 @@ namespace data::tool {
     // it is built out of any stack. 
     template <typename stack, 
         typename element = std::remove_reference_t<decltype(std::declval<stack>().first())>>
+    requires functional::stack<stack, element> 
     struct functional_queue {
         
         functional_queue();
@@ -88,7 +89,7 @@ namespace data::tool {
 
     template <typename X> 
     std::ostream& operator<<(std::ostream& o, const functional_queue<X> n) {
-        return functional::stack::write(o, n);
+        return functional::write(o, n);
     }
 
 }

@@ -32,14 +32,11 @@ namespace data::tool {
     // turn any map into a set. 
     template <typename M, 
         typename K = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>().keys().first())>::type>::type, 
-        typename V = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>()[std::declval<K>()])>::type>::type, 
-        typename constraint = typename std::enable_if<std::is_same<unit, V>::value, void>::type>
+        typename V = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>()[std::declval<K>()])>::type>::type>
+    requires functional::map<M, K, V> && std::same_as<unit, V>
     struct map_set {
         using key = K;
         using value = V;
-        
-        // functional queue built using the list. 
-        template <typename X> using list = tool::functional_queue<tool::linked_stack<X>>;
         
         M Map;
         
@@ -59,12 +56,14 @@ namespace data::tool {
             return map_set{Map.insert(k, value{true})};
         }
         
-        map_set insert(list<key> keys) const {
+        template <typename list> requires sequence<list, key>
+        map_set insert(list keys) const {
             if (keys.empty()) return *this;
             return insert(keys.first()).insert(keys.rest());
         }
         
-        map_set insert(map_set m) const {
+        template <typename X> requires interface::has_values_method<X, key>
+        map_set insert(X m) const {
             auto v = m.values();
             auto q = *this;
             while (!v.empty()) {
@@ -88,7 +87,8 @@ namespace data::tool {
         
         map_set() : Map{} {}
         map_set(M m) : Map(m) {}
-        map_set(list<key> keys) : Map{} {
+        template <typename list> requires sequence<list, key>
+        map_set(list keys) : Map{} {
             insert(keys);
         }
         
@@ -144,9 +144,9 @@ namespace data::tool {
         }
     };
     
-    template <typename M, typename K, typename V, typename X>
-    inline std::ostream& operator<<(std::ostream& o, const map_set<M, K, V, X>& m) {
-        return functional::stack::write(o << "set", m.values());
+    template <typename M, typename K, typename V>
+    inline std::ostream& operator<<(std::ostream& o, const map_set<M, K, V>& m) {
+        return functional::write(o << "set", m.values());
     }
 
 }

@@ -5,7 +5,7 @@
 #ifndef DATA_FOLD
 #define DATA_FOLD
 
-#include <data/interface.hpp>
+#include <data/types.hpp>
 
 namespace data {
 

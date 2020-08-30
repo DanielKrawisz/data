@@ -17,7 +17,7 @@ namespace data {
         
         template <typename list, typename elem> 
         concept has_first_method = requires (list x) {
-            { x.first() } -> convertible<elem>;
+            { x.first() } -> convertible<const elem>;
         };
         
         template <typename list> 
@@ -75,6 +75,11 @@ namespace data {
     template <typename X>
     inline X rest(const X& x) {
         return meta::rest<X>{}(x);
+    }
+    
+    template <sequence X>
+    X values(const X& x) {
+        return x;
     }
     
     namespace functional {

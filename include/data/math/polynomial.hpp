@@ -5,9 +5,7 @@
 #ifndef DATA_MATH_POLYNOMIAL
 #define DATA_MATH_POLYNOMIAL
 
-#include <data/tools/ordered_list.hpp>
-#include <data/for_each.hpp>
-#include <data/fold.hpp>
+#include <data/tools.hpp>
 #include <data/math/division.hpp>
 #include <data/math/arithmetic.hpp>
 
@@ -16,7 +14,7 @@ namespace data::math {
     template <typename A, typename N> struct polynomial;
 
     template <typename A, typename N>
-    std::ostream& operator<<(std::ostream& o, const data::math::polynomial<A, N>& p);
+    std::ostream& operator<<(std::ostream& o, const polynomial<A, N>& p);
     
     template <typename A, typename N>
     struct polynomial {
@@ -37,6 +35,7 @@ namespace data::math {
             
             term operator*(const term& x) const;
             term operator*(const A x) const;
+            polynomial operator*(const polynomial p) const;
         };
         
         polynomial();
@@ -61,6 +60,10 @@ namespace data::math {
         polynomial operator+(const term t) const;
         polynomial operator+(const A a) const;
         polynomial operator+(const polynomial& p) const;
+        
+        polynomial operator+=(const term t);
+        polynomial operator+=(const A a);
+        polynomial operator+=(const polynomial& p);
         
         polynomial operator*(const A x) const;
         polynomial operator*(const term x) const;
@@ -105,7 +108,7 @@ namespace data::math {
             division<ordering> operator/(const ordering& o) const;
         };
         
-        using terms = tool::ordered_list<ordering>;
+        using terms = ordered_list<ordering>;
         
         terms Terms;
         
@@ -114,6 +117,7 @@ namespace data::math {
         polynomial rest() const;
         
         polynomial(const terms l);
+        polynomial(const list<term> l);
         
         friend std::ostream& operator<<<A, N>(std::ostream& o, const polynomial& p);
         
@@ -213,6 +217,13 @@ namespace data::math {
     }
     
     template <typename A, typename N>
+    inline polynomial<A, N> polynomial<A, N>::term::operator*(const polynomial p) const {
+        return polynomial{for_each([this](ordering o) -> term {
+            return this->operator*(o.Term);
+        }, p.Terms)};
+    }
+    
+    template <typename A, typename N>
     inline polynomial<A, N>::term::term(A a, N p) : Coefficient{a}, Power{p} {}
     
     template <typename A, typename N>
@@ -257,6 +268,15 @@ namespace data::math {
     
     template <typename A, typename N>
     inline polynomial<A, N>::polynomial(const terms l) : Terms{l} {}
+    
+    template <typename A, typename N>
+    polynomial<A, N>::polynomial(const list<term> l) : Terms{} {
+        list<term> t = l;
+        while (!t.empty()) {
+            operator+=(t.first());
+            t = t.rest();
+        }
+    }
     
     template <typename A, typename N>
     inline polynomial<A, N>::polynomial() : Terms{} {}
@@ -366,22 +386,37 @@ namespace data::math {
     }
     
     template <typename A, typename N>
+    inline polynomial<A, N> polynomial<A, N>::operator+=(const term t) {
+        return *this = *this + t;
+    }
+    
+    template <typename A, typename N>
+    inline polynomial<A, N> polynomial<A, N>::operator+=(const A a) {
+        return *this = *this + a;
+    }
+    
+    template <typename A, typename N>
+    inline polynomial<A, N> polynomial<A, N>::operator+=(const polynomial& p) {
+        return *this = *this + p;
+    }
+    
+    template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::operator*(const A x) const {
         return reduce<polynomial>(data::plus<polynomial>{}, 
-            for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
+            for_each([x](ordering o) -> polynomial{ return o.Term * x; }, Terms));
     }
     
     template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::operator*(const term x) const {
         return reduce<polynomial>(data::plus<polynomial>{}, 
-            for_each([x](ordering o)->polynomial{return o.Term * x;}, Terms));
+            for_each([x](ordering o) -> polynomial{ return o.Term * x; }, Terms));
     }
     
     template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::operator*(const polynomial p) const {
         return reduce<polynomial>(data::plus<polynomial>{}, 
-            for_each([p](ordering o)->polynomial{
-                return p * o.Term;
+            for_each([p](ordering o) -> polynomial {
+                return o.Term * p;
             }, Terms));
     }
     
@@ -402,7 +437,7 @@ namespace data::math {
     template <typename A, typename N>
     polynomial<A, N> polynomial<A, N>::operator()(const polynomial p) const {
         return reduce<polynomial>(data::plus<polynomial>{}, 
-            for_each([p](ordering o)->polynomial{
+            for_each([p](ordering o) -> polynomial {
                 return o.Term(p);
             }, Terms));
     }

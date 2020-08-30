@@ -11,9 +11,9 @@ namespace data {
     
     namespace interface {
         
-        template <typename X, typename E> 
+        template <typename X, typename element> 
         concept has_values_method = requires (X x) {
-            { x.values() } -> sequence<E>;
+            { x.values() } -> sequence<element>;
         };
         
         template <typename X, typename element> 
@@ -35,6 +35,7 @@ namespace data {
         
     template <typename X, typename E> 
     concept container = sequence<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
+    
     
     namespace meta {
         
@@ -80,9 +81,9 @@ namespace data {
         };
         
     }
-
-    template <typename X>
-    inline auto values(const X& x) -> decltype(x.values()) {
+    
+    template <typename X, typename V = decltype(std::declval<X>().values())> requires interface::has_values_method<X, V>
+    V values(const X& x) {
         return x.values();
     }
 
@@ -90,6 +91,16 @@ namespace data {
     requires container<X, E> || std::ranges::range<X>
     inline bool contains(const X& x, const E& e) {
         return meta::contains<X, E>{}(x, e);
+    }
+    
+    template <typename X, typename element> requires interface::has_insert_method<X, element>
+    X insert(const X& x, const element& e) {
+        return x.insert(e);
+    }
+    
+    template <typename X, typename element> requires interface::has_remove_method<X, element>
+    X remove(const X& x, const element& e) {
+        return x.remove(e);
     }
 
 }

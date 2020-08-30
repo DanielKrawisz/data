@@ -2,10 +2,32 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/tools.hpp>
+#include "interface_tests.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
+    
+    TEST(MapTest, TestMapInterface) {
+        
+        is_map<map<uint32, int>>();
+        is_map<map<uint32, int*>>();
+        
+        // These are commented out because I can't get them to work. 
+        //is_map<map<uint32, const int>>();
+        //is_map<map<uint32, const int*>>();
+        
+    }
+    
+    TEST(MapTest, TestOrderedSetInterface) {
+        
+        is_ordered_set<set<int>>();
+        is_ordered_set<set<int*>>();
+        
+        // same here. 
+        //is_ordered_set<set<const int>>();
+        //is_ordered_set<set<const int*>>();
+        
+    }
     
     TEST(MapTest, TestMapEqual) {
         

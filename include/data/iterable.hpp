@@ -5,7 +5,6 @@
 #ifndef DATA_ITERABLE
 #define DATA_ITERABLE
 
-#include <data/interface.hpp>
 #include <data/sequence.hpp>
 #include <data/indexed.hpp>
 #include <data/slice.hpp>
@@ -13,6 +12,29 @@
 #include <data/valid.hpp>
 
 namespace data {
+    
+    namespace meta {
+        
+        template <typename X, typename it>
+        class is_iterable {
+            template <typename T, typename i> static auto test(int) -> typename 
+                std::enable_if<std::is_same<decltype(std::declval<T>().begin()), i>::value && 
+                    std::is_same<decltype(std::declval<T>().end()), i>::value, yes>::type;
+            template <typename, typename> static no test(...);
+        public:
+            static constexpr bool value = std::is_same<decltype(test<X, it>(0)), yes>::value;
+        };
+        
+        template <typename X, typename it>
+        class is_const_iterable {
+            template <typename T, typename i> static auto test(int) -> typename 
+                std::enable_if<std::is_same<decltype(std::declval<const T>().begin()), i>::value && 
+                    std::is_same<decltype(std::declval<const T>().end()), i>::value, yes>::type;
+            template <typename, typename> static no test(...);
+        public:
+            static constexpr bool value = std::is_same<decltype(test<X, it>(0)), yes>::value;
+        };
+    }
     
     namespace interface {
     

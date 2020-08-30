@@ -2,10 +2,23 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/tools.hpp>
+#include "interface_tests.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
+    
+    // test whether these data structures satisfy the correct interfaces. 
+    TEST(LinkedTreeTest, TestTreeInterfaces) {
+        
+        is_tree<tree<int>>();
+        is_tree<tree<int*>>();
+        is_tree<tree<int&>>();
+        
+        is_tree<tree<const int>>();
+        is_tree<tree<const int*>>();
+        is_tree<tree<const int&>>();
+        
+    }
     
     TEST(LinkedTreeTest, TestTreeSize) {
         tree<int> t0 = tree<int>{};

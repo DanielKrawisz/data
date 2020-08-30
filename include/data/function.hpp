@@ -5,35 +5,15 @@
 #ifndef DATA_FUNCTION
 #define DATA_FUNCTION
 
+#include <concepts>
 #include <data/types.hpp>
 
-namespace data::meta {
-    
-    template <typename range, typename function, typename ... domain> class is_function;
-    
-    template <typename range, typename function, typename domain>
-    class is_function<range, function, domain> {
-        template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>()(std::declval<const domain>())), range>::value, yes>::type;
-        template <typename> static no test(...);
-    public:
-        static constexpr bool value = std::is_same<decltype(test<function>(0)), yes>::value;
-    };
-    
-    template <typename range, typename function, typename x, typename y>
-    class is_function<range, function, x, y> {
-        template <typename U> static auto test(int) -> typename 
-            std::enable_if<std::is_same<decltype(std::declval<const U>()(std::declval<const x>(), std::declval<const y>())), range>::value, yes>::type;
-        template <typename> static no test(...);
-    public:
-        static constexpr bool value = std::is_same<decltype(test<function>(0)), yes>::value;
-    };
-    
-    template <typename F, typename x> using is_binary_operation = is_function<x, F, x, x>;
-    
-}
-
 namespace data {
+    
+    template< typename F, typename output, typename... Args >
+    concept function = std::regular_invocable<F, Args...> && requires(F&& f, Args&&... args) {
+        {std::invoke(std::forward<F>(f), std::forward<Args>(args)...)} -> std::same_as<output>;
+    };
     
     // It is always possible to construct the identity function. 
     template <typename X>

@@ -11,12 +11,14 @@ namespace data {
     template <typename N> void eratosthenes_test() {
 
         const data::uint32 max_primes = 100;
+        
+        using prime = math::number::prime<N>;
             
         list<N> primes = for_each(
-            [](const data::math::number::prime<N> p)->N{
+            [](const prime p)->N{
                 return p.Prime;
             }, 
-        data::math::number::eratosthenes<N>{N{max_primes}}.Primes);
+            data::math::number::eratosthenes<N>{N{max_primes}}.Primes);
         
         EXPECT_TRUE(primes.size() == max_primes);
         

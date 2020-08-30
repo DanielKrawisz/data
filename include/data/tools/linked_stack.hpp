@@ -6,7 +6,6 @@
 #define DATA_TOOLS_LINKED_STACK
 
 #include <ostream>
-#include <data/list.hpp>
 #include <data/functional/stack.hpp>
     
 namespace data::tool {
@@ -69,8 +68,8 @@ namespace data::tool {
         iterator end();
         const_iterator begin() const;
         const_iterator end() const;
-
-        template <typename X> 
+ 
+        template <typename X> requires std::equality_comparable_with<elem, X>
         bool operator==(const data::tool::linked_stack<X>& x) const {
             if ((void*)(Next.get()) == (void*)(x.Next.get())) return true;
             if (size() != x.size()) return false;
@@ -79,7 +78,7 @@ namespace data::tool {
             return (rest() == x.rest());
         }
 
-        template <typename X> 
+        template <typename X> requires std::equality_comparable_with<elem, X>
         bool operator!=(const data::tool::linked_stack<X>& x) const {
             return !(*this == x);
         }
@@ -87,7 +86,7 @@ namespace data::tool {
     };
     
     template <typename elem> inline std::ostream& operator<<(std::ostream& o, const linked_stack<elem>& x) {
-        return functional::stack::write(o << "stack", x);
+        return functional::write(o << "stack", x);
     }
 
     template <typename elem>
@@ -202,22 +201,22 @@ namespace data::tool {
     }
     
     template <typename elem>
-    inline typename linked_stack<elem>::iterator linked_stack<elem>::begin() {
+    inline linked_stack<elem>::iterator linked_stack<elem>::begin() {
         return iterator{Next};
     }
     
     template <typename elem>
-    inline typename linked_stack<elem>::iterator linked_stack<elem>::end() {
+    inline linked_stack<elem>::iterator linked_stack<elem>::end() {
         return iterator{size()};
     }
     
     template <typename elem>
-    inline typename linked_stack<elem>::const_iterator linked_stack<elem>::begin() const {
+    inline linked_stack<elem>::const_iterator linked_stack<elem>::begin() const {
         return const_iterator{Next};
     }
     
     template <typename elem>
-    inline typename linked_stack<elem>::const_iterator linked_stack<elem>::end() const {
+    inline linked_stack<elem>::const_iterator linked_stack<elem>::end() const {
         return const_iterator{size()};
     }
 

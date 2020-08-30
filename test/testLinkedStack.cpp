@@ -2,12 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/tools/linked_stack.hpp"
+#include "interface_tests.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
-    template <typename elem>
-    using stack = tool::linked_stack<elem>;
 
     TEST(LinkedStackTest, TestLinkedStack1) {
         
@@ -20,16 +18,6 @@ namespace data {
         EXPECT_TRUE(stack<int>(1).first() == 1);
         EXPECT_TRUE(stack<int>(1).rest() == stack<int>{});
         EXPECT_TRUE(stack<int>(1).size() == 1);
-        
-    }
-    
-    TEST(LinkedStackTest, TestLinkedStack2) {
-        
-        auto L1 = stack<int>(1, 2, 3);
-        auto L2 = stack<int>(3, 2, 1);
-        
-        EXPECT_FALSE(L1 == L2);
-        EXPECT_TRUE(L1 == data::reverse(L2));
         
     }
 
@@ -70,9 +58,23 @@ namespace data {
         EXPECT_EQ(r.size(), 0);
         EXPECT_EQ(a.size(), 1);
         EXPECT_EQ(b.size(), 2);
-        EXPECT_NE(l, r);
-        EXPECT_EQ(l, r << 3 << 2 << 1);
+        EXPECT_TRUE(l != r);
+        EXPECT_TRUE(l == r << 3 << 2 << 1);
         
+    }
+    
+    TEST(LinkedStackTest, TestLinkedStackEqual) {
+        
+        stack<int> t1{2, 1, 3, 5, 1, 7};
+        stack<int> t2{2, 1, 3, 5, 1, 7};
+        stack<int> t3{5, 2, 3, 5, 8, 3};
+        stack<int> t4{5, 2, 3, 5};
+        
+        EXPECT_TRUE(t1 == t1);
+        EXPECT_TRUE(t1 == t2);
+        EXPECT_TRUE(t1 != t3);
+        EXPECT_TRUE(t3 != t4);
+        EXPECT_TRUE(t4 != t1);
     }
     
     void test_copy_linked_stack(stack<int>& p, int max) {

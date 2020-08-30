@@ -14,13 +14,6 @@
 // This library uses a valid() method and a Valid member in a stereotyped way. 
 #include <data/valid.hpp>
 
-// Interfaces related to data structures. 
-#include <data/interface.hpp> 
-#include <data/set.hpp>
-#include <data/stack.hpp>
-#include <data/map.hpp>
-#include <data/tree.hpp>
-
 // A implementations of data structures. 
 #include <data/tools.hpp>
 

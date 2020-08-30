@@ -5,94 +5,62 @@
 #ifndef DATA_TOOLS_CYCLE
 #define DATA_TOOLS_CYCLE
 
-#include <data/tools/linked_stack.hpp>
-#include <data/tools/functional_queue.hpp>
+#include <data/functional/list.hpp>
     
 namespace data::tool {
     
-    template <typename X>
+    template <typename list, typename X> requires functional::list<list, X>
     struct cycle {
-        
-        using list = functional_queue<linked_stack<X>>;
         
         list Cycle;
         
-        bool valid() const {
-            return data::valid(Cycle);
-        }
-            
-        cycle() : Cycle{} {}
+        bool valid() const;
         
-        explicit cycle(list l) : Cycle{l} {}
+        cycle();
+        explicit cycle(list l);
+        explicit cycle(std::initializer_list<X> x);
         
-        cycle(std::initializer_list<X> x) : Cycle{} {
-            for (X e : x) Cycle = Cycle << e;
-        }
+        cycle& operator=(const cycle& c);
         
-        cycle& operator=(const cycle& c) {
-            Cycle = c.Cycle;
-            return *this;
-        }
+        size_t size() const;
+        const X& head() const;
+        cycle insert(const X& x) const;
+        cycle reverse() const;
         
-        size_t size() const {
-            return Cycle.size();
-        }
+        cycle rotate_left() const;
+        cycle rotate_right() const;
+        cycle rotate_left(uint32 n) const;
+        cycle rotate_right(uint32 n) const;
         
-        const X& head() const {
-            return Cycle.first();
-        }
-        
-        cycle insert(const X& x) const {
-            return cycle{Cycle.insert(x)};
-        }
-        
-        cycle reverse() const {
-            return cycle{data::reverse(Cycle)};
-        }
-        
-        cycle rotate_left() const {
-            return cycle{functional::list::rotate_left(Cycle)};
-        }
-        
-        cycle rotate_right() const {
-            return cycle{functional::list::rotate_right(Cycle)};
-        }
-        
-        cycle rotate_left(uint32 n) const {
-            return cycle{functional::list::rotate_left(Cycle, n)};
-        }
-        
-        cycle rotate_right(uint32 n) const {
-            return cycle{functional::list::rotate_right(Cycle, n)};
-        }
-        
-        cycle remove() const {
-            size_t s = size();
-            if (s == 0) return cycle{}; 
-            return {Cycle.rest()};
-        }
-        
-        cycle remove(uint32 n) const {
-            if (n == 0) return *this;
-            size_t s = size();
-            if (s > n) return cycle{}; 
-            return remove(n - 1).remove();
-        }
+        cycle remove() const;
+        cycle remove(uint32 n) const;
         
         bool operator==(const cycle&) const;
-        
-        bool operator!=(const cycle& c) const {
-            return !operator==(c);
-        }
+        bool operator!=(const cycle& c) const;
     };
     
-    template <typename X> 
-    std::ostream& operator<<(std::ostream& o, const cycle<X> n) {
+    template <typename list, typename X> 
+    std::ostream& operator<<(std::ostream& o, const cycle<list, X> n) {
         return o << "cycle" << n.Cycle;
     }
     
-    template <typename X>
-    bool cycle<X>::operator==(const cycle& c) const {
+    template <typename list, typename X>
+    cycle<list, X> cycle<list, X>::remove() const {
+        size_t s = size();
+        if (s == 0) return cycle{}; 
+        return {Cycle.rest()};
+    }
+    
+    template <typename list, typename X>
+    cycle<list, X> cycle<list, X>::remove(uint32 n) const {
+        if (n == 0) return *this;
+        size_t s = size();
+        if (s > n) return cycle{}; 
+        return remove(n - 1).remove();
+    }
+    
+    template <typename list, typename X>
+    bool cycle<list, X>::operator==(const cycle& c) const {
         size_t s = size();
         if (s != c.size()) return false;
         
@@ -105,6 +73,73 @@ namespace data::tool {
         }
         
         return false;
+    }
+    
+    template <typename list, typename X>
+    inline bool cycle<list, X>::operator!=(const cycle& c) const {
+        return !operator==(c);
+    }
+    
+    template <typename list, typename X>
+    inline bool cycle<list, X>::valid() const {
+        return data::valid(Cycle);
+    }
+    
+    template <typename list, typename X>
+    inline cycle<list, X>::cycle() : Cycle{} {}
+    
+    template <typename list, typename X>
+    inline cycle<list, X>::cycle(list l) : Cycle{l} {}
+    
+    template <typename list, typename X>
+    inline cycle<list, X>::cycle(std::initializer_list<X> x) : Cycle{} {
+        for (X e : x) Cycle = Cycle << e;
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X>& cycle<list, X>::operator=(const cycle& c) {
+        Cycle = c.Cycle;
+        return *this;
+    }
+        
+    template <typename list, typename X>
+    inline size_t cycle<list, X>::size() const {
+        return data::size(Cycle);
+    }
+        
+    template <typename list, typename X>
+    inline const X& cycle<list, X>::head() const {
+        return Cycle.first();
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X> cycle<list, X>::insert(const X& x) const {
+        return cycle{Cycle.insert(x)};
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X> cycle<list, X>::reverse() const {
+        return cycle{data::reverse(Cycle)};
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X> cycle<list, X>::rotate_left() const {
+        return cycle{data::rotate_left(Cycle)};
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X> cycle<list, X>::rotate_right() const {
+        return cycle{data::rotate_right(Cycle)};
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X> cycle<list, X>::rotate_left(uint32 n) const {
+        return cycle{data::rotate_left(Cycle, n)};
+    }
+        
+    template <typename list, typename X>
+    inline cycle<list, X> cycle<list, X>::rotate_right(uint32 n) const {
+        return cycle{data::rotate_right(Cycle, n)};
     }
 }
 

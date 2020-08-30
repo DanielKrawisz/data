@@ -6,7 +6,6 @@
 #define DATA_MATH_PERMUTATION
 
 #include <data/tools.hpp>
-#include <data/tools/cycle.hpp>
 
 #include <data/math/arithmetic.hpp>
 #include <data/math/associative.hpp>
@@ -15,10 +14,10 @@ namespace data::math {
 
     template <typename elem>
     struct permutation {
-        struct cycle : tool::cycle<elem> {
-            using tool::cycle<elem>::cycle;
+        struct cycle : data::cycle<elem> {
+            using data::cycle<elem>::cycle;
             
-            cycle(const tool::cycle<elem>& c) : tool::cycle<elem>{c} {}
+            cycle(const data::cycle<elem>& c) : data::cycle<elem>{c} {}
             
             bool valid() const;
         
@@ -29,19 +28,19 @@ namespace data::math {
             }
             
             cycle inverse() const {
-                return {tool::cycle<elem>::reverse()};
+                return {data::cycle<elem>::reverse()};
             }
             
             bool operator==(const cycle& c) const {
-                return tool::cycle<elem>::operator==(c);
+                return data::cycle<elem>::operator==(c);
             }
             
             bool operator!=(const cycle& c) const {
-                return tool::cycle<elem>::operator!=(c);
+                return data::cycle<elem>::operator!=(c);
             }
             
             set<elem> elements() const {
-                auto x = set<elem>{tool::cycle<elem>::Cycle};
+                auto x = set<elem>{data::cycle<elem>::Cycle};
                 if (x.size() == 0) return set<elem>{};
                 return x;
             }
@@ -121,18 +120,18 @@ namespace data::math {
     
     template <typename elem> 
     bool permutation<elem>::cycle::valid() const {
-        if (!tool::cycle<elem>::valid()) return false;
+        if (!data::cycle<elem>::valid()) return false;
         set<elem> el = elements();
-        return el.size() == tool::cycle<elem>::size() || el.size() == 1;
+        return el.size() == data::cycle<elem>::size() || el.size() == 1;
     }
     
     template <typename elem> 
     elem permutation<elem>::cycle::operator*(const elem e) const {
-        list<elem> c = tool::cycle<elem>::Cycle;
+        list<elem> c = data::cycle<elem>::Cycle;
         while (!c.empty()) {
             elem a = c.first();
             list<elem> c = c.rest();
-            if (e == a) return c.empty() ? tool::cycle<elem>::Cycle.first() : c.first();
+            if (e == a) return c.empty() ? data::cycle<elem>::Cycle.first() : c.first();
         }
         return e;
     }
@@ -140,11 +139,11 @@ namespace data::math {
     template <typename elem> 
     typename permutation<elem>::cycle
     permutation<elem>::cycle::normalize() const {
-        if (tool::cycle<elem>::size() == 0 || tool::cycle<elem>::size() == 1) return cycle{};
+        if (data::cycle<elem>::size() == 0 || data::cycle<elem>::size() == 1) return cycle{};
         
-        elem first = tool::cycle<elem>::Cycle.first();
-        list<elem> rest = tool::cycle<elem>::Cycle.rest();
-        while (!rest.empty()) if (first != tool::cycle<elem>::Cycle.first()) return *this;
+        elem first = data::cycle<elem>::Cycle.first();
+        list<elem> rest = data::cycle<elem>::Cycle.rest();
+        while (!rest.empty()) if (first != data::cycle<elem>::Cycle.first()) return *this;
         else rest = rest.rest();
         
         return cycle{};

@@ -12,11 +12,10 @@
 #include <data/valid.hpp>
 
 // Interfaces related to data structures. 
-#include <data/interface.hpp> 
-#include <data/set.hpp>
-#include <data/stack.hpp>
-#include <data/map.hpp>
-#include <data/tree.hpp>
+#include <data/functional/set.hpp>
+#include <data/functional/list.hpp>
+#include <data/functional/map.hpp>
+#include <data/functional/tree.hpp>
 
 // A implementations of data structures. 
 #include <data/tools/linked_stack.hpp>
@@ -29,7 +28,6 @@
 #include <data/tools/cycle.hpp>
 
 #include <data/cross.hpp>
-
 #include <data/fold.hpp>
 
 namespace data {
@@ -38,6 +36,8 @@ namespace data {
     
     // functional queue built using the list. 
     template <typename X> using list = tool::functional_queue<stack<X>>;
+    
+    template <typename X> using cycle = tool::cycle<list<X>, X>;
     
     // tree. 
     template <typename X> using tree = tool::linked_tree<X>;
