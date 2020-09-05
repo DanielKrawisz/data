@@ -1,55 +1,68 @@
 # data
-Wappers and high-level programming constructs in c++
+Tools and high-level programming constructs in c++.
 
-## Introduction
-c++ has been unfairly maligned as a low-level programming language
-when in reality it gives the programmer tools to program at both a
-low- and a high-level and it is superior as a high-level language
-to most which have come after it. It is more challenging to learn
-than other popular programming languages, but it also puts more
-power at the programmer's fingertips, once he has mastered it. 
+## Features 
 
-Languages which claim to be simple and easy to learn cause problems
-down the line because ultimately the biggest challenges of
-programming are those caused messes which programmers have created.
-No language, no matter how simple, can protect against a
-programmer's own inexperience. c++ provides tools that an 
-experienced programmer can use to tame the complexity of a large
-project as it grows. 
+`#include<data.hpp>` to gain all usable features. See `data.hpp` for 
+how to use all features. 
 
-The purpose of this library is to provide high-level tools for
-c++ that let me program in ways that I have enjoyed in other
-languages. 
+  * Functional data structures
+    * stack
+    * queue
+    * tree
+    * map
+    * set
+  * Functional programming
+    * reduce
+    * fold
+    * for_each
+  * Mathematical types
+    * natural numbers
+    * integers
+    * rational numbers
+    * complex rationals
+    * rational quaternions
+    * rational octonions
+    * prime fields
+    * permutations
+    * AKS algorithm
+  * Encodings
+    * hex
+    * base58
+    * base64
+  * cryptography 
+    * AES
+    * SHA
+    * RIPEMD160
+    * NIST_DRBG 
+  * concurrency
+    * golang-style communication channel. 
+    
+# Dependencies
+  * Boost 1.72
+  * GMP
+  * NTL
+  * Crypto++ https://github.com/weidai11/cryptopp 
+  * https://github.com/BartoszMilewski/Okasaki (included as needed)
+  * Rotella's implementation of AKS. (included)
+  * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions 
+  * Google test
 
-This library depends on boost, gmp, crypto++, libbitcoin, and on Bartosz Milewski's implementation of Okasaki
-https://github.com/BartoszMilewski/Okasaki
+# Version 1 progress
 
-## data structures
-  * Definitions of functional lists, queues, and maps. 
-  * Implementations based on Okasaki. 
-    * linked_list
-    * functional_queue
-    * rb_map
-
-## mathematics
-  * Definitions of mathematical concepts.
-    * Natural numbers
-    * Integers
-    * Rationals
-    * Complex rationals
-    * Algebraic concepts such as groups, rings, fields, modules, and so on. 
-  * Implementatations using gmp. 
-
-## cryptography
-  * wrappers for bitcoin cryptography from libbitcoin and crypto++
-    * secp256k1
-    * sha256
-    * sha512
-    * ripemd160
-
-## programming
-  * for_each applies a function to the elements of data structure and returns a new data structure congruent to the first.
-  * fold and reduce
-
-## concurrency
-  * golang-style communication channel. 
+This library is an alpha product. This is what is planned for version 1. 
+  * New Features
+    * finite size signed and unsigned numbers for every size. 
+    * minimal polynomials using NTL. 
+    * finite fields
+    * elliptic curves using NTL. 
+    * permutations
+    * merge sort
+  * optimizatons
+    * map.remove should use matt.might.net/articles/red-black-delete/
+    * use NTL to hide GMP. 
+    * use NTL integer exponentiation. 
+    * rational should be template-specialized to use GMP. 
+    * secp256k1 should use libsecp256k1. 
+  * use c++ 20 concepts to define interfaces. (see branch concepts)
+  * everything needs to be properly tested. There are tests now but they are inadequate. 
