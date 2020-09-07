@@ -69,6 +69,15 @@ namespace data::endian {
         explicit operator bytes_view() const {
             return bytes_view(data(), n_bits / 8);
         }
+        
+        explicit operator arithmetic<opposite(Order), T, n_bits>() const {
+            return arithmetic<opposite(Order), T, n_bits>{
+                boost::endian::endian_arithmetic<Order, T, n_bits, boost::endian::align::no>::operator T()};
+        }
+        
+        explicit arithmetic(const arithmetic<opposite(Order), T, n_bits>& x) {
+            *this = arithmetic(x);
+        }
     };
     
 }
