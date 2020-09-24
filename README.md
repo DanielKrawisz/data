@@ -41,7 +41,6 @@ how to use all features.
 # Dependencies
   * Boost 1.72
   * GMP
-  * NTL
   * Crypto++ https://github.com/weidai11/cryptopp 
   * https://github.com/BartoszMilewski/Okasaki (included as needed)
   * Rotella's implementation of AKS. (included)
@@ -51,8 +50,13 @@ how to use all features.
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1. 
-  * New Features
+  * use c++ 20 concepts to define interfaces. 
+  * everything needs to be properly tested. There are tests now but they are inadequate. 
+  * required fixes
+    * bug in linked list which means it can't be copied properly.
+  * new features
     * finite size signed and unsigned numbers for every size. 
+    * list works more like Mathematica's List. 
     * minimal polynomials using NTL. 
     * finite fields
     * elliptic curves using NTL. 
@@ -64,5 +68,3 @@ This library is an alpha product. This is what is planned for version 1.
     * use NTL integer exponentiation. 
     * rational should be template-specialized to use GMP. 
     * secp256k1 should use libsecp256k1. 
-  * use c++ 20 concepts to define interfaces. (see branch concepts)
-  * everything needs to be properly tested. There are tests now but they are inadequate. 
