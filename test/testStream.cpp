@@ -95,9 +95,9 @@ namespace {
         writer<slice<byte>::iterator> writer(sliceTestWrite.begin(), sliceTestWrite.end());
         writer = writer << uint64_big{2387559956438732708};
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer = writer << uint64_big{17900722797183299418};
+        writer = writer << uint64_big{17900722797183299418ull};
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 0xF8, 0x6C, 0x24, 0x8A, 0xBC, 0xD8, 0xEF, 0x5A, 17, 18, 19, 20));
-        auto o = uint64_big(17906342797856292348);
+        auto o = uint64_big(17906342797856292348ull);
         EXPECT_THROW(writer << o, end_of_stream);
     }
 
@@ -105,9 +105,9 @@ namespace {
         writer<slice<byte>::iterator> writer(sliceTestWrite.begin(), sliceTestWrite.end());
         writer = writer << uint64_little{2387559956438732708};
         EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
-        writer = writer << uint64_little{17900722797183299418};
+        writer = writer << uint64_little{17900722797183299418ull};
         EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 0x5A, 0xEF, 0xD8, 0xBC, 0x8A, 0x24, 0x6C, 0xF8, 17, 18, 19, 20));
-        auto o = uint64_little{17906342797856292348};
+        auto o = uint64_little{17906342797856292348ull};
         EXPECT_THROW(writer << o, end_of_stream);
     }
 
@@ -117,17 +117,17 @@ namespace {
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
         writer = writer << int64_big{-1790072279718329941};
         EXPECT_THAT(test,::testing::ElementsAre(0x21,0x22,0x51, 0x21, 0x6B, 0x7A, 0x4F, 0xA4, 0xE7, 0x28, 0x62, 0xBE, 0xED, 0x1D, 0x81, 0xAB, 17, 18, 19, 20));
-        auto o = int64_big{static_cast<long>(17906342797856292348)};
+        auto o = int64_big{static_cast<long>(17906342797856292348ull)};
         EXPECT_THROW(writer << o, end_of_stream);
     }
 
     TEST_F(StreamTest, StreamWriteInt64Little) {
         writer<slice<byte>::iterator> writer(sliceTestWrite.begin(), sliceTestWrite.end());
         writer = writer << int64_little{2387559956438732708};
-        EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
+        EXPECT_THAT(test, ::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20));
         writer = writer << int64_little{-1790072279718329941};
-        EXPECT_THAT(test,::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 0xAB, 0x81, 0x1D, 0xED, 0xBE, 0x62, 0x28, 0xE7, 17, 18, 19, 20));
-        auto o = int64_little{static_cast<long>(17906342797856292348)};
+        EXPECT_THAT(test, ::testing::ElementsAre(0xA4,0x4F,0x7A, 0x6B, 0x21, 0x51, 0x22, 0x21, 0xAB, 0x81, 0x1D, 0xED, 0xBE, 0x62, 0x28, 0xE7, 17, 18, 19, 20));
+        auto o = int64_little{static_cast<long>(17906342797856292348ull)};
         EXPECT_THROW(writer << o, end_of_stream);
     }
 
