@@ -72,9 +72,6 @@ namespace data::functional::stack {
             }
         
             linked() : Next{nullptr} {}
-            linked(linked&& l) : Next{l.Next} {
-                l.Next = nullptr;
-            }
         
             static derived make() {
                 return derived{};
@@ -110,7 +107,7 @@ namespace data::functional::stack {
         linked() : parent{} {}
         linked(const linked& l) : parent{l.Next} {}
         linked(const elem& e, const linked& l) : parent{std::make_shared<node>(e, l)} {}
-        linked(const elem& e) : linked{e, {}} {}
+        linked(const elem& e) : linked{e, linked{}} {}
         
         template<typename ... P>
         linked(const elem& a, const elem& b, P... p) : linked{a, linked{b, linked{p...}}} {} 
