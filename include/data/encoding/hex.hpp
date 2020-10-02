@@ -13,6 +13,11 @@
 namespace data::encoding::hex {
     const std::string Format{"hex"};
     
+    enum letter_case {
+        upper, 
+        lower
+    };
+    
     inline std::string characters_lower() {
         return "0123456789abcdef";
     }
@@ -27,13 +32,13 @@ namespace data::encoding::hex {
         return ctre::match<pattern>(s);
     }
     
-    std::string write(bytes_view, endian::order);
+    std::string write(bytes_view, endian::order, letter_case = upper);
     
-    std::string write(bytes_view);
-    std::string write(uint64);
-    std::string write(uint32);
-    std::string write(uint16);
-    std::string write(byte);
+    std::string write(bytes_view, letter_case = upper);
+    std::string write(uint64, letter_case = upper);
+    std::string write(uint32, letter_case = upper);
+    std::string write(uint16, letter_case = upper);
+    std::string write(byte, letter_case = upper);
     
     class string {
         string_view String;

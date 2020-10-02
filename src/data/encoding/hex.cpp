@@ -25,33 +25,34 @@ namespace data::encoding::hex {
         ToBytes=&Bytes;
     }
     
-    std::string write(bytes_view sourceBytes) {
+    std::string write(bytes_view sourceBytes, letter_case q) {
         std::string output;
         output.resize(sourceBytes.size() * 2);
-        boost::algorithm::hex(sourceBytes.begin(), sourceBytes.end(), output.begin());
+        if (q == upper) boost::algorithm::hex(sourceBytes.begin(), sourceBytes.end(), output.begin());
+        else boost::algorithm::hex_lower(sourceBytes.begin(), sourceBytes.end(), output.begin());
         return output;
     }
     
-    std::string write(bytes_view sourceBytes, endian::order r) {
-        if (r == endian::big) return write(sourceBytes);
+    std::string write(bytes_view sourceBytes, endian::order r, letter_case q) {
+        if (r == endian::big) return write(sourceBytes, q);
         bytes reversed(sourceBytes.size());
         std::copy(sourceBytes.rbegin(), sourceBytes.rend(), reversed.begin());
-        return write(reversed);
+        return write(reversed, q);
     }
     
-    std::string write(uint64 x) {
-        return write(bytes_view{uint64_big{x}.data(), sizeof(uint64)});
+    std::string write(uint64 x, letter_case q) {
+        return write(bytes_view{uint64_big{x}.data(), sizeof(uint64)}, q);
     }
     
-    std::string write(uint32 x) {
-        return write(bytes_view{uint32_big{x}.data(), sizeof(uint32)});
+    std::string write(uint32 x, letter_case q) {
+        return write(bytes_view{uint32_big{x}.data(), sizeof(uint32)}, q);
     }
     
-    std::string write(uint16 x) {
-        return write(bytes_view{uint16_big{x}.data(), sizeof(uint16)});
+    std::string write(uint16 x, letter_case q) {
+        return write(bytes_view{uint16_big{x}.data(), sizeof(uint16)}, q);
     }
     
-    std::string write(byte x) {
-        return write(bytes_view{(byte*)(&x), sizeof(byte)});
+    std::string write(byte x, letter_case q) {
+        return write(bytes_view{(byte*)(&x), sizeof(byte)}, q);
     }
 }
