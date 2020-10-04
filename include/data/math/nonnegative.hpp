@@ -75,14 +75,6 @@ namespace data::math {
             return Value * n.Value;
         }
         
-        R operator+(const R& n) const {
-            return Value + n;
-        }
-        
-        R operator*(const R& n) const {
-            return Value * n;
-        }
-        
         bool operator==(const nonzero& n) const {
             return Value == n.Value;
         }
