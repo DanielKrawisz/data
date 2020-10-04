@@ -55,6 +55,10 @@ namespace data::encoding::hex {
             return ToBytes != nullptr;
         }
         
+        size_t size() const {
+            return String.size();
+        }
+        
         string(string_view);
     };
 }
