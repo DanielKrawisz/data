@@ -36,14 +36,13 @@ namespace data::encoding::base64 {
     std::string write(uint16);
     std::string write(byte);
     
-    class string {
-        string_view String;
+    class view : public string_view {
         bytes Bytes;
         bytes *ToBytes;
         
     public:
         explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{Format, String};
+            if (ToBytes == nullptr) throw invalid{Format, *this};
             return bytes_view(*ToBytes);
         }
         
@@ -51,7 +50,7 @@ namespace data::encoding::base64 {
             return ToBytes != nullptr;
         }
         
-        string(string_view);
+        view(string_view);
     };
 }
 

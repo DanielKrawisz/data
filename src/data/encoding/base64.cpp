@@ -28,12 +28,12 @@ namespace data::encoding::base64 {
         return 0;
     }
     
-    string::string(string_view source) : String{source}, Bytes{}, ToBytes{nullptr} {
+    view::view(string_view source) : string_view{source}, Bytes{}, ToBytes{nullptr} {
         if (!base64::valid(source)) return;
         
         uint32 padding = base64::padding(source);
         
-        Bytes.resize(size(source));
+        Bytes.resize(source.size());
         
         const static uint32_t mask = 0x000000FF;
 

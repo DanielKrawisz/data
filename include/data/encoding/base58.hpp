@@ -55,14 +55,13 @@ namespace data::encoding::base58 {
     
     std::string write(const bytes_view b);
     
-    class string {
-        string_view String;
+    class view : public string_view {
         bytes Bytes;
         bytes *ToBytes;
         
     public:
         explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{Format, String};
+            if (ToBytes == nullptr) throw invalid{Format, *this};
             return bytes_view(*ToBytes);
         }
         
@@ -70,7 +69,7 @@ namespace data::encoding::base58 {
             return ToBytes != nullptr;
         }
         
-        string(string_view s);
+        view(string_view);
     };
     
 }

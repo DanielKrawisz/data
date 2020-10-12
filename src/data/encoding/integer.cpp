@@ -34,7 +34,7 @@ namespace data::encoding {
         
         bytes read(string_view s, endian::order r) {
             if (!valid(s)) throw std::invalid_argument{"not hexidecimal"};
-            bytes b = bytes_view(hex::string{s.substr(2)});
+            bytes b = bytes_view(hex::view{s.substr(2)});
             if (r == endian::big) return b;
             std::reverse(b.begin(), b.end());
             return b;

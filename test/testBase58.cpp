@@ -41,15 +41,15 @@ namespace data::encoding {
     
     TEST(Base58Test, Base58ToArray) {
         EXPECT_EQ(
-            bytes_view(base58::string{std::string("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")}),
-            bytes_view(hex::string{std::string("805aa786a57b3bfc0dfdf2ec86760339f018114a7e30c2d2701cf294dc60829d9b011cd8e391")})
+            bytes_view(base58::view{std::string("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")}),
+            bytes_view(hex::view{std::string("805aa786a57b3bfc0dfdf2ec86760339f018114a7e30c2d2701cf294dc60829d9b011cd8e391")})
         );
     }
     
     TEST(Base58Test, Base58InvalidExceptionOnError) {
         std::string invalid{"KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"};
         EXPECT_FALSE(base58::valid(invalid));
-        EXPECT_THROW(bytes_view(base58::string{invalid}), encoding::invalid);
+        EXPECT_THROW(bytes_view(base58::view{invalid}), encoding::invalid);
     }
     
     TEST(Base58Test, Base58WriteBytes) {

@@ -32,22 +32,31 @@ namespace data::encoding::hex {
         return ctre::match<pattern>(s);
     }
     
-    std::string write(bytes_view, endian::order, letter_case = upper);
+    struct string : std::string {
+        using std::string::string;
+        
+        bool valid() const {
+            return hex::valid(*this);
+        }
+        
+        explicit operator bytes() const;
+    };
     
-    std::string write(bytes_view, letter_case = upper);
-    std::string write(uint64, letter_case = upper);
-    std::string write(uint32, letter_case = upper);
-    std::string write(uint16, letter_case = upper);
-    std::string write(byte, letter_case = upper);
+    string write(bytes_view, endian::order, letter_case = upper);
     
-    class string {
-        string_view String;
+    string write(bytes_view, letter_case = upper);
+    string write(uint64, letter_case = upper);
+    string write(uint32, letter_case = upper);
+    string write(uint16, letter_case = upper);
+    string write(byte, letter_case = upper);
+    
+    class view : public string_view {
         bytes Bytes;
         bytes *ToBytes;
         
     public:
         explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{Format, String};
+            if (ToBytes == nullptr) throw invalid{Format, *this};
             return bytes_view(*ToBytes);
         }
         
@@ -55,11 +64,7 @@ namespace data::encoding::hex {
             return ToBytes != nullptr;
         }
         
-        size_t size() const {
-            return String.size();
-        }
-        
-        string(string_view);
+        view(string_view);
     };
 }
 
