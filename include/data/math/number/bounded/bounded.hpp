@@ -28,8 +28,8 @@ namespace data::math::number {
         bounded() : array(0x00) {}
         
         bounded(const uint64 x) : array(0x00) {
-            words().set(0, lesser_half(endian::arithmetic<r, uint64, 64>{x}));
-            words().set(1, greater_half(endian::arithmetic<r, uint64, 64>{x}));
+            words().set(0, lesser_half(endian::arithmetic<r, false, 8>{x}));
+            words().set(1, greater_half(endian::arithmetic<r, false, 8>{x}));
         }
         
         bounded(const array& b) : array{b} {}
@@ -142,8 +142,8 @@ namespace data::math::number {
         bounded() : array{0} {}
         
         bounded(const int64 x) : array(x < 0 ? 0xff : 0x00) {
-            words().set(0, lesser_half(endian::arithmetic<r, int64, 64>{x}));
-            words().set(1, greater_half(endian::arithmetic<r, int64, 64>{x}));
+            words().set(0, lesser_half(endian::arithmetic<r, true, 8>{x}));
+            words().set(1, greater_half(endian::arithmetic<r, true, 8>{x}));
         }
         
         bounded(const array& x) : array{x} {}

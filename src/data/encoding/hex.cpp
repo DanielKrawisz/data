@@ -10,7 +10,6 @@
 
 #include <data/encoding/hex.hpp>
 #include <data/encoding/endian.hpp>
-#include <boost/algorithm/hex.hpp>
 
 namespace data::encoding::hex {
     
@@ -30,11 +29,15 @@ namespace data::encoding::hex {
         ToBytes=&Bytes;
     }
     
-    string write(bytes_view sourceBytes, letter_case q) {
-        string output;
+    void write_hex(string& output, bytes_view sourceBytes, letter_case q) {
         output.resize(sourceBytes.size() * 2);
         if (q == upper) boost::algorithm::hex(sourceBytes.begin(), sourceBytes.end(), output.begin());
         else boost::algorithm::hex_lower(sourceBytes.begin(), sourceBytes.end(), output.begin());
+    }
+    
+    string write(bytes_view sourceBytes, letter_case q) {
+        string output;
+        write_hex(output, sourceBytes, q);
         return output;
     }
     
@@ -45,19 +48,27 @@ namespace data::encoding::hex {
         return write(reversed, q);
     }
     
-    string write(uint64 x, letter_case q) {
-        return write(bytes_view{uint64_big{x}.data(), sizeof(uint64)}, q);
+    fixed<8> write(uint64 x, letter_case q) {
+        fixed<8> output;
+        write_hex(output, bytes_view{uint64_big{x}.data(), sizeof(uint64)}, q);
+        return output;
     }
     
-    string write(uint32 x, letter_case q) {
-        return write(bytes_view{uint32_big{x}.data(), sizeof(uint32)}, q);
+    fixed<4> write(uint32 x, letter_case q) {
+        fixed<4> output;
+        write_hex(output, bytes_view{uint32_big{x}.data(), sizeof(uint32)}, q);
+        return output;
     }
     
-    string write(uint16 x, letter_case q) {
-        return write(bytes_view{uint16_big{x}.data(), sizeof(uint16)}, q);
+    fixed<2> write(uint16 x, letter_case q) {
+        fixed<2> output;
+        write_hex(output, bytes_view{uint16_big{x}.data(), sizeof(uint16)}, q);
+        return output;
     }
     
-    string write(byte x, letter_case q) {
-        return write(bytes_view{(byte*)(&x), sizeof(byte)}, q);
+    fixed<1> write(byte x, letter_case q) {
+        fixed<1> output;
+        write_hex(output, bytes_view{(byte*)(&x), sizeof(byte)}, q);
+        return output;
     }
 }

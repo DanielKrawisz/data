@@ -63,8 +63,8 @@ namespace data {
             return operator<<(static_cast<const byte&>(c));
         }
     
-        template <boost::endian::order Order, class T, std::size_t n_bits>
-        writer operator<<(const endian::arithmetic<Order, T, n_bits> x) const {
+        template <boost::endian::order Order, bool is_signed, std::size_t bytes>
+        writer operator<<(const endian::arithmetic<Order, is_signed, bytes> x) const {
             return operator<<(bytes_view(x));
         }
         
@@ -78,8 +78,8 @@ namespace data {
         reader(it b, it e) : Reader{b, e} {}
         reader(const reader& r) : Reader{r.Reader} {}
         
-        template <boost::endian::order Order, class T, std::size_t n_bits>
-        reader operator>>(endian::arithmetic<Order, T, n_bits>&) const;
+        template <boost::endian::order Order, bool is_signed, std::size_t bytes>
+        reader operator>>(endian::arithmetic<Order, is_signed, bytes>&) const;
 
         reader operator>>(bytes&) const;
         reader operator>>(byte& b) const {
@@ -165,9 +165,9 @@ namespace data {
     }
     
     template <typename it>
-    template <boost::endian::order Order, class T, std::size_t n_bits>
-    reader<it> reader<it>::operator>>(endian::arithmetic<Order, T, n_bits>& x) const {
-        return low::forward(Reader, n_bits / 8, (byte*)(x.data()));
+    template <boost::endian::order Order, bool is_signed, std::size_t bytes>
+    reader<it> reader<it>::operator>>(endian::arithmetic<Order, is_signed, bytes>& x) const {
+        return low::forward(Reader, bytes, (byte*)(x.data()));
     }
     
 }
