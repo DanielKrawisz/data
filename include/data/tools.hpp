@@ -22,7 +22,7 @@
 #include <data/tree.hpp>
 
 // A implementations of data structures. 
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tree/linked.hpp>
@@ -32,7 +32,7 @@
 
 namespace data {
     
-    template <typename X> using stack = functional::stack::linked<X>;
+    template <typename X> using stack = tool::linked_stack<X>;
     
     // functional queue built using the list. 
     template <typename X> using list = tool::functional_queue<stack<X>>;

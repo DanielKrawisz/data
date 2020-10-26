@@ -6,7 +6,7 @@
 #define DATA_TOOLS_PRIORITY_QUEUE
 
 #include <milewski/Leftist/LeftistHeap.hpp>
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
     
 namespace data::tool {
     

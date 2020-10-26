@@ -3,10 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <gtest/gtest.h>
 #include <data/data.hpp>
 #include <data/math/number/natural.hpp>
 #include <data/math/number/integer.hpp>
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -30,7 +30,7 @@ void constructability_tests() {
     stack<const string&> test_linked_list_reference;
     
     data::interface::stack<stack<string>> linked_list_is_list;
-    data::interface::const_iterable<stack<string>> linked_list_is_iterable;
+    //data::interface::const_iterable<stack<string>> linked_list_is_iterable;
     data::interface::stack<stack<const string&>> linked_list_ref_is_list;
     
     list<string> test_functional_queue;

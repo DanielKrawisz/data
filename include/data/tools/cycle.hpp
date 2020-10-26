@@ -82,14 +82,10 @@ namespace data::tool {
         }
     };
     
-}
-
-template <typename X> 
-std::ostream& operator<<(std::ostream& o, const data::tool::cycle<X> n) {
-    return o << "cycle" << n.Cycle;
-}
-    
-namespace data::tool {
+    template <typename X> 
+    std::ostream& operator<<(std::ostream& o, const cycle<X> n) {
+        return o << "cycle" << n.Cycle;
+    }
     
     template <typename X>
     bool cycle<X>::operator==(const cycle& c) const {

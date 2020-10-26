@@ -5,7 +5,7 @@
 #ifndef DATA_TOOLS_MAP_SET
 #define DATA_TOOLS_MAP_SET
 
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/functional_queue.hpp>
     
@@ -18,7 +18,7 @@ namespace data::tool {
         using value  = typename interface::map<M>::value;
         
         // functional queue built using the list. 
-        template <typename X> using list = tool::functional_queue<functional::stack::linked<X>>;
+        template <typename X> using list = tool::functional_queue<tool::linked_stack<X>>;
         
         M Map;
         

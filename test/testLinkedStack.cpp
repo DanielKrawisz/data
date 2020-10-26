@@ -2,29 +2,31 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/data.hpp"
+#include "data/tools/linked_stack.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
+    template <typename elem>
+    using stack = tool::linked_stack<elem>;
 
     TEST(LinkedStackTest, TestLinkedStack1) {
         
-        EXPECT_TRUE(stack<int>{} == stack<int>::make());
+        EXPECT_TRUE(stack<int>{} == stack<int>());
         
-        EXPECT_TRUE(stack<int>::make(1) == stack<int>::make(1));
-        EXPECT_FALSE(stack<int>::make(1) == stack<int>{});
-        EXPECT_FALSE(stack<int>::make(1) == stack<int>::make(0));
+        EXPECT_TRUE(stack<int>(1) == stack<int>(1));
+        EXPECT_FALSE(stack<int>(1) == stack<int>{});
+        EXPECT_FALSE(stack<int>(1) == stack<int>(0));
         
-        EXPECT_TRUE(stack<int>::make(1).first() == 1);
-        EXPECT_TRUE(stack<int>::make(1).rest() == stack<int>{});
-        EXPECT_TRUE(stack<int>::make(1).size() == 1);
+        EXPECT_TRUE(stack<int>(1).first() == 1);
+        EXPECT_TRUE(stack<int>(1).rest() == stack<int>{});
+        EXPECT_TRUE(stack<int>(1).size() == 1);
         
     }
-
+    
     TEST(LinkedStackTest, TestLinkedStack2) {
         
-        auto L1 = stack<int>::make(1, 2, 3);
-        auto L2 = stack<int>::make(3, 2, 1);
+        auto L1 = stack<int>(1, 2, 3);
+        auto L2 = stack<int>(3, 2, 1);
         
         EXPECT_FALSE(L1 == L2);
         EXPECT_TRUE(L1 == data::reverse(L2));
@@ -51,10 +53,10 @@ namespace data {
         EXPECT_FALSE(one == zero);
         EXPECT_TRUE(one.first() == One);
         
-        EXPECT_TRUE(stack<int&>::make(One).first() == One);
+        EXPECT_TRUE(stack<int&>(One).first() == One);
         EXPECT_TRUE(one.rest() == empty);
         EXPECT_TRUE(one_zero.rest() == zero);
-        EXPECT_TRUE(stack<int&>::make(One).size() == 1);
+        EXPECT_TRUE(stack<int&>(One).size() == 1);
         
     }
 
@@ -94,8 +96,8 @@ namespace data {
     // TODO
     TEST(LinkedStackTest, TestLinkedStackSort) {
         
-        /*EXPECT_TRUE(stack<int>::make(1, 2, 3, 4, 5) == sort(stack<int>::make(4, 5, 1, 3, 2)));
-        EXPECT_TRUE(stack<int>::make(1, 2, 3, 3, 4, 5) == sort(stack<int>::make(4, 3, 5, 1, 3, 2)));*/
+        /*EXPECT_TRUE(stack<int>(1, 2, 3, 4, 5) == sort(stack<int>(4, 5, 1, 3, 2)));
+        EXPECT_TRUE(stack<int>(1, 2, 3, 3, 4, 5) == sort(stack<int>(4, 3, 5, 1, 3, 2)));*/
         
     }
 }

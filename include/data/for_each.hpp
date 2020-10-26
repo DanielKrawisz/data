@@ -11,7 +11,7 @@
 #include <data/map.hpp>
 #include <data/meta/which.hpp>
 #include <data/meta/equal.hpp>
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
@@ -39,7 +39,7 @@ namespace data::meta::functional {
     struct for_each_container {
         using input_element = typename input::value_type;
         using output_element = typename std::invoke_result<function, input_element>::type;
-        using output = functional::stack::linked<output_element>;
+        using output = tool::linked_stack<output_element>;
         
         output operator()(const function f, const input i) const {
             return list::for_each<function, iterator_list<decltype(i.begin()), input_element>, output>{}(f, iterator_list<decltype(i.begin()), input_element>{i.begin(), i.end()});
@@ -50,7 +50,7 @@ namespace data::meta::functional {
     struct for_each_queue  {
         using input_element = typename interface::sequence<input>::element;
         using output_element = typename std::invoke_result<function, input_element>::type;
-        using output = tool::functional_queue<functional::stack::linked<output_element>>;
+        using output = tool::functional_queue<tool::linked_stack<output_element>>;
         
         output operator()(const function f, const input l) const {
             return queue::for_each<function, input, output>{}(f, l);
@@ -75,7 +75,7 @@ namespace data::meta::functional {
         using inner_function = entry_function<key, function, value>;
         using output_element = typename std::invoke_result<inner_function, input_element>::type;
         
-        functional::stack::linked<output_element> operator()(const function f, const input l) const {
+        tool::linked_stack<output_element> operator()(const function f, const input l) const {
             return for_each_queue<inner_function, input>{}(inner_function{f}, l);
         }
     };
@@ -138,7 +138,7 @@ namespace data::meta::documentation {
         public interface::stack<List>, 
         public meta::Equal<typename interface::stack<List>::element, A> {
         
-        functional::stack::linked<B> use_case(f fun, List a) {
+        tool::linked_stack<B> use_case(f fun, List a) {
             return for_each(fun, a);
         }
         
@@ -150,7 +150,7 @@ namespace data::meta::documentation {
         public interface::list<Queue>, 
         public meta::Equal<typename interface::list<Queue>::element, A> {
         
-        tool::functional_queue<functional::stack::linked<B>> use_case(f fun, Queue a) {
+        tool::functional_queue<tool::linked_stack<B>> use_case(f fun, Queue a) {
             return for_each(fun, a);
         }
         

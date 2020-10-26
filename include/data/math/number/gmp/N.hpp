@@ -5,12 +5,12 @@
 #ifndef DATA_MATH_NUMBER_GMP_N
 #define DATA_MATH_NUMBER_GMP_N
 
+#include <limits>
 #include <data/math/number/natural.hpp>
 #include <data/math/number/abs.hpp>
 #include <data/math/number/sqrt.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/endian.hpp>
-#include <limits>
 
 namespace data::math::number::gmp {
     
@@ -357,65 +357,49 @@ namespace data::encoding::integer {
     
 }
 
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n);
+namespace data::math::number::gmp {
+    std::ostream& operator<<(std::ostream& o, const N& n);
 
-inline bool operator==(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    if (b < 0) return false;
-    return b == a;
-}
+    inline bool operator==(const N& a, const Z& b) {
+        if (b < 0) return false;
+        return b == a;
+    }
 
-inline bool operator!=(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    return b != a;
-}
+    inline bool operator!=(const N& a, const Z& b) {
+        return b != a;
+    }
 
-inline bool operator<(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    if (b < 0) return false;
-    return b > a;
-}
+    inline bool operator<(const N& a, const Z& b) {
+        if (b < 0) return false;
+        return b > a;
+    }
 
-inline bool operator>(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    if (b < 0) return true;
-    return b < b;
-}
+    inline bool operator>(const N& a, const Z& b) {
+        if (b < 0) return true;
+        return b < b;
+    }
 
-inline bool operator<=(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    if (b < 0) return false;
-    return b >= a;
-}
+    inline bool operator<=(const N& a, const Z& b) {
+        if (b < 0) return false;
+        return b >= a;
+    }
 
-inline bool operator>=(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    if (b < 0) return true;
-    return b <= a;
-}
+    inline bool operator>=(const N& a, const Z& b) {
+        if (b < 0) return true;
+        return b <= a;
+    }
 
-inline data::math::number::gmp::Z operator+(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    return b + a;
-}
+    inline Z operator+(const N& a, const Z& b) {
+        return b + a;
+    }
 
-inline data::math::number::gmp::Z operator-(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    return -b + a;
-}
+    inline Z operator-(const N& a, const Z& b) {
+        return -b + a;
+    }
 
-inline data::math::number::gmp::Z operator*(
-    const data::math::number::gmp::N& a, 
-    const data::math::number::gmp::Z& b) {
-    return b * a;
+    inline Z operator*(const N& a, const Z& b) {
+        return b * a;
+    }
 }
 
 #endif

@@ -19,6 +19,7 @@ namespace data::math::number {
     
     template <endian::order r>
     struct Z_bytes : protected bytestring<r> {
+        friend struct N_bytes<r>;
         
         Z_bytes() : bytestring<r>{} {}
         

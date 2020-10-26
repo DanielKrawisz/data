@@ -51,12 +51,12 @@ namespace data::math::algebra {
         
         ptr<prime_field_element<N, Z, prime>> make(N n);
     };
-    
-}
 
-template <typename N, typename Z, auto & prime>
-inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::prime_field_element<N, Z, prime>& m) {
-    return o << "f<"<<prime<<">{"<<m.Value<<"}";
+    template <typename N, typename Z, auto & prime>
+    inline std::ostream& operator<<(std::ostream& o, const prime_field_element<N, Z, prime>& m) {
+        return o << "f<"<<prime<<">{"<<m.Value<<"}";
+    }
+    
 }
 
 namespace data::math {

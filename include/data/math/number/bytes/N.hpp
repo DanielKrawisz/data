@@ -5,13 +5,13 @@
 #ifndef DATA_MATH_NUMBER_BYTES_N
 #define DATA_MATH_NUMBER_BYTES_N
 
+#include <limits>
+
+#include <data/tools/linked_stack.hpp>
+
 #include <data/math/number/natural.hpp>
 #include <data/math/number/bytes/Z.hpp>
-#include <data/list/linked.hpp>
 #include <data/bytestring.hpp>
-
-#include <limits>
-#include <iostream>
 
 namespace data::math::number {
     
@@ -387,12 +387,14 @@ namespace data::encoding::integer {
     
 }
 
-template <data::endian::order r>
-std::ostream& operator<<(std::ostream& o, const data::math::number::N_bytes<r>& n) {
-    if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
-    // TODO for dec, we convert N_bytes to N. This is inefficient but it works for now. 
-    if (o.flags() & std::ios::dec) return data::encoding::integer::write(o, data::math::number::gmp::N{n});
-    return o;
+namespace data::math::number {
+    template <endian::order r>
+    std::ostream& operator<<(std::ostream& o, const N_bytes<r>& n) {
+        if (o.flags() & std::ios::hex) return encoding::hexidecimal::write(o, n);
+        // TODO for dec, we convert N_bytes to N. This is inefficient but it works for now. 
+        if (o.flags() & std::ios::dec) return encoding::integer::write(o, gmp::N{n});
+        return o;
+    }
 }
 
 #endif

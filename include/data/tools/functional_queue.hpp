@@ -126,12 +126,12 @@ namespace data::tool {
         }
     
     };
-       
-}
 
-template <typename X> 
-std::ostream& operator<<(std::ostream& o, const data::tool::functional_queue<X> n) {
-    return data::functional::stack::write(o, n);
+    template <typename X> 
+    std::ostream& operator<<(std::ostream& o, const functional_queue<X> n) {
+        return functional::stack::write(o, n);
+    }
+
 }
 
 #endif

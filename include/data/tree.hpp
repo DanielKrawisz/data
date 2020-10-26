@@ -7,7 +7,7 @@
 
 #include <data/list.hpp>
 #include <data/set.hpp>
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/tools/iterator_list.hpp>
     
 namespace data::meta {

@@ -6,7 +6,7 @@
 #define DATA_TREE_LINKED
 
 #include <data/tree.hpp>
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/io/unimplemented.hpp>
     
 namespace data::functional::tree {
@@ -59,11 +59,11 @@ namespace data::functional::tree {
             return ! operator==(t);
         }
         
-        stack::linked<value> values() const {
+        tool::linked_stack<value> values() const {
             throw method::unimplemented{"linked tree values"};
         }
         
-        using iterator = stack::iterator<stack::linked<value>>;
+        using iterator = stack::iterator<tool::linked_stack<value>>;
         
         iterator begin() const {
             return values().begin();

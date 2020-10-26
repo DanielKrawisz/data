@@ -138,19 +138,20 @@ namespace data::encoding::integer {
     
 }
 
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n) {
-    if (o.flags() & std::ios::hex) {
-        data::math::number::gmp::Z_write_hexidecimal(o, n);
-        return o;
-    }
-    if (o.flags() & std::ios::dec) {
-        return data::math::number::gmp::Z_write_dec(o, n);
-    }
-    o << &n.MPZ;
-    return o;
-}
 
 namespace data::math::number::gmp {
+        
+    std::ostream& operator<<(std::ostream& o, const Z& n) {
+        if (o.flags() & std::ios::hex) {
+            Z_write_hexidecimal(o, n);
+            return o;
+        }
+        if (o.flags() & std::ios::dec) {
+            return Z_write_dec(o, n);
+        }
+        o << &n.MPZ;
+        return o;
+    }
     
     Z N_read_hex(string_view x) {
         if (encoding::hexidecimal::zero(x)) return N{0};
@@ -249,20 +250,20 @@ namespace data::math::number::gmp {
         if (operator<(0)) throw std::logic_error{"too big"};
         return mpz_get_ui(MPZ);
     } 
-    
-}
 
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::N& n) {
-    if (o.flags() & std::ios::hex) {
-        data::math::number::gmp::N_write_hexidecimal(o, n);
+    std::ostream& operator<<(std::ostream& o, const N& n) {
+        if (o.flags() & std::ios::hex) {
+            N_write_hexidecimal(o, n);
+            return o;
+        }
+        if (o.flags() & std::ios::dec) {
+            Z_write_dec(o, n.Value);
+            return o;
+        }
+        o << &n.Value.MPZ;
         return o;
     }
-    if (o.flags() & std::ios::dec) {
-        data::math::number::gmp::Z_write_dec(o, n.Value);
-        return o;
-    }
-    o << &n.Value.MPZ;
-    return o;
+
 }
 
 namespace data::encoding::hexidecimal { 

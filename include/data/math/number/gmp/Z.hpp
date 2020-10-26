@@ -372,6 +372,8 @@ namespace data::math::number::gmp {
         return n;
     }
 
+    std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n);
+
 }
 
 namespace data::math {
@@ -404,7 +406,5 @@ namespace data::encoding::integer {
     std::string write(const math::number::gmp::Z& n);
     
 }
-
-std::ostream& operator<<(std::ostream& o, const data::math::number::gmp::Z& n);
 
 #endif

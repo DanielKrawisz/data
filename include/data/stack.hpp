@@ -139,7 +139,7 @@ namespace data::functional::stack {
     // This is a node that you could perhaps use to make a list. 
     template <typename X, typename Y>
     struct node {
-        const X First;
+        X First;
         Y Rest;
         size_t Size;
         

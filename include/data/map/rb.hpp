@@ -5,7 +5,7 @@
 #ifndef DATA_MAP_RB
 #define DATA_MAP_RB
 
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/map.hpp>
 #include <data/fold.hpp>
 #include <milewski/RBMap/RBMap.h>
@@ -68,15 +68,15 @@ namespace data::functional {
         rb_map(std::initializer_list<std::pair<K, V>> init);
         
         // TODO make this a list<const k&>
-        stack::linked<K> keys() const {
-            stack::linked<K> kk{};
+        tool::linked_stack<K> keys() const {
+            tool::linked_stack<K> kk{};
             milewski::okasaki::forEach(Map, [&kk](const K& k, V)->void{
                 kk = kk << k;
             });
             return kk;
         }
         
-        stack::linked<entry> values() const {
+        tool::linked_stack<entry> values() const {
             throw method::unimplemented{"rb_map::values"};
         }
         

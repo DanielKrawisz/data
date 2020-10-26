@@ -5,7 +5,7 @@
 #ifndef DATA_ENCODING_DIGITS
 #define DATA_ENCODING_DIGITS
 
-#include <data/list/linked.hpp>
+#include <data/tools/linked_stack.hpp>
 #include <data/math/number/natural.hpp>
 
 namespace data::encoding {
@@ -13,7 +13,7 @@ namespace data::encoding {
     std::string write_base(const N& n, std::string digits) {
         uint32 base = digits.size();
         if (base < 2) return "";
-        functional::stack::linked<char> dig{};
+        tool::linked_stack<char> dig{};
         N x = n;
         while(x > 0) {
             math::division<N> d = x.divide(base);
