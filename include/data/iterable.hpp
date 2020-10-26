@@ -171,36 +171,37 @@ namespace data {
     
     template <typename X> 
     oriented<X, endian::big> trim(oriented<X, endian::big>, X fill);
-}
 
-std::ostream& operator<<(std::ostream& o, const data::bytes_view s);
+    std::ostream& operator<<(std::ostream& o, const data::bytes& s);
 
-template <typename X>
-inline bool operator==(
-    const data::oriented<X, data::endian::big>& a, 
-    const data::oriented<X, data::endian::little>& b) {
-    return static_cast<data::slice<X>>(a) == static_cast<data::slice<X>>(data::oriented<X, data::endian::big>(b));
-}
+    template <typename X>
+    inline bool operator==(
+        const oriented<X, endian::big>& a, 
+        const oriented<X, endian::little>& b) {
+        return static_cast<slice<X>>(a) == static_cast<slice<X>>(oriented<X, endian::big>(b));
+    }
 
-template <typename X>
-inline bool operator==(
-    const data::oriented<X, data::endian::little>& a, 
-    const data::oriented<X, data::endian::big>& b) {
-    return static_cast<data::slice<X>>(a) == static_cast<data::slice<X>>(data::oriented<X, data::endian::little>(b));
-}
+    template <typename X>
+    inline bool operator==(
+        const oriented<X, endian::little>& a, 
+        const oriented<X, endian::big>& b) {
+        return static_cast<slice<X>>(a) == static_cast<slice<X>>(oriented<X, endian::little>(b));
+    }
 
-template <typename X, size_t size>
-inline bool operator==(
-    const data::oriented<X, data::endian::big, size>& a, 
-    const data::oriented<X, data::endian::little, size>& b) {
-    return static_cast<data::slice<X>>(a) == static_cast<data::slice<X>>(data::oriented<X, data::endian::big, size>(b));
-}
+    template <typename X, size_t size>
+    inline bool operator==(
+        const oriented<X, endian::big, size>& a, 
+        const oriented<X, endian::little, size>& b) {
+        return static_cast<slice<X>>(a) == static_cast<slice<X>>(oriented<X, endian::big, size>(b));
+    }
 
-template <typename X, size_t size>
-inline bool operator==(
-    const data::oriented<X, data::endian::little, size>& a, 
-    const data::oriented<X, data::endian::big, size>& b) {
-    return static_cast<data::slice<X>>(a) == static_cast<data::slice<X>>(data::oriented<X, data::endian::little, size>(b));
+    template <typename X, size_t size>
+    inline bool operator==(
+        const oriented<X, endian::little, size>& a, 
+        const oriented<X, endian::big, size>& b) {
+        return static_cast<slice<X>>(a) == static_cast<slice<X>>(oriented<X, endian::little, size>(b));
+    }
+
 }
 
 namespace data {

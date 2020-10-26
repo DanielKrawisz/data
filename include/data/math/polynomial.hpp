@@ -14,13 +14,9 @@
 namespace data::math {
     
     template <typename A, typename N> struct polynomial;
-    
-}
 
-template <typename A, typename N>
-std::ostream& operator<<(std::ostream& o, const data::math::polynomial<A, N>& p);
-
-namespace data::math {
+    template <typename A, typename N>
+    std::ostream& operator<<(std::ostream& o, const data::math::polynomial<A, N>& p);
     
     template <typename A, typename N>
     struct polynomial {
@@ -159,25 +155,22 @@ namespace data::math {
             return identity<data::times<A>, A>::value();
         }
     };
-}
 
-template <typename A, typename N>
-std::ostream& operator<<(std::ostream& o, const data::math::polynomial<A, N>& p) {
-    o << "polynomial{";
-    if (!p.Terms.empty()) {
-        typename data::math::polynomial<A, N>::terms x = p.Terms;
-        while(true) {
-            typename data::math::polynomial<A, N>::term t = x.first().Term;
-            o << "(" << t.Coefficient << " x^" << t.Power << ")";
-            x = x.rest();
-            if (x.empty()) break;
-            o << " + ";
+    template <typename A, typename N>
+    std::ostream& operator<<(std::ostream& o, const polynomial<A, N>& p) {
+        o << "polynomial{";
+        if (!p.Terms.empty()) {
+            typename polynomial<A, N>::terms x = p.Terms;
+            while(true) {
+                typename polynomial<A, N>::term t = x.first().Term;
+                o << "(" << t.Coefficient << " x^" << t.Power << ")";
+                x = x.rest();
+                if (x.empty()) break;
+                o << " + ";
+            }
         }
+        return o << "}";
     }
-    return o << "}";
-}
-
-namespace data::math {
     
     template <typename A, typename N>
     inline bool polynomial<A, N>::term::operator==(const term& t) const {

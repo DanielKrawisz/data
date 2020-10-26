@@ -1,7 +1,8 @@
 #include <data/iterable.hpp>
 #include <data/encoding/hex.hpp>
 
-std::ostream& operator<<(std::ostream& o, const data::bytes_view s) {
-    return o << "\"" << data::encoding::hex::write(s) << "\""; 
+namespace data {
+    std::ostream& operator<<(std::ostream& o, const bytes& s) {
+        return o << "\"" << encoding::hex::write(s) << "\""; 
+    }
 }
-
