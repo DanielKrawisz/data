@@ -14,7 +14,7 @@ namespace data::meta {
 
     template <uint32 X, uint32 ceil>
     struct ceiling {
-        constexpr static uint32 result = (X % ceil == 0 ? X : X % ceil);
+        constexpr static uint32 value = (X % ceil == 0 ? X : X % ceil);
     };
     
 }
