@@ -50,15 +50,16 @@ how to use all features.
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1. 
-  * use c++ 20 concepts to define interfaces. 
-  * everything needs to be properly tested. There are tests now but they are inadequate. 
-  * required fixes
-    * bug in linked list which means it can't be copied properly.
-  * new features
-    * finite size signed and unsigned numbers for every size. 
+  * use c++ 20 concepts to define interfaces. (See c++20 branch)
+  * everything needs to be properly tested. There are tests now but they are incomplete. 
+  * documentation. 
+  * new features to be included. 
+    * finite size signed and unsigned numbers for every size. There are versions of these types
+      already but not everything about them works. See c++20 branch for overhauled versions. 
     * list works more like Mathematica's List. 
     * minimal polynomials using NTL. 
-    * finite fields
+    * finite fields. Right now we do prime fields but we need to be able to generate minimal
+      polynomials for arbitrary finite fields. 
     * elliptic curves using NTL. 
     * permutations
     * merge sort
@@ -68,3 +69,6 @@ This library is an alpha product. This is what is planned for version 1.
     * use NTL integer exponentiation. 
     * rational should be template-specialized to use GMP. 
     * secp256k1 should use libsecp256k1. 
+  * required fixes
+    * encoding/ascii.hpp, encoding/unicode.hpp, and encoding utf8.hpp are out of date
+      and don't work. They should either be deleted or brought up to date and working.
