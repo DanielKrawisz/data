@@ -9,6 +9,7 @@
 #include <ctre.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/iterable.hpp>
+#include <data/math/division.hpp>
 
 namespace data::encoding::base64 {      
     const std::string Format{"base64"};
@@ -21,8 +22,6 @@ namespace data::encoding::base64 {
     constexpr static char Pad = '=';
     
     constexpr auto pattern = ctll::fixed_string{"^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"};
-    
-    bool valid(string_view s);
     
     inline bool valid(string_view s) {
         return ctre::match<pattern>(s);

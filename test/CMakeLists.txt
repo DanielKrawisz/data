@@ -16,6 +16,7 @@ ADD_EXECUTABLE(testData
     testZ.cpp
     #testBounded.cpp 
     testBase58.cpp 
+    testStringNumbers.cpp 
     testExtendedEuclidian.cpp 
     testEratosthenes.cpp 
     testFiniteField.cpp 

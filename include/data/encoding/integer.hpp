@@ -10,6 +10,7 @@
 #include <data/encoding/hex.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/encoding/endian.hpp>
+#include <data/math/division.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <ctre.hpp>
@@ -20,6 +21,10 @@ namespace data::encoding {
         
         inline std::string characters() {
             return "0123456789";
+        }
+        
+        inline char digit(char x) {
+            return x < '0' || x > '9' ? -1 : x - '0';
         }
         
         inline bool valid(string_view s) {
@@ -35,6 +40,43 @@ namespace data::encoding {
         }
         
         bytes read(string_view s, endian::order r);
+        
+        struct N : string {
+            N();
+            N(const string&);
+            N(uint64);
+            
+            bool valid() const {
+                return decimal::valid(*this);
+            }
+            
+            bool operator<=(const N&) const;
+            bool operator>=(const N&) const;
+            bool operator<(const N&) const;
+            bool operator>(const N&) const;
+        
+            N& operator++();
+            N& operator--();
+            
+            N operator++(int);
+            N operator--(int);
+            
+            N operator+(const N&) const;
+            N operator-(const N&) const;
+            N operator*(const N&) const;
+            
+            N operator<<(int) const;
+            N operator>>(int) const;
+            
+            N& operator+=(const N&);
+            N& operator-=(const N&);
+            N& operator*=(const N&);
+            
+            N& operator<<=(int);
+            N& operator>>=(int);
+            
+            math::division<N, uint64> divide(uint64) const;
+        };
     };
     
     namespace hexidecimal {
@@ -58,6 +100,13 @@ namespace data::encoding {
             return valid(s) ? s.size() - 2 : 0;
         }
         
+        inline char digit(char x) {
+            if (x >= '0' && x <= '9') return x - '0';
+            if (x >= 'A' && x <= 'F') return x - 'A' + 10;
+            if (x >= 'a' && x <= 'f') return x - 'a' + 10;
+            return -1;
+        }
+        
         bytes read(string_view s, endian::order r);
         
         std::ostream& write(std::ostream& o, bytes_view b, endian::order r, hex::letter_case q = hex::upper);
@@ -67,6 +116,46 @@ namespace data::encoding {
             write(ss, b, r, q);
             return ss.str();
         }
+        
+        struct N : string {
+            N();
+            N(const string&);
+            N(uint64);
+            
+            bool valid() const {
+                return hexidecimal::valid(*this);
+            }
+            
+            bool operator==(const N&) const;
+            bool operator!=(const N&) const;
+            
+            bool operator<=(const N&) const;
+            bool operator>=(const N&) const;
+            bool operator<(const N&) const;
+            bool operator>(const N&) const;
+        
+            N& operator++();
+            N& operator--();
+            
+            N operator++(int);
+            N operator--(int);
+            
+            N operator+(const N&) const;
+            N operator-(const N&) const;
+            N operator*(const N&) const;
+            
+            N operator<<(int) const;
+            N operator>>(int) const;
+            
+            N& operator+=(const N&);
+            N& operator-=(const N&);
+            N& operator*=(const N&);
+            
+            N& operator<<=(int);
+            N& operator>>=(int);
+            
+            math::division<N, uint64> divide(uint64) const;
+        };
     };
     
     namespace natural {

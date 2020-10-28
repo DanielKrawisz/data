@@ -19,16 +19,24 @@ namespace data::math {
         }
     };
         
-    template <typename N> struct division {
+    template <typename N, typename R = N> struct division {
         N Quotient;
-        N Remainder;
+        R Remainder;
             
         bool valid() const {
             return valid(Quotient) && valid(Remainder);
         }
         
-        division(N q, N r) : Quotient{q}, Remainder{r} {}
+        division(N q, R r) : Quotient{q}, Remainder{r} {}
         division() : Quotient{}, Remainder{} {}
+        
+        bool operator==(const division& d) const {
+            return Quotient == d.Quotient && Remainder == d.Remainder;
+        }
+        
+        bool operator!=(const division& d) const {
+            return !(*this == d);
+        }
     };
     
 }

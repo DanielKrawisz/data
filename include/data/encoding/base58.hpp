@@ -72,6 +72,43 @@ namespace data::encoding::base58 {
         view(string_view);
     };
     
+    struct string : std::string {
+        string();
+        string(const std::string&);
+        string(uint64);
+            
+        bool valid() const {
+            return base58::valid(*this);
+        }
+        
+        bool operator<=(const string&) const;
+        bool operator>=(const string&) const;
+        bool operator<(const string&) const;
+        bool operator>(const string&) const;
+    
+        string& operator++();
+        string& operator--();
+        
+        string operator++(int);
+        string operator--(int);
+        
+        string operator+(const string&) const;
+        string operator-(const string&) const;
+        string operator*(const string&) const;
+        
+        string operator<<(int) const;
+        string operator>>(int) const;
+        
+        string& operator+=(const string&);
+        string& operator-=(const string&);
+        string& operator*=(const string&);
+        
+        string& operator<<=(int);
+        string& operator>>=(int);
+        
+        math::division<string, uint64> divide(uint64) const;
+    };
+    
 }
 
 #endif
