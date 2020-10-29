@@ -43,21 +43,6 @@ namespace data {
     }
     
     struct unit {};
-    
-    template <typename X>
-    inline bool operator!=(const X& a, const X&b) {
-        return ! (a == b);
-    }
-    
-    template <typename X>
-    inline bool operator<=(const X& a, const X&b) {
-        return ! (a > b);
-    }
-    
-    template <typename X>
-    inline bool operator>=(const X& a, const X&b) {
-        return ! (a < b);
-    }
 }
 
 #endif
