@@ -6,8 +6,8 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 project(data 	VERSION 1.0
-		DESCRIPTION "wrappers and high-level programming constructs in c++"
-		LANGUAGES CXX)
+        DESCRIPTION "wrappers and high-level programming constructs in c++"
+        LANGUAGES CXX)
 
 # Set cmake as import path for Find*.cmake files
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
@@ -22,29 +22,29 @@ endif()
 
 option(PACKAGE_TESTS "Build the tests" ON)
 if(NOT TARGET gtest_main AND PACKAGE_TESTS)
-	# Download and unpack googletest at configure time
-	configure_file(cmake/gtests.txt.in googletest-download/CMakeLists.txt)
-	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-			RESULT_VARIABLE result
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-	if(result)
-		message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-	endif()
-	execute_process(COMMAND ${CMAKE_COMMAND} --build .
-			RESULT_VARIABLE result
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-	if(result)
-		message(FATAL_ERROR "Build step for googletest failed: ${result}")
-	endif()
+    # Download and unpack googletest at configure time
+    configure_file(cmake/gtests.txt.in googletest-download/CMakeLists.txt)
+    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+    if(result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif()
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+    if(result)
+        message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    endif()
 
-	# Prevent overriding the parent project's compiler/linker
-	# settings on Windows
-	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-	
-	# Add googletest directly to our build. This defines
-	# the gtest and gtest_main targets.
-	add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-			${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
+    # Prevent overriding the parent project's compiler/linker
+    # settings on Windows
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+    # Add googletest directly to our build. This defines
+    # the gtest and gtest_main targets.
+    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+            ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 endif()
 
 
@@ -83,6 +83,7 @@ if(CRYPTOPP_INCLUDE_DIRS)
 endif()
 
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBSECP256K1 REQUIRED IMPORTED_TARGET libsecp256k1)
 
 # Find GMP
 find_package(GMP REQUIRED)
@@ -92,7 +93,7 @@ endif()
 
 find_package(NTL REQUIRED)
 if(NTL_FOUND)
-	include_directories(${NTL_INCLUDE_DIR})
+    include_directories(${NTL_INCLUDE_DIR})
 endif()
 # compile time regular expressions
 
@@ -104,7 +105,7 @@ include(CTest)
 if(PACKAGE_TESTS)
     enable_testing()
     add_subdirectory(test)
-	
+
 
 endif()
 
@@ -112,27 +113,27 @@ endif()
 #  Add Library source files here
 
 ADD_LIBRARY(data STATIC
-    src/data/encoding/hex.cpp
-    src/data/encoding/ascii.cpp
-    src/data/encoding/base58.cpp
-    src/data/encoding/base64.cpp
-    src/data/encoding/integer.cpp
-    src/data/iterable.cpp
-    src/data/tools/channel.cpp
-    src/data/math/number/gmp/mpq.cpp
-    src/data/math/number/gmp/N.cpp
-    src/data/math/number/gmp/aks.cpp
-    src/data/math/number/gmp/sqrt.cpp
-    src/data/crypto/AES.cpp
-    include/rotella/aks.cpp
-    include/rotella/sieve.cpp
-    include/rotella/akslib.cpp
-)
-        
+        src/data/encoding/hex.cpp
+        src/data/encoding/ascii.cpp
+        src/data/encoding/base58.cpp
+        src/data/encoding/base64.cpp
+        src/data/encoding/integer.cpp
+        src/data/iterable.cpp
+        src/data/tools/channel.cpp
+        src/data/math/number/gmp/mpq.cpp
+        src/data/math/number/gmp/N.cpp
+        src/data/math/number/gmp/aks.cpp
+        src/data/math/number/gmp/sqrt.cpp
+        src/data/crypto/AES.cpp
+        include/rotella/aks.cpp
+        include/rotella/sieve.cpp
+        include/rotella/akslib.cpp
+        )
+
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY})
+target_link_libraries(data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} PkgConfig::LIBSECP256K1)
 # Set C++ version
-target_compile_features(data PUBLIC cxx_std_17)
+target_compile_features(data PUBLIC cxx_std_20)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
 
