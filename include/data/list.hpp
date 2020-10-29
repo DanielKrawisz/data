@@ -54,5 +54,22 @@ namespace data::functional::list {
     }
 }
 
+namespace data {
+    // TODO if this is a stack, need to reverse.
+    // take care of this when we use c++20. 
+    template <typename list>
+    list take(list l, uint32 x) {
+        if (x >= l.size()) return l;
+        list n = l;
+        list r{};
+        while (x > 0) {
+            r = r << n.first();
+            n = n.rest();
+            x--;
+        }
+        return r;
+    }
+}
+
 #endif
 

@@ -50,6 +50,16 @@ namespace data {
             return true;
         }
         
+        X& operator[](size_t i) {
+            if (i < 0) std::vector<X>::operator[](std::vector<X>::size() - i);
+            return std::vector<X>::operator[](i);
+        }
+        
+        const X& operator[](size_t i) const {
+            if (i < 0) std::vector<X>::operator[](std::vector<X>::size() - i);
+            return std::vector<X>::operator[](i);
+        }
+        
         explicit operator slice<X>();
         
         view<X> range(int) const;
@@ -202,9 +212,6 @@ namespace data {
         return static_cast<slice<X>>(a) == static_cast<slice<X>>(oriented<X, endian::little, size>(b));
     }
 
-}
-
-namespace data {
     template <typename X>
     inline cross<X>::cross() : std::vector<X>{} {}
     
