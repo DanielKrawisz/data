@@ -12,6 +12,7 @@ ADD_EXECUTABLE(testData
     testIntegerFormat.cpp 
     testBytestring.cpp
     testLinkedStack.cpp 
+    testLinkedTree.cpp 
     testN.cpp 
     testZ.cpp
     #testBounded.cpp 

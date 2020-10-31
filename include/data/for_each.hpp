@@ -12,11 +12,11 @@
 #include <data/meta/which.hpp>
 #include <data/meta/equal.hpp>
 #include <data/tools/linked_stack.hpp>
+#include <data/tools/linked_tree.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
 #include <data/tools/iterator_list.hpp>
-#include <data/tree/linked.hpp>
 
 namespace data::meta::functional {
     using namespace data::functional;
@@ -61,7 +61,7 @@ namespace data::meta::functional {
     struct for_each_tree {
         using input_element = typename interface::tree<input>::element;
         using output_element = typename std::invoke_result<function, input_element>::type;
-        using output = data::functional::tree::linked<output_element>;
+        using output = data::tool::linked_tree<output_element>;
         
         output operator()(const function f, const input l) const {
             return functional::tree::for_each<function, input, output>{}(f, l);
@@ -187,7 +187,7 @@ namespace data::meta::documentation {
         public meta::is_function<A, f, B>,
         public interface::tree<T> {
         
-        data::functional::tree::linked<B> use_case(f fun, T t) {
+        data::tool::linked_tree<B> use_case(f fun, T t) {
             return  for_each(fun, t);
         }
         

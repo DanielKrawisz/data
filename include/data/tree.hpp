@@ -61,6 +61,8 @@ namespace data::functional::tree {
         value Value;
         tree Left;
         tree Right;
+        
+        node(const value& v, tree l, tree r) : Value{v}, Left{l}, Right{r} {}
     };
     
 }

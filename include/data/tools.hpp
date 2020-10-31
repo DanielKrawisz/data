@@ -25,7 +25,7 @@
 #include <data/tools/linked_stack.hpp>
 #include <data/map/rb.hpp>
 #include <data/tools/functional_queue.hpp>
-#include <data/tree/linked.hpp>
+#include <data/tools/linked_tree.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/tools/ordered_list.hpp>
@@ -38,7 +38,7 @@ namespace data {
     template <typename X> using list = tool::functional_queue<stack<X>>;
     
     // tree. 
-    template <typename X> using tree = functional::tree::linked<X>;
+    template <typename X> using tree = tool::linked_tree<X>;
     
     // a functional map implemented as a red-black tree
     // wrapper of Milewski's implementation of Okasaki.

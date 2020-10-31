@@ -142,7 +142,7 @@ namespace data {
             return meta::minus<X, meta::has_minus_operator<X>::value>{}(a, b);
         }
     };
-
+/*
     template <typename quotient, typename dividend, typename divisor> struct divide {
         quotient operator()(const dividend& a, const divisor& b) {
             return meta::divide<quotient, dividend, divisor, 
@@ -155,7 +155,7 @@ namespace data {
             return meta::mod<quotient, dividend, divisor, 
                 meta::has_divide_operator<quotient, dividend, divisor>::value>{}(a, b);
         }
-    };
+    };*/
 
 }
 

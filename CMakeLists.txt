@@ -134,6 +134,6 @@ target_include_directories(data PUBLIC include)
 
 target_link_libraries(data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} PkgConfig::LIBSECP256K1)
 # Set C++ version
-target_compile_features(data PUBLIC cxx_std_20)
+target_compile_features(data PUBLIC cxx_std_17)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
 
