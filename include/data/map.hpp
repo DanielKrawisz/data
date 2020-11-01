@@ -37,13 +37,12 @@ namespace data {
             return V{};
         }
         
-        // Sorting is done with keys only. 
-        bool operator<(const entry e) {
-            return Key < e.Key;
+        bool operator==(const entry e) const {
+            return Key == e.Key && Value == e.Value;
         }
         
-        bool operator==(const entry e) {
-            return Key == e.Key;
+        bool operator!=(const entry e) const {
+            return !(*this == e);
         }
         
         bool operator<(const entry e) const {

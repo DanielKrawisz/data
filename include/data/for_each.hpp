@@ -13,7 +13,7 @@
 #include <data/meta/equal.hpp>
 #include <data/tools/linked_stack.hpp>
 #include <data/tools/linked_tree.hpp>
-#include <data/map/rb.hpp>
+#include <data/tools/rb_map.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/entry_function.hpp>
 #include <data/tools/iterator_list.hpp>
@@ -93,7 +93,7 @@ namespace data::meta::functional {
         using outer_function = typename Which<for_each_queue<entry_function<key, function, value>, list>, for_each_queue<value_function<key, function, value>, list>>::result;
         using inner_function = decltype(outer_function::Function);
         using output_value = typename inner_function::output_element::value;
-        using output = functional::rb_map<key, output_value>;
+        using output = tool::rb_map<key, output_value>;
         
         output operator()(const function f, const input m) const {
             return {outer_function{}(inner_function{f}, values(m))};
@@ -163,7 +163,7 @@ namespace data::meta::documentation {
         public meta::Equal<typename interface::map<Map>::key, Key>, 
         public meta::Equal<typename interface::map<Map>::value, A> {
         
-        functional::rb_map<Key, B> use_case(f fun, Map ka) {
+        tool::rb_map<Key, B> use_case(f fun, Map ka) {
             return for_each(fun, ka);
         }
         
@@ -176,7 +176,7 @@ namespace data::meta::documentation {
         public meta::Equal<typename interface::map<Map>::key, Key>, 
         public meta::Equal<typename interface::map<Map>::value, A> {
         
-        functional::rb_map<Key, B> use_case(f fun, Map ka) {
+        tool::rb_map<Key, B> use_case(f fun, Map ka) {
             return for_each(fun, ka);
         }
         

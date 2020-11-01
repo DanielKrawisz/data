@@ -6,7 +6,6 @@
 #define DATA_TOOLS_MAP_SET
 
 #include <data/tools/linked_stack.hpp>
-#include <data/map/rb.hpp>
 #include <data/tools/functional_queue.hpp>
     
 namespace data::tool {

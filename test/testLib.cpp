@@ -45,19 +45,6 @@ void constructability_tests() {
     data::interface::tree<tree<string>> linked_tree_is_tree;
     data::interface::tree<tree<const string&>> linked_tree_ref_is_tree;
     
-    map<string, string> test_rb_map;
-    map<string&, string> test_rb_map_reference;
-    
-    data::interface::map<map<string, string>> rb_map_is_map;
-    data::interface::map<map<const string&, string>> rb_map_ref_is_map;
-    
-    // TODO uncomment these lines. 
-    set<string> test_map_set;
-    //set<string&> test_map_set_reference;
-    
-    data::interface::set<set<string>> map_set_is_set;
-    //data::interface::set<set<string&>> map_set_ref_is_set;
-    
     // TODO prove that vector is linear. 
     
     //data::interface::natural<N> N_is_natural;

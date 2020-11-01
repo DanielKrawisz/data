@@ -92,6 +92,22 @@ namespace data {
         EXPECT_EQ(p.rest().size(), 6);
         EXPECT_EQ(p.rest().first(), 6);
     }
+    
+    TEST(LinkedStackTest, TestLinkedStackIteration) {
+        
+        stack<int> t{1, 2, 3};
+        auto i = t.begin();
+        EXPECT_NE(i, t.end());
+        EXPECT_EQ(*i, 1);
+        i++;
+        EXPECT_NE(i, t.end());
+        EXPECT_EQ(*i, 2);
+        i++;
+        EXPECT_NE(i, t.end());
+        EXPECT_EQ(*i, 3);
+        i++;
+        EXPECT_EQ(i, t.end());
+    }
 
     // TODO
     TEST(LinkedStackTest, TestLinkedStackSort) {

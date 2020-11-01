@@ -23,7 +23,7 @@
 
 // A implementations of data structures. 
 #include <data/tools/linked_stack.hpp>
-#include <data/map/rb.hpp>
+#include <data/tools/rb_map.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/linked_tree.hpp>
 #include <data/tools/map_set.hpp>
@@ -42,7 +42,7 @@ namespace data {
     
     // a functional map implemented as a red-black tree
     // wrapper of Milewski's implementation of Okasaki.
-    template <typename K, typename V> using map = functional::rb_map<K, V>;
+    template <typename K, typename V> using map = tool::rb_map<K, V>;
     
     // set implemented as a map. 
     template <typename X> using set = tool::map_set<map<X, unit>>;
