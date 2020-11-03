@@ -265,28 +265,29 @@ namespace data {
     
     namespace interface {
         
-        template <typename L>
+        template <typename L, 
+            typename elem = decltype(std::declval<const L>().first()), 
+            typename require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type,
+            typename require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type,
+            typename require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, void>::type>
         struct sequence {
-            using element = decltype(std::declval<const L>().first());
-        private:
-            using require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type;
-            using require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type;
-            using require_rest_method = typename std::enable_if<meta::has_rest_method<L>::value, void>::type;
+            using element = elem;
         }; 
         
-        template <typename L>
+        template <typename L, 
+            typename vals = decltype(std::declval<const L>().values()), 
+            typename elem = typename sequence<vals>::element, 
+            typename require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type,  
+            typename require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type, 
+            typename require_contains_method = typename std::enable_if<meta::has_contains_method<L, elem>::value, void>::type>
         struct container {
-            using values = decltype(std::declval<const L>().values());
-            using element = typename sequence<values>::element;
-        private:
-            using require_empty_method = typename std::enable_if<meta::has_empty_method<L>::value, void>::type; 
-            using require_size_method = typename std::enable_if<meta::has_size_method<L>::value, void>::type;
-            using require_contains_method = typename std::enable_if<meta::has_contains_method<L, element>::value, void>::type; 
+            using values = vals;
+            using element = elem;
         }; 
         
-        template <typename M, typename key>
+        template <typename M, typename key, typename val = decltype(std::declval<const M>()[std::declval<const key>()])>
         struct indexed {
-            using value = decltype(std::declval<const M>()[std::declval<const key>()]);
+            using value = val;
         }; 
         
     }

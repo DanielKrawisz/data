@@ -69,6 +69,12 @@ namespace data {
         }
         return r;
     }
+    
+    template <typename list>
+    list join(const list&a, const list& b) {
+        if (b.empty()) return a;
+        return join(a << b.first(), b.rest());
+    }
 }
 
 #endif

@@ -43,6 +43,7 @@ namespace data::functional {
         stack_iterator(list n, size_t i) : Next{n}, Index{i} {}
         
     public:
+        
         stack_iterator() : Next{nullptr}, Index{0} {}
         
         stack_iterator& operator=(const stack_iterator& i);
@@ -67,7 +68,7 @@ namespace std {
     
     template <typename list, typename elem> 
     struct iterator_traits<data::functional::stack_iterator<list, elem>> {
-        using value_type = remove_const_t<elem>;
+        using value_type = elem;
         using difference_type = int;
         using pointer = remove_reference_t<elem>*;
         using reference = elem&;
@@ -76,7 +77,7 @@ namespace std {
     
     template <typename list, typename elem> 
     struct iterator_traits<data::functional::stack_iterator<list, const elem>> {
-        using value_type = remove_const_t<elem>;
+        using value_type = elem;
         using difference_type = int;
         using pointer = const remove_reference_t<elem>*;
         using reference = const elem&;

@@ -8,7 +8,7 @@
 // a stack is the most basic functional data structure. 
 
 #include <type_traits>
-#include <data/iterable.hpp>
+#include <data/interface.hpp>
 #include <data/valid.hpp>
 
 namespace data::meta {

@@ -107,6 +107,9 @@ namespace data {
         EXPECT_EQ(*i, 3);
         i++;
         EXPECT_EQ(i, t.end());
+        
+        for (int x : t) ;
+        for (const int& x : t) ;
     }
 
     // TODO

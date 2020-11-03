@@ -43,6 +43,9 @@ namespace data {
         
         cross(std::initializer_list<X> x);
         
+        template<typename list, typename constraint = interface::sequence<list>>
+        explicit cross(list l);
+        
         cross(view<X> b);
         
         bool valid() const {
@@ -225,6 +228,17 @@ namespace data {
         
     template <typename X>
     inline cross<X>::cross(std::initializer_list<X> x) : std::vector<X>{x} {}
+        
+    template <typename X>
+    template<typename list, typename constraint>
+    cross<X>::cross(list l) : cross{} {
+        std::vector<X>::resize(data::size(l));
+        auto b = std::vector<X>::begin();
+        while (!l.empty()) {
+            *b = l.first();
+            l = l.rest();
+        }
+    }
         
     template <typename X>
     inline cross<X>::cross(view<X> b) : std::vector<X>(b.size()) {

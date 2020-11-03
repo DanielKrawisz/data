@@ -7,8 +7,9 @@
 
 #include <exception>
 
-#include <data/stack.hpp>
-#include "slice.hpp"
+#include <data/encoding/endian.hpp>
+#include <data/iterable.hpp>
+#include <data/slice.hpp>
 
 namespace data {
     static const std::string EndOfStreamError{"End of stream"};

@@ -8,7 +8,7 @@
 namespace milewski::okasaki {
     template<class T>
     // requires Ord<T>
-    class OrdList
+    struct OrdList
     {
         struct Item
         {
@@ -18,9 +18,9 @@ namespace milewski::okasaki {
         };
         friend Item;
         explicit OrdList(std::shared_ptr<const Item> const & items) : _head(items) {}
-    public:
+        
         // Empty list
-        OrdList() {}
+        OrdList() : _head{nullptr} {}
         // Cons
         OrdList(T v, OrdList const & tail) : _head(std::make_shared<Item>(v, tail._head))
         {
@@ -48,8 +48,12 @@ namespace milewski::okasaki {
         }
         // For debugging
         int headCount() const { return _head.use_count(); }
-    private:
+        
         std::shared_ptr<const Item> _head;
+        
+        bool operator==(const OrdList o) const { return _head == o._head; }
+        
+        bool operator!=(const OrdList o) const { return _head != o._head; }
     };
 
 
