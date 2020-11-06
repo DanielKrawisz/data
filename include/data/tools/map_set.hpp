@@ -11,10 +11,10 @@
 namespace data::tool {
     
     // turn any map into a set. 
-    template <typename M>
+    template <typename M, 
+        typename key = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>().keys().first())>::type>::type, 
+        typename value = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>()[std::declval<key>()])>::type>::type>
     struct map_set {
-        using key = typename interface::map<M>::key;
-        using value  = typename interface::map<M>::value;
         
         // functional queue built using the list. 
         template <typename X> using list = tool::functional_queue<tool::linked_stack<X>>;

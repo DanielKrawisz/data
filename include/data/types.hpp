@@ -43,6 +43,14 @@ namespace data {
     }
     
     struct unit {};
+    
+    inline bool operator==(const unit a, const unit b) {
+        return true;
+    }
+    
+    inline bool operator!=(const unit a, const unit b) {
+        return false;
+    }
 }
 
 #endif

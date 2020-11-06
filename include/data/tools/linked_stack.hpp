@@ -147,7 +147,8 @@ namespace data::tool {
     template <typename elem>
     inline bool linked_stack<elem>::valid() const {
         if (empty()) return true;
-        return Next->valid();
+        if (!data::valid(first())) return false;
+        return rest().valid();
     }
     
     template <typename elem>
