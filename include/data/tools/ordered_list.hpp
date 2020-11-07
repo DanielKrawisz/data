@@ -11,43 +11,48 @@
     
 namespace data::tool {
     
-    template <typename value> 
+    template <typename element> 
     class ordered_list {
         uint32 Size;
-        milewski::okasaki::OrdList<value> Ordered;
+        milewski::okasaki::OrdList<element> Ordered;
     public:
         ordered_list();
-        explicit ordered_list(const functional_queue<linked_stack<value>>& l);
-        
-        bool operator==(const ordered_list x) const;
-        bool operator!=(const ordered_list x) const;
+        explicit ordered_list(const functional_queue<linked_stack<element>>& l);
         
         bool empty() const;
         size_t size() const;
         
-        ordered_list insert(const value& x) const;
-        ordered_list operator<<(const value& x) const;
+        bool valid() const;
+        
+        ordered_list insert(const element& x) const;
+        ordered_list operator<<(const element& x) const;
         
         ordered_list rest() const;
-        const value& first() const;
+        const element& first() const;
         
-        const value& operator[](uint32 n) const;
+        const element& operator[](uint32 n) const;
         
-        const value& last() const;
+        const element& last() const;
+        
+        template <typename seq>
+        bool operator==(const seq& x) const;
+        
+        template <typename seq>
+        bool operator!=(const seq& x) const;
         
         struct const_iterator {
             const_iterator() : Ordered{} {}
             
-            const value& operator*() const;
+            const element& operator*() const;
             
             const_iterator& operator++();
             bool operator==(const const_iterator) const;
             bool operator!=(const const_iterator) const;
         private:
-            milewski::okasaki::OrdList<value>* Ordered;
-            const_iterator(milewski::okasaki::OrdList<value>* o) : Ordered{o} {}
+            milewski::okasaki::OrdList<element> Ordered;
+            const_iterator(milewski::okasaki::OrdList<element> o) : Ordered{o} {}
             
-            friend struct ordered_list;
+            friend class ordered_list;
         };
         
         const_iterator begin() const {
@@ -59,16 +64,16 @@ namespace data::tool {
         }
         
     private:
-        const value& last_private() const;
+        const element& last_private() const;
         
-        ordered_list(uint32 size, milewski::okasaki::OrdList<value> ordered);
+        ordered_list(uint32 size, milewski::okasaki::OrdList<element> ordered);
     };
 
-    template <typename value>
-    std::ostream& operator<<(std::ostream& o, const data::tool::ordered_list<value>& l) {
+    template <typename element>
+    std::ostream& operator<<(std::ostream& o, const data::tool::ordered_list<element>& l) {
         o << "ordered_list{";
         if (!l.empty()) {
-            data::tool::ordered_list<value> x = l;
+            data::tool::ordered_list<element> x = l;
             while(true) {
                 o << x.first();
                 x = x.rest();
@@ -79,104 +84,113 @@ namespace data::tool {
         return o << "}";
     }
     
-    template <typename value>
-    inline ordered_list<value>::ordered_list() : Size{0}, Ordered{} {}
+    template <typename element>
+    bool ordered_list<element>::valid() const {
+        if (empty()) return true;
+        if (!data::valid(first())) return false;
+        return rest().valid();
+    }
+    
+    template <typename element>
+    inline ordered_list<element>::ordered_list() : Size{0}, Ordered{} {}
         
-    template <typename value>
-    ordered_list<value>::ordered_list(const functional_queue<linked_stack<value>>& l) : ordered_list{} {
-        functional_queue<linked_stack<value>> g = l;
+    template <typename element>
+    ordered_list<element>::ordered_list(const functional_queue<linked_stack<element>>& l) : ordered_list{} {
+        functional_queue<linked_stack<element>> g = l;
         while(!data::empty(g)) {
             *this << g.first();
             g = g.rest();
         }
     }
         
-    template <typename value>
-    bool ordered_list<value>::operator==(const ordered_list x) const {
-        if (Size != x.Size) return false;
+    template <typename element>
+    template <typename seq>
+    bool ordered_list<element>::operator==(const seq& x) const {
+        if (Size != x.size()) return false;
         if (Size == 0) return true;
         if (first() != x.first()) return false;
         return rest() == x.rest();
     }
     
-    template <typename value>
-    bool ordered_list<value>::operator!=(const ordered_list x) const {
+    template <typename element>
+    template <typename seq>
+    bool ordered_list<element>::operator!=(const seq& x) const {
         return !operator==(x);
     }
     
-    template <typename value>
-    bool ordered_list<value>::empty() const {
+    template <typename element>
+    bool ordered_list<element>::empty() const {
         return Size == 0;
     }
     
-    template <typename value>
-    size_t ordered_list<value>::size() const {
+    template <typename element>
+    size_t ordered_list<element>::size() const {
         return Size;
     }
     
-    template <typename value>
-    ordered_list<value> ordered_list<value>::insert(const value& x) const {
+    template <typename element>
+    ordered_list<element> ordered_list<element>::insert(const element& x) const {
         return {Size + 1, Ordered.inserted(x)};
     }
     
-    template <typename value>
-    ordered_list<value> ordered_list<value>::operator<<(const value& x) const {
+    template <typename element>
+    ordered_list<element> ordered_list<element>::operator<<(const element& x) const {
         return {Size + 1, Ordered.inserted(x)};
     }
     
-    template <typename value>
-    ordered_list<value> ordered_list<value>::rest() const {
+    template <typename element>
+    ordered_list<element> ordered_list<element>::rest() const {
         if (Size == 0) return {};
         return {Size - 1, Ordered.popped_front()};
     }
     
-    template <typename value>
-    const value& ordered_list<value>::first() const {
+    template <typename element>
+    const element& ordered_list<element>::first() const {
         return Ordered.front();
     }
     
-    template <typename value>
-    const value& ordered_list<value>::operator[](uint32 n) const {
+    template <typename element>
+    const element& ordered_list<element>::operator[](uint32 n) const {
         if (n >= Size) throw std::out_of_range{"ordered list"};
         if (n == 0) return first();
         return rest()[n - 1];
     }
     
-    template <typename value>
-    const value& ordered_list<value>::last() const {
+    template <typename element>
+    const element& ordered_list<element>::last() const {
         if (Size == 0) throw std::out_of_range{"ordered list"};
         return last_private();
     }
     
-    template <typename value>
-    const value& ordered_list<value>::last_private() const {
+    template <typename element>
+    const element& ordered_list<element>::last_private() const {
         if (Size == 1) return first();
         return rest().last_private();
     }
     
-    template <typename value>
-    inline const value& ordered_list<value>::const_iterator::operator*() const {
+    template <typename element>
+    inline const element& ordered_list<element>::const_iterator::operator*() const {
         return Ordered.front();
     }
     
-    template <typename value>
-    inline bool ordered_list<value>::const_iterator::operator==(const const_iterator i) const {
+    template <typename element>
+    inline bool ordered_list<element>::const_iterator::operator==(const const_iterator i) const {
         return Ordered == i.Ordered;
     }
     
-    template <typename value>
-    inline bool ordered_list<value>::const_iterator::operator!=(const const_iterator i) const {
+    template <typename element>
+    inline bool ordered_list<element>::const_iterator::operator!=(const const_iterator i) const {
         return !(*this == i);
     }
     
-    template <typename value>
-    typename ordered_list<value>::const_iterator& ordered_list<value>::const_iterator::operator++() {
+    template <typename element>
+    typename ordered_list<element>::const_iterator& ordered_list<element>::const_iterator::operator++() {
         if (!Ordered.isEmpty()) Ordered = Ordered.popped_front();
         return *this;
     }
     
-    template <typename value>
-    ordered_list<value>::ordered_list(uint32 size, milewski::okasaki::OrdList<value> ordered) : Size{size}, Ordered{ordered} {}
+    template <typename element>
+    ordered_list<element>::ordered_list(uint32 size, milewski::okasaki::OrdList<element> ordered) : Size{size}, Ordered{ordered} {}
 }
 
 #endif

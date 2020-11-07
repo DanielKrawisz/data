@@ -10,11 +10,33 @@
     
 namespace data::tool {
     
+    struct unit {
+        bool Valid;
+        
+        unit(bool b) : Valid{b} {}
+        unit() : Valid{false} {}
+        
+        bool operator==(unit x) {
+            return Valid == x.Valid;
+        }
+        
+        bool operator!=(unit x) {
+            return Valid != x.Valid;
+        }
+    };
+    
+    inline std::ostream& operator<<(std::ostream& o, unit) {
+        return o << "unit" << std::endl;
+    }
+    
     // turn any map into a set. 
     template <typename M, 
-        typename key = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>().keys().first())>::type>::type, 
-        typename value = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>()[std::declval<key>()])>::type>::type>
+        typename K = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>().keys().first())>::type>::type, 
+        typename V = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>()[std::declval<K>()])>::type>::type, 
+        typename constraint = typename std::enable_if<std::is_same<unit, V>::value, void>::type>
     struct map_set {
+        using key = K;
+        using value = V;
         
         // functional queue built using the list. 
         template <typename X> using list = tool::functional_queue<tool::linked_stack<X>>;
@@ -34,7 +56,7 @@ namespace data::tool {
         }
         
         map_set insert(const key& k) const {
-            return map_set{Map.insert(k, value{})};
+            return map_set{Map.insert(k, value{true})};
         }
         
         map_set insert(list<key> keys) const {
@@ -42,7 +64,7 @@ namespace data::tool {
             return insert(keys.first()).insert(keys.rest());
         }
         
-        map_set insert(map_set<M> m) const {
+        map_set insert(map_set m) const {
             auto v = m.values();
             auto q = *this;
             while (!v.empty()) {
@@ -57,11 +79,10 @@ namespace data::tool {
         }
         
         map_set remove(const key& k) const {
-            return map_set{Map.remove(k, value{})};
+            return map_set{Map.remove(k, value{true})};
         }
         
-        // TODO make this a list<const key&> 
-        list<key> values() const {
+        const ordered_list<key> values() const {
             return Map.keys();
         }
         
@@ -72,34 +93,7 @@ namespace data::tool {
         }
         
         bool operator==(const map_set& m) const {
-            if (size() != m.size()) return false;
-            if (size() == 0) return true;
-            auto left_entry = values().first();
-            auto right_entry = m.values().first();
-            auto left = values().rest();
-            auto right = m.values().rest();
-            while(true) {
-                if (left_entry == right_entry) {
-                    if (left.empty()) return true;
-                    left_entry = left.first();
-                    right_entry = right.first();
-                    left = left.rest();
-                    right = right.rest();
-                } else {
-                    auto left_look_ahead = left;
-                    auto left_look_ahead_entry = left_entry;
-                    while (true) {
-                        if (left_look_ahead_entry > right_entry) return false;
-                        if (left_look_ahead.empty()) return false;
-                        left_look_ahead = left_look_ahead.rest();
-                        left_look_ahead_entry = left_look_ahead.first();
-                        if (left_look_ahead_entry == right_entry) goto loop;
-                    }
-                    return false;
-                } 
-                loop:;
-            }
-            
+            return values() == m.values();
         }
         
         bool operator!=(const map_set& m) const {
@@ -111,13 +105,49 @@ namespace data::tool {
         }
         
         map_set operator|(const map_set& m) const {
-            throw method::unimplemented{""};
+            auto a = values();
+            auto b = values();
+            map_set x{};
+            
+            while(!a.empty() && !b.empty()) {
+                auto i = a.first();
+                auto j = b.first();
+                if (i == j) {
+                    x = x.insert(i);
+                    a = a.rest();
+                    b = b.rest();
+                } else if(i < j) a = a.rest();
+                else b = b.rest();
+            }
+            
+            return x;
         }
         
         map_set operator-(const map_set& m) const {
-            throw method::unimplemented{""};
+            auto a = values();
+            auto b = values();
+            map_set x{};
+            
+            while(!a.empty() && !b.empty()) {
+                auto i = a.first();
+                auto j = b.first();
+                if (i == j) {
+                    a = a.rest();
+                    b = b.rest();
+                } if(i < j) {
+                    x = x.insert(i);
+                    a = a.rest();
+                } else b = b.rest();
+            }
+            
+            return x;
         }
     };
+    
+    template <typename M, typename K, typename V, typename X>
+    inline std::ostream& operator<<(std::ostream& o, const map_set<M, K, V, X>& m) {
+        return functional::stack::write(o << "set", m.values());
+    }
 
 }
 

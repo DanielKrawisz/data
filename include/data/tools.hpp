@@ -45,7 +45,7 @@ namespace data {
     template <typename K, typename V> using map = tool::rb_map<K, V>;
     
     // set implemented as a map. 
-    template <typename X> using set = tool::map_set<map<X, unit>>;
+    template <typename X> using set = tool::map_set<map<X, tool::unit>>;
     
     // priority queue. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using priority_queue = tool::priority_queue<X, list<X>>;

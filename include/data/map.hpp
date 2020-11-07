@@ -7,7 +7,7 @@
 
 #include "types.hpp"
 #include "set.hpp"
-    
+
 namespace data {
 
     template <typename K, typename V>
@@ -21,7 +21,7 @@ namespace data {
         entry(const K k) : Key(k), Value{} {}
         
         bool valid() const {
-            return Value != V{};
+            return data::valid(Key) && data::valid(Value);
         }
         
         const K key() const {
@@ -61,6 +61,11 @@ namespace data {
             return Key > e.Key;
         }
     };
+    
+    template <typename K, typename V>
+    inline std::ostream& operator<<(std::ostream& o, const entry<K, V>& e) {
+        return o << e.Key << " => " << e.Value;
+    }
     
     namespace meta {
         

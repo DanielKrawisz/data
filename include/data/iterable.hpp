@@ -36,7 +36,7 @@ namespace data {
     // The cartesian product. 
     // it is the same as a vector except that it can be
     // automatically cast to view. 
-    template <typename X> struct cross : public std::vector<X> {
+    template <typename X> struct cross : std::vector<X> {
         cross();
         cross(size_t size);
         cross(size_t size, X fill);
@@ -53,14 +53,12 @@ namespace data {
             return true;
         }
         
-        X& operator[](size_t i) {
-            if (i < 0) std::vector<X>::operator[](std::vector<X>::size() - i);
-            return std::vector<X>::operator[](i);
+        X& operator[](int i) {
+            return std::vector<X>::operator[](i < 0 ? std::vector<X>::size() + i : i);
         }
         
-        const X& operator[](size_t i) const {
-            if (i < 0) std::vector<X>::operator[](std::vector<X>::size() - i);
-            return std::vector<X>::operator[](i);
+        const X& operator[](int i) const {
+            return std::vector<X>::operator[](i < 0 ? std::vector<X>::size() + i : i);
         }
         
         explicit operator slice<X>();

@@ -41,16 +41,6 @@ namespace data {
         using yes = std::true_type;
         using no = std::false_type;
     }
-    
-    struct unit {};
-    
-    inline bool operator==(const unit a, const unit b) {
-        return true;
-    }
-    
-    inline bool operator!=(const unit a, const unit b) {
-        return false;
-    }
 }
 
 #endif

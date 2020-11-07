@@ -21,14 +21,11 @@ namespace data::tool {
         
     public:
         linked_stack();
-        linked_stack(const linked_stack& l);
         linked_stack(const elem& e, const linked_stack& l);
         linked_stack(const elem& e);
         
         template<typename ... P>
         linked_stack(const elem& a, const elem& b, P... p);
-        
-        linked_stack& operator=(const linked_stack& l);
         
         // if the list is empty, then this function
         // will dereference a nullptr. It is your
@@ -77,7 +74,7 @@ namespace data::tool {
         bool operator==(const data::tool::linked_stack<X>& x) const {
             if ((void*)(Next.get()) == (void*)(x.Next.get())) return true;
             if (size() != x.size()) return false;
-            if (Next == nullptr || x.Next == nullptr) return false;
+            if (empty()) return true;
             if (first() != x.first()) return false;
             return (rest() == x.rest());
         }
@@ -100,9 +97,6 @@ namespace data::tool {
     inline linked_stack<elem>::linked_stack() : Next{nullptr} {}
     
     template <typename elem>
-    inline linked_stack<elem>::linked_stack(const linked_stack& l) : linked_stack{l.Next} {}
-    
-    template <typename elem>
     inline linked_stack<elem>::linked_stack(const elem& e, const linked_stack& l) : linked_stack{std::make_shared<node>(e, l)} {}
     
     template <typename elem>
@@ -112,12 +106,6 @@ namespace data::tool {
     template <typename ... P>
     inline linked_stack<elem>::linked_stack(const elem& a, const elem& b, P... p) : 
         linked_stack{a, linked_stack{b, linked_stack{p...}}} {} 
-    
-    template <typename elem>
-    inline linked_stack<elem>& linked_stack<elem>::operator=(const linked_stack& l) {
-        Next = l.Next;
-        return *this;
-    } 
     
     // if the list is empty, then this function
     // will dereference a nullptr. It is your

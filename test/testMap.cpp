@@ -35,6 +35,13 @@ namespace data {
         EXPECT_TRUE(m4.values() != v1);
     }
     
+    TEST(MapTest, TestMapEmpty) {
+        int i = 3;
+        map<int, int*> m{{0, &i}};
+        EXPECT_EQ(m[0], &i);
+        EXPECT_EQ(m[1], nullptr);
+    }
+    
     TEST(MapTest, TestRemoveFromMap) {
         
         map<int, int> m1{{2, 1}, {3, 5}, {1, 7}};

@@ -50,7 +50,7 @@ namespace data::tool {
         
         const ordered_list<K> keys() const;
         
-        const linked_stack<entry> values() const;
+        const ordered_list<entry> values() const;
         
         bool operator==(const rb_map& map) const;
         
@@ -58,12 +58,17 @@ namespace data::tool {
             return !(*this == map);
         }
         
-        using const_iterator = typename linked_stack<entry>::const_iterator;
+        using const_iterator = typename ordered_list<entry>::const_iterator;
         
         const_iterator begin() const;
         const_iterator end() const;
         
     };
+    
+    template <typename K, typename V>
+    inline std::ostream& operator<<(std::ostream& o, const rb_map<K, V>& x) {
+        return functional::stack::write(o << "map", x.values());
+    }
     
     template <typename K, typename V>
     inline rb_map<K, V>::rb_map(std::initializer_list<std::pair<K, V> > init) : Map{}, Size{0} {
@@ -84,25 +89,30 @@ namespace data::tool {
     
     template <typename K, typename V>
     const ordered_list<K> rb_map<K, V>::keys() const {
-        ordered_list<K> kk{};
+        linked_stack<K> kk{};
         milewski::okasaki::forEach(Map, [&kk](const K& k, V) -> void {
             kk = kk << k;
         });
-        return kk;
+        ordered_list<K> x{};
+        for (const auto& k : data::reverse(kk)) x = x << k;
+        return x;
     }
     
     template <typename K, typename V>
-    const linked_stack<entry<K, V>> rb_map<K, V>::values() const {
+    const ordered_list<entry<K, V>> rb_map<K, V>::values() const {
         linked_stack<entry> kk{};
         milewski::okasaki::forEach(Map, [&kk](const K& k, V v) -> void {
             kk = kk << entry{k, v};
         });
-        return data::reverse(kk);
+        ordered_list<entry> x{};
+        for (const auto& e : data::reverse(kk)) x = x << e;
+        return x;
     }
     
     template <typename K, typename V>
     inline const V& rb_map<K, V>::operator[](const K& k) const {
-        return Map.findWithDefault(V{}, k);
+        static V Default{};
+        return Map.findWithDefault(Default, k);
     }
     
     template <typename K, typename V>
@@ -165,7 +175,7 @@ namespace data::tool {
     
     template <typename K, typename V>
     inline typename rb_map<K, V>::const_iterator rb_map<K, V>::end() const {
-        return const_iterator{size()};
+        return values().end();
     }
     
 }
