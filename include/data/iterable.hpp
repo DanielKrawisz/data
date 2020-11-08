@@ -72,6 +72,18 @@ namespace data {
         slice<X> range(data::range r);
     };
     
+    template <typename X>
+    std::ostream& operator<<(std::ostream& o, const cross<X>& s) {
+        auto b = s.begin();
+        while (true) {
+            if (b == s.end()) return o << "]";
+            else if (b == s.begin()) o << "[";
+            else o << ", ";
+            o << *b;
+            b++;
+        }
+    }
+    
     template <typename X, size_t size> struct array : public cross<X> {
         array() : cross<X>{size} {}
         array(X fill) : cross<X>{size, fill} {}
@@ -183,7 +195,7 @@ namespace data {
     template <typename X> 
     oriented<X, endian::big> trim(oriented<X, endian::big>, X fill);
 
-    std::ostream& operator<<(std::ostream& o, const data::bytes& s);
+    std::ostream& operator<<(std::ostream& o, const bytes& s);
 
     template <typename X>
     inline bool operator==(
