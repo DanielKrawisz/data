@@ -74,7 +74,7 @@ namespace data::encoding::hex {
     public:
         explicit operator bytes_view() const {
             if (ToBytes == nullptr) throw invalid{Format, *this};
-            return bytes_view(*ToBytes);
+            return Bytes;
         }
         
         bool valid() const noexcept {

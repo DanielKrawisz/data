@@ -117,6 +117,7 @@ namespace data::endian {
         using boost_arith::data;
         using boost_arith::boost_arith;
         using iterator = byte*;
+        using const_iterator = byte const*;
         
         arithmetic(const boost_arith& x) : boost_arith(x) {}
         
@@ -124,7 +125,7 @@ namespace data::endian {
             return data();
         }
         
-        const iterator begin() const {
+        const_iterator begin() const {
             return data();
         }
         
@@ -132,7 +133,7 @@ namespace data::endian {
             return data() + bytes;
         }
         
-        const iterator end() const {
+        const_iterator end() const {
             return data() + bytes;
         }
         
@@ -143,13 +144,10 @@ namespace data::endian {
         using opposite_endian = arithmetic<opposite(Order), is_signed, bytes>;
         
         explicit operator opposite_endian() const {
-            return opposite_endian{
-                boost::endian::endian_arithmetic<Order, native_type, 8 * bytes, boost::endian::align::no>::operator native_type()};
+            return opposite_endian{native_type()};
         }
         
-        explicit arithmetic(const opposite_endian& x) {
-            *this = arithmetic(x);
-        }
+        explicit arithmetic(const opposite_endian& x) : boost_arith{native_type(x)} {}
     };
     
 }

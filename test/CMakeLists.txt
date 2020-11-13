@@ -6,6 +6,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 ADD_EXECUTABLE(testData 
+    testEndian.cpp 
     testHex.cpp 
     testAscii.cpp 
     testStream.cpp 
