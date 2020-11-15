@@ -97,8 +97,6 @@ if(NTL_FOUND)
 endif()
 # compile time regular expressions
 
-find_package(ctre REQUIRED)
-
 ## Enable testing
 include(CTest)
 
