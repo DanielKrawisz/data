@@ -13,12 +13,11 @@
 #include <data/math/division.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
-#include <ctre.hpp>
+#include <boost/regex.hpp>
 
 namespace data::encoding {
     namespace decimal {
-        constexpr auto pattern = ctll::fixed_string{"^0|([1-9][0-9]*)$"};
-        
+        static const boost::regex pattern{"^0|([1-9][0-9]*)$"};
         inline std::string characters() {
             return "0123456789";
         }
@@ -28,7 +27,7 @@ namespace data::encoding {
         }
         
         inline bool valid(string_view s) {
-            return ctre::match<pattern>(s);
+            return boost::regex_match(s.data(),pattern);
         } 
         
         inline bool nonzero(string_view s) {
@@ -80,20 +79,18 @@ namespace data::encoding {
     };
     
     namespace hexidecimal {
-        constexpr auto pattern = ctll::fixed_string{"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
-        
-        constexpr auto zero_pattern = ctll::fixed_string{"^0x(00)*$"};
-        
+        static const boost::regex pattern{"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
+        static const boost::regex zero_pattern{"^0x(00)*$"};
         inline bool valid(string_view s) {
-            return ctre::match<pattern>(s);
+            return boost::regex_match(s.data(),pattern);
         } 
         
         inline bool zero(string_view s) {
-            return ctre::match<zero_pattern>(s);
+            return boost::regex_match(s.data(),zero_pattern);
         }
         
         inline bool nonzero(string_view s) {
-            return valid(s) && !ctre::match<zero_pattern>(s);
+            return valid(s) && !boost::regex_match(s.data(),zero_pattern);
         }
         
         inline uint32 digits(string_view s) {
@@ -159,21 +156,20 @@ namespace data::encoding {
     };
     
     namespace natural {
-        constexpr auto pattern = ctll::fixed_string{
-            "^0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
-        
-        constexpr auto zero_pattern = ctll::fixed_string{"^0|0x(00)*$"};
+        static const boost::regex pattern{"^0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
+
+        static const boost::regex zero_pattern{"^0|0x(00)*$"};
         
         inline bool valid(string_view s) {
-            return ctre::match<pattern>(s);
+            return boost::regex_match(s.data(),pattern);
         } 
         
         inline bool zero(string_view s) {
-            return ctre::match<zero_pattern>(s);
+            return boost::regex_match(s.data(),zero_pattern);
         }
         
         inline bool nonzero(string_view s) {
-            return valid(s) && !ctre::match<zero_pattern>(s);
+            return valid(s) && ! boost::regex_match(s.data(),zero_pattern);
         }
         
         inline uint32 digits(string_view s) {
@@ -184,29 +180,24 @@ namespace data::encoding {
     };
     
     namespace integer {
-        constexpr auto pattern = ctll::fixed_string{
-            "^0|(-?[1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
-        
-        constexpr auto zero_pattern = ctll::fixed_string{
-            "^0|0x(00)*$"};
-        
-        constexpr auto negative_pattern = ctll::fixed_string{
-            "^(-(0*[1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
+        static const boost::regex pattern{"^0|(-?[1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))$"};
+        static const boost::regex zero_pattern {"^0|0x(00)*$"};
+        static const boost::regex negative_pattern{"^(-(0*[1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
         
         inline bool valid(string_view s) {
-            return ctre::match<pattern>(s);
+            return boost::regex_match(s.data(),pattern);
         } 
         
         inline bool negative(string_view s) {
-            return ctre::match<negative_pattern>(s);
+            return boost::regex_match(s.data(),negative_pattern);
         }
         
         inline bool zero(string_view s) {
-            return ctre::match<zero_pattern>(s);
+            return boost::regex_match(s.data(),zero_pattern);
         }
         
         inline bool nonzero(string_view s) {
-            return valid(s) && !ctre::match<zero_pattern>(s);
+            return valid(s) && ! boost::regex_match(s.data(),zero_pattern);
         }
         
         inline uint32 digits(string_view s) {

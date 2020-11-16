@@ -10,7 +10,7 @@
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
 #include <data/iterable.hpp>
-#include <ctre.hpp>
+#include <boost/regex.hpp>
 #include <algorithm>
 #include <iostream>
 
@@ -19,11 +19,11 @@ namespace data::encoding::base58 {
     const std::string Format{"base58"};
     
     inline std::string characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
-    
-    constexpr auto pattern = ctll::fixed_string{"^1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)$"};
+
+    static const boost::regex pattern {"^1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)$"};
     
     inline bool valid(const string_view s) {
-        return ctre::match<pattern>(s);
+        return boost::regex_match(s.data(),pattern);
     }
     
     inline char digit(char c) {
