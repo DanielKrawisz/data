@@ -83,7 +83,7 @@ if(CRYPTOPP_INCLUDE_DIRS)
 endif()
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBSECP256K1 REQUIRED IMPORTED_TARGET libsecp256k1)
+#pkg_check_modules(LIBSECP256K1 REQUIRED IMPORTED_TARGET libsecp256k1)
 
 # Find GMP
 find_package(GMP REQUIRED)
@@ -129,7 +129,9 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} PkgConfig::LIBSECP256K1)
+target_link_libraries(data ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} 
+#PkgConfig::LIBSECP256K1
+)
 # Set C++ version
 target_compile_features(data PUBLIC cxx_std_17)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
