@@ -33,7 +33,7 @@ namespace data {
     struct istream {
         it Begin;
         it End;
-        istream(it b, it e) : Begin{b}, End{e} {}
+        istream(const it b, const it e) : Begin{b}, End{e} {}
         
         bool empty() const {
             return Begin == End;
@@ -76,7 +76,7 @@ namespace data {
         istream<byte, it> Reader;
         
         reader(istream<byte, it> r) : Reader{r} {}
-        reader(it b, it e) : Reader{b, e} {}
+        reader(const it b, const it e) : Reader{b, e} {}
         reader(const reader& r) : Reader{r.Reader} {}
         
         template <boost::endian::order Order, bool is_signed, std::size_t bytes>
