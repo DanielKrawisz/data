@@ -38,6 +38,11 @@ namespace data::math::number {
         friend struct AKS<N>;
     };
     
+    template <typename N>
+    inline std::ostream& operator<<(std::ostream& o, const prime<N>& p) {
+        return o << "prime{" << p.Prime << "}";
+    }
+    
 }
 
 #endif
