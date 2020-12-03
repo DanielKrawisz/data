@@ -82,6 +82,13 @@ if(CRYPTOPP_INCLUDE_DIRS)
     include_directories(${CRYPTOPP_INCLUDE_DIRS})
 endif()
 
+
+#find_package(ICU 60.2 COMPONENTS uc i18n REQUIRED)
+find_package(OpenSSL REQUIRED)
+message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 find_package(PkgConfig REQUIRED)
 #pkg_check_modules(LIBSECP256K1 REQUIRED IMPORTED_TARGET libsecp256k1)
 
