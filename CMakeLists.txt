@@ -45,6 +45,7 @@ if(NOT TARGET gtest_main AND PACKAGE_TESTS)
     # the gtest and gtest_main targets.
     add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
             ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
+    include(GoogleTest)
 endif()
 
 

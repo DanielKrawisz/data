@@ -5,107 +5,41 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-ADD_EXECUTABLE(testData 
-    testEndian.cpp 
-    testHex.cpp 
-    testAscii.cpp 
-    testStream.cpp 
-    testIntegerFormat.cpp 
-    testBytestring.cpp
-    testLinkedStack.cpp 
-    testMap.cpp
-    testLinkedTree.cpp 
-    testN.cpp 
-    testZ.cpp
-    #testBounded.cpp 
-    testBase58.cpp 
-    testStringNumbers.cpp 
-    testExtendedEuclidian.cpp 
-    testEratosthenes.cpp 
-    testFiniteField.cpp 
-    testPolynomial.cpp 
-    testPermutation.cpp 
-    #testBitShift.cpp 
-    #testSign.cpp
-    #testNBytes.cpp 
-    #testZBytes.cpp 
-    testLib.cpp)
-link_directories(${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
-target_link_libraries(testData data gmock_main)
+macro(package_add_test TESTNAME)
+    # create an exectuable in which the tests will be stored
+    add_executable(${TESTNAME} ${ARGN})
+    # link the Google test infrastructure, mocking library, and a default main fuction to
+    # the test executable.  Remove g_test_main if writing your own main function.
+    target_include_directories(${TESTNAME} PUBLIC . ${Boost_LIBRARY_DIR} ${LIB_BITCOIN_LIBRARY_DIR})
+    target_link_libraries(${TESTNAME} gmock_main data gtest_main)
+    # gtest_discover_tests replaces gtest_add_tests,
+    # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
 
-# Test Stream
-add_test(NAME StreamWriteUint16Big COMMAND testData)
-add_test(NAME StreamWriteUint16Little COMMAND testData)
-add_test(NAME StreamWriteUint32Big COMMAND testData)
-add_test(NAME StreamWriteUint32Little COMMAND testData)
-add_test(NAME StreamWriteUint64Big COMMAND testData)
-add_test(NAME StreamWriteUint64Little COMMAND testData)
-add_test(NAME StreamWriteBytes COMMAND testData)
-add_test(NAME StreamReadUint16Big COMMAND testData)
-add_test(NAME StreamReadUint16Little COMMAND testData)
-add_test(NAME StreamReadUint32Big COMMAND testData)
-add_test(NAME StreamReadUint32Little COMMAND testData)
-add_test(NAME StreamReadUint64Big COMMAND testData)
-add_test(NAME StreamReadUint64Little COMMAND testData)
-add_test(NAME StreamReadBytes COMMAND testData)
+    gtest_discover_tests(${TESTNAME}
+            # set a working directory so your project root so that you can find test data via paths relative to the project root
+            SOURCES ${ARGN}
+            WORKING_DIRECTORY ${PROJECT_DIR}
+            PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
+            )
+    set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
+endmacro()
 
-# Test Hex
-add_test(NAME HexHexToArray COMMAND testData)
-add_test(NAME HexValidString COMMAND testData)
-add_test(NAME HexInvalidExceptionOnError COMMAND testData)
-add_test(NAME HexWriteBytes COMMAND testData)
-
-# Test Ascii
-add_test(NAME AsciiInvalidAscii COMMAND testData)
-add_test(NAME AsciiValidAscii COMMAND testData)
-add_test(NAME AsciiCastToBytes COMMAND testData)
-
-# Test Base58
-add_test(NAME Base58Invert COMMAND testData)
-add_test(NAME Base58ToArray COMMAND testData)
-add_test(NAME Base58ValidString COMMAND testData)
-add_test(NAME Base58InvalidExceptionOnError COMMAND testData)
-
-#Test Integer Format
-add_test(NAME TestIntegerFormat COMMAND testData)
-
-#Test Linked Stack
-add_test(NAME TestLinkedStack1 COMMAND testData)
-add_test(NAME TestLinkedStack2 COMMAND testData)
-add_test(NAME TestLinkedStackR COMMAND testData)
-add_test(NAME TestLinkedStackSort COMMAND testData)
-
-#Test Sign
-add_test(NAME TestAbs COMMAND testData)
-add_test(NAME TestArg COMMAND testData)
-add_test(NAME TestSign COMMAND testData)
-
-#Test N
-add_test(NAME TestStringToN COMMAND testData)
-add_test(NAME TestMultiply COMMAND testData)
-add_test(NAME TestShift COMMAND testData)
-add_test(NAME TestNToNBytes COMMAND testData)
-add_test(NAME TestN COMMAND testData)
-
-# Test Digest
-add_test(NAME DigestEqual COMMAND testData)
-add_test(NAME DigestNotEqual COMMAND testData)
-add_test(NAME DigestOrdering COMMAND testData)
-add_test(NAME SHA256 COMMAND testData)
-
-# Test Bounded
-add_test(NAME BoundedMinMax COMMAND testData)
-add_test(NAME BoundedReadString COMMAND testData)
-add_test(NAME Bounded01 COMMAND testData)
-add_test(NAME BoundedSign COMMAND testData)
-add_test(NAME BoundedBitShift COMMAND testData)
-
-#Test Extended Euclidian
-add_test(NAME TestDivision COMMAND testData)
-add_test(NAME TestExtendedEuclidian COMMAND testData)
-
-#Test Polynomial
-add_test(NAME TestPolynomial COMMAND testData)
-
-#Test Eratosthenes
-add_test(NAME TestEratosthenes COMMAND testData)
+package_add_test(testEndian testEndian.cpp)
+package_add_test(testHex testHex.cpp)
+package_add_test(testAscii testAscii.cpp)
+package_add_test(testStream testStream.cpp)
+package_add_test(testIntegerFormat testIntegerFormat.cpp)
+package_add_test(testBytestring testBytestring.cpp)
+package_add_test(testLinkedStack testLinkedStack.cpp)
+package_add_test(testMap testMap.cpp)
+package_add_test(testLinkedTree testLinkedTree.cpp)
+package_add_test(testN testN.cpp)
+package_add_test(testZ testZ.cpp)
+package_add_test(testBase58 testBase58.cpp)
+package_add_test(testStringNumbers testStringNumbers.cpp)
+package_add_test(testExtendedEuclidian testExtendedEuclidian.cpp)
+package_add_test(testEratosthenes testEratosthenes.cpp)
+package_add_test(testFiniteField testFiniteField.cpp)
+package_add_test(testPolynomial testPolynomial.cpp)
+package_add_test(testPermutation testPermutation.cpp)
+package_add_test(testLib testLib.cpp)
