@@ -13,7 +13,7 @@ env:
 
 cache:
   directories:
-    - ${TRAVIS_BUILD_DIR}/usr/
+    - ${TRAVIS_BUILD_DIR}/user/
 
 matrix:
   include:
@@ -38,6 +38,7 @@ matrix:
            - libcrypto++-dev
            - pkg-config
            - cmake-data
+           - libntl-dev
            - cmake
          sources: &precise_latest_boost_sources
            - ubuntu-toolchain-r-test
@@ -53,22 +54,30 @@ before_install:
 
 install:
     -  |
-        if [ ! -d "${TRAVIS_BUILD_DIR}/usr/include" ]; then
+        if [ ! -d "${TRAVIS_BUILD_DIR}/user/include" ]; then
             mkdir tmp;
             cd tmp;
-            wget https://gist.githubusercontent.com/nekosune/9a2d3e841d2d305aee7a4aa71a984334/raw/db5fe5c24f55cde427fc7fd55fbe65d0133d6c73/install.sh ;
+            wget https://gist.githubusercontent.com/nekosune/9a2d3e841d2d305aee7a4aa71a984334/raw/5fb0a06b27df7e6108c401d81fd5dd782e3fce59/install.sh ;
             chmod +x install.sh ;
-            sudo ${TRAVIS_BUILD_DIR}/tmp/install.sh --prefix=${TRAVIS_BUILD_DIR}/usr/  --build-boost;
+            sudo ${TRAVIS_BUILD_DIR}/tmp/install.sh --prefix=${TRAVIS_BUILD_DIR}/user/  --build-boost;
         fi
-    - sudo ldconfig ${TRAVIS_BUILD_DIR}/usr/lib/
-    - ls ${TRAVIS_BUILD_DIR}/usr/lib/
-    - export PKG_CONFIG_PATH="${TRAVIS_BUILD_DIR}/usr/lib/pkgconfig:${PKG_CONFIG_PATH}" ;
+    - sudo ldconfig ${TRAVIS_BUILD_DIR}/user/lib/
+    - ls ${TRAVIS_BUILD_DIR}/user/lib/
+    - export PKG_CONFIG_PATH="${TRAVIS_BUILD_DIR}/user/lib/pkgconfig:${PKG_CONFIG_PATH}" ;
     - echo $PKG_CONFIG_PATH ;
     - if [ "$CXX" = "clang++" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
     - echo ${PATH}
     - echo ${CXX}
     - ${CXX} --version
     - ${CXX} -v
+    - cd /tmp/
+    - wget https://github.com/bitcoin-core/secp256k1/archive/master.zip
+    - unzip master.zip
+    - cd secp256k1-master
+    - ./autogen.sh
+    - ./configure
+    - make
+    - sudo make install
     - cd ${TRAVIS_BUILD_DIR}
 
 script:
@@ -77,6 +86,6 @@ script:
     ############################################################################
      - mkdir -p build
      - cd build
-     - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DBOOST_ROOT=${TRAVIS_BUILD_DIR}/usr/ -DBUILD_TESTS=ON .. 
-     - make
-     - make test
+     - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DBOOST_ROOT=${TRAVIS_BUILD_DIR}/user/ -DBUILD_TESTS=ON ..
+     - cmake --build .
+     - ctest .
