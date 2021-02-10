@@ -123,6 +123,7 @@ ADD_LIBRARY(data STATIC
         src/data/encoding/base58.cpp
         src/data/encoding/base64.cpp
         src/data/encoding/integer.cpp
+        src/data/networking/http.cpp
         src/data/iterable.cpp
         src/data/tools/channel.cpp
         src/data/math/number/gmp/mpq.cpp
@@ -137,7 +138,7 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY}
+target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} ${OPENSSL_LIBRARIES}
 #PkgConfig::LIBSECP256K1
 )
 # Set C++ version
