@@ -50,16 +50,22 @@ namespace data::networking {
         auto const results = resolver.resolve(hostname.c_str(),port.c_str());
         boost::beast::get_lowest_layer(stream).connect(results);
         stream.handshake(boost::asio::ssl::stream_base::client);
-        boost::beast::http::request<boost::beast::http::string_body> req(boost::beast::http::verb::get,path.c_str(),10);
+        boost::beast::http::request<boost::beast::http::string_body> req(boost::beast::http::verb::get,path.c_str(),11);
         req.set(boost::beast::http::field::host,hostname.c_str());
         req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         for(const auto & header : headers) {
             req.set(header.first,header.second);
         }
         boost::beast::http::write(stream,req);
+
         boost::beast::flat_buffer buffer;
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
-        boost::beast::http::read(stream,buffer,res);
+        boost::beast::error_code ec;
+        try {
+            boost::beast::http::read(stream, buffer, res,ec);
+        }
+        catch(boost::exception& ex) {}
+
         return boost::beast::buffers_to_string(res.body().data());
     }
 
