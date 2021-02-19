@@ -8,7 +8,7 @@
 namespace data {
     namespace tools {
         TEST(CircularQueueTest, TestInitialize) {
-            CircularQueue queue(5);
+            circular_queue queue(5);
             queue.setValue(5);
             ASSERT_EQ(queue.getValue(),5);
             queue.next();

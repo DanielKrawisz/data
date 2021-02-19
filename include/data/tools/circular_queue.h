@@ -10,20 +10,20 @@
 #include <iterator>
 
 namespace data::tools {
-        class CircularQueue {
+        class circular_queue {
         public:
             // Initialize front and rear
            int cur;
 
             // Circular Queue
             int size;
-            long *circular_queue;
+            long *circularQueue;
 
-            explicit CircularQueue (int sz,long init_value=0) {
+            explicit circular_queue (int sz, long init_value=0) {
                 cur = 0;
                 size = sz;
-                circular_queue = new long[sz];
-                std::fill(circular_queue,circular_queue+sz,init_value);
+                circularQueue = new long[sz];
+                std::fill(circularQueue,circularQueue+sz,init_value);
             }
             void setValue(long val);
             void next();

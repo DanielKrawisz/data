@@ -9,12 +9,12 @@
 
 namespace data {
     namespace tools {
-        class RateLimiter {
+        class rate_limiter {
         public:
-            explicit RateLimiter(int hits,int duration) : m_queue(hits,-1),m_duration(duration) {};
+            explicit rate_limiter(int hits, int duration) : m_queue(hits, -1), m_duration(duration) {};
             long getTime();
         private:
-            CircularQueue m_queue;
+            circular_queue m_queue;
             int m_duration;
         };
     }

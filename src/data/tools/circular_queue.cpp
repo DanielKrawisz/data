@@ -6,15 +6,15 @@
 namespace data::tools {
 
 
-        void CircularQueue::setValue(long val) {
-            circular_queue[cur] = val;
+        void circular_queue::setValue(long val) {
+            circularQueue[cur] = val;
         }
 
-        long CircularQueue::getValue() {
-            return circular_queue[cur];
+        long circular_queue::getValue() {
+            return circularQueue[cur];
         }
 
-        void CircularQueue::next() {
+        void circular_queue::next() {
             if(cur == size-1 )
                 cur = 0;
             else
