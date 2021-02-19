@@ -131,6 +131,8 @@ ADD_LIBRARY(data STATIC
         src/data/math/number/gmp/aks.cpp
         src/data/math/number/gmp/sqrt.cpp
         src/data/crypto/AES.cpp
+        src/data/tools/circular_queue.cpp
+        src/data/tools/rate_limiter.cpp
         include/rotella/aks.cpp
         include/rotella/sieve.cpp
         include/rotella/akslib.cpp
