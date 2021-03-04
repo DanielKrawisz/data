@@ -26,6 +26,7 @@ namespace data::tool {
         
         ordered_list insert(const element& x) const;
         ordered_list operator<<(const element& x) const;
+        ordered_list operator<<(const linked_stack<element> l) const;
         
         ordered_list rest() const;
         const element& first() const;
@@ -136,6 +137,12 @@ namespace data::tool {
     template <typename element>
     ordered_list<element> ordered_list<element>::operator<<(const element& x) const {
         return {Size + 1, Ordered.inserted(x)};
+    }
+    
+    template <typename element>
+    ordered_list<element> ordered_list<element>::operator<<(const linked_stack<element> l) const {
+        if (l.empty()) return *this;
+        return *this << l.first() << l.rest();
     }
     
     template <typename element>
