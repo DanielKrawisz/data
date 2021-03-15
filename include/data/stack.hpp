@@ -265,6 +265,11 @@ namespace data {
     inline X sort(const X x) {
         return meta::sort<X, meta::has_sort_method<X>::value>{}(x);
     }
+    
+    template <typename list, typename prop>
+    list select(const list& a, const prop p) {
+        return a.empty() ? list{} : p(a.first()) ? list{a.first()} << select(a.rest(), p) : select(a.rest(), p);
+    }
 }
 
 #endif
