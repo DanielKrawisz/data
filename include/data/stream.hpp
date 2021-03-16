@@ -45,6 +45,11 @@ namespace data {
             x = *b;
             return istream{++b, End};
         }
+        
+        istream skip(uint64 n) const {
+            if (Begin + n > End) throw end_of_stream{};
+            return istream{Begin + n, End};
+        }
     };
     
     template <typename it>
@@ -96,6 +101,10 @@ namespace data {
         
         bool empty() const {
             return Reader.empty();
+        }
+        
+        reader skip(uint32 n) const {
+            return Reader.skip(n);
         }
     };
     
