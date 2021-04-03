@@ -100,14 +100,13 @@ namespace milewski::okasaki {
         // merged along right spines: log time
         static Heap merged(Heap const & h1, Heap const & h2)
         {
-            if (h1.isEmpty())
-                return h2;
-            if (h2.isEmpty())
-                return h1;
-            if (h1.front() <= h2.front())
-                return Heap(h1.front(), h1.left(), merged(h1.right(), h2));
-            else
-                return Heap(h2.front(), h2.left(), merged(h1, h2.right()));
+            if (h1.isEmpty()) return h2;
+            
+            if (h2.isEmpty()) return h1;
+            
+            if (h1.front() <= h2.front()) return Heap(h1.front(), h1.left(), merged(h1.right(), h2));
+            
+            return Heap(h2.front(), h2.left(), merged(h1, h2.right()));
         }
     };
 
