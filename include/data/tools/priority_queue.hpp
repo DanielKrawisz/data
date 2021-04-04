@@ -10,7 +10,7 @@
     
 namespace data::tool {
     
-    template <typename x, typename list>
+    template <typename x, typename stack>
     class priority_queue {
         using heap = milewski::okasaki::Heap<x>;
         heap Heap;
@@ -50,7 +50,15 @@ namespace data::tool {
         template <typename List>
         priority_queue(List l) : priority_queue{priority_queue{}.insert(l)} {}
         
-        list all() const;
+        stack values() const {
+            stack vals;
+            auto p = *this;
+            while (!p.empty()) {
+                vals = vals << p.first();
+                p = p.rest();
+            }
+            return reverse(vals);
+        }
         
         priority_queue& operator=(const priority_queue& q) {
             Heap = q.Heap;
