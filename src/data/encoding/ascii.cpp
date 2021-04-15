@@ -5,17 +5,9 @@
 #include <data/encoding/ascii.hpp>
 
 namespace data::encoding::ascii{
-    string::string(std::string const*input) {
-        for(char c: *input)
-        {
-            if(!ascii::valid(c))
-                return;
-        }
-        innerString=input;
-    }
 
-    string::operator bytes() {
-        return innerString!= nullptr ? bytes(slice<byte>((byte*)innerString->data(), innerString->size())) : bytes();
+    string::operator bytes() const {
+        return valid() ? bytes(slice<byte>((byte*)std::string::data(), std::string::size())) : bytes();
     }
 
 

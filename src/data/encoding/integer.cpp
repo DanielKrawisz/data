@@ -15,11 +15,11 @@ namespace data::encoding {
     
     namespace decimal {
         
-        bytes read(string_view s, endian::order r) {
-            if (!valid(s)) throw std::invalid_argument{"not decimal"};
+        ptr<bytes> read(string_view s, endian::order r) {
+            if (!valid(s)) return nullptr;
             math::number::N_bytes<endian::big> n{math::number::N{s}};
             if (r == endian::little) std::reverse(n.begin(), n.end());
-            return static_cast<bytes>(n);
+            return std::make_shared<bytes>(static_cast<bytes>(n));
         }
         
         N::N() : string{"0"} {}
@@ -142,11 +142,11 @@ namespace data::encoding {
             return o;
         }
         
-        bytes read(string_view s, endian::order r) {
+        ptr<bytes> read(string_view s, endian::order r) {
             if (!valid(s)) throw std::invalid_argument{"not hexidecimal"};
-            bytes b = bytes_view(hex::view{s.substr(2)});
-            if (r == endian::big) return b;
-            std::reverse(b.begin(), b.end());
+            ptr<bytes> b = hex::read(s.substr(2));
+            if (b == nullptr || r == endian::big) return b;
+            std::reverse(b->begin(), b->end());
             return b;
         }
         
@@ -273,8 +273,8 @@ namespace data::encoding {
     
     namespace natural {
         
-        bytes read(string_view s, endian::order r) {
-            if (!valid(s)) throw std::invalid_argument{"not a natural number"};
+        ptr<bytes> read(string_view s, endian::order r) {
+            if (!valid(s)) return nullptr;
             if (hexidecimal::valid(s)) return hexidecimal::read(s, r);
             return decimal::read(s, r);
         }
@@ -283,9 +283,9 @@ namespace data::encoding {
     
     namespace integer {
         
-        bytes read(string_view s, endian::order r) {
+        ptr<bytes> read(string_view s, endian::order r) {
             //std::cout << "reading in integer string \"" << s << "\"" << std::endl;
-            if (!valid(s)) throw std::invalid_argument{"not an integer"};
+            if (!valid(s)) return nullptr;
             if (hexidecimal::valid(s)) return hexidecimal::read(s, r);
             if (negative(s)) {
                 //std::cout << "reading in negative decimal integer string \"" << s << "\"" << std::endl;
@@ -295,7 +295,7 @@ namespace data::encoding {
                 //std::cout << "reading in Z_bytes " << n << std::endl;
                 if (r == endian::big) std::reverse(n.begin(), n.end());
                 //std::cout << "reading in negative decimal integer string ; about to return" << std::endl;
-                return bytes(bytes_view(n));
+                return std::make_shared<bytes>(bytes_view(n));
             }
             return decimal::read(s, r);
         }

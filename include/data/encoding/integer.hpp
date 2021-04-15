@@ -38,7 +38,7 @@ namespace data::encoding {
             return valid(s) ? s.size() : 0;
         }
         
-        bytes read(string_view s, endian::order r);
+        ptr<bytes> read(string_view s, endian::order r);
         
         struct N : string {
             N();
@@ -104,7 +104,7 @@ namespace data::encoding {
             return -1;
         }
         
-        bytes read(string_view s, endian::order r);
+        ptr<bytes> read(string_view s, endian::order r);
         
         std::ostream& write(std::ostream& o, bytes_view b, endian::order r, hex::letter_case q = hex::upper);
         
@@ -176,7 +176,7 @@ namespace data::encoding {
             return std::max(decimal::digits(s), hexidecimal::digits(s));
         }
         
-        bytes read(string_view s, endian::order r);
+        ptr<bytes> read(string_view s, endian::order r);
     };
     
     namespace integer {
@@ -204,7 +204,7 @@ namespace data::encoding {
             return negative(s) ? natural::digits(s.substr(1, s.size() - 1)) : natural::digits(s);
         }
         
-        bytes read(string_view s, endian::order r);
+        ptr<bytes> read(string_view s, endian::order r);
     };
     
 }

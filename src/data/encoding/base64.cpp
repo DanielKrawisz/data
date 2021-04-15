@@ -28,18 +28,18 @@ namespace data::encoding::base64 {
         return 0;
     }
     
-    view::view(string_view source) : string_view{source}, Bytes{}, ToBytes{nullptr} {
-        if (!base64::valid(source)) return;
+    ptr<bytes> read(string_view source) {
+        if (!base64::valid(source)) return nullptr;
         
         uint32 padding = base64::padding(source);
         
-        Bytes.resize(source.size());
-        
         const static uint32_t mask = 0x000000FF;
+        
+        ptr<bytes> b = std::make_shared<bytes>();
 
         const size_t length = source.length();
-        if ((length % 4) != 0) return;
-        Bytes.reserve(((length / 4) * 3) - padding);
+        if (length & 3) return nullptr;
+        b->reserve(((length / 4) * 3) - padding);
 
         uint32_t value = 0;
         for (auto cursor = source.begin(); cursor < source.end();) {
@@ -59,31 +59,29 @@ namespace data::encoding::base64 {
                     // Handle 1 or 2 pad characters.
                     switch (source.end() - cursor) {
                         case 1:
-                            Bytes.push_back((value >> 16) & mask);
-                            Bytes.push_back((value >> 8) & mask);
-                            ToBytes = &Bytes;
-                            return;
+                            b->push_back((value >> 16) & mask);
+                            b->push_back((value >> 8) & mask);
+                            return b;
                         case 2:
-                            Bytes.push_back((value >> 10) & mask);
-                            ToBytes = &Bytes;
-                            return;
+                            b->push_back((value >> 10) & mask);
+                            return b;
                         default:
-                            return;
+                            return nullptr;
                     }
-                } else return;
+                } else return nullptr;
 
                 cursor++;
             }
 
-            Bytes.push_back((value >> 16) & mask);
-            Bytes.push_back((value >> 8) & mask);
-            Bytes.push_back((value >> 0) & mask);
+            b->push_back((value >> 16) & mask);
+            b->push_back((value >> 8) & mask);
+            b->push_back((value >> 0) & mask);
         }
 
-        ToBytes = &Bytes;
+        return b;
     }
     
-    std::string write(bytes_view sourceBytes){
+    string write(bytes_view sourceBytes){
         std::string output;
         const auto size = sourceBytes.size();
         output.reserve(((size / 3) + (size % 3 > 0)) * 4);
@@ -127,29 +125,29 @@ namespace data::encoding::base64 {
                 break;
         }
 
-        return output;
+        return {output};
     }
     
-    std::string write(bytes_view sourceBytes, endian::order r) {
+    string write(bytes_view sourceBytes, endian::order r) {
         if (r == endian::big) return write(sourceBytes);
         bytes reversed(sourceBytes.size());
         std::copy(sourceBytes.rbegin(), sourceBytes.rend(), reversed.begin());
         return write(reversed);
     }
     
-    std::string write(uint64 x) {
+    string write(uint64 x) {
         return write(bytes_view{uint64_big{x}.data(), sizeof(uint64)});
     }
     
-    std::string write(uint32 x) {
+    string write(uint32 x) {
         return write(bytes_view{uint32_big{x}.data(), sizeof(uint32)});
     }
     
-    std::string write(uint16 x) {
+    string write(uint16 x) {
         return write(bytes_view{uint16_big{x}.data(), sizeof(uint16)});
     }
     
-    std::string write(byte x) {
+    string write(byte x) {
         return write(bytes_view{(byte*)(&x), sizeof(byte)});
     }
 }

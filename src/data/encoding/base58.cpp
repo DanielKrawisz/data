@@ -9,7 +9,7 @@
 
 namespace data::encoding::base58 {
     
-    std::string write(const bytes_view b) {
+    string write(const bytes_view b) {
         return write<math::number::gmp::N>(math::number::gmp::N(math::number::N_bytes<endian::big>(b)));
     }
     

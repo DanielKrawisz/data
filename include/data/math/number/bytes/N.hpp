@@ -26,11 +26,9 @@ namespace data::math::number {
         
         static N_bytes read(string_view x) {
             if (x.size() == 0) return 0;
-            try {
-                return N_bytes<r>{encoding::natural::read(x, r)};
-            } catch (std::invalid_argument&) {
-                return N_bytes(); // Invalid value. 
-            }
+            ptr<bytes> b = encoding::natural::read(x, r);
+            if (b == nullptr) return {};
+            return N_bytes<r>{*b};
         }
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}

@@ -5,20 +5,9 @@
 #include <data/slice.hpp>
 #include <data/encoding/unicode.hpp>
 
-namespace data {
+namespace data::encoding::utf8 {
     
-    namespace encoding {
-        
-        namespace utf8 {
-            using string = vector<byte>;
-            
-            string write(unicode);
-            
-            unicode read(string str);
-            
-        }
-        
-    }
+    // TODO
     
 }
 

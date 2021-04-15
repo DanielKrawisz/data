@@ -26,30 +26,30 @@ namespace data::encoding::base64 {
         return boost::regex_match(s.data(),pattern);
     }
     
-    std::string write(bytes_view, endian::order);
+    ptr<bytes> read(string_view);
     
-    std::string write(bytes_view);
-    std::string write(uint64);
-    std::string write(uint32);
-    std::string write(uint16);
-    std::string write(byte);
-    
-    class view : public string_view {
-        bytes Bytes;
-        bytes *ToBytes;
-        
-    public:
-        explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{Format, *this};
-            return bytes_view(*ToBytes);
-        }
+    struct string : std::string {
+        using std::string::string;
+        string(const std::string& x) : std::string{x} {}
         
         bool valid() const noexcept {
-            return ToBytes != nullptr;
+            return base64::valid(*this);
         }
         
-        view(string_view);
+        explicit operator bytes() const {
+            ptr<bytes> b = read(*this);
+            if (b == nullptr) throw invalid{Format, *this};
+            return *b;
+        }
     };
+    
+    string write(bytes_view, endian::order);
+    
+    string write(bytes_view);
+    string write(uint64);
+    string write(uint32);
+    string write(uint16);
+    string write(byte);
 }
 
 #endif

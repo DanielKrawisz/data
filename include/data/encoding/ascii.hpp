@@ -9,33 +9,35 @@
 #include <data/iterable.hpp>
 
 namespace data::encoding::ascii {
+    const std::string Format{"ascii"};
+    
     const byte max = 0x7f;
 
     using character = byte;
 
-    inline bool valid(character b) {
+    bool inline valid(character b) {
         return b <= max && b >= 0;
     }
 
-    inline bool valid(char c) {
+    bool inline valid(char c) {
         return c <= max && c >= 0;
     }
+    
+    bool inline valid(const std::string &x) {
+        for (char c : x) if (!valid(c)) return false;
+        return true;
+    }
 
-
-    class string {
-        std::string const* innerString= nullptr;
-
-    public:
-        string(std::string const* input);
+    struct string : std::string {
+        using std::string::string;
+        
+        string(const std::string& x) : std::string{x} {}
+        
         bool valid() const {
-            return innerString != nullptr;
+            return ascii::valid(*this);
         }
-
-        explicit operator std::string() {
-            return *innerString ;
-        }
-
-        explicit operator bytes();
+        
+        explicit operator bytes() const;
 
     };
 }

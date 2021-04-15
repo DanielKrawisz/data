@@ -1,11 +1,10 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2021 Daniel Krawisz
 // Copyright (c) 2019 Katrina Swales
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_ENCODING_HEX
 #define DATA_ENCODING_HEX
-
 
 #include <boost/algorithm/hex.hpp>
 #include <data/encoding/invalid.hpp>
@@ -30,8 +29,10 @@ namespace data::encoding::hex {
 
     static const boost::regex pattern{"^(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)$"};
     inline bool valid(string_view s) {
-        return boost::regex_match(s.data(),pattern);
+        return boost::regex_match(s.data(), pattern);
     }
+    
+    ptr<bytes> read(string_view);
     
     struct string : std::string {
         string() : std::string{} {}
@@ -45,8 +46,8 @@ namespace data::encoding::hex {
         explicit operator bytes() const;
     };
     
-    string write(bytes_view, endian::order, letter_case = upper);
     string write(bytes_view, letter_case = upper);
+    string write(bytes_view, endian::order, letter_case = upper);
     
     template <size_t n>
     struct fixed : string {
@@ -67,23 +68,6 @@ namespace data::encoding::hex {
     template <endian::order o, size_t x>
     fixed<x> write(endian::arithmetic<o, false, x>, letter_case = upper);
     
-    class view : public string_view {
-        bytes Bytes;
-        bytes *ToBytes;
-        
-    public:
-        explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{Format, *this};
-            return Bytes;
-        }
-        
-        bool valid() const noexcept {
-            return ToBytes != nullptr;
-        }
-        
-        view(string_view);
-    };
-    
     template <endian::order o, size_t x>
     fixed<x> write(endian::arithmetic<o, false, x> n, letter_case q) {
         fixed<x> output;
@@ -91,6 +75,7 @@ namespace data::encoding::hex {
         else boost::algorithm::hex_lower(n.begin(), n.end(), output.begin());
         return output;
     }
+    
 }
 
 #endif

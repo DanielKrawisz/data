@@ -10,9 +10,9 @@
 namespace data::encoding::hex {
 
     TEST(HexTest, HexHexToArray) {
-        view hexString(std::string("0063EA172D63808C"));
+        string hexString(std::string("0063EA172D63808C"));
         ASSERT_TRUE(hexString.valid());
-        bytes b = (bytes_view)(hexString);
+        bytes b = (bytes)(hexString);
         ASSERT_THAT(b, ::testing::ElementsAre(0x00, 0x63, 0xEA, 0x17, 0x2D, 0x63, 0x80, 0x8C));
     }
 
@@ -25,8 +25,8 @@ namespace data::encoding::hex {
     }
 
     TEST(HexTest, HexInvalidExceptionOnError) {
-        view malformedHexString(std::string("0063EA172D63808"));
-        ASSERT_THROW((bytes_view)(malformedHexString), invalid);
+        string malformedHexString(std::string("0063EA172D63808"));
+        ASSERT_THROW((bytes)(malformedHexString), invalid);
     }
 
     TEST(HexTest, HexWriteBytes) {

@@ -6,28 +6,28 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
-namespace {
+namespace data::encoding::ascii {
 
-    TEST(AsciiTests,AsciiInvalidAscii) {
+    TEST(AsciiTests, AsciiInvalidAscii) {
         char temp[]="This is a test";
         temp[3]=-20;
         std::string temp2=temp;
-        data::encoding::ascii::string stringTest(&temp2);
+        string stringTest(temp2);
         ASSERT_FALSE(stringTest.valid());
     }
 
-    TEST(AsciiTests,AsciiValidAscii) {
+    TEST(AsciiTests, AsciiValidAscii) {
         char temp[]="This is a test";
         std::string temp2=temp;
-        data::encoding::ascii::string stringTest(&temp2);
+        string stringTest(temp2);
         ASSERT_TRUE(stringTest.valid());
     }
 
 
-    TEST(AsciiTests,AsciiCastToBytes) {
+    TEST(AsciiTests, AsciiCastToBytes) {
         char temp[]="This is a test";
         std::string temp2=temp;
-        data::encoding::ascii::string stringTest(&temp2);
+        string stringTest(temp2);
         ASSERT_THAT(static_cast<data::bytes>(stringTest),::testing::ElementsAre(84,104,105,115,32,105,115,32,97,32,116,101,115,116));
     }
 

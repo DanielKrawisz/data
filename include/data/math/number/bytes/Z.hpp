@@ -41,7 +41,10 @@ namespace data::math::number {
         explicit Z_bytes(const N& n) : Z_bytes(Z(n)) {}
         
         static Z_bytes read(string_view x) {
-            return x == "" ? 0 : Z_bytes<r>{encoding::integer::read(x, r)};
+            if (x == "") return 0; 
+            ptr<bytes> b = encoding::integer::read(x, r);
+            if (b == nullptr) throw std::invalid_argument{"invalid integer string provided"};
+            return Z_bytes<r>{*b};
         }
         
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}

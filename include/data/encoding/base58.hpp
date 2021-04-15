@@ -48,13 +48,6 @@ namespace data::encoding::base58 {
         return n;
     }
     
-    template <typename N>
-    std::string write(N n) {
-        return encoding::write_base<N>(n, characters());
-    };
-    
-    std::string write(const bytes_view b);
-    
     class view : public string_view {
         bytes Bytes;
         bytes *ToBytes;
@@ -108,6 +101,13 @@ namespace data::encoding::base58 {
         
         math::division<string, uint64> divide(uint64) const;
     };
+    
+    template <typename N>
+    string write(N n) {
+        return encoding::write_base<N>(n, characters());
+    };
+    
+    string write(const bytes_view b);
     
 }
 

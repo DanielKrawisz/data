@@ -12,9 +12,25 @@
 #include <data/encoding/endian.hpp>
 
 namespace data::encoding::hex {
+    class view : public string_view {
+        bytes Bytes;
+        bytes *ToBytes;
+        
+    public:
+        explicit operator bytes_view() const {
+            if (ToBytes == nullptr) throw invalid{Format, *this};
+            return Bytes;
+        }
+        
+        bool valid() const noexcept {
+            return ToBytes != nullptr;
+        }
+        
+        view(string_view);
+    };
     
     string::operator bytes() const {
-        if (!valid()) return {};
+        if (!valid()) throw invalid{Format, *this};
         return bytes(bytes_view(view{*this}));
     }
     
@@ -27,6 +43,17 @@ namespace data::encoding::hex {
             return;
         }
         ToBytes=&Bytes;
+    }
+    
+    ptr<bytes> read(string_view x) {
+        if ((x.size() & 1)) return nullptr;
+        ptr<bytes> b = std::make_shared<bytes>(x.size() / 2);
+        try {
+            boost::algorithm::unhex(x.begin(), x.end(), b->begin());
+        } catch(boost::algorithm::hex_decode_error exception) {
+            return nullptr;
+        }
+        return b;
     }
     
     void write_hex(string& output, bytes_view sourceBytes, letter_case q) {
