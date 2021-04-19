@@ -65,6 +65,7 @@ namespace data::tool {
             Size = q.Size;
             return *this;
         }
+        
     };
     
 }
