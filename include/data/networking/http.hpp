@@ -34,10 +34,17 @@ namespace data::networking {
         string POST(
             string hostname, 
             string path="/", 
-            const std::map<string, string>& params, 
-            const std::map<header, string>& headers, 
-            string body, 
+            const std::map<string, string>& params={},
+            const std::map<header, string>& headers={},
+            string body="",
             string port="https");
+        string POST(
+                string hostname,
+                string path="/",
+                const std::map<string, string>& params={},
+                const std::map<header, string>& headers={},
+                const std::map<string, string>& body={},
+                string port="https");
         
         string GET(
             string hostname, 
