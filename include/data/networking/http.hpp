@@ -28,36 +28,32 @@ namespace data::networking {
             string hostname, 
             string path="/", 
             const std::map<string, string>& params = {}, 
-            const std::map<header, string>& headers = {}, 
-            string port="https");
+            const std::map<header, string>& headers = {});
         
         string POST(
             string hostname, 
-            string path="/", 
+            string path, 
+            const std::map<string, string>& params,
+            const std::map<header, string>& headers,
+            string body);
+        
+        string POST(
+            string hostname,
+            string path="/",
             const std::map<string, string>& params={},
             const std::map<header, string>& headers={},
-            string body="",
-            string port="https");
-        string POST(
-                string hostname,
-                string path="/",
-                const std::map<string, string>& params={},
-                const std::map<header, string>& headers={},
-                const std::map<string, string>& body={},
-                string port="https");
+            const std::map<string, string>& body={});
         
         string GET(
             string hostname, 
             string path="/", 
-            const std::map<header, string>& headers = {},
-            string port="https");
+            const std::map<header, string>& headers = {});
         
         string GET(
             string hostname, 
             string path, 
             std::map<string, string>& params,
-            const std::map<header, string>& headers = {}, 
-            string port="https");
+            const std::map<header, string>& headers = {});
         
     private:
         boost::asio::io_context ioc;

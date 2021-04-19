@@ -15,7 +15,7 @@ namespace data::networking {
             ssl_ctx.set_verify_mode(boost::asio::ssl::verify_peer);
         }
     string http::POST(string hostname, string path, const std::map<string, string> &params,
-                      const std::map<header, string> &headers, string body, string port) {
+                      const std::map<header, string> &headers, string body) {
         boost::beast::ssl_stream<boost::beast::tcp_stream> stream(ioc, ssl_ctx);
         string newPath=path;
         if(params.size()>0) {
@@ -25,6 +25,7 @@ namespace data::networking {
             }
             newPath.pop_back();
         }
+        
         // Set SNI Hostname (many hosts need this to handshake successfully)
         if(! SSL_set_tlsext_host_name(stream.native_handle(), hostname.c_str()))
         {
@@ -32,7 +33,7 @@ namespace data::networking {
             throw boost::beast::system_error{ec};
         }
 
-        auto const results = resolver.resolve(hostname.c_str(),port.c_str());
+        auto const results = resolver.resolve(hostname.c_str(), "https");
 
         boost::beast::get_lowest_layer(stream).connect(results);
         stream.handshake(boost::asio::ssl::stream_base::client);
@@ -47,7 +48,7 @@ namespace data::networking {
         }
         req.body() = body;
         req.prepare_payload();
-        boost::beast::http::write(stream,req);
+        boost::beast::http::write(stream, req);
 
         boost::beast::flat_buffer buffer;
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
@@ -61,13 +62,14 @@ namespace data::networking {
     }
 
     string http::POST(string hostname,  const string path, const std::map<string, string>& params,
-               const std::map<header, string> &headers, string port) {
-        return POST(hostname,path,params,headers,"",port);
+               const std::map<header, string> &headers) {
+        return POST(hostname,path,params,headers,"");
 
     }
 
     string http::POST(string hostname, string path, const std::map<string, string> &params,
-                      const std::map<header, string> &headers, const std::map<string, string> &body, string port) {
+                      const std::map<header, string> &headers, const std::map<string, string> &body) {
+        
         string newBody;
         if(body.size()>0) {
             for (const auto &it : body) {
@@ -75,14 +77,14 @@ namespace data::networking {
             }
             newBody.pop_back();
         }
+        
         auto newHeaders=std::map<header, string>(headers);
         newHeaders[boost::beast::http::field::content_type]="application/x-www-form-urlencoded";
-        return POST(hostname,path,params,newHeaders,newBody,port);
+        return POST(hostname, path, params, newHeaders, newBody);
     }
 
-
     string http::GET(string hostname, string path,
-                          const std::map<header, string> &headers,string port) {
+                          const std::map<header, string> &headers) {
         
         boost::beast::ssl_stream<boost::beast::tcp_stream> stream(ioc, ssl_ctx);
 
@@ -93,12 +95,12 @@ namespace data::networking {
             throw boost::beast::system_error{ec};
         }
         
-        auto const results = resolver.resolve(hostname.c_str(),port.c_str());
+        auto const results = resolver.resolve(hostname.c_str(), "https");
         
         boost::beast::get_lowest_layer(stream).connect(results);
         stream.handshake(boost::asio::ssl::stream_base::client);
         
-        boost::beast::http::request<boost::beast::http::string_body> req(method::get,path.c_str(), 11);
+        boost::beast::http::request<boost::beast::http::string_body> req(method::get, path.c_str(), 11);
         
         req.set(header::host,hostname.c_str());
         req.set(header::user_agent, BOOST_BEAST_VERSION_STRING);
@@ -121,7 +123,7 @@ namespace data::networking {
     }
 
     string http::GET(string hostname, string path, std::map<string, string> &params,
-                          const std::map<header, string> &headers, string port) {
+                          const std::map<header, string> &headers) {
             string newPath=path;
             if(params.size()>0) {
                 newPath.append("?");
@@ -130,7 +132,7 @@ namespace data::networking {
                 }
                 newPath.pop_back();
             }
-        return GET(hostname,newPath,headers,port);
+        return GET(hostname,newPath,headers);
     }
 
 
