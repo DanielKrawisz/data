@@ -24,36 +24,50 @@ namespace data::networking {
         
         http();
         
+        static string append_params(string path, const std::map<string, string>& params);
+        
+        string request(
+            string port, 
+            method verb, 
+            string hostname, 
+            string path = "/", 
+            const std::map<header, string>& headers = {}, 
+            string body = "");
+        
+        string request(
+            method verb, 
+            string hostname, 
+            string path = "/", 
+            const std::map<header, string>& headers = {}, 
+            string body = "") {
+            return request("https", verb, hostname, path, headers, body);
+        }
+        
+        string GET(
+            string hostname, 
+            string path, 
+            const std::map<string, string>& params = {},
+            const std::map<header, string>& headers = {}, 
+            string body = "") {
+            return request(method::get, hostname, append_params(path, params), headers, body);
+        }
+        
         string POST(
             string hostname, 
             string path="/", 
             const std::map<string, string>& params = {}, 
-            const std::map<header, string>& headers = {});
+            const std::map<header, string>& headers = {},
+            string body = "") {
+            return request(method::post, hostname, append_params(path, params), headers, body);
+        }
         
-        string POST(
-            string hostname, 
-            string path, 
-            const std::map<string, string>& params,
-            const std::map<header, string>& headers,
-            string body);
-        
+        // post data from a form. 
         string POST(
             string hostname,
             string path="/",
             const std::map<string, string>& params={},
             const std::map<header, string>& headers={},
-            const std::map<string, string>& body={});
-        
-        string GET(
-            string hostname, 
-            string path="/", 
-            const std::map<header, string>& headers = {});
-        
-        string GET(
-            string hostname, 
-            string path, 
-            std::map<string, string>& params,
-            const std::map<header, string>& headers = {});
+            const std::map<string, string>& form_data={});
         
     private:
         boost::asio::io_context ioc;
