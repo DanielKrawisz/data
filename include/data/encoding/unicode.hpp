@@ -1,12 +1,14 @@
- #ifndef DATA_UNICODE_HPP
-#define DATA_UNICODE_HPP
+#ifndef DATA_UNICODE
+#define DATA_UNICODE
 
-#include <string>
-#include <data/types.hpp>
+#include <data/iterable.hpp>
 
 namespace data::encoding::unicode {
     
-    // TODO
+    bytes utf8_encode(const string&);
+    bytes utf8_encode(const std::u32string&);
+    
+    ptr<std::u32string> utf8_decode(const bytes&);
     
 }
 

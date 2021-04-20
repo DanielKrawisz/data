@@ -118,25 +118,26 @@ endif()
 #  Add Library source files here
 
 ADD_LIBRARY(data STATIC
-        src/data/encoding/hex.cpp
-        src/data/encoding/ascii.cpp
-        src/data/encoding/base58.cpp
-        src/data/encoding/base64.cpp
-        src/data/encoding/integer.cpp
-        src/data/networking/http.cpp
-        src/data/iterable.cpp
-        src/data/tools/channel.cpp
-        src/data/math/number/gmp/mpq.cpp
-        src/data/math/number/gmp/N.cpp
-        src/data/math/number/gmp/aks.cpp
-        src/data/math/number/gmp/sqrt.cpp
-        src/data/crypto/AES.cpp
-        src/data/tools/circular_queue.cpp
-        src/data/tools/rate_limiter.cpp
-        include/rotella/aks.cpp
-        include/rotella/sieve.cpp
-        include/rotella/akslib.cpp
-        )
+    src/data/encoding/hex.cpp
+    src/data/encoding/ascii.cpp
+    src/data/encoding/base58.cpp
+    src/data/encoding/base64.cpp
+    src/data/encoding/integer.cpp
+    src/data/encoding/utf8.cpp
+    src/data/networking/http.cpp
+    src/data/iterable.cpp
+    src/data/tools/channel.cpp
+    src/data/math/number/gmp/mpq.cpp
+    src/data/math/number/gmp/N.cpp
+    src/data/math/number/gmp/aks.cpp
+    src/data/math/number/gmp/sqrt.cpp
+    src/data/crypto/AES.cpp
+    src/data/tools/circular_queue.cpp
+    src/data/tools/rate_limiter.cpp
+    include/rotella/aks.cpp
+    include/rotella/sieve.cpp
+    include/rotella/akslib.cpp
+)
 
 target_include_directories(data PUBLIC include)
 
