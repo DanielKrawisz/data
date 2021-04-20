@@ -7,7 +7,10 @@
 
 namespace data::encoding::utf8 {
     
-    // TODO
+    bytes encode(const string&);
+    bytes encode(const std::wstring&);
+    
+    ptr<std::wstring> decode(const bytes&);
     
 }
 
