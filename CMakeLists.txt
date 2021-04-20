@@ -60,7 +60,7 @@ set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
 # Include Boost
-find_package(Boost 1.72.0 COMPONENTS system regex REQUIRED)
+find_package(Boost 1.76.0 COMPONENTS system regex REQUIRED)
 
 if(Boost_FOUND)
 
