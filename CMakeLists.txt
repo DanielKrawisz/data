@@ -118,6 +118,7 @@ endif()
 #  Add Library source files here
 
 ADD_LIBRARY(data STATIC
+    src/data/types.cpp
     src/data/encoding/hex.cpp
     src/data/encoding/ascii.cpp
     src/data/encoding/base58.cpp
