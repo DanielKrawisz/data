@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <algorithm>
 #include <iostream>
+#include <random>
 #include <boost/endian/arithmetic.hpp>
 
 namespace data {
@@ -41,6 +42,11 @@ namespace data {
         using yes = std::true_type;
         using no = std::false_type;
     }
+    
+    // TODO replace this with something good. 
+    using random_engine = std::default_random_engine;
+    
+    random_engine& get_random_engine();
 }
 
 #endif

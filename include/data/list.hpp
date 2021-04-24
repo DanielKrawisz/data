@@ -52,6 +52,18 @@ namespace data::functional::list {
         if (n > s) return rotate_right(x, n % s);
         return rotate_right(rotate_right(x, n - 1));
     }
+    
+    template <typename L>
+    L shuffle(const L x) {
+        L q = x;
+        L z{};
+        while (!empty(q)) {
+            q = rotate_right(q, std::uniform_int_distribution<int>(0, q.size() - 1)(get_random_engine()));
+            z = z << q.first();
+            q = q.rest();
+        }
+        return z;
+    }
 }
 
 namespace data {
