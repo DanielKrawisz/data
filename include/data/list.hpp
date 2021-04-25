@@ -58,7 +58,7 @@ namespace data::functional::list {
         L q = x;
         L z{};
         while (!empty(q)) {
-            q = rotate_right(q, std::uniform_int_distribution<int>(0, q.size() - 1)(get_random_engine()));
+            q = rotate_left(q, std::uniform_int_distribution<int>(0, q.size() - 1)(get_random_engine()));
             z = z << q.first();
             q = q.rest();
         }
