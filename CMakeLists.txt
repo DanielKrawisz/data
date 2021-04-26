@@ -60,7 +60,7 @@ set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
 # Include Boost
-find_package(Boost 1.76.0 COMPONENTS system regex REQUIRED)
+find_package(Boost 1.76.0 COMPONENTS system log log_setup regex REQUIRED)
 
 if(Boost_FOUND)
 
@@ -135,6 +135,7 @@ ADD_LIBRARY(data STATIC
     src/data/crypto/AES.cpp
     src/data/tools/circular_queue.cpp
     src/data/tools/rate_limiter.cpp
+    src/data/log/log.cpp
     include/rotella/aks.cpp
     include/rotella/sieve.cpp
     include/rotella/akslib.cpp
@@ -142,9 +143,11 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} ${OPENSSL_LIBRARIES}
+target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} ${OPENSSL_LIBRARIES}
 #PkgConfig::LIBSECP256K1
 )
+get_target_property(OUT data LINK_LIBRARIES)
+message(STATUS ${OUT})
 # Set C++ version
 target_compile_features(data PUBLIC cxx_std_17)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
