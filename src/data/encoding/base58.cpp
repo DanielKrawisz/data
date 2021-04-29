@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+    // Copyright (c) 2019-2020 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,7 @@ namespace data::encoding::base58 {
     
     view::view(string_view s) : string_view{s}, Bytes{}, ToBytes{nullptr} {
         if (base58::valid(s)) {
-            Bytes = bytes_view(math::number::N_bytes<endian::big>(read<math::number::gmp::N>(s)));
+            Bytes = bytes(bytes_view(math::number::N_bytes<endian::big>(read<math::number::gmp::N>(s))));
             ToBytes = &Bytes;
         }
     }

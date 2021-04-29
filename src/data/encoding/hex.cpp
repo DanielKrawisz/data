@@ -12,11 +12,10 @@
 #include <data/encoding/endian.hpp>
 
 namespace data::encoding::hex {
-    class view : public string_view {
+    struct view : public string_view {
         bytes Bytes;
         bytes *ToBytes;
         
-    public:
         explicit operator bytes_view() const {
             if (ToBytes == nullptr) throw invalid{Format, *this};
             return Bytes;
@@ -31,7 +30,7 @@ namespace data::encoding::hex {
     
     string::operator bytes() const {
         if (!valid()) throw invalid{Format, *this};
-        return bytes(bytes_view(view{*this}));
+        return view{*this}.Bytes;
     }
     
     view::view(string_view sourceString) : string_view{sourceString}, Bytes((sourceString.size() + 1) / 2), ToBytes{nullptr} {

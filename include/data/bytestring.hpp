@@ -16,7 +16,7 @@ namespace data {
         using oriented<byte, r, sizes...>::oriented;
         
         bytestring(string_view hexidecimal);
-        bytestring(bytes_view v) : oriented<byte, r, sizes...>(v, 0, v.size()) {}
+        bytestring(bytes_view v) : oriented<byte, r, sizes...>(v) {}
         
         bytestring operator~() const;
         

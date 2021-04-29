@@ -73,7 +73,7 @@ namespace data::tool {
         static functional_queue check(const stack& l, const stack& r);
         
         const stack values() const {
-            return data::reverse(data::join(data::reverse(Left), Right));
+            return data::join(data::reverse(Right), data::reverse(Left));
         }
     
     };
