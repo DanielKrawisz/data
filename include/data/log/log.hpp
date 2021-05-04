@@ -43,8 +43,8 @@ namespace data::log {
     );
 }
     BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
-#define DATA_LOG_CHANNEL(channel,sev) BOOST_LOG_CHANNEL_SEV((global_log::get()),(channel),(data::log::severity_level::sev))
-#define DATA_LOG(sev) BOOST_LOG_SEV((global_log::get()),(data::log::severity_level::sev))
+#define DATA_LOG_CHANNEL(channel,sev) BOOST_LOG_CHANNEL_SEV((data::log::global_log::get()),(channel),(data::log::severity_level::sev))
+#define DATA_LOG(sev) BOOST_LOG_SEV((data::log::global_log::get()),(data::log::severity_level::sev))
 void init_logging(std::string filename);
 void testLog();
 
