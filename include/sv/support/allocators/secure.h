@@ -6,8 +6,8 @@
 #ifndef BITCOIN_SUPPORT_ALLOCATORS_SECURE_H
 #define BITCOIN_SUPPORT_ALLOCATORS_SECURE_H
 
-#include <bitcoind/support/cleanse.h>
-#include <bitcoind/support/lockedpool.h>
+#include <sv/support/cleanse.h>
+#include <sv/support/lockedpool.h>
 
 #include <string>
 

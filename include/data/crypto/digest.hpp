@@ -26,19 +26,18 @@ namespace data::crypto {
         
         digest& operator=(const digest&);
     };
-
-
+    
     template<size_t s>
     inline bool digest<s>::valid() const {
         return operator!=(digest{0});
     }
-
+    
     template<size_t s>
     inline digest<s>& digest<s>::operator=(const digest<s>& d) {
         uint<s>::operator=(d);
         return *this;
     }
-
+    
 }
 
 #endif

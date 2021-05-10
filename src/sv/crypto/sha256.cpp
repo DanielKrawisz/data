@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <bitcoind/crypto/sha256.h>
-#include <bitcoind/crypto/common.h>
+#include <sv/crypto/sha256.h>
+#include <sv/crypto/common.h>
 
 #include <atomic>
 #include <cassert>

@@ -118,6 +118,20 @@ endif()
 #  Add Library source files here
 
 ADD_LIBRARY(data STATIC
+    src/sv/fs.cpp
+    src/sv/support/cleanse.cpp
+    src/sv/support/lockedpool.cpp
+    src/sv/crypto/chacha20.cpp
+    src/sv/crypto/hmac_sha512.cpp
+    src/sv/crypto/ripemd160.cpp
+    src/sv/crypto/sha1.cpp
+    src/sv/crypto/sha256.cpp
+    src/sv/crypto/sha512.cpp
+    
+    include/rotella/aks.cpp
+    include/rotella/sieve.cpp
+    include/rotella/akslib.cpp
+    
     src/data/types.cpp
     src/data/encoding/hex.cpp
     src/data/encoding/ascii.cpp
@@ -136,14 +150,11 @@ ADD_LIBRARY(data STATIC
     src/data/tools/circular_queue.cpp
     src/data/tools/rate_limiter.cpp
     src/data/log/log.cpp
-    include/rotella/aks.cpp
-    include/rotella/sieve.cpp
-    include/rotella/akslib.cpp
 )
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} ${NTL_LIBRARY} ${OPENSSL_LIBRARIES}
+target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${NTL_LIBRARY} ${OPENSSL_LIBRARIES}
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)

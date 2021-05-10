@@ -11,7 +11,7 @@
 
 #include <cstdint>
 
-#include <bitcoind/compat/byteswap.h>
+#include <sv/compat/byteswap.h>
 
 #include <endian.h>
 

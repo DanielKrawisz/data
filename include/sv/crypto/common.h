@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include <bitcoind/compat/endian.h>
+#include <sv/compat/endian.h>
 
 static inline uint16_t ReadLE16(const uint8_t *ptr) {
     uint16_t x;
