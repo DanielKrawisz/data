@@ -34,19 +34,27 @@
 // Non-Mac OS X / non-Darwin
 
 #if HAVE_DECL_BSWAP_16 == 0
+#define HAVE_DECL_BSWAP_16 1
+#ifndef bswap_16
 inline uint16_t bswap_16(uint16_t x) {
     return (x >> 8) | ((x & 0x00ff) << 8);
 }
+#endif
 #endif // HAVE_DECL_BSWAP16
 
 #if HAVE_DECL_BSWAP_32 == 0
+#define HAVE_DECL_BSWAP_32 1
+#ifndef bswap_32
 inline uint32_t bswap_32(uint32_t x) {
     return (((x & 0xff000000U) >> 24) | ((x & 0x00ff0000U) >> 8) |
             ((x & 0x0000ff00U) << 8) | ((x & 0x000000ffU) << 24));
 }
+#endif
 #endif // HAVE_DECL_BSWAP32
 
 #if HAVE_DECL_BSWAP_64 == 0
+#define HAVE_DECL_BSWAP_64 1
+#ifndef bswap_64
 inline uint64_t bswap_64(uint64_t x) {
     return (((x & 0xff00000000000000ull) >> 56) |
             ((x & 0x00ff000000000000ull) >> 40) |
@@ -57,6 +65,7 @@ inline uint64_t bswap_64(uint64_t x) {
             ((x & 0x000000000000ff00ull) << 40) |
             ((x & 0x00000000000000ffull) << 56));
 }
+#endif
 #endif // HAVE_DECL_BSWAP64
 
 #endif // defined(__APPLE__)
