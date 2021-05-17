@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-namespace data {
+namespace data::math {
     
     TEST(NBytesTest, TestStringToNBytes) {
         
@@ -47,7 +47,8 @@ namespace data {
         EXPECT_TRUE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"0x0001"});
         
     }
-    /* TODO need to tell hex encoder to use lower case. 
+    
+    // TODO need to tell hex encoder to use lower case. 
     TEST(NBytesTest, TestNBytesToHexString) {
         
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"0"}), std::string{"0x00"});
@@ -58,7 +59,7 @@ namespace data {
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"127"}), std::string{"0x7f"});
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"128"}), std::string{"0x80"});
         
-    }*/
+    }
     
     TEST(NBytesTest, TestZeroSize) {
         
@@ -89,7 +90,7 @@ namespace data {
         EXPECT_EQ(N_bytes<endian::little>{"0x00000001"}, N_bytes<endian::little>{1});
         
     }
-    /*
+    
     // Problem: string reversal not happening correctly for some reason!!
     TEST(NBytesTest, TestNToNBytes) {
         
@@ -100,8 +101,8 @@ namespace data {
         EXPECT_EQ(N_bytes<endian::big>{N{"5704566599993321"}}, N_bytes<endian::big>{"5704566599993321"});
         EXPECT_EQ(N_bytes<endian::little>{N{"5704566599993321"}}, N_bytes<endian::little>{"5704566599993321"});
         
-    }*/
-    /*
+    }
+    
     TEST(NBytesTest, TestNBytesToString) {
         
         EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"1"}), std::string{"1"});
@@ -118,8 +119,8 @@ namespace data {
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"5704566599993321"}), std::string{"144445e9ca47e9"});
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"5704566599993321"}), std::string{"144445e9ca47e9"});
         
-    }*/
-    /*
+    }
+    
     TEST(NBytesTest, TestNBytesToN) {
         
         EXPECT_EQ(N{N_bytes<endian::big>{}}, N{0});
@@ -132,8 +133,8 @@ namespace data {
         EXPECT_EQ(Z{Z_bytes<endian::little>{}}, Z{0});
         EXPECT_EQ(Z{Z_bytes<endian::little>{""}}, Z{0});
         
-    }*/
-    /* TODO restore this test eventually. 
+    }
+    // TODO restore this test eventually. 
     TEST(NBytesTest, TestIncrement) {
         
         EXPECT_EQ(++N_bytes<endian::big>{"0x"}, N_bytes<endian::big>{1});
@@ -143,7 +144,7 @@ namespace data {
         EXPECT_EQ(++N_bytes<endian::little>{"0x00"}, N_bytes<endian::little>{1});
         EXPECT_EQ(++N_bytes<endian::little>{"0x000000"}, N_bytes<endian::little>{1});
         
-    }*/
+    }
     
 }
 

@@ -13,7 +13,7 @@
 #include <data/encoding/digits.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
-#include <data/iterable.hpp>
+#include <data/cross.hpp>
 
 namespace data::encoding::base58 {
     
@@ -39,10 +39,14 @@ namespace data::encoding::base58 {
         
         N n{0};
         
+        //std::cout << "   reading base 58 number " << s << std::endl;
+        
         for (int i = s.size() - 1; i >= 0; i--) {
             char v = digit(s[i]);
+            //std::cout << "     digit is " << s[i] << " or " << uint64(v) << std::endl;
             if (v == -1) return N{};
             n += power * uint64(v);
+            //std::cout << "     n is " << n  << std::endl;
             power *= 58;
         }
         

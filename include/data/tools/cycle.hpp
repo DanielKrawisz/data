@@ -5,13 +5,17 @@
 #ifndef DATA_TOOLS_CYCLE
 #define DATA_TOOLS_CYCLE
 
-#include <data/tools.hpp>
+#include <data/tools/linked_stack.hpp>
+#include <data/tools/functional_queue.hpp>
     
 namespace data::tool {
     
     template <typename X>
     struct cycle {
-        list<X> Cycle;
+        
+        using list = functional_queue<linked_stack<X>>;
+        
+        list Cycle;
         
         bool valid() const {
             return data::valid(Cycle);
@@ -19,7 +23,7 @@ namespace data::tool {
             
         cycle() : Cycle{} {}
         
-        explicit cycle(list<X> l) : Cycle{l} {}
+        explicit cycle(list l) : Cycle{l} {}
         
         cycle(std::initializer_list<X> x) : Cycle{} {
             for (X e : x) Cycle = Cycle << e;

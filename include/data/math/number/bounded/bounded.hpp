@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_BOUNDED
 
 #include <type_traits>
-#include <data/bytestring.hpp>
+#include <data/cross.hpp>
 #include <data/math/group.hpp>
 #include <data/math/sign.hpp>
 #include <data/encoding/halves.hpp>
@@ -19,11 +19,11 @@ namespace data::math::number {
     template <bool is_signed, endian::order, size_t size> struct bounded;
     
     template <endian::order r, size_t size>
-    struct bounded<false, r, size> : bytestring<r, size> {
+    struct bounded<false, r, size> : byte_array<size> {
         using bit32 = uint32;
         using bit64 = uint64;
         
-        using array = bytestring<r, size>;
+        using array = byte_array<size>;
         
         bounded() : array(0x00) {}
         
@@ -34,8 +34,26 @@ namespace data::math::number {
         
         bounded(const array& b) : array{b} {}
         
-        explicit bounded(slice<byte, size>);
-        explicit bounded(string_view s);
+        explicit bounded(slice<byte, size> x) {
+            std::copy(x.begin(), x.end(), this->begin());
+        }
+        
+        // The string can be a hex string or a representation of a number. 
+        explicit bounded(string_view s) : bounded{} {
+            
+            ptr<N_bytes_little> dec = encoding::natural::read<endian::little>(s);
+            if (dec != nullptr) 
+                if (dec->size() <= size) std::copy(dec->begin(), dec->end(), words().begin(*this));
+                else throw "decimal number too big";
+            
+            ptr<bytes> hex = encoding::hex::read(s);
+            if (hex != nullptr) 
+                if (hex->size() == size) std::copy(hex->begin(), hex->end(), this->begin());
+                else throw "hex string has the wrong size.";
+                
+            throw "format is unrecognized.";
+            
+        }
         
         operator slice<byte, size>() const {
             return slice<byte, size>{const_cast<byte*>(array::data())};
@@ -51,11 +69,21 @@ namespace data::math::number {
         bounded operator^(const bounded&) const;
         bounded& operator^=(const bounded&);
         
-        bool operator<(const bounded&) const;
-        bool operator<=(const bounded&) const;
-
-        bool operator>(const bounded& d) const;
-        bool operator>=(const bounded& d) const;
+        bool operator<(const bounded& b) const {
+            return arithmetic::less(words().crend(*this), words().crbegin(*this), words().crbegin(b));
+        }
+        
+        bool operator<=(const bounded& b) const {
+            return arithmetic::less_equal(words().crend(*this), words().crbegin(*this), words().crbegin(b));
+        }
+        
+        bool operator>(const bounded& b) const {
+            return arithmetic::greater(words().crend(*this), words().crbegin(*this), words().crbegin(b));
+        }
+        
+        bool operator>=(const bounded& b) const {
+            return arithmetic::greater_equal(words().crend(*this), words().crbegin(*this), words().crbegin(b));
+        }
         
         bounded& operator+=(const bounded&);
         bounded& operator-=(const bounded&);
@@ -133,11 +161,11 @@ namespace data::math::number {
     };
     
     template <endian::order r, size_t size>
-    struct bounded<true, r, size> : data::bytestring<r, size> {
+    struct bounded<true, r, size> : byte_array<size> {
         using bit32 = int32;
         using bit64 = int64;
         
-        using array = data::bytestring<r, size>;
+        using array = byte_array<size>;
         
         bounded() : array{0} {}
         
@@ -458,15 +486,7 @@ namespace data::math::number {
     bool bounded<size, o, true>::operator<=(const bounded& n) const {
         return methods::less_equal(words_type::Last, array::words(), n.words());
     }
-*/
-    template <endian::order o, size_t size>
-    bounded<false, o, size>::bounded(string_view s) : bounded{} {
-        if (!encoding::natural::valid(s)) throw std::invalid_argument{"not a natural number"};
-
-        if (encoding::hexidecimal::valid(s) && s.size() > (2 + 2 * size)) throw std::invalid_argument{"string too long"};
-        *this = bounded{N_bytes<o>{s}};
-    }
-/*
+    
     template <size_t size, endian::order o>
     bounded<size, o, true>::bounded(string_view s) : bounded{} {
         if (!encoding::integer::valid(s)) throw std::invalid_argument{"not an integer"};
@@ -525,8 +545,8 @@ namespace data::math::number {
 
 namespace data {
     
-    template <size_t size> using uint = math::number::bounded<false, endian::order::big, size>;
-    template <size_t size> using integer = math::number::bounded<true, endian::order::big, size>;
+    template <size_t size> using uint = math::number::bounded<false, endian::order::little, size>;
+    template <size_t size> using integer = math::number::bounded<true, endian::order::little, size>;
 
     namespace encoding::hexidecimal {
 

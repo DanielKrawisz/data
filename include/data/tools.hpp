@@ -29,6 +29,11 @@
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/tools/ordered_list.hpp>
+#include <data/tools/cycle.hpp>
+
+#include <data/cross.hpp>
+
+#include <data/fold.hpp>
 
 namespace data {
     

@@ -15,7 +15,7 @@ namespace data::encoding::base58 {
     
     view::view(string_view s) : string_view{s}, Bytes{}, ToBytes{nullptr} {
         if (base58::valid(s)) {
-            Bytes = bytes(bytes_view(math::number::N_bytes<endian::big>(read<math::number::gmp::N>(s))));
+            Bytes = bytes(*hex::read(data::encoding::hexidecimal::write(read<math::number::gmp::N>(s)).substr(2)));
             ToBytes = &Bytes;
         }
     }

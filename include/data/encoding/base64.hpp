@@ -9,7 +9,7 @@
 #include <ctre.hpp>
 
 #include <data/encoding/invalid.hpp>
-#include <data/iterable.hpp>
+#include <data/cross.hpp>
 #include <data/math/division.hpp>
 
 namespace data::encoding::base64 {      

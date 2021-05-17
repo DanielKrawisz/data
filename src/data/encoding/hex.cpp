@@ -56,15 +56,9 @@ namespace data::encoding::hex {
     }
     
     void write_hex(string& output, bytes_view sourceBytes, letter_case q) {
-        output.resize(sourceBytes.size() * 2);
+        output.resize(sourceBytes.size());
         if (q == upper) boost::algorithm::hex(sourceBytes.begin(), sourceBytes.end(), output.begin());
         else boost::algorithm::hex_lower(sourceBytes.begin(), sourceBytes.end(), output.begin());
-    }
-    
-    string write(bytes_view sourceBytes, letter_case q) {
-        string output;
-        write_hex(output, sourceBytes, q);
-        return output;
     }
     
     string write(bytes_view sourceBytes, endian::order r, letter_case q) {

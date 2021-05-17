@@ -13,42 +13,42 @@ namespace data {
     
     template <> struct digits<uint64> {
         constexpr static bool is_signed = false;
-        constexpr static size_t value = 64;
+        constexpr static size_t value = 8;
     };
     
     template <> struct digits<uint32> {
         constexpr static bool is_signed = false;
-        constexpr static size_t value = 32;
+        constexpr static size_t value = 4;
     };
     
     template <> struct digits<uint16> {
         constexpr static bool is_signed = false;
-        constexpr static size_t value = 16;
+        constexpr static size_t value = 2;
     };
     
     template <> struct digits<int64> {
         constexpr static bool is_signed = true;
-        constexpr static size_t value = 64;
+        constexpr static size_t value = 8;
     };
     
     template <> struct digits<int32> {
         constexpr static bool is_signed = true;
-        constexpr static size_t value = 32;
+        constexpr static size_t value = 4;
     };
     
     template <> struct digits<int16> {
         constexpr static bool is_signed = true;
-        constexpr static size_t value = 16;
+        constexpr static size_t value = 2;
     };
     
     template <> struct digits<byte> {
         constexpr static bool is_signed = false;
-        constexpr static size_t value = 8;
+        constexpr static size_t value = 1;
     };
     
     template <> struct digits<char> {
         constexpr static bool is_signed = true;
-        constexpr static size_t value = 8;
+        constexpr static size_t value = 1;
     };
     
     template <endian::order o, bool z, size_t size> struct digits<endian::arithmetic<o, z, size>> {

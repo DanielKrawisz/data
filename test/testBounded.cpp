@@ -33,12 +33,12 @@ namespace data {
     using u5b = bounded<false, data::endian::big, 5>;
     using s5l = bounded<true, data::endian::little, 5>;
     using s5b  = bounded<true, data::endian::big, 5>;
-    /*
+    
     using nl = math::number::N_bytes<data::endian::little>;
     using nb = math::number::N_bytes<data::endian::big>;
     using zl = math::number::Z_bytes<data::endian::little>;
     using zb = math::number::Z_bytes<data::endian::big>;
-    */
+    
     TEST(BoundedTest, BoundedReadString) {
         
         EXPECT_THROW(u8b{"-1"}, std::invalid_argument);
@@ -112,7 +112,7 @@ namespace data {
         EXPECT_NE(Z(s8b(0)), Z(1));
         EXPECT_GT(Z(s8b(1)), Z(0));
         EXPECT_LT(Z(s8b(0)), Z(1));
-        /*
+        
         EXPECT_EQ(N(nl(0)), N(0));
         EXPECT_EQ(N(nl(1)), N(1));
         EXPECT_NE(N(nl(1)), N(0));
@@ -125,7 +125,7 @@ namespace data {
         EXPECT_NE(Z(zl(1)), Z(0));
         EXPECT_NE(Z(zl(0)), Z(1));
         EXPECT_GT(Z(zl(1)), Z(0));
-        EXPECT_LT(Z(zl(0)), Z(1));*/
+        EXPECT_LT(Z(zl(0)), Z(1));
         
     }
     
@@ -190,14 +190,14 @@ namespace data {
         EXPECT_FALSE(s5l{0} < 0);
         EXPECT_FALSE(s5l{1} < 0);
         EXPECT_TRUE(s5l{-1} < 0);
-        /*
+        
         EXPECT_FALSE(zb{0} < 0);
         EXPECT_FALSE(zb{1} < 0);
         EXPECT_TRUE(zb{-1} < 0);
         
         EXPECT_FALSE(zl{0} < 0);
         EXPECT_FALSE(zl{1} < 0);
-        EXPECT_TRUE(zl{-1} < 0);*/
+        EXPECT_TRUE(zl{-1} < 0);
         
     }
     
@@ -226,12 +226,12 @@ namespace data {
         
         EXPECT_EQ(-s5l{"1"}, s5l{"-1"});
         EXPECT_EQ(-s5l{"-1"}, s5l{"1"});
-        /*
+        
         EXPECT_EQ(-zb{"1"}, zb{"-1"});
         EXPECT_EQ(-zb{"-1"}, zb{"1"});
         
         EXPECT_EQ(-zl{"1"}, zl{"-1"});
-        EXPECT_EQ(-zl{"-1"}, zl{"1"});*/
+        EXPECT_EQ(-zl{"-1"}, zl{"1"});
         
     }
     

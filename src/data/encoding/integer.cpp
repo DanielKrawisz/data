@@ -135,21 +135,6 @@ namespace data::encoding {
     
     namespace hexidecimal {
         
-        std::ostream& write(std::ostream& o, bytes_view b, endian::order r, hex::letter_case q) {
-            o << "0x";
-            if (r == endian::order::big) for (int i = 0; i < b.size(); i++) o << hex::write(b[i], q);
-            else for(int i = b.size() - 1; i >= 0; i--) o << hex::write(b[i], q);
-            return o;
-        }
-        
-        ptr<bytes> read(string_view s, endian::order r) {
-            if (!valid(s)) throw std::invalid_argument{"not hexidecimal"};
-            ptr<bytes> b = hex::read(s.substr(2));
-            if (b == nullptr || r == endian::big) return b;
-            std::reverse(b->begin(), b->end());
-            return b;
-        }
-        
         N::N() : string{"0x00"} {}
         
         N::N(const string& x) : string{hexidecimal::valid(x) ? x : ""} {}
@@ -270,7 +255,7 @@ namespace data::encoding {
         }
         
     }
-    
+    /*
     namespace natural {
         
         ptr<bytes> read(string_view s, endian::order r) {
@@ -300,7 +285,7 @@ namespace data::encoding {
             return decimal::read(s, r);
         }
         
-    }
+    }*/
     
 }
 

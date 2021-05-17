@@ -6,7 +6,7 @@
 #define DATA_ENCODING_ASCII
 
 #include <string>
-#include <data/iterable.hpp>
+#include <data/cross.hpp>
 
 namespace data::encoding::ascii {
     const std::string Format{"ascii"};

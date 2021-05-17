@@ -1,7 +1,7 @@
 #ifndef DATA_UNICODE
 #define DATA_UNICODE
 
-#include <data/iterable.hpp>
+#include <data/cross.hpp>
 
 namespace data::encoding::unicode {
     

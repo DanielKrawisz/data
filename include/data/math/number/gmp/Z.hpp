@@ -7,7 +7,7 @@
 
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/integer.hpp>
-#include <data/iterable.hpp>
+#include <data/cross.hpp>
 #include <data/io/unimplemented.hpp>
 #include <iostream>
 

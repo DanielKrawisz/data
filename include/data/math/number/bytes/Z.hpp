@@ -9,7 +9,6 @@
 #include <data/math/number/integer.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/division.hpp>
-#include <data/bytestring.hpp>
 #include <data/math/number/abs.hpp>
 #include <algorithm>
 
@@ -18,18 +17,16 @@ namespace data::math::number {
     template <endian::order r> struct N_bytes;
     
     template <endian::order r>
-    struct Z_bytes : protected bytestring<r> {
+    struct Z_bytes : bytes {
         friend struct N_bytes<r>;
         
-        Z_bytes() : bytestring<r>{} {}
+        Z_bytes();
         
         Z_bytes(const N_bytes<r>&);
         
-        Z_bytes(int64 x) : bytestring<r>(8, x < 0 ? 0xff : 0x00) {
-            *(int64*)(bytestring<r>::data()) = endian::native<int64, r>{}.from(x);
-        }
+        Z_bytes(int64 x);
         
-        Z_bytes(const bytestring<r>& x) : bytestring<r>(x) {}
+        Z_bytes(const bytes& x);
         
         // First we write the Z as hex and then read it in again. 
         // A bit inefficient but it's really not that bad. 
@@ -42,26 +39,16 @@ namespace data::math::number {
         
         static Z_bytes read(string_view x) {
             if (x == "") return 0; 
-            ptr<bytes> b = encoding::integer::read(x, r);
+            ptr<Z_bytes> b = encoding::integer::read<r>(x);
             if (b == nullptr) throw std::invalid_argument{"invalid integer string provided"};
             return Z_bytes<r>{*b};
         }
         
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}
         
-        Z_bytes(bytes_view b) : bytestring<r>(b) {}
+        Z_bytes(bytes_view b);
         
-        explicit operator bytes_view() const {
-            return bytestring<r>::operator bytes_view();
-        }
-        
-        using bytestring<r>::size;
-        using bytestring<r>::begin;
-        using bytestring<r>::end;
-        using bytestring<r>::rbegin;
-        using bytestring<r>::rend;
-        using bytestring<r>::operator[];
-        using bytestring<r>::valid;
+        explicit operator bytes_view() const;
         
     private:
         
@@ -75,7 +62,7 @@ namespace data::math::number {
             return true;
         }
         
-        Z_bytes(size_t size, byte fill) : bytestring<r>(size, fill) {}
+        Z_bytes(size_t size, byte fill);
         
     public:
         static Z_bytes zero(size_t size) {
@@ -314,36 +301,6 @@ namespace data::math {
     template <endian::order r> struct associative<data::plus<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
     template <endian::order r> struct commutative<data::times<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
     template <endian::order r> struct associative<data::times<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
-}
-
-namespace data::encoding::hexidecimal {
-    
-    template <endian::order r>
-    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
-        return o << "0x" << hex::write(bytes_view(n), r);
-    }
-    
-    template <endian::order r>
-    std::string write(const math::number::Z_bytes<r>& n) {
-        std::stringstream ss;
-        write(ss, n);
-        return ss.str();
-    }
-    
-}
-
-namespace data::encoding::integer {
-    
-    template <endian::order r>
-    std::ostream& write(std::ostream& o, const math::number::Z_bytes<r>& n) {
-        throw method::unimplemented{"decimal::write(Z_bytes)"};
-    }
-    
-    template <endian::order r>
-    std::string write(const math::number::Z_bytes<r>& n){
-        throw method::unimplemented{"decimal::write(Z_bytes)"};
-    }
-    
 }
 
 template <data::endian::order r>

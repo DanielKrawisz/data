@@ -8,7 +8,7 @@
 #include <exception>
 
 #include <data/encoding/endian.hpp>
-#include <data/iterable.hpp>
+#include <data/cross.hpp>
 #include <data/slice.hpp>
 
 namespace data {
