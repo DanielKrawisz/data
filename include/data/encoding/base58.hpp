@@ -5,25 +5,26 @@
 #ifndef DATA_ENCODING_BASE58
 #define DATA_ENCODING_BASE58
 
+#include <algorithm>
+
+#include <ctre.hpp>
+
 #include <data/types.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
 #include <data/iterable.hpp>
-#include <boost/regex.hpp>
-#include <algorithm>
-#include <iostream>
 
 namespace data::encoding::base58 {
     
     const std::string Format{"base58"};
     
     inline std::string characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
-
-    static const boost::regex pattern {"^1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)$"};
+    
+    static constexpr auto pattern = ctll::fixed_string{"1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)"};
     
     inline bool valid(const string_view s) {
-        return boost::regex_match(s.data(),pattern);
+        return ctre::match<pattern>(s);
     }
     
     inline char digit(char c) {

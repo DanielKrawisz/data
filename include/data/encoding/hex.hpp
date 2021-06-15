@@ -6,10 +6,11 @@
 #ifndef DATA_ENCODING_HEX
 #define DATA_ENCODING_HEX
 
+#include <ctre.hpp>
+
 #include <boost/algorithm/hex.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/iterable.hpp>
-#include <boost/regex.hpp>
 
 namespace data::encoding::hex {
     const std::string Format{"hex"};
@@ -26,10 +27,11 @@ namespace data::encoding::hex {
     inline std::string characters_upper() {
         return "0123456789ABCDEF";
     }
+    
+    static constexpr auto pattern = ctll::fixed_string{"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
 
-    static const boost::regex pattern{"^(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)$"};
     inline bool valid(string_view s) {
-        return boost::regex_match(s.data(), pattern);
+        return ctre::match<pattern>(s);
     }
     
     ptr<bytes> read(string_view);

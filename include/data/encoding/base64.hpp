@@ -6,7 +6,8 @@
 #ifndef DATA_ENCODING_BASE64
 #define DATA_ENCODING_BASE64
 
-#include <boost/regex.hpp>
+#include <ctre.hpp>
+
 #include <data/encoding/invalid.hpp>
 #include <data/iterable.hpp>
 #include <data/math/division.hpp>
@@ -20,10 +21,11 @@ namespace data::encoding::base64 {
     }
     
     constexpr static char Pad = '=';
-    static const boost::regex pattern{"^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"};
+    
+    static constexpr auto pattern = ctll::fixed_string{"(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})"};
 
     inline bool valid(string_view s) {
-        return boost::regex_match(s.data(),pattern);
+        return ctre::match<pattern>(s);
     }
     
     ptr<bytes> read(string_view);
