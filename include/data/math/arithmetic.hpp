@@ -6,6 +6,7 @@
 #define DATA_MATH_ARITHMETIC
 
 #include <data/iterable.hpp>
+#include <data/encoding/halves.hpp>
 #include <type_traits>
 
 namespace data {
@@ -215,6 +216,120 @@ namespace data::math::arithmetic {
     
     template <typename word, endian::order r>
     void minus(const number<word, r> a, number<word, r> b);
+    
+};
+
+
+namespace data::math::arithmetic {
+    
+    template <typename sen, typename ita, typename itb>
+    void bit_negate(sen z, ita i, itb j) {
+        while (i != z) {
+            *i = ~ *j;
+            i++;
+            j++;
+        }
+    }
+    
+    template <typename sen, typename it, typename ita, typename itb>
+    void bit_and(sen z, it i, ita a, itb b) {
+        while (i != z) {
+            *i = *a & *b;
+            i++;
+            a++;
+            b++;
+        }
+    }
+    
+    template <typename sen, typename it, typename ita, typename itb>
+    void bit_or(sen z, it i, ita a, itb b) {
+        while (i != z) {
+            *i = *a | *b;
+            i++;
+            a++;
+            b++;
+        }
+    }
+    
+    template <typename sen, typename it, typename ita, typename itb>
+    void bit_xor(sen z, it i, ita a, itb b) {
+        while (i != z) {
+            *i = *a ^ *b;
+            i++;
+            a++;
+            b++;
+        }
+    }
+    
+    template <typename sen, typename ita, typename itb>
+    bool equal(sen z, ita i, itb j) {
+        while (i != z) {
+            if(*i != *j) return false;
+            i++;
+            j++;
+        }
+    }
+    
+    template <typename sen, typename ita, typename itb>
+    bool less(sen z, ita i, itb j) {
+        while (i != z) {
+            if(*i < *j) return true;
+            if(*i > *j) return false;
+            i++;
+            j++;
+        }
+        return false;
+    }
+    
+    template <typename sen, typename ita, typename itb>
+    bool greater(sen z, ita i, itb j) {
+        while (i != z) {
+            if(*i < *j) return false;
+            if(*i > *j) return true;
+            i++;
+            j++;
+        }
+        return false;
+    }
+    
+    template <typename sen, typename ita, typename itb>
+    bool less_equal(sen z, ita i, itb j) {
+        while (i != z) {
+            if(*i < *j) return true;
+            if(*i > *j) return false;
+            i++;
+            j++;
+        }
+        return true;
+    }
+    
+    template <typename sen, typename ita, typename itb>
+    bool greater_equal(sen z, ita i, itb j) {
+        while (i != z) {
+            if(*i < *j) return false;
+            if(*i > *j) return true;
+            i++;
+            j++;
+        }
+        return true;
+    }
+    
+    template <typename sen, typename ita, typename itb>
+    void plus(sen z, ita i, itb a, itb b) {
+        using digit = decltype(*i);
+        using two_digits = typename twice<digit>::type;
+        
+        digit remainder = 0;
+        
+        while (i != z) {
+            two_digits result = add(*a, *b, remainder);
+            remainder = greater(result);
+            *i = lesser(result);
+            i++;
+            a++;
+            b++;
+        }
+    }
     
 };
 

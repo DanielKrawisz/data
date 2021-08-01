@@ -233,6 +233,16 @@ namespace data {
         return ((typename twice<half>::type)(greater) << digits<half>::value) + lesser;
     };
     
+    template<typename half>
+    typename twice<half>::type mul(half a, half b) {
+        return (typename twice<half>::type)(a) * (typename twice<half>::type)(b);
+    };
+    
+    template<typename half>
+    typename twice<half>::type add(half a, half b, half r) {
+        return (typename twice<half>::type)(a) + b + r;
+    };
+    
 }
 
 #endif
