@@ -10,6 +10,9 @@
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/division.hpp>
 #include <data/math/number/abs.hpp>
+#include <data/math/arithmetic.hpp>
+#include <data/encoding/words.hpp>
+
 #include <algorithm>
 
 namespace data::math::number {
@@ -26,25 +29,13 @@ namespace data::math::number {
         
         Z_bytes(int64 x);
         
-        Z_bytes(const bytes& x) : bytes{x} {}
+        explicit Z_bytes(const Z& z);
         
-        // First we write the Z as hex and then read it in again. 
-        // A bit inefficient but it's really not that bad. 
-        explicit Z_bytes(const Z& z) : Z_bytes() {
-            if (!z.valid()) throw std::invalid_argument{"invalid Z provided"};
-            *this = Z_bytes(data::encoding::hexidecimal::write(z));
-        }
+        explicit Z_bytes(const N& n);
         
-        explicit Z_bytes(const N& n) : Z_bytes(Z(n)) {}
+        static Z_bytes read(string_view x);
         
-        static Z_bytes read(string_view x) {
-            if (x == "") return 0; 
-            ptr<Z_bytes> b = encoding::integer::read<r>(x);
-            if (b == nullptr) throw std::invalid_argument{"invalid integer string provided"};
-            return Z_bytes<r>{*b};
-        }
-        
-        explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}
+        explicit Z_bytes(string_view s);
         
         Z_bytes(bytes_view b);
         
@@ -60,7 +51,9 @@ namespace data::math::number {
             return true;
         }
         
-        Z_bytes(size_t size, byte fill);
+        Z_bytes(size_t size, byte fill) : bytes(size) {
+            this->fill(fill);
+        }
         
     public:
         static Z_bytes zero(size_t size) {
@@ -80,31 +73,23 @@ namespace data::math::number {
             return !operator==(z);
         }
         
-        bool operator<(const Z_bytes& z) const; /*{
-            bool na = is_negative();
-            bool nz = z.is_negative();
-            return na != nz ? na : methods::less(std::max(size(), z.size()), words(), z.words());
-        }*/
+        bool operator<(const Z_bytes& z) const;
         
-        bool operator>(const Z_bytes& n) const {
-            return !operator<=(n);
+        bool operator>(const Z_bytes& n) const;
+        
+        bool operator<=(const Z_bytes& z) const {
+            return !operator>(z);
         }
         
-        bool operator<=(const Z_bytes& z) const;/* {
-            bool na = is_negative();
-            bool nz = z.is_negative();
-            return na != nz ? na : methods::less_equal(std::max(size(), z.size()), words(), z.words());
-        }*/
-        
-        bool operator>=(const Z_bytes& n) const {
-            return !operator<(n);
+        bool operator>=(const Z_bytes& z) const {
+            return !operator<(z);
         }
         
-        Z_bytes operator~() const; /*{
-            Z_bytes z(size(), 0);
-            arithmetic::bit_negate(arithmetic::number(z), arithmetic::number(*this));
+        Z_bytes operator~() const {
+            Z_bytes z(*this);
+            arithmetic::bit_negate(z.end(), z.begin(), z.begin());
             return z;
-        }*/
+        }
         
         Z_bytes& operator++() {
             operator+=(1);
@@ -137,7 +122,7 @@ namespace data::math::number {
         Z_bytes operator-(const Z_bytes& z) const;
         
         Z_bytes operator-() const {
-            return ++(~Z_bytes{0});
+            return ++(~*this);
         }
         
         Z_bytes& operator-=(const Z_bytes& n) {
@@ -208,16 +193,123 @@ namespace data::math::number {
         
         template <size_t size, endian::order o> 
         explicit Z_bytes(const bounded<size, o, false>& b) : Z_bytes{bytes_view(b), o} {}
+        
+        data::arithmetic::digits<r> digits() {
+            return data::arithmetic::digits<r>{slice<byte>(*this)};
+        }
+        
+        const data::arithmetic::digits<r> digits() const {
+            return data::arithmetic::digits<r>{slice<byte>(*const_cast<Z_bytes*>(this))};
+        }
+        
+    private:
+        // TODO use words type eventually. 
+        using words_type = data::arithmetic::digits<r>;
+        
+        words_type words() {
+            return digits();
+        }
+        
+        const words_type words() const {
+            return digits();
+        }
     };
-    /*
+    
+    template <endian::order r> Z_bytes<r>::Z_bytes() : bytes{} {}
+    
+    template <endian::order r> Z_bytes<r>::Z_bytes(const N_bytes<r>& n) {
+        typename data::arithmetic::digits<r>::iterator it;
+        if (n.digits()[0] <= 0x80) {
+            this->resize(n.size() + 1);
+            this->operator[](0) = 0;
+            it = this->digits().begin();
+            it++;
+        } else {
+            this->resize(n.size());
+            it = this->digits().begin();
+            it++;
+        }
+        std::copy(n.begin(), n.end(), it);
+    }
+    
+    template <endian::order r> Z_bytes<r>::Z_bytes(int64 x) : Z_bytes{} {
+        this->resize(8);
+        endian::arithmetic<r, true, 8> n{x};
+        std::copy(n.begin(), n.end(), this->begin());
+    }
+    
+    template <endian::order r> Z_bytes<r>::Z_bytes(bytes_view x) : bytes{x} {}
+    
+    // First we write the Z as hex and then read it in again. 
+    // A bit inefficient but it's really not that bad. 
+    template <endian::order r>  Z_bytes<r>::Z_bytes(const Z& z) : Z_bytes() {
+        if (!z.valid()) throw std::invalid_argument{"invalid Z provided"};
+        *this = Z_bytes(data::encoding::hexidecimal::write(z));
+    }
+    
+    template <endian::order r>  Z_bytes<r>::Z_bytes(const N& n) : Z_bytes(Z(n)) {}
+    
+    template <endian::order r> Z_bytes<r> Z_bytes<r>::read(string_view x) {
+        if (x == "") return 0; 
+        ptr<Z_bytes> b = encoding::integer::read<r>(x);
+        if (b == nullptr) throw std::invalid_argument{"invalid integer string provided"};
+        return Z_bytes<r>{*b};
+    }
+    
+    template <endian::order r> Z_bytes<r>::Z_bytes(string_view s) : Z_bytes{read(s)} {}
+    
+    template <typename it> bool check_non_zero(it x, size_t size) {
+        bool r = false;
+        for (int i = 0; i < size; i++) {
+            if (*x != 0) r = true;
+            x++;
+        }
+        return r;
+    }
+    
+    template <endian::order r> 
+    bool Z_bytes<r>::operator<(const Z_bytes& z) const {
+        math::sign na = sign();
+        math::sign nz = z.sign();
+        if (na != nz) return na < nz;
+        if (na == math::zero) return false;
+        auto i = begin();
+        auto j = z.begin();
+        if (size() > z.size()) {
+            if (check_non_zero(i, size() - z.size())) return na == math::negative;
+        } else {
+            if (check_non_zero(j, z.size() - size())) return na == math::positive;
+        }
+        return arithmetic::less(end(), i, j);
+    }
+    
+    template <endian::order r> 
+    bool Z_bytes<r>::operator>(const Z_bytes& z) const {
+        math::sign na = sign();
+        math::sign nz = z.sign();
+        if (na != nz) return na > nz;
+        if (na == math::zero) return false;
+        auto i = begin();
+        auto j = z.begin();
+        auto b = size() > z.size() ? i : j;
+        if (size() > z.size()) {
+            if (check_non_zero(i, size() - z.size())) return na == math::positive;
+        } else {
+            if (check_non_zero(j, z.size() - size())) return na == math::negative;
+        }
+        return arithmetic::greater(end(), i, j);
+    }
+    
+    
     template <endian::order r> 
     Z_bytes<r> Z_bytes<r>::operator+(const Z_bytes& z) const {
-        uint32 s = std::max(size(), z.size()) + 1;
-        Z_bytes re{bytes{s}};
-        methods::plus(s, words(), z.words(), re.words());
+        std::cout << "plus operator" << std::endl;
+        Z_bytes re(std::max(size(), z.size()) + 1, 0);
+        arithmetic::plus(re.words(), this->words(), z.words());
         return re.trim();
     }
     
+    /*
     template <endian::order r>
     Z_bytes<r> Z_bytes<r>::operator-(const Z_bytes& z) const {
         uint32 s = std::max(size(), z.size()) + 1;

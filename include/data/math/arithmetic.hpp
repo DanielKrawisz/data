@@ -208,8 +208,39 @@ namespace data::math::arithmetic {
     template <typename word, endian::order r>
     void minus(number<word, r>, const number<word, r> a, word b);
     
-    template <typename word, endian::order r>
-    void plus(number<word, r>, const number<word, r> a, number<word, r> b);
+    template <typename words>
+    void plus(words sum, const words a, words b) {
+        auto sb = sum.begin();
+        auto se = sum.end();
+        auto ab = a.begin();
+        auto ae = a.end();
+        auto bb = b.begin();
+        auto be = b.end();
+        
+        using digit = std::remove_reference_t<decltype(*sb)>;
+        using two_digits = typename twice<digit>::type;
+        
+        digit remainder = 0;
+        
+        while (sb != se) {
+            two_digits x = remainder;
+            
+            if (ab != ae) {
+                x += *ab;
+                ab++;
+            }
+            
+            if (bb != be) {
+                x += *bb;
+                bb++;
+            }
+            
+            *sb = lesser_half(x);
+            remainder = greater_half(x);
+            
+            sb++;
+        } 
+    }
     
     template <typename word, endian::order r>
     void times(const number<word, r> a, number<word, r> b);
@@ -221,6 +252,16 @@ namespace data::math::arithmetic {
 
 
 namespace data::math::arithmetic {
+    
+    template <typename sen, typename ita, typename itb>
+    bool equal(sen z, ita i, itb j) {
+        while (i != z) {
+            if (*i != *j) return false;
+            i++;
+            j++;
+        }
+        return true;
+    }
     
     template <typename sen, typename ita, typename itb>
     void bit_negate(sen z, ita i, itb j) {
@@ -258,15 +299,6 @@ namespace data::math::arithmetic {
             i++;
             a++;
             b++;
-        }
-    }
-    
-    template <typename sen, typename ita, typename itb>
-    bool equal(sen z, ita i, itb j) {
-        while (i != z) {
-            if(*i != *j) return false;
-            i++;
-            j++;
         }
     }
     

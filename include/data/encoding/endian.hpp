@@ -148,6 +148,10 @@ namespace data::endian {
         }
         
         explicit arithmetic(const opposite_endian& x) : boost_arith{native_type(x)} {}
+        
+        size_t size() const {
+            return bytes;
+        }
     };
     
 }

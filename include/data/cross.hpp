@@ -46,6 +46,11 @@ namespace data {
         slice<X> range(int, int);
         
         slice<X> range(data::range r);
+        
+    protected:
+        void fill(const X& x) {
+            for (X& z : *this) z = x;
+        }
     };
     
     template <typename X>
@@ -65,7 +70,7 @@ namespace data {
         
         static array filled(const X& x) {
             array n{};
-            for (const X& z : n) z = x;
+            for (X& z : n) z = x;
             return n;
         }
         
@@ -76,10 +81,6 @@ namespace data {
                 x = *it; 
                 it++;
             }
-        }
-        
-        void fill(const X& x) {
-            for (X& z : *this) z = x;
         }
     };
     
@@ -101,9 +102,18 @@ namespace data {
         }
         
         bytes operator~() const {
-            bytes n(size());
-            math::arithmetic::bit_negate(n.end(), n.begin(), this->begin());
+            bytes n(*this);
+            n.bit_negate();
             return n;
+        }
+        
+        operator slice<byte>() {
+            return {this->data(), this->size()};
+        }
+        
+    protected:
+        void bit_negate() {
+            math::arithmetic::bit_negate(this->end(), this->begin(), this->begin());
         }
     };
     
@@ -125,24 +135,47 @@ namespace data {
         byte_array operator>>(int32) const;
         
         byte_array operator|(const slice<byte, size> a) const {
-            byte_array n;
-            math::arithmetic::bit_or(n.end(), n.begin(), this->begin(), a.begin());
+            byte_array n(*this);
+            n.bit_or(a);
             return n;
         }
         
         byte_array operator&(const slice<byte, size> a) const {
-            byte_array n;
-            math::arithmetic::bit_and(n.end(), n.begin(), this->begin(), a.begin());
+            byte_array n(*this);
+            n.bit_and(a);
             return n;
         }
         
         byte_array operator^(const slice<byte, size> a) const {
-            byte_array n;
-            math::arithmetic::bit_xor(n.end(), n.begin(), this->begin(), a.begin());
+            byte_array n(*this);
+            n.bit_xor(a);
             return n;
         }
         
         operator slice<byte, size>();
+        
+        static byte_array fill(byte b) {
+            byte_array n{};
+            for (byte& z : n) z = b;
+            return n;
+        }
+        
+    protected:
+        void bit_negate() {
+            math::arithmetic::bit_negate(this->end(), this->begin(), this->begin());
+        }
+        
+        void bit_and(const slice<byte, size> a) {
+            math::arithmetic::bit_and(this->end(), this->begin(), this->begin(), a.begin());
+        }
+        
+        void bit_or(const slice<byte, size> a) {
+            math::arithmetic::bit_or(this->end(), this->begin(), this->begin(), a.begin());
+        }
+        
+        void bit_xor(const slice<byte, size> a) {
+            math::arithmetic::bit_xor(this->end(), this->begin(), this->begin(), a.begin());
+        }
         
     };
     

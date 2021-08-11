@@ -267,10 +267,6 @@ namespace data::math::number {
         friend struct abs<N_bytes, Z_bytes<r>>;
     };
     
-    // Inefficient
-    template <endian::order r>
-    Z_bytes<r>::Z_bytes(const N_bytes<r>& n) : Z_bytes{N{n}} {}
-    
     namespace low {
         template <typename B, typename E, typename O>
         void trim(uint32 size, B b, E e, O o) {
@@ -345,6 +341,7 @@ namespace data::encoding::decimal {
         ptr<math::N_bytes<r>> n = std::make_shared<math::N_bytes<r>>();
         
         for (char x : s) {
+            
             *n *= 10;
             *n += digit(x);
         }

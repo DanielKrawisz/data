@@ -6,7 +6,7 @@
 #define DATA_CRYPTO_NIST
 
 #include <data/crypto/random.hpp>
-#include <crypto++/drbg.h>
+#include <cryptopp/drbg.h>
 
 namespace data::crypto::nist {
     

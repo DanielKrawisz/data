@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/data.hpp>
+#include <data/encoding/hex.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
@@ -48,6 +49,9 @@ namespace data {
         
         bytes bi = bytes_from_bits(initial);
         bytes bf = bytes_from_bits(expected);
+        
+        std::cout << "ai: " << ai << "; ~ai: " << ~ai << "; af: " << af << std::endl;
+        std::cout << "bi: " << bi << "; ~bi: " << ~bi << "; bf: " << bf << std::endl;
         
         EXPECT_EQ(~ai, af);
         EXPECT_EQ(ai, ~af);
