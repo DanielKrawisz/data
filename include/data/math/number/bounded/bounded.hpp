@@ -25,7 +25,9 @@ namespace data::math::number {
         
         using array = byte_array<size>;
         
-        bounded() : array(0x00) {}
+        bounded() : array() {
+            this->fill(0x00);
+        }
         
         bounded(const uint64 x) : array(0x00) {
             words().set(0, lesser_half(endian::arithmetic<r, false, 8>{x}));

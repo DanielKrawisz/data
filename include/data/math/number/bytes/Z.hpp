@@ -26,7 +26,7 @@ namespace data::math::number {
         
         Z_bytes(int64 x);
         
-        Z_bytes(const bytes& x);
+        Z_bytes(const bytes& x) : bytes{x} {}
         
         // First we write the Z as hex and then read it in again. 
         // A bit inefficient but it's really not that bad. 
@@ -47,8 +47,6 @@ namespace data::math::number {
         explicit Z_bytes(string_view s) : Z_bytes{read(s)} {}
         
         Z_bytes(bytes_view b);
-        
-        explicit operator bytes_view() const;
         
     private:
         

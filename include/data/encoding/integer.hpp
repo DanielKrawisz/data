@@ -153,7 +153,7 @@ namespace data::encoding {
         template <typename range> 
         std::string inline write(range r, hex::letter_case q = hex::upper) {
             std::stringstream ss;
-            write(ss, r, q);
+            hexidecimal::write(ss, r, q);
             return ss.str();
         }
         

@@ -63,7 +63,7 @@ namespace data {
     template <typename X, size_t size> struct array : public cross<X> {
         array() : cross<X>(size) {}
         
-        static array fill(X x) {
+        static array filled(const X& x) {
             array n{};
             for (const X& z : n) z = x;
             return n;
@@ -77,6 +77,10 @@ namespace data {
                 it++;
             }
         }
+        
+        void fill(const X& x) {
+            for (X& z : *this) z = x;
+        }
     };
     
     struct bytes : cross<byte> {
@@ -86,6 +90,14 @@ namespace data {
         }
         bytes(bytes_view x) : cross<byte>(x.size()) {
             std::copy(x.begin(), x.end(), cross<byte>::begin());
+        }
+        
+        static bytes from_hex(string_view s);
+        static bytes from_string(string_view s) {
+            bytes b;
+            b.resize(s.size());
+            for (int i = 0; i < s.size(); i++) b[i] = static_cast<byte>(s[i]);
+            return b;
         }
         
         bytes operator~() const {
