@@ -37,6 +37,23 @@ namespace data::crypto {
             return *this;
         }
         
+        // std::uniform_random_bit_generator concept. 
+        using result_type = byte;
+        
+        static constexpr byte min() {
+            return 0;
+        }
+        
+        static constexpr byte max() {
+            return 255;
+        }
+        
+        byte operator()() {
+            byte b;
+            *this >> b;
+            return b;
+        }
+        
     protected: 
         virtual void get(byte*, size_t) = 0;
     };
@@ -72,12 +89,31 @@ namespace data::crypto {
             UserMessageAsk{ask}, UserMessageConfirm{confirm}, Cout{out}, Cin{in} {}
         
         bytes get(size_t x) override {
-            Cout << UserMessageAsk;
+            Cout << UserMessageAsk << std::endl;
             bytes b(x * 4);
             for (uint32 i = 0; i < x * 4; i++) Cin >> b[i];
-            Cout << UserMessageConfirm;
+            Cout << UserMessageConfirm << std::endl;
             Cin.seekg(0, std::ios::end);
             Cin.clear();
+            return b;
+        }
+    };
+    
+    struct fixed_entropy : entropy {
+        bytes Entropy;
+        int Position;
+        
+        fixed_entropy(bytes_view b) : Entropy{b}, Position{0} {}
+        
+        bytes get(size_t x) override {
+            if (x > Entropy.size() - Position) throw std::logic_error{"ran out of entropy"};
+            
+            bytes b(x * 4);
+            for (int i = 0; i < x; i++) {
+                b[i] = Entropy[i];
+                Position++;
+            }
+            
             return b;
         }
     };

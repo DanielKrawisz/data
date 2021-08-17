@@ -25,8 +25,6 @@ namespace data {
         template<typename list, typename constraint = interface::sequence<list>>
         explicit cross(list l);
         
-        cross(view<X> b);
-        
         bool valid() const {
             for (const X& x : *this) if (!data::valid(x)) return false;
             return true;
@@ -86,9 +84,11 @@ namespace data {
     
     struct bytes : cross<byte> {
         using cross<byte>::cross;
+        
         operator bytes_view() const {
             return bytes_view(cross<byte>::data(), cross<byte>::size());
         }
+        
         bytes(bytes_view x) : cross<byte>(x.size()) {
             std::copy(x.begin(), x.end(), cross<byte>::begin());
         }
@@ -207,11 +207,6 @@ namespace data {
             *b = l.first();
             l = l.rest();
         }
-    }
-    
-    template <typename X>
-    inline cross<X>::cross(view<X> b) : std::vector<X>(b.size()) {
-        std::copy(b.begin(), b.end(), std::vector<X>::begin());
     }
     
     template <typename X>

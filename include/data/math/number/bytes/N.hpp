@@ -109,7 +109,7 @@ namespace data::math::number {
         }
         
         bool operator<=(const N_bytes& n) const {
-            return arithmetic::less_equal(words{}.rend(*this), words{}.rbegin(*this), words{}.rend(n));
+            return arithmetic::less_equal(digits().rend(), digits().rbegin(), n.digits().rend());
         }
         
         bool operator<=(const Z_bytes<r>& z) const {
@@ -256,6 +256,21 @@ namespace data::math::number {
         
         template <size_t size, endian::order o> 
         explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}
+        
+        data::arithmetic::digits<r> digits() {
+            return data::arithmetic::digits<r>{slice<byte>(*this)};
+        }
+        
+        const data::arithmetic::digits<r> digits() const {
+            return data::arithmetic::digits<r>{slice<byte>(*const_cast<N_bytes*>(this))};
+        }
+        
+        explicit operator uint64() const {
+            if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
+            endian::arithmetic<endian::little, false, 8> xx;
+            std::copy(digits().begin(), digits().begin() + 4, xx.begin());
+            return uint64(xx);
+        } 
 
     private:
         N_bytes(bytes_view b, endian::order o);
@@ -378,6 +393,21 @@ namespace data::encoding::hexidecimal {
         return n;
     }
     
+}
+
+namespace data::encoding::integer {
+    
+    template <endian::order r> 
+    std::ostream &write(std::ostream& o, const math::number::N_bytes<r> &n) {
+        return decimal::write(o, n);
+    }
+    
+    template <endian::order r> 
+    string write(const math::number::N_bytes<r> &n) {
+        std::stringstream ss;
+        decimal::write(ss, n);
+        return ss.str();
+    }
 }
 
 #endif

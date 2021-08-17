@@ -20,7 +20,7 @@ namespace data::functional::list {
     
     template <typename L>
     L rotate_left(const L x) {
-        size_t s = size(x);
+        size_t s = data::size(x);
         if (s == 0 || s == 1) return x; 
         
         return data::append(data::rest(x), data::first(x));
@@ -35,7 +35,7 @@ namespace data::functional::list {
     L rotate_left(const L x, uint32 n) {
         if (n == 0) return x;
         
-        size_t s = size(x);
+        size_t s = data::size(x);
         if (s == 0 || s == 1) return x; 
         
         if (n > s) return rotate_left(x, n % s);
@@ -53,16 +53,21 @@ namespace data::functional::list {
         return rotate_right(rotate_right(x, n - 1));
     }
     
-    template <typename L>
-    L shuffle(const L x) {
+    template <typename L, typename engine>
+    L shuffle(const L x, engine& e) {
         L q = x;
         L z{};
-        while (!empty(q)) {
-            q = rotate_left(q, std::uniform_int_distribution<int>(0, q.size() - 1)(get_random_engine()));
+        while (!data::empty(q)) {
+            q = rotate_left(q, std::uniform_int_distribution<int>(0, q.size() - 1)(e));
             z = z << q.first();
             q = q.rest();
         }
         return z;
+    }
+    
+    template <typename L>
+    L shuffle(const L x) {
+        return shuffle(x, get_random_engine());
     }
 }
 

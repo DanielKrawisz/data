@@ -19,29 +19,32 @@ namespace data::crypto::nist {
         
         uint32 BytesBeforeReseed;
         ptr<entropy> Entropy;
-        ptr<CryptoPP::NIST_DRBG> Random;
+        CryptoPP::NIST_DRBG* Random;
+        
+        constexpr static uint32 SecurityStrength = 16;
         
         drbg(type t, ptr<entropy> e, bytes personalization, uint32_little nonce) : 
             BytesBeforeReseed{65536}, Entropy{e}, Random{nullptr} {
+                bytes entropy = Entropy->get(SecurityStrength);
                 if (t == HMAC_DRBG) {
-                    bytes entropy = Entropy->get(Random->SecurityStrength());
-                    Random = std::static_pointer_cast<CryptoPP::NIST_DRBG>(
-                        std::make_shared<CryptoPP::HMAC_DRBG>(
+                    Random = new CryptoPP::HMAC_DRBG(
                             entropy.data(), entropy.size(), 
-                            personalization.data(), personalization.size(), 
-                            nonce.data(), nonce.size()));
+                            nonce.data(), nonce.size(), 
+                            personalization.data(), personalization.size());
                 } else if (t == Hash_DRBG) {
-                    bytes entropy = Entropy->get(Random->SecurityStrength());
-                    Random = std::static_pointer_cast<CryptoPP::NIST_DRBG>(
-                        std::make_shared<CryptoPP::Hash_DRBG>(
+                    Random = new CryptoPP::Hash_DRBG(
                             entropy.data(), entropy.size(), 
-                            personalization.data(), personalization.size(), 
-                            nonce.data(), nonce.size()));
+                            nonce.data(), nonce.size(), 
+                            personalization.data(), personalization.size());
                 }
             }
         
         bool valid() const {
             return Entropy != nullptr && Random != nullptr;
+        }
+        
+        ~drbg() {
+            delete Random;
         }
         
     private:

@@ -3,10 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/data.hpp>
+#include <data/math/number/bytes/N.hpp>
 #include "gtest/gtest.h"
 #include <iostream>
 
-namespace data::math {
+namespace data::math::number {
     
     TEST(NBytesTest, TestStringToNBytes) {
         
