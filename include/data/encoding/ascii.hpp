@@ -40,6 +40,8 @@ namespace data::encoding::ascii {
         explicit operator bytes() const;
 
     };
+    
+    string write(const bytes_view x);
 }
 
 #endif 

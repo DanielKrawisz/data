@@ -8,7 +8,7 @@
 
 namespace data::crypto {
     
-    cross<secret_share> secret_share_split(CryptoPP::RandomNumberGenerator& rng, const bytes& b, uint32 max, uint32 threshold) {
+    cross<secret_share> secret_share_split(CryptoPP::RandomNumberGenerator& rng, const bytes& b, byte max, byte threshold) {
         using namespace CryptoPP;
         
         ChannelSwitch *channelSwitch = NULL;
@@ -33,7 +33,7 @@ namespace data::crypto {
 
     }
     
-    bytes secret_share_merge(cross<secret_share> shares, uint32 threshold) {
+    bytes secret_share_merge(cross<secret_share> shares, byte threshold) {
         using namespace CryptoPP;
         
         if (threshold == 0 || shares.size() < threshold) return {};

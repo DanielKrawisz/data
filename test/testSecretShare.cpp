@@ -16,7 +16,7 @@ namespace data {
         
         crypto::nist::drbg random{crypto::nist::drbg::HMAC_DRBG, entropy, bytes{}, 302};
         
-        for (uint32 total = 1; total <= 5; total++) for (uint32 threshold = 1; threshold <= total; threshold++) {
+        for (byte total = 1; total <= 5; total++) for (byte threshold = 1; threshold <= total; threshold++) {
             
             // generate random share 
             bytes message(std::uniform_int_distribution<int>(3, 10)(random));
@@ -25,7 +25,7 @@ namespace data {
             // split share 
             cross<crypto::secret_share> shares = crypto::secret_share_split(*random.Random, message, total, threshold);
             
-            for (uint32 to_take = threshold; to_take <= std::min(threshold + 2, total); to_take++) {
+            for (byte to_take = threshold; to_take <= std::min(static_cast<byte>(threshold + 2), total); to_take++) {
                 
                 std::random_shuffle(shares.begin(), shares.end(), [&random](int i) -> int {
                     return std::uniform_int_distribution<int>(0, i - 1)(random);

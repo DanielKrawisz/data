@@ -10,6 +10,12 @@ namespace data::encoding::ascii{
         return valid() ? bytes(slice<byte>((byte*)std::string::data(), std::string::size())) : bytes();
     }
 
+    string write(const bytes_view x) {
+        string q;
+        q.resize(x.size());
+        for (int i = 0; i < x.size(); i++) q[i] = static_cast<char>(x[i]);
+        return q;
+    }
 
 }
 
