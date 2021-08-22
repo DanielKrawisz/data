@@ -172,7 +172,7 @@ namespace data::math::number {
         }
         
         N_bytes& operator+=(const N_bytes& n) {
-            return operator=(operator+(n));
+            return (N_bytes&)operator=(operator+(n));
         }
         
         N_bytes operator-(const N_bytes& n) const {
@@ -189,7 +189,7 @@ namespace data::math::number {
         }
         
         N_bytes& operator*=(const N_bytes& n) {
-            return operator=(operator*(n));
+            return (N_bytes&)operator=(operator*(n));
         }
         
         N_bytes operator^(uint32 n) const;

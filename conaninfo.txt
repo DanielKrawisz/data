@@ -1,0 +1,181 @@
+[settings]
+    arch=x86_64
+    build_type=Release
+    compiler=apple-clang
+    compiler.libcxx=libc++
+    compiler.version=12.0
+    os=Macos
+
+[requires]
+    SECP256K1/0.1
+    boost/1.Y.Z
+    cryptopp/8.Y.Z
+    nlohmann_json/3.Y.Z
+    openssl/1.Y.Z
+
+[options]
+    fPIC=True
+    shared=False
+
+[full_settings]
+    arch=x86_64
+    build_type=Release
+    compiler=apple-clang
+    compiler.libcxx=libc++
+    compiler.version=12.0
+    os=Macos
+
+[full_requires]
+    SECP256K1/0.1:f856b94780a794d3b393a152515dab6a9b0e9f0d
+    autoconf/2.71:cc471ed355602ffa7007968c83aa4e7e648a38b5
+    automake/1.16.3:3c28ba69276b46fd46e9c2060ba991d725ccab43
+    boost/1.76.0:69a26e9f94fd5c42037c261d535c139b7e410f4c
+    bzip2/1.0.8:75fe66fbfe61230e9fcbb361f13b6b3baa483e0a
+    cryptopp/8.5.0:6a83d7f783e7ee89a83cf2fe72b5f5f67538e2a6
+    libbacktrace/cci.20210118:647afeb69d3b0a2d3d316e80b24d38c714cc6900
+    libiconv/1.16:647afeb69d3b0a2d3d316e80b24d38c714cc6900
+    libtool/2.4.6:f82f59608a22017ca5ceea2114611456d4373a12
+    nlohmann_json/3.10.0:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    openssl/1.1.1k:647afeb69d3b0a2d3d316e80b24d38c714cc6900
+    zlib/1.2.11:647afeb69d3b0a2d3d316e80b24d38c714cc6900
+
+[full_options]
+    fPIC=True
+    shared=False
+    SECP256K1:fPIC=True
+    SECP256K1:shared=False
+    boost:addr2line_location=/usr/bin/addr2line
+    boost:asio_no_deprecated=False
+    boost:buildid=None
+    boost:bzip2=True
+    boost:debug_level=0
+    boost:diagnostic_definitions=False
+    boost:error_code_header_only=False
+    boost:extra_b2_flags=None
+    boost:fPIC=True
+    boost:filesystem_no_deprecated=False
+    boost:header_only=False
+    boost:i18n_backend=deprecated
+    boost:i18n_backend_iconv=libiconv
+    boost:i18n_backend_icu=False
+    boost:layout=system
+    boost:lzma=False
+    boost:magic_autolink=False
+    boost:multithreading=True
+    boost:namespace=boost
+    boost:namespace_alias=False
+    boost:pch=True
+    boost:python_executable=None
+    boost:python_version=None
+    boost:segmented_stacks=False
+    boost:shared=False
+    boost:system_no_deprecated=False
+    boost:visibility=hidden
+    boost:with_stacktrace_backtrace=True
+    boost:without_atomic=False
+    boost:without_chrono=False
+    boost:without_container=False
+    boost:without_context=False
+    boost:without_contract=False
+    boost:without_coroutine=False
+    boost:without_date_time=False
+    boost:without_exception=False
+    boost:without_fiber=True
+    boost:without_filesystem=False
+    boost:without_graph=True
+    boost:without_graph_parallel=True
+    boost:without_iostreams=False
+    boost:without_json=True
+    boost:without_locale=False
+    boost:without_log=False
+    boost:without_math=True
+    boost:without_mpi=True
+    boost:without_nowide=True
+    boost:without_program_options=False
+    boost:without_python=True
+    boost:without_random=False
+    boost:without_regex=False
+    boost:without_serialization=False
+    boost:without_stacktrace=False
+    boost:without_system=False
+    boost:without_test=False
+    boost:without_thread=False
+    boost:without_timer=False
+    boost:without_type_erasure=False
+    boost:without_wave=False
+    boost:zlib=True
+    boost:zstd=False
+    bzip2:build_executable=True
+    bzip2:fPIC=True
+    bzip2:shared=False
+    cryptopp:fPIC=True
+    cryptopp:shared=False
+    libbacktrace:fPIC=True
+    libbacktrace:shared=False
+    libiconv:fPIC=True
+    libiconv:shared=False
+    libtool:fPIC=True
+    libtool:shared=False
+    openssl:386=False
+    openssl:enable_weak_ssl_ciphers=False
+    openssl:fPIC=True
+    openssl:no_aria=False
+    openssl:no_asm=False
+    openssl:no_async=False
+    openssl:no_bf=False
+    openssl:no_blake2=False
+    openssl:no_camellia=False
+    openssl:no_cast=False
+    openssl:no_chacha=False
+    openssl:no_cms=False
+    openssl:no_comp=False
+    openssl:no_ct=False
+    openssl:no_deprecated=False
+    openssl:no_des=False
+    openssl:no_dgram=False
+    openssl:no_dh=False
+    openssl:no_dsa=False
+    openssl:no_dso=False
+    openssl:no_ec=False
+    openssl:no_ecdh=False
+    openssl:no_ecdsa=False
+    openssl:no_engine=False
+    openssl:no_filenames=False
+    openssl:no_gost=False
+    openssl:no_hmac=False
+    openssl:no_idea=False
+    openssl:no_md4=False
+    openssl:no_md5=False
+    openssl:no_mdc2=False
+    openssl:no_ocsp=False
+    openssl:no_pinshared=False
+    openssl:no_rc2=False
+    openssl:no_rfc3779=False
+    openssl:no_rmd160=False
+    openssl:no_rsa=False
+    openssl:no_seed=False
+    openssl:no_sha=False
+    openssl:no_sm2=False
+    openssl:no_sm3=False
+    openssl:no_sm4=False
+    openssl:no_sock=False
+    openssl:no_srp=False
+    openssl:no_srtp=False
+    openssl:no_sse2=False
+    openssl:no_ssl=False
+    openssl:no_ssl3=False
+    openssl:no_threads=False
+    openssl:no_tls1=False
+    openssl:no_ts=False
+    openssl:no_whirlpool=False
+    openssl:openssldir=None
+    openssl:shared=False
+    zlib:fPIC=True
+    zlib:minizip=deprecated
+    zlib:shared=False
+
+[recipe_hash]
+
+
+[env]
+

@@ -27,9 +27,14 @@ namespace data {
             
             for (byte to_take = threshold; to_take <= std::min(static_cast<byte>(threshold + 2), total); to_take++) {
                 
-                std::random_shuffle(shares.begin(), shares.end(), [&random](int i) -> int {
-                    return std::uniform_int_distribution<int>(0, i - 1)(random);
-                });
+                std::shuffle(shares.begin(), shares.end(), []() {
+                    std::mt19937::result_type seeds[std::mt19937::state_size];
+                    std::random_device device;
+                    std::uniform_int_distribution<typename std::mt19937::result_type> dist;
+                    std::generate(std::begin(seeds), std::end(seeds), [&] { return dist(device); });
+                    std::seed_seq seq(std::begin(seeds), std::end(seeds));
+                    return std::mt19937(seq);
+                }());
                 
                 bytes merged = crypto::secret_share_merge(shares, threshold);
                 

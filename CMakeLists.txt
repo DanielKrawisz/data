@@ -12,11 +12,9 @@ project(data 	VERSION 1.0
 # Set cmake as import path for Find*.cmake files
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-### Require out-of-source builds
-file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
-if(EXISTS "${LOC_PATH}")
-    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
-endif()
+# Setup paths to outputs of conan's "cmake_find_package" generator
+set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
+set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
 ## Check if GTests is installed. If not, install it
 
@@ -76,10 +74,14 @@ endif()
 
 # Find Crypto++
 find_package(CryptoPP REQUIRED)
+if(cryptopp_INCLUDE_DIRS)
+    set(CRYPTOPP_INCLUDE_DIRS ${cryptopp_INCLUDE_DIRS})
+    set(CRYPTOPP_LIBRARIES ${cryptopp_LIBRARIES})
+endif()
 if(CRYPTOPP_INCLUDE_DIRS)
 
     message(STATUS "Crypto++ INCLUIDE DIRS: ${CRYPTOPP_INCLUDE_DIRS}")
-    MESSAGE(STATUS "Found Crypto++: ${CRYPTOPP_LIBRARY}")
+    MESSAGE(STATUS "Found Crypto++: ${CRYPTOPP_LIBRARIES}")
     include_directories(${CRYPTOPP_INCLUDE_DIRS})
 endif()
 
