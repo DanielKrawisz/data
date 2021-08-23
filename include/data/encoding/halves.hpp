@@ -5,7 +5,7 @@
 #ifndef DATA_HALVES
 #define DATA_HALVES
 
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/arithmetic.hpp>
 
 namespace data {
     

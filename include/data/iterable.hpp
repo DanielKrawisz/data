@@ -7,7 +7,7 @@
 
 #include <data/interface.hpp>
 #include <data/slice.hpp>
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
 
 namespace data {

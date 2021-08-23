@@ -7,12 +7,11 @@
 
 #include <type_traits>
 #include <data/types.hpp>
-#include <data/encoding/halves.hpp>
+#include <data/encoding/endian/endian.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/math/sign.hpp>
 #include <data/meta/equal.hpp>
 #include <data/slice.hpp>
-#include <data/io/unimplemented.hpp>
 
 namespace data::arithmetic {
     
@@ -67,6 +66,22 @@ namespace data::arithmetic {
         const_reverse_iterator rend() const;
         
     };
+    
+    template <size_t size> struct word;
+    
+    template <> struct word<1> {
+        using type = byte;
+    };
+    
+    template <> struct word<2> {
+        using type = uint16;
+    };
+    
+    template <> struct word<4> {
+        using type = uint32;
+    };
+    
+    template <size_t size> using word_type = typename word<size>::type;
     
     template <typename bit32, endian::order o> struct words;
     

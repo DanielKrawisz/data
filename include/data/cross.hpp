@@ -7,7 +7,7 @@
 
 #include <data/iterable.hpp>
 #include <data/slice.hpp>
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
 #include <data/math/arithmetic.hpp>
 

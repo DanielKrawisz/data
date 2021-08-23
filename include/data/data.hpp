@@ -9,7 +9,7 @@
 #include <data/types.hpp>
 
 // endian types
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/arithmetic.hpp>
 
 // This library uses a valid() method and a Valid member in a stereotyped way. 
 #include <data/valid.hpp>
