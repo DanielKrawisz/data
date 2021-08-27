@@ -10,7 +10,7 @@ commands:
       - run:
           name: Install conan and build tools
           command: |
-            brew install conan cmake
+            brew install conan cmake pkg-config
 
   build_recipe:
     parameters:
