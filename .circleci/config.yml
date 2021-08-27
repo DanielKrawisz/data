@@ -1,0 +1,76 @@
+version: 2.1
+
+defaults: &defaults
+  macos:
+      xcode: 12.3.0
+
+commands:
+  install_build_tools:
+    steps:
+      - run:
+          name: Install conan and build tools
+          command: |
+            brew install conan cmake pkg-config
+
+  build_recipe:
+    parameters:
+      cliParams:
+        default: ""
+        type: string
+    steps:
+      - run:
+          name: Build conan recipe
+          command: |
+            conan create . proofofwork/stable << parameters.cliParams >>
+
+  setup_conan_remote:
+    steps:
+      - run:
+          name: Setup conan remote
+          command: |
+            conan remote add proofofwork https://pow.jfrog.io/artifactory/api/conan/proofofwork
+            conan user -p $CONAN_PASSWORD -r proofofwork $CONAN_USERNAME
+
+  upload_conan_package:
+    steps:
+      - run:
+          name: Upload conan package
+          command: |
+            conan upload data/${CIRCLE_TAG:1}@proofofwork/stable --all -r proofofwork --confirm
+
+  build:
+    steps:
+      - install_build_tools
+      - checkout
+      - setup_conan_remote
+      - build_recipe
+
+jobs:
+
+  build: 
+    <<: *defaults
+    steps:
+      - build
+
+  release:
+    <<: *defaults
+    steps:
+      - build
+      - upload_conan_package
+
+          
+workflows:
+  build-and-release:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/

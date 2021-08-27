@@ -97,7 +97,11 @@ find_package(PkgConfig REQUIRED)
 find_package(SECP256K1 REQUIRED)
 # Find GMP
 find_package(GMP REQUIRED)
-if(GMP_FOUND)
+if(gmp_INCLUDE_DIRS)
+    set(GMP_INCLUDE_DIR ${gmp_INCLUDE_DIRS})
+    set(GMP_LIBRARIES ${gmp_LIBRARIES})
+endif()
+if(GMP_INCLUDE_DIR)
     include_directories(${GMP_INCLUDE_DIR})
 endif()
 
@@ -151,7 +155,7 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${OPENSSL_LIBRARIES}
+target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${GMP_LIBRARIES} ${OPENSSL_LIBRARIES}
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)
