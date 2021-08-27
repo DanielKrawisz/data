@@ -23,19 +23,26 @@ commands:
           command: |
             conan create . proofofwork/stable << parameters.cliParams >>
 
+  setup_conan_remote:
+    steps:
+      - run:
+          name: Setup conan remote
+          command: |
+            conan remote add proofofwork https://pow.jfrog.io/artifactory/api/conan/proofofwork
+            conan user -p $CONAN_PASSWORD -r proofofwork $CONAN_USERNAME
+
   upload_conan_package:
     steps:
       - run:
           name: Upload conan package
           command: |
-            conan remote add proofofwork https://pow.jfrog.io/artifactory/api/conan/proofofwork
-            conan user -p $CONAN_PASSWORD -r proofofwork $CONAN_USERNAME
             conan upload data/${CIRCLE_TAG:1}@proofofwork/stable --all -r proofofwork --confirm
 
   build:
     steps:
       - install_build_tools
       - checkout
+      - setup_conan_remote
       - build_recipe
 
 jobs:
