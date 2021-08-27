@@ -1,6 +1,13 @@
 # data
 Tools and high-level programming constructs in c++.
 
+## Instructions to build and upload a conan package from the recipe
+
+    $ conan create . proofofwork/stable
+    $ conan remote add proofofwork https://pow.jfrog.io/artifactory/api/conan/proofofwork
+    $ conan user -p PASSWORD -r proofofwork USERNAME
+    $ conan upload data/0.1@proofofwork/stable --all -r proofofwork --confirm
+
 ## Features 
 
 `#include<data.hpp>` to gain all usable features. See `data.hpp` for 
