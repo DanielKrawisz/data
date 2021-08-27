@@ -14,7 +14,7 @@ class DataConan(ConanFile):
     default_options = {"shared": False, "fPIC": True}
     generators = "cmake_find_package"
     exports_sources = "*"
-    requires = "boost/1.76.0", "openssl/1.1.1k", "cryptopp/8.5.0", "nlohmann_json/3.10.0", "SECP256K1/0.1"
+    requires = "boost/1.76.0", "openssl/1.1.1k", "cryptopp/8.5.0", "nlohmann_json/3.10.0", "SECP256K1/0.1@proofofwork/stable"
 
     def config_options(self):
         if self.settings.os == "Windows":
