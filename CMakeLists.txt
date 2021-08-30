@@ -9,9 +9,6 @@ project(data 	VERSION 1.0
         DESCRIPTION "wrappers and high-level programming constructs in c++"
         LANGUAGES CXX)
 
-# Set cmake as import path for Find*.cmake files
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-
 # Setup paths to outputs of conan's "cmake_find_package" generator
 set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
 set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
@@ -73,7 +70,7 @@ endif()
 
 
 # Find Crypto++
-find_package(CryptoPP REQUIRED)
+find_package(cryptopp REQUIRED)
 if(cryptopp_INCLUDE_DIRS)
     set(CRYPTOPP_INCLUDE_DIRS ${cryptopp_INCLUDE_DIRS})
     set(CRYPTOPP_LIBRARIES ${cryptopp_LIBRARIES})
@@ -96,7 +93,7 @@ find_package(PkgConfig REQUIRED)
 #pkg_check_modules(LIBSECP256K1 REQUIRED IMPORTED_TARGET libsecp256k1)
 find_package(SECP256K1 REQUIRED)
 # Find GMP
-find_package(GMP REQUIRED)
+find_package(gmp REQUIRED)
 if(gmp_INCLUDE_DIRS)
     set(GMP_INCLUDE_DIR ${gmp_INCLUDE_DIRS})
     set(GMP_LIBRARIES ${gmp_LIBRARIES})
@@ -109,8 +106,8 @@ endif()
 include(CTest)
 
 if(PACKAGE_TESTS)
-    enable_testing()
-    add_subdirectory(test)
+    #enable_testing()
+    #add_subdirectory(test)
 
 
 endif()
@@ -155,7 +152,7 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${GMP_LIBRARIES} ${OPENSSL_LIBRARIES}
+target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${GMP_LIBRARIES} ${OPENSSL_LIBRARIES}
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)
