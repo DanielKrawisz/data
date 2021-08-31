@@ -13,6 +13,8 @@ project(data 	VERSION 1.0
 set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
 set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
+add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
+
 ## Check if GTests is installed. If not, install it
 
 option(PACKAGE_TESTS "Build the tests" ON)
@@ -106,8 +108,8 @@ endif()
 include(CTest)
 
 if(PACKAGE_TESTS)
-    #enable_testing()
-    #add_subdirectory(test)
+    enable_testing()
+    add_subdirectory(test)
 
 
 endif()
@@ -152,7 +154,7 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${GMP_LIBRARIES} ${OPENSSL_LIBRARIES}
+target_link_libraries(data Boost::regex Boost::system Boost::log Boost::log_setup ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${GMP_LIBRARIES} ${OPENSSL_LIBRARIES}
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)
