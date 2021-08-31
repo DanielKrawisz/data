@@ -1,11 +1,15 @@
 version: 2.1
 
-defaults: &defaults
+macosBuildDefaults: &macosBuildDefaults
   macos:
       xcode: 12.3.0
 
+linuxBuildDefaults: &linuxBuildDefaults
+  docker:
+    - image: conanio/gcc9:latest
+
 commands:
-  install_build_tools:
+  install_macos_build_tools:
     steps:
       - run:
           name: Install conan and build tools
@@ -38,37 +42,65 @@ commands:
           command: |
             conan upload data/${CIRCLE_TAG:1}@proofofwork/stable --all -r proofofwork --confirm
 
-  build:
+  build_macos:
     steps:
-      - install_build_tools
+      - install_macos_build_tools
+      - checkout
+      - setup_conan_remote
+      - build_recipe
+
+  build_linux:
+    steps:
       - checkout
       - setup_conan_remote
       - build_recipe
 
 jobs:
 
-  build: 
-    <<: *defaults
+  build_macos:
+    <<: *macosBuildDefaults
     steps:
-      - build
+      - build_macos
 
-  release:
-    <<: *defaults
+  release_macos:
+    <<: *macosBuildDefaults
     steps:
-      - build
+      - build_macos
       - upload_conan_package
 
-          
+  build_linux:
+    <<: *linuxBuildDefaults
+    steps:
+      - build_linux
+
+  release_linux:
+    <<: *linuxBuildDefaults
+    steps:
+      - build_linux
+      - upload_conan_package
+
 workflows:
   build-and-release:
     jobs:
-      - build:
+      - build_linux:
           filters:
             tags:
               only: /^v.*/
-      - release:
+      - build_macos:
+          filters:
+            tags:
+              only: /^v.*/
+      - release_macos:
           requires:
-            - build
+            - build_macos
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - release_linux:
+          requires:
+            - build_linux
           filters:
             branches:
               ignore: /.*/
