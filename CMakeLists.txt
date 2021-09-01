@@ -13,8 +13,6 @@ project(data 	VERSION 1.0
 set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
 set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
-add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
-
 ## Check if GTests is installed. If not, install it
 
 option(PACKAGE_TESTS "Build the tests" ON)
