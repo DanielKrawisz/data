@@ -16,6 +16,7 @@
 #include <boost/asio/ssl/stream.hpp>
 
 #include <data/tools.hpp>
+#include <map>
 
 namespace data::networking {
     struct http {
