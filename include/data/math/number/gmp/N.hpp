@@ -10,7 +10,6 @@
 #include <data/math/number/abs.hpp>
 #include <data/math/number/sqrt.hpp>
 #include <data/math/number/gmp/Z.hpp>
-#include <data/encoding/endian.hpp>
 
 namespace data::math::number::gmp {
     

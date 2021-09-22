@@ -10,9 +10,11 @@
 #include <data/encoding/digits.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/cross.hpp>
-#include <data/encoding/words.hpp>
+#include <data/encoding/endian/words.hpp>
 
 namespace data::math::number {
+    
+    template <endian::order r> struct N_bytes;
     
     template <endian::order r>
     struct N_bytes : bytes {
@@ -268,7 +270,7 @@ namespace data::math::number {
         explicit operator uint64() const {
             if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
             endian::arithmetic<endian::little, false, 8> xx;
-            std::copy(digits().begin(), digits().begin() + 4, xx.begin());
+            std::copy(digits().begin(), digits().begin() + 8, xx.begin());
             return uint64(xx);
         } 
 
@@ -355,11 +357,7 @@ namespace data::encoding::decimal {
         
         ptr<math::N_bytes<r>> n = std::make_shared<math::N_bytes<r>>();
         
-        for (char x : s) {
-            
-            *n *= 10;
-            *n += digit(x);
-        }
+        *n = encoding::read_base<math::N_bytes<r>>(s, 10, digit);
         
         return n;
     }

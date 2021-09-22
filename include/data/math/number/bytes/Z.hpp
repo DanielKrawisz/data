@@ -11,7 +11,7 @@
 #include <data/math/division.hpp>
 #include <data/math/number/abs.hpp>
 #include <data/math/arithmetic.hpp>
-#include <data/encoding/words.hpp>
+#include <data/encoding/endian/words.hpp>
 
 #include <algorithm>
 

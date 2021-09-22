@@ -9,7 +9,7 @@
 #include <string>
 
 #include <data/encoding/hex.hpp>
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/endian.hpp>
 
 namespace data::encoding::hex {
     struct view : public string_view {

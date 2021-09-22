@@ -8,9 +8,6 @@
 // basic types
 #include <data/types.hpp>
 
-// endian types
-#include <data/encoding/endian.hpp>
-
 // This library uses a valid() method and a Valid member in a stereotyped way. 
 #include <data/valid.hpp>
 

@@ -12,7 +12,7 @@
 #include <data/encoding/halves.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bytes/N.hpp>
-#include <data/encoding/words.hpp>
+#include <data/encoding/endian/words.hpp>
 
 namespace data::math::number {
     

@@ -44,7 +44,7 @@ namespace data::math::number::gmp {
 #undef __GMPN_DEFINE_BINARY_FUNCTION
 #undef __GMPND_DEFINE_BINARY_FUNCTION
 
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/endian.hpp>
 
 namespace data::math::number {
     template <bool is_signed, endian::order o, size_t size> struct bounded;

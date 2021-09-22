@@ -9,6 +9,7 @@
 #include <data/math/number/natural.hpp>
 
 namespace data::encoding {
+    
     template <typename N>
     std::string write_base(const N& n, std::string digits) {
         uint32 base = digits.size();

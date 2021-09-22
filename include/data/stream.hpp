@@ -7,7 +7,7 @@
 
 #include <exception>
 
-#include <data/encoding/endian.hpp>
+#include <data/encoding/endian/endian.hpp>
 #include <data/cross.hpp>
 #include <data/slice.hpp>
 
