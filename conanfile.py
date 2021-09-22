@@ -1,15 +1,14 @@
 from conans import ConanFile, CMake
 from os import environ
 
-
 class DataConan(ConanFile):
     name = "data"
     version = "0.1"
-    license = "<Put the package license here>"
-    author = "<Put your name here> <And your email here>"
-    url = "<Package recipe repository url here, for issues about the package>"
-    description = "<Description of Data here>"
-    topics = ("<Put some tag here>", "<here>", "<and here>")
+    license = "MIT"
+    author = "Daniel Krawisz"
+    url = "https://github.com/DanielKrawisz/data"
+    description = "Tools and high-level programming constructs in c++."
+    topics = ("structures", "math", "encodings", "cryptography", "functional")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
