@@ -416,11 +416,7 @@ namespace data::encoding::hexidecimal {
         
         ptr<math::N_bytes<r>> n = std::make_shared<math::N_bytes<r>>();
         n->resize((s.size() - 2) / 2);
-        auto it = s.begin() + 2;
-        while (it != s.end()) {
-            *n = 16 * static_cast<byte>(digit(*it)) + digit(*(it + 1));
-            it += 2;
-        }
+        boost::algorithm::unhex(s.begin() + 2, s.end(), n->digits().rbegin());
         
         return n;
     }

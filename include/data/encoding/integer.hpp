@@ -224,7 +224,7 @@ namespace data::encoding {
         
         template <endian::order r> ptr<math::N_bytes<r>> read(string_view s) {
             if (!valid(s)) return nullptr;
-            if (hexidecimal::valid(s)) return hexidecimal::read<r>(s);
+            if (auto p = hexidecimal::read<r>(s); p != nullptr) return p;
             return decimal::read<r>(s);
         }
         
