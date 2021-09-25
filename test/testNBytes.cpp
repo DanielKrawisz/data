@@ -11,17 +11,17 @@ namespace data::math::number {
     
     TEST(NBytesTest, TestStringToNBytes) {
         
-        EXPECT_FALSE(N_bytes<endian::big>{"a"}.valid());
-        EXPECT_FALSE(N_bytes<endian::big>{"-"}.valid());
-        EXPECT_FALSE(N_bytes<endian::big>{"-1"}.valid());
-        EXPECT_FALSE(N_bytes<endian::big>{"01"}.valid());
-        EXPECT_FALSE(N_bytes<endian::big>{"0x1"}.valid());
+        EXPECT_THROW(N_bytes<endian::big>{"a"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::big>{"-"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::big>{"-1"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::big>{"01"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::big>{"0x1"}, std::logic_error);
         
-        EXPECT_FALSE(N_bytes<endian::little>{"a"}.valid());
-        EXPECT_FALSE(N_bytes<endian::little>{"-"}.valid());
-        EXPECT_FALSE(N_bytes<endian::little>{"-1"}.valid());
-        EXPECT_FALSE(N_bytes<endian::little>{"01"}.valid());
-        EXPECT_FALSE(N_bytes<endian::little>{"0x1"}.valid());
+        EXPECT_THROW(N_bytes<endian::little>{"a"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::little>{"-"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::little>{"-1"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::little>{"01"}, std::logic_error);
+        EXPECT_THROW(N_bytes<endian::little>{"0x1"}, std::logic_error);
         
         EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{});
         EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{""});
@@ -49,7 +49,6 @@ namespace data::math::number {
         
     }
     
-    // TODO need to tell hex encoder to use lower case. 
     TEST(NBytesTest, TestNBytesToHexString) {
         
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"0"}), std::string{"0x00"});
@@ -135,7 +134,7 @@ namespace data::math::number {
         EXPECT_EQ(Z{Z_bytes<endian::little>{""}}, Z{0});
         
     }
-    // TODO restore this test eventually. 
+    
     TEST(NBytesTest, TestIncrement) {
         
         EXPECT_EQ(++N_bytes<endian::big>{"0x"}, N_bytes<endian::big>{1});

@@ -17,6 +17,159 @@ namespace data::math::number {
     template <endian::order r> struct N_bytes;
     
     template <endian::order r>
+    bool operator==(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator!=(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<=(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>=(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator==(const N_bytes<r>&, const Z_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator!=(const N_bytes<r>&, const Z_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<=(const N_bytes<r>&, const Z_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>=(const N_bytes<r>&, const Z_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<(const N_bytes<r>&, const Z_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>(const N_bytes<r>&, const Z_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator==(const Z_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator!=(const Z_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<=(const Z_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>=(const Z_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<(const Z_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>(const Z_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator==(const N_bytes<r>&, const int);
+    
+    template <endian::order r>
+    bool operator!=(const N_bytes<r>&, const int);
+    
+    template <endian::order r>
+    bool operator<=(const N_bytes<r>&, const int);
+    
+    template <endian::order r>
+    bool operator>=(const N_bytes<r>&, const int);
+    
+    template <endian::order r>
+    bool operator<(const N_bytes<r>&, const int);
+    
+    template <endian::order r>
+    bool operator>(const N_bytes<r>&, const int);
+    
+    template <endian::order r>
+    bool operator==(const int, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator!=(const int, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<=(const int, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>=(const int, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<(const int, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>(const int, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator==(const N_bytes<r>&, const uint64);
+    
+    template <endian::order r>
+    bool operator!=(const N_bytes<r>&, const uint64);
+    
+    template <endian::order r>
+    bool operator<=(const N_bytes<r>&, const uint64);
+    
+    template <endian::order r>
+    bool operator>=(const N_bytes<r>&, const uint64);
+    
+    template <endian::order r>
+    bool operator<(const N_bytes<r>&, const uint64);
+    
+    template <endian::order r>
+    bool operator>(const N_bytes<r>&, const uint64);
+    
+    template <endian::order r>
+    bool operator==(const uint64, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator!=(const uint64, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<=(const uint64, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>=(const uint64, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator<(const uint64, const N_bytes<r>&);
+    
+    template <endian::order r>
+    bool operator>(const uint64, const N_bytes<r>&);
+    
+    template <endian::order r>
+    N_bytes<r> operator+(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    N_bytes<r> operator-(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    N_bytes<r> operator*(const N_bytes<r>&, const N_bytes<r>&);
+    
+    template <endian::order r>
+    N_bytes<r> operator*(const N_bytes<r>&, uint64);
+    
+    template <endian::order r>
+    Z_bytes<r> operator~(const N_bytes<r>&);
+    
+    template <endian::order r>
+    Z_bytes<r> operator-(const N_bytes<r>&);
+    
+    template <endian::order r>
+    N_bytes<r> operator^(const N_bytes<r>&, uint64 pow);
+    
+    template <endian::order r>
+    N_bytes<r> operator<<(const N_bytes<r>&, int);
+    
+    template <endian::order r>
+    N_bytes<r> operator>>(const N_bytes<r>&, int);
+    
+    template <endian::order r>
     struct N_bytes : bytes {
         
         N_bytes() : bytes{} {}
@@ -30,7 +183,7 @@ namespace data::math::number {
         static N_bytes read(string_view x) {
             if (x.size() == 0) return 0;
             ptr<bytes> b = encoding::natural::read<r>(x);
-            if (b == nullptr) return {};
+            if (b == nullptr) throw std::logic_error{"Not a valid number"};
             return N_bytes<r>{bytes_view(*b)};
         }
         
@@ -45,15 +198,14 @@ namespace data::math::number {
         }
         
         math::sign sign() const {
-            return operator==(0) ? math::zero : math::positive;
+            return *this == N_bytes(uint64(0)) ? math::zero : math::positive;
         }
         
-        bool operator==(const N_bytes& n) const {
-            return N{*this} == N{n}; // Inefficient
-        }
-        
-        bool operator!=(const N_bytes& n) const {
-            return !operator==(n);
+        operator N_bytes<endian::opposite(r)>() const {
+            N_bytes<endian::opposite(r)> z;
+            z.resize(size());
+            std::copy(this->rbegin(), this->rend(), z.begin());
+            return z;
         }
         
     private:
@@ -67,84 +219,6 @@ namespace data::math::number {
         static N_bytes zero(size_t size) {
             return N_bytes(size, 0x00);
         }
-        
-        bool operator<(uint64 n) const {
-            return operator<(N_bytes<r>{n});
-        }
-        
-        bool operator<(const N_bytes& n) const;
-        
-        bool operator<(const Z_bytes<r>& z) const {
-            return z.is_negative() ? false : operator<(N_bytes{z.Value});
-        }
-        
-        bool operator<(const N& n) const {
-            return N{*this} < n;
-        }
-        
-        bool operator<(const Z& n) const {
-            return N{*this} < n;
-        }
-        
-        bool operator>(uint64 n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator>(const N_bytes& n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator>(const Z_bytes<r>& n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator>(const N& n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator>(const Z& n) const {
-            return !operator<=(n);
-        }
-        
-        bool operator<=(uint64 n) const {
-            return operator<=(N_bytes{n});
-        }
-        
-        bool operator<=(const N_bytes& n) const {
-            return arithmetic::less_equal(digits().rend(), digits().rbegin(), n.digits().rend());
-        }
-        
-        bool operator<=(const Z_bytes<r>& z) const {
-            return z.is_negative() ? false : operator<=(N_bytes{z});
-        }
-        
-        bool operator<=(const N& n) const {
-            return N{*this} <= n;
-        }
-        
-        bool operator<=(const Z& n) const {
-            return N{*this} <= n;
-        }
-        
-        bool operator>=(uint64 n) const {
-            return operator>=(N_bytes{n});
-        }
-        
-        bool operator>=(const N_bytes& n) const {
-            return arithmetic::greater_equal(words{}.rend(*this), words{}.rbegin(*this), words{}.rend(n));
-        }
-        
-        bool operator>=(const Z_bytes<r>& z) const;
-        
-        bool operator>=(const N& n) const {
-            return N{*this} >= n;
-        }
-        
-        bool operator>=(const Z& n) const {
-            return N{*this} >= n;
-        }
-        
-        N_bytes operator~() const;
         
         N_bytes& operator++() {
             operator+=(1);
@@ -185,19 +259,12 @@ namespace data::math::number {
             return operator=(operator-(n));
         }
         
-        N_bytes operator*(const N_bytes& n) const {
-            // TODO inefficient
-            return N_bytes{N{*this} * N{n}};
-        }
-        
         N_bytes& operator*=(const N_bytes& n) {
-            return operator=(operator*(n));
+            return operator=(*this *n);
         }
-        
-        N_bytes operator^(uint32 n) const;
         
         N_bytes& operator^=(uint32 n) {
-            return operator=(operator^(n));
+            return operator=(*this ^ n);
         }
         
         math::division<N_bytes> divide(const N_bytes& n) const {
@@ -236,20 +303,12 @@ namespace data::math::number {
             return operator=(operator%(n));
         }
         
-        N_bytes operator<<(int64 x) const {
-            throw method::unimplemented{"N_bytes::<<"};
-        }
-        
-        N_bytes operator>>(int64 x) const {
-            throw method::unimplemented{"N_bytes::>>"};
-        }
-        
         N_bytes& operator<<=(int64 x) {
-            return operator=(operator<<(x));
+            return operator=(*this << x);
         }
         
         N_bytes& operator>>=(int64 x) {
-            return operator=(operator>>(x));
+            return operator=(*this >> x);
         }
         
         bytes write(endian::order) const; 
@@ -294,31 +353,6 @@ namespace data::math::number {
             std::copy(b, e, o);
         }
     }
-    
-    template <endian::order r> 
-    N_bytes<r> N_bytes<r>::trim() const {
-        uint32 s = size();
-        if (s == 0) return N_bytes{bytes{}};
-        N_bytes re{};
-        if (r == endian::big) {
-            auto b = begin();
-            while (*b == 0) {
-                s--;
-                b++;
-            }
-            re.Value = bytes(s);
-            std::copy(b, end(), re.begin());
-        } else {
-            auto b = rbegin();
-            while (*b == 0) {
-                s--;
-                b++;
-            }
-            re.Value = bytes(size);
-            std::copy(b, rend(), re.rend());
-        }
-        return re;
-    }
 }
 
 namespace data::math::number {
@@ -357,7 +391,7 @@ namespace data::encoding::decimal {
         
         ptr<math::N_bytes<r>> n = std::make_shared<math::N_bytes<r>>();
         
-        *n = encoding::read_base<math::N_bytes<r>>(s, 10, digit);
+        *n = encoding::read_base<math::N_bytes<endian::big>>(s, 10, digit);
         
         return n;
     }
@@ -405,6 +439,279 @@ namespace data::encoding::integer {
         std::stringstream ss;
         decimal::write(ss, n);
         return ss.str();
+    }
+}
+
+namespace data::math::number {
+    
+    template <endian::order r>
+    bool inline operator==(const N_bytes<r> &a, const uint64 b) {
+        return a == N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator!=(const N_bytes<r> &a, const uint64 b) {
+        return a == N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const N_bytes<r> &a, const uint64 b) {
+        return a == N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const N_bytes<r> &a, const uint64 b) {
+        return a == N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const N_bytes<r> &a, const uint64 b) {
+        return a == N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const N_bytes<r> &a, const uint64 b) {
+        return a == N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator==(const uint64 a, const N_bytes<r> &b) {
+        return N_bytes<r>(a) == b;
+    }
+    
+    template <endian::order r>
+    bool inline operator!=(const uint64 a, const N_bytes<r> &b) {
+        return N_bytes<r>(a) != b;
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const uint64 a, const N_bytes<r> &b) {
+        return N_bytes<r>(a) <= b;
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const uint64 a, const N_bytes<r> &b) {
+        return N_bytes<r>(a) >= b;
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const uint64 a, const N_bytes<r> &b) {
+        return N_bytes<r>(a) < b;
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const uint64 a, const N_bytes<r> &b) {
+        return N_bytes<r>(a) > b;
+    }
+    
+    template <endian::order r>
+    bool inline operator==(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) == b;
+    }
+    
+    template <endian::order r>
+    bool inline operator!=(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) != b;
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) <= b;
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) >= b;
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) < b;
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) > b;
+    }
+    
+    template <endian::order r>
+    bool inline operator==(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a == Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool operator!=(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a != Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a <= Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a >= Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a < Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a > Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator==(const N_bytes<r> &a, const int b) {
+        return Z_bytes<r>(a) == Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator!=(const N_bytes<r> &a, const int b) {
+        return Z_bytes<r>(a) != Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const N_bytes<r> &a, const int b) {
+        return Z_bytes<r>(a) <= Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const N_bytes<r> &a, const int b) {
+        return Z_bytes<r>(a) >= Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const N_bytes<r> &a, const int b) {
+        return Z_bytes<r>(a) < Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const N_bytes<r> &a, const int b) {
+        return Z_bytes<r>(a) > Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator==(const int a, const N_bytes<r> &b) {
+        return Z_bytes<r>(a) == Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator!=(const int a, const N_bytes<r> &b) {
+        return Z_bytes<r>(a) != Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const int a, const N_bytes<r> &b) {
+        return Z_bytes<r>(a) <= Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const int a, const N_bytes<r> &b) {
+        return Z_bytes<r>(a) >= Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const int a, const N_bytes<r> &b) {
+        return Z_bytes<r>(a) < Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const int a, const N_bytes<r> &b) {
+        return Z_bytes<r>(a) > Z_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator*(const N_bytes<r> &n, uint64 u) {
+        return N_bytes<r>(N(n) * u);
+    }
+    
+    template <endian::order r>
+    bool inline operator==(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N(a) == N(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator!=(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N(a) != N(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<=(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N(a) <= N(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>=(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N(a) >= N(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator<(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N(a) < N(b);
+    }
+    
+    template <endian::order r>
+    bool inline operator>(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N(a) > N(b);
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator+(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N_bytes<r>(N(a) + N(b));
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator-(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N_bytes<r>(N(a) * N(b));
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator*(const N_bytes<r> &a, const N_bytes<r> &b) {
+        return N_bytes<r>(N(a) * N(b));
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator^(const N_bytes<r> &n, uint64 pow) {
+        return N_bytes<r>(N(n) ^ pow);
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator<<(const N_bytes<r> &n, int i) {
+        return N_bytes<r>(r == endian::big ? N(n) << i : N(n) >> i);
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator>>(const N_bytes<r> &n, int i) {
+        return N_bytes<r>(r == endian::big ? N(n) >> i : N(n) << i);
+    }
+    
+    template <endian::order r> 
+    N_bytes<r> N_bytes<r>::trim() const {
+        uint32 s = size();
+        if (s == 0) return N_bytes{bytes{}};
+        N_bytes re{};
+        if (r == endian::big) {
+            auto b = begin();
+            while (*b == 0) {
+                s--;
+                b++;
+            }
+            re.Value = bytes(s);
+            std::copy(b, end(), re.begin());
+        } else {
+            auto b = rbegin();
+            while (*b == 0) {
+                s--;
+                b++;
+            }
+            re.Value = bytes(size);
+            std::copy(b, rend(), re.rend());
+        }
+        return re;
     }
 }
 

@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/data.hpp>
+#include <data/math/number/bytes/N.hpp>
 #include "gtest/gtest.h"
 #include <iostream>
 
@@ -94,6 +95,8 @@ namespace data {
         EXPECT_TRUE(N{1} << 79 == N{"0x80000000000000000000"});
         
     }
+        
+    template<endian::order r> using N_bytes = math::number::N_bytes<r>;
     
     TEST(NTest, TestN) {
         
