@@ -128,11 +128,6 @@ namespace data::math::number {
         EXPECT_EQ(N{N_bytes<endian::little>{}}, N{0});
         EXPECT_EQ(N{N_bytes<endian::little>{""}}, N{0});
         
-        EXPECT_EQ(Z{Z_bytes<endian::big>{}}, Z{0});
-        EXPECT_EQ(Z{Z_bytes<endian::big>{""}}, Z{0});
-        EXPECT_EQ(Z{Z_bytes<endian::little>{}}, Z{0});
-        EXPECT_EQ(Z{Z_bytes<endian::little>{""}}, Z{0});
-        
     }
     
     TEST(NBytesTest, TestIncrement) {

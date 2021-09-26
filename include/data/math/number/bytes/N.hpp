@@ -176,7 +176,7 @@ namespace data::math::number {
         
         N_bytes(const uint64 x) {
             resize(8);
-            endian::arithmetic<endian::big, false, 8> xx{x};
+            endian::arithmetic<r, false, 8> xx{x};
             std::copy(xx.begin(), xx.end(), begin());
         }
         
@@ -242,21 +242,12 @@ namespace data::math::number {
             return z;
         }
         
-        N_bytes operator+(const N_bytes& n) const {
-            // TODO very inefficient. 
-            return N_bytes{N{*this} + N{n}};
-        }
-        
         N_bytes& operator+=(const N_bytes& n) {
-            return operator=(operator+(n));
-        }
-        
-        N_bytes operator-(const N_bytes& n) const {
-            throw method::unimplemented{"N_bytes::-"};
+            return operator=(*this + n);
         }
         
         N_bytes& operator-=(const N_bytes& n) {
-            return operator=(operator-(n));
+            return operator=(*this - n);
         }
         
         N_bytes& operator*=(const N_bytes& n) {
@@ -377,7 +368,7 @@ namespace data::math {
 namespace data::math::number {
     template <endian::order r>
     std::ostream& operator<<(std::ostream& o, const N_bytes<r>& n) {
-        if (o.flags() & std::ios::hex) return encoding::hexidecimal::write(o, n);
+        if (o.flags() & std::ios::hex) return encoding::hexidecimal::write(o, gmp::N{n});
         // TODO for dec, we convert N_bytes to N. This is inefficient but it works for now. 
         if (o.flags() & std::ios::dec) return encoding::integer::write(o, gmp::N{n});
         return o;
@@ -403,7 +394,6 @@ namespace data::encoding::decimal {
         n.resize(r.end() - r.begin());
         
         std::copy(r.begin(), r.end(), n.begin());
-        
         return o << write_base(n, characters());
     }
     

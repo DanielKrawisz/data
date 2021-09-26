@@ -303,7 +303,6 @@ namespace data::math::number {
     
     template <endian::order r> 
     Z_bytes<r> Z_bytes<r>::operator+(const Z_bytes& z) const {
-        std::cout << "plus operator" << std::endl;
         Z_bytes re(std::max(size(), z.size()) + 1, 0);
         arithmetic::plus(re.words(), this->words(), z.words());
         return re.trim();
@@ -383,6 +382,13 @@ namespace data::math::number {
         return operator bytes_view().substr(left_begin, left_end) == bytes_view(z).substr(right_begin, right_end);
     }
 
+    template <data::endian::order r>
+    inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
+        if (o.flags() & std::ios::dec) return data::encoding::integer::write(o, n);
+        if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
+        return o;
+    }
+
 }
 
 namespace data::math {
@@ -391,13 +397,6 @@ namespace data::math {
     template <endian::order r> struct associative<data::plus<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
     template <endian::order r> struct commutative<data::times<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
     template <endian::order r> struct associative<data::times<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
-}
-
-template <data::endian::order r>
-inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
-    if (o.flags() & std::ios::dec) return data::encoding::integer::write(o, n);
-    if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
-    return o;
 }
 
 #endif

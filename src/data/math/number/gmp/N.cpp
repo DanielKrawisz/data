@@ -5,6 +5,7 @@
 #include <data/data.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/digits.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace data::math::number::gmp {
     
@@ -12,7 +13,6 @@ namespace data::math::number::gmp {
     
     Z Z_read_N_gmp(string_view s) {
         Z z{};
-        //std::cout << "    Z_read_N_gmp: " << s << std::endl;
         mpz_init(z.MPZ);
         mpz_set_str(z.MPZ, std::string{s}.c_str(), 0);
         return z;
@@ -55,26 +55,19 @@ namespace data::math::number::gmp {
     }
     
     Z Z_read_hex(string_view x) {
-        //std::cout << "  reading in Z with hexidecimal representation " << x << std::endl;
         if (encoding::hexidecimal::zero(x)) return Z{0};
-        //std::cout << "  representation is nonzero. " << std::endl;
         if (encoding::integer::negative(x)) {
-        //std::cout << "  representation is negative. " << std::endl;
             std::stringstream ss;
             ss << "0x01";
             for (int i = 0; i < x.size() - 2; i += 2) ss << "00";
-            //std::cout << "  returning " << Z{N{x}} << " minus " << std::endl;
             return Z{N{x}} - Z_read_hex_positive(ss.str());
         };
         return Z_read_hex_positive(x);
     }
     
     Z Z::read(string_view s) {
-        //std::cout << "  reading in Z with representation " << s << std::endl;
         if (!encoding::integer::valid(s)) return Z{};
-        //std::cout << "  representation is valid " << s << std::endl;
         if (encoding::hexidecimal::valid(s)) return Z_read_hex(s);
-        //std::cout << "  representation is not hexidecimal " << s << std::endl;
         return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
     
@@ -100,7 +93,7 @@ namespace data::math::number::gmp {
             
             // find the smallest power of 256 bigger than z. 
             while (pow <= n) pow = pow << 8; 
-        
+            
             str = encoding::write_base<N>(abs<N, Z>{}(pow.Value + z), encoding::hex::characters_lower());
             if (str[0] <= '7') o << "ff";
         } 
@@ -111,6 +104,7 @@ namespace data::math::number::gmp {
     std::ostream& N_write_hexidecimal(std::ostream& o, const N& n) {
         if (n == 0) return o << "0x00";
         o << "0x";
+        
         std::string str = encoding::write_base<N>(n, encoding::hex::characters_lower());
         if (str.size() % 2 != 0) o << '0';
         return o << str;

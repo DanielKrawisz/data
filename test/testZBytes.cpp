@@ -147,4 +147,13 @@ namespace data {
         
     }
     
+    TEST(NBytesTest, TestZBytesToZ) {
+        
+        EXPECT_EQ(Z{Z_bytes<endian::big>{}}, Z{0});
+        EXPECT_EQ(Z{Z_bytes<endian::big>{""}}, Z{0});
+        EXPECT_EQ(Z{Z_bytes<endian::little>{}}, Z{0});
+        EXPECT_EQ(Z{Z_bytes<endian::little>{""}}, Z{0});
+        
+    }
+    
 }
