@@ -145,18 +145,6 @@ namespace data::encoding {
         
         template <endian::order r> ptr<math::N_bytes<r>> read(string_view s);
         
-        template <typename range> 
-        std::ostream &write(std::ostream& o, range r, hex::letter_case q = hex::lower) {
-            return hex::write(o << "0x", r, q);
-        }
-        
-        template <typename range> 
-        std::string inline write(range r, hex::letter_case q = hex::lower) {
-            std::stringstream ss;
-            hexidecimal::write(ss, r, q);
-            return ss.str();
-        }
-        
         struct N : string {
             
             N();

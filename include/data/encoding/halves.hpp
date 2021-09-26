@@ -234,8 +234,8 @@ namespace data {
     };
     
     template<typename half>
-    typename twice<half>::type mul(half a, half b) {
-        return (typename twice<half>::type)(a) * (typename twice<half>::type)(b);
+    typename twice<half>::type multiply(half a, half b, half r) {
+        return (typename twice<half>::type)(a) * (typename twice<half>::type)(b) + (typename twice<half>::type)(r);
     };
     
     template<typename half>

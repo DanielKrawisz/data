@@ -47,6 +47,9 @@ namespace data::math::number {
         EXPECT_TRUE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"0x01"});
         EXPECT_TRUE(N_bytes<endian::little>{1} == N_bytes<endian::little>{"0x0001"});
         
+        EXPECT_EQ(N_bytes<endian::big>{"23"}, N_bytes<endian::big>{23});
+        EXPECT_EQ(N_bytes<endian::little>{"23"}, N_bytes<endian::little>{23});
+        
     }
     
     TEST(NBytesTest, TestNBytesToHexString) {
@@ -105,19 +108,19 @@ namespace data::math::number {
     
     TEST(NBytesTest, TestNBytesToString) {
         
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"1"}), std::string{"1"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{"1"}), std::string{"1"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"23"}), std::string{"23"});
-        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{"23"}), std::string{"23"});
+        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{1}), std::string{"1"});
+        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{1}), std::string{"1"});
+        EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{23}), std::string{"23"});
+        EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{23}), std::string{"23"});
         EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{"5704566599993321"}), std::string{"5704566599993321"});
         EXPECT_EQ(encoding::integer::write(N_bytes<endian::little>{"5704566599993321"}), std::string{"5704566599993321"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"1"}), std::string{"0x01"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"1"}), std::string{"0x01"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"23"}), std::string{"0x17"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"23"}), std::string{"0x17"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"5704566599993321"}), std::string{"144445e9ca47e9"});
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"5704566599993321"}), std::string{"144445e9ca47e9"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{1}.trim()), std::string{"0x01"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{1}.trim()), std::string{"0x01"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{23}.trim()), std::string{"0x17"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{23}.trim()), std::string{"0x17"});        
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"5704566599993321"}), std::string{"0x144445e9ca47e9"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"5704566599993321"}), std::string{"0x144445e9ca47e9"});
         
     }
     

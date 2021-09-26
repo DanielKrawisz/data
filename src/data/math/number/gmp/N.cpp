@@ -173,7 +173,7 @@ namespace data::math::number::gmp {
     }
     
     N read_bytes_little(bytes_view x) {
-        auto z = std::basic_string<byte>{x};
+        auto z = bytes{x};
         std::reverse(z.begin(), z.end());
         return read_bytes_big(z);
     }

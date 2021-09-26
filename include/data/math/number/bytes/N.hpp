@@ -152,7 +152,13 @@ namespace data::math::number {
     N_bytes<r> operator*(const N_bytes<r>&, const N_bytes<r>&);
     
     template <endian::order r>
-    N_bytes<r> operator*(const N_bytes<r>&, uint64);
+    N_bytes<r> operator+(const N_bytes<r>&, uint32);
+    
+    template <endian::order r>
+    N_bytes<r> operator-(const N_bytes<r>&, uint32);
+    
+    template <endian::order r>
+    N_bytes<r> operator*(const N_bytes<r>&, uint32);
     
     template <endian::order r>
     Z_bytes<r> operator~(const N_bytes<r>&);
@@ -182,9 +188,9 @@ namespace data::math::number {
         
         static N_bytes read(string_view x) {
             if (x.size() == 0) return 0;
-            ptr<bytes> b = encoding::natural::read<r>(x);
+            ptr<N_bytes<r>> b = encoding::natural::read<r>(x);
             if (b == nullptr) throw std::logic_error{"Not a valid number"};
-            return N_bytes<r>{bytes_view(*b)};
+            return N_bytes<r>{*b};
         }
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
@@ -251,7 +257,11 @@ namespace data::math::number {
         }
         
         N_bytes& operator*=(const N_bytes& n) {
-            return operator=(*this *n);
+            return operator=(*this * n);
+        }
+        
+        N_bytes& operator*=(const uint64 n) {
+            return operator=(*this * n);
         }
         
         N_bytes& operator^=(uint32 n) {
@@ -368,7 +378,7 @@ namespace data::math {
 namespace data::math::number {
     template <endian::order r>
     std::ostream& operator<<(std::ostream& o, const N_bytes<r>& n) {
-        if (o.flags() & std::ios::hex) return encoding::hexidecimal::write(o, gmp::N{n});
+        if (o.flags() & std::ios::hex) return encoding::hexidecimal::write(o, n);
         // TODO for dec, we convert N_bytes to N. This is inefficient but it works for now. 
         if (o.flags() & std::ios::dec) return encoding::integer::write(o, gmp::N{n});
         return o;
@@ -381,7 +391,6 @@ namespace data::encoding::decimal {
         if (!valid(s)) return nullptr;
         
         ptr<math::N_bytes<r>> n = std::make_shared<math::N_bytes<r>>();
-        
         *n = encoding::read_base<math::N_bytes<endian::big>>(s, 10, digit);
         
         return n;
@@ -389,17 +398,29 @@ namespace data::encoding::decimal {
     
     template <typename range> 
     std::ostream &write(std::ostream& o, range r) {
-        math::N_bytes<endian::little> n{};
+        math::N_bytes<endian::big> n{};
         
         n.resize(r.end() - r.begin());
         
-        std::copy(r.begin(), r.end(), n.begin());
+        std::copy(r.begin(), r.end(), n.rbegin());
         return o << write_base(n, characters());
     }
     
 }
 
 namespace data::encoding::hexidecimal {
+    
+    template <endian::order r> 
+    std::ostream &write(std::ostream& o, const math::N_bytes<r>& n, hex::letter_case q = hex::lower) {
+        return hex::write(o << "0x", math::N_bytes<endian::big>(n), q);
+    }
+    
+    template <endian::order r>  
+    std::string inline write(const math::N_bytes<r>& n, hex::letter_case q = hex::lower) {
+        std::stringstream ss;
+        hexidecimal::write(ss, n, q);
+        return ss.str();
+    }
     
     template <endian::order r> ptr<math::N_bytes<r>> read(string_view s) {
         if (!valid(s)) return nullptr;
@@ -610,8 +631,42 @@ namespace data::math::number {
         return Z_bytes<r>(a) > Z_bytes<r>(b);
     }
     
+    // NOTE: these next 3 functions are the FIRST thing 
+    // we need to do to make this class more efficient. 
     template <endian::order r>
-    N_bytes<r> inline operator*(const N_bytes<r> &n, uint64 u) {
+    N_bytes<r> inline operator+(const N_bytes<r> &n, uint32 u) {
+        return N_bytes<r>(N(n) + u);
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline operator-(const N_bytes<r> &n, uint32 u) {
+        return N_bytes<r>(N(n) - u);
+    }
+    
+    // TODO this function is not very efficient because
+    // it multiplies by bytes. 
+    template <endian::order r>
+    N_bytes<r> operator*(const N_bytes<r> &n, uint32 u) {
+        N_bytes<r> m{};
+        m.resize(n.size() + 4);
+        uint64_little x{u};
+        auto dn = n.digits();
+        auto dm = m.digits();
+        auto in = dn.begin();
+        auto im = dm.begin();
+        auto en = dn.end();
+        auto em = dm.end();
+        while (in != en) {
+            x *= *in;
+            *im = x[0];
+            x <<= 8;
+            im++;
+            in++;
+        }
+        for (int i = 0; i < 4; i++) { 
+            *im = x[i];
+            im++;
+        }
         return N_bytes<r>(N(n) * u);
     }
     
@@ -679,23 +734,19 @@ namespace data::math::number {
     N_bytes<r> N_bytes<r>::trim() const {
         uint32 s = size();
         if (s == 0) return N_bytes{bytes{}};
+        auto d = digits();
+        auto b = d.rbegin();
+        while (*b == 0) {
+            s--;
+            b++;
+        }
         N_bytes re{};
-        if (r == endian::big) {
-            auto b = begin();
-            while (*b == 0) {
-                s--;
-                b++;
-            }
-            re.Value = bytes(s);
-            std::copy(b, end(), re.begin());
-        } else {
-            auto b = rbegin();
-            while (*b == 0) {
-                s--;
-                b++;
-            }
-            re.Value = bytes(size);
-            std::copy(b, rend(), re.rend());
+        re.resize(s);
+        auto q = re.digits().rbegin();
+        while (b != d.rend()) {
+            *q = *b;
+            q++;
+            b++;
         }
         return re;
     }

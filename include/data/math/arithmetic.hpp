@@ -209,7 +209,7 @@ namespace data::math::arithmetic {
     void minus(number<word, r>, const number<word, r> a, word b);
     
     template <typename words>
-    void plus(words sum, const words a, words b) {
+    void plus(words sum, const words a, const words b) {
         auto sb = sum.begin();
         auto se = sum.end();
         auto ab = a.begin();

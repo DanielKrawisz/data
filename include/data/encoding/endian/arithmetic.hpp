@@ -54,6 +54,11 @@ namespace data::endian {
         size_t size() const {
             return bytes;
         }
+        
+        const byte& operator[](int i) const {
+            if (i < 0 || i >= bytes) throw std::out_of_range{"arithmetic"};
+            return data()[i];
+        }
     };
     
 }
