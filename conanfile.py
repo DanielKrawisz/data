@@ -3,7 +3,7 @@ from os import environ
 
 class DataConan(ConanFile):
     name = "data"
-    version = "0.1"
+    version = "0.2"
     license = "MIT"
     author = "Daniel Krawisz"
     url = "https://github.com/DanielKrawisz/data"
