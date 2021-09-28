@@ -205,48 +205,5 @@ namespace data {
     using vector = data::math::vector<X, size>;
 }
 
-namespace data::math::number {
-    constexpr auto zero = decimal{"0"};
-    constexpr auto one = decimal{"1"};
-    constexpr auto two = decimal{"2"};
-    constexpr auto three = decimal{"3"};
-    constexpr auto four = decimal{"4"};
-    constexpr auto five = decimal{"5"};
-}
-
-namespace data::math::algebra {
-    
-    template struct prime_field<N, Z, number::two>;
-    template struct prime_field<N, Z, number::three>;
-    template struct prime_field<N, Z, number::five>;
-    
-    template struct cyclic_group<N, number::one>;
-    template struct cyclic_group<N, number::two>;
-    template struct cyclic_group<N, number::three>;
-    template struct cyclic_group<N, number::four>;
-    template struct cyclic_group<N, number::five>;
-    
-    template struct dihedral_group<N, number::three>;
-    template struct dihedral_group<N, number::four>;
-    template struct dihedral_group<N, number::five>;
-    /*
-    template struct symmetric_group<N, number::one>;
-    template struct symmetric_group<N, number::two>;
-    template struct symmetric_group<N, number::three>;
-    template struct symmetric_group<N, number::four>;
-    template struct symmetric_group<N, number::five>;
-    
-    template struct alternating_group<N, number::one>;
-    template struct alternating_group<N, number::two>;
-    template struct alternating_group<N, number::three>;
-    template struct alternating_group<N, number::four>;
-    template struct alternating_group<N, number::five>;*/
-}
-
-// real numbers
-// I need to start being able to do real numbers. 
-// reals are convergent sequences of Q. 
-// Can also get p-adic out of the way, since they are also convergent sequences in Q. 
-// need valuations and sequences. 
 
 #endif

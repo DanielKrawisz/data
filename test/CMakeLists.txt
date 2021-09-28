@@ -50,7 +50,6 @@ package_add_test(testPermutation testPermutation.cpp)
 package_add_test(testLib testLib.cpp)
 package_add_test(testCircularQueue testCircularQueue.cpp)
 package_add_test(testSecretShare testSecretShare.cpp)
-#package_add_test(testRateLimiter testRateLimiter.cpp)
 package_add_test(testLog testLog.cpp)
-
+#package_add_test(testRateLimiter testRateLimiter.cpp)
 #package_add_test(testNetworking testNetworking.cpp)
