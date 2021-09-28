@@ -720,6 +720,58 @@ namespace data::math::number {
         return N_bytes<r>(N(n) ^ pow);
     }
     
+    template <endian::order r> struct bit_shift;
+    
+    template <> struct bit_shift<endian::big> {
+        
+        template <typename it1b, typename it2b, typename it2e>
+        static void shift_right(it1b ai, it2b bi, it2e be, byte i) {
+            uint16 x = combine(byte(0), *ai);
+            while (true) {
+                *bi = static_cast<byte>(x >> i);
+                if (bi != be) return;
+                x = combine(*ai, *++ai);
+                ++bi;
+            }
+        }
+        
+        template <typename it1b, typename it1e, typename it2b>
+        static void shift_left(it1b ai, it1e ae, it2b bi, byte i) {
+            uint16 x;
+            byte last;
+            while (true) {
+                last = *ai;
+                ai++;
+                if (ai != ae) break;
+                x = combine(last, *ai) >> (8 - i);
+                *bi = static_cast<byte>(x);
+                bi++;
+            }
+            x = combine(last, byte(0)) >> (8 - i);
+            *bi = static_cast<byte>(x);
+        }
+        
+        N_bytes<endian::big> operator()(const N_bytes<endian::big> &n, int i) {
+            if (-i > 8 * n.size()) return {};
+            if (i == 0) return n;
+            N_bytes<endian::big> x;
+            if (i < 0) {
+                x = N_bytes<endian::big>::zero(n.size() + i / 8);
+                shift_right(n.begin(), x.begin(), x.end(), static_cast<byte>(-i % 8));
+            } else {
+                x = N_bytes<endian::big>::zero(n.size() + i / 8 + 1);
+                shift_left(n.begin(), n.end(), x.begin(), static_cast<byte>(i % 8));
+            }
+            return x.trim();
+        }
+    };
+    
+    template <> struct bit_shift<endian::little> {
+        N_bytes<endian::little> operator()(const N_bytes<endian::little> &n, int i) {
+            return bit_shift<endian::big>{}(N_bytes<endian::big>(n), i);
+        }
+    };
+    
     template <endian::order r>
     N_bytes<r> inline operator<<(const N_bytes<r> &n, int i) {
         return N_bytes<r>(r == endian::big ? N(n) << i : N(n) >> i);

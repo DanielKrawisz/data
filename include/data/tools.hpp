@@ -72,6 +72,18 @@ namespace data {
                 
         return reduce(inner{m}, k);
     }
+    
+    template <typename A, typename B>
+    list<std::pair<A, B>> transpose(list<A> a, list<B> b) {
+        if (a.size() != b.size()) return {};
+        list<std::pair<A, B>> l;
+        while (a.size() != 0) {
+            l = l << std::pair(a.first(), b.first());
+            a = a.rest();
+            b = b.rest();
+        }
+        return l;
+    }
 
 }
 

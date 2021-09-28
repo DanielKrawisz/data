@@ -106,6 +106,26 @@ namespace data::math::number {
         
     }
     
+    template <endian::order r> 
+    struct test_bit_shift {
+        void operator()(string num, int shift) {
+            EXPECT_EQ(N_bytes<r>(num) >> shift, N_bytes<r>(num) << -shift);
+            EXPECT_EQ(N_bytes<r>(num) << shift, N_bytes<r>(num) >> -shift);
+            EXPECT_EQ(N(num) >> shift, N(N_bytes<r>(num) >> shift));
+            EXPECT_EQ(N(num) << shift, N(N_bytes<r>(num) << shift));
+        }
+    };
+    
+    TEST(NBytesTest, TestNBitShift) {
+        list<string> nums{"0", "1", "23", "5704566599993321"};
+        list<int> shifts{0, 1, 5, 8, 15, 16};
+        for (auto &x : transpose(nums, shifts)) {
+            test_bit_shift<endian::big>{}(x.first, x.second);
+            test_bit_shift<endian::little>{}(x.first, x.second);
+        }
+        
+    }
+    
     TEST(NBytesTest, TestNBytesToString) {
         
         EXPECT_EQ(encoding::integer::write(N_bytes<endian::big>{1}), std::string{"1"});
