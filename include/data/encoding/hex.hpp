@@ -49,12 +49,12 @@ namespace data::encoding::hex {
     };
     
     template <typename range> 
-    std::ostream &write(std::ostream &o, range r, letter_case q = upper) {
+    std::ostream &write(std::ostream &o, range r, letter_case q = lower) {
         return o << write(r, q);
     }
     
     template <typename range> 
-    string write(range r, letter_case q = upper) {
+    string write(range r, letter_case q = lower) {
         string output((r.end() - r.begin()));
         if (q == upper) boost::algorithm::hex(r.begin(), r.end(), output.begin());
         else boost::algorithm::hex_lower(r.begin(), r.end(), output.begin());
