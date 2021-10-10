@@ -38,34 +38,38 @@ namespace data::networking {
         string request(
             method verb, 
             string hostname, 
-            string path = "/", 
+            string path = "/",
+            string port="https",
             const std::map<header, string>& headers = {}, 
             string body = "") {
-            return request("https", verb, hostname, path, headers, body);
+            return request(port, verb, hostname, path, headers, body);
         }
         
         string GET(
             string hostname, 
-            string path, 
+            string path,
+            string port="https",
             const std::map<string, string>& params = {},
             const std::map<header, string>& headers = {}, 
             string body = "") {
-            return request(method::get, hostname, append_params(path, params), headers, body);
+            return request(method::get, hostname,append_params(path, params),port , headers, body);
         }
         
         string POST(
             string hostname, 
-            string path="/", 
+            string path="/",
+            string port="https",
             const std::map<string, string>& params = {}, 
             const std::map<header, string>& headers = {},
             string body = "") {
-            return request(method::post, hostname, append_params(path, params), headers, body);
+            return request(method::post, hostname, append_params(path, params),port, headers, body);
         }
         
         // post data from a form. 
         string POST(
             string hostname,
             string path="/",
+            string port="https",
             const std::map<string, string>& params={},
             const std::map<header, string>& headers={},
             const std::map<string, string>& form_data={});
