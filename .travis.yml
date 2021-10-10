@@ -57,7 +57,7 @@ install:
         if [ ! -d "${TRAVIS_BUILD_DIR}/user/include" ]; then
             mkdir tmp;
             cd tmp;
-            wget https://gist.githubusercontent.com/nekosune/9a2d3e841d2d305aee7a4aa71a984334/raw/5fb0a06b27df7e6108c401d81fd5dd782e3fce59/install.sh ;
+            wget https://gist.githubusercontent.com/KatrinaAS/9a2d3e841d2d305aee7a4aa71a984334/raw/14a9e4ff36590fa0cff72ebec7d82463ad25ad61/install.sh ;
             chmod +x install.sh ;
             sudo ${TRAVIS_BUILD_DIR}/tmp/install.sh --prefix=${TRAVIS_BUILD_DIR}/user/  --build-boost;
         fi
