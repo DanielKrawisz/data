@@ -6,7 +6,26 @@
 #include <data/networking/http.hpp>
 #include <iostream>
 
+
 namespace data::networking {
+    std::string fromRange(const UriTextRangeA & rng)
+    {
+        return std::string(rng.first, rng.afterLast);
+    }
+
+    std::string fromList(UriPathSegmentA * xs, const std::string & delim)
+    {
+        UriPathSegmentStructA * head(xs);
+        std::string accum;
+
+        while (head)
+        {
+            accum += delim + fromRange(head->text);
+            head = head->next;
+        }
+
+        return accum;
+    }
 
     http::http() :
         ssl_ctx(boost::asio::ssl::context::tlsv12_client),
@@ -38,7 +57,9 @@ namespace data::networking {
         return newBody;
     }
     
-    string http::request(string port, method verb, string hostname, string path, const std::map<header, string> &headers, string body) {
+    string http::request(string port, method verb, string hostname, string path, const std::map<header, string> &headers, string body,int redirects) {
+        if(redirects<=0)
+            return "";
         boost::beast::ssl_stream<boost::beast::tcp_stream> stream(ioc, ssl_ctx);
         
         // Set SNI Hostname (many hosts need this to handshake successfully)
@@ -72,17 +93,28 @@ namespace data::networking {
         try {
             boost::beast::http::read(stream, buffer, res,ec);
         } catch(boost::exception& ex) {}
-
+        if(static_cast<int>(res.base().result()) >= 300 && static_cast<int>(res.base().result()) < 400) {
+            std::string loc=res.base()["Location"].to_string();
+            if(!loc.empty()) {
+                UriUriA uri;
+                const char **errorPos;
+                if(uriParseSingleUriA(&uri,loc.c_str(),errorPos)) {
+                    // todo: should this throw an error?
+                    return "";
+                }
+                return request(fromRange(uri.portText),verb, fromRange(uri.hostText), fromList(uri.pathHead,"/")+fromRange(uri.fragment),headers,body,redirects-1);
+            }
+        }
         return boost::beast::buffers_to_string(res.body().data());
     }
 
     string http::POST(string hostname, string path, string port, const std::map<string, string> &params,
-                      const std::map<header, string> &headers, const std::map<string, string> &form_data) {
+                      const std::map<header, string> &headers, const std::map<string, string> &form_data,int redirects) {
         
         auto newHeaders=std::map<header, string>(headers);
         newHeaders[boost::beast::http::field::content_type]="application/x-www-form-urlencoded";
         
-        return request(port, method::post, hostname, append_params(path, params), newHeaders, encode_form_data(form_data));
+        return request(port, method::post, hostname, append_params(path, params), newHeaders, encode_form_data(form_data),redirects);
     }
 
 
