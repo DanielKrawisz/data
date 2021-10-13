@@ -14,11 +14,14 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/error.hpp>
 #include <boost/asio/ssl/stream.hpp>
-
+#include <uriparser/Uri.h>
 #include <data/tools.hpp>
 #include <map>
 
 namespace data::networking {
+
+    std::string fromRange(const UriTextRangeA & rng);
+    std::string fromList(UriPathSegmentA * xs, const std::string & delim);
     struct http {
         using header = boost::beast::http::field;
         using method = boost::beast::http::verb;
@@ -33,7 +36,8 @@ namespace data::networking {
             string hostname, 
             string path = "/", 
             const std::map<header, string>& headers = {}, 
-            string body = "");
+            string body = "",
+            int redirects=10);
         
         string request(
             method verb, 
@@ -41,8 +45,9 @@ namespace data::networking {
             string path = "/",
             string port="https",
             const std::map<header, string>& headers = {}, 
-            string body = "") {
-            return request(port, verb, hostname, path, headers, body);
+            string body = "",
+            int redirects=10) {
+            return request(port, verb, hostname, path, headers, body,redirects);
         }
         
         string GET(
@@ -51,8 +56,9 @@ namespace data::networking {
             string port="https",
             const std::map<string, string>& params = {},
             const std::map<header, string>& headers = {}, 
-            string body = "") {
-            return request(method::get, hostname,append_params(path, params),port , headers, body);
+            string body = "",
+            int redirects=10) {
+            return request(method::get, hostname,append_params(path, params),port , headers, body,redirects);
         }
         
         string POST(
@@ -61,8 +67,9 @@ namespace data::networking {
             string port="https",
             const std::map<string, string>& params = {}, 
             const std::map<header, string>& headers = {},
-            string body = "") {
-            return request(method::post, hostname, append_params(path, params),port, headers, body);
+            string body = "",
+            int redirects=10) {
+            return request(method::post, hostname, append_params(path, params),port, headers, body,redirects);
         }
         
         // post data from a form. 
@@ -72,7 +79,8 @@ namespace data::networking {
             string port="https",
             const std::map<string, string>& params={},
             const std::map<header, string>& headers={},
-            const std::map<string, string>& form_data={});
+            const std::map<string, string>& form_data={},
+            int redirects=10);
         
     private:
         boost::asio::io_context ioc;

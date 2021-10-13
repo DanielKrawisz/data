@@ -50,7 +50,7 @@ endif()
 
 
 # Include libraries
-
+find_package(uriparser 0.9.3 CONFIG REQUIRED char wchar_t)
 # Boost settings
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
@@ -149,7 +149,7 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${OPENSSL_LIBRARIES}
+target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${OPENSSL_LIBRARIES} uriparser::uriparser
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)
