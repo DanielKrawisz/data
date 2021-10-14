@@ -81,6 +81,10 @@ namespace data::networking {
             const std::map<header, string>& headers={},
             const std::map<string, string>& form_data={},
             int redirects=10);
+
+        template<
+                class SyncReadStream>
+        string requestBody(SyncReadStream& stream,std::string hostname,http::method verb, string path, const std::map<http::header, string> &headers, string body,int redirects);
         
     private:
         boost::asio::io_context ioc;
