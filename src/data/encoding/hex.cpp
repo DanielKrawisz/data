@@ -1,10 +1,9 @@
 // Copyright (c) 2019 Katrina Swales
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2021 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <iterator>
-#include <iostream>
 #include <vector>
 #include <string>
 

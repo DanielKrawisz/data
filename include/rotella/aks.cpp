@@ -15,8 +15,6 @@
 #include "aks.h"
 using namespace std;
 
-
-
 mpz_pX::mpz_pX() {
     degree = 0;
     coef = (mpz_class**)calloc(1,sizeof(mpz_class*));

@@ -4,8 +4,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/networking/http.hpp>
-#include <iostream>
-
 
 namespace data::networking {
     std::string fromRange(const UriTextRangeA & rng)

@@ -5,7 +5,6 @@
 #include <data/data.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include "gtest/gtest.h"
-#include <iostream>
 
 namespace data {
     

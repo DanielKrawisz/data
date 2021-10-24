@@ -1,12 +1,13 @@
+// Copyright (c) 2019-2021 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_IO_MAIN
 #define DATA_IO_MAIN
 
-#include <iostream>
-
 #include <boost/program_options.hpp>
 
-#include <data/types.hpp>
-#include <data/list/linked.hpp>
+#include <data/tools.hpp>
 
 // Ways of translating the c++ main function into something
 // a little more high-level. 

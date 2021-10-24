@@ -4,7 +4,6 @@
 
 #include <data/data.hpp>
 #include "gtest/gtest.h"
-#include <iostream>
 
 namespace data {
     
