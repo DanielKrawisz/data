@@ -139,7 +139,7 @@ namespace data {
 // rationals
 namespace data {
     
-    using Q = math::number::fraction<Z, N>;
+    using Q = math::fraction<Z, N>;
     
     template math::sign sign<Q>(const Q&);
     

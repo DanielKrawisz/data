@@ -11,7 +11,7 @@
 namespace data::encoding {
     
     template <typename N>
-    std::string write_base(const N& n, std::string digits) {
+    string write_base(const N& n, string digits) {
         uint32 base = digits.size();
         if (base < 2) return "";
         tool::linked_stack<char> dig{};
@@ -22,7 +22,7 @@ namespace data::encoding {
             x = d.Quotient;
         }
         
-        std::string o;
+        string o;
         o.resize(dig.size());
         int i = 0;
         while(dig.size() > 0) {

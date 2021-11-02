@@ -10,7 +10,7 @@
 TEST(PolynomialTest, TestPolynomial) {
     using namespace data;
     
-    using polynomial = data::math::polynomial<data::math::number::fraction<Z, N>, uint32>;
+    using polynomial = data::math::polynomial<data::math::fraction<Z, N>, uint32>;
     using term = polynomial::term;
     
     polynomial p1 = polynomial::make(Z{1}, term{Z{1}, 2});
