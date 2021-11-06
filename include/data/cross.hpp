@@ -45,10 +45,13 @@ namespace data {
         
         slice<X> range(data::range r);
         
+        explicit cross(std::vector<X>&& v) : std::vector<X>{v} {}
+        
     protected:
         void fill(const X& x) {
             for (X& z : *this) z = x;
         }
+        
     };
     
     template <typename X>
@@ -82,7 +85,7 @@ namespace data {
         }
     };
     
-    struct bytes : cross<byte> {
+    struct bytes : public cross<byte> {
         using cross<byte>::cross;
         
         operator bytes_view() const {

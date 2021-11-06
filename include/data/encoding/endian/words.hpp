@@ -86,18 +86,22 @@ namespace data::arithmetic {
     template <typename bit32, endian::order o> struct words;
     
     byte inline &digits<endian::little>::operator[](int i) {
+        if (i < 0) return Data[Data.size() + i];
         return Data[i];
     }
     
     const byte inline &digits<endian::little>::operator[](int i) const {
+        if (i < 0) return Data[Data.size() + i];
         return Data[i];
     }
     
     byte inline &digits<endian::big>::operator[](int i) {
+        if (i < 0) return Data[-i - 1];
         return Data[Data.size() - i - 1];
     }
     
     const byte inline &digits<endian::big>::operator[](int i) const {
+        if (i < 0) return Data[-i - 1];
         return Data[Data.size() - i - 1];
     }
     

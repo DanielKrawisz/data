@@ -14,6 +14,7 @@ namespace data::math {
         R Value;
         
         explicit nonnegative(const R& n) : Value{n} {}
+        explicit nonnegative(R&& n) : Value{n} {}
         nonnegative() : Value{-1} {}
         
         bool valid() {
@@ -31,7 +32,8 @@ namespace data::math {
     template <typename R> struct nonzero {
         R Value;
         
-        explicit nonzero(const R& n) : Value{n} {}
+        explicit nonzero(const R &n) : Value{n} {}
+        explicit nonzero(R &&n) : Value{n} {}
         nonzero() : Value{0} {}
         
         bool valid() const {
@@ -40,6 +42,16 @@ namespace data::math {
         
         operator R() const {
             return Value;
+        }
+        
+        nonzero& operator=(const R &n) {
+            Value = n;
+            return *this;
+        }
+        
+        nonzero& operator=(R &&n) {
+            Value = n;
+            return *this;
         }
     };
 
