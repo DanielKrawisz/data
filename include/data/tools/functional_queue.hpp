@@ -44,6 +44,14 @@ namespace data::tool {
         functional_queue operator<<(const element e) const;
         functional_queue operator<<(const functional_queue q) const;
         
+        functional_queue &operator<<=(const element e) {
+            return *this = *this << e;
+        }
+        
+        functional_queue &operator<<=(const functional_queue q) {
+            return *this = *this << q;
+        }
+        
         functional_queue reverse() const;
         
         bool operator==(const functional_queue& q) const;

@@ -71,7 +71,7 @@ namespace data {
         }
     
         template <boost::endian::order Order, bool is_signed, std::size_t bytes>
-        writer &operator<<(const endian::arithmetic<Order, is_signed, bytes> x) {
+        writer &operator<<(const endian::arithmetic<Order, is_signed, bytes> &x) {
             return operator<<(bytes_view(x));
         }
         
