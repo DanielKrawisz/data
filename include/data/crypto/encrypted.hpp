@@ -70,7 +70,7 @@ namespace data::crypto {
     template <size_t size>
     decrypted decrypt(const encrypted& e, decryption<size> d, const symmetric_key<size>& k) {
         bytes x = d(e.Data, k, e.IV);
-        reader<bytes::iterator> r(x.begin(), x.end());
+        iterator_reader<bytes::iterator, byte> r(x.begin(), x.end());
         uint64_big check_start;
         r >> check_start;
         if (check_start != 0) throw decrypted::fail{};

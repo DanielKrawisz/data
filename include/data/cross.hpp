@@ -10,6 +10,7 @@
 #include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
 #include <data/math/arithmetic.hpp>
+#include <data/stream.hpp>
 
 namespace data {
     
@@ -182,10 +183,52 @@ namespace data {
         
     };
     
+    writer<byte> inline &operator<<(writer<byte> &w, const bytes &x) {
+        w.write(x.data(), x.size());
+        return w;
+    }
+    
+    template <size_t size> 
+    writer<byte> inline &operator<<(writer<byte> &w, const byte_array<size> &x) {
+        w.write(x.data(), size);
+        return w;
+    }
+    
+    reader<byte> inline &operator>>(reader<byte> &r, bytes &x) {
+        r.read(x.data(), x.size());
+        return r;
+    }
+    
+    template <size_t size> 
+    reader<byte> inline &operator>>(reader<byte> &r, byte_array<size> &x) {
+        r.read(x.data(), size);
+        return r;
+    }
+    
     std::ostream &operator<<(std::ostream &o, const bytes &s);
     
     template <size_t size> 
     std::ostream &operator<<(std::ostream &o, const byte_array<size> &s);
+    
+    namespace stream {
+        
+        template <typename ... P>
+        string write_string(uint32 size, P... p) {
+            string Data;
+            Data.resize(size);
+            write_all(iterator_writer<string::iterator, char>{Data.begin(), Data.end()}, p...);
+            return Data;
+        };
+        
+        template <typename ... P>
+        bytes write_bytes(uint32 size, P... p) {
+            bytes Data(size);
+            iterator_writer<bytes::iterator, byte> w{Data.begin(), Data.end()};
+            write_all(w, p...);
+            return Data;
+        };
+    
+    }
     
     template <typename X>
     inline cross<X>::cross() : std::vector<X>{} {}

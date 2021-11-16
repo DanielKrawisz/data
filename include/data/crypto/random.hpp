@@ -6,7 +6,7 @@
 #define DATA_CRYPTO_RANDOM
 
 #include <data/iterable.hpp>
-#include <data/stream.hpp>
+#include <data/cross.hpp>
 
 namespace data::crypto {
     

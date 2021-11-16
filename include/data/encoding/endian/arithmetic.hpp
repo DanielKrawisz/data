@@ -5,7 +5,7 @@
 #ifndef DATA_ARITHMETIC
 #define DATA_ARITHMETIC
 
-#include <data/types.hpp>
+#include <data/stream.hpp>
 #include <data/encoding/endian/endian.hpp>
 #include <data/encoding/endian/words.hpp>
 
@@ -43,6 +43,10 @@ namespace data::endian {
             return bytes_view(data(), bytes);
         }
         
+        explicit operator slice<byte>() {
+            return slice<byte>(data(), bytes);
+        }
+        
         using opposite_endian = arithmetic<opposite(Order), is_signed, bytes>;
         
         explicit operator opposite_endian() const {
@@ -60,6 +64,16 @@ namespace data::endian {
             return data()[i];
         }
     };
+    
+    template <boost::endian::order o, bool z, std::size_t s>
+    writer<byte> inline &operator<<(writer<byte> &w, arithmetic<o, z, s> x) {
+        return w << bytes_view(x);
+    }
+    
+    template <boost::endian::order o, bool z, std::size_t s>
+    reader<byte> inline &operator>>(reader<byte> &r, arithmetic<o, z, s> &x) {
+        return r >> slice<byte>(x);
+    }
     
 }
 
@@ -104,6 +118,78 @@ namespace data {
   typedef endian::arithmetic<endian::little, false, 6>  uint48_little;
   typedef endian::arithmetic<endian::little, false, 7>  uint56_little;
   typedef endian::arithmetic<endian::little, false, 8>  uint64_little;
+}
+
+namespace data::endian {
+    
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 1> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 1> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 2> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 2> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 3> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 3> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 4> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 4> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 5> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 5> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 6> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 6> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 7> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 7> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, true, 8> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, true, 8> &x);
+    
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 1> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 1> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 2> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 2> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 3> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 3> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 4> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 4> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 5> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 5> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 6> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 6> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 7> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 7> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::big, false, 8> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::big, false, 8> &x);
+    
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 1> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 1> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 2> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 2> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 3> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 3> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 4> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 4> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 5> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 5> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 6> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 6> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 7> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 7> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, true, 8> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, true, 8> &x);
+    
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 1> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 1> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 2> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 2> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 3> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 3> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 4> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 4> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 5> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 5> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 6> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 6> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 7> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 7> &x);
+    template writer<byte> &operator<<(writer<byte> &w, arithmetic<endian::little, false, 8> x);
+    template reader<byte> &operator>>(reader<byte> &r, arithmetic<endian::little, false, 8> &x);
+    
 }
 
 #endif
