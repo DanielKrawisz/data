@@ -122,6 +122,8 @@ ADD_LIBRARY(data STATIC
     src/sv/crypto/sha1.cpp
     src/sv/crypto/sha256.cpp
     src/sv/crypto/sha512.cpp
+    src/sv/arith_uint256.cpp
+    src/sv/utiltime.cpp
     
     include/rotella/aks.cpp
     include/rotella/sieve.cpp
