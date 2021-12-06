@@ -60,7 +60,10 @@ namespace data::endian {
         }
         
         const byte& operator[](int i) const {
-            if (i < 0 || i >= bytes) throw std::out_of_range{"arithmetic"};
+            if (i >= int(bytes)) 
+                throw std::out_of_range{string{"access index "} + std::to_string(i) + 
+                    " in arithmetic number of size " + std::to_string(bytes)};
+            if (i < 0) return operator[](bytes + i);
             return data()[i];
         }
     };

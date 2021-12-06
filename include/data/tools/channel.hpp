@@ -72,11 +72,6 @@ namespace data::tool {
     public:
         channel(uint32 size) : channel{std::make_shared<channel<item>::inner>(size)} {}
         channel() : channel{0} {}
-        channel(const channel& c) : To{c.To}, From{c.From} {}
-        channel(channel&& c) : To{c.To}, From{c.From} {
-            c.To = to{};
-            c.From = from{};
-        }
         
         void close() {
             To.close();

@@ -60,7 +60,7 @@ set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
 # Include Boost
-find_package(Boost 1.76.0 COMPONENTS system log log_setup regex REQUIRED)
+find_package(Boost 1.76.0 COMPONENTS system log log_setup program_options regex REQUIRED)
 
 if(Boost_FOUND)
 
@@ -122,7 +122,6 @@ ADD_LIBRARY(data STATIC
     src/sv/crypto/sha1.cpp
     src/sv/crypto/sha256.cpp
     src/sv/crypto/sha512.cpp
-    src/sv/arith_uint256.cpp
     src/sv/utiltime.cpp
     
     include/rotella/aks.cpp
