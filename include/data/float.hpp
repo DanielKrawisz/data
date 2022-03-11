@@ -60,6 +60,7 @@ namespace data {
         if (storage_bits == 16) return 5;
         if (storage_bits == 32) return 8;
         if (storage_bits == 64) return 11;
+        if (storage_bits == 80) return 15;
         if (storage_bits == 128) return 15;
         return 0;
     }
@@ -69,6 +70,7 @@ namespace data {
         if (storage_bits == 16) return 10;
         if (storage_bits == 32) return 23;
         if (storage_bits == 64) return 52;
+        if (storage_bits == 80) return 64;
         if (storage_bits == 128) return 112;
         return 0;
     }
@@ -97,6 +99,7 @@ namespace data {
     //using float16 = IEEE_754_2008_Binary<16>;
     using float32 = IEEE_754_2008_Binary<32>;
     using float64 = IEEE_754_2008_Binary<64>;
+    //using float80 = IEEE_754_2008_Binary<80>;
     //using float128 = IEEE_754_2008_Binary<128>;
 
 }
