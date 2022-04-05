@@ -61,7 +61,7 @@ namespace data {
         int i = 3;
         map<int, int*> m{{0, &i}};
         EXPECT_EQ(m[0], &i);
-        EXPECT_EQ(m[1], nullptr);
+        EXPECT_EQ(m.contains(1), nullptr);
     }
     
     TEST(MapTest, TestRemoveFromMap) {

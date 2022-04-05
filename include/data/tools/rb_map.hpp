@@ -23,8 +23,9 @@ namespace data::tool {
         rb_map(map m, size_t x) : Map{m}, Size{x} {}
         
     public:
-        const V& operator[](const K& k) const;
-        bool contains(const K& k) const;
+        const V &operator[](const K& k) const;
+        V *contains(const K& k);
+        const V *contains(const K& k) const;
         bool contains(const entry& e) const;
         
         rb_map insert(const K& k, const V& v) const;
@@ -110,14 +111,20 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    inline const V& rb_map<K, V>::operator[](const K& k) const {
-        static V Default{};
-        return Map.findWithDefault(Default, k);
+    inline const V &rb_map<K, V>::operator[](const K& k) const {
+        V *x = Map.find(k);
+        if (x == nullptr) throw "not found";
+        return *x;
     }
     
     template <typename K, typename V>
-    inline bool rb_map<K, V>::contains(const K& k) const {
-        return Map.member(k);
+    inline V *rb_map<K, V>::contains(const K& k) {
+        return Map.find(k);
+    }
+    
+    template <typename K, typename V>
+    inline const V *rb_map<K, V>::contains(const K& k) const {
+        return Map.find(k);
     }
     
     template <typename K, typename V>
@@ -127,9 +134,9 @@ namespace data::tool {
     
     template <typename K, typename V>
     inline rb_map<K, V> rb_map<K, V>::insert(const K& k, const V& v) const {
-        V already = operator[](k);
-        if (already == V{}) return rb_map{Map.inserted(k, v), Size + 1};
-        if (already == v) return *this;
+        const V *already = contains(k);
+        if (already == nullptr) return rb_map{Map.inserted(k, v), Size + 1};
+        if (*already == v) return *this;
         rb_map removed = this->remove(k);
         return rb_map{removed.Map.inserted(k, v), removed.Size + 1};
     }

@@ -92,9 +92,6 @@ namespace data::tool {
         return functional::write(o, n);
     }
 
-}
-
-namespace data::tool {
     template <typename stack, typename element>
     inline functional_queue<stack, element>::functional_queue(stack l, stack r) : Left{l}, Right{r} {}
     

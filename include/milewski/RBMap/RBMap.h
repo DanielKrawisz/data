@@ -29,6 +29,7 @@ namespace milewski::okasaki {
             const V _val;
             std::shared_ptr<const Node> _rgt;
         };
+        
         explicit RBMap(std::shared_ptr<const Node> const & node) : _root(node) {}
         Color rootColor() const
         {
@@ -37,33 +38,40 @@ namespace milewski::okasaki {
         }
     public:
         RBMap() : _root{nullptr} {}
+        
         RBMap(Color c, RBMap const & lft, const K& key, const V& val, RBMap const & rgt)
             : _root(std::make_shared<const Node>(c, lft._root, key, val, rgt._root))
         {
             assert(lft.isEmpty() || lft.rootKey() < key);
             assert(rgt.isEmpty() || key < rgt.rootKey());
         }
+        
         bool isEmpty() const { return !_root; }
+        
         const K& rootKey() const
         {
             assert(!isEmpty());
             return _root->_key;
         }
-        const V& rootValue() const
+        
+        V& rootValue() const
         {
             assert(!isEmpty());
-            return _root->_val;
+            return const_cast<V&>(_root->_val);
         }
+        
         RBMap left() const
         {
             assert(!isEmpty());
             return RBMap(_root->_lft);
         }
+        
         RBMap right() const
         {
             assert(!isEmpty());
             return RBMap(_root->_rgt);
         }
+        
         bool member(const K& x) const
         {
             if (isEmpty())
@@ -76,31 +84,35 @@ namespace milewski::okasaki {
             else
                 return true;
         }
-        const V& findWithDefault(const V& dflt, const K& key) const
+        
+        V *find(const K& key) const
         {
             if (isEmpty()) {
-                return dflt;
+                return nullptr;
             }
             
             K y = rootKey();
             if (key < y)
-                return left().findWithDefault(dflt, key);
+                return left().find(key);
             else if (y < key)
-                return right().findWithDefault(dflt, key);
+                return right().find(key);
             else
-                return rootValue();
+                return &rootValue();
         }
+        
         RBMap inserted(const K& x, const V& v) const
         {
             RBMap t = ins(x, v);
             return RBMap(B, t.left(), t.rootKey(), t.rootValue(), t.right());
         }
+        
         template<class F>
         RBMap insertedWith(K k, V v, F combine)
         {
             RBMap t = insWith(k, v, combine);
             return RBMap(B, t.left(), t.rootKey(), t.rootValue(), t.right());
         }
+        
         // 1. No red node has a red child.
         void assert1() const
         {
@@ -117,6 +129,7 @@ namespace milewski::okasaki {
                 rgt.assert1();
             }
         }
+        
         // 2. Every path from root to empty node contains the same
         // number of black nodes.
         int countB() const
@@ -128,6 +141,7 @@ namespace milewski::okasaki {
             assert(lft == rgt);
             return (rootColor() == B) ? 1 + lft : lft;
         }
+        
     private:
         RBMap ins(const K& x, const V& v) const
         {
@@ -156,6 +170,7 @@ namespace milewski::okasaki {
                     return *this; // no duplicates
             }
         }
+        
         template<class F>
         RBMap insWith(const K& x, const V& v, F combine) const
         {
@@ -184,6 +199,7 @@ namespace milewski::okasaki {
                     return RBMap(c, left(), y, combine(yv, v), right());
             }
         }
+        
         // Called only when parent is black
         static RBMap balance(RBMap const & lft, K x, V v, RBMap const & rgt)
         {
@@ -214,6 +230,7 @@ namespace milewski::okasaki {
             else
                 return RBMap(B, lft, x, v, rgt);
         }
+        
         bool doubledLeft() const
         {
             return !isEmpty()
@@ -221,6 +238,7 @@ namespace milewski::okasaki {
                 && !left().isEmpty()
                 && left().rootColor() == R;
         }
+        
         bool doubledRight() const
         {
             return !isEmpty()
@@ -228,6 +246,7 @@ namespace milewski::okasaki {
                 && !right().isEmpty()
                 && right().rootColor() == R;
         }
+        
         RBMap paint(Color c) const
         {
             assert(!isEmpty());

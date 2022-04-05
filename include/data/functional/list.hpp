@@ -56,30 +56,13 @@ namespace data::meta {
             return take_queue(l, x);
         }
     };
-    
+    /*
     template <functional::queue list>
     struct take<list> {
         list operator()(const list& l, uint32 x) {
             return take_queue(l, x);
         }
-    };
-    
-    template <typename L, typename engine>
-    L shuffle(const L x, engine& e) {
-        L q = x;
-        L z{};
-        while (!data::empty(q)) {
-            q = rotate_left(q, std::uniform_int_distribution<int>(0, q.size() - 1)(e));
-            z = z << q.first();
-            q = q.rest();
-        }
-        return z;
-    }
-    
-    template <typename L>
-    L shuffle(const L x) {
-        return shuffle(x, get_random_engine());
-    }
+    };*/
 }
 
 namespace data {
@@ -101,6 +84,23 @@ namespace data {
     list join(const list&a, const list& b) {
         if (b.empty()) return a;
         return join(a << b.first(), b.rest());
+    }
+    
+    template <typename L, typename engine>
+    L shuffle(const L x, engine& e) {
+        L q = x;
+        L z{};
+        while (!data::empty(q)) {
+            q = rotate_left(q, std::uniform_int_distribution<int>(0, q.size() - 1)(e));
+            z = z << q.first();
+            q = q.rest();
+        }
+        return z;
+    }
+    
+    template <typename L>
+    L shuffle(const L x) {
+        return shuffle(x, get_random_engine());
     }
 }
 

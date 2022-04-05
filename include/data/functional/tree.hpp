@@ -22,9 +22,9 @@ namespace data::interface {
         { t.right() } -> std::convertible_to<tree>;
     };
         
-    template <typename tree, typename element>
+    template <typename tree>
     concept has_root_method = requires (tree t) {
-        { t.root() } -> std::convertible_to<element>;
+        { t.root() };
     };
 
     template <typename tree, typename element>
@@ -42,7 +42,7 @@ namespace data::functional {
     concept tree = container<const T, element> && 
         interface::has_left_method<const T> && 
         interface::has_right_method<const T> && 
-        interface::has_root_method<const T, element> && 
+        interface::has_root_method<const T> && 
         interface::has_tree_constructor<T, element> && 
         std::default_initializable<T>;
     
@@ -67,7 +67,7 @@ namespace data::functional {
 
 namespace data {
 
-    template <typename X, typename elem> requires interface::has_root_method<X, elem>
+    template <typename X> requires interface::has_root_method<X>
     inline const decltype(std::declval<const X>().root()) root(const X& x) {
         return x.root();
     }

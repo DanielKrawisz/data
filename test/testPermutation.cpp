@@ -105,11 +105,11 @@ namespace data {
         EXPECT_EQ(p321, p123 * p123);
         EXPECT_EQ(p0, p123 * p123 * p123);
         
-        perm p1234 = perm{cycle{1, 2}, {3, 4}};
+        perm p1234 = perm{cycle{1, 2}, cycle{3, 4}};
         
         EXPECT_TRUE(valid(p1234));
-    }*/
-    /*
+    }
+    
     TEST(PermutationTest, TestSymmetric) {
         
     }

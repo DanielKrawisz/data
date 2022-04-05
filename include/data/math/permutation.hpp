@@ -57,7 +57,9 @@ namespace data::math {
         list<cycle> Cycles;
         
         permutation() : Cycles{} {}
-        permutation(std::initializer_list<cycle> x);
+        
+        template <typename ... P>
+        permutation(cycle, P...);
         
         bool valid() const;
         
@@ -150,10 +152,9 @@ namespace data::math {
     }
     
     template <typename elem> 
-    permutation<elem>::permutation(std::initializer_list<cycle> x) : Cycles{} {
-        permutation p{};
-        for (cycle c : x) p = p * c;
-        Cycles = p.Cycles;
+    template <typename ... P>
+    permutation<elem>::permutation(cycle x, P... p) : Cycles{x} {
+        *this = *this * permutation(p...);
     } 
     
     template <typename elem>     

@@ -18,7 +18,7 @@ namespace data {
         
         template <typename X, typename element> 
         concept has_contains_method = requires (X x, const element e) {
-            { x.contains(e) } -> std::same_as<bool>;
+            { x.contains(e) } -> std::convertible_to<bool>;
         };
     
         template <typename X, typename element>

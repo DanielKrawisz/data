@@ -13,6 +13,7 @@
 #include <data/valid.hpp>
 #include <data/sequence.hpp>
 #include <data/iterable.hpp>
+#include <data/function.hpp>
 
 namespace data::interface {
     
@@ -197,7 +198,7 @@ namespace data::meta {
 namespace data {
     template <typename list, typename elem> requires interface::has_prepend_method<list, elem>
     inline list prepend(const list& x, const elem& e) {
-        x.prepend(e);
+        return x.prepend(e);
     }
     
     template <typename X>
@@ -211,9 +212,20 @@ namespace data {
         return join(a << b.first(), b.rest());
     }
     
-    template <typename list, typename prop> requires functional::stack<list, prop>
+    template <typename list, typename prop> requires functional::stack<list> && function<prop, element_of<list>, bool>
     list select(const list& a, const prop p) {
         return a.empty() ? list{} : p(a.first()) ? list{a.first()} << select(a.rest(), p) : select(a.rest(), p);
+    }
+    
+    template <functional::stack list> 
+    list take(list x, uint32 n) {
+        list z{};
+        while (size(x) > 0 && n > 0) {
+            z = prepend(z, x.first());
+            x = rest(x);
+            n--;
+        }
+        return reverse(z);
     }
 }
 

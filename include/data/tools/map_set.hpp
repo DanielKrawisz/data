@@ -11,17 +11,14 @@
 namespace data::tool {
     
     struct unit {
-        bool Valid;
+        unit() {}
         
-        unit(bool b) : Valid{b} {}
-        unit() : Valid{false} {}
-        
-        bool operator==(unit x) {
-            return Valid == x.Valid;
+        bool operator==(unit x) const {
+            return true;
         }
         
-        bool operator!=(unit x) {
-            return Valid != x.Valid;
+        bool operator!=(unit x) const {
+            return false;
         }
     };
     
@@ -36,7 +33,6 @@ namespace data::tool {
     requires functional::map<M, K, V> && std::same_as<unit, V>
     struct map_set {
         using key = K;
-        using value = V;
         
         M Map;
         
@@ -53,13 +49,18 @@ namespace data::tool {
         }
         
         map_set insert(const key& k) const {
-            return map_set{Map.insert(k, value{true})};
+            return map_set{Map.insert(k, unit{})};
         }
         
         template <typename list> requires sequence<list, key>
         map_set insert(list keys) const {
             if (keys.empty()) return *this;
             return insert(keys.first()).insert(keys.rest());
+        }
+        
+        template <typename ... P>
+        map_set insert(K k, P... p) const {
+            return insert(k).insert(p...);
         }
         
         template <typename X> requires interface::has_values_method<X, key>
@@ -78,7 +79,7 @@ namespace data::tool {
         }
         
         map_set remove(const key& k) const {
-            return map_set{Map.remove(k, value{true})};
+            return map_set{Map.remove(k)};
         }
         
         const ordered_list<key> values() const {
@@ -86,11 +87,16 @@ namespace data::tool {
         }
         
         map_set() : Map{} {}
-        map_set(M m) : Map(m) {}
+        
+        explicit map_set(M m) : Map(m) {}
+        
         template <typename list> requires sequence<list, key>
-        map_set(list keys) : Map{} {
+        explicit map_set(list keys) : Map{} {
             insert(keys);
         }
+        
+        template <typename ... P>
+        map_set(K k, P... p);
         
         bool operator==(const map_set& m) const {
             return values() == m.values();
@@ -148,6 +154,12 @@ namespace data::tool {
     inline std::ostream& operator<<(std::ostream& o, const map_set<M, K, V>& m) {
         return functional::write(o << "set", m.values());
     }
+    
+    template <typename M, typename K, typename V>
+    requires functional::map<M, K, V> && std::same_as<unit, V>
+    template <typename ... P>
+    inline map_set<M, K, V>::map_set(K k, P... p) : 
+        map_set{map_set{}.insert(k, p...)} {}
 
 }
 

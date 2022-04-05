@@ -6,9 +6,7 @@
 #include "gtest/gtest.h"
 
 namespace data {
-    template <typename elem> using stack = tool::linked_stack<elem>;
     template <typename elem> using vector = std::vector<elem>;
-    template <typename elem> using list = tool::functional_queue<stack<elem>>;
 
     TEST(ContainsTest, TestContains) {
         EXPECT_TRUE(contains(stack<string>{"a", "b", "c", "d"}, "a"));
