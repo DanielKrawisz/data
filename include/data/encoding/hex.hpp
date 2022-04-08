@@ -6,6 +6,8 @@
 #ifndef DATA_ENCODING_HEX
 #define DATA_ENCODING_HEX
 
+#include <ranges>
+
 #include <ctre.hpp>
 
 #include <boost/algorithm/hex.hpp>
@@ -48,12 +50,12 @@ namespace data::encoding::hex {
         explicit operator bytes() const;
     };
     
-    template <typename range> 
+    template <std::ranges::range range> 
     std::ostream &write(std::ostream &o, range r, letter_case q = lower) {
         return o << write(r, q);
     }
     
-    template <typename range> 
+    template <std::ranges::range range> 
     string write(range r, letter_case q = lower) {
         string output((r.end() - r.begin()));
         if (q == upper) boost::algorithm::hex(r.begin(), r.end(), output.begin());
