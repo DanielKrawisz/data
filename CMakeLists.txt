@@ -54,9 +54,6 @@ if(NOT TARGET gtest_main AND PACKAGE_TESTS)
 endif()
 
 
-# Include libraries
-find_package(uriparser 0.9.3 CONFIG REQUIRED char wchar_t)
-
 
     add_definitions("-DHAS_BOOST")
 
@@ -118,7 +115,7 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::cryptopp CONAN_PKG::nlohmann_json CONAN_PKG::gmp CONAN_PKG::SECP256K1 uriparser::uriparser
+target_link_libraries(data CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::cryptopp CONAN_PKG::nlohmann_json CONAN_PKG::gmp CONAN_PKG::SECP256K1 CONAN_PKG::uriparser
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)
