@@ -4,13 +4,18 @@ cmake_minimum_required(VERSION 3.1...3.14)
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
+set(CMAKE_C_COMPILER "gcc-10")
+set(CMAKE_CXX_COMPILER "g++-10")
 
 project(data 	VERSION 1.0
         DESCRIPTION "wrappers and high-level programming constructs in c++"
         LANGUAGES CXX)
 
+
+
 # Set cmake as import path for Find*.cmake files
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
 ### Require out-of-source builds
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
@@ -49,55 +54,15 @@ if(NOT TARGET gtest_main AND PACKAGE_TESTS)
 endif()
 
 
-# Include libraries
-find_package(uriparser 0.9.3 CONFIG REQUIRED char wchar_t)
-# Boost settings
-set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
-set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
-set(Boost_USE_STATIC_LIBS       ON         CACHE BOOL "")
-set(Boost_USE_STATIC_RUNTIME    OFF         CACHE BOOL "") # '-s' tag
-set(Boost_USE_DEBUG_RUNTIME     OFF         CACHE BOOL "") # '-g' tag
-set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
-# Include Boost
-find_package(Boost 1.76.0 COMPONENTS system log log_setup program_options regex REQUIRED)
-
-if(Boost_FOUND)
-
-    message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-    message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
-    message(STATUS "Boost_VERSION: ${Boost_VERSION}")
-
-    include_directories(${Boost_INCLUDE_DIRS})
     add_definitions("-DHAS_BOOST")
 
-endif()
 
 
-# Find Crypto++
-find_package(CryptoPP REQUIRED)
-if(CRYPTOPP_INCLUDE_DIRS)
-
-    message(STATUS "Crypto++ INCLUIDE DIRS: ${CRYPTOPP_INCLUDE_DIRS}")
-    MESSAGE(STATUS "Found Crypto++: ${CRYPTOPP_LIBRARY}")
-    include_directories(${CRYPTOPP_INCLUDE_DIRS})
-endif()
 
 
-#find_package(ICU 60.2 COMPONENTS uc i18n REQUIRED)
-find_package(OpenSSL REQUIRED)
-message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
-include_directories(${OPENSSL_INCLUDE_DIR})
 
-find_package(PkgConfig REQUIRED)
-#pkg_check_modules(LIBSECP256K1 REQUIRED IMPORTED_TARGET libsecp256k1)
-find_package(SECP256K1 REQUIRED)
-# Find GMP
-find_package(GMP REQUIRED)
-if(GMP_FOUND)
-    include_directories(${GMP_INCLUDE_DIR})
-endif()
+
 
 ## Enable testing
 include(CTest)
@@ -150,12 +115,12 @@ ADD_LIBRARY(data STATIC
 
 target_include_directories(data PUBLIC include)
 
-target_link_libraries(data ${SECP256K1_LIBRARY} ${CRYPTOPP_LIBRARIES} Boost::regex Boost::system Boost::log Boost::log_setup ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${OPENSSL_LIBRARIES} uriparser::uriparser
+target_link_libraries(data CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::cryptopp CONAN_PKG::nlohmann_json CONAN_PKG::gmp CONAN_PKG::SECP256K1 CONAN_PKG::uriparser
 #PkgConfig::LIBSECP256K1
 )
 get_target_property(OUT data LINK_LIBRARIES)
 message(STATUS ${OUT})
 # Set C++ version
 target_compile_features(data PUBLIC cxx_std_20)
-set_target_properties(data PROPERTIES CXX_EXTENSIONS OFF)
-
+set_target_properties(data PROPERTIES CXX_EXTENSIONS ON)
+target_compile_options(data PUBLIC "-fconcepts")
