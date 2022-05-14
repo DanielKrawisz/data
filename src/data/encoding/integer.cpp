@@ -254,7 +254,28 @@ namespace data::encoding {
             return math::division<N, uint64>{write_hexidecimal(div.Quotient), uint64(div.Remainder)};
         }
         
+        std::ostream &write(std::ostream &o, const Z_bytes_little &z) {
+            return o << "0x" << hex::write(z.digits().reverse());
+        }
+        
+        std::ostream &write(std::ostream &o, const Z_bytes_big &z) {
+            return o << "0x" << hex::write(z.digits().reverse());
+        }
+        
     }
+    
+    namespace integer {
+        
+        std::ostream &write(std::ostream &, const Z_bytes_little &) {
+            throw "incomplete method";
+        }
+        
+        std::ostream &write(std::ostream &, const Z_bytes_big &) {
+            throw "incomplete method";
+        }
+        
+    }
+    
     /*
     namespace natural {
         

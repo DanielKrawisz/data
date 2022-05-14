@@ -47,7 +47,7 @@ namespace data::math {
     
     // TODO: note that N is the type of abs(Z)
     // I don't have a way of doing that yet. 
-    template <typename Z, typename N>
+    template <typename Z, typename N = Z>
     struct fraction : interface::ring<Z, data::plus<Z>, data::times<Z>>, interface::ordered<Z> {
         Z Numerator;
         number::positive<N> Denominator;
@@ -57,6 +57,10 @@ namespace data::math {
         }
         
         fraction() : Numerator{0}, Denominator{1} {}
+        
+        math::sign sign() const {
+            return Numerator.sign();
+        }
         
     private:
         fraction(Z n, number::positive<N> d) : Numerator{n}, Denominator{d} {}

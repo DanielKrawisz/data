@@ -12,31 +12,21 @@
 
 namespace data::math {
 
-    template <typename elem>
+    template <std::totally_ordered elem>
     struct permutation {
-        struct cycle : data::cycle<elem> {
+        using replacements = std::list<entry<elem, elem>>;
+        
+        static replacements compose(replacements, replacements);
+        
+        struct cycle : public data::cycle<elem> {
             using data::cycle<elem>::cycle;
             
             cycle(const data::cycle<elem>& c) : data::cycle<elem>{c} {}
             
             bool valid() const;
-        
-            elem operator*(const elem e) const;
-        
-            permutation operator*(const cycle& c) const {
-                throw method::unimplemented{"cycle * cycle"};
-            }
             
             cycle inverse() const {
                 return {data::cycle<elem>::reverse()};
-            }
-            
-            bool operator==(const cycle& c) const {
-                return data::cycle<elem>::operator==(c);
-            }
-            
-            bool operator!=(const cycle& c) const {
-                return data::cycle<elem>::operator!=(c);
             }
             
             set<elem> elements() const {
@@ -48,18 +38,26 @@ namespace data::math {
             // the identity cycle is the same as all cycles
             // consisting of repetitions of a single element.
             cycle normalize() const;
-        
-            permutation operator*(const permutation& p) const {
-                throw method::unimplemented{"cycle * perm"};
-            }
+            
+            operator replacements() const;
         };
         
         list<cycle> Cycles;
+        explicit permutation(replacements);
+        
+        explicit operator replacements() const {
+            if (Cycles.empty()) return replacements{};
+            auto x = replacements();
+            for (const auto &c : Cycles) x.merge(replacements(c));
+            return x;
+        }
         
         permutation() : Cycles{} {}
         
-        template <typename ... P>
-        permutation(cycle, P...);
+        explicit permutation(std::initializer_list<data::cycle<elem>> cx): permutation{} {
+            for (const auto &x: cx) Cycles = Cycles << cycle{x};
+            *this = normalize();
+        }
         
         bool valid() const;
         
@@ -87,31 +85,25 @@ namespace data::math {
             return (a.elements() | b.elements()) == set<elem>{};
         }
         
-        elem operator*(const elem& e) const;
-        
-        permutation operator*(const permutation& p) const;
-        
-        permutation operator*(const cross<elem>& v) const;
+        permutation operator*(const permutation& p) const {
+            return permutation(compose(replacements(*this), replacements(p)));
+        }
         
         bool operator==(const permutation& p) const;
         
         bool operator!=(const permutation& p) const;
         
     private:
-        permutation(list<cycle> c) : Cycles{c} {}
+        explicit permutation(list<cycle> c) : Cycles{c} {}
         
-        permutation operator*(const cycle& p) const;
     };
-    
-}
 
-template <typename elem>
-std::ostream& operator<<(std::ostream& o, const data::math::permutation<elem>& m) {
-    return o << "permutation" << m.Cycles;
-}
+    template <typename elem>
+    std::ostream inline &operator<<(std::ostream &o, const permutation<elem> &m) {
+        return o << "permutation" << m.Cycles;
+    }
 
-// Declare associativity and commutivity of operators + and * on N. 
-namespace data::math {
+    // Declare associativity and commutivity of operators + and * on N. 
     template <typename elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
     
     template <typename elem> struct identity<times<permutation<elem>>, permutation<elem>> {
@@ -121,21 +113,39 @@ namespace data::math {
     }; 
     
     template <typename elem> 
+    permutation<elem>::replacements permutation<elem>::compose(replacements a, replacements b) {
+        if (a.empty()) return b;
+        if (b.empty()) return a;
+        
+        replacements x;
+        replacements br = b;
+        
+        for (auto ai = a.begin(); ai != a.end(); ai++) {
+            auto bi = br.begin();
+            while (true) {
+                if (bi != br.end()) {
+                    x.push_back(*ai);
+                    break;
+                }
+                
+                if (bi->Key == ai->Value) {
+                    if (bi->Value != ai->Key) x.push_back(entry{ai->Key, bi->Value});
+                    br.erase(bi);
+                    break;
+                }
+                
+                bi++;
+            }
+        }
+        for (auto bi = br.begin(); bi != br.end(); bi++) x.push_back(*bi);
+        return x;
+    }
+    
+    template <typename elem> 
     bool permutation<elem>::cycle::valid() const {
         if (!data::cycle<elem>::valid()) return false;
         set<elem> el = elements();
         return el.size() == data::cycle<elem>::size() || el.size() == 1;
-    }
-    
-    template <typename elem> 
-    elem permutation<elem>::cycle::operator*(const elem e) const {
-        list<elem> c = data::cycle<elem>::Cycle;
-        while (!c.empty()) {
-            elem a = c.first();
-            list<elem> c = c.rest();
-            if (e == a) return c.empty() ? data::cycle<elem>::Cycle.first() : c.first();
-        }
-        return e;
     }
     
     template <typename elem> 
@@ -145,89 +155,73 @@ namespace data::math {
         
         elem first = data::cycle<elem>::Cycle.first();
         list<elem> rest = data::cycle<elem>::Cycle.rest();
-        while (!rest.empty()) if (first != data::cycle<elem>::Cycle.first()) return *this;
+        while (!rest.empty()) if (first != rest.first()) return *this;
         else rest = rest.rest();
         
         return cycle{};
     }
     
     template <typename elem> 
-    template <typename ... P>
-    permutation<elem>::permutation(cycle x, P... p) : Cycles{x} {
-        *this = *this * permutation(p...);
-    } 
+    permutation<elem>::cycle::operator replacements() const {
+        if (this->Cycle.empty()) return replacements{};
+        auto a = this->Cycle.first();
+        auto b = a;
+        auto r = this->Cycle.rest();
+        replacements x{};
+        // r will not be empty because this cycle is normalized. 
+        do {
+            x.push_back(entry<elem, elem>{b, r.first()});
+            b = r.first();
+            r = r.rest();
+        } while (!r.empty());
+        x.push_back(entry{b, a});
+        return x;
+    }
     
-    template <typename elem>     
-    bool permutation<elem>::valid() const {
-        set<elem> elements{};
-        list<cycle> cycles = Cycles;
-        while (!cycles.empty()) {
-            cycle c = cycles.first().normalize();
-            cycles = cycles.rest();
-            if (!c.valid()) return false;
+    template <typename elem> 
+    permutation<elem>::permutation(replacements x): permutation{} {
+        replacements r = x;
+        while (r.size() > 0) {
+            cycle z{};
+            elem first = r.front().Key;
+            elem last = r.front().Value;
+            r.pop_front();
+            z.Cycle = z.Cycle << first << last;
             
-            list<elem> e = c.Cycle;
-            while (!e.empty()) {
-                elem x = e.first();
-                if (elements.contains(x)) return false;
-                elements = elements.insert(x);
+            auto i = r.begin();
+            while (i != r.end()) {
+                if (i->Key == last) {
+                    last = i->Value;
+                    r.erase(i++);
+                    if (last == first) break;
+                    z.Cycle = z.Cycle << last;
+                } else i++;
             }
         }
-        return true;
     }
     
     template <typename elem>    
     inline permutation<elem> 
     permutation<elem>::normalize() const {
-        return for_each([](const cycle c) -> cycle {
-            return c.normalize();
-        }, Cycles);
+        permutation p{};
+        for (const auto &c : Cycles) if (c.normalize() != cycle{}) p.Cycles = p.Cycles << c;
+        return p;
+    }
+    
+    template <typename elem>     
+    bool permutation<elem>::valid() const {
+        set<elem> elements{};
+        for (const auto &c : Cycles) for (const auto &v : c.Cycle) if (elements.contains(v)) return false;
+        else elements = elements.insert(v);
+        return true;
     }
     
     template <typename elem> 
     inline permutation<elem> 
     permutation<elem>::inverse() const {
-        return for_each([](const cycle c) -> cycle {
+        return permutation{for_each([](const cycle c) -> cycle {
             return c.inverse();
-        }, Cycles);
-    }
-        
-    template <typename elem> 
-    elem permutation<elem>::operator*(const elem& e) const {
-        list<cycle> apply = Cycles;
-        while (!apply.empty()) {
-            cycle c = apply.first();
-            elem a = c * e;
-            if (a != e) return a;
-        }
-        return e;
-    }
-    
-    template <typename elem> 
-    permutation<elem> 
-    permutation<elem>::operator*(const permutation& p) const {
-        permutation left{this->normalize()};
-        if (left.Cycles.empty()) return p;
-        
-        permutation right = p.normalize();
-        if (right.Cycles.empty()) return left;
-        
-        if (commute(left, right)) return permutation{left.Cycles << right.Cycles};
-        
-        while (!right.Cycles.empty()) {
-            left = left * right.Cycles.first();
-            right.Cycles = right.Cycles.rest();
-        }
-        
-        return left;
-    }
-        
-    template <typename elem> 
-    inline permutation<elem> 
-    permutation<elem>::operator*(const cross<elem>& v) const {
-        cross<elem> output(v.size());
-        for(int i = 0; i < v.size(); ++i) output[i] = operator*(v[i]);
-        return output;
+        }, normalize().Cycles)};
     }
     
     template <typename elem> 
@@ -240,22 +234,6 @@ namespace data::math {
     template <typename elem> 
     inline bool permutation<elem>::operator!=(const permutation& p) const {
         return !operator==(p);
-    }
-    
-    template <typename elem> 
-    permutation<elem> 
-    permutation<elem>::operator*(const cycle& c) const {
-        list<cycle> cycles = Cycles;
-        if (!cycles.empty()) return permutation{c};
-        
-        permutation p = cycles.first() * c;
-        cycles = cycles.rest();
-        while (!cycles.empty()) {
-            cycle x = cycles.first();
-            p = x * p;
-            cycles = cycles.rest();
-        }
-        return p;
     }
 }
 

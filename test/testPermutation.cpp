@@ -5,7 +5,7 @@
 #include "data/data.hpp"
 #include "gtest/gtest.h"
 
-namespace data {
+namespace data::math {
     
     TEST(PermutationTest, TestCycle) {
         using ucycle = cycle<uint32>;
@@ -53,20 +53,19 @@ namespace data {
         EXPECT_EQ(c321.reverse(), c123);
         
     }
-    /*
+    
     TEST(PermutationTest, TestPermutation) {
         using perm = permutation<uint32>;
-        using cycle = perm::cycle;
         
-        EXPECT_FALSE(valid(perm{cycle{1, 2, 1}}));
-        EXPECT_FALSE(valid(perm{cycle{}, cycle{1}}));
-        EXPECT_FALSE(valid(perm{cycle{1, 2}, cycle{3, 2}}));
+        EXPECT_FALSE(valid(perm{{1, 2, 1}}));
+        EXPECT_TRUE(valid(perm{{}, {1}}));
+        EXPECT_FALSE(valid(perm{{1, 2}, {3, 2}}));
         
         perm p0{};
-        perm p0_1{cycle{}};
-        perm p0_2{cycle{}, cycle{}};
-        perm p0_3{cycle{1}};
-        perm p0_4{cycle{1, 1}};
+        perm p0_1{{}};
+        perm p0_2{{}, {}};
+        perm p0_3{{1}};
+        perm p0_4{{1, 1}};
         
         EXPECT_TRUE(valid(p0));
         EXPECT_TRUE(valid(p0_1));
@@ -76,14 +75,16 @@ namespace data {
         
         EXPECT_EQ(p0, p0_1);
         EXPECT_EQ(p0, p0_2);
+        EXPECT_EQ(p0, p0_3);
+        EXPECT_EQ(p0, p0_4);
         
         EXPECT_EQ(p0, p0.inverse());
         EXPECT_EQ(p0, p0 * p0);
         
-        perm p12 = perm{cycle{1, 2}};
-        perm p21 = perm{cycle{2, 1}};
-        perm p23 = perm{cycle{2, 3}};
-        perm p13 = perm{cycle{1, 3}};
+        perm p12 = perm{{1, 2}};
+        perm p21 = perm{{2, 1}};
+        perm p23 = perm{{2, 3}};
+        perm p13 = perm{{1, 3}};
         
         EXPECT_TRUE(valid(p21));
         EXPECT_TRUE(valid(p12));
@@ -93,29 +94,59 @@ namespace data {
         EXPECT_EQ(p0, p12 * p21);
         EXPECT_EQ(p0, p12 * p12);
         EXPECT_EQ(p12, p21);
-        EXPECT_EQ(p13, p23 * p12);
         
-        perm p123 = perm{cycle{1, 2, 3}};
-        perm p321 = perm{cycle{3, 2, 1}};
+        perm p123 = perm{{1, 2, 3}};
+        perm p321 = perm{{3, 2, 1}};
         
         EXPECT_TRUE(valid(p123));
         EXPECT_TRUE(valid(p321));
         
+        /*
         EXPECT_EQ(p0, p123 * p321);
         EXPECT_EQ(p321, p123 * p123);
         EXPECT_EQ(p0, p123 * p123 * p123);
+        EXPECT_EQ(p123, p23 * p12);
+        EXPECT_EQ(p321, p23 * p12);
         
-        perm p1234 = perm{cycle{1, 2}, cycle{3, 4}};
+        perm p1234 = perm{{1, 2}, {3, 4}};
         
-        EXPECT_TRUE(valid(p1234));
+        EXPECT_TRUE(valid(p1234));*/
     }
+    /*
+    constexpr auto d1 = decimal{"1"};
+    constexpr auto d2 = decimal{"2"};
+    constexpr auto d3 = decimal{"3"};
+    constexpr auto d4 = decimal{"4"};
+    constexpr auto d5 = decimal{"5"};
+    constexpr auto d6 = decimal{"6"};
+    constexpr auto d7 = decimal{"7"};
+    constexpr auto d8 = decimal{"8"};
+    constexpr auto d9 = decimal{"9"};
+    
+    template <typename N, auto & natural>
+    using symmetric = data::math::algebra::symmetric_group<N, natural>;
+    
+    template <typename N, auto & natural>
+    using alternating = data::math::algebra::alternating_group<N, natural>;
     
     TEST(PermutationTest, TestSymmetric) {
-        
+        symmetric<uint32, d1>{};
+        symmetric<uint32, d2>{};
+        symmetric<uint32, d3>{};
+        symmetric<uint32, d4>{};
+        symmetric<uint32, d5>{};
+        symmetric<uint32, d6>{};
+        symmetric<uint32, d7>{};
+        symmetric<uint32, d8>{};
+        symmetric<uint32, d9>{};
     }
     
     TEST(PermutationTest, TestAlternating) {
-        
+        alternating<uint32, d1>{};
+        alternating<uint32, d3>{};
+        alternating<uint32, d5>{};
+        alternating<uint32, d7>{};
+        alternating<uint32, d9>{};
     }*/
     
 }

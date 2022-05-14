@@ -37,12 +37,12 @@ namespace data::math::algebra {
         alternating_group(const permutation<number::modular<N, natural>>& p) : permutation<number::modular<N, natural>>{p} {}
         
     };
-    
-}
 
-template <typename N, auto & natural>
-inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::alternating_group<N, natural>& m) {
-    return o << "alternating<"<<natural<<">{"<<static_cast<const data::math::permutation<data::math::number::modular<N, natural>>&>(m)<<"}";
+    template <typename N, auto & natural>
+    inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::alternating_group<N, natural>& m) {
+        return o << "alternating<"<<natural<<">{"<<static_cast<const data::math::permutation<data::math::number::modular<N, natural>>&>(m)<<"}";
+    }
+    
 }
 
 namespace data::math {

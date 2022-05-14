@@ -15,9 +15,8 @@
 #include <data/math/associative.hpp>
 
 namespace data::interface {
-    template <typename N>
-    struct natural : 
-        countable<N>, ordered<N>, 
+    template <typename N> requires math::countable<N>
+    struct natural : ordered<N>, 
         math::associative<plus<N>, N>, 
         math::commutative<plus<N>, N>, 
         math::associative<times<N>, N>, 
@@ -186,7 +185,7 @@ namespace data::math::number::peano {
     equal<add<x, number<zero>>, x> {};
     
     template <typename x, typename y> struct
-    equal<add<x, successor<y>>, successor<add<x, y>>> {};
+    equal<add<x, suc<y>>, suc<add<x, y>>> {};
     
     template <typename, typename> struct mul;
     
@@ -194,7 +193,7 @@ namespace data::math::number::peano {
     equal<mul<x, number<zero>>, number<zero>> {};
     
     template <typename x, typename y> struct
-    equal<mul<x, successor<y>>, add<x, mul<x, y>>> {};
+    equal<mul<x, suc<y>>, add<x, mul<x, y>>> {};
     
 }
 

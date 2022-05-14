@@ -22,7 +22,7 @@ namespace data {
         entry(const K k) : Key(k), Value{} {}
         
         bool valid() const {
-            return Value != V{};
+            return data::valid(Key) && data::valid(Value);
         }
         
         const K key() const {

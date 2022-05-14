@@ -34,13 +34,6 @@ namespace data::math::number {
     };
 
     template <typename Z> 
-    struct sign {
-        math::sign operator()(const Z& i) const {
-            return i == Z{0} ? math::zero : i < Z{0} ? math::negative : math::positive;
-        }
-    };
-
-    template <typename Z> 
     struct arg {
         Z operator()(const Z& i) const {
             if (i == 0) throw division_by_zero{};

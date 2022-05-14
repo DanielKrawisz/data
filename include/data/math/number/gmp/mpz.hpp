@@ -31,7 +31,7 @@ namespace data::math::number::gmp {
     }
     
     inline math::sign sign(const __mpz_struct& mpz) {
-        return !valid(mpz) ? zero : mpz._mp_size < 0 ? negative : positive;
+        return !valid(mpz) ? math::zero : math::sign{mpz_cmp_si(&mpz, 0)};
     }
 }
 

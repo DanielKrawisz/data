@@ -18,7 +18,7 @@ namespace data::tool {
         
         cycle();
         explicit cycle(list l);
-        explicit cycle(std::initializer_list<X> x);
+        cycle(std::initializer_list<X> x);
         
         cycle& operator=(const cycle& c);
         

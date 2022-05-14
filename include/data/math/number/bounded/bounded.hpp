@@ -391,21 +391,6 @@ namespace data::math::number {
             return i;
         }
     };
-        
-    template <size_t size, endian::order o, bool is_signed>
-    struct sign<bounded<size, o, is_signed>> {
-        math::sign operator()(const bounded<size, o, is_signed>& i) {
-            return i.sign();
-        }
-    };
-
-    template <size_t size, endian::order o, bool is_signed>
-    struct arg<bounded<size, o, is_signed>> {
-        bounded<size, o, false> operator()(const bounded<size, o, is_signed>& i) {
-            if (i == 0) throw division_by_zero{};
-            return i.sign() == math::negative ? -1 : 1;
-        }
-    };
     
     template <endian::order r, size_t size>
     bounded<false, r, size>::bounded(const uint64 x) : byte_array<size>{byte_array<size>::fill(0)} {
@@ -418,7 +403,7 @@ namespace data::math::number {
         endian::arithmetic<endian::big, true, 8> n{x};
         std::copy(n.begin(), n.end(), digits().begin());
     }
-        
+    
     template <endian::order r, size_t size>
     bounded<false, r, size>::bounded(const byte_array<size>& b) : byte_array<size>{b} {}
         

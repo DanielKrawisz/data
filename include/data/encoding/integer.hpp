@@ -187,6 +187,15 @@ namespace data::encoding {
             
         };
         
+        std::ostream &write(std::ostream &, const Z_bytes_little &);
+        std::ostream &write(std::ostream &, const Z_bytes_big &);
+        
+        template <endian::order r> std::string inline write(const math::Z_bytes<r> &z) {
+            std::stringstream& ss;
+            write(ss, z);
+            return ss.str();
+        }
+        
     }
     
     namespace natural {
@@ -266,6 +275,15 @@ namespace data::encoding {
             }
             
             return read_integer{}(decimal::read<r>(s));
+        }
+        
+        std::ostream &write(std::ostream &, const Z_bytes_little &);
+        std::ostream &write(std::ostream &, const Z_bytes_big &);
+        
+        template <endian::order r> std::string inline write(const math::Z_bytes<r> &z) {
+            std::stringstream& ss;
+            write(ss, z);
+            return ss.str();
         }
         
     };

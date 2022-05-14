@@ -54,9 +54,7 @@ namespace data::math::number::gmp {
             return *this;
         }
         
-        math::sign sign() const {
-            return gmp::sign(MPZ[0]);
-        }
+        math::sign sign() const;
         
         size_t size() const {
             return gmp::size(MPZ[0]);
@@ -404,6 +402,13 @@ namespace data::encoding::integer {
     
     std::string write(const math::number::gmp::Z& n);
     
+}
+
+namespace data::math::number::gmp {
+    
+    math::sign inline Z::sign() const {
+        return gmp::sign(MPZ[0]);
+    }
 }
 
 #endif

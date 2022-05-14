@@ -224,6 +224,10 @@ namespace data::math::number::gmp {
             return N{z};
         }
         
+        math::sign sign() const {
+            return Value.sign();
+        }
+        
         template <endian::order o>
         explicit N(const N_bytes<o>& n) : N{bytes_view(n), o} {}
         

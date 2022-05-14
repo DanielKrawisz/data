@@ -35,11 +35,6 @@ namespace data {
 #include <data/math/number/sqrt.hpp>
 
 namespace data {
-    
-    template <typename X> math::sign 
-    inline sign(const X& x) {
-        return math::number::sign<X>{}(x);
-    }
 
     template <typename N, typename Z> 
     inline N abs(const Z& i) {

@@ -5,65 +5,66 @@
 #ifndef DATA_MATH_COUNTABLE
 #define DATA_MATH_COUNTABLE
 
-#include <data/types.hpp>
 #include <type_traits>
+
+#include <data/types.hpp>
+
+namespace data::interface {
+    
+    template <typename X>
+    concept has_zero_initializer = requires {
+        { X{0} };
+    };
+    
+    template <typename X>
+    concept has_zero_method = requires {
+        { X::zero() } -> std::same_as<X>;
+    };
+    
+    template <typename X>
+    concept has_zero_value = has_zero_method<X> || has_zero_initializer<X>;
+    
+}
+
+namespace data::meta {
+    
+    template <typename X> struct zero;
+    
+    template <interface::has_zero_initializer X>
+    struct zero<X> {
+        X operator()() const {
+            return X{0};
+        }
+    };
+    
+    template <interface::has_zero_value X>
+    struct zero<X> {
+        X operator()() const {
+            return X::zero();
+        }
+    };
+    
+}
 
 namespace data {
     
-    namespace meta {
-        
-        template <typename X>
-        class has_zero_value {
-            template <typename U> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(U::zero()), U>::value, yes>::type;
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
-        };
-        
-        template <typename X, bool has_successor_method> struct zero;
-        
-        template <typename X> struct zero<X, true> {
-            
-            X operator()() {
-                return X::zero();
-            }
-        };
-        
-        template <typename X>
-        class has_preincrement_operator {
-            template <typename U> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(++std::declval<const U>()), U&>::value, yes>::type;
-            template <typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<X>(0)), yes>::value;
-        };
-        
-        template <typename X, bool has_successor_method> struct successor;
-        
-        template <typename X> struct successor<X, true> {
-            
-            X operator()(const X& x) {
-                return ++x;
-            }
-        };
-        
+    template <typename X>
+    X inline zero() {
+        return meta::zero<X>{}();
     }
     
-    namespace interface {
-        
-        template <typename L>
-        class countable {
-            using require_preincrement_operator = typename std::enable_if<meta::has_preincrement_operator<L>::value, void>::type;
-            using require_zero_value = typename std::enable_if<meta::has_zero_value<L>::value, void>::type;
-        }; 
-        
-    }
+    template <typename N>
+    N next(const N &n) {
+        return n + 1;
+    };
+    
+}
 
-    template <typename X> struct successor {
-        X operator()(const X& x) {
-            return meta::successor<X, meta::has_preincrement_operator<X>::value>{}(x);
-        }
+namespace data::math {
+    
+    template <typename L>
+    concept countable = interface::has_zero_value<L> && requires (const L n) {
+        { next<L>(n) } -> std::same_as<L>;
     };
 
 }

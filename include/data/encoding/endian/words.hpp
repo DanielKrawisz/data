@@ -40,6 +40,8 @@ namespace data::arithmetic {
         const_reverse_iterator rbegin() const;
         const_reverse_iterator rend() const;
         
+        digits<endian::big> reverse() const;
+        
     };
     
     template <> struct digits<endian::big> {
@@ -64,6 +66,8 @@ namespace data::arithmetic {
         
         const_reverse_iterator rbegin() const;
         const_reverse_iterator rend() const;
+        
+        digits<endian::little> reverse() const;
         
     };
     
@@ -167,6 +171,14 @@ namespace data::arithmetic {
     
     digits<endian::big>::const_reverse_iterator inline digits<endian::big>::rend() const {
         return Data.end();
+    }
+        
+    digits<endian::big> inline digits<endian::little>::reverse() const {
+        return {Data};
+    }
+        
+    digits<endian::little> inline digits<endian::big>::reverse() const {
+        return {Data};
     }
         
     

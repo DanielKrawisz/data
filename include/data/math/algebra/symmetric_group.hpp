@@ -32,12 +32,12 @@ namespace data::math::algebra {
         symmetric_group(const permutation<number::modular<N, natural>>& p) : permutation<number::modular<N, natural>>{p} {}
         
     };
-    
-}
 
-template <typename N, auto & natural>
-inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::symmetric_group<N, natural>& m) {
-    return o << "symmetric<"<<natural<<">{"<<static_cast<const data::math::permutation<data::math::number::modular<N, natural>>&>(m)<<"}";
+    template <typename N, auto & natural>
+    inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::symmetric_group<N, natural>& m) {
+        return o << "symmetric<"<<natural<<">{"<<static_cast<const data::math::permutation<data::math::number::modular<N, natural>>&>(m)<<"}";
+    }
+    
 }
 
 namespace data::math {
