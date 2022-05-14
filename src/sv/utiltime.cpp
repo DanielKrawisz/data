@@ -17,7 +17,7 @@
 //!< For unit testing
 namespace
 {
-    std::atomic_int64_t nMockTime = 0;
+    std::atomic_int64_t nMockTime{0};
 }
 
 int64_t GetTime() {
