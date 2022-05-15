@@ -5,6 +5,13 @@
 #include "data/data.hpp"
 #include "gtest/gtest.h"
 
+template <typename elem>
+std::ostream &write_list(std::ostream &o, const std::list<data::entry<elem, elem>> &m) {
+    o << "{";
+    for (const auto &e : m) o << e << " "; 
+    return o << "}";
+}
+
 namespace data::math {
     
     TEST(PermutationTest, TestCycle) {
@@ -101,16 +108,17 @@ namespace data::math {
         EXPECT_TRUE(valid(p123));
         EXPECT_TRUE(valid(p321));
         
-        /*
         EXPECT_EQ(p0, p123 * p321);
         EXPECT_EQ(p321, p123 * p123);
         EXPECT_EQ(p0, p123 * p123 * p123);
         EXPECT_EQ(p123, p23 * p12);
-        EXPECT_EQ(p321, p23 * p12);
+        EXPECT_EQ(p321, p12 * p23);
+        EXPECT_EQ(p321, p13 * p12);
+        EXPECT_EQ(p123, p12 * p13);
         
         perm p1234 = perm{{1, 2}, {3, 4}};
         
-        EXPECT_TRUE(valid(p1234));*/
+        EXPECT_TRUE(valid(p1234));
     }
     /*
     constexpr auto d1 = decimal{"1"};

@@ -114,6 +114,7 @@ namespace data::math {
     
     template <typename elem> 
     permutation<elem>::replacements permutation<elem>::compose(replacements a, replacements b) {
+        
         if (a.empty()) return b;
         if (b.empty()) return a;
         
@@ -123,7 +124,7 @@ namespace data::math {
         for (auto ai = a.begin(); ai != a.end(); ai++) {
             auto bi = br.begin();
             while (true) {
-                if (bi != br.end()) {
+                if (bi == br.end()) {
                     x.push_back(*ai);
                     break;
                 }
@@ -181,6 +182,7 @@ namespace data::math {
     template <typename elem> 
     permutation<elem>::permutation(replacements x): permutation{} {
         replacements r = x;
+        
         while (r.size() > 0) {
             cycle z{};
             elem first = r.front().Key;
@@ -188,15 +190,21 @@ namespace data::math {
             r.pop_front();
             z.Cycle = z.Cycle << first << last;
             
-            auto i = r.begin();
-            while (i != r.end()) {
-                if (i->Key == last) {
-                    last = i->Value;
-                    r.erase(i++);
-                    if (last == first) break;
-                    z.Cycle = z.Cycle << last;
-                } else i++;
+            while (true) {
+                auto i = r.begin();
+                while (i != r.end()) {
+                    if (i->Key == last) {
+                        last = i->Value;
+                        r.erase(i++);
+                        if (last == first) goto out;
+                        z.Cycle = z.Cycle << last;
+                    } else i++;
+                }
             }
+            
+            out: 
+            
+            Cycles = Cycles << z;
         }
     }
     

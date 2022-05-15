@@ -49,6 +49,14 @@ how to use all features.
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions 
   * Google test
 
+# Build instructions
+
+  * `mkdir build`
+  * `cd build`
+  * `conan install ..`
+  * `cmake .. -DCMAKE_CXX_COMPILER=g++-10`
+  * `make`
+
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1. 
