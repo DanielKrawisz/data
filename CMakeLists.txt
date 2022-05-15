@@ -17,11 +17,6 @@ project(data 	VERSION 1.0
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-### Require out-of-source builds
-file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
-if(EXISTS "${LOC_PATH}")
-    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
-endif()
 
 ## Check if GTests is installed. If not, install it
 
