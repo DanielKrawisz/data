@@ -8,7 +8,6 @@
 #include <data/types.hpp>
 
 namespace data::math {
-    
     template <typename X> struct abs;
     template <typename X> struct quadrance;
     template <typename X> struct conjugate;
@@ -118,6 +117,13 @@ namespace data::math {
         }
     };
     
+    uint64 inline square(const uint64 &x) {
+        return x * x;
+    }
+    
+    uint64 inline square(const int64 &x) {
+        return data::abs(x) * data::abs(x);
+    }
 }
 
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,25 +7,24 @@
 
 namespace data {
     
-    TEST(AbsTest, TestDecrement) {
+    TEST(SignTest, TestDecrement) {
+        int_big<9>     zb09{0};
+        int_big<10>    zb10{0};
+        int_big<11>    zb11{0};
+        int_big<20>    zb20{0};
+        int_little<9>  zl09{0};
+        int_little<10> zl10{0};
+        int_little<11> zl11{0};
+        int_little<20> zl20{0};
         
-        int_big<9> ib9{0};
-        int_big<10> ib10{0};
-        int_big<11> ib11{0};
-        int_big<20> ib20{0};
-        int_little<9> il9{0};
-        int_little<10> il10{0};
-        int_little<11> il11{0};
-        int_little<20> il20{0};
-        
-        EXPECT_EQ( --ib9,  int_big<9>::read("0xffffffffffffffffff"));
-        EXPECT_EQ(--ib10, int_big<10>::read("0xffffffffffffffffffff"));
-        EXPECT_EQ(--ib11, int_big<11>::read("0xffffffffffffffffffffff"));
-        EXPECT_EQ(--ib20, int_big<20>::read("0xffffffffffffffffffffffffffffffffffffffff"));
-        EXPECT_EQ( --il9,  int_little<9>::read("0xffffffffffffffffff"));
-        EXPECT_EQ(--il10, int_little<10>::read("0xffffffffffffffffffff"));
-        EXPECT_EQ(--il11, int_little<11>::read("0xffffffffffffffffffffff"));
-        EXPECT_EQ(--il20, int_little<20>::read("0xffffffffffffffffffffffffffffffffffffffff"));
+        EXPECT_EQ(zb09--,     int_big<9>::read("0xffffffffffffffffff"));
+        EXPECT_EQ(zb10--,    int_big<10>::read("0xffffffffffffffffffff"));
+        EXPECT_EQ(zb11--,    int_big<11>::read("0xffffffffffffffffffffff"));
+        EXPECT_EQ(zb20--,    int_big<20>::read("0xffffffffffffffffffffffffffffffffffffffff"));
+        EXPECT_EQ(zl09--,  int_little<9>::read("0xffffffffffffffffff"));
+        EXPECT_EQ(zl10--, int_little<10>::read("0xffffffffffffffffffff"));
+        EXPECT_EQ(zl11--, int_little<11>::read("0xffffffffffffffffffffff"));
+        EXPECT_EQ(zl20--, int_little<20>::read("0xffffffffffffffffffffffffffffffffffffffff"));
         
         EXPECT_LT(int_big<9>::read("0x800000000000000000"), 
                   int_big<9>::read("0x7fffffffffffffffff"));

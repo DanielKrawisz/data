@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,19 +6,75 @@
 #define DATA_MATH_NUMBER_NATURAL
 
 #include <data/types.hpp>
+#include <data/math/sign.hpp>
+#include <data/math/abs.hpp>
 #include <data/math/countable.hpp>
-#include <data/math/arithmetic.hpp>
-#include <data/math/ordered.hpp>
+#include <data/math/lowest.hpp>
 #include <data/math/ring.hpp>
 #include <data/math/division.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
+#include <data/valid.hpp>
 
-namespace data::math::number::natural {
+namespace data::math {
+    template <typename N> 
+    concept whole_number = ordered<N> && requires(const N &x) {
+        {double(x)};
+        {x == 3} -> std::convertible_to<bool>;
+        {x != 3} -> std::convertible_to<bool>;
+        {x <= 3} -> std::convertible_to<bool>;
+        {x >= 3} -> std::convertible_to<bool>;
+        {x < 3} -> std::convertible_to<bool>;
+        {x > 3} -> std::convertible_to<bool>;
+        {x + 3} -> std::same_as<N>;
+        {x * 3} -> std::same_as<N>;
+        {x - 3} -> std::same_as<N>;
+    } && requires(const N &a, const N& b) {
+        {a + b} -> std::same_as<N>;
+        {a * b} -> std::same_as<N>;
+        {a - b} -> std::same_as<N>;
+    } && requires (const N &a, int b) {
+        {a << b} -> std::same_as<N>;
+        {a >> b} -> std::same_as<N>;
+    } && requires(N &x) {
+        {x++};
+        {x--};
+        {++x};
+        {--x};
+    } && requires(N &a, const N& b) {
+        {a += b} -> std::same_as<N&>;
+        {a *= b} -> std::same_as<N&>;
+        {a -= b} -> std::same_as<N&>;
+    } && requires (N &a, int b) {
+        {a <<= b} -> std::same_as<N&>;
+        {a >>= b} -> std::same_as<N&>;
+    } && requires (N &a) {
+        {a += 3} -> std::same_as<N&>;
+        {a *= 3} -> std::same_as<N&>;
+        {a -= 3} -> std::same_as<N&>;
+    };
+    
+    template <typename N> 
+    concept natural = whole_number<N> && bounded_from_below<N> && countable<N> && requires() {
+        {N{0} == lowest<N>{}()};
+    } && requires {
+        typename associative<plus<N>, N>; 
+        typename commutative<plus<N>, N>;
+        typename associative<times<N>, N>; 
+        typename commutative<times<N>, N>; 
+        {identity<plus<N>, N>{}()} -> std::same_as<N>;
+        {identity<times<N>, N>{}()} -> std::same_as<N>;
+    } && requires(uint64 x) {
+        {N{x}};
+        {x} -> std::convertible_to<N>;
+    } && requires(const N &n) {
+        {data::sign(n)} -> std::convertible_to<math::sign>;
+        {data::abs(n)} -> std::same_as<N>;
+    };
     
     // Generic division algorithm. 
-    template <typename N>
-    static division<N> divide(const N Dividend, const N Divisor) {
+    template <whole_number N>
+    static division<N> divide_unsigned(const N& Dividend, const N& Divisor) {
         
         if (Divisor == 0) throw division_by_zero{};
         if (Divisor == 1) return {Dividend, 0u};
@@ -30,12 +86,16 @@ namespace data::math::number::natural {
         N quotient{0};
         uint64 digits{1};
         
+        // double the size of the numbers until they are bigger 
+        // than the dividend. We could do this more efficiently 
+        // if we could know how big a number is. 
         while (exp <= remainder) { 
             exp<<=digits;
             pow<<=digits;
             digits<<=1;
         } 
         
+        // hone in on the dividend until exp is the same size. 
         while(true) {
             digits >>= 1;
             if (digits == 0) break;
@@ -48,6 +108,7 @@ namespace data::math::number::natural {
             }
         }
         
+        // now do the long division. 
         while (pow > 0) {
             while (exp > remainder) {
                 exp>>=1;
@@ -63,8 +124,13 @@ namespace data::math::number::natural {
         return {quotient, remainder};
     }
     
-    template <typename N> bool divides(const N& dividend, const N divisor) {
-        return divide<N>(dividend, divisor).Remainder == 0;
+    static division<uint64> divide_unsigned(const uint64 Dividend, const uint64 Divisor) {
+        return {Dividend / Divisor, Dividend % Divisor};
+    }
+    
+    template <natural N>
+    static division<N> inline divide(const N& Dividend, const N& Divisor) {
+        return divide_unsigned(Dividend, Divisor);
     }
     
 }

@@ -1,8 +1,8 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/data.hpp>
+#include <data/numbers.hpp>
 #include "gtest/gtest.h"
 
 TEST(PolynomialTest, TestPolynomial) {

@@ -370,6 +370,13 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::hexidecimal {
     template <math::number::complement, hex::letter_case cx> struct integer;
     
+    template <math::number::complement c, hex::letter_case cx, endian::order r> 
+    integer<c, cx> inline write(const math::number::Z_bytes<r, c> &z) {
+        std::stringstream ss;
+        write(ss, z);
+        return {ss.str()};
+    }
+    
     template <hex::letter_case cx>
     std::weak_ordering operator<=>(const integer<math::number::nones, cx>&, const integer<math::number::nones, cx>&);
     

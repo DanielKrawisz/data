@@ -4,11 +4,10 @@
 
 #include <data/math/number/integer.hpp>
 #include <data/numbers.hpp>
-#include <data/crypto/hash/hash.hpp>
 
 namespace data::encoding::base58 {
     
-    template <typename N>
+    template <math::natural N>
     string write_b58(const N& n) {
         static std::string Characters = characters();
         if (n == 0) return string{"1"};
@@ -34,15 +33,10 @@ namespace data::encoding::base58 {
     
     std::strong_ordering string::operator<=>(const string& x) const {
         if (!this->valid() || !x.valid()) throw std::invalid_argument{"invalid base 58 string"};
-        auto a = read_num<N>(*this);
-        auto b = read_num<N>(x);
-        return a == b ? std::strong_ordering::equal : a < b ? std::strong_ordering::less : std::strong_ordering::greater;
-        /*
         auto n = read_num<N>(*this) <=> read_num<N>(x);
         if (n == std::weak_ordering::greater) return std::strong_ordering::greater;
         if (n == std::weak_ordering::less) return std::strong_ordering::less;
         return std::strong_ordering::equal;
-        */
     }
     
     string string::operator<<(int i) const {

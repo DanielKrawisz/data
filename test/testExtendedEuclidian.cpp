@@ -13,10 +13,11 @@ namespace data {
     
     using Zb1 = Z_bytes_big;
     using Zl1 = Z_bytes_little;
-    using Zb2 = Z_bytes_big;
-    using Zl2 = Z_bytes_little;
+    using Zb2 = Z_bytes_twos_big;
+    using Zl2 = Z_bytes_twos_little;
     
     template <typename Z, typename N>
+    requires integer<Z, N>
     struct test_extended_euclidian {
         test_extended_euclidian() {
             using X = math::number::euclidian::extended<Z, N>;
@@ -36,8 +37,8 @@ namespace data {
         test_extended_euclidian<Z, N>{};
         test_extended_euclidian<Zl1, Nl>{};
         test_extended_euclidian<Zb1, Nb>{};
-        test_extended_euclidian<Z_bytes_twos_little, Z_bytes_twos_little>{};
-        test_extended_euclidian<Z_bytes_twos_big, Z_bytes_twos_big>{};
+        test_extended_euclidian<Zl2, Zl2>{};
+        test_extended_euclidian<Zb2, Zb2>{};
         test_extended_euclidian<int_big<9>, uint_big<9>>{};
         test_extended_euclidian<int_big<10>, uint_big<10>>{};
         test_extended_euclidian<int_big<11>, uint_big<11>>{};

@@ -9,6 +9,7 @@
 #include <data/math/arithmetic.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/sign.hpp>
+#include <data/math/lowest.hpp>
 
 namespace data::math {
     
@@ -29,6 +30,12 @@ namespace data::math {
         
         nonnegative& operator++();
         nonnegative operator++(int);
+    };
+    
+    template <ordered R> struct lowest<nonnegative<R>> {
+        nonnegative<R> operator()() {
+            return nonnegative{R{0}};
+        }
     };
     
     template <typename R> struct nonzero {
@@ -85,89 +92,89 @@ namespace data {
 
 namespace data::math {
 
-    template <typename R>
-    inline nonnegative<R> operator+(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    nonnegative<R> inline operator+(const nonnegative<R>& m, const nonnegative<R>& n) {
         return nonnegative<R>{m.Value + n.Value};
     }
 
-    template <typename R>
-    inline nonnegative<R> operator*(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    nonnegative<R> inline operator*(const nonnegative<R>& m, const nonnegative<R>& n) {
         return nonnegative<R>{m.Value * n.Value};
     }
 
-    template <typename R>
-    inline bool operator==(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    bool inline operator==(const nonnegative<R>& m, const nonnegative<R>& n) {
         return m.Value == n.Value;
     }
 
-    template <typename R>
-    inline bool operator!=(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    bool inline operator!=(const nonnegative<R>& m, const nonnegative<R>& n) {
         return m.Value != n.Value;
     }
 
-    template <typename R>
-    inline bool operator>(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    bool inline operator>(const nonnegative<R>& m, const nonnegative<R>& n) {
         return m.Value > n.Value;
     }
 
-    template <typename R>
-    inline bool operator>=(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    bool inline operator>=(const nonnegative<R>& m, const nonnegative<R>& n) {
         return m.Value >= n.Value;
     }
 
-    template <typename R>
-    inline bool operator<(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    bool inline operator<(const nonnegative<R>& m, const nonnegative<R>& n) {
         return m.Value < n.Value;
     }
 
-    template <typename R>
-    inline bool operator<=(const nonnegative<R>& m, const nonnegative<R>& n) {
+    template <ordered R>
+    bool inline operator<=(const nonnegative<R>& m, const nonnegative<R>& n) {
         return m.Value <= n.Value;
     }
     
-    template <typename R> nonnegative<R>& nonnegative<R>::operator++() {
+    template <ordered R> nonnegative<R> inline &nonnegative<R>::operator++() {
         ++Value;
         return *this;
     }
     
-    template <typename R> nonnegative<R> nonnegative<R>::operator++(int) {
+    template <ordered R> nonnegative<R> inline nonnegative<R>::operator++(int) {
         nonnegative<R> n = *this;
         ++Value;
         return n;
     }
 
     template <typename R>
-    inline nonzero<R> operator*(const nonzero<R>& m, const nonzero<R>& n) {
+    nonzero<R> inline operator*(const nonzero<R>& m, const nonzero<R>& n) {
         return nonzero<R>{m.Value * n.Value};
     }
 
     template <typename R>
-    inline bool operator==(const nonzero<R>& m, const nonzero<R>& n) {
+    bool inline operator==(const nonzero<R>& m, const nonzero<R>& n) {
         return m.Value == n.Value;
     }
 
     template <typename R>
-    inline bool operator!=(const nonzero<R>& m, const nonzero<R>& n) {
+    bool inline operator!=(const nonzero<R>& m, const nonzero<R>& n) {
         return m.Value != n.Value;
     }
 
     template <typename R>
-    inline bool operator>(const nonzero<R>& m, const nonzero<R>& n) {
+    bool inline operator>(const nonzero<R>& m, const nonzero<R>& n) {
         return m.Value > n.Value;
     }
 
     template <typename R>
-    inline bool operator>=(const nonzero<R>& m, const nonzero<R>& n) {
+    bool inline operator>=(const nonzero<R>& m, const nonzero<R>& n) {
         return m.Value >= n.Value;
     }
 
     template <typename R>
-    inline bool operator<(const nonzero<R>& m, const nonzero<R>& n) {
+    bool inline operator<(const nonzero<R>& m, const nonzero<R>& n) {
         return m.Value < n.Value;
     }
 
     template <typename R>
-    inline bool operator<=(const nonzero<R>& m, const nonzero<R>& n) {
+    bool inline operator<=(const nonzero<R>& m, const nonzero<R>& n) {
         return m.Value <= n.Value;
     }
 

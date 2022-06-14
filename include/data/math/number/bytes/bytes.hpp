@@ -198,8 +198,8 @@ namespace data::math {
         N_bytes<r> operator()(const N_bytes<r> &);
     };
     
-    template <endian::order r> struct abs<number::Z_bytes<r, number::ones>> {
-        N_bytes<r> operator()(const number::Z_bytes<r, number::ones> &);
+    template <endian::order r> struct abs<Z_bytes<r>> {
+        N_bytes<r> operator()(const Z_bytes<r> &);
     };
     
     template <endian::order r> struct abs<number::Z_bytes<r, number::twos>> {
@@ -231,7 +231,7 @@ namespace data::math {
     template <endian::order r, number::complement c> number::Z_bytes<r, c> increment(const number::Z_bytes<r, c>&);
     template <endian::order r, number::complement c> number::Z_bytes<r, c> decrement(const number::Z_bytes<r, c>&);
     
-    template <endian::order r> number::Z_bytes<r, number::twos> next(const number::Z_bytes<r, number::twos>&);
+    template <endian::order r, number::complement c> number::Z_bytes<r, c> next(const number::Z_bytes<r, c>&);
     
     // Declare that the plus and times operation are commutative and associative. 
     template <endian::order r> 
@@ -374,7 +374,7 @@ namespace data::encoding::hexidecimal {
     ptr<oriented<r, byte>> read(string_view s);
     
     template <endian::order r> 
-    std::ostream &write(std::ostream &, const oriented<r, byte> &, hex::letter_case q = hex::lower);
+    std::ostream &write(std::ostream &, const oriented<r, byte> &, hex::letter_case q);
     
     template <endian::order r> 
     std::string inline write(const oriented<r, byte> &z) {
@@ -779,10 +779,10 @@ namespace data::math {
         return number::is_negative(x) ? -x : x;
     }
     
-    template <endian::order r> number::N_bytes<r> 
-    abs<number::Z_bytes<r, number::ones>>::operator()(const number::Z_bytes<r, number::ones> &x) {
+    template <endian::order r> N_bytes<r> 
+    abs<Z_bytes<r>>::operator()(const Z_bytes<r> &x) {
         if (number::is_zero(x)) return number::N_bytes<r>{};
-        number::Z_bytes<r, number::ones> z = number::is_negative(x) ? -x : x;
+        Z_bytes<r> z = number::is_negative(x) ? -x : x;
         auto n = number::N_bytes<r>::zero(z.size());
         std::copy(z.begin(), z.end(), n.begin());
         return n;
@@ -801,7 +801,7 @@ namespace data::math {
         return increment(n);
     }
     
-    template <endian::order r> number::Z_bytes<r, number::twos> inline next(const number::Z_bytes<r, number::twos> &z) {
+    template <endian::order r, number::complement c> number::Z_bytes<r, c> inline next(const number::Z_bytes<r, c> &z) {
         return number::is_positive(z) ? -z : -z - 1;
     }
     

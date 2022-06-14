@@ -9,6 +9,7 @@
 #include <data/meta/greater.hpp>
 #include <data/meta/unsigned_minus.hpp>
 #include <data/io/unimplemented.hpp>
+#include <data/io/wait_for_enter.hpp>
 
 namespace data::meta {
 
@@ -52,7 +53,7 @@ namespace data {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = const std::reverse_iterator<iterator>;
     protected:
-        X* Data;
+        iterator Data;
     public:
         size_t Size;
         slice() : Data{nullptr}, Size{0} {}
@@ -69,10 +70,14 @@ namespace data {
             return Data != nullptr && Size >= 0;
         }
         
-        X& operator[](size_t i) const {
-            if (Size == 0) throw std::out_of_range{"slice size 0"};
-            if (i < 0 || i >= Size) return this->operator[]((i + Size) % Size);
-            return Data[i];
+        X &operator[](int n) {
+            if (Size == 0) throw std::out_of_range{"out of range"};
+            return n >= static_cast<int>(Size) ? operator[](n % Size) : n < 0 ? operator[]((n % Size) + Size) : Data[n];
+        }
+        
+        const X &operator[](int n) const {
+            if (Size == 0) throw std::out_of_range{"out of range"};
+            return n >= static_cast<int>(Size) ? operator[](n % Size) : n < 0 ? operator[]((n % Size) + Size) : Data[n];
         }
 
         /// Selects a range from the current slice

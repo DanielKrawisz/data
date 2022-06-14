@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,19 +7,19 @@
 #include "data/for_each.hpp"
 #include "gtest/gtest.h"
 
-namespace data {
+namespace data::math {
     
     template <typename N> void eratosthenes_test() {
 
-        const data::uint32 max_primes = 100;
+        const uint32 max_primes = 100;
         
-        using prime = math::number::prime<N>;
+        using prime = number::prime<N>;
             
         list<N> primes = for_each(
             [](const prime p)->N{
                 return p.Prime;
             }, 
-            data::math::number::eratosthenes<N>{N{max_primes}}.Primes);
+            number::eratosthenes<N>{N{max_primes}}.Primes);
         
         EXPECT_TRUE(primes.size() == max_primes);
         

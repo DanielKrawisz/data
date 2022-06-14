@@ -1,3 +1,7 @@
+// Copyright (c) 2019-2022 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include <data/math/number/gmp/R.hpp>
 #include <gmpxx.h>
 
@@ -7,7 +11,7 @@ namespace data {
     
         namespace number {
             
-            namespace gmp {
+            namespace GMP {
                 bool R::operator==(const R&& r) const {
                     return __gmp_binary_equal::eval(&MPF, &r.MPF);
                 }

@@ -331,7 +331,7 @@ namespace data::math::number {
         }
         
         explicit operator double() const;
-        explicit operator bounded<true, r, size>() const;
+        explicit operator sint<r, size>() const;
         
     private:
         explicit bounded(const N_bytes<r>& n) : bounded{} {
@@ -357,7 +357,7 @@ namespace data::math::number {
         
         bounded(const byte_array<size>& x) : oriented<r, byte, size>{x} {}
         
-        bounded(const bounded<false, r, size>&);
+        bounded(const uint<r, size>&);
         
         static bounded read(string_view x);
         
@@ -382,6 +382,8 @@ namespace data::math::number {
         
         static bounded max();
         static bounded min();
+        
+        explicit operator Z_bytes<r, ones>() const;
         
     private:
         explicit bounded(const Z_bytes<r, ones>& z) {

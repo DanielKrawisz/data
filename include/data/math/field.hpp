@@ -6,6 +6,7 @@
 #define DATA_MATH_FIELD
 
 #include <data/math/ring.hpp>
+#include <data/math/lowest.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/commutative.hpp>
 

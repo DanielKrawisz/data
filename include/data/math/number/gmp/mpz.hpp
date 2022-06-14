@@ -319,7 +319,6 @@ namespace data::math::number {
     
     bool inline is_positive(const N &x);
     bool inline is_positive(const Z &z);
-    
 }
 
 #undef __GMP_DEFINE_UNARY_FUNCTION

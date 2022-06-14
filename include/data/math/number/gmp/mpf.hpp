@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef DATA_MATH_NUMBER_GMP_MPZ_HPP
 #define DATA_MATH_NUMBER_GMP_MPZ_HPP
 
@@ -13,7 +17,7 @@ namespace data {
     
         namespace number {
             
-            namespace gmp {
+            namespace GMP {
                 
                 const __mpf_struct MPFInvalid = __mpf_struct{0, 0, 0, nullptr};
                 
@@ -41,7 +45,7 @@ namespace data {
                     mpf() : MPF{MPFInvalid} {}
                     
                     bool valid() const {
-                        return gmp::valid(MPF);
+                        return GMP::valid(MPF);
                     }
                     
                     virtual ~mpf() {
@@ -87,8 +91,8 @@ namespace data {
                         return *this;
                     }
                     
-                    math::sign sign() const {
-                        return gmp::sign(MPF);
+                    number::sign sign() const {
+                        return GMP::sign(MPF);
                     }
                     
                     bool operator==(const gmp_uint) const;

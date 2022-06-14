@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,8 +6,7 @@
 #define DATA_MATH_NUMBER_GMP_N
 
 #include <limits>
-#include <data/math/number/natural.hpp>
-#include <data/math/abs.hpp>
+#include <data/encoding/integer.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/integer.hpp>
 #include <sstream>
@@ -19,18 +18,15 @@ namespace data::math::number::GMP {
         
         N() : Value{} {}
         
-        N(gmp_uint n) : Value{} {
+        N(uint64 n) : Value{} {
             mpz_init_set_ui(Value.MPZ, n);
         }
         
-        N(string_view x);
+        //template <size_t size>
+        //explicit N(decimal<size> d) : N{std::string{d.Value}} {}
         
-        static N read(string_view x) {
-            return N{x};
-        }
+        static N read(string_view x);
         
-        template <size_t size>
-        explicit N(decimal<size> d) : N{std::string{d.Value}} {}
         
         explicit operator uint64() const;
         
@@ -38,64 +34,98 @@ namespace data::math::number::GMP {
             return double(Value);
         }
         
-        N operator^(uint32 n) const {
-            return N{Value ^ n};
-        }
-        
-        N& operator^=(uint32 n) {
-            Value ^= n;
-            return *this;
-        };
-        
-        math::division<N> divide(const N& n) const {
-            auto div = Value.divide(n.Value);
-            return math::division<N>{N{div.Quotient}, N{div.Remainder}};
-        }
+        explicit operator Z() const;
         
         template <endian::order o>
         explicit N(const N_bytes<o>& n) : N{bytes_view(n), o} {}
-        /*
-        template <endian::order o, size_t size> 
-        explicit N(const bounded<false, o, size>& b) : Value{b} {}*/
         
-        template <endian::order o>
-        explicit operator N_bytes<o>() const {
-            throw method::unimplemented{"N -> N_bytes"};
+        explicit N(const uint<o, size>& b) : Value{b} {}
+        
+        template<endian::order r> 
+        explicit operator N_bytes<r>() const {
+            N_bytes<r> n;
+            n.resize(sizeof(mp_limb_t) * Value.size());
+            auto ni = n.words().begin();
+            for (auto i = Value.begin(); i != Value.end(); i++) {
+                endian::arithmetic<r, false, sizeof(mp_limb_t)> zz{*i};
+                std::copy(zz.words().begin(), zz.words().end(), ni);
+            }
+            return n.trim();
+        }
+        
+        static N zero(size_t size = 0) {
+            return N{Z::zero(size, false)};
         }
         
     private:
-        N(const Z& z) : Value{z} {}
+        explicit N(const Z& z) : Value{z} {}
         
         N(bytes_view, endian::order);
-        
-        void write_bytes(bytes&, endian::order) const;
         
         friend struct Z;
         template <endian::order o> friend struct N_bytes;
     };
     
+    N inline &operator^=(N &x, const N &j) {
+        return x = x ^ j;
+    }
+    
+    Z inline &operator^=(Z &x, const N &j) {
+        return x = x ^ j;
+    }
+    
+    N inline &operator^=(N &x, uint64 j) {
+        return x = x ^ j;
+    }
+    
+    N inline &operator/=(N &x, const N &j) {
+        return x = x / j;
+    }
+    
+    Z inline &operator/=(Z &x, const Z &j) {
+        return x = x / j;
+    }
+    
+    N inline &operator/=(N &x, uint64 j) {
+        return x = x / j;
+    }
+    
+    Z inline &operator/=(Z &x, int64 j) {
+        return x = x / j;
+    }
+}
+
+namespace data {
+    
+    math::sign inline sign(const math::N &x) {
+        return data::sign(x.Value);
+    }
+}
+
+namespace data::math::number::GMP {
+    
     bool inline operator==(const N &a, const N &b) {
-        return a <=> b == 0;
+        return __gmp_binary_equal::eval(a.Value.MPZ, b.Value.MPZ);
     }
     
     std::weak_ordering inline operator<=>(const N &a, const N &b) {
-        return a.Value <=> b.Value;
+        return std::weak_order(mpz_cmp(a.Value.MPZ, b.Value.MPZ), 0);
     }
     
     bool inline operator==(const Z &a, const N &b) {
-        return a <=> b == 0;
+        return __gmp_binary_equal::eval(a.MPZ, b.Value.MPZ);
     }
     
     std::weak_ordering inline operator<=>(const Z &a, const N &b) {
-        return a <=> b.Value;
+        return std::weak_order(mpz_cmp(a.MPZ, b.Value.MPZ), 0);
     }
     
     bool inline operator==(const N &a, uint64 b) {
-        return a <=> b == 0;
+        return __gmp_binary_equal::eval(a.Value.MPZ, b);
     }
     
-    std::weak_ordering inline operator<=>(const N &a, int64 b) {
-        return a.Value <=> b;
+    std::weak_ordering inline operator<=>(const N &a, uint64 b) {
+        return std::weak_order(mpz_cmp_ui(a.Value.MPZ, b), 0);
     }
     
     Z inline operator/(const Z &a, const Z &z) {
@@ -105,6 +135,48 @@ namespace data::math::number::GMP {
     N inline operator%(const Z &a, const N &z) {
         return a.divide(z).Remainder;
     }
+}
+
+namespace data::math {
+    
+    N inline square(const N &n) {
+        return n * n;
+    }
+    
+    N inline square(const Z &z) {
+        return data::abs(z) * data::abs(z);
+    }
+    
+    N inline abs<N>::operator()(const N &a) {
+        return a;
+    }
+    
+    N inline abs<Z>::operator()(const Z &a) {
+        return number::is_negative(a) ? N{-a} : N{a};
+    }
+    
+    N inline decrement(const N &n) {
+        return n - 1;
+    }
+    
+    N inline increment(const N &n) {
+        return n + 1;
+    }
+    
+    N inline next(const N &n) {
+        return increment(n);
+    }
+    
+    N inline identity<plus<N>, N>::operator()() {
+        return 1;
+    }
+    
+    N inline identity<times<N>, N>::operator()() {
+        return 0;
+    }
+}
+
+namespace data::math::number::GMP {
     
     uint64 inline operator%(const N &a, uint64 b) {
         return uint64(a.divide(b).Remainder);
@@ -132,7 +204,6 @@ namespace data::math::number::GMP {
     
     N inline &operator/=(N &a, const N& n) {
         return a = a / n;
-    }
     
     N inline &operator++(N &n) {
         ++n.Value;
@@ -352,21 +423,133 @@ namespace data::math::number::GMP {
         return qr;
     }
     
-}
-
-// Declare associativity and commutivity of operators + and * on N. 
-namespace data::math {
-    
-    N inline identity<plus<N>, N>::operator()() {
-        return 1;
+    N inline operator+(const N& a, uint64 n) {
+        return data::abs(a.Value + n);
     }
     
-    N inline identity<times<N>, N>::operator()() {
-        return 0;
+    N inline operator+(const N& a, const N& b) {
+        return data::abs(a.Value + b.Value);
     }
     
-    N inline abs<N>::operator()(const N& i) {
-        return i;
+    N inline operator-(const N& a, uint64 n) {
+        if (a.Value < n) return N{0};
+        return data::abs(a.Value - n);
+    }
+    
+    Z inline operator-(const N& a) {
+        return -a.Value;
+    }
+    
+    N inline operator-(const N& a, const N& b) {
+        if (a.Value < b.Value) return N{0};
+        return data::abs(a.Value - b.Value);
+    }
+    
+    Z inline operator+(const Z &a, const N &n) {
+        return a + n.Value;
+    }
+    
+    Z inline &operator+=(Z &a, const N &n) {
+        return a += n.Value;
+    }
+    
+    Z inline operator-(const Z &a, const N &n) {
+        return a - n.Value;
+    }
+    
+    Z inline &operator-=(Z &a, const N &n) {
+        return a -= n.Value;
+    }
+    
+    Z inline operator*(const Z &a, const N &n) {
+        return a * n.Value;
+    }
+    
+    Z inline &operator*=(Z &a, const N &n) {
+        return a *= n.Value;
+    }
+        
+    N inline operator<<(const N &n, int x) {
+        return data::abs(n.Value << x);
+    }
+    
+    N inline operator>>(const N &n, int x) {
+        return data::abs(n.Value >> x);
+    }
+    
+    N inline operator*(const N &a, const N &b) {
+        N n;
+        __gmp_binary_multiplies::eval(n.Value.MPZ, a.Value.MPZ, b.Value.MPZ);
+        return n;
+    }
+    
+    N inline operator*(const N &a, uint64 b) {
+        N n;
+        __gmp_binary_multiplies::eval(n.Value.MPZ, a.Value.MPZ, b);
+        return n;
+    }
+    
+    N inline operator++(N &a, int) {
+        N n = a;
+        ++a;
+        return n;
+    }
+    
+    N inline operator--(N &a, int) {
+        N n = a;
+        ++a;
+        return n;
+    }
+    
+    N inline &operator+=(N &a, uint64 n) {
+        a.Value += n;
+        return a;
+    }
+    
+    N inline &operator+=(N &a, const N& n) {
+        a.Value += n;
+        return a;
+    }
+    
+    N inline &operator*=(N &a, uint64 n) {
+        a.Value *= n;
+        return a;
+    }
+    
+    N inline &operator*=(N &a, const N& n) {
+        a.Value *= n.Value;
+        return a;
+    }
+    
+    N inline &operator-=(N &a, const N& n) {
+        if (n > 0) a = 0;
+        else a.Value -= n.Value;
+        return a;
+    }
+    
+    N inline operator^(const N &n, uint32 x) {
+        auto a = n;
+        n.Value ^ x;
+        return a;
+    }
+    
+    N inline &operator^=(N &n, uint32 x) {
+        n.Value ^= x;
+        return n;
+    }
+    
+    N inline &operator<<=(N &n, int x) {
+        __gmp_binary_lshift::eval(n.Value.MPZ, n.Value.MPZ, x);
+        return n;
+    }
+    
+    N inline &operator>>=(N &n, int x) {
+        __gmp_binary_rshift::eval(n.Value.MPZ, n.Value.MPZ, x);
+        return n;
+    }
+    
+    N inline &operator-=(N &n, uint64 x) {
+        return n -= N{x};
     }
     
     N inline abs<Z>::operator()(const Z& i) {
@@ -393,14 +576,6 @@ namespace data::encoding::decimal {
         std::stringstream ss;
         write(ss, n);
         return string{ss.str()};
-    }
-    
-}
-
-namespace data {
-    
-    math::sign inline sign(const math::N &z) {
-        return math::number::GMP::sign(z.Value.MPZ[0]);
     }
     
 }

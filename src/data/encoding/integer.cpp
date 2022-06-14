@@ -40,14 +40,10 @@ namespace data::encoding {
         // with basic functions in math::arithmetic.
         std::strong_ordering string::operator<=>(const string& x) const {
             if (!this->valid() || !x.valid()) throw std::invalid_argument{"invalid dec string"};
-            auto a = read_num(*this);
-            auto b = read_num(x);
-            return a == b ? std::strong_ordering::equal : a < b ? std::strong_ordering::less : std::strong_ordering::greater;
-            /*
             auto n = read_num(*this) <=> read_num(x);
             if (n == std::weak_ordering::greater) return std::strong_ordering::greater;
             if (n == std::weak_ordering::less) return std::strong_ordering::less;
-            return std::strong_ordering::equal;*/
+            return std::strong_ordering::equal;
         }
         
         string string::operator+(const string& n) const {
@@ -99,9 +95,9 @@ namespace data::encoding {
                 return math::division<string, N>{n.size() == 1 ? string{} : string(n.substr(0, last)), N(digit(n[last]))};
             }
             
-            math::division<N> div = math::number::natural::divide(read_num(n), x);
+            math::division<N> div = math::divide_unsigned(read_num(n), x);
             
-            return math::division<string, N>{write_decimal(div.Quotient), div.Remainder};
+            return math::division<string, N>{write(div.Quotient), div.Remainder};
         }
         
         math::division<string, uint64> string::divide(uint64 x) const {
@@ -114,7 +110,7 @@ namespace data::encoding {
         }
         
         string string::operator%(const string &x) const {
-            return write_decimal(decimal::divide(*this, N::read(x)).Remainder);
+            return write(decimal::divide(*this, N::read(x)).Remainder);
         }
         
         bool string::operator==(uint64 x) const {

@@ -21,10 +21,11 @@ namespace data::math {
         
     public:
         X operator()(const X &x, const N &n) const {
-            if (n == 0) return 1;
+            if (n < 0) throw std::invalid_argument{"cannot do negative powers"};
+            if (n == 0) return X(1);
             if (n == 1) return x;
             if (n == 2) return square(x);
-            return pow(0, x, n);
+            return pow(X(0), x, n);
         }
     };
     
@@ -45,7 +46,7 @@ namespace data::math {
             if (n == 0) return 1;
             if (n == 1) return x;
             if (n == 2) return square(x, mod);
-            return pow(0, x, mod, n) % mod;
+            return pow(X(0), x, mod, n) % mod;
         }
     };
 

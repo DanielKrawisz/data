@@ -16,39 +16,6 @@ namespace data::arithmetic {
     
     template <typename sen, typename it>
     requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    bool equal(sen z, it i, it j) {
-        while (i != z) {
-            if(*i != *j) return false;
-            i++;
-            j++;
-        }
-        return true;
-    }
-    
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    bool greater(sen z, it i, it j) {
-        while (i != z) {
-            if(*i > *j) return true;
-            i++;
-            j++;
-        }
-        return false;
-    }
-    
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    bool less(sen z, it i, it j) {
-        while (i != z) {
-            if(*i < *j) return true;
-            i++;
-            j++;
-        }
-        return false;
-    }
-    
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
     std::weak_ordering compare(sen z, it i, it j) {
         while (i != z) {
             if(*i < *j) return std::weak_ordering::less;
@@ -254,7 +221,7 @@ namespace data::arithmetic {
         byte filler = fill ? ~0 : 0;
         
         size_t size = z - i;
-        if (bytes <= size) arithmetic::shift_left(i, z, i + bytes, bits, filler);
+        if (bytes <= size) math::arithmetic::shift_left(i, z, i + bytes, bits, filler);
         
         while (i != z) {
             *i = filler;
@@ -269,13 +236,14 @@ namespace data::arithmetic {
         byte filler = fill ? ~0 : 0;
         
         size_t size = z - i;
-        if (bytes <= size) arithmetic::shift_right(i, z, i + bytes, bits, filler);
+        if (bytes <= size) math::arithmetic::shift_right(i, z, i + bytes, bits, filler);
         
         while (i != z) {
             *i = filler;
             i++;
         }
     }
+    
 }
 
 namespace data::encoding {

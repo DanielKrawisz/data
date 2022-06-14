@@ -11,9 +11,6 @@
 
 namespace data::math::number {
     
-    using Z = gmp::Z;
-    using N = gmp::N;
-    
     template <endian::order r> N_bytes<r> inline N_bytes<r>::read(string_view x) {
         if (!encoding::natural::valid(x)) throw std::invalid_argument{string{"invalid number string"} + string{x}};
         if (encoding::hexidecimal::valid(x)) return *encoding::natural::read<r>(x);
@@ -60,43 +57,43 @@ namespace data::math::number {
     }
     
     template <endian::order r> N_bytes<r> inline operator/(const N_bytes<r> &x, const N_bytes<r> &j) {
-        return natural::divide<N_bytes<r>>(x, j).Quotient;
+        return divide<N_bytes<r>>(x, j).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator/(const Z_bytes<r, c> &x, const Z_bytes<r, c> &j) {
-        return integer::divide<Z_bytes<r, c>>(x, j).Quotient;
+        return divide<Z_bytes<r, c>>(x, j).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator/(const Z_bytes<r, c> &x, const N_bytes<r> &j) {
-        return integer::divide<Z_bytes<r, c>>(x, Z_bytes<r, c>{j}).Quotient;
+        return divide<Z_bytes<r, c>>(x, Z_bytes<r, c>{j}).Quotient;
     }
     
     template <endian::order r> N_bytes<r> inline operator/(const N_bytes<r> &x, uint64 j) {
-        return integer::divide<N_bytes<r>>(x, N_bytes<r>{j}).Quotient;
+        return divide<N_bytes<r>>(x, N_bytes<r>{j}).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator/(const Z_bytes<r, c> &x, int64 j) {
-        return integer::divide<Z_bytes<r, c>>(x, Z_bytes<r, c>{j}).Quotient;
+        return divide<Z_bytes<r, c>>(x, Z_bytes<r, c>{j}).Quotient;
     }
     
     template <endian::order r> N_bytes<r> inline operator%(const N_bytes<r> &x, const N_bytes<r> &j) {
-        return natural::divide<N_bytes<r>>(x, j).Remainder;
+        return divide<N_bytes<r>>(x, j).Remainder;
     }
     
     template <endian::order r> N_bytes<r> inline operator%(const Z_bytes<r, ones> &x, const N_bytes<r> &j) {
-        return integer::divide<Z_bytes<r, ones>, N_bytes<r>>(x, Z_bytes<r, ones>{j}).Remainder;
+        return divide<Z_bytes<r, ones>, N_bytes<r>>(x, Z_bytes<r, ones>{j}).Remainder;
     }
     
     template <endian::order r> Z_bytes<r, twos> inline operator%(const Z_bytes<r, twos> &x, const Z_bytes<r, twos> &j) {
-        return integer::divide<Z_bytes<r, twos>>(x, j).Remainder;
+        return divide<Z_bytes<r, twos>>(x, j).Remainder;
     }
     
     template <endian::order r> uint64 inline operator%(const N_bytes<r> &x, uint64 j) {
-        return uint64(natural::divide<N_bytes<r>>(x, N_bytes<r>{j}).Remainder);
+        return uint64(divide<N_bytes<r>>(x, N_bytes<r>{j}).Remainder);
     }
     
     template <endian::order r, complement c> uint64 inline operator%(const Z_bytes<r, c> &x, uint64 j) {
-        return uint64(integer::divide<Z_bytes<r, c>>(x, Z_bytes<r, c>{j}).Remainder);
+        return uint64(divide<Z_bytes<r, c>>(x, Z_bytes<r, c>{j}).Remainder);
     }
     
 }
@@ -115,7 +112,7 @@ namespace data::encoding::decimal {
     
     template <endian::order r> 
     string inline write(const math::number::N_bytes<r> &n) {
-        return string{write_base(math::number::gmp::N(n), characters())};
+        return string{write_base(math::number::GMP::N(n), characters())};
     }
 }
 
@@ -162,7 +159,7 @@ namespace data::encoding::hexidecimal {
         
         template <endian::order r, math::number::complement c> using bytes_type = get_bytes_type<r, c>::value;
         
-        using nat = math::number::gmp::N;
+        using nat = math::number::GMP::N;
         
         template <hex::letter_case zz>
         inline nat read_num(const integer<math::number::nones, zz>& n) {
@@ -195,7 +192,7 @@ namespace data::encoding::hexidecimal {
                         static_cast<uint64>(digit(z[last]))};
                 }
                 
-                math::division<nat> div = math::number::natural::divide(read_num(z), nat{x});
+                math::division<nat> div = math::divide(read_num(z), nat{x});
                 return math::division<integer<math::number::nones, zz>, uint64>{
                     integer<math::number::nones, zz>{write_hexidecimal(div.Quotient)}, uint64(div.Remainder)};
             }

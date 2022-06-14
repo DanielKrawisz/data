@@ -1,12 +1,26 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/numbers.hpp>
-#include <data/encoding/digits.hpp>
+#include <data/math/number/bytes.hpp>
+#include <data/math/number/gmp/N.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace data::math::number::GMP {
+    
+    N N::read(string_view x) {
+        if (!encoding::natural::valid(x)) throw std::invalid_argument{string{"invalid number string"} + string{x}};
+        if (encoding::hexidecimal::valid(x)) return N(N_bytes<endian::little>::read(x));
+        return encoding::read_base<N>(x, 10, encoding::decimal::digit);
+    }
+        
+    Z Z::read(string_view x) {
+        if (!encoding::integer::valid(x)) throw std::invalid_argument{string{"invalid number string"} + string{x}};
+        if (encoding::hexidecimal::valid(x)) return Z(Z_bytes<endian::little, ones>::read(x));
+        if (encoding::decimal::valid(x)) return encoding::read_base<Z>(x, 10, encoding::decimal::digit);
+        return -encoding::read_base<Z>(x.substr(1), 10, encoding::decimal::digit);
+    }
     
     Z::Z(const N& n) : Z{n.Value} {}
     
@@ -59,7 +73,7 @@ namespace data::math::number::GMP {
             std::stringstream ss;
             ss << "0x01";
             for (int i = 0; i < x.size() - 2; i += 2) ss << "00";
-            return Z{N{x}} - Z_read_hex_positive(ss.str());
+            return Z{N::read(x)} - Z_read_hex_positive(ss.str());
         };
         return Z_read_hex_positive(x);
     }
@@ -94,11 +108,11 @@ namespace data::encoding::decimal {
 namespace data::encoding::hexidecimal {
     
     std::ostream &write(std::ostream &o, const math::Z &n) {
-        return write(o, math::number::Z_bytes<endian::big>(n));
+        return write(o, Z_bytes_big(n));
     }
     
     std::ostream &write(std::ostream& o, const math::N& n) {
-        return write(o, math::number::N_bytes<endian::big>(n));
+        return write(o, N_bytes_big(n));
     }
     
 }
@@ -126,7 +140,7 @@ namespace data::math::number::GMP {
     }
     
     Z N_read_hex(string_view x) {
-        if (encoding::hexidecimal::zero(x)) return N{0};
+        if (encoding::hexidecimal::zero(x)) return Z{0};
         return Z_read_hex_positive(x);
     }
     
@@ -136,28 +150,10 @@ namespace data::math::number::GMP {
         return Z_read_N_gmp(x);
     }
     
-    N::N(string_view x) : Value{N_read(x)} {}
-    
-    // inefficient but easier to write and more certain to be correct. 
-    N read_bytes_big(bytes_view x) {
-        std::stringstream format_stream;
-        format_stream << "0x" << encoding::hex::write(x);
-        return N{format_stream.str()};
-    }
-    
-    N read_bytes_little(bytes_view x) {
-        auto z = bytes{x};
-        std::reverse(z.begin(), z.end());
-        return read_bytes_big(z);
-    }
-    
     N read_bytes(bytes_view x, endian::order o) {
-        if (o == endian::order::big) return read_bytes_big(x);
-        return read_bytes_little(x);
-        /* 
         N r{0};
         if (x.size() > 0) { 
-            if (o == endian::order::little) {
+            if (o == endian::order::big) {
                 r += x[0];
                 for (int i = 1; i < x.size(); i++) {
                     r <<= 8;
@@ -165,45 +161,16 @@ namespace data::math::number::GMP {
                 }
             } else {
                 r += x[x.size() - 1];
-                for (int i = x.size() - 2; i >= 0; i--) {
-                    r <<= 0;
+                for (int i = int(x.size()) - 2; i >= 0; i--) {
+                    r <<= 8;
                     r += x[i];
                 }
             }
         }
-        return r;*/
+        return r;
     }
     
     N::N(bytes_view x, endian::order o) : Value{read_bytes(x, o).Value} {}
-    
-    void N_write_big(bytes& b, const N& n) {
-        b = *data::encoding::hex::read(data::encoding::hexidecimal::write(n).substr(2));
-    }
-    
-    void N_write_little(bytes& b, const N& n) {
-        N_write_big(b, n);
-        std::reverse(b.begin(), b.end());
-    }
-        
-    void N::write_bytes(bytes& b, endian::order o) const {
-        if (o == endian::order::big) {
-            N_write_big(b, *this);
-            return;
-        }
-        
-        N_write_little(b, *this);
-        
-        /* I didn't finish this because it was getting too confusing. But it's more efficient. 
-        int last = Value.size() - 1;
-        while(last >= 0 && Value[last] == 0) last--;
-        if (last == -1) return bytes{};
-        gmp_uint big_endian = endian::native<gmp_uint, endian::big>::from(Value[last]);
-        int extra = 0;
-        while (((byte*)(&big_endian))[extra] == 0) extra++;
-        size_t size = sizeof(gmp_uint) * (last + 1) - extra;
-        bytes b{size, ' '};
-        */
-    }
         
     Z::operator int64() const {
         if (*this > std::numeric_limits<int64>::max()) throw std::logic_error{"too big"};
@@ -214,21 +181,8 @@ namespace data::math::number::GMP {
     N::operator uint64() const {
         if (__gmp_binary_greater::eval(Value.MPZ, (unsigned long int)(std::numeric_limits<uint64>::max())))
             throw std::logic_error{"too big"};
-        if (*this < 0) throw std::logic_error{"too big"};
-        return mpz_get_ui(Value.MPZ);
+        if (is_negative(*this)) throw std::logic_error{"too big"};
+        return mpz_get_ui(MPZ);
     } 
-
-    std::ostream& operator<<(std::ostream& o, const N& n) {
-        if (o.flags() & std::ios::hex) {
-            encoding::hexidecimal::write(o, n);
-            return o;
-        }
-        if (o.flags() & std::ios::dec) {
-            Z_write_dec(o, n.Value);
-            return o;
-        }
-        o << &n.Value.MPZ;
-        return o;
-    }
 
 }

@@ -1,4 +1,5 @@
 // Copyright (c) 2019 Katrina Swales
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,12 +13,12 @@
 namespace data {
     
     template<bool is_signed, endian::order o, size_t size> 
-    using bounded = math::number::bounded<is_signed, o, size>;
+    using bounded = math::number::bounded<o, is_signed, size>;
     
-    using u8l = bounded<false, data::endian::little, 8>;
-    using u8b = bounded<false, data::endian::big, 8>;
-    using s8l = bounded<true, data::endian::little, 8>;
-    using s8b  = bounded<true, data::endian::big, 8>;
+    using u8l = bounded<false, endian::little, 8>;
+    using u8b = bounded<false, endian::big, 8>;
+    using s8l = bounded<true, endian::little, 8>;
+    using s8b  = bounded<true, endian::big, 8>;
     
     using u9l = bounded<false, data::endian::little, 9>;
     using u9b = bounded<false, data::endian::big, 9>;
@@ -34,10 +35,10 @@ namespace data {
     using s11l = bounded<true, data::endian::little, 11>;
     using s11b  = bounded<true, data::endian::big, 11>;
     
-    using nl = math::number::N_bytes<data::endian::little>;
-    using nb = math::number::N_bytes<data::endian::big>;
-    using zl = math::number::Z_bytes<data::endian::little>;
-    using zb = math::number::Z_bytes<data::endian::big>;
+    using nl = math::number::N_bytes<endian::little>;
+    using nb = math::number::N_bytes<endian::big>;
+    using zl = math::number::Z_bytes<endian::little, math::number::ones>;
+    using zb = math::number::Z_bytes<endian::big, math::number::ones>;
     
     TEST(BoundedTest, BoundedReadString) {
         
@@ -149,14 +150,14 @@ namespace data {
         EXPECT_EQ(u8b::min(), u8b{0});
         EXPECT_EQ(u8l::min(), u8l{0});
         
-        EXPECT_EQ(u8b::max(), u8b{"0xffffffffffffffff"});
-        EXPECT_EQ(u8l::max(), u8l{"0xffffffffffffffff"});
+        EXPECT_EQ(u8b::max(), u8b::read("0xffffffffffffffff"));
+        EXPECT_EQ(u8l::max(), u8l::read("0xffffffffffffffff"));
         
-        EXPECT_EQ(s8b::min(), s8b{"0x8000000000000000"});
-        EXPECT_EQ(s8l::min(), s8l{"0x8000000000000000"});
+        EXPECT_EQ(s8b::min(), s8b::read("0x8000000000000000"));
+        EXPECT_EQ(s8l::min(), s8l::read("0x8000000000000000"));
         
-        EXPECT_EQ(s8b::max(), s8b{"0x7FFFFFFFFFFFFFFF"});
-        EXPECT_EQ(s8l::max(), s8l{"0x7FFFFFFFFFFFFFFF"});
+        EXPECT_EQ(s8b::max(), s8b::read("0x7FFFFFFFFFFFFFFF"));
+        EXPECT_EQ(s8l::max(), s8l::read("0x7FFFFFFFFFFFFFFF"));
         
     }
     

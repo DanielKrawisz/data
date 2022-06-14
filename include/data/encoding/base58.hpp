@@ -37,7 +37,7 @@ namespace data::encoding::base58 {
             c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
     };
     
-    template <typename N>
+    template <math::natural N>
     N read(const string_view s) {
         if (s.size() == 0) return N{};
         
@@ -199,7 +199,7 @@ namespace data::encoding::base58 {
         }
     };
     
-    template <typename N>
+    template <math::natural N>
     string inline write(const N& n) {
         return string{encoding::write_base<N>(n, characters())};
     };

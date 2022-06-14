@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Daniel Krawisz
+// Copyright (c) 2020-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,9 +15,9 @@ namespace data::encoding {
         N base{digits.size()};
         if (base < 2) return "";
         linked_stack<char> dig{};
-        N x = n;
+        N x{n};
         while(x > 0) {
-            math::division<N> d = math::number::natural::divide(x, base);
+            math::division<N> d = math::divide_unsigned<N>(x, base);
             dig = dig << digits[(uint64)(d.Remainder)];
             x = d.Quotient;
         }

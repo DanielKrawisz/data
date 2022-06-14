@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,8 +10,8 @@
 
 namespace data {
     
-    template<bool is_signed, data::endian::order o, size_t size> 
-    using bounded = data::math::number::bounded<is_signed, o, size>;
+    template<endian::order o, bool is_signed, size_t size> 
+    using bounded = math::number::bounded<o, is_signed, size>;
     
     template <size_t size> 
     using integer_little = data::math::number::bounded<true, endian::little, size>;
