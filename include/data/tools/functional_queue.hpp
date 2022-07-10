@@ -46,9 +46,9 @@ namespace data {
             *this = q;
         }
         
-        functional_queue operator << (const element e) const;
+        functional_queue operator << (const element &e) const;
         
-        functional_queue &operator <<= (const element e) {
+        functional_queue &operator <<= (const element &e) {
             return *this = *this << e;
         }
         
@@ -204,7 +204,7 @@ namespace data {
     }
     
     template <typename stack, typename element>
-    functional_queue<stack, element> inline functional_queue<stack, element>::operator << (const element e) const {
+    functional_queue<stack, element> inline functional_queue<stack, element>::operator << (const element &e) const {
         return append (e);
     }
     

@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,15 +8,8 @@
 #include <data/math/nonnegative.hpp>
 
 namespace data::math {
-    struct division_by_zero : std::exception {
-        static const char* error () {
-            static char Error[] {"division by zero"};
-            return Error;
-        }
-        
-        const char* what () const noexcept final override {
-            return error ();
-        }
+    struct division_by_zero : std::logic_error {
+        division_by_zero () : std::logic_error {"division by zero"} {}
     };
         
     template <typename N, typename R = N> struct division {
@@ -24,10 +17,10 @@ namespace data::math {
         R Remainder;
             
         bool valid () const {
-            return valid (Quotient) && valid (Remainder);
+            return data::valid (Quotient) && data::valid (Remainder);
         }
         
-        division (N q, R r) : Quotient {q}, Remainder {r} {}
+        division (const N &q, const R &r) : Quotient {q}, Remainder {r} {}
         division () : Quotient {}, Remainder {} {}
         
         bool operator == (const division &d) const {
@@ -38,7 +31,7 @@ namespace data::math {
             return !(*this == d);
         }
     };
-    
+
     template <typename dividend, typename divisor = dividend> struct divide;
 
     template <std::unsigned_integral dividend> struct divide<dividend, dividend> {

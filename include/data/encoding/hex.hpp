@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Copyright (c) 2019 Katrina Swales
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -20,20 +20,26 @@ namespace data::encoding::hex {
     const std::string Format {"hex"};
     
     enum class letter_case {
+        unknown, 
         upper, 
         lower
     };
     
-    std::string inline characters_lower () {
-        return "0123456789abcdef";
+    const std::string inline &characters_lower () {
+        static std::string Lower {"0123456789abcdef"};
+        return Lower;
     }
     
-    std::string inline characters_upper () {
-        return "0123456789ABCDEF";
+    const std::string inline &characters_upper () {
+        static std::string Upper {"0123456789ABCDEF"};
+        return Upper;
     }
     
-    std::string inline characters (letter_case x) {
-        return x == letter_case::upper ? characters_upper () : characters_lower ();
+    const std::string inline &characters (letter_case c) {
+        static std::string None {};
+        if (c == letter_case::upper) return characters_upper ();
+        if (c == letter_case::lower) return characters_lower ();
+        return None;
     }
     
     static constexpr auto pattern = ctll::fixed_string {"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};

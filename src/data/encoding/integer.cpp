@@ -45,7 +45,7 @@ namespace data::encoding {
             auto e = x.rend ();
             char remainder = 1;
             while (i != e) {
-                auto d = digit(*i) + remainder;
+                auto d = digit (*i) + remainder;
                 *i = characters[d % 10];
                 remainder = d / 10;
                 if (remainder == 0) return '0';
@@ -56,7 +56,7 @@ namespace data::encoding {
         
         string &operator ++ (string &x) {
             if (!x.valid ()) throw exception {} << "invalid decimal string: \"" << x << "\"";
-            char remainder = N_increment(x);
+            char remainder = N_increment (x);
             if (remainder == '0') return x;
             string new_x;
             new_x.resize (x.size () + 1);

@@ -395,13 +395,11 @@ namespace data::math::number {
 // we also have base58 but that works a priori for any number. 
 namespace data::encoding::decimal {
     
-    template <endian::order r> 
-    maybe<math::number::N_bytes<r>> read (string_view);
+    template <endian::order r> maybe<math::number::N_bytes<r>> read (string_view s);
     
     struct string;
     
-    template <endian::order r> 
-    string write (const math::number::N_bytes<r> &);
+    template <endian::order r> string write (const math::number::N_bytes<r> &z);
     
     template <endian::order r> 
     std::ostream inline &write (std::ostream &o, const math::number::N_bytes<r> &n) {

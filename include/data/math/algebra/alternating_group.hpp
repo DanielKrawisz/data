@@ -30,7 +30,7 @@ namespace data::math::algebra {
         
         bool valid() const {
             return permutation<number::modular<N, natural>>::valid() && 
-                permutation<number::modular<N, natural>>::signature() == math::positive;
+                permutation<number::modular<N, natural>>::signature() == positive;
         }
         
     private:
