@@ -583,6 +583,17 @@ namespace data::math::number {
 
 }
 
+namespace data::math {
+    
+    template <size_t size, endian::order o>
+    struct abs<number::bounded<size, o, false>> {
+        number::bounded<size, o, false> operator()(const number::bounded<size, o, false>& i) {
+            return i;
+        }
+    };
+    
+}
+
 namespace data {
     
     template <endian::order r, size_t x> math::sign inline sign (const math::uint<r, x> &z) {

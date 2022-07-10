@@ -8,28 +8,14 @@
 
 namespace data {
     
-    template <size_t size> using integer_little = data::math::number::bounded<true, endian::little, size>;
-    
-    template <size_t size> using integer_big = data::math::number::bounded<true, endian::big, size>;
-    
-    template <size_t size> using uint_little = data::math::number::bounded<false, endian::little, size>;
-    
-    template <size_t size> using uint_big = data::math::number::bounded<false, endian::big, size>;
-    
-    using Z_bytes_little = data::math::number::Z_bytes<endian::little, math::number::complement::ones>;
-    using Z_bytes_big = data::math::number::Z_bytes<endian::big, math::number::complement::ones>;
-    
-    using N_bytes_little = data::math::number::N_bytes<endian::little>;
-    using N_bytes_big = data::math::number::N_bytes<endian::big>;
-    
-    typedef integer_big<9> b09;
-    typedef integer_big<10> b10;
-    typedef integer_big<11> b11;
-    typedef integer_big<20> b20;
-    typedef integer_little<9> l09;
-    typedef integer_little<10> l10;
-    typedef integer_little<11> l11;
-    typedef integer_little<20> l20;
+    typedef int_big<9> b09;
+    typedef int_big<10> b10;
+    typedef int_big<11> b11;
+    typedef int_big<20> b20;
+    typedef int_little<9> l09;
+    typedef int_little<10> l10;
+    typedef int_little<11> l11;
+    typedef int_little<20> l20;
     
     typedef uint_big<9> ub09;
     typedef uint_big<10> ub10;

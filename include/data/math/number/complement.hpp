@@ -25,8 +25,8 @@ namespace data::math::number {
         static const bool value = false;
     };
     
-    std::ostream inline &operator<<(std::ostream &o, complement c) {
-        switch(c) {
+    std::ostream inline &operator << (std::ostream &o, complement c) {
+        switch (c) {
             default: return o << "none's complement"; 
             case complement::ones: return o << "one's complement";
             case complement::twos: return o << "two's complement";

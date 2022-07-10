@@ -169,7 +169,7 @@ namespace data::math {
         polynomial operator += (const term t);
         
         polynomial operator * (const term t) const;
-        
+
         using terms = ordered_list<term>;
         
         terms Terms;
