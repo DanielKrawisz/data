@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -186,4 +186,3 @@ namespace data::encoding {
     }
 
 }
-

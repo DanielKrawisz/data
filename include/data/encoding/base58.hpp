@@ -109,6 +109,8 @@ namespace data::encoding::base58 {
     string &operator <<= (string &, int);
     string &operator >>= (string &, int);
 
+    // base58 strings are really natural numbers, so we
+    // can define standard math operations on them.
     struct string : data::string {
         string ();
         string (const std::string &x);

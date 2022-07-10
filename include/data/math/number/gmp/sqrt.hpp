@@ -11,8 +11,8 @@
 
 namespace data::math::number::GMP {
     
-    set<N> root (const N& n, uint32 p);
-    set<Z> root (const Z& n, uint32 p);
+    set<N> root (const N &n, uint32 p);
+    set<Z> root (const Z &n, uint32 p);
 
 }
 
@@ -49,7 +49,7 @@ namespace data::math {
     template <hex_case zz, uint64 pow> 
     set<hex::uint<zz>> root<hex::uint<zz>, pow>::operator () (const hex::uint<zz> &n) {
         set<hex::uint<zz>> x;
-        set<N> roots = root<N, pow> {} (N::read(n));
+        set<N> roots = root<N, pow> {} (N::read (n));
         for (const N &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<zz> (z));
         return x;
     }
@@ -58,7 +58,7 @@ namespace data::math {
     set<hex::int1<zz>> root<hex::int1<zz>, pow>::operator () (const hex::int1<zz> &n) {
         set<hex::int1<zz>> x;
         set<Z> roots = root<Z, pow> {} (Z::read (n));
-        for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<zz> (z));
+        for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::ones, zz> (z));
         return x;
     }
     
@@ -66,7 +66,7 @@ namespace data::math {
     set<hex::int2<zz>> root<hex::int2<zz>, pow>::operator () (const hex::int2<zz> &n) {
         set<hex::int2<zz>> x;
         set<Z> roots = root<Z, pow> {} (Z::read (n));
-        for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<zz> (z));
+        for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::twos, zz> (z));
         return x;
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 Daniel Krawisz
+// Copyright (c) 2018-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,6 +7,7 @@
 
 #include <data/valid.hpp>
 #include <data/math/ordered.hpp>
+#include <data/math/sign.hpp>
 
 namespace data::math {
     
@@ -82,6 +83,21 @@ namespace data::math {
     
     template <typename R>
     nonzero (const R &) -> nonzero<R>;
+}
+
+namespace data {
+    template <math::has_sign_function R>
+    math::signature inline sign (const math::nonzero<R> &x) {
+        return sign (x.Value);
+    }
+    
+    template <math::has_sign_function R>
+    math::signature inline sign (const math::nonnegative<R> &x) {
+        return sign (x.Value);
+    }
+}
+
+namespace data::math {
 
     template <typename R>
     bool inline operator == (const nonnegative<R> &m, const nonnegative<R> &n) {

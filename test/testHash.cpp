@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/crypto/hash/hash.hpp"
+#include "data/math/number/bytes.hpp"
 #include "gtest/gtest.h"
 
 namespace data::crypto {
