@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Copyright (c) 2019 Katrina Swales
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -15,24 +15,34 @@
 #include <data/cross.hpp>
 
 namespace data::encoding::hex {
-    const std::string Format{"hex"};
+    const string Format{"hex"};
     
     enum letter_case {
+        unknown, 
         upper, 
         lower
     };
     
-    inline std::string characters_lower() {
-        return "0123456789abcdef";
+    const string inline &characters_lower() {
+        static string Lower{"0123456789abcdef"};
+        return Lower;
     }
     
-    inline std::string characters_upper() {
-        return "0123456789ABCDEF";
+    const string inline &characters_upper() {
+        static string Upper{"0123456789ABCDEF"};
+        return Upper;
+    }
+    
+    const string inline &characters(letter_case c) {
+        static string None{};
+        if (c == upper) return characters_upper();
+        if (c == lower) return characters_lower();
+        return None;
     }
     
     static constexpr auto pattern = ctll::fixed_string{"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
 
-    inline bool valid(string_view s) {
+    bool inline valid(string_view s) {
         return ctre::match<pattern>(s);
     }
     

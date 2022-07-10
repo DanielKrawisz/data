@@ -35,16 +35,16 @@ namespace data {
         functional_queue rest() const;
         const element last() const;
         
-        functional_queue append(const element e) const;
-        functional_queue prepend(const element e) const;
+        functional_queue append(const element &e) const;
+        functional_queue prepend(const element &e) const;
         functional_queue append(functional_queue q) const;
         
         template <typename X, typename Y, typename ... P>
         functional_queue append(X x, Y y, P... p) const;
         
-        functional_queue operator<<(const element e) const;
+        functional_queue operator<<(const element &e) const;
         
-        functional_queue &operator<<=(const element e) {
+        functional_queue &operator<<=(const element &e) {
             return *this = *this << e;
         }
         
@@ -146,12 +146,12 @@ namespace data {
     }
     
     template <typename stack, typename element>
-    inline functional_queue<stack, element> functional_queue<stack, element>::append(const element e) const {
+    inline functional_queue<stack, element> functional_queue<stack, element>::append(const element &e) const {
         return check(Left, Right << e);
     }
     
     template <typename stack, typename element>
-    inline functional_queue<stack, element> functional_queue<stack, element>::prepend(const element e) const {
+    inline functional_queue<stack, element> functional_queue<stack, element>::prepend(const element &e) const {
         return check(Left << e, Right);
     }
     
@@ -168,7 +168,7 @@ namespace data {
     }
     
     template <typename stack, typename element>
-    inline functional_queue<stack, element> functional_queue<stack, element>::operator<<(const element e) const {
+    inline functional_queue<stack, element> functional_queue<stack, element>::operator<<(const element &e) const {
         return append(e);
     }
     

@@ -386,10 +386,10 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::decimal {
     
-    N inline write(const math::N& n) {
+    string inline write(const math::N& n) {
         std::stringstream ss;
         write(ss, n);
-        return {ss.str()};
+        return string{ss.str()};
     }
     
 }

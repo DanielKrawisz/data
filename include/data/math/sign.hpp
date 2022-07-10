@@ -38,4 +38,12 @@ namespace data {
     }
 }
 
+namespace data::math {
+            
+    template <typename X> concept has_sign_function = requires (const X &x) {
+        {data::sign(x)} -> std::convertible_to<sign>;
+    };
+
+}
+
 #endif

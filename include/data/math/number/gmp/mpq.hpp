@@ -26,7 +26,7 @@ namespace data {
                 }
                 
                 inline math::sign sign(const __mpq_struct& mpq) {
-                    return !valid(mpq) ? zero : math::sign(sign(mpq._mp_num) * sign(mpq._mp_den));
+                    return !valid(mpq) ? zero : sign(mpq._mp_num) * sign(mpq._mp_den);
                 }
                 
                 void swap(__mpq_struct& a, __mpq_struct& b) {

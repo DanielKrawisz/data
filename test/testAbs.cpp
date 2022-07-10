@@ -2,33 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/math/abs.hpp"
-#include "data/data.hpp"
-#include <data/math/number/bounded/bounded.hpp>
+#include "data/numbers.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
-
-    template <size_t size> 
-    using int_little = data::math::number::bounded<true, endian::little, size>;
-    
-    template <size_t size> 
-    using int_big = data::math::number::bounded<true, endian::big, size>;
-    
-    template <size_t size> 
-    using uint_little = data::math::number::bounded<false, endian::little, size>;
-    
-    template <size_t size> 
-    using uint_big = data::math::number::bounded<false, endian::big, size>;
-    
-    using Z_bytes_little = data::math::number::Z_bytes<endian::little>;
-    using Z_bytes_big = data::math::number::Z_bytes<endian::big>;
-    
-    using N_bytes_little = data::math::number::N_bytes<endian::little>;
-    using N_bytes_big = data::math::number::N_bytes<endian::big>;
-    
-    using N = data::math::number::GMP::N;
-    using Z = data::math::number::GMP::Z;
 
     TEST(AbsTest, TestDecrement) {
         
@@ -87,7 +64,8 @@ namespace data {
         
         using test_case = test_case_negative<int64, Z, Z_bytes_little, Z_bytes_big, 
             int_big<9>, int_big<10>, int_big<11>, int_big<20>, 
-            int_little<9>, int_little<10>, int_little<11>, int_little<20>>;
+            int_little<9>, int_little<10>, int_little<11>, int_little<20>/*, 
+            dec_int, hex_int_ones, hex_int_twos*/>;
         
         test_case{0, 0};
         test_case{-1, 1};
@@ -128,7 +106,10 @@ namespace data {
             int_little<11>, uint_little<11>, 
             Z, N,
             Z_bytes_little, N_bytes_little, 
-            Z_bytes_big, N_bytes_big>;
+            Z_bytes_big, N_bytes_big, 
+            dec_int, dec_uint, 
+            hex_int_ones, hex_uint, 
+            hex_int_twos, hex_int_twos>;
         
         test_case{0, 0u};
         test_case{1, 1u};

@@ -63,5 +63,8 @@ namespace data::mat {
         test_root<N>();
         test_root<N_bytes_little>();
         test_root<N_bytes_big>();
+        //test_root<dec_uint>();
+        //test_root<base58_uint>();
+        //test_root<hex_uint>();
     }
 }

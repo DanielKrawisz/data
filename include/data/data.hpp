@@ -34,6 +34,7 @@ namespace data {
 
 // Some important math functions. 
 #include <data/math/abs.hpp>
+#include <data/math/root.hpp>
 
 // Natural numbers and integers
 #include <data/math/number/extended_euclidian.hpp>

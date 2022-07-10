@@ -1,37 +1,25 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MATH_ALGEBRA
 #define DATA_MATH_ALGEBRA
 
-#include <data/math/point.hpp>
+#include <data/math/linear/space.hpp>
 
-namespace data::interface {
-    // TODO
+namespace data::math {
+    template <typename F, typename V> 
+    concept algebra = linear::space<F, V> && ring<V>;
     
-    /*
-    template <typename x, typename r>
-    struct algebra : public linear::space<x, r> {
-        x times(x a, x b) const {
-            return a ^ b;
-        }
+    template <typename F, typename V>
+    concept division_algebra = algebra<F, V> && requires(const V &a, const math::nonzero<V> &b) {
+        {a / b} -> std::same_as<V>;
     };
-        
-    template <typename x, typename r>
-    struct division_algebra : public algebra<x, r> {
-        x divide(x a, x b) const {
-            return a / b;
-        }
+    
+    template <typename F, typename V>
+    concept normed_division_algebra = division_algebra<F, V> && requires(const V& v) {
+        { data::quadrance(v) } -> std::same_as<F>;
     };
-        
-    template <typename x, typename r>
-    struct normed_division_algebra : public ring<x> {
-        nonnegative<r> norm(x a) const {
-            return a.norm();
-        }
-    };
-    */
     
 }
 

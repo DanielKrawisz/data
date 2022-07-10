@@ -7,6 +7,7 @@
 
 // defines float32 and float64
 #include <data/float.hpp>
+#include <data/math.hpp>
 
 // numbers of either endian of any size up to 64 bits
 // using boost. 
@@ -19,7 +20,9 @@
 #include <data/encoding/integer.hpp>
 
 #include <data/math/number/bytes/N.hpp>
+#include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/gmp/gmp.hpp>
+#include <data/math/number/bounded.hpp>
 
 #include <data/encoding/base58.hpp>
 
@@ -39,13 +42,13 @@ namespace data {
     // representation. They can be big or little endian. 
     // Z_bytes are one's complement. 
     
-    using N_bytes_little = math::N_bytes<endian::little>;
+    using N_bytes_little = math::number::N_bytes<endian::little>;
     
-    using N_bytes_big = math::N_bytes<endian::big>;
+    using N_bytes_big = math::number::N_bytes<endian::big>;
     
-    using Z_bytes_little = math::Z_bytes<endian::little>;
+    using Z_bytes_little = math::number::Z_bytes<endian::little>;
     
-    using Z_bytes_big = math::Z_bytes<endian::big>;
+    using Z_bytes_big = math::number::Z_bytes<endian::big>;
     
     // fixed size numbers of any size, similar to the 
     // built-in types. 
@@ -77,6 +80,15 @@ namespace data {
     using int448 = int_little<56>;
     using int512 = int_little<64>;
     
+    // string numbers. 
+    
+    using hex_uint = encoding::hexidecimal::integer<math::number::nones, encoding::hex::lower>;
+    using hex_int_ones = encoding::hexidecimal::integer<math::number::ones, encoding::hex::lower>;
+    using hex_int_twos = encoding::hexidecimal::integer<math::number::twos, encoding::hex::lower>;
+    using dec_uint = encoding::decimal::string;
+    using dec_int = encoding::signed_decimal::string;
+    using base58_uint = encoding::base58::string;
+    
     // rational numbers. 
     using Q = math::fraction<Z, N>;
     
@@ -103,6 +115,15 @@ namespace data {
     using oct256 = math::octonion<float32>;
     using oct512 = math::octonion<float64>;
     
+}
+
+namespace data::encoding::hexidecimal {
+    template struct integer<math::number::nones, hex::lower>;
+    template struct integer<math::number::nones, hex::upper>;
+    template struct integer<math::number::ones, hex::lower>;
+    template struct integer<math::number::ones, hex::upper>;
+    template struct integer<math::number::twos, hex::lower>;
+    template struct integer<math::number::twos, hex::upper>;
 }
 
 #endif

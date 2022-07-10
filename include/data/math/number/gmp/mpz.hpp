@@ -219,8 +219,8 @@ namespace data {
 }
 
 namespace data::encoding::decimal {
-    struct N;
-    N write(const math::N&);
+    struct string;
+    string write(const math::N&);
     
     std::ostream &write(std::ostream &, const math::N &);
     
