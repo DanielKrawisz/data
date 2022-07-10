@@ -146,7 +146,7 @@ namespace data::math::algebra {
         Z bt = number::euclidian::extended<N, Z>::algorithm (N {P},
             this->get ()->Value).BezoutT;
         if (bt < 0) bt += N {P};
-        return prime_field_element {math::abs<Z> {} (bt)};
+        return prime_field_element {data::abs(bt)};
     }
     
     template <typename N, typename Z, auto &P> 

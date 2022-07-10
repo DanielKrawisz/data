@@ -80,7 +80,7 @@ namespace data::mat {
     
     TEST (RootsTest, TestRoots) {
         test_root_N<N> ();
-        test_root_N<N_bytes_little>();
+        test_root_N<N_bytes_little> ();
         test_root_N<N_bytes_big> ();
         test_root_N<dec_uint> ();
         test_root_N<hex_uint> ();
@@ -90,5 +90,7 @@ namespace data::mat {
         test_root_Z<Z_bytes_little> ();
         test_root_Z<Z_bytes_big> ();
         test_root_Z<dec_int> ();
+        test_root_Z<hex_int> ();
+        test_root_Z<hex_int_twos> ();
     }
 }

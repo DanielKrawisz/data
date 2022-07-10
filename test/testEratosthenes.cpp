@@ -37,6 +37,7 @@ namespace data {
 
     TEST (EratosthenesTest, First100Primes) {
         
+        eratosthenes_test<uint64> ();
         eratosthenes_test<N> ();
         eratosthenes_test<N_bytes_little> ();
         eratosthenes_test<N_bytes_big> ();

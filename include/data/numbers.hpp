@@ -9,6 +9,7 @@
 
 // defines float32 and float64
 #include <data/float.hpp>
+#include <data/math.hpp>
 
 // numbers of either endian of any size up to 64 bits
 // using boost. 
@@ -19,9 +20,10 @@
 #include <data/math/number/bounded/bounded.hpp>
 
 #include <data/encoding/integer.hpp>
-#include <data/math/number/bytes.hpp>
+#include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bounded.hpp>
+#include <data/math/number/bytes.hpp>
 
 #include <data/encoding/base58.hpp>
 
@@ -43,13 +45,13 @@ namespace data {
     // representation. They can be big or little endian. 
     // Z_bytes are one's complement. 
     
-    using N_bytes_little = math::N_bytes<endian::little>;
+    using N_bytes_little = math::number::N_bytes<endian::little>;
     
-    using N_bytes_big = math::N_bytes<endian::big>;
+    using N_bytes_big = math::number::N_bytes<endian::big>;
     
-    using Z_bytes_little = math::Z_bytes<endian::little>;
+    using Z_bytes_little = math::number::Z_bytes<endian::little, math::number::complement::ones>;
     
-    using Z_bytes_big = math::Z_bytes<endian::big>;
+    using Z_bytes_big = math::number::Z_bytes<endian::big, math::number::complement::ones>;
     
     using Z_bytes_twos_little = math::number::Z_bytes<endian::little, math::number::complement::twos>;
     
@@ -85,6 +87,7 @@ namespace data {
     using int448 = int_little<56>;
     using int512 = int_little<64>;
     
+    // string numbers. 
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
     using hex_uint = hex::uint<hex_case::lower>;
@@ -274,6 +277,15 @@ namespace data::math::number {
     
     template Z_bytes<endian::little, complement::twos> operator - (const Z_bytes<endian::little, complement::twos> &);
     
+}
+
+namespace data::encoding::hexidecimal {
+    template struct integer<math::number::complement::nones, hex_case::lower>;
+    template struct integer<math::number::complement::nones, hex_case::upper>;
+    template struct integer<math::number::complement::ones, hex_case::lower>;
+    template struct integer<math::number::complement::ones, hex_case::upper>;
+    template struct integer<math::number::complement::twos, hex_case::lower>;
+    template struct integer<math::number::complement::twos, hex_case::upper>;
 }
 
 #endif

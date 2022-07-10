@@ -1,5 +1,5 @@
-// Copyright (c) 2019 Daniel Krawisz
 // Copyright (c) 2019 Katrina Swales
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -23,9 +23,10 @@
 namespace data::encoding {
     
     namespace decimal {
+        // decimal strings must begin with 1 - 9 unless they are "0"
         static constexpr ctll::fixed_string pattern {"0|([1-9][0-9]*)"};
         
-        std::string characters ();
+        const std::string &characters ();
         char digit (char x);
         bool valid (string_view s);
         bool nonzero (string_view s);
@@ -33,8 +34,7 @@ namespace data::encoding {
         
         template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
         
-        template <typename range> 
-        std::ostream &write (std::ostream &o, range r);
+        template <endian::order r> std::ostream &write (std::ostream &, const math::number::N_bytes<r> &);
         
         // a decimal string inherets from string but is
         // a big number that supports standard numerical operations. 
@@ -42,6 +42,126 @@ namespace data::encoding {
         
         template <endian::order r> 
         string write (const math::number::N_bytes<r> &z);
+        
+    }
+    
+    namespace signed_decimal {
+
+        static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)"};
+
+        bool valid (string_view s);
+        bool nonzero (string_view s);
+        bool positive (string_view s);
+        bool negative (string_view s);
+        math::signature sign (string_view s);
+
+        template <endian::order r>
+        maybe<math::Z_bytes<r>> read (string_view s);
+
+        using complement = math::number::complement;
+
+        template <endian::order r>
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::ones> &z);
+
+        template <endian::order r>
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::twos> &z);
+
+        // a decimal string inherets from string but is
+        // a big number that supports standard numerical operations.
+        struct string;
+
+        template <endian::order r, complement c>
+        string write (const math::number::Z_bytes<r, c> &z);
+        
+    }
+    
+    namespace hexidecimal {
+
+        static constexpr ctll::fixed_string pattern {"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
+        static constexpr ctll::fixed_string zero_pattern {"0x(00)*"};
+        static constexpr ctll::fixed_string lower_case_pattern {"0x([0-9a-f][0-9a-f])*"};
+        static constexpr ctll::fixed_string upper_case_pattern {"0x([0-9A-F][0-9A-F])*"};
+
+        bool valid (string_view s);
+        bool zero (string_view s);
+        bool nonzero (string_view s);
+        uint32 digits (string_view s);
+        char digit (char x);
+
+        hex::letter_case read_case (string_view s);
+
+        template <endian::order r>
+        maybe<oriented<r, byte>> read (string_view s);
+
+        template <endian::order r>
+        std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q);
+
+        template <hex::letter_case cx> struct string : data::string {
+            string () : string {"0x"} {}
+            explicit string (const std::string &x) : data::string {hexidecimal::valid (x) ? x : ""} {}
+            bool valid () const {
+                return hexidecimal::valid (*this);
+            }
+        };
+
+        template <hex::letter_case cx, endian::order r>
+        string<cx> write (const oriented<r, byte> &z);
+
+        using complement = math::number::complement;
+
+        template <complement c, hex::letter_case cx>
+        bool is_minimal (const string<cx> &);
+
+        template <complement c, hex::letter_case cx>
+        bool is_negative (const string<cx> &);
+
+        template <complement c, hex::letter_case cx>
+        size_t minimal_size (const string<cx> &);
+
+        template <complement c, hex::letter_case cx>
+        string<cx> extend (const string<cx> &, size_t);
+
+        template <complement c, hex::letter_case cx>
+        string<cx> trim (const string<cx> &);
+        
+    }
+    
+    namespace natural {
+
+        static constexpr ctll::fixed_string pattern {"0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
+        
+        static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};
+        
+        bool valid (string_view s);
+        bool zero (string_view s);
+        bool nonzero (string_view s);
+        uint32 digits (string_view s);
+        
+        template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
+        
+    }
+    
+    namespace integer {
+
+        static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
+        
+        static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};
+        
+        static constexpr ctll::fixed_string negative_pattern 
+            {"(-(0*[1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
+        
+        bool valid (string_view s);
+        bool negative (string_view s);
+        bool zero (string_view s);
+        bool nonzero (string_view s);
+        uint32 digits (string_view s);
+        
+        template <endian::order r, math::number::complement c> 
+        maybe<math::number::Z_bytes<r, c>> read (string_view s);
+        
+    }
+    
+    namespace decimal {
         
         // all valid decimal strings are uniquely associated with
         // a natural number, so we can use a strong ordering. 
@@ -69,32 +189,6 @@ namespace data::encoding {
     }
     
     namespace signed_decimal {
-        
-        static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)"};
-        
-        bool valid (string_view s);
-        bool nonzero (string_view s);
-        bool positive (string_view s);
-        bool negative (string_view s);
-        math::signature sign (string_view s);
-        
-        template <endian::order r> 
-        maybe<math::Z_bytes<r>> read (string_view s);
-        
-        using complement = math::number::complement;
-
-        template <endian::order r>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::ones> &z);
-
-        template <endian::order r>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::twos> &z);
-        
-        // a decimal string inherets from string but is
-        // a big number that supports standard numerical operations. 
-        struct string;
-
-        template <endian::order r, complement c>
-        string write (const math::number::Z_bytes<r, c> &z);
         
         // all valid decimal strings are uniquely associated with
         // a natural number, so we can use a strong ordering. 
@@ -146,51 +240,7 @@ namespace data::encoding {
     }
     
     namespace hexidecimal {
-        static constexpr ctll::fixed_string pattern {"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"};
-        static constexpr ctll::fixed_string zero_pattern {"0x(00)*"};
-        
-        bool valid (string_view s);
-        bool zero (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
-        char digit (char x);
-        
-        hex::letter_case read_case (string_view s);
-        
-        template <endian::order r> 
-        maybe<oriented<r, byte>> read (string_view s);
-        
-        template <endian::order r> 
-        std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q);
-        
-        template <hex::letter_case cx> struct string : data::string {
-            string () : string {"0x"} {}
-            explicit string (const std::string &x) : data::string {hexidecimal::valid (x) ? x : ""} {}
-            bool valid () const {
-                return hexidecimal::valid (*this);
-            }
-        };
-        
-        template <hex::letter_case cx, endian::order r> 
-        string<cx> write (const oriented<r, byte> &z);
 
-        using complement = math::number::complement;
-
-        template <complement c, hex::letter_case cx>
-        bool is_minimal (const string<cx> &);
-
-        template <complement c, hex::letter_case cx>
-        bool is_negative (const string<cx> &);
-
-        template <complement c, hex::letter_case cx>
-        size_t minimal_size (const string<cx> &);
-
-        template <complement c, hex::letter_case cx>
-        string<cx> extend (const string<cx> &, size_t);
-
-        template <complement c, hex::letter_case cx>
-        string<cx> trim (const string<cx> &);
-        
         // a hexidecimal integer inherets from string but is
         // a big number that supports standard numerical operations.
         template <complement, hex::letter_case cx> struct integer;
@@ -352,42 +402,6 @@ namespace data::encoding {
         integer<complement::ones, cx> &operator &= (integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
         
     }
-    
-    namespace natural {
-
-        static constexpr ctll::fixed_string pattern {"0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
-
-        static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};
-        
-        bool valid (string_view s);
-        bool zero (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
-        
-        template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
-        
-    }
-    
-    namespace integer {
-
-        static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
-        
-        static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};
-        
-        static constexpr ctll::fixed_string negative_pattern 
-            {"(-(0*[1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
-        
-        bool valid (string_view s);
-        bool negative (string_view s);
-        bool zero (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
-
-        template <endian::order r, math::number::complement c> 
-        maybe<math::number::Z_bytes<r, c>> read (string_view s);
-        
-    }
-    
 }
 
 namespace data::hex {
@@ -654,10 +668,10 @@ namespace data::math::number {
 namespace data::encoding::decimal {
     
     struct string : data::string {
-        string () : data::string {"0"} {};
+        string ();
         
-        explicit string (const std::string &x) : data::string {decimal::valid (x) ? x : ""} {}
-        explicit string (std::string &&x) : data::string {x} {}
+        explicit string (const std::string &x);
+        explicit string (std::string &&x);
         string (uint64);
         
         bool valid () const {
@@ -863,97 +877,11 @@ namespace data::encoding::hexidecimal {
     
 }
 
-namespace data::math {
-
-    template <> struct identity<plus<dec_uint>, dec_uint> {
-        dec_uint operator () () {
-            return 0;
-        }
-    };
-
-    template <> struct identity<plus<dec_int>, dec_int> {
-        dec_int operator () () {
-            return 0;
-        }
-    };
-
-    template <> struct identity<times<dec_uint>, dec_uint> {
-        dec_uint operator () () {
-            return 1;
-        }
-    };
-
-    template <> struct identity<times<dec_int>, dec_int> {
-        dec_int operator () () {
-            return 1;
-        }
-    };
-
-    template <number::complement c, hex_case zz>
-    struct identity<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {
-        hex::integer<c, zz> operator () () {
-            return 0;
-        }
-    };
-
-    template <number::complement c, hex_case zz>
-    struct identity<times<hex::integer<c, zz>>, hex::integer<c, zz>> {
-        hex::integer<c, zz> operator () () {
-            return 1;
-        }
-    };
-
-    template <> struct inverse<plus<dec_int>, dec_int> {
-        dec_int operator () (const dec_int &a, const dec_int &b) {
-            return b - a;
-        }
-    };
-
-    template <hex_case zz>
-    struct inverse<plus<hex::int1<zz>>, hex::int1<zz>> {
-        hex::int1<zz> operator () (const hex::int1<zz> &a, const hex::int1<zz> &b) {
-            return b - a;
-        }
-    };
-
-    template <hex_case zz>
-    struct inverse<plus<hex::int2<zz>>, hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
-            return b - a;
-        }
-    };
-
-    template <uint64 pow>
-    struct root<dec_uint, pow> {
-        set<dec_uint> operator () (const dec_uint &n);
-    };
-
-    template <uint64 pow>
-    struct root<dec_int, pow> {
-        set<dec_int> operator () (const dec_int &n);
-    };
-
-    template <hex_case zz, uint64 pow>
-    struct root<hex::uint<zz>, pow> {
-        set<hex::uint<zz>> operator () (const hex::uint<zz> &n);
-    };
-
-    template <hex_case zz, uint64 pow>
-    struct root<hex::int1<zz>, pow> {
-        set<hex::int1<zz>> operator () (const hex::int1<zz> &n);
-    };
-
-    template <hex_case zz, uint64 pow>
-    struct root<hex::int2<zz>, pow> {
-        set<hex::int2<zz>> operator () (const hex::int2<zz> &n);
-    };
-
-}
-
 namespace data::encoding::decimal {
-    
-    std::string inline characters () {
-        return "0123456789";
+        
+    const std::string inline &characters () {
+        static string Dec {"0123456789"};
+        return Dec;
     }
     
     char inline digit (char x) {
@@ -972,24 +900,30 @@ namespace data::encoding::decimal {
         return valid (s) ? s.size () : 0;
     }
     
-    string inline &string::operator += (const string &x) {
-        return *this = *this + x;
+    inline string::string () : data::string {"0"} {}
+        
+    inline string::string (const std::string &x) : data::string {decimal::valid (x) ? x : ""} {}
+
+    inline string::string (std::string &&x) : data::string {x} {}
+    
+    string inline &string::operator += (const string &n) {
+        return *this = *this + n;
     }
     
-    string inline &string::operator -= (const string &x) {
-        return *this = *this - x;
+    string inline &string::operator -= (const string &n) {
+        return *this = *this - n;
     }
     
-    string inline &string::operator *= (const string &x) {
-        return *this = *this * x;
+    string inline &string::operator *= (const string &n) {
+        return *this = *this * n;
     }
     
-    string inline &string::operator <<= (int x) {
-        return *this = *this << x;
+    string inline &string::operator <<= (int i) {
+        return *this = *this << i;
     }
     
-    string inline &string::operator >>= (int x) {
-        return *this = *this >> x;
+    string inline &string::operator >>= (int i) {
+        return *this = *this >> i;
     }
     
     string inline string::operator + (uint64 x) const {
@@ -1033,7 +967,7 @@ namespace data::encoding::decimal {
 namespace data::encoding::signed_decimal {
     
     bool inline valid (string_view s) {
-        return ctre::match<pattern>(s);
+        return ctre::match<pattern> (s);
     }
     
     bool inline nonzero (string_view s) {
@@ -1159,6 +1093,10 @@ namespace data::encoding::hexidecimal {
     
     uint32 inline digits (string_view s) {
         return valid (s) ? s.size () - 2 : 0;
+    }
+        
+    hex::letter_case inline read_case (string_view s) {
+        return ctre::match<upper_case_pattern> (s) ? hex_case::upper : ctre::match<lower_case_pattern> (s) ? hex_case::lower : hex_case::unknown;
     }
     
     char inline digit (char x) {
@@ -1587,8 +1525,92 @@ namespace data::math {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         return data::is_negative (x) ? -x : x;
     }
-    
+
+    template <> struct identity<plus<dec_uint>, dec_uint> {
+        dec_uint operator () () {
+            return 0;
+        }
+    };
+
+    template <> struct identity<plus<dec_int>, dec_int> {
+        dec_int operator () () {
+            return 0;
+        }
+    };
+
+    template <> struct identity<times<dec_uint>, dec_uint> {
+        dec_uint operator () () {
+            return 1;
+        }
+    };
+
+    template <> struct identity<times<dec_int>, dec_int> {
+        dec_int operator () () {
+            return 1;
+        }
+    };
+
+    template <number::complement c, hex_case zz>
+    struct identity<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () () {
+            return 0;
+        }
+    };
+
+    template <number::complement c, hex_case zz>
+    struct identity<times<hex::integer<c, zz>>, hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () () {
+            return 1;
+        }
+    };
+
+    template <> struct inverse<plus<dec_int>, dec_int> {
+        dec_int operator () (const dec_int &a, const dec_int &b) {
+            return b - a;
+        }
+    };
+
+    template <hex_case zz>
+    struct inverse<plus<hex::int1<zz>>, hex::int1<zz>> {
+        hex::int1<zz> operator () (const hex::int1<zz> &a, const hex::int1<zz> &b) {
+            return b - a;
+        }
+    };
+
+    template <hex_case zz>
+    struct inverse<plus<hex::int2<zz>>, hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
+            return b - a;
+        }
+    };
+
+    template <uint64 pow>
+    struct root<dec_uint, pow> {
+        set<dec_uint> operator () (const dec_uint &n);
+    };
+
+    template <uint64 pow>
+    struct root<dec_int, pow> {
+        set<dec_int> operator () (const dec_int &n);
+    };
+
+    template <hex_case zz, uint64 pow>
+    struct root<hex::uint<zz>, pow> {
+        set<hex::uint<zz>> operator () (const hex::uint<zz> &n);
+    };
+
+    template <hex_case zz, uint64 pow>
+    struct root<hex::int1<zz>, pow> {
+        set<hex::int1<zz>> operator () (const hex::int1<zz> &n);
+    };
+
+    template <hex_case zz, uint64 pow>
+    struct root<hex::int2<zz>, pow> {
+        set<hex::int2<zz>> operator () (const hex::int2<zz> &n);
+    };
+
 }
+
 
 namespace data::encoding::hexidecimal {
     
@@ -1828,9 +1850,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::math::number {
     
-    template <hex_case cx>
-    encoding::hexidecimal::integer<number::complement::nones, cx> 
-    trim (const encoding::hexidecimal::integer<number::complement::nones, cx> &x) {
+    template <hex_case zz> hex::uint<zz> trim (const hex::uint<zz> &x) {
         
         if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         
@@ -1838,15 +1858,13 @@ namespace data::math::number {
         auto i = x.begin () + 2;
         while (i != x.end () && i[0] == '0' && i[1] == '0') i += 2;
         
-        encoding::hexidecimal::integer<number::complement::nones, cx> n {};
+        hex::uint<zz> n {};
         n.resize (x.end () - i + 2);
         std::copy (i, x.end (), n.begin () + 2);
         return n;
     }
     
-    template <hex_case cx>
-    encoding::hexidecimal::integer<number::complement::ones, cx> 
-    trim (const encoding::hexidecimal::integer<number::complement::ones, cx> &x) {
+    template <hex_case cx> hex::int1<cx> trim (const hex::int1<cx> &x) {
 
         if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         
@@ -1854,20 +1872,19 @@ namespace data::math::number {
         
         if (min_size == x.size ()) return x;
         
-        encoding::hexidecimal::integer<number::complement::ones, cx> n {};
+        hex::int1<cx> n {};
         n.resize (min_size);
         std::copy (x.end () - min_size + 2, x.end (), n.begin () + 2);
         return n;
+
     }
     
-    template <hex_case cx>
-    encoding::hexidecimal::integer<number::complement::twos, cx> 
-    trim (const encoding::hexidecimal::integer<number::complement::twos, cx> &x) {
-
+    template <hex_case cx> hex::int2<cx> trim (const hex::int2<cx> &x) {
+        
         if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         if (is_minimal (x)) return x;
-        
-        encoding::hexidecimal::integer<number::complement::twos, cx> n {};
+
+        hex::int2<cx> n {};
         if (data::is_zero (x)) return n;
         
         auto i = x.begin () + 4;
