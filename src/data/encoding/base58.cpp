@@ -1,125 +1,85 @@
-    // Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/encoding/base58.hpp>
-#include <data/math/number/gmp/gmp.hpp>
-#include <data/math/number/bytes/N.hpp>
-#include <data/encoding/digits.hpp>
+#include <data/math/number/integer.hpp>
+#include <data/numbers.hpp>
+#include <data/crypto/hash/hash.hpp>
 
 namespace data::encoding::base58 {
-    using nat = math::N;
+    
+    template <typename N>
+    string write_b58(const N& n) {
+        static std::string Characters = characters();
+        if (n == 0) return string{"1"};
+        return string{write_base<N>(n, Characters)};
+    }
     
     string write(const bytes_view b) {
-        return write<nat>(nat(math::number::N_bytes<endian::big>(b)));
+        return write<N>(N(math::number::N_bytes_big::read(b)));
     }
     
     view::view(string_view s) : string_view{s}, Bytes{}, ToBytes{nullptr} {
         if (base58::valid(s)) {
-            Bytes = bytes(*hex::read(data::encoding::hexidecimal::write(read<nat>(s)).substr(2)));
+            Bytes = bytes(*hex::read(data::encoding::hexidecimal::write(read<N>(s)).substr(2)));
             ToBytes = &Bytes;
         }
     }
     
+    string::string(uint64 x) : std::string{write_b58(N{x})} {}
+    
     template <typename N>
-    std::string write_b58(const N& n) {
-        static std::string Characters = characters();
-        if (n == 0) return "1";
-        return write_base<N>(n, Characters);
-    }
-
-    string::string() : std::string{"1"} {}
-        
-    string::string(const std::string& x) : std::string{base58::valid(x) ? x : ""} {}
-    
-    string::string(uint64 x) : std::string{write_b58(nat{x})} {}
-    
-    inline nat read_num(const string& n) {
-        return read_base<nat>(n, 58, &digit);
+    inline N read_num(const string& n) {
+        return read_base<N>(n, 58, &digit);
     }
     
-    bool string::operator<=(const string& n) const {
-        return read_num(*this) <= read_num(n);
-    }
-    
-    bool string::operator>=(const string& n) const {
-        return read_num(*this) >= read_num(n);
-    }
-    
-    bool string::operator<(const string& n) const {
-        return read_num(*this) < read_num(n);
-    }
-    
-    bool string::operator>(const string& n) const {
-        return read_num(*this) > read_num(n);
-    }
-    
-    string string::operator+(const string& n) const {
-        return string{write_b58(read_num(*this) + read_num(n))};
-    }
-    
-    string string::operator-(const string& n) const {
-        return string{write_b58(read_num(*this) - read_num(n))};
-    }
-    
-    string string::operator*(const string& n) const {
-        return string{write_b58(read_num(*this) * read_num(n))};
-    }
-
-    string& string::operator++() {
-        return *this = *this + 1;
-    }
-    
-    string& string::operator--() {
-        return *this = *this - 1;
-    }
-    
-    string string::operator++(int) {
-        string n = *this;
-        ++(*this);
-        return n;
-    }
-    
-    string string::operator--(int) {
-        string n = *this;
-        --(*this);
-        return n;
+    std::strong_ordering string::operator<=>(const string& x) const {
+        if (!this->valid() || !x.valid()) throw std::invalid_argument{"invalid base 58 string"};
+        auto a = read_num<N>(*this);
+        auto b = read_num<N>(x);
+        return a == b ? std::strong_ordering::equal : a < b ? std::strong_ordering::less : std::strong_ordering::greater;
+        /*
+        auto n = read_num<N>(*this) <=> read_num<N>(x);
+        if (n == std::weak_ordering::greater) return std::strong_ordering::greater;
+        if (n == std::weak_ordering::less) return std::strong_ordering::less;
+        return std::strong_ordering::equal;
+        */
     }
     
     string string::operator<<(int i) const {
-        return string{write_b58(read_num(*this) << i)};
+        if (!this->valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N>(read_num<N>(*this) << i)};
     }
     
     string string::operator>>(int i) const {
-        return string{write_b58(read_num(*this) >> i)};
+        if (!this->valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N>(read_num<N>(*this) >> i)};
     }
     
-    string& string::operator+=(const string& n) {
-        return *this = *this + n;
+    string string::operator+(const string& n) const {
+        if (!this->valid() || !n.valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N>(read_num<N>(*this) + read_num<N>(n))};
     }
     
-    string& string::operator-=(const string& n) {
-        return *this = *this - n;
+    string string::operator-(const string& n) const {
+        if (!this->valid() || !n.valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N>(read_num<N>(*this) - read_num<N>(n))};
     }
     
-    string& string::operator*=(const string& n) {
-        return *this = *this * n;
+    string string::operator*(const string& n) const {
+        if (!this->valid() || !n.valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N>(read_num<N>(*this) * read_num<N>(n))};
     }
     
-    string& string::operator<<=(int i) {
-        return *this = *this << i;
+    // these next two should work with N eventually. 
+    string string::operator|(const string& n) const {
+        if (!this->valid() || !n.valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N_bytes_little>(read_num<N_bytes_little>(*this) | read_num<N_bytes_little>(n))};
     }
     
-    string& string::operator>>=(int i) {
-        return *this = *this >> i;
-    }
-    
-    string string::operator|(const string &x) const {
-        return string{write_b58(read_num(*this) | read_num(x))};
-    }
-    
-    string string::operator&(const string &x) const {
-        return string{write_b58(read_num(*this) & read_num(x))};
+    string string::operator&(const string& n) const {
+        if (!this->valid() || !n.valid()) throw std::invalid_argument{"invalid base 58 string"};
+        return string{write_b58<N_bytes_little>(read_num<N_bytes_little>(*this) & read_num<N_bytes_little>(n))};
     }
     
     math::division<string, uint64> string::divide(uint64 x) const {
@@ -132,8 +92,36 @@ namespace data::encoding::base58 {
                 static_cast<uint64>(digit(std::string::operator[](last)))};
         }
         
-        math::division<nat> div = read_num(*this).divide(nat{static_cast<uint64>(x)});
-        return math::division<string, uint64>{write_b58(div.Quotient), uint64(div.Remainder)};
+        math::division<N> div = math::number::natural::divide(read_num<N>(*this), N{static_cast<uint64>(x)});
+        return math::division<string, uint64>{write_b58<N>(div.Quotient), uint64(div.Remainder)};
+    }
+    
+    string string::operator+(uint64 x) const {
+        return *this + string{x};
+    }
+    
+    string string::operator-(uint64 x) const {
+        return *this - string{x};
+    }
+    
+    string string::operator*(uint64 x) const {
+        return *this * string{x};
+    }
+    
+    string &string::operator+=(uint64 x) {
+        return *this += string{x};
+    }
+    
+    string &string::operator-=(uint64 x) {
+        return *this -= string{x};
+    }
+    
+    string &string::operator*=(uint64 x) {
+        return *this *= string{x};
+    }
+            
+    string::operator double() const {
+        return double(read_num<N>(*this));
     }
     
     math::division<string> string::divide(const string &x) const {

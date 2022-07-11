@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 namespace data {
-
+    
     TEST(AbsTest, TestDecrement) {
         
         int_big<9> ib9{0};
@@ -63,9 +63,10 @@ namespace data {
     TEST(AbsTest, TestNegative) {
         
         using test_case = test_case_negative<int64, Z, Z_bytes_little, Z_bytes_big, 
+            Z_bytes_twos_little, Z_bytes_twos_big, 
             int_big<9>, int_big<10>, int_big<11>, int_big<20>, 
-            int_little<9>, int_little<10>, int_little<11>, int_little<20>/*, 
-            dec_int, hex_int_ones, hex_int_twos*/>;
+            int_little<9>, int_little<10>, int_little<11>, int_little<20>, 
+            dec_int, hex_int_ones, hex_int_twos>;
         
         test_case{0, 0};
         test_case{-1, 1};

@@ -19,8 +19,7 @@
 
 #include <data/encoding/integer.hpp>
 
-#include <data/math/number/bytes/N.hpp>
-#include <data/math/number/bytes/Z.hpp>
+#include <data/math/number/bytes.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/number/bounded.hpp>
 
@@ -49,6 +48,10 @@ namespace data {
     using Z_bytes_little = math::number::Z_bytes<endian::little>;
     
     using Z_bytes_big = math::number::Z_bytes<endian::big>;
+    
+    using Z_bytes_twos_little = data::math::number::Z_bytes<endian::little, math::number::twos>;
+    
+    using Z_bytes_twos_big = data::math::number::Z_bytes<endian::big, math::number::twos>;
     
     // fixed size numbers of any size, similar to the 
     // built-in types. 

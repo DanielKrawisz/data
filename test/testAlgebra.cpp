@@ -118,7 +118,7 @@ namespace data::math::linear {
         [](bool x) -> void { EXPECT_TRUE(x); } (dimensions<double, array<double, 0>>::value == 0);
         [](bool x) -> void { EXPECT_TRUE(x); } (dimensions<double, array<double, 1>>::value == 1);
         [](bool x) -> void { EXPECT_TRUE(x); } (dimensions<double, array<double, 2>>::value == 2);
-        
+        /*
         test_inner_space<double, array<double, 0, 1>>{};
         test_inner_space<double, array<double, 1, 2>>{};
         test_inner_space<double, array<double, 2, 3>>{};

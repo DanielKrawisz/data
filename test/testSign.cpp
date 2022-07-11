@@ -1,10 +1,11 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "data/numbers.hpp"
+#include <data/math/number/bytes.hpp>
+#include <data/math/number/gmp/gmp.hpp>
 #include "data/data.hpp"
-#include "data/math/number/bytes/N.hpp"
-#include "data/math/number/bytes/Z.hpp"
 #include "data/math/number/bounded/bounded.hpp"
 #include "gtest/gtest.h"
 
@@ -27,6 +28,8 @@ namespace data {
     typedef uint_little<10> ul10;
     typedef uint_little<11> ul11;
     typedef uint_little<20> ul20;
+    
+    using q = fraction<int64, uint64>;
     
     TEST(SignTest, TestSign) {
         EXPECT_EQ(sign(int64{0}),                            math::zero);
@@ -93,13 +96,21 @@ namespace data {
         EXPECT_EQ(sign(N_bytes_big{2}),                      math::positive);
         EXPECT_EQ(sign(N_bytes_big{7076852110923542}),       math::positive);
         
-        EXPECT_EQ(sign(Q{0}),                                math::zero);
-        EXPECT_EQ(sign(Q{1}),                                math::positive);
-        EXPECT_EQ(sign(Q{-1}),                               math::negative);
-        EXPECT_EQ(sign(Q{2}),                                math::positive);
-        EXPECT_EQ(sign(Q{-2}),                               math::negative);
-        EXPECT_EQ(sign(Q{2, 3}),                             math::positive);
-        EXPECT_EQ(sign(Q{-2, 3}),                            math::negative);
+        EXPECT_EQ(sign(Q{Z{0}}),                             math::zero);
+        EXPECT_EQ(sign(Q{Z{1}}),                             math::positive);
+        EXPECT_EQ(sign(Q{Z{-1}}),                            math::negative);
+        EXPECT_EQ(sign(Q{Z{2}}),                             math::positive);
+        EXPECT_EQ(sign(Q{Z{-2}}),                            math::negative);
+        EXPECT_EQ(sign(Q{Z{2}, N{3}}),                       math::positive);
+        EXPECT_EQ(sign(Q{Z{-2}, N{3}}),                      math::negative);
+        
+        EXPECT_EQ(sign(q{0}),                                math::zero);
+        EXPECT_EQ(sign(q{1}),                                math::positive);
+        EXPECT_EQ(sign(q{-1}),                               math::negative);
+        EXPECT_EQ(sign(q{2}),                                math::positive);
+        EXPECT_EQ(sign(q{-2}),                               math::negative);
+        EXPECT_EQ(sign(q{2, 3}),                             math::positive);
+        EXPECT_EQ(sign(q{-2, 3}),                            math::negative);
         
         EXPECT_EQ(sign(b09(0)),                              math::zero);
         EXPECT_EQ(sign(b10(0)),                              math::zero);

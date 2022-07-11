@@ -3,7 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "gtest/gtest.h"
+#include <data/numbers.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/math/number/bytes.hpp>
 
 namespace data::encoding {
 
@@ -45,6 +47,65 @@ namespace data::encoding {
         EXPECT_TRUE(integer::negative("0xff"));
         EXPECT_TRUE(integer::negative("0x8000"));
         EXPECT_FALSE(integer::negative("0x7fff"));
+        
+    }
+    
+    TEST(IntegerFormatTest, TestWriteNumbers) {
+        
+        EXPECT_EQ(encoding::decimal::write(N_bytes_big{1}), std::string{"1"});
+        EXPECT_EQ(encoding::decimal::write(N_bytes_little{1}), std::string{"1"});
+        EXPECT_EQ(encoding::decimal::write(N_bytes_big{11}), std::string{"11"});
+        EXPECT_EQ(encoding::decimal::write(N_bytes_big{23}), std::string{"23"});
+        EXPECT_EQ(encoding::decimal::write(N_bytes_little{23}), std::string{"23"});
+        EXPECT_EQ(encoding::decimal::write(N_bytes_big::read("5704566599993321")), std::string{"5704566599993321"});
+        EXPECT_EQ(encoding::decimal::write(N_bytes_little::read("5704566599993321")), std::string{"5704566599993321"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_big{1}), std::string{"0x01"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_little{1}), std::string{"0x01"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_big{23}), std::string{"0x17"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_little{23}), std::string{"0x17"});        
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_big::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_little::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_big::read("0")), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_big::read("127")), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_big::read("128")), std::string{"0x80"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_little::read("0")), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_little::read("127")), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes_little::read("128")), std::string{"0x80"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("0")), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-1")), std::string{"0xff"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-2")), std::string{"0xfd"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("127")), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("128")), std::string{"0x0080"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-128")), std::string{"0x80"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-129")), std::string{"0xff7f"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("0")), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-1")), std::string{"0xff"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-2")), std::string{"0xfd"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("127")), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("128")), std::string{"0x0080"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-128")), std::string{"0x80"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-129")), std::string{"0xff7f"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_twos_big::read("0")), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-1")), std::string{"0xff"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-2")), std::string{"0xfd"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("127")), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("128")), std::string{"0x0080"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-128")), std::string{"0x80"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-129")), std::string{"0xff7f"});
+        
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("0")), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-1")), std::string{"0xff"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-2")), std::string{"0xfd"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("127")), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("128")), std::string{"0x0080"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-128")), std::string{"0x80"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-129")), std::string{"0xff7f"});
         
     }
 

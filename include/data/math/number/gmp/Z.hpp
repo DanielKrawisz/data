@@ -9,6 +9,7 @@
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/number/integer.hpp>
 #include <data/cross.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number::GMP {
@@ -114,7 +115,7 @@ namespace data::math::number::GMP {
         explicit Z(const N_bytes<o>& b) : Z(bytes_view(b), o) {}
         /*
         template <endian::order o, size_t size> 
-        explicit Z(const bounded<true, o, size>& b) : Z{Z_bytes<o>{b}} {}
+        explicit Z(const sint<o, size>& b) : Z{Z_bytes<o, ones>{b}} {}
         
         template <endian::order o, size_t size> 
         explicit Z(const bounded<false, o, size>& b) : Z(bytes_view(b), o) {}*/

@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/data.hpp>
-#include <data/math/number/bytes/N.hpp>
+#include <data/math/number/bytes.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
@@ -125,17 +125,17 @@ namespace data {
         EXPECT_FALSE(p == N{n_dec});
         EXPECT_FALSE(n == N{p_dec});
         
-        N_bytes<endian::big> p_bytes{p_hex};
-        N_bytes<endian::big> n_bytes{n_hex};
+        auto p_bytes = N_bytes<endian::big>::read(p_hex);
+        auto n_bytes = N_bytes<endian::big>::read(n_hex);
         
-        N p_from_big{p_bytes};
-        N n_from_big{n_bytes};
+        N p_from_big(p_bytes);
+        N n_from_big(n_bytes);
         
-        N p_from_little{N_bytes<endian::little>{p_from_big}};
-        N n_from_little{N_bytes<endian::little>{n_from_big}};
+        N p_from_little{N_bytes<endian::little>(p_from_big)};
+        N n_from_little{N_bytes<endian::little>(n_from_big)};
         
-        EXPECT_EQ(p_bytes, N_bytes<endian::big>{p_from_big});
-        EXPECT_EQ(n_bytes, N_bytes<endian::big>{n_from_big});
+        EXPECT_EQ(p_bytes, N_bytes<endian::big>(p_from_big));
+        EXPECT_EQ(n_bytes, N_bytes<endian::big>(n_from_big));
         
         EXPECT_EQ(p_from_big, p_from_little);
         EXPECT_EQ(n_from_big, n_from_little);

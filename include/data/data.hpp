@@ -43,24 +43,25 @@ template <typename X> using chan = tool::channel<X>;
 #include <data/math/number/gmp/sqrt.hpp>
 
 namespace data {
-// we use a wrapper around gmp for natural numbers and integers.
 
-// Natural numbers
-
-// Primes
-using prime = math::number::prime<N>;
-
-// right now there are only two ways to generate primes
-// and neither is all that useful.
-
-// The sieve of Eratosthenes.
-// Good for generating all primes in sequence.
-using Eratosthenes = math::number::eratosthenes<N>;
-
-// Primality testing. AKS is polynomial time but still too
-// slow for practical use.
-using AKS = math::number::AKS<N>;
-
+    // we use a wrapper around gmp for natural numbers and integers. 
+    
+    // Natural numbers
+    
+    // Primes
+    using prime = math::number::prime<N>;
+    
+    // right now there are only two ways to generate primes
+    // and neither is all that useful. 
+    
+    // The sieve of Eratosthenes.
+    // Good for generating all primes in sequence. 
+    using Eratosthenes = math::number::eratosthenes<N>;
+    
+    // Primality testing. AKS is polynomial time but still too 
+    // slow for practical use. 
+    using AKS = math::number::AKS<N>;
+    
 }
 
 #include <data/math.hpp>

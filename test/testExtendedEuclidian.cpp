@@ -6,15 +6,15 @@
 #include "data/math/number/extended_euclidian.hpp"
 #include "gtest/gtest.h"
 
-namespace data::math {
+namespace data {
     
-    using Nb = number::N_bytes<endian::big>;
-    using Nl = number::N_bytes<endian::little>;
+    using Nb = N_bytes_big;
+    using Nl = N_bytes_little;
     
-    using Zb1 = number::Z_bytes<endian::big>;
-    using Zl1 = number::Z_bytes<endian::little>;
-    using Zb2 = number::Z_bytes<endian::big>;
-    using Zl2 = number::Z_bytes<endian::little>;
+    using Zb1 = Z_bytes_big;
+    using Zl1 = Z_bytes_little;
+    using Zb2 = Z_bytes_big;
+    using Zl2 = Z_bytes_little;
     
     template <typename Z, typename N>
     struct test_extended_euclidian {
@@ -36,6 +36,8 @@ namespace data::math {
         test_extended_euclidian<Z, N>{};
         test_extended_euclidian<Zl1, Nl>{};
         test_extended_euclidian<Zb1, Nb>{};
+        test_extended_euclidian<Z_bytes_twos_little, Z_bytes_twos_little>{};
+        test_extended_euclidian<Z_bytes_twos_big, Z_bytes_twos_big>{};
         test_extended_euclidian<int_big<9>, uint_big<9>>{};
         test_extended_euclidian<int_big<10>, uint_big<10>>{};
         test_extended_euclidian<int_big<11>, uint_big<11>>{};

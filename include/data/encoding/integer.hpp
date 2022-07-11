@@ -128,7 +128,7 @@ namespace data::encoding {
         }
         
         template <endian::order r> 
-        std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower) {
+        std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q) {
             o << "0x"; 
             return encoding::hex::write(o, d.words().reverse(), q);
         }
@@ -141,18 +141,6 @@ namespace data::encoding {
                 return hexidecimal::valid(*this, cx);
             }
         };
-    
-        template <endian::order r> 
-        std::ostream &write(std::ostream &, const math::number::Z_bytes<r>&) {
-            throw method::unimplemented{"string hexidecimal::write(Z_bytes)"};
-        }
-        
-        template <hex::letter_case cx, endian::order r> 
-        string<cx> inline write(const math::number::Z_bytes<r> &z) {
-            std::stringstream ss;
-            write(ss, z);
-            return {ss.str()};
-        }
         
         template <hex::letter_case cx, endian::order r> 
         string<cx> write(const oriented<r, byte> &z, hex::letter_case q = hex::lower) {
@@ -360,8 +348,19 @@ namespace data::encoding::signed_decimal {
         explicit operator double() const;
     };
     
+<<<<<<< HEAD
     template <endian::order r> 
     string inline write(const math::number::Z_bytes<r> &z) {
+=======
+    template <endian::order r, math::number::complement n> 
+    std::ostream &write(std::ostream &w, const math::number::Z_bytes<r, n> &z) {
+        if (math::number::is_negative(z)) w << "-";
+        return decimal::write(w, data::abs(z));
+    }
+    
+    template <endian::order r, math::number::complement n> 
+    string inline write(const math::number::Z_bytes<r, n> &z) {
+>>>>>>> redo N_bytes, Z_bytes, bounded, and crypto hash
         std::stringstream ss;
         write(ss, z);
         return string{ss.str()};
@@ -1541,7 +1540,7 @@ namespace data::math::number {
         char z = x.size() == 2 || encoding::hexidecimal::digit(x[2]) < 8 ? '0' : 'f';
         for (int zeros = 0; zeros < size - x.size(); zeros ++) {
             *i = z;
-            i ++;
+            i++;
         }
         std::copy(x.begin() + 2, x.end(), i);
         return n;
