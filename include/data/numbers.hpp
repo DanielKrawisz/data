@@ -5,6 +5,8 @@
 #ifndef DATA_NUMBERS
 #define DATA_NUMBERS
 
+#include <data/math/power.hpp>
+
 // defines float32 and float64
 #include <data/float.hpp>
 
@@ -17,9 +19,9 @@
 #include <data/math/number/bounded/bounded.hpp>
 
 #include <data/encoding/integer.hpp>
-
-#include <data/math/number/bytes/N.hpp>
+#include <data/math/number/bytes.hpp>
 #include <data/math/number/gmp/gmp.hpp>
+#include <data/math/number/bounded.hpp>
 
 #include <data/encoding/base58.hpp>
 
@@ -49,19 +51,23 @@ namespace data {
     
     using Z_bytes_big = math::Z_bytes<endian::big>;
     
+    using Z_bytes_twos_little = math::number::Z_bytes<endian::little, math::number::complement::twos>;
+    
+    using Z_bytes_twos_big = math::number::Z_bytes<endian::big, math::number::complement::twos>;
+    
     // fixed size numbers of any size, similar to the 
     // built-in types. 
     template <size_t size> 
-    using int_little = math::sint_little<size>;
+    using int_little = math::sint<endian::little, size>;
     
     template <size_t size> 
-    using int_big = math::sint_big<size>;
+    using int_big = math::sint<endian::big, size>;
     
     template <size_t size> 
-    using uint_little = math::uint_little<size>;
+    using uint_little = math::uint<endian::little, size>;
     
     template <size_t size> 
-    using uint_big = math::uint_big<size>;
+    using uint_big = math::uint<endian::big, size>;
     
     using uint128 = uint_little<16>;
     using uint160 = uint_little<20>;
@@ -116,104 +122,160 @@ namespace data {
 }
 
 namespace data::math {
+    template <> struct divide<uint64, uint64> {
+        division<uint64> operator () (uint64 a, uint64 b) {
+            return number::natural::divide (a, b);
+        }
+    };
+    
+    template <> struct divide<int64, int64> {
+        division<int64> operator () (int64 a, int64 b) {
+            return number::natural::divide (a, b);
+        }
+    };
     
     template <uint64 pow> 
-    set<base58_uint> root<base58_uint, pow>::operator()(const base58_uint& n) {
+    set<base58_uint> root<base58_uint, pow>::operator () (const base58_uint& n) {
         set<base58_uint> x;
-        set<N> roots = root<N, pow>{}(encoding::base58::decode<N>(n));
-        for (const N &z : roots.values()) x = insert(x, encoding::base58::encode(z));
+        set<N> roots = root<N, pow> {} (encoding::base58::decode<N> (n));
+        for (const N &z : roots.values ()) x = insert (x, encoding::base58::encode (z));
         return x;
     }
 }
 
-namespace data::encoding::hexidecimal {
+namespace data::math::number {
     
-    namespace {
-        
-        template <hex::letter_case zz> 
-        string<zz> shift(const string<zz> &x, int i) {
-            auto o = read<endian::big>(x);
-            math::number::N_bytes<endian::big> n;
-            n.resize(o->size());
-            std::copy(o->begin(), o->end(), n.begin());
-            n = n << i;
-            return write<zz>(math::number::extend(n, n.size() + 1));
-        }
-        
-        template <hex::letter_case zz> 
-        integer<math::number::ones, zz> inline bit_shift(const integer<math::number::ones, zz> &x, int i) {
-            auto o = read<endian::big>(x);
-            math::number::Z_bytes<endian::big> n;
-            n.resize(o->size());
-            std::copy(o->begin(), o->end(), n.begin());
-            return write<zz>(n << i);
-        }
-        
-        // the out string will always be the size of the sum of the two inputs, which won't necessarily be equal size. 
-        template <hex::letter_case zz>
-        void times(string<zz> &out, const string<zz> &a, const string<zz> &b) {
-            auto characters = hex::characters(zz);
-            
-            int a_max = a.size() - 3;
-            int b_max = b.size() - 3;
-            
-            Z remainder = 0;
-            int io_max = out.size() - 2;
-            
-            for (int io = 0; io < io_max; io++) {
-                Z total = remainder;
-                int ia_min = std::max(0, io - b_max);
-                int ib_min = std::max(0, io - a_max);
-                int ia_max = io - ib_min;
-                int ib_max = io - ia_min;
-                for (int ia = ia_min; ia <= ia_max; ia++) {
-                    int ib = ib_max + ia_min - ia; 
-                    Z next(int(digit(a[a.size() - 1 - ia])) * int(digit(b[b.size() - 1 - ib])));
-                    total += next;
-                }
-                
-                out[out.size() - 1 - io] = characters[total % 16];
-                remainder = total >> 4;
-            }
-        }
-        
-        template <math::number::complement c, hex::letter_case zz> struct divide {
-            math::division<integer<c, zz>> operator()(const integer<c, zz> &n, const integer<c, zz> &x) const {
-                if (x == 0) throw math::division_by_zero{};
-                // it is important to have this optimization. 
-                // I can't say why or I'll be embarrassed. 
-                if (x == 16) return math::division<integer<c, zz>>{*this >> 4, *this & integer<c, zz>{4}};
-                
-                else return math::number::integer::divide(*this, x);
-            }
-        };
-        
-        template <hex::letter_case zz> struct divide<math::number::nones, zz> {
-            math::division<integer<math::number::nones, zz>> operator()(
-                const integer<math::number::nones, zz> &n, 
-                const integer<math::number::nones, zz> &x) const {
-                if (x == 0) throw math::division_by_zero{};
-                // it is important to have this optimization. 
-                // I can't say why or I'll be embarrassed. 
-                if (x == 16) return math::division<integer<math::number::nones, zz>>{
-                    *this >> 4, *this & integer<math::number::nones, zz>{4}};
-                
-                return math::number::natural::divide(*this, x);
-            }
-        };
+    // explicit instantiations
+    template struct N_bytes<endian::big>;
+    template struct N_bytes<endian::little>;
+    template struct Z_bytes<endian::big, complement::ones>;
+    template struct Z_bytes<endian::little, complement::ones>;
+    template struct Z_bytes<endian::big, complement::twos>;
+    template struct Z_bytes<endian::little, complement::twos>;
     
-    }
+    template std::weak_ordering operator <=> (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
+    template std::weak_ordering operator <=> (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
     
-    template <math::number::complement c, hex::letter_case zz>
-    math::division<integer<c, zz>> integer<c, zz>::divide(const integer<c, zz> &x) const {
-        if (x == 0) throw math::division_by_zero{};
-        // it is important to have this optimization. 
-        // I can't say why or I'll be embarrassed. 
-        if (x == 16) return math::division<integer<c, zz>>{*this >> 4, *this & integer<c, zz>{4}};
-        
-        if constexpr (c == math::number::nones) return math::number::natural::divide(*this, x);
-        else return math::number::integer::divide(*this, x);
-    }
+    template std::weak_ordering operator <=>
+        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
+    template std::weak_ordering operator <=>
+        (const Z_bytes<endian::little, complement::ones> &, const Z_bytes<endian::little, complement::ones> &);
+    template std::weak_ordering operator <=>
+        (const Z_bytes<endian::big, complement::twos> &, const Z_bytes<endian::big, complement::twos> &);
+    template std::weak_ordering operator <=>
+        (const Z_bytes<endian::little, complement::twos> &, const Z_bytes<endian::little, complement::twos> &);
+    
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::ones>&, const N_bytes<endian::big> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::twos>&, const N_bytes<endian::big> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::ones>&, const N_bytes<endian::little> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::twos>&, const N_bytes<endian::little> &);
+    
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::ones> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::twos> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::ones> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::twos> &, int64);
+    
+    template bool operator == (const N_bytes<endian::big> &, uint64);
+    template bool operator == (const Z_bytes<endian::big, complement::ones> &, int64);
+    template bool operator == (const Z_bytes<endian::big, complement::twos> &, int64);
+    
+    template bool operator == (const N_bytes<endian::little> &, uint64);
+    template bool operator == (const Z_bytes<endian::little, complement::ones> &, int64);
+    template bool operator == (const Z_bytes<endian::little, complement::twos> &, int64);
+    
+    template Z_bytes<endian::big, complement::ones> operator ~ (const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::ones> operator ~ (const Z_bytes<endian::big, complement::ones> &);
+    
+    template Z_bytes<endian::big, complement::ones> operator ^ (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::ones> operator ^
+        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones> operator ^
+        (const Z_bytes<endian::big, complement::ones> &, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::ones> operator ^
+        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::ones> &);
+    
+    template N_bytes<endian::big> operator & (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
+    template N_bytes<endian::big> operator | (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::ones> operator - (const N_bytes<endian::big> &);
+    
+    template Z_bytes<endian::big, complement::ones> operator &
+        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones> operator &
+        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones> operator &
+        (const Z_bytes<endian::big, complement::ones> &, const N_bytes<endian::big> &);
+    
+    template Z_bytes<endian::big, complement::ones> operator |
+        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones> operator |
+        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones> operator |
+        (const Z_bytes<endian::big, complement::ones> &, const N_bytes<endian::big> &);
+    
+    template Z_bytes<endian::big, complement::ones> operator - (const Z_bytes<endian::big, complement::ones> &);
+    
+    template Z_bytes<endian::big, complement::twos> operator &
+        (const Z_bytes<endian::big, complement::twos>&, const Z_bytes<endian::big, complement::twos> &);
+    template Z_bytes<endian::big, complement::twos> operator &
+        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::twos> &);
+    template Z_bytes<endian::big, complement::twos> operator &
+        (const Z_bytes<endian::big, complement::twos>&, const N_bytes<endian::big> &);
+    
+    template Z_bytes<endian::big, complement::twos> operator |
+        (const Z_bytes<endian::big, complement::twos> &, const Z_bytes<endian::big, complement::twos> &);
+    template Z_bytes<endian::big, complement::twos> operator |
+        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::twos> &);
+    template Z_bytes<endian::big, complement::twos> operator |
+        (const Z_bytes<endian::big, complement::twos> &, const N_bytes<endian::big> &);
+    
+    template Z_bytes<endian::big, complement::twos> operator - (const Z_bytes<endian::big, complement::twos> &);
+    
+    template Z_bytes<endian::little, complement::ones> operator ~ (const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::ones> operator ~ (const Z_bytes<endian::little, complement::ones> &);
+    
+    template Z_bytes<endian::little, complement::ones> operator ^ (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::ones> operator ^
+        (const Z_bytes<endian::little, complement::ones> &, const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones> operator ^
+        (const Z_bytes<endian::little, complement::ones> &, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::ones> operator ^
+        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::ones> &);
+    
+    template N_bytes<endian::little> operator & (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
+    template N_bytes<endian::little> operator | (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::ones> operator - (const N_bytes<endian::little> &);
+    
+    template Z_bytes<endian::little, complement::ones> operator &
+        (const Z_bytes<endian::little, complement::ones>&, const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones> operator &
+        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones> operator &
+        (const Z_bytes<endian::little, complement::ones>&, const N_bytes<endian::little> &);
+    
+    template Z_bytes<endian::little, complement::ones> operator |
+        (const Z_bytes<endian::little, complement::ones> &, const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones> operator |
+        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones> operator |
+        (const Z_bytes<endian::little, complement::ones> &, const N_bytes<endian::little> &);
+    
+    template Z_bytes<endian::little, complement::ones> operator - (const Z_bytes<endian::little, complement::ones> &);
+    
+    template Z_bytes<endian::little, complement::twos> operator &
+        (const Z_bytes<endian::little, complement::twos> &, const Z_bytes<endian::little, complement::twos> &);
+    template Z_bytes<endian::little, complement::twos> operator &
+        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::twos> &);
+    template Z_bytes<endian::little, complement::twos> operator &
+        (const Z_bytes<endian::little, complement::twos> &, const N_bytes<endian::little> &);
+    
+    template Z_bytes<endian::little, complement::twos> operator |
+        (const Z_bytes<endian::little, complement::twos> &, const Z_bytes<endian::little, complement::twos> &);
+    template Z_bytes<endian::little, complement::twos> operator |
+        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::twos> &);
+    template Z_bytes<endian::little, complement::twos> operator |
+        (const Z_bytes<endian::little, complement::twos> &, const N_bytes<endian::little> &);
+    
+    template Z_bytes<endian::little, complement::twos> operator - (const Z_bytes<endian::little, complement::twos> &);
     
 }
 

@@ -1,4 +1,4 @@
-    // Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,16 +7,6 @@
 
 namespace data::encoding::base58 {
     using nat = math::N;
-    
-    string::string() : std::string{""} {}
-    
-    string::string(const std::string &x) : std::string{base58::valid(x) ? x : ""} {}
-    
-    string::string(uint64 x) : string{encode(nat{x})} {}
-    
-    inline nat read_num(const string& n) {
-        return read_base<nat>(n, 58, &digit);
-    }
     
     // TODO it should be possible to compare decimal strings 
     // with basic functions in math::arithmetic.
@@ -97,14 +87,14 @@ namespace data::encoding::base58 {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return encode(read_num(m) + read_num(n));
+        return encode(decode<nat>(m) + decode<nat>(n));
     }
     
     string operator-(const string& m, const string& n) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return encode(read_num(m) - read_num(n));
+        return encode(decode<nat>(m) - decode<nat>(n));
     }
     
     string operator|(const string& m, const string& n) {
@@ -125,39 +115,19 @@ namespace data::encoding::base58 {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return encode(read_num(m) * read_num(n));
+        return encode(decode<nat>(m) * decode<nat>(n));
     }
     
     string operator<<(const string& m, int i) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         
-        return encode(read_num(m) << i);
+        return encode(decode<nat>(m) << i);
     }
     
     string operator>>(const string& m, int i) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         
-        return encode(read_num(m) >> i);
-    }
-    
-    string& string::operator+=(const string& n) {
-        return *this = *this + n;
-    }
-    
-    string& string::operator-=(const string& n) {
-        return *this = *this - n;
-    }
-    
-    string& string::operator*=(const string& n) {
-        return *this = *this * n;
-    }
-    
-    string& string::operator<<=(int i) {
-        return *this = *this << i;
-    }
-    
-    string& string::operator>>=(int i) {
-        return *this = *this >> i;
+        return encode(decode<nat>(m) >> i);
     }
     
     math::division<string, uint64> string::divide(uint64 x) const {
@@ -170,7 +140,7 @@ namespace data::encoding::base58 {
                 static_cast<uint64>(digit(std::string::operator[](last)))};
         }
         
-        math::division<nat> div = read_num(*this).divide(nat{static_cast<uint64>(x)});
+        math::division<nat> div = decode<nat>(*this).divide(nat{static_cast<uint64>(x)});
         return math::division<string, uint64>{encode(div.Quotient), uint64(div.Remainder)};
     }
     

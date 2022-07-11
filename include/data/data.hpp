@@ -42,6 +42,7 @@ namespace data {
 #include <data/math/number/gmp/sqrt.hpp>
 
 namespace data {
+    
     // we use a wrapper around gmp for natural numbers and integers. 
     
     // Natural numbers

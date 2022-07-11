@@ -21,14 +21,14 @@ namespace data::math::number::natural {
     static division<N> divide(const N Dividend, const N Divisor) {
         
         if (Divisor == 0) throw division_by_zero{};
-        if (Divisor == 1) return {Dividend, 0};
-        if (Divisor == 2) return {Dividend >> 1, Dividend & N{1}};
+        if (Divisor == 1) return {Dividend, 0u};
+        if (Divisor == 2) return {Dividend >> 1, Dividend & 1u};
         
-        N pow = 1;
-        N exp = Divisor;
-        N remainder = Dividend;
-        N quotient = 0;
-        uint64 digits = 1;
+        N pow{1};
+        N exp{Divisor};
+        N remainder{Dividend};
+        N quotient{0};
+        uint64 digits{1};
         
         while (exp <= remainder) { 
             exp <<= digits;
@@ -61,6 +61,10 @@ namespace data::math::number::natural {
         out: 
         
         return {quotient, remainder};
+    }
+    
+    template <typename N> bool divides(const N& dividend, const N divisor) {
+        return divide<N>(dividend, divisor).Remainder == 0;
     }
     
 }

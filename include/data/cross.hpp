@@ -257,7 +257,7 @@ namespace data {
     
     template <endian::order r, std::unsigned_integral word, size_t size> struct oriented<r, word, size> : bytes_array<word, size> {
         using bytes_array<word, size>::bytes_array;
-        oriented(const bytes_array<word, size> &x): bytes_array<word, size>{x} {}
+        oriented(const bytes_array<word, size> &x) : bytes_array<word, size>{x} {}
         
         using words_type = encoding::words<r, word>;
         

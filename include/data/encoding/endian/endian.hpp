@@ -14,7 +14,7 @@ namespace data::endian {
     constexpr order big = boost::endian::order::big;
     constexpr order little = boost::endian::order::little;
     
-    constexpr inline order opposite(order o) {
+    constexpr inline order opposite (order o) {
         return o == big ? little : big;
     } 
     
@@ -22,22 +22,22 @@ namespace data::endian {
     template <typename X, order> struct native;
     
     template <typename X> struct native<X, big> {
-        static X from(const X x) {
-            return boost::endian::native_to_big<X>(x);
+        static X from (const X x) {
+            return boost::endian::native_to_big<X> (x);
         }
         
-        static X to(const X x) {
-            return boost::endian::big_to_native<X>(x);
+        static X to (const X x) {
+            return boost::endian::big_to_native<X> (x);
         }
     };
     
     template <typename X> struct native<X, little> {
-        static X from(const X x) {
-            return boost::endian::native_to_little<X>(x);
+        static X from (const X x) {
+            return boost::endian::native_to_little<X> (x);
         }
         
-        static X to(const X x) {
-            return boost::endian::little_to_native<X>(x);
+        static X to (const X x) {
+            return boost::endian::little_to_native<X> (x);
         }
     };
     
@@ -45,11 +45,11 @@ namespace data::endian {
     
     template <bool is_signed, std::size_t bytes> using to_native = typename native_representation<is_signed, bytes>::type;
     
-    template <> struct native_representation<true, 1>{
+    template <> struct native_representation<true, 1> {
         using type = int_least8_t;
     };
     
-    template <> struct native_representation<true, 2>{
+    template <> struct native_representation<true, 2> {
         using type = int_least16_t;
     };
     

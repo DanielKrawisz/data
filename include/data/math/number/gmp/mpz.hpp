@@ -128,12 +128,6 @@ namespace data::math::number::GMP {
     Z operator|(const Z&, const Z&);
     Z operator&(const Z&, const Z&);
     
-    Z operator|(const N&, const Z&);
-    Z operator&(const N&, const Z&);
-    
-    Z operator|(const Z&, const N&);
-    Z operator&(const Z&, const N&);
-    
     // bit shift, which really just means 
     // powers of two. 
     N operator<<(const N&, int);
@@ -203,10 +197,6 @@ namespace data::math {
         Z operator()(const Z &a, const Z &b);
     };
     
-}
-
-namespace data::math::number {
-    
     bool is_zero(const N&);
     bool is_zero(const Z&);
     
@@ -243,13 +233,14 @@ namespace data::encoding::decimal {
 }
 
 namespace data::encoding::hexidecimal {
-    template <math::number::complement, hex_case> struct integer;
+    using complement = math::number::complement;
+    template <complement, hex_case> struct integer;
     
-    template <hex_case zz> integer<math::number::nones, zz> write(const math::N&);
-    template <math::number::complement n, hex_case zz> integer<n, zz> write(const math::Z&);
+    template <hex_case zz> integer<complement::nones, zz> write(const math::N&);
+    template <complement n, hex_case zz> integer<n, zz> write(const math::Z&);
     
     std::ostream &write(std::ostream &, const math::N &, hex::letter_case = hex::lower);
-    std::ostream &write(std::ostream &, const math::Z &, hex::letter_case = hex::lower, math::number::complement = math::number::ones);
+    std::ostream &write(std::ostream &, const math::Z &, hex::letter_case = hex::lower, complement = complement::ones);
     
 }
 
@@ -320,19 +311,6 @@ namespace data::math::number::GMP {
     
 }
 
-namespace data::math::number {
-    
-    bool inline is_zero(const N &x);
-    bool inline is_zero(const Z &x);
-    
-    bool inline is_negative(const N&);
-    bool inline is_negative(const Z &z);
-    
-    bool inline is_positive(const N &x);
-    bool inline is_positive(const Z &z);
-    
-}
-
 #undef __GMP_DEFINE_UNARY_FUNCTION
 #undef __GMP_DEFINE_UNARY_TYPE_FUNCTION
 #undef __GMP_DEFINE_BINARY_FUNCTION
@@ -341,8 +319,5 @@ namespace data::math::number {
 #undef __GMPNS_DEFINE_BINARY_FUNCTION
 #undef __GMPN_DEFINE_BINARY_FUNCTION
 #undef __GMPND_DEFINE_BINARY_FUNCTION
-
-#include <data/encoding/endian/endian.hpp>
-#include <data/math/number/bytes/bytes.hpp>
 
 #endif

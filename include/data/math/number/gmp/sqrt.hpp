@@ -5,8 +5,8 @@
 #ifndef DATA_MATH_NUMBER_GMP_SQRT
 #define DATA_MATH_NUMBER_GMP_SQRT
 
-#include <data/math/number/gmp/N.hpp>
 #include <data/math/root.hpp>
+#include <data/math/number/gmp/N.hpp>
 
 namespace data::math::number::GMP {
     

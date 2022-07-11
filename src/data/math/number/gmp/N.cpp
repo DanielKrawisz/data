@@ -5,6 +5,7 @@
 #include <data/numbers.hpp>
 #include <data/encoding/digits.hpp>
 #include <boost/algorithm/string.hpp>
+#include <data/io/exception.hpp>
 
 namespace data::math::number::GMP {
     
@@ -97,13 +98,14 @@ namespace data::encoding::hexidecimal {
         return write(o, math::number::N_bytes<endian::big>(n));
     }
     
-    std::ostream &write(std::ostream &o, const math::Z &z, hex::letter_case q, math::number::complement n) {
-        if (n != math::number::ones) {
-            std::stringstream ss;
-            ss << "we don't know how to do " << n << " yet.";
-            throw std::invalid_argument{ss.str()};
+    std::ostream &write(std::ostream &o, const math::Z &z, hex::letter_case q, complement n) {
+        switch (n) {
+            case (complement::nones): throw data::exception {} << "can't do " << n << ".";
+            case (complement::ones): return write(o << "0x", math::number::Z_bytes<endian::big, complement::ones>(z), q);
+            case (complement::twos): return write(o << "0x", math::number::Z_bytes<endian::big, complement::twos>(z), q);
         }
-        return write(o << "0x", math::number::Z_bytes<endian::big>(z), q);
+        
+        return o;
     }
     
 }
@@ -120,7 +122,7 @@ namespace data::math::number::GMP {
         
     std::ostream& operator<<(std::ostream& o, const Z& n) {
         if (o.flags() & std::ios::hex) {
-            encoding::hexidecimal::write(o, n, encoding::hex::lower, math::number::ones);
+            encoding::hexidecimal::write(o, n, encoding::hex::lower, complement::ones);
             return o;
         }
         if (o.flags() & std::ios::dec) {
@@ -142,7 +144,7 @@ namespace data::math::number::GMP {
     }
     
     N N::read(string_view x) {
-        return N_read(x);
+        return N{N_read(x)};
     }
     
     // inefficient but easier to write and more certain to be correct. 
