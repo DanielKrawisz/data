@@ -77,6 +77,34 @@ namespace data::encoding::base58 {
     template <typename N> string write(const N& n);
     
     string write(const bytes_view b);
+    
+    // base58 check encoding is a way to encode arbitrary bite strings 
+    // using base 58. This is done by encoding every initial zero bite
+    // as a '1', and encoding the rest of the string as a number, as 
+    // in standard base50. There is a four byte checksum attached,
+    // which is the first four bytes of the double SHA2_256 hash. 
+    struct check : std::string {
+
+        // A Bitcoin checksum takes the hash256 value of a string
+        // and appends the last 4 bytes of the result. 
+        static uint32_little sum(bytes_view b);
+
+        static ptr<bytes> decode(string_view);
+        static check encode(bytes_view);
+
+        bool valid() const {
+            return decode(*this) != nullptr;
+        }
+
+        check(string_view x) : std::string{x} {}
+        
+        // try all single letter replacements, insertions, and deletions
+        // to see if we can find a valid base58 check encoded string. 
+        static check recover(const string_view invalid);
+        
+    private:
+        check() : std::string{} {}
+    };
 }
 
 namespace data::math {
@@ -101,7 +129,6 @@ namespace data::encoding::base58 {
         string();
         explicit string(string_view);
         string(uint64);
-        //string(int64);
             
         bool valid() const {
             return base58::valid(*this);

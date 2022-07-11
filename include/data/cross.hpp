@@ -278,6 +278,26 @@ namespace data {
         }
     };
     
+    // versioned data is simply a string of bytes of which the first
+    // is interpreted as a version byte. 
+    struct versioned_data : bytes {
+        bool valid() {
+            return this->size() > 0;
+        }
+        
+        byte version() const {
+            return (*this)[0];
+        }
+        
+        bytes_view payload() const {
+            return {this->data() + 1, this->size() - 1};
+        }
+        
+        versioned_data(byte v, bytes_view b) : bytes{bytes::write(b.size() + 1, v, b)} {}
+        versioned_data(bytes&& b) : bytes{b} {}
+        
+    };
+    
     template <std::unsigned_integral word>
     writer<word> inline &operator<<(writer<word> &w, const bytestring<word> &x) {
         w.write(x.data(), x.size());

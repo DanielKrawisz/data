@@ -28,7 +28,6 @@ namespace data::encoding::base58 {
     
     string::string(uint64 x) : std::string{write_b58(N{x})} {}
     
-    template <typename N>
     inline N read_num(const string& n) {
         return read_base<N>(n, 58, &digit);
     }
@@ -126,6 +125,103 @@ namespace data::encoding::base58 {
     
     math::division<string> string::divide(const string &x) const {
         return math::number::natural::divide(*this, x);
+    }
+    
+    uint32_little check::sum(bytes_view b) {
+        uint32_little x;
+        crypto::digest<32> digest = crypto::hash::Bitcoin_256(b);
+        std::copy(digest.begin(), digest.begin() + 4, x.begin());
+        return x;
+    }
+
+    bytes append_checksum(bytes_view b) {
+        bytes checked(b.size() + 4);
+        bytes_writer w(checked.begin(), checked.end());
+        w << b << check::sum(b);
+        return checked;
+    }
+    
+    ptr<bytes> remove_checksum(bytes_view b) {
+        if (b.size() < 4) return nullptr;
+        uint32_little x;
+        std::copy(b.end() - 4, b.end(), x.begin());
+        bytes_view without = b.substr(0, b.size() - 4);
+        if (x != check::sum(without)) return nullptr;
+        return std::make_shared<bytes>(without);
+    }
+    
+    ptr<bytes> check::decode(string_view s) {
+        size_t leading_ones = 0;
+        while(leading_ones < s.size() && s[leading_ones] == '1') leading_ones++;
+        encoding::base58::view b58(s.substr(leading_ones));
+        if (!b58.valid()) return {};
+        bytes_view decoded = bytes_view(b58);
+        return remove_checksum(bytes::write(leading_ones + decoded.size(), bytes(leading_ones, 0x00), decoded));
+    }
+    
+    check check::encode(bytes_view b) {
+        bytes data = append_checksum(b);
+        size_t leading_zeros = 0;
+        while (leading_zeros < data.size() && data[leading_zeros] == 0) leading_zeros++;
+        std::string b58 = data::encoding::base58::write(bytes_view(data).substr(leading_zeros));
+        std::string ones(leading_zeros, '1');
+        std::stringstream ss;
+        ss << ones << b58;
+        return check{ss.str()};
+    }
+
+    check check::recover(const string_view invalid) {
+        
+        {
+            check x(invalid);
+            if (x.valid()) return x;
+        }
+        
+        std::string test{invalid};
+        
+        std::string characters = data::encoding::base58::characters();
+        
+        // replacements
+        for (int i = 0; i < test.size(); i++) {
+            std::string replace = test;
+            
+            for (char c : characters) {
+                if (replace[i] == c) continue;
+                replace[i] = c;
+                check x(replace);
+                if (x.valid()) return x;
+            }
+        }
+        
+        // insertions
+        for (int i = 0; i <= test.size(); i++) {
+            std::string insert{};
+            insert.resize(test.size() + 1);
+            std::copy(test.begin(), test.begin() + i, insert.begin());
+            std::copy(test.begin() + i, test.end(), insert.begin() + i + 1);
+            
+            for (char c : characters) {
+                insert[i] = c;
+                check x(insert);
+                if (x.valid()) return x;
+            }
+        }
+        
+        // deletions 
+        for (int i = 0; i < test.size(); i++) {
+            std::string deletions{};
+            deletions.resize(test.size() - 1);
+            
+            std::copy(test.begin(), test.begin() + i, deletions.begin());
+            std::copy(test.begin() + i + 1, test.end(), deletions.begin() + i);
+            
+            check x(deletions);
+            if (x.valid()) return x;
+            
+        }
+        
+        return {};
+        
     }
 
 }
