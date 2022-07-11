@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -70,11 +70,11 @@ namespace data::endian {
         using words_type = encoding::words<Order, byte>;
         
         words_type words() {
-            return words_type{slice<byte>(*this)};
+            return words_type{slice<byte>(this->data(), bytes)};
         }
         
         const words_type words() const {
-            return words_type{slice<byte>(*const_cast<arithmetic*>(this))};
+            return words_type{slice<byte>(const_cast<byte*>(this->data()), bytes)};
         }
     };
     
@@ -118,49 +118,90 @@ namespace data::encoding {
 }
 
 namespace data {
-
-  // big endian signed integer unaligned types
-  typedef endian::arithmetic<true, endian::big, 1>           int8_big;
-  typedef endian::arithmetic<true, endian::big, 2>          int16_big;
-  typedef endian::arithmetic<true, endian::big, 3>          int24_big;
-  typedef endian::arithmetic<true, endian::big, 4>          int32_big;
-  typedef endian::arithmetic<true, endian::big, 5>          int40_big;
-  typedef endian::arithmetic<true, endian::big, 6>          int48_big;
-  typedef endian::arithmetic<true, endian::big, 7>          int56_big;
-  typedef endian::arithmetic<true, endian::big, 8>          int64_big;
-
-  // big endian unsigned integer unaligned types
-  typedef endian::arithmetic<false, endian::big, 1>         uint8_big;
-  typedef endian::arithmetic<false, endian::big, 2>        uint16_big;
-  typedef endian::arithmetic<false, endian::big, 3>        uint24_big;
-  typedef endian::arithmetic<false, endian::big, 4>        uint32_big;
-  typedef endian::arithmetic<false, endian::big, 5>        uint40_big;
-  typedef endian::arithmetic<false, endian::big, 6>        uint48_big;
-  typedef endian::arithmetic<false, endian::big, 7>        uint56_big;
-  typedef endian::arithmetic<false, endian::big, 8>        uint64_big;
-
-  // little endian signed integer unaligned types
-  typedef endian::arithmetic<true, endian::little, 1>     int8_little;
-  typedef endian::arithmetic<true, endian::little, 2>    int16_little;
-  typedef endian::arithmetic<true, endian::little, 3>    int24_little;
-  typedef endian::arithmetic<true, endian::little, 4>    int32_little;
-  typedef endian::arithmetic<true, endian::little, 5>    int40_little;
-  typedef endian::arithmetic<true, endian::little, 6>    int48_little;
-  typedef endian::arithmetic<true, endian::little, 7>    int56_little;
-  typedef endian::arithmetic<true, endian::little, 8>    int64_little;
-
-  // little endian unsigned integer unaligned types
-  typedef endian::arithmetic<false, endian::little, 1>   uint8_little;
-  typedef endian::arithmetic<false, endian::little, 2>  uint16_little;
-  typedef endian::arithmetic<false, endian::little, 3>  uint24_little;
-  typedef endian::arithmetic<false, endian::little, 4>  uint32_little;
-  typedef endian::arithmetic<false, endian::little, 5>  uint40_little;
-  typedef endian::arithmetic<false, endian::little, 6>  uint48_little;
-  typedef endian::arithmetic<false, endian::little, 7>  uint56_little;
-  typedef endian::arithmetic<false, endian::little, 8>  uint64_little;
+    
+    // big endian signed integer unaligned types
+    typedef endian::arithmetic<true, endian::big, 1>           int8_big;
+    typedef endian::arithmetic<true, endian::big, 2>          int16_big;
+    typedef endian::arithmetic<true, endian::big, 3>          int24_big;
+    typedef endian::arithmetic<true, endian::big, 4>          int32_big;
+    typedef endian::arithmetic<true, endian::big, 5>          int40_big;
+    typedef endian::arithmetic<true, endian::big, 6>          int48_big;
+    typedef endian::arithmetic<true, endian::big, 7>          int56_big;
+    typedef endian::arithmetic<true, endian::big, 8>          int64_big;
+    
+    // big endian unsigned integer unaligned types
+    typedef endian::arithmetic<false, endian::big, 1>         uint8_big;
+    typedef endian::arithmetic<false, endian::big, 2>        uint16_big;
+    typedef endian::arithmetic<false, endian::big, 3>        uint24_big;
+    typedef endian::arithmetic<false, endian::big, 4>        uint32_big;
+    typedef endian::arithmetic<false, endian::big, 5>        uint40_big;
+    typedef endian::arithmetic<false, endian::big, 6>        uint48_big;
+    typedef endian::arithmetic<false, endian::big, 7>        uint56_big;
+    typedef endian::arithmetic<false, endian::big, 8>        uint64_big;
+    
+    // little endian signed integer unaligned types
+    typedef endian::arithmetic<true, endian::little, 1>     int8_little;
+    typedef endian::arithmetic<true, endian::little, 2>    int16_little;
+    typedef endian::arithmetic<true, endian::little, 3>    int24_little;
+    typedef endian::arithmetic<true, endian::little, 4>    int32_little;
+    typedef endian::arithmetic<true, endian::little, 5>    int40_little;
+    typedef endian::arithmetic<true, endian::little, 6>    int48_little;
+    typedef endian::arithmetic<true, endian::little, 7>    int56_little;
+    typedef endian::arithmetic<true, endian::little, 8>    int64_little;
+    
+    // little endian unsigned integer unaligned types
+    typedef endian::arithmetic<false, endian::little, 1>   uint8_little;
+    typedef endian::arithmetic<false, endian::little, 2>  uint16_little;
+    typedef endian::arithmetic<false, endian::little, 3>  uint24_little;
+    typedef endian::arithmetic<false, endian::little, 4>  uint32_little;
+    typedef endian::arithmetic<false, endian::little, 5>  uint40_little;
+    typedef endian::arithmetic<false, endian::little, 6>  uint48_little;
+    typedef endian::arithmetic<false, endian::little, 7>  uint56_little;
+    typedef endian::arithmetic<false, endian::little, 8>  uint64_little;
+    
 }
 
 namespace data::endian {
+
+    // big endian signed integer unaligned types
+    template struct endian::arithmetic<true, endian::big, 1>;
+    template struct endian::arithmetic<true, endian::big, 2>;
+    template struct endian::arithmetic<true, endian::big, 3>;
+    template struct endian::arithmetic<true, endian::big, 4>;
+    template struct endian::arithmetic<true, endian::big, 5>;
+    template struct endian::arithmetic<true, endian::big, 6>;
+    template struct endian::arithmetic<true, endian::big, 7>;
+    template struct endian::arithmetic<true, endian::big, 8>;
+
+    // big endian unsigned integer unaligned types
+    template struct endian::arithmetic<false, endian::big, 1>;
+    template struct endian::arithmetic<false, endian::big, 2>;
+    template struct endian::arithmetic<false, endian::big, 3>;
+    template struct endian::arithmetic<false, endian::big, 4>;
+    template struct endian::arithmetic<false, endian::big, 5>;
+    template struct endian::arithmetic<false, endian::big, 6>;
+    template struct endian::arithmetic<false, endian::big, 7>;
+    template struct endian::arithmetic<false, endian::big, 8>;
+
+    // little endian signed integer unaligned types
+    template struct endian::arithmetic<true, endian::little, 1>;
+    template struct endian::arithmetic<true, endian::little, 2>;
+    template struct endian::arithmetic<true, endian::little, 3>;
+    template struct endian::arithmetic<true, endian::little, 4>;
+    template struct endian::arithmetic<true, endian::little, 5>;
+    template struct endian::arithmetic<true, endian::little, 6>;
+    template struct endian::arithmetic<true, endian::little, 7>;
+    template struct endian::arithmetic<true, endian::little, 8>;
+
+    // little endian unsigned integer unaligned types
+    template struct endian::arithmetic<false, endian::little, 1>;
+    template struct endian::arithmetic<false, endian::little, 2>;
+    template struct endian::arithmetic<false, endian::little, 3>;
+    template struct endian::arithmetic<false, endian::little, 4>;
+    template struct endian::arithmetic<false, endian::little, 5>;
+    template struct endian::arithmetic<false, endian::little, 6>;
+    template struct endian::arithmetic<false, endian::little, 7>;
+    template struct endian::arithmetic<false, endian::little, 8>;
     
     template writer<byte> &operator<<(writer<byte> &w, arithmetic<true, endian::big, 1> x);
     template reader<byte> &operator>>(reader<byte> &r, arithmetic<true, endian::big, 1> &x);

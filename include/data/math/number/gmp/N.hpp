@@ -6,11 +6,10 @@
 #define DATA_MATH_NUMBER_GMP_N
 
 #include <limits>
+#include <sstream>
 #include <data/math/number/natural.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/number/gmp/Z.hpp>
-#include <data/encoding/integer.hpp>
-#include <sstream>
 
 namespace data::math::number::GMP {
     
@@ -59,7 +58,7 @@ namespace data::math::number::GMP {
         explicit N(const bounded<false, o, size>& b) : Value{b} {}*/
         
     private:
-        N(const Z& z) : Value{z} {}
+        explicit N(const Z& z) : Value{z} {}
         
         N(bytes_view, endian::order);
         
@@ -386,10 +385,10 @@ namespace data::math::number {
 
 namespace data::encoding::hexidecimal { 
     
-    template <hex_case zz> integer<math::number::nones, zz> inline write(const math::N &n) {
+    template <hex_case zz> integer<complement::nones, zz> inline write(const math::N &n) {
         std::stringstream ss;
         write(ss, n, zz);
-        return integer<math::number::nones, zz>{ss.str()};
+        return integer<complement::nones, zz>{ss.str()};
     }
     
 }

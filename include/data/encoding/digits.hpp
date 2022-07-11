@@ -7,20 +7,19 @@
 
 #include <data/tools/linked_stack.hpp>
 #include <data/math/number/natural.hpp>
-#include <iostream>
 
 namespace data::encoding {
     
     template <typename N>
     string write_base(const N& n, string digits) {
         
-        uint32 base = digits.size();
+        N base{digits.size()};
         if (base < 2) return "";
         
         linked_stack<char> dig{};
         N x = n;
-        while(x > 0) {
-            math::division<N> d = x.divide(base);
+        while(x > 0u) {
+            math::division<N> d = math::number::natural::divide(x, base);
             dig = dig << digits[(uint64)(d.Remainder)];
             x = d.Quotient;
         }

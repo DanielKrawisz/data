@@ -7,7 +7,6 @@
 
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/hex.hpp>
-#include <data/cross.hpp>
 
 namespace data::math::number {
     
@@ -20,184 +19,208 @@ namespace data::math::number {
     // value of only the one's complement types. Two's complement
     // works as its own number system without a corresponding 
     // natural number type. 
-    template <endian::order> struct Z_bytes;
+    template <endian::order, complement> struct Z_bytes;
     
     template <endian::order r> 
-    bool operator==(const N_bytes<r> &a, const N_bytes<r> &b);
+    bool operator == (const N_bytes<r> &a, const N_bytes<r> &b);
+    
+    template <endian::order r, complement c> 
+    bool operator == (const Z_bytes<r, c> &a, const Z_bytes<r, c> &b);
     
     template <endian::order r> 
-    bool operator==(const Z_bytes<r> &a, const Z_bytes<r> &b);
+    std::weak_ordering operator <=> (const N_bytes<r>&, const N_bytes<r>&);
     
     template <endian::order r> 
-    std::weak_ordering operator<=>(const N_bytes<r>&, const N_bytes<r>&);
+    std::weak_ordering operator <=> (const Z_bytes<r, complement::ones>&, const Z_bytes<r, complement::ones>&);
     
     template <endian::order r> 
-    std::weak_ordering operator<=>(const Z_bytes<r>&, const Z_bytes<r>&);
+    std::weak_ordering operator <=> (const Z_bytes<r, complement::twos>&, const Z_bytes<r, complement::twos>&);
+    
+    template <endian::order r, complement c> 
+    std::weak_ordering operator <=> (const Z_bytes<r, c>&, const N_bytes<r>&);
     
     template <endian::order r> 
-    std::weak_ordering operator<=>(const Z_bytes<r>&, const N_bytes<r>&);
+    bool operator == (const N_bytes<r>&, uint64);
+    
+    template <endian::order r, complement c> 
+    bool operator == (const Z_bytes<r, c>&, int64);
     
     template <endian::order r> 
-    bool operator==(const N_bytes<r>&, uint64);
+    std::weak_ordering operator <=> (const N_bytes<r>&, uint64);
+    
+    template <endian::order r, complement c> 
+    std::weak_ordering operator <=> (const Z_bytes<r, c>&, int64);
     
     template <endian::order r> 
-    bool operator==(const Z_bytes<r>&, int64);
+    bool operator == (const N_bytes<r>&, N);
     
-    template <endian::order r> 
-    std::weak_ordering operator<=>(const N_bytes<r>&, uint64);
-    
-    template <endian::order r> 
-    std::weak_ordering operator<=>(const Z_bytes<r>&, int64);
-    
-    template <endian::order r> 
-    bool operator==(const N_bytes<r>&, N);
-    
-    template <endian::order r> 
-    bool operator==(const Z_bytes<r>&, Z);
-    
-    template <endian::order r> 
-    std::weak_ordering operator<=>(const N_bytes<r>&, N);
-    
-    template <endian::order r> 
-    std::weak_ordering operator<=>(const Z_bytes<r>&, Z);
+    template <endian::order r, complement c> 
+    bool operator == (const Z_bytes<r, c>&, Z);
     
     // bit negate
-    template <endian::order r> Z_bytes<r> operator~(const N_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator~(const Z_bytes<r>&);
+    template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const N_bytes<r> &);
+    template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const Z_bytes<r, complement::ones> &);
     
     // bit xor
-    template <endian::order r> Z_bytes<r> operator^(const N_bytes<r>&, const N_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator^(const Z_bytes<r>&, const Z_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator^(const Z_bytes<r>&, const N_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator^(const N_bytes<r>&, const Z_bytes<r>&);
+    template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const N_bytes<r> &, const N_bytes<r> &);
+    
+    template <endian::order r> 
+    Z_bytes<r, complement::ones> operator ^
+        (const Z_bytes<r, complement::ones> &, const Z_bytes<r, complement::ones> &);
+    
+    template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const Z_bytes<r, complement::ones>&, const N_bytes<r> &);
+    template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const N_bytes<r>&, const Z_bytes<r, complement::ones> &);
     
     // bit and 
-    template <endian::order r> N_bytes<r> operator&(const N_bytes<r>&, const N_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator&(const Z_bytes<r>&, const Z_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator&(const N_bytes<r>&, const Z_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator&(const Z_bytes<r>&, const N_bytes<r>&);
+    template <endian::order r> N_bytes<r> operator & (const N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator & (const N_bytes<r> &, const Z_bytes<r, c> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c> &, const N_bytes<r> &);
+    
+    template <endian::order r> N_bytes<r> operator & (const N_bytes<r> &, uint64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator & (const N_bytes<r>&, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c>&, uint64);
     
     // bit or 
-    template <endian::order r> N_bytes<r> operator|(const N_bytes<r>&, const N_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator|(const Z_bytes<r>&, const Z_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator|(const N_bytes<r>&, const Z_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator|(const Z_bytes<r>&, const N_bytes<r>&);
+    template <endian::order r> N_bytes<r> operator | (const N_bytes<r> &, const N_bytes<r>&);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c>&, const Z_bytes<r, c>&);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const N_bytes<r>&, const Z_bytes<r, c>&);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c>&, const N_bytes<r>&);
+    
+    template <endian::order r> N_bytes<r> operator | (const N_bytes<r> &, uint64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const N_bytes<r> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, uint64);
     
     // negation
-    template <endian::order r> Z_bytes<r> operator-(const N_bytes<r>&);
-    template <endian::order r> Z_bytes<r> operator-(const Z_bytes<r>&);
+    template <endian::order r> Z_bytes<r, complement::ones> operator - (const N_bytes<r> &);
+    template <endian::order r> Z_bytes<r, complement::ones> operator - (const Z_bytes<r, complement::ones> &);
+    template <endian::order r> Z_bytes<r, complement::twos> operator - (const Z_bytes<r, complement::twos> &);
     
     template <endian::order r> 
-    N_bytes<r> operator+(const N_bytes<r>&, const N_bytes<r>&);
+    N_bytes<r> operator + (const N_bytes<r> &, const N_bytes<r> &);
+    
+    template <endian::order r>
+    N_bytes<r> operator - (const N_bytes<r> &, const N_bytes<r> &);
     
     template <endian::order r> 
-    N_bytes<r> operator-(const N_bytes<r>&, const N_bytes<r>&);
+    N_bytes<r> operator * (const N_bytes<r> &, const N_bytes<r> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator + (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator - (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator * (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator + (const Z_bytes<r, c> &, const N_bytes<r> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator - (const Z_bytes<r, c> &, const N_bytes<r> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator * (const Z_bytes<r, c> &, const N_bytes<r> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator + (const N_bytes<r> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator - (const N_bytes<r> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator * (const N_bytes<r> &, const Z_bytes<r, c> &);
     
     template <endian::order r> 
-    N_bytes<r> operator*(const N_bytes<r>&, const N_bytes<r>&);
+    N_bytes<r> operator + (const N_bytes<r> &, uint64);
     
     template <endian::order r> 
-    Z_bytes<r> operator+(const Z_bytes<r>&, const Z_bytes<r>&);
+    N_bytes<r> operator - (const N_bytes<r> &, uint64);
     
     template <endian::order r> 
-    Z_bytes<r> operator-(const Z_bytes<r>&, const Z_bytes<r>&);
+    N_bytes<r> operator * (const N_bytes<r> &, uint64);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator + (const Z_bytes<r, c> &, int64);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator - (const Z_bytes<r, c> &, int64);
+    
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator * (const Z_bytes<r, c> &, int64);
     
     template <endian::order r> 
-    Z_bytes<r> operator*(const Z_bytes<r>&, const Z_bytes<r>&);
+    N_bytes<r> operator << (const N_bytes<r>&, int);
     
     template <endian::order r> 
-    Z_bytes<r> operator+(const Z_bytes<r>&, const N_bytes<r>&);
+    N_bytes<r> operator >> (const N_bytes<r>&, int);
     
-    template <endian::order r> 
-    Z_bytes<r> operator-(const Z_bytes<r>&, const N_bytes<r>&);
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator << (const Z_bytes<r, c>&, int);
     
-    template <endian::order r> 
-    Z_bytes<r> operator*(const Z_bytes<r>&, const N_bytes<r>&);
+    template <endian::order r, complement c> 
+    Z_bytes<r, c> operator >> (const Z_bytes<r, c>&, int);
     
-    template <endian::order r> 
-    Z_bytes<r> operator+(const N_bytes<r>&, const Z_bytes<r>&);
+    template <endian::order r> bool is_minimal (const N_bytes<r> &);
+    template <endian::order r> bool is_minimal (const Z_bytes<r, complement::ones> &);
+    template <endian::order r> bool is_minimal (const Z_bytes<r, complement::twos> &);
     
-    template <endian::order r> 
-    Z_bytes<r> operator-(const N_bytes<r>&, const Z_bytes<r>&);
+    template <endian::order r> size_t minimal_size (const N_bytes<r> &);
+    template <endian::order r> size_t minimal_size (const Z_bytes<r, complement::ones> &);
+    template <endian::order r> size_t minimal_size (const Z_bytes<r, complement::twos> &);
     
-    template <endian::order r> 
-    Z_bytes<r> operator*(const N_bytes<r>&, const Z_bytes<r>&);
+    template <endian::order r> N_bytes<r> extend (const N_bytes<r> &, size_t);
+    template <endian::order r> Z_bytes<r, complement::ones> extend (const Z_bytes<r, complement::ones> &, size_t);
+    template <endian::order r> Z_bytes<r, complement::twos> extend (const Z_bytes<r, complement::twos> &, size_t);
     
-    template <endian::order r> 
-    N_bytes<r> operator+(const N_bytes<r>&, uint64);
-    
-    template <endian::order r> 
-    N_bytes<r> operator-(const N_bytes<r>&, uint64);
-    
-    template <endian::order r> 
-    N_bytes<r> operator*(const N_bytes<r>&, uint64);
-    
-    template <endian::order r> 
-    Z_bytes<r> operator+(const Z_bytes<r>&, int64);
-    
-    template <endian::order r> 
-    Z_bytes<r> operator-(const Z_bytes<r>&, int64);
-    
-    template <endian::order r> 
-    Z_bytes<r> operator*(const Z_bytes<r>&, int64);
-    
-    template <endian::order r> 
-    N_bytes<r> operator<<(const N_bytes<r>&, int);
-    
-    template <endian::order r> 
-    N_bytes<r> operator>>(const N_bytes<r>&, int);
-    
-    template <endian::order r> 
-    Z_bytes<r> operator<<(const Z_bytes<r>&, int);
-    
-    template <endian::order r> 
-    Z_bytes<r> operator>>(const Z_bytes<r>&, int);
-    
-    template <endian::order r> bool is_zero(const N_bytes<r> &);
-    template <endian::order r> bool is_zero(const Z_bytes<r> &);
-    
-    template <endian::order r> bool is_negative(const N_bytes<r> &);
-    template <endian::order r> bool is_negative(const Z_bytes<r> &x);
-    
-    template <endian::order r> bool is_positive(const N_bytes<r> &x);
-    template <endian::order r> bool is_positive(const Z_bytes<r> &);
-    
-    template <endian::order r> bool is_minimal(const N_bytes<r> &);
-    template <endian::order r> bool is_minimal(const Z_bytes<r> &);
-    
-    template <endian::order r> size_t minimal_size(const N_bytes<r> &);
-    template <endian::order r> size_t minimal_size(const Z_bytes<r> &);
-    
-    template <endian::order r> N_bytes<r> extend(const N_bytes<r> &, size_t);
-    template <endian::order r> Z_bytes<r> extend(const Z_bytes<r> &, size_t);
-    
-    template <endian::order r> N_bytes<r> trim(const N_bytes<r> &);
-    template <endian::order r> Z_bytes<r> trim(const Z_bytes<r> &);
+    template <endian::order r> N_bytes<r> trim (const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> trim (const Z_bytes<r, c> &);
     
 }
 
 namespace data::math {
     
     template <endian::order r> using N_bytes = number::N_bytes<r>;
-    template <endian::order r> using Z_bytes = number::Z_bytes<r>;
+    template <endian::order r> using Z_bytes = number::Z_bytes<r, number::complement::ones>;
+    template <endian::order r> using Z_bytes_twos = number::Z_bytes<r, number::complement::twos>;
+    
+    template <endian::order r> bool is_zero (const N_bytes<r> &);
+    template <endian::order r> bool is_zero (const Z_bytes<r> &);
+    template <endian::order r> bool is_zero (const Z_bytes_twos<r> &);
+    
+    template <endian::order r> bool is_negative (const N_bytes<r> &);
+    template <endian::order r> bool is_negative (const Z_bytes<r> &x);
+    template <endian::order r> bool is_negative (const Z_bytes_twos<r> &x);
+    
+    template <endian::order r> bool is_positive (const N_bytes<r> &x);
+    template <endian::order r> bool is_positive (const Z_bytes<r> &);
+    template <endian::order r> bool is_positive (const Z_bytes_twos<r> &);
+    
+    template <endian::order r> bool is_positive_zero (const Z_bytes<r> &);
+    template <endian::order r> bool is_negative_zero (const Z_bytes_twos<r> &);
     
     template <endian::order r> struct abs<N_bytes<r>> {
-        N_bytes<r> operator()(const N_bytes<r> &);
+        N_bytes<r> operator () (const N_bytes<r> &);
     };
     
-    template <endian::order r> struct abs<Z_bytes<r>> {
-        N_bytes<r> operator()(const Z_bytes<r> &);
+    template <endian::order r> struct abs<number::Z_bytes<r, number::complement::ones>> {
+        N_bytes<r> operator () (const number::Z_bytes<r, number::complement::ones> &);
+    };
+    
+    template <endian::order r> struct abs<number::Z_bytes<r, number::complement::twos>> {
+        number::Z_bytes<r, number::complement::twos> operator () (const number::Z_bytes<r, number::complement::twos> &);
     };
     
     template <endian::order r> struct quadrance<N_bytes<r>> { 
-        N_bytes<r> operator()(const N_bytes<r> &);
+        N_bytes<r> operator () (const N_bytes<r> &);
     };
     
-    template <endian::order r> struct quadrance<number::Z_bytes<r>> { 
-        auto operator()(const number::Z_bytes<r> &x) -> decltype(data::abs(x));
+    template <endian::order r, number::complement c> struct quadrance<number::Z_bytes<r, c>> { 
+        auto operator () (const number::Z_bytes<r, c> &x) -> decltype (data::abs (x));
     };
-    
-    template <endian::order r> number::N_bytes<r> next(const number::N_bytes<r>&);
     
     // Declare that the plus and times operation are commutative and associative. 
     template <endian::order r> 
@@ -212,20 +235,20 @@ namespace data::math {
     template <endian::order r> 
     struct associative<times<N_bytes<r>>, N_bytes<r>> {};
     
-    template <endian::order r> 
-    struct commutative<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r, number::complement c> 
+    struct commutative<plus<number::Z_bytes<r, c>>, number::Z_bytes<r, c>> {};
     
-    template <endian::order r> 
-    struct associative<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r, number::complement c> 
+    struct associative<plus<number::Z_bytes<r, c>>, number::Z_bytes<r, c>> {};
     
-    template <endian::order r> 
-    struct commutative<times<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r, number::complement c> 
+    struct commutative<times<number::Z_bytes<r, c>>, number::Z_bytes<r, c>> {};
     
-    template <endian::order r> 
-    struct associative<times<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r, number::complement c> 
+    struct associative<times<number::Z_bytes<r, c>>, number::Z_bytes<r, c>> {};
     
-    template <endian::order r> struct inverse<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {
-        number::Z_bytes<r> operator()(const number::Z_bytes<r> &a, const number::Z_bytes<r> &b) {
+    template <endian::order r, number::complement c> struct inverse<plus<number::Z_bytes<r, c>>, number::Z_bytes<r, c>> {
+        number::Z_bytes<r, c> operator () (const number::Z_bytes<r, c> &a, const number::Z_bytes<r, c> &b) {
             return b - a;
         }
     };
@@ -234,14 +257,77 @@ namespace data::math {
 
 namespace data {
     
-    template <endian::order r> math::sign sign(const math::N_bytes<r> &, hex_case);
-    template <endian::order r> math::sign sign(const math::Z_bytes<r> &, hex_case);
+    template <endian::order r> math::sign sign (const math::N_bytes<r> &);
+    template <endian::order r, math::number::complement c> math::sign sign (const math::number::Z_bytes<r, c> &);
     
-    template <endian::order r> math::number::N_bytes<r> increment(const math::number::N_bytes<r>&);
-    template <endian::order r> math::number::N_bytes<r> decrement(const math::number::N_bytes<r>&);
+    template <endian::order r> math::number::N_bytes<r> increment (const math::number::N_bytes<r>&);
+    template <endian::order r> math::number::N_bytes<r> decrement (const math::number::N_bytes<r>&);
     
-    template <endian::order r> math::number::Z_bytes<r> increment(const math::number::Z_bytes<r>&);
-    template <endian::order r> math::number::Z_bytes<r> decrement(const math::number::Z_bytes<r>&);
+    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> increment (const math::number::Z_bytes<r, c>&);
+    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> decrement (const math::number::Z_bytes<r, c>&);
+    
+}
+
+namespace data::math::number {
+    
+    template <endian::order r> N_bytes<r> operator / (const N_bytes<r>&, const N_bytes<r>&);
+    template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c>&, const Z_bytes<r, c>&);
+    
+    template <endian::order r> N_bytes<r> operator / (const N_bytes<r> &, uint64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c> &, int64);
+    
+    template <endian::order r> N_bytes<r> operator % (const N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> N_bytes<r> operator % (const Z_bytes<r, c> &, const N_bytes<r>&);
+    template <endian::order r> 
+    Z_bytes<r, complement::twos> operator % (
+        const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
+    
+    template <endian::order r> uint64 operator % (const N_bytes<r>&, uint64);
+    template <endian::order r, complement c> uint64 operator % (const Z_bytes<r, c> &, uint64);
+    
+    // pre-increment and decreement
+    template <endian::order r> N_bytes<r> &operator ++ (N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator ++ (Z_bytes<r, c> &);
+    
+    template <endian::order r> N_bytes<r> &operator -- (N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator -- (Z_bytes<r, c> &);
+    
+    // post-increment and decrement
+    template <endian::order r> N_bytes<r> operator ++ (N_bytes<r> &, int);
+    template <endian::order r, complement c> Z_bytes<r, c> operator++(Z_bytes<r, c> &, int);
+    
+    template <endian::order r> N_bytes<r> operator -- (N_bytes<r> &, int);
+    template <endian::order r, complement c> Z_bytes<r, c> operator -- (Z_bytes<r, c> &, int);
+    
+    template <endian::order r> N_bytes<r> &operator += (N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator += (Z_bytes<r, c> &, const Z_bytes<r, c>&);
+    
+    template <endian::order r> N_bytes<r> &operator -= (N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator -= (Z_bytes<r, c>&, const Z_bytes<r, c>&);
+    
+    template <endian::order r> N_bytes<r> &operator += (N_bytes<r> &, uint64);
+    template <endian::order r> N_bytes<r> &operator -= (N_bytes<r> &, uint64);
+    
+    template <endian::order r, complement c> Z_bytes<r, c> &operator += (Z_bytes<r, c> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator -= (Z_bytes<r, c> &, int64);
+    
+    template <endian::order r> N_bytes<r> &operator *= (N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator *= (Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r> N_bytes<r> &operator *= (N_bytes<r> &, uint64);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator *= (Z_bytes<r, c> &, int64);
+    
+    template <endian::order r> N_bytes<r> &operator <<= (N_bytes<r> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator <<= (Z_bytes<r, c> &, int64);
+    
+    template <endian::order r> N_bytes<r> &operator >>= (N_bytes<r>&, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator >>= (Z_bytes<r, c> &, int64);
+    
+    template <endian::order r> N_bytes<r> &operator /= (N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator /= (Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    
+    template <endian::order r> N_bytes<r> &operator /= (N_bytes<r>&, uint64);
+    template <endian::order r, complement c> Z_bytes<r, c> &operator /= (Z_bytes<r, c> &, int64);
     
 }
 
@@ -250,46 +336,64 @@ namespace data {
 namespace data::encoding::decimal {
     
     template <endian::order r> 
-    ptr<math::number::N_bytes<r>> read(string_view s);
+    ptr<math::number::N_bytes<r>> read (string_view s);
+    
+    struct string;
     
     template <endian::order r> 
-    std::ostream &write(std::ostream &, const math::number::N_bytes<r>&);
+    string write (const math::number::N_bytes<r> &z);
+    
+    template <endian::order r> 
+    std::ostream inline &write (std::ostream &o, const math::number::N_bytes<r> &n) {
+        return o << write (n);
+    }
     
 }
 
 namespace data::encoding::signed_decimal {
     
-    template <endian::order r> 
-    ptr<math::number::Z_bytes<r>> read(string_view s);
+    template <endian::order r, math::number::complement n> 
+    ptr<math::number::Z_bytes<r, n>> read (string_view s);
     
-    template <endian::order r> 
-    std::ostream &write(std::ostream &, const math::number::Z_bytes<r>&);
+    struct string;
+    
+    template <endian::order r, math::number::complement n> 
+    string write (const math::number::Z_bytes<r, n> &);
+    
+    template <endian::order r, math::number::complement n> 
+    std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, n> &z);
     
 }
 
 namespace data::encoding::hexidecimal {
     
     template <endian::order r> 
-    std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
+    ptr<oriented<r, byte>> read (string_view s);
+    
+    template <endian::order r> 
+    std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
     
     template <hex_case zz> struct string;
     
     template <hex_case zz, endian::order r> 
-    string<zz> write(const oriented<r, byte> &z);
+    string<zz> write (const oriented<r, byte> &z);
     
 }
 
 namespace data::encoding::natural {
     
     template <endian::order r> 
-    ptr<math::number::N_bytes<r>> read(string_view s);
+    ptr<math::number::N_bytes<r>> read (string_view s);
     
 }
 
 namespace data::encoding::integer {
     
-    template <endian::order r> 
-    ptr<math::number::Z_bytes<r>> read(string_view s);
+    template <endian::order r, math::number::complement c> 
+    ptr<math::number::Z_bytes<r, c>> read (string_view s);
+    
+    template <endian::order r, math::number::complement c> 
+    std::ostream &write (std::ostream &, const math::number::Z_bytes<r, c> &);
     
 }
 

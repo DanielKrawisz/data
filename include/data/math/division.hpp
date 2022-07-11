@@ -50,8 +50,13 @@ namespace data::math {
 
 namespace data {
     template <typename dividend, typename divisor = dividend> 
-    inline auto divide(const dividend& a, const math::nonzero<divisor>& b) -> decltype(math::divide<dividend, divisor>{}(a, b)) {
+    auto inline divide(const dividend& a, const math::nonzero<divisor>& b) -> decltype(math::divide<dividend, divisor>{}(a, b)) {
         return math::divide<dividend, divisor>{}(a, b);
+    }
+    
+    template <typename dividend, typename divisor = dividend> 
+    bool inline divides(const dividend& a, divisor& b) {
+        return b == 0 ? true : math::divide<dividend, divisor>{}(a, b).Remainder == 0;
     }
 }
 

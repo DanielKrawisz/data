@@ -16,7 +16,7 @@ namespace data::math {
         
         static X pow(X so_far, X pow_2n, N p) {
             if (p == 0) return so_far;
-            division d = p / 2;
+            division<X> d = data::divide(p, 2);
             return pow(d.Remainder == 1 ? so_far + pow_2n : so_far, square(pow_2n), d.Quotient);
         }
         
@@ -29,6 +29,13 @@ namespace data::math {
         }
     };
 
+}
+
+namespace data {
+    template <typename X, typename N> 
+    X inline power(X x, N n) {
+        return math::power<X, N>{}(x, n);
+    }
 }
 
 #endif

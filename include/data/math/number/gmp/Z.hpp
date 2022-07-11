@@ -9,7 +9,6 @@
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/number/integer.hpp>
 #include <data/encoding/integer.hpp>
-#include <data/cross.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number::GMP {
@@ -70,19 +69,19 @@ namespace data::math::number::GMP {
             return *(MPZ[0]._mp_d + i);
         }
         
-        mp_limb_t* begin() {
+        mp_limb_t *begin() {
             return MPZ[0]._mp_d;
         }
         
-        mp_limb_t* end() {
+        mp_limb_t *end() {
             return MPZ[0]._mp_d + MPZ[0]._mp_alloc;
         }
         
-        const mp_limb_t* begin() const {
+        const mp_limb_t *begin() const {
             return MPZ[0]._mp_d;
         }
         
-        const mp_limb_t* end() const {
+        const mp_limb_t *end() const {
             return MPZ[0]._mp_d + MPZ[0]._mp_alloc;
         };
         
@@ -104,21 +103,9 @@ namespace data::math::number::GMP {
         }
         
         division<Z, N> divide(const Z& z) const;
-        /*
-        template <endian::order o> 
-        explicit Z(const Z_bytes<o>& b) : Z(bytes_view(b), o) {
-            if (b[0] < 0x80) return;
-            *this -= (Z{2} << (b.size() * 8));
-        }*/
         
         template <endian::order o> 
         explicit Z(const N_bytes<o>& b) : Z(bytes_view(b), o) {}
-        /*
-        template <endian::order o, size_t size> 
-        explicit Z(const bounded<true, o, size>& b) : Z{Z_bytes<o>{b}} {}
-        
-        template <endian::order o, size_t size> 
-        explicit Z(const bounded<false, o, size>& b) : Z(bytes_view(b), o) {}*/
         
     };
     

@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,11 +11,16 @@
 
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
+#include <data/math/sign.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/root.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/digits.hpp>
 
+// base 58 is a format for writing natural numbers using
+// 58 digits that are easily distinguished by the human
+// eye. Numbers are written in big endian. Somewhat
+// confusingly, in base 58 '1' means zero. 
 namespace data::encoding::base58 {
     
     const std::string Format {"base58"};
@@ -55,23 +60,43 @@ namespace data::encoding::base58 {
     
     string inline write (const bytes_view b);
     
-    std::strong_ordering operator <=> (const string&, const string&);
+    // base58 strings are really natural numbers, so we
+    // can define standard math operations on them.
+    std::strong_ordering operator <=> (const string &, const string &);
     
-    string& operator ++ (string&);
-    string& operator -- (string&);
+    string& operator ++ (string &);
+    string& operator -- (string &);
     
-    string operator ++ (string&, int);
-    string operator -- (string&, int);
+    string operator ++ (string &, int);
+    string operator -- (string &, int);
     
-    string operator + (const string&, const string&);
-    string operator - (const string&, const string&);
-    string operator * (const string&, const string&);
+    string operator + (const string &, const string &);
+    string operator - (const string &, const string &);
+    string operator * (const string &, const string &);
     
-    string operator << (const string&, int);
-    string operator >> (const string&, int);
+    string operator << (const string &, int);
+    string operator >> (const string &, int);
     
-    string operator & (const string&, const string&);
-    string operator | (const string&, const string&);
+    string operator & (const string &, const string &);
+    string operator | (const string &, const string &);
+    
+    string operator + (const string &n, uint64 x);
+    string operator - (const string &n, uint64 x);
+    string operator * (const string &n, uint64 x);
+    
+    string &operator += (string &a, const string &);
+    string &operator -= (string &a, const string &);
+    string &operator *= (string &a, const string &);
+    
+    string &operator <<= (string &a, int);
+    string &operator >>= (string &a, int);
+    
+    string &operator |= (string &a, const string&);
+    string &operator &= (string &a, const string&);
+    
+    string &operator += (string &a, uint64);
+    string &operator -= (string &a, uint64);
+    string &operator *= (string &a, uint64);
     
     struct string : std::string {
         string ();
@@ -94,7 +119,7 @@ namespace data::encoding::base58 {
         
         string operator &= (const string&) const;
         string operator |= (const string&) const;
-        
+
         math::division<string, uint64> divide(uint64) const;
     };
     
@@ -104,7 +129,7 @@ namespace data::encoding::base58 {
     }
     
     string inline write (const bytes_view b) {
-        return encode<math::N> (math::N (math::number::N_bytes<endian::big> {b}));
+        return encode<math::N> (math::N (math::number::N_bytes<endian::big>::read (b)));
     }
     
 }
@@ -128,9 +153,6 @@ namespace data::math {
     struct root<base58_uint, pow> {
         set<base58_uint> operator () (const base58_uint& n);
     };
-}
-
-namespace data::math::number {
     
     bool is_zero (const base58_uint &);
     bool is_negative (const base58_uint &);
@@ -162,9 +184,10 @@ namespace data::math {
         if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string: \"" << u << "\"";
         return u;
     }
-}
-
-namespace data::math::number {
+    
+    bool inline is_positive (const encoding::base58::string &x) {
+        return !is_zero(x);
+    }
     
     bool inline is_zero (const base58_uint &n) {
         if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
@@ -175,14 +198,21 @@ namespace data::math::number {
         if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
         return false;
     }
-    
-    bool inline is_positive(const base58_uint &n) {
-        if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
-        return encoding::base58::nonzero (n);
-    }
 }
 
 namespace data::encoding::base58 {
+    
+    string inline operator + (const string& n, uint64 x) {
+        return n + string {x};
+    }
+    
+    string inline operator - (const string& n, uint64 x) {
+        return n - string {x};
+    }
+    
+    string inline operator * (const string& n, uint64 x) {
+        return n * string {x};
+    }
     
     string inline operator ++ (string &m, int) {
         string n = m;
@@ -195,6 +225,32 @@ namespace data::encoding::base58 {
         --m;
         return n;
     }
+    
+    string inline &operator += (string &a, const string& n) {
+        return a = a + n;
+    }
+    
+    string inline &operator -= (string &a, const string& n) {
+        return a = a - n;
+    }
+    
+    string inline &operator *= (string &a, const string& n) {
+        return a = a * n;
+    }
+    
+    string inline &operator <<= (string &a, int i) {
+        return a = a << i;
+    }
+    
+    string inline &operator >>= (string &a, int i) {
+        return a = a >> i;
+    }
+
+    inline string::string () : std::string{""} {}
+    
+    inline string::string (const std::string &x) : std::string {base58::valid (x) ? x : ""} {}
+    
+    inline string::string (uint64 x) : string {encode (math::N {x})} {}
     
 }
 

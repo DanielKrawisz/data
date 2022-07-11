@@ -1,8 +1,9 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/numbers.hpp"
+#include "data/math.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -15,8 +16,8 @@ namespace data {
     
     template <size_t size> using uint_big = data::math::number::bounded<false, endian::big, size>;
     
-    using Z_bytes_little = data::math::number::Z_bytes<endian::little>;
-    using Z_bytes_big = data::math::number::Z_bytes<endian::big>;
+    using Z_bytes_little = data::math::number::Z_bytes<endian::little, math::number::complement::ones>;
+    using Z_bytes_big = data::math::number::Z_bytes<endian::big, math::number::complement::ones>;
     
     using N_bytes_little = data::math::number::N_bytes<endian::little>;
     using N_bytes_big = data::math::number::N_bytes<endian::big>;
@@ -38,6 +39,8 @@ namespace data {
     typedef uint_little<10> ul10;
     typedef uint_little<11> ul11;
     typedef uint_little<20> ul20;
+    
+    using q = fraction<int64, uint64>;
     
     template <typename N> void test_N_sign() {
         
@@ -79,6 +82,14 @@ namespace data {
         EXPECT_EQ(sign(Q{-2}),                    math::negative);
         EXPECT_EQ(sign(Q{2, 3}),                  math::positive);
         EXPECT_EQ(sign(Q{-2, 3}),                 math::negative);
+        
+        EXPECT_EQ(sign(q{0}),                     math::zero);
+        EXPECT_EQ(sign(q{1}),                     math::positive);
+        EXPECT_EQ(sign(q{-1}),                    math::negative);
+        EXPECT_EQ(sign(q{2}),                     math::positive);
+        EXPECT_EQ(sign(q{-2}),                    math::negative);
+        EXPECT_EQ(sign(q{2, 3}),                  math::positive);
+        EXPECT_EQ(sign(q{-2, 3}),                 math::negative);
         
         test_Z_sign<b09>();
         test_Z_sign<b10>();

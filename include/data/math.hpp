@@ -6,12 +6,16 @@
 #define DATA_MATH
 
 #include <data/math/permutation.hpp>
+#include <data/math/fraction.hpp>
 
 namespace data {
     
     // permutations
     template <typename X>
     using permutation = data::math::permutation<X>;
+    
+    template <typename Z, typename N = Z>
+    using fraction = data::math::fraction<Z, N>;
     
 }
 

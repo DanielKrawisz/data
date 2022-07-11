@@ -54,6 +54,9 @@ namespace data::math {
             return *this;
         }
     };
+    
+    template <typename R>
+    nonzero(const R &) -> nonzero<R>;
 
     template <typename R>
     inline nonnegative<R> operator+(const nonnegative<R>& m, const nonnegative<R>& n) {
