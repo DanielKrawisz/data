@@ -382,7 +382,7 @@ namespace data::math::number {
     template <endian::order o, size_t size>
     inline math::sign bounded<true, o, size>::sign() const {
         if (*this == 0) return math::zero;
-        return (*digits().rend()) < 0x80 ? math::positive : math::negative;
+        return (digits()[-1]) < 0x80 ? math::positive : math::negative;
     }
     
     template <size_t size, endian::order o>

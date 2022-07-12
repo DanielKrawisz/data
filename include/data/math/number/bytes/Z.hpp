@@ -189,10 +189,16 @@ namespace data::math::number {
         Z_bytes trim() const;
         
         template <size_t size, endian::order o> 
-        explicit Z_bytes(const bounded<size, o, true>& b) : Z_bytes{bytes_view(b), o} {}
+        explicit Z_bytes(const bounded<size, o, true>& b) {
+            resize(b.size());
+            std::copy(b.words().begin(), b.words().end(), words().begin());
+        }
         
         template <size_t size, endian::order o> 
-        explicit Z_bytes(const bounded<size, o, false>& b) : Z_bytes{bytes_view(b), o} {}
+        explicit Z_bytes(const bounded<size, o, false>& b) {
+            *this = zero(b.size() + 1);
+            std::copy(b.words().begin(), b.words().end(), words().begin());
+        }
         
         data::arithmetic::digits<r> digits() {
             return data::arithmetic::digits<r>{slice<byte>(*this)};

@@ -60,16 +60,16 @@ namespace data {
     list<value> get_all(map m, list<key> k) {
         struct inner {
             map M;
-                    
+            
             inner(map m) : M{m} {}
-                    
+            
             list<value> operator()(key k, list<value> l) {
                 value v = M[k];
                 if (v == value{}) return l;
                 return l + v;
             }
         };
-                
+        
         return reduce(inner{m}, k);
     }
     

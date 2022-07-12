@@ -119,7 +119,7 @@ namespace data {
         EXPECT_EQ(sign(Q{-2}),                               math::negative);
         EXPECT_EQ(sign(Q{2, 3}),                             math::positive);
         EXPECT_EQ(sign(Q{-2, 3}),                            math::negative);
-        /*
+        
         EXPECT_EQ(sign(b09(0)),                              math::zero);
         EXPECT_EQ(sign(b10(0)),                              math::zero);
         EXPECT_EQ(sign(b11(0)),                              math::zero);
@@ -217,7 +217,7 @@ namespace data {
         EXPECT_EQ(sign(l09(-7076852110923542)),              math::negative);
         EXPECT_EQ(sign(l10(-7076852110923542)),              math::negative);
         EXPECT_EQ(sign(l11(-7076852110923542)),              math::negative);
-        EXPECT_EQ(sign(l20(-7076852110923542)),              math::negative);*/
+        EXPECT_EQ(sign(l20(-7076852110923542)),              math::negative);
         
     }
 }

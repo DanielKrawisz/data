@@ -5,14 +5,16 @@
 #ifndef DATA_MATH_PERMUTATION
 #define DATA_MATH_PERMUTATION
 
-#include <data/tools.hpp>
+#include <list>
+#include <data/for_each.hpp>
 
 #include <data/math/arithmetic.hpp>
 #include <data/math/associative.hpp>
+#include <data/math/group.hpp>
 
 namespace data::math {
 
-    template <std::totally_ordered elem>
+    template <std::totally_ordered elem> 
     struct permutation {
         using replacements = std::list<entry<elem, elem>>;
         
@@ -30,9 +32,7 @@ namespace data::math {
             }
             
             set<elem> elements() const {
-                auto x = set<elem>{data::cycle<elem>::Cycle};
-                if (x.size() == 0) return set<elem>{};
-                return x;
+                return set<elem>{data::cycle<elem>::Cycle};
             }
             
             // the identity cycle is the same as all cycles
@@ -40,6 +40,8 @@ namespace data::math {
             cycle normalize() const;
             
             operator replacements() const;
+            
+            math::sign sign() const;
         };
         
         list<cycle> Cycles;
@@ -61,7 +63,7 @@ namespace data::math {
         
         bool valid() const;
         
-        math::sign signature() const;
+        math::sign sign() const;
         
         static permutation identity() {
             return permutation();
@@ -140,13 +142,6 @@ namespace data::math {
         }
         for (auto bi = br.begin(); bi != br.end(); bi++) x.push_back(*bi);
         return x;
-    }
-    
-    template <typename elem> 
-    bool permutation<elem>::cycle::valid() const {
-        if (!data::cycle<elem>::valid()) return false;
-        set<elem> el = elements();
-        return el.size() == data::cycle<elem>::size() || el.size() == 1;
     }
     
     template <typename elem> 
@@ -242,6 +237,28 @@ namespace data::math {
     template <typename elem> 
     inline bool permutation<elem>::operator!=(const permutation& p) const {
         return !operator==(p);
+    }
+    
+    template <typename elem> 
+    math::sign permutation<elem>::sign() const {
+        if (!valid()) return math::zero;
+        return data::fold<math::sign>([](math::sign x, const cycle& c) -> math::sign {
+            return x * c.sign();
+        }, math::positive, Cycles);
+    }
+    
+    template <typename elem> 
+    math::sign permutation<elem>::cycle::sign() const {
+        if (!valid()) return math::zero;
+        size_t nx = normalize().size();
+        return nx == 0 ? math::positive : nx % 2 == 0 ? math::negative : math::positive; 
+    }
+    
+    template <typename elem> 
+    bool permutation<elem>::cycle::valid() const {
+        if (!data::cycle<elem>::valid()) return false;
+        set<elem> el = elements();
+        return el.size() == data::cycle<elem>::size() || el.size() == 1;
     }
 }
 

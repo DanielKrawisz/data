@@ -92,7 +92,7 @@ namespace data::tool {
         
         template <typename list> requires sequence<list, key>
         explicit map_set(list keys) : Map{} {
-            insert(keys);
+            *this = insert(keys);
         }
         
         template <typename ... P>

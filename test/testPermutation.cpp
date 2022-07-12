@@ -2,17 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/data.hpp"
+#include "data/math.hpp"
 #include "gtest/gtest.h"
 
-template <typename elem>
-std::ostream &write_list(std::ostream &o, const std::list<data::entry<elem, elem>> &m) {
-    o << "{";
-    for (const auto &e : m) o << e << " "; 
-    return o << "}";
-}
-
-namespace data::math {
+namespace data {
     
     TEST(PermutationTest, TestCycle) {
         using ucycle = cycle<uint32>;
@@ -64,9 +57,15 @@ namespace data::math {
     TEST(PermutationTest, TestPermutation) {
         using perm = permutation<uint32>;
         
-        EXPECT_FALSE(valid(perm{{1, 2, 1}}));
+        perm invalid1{{1, 2, 1}};
+        perm invalid2{{1, 2}, {3, 2}};
+        
+        EXPECT_FALSE(valid(invalid1));
         EXPECT_TRUE(valid(perm{{}, {1}}));
-        EXPECT_FALSE(valid(perm{{1, 2}, {3, 2}}));
+        EXPECT_FALSE(valid(invalid2));
+        
+        EXPECT_EQ(sign(invalid1), math::zero);
+        EXPECT_EQ(sign(invalid2), math::zero);
         
         perm p0{};
         perm p0_1{{}};
@@ -88,6 +87,8 @@ namespace data::math {
         EXPECT_EQ(p0, p0.inverse());
         EXPECT_EQ(p0, p0 * p0);
         
+        EXPECT_EQ(sign(p0), math::positive);
+        
         perm p12 = perm{{1, 2}};
         perm p21 = perm{{2, 1}};
         perm p23 = perm{{2, 3}};
@@ -101,6 +102,10 @@ namespace data::math {
         EXPECT_EQ(p0, p12 * p21);
         EXPECT_EQ(p0, p12 * p12);
         EXPECT_EQ(p12, p21);
+        
+        EXPECT_EQ(sign(p12), math::negative);
+        EXPECT_EQ(sign(p23), math::negative);
+        EXPECT_EQ(sign(p13), math::negative);
         
         perm p123 = perm{{1, 2, 3}};
         perm p321 = perm{{3, 2, 1}};
@@ -116,9 +121,17 @@ namespace data::math {
         EXPECT_EQ(p321, p13 * p12);
         EXPECT_EQ(p123, p12 * p13);
         
-        perm p1234 = perm{{1, 2}, {3, 4}};
+        EXPECT_EQ(sign(p123), math::positive);
+        EXPECT_EQ(sign(p321), math::positive);
         
-        EXPECT_TRUE(valid(p1234));
+        perm p1234a = perm{{1, 2, 3, 4}};
+        perm p1234b = perm{{1, 2}, {3, 4}};
+        
+        EXPECT_TRUE(valid(p1234a));
+        EXPECT_TRUE(valid(p1234b));
+        
+        EXPECT_EQ(sign(p1234a), math::negative);
+        EXPECT_EQ(sign(p1234b), math::positive);
     }
     /*
     constexpr auto d1 = decimal{"1"};
