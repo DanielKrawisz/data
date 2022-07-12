@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Daniel Krawisz
+// Copyright (c) 2020-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,14 +7,14 @@
 
 #include <data/iterable.hpp>
 #include <data/stream.hpp>
-#include <data/crypto/sha256.hpp>
+#include <data/crypto/hash/hash.hpp>
 
 namespace data::crypto {
     
     template <size_t size> 
-    using symmetric_key = array<byte, size>;
+    using symmetric_key = byte_array<size>;
     
-    using initialization_vector = array<byte, 32>;
+    using initialization_vector = byte_array<32>;
     
     template <size_t size>
     using encryption = bytes (*)(bytes_view, const symmetric_key<size>&, const initialization_vector&);
@@ -42,7 +42,7 @@ namespace data::crypto {
     
     template <size_t size>
     inline encrypted encrypt(bytes_view b, encryption<size> e, const symmetric_key<size>& k, const initialization_vector& iv) {
-        return {e(stream::write_bytes(12 + b.size(), uint64_big{0}, uint64_big{b.size()}, b, uint64_big{0}), k, iv), iv};
+        return {e(bytes::write(12 + b.size(), uint64_big{0}, uint64_big{b.size()}, b, uint64_big{0}), k, iv), iv};
     }
     
     struct decrypted;
@@ -122,7 +122,7 @@ namespace data::crypto {
             std::string line;
             std::getline(Cin, line);
             symmetric_key<32> x;
-            auto d = sha256::hash(line);
+            auto d = hash::SHA2_256(bytes_view{(byte*)line.data(), line.size()});
             std::copy(d.begin(), d.end(), x.begin());
             return x;
         }

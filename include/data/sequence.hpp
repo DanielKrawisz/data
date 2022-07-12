@@ -114,7 +114,7 @@ namespace data {
     bool sorted(const L &x) {
         return size(x) < 2 ? true : first(x) <= first(rest(x)) && sorted(rest(x));
     }
-
+    
 }
 
 template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>> 

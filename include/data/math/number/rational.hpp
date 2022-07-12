@@ -12,8 +12,8 @@
 #include <data/math/ordered.hpp>
 
 namespace data::math::number {
-    template <ordered Q>
-    struct rational : interface::field<Q, plus<Q>, times<Q>> {};
+    template <typename Q>
+    concept rational = field<Q, plus<Q>, times<Q>> && ordered<Q>;
     
     template <typename N>
     struct positive {
@@ -47,8 +47,9 @@ namespace data::math {
     
     // TODO: note that N is the type of abs(Z)
     // I don't have a way of doing that yet. 
-    template <ordered Z, typename N = Z>
-    struct fraction : interface::ring<Z, data::plus<Z>, data::times<Z>> {
+    template <typename Z, typename N = Z>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
+    struct fraction {
         Z Numerator;
         number::positive<N> Denominator;
         
@@ -175,28 +176,28 @@ namespace data::math {
 // TODO fill in these types correctly. 
 namespace data::math {
     template <typename Z, typename N> 
-    struct commutative<data::plus<fraction<Z, N>>, fraction<Z, N>> : commutative<data::plus<Z>, Z> {};
+    struct commutative<plus<fraction<Z, N>>, fraction<Z, N>> : commutative<plus<Z>, Z> {};
     
     template <typename Z, typename N> 
-    struct associative<data::plus<fraction<Z, N>>, fraction<Z, N>> : associative<data::plus<Z>, Z> {};
+    struct associative<plus<fraction<Z, N>>, fraction<Z, N>> : associative<plus<Z>, Z> {};
     
     template <typename Z, typename N> 
-    struct commutative<data::times<fraction<Z, N>>, fraction<Z, N>> : commutative<data::times<Z>, Z>{};
+    struct commutative<times<fraction<Z, N>>, fraction<Z, N>> : commutative<times<Z>, Z>{};
     
     template <typename Z, typename N> 
-    struct associative<data::times<fraction<Z, N>>, fraction<Z, N>> : associative<data::times<Z>, Z>{};
+    struct associative<times<fraction<Z, N>>, fraction<Z, N>> : associative<times<Z>, Z>{};
     
     template <typename Z, typename N> 
-    struct identity<data::plus<fraction<Z, N>>, fraction<Z, N>> {
+    struct identity<plus<fraction<Z, N>>, fraction<Z, N>> {
         static const math::number::gmp::Z value() {
-            return {identity<data::plus<Z>, Z>::value()};
+            return {identity<plus<Z>, Z>::value()};
         }
     };
     
     template <typename Z, typename N> 
-    struct identity<data::times<fraction<Z, N>>, fraction<Z, N>> {
+    struct identity<times<fraction<Z, N>>, fraction<Z, N>> {
         static const math::number::gmp::Z value() {
-            return {identity<data::times<Z>, Z>::value()};
+            return {identity<times<Z>, Z>::value()};
         }
     };
 }

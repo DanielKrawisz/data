@@ -322,19 +322,19 @@ namespace data::math::number {
 
 // Declare associativity and commutivity of operators + and * on N. 
 namespace data::math {
-    template <> struct commutative<data::plus<math::number::gmp::N>, math::number::gmp::N> {};
-    template <> struct associative<data::plus<math::number::gmp::N>, math::number::gmp::N> {};
-    template <> struct commutative<data::times<math::number::gmp::N>, math::number::gmp::N> {};
-    template <> struct associative<data::times<math::number::gmp::N>, math::number::gmp::N> {};
+    template <> struct commutative<plus<number::gmp::N>, number::gmp::N> {};
+    template <> struct associative<plus<number::gmp::N>, number::gmp::N> {};
+    template <> struct commutative<times<number::gmp::N>, number::gmp::N> {};
+    template <> struct associative<times<number::gmp::N>, number::gmp::N> {};
     
-    template <> struct identity<data::plus<math::number::gmp::N>, math::number::gmp::N> {
-        static const math::number::gmp::N value() {
+    template <> struct identity<plus<number::gmp::N>, number::gmp::N> {
+        static const number::gmp::N value() {
             return 1;
         }
     };
     
-    template <> struct identity<data::times<math::number::gmp::N>, math::number::gmp::N> {
-        static const math::number::gmp::N value() {
+    template <> struct identity<times<number::gmp::N>, number::gmp::N> {
+        static const number::gmp::N value() {
             return 0;
         }
     };

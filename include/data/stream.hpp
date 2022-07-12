@@ -6,7 +6,6 @@
 #define DATA_STREAM
 
 #include <exception>
-
 #include <data/slice.hpp>
 
 namespace data {
@@ -105,19 +104,8 @@ namespace data {
         }
     };
     
-    namespace stream {
-    
-        template <typename it>
-        inline writer<it> &write_all(writer<it> &w) {
-            return w;
-        }
-        
-        template <typename it, typename X, typename ... P>
-        inline writer<it> &write_all(writer<it> &w, X x, P... p) {
-            return write_all(w << x, p...);
-        }
-    
-    }
+    using bytes_writer = data::iterator_writer<std::vector<byte>::iterator, byte>;
+    using bytes_reader = data::iterator_reader<const byte*, byte>;
     
 }
 

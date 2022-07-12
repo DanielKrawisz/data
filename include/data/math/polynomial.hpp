@@ -135,28 +135,28 @@ namespace data::math {
     };
 
     template <typename A, typename N>
-    struct commutative<data::plus<polynomial<A, N>>, polynomial<A, N>> : commutative<data::plus<A>, A> {};
+    struct commutative<plus<polynomial<A, N>>, polynomial<A, N>> : commutative<plus<A>, A> {};
     
     template <typename A, typename N>
-    struct associative<data::plus<polynomial<A, N>>, polynomial<A, N>> : associative<data::plus<A>, A> {};
+    struct associative<plus<polynomial<A, N>>, polynomial<A, N>> : associative<plus<A>, A> {};
     
     template <typename A, typename N>
-    struct commutative<data::times<polynomial<A, N>>, polynomial<A, N>> : commutative<data::times<A>, A>{};
+    struct commutative<times<polynomial<A, N>>, polynomial<A, N>> : commutative<times<A>, A>{};
     
     template <typename A, typename N>
-    struct associative<data::times<polynomial<A, N>>, polynomial<A, N>> : associative<data::times<A>, A> {};
+    struct associative<times<polynomial<A, N>>, polynomial<A, N>> : associative<times<A>, A> {};
     
     template <typename A, typename N>
-    struct identity<data::plus<polynomial<A, N>>, polynomial<A, N>> : identity<data::plus<A>, A> {
+    struct identity<plus<polynomial<A, N>>, polynomial<A, N>> : identity<plus<A>, A> {
         static const polynomial<A, N> value() {
-            return identity<data::plus<A>, A>::value();
+            return identity<plus<A>, A>::value();
         }
     };
     
     template <typename A, typename N>
-    struct identity<data::times<polynomial<A, N>>, polynomial<A, N>> : identity<data::times<A>, A> {
+    struct identity<times<polynomial<A, N>>, polynomial<A, N>> : identity<times<A>, A> {
         static const polynomial<A, N> value() {
-            return identity<data::times<A>, A>::value();
+            return identity<times<A>, A>::value();
         }
     };
 
@@ -402,19 +402,19 @@ namespace data::math {
     
     template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::operator*(const A x) const {
-        return reduce<polynomial>(data::plus<polynomial>{}, 
+        return reduce<polynomial>(math::plus<polynomial>{}, 
             for_each([x](ordering o) -> polynomial{ return o.Term * x; }, Terms));
     }
     
     template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::operator*(const term x) const {
-        return reduce<polynomial>(data::plus<polynomial>{}, 
+        return reduce<polynomial>(math::plus<polynomial>{}, 
             for_each([x](ordering o) -> polynomial{ return o.Term * x; }, Terms));
     }
     
     template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::operator*(const polynomial p) const {
-        return reduce<polynomial>(data::plus<polynomial>{}, 
+        return reduce<polynomial>(math::plus<polynomial>{}, 
             for_each([p](ordering o) -> polynomial {
                 return o.Term * p;
             }, Terms));
@@ -436,7 +436,7 @@ namespace data::math {
     // inefficient as it computes powers repeatedly. 
     template <typename A, typename N>
     polynomial<A, N> polynomial<A, N>::operator()(const polynomial p) const {
-        return reduce<polynomial>(data::plus<polynomial>{}, 
+        return reduce<polynomial>(math::plus<polynomial>{}, 
             for_each([p](ordering o) -> polynomial {
                 return o.Term(p);
             }, Terms));
@@ -467,7 +467,7 @@ namespace data::math {
     
     template <typename A, typename N>
     inline polynomial<A, N> polynomial<A, N>::derivative() const {
-        return reduce(data::plus<polynomial>{}, 
+        return reduce(math::plus<polynomial>{}, 
             for_each([](ordering o)->polynomial{
                 if (o.Term.Power == 0) return zero();
                 return polynomial{term{o.Term.Coefficient * o.Term.Power, o.Term.Power - 1}};

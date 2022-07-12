@@ -41,31 +41,31 @@ namespace data {
     
     TEST(BoundedTest, BoundedReadString) {
         
-        EXPECT_THROW(u8b{"-1"}, std::invalid_argument);
-        EXPECT_THROW(u8l{"-1"}, std::invalid_argument);
+        EXPECT_THROW(u8b::read("-1"), std::invalid_argument);
+        EXPECT_THROW(u8l::read("-1"), std::invalid_argument);
         
-        auto a = s8b{"0xff"};
-        auto b = s8b{"-1"};
-        auto c = s8l{"0xff"};
-        auto d = s8l{"-1"};
+        auto a = s8b::read("0xff");
+        auto b = s8b::read("-1");
+        auto c = s8l::read("0xff");
+        auto d = s8l::read("-1");
         
         EXPECT_EQ(a, b);
         EXPECT_EQ(c, d);
         
-        EXPECT_THROW(u8b{"-0x01"}, std::invalid_argument);
-        EXPECT_THROW(u8l{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(u8b::read("-0x01"), std::invalid_argument);
+        EXPECT_THROW(u8l::read("-0x01"), std::invalid_argument);
         
-        EXPECT_EQ(s8b{"0xffffffffffffffff"}, s8b{"-1"});
-        EXPECT_EQ(s8l{"0xffffffffffffffff"}, s8l{"-1"});
+        EXPECT_EQ(s8b::read("0xffffffffffffffff"), s8b::read("-1"));
+        EXPECT_EQ(s8l::read("0xffffffffffffffff"), s8l::read("-1"));
         
-        EXPECT_THROW(s8b{"-0xffffffffffffffff"}, std::invalid_argument);
-        EXPECT_THROW(s8l{"-0xffffffffffffffff"}, std::invalid_argument);
+        EXPECT_THROW(s8b::read("-0xffffffffffffffff"), std::invalid_argument);
+        EXPECT_THROW(s8l::read("-0xffffffffffffffff"), std::invalid_argument);
         
-        EXPECT_THROW(u8b{"0x000000000000000001"}, std::invalid_argument);
-        EXPECT_THROW(u8l{"0x000000000000000001"}, std::invalid_argument);
+        EXPECT_THROW(u8b::read("0x000000000000000001"), std::invalid_argument);
+        EXPECT_THROW(u8l::read("0x000000000000000001"), std::invalid_argument);
         
-        EXPECT_THROW(s8b{"0x000000000000000001"}, std::invalid_argument);
-        EXPECT_THROW(s8l{"0x000000000000000001"}, std::invalid_argument);
+        EXPECT_THROW(s8b::read("0x000000000000000001"), std::invalid_argument);
+        EXPECT_THROW(s8l::read("0x000000000000000001"), std::invalid_argument);
         
     }
     
@@ -203,35 +203,35 @@ namespace data {
     
     TEST(BoundedTest, BoundedNegativeTest) {
         
-        EXPECT_EQ(-s8b{"1"}, s8b{"-1"});
-        EXPECT_EQ(-s8b{"-1"}, s8b{"1"});
+        EXPECT_EQ(-s8b::read("1"), s8b::read("-1"));
+        EXPECT_EQ(-s8b::read("-1"), s8b::read("1"));
         
-        EXPECT_EQ(-s7b{"1"}, s7b{"-1"});
-        EXPECT_EQ(-s7b{"-1"}, s7b{"1"});
+        EXPECT_EQ(-s7b::read("1"), s7b::read("-1"));
+        EXPECT_EQ(-s7b::read("-1"), s7b::read("1"));
         
-        EXPECT_EQ(-s6b{"1"}, s6b{"-1"});
-        EXPECT_EQ(-s6b{"-1"}, s6b{"1"});
+        EXPECT_EQ(-s6b::read("1"), s6b::read("-1"));
+        EXPECT_EQ(-s6b::read("-1"), s6b::read("1"));
         
-        EXPECT_EQ(-s5b{"1"}, s5b{"-1"});
-        EXPECT_EQ(-s5b{"-1"}, s5b{"1"});
+        EXPECT_EQ(-s5b::read("1"), s5b::read("-1"));
+        EXPECT_EQ(-s5b::read("-1"), s5b::read("1"));
         
-        EXPECT_EQ(-s8l{"1"}, s8l{"-1"});
-        EXPECT_EQ(-s8l{"-1"}, s8l{"1"});
+        EXPECT_EQ(-s8l::read("1"), s8l::read("-1"));
+        EXPECT_EQ(-s8l::read("-1"), s8l::read("1"));
         
-        EXPECT_EQ(-s7l{"1"}, s7l{"-1"});
-        EXPECT_EQ(-s7l{"-1"}, s7l{"1"});
+        EXPECT_EQ(-s7l::read("1"), s7l::read("-1"));
+        EXPECT_EQ(-s7l::read("-1"), s7l::read("1"));
         
-        EXPECT_EQ(-s6l{"1"}, s6l{"-1"});
-        EXPECT_EQ(-s6l{"-1"}, s6l{"1"});
+        EXPECT_EQ(-s6l::read("1"), s6l::read("-1"));
+        EXPECT_EQ(-s6l::read("-1"), s6l::read("1"));
         
-        EXPECT_EQ(-s5l{"1"}, s5l{"-1"});
-        EXPECT_EQ(-s5l{"-1"}, s5l{"1"});
+        EXPECT_EQ(-s5l::read("1"), s5l::read("-1"));
+        EXPECT_EQ(-s5l::read("-1"), s5l::read("1"));
         
-        EXPECT_EQ(-zb{"1"}, zb{"-1"});
-        EXPECT_EQ(-zb{"-1"}, zb{"1"});
+        EXPECT_EQ(-zb::read("1"), zb::read("-1"));
+        EXPECT_EQ(-zb::read("-1"), zb::read("1"));
         
-        EXPECT_EQ(-zl{"1"}, zl{"-1"});
-        EXPECT_EQ(-zl{"-1"}, zl{"1"});
+        EXPECT_EQ(-zl::read("1"), zl::read("-1"));
+        EXPECT_EQ(-zl::read("-1"), zl::read("1"));
         
     }
     

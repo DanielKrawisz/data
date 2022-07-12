@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,29 +8,23 @@
 #include <data/math/associative.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/arithmetic.hpp>
+#include <data/function.hpp>
 
 namespace data::math {
     
-    template <typename F, typename x> struct identity;
-}
-
-namespace data::interface {
-    
-    template <typename elem, typename op>
-    struct group : math::associative<op, elem>, math::identity<op, elem> {
-        static elem identity() {
-            return math::identity<op, elem>::Identity;
-        }
-        
-        using invert = data::inverse<action<op, elem>, elem, elem>;
-        
-        static elem inverse(const elem& e) {
-            return invert{op{}, identity()}(e);
-        }
+    template <typename elem, typename op = plus<elem>>
+    concept group = requires(){
+        typename associative<op, elem>; 
+        {identity<op, elem>{}()} -> std::convertible_to<elem>; 
+    } && requires (const elem &a, const elem &b) {
+        {op{}(a, b)} -> std::convertible_to<elem>;
+        {inverse<op, elem>{}(a, b)} -> std::convertible_to<elem>; 
     };
     
-    template <typename elem, typename op>
-    struct abelian : group<elem, op>, math::commutative<op, elem> {};
+    template <typename elem, typename op = elem>
+    concept abelian = group<elem, op> && requires() {
+        typename math::commutative<op, elem>;
+    };
     
 }
 

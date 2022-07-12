@@ -69,9 +69,10 @@ namespace data {
             return Data != nullptr && Size >= 0;
         }
         
-        X& operator[](size_t n) const {
-            if (n >= size() || n < 0) throw std::out_of_range{"index out of range"};
-            return Data[n];
+        X& operator[](size_t i) const {
+            if (Size == 0) throw std::out_of_range{"slice size 0"};
+            if (i < 0 || i >= Size) return this->operator[]((i + Size) % Size);
+            return Data[i];
         }
 
         /// Selects a range from the current slice

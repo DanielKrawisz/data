@@ -49,17 +49,17 @@ namespace data::math {
     
     template <typename N, auto & natural>
     struct associative<
-        data::times<algebra::alternating_group<N, natural>>, 
+        times<algebra::alternating_group<N, natural>>, 
         algebra::alternating_group<N, natural>>
-        : associative<data::plus<N>, N> {};
+        : associative<plus<N>, N> {};
     
     template <typename N, auto & natural>
     struct identity<
-        data::times<algebra::dihedral_group<N, natural>>, 
+        times<algebra::dihedral_group<N, natural>>, 
         algebra::alternating_group<N, natural>>
-        : identity<data::times<N>, N> {
+        : identity<times<N>, N> {
         static const algebra::alternating_group<N, natural> value() {
-            return {identity<data::times<N>, N>::value()};
+            return {identity<times<N>, N>::value()};
         }
     };
     

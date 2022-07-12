@@ -11,13 +11,26 @@
 #include <data/math/division.hpp>
 #include <data/math/number/abs.hpp>
 #include <data/math/arithmetic.hpp>
-#include <data/encoding/endian/words.hpp>
+#include <data/encoding/words.hpp>
 
 #include <algorithm>
 
 namespace data::math::number {
     
     template <endian::order r> struct N_bytes;
+    template <endian::order r> struct Z_bytes;
+    
+    template <endian::order r>
+    Z_bytes<r> operator<<(const Z_bytes<r>&, int);
+    
+    template <endian::order r>
+    Z_bytes<r> operator>>(const Z_bytes<r>&, int);
+    
+    template <endian::order r>
+    Z_bytes<r> &operator<<=(const Z_bytes<r>&, int);
+    
+    template <endian::order r>
+    Z_bytes<r> &operator>>=(const Z_bytes<r>&, int);
     
     template <endian::order r>
     struct Z_bytes : bytes {
@@ -87,7 +100,7 @@ namespace data::math::number {
         
         Z_bytes operator~() const {
             Z_bytes z(*this);
-            arithmetic::bit_negate(z.end(), z.begin(), z.begin());
+            arithmetic::bit_negate<byte>(z.end(), z.begin(), z.begin());
             return z;
         }
         
@@ -166,22 +179,6 @@ namespace data::math::number {
             return operator=(operator%(z));
         }
         
-        Z_bytes operator<<(int64 x) const {
-            throw method::unimplemented{"Z_bytes::<<"};
-        }
-        
-        Z_bytes operator>>(int64 x) const {
-            throw method::unimplemented{"Z_bytes::>>"};
-        }
-        
-        Z_bytes& operator<<=(int64 x) {
-            return operator=(operator<<(x));
-        }
-        
-        Z_bytes& operator>>=(int64 x) {
-            return operator=(operator>>(x));
-        }
-        
         Z_bytes<r> abs() const {
             throw method::unimplemented{"Z_bytes::abs"};
         }
@@ -200,17 +197,15 @@ namespace data::math::number {
             std::copy(b.words().begin(), b.words().end(), words().begin());
         }
         
-        data::arithmetic::digits<r> digits() {
-            return data::arithmetic::digits<r>{slice<byte>(*this)};
+        encoding::words<r, byte> digits() {
+            return encoding::words<r, byte>{slice<byte>(*this)};
         }
         
-        const data::arithmetic::digits<r> digits() const {
-            return data::arithmetic::digits<r>{slice<byte>(*const_cast<Z_bytes*>(this))};
+        const encoding::words<r, byte> digits() const {
+            return encoding::words<r, byte>{slice<byte>(*const_cast<Z_bytes*>(this))};
         }
         
-    private:
-        // TODO use words type eventually. 
-        using words_type = data::arithmetic::digits<r>;
+        using words_type = encoding::words<r, byte>;
         
         words_type words() {
             return digits();
@@ -221,11 +216,31 @@ namespace data::math::number {
         }
     };
     
+    template <endian::order r> bool inline is_negative(const Z_bytes<r> &x) {
+        return arithmetic::sign_bit_set(x.words());
+    }
+    
+    template <endian::order r> bool inline is_positive(const Z_bytes<r> &x) {
+        return !is_zero(x) && !arithmetic::sign_bit_set(x.words());
+    }
+    
+    template <endian::order r> bool inline is_zero(const Z_bytes<r> &x) {
+        return arithmetic::ones_is_zero(x.words());
+    }
+    
+    template <endian::order r> bool inline is_minimal(const Z_bytes<r> &x) {
+        return arithmetic::ones_is_minimal(x.words());
+    }
+    
+    template <endian::order r> size_t inline minimal_size(const Z_bytes<r> &x) {
+        return arithmetic::ones_minimal_size(x.words());
+    }
+    
     template <endian::order r> Z_bytes<r>::Z_bytes() : bytes{} {}
     
     template <endian::order r> Z_bytes<r>::Z_bytes(const N_bytes<r>& n) {
-        typename data::arithmetic::digits<r>::iterator it;
-        if (n.digits()[0] <= 0x80) {
+        typename words_type::iterator it;
+        if (n.words()[0] <= 0x80) {
             this->resize(n.size() + 1);
             this->operator[](0) = 0;
             it = this->digits().begin();
@@ -306,40 +321,43 @@ namespace data::math::number {
         return arithmetic::greater(end(), i, j);
     }
     
-    
     template <endian::order r> 
     Z_bytes<r> Z_bytes<r>::operator+(const Z_bytes& z) const {
         Z_bytes re(std::max(size(), z.size()) + 1, 0);
-        arithmetic::plus(re.words(), this->words(), z.words());
+        arithmetic::plus<byte>(re.words().end(), re.words().begin(), this->words().begin(), z.words().begin());
         return re.trim();
     }
     
-    /*
-    template <endian::order r>
-    Z_bytes<r> Z_bytes<r>::operator-(const Z_bytes& z) const {
-        uint32 s = std::max(size(), z.size()) + 1;
-        Z_bytes re{bytes{s}};
-        methods::minus(s, words(), z.words(), re.words());
-        return re.trim();
+    template <endian::order r> Z_bytes<r> Z_bytes<r>::trim() const {
+        size_t size = minimal_size(*this);
+        if (size == this->size()) return *this;
+        auto n = Z_bytes<r>::zero(size);
+        auto w = this->words();
+        std::copy(w.begin(), w.begin() + size, n.words().begin());
+        return n;
     }
     
-    template <endian::order r> 
-    Z_bytes<r> Z_bytes<r>::operator*(const Z_bytes& z) const {
-        uint32 s = size() + z.size() + 1;
-        Z_bytes re{bytes{s}};
-        methods::times(s, words(), z.words(), re.words());
-        return re.trim();
-    }
-    */
-    template <endian::order r> 
-    Z_bytes<r> Z_bytes<r>::trim() const {
-        byte fill = is_negative() ? 0xff : 0x00;
-        int extra_room = 0;
-        while (extra_room < size() && operator[](extra_room) == fill) extra_room++;
-        Z_bytes<r> ru(size() - extra_room, fill);
-        if (r == endian::big) std::copy(this->begin() + extra_room, this->end(), ru.begin());
-        else std::copy(this->begin(), this->begin() + size() - extra_room, ru.begin());
-        return ru;
+    template <endian::order r> Z_bytes<r> extend(const Z_bytes<r> &x, size_t size) {
+        if (size < x.size()) {
+            size_t min_size = minimal_size(x); 
+            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
+            return extend(x.trim(), size);
+        }
+        
+        if (size == x.size()) return x;
+        
+        Z_bytes<r> z;
+        z.resize(size);
+        byte extend_digit = is_negative(x) ? 0xff : 0x00;
+        
+        auto i = z.words().rbegin();
+        for (int n = 0; n < size - x.size(); n++) {
+            *i = extend_digit;
+            i++;
+        }
+        
+        std::copy(x.words().rbegin(), x.words().rend(), i);
+        return z;
     }
 
     template <endian::order r> 
@@ -387,6 +405,40 @@ namespace data::math::number {
         
         return operator bytes_view().substr(left_begin, left_end) == bytes_view(z).substr(right_begin, right_end);
     }
+    
+    template <endian::order r>
+    Z_bytes<r> inline operator<<(const Z_bytes<r> &z, int i) {
+        auto n = z;
+        return n <<= i;
+    }
+    
+    template <endian::order r>
+    Z_bytes<r> inline operator>>(const Z_bytes<r> &z, int i) {
+        auto n = z;
+        return n >>= i;
+    }
+    
+    namespace {
+        template <endian::order r>
+        void inline bit_shift_left(Z_bytes<r> &z, uint32 i) {
+            z = extend(z, z.size() + (i + 7) / 8);
+            z.bit_shift_left(i);
+        }
+    }
+    
+    template <endian::order r>
+    Z_bytes<r> inline &operator<<=(Z_bytes<r> &n, int i) {
+        if (i < 0) n.bit_shift_right(-i);
+        else bit_shift_left(n, i);
+        return n = n.trim();
+    }
+    
+    template <endian::order r>
+    Z_bytes<r> inline &operator>>=(Z_bytes<r> &n, int i) {
+        if (i < 0) bit_shift_left(n, -i);
+        else n.bit_shift_right(i);
+        return n = n.trim();
+    }
 
     template <data::endian::order r>
     inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
@@ -399,10 +451,10 @@ namespace data::math::number {
 
 namespace data::math {
     // Declare that the plus and times operation on Z are commutative. 
-    template <endian::order r> struct commutative<data::plus<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
-    template <endian::order r> struct associative<data::plus<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
-    template <endian::order r> struct commutative<data::times<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
-    template <endian::order r> struct associative<data::times<math::number::Z_bytes<r>>, math::number::Z_bytes<r>> {};
+    template <endian::order r> struct commutative<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r> struct associative<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r> struct commutative<times<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    template <endian::order r> struct associative<times<number::Z_bytes<r>>, number::Z_bytes<r>> {};
 }
 
 #endif

@@ -10,7 +10,6 @@
 #include <data/encoding/digits.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/cross.hpp>
-#include <data/encoding/endian/words.hpp>
 
 namespace data::math::number {
     
@@ -176,6 +175,12 @@ namespace data::math::number {
     N_bytes<r> operator>>(const N_bytes<r>&, int);
     
     template <endian::order r>
+    N_bytes<r> &operator<<=(const N_bytes<r>&, int);
+    
+    template <endian::order r>
+    N_bytes<r> &operator>>=(const N_bytes<r>&, int);
+    
+    template <endian::order r>
     struct N_bytes : bytes {
         
         N_bytes() : bytes{} {}
@@ -216,9 +221,9 @@ namespace data::math::number {
         
     private:
         
-        N_bytes(size_t size, byte fill);
-        
-        using words = ::data::arithmetic::words<N_bytes<r>, r>;
+        N_bytes(size_t size, byte fill) {
+            throw method::unimplemented{"N_bytes(size, fill)"};
+        }
         
     public:
         
@@ -304,14 +309,6 @@ namespace data::math::number {
             return operator=(operator%(n));
         }
         
-        N_bytes& operator<<=(int64 x) {
-            return operator=(*this << x);
-        }
-        
-        N_bytes& operator>>=(int64 x) {
-            return operator=(*this >> x);
-        }
-        
         bytes write(endian::order) const; 
         
         N_bytes trim() const;
@@ -319,18 +316,20 @@ namespace data::math::number {
         template <size_t size, endian::order o> 
         explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}
         
-        data::arithmetic::digits<r> digits() {
-            return data::arithmetic::digits<r>{slice<byte>(*this)};
+        using words_type = encoding::words<r, byte>;
+        
+        words_type words() {
+            return encoding::words<r, byte>{slice<byte>(*this)};
         }
         
-        const data::arithmetic::digits<r> digits() const {
-            return data::arithmetic::digits<r>{slice<byte>(*const_cast<N_bytes*>(this))};
+        const words_type words() const {
+            return encoding::words<r, byte>{slice<byte>(*const_cast<N_bytes*>(this))};
         }
         
         explicit operator uint64() const {
             if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
             endian::arithmetic<endian::little, false, 8> xx;
-            std::copy(digits().begin(), digits().begin() + 8, xx.begin());
+            std::copy(words().begin(), words().begin() + 8, xx.begin());
             return uint64(xx);
         } 
 
@@ -344,16 +343,26 @@ namespace data::math::number {
         friend struct abs<N_bytes, Z_bytes<r>>;
     };
     
-    namespace low {
-        template <typename B, typename E, typename O>
-        void trim(uint32 size, B b, E e, O o) {
-            while(*b == 0) {
-                size--;
-                b++;
-            }
-            std::copy(b, e, o);
-        }
+    template <endian::order r> bool inline is_negative(const N_bytes<r> &) {
+        return false;
     }
+    
+    template <endian::order r> bool inline is_positive(const N_bytes<r> &x) {
+        return !is_zero(x);
+    }
+    
+    template <endian::order r> bool inline is_zero(const N_bytes<r> &x) {
+        return arithmetic::ones_is_zero(x.words());
+    }
+    
+    template <endian::order r> bool inline is_minimal(const N_bytes<r> &x) {
+        return arithmetic::N_is_minimal(x.words());
+    }
+    
+    template <endian::order r> size_t inline minimal_size(const N_bytes<r> &x) {
+        return arithmetic::N_minimal_size(x.words());
+    }
+    
 }
 
 namespace data::math::number {
@@ -368,10 +377,10 @@ namespace data::math::number {
 namespace data::math {
     
     // Declare that the plus and times operation on N are commutative. 
-    template <endian::order r> struct commutative<data::plus<math::number::N_bytes<r>>, math::number::N_bytes<r>> {};
-    template <endian::order r> struct associative<data::plus<math::number::N_bytes<r>>, math::number::N_bytes<r>> {};
-    template <endian::order r> struct commutative<data::times<math::number::N_bytes<r>>, math::number::N_bytes<r>> {};
-    template <endian::order r> struct associative<data::times<math::number::N_bytes<r>>, math::number::N_bytes<r>> {};
+    template <endian::order r> struct commutative<plus<number::N_bytes<r>>, number::N_bytes<r>> {};
+    template <endian::order r> struct associative<plus<number::N_bytes<r>>, number::N_bytes<r>> {};
+    template <endian::order r> struct commutative<times<number::N_bytes<r>>, number::N_bytes<r>> {};
+    template <endian::order r> struct associative<times<number::N_bytes<r>>, number::N_bytes<r>> {};
     
 }
 
@@ -427,7 +436,7 @@ namespace data::encoding::hexidecimal {
         
         ptr<math::N_bytes<r>> n = std::make_shared<math::N_bytes<r>>();
         n->resize((s.size() - 2) / 2);
-        boost::algorithm::unhex(s.begin() + 2, s.end(), n->digits().rbegin());
+        boost::algorithm::unhex(s.begin() + 2, s.end(), n->words().rbegin());
         
         return n;
     }
@@ -650,8 +659,8 @@ namespace data::math::number {
         N_bytes<r> m{};
         m.resize(n.size() + 4);
         uint64_little x{u};
-        auto dn = n.digits();
-        auto dm = m.digits();
+        auto dn = n.words();
+        auto dm = m.words();
         auto in = dn.begin();
         auto im = dm.begin();
         auto en = dn.end();
@@ -720,87 +729,69 @@ namespace data::math::number {
         return N_bytes<r>(N(n) ^ pow);
     }
     
-    template <endian::order r> struct bit_shift;
+    template <endian::order r> N_bytes<r> N_bytes<r>::trim() const {
+        size_t size = minimal_size(*this);
+        if (size == this->size()) return *this;
+        auto n = N_bytes<r>::zero(size);
+        auto w = this->words();
+        std::copy(w.begin(), w.begin() + size, n.words().begin());
+        return n;
+    }
     
-    template <> struct bit_shift<endian::big> {
-        
-        template <typename it1b, typename it2b, typename it2e>
-        static void shift_right(it1b ai, it2b bi, it2e be, byte i) {
-            uint16 x = combine(byte(0), *ai);
-            while (true) {
-                *bi = static_cast<byte>(x >> i);
-                if (bi != be) return;
-                x = combine(*ai, *++ai);
-                ++bi;
-            }
-        }
-        
-        template <typename it1b, typename it1e, typename it2b>
-        static void shift_left(it1b ai, it1e ae, it2b bi, byte i) {
-            uint16 x;
-            byte last;
-            while (true) {
-                last = *ai;
-                ai++;
-                if (ai != ae) break;
-                x = combine(last, *ai) >> (8 - i);
-                *bi = static_cast<byte>(x);
-                bi++;
-            }
-            x = combine(last, byte(0)) >> (8 - i);
-            *bi = static_cast<byte>(x);
+    template <endian::order r> N_bytes<r> extend(const N_bytes<r> &x, size_t size) {
+        if (size < x.size()) {
+            size_t min_size = minimal_size(x); 
+            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
+            return extend(x.trim(), size);
         }
         
-        N_bytes<endian::big> operator()(const N_bytes<endian::big> &n, int i) {
-            if (-i > 8 * n.size()) return {};
-            if (i == 0) return n;
-            N_bytes<endian::big> x;
-            if (i < 0) {
-                x = N_bytes<endian::big>::zero(n.size() + i / 8);
-                shift_right(n.begin(), x.begin(), x.end(), static_cast<byte>(-i % 8));
-            } else {
-                x = N_bytes<endian::big>::zero(n.size() + i / 8 + 1);
-                shift_left(n.begin(), n.end(), x.begin(), static_cast<byte>(i % 8));
-            }
-            return x.trim();
+        if (size == x.size()) return x;
+        
+        N_bytes<r> z;
+        z.resize(size);
+        
+        auto i = z.words().rbegin();
+        for (int n = 0; n < size - x.size(); n++) {
+            *i = 0;
+            i++;
         }
-    };
-    
-    template <> struct bit_shift<endian::little> {
-        N_bytes<endian::little> operator()(const N_bytes<endian::little> &n, int i) {
-            return bit_shift<endian::big>{}(N_bytes<endian::big>(n), i);
-        }
-    };
-    
-    template <endian::order r>
-    N_bytes<r> inline operator<<(const N_bytes<r> &n, int i) {
-        return N_bytes<r>(r == endian::big ? N(n) << i : N(n) >> i);
+        
+        std::copy(x.words().rbegin(), x.words().rend(), i);
+        return z;
     }
     
     template <endian::order r>
-    N_bytes<r> inline operator>>(const N_bytes<r> &n, int i) {
-        return N_bytes<r>(r == endian::big ? N(n) >> i : N(n) << i);
+    N_bytes<r> inline operator<<(const N_bytes<r> &z, int i) {
+        auto n = z;
+        return n <<= i;
     }
     
-    template <endian::order r> 
-    N_bytes<r> N_bytes<r>::trim() const {
-        uint32 s = size();
-        if (s == 0) return N_bytes{bytes{}};
-        auto d = digits();
-        auto b = d.rbegin();
-        while (*b == 0) {
-            s--;
-            b++;
+    template <endian::order r>
+    N_bytes<r> inline operator>>(const N_bytes<r> &z, int i) {
+        auto n = z;
+        return n >>= i;
+    }
+    
+    namespace {
+        template <endian::order r>
+        void inline bit_shift_left(N_bytes<r> &z, uint32 i) {
+            z = extend(z, z.size() + (i + 7) / 8);
+            return z.bit_shift_left(i);
         }
-        N_bytes re{};
-        re.resize(s);
-        auto q = re.digits().rbegin();
-        while (b != d.rend()) {
-            *q = *b;
-            q++;
-            b++;
-        }
-        return re;
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline &operator<<=(N_bytes<r> &n, int i) {
+        if (i < 0) n.bit_shift_right(-i);
+        else bit_shift_left(n, i);
+        return n = n.trim();
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline &operator>>=(N_bytes<r> &n, int i) {
+        if (i < 0) bit_shift_left(n, -i);
+        else n.bit_shift_right(i);
+        return n = n.trim();
     }
 }
 

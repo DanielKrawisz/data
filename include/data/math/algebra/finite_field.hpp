@@ -74,39 +74,39 @@ namespace data::math {
     
     template <typename N, typename Z, auto & prime>
     struct associative<
-        data::plus<algebra::prime_field_element<N, Z, prime>>, 
+        plus<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
-        : associative<data::plus<N>, N> {};
+        : associative<plus<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
     struct commutative<
-        data::times<algebra::prime_field_element<N, Z, prime>>, 
+        times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
-        : commutative<data::times<N>, N> {};;
+        : commutative<times<N>, N> {};;
     
     template <typename N, typename Z, auto & prime>
     struct associative<
-        data::times<algebra::prime_field_element<N, Z, prime>>, 
+        times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
-        : associative<data::times<N>, N> {};
+        : associative<times<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
     struct identity<
-        data::plus<algebra::prime_field_element<N, Z, prime>>, 
+        plus<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
-        : identity<data::plus<N>, N> {
+        : identity<plus<N>, N> {
         static const algebra::prime_field_element<N, Z, prime> value() {
-            return {identity<data::plus<N>, N>::value()};
+            return {identity<plus<N>, N>::value()};
         }
     };
     
     template <typename N, typename Z, auto & prime>
     struct identity< 
-        data::times<algebra::prime_field_element<N, Z, prime>>, 
+        times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
-        : identity<data::times<N>, N> {
+        : identity<times<N>, N> {
         static const algebra::prime_field_element<N, Z, prime> value() {
-            return {identity<data::times<N>, N>::value()};
+            return {identity<times<N>, N>::value()};
         }
     };
     

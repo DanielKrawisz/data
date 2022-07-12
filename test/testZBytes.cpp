@@ -9,21 +9,21 @@ namespace data {
     
     TEST(ZBytesTest, TestZBytesToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"0"}), std::string{"0x00"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"-1"}), std::string{"0xff"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"-2"}), std::string{"0xfd"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"127"}), std::string{"0x7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"128"}), std::string{"0x0080"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"-128"}), std::string{"0x80"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>{"-129"}), std::string{"0xff7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("0")), std::string("0x00"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("-1")), std::string("0xff"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("-2")), std::string("0xfd"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("127")), std::string("0x7f"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("128")), std::string("0x0080"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("-128")), std::string("0x80"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::big>::read("-129")), std::string("0xff7f"));
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"0"}), std::string{"0x00"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"-1"}), std::string{"0xff"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"-2"}), std::string{"0xfd"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"127"}), std::string{"0x7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"128"}), std::string{"0x0080"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"-128"}), std::string{"0x80"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>{"-129"}), std::string{"0xff7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("0")), std::string("0x00"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("-1")), std::string("0xff"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("-2")), std::string("0xfd"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("127")), std::string("0x7f"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("128")), std::string("0x0080"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("-128")), std::string("0x80"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes<endian::little>::read("-129")), std::string("0xff7f"));
         
     }
     
@@ -51,38 +51,38 @@ namespace data {
     
     TEST(ZBytesTest, TestZeroSize) {
         
-        EXPECT_EQ(Z_bytes<endian::big>{"0x"}.size(), 0);
-        EXPECT_EQ(Z_bytes<endian::big>{"0x00"}.size(), 1);
-        EXPECT_EQ(Z_bytes<endian::big>{"0x000000"}.size(), 3);
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x").size(), 0);
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x00").size(), 1);
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x000000").size(), 3);
         
-        EXPECT_EQ(Z_bytes<endian::little>{"0x"}.size(), 0);
-        EXPECT_EQ(Z_bytes<endian::little>{"0x00"}.size(), 1);
-        EXPECT_EQ(Z_bytes<endian::little>{"0x000000"}.size(), 3);
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x").size(), 0);
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x00").size(), 1);
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x000000").size(), 3);
         
     }
     
     TEST(ZBytesTest, TestZeroAndNegativeZBytes) {
         
-        EXPECT_EQ(Z_bytes<endian::big>{"0x"}, Z_bytes<endian::big>{0});
-        EXPECT_EQ(Z_bytes<endian::big>{"0x00"}, Z_bytes<endian::big>{0});
-        EXPECT_EQ(Z_bytes<endian::big>{"0x000000"}, Z_bytes<endian::big>{0});
-        EXPECT_EQ(Z_bytes<endian::little>{"0x"}, Z_bytes<endian::little>{0});
-        EXPECT_EQ(Z_bytes<endian::little>{"0x00"}, Z_bytes<endian::little>{0});
-        EXPECT_EQ(Z_bytes<endian::little>{"0x000000"}, Z_bytes<endian::little>{0});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x"), Z_bytes<endian::big>{0});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x00"), Z_bytes<endian::big>{0});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x000000"), Z_bytes<endian::big>{0});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x"), Z_bytes<endian::little>{0});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x00"), Z_bytes<endian::little>{0});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x000000"), Z_bytes<endian::little>{0});
         
-        EXPECT_EQ(Z_bytes<endian::big>{"0x01"}, Z_bytes<endian::big>{1});
-        EXPECT_EQ(Z_bytes<endian::big>{"0x0001"}, Z_bytes<endian::big>{1});
-        EXPECT_EQ(Z_bytes<endian::big>{"0x00000001"}, Z_bytes<endian::big>{1});
-        EXPECT_EQ(Z_bytes<endian::little>{"0x01"}, Z_bytes<endian::little>{1});
-        EXPECT_EQ(Z_bytes<endian::little>{"0x0001"}, Z_bytes<endian::little>{1});
-        EXPECT_EQ(Z_bytes<endian::little>{"0x00000001"}, Z_bytes<endian::little>{1});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x01"), Z_bytes<endian::big>{1});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x0001"), Z_bytes<endian::big>{1});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0x00000001"), Z_bytes<endian::big>{1});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x01"), Z_bytes<endian::little>{1});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x0001"), Z_bytes<endian::little>{1});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0x00000001"), Z_bytes<endian::little>{1});
         
-        EXPECT_EQ(Z_bytes<endian::big>{"0xff"}, Z_bytes<endian::big>{-1});
-        EXPECT_EQ(Z_bytes<endian::big>{"0xffff"}, Z_bytes<endian::big>{-1});
-        EXPECT_EQ(Z_bytes<endian::big>{"0xffffff"}, Z_bytes<endian::big>{-1});
-        EXPECT_EQ(Z_bytes<endian::little>{"0xff"}, Z_bytes<endian::little>{-1});
-        EXPECT_EQ(Z_bytes<endian::little>{"0xffff"}, Z_bytes<endian::little>{-1});
-        EXPECT_EQ(Z_bytes<endian::little>{"0xffffff"}, Z_bytes<endian::little>{-1});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0xff"), Z_bytes<endian::big>{-1});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0xffff"), Z_bytes<endian::big>{-1});
+        EXPECT_EQ(Z_bytes<endian::big>::read("0xffffff"), Z_bytes<endian::big>{-1});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0xff"), Z_bytes<endian::little>{-1});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0xffff"), Z_bytes<endian::little>{-1});
+        EXPECT_EQ(Z_bytes<endian::little>::read("0xffffff"), Z_bytes<endian::little>{-1});
         
     }
     

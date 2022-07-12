@@ -7,7 +7,6 @@
 
 #include <data/stream.hpp>
 #include <data/encoding/endian/endian.hpp>
-#include <data/encoding/endian/words.hpp>
 
 namespace data::endian {
     

@@ -44,17 +44,17 @@ namespace data::math {
     
     template <typename N, auto & natural>
     struct associative<
-        data::times<algebra::symmetric_group<N, natural>>, 
+        times<algebra::symmetric_group<N, natural>>, 
         algebra::symmetric_group<N, natural>>
-        : associative<data::plus<N>, N> {};
+        : associative<plus<N>, N> {};
     
     template <typename N, auto & natural>
     struct identity<
-        data::times<algebra::dihedral_group<N, natural>>, 
+        times<algebra::dihedral_group<N, natural>>, 
         algebra::symmetric_group<N, natural>>
-        : identity<data::times<N>, N> {
+        : identity<times<N>, N> {
         static const algebra::symmetric_group<N, natural> value() {
-            return {identity<data::times<N>, N>::value()};
+            return {identity<times<N>, N>::value()};
         }
     };
     

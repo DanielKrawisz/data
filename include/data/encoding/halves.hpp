@@ -1,57 +1,24 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_HALVES
 #define DATA_HALVES
 
+#include <type_traits>
+#include <concepts>
 #include <data/encoding/endian/arithmetic.hpp>
 
-namespace data {
+namespace data::encoding {
     
-    template <typename X> struct digits;
+    template <typename X> struct count_digits;
     
-    template <> struct digits<uint64> {
-        constexpr static bool is_signed = false;
-        constexpr static size_t value = 8;
+    template <std::integral X> struct count_digits<X> {
+        constexpr static bool is_signed = std::is_signed_v<X>;
+        constexpr static size_t value = sizeof(X);
     };
     
-    template <> struct digits<uint32> {
-        constexpr static bool is_signed = false;
-        constexpr static size_t value = 4;
-    };
-    
-    template <> struct digits<uint16> {
-        constexpr static bool is_signed = false;
-        constexpr static size_t value = 2;
-    };
-    
-    template <> struct digits<int64> {
-        constexpr static bool is_signed = true;
-        constexpr static size_t value = 8;
-    };
-    
-    template <> struct digits<int32> {
-        constexpr static bool is_signed = true;
-        constexpr static size_t value = 4;
-    };
-    
-    template <> struct digits<int16> {
-        constexpr static bool is_signed = true;
-        constexpr static size_t value = 2;
-    };
-    
-    template <> struct digits<byte> {
-        constexpr static bool is_signed = false;
-        constexpr static size_t value = 1;
-    };
-    
-    template <> struct digits<char> {
-        constexpr static bool is_signed = true;
-        constexpr static size_t value = 1;
-    };
-    
-    template <endian::order o, bool z, size_t size> struct digits<endian::arithmetic<o, z, size>> {
+    template <endian::order o, bool z, size_t size> struct count_digits<endian::arithmetic<o, z, size>> {
         constexpr static bool is_signed = z;
         constexpr static size_t value = size;
     };
@@ -93,62 +60,62 @@ namespace data {
     template <> struct half_of<uint64> {
         using type = uint32;
         static type greater_half(uint64 u) {
-            return u >> digits<type>::value;
+            return u >> count_digits<type>::value * 8;
         }
         
         static type lesser_half(uint64 u) {
-            return u;
+            return u & halves<type, uint64>::lesser;
         }
     };
     
     template <> struct half_of<int64> {
         using type = int32;
         static type greater_half(int64 u) {
-            return u >> digits<type>::value;
+            return u >> count_digits<type>::value * 8;
         }
         
         static type lesser_half(int64 u) {
-            return u;
+            return u & halves<type, int64>::lesser;
         };
     };
     
     template <> struct half_of<uint32> {
         using type = uint16;
         static type greater_half(uint32 u) {
-            return u >> digits<type>::value;
+            return u >> count_digits<type>::value * 8;
         }
         
         static type lesser_half(uint32 u) {
-            return u;
+            return u & halves<type, uint32>::lesser;
         }
     };
     
     template <> struct half_of<int32> {
         using type = int16;
         static type greater_half(int32 u) {
-            return u >> digits<type>::value;
+            return u >> count_digits<type>::value * 8;
         }
         
         static type lesser_half(int32 u) {
-            return u;
+            return u & halves<type, int32>::lesser;
         }
     };
     
     template <> struct half_of<uint16> {
         using type = byte;
         static type greater_half(uint16 u) {
-            return u >> digits<type>::value;
+            return u >> count_digits<type>::value * 8;
         }
         
         static type lesser_half(uint16 u) {
-            return u;
+            return u & halves<type, uint16>::lesser;
         }
     };
     
     template <> struct half_of<int16> {
         using type = char;
         static type greater_half(int16 u) {
-            return u >> digits<type>::value;
+            return u >> count_digits<type>::value * 8;
         }
         
         static type lesser_half(int16 u) {
@@ -157,7 +124,7 @@ namespace data {
     };
     
     template <endian::order o, bool is_signed, size_t size> struct half_of<endian::arithmetic<o, is_signed, size>> {
-        using type = endian::arithmetic<o, is_signed, digits<typename half_of<endian::to_native<is_signed, size>>::type>::value>;
+        using type = endian::arithmetic<o, is_signed, count_digits<typename half_of<endian::to_native<is_signed, size>>::type>::value>;
         static type greater_half(endian::arithmetic<o, is_signed, size> u) {
             return type{half_of<endian::to_native<is_signed, size>>::greater_half((endian::to_native<is_signed, size>)(u))};
         }
@@ -167,12 +134,12 @@ namespace data {
         }
     };
     
-    template<typename whole>
+    template <typename whole>
     typename half_of<whole>::type greater_half(whole w) {
         return half_of<whole>::greater_half(w);
     };
     
-    template<typename whole>
+    template <typename whole>
     typename half_of<whole>::type lesser_half(whole w) {
         return half_of<whole>::lesser_half(w);
     };
@@ -228,17 +195,17 @@ namespace data {
         }
     };
     
-    template<typename half>
+    template <typename half>
     typename twice<half>::type combine(half greater, half lesser) {
-        return ((typename twice<half>::type)(greater) << digits<half>::value) + lesser;
+        return ((typename twice<half>::type)(greater) << count_digits<half>::value * 8) + lesser;
     };
     
-    template<typename half>
+    template <typename half>
     typename twice<half>::type multiply(half a, half b, half r) {
         return (typename twice<half>::type)(a) * (typename twice<half>::type)(b) + (typename twice<half>::type)(r);
     };
     
-    template<typename half>
+    template <typename half>
     typename twice<half>::type add(half a, half b, half r) {
         return (typename twice<half>::type)(a) + b + r;
     };

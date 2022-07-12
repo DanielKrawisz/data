@@ -13,24 +13,29 @@ namespace data::math {
         X Value;
         byte Infinite;
         
-        unsigned_limit(const X& x) : Value{x}, Infinite{0} {}
+        constexpr unsigned_limit(const X& x) : Value{x}, Infinite{0} {}
+        constexpr unsigned_limit() : Value{0}, Infinite{1} {}
         
-        bool is_infinite() const {
+        constexpr bool is_infinite() const {
             return Infinite != 0;
         }
         
-        static unsigned_limit infinity() {
+        constexpr static unsigned_limit infinity() {
             return {0, 1};
         }
         
-        auto operator<=>(const X& x) -> decltype(Value<=>x) {
-            if (is_infinite()) return 1;
-            return Value<=>x;
+        constexpr std::weak_ordering operator<=>(const unsigned_limit& x) {
+            return is_infinite() ? (x.is_infinite() ? std::weak_ordering::equivalent : std::weak_ordering::greater) : Value<=>x;
         }
         
-        unsigned_limit operator+(const X& x) {
+        constexpr unsigned_limit operator+(const X& x) const {
             if (is_infinite()) return infinity();
             return {Value + x};
+        }
+        
+        constexpr unsigned_limit operator*(const X& x) const {
+            if (is_infinite()) return infinity();
+            return {Value * x};
         }
         
     private:
@@ -55,6 +60,12 @@ namespace data::math {
             return Infinite < 0;
         }
         
+        std::weak_ordering operator<=>(const signed_limit& x) {
+            return is_positive_infinite() ? (x.is_positive_infinite() ? std::weak_ordering::equivalent : std::weak_ordering::greater) : 
+                is_negative_infinite() ? (x.is_negative_infinite() ? std::weak_ordering::equivalent : std::weak_ordering::less) : 
+                Value<=>x;
+        }
+        
         static signed_limit infinity() {
             return {0, 1};
         }
@@ -66,6 +77,27 @@ namespace data::math {
     private:
         signed_limit(const X& x, const char b) : Value{x}, Infinite{b} {}
     };
+    
+    template <std::integral X, std::integral Y> 
+    std::weak_ordering operator<=>(const unsigned_limit<X>& a, Y b) {
+        return a.is_infinite() ? std::weak_ordering::greater : a.Value <=> b;
+    }
+    
+    template <std::integral X, std::integral Y> 
+    std::weak_ordering operator<=>(const signed_limit<X>& a, Y b) {
+        return a.is_positive_infinite() ? std::weak_ordering::greater : 
+            a.is_negative_infinite() ? std::weak_ordering::less : a.Value <=> b;
+    }
+    
+    template <std::integral X, std::integral Y> 
+    bool operator==(const unsigned_limit<X>& a, Y b) {
+        return (a <=> b) == 0;
+    }
+    
+    template <std::integral X, std::integral Y> 
+    bool operator==(const signed_limit<X>& a, Y b) {
+        return (a <=> b) == 0;
+    }
 }
 
 template <typename X>

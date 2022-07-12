@@ -84,14 +84,14 @@ namespace data::math {
         : commutative<plus<X>, X> {};
     
     template <typename X, auto & mod>
-    struct associative<data::plus<number::modular<X, mod>>, number::modular<X, mod>>
-        : associative<data::plus<X>, X> {};
+    struct associative<plus<number::modular<X, mod>>, number::modular<X, mod>>
+        : associative<plus<X>, X> {};
     
     template <typename X, auto & mod>
-    struct identity<data::plus<number::modular<X, mod>>, number::modular<X, mod>>
-        : identity<data::plus<X>, X> {
+    struct identity<plus<number::modular<X, mod>>, number::modular<X, mod>>
+        : identity<plus<X>, X> {
         static const number::modular<X, mod> value() {
-            return {identity<data::plus<X>, X>::value()};
+            return {identity<plus<X>, X>::value()};
         }
     };
     

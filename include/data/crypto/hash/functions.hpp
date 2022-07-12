@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Daniel Krawisz
+// Copyright (c) 2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -62,15 +62,6 @@ namespace data::crypto::hash {
     template <size_t size> struct SHA3;
     template <size_t size> struct Bitcoin;
 
-}
-
-namespace data::crypto {
-    
-    template <size_t size> struct one_way_function<hash::RIPEMD<size>, digest<size>, bytes_view> {};
-    template <size_t size> struct one_way_function<hash::SHA2<size>, digest<size>, bytes_view> {};
-    template <size_t size> struct one_way_function<hash::SHA3<size>, digest<size>, bytes_view> {};
-    template <size_t size> struct one_way_function<hash::Bitcoin<size>, digest<size>, bytes_view> {};
-    
 }
 
 #endif

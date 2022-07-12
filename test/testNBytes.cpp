@@ -119,10 +119,11 @@ namespace data::math::number {
     TEST(NBytesTest, TestNBitShift) {
         list<string> nums{"0", "1", "23", "5704566599993321"};
         list<int> shifts{0, 1, 5, 8, 15, 16};
-        for (auto &x : transpose(nums, shifts)) {
-            test_bit_shift<endian::big>{}(x.first, x.second);
-            test_bit_shift<endian::little>{}(x.first, x.second);
-        }
+        map_thread([](string num, int shift) -> int {
+            test_bit_shift<endian::big>{}(num, shift);
+            test_bit_shift<endian::little>{}(num, shift);
+            return 0;
+        }, nums, shifts);
         
     }
     

@@ -98,11 +98,6 @@ namespace data {
         return o << "\"" << encoding::hex::write(s) << "\""; 
     }
     
-    template <size_t size> 
-    std::ostream inline &operator<<(std::ostream &o, const byte_array<size> &s) {
-        return o << "\"" << encoding::hex::write(s) << "\""; 
-    }
-    
     bytes inline bytes::from_hex(string_view s) {
         ptr<bytes> b = encoding::hex::read(s);
         return b == nullptr ? bytes{} : *b;

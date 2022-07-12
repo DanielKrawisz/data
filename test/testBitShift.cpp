@@ -5,6 +5,7 @@
 #include <data/data.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/math/number/bytes/Z.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
@@ -16,41 +17,39 @@ namespace data {
     using bounded = data::math::number::bounded<is_signed, o, size>;
     
     template <size_t size> 
-    using integer_little = data::math::number::bounded<size, endian::little, true>;
+    using integer_little = data::math::number::bounded<true, endian::little, size>;
     
     template <size_t size> 
-    using integer_big = data::math::number::bounded<size, endian::big, true>;
+    using integer_big = data::math::number::bounded<true, endian::big, size>;
     
     template <size_t size> 
-    using uint_little = data::math::number::bounded<size, endian::little, false>;
+    using uint_little = data::math::number::bounded<false, endian::little, size>;
     
     template <size_t size> 
-    using uint_big = data::math::number::bounded<size, endian::big, false>;
+    using uint_big = data::math::number::bounded<false, endian::big, size>;
     
-    TEST(BoundedTest, BitNegate) {
+    template <typename Z>
+    void test_bit_negate() {
+        EXPECT_EQ(~Z(0), Z(-1)) << "expected ~" << Z(0) << " to equal " << Z(-1);
+        EXPECT_EQ(~Z(-1), Z(0)) << "expected ~" << Z(-1) << " to equal " << Z(0);;
+    }
+    
+    TEST(BitShiftTest, BitNegate) {
         
-        EXPECT_EQ(~N_bytes<endian::big>{"0x00"}, N_bytes<endian::big>{"0xff"});
-        EXPECT_EQ(~N_bytes<endian::little>{"0x00"}, N_bytes<endian::little>{"0xff"});
-        EXPECT_EQ(~N_bytes<endian::big>{"0xff"}, N_bytes<endian::big>{"0x00"});
-        EXPECT_EQ(~N_bytes<endian::little>{"0xff"}, N_bytes<endian::little>{"0x00"});
-        EXPECT_EQ(~Z_bytes<endian::big>{"0x00"}, Z_bytes<endian::big>{"0xff"});
-        EXPECT_EQ(~Z_bytes<endian::little>{"0x00"}, Z_bytes<endian::little>{"0xff"});
-        EXPECT_EQ(~Z_bytes<endian::big>{"0xff"}, Z_bytes<endian::big>{"0x00"});
-        EXPECT_EQ(~Z_bytes<endian::little>{"0xff"}, Z_bytes<endian::little>{"0x00"});
+        test_bit_negate<Z_bytes_big>();
+        test_bit_negate<Z_bytes_little>();
+        test_bit_negate<integer_big<9>>();
+        test_bit_negate<integer_big<10>>();
+        test_bit_negate<integer_big<11>>();
+        test_bit_negate<integer_big<12>>();
+        test_bit_negate<integer_little<9>>();
+        test_bit_negate<integer_little<10>>();
+        test_bit_negate<integer_little<11>>();
+        test_bit_negate<integer_little<12>>();
         
     }
     
-    TEST(BoundedTest, BitShift) {
-        
-        using u12l = bounded<false, data::endian::little, 12>;
-        using u12b = bounded<false, data::endian::big, 12>;
-        using s12l = bounded<true, data::endian::little, 12>;
-        using s12b = bounded<true, data::endian::big, 12>;
-        
-        using nl = data::math::number::N_bytes<data::endian::little>;
-        using nb = data::math::number::N_bytes<data::endian::big>;
-        using zl = data::math::number::Z_bytes<data::endian::little>;
-        using zb = data::math::number::Z_bytes<data::endian::big>;
+    template <typename X> void test_bit_shift() {
         
         std::string     base_value{"0x100000000001000000000001"};
         std::string  shift_1_right{"0x080000000000800000000000"};
@@ -64,105 +63,64 @@ namespace data {
         std::string shift_66_right{"0x000000000000000004000000"};
         std::string  shift_66_left{"0x000000040000000000000000"};
         
-        EXPECT_EQ(u12l{base_value} << 1, u12l{shift_1_right});
-        EXPECT_EQ(u12b{base_value} << 1, u12b{shift_1_right});
-        EXPECT_EQ(s12l{base_value} << 1, s12l{shift_1_right});
-        EXPECT_EQ(s12b{base_value} << 1, s12b{shift_1_right});
+        auto result_1_left = X::read(base_value) << 1;
+        EXPECT_EQ(result_1_left,  X::read(shift_1_left))
+            << "expected " << base_value << " << " << 1 << " to equal " << shift_1_left 
+            << " but instead it equals " << std::hex << result_1_left << std::endl;
         
-        EXPECT_EQ(nl{base_value} << 1, nl{shift_1_right});
-        EXPECT_EQ(nb{base_value} << 1, nb{shift_1_right});
-        EXPECT_EQ(zl{base_value} << 1, zl{shift_1_right});
-        EXPECT_EQ(zb{base_value} << 1, zb{shift_1_right});
+        auto result_1_right = X::read(base_value) >> 1;
+        EXPECT_EQ(result_1_right,  X::read(shift_1_right))
+            << "expected " << base_value << " >> " << 1 << " to equal " << shift_1_right 
+            << " but instead it equals " << std::hex << result_1_right << std::endl;
         
-        EXPECT_EQ(u12l{base_value} << 2, u12l{shift_2_right});
-        EXPECT_EQ(u12b{base_value} << 2, u12b{shift_2_right});
-        EXPECT_EQ(s12l{base_value} << 2, s12l{shift_2_right});
-        EXPECT_EQ(s12b{base_value} << 2, s12b{shift_2_right});
+        auto result_2_left = X::read(base_value) << 2;
+        EXPECT_EQ(result_2_left,  X::read(shift_2_left))
+            << "expected " << base_value << " << " << 2 << " to equal " << shift_2_left 
+            << " but instead it equals " << std::hex << result_2_left << std::endl;
         
-        EXPECT_EQ(nl{base_value} << 2, nl{shift_2_right});
-        EXPECT_EQ(nb{base_value} << 2, nb{shift_2_right});
-        EXPECT_EQ(zl{base_value} << 2, zl{shift_2_right});
-        EXPECT_EQ(zb{base_value} << 2, zb{shift_2_right});
+        auto result_2_right = X::read(base_value) >> 2;
+        EXPECT_EQ(result_2_right,  X::read(shift_2_right))
+            << "expected " << base_value << " >> " << 2 << " to equal " << shift_2_right 
+            << " but instead it equals " << std::hex << result_2_right << std::endl;
         
-        EXPECT_EQ(u12l{base_value} << 4, u12l{shift_4_right});
-        EXPECT_EQ(u12b{base_value} << 4, u12b{shift_4_right});
-        EXPECT_EQ(s12l{base_value} << 4, s12l{shift_4_right});
-        EXPECT_EQ(s12b{base_value} << 4, s12b{shift_4_right});
+        auto result_4_left = X::read(base_value) << 4;
+        EXPECT_EQ(result_4_left,  X::read(shift_4_left))
+            << "expected " << base_value << " << " << 4 << " to equal " << shift_4_left 
+            << " but instead it equals " << std::hex << result_4_left << std::endl;
         
-        EXPECT_EQ(nl{base_value} << 4, nl{shift_4_right});
-        EXPECT_EQ(nb{base_value} << 4, nb{shift_4_right});
-        EXPECT_EQ(zl{base_value} << 4, zl{shift_4_right});
-        EXPECT_EQ(zb{base_value} << 4, zb{shift_4_right});
+        auto result_4_right = X::read(base_value) >> 4;
+        EXPECT_EQ(result_4_right,  X::read(shift_4_right))
+            << "expected " << base_value << " >> " << 4 << " to equal " << shift_4_right 
+            << " but instead it equals " << std::hex << result_4_right << std::endl;
         
-        EXPECT_EQ(u12l{base_value} << 33, u12l{shift_33_right});
-        EXPECT_EQ(u12b{base_value} << 33, u12b{shift_33_right});
-        EXPECT_EQ(s12l{base_value} << 33, s12l{shift_33_right});
-        EXPECT_EQ(s12b{base_value} << 33, s12b{shift_33_right});
+        auto result_33_left = X::read(base_value) << 33;
+        EXPECT_EQ(result_33_left, X::read(shift_33_left))
+            << "expected " << base_value << " << " << 33 << " to equal " << shift_33_left 
+            << " but instead it equals " << std::hex << result_33_left << std::endl;
         
-        EXPECT_EQ(nl{base_value} << 33, nl{shift_33_right});
-        EXPECT_EQ(nb{base_value} << 33, nb{shift_33_right});
-        EXPECT_EQ(zl{base_value} << 33, zl{shift_33_right});
-        EXPECT_EQ(zb{base_value} << 33, zb{shift_33_right});
+        auto result_33_right = X::read(base_value) >> 33;
+        EXPECT_EQ(result_33_right, X::read(shift_33_right))
+            << "expected " << base_value << " >> " << 33 << " to equal " << shift_33_right 
+            << " but instead it equals " << std::hex << result_33_right << std::endl;
         
-        EXPECT_EQ(u12l{base_value} << 66, u12l{shift_66_right});
-        EXPECT_EQ(u12b{base_value} << 66, u12b{shift_66_right});
-        EXPECT_EQ(s12l{base_value} << 66, s12l{shift_66_right});
-        EXPECT_EQ(s12b{base_value} << 66, s12b{shift_66_right});
+        auto result_66_left = X::read(base_value) << 66;
+        EXPECT_EQ(result_66_left, X::read(shift_66_left))
+            << "expected " << base_value << " << " << 66 << " to equal " << shift_66_left 
+            << " but instead it equals " << std::hex << result_66_left << std::endl;
         
-        EXPECT_EQ(nl{base_value} << 66, nl{shift_66_right});
-        EXPECT_EQ(nb{base_value} << 66, nb{shift_66_right});
-        EXPECT_EQ(zl{base_value} << 66, zl{shift_66_right});
-        EXPECT_EQ(zb{base_value} << 66, zb{shift_66_right});
+        auto result_66_right = X::read(base_value) >> 66;
+        EXPECT_EQ(result_66_right, X::read(shift_66_right)) 
+            << "expected " << base_value << " >> " << 66 << " to equal " << shift_66_right 
+            << " but instead it equals " << std::hex << result_66_right << std::endl;    
         
-        EXPECT_EQ(u12l{base_value} >> 1, u12l{shift_1_left});
-        EXPECT_EQ(u12b{base_value} >> 1, u12b{shift_1_left});
-        EXPECT_EQ(s12l{base_value} >> 1, s12l{shift_1_left});
-        EXPECT_EQ(s12b{base_value} >> 1, s12b{shift_1_left});
+    }
+    
+    TEST(BitShiftTest, BitShift) {
         
-        EXPECT_EQ(nl{base_value} >> 1, nl{shift_1_left});
-        EXPECT_EQ(nb{base_value} >> 1, nb{shift_1_left});
-        EXPECT_EQ(zl{base_value} >> 1, zl{shift_1_left});
-        EXPECT_EQ(zb{base_value} >> 1, zb{shift_1_left});
-        
-        EXPECT_EQ(u12l{base_value} >> 2, u12l{shift_2_left});
-        EXPECT_EQ(u12b{base_value} >> 2, u12b{shift_2_left});
-        EXPECT_EQ(s12l{base_value} >> 2, s12l{shift_2_left});
-        EXPECT_EQ(s12b{base_value} << 2, s12b{shift_2_left});
-        
-        EXPECT_EQ(nl{base_value} >> 2, nl{shift_2_left});
-        EXPECT_EQ(nb{base_value} >> 2, nb{shift_2_left});
-        EXPECT_EQ(zl{base_value} >> 2, zl{shift_2_left});
-        EXPECT_EQ(zb{base_value} >> 2, zb{shift_2_left});
-        
-        EXPECT_EQ(u12l{base_value} >> 4, u12l{shift_4_left});
-        EXPECT_EQ(u12b{base_value} >> 4, u12b{shift_4_left});
-        EXPECT_EQ(s12l{base_value} >> 4, s12l{shift_4_left});
-        EXPECT_EQ(s12b{base_value} >> 4, s12b{shift_4_left});
-        
-        EXPECT_EQ(nl{base_value} >> 4, nl{shift_4_left});
-        EXPECT_EQ(nb{base_value} >> 4, nb{shift_4_left});
-        EXPECT_EQ(zl{base_value} >> 4, zl{shift_4_left});
-        EXPECT_EQ(zb{base_value} >> 4, zb{shift_4_left});
-        
-        EXPECT_EQ(u12l{base_value} >> 33, u12l{shift_33_left});
-        EXPECT_EQ(u12b{base_value} >> 33, u12b{shift_33_left});
-        EXPECT_EQ(s12l{base_value} >> 33, s12l{shift_33_left});
-        EXPECT_EQ(s12b{base_value} >> 33, s12b{shift_33_left});
-        
-        EXPECT_EQ(nl{base_value} >> 33, nl{shift_33_left});
-        EXPECT_EQ(nb{base_value} >> 33, nb{shift_33_left});
-        EXPECT_EQ(zl{base_value} >> 33, zl{shift_33_left});
-        EXPECT_EQ(zb{base_value} >> 33, zb{shift_33_left});
-        
-        EXPECT_EQ(u12l{base_value} >> 66, u12l{shift_66_left});
-        EXPECT_EQ(u12b{base_value} >> 66, u12b{shift_66_left});
-        EXPECT_EQ(s12l{base_value} >> 66, s12l{shift_66_left});
-        EXPECT_EQ(s12b{base_value} >> 66, s12b{shift_66_left});
-        
-        EXPECT_EQ(nl{base_value} >> 66, nl{shift_66_left});
-        EXPECT_EQ(nb{base_value} >> 66, nb{shift_66_left});
-        EXPECT_EQ(zl{base_value} >> 66, zl{shift_66_left});
-        EXPECT_EQ(zb{base_value} >> 66, zb{shift_66_left});
+        test_bit_shift<uint_little<12>>();
+        test_bit_shift<uint_big<12>>();
+        test_bit_shift<integer_little<12>>();
+        test_bit_shift<integer_big<12>>();
         
     }
     

@@ -374,20 +374,26 @@ namespace data::math::number::gmp {
 }
 
 namespace data::math {
-    template <> struct commutative<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {};
-    template <> struct associative<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {};
-    template <> struct commutative<data::times<math::number::gmp::Z>, math::number::gmp::Z> {};
-    template <> struct associative<data::times<math::number::gmp::Z>, math::number::gmp::Z> {};
+    template <> struct commutative<plus<number::gmp::Z>, number::gmp::Z> {};
+    template <> struct associative<plus<number::gmp::Z>, number::gmp::Z> {};
+    template <> struct commutative<times<number::gmp::Z>, number::gmp::Z> {};
+    template <> struct associative<times<number::gmp::Z>, number::gmp::Z> {};
     
-    template <> struct identity<data::plus<math::number::gmp::Z>, math::number::gmp::Z> {
-        static const math::number::gmp::Z value() {
+    template <> struct identity<plus<number::gmp::Z>, number::gmp::Z> {
+        number::gmp::Z operator()() {
             return 0;
         }
     };
     
-    template <> struct identity<data::times<math::number::gmp::Z>, math::number::gmp::Z> {
-        static const math::number::gmp::Z value() {
+    template <> struct identity<times<number::gmp::Z>, number::gmp::Z> {
+        number::gmp::Z operator()() {
             return 1;
+        }
+    };
+    
+    template <> struct inverse<plus<number::gmp::Z>, number::gmp::Z> {
+        number::gmp::Z operator()(const number::gmp::Z &a, const number::gmp::Z &b) {
+            return b - a;
         }
     };
 }
