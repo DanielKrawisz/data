@@ -74,7 +74,7 @@ namespace data::math::number::gmp {
     std::ostream& Z_write_dec(std::ostream& o, const Z& n) {
         if (n == 0) return o << "0";
         if (n < 0) return Z_write_dec(o << "-", -n);
-        return o << encoding::write_base<N>(abs<N, Z>{}(n), encoding::decimal::characters());
+        return o << encoding::write_base<N>(abs<Z>{}(n), encoding::decimal::characters());
     }
     
     std::ostream& Z_write_hexidecimal(std::ostream& o, const Z& z) {
@@ -84,17 +84,17 @@ namespace data::math::number::gmp {
         o << "0x";
         if (z > 0) {
             fill = '0';
-            str = encoding::write_base<N>(abs<N, Z>{}(z), encoding::hex::characters_lower());
+            str = encoding::write_base<N>(abs<Z>{}(z), encoding::hex::characters_lower());
             if (str[0] > '7') o << "00";
         } else { 
             fill = 'f';
-            N n = abs<N, Z>{}(z); 
+            N n = abs<Z>{}(z); 
             N pow = 1;
             
             // find the smallest power of 256 bigger than z. 
             while (pow <= n) pow = pow << 8; 
             
-            str = encoding::write_base<N>(abs<N, Z>{}(pow.Value + z), encoding::hex::characters_lower());
+            str = encoding::write_base<N>(abs<Z>{}(pow.Value + z), encoding::hex::characters_lower());
             if (str[0] <= '7') o << "ff";
         } 
         if (str.size() % 2 != 0) o << fill;

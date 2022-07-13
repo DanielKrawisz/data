@@ -14,8 +14,6 @@ namespace data::math {
     
     template <typename X> struct conjugate;
     
-    template <typename R, typename X> struct quadrance;
-    
     template <typename R, typename X> struct re;
     
     template <typename nda, typename q>
@@ -79,7 +77,7 @@ namespace data::math {
         }
     };
     
-    template <typename nda, typename q> struct quadrance<q, cayley_dickson<nda, q>> {
+    template <typename nda, typename q> struct quadrance<cayley_dickson<nda, q>> {
         nonnegative<q> operator()(const cayley_dickson<nda, q>& x) {
             return x.quadrance();
         }

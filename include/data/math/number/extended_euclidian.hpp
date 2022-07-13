@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 #define DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 
-#include <data/math/number/abs.hpp>
+#include <data/math/abs.hpp>
 #include <data/math/number/integer.hpp>
 #include <data/valid.hpp>
 
@@ -82,7 +82,7 @@ namespace data::math {
                 
                 static extended algorithm(const N a, const N b) {
                     extended<Z> e = extended<Z>::algorithm(Z{a}, Z{b});
-                    return extended{abs<N, Z>{}(e.GCD), e.BezoutS, e.BezoutT};
+                    return extended{abs<Z>{}(e.GCD), e.BezoutS, e.BezoutT};
                 }
                 
             private:
@@ -108,7 +108,7 @@ namespace data::math {
                 static extended algorithm(const uint64 a, const uint64 b) {
                     if(a > 0x7fffffffffffffff || b > 0x7fffffffffffffff) return {};
                     extended<int64> e = extended<int64>::algorithm(static_cast<int64>(a), static_cast<int64>(b));
-                    return extended{abs<uint64, int64>{}(e.GCD), e.BezoutS, e.BezoutT};
+                    return extended{abs<int64>{}(e.GCD), e.BezoutS, e.BezoutT};
                 }
                 
             private:

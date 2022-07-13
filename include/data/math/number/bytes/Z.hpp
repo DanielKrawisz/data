@@ -9,7 +9,7 @@
 #include <data/math/number/integer.hpp>
 #include <data/math/number/gmp/gmp.hpp>
 #include <data/math/division.hpp>
-#include <data/math/number/abs.hpp>
+#include <data/math/abs.hpp>
 #include <data/math/arithmetic.hpp>
 #include <data/encoding/words.hpp>
 
@@ -33,7 +33,7 @@ namespace data::math::number {
     Z_bytes<r> &operator>>=(const Z_bytes<r>&, int);
     
     template <endian::order r>
-    struct Z_bytes : bytes {
+    struct Z_bytes : oriented<r, byte> {
         friend struct N_bytes<r>;
         
         Z_bytes();
@@ -55,16 +55,16 @@ namespace data::math::number {
     private:
         
         bool is_negative() const {
-            if (size() == 0) return false;
-            return operator[](r == endian::big ? 0 : size() - 1) >= 0x80;
+            if (this->size() == 0) return false;
+            return this->operator[](r == endian::big ? 0 : this->size() - 1) >= 0x80;
         }
         
         bool is_zero() const {
-            for (int i = 0; i < size(); i++) if (operator[](i) != 0) return false;
+            for (int i = 0; i < this->size(); i++) if (this->operator[](i) != 0) return false;
             return true;
         }
         
-        Z_bytes(size_t size, byte fill) : bytes(size) {
+        Z_bytes(size_t size, byte fill) : oriented<r, byte>(size) {
             this->fill(fill);
         }
         
@@ -74,45 +74,20 @@ namespace data::math::number {
         }
         
         math::sign sign() const {
-            if (size() == 0) return math::zero;
-            if (is_negative()) return math::negative;
+            if (this->size() == 0) return math::zero;
+            if (is_negative()) return negative;
             if (is_zero()) return math::zero;
-            return math::positive;
-        }
-        
-        bool operator==(const Z_bytes& z) const;
-        
-        bool operator!=(const Z_bytes& z) const {
-            return !operator==(z);
-        }
-        
-        bool operator<(const Z_bytes& z) const;
-        
-        bool operator>(const Z_bytes& n) const;
-        
-        bool operator<=(const Z_bytes& z) const {
-            return !operator>(z);
-        }
-        
-        bool operator>=(const Z_bytes& z) const {
-            return !operator<(z);
+            return positive;
         }
         
         Z_bytes operator~() const {
             Z_bytes z(*this);
-            arithmetic::bit_negate<byte>(z.end(), z.begin(), z.begin());
+            data::arithmetic::bit_negate<byte>(z.end(), z.begin(), z.begin());
             return z;
         }
         
-        Z_bytes& operator++() {
-            operator+=(1);
-            return *this;
-        }
-        
-        Z_bytes& operator--() {
-            operator-=(1);
-            return *this;
-        }
+        Z_bytes& operator++();
+        Z_bytes& operator--();
         
         Z_bytes operator++(int) const {
             Z_bytes z = *this;
@@ -126,23 +101,17 @@ namespace data::math::number {
             return z;
         }
         
-        Z_bytes operator+(const Z_bytes&) const;
-        
         Z_bytes& operator+=(const Z_bytes& n) {
-            return operator=(operator+(n));
+            return *this = *this + n;
         }
-        
-        Z_bytes operator-(const Z_bytes& z) const;
         
         Z_bytes operator-() const {
             return ++(~*this);
         }
         
         Z_bytes& operator-=(const Z_bytes& n) {
-            return operator=(operator-(n));
+            return *this = *this - n;
         }
-        
-        Z_bytes operator*(const Z_bytes&) const;
         
         Z_bytes& operator*=(const Z_bytes& z) {
             return operator=(operator*(z));
@@ -179,40 +148,18 @@ namespace data::math::number {
             return operator=(operator%(z));
         }
         
-        Z_bytes<r> abs() const {
-            throw method::unimplemented{"Z_bytes::abs"};
-        }
-        
         Z_bytes trim() const;
         
         template <size_t size, endian::order o> 
         explicit Z_bytes(const bounded<size, o, true>& b) {
             resize(b.size());
-            std::copy(b.words().begin(), b.words().end(), words().begin());
+            std::copy(b.words().begin(), b.words().end(), this->words().begin());
         }
         
         template <size_t size, endian::order o> 
         explicit Z_bytes(const bounded<size, o, false>& b) {
             *this = zero(b.size() + 1);
-            std::copy(b.words().begin(), b.words().end(), words().begin());
-        }
-        
-        encoding::words<r, byte> digits() {
-            return encoding::words<r, byte>{slice<byte>(*this)};
-        }
-        
-        const encoding::words<r, byte> digits() const {
-            return encoding::words<r, byte>{slice<byte>(*const_cast<Z_bytes*>(this))};
-        }
-        
-        using words_type = encoding::words<r, byte>;
-        
-        words_type words() {
-            return digits();
-        }
-        
-        const words_type words() const {
-            return digits();
+            std::copy(b.words().begin(), b.words().end(), this->words().begin());
         }
     };
     
@@ -236,21 +183,28 @@ namespace data::math::number {
         return arithmetic::ones_minimal_size(x.words());
     }
     
-    template <endian::order r> Z_bytes<r>::Z_bytes() : bytes{} {}
+    template <endian::order r> 
+    Z_bytes<r> inline operator+(const Z_bytes<r> &a, int64 b) {
+        return a + Z_bytes<r>(b);
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator-(const Z_bytes<r> &a, int64 b) {
+        return a - Z_bytes<r>(b);
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator*(const Z_bytes<r> &a, int64 b) {
+        return a * Z_bytes<r>(b);
+    }
+    
+    template <endian::order r> Z_bytes<r>::Z_bytes() : oriented<r, byte>{} {}
     
     template <endian::order r> Z_bytes<r>::Z_bytes(const N_bytes<r>& n) {
-        typename words_type::iterator it;
-        if (n.words()[0] <= 0x80) {
-            this->resize(n.size() + 1);
-            this->operator[](0) = 0;
-            it = this->digits().begin();
-            it++;
-        } else {
-            this->resize(n.size());
-            it = this->digits().begin();
-            it++;
-        }
-        std::copy(n.begin(), n.end(), it);
+        this->resize(n.size() + 1);
+        this->words()[-1] = 0;
+        std::copy(n.words().begin(), n.words().end(), this->words().begin());
+        this->trim();
     }
     
     template <endian::order r> Z_bytes<r>::Z_bytes(int64 x) : Z_bytes{} {
@@ -259,7 +213,7 @@ namespace data::math::number {
         std::copy(n.begin(), n.end(), this->begin());
     }
     
-    template <endian::order r> Z_bytes<r>::Z_bytes(bytes_view x) : bytes{x} {}
+    template <endian::order r> Z_bytes<r>::Z_bytes(bytes_view x) : oriented<r, byte>{x} {}
     
     // First we write the Z as hex and then read it in again. 
     // A bit inefficient but it's really not that bad. 
@@ -279,53 +233,49 @@ namespace data::math::number {
     
     template <endian::order r> Z_bytes<r>::Z_bytes(string_view s) : Z_bytes{read(s)} {}
     
-    template <typename it> bool check_non_zero(it x, size_t size) {
-        bool r = false;
-        for (int i = 0; i < size; i++) {
-            if (*x != 0) r = true;
-            x++;
-        }
-        return r;
+    template <endian::order r> 
+    bool inline operator==(const Z_bytes<r> &a, int64 b) {
+        return a == Z_bytes<r>(b);
     }
     
     template <endian::order r> 
-    bool Z_bytes<r>::operator<(const Z_bytes& z) const {
-        math::sign na = sign();
-        math::sign nz = z.sign();
-        if (na != nz) return na < nz;
-        if (na == math::zero) return false;
-        auto i = begin();
-        auto j = z.begin();
-        if (size() > z.size()) {
-            if (check_non_zero(i, size() - z.size())) return na == math::negative;
-        } else {
-            if (check_non_zero(j, z.size() - size())) return na == math::positive;
-        }
-        return arithmetic::less(end(), i, j);
+    std::weak_ordering inline operator<=>(const Z_bytes<r> &a, int64 b) {
+        return a <=> Z_bytes<r>(b);
     }
     
     template <endian::order r> 
-    bool Z_bytes<r>::operator>(const Z_bytes& z) const {
-        math::sign na = sign();
-        math::sign nz = z.sign();
-        if (na != nz) return na > nz;
-        if (na == math::zero) return false;
-        auto i = begin();
-        auto j = z.begin();
-        auto b = size() > z.size() ? i : j;
-        if (size() > z.size()) {
-            if (check_non_zero(i, size() - z.size())) return na == math::positive;
-        } else {
-            if (check_non_zero(j, z.size() - size())) return na == math::negative;
-        }
-        return arithmetic::greater(end(), i, j);
+    bool inline operator==(const Z_bytes<r> &a, const Z_bytes<r> &b) {
+        return (a <=> b) == 0;
     }
     
     template <endian::order r> 
-    Z_bytes<r> Z_bytes<r>::operator+(const Z_bytes& z) const {
-        Z_bytes re(std::max(size(), z.size()) + 1, 0);
-        arithmetic::plus<byte>(re.words().end(), re.words().begin(), this->words().begin(), z.words().begin());
-        return re.trim();
+    std::weak_ordering inline operator<=>(const Z_bytes<r> &a, const Z_bytes<r> &b) {
+        bool na = is_negative(a);
+        bool nb = is_negative(b);
+        
+        if (na && nb) {
+            auto ya = -b;
+            auto yb = -a;
+            return arithmetic::N_compare(ya.words(), yb.words());
+        }
+        
+        if (!na && !nb) return arithmetic::N_compare(a.words(), b.words());
+        return na ? std::weak_ordering::less : std::weak_ordering::greater;
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator+(const Z_bytes<r> &a, const Z_bytes<r>& b) {
+        return Z_bytes<r>(Z(a) + Z(b));
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator-(const Z_bytes<r> &a, const Z_bytes<r>& b) {
+        return Z_bytes<r>(Z(a) - Z(b));
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator*(const Z_bytes<r> &a, const Z_bytes<r>& b) {
+        return Z_bytes<r>(Z(a) * Z(b));
     }
     
     template <endian::order r> Z_bytes<r> Z_bytes<r>::trim() const {
@@ -358,52 +308,6 @@ namespace data::math::number {
         
         std::copy(x.words().rbegin(), x.words().rend(), i);
         return z;
-    }
-
-    template <endian::order r> 
-    struct abs<Z_bytes<r>, Z_bytes<r>> {
-        Z_bytes<r> operator()(const Z_bytes<r>& i) {
-            return i.abs();
-        }
-    };
-
-    template <endian::order r> 
-    struct abs<N_bytes<r>, Z_bytes<r>> {
-        N_bytes<r> operator()(const Z_bytes<r>& i) {
-            return i.abs();
-        }
-    };
-    
-    template <endian::order r>
-    bool Z_bytes<r>::operator==(const Z_bytes& z) const {
-        bool negative_left = is_negative();
-        bool negative_right = z.is_negative();
-        if (negative_left != negative_right) return false; 
-        size_t left_size = size();
-        size_t right_size = z.size();
-        size_t left_begin;
-        size_t right_begin;
-        size_t left_end;
-        size_t right_end;
-        size_t min_size = std::min(left_size, right_size);
-        if (r == endian::big) {
-            left_begin = 0;
-            right_begin = 0;
-            left_end = min_size;
-            right_end = min_size;
-        } else {
-            left_end = left_size;
-            right_end = right_size;
-            if (left_size > right_size) {
-                left_begin = left_end - min_size;
-                right_begin = 0;
-            } else {
-                left_begin = 0;
-                right_begin = right_end - min_size;
-            }
-        }
-        
-        return operator bytes_view().substr(left_begin, left_end) == bytes_view(z).substr(right_begin, right_end);
     }
     
     template <endian::order r>
@@ -442,19 +346,56 @@ namespace data::math::number {
 
     template <data::endian::order r>
     inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
-        if (o.flags() & std::ios::dec) return data::encoding::integer::write(o, n);
+        if (o.flags() & std::ios::dec) return data::encoding::signed_decimal::write(o, n);
         if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
         return o;
+    }
+    
+    template <data::endian::order r>
+    Z_bytes<r>& Z_bytes<r>::operator++() {
+        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return *this;
+    }
+    
+    template <data::endian::order r>
+    Z_bytes<r>& Z_bytes<r>::operator--() {
+        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return *this;
     }
 
 }
 
 namespace data::math {
-    // Declare that the plus and times operation on Z are commutative. 
-    template <endian::order r> struct commutative<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {};
-    template <endian::order r> struct associative<plus<number::Z_bytes<r>>, number::Z_bytes<r>> {};
-    template <endian::order r> struct commutative<times<number::Z_bytes<r>>, number::Z_bytes<r>> {};
-    template <endian::order r> struct associative<times<number::Z_bytes<r>>, number::Z_bytes<r>> {};
+    
+    template <endian::order r> 
+    N_bytes<r> abs<Z_bytes<r>>::operator()(const Z_bytes<r>& i) {
+        Z_bytes<r> x = number::is_negative(i) ? -i : i;
+        N_bytes<r> u;
+        u.resize(x.size());
+        std::copy(x.begin(), x.end(), u.begin());
+        return u;
+    }
+}
+
+namespace data {
+    template <endian::order r> 
+    math::sign inline sign(const math::Z_bytes<r> &n) {
+        return math::arithmetic::Z_sign_ones(n.words());
+    }
+}
+
+namespace data::encoding::signed_decimal {
+    
+    template <endian::order r> 
+    ptr<math::number::Z_bytes<r>> read(string_view s) {
+        if (!valid(s)) return nullptr;
+        bool negative = s[0] == '-';
+        string_view positive = negative ? s.substr(1) : s; 
+        auto z = std::make_shared<math::number::Z_bytes<r>>((math::number::Z_bytes<r>)(*decimal::read<r>(positive)));
+        if (negative) *z = -*z;
+        return z;
+    }
+    
 }
 
 #endif

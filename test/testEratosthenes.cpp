@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/math/number/eratosthenes.hpp"
-#include "data/data.hpp"
+#include "data/numbers.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -37,7 +37,9 @@ namespace data {
     TEST(EratosthenesTest, First100Primes) {
         
         eratosthenes_test<N>();
-        eratosthenes_test<CryptoPP::Integer>();
+        eratosthenes_test<N_bytes_little>();
+        eratosthenes_test<N_bytes_big>();
+        //eratosthenes_test<CryptoPP::Integer>();
         
     }
 

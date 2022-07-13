@@ -5,7 +5,10 @@
 #ifndef DATA_FLOAT
 #define DATA_FLOAT
 
-#include <data/types.hpp>
+#include <data/math/abs.hpp>
+#include <data/math/arithmetic.hpp>
+#include <data/math/commutative.hpp>
+#include <data/math/associative.hpp>
 
 namespace data {
     
@@ -102,6 +105,45 @@ namespace data {
     //using float80 = IEEE_754_2008_Binary<80>;
     //using float128 = IEEE_754_2008_Binary<128>;
 
+}
+
+namespace data::math {
+    
+    template <std::floating_point X> struct abs<X> {
+        X operator()(const X &x) {
+            return x < 0 ? -x : x;
+        }
+    };
+    
+    template <std::floating_point X> struct quadrance<X> {
+        X operator()(const X &x) {
+            return x * x;
+        }
+    };
+    
+    template <std::floating_point X> struct commutative<plus<X>, X> {};
+    template <std::floating_point X> struct commutative<times<X>, X> {};
+    template <std::floating_point X> struct associative<plus<X>, X> {};
+    template <std::floating_point X> struct associative<times<X>, X> {};
+    
+    template <std::floating_point X> struct identity<plus<X>, X> {
+        X operator()() {
+            return 0;
+        }
+    };
+    
+    template <std::floating_point X> struct identity<times<X>, X> {
+        X operator()() {
+            return 1;
+        }
+    };
+    
+    template <std::floating_point X> struct inverse<plus<X>, X> {
+        X operator()(const X &a, const X &b) {
+            return b - a;
+        }
+    };
+    
 }
 
 #endif

@@ -9,7 +9,7 @@
 #include <data/slice.hpp>
 #include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
-#include <data/math/arithmetic.hpp>
+#include <data/encoding/words.hpp>
 #include <data/stream.hpp>
 
 namespace data {
@@ -115,7 +115,7 @@ namespace data {
         explicit operator bytes() const;
         
         void bit_negate() {
-            math::arithmetic::bit_negate<word>(this->end(), this->begin(), this->begin());
+            arithmetic::bit_negate<word>(this->end(), this->begin(), this->begin());
         }
         
         void bit_shift_left(uint32 x, bool fill = false);
@@ -211,15 +211,15 @@ namespace data {
         
     protected:
         void bit_and(const slice<word, size> a) {
-            math::arithmetic::bit_and<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
+            arithmetic::bit_and<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
         }
         
         void bit_or(const slice<word, size> a) {
-            math::arithmetic::bit_or<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
+            arithmetic::bit_or<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
         }
         
         void bit_xor(const slice<word, size> a) {
-            math::arithmetic::bit_xor<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
+            arithmetic::bit_xor<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
         }
         
     };
@@ -240,6 +240,45 @@ namespace data {
     std::ostream inline &operator<<(std::ostream &o, const bytes_array<word, size> &s);
     
     template <size_t size> using byte_array = bytes_array<byte, size>;
+    
+    template <endian::order r, typename word, size_t ... sizes> struct oriented;
+    
+    template <endian::order r, std::unsigned_integral word> struct oriented<r, word> : bytestring<word> {
+        using bytestring<word>::bytestring;
+        
+        using words_type = encoding::words<r, word>;
+        
+        words_type words() {
+            return words_type{slice<word>(*this)};
+        }
+        
+        const words_type words() const {
+            return words_type{slice<word>(*const_cast<oriented*>(this))};
+        }
+    };
+    
+    template <endian::order r, std::unsigned_integral word, size_t size> struct oriented<r, word, size> : bytes_array<word, size> {
+        using bytes_array<word, size>::bytes_array;
+        oriented(const bytes_array<word, size> &x): bytes_array<word, size>{x} {}
+        
+        using words_type = encoding::words<r, word>;
+        
+        words_type words() {
+            return words_type{slice<word>(*this)};
+        }
+        
+        const words_type words() const {
+            return words_type{slice<word>(*const_cast<oriented*>(this))};
+        }
+        
+        explicit operator slice<byte>() {
+            return slice<byte>{(byte*)this->data(), size * sizeof(word)};
+        }
+        
+        explicit operator bytes_view() const {
+            return bytes_view{(byte*)const_cast<word*>(this->data()), size * sizeof(word)};
+        }
+    };
     
     template <std::unsigned_integral word>
     writer<word> inline &operator<<(writer<word> &w, const bytestring<word> &x) {
@@ -311,22 +350,19 @@ namespace data {
     }
     
     template <std::unsigned_integral word>
-    void bytestring<word>::bit_shift_left(uint32 x, bool fill) {
-        auto it = (byte*)this->data();
-        math::arithmetic::bit_shift_left(it, it + this->size() * sizeof(word), x, fill);
+    void inline bytestring<word>::bit_shift_left(uint32 x, bool fill) {
+        encoding::words<endian::big, word>(slice<word>(*this)).bit_shift_left(x, fill);
     }
     
     template <std::unsigned_integral word>
-    void bytestring<word>::bit_shift_right(uint32 x, bool fill) {
-        math::arithmetic::bit_shift_right(
-            std::reverse_iterator{(byte*)this->data() + this->size() * sizeof(word)}, 
-            std::reverse_iterator{(byte*)this->data()}, x, fill);
+    void inline bytestring<word>::bit_shift_right(uint32 x, bool fill) {
+        encoding::words<endian::big, word>(slice<word>(*this)).bit_shift_right(x, fill);
     }
     
     template <std::unsigned_integral word, size_t size> 
     bytes_array<word, size> operator~(const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        math::arithmetic::bit_negate<word>(n.end(), n.begin(), b.begin());
+        arithmetic::bit_negate<word>(n.end(), n.begin(), b.begin());
         return n;
     }
     

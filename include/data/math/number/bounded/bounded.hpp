@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <data/cross.hpp>
 #include <data/math/group.hpp>
+#include <data/math/abs.hpp>
 #include <data/math/sign.hpp>
 #include <data/encoding/halves.hpp>
 #include <data/math/number/gmp/gmp.hpp>
@@ -216,9 +217,9 @@ namespace data::math::number {
         bounded& operator-=(const bounded&);
         bounded& operator*=(const bounded&);
         
-        bounded& operator+=(const uint32&);
-        bounded& operator-=(const uint32&);
-        bounded& operator*=(const uint32&);
+        bounded& operator+=(uint64);
+        bounded& operator-=(uint64);
+        bounded& operator*=(uint64);
         
         bounded& operator++();
         bounded& operator--();
@@ -267,11 +268,11 @@ namespace data::math::number {
             }
         }
         
-        bounded(const bounded<true, r, size>&) {
+        bounded(const sint<r, size>&) {
             throw method::unimplemented{"bounded<size, o, false>{bounded<size, o, true>}"};
         }
         
-        friend struct abs<bounded<false, r, size>, bounded<true, r, size>>;
+        friend struct abs<sint<r, size>>;
     };
     
     template <endian::order r, size_t size>
@@ -310,9 +311,9 @@ namespace data::math::number {
         bounded& operator-=(const bounded&);
         bounded& operator*=(const bounded&);
 
-        bounded& operator+=(const int32&);
-        bounded& operator-=(const int32&);
-        bounded& operator*=(const int32&);
+        bounded& operator+=(int64);
+        bounded& operator-=(int64);
+        bounded& operator*=(int64);
         
         static bounded max();
         static bounded min();
@@ -402,13 +403,6 @@ namespace data::math::number {
         return (words()[-1]) < 0x80 ? math::positive : math::negative;
     }
     
-    template <size_t size, endian::order o>
-    struct abs<uint<o, size>, uint<o, size>> {
-        uint<o, size> operator()(const uint<o, size>& i) {
-            return i;
-        }
-    };
-    
     template <endian::order r, size_t size>
     uint<r, size>::bounded(const uint64 x) : byte_array<size>{byte_array<size>::fill(0)} {
         endian::arithmetic<endian::big, false, 8> n{x};
@@ -432,7 +426,7 @@ namespace data::math::number {
     template <endian::order r, size_t size>
     uint<r, size>::bounded(string_view s) : bounded{} {
         
-        ptr<N_bytes_little> dec = encoding::natural::read<endian::little>(s);
+        ptr<N_bytes<endian::little>> dec = encoding::natural::read<endian::little>(s);
         if (dec != nullptr) {
             if (dec->size() <= size) {
                 std::copy(dec->begin(), dec->end(), words().begin());
@@ -454,7 +448,7 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     sint<r, size>::bounded(string_view s) : bounded{} {
-        ptr<Z_bytes_little> dec = encoding::integer::read<endian::little>(s);
+        ptr<Z_bytes<endian::little>> dec = encoding::integer::read<endian::little>(s);
         if (dec != nullptr) {
             if (dec->size() <= size) {
                 std::copy(dec->begin(), dec->end(), words().begin());
@@ -476,19 +470,19 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     bool uint<r, size>::operator<(const bounded &b) const {
-        return arithmetic::less(words().rend(), words().rbegin(), b.words().rbegin());
+        return data::arithmetic::less(words().end(), words().begin(), b.words().begin());
     }
     
     template <endian::order r, size_t size>
     bool uint<r, size>::operator>(const bounded &b) const {
-        return arithmetic::greater(words().rend(), words().rbegin(), b.words().rbegin());
+        return data::arithmetic::greater(words().end(), words().begin(), b.words().begin());
     }
     
     template <endian::order o, size_t size>
     bool sint<o, size>::operator<(const sint<o, size> &b) const {
         math::sign sa = sign();
         math::sign sb = b.sign();
-        if (sa == sb) return arithmetic::less(words().rend(), words().rbegin(), b.words().rbegin());
+        if (sa == sb) return data::arithmetic::less(words().rend(), words().rbegin(), b.words().rbegin());
         return sa < sb;
     }
     
@@ -496,19 +490,19 @@ namespace data::math::number {
     bool sint<o, size>::operator>(const sint<o, size> &b) const {
         math::sign sa = sign();
         math::sign sb = b.sign();
-        if (sa == sb) return arithmetic::greater(words().rend(), words().rbegin(), b.words().rbegin());
+        if (sa == sb) return data::arithmetic::greater(words().rend(), words().rbegin(), b.words().rbegin());
         return sa > sb;
     }
     
     template <endian::order r, size_t size>
     uint<r, size>& uint<r, size>::operator++() {
-        operator+=(1);
+        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
         return *this;
     }
         
     template <endian::order r, size_t size>
     uint<r, size>& uint<r, size>::operator--() {
-        operator-=(1);
+        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
         return *this;
     }
     
@@ -528,13 +522,13 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     sint<r, size>& sint<r, size>::operator++() {
-        operator+=(1);
+        data::arithmetic::plus<byte>(this->words().rend(), this->words().rbegin(), 1, this->words().rbegin());
         return *this;
     }
     
     template <endian::order r, size_t size>
     bounded<true, r, size>& sint<r, size>::operator--() {
-        operator-=(1);
+        data::arithmetic::minus<byte>(this->words().rend(), this->words().rbegin(), 1, this->words().rbegin());
         return *this;
     }
     
@@ -567,14 +561,14 @@ namespace data::math::number {
     namespace {
         template <endian::order r, size_t size>
         void shift_right(byte_array<size> &n, uint32 i, byte fill) {
-            if (r == endian::big) arithmetic::bit_shift_right(n.rbegin(), n.rend(), i, fill);
-            else arithmetic::bit_shift_right(n.begin(), n.end(), i, fill);
+            if (r == endian::big) data::arithmetic::bit_shift_right(n.rbegin(), n.rend(), i, fill);
+            else data::arithmetic::bit_shift_right(n.begin(), n.end(), i, fill);
         }
         
         template <endian::order r, size_t size>
         void shift_left(byte_array<size> &n, uint32 i, byte fill) {
-            if (r == endian::big) arithmetic::bit_shift_left(n.begin(), n.end(), i, fill);
-            else arithmetic::bit_shift_left(n.rbegin(), n.rend(), i, fill);
+            if (r == endian::big) data::arithmetic::bit_shift_left(n.begin(), n.end(), i, fill);
+            else data::arithmetic::bit_shift_left(n.rbegin(), n.rend(), i, fill);
         }
     }
     
@@ -592,7 +586,14 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     sint<r, size> inline operator-(const sint<r, size>& a) {
-        return ~a + 1;
+        return ++(~a);
+    }
+    
+    template <endian::order o, size_t size>
+    uint<o, size> uint<o, size>::min() {
+        bounded b{};
+        for (int i = 0; i <= size; i++) b[i] = 0x00;
+        return b;
     }
     
     template <endian::order o, size_t size>
@@ -601,25 +602,6 @@ namespace data::math::number {
         for (int i = 0; i <= size; i++) b[i] = 0xff;
         return b;
     }
-    
-    template <bool is_signed, endian::order r, size_t size>
-    bounded<is_signed, r, size> operator~(const bounded<is_signed, r, size> &n) {
-        bounded<is_signed, r, size> x;
-        arithmetic::bit_negate<byte>(x.end(), x.begin(), n.begin());
-        return x;
-    }
-    
-    template <bool is_signed, endian::order r, size_t size>
-    bool operator==(const bounded<is_signed, r, size> &a, const bounded<is_signed, r, size> &b) {
-        return arithmetic::equal(a.end(), a.begin(), b.begin());
-    }
-    
-    /*
-    template <size_t size, endian::order o>
-    N_bytes<o> bounded<size, o, false>::modulus() {
-        std::string one = std::string{"0x01"} + encoding::hexidecimal::write(bounded{0}).substr(2);
-        return N_bytes<o> {one};
-    }*/
 
     template <endian::order o, size_t size>
     sint<o, size> sint<o, size>::min() {
@@ -634,6 +616,99 @@ namespace data::math::number {
         b.words()[-1] = 0x7f;
         return b;
     }
+    
+    template <endian::order o, size_t size>
+    bounded<true, o, size> inline &bounded<true, o, size>::operator+=(const bounded<true, o, size>& n) {
+        data::arithmetic::plus<byte>(
+            this->words().end(), 
+            this->words().begin(), 
+            const_cast<const bounded*>(this)->words().begin(), 
+            n.words().begin());
+        return *this;
+    }
+    
+    template <endian::order o, size_t size>
+    bounded<false, o, size> inline &bounded<false, o, size>::operator+=(const bounded<false, o, size>& n) {
+        data::arithmetic::plus<byte>(
+            this->words().end(),
+            this->words().begin(), 
+            const_cast<const bounded*>(this)->words().begin(),
+            n.words().begin());
+        return *this;
+    }
+
+    template <endian::order o, size_t size>
+    bounded<true, o, size> inline &bounded<true, o, size>::operator-=(const bounded<true, o, size>& n) {
+        data::arithmetic::minus<byte>(
+            this->words().end(), 
+            this->words().begin(), 
+            const_cast<const bounded*>(this)->words().begin(), 
+            n.words().begin());
+        return *this;
+    }
+    
+    template <endian::order o, size_t size>
+    bounded<false, o, size> inline &bounded<false, o, size>::operator-=(const bounded<false, o, size>& n) {
+        data::arithmetic::minus<byte>(
+            this->words().end(), 
+            this->words().begin(), 
+            const_cast<const bounded*>(this)->words().begin(), 
+            n.words().begin());
+        return *this;
+    }
+
+    template <endian::order o, size_t size>
+    bounded<true, o, size> inline &bounded<true, o, size>::operator+=(int64 x) {
+        return *this += bounded{x};
+    }
+    
+    template <endian::order o, size_t size>
+    bounded<false, o, size> inline &bounded<false, o, size>::operator+=(uint64 x) {
+        return *this += bounded{x};
+    }
+
+    template <endian::order o, size_t size>
+    bounded<true, o, size> inline &bounded<true, o, size>::operator-=(int64 x) {
+        return *this -= bounded{x};
+    }
+    
+    template <endian::order o, size_t size>
+    bounded<false, o, size> inline &bounded<false, o, size>::operator-=(uint64 x) {
+        return *this -= bounded{x};
+    }
+    
+    template <endian::order r, size_t size>
+    bounded<false, r, size> operator+(const bounded<false, r, size> &a, const bounded<false, r, size> &b) {
+        bounded<false, r, size> n{};
+        data::arithmetic::plus<byte>(n.words().end(), n.words().begin(), a.words().begin(), b.words().begin());
+        return n;
+    }
+    
+    template <endian::order r, size_t size>
+    bounded<true, r, size> operator+(const bounded<true, r, size> &a, const bounded<true, r, size> &b) {
+        bounded<true, r, size> n{};
+        data::arithmetic::plus<byte>(n.words().end(), n.words().begin(), a.words().begin(), b.words().begin());
+        return n;
+    }
+    
+    template <bool is_signed, endian::order r, size_t size>
+    bounded<is_signed, r, size> operator~(const bounded<is_signed, r, size> &n) {
+        bounded<is_signed, r, size> x;
+        data::arithmetic::bit_negate<byte>(x.end(), x.begin(), n.begin());
+        return x;
+    }
+    
+    template <bool is_signed, endian::order r, size_t size>
+    bool operator==(const bounded<is_signed, r, size> &a, const bounded<is_signed, r, size> &b) {
+        return data::arithmetic::equal(a.end(), a.begin(), b.begin());
+    }
+    
+    /*
+    template <size_t size, endian::order o>
+    N_bytes<o> bounded<size, o, false>::modulus() {
+        std::string one = std::string{"0x01"} + encoding::hexidecimal::write(bounded{0}).substr(2);
+        return N_bytes<o> {one};
+    }*/
     
     template <endian::order r, size_t size>
     uint<r, size> inline operator+(const uint<r, size>& a, uint64 b) {
@@ -727,6 +802,27 @@ namespace data {
             return ss.str();
         }
 
+    }
+    
+    namespace math {
+    
+        template <size_t size, endian::order o>
+        struct abs<uint<o, size>> {
+            uint<o, size> operator()(const uint<o, size>& i) {
+                return i;
+            }
+        };
+    
+        template <size_t size, endian::order o>
+        struct abs<sint<o, size>> {
+            uint<o, size> operator()(const sint<o, size>& i) {
+                uint<o, size> u;
+                sint<o, size> x = number::is_negative(i) ? -i : i;
+                std::copy(x.begin(), x.end(), u.begin());
+                return u;
+            }
+        };
+        
     }
 
 }
