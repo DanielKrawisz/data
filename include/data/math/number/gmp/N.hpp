@@ -7,9 +7,10 @@
 
 #include <limits>
 #include <data/math/number/natural.hpp>
-#include <data/math/number/abs.hpp>
+#include <data/math/abs.hpp>
 #include <data/math/number/sqrt.hpp>
 #include <data/math/number/gmp/Z.hpp>
+#include <sstream>
 
 namespace data::math::number::gmp {
     
@@ -25,6 +26,10 @@ namespace data::math::number::gmp {
         }
         
         N(string_view x);
+        
+        static N read(string_view x) {
+            return N{x};
+        }
         
         template <size_t size>
         explicit N(decimal<size> d) : N{std::string{d.Value}} {}
@@ -242,7 +247,7 @@ namespace data::math::number::gmp {
         void write_bytes(bytes&, endian::order) const;
         
         friend struct Z;
-        friend struct number::abs<N, Z>;
+        friend struct math::abs<Z>;
         friend struct number::sqrt<N, Z>;
         template <endian::order o> friend struct N_bytes;
     };
@@ -297,29 +302,6 @@ namespace data::math::number::gmp {
     
 }
 
-namespace data::math::number {
-    template <> 
-    struct abs<gmp::N, gmp::N> {
-        gmp::N operator()(const gmp::N& i) {
-            return i;
-        }
-    };
-    
-    template <> 
-    struct abs<gmp::N, gmp::Z> {
-        gmp::N operator()(const gmp::Z& i) {
-            return i.abs();
-        }
-    };
-    
-    template <> 
-    struct abs<gmp::Z, gmp::Z> {
-        gmp::Z operator()(const gmp::Z& i) {
-            return i.abs();
-        }
-    };
-}
-
 // Declare associativity and commutivity of operators + and * on N. 
 namespace data::math {
     template <> struct commutative<plus<number::gmp::N>, number::gmp::N> {};
@@ -338,24 +320,40 @@ namespace data::math {
             return 0;
         }
     };
+    
+    template <> 
+    struct abs<number::gmp::N> {
+        number::gmp::N operator()(const number::gmp::N& i) {
+            return i;
+        }
+    };
+    
+    template <> 
+    struct abs<number::gmp::Z> {
+        number::gmp::N operator()(const number::gmp::Z& i) {
+            return i.abs();
+        }
+    };
 }
 
 namespace data::encoding::hexidecimal { 
     
     std::string write(const math::number::gmp::N& n);
     
-    inline std::ostream& write(std::ostream& o, const math::number::gmp::N& n) {
+    std::ostream inline &write(std::ostream& o, const math::number::gmp::N& n) {
         return o << write(n);
     }
     
 }
 
-namespace data::encoding::integer {
+namespace data::encoding::decimal {
     
-    std::string write(const math::number::gmp::N& n);
+    std::ostream inline &write(std::ostream& o, const math::number::gmp::N& n);
     
-    inline std::ostream& write(std::ostream& o, const math::number::gmp::N& n) {
-        return o << write(n);
+    std::string inline write(const math::number::gmp::N& n) {
+        std::stringstream ss;
+        write(ss, n);
+        return ss.str();
     }
     
 }

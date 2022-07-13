@@ -24,14 +24,14 @@ namespace data {
         using extended_i = math::number::euclidian::extended<data::uint64, data::int64>;
         //using extended_b = math::number::euclidian::extended<data::uint<20>, data::integer<20>>;
         using extended_z = math::number::euclidian::extended<N, Z>;
-        //using extended_zbl = math::number::euclidian::extended<N_bytes<data::endian::order::little>, Z_bytes<data::endian::order::little>>;
-        //using extended_zbb = math::number::euclidian::extended<N_bytes<data::endian::order::big>, Z_bytes<data::endian::order::big>>;
+        using extended_zbl = math::number::euclidian::extended<N_bytes_little, Z_bytes_little>;
+        using extended_zbb = math::number::euclidian::extended<N_bytes_big, Z_bytes_big>;
         
         EXPECT_THROW(extended_i::algorithm(0, 0).GCD, data::math::division_by_zero);
         //EXPECT_THROW(extended_b::algorithm(0, 0).GCD, data::math::division_by_zero);
         EXPECT_THROW(extended_z::algorithm(0, 0).GCD, data::math::division_by_zero);
-        //EXPECT_THROW(extended_zbl::algorithm(0, 0).GCD, data::math::division_by_zero);
-        //EXPECT_THROW(extended_zbb::algorithm(0, 0).GCD, data::math::division_by_zero);
+        EXPECT_THROW(extended_zbl::algorithm(0, 0).GCD, data::math::division_by_zero);
+        EXPECT_THROW(extended_zbb::algorithm(0, 0).GCD, data::math::division_by_zero);
         
         EXPECT_EQ(extended_i::algorithm(1, 1).GCD, 1);
         //EXPECT_EQ(extended_b::algorithm(1, 1).GCD, 1);

@@ -5,7 +5,6 @@
 #ifndef DATA_MATH_ARITHMETIC
 #define DATA_MATH_ARITHMETIC
 
-#include <data/float.hpp> 
 #include <data/math/sign.hpp> 
 
 namespace data::math {
@@ -81,12 +80,6 @@ namespace data::math {
             return b - a;
         }
     };
-    
-    template <std::floating_point X> struct inverse<plus<X>, X> {
-        X operator()(X a, X b) {
-            return b - a;
-        }
-    };
 
 }
 
@@ -113,231 +106,6 @@ namespace data::math::arithmetic {
     template<size_t size, size_t mod8, size_t mod4> struct max_word_size<size, mod8, mod4, 0> {
         using type = byte;
     };
-    
-    // Note: some of the type and var names in the following functions
-    // are very confusing. It would be good to fix them. 
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    bool equal(sen z, it i, it j) {
-        while (i != z) {
-            if(*i != *j) return false;
-            i++;
-            j++;
-        }
-        return true;
-    }
-    
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    bool greater(sen z, it i, it j) {
-        while (i != z) {
-            if(*i > *j) return true;
-            i++;
-            j++;
-        }
-        return false;
-    }
-    
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    bool less(sen z, it i, it j) {
-        while (i != z) {
-            if(*i < *j) return true;
-            i++;
-            j++;
-        }
-        return false;
-    }
-    
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    std::weak_ordering compare(sen z, it i, it j) {
-        while (i != z) {
-            if(*i < *j) return std::weak_ordering::less;
-            if(*i > *j) return std::weak_ordering::greater;
-            i++;
-            j++;
-        }
-        return std::weak_ordering::equivalent;
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_negate(sen z, ita i, itb j) {
-        while (i != z) {
-            *i = ~ *j;
-            i++;
-            j++;
-        }
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_and(sen z, ita i, itb a, itb b) {
-        while (i != z) {
-            *i = *a & *b;
-            i++;
-            a++;
-            b++;
-        }
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_or(sen z, ita i, itb a, itb b) {
-        while (i != z) {
-            *i = *a | *b;
-            i++;
-            a++;
-            b++;
-        }
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_xor(sen z, ita i, itb a, itb b) {
-        while (i != z) {
-            *i = *a ^ *b;
-            i++;
-            a++;
-            b++;
-        }
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit plus(sen z, ita a, digit d, itb b) {
-        using two_digits = typename encoding::twice<digit>::type;
-        
-        digit remainder = d;
-        while (a != z) {
-            two_digits result = encoding::add<digit>(*b, 0, remainder);
-            *a = encoding::lesser_half(result);
-            remainder = encoding::greater_half(result);
-            if (remainder == 0) break;
-            a++;
-            b++;
-        }
-        
-        return remainder;
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit minus(sen z, ita a, digit d, itb b) {
-        digit remainder = d;
-        while (a != z) {
-            if (*b >= remainder) {
-                *a = *b - remainder; 
-                return 0;
-            } 
-            
-            *a = encoding::lesser_half<typename encoding::twice<digit>::type>(encoding::combine<digit>(1, *b) - remainder);
-            remainder = 1;
-            a++;
-            b++;
-        }
-        
-        return remainder;
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit plus(sen z, ita i, itb a, itb b) {
-        using two_digits = typename encoding::twice<digit>::type;
-        
-        digit remainder = 0;
-        
-        while (i != z) {
-            two_digits result = encoding::add<digit>(*a, *b, remainder);
-            remainder = encoding::greater_half(result);
-            *i = encoding::lesser_half(result);
-            i++;
-            a++;
-            b++;
-        }
-        
-        return remainder;
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit minus(sen z, ita a, itb b, itb i) {
-        throw method::unimplemented{"arihmetic::minus"};
-    }
-    
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit times(sen z, ita a, itb b, itb i) {
-        throw method::unimplemented{"arihmetic::minus"};
-    }
-    
-    // bit shift operations are defined in terms of big-endian numbers. 
-    // but really they are operations to powers of 2 ignoring sign, 
-    // regardless of the way that a number is actually represented. 
-    // we can only do this with bytes and not bigger numbers because of 
-    // little-endian encoding. 
-    template <typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, byte> && std::sentinel_for<sen, itb>
-    void shift_left(ita &i, sen z, itb b, byte amount, byte fill) {
-        using two_digits = typename encoding::twice<byte>::type;
-        
-        while (b != z) {
-            auto bp = b;
-            bp++;
-            two_digits result = encoding::combine<byte>(*b, bp != z ? *bp : fill) << amount;
-            *i = encoding::greater_half(result);
-            i++;
-            b = bp;
-        }
-    }
-    
-    // you have to use reverse iterators for this function. 
-    template <typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, byte> && std::sentinel_for<sen, ita>
-    void shift_right(ita &i, sen z, itb b, byte amount, byte fill) {
-        using two_digits = typename encoding::twice<byte>::type;
-        
-        while (b != z) {
-            auto bp = b;
-            bp++;
-            two_digits x = encoding::combine<byte>(bp != z ? *bp : fill, *b);
-            two_digits result = encoding::combine<byte>(bp != z ? *bp : fill, *b) >> amount;
-            *i = encoding::lesser_half(result);
-            i++;
-            b = bp;
-        }
-    }
-    
-    template <typename it, typename sen>
-    void bit_shift_left(it i, sen z, uint32 x, bool fill) {
-        auto bytes = x / 8;
-        auto bits = x % 8;
-        byte filler = fill ? ~0 : 0;
-        
-        size_t size = z - i;
-        if (bytes <= size) math::arithmetic::shift_left(i, z, i + bytes, bits, filler);
-        
-        while (i != z) {
-            *i = filler;
-            i++;
-        }
-    }
-    
-    template <typename it, typename sen>
-    void bit_shift_right(it i, sen z, uint32 x, bool fill) {
-        auto bytes = x / 8;
-        auto bits = x % 8;
-        byte filler = fill ? ~0 : 0;
-        
-        size_t size = z - i;
-        if (bytes <= size) math::arithmetic::shift_right(i, z, i + bytes, bits, filler);
-        
-        while (i != z) {
-            *i = filler;
-            i++;
-        }
-    }
     
     template <typename digit> struct get_sign_bit;
     
@@ -509,12 +277,7 @@ namespace data::math::arithmetic {
             ai++;
         }
         
-        return compare(a.rend(), ai, b.rbegin());
-    } 
-    
-    template <endian::order r, typename digit> 
-    void bit_shift(encoding::words<r, digit> a, int i) {
-        throw method::unimplemented{"bit shift"};
+        return data::arithmetic::compare(a.rend(), ai, b.rbegin());
     } 
     
     template <typename digit> struct get_limit;

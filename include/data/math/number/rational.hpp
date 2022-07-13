@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_RATIONAL
 #define DATA_MATH_NUMBER_RATIONAL
 
-#include <data/math/number/abs.hpp>
+#include <data/math/abs.hpp>
 #include <data/math/division.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/math/field.hpp>
@@ -73,7 +73,7 @@ namespace data::math {
         static fraction divide(Z n, N d) {
             if (d == 0) return fraction{Z{0}, number::positive<N>{N{0}}}; // Invalid value. 
             if (n == 0) return fraction{Z{0}, number::positive<N>{N{1}}};
-            N gcd_ab = gcd(number::abs<N, Z>{}(n), d);
+            N gcd_ab = gcd(data::abs(n), d);
             return fraction(n / Z(gcd_ab), number::positive(d / gcd_ab));
         }
         
@@ -92,7 +92,7 @@ namespace data::math {
         static ptr<fraction> inverse(const fraction& f) {
             if (f == 0) return nullptr;
             return std::make_shared<fraction>(
-                fraction{Z{f.Denominator.Number} * number::arg<Z>{}(f.Numerator), number::positive{number::abs<N, Z>{}(f.Numerator)}});
+                fraction{Z{f.Denominator.Number} * data::sign(f.Numerator), number::positive{data::abs(f.Numerator)}});
         }
         
         bool operator!=(const fraction& f) const {

@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/data.hpp"
-#include "data/math/number/abs.hpp"
 #include "data/math/number/bytes/N.hpp"
 #include "data/math/number/bytes/Z.hpp"
 #include "data/math/number/bounded/bounded.hpp"
