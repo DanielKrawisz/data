@@ -12,7 +12,7 @@
 namespace data {
     
     // fractions
-    template <typename Z, typename N> using fraction = math::fraction<N, Z>;
+    template <typename Z, typename N> using fraction = math::fraction<Z, N>;
     
     // permutations
     template <typename X> using permutation = math::permutation<X>;

@@ -115,6 +115,23 @@ namespace data::encoding {
         }
         
         hex::letter_case read_case(string_view s);
+    
+        template <endian::order r> 
+        ptr<oriented<r, byte>> read(string_view s) {
+            if (!valid(s)) return nullptr;
+            
+            ptr<oriented<r, byte>> n = std::make_shared<oriented<r, byte>>();
+            n->resize((s.size() - 2) / 2);
+            boost::algorithm::unhex(s.begin() + 2, s.end(), n->words().rbegin());
+            
+            return n;
+        }
+        
+        template <endian::order r> 
+        std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower) {
+            o << "0x"; 
+            return encoding::hex::write(o, d.words().reverse(), q);
+        }
         
         template <hex::letter_case cx> struct string : std::string {
             string() : string{"0x"} {}
@@ -135,6 +152,13 @@ namespace data::encoding {
             std::stringstream ss;
             write(ss, z);
             return {ss.str()};
+        }
+        
+        template <hex::letter_case cx, endian::order r> 
+        string<cx> write(const oriented<r, byte> &z, hex::letter_case q = hex::lower) {
+            std::stringstream ss;
+            write(ss, z, q);
+            return ss.str();
         }
         
     }
@@ -187,6 +211,10 @@ namespace data::encoding {
             return valid(s) && ! ctre::match<zero_pattern>(s);
         }
         
+        uint32 inline count_digits(string_view s) {
+            return negative(s) ? natural::count_digits(s.substr(1, s.size() - 1)) : natural::count_digits(s);
+        }
+        
         template <endian::order r> 
         ptr<math::number::Z_bytes<r>> read(string_view s) {
             if (!valid(s)) return nullptr;
@@ -204,11 +232,6 @@ namespace data::encoding {
             if (z == nullptr) return nullptr;
             return std::make_shared<math::number::Z_bytes<r>>(math::number::Z_bytes<r>(*z));
         }
-        
-        inline uint32 count_digits(string_view s) {
-            return negative(s) ? natural::count_digits(s.substr(1, s.size() - 1)) : natural::count_digits(s);
-        }
-        
         
     }
     
@@ -1394,6 +1417,7 @@ namespace data::encoding::hexidecimal {
     integer<c, zz> inline operator*(const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim(times(math::number::trim(a), math::number::trim(b)));
     }
+    
 }
 
 namespace data::math::number {

@@ -37,7 +37,9 @@ namespace data::math::number {
         
         Z_bytes();
         
-        Z_bytes(const N_bytes<r>&);
+        Z_bytes(const N_bytes<r>&) {
+            throw method::unimplemented{"N_bytes to Z_bytes"};
+        }
         
         Z_bytes(int64 x);
         
@@ -173,6 +175,21 @@ namespace data::math::number {
     
     template <endian::order r> size_t inline minimal_size(const Z_bytes<r> &x) {
         return arithmetic::ones_minimal_size(x.words());
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator+(const Z_bytes<r> &a, int64 b) {
+        return a + Z_bytes<r>(b);
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator-(const Z_bytes<r> &a, int64 b) {
+        return a - Z_bytes<r>(b);
+    }
+    
+    template <endian::order r> 
+    Z_bytes<r> inline operator*(const Z_bytes<r> &a, int64 b) {
+        return a * Z_bytes<r>(b);
     }
     
     template <endian::order r> 

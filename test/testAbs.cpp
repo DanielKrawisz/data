@@ -18,31 +18,31 @@ namespace data {
         int_little<11> il11{0};
         int_little<20> il20{0};
         
-        EXPECT_EQ( --ib9,  int_big<9>{"0xffffffffffffffffff"});
-        EXPECT_EQ(--ib10, int_big<10>{"0xffffffffffffffffffff"});
-        EXPECT_EQ(--ib11, int_big<11>{"0xffffffffffffffffffffff"});
-        EXPECT_EQ(--ib20, int_big<20>{"0xffffffffffffffffffffffffffffffffffffffff"});
-        EXPECT_EQ( --il9,  int_little<9>{"0xffffffffffffffffff"});
-        EXPECT_EQ(--il10, int_little<10>{"0xffffffffffffffffffff"});
-        EXPECT_EQ(--il11, int_little<11>{"0xffffffffffffffffffffff"});
-        EXPECT_EQ(--il20, int_little<20>{"0xffffffffffffffffffffffffffffffffffffffff"});
+        EXPECT_EQ( --ib9,  int_big<9>::read("0xffffffffffffffffff"));
+        EXPECT_EQ(--ib10, int_big<10>::read("0xffffffffffffffffffff"));
+        EXPECT_EQ(--ib11, int_big<11>::read("0xffffffffffffffffffffff"));
+        EXPECT_EQ(--ib20, int_big<20>::read("0xffffffffffffffffffffffffffffffffffffffff"));
+        EXPECT_EQ( --il9,  int_little<9>::read("0xffffffffffffffffff"));
+        EXPECT_EQ(--il10, int_little<10>::read("0xffffffffffffffffffff"));
+        EXPECT_EQ(--il11, int_little<11>::read("0xffffffffffffffffffffff"));
+        EXPECT_EQ(--il20, int_little<20>::read("0xffffffffffffffffffffffffffffffffffffffff"));
         
-        EXPECT_LT(int_big<9>{"0x800000000000000000"}, 
-                  int_big<9>{"0x7fffffffffffffffff"});
-        EXPECT_LT(int_big<10>{"0x80000000000000000000"}, 
-                  int_big<10>{"0x7fffffffffffffffffff"});
-        EXPECT_LT(int_big<11>{"0x8000000000000000000000"}, 
-                  int_big<11>{"0x7fffffffffffffffffffff"});
-        EXPECT_LT(int_big<20>{"0x8000000000000000000000000000000000000000"},
-                  int_big<20>{"0x7fffffffffffffffffffffffffffffffffffffff"});
-        EXPECT_LT(int_little<9>{"0x800000000000000000"}, 
-                  int_little<9>{"0x7fffffffffffffffff"});
-        EXPECT_LT(int_little<10>{"0x80000000000000000000"}, 
-                  int_little<10>{"0x7fffffffffffffffffff"});
-        EXPECT_LT(int_little<11>{"0x8000000000000000000000"}, 
-                  int_little<11>{"0x7fffffffffffffffffffff"});
-        EXPECT_LT(int_little<20>{"0x8000000000000000000000000000000000000000"}, 
-                  int_little<20>{"0x7fffffffffffffffffffffffffffffffffffffff"});
+        EXPECT_LT(int_big<9>::read("0x800000000000000000"), 
+                  int_big<9>::read("0x7fffffffffffffffff"));
+        EXPECT_LT(int_big<10>::read("0x80000000000000000000"), 
+                  int_big<10>::read("0x7fffffffffffffffffff"));
+        EXPECT_LT(int_big<11>::read("0x8000000000000000000000"), 
+                  int_big<11>::read("0x7fffffffffffffffffffff"));
+        EXPECT_LT(int_big<20>::read("0x8000000000000000000000000000000000000000"),
+                  int_big<20>::read("0x7fffffffffffffffffffffffffffffffffffffff"));
+        EXPECT_LT(int_little<9>::read("0x800000000000000000"), 
+                  int_little<9>::read("0x7fffffffffffffffff"));
+        EXPECT_LT(int_little<10>::read("0x80000000000000000000"), 
+                  int_little<10>::read("0x7fffffffffffffffffff"));
+        EXPECT_LT(int_little<11>::read("0x8000000000000000000000"), 
+                  int_little<11>::read("0x7fffffffffffffffffffff"));
+        EXPECT_LT(int_little<20>::read("0x8000000000000000000000000000000000000000"), 
+                  int_little<20>::read("0x7fffffffffffffffffffffffffffffffffffffff"));
         
     }
     

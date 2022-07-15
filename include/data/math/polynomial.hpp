@@ -126,16 +126,16 @@ namespace data::math {
     };
 
     template <typename A, typename N, char x>
-    struct commutative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative<plus<A>, A> {};
+    struct commutative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative_plus<A> {};
     
     template <typename A, typename N, char x>
-    struct associative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : associative<plus<A>, A> {};
+    struct associative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : associative_plus<A> {};
     
     template <typename A, typename N, char x>
-    struct commutative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative<times<A>, A>{};
+    struct commutative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative_times<A>{};
     
     template <typename A, typename N, char x>
-    struct associative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : associative<times<A>, A> {};
+    struct associative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : associative_times<A> {};
     
     template <typename A, typename N, char x>
     struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {

@@ -114,6 +114,14 @@ namespace data::encoding::base58 {
         return *this = *this >> i;
     }
     
+    string string::operator|(const string &x) const {
+        return string{write_b58(read_num(*this) | read_num(x))};
+    }
+    
+    string string::operator&(const string &x) const {
+        return string{write_b58(read_num(*this) & read_num(x))};
+    }
+    
     math::division<string, uint64> string::divide(uint64 x) const {
         if (x == 0) throw math::division_by_zero{};
         // it is important to have this optimization. 
@@ -126,6 +134,10 @@ namespace data::encoding::base58 {
         
         math::division<nat> div = read_num(*this).divide(nat{static_cast<uint64>(x)});
         return math::division<string, uint64>{write_b58(div.Quotient), uint64(div.Remainder)};
+    }
+    
+    math::division<string> string::divide(const string &x) const {
+        return math::number::natural::divide(*this, x);
     }
 
 }

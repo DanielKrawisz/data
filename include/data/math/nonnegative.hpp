@@ -6,6 +6,7 @@
 #define DATA_MATH_NONNEGATIVE
 
 #include <data/valid.hpp>
+#include <data/math/arithmetic.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/sign.hpp>
 
@@ -14,8 +15,8 @@ namespace data::math {
     template <ordered R> struct nonnegative {
         R Value;
         
-        explicit nonnegative(const R& n) : Value{n} {}
-        explicit nonnegative(R&& n) : Value{n} {}
+        nonnegative(const R& n) : Value{n} {}
+        nonnegative(R&& n) : Value{n} {}
         nonnegative() : Value{-1} {}
         
         bool valid() {
@@ -33,8 +34,8 @@ namespace data::math {
     template <typename R> struct nonzero {
         R Value;
         
-        explicit nonzero(const R &n) : Value{n} {}
-        explicit nonzero(R &&n) : Value{n} {}
+        nonzero(const R &n) : Value{n} {}
+        nonzero(R &&n) : Value{n} {}
         nonzero() : Value{0} {}
         
         bool valid() const {
@@ -55,6 +56,19 @@ namespace data::math {
             return *this;
         }
     };
+    
+    template <typename X> struct identity<times<X>, nonzero<X>> {
+        nonzero<X> operator()() {
+            return 1;
+        }
+    };
+    
+    template <typename X> struct inverse<times<X>, nonzero<X>> {
+        nonzero<X> operator()(const nonzero<X> &a, const nonzero<X> &b) {
+            return b / a;
+        }
+    };
+    
 }
 
 namespace data {

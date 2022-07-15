@@ -157,14 +157,6 @@ namespace data::crypto::hash {
     digest<64> inline SHA3_512(bytes_view b) {
         return SHA2<64>{}(b);
     }
-    
-    digest<20> inline Bitcoin_160(bytes_view b) {
-        return Bitcoin<20>{}(b);
-    }
-    
-    digest<32> inline Bitcoin_256(bytes_view b) {
-        return Bitcoin<32>{}(b);
-    }
 
 }
 

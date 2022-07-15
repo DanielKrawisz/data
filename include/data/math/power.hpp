@@ -8,24 +8,44 @@
 #include <data/math/division.hpp>
 
 namespace data::math {
-    template <typename X, typename N>
+    template <typename X, typename N = X>
     class power {
-        static X square(X x) {
+        static X square(const X &x) {
             return x * x;
         }
         
-        static X pow(X so_far, X pow_2n, N p) {
+        static X pow(const X &so_far, const X &pow_2n, const N &p) {
             if (p == 0) return so_far;
-            division d = p / 2;
-            return pow(d.Remainder == 1 ? so_far + pow_2n : so_far, square(pow_2n), d.Quotient);
+            return pow((p & N{1}) > 0 ? so_far + pow_2n : so_far, square(pow_2n), p >> 1);
         }
         
     public:
-        X operator()(X x, N n) const {
+        X operator()(const X &x, const N &n) const {
             if (n == 0) return 1;
             if (n == 1) return x;
             if (n == 2) return square(x);
             return pow(0, x, n);
+        }
+    };
+    
+    template <typename X, typename N = X>
+    class power_mod {
+        static X square(const X &mod, const X &x) {
+            auto n = x * x;
+            return n > mod ? n % mod : n;
+        }
+        
+        static X pow(const X &mod, const X &so_far, const X &pow_2n, const N &p) {
+            if (p == 0) return so_far;
+            return pow(mod, (p & N{1}) > 0 ? so_far + pow_2n : so_far, square(mod, pow_2n), p >> 1);
+        }
+        
+    public:
+        X operator()(const X &mod, const X &x, const N &n) const {
+            if (n == 0) return 1;
+            if (n == 1) return x;
+            if (n == 2) return square(x, mod);
+            return pow(0, x, mod, n) % mod;
         }
     };
 

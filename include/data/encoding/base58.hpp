@@ -97,6 +97,9 @@ namespace data::encoding::base58 {
         string operator<<(int) const;
         string operator>>(int) const;
         
+        string operator|(const string&) const;
+        string operator&(const string&) const;
+        
         string& operator+=(const string&);
         string& operator-=(const string&);
         string& operator*=(const string&);
@@ -105,6 +108,20 @@ namespace data::encoding::base58 {
         string& operator>>=(int);
         
         math::division<string, uint64> divide(uint64) const;
+        math::division<string> divide(const string&) const;
+        
+        string operator/(const string &x) {
+            return divide(x).Quotient;
+        }
+        
+        string operator%(const string &x) {
+            return divide(x).Remainder;
+        }
+        
+        bool operator==(int x) const {
+            if (x < 0) return false;
+            return *this == string{static_cast<uint64>(x)};
+        }
     };
     
     template <typename N>

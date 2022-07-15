@@ -11,28 +11,28 @@
 // endian types
 #include <data/encoding/endian/arithmetic.hpp>
 
-// This library uses a valid() method and a Valid member in a stereotyped way. 
+// This library uses a valid() method and a Valid member in a stereotyped way.
 #include <data/valid.hpp>
 
-// A implementations of data structures. 
+// A implementations of data structures.
 #include <data/tools.hpp>
 
 // functional constructs
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
 
-// Thread safe communication channel, similar to golang. 
+// Thread safe communication channel, similar to golang.
 #include <data/tools/channel.hpp>
 
 namespace data {
-    
-    template <typename X> using chan = tool::channel<X>;
-    
+
+template <typename X> using chan = tool::channel<X>;
+
 }
 
 #include <data/numbers.hpp>
 
-// Some important math functions. 
+// Some important math functions.
 #include <data/math/abs.hpp>
 #include <data/math/root.hpp>
 
@@ -43,24 +43,24 @@ namespace data {
 #include <data/math/number/gmp/sqrt.hpp>
 
 namespace data {
-    // we use a wrapper around gmp for natural numbers and integers. 
-    
-    // Natural numbers
-    
-    // Primes
-    using prime = math::number::prime<N>;
-    
-    // right now there are only two ways to generate primes
-    // and neither is all that useful. 
-    
-    // The sieve of Eratosthenes.
-    // Good for generating all primes in sequence. 
-    using Eratosthenes = math::number::eratosthenes<N>;
-    
-    // Primality testing. AKS is polynomial time but still too 
-    // slow for practical use. 
-    using AKS = math::number::AKS<N>;
-    
+// we use a wrapper around gmp for natural numbers and integers.
+
+// Natural numbers
+
+// Primes
+using prime = math::number::prime<N>;
+
+// right now there are only two ways to generate primes
+// and neither is all that useful.
+
+// The sieve of Eratosthenes.
+// Good for generating all primes in sequence.
+using Eratosthenes = math::number::eratosthenes<N>;
+
+// Primality testing. AKS is polynomial time but still too
+// slow for practical use.
+using AKS = math::number::AKS<N>;
+
 }
 
 #include <data/math.hpp>

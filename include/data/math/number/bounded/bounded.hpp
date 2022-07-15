@@ -230,9 +230,10 @@ namespace data::math::number {
         explicit bounded(slice<byte, size> x);
         
         // The string can be a hex string or a representation of a number. 
-        explicit bounded(string_view s);
-        static bounded read(string_view s) {
-            return bounded{s};
+        static bounded read(string_view x) {
+            if (encoding::decimal::valid(x) || encoding::hexidecimal::valid(x) && x.size() == 2 * size + 2) return bounded{N_bytes<r>::read(x)};
+            
+            throw std::invalid_argument{std::string{"invalid number string "} + std::string{x}}; 
         }
         
         math::sign sign() const;
@@ -303,9 +304,11 @@ namespace data::math::number {
         
         bounded(const bounded<false, r, size>&);
         
-        explicit bounded(string_view s);
-        static bounded read(string_view s) {
-            return bounded{s};
+        static bounded read(string_view x) {
+            if (encoding::decimal::valid(x) || 
+                encoding::hexidecimal::valid(x) && x.size() == 2 * size + 2 ||
+                x.size() > 0 && x[0] == '-' && encoding::decimal::valid(x.substr(1))) return bounded{Z_bytes<r>::read(x)};
+            throw std::invalid_argument{"invalid number string"}; 
         }
         
         explicit bounded(slice<byte, size>);
@@ -434,7 +437,7 @@ namespace data::math::number {
     }
 
     template <endian::order o, size_t size>
-    inline math::sign uint<o, size>::sign() const {
+    math::sign inline uint<o, size>::sign() const {
         return *this == 0 ? math::zero : math::positive;
     }
     
@@ -580,7 +583,7 @@ namespace data::math::number {
     }
         
     template <endian::order o, size_t size>
-    inline math::sign sint<o, size>::sign() const {
+    math::sign inline sint<o, size>::sign() const {
         if (*this == 0) return math::zero;
         return (this->words()[-1]) < 0x80 ? math::positive : math::negative;
     }
