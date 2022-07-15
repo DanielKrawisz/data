@@ -8,6 +8,7 @@
 #include <data/valid.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/sign.hpp>
+#include <data/math/algebra.hpp>
 
 namespace data::math {
     
@@ -83,6 +84,19 @@ namespace data::math {
     
     template <typename R>
     nonzero (const R &) -> nonzero<R>;
+
+    template <typename X> struct inverse<times<X>, nonzero<X>> {
+        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+            return b / a;
+        }
+    };
+
+    template <typename X> struct identity<times<X>, nonzero<X>> {
+        nonzero<X> operator () () {
+            return 1;
+        }
+    };
+    
 }
 
 namespace data {

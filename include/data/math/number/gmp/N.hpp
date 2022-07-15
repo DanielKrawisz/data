@@ -13,8 +13,6 @@
 
 namespace data::math::number::GMP {
     
-    //struct Q;
-    
     struct N {
         Z Value;
         
@@ -59,7 +57,7 @@ namespace data::math::number::GMP {
         
         N (bytes_view, endian::order);
         
-        void write_bytes (bytes&, endian::order) const;
+        void write_bytes (bytes &, endian::order) const;
         
         friend struct Z;
         template <endian::order o> friend struct N_bytes;

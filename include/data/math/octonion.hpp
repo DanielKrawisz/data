@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,7 +10,7 @@
 namespace data::math {
 
     template <typename R>
-    class octonion : public cayley_dickson<quaternion<R>, R> {
+    class octonion : public cayley_dickson<R, quaternion<R>> {
         using com = complex<R>;
         using ham = quaternion<R>;
         using oct = cayley_dickson<ham, R>;
@@ -34,16 +34,8 @@ namespace data::math {
         constexpr static octonion E6 = {0, 0, 0, 0, 0, 0, 1, 0};
         constexpr static octonion E7 = {0, 0, 0, 0, 0, 0, 0, 1};
         
-        operator oct() {
-            return static_cast<oct>(*this);
-        }
-        
-        octonion conjugate() const {
-            return oct::conjugate();
-        }
-        
         octonion operator~() const {
-            return conjugate();
+            return oct::operator~();
         }
         
         octonion operator+(const octonion& x) const {
@@ -69,11 +61,33 @@ namespace data::math {
         octonion inverse() const {
             return oct::inverse();
         }
-        
-        nonnegative<R> quadrance() const {
-            return oct::quadrance();
+    };
+    
+    template <typename R> struct conjugate<octonion<R>> {
+        octonion<R> operator()(const octonion<R>& x) {
+            return {conjugate<cayley_dickson<R, quaternion<R>>>{}(x)};
         }
     };
+    
+    template <typename R> struct inner<octonion<R>> {
+        octonion<R> operator()(const octonion<R>& a, const octonion<R>& b) {
+            return {inner<cayley_dickson<R, quaternion<R>>>{}(a, b)};;
+        }
+    };
+    
+    template <typename R>
+    struct inverse<plus<octonion<R>>, octonion<R>> {
+        octonion<R> operator()(const octonion<R> &a, const octonion<R> &b) {
+            return b - a;
+        }
+    };
+    
+}
+
+namespace data::math::linear {
+    
+    template <typename q> 
+    struct dimensions<q, octonion<q>> : dimensions<q, cayley_dickson<q, quaternion<q>>> {};
     
 }
 

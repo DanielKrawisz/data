@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,7 +10,7 @@
 namespace data::math {
 
     template <typename R>
-    class quaternion : public cayley_dickson<complex<R>, R> {
+    class quaternion : public cayley_dickson<R, complex<R>> {
         using complex = math::complex<R>;
         using hamiltonian = cayley_dickson<complex, R>;
         
@@ -25,16 +25,12 @@ namespace data::math {
         constexpr static quaternion J = {0, 0, 1, 0};
         constexpr static quaternion K = {0, 0, 0, 1};
         
-        operator hamiltonian() {
-            return static_cast<hamiltonian>(*this);
-        }
-        
         quaternion conjugate() const {
             return hamiltonian::conjugate();
         }
         
         quaternion operator~() const {
-            return conjugate();
+            return hamiltonian::operator~();
         }
         
         quaternion operator+(const quaternion& x) const {
@@ -60,11 +56,33 @@ namespace data::math {
         quaternion inverse() const {
             return hamiltonian::inverse();
         }
-        
-        nonnegative<R> quadrance() const {
-            return hamiltonian::quadrance();
+    };
+    
+    template <typename R> struct conjugate<quaternion<R>> {
+        quaternion<R> operator()(const quaternion<R>& x) {
+            return {conjugate<cayley_dickson<R, complex<R>>>{}(x)};
         }
     };
+    
+    template <typename R> struct inner<quaternion<R>> {
+        quaternion<R> operator()(const quaternion<R>& a, const quaternion<R>& b) {
+            return {inner<cayley_dickson<R, complex<R>>>{}(a, b)};;
+        }
+    };
+    
+    template <typename R>
+    struct inverse<plus<quaternion<R>>, quaternion<R>> {
+        quaternion<R> operator()(const quaternion<R> &a, const quaternion<R> &b) {
+            return b - a;
+        }
+    };
+    
+}
+
+namespace data::math::linear {
+    
+    template <typename q> 
+    struct dimensions<q, quaternion<q>> : dimensions<q, cayley_dickson<q, complex<q>>> {};
     
 }
 

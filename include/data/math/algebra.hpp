@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_ALGEBRA
 #define DATA_MATH_ALGEBRA
 
-#include <data/math/nonnegative.hpp>
+#include <data/types.hpp>
 
 namespace data::math {
 
@@ -27,10 +27,6 @@ namespace data::math {
     template <typename X> struct times {
         X operator () (const X &a, const X &b) {
             return a * b;
-        }
-
-        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
-            return nonzero<X> {a.Value * b.Value};
         }
     };
 

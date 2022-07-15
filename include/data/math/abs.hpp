@@ -11,6 +11,10 @@ namespace data::math {
     
     template <typename X> struct abs;
     template <typename X> struct quadrance;
+    template <typename X> struct conjugate;
+    template <typename X> struct re;
+    template <typename X> struct im;
+    template <typename X> struct inner;
 }
 
 namespace data {
@@ -22,6 +26,25 @@ namespace data {
     template <typename X>
     auto quadrance (const X &x) -> decltype (math::abs<X> {} (x)) {
         return math::quadrance<X> {} (x);
+    }
+    
+    template <typename X> 
+    X conjugate (const X &x) {
+        return math::conjugate<X> {} (x);
+    }
+    
+    template <typename X> 
+    auto re (const X &x) -> decltype (math::abs<X> {} (x)) {
+        return math::re<X> {} (x);
+    }
+    
+    template <typename X> 
+    auto im (const X &x) -> decltype(math::abs<X> {} (x)) {
+        return math::im<X> {} (x);
+    }
+    
+    template <typename X> auto inline norm (const X &x) -> decltype (quadrance (x)) {
+        return quadrance (x);
     }
 }
 
@@ -48,6 +71,50 @@ namespace data::math {
     template <std::signed_integral X> struct quadrance<X> {
         std::make_unsigned<X>::type operator () (const X &x) {
             return data::abs (x) * data::abs (x);
+        }
+    };
+    
+    template <std::floating_point X> struct re<X> {
+        X operator () (const X &x) {
+            return x;
+        }
+    };
+    
+    template <std::integral X> struct re<X> {
+        X operator () (const X &x) {
+            return x;
+        }
+    };
+    
+    template <std::floating_point X> struct im<X> {
+        X operator () (const X &x) {
+            return 0;
+        }
+    };
+    
+    template <std::integral X> struct im<X> {
+        X operator () (const X &x) {
+            return 0;
+        }
+    };
+    
+    template <std::floating_point X> struct inner<X> {
+        X operator () (const X &a, const X &b) {
+            return a * b;
+        }
+    };
+    
+    template <std::integral X> struct inner<X> {
+        X operator () (const X &a, const X &b) {
+            return a * b;
+        }
+    };
+    
+    template <typename X> requires requires (const X &x) {
+        { data::re (inner<X> {} (x, x)) };
+    } struct quadrance<X> {
+        auto operator () (const X &x) {
+            return data::re (inner<X> {} (x, x));
         }
     };
     
