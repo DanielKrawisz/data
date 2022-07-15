@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Daniel Krawisz
+// Copyright (c) 2020-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,10 +8,9 @@
 #include <data/valid.hpp>
 
 #include <data/math/permutation.hpp>
-#include <data/math/group.hpp>
-#include <data/math/associative.hpp>
+#include <data/math/number/modular.hpp>
 
-namespace data::math::algebra {
+namespace data::math {
     
     template <typename N, auto & natural>
     struct symmetric_group : permutation<number::modular<N, natural>> {
@@ -34,27 +33,30 @@ namespace data::math::algebra {
     };
 
     template <typename N, auto & natural>
-    inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::symmetric_group<N, natural>& m) {
+    inline std::ostream& operator<<(std::ostream& o, const data::math::symmetric_group<N, natural>& m) {
         return o << "symmetric<"<<natural<<">{"<<static_cast<const data::math::permutation<data::math::number::modular<N, natural>>&>(m)<<"}";
     }
     
-}
-
-namespace data::math {
-    
     template <typename N, auto & natural>
     struct associative<
-        times<algebra::symmetric_group<N, natural>>, 
-        algebra::symmetric_group<N, natural>>
+        times<symmetric_group<N, natural>>, 
+        symmetric_group<N, natural>>
         : associative<plus<N>, N> {};
     
     template <typename N, auto & natural>
     struct identity<
-        times<algebra::dihedral_group<N, natural>>, 
-        algebra::symmetric_group<N, natural>>
+        times<symmetric_group<N, natural>>, 
+        symmetric_group<N, natural>>
         : identity<times<N>, N> {
-        static const algebra::symmetric_group<N, natural> value() {
+        symmetric_group<N, natural> operator()() {
             return {identity<times<N>, N>::value()};
+        }
+    };
+    
+    template <typename N, auto & natural>
+    struct inverse<times<symmetric_group<N, natural>>, symmetric_group<N, natural>> {
+        symmetric_group<N, natural> operator()(const symmetric_group<N, natural>& a, const symmetric_group<N, natural>& b) {
+            return b / a;
         }
     };
     

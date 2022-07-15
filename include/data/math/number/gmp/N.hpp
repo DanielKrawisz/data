@@ -13,8 +13,6 @@
 
 namespace data::math::number::GMP {
     
-    //struct Q;
-    
     struct N {
         Z Value;
         
@@ -53,6 +51,11 @@ namespace data::math::number::GMP {
         
         template <endian::order o>
         explicit N (const N_bytes<o> &n) : N {bytes_view (n), o} {}
+        
+        template <endian::order o>
+        explicit operator N_bytes<o>() const {
+            throw method::unimplemented{"N -> N_bytes"};
+        }
         
     private:
         explicit N (const Z &z) : Value {z} {}

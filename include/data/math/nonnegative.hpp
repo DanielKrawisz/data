@@ -6,6 +6,7 @@
 #define DATA_MATH_NONNEGATIVE
 
 #include <data/valid.hpp>
+#include <data/math/algebra.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/sign.hpp>
 
@@ -79,6 +80,19 @@ namespace data::math {
     
     template <typename R>
     nonzero (const R &) -> nonzero<R>;
+    
+    template <typename X> struct identity<times<X>, nonzero<X>> {
+        nonzero<X> operator () () {
+            return 1;
+        }
+    };
+    
+    template <typename X> struct inverse<times<X>, nonzero<X>> {
+        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+            return b / a;
+        }
+    };
+    
 }
 
 namespace data {

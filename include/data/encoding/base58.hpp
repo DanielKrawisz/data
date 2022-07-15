@@ -121,8 +121,6 @@ namespace data::encoding::base58 {
         
         static string read (const std::string &);
 
-        math::division<string, uint64> divide (uint64) const;
-
         explicit operator uint64 () const;
         explicit operator math::N () const {
             if (!valid ()) throw exception {} << "invalid base 58 number" << *this;
@@ -131,6 +129,18 @@ namespace data::encoding::base58 {
 
         friend string operator "" _b58 (const char*, size_t);
         friend string operator "" _b58 (unsigned long long int);
+
+        math::division<string, uint64> divide (uint64) const;
+        math::division<string> divide (const string&) const;
+        
+        string operator / (const string &x) {
+            return divide (x).Quotient;
+        }
+        
+        string operator % (const string &x) {
+            return divide (x).Remainder;
+        }
+        
     };
     
     template <typename N>
