@@ -107,8 +107,8 @@ namespace data::math::number {
 namespace data::math {
 
     template <number::natural N> struct divide<N, N> {
-        division<N> operator () (const N &Dividend, const N &Divisor) {
-            return number::natural_divide (Dividend, Divisor);
+        division<N> operator () (const N &Dividend, const nonzero<N> &Divisor) {
+            return number::natural_divide (Dividend, Divisor.Value);
         }
     };
     
@@ -138,13 +138,16 @@ namespace data {
         bool Valid {false};
         
         constexpr decimal (const char (&input)[size]) noexcept {
+            if (size <= 1) return;
             if (input[0] < '1' || input[0] > '9') return;
-            for (size_t i {1}; i < size - 1; ++i) {
-                if (input[i] < '1' || input[i] > '9') return;
-            }
-            if (input[size - 1] != 0) return;
+
+            for (size_t i {1}; i < size - 1; i++)
+                if (input[i] < '0' || input[i] > '9') return;
+
+            if (input[size - 1] != '\0') return;
+
             Valid = true;
-            for (size_t i {0}; i < size; ++i) Value[i] = input[i];
+            for (size_t i {0}; i < size; i++) Value[i] = input[i];
         }
         
         constexpr operator uint64 () const {
@@ -159,25 +162,14 @@ namespace data {
         }
     };
 
+    template <size_t size>
+    std::ostream inline &operator << (std::ostream &o, const decimal<size> d) {
+        return o << "decimal["<< size <<"]" <<'"' << d.Value << '"';
+    }
+
+    // make sure these two won't work.
     template <> struct decimal<0>;
     template <> struct decimal<1>;
-    
-    template <> struct decimal<2> {
-        char Value[2] = {};
-        bool Valid {false};
-        
-        constexpr decimal (const char (&input)[2]) noexcept {
-            if (input[0] < '0' || input[0] > '9') return;
-            if (input[1] != 0) return;
-            Valid = true;
-            Value[0] = input[0];
-            Value[1] = input[1];
-        }
-        
-        constexpr operator uint64 () const {
-            return static_cast<uint64> (Value[0] - '0');
-        }
-    };
     
     template <size_t N> decimal (const char (&)[N]) -> decimal<N>;
     template <size_t N> decimal (decimal<N>) -> decimal<N>;

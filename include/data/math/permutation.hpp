@@ -8,9 +8,11 @@
 #include <list>
 #include <data/for_each.hpp>
 
-#include <data/math/arithmetic.hpp>
+//#include <data/math/arithmetic.hpp>
 #include <data/math/associative.hpp>
 #include <data/math/group.hpp>
+
+#include <list>
 
 namespace data::math {
 

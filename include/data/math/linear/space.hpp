@@ -14,7 +14,7 @@
 namespace data::math::linear {
     
     template <typename F, typename V>
-    concept space = algebraic_module<F, V> && field<F>;
+    concept space = algebraic_module<F, V> && skew_field<F>;
     
     using dimension = unsigned_limit<size_t>;
     
@@ -36,61 +36,13 @@ namespace data::math::linear {
     };
     
     template <typename F, typename V1, typename V2> struct contract;
-    
 }
-
-namespace data {
-    
-    template <typename F, size_t... sizes> requires math::group<F> 
-    array<F, sizes...> operator+(const array<F, sizes...> &a, const array<F, sizes...> &b) {
-        array<F, sizes...> x{};
-        auto ai = a.begin();
-        auto bi = b.begin();
-        
-        for (auto xi = x.begin(); xi != x.end(); xi++) {
-            *xi = *ai + *bi;
-            ai++;
-            bi++;
-        }
-        
-        return x;
-    };
-    
-    template <typename F, size_t... sizes> requires math::group<F> 
-    array<F, sizes...> operator-(const array<F, sizes...> &a, const array<F, sizes...> &b) {
-        array<F, sizes...> x{};
-        auto ai = a.begin();
-        auto bi = b.begin();
-        
-        for (auto xi = x.begin(); xi != x.end(); xi++) {
-            *xi = *ai - *bi;
-            ai++;
-            bi++;
-        }
-        
-        return x;
-    };
-    
-    template <typename F, size_t... sizes> requires math::field<F> 
-    array<F, sizes...> operator*(const array<F, sizes...> &a, const F &b) {
-        array<F, sizes...> x{};
-        
-        auto ai = a.begin();
-        for (auto xi = x.begin(); xi != x.end(); xi++) {
-            *xi = *ai * b;
-            ai++;
-        }
-        
-        return x;
-    };
-    
-} 
 
 namespace data::math {
     
-    template <typename F, size_t... sizes> requires math::field<F> 
+    template <typename F, size_t... sizes> requires skew_field<F>
     struct inverse<plus<array<F, sizes...>>, array<F, sizes...>> {
-        array<F, sizes...> operator()(const array<F, sizes...> &a, const array<F, sizes...> &b) {
+        array<F, sizes...> operator () (const array<F, sizes...> &a, const array<F, sizes...> &b) {
             return b - a;
         }
     };

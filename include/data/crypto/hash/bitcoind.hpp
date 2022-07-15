@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Daniel Krawisz
+// Copyright (c) 2021-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,7 +28,7 @@ namespace data::crypto::hash::bitcoind {
         
         digest<size> finalize () {
             digest<size> d;
-            Hash.Finalize (d.data ());
+            Hash.Finalize ((byte *) d.data ());
             Hash.Reset ();
             return d;
         }

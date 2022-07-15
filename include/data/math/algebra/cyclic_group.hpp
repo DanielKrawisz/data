@@ -8,11 +8,8 @@
 #include <data/valid.hpp>
 
 #include <data/math/number/modular.hpp>
-#include <data/math/group.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
 
-namespace data::math::algebra {
+namespace data::math {
     
     template <typename N, auto & natural> using cyclic_group = number::modular<N, natural>;
     

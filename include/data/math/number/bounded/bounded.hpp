@@ -180,15 +180,15 @@ namespace data::math {
     };
 
     template <endian::order r, size_t x> struct divide<uint<r, x>, uint<r, x>> {
-        division<uint<r, x>, uint<r, x>> operator () (const uint<r, x> &, const uint<r, x> &);
+        division<uint<r, x>, uint<r, x>> operator () (const uint<r, x> &, const nonzero<uint<r, x>> &);
     };
 
     template <endian::order r, size_t x> struct divide<sint<r, x>, sint<r, x>> {
-        division<sint<r, x>, uint<r, x>> operator () (const sint<r, x> &, const sint<r, x> &);
+        division<sint<r, x>, uint<r, x>> operator () (const sint<r, x> &, const nonzero<sint<r, x>> &);
     };
 
     template <endian::order r, size_t x> struct divide<sint<r, x>, uint<r, x>> {
-        division<sint<r, x>, uint<r, x>> operator () (const sint<r, x> &, const uint<r, x> &);
+        division<sint<r, x>, uint<r, x>> operator () (const sint<r, x> &, const nonzero<uint<r, x>> &);
     };
 
 }

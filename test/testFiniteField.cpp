@@ -28,10 +28,10 @@ namespace data {
     constexpr auto d19 = decimal {"19"};
     
     template <auto & mod>
-    using prime_field_element = math::algebra::prime_field_element<uint64, int64, mod>;
+    using prime_field_element = math::prime_field_element<uint64, int64, mod>;
     
     template <auto & mod>
-    using prime_field = math::algebra::prime_field<uint64, int64, mod>;
+    using prime_field = math::prime_field<uint64, int64, mod>;
     
     TEST (PrimeFieldTest, TestPrimeField) {
         // We have to prove that a number is prime in order to 

@@ -403,6 +403,24 @@ namespace data::math::number {
         auto z = ~x;
         return ++z;
     }
+
+    template <endian::order r> N_bytes<r> inline &operator %= (N_bytes<r> &a, const N_bytes<r> &b) {
+        return a = a % b;
+    }
+
+    template <endian::order r, complement c> N_bytes<r> inline &operator %= (Z_bytes<r, c> &a, const N_bytes<r> &b) {
+        return a = a % b;
+    }
+
+    template <endian::order r> Z_bytes<r, complement::twos> inline &operator %=
+    (Z_bytes<r, complement::twos> &a, const Z_bytes<r, complement::twos> &b) {
+        return a = a % b;
+    }
+
+    template <endian::order r> uint64 &operator %= (N_bytes<r> &, uint64);
+    template <endian::order r, complement c> uint64 &operator %= (Z_bytes<r, c> &a, uint64 b) {
+        return a = a % b;
+    }
     
 }
 

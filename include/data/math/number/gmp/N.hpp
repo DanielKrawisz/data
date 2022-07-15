@@ -13,8 +13,6 @@
 
 namespace data::math::number::GMP {
     
-    //struct Q;
-    
     struct N {
         Z Value;
         
@@ -59,7 +57,7 @@ namespace data::math::number::GMP {
         
         N (bytes_view, endian::order);
         
-        void write_bytes (bytes&, endian::order) const;
+        void write_bytes (bytes &, endian::order) const;
         
         friend struct Z;
         template <endian::order o> friend struct N_bytes;
@@ -434,13 +432,11 @@ namespace data::math::number {
     }
 
     N inline decrement<N>::operator () (const nonzero<N> &n) {
-        std::cout << " **** u decrementing " << n << std::endl;
         auto x = n.Value;
         return --x;
     }
 
     N inline decrement<N>::operator () (const N &n) {
-        std::cout << " **** z decrementing " << n << std::endl;
         if (n == 0) return n;
         auto x = n;
         return --x;

@@ -388,6 +388,16 @@ namespace data::math::number {
     
     template <endian::order r> N_bytes<r> &operator /= (N_bytes<r> &, uint64);
     template <endian::order r, complement c> Z_bytes<r, c> &operator /= (Z_bytes<r, c> &, int64);
+
+    template <endian::order r> N_bytes<r> &operator %= (N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> N_bytes<r> &operator %= (Z_bytes<r, c> &, const N_bytes<r> &);
+
+    template <endian::order r>
+    Z_bytes<r, complement::twos> &operator %=
+    (Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
+
+    template <endian::order r> uint64 &operator %= (N_bytes<r> &, uint64);
+    template <endian::order r, complement c> uint64 &operator %= (Z_bytes<r, c> &, uint64);
     
 }
 
