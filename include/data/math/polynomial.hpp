@@ -209,7 +209,7 @@ namespace data::math {
     template <field A, typename N, char x>
     division<polynomial<A, N, x>> inline divide<polynomial<A, N, x>>::operator ()
     (const polynomial<A, N, x> a, const nonzero<polynomial<A, N, x>> b) {
-        return polynomial<A, N, x>::divide (a, b);
+        return polynomial<A, N, x>::divide (a, b.Value);
     }
 
     template <typename A, typename N, char x>

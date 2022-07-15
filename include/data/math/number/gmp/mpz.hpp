@@ -212,15 +212,15 @@ namespace data::math {
     };
 
     template <> struct divide<N, N> {
-        division<N, N> operator () (const N &, const N &);
+        division<N, N> operator () (const N &, const nonzero<N> &);
     };
 
     template <> struct divide<Z, Z> {
-        division<Z, N> operator () (const Z &, const Z &);
+        division<Z, N> operator () (const Z &, const nonzero<Z> &);
     };
 
     template <> struct divide<Z, N> {
-        division<Z, N> operator () (const Z &, const N &);
+        division<Z, N> operator () (const Z &, const nonzero<N> &);
     };
 
     template <> struct sign<N> {

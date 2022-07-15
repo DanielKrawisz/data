@@ -19,6 +19,9 @@ namespace data::math {
     };
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
+    concept commutative_ring = ring<elem, plus, times> && abelian<elem, times>;
+
+    template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
     concept skew_integral_domain = ring<elem, plus, times> &&
     requires (const nonzero<elem> &a, const nonzero<elem> &b) {
         {times {} (a, b)} -> std::convertible_to<nonzero<elem>>;

@@ -62,7 +62,7 @@ namespace data::math {
             return data::valid (Value) && Value != R (0);
         }
         
-        operator R () const {
+        operator R () {
             return Value;
         }
         
@@ -83,6 +83,11 @@ namespace data::math {
     
     template <typename R>
     nonzero (const R &) -> nonzero<R>;
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const nonnegative<R> &n);
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const nonzero<R> &n);
+    
 }
 
 namespace data {
@@ -143,6 +148,16 @@ namespace data::math {
         nonnegative<R> n = *this;
         ++Value;
         return n;
+    }
+
+    template <typename R>
+    std::ostream inline &operator << (std::ostream &o, const nonnegative<R> &n) {
+        return o << n.Value;
+    }
+
+    template <typename R>
+    std::ostream inline &operator << (std::ostream &o, const nonzero<R> &n) {
+        return o << n.Value;
     }
 
 }

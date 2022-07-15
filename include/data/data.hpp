@@ -11,28 +11,28 @@
 // endian types
 #include <data/encoding/endian/arithmetic.hpp>
 
-// This library uses a valid() method and a Valid member in a stereotyped way. 
+// This library uses a valid() method and a Valid member in a stereotyped way.
 #include <data/valid.hpp>
 
-// A implementations of data structures. 
+// A implementations of data structures.
 #include <data/tools.hpp>
 
 // functional constructs
 #include <data/fold.hpp>
 #include <data/for_each.hpp>
 
-// Thread safe communication channel, similar to golang. 
+// Thread safe communication channel, similar to golang.
 #include <data/tools/channel.hpp>
 
 namespace data {
-    
-    template <typename X> using chan = tool::channel<X>;
-    
+
+template <typename X> using chan = tool::channel<X>;
+
 }
 
 #include <data/numbers.hpp>
 
-// Some important math functions. 
+// Some important math functions.
 #include <data/math/abs.hpp>
 #include <data/math/root.hpp>
 

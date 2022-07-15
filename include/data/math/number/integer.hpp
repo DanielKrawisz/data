@@ -69,15 +69,15 @@ namespace data::math {
     requires number::natural<decltype (data::abs (std::declval<Z> ()))> || number::integer<decltype (data::abs (std::declval<Z> ()))>
     struct divide<Z> {
         using N = decltype (data::abs (std::declval<Z> ()));
-        division<Z, N> operator () (const Z &Dividend, const Z &Divisor) {
-            return number::integer_divide (Dividend, Divisor);
+        division<Z, N> operator () (const Z &Dividend, const nonzero<Z> &Divisor) {
+            return number::integer_divide (Dividend, Divisor.Value);
         }
     };
 
     template <number::integer Z, number::natural N>
     struct divide<Z, N> {
-        division<Z, N> operator () (const Z &Dividend, const N &Divisor) {
-            return number::integer_natural_divide (Dividend, Divisor);
+        division<Z, N> operator () (const Z &Dividend, const nonzero<N> &Divisor) {
+            return number::integer_natural_divide (Dividend, Divisor.Value);
         }
     };
 

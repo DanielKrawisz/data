@@ -132,6 +132,12 @@ namespace data::math {
             return a * b;
         }
     };
+
+    template <std::floating_point X> struct divide<X> {
+        X operator () (const X &a, const nonzero<X> &b) {
+            return a / b.Value;
+        }
+    };
     
     template <std::floating_point X> struct commutative<plus<X>, X> {};
     template <std::floating_point X> struct commutative<times<X>, X> {};

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Daniel Krawisz
+// Copyright (c) 2020--2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,10 +8,8 @@
 #include <data/valid.hpp>
 
 #include <data/math/number/modular.hpp>
-#include <data/math/group.hpp>
-#include <data/math/associative.hpp>
 
-namespace data::math::algebra {
+namespace data::math {
     
     template <typename N, auto & natural>
     struct dihedral_group : number::modular<N, natural> {
@@ -33,35 +31,35 @@ namespace data::math::algebra {
         dihedral_group(number::modular<N, natural> m, bool flip) : number::modular<N, natural>{m}, Flip{flip} {}
         
     };
-    
-}
 
-template <typename N, auto & natural>
-inline std::ostream& operator<<(std::ostream& o, const data::math::algebra::dihedral_group<N, natural>& m) {
-    return o << "dihedral<"<<natural<<">{"<<m.Value<<", "<<m.Flip<<"}";
-}
-
-namespace data::math {
+    template <typename N, auto & natural>
+    inline std::ostream& operator<<(std::ostream& o, const dihedral_group<N, natural>& m) {
+        return o << "dihedral<"<<natural<<">{"<<m.Value<<", "<<m.Flip<<"}";
+    }
     
     template <typename N, auto & natural>
     struct associative<
-        times<algebra::dihedral_group<N, natural>>, 
-        algebra::dihedral_group<N, natural>>
+        times<dihedral_group<N, natural>>, 
+        dihedral_group<N, natural>>
         : associative<plus<N>, N> {};
     
     template <typename N, auto & natural>
     struct identity<
-        times<algebra::dihedral_group<N, natural>>, 
-        algebra::dihedral_group<N, natural>>
+        times<dihedral_group<N, natural>>, 
+        dihedral_group<N, natural>>
         : identity<times<N>, N> {
-        static const algebra::dihedral_group<N, natural> value() {
+        dihedral_group<N, natural> operator()() {
             return {identity<times<N>, N>::value()};
         }
     };
     
-}
-
-namespace data::math::algebra {
+    template <typename N, auto & natural>
+    struct inverse<times<dihedral_group<N, natural>>, dihedral_group<N, natural>> {
+        dihedral_group<N, natural> operator()(const dihedral_group<N, natural>& a, const dihedral_group<N, natural>& b) {
+            return b / a;
+        }
+    };
+    
 }
 
 #endif

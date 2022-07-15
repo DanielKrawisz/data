@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,7 +12,7 @@
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
 
-namespace data::math::algebra {
+namespace data::math {
     template <typename N, typename Z, auto &P> struct prime_field_element;
     
     template <typename N, typename Z, auto &P>
@@ -33,11 +33,12 @@ namespace data::math::algebra {
         bool valid () const {
             return *this != nullptr && (*this)->valid ();
         }
-        
-    private:
-        prime_field_element() : ptr<number::modular<N, P>> {} {}
+
         template<typename... X>
         prime_field_element (X... x) : ptr<number::modular<N, P>> (std::make_shared<number::modular<N, P>> (x...)) {}
+        
+    private:
+        prime_field_element () : ptr<number::modular<N, P>> {} {}
         
         friend struct prime_field<N, Z, P>;
     };
@@ -59,57 +60,80 @@ namespace data::math::algebra {
     std::ostream inline &operator << (std::ostream &o, const prime_field_element<N, Z, P> &m) {
         return o << "f<" << P << ">{" << m->Value << "}";
     }
-    
-}
 
-namespace data::math {
+    template <typename N, typename Z, auto & prime>
+    struct times<prime_field_element<N, Z, prime>> {
+        prime_field_element<N, Z, prime> operator () (const prime_field_element<N, Z, prime> &a, const prime_field_element<N, Z, prime> &b) {
+            return a * b;
+        }
+
+        nonzero<prime_field_element<N, Z, prime>> operator ()
+        (const nonzero<prime_field_element<N, Z, prime>> &a, const nonzero<prime_field_element<N, Z, prime>> &b) {
+            return nonzero<prime_field_element<N, Z, prime>> {a.Value * b.Value};
+        }
+    };
     
     template <typename N, typename Z, auto & prime>
-    struct commutative<plus<algebra::prime_field_element<N, Z, prime>>, 
-        algebra::prime_field_element<N, Z, prime>>
+    struct commutative<plus<prime_field_element<N, Z, prime>>, 
+        prime_field_element<N, Z, prime>>
         : commutative<plus<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
-    struct associative<
-        plus<algebra::prime_field_element<N, Z, prime>>, 
-        algebra::prime_field_element<N, Z, prime>>
+    struct associative<plus<prime_field_element<N, Z, prime>>,
+        prime_field_element<N, Z, prime>>
         : associative<plus<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
-    struct commutative<
-        times<algebra::prime_field_element<N, Z, prime>>, 
-        algebra::prime_field_element<N, Z, prime>>
+    struct commutative<times<prime_field_element<N, Z, prime>>,
+        prime_field_element<N, Z, prime>>
         : commutative<times<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
-    struct associative<
-        times<algebra::prime_field_element<N, Z, prime>>, 
-        algebra::prime_field_element<N, Z, prime>>
+    struct associative<times<prime_field_element<N, Z, prime>>,
+        prime_field_element<N, Z, prime>>
         : associative<times<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
-    struct identity<
-        plus<algebra::prime_field_element<N, Z, prime>>, 
-        algebra::prime_field_element<N, Z, prime>>
+    struct identity<plus<prime_field_element<N, Z, prime>>,
+        prime_field_element<N, Z, prime>>
         : identity<plus<N>, N> {
-        static const algebra::prime_field_element<N, Z, prime> value () {
+        prime_field_element<N, Z, prime> operator () () {
             return {identity<plus<N>, N>::value ()};
         }
     };
     
     template <typename N, typename Z, auto & prime>
-    struct identity< 
-        times<algebra::prime_field_element<N, Z, prime>>, 
-        algebra::prime_field_element<N, Z, prime>>
+    struct identity<times<prime_field_element<N, Z, prime>>,
+        prime_field_element<N, Z, prime>>
         : identity<times<N>, N> {
-        static const algebra::prime_field_element<N, Z, prime> value () {
+        prime_field_element<N, Z, prime> operator () () {
             return {identity<times<N>, N>::value ()};
         }
     };
     
-}
+    template <typename N, typename Z, auto & prime>
+    struct inverse<plus<prime_field_element<N, Z, prime>>, prime_field_element<N, Z, prime>> {
+        prime_field_element<N, Z, prime> operator () (const prime_field_element<N, Z, prime> &a, const prime_field_element<N, Z, prime> &b) {
+            return b - a;
+        }
+    };
 
-namespace data::math::algebra {
+    template <typename N, typename Z, auto & prime>
+    struct inverse<times<prime_field_element<N, Z, prime>>, prime_field_element<N, Z, prime>> {
+        nonzero<prime_field_element<N, Z, prime>> operator ()
+        (const nonzero<prime_field_element<N, Z, prime>> &a, const nonzero<prime_field_element<N, Z, prime>> &b) {
+            return b / a;
+        }
+    };
+
+    template <typename N, typename Z, auto & prime>
+    struct divide<prime_field_element<N, Z, prime>, prime_field_element<N, Z, prime>> {
+        prime_field_element<N, Z, prime> operator ()
+        (const prime_field_element<N, Z, prime> &a, const nonzero<prime_field_element<N, Z, prime>> &b) {
+            if (b == 0) throw division_by_zero {};
+            return a / b;
+        }
+    };
     
     template <typename N, typename Z, auto &P>
     bool inline operator == (const prime_field_element<N, Z, P> &a, const prime_field_element<N, Z, P> &b) {

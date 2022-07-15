@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,22 +8,25 @@
 #include <data/math/quaternion.hpp>
 
 namespace data::math {
+    template <typename R> class octonion;
+
+    template <typename R> bool operator == (const octonion<R> &, const octonion<R> &);
 
     template <typename R>
-    class octonion : public cayley_dickson<quaternion<R>, R> {
+    class octonion : public cayley_dickson<R, quaternion<R>> {
         using com = complex<R>;
         using ham = quaternion<R>;
-        using oct = cayley_dickson<ham, R>;
+        using oct = cayley_dickson<R, ham>;
     public:
         
-        octonion() : ham{} {}
-        octonion(const R& r) : ham{r} {}
-        octonion(const ham& a, const ham& b) : oct{a, b} {}
-        octonion(const com& a, const com& b, const com& c, const com& d) : 
-            octonion{ham{a, b}, ham{c, d}} {}
-        octonion(R r, R i, R j, R k, R l, R m, R n, R o) : 
-            octonion{com{r, i}, com{j, k}, com{l, m}, com{n, o}} {}
-        octonion(const oct& o) : oct{o} {}
+        octonion () : ham {} {}
+        octonion (const R &r) : ham {r} {}
+        octonion (const ham &a, const ham &b) : oct {a, b} {}
+        octonion (const com &a, const com &b, const com &c, const com &d) :
+            octonion {ham {a, b}, ham {c, d}} {}
+        octonion (R r, R i, R j, R k, R l, R m, R n, R o) :
+            octonion {com {r, i}, com {j, k}, com {l, m}, com {n, o}} {}
+        octonion (oct &&o) : oct {o} {}
         
         constexpr static octonion E0 = {1, 0, 0, 0, 0, 0, 0, 0};
         constexpr static octonion E1 = {0, 1, 0, 0, 0, 0, 0, 0};
@@ -34,45 +37,109 @@ namespace data::math {
         constexpr static octonion E6 = {0, 0, 0, 0, 0, 0, 1, 0};
         constexpr static octonion E7 = {0, 0, 0, 0, 0, 0, 0, 1};
         
-        operator oct() {
-            return static_cast<oct>(*this);
+        octonion operator ~ () const {
+            return oct::operator ~ ();
         }
         
-        octonion conjugate() const {
-            return oct::conjugate();
+        octonion operator + (const octonion &x) const {
+            return oct::operator + (x);
         }
         
-        octonion operator~() const {
-            return conjugate();
+        octonion operator - () const {
+            return oct::operator - ();
         }
         
-        octonion operator+(const octonion& x) const {
-            return oct::operator+(x);
+        octonion operator - (const octonion &x) const {
+            return oct::operator - (x);
         }
         
-        octonion operator-() const {
-            return oct::operator-();
+        octonion operator * (octonion x) const {
+            return oct::operator * (x);
         }
         
-        octonion operator-(const octonion& x) const {
-            return oct::operator-(x);
+        octonion operator / (octonion x) const {
+            return oct::operator / (x);
         }
         
-        octonion operator*(octonion x) const {
-            return oct::operator*(x);
+        octonion inverse () const {
+            return oct::inverse ();
         }
-        
-        octonion operator/(octonion x) const {
-            return oct::operator/(x);
+    };
+    
+    template <typename R> struct conjugate<octonion<R>> {
+        octonion<R> operator () (const octonion<R> &x) {
+            return {conjugate<cayley_dickson<R, quaternion<R>>> {} (x)};
         }
-        
-        octonion inverse() const {
-            return oct::inverse();
+    };
+    
+    template <typename R>
+    struct inverse<plus<octonion<R>>, octonion<R>> {
+        octonion<R> operator () (const octonion<R> &a, const octonion<R> &b) {
+            return b - a;
         }
-        
-        nonnegative<R> quadrance() const {
-            return oct::quadrance();
+    };
+
+    template <typename q>
+    struct times<octonion<q>> {
+        octonion<q> operator () (const octonion<q> &a, const octonion<q> &b) {
+            return a * b;
         }
+
+        nonzero<octonion<q>> operator () (const nonzero<octonion<q>> &a, const nonzero<octonion<q>> &b) {
+            return a * b;
+        }
+    };
+
+    template <typename q>
+    struct inverse<times<octonion<q>>, octonion<q>> : inverse<times<q>, q> {
+        nonzero<octonion<q>> operator () (const nonzero<octonion<q>> &a, const nonzero<octonion<q>> &b) {
+            return b / a;
+        }
+    };
+
+    template <typename q>
+    struct divide<octonion<q>, octonion<q>> {
+        octonion<q> operator () (const octonion<q> &a, const nonzero<octonion<q>> &b) {
+            if (b == 0) throw division_by_zero {};
+            return a / b.Value;
+        }
+    };
+
+    template <typename q>
+    struct divide<octonion<q>, quaternion<q>> {
+        octonion<q> operator () (const octonion<q> &a, const nonzero<quaternion<q>> &b);
+    };
+
+    template <typename q>
+    struct divide<octonion<q>, complex<q>> {
+        octonion<q> operator () (const octonion<q> &a, const nonzero<complex<q>> &b);
+    };
+
+    template <typename q>
+    struct divide<octonion<q>, q> {
+        octonion<q> operator () (const octonion<q> &a, const nonzero<q> &b);
+    };
+    
+}
+
+namespace data::math::linear {
+    
+    template <typename q> 
+    struct dimensions<q, octonion<q>> : dimensions<q, cayley_dickson<q, quaternion<q>>> {};
+
+    template <typename q>
+    struct dimensions<complex<q>, octonion<q>> {
+        constexpr static dimension value = 4;
+    };
+
+    template <typename q>
+    struct dimensions<quaternion<q>, octonion<q>> {
+        constexpr static dimension value = 2;
+    };
+
+    template <typename q>
+    struct inner<q, octonion<q>> {
+        q operator () (const octonion<q> &a, const octonion<q> &b);
     };
     
 }

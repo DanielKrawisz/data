@@ -57,44 +57,55 @@ namespace data::math::number {
     }
     
     template <endian::order r> N_bytes<r> inline operator / (const N_bytes<r> &x, const N_bytes<r> &j) {
-        return divide<N_bytes<r>> {} (x, j).Quotient;
+        if (j == 0) throw division_by_zero {};
+        return divide<N_bytes<r>> {} (x, nonzero<N_bytes<r>> {j}).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator / (const Z_bytes<r, c> &x, const Z_bytes<r, c> &j) {
-        return divide<Z_bytes<r, c>> {} (x, j).Quotient;
+        if (j == 0) throw division_by_zero {};
+        return divide<Z_bytes<r, c>> {} (x, nonzero<Z_bytes<r, c>> {j}).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator / (const Z_bytes<r, c> &x, const N_bytes<r> &j) {
-        return divide<Z_bytes<r, c>> {} (x, Z_bytes<r, c> {j}).Quotient;
+        if (j == 0) throw division_by_zero {};
+        return divide<Z_bytes<r, c>> {} (x, nonzero<Z_bytes<r, c>> {Z_bytes<r, c> {j}}).Quotient;
     }
     
     template <endian::order r> N_bytes<r> inline operator / (const N_bytes<r> &x, uint64 j) {
-        return divide<N_bytes<r>> {} (x, N_bytes<r> {j}).Quotient;
+        if (j == 0) throw division_by_zero {};
+        return divide<N_bytes<r>> {} (x, nonzero<N_bytes<r>> {N_bytes<r> {j}}).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator / (const Z_bytes<r, c> &x, int64 j) {
-        return divide<Z_bytes<r, c>> {} (x, Z_bytes<r, c> {j}).Quotient;
+        if (j == 0) throw division_by_zero {};
+        return divide<Z_bytes<r, c>> {} (x, nonzero<Z_bytes<r, c>> {Z_bytes<r, c> {j}}).Quotient;
     }
     
     template <endian::order r> N_bytes<r> inline operator % (const N_bytes<r> &x, const N_bytes<r> &j) {
-        return divide<N_bytes<r>> {} (x, j).Remainder;
+        if (j == 0) throw division_by_zero {};
+        return divide<N_bytes<r>> {} (x, nonzero<N_bytes<r>> {j}).Remainder;
     }
     
     template <endian::order r> N_bytes<r> inline operator % (const Z_bytes<r, complement::ones> &x, const N_bytes<r> &j) {
-        return divide<Z_bytes<r, complement::ones>, N_bytes<r>> {} (x, Z_bytes<r, complement::ones> {j}).Remainder;
+        if (j == 0) throw division_by_zero {};
+        return divide<Z_bytes<r, complement::ones>, N_bytes<r>> {}
+            (x, nonzero<Z_bytes<r, complement::ones>> {Z_bytes<r, complement::ones> {j}}).Remainder;
     }
     
     template <endian::order r> Z_bytes<r, complement::twos> inline operator %
         (const Z_bytes<r, complement::twos> &x, const Z_bytes<r, complement::twos> &j) {
-        return divide<Z_bytes<r, complement::twos>> {} (x, j).Remainder;
+        if (j == 0) throw division_by_zero {};
+        return divide<Z_bytes<r, complement::twos>> {} (x, nonzero<Z_bytes<r, complement::twos>> {j}).Remainder;
     }
     
     template <endian::order r> uint64 inline operator % (const N_bytes<r> &x, uint64 j) {
-        return uint64 (divide<N_bytes<r>> {} (x, N_bytes<r> {j}).Remainder);
+        if (j == 0) throw division_by_zero {};
+        return uint64 (divide<N_bytes<r>> {} (x, nonzero<N_bytes<r>> {N_bytes<r> {j}}).Remainder);
     }
-    
+
     template <endian::order r, complement c> uint64 inline operator % (const Z_bytes<r, c> &x, uint64 j) {
-        return uint64 (divide<Z_bytes<r, c>> {} (x, Z_bytes<r, c> {j}).Remainder);
+        if (j == 0) throw division_by_zero {};
+        return uint64 (divide<Z_bytes<r, c>> {} (x, nonzero<Z_bytes<r, c>> {Z_bytes<r, c> {j}}).Remainder);
     }
     
 }

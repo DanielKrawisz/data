@@ -75,7 +75,7 @@ namespace data {
             if (x.size () != size) throw exception {} << "invalid size " << x.size () << "; expected " << size;
         }
         
-        static array filled (const X& x) {
+        static array filled (const X &x) {
             array n {};
             n.fill (x);
             return n;
@@ -90,6 +90,29 @@ namespace data {
             }
         }
     };
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x + y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x + y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x * y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x * y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x + y} -> std::convertible_to<X>;
+        {x * y} -> std::convertible_to<X>;
+    } && requires () {
+        {X {0}};
+    } X operator * (const array<X, sizes...> &a, const array<X, sizes...> &b);
     
     template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public cross<array<X, sizes...>> {
         array () : cross<array<X, sizes...>> (size) {}
@@ -413,6 +436,83 @@ namespace data {
     template <std::unsigned_integral word, size_t size>
     inline bytes_array<word, size>::operator const slice<word, size> () const {
         return {const_cast<word *> (this->data ())};
+    }
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x + y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
+        array<X, sizes...> x {};
+        auto ai = a.begin ();
+        auto bi = b.begin ();
+
+        for (auto xi = x.begin (); xi != x.end (); xi++) {
+            *xi = *ai + *bi;
+            ai++;
+            bi++;
+        }
+
+        return x;
+    }
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x - y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
+        array<X, sizes...> x {};
+        auto ai = a.begin ();
+        auto bi = b.begin ();
+
+        for (auto xi = x.begin (); xi != x.end (); xi++) {
+            *xi = *ai - *bi;
+            ai++;
+            bi++;
+        }
+
+        return x;
+    }
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x * y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator * (const array<X, sizes...> &a, const X &b) {
+        array<X, sizes...> x {};
+
+        auto ai = a.begin ();
+        for (auto xi = x.begin (); xi != x.end (); xi++) {
+            *xi = *ai * b;
+            ai++;
+        }
+
+        return x;
+    }
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x / y} -> std::convertible_to<X>;
+    } array<X, sizes...> operator / (const array<X, sizes...> &a, const X &b) {
+        array<X, sizes...> x {};
+
+        auto ai = a.begin ();
+        for (auto xi = x.begin (); xi != x.end (); xi++) {
+            *xi = *ai / b;
+            ai++;
+        }
+
+        return x;
+    }
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        {x + y} -> std::convertible_to<X>;
+        {x * y} -> std::convertible_to<X>;
+    } && requires () {
+        {X {0}};
+    } X operator * (const array<X, sizes...> &a, const array<X, sizes...> &b) {
+        X x {0};
+        auto bi = b.begin ();
+
+        for (auto ai = a.begin (); ai != a.end (); ai++) {
+            x += *ai * *bi;
+            bi++;
+        }
+
+        return x;
     }
     
 }

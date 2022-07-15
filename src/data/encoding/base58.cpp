@@ -131,9 +131,10 @@ namespace data::encoding::base58 {
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) >> i);
     }
-    
+
     math::division<string, uint64> string::divide (uint64 x) const {
         if (x == 0) throw math::division_by_zero {};
+
         // it is important to have this optimization. 
         if (x == 58) {
             int last = string::size () - 1;
@@ -149,5 +150,13 @@ namespace data::encoding::base58 {
     string string::read (const std::string &x) {
         return encode (nat::read (x));
     }
+
+    math::division<string> string::divide (const string &x) const {
+        auto div = math::divide<N_bytes_little> {}
+        (read_base<N_bytes_little> (*this, 58, &digit), math::nonzero<N_bytes_little> {read_base<N_bytes_little> (x, 58, &digit)});
+
+        return math::division<string> {encode (div.Quotient), encode (div.Remainder)};
+    }
+
 }
 

@@ -28,9 +28,15 @@ namespace data::math {
         X operator () (const X &a, const X &b) {
             return a * b;
         }
+    };
+
+    template <std::signed_integral X> struct times<X> {
+        X operator () (const X &a, const X &b) {
+            return a * b;
+        }
 
         nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
-            return nonzero<X> {a.Value * b.Value};
+            return a.Value * b.Value;
         }
     };
 
@@ -43,6 +49,18 @@ namespace data::math {
     template <std::signed_integral X> struct inverse<plus<X>, X> {
         X operator () (X a, X b) {
             return b - a;
+        }
+    };
+
+    template <typename X> struct inverse<times<X>, nonzero<X>> {
+        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+            return b / a;
+        }
+    };
+
+    template <typename X> struct identity<times<X>, nonzero<X>> {
+        nonzero<X> operator () () {
+            return 1;
         }
     };
     

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Daniel Krawisz
+// Copyright (c) 2021-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,6 +11,7 @@ namespace data::crypto::hash {
     
     // Bitcoin hash 160 is difined to be RIPEMD_160 * SHA2_256
     template<> struct Bitcoin<20> : data::writer<byte> {
+
         SHA2<32> Writer;
         
         constexpr static size_t size = 20;
@@ -28,6 +29,7 @@ namespace data::crypto::hash {
     
     // Bitcoin hash 256 is difined to be SHA2_256 * SHA_256
     template<> struct Bitcoin<32> : data::writer<byte> {
+        
         SHA2<32> Writer;
         
         constexpr static size_t size = 32;

@@ -230,8 +230,8 @@ namespace data::math {
     requires math::number::natural<endian::arithmetic<false, r, x>>
     struct divide<endian::arithmetic<false, r, x>, endian::arithmetic<false, r, x>> {
         division<endian::arithmetic<false, r, x>, endian::arithmetic<false, r, x>> operator ()
-        (const endian::arithmetic<false, r, x> &v, const endian::arithmetic<false, r, x> &z) {
-            return {v / z, v % z};
+        (const endian::arithmetic<false, r, x> &v, const nonzero<endian::arithmetic<false, r, x>> &z) {
+            return {v / z.Value, v % z.Value};
         }
     };
 
@@ -239,8 +239,8 @@ namespace data::math {
     requires math::number::integer<endian::arithmetic<true, r, x>>
     struct divide<endian::arithmetic<true, r, x>, endian::arithmetic<true, r, x>> {
         division<endian::arithmetic<true, r, x>, endian::arithmetic<false, r, x>> operator ()
-        (const endian::arithmetic<true, r, x> &v, const endian::arithmetic<true, r, x> &z) {
-            return {v / z, v % z};
+        (const endian::arithmetic<true, r, x> &v, const nonzero<endian::arithmetic<true, r, x>> &z) {
+            return {v / z.Value, v % z.Value};
         }
     };
 
@@ -248,8 +248,8 @@ namespace data::math {
     requires math::number::integer<endian::arithmetic<true, r, x>> && math::number::natural<endian::arithmetic<false, r, x>>
     struct divide<endian::arithmetic<true, r, x>, endian::arithmetic<false, r, x>> {
         division<endian::arithmetic<true, r, x>, endian::arithmetic<false, r, x>> operator ()
-        (const endian::arithmetic<true, r, x> &v, const endian::arithmetic<false, r, x> &z) {
-            return {v / z, v % z};
+        (const endian::arithmetic<true, r, x> &v, const nonzero<endian::arithmetic<false, r, x>> &z) {
+            return {v / z.Value, v % z.Value};
         }
     };
 

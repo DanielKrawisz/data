@@ -66,7 +66,15 @@ namespace data::math {
         nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &, const nonzero<fraction<Z>> &);
     };
 
-    template <integral_domain Z> fraction<Z> operator / (const fraction<Z> &, const fraction<Z> &);
+    template <integral_domain Z> struct divide<fraction<Z>> {
+        fraction<Z> operator () (const fraction<Z> &, const nonzero<fraction<Z>> &);
+    };
+
+    template <integral_domain Z> fraction<Z> operator / (const fraction<Z> &, const nonzero<fraction<Z>> &);
+
+    template <typename Z, typename N> struct conjugate<fraction<Z, N>> {
+        fraction<Z, N> operator () (const fraction<Z, N> &x);
+    };
 
     template <typename Z, typename N>
     std::ostream &operator << (std::ostream &o, const fraction<Z, N> &x);
@@ -193,7 +201,7 @@ namespace data::math {
     template <integral_domain Z>
     nonzero<fraction<Z>> inverse<times<fraction<Z>>, fraction<Z>>::operator () (const nonzero<fraction<Z>> &x) {
         if (x.Value.Numerator == 0) throw division_by_zero {};
-        return nonzero {fraction<Z> {Z (x.Value.Denominator) * data::sign (x.Value.Numerator), nonzero {data::abs (x.Value.Numerator)}}};
+        return nonzero {fraction<Z> {Z (x.Value.Denominator.Value) * data::sign (x.Value.Numerator), nonzero {data::abs (x.Value.Numerator)}}};
     }
 
     template <integral_domain Z>
@@ -268,6 +276,11 @@ namespace data::math {
     template <typename Z, typename N>
     nonnegative<fraction<Z, N>> inline quadrance<fraction<Z, N>>::operator () (const fraction<Z, N> &x) {
         return fraction {x.Numerator * x.Numerator, x.Denominator * x.Denominator};
+    }
+
+    template <typename Z, typename N>
+    fraction<Z, N> inline conjugate<fraction<Z, N>>::operator () (const fraction<Z, N> &x) {
+        return x;
     }
 
 }

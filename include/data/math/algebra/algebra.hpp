@@ -12,13 +12,11 @@ namespace data::math {
 
     template <typename F, typename V>
     concept division_algebra = algebra<F, V> && requires (const V &a, const math::nonzero<V> &b) {
-        {a / b} -> std::same_as<V>;
+        {divide<V, V> {} (a, b)} -> std::same_as<V>;
     };
 
     template <typename F, typename V>
-    concept normed_division_algebra = division_algebra<F, V> && requires (const V& v) {
-        { data::quadrance (v) } -> std::same_as<F>;
-    };
+    concept normed_division_algebra = division_algebra<F, V> && normed<F, V>;
 
 }
 

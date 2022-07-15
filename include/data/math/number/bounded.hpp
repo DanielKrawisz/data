@@ -14,7 +14,8 @@
 namespace data::math::number {
 
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline operator / (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
-        return divide<bounded<u, r, x>> {} (a, b).Quotient;
+        if (b == 0) throw division_by_zero {};
+        return divide<bounded<u, r, x>> {} (a, nonzero<bounded<u, r, x>> {b}).Quotient;
     }
     
     template <endian::order r, size_t x> uint<r, x> inline operator / (const uint<r, x> &a, uint64 b) {
@@ -26,11 +27,13 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t x> uint<r, x> inline operator % (const uint<r, x> &a, const uint<r, x> &b) {
-        return divide<uint<r, x>> (a, x).Remainder;
+        if (b == 0) throw division_by_zero {};
+        return divide<uint<r, x>> (a, nonzero<uint<r, x>> {x}).Remainder;
     }
     
     template <endian::order r, size_t x> uint<r, x> inline operator % (const sint<r, x> &a, const uint<r, x> &b) {
-        return divide<sint<r, x>> (a, sint<r, x> (x)).Remainder;
+        if (b == 0) throw division_by_zero {};
+        return divide<sint<r, x>> (a, nonzero<sint<r, x>> {sint<r, x> (x)}).Remainder;
     }
     
     template <endian::order r, size_t x> uint64 inline operator % (const uint<r, x> &a, uint64 b) {
@@ -52,20 +55,23 @@ namespace data::math::number {
 
 namespace data::math {
     template <endian::order r, size_t x>
-    division<uint<r, x>, uint<r, x>> inline divide<uint<r, x>, uint<r, x>>::operator () (const uint<r, x> &v, const uint<r, x> &z) {
-        auto d = divide<N_bytes<r>, N_bytes<r>> {} (v, z);
+    division<uint<r, x>, uint<r, x>> inline divide<uint<r, x>, uint<r, x>>::operator ()
+    (const uint<r, x> &v, const nonzero<uint<r, x>> &z) {
+        auto d = divide<N_bytes<r>, N_bytes<r>> {} (v, nonzero<N_bytes<r>> {z.Value});
         return {uint<r, x> {d.Quotient}, uint<r, x> {d.Remainder}};
     }
 
     template <endian::order r, size_t x>
-    division<sint<r, x>, uint<r, x>> inline divide<sint<r, x>, sint<r, x>>::operator () (const sint<r, x> &v, const sint<r, x> &z) {
-        auto d = divide<Z_bytes<r>, Z_bytes<r>> {} (v, z);
+    division<sint<r, x>, uint<r, x>> inline divide<sint<r, x>, sint<r, x>>::operator ()
+    (const sint<r, x> &v, const nonzero<sint<r, x>> &z) {
+        auto d = divide<Z_bytes<r>, Z_bytes<r>> {} (v, nonzero<Z_bytes<r>> {z.Value});
         return {sint<r, x> {d.Quotient}, uint<r, x> {d.Remainder}};
     }
 
     template <endian::order r, size_t x>
-    division<sint<r, x>, uint<r, x>> inline divide<sint<r, x>, uint<r, x>>::operator () (const sint<r, x> &v, const uint<r, x> &z) {
-        auto d = divide<Z_bytes<r>, N_bytes<r>> {} (v, z);
+    division<sint<r, x>, uint<r, x>> inline divide<sint<r, x>, uint<r, x>>::operator ()
+    (const sint<r, x> &v, const nonzero<uint<r, x>> &z) {
+        auto d = divide<Z_bytes<r>, N_bytes<r>> {} (v, nonzero<N_bytes<r>> {z.Value});
         return {sint<r, x> {d.Quotient}, uint<r, x> {d.Remainder}};
     }
 }
