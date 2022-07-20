@@ -17,6 +17,10 @@
 #include <data/functional/map.hpp>
 #include <data/functional/tree.hpp>
 
+#include <data/reverse.hpp>
+#include <data/take.hpp>
+#include <data/sort.hpp>
+
 // A implementations of data structures. 
 #include <data/tools/linked_stack.hpp>
 #include <data/tools/rb_map.hpp>

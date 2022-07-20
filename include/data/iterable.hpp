@@ -5,59 +5,20 @@
 #ifndef DATA_ITERABLE
 #define DATA_ITERABLE
 
-#include <data/sequence.hpp>
-#include <data/indexed.hpp>
-#include <data/slice.hpp>
-#include <data/encoding/endian/endian.hpp>
-#include <data/valid.hpp>
+#include <ranges>
 
 namespace data {
     
-    namespace meta {
-        
-        template <typename X, typename it>
-        class is_iterable {
-            template <typename T, typename i> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<T>().begin()), i>::value && 
-                    std::is_same<decltype(std::declval<T>().end()), i>::value, yes>::type;
-            template <typename, typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<X, it>(0)), yes>::value;
-        };
-        
-        template <typename X, typename it>
-        class is_const_iterable {
-            template <typename T, typename i> static auto test(int) -> typename 
-                std::enable_if<std::is_same<decltype(std::declval<const T>().begin()), i>::value && 
-                    std::is_same<decltype(std::declval<const T>().end()), i>::value, yes>::type;
-            template <typename, typename> static no test(...);
-        public:
-            static constexpr bool value = std::is_same<decltype(test<X, it>(0)), yes>::value;
-        };
-    }
+    template <typename X, typename elem = std::remove_const_t<decltype(*std::declval<X>().begin())>> 
+    concept const_iterable = std::ranges::input_range<X> && requires(const X x) {
+        { *x.begin() } -> std::convertible_to<const elem>;
+    };
     
-    namespace interface {
-    
-        template <typename X>
-        struct iterable {
-            using iterator = decltype(std::declval<X>().begin());
-            using const_iterator = decltype(std::declval<const X>().begin());
-        private:
-            using require_iterable = typename std::enable_if<meta::is_iterable<X, iterator>::value && meta::is_const_iterable<X, const_iterator>::value, bool>::type;
-        };
-    
-        template <typename X>
-        struct const_iterable {
-            using const_iterator = decltype(std::declval<const X>().begin());
-        private:
-            using require_const_iterable = typename std::enable_if<meta::is_const_iterable<X, const_iterator>::value, bool>::type;
-        };
-        
-        template <typename X, typename e> requires indexed<X, e>
-        struct array : iterable<X> {};
-    }
+    template <typename X, typename elem = decltype(*std::declval<const X>().begin())> 
+    concept iterable = const_iterable<X, elem> && std::ranges::output_range<X, elem> && requires() {
+        typename X::iterator;
+    };
     
 }
 
 #endif
-

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_LIST
-#define DATA_LIST
+#ifndef DATA_FUNCTIONAL_LIST
+#define DATA_FUNCTIONAL_LIST
 
 #include <data/functional/stack.hpp>
 #include <data/functional/queue.hpp>
@@ -13,59 +13,27 @@ namespace data::functional {
     template <typename Q, typename elem = std::remove_reference_t<decltype(std::declval<Q>().first())>>
     concept list = stack<Q, elem> && queue<Q, elem>;
     
-}
-
-namespace data::meta {
+    template <typename Q, typename elem = std::remove_reference_t<decltype(std::declval<Q>().first())>>
+    concept pendable = stack<Q, elem> || queue<Q, elem>;
     
-    template <functional::queue list>
-    list take_queue(list l, uint32 x) {
-        if (x >= l.size()) return l;
-        list n = l;
-        list r{};
-        while (x > 0) {
-            r = data::append(r, n.first());
-            n = n.rest();
-            x--;
-        }
-        return r;
-    }
-    
-    template <functional::stack list>
-    list take_stack(list l, uint32 x) {
-        if (x >= l.size()) return l;
-        list n = l;
-        list r{};
-        while (x > 0) {
-            r = data::prepend(r, n.first());
-            n = n.rest();
-            x--;
-        }
-        return data::reverse(r);
-    }
-    
-    template <typename list>
-    struct take {
-        list operator()(const list& l, uint32 x) {
-            return take_stack(l, x);
-        }
-    };
-    
-    template <functional::list list>
-    struct take<list> {
-        list operator()(const list& l, uint32 x) {
-            return take_queue(l, x);
-        }
-    };
-    /*
-    template <functional::queue list>
-    struct take<list> {
-        list operator()(const list& l, uint32 x) {
-            return take_queue(l, x);
-        }
-    };*/
 }
 
 namespace data {
+    
+    template <functional::pendable list> 
+    list take(const list &l, size_t x);
+    
+    template <functional::pendable list>
+    list join(const list&a, const list& b) {
+        if constexpr(functional::queue<list>) return functional::join_queue(a, b);
+        else return functional::join_stack(a, b);
+    }
+    
+    template <functional::pendable list> requires ordered<element_of<list>>
+    list merge(const list&a, const list& b) {
+        if constexpr(functional::queue<list>) return functional::merge_queue(a, b);
+        else return functional::merge_stack(a, b);
+    }
     
     template <functional::list L>
     inline L rotate_right(const L x) {
@@ -73,17 +41,6 @@ namespace data {
         if (s == 0 || s == 1) return x; 
         
         return prepend(rest(x), first(x));
-    }
-    
-    template <functional::list list> 
-    list take(list l, uint32 x) {
-        return meta::take<list>{}(l, x);
-    }
-    
-    template <functional::list list>
-    list join(const list&a, const list& b) {
-        if (b.empty()) return a;
-        return join(a << b.first(), b.rest());
     }
     
     template <typename L, typename engine>
@@ -102,6 +59,19 @@ namespace data {
     L shuffle(const L x) {
         return shuffle(x, get_random_engine());
     }
+    
+    template <functional::pendable L> requires ordered<element_of<L>>
+    L merge_sort(const L &x) {
+        size_t z = size(x);
+        if (z < 2) return x;
+        
+        size_t half = z / 2;
+        return merge(merge_sort(take(x, half)), merge_sort(drop(x, half)));
+    }
+}
+
+template <data::functional::pendable L> L inline operator+(const L &a, const L &b) {
+    return data::join(a, b);
 }
 
 #endif

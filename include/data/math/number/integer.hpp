@@ -7,17 +7,6 @@
 
 #include <data/math/number/natural.hpp>
 
-namespace data::interface {
-    template <typename Z>
-    struct integer : ordered<Z>, 
-        ring<Z, plus<Z>, times<Z>>,  
-        math::commutative<times<Z>, Z> {
-    private:
-        using require_division_operator = typename std::enable_if<meta::has_divide_operator<Z, Z, Z>::value, void>::type;
-        using require_mod_operator = typename std::enable_if<meta::has_mod_operator<Z, Z, Z>::value, void>::type;
-    };
-}
-
 namespace data::math::number::integer {
     
     template <typename Z>

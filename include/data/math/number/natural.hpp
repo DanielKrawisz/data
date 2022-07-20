@@ -14,22 +14,6 @@
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
 
-namespace data::interface {
-    template <typename N> requires math::countable<N>
-    struct natural : ordered<N>, 
-        math::associative<plus<N>, N>, 
-        math::commutative<plus<N>, N>, 
-        math::associative<times<N>, N>, 
-        math::commutative<times<N>, N> {
-    private:
-        using require_plus_operator = typename std::enable_if<meta::has_plus_operator<N>::value, void>::type;
-        using require_minus_operator = typename std::enable_if<meta::has_minus_operator<N>::value, void>::type;
-        using require_times_operator = typename std::enable_if<meta::has_times_operator<N>::value, void>::type;
-        using require_division_operator = typename std::enable_if<meta::has_divide_operator<N, N, N>::value, void>::type;
-        using require_mod_operator = typename std::enable_if<meta::has_mod_operator<N, N, N>::value, void>::type;
-    };
-}
-
 namespace data::math::number::natural {
     
     // Generic division algorithm. 

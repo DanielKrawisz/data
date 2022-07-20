@@ -7,6 +7,8 @@
 
 #include <type_traits>
 #include <data/empty.hpp>
+#include <data/function.hpp>
+#include <data/math/ordered.hpp>
 
 namespace data {
     
@@ -38,7 +40,7 @@ namespace data {
     
     template <sequence X>
     struct element<X> {
-        using tye = std::remove_reference_t<decltype(std::declval<X>().first())>;
+        using type = std::remove_reference_t<decltype(std::declval<X>().first())>;
     };
     
     template <typename X> using element_of = element<X>::type;
@@ -77,11 +79,6 @@ namespace data {
         return meta::rest<X>{}(x);
     }
     
-    template <sequence X>
-    X values(const X& x) {
-        return x;
-    }
-    
     namespace functional {
         template <typename list, typename element> requires sequence<list, element>
         bool contains(const list& x, const element& e) {
@@ -106,8 +103,22 @@ namespace data {
         }
         
     }
+    
+    template <sequence list> 
+    list drop(const list &x, uint32 n) {
+        return data::empty(x) || n == 0 ? x : drop(rest(x), n - 1);
+    }
+    
+    template <sequence X>
+    X values(const X& x) {
+        return x;
+    }
+    
+    template <sequence L> requires ordered<element_of<L>>
+    bool sorted(const L &x) {
+        return size(x) < 2 ? true : first(x) <= first(rest(x)) && sorted(rest(x));
+    }
 
 }
 
 #endif
-

@@ -32,22 +32,50 @@ namespace data::interface {
     
 }
 
-namespace data::functional {
-    
-    template <typename L, typename elem = decltype(std::declval<L>().first())> 
-    concept queue = sequence<const L, elem> && interface::has_append_method<const L, elem> && 
-        interface::has_queue_constructor<L, elem> && std::default_initializable<L>;
-    
-}
-
 namespace data {
     
     template <typename list, typename elem> requires interface::has_append_method<list, elem>
     inline list append(const list& x, const elem& e) {
         return x.append(e);
     }
+}
 
-    template <typename X> X merge_sort(const X& a);
+namespace data::functional {
+    
+    template <typename L, typename elem = decltype(std::declval<L>().first())> 
+    concept queue = sequence<const L, elem> && interface::has_append_method<const L, elem> && 
+        interface::has_queue_constructor<L, elem> && std::default_initializable<L>;
+    
+    template <queue list> 
+    list take_queue(const list &x, size_t n, const list &z = {});
+    
+    template <queue list>
+    list join_queue(const list&a, const list& b) {
+        if (data::empty(b)) return a;
+        return join_queue(append(a, first(b)), rest(b));
+    }
+    
+    template <queue L> requires ordered<element_of<L>>
+    L merge_queue(const L &a, const L &b, const L &n = {}) {
+        if (data::empty(a) && data::empty(b)) return reverse(n);
+        if (data::empty(a)) return merge_queue(a, rest(b), prepend(n, first(b)));
+        if (data::empty(b)) return merge_queue(rest(a), b, prepend(n, first(a)));
+        return first(a) < first(b) ? 
+            merge_queue(rest(a), b, prepend(n, first(a))): 
+            merge_queue(a, rest(b), prepend(n, first(b)));
+    }
+    
+}
+
+namespace data {
+    
+    template <functional::queue list, typename prop> requires function<prop, element_of<list>, bool>
+    list select(list l, prop satisfies, list found = {}) {
+        if (data::empty(l)) return found;
+        auto f0 = first(l);
+        if (satisfies(f0)) select(rest(l), satisfies, append(found, f0));
+        return select(rest(l), satisfies, found);
+    }
     
     template <functional::queue L>
     L rotate_left(const L x) {
@@ -82,16 +110,6 @@ namespace data {
         
         if (n > s) return rotate_right(x, n % s);
         return rotate_right(rotate_right(x, n - 1));
-    }
-    
-    template <interface::has_sort_method X>
-    inline X sort(const X x) {
-        return x.sort();
-    }
-    
-    template <functional::queue L>
-    L sort(L list) {
-        return merge_sort(list);
     }
     
 }

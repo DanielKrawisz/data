@@ -113,12 +113,4 @@ namespace data {
         for (int x : t) ;
         for (const int& x : t) ;
     }
-
-    // TODO
-    TEST(LinkedStackTest, TestLinkedStackSort) {
-        
-        /*EXPECT_TRUE(stack<int>(1, 2, 3, 4, 5) == sort(stack<int>(4, 5, 1, 3, 2)));
-        EXPECT_TRUE(stack<int>(1, 2, 3, 3, 4, 5) == sort(stack<int>(4, 3, 5, 1, 3, 2)));*/
-        
-    }
 }

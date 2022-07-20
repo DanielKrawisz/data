@@ -12,8 +12,8 @@
 #include <data/math/ordered.hpp>
 
 namespace data::math::number {
-    template <typename Q>
-    struct rational : interface::field<Q, plus<Q>, times<Q>>, interface::ordered<Q> {};
+    template <ordered Q>
+    struct rational : interface::field<Q, plus<Q>, times<Q>> {};
     
     template <typename N>
     struct positive {
@@ -47,8 +47,8 @@ namespace data::math {
     
     // TODO: note that N is the type of abs(Z)
     // I don't have a way of doing that yet. 
-    template <typename Z, typename N = Z>
-    struct fraction : interface::ring<Z, data::plus<Z>, data::times<Z>>, interface::ordered<Z> {
+    template <ordered Z, typename N = Z>
+    struct fraction : interface::ring<Z, data::plus<Z>, data::times<Z>> {
         Z Numerator;
         number::positive<N> Denominator;
         

@@ -58,16 +58,12 @@ namespace data::tool {
         
         const elem& operator[](uint32 n) const;
         
-        using iterator = functional::stack_iterator<next, elem>;
-        using const_iterator = functional::stack_iterator<next, const elem>;
+        using iterator = functional::stack_iterator<next, const elem>;
         
         friend iterator;
-        friend const_iterator;
         
-        iterator begin();
-        iterator end();
-        const_iterator begin() const;
-        const_iterator end() const;
+        iterator begin() const;
+        iterator end() const;
  
         template <typename X> requires std::equality_comparable_with<elem, X>
         bool operator==(const data::tool::linked_stack<X>& x) const {
@@ -76,11 +72,6 @@ namespace data::tool {
             if (empty()) return true;
             if (first() != x.first()) return false;
             return (rest() == x.rest());
-        }
-
-        template <typename X> requires std::equality_comparable_with<elem, X>
-        bool operator!=(const data::tool::linked_stack<X>& x) const {
-            return !(*this == x);
         }
         
     };
@@ -201,23 +192,13 @@ namespace data::tool {
     }
     
     template <typename elem>
-    inline linked_stack<elem>::iterator linked_stack<elem>::begin() {
+    inline linked_stack<elem>::iterator linked_stack<elem>::begin() const {
         return iterator{Next};
     }
     
     template <typename elem>
-    inline linked_stack<elem>::iterator linked_stack<elem>::end() {
+    inline linked_stack<elem>::iterator linked_stack<elem>::end() const {
         return iterator{size()};
-    }
-    
-    template <typename elem>
-    inline linked_stack<elem>::const_iterator linked_stack<elem>::begin() const {
-        return const_iterator{Next};
-    }
-    
-    template <typename elem>
-    inline linked_stack<elem>::const_iterator linked_stack<elem>::end() const {
-        return const_iterator{size()};
     }
 
 }

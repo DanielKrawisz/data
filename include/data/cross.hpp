@@ -5,7 +5,7 @@
 #ifndef DATA_CROSS
 #define DATA_CROSS
 
-#include <data/iterable.hpp>
+#include <data/sequence.hpp>
 #include <data/slice.hpp>
 #include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
@@ -69,6 +69,10 @@ namespace data {
     
     template <typename X, size_t size> struct array : public cross<X> {
         array() : cross<X>(size) {}
+        
+        array(std::initializer_list<X> x) : cross<X>{x} {
+            if (x.size() != size) throw std::invalid_argument{"invalid size"};
+        }
         
         static array filled(const X& x) {
             array n{};

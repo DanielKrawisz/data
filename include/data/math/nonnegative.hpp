@@ -10,7 +10,7 @@
 
 namespace data::math {
     
-    template <typename R> struct nonnegative : interface::ordered<R> {
+    template <ordered R> struct nonnegative {
         R Value;
         
         explicit nonnegative(const R& n) : Value{n} {}

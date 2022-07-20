@@ -6,6 +6,7 @@
 #define DATA_TOOLS_FUNCTIONAL_QUEUE
 
 #include <data/functional/list.hpp>
+#include <data/reverse.hpp>
 #include <data/fold.hpp>
     
 namespace data::tool {
@@ -53,8 +54,6 @@ namespace data::tool {
             return *this = *this << q;
         }
         
-        functional_queue reverse() const;
-        
         bool operator==(const functional_queue& q) const;
         bool operator!=(const functional_queue& q) const;
         
@@ -63,13 +62,13 @@ namespace data::tool {
         template <typename A, typename ... M>
         static functional_queue make(const A x, M... m);
         
-        using const_iterator = typename stack::const_iterator;
+        using iterator = typename stack::iterator;
         
-        const const_iterator begin() const {
+        const iterator begin() const {
             return values().begin();
         }
         
-        const const_iterator end() const {
+        const iterator end() const {
             return values().end();
         }
         
@@ -80,7 +79,7 @@ namespace data::tool {
         functional_queue(stack l, stack r);
         
         static functional_queue check(const stack& l, const stack& r);
-        
+
         const stack values() const {
             return data::join(data::reverse(Right), data::reverse(Left));
         }
@@ -185,11 +184,6 @@ namespace data::tool {
     template <typename stack, typename element>
     inline functional_queue<stack, element> functional_queue<stack, element>::operator<<(const functional_queue q) const {
         return append(q);
-    }
-    
-    template <typename stack, typename element>
-    inline functional_queue<stack, element> functional_queue<stack, element>::reverse() const {
-        return check(Right, Left);
     }
     
     template <typename stack, typename element>

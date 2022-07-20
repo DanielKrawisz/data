@@ -18,8 +18,8 @@ namespace data::math {
     
     template <typename R, typename X> struct re;
     
-    template <typename nda, typename q>
-    struct cayley_dickson : interface::ordered<q>, interface::field<q> {
+    template <typename nda, ordered q>
+    struct cayley_dickson : interface::field<q> {
         // TODO use proper interfaces: 
         //   nda is a normed division algebra. 
         

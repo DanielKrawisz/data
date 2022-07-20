@@ -14,6 +14,7 @@
 #include <data/sequence.hpp>
 #include <data/iterable.hpp>
 #include <data/function.hpp>
+#include <data/size.hpp>
 
 namespace data::interface {
     
@@ -29,11 +30,13 @@ namespace data::interface {
         { x.prepend(e) } -> std::convertible_to<list>;
     };
     
-    template <typename list>
-    concept has_reverse_method = requires (list x) {
-        { x.reverse() } -> std::same_as<list>;
-    };
-    
+}
+
+namespace data { 
+    template <typename list, typename elem> requires interface::has_prepend_method<list, elem>
+    inline list prepend(const list& x, const elem& e) {
+        return x.prepend(e);
+    }
 }
 
 namespace data::functional { 
@@ -42,20 +45,41 @@ namespace data::functional {
     concept stack = sequence<const L, elem> && interface::has_prepend_method<const L, elem> && 
         interface::has_stack_constructor<L, elem> && std::default_initializable<L>;
     
-    template <typename L>
-    L from(L l, uint32 n) {
-        if (n > l.size()) return {};
-        L o = l;
-        for (int i = 0; i < n; i++) o = rest(o);
-        return o;
+    template <stack list> 
+    list take_stack(const list &x, size_t n, const list &z = {});
+    
+    template <functional::stack list>
+    list join_stack(const list&a, const list& b);
+    
+    template <stack L> requires ordered<element_of<L>>
+    L merge_stack(const L &a, const L &b, const L &n = {});
+    
+    template <typename times, typename L1, typename L2, typename plus, typename value>
+    value inner(times t, L1 l1, L2 l2, plus p);
+}
+
+namespace data {
+
+    template <functional::stack list> 
+    list reverse(const list &given, const list &reversed = {});
+}
+
+namespace data::functional { 
+    
+    template <functional::stack list>
+    list join_stack(const list&a, const list& b) {
+        if (data::empty(a)) return b;
+        return prepend(join_stack(rest(a), b), first(a));
     }
     
-    template <typename function, typename list, typename value>
-    value find(function satisfies, list l) {
-        if (data::empty(l)) return value{};
-        auto f0 = first(l);
-        if (satisfies(f0)) return f0;
-        return rest(l);
+    template <stack L> requires ordered<element_of<L>>
+    L merge_stack(const L &a, const L &b, const L &n) {
+        if (data::empty(a) && data::empty(b)) return reverse(n);
+        if (data::empty(a)) return merge_stack(a, rest(b), prepend(n, first(b)));
+        if (data::empty(b)) return merge_stack(rest(a), b, prepend(n, first(a)));
+        return first(a) < first(b) ? 
+            merge_stack(rest(a), b, prepend(n, first(a))): 
+            merge_stack(a, rest(b), prepend(n, first(b)));
     }
     
     template <typename times, typename L1, typename L2, typename plus, typename value>
@@ -65,37 +89,6 @@ namespace data::functional {
         if (size == 0) return value{};
         
         return p(t(l1.first(), l2.first()), inner(t, rest(l1), rest(l2), p));
-    }
-    
-    // Requires element to be ordered. 
-    // used in merge sort. 
-    template <typename X> X merge(const X& a, const X& b) {
-        X r{};
-        while (!empty(a) && !empty(b)) {
-            if (first(a) > first(b)) {
-                r = r + first(a);
-                b = rest(b);
-            } else {
-                r = r + first(b);
-                b = rest(b);
-            }
-        }
-        
-        if (empty(a)) r = prepend(r, b);
-        else if (empty(b)) r = prepend(r, a);
-        return reverse(r);
-    }
-    
-    template <stack L>
-    L reverse(L list) {        
-        struct inner {
-            L operator()(L reversed, L list) {
-                if (data::empty(list)) return reversed;
-                return inner{}(reversed << first(list), rest(list));
-            }
-        };
-        
-        return inner{}(L{}, list);
     }
     
     // This is a node that you could perhaps use to make a list. 
@@ -169,64 +162,6 @@ namespace std {
         using reference = const elem&;
         using iterator_concept = input_iterator_tag;
     };
-}
-
-namespace data::meta {
-    template <typename list> struct reverse;
-    
-    template <interface::has_reverse_method X> struct reverse<X> {
-        X operator()(const X& x) {
-            return x.reverse();
-        }
-    };
-    
-    template <typename X> requires interface::has_reverse_method<X> && functional::stack<X>
-    struct reverse<X> {
-        X operator()(const X& x) {
-            return x.reverse();
-        }
-    };
-    
-    template <functional::stack X> struct reverse<X> {
-        X operator()(const X& x) {
-            return functional::reverse(x);
-        }
-    };
-}
-
-// These functions will work on any stack-like object. 
-namespace data {
-    template <typename list, typename elem> requires interface::has_prepend_method<list, elem>
-    inline list prepend(const list& x, const elem& e) {
-        return x.prepend(e);
-    }
-    
-    template <typename X>
-    inline X reverse(const X x) {
-        return meta::reverse<X>{}(x);
-    }
-    
-    template <typename list>
-    list join(const list&a, const list& b) {
-        if (b.empty()) return a;
-        return join(a << b.first(), b.rest());
-    }
-    
-    template <typename list, typename prop> requires functional::stack<list> && function<prop, element_of<list>, bool>
-    list select(const list& a, const prop p) {
-        return a.empty() ? list{} : p(a.first()) ? list{a.first()} << select(a.rest(), p) : select(a.rest(), p);
-    }
-    
-    template <functional::stack list> 
-    list take(list x, uint32 n) {
-        list z{};
-        while (size(x) > 0 && n > 0) {
-            z = prepend(z, x.first());
-            x = rest(x);
-            n--;
-        }
-        return reverse(z);
-    }
 }
 
 namespace data::functional {
