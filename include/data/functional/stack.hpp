@@ -110,62 +110,6 @@ namespace data::functional {
         bool contains(X x) const;
     };
     
-    // an iterator that could go with a list. 
-    template <typename list, typename element> 
-    class stack_iterator {
-        list Next;
-        size_t Index;
-        
-        stack_iterator(list n, size_t i) : Next{n}, Index{i} {}
-        
-    public:
-        stack_iterator() : Next{nullptr}, Index{0} {}
-        
-        stack_iterator& operator=(const stack_iterator& i);
-        
-        stack_iterator operator++(int);
-        stack_iterator& operator++();
-        
-        element& operator*() const;
-        
-        bool operator==(const stack_iterator i) const;
-        
-        int operator-(const stack_iterator& i) const;
-        
-        stack_iterator(list n) : Next{n}, Index{0} {}
-        stack_iterator(size_t i) : Next{}, Index{i} {}
-    };
-
-    template <stack X> 
-    inline std::ostream& operator<<(std::ostream& o, const X& x) {
-        return data::functional::write(o, x);
-    }
-}
-
-namespace std {
-    struct input_output_iterator_tag : input_iterator_tag, output_iterator_tag {};
-    
-    template <typename list, typename elem> 
-    struct iterator_traits<data::functional::stack_iterator<list, elem>> {
-        using value_type = remove_const_t<elem>;
-        using difference_type = int;
-        using pointer = remove_reference_t<elem>*;
-        using reference = elem&;
-        using iterator_concept = input_output_iterator_tag;
-    };
-    
-    template <typename list, typename elem> 
-    struct iterator_traits<data::functional::stack_iterator<list, const elem>> {
-        using value_type = remove_const_t<elem>;
-        using difference_type = int;
-        using pointer = const remove_reference_t<elem>*;
-        using reference = const elem&;
-        using iterator_concept = input_iterator_tag;
-    };
-}
-
-namespace data::functional {
-    
     template <typename X, typename Y>
     inline stack_node<X, Y>::stack_node(X x, Y r) : First(x), Rest(r), Size{data::size(r) + 1} {}
     
@@ -197,43 +141,6 @@ namespace data::functional {
         if (x == First) return true;
         
         return data::functional::contains(Rest, x);
-    }
-    
-    // an iterator that could go with a list. 
-    template <typename L, typename element> 
-    inline stack_iterator<L, element>& stack_iterator<L, element>::operator=(const stack_iterator& i) {
-        Next = i.Next;
-        Index = i.Index;
-        return *this;
-    }
-    
-    template <typename L, typename element> 
-    inline stack_iterator<L, element>& stack_iterator<L, element>::operator++() { // Prefix
-        if (Next == nullptr) return *this;
-        if (Next->Size == 1) return operator=(stack_iterator{Index + 1});
-        return operator=(stack_iterator{Next->Rest.Next, Index + 1});
-    }
-    
-    template <typename L, typename element> 
-    inline stack_iterator<L, element> stack_iterator<L, element>::operator++(int) { // Postfix
-        stack_iterator n = *this;
-        operator++();
-        return n;
-    }
-    
-    template <typename L, typename element> 
-    inline element& stack_iterator<L, element>::operator*() const {
-        return Next->First;
-    }
-    
-    template <typename L, typename element> 
-    inline bool stack_iterator<L, element>::operator==(const stack_iterator i) const {
-        return Next == i.Next && Index == i.Index;
-    }
-    
-    template <typename L, typename element> 
-    inline int stack_iterator<L, element>::operator-(const stack_iterator& i) const {
-        return static_cast<int>(Index) - i.Index;
     }
 
 }

@@ -8,7 +8,8 @@
 #include <ostream>
 #include <data/functional/stack.hpp>
     
-namespace data::tool {
+namespace data {
+    
     template <typename elem>
     class linked_stack {
         
@@ -58,15 +59,14 @@ namespace data::tool {
         
         const elem& operator[](uint32 n) const;
         
-        using iterator = functional::stack_iterator<next, const elem>;
-        
-        friend iterator;
+        using iterator = sequence_iterator<linked_stack<elem>>;
+        using sentinel = sequence_sentinel<linked_stack<elem>>;
         
         iterator begin() const;
-        iterator end() const;
+        sentinel end() const;
  
         template <typename X> requires std::equality_comparable_with<elem, X>
-        bool operator==(const data::tool::linked_stack<X>& x) const {
+        bool operator==(const data::linked_stack<X>& x) const {
             if ((void*)(Next.get()) == (void*)(x.Next.get())) return true;
             if (size() != x.size()) return false;
             if (empty()) return true;
@@ -76,10 +76,44 @@ namespace data::tool {
         
     };
     
+    // a bidirectional iterator in case you need one. 
+    template <typename elem>
+    class linked_stack_iterator : public sequence_iterator<linked_stack<elem>> {
+        linked_stack<const linked_stack<elem> &> Prev;
+        
+        linked_stack_iterator(const linked_stack<elem> &s, linked_stack<elem> n, int i, linked_stack<const linked_stack<elem> &> p) : 
+            sequence_iterator<linked_stack<elem>>{s, n, i}, Prev{p} {}
+        
+    public:
+        linked_stack_iterator(): sequence_iterator<linked_stack<elem>>{}, Prev{} {}
+        
+        linked_stack_iterator operator++(int);
+        linked_stack_iterator &operator++();
+        
+        linked_stack_iterator operator--(int);
+        linked_stack_iterator &operator--();
+        
+        linked_stack_iterator(const linked_stack<elem> &s) : sequence_iterator<linked_stack<elem>>{s}, Prev{} {}
+    };
+}
+
+namespace std {
+    template <typename elem> 
+    struct iterator_traits<data::linked_stack_iterator<elem>> {
+        using value_type = remove_const_t<elem>;
+        using difference_type = int;
+        using pointer = const remove_reference_t<elem>*;
+        using reference = const elem&;
+        using iterator_concept = input_iterator_tag;
+    };
+}
+
+namespace data {
+    
     template <typename elem> inline std::ostream& operator<<(std::ostream& o, const linked_stack<elem>& x) {
         return functional::write(o << "stack", x);
     }
-
+    
     template <typename elem>
     inline linked_stack<elem>::linked_stack(next n) : Next{n} {}
     
@@ -187,18 +221,48 @@ namespace data::tool {
     }
     
     template <typename elem>
-    inline const elem& linked_stack<elem>::operator[](uint32 n) const {
+    const elem inline &linked_stack<elem>::operator[](uint32 n) const {
         return from(n).first();
     }
     
     template <typename elem>
-    inline linked_stack<elem>::iterator linked_stack<elem>::begin() const {
-        return iterator{Next};
+    linked_stack<elem>::iterator inline linked_stack<elem>::begin() const {
+        return iterator{*this};
     }
     
     template <typename elem>
-    inline linked_stack<elem>::iterator linked_stack<elem>::end() const {
-        return iterator{size()};
+    linked_stack<elem>::sentinel inline linked_stack<elem>::end() const {
+        return sentinel{*this};
+    }
+    
+    template <typename elem>
+    linked_stack_iterator<elem> linked_stack_iterator<elem>::operator++(int) {
+        auto n = *this;
+        ++(*this);
+        return n;
+    }
+    
+    template <typename elem>
+    linked_stack_iterator<elem> linked_stack_iterator<elem>::operator--(int) {
+        auto n = *this;
+        --(*this);
+        return n;
+    }
+    
+    template <typename elem>
+    linked_stack_iterator<elem> &linked_stack_iterator<elem>::operator++() {
+        Prev <<= sequence_iterator<linked_stack<elem>>::Next;
+        sequence_iterator<linked_stack<elem>>::operator++();
+    }
+    
+    template <typename elem>
+    linked_stack_iterator<elem> &linked_stack_iterator<elem>::operator--() {
+        if (data::empty(Prev)) return *this;
+        return *this = linked_stack_iterator{
+            *sequence_iterator<linked_stack<elem>>::Sequence, 
+            first(sequence_iterator<linked_stack<elem>>::Prev), 
+            sequence_iterator<linked_stack<elem>>::Index - 1, 
+            rest(sequence_iterator<linked_stack<elem>>::Prev)};
     }
 
 }

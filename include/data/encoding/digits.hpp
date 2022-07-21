@@ -14,7 +14,7 @@ namespace data::encoding {
     string write_base(const N& n, string digits) {
         uint32 base = digits.size();
         if (base < 2) return "";
-        tool::linked_stack<char> dig{};
+        linked_stack<char> dig{};
         N x = n;
         while(x > 0) {
             math::division<N> d = x.divide(base);
@@ -23,11 +23,11 @@ namespace data::encoding {
         }
         
         string o;
-        o.resize(dig.size());
+        o.resize(size(dig));
         int i = 0;
         while(dig.size() > 0) {
-            o[i] = dig.first();
-            dig = dig.rest();
+            o[i] = first(dig);
+            dig = rest(dig);
             i++;
         }
         

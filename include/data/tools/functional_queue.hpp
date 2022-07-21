@@ -9,12 +9,11 @@
 #include <data/reverse.hpp>
 #include <data/fold.hpp>
     
-namespace data::tool {
+namespace data {
     
     // functional queue based on Milewski's implementation of Okasaki. 
     // it is built out of any stack. 
-    template <typename stack, 
-        typename element = std::remove_reference_t<decltype(std::declval<stack>().first())>>
+    template <typename stack, typename element = element_of<stack>>
     requires functional::stack<stack, element> 
     struct functional_queue {
         
@@ -62,14 +61,15 @@ namespace data::tool {
         template <typename A, typename ... M>
         static functional_queue make(const A x, M... m);
         
-        using iterator = typename stack::iterator;
+        using iterator = sequence_iterator<functional_queue>;
+        using sentinel = sequence_sentinel<functional_queue>;
         
-        const iterator begin() const {
-            return values().begin();
+        iterator begin() const {
+            return iterator{*this};
         }
         
-        const iterator end() const {
-            return values().end();
+        sentinel end() const {
+            return sentinel{*this};
         }
         
     private:
@@ -79,10 +79,6 @@ namespace data::tool {
         functional_queue(stack l, stack r);
         
         static functional_queue check(const stack& l, const stack& r);
-
-        const stack values() const {
-            return data::join(data::reverse(Right), data::reverse(Left));
-        }
     
     };
 

@@ -36,10 +36,10 @@
 
 namespace data {
     
-    template <typename X> using stack = tool::linked_stack<X>;
+    template <typename X> using stack = linked_stack<X>;
     
     // functional queue built using the list. 
-    template <typename X> using list = tool::functional_queue<stack<X>>;
+    template <typename X> using list = functional_queue<stack<X>>;
     
     template <typename X> using cycle = tool::cycle<list<X>, X>;
     

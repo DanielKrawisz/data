@@ -36,7 +36,6 @@ namespace data {
     template <typename X, typename E> 
     concept container = sequence<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
     
-    
     namespace meta {
         
         template <typename X, typename E, 
