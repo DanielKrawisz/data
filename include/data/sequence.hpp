@@ -9,6 +9,7 @@
 #include <data/empty.hpp>
 #include <data/function.hpp>
 #include <data/math/ordered.hpp>
+#include <data/iterable.hpp>
 
 namespace data {
     
@@ -109,11 +110,6 @@ namespace data {
         return data::empty(x) || n == 0 ? x : drop(rest(x), n - 1);
     }
     
-    template <sequence X>
-    X values(const X& x) {
-        return x;
-    }
-    
     template <sequence L> requires ordered<element_of<L>>
     bool sorted(const L &x) {
         return size(x) < 2 ? true : first(x) <= first(rest(x)) && sorted(rest(x));
@@ -121,9 +117,9 @@ namespace data {
 
 }
 
-template <data::sequence X> requires std::equality_comparable<data::element_of<X>> 
+template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>> 
 bool inline operator==(const X &a, const X &b) {
-    return &a == &b ? true : 
+    return (void*)&a == (void*)&b ? true : 
         data::empty(a) && data::empty(b) ? true : 
             data::empty(a) || data::empty(b) ? false : 
                 data::first(a) != data::first(b) ? false : 
@@ -132,14 +128,7 @@ bool inline operator==(const X &a, const X &b) {
 
 namespace data {
     
-    // iterator types for a sequence 
-    template <typename L> 
-    struct sequence_sentinel {
-        const L *Sequence;
-        sequence_sentinel(): Sequence{} {}
-        sequence_sentinel(const L &s) : Sequence{&s} {}
-    };
-    
+    // iterator types for a sequence     
     template <typename L> 
     struct sequence_iterator {
         const L *Sequence;
@@ -159,8 +148,8 @@ namespace data {
         
         const element_of<L> &operator*() const;
         
-        bool operator==(const sequence_sentinel<L> i) const;
-        bool operator!=(const sequence_sentinel<L> i) const;
+        bool operator==(const sentinel<L> i) const;
+        bool operator!=(const sentinel<L> i) const;
         bool operator==(const sequence_iterator i) const;
         
         int operator-(const sequence_iterator& i) const;
@@ -214,12 +203,12 @@ namespace data {
     }
     
     template <sequence L> 
-    bool inline sequence_iterator<L>::operator==(const sequence_sentinel<L> i) const {
-        return Sequence == i.Sequence && Index == data::size(*Sequence);
+    bool inline sequence_iterator<L>::operator==(const sentinel<L> i) const {
+        return Sequence == i.Structure && Index == data::size(*Sequence);
     }
     
     template <sequence L> 
-    bool inline sequence_iterator<L>::operator!=(const sequence_sentinel<L> i) const {
+    bool inline sequence_iterator<L>::operator!=(const sentinel<L> i) const {
         return !(*this == i);
     }
     

@@ -57,7 +57,7 @@ namespace data {
     template <typename X> using priority_queue = tool::priority_queue<X, stack<X>>;
     
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
-    template <typename X> using ordered_list = tool::ordered_list<X>;
+    template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
     
     // get all values from a map with the given keys. 
     template <typename key, typename value, typename map>

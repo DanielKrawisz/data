@@ -18,6 +18,14 @@ namespace data {
         is_tree<tree<const int*>>();
         is_tree<tree<const int&>>();
         
+        is_const_iterable<tree<int>>();
+        is_const_iterable<tree<int*>>();
+        is_const_iterable<tree<int&>>();
+        
+        is_const_iterable<tree<const int>>();
+        is_const_iterable<tree<const int*>>();
+        is_const_iterable<tree<const int&>>();
+        
     }
     
     TEST(LinkedTreeTest, TestTreeSize) {
@@ -60,19 +68,19 @@ namespace data {
         EXPECT_NE(t3, t4);
         EXPECT_NE(t4, t1);
         
-        stack<int> v1{1, 2, 3, 4};
-        stack<int> v3{2, 3, 4, 5};
-        stack<int> v4{3, 3, 4, 7, 5, 6};
+        stack<int> v1{3, 2, 1, 4};
+        stack<int> v3{4, 3, 2, 5};
+        stack<int> v4{4, 3, 7, 3, 6, 5};
         
-        EXPECT_EQ(t1.values(), v1);
-        EXPECT_EQ(t2.values(), v1);
-        EXPECT_EQ(t3.values(), v3);
-        EXPECT_EQ(t4.values(), v4);
+        EXPECT_EQ(values<stack<int>>(t1), v1);
+        EXPECT_EQ(values<stack<int>>(t2), v1);
+        EXPECT_EQ(values<stack<int>>(t3), v3);
+        EXPECT_EQ(values<stack<int>>(t4), v4);
         
-        EXPECT_NE(t1.values(), v3);
-        EXPECT_NE(t2.values(), v4);
-        EXPECT_NE(t3.values(), v1);
-        EXPECT_NE(t4.values(), v1);
+        EXPECT_NE(values<stack<int>>(t1), v3);
+        EXPECT_NE(values<stack<int>>(t2), v4);
+        EXPECT_NE(values<stack<int>>(t3), v1);
+        EXPECT_NE(values<stack<int>>(t4), v1);
         
     }
     

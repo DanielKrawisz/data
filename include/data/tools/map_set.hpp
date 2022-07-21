@@ -82,7 +82,7 @@ namespace data::tool {
             return map_set{Map.remove(k)};
         }
         
-        const ordered_list<key> values() const {
+        const ordered_stack<linked_stack<key>> values() const {
             return Map.keys();
         }
         
@@ -98,9 +98,7 @@ namespace data::tool {
         template <typename ... P>
         map_set(K k, P... p);
         
-        bool operator==(const map_set& m) const {
-            return values() == m.values();
-        }
+        bool operator==(const map_set& m) const;
         
         bool operator!=(const map_set& m) const {
             return !operator==(m);

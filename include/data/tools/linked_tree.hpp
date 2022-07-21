@@ -53,31 +53,11 @@ namespace data::tool {
             return ! (*this == x);
         }
         
-        template <typename val>
-        struct tree_iterator {
-            linked_stack<linked_tree> Branches;
-            linked_tree Current;
-            tree_iterator() : Branches{}, Current{} {}
-            tree_iterator(linked_tree t) : Branches{}, Current{t} {}
-            
-            val operator*() const;
-            
-            tree_iterator& operator++();
-            bool operator==(tree_iterator) const;
-        private:
-            tree_iterator(linked_stack<linked_tree> b, linked_tree c) : Branches{b}, Current{c} {}
-        };
+        using iterator = functional::tree_iterator<linked_tree>;
+        using sentinel = data::sentinel<linked_tree>;
         
-        using iterator = tree_iterator<value>;
-        using const_iterator = tree_iterator<const value>;
-        
-        linked_stack<value> values() const;
-        
-        iterator begin();
-        iterator end();
-        
-        const_iterator begin() const;
-        const_iterator end() const;
+        iterator begin() const;
+        sentinel end() const;
         
         std::ostream& write(std::ostream& o) const;
     };
@@ -131,30 +111,13 @@ namespace data::tool {
     inline linked_tree<value>::linked_tree(const value& v) : linked_tree{v, linked_tree{}, linked_tree{}} {}
     
     template <typename value>
-    inline linked_stack<value> linked_tree<value>::values() const {
-        linked_stack<value> vals{};
-        for (auto x = begin(); x != end(); ++x) vals = vals << *x;
-        return data::reverse(vals);
-    }
-    
-    template <typename value>
-    inline linked_tree<value>::iterator linked_tree<value>::begin() {
+    inline linked_tree<value>::iterator linked_tree<value>::begin() const {
         return iterator{*this};
     } 
     
     template <typename value>
-    inline linked_tree<value>::iterator linked_tree<value>::end() {
-        return iterator{};
-    }
-    
-    template <typename value>
-    inline linked_tree<value>::const_iterator linked_tree<value>::begin() const {
-        return const_iterator{*this};
-    } 
-    
-    template <typename value>
-    inline linked_tree<value>::const_iterator linked_tree<value>::end() const {
-        return const_iterator{};
+    inline linked_tree<value>::sentinel linked_tree<value>::end() const {
+        return sentinel{*this};
     }
     
     template <typename value>
@@ -167,30 +130,6 @@ namespace data::tool {
     inline linked_tree<value>& linked_tree<value>::operator=(const linked_tree& t) {
         Node = t.Node;
         Size = t.Size;
-        return *this;
-    }
-    
-    template <typename value>
-    template <typename val>
-    inline val linked_tree<value>::tree_iterator<val>::operator*() const {
-        return Current.root();
-    }
-    
-    template <typename value>
-    template <typename val>
-    inline bool linked_tree<value>::tree_iterator<val>::operator==(tree_iterator i) const {
-        return Current == i.Current && Branches == i.Branches;
-    }
-    
-    template <typename value>
-    template <typename val>
-    linked_tree<value>::tree_iterator<val>& linked_tree<value>::tree_iterator<val>::operator++() {
-        if (Current.left().size() != 0) {
-            if (Current.right().size() != 0) *this = tree_iterator{Branches << Current.right(), Current.left()};
-            else *this = tree_iterator{Branches, Current.left()};
-        } else if (Current.right().size() != 0) *this = tree_iterator{Branches, Current.right()};
-        else if (Branches.size() != 0) *this = tree_iterator{Branches.rest(), Branches.first()};
-        else *this = tree_iterator{};
         return *this;
     }
     

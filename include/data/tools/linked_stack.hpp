@@ -60,14 +60,13 @@ namespace data {
         const elem& operator[](uint32 n) const;
         
         using iterator = sequence_iterator<linked_stack<elem>>;
-        using sentinel = sequence_sentinel<linked_stack<elem>>;
+        using sentinel = data::sentinel<linked_stack<elem>>;
         
         iterator begin() const;
         sentinel end() const;
- 
+        
         template <typename X> requires std::equality_comparable_with<elem, X>
         bool operator==(const data::linked_stack<X>& x) const {
-            if ((void*)(Next.get()) == (void*)(x.Next.get())) return true;
             if (size() != x.size()) return false;
             if (empty()) return true;
             if (first() != x.first()) return false;

@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <iterator>
 #include "data/tools.hpp"
 
 namespace data {
@@ -11,6 +12,13 @@ namespace data {
 
     template <typename X, typename element> requires container<X, element>
     void is_container() {}
+
+    template <typename X, typename elem>
+    requires iterable<X, elem>
+    void is_iterable() {}
+
+    template <const_iterable X> 
+    void is_const_iterable() {}
     
     template <functional::stack X>
     void is_stack() {}
@@ -26,4 +34,14 @@ namespace data {
 
     template <functional::ordered_set X>
     void is_ordered_set() {}
+    
+    template <std::input_iterator X>
+    void is_input_iterator() {}
+    
+    template <typename X, typename elem> requires std::output_iterator<X, elem>
+    void is_output_iterator() {}
+    
+    template <std::bidirectional_iterator X>
+    void is_bidirectional_iterator() {}
+    
 }

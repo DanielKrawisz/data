@@ -43,14 +43,9 @@ namespace data {
         functional_queue append(X x, Y y, P... p) const;
         
         functional_queue operator<<(const element e) const;
-        functional_queue operator<<(const functional_queue q) const;
         
         functional_queue &operator<<=(const element e) {
             return *this = *this << e;
-        }
-        
-        functional_queue &operator<<=(const functional_queue q) {
-            return *this = *this << q;
         }
         
         bool operator==(const functional_queue& q) const;
@@ -62,7 +57,7 @@ namespace data {
         static functional_queue make(const A x, M... m);
         
         using iterator = sequence_iterator<functional_queue>;
-        using sentinel = sequence_sentinel<functional_queue>;
+        using sentinel = data::sentinel<functional_queue>;
         
         iterator begin() const {
             return iterator{*this};
@@ -175,11 +170,6 @@ namespace data {
     template <typename stack, typename element>
     inline functional_queue<stack, element> functional_queue<stack, element>::operator<<(const element e) const {
         return append(e);
-    }
-    
-    template <typename stack, typename element>
-    inline functional_queue<stack, element> functional_queue<stack, element>::operator<<(const functional_queue q) const {
-        return append(q);
     }
     
     template <typename stack, typename element>

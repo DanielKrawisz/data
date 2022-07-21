@@ -11,10 +11,12 @@ namespace data {
         
         is_map<map<uint32, int>>();
         is_map<map<uint32, int*>>();
-        
-        // These are commented out because I can't get them to work. 
-        //is_map<map<uint32, const int>>();
-        //is_map<map<uint32, const int*>>();
+        /*
+        is_tree<map<uint32, int>>();
+        is_tree<map<uint32, int*>>();*/
+        /*
+        is_map<map<uint32, const int>>();
+        is_map<map<uint32, const int*>>();*/
         
     }
     
@@ -22,10 +24,9 @@ namespace data {
         
         is_ordered_set<set<int>>();
         is_ordered_set<set<int*>>();
-        
-        // same here. 
-        //is_ordered_set<set<const int>>();
-        //is_ordered_set<set<const int*>>();
+        /*
+        is_ordered_set<set<const int>>();
+        is_ordered_set<set<const int*>>();*/
         
     }
     
@@ -71,7 +72,7 @@ namespace data {
         
         auto m1r2 = m1.remove(3);
         
-        EXPECT_EQ(m1.remove(3), m2);
+        EXPECT_EQ(m1r2, m2);
     }
 }
 

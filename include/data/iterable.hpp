@@ -19,6 +19,14 @@ namespace data {
         typename X::iterator;
     };
     
+    // used to represent the end of a data structure. 
+    template <typename X> 
+    struct sentinel {
+        const X *Structure;
+        sentinel(): Structure{} {}
+        sentinel(const X &s) : Structure{&s} {}
+    };
+    
     template <typename iterator>
     struct reverse_iterator {
         iterator It;
@@ -30,33 +38,15 @@ namespace data {
             return *It;
         }
         
-        reverse_iterator &operator++() {
-            return {--It};
-        }
+        reverse_iterator &operator++();
+        reverse_iterator &operator--();
         
-        reverse_iterator &operator--() {
-            return {++It};
-        }
+        reverse_iterator operator++(int);
+        reverse_iterator operator--(int);
         
-        reverse_iterator operator++(int) {
-            auto x = *this;
-            --(*this);
-            return x;
-        }
+        bool operator==(const reverse_iterator i) const;
         
-        reverse_iterator operator--(int) {
-            auto x = *this;
-            ++(*this);
-            return x;
-        }
-        
-        bool operator==(const reverse_iterator i) const {
-            return It == i;
-        }
-        
-        int operator-(const reverse_iterator& i) const {
-            return -(It - i.It);
-        }
+        int operator-(const reverse_iterator& i) const;
     };
     
 }
@@ -70,6 +60,44 @@ namespace std {
         using reference = const elem&;
         using iterator_concept = input_iterator_tag;
     };
+}
+
+namespace data {
+    
+    template <typename iterator>
+    reverse_iterator<iterator> inline &reverse_iterator<iterator>::operator++() {
+        return {--It};
+    }
+    
+    template <typename iterator>
+    reverse_iterator<iterator> inline &reverse_iterator<iterator>::operator--() {
+        return {++It};
+    }
+    
+    template <typename iterator>
+    reverse_iterator<iterator> reverse_iterator<iterator>::operator++(int) {
+        auto x = *this;
+        --(*this);
+        return x;
+    }
+    
+    template <typename iterator>
+    reverse_iterator<iterator> reverse_iterator<iterator>::operator--(int) {
+        auto x = *this;
+        ++(*this);
+        return x;
+    }
+    
+    template <typename iterator>
+    bool inline reverse_iterator<iterator>::operator==(const reverse_iterator i) const {
+        return It == i;
+    }
+    
+    template <typename iterator>
+    int inline reverse_iterator<iterator>::operator-(const reverse_iterator& i) const {
+        return -(It - i.It);
+    }
+    
 }
 
 #endif
