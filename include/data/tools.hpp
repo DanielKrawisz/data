@@ -44,7 +44,7 @@ namespace data {
     template <typename X> using cycle = tool::cycle<list<X>, X>;
     
     // tree. 
-    template <typename X> using tree = tool::linked_tree<X>;
+    template <typename X> using tree = linked_tree<X>;
     
     // a functional map implemented as a red-black tree
     // wrapper of Milewski's implementation of Okasaki.
@@ -54,7 +54,7 @@ namespace data {
     template <typename X> using set = tool::map_set<map<X, tool::unit>>;
     
     // priority queue. wrapper of Milewski's implementation of Okasaki.
-    template <typename X> using priority_queue = tool::priority_queue<X, stack<X>>;
+    template <typename X> using priority_queue = tool::priority_queue<tree<X>>;
     
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;

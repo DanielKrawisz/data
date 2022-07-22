@@ -66,11 +66,8 @@ namespace data {
         sentinel end() const;
         
         template <typename X> requires std::equality_comparable_with<elem, X>
-        bool operator==(const data::linked_stack<X>& x) const {
-            if (size() != x.size()) return false;
-            if (empty()) return true;
-            if (first() != x.first()) return false;
-            return (rest() == x.rest());
+        bool operator==(const linked_stack<X>& x) const {
+            return ::operator==(*this, x);
         }
         
     };

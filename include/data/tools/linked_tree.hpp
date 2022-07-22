@@ -7,7 +7,7 @@
 
 #include <data/functional/tree.hpp>
     
-namespace data::tool {
+namespace data {
 
     template <typename value>
     struct linked_tree {
@@ -40,17 +40,12 @@ namespace data::tool {
         linked_tree& operator=(const linked_tree& t);
         
         template <typename X> requires std::equality_comparable_with<value, X>
-        bool operator==(const data::tool::linked_tree<X>& x) const {
+        bool operator==(const data::linked_tree<X>& x) const {
             if (Node == x.Node) return true;
             if (Node == nullptr || x.Node == nullptr) return false;
             if (root() != x.root()) return false;
             if (left() != x.left()) return false;
             return right() == x.right();
-        }
-        
-        template <typename X> requires std::equality_comparable_with<value, X>
-        bool operator!=(const data::tool::linked_tree<X>& x) const {
-            return ! (*this == x);
         }
         
         using iterator = functional::tree_iterator<linked_tree>;

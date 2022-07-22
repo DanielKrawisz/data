@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TREE
-#define DATA_TREE
+#ifndef DATA_FUNCTIONAL_TREE
+#define DATA_FUNCTIONAL_TREE
 
 #include <data/functional/list.hpp>
-#include <data/functional/set.hpp>
+//#include <data/functional/set.hpp>
 #include <data/tools/linked_stack.hpp>
 #include <data/tools/iterator_list.hpp>
     
@@ -98,11 +98,37 @@ namespace data::functional {
     };
     
     template <typename tree, typename P> 
-    void for_each(const tree &t, P f) {
+    void for_each_infix(const tree &t, P f) {
         if (data::empty(t)) return;
-        for_each(data::left(t), f);
+        for_each_infix(data::left(t), f);
         f(data::root(t));
-        for_each(data::right(t), f);
+        for_each_infix(data::right(t), f);
+    }
+    
+    template <typename tree, typename P> 
+    void for_each_prefix(const tree &t, P f) {
+        if (data::empty(t)) return;
+        f(data::root(t));
+        for_each_prefix(data::left(t), f);
+        for_each_prefix(data::right(t), f);
+    }
+    
+    template <functional::stack out, functional::tree in> 
+    out values_infix(const in &t) {
+        out o{};
+        functional::for_each_infix(t, [&o](const element_of<in> &x) -> void {
+            o = prepend(o, x);
+        });
+        return reverse(o);
+    }
+    
+    template <functional::stack out, functional::tree in> 
+    out values_prefix(const in &t) {
+        out o{};
+        functional::for_each_prefix(t, [&o](const element_of<in> &x) -> void {
+            o = prepend(o, x);
+        });
+        return reverse(o);
     }
     
 }
@@ -113,15 +139,6 @@ namespace data {
     struct element<X> {
         using type = std::remove_reference_t<decltype(std::declval<X>().root())>;
     };
-    
-    template <functional::stack out, functional::tree in> 
-    out values(const in &t) {
-        out o{};
-        functional::for_each(t, [&o](const element_of<in> &x) -> void {
-            o = prepend(o, x);
-        });
-        return reverse(o);
-    }
 
 }
 

@@ -72,15 +72,15 @@ namespace data {
         stack<int> v3{4, 3, 2, 5};
         stack<int> v4{4, 3, 7, 3, 6, 5};
         
-        EXPECT_EQ(values<stack<int>>(t1), v1);
-        EXPECT_EQ(values<stack<int>>(t2), v1);
-        EXPECT_EQ(values<stack<int>>(t3), v3);
-        EXPECT_EQ(values<stack<int>>(t4), v4);
+        EXPECT_EQ(functional::values_infix<stack<int>>(t1), v1);
+        EXPECT_EQ(functional::values_infix<stack<int>>(t2), v1);
+        EXPECT_EQ(functional::values_infix<stack<int>>(t3), v3);
+        EXPECT_EQ(functional::values_infix<stack<int>>(t4), v4);
         
-        EXPECT_NE(values<stack<int>>(t1), v3);
-        EXPECT_NE(values<stack<int>>(t2), v4);
-        EXPECT_NE(values<stack<int>>(t3), v1);
-        EXPECT_NE(values<stack<int>>(t4), v1);
+        EXPECT_NE(functional::values_infix<stack<int>>(t1), v3);
+        EXPECT_NE(functional::values_infix<stack<int>>(t2), v4);
+        EXPECT_NE(functional::values_infix<stack<int>>(t3), v1);
+        EXPECT_NE(functional::values_infix<stack<int>>(t4), v1);
         
     }
     

@@ -5,67 +5,115 @@
 #ifndef DATA_TOOLS_PRIORITY_QUEUE
 #define DATA_TOOLS_PRIORITY_QUEUE
 
-#include <milewski/Leftist/LeftistHeap.hpp>
+#include <data/functional/tree.hpp>
 #include <data/tools/linked_stack.hpp>
+#include <data/tools/linked_tree.hpp>
+#include <data/math/ordered.hpp>
     
 namespace data::tool {
     
-    template <typename x, typename stack = linked_stack<x>> requires sequence<stack, x>
+    template <functional::tree tree, typename element = element_of<tree>> 
     class priority_queue {
-        using heap = milewski::okasaki::Heap<x>;
-        heap Heap;
-        uint32 Size;
-        priority_queue(heap h, uint32 size) : Heap{h}, Size{size} {}
+        tree Tree;
+        priority_queue(tree t) : Tree{t} {}
+        
+        static tree merge(const tree& left, const tree right) {
+            if (left.empty())
+                return right;
+            if (right.empty())
+                return left;
+            if (left.root() <= right.root())
+                return tree{left.root(), left.left(), merge(left.right(), right)};
+            else
+                return tree{right.root(), right.left(), merge(left, right.right())};
+        }
+        
     public:
-        size_t size() const {
-            return Size;
-        }
         
-        bool empty() const {
-            return Size == 0;
-        }
+        size_t size() const;
+        bool empty() const;
         
-        priority_queue() : Heap{}, Size{0} {}
-        //priority_queue(std::initializer_list<x> init) : Heap{init}, Size{init.size()} {}
+        priority_queue();
+        priority_queue(const element& e);
         
-        const x& first() const {
-            return Heap.front();
-        }
+        template<typename ... P>
+        priority_queue(const element& a, const element& b, P... p);
         
-        priority_queue rest() const {
-            return {Heap.popped_front(), Size - 1};
-        }
+        const element& first() const;
+        priority_queue rest() const;
         
-        priority_queue insert(x elem) const {
-            return {Heap.inserted(elem), Size + 1};
-        }
+        priority_queue insert(const element& elem) const;
         
-        template <typename List> requires sequence<List, x>
-        priority_queue insert(List l) const {
-            if (l.empty()) return *this;
-            return insert(l.first()).insert(l.rest());
-        }
+        template <typename list> requires sequence<list, element>
+        priority_queue insert(list l) const;
         
-        template <typename List> requires sequence<List, x> 
-        priority_queue(List l) : priority_queue{priority_queue{}.insert(l)} {}
+        template <typename list> requires sequence<list, element> 
+        priority_queue(list l);
         
-        stack values() const {
-            stack vals;
-            auto p = *this;
-            while (!p.empty()) {
-                vals = vals << p.first();
-                p = p.rest();
-            }
-            return reverse(vals);
-        }
+        using iterator = functional::tree_iterator<tree>;
+        using sentinel = data::sentinel<tree>;
         
-        priority_queue& operator=(const priority_queue& q) {
-            Heap = q.Heap;
-            Size = q.Size;
-            return *this;
-        }
-        
+        iterator begin() const;
+        sentinel end() const;
     };
+    
+    template <functional::tree tree, typename element> 
+    size_t inline priority_queue<tree, element>::size() const {
+        return data::size(Tree);
+    }
+    
+    template <functional::tree tree, typename element> 
+    bool inline priority_queue<tree, element>::empty() const {
+        return data::empty(Tree);
+    }
+    
+    template <functional::tree tree, typename element> 
+    inline priority_queue<tree, element>::priority_queue() : Tree{} {}
+    
+    template <functional::tree tree, typename element> 
+    inline priority_queue<tree, element>::priority_queue(const element& e) : priority_queue{priority_queue{}.insert(e)} {}
+    
+    template <functional::tree tree, typename element> 
+    template <typename ... P>
+    priority_queue<tree, element>::priority_queue(const element& a, const element& b, P... p) : 
+        priority_queue{priority_queue{b, p...}.insert(a)} {} 
+    
+    template <functional::tree tree, typename element> 
+    const element inline &priority_queue<tree, element>::first() const {
+        return Tree.root();
+    }
+    
+    template <functional::tree tree, typename element>  
+    priority_queue<tree, element> priority_queue<tree, element>::rest() const {
+        if (empty()) return *this;
+        return {merge(Tree.left(), Tree.right())};
+    }
+    
+    template <functional::tree tree, typename element> 
+    priority_queue<tree, element> inline priority_queue<tree, element>::insert(const element& elem) const {
+        return {merge(tree{elem}, Tree)};
+    }
+    
+    template <functional::tree tree, typename element> 
+    template <typename list> requires sequence<list, element>
+    priority_queue<tree, element> priority_queue<tree, element>::insert(list l) const {
+        if (l.empty()) return *this;
+        return insert(l.first()).insert(l.rest());
+    }
+    
+    template <functional::tree tree, typename element> 
+    template <typename list> requires sequence<list, element> 
+    inline priority_queue<tree, element>::priority_queue(list l) : priority_queue{priority_queue{}.insert(l)} {}
+    
+    template <functional::tree tree, typename element> 
+    priority_queue<tree, element>::iterator inline priority_queue<tree, element>::begin() const {
+        return iterator{Tree};
+    }
+    
+    template <functional::tree tree, typename element> 
+    priority_queue<tree, element>::sentinel inline priority_queue<tree, element>::end() const {
+        return sentinel{Tree};
+    }
     
 }
 

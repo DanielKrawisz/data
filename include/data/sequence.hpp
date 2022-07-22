@@ -118,7 +118,7 @@ namespace data {
 }
 
 template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>> 
-bool inline operator==(const X &a, const X &b) {
+bool inline operator==(const X &a, const Y &b) {
     return (void*)&a == (void*)&b ? true : 
         data::empty(a) && data::empty(b) ? true : 
             data::empty(a) || data::empty(b) ? false : 
