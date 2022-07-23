@@ -38,6 +38,7 @@ namespace data {
     inline list append(const list& x, const elem& e) {
         return x.append(e);
     }
+    
 }
 
 namespace data::functional {

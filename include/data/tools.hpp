@@ -59,30 +59,12 @@ namespace data {
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
     
-    // get all values from a map with the given keys. 
-    template <typename key, typename value, typename map>
-    list<value> get_all(map m, list<key> k) {
-        struct inner {
-            map M;
-            
-            inner(map m) : M{m} {}
-            
-            list<value> operator()(key k, list<value> l) {
-                value v = M[k];
-                if (v == value{}) return l;
-                return l + v;
-            }
-        };
-        
-        return reduce(inner{m}, k);
-    }
-    
-    template <typename A, typename B>
-    list<std::pair<A, B>> transpose(list<A> a, list<B> b) {
-        if (a.size() != b.size()) return {};
-        list<std::pair<A, B>> l;
+    template <typename f, typename A, typename B> 
+    auto map_thread(f fun, list<A> a, list<B> b) {
+        if (a.size() != b.size()) throw std::invalid_argument{"lists must be the same size"};
+        list<decltype(fun(std::declval<A>(), std::declval<B>()))> l;
         while (a.size() != 0) {
-            l = l << std::pair(a.first(), b.first());
+            l = append(l, fun(a.first(), b.first()));
             a = a.rest();
             b = b.rest();
         }
