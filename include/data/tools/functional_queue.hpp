@@ -30,7 +30,7 @@ namespace data {
         bool valid() const;
         
         const element& first() const;
-        const element& operator[](uint32 i);
+        const element& operator[](uint32 i) const;
         
         functional_queue rest() const;
         const element last() const;
@@ -120,7 +120,7 @@ namespace data {
     }
     
     template <typename stack, typename element>
-    const element& functional_queue<stack, element>::operator[](uint32 i) {
+    const element& functional_queue<stack, element>::operator[](uint32 i) const {
         if (i >= size()) throw std::out_of_range("queue index");
         uint32 left = Left.size();
         if (i >= left) return Right[Right.size() - (i - left) - 1];
