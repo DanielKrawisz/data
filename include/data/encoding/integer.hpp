@@ -278,13 +278,7 @@ namespace data::encoding {
                 return x;
             }
             
-            if (negative(s)) {
-                auto z = decimal::read<r>(s.substr(1));
-                if (z == nullptr) return nullptr;
-                return std::make_shared<math::number::Z_bytes<r>>(math::number::Z_bytes<r>(-*z));
-            }
-            
-            auto z = decimal::read<r>(s);
+            auto z = signed_decimal::read<r>(s);
             if (z == nullptr) return nullptr;
             return std::make_shared<math::number::Z_bytes<r>>(math::number::Z_bytes<r>(*z));
         }
