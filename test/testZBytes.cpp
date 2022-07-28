@@ -11,7 +11,7 @@ namespace data {
         
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("0")), std::string("0x"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-1")), std::string("0xff"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-2")), std::string("0xfd"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-2")), std::string("0xfe"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("127")), std::string("0x7f"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("128")), std::string("0x0080"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-128")), std::string("0x80"));
@@ -19,7 +19,7 @@ namespace data {
         
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("0")), std::string("0x"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-1")), std::string("0xff"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-2")), std::string("0xfd"));
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-2")), std::string("0xfe"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("127")), std::string("0x7f"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("128")), std::string("0x0080"));
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-128")), std::string("0x80"));
@@ -86,7 +86,6 @@ namespace data {
         
     }
     
-    // Problem: string reversal not happening correctly for some reason!!
     TEST(ZBytesTest, TestZToZBytes) {
         
         EXPECT_EQ(Z_bytes_big{Z::read("1")}, Z_bytes_big::read("1"));
@@ -115,9 +114,10 @@ namespace data {
         EXPECT_EQ(++zb0, Z_bytes_big{1});
         EXPECT_EQ(++zb1, Z_bytes_big{1});
         EXPECT_EQ(++zb3, Z_bytes_big{1});
-        EXPECT_EQ(++zb0, Z_bytes_little{1});
-        EXPECT_EQ(++zb1, Z_bytes_little{1});
-        EXPECT_EQ(++zb3, Z_bytes_little{1});
+        
+        EXPECT_EQ(++zl0, Z_bytes_little{1});
+        EXPECT_EQ(++zl1, Z_bytes_little{1});
+        EXPECT_EQ(++zl3, Z_bytes_little{1});
         
     }
     
@@ -131,12 +131,13 @@ namespace data {
         auto zl1 = Z_bytes_little::read("0x00");
         auto zl3 = Z_bytes_little::read("0x000000");
         
-        EXPECT_EQ(--Z_bytes_big::read("0x"), Z_bytes_big{-1});
-        EXPECT_EQ(--Z_bytes_big::read("0x00"), Z_bytes_big{-1});
-        EXPECT_EQ(--Z_bytes_big::read("0x000000"), Z_bytes_big{-1});
-        EXPECT_EQ(--Z_bytes_little::read("0x"), Z_bytes_little{-1});
-        EXPECT_EQ(--Z_bytes_little::read("0x00"), Z_bytes_little{-1});
-        EXPECT_EQ(--Z_bytes_little::read("0x000000"), Z_bytes_little{-1});
+        EXPECT_EQ(--zb0, Z_bytes_big{-1});
+        EXPECT_EQ(--zb1, Z_bytes_big{-1});
+        EXPECT_EQ(--zb3, Z_bytes_big{-1});
+        
+        EXPECT_EQ(--zl0, Z_bytes_little{-1});
+        EXPECT_EQ(--zl1, Z_bytes_little{-1});
+        EXPECT_EQ(--zl3, Z_bytes_little{-1});
         
     }
     
@@ -152,6 +153,8 @@ namespace data {
         EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_little::read("-1")), std::string{"-1"});
         EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_big::read("-3393939987200333")), std::string{"-3393939987200333"});
         EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_little::read("-3393939987200333")), std::string{"-3393939987200333"});
+        EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_big::read("0xf3f13ac4ac86b3")), std::string{"-3393939987200333"});
+        EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_little::read("0xf3f13ac4ac86b3")), std::string{"-3393939987200333"});
         
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("1")), std::string{"0x01"});
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("1")), std::string{"0x01"});
@@ -161,8 +164,8 @@ namespace data {
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-1")), std::string{"0xff"});
         EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-1")), std::string{"0xff"});
-        //EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-3393939987200333")), std::string{"-3393939987200333"});
-        //EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-3393939987200333")), std::string{"-3393939987200333"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-3393939987200333")), std::string{"0xf3f13ac4ac86b3"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-3393939987200333")), std::string{"0xf3f13ac4ac86b3"});
         
     }
     
@@ -215,6 +218,7 @@ namespace data {
     }
     
     TEST(ZBytesTest, TestZBytesToZ) {
+        
         Z_Bytes_to_Z(0);
         Z_Bytes_to_Z(1);
         Z_Bytes_to_Z(3);

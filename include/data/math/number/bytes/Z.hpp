@@ -68,9 +68,9 @@ namespace data::math::number {
         }
         
         Z_bytes operator~() const {
-            Z_bytes z(*this);
+            Z_bytes z = extend(*this, this->size() + 1);
             data::arithmetic::bit_negate<byte>(z.end(), z.begin(), z.begin());
-            return z;
+            return z.trim();
         }
         
         Z_bytes& operator++();
@@ -203,6 +203,7 @@ namespace data::math::number {
         this->resize(8);
         endian::arithmetic<r, true, 8> n{x};
         std::copy(n.begin(), n.end(), this->begin());
+        this->trim();
     }
     
     template <endian::order r> Z_bytes<r>::Z_bytes(bytes_view x) : oriented<r, byte>{x} {}
@@ -343,14 +344,16 @@ namespace data::math::number {
     
     template <data::endian::order r>
     Z_bytes<r>& Z_bytes<r>::operator++() {
+        if (!is_negative(*this)) *this = extend(*this, this->size() + 1);
         data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
-        return *this;
+        return this->trim();
     }
     
     template <data::endian::order r>
     Z_bytes<r>& Z_bytes<r>::operator--() {
+        if (!is_positive(*this)) *this = extend(*this, this->size() + 1);
         data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
-        return *this;
+        return this->trim();
     }
     
     template <endian::order r> Z_bytes<r> operator&(const Z_bytes<r> &a, const Z_bytes<r> &b) {
@@ -399,6 +402,7 @@ namespace data::encoding::signed_decimal {
         string_view positive = negative ? s.substr(1) : s; 
         auto z = std::make_shared<math::number::Z_bytes<r>>((math::number::Z_bytes<r>)(*decimal::read<r>(positive)));
         if (negative) *z = -*z;
+        z->trim();
         return z;
     }
     

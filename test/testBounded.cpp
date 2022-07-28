@@ -67,6 +67,9 @@ namespace data {
         EXPECT_THROW(s8b::read("0x000000000000000001"), std::invalid_argument);
         EXPECT_THROW(s8l::read("0x000000000000000001"), std::invalid_argument);
         
+        EXPECT_EQ(u5l::read("0xaabbccddee"), u5l("eeddccbbaa"))
+        EXPECT_EQ(u5b::read("0xaabbccddee"), u5b("aabbccddee"))
+        
     }
     
     TEST(BoundedTest, Bounded01) {
