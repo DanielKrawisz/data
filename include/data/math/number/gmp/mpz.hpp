@@ -1,17 +1,22 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2022 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_MATH_NUMBER_GMP_MPZ
 #define DATA_MATH_NUMBER_GMP_MPZ
 
+#include <compare>
 #include <gmp.h>
 #include <gmp/gmpxx.h>
-#include <data/types.hpp>
-#include <data/math/sign.hpp>
-#include <data/math/number/natural.hpp>
 
-namespace data::math::number::gmp {
+#include <data/math/sign.hpp>
+#include <data/math/abs.hpp>
+#include <data/math/arithmetic.hpp>
+#include <data/math/commutative.hpp>
+#include <data/math/associative.hpp>
+#include <data/math/division.hpp>
+
+namespace data::math::number::GMP {
     
     typedef mp_limb_t gmp_uint;
     typedef mp_limb_signed_t gmp_int;
@@ -31,8 +36,290 @@ namespace data::math::number::gmp {
     }
     
     inline math::sign sign(const __mpz_struct& mpz) {
-        return !valid(mpz) ? math::zero : math::sign{mpz_cmp_si(&mpz, 0)};
+        return !valid(mpz) ? zero : math::sign{mpz_cmp_si(&mpz, 0)};
     }
+    
+    struct N;
+    struct Z;
+    
+    bool operator==(const N&, const N&);
+    
+    std::weak_ordering operator<=>(const N&, const N&);
+    
+    bool operator==(const Z&, const Z&);
+    
+    std::weak_ordering operator<=>(const Z&, const Z&);
+    
+    bool operator==(const Z&, const N&);
+    
+    std::weak_ordering operator<=>(const Z&, const N&);
+    
+    bool operator==(const Z&, int64);
+    
+    std::weak_ordering operator<=>(const Z&, int64);
+    
+    bool operator==(const N&, uint64);
+    
+    std::weak_ordering operator<=>(const N&, int64);
+    
+    Z operator-(const N&);
+    Z operator-(const Z&);
+    
+    N operator+(const N&, const N&);
+    N operator-(const N&, const N&);
+    N operator*(const N&, const N&);
+    
+    Z operator+(const Z&, const Z&);
+    Z operator-(const Z&, const Z&);
+    Z operator*(const Z&, const Z&);
+    
+    Z operator+(const N&, const Z&);
+    Z operator-(const N&, const Z&);
+    Z operator*(const N&, const Z&);
+    
+    Z operator+(const Z&, const N&);
+    Z operator-(const Z&, const N&);
+    Z operator*(const Z&, const N&);
+    
+    N operator+(const N&, uint64);
+    N operator-(const N&, uint64);
+    N operator*(const N&, uint64);
+    
+    Z operator+(const Z&, int64);
+    Z operator-(const Z&, int64);
+    Z operator*(const Z&, int64);
+    
+    N operator+(uint64, const N&);
+    N operator-(uint64, const N&);
+    N operator*(uint64, const N&);
+    
+    Z operator+(int64, const Z&);
+    Z operator-(int64, const Z&);
+    Z operator*(int64, const Z&);
+    
+    // exponential 
+    N operator^(const N&, const N&);
+    Z operator^(const Z&, const N&);
+    
+    N operator^(const N&, uint64);
+    Z operator^(const Z&, uint64);
+    
+    // divided by
+    N operator/(const N&, const N&);
+    Z operator/(const Z&, const Z&);
+    Z operator/(const Z&, const N&);
+    
+    N operator/(const N&, uint64);
+    Z operator/(const Z&, int64);
+    
+    // mod
+    N operator%(const N&, const N&);
+    N operator%(const Z&, const N&);
+    
+    uint64 operator%(const N&, uint64);
+    uint64 operator%(const Z&, uint64);
+    
+    // bit operations 
+    N operator|(const N&, const N&);
+    N operator&(const N&, const N&);
+    
+    Z operator|(const Z&, const Z&);
+    Z operator&(const Z&, const Z&);
+    
+    Z operator|(const N&, const Z&);
+    Z operator&(const N&, const Z&);
+    
+    Z operator|(const Z&, const N&);
+    Z operator&(const Z&, const N&);
+    
+    // bit shift, which really just means 
+    // powers of two. 
+    N operator<<(const N&, int);
+    N operator>>(const N&, int);
+    
+    Z operator<<(const Z&, int);
+    Z operator>>(const Z&, int);
+    
+    // pre increment
+    N &operator++(N&);
+    N &operator--(N&);
+        
+    Z &operator++(Z&);
+    Z &operator--(Z&);
+    
+    // post increment
+    N operator++(N&, int);
+    N operator--(N&, int);
+        
+    Z operator++(Z&, int);
+    Z operator--(Z&, int);
+    
+    std::ostream& operator<<(std::ostream& o, const N& n);
+    std::ostream& operator<<(std::ostream& o, const Z& n);
+    
+}
+
+namespace data::math {
+    using N = number::GMP::N;
+    using Z = number::GMP::Z;
+    
+    template <> struct abs<N> { 
+        N operator()(const N&);
+    };
+    
+    template <> struct abs<Z> { 
+        N operator()(const Z&);
+    };
+    
+    N square(const N &n);
+    N square(const Z &z);
+    
+    N increment(const N&);
+    N decrement(const N&);
+    
+    Z increment(const Z&);
+    Z decrement(const Z&);
+    
+    template <> struct commutative<plus<N>, N> {};
+    template <> struct associative<plus<N>, N> {};
+    template <> struct commutative<times<N>, N> {};
+    template <> struct associative<times<N>, N> {};
+    
+    template <> struct commutative<plus<Z>, Z> {};
+    template <> struct associative<plus<Z>, Z> {};
+    template <> struct commutative<times<Z>, Z> {};
+    template <> struct associative<times<Z>, Z> {};
+    
+    template <> struct identity<plus<N>, N> {
+        N operator()();
+    };
+    
+    template <> struct identity<plus<Z>, Z> {
+        Z operator()();
+    };
+    
+    template <> struct identity<times<N>, N> {
+        N operator()();
+    };
+    
+    template <> struct identity<times<Z>, Z> {
+        Z operator()();
+    };
+    
+    template <> struct inverse<plus<Z>, Z> {
+        Z operator()(const Z &a, const Z &b);
+    };
+    
+}
+
+namespace data {
+    
+    math::sign inline sign(const math::N &x);
+    math::sign inline sign(const math::Z &x);
+}
+
+namespace data::encoding::decimal {
+    struct N;
+    N write(const math::N&);
+    
+    std::ostream &write(std::ostream &, const math::N &);
+    
+}
+
+namespace data::encoding::hexidecimal {
+    
+    std::string write(const math::Z&);
+    std::string write(const math::N&);
+    
+    std::ostream &write(std::ostream &, const math::Z &);
+    std::ostream &write(std::ostream &, const math::N &);
+    
+}
+
+namespace data::encoding::natural {
+    
+    std::string write(const math::N&);
+    
+}
+
+namespace data::encoding::signed_decimal {
+    
+    std::string write(const math::Z&);
+    
+    std::ostream &write(std::ostream &, const math::Z &);
+    
+}
+
+namespace data::math::number::GMP {
+    
+    // modify number in place. 
+    N &operator+=(N&, const N&);
+    N &operator-=(N&, const N&);
+    N &operator*=(N&, const N&);
+    
+    Z &operator+=(Z&, const Z&);
+    Z &operator-=(Z&, const Z&);
+    Z &operator*=(Z&, const Z&);
+    
+    Z &operator+=(N&, const Z&);
+    Z &operator-=(N&, const Z&);
+    Z &operator*=(N&, const Z&);
+    
+    Z &operator+=(Z&, const N&);
+    Z &operator-=(Z&, const N&);
+    Z &operator*=(Z&, const N&);
+    
+    N &operator+=(N&, uint64);
+    N &operator-=(N&, uint64);
+    N &operator*=(N&, uint64);
+    
+    Z &operator+=(Z&, int64);
+    Z &operator-=(Z&, int64);
+    Z &operator*=(Z&, int64);
+    
+    N &operator&=(N&, const N&);
+    N &operator|=(N&, const N&);
+    
+    Z &operator&=(Z&, const Z&);
+    Z &operator|=(Z&, const Z&);
+    
+    Z &operator&=(N&, const Z&);
+    Z &operator|=(N&, const Z&);
+    
+    Z &operator&=(Z&, const N&);
+    Z &operator|=(Z&, const N&);
+    
+    N &operator^=(N&, const N&);
+    Z &operator^=(Z&, const N&);
+    
+    N &operator^=(N&, uint64);
+    Z &operator^=(Z&, uint64);
+    
+    N &operator/=(N&, const N&);
+    Z &operator/=(Z&, const Z&);
+    
+    N &operator/=(N&, uint64);
+    Z &operator/=(Z&, int64);
+    
+    N &operator<<=(N&, int);
+    N &operator>>=(N&, int);
+    
+    Z &operator<<=(Z&, int);
+    Z &operator>>=(Z&, int);
+    
+}
+
+namespace data::math::number {
+    
+    bool inline is_zero(const N &x);
+    bool inline is_zero(const Z &x);
+    
+    bool inline is_negative(const N&);
+    bool inline is_negative(const Z &z);
+    
+    bool inline is_positive(const N &x);
+    bool inline is_positive(const Z &z);
+    
 }
 
 #undef __GMP_DEFINE_UNARY_FUNCTION
@@ -45,14 +332,6 @@ namespace data::math::number::gmp {
 #undef __GMPND_DEFINE_BINARY_FUNCTION
 
 #include <data/encoding/endian/endian.hpp>
-
-namespace data::math::number {
-    template <bool is_signed, endian::order o, size_t size> struct bounded;
-    template <endian::order o, size_t size> struct bounded<false, o, size>;
-    template <endian::order o, size_t size> struct bounded<true, o, size>;
-    
-    template <endian::order o> struct N_bytes;
-    template <endian::order o> struct Z_bytes;
-}
+#include <data/math/number/bytes/bytes.hpp>
 
 #endif

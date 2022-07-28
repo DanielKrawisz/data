@@ -12,13 +12,12 @@
 #include <data/math/abs.hpp>
 #include <data/math/arithmetic.hpp>
 #include <data/encoding/words.hpp>
+#include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/bytes/N.hpp>
 
 #include <algorithm>
 
 namespace data::math::number {
-    
-    template <endian::order r> struct N_bytes;
-    template <endian::order r> struct Z_bytes;
     
     template <endian::order r>
     Z_bytes<r> operator<<(const Z_bytes<r>&, int);
@@ -44,8 +43,6 @@ namespace data::math::number {
         
         explicit Z_bytes(const Z& z);
         
-        explicit Z_bytes(const N& n);
-        
         static Z_bytes read(string_view x);
         
         explicit Z_bytes(string_view s);
@@ -53,16 +50,6 @@ namespace data::math::number {
         Z_bytes(bytes_view b);
         
     private:
-        
-        bool is_negative() const {
-            if (this->size() == 0) return false;
-            return this->operator[](r == endian::big ? 0 : this->size() - 1) >= 0x80;
-        }
-        
-        bool is_zero() const {
-            for (int i = 0; i < this->size(); i++) if (this->operator[](i) != 0) return false;
-            return true;
-        }
         
         Z_bytes(size_t size, byte fill) : oriented<r, byte>(size) {
             this->fill(fill);
@@ -75,8 +62,8 @@ namespace data::math::number {
         
         math::sign sign() const {
             if (this->size() == 0) return math::zero;
-            if (is_negative()) return negative;
-            if (is_zero()) return math::zero;
+            if (is_negative(*this)) return negative;
+            if (is_zero(*this)) return math::zero;
             return positive;
         }
         
@@ -127,10 +114,6 @@ namespace data::math::number {
             return integer::divide<Z_bytes>(*this, z);
         }
         
-        bool operator|(const Z_bytes& z) const {
-            return divide(z).Remainder == 0;
-        }
-        
         Z_bytes operator/(const Z_bytes& z) const {
             return divide(z).Quotient;
         }
@@ -148,8 +131,12 @@ namespace data::math::number {
             return operator=(operator%(z));
         }
         
-        Z_bytes trim() const;
+        Z_bytes &trim();
         
+        explicit operator Z() const {
+            return is_negative(*this) ? -N(data::abs(*this)) : Z(N(data::abs(*this)));
+        }
+        /*
         template <size_t size, endian::order o> 
         explicit Z_bytes(const bounded<size, o, true>& b) {
             resize(b.size());
@@ -160,8 +147,13 @@ namespace data::math::number {
         explicit Z_bytes(const bounded<size, o, false>& b) {
             *this = zero(b.size() + 1);
             std::copy(b.words().begin(), b.words().end(), this->words().begin());
-        }
+        }*/
     };
+    
+    template <endian::order r> Z_bytes<r> inline trim(const Z_bytes<r> &x) {
+        auto n = x;
+        return n.trim();
+    }
     
     template <endian::order r> bool inline is_negative(const Z_bytes<r> &x) {
         return arithmetic::sign_bit_set(x.words());
@@ -217,12 +209,10 @@ namespace data::math::number {
     
     // First we write the Z as hex and then read it in again. 
     // A bit inefficient but it's really not that bad. 
-    template <endian::order r>  Z_bytes<r>::Z_bytes(const Z& z) : Z_bytes() {
-        if (!z.valid()) throw std::invalid_argument{"invalid Z provided"};
-        *this = Z_bytes(data::encoding::hexidecimal::write(z));
+    template <endian::order r> inline Z_bytes<r>::Z_bytes(const Z& z) : Z_bytes() {
+        *this = z < 0 ? -N_bytes<r>(data::abs(z)) : Z_bytes<r>(N_bytes<r>(data::abs(z)));
+        this->trim();
     }
-    
-    template <endian::order r>  Z_bytes<r>::Z_bytes(const N& n) : Z_bytes(Z(n)) {}
     
     template <endian::order r> Z_bytes<r> Z_bytes<r>::read(string_view x) {
         if (x == "") return 0; 
@@ -278,20 +268,20 @@ namespace data::math::number {
         return Z_bytes<r>(Z(a) * Z(b));
     }
     
-    template <endian::order r> Z_bytes<r> Z_bytes<r>::trim() const {
+    template <endian::order r> Z_bytes<r> &Z_bytes<r>::trim() {
         size_t size = minimal_size(*this);
         if (size == this->size()) return *this;
         auto n = Z_bytes<r>::zero(size);
         auto w = this->words();
         std::copy(w.begin(), w.begin() + size, n.words().begin());
-        return n;
+        return *this = n;
     }
     
     template <endian::order r> Z_bytes<r> extend(const Z_bytes<r> &x, size_t size) {
         if (size < x.size()) {
             size_t min_size = minimal_size(x); 
             if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
-            return extend(x.trim(), size);
+            return extend(trim(x), size);
         }
         
         if (size == x.size()) return x;
@@ -343,7 +333,7 @@ namespace data::math::number {
         else n.bit_shift_right(i);
         return n = n.trim();
     }
-
+    
     template <data::endian::order r>
     inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
         if (o.flags() & std::ios::dec) return data::encoding::signed_decimal::write(o, n);
@@ -362,7 +352,23 @@ namespace data::math::number {
         data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
         return *this;
     }
-
+    
+    template <endian::order r> Z_bytes<r> operator&(const Z_bytes<r> &a, const Z_bytes<r> &b) {
+        if (a.size() < b.size()) return b & a;
+        auto bt = extend(b, a.size());
+        auto x = Z_bytes<r>::zero(a.size());
+        data::arithmetic::bit_and<byte>(x.end(), x.begin(), a.begin(), const_cast<const Z_bytes<r>&>(bt).begin());
+        return x.trim();
+    }
+    
+    template <endian::order r> Z_bytes<r> operator|(const Z_bytes<r> &a, const Z_bytes<r> &b) {
+        if (a.size() < b.size()) return b | a;
+        auto bt = extend(b, a.size());
+        auto x = Z_bytes<r>::zero(a.size());
+        data::arithmetic::bit_or<byte>(x.end(), x.begin(), a.begin(), const_cast<const Z_bytes<r>&>(bt).begin());
+        return x.trim();
+    }
+    
 }
 
 namespace data::math {

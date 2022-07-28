@@ -5,8 +5,6 @@
 #ifndef DATA_MATH_ASSOCIATIVE
 #define DATA_MATH_ASSOCIATIVE
 
-#include <data/function.hpp>
-
 namespace data::math {
     
     template <typename f, typename x> struct associative;

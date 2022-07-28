@@ -10,34 +10,34 @@ namespace data {
     
     TEST(ZTest, TestZToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"0"}), std::string{"0x00"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z{"0"}), std::string{"0x"});
         EXPECT_EQ(encoding::hexidecimal::write(Z{"-1"}), std::string{"0xff"});
         EXPECT_EQ(encoding::hexidecimal::write(Z{"-2"}), std::string{"0xfe"});
         EXPECT_EQ(encoding::hexidecimal::write(Z{"127"}), std::string{"0x7f"});
         EXPECT_EQ(encoding::hexidecimal::write(Z{"128"}), std::string{"0x0080"});
         EXPECT_EQ(encoding::hexidecimal::write(Z{"-128"}), std::string{"0x80"});
         EXPECT_EQ(encoding::hexidecimal::write(Z{"-129"}), std::string{"0xff7f"});
+        EXPECT_EQ(encoding::hexidecimal::write(Z{"0x7f33"} << 128), std::string{"0x7f3300000000000000000000000000000000"});
         
     }
     
     TEST(ZTest, TestStringToZ) {
         
-        EXPECT_FALSE(Z{}.valid());
-        EXPECT_FALSE(Z{N{}}.valid());
-        EXPECT_FALSE(Z{""}.valid());
-        EXPECT_TRUE(Z{"-1"}.valid());
-        EXPECT_FALSE(Z{"-0x01"}.valid());
+        EXPECT_THROW(Z{""}, std::invalid_argument);
+        EXPECT_THROW(Z{"-0x01"}, std::invalid_argument);
         
-        EXPECT_EQ(N{}, N{""});
+        EXPECT_NO_THROW(Z{"-1"});
+        
+        EXPECT_EQ(Z{}, Z{"0"});
         EXPECT_EQ(Z{-1}, Z{"-1"});
         EXPECT_EQ(Z{"-1"}, Z{"0xff"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z{0}), "0x00");
-        EXPECT_EQ(encoding::integer::write(Z{0}), "0");
+        EXPECT_EQ(encoding::hexidecimal::write(Z{0}), "0x");
+        EXPECT_EQ(encoding::signed_decimal::write(Z{0}), "0");
         EXPECT_EQ(encoding::hexidecimal::write(Z{1}), "0x01");
-        EXPECT_EQ(encoding::integer::write(Z{1}), "1");
+        EXPECT_EQ(encoding::signed_decimal::write(Z{1}), "1");
         EXPECT_EQ(encoding::hexidecimal::write(Z{-1}), "0xff");
-        EXPECT_EQ(encoding::integer::write(Z{-1}), "-1");
+        EXPECT_EQ(encoding::signed_decimal::write(Z{-1}), "-1");
         
         EXPECT_TRUE(Z{"0x80000000000000000000"} < Z{"0x7fffffffffffffffffff"});
         EXPECT_TRUE(Z{"0xff"} < Z{"0x00ff"});

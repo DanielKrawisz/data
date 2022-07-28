@@ -15,9 +15,11 @@ namespace data::encoding {
     
     namespace decimal {
         
+        using nat = math::N;
+        
         ptr<bytes> read(string_view s, endian::order r) {
             if (!valid(s)) return nullptr;
-            math::number::N_bytes<endian::big> n{math::number::N{s}};
+            math::number::N_bytes<endian::big> n{nat{s}};
             if (r == endian::little) std::reverse(n.begin(), n.end());
             return std::make_shared<bytes>(static_cast<bytes>(n));
         }
@@ -32,8 +34,6 @@ namespace data::encoding {
             if (n == 0) return "0";
             return write_base<N>(n, Characters);
         }
-        
-        using nat = math::number::N;
         
         N::N(uint64 x) : string{write_decimal(nat{x})} {}
         
@@ -135,20 +135,20 @@ namespace data::encoding {
     
     namespace hexidecimal {
         
-        N::N() : string{"0x00"} {}
+        using nat = math::N;
+        
+        N::N() : string{"0x"} {}
         
         N::N(const string& x) : string{hexidecimal::valid(x) ? x : ""} {}
         
         template <typename N>
         std::string write_hexidecimal(const N& n) {
             static std::string Characters = hex::characters_lower();
-            if (n == 0) return "0x00";
+            if (n == 0) return "0x";
             std::string p = write_base<N>(n, Characters);
             if ((p.size() % 2) == 1) return std::string{"0x0"} + p;
             return std::string{"0x"} + p;
         }
-        
-        using nat = math::number::N;
         
         N::N(uint64 x) : string{write_hexidecimal(nat{x})} {}
         

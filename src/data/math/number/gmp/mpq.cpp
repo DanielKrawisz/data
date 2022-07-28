@@ -11,7 +11,7 @@ namespace data {
     
         namespace number {
             
-            namespace gmp {
+            namespace GMP {
                 bool mpq::operator==(const mpq&& n) const {
                     return __gmp_binary_equal::eval(&MPQ, &n.MPQ);
                 }

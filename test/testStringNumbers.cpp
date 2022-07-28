@@ -12,8 +12,9 @@ namespace data::encoding {
     using b58_number = base58::string;
     
     TEST(StringNumbersTest, TestConstructStringNumbers) {
+        
         EXPECT_EQ(dec_number{}, "0");
-        EXPECT_EQ(hex_number{}, "0x00");
+        EXPECT_EQ(hex_number{}, "0x");
         EXPECT_EQ(b58_number{}, "1");
         
         EXPECT_EQ(dec_number{}, dec_number{0});
@@ -27,28 +28,35 @@ namespace data::encoding {
         EXPECT_EQ(dec_number{27}, "27");
         EXPECT_EQ(hex_number{27}, "0x1b");
         EXPECT_EQ(b58_number{27}, "U");
+        
     }
     
     TEST(StringNumbersTest, TestAddStringNumbers) {
+        
         EXPECT_EQ(dec_number{1} + dec_number{2}, "3");
         EXPECT_EQ(hex_number{1} + hex_number{2}, "0x03");
         EXPECT_EQ(b58_number{1} + b58_number{2}, "4");
+        
     }
     
     TEST(StringNumbersTest, TestSubtractStringNumbers) {
+        
         EXPECT_EQ(dec_number{2} - dec_number{1}, "1");
         EXPECT_EQ(hex_number{2} - hex_number{1}, "0x01");
         EXPECT_EQ(b58_number{2} - b58_number{1}, "2");
         
         EXPECT_EQ(dec_number{1} - dec_number{2}, "0");
-        EXPECT_EQ(hex_number{1} - hex_number{2}, "0x00");
+        EXPECT_EQ(hex_number{1} - hex_number{2}, "0x");
         EXPECT_EQ(b58_number{1} - b58_number{2}, "1");
+        
     }
     
     TEST(StringNumbersTest, TestMultiplyStringNumbers) {
+        
         EXPECT_EQ(dec_number{27} * dec_number{25}, "675");
         EXPECT_EQ(hex_number{27} * hex_number{25}, hex_number{675});
         EXPECT_EQ(b58_number{27} * b58_number{25}, b58_number{675});
+        
     }
     
     TEST(StringNumbersTest, TestDivideStringNumbers) {

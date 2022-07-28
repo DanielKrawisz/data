@@ -13,7 +13,7 @@ namespace data {
     
         namespace number {
             
-            namespace gmp {
+            namespace GMP {
                 
                 const __mpq_struct MPQInvalid = __mpq_struct{MPZInvalid, MPZInvalid};
                 
@@ -46,7 +46,7 @@ namespace data {
                     mpq() : MPQ{MPQInvalid} {}
                     
                     bool valid() const {
-                        return gmp::valid(MPQ);
+                        return GMP::valid(MPQ);
                     }
                     
                     virtual ~mpq() {
@@ -99,7 +99,7 @@ namespace data {
                     }
                     
                     math::sign sign() {
-                        return gmp::sign(MPQ);
+                        return GMP::sign(MPQ);
                     }
                     
                     bool operator==(const mpq&&) const;

@@ -5,9 +5,9 @@
 #include <data/math/number/gmp/aks.hpp>
 #include <rotella/akslib.h>
 
-namespace data::math::number::gmp {
+namespace data::math::number::GMP {
     
-    bool aks_is_prime(const gmp::Z z) {
+    bool aks_is_prime(const Z z) {
         return ::aks(mpz_class(&z.MPZ[0]));
     }
     

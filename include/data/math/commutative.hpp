@@ -5,8 +5,6 @@
 #ifndef DATA_MATH_COMMUTATIVE
 #define DATA_MATH_COMMUTATIVE
 
-#include <data/function.hpp>
-
 namespace data::math {
     
     template <typename f, typename x> struct commutative;

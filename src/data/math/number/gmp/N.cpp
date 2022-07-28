@@ -2,18 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/data.hpp>
-#include <data/math/number/bytes/Z.hpp>
+#include <data/numbers.hpp>
 #include <data/encoding/digits.hpp>
 #include <boost/algorithm/string.hpp>
 
-namespace data::math::number::gmp {
+namespace data::math::number::GMP {
     
-    Z::Z(const N& n) : Z{n.valid() ? n.Value : Z{}} {}
+    Z::Z(const N& n) : Z{n.Value} {}
     
     Z Z_read_N_gmp(string_view s) {
         Z z{};
-        mpz_init(z.MPZ);
+        //mpz_init(z.MPZ);
         mpz_set_str(z.MPZ, std::string{s}.c_str(), 0);
         return z;
     }
@@ -66,7 +65,7 @@ namespace data::math::number::gmp {
     }
     
     Z Z::read(string_view s) {
-        if (!encoding::integer::valid(s)) return Z{};
+        if (!encoding::integer::valid(s)) throw std::invalid_argument{std::string{"invalid number string "} + std::string{s}};
         if (encoding::hexidecimal::valid(s)) return Z_read_hex(s);
         return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
@@ -77,67 +76,46 @@ namespace data::math::number::gmp {
         return o << encoding::write_base<N>(abs<Z>{}(n), encoding::decimal::characters());
     }
     
-    std::ostream& Z_write_hexidecimal(std::ostream& o, const Z& z) {
-        if (z == 0) return o << "0x00";
-        std::string str;
-        char fill;
-        o << "0x";
-        if (z > 0) {
-            fill = '0';
-            str = encoding::write_base<N>(abs<Z>{}(z), encoding::hex::characters_lower());
-            if (str[0] > '7') o << "00";
-        } else { 
-            fill = 'f';
-            N n = abs<Z>{}(z); 
-            N pow = 1;
-            
-            // find the smallest power of 256 bigger than z. 
-            while (pow <= n) pow = pow << 8; 
-            
-            str = encoding::write_base<N>(abs<Z>{}(pow.Value + z), encoding::hex::characters_lower());
-            if (str[0] <= '7') o << "ff";
-        } 
-        if (str.size() % 2 != 0) o << fill;
-        return o << str;
+    std::ostream& N_write_dec(std::ostream& o, const N& n) {
+        if (n == 0) return o << "0";
+        return o << encoding::write_base<N>(n, encoding::decimal::characters());
     }
     
-    std::ostream& N_write_hexidecimal(std::ostream& o, const N& n) {
-        if (n == 0) return o << "0x00";
-        o << "0x";
-        
-        std::string str = encoding::write_base<N>(n, encoding::hex::characters_lower());
-        if (str.size() % 2 != 0) o << '0';
-        return o << str;
+}
+
+namespace data::encoding::decimal {
+    
+    std::ostream &write(std::ostream& o, const math::N &n) {
+        return N_write_dec(o, n);
     }
     
 }
 
 namespace data::encoding::hexidecimal {
     
-    std::string write(const math::number::gmp::Z& n) {
-        std::stringstream ss;
-        ss << std::hex << n;
-        return ss.str();
+    std::ostream &write(std::ostream &o, const math::Z &n) {
+        return write(o, math::number::Z_bytes<endian::big>(n));
+    }
+    
+    std::ostream &write(std::ostream& o, const math::N& n) {
+        return write(o, math::number::N_bytes<endian::big>(n));
     }
     
 }
 
-namespace data::encoding::integer {
+namespace data::encoding::signed_decimal {
     
-    std::string write(const math::number::gmp::Z& n) {
-        std::stringstream ss;
-        ss << std::dec << n;
-        return ss.str();
+    std::ostream &write(std::ostream &o, const math::Z& n) {
+        return Z_write_dec(o, n);
     }
     
 }
 
-
-namespace data::math::number::gmp {
+namespace data::math::number::GMP {
         
     std::ostream& operator<<(std::ostream& o, const Z& n) {
         if (o.flags() & std::ios::hex) {
-            Z_write_hexidecimal(o, n);
+            encoding::hexidecimal::write(o, n);
             return o;
         }
         if (o.flags() & std::ios::dec) {
@@ -153,17 +131,12 @@ namespace data::math::number::gmp {
     }
     
     Z N_read(string_view x) {
-        if (!encoding::integer::valid(x)) return Z{};
+        if (!encoding::natural::valid(x)) throw std::invalid_argument{std::string{"invalid number string "} + std::string{x}};
         if (encoding::hexidecimal::valid(x)) return N_read_hex(x);
-        if (encoding::integer::negative(x)) return Z{};
         return Z_read_N_gmp(x);
     }
     
     N::N(string_view x) : Value{N_read(x)} {}
-    
-    std::ostream& N_write_dec(std::ostream& o, const N& n) {
-        return Z_write_dec(o, n.Value);
-    }
     
     // inefficient but easier to write and more certain to be correct. 
     N read_bytes_big(bytes_view x) {
@@ -233,21 +206,21 @@ namespace data::math::number::gmp {
     }
         
     Z::operator int64() const {
-        if (operator>(std::numeric_limits<int64>::max())) throw std::logic_error{"too big"};
-        if (operator<(std::numeric_limits<int64>::min())) throw std::logic_error{"too big"};
+        if (*this > std::numeric_limits<int64>::max()) throw std::logic_error{"too big"};
+        if (*this < std::numeric_limits<int64>::min()) throw std::logic_error{"too big"};
         return mpz_get_si(MPZ);
     } 
     
-    Z::operator uint64() const {
-        if (__gmp_binary_greater::eval(MPZ, (unsigned long int)(std::numeric_limits<uint64>::max())))
+    N::operator uint64() const {
+        if (__gmp_binary_greater::eval(Value.MPZ, (unsigned long int)(std::numeric_limits<uint64>::max())))
             throw std::logic_error{"too big"};
-        if (operator<(0)) throw std::logic_error{"too big"};
-        return mpz_get_ui(MPZ);
+        if (*this < 0) throw std::logic_error{"too big"};
+        return mpz_get_ui(Value.MPZ);
     } 
 
     std::ostream& operator<<(std::ostream& o, const N& n) {
         if (o.flags() & std::ios::hex) {
-            N_write_hexidecimal(o, n);
+            encoding::hexidecimal::write(o, n);
             return o;
         }
         if (o.flags() & std::ios::dec) {
@@ -258,24 +231,4 @@ namespace data::math::number::gmp {
         return o;
     }
 
-}
-
-namespace data::encoding::hexidecimal { 
-    
-    std::string write(const math::number::gmp::N& n) {
-        std::stringstream ss;
-        ss << std::hex << n;
-        return ss.str();
-    }
-    
-}
-
-namespace data::encoding::integer {
-    
-    std::string write(const math::number::gmp::N& n) {
-        std::stringstream ss;
-        ss << std::dec << n;
-        return ss.str();
-    }
-    
 }

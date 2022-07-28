@@ -5,11 +5,11 @@
 #ifndef DATA_MATH_NUMBER_BYTES_BYTES
 #define DATA_MATH_NUMBER_BYTES_BYTES
 
-#include <data/math/arithmetic.hpp>
 #include <data/math/division.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
+#include <data/math/arithmetic.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/cross.hpp>
 
