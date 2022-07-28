@@ -8,14 +8,15 @@
 #include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {
+    using nat = math::N;
     
     string write(const bytes_view b) {
-        return write<math::number::gmp::N>(math::number::gmp::N(math::number::N_bytes<endian::big>(b)));
+        return write<nat>(nat(math::number::N_bytes<endian::big>(b)));
     }
     
     view::view(string_view s) : string_view{s}, Bytes{}, ToBytes{nullptr} {
         if (base58::valid(s)) {
-            Bytes = bytes(*hex::read(data::encoding::hexidecimal::write(read<math::number::gmp::N>(s)).substr(2)));
+            Bytes = bytes(*hex::read(data::encoding::hexidecimal::write(read<nat>(s)).substr(2)));
             ToBytes = &Bytes;
         }
     }
@@ -30,8 +31,6 @@ namespace data::encoding::base58 {
     string::string() : std::string{"1"} {}
         
     string::string(const std::string& x) : std::string{base58::valid(x) ? x : ""} {}
-    
-    using nat = math::number::N;
     
     string::string(uint64 x) : std::string{write_b58(nat{x})} {}
     

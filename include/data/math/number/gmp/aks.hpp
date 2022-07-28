@@ -9,11 +9,11 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 
-namespace data::math::number::gmp {
+namespace data::math::number::GMP {
     
-    bool aks_is_prime(const gmp::Z);
+    bool aks_is_prime(const Z);
     
-    inline bool aks_is_prime(const gmp::N n) {
+    inline bool aks_is_prime(const N n) {
         return aks_is_prime(n.Value);
     }
     
@@ -21,20 +21,20 @@ namespace data::math::number::gmp {
 
 namespace data::math::number {
     
-    template <> struct AKS<gmp::N> {
-        prime<gmp::N> is_prime(const gmp::N n) {
-            return gmp::aks_is_prime(n) ? prime<gmp::N>{n, prime<gmp::N>::certain} : prime<gmp::N>{};
+    template <> struct AKS<N> {
+        prime<N> is_prime(const N n) {
+            return GMP::aks_is_prime(n) ? prime<N>{n, prime<N>::certain} : prime<N>{};
         }
     };
     
-    template <> struct AKS<gmp::Z> {
-        prime<gmp::Z> is_prime(const gmp::Z z) {
-            return gmp::aks_is_prime(z) ? prime<gmp::Z>{z, prime<gmp::Z>::certain} : prime<gmp::Z>{};
+    template <> struct AKS<Z> {
+        prime<Z> is_prime(const Z z) {
+            return GMP::aks_is_prime(z) ? prime<Z>{z, prime<Z>::certain} : prime<Z>{};
         }
     };
     
-    template struct AKS<gmp::N>;
-    template struct AKS<gmp::Z>;
+    template struct AKS<N>;
+    template struct AKS<Z>;
     
 }
 

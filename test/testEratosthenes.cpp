@@ -4,6 +4,7 @@
 
 #include "data/math/number/eratosthenes.hpp"
 #include "data/numbers.hpp"
+#include "data/for_each.hpp"
 #include "gtest/gtest.h"
 
 namespace data {

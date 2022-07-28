@@ -4,7 +4,7 @@
 
 #include <data/math/number/gmp/sqrt.hpp>
 
-namespace data::math::number::gmp {
+namespace data::math::number::GMP {
     
     set<N> root(const N& n, uint32 p) {
         if (p == 0) return n == 1 ? set<N>{n} : set<N>{};

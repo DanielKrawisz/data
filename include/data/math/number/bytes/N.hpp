@@ -64,8 +64,36 @@ namespace data::math::number {
         
         explicit N_bytes(string_view s) : N_bytes{read(s)} {}
         
-        // A bit inefficient. 
-        explicit N_bytes(const N& n) : N_bytes(data::encoding::hexidecimal::write(n)) {}
+        // inefficient but works. 
+        explicit N_bytes(const N& n) : N_bytes() {
+            this->resize(n.Value.size() * sizeof(mp_limb_t));
+            /*
+            auto it = this->words().rbegin();
+            for (const mp_limb_t &x : n.Value) {
+                endian::arithmetic<endian::big, false, sizeof(mp_limb_t)> xx{x};
+                std::copy(xx.begin(), xx.end(), it);
+            }
+            this->trim();
+            */
+            N x = n;
+            auto w = this->words();
+            auto it = w.begin();
+            auto e = w.end();
+            int step = 0;
+            while (x > 0) {
+                auto d = x % 256;
+                *it = d;
+                it++;
+                x >>= 8;
+                step++;
+            }
+            while (it != e) {
+                *it = 0;
+                it++;
+                step++;
+            }
+            this->trim();
+        }
         
         explicit N_bytes(bytes_view b) {
             this->resize(b.size());
@@ -142,10 +170,6 @@ namespace data::math::number {
             return natural::divide<N_bytes>(*this, n);
         }
         
-        bool operator|(const N_bytes& n) const {
-            return divide(n).Remainder == 0;
-        }
-        
         N_bytes operator/(const N_bytes& n) const {
             return divide(n).Quotient;
         }
@@ -176,10 +200,19 @@ namespace data::math::number {
         
         bytes write(endian::order) const; 
         
-        N_bytes trim() const;
+        N_bytes &trim();
         
+        explicit operator N() const {
+            N z; 
+            for (const byte &b : this->words()) {
+                z << 8;
+                z += b;
+            }
+            return z;
+        }
+        /*
         template <size_t size, endian::order o> 
-        explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}
+        explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}*/
         
         explicit operator uint64() const {
             if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
@@ -199,6 +232,11 @@ namespace data::math::number {
         
         friend struct abs<Z_bytes<r>>;
     };
+    
+    template <endian::order r> N_bytes<r> inline trim(const N_bytes<r> &x) {
+        auto n = x;
+        return n.trim();
+    }
     
     template <endian::order r> bool inline is_negative(const N_bytes<r> &) {
         return false;
@@ -266,13 +304,9 @@ namespace data::encoding::decimal {
         return n;
     }
     
-    std::ostream inline &write(std::ostream& o, const math::number::gmp::N &n) {
-        return o << write_base(n, characters());
-    }
-    
     template <endian::order r> 
     std::ostream inline &write(std::ostream& o, const math::number::N_bytes<r> &n) {
-        return write(o, math::number::gmp::N{n});
+        return write(o, math::N{n});
     }
     
     template <endian::order r> 
@@ -313,14 +347,6 @@ namespace data::encoding::natural {
     }
 }
 
-namespace data::encoding::integer {
-    
-    template <endian::order r> 
-    std::ostream &write(std::ostream& o, const math::number::N_bytes<r> &n) {
-        return decimal::write(o, n);
-    }
-}
-
 namespace data::math::number {
     
     template <endian::order r> 
@@ -348,6 +374,22 @@ namespace data::math::number {
         return a <=> N_bytes<r>(b);
     }
     
+    template <endian::order r> Z_bytes<r> inline operator&(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) & b;
+    }
+    
+    template <endian::order r> Z_bytes<r> inline operator&(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return Z_bytes<r>(b) & a;
+    }
+    
+    template <endian::order r> Z_bytes<r> inline operator|(const N_bytes<r> &a, const Z_bytes<r> &b) {
+        return Z_bytes<r>(a) | b;
+    }
+    
+    template <endian::order r> Z_bytes<r> inline operator|(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return Z_bytes<r>(b) | a;
+    }
+    
     template <endian::order r>
     N_bytes<r> inline operator+(const N_bytes<r> &a, const N_bytes<r> &b) {
         return N_bytes<r>(N(a) + N(b));
@@ -373,20 +415,20 @@ namespace data::math::number {
         return N_bytes<r>(N(n) ^ pow);
     }
     
-    template <endian::order r> N_bytes<r> N_bytes<r>::trim() const {
+    template <endian::order r> N_bytes<r> &N_bytes<r>::trim() {
         size_t size = minimal_size(*this);
         if (size == this->size()) return *this;
         auto n = N_bytes<r>::zero(size);
         auto w = this->words();
         std::copy(w.begin(), w.begin() + size, n.words().begin());
-        return n;
+        return *this = n;
     }
     
     template <endian::order r> N_bytes<r> extend(const N_bytes<r> &x, size_t size) {
         if (size < x.size()) {
             size_t min_size = minimal_size(x); 
             if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
-            return extend(x.trim(), size);
+            return extend(trim(x), size);
         }
         
         if (size == x.size()) return x;
@@ -441,6 +483,22 @@ namespace data::math::number {
         if (i < 0) bit_shift_left(n, -i);
         else bit_shift_right(n, i);
         return n = n.trim();
+    }
+    
+    template <endian::order r> N_bytes<r> operator&(const N_bytes<r> &a, const N_bytes<r> &b) {
+        if (a.size() < b.size()) return b & a;
+        auto bt = extend(b, a.size());
+        auto x = N_bytes<r>::zero(a.size());
+        data::arithmetic::bit_and<byte>(x.end(), x.begin(), a.begin(), const_cast<const N_bytes<r>&>(bt).begin());
+        return x.trim();
+    }
+    
+    template <endian::order r> N_bytes<r> operator|(const N_bytes<r> &a, const N_bytes<r> &b) {
+        if (a.size() < b.size()) return b | a;
+        auto bt = extend(b, a.size());
+        auto x = N_bytes<r>::zero(a.size());
+        data::arithmetic::bit_or<byte>(x.end(), x.begin(), a.begin(), const_cast<const N_bytes<r>&>(bt).begin());
+        return x.trim();
     }
 }
 

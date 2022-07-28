@@ -54,11 +54,11 @@ namespace data::math::number {
     
     TEST(NBytesTest, TestNBytesToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"0"}), std::string{"0x00"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"0"}), std::string{"0x"});
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"127"}), std::string{"0x7f"});
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::big>{"128"}), std::string{"0x80"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"0"}), std::string{"0x00"});
+        EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"0"}), std::string{"0x"});
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"127"}), std::string{"0x7f"});
         EXPECT_EQ(encoding::hexidecimal::write(N_bytes<endian::little>{"128"}), std::string{"0x80"});
         
@@ -152,6 +152,11 @@ namespace data::math::number {
         return x;
     }
     
+    template<endian::order r>
+    math::number::N_bytes<r> N_to_N_Bytes_stupid(const math::N& n) {
+        return math::number::N_bytes<r>::read(encoding::hexidecimal::write(n));
+    }
+    
     template <typename in> void N_Bytes_to_N(in x) {
         
         N n{x};
@@ -159,23 +164,23 @@ namespace data::math::number {
         N_bytes_big big{x};
         N_bytes_little little{x};
         
-        N N_big_stupid = N_Bytes_to_N_stupid(big);
-        N N_little_stupid = N_Bytes_to_N_stupid(little);
+        N_bytes_big stupid_big = N_to_N_Bytes_stupid<endian::big>(n);
+        N_bytes_little stupid_little = N_to_N_Bytes_stupid<endian::little>(n);
+        
+        EXPECT_EQ(stupid_big, big);
+        EXPECT_EQ(stupid_little, little);
         
         N N_big = N(big);
         N N_little = N(little);
         
+        N N_big_stupid = N_Bytes_to_N_stupid(big);
+        N N_little_stupid = N_Bytes_to_N_stupid(little);
+        
         EXPECT_EQ(N_big_stupid, N_big);
         EXPECT_EQ(N_little_stupid, N_little);
         
-        EXPECT_EQ(N_big_stupid, n);
-        EXPECT_EQ(N_little_stupid, n);
-        
         EXPECT_EQ(N_big, n);
         EXPECT_EQ(N_little, n);
-        
-        EXPECT_EQ(big, N_bytes_big(n));
-        EXPECT_EQ(little, N_bytes_little(n));
         
     }
     

@@ -5,9 +5,12 @@
 #ifndef DATA_NUMBERS
 #define DATA_NUMBERS
 
-// basic types
+// defines float32 and float64
 #include <data/float.hpp>
-#include <data/math.hpp>
+
+// numbers of either endian of any size up to 64 bits
+// using boost. 
+#include <data/encoding/endian/arithmetic.hpp>
 
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/number/gmp/mpz.hpp>
@@ -23,16 +26,14 @@
 #include <data/math/number/rational.hpp>
 #include <data/math/octonion.hpp>
 
-#include <data/math.hpp>
-
 namespace data {
     // we use a wrapper around gmp for natural numbers and integers. 
     
     // Natural numbers
-    using N = math::number::N;
+    using N = math::N;
     
     // Integers
-    using Z = math::number::Z;
+    using Z = math::Z;
     
     // N_bytes and Z_bytes are big numbers with a specific
     // representation. They can be big or little endian. 

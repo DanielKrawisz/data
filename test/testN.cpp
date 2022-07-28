@@ -10,24 +10,22 @@ namespace data {
     
     TEST(NTest, TestStringToN) {
         
-        EXPECT_FALSE(N{}.valid());
-        EXPECT_FALSE(N{""}.valid());
-        EXPECT_FALSE(N{"a"}.valid());
-        EXPECT_FALSE(N{"-"}.valid());
-        EXPECT_FALSE(N{"-1"}.valid());
-        EXPECT_FALSE(N{"01"}.valid());
-        EXPECT_FALSE(N{"0x1"}.valid());
+        EXPECT_THROW(N{""}, std::invalid_argument);
+        EXPECT_THROW(N{"a"}, std::invalid_argument);
+        EXPECT_THROW(N{"-"}, std::invalid_argument);
+        EXPECT_THROW(N{"-1"}, std::invalid_argument);
+        EXPECT_THROW(N{"01"}, std::invalid_argument);
+        EXPECT_THROW(N{"0x1"}, std::invalid_argument);
         
-        EXPECT_TRUE(N{0}.valid());
-        EXPECT_TRUE(N{"0"}.valid());
-        EXPECT_TRUE(N{"0x"}.valid());
+        EXPECT_NO_THROW(N{0});
+        EXPECT_NO_THROW(N{"0"});
+        EXPECT_NO_THROW(N{"0x"});
         
-        EXPECT_EQ(N{}, N{""});
+        EXPECT_EQ(N{}, N{"0"});
         
         EXPECT_EQ(N{0}, N{"0"});
         EXPECT_EQ(N{0}, N{"0x"});
         
-        EXPECT_NE(N{0}, N{""});
         EXPECT_NE(N{1}, N{"0"});
         EXPECT_NE(N{0}, N{"1"});
         
@@ -36,16 +34,16 @@ namespace data {
         EXPECT_EQ(N{1}, N{"0x0001"});
         EXPECT_EQ(N{255}, N{"0xff"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(N{0}), "0x00");
-        EXPECT_EQ(encoding::integer::write(N{0}), "0");
+        EXPECT_EQ(encoding::hexidecimal::write(N{0}), "0x");
+        EXPECT_EQ(encoding::decimal::write(N{0}), "0");
         EXPECT_EQ(encoding::hexidecimal::write(N{1}), "0x01");
-        EXPECT_EQ(encoding::integer::write(N{1}), "1");
+        EXPECT_EQ(encoding::decimal::write(N{1}), "1");
         
     }
     
     TEST(NTest, TestNToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(N{"0"}), std::string{"0x00"});
+        EXPECT_EQ(encoding::hexidecimal::write(N{"0"}), std::string{"0x"});
         EXPECT_EQ(encoding::hexidecimal::write(N{"127"}), std::string{"0x7f"});
         EXPECT_EQ(encoding::hexidecimal::write(N{"128"}), std::string{"0x80"});
         

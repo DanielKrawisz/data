@@ -8,7 +8,7 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/root.hpp>
 
-namespace data::math::number::gmp {
+namespace data::math::number::GMP {
     
     set<N> root(const N& n, uint32 p);
     set<Z> root(const Z& n, uint32 p);
@@ -17,15 +17,15 @@ namespace data::math::number::gmp {
 
 namespace data::math {
     
-    template <uint64 pow> struct root<number::gmp::N, pow> {
-        set<number::gmp::N> operator()(const number::gmp::N& n) {
-            return number::gmp::root(n, pow);
+    template <uint64 pow> struct root<N, pow> {
+        set<N> operator()(const N& n) {
+            return number::GMP::root(n, pow);
         }
     };
     
-    template <uint64 pow> struct root<number::gmp::Z, pow> {
-        set<number::gmp::Z> operator()(const number::gmp::Z& z) {
-            return number::gmp::root(z, pow);
+    template <uint64 pow> struct root<Z, pow> {
+        set<Z> operator()(const Z& z) {
+            return number::GMP::root(z, pow);
         }
     };
 

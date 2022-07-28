@@ -27,8 +27,8 @@ namespace data {
     using N_bytes_little = data::math::number::N_bytes<endian::little>;
     using N_bytes_big = data::math::number::N_bytes<endian::big>;
     
-    using N = data::math::number::gmp::N;
-    using Z = data::math::number::gmp::Z;
+    using N = data::math::number::GMP::N;
+    using Z = data::math::number::GMP::Z;
 
     TEST(AbsTest, TestDecrement) {
         

@@ -60,7 +60,7 @@ namespace data::math {
         fraction() : Numerator{0}, Denominator{1} {}
         
         math::sign sign() const {
-            return Numerator.sign();
+            return data::sign(Numerator);
         }
         
     private:
@@ -188,18 +188,10 @@ namespace data::math {
     struct associative<times<fraction<Z, N>>, fraction<Z, N>> : associative<times<Z>, Z>{};
     
     template <typename Z, typename N> 
-    struct identity<plus<fraction<Z, N>>, fraction<Z, N>> {
-        static const math::number::gmp::Z value() {
-            return {identity<plus<Z>, Z>::value()};
-        }
-    };
+    struct identity<plus<fraction<Z, N>>, fraction<Z, N>> : identity<plus<Z>, Z> {};
     
     template <typename Z, typename N> 
-    struct identity<times<fraction<Z, N>>, fraction<Z, N>> {
-        static const math::number::gmp::Z value() {
-            return {identity<times<Z>, Z>::value()};
-        }
-    };
+    struct identity<times<fraction<Z, N>>, fraction<Z, N>> : identity<times<Z>, Z> {};
 }
 
 template <typename Z, typename N>
