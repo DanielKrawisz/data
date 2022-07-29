@@ -31,18 +31,23 @@ namespace data {
     // Natural numbers
     using N = math::number::N;
     
+    // Integers
+    using Z = math::number::Z;
+    
+    // N_bytes and Z_bytes are big numbers with a specific
+    // representation. They can be big or little endian. 
+    // Z_bytes are one's complement. 
+    
     using N_bytes_little = math::N_bytes<endian::little>;
     
     using N_bytes_big = math::N_bytes<endian::big>;
-    
-    // Integers
-    using Z = math::number::Z;
     
     using Z_bytes_little = math::Z_bytes<endian::little>;
     
     using Z_bytes_big = math::Z_bytes<endian::big>;
     
-    // bounted integers and uints. 
+    // fixed size numbers of any size, similar to the 
+    // built-in types. 
     template <size_t size> 
     using int_little = math::sint_little<size>;
     
@@ -89,6 +94,7 @@ namespace data {
     // rational octonions
     using OQ = math::octonion<Q>;
     
+    // Caylay-Dickson floating points. 
     using complex64 = math::complex<float32>;
     using complex128 = math::complex<float64>;
     using quat128 = math::quaternion<float32>;
