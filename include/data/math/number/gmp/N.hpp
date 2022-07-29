@@ -8,7 +8,6 @@
 #include <limits>
 #include <data/math/number/natural.hpp>
 #include <data/math/abs.hpp>
-#include <data/math/number/sqrt.hpp>
 #include <data/math/number/gmp/Z.hpp>
 #include <sstream>
 
@@ -248,7 +247,6 @@ namespace data::math::number::gmp {
         
         friend struct Z;
         friend struct math::abs<Z>;
-        friend struct number::sqrt<N, Z>;
         template <endian::order o> friend struct N_bytes;
     };
     
