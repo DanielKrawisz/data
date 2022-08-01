@@ -5,11 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BYTES_BYTES
 #define DATA_MATH_NUMBER_BYTES_BYTES
 
-#include <data/math/division.hpp>
-#include <data/math/abs.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
-#include <data/math/arithmetic.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/cross.hpp>
 
@@ -52,6 +48,18 @@ namespace data::math::number {
     
     template <endian::order r> 
     std::weak_ordering operator<=>(const Z_bytes<r>&, int64);
+    
+    template <endian::order r> 
+    bool operator==(const N_bytes<r>&, N);
+    
+    template <endian::order r> 
+    bool operator==(const Z_bytes<r>&, Z);
+    
+    template <endian::order r> 
+    std::weak_ordering operator<=>(const N_bytes<r>&, N);
+    
+    template <endian::order r> 
+    std::weak_ordering operator<=>(const Z_bytes<r>&, Z);
     
     // bit negate
     template <endian::order r> Z_bytes<r> operator~(const N_bytes<r>&);

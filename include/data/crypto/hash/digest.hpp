@@ -21,6 +21,10 @@ namespace data::crypto {
             if (b.size() == s) std::copy(b.begin(), b.end(), this->begin());
         }
         
+        operator bytes_view() const {
+            return bytes_view(*this);
+        }
+        
         bool valid() const;
     };
     
