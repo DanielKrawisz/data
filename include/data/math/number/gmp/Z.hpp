@@ -38,20 +38,20 @@ namespace data::math::number::GMP {
             mpz_init(MPZ);
             mpz_set(MPZ, n.MPZ);
         }
-        /*
+        
         Z(Z&& n) : Z{} {
             mpz_swap(MPZ, n.MPZ);
-        }*/
+        }
         
         Z& operator=(const Z& n) {
             mpz_set(MPZ, n.MPZ);
             return *this;
         }
-        /*
+        
         Z& operator=(Z&& n) {
             mpz_swap(MPZ, n.MPZ);
             return *this;
-        }*/
+        }
         
         size_t size() const {
             return GMP::size(MPZ[0]);
