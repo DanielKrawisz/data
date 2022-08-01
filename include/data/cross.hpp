@@ -7,9 +7,9 @@
 
 #include <data/sequence.hpp>
 #include <data/slice.hpp>
-#include <data/encoding/endian/endian.hpp>
 #include <data/valid.hpp>
 #include <data/encoding/words.hpp>
+#include <data/encoding/endian/arithmetic.hpp>
 #include <data/stream.hpp>
 
 namespace data {
@@ -201,12 +201,6 @@ namespace data {
             return n;
         }
         
-        static bytes_array fill(byte b) {
-            bytes_array n{};
-            for (byte& z : n) z = b;
-            return n;
-        }
-        
         explicit operator bytes() const;
         
     protected:
@@ -220,6 +214,10 @@ namespace data {
         
         void bit_xor(const slice<word, size> a) {
             arithmetic::bit_xor<word>(this->end(), this->begin(), const_cast<const word*>(this->data()), a.begin());
+        }
+        
+        void fill(byte b) {
+            for (byte& z : *this) z = b;
         }
         
     };

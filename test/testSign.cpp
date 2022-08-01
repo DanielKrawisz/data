@@ -133,6 +133,9 @@ namespace data {
         EXPECT_EQ(sign(ul11(0)),                             math::zero);
         EXPECT_EQ(sign(ul20(0)),                             math::zero);
         
+        auto x = b20(-1);
+        std::cout << std::hex << x << std::endl;
+        
         EXPECT_EQ(sign(b20(1)),                              math::positive);
         EXPECT_EQ(sign(b11(1)),                              math::positive);
         EXPECT_EQ(sign(b10(1)),                              math::positive);

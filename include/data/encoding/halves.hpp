@@ -7,7 +7,7 @@
 
 #include <type_traits>
 #include <concepts>
-#include <data/encoding/endian/arithmetic.hpp>
+#include <data/encoding/endian/endian.hpp>
 
 namespace data::encoding {
     
@@ -16,11 +16,6 @@ namespace data::encoding {
     template <std::integral X> struct count_digits<X> {
         constexpr static bool is_signed = std::is_signed_v<X>;
         constexpr static size_t value = sizeof(X);
-    };
-    
-    template <endian::order o, bool z, size_t size> struct count_digits<endian::arithmetic<o, z, size>> {
-        constexpr static bool is_signed = z;
-        constexpr static size_t value = size;
     };
     
     template <typename half, typename whole> struct halves;
@@ -123,17 +118,6 @@ namespace data::encoding {
         }
     };
     
-    template <endian::order o, bool is_signed, size_t size> struct half_of<endian::arithmetic<o, is_signed, size>> {
-        using type = endian::arithmetic<o, is_signed, count_digits<typename half_of<endian::to_native<is_signed, size>>::type>::value>;
-        static type greater_half(endian::arithmetic<o, is_signed, size> u) {
-            return type{half_of<endian::to_native<is_signed, size>>::greater_half((endian::to_native<is_signed, size>)(u))};
-        }
-        
-        static type lesser_half(endian::arithmetic<o, is_signed, size> u) {
-            return type{half_of<endian::to_native<is_signed, size>>::lesser_half((endian::to_native<is_signed, size>)(u))};
-        }
-    };
-    
     template <typename whole>
     typename half_of<whole>::type greater_half(whole w) {
         return half_of<whole>::greater_half(w);
@@ -185,13 +169,6 @@ namespace data::encoding {
         using type = int16;
         static type extend(char x) {
             return (type)(x);
-        }
-    };
-    
-    template <endian::order o, bool is_signed, size_t size> struct twice<endian::arithmetic<o, is_signed, size>> {
-        using type = endian::arithmetic<o, is_signed, 2 * size>;
-        static type extend(endian::arithmetic<o, is_signed, size> x) {
-            return (typename twice<endian::to_native<is_signed, size>>::type)(x);
         }
     };
     

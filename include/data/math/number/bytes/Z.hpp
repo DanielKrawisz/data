@@ -156,11 +156,11 @@ namespace data::math::number {
     }
     
     template <endian::order r> bool inline is_negative(const Z_bytes<r> &x) {
-        return arithmetic::sign_bit_set(x.words());
+        return arithmetic::sign_bit(x.words());
     }
     
     template <endian::order r> bool inline is_positive(const Z_bytes<r> &x) {
-        return !is_zero(x) && !arithmetic::sign_bit_set(x.words());
+        return !is_zero(x) && !arithmetic::sign_bit(x.words());
     }
     
     template <endian::order r> bool inline is_zero(const Z_bytes<r> &x) {
@@ -201,7 +201,7 @@ namespace data::math::number {
     
     template <endian::order r> Z_bytes<r>::Z_bytes(int64 x) : Z_bytes{} {
         this->resize(8);
-        endian::arithmetic<r, true, 8> n{x};
+        endian::arithmetic<true, r, 8> n{x};
         std::copy(n.begin(), n.end(), this->begin());
         this->trim();
     }

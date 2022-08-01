@@ -51,7 +51,7 @@ namespace data::math::number {
         
         N_bytes(const uint64 x) {
             this->resize(8);
-            endian::arithmetic<r, false, 8> xx{x};
+            endian::arithmetic<false, r, 8> xx{x};
             std::copy(xx.begin(), xx.end(), this->begin());
         }
         
@@ -216,7 +216,7 @@ namespace data::math::number {
         
         explicit operator uint64() const {
             if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
-            endian::arithmetic<endian::little, false, 8> xx;
+            endian::arithmetic<false, endian::little, 8> xx;
             std::copy(this->words().begin(), this->words().begin() + 8, xx.begin());
             return uint64(xx);
         } 

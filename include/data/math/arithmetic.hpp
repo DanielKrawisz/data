@@ -125,15 +125,13 @@ namespace data::math::arithmetic {
         static const uint64 value = 0x8000000000000000;
     };
     
-    template <typename digit> const digit sign_bit = get_sign_bit<digit>::value;
-    
-    template <endian::order r, typename digit> bool inline sign_bit_set(const encoding::words<r, digit> x) {
-        return (x.size() != 0) && (x[-1] & sign_bit<digit>) != 0;
+    template <endian::order r, typename digit> bool inline sign_bit(const encoding::words<r, digit> x) {
+        return (x.size() != 0) && (x[-1] & get_sign_bit<digit>::value) != 0;
     }
     
     template <endian::order r, typename digit> void inline flip_sign_bit(encoding::words<r, digit> x) {
-        if (x[-1] & sign_bit<digit>) x[-1] &= ~sign_bit<digit>;
-        else x[-1] |= sign_bit<digit>;
+        if (x[-1] & get_sign_bit<digit>::value) x[-1] &= ~get_sign_bit<digit>::value;
+        else x[-1] |= get_sign_bit<digit>::value;
     }
     
     template <endian::order r, typename digit> bool inline ones_is_zero(const encoding::words<r, digit> x) {
@@ -161,7 +159,7 @@ namespace data::math::arithmetic {
     template <endian::order r, typename digit> math::sign Z_sign_ones(const encoding::words<r, digit> x) {
         auto i = x.rbegin(); 
         if (i == x.rend()) return math::zero;
-        if (*i & sign_bit<digit>) return math::negative;
+        if (*i & get_sign_bit<digit>::value) return math::negative;
         while (i != x.rend()) {
             if (*i != 0) return math::positive;
             i++;
@@ -304,7 +302,7 @@ namespace data::math::arithmetic {
     
     template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
     template <typename digit> const digit max_signed_ones = get_limit<digit>::max_signed;
-    template <typename digit> const digit min_unsigned_ones = sign_bit<digit>;
+    template <typename digit> const digit min_unsigned_ones = get_sign_bit<digit>::value;
     
     template <endian::order r, typename digit> 
     void set_max_unsigned(encoding::words<r, digit> a) {

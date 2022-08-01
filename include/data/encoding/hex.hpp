@@ -80,10 +80,10 @@ namespace data::encoding::hex {
     fixed<1> write(byte, letter_case = upper);
     
     template <endian::order o, size_t x>
-    fixed<x> write(endian::arithmetic<o, false, x>, letter_case = upper);
+    fixed<x> write(endian::arithmetic<false, o, x>, letter_case = upper);
     
     template <endian::order o, size_t x>
-    fixed<x> write(endian::arithmetic<o, false, x> n, letter_case q) {
+    fixed<x> write(endian::arithmetic<false, o, x> n, letter_case q) {
         fixed<x> output;
         if (q == upper) boost::algorithm::hex(n.begin(), n.end(), output.begin());
         else boost::algorithm::hex_lower(n.begin(), n.end(), output.begin());
