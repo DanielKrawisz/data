@@ -19,20 +19,20 @@ namespace data {
     using s8l = bounded<true, data::endian::little, 8>;
     using s8b  = bounded<true, data::endian::big, 8>;
     
-    using u7l = bounded<false, data::endian::little, 7>;
-    using u7b = bounded<false, data::endian::big, 7>;
-    using s7l = bounded<true, data::endian::little, 7>;
-    using s7b  = bounded<true, data::endian::big, 7>;
+    using u9l = bounded<false, data::endian::little, 9>;
+    using u9b = bounded<false, data::endian::big, 9>;
+    using s9l = bounded<true, data::endian::little, 9>;
+    using s9b  = bounded<true, data::endian::big, 9>;
     
-    using u6l = bounded<false, data::endian::little, 6>;
-    using u6b = bounded<false, data::endian::big, 6>;
-    using s6l = bounded<true, data::endian::little, 6>;
-    using s6b  = bounded<true, data::endian::big, 6>;
+    using u10l = bounded<false, data::endian::little, 10>;
+    using u10b = bounded<false, data::endian::big, 10>;
+    using s10l = bounded<true, data::endian::little, 10>;
+    using s10b  = bounded<true, data::endian::big, 10>;
     
-    using u5l = bounded<false, data::endian::little, 5>;
-    using u5b = bounded<false, data::endian::big, 5>;
-    using s5l = bounded<true, data::endian::little, 5>;
-    using s5b  = bounded<true, data::endian::big, 5>;
+    using u11l = bounded<false, data::endian::little, 11>;
+    using u11b = bounded<false, data::endian::big, 11>;
+    using s11l = bounded<true, data::endian::little, 11>;
+    using s11b  = bounded<true, data::endian::big, 11>;
     
     using nl = math::number::N_bytes<data::endian::little>;
     using nb = math::number::N_bytes<data::endian::big>;
@@ -67,8 +67,8 @@ namespace data {
         EXPECT_THROW(s8b::read("0x000000000000000001"), std::invalid_argument);
         EXPECT_THROW(s8l::read("0x000000000000000001"), std::invalid_argument);
         
-        EXPECT_EQ(u5l::read("0xaabbccddee"), u5l("eeddccbbaa"));
-        EXPECT_EQ(u5b::read("0xaabbccddee"), u5b("aabbccddee"));
+        EXPECT_EQ(u11l::read("0xaabbccddeeff0011223344"), u11l("4433221100ffeeddccbbaa"));
+        EXPECT_EQ(u11b::read("0xaabbccddeeff0011223344"), u11b("aabbccddeeff0011223344"));
         
     }
     
@@ -170,29 +170,29 @@ namespace data {
         EXPECT_FALSE(s8l{1} < 0);
         EXPECT_TRUE(s8l{-1} < 0);
         
-        EXPECT_FALSE(s7b{0} < 0);
-        EXPECT_FALSE(s7b{1} < 0);
-        EXPECT_TRUE(s7b{-1} < 0);
+        EXPECT_FALSE(s9b{0} < 0);
+        EXPECT_FALSE(s9b{1} < 0);
+        EXPECT_TRUE(s9b{-1} < 0);
         
-        EXPECT_FALSE(s7l{0} < 0);
-        EXPECT_FALSE(s7l{1} < 0);
-        EXPECT_TRUE(s7l{-1} < 0);
+        EXPECT_FALSE(s9l{0} < 0);
+        EXPECT_FALSE(s9l{1} < 0);
+        EXPECT_TRUE(s9l{-1} < 0);
         
-        EXPECT_FALSE(s6b{0} < 0);
-        EXPECT_FALSE(s6b{1} < 0);
-        EXPECT_TRUE(s6b{-1} < 0);
+        EXPECT_FALSE(s10b{0} < 0);
+        EXPECT_FALSE(s10b{1} < 0);
+        EXPECT_TRUE(s10b{-1} < 0);
         
-        EXPECT_FALSE(s6l{0} < 0);
-        EXPECT_FALSE(s6l{1} < 0);
-        EXPECT_TRUE(s6l{-1} < 0);
+        EXPECT_FALSE(s10l{0} < 0);
+        EXPECT_FALSE(s10l{1} < 0);
+        EXPECT_TRUE(s10l{-1} < 0);
         
-        EXPECT_FALSE(s5b{0} < 0);
-        EXPECT_FALSE(s5b{1} < 0);
-        EXPECT_TRUE(s5b{-1} < 0);
+        EXPECT_FALSE(s11b{0} < 0);
+        EXPECT_FALSE(s11b{1} < 0);
+        EXPECT_TRUE(s11b{-1} < 0);
         
-        EXPECT_FALSE(s5l{0} < 0);
-        EXPECT_FALSE(s5l{1} < 0);
-        EXPECT_TRUE(s5l{-1} < 0);
+        EXPECT_FALSE(s11l{0} < 0);
+        EXPECT_FALSE(s11l{1} < 0);
+        EXPECT_TRUE(s11l{-1} < 0);
         
         EXPECT_FALSE(zb{0} < 0);
         EXPECT_FALSE(zb{1} < 0);
@@ -209,26 +209,26 @@ namespace data {
         EXPECT_EQ(-s8b::read("1"), s8b::read("-1"));
         EXPECT_EQ(-s8b::read("-1"), s8b::read("1"));
         
-        EXPECT_EQ(-s7b::read("1"), s7b::read("-1"));
-        EXPECT_EQ(-s7b::read("-1"), s7b::read("1"));
+        EXPECT_EQ(-s9b::read("1"), s9b::read("-1"));
+        EXPECT_EQ(-s9b::read("-1"), s9b::read("1"));
         
-        EXPECT_EQ(-s6b::read("1"), s6b::read("-1"));
-        EXPECT_EQ(-s6b::read("-1"), s6b::read("1"));
+        EXPECT_EQ(-s10b::read("1"), s10b::read("-1"));
+        EXPECT_EQ(-s10b::read("-1"), s10b::read("1"));
         
-        EXPECT_EQ(-s5b::read("1"), s5b::read("-1"));
-        EXPECT_EQ(-s5b::read("-1"), s5b::read("1"));
+        EXPECT_EQ(-s11b::read("1"), s11b::read("-1"));
+        EXPECT_EQ(-s11b::read("-1"), s11b::read("1"));
         
         EXPECT_EQ(-s8l::read("1"), s8l::read("-1"));
         EXPECT_EQ(-s8l::read("-1"), s8l::read("1"));
         
-        EXPECT_EQ(-s7l::read("1"), s7l::read("-1"));
-        EXPECT_EQ(-s7l::read("-1"), s7l::read("1"));
+        EXPECT_EQ(-s9l::read("1"), s9l::read("-1"));
+        EXPECT_EQ(-s9l::read("-1"), s9l::read("1"));
         
-        EXPECT_EQ(-s6l::read("1"), s6l::read("-1"));
-        EXPECT_EQ(-s6l::read("-1"), s6l::read("1"));
+        EXPECT_EQ(-s10l::read("1"), s10l::read("-1"));
+        EXPECT_EQ(-s10l::read("-1"), s10l::read("1"));
         
-        EXPECT_EQ(-s5l::read("1"), s5l::read("-1"));
-        EXPECT_EQ(-s5l::read("-1"), s5l::read("1"));
+        EXPECT_EQ(-s11l::read("1"), s11l::read("-1"));
+        EXPECT_EQ(-s11l::read("-1"), s11l::read("1"));
         
         EXPECT_EQ(-zb::read("1"), zb::read("-1"));
         EXPECT_EQ(-zb::read("-1"), zb::read("1"));
