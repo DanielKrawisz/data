@@ -17,7 +17,8 @@
 namespace data::math::number {
     
     // satisfies range<byte>
-    template <bool is_signed, endian::order, size_t size> struct bounded;
+    template <bool is_signed, endian::order, size_t size> requires (size >= 8)
+    struct bounded;
     
     template <bool is_signed, endian::order r, size_t size>
     bounded<is_signed, r, size> operator~(const bounded<is_signed, r, size>&);
@@ -522,7 +523,6 @@ namespace data::math::number {
     template <endian::order r, size_t size>
     sint<r, size>::bounded(const int64 x) : oriented<r, byte, size>{} {
         this->fill(x < 0 ? 0xff : 0x00); 
-        std::cout << "creating bounded from int64; so far it is " << std::hex << *this << std::endl;
         endian::arithmetic<true, endian::little, 8> n{x};
         std::copy(n.begin(), n.end(), this->words().begin());
     }
@@ -560,6 +560,7 @@ namespace data::math::number {
         ptr<Z_bytes<endian::little>> dec = encoding::integer::read<endian::little>(s);
         if (dec != nullptr) {
             if (dec->size() <= size) {
+                if (is_negative(*dec)) this->fill(0xff);
                 std::copy(dec->begin(), dec->end(), this->words().begin());
                 return;
             } else throw std::invalid_argument{"decimal number has too many digits"};
@@ -582,7 +583,7 @@ namespace data::math::number {
         data::arithmetic::plus<byte>(x.words().end(), x.words().begin(), 1, x.words().begin());
         return x;
     }
-        
+    
     template <bool u, endian::order r, size_t size>
     bounded<u, r, size> inline &operator--(bounded<u, r, size> &x) {
         data::arithmetic::minus<byte>(x.words().end(), x.words().begin(), 1, x.words().begin());
