@@ -83,7 +83,7 @@ namespace data::math::number::GMP {
         return a <=> b == 0;
     }
     
-    std::weak_ordering inline operator<=>(const Z&a, const N &b) {
+    std::weak_ordering inline operator<=>(const Z &a, const N &b) {
         return a <=> b.Value;
     }
     
@@ -95,11 +95,11 @@ namespace data::math::number::GMP {
         return a.Value <=> b;
     }
     
-    Z inline operator/(const Z &a, const Z& z) {
+    Z inline operator/(const Z &a, const Z &z) {
         return a.divide(z).Quotient;
     }
     
-    N inline operator%(const Z &a, const N& z) {
+    N inline operator%(const Z &a, const N &z) {
         return a.divide(z).Remainder;
     }
     
@@ -111,16 +111,20 @@ namespace data::math::number::GMP {
         return uint64(a.divide(b).Remainder);
     }
     
-    N inline operator/(const N& a, const N& n) {
+    N inline operator/(const N &a, const N &n) {
         return a.divide(n).Quotient;
     }
     
-    N inline operator/(const N& a, uint64 b) {
+    N inline operator/(const N &a, uint64 b) {
         return a.divide(N{b}).Quotient;
     }
     
-    N inline operator%(const N& a, const N& n) {
+    N inline operator%(const N &a, const N &n) {
         return a.divide(n).Remainder;
+    }
+    
+    N inline &operator%=(N &a, const N &n) {
+        return a = a.divide(n).Remainder;
     }
     
     N inline &operator/=(N &a, const N& n) {
