@@ -101,30 +101,42 @@ namespace data {
     
     template <typename...> struct test_case_abs;
     
-    template <typename X> struct test_case_abs<X> {
-        test_case_abs(int64 g, int64 e) {
-            auto given = X{g};
-            auto abs = math::abs<X>{}(given);
-            auto expected = X{e};
+    template <typename Z, typename N> struct test_case_abs<Z, N> {
+        test_case_abs(int64 g, uint64 e) {
+            std::cout << "testing abs "<< std::endl;
+            auto given = Z{g};
+            auto expected = N{e};
+            std::cout << "about to run abs "<< std::endl;
+            auto abs = math::abs<Z>{}(given);
             EXPECT_EQ(abs, expected) << "expected abs(" << given << ") -> " << abs << " to equal " << expected;
         }
     };
     
-    template <typename X, typename... P> struct test_case_abs<X, P...> : test_case_abs<X>, test_case_abs<P...> {
-        test_case_abs(int64 g, int64 e): test_case_abs<X>{g, e}, test_case_abs<P...>{g, e} {}
+    template <typename Z, typename N, typename... P> struct test_case_abs<Z, N, P...> : test_case_abs<Z, N>, test_case_abs<P...> {
+        test_case_abs(int64 g, uint64 e): test_case_abs<Z, N>{g, e}, test_case_abs<P...>{g, e} {}
     };
     
     TEST(AbsTest, TestAbs) {
         
-        using test_case = test_case_abs<int64, int_big<20>, int_big<9>, 
-            int_big<10>, int_big<11>, int_little<20>, int_little<9>, int_little<10>, int_little<11>, 
-            Z, Z_bytes_little, Z_bytes_big>;
+        using test_case = test_case_abs<
+            int64, uint64, 
+            int_big<20>, uint_big<20>,
+            int_big<9>, uint_big<9>,
+            int_big<10>, uint_big<10>, 
+            int_big<11>, uint_big<11>, 
+            int_little<20>, uint_little<20>, 
+            int_little<9>, uint_little<9>, 
+            int_little<10>, uint_little<10>, 
+            int_little<11>, uint_little<11>, 
+            Z, N,
+            Z_bytes_little, N_bytes_little, 
+            Z_bytes_big, N_bytes_big>;
         
-        test_case{0, 0};
-        test_case{1, 1};
-        test_case{-1, 1};
-        test_case(70768521109235, 70768521109235);
-        test_case(-70768521109235, 70768521109235);
+        test_case{0, 0u};
+        test_case{1, 1u};
+        test_case{-1, 1u};
+        test_case(70768521109235, 70768521109235u);
+        test_case(-70768521109235, 70768521109235u);
         
     }
 }

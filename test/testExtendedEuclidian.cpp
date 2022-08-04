@@ -21,7 +21,7 @@ namespace data {
     
     TEST(ExtendedEuclinianTest, TestExtendedEuclidian) {
         // TODO restore these
-        using extended_i = math::number::euclidian::extended<int64, uint64>;
+        using extended_i = math::number::euclidian::extended<int64, int64>;
         using extended_l = math::number::euclidian::extended<int_little<20>, uint_little<20>>;
         using extended_b = math::number::euclidian::extended<int_big<20>, uint_big<20>>;
         using extended_z = math::number::euclidian::extended<Z, N>;
