@@ -11,7 +11,6 @@
 #include <data/encoding/invalid.hpp>
 #include <data/cross.hpp>
 #include <data/string.hpp>
-#include <data/math/division.hpp>
 
 namespace data::encoding::base64 {      
     const std::string Format {"base64"};

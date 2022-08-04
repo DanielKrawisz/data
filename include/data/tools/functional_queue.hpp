@@ -183,12 +183,12 @@ namespace data {
     functional_queue<stack, element> inline functional_queue<stack, element>::append (X x, Y y, P... p) const {
         return append (element (x)).append (y, p...);
     }
-    
+
     template <typename stack, typename element>
     functional_queue<stack, element> inline functional_queue<stack, element>::operator << (const element &e) const {
         return append (e);
     }
-    
+
     template <typename stack, typename element>
     bool functional_queue<stack, element>::operator == (const functional_queue& q) const {
         if (this == &q) return true;
