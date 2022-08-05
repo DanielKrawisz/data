@@ -372,6 +372,10 @@ namespace data::math::number {
         return x.trim();
     }
     
+    template <endian::order r> Z_bytes<r> inline operator*(const Z_bytes<r> &a, const N_bytes<r> &b) {
+        return a * Z_bytes<r>(b);
+    }
+    
 }
 
 namespace data::math {

@@ -23,7 +23,7 @@
 
 #include <data/encoding/base58.hpp>
 
-#include <data/math/number/rational.hpp>
+#include <data/math/fraction.hpp>
 #include <data/math/octonion.hpp>
 
 namespace data {
