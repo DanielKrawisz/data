@@ -783,13 +783,13 @@ namespace data::math::number {
     template <bool u, endian::order o, size_t size>
     bounded<u, o, size> inline operator-(const bounded<u, o, size> &a, const bounded<u, o, size> &n) {
         bounded<u, o, size> x;
-        data::arithmetic::plus<byte>(x.words().end(), x.words().begin(), a.words().begin(), n.words().begin());
+        data::arithmetic::minus<byte>(x.words().end(), x.words().begin(), a.words().begin(), n.words().begin());
         return x;
     }
     
     template <bool u, endian::order o, size_t size>
     bounded<u, o, size> inline &operator-=(bounded<u, o, size> &a, const bounded<u, o, size> &n) {
-        data::arithmetic::plus<byte>(a.words().end(), a.words().begin(), 
+        data::arithmetic::minus<byte>(a.words().end(), a.words().begin(), 
             const_cast<const bounded<u, o, size>&>(a).words().begin(), n.words().begin());
         return a;
     }
@@ -797,13 +797,13 @@ namespace data::math::number {
     template <bool u, endian::order o, size_t size>
     bounded<u, o, size> inline operator*(const bounded<u, o, size> &a, const bounded<u, o, size> &n) {
         bounded<u, o, size> x;
-        data::arithmetic::plus<byte>(x.words().end(), x.words().begin(), a.words().begin(), n.words().begin());
+        data::arithmetic::times<byte>(x.words().end(), x.words().begin(), a.words().begin(), n.words().begin());
         return x;
     }
     
     template <bool u, endian::order o, size_t size>
     bounded<u, o, size> inline &operator*=(bounded<u, o, size> &a, const bounded<u, o, size> &n) {
-        data::arithmetic::plus<byte>(a.words().end(), a.words().begin(), 
+        data::arithmetic::times<byte>(a.words().end(), a.words().begin(), 
             const_cast<const bounded<u, o, size>&>(a).words().begin(), n.words().begin());
         return a;
     }

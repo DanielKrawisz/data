@@ -286,10 +286,8 @@ namespace data::math {
 namespace data::math::number {
     template <endian::order r>
     std::ostream& operator<<(std::ostream& o, const N_bytes<r>& n) {
-        if (o.flags() & std::ios::hex) return encoding::hexidecimal::write(o, n);
-        // TODO for dec, we convert N_bytes to N. This is inefficient but it works for now. 
         if (o.flags() & std::ios::dec) return encoding::decimal::write(o, n);
-        return o;
+        return encoding::hexidecimal::write(o, n);
     }
 }
 
@@ -402,7 +400,7 @@ namespace data::math::number {
     
     template <endian::order r>
     N_bytes<r> inline operator-(const N_bytes<r> &a, const N_bytes<r> &b) {
-        return N_bytes<r>(N(a) * N(b));
+        return N_bytes<r>(N(a) - N(b));
     }
     
     template <endian::order r>

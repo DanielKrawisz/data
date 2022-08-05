@@ -338,8 +338,7 @@ namespace data::math::number {
     template <data::endian::order r>
     inline std::ostream& operator<<(std::ostream& o, const data::math::number::Z_bytes<r>& n) {
         if (o.flags() & std::ios::dec) return data::encoding::signed_decimal::write(o, n);
-        if (o.flags() & std::ios::hex) return data::encoding::hexidecimal::write(o, n);
-        return o;
+        return data::encoding::hexidecimal::write(o, n);
     }
     
     template <data::endian::order r>

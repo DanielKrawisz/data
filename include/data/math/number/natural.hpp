@@ -19,6 +19,7 @@ namespace data::math::number::natural {
     // Generic division algorithm. 
     template <typename N>
     static division<N> divide(const N Dividend, const N Divisor) {
+        
         if (Divisor == 0) throw division_by_zero{};
         if (Divisor == 1) return {Dividend, 0};
         if (Divisor == 2) return {Dividend >> 1, Dividend & N{1}};

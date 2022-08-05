@@ -119,7 +119,7 @@ namespace data::math {
         polynomial(const terms l);
         polynomial(const list<term> l);
         
-        friend std::ostream& operator<<<A, N>(std::ostream& o, const polynomial& p);
+        friend std::ostream &operator<<<A, N>(std::ostream& o, const polynomial& p);
         
         polynomial insert(const term x) const;
         polynomial insert(const terms x) const;
