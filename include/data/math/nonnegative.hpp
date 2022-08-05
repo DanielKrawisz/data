@@ -108,7 +108,7 @@ namespace data::math {
 
     template <typename R>
     inline nonzero<R> operator*(const nonzero<R>& m, const nonzero<R>& n) {
-        return m.Value * n.Value;
+        return nonzero<R>{m.Value * n.Value};
     }
 
     template <typename R>

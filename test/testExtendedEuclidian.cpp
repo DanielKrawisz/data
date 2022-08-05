@@ -21,31 +21,36 @@ namespace data {
     
     TEST(ExtendedEuclinianTest, TestExtendedEuclidian) {
         // TODO restore these
-        using extended_i = math::number::euclidian::extended<data::uint64, data::int64>;
-        //using extended_b = math::number::euclidian::extended<data::uint<20>, data::integer<20>>;
-        using extended_z = math::number::euclidian::extended<N, Z>;
-        using extended_zbl = math::number::euclidian::extended<N_bytes_little, Z_bytes_little>;
-        using extended_zbb = math::number::euclidian::extended<N_bytes_big, Z_bytes_big>;
+        using extended_i = math::number::euclidian::extended<int64, uint64>;
+        using extended_l = math::number::euclidian::extended<int_little<20>, uint_little<20>>;
+        using extended_b = math::number::euclidian::extended<int_big<20>, uint_big<20>>;
+        using extended_z = math::number::euclidian::extended<Z, N>;
+        using extended_zbl = math::number::euclidian::extended<Z_bytes_little, N_bytes_little>;
+        using extended_zbb = math::number::euclidian::extended<Z_bytes_big, N_bytes_big>;
         
         EXPECT_THROW(extended_i::algorithm(0, 0).GCD, data::math::division_by_zero);
-        //EXPECT_THROW(extended_b::algorithm(0, 0).GCD, data::math::division_by_zero);
+        EXPECT_THROW(extended_l::algorithm(0, 0).GCD, data::math::division_by_zero);
+        EXPECT_THROW(extended_b::algorithm(0, 0).GCD, data::math::division_by_zero);
         EXPECT_THROW(extended_z::algorithm(0, 0).GCD, data::math::division_by_zero);
         EXPECT_THROW(extended_zbl::algorithm(0, 0).GCD, data::math::division_by_zero);
         EXPECT_THROW(extended_zbb::algorithm(0, 0).GCD, data::math::division_by_zero);
         
         EXPECT_EQ(extended_i::algorithm(1, 1).GCD, 1);
+        //EXPECT_EQ(extended_l::algorithm(1, 1).GCD, 1);
         //EXPECT_EQ(extended_b::algorithm(1, 1).GCD, 1);
         EXPECT_EQ(extended_z::algorithm(1, 1).GCD, N{1});
-        //EXPECT_EQ(extended_zbl::algorithm(1, 1).GCD, 1);
-        //EXPECT_EQ(extended_zbb::algorithm(1, 1).GCD, 1);
+        EXPECT_EQ(extended_zbl::algorithm(1, 1).GCD, 1);
+        EXPECT_EQ(extended_zbb::algorithm(1, 1).GCD, 1);
         
         EXPECT_EQ(extended_i::algorithm(2, 4).GCD, 2);
+        //EXPECT_EQ(extended_l::algorithm(2, 4).GCD, 2);
         //EXPECT_EQ(extended_b::algorithm(2, 4).GCD, 2);
         EXPECT_EQ(extended_z::algorithm(2, 4).GCD, N{2});
         //EXPECT_EQ(extended_zbl::algorithm(2, 4).GCD, 2);
         //EXPECT_EQ(extended_zbb::algorithm(2, 4).GCD, 2);
         
         EXPECT_EQ(extended_i::algorithm(1145, 916).GCD, 229);
+        //EXPECT_EQ(extended_l::algorithm(1145, 916).GCD, 229);
         //EXPECT_EQ(extended_b::algorithm(1145, 916).GCD, 229);
         EXPECT_EQ(extended_z::algorithm(1145, 916).GCD, N{229});
         //EXPECT_EQ(extended_zbl::algorithm(1145, 916).GCD, 229);

@@ -198,6 +198,12 @@ namespace data::math::number::GMP {
         return z;
     }
     
+    N inline operator&(const N &a, const N &b) {
+        N n;
+        __gmp_binary_and::eval(n.Value.MPZ, a.Value.MPZ, b.Value.MPZ);
+        return n;
+    }
+    
     N inline &operator&=(N &a, const N &b) {
         __gmp_binary_and::eval(a.Value.MPZ, a.Value.MPZ, b.Value.MPZ);
         return a;
