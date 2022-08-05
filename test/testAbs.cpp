@@ -103,10 +103,8 @@ namespace data {
     
     template <typename Z, typename N> struct test_case_abs<Z, N> {
         test_case_abs(int64 g, uint64 e) {
-            std::cout << "testing abs "<< std::endl;
             auto given = Z{g};
             auto expected = N{e};
-            std::cout << "about to run abs "<< std::endl;
             auto abs = math::abs<Z>{}(given);
             EXPECT_EQ(abs, expected) << "expected abs(" << given << ") -> " << abs << " to equal " << expected;
         }
