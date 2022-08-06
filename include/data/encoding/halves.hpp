@@ -173,17 +173,22 @@ namespace data::encoding {
     };
     
     template <typename half>
-    typename twice<half>::type combine(half greater, half lesser) {
+    typename twice<half>::type inline combine(half greater, half lesser) {
         return ((typename twice<half>::type)(greater) << count_digits<half>::value * 8) + lesser;
     };
     
     template <typename half>
-    typename twice<half>::type multiply(half a, half b, half r) {
+    typename twice<half>::type inline multiply(half a, half b, half r) {
         return (typename twice<half>::type)(a) * (typename twice<half>::type)(b) + (typename twice<half>::type)(r);
     };
     
     template <typename half>
-    typename twice<half>::type add(half a, half b, half r) {
+    typename twice<half>::type inline subtract(half a, half b, half r) {
+        return (typename twice<half>::type)(a) - b + r;
+    };
+    
+    template <typename half>
+    typename twice<half>::type inline add(half a, half b, half r) {
         return (typename twice<half>::type)(a) + b + r;
     };
     
