@@ -163,13 +163,51 @@ namespace data::arithmetic {
     template <typename digit, typename sen, typename ita, typename itb>
     requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
     digit minus(sen z, ita a, itb b, itb i) {
-        throw method::unimplemented{"arithmetic::minus"};
+        using two_digits = typename encoding::twice<digit>::type;
+        
+        digit remainder = 0;
+        
+        while (i != z) {
+            two_digits result = encoding::subtract<digit>(*a, *b, remainder);
+            remainder = encoding::greater_half(result);
+            *i = encoding::lesser_half(result);
+            i++;
+            a++;
+            b++;
+        }
+        
+        return remainder;
     }
     
     template <typename digit, typename sen, typename ita, typename itb>
     requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
     digit times(sen z, ita a, itb b, itb i) {
-        throw method::unimplemented{"arithmetic::minus"};
+        using two_digits = typename encoding::twice<digit>::type;
+        
+        digit remainder = 0;
+        auto ab = a;
+        while (i != z) {
+            auto ax = ab;
+            auto bx = b;
+            
+            two_digits result = remainder;
+            
+            while (true) {
+                result += two_digits(*ax) * two_digits(*bx);
+                
+                if (ax == a) break;
+                ax++;
+                bx--;
+            }
+            
+            remainder = encoding::greater_half(result);
+            *i = encoding::lesser_half(result);
+            i++;
+            a++;
+            b++;
+        }
+        
+        return remainder;
     }
     
     // bit shift operations are defined in terms of big-endian numbers. 

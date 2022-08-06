@@ -41,7 +41,16 @@ namespace data::tool {
         rb_map remove(const K& k) const;
         rb_map remove(const entry& e) const;
         
-        bool valid() const;
+        bool valid() const {
+            try {
+                milewski::okasaki::forEach(Map, [](const K &k, const V &v) -> void {
+                    if (!data::valid(k) || !data::valid(v)) throw 0;
+                });
+            } catch (int) {
+                return false;
+            }
+            return true;
+        }
         
         bool empty() const;
         size_t size() const;
