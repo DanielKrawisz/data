@@ -32,11 +32,11 @@ namespace data {
         test_extended_euclidian<int64, int64> {};
         test_extended_euclidian<Z, N>{};
         test_extended_euclidian<Zl1, Nl>{};
-        test_extended_euclidian<Zb1, Nb>{};/*
+        test_extended_euclidian<Zb1, Nb>{};
         test_extended_euclidian<int_big<9>, uint_big<9>>{};
         test_extended_euclidian<int_big<10>, uint_big<10>>{};
         test_extended_euclidian<int_big<11>, uint_big<11>>{};
-        test_extended_euclidian<int_big<20>, uint_big<20>>{};*/
+        test_extended_euclidian<int_big<20>, uint_big<20>>{};
         
     }
     
