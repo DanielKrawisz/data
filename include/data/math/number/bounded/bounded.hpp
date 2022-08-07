@@ -13,6 +13,7 @@
 #include <data/encoding/halves.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/encoding/words.hpp>
+#include <data/io/wait_for_enter.hpp>
 
 namespace data::math::number {
     
@@ -476,21 +477,21 @@ namespace data::math::number {
     sint<r, size> operator+(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
-        return a + b;
+        return a + x;
     }
     
     template <endian::order r, size_t size>
     sint<r, size> operator-(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
-        return a - b;
+        return a - x;
     }
     
     template <endian::order r, size_t size>
     sint<r, size> operator*(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
-        return a * b;
+        return a * x;
     }
 
 }
@@ -781,16 +782,24 @@ namespace data::math::number {
     }
     
     template <bool u, endian::order o, size_t size>
-    bounded<u, o, size> inline operator-(const bounded<u, o, size> &a, const bounded<u, o, size> &n) {
+    bounded<u, o, size> operator-(const bounded<u, o, size> &a, const bounded<u, o, size> &n) {
+        bounded<u, o, size> z;
+        std::copy(n.begin(), n.end(), z.begin());
+        z.bit_negate();
+        ++z;
         bounded<u, o, size> x;
-        data::arithmetic::minus<byte>(x.words().end(), x.words().begin(), a.words().begin(), n.words().begin());
+        data::arithmetic::minus<byte>(x.words().end(), x.words().begin(), a.words().begin(), z.words().begin());
         return x;
     }
     
     template <bool u, endian::order o, size_t size>
-    bounded<u, o, size> inline &operator-=(bounded<u, o, size> &a, const bounded<u, o, size> &n) {
-        data::arithmetic::minus<byte>(a.words().end(), a.words().begin(), 
-            const_cast<const bounded<u, o, size>&>(a).words().begin(), n.words().begin());
+    bounded<u, o, size> &operator-=(bounded<u, o, size> &a, const bounded<u, o, size> &n) {
+        bounded<u, o, size> z;
+        std::copy(n.begin(), n.end(), z.begin());
+        z.bit_negate();
+        ++z;
+        data::arithmetic::plus<byte>(a.words().end(), a.words().begin(), 
+            const_cast<const bounded<u, o, size>&>(a).words().begin(), z.words().begin());
         return a;
     }
     

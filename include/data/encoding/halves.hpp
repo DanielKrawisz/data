@@ -184,7 +184,7 @@ namespace data::encoding {
     
     template <typename half>
     typename twice<half>::type inline subtract(half a, half b, half r) {
-        return (typename twice<half>::type)(a) - b + r;
+        return r + a - b;
     };
     
     template <typename half>

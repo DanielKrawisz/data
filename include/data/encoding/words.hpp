@@ -14,8 +14,6 @@
 
 namespace data::arithmetic {
     
-    // Note: some of the type and var names in the following functions
-    // are very confusing. It would be good to fix them. 
     template <typename sen, typename it>
     requires std::input_iterator<it> && std::sentinel_for<sen, it>
     bool equal(sen z, it i, it j) {
@@ -61,9 +59,9 @@ namespace data::arithmetic {
         return std::weak_ordering::equivalent;
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_negate(sen z, ita i, itb j) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    void bit_negate(sen z, ito i, iti j) {
         while (i != z) {
             *i = ~ *j;
             i++;
@@ -71,9 +69,9 @@ namespace data::arithmetic {
         }
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_and(sen z, ita i, itb a, itb b) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    void bit_and(sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a & *b;
             i++;
@@ -82,9 +80,9 @@ namespace data::arithmetic {
         }
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_or(sen z, ita i, itb a, itb b) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    void bit_or(sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a | *b;
             i++;
@@ -93,9 +91,9 @@ namespace data::arithmetic {
         }
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    void bit_xor(sen z, ita i, itb a, itb b) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    void bit_xor(sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a ^ *b;
             i++;
@@ -104,9 +102,9 @@ namespace data::arithmetic {
         }
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit plus(sen z, ita a, digit d, itb b) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    digit plus(sen z, ito a, digit d, iti b) {
         using two_digits = typename encoding::twice<digit>::type;
         
         digit remainder = d;
@@ -122,9 +120,9 @@ namespace data::arithmetic {
         return remainder;
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit minus(sen z, ita a, digit d, itb b) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    digit minus(sen z, ito a, digit d, iti b) {
         digit remainder = d;
         while (a != z) {
             if (*b >= remainder) {
@@ -141,9 +139,9 @@ namespace data::arithmetic {
         return remainder;
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit plus(sen z, ita i, itb a, itb b) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    digit plus(sen z, ito i, iti a, iti b) {
         using two_digits = typename encoding::twice<digit>::type;
         
         digit remainder = 0;
@@ -160,13 +158,14 @@ namespace data::arithmetic {
         return remainder;
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit minus(sen z, ita a, itb b, itb i) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    digit minus(sen z, ito i, iti a, iti b) {
         using two_digits = typename encoding::twice<digit>::type;
         
-        digit remainder = 0;
+        two_digits remainder = 0;
         
+        int dig = 0;
         while (i != z) {
             two_digits result = encoding::subtract<digit>(*a, *b, remainder);
             remainder = encoding::greater_half(result);
@@ -174,14 +173,15 @@ namespace data::arithmetic {
             i++;
             a++;
             b++;
+            dig ++;
         }
         
         return remainder;
     }
     
-    template <typename digit, typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, digit> && std::sentinel_for<sen, ita>
-    digit times(sen z, ita a, itb b, itb i) {
+    template <typename digit, typename sen, typename ito, typename iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
+    digit times(sen z, ito i, iti a, iti b) {
         using two_digits = typename encoding::twice<digit>::type;
         
         digit remainder = 0;
@@ -232,7 +232,7 @@ namespace data::arithmetic {
     
     // you have to use reverse iterators for this function. 
     template <typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, byte> && std::sentinel_for<sen, ita>
+    requires std::input_iterator<itb> && std::output_iterator<ita, byte> && std::sentinel_for<sen, itb>
     void shift_right(ita &i, sen z, itb b, byte amount, byte fill) {
         using two_digits = typename encoding::twice<byte>::type;
         
