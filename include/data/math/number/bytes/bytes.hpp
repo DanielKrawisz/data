@@ -271,6 +271,8 @@ namespace data::encoding::hexidecimal {
     template <endian::order r> 
     std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
     
+    struct string;
+    
     template <endian::order r> 
     string write(const oriented<r, byte> &z, hex::letter_case q = hex::lower);
     

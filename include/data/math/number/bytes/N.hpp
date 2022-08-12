@@ -311,7 +311,7 @@ namespace data::encoding::decimal {
     string inline write(const math::number::N_bytes<r> &n) {
         std::stringstream ss;
         write(ss, n);
-        return ss.str();
+        return string{ss.str()};
     }
     
 }

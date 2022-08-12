@@ -409,6 +409,13 @@ namespace data::encoding::signed_decimal {
         return z;
     }
     
+    template <endian::order r> 
+    string inline write(const math::number::Z_bytes<r> &z) {
+        std::stringstream ss;
+        write(ss, z);
+        return string{ss.str()};
+    }
+    
 }
 
 #endif

@@ -30,7 +30,7 @@ namespace data::encoding::base58 {
 
     string::string() : std::string{"1"} {}
         
-    string::string(const std::string& x) : std::string{base58::valid(x) ? x : ""} {}
+    string::string(string_view x) : std::string{base58::valid(x) ? x : ""} {}
     
     string::string(uint64 x) : std::string{write_b58(nat{x})} {}
     
@@ -38,20 +38,22 @@ namespace data::encoding::base58 {
         return read_base<nat>(n, 58, &digit);
     }
     
-    bool string::operator<=(const string& n) const {
-        return read_num(*this) <= read_num(n);
+    // TODO it should be possible to compare decimal strings 
+    // with basic functions in math::arithmetic.
+    std::strong_ordering N_compare(string_view a, string_view b) {
+        std::strong_ordering cmp_size = a.size() <=> b.size();
+        if (cmp_size != std::strong_ordering::equal) return cmp_size;
+        
+        for (int i = 0; i < a.size(); i++) {
+            std::strong_ordering cmp_chr = digit(a[i]) <=> digit(b[i]);
+            if (cmp_chr != std::strong_ordering::equal) return cmp_chr;
+        }
+        
+        return std::strong_ordering::equal;
     }
     
-    bool string::operator>=(const string& n) const {
-        return read_num(*this) >= read_num(n);
-    }
-    
-    bool string::operator<(const string& n) const {
-        return read_num(*this) < read_num(n);
-    }
-    
-    bool string::operator>(const string& n) const {
-        return read_num(*this) > read_num(n);
+    std::strong_ordering string::operator<=>(const string &n) const {
+        return N_compare(*this, n);
     }
     
     string string::operator+(const string& n) const {
@@ -125,7 +127,11 @@ namespace data::encoding::base58 {
         }
         
         math::division<nat> div = read_num(*this).divide(nat{static_cast<uint64>(x)});
-        return math::division<string, uint64>{write_b58(div.Quotient), uint64(div.Remainder)};
+        return math::division<string, uint64>{string{write_b58(div.Quotient)}, uint64(div.Remainder)};
+    }
+    
+    string string::read(string_view x) {
+        return base58::write(nat::read(x));
     }
 
 }

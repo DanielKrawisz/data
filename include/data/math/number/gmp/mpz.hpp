@@ -214,37 +214,32 @@ namespace data::math {
 
 namespace data {
     
-    math::sign inline sign(const math::N &x);
-    math::sign inline sign(const math::Z &x);
+    math::sign sign(const math::N &x);
+    math::sign sign(const math::Z &x);
+    
 }
 
 namespace data::encoding::decimal {
-    struct N;
-    N write(const math::N&);
+    struct string;
+    string write(const math::N&);
     
     std::ostream &write(std::ostream &, const math::N &);
     
 }
 
 namespace data::encoding::hexidecimal {
-    
-    std::string write(const math::Z&);
-    std::string write(const math::N&);
+    struct string;
+    string write(const math::Z&);
+    string write(const math::N&);
     
     std::ostream &write(std::ostream &, const math::Z &);
     std::ostream &write(std::ostream &, const math::N &);
     
 }
 
-namespace data::encoding::natural {
-    
-    std::string write(const math::N&);
-    
-}
-
 namespace data::encoding::signed_decimal {
-    
-    std::string write(const math::Z&);
+    struct string;
+    string write(const math::Z&);
     
     std::ostream &write(std::ostream &, const math::Z &);
     
