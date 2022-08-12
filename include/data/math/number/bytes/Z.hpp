@@ -60,13 +60,6 @@ namespace data::math::number {
             return Z_bytes(size, 0x00);
         }
         
-        math::sign sign() const {
-            if (this->size() == 0) return math::zero;
-            if (is_negative(*this)) return negative;
-            if (is_zero(*this)) return math::zero;
-            return positive;
-        }
-        
         Z_bytes operator~() const {
             Z_bytes z = extend(*this, this->size() + 1);
             data::arithmetic::bit_negate<byte>(z.end(), z.begin(), z.begin());
@@ -389,13 +382,6 @@ namespace data::math {
     }
 }
 
-namespace data {
-    template <endian::order r> 
-    math::sign inline sign(const math::Z_bytes<r> &n) {
-        return math::arithmetic::Z_sign_ones(n.words());
-    }
-}
-
 namespace data::encoding::signed_decimal {
     
     template <endian::order r> 
@@ -407,6 +393,13 @@ namespace data::encoding::signed_decimal {
         if (negative) *z = -*z;
         z->trim();
         return z;
+    }
+    
+    template <endian::order r> 
+    string inline write(const math::number::Z_bytes<r> &z) {
+        std::stringstream ss;
+        write(ss, z);
+        return string{ss.str()};
     }
     
 }

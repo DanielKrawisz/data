@@ -8,6 +8,7 @@
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/number/integer.hpp>
+#include <data/encoding/integer.hpp>
 #include <data/cross.hpp>
 #include <data/io/unimplemented.hpp>
 
@@ -174,30 +175,22 @@ namespace data::math {
     }
 }
 
-namespace data {
-    
-    math::sign inline sign(const math::Z &z) {
-        return math::number::GMP::sign(z.MPZ[0]);
-    }
-    
-}
-
 namespace data::encoding::hexidecimal { 
     
-    std::string inline write(const math::Z& n) {
+    string inline write(const math::Z& n) {
         std::stringstream ss;
         write(ss, n);
-        return ss.str();
+        return string{ss.str()};
     }
     
 }
 
 namespace data::encoding::signed_decimal { 
     
-    std::string inline write(const math::Z& n) {
+    string inline write(const math::Z& n) {
         std::stringstream ss;
         write(ss, n);
-        return ss.str();
+        return string{ss.str()};
     }
     
 }

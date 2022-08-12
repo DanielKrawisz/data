@@ -28,6 +28,32 @@ namespace data::math {
             return number::GMP::root(z, pow);
         }
     };
+    
+    template <uint64 pow> 
+    set<dec_uint> root<dec_uint, pow>::operator()(const dec_uint& n) {
+        std::cout << "  taking root of " << n << std::endl;
+        set<dec_uint> x;
+        set<N> roots = root<N, pow>{}(N::read(n));
+        for (const N &z : roots.values()) x = insert(x, encoding::decimal::write(z));
+        return x;
+    }
+    
+    template <uint64 pow> 
+    set<dec_int> root<dec_int, pow>::operator()(const dec_int& n) {
+        set<dec_int> x;
+        set<Z> roots = root<Z, pow>{}(Z::read(n));
+        for (const Z &z : roots.values()) x = insert(x, encoding::signed_decimal::write(z));
+        return x;
+    }
+    
+    template <uint64 pow> 
+    set<hex_uint> root<hex_uint, pow>::operator()(const hex_uint& n) {
+        std::cout << "  taking root of " << n << std::endl;
+        set<hex_uint> x;
+        set<N> roots = root<N, pow>{}(N::read(n));
+        for (const N &z : roots.values()) x = insert(x, encoding::hexidecimal::write(z));
+        return x;
+    }
 
 }
 
