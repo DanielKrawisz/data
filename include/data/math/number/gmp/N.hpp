@@ -25,11 +25,9 @@ namespace data::math::number::GMP {
             mpz_init_set_ui(Value.MPZ, n);
         }
         
-        N(string_view x);
+        N(const string &x) : N{read(x)} {}
         
-        static N read(string_view x) {
-            return N{x};
-        }
+        static N read(string_view x);
         
         template <size_t size>
         explicit N(decimal<size> d) : N{std::string{d.Value}} {}
@@ -371,15 +369,27 @@ namespace data::math {
         __gmp_abs_function::eval(n.Value.MPZ, i.MPZ);
         return n;
     }
+}
+
+namespace data::math::number {
+    
+    N inline square(const N &n) {
+        return n * n;
+    }
+    
+    N inline square(const Z &z) {
+        return data::abs(z) * data::abs(z);
+    }
     
 }
+    
 
 namespace data::encoding::hexidecimal { 
     
-    string inline write(const math::N &n) {
+    template <hex_case zz> integer<math::number::nones, zz> inline write(const math::N &n) {
         std::stringstream ss;
-        write(ss, n);
-        return string{ss.str()};
+        write(ss, n, zz);
+        return integer<math::number::nones, zz>{ss.str()};
     }
     
 }

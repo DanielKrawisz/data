@@ -13,7 +13,6 @@
 #include <data/encoding/halves.hpp>
 #include <data/math/number/bytes/N.hpp>
 #include <data/encoding/words.hpp>
-#include <data/io/wait_for_enter.hpp>
 
 namespace data::math::number {
     
@@ -279,10 +278,8 @@ namespace data::math::number {
         explicit bounded(slice<byte, size> x);
         
         // The string can be a hex string or a representation of a number. 
-        explicit bounded(string_view s);
-        static bounded read(string_view s) {
-            return bounded{s};
-        }
+        explicit bounded(const string &s) : bounded{read(s)} {}
+        static bounded read(string_view s);
         
         bounded& operator+=(uint64);
         bounded& operator-=(uint64);
@@ -358,10 +355,8 @@ namespace data::math::number {
         
         bounded(const bounded<false, r, size>&);
         
-        explicit bounded(string_view s);
-        static bounded read(string_view s) {
-            return bounded{s};
-        }
+        explicit bounded(string_view s) : bounded{read(s)} {}
+        static bounded read(string_view s);
         
         explicit bounded(slice<byte, size>);
 
@@ -408,7 +403,9 @@ namespace data::math::number {
     private:
         explicit bounded(const Z_bytes<r>& z) {
             if (z > Z_bytes<r> {max()} || z < Z_bytes<r> {min()}) throw std::out_of_range{"Z_bytes too big"};
-            throw method::unimplemented{"bounded{Z_bytes}"};
+            auto zz = trim(z);
+            this->fill(is_negative(zz) ? 0xff : 0x00);
+            std::copy(z.words().begin(), z.words().end(), this->words().begin());
         }
     };
     
@@ -418,52 +415,52 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    bool operator==(const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
+    bool inline operator==(const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
         return (a <=> b) == 0;
     }
     
     template <endian::order r, size_t size, endian::order o>
-    bool operator==(const sint<r, size> &a, const Z_bytes<o> &b) {
+    bool inline operator==(const sint<r, size> &a, const Z_bytes<o> &b) {
         return (a <=> b) == 0;
     }
     
     template <endian::order r, size_t size, endian::order o>
-    bool operator==(const uint<r, size> &a, const N_bytes<o> &b) {
+    bool inline operator==(const uint<r, size> &a, const N_bytes<o> &b) {
         return (a <=> b) == 0;
     }
     
     template <endian::order r, size_t size>
-    bool operator==(const sint<r, size> &a, const Z &b) {
+    bool inline operator==(const sint<r, size> &a, const Z &b) {
         return (a <=> b) == 0;
     }
     
     template <endian::order r, size_t size>
-    bool operator==(const uint<r, size> &a, const N &b) {
+    bool inline operator==(const uint<r, size> &a, const N &b) {
         return (a <=> b) == 0;
     }
     
     template <endian::order r, size_t size, endian::order o>
-    std::weak_ordering operator<=>(const sint<r, size> &a, const Z_bytes<o> &b) {
+    std::weak_ordering inline operator<=>(const sint<r, size> &a, const Z_bytes<o> &b) {
         return Z_bytes<r>(a) <=> b;
     }
     
     template <endian::order r, size_t size, endian::order o>
-    std::weak_ordering operator<=>(const uint<r, size> &a, const N_bytes<o> &b) {
+    std::weak_ordering inline operator<=>(const uint<r, size> &a, const N_bytes<o> &b) {
         return Z_bytes<r>(a) <=> b;
     }
     
     template <endian::order r, size_t size>
-    std::weak_ordering operator<=>(const sint<r, size> &a, const Z &b) {
+    std::weak_ordering inline operator<=>(const sint<r, size> &a, const Z &b) {
         return Z(a) <=> b;
     }
     
     template <endian::order r, size_t size>
-    std::weak_ordering operator<=>(const uint<r, size> &a, const N &b) {
+    std::weak_ordering inline operator<=>(const uint<r, size> &a, const N &b) {
         return N(a) <=> b;
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::weak_ordering operator<=>(const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
+    std::weak_ordering inline operator<=>(const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
         return a <=> bounded<y, o, z>(b);
     }
     
@@ -504,42 +501,42 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> operator|(const sint<r, size> &a, const uint<r, size> &b) {
+    sint<r, size> inline operator|(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
         return a | x;
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> operator&(const sint<r, size> &a, const uint<r, size> &b) {
+    sint<r, size> inline operator&(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
         return a & x;        
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> operator^(const sint<r, size> &a, const uint<r, size> &b) {
+    sint<r, size> inline operator^(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
         return a ^ x;
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> operator+(const sint<r, size> &a, const uint<r, size> &b) {
+    sint<r, size> inline operator+(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
         return a + x;
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> operator-(const sint<r, size> &a, const uint<r, size> &b) {
+    sint<r, size> inline operator-(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
         return a - x;
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> operator*(const sint<r, size> &a, const uint<r, size> &b) {
+    sint<r, size> inline operator*(const sint<r, size> &a, const uint<r, size> &b) {
         sint<r, size> x;
         std::copy(b.begin(), b.end(), x.begin());
         return a * x;
@@ -570,7 +567,7 @@ namespace data {
     namespace encoding::hexidecimal {
 
         template <bool is_signed, endian::order r, size_t size>
-        std::string write(const math::number::bounded<is_signed, r, size>& n) {
+        std::string inline write(const math::number::bounded<is_signed, r, size>& n) {
             std::stringstream ss;
             ss << std::hex << n;
             return ss.str();
@@ -581,7 +578,7 @@ namespace data {
     namespace encoding::decimal {
 
         template <bool is_signed, endian::order r, size_t size>
-        std::string write(const math::number::bounded<is_signed, r, size>& n) {
+        std::string inline write(const math::number::bounded<is_signed, r, size>& n) {
             std::stringstream ss;
             ss << std::dec << n;
             return ss.str();
@@ -703,22 +700,24 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    uint<r, size>::bounded(string_view s) : bounded{} {
+    uint<r, size> uint<r, size>::read(string_view s) {
         
-        ptr<N_bytes<endian::little>> dec = encoding::natural::read<endian::little>(s);
+        ptr<N_bytes<r>> dec = encoding::natural::read<r>(s);
         if (dec != nullptr) {
-            if (dec->size() <= size) {
-                std::copy(dec->begin(), dec->end(), this->words().begin());
-                return; 
-            } else throw std::invalid_argument{"decimal number too big"};
+            if (dec->size() <= size) return uint<r, size>{*dec};
+            
+            throw std::invalid_argument{"decimal number too big"};
         }
         
         ptr<bytes> hex = encoding::hex::read(s);
         if (hex != nullptr) {
             if (hex->size() == size) {
-                std::copy(hex->begin(), hex->end(), this->begin());
-                return;
-            } else throw std::invalid_argument{"hex string has the wrong size."};
+                uint<r, size> x;
+                std::copy(hex->begin(), hex->end(), x.begin());
+                return x;
+            }
+            
+            throw std::invalid_argument{"hex string has the wrong size."};
         }
             
         throw std::invalid_argument{"format is unrecognized."};
@@ -726,22 +725,23 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    sint<r, size>::bounded(string_view s) : bounded{} {
-        ptr<Z_bytes<endian::little>> dec = encoding::integer::read<endian::little>(s);
+    sint<r, size> sint<r, size>::read(string_view s) {
+        ptr<Z_bytes<r>> dec = encoding::integer::read<r>(s);
         if (dec != nullptr) {
-            if (dec->size() <= size) {
-                if (is_negative(*dec)) this->fill(0xff);
-                std::copy(dec->begin(), dec->end(), this->words().begin());
-                return;
-            } else throw std::invalid_argument{"decimal number has too many digits"};
+            if (dec->size() <= size) return sint<r, size>{*dec};
+            
+            throw std::invalid_argument{"decimal number has too many digits"};
         }
         
         ptr<bytes> hex = encoding::hex::read(s);
         if (hex != nullptr) {
             if (hex->size() == size) {
-                std::copy(hex->begin(), hex->end(), this->begin());
-                return;
-            } else throw std::invalid_argument{"hex string has the wrong size."};
+                sint<r, size> x;
+                std::copy(hex->begin(), hex->end(), x.begin());
+                return x;
+            } 
+            
+            throw std::invalid_argument{"hex string has the wrong size."};
         }
             
         throw std::invalid_argument{"format is unrecognized."};

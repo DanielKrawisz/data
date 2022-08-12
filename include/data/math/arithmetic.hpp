@@ -17,31 +17,6 @@ namespace data::math {
         }
     };
     
-    template <std::integral X>
-    X inline increment(const X &x) {
-        return x + 1;
-    };
-    
-    template <std::unsigned_integral X>
-    X inline next(const X &x) {
-        return increment(x);
-    };
-    
-    template <std::signed_integral X>
-    X inline next(const X &x) {
-        return x < 0 ? (-x + 1) : -x;
-    };
-    
-    template <std::signed_integral N>
-    N inline decrement(const N &n) {
-        return n - 1;
-    };
-    
-    template <std::unsigned_integral N>
-    N inline decrement(const N &n) {
-        return n == 0 ? 0 : n - 1;
-    };
-    
     template <typename F, typename x> struct identity;
     template <typename F, typename x> struct inverse;
     

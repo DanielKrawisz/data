@@ -62,7 +62,7 @@ namespace data::math::number {
             return N_bytes<r>{*b};
         }
         
-        explicit N_bytes(string_view s) : N_bytes{read(s)} {}
+        explicit N_bytes(const string &s) : N_bytes{read(s)} {}
         
         // inefficient but works. 
         explicit N_bytes(const N& n) : N_bytes() {
@@ -121,7 +121,6 @@ namespace data::math::number {
         }
         
         N_bytes& operator++();
-        
         N_bytes& operator--();
         
         N_bytes operator++(int) const {
@@ -362,20 +361,6 @@ namespace data::math::number {
         return a <=> N_bytes<r>(b);
     }
     
-    template <data::endian::order r>
-    N_bytes<r>& N_bytes<r>::operator++() {
-        *this = extend(*this, this->size() + 1);
-        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
-        return this->trim();
-    }
-    
-    template <data::endian::order r>
-    N_bytes<r>& N_bytes<r>::operator--() {
-        if (is_zero(*this)) return *this;
-        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
-        return this->trim();
-    }
-    
     template <endian::order r> Z_bytes<r> inline operator&(const N_bytes<r> &a, const Z_bytes<r> &b) {
         return Z_bytes<r>(a) & b;
     }
@@ -501,6 +486,20 @@ namespace data::math::number {
         auto x = N_bytes<r>::zero(a.size());
         data::arithmetic::bit_or<byte>(x.end(), x.begin(), a.begin(), const_cast<const N_bytes<r>&>(bt).begin());
         return x.trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator++() {
+        *this = extend(*this, this->size() + 1);
+        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator--() {
+        if (is_zero(*this)) return *this;
+        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
     }
 }
 

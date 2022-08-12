@@ -51,6 +51,7 @@ namespace data::math::number::euclidian {
                 division<N> div = natural::divide<N>(Div.Remainder, s.Div.Remainder);
                 return {div, BezoutS - s.BezoutS * div.Quotient , BezoutT - s.BezoutT * div.Quotient};
             }
+            
         };
         
         // must provide prev.Div.Remainder > current.Div.Remainder.

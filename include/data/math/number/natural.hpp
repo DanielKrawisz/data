@@ -31,27 +31,27 @@ namespace data::math::number::natural {
         uint64 digits = 1;
         
         while (exp <= remainder) { 
-            exp<<=digits;
-            pow<<=digits;
-            digits<<=1;
+            exp <<= digits;
+            pow <<= digits;
+            digits <<= 1;
         } 
         
         while(true) {
             digits >>= 1;
             if (digits == 0) break;
             if (exp > remainder) {
-                exp>>=digits;
-                pow>>=digits;
+                exp >>= digits;
+                pow >>= digits;
             } else { 
-                exp<<=digits;
-                pow<<=digits;
+                exp <<= digits;
+                pow <<= digits;
             }
         }
         
         while (pow > 0) {
             while (exp > remainder) {
-                exp>>=1;
-                pow>>=1;
+                exp >>= 1;
+                pow >>= 1;
                 if (pow == 0) goto out;
             }
             

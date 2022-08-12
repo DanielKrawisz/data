@@ -234,8 +234,8 @@ namespace data::math {
 
 namespace data {
     
-    template <endian::order r> math::sign sign(const math::N_bytes<r> &);
-    template <endian::order r> math::sign sign(const math::Z_bytes<r> &);
+    template <endian::order r> math::sign sign(const math::N_bytes<r> &, hex_case);
+    template <endian::order r> math::sign sign(const math::Z_bytes<r> &, hex_case);
     
     template <endian::order r> math::number::N_bytes<r> increment(const math::number::N_bytes<r>&);
     template <endian::order r> math::number::N_bytes<r> decrement(const math::number::N_bytes<r>&);
@@ -272,10 +272,10 @@ namespace data::encoding::hexidecimal {
     template <endian::order r> 
     std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
     
-    struct string;
+    template <hex_case zz> struct string;
     
-    template <endian::order r> 
-    string write(const oriented<r, byte> &z, hex::letter_case q = hex::lower);
+    template <hex_case zz, endian::order r> 
+    string<zz> write(const oriented<r, byte> &z);
     
 }
 

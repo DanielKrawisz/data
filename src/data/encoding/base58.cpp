@@ -2,9 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/encoding/base58.hpp>
-#include <data/math/number/gmp/gmp.hpp>
-#include <data/math/number/bytes/N.hpp>
+#include <data/numbers.hpp>
 #include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {
@@ -14,23 +12,16 @@ namespace data::encoding::base58 {
         return write<nat>(nat(math::number::N_bytes<endian::big>(b)));
     }
     
-    view::view(string_view s) : string_view{s}, Bytes{}, ToBytes{nullptr} {
-        if (base58::valid(s)) {
-            Bytes = bytes(*hex::read(data::encoding::hexidecimal::write(read<nat>(s)).substr(2)));
-            ToBytes = &Bytes;
-        }
-    }
-    
     template <typename N>
     std::string write_b58(const N& n) {
         static std::string Characters = characters();
         if (n == 0) return "1";
         return write_base<N>(n, Characters);
     }
-
+    
     string::string() : std::string{"1"} {}
-        
-    string::string(string_view x) : std::string{base58::valid(x) ? x : ""} {}
+    
+    string::string(const std::string &x) : std::string{base58::valid(x) ? x : ""} {}
     
     string::string(uint64 x) : std::string{write_b58(nat{x})} {}
     
@@ -52,48 +43,112 @@ namespace data::encoding::base58 {
         return std::strong_ordering::equal;
     }
     
-    std::strong_ordering string::operator<=>(const string &n) const {
-        return N_compare(*this, n);
+    std::strong_ordering operator<=>(const string &m, const string &n) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
+        return N_compare(m, n);
     }
     
-    string string::operator+(const string& n) const {
-        return string{write_b58(read_num(*this) + read_num(n))};
+    char N_increment(string &x) {
+        auto characters = base58::characters();
+        
+        auto i = x.rbegin();
+        auto e = x.rend();
+        char remainder = 1;
+        while (i != e) {
+            auto d = digit(*i) + remainder;
+            *i = characters[d % 58];
+            remainder = d / 58;
+            if (remainder == 0) return '1';
+            i++;
+        }
+        return characters[remainder];
     }
     
-    string string::operator-(const string& n) const {
-        return string{write_b58(read_num(*this) - read_num(n))};
+    string &operator++(string &x) {
+        if (!x.valid()) throw exception{} << "invalid base 58 string: \"" << x << "\"";
+        char remainder = N_increment(x);
+        if (remainder == '1') return x;
+        string new_x;
+        new_x.resize(x.size() + 1);
+        new_x[0] = remainder;
+        std::copy(x.begin(), x.end(), new_x.begin() + 1);
+        return x = new_x;
     }
     
-    string string::operator*(const string& n) const {
-        return string{write_b58(read_num(*this) * read_num(n))};
-    }
-
-    string& string::operator++() {
-        return *this = *this + 1;
-    }
-    
-    string& string::operator--() {
-        return *this = *this - 1;
-    }
-    
-    string string::operator++(int) {
-        string n = *this;
-        ++(*this);
-        return n;
-    }
-    
-    string string::operator--(int) {
-        string n = *this;
-        --(*this);
-        return n;
+    void N_decrement(string &x) {
+        if (!x.valid()) throw exception{} << "invalid base 58 string: \"" << x << "\"";
+        auto characters = base58::characters();
+        
+        auto i = x.rbegin();
+        auto e = x.rend();
+        while (i != e) {
+            auto d = digit(*i);
+            if (d != 0) {
+                *i = characters[d - 1];
+                break;
+            }
+            *i = characters[57];
+            i++;
+        }
     }
     
-    string string::operator<<(int i) const {
-        return string{write_b58(read_num(*this) << i)};
+    string &operator--(string &x) {
+        if (!x.valid()) throw exception{} << "invalid base 58 string: \"" << x << "\"";
+        if (x == "1") return x;
+        if (x == "2") return x = string{"1"};
+            
+        N_decrement(x);
+        
+        if (!valid(x)) return x = string{x.substr(1)};
+        return x;
     }
     
-    string string::operator>>(int i) const {
-        return string{write_b58(read_num(*this) >> i)};
+    string operator+(const string& m, const string& n) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
+        
+        return string{write_b58(read_num(m) + read_num(n))};
+    }
+    
+    string operator-(const string& m, const string& n) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
+        
+        return string{write_b58(read_num(m) - read_num(n))};
+    }
+    
+    string operator|(const string& m, const string& n) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
+        
+        return string{write_b58(read_base<N_bytes_little>(m, 58, &digit) | read_base<N_bytes_little>(n, 58, &digit))};
+    }
+    
+    string operator&(const string& m, const string& n) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
+        
+        return string{write_b58(read_base<N_bytes_little>(m, 58, &digit) & read_base<N_bytes_little>(n, 58, &digit))};
+    }
+    
+    string operator*(const string& m, const string& n) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
+        
+        return string{write_b58(read_num(m) * read_num(n))};
+    }
+    
+    string operator<<(const string& m, int i) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        
+        return string{write_b58(read_num(m) << i)};
+    }
+    
+    string operator>>(const string& m, int i) {
+        if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
+        
+        return string{write_b58(read_num(m) >> i)};
     }
     
     string& string::operator+=(const string& n) {
@@ -130,8 +185,8 @@ namespace data::encoding::base58 {
         return math::division<string, uint64>{string{write_b58(div.Quotient)}, uint64(div.Remainder)};
     }
     
-    string string::read(string_view x) {
-        return base58::write(nat::read(x));
+    string string::read(const std::string &x) {
+        return string{write_b58(nat::read(x))};
     }
 
 }

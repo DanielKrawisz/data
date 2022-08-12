@@ -8,6 +8,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio.hpp>
 #include <ctre.hpp>
+#include <iostream>
 
 namespace data::networking::IP {
     namespace io = boost::asio;

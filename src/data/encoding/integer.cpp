@@ -30,7 +30,8 @@ namespace data::encoding {
         }
         
         std::strong_ordering operator<=>(const string &m, const string &n) {
-            if (!m.valid() || !n.valid()) throw std::invalid_argument{"invalid decimal string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
             return N_compare(m, n);
         }
         
@@ -51,7 +52,7 @@ namespace data::encoding {
         }
         
         string &operator++(string &x) {
-            if (!x.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!x.valid()) throw exception{} << "invalid decimal string: \"" << x << "\"";
             char remainder = N_increment(x);
             if (remainder == '0') return x;
             string new_x;
@@ -78,7 +79,8 @@ namespace data::encoding {
         }
         
         string &operator--(string &x) {
-            if (!x.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!x.valid()) throw exception{} << "invalid decimal string: \"" << x << "\"";
+            
             if (x == "0") return x;
             if (x == "1") return x = string{"0"};
             
@@ -89,42 +91,42 @@ namespace data::encoding {
         }
         
         string operator+(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
             return decimal::write(N::read(m) + N::read(n));
         }
         
         string operator-(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
             return decimal::write(N::read(m) - N::read(n));
         }
         
         string operator*(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
             return decimal::write(N::read(m) * N::read(n));
         }
         
         string operator<<(const string &m, int i) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m, "\"";
             return decimal::write(N::read(m) << i);
         }
         
         string operator>>(const string &m, int i) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
             return decimal::write(N::read(m) >> i);
         }
         
         string operator&(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
             return decimal::write(math::N_bytes<endian::little>::read(m) & math::N_bytes<endian::little>::read(n));
         }
         
         string operator|(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid dec string"};
+            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
             return decimal::write(math::N_bytes<endian::little>::read(m) | math::N_bytes<endian::little>::read(n));
         }
         
@@ -188,7 +190,9 @@ namespace data::encoding {
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
         std::strong_ordering operator<=>(const string& m, const string& n) {
-            if (!m.valid() || !n.valid()) throw std::invalid_argument{"invalid hexidecimal string"};
+            if (!m.valid()) throw exception{} << "invalid hexidecimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid hexidecimal string: \"" << n << "\"";
+            
             math::sign na = sign(m);
             math::sign nb = sign(n);
             
@@ -210,7 +214,7 @@ namespace data::encoding {
         }
         
         string &operator--(string &x) {
-            if (!x.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!x.valid()) throw exception{} << "invalid signed decimal string: \"" << x << "\"";
             
             if (!nonzero(x)) return x = string{"-1"};
             
@@ -224,42 +228,42 @@ namespace data::encoding {
         }
         
         string operator+(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
             return signed_decimal::write(Z::read(m) + Z::read(n));
         }
         
         string operator-(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
             return signed_decimal::write(Z::read(m) - Z::read(n));
         }
         
         string operator*(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
             return signed_decimal::write(Z::read(m) * Z::read(n));
         }
         
         string operator<<(const string &m, int i) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
             return signed_decimal::write(Z::read(m) << i);
         }
         
         string operator>>(const string &m, int i) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
             return signed_decimal::write(Z::read(m) >> i);
         }
         
         string operator&(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
             throw method::unimplemented{"signed_dec &"};
         }
         
         string operator|(const string &m, const string& n) {
-            if (!m.valid()) throw std::invalid_argument{"invalid +/-dec string"};
-            if (!n.valid()) throw std::invalid_argument{"invalid +/-dec string"};
+            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
             throw method::unimplemented{"signed_dec |"};
         }
         
@@ -292,129 +296,6 @@ namespace data::encoding {
             return signed_decimal::write(Z::read(x));
         }
     
-    }
-    
-    namespace hexidecimal {
-        
-        using nat = math::N;
-        
-        template <typename N>
-        std::string write_hexidecimal(const N& n) {
-            static std::string Characters = hex::characters_lower();
-            if (n == 0) return "0x";
-            std::string p = write_base<N>(n, Characters);
-            if ((p.size() % 2) == 1) return std::string{"0x0"} + p;
-            return std::string{"0x"} + p;
-        }
-    
-        std::weak_ordering N_compare_same_size(string_view a, string_view b) {
-            for (int i = 0; i < a.size(); i++) 
-                if (digit(a[i]) > digit(b[i])) return std::weak_ordering::greater; 
-                else if (digit(a[i]) < digit(b[i])) return std::weak_ordering::less;
-            
-            return std::weak_ordering::equivalent;
-        }
-        
-        std::weak_ordering N_compare(string_view a, string_view b) {
-            if (a.size() < b.size()) return 0 <=> N_compare(b, a);
-            size_t size_difference = a.size() - b.size();
-            for (int i = 0; i < size_difference; i++) if (a[i] != '0') return std::weak_ordering::greater; 
-            return N_compare_same_size(a.substr(size_difference, a.size()), b);
-        }
-        
-        bool string::operator==(const string &b) const {
-            return (*this <=> b) == 0;
-        }
-         
-        std::weak_ordering string::operator<=>(const string &b) const {
-            if (!this->valid() || !b.valid()) throw std::invalid_argument{"invalid hexidecimal string"};
-            return N_compare(string_view{this->data() + 2, this->size() - 2}, string_view{b.data() + 2, b.size() - 2});
-        }
-        
-        string::string(uint64 x) : std::string{write_hexidecimal(nat{x})} {}
-        
-        inline nat read_num(const std::string& n) {
-            return read_base<nat>(n.substr(2), 16, &digit);
-        }
-        
-        string string::operator+(const string& n) const {
-            return string{write_hexidecimal(read_num(*this) + read_num(n))};
-        }
-        
-        string string::operator-(const string& n) const {
-            return string{write_hexidecimal(read_num(*this) - read_num(n))};
-        }
-        
-        string string::operator*(const string& n) const {
-            return string{write_hexidecimal(read_num(*this) * read_num(n))};
-        }
-    
-        string& string::operator++() {
-            return *this = *this + 1;
-        }
-        
-        string& string::operator--() {
-            return *this = *this - 1;
-        }
-        
-        string string::operator++(int) {
-            string n = *this;
-            ++(*this);
-            return n;
-        }
-        
-        string string::operator--(int) {
-            string n = *this;
-            --(*this);
-            return n;
-        }
-        
-        string string::operator<<(int i) const {
-            return string{write_hexidecimal(read_num(*this) << i)};
-        }
-        
-        string string::operator>>(int i) const {
-            return string{write_hexidecimal(read_num(*this) >> i)};
-        }
-        
-        string& string::operator+=(const string& n) {
-            return *this = *this + n;
-        }
-        
-        string& string::operator-=(const string& n) {
-            return *this = *this - n;
-        }
-        
-        string& string::operator*=(const string& n) {
-            return *this = *this * n;
-        }
-        
-        string& string::operator<<=(int i) {
-            return *this = *this << i;
-        }
-        
-        string& string::operator>>=(int i) {
-            return *this = *this >> i;
-        }
-        
-        math::division<string, uint64> string::divide(uint64 x) const {
-            if (x == 0) throw math::division_by_zero{};
-            // it is important to have this optimization. 
-            if (x == 16) {
-                int last = string::size() - 1;
-                return math::division<string, uint64>{
-                    string{std::string{"0x0"} + string::substr(2, last - 2)}, 
-                    static_cast<uint64>(digit(string::operator[](last)))};
-            }
-            
-            math::division<nat> div = read_num(*this).divide(nat{x});
-            return math::division<string, uint64>{string{write_hexidecimal(div.Quotient)}, uint64(div.Remainder)};
-        }
-        
-        string string::read(string_view x) {
-            return hexidecimal::write(N::read(x));
-        }
-        
     }
     
 }

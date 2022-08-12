@@ -8,6 +8,7 @@
 #include <data/iterable.hpp>
 #include <data/cross.hpp>
 #include <data/size.hpp>
+#include <iostream>
 
 namespace data::crypto {
     

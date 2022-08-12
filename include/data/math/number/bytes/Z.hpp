@@ -45,7 +45,7 @@ namespace data::math::number {
         
         static Z_bytes read(string_view x);
         
-        explicit Z_bytes(string_view s);
+        explicit Z_bytes(const string &s);
         
         Z_bytes(bytes_view b);
         
@@ -215,7 +215,7 @@ namespace data::math::number {
         return Z_bytes<r>{*b};
     }
     
-    template <endian::order r> Z_bytes<r>::Z_bytes(string_view s) : Z_bytes{read(s)} {}
+    template <endian::order r> Z_bytes<r>::Z_bytes(const string &s) : Z_bytes{read(s)} {}
     
     template <endian::order r> 
     bool inline operator==(const Z_bytes<r> &a, int64 b) {
@@ -316,7 +316,7 @@ namespace data::math::number {
     
     template <endian::order r>
     Z_bytes<r> inline &operator<<=(Z_bytes<r> &n, int i) {
-        if (i < 0) n.bit_shift_right(-i);
+        if (i < 0) n.bit_shift_right(-i, is_negative(n));
         else bit_shift_left(n, i);
         return n = n.trim();
     }

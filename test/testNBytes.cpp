@@ -154,7 +154,7 @@ namespace data::math::number {
     
     template<endian::order r>
     math::number::N_bytes<r> N_to_N_Bytes_stupid(const math::N& n) {
-        return math::number::N_bytes<r>::read(encoding::hexidecimal::write(n));
+        return math::number::N_bytes<r>::read(encoding::hexidecimal::write<encoding::hex::lower>(n));
     }
     
     template <typename in> void N_Bytes_to_N(in x) {
