@@ -198,11 +198,6 @@ namespace data::math {
     };
     
     template <endian::order r> number::N_bytes<r> next(const number::N_bytes<r>&);
-    template <endian::order r> number::N_bytes<r> increment(const number::N_bytes<r>&);
-    template <endian::order r> number::N_bytes<r> decrement(const number::N_bytes<r>&);
-    
-    template <endian::order r> number::Z_bytes<r> increment(const number::Z_bytes<r>&);
-    template <endian::order r> number::Z_bytes<r> decrement(const number::Z_bytes<r>&);
     
     // Declare that the plus and times operation are commutative and associative. 
     template <endian::order r> 
@@ -242,6 +237,12 @@ namespace data {
     template <endian::order r> math::sign sign(const math::N_bytes<r> &);
     template <endian::order r> math::sign sign(const math::Z_bytes<r> &);
     
+    template <endian::order r> math::number::N_bytes<r> increment(const math::number::N_bytes<r>&);
+    template <endian::order r> math::number::N_bytes<r> decrement(const math::number::N_bytes<r>&);
+    
+    template <endian::order r> math::number::Z_bytes<r> increment(const math::number::Z_bytes<r>&);
+    template <endian::order r> math::number::Z_bytes<r> decrement(const math::number::Z_bytes<r>&);
+    
 }
 
 // functions for reading and wriing these numbers in various formats.
@@ -270,6 +271,8 @@ namespace data::encoding::hexidecimal {
     
     template <endian::order r> 
     std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
+    
+    struct string;
     
     template <endian::order r> 
     string write(const oriented<r, byte> &z, hex::letter_case q = hex::lower);

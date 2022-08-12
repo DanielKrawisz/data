@@ -13,22 +13,30 @@
 #include <data/encoding/digits.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
+#include <data/math/abs.hpp>
+#include <data/math/root.hpp>
 #include <data/cross.hpp>
 
 namespace data::encoding::base58 {
     
     const std::string Format{"base58"};
     
-    inline std::string characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
+    std::string inline characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
     
     static constexpr auto pattern = ctll::fixed_string{"1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)"};
     
-    inline bool valid(const string_view s) {
+    bool inline valid(const string_view s) {
         return ctre::match<pattern>(s);
     }
     
-    inline char digit(char c) {
-        return c < '1' ? -1 : c <= '9' ?  c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 : c < 'J' ? -1 : c <= 'N' ? c - 'J' + 17 : c < 'P' ? -1 : c <= 'Z' ? c - 'P' + 22 : c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
+    bool inline nonzero(const string_view s) {
+        return valid(s) && s[0] != '1';
+    }
+    
+    char inline digit(char c) {
+        return c < '1' ? -1 : c <= '9' ?  c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 : 
+            c < 'J' ? -1 : c <= 'N' ? c - 'J' + 17 : c < 'P' ? -1 : c <= 'Z' ? c - 'P' + 22 : 
+            c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
     };
     
     template <typename N>
@@ -39,14 +47,10 @@ namespace data::encoding::base58 {
         
         N n{0};
         
-        //std::cout << "   reading base 58 number " << s << std::endl;
-        
         for (int i = s.size() - 1; i >= 0; i--) {
             char v = digit(s[i]);
-            //std::cout << "     digit is " << s[i] << " or " << uint64(v) << std::endl;
             if (v == -1) return N{};
             n += power * uint64(v);
-            //std::cout << "     n is " << n  << std::endl;
             power *= 58;
         }
         
@@ -72,18 +76,18 @@ namespace data::encoding::base58 {
     
     struct string : std::string {
         string();
-        string(const std::string&);
+        explicit string(string_view);
+        explicit string(std::string &&x): std::string{x} {};
         string(uint64);
-            
+        
         bool valid() const {
             return base58::valid(*this);
         }
         
-        bool operator<=(const string&) const;
-        bool operator>=(const string&) const;
-        bool operator<(const string&) const;
-        bool operator>(const string&) const;
-    
+        static string read(string_view x);
+        
+        std::strong_ordering operator<=>(const string&) const;
+        
         string& operator++();
         string& operator--();
         
@@ -109,10 +113,76 @@ namespace data::encoding::base58 {
     
     template <typename N>
     string write(N n) {
-        return encoding::write_base<N>(n, characters());
+        return string{encoding::write_base<N>(n, characters())};
     };
     
     string write(const bytes_view b);
+    
+}
+
+namespace data {
+    using base58_uint = encoding::base58::string;
+    
+    math::sign sign(const base58_uint&);
+}
+
+namespace data::math {
+    
+    template <> struct abs<base58_uint> {
+        base58_uint operator()(const base58_uint&);
+    };
+    
+    template <uint64 pow> 
+    struct root<base58_uint, pow> {
+        set<base58_uint> operator()(const base58_uint& n);
+    };
+}
+
+namespace data::math::number {
+    
+    base58_uint increment(const base58_uint&);
+    base58_uint decrement(const base58_uint&);
+    
+    bool is_zero(const base58_uint &);
+    bool is_negative(const base58_uint &);
+    bool is_positive(const base58_uint &);
+    
+}
+
+namespace data {
+    
+    math::sign inline sign(const base58_uint &n) {
+        if (!encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        return encoding::base58::nonzero(n) ? math::positive : math::zero;
+    }
+}
+
+namespace data::math::number {
+    
+    base58_uint inline increment(const base58_uint &n) {
+        auto x = n;
+        return ++x;
+    }
+    
+    base58_uint inline decrement(const base58_uint &n) {
+        auto x = n;
+        return --x;
+    }
+    
+    bool inline is_zero(const base58_uint &n) {
+        if (encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        return !encoding::base58::nonzero(n);
+    }
+    
+    bool inline is_negative(const base58_uint &n) {
+        if (encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        return false;
+    }
+    
+    bool inline is_positive(const base58_uint &n) {
+        if (encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        return encoding::base58::nonzero(n);
+    }
     
 }
 

@@ -100,10 +100,6 @@ namespace data::math::number {
             std::copy(b.begin(), b.end(), this->begin());
         }
         
-        math::sign sign() const {
-            return *this == N_bytes(uint64(0)) ? math::zero : positive;
-        }
-        
         operator N_bytes<endian::opposite(r)>() const {
             N_bytes<endian::opposite(r)> z;
             z.resize(this->size());
@@ -124,15 +120,9 @@ namespace data::math::number {
             return N_bytes(size, 0x00);
         }
         
-        N_bytes& operator++() {
-            operator+=(1);
-            return *this;
-        }
+        N_bytes& operator++();
         
-        N_bytes& operator--() {
-            operator+=(1);
-            return *this;
-        }
+        N_bytes& operator--();
         
         N_bytes operator++(int) const {
             N_bytes z = *this;
@@ -311,7 +301,7 @@ namespace data::encoding::decimal {
     string inline write(const math::number::N_bytes<r> &n) {
         std::stringstream ss;
         write(ss, n);
-        return ss.str();
+        return string{ss.str()};
     }
     
 }
@@ -370,6 +360,20 @@ namespace data::math::number {
     template <endian::order r> 
     std::weak_ordering operator<=>(const N_bytes<r> &a, uint64 b) {
         return a <=> N_bytes<r>(b);
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator++() {
+        *this = extend(*this, this->size() + 1);
+        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator--() {
+        if (is_zero(*this)) return *this;
+        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
     }
     
     template <endian::order r> Z_bytes<r> inline operator&(const N_bytes<r> &a, const Z_bytes<r> &b) {
@@ -505,6 +509,32 @@ namespace data {
     math::sign inline sign(const math::N_bytes<r> &n) {
         return math::arithmetic::N_sign(n.words());
     }
+    
+    template <endian::order r> 
+    math::sign inline sign(const math::Z_bytes<r> &n) {
+        return math::arithmetic::Z_sign_ones(n.words());
+    }
+    
+    template <endian::order r> math::number::N_bytes<r> inline increment(const math::number::N_bytes<r> &n) {
+        auto x = n;
+        return ++x;
+    }
+    
+    template <endian::order r> math::number::N_bytes<r> inline decrement(const math::number::N_bytes<r> &n) {
+        auto x = n;
+        return --x;
+    }
+    
+    template <endian::order r> math::number::Z_bytes<r> inline increment(const math::number::Z_bytes<r> &n) {
+        auto x = n;
+        return ++x;
+    }
+    
+    template <endian::order r> math::number::Z_bytes<r> inline decrement(const math::number::Z_bytes<r> &n) {
+        auto x = n;
+        return --x;
+    }
+    
 }
 
 #endif

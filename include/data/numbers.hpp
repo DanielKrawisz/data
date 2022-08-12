@@ -77,6 +77,11 @@ namespace data {
     using int448 = int_little<56>;
     using int512 = int_little<64>;
     
+    using dec_uint = encoding::decimal::string;
+    using dec_int = encoding::signed_decimal::string;
+    using hex_uint = encoding::hexidecimal::string;
+    using base58_uint = encoding::base58::string;
+    
     // rational numbers. 
     using Q = math::fraction<Z, N>;
     
@@ -103,6 +108,17 @@ namespace data {
     using oct256 = math::octonion<float32>;
     using oct512 = math::octonion<float64>;
     
+}
+
+namespace data::math {
+    
+    template <uint64 pow> 
+    set<base58_uint> root<base58_uint, pow>::operator()(const base58_uint& n) {
+        set<base58_uint> x;
+        set<N> roots = root<N, pow>{}(encoding::base58::read<N>(n));
+        for (const N &z : roots.values()) x = insert(x, encoding::base58::write(z));
+        return x;
+    }
 }
 
 #endif

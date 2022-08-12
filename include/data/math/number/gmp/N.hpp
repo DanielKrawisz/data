@@ -376,20 +376,20 @@ namespace data::math {
 
 namespace data::encoding::hexidecimal { 
     
-    std::string inline write(const math::N &n) {
+    string inline write(const math::N &n) {
         std::stringstream ss;
         write(ss, n);
-        return ss.str();
+        return string{ss.str()};
     }
     
 }
 
 namespace data::encoding::decimal {
     
-    N inline write(const math::N& n) {
+    string inline write(const math::N& n) {
         std::stringstream ss;
         write(ss, n);
-        return {ss.str()};
+        return string{ss.str()};
     }
     
 }
@@ -398,6 +398,39 @@ namespace data {
     
     math::sign inline sign(const math::N &z) {
         return math::number::GMP::sign(z.Value.MPZ[0]);
+    }
+    
+    math::sign inline sign(const math::Z &z) {
+        return math::number::GMP::sign(z.MPZ[0]);
+    }
+    
+    math::N inline square(const math::N &n) {
+        return n * n;
+    }
+    
+    math::N inline square(const math::Z &z) {
+        auto n = abs(z);
+        return n * n;
+    }
+    
+    math::N inline increment(const math::N &n) {
+        auto x = n;
+        return ++x;
+    }
+    
+    math::N inline decrement(const math::N &n) {
+        auto x = n;
+        return --x;
+    }
+    
+    math::Z inline increment(const math::Z &n) {
+        auto x = n;
+        return ++x;
+    }
+    
+    math::Z inline decrement(const math::Z &n) {
+        auto x = n;
+        return --x;
     }
     
 }

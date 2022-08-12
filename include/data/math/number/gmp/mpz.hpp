@@ -171,15 +171,6 @@ namespace data::math {
         N operator()(const Z&);
     };
     
-    N square(const N &n);
-    N square(const Z &z);
-    
-    N increment(const N&);
-    N decrement(const N&);
-    
-    Z increment(const Z&);
-    Z decrement(const Z&);
-    
     template <> struct commutative<plus<N>, N> {};
     template <> struct associative<plus<N>, N> {};
     template <> struct commutative<times<N>, N> {};
@@ -214,37 +205,41 @@ namespace data::math {
 
 namespace data {
     
-    math::sign inline sign(const math::N &x);
-    math::sign inline sign(const math::Z &x);
+    math::sign sign(const math::N &x);
+    math::sign sign(const math::Z &x);
+    
+    math::N square(const math::N &n);
+    math::N square(const math::Z &z);
+    
+    math::N increment(const math::N&);
+    math::N decrement(const math::N&);
+    
+    math::Z increment(const math::Z&);
+    math::Z decrement(const math::Z&);
+    
 }
 
 namespace data::encoding::decimal {
-    struct N;
-    N write(const math::N&);
+    struct string;
+    string write(const math::N&);
     
     std::ostream &write(std::ostream &, const math::N &);
     
 }
 
 namespace data::encoding::hexidecimal {
-    
-    std::string write(const math::Z&);
-    std::string write(const math::N&);
+    struct string;
+    string write(const math::Z&);
+    string write(const math::N&);
     
     std::ostream &write(std::ostream &, const math::Z &);
     std::ostream &write(std::ostream &, const math::N &);
     
 }
 
-namespace data::encoding::natural {
-    
-    std::string write(const math::N&);
-    
-}
-
 namespace data::encoding::signed_decimal {
-    
-    std::string write(const math::Z&);
+    struct string;
+    string write(const math::Z&);
     
     std::ostream &write(std::ostream &, const math::Z &);
     
