@@ -43,7 +43,6 @@ namespace data {
     typedef uint_little<20> ul20;
     
     template <typename N> void test_N_sign() {
-        std::cout << " test sign N" << std::endl;
         EXPECT_EQ(sign(N{0}),                           math::zero);
         EXPECT_EQ(sign(N{1}),                           math::positive);
         EXPECT_EQ(sign(N{2}),                           math::positive);
@@ -54,7 +53,6 @@ namespace data {
     template <typename N> void test_Z_sign() {
         test_N_sign<N>();
         
-        std::cout << " test sign Z" << std::endl;
         EXPECT_EQ(sign(int64{-1}),                           math::negative);
         EXPECT_EQ(sign(int64{-2}),                           math::negative);
         EXPECT_EQ(sign(int64{-7076852110923542}),            math::negative);
@@ -108,6 +106,8 @@ namespace data {
         test_N_sign<dec_uint>();
         test_N_sign<base58_uint>();
         test_N_sign<hex_uint>();
+        test_Z_sign<hex_int>();
+        test_Z_sign<hex_int_twos>();
         
     }
 }

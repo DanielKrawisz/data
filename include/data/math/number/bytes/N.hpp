@@ -62,7 +62,7 @@ namespace data::math::number {
             return N_bytes<r>{*b};
         }
         
-        explicit N_bytes(string_view s) : N_bytes{read(s)} {}
+        explicit N_bytes(const string &s) : N_bytes{read(s)} {}
         
         // inefficient but works. 
         explicit N_bytes(const N& n) : N_bytes() {
@@ -124,15 +124,8 @@ namespace data::math::number {
             return N_bytes(size, 0x00);
         }
         
-        N_bytes& operator++() {
-            operator+=(1);
-            return *this;
-        }
-        
-        N_bytes& operator--() {
-            operator+=(1);
-            return *this;
-        }
+        N_bytes& operator++();
+        N_bytes& operator--();
         
         N_bytes operator++(int) const {
             N_bytes z = *this;
@@ -271,6 +264,30 @@ namespace data::math::number {
     template <endian::order r> 
     N_bytes<r> inline operator*(const N_bytes<r> &a, uint64 b) {
         return a * N_bytes<r>(b);
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline increment(const N_bytes<r> &n) {
+        auto z = n;
+        return ++z;
+    }
+    
+    template <endian::order r>
+    N_bytes<r> inline decrement(const N_bytes<r> &n) {
+        auto z = n;
+        return --z;
+    }
+    
+    template <endian::order r>
+    Z_bytes<r> inline increment(const Z_bytes<r> &n) {
+        auto z = n;
+        return ++z;
+    }
+    
+    template <endian::order r>
+    Z_bytes<r> inline decrement(const Z_bytes<r> &n) {
+        auto z = n;
+        return --z;
     }
     
 }
@@ -497,6 +514,20 @@ namespace data::math::number {
         auto x = N_bytes<r>::zero(a.size());
         data::arithmetic::bit_or<byte>(x.end(), x.begin(), a.begin(), const_cast<const N_bytes<r>&>(bt).begin());
         return x.trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator++() {
+        *this = extend(*this, this->size() + 1);
+        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator--() {
+        if (is_zero(*this)) return *this;
+        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
     }
 }
 

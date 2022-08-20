@@ -79,7 +79,10 @@ namespace data {
     
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
-    using hex_uint = encoding::hexidecimal::string;
+    using hex_uint = hex::uint<encoding::hex::lower>;
+    using hex_int = hex::int1<encoding::hex::lower>;
+    using hex_int_ones = hex::int1<encoding::hex::lower>;
+    using hex_int_twos = hex::int2<encoding::hex::lower>;
     using base58_uint = encoding::base58::string;
     
     // rational numbers. 
@@ -119,6 +122,78 @@ namespace data::math {
         for (const N &z : roots.values()) x = insert(x, encoding::base58::write(z));
         return x;
     }
+}
+
+namespace data::encoding::hexidecimal {
+    
+    namespace {
+        
+        template <hex::letter_case zz> 
+        string<zz> shift(const string<zz> &x, int i) {
+            auto o = read<endian::little>(x);
+            math::number::N_bytes<endian::little> n;
+            n.resize(o->size());
+            std::copy(o->begin(), o->end(), n.begin());
+            n = n << i;
+            return write<zz>(math::number::extend(n, n.size() + 1));
+        }
+        
+        template <hex::letter_case zz> 
+        integer<math::number::ones, zz> inline bit_shift(const integer<math::number::ones, zz> &x, int i) {
+            auto o = read<endian::little>(x);
+            math::number::Z_bytes<endian::little> n;
+            n.resize(o->size());
+            std::copy(o->begin(), o->end(), n.begin());
+            n = n << i;
+            return write<zz>(math::number::extend(n, n.size() + 1));
+        }
+        
+        // the out string will always be the size of the sum of the two inputs, which won't necessarily be equal size. 
+        template <hex::letter_case zz>
+        void times(string<zz> &out, const string<zz> &a, const string<zz> &b) {
+            auto characters = hex::characters(zz);
+            
+            Z remainder = 0;
+            for (int io = 0; io < out.size(); io++) {
+                Z total = remainder;
+                for (int ia = 0; ia < a.size() && ia <= io; ia++) 
+                    total += Z(int(digit(a[a.size() - 1 - ia])) * int(digit(b[b.size() - 1 - io + ia])));
+                
+                out[out.size() - 1 - io] = characters[total % 16];
+                remainder = total >> 4;
+            }
+        }
+    
+        template <math::number::complement c, hex::letter_case zz> struct divide  {
+            math::division<integer<c, zz>, N> operator()(const integer<c, zz> &n, const N &x) {}
+        };
+        
+        template <hex::letter_case zz> struct divide<math::number::nones, zz> {
+            math::division<integer<math::number::nones, zz>, N> operator()(const integer<math::number::nones, zz> &n, const N &x) {
+                if (x == 0) throw math::division_by_zero{};
+                // it is important to have this optimization. 
+                // I can't say why or I'll be embarrassed. 
+                if (x == 10) {
+                    int last = n.size() - 1;
+                    return math::division<integer<math::number::nones, zz>, N>{n.size() == 1 ? 
+                        integer<math::number::nones, zz>{} : 
+                        integer<math::number::nones, zz>(n.substr(0, last)), N(digit(n[last]))};
+                }
+                
+                math::division<N> div = math::number::natural::divide(N::read(n), x);
+                
+                return math::division<integer<math::number::nones, zz>, N>{hexidecimal::write<zz>(div.Quotient), div.Remainder};
+            }
+        };
+    
+    }
+    
+    template <math::number::complement c, hex::letter_case zz>
+    math::division<integer<c, zz>, uint64> integer<c, zz>::divide(uint64 x) const {
+        math::division<integer<c, zz>, N> div = hexidecimal::divide<c, zz>{}(*this, N{x});
+        return math::division<integer<c, zz>, uint64>{div.Quotient, uint64(div.Remainder)};
+    }
+    
 }
 
 #endif

@@ -174,6 +174,12 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> trim(const N_bytes<r> &);
     template <endian::order r> Z_bytes<r> trim(const Z_bytes<r> &);
     
+    template <endian::order r> number::N_bytes<r> increment(const number::N_bytes<r>&);
+    template <endian::order r> number::N_bytes<r> decrement(const number::N_bytes<r>&);
+    
+    template <endian::order r> number::Z_bytes<r> increment(const number::Z_bytes<r>&);
+    template <endian::order r> number::Z_bytes<r> decrement(const number::Z_bytes<r>&);
+    
 }
 
 namespace data::math {
@@ -198,11 +204,6 @@ namespace data::math {
     };
     
     template <endian::order r> number::N_bytes<r> next(const number::N_bytes<r>&);
-    template <endian::order r> number::N_bytes<r> increment(const number::N_bytes<r>&);
-    template <endian::order r> number::N_bytes<r> decrement(const number::N_bytes<r>&);
-    
-    template <endian::order r> number::Z_bytes<r> increment(const number::Z_bytes<r>&);
-    template <endian::order r> number::Z_bytes<r> decrement(const number::Z_bytes<r>&);
     
     // Declare that the plus and times operation are commutative and associative. 
     template <endian::order r> 
@@ -239,8 +240,8 @@ namespace data::math {
 
 namespace data {
     
-    template <endian::order r> math::sign sign(const math::N_bytes<r> &);
-    template <endian::order r> math::sign sign(const math::Z_bytes<r> &);
+    template <endian::order r> math::sign sign(const math::N_bytes<r> &, hex_case);
+    template <endian::order r> math::sign sign(const math::Z_bytes<r> &, hex_case);
     
 }
 
@@ -271,10 +272,10 @@ namespace data::encoding::hexidecimal {
     template <endian::order r> 
     std::ostream inline &write(std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
     
-    struct string;
+    template <hex_case zz> struct string;
     
-    template <endian::order r> 
-    string write(const oriented<r, byte> &z, hex::letter_case q = hex::lower);
+    template <hex_case zz, endian::order r> 
+    string<zz> write(const oriented<r, byte> &z);
     
 }
 

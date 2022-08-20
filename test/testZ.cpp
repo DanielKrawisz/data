@@ -10,14 +10,29 @@ namespace data {
     
     TEST(ZTest, TestZToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"0"}), std::string{"0x"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"-1"}), std::string{"0xff"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"-2"}), std::string{"0xfe"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"127"}), std::string{"0x7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"128"}), std::string{"0x0080"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"-128"}), std::string{"0x80"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"-129"}), std::string{"0xff7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z{"0x7f33"} << 128), std::string{"0x7f3300000000000000000000000000000000"});
+        string Zh_0 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"0"});
+        EXPECT_EQ(Zh_0, std::string{"0x"});
+        
+        string Zh_ff = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"-1"});
+        EXPECT_EQ(Zh_ff, std::string{"0xff"});
+        
+        string Zh_n2 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"-2"});
+        EXPECT_EQ(Zh_n2, std::string{"0xfe"});
+        
+        string Zh_127 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"127"});
+        EXPECT_EQ(Zh_127, std::string{"0x7f"});
+        
+        string Zh_128 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"128"});
+        EXPECT_EQ(Zh_128, std::string{"0x0080"});
+        
+        string Zh_80 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"-128"});
+        EXPECT_EQ(Zh_80, std::string{"0x80"});
+        
+        string Zh_ff7f = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"-129"});
+        EXPECT_EQ(Zh_ff7f, std::string{"0xff7f"});
+        
+        string Zh_qqqq = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{"0x7f33"} << 128);
+        EXPECT_EQ(Zh_qqqq, std::string{"0x7f3300000000000000000000000000000000"});
         
     }
     
@@ -32,12 +47,18 @@ namespace data {
         EXPECT_EQ(Z{-1}, Z{"-1"});
         EXPECT_EQ(Z{"-1"}, Z{"0xff"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z{0}), "0x");
         EXPECT_EQ(encoding::signed_decimal::write(Z{0}), "0");
-        EXPECT_EQ(encoding::hexidecimal::write(Z{1}), "0x01");
         EXPECT_EQ(encoding::signed_decimal::write(Z{1}), "1");
-        EXPECT_EQ(encoding::hexidecimal::write(Z{-1}), "0xff");
         EXPECT_EQ(encoding::signed_decimal::write(Z{-1}), "-1");
+        
+        string Zh_0 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{0});
+        EXPECT_EQ(Zh_0, "0x");
+        
+        string Zh_1 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{1});
+        EXPECT_EQ(Zh_1, "0x01");
+        
+        string Zh_n1 = encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(Z{-1});
+        EXPECT_EQ(Zh_n1, "0xff");
         
         EXPECT_TRUE(Z{"0x80000000000000000000"} < Z{"0x7fffffffffffffffffff"});
         EXPECT_TRUE(Z{"0xff"} < Z{"0x00ff"});

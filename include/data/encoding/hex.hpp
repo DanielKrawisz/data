@@ -22,17 +22,21 @@ namespace data::encoding::hex {
         lower
     };
     
-    inline std::string characters_lower() {
+    std::string inline characters_lower() {
         return "0123456789abcdef";
     }
     
-    inline std::string characters_upper() {
+    std::string inline characters_upper() {
         return "0123456789ABCDEF";
+    }
+    
+    std::string inline characters(letter_case x) {
+        return x == upper ? characters_upper() : characters_lower();
     }
     
     static constexpr auto pattern = ctll::fixed_string{"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
 
-    inline bool valid(string_view s) {
+    bool inline valid(string_view s) {
         return ctre::match<pattern>(s);
     }
     
@@ -93,6 +97,8 @@ namespace data::encoding::hex {
 }
 
 namespace data {
+    
+    using hex_case = encoding::hex::letter_case;
     
     std::ostream inline &operator<<(std::ostream &o, const bytes &s) {
         return o << "\"" << encoding::hex::write(s) << "\""; 

@@ -15,6 +15,8 @@
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
 #include <data/math/division.hpp>
+#include <data/math/number/complement.hpp>
+#include <data/encoding/hex.hpp>
 
 namespace data::math::number::GMP {
     
@@ -171,15 +173,6 @@ namespace data::math {
         N operator()(const Z&);
     };
     
-    N square(const N &n);
-    N square(const Z &z);
-    
-    N increment(const N&);
-    N decrement(const N&);
-    
-    Z increment(const Z&);
-    Z decrement(const Z&);
-    
     template <> struct commutative<plus<N>, N> {};
     template <> struct associative<plus<N>, N> {};
     template <> struct commutative<times<N>, N> {};
@@ -212,6 +205,28 @@ namespace data::math {
     
 }
 
+namespace data::math::number {
+    
+    N increment(const N&);
+    N decrement(const N&);
+    
+    Z increment(const Z&);
+    Z decrement(const Z&);
+    
+    N square(const N &n);
+    N square(const Z &z);
+    
+    bool is_zero(const N&);
+    bool is_zero(const Z&);
+    
+    bool is_positive(const N&);
+    bool is_positive(const Z&);
+    
+    bool is_negative(const N&);
+    bool is_negative(const Z&);
+    
+}
+
 namespace data {
     
     math::sign sign(const math::N &x);
@@ -228,12 +243,13 @@ namespace data::encoding::decimal {
 }
 
 namespace data::encoding::hexidecimal {
-    struct string;
-    string write(const math::Z&);
-    string write(const math::N&);
+    template <math::number::complement, hex_case> struct integer;
     
-    std::ostream &write(std::ostream &, const math::Z &);
-    std::ostream &write(std::ostream &, const math::N &);
+    template <hex_case zz> integer<math::number::nones, zz> write(const math::N&);
+    template <math::number::complement n, hex_case zz> integer<n, zz> write(const math::Z&);
+    
+    std::ostream &write(std::ostream &, const math::N &, hex::letter_case = hex::lower);
+    std::ostream &write(std::ostream &, const math::Z &, hex::letter_case = hex::lower, math::number::complement = math::number::ones);
     
 }
 

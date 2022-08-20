@@ -86,7 +86,7 @@ namespace data {
         using test_case = test_case_negative<int64, Z, Z_bytes_little, Z_bytes_big, 
             int_big<9>, int_big<10>, int_big<11>, int_big<20>, 
             int_little<9>, int_little<10>, int_little<11>, int_little<20>, 
-            dec_int>;
+            dec_int, hex_int, hex_int_twos>;
         
         test_case{0, 0};
         test_case{-1, 1};
@@ -127,7 +127,9 @@ namespace data {
             int_little<11>, uint_little<11>, 
             Z_bytes_little, N_bytes_little, 
             Z_bytes_big, N_bytes_big, 
-            dec_int, dec_uint>;
+            dec_int, dec_uint, 
+            hex_int, hex_uint, 
+            hex_int_twos, hex_int_twos>;
         
         test_case{0, 0u};
         test_case{1, 1u};
