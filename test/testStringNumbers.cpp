@@ -135,16 +135,24 @@ namespace data::encoding {
     }
     
     TEST(StringNumbersTest, TestSubtractStringNumbers) {
-        
+        std::cout << "TestSubtractStringNumbers" << std::endl;
         EXPECT_EQ(dec_uint{2} - dec_uint{1}, "1");
         EXPECT_EQ(hex_uint{2} - hex_uint{1}, "0x01");
         EXPECT_EQ(base58_uint{2} - base58_uint{1}, "2");
+        std::cout << "L" << std::endl;
         
         EXPECT_EQ(dec_uint{1} - dec_uint{2}, "0");
         EXPECT_EQ(dec_int{1} - dec_int{2}, "-1");
         EXPECT_EQ(hex_uint{1} - hex_uint{2}, "0x");
-        EXPECT_EQ(hex_int{1} - hex_int{2}, "0xff");
+        std::cout << "P" << std::endl;
+        auto hex_int_1 = hex_int{1};
+        auto hex_int_2 = hex_int{2};
+        auto hex_minus = hex_int_1 - hex_int_2;
+        std::cout << "calculating " << hex_int_1 << " - " << hex_int_2 << " = " << hex_minus << std::endl;
+        EXPECT_EQ(hex_int_1 - hex_int_2, "0xff");
+        std::cout << "R" << std::endl;
         EXPECT_EQ(hex_int_twos{1} - hex_int_twos{2}, "0x81");
+        std::cout << "T" << std::endl;
         EXPECT_EQ(base58_uint{1} - base58_uint{2}, "1");
         
     }

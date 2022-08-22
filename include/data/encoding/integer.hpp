@@ -16,8 +16,15 @@
 #include <data/math/number/complement.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/root.hpp>
+#include <boost/regex.hpp>
 
 #include <iostream>
+
+template <size_t N>
+std::ostream inline &write_fixed_string(std::ostream &o, const ctll::fixed_string<N> &n) {
+    for (const char &c : n.content) o << c;
+    return o;
+}
 
 namespace data::encoding {
     
@@ -155,6 +162,7 @@ namespace data::encoding {
             explicit string(const std::string &x) : std::string{hexidecimal::valid(x) ? x : ""} {}
             explicit string(std::string &&x) : std::string{x} {}
             bool valid() const {
+                std::cout << "   testing hex string valid " << *this << std::endl;
                 return hexidecimal::valid(*this);
             }
         };
@@ -781,7 +789,11 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::hexidecimal {
     
     bool inline valid(string_view s) {
-        return ctre::match<pattern>(s);
+        write_fixed_string(std::cout << "     testing validity of hex string \"" << s << "\" against pattern ", pattern) << std::endl;
+        bool match = boost::regex_match(std::string{s}, boost::regex{"0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*))"});
+        //bool match = ctre::match<pattern>(s);
+        std::cout << "     match is " << std::boolalpha << match << std::endl;
+        return match;
     } 
     
     bool inline zero(string_view s) {
@@ -1294,8 +1306,8 @@ namespace data::math::number {
     template <encoding::hex::letter_case cx> 
     encoding::hexidecimal::integer<ones, cx> 
     trim(const encoding::hexidecimal::integer<ones, cx> &x) {
-        
-        if (!x.valid()) throw std::invalid_argument{std::string{"cannot trim invalid hexidecimal string: "} + x};
+        std::cout << "   about to trim hex string \"" << x << "\"" << std::endl;
+        if (!x.valid()) throw std::invalid_argument{std::string{"cannot trim invalid hexidecimal string: \""} + x + "\""};
         
         size_t min_size = minimal_size(x);
         
@@ -1828,6 +1840,7 @@ namespace data::encoding::hexidecimal {
     
     template <math::number::complement c, hex::letter_case zz> 
     integer<c, zz> inline operator-(const integer<c, zz> &a, const integer<c, zz> &b) {
+        std::cout << "  about to do " << a << " - " << b << std::endl;
         return math::number::trim(minus(math::number::trim(a), math::number::trim(b)));
     }
     
