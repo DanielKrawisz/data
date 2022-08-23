@@ -310,11 +310,6 @@ namespace data::math::number {
         
         explicit bounded(slice<byte, size>);
         
-        bounded& operator=(const bounded& d) {
-            bytes::operator=(static_cast<const bytes&>(d));
-            return *this;
-        }
-        
         math::sign sign() const;
 
         bounded& operator+=(int64);

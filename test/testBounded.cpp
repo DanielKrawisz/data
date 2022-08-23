@@ -238,4 +238,41 @@ namespace data {
         
     }
     
+    template<bool is_signed, endian::order o, size_t size> void test_bounded_read_write_string(string x) {
+        bounded<is_signed, o, size> n;
+        
+        EXPECT_NO_THROW( (n = bounded<is_signed, o, size>{x}) );
+        EXPECT_EQ(encoding::hexidecimal::write(n), x);
+        
+        if (o == endian::little) {
+            EXPECT_EQ(n[0], 0xff);
+            EXPECT_EQ(n[size - 1], 0x00);
+        } else {
+            EXPECT_EQ(n[size - 1], 0xff);
+            EXPECT_EQ(n[0], 0x00);
+        }
+        
+    }
+    
+    TEST(BoundedTest, BoundedReadWriteString) {
+        test_bounded_read_write_string<true, endian::big, 9>("0x00000000ffffffffff");
+        test_bounded_read_write_string<true, endian::little, 9>("0x00000000ffffffffff");
+        test_bounded_read_write_string<false, endian::big, 9>("0x00000000ffffffffff");
+        test_bounded_read_write_string<false, endian::little, 9>("0x00000000ffffffffff");
+        
+        test_bounded_read_write_string<true, endian::big, 10>("0x0000000000ffffffffff");
+        test_bounded_read_write_string<true, endian::little, 10>("0x0000000000ffffffffff");
+        test_bounded_read_write_string<false, endian::big, 10>("0x0000000000ffffffffff");
+        test_bounded_read_write_string<false, endian::little, 10>("0x0000000000ffffffffff");
+        
+        test_bounded_read_write_string<true, endian::big, 11>("0x0000000000ffffffffffff");
+        test_bounded_read_write_string<true, endian::little, 11>("0x0000000000ffffffffffff");
+        test_bounded_read_write_string<false, endian::big, 11>("0x0000000000ffffffffffff");
+        test_bounded_read_write_string<false, endian::little, 11>("0x0000000000ffffffffffff");
+        
+        test_bounded_read_write_string<true, endian::big, 12>("0x000000000000ffffffffffff");
+        test_bounded_read_write_string<true, endian::little, 12>("0x000000000000ffffffffffff");
+        test_bounded_read_write_string<false, endian::big, 12>("0x000000000000ffffffffffff");
+        test_bounded_read_write_string<false, endian::little, 12>("0x000000000000ffffffffffff");
+    }
 }

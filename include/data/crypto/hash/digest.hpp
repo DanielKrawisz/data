@@ -26,6 +26,10 @@ namespace data::crypto {
         }
         
         bool valid() const;
+        
+        explicit operator string() const {
+            return encoding::hexidecimal::write(*this);
+        }
     };
     
     template<size_t s>
