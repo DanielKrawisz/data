@@ -5,22 +5,25 @@
 #ifndef DATA_CRYPTO_HASH_BITCOIND
 #define DATA_CRYPTO_HASH_BITCOIND
 
+#ifdef USE_BITCOIND_HASH_FUNCTIONS
+
 #include "functions.hpp"
+#include <sv/crypto/sha1.h>
 #include "sv/crypto/ripemd160.h"
 #include "sv/crypto/sha256.h"
 
+
 namespace data::crypto::hash::bitcoind {
     template <class hash, size_t Size> 
-    struct writer {
+    struct writer : data::writer<byte> {
         constexpr static size_t size = Size;
         
         hash Hash;
         
         writer() : Hash{} {}
         
-        writer& update(bytes_view b) {
-            Hash.Write(b.data(), size);
-            return *this;
+        void write(const byte *b, size_t x) override {
+            Hash.Write(b, x);
         }
         
         digest<size> finalize() {
@@ -30,44 +33,27 @@ namespace data::crypto::hash::bitcoind {
             return d;
         }
         
-        digest<size> operator()(bytes_view b) {
-            return update(b).finalize();
-        }
-        
     };
     
 }
 
 namespace data::crypto::hash {
     
-    template <> struct RIPEMD<20> : bitcoind::writer<CRIPEMD160, 20> {
-        
-        RIPEMD() : bitcoind::writer<CRIPEMD160, 20>{} {}
-        
-        RIPEMD& update(bytes_view b) {
-            bitcoind::writer<CRIPEMD160, 20>::update(b);
-            return *this;
-        }
-    }; 
+    struct SHA1 : bitcoind::writer<CSHA1, 20> {}; 
     
-    template <> struct SHA2<32> : bitcoind::writer<CSHA256, 32> {
-        
-        SHA2() : bitcoind::writer<CSHA256, 32>{} {}
-        
-        SHA2& update(bytes_view b) {
-            bitcoind::writer<CSHA256, 32>::update(b);
-            return *this;
-        }
-    };
+    template <> struct RIPEMD<20> : bitcoind::writer<CRIPEMD160, 20> {}; 
+    
+    template <> struct SHA2<32> : bitcoind::writer<CSHA256, 32> {};
     
     digest<20> inline RIPEMD_160(bytes_view b) {
-        return RIPEMD<20>{}(b);
+        return calculate<RIPEMD<20>>(b);
     }
     
     digest<32> inline SHA2_256(bytes_view b) {
-        return SHA2<32>{}(b);
+        return calculate<SHA2<32>>(b);
     }
 
 }
 
+#endif 
 #endif

@@ -33,8 +33,13 @@ namespace data::crypto {
     };
     
     template<size_t s>
-    inline bool digest<s>::valid() const {
-        return operator!=(digest{0});
+    bool inline digest<s>::valid() const {
+        return *this != digest{0};
+    }
+
+    template <size_t size> 
+    inline std::ostream& operator<<(std::ostream &o, const digest<size> &s) {
+        return o << "digest{" << s << "}";
     }
     
 }
