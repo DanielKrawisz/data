@@ -5,53 +5,51 @@
 #ifndef DATA_CRYPTO_HASH_BITCOIN
 #define DATA_CRYPTO_HASH_BITCOIN
 
-#include "bitcoind.hpp"
+#include <data/crypto/hash/functions.hpp>
 
 namespace data::crypto::hash {
     
     // Bitcoin hash 160 is difined to be RIPEMD_160 * SHA2_256
-    template<> struct Bitcoin<20> {
+    template<> struct Bitcoin<20> : data::writer<byte> {
         SHA2<32> Writer;
         
         constexpr static size_t size = 20;
         
         Bitcoin() : Writer{} {}
         
-        Bitcoin& update(bytes_view b) {
-            Writer << b;
-            return *this;
+        void write(const byte *b, size_t x) override {
+            Writer.write(b, x);
         }
         
         digest<20> finalize() {
-            return RIPEMD<20>{}(Writer.finalize());
-        }
-        
-        digest<20> operator()(bytes_view b) const {
-            return calculate<Bitcoin<20>>(b);
+            return calculate<RIPEMD<20>>(Writer.finalize());
         }
     };
     
     // Bitcoin hash 256 is difined to be SHA2_256 * SHA_256
-    template<> struct Bitcoin<32> {
+    template<> struct Bitcoin<32> : data::writer<byte> {
         SHA2<32> Writer;
         
         constexpr static size_t size = 32;
         
         Bitcoin() : Writer{} {}
         
-        Bitcoin& update(bytes_view b) {
-            Writer << b;
-            return *this;
+        void write(const byte *b, size_t x) override {
+            Writer.write(b, x);
         }
         
         digest<32> finalize() {
-            return SHA2<32>{}(Writer.finalize());
-        }
-        
-        digest<32> operator()(bytes_view b) const {
-            return calculate<Bitcoin<32>>(b);
+            return calculate<SHA2<32>>(Writer.finalize());
         }
     };
+    
+    digest<20> inline Bitcoin_160(bytes_view b) {
+        return calculate<Bitcoin<20>>(b);
+    }
+    
+    digest<32> inline Bitcoin_256(bytes_view b) {
+        return calculate<Bitcoin<32>>(b);
+    }
 
 }
 

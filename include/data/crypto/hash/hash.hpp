@@ -5,8 +5,17 @@
 #ifndef DATA_CRYPTO_HASH_HASH
 #define DATA_CRYPTO_HASH_HASH
 
-#include "bitcoin.hpp"
+#define USE_BITCOIND_HASH_FUNCTIONS
+
+// Hash functions provided by bitcoind. 
+#include <data/crypto/hash/bitcoind.hpp>
+
+#include <data/crypto/hash/cryptopp.hpp>
+
+// Bitcoin hash functions
+#include <data/crypto/hash/bitcoin.hpp>
+
+#undef USE_BITCOIND_HASH_FUNCTIONS
 
 #endif
-
 

@@ -25,12 +25,12 @@ namespace data::crypto::hash {
     
     digest<28> SHA2_224(bytes_view);
     digest<32> SHA2_256(bytes_view);
-    digest<56> SHA2_384(bytes_view);
+    digest<48> SHA2_384(bytes_view);
     digest<64> SHA2_512(bytes_view);
     
     digest<28> SHA3_224(bytes_view);
     digest<32> SHA3_256(bytes_view);
-    digest<56> SHA3_384(bytes_view);
+    digest<48> SHA3_384(bytes_view);
     digest<64> SHA3_512(bytes_view);
     
     digest<20> Bitcoin_160(bytes_view);
@@ -40,23 +40,21 @@ namespace data::crypto::hash {
     concept writer = requires {
         { W{} };
         { W::size };
-    } && requires (W w, bytes_view b) {
-        { w.update(b) } -> std::same_as<W&>;
+    } && requires (W w, const byte *b, size_t x) {
+        { w.write(b, x) };
     } && requires(W w) {
         { w.finalize() } -> std::same_as<digest<W::size>>;
     };
     
-    template <writer W> 
-    W inline &operator<<(W &w, bytes_view b) {
-        return w.update(b);
-    }
-    
     template <writer W>
     digest<W::size> inline calculate(bytes_view b) {
-        return W{}.update(b).finalize();
+        W w{};
+        w.write(b.data(), b.size());
+        return w.finalize();
     }
     
     // these are both functions and writers. 
+    struct SHA1;
     template <size_t size> struct RIPEMD;
     template <size_t size> struct SHA2;
     template <size_t size> struct SHA3;
