@@ -266,6 +266,10 @@ namespace data::math::number {
             return N(N_bytes<r>(*this));
         }
         
+        explicit operator double() const {
+            return double(N(*this));
+        }
+        
     private:
         explicit bounded(const N_bytes<r>& n) : bounded{} {
             if (n.size() <= size) {
@@ -342,6 +346,10 @@ namespace data::math::number {
         
         explicit operator Z() const {
             return Z(Z_bytes<r>(*this));
+        }
+        
+        explicit operator double() const {
+            return double(Z(*this));
         }
         
     private:
