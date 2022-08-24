@@ -11,7 +11,6 @@ namespace data::crypto {
     
     template <size_t s>
     struct digest : math::uint<endian::little, s> {
-        static const uint32 size = s;
         
         using math::uint<endian::little, s>::uint;
         
