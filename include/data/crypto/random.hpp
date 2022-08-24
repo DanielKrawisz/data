@@ -7,6 +7,7 @@
 
 #include <data/iterable.hpp>
 #include <data/cross.hpp>
+#include <data/size.hpp>
 
 namespace data::crypto {
     
@@ -33,7 +34,7 @@ namespace data::crypto {
         
         template <typename X>
         random& operator>>(X& x) {
-            get(x.data(), x.size());
+            get(x.data(), data::size(x));
             return *this;
         }
         
