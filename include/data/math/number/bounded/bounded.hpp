@@ -270,7 +270,6 @@ namespace data::math::number {
             return double(N(*this));
         }
         
-    private:
         explicit bounded(const N_bytes<r>& n) : bounded{} {
             if (n.size() <= size) {
                 if (r == endian::little) {
@@ -287,6 +286,7 @@ namespace data::math::number {
             }
         }
         
+    private:
         bounded(const sint<r, size>&) {
             throw method::unimplemented{"bounded<size, o, false>{bounded<size, o, true>}"};
         }
