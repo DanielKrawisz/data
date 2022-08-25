@@ -74,5 +74,27 @@ namespace data {
         
         EXPECT_EQ(m1r2, m2);
     }
+    
+    TEST(MapTest, TestIterate) {
+        map<int, int> empty_map{};
+        
+        EXPECT_EQ(empty_map.begin(), empty_map.end());
+        EXPECT_EQ(empty_map.end() - empty_map.begin(), 0);
+        
+        entry<int, int> first_entry{7, 7};
+        map<int, int> small_map{first_entry};
+        
+        auto small_begin = small_map.begin();
+        auto small_end = small_map.end();
+        
+        EXPECT_NE(small_begin, small_end);
+        EXPECT_EQ(small_end - small_begin, 1);
+        
+        EXPECT_EQ(*small_begin, first_entry);
+        
+        ++small_begin;
+        EXPECT_EQ(small_begin, small_end);
+        
+    }
 }
 
