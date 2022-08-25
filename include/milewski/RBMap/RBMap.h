@@ -4,6 +4,8 @@
 #include <cassert>
 #include <memory>
 
+#include <data/functional/map.hpp>
+
 namespace milewski::okasaki {
 
     enum Color { R, B };
@@ -11,24 +13,25 @@ namespace milewski::okasaki {
     // 1. No red node has a red child.
     // 2. Every path from rootKey to empty node contains the same
     // number of black nodes.
+    template<class K, class V>
+    struct Node
+    {
+        Node(Color c,
+            std::shared_ptr<const Node> const & lft,
+            const K key, V val,
+            std::shared_ptr<const Node> const & rgt)
+            : _c(c), _lft(lft), _entry(key, val), _rgt(rgt)
+        {}
+        Color _c;
+        std::shared_ptr<const Node> _lft;
+        data::entry<K, V> _entry;
+        std::shared_ptr<const Node> _rgt;
+    };
 
     template<class K, class V>
-    class RBMap
+    struct RBMap
     {
-        struct Node
-        {
-            Node(Color c,
-                std::shared_ptr<const Node> const & lft,
-                const K key, V val,
-                std::shared_ptr<const Node> const & rgt)
-                : _c(c), _lft(lft), _key(key), _val(val), _rgt(rgt)
-            {}
-            Color _c;
-            std::shared_ptr<const Node> _lft;
-            const K _key;
-            const V _val;
-            std::shared_ptr<const Node> _rgt;
-        };
+        using Node = okasaki::Node<K, V>;
         
         explicit RBMap(std::shared_ptr<const Node> const & node) : _root(node) {}
         Color rootColor() const
@@ -36,7 +39,7 @@ namespace milewski::okasaki {
             assert(!isEmpty());
             return _root->_c;
         }
-    public:
+        
         RBMap() : _root{nullptr} {}
         
         RBMap(Color c, RBMap const & lft, const K& key, const V& val, RBMap const & rgt)
@@ -51,13 +54,19 @@ namespace milewski::okasaki {
         const K& rootKey() const
         {
             assert(!isEmpty());
-            return _root->_key;
+            return _root->_entry.Key;
         }
         
         V& rootValue() const
         {
             assert(!isEmpty());
-            return const_cast<V&>(_root->_val);
+            return const_cast<V&>(_root->_entry.Value);
+        }
+        
+        const data::entry<K, V>& root() const
+        {
+            assert(!isEmpty());
+            return _root->_entry;
         }
         
         RBMap left() const
@@ -142,7 +151,6 @@ namespace milewski::okasaki {
             return (rootColor() == B) ? 1 + lft : lft;
         }
         
-    private:
         RBMap ins(const K& x, const V& v) const
         {
             assert1();
@@ -252,7 +260,7 @@ namespace milewski::okasaki {
             assert(!isEmpty());
             return RBMap(c, left(), rootKey(), rootValue(), right());
         }
-    private:
+        
         std::shared_ptr<const Node> _root;
     };
 
