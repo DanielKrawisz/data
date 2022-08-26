@@ -262,6 +262,10 @@ namespace data::math::number {
             return n;
         }
         
+        operator bytes_view() const {
+            return bytes_view(*this);
+        }
+        
         explicit operator N() const {
             return N(N_bytes<r>(*this));
         }
@@ -335,6 +339,10 @@ namespace data::math::number {
 
         bounded operator%(const bounded& n) const {
             return divide(n).Remainder;
+        }
+        
+        operator bytes_view() const {
+            return bytes_view(*this);
         }
         
         operator Z_bytes<r>() const {
