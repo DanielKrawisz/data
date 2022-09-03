@@ -6,12 +6,6 @@ on:
       - '*/*'
       - '**'
       - '!production'
-  pull_request:
-    branches:
-      - '*'
-      - '*/*'
-      - '**'
-      - '!production'
 env:
   BUILD_TYPE: Debug
 jobs:
