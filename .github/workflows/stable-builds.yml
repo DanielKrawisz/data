@@ -102,9 +102,9 @@ jobs:
           export CURRENT_VERSION="${{ steps.release.outputs.tag_name }}"
           cp -r ../include ./
           tar -czvf "data-${CURRENT_VERSION}-linux.tar.gz" lib include
-        - name: Upload release
-          uses: svenstaro/upload-release-action@v2
-          with:
-            tag: ${{ steps.release.outputs.tag_name }}
-            file: build/data-${{ steps.release.outputs.tag_name }}-linux.tar.gz
-            asset_name: data-${{ steps.release.outputs.tag_name }}-linux.tar.gz
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          tag: ${{ steps.release.outputs.tag_name }}
+          file: build/data-${{ steps.release.outputs.tag_name }}-linux.tar.gz
+          asset_name: data-${{ steps.release.outputs.tag_name }}-linux.tar.gz
