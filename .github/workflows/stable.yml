@@ -29,11 +29,22 @@ jobs:
         run: conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Update profile version
         run: conan profile update settings.compiler.version=10 default
-      - name: setup conan
+      - name: Add conan remote
         run: |
-          conan config set general.revisions_enabled=True 
+          conan config set general.revisions_enabled=True
           conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/conan
           conan user -p ${{ secrets.CONAN_USER_KEY }} -r proofofwork github
+      - name: run tests
+        run: |
+          mkdir test_build
+          cd test_build
+          conan install .. -r=proofofwork
+          cmake .. -DPACKAGE_TESTS=ON
+          cmake --build .
+          cd bin
+          for f in test*; do "./$f" ; done
+      - name: run conan
+        run: |
           export CURRENT_VERSION="${{ steps.release.outputs.tag_name }}"
           echo "Current version: ${CURRENT_VERSION}"
           conan install . -r proofofwork

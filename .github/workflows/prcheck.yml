@@ -1,11 +1,5 @@
 name: Conan development
 on:
-  push:
-    branches:
-      - '*'
-      - '*/*'
-      - '**'
-      - '!production'
   pull_request:
     branches:
       - '*'
@@ -31,7 +25,6 @@ jobs:
         run: |
           conan config set general.revisions_enabled=True
           conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/conan
-          conan user -p ${{ secrets.CONAN_USER_KEY }} -r proofofwork github
       - name: run tests
         run: |
           mkdir test_build
@@ -41,9 +34,3 @@ jobs:
           cmake --build .
           cd bin
           for f in test*; do "./$f" ; done
-      - name: Run Conan
-        run: |
-          export CURRENT_VERSION=`git rev-parse --short HEAD`
-          conan install . -r proofofwork
-          conan create . proofofwork/unstable
-          conan upload data/${CURRENT_VERSION}@proofofwork/unstable -r proofofwork --all
