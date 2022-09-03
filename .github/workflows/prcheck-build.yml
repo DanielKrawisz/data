@@ -1,11 +1,8 @@
 name: Test PR Builds
 on:
-  push:
+  pull_request:
     branches:
       - '*'
-      - '*/*'
-      - '**'
-      - '!production'
 env:
   BUILD_TYPE: Debug
 jobs:
