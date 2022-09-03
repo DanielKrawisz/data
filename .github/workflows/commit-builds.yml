@@ -17,19 +17,24 @@ jobs:
         uses: turtlebrowser/get-conan@v1.0
       - name: Cache Conan packages
         uses: actions/cache@v3
+        id: cache-conan
         env:
           cache-name: cache-conan
         with:
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/conanfile.py') }}
           path: |
             ~/.conan/
-      - name: Create default profile
+      - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
+        name: Create default profile
         run: conan profile new default --detect
-      - name: Update profile 11
+      - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
+        name: Update profile 11
         run: conan profile update settings.compiler.libcxx=libstdc++11 default
-      - name: Update profile version
+      - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
+        name: Update profile version
         run: conan profile update settings.compiler.version=10 default
-      - name: Add conan remote
+      - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
+        name: Add conan remote
         run: |
           conan config set general.revisions_enabled=True
           conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/conan
