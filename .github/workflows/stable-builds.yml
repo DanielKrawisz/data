@@ -132,3 +132,4 @@ jobs:
           tag: ${{ steps.release.outputs.tag_name }}
           file: build/data-${{ needs.prep.outputs.releaseVersion }}-linux.tar.gz
           asset_name: data-${{ needs.prep.outputs.releaseVersion }}-linux.tar.gz
+
