@@ -8,7 +8,18 @@ env:
 jobs:
   prep:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - id: release
+        uses: rymndhng/release-on-push-action@master
+        with:
+          bump_version_scheme: patch
+          use_github_release_notes: true
+      - name: Check Output Parameters
+        run: |
+          echo "Got tag name ${{ steps.release.outputs.tag_name }}"
+          echo "Got release version ${{ steps.release.outputs.version }}"
       - uses: actions/checkout@v2
       - name: Get Conan
         uses: turtlebrowser/get-conan@v1.0
@@ -36,6 +47,8 @@ jobs:
           conan config set general.revisions_enabled=True
           conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/conan
           conan user -p ${{ secrets.CONAN_USER_KEY }} -r proofofwork github
+    outputs:
+      releaseVersion: ${{ steps.release.outputs.tag_name }}
   test:
     runs-on: ubuntu-latest
     needs:
@@ -64,19 +77,9 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     needs:
+      - prep
       - test
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - id: release
-        uses: rymndhng/release-on-push-action@master
-        with:
-          bump_version_scheme: patch
-          use_github_release_notes: true
-      - name: Check Output Parameters
-        run: |
-          echo "Got tag name ${{ steps.release.outputs.tag_name }}"
-          echo "Got release version ${{ steps.release.outputs.version }}"
       - uses: actions/checkout@v2
       - name: Get Conan
         uses: turtlebrowser/get-conan@v1.0
@@ -90,10 +93,29 @@ jobs:
             ~/.conan/
       - name: Run Conan
         run: |
-          export CURRENT_VERSION="${{ steps.release.outputs.tag_name }}"
+          export CURRENT_VERSION="${{ needs.prep.outputs.releaseVersion }}"
           conan install . -r proofofwork
           conan create . proofofwork/stable
           conan upload data/${CURRENT_VERSION}@proofofwork/stable -r proofofwork --all
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - prep
+      - test
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get Conan
+        uses: turtlebrowser/get-conan@v1.0
+      - name: Cache Conan packages
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-conan
+        with:
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/conanfile.py') }}
+          path: |
+            ~/.conan/
       - name: prepare release package
         run: |
           mkdir build
@@ -101,12 +123,12 @@ jobs:
           conan install .. -r=proofofwork
           cmake .. -DPACKAGE_TESTS=Off
           cmake --build .
-          export CURRENT_VERSION="${{ steps.release.outputs.tag_name }}"
+          export CURRENT_VERSION="${{ needs.prep.outputs.releaseVersion }}"
           cp -r ../include ./
           tar -czvf "data-${CURRENT_VERSION}-linux.tar.gz" lib include
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
           tag: ${{ steps.release.outputs.tag_name }}
-          file: build/data-${{ steps.release.outputs.tag_name }}-linux.tar.gz
-          asset_name: data-${{ steps.release.outputs.tag_name }}-linux.tar.gz
+          file: build/data-${{ needs.prep.outputs.releaseVersion }}-linux.tar.gz
+          asset_name: data-${{ needs.prep.outputs.releaseVersion }}-linux.tar.gz
