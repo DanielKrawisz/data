@@ -129,6 +129,6 @@ jobs:
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
-          tag: ${{ steps.release.outputs.tag_name }}
+          tag: ${{ needs.prep.outputs.releaseVersion }}
           file: build/data-${{ needs.prep.outputs.releaseVersion }}-linux.tar.gz
           asset_name: data-${{ needs.prep.outputs.releaseVersion }}-linux.tar.gz
