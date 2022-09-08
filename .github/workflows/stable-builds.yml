@@ -49,36 +49,10 @@ jobs:
           conan user -p ${{ secrets.CONAN_USER_KEY }} -r proofofwork github
     outputs:
       releaseVersion: ${{ steps.release.outputs.tag_name }}
-  test:
-    runs-on: ubuntu-latest
-    needs:
-      - prep
-    steps:
-      - uses: actions/checkout@v2
-      - name: Get Conan
-        uses: turtlebrowser/get-conan@v1.0
-      - name: Cache Conan packages
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-conan
-        with:
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/conanfile.py') }}
-          path: |
-            ~/.conan/
-      - name: run tests
-        run: |
-          mkdir test_build
-          cd test_build
-          conan install .. -r=proofofwork
-          cmake .. -DPACKAGE_TESTS=ON
-          cmake --build .
-          cd bin
-          for f in test*; do "./$f" ; done
   upload:
     runs-on: ubuntu-latest
     needs:
       - prep
-      - test
     steps:
       - uses: actions/checkout@v2
       - name: Get Conan
@@ -101,7 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - prep
-      - test
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
