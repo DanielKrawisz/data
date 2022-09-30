@@ -10,8 +10,8 @@ macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     # link the Google test infrastructure, mocking library, and a default main fuction to
     # the test executable.  Remove g_test_main if writing your own main function.
-    target_include_directories(${TESTNAME} PUBLIC . CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::cryptopp CONAN_PKG::nlohmann_json CONAN_PKG::gmp CONAN_PKG::SECP256K1)
-    target_link_libraries(${TESTNAME} gmock_main data gtest_main)
+    target_include_directories(${TESTNAME} PUBLIC ${CMAKE_SOURCE_DIR}/include CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::cryptopp CONAN_PKG::nlohmann_json CONAN_PKG::gmp CONAN_PKG::SECP256K1)
+    target_link_libraries(${TESTNAME} CONAN_PKG::gtest data)
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
 
@@ -19,7 +19,6 @@ macro(package_add_test TESTNAME)
             # set a working directory so your project root so that you can find test data via paths relative to the project root
             SOURCES ${ARGN}
             WORKING_DIRECTORY ${PROJECT_DIR}
-            PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
             )
     set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
 endmacro()
