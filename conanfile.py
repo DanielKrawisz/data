@@ -1,7 +1,6 @@
 from conans import ConanFile, CMake
 from os import environ
 
-
 class DataConan(ConanFile):
     name = "data"
     license = "MIT"
@@ -21,6 +20,8 @@ class DataConan(ConanFile):
             self.version = environ.get("CIRCLE_TAG")[1:]
         if "CURRENT_VERSION" in environ:
             self.version = environ['CURRENT_VERSION']
+        else:
+          self.version="dev"
 
     def configure_cmake(self):
         cmake = CMake(self)
