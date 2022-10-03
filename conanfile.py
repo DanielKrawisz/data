@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake
+from conans import ConanFile, CMake, tools
 from os import environ
 
 
@@ -24,7 +24,10 @@ class DataConan(ConanFile):
 
     def configure_cmake(self):
         cmake = CMake(self)
+        new_cxx=tools.get_env("CXX","g++-10")
         cmake.definitions["PACKAGE_TESTS"] = "Off"
+        cmake.definitions["CMAKE_CXX_COMPILER"]=new_cxx
+        cmake.definitions["CMAKE_C_COMPILER"]=new_cxx
         cmake.configure()
         return cmake
 
