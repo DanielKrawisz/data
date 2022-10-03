@@ -12,7 +12,7 @@ jobs:
   prep:
     strategy:
       matrix:
-        version: [9,10,11]
+        version: [10,11]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -73,7 +73,7 @@ jobs:
       - test
     strategy:
       matrix:
-        version: [ 9,10,11 ]
+        version: [ 10,11 ]
     steps:
       - name: Install correct gcc
         run: |
@@ -93,6 +93,6 @@ jobs:
       - name: Run Conan
         run: |
           export CURRENT_VERSION=`git rev-parse --short HEAD`
-          CXX=/usr/bin/gcc-${{ matrix.version }} conan install . -r proofofwork
-          CXX=/usr/bin/gcc-${{ matrix.version }} conan create . proofofwork/unstable
+          CXX=/usr/bin/g++-${{ matrix.version }} conan install . -r proofofwork
+          CXX=/usr/bin/g++-${{ matrix.version }} conan create . proofofwork/unstable
           conan upload data/${CURRENT_VERSION}@proofofwork/unstable -r proofofwork --all
