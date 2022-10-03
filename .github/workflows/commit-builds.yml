@@ -35,7 +35,7 @@ jobs:
         run: |
           conan profile update settings.compiler.libcxx=libstdc++11 default
           conan profile update env.CC=/usr/bin/gcc-${{ matrix.version }} default
-          conan profile update env.CXX=CC=/usr/bin/g++-${{ matrix.version }} default
+          conan profile update env.CXX=/usr/bin/g++-${{ matrix.version }} default
       - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
         name: Update profile version
         run: conan profile update settings.compiler.version=${{ matrix.version }} default
