@@ -20,13 +20,12 @@ class DataConan(ConanFile):
             self.version = environ.get("CIRCLE_TAG")[1:]
         if "CURRENT_VERSION" in environ:
             self.version = environ['CURRENT_VERSION']
+        else:
+          self.version="dev"
 
     def configure_cmake(self):
         cmake = CMake(self)
-        new_cxx=tools.get_env("CXX","g++-10")
         cmake.definitions["PACKAGE_TESTS"] = "Off"
-        cmake.definitions["CMAKE_CXX_COMPILER"]=new_cxx
-        cmake.definitions["CMAKE_C_COMPILER"]=new_cxx
         cmake.configure()
         return cmake
 
