@@ -66,8 +66,8 @@ jobs:
           mkdir test_build
           cd test_build
           conan install .. -r=proofofwork
-          cmake .. -DPACKAGE_TESTS=ON
-          cmake --build .
+          CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake .. -DPACKAGE_TESTS=ON
+          CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake --build .
           cd bin
           for f in test*; do "./$f" ; done
   upload:
