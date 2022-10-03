@@ -31,8 +31,11 @@ jobs:
         name: Create default profile
         run: conan profile new default --detect
       - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
-        name: Update profile 11
-        run: conan profile update settings.compiler.libcxx=libstdc++11 default
+        name: Update profile settings
+        run: |
+          conan profile update settings.compiler.libcxx=libstdc++11 default
+          conan profile update env.CC=/usr/bin/gcc-${{ matrix.version }} default
+          conan profile update env.CXX=CC=/usr/bin/g++-${{ matrix.version }} default
       - if: ${{ steps.cache-conan.outputs.cache-hit != 'true' }}
         name: Update profile version
         run: conan profile update settings.compiler.version=${{ matrix.version }} default
@@ -93,6 +96,6 @@ jobs:
       - name: Run Conan
         run: |
           export CURRENT_VERSION=`git rev-parse --short HEAD`
-          CXX=/usr/bin/g++-${{ matrix.version }} conan install . -r proofofwork
-          CXX=/usr/bin/g++-${{ matrix.version }} conan create . proofofwork/unstable
+          conan install . -r proofofwork
+          conan create . proofofwork/unstable
           conan upload data/${CURRENT_VERSION}@proofofwork/unstable -r proofofwork --all
