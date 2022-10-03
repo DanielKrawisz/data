@@ -1,7 +1,6 @@
 from conans import ConanFile, CMake, tools
 from os import environ
 
-
 class DataConan(ConanFile):
     name = "data"
     license = "MIT"
