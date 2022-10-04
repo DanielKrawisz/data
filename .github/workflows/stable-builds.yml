@@ -89,8 +89,8 @@ jobs:
       - name: Run Conan
         run: |
           export CURRENT_VERSION="${{ needs.prep.outputs.releaseVersion }}"
-          VERBOSE=1 CXX=/usr/bin/g++-10 CC=/usr/bin/gcc-10 conan create . proofofwork/unstable -pr=10 -pr:b=10
-          VERBOSE=1 CXX=/usr/bin/g++-11 CC=/usr/bin/gcc-11 conan create . proofofwork/unstable -pr=11 -pr:b=11
+          VERBOSE=1 CXX=/usr/bin/g++-10 CC=/usr/bin/gcc-10 conan create . proofofwork/stable -pr=10 -pr:b=10
+          VERBOSE=1 CXX=/usr/bin/g++-11 CC=/usr/bin/gcc-11 conan create . proofofwork/stable -pr=11 -pr:b=11
           conan upload data/${CURRENT_VERSION}@proofofwork/stable -r proofofwork --all
   release:
     runs-on: ubuntu-latest
