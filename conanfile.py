@@ -1,7 +1,6 @@
 from conans import ConanFile, CMake
 from os import environ
 
-
 class DataConan(ConanFile):
     name = "data"
     license = "MIT"
@@ -14,13 +13,15 @@ class DataConan(ConanFile):
     default_options = {"shared": False, "fPIC": True}
     generators = "cmake"
     exports_sources = "*"
-    requires = "boost/1.76.0", "openssl/1.1.1k", "cryptopp/8.5.0", "nlohmann_json/3.10.0", "gmp/6.2.1", "SECP256K1/0.2@proofofwork/unstable", "uriparser/0.9.6"
+    requires = "boost/1.76.0", "openssl/1.1.1k", "cryptopp/8.5.0", "nlohmann_json/3.10.0", "gmp/6.2.1", "SECP256K1/0.2@proofofwork/stable", "uriparser/0.9.6", "gtest/1.12.1"
 
     def set_version(self):
         if "CIRCLE_TAG" in environ:
             self.version = environ.get("CIRCLE_TAG")[1:]
         if "CURRENT_VERSION" in environ:
             self.version = environ['CURRENT_VERSION']
+        else:
+          self.version="dev"
 
     def configure_cmake(self):
         cmake = CMake(self)
