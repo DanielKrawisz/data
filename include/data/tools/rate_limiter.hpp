@@ -9,10 +9,10 @@
 
 namespace data {
     namespace tools {
-        class rate_limiter {
-        public:
-            explicit rate_limiter(int hits, int duration) : m_queue(hits, -1), m_duration(duration) {};
+        struct rate_limiter {
+            rate_limiter(int hits, int duration) : m_queue(hits, -1), m_duration(duration) {};
             long getTime();
+            
         private:
             circular_queue m_queue;
             int m_duration;
