@@ -14,11 +14,13 @@ namespace data::networking {
         networking::HTTP &Http;
         tools::rate_limiter Rate;
         
+        HTTP_client(networking::HTTP &http, tools::rate_limiter rate = {}) : Http{http}, Rate{rate} {}
+        
         REST Rest;
         
         HTTP::response operator()(const HTTP::request &r) {
             auto wait = Rate.getTime();
-            if (wait != 0) sleep(wait);
+            if (wait != 0) boost::asio::steady_timer{Http.IOContext, boost::asio::chrono::seconds(wait)}.wait();
             return Http(r);
         }
         

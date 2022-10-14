@@ -56,7 +56,7 @@ namespace data::networking {
         // throws an exception under conditions in which no response is received.
         response operator()(const request &, int redirects = 10);
         
-        HTTP();
+        HTTP(boost::asio::io_context &);
         
         struct exception : std::exception {
             request Request;
@@ -69,10 +69,9 @@ namespace data::networking {
             }
         };
         
-    private:
-        boost::asio::io_context ioc;
-        boost::asio::ssl::context ssl_ctx;
-        boost::asio::ip::tcp::resolver resolver;
+        boost::asio::io_context &IOContext;
+        boost::asio::ssl::context SSLContext;
+        boost::asio::ip::tcp::resolver Resolver;
  
     };
 }

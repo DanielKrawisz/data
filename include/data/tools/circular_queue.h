@@ -8,26 +8,28 @@
 #include <ostream>
 #include <cstddef>
 #include <iterator>
+#include <vector>
 
 namespace data::tools {
-        class circular_queue {
-        public:
-            // Initialize front and rear
-           int cur;
+    struct circular_queue {
+        // Initialize front and rear
+        int cur;
+        
+        // Circular Queue
+        int size;
+        std::vector<long> circularQueue;
 
-            // Circular Queue
-            int size;
-            long *circularQueue;
+        explicit circular_queue (int sz, long init_value = 0) {
+            cur = 0;
+            size = sz;
+            circularQueue.resize(sz);
+            std::fill(circularQueue.begin(), circularQueue.end(), init_value);
+        }
+        
+        void setValue(long val);
+        void next();
+        long getValue();
+    };
+}
 
-            explicit circular_queue (int sz, long init_value=0) {
-                cur = 0;
-                size = sz;
-                circularQueue = new long[sz];
-                std::fill(circularQueue,circularQueue+sz,init_value);
-            }
-            void setValue(long val);
-            void next();
-            long getValue();
-        };
-    }
 #endif //DATA_CIRCULAR_QUEUE_H

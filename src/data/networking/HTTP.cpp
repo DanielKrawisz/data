@@ -59,6 +59,7 @@ namespace data::networking {
             
             req.body() = body;
             req.prepare_payload();
+            
             boost::beast::http::write(stream, req);
 
             boost::beast::flat_buffer buffer;
@@ -87,11 +88,11 @@ namespace data::networking {
         
     }
 
-    HTTP::HTTP() :
-        ssl_ctx(boost::asio::ssl::context::tlsv12_client),
-        resolver(ioc) {
-            ssl_ctx.set_default_verify_paths();
-            ssl_ctx.set_verify_mode(boost::asio::ssl::verify_peer);
+    HTTP::HTTP(boost::asio::io_context &ioc) : IOContext{ioc}, 
+        SSLContext(boost::asio::ssl::context::tlsv12_client),
+        Resolver(IOContext) {
+            SSLContext.set_default_verify_paths();
+            SSLContext.set_verify_mode(boost::asio::ssl::verify_peer);
         }
     
     HTTP::response HTTP::operator()(const request &req, int redirects) {
@@ -105,7 +106,7 @@ namespace data::networking {
         
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
         if(https) {
-            boost::beast::ssl_stream<boost::beast::tcp_stream> stream(ioc, ssl_ctx);
+            boost::beast::ssl_stream<boost::beast::tcp_stream> stream(IOContext, SSLContext);
             
             // Set SNI Hostname (many hosts need this to handshake successfully)
             if (!SSL_set_tlsext_host_name(stream.native_handle(), hostname)) {
@@ -114,15 +115,15 @@ namespace data::networking {
                 throw boost::beast::system_error{ec};
             }
 
-            auto const results = resolver.resolve(hostname, port);
+            auto const results = Resolver.resolve(hostname, port);
 
             boost::beast::get_lowest_layer(stream).connect(results);
             stream.handshake(boost::asio::ssl::stream_base::client);
 
             res = http_request(stream, req.Host, req.Method, req.Path, req.Headers, req.Body, redirects);
         } else {
-            boost::beast::tcp_stream stream(ioc);
-            auto const results = resolver.resolve(hostname, port);
+            boost::beast::tcp_stream stream(IOContext);
+            auto const results = Resolver.resolve(hostname, port);
             stream.connect(results);
             res = http_request(stream, req.Host, req.Method, req.Path, req.Headers, req.Body, redirects);
         }
