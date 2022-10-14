@@ -7,6 +7,8 @@ namespace data {
     namespace tools {
 
         long rate_limiter::getTime() {
+            if (m_duration == 0) return 0;
+            
             long now = std::chrono::duration_cast<std::chrono::seconds>(
                     std::chrono::system_clock::now().time_since_epoch()).count();
                     

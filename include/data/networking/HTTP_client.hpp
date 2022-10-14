@@ -12,13 +12,16 @@
 namespace data::networking {
     struct HTTP_client {
         networking::HTTP &Http;
-        tools::rate_limiter Rate;
         
         REST Rest;
         
+        tools::rate_limiter Rate;
+        
+        HTTP_client(networking::HTTP &http, const REST &rest, tools::rate_limiter rate = {}) : Http{http}, Rest{rest}, Rate{rate} {}
+        
         HTTP::response operator()(const HTTP::request &r) {
             auto wait = Rate.getTime();
-            if (wait != 0) sleep(wait);
+            if (wait != 0) boost::asio::steady_timer{Http.IOContext, boost::asio::chrono::seconds(wait)}.wait();
             return Http(r);
         }
         
@@ -37,5 +40,4 @@ namespace data::networking {
         
     };
 }
-
 #endif
