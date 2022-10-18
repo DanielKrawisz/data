@@ -17,6 +17,7 @@ how to use all features.
     * reduce
     * fold
     * for_each
+    * map_thread
   * Mathematical types
     * natural numbers
     * integers
@@ -39,9 +40,12 @@ how to use all features.
     * NIST_DRBG 
   * concurrency
     * golang-style communication channel. 
+  * networking
+    * TCP protocols.
+    * HTTP client.
     
 # Dependencies
-  * Boost 1.72
+  * Boost 1.76
   * GMP
   * Crypto++ https://github.com/weidai11/cryptopp 
   * https://github.com/BartoszMilewski/Okasaki (included as needed)
