@@ -59,15 +59,18 @@ namespace data {
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
     
-    template <typename f, typename A, typename B> 
-    auto map_thread(f fun, list<A> a, list<B> b) {
-        if (a.size() != b.size()) throw std::invalid_argument{"lists must be the same size"};
-        list<decltype(fun(std::declval<A>(), std::declval<B>()))> l;
-        while (a.size() != 0) {
-            l = append(l, fun(a.first(), b.first()));
+    template <typename f, sequence A, sequence B> 
+    auto map_thread(f fun, A a, B b) {
+        if (data::size(a) != data::size(b)) throw std::invalid_argument{"lists must be the same size"};
+        
+        list<decltype(fun(data::first(std::declval<A>()), data::first(std::declval<B>())))> l;
+        
+        while (data::size(a) != 0) {
+            l = data::append(l, fun(data::first(a), data::first(b)));
             a = a.rest();
             b = b.rest();
         }
+        
         return l;
     }
 

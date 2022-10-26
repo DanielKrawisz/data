@@ -59,6 +59,7 @@ jobs:
           conan config set general.revisions_enabled=True
           conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/pow-virtual
           conan user -p ${{ secrets.CONAN_USER_KEY }} -r proofofwork github
+
   upload:
     runs-on: ubuntu-latest
     needs:

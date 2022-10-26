@@ -48,6 +48,11 @@ namespace data::tool {
                 Inner->put(i);
             }
             
+            to &operator<<(const item &i) {
+                put(i);
+                return *this;
+            }
+            
             friend class channel;
         };
         
@@ -58,6 +63,11 @@ namespace data::tool {
         public:
             bool get(item &out, bool wait = true) {
                 return Inner->get(out, wait);
+            }
+            
+            from &operator>>(item &out) {
+                get(out);
+                return *this;
             }
             
             friend class channel;
@@ -87,6 +97,16 @@ namespace data::tool {
         
         bool get(item &out, bool wait = true) {
             return From.get(out, wait);
+        }
+        
+        channel &operator<<(const item &i) {
+            To << i;
+            return *this;
+        }
+        
+        channel &operator>>(item &out) {
+            From.get(out);
+            return *this;
         }
     };
 

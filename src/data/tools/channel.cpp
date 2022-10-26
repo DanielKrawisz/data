@@ -28,13 +28,15 @@ namespace data::tool {
     template <class item> 
     bool channel<item>::inner::get(item &out, bool wait) {
         std::unique_lock<std::mutex> lock{M};
+        
         if (Queue.empty()) {
             if (!wait || Closed) return false;
             else {
                 Receive.wait(lock);
                 if (Closed) return false;
             }
-        } 
+        }
+        
         out = Queue.front();
         Queue.pop_front();
         Send.notify_one();
