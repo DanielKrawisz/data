@@ -8,9 +8,9 @@
 #include <data/crypto/random.hpp>
 #include <cryptopp/drbg.h>
 
-namespace data::crypto::nist {
+namespace data::crypto::NIST {
     
-    struct drbg final : random {
+    struct DRBG final : random {
         // supported rngs
         enum type {
             HMAC_DRBG, 
@@ -23,7 +23,7 @@ namespace data::crypto::nist {
         
         constexpr static uint32 SecurityStrength = 16;
         
-        drbg(type t, ptr<entropy> e, bytes personalization, uint32_little nonce) : 
+        DRBG(type t, ptr<entropy> e, bytes personalization, uint32_little nonce) : 
             BytesBeforeReseed{65536}, Entropy{e}, Random{nullptr} {
                 bytes entropy = Entropy->get(SecurityStrength);
                 if (t == HMAC_DRBG) {
@@ -43,7 +43,7 @@ namespace data::crypto::nist {
             return Entropy != nullptr && Random != nullptr;
         }
         
-        ~drbg() {
+        ~DRBG() {
             delete Random;
         }
         

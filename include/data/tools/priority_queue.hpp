@@ -39,6 +39,8 @@ namespace data::tool {
         template<typename ... P>
         priority_queue(const element& a, const element& b, P... p);
         
+        bool valid() const;
+        
         const element& first() const;
         priority_queue rest() const;
         
@@ -56,6 +58,16 @@ namespace data::tool {
         iterator begin() const;
         sentinel end() const;
     };
+    
+    template <functional::tree tree, typename element = element_of<tree>> 
+    priority_queue<tree, element> inline operator<<(const priority_queue<tree, element> p, const element &elem) {
+        return p.insert(elem);
+    }
+    
+    template <functional::tree tree, typename element = element_of<tree>> 
+    bool inline operator==(const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
+        return a.first() == b.first() && a.rest() == b.rest();
+    }
     
     template <functional::tree tree, typename element> 
     size_t inline priority_queue<tree, element>::size() const {
@@ -113,6 +125,11 @@ namespace data::tool {
     template <functional::tree tree, typename element> 
     priority_queue<tree, element>::sentinel inline priority_queue<tree, element>::end() const {
         return sentinel{Tree};
+    }
+    
+    template <functional::tree tree, typename element> 
+    bool inline priority_queue<tree, element>::valid() const {
+        return Tree.valid();
     }
     
 }
