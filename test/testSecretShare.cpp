@@ -14,7 +14,7 @@ namespace data {
         ptr<crypto::entropy> entropy = std::static_pointer_cast<crypto::entropy>(std::make_shared<crypto::fixed_entropy>(
             bytes_view(bytes::from_string("atehulak,rc.TjmleoTHReseSRCjt"))));
         
-        crypto::nist::drbg random{crypto::nist::drbg::HMAC_DRBG, entropy, bytes{}, 302};
+        crypto::NIST::DRBG random{crypto::NIST::DRBG::HMAC_DRBG, entropy, bytes{}, 302};
         
         for (byte total = 1; total <= 5; total++) for (byte threshold = 1; threshold <= total; threshold++) {
             
