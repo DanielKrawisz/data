@@ -37,7 +37,7 @@ jobs:
         name: Add conan remote
         run: |
           conan config set general.revisions_enabled=True
-          conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/conan
+          conan remote add proofofwork https://conan.pow.co/artifactory/api/conan/pow-virtual
   test:
     runs-on: ubuntu-latest
     needs:
