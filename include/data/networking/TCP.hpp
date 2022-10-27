@@ -9,19 +9,23 @@
 #include <boost/asio.hpp>
 
 namespace data::networking {
-    
     namespace io = boost::asio;
     using io_error = boost::system::error_code;
-    using tcp = io::ip::tcp;
+}
+
+namespace data::networking::TCP {
+    using acceptor = io::ip::tcp::acceptor;
+    using socket = io::ip::tcp::socket;
+    using endpoint = io::ip::tcp::endpoint;
     
     // https://dens.website/tutorials/cpp-asio
     
     // we need to use enable_shared_from_this because of the possibility that 
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
-    class tcp_session : virtual public session<bytes_view>, protected std::enable_shared_from_this<tcp_session> {
+    class session : virtual public networking::session<bytes_view>, protected std::enable_shared_from_this<session> {
         
-        tcp::socket &Socket;
+        socket &Socket;
         io::streambuf Buffer;
         
         // begin waiting for the next message asynchronously. 
@@ -37,14 +41,35 @@ namespace data::networking {
         void send(bytes_view) final override;
         
         // we schedule a wait new message as soon as the object is created. 
-        tcp_session(tcp::socket &x) : Socket{x}, Buffer{65536} {
+        session(socket &&x) : Socket{x}, Buffer{65536} {
             wait_for_message();
         }
         
-        virtual ~tcp_session() {
+        virtual ~session() {
             Socket.close();
         }
     
+    };
+    
+    class server {
+        io::io_context& IO;
+        acceptor Acceptor;
+        std::optional<socket> Socket;
+        
+        virtual ptr<session> new_session(socket &&x) = 0;
+        
+        void accept() {
+            Socket.emplace(IO);
+            
+            Acceptor.async_accept(*Socket, [&] (io_error error) {
+                new_session(std::move(*Socket));
+                accept();
+            });
+        }
+        
+    public:
+        server(boost::asio::io_context& io_context, std::uint16_t port): 
+            IO(io_context), Acceptor(io_context, endpoint(io::ip::tcp::v4(), port)) {}
     };
     
 }

@@ -1,7 +1,7 @@
 #include <data/networking/TCP.hpp>
 
 // begin waiting for the next message asynchronously. 
-void data::networking::tcp_session::wait_for_message() {
+void data::networking::TCP::session::wait_for_message() {
     boost::asio::async_read_until(Socket, Buffer, "\n",  
         [self = shared_from_this()](const io_error& error, size_t bytes_transferred) -> void {
             if (error) return self->handle_error(error);
@@ -19,7 +19,7 @@ void data::networking::tcp_session::wait_for_message() {
         });
 }
 
-void data::networking::tcp_session::send(bytes_view b) {
+void data::networking::TCP::session::send(bytes_view b) {
     boost::asio::async_write(Socket, io::buffer(b), io::transfer_all(), 
         [self = shared_from_this()](const io_error& error, size_t) -> void {
             if (error) self->handle_error(error);
