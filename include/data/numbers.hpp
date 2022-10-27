@@ -60,7 +60,7 @@ namespace data {
     
     template <size_t size> 
     using uint_big = math::uint_big<size>;
-    
+    /*
     using uint128 = uint_little<16>;
     using uint160 = uint_little<20>;
     using uint224 = uint_little<28>;
@@ -76,7 +76,7 @@ namespace data {
     using int320 = int_little<40>;
     using int448 = int_little<56>;
     using int512 = int_little<64>;
-    
+    */
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
     using hex_uint = encoding::hexidecimal::string;

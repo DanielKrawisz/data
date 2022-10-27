@@ -9,17 +9,17 @@
 #include <sstream>
 
 namespace data {
-    using json = nlohmann::json;
+    using JSON = nlohmann::json;
 }
 
 namespace data::networking {
     
-    struct json_line_session : serialized_session<json> {
+    struct JSON_line_session : serialized_session<JSON> {
         std::stringstream Stream;
         
         void write(const byte *data, size_t size) final override;
         
-        bytes serialize(const json &j) final override {
+        bytes serialize(const JSON &j) final override {
             return bytes::from_string(j.dump() + "\n");
         }
     };
