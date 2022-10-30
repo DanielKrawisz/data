@@ -22,6 +22,10 @@ namespace data::networking {
         bytes serialize(const JSON &j) final override {
             return bytes::from_string(j.dump() + "\n");
         }
+        
+        virtual void parse_error(const string &invalid) override {
+            throw std::logic_error{std::string{"Invalid JSON string: \""} + invalid + string{"\""}};
+        }
     };
     
 }
