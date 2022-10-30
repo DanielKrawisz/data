@@ -12,7 +12,6 @@ namespace data::networking {
     struct session {
         virtual ~session() {}
         virtual void send(to) = 0;
-    protected:
         // will be called asynchronously when a message is received. 
         virtual void receive(from) = 0;
     };
@@ -26,26 +25,26 @@ namespace data::networking {
     };
     
     template <typename from, typename to = from>
-    struct serialized_session : session<const from &, const to &>, 
-        protected parser<from>, virtual protected session<bytes_view> {
+    struct serialized_session : session<const from &, const to &>, parser<from>, virtual session<bytes_view> {
+        using session<bytes_view>::send;
+        using session<const from &, const to &>::receive;
         
         virtual bytes serialize(const to &m) {
             return bytes(m);
         }
         
         void send(const to &m) final override {
-            session<bytes_view, bytes_view>::send(serialize(m));
+            send(bytes_view(serialize(m)));
         }
         
         virtual ~serialized_session() {}
         
-    protected:
-        void receive(bytes_view b) final override {
+        virtual void receive(bytes_view b) final override {
             this->write(b.data(), b.size());
         }
         
         void parsed(const from &m) final override {
-            session<const from &, const to &>::receive(m);
+            receive(m);
         }
         
     };

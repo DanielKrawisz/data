@@ -7,16 +7,52 @@
 #include <data/networking/session.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio.hpp>
+#include <ctre.hpp>
 
-namespace data::networking {
+namespace data::networking::IP {
     namespace io = boost::asio;
     using io_error = boost::system::error_code;
+    
+    struct exception : std::logic_error {
+        exception(io_error err) : std::logic_error{err.message()} {}
+    };
+    
+    struct address : string {
+        /* Note: the program crashes when we try to use these. 
+        static constexpr auto address_v4_pattern = ctll::fixed_string{"(((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4})"};
+        static constexpr auto address_v6_pattern = ctll::fixed_string{"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};*/
+        
+        address() : string{} {}
+        address(const string &x) : string{x} {}
+        operator io::ip::address() const;
+        bool valid() const;
+        uint32 version() const;
+    };
 }
 
-namespace data::networking::TCP {
-    using acceptor = io::ip::tcp::acceptor;
+namespace data::networking::IP::TCP {
     using socket = io::ip::tcp::socket;
-    using endpoint = io::ip::tcp::endpoint;
+    
+    struct endpoint : string {
+        static constexpr auto pattern = 
+            ctll::fixed_string{
+                // ip v4. 
+                "((?<V4>([0-9\\.]*))|"
+                // ip v6 with braces around it. 
+                "(\\[(?<V6>([0-9a-fA-F:\\.]*))\\])):"
+                // port number, which can be 0 to 65535. 
+                "(?<port>([0-9]{1,5}))"};
+        
+        endpoint() : string{} {}
+        endpoint(const string &x) : string{x} {}
+        endpoint(const IP::address &addr, uint16);
+        bool valid() const;
+        operator io::ip::tcp::endpoint() const;
+        IP::address address() const;
+        uint16 port() const;
+    };
+    
+    socket connect(io::io_context &, const endpoint &);
     
     // https://dens.website/tutorials/cpp-asio
     
@@ -26,13 +62,13 @@ namespace data::networking::TCP {
     class session : virtual public networking::session<bytes_view>, protected std::enable_shared_from_this<session> {
         
         socket &Socket;
-        io::streambuf Buffer;
+        ptr<io::streambuf> Buffer;
         
         // begin waiting for the next message asynchronously. 
         void wait_for_message();
         
         virtual void handle_error(const io_error &err) {
-            std::cout << "tcp error: " << err.message() << "\n";
+            std::cout << "TCP error: " << err.message() << "\n";
         } 
         
     public:
@@ -41,7 +77,7 @@ namespace data::networking::TCP {
         void send(bytes_view) final override;
         
         // we schedule a wait new message as soon as the object is created. 
-        session(socket &&x) : Socket{x}, Buffer{65536} {
+        session(socket &x) : Socket{x}, Buffer{std::make_shared<io::streambuf>(65536)} {
             wait_for_message();
         }
         
@@ -53,7 +89,7 @@ namespace data::networking::TCP {
     
     class server {
         io::io_context& IO;
-        acceptor Acceptor;
+        io::ip::tcp::acceptor Acceptor;
         std::optional<socket> Socket;
         
         virtual ptr<session> new_session(socket &&x) = 0;
@@ -69,7 +105,7 @@ namespace data::networking::TCP {
         
     public:
         server(boost::asio::io_context& io_context, std::uint16_t port): 
-            IO(io_context), Acceptor(io_context, endpoint(io::ip::tcp::v4(), port)) {}
+            IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
     };
     
 }
