@@ -66,7 +66,10 @@ namespace data::tool {
     
     template <functional::tree tree, typename element = element_of<tree>> 
     bool inline operator==(const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
-        return a.first() == b.first() && a.rest() == b.rest();
+        if (data::empty(a) && data::empty(b)) return true;
+        if (data::empty(a) || data::empty(b)) return false;
+        if (a.first() != b.first()) return false;
+        return a.rest() == b.rest();
     }
     
     template <functional::tree tree, typename element> 
