@@ -30,7 +30,7 @@ namespace data {
         size_t size() const;
         
         bool valid() const {
-            return data::valid(root()) && left().valid() && right().valid();
+            return Size == 0 || (data::valid(root()) && left().valid() && right().valid());
         }
         
         linked_tree();
