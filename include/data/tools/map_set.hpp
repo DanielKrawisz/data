@@ -98,10 +98,8 @@ namespace data::tool {
         template <typename ... P>
         map_set(K k, P... p);
         
-        bool operator==(const map_set& m) const;
-        
-        bool operator!=(const map_set& m) const {
-            return !operator==(m);
+        bool operator==(const map_set& m) const {
+            return values() == m.values();
         }
         
         map_set operator&(const map_set& m) const {
@@ -145,6 +143,10 @@ namespace data::tool {
             }
             
             return x;
+        }
+        
+        bool valid() const {
+            return values().valid();
         }
     };
     
