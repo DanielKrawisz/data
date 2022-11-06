@@ -61,7 +61,7 @@ namespace data {
     
     template <typename f, sequence A, sequence B> 
     auto map_thread(f fun, A a, B b) {
-        if (data::size(a) != data::size(b)) throw std::invalid_argument{"lists must be the same size"};
+        if (data::size(a) != data::size(b)) throw exception {"lists must be the same size"};
         
         list<decltype(fun(data::first(std::declval<A>()), data::first(std::declval<B>())))> l;
         

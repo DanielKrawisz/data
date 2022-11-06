@@ -85,7 +85,7 @@ namespace data::functional {
     template <typename times, typename L1, typename L2, typename plus, typename value>
     value inner(times t, L1 l1, L2 l2, plus p) {
         uint32 size = l1.size();
-        if (size != l2.size()) std::invalid_argument{"lists must be the same size"};
+        if (size != l2.size()) exception{"lists must be the same size"};
         if (size == 0) return value{};
         
         return p(t(l1.first(), l2.first()), inner(t, rest(l1), rest(l2), p));

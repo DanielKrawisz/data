@@ -10,12 +10,12 @@ namespace data {
     
     TEST(NTest, TestStringToN) {
         
-        EXPECT_THROW(N{""}, std::invalid_argument);
-        EXPECT_THROW(N{"a"}, std::invalid_argument);
-        EXPECT_THROW(N{"-"}, std::invalid_argument);
-        EXPECT_THROW(N{"-1"}, std::invalid_argument);
-        EXPECT_THROW(N{"01"}, std::invalid_argument);
-        EXPECT_THROW(N{"0x1"}, std::invalid_argument);
+        EXPECT_THROW(N{""}, exception);
+        EXPECT_THROW(N{"a"}, exception);
+        EXPECT_THROW(N{"-"}, exception);
+        EXPECT_THROW(N{"-1"}, exception);
+        EXPECT_THROW(N{"01"}, exception);
+        EXPECT_THROW(N{"0x1"}, exception);
         
         EXPECT_NO_THROW(N{0});
         EXPECT_NO_THROW(N{"0"});

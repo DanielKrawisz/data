@@ -58,7 +58,7 @@ namespace data::math::number {
         static N_bytes read(string_view x) {
             if (x.size() == 0) return 0;
             ptr<N_bytes<r>> b = encoding::natural::read<r>(x);
-            if (b == nullptr) throw std::logic_error{"Not a valid number"};
+            if (b == nullptr) throw exception{"Not a valid number"};
             return N_bytes<r>{*b};
         }
         
@@ -205,7 +205,7 @@ namespace data::math::number {
         explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}*/
         
         explicit operator uint64() const {
-            if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
+            if (*this > std::numeric_limits<uint64>::max()) throw exception{} << "value " << *this << " too big for uint64.";
             endian::arithmetic<false, endian::little, 8> xx;
             std::copy(this->words().begin(), this->words().begin() + 8, xx.begin());
             return uint64(xx);
@@ -215,7 +215,7 @@ namespace data::math::number {
         N_bytes(bytes_view b, endian::order o);
         
         N_bytes(const Z_bytes<r>& z) {
-            if (math::number::is_negative(z)) throw std::logic_error{"negative Z_bytes to N_bytes"};
+            if (math::number::is_negative(z)) throw exception{} << "negative Z_bytes " << z << " to N_bytes";
             this->resize(z.size());
             std::copy(z.begin(), z.end(), this->begin());
         }
@@ -429,7 +429,7 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> extend(const N_bytes<r> &x, size_t size) {
         if (size < x.size()) {
             size_t min_size = minimal_size(x); 
-            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
+            if (size < min_size) throw exception{"cannot extend smaller than minimal size"};
             return extend(trim(x), size);
         }
         

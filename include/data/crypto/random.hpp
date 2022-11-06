@@ -107,7 +107,7 @@ namespace data::crypto {
         fixed_entropy(bytes_view b) : Entropy{b}, Position{0} {}
         
         bytes get(size_t x) override {
-            if (x > Entropy.size() - Position) throw std::logic_error{"ran out of entropy"};
+            if (x > Entropy.size() - Position) throw exception{"ran out of entropy"};
             
             bytes b(x * 4);
             for (int i = 0; i < x; i++) {

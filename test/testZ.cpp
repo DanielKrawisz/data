@@ -23,8 +23,8 @@ namespace data {
     
     TEST(ZTest, TestStringToZ) {
         
-        EXPECT_THROW(Z{""}, std::invalid_argument);
-        EXPECT_THROW(Z{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(Z{""}, exception);
+        EXPECT_THROW(Z{"-0x01"}, exception);
         
         EXPECT_NO_THROW(Z{"-1"});
         

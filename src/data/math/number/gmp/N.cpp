@@ -65,7 +65,7 @@ namespace data::math::number::GMP {
     }
     
     Z Z::read(string_view s) {
-        if (!encoding::integer::valid(s)) throw std::invalid_argument{std::string{"invalid number string "} + std::string{s}};
+        if (!encoding::integer::valid(s)) throw exception{} << "invalid number string " << s;
         if (encoding::hexidecimal::valid(s)) return Z_read_hex(s);
         return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
@@ -131,7 +131,7 @@ namespace data::math::number::GMP {
     }
     
     Z N_read(string_view x) {
-        if (!encoding::natural::valid(x)) throw std::invalid_argument{std::string{"invalid number string "} + std::string{x}};
+        if (!encoding::natural::valid(x)) throw exception{} << "invalid number string " << x;
         if (encoding::hexidecimal::valid(x)) return N_read_hex(x);
         return Z_read_N_gmp(x);
     }
@@ -206,15 +206,15 @@ namespace data::math::number::GMP {
     }
         
     Z::operator int64() const {
-        if (*this > std::numeric_limits<int64>::max()) throw std::logic_error{"too big"};
-        if (*this < std::numeric_limits<int64>::min()) throw std::logic_error{"too big"};
+        if (*this > std::numeric_limits<int64>::max()) throw exception{"too big"};
+        if (*this < std::numeric_limits<int64>::min()) throw exception{"too big"};
         return mpz_get_si(MPZ);
     } 
     
     N::operator uint64() const {
         if (__gmp_binary_greater::eval(Value.MPZ, (unsigned long int)(std::numeric_limits<uint64>::max())))
-            throw std::logic_error{"too big"};
-        if (*this < 0) throw std::logic_error{"too big"};
+            throw exception{"too big"};
+        if (*this < 0) throw exception{"too big"};
         return mpz_get_ui(Value.MPZ);
     } 
 

@@ -24,7 +24,7 @@ namespace data::networking {
         }
         
         virtual void parse_error(const string &invalid) override {
-            throw std::logic_error{std::string{"Invalid JSON string: \""} + invalid + string{"\""}};
+            throw exception{} << "Invalid JSON string: \"" << invalid << "\"";
         }
     };
     

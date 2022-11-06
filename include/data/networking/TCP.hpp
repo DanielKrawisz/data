@@ -13,8 +13,10 @@ namespace data::networking::IP {
     namespace io = boost::asio;
     using io_error = boost::system::error_code;
     
-    struct exception : std::logic_error {
-        exception(io_error err) : std::logic_error{err.message()} {}
+    struct exception : data::exception {
+        exception(io_error err) : data::exception{} {
+            this->write("IO error: ", err.message());
+        }
     };
     
     struct address : string {
@@ -68,7 +70,7 @@ namespace data::networking::IP::TCP {
         void wait_for_message();
         
         virtual void handle_error(const io_error &err) {
-            std::cout << "TCP error: " << err.message() << "\n";
+            throw exception{err};
         } 
         
     public:

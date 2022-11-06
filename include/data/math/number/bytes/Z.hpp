@@ -211,7 +211,7 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r> Z_bytes<r>::read(string_view x) {
         if (x == "") return 0; 
         ptr<Z_bytes> b = encoding::integer::read<r>(x);
-        if (b == nullptr) throw std::invalid_argument{"invalid integer string provided"};
+        if (b == nullptr) throw exception{"invalid integer string provided"};
         return Z_bytes<r>{*b};
     }
     
@@ -274,7 +274,7 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r> extend(const Z_bytes<r> &x, size_t size) {
         if (size < x.size()) {
             size_t min_size = minimal_size(x); 
-            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
+            if (size < min_size) throw exception{"cannot extend smaller than minimal size"};
             return extend(trim(x), size);
         }
         

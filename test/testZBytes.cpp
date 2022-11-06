@@ -34,7 +34,7 @@ namespace data {
         EXPECT_NO_THROW(Z_bytes_big{Z{}});
         EXPECT_NO_THROW(Z_bytes_big{""});
         EXPECT_NO_THROW(Z_bytes_big{"-1"});
-        EXPECT_THROW(Z_bytes_big{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(Z_bytes_big{"-0x01"}, exception);
         EXPECT_NO_THROW(Z_bytes_big{"0x00"});
         EXPECT_NO_THROW(Z_bytes_big{"0xff"});
         
@@ -43,7 +43,7 @@ namespace data {
         EXPECT_NO_THROW(Z_bytes_little{Z{}});
         EXPECT_NO_THROW(Z_bytes_little{""});
         EXPECT_NO_THROW(Z_bytes_little{"-1"});
-        EXPECT_THROW(Z_bytes_little{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(Z_bytes_little{"-0x01"}, exception);
         EXPECT_NO_THROW(Z_bytes_big{"0x00"});
         EXPECT_NO_THROW(Z_bytes_big{"0xff"});
         

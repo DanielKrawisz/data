@@ -97,7 +97,7 @@ namespace data::networking {
     
     HTTP::response HTTP::operator()(const request &req, int redirects) {
         
-        if(redirects <= 0) throw std::logic_error{"too many redirects"};
+        if(redirects <= 0) throw data::exception {"too many redirects"};
         
         auto hostname = req.Host.c_str();
         auto port = req.Port.c_str();
@@ -134,7 +134,7 @@ namespace data::networking {
                 UriUriA uri;
                 const char **errorPos;
                 if (uriParseSingleUriA(&uri, loc.c_str(), errorPos)) 
-                    throw std::logic_error{"could not read redirect url"};
+                    throw data::exception{"could not read redirect url"};
                 
                 return (*this)(HTTP::request{req.Method, fromRange(uri.portText), fromRange(uri.hostText),
                     fromList(uri.pathHead, "/") + fromRange(uri.fragment), req.Headers, req.Body}, redirects - 1);
