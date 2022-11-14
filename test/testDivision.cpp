@@ -9,16 +9,20 @@
 namespace data {
     template <typename N>
     void test_division_natural_case (const N &numerator, const N &denominator, const N &quotient, const N &remainder) {
-        auto div = math::number::natural::divide (numerator, denominator);
-        EXPECT_EQ (div.Quotient, quotient);
-        EXPECT_EQ (div.Remainder, remainder);
+        auto div = divide (numerator, math::nonzero {denominator});
+        EXPECT_EQ (div.Quotient, quotient)
+            << "expected " << numerator << " / " << denominator << " = " << quotient << " but got " << div.Quotient;
+        EXPECT_EQ (div.Remainder, remainder)
+            << "expected " << numerator << " % " << denominator << " = " << remainder << " but got " << div.Remainder;
     }
 
     template <typename Z, typename N>
     void test_division_integer_case (const Z &numerator, const Z &denominator, const Z &quotient, const N &remainder) {
-        auto div = math::number::integer::divide (numerator, denominator);
-        EXPECT_EQ (div.Quotient, quotient);
-        EXPECT_EQ (div.Remainder, remainder);
+        auto div = divide (numerator, math::nonzero {denominator});
+        EXPECT_EQ (div.Quotient, quotient)
+            << "expected " << numerator << " / " << denominator << " = " << quotient << " but got " << div.Quotient;
+        EXPECT_EQ (div.Remainder, remainder)
+            << "expected " << numerator << " % " << denominator << " = " << remainder << " but got " << div.Remainder;
     }
 
     template <typename N>

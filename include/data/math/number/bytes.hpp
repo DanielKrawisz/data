@@ -99,6 +99,31 @@ namespace data::math::number {
     
 }
 
+namespace data::math {
+
+
+    template <endian::order r>
+    division<N_bytes<r>, N_bytes<r>> inline divide<N_bytes<r>, N_bytes<r>>::operator () (const N_bytes<r> &v, const N_bytes<r> &z) {
+        return number::natural::divide (v, z);
+    }
+
+    template <endian::order r>
+    division<Z_bytes<r>, N_bytes<r>> inline divide<Z_bytes<r>, Z_bytes<r>>::operator () (const Z_bytes<r> &v, const Z_bytes<r> &z) {
+        return number::integer::divide (v, z);
+    }
+
+    template <endian::order r>
+    division<Z_bytes<r>, N_bytes<r>> inline divide<Z_bytes<r>, N_bytes<r>>::operator () (const Z_bytes<r> &v, const N_bytes<r> &z) {
+        return number::integer::divide (v, Z_bytes (r) (z));
+    }
+
+    template <endian::order r>
+    division<Z_bytes_twos<r>, Z_bytes_twos<r>> inline divide<Z_bytes_twos<r>, Z_bytes_twos<r>>::operator ()
+    (const Z_bytes_twos<r> &v, const Z_bytes_twos<r> &z) {
+        return number::integer::divide (v, z);
+    }
+}
+
 #include <data/encoding/digits.hpp>
 #include <data/math/number/integer.hpp>
 

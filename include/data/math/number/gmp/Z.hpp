@@ -147,6 +147,12 @@ namespace data::math::number::GMP {
     
 }
 
+namespace data {
+    math::sign inline sign (const math::Z &z) {
+        return math::number::GMP::sign (z.MPZ[0]);
+    }
+}
+
 namespace data::math {
     
     Z inline identity<plus<Z>, Z>::operator () () {
@@ -159,6 +165,14 @@ namespace data::math {
     
     Z inline inverse<plus<Z>, Z>::operator () (const Z &a, const Z &b) {
         return b - a;
+    }
+
+    Z inline times<Z>::operator () (const Z &a, const Z &b) {
+        return a * b;
+    }
+
+    nonzero<Z> inline times<Z>::operator () (const nonzero<Z> &a, const nonzero<Z> &b) {
+        return a * b;
     }
 }
 

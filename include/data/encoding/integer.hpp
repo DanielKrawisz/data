@@ -443,6 +443,16 @@ namespace data::math {
     template <hex_case zz> struct abs<hex::int2<zz>> {
         hex::int2<zz> operator () (const hex::int2<zz> &);
     };
+
+    template <> struct times<dec_int> {
+        dec_int operator () (const dec_int &, const dec_int &);
+        nonzero<dec_int> operator () (const nonzero<dec_int> &, const nonzero<dec_int> &);
+    };
+
+    template <number::complement c, hex_case zz> struct times<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &, const hex::integer<c, zz> &);
+        nonzero<hex::integer<c, zz>> operator () (const nonzero<hex::integer<c, zz>> &, const nonzero<hex::integer<c, zz>> &);
+    };
     
     template <> struct commutative<plus<dec_uint>, dec_uint> {};
     template <> struct associative<plus<dec_uint>, dec_uint> {};
@@ -490,6 +500,38 @@ namespace data::math {
     
     template <hex_case cx> 
     bool is_negative_zero (const hex::int2<cx> &);
+
+    template <> struct divide<dec_uint, dec_uint> {
+        division<dec_uint, dec_uint> operator () (const dec_uint &, const dec_uint &);
+    };
+
+    template <> struct divide<dec_int, dec_int> {
+        division<dec_int, dec_uint> operator () (const dec_int &, const dec_int &);
+    };
+
+    template <> struct divide<dec_int, dec_uint> {
+        division<dec_int, dec_uint> operator () (const dec_int &, const dec_uint &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::uint<zz>, hex::uint<zz>> {
+        division<hex::uint<zz>, hex::uint<zz>> operator () (const hex::uint<zz> &, const hex::uint<zz> &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::int1<zz>, hex::int1<zz>> {
+        division<hex::int1<zz>, hex::uint<zz>> operator () (const hex::int1<zz> &, const hex::int1<zz> &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::int1<zz>, hex::uint<zz>> {
+        division<hex::int1<zz>, hex::uint<zz>> operator () (const hex::int1<zz> &, const hex::uint<zz> &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::int2<zz>, hex::int2<zz>> {
+        division<hex::int2<zz>, hex::int2<zz>> operator () (const hex::int2<zz> &, const hex::int2<zz> &);
+    };
     
 }
 
@@ -576,6 +618,7 @@ namespace data::encoding::decimal {
         
         explicit operator double () const;
         explicit operator uint64 () const;
+        explicit operator math::N () const;
     };
     
     signed_decimal::string operator - (const string &);
@@ -621,6 +664,7 @@ namespace data::encoding::signed_decimal {
         
         explicit operator double () const;
         explicit operator int64 () const;
+        explicit operator math::Z () const;
     };
     
     template <endian::order r>
@@ -662,6 +706,8 @@ namespace data::encoding::hexidecimal {
         integer<c, cx> operator + (int64) const;
         integer<c, cx> operator - (int64) const;
         integer<c, cx> operator * (int64) const;
+
+        explicit operator math::Z () const;
     };
 
     template <hex::letter_case cx>
@@ -677,6 +723,8 @@ namespace data::encoding::hexidecimal {
         data::hex::uint<cx> operator + (uint64) const;
         data::hex::uint<cx> operator - (uint64) const;
         data::hex::uint<cx> operator * (uint64) const;
+
+        explicit operator math::N () const;
     };
     
     template <complement c, hex::letter_case cx>
@@ -995,9 +1043,17 @@ namespace data::encoding::signed_decimal {
     string inline &operator &= (string &n, const decimal::string &x) {
         return n &= string {static_cast<const std::string> (x)};
     }
-    
-    string inline operator / (const string &n, const decimal::string &x) {
-        return n / string {static_cast<const std::string> (x)};
+
+    string inline operator / (const string &v, const decimal::string &z) {
+        return math::divide<string, decimal::string> {} (v, z).Quotient;
+    }
+
+    string inline operator / (const string &v, const string &z) {
+        return math::divide<string, string> {} (v, z).Quotient;
+    }
+
+    decimal::string inline operator % (const string &v, const decimal::string &z) {
+        return math::divide<string, decimal::string> {} (v, z).Remainder;
     }
     
     string inline operator ++ (string &x, int) {

@@ -202,6 +202,11 @@ namespace data::math {
     template <endian::order r> struct abs<number::Z_bytes<r, number::complement::ones>> {
         N_bytes<r> operator () (const number::Z_bytes<r, number::complement::ones> &);
     };
+
+    template <endian::order r, number::complement zz> struct times<number::Z_bytes<r, zz>> {
+        number::Z_bytes<r, zz> operator () (const number::Z_bytes<r, zz> &a, const number::Z_bytes<r, zz> &b);
+        nonzero<number::Z_bytes<r, zz>> operator () (const nonzero<number::Z_bytes<r, zz>> &a, const nonzero<number::Z_bytes<r, zz>> &b);
+    };
     
     template <endian::order r> struct abs<number::Z_bytes<r, number::complement::twos>> {
         number::Z_bytes<r, number::complement::twos> operator () (const number::Z_bytes<r, number::complement::twos> &);
@@ -244,6 +249,22 @@ namespace data::math {
         number::Z_bytes<r, c> operator () (const number::Z_bytes<r, c> &a, const number::Z_bytes<r, c> &b) {
             return b - a;
         }
+    };
+
+    template <endian::order r> struct divide<N_bytes<r>, N_bytes<r>> {
+        division<N_bytes<r>, N_bytes<r>> operator () (const N_bytes<r> &, const N_bytes<r> &);
+    };
+
+    template <endian::order r> struct divide<Z_bytes<r>, Z_bytes<r>> {
+        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &, const Z_bytes<r> &);
+    };
+
+    template <endian::order r> struct divide<Z_bytes<r>, N_bytes<r>> {
+        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &, const N_bytes<r> &);
+    };
+
+    template <endian::order r> struct divide<Z_bytes_twos<r>, Z_bytes_twos<r>> {
+        division<Z_bytes_twos<r>, Z_bytes_twos<r>> operator () (const Z_bytes_twos<r> &, const Z_bytes_twos<r> &);
     };
     
 }

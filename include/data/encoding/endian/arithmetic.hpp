@@ -10,6 +10,7 @@
 #include <data/encoding/words.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/sign.hpp>
+#include <data/math/division.hpp>
 
 namespace data::endian {
 
@@ -263,6 +264,30 @@ namespace data::math {
     bool inline is_positive (const endian::arithmetic<s, o, z> &x) {
         return x > 0;
     }
+
+    template <endian::order r, size_t x>
+    struct divide<endian::arithmetic<false, r, x>, endian::arithmetic<false, r, x>> {
+        division<endian::arithmetic<false, r, x>, endian::arithmetic<false, r, x>> operator ()
+        (const endian::arithmetic<false, r, x> &v, const endian::arithmetic<false, r, x> &z) {
+            return {v / z, v % z};
+        }
+    };
+
+    template <endian::order r, size_t x>
+    struct divide<endian::arithmetic<true, r, x>, endian::arithmetic<true, r, x>> {
+        division<endian::arithmetic<true, r, x>, endian::arithmetic<false, r, x>> operator ()
+        (const endian::arithmetic<true, r, x> &v, const endian::arithmetic<true, r, x> &z) {
+            return {v / z, v % z};
+        }
+    };
+
+    template <endian::order r, size_t x>
+    struct divide<endian::arithmetic<true, r, x>, endian::arithmetic<false, r, x>> {
+        division<endian::arithmetic<true, r, x>, endian::arithmetic<false, r, x>> operator ()
+        (const endian::arithmetic<true, r, x> &v, const endian::arithmetic<false, r, x> &z) {
+            return {v / z, v % z};
+        }
+    };
 
 }
 

@@ -150,7 +150,19 @@ namespace data::math {
     
     template <endian::order r, size_t x> bool is_positive (const uint<r, x> &);
     template <endian::order r, size_t x> bool is_positive (const sint<r, x> &);
-    
+
+    template <endian::order r, size_t x> struct divide<uint<r, x>, uint<r, x>> {
+        division<uint<r, x>, uint<r, x>> operator () (const uint<r, x> &, const uint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct divide<sint<r, x>, sint<r, x>> {
+        division<sint<r, x>, uint<r, x>> operator () (const sint<r, x> &, const sint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct divide<sint<r, x>, uint<r, x>> {
+        division<sint<r, x>, uint<r, x>> operator () (const sint<r, x> &, const uint<r, x> &);
+    };
+
 }
 
 namespace data {
@@ -421,7 +433,6 @@ namespace data::math::number {
 
         explicit operator int64 () const;
         
-    private:
         explicit bounded (const Z_bytes<r, complement::ones> &z) {
             if (z.size () <= size) {
                 std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());

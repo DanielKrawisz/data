@@ -435,6 +435,18 @@ namespace data::math {
         std::copy (z.begin (), z.end (), n.begin ());
         return n;
     }
+
+    template <endian::order r, number::complement zz>
+    number::Z_bytes<r, zz> inline times<number::Z_bytes<r, zz>>::operator ()
+    (const number::Z_bytes<r, zz> &a, const number::Z_bytes<r, zz> &b) {
+        return a * b;
+    }
+
+    template <endian::order r, number::complement zz>
+    nonzero<number::Z_bytes<r, zz>> inline times<number::Z_bytes<r, zz>>::operator ()
+    (const nonzero<number::Z_bytes<r, zz>> &a, const nonzero<number::Z_bytes<r, zz>> &b) {
+        return a * b;
+    }
     
     template <endian::order r> N_bytes<r> inline quadrance<N_bytes<r>>::operator () (const N_bytes<r> &x) {
         return x * x;
@@ -981,8 +993,8 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r>::operator N () const {
         N x {};
 
-        for (const byte &b : this->words ()) {
-            x << 8;
+        for (const byte &b : this->words ().reverse ()) {
+            x <<= 8;
             x += b;
         }
 
@@ -998,8 +1010,8 @@ namespace data::math::number {
         auto ab = data::abs (*this);
         N x {};
 
-        for (const byte &b : ab.words ()) {
-            x << 8;
+        for (const byte &b : ab.words ().reverse ()) {
+            x <<= 8;
             x += b;
         }
 

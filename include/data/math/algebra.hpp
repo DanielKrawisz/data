@@ -5,33 +5,42 @@
 #ifndef DATA_MATH_ALGEBRA
 #define DATA_MATH_ALGEBRA
 
-#include <data/math/point.hpp>
+#include <data/types.hpp>
 
-namespace data::interface {
-    // TODO
-    
-    /*
-    template <typename x, typename r>
-    struct algebra : public linear::space<x, r> {
-        x times(x a, x b) const {
-            return a ^ b;
+namespace data::math {
+
+    template <typename F, typename x> struct identity;
+    template <typename F, typename x> struct inverse;
+
+    template <typename X> struct plus {
+        X operator () (const X &a, const X &b) {
+            return a + b;
         }
     };
-        
-    template <typename x, typename r>
-    struct division_algebra : public algebra<x, r> {
-        x divide(x a, x b) const {
-            return a / b;
+
+    template <typename X> struct identity<plus<X>, X> {
+        X operator () () {
+            return X {0};
         }
     };
-        
-    template <typename x, typename r>
-    struct normed_division_algebra : public ring<x> {
-        nonnegative<r> norm(x a) const {
-            return a.norm();
+
+    template <typename X> struct times {
+        X operator () (const X &a, const X &b) {
+            return a * b;
         }
     };
-    */
+
+    template <typename X> struct identity<times<X>, X> {
+        X operator () () {
+            return X {1};
+        }
+    };
+
+    template <std::signed_integral X> struct inverse<plus<X>, X> {
+        X operator () (X a, X b) {
+            return b - a;
+        }
+    };
     
 }
 

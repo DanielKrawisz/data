@@ -6,7 +6,7 @@
 #define DATA_FLOAT
 
 #include <data/math/abs.hpp>
-#include <data/math/arithmetic.hpp>
+#include <data/math/algebra.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
 
@@ -120,6 +120,18 @@ namespace data::math {
             return x * x;
         }
     };
+
+    template <std::floating_point X> struct times<X> {
+        X operator () (const X &a, const X &b) {
+            return a * b;
+        }
+
+        // technically, it is not true that there are no zero divisors but
+        // we use floats as an approximation for real numbers.
+        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+            return a * b;
+        }
+    };
     
     template <std::floating_point X> struct commutative<plus<X>, X> {};
     template <std::floating_point X> struct commutative<times<X>, X> {};
@@ -141,6 +153,12 @@ namespace data::math {
     template <std::floating_point X> struct inverse<plus<X>, X> {
         X operator () (const X &a, const X &b) {
             return b - a;
+        }
+    };
+
+    template <std::floating_point X> struct inverse<times<X>, X> {
+        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+            return b / a;
         }
     };
     
