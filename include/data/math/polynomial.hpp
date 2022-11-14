@@ -9,114 +9,168 @@
 #include <data/math/division.hpp>
 #include <data/math/arithmetic.hpp>
 #include <data/math/power.hpp>
+#include <data/math/field.hpp>
 
 namespace data::math {
 
-    template <typename A, typename N, char x> struct polynomial;
+    template <ring A, typename N, char x> struct polynomial;
+
+    template <ring A, typename N, char x>
+    bool operator == (const polynomial<A, N, x>, const polynomial<A, N, x>);
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> operator - (const polynomial<A, N, x>);
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> operator + (const polynomial<A, N, x>, const polynomial<A, N, x>);
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> operator - (const polynomial<A, N, x>, const polynomial<A, N, x>);
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> operator * (const polynomial<A, N, x>, const polynomial<A, N, x>);
+
+    // the other operations work if A is a ring, but for division we need A to be a field.
+    template <field A, typename N, char x>
+    struct divide<polynomial<A, N, x>> {
+        division<polynomial<A, N, x>> operator () (const polynomial<A, N, x>, const nonzero<polynomial<A, N, x>>);
+    };
 
     template <typename A, typename N, char x>
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p);
 
+    template <typename A, typename N, char x>
+    struct commutative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative_plus<A> {};
+
+    template <typename A, typename N, char x>
+    struct associative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : associative_plus<A> {};
+
+    template <typename A, typename N, char x>
+    struct commutative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative_times<A>{};
+
+    template <typename A, typename N, char x>
+    struct associative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : associative_times<A> {};
+
+    template <typename A, typename N, char x>
+    struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {
+        polynomial<A, N, x> operator () ();
+    };
+
+    template <typename A, typename N, char x>
+    struct identity<times<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<times<A>, A> {
+        polynomial<A, N, x> operator () ();
+    };
+
     template <char name> struct variable {};
 
     template <char name>
-    std::ostream inline &operator << (std::ostream &o, const variable<name> &x) {
-        return o << name;
-    }
-    
-    template <typename A, typename N, char x>
+    bool operator == (variable<name>, variable<name>);
+
+    template <char name>
+    std::ostream &operator << (std::ostream &o, const variable<name> &x);
+
+    template <ring A, typename N, char x>
     struct polynomial {
-        struct term {
-            A Coefficient;
-            power<variable<x>, N> Power;
-            
-            term (A, N);
-            
-            bool operator == (const term &) const;
-            bool operator == (const A &) const;
-            
-            bool operator != (const term &) const;
-            bool operator != (const A &) const;
-            
-            A operator () (const A) const;
-            polynomial operator () (const polynomial) const;
-            
-            term operator * (const term &) const;
-            term operator * (const A) const;
-            polynomial operator * (const polynomial) const;
-        };
         
         polynomial ();
         polynomial (const A a);
-        polynomial (const term t);
-        
-        constexpr static polynomial unit ();
+
+        bool valid () const;
         
         constexpr static polynomial zero ();
+        constexpr static polynomial unit ();
+        constexpr static polynomial var ();
         
         uint32 degree () const;
         
         static bool equal (const polynomial, const polynomial);
-        
-        bool operator == (const polynomial) const;
-        bool operator != (const polynomial) const;
-        
-        static polynomial plus (const polynomial, const term);
-        static polynomial plus (const polynomial, const A);
+        static polynomial negative (const polynomial);
         static polynomial plus (const polynomial, const polynomial);
+        static polynomial minus (const polynomial, const polynomial);
+        static polynomial times (const polynomial, const polynomial);
+        static polynomial pow (const polynomial, const N &);
         
-        polynomial operator + (const term) const;
+        bool operator == (const A &) const;
+        
         polynomial operator + (const A) const;
-        polynomial operator + (const polynomial &) const;
         
-        polynomial operator += (const term);
         polynomial operator += (const A);
         polynomial operator += (const polynomial &);
         
         polynomial operator * (const A) const;
-        polynomial operator * (const term) const;
-        polynomial operator * (const polynomial) const;
         
-        polynomial operator ^ (const N) const;
-        
+        polynomial operator *= (const A) const;
+        polynomial operator *= (const polynomial) const;
+
         polynomial operator () (const A) const;
         polynomial operator () (const polynomial) const;
-        
-        bool operator == (const polynomial &);
-        
-        bool operator != (const polynomial &);
-        
-        division<polynomial> divide (const polynomial Dividend, const polynomial Divisor);
-        
-        division<polynomial> operator / (const polynomial) const;
-        
-        polynomial derivative () const;
+
+        polynomial operator ^ (const N &n) const;
         
         bool operator > (const polynomial) const;
         bool operator < (const polynomial) const;
         bool operator <= (const polynomial) const;
         bool operator >= (const polynomial) const;
-        
-        template <typename ... P>
-        static polynomial make (P... rest);
+
+        polynomial derivative () const;
+
+        static division<polynomial> divide (const polynomial, const polynomial);
         
     private:
-        // for ordering terms in the polynomial by power. 
-        struct ordering {
-            term Term;
+        // remove any terms that are equal to zero.
+        polynomial normalize () const;
+
+        using power = math::power<variable<x>, N>;
+
+        // a term in a polynomial is the part like A (x ^ N).
+        struct term {
+            A Coefficient;
+            power Power;
             
-            ordering (term t);
+            explicit term () : Coefficient {0}, Power {{}, 1} {}
+            explicit term (A, const N &n);
+
+            // cannot have 0 ^ 0.
+            bool valid () const {
+                return Coefficient != 0 || Power.Exponent != 0u;
+            }
             
-            bool operator == (const ordering &) const;
-            bool operator > (const ordering &) const;
-            bool operator < (const ordering &) const;
-            bool operator <= (const ordering &) const;
-            bool operator >= (const ordering &) const;
+            bool operator == (const term &) const;
+            bool operator == (const A &) const;
             
-            division<ordering> operator / (const ordering &) const;
+            A operator () (const A) const;
+            polynomial operator () (const polynomial) const;
+            
+            term operator - () const {
+                return term {-Coefficient, Power.Exponent};
+            }
+
+            term operator * (const term &) const;
+            term operator * (const A) const;
+            polynomial operator * (const polynomial) const;
+            
+            // used for ordering terms so the fact that one term < another
+            // does not mean that it is actually numerically bigger.
+            std::weak_ordering operator <=> (const term &o) const {
+                return Coefficient == 0 && o.Coefficient == 0 || Power.Exponent == 0u && o.Power.Exponent == 0u ? std::weak_ordering::equivalent :
+                    Power.Exponent == o.Power.Exponent ? Coefficient <=> o.Coefficient : o.Power.Exponent <=> Power.Exponent;
+            } 
+
+            term derivative () const {
+                if (Power.Exponent == 0) return term {};
+                return term {Coefficient * Power.Exponent, Power.Exponent - 1};
+            }
         };
         
-        using terms = ordered_list<ordering>;
+        polynomial (const term t);
+        
+        polynomial operator + (const term t) const;
+        
+        polynomial operator += (const term t);
+        
+        polynomial operator * (const term t) const;
+        
+        using terms = ordered_list<term>;
         
         terms Terms;
         
@@ -124,49 +178,39 @@ namespace data::math {
         
         polynomial rest () const;
         
-        polynomial (const terms l);
-        polynomial (const list<term> l);
-        
-        friend std::ostream &operator << <A, N> (std::ostream &, const polynomial &);
+        friend std::ostream &operator << <A, N, x> (std::ostream &, const polynomial &);
         
         polynomial insert (const term) const;
         polynomial insert (const terms) const;
-        polynomial insert (const polynomial p) const;
         
-        static polynomial build (const polynomial p);
-        
-        template <typename ... P>
-        static polynomial build (const polynomial p, const A, P... rest);
-        
-        template <typename ... P>
-        static polynomial build (const polynomial p, const term, P... rest);
+        explicit polynomial (const terms t, void*) : Terms {t} {}
     };
+    
+    template <typename A, typename N, char x>
+    polynomial<A, N, x> inline identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
+        return identity<plus<A>, A>::value ();
+    }
+    
+    template <typename A, typename N, char x>
+    polynomial<A, N, x> inline identity<times<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
+        return identity<times<A>, A>::value ();
+    }
 
-    template <typename A, typename N, char x>
-    struct commutative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative<plus<A>, A> {};
-    
-    template <typename A, typename N, char x>
-    struct associative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : associative<plus<A>, A> {};
-    
-    template <typename A, typename N, char x>
-    struct commutative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : commutative<times<A>, A>{};
-    
-    template <typename A, typename N, char x>
-    struct associative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : associative<times<A>, A> {};
-    
-    template <typename A, typename N, char x>
-    struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {
-        static const polynomial<A, N, x> value () {
-            return identity<plus<A>, A>::value ();
-        }
-    };
-    
-    template <typename A, typename N, char x>
-    struct identity<times<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<times<A>, A> {
-        static const polynomial<A, N, x> value () {
-            return identity<times<A>, A>::value ();
-        }
-    };
+    template <char name>
+    bool inline operator == (variable<name>, variable<name>) {
+        return true;
+    }
+
+    template <char name>
+    std::ostream inline &operator << (std::ostream &o, const variable<name> &x) {
+        return o << name;
+    }
+
+    template <field A, typename N, char x>
+    division<polynomial<A, N, x>> inline divide<polynomial<A, N, x>>::operator ()
+    (const polynomial<A, N, x> a, const nonzero<polynomial<A, N, x>> b) {
+        return polynomial<A, N, x>::divide (a, b);
+    }
 
     template <typename A, typename N, char x>
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p) {
@@ -174,34 +218,69 @@ namespace data::math {
         if (!p.Terms.empty ()) {
             typename polynomial<A, N, x>::terms z = p.Terms;
             while (true) {
-                typename polynomial<A, N, x>::term t = z.first ().Term;
-                o << t.Coefficient << " " << t.Power;
+                typename polynomial<A, N, x>::term t = z.first ();
+                if (t.Power.Exponent == 0) o << t.Coefficient;
+                else {
+                    if (t.Coefficient != 1) o << t.Coefficient << " ";
+                    o << t.Power;
+                }
                 z = z.rest ();
                 if (z.empty ()) break;
                 o << " + ";
             }
-        }
+        } else o << "0";
         return o << "}";
     }
-    
-    template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::term::operator == (const term &t) const {
-        return Coefficient == t.Coefficient && Power.Exponent == t.Power.Exponent;
+
+    template <ring A, typename N, char x>
+    bool inline operator == (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x>::equal (a, b);
+    }
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> inline operator - (const polynomial<A, N, x> p) {
+        return polynomial<A, N, x>::negative (p);
+    }
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> inline operator + (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x>::plus (a, b);
+    }
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> inline operator - (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x>::minus (a, b);
+    }
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> inline operator * (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x>::times (a, b);
+    }
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> inline polynomial<A, N, x>::operator ^ (const N &n) const {
+        return polynomial<A, N, x>::pow (*this, n);
+    }
+
+    template <ring A, typename N, char x>
+    polynomial<A, N, x> inline polynomial<A, N, x>::pow (const polynomial p, const N &n) {
+        return data::pow (p, n);
+        //throw 0;
+    }
+
+    template <ring A, typename N, char x>
+    bool polynomial<A, N, x>::valid () const {
+        return Terms.valid ();
     }
     
     template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::term::operator == (const A &a) const {
+    bool inline polynomial<A, N, x>::term::operator == (const term &t) const {
+        return *this <=> t == 0;
+    }
+    
+    template <typename A, typename N, char x>
+    bool inline polynomial<A, N, x>::term::operator == (const A &a) const {
         return operator == (term {a, 0});
-    }
-    
-    template <typename A, typename N, char x>
-    bool inline polynomial<A, N, x>::term::operator != (const term &t) const {
-        return !operator == (t);
-    }
-    
-    template <typename A, typename N, char x>
-    bool inline polynomial<A, N, x>::term::operator != (const A &a) const {
-        return !operator == (term {a, 0});
     }
     
     template <typename A, typename N, char x>
@@ -215,185 +294,122 @@ namespace data::math {
     }
     
     template <typename A, typename N, char x>
-    typename polynomial<A, N, x>::term inline polynomial<A, N, x>::term::operator * (const term &z) const {
-        return term {Coefficient * z.Coefficient, Power.Exponent + z.Power.Exponent};
+    typename polynomial<A, N, x>::term inline polynomial<A, N, x>::term::operator * (const term &t) const {
+        return term {Coefficient * t.Coefficient, Power.Exponent + t.Power.Exponent};
     }
-    
+
     template <typename A, typename N, char x>
-    typename polynomial<A, N, x>::term inline polynomial<A, N, x>::term::operator * (const A z) const {
-        return term {Coefficient * z, Power.Exponent};
+    typename polynomial<A, N, x>::term inline polynomial<A, N, x>::term::operator * (const A a) const {
+        return term {Coefficient * a, Power.Exponent};
     }
     
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::term::operator * (const polynomial p) const {
-        return polynomial {for_each ([this] (ordering o) -> term {
-            return this->operator * (o.Term);
-        }, p.Terms)};
+        return fold ([this] (const polynomial &p, const term &t) -> polynomial {
+            return p + (*this * t);
+        }, polynomial {}, reverse (p.Terms));
     }
 
     template <typename A, typename N, char x>
-    inline polynomial<A, N, x>::term::term (A a, N p) : Coefficient {a}, Power {variable<x> {}, p} {}
-    
-    template <typename A, typename N, char x>
-    inline polynomial<A, N, x>::ordering::ordering (term t) : Term{t} {}
-    
-    template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::ordering::operator == (const ordering &o) const {
-        return Term.Power.Exponent == o.Term.Power.Exponent;
-    }
-    
-    template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::ordering::operator > (const ordering &o) const {
-        return Term.Power.Exponent > o.Term.Power.Exponent;
-    }
-    
-    template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::ordering::operator < (const ordering &o) const {
-        return Term.Power.Exponent < o.Term.Power.Exponent;
-    }
-    
-    template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::ordering::operator <= (const ordering &o) const {
-        return Term.Power.Exponent <= o.Term.Power.Exponent;
-    }
-    
-    template <typename A, typename N, char x>
-    inline bool polynomial<A, N, x>::ordering::operator >= (const ordering &o) const {
-        return Term.Power.Exponent >= o.Term.Power.Exponent;
-    }
-    
-    template <typename A, typename N, char x>
-    division<typename polynomial<A, N, x>::ordering>
-    polynomial<A, N, x>::ordering::operator / (const ordering &o) const {
-        if (o.Term == 0) throw division_by_zero {};
-        if (Term.Power < o.Term.Power) return division<polynomial> {*this, o};
-        return division<ordering> {
-            ordering {term {
-                Term.Coefficient / o.Term.Coefficient, 
-                Term.Power - o.Term.Power}}, 
-            ordering {0}};
-    }
-    
-    template <typename A, typename N, char x>
-    inline polynomial<A, N, x>::polynomial (const terms l) : Terms {l} {}
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x>::polynomial (const list<term> l) : Terms {} {
-        list<term> t = l;
-        while (!t.empty ()) {
-            operator += (t.first ());
-            t = t.rest ();
-        }
-    }
+    inline polynomial<A, N, x>::term::term (A a, const N& n) : Coefficient {a}, Power {{}, n} {}
     
     template <typename A, typename N, char x>
     inline polynomial<A, N, x>::polynomial () : Terms {} {}
     
     template <typename A, typename N, char x>
-    inline polynomial<A, N, x>::polynomial (const A a) : Terms {terms {}.insert (ordering {term {a, 0}})} {}
+    inline polynomial<A, N, x>::polynomial (const A a) : Terms {terms {}.insert (term {a, 0})} {}
     
     template <typename A, typename N, char x>
-    inline polynomial<A, N, x>::polynomial (const term t) : Terms {terms {}.insert (ordering {t})} {}
+    inline polynomial<A, N, x>::polynomial (const term t) : Terms {terms {}.insert (t)} {}
     
     template <typename A, typename N, char x>
     typename polynomial<A, N, x>::term inline polynomial<A, N, x>::first () const {
-        return Terms.first ().Term;
+        return Terms.first ();
     }
     
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::rest () const {
-        return Terms.rest ();
+        return polynomial {Terms.rest (), nullptr};
     }
     
     template <typename A, typename N, char x>
     constexpr polynomial<A, N, x> inline polynomial<A, N, x>::unit () {
-        return polynomial {term {A {1}, N {0}}};
+        return polynomial {term {A {1}, 0}};
     } 
     
     template <typename A, typename N, char x>
     constexpr polynomial<A, N, x> inline polynomial<A, N, x>::zero () {
-        return polynomial {term {A {0}, N {0}}};
+        return polynomial {term {A {0}, 0}};
+    }
+    
+    template <typename A, typename N, char x>
+    constexpr polynomial<A, N, x> inline polynomial<A, N, x>::var () {
+        return polynomial (term {A (1), 1});
     }
     
     template <typename A, typename N, char x>
     uint32 inline polynomial<A, N, x>::degree () const {
-        if (Terms.empty ()) return 0;
-        return Terms.first ().Term.Power.Exponent;
+        auto p = normalize ();
+        if (p.Terms.empty ()) return 0;
+        return p.Terms.first ().Power.Exponent;
     }
     
     template <typename A, typename N, char x>
-    bool polynomial<A, N, x>::equal (const polynomial p, const polynomial q) {
-        if (p.degree () != q.degree ()) return false;
-        if (p.Terms.empty ()) return true;
-        if (p.first () != q.first ()) return false;
-        return equal (p.rest (), q.rest ());
+    bool inline polynomial<A, N, x>::equal (const polynomial p, const polynomial q) {
+        return p.normalize ().Terms == q.normalize ().Terms;
     }
-    
+
     template <typename A, typename N, char x>
-    bool inline polynomial<A, N, x>::operator == (const polynomial p) const {
-        return equal (*this, p);
+    bool inline polynomial<A, N, x>::operator == (const A &p) const {
+        return equal (*this, polynomial {p});
     }
-    
+
     template <typename A, typename N, char x>
-    bool inline polynomial<A, N, x>::operator != (const polynomial p) const {
-        return !equal (*this, p);
+    polynomial<A, N, x> polynomial<A, N, x>::insert (const term t) const {
+        if (t == term {}) return *this;
+        if (Terms.empty ()) return {t};
+        term first = Terms.first ();
+        if (t.Power.Exponent > first.Power.Exponent) return polynomial {Terms.insert (t), nullptr};
+        if (first.Power.Exponent == t.Power.Exponent) return rest ().insert (term {t.Coefficient + first.Coefficient, t.Power.Exponent});
+        return rest ().insert (t).insert (first);
     }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> polynomial<A, N, x>::insert (const term z) const {
-        if (Terms.empty ()) return z;
-        if (z == term {A {0}, N {0}}) return *this;
-        ordering first = Terms.first ();
-        if (first == ordering {z})
-            return rest ().insert (term {z.Coefficient + first.Term.Coefficient, z.Power.Exponent});
-        return Terms.insert (ordering {z});
-    }
-    
+
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::insert (terms t) const {
-        if (Terms.empty ()) return {t};
+        if (Terms.empty ()) return polynomial {t, nullptr};
         if (t.empty ()) return *this;
-        return insert (t.first ().Term).insert (t.rest ());
+        return polynomial {insert (t.first ()).insert (t.rest ())};
     }
     
     template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::insert (const polynomial p) const {
-        if (Terms.empty ()) return p;
-        return insert (p.Terms);
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::plus (const polynomial p, const term z) {
-        return p.insert (z);
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::plus (const polynomial t, const A a) {
-        return plus (t, term {a, 0});
+    polynomial<A, N, x> inline polynomial<A, N, x>::operator + (const A a) const {
+        return insert (term {a, 0});
     }
     
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::plus (const polynomial a, const polynomial b) {
-        return a.insert (b.Terms);
+        return a.insert (b.Terms).normalize ();
+    }
+
+    template <typename A, typename N, char x>
+    polynomial<A, N, x> inline polynomial<A, N, x>::minus (const polynomial a, const polynomial b) {
+        return a + -b;
+    }
+
+    template <typename A, typename N, char x>
+    polynomial<A, N, x> inline polynomial<A, N, x>::negative (const polynomial a) {
+        return fold ([] (const polynomial p, const term &t) -> polynomial {
+            return p + -t;
+        }, polynomial {}, reverse (a.Terms));
     }
     
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator + (const term t) const {
-        return plus (*this, t);
+        return insert (t);
     };
     
     template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::operator + (const A a) const {
-        return plus (*this, a);
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::operator + (const polynomial& p) const {
-        return plus (*this, p);
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::operator += (const term t) {
+    inline polynomial<A, N, x> polynomial<A, N, x>::operator += (const term t) {
         return *this = *this + t;
     }
     
@@ -406,36 +422,26 @@ namespace data::math {
     polynomial<A, N, x> inline polynomial<A, N, x>::operator += (const polynomial &p) {
         return *this = *this + p;
     }
-    
+
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator * (const A z) const {
-        return reduce<polynomial> (math::plus<polynomial> {},
-            for_each ([z] (ordering o) -> polynomial {
-                return o.Term * z;
-            }, Terms));
+        return fold ([z] (const polynomial p, const term &t) -> polynomial {
+            return p + t * z;
+        }, polynomial {}, reverse (Terms));
     }
-    
+
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator * (const term z) const {
-        return reduce<polynomial> (math::plus<polynomial> {},
-            for_each ([z] (ordering o) -> polynomial {
-                return o.Term * z;
-            }, Terms));
+        return fold ([z] (const polynomial p, const term &t) -> polynomial {
+            return p + t * z;
+        }, polynomial {}, reverse (Terms));
     }
-    
+
     template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::operator * (const polynomial p) const {
-        return reduce<polynomial> (math::plus<polynomial> {},
-            for_each ([p] (ordering o) -> polynomial {
-                return o.Term * p;
-            }, Terms));
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::operator ^ (const N n) const {
-        if (n == 0) return unit ();
-        if (n == 1) return *this;
-        return operator * (*this) ^ (n - 1);
+    polynomial<A, N, x> inline polynomial<A, N, x>::times (const polynomial a, const polynomial b) {
+        return fold ([b] (const polynomial p, const term &t) -> polynomial {
+            return p + t * b;
+        }, polynomial {}, reverse (a.Terms));
     }
     
     template <typename A, typename N, char x>
@@ -447,65 +453,39 @@ namespace data::math {
     // inefficient as it computes powers repeatedly. 
     template <typename A, typename N, char x>
     polynomial<A, N, x> polynomial<A, N, x>::operator () (const polynomial p) const {
-        return reduce<polynomial> (math::plus<polynomial> {},
-            for_each ([p] (ordering o) -> polynomial {
-                return o.Term (p);
-            }, Terms));
+        return fold ([p] (const polynomial n, const term &t) -> polynomial {
+            return n + t (p);
+        }, polynomial {}, reverse (Terms));
     }
-    
+
     template <typename A, typename N, char x>
-    bool inline polynomial<A, N, x>::operator == (const polynomial &p) {
-        return equal (Terms, p.Terms);
-    }
-    
-    template <typename A, typename N, char x>
-    bool inline polynomial<A, N, x>::operator != (const polynomial &p) {
-        return !operator == (p);
-    }
-    
-    template <typename A, typename N, char x>
-    division<polynomial<A, N, x>> inline polynomial<A, N, x>::divide (const polynomial Dividend, const polynomial Divisor) {
+    division<polynomial<A, N, x>> polynomial<A, N, x>::divide (const polynomial Dividend, const polynomial Divisor) {
         if (Divisor == 0) throw division_by_zero {};
-        if (Divisor.degree () > Dividend.degree ()) return division<polynomial> {Dividend, Divisor};
-        term z = Divisor.first () / Dividend.first ();
-        return polynomial {z} + divide (Dividend - Divisor * x, Divisor);
+
+        function<division<polynomial> (const polynomial, const polynomial)> f = [&f] (const polynomial d, const polynomial s) {
+            if (s.degree () > d.degree ()) return division<polynomial> {polynomial::zero (), d};
+            auto d1 = d.first ();
+            auto s1 = s.first ();
+            term t {d1.Coefficient / s1.Coefficient, d1.Power.Exponent - s1.Power.Exponent};
+            division<polynomial<A, N, x>> div = f (d - s * t, s);
+            return division<polynomial<A, N, x>> {div.Quotient + t, div.Remainder};
+        };
+
+        return f (Dividend.normalize (), Divisor.normalize ());
     }
-    
+
     template <typename A, typename N, char x>
-    division<polynomial<A, N, x>> inline polynomial<A, N, x>::operator / (const polynomial p) const {
-        return divide (*this, p);
+    polynomial<A, N, x> polynomial<A, N, x>::normalize () const {
+        return polynomial {select (Terms, function<bool (const term &)> {[] (const term &t) -> bool {
+            return t.Coefficient != 0;
+        }}), nullptr};
     }
-    
+
     template <typename A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::derivative () const {
-        return reduce (math::plus<polynomial> {},
-            for_each([] (ordering o)->polynomial {
-                if (o.Term.Power == 0) return zero ();
-                return polynomial {term {o.Term.Coefficient * o.Term.Power, o.Term.Power - 1}};
-            }, Terms));
-    }
-    
-    template <typename A, typename N, char x>
-    template <typename ... P>
-    polynomial<A, N, x> inline polynomial<A, N, x>::make (P... rest) {
-        return build (polynomial {}, rest...);
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline polynomial<A, N, x>::build (const polynomial p) {
-        return p;
-    }
-    
-    template <typename A, typename N, char x>
-    template <typename ... P>
-    polynomial<A, N, x> inline polynomial<A, N, x>::build (const polynomial p, const A z, P... rest) {
-        return build (p + z, rest...);
-    }
-    
-    template <typename A, typename N, char x>
-    template <typename ... P>
-    polynomial<A, N, x> inline polynomial<A, N, x>::build (const polynomial p, const term z, P... rest) {
-        return build (p + z, rest...);
+        return fold ([] (const polynomial p, const term &t) -> polynomial {
+            return p + t.derivative ();
+        }, polynomial {}, reverse (Terms)).normalize ();
     }
     
 }

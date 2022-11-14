@@ -233,10 +233,32 @@ namespace data {
         Z_Bytes_to_Z (0);
         Z_Bytes_to_Z (1);
         Z_Bytes_to_Z (3);
+        Z_Bytes_to_Z (229);
         Z_Bytes_to_Z (767);
+        Z_Bytes_to_Z (916);
+        Z_Bytes_to_Z (1145);
         Z_Bytes_to_Z ("0x0f00000a00aabbccddeeffffffffffffffff");
         Z_Bytes_to_Z ("0xf000000a00aabbccddeeffffffffffffffff");
         
+    }
+
+    TEST (ZBytesTest, TestZBytesOnesAndTwos) {
+
+        EXPECT_EQ (Z_bytes_big (Z_bytes_twos_big (Z_bytes_big {1145})), Z_bytes_big {1145});
+        EXPECT_EQ (Z_bytes_big (Z_bytes_twos_big (Z_bytes_big {916})), Z_bytes_big {916});
+        EXPECT_EQ (Z_bytes_big (Z_bytes_twos_big (Z_bytes_big {229})), Z_bytes_big {229});
+
+        EXPECT_EQ (Z_bytes_little (Z_bytes_twos_little (Z_bytes_little {1145})), Z_bytes_little {1145});
+        EXPECT_EQ (Z_bytes_little (Z_bytes_twos_little (Z_bytes_little {916})), Z_bytes_little {916});
+        EXPECT_EQ (Z_bytes_little (Z_bytes_twos_little (Z_bytes_little {229})), Z_bytes_little {229});
+
+        EXPECT_EQ (Z_bytes_twos_big (Z_bytes_big (Z_bytes_twos_big {1145})), Z_bytes_twos_big {1145});
+        EXPECT_EQ (Z_bytes_twos_big (Z_bytes_big (Z_bytes_twos_big {916})), Z_bytes_twos_big {916});
+        EXPECT_EQ (Z_bytes_twos_big (Z_bytes_big (Z_bytes_twos_big {229})), Z_bytes_twos_big {229});
+
+        EXPECT_EQ (Z_bytes_twos_little (Z_bytes_little (Z_bytes_twos_little {1145})), Z_bytes_twos_little {1145});
+        EXPECT_EQ (Z_bytes_twos_little (Z_bytes_little (Z_bytes_twos_little {916})), Z_bytes_twos_little {916});
+        EXPECT_EQ (Z_bytes_twos_little (Z_bytes_little (Z_bytes_twos_little {229})), Z_bytes_twos_little {229});
     }
 
     TEST (ZBytesTest, TestZBytesZero) {

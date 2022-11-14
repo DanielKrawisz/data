@@ -190,4 +190,30 @@ namespace data::encoding {
         EXPECT_EQ (base58_uint {num}.divide (57),  b58_expected_57);
         
     }
+
+    TEST (StringNumbersTest, TestConvertStringNumbers) {
+        EXPECT_EQ (N (dec_uint {1145}), N (1145));
+        EXPECT_EQ (N (dec_uint {916}), N (916));
+        EXPECT_EQ (N (dec_uint {229}), N (229));
+
+        EXPECT_EQ (Z (dec_int {1145}), Z (1145));
+        EXPECT_EQ (Z (dec_int {916}), Z (916));
+        EXPECT_EQ (Z (dec_int {229}), Z (229));
+
+        EXPECT_EQ (N (base58_uint {1145}), N (1145));
+        EXPECT_EQ (N (base58_uint {916}), N (916));
+        EXPECT_EQ (N (base58_uint {229}), N (229));
+
+        EXPECT_EQ (N (hex_uint {1145}), N (1145));
+        EXPECT_EQ (N (hex_uint {916}), N (916));
+        EXPECT_EQ (N (hex_uint {229}), N (229));
+
+        EXPECT_EQ (Z (hex_int {1145}), Z (1145));
+        EXPECT_EQ (Z (hex_int {916}), Z (916));
+        EXPECT_EQ (Z (hex_int {229}), Z (229));
+
+        EXPECT_EQ (Z (hex_int_twos {1145}), Z (1145));
+        EXPECT_EQ (Z (hex_int_twos {916}), Z (916));
+        EXPECT_EQ (Z (hex_int_twos {229}), Z (229));
+    }
 }

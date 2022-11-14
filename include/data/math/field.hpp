@@ -12,10 +12,12 @@
 namespace data::math {
     
     template <typename elem, typename plus = math::plus<elem>, typename times = math::times<elem>>
-    concept field = math::ring<elem, plus, times> && abelian<elem, plus> && 
-    requires (const elem &a, const math::nonzero<elem> &b) {
+    concept field = integral_domain<elem, plus, times> &&
+    requires (const elem &a, const elem &b) {
         {a / b} -> std::same_as<elem>;
-    } && math::abelian<math::nonzero<elem>, times>;
+    } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
+        {inverse<times, elem> {} (a, b)} -> std::convertible_to<nonzero<elem>>;
+    };
     
 }
 

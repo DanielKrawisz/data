@@ -84,6 +84,22 @@ namespace data {
         return X.contains (k) ? X.remove (k).insert (k, v) : X;
     }
 
+    template <typename elem>
+    stack<elem> reverse (const ordered_list<elem> x) {
+        stack<elem> n;
+        for (const elem &e : x) n <<= e;
+        return n;
+    }
+
+    template <typename elem>
+    ordered_list<elem> select (const ordered_list<elem> x, function<bool (const elem &)> satisfies) {
+        stack<const elem &> n;
+        for (const elem &e : x) if (satisfies (e)) n <<= e;
+        ordered_list<elem> r;
+        for (const elem &e : n) r = r.insert (e);
+        return r;
+    }
+
 }
 
 #endif

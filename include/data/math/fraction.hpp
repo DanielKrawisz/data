@@ -20,6 +20,54 @@ namespace data::math {
     template <typename Z, typename N>
     std::weak_ordering operator <=> (const fraction<Z, N> &, const fraction<Z, N> &);
 
+    template <typename Z> fraction<Z> operator - (const fraction<Z> &);
+    template <typename Z> fraction<Z> operator + (const fraction<Z> &, const fraction<Z> &);
+    template <typename Z> fraction<Z> operator - (const fraction<Z> &, const fraction<Z> &);
+    template <typename Z> fraction<Z> operator * (const fraction<Z> &, const fraction<Z> &);
+
+    template <typename Z, typename N>
+    struct commutative<plus<fraction<Z, N>>, fraction<Z, N>> : commutative<plus<Z>, Z> {};
+
+    template <typename Z, typename N>
+    struct associative<plus<fraction<Z, N>>, fraction<Z, N>> : associative<plus<Z>, Z> {};
+
+    template <typename Z, typename N>
+    struct commutative<times<fraction<Z, N>>, fraction<Z, N>> : commutative<times<Z>, Z> {};
+
+    template <typename Z, typename N>
+    struct associative<times<fraction<Z, N>>, fraction<Z, N>> : associative<times<Z>, Z> {};
+
+    template <typename Z, typename N>
+    struct identity<plus<fraction<Z, N>>, fraction<Z, N>> : identity<plus<Z>, Z> {
+        fraction<Z, N> operator () ();
+    };
+
+    template <typename Z, typename N>
+    struct identity<times<fraction<Z, N>>, fraction<Z, N>> : identity<times<Z>, Z> {
+        fraction<Z, N> operator () ();
+    };
+
+    template <typename Z, typename N>
+    struct inverse<plus<fraction<Z, N>>, fraction<Z, N>> : inverse<plus<Z>, Z> {
+        fraction<Z, N> operator () (const fraction<Z, N> &a, const fraction<Z, N> &b);
+    };
+
+    template <ring Z, typename N> struct inverse<plus<fraction<Z, N>>, fraction<Z, N>> : inverse<plus<Z>, Z> {
+        fraction<Z, N> operator () (const fraction<Z, N> &a, const fraction<Z, N> &b);
+    };
+
+    template <integral_domain Z> struct times<fraction<Z>> {
+        fraction<Z> operator () (const fraction<Z> &, const fraction<Z> &);
+        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &, const nonzero<fraction<Z>> &);
+    };
+
+    template <integral_domain Z> struct inverse<times<fraction<Z>>, fraction<Z>> {
+        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &);
+        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &, const nonzero<fraction<Z>> &);
+    };
+
+    template <integral_domain Z> fraction<Z> operator / (const fraction<Z> &, const fraction<Z> &);
+
     template <typename Z, typename N>
     std::ostream &operator << (std::ostream &o, const fraction<Z, N> &x);
     
@@ -44,6 +92,8 @@ namespace data::math {
             return number::euclidian::extended<Z, N>::algorithm (a, b).GCD;
         }
 
+    public:
+        // reduce to lowest terms.
         static fraction divide (Z n, N d) {
             if (d == 0) return fraction {Z {0}, nonzero<N> {N {0u}}}; // Invalid value.
             if (n == 0) return fraction {Z {0}, nonzero<N> {N {1u}}};
@@ -51,23 +101,17 @@ namespace data::math {
             return fraction (n / Z (gcd_ab), nonzero (d / gcd_ab));
         }
 
-    public:
         fraction ();
-        fraction (Z n);
-        fraction (Z n, N d);
+
+        template <typename ZZ> fraction (ZZ n);
+
+        template <typename ZZ, typename NN> fraction (ZZ n, NN d);
         
         bool operator == (const Z &z) const;
-        
-        static maybe<fraction> inverse (const fraction &f);
-        
-        fraction operator - () const;
-        fraction operator + (const fraction &f) const;
+
         fraction operator + (const Z &z) const;
-        fraction operator - (const fraction &f) const;
         fraction operator - (const Z &z) const;
-        fraction operator * (const fraction &f) const;
         fraction operator * (const Z &z) const;
-        fraction operator / (const nonzero<fraction> &f) const;
         fraction operator / (const Z &z) const;
         
         fraction &operator += (const fraction &f);
@@ -75,39 +119,15 @@ namespace data::math {
         fraction &operator *= (const fraction &f);
         fraction &operator /= (const fraction &f);
 
+        friend class inverse<times<fraction<Z>>, fraction<Z>>;
+
     };
 
     template <typename Z, typename N>
     std::ostream inline &operator << (std::ostream &o, const fraction<Z, N> &x) {
-        return o << "fraction {" << x.Numerator << ", " << x.Denominator.Value << "}";
+        if (x.Denominator.Value == 1) return o << x.Numerator;
+        return o << "(" << x.Numerator << " / " << x.Denominator.Value << ")";
     }
-    
-    template <typename Z, typename N> 
-    struct commutative<plus<fraction<Z, N>>, fraction<Z, N>> : commutative<plus<Z>, Z> {};
-    
-    template <typename Z, typename N> 
-    struct associative<plus<fraction<Z, N>>, fraction<Z, N>> : associative<plus<Z>, Z> {};
-    
-    template <typename Z, typename N> 
-    struct commutative<times<fraction<Z, N>>, fraction<Z, N>> : commutative<times<Z>, Z> {};
-    
-    template <typename Z, typename N> 
-    struct associative<times<fraction<Z, N>>, fraction<Z, N>> : associative<times<Z>, Z> {};
-    
-    template <typename Z, typename N> 
-    struct identity<plus<fraction<Z, N>>, fraction<Z, N>> : identity<plus<Z>, Z> {
-        fraction<Z, N> operator () ();
-    };
-    
-    template <typename Z, typename N> 
-    struct identity<times<fraction<Z, N>>, fraction<Z, N>> : identity<times<Z>, Z> {
-        fraction<Z, N> operator () ();
-    };
-    
-    template <typename Z, typename N> 
-    struct inverse<plus<fraction<Z, N>>, fraction<Z, N>> : inverse<plus<Z>, Z> {
-        fraction<Z, N> operator () (const fraction<Z, N> &a, const fraction<Z, N> &b);
-    };
 
     template <typename Z, typename N>
     struct abs<fraction<Z, N>> {
@@ -123,15 +143,12 @@ namespace data::math {
     inline fraction<Z, N>::fraction () : Numerator {0}, Denominator {1u} {}
 
     template <typename Z, typename N>
-    inline fraction<Z, N>::fraction (Z n, N d) : fraction (divide (n, d)) {}
+    template <typename ZZ, typename NN>
+    inline fraction<Z, N>::fraction (ZZ n, NN d) : fraction (divide (Z (n), N (d))) {}
 
     template <typename Z, typename N>
-    inline fraction<Z, N>::fraction (Z n) : Numerator {n}, Denominator {uint64 {1}} {}
-
-    template <typename Z, typename N>
-    std::weak_ordering inline operator <=> (const fraction<Z, N> &a, const fraction<Z, N> &b) {
-        return a.Numerator * b.Denominator.Value <=> b.Numerator * a.Denominator.Value;
-    }
+    template <typename ZZ>
+    inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
     template <typename Z, typename N>
     bool inline operator == (const fraction<Z, N> &a, const fraction<Z, N> &b) {
@@ -139,21 +156,51 @@ namespace data::math {
     }
 
     template <typename Z, typename N>
-    maybe<fraction<Z, N>> inline fraction<Z, N>::inverse (const fraction &f) {
-        if (f == 0) return nullptr;
-        return std::make_shared<fraction> (
-            fraction {Z {f.Denominator} * data::sign (f.Numerator), nonzero {data::abs (f.Numerator)}});
+    std::weak_ordering inline operator <=> (const fraction<Z, N> &a, const fraction<Z, N> &b) {
+        return a.Numerator * b.Denominator.Value <=> b.Numerator * a.Denominator.Value;
     }
 
     template <typename Z, typename N>
-    fraction<Z, N> inline fraction<Z, N>::operator - () const {
-        return {-Numerator, Denominator};
+    bool inline fraction<Z, N>::operator == (const Z &z) const {
+        return *this == fraction {z};
     }
 
-    template <typename Z, typename N>
-    fraction<Z, N> inline fraction<Z, N>::operator + (const fraction &f) const {
-        return divide (f.Numerator * Denominator.Value + Numerator * f.Denominator.Value,
-            Denominator.Value * f.Denominator.Value);
+    template <typename Z>
+    fraction<Z> inline operator - (const fraction<Z> &x) {
+        auto z = x;
+        z.Numerator = -z.Numerator;
+        return z;
+    }
+
+    template <typename Z>
+    fraction<Z> inline operator + (const fraction<Z> &a, const fraction<Z> &b) {
+        return fraction<Z>::divide (b.Numerator * a.Denominator.Value + a.Numerator * b.Denominator.Value,
+            a.Denominator.Value * b.Denominator.Value);
+    }
+
+    template <typename Z>
+    fraction<Z> inline operator - (const fraction<Z> &a, const fraction<Z> &b) {
+        return a + (-b);
+    }
+
+    template <typename Z>
+    fraction<Z> inline operator * (const fraction<Z> &a, const fraction<Z> &b) {
+        return fraction<Z> {a.Numerator * b.Numerator, a.Denominator.Value * b.Denominator.Value};
+    }
+
+    template <integral_domain Z>
+    nonzero<fraction<Z>> inverse<times<fraction<Z>>, fraction<Z>>::operator () (const nonzero<fraction<Z>> &x) {
+        if (x.Value.Numerator == 0) throw division_by_zero {};
+        return nonzero {fraction<Z> {Z (x.Value.Denominator) * data::sign (x.Value.Numerator), nonzero {data::abs (x.Value.Numerator)}}};
+    }
+
+    template <integral_domain Z>
+    nonzero<fraction<Z>> inverse<times<fraction<Z>>, fraction<Z>>::operator () (const nonzero<fraction<Z>> &a, const nonzero<fraction<Z>> &b) {
+        return nonzero {b.Value / a.Value};
+    }
+
+    template <integral_domain Z> fraction<Z> operator / (const fraction<Z> &a, const fraction<Z> &b) {
+        return a * inverse<times<fraction<Z>>, fraction<Z>> {} (nonzero {b}).Value;
     }
 
     template <typename Z, typename N>
@@ -162,30 +209,13 @@ namespace data::math {
     }
 
     template <typename Z, typename N>
-    fraction<Z, N> inline fraction<Z, N>::operator - (const fraction &f) const {
-        return (*this) + (-f);
-    }
-
-    template <typename Z, typename N>
     fraction<Z, N> fraction<Z, N>::operator - (const Z &z) const {
         return operator - (fraction {z});
     }
 
     template <typename Z, typename N>
-    fraction<Z, N> inline fraction<Z, N>::operator * (const fraction &f) const {
-        return fraction {Numerator * f.Numerator, Denominator * f.Denominator};
-    }
-
-    template <typename Z, typename N>
     fraction<Z, N> inline fraction<Z, N>::operator * (const Z &z) const {
         return *this * fraction {z};
-    }
-
-    template <typename Z, typename N>
-    fraction<Z, N> inline fraction<Z, N>::operator / (const nonzero<fraction> &f) const {
-        auto ii = inverse (f);
-        if (!bool (ii)) throw division_by_zero {};
-        return (*this) * *ii;
     }
 
     template <typename Z, typename N>

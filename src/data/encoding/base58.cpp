@@ -139,7 +139,7 @@ namespace data::encoding::base58 {
             int last = string::size () - 1;
             return math::division<string, uint64> {
                 string {std::string::substr (0, last)},
-                static_cast<uint64> (digit (std::string::operator[] (last)))};
+                static_cast<uint64> (digit (std::string::operator [] (last)))};
         }
         
         math::division<nat> div = decode<nat> (*this)->divide (nat {static_cast<uint64> (x)});
@@ -149,5 +149,5 @@ namespace data::encoding::base58 {
     string string::read (const std::string &x) {
         return encode (nat::read (x));
     }
-
 }
+

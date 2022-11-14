@@ -167,6 +167,14 @@ namespace data::math {
     bool is_zero (const base58_uint &);
     bool is_negative (const base58_uint &);
     bool is_positive (const base58_uint &);
+
+    template <>
+    struct divide<base58_uint> {
+        division<base58_uint> operator () (const base58_uint &v, const base58_uint &z) {
+            auto d = divide<N> {} (N (v), N (z));
+            return {encoding::base58::encode (d.Quotient), encoding::base58::encode (d.Remainder)};
+        }
+    };
     
 }
 

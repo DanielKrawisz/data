@@ -16,31 +16,28 @@ namespace data::math::algebra {
     template <typename N, typename Z, auto &P> struct prime_field_element;
     
     template <typename N, typename Z, auto &P>
-    bool operator==(const prime_field_element<N, Z, P> &, const prime_field_element<N, Z, P> &);
-    
-    template <typename N, typename Z, auto &P>
-    bool operator!=(const prime_field_element<N, Z, P> &, const prime_field_element<N, Z, P> &);
+    bool operator == (const prime_field_element<N, Z, P> &, const prime_field_element<N, Z, P> &);
     
     template <typename N, typename Z, auto &P> struct prime_field;
     
     template <typename N, typename Z, auto &P>
     struct prime_field_element : ptr<number::modular<N, P>> {
     
-        prime_field_element operator+(const prime_field_element &) const;
-        prime_field_element operator-(const prime_field_element &) const;
-        prime_field_element operator*(const prime_field_element &) const;
-        prime_field_element operator/(const prime_field_element &) const;
+        prime_field_element operator + (const prime_field_element &) const;
+        prime_field_element operator - (const prime_field_element &) const;
+        prime_field_element operator * (const prime_field_element &) const;
+        prime_field_element operator / (const prime_field_element &) const;
         
-        prime_field_element inverse() const;
+        prime_field_element inverse () const;
         
-        bool valid() const {
-            return *this != nullptr && (*this)->valid();
+        bool valid () const {
+            return *this != nullptr && (*this)->valid ();
         }
         
     private:
-        prime_field_element() : ptr<number::modular<N, P>>{} {}
+        prime_field_element() : ptr<number::modular<N, P>> {} {}
         template<typename... X>
-        prime_field_element(X... x) : ptr<number::modular<N, P>>(std::make_shared<number::modular<N, P>>(x...)) {}
+        prime_field_element (X... x) : ptr<number::modular<N, P>> (std::make_shared<number::modular<N, P>> (x...)) {}
         
         friend struct prime_field<N, Z, P>;
     };
@@ -48,19 +45,19 @@ namespace data::math::algebra {
     template <typename N, typename Z, auto &P>
     struct prime_field {
         number::prime<N> Modulus;
-        prime_field(number::prime<N> p) : Modulus{p.Prime == N(P) ? p : number::prime<N>{}} {}
+        prime_field (number::prime<N> p) : Modulus {p.Prime == N (P) ? p : number::prime<N> {}} {}
         
-        bool valid() const {
-            return Modulus.valid() && Modulus.Prime == N(P);
+        bool valid () const {
+            return Modulus.valid () && Modulus.Prime == N (P);
         }
         
         template <typename... X>
-        prime_field_element<N, Z, P> make(X... x);
+        prime_field_element<N, Z, P> make (X... x);
     };
 
     template <typename N, typename Z, auto &P>
-    inline std::ostream& operator<<(std::ostream& o, const prime_field_element<N, Z, P>& m) {
-        return o << "f<"<<P<<">{"<<m->Value<<"}";
+    std::ostream inline &operator << (std::ostream &o, const prime_field_element<N, Z, P> &m) {
+        return o << "f<" << P << ">{" << m->Value << "}";
     }
     
 }
@@ -82,7 +79,7 @@ namespace data::math {
     struct commutative<
         times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
-        : commutative<times<N>, N> {};;
+        : commutative<times<N>, N> {};
     
     template <typename N, typename Z, auto & prime>
     struct associative<
@@ -95,8 +92,8 @@ namespace data::math {
         plus<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
         : identity<plus<N>, N> {
-        static const algebra::prime_field_element<N, Z, prime> value() {
-            return {identity<plus<N>, N>::value()};
+        static const algebra::prime_field_element<N, Z, prime> value () {
+            return {identity<plus<N>, N>::value ()};
         }
     };
     
@@ -105,8 +102,8 @@ namespace data::math {
         times<algebra::prime_field_element<N, Z, prime>>, 
         algebra::prime_field_element<N, Z, prime>>
         : identity<times<N>, N> {
-        static const algebra::prime_field_element<N, Z, prime> value() {
-            return {identity<times<N>, N>::value()};
+        static const algebra::prime_field_element<N, Z, prime> value () {
+            return {identity<times<N>, N>::value ()};
         }
     };
     
@@ -115,61 +112,56 @@ namespace data::math {
 namespace data::math::algebra {
     
     template <typename N, typename Z, auto &P>
-    bool inline operator==(const prime_field_element<N, Z, P> &a, const prime_field_element<N, Z, P> &b) {
-        if (static_cast<ptr<number::modular<N, P>>>(a) == static_cast<ptr<number::modular<N, P>>>(b)) return true;
-        return *static_cast<ptr<number::modular<N, P>>>(a) == *static_cast<ptr<number::modular<N, P>>>(b);
-    }
-    
-    template <typename N, typename Z, auto &P>
-    bool inline operator!=(const prime_field_element<N, Z, P> &a, const prime_field_element<N, Z, P> &b) {
-        return !(a == b);
+    bool inline operator == (const prime_field_element<N, Z, P> &a, const prime_field_element<N, Z, P> &b) {
+        if (static_cast<ptr<number::modular<N, P>>> (a) == static_cast<ptr<number::modular<N, P>>> (b)) return true;
+        return *static_cast<ptr<number::modular<N, P>>> (a) == *static_cast<ptr<number::modular<N, P>>> (b);
     }
     
     template <typename N, typename Z, auto &P> 
     prime_field_element<N, Z, P> inline 
-    prime_field_element<N, Z, P>::operator+(
+    prime_field_element<N, Z, P>::operator + (
         const prime_field_element<N, Z, P> &e) const {
         if (*this == nullptr || e == nullptr) return {};
-        return {*this->get() + *e.get()};
+        return {*this->get () + *e.get ()};
     }
     
     template <typename N, typename Z, auto &P> 
     prime_field_element<N, Z, P> inline
-    prime_field_element<N, Z, P>::operator-(const prime_field_element& e) const {
+    prime_field_element<N, Z, P>::operator - (const prime_field_element &e) const {
         if (*this == nullptr || e == nullptr) return {};
-        return {*this->get() - *e.get()};
+        return {*this->get () - *e.get ()};
     }
     
     template <typename N, typename Z, auto &P> 
     prime_field_element<N, Z, P> inline
-    prime_field_element<N, Z, P>::operator*(const prime_field_element& e) const {
+    prime_field_element<N, Z, P>::operator * (const prime_field_element &e) const {
         if (*this == nullptr || e == nullptr) return {};
-        return {*this->get() * *e.get()};
+        return {*this->get () * *e.get ()};
     }
     
     template <typename N, typename Z, auto &P> 
     prime_field_element<N, Z, P> 
     prime_field_element<N, Z, P>::inverse() const {
-        if (*this == nullptr || *this == prime_field_element{0}) return {};
-        Z bt = number::euclidian::extended<N, Z>::algorithm(N{P}, 
-            this->get()->Value).BezoutT;
-        if (bt < 0) bt += N{P};
-        return prime_field_element{math::abs<Z>{}(bt)};
+        if (*this == nullptr || *this == prime_field_element {0}) return {};
+        Z bt = number::euclidian::extended<N, Z>::algorithm (N {P},
+            this->get ()->Value).BezoutT;
+        if (bt < 0) bt += N {P};
+        return prime_field_element {math::abs<Z> {} (bt)};
     }
     
     template <typename N, typename Z, auto &P> 
     inline prime_field_element<N, Z, P> 
-    prime_field_element<N, Z, P>::operator/(const prime_field_element& e) const {
+    prime_field_element<N, Z, P>::operator / (const prime_field_element &e) const {
         if (*this == nullptr || e == nullptr) return {};
-        if (e == prime_field_element{0}) throw division_by_zero{};
-        return *this * e.inverse();
+        if (e == prime_field_element {0}) throw division_by_zero {};
+        return *this * e.inverse ();
     }
     
     template <typename N, typename Z, auto &P> 
     template <typename... X>
-    inline prime_field_element<N, Z, P> prime_field<N, Z, P>::make(X... x) {
-        if (!valid()) return {};
-        return prime_field_element<N, Z, P>(x...);
+    inline prime_field_element<N, Z, P> prime_field<N, Z, P>::make (X... x) {
+        if (!valid ()) return {};
+        return prime_field_element<N, Z, P> (x...);
     }
 }
 

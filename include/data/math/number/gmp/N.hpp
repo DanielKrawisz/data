@@ -98,7 +98,7 @@ namespace data::math::number::GMP {
     }
     
     uint64 inline operator % (const N &a, uint64 b) {
-        return uint64 (a.divide(b).Remainder);
+        return uint64 (a.divide (b).Remainder);
     }
     
     uint64 inline operator % (const Z &a, uint64 b) {
@@ -365,6 +365,14 @@ namespace data::math {
         __gmp_abs_function::eval (n.Value.MPZ, i.MPZ);
         return n;
     }
+
+    N inline times<N>::operator () (const N &a, const N &b) {
+        return a * b;
+    }
+
+    nonzero<N> inline times<N>::operator () (const nonzero<N> &a, const nonzero<N> &b) {
+        return a * b;
+    }
 }
 
 namespace data::math::number {
@@ -404,10 +412,6 @@ namespace data {
     
     math::sign inline sign (const math::N &z) {
         return math::number::GMP::sign (z.Value.MPZ[0]);
-    }
-    
-    math::sign inline sign (const math::Z &z) {
-        return math::number::GMP::sign (z.MPZ[0]);
     }
     
     math::N inline square (const math::N &n) {

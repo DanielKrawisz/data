@@ -107,6 +107,8 @@ namespace data {
             int_little<11>, uint_little<11>,
             Z_bytes_little, N_bytes_little,
             Z_bytes_big, N_bytes_big,
+            Z_bytes_twos_big, Z_bytes_twos_big,
+            Z_bytes_twos_little, Z_bytes_twos_little,
             dec_int, dec_uint,
             hex_int, hex_uint,
             hex_int_twos, hex_int_twos>;

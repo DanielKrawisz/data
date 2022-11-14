@@ -16,45 +16,6 @@ namespace data::math {
             return X {0};
         }
     };
-    
-    template <typename F, typename x> struct identity;
-    template <typename F, typename x> struct inverse;
-    
-    template <typename X> struct plus {
-        X operator () (const X &a, const X &b) {
-            return a + b;
-        }
-    };
-    
-    template <typename X> struct identity<plus<X>, X> {
-        X operator () () {
-            return X {0};
-        }
-    };
-    
-    template <typename X> struct times {
-        X operator () (const X &a, const X &b) {
-            return a * b;
-        }
-    };
-    
-    template <typename X> struct identity<times<X>, X> {
-        X operator () () {
-            return X {1};
-        }
-    };
-    
-    template <> struct inverse<plus<int8_t>, int8_t> {
-        int8_t operator () (const int8_t &a, const int8_t &b) {
-            return b - a;
-        }
-    };
-    
-    template <std::integral X> struct inverse<plus<X>, X> {
-        X operator () (X a, X b) {
-            return b - a;
-        }
-    };
 
 }
 

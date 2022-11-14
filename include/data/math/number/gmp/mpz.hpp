@@ -166,6 +166,16 @@ namespace data::math {
     template <> struct abs<Z> { 
         N operator () (const Z &);
     };
+
+    template <> struct times<N> {
+        N operator () (const N &a, const N &b);
+        nonzero<N> operator () (const nonzero<N> &a, const nonzero<N> &b);
+    };
+
+    template <> struct times<Z> {
+        Z operator () (const Z &a, const Z &b);
+        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
+    };
     
     template <> struct commutative<plus<N>, N> {};
     template <> struct associative<plus<N>, N> {};
@@ -195,6 +205,22 @@ namespace data::math {
     
     template <> struct inverse<plus<Z>, Z> {
         Z operator () (const Z &a, const Z &b);
+    };
+
+    template <> struct inverse<times<Z>, Z> {
+        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
+    };
+
+    template <> struct divide<N, N> {
+        division<N, N> operator () (const N &, const N &);
+    };
+
+    template <> struct divide<Z, Z> {
+        division<Z, N> operator () (const Z &, const Z &);
+    };
+
+    template <> struct divide<Z, N> {
+        division<Z, N> operator () (const Z &, const N &);
     };
     
     bool is_zero (const N&);
@@ -237,7 +263,7 @@ namespace data::encoding::hexidecimal {
     template <complement, hex_case> struct integer;
     
     template <hex_case zz> integer<complement::nones, zz> write (const math::N&);
-    template <complement n, hex_case zz> integer<n, zz> write(const math::Z&);
+    template <complement n, hex_case zz> integer<n, zz> write (const math::Z&);
     
     std::ostream &write (std::ostream &, const math::N &, hex_case = hex_case::lower);
     std::ostream &write (std::ostream &, const math::Z &, hex_case = hex_case::lower, complement = complement::ones);

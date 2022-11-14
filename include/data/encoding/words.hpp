@@ -16,6 +16,9 @@
 
 namespace data::encoding {
     
+    // words is for iterating over digits that have an endian order.
+    // Using words, you will always iterate from least to most
+    // significant digits. Reverse iteration will go from most to least.
     template <endian::order o, typename digit> struct words;
     
     template <typename digit> struct words<endian::little, digit> {
