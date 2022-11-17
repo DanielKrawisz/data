@@ -9,13 +9,12 @@
 
 #include <ctre.hpp>
 
-#include <data/types.hpp>
-#include <data/encoding/digits.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/root.hpp>
-#include <data/cross.hpp>
+#include <data/math/number/bytes/Z.hpp>
+#include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {
     
@@ -23,14 +22,14 @@ namespace data::encoding::base58 {
     
     std::string inline characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
     
-    static constexpr auto pattern = ctll::fixed_string{"1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)"};
+    static constexpr auto pattern = ctll::fixed_string{"([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)?"};
     
     bool inline valid(const string_view s) {
         return ctre::match<pattern>(s);
     }
     
     bool inline nonzero(const string_view s) {
-        return valid(s) && s[0] != '1';
+        return valid(s) && s.size() > 0;
     }
     
     char inline digit(char c) {
@@ -40,29 +39,21 @@ namespace data::encoding::base58 {
     };
     
     template <typename N>
-    N read(const string_view s) {
-        if (s.size() == 0) return N{};
-        
-        N power{1};
-        
-        N n{0};
-        
-        for (int i = s.size() - 1; i >= 0; i--) {
-            char v = digit(s[i]);
-            if (v == -1) return N{};
-            n += power * uint64(v);
-            power *= 58;
-        }
-        
-        return n;
+    N inline decode(const string_view s) {
+        return read_base<N>(s, 58, digit);
+    }
+    
+    bytes inline read(const string_view s) {
+        // we take two steps with different numbers because it's a lot faster. 
+        return math::number::N_bytes<endian::big>(decode<math::number::GMP::N>(s));
     }
     
     struct string;
     
     template <typename N>
-    string write(N n);
+    string inline encode(N n);
     
-    string write(const bytes_view b);
+    string inline write(const bytes_view b);
     
     std::strong_ordering operator<=>(const string&, const string&);
     
@@ -106,6 +97,15 @@ namespace data::encoding::base58 {
         
         math::division<string, uint64> divide(uint64) const;
     };
+    
+    template <typename N>
+    string inline encode(N n) {
+        return string{encoding::write_base<N>(n, characters())};
+    }
+    
+    string inline write(const bytes_view b) {
+        return encode<math::number::N_bytes<endian::big>>(math::number::N_bytes<endian::big>{b});
+    }
     
 }
 
@@ -183,11 +183,6 @@ namespace data::math::number {
 }
 
 namespace data::encoding::base58 {
-    
-    template <typename N>
-    string inline write(N n) {
-        return string{encoding::write_base<N>(n, characters())};
-    };
     
     string inline operator++(string &m, int) {
         string n = m;

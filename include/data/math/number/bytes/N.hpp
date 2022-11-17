@@ -205,8 +205,8 @@ namespace data::math::number {
         
         explicit operator uint64() const {
             if (*this > std::numeric_limits<uint64>::max()) throw exception{} << "value " << *this << " too big for uint64.";
-            endian::arithmetic<false, endian::little, 8> xx;
-            std::copy(this->words().begin(), this->words().begin() + 8, xx.begin());
+            endian::arithmetic<false, endian::little, 8> xx{0};
+            std::copy(this->words().begin(), this->words().begin() + std::min(uint64{8}, uint64(this->size())), xx.begin());
             return uint64(xx);
         } 
 

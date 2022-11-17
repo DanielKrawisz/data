@@ -55,14 +55,14 @@ namespace data::math {
         
         dec_uint d{""};
         dec_int s{""};
-        base58_uint b{""};
+        base58_uint b{"1"};
         hex_uint h0{""};
         hex_int_ones h1{""};
         hex_int_twos h2{""};
         
         dec_uint dv{"1"};
         dec_int sv{"1"};
-        base58_uint bv{"1"};
+        base58_uint bv{""};
         hex_uint h0v{"1"};
         hex_int_ones h1v{"1"};
         hex_int_twos h2v{"1"};
@@ -99,7 +99,7 @@ namespace data::encoding {
         EXPECT_EQ(hex_uint{}, "0x");
         EXPECT_EQ(hex_int{}, "0x");
         EXPECT_EQ(hex_int_twos{}, "0x");
-        EXPECT_EQ(base58_uint{}, "1");
+        EXPECT_EQ(base58_uint{}, "");
         
         EXPECT_EQ(dec_uint{}, dec_uint{0});
         EXPECT_EQ(dec_int{}, dec_int{0});
@@ -148,7 +148,7 @@ namespace data::encoding {
         auto hex_minus = hex_int_1 - hex_int_2;
         EXPECT_EQ(hex_minus, "0xff");
         EXPECT_EQ(hex_int_twos{1} - hex_int_twos{2}, "0x81");
-        EXPECT_EQ(base58_uint{1} - base58_uint{2}, "1");
+        EXPECT_EQ(base58_uint{1} - base58_uint{2}, "");
         
     }
     
