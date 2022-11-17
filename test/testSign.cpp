@@ -41,19 +41,19 @@ namespace data {
     
     template <typename N> void test_N_sign() {
         
-        EXPECT_EQ(sign(N{0}),                           math::zero);
-        EXPECT_EQ(sign(N{1}),                           math::positive);
-        EXPECT_EQ(sign(N{2}),                           math::positive);
-        EXPECT_EQ(sign(N{7076852110923542}),            math::positive);
+        EXPECT_EQ(sign(N{0}),                     math::zero);
+        EXPECT_EQ(sign(N{1}),                     math::positive);
+        EXPECT_EQ(sign(N{2}),                     math::positive);
+        EXPECT_EQ(sign(N{7076852110923542}),      math::positive);
         
     };
     
     template <typename N> void test_Z_sign() {
         test_N_sign<N>();
         
-        EXPECT_EQ(sign(int64{-1}),                           math::negative);
-        EXPECT_EQ(sign(int64{-2}),                           math::negative);
-        EXPECT_EQ(sign(int64{-7076852110923542}),            math::negative);
+        EXPECT_EQ(sign(int64{-1}),                math::negative);
+        EXPECT_EQ(sign(int64{-2}),                math::negative);
+        EXPECT_EQ(sign(int64{-7076852110923542}), math::negative);
         
     };
     
@@ -72,13 +72,13 @@ namespace data {
         test_N_sign<N_bytes_little>();
         test_N_sign<N_bytes_big>();
         
-        EXPECT_EQ(sign(Q{0}),                                math::zero);
-        EXPECT_EQ(sign(Q{1}),                                math::positive);
-        EXPECT_EQ(sign(Q{-1}),                               math::negative);
-        EXPECT_EQ(sign(Q{2}),                                math::positive);
-        EXPECT_EQ(sign(Q{-2}),                               math::negative);
-        EXPECT_EQ(sign(Q{2, 3}),                             math::positive);
-        EXPECT_EQ(sign(Q{-2, 3}),                            math::negative);
+        EXPECT_EQ(sign(Q{0}),                     math::zero);
+        EXPECT_EQ(sign(Q{1}),                     math::positive);
+        EXPECT_EQ(sign(Q{-1}),                    math::negative);
+        EXPECT_EQ(sign(Q{2}),                     math::positive);
+        EXPECT_EQ(sign(Q{-2}),                    math::negative);
+        EXPECT_EQ(sign(Q{2, 3}),                  math::positive);
+        EXPECT_EQ(sign(Q{-2, 3}),                 math::negative);
         
         test_Z_sign<b09>();
         test_Z_sign<b10>();

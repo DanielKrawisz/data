@@ -8,22 +8,11 @@
 namespace data::encoding::base58 {
     using nat = math::N;
     
-    string write(const bytes_view b) {
-        return write<nat>(nat(math::number::N_bytes<endian::big>(b)));
-    }
-    
-    template <typename N>
-    std::string write_b58(const N& n) {
-        static std::string Characters = characters();
-        if (n == 0) return "1";
-        return write_base<N>(n, Characters);
-    }
-    
-    string::string() : std::string{"1"} {}
+    string::string() : std::string{""} {}
     
     string::string(const std::string &x) : std::string{base58::valid(x) ? x : ""} {}
     
-    string::string(uint64 x) : std::string{write_b58(nat{x})} {}
+    string::string(uint64 x) : string{encode(nat{x})} {}
     
     inline nat read_num(const string& n) {
         return read_base<nat>(n, 58, &digit);
@@ -95,8 +84,8 @@ namespace data::encoding::base58 {
     
     string &operator--(string &x) {
         if (!x.valid()) throw exception{} << "invalid base 58 string: \"" << x << "\"";
-        if (x == "1") return x;
-        if (x == "2") return x = string{"1"};
+        if (x == "") return x;
+        if (x == "2") return x = string{""};
             
         N_decrement(x);
         
@@ -108,47 +97,47 @@ namespace data::encoding::base58 {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return string{write_b58(read_num(m) + read_num(n))};
+        return encode(read_num(m) + read_num(n));
     }
     
     string operator-(const string& m, const string& n) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return string{write_b58(read_num(m) - read_num(n))};
+        return encode(read_num(m) - read_num(n));
     }
     
     string operator|(const string& m, const string& n) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return string{write_b58(read_base<N_bytes_little>(m, 58, &digit) | read_base<N_bytes_little>(n, 58, &digit))};
+        return encode(read_base<N_bytes_little>(m, 58, &digit) | read_base<N_bytes_little>(n, 58, &digit));
     }
     
     string operator&(const string& m, const string& n) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return string{write_b58(read_base<N_bytes_little>(m, 58, &digit) & read_base<N_bytes_little>(n, 58, &digit))};
+        return encode(read_base<N_bytes_little>(m, 58, &digit) & read_base<N_bytes_little>(n, 58, &digit));
     }
     
     string operator*(const string& m, const string& n) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         if (!n.valid()) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         
-        return string{write_b58(read_num(m) * read_num(n))};
+        return encode(read_num(m) * read_num(n));
     }
     
     string operator<<(const string& m, int i) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         
-        return string{write_b58(read_num(m) << i)};
+        return encode(read_num(m) << i);
     }
     
     string operator>>(const string& m, int i) {
         if (!m.valid()) throw exception{} << "invalid base 58 string: \"" << m << "\"";
         
-        return string{write_b58(read_num(m) >> i)};
+        return encode(read_num(m) >> i);
     }
     
     string& string::operator+=(const string& n) {
@@ -182,11 +171,11 @@ namespace data::encoding::base58 {
         }
         
         math::division<nat> div = read_num(*this).divide(nat{static_cast<uint64>(x)});
-        return math::division<string, uint64>{string{write_b58(div.Quotient)}, uint64(div.Remainder)};
+        return math::division<string, uint64>{encode(div.Quotient), uint64(div.Remainder)};
     }
     
     string string::read(const std::string &x) {
-        return string{write_b58(nat::read(x))};
+        return encode(nat::read(x));
     }
 
 }
