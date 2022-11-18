@@ -22,7 +22,7 @@ class DataConan(ConanFile):
         if "CURRENT_VERSION" in environ:
             self.version = environ['CURRENT_VERSION']
         else:
-            self.version = "dev"
+            self.version = "v0.0.17"
 
     def configure_cmake(self):
         cmake = CMake(self)
