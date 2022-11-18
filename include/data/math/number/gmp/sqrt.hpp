@@ -31,7 +31,6 @@ namespace data::math {
     
     template <uint64 pow> 
     set<dec_uint> root<dec_uint, pow>::operator()(const dec_uint& n) {
-        std::cout << "  taking root of " << n << std::endl;
         set<dec_uint> x;
         set<N> roots = root<N, pow>{}(N::read(n));
         for (const N &z : roots.values()) x = insert(x, encoding::decimal::write(z));
@@ -46,12 +45,27 @@ namespace data::math {
         return x;
     }
     
-    template <uint64 pow> 
-    set<hex_uint> root<hex_uint, pow>::operator()(const hex_uint& n) {
-        std::cout << "  taking root of " << n << std::endl;
-        set<hex_uint> x;
+    template <hex_case zz, uint64 pow> 
+    set<hex::uint<zz>> root<hex::uint<zz>, pow>::operator()(const hex::uint<zz>& n) {
+        set<hex::uint<zz>> x;
         set<N> roots = root<N, pow>{}(N::read(n));
-        for (const N &z : roots.values()) x = insert(x, encoding::hexidecimal::write(z));
+        for (const N &z : roots.values()) x = insert(x, encoding::hexidecimal::write<zz>(z));
+        return x;
+    }
+    
+    template <hex_case zz, uint64 pow> 
+    set<hex::int1<zz>> root<hex::int1<zz>, pow>::operator()(const hex::int1<zz>& n) {
+        set<hex::int1<zz>> x;
+        set<Z> roots = root<Z, pow>{}(Z::read(n));
+        for (const Z &z : roots.values()) x = insert(x, encoding::hexidecimal::write<zz>(z));
+        return x;
+    }
+    
+    template <hex_case zz, uint64 pow> 
+    set<hex::int2<zz>> root<hex::int2<zz>, pow>::operator()(const hex::int2<zz>& n) {
+        set<hex::int2<zz>> x;
+        set<Z> roots = root<Z, pow>{}(Z::read(n));
+        for (const Z &z : roots.values()) x = insert(x, encoding::hexidecimal::write<zz>(z));
         return x;
     }
 

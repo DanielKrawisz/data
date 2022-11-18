@@ -2,20 +2,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_PROGRAM_UNIMPLEMENTED
-#define DATA_PROGRAM_UNIMPLEMENTED
+#ifndef DATA_IO_UNIMPLEMENTED
+#define DATA_IO_UNIMPLEMENTED
 
-#include <exception>
+#include <data/io/exception.hpp>
 
-namespace data {
-     
-    namespace method { 
-        
-        struct unimplemented : std::logic_error {
-            unimplemented(std::string func) : std::logic_error(func + " not yet implemented") { };
-        };
+namespace data::method { 
     
-    }
+    struct unimplemented : data::exception {
+        unimplemented(std::string func) : data::exception{} {
+            *this << "method " << func << " not yet implemented";
+        };
+    };
     
 }
 

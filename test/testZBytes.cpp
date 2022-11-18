@@ -9,21 +9,21 @@ namespace data {
     
     TEST(ZBytesTest, TestZBytesToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("0")), std::string("0x"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-1")), std::string("0xff"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-2")), std::string("0xfe"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("127")), std::string("0x7f"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("128")), std::string("0x0080"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-128")), std::string("0x80"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-129")), std::string("0xff7f"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("0")), std::string("0x"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("-1")), std::string("0xff"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("-2")), std::string("0xfe"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("127")), std::string("0x7f"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("128")), std::string("0x0080"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("-128")), std::string("0x80"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("-129")), std::string("0xff7f"));
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("0")), std::string("0x"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-1")), std::string("0xff"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-2")), std::string("0xfe"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("127")), std::string("0x7f"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("128")), std::string("0x0080"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-128")), std::string("0x80"));
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-129")), std::string("0xff7f"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("0")), std::string("0x"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("-1")), std::string("0xff"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("-2")), std::string("0xfe"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("127")), std::string("0x7f"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("128")), std::string("0x0080"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("-128")), std::string("0x80"));
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("-129")), std::string("0xff7f"));
         
     }
     
@@ -34,7 +34,7 @@ namespace data {
         EXPECT_NO_THROW(Z_bytes_big{Z{}});
         EXPECT_NO_THROW(Z_bytes_big{""});
         EXPECT_NO_THROW(Z_bytes_big{"-1"});
-        EXPECT_THROW(Z_bytes_big{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(Z_bytes_big{"-0x01"}, exception);
         EXPECT_NO_THROW(Z_bytes_big{"0x00"});
         EXPECT_NO_THROW(Z_bytes_big{"0xff"});
         
@@ -43,7 +43,7 @@ namespace data {
         EXPECT_NO_THROW(Z_bytes_little{Z{}});
         EXPECT_NO_THROW(Z_bytes_little{""});
         EXPECT_NO_THROW(Z_bytes_little{"-1"});
-        EXPECT_THROW(Z_bytes_little{"-0x01"}, std::invalid_argument);
+        EXPECT_THROW(Z_bytes_little{"-0x01"}, exception);
         EXPECT_NO_THROW(Z_bytes_big{"0x00"});
         EXPECT_NO_THROW(Z_bytes_big{"0xff"});
         
@@ -156,16 +156,16 @@ namespace data {
         EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_big::read("0xf3f13ac4ac86b3")), std::string{"-3393939987200333"});
         EXPECT_EQ(encoding::signed_decimal::write(Z_bytes_little::read("0xf3f13ac4ac86b3")), std::string{"-3393939987200333"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("1")), std::string{"0x01"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("1")), std::string{"0x01"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("23")), std::string{"0x17"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("23")), std::string{"0x17"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-1")), std::string{"0xff"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-1")), std::string{"0xff"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_big::read("-3393939987200333")), std::string{"0xf3f13ac4ac86b3"});
-        EXPECT_EQ(encoding::hexidecimal::write(Z_bytes_little::read("-3393939987200333")), std::string{"0xf3f13ac4ac86b3"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("1")), std::string{"0x01"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("1")), std::string{"0x01"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("23")), std::string{"0x17"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("23")), std::string{"0x17"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("5704566599993321")), std::string{"0x144445e9ca47e9"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("-1")), std::string{"0xff"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("-1")), std::string{"0xff"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_big::read("-3393939987200333")), std::string{"0xf3f13ac4ac86b3"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(Z_bytes_little::read("-3393939987200333")), std::string{"0xf3f13ac4ac86b3"});
         
     }
     
@@ -187,7 +187,7 @@ namespace data {
     
     template<endian::order r>
     math::number::Z_bytes<r> Z_to_Z_Bytes_stupid(const math::Z& n) {
-        return math::number::Z_bytes<r>::read(encoding::hexidecimal::write(n));
+        return math::number::Z_bytes<r>::read(encoding::hexidecimal::write<math::number::ones, encoding::hex::lower>(n));
     }
     
     template <typename in> void Z_Bytes_to_Z(in x) {

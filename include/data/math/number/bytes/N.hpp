@@ -58,11 +58,11 @@ namespace data::math::number {
         static N_bytes read(string_view x) {
             if (x.size() == 0) return 0;
             ptr<N_bytes<r>> b = encoding::natural::read<r>(x);
-            if (b == nullptr) throw std::logic_error{"Not a valid number"};
+            if (b == nullptr) throw exception{"Not a valid number"};
             return N_bytes<r>{*b};
         }
         
-        explicit N_bytes(string_view s) : N_bytes{read(s)} {}
+        explicit N_bytes(const string &s) : N_bytes{read(s)} {}
         
         // inefficient but works. 
         explicit N_bytes(const N& n) : N_bytes() {
@@ -121,7 +121,6 @@ namespace data::math::number {
         }
         
         N_bytes& operator++();
-        
         N_bytes& operator--();
         
         N_bytes operator++(int) const {
@@ -205,9 +204,9 @@ namespace data::math::number {
         explicit N_bytes(const bounded<size, o, false>& b) : N_bytes{bytes_view(b), o} {}*/
         
         explicit operator uint64() const {
-            if (*this > std::numeric_limits<uint64>::max()) throw std::invalid_argument{"value too big"};
-            endian::arithmetic<false, endian::little, 8> xx;
-            std::copy(this->words().begin(), this->words().begin() + 8, xx.begin());
+            if (*this > std::numeric_limits<uint64>::max()) throw exception{} << "value " << *this << " too big for uint64.";
+            endian::arithmetic<false, endian::little, 8> xx{0};
+            std::copy(this->words().begin(), this->words().begin() + std::min(uint64{8}, uint64(this->size())), xx.begin());
             return uint64(xx);
         } 
 
@@ -215,7 +214,7 @@ namespace data::math::number {
         N_bytes(bytes_view b, endian::order o);
         
         N_bytes(const Z_bytes<r>& z) {
-            if (math::number::is_negative(z)) throw std::logic_error{"negative Z_bytes to N_bytes"};
+            if (math::number::is_negative(z)) throw exception{} << "negative Z_bytes " << z << " to N_bytes";
             this->resize(z.size());
             std::copy(z.begin(), z.end(), this->begin());
         }
@@ -362,20 +361,6 @@ namespace data::math::number {
         return a <=> N_bytes<r>(b);
     }
     
-    template <data::endian::order r>
-    N_bytes<r>& N_bytes<r>::operator++() {
-        *this = extend(*this, this->size() + 1);
-        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
-        return this->trim();
-    }
-    
-    template <data::endian::order r>
-    N_bytes<r>& N_bytes<r>::operator--() {
-        if (is_zero(*this)) return *this;
-        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
-        return this->trim();
-    }
-    
     template <endian::order r> Z_bytes<r> inline operator&(const N_bytes<r> &a, const Z_bytes<r> &b) {
         return Z_bytes<r>(a) & b;
     }
@@ -429,7 +414,7 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> extend(const N_bytes<r> &x, size_t size) {
         if (size < x.size()) {
             size_t min_size = minimal_size(x); 
-            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
+            if (size < min_size) throw exception{"cannot extend smaller than minimal size"};
             return extend(trim(x), size);
         }
         
@@ -501,6 +486,20 @@ namespace data::math::number {
         auto x = N_bytes<r>::zero(a.size());
         data::arithmetic::bit_or<byte>(x.end(), x.begin(), a.begin(), const_cast<const N_bytes<r>&>(bt).begin());
         return x.trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator++() {
+        *this = extend(*this, this->size() + 1);
+        data::arithmetic::plus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
+    }
+    
+    template <data::endian::order r>
+    N_bytes<r>& N_bytes<r>::operator--() {
+        if (is_zero(*this)) return *this;
+        data::arithmetic::minus<byte>(this->words().end(), this->words().begin(), 1, this->words().begin());
+        return this->trim();
     }
 }
 

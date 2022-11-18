@@ -11,17 +11,17 @@ namespace data::math::number {
     
     TEST(NBytesTest, TestStringToNBytes) {
         
-        EXPECT_THROW(N_bytes<endian::big>::read("a"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::big>::read("-"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::big>::read("-1"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::big>::read("01"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::big>::read("0x1"), std::logic_error);
+        EXPECT_THROW(N_bytes<endian::big>::read("a"), exception);
+        EXPECT_THROW(N_bytes<endian::big>::read("-"), exception);
+        EXPECT_THROW(N_bytes<endian::big>::read("-1"), exception);
+        EXPECT_THROW(N_bytes<endian::big>::read("01"), exception);
+        EXPECT_THROW(N_bytes<endian::big>::read("0x1"), exception);
         
-        EXPECT_THROW(N_bytes<endian::little>::read("a"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::little>::read("-"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::little>::read("-1"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::little>::read("01"), std::logic_error);
-        EXPECT_THROW(N_bytes<endian::little>::read("0x1"), std::logic_error);
+        EXPECT_THROW(N_bytes<endian::little>::read("a"), exception);
+        EXPECT_THROW(N_bytes<endian::little>::read("-"), exception);
+        EXPECT_THROW(N_bytes<endian::little>::read("-1"), exception);
+        EXPECT_THROW(N_bytes<endian::little>::read("01"), exception);
+        EXPECT_THROW(N_bytes<endian::little>::read("0x1"), exception);
         
         EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>{});
         EXPECT_EQ(N_bytes<endian::big>{0}, N_bytes<endian::big>::read(""));
@@ -154,7 +154,7 @@ namespace data::math::number {
     
     template<endian::order r>
     math::number::N_bytes<r> N_to_N_Bytes_stupid(const math::N& n) {
-        return math::number::N_bytes<r>::read(encoding::hexidecimal::write(n));
+        return math::number::N_bytes<r>::read(encoding::hexidecimal::write<encoding::hex::lower>(n));
     }
     
     template <typename in> void N_Bytes_to_N(in x) {

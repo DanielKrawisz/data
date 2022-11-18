@@ -11,9 +11,9 @@
 #include <string>
 #include <stdint.h>
 #include <algorithm>
-#include <iostream>
 #include <random>
 #include <boost/endian/arithmetic.hpp>
+#include <data/io/exception.hpp>
 
 namespace data {
 

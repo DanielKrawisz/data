@@ -26,6 +26,8 @@
 #include <data/math/fraction.hpp>
 #include <data/math/octonion.hpp>
 
+#include <algorithm>
+
 namespace data {
     // we use a wrapper around gmp for natural numbers and integers. 
     
@@ -60,7 +62,7 @@ namespace data {
     
     template <size_t size> 
     using uint_big = math::uint_big<size>;
-    /*
+    
     using uint128 = uint_little<16>;
     using uint160 = uint_little<20>;
     using uint224 = uint_little<28>;
@@ -76,10 +78,13 @@ namespace data {
     using int320 = int_little<40>;
     using int448 = int_little<56>;
     using int512 = int_little<64>;
-    */
+    
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
-    using hex_uint = encoding::hexidecimal::string;
+    using hex_uint = hex::uint<encoding::hex::lower>;
+    using hex_int = hex::int1<encoding::hex::lower>;
+    using hex_int_ones = hex::int1<encoding::hex::lower>;
+    using hex_int_twos = hex::int2<encoding::hex::lower>;
     using base58_uint = encoding::base58::string;
     
     // rational numbers. 
@@ -115,10 +120,101 @@ namespace data::math {
     template <uint64 pow> 
     set<base58_uint> root<base58_uint, pow>::operator()(const base58_uint& n) {
         set<base58_uint> x;
-        set<N> roots = root<N, pow>{}(encoding::base58::read<N>(n));
-        for (const N &z : roots.values()) x = insert(x, encoding::base58::write(z));
+        set<N> roots = root<N, pow>{}(encoding::base58::decode<N>(n));
+        for (const N &z : roots.values()) x = insert(x, encoding::base58::encode(z));
         return x;
     }
+}
+
+namespace data::encoding::hexidecimal {
+    
+    namespace {
+        
+        template <hex::letter_case zz> 
+        string<zz> shift(const string<zz> &x, int i) {
+            auto o = read<endian::big>(x);
+            math::number::N_bytes<endian::big> n;
+            n.resize(o->size());
+            std::copy(o->begin(), o->end(), n.begin());
+            n = n << i;
+            return write<zz>(math::number::extend(n, n.size() + 1));
+        }
+        
+        template <hex::letter_case zz> 
+        integer<math::number::ones, zz> inline bit_shift(const integer<math::number::ones, zz> &x, int i) {
+            auto o = read<endian::big>(x);
+            math::number::Z_bytes<endian::big> n;
+            n.resize(o->size());
+            std::copy(o->begin(), o->end(), n.begin());
+            return write<zz>(n << i);
+        }
+        
+        // the out string will always be the size of the sum of the two inputs, which won't necessarily be equal size. 
+        template <hex::letter_case zz>
+        void times(string<zz> &out, const string<zz> &a, const string<zz> &b) {
+            auto characters = hex::characters(zz);
+            
+            int a_max = a.size() - 3;
+            int b_max = b.size() - 3;
+            
+            Z remainder = 0;
+            int io_max = out.size() - 2;
+            
+            for (int io = 0; io < io_max; io++) {
+                Z total = remainder;
+                int ia_min = std::max(0, io - b_max);
+                int ib_min = std::max(0, io - a_max);
+                int ia_max = io - ib_min;
+                int ib_max = io - ia_min;
+                for (int ia = ia_min; ia <= ia_max; ia++) {
+                    int ib = ib_max + ia_min - ia; 
+                    Z next(int(digit(a[a.size() - 1 - ia])) * int(digit(b[b.size() - 1 - ib])));
+                    total += next;
+                }
+                
+                out[out.size() - 1 - io] = characters[total % 16];
+                remainder = total >> 4;
+            }
+        }
+        
+        template <math::number::complement c, hex::letter_case zz> struct divide {
+            math::division<integer<c, zz>> operator()(const integer<c, zz> &n, const integer<c, zz> &x) const {
+                if (x == 0) throw math::division_by_zero{};
+                // it is important to have this optimization. 
+                // I can't say why or I'll be embarrassed. 
+                if (x == 16) return math::division<integer<c, zz>>{*this >> 4, *this & integer<c, zz>{4}};
+                
+                else return math::number::integer::divide(*this, x);
+            }
+        };
+        
+        template <hex::letter_case zz> struct divide<math::number::nones, zz> {
+            math::division<integer<math::number::nones, zz>> operator()(
+                const integer<math::number::nones, zz> &n, 
+                const integer<math::number::nones, zz> &x) const {
+                if (x == 0) throw math::division_by_zero{};
+                // it is important to have this optimization. 
+                // I can't say why or I'll be embarrassed. 
+                if (x == 16) return math::division<integer<math::number::nones, zz>>{
+                    *this >> 4, *this & integer<math::number::nones, zz>{4}};
+                
+                return math::number::natural::divide(*this, x);
+            }
+        };
+    
+    }
+    
+    template <math::number::complement c, hex::letter_case zz>
+    math::division<integer<c, zz>> integer<c, zz>::divide(const integer<c, zz> &x) const {
+        if (x == 0) throw math::division_by_zero{};
+        // it is important to have this optimization. 
+        // I can't say why or I'll be embarrassed. 
+        if (x == 16) return math::division<integer<c, zz>>{*this >> 4, *this & integer<c, zz>{4}};
+        
+        if constexpr (c == math::number::nones) return math::number::natural::divide(*this, x);
+        else return math::number::integer::divide(*this, x);
+    }
+    
 }
 
 #endif

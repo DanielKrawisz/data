@@ -70,7 +70,7 @@ namespace data {
         array() : cross<X>(size) {}
         
         array(std::initializer_list<X> x) : cross<X>{x} {
-            if (x.size() != size) throw std::invalid_argument{"invalid size"};
+            if (x.size() != size) throw exception{} << "invalid size " << x.size() << "; expected " << size;
         }
         
         static array filled(const X& x) {

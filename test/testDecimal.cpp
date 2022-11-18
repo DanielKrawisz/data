@@ -29,6 +29,13 @@ namespace data {
         EXPECT_EQ(decrement(N_bytes_little::read(g)), N_bytes_little::read(e));
         EXPECT_EQ(decrement(N_bytes_big::read(g)), N_bytes_big::read(e));
         
+        auto gg = base58_uint::read(g);
+        auto ee = base58_uint::read(e);
+        auto ggd = decrement(gg);
+        EXPECT_EQ(ggd, ee);
+        
+        EXPECT_EQ(decrement(hex_uint::read(g)), hex_uint::read(e));
+        
     }
     
     void test_increment_signed_final(const dec_int &g, const dec_int &e) {
@@ -61,6 +68,12 @@ namespace data {
         EXPECT_EQ(increment(N::read(g)), N::read(e));
         EXPECT_EQ(increment(N_bytes_little::read(g)), N_bytes_little::read(e));
         EXPECT_EQ(increment(N_bytes_big::read(g)), N_bytes_big::read(e));
+        
+        auto b58g = base58_uint::read(g);
+        auto b58e = base58_uint::read(e);
+        auto b58i = increment(b58g);
+        EXPECT_EQ(b58i, b58e);
+        EXPECT_EQ(increment(hex_uint::read(g)), hex_uint::read(e));
         
         test_decrement_unsigned(expected, given);
         test_increment_signed(given, expected);

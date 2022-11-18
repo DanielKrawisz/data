@@ -10,12 +10,12 @@ namespace data {
     
     TEST(NTest, TestStringToN) {
         
-        EXPECT_THROW(N{""}, std::invalid_argument);
-        EXPECT_THROW(N{"a"}, std::invalid_argument);
-        EXPECT_THROW(N{"-"}, std::invalid_argument);
-        EXPECT_THROW(N{"-1"}, std::invalid_argument);
-        EXPECT_THROW(N{"01"}, std::invalid_argument);
-        EXPECT_THROW(N{"0x1"}, std::invalid_argument);
+        EXPECT_THROW(N{""}, exception);
+        EXPECT_THROW(N{"a"}, exception);
+        EXPECT_THROW(N{"-"}, exception);
+        EXPECT_THROW(N{"-1"}, exception);
+        EXPECT_THROW(N{"01"}, exception);
+        EXPECT_THROW(N{"0x1"}, exception);
         
         EXPECT_NO_THROW(N{0});
         EXPECT_NO_THROW(N{"0"});
@@ -34,18 +34,18 @@ namespace data {
         EXPECT_EQ(N{1}, N{"0x0001"});
         EXPECT_EQ(N{255}, N{"0xff"});
         
-        EXPECT_EQ(encoding::hexidecimal::write(N{0}), "0x");
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(N{0}), "0x");
         EXPECT_EQ(encoding::decimal::write(N{0}), "0");
-        EXPECT_EQ(encoding::hexidecimal::write(N{1}), "0x01");
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(N{1}), "0x01");
         EXPECT_EQ(encoding::decimal::write(N{1}), "1");
         
     }
     
     TEST(NTest, TestNToHexString) {
         
-        EXPECT_EQ(encoding::hexidecimal::write(N{"0"}), std::string{"0x"});
-        EXPECT_EQ(encoding::hexidecimal::write(N{"127"}), std::string{"0x7f"});
-        EXPECT_EQ(encoding::hexidecimal::write(N{"128"}), std::string{"0x80"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(N{"0"}), std::string{"0x"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(N{"127"}), std::string{"0x7f"});
+        EXPECT_EQ(encoding::hexidecimal::write<encoding::hex::lower>(N{"128"}), std::string{"0x80"});
         
     }
     

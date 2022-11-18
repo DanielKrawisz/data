@@ -5,6 +5,8 @@
 #ifndef DATA_IO_WAIT_FOR_ENTER
 #define DATA_IO_WAIT_FOR_ENTER
 
+#include <iostream>
+
 namespace data {
 
     void inline wait_for_enter(std::string message = "Press enter to continue...") {

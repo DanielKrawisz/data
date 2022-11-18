@@ -38,6 +38,8 @@ namespace data {
         test_extended_euclidian<int_big<11>, uint_big<11>>{};
         test_extended_euclidian<int_big<20>, uint_big<20>>{};
         test_extended_euclidian<dec_int, dec_uint>{};
+        test_extended_euclidian<hex_int, hex_uint>{};
+        test_extended_euclidian<hex_int_twos, hex_int_twos>{};
         
     }
     

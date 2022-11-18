@@ -59,13 +59,13 @@ namespace data::math::number::GMP {
             std::stringstream ss;
             ss << "0x01";
             for (int i = 0; i < x.size() - 2; i += 2) ss << "00";
-            return Z{N{x}} - Z_read_hex_positive(ss.str());
+            return Z{N::read(x)} - Z_read_hex_positive(ss.str());
         };
         return Z_read_hex_positive(x);
     }
     
     Z Z::read(string_view s) {
-        if (!encoding::integer::valid(s)) throw std::invalid_argument{std::string{"invalid number string "} + std::string{s}};
+        if (!encoding::integer::valid(s)) throw exception{} << "invalid number string " << s;
         if (encoding::hexidecimal::valid(s)) return Z_read_hex(s);
         return encoding::integer::negative(s) ? -Z_read_N_gmp(s.substr(1)) : Z_read_N_gmp(s);
     }
@@ -93,12 +93,17 @@ namespace data::encoding::decimal {
 
 namespace data::encoding::hexidecimal {
     
-    std::ostream &write(std::ostream &o, const math::Z &n) {
-        return write(o, math::number::Z_bytes<endian::big>(n));
+    std::ostream &write(std::ostream& o, const math::N& n, hex::letter_case q) {
+        return write(o, math::number::N_bytes<endian::big>(n));
     }
     
-    std::ostream &write(std::ostream& o, const math::N& n) {
-        return write(o, math::number::N_bytes<endian::big>(n));
+    std::ostream &write(std::ostream &o, const math::Z &z, hex::letter_case q, math::number::complement n) {
+        if (n != math::number::ones) {
+            std::stringstream ss;
+            ss << "we don't know how to do " << n << " yet.";
+            throw std::invalid_argument{ss.str()};
+        }
+        return write(o << "0x", math::number::Z_bytes<endian::big>(z), q);
     }
     
 }
@@ -115,7 +120,7 @@ namespace data::math::number::GMP {
         
     std::ostream& operator<<(std::ostream& o, const Z& n) {
         if (o.flags() & std::ios::hex) {
-            encoding::hexidecimal::write(o, n);
+            encoding::hexidecimal::write(o, n, encoding::hex::lower, math::number::ones);
             return o;
         }
         if (o.flags() & std::ios::dec) {
@@ -131,12 +136,14 @@ namespace data::math::number::GMP {
     }
     
     Z N_read(string_view x) {
-        if (!encoding::natural::valid(x)) throw std::invalid_argument{std::string{"invalid number string "} + std::string{x}};
+        if (!encoding::natural::valid(x)) throw exception{} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid(x)) return N_read_hex(x);
         return Z_read_N_gmp(x);
     }
     
-    N::N(string_view x) : Value{N_read(x)} {}
+    N N::read(string_view x) {
+        return N_read(x);
+    }
     
     // inefficient but easier to write and more certain to be correct. 
     N read_bytes_big(bytes_view x) {
@@ -177,7 +184,7 @@ namespace data::math::number::GMP {
     N::N(bytes_view x, endian::order o) : Value{read_bytes(x, o).Value} {}
     
     void N_write_big(bytes& b, const N& n) {
-        b = *data::encoding::hex::read(data::encoding::hexidecimal::write(n).substr(2));
+        b = *data::encoding::hex::read(data::encoding::hexidecimal::write<encoding::hex::lower>(n).substr(2));
     }
     
     void N_write_little(bytes& b, const N& n) {
@@ -206,15 +213,15 @@ namespace data::math::number::GMP {
     }
         
     Z::operator int64() const {
-        if (*this > std::numeric_limits<int64>::max()) throw std::logic_error{"too big"};
-        if (*this < std::numeric_limits<int64>::min()) throw std::logic_error{"too big"};
+        if (*this > std::numeric_limits<int64>::max()) throw exception{"too big"};
+        if (*this < std::numeric_limits<int64>::min()) throw exception{"too big"};
         return mpz_get_si(MPZ);
     } 
     
     N::operator uint64() const {
         if (__gmp_binary_greater::eval(Value.MPZ, (unsigned long int)(std::numeric_limits<uint64>::max())))
-            throw std::logic_error{"too big"};
-        if (*this < 0) throw std::logic_error{"too big"};
+            throw exception{"too big"};
+        if (*this < 0) throw exception{"too big"};
         return mpz_get_ui(Value.MPZ);
     } 
 

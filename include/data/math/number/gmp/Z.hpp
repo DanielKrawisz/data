@@ -33,7 +33,7 @@ namespace data::math::number::GMP {
         
         static Z read(string_view x);
         
-        explicit Z(string_view x) : Z{read(x)} {};
+        explicit Z(const string &x) : Z{read(x)} {};
         
         Z(const Z& n) {
             mpz_init(MPZ);
@@ -177,10 +177,10 @@ namespace data::math {
 
 namespace data::encoding::hexidecimal { 
     
-    string inline write(const math::Z& n) {
+    template <math::number::complement n, hex_case zz> integer<n, zz> inline write(const math::Z& z) {
         std::stringstream ss;
-        write(ss, n);
-        return string{ss.str()};
+        write(ss, z, zz, n);
+        return integer<n, zz>{ss.str()};
     }
     
 }

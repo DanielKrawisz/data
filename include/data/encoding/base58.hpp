@@ -9,13 +9,12 @@
 
 #include <ctre.hpp>
 
-#include <data/types.hpp>
-#include <data/encoding/digits.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/math/division.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/root.hpp>
-#include <data/cross.hpp>
+#include <data/math/number/bytes/Z.hpp>
+#include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {
     
@@ -23,14 +22,14 @@ namespace data::encoding::base58 {
     
     std::string inline characters() {return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";}
     
-    static constexpr auto pattern = ctll::fixed_string{"1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)"};
+    static constexpr auto pattern = ctll::fixed_string{"([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)?"};
     
     bool inline valid(const string_view s) {
         return ctre::match<pattern>(s);
     }
     
     bool inline nonzero(const string_view s) {
-        return valid(s) && s[0] != '1';
+        return valid(s) && s.size() > 0;
     }
     
     char inline digit(char c) {
@@ -40,43 +39,43 @@ namespace data::encoding::base58 {
     };
     
     template <typename N>
-    N read(const string_view s) {
-        if (s.size() == 0) return N{};
-        
-        N power{1};
-        
-        N n{0};
-        
-        for (int i = s.size() - 1; i >= 0; i--) {
-            char v = digit(s[i]);
-            if (v == -1) return N{};
-            n += power * uint64(v);
-            power *= 58;
-        }
-        
-        return n;
+    N inline decode(const string_view s) {
+        return read_base<N>(s, 58, digit);
     }
     
-    class view : public string_view {
-        bytes Bytes;
-        bytes *ToBytes;
-        
-    public:
-        explicit operator bytes_view() const {
-            if (ToBytes == nullptr) throw invalid{Format, *this};
-            return bytes_view(*ToBytes);
-        }
-        
-        bool valid() const noexcept {
-            return ToBytes != nullptr;
-        }
-        
-        view(string_view);
-    };
+    bytes inline read(const string_view s) {
+        // we take two steps with different numbers because it's a lot faster. 
+        return math::number::N_bytes<endian::big>(decode<math::N>(s));
+    }
+    
+    struct string;
+    
+    template <typename N>
+    string inline encode(N n);
+    
+    string inline write(const bytes_view b);
+    
+    std::strong_ordering operator<=>(const string&, const string&);
+    
+    string& operator++(string&);
+    string& operator--(string&);
+    
+    string operator++(string&, int);
+    string operator--(string&, int);
+    
+    string operator+(const string&, const string&);
+    string operator-(const string&, const string&);
+    string operator*(const string&, const string&);
+    
+    string operator<<(const string&, int);
+    string operator>>(const string&, int);
+    
+    string operator&(const string&, const string&);
+    string operator|(const string&, const string&);
     
     struct string : std::string {
         string();
-        explicit string(string_view);
+        explicit string(const std::string &);
         explicit string(std::string &&x): std::string{x} {};
         string(uint64);
         
@@ -84,22 +83,7 @@ namespace data::encoding::base58 {
             return base58::valid(*this);
         }
         
-        static string read(string_view x);
-        
-        std::strong_ordering operator<=>(const string&) const;
-        
-        string& operator++();
-        string& operator--();
-        
-        string operator++(int);
-        string operator--(int);
-        
-        string operator+(const string&) const;
-        string operator-(const string&) const;
-        string operator*(const string&) const;
-        
-        string operator<<(int) const;
-        string operator>>(int) const;
+        static string read(const std::string &);
         
         string& operator+=(const string&);
         string& operator-=(const string&);
@@ -108,15 +92,20 @@ namespace data::encoding::base58 {
         string& operator<<=(int);
         string& operator>>=(int);
         
+        string operator&=(const string&) const;
+        string operator|=(const string&) const;
+        
         math::division<string, uint64> divide(uint64) const;
     };
     
     template <typename N>
-    string write(N n) {
+    string inline encode(N n) {
         return string{encoding::write_base<N>(n, characters())};
-    };
+    }
     
-    string write(const bytes_view b);
+    string inline write(const bytes_view b) {
+        return encode<math::N>(math::N(math::number::N_bytes<endian::big>{b}));
+    }
     
 }
 
@@ -124,6 +113,9 @@ namespace data {
     using base58_uint = encoding::base58::string;
     
     math::sign sign(const base58_uint&);
+    
+    base58_uint increment(const base58_uint&);
+    base58_uint decrement(const base58_uint&);
 }
 
 namespace data::math {
@@ -140,9 +132,6 @@ namespace data::math {
 
 namespace data::math::number {
     
-    base58_uint increment(const base58_uint&);
-    base58_uint decrement(const base58_uint&);
-    
     bool is_zero(const base58_uint &);
     bool is_negative(const base58_uint &);
     bool is_positive(const base58_uint &);
@@ -151,13 +140,10 @@ namespace data::math::number {
 
 namespace data {
     
-    math::sign inline sign(const base58_uint &n) {
-        if (!encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
-        return encoding::base58::nonzero(n) ? math::positive : math::zero;
+    math::sign inline sign(const base58_uint &u) {
+        if (!encoding::base58::valid(u)) throw exception{} << "invalid base 58 string: \"" << u << "\"";
+        return encoding::base58::nonzero(u) ? math::positive : math::zero;
     }
-}
-
-namespace data::math::number {
     
     base58_uint inline increment(const base58_uint &n) {
         auto x = n;
@@ -168,20 +154,46 @@ namespace data::math::number {
         auto x = n;
         return --x;
     }
+}
+
+namespace data::math {
+    
+    base58_uint inline abs<base58_uint>::operator()(const base58_uint &u) {
+        if (!encoding::base58::valid(u)) throw exception{} << "invalid base 58 string: \"" << u << "\"";
+        return u;
+    }
+}
+
+namespace data::math::number {
     
     bool inline is_zero(const base58_uint &n) {
-        if (encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        if (encoding::base58::valid(n)) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         return !encoding::base58::nonzero(n);
     }
     
     bool inline is_negative(const base58_uint &n) {
-        if (encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        if (encoding::base58::valid(n)) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         return false;
     }
     
     bool inline is_positive(const base58_uint &n) {
-        if (encoding::base58::valid(n)) throw std::invalid_argument{std::string{"invalid base 58 string: "} + std::string{n}};
+        if (encoding::base58::valid(n)) throw exception{} << "invalid base 58 string: \"" << n << "\"";
         return encoding::base58::nonzero(n);
+    }
+}
+
+namespace data::encoding::base58 {
+    
+    string inline operator++(string &m, int) {
+        string n = m;
+        ++m;
+        return n;
+    }
+    
+    string inline operator--(string &m, int) {
+        string n = m;
+        --m;
+        return n;
     }
     
 }

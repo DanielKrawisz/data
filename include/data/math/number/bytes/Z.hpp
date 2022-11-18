@@ -45,7 +45,7 @@ namespace data::math::number {
         
         static Z_bytes read(string_view x);
         
-        explicit Z_bytes(string_view s);
+        explicit Z_bytes(const string &s);
         
         Z_bytes(bytes_view b);
         
@@ -211,11 +211,11 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r> Z_bytes<r>::read(string_view x) {
         if (x == "") return 0; 
         ptr<Z_bytes> b = encoding::integer::read<r>(x);
-        if (b == nullptr) throw std::invalid_argument{"invalid integer string provided"};
+        if (b == nullptr) throw exception{"invalid integer string provided"};
         return Z_bytes<r>{*b};
     }
     
-    template <endian::order r> Z_bytes<r>::Z_bytes(string_view s) : Z_bytes{read(s)} {}
+    template <endian::order r> Z_bytes<r>::Z_bytes(const string &s) : Z_bytes{read(s)} {}
     
     template <endian::order r> 
     bool inline operator==(const Z_bytes<r> &a, int64 b) {
@@ -274,7 +274,7 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r> extend(const Z_bytes<r> &x, size_t size) {
         if (size < x.size()) {
             size_t min_size = minimal_size(x); 
-            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
+            if (size < min_size) throw exception{"cannot extend smaller than minimal size"};
             return extend(trim(x), size);
         }
         
@@ -316,7 +316,7 @@ namespace data::math::number {
     
     template <endian::order r>
     Z_bytes<r> inline &operator<<=(Z_bytes<r> &n, int i) {
-        if (i < 0) n.bit_shift_right(-i);
+        if (i < 0) n.bit_shift_right(-i, is_negative(n));
         else bit_shift_left(n, i);
         return n = n.trim();
     }
