@@ -45,7 +45,7 @@ namespace data::encoding::base58 {
     
     bytes inline read(const string_view s) {
         // we take two steps with different numbers because it's a lot faster. 
-        return math::number::N_bytes<endian::big>(decode<math::number::GMP::N>(s));
+        return math::number::N_bytes<endian::big>(decode<math::N>(s));
     }
     
     struct string;
@@ -104,7 +104,7 @@ namespace data::encoding::base58 {
     }
     
     string inline write(const bytes_view b) {
-        return encode<math::number::N_bytes<endian::big>>(math::number::N_bytes<endian::big>{b});
+        return encode<math::N>(math::N(math::number::N_bytes<endian::big>{b}));
     }
     
 }
