@@ -22,22 +22,25 @@ namespace data::math::number {
     template <endian::order, complement> struct Z_bytes;
     
     template <endian::order r> 
-    bool operator == (const N_bytes<r> &a, const N_bytes<r> &b);
-    
-    template <endian::order r, complement c> 
-    bool operator == (const Z_bytes<r, c> &a, const Z_bytes<r, c> &b);
-    
-    template <endian::order r> 
-    std::weak_ordering operator <=> (const N_bytes<r>&, const N_bytes<r>&);
-    
-    template <endian::order r> 
-    std::weak_ordering operator <=> (const Z_bytes<r, complement::ones>&, const Z_bytes<r, complement::ones>&);
+    bool operator == (const N_bytes<r> &, const N_bytes<r> &);
+
+    template <endian::order r, complement c>
+    bool operator == (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
+
+    template <endian::order r, complement cl, complement cr>
+    bool operator == (const Z_bytes<r, cl> &, const Z_bytes<r, cr> &);
     
     template <endian::order r> 
-    std::weak_ordering operator <=> (const Z_bytes<r, complement::twos>&, const Z_bytes<r, complement::twos>&);
+    std::weak_ordering operator <=> (const N_bytes<r> &, const N_bytes<r> &);
     
-    template <endian::order r, complement c> 
-    std::weak_ordering operator <=> (const Z_bytes<r, c>&, const N_bytes<r>&);
+    template <endian::order r> 
+    std::weak_ordering operator <=> (const Z_bytes<r, complement::ones> &, const Z_bytes<r, complement::ones> &);
+    
+    template <endian::order r> 
+    std::weak_ordering operator <=> (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
+
+    template <endian::order r, complement cl, complement cr>
+    std::weak_ordering operator <=> (const Z_bytes<r, cl> &, const Z_bytes<r, cl> &);
     
     template <endian::order r> 
     bool operator == (const N_bytes<r>&, uint64);
@@ -78,19 +81,13 @@ namespace data::math::number {
     template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c> &, const N_bytes<r> &);
     
     template <endian::order r> N_bytes<r> operator & (const N_bytes<r> &, uint64);
-    template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c> &, int64);
-    template <endian::order r, complement c> Z_bytes<r, c> operator & (const N_bytes<r>&, int64);
     template <endian::order r, complement c> Z_bytes<r, c> operator & (const Z_bytes<r, c>&, uint64);
     
     // bit or 
     template <endian::order r> N_bytes<r> operator | (const N_bytes<r> &, const N_bytes<r>&);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const N_bytes<r> &, const Z_bytes<r, c> &);
     template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, const N_bytes<r> &);
     
     template <endian::order r> N_bytes<r> operator | (const N_bytes<r> &, uint64);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, int64);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const N_bytes<r> &, int64);
     template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, uint64);
     
     // negation

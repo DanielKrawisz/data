@@ -224,18 +224,17 @@ namespace data::math::arithmetic {
         auto i = x.rbegin ();
         digit d = *i;
         if (d != 0x80 && d != 0x00) return x.size ();
-        
-        // count the number of zero bytes after the first. 
-        int zero_bytes = 0; 
-        
+
+        // count the number of zero bytes after the first.
+        int extra_zero_bytes = 0;
         while (true) {
             i++;
             // if we reach the end then this number is zero. 
             if (i == x.rend ()) return 0;
-            if (*i == 0x00) zero_bytes ++;
+            if (*i == 0x00) extra_zero_bytes ++;
             // if the first non-zero digit does not have the
             // sign bit set then we can remove an extra digit. 
-            else return x.size () - zero_bytes - (*i < 8 ? 1 : 0);
+            else return x.size () - extra_zero_bytes - (*i < 0x80 ? 1 : 0);
         }
     }
     

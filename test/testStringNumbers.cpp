@@ -101,28 +101,28 @@ namespace data::encoding {
         EXPECT_EQ (hex_int_twos {}, "0x");
         EXPECT_EQ (base58_uint {}, "1");
         
-        EXPECT_EQ (dec_uint {}, dec_uint {0});
+        EXPECT_EQ (dec_uint {}, dec_uint {0u});
         EXPECT_EQ (dec_int {}, dec_int {0});
         EXPECT_EQ (hex_uint {}, hex_uint {0});
         EXPECT_EQ (base58_uint {}, base58_uint {0});
         
-        EXPECT_EQ (dec_uint {1}, "1");
-        EXPECT_EQ (hex_uint {1}, "0x01");
-        EXPECT_EQ (base58_uint {1}, "2");
+        EXPECT_EQ (dec_uint {1u}, "1");
+        EXPECT_EQ (hex_uint {1u}, "0x01");
+        EXPECT_EQ (base58_uint {1u}, "2");
         
-        EXPECT_EQ (dec_uint {27}, "27");
-        EXPECT_EQ (hex_uint {27}, "0x1b");
-        EXPECT_EQ (base58_uint {27}, "U");
+        EXPECT_EQ (dec_uint {27u}, "27");
+        EXPECT_EQ (hex_uint {27u}, "0x1b");
+        EXPECT_EQ (base58_uint {27u}, "U");
         
     }
     
     TEST (StringNumbersTest, TestAddStringNumbers) {
         
-        EXPECT_EQ (dec_uint {1} + dec_uint {2}, "3");
+        EXPECT_EQ (dec_uint {1u} + dec_uint {2}, "3");
         EXPECT_EQ (dec_int {1} + dec_int {2}, "3");
         
-        auto hex_uint_1 = hex_uint {1};
-        auto hex_uint_2 = hex_uint {2};
+        auto hex_uint_1 = hex_uint {1u};
+        auto hex_uint_2 = hex_uint {2u};
         EXPECT_EQ (hex_uint_1 + hex_uint_2, "0x03");
         
         EXPECT_EQ (hex_int {1} + hex_int {2}, "0x03");

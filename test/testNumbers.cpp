@@ -45,7 +45,12 @@ namespace data {
     requires (const NN &n) {
         {uint64 (n)};
         {NN (n)};
-        {n == 0u};
+        {n == 0u} -> std::same_as<bool>;
+        {n != 0u} -> std::same_as<bool>;
+        {n > 0u} -> std::same_as<bool>;
+        {n < 0u} -> std::same_as<bool>;
+        {n >= 0u} -> std::same_as<bool>;
+        {n <= 0u} -> std::same_as<bool>;
     } && requires (const NN &a, const NN &b) {
         {pow (a, b)} -> std::same_as<NN>;
     } struct test_unsigned_number : test_whole_number<NN> {
@@ -86,6 +91,12 @@ namespace data {
         {int64 (z)};
         {ZZ (z)};
         {z == 0};
+        {z == 0};
+        {z != 0};
+        {z > 0};
+        {z < 0};
+        {z >= 0};
+        {z <= 0};
     } struct test_signed_number : test_whole_number<ZZ> {
         test_signed_number () {
             EXPECT_EQ (Z (ZZ (0)), Z (0));
@@ -155,11 +166,11 @@ namespace data {
 
         test_number_system<dec_uint, dec_int> {};
         test_number_system<hex_uint, hex_int> {};
-/*
+
         test_signed_number<hex_int_twos> {};
 
         test_signed_number<Z_bytes_twos_little> {};
-        test_signed_number<Z_bytes_twos_big> {};*/
+        test_signed_number<Z_bytes_twos_big> {};
 
     }
     
