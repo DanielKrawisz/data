@@ -775,77 +775,94 @@ namespace data::math::number {
         
     }
 
-    void test_complement_ones_twos (string ones, string twos) {
+    // the number with complement one should be converted to the
+    // number in complement twos.
+    void test_complement_ones_to_twos (string ones, string twos) {
+        std::cout << " hex test ones to two: " << ones << " " << twos << std::endl;
         auto o = hex<complement::ones> {ones};
         auto t = hex<complement::twos> {twos};
 
-        EXPECT_EQ (o, hex<complement::ones> (t));
+        // twos converted to ones should be equal (but not identical);
+        EXPECT_EQ (o, t) << "expected " << o << " to equal " << t;
+        EXPECT_EQ (static_cast <std::string> (hex<complement::twos> (o)),
+            static_cast <std::string> (t));
 
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
         auto tbb = bytes_type<endian::big, complement::twos>::read (t);
 
-        EXPECT_EQ (obb, (bytes_type<endian::big, complement::twos> (tbb)));
+        EXPECT_EQ (obb, tbb) << "expected " << std::hex << obb << " to equal " << tbb;
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::big, complement::twos> (obb)), static_cast<bytes> (tbb));
 
         auto obl = bytes_type<endian::little, complement::ones>::read (o);
         auto tbl = bytes_type<endian::little, complement::twos>::read (t);
 
-        EXPECT_EQ (obl, (bytes_type<endian::big, complement::twos> (tbl)));
+        EXPECT_EQ (obl, tbl) << "expected " << std::hex << obl << " to equal " << tbl;
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::twos> (obl)), static_cast<bytes> (tbl));
 
     }
 
-    void test_complement_twos_ones (string twos, string ones) {
+    // the number with complement twos should be converted to the
+    // number in complement one.
+    void test_complement_twos_to_ones (string twos, string ones) {
+        std::cout << " hex test twos to ones: " << twos << " " << ones << std::endl;
         auto t = hex<complement::twos> {twos};
         auto o = hex<complement::ones> {ones};
 
-        EXPECT_EQ (t, hex<complement::twos> (o));
+        EXPECT_EQ (t, o) << "expected " << t << " to equal " << o;
+        EXPECT_EQ (static_cast <std::string> (hex<complement::ones> (t)),
+            static_cast <std::string> (o));
 
         auto tbb = bytes_type<endian::big, complement::twos>::read (t);
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
 
-        EXPECT_EQ (tbb, (bytes_type<endian::big, complement::ones> (obb)));
+        EXPECT_EQ (tbb, obb) << "expected " << std::hex << tbb << " to equal " << obb;
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::big, complement::ones> (tbb)), static_cast<bytes> (obb));
 
         auto tbl = bytes_type<endian::little, complement::twos>::read (t);
         auto obl = bytes_type<endian::little, complement::ones>::read (o);
 
-        EXPECT_EQ (tbl, (bytes_type<endian::big, complement::ones> (obl)));
+        EXPECT_EQ (tbl, obl) << "expected " << std::hex << tbl << " to equal " << obl;
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::ones> (tbl)), static_cast<bytes> (obl));
     }
 /*
+    // test conversions between complement ones and twos.
+    // we try to convert the second number into the first.
     TEST (HexidecimalTest, TestComplementOnesAndTwos) {
 
-        test_complement_ones_twos ("0x", "0x");
-        test_complement_ones_twos ("0x00", "0x");
-        test_complement_twos_ones ("0x", "0x");
-        test_complement_twos_ones ("0x00", "0x");
-        test_complement_twos_ones ("0x80", "0x");
-        test_complement_twos_ones ("0x8000", "0x");
+        test_complement_ones_to_twos ("0x", "0x");
+        test_complement_ones_to_twos ("0x00", "0x");
+        test_complement_twos_to_ones ("0x", "0x");
+        test_complement_twos_to_ones ("0x00", "0x");
+        test_complement_twos_to_ones ("0x80", "0x");
+        test_complement_twos_to_ones ("0x8000", "0x");
 
-        test_complement_ones_twos ("0x01", "0x01");
-        test_complement_ones_twos ("0x0001", "0x01");
-        test_complement_twos_ones ("0x01", "0x01");
-        test_complement_twos_ones ("0x0001", "0x01");
+        test_complement_ones_to_twos ("0x01", "0x01");
+        test_complement_ones_to_twos ("0x0001", "0x01");
+        test_complement_twos_to_ones ("0x01", "0x01");
+        test_complement_twos_to_ones ("0x0001", "0x01");
 
-        test_complement_ones_twos ("0x7f", "0x7f");
-        test_complement_ones_twos ("0x007f", "0x7f");
-        test_complement_twos_ones ("0x7f", "0x7f");
-        test_complement_twos_ones ("0x007f", "0x7f");
+        test_complement_ones_to_twos ("0x7f", "0x7f");
+        test_complement_ones_to_twos ("0x007f", "0x7f");
+        test_complement_twos_to_ones ("0x7f", "0x7f");
+        test_complement_twos_to_ones ("0x007f", "0x7f");
 
-        test_complement_ones_twos ("0xff", "0x81");
-        test_complement_ones_twos ("0xffff", "0x80");
-        test_complement_twos_ones ("0x81", "0xff");
-        test_complement_twos_ones ("0x8001", "0xff");
+        test_complement_ones_to_twos ("0xff", "0x81");
+        test_complement_ones_to_twos ("0xffff", "0x81");
+        test_complement_twos_to_ones ("0x81", "0xff");
+        test_complement_twos_to_ones ("0x8001", "0xff");
 
-        test_complement_ones_twos ("0x80", "0xff");
-        test_complement_ones_twos ("0xff80", "0xff");
-        test_complement_twos_ones ("0xff", "0x80");
-        test_complement_twos_ones ("0x807f", "0x80");
+        test_complement_ones_to_twos ("0x80", "0xff");
+        test_complement_ones_to_twos ("0xff80", "0xff");
+        test_complement_twos_to_ones ("0xff", "0x80");
+        test_complement_twos_to_ones ("0x807f", "0x80");
 
-        test_complement_ones_twos ("0x00ff", "0x00ff");
-        test_complement_ones_twos ("0x0080", "0x0080");
-        test_complement_twos_ones ("0x00ff", "0x00ff");
-        test_complement_twos_ones ("0x0080", "0x0080");
+        test_complement_ones_to_twos ("0x00ff", "0x00ff");
+        test_complement_ones_to_twos ("0x0080", "0x0080");
+        test_complement_twos_to_ones ("0x00ff", "0x00ff");
+        test_complement_twos_to_ones ("0x0080", "0x0080");
 
-        test_complement_ones_twos ("0xff7f", "0x8080");
-        test_complement_twos_ones ("0x8080", "0xff7f");
+        test_complement_ones_to_twos ("0xff7f", "0x8080");
+        test_complement_twos_to_ones ("0x8080", "0xff7f");
 
     }*/
     
@@ -889,21 +906,7 @@ namespace data::math::number {
             
         }
     };
-
-    template <> struct test_bit_shift<complement::twos> {
-        test_bit_shift (string given, byte bits, string expected_left, string expected_right) {
-            auto l = hex<complement::twos> {expected_left};
-            auto r = hex<complement::twos> {expected_right};
-            auto g = hex<complement::twos> {given};
-            auto x = g << bits;
-
-            EXPECT_EQ (x, l);
-            EXPECT_EQ (x >> bits, g);
-            EXPECT_EQ (g >> bits, r);
-
-        }
-    };
-
+/*
     TEST (HexidecimalTest, TestHexidecimalBitShift) {
 
         test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x", 0, "0x", "0x");
@@ -925,7 +928,7 @@ namespace data::math::number {
         test_bit_shift<complement::ones> ("0xff", 1, "0xfe", "0xff");
         test_bit_shift<complement::twos> ("0xff", 1, "0x80fe", "0xbf");
 
-    }
+    }*/
     
     template <complement... > struct test_plus;
     
@@ -942,7 +945,7 @@ namespace data::math::number {
             auto z = l + r;
             EXPECT_EQ (z, e) << "expected " << n << " " << std::hex << left << " + " << right << " = " << expected
                 << " but got " << z << std::endl;
-            
+/*
             auto lbl = bytes_type<endian::little, n>::read (left);
             auto rbl = bytes_type<endian::little, n>::read (right);
             auto ebl = bytes_type<endian::little, n>::read (expected);
@@ -952,12 +955,8 @@ namespace data::math::number {
             auto rbb = bytes_type<endian::big, n>::read (right);
             auto ebb = bytes_type<endian::big, n>::read (expected);
             EXPECT_EQ (lbb + rbb, ebb);
-            
+*/
         }
-    };
-
-    template <> struct test_plus<complement::twos> {
-        test_plus (string left, string right, string expected) {}
     };
 
     TEST (HexidecimalTest, TestHexidecimalPlus) {
@@ -1000,7 +999,7 @@ namespace data::math::number {
             auto e = hex<n>::read (expected);
             auto x = l - r;
             EXPECT_EQ (x, e) << "expected " << n << " " << left << " - " << right << " -> " << expected << " but got " << x << std::endl;
-
+/*
             auto lbl = bytes_type<endian::little, n>::read (left);
             auto rbl = bytes_type<endian::little, n>::read (right);
             auto ebl = bytes_type<endian::little, n>::read (expected);
@@ -1014,11 +1013,8 @@ namespace data::math::number {
             auto xbb = lbb - rbb;
             EXPECT_EQ (xbb, ebb)
                 << "expected " << n << " " << std::hex << lbb << " - " << rbb << " -> " << ebb << " but got " << xbb << std::endl;
+*/
         }
-    };
-
-    template <> struct test_minus<complement::twos> {
-        test_minus (string left, string right, string expected) {}
     };
 
     TEST (HexidecimalTest, TestHexidecimalMinus) {
@@ -1127,11 +1123,11 @@ namespace data::math::number {
             
         }
     };
-    /*
+
     TEST (HexidecimalTest, TestHexidecimalDivide) {
         test_divide<complement::nones, complement::ones, complement::twos> ("0", "1", "0", "0");
         test_divide<complement::nones, complement::ones, complement::twos> ("1", "1", "1", "0");
-    }*/
+    }
 
     TEST (HexidecimalTest, TestHexidecimalOnes) {
         using hex_uint = data::hex::uint<hex_case::lower>;
@@ -1297,8 +1293,8 @@ namespace data {
         test_hex_read_zero<N_bytes_big> {sizes};
         test_hex_read_zero<Z_bytes_little> {sizes};
         test_hex_read_zero<Z_bytes_big> {sizes};
-        //test_hex_read_zero<Z_bytes_twos_little> {sizes};
-        //test_hex_read_zero<Z_bytes_twos_big> {sizes};
+        test_hex_read_zero<Z_bytes_twos_little> {sizes};
+        test_hex_read_zero<Z_bytes_twos_big> {sizes};
         test_hex_read_zero<N> {sizes};
         test_hex_read_zero<Z> {sizes};
         test_hex_read_zero<uint_little<9>> {sizes};

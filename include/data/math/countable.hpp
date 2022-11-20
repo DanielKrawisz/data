@@ -13,12 +13,12 @@ namespace data::interface {
     
     template <typename X>
     concept has_zero_initializer = requires {
-        { X{0} };
+        { X {0} };
     };
     
     template <typename X>
     concept has_zero_method = requires {
-        { X::zero() } -> std::same_as<X>;
+        { X::zero () } -> std::same_as<X>;
     };
     
     template <typename X>
@@ -32,15 +32,15 @@ namespace data::meta {
     
     template <interface::has_zero_initializer X>
     struct zero<X> {
-        X operator()() const {
-            return X{0};
+        X operator () () const {
+            return X {0};
         }
     };
     
     template <interface::has_zero_value X>
     struct zero<X> {
-        X operator()() const {
-            return X::zero();
+        X operator () () const {
+            return X::zero ();
         }
     };
     
@@ -49,12 +49,12 @@ namespace data::meta {
 namespace data {
     
     template <typename X>
-    X inline zero() {
-        return meta::zero<X>{}();
+    X inline zero () {
+        return meta::zero<X> {} ();
     }
     
     template <typename N>
-    N next(const N &n) {
+    N next (const N &n) {
         return n + 1;
     };
     
@@ -64,7 +64,7 @@ namespace data::math {
     
     template <typename L>
     concept countable = interface::has_zero_value<L> && requires (const L n) {
-        { next<L>(n) } -> std::same_as<L>;
+        { next<L> (n) } -> std::same_as<L>;
     };
 
 }

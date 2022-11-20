@@ -44,19 +44,19 @@ namespace data {
     
     template <typename N> void test_N_sign () {
         
-        EXPECT_EQ (sign (N {0u}),                     math::zero);
-        EXPECT_EQ (sign (N {1u}),                     math::positive);
-        EXPECT_EQ (sign (N {2u}),                     math::positive);
-        EXPECT_EQ (sign (N {7076852110923542u}),      math::positive);
+        EXPECT_EQ (sign (N {uint64 {0u}}),                     math::zero);
+        EXPECT_EQ (sign (N {uint64 {1u}}),                     math::positive);
+        EXPECT_EQ (sign (N {uint64 {2u}}),                     math::positive);
+        EXPECT_EQ (sign (N {uint64 {7076852110923542u}}),      math::positive);
         
     };
     
     template <typename N> void test_Z_sign () {
         test_N_sign<N> ();
         
-        EXPECT_EQ (sign (int64 {-1}),                math::negative);
-        EXPECT_EQ (sign (int64 {-2}),                math::negative);
-        EXPECT_EQ (sign (int64 {-7076852110923542}), math::negative);
+        EXPECT_EQ (sign (Z {int64 {-1}}),                math::negative);
+        EXPECT_EQ (sign (Z {int64 {-2}}),                math::negative);
+        EXPECT_EQ (sign (Z {int64 {-7076852110923542}}), math::negative);
         
     };
     

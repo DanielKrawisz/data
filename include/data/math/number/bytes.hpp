@@ -31,14 +31,14 @@ namespace data::math::number {
     }
     
     template <endian::order r> 
-    std::ostream inline &operator << (std::ostream &o, const N_bytes<r>& n) {
+    std::ostream inline &operator << (std::ostream &o, const N_bytes<r> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, N (n));
         return o;
     }
     
     template <endian::order r, complement c> 
-    std::ostream inline &operator << (std::ostream &o, const Z_bytes<r, c>& n) {
+    std::ostream inline &operator << (std::ostream &o, const Z_bytes<r, c> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, Z (n));
         return o;
@@ -281,7 +281,7 @@ namespace data::encoding::hexidecimal {
         if (x == 16) return math::division<integer<c, zz>> {*this >> 4, *this & integer<c, zz> {4}};
         
         if constexpr (c == complement::nones) return math::number::natural::divide (*this, x);
-        else return math::number::integer::divide (*this, x);
+        else return math::number::integer::divide<integer<c, zz>, integer<c, zz>> (*this, x);
     }
     
     template <complement c, hex::letter_case zz> 
