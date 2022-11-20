@@ -94,22 +94,27 @@ namespace data {
     using base58_uint = encoding::base58::string;
     
     // rational numbers. 
-    using Q = math::fraction<Z, N>;
+    using Q = math::fraction<Z>;
     
-    using Q_big = math::fraction<Z_bytes_big, N_bytes_little>;
-    using Q_little = math::fraction<Z_bytes_little, N_bytes_big>;
+    using Q_big = math::fraction<Z_bytes_big>;
+    using Q_little = math::fraction<Z_bytes_little>;
+
+    using Q_twos_big = math::fraction<Z_bytes_twos_big>;
+    using Q_twos_little = math::fraction<Z_bytes_twos_little>;
     
     // Gaussian integers. 
     using G = math::complex<Z>;
+    using GH = math::quaternion<Z>;
+    using GO = math::octonion<Z>;
     
     // complex rationals
-    using CQ = math::complex<Q>;
+    using QC = math::complex<Q>;
         
     // rational quaternions
-    using HQ = math::quaternion<Q>;
+    using QH = math::quaternion<Q>;
         
     // rational octonions
-    using OQ = math::octonion<Q>;
+    using QO = math::octonion<Q>;
     
     // Caylay-Dickson floating points. 
     using complex64 = math::complex<float32>;
@@ -133,14 +138,6 @@ namespace data::math {
             return number::natural::divide (a, b);
         }
     };
-    
-    template <uint64 pow> 
-    set<base58_uint> root<base58_uint, pow>::operator () (const base58_uint& n) {
-        set<base58_uint> x;
-        set<N> roots = root<N, pow> {} (*encoding::base58::decode<N> (n));
-        for (const N &z : roots.values ()) x = insert (x, encoding::base58::encode (z));
-        return x;
-    }
 }
 
 namespace data::math::number {

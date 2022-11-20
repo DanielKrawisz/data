@@ -16,13 +16,13 @@ namespace data::math {
 namespace data {
     
     template <uint64 pow, typename X> 
-    set<X> root(const X &x) {
-        return math::root<X, pow>{}(x);
+    set<X> root (const X &x) {
+        return math::root<X, pow> {} (x);
     }
     
     template <typename X> 
-    set<X> sqrt(const X &x){
-        return math::root<X, 2>{}(x);
+    set<X> sqrt (const X &x){
+        return math::root<X, 2> {} (x);
     }
     
 }

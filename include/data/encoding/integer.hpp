@@ -465,7 +465,7 @@ namespace data::math {
     
     template <number::complement c, hex_case zz> 
     struct associative<times<hex::integer<c, zz>>, hex::integer<c, zz>> {};
-    
+
     bool is_zero (const dec_uint &);
     bool is_negative (const dec_uint &);
     bool is_positive (const dec_uint &);
@@ -647,8 +647,7 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::hexidecimal {
 
     // we need signed versions of integer to have constructors for
-    // both uint64 and int64 whereas the unsigned version can only
-    // support uint64. That's the only point of complemented_string
+    // int64 whereas the unsigned version can only support uint64.
     template <complement c, hex::letter_case cx>
     struct complemented_string : string<cx> {
         using string<cx>::string;
@@ -659,6 +658,10 @@ namespace data::encoding::hexidecimal {
         explicit operator integer<complement (-int (c) + 3), cx> () const;
 
         static integer<c, cx> zero (size_t size = 0, bool negative = false);
+
+        integer<c, cx> operator + (int64) const;
+        integer<c, cx> operator - (int64) const;
+        integer<c, cx> operator * (int64) const;
     };
 
     template <hex::letter_case cx>
@@ -670,6 +673,10 @@ namespace data::encoding::hexidecimal {
         explicit operator uint64 () const;
         explicit operator integer<complement::ones, cx> () const;
         explicit operator integer<complement::twos, cx> () const;
+
+        data::hex::uint<cx> operator + (uint64) const;
+        data::hex::uint<cx> operator - (uint64) const;
+        data::hex::uint<cx> operator * (uint64) const;
     };
     
     template <complement c, hex::letter_case cx>
@@ -682,6 +689,10 @@ namespace data::encoding::hexidecimal {
         integer &operator += (const integer &);
         integer &operator -= (const integer &);
         integer &operator *= (const integer &);
+
+        integer<c, cx> &operator += (int64);
+        integer<c, cx> &operator -= (int64);
+        integer<c, cx> &operator *= (int64);
         
         integer &operator <<= (int i);
         integer &operator >>= (int i);
@@ -690,14 +701,6 @@ namespace data::encoding::hexidecimal {
         
         integer operator / (const integer &x) const;
         integer operator % (const integer &x) const;
-        
-        integer operator + (int64) const;
-        integer operator - (int64) const;
-        integer operator * (int64) const;
-        
-        integer &operator += (int64);
-        integer &operator -= (int64);
-        integer &operator *= (int64);
         
         explicit operator double () const;
         explicit operator bool () const;
@@ -740,32 +743,90 @@ namespace data::encoding::hexidecimal {
 }
 
 namespace data::math {
-    
-    template <uint64 pow> 
+
+    template <> struct identity<plus<dec_uint>, dec_uint> {
+        dec_uint operator () () {
+            return 0;
+        }
+    };
+
+    template <> struct identity<plus<dec_int>, dec_int> {
+        dec_int operator () () {
+            return 0;
+        }
+    };
+
+    template <> struct identity<times<dec_uint>, dec_uint> {
+        dec_uint operator () () {
+            return 1;
+        }
+    };
+
+    template <> struct identity<times<dec_int>, dec_int> {
+        dec_int operator () () {
+            return 1;
+        }
+    };
+
+    template <number::complement c, hex_case zz>
+    struct identity<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () () {
+            return 0;
+        }
+    };
+
+    template <number::complement c, hex_case zz>
+    struct identity<times<hex::integer<c, zz>>, hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () () {
+            return 1;
+        }
+    };
+
+    template <> struct inverse<plus<dec_int>, dec_int> {
+        dec_int operator () (const dec_int &a, const dec_int &b) {
+            return b - a;
+        }
+    };
+
+    template <hex_case zz>
+    struct inverse<plus<hex::int1<zz>>, hex::int1<zz>> {
+        hex::int1<zz> operator () (const hex::int1<zz> &a, const hex::int1<zz> &b) {
+            return b - a;
+        }
+    };
+
+    template <hex_case zz>
+    struct inverse<plus<hex::int2<zz>>, hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
+            return b - a;
+        }
+    };
+
+    template <uint64 pow>
     struct root<dec_uint, pow> {
         set<dec_uint> operator () (const dec_uint &n);
     };
-    
-    template <uint64 pow> 
+
+    template <uint64 pow>
     struct root<dec_int, pow> {
         set<dec_int> operator () (const dec_int &n);
     };
-    
-    template <hex_case zz, uint64 pow> 
+
+    template <hex_case zz, uint64 pow>
     struct root<hex::uint<zz>, pow> {
         set<hex::uint<zz>> operator () (const hex::uint<zz> &n);
     };
-    
-    template <hex_case zz, uint64 pow> 
+
+    template <hex_case zz, uint64 pow>
     struct root<hex::int1<zz>, pow> {
         set<hex::int1<zz>> operator () (const hex::int1<zz> &n);
     };
-    
-    template <hex_case zz, uint64 pow> 
+
+    template <hex_case zz, uint64 pow>
     struct root<hex::int2<zz>, pow> {
         set<hex::int2<zz>> operator () (const hex::int2<zz> &n);
     };
-    
+
 }
 
 namespace data::encoding::decimal {
@@ -1414,20 +1475,35 @@ namespace data::encoding::hexidecimal {
     }
 
     template <complement c, hex::letter_case zz> 
-    integer<c, zz> inline integer<c, zz>::operator + (int64 i) const {
-        return *this + integer {i};
+    integer<c, zz> inline complemented_string<c, zz>::operator + (int64 i) const {
+        return integer<c, zz> {*this} + integer<c, zz> {i};
     }
     
     template <complement c, hex::letter_case zz> 
-    integer<c, zz> inline integer<c, zz>::operator - (int64 i) const {
-        return *this - integer {i};
+    integer<c, zz> inline complemented_string<c, zz>::operator - (int64 i) const {
+        return integer<c, zz> {*this} - integer<c, zz> {i};
     }
 
     template <complement c, hex::letter_case zz> 
-    integer<c, zz> inline integer<c, zz>::operator * (int64 i) const {
-        return *this * integer {i};
+    integer<c, zz> inline complemented_string<c, zz>::operator * (int64 i) const {
+        return integer<c, zz> {*this} * integer<c, zz> {i};
     }
-    
+
+    template <hex::letter_case cx>
+    data::hex::uint<cx> inline complemented_string<complement::nones, cx>::operator + (uint64 i) const {
+        return data::hex::uint<cx> {*this} + data::hex::uint<cx> {i};
+    }
+
+    template <hex::letter_case cx>
+    data::hex::uint<cx> inline complemented_string<complement::nones, cx>::operator - (uint64 i) const {
+        return data::hex::uint<cx> {*this} - data::hex::uint<cx> {i};
+    }
+
+    template <hex::letter_case cx>
+    data::hex::uint<cx> inline complemented_string<complement::nones, cx>::operator * (uint64 i) const {
+        return data::hex::uint<cx> {*this} * data::hex::uint<cx> {i};
+    }
+
     template <complement c, hex::letter_case zz> 
     integer<c, zz> inline &integer<c, zz>::operator += (int64 i) {
         return *this += integer {i};

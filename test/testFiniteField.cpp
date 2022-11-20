@@ -31,31 +31,31 @@ namespace data {
     using prime_field_element = math::algebra::prime_field_element<uint64, int64, mod>;
     
     template <auto & mod>
-    using field = math::algebra::prime_field<uint64, int64, mod>;
+    using prime_field = math::algebra::prime_field<uint64, int64, mod>;
     
     TEST (PrimeFieldTest, TestPrimeField) {
         // We have to prove that a number is prime in order to 
         // construct a prime field, so we generate the first 8 primes. 
         stack<math::number::prime<uint64>> primes = reverse (math::number::eratosthenes<uint64> {8}.Primes);
         
-        field<d2> f2 {primes[0]};
-        field<d3> f3 {primes[1]};
-        field<d4> f4 {math::number::prime<uint64> {}};
-        field<d5> f5 {primes[2]};
-        field<d6> f6 {math::number::prime<uint64> {}};
-        field<d7> f7 {primes[3]};
-        field<d8> f8 {math::number::prime<uint64> {}};
-        field<d9> f9 {math::number::prime<uint64> {}};
-        field<d10> f10 {math::number::prime<uint64> {}};
-        field<d11> f11 {primes[4]};
-        field<d12> f12 {math::number::prime<uint64> {}};
-        field<d13> f13 {primes[5]};
-        field<d14> f14 {math::number::prime<uint64> {}};
-        field<d15> f15 {math::number::prime<uint64> {}};
-        field<d16> f16 {math::number::prime<uint64> {}};
-        field<d17> f17 {primes[6]};
-        field<d16> f18 {math::number::prime<uint64> {}};
-        field<d19> f19 {primes[7]};
+        prime_field<d2> f2 {primes[0]};
+        prime_field<d3> f3 {primes[1]};
+        prime_field<d4> f4 {math::number::prime<uint64> {}};
+        prime_field<d5> f5 {primes[2]};
+        prime_field<d6> f6 {math::number::prime<uint64> {}};
+        prime_field<d7> f7 {primes[3]};
+        prime_field<d8> f8 {math::number::prime<uint64> {}};
+        prime_field<d9> f9 {math::number::prime<uint64> {}};
+        prime_field<d10> f10 {math::number::prime<uint64> {}};
+        prime_field<d11> f11 {primes[4]};
+        prime_field<d12> f12 {math::number::prime<uint64> {}};
+        prime_field<d13> f13 {primes[5]};
+        prime_field<d14> f14 {math::number::prime<uint64> {}};
+        prime_field<d15> f15 {math::number::prime<uint64> {}};
+        prime_field<d16> f16 {math::number::prime<uint64> {}};
+        prime_field<d17> f17 {primes[6]};
+        prime_field<d16> f18 {math::number::prime<uint64> {}};
+        prime_field<d19> f19 {primes[7]};
         
         // fields are only valid when we have given 
         // a proof for the correct prime number. 
