@@ -26,6 +26,10 @@ namespace data {
     string substring (const std::string &, int64 begin);
     string substring (const std::string &, int64 begin, int64 end);
 
+    std::strong_ordering inline operator <=> (const string &a, const string &b) {
+        return static_cast<const std::string &> (a) <=> static_cast<const std::string &> (b);
+    }
+
     std::ostream inline &operator << (std::ostream &o, const string &x) {
         return o << "\"" << static_cast<std::string> (x) << "\"";
     }

@@ -8,7 +8,7 @@
 
 namespace data::mat {
     
-    template <typename N> void test_root_N() {
+    template <typename N> void test_root_N () {
         
         auto root_17_0 = root<0> (N::read ("17"));
         auto root_25_0 = root<0> (N::read ("25"));
