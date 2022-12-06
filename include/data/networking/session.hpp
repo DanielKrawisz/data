@@ -29,25 +29,37 @@ namespace data::networking {
         using session<bytes_view>::send;
         using session<const from &, const to &>::receive;
         
-        virtual bytes serialize(const to &m) {
-            return bytes(m);
-        }
+        virtual bytes serialize(const to &m);
         
-        void send(const to &m) final override {
-            send(bytes_view(serialize(m)));
-        }
+        void send(const to &m) final override;
         
         virtual ~serialized_session() {}
         
-        virtual void receive(bytes_view b) final override {
-            this->write(b.data(), b.size());
-        }
+        virtual void receive(bytes_view b) final override;
         
-        void parsed(const from &m) final override {
-            receive(m);
-        }
+        void parsed(const from &m) final override;
         
     };
+    
+    template <typename from, typename to>
+    bytes inline serialized_session<from, to>::serialize(const to &m) {
+        return bytes(m);
+    }
+    
+    template <typename from, typename to>
+    void inline serialized_session<from, to>::send(const to &m) {
+        send(bytes_view(serialize(m)));
+    }
+    
+    template <typename from, typename to>
+    void inline serialized_session<from, to>::receive(bytes_view b) {
+        this->write(b.data(), b.size());
+    }
+    
+    template <typename from, typename to>
+    void inline serialized_session<from, to>::parsed(const from &m) {
+        receive(m);
+    }
     
 }
 

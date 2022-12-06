@@ -111,5 +111,14 @@ namespace data::networking::IP {
             port_stream >> port;
             return port < 65536;
         }
+        
+        void server::accept() {
+            Socket.emplace(IO);
+            
+            Acceptor.async_accept(*Socket, [&] (io_error error) {
+                new_session(std::move(*Socket));
+                accept();
+            });
+        }
     }
 }

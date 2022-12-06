@@ -19,14 +19,18 @@ namespace data::networking {
         
         void write(const byte *data, size_t size) final override;
         
-        bytes serialize(const JSON &j) final override {
-            return bytes::from_string(j.dump() + "\n");
-        }
+        bytes serialize(const JSON &j) final override;
         
-        virtual void parse_error(const string &invalid) override {
-            throw exception{} << "Invalid JSON string: \"" << invalid << "\"";
-        }
+        virtual void parse_error(const string &invalid) override;
     };
+    
+    bytes inline JSON_line_session::serialize(const JSON &j) {
+        return bytes::from_string(j.dump() + "\n");
+    }
+    
+    void inline JSON_line_session::parse_error(const string &invalid) {
+        throw exception{} << "Invalid JSON string: \"" << invalid << "\"";
+    }
     
 }
 

@@ -53,7 +53,9 @@ add_library(
   src/data/encoding/base64.cpp
   src/data/encoding/integer.cpp
   src/data/encoding/utf8.cpp
+  src/data/networking/URL.cpp
   src/data/networking/HTTP.cpp
+  src/data/networking/REST.cpp
   src/data/networking/JSON.cpp
   src/data/networking/TCP.cpp
   src/data/tools/channel.cpp
