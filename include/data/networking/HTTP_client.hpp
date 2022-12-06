@@ -17,27 +17,40 @@ namespace data::networking {
         
         tools::rate_limiter Rate;
         
-        HTTP_client(networking::HTTP &http, const REST &rest, tools::rate_limiter rate = {}) : Http{http}, Rest{rest}, Rate{rate} {}
+        HTTP_client(networking::HTTP &http, const REST &rest, tools::rate_limiter rate = {});
         
-        HTTP::response operator()(const HTTP::request &r) {
-            auto wait = Rate.getTime();
-            if (wait != 0) boost::asio::steady_timer{Http.IOContext, boost::asio::chrono::seconds(wait)}.wait();
-            return Http(r);
-        }
+        HTTP::response operator()(const HTTP::request &r);
         
-        HTTP::response GET(string path, map<string, string> params = {}) {
-            return (*this)(Rest.GET(path, params));
-        }
+        HTTP::response GET(string path, map<string, string> params = {});
         
         // POST form data
-        HTTP::response POST(string path, map<string, string> form_data = {}) {
-            return (*this)(Rest.POST(path, form_data));
-        }
+        HTTP::response POST(string path, map<string, string> form_data = {});
         
-        HTTP::response POST(string path, map<HTTP::header, string> headers, string body) {
-            return (*this)(Rest.POST(path, headers, body));
-        }
+        HTTP::response POST(string path, map<HTTP::header, string> headers, string body);
         
     };
+        
+    inline HTTP_client::HTTP_client(networking::HTTP &http, const REST &rest, tools::rate_limiter rate) : 
+        Http{http}, Rest{rest}, Rate{rate} {}
+    
+    HTTP::response inline HTTP_client::operator()(const HTTP::request &r) {
+        auto wait = Rate.getTime();
+        if (wait != 0) boost::asio::steady_timer{Http.IOContext, boost::asio::chrono::seconds(wait)}.wait();
+        return Http(r);
+    }
+    
+    HTTP::response inline HTTP_client::GET(string path, map<string, string> params) {
+        return (*this)(Rest.GET(path, params));
+    }
+    
+    // POST form data
+    HTTP::response inline HTTP_client::POST(string path, map<string, string> form_data) {
+        return (*this)(Rest.POST(path, form_data));
+    }
+    
+    HTTP::response inline HTTP_client::POST(string path, map<HTTP::header, string> headers, string body) {
+        return (*this)(Rest.POST(path, headers, body));
+    }
 }
+
 #endif

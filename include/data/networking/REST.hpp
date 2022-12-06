@@ -14,35 +14,42 @@ namespace data::networking {
         string Host;
         
         // a typical GET request
-        HTTP::request GET(string path, map<string, string> params = {}) const {
-            return HTTP::request{HTTP::method::get, URL{Port, Host, path, params}};
-        }
+        HTTP::request GET(string path, list<entry<string, string>> params = {}) const;
         
         // POST form data
         HTTP::request POST(string path, map<string, string> params = {}) const;
         
         // construct a more general POST request
-        HTTP::request POST(string path, map<HTTP::header, string> headers, string body) const {
-            return HTTP::request{
-                HTTP::method::post, 
-                Port, Host, path, headers, body};
-        }
+        HTTP::request POST(string path, map<HTTP::header, string> headers, string body) const;
         
         // an HTTP request without host and port missing that can be used to
         // construct any other kind of request. 
         struct request {
             HTTP::method Method;
             string Path;
-            map<string, string> Params;
+            list<entry<string, string>> Params;
             map<HTTP::header, string> Headers;
             string Body;
         };
         
-        HTTP::request operator()(const request &r) const {
-            return HTTP::request{r.Method, URL{Port, Host, r.Path, r.Params}, r.Headers, r.Body};
-        }
+        HTTP::request operator()(const request &r) const;
         
     };
+    
+    HTTP::request inline REST::GET(string path, list<entry<string, string>> params) const {
+        return HTTP::request{HTTP::method::get, URL{Port, Host, path, params}};
+    }
+    
+    // construct a more general POST request
+    HTTP::request inline REST::POST(string path, map<HTTP::header, string> headers, string body) const {
+        return HTTP::request{
+            HTTP::method::post, 
+            Port, Host, path, headers, body};
+    }
+    
+    HTTP::request inline REST::operator()(const request &r) const {
+        return HTTP::request{r.Method, URL{Port, Host, r.Path, r.Params}, r.Headers, r.Body};
+    }
 }
 
 #endif

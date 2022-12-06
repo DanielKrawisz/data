@@ -70,9 +70,7 @@ namespace data::networking::IP::TCP {
         // begin waiting for the next message asynchronously. 
         void wait_for_message();
         
-        virtual void handle_error(const io_error &err) {
-            throw exception{err};
-        } 
+        virtual void handle_error(const io_error &err);
         
     public:
         // note: message cannot be longer than 65536 bytes or this function 
@@ -80,13 +78,9 @@ namespace data::networking::IP::TCP {
         void send(bytes_view) final override;
         
         // we schedule a wait new message as soon as the object is created. 
-        session(socket &x) : Socket{x}, Buffer{std::make_shared<io::streambuf>(65536)} {
-            wait_for_message();
-        }
+        session(socket &x);
         
-        virtual ~session() {
-            Socket.close();
-        }
+        virtual ~session();
     
     };
     
@@ -97,19 +91,27 @@ namespace data::networking::IP::TCP {
         
         virtual ptr<session> new_session(socket &&x) = 0;
         
-        void accept() {
-            Socket.emplace(IO);
-            
-            Acceptor.async_accept(*Socket, [&] (io_error error) {
-                new_session(std::move(*Socket));
-                accept();
-            });
-        }
+        void accept();
         
     public:
-        server(boost::asio::io_context& io_context, std::uint16_t port): 
-            IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
+        server(boost::asio::io_context& io_context, std::uint16_t port);
     };
+    
+    void inline session::handle_error(const io_error &err) {
+        throw exception{err};
+    } 
+    
+    // we schedule a wait new message as soon as the object is created. 
+    inline session::session(socket &x) : Socket{x}, Buffer{std::make_shared<io::streambuf>(65536)} {
+        wait_for_message();
+    }
+    
+    inline session::~session() {
+        Socket.close();
+    }
+    
+    inline server::server(boost::asio::io_context& io_context, std::uint16_t port): 
+            IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
     
 }
 

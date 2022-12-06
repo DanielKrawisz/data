@@ -27,20 +27,6 @@ namespace data::networking {
 
             return accum;
         }
-        
-        string write_params(map<string, string> params) {
-            string path;
-            
-            if(params.size()>0) {
-                path.append("?");
-                for (const auto &it : params) {
-                    path.append(it.Key + "=" + it.Value + "&");
-                }
-                path.pop_back();
-            }
-            
-            return path;
-        }
 
         template<class SyncReadStream>
         boost::beast::http::response<boost::beast::http::dynamic_body> http_request(
@@ -71,19 +57,6 @@ namespace data::networking {
             } catch (boost::exception &ex) {}
             return res;
             
-        }
-        
-        string encode_form_data(map<string, string> form_data) {
-            string newBody;
-            
-            if(form_data.size()>0) {
-                for (const auto &it : form_data) {
-                    newBody.append(it.Key+"="+it.Value+"&");
-                }
-                newBody.pop_back();
-            }
-            
-            return newBody;
         }
         
     }
@@ -145,18 +118,6 @@ namespace data::networking {
         for (const auto &field : res) response_headers = 
             data::insert(response_headers, data::entry<HTTP::header, string>{field.name(), std::string{field.value()}}); 
         return response{res.base().result(), response_headers, boost::beast::buffers_to_string(res.body().data())};
-    }
-
-    HTTP::request REST::POST(string path, map<string, string> params) const {
-        return HTTP::request(HTTP::method::post, Port, Host, path, 
-            {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}}, 
-              encode_form_data(params));
-    }
-    
-    URL::operator string() const {
-        std::stringstream ss;
-        ss << Port << "://" << Host << Path << write_params(Params);
-        return ss.str();
     }
 
 }

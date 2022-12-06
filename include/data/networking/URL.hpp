@@ -6,18 +6,18 @@
 #ifndef DATA_NETWORKING_URL
 #define DATA_NETWORKING_URL
 
-#include <data/types.hpp>
+#include <data/tools.hpp>
 
 namespace data::networking {
     
     struct URL {
         
-        string Port; // "http" or "https"
+        string Port; 
         string Host;
         string Path;
-        map<string, string> Params;
+        list<entry<string, string>> Params;
         
-        URL(string port, string host, string path, map<string, string> params = {}) : 
+        URL(string port, string host, string path, list<entry<string, string>> params = {}) : 
             Port{port}, Host{host}, Path{path}, Params{params} {}
         
         URL(const string &);
@@ -25,6 +25,8 @@ namespace data::networking {
         operator string() const;
         
     };
+    
+    std::ostream &operator<<(std::ostream &, const URL &);
 }
 
 #endif
