@@ -41,6 +41,15 @@ namespace data::networking {
         
     };
     
+    template <typename from, typename to = from>
+    struct receiver : virtual session<from, to> {
+        virtual ~receiver() {}
+        std::function<void(from)> Receive;
+        void receive(from x) final override {
+            Receive(x);
+        }
+    };
+    
     template <typename from, typename to>
     bytes inline serialized_session<from, to>::serialize(const to &m) {
         return bytes(m);
