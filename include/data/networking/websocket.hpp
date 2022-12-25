@@ -5,11 +5,14 @@
 #define DATA_NETWORKING_WEBSOCKET
 
 #include <data/networking/session.hpp>
+#include <boost/asio.hpp>
 
 namespace data::networking::websocket {
+    namespace io = boost::asio;
     
     static ptr<session<bytes_view>> connect(io::io_context &, string url, std::function<void(bytes_view)>);
     
+    // Notes: destructor must close session. 
 }
 
 #endif

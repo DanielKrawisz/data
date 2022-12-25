@@ -55,16 +55,16 @@ namespace data::networking::IP::TCP {
         uint16 port() const;
     };
     
-    socket connect(io::io_context &, const endpoint &);
+    ptr<networking::session<bytes_view>> connect(io::io_context &, const endpoint &, std::function<void(bytes_view)> receive);
     
     // https://dens.website/tutorials/cpp-asio
     
     // we need to use enable_shared_from_this because of the possibility that 
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
-    class session : virtual public networking::session<bytes_view>, protected std::enable_shared_from_this<session> {
+    class session : public networking::session<bytes_view>, protected std::enable_shared_from_this<session> {
         
-        socket &Socket;
+        socket Socket;
         ptr<io::streambuf> Buffer;
         
         // begin waiting for the next message asynchronously. 
@@ -76,11 +76,15 @@ namespace data::networking::IP::TCP {
         // note: message cannot be longer than 65536 bytes or this function 
         // is not thread-safe. 
         void send(bytes_view) final override;
+        void close() final override;
+        bool closed() final override;
         
         // we schedule a wait new message as soon as the object is created. 
-        session(socket &x);
+        session(socket &&x);
         
         virtual ~session();
+        
+        static socket connect(io::io_context &, const endpoint &);
     
     };
     
@@ -102,7 +106,8 @@ namespace data::networking::IP::TCP {
     } 
     
     // we schedule a wait new message as soon as the object is created. 
-    inline session::session(socket &x) : Socket{x}, Buffer{std::make_shared<io::streambuf>(65536)} {
+    // ensure that the object is ready to receive messages before this constructor happens!
+    inline session::session(socket &&x) : Socket{std::move(x)}, Buffer{std::make_shared<io::streambuf>(65536)} {
         wait_for_message();
     }
     
@@ -110,8 +115,12 @@ namespace data::networking::IP::TCP {
         Socket.close();
     }
     
+    inline void session::close() {
+        Socket.close();
+    }
+    
     inline server::server(boost::asio::io_context& io_context, std::uint16_t port): 
-            IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
+        IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
     
 }
 
