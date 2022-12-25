@@ -8,10 +8,12 @@
 #include <boost/asio.hpp>
 
 namespace data::io {
+    namespace io = boost::asio;
     
     // run an external command with standard in and standard out connected. 
     ptr<session<string_view>> run(io::io_context &, string command, std::function<void(string_view)>);
     
+    // Notes: destructor must end program. 
 }
 
 #endif
