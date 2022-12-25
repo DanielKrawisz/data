@@ -49,7 +49,7 @@ namespace data::networking::IP {
                 });
         }
 
-        socket connect(io::io_context &io, const endpoint &p) {
+        socket session::connect(io::io_context &io, const endpoint &p) {
             socket x(io);
             io_error error;
             x.connect(io::ip::tcp::endpoint(p), error);
@@ -119,6 +119,18 @@ namespace data::networking::IP {
                 new_session(std::move(*Socket));
                 accept();
             });
+        }
+        
+        struct session_receiver final : receiver<bytes_view>, session {
+            session_receiver(socket &&x, std::function<void(bytes_view)> receive) : 
+                receiver<bytes_view>{receive}, session{std::move(x)} {} 
+        };
+        
+        ptr<networking::session<bytes_view>> connect(
+            io::io_context &io, const endpoint &e, 
+            std::function<void(bytes_view)> receive) {
+            return std::static_pointer_cast<networking::session<bytes_view>>(
+                std::make_shared<session_receiver>(session::connect(io, e), receive));
         }
     }
 }

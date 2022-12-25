@@ -20,30 +20,23 @@ namespace data {
     template <typename word>
     struct writer {
         virtual void write(const word*, size_t size) = 0;
+        virtual ~writer() {}
     };
     
     template <typename word>
-    writer<word> inline &operator<<(writer<word> &w, const word &x) {
-        w.write(&x, 1);
-        return w;
-    }
+    writer<word> &operator<<(writer<word> &w, const word &x);
     
     template <typename word>
-    writer<word> inline &operator<<(writer<word> &w, std::basic_string_view<word> x) {
-        w.write(x.data(), x.size());
-        return w;
-    }
+    writer<word> &operator<<(writer<word> &w, std::basic_string_view<word> x);
     
     template <typename word>
-    writer<word> inline &operator<<(writer<word> &w, const string &x) {
-        w.write((const byte*)(x.data()), x.size());
-        return w;
-    }
+    writer<word> &operator<<(writer<word> &w, const string &x);
     
     template <typename word>
     struct reader {
         virtual void read(word*, size_t size) = 0;
         virtual void skip(size_t) = 0;
+        virtual ~reader() {}
     };
     
     template <typename word>
@@ -57,11 +50,6 @@ namespace data {
         r.read(&x, 1);
         return r;
     }
-    
-    template writer<byte> &operator<<(writer<byte> &, const byte &);
-    template writer<byte> &operator<<(writer<byte> &, bytes_view);
-    template writer<byte> &operator<<(writer<byte> &, const string &);
-    template reader<byte> &operator>>(reader<byte> &, slice<byte>);
     
     template <typename it, typename word>
     struct iterator_writer : writer<word> {
@@ -104,8 +92,21 @@ namespace data {
         }
     };
     
+    template <typename word, typename read>
+    struct parser : public writer<word> {
+        virtual ~parser() {}
+        virtual void parsed(const read &) = 0;
+        
+        virtual void parse_error(const string &invalid) = 0;
+    };
+    
     using bytes_writer = data::iterator_writer<std::vector<byte>::iterator, byte>;
     using bytes_reader = data::iterator_reader<const byte*, byte>;
+    
+    template writer<byte> &operator<<(writer<byte> &, const byte &);
+    template writer<byte> &operator<<(writer<byte> &, bytes_view);
+    template writer<byte> &operator<<(writer<byte> &, const string &);
+    template reader<byte> &operator>>(reader<byte> &, slice<byte>);
     
 }
 
