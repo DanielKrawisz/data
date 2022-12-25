@@ -4,7 +4,7 @@
 #ifndef DATA_NETWORKING_JSON
 #define DATA_NETWORKING_JSON
 
-#include <data/networking/session.hpp>
+#include <data/networking/connection.hpp>
 #include <nlohmann/json.hpp>
 #include <sstream>
 
@@ -14,7 +14,7 @@ namespace data {
 
 namespace data::networking {
     
-    struct JSON_line_session : serialized_session<JSON> {
+    struct JSON_line_connection : serialized_connection<JSON> {
         std::stringstream Stream;
         
         void write(const byte *data, size_t size) final override;
@@ -24,11 +24,11 @@ namespace data::networking {
         virtual void parse_error(const string &invalid) override;
     };
     
-    bytes inline JSON_line_session::serialize(const JSON &j) {
+    bytes inline JSON_line_connection::serialize(const JSON &j) {
         return bytes::from_string(j.dump() + "\n");
     }
     
-    void inline JSON_line_session::parse_error(const string &invalid) {
+    void inline JSON_line_connection::parse_error(const string &invalid) {
         throw exception{} << "Invalid JSON string: \"" << invalid << "\"";
     }
     
