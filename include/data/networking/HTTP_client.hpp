@@ -21,7 +21,7 @@ namespace data::networking {
         
         HTTP::response operator()(const HTTP::request &r);
         
-        HTTP::response GET(string path, map<string, string> params = {});
+        HTTP::response GET(string path, list<entry<string, string>> params = {});
         
         // POST form data
         HTTP::response POST(string path, map<string, string> form_data = {});
