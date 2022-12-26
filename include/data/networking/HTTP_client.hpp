@@ -39,7 +39,7 @@ namespace data::networking {
         return Http(r);
     }
     
-    HTTP::response inline HTTP_client::GET(string path, map<string, string> params) {
+    HTTP::response inline HTTP_client::GET(string path, list<entry<string, string>> params) {
         return (*this)(Rest.GET(path, params));
     }
     
