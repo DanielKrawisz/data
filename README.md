@@ -53,6 +53,11 @@ how to use all features.
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions 
   * Google test
 
+# Requirements
+  * GCC v11
+  * Conan profile with settings.compiler.version set to 11
+  * Conan profile with settings.compiler.libcxx set to libstdc++11
+
 # Build instructions
 
   * `mkdir build`
