@@ -87,7 +87,7 @@ namespace data::networking::IP::TCP {
     class server {
         io::io_context& IO;
         io::ip::tcp::acceptor Acceptor;
-        std::optional<socket> Socket;
+        optional<socket> Socket;
         
         virtual ptr<session> new_session(socket &&x) = 0;
         

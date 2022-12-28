@@ -12,6 +12,9 @@
 #include <stdint.h>
 #include <algorithm>
 #include <random>
+#include <optional>
+#include <variant>
+#include <functional>
 #include <boost/endian/arithmetic.hpp>
 #include <data/io/exception.hpp>
 
@@ -28,16 +31,21 @@ namespace data {
     using int32 = int32_t;
     using int64 = int64_t;
 
-    template<typename X>
+    template <typename X>
     using ptr = std::shared_ptr<X>;
 
-    template<typename X>
+    template <typename X>
     using view = std::basic_string_view<X>;
     
     using string = std::string;
     using string_view = std::basic_string_view<char>;
     
     using bytes_view = view<byte>;
+    
+    template <typename X> using optional = std::optional<X>;
+    template <typename... X> using variant = std::variant<X...>;
+    
+    template <typename... X> using proposition = std::function<bool(X...)>;
     
     namespace meta {
         using yes = std::true_type;
