@@ -9,11 +9,17 @@
 
 namespace data::io {
     namespace io = boost::asio;
+
+    struct session : networking::session<string_view> {
+        virtual ~session() {}
+
+        virtual int close() = 0;
+        virtual void error (string_view) = 0;
+    };
     
     // run an external command with standard in and standard out connected. 
-    ptr<session<string_view>> run(io::io_context &, string command, std::function<void(string_view)>);
+    ptr<session> run(io::io_context &, string command, std::function<void (string_view)> out, std::function<void (string_view)> err);
     
-    // Notes: destructor must end program. 
 }
 
 #endif
