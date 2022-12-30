@@ -2,30 +2,30 @@
 
 namespace data::networking::IP {
     
-    bool address::valid() const {
-        io_error err{};
-        auto addr = io::ip::make_address(static_cast<string>(*this), err);
-        return !bool(err);
+    bool address::valid () const {
+        io_error err {};
+        auto addr = io::ip::make_address (static_cast<string> (*this), err);
+        return !bool (err);
     }
 
-    address::operator io::ip::address() const {
-        io_error err{};
-        auto addr = io::ip::make_address(static_cast<string>(*this), err);
+    address::operator io::ip::address () const {
+        io_error err {};
+        auto addr = io::ip::make_address (static_cast<string> (*this), err);
         if (err) throw exception{err};
         return addr;
     }
     
-    uint32 address::version() const {
-        io_error err{};
-        auto addr = io::ip::make_address(static_cast<string>(*this), err);
-        return bool(err) ? 0 : addr.is_v4() ? 4 : 6;
+    uint32 address::version () const {
+        io_error err {};
+        auto addr = io::ip::make_address (static_cast<string> (*this), err);
+        return bool (err) ? 0 : addr.is_v4 () ? 4 : 6;
     }
     
     namespace TCP {
 
         // begin waiting for the next message asynchronously. 
         void session::wait_for_message() {
-            boost::asio::async_read_until(Socket, *Buffer, "\\n",  
+            std::size_t n = Socket.async_read_some(*Buffer,
                 [self = shared_from_this()](const io_error& error, size_t bytes_transferred) -> void {
                     if (error) return self->handle_error(error);
                     
