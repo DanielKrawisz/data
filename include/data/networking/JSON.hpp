@@ -14,18 +14,18 @@ namespace data {
 
 namespace data::networking {
     
-    struct JSON_line_connection : serialized_connection<JSON> {
+    struct JSON_line_connection : serialized_connection<char, JSON> {
         std::stringstream Stream;
         
-        void write(const byte *data, size_t size) final override;
+        void write(const char *data, size_t size) final override;
         
-        bytes serialize(const JSON &j) final override;
+        string serialize(const JSON &j) final override;
         
         virtual void parse_error(const string &invalid) override;
     };
     
-    bytes inline JSON_line_connection::serialize(const JSON &j) {
-        return bytes::from_string(j.dump() + "\n");
+    string inline JSON_line_connection::serialize(const JSON &j) {
+        return j.dump() + "\n";
     }
     
     void inline JSON_line_connection::parse_error(const string &invalid) {

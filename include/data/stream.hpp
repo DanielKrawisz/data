@@ -102,6 +102,24 @@ namespace data {
     
     using bytes_writer = data::iterator_writer<std::vector<byte>::iterator, byte>;
     using bytes_reader = data::iterator_reader<const byte*, byte>;
+
+    template <typename word>
+    writer<word> inline &operator<<(writer<word> &w, const word &x) {
+        w.write(&x, 1);
+        return w;
+    }
+
+    template <typename word>
+    writer<word> inline &operator<<(writer<word> &w, std::basic_string_view<word> x) {
+        w.write(x.data(), x.size());
+        return w;
+    }
+
+    template <typename word>
+    writer<word> inline &operator<<(writer<word> &w, const string &x) {
+        w.write((const byte*)(x.data()), x.size());
+        return w;
+    }
     
     template writer<byte> &operator<<(writer<byte> &, const byte &);
     template writer<byte> &operator<<(writer<byte> &, bytes_view);

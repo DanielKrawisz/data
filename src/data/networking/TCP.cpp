@@ -24,17 +24,13 @@ namespace data::networking::IP {
     namespace TCP {
 
         // begin waiting for the next message asynchronously. 
-        void session::wait_for_message() {
-            std::size_t n = Socket.async_read_some(*Buffer,
+        void session::wait_for_message () {
+            Socket.async_read_some(boost::asio::buffer (Buffer, buffer_size),
                 [self = shared_from_this()](const io_error& error, size_t bytes_transferred) -> void {
                     if (error) return self->handle_error(error);
                     
-                    std::stringstream ss;
-                    ss << std::istream(self->Buffer.get()).rdbuf();
-                    string z = ss.str();
-                    self->Buffer->consume(bytes_transferred);
                     try {
-                        self->receive(bytes_view{(const byte *)(z.data()), z.size()});
+                        self->receive(bytes_view{self->Buffer, bytes_transferred});
                         self->wait_for_message();
                     } catch (...) {
                         self->Socket.close();

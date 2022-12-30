@@ -12,22 +12,22 @@ namespace data::networking {
     struct connection {
         virtual ~connection() {}
         virtual void send(to) = 0;
-        // will be called asynchronously when a message is received. 
+        // will be called asynchronously when a message is received.
         virtual void receive(from) = 0;
     };
     
     template <typename word, typename from, typename to = from>
-    struct serialized_connection : connection<const from &, const to &>, parser<word, from>, virtual connection<std::view<word>> {
-        using connection<bytes_view>::send;
+    struct serialized_connection : connection<const from &, const to &>, parser<word, from>, virtual connection<std::basic_string_view<word>> {
+        using connection<std::basic_string_view<word>>::send;
         using connection<const from &, const to &>::receive;
         
-        virtual bytes serialize(const to &m);
+        virtual std::basic_string<word> serialize(const to &m);
         
         void send(const to &m) final override;
         
         virtual ~serialized_connection() {}
         
-        virtual void receive(bytes_view b) final override;
+        virtual void receive(std::basic_string_view<word> b) final override;
         
         void parsed(const from &m) final override;
         
@@ -44,23 +44,18 @@ namespace data::networking {
         receiver(std::function<void(from)> receive): Receive{receive} {}
     };
     
-    template <typename from, typename to>
-    bytes inline serialized_connection<from, to>::serialize(const to &m) {
-        return bytes(m);
+    template <typename word, typename from, typename to>
+    void inline serialized_connection<word, from, to>::send(const to &m) {
+        send (std::basic_string_view<word> (serialize (m)));
     }
     
-    template <typename from, typename to>
-    void inline serialized_connection<from, to>::send(const to &m) {
-        send(bytes_view(serialize(m)));
-    }
-    
-    template <typename from, typename to>
-    void inline serialized_connection<from, to>::receive(bytes_view b) {
+    template <typename word, typename from, typename to>
+    void inline serialized_connection<word, from, to>::receive(std::basic_string_view<word> b) {
         this->write(b.data(), b.size());
     }
     
-    template <typename from, typename to>
-    void inline serialized_connection<from, to>::parsed(const from &m) {
+    template <typename word, typename from, typename to>
+    void inline serialized_connection<word, from, to>::parsed(const from &m) {
         receive(m);
     }
     
