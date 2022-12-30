@@ -63,9 +63,10 @@ namespace data::networking::IP::TCP {
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
     class session : public networking::session<bytes_view>, protected std::enable_shared_from_this<session> {
-        
+        static const int buffer_size = 65536;
+        byte Buffer [buffer_size];
+
         socket Socket;
-        ptr<io::streambuf> Buffer;
         
         // begin waiting for the next message asynchronously. 
         void wait_for_message ();
@@ -76,13 +77,15 @@ namespace data::networking::IP::TCP {
         // note: message cannot be longer than 65536 bytes or this function 
         // is not thread-safe. 
         void send (bytes_view) final override;
-        void close () final override;
+        void close ();
         bool closed () final override;
         
         // we schedule a wait new message as soon as the object is created. 
         session (socket &&x);
         
-        virtual ~session ();
+        virtual ~session () {
+            close ();
+        }
         
         static socket connect (io::io_context &, const endpoint &);
     
@@ -107,12 +110,8 @@ namespace data::networking::IP::TCP {
     
     // we schedule a wait new message as soon as the object is created. 
     // ensure that the object is ready to receive messages before this constructor happens!
-    inline session::session (socket &&x) : Socket{std::move(x)}, Buffer{std::make_shared<io::streambuf>(65536)} {
+    inline session::session (socket &&x) : Socket{std::move(x)} {
         wait_for_message();
-    }
-    
-    inline session::~session () {
-        Socket.close ();
     }
     
     inline void session::close() {

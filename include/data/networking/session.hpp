@@ -12,8 +12,8 @@ namespace data::networking {
     template <typename from, typename to = from>
     struct session : virtual connection<from, to> {
         virtual ~session() {}
+
         virtual bool closed() = 0;
-        virtual void close() = 0;
     };
     
 }
