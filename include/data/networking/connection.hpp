@@ -36,7 +36,7 @@ namespace data::networking {
     template <typename from, typename to = from>
     struct receiver : virtual connection<from, to> {
         virtual ~receiver() {}
-        std::function<void(from)> Receive;
+        std::function<void (from)> Receive;
         void receive(from x) final override {
             Receive(x);
         }
