@@ -18,7 +18,7 @@ namespace data::io {
     };
     
     // run an external command with standard in and standard out connected. 
-    ptr<session> run(io::io_context &, string command, std::function<void (string_view)> out, std::function<void (string_view)> err);
+    ptr<session> run(io::io_context &, string command, std::function<bool (string_view)> out, std::function<bool (string_view)> err);
     
 }
 

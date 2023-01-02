@@ -55,7 +55,7 @@ namespace data::networking::IP::TCP {
         uint16 port () const;
     };
     
-    ptr<networking::session<bytes_view>> connect(io::io_context &, const endpoint &, std::function<void(bytes_view)> receive);
+    ptr<networking::session<bytes_view>> connect(io::io_context &, const endpoint &, std::function<bool (bytes_view)> receive);
     
     // https://dens.website/tutorials/cpp-asio
     
