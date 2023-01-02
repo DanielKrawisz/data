@@ -116,17 +116,26 @@ namespace data::networking::IP {
                 accept();
             });
         }
-        
-        struct session_receiver final : receiver<bytes_view>, session {
-            session_receiver(socket &&x, std::function<void(bytes_view)> receive) : 
-                receiver<bytes_view>{receive}, session{std::move(x)} {} 
-        };
+
+        namespace {
+
+            struct lambda_session final : session {
+                lambda_session(socket &&x, std::function<bool (bytes_view)> receive) :
+                    Receive{receive}, session{std::move(x)} {}
+
+                std::function<bool (bytes_view)> Receive;
+
+                void receive(bytes_view x) final override {
+                    if (!Receive(x)) close();
+                }
+            };
+        }
         
         ptr<networking::session<bytes_view>> connect(
             io::io_context &io, const endpoint &e, 
-            std::function<void(bytes_view)> receive) {
+            std::function<bool (bytes_view)> receive) {
             return std::static_pointer_cast<networking::session<bytes_view>>(
-                std::make_shared<session_receiver>(session::connect(io, e), receive));
+                std::make_shared<lambda_session>(session::connect(io, e), receive));
         }
     }
 }
