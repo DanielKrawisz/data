@@ -5,8 +5,9 @@
 #define DATA_NETWORKING_TCP
 
 #include <data/networking/session.hpp>
+#include <data/networking/asio/async_to.hpp>
+#include <data/networking/asio/async_from.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio.hpp>
 #include <ctre.hpp>
 #include <iostream>
 
@@ -55,48 +56,41 @@ namespace data::networking::IP::TCP {
         uint16 port () const;
     };
     
-    ptr<networking::session<bytes_view>> connect(io::io_context &, const endpoint &, std::function<bool (bytes_view)> receive);
+    ptr<asio::session<string_view, const string &>> connect(io::io_context &, const endpoint &, std::function<bool (string_view)> receive);
     
     // https://dens.website/tutorials/cpp-asio
     
     // we need to use enable_shared_from_this because of the possibility that 
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
-    class session : public networking::session<bytes_view>, protected std::enable_shared_from_this<session> {
-        static const int buffer_size = 65536;
-        byte Buffer [buffer_size];
+    class session : public asio::session<string_view, const string &>,
+        public asio::async_to<socket, char>,
+        public asio::async_from<socket, char> {
+        
+        ptr<socket> Socket;
 
-        socket Socket;
-        
-        // begin waiting for the next message asynchronously. 
-        void wait_for_message ();
-        
-        virtual void handle_error (const io_error &err);
-        
     public:
-        // note: message cannot be longer than 65536 bytes or this function 
-        // is not thread-safe. 
-        void send (bytes_view) final override;
         void close ();
         bool closed () final override;
+
+        void handle_error (const io_error &err) override;
         
         // we schedule a wait new message as soon as the object is created. 
-        session (socket &&x);
+        session (ptr<socket>);
         
         virtual ~session () {
             close ();
         }
         
-        static socket connect (io::io_context &, const endpoint &);
+        static ptr<socket> connect (io::io_context &, const endpoint &);
     
     };
-    
+
     class server {
         io::io_context& IO;
         io::ip::tcp::acceptor Acceptor;
-        std::optional<socket> Socket;
         
-        virtual ptr<session> new_session (socket &&x) = 0;
+        virtual ptr<session> new_session (ptr<socket>) = 0;
         
         void accept ();
         
@@ -110,15 +104,17 @@ namespace data::networking::IP::TCP {
     
     // we schedule a wait new message as soon as the object is created. 
     // ensure that the object is ready to receive messages before this constructor happens!
-    inline session::session (socket &&x) : Socket{std::move(x)} {
-        wait_for_message();
+    inline session::session (ptr<socket> x) :
+        asio::async_to<socket, char> {x.get()},
+        asio::async_from<socket, char> {x.get()} {
+        this->wait_for_message();
     }
     
-    inline void session::close() {
-        Socket.close();
+    void inline session::close () {
+        this->Socket->close();
     }
     
-    inline server::server(boost::asio::io_context& io_context, std::uint16_t port): 
+    inline server::server (boost::asio::io_context& io_context, std::uint16_t port):
         IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
     
 }

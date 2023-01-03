@@ -4,13 +4,12 @@
 #ifndef DATA_IO_RUN
 #define DATA_IO_RUN
 
-#include <data/networking/session.hpp>
-#include <boost/asio.hpp>
+#include <data/networking/asio/message_queue.hpp>
+#include <boost/process.hpp>
 
 namespace data::io {
-    namespace io = boost::asio;
 
-    struct session : networking::session<string_view> {
+    struct session : networking::asio::message_queue<session, boost::process::async_pipe, string_view, const string &> {
         virtual ~session() {}
 
         virtual int close() = 0;
