@@ -11,11 +11,15 @@ namespace data::networking::asio {
     using namespace boost::asio;
     using io_error = boost::system::error_code;
 
-    template <typename from, typename to = from>
-    struct error_session : session<from, to> {
-        virtual ~error_session() {}
+    struct error_handler {
+        virtual ~error_handler () {}
 
         virtual void handle_error (const io_error &err) = 0;
+    };
+
+    template <typename in, typename out = in>
+    struct session : networking::session<in, out>, virtual error_handler {
+        virtual ~session () {}
     };
 
 }

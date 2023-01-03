@@ -23,34 +23,12 @@ namespace data::networking::IP {
     
     namespace TCP {
 
-        // begin waiting for the next message asynchronously. 
-        void session::wait_for_message () {
-            Socket.async_read_some(boost::asio::buffer (Buffer, buffer_size),
-                [self = shared_from_this()](const io_error& error, size_t bytes_transferred) -> void {
-                    if (error) return self->handle_error(error);
-                    
-                    try {
-                        self->receive(bytes_view{self->Buffer, bytes_transferred});
-                        self->wait_for_message();
-                    } catch (...) {
-                        self->Socket.close();
-                    }
-                });
-        }
-        
-        void session::send(bytes_view b) {
-            boost::asio::async_write(Socket, io::buffer(b), io::transfer_all(), 
-                [self = shared_from_this()](const io_error& error, size_t) -> void {
-                    if (error) self->handle_error(error);
-                });
-        }
-
-        socket session::connect(io::io_context &io, const endpoint &p) {
-            socket x(io);
+        ptr<socket> session::connect(io::io_context &io, const endpoint &p) {
+            ptr<socket> x {new socket (io)};
             io_error error;
-            x.connect(io::ip::tcp::endpoint(p), error);
+            x->connect(io::ip::tcp::endpoint (p), error);
 
-            if(error) throw exception{error};
+            if (error) throw exception {error};
             return x;
         }
             
@@ -108,34 +86,25 @@ namespace data::networking::IP {
             return port < 65536;
         }
         
-        void server::accept() {
-            Socket.emplace(IO);
-            
-            Acceptor.async_accept(*Socket, [&] (io_error error) {
-                new_session(std::move(*Socket));
-                accept();
-            });
-        }
-
         namespace {
 
             struct lambda_session final : session {
-                lambda_session(socket &&x, std::function<bool (bytes_view)> receive) :
-                    Receive{receive}, session{std::move(x)} {}
+                lambda_session(ptr<socket> x, std::function<bool (string_view)> receive) :
+                    Receive {receive}, session{std::move(x)} {}
 
-                std::function<bool (bytes_view)> Receive;
+                std::function<bool (string_view)> Receive;
 
-                void receive(bytes_view x) final override {
-                    if (!Receive(x)) close();
+                void receive (string_view x) final override {
+                    if (!Receive (x)) close();
                 }
             };
         }
         
-        ptr<networking::session<bytes_view>> connect(
+        ptr<asio::session<string_view, const string &>> connect (
             io::io_context &io, const endpoint &e, 
-            std::function<bool (bytes_view)> receive) {
-            return std::static_pointer_cast<networking::session<bytes_view>>(
-                std::make_shared<lambda_session>(session::connect(io, e), receive));
+            std::function<bool (string_view)> receive) {
+            return std::static_pointer_cast<asio::session<string_view, const string &>> (
+                std::make_shared<lambda_session> (session::connect (io, e), receive));
         }
     }
 }
