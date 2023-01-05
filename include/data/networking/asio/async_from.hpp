@@ -14,7 +14,7 @@ namespace data::networking::asio {
         virtual error_handler,
         protected std::enable_shared_from_this<async_from<AsyncStream, word>> {
 
-        AsyncStream *Stream;
+        ptr<AsyncStream> Stream;
 
         std::basic_string<word> Buffer;
 
@@ -25,15 +25,15 @@ namespace data::networking::asio {
 
         // begin waiting for the next message asynchronously.
         void wait_for_message () {
-            this->Stream->async_read_some(Buffer,
-                [self = this->shared_from_this()] (const io_error& error, size_t bytes_transferred) -> void {
-                    if (error) return self->handle_error(error);
+            this->Stream->async_read_some (boost::asio::buffer (Buffer.data (), Buffer.size ()),
+                [self = this->shared_from_this ()] (const io_error& error, size_t bytes_transferred) -> void {
+                    if (error) return self->handle_error (error);
 
                     try {
-                        self->receive(std::basic_string_view{self->Buffer.data(), bytes_transferred});
-                        self->wait_for_message();
+                        self->receive (std::basic_string_view {self->Buffer.data(), bytes_transferred});
+                        self->wait_for_message ();
                     } catch (...) {
-                        self->Stream->close();
+                        self->Stream->close ();
                     }
                 });
         }

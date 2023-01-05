@@ -106,7 +106,8 @@ namespace data::networking::IP::TCP {
     // ensure that the object is ready to receive messages before this constructor happens!
     inline session::session (ptr<socket> x) :
         asio::async_to<socket, char> {x.get()},
-        asio::async_from<socket, char> {x.get()} {
+        asio::async_from<socket, char> {x.get()},
+        Socket {x} {
         this->wait_for_message();
     }
     

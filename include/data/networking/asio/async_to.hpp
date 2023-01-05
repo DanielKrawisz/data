@@ -15,7 +15,7 @@ namespace data::networking::asio {
         virtual error_handler,
         protected std::enable_shared_from_this<async_to<AsyncStream, word>> {
 
-        AsyncStream *Stream;
+        ptr<AsyncStream> Stream;
 
         // whether we are writing from the queue.
         bool Writing;
@@ -28,12 +28,13 @@ namespace data::networking::asio {
             auto first = Queue.first ();
             Queue = Queue.rest ();
 
-            boost::asio::async_write(*Stream, first, [self = this->shared_from_this ()] (const io_error& error, size_t bytes_transferred) -> void {
-                if (error) self->handle_error (error);
+            boost::asio::async_write (*Stream, boost::asio::buffer (first.data (), first.size()),
+                [self = this->shared_from_this ()] (const io_error& error, size_t bytes_transferred) -> void {
+                    if (error) self->handle_error (error);
 
-                if (data::empty (self->Queue)) self->Writing = false;
-                else self->send_next_message ();
-            });
+                    if (data::empty (self->Queue)) self->Writing = false;
+                    else self->send_next_message ();
+                });
 
         }
 
