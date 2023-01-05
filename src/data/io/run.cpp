@@ -30,15 +30,15 @@ namespace data::io {
             if (!Error (x)) Child.terminate ();
         }
 
-        program_session (io::io_context &i, string command, std::function<void (string_view)> out, std::function<void (string_view)> err):
+        program_session (boost::asio::io_context &i, string command, std::function<void (string_view)> out, std::function<void (string_view)> err):
             In {i}, Out {i}, Err {i}, Child{command, bp::std_out > Out, bp::std_err > Err, bp::std_in < In} {
 
             io::async_read(Out, boost::asio::buffer(buf), [](const boost::system::error_code &ec, std::size_t size) {
-
+                throw 0;
             });
 
             io::async_read(Err, boost::asio::buffer(buf), [](const boost::system::error_code &ec, std::size_t size) {
-
+                throw 0;
             });
         }
 

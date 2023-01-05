@@ -9,10 +9,10 @@
 namespace data::networking {
 
     template <typename out>
-    struct to {
-        virtual ~to () {}
-        virtual void send (out) = 0;
-    };
+    using send = std::function<void (out)>;
+
+    template <typename in, typename out = in>
+    using receive = std::function<void (send<out>, in)>;
 
     template <typename in>
     struct from {
