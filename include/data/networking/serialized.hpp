@@ -5,45 +5,65 @@
 #define DATA_NETWORKING_SERIALIZED
 
 #include <data/networking/session.hpp>
+#include <data/parser.hpp>
+#include <functional>
 
 namespace data::networking {
 
-    template <typename word, typename in, typename out = in>
-    struct serialized : parser<word, in>,
-        virtual from<const in &>,
-        virtual to<const out &>,
-        virtual from<std::basic_string_view<word>>,
-        virtual to<const std::basic_string<word> &> {
+    template <typename word, typename out> struct serialized_session final : session<out> {
 
-        using to<const std::basic_string<word> &>::send;
-        using from<const in &>::receive;
+        void send (out o) final override {
+            Session->send (Generator (o));
+        };
 
-        virtual std::basic_string<word> serialize(const out &m);
+        bool closed () final override {
+            return Session->closed ();
+        };
 
-        void send(const out &m) final override;
+        void close () final override {
+            return Session->close ();
+        };
 
-        virtual ~serialized() {}
+        serialized_session (function<std::basic_string<word> (const out &)> g) : Generator {g}, Session {} {}
 
-        virtual void receive(std::basic_string_view<word> b) final override;
-
-        void parsed(const in &m) final override;
+        function<std::basic_string<word> (const out &)> Generator;
+        ptr<session<const std::basic_string<word> &>> Session;
 
     };
 
-    template <typename word, typename in, typename out>
-    void inline serialized<word, in, out>::send (const out &m) {
-        send (std::basic_string_view<word> (serialize (m)));
-    }
+    template <typename word, typename out, typename in = out> struct open_serialized_session {
+        parser<word, out> Parser;
+        function<void (parse_error)> ParseErrorHandler;
+        open<const std::basic_string<word> &, std::basic_string_view<word>> Open;
+        function<std::basic_string<word> (const out &)> Generator;
 
-    template <typename word, typename in, typename out>
-    void inline serialized<word, in, out>::receive (std::basic_string_view<word> b) {
-        this->write (b.data (), b.size ());
-    }
+        ptr<session<out>> operator() (receive_handler<out, in> receiver) {
+            // the high level out session. It does not know how to send messages yet.
+            ptr<serialized_session<word, out>> high_level = std::make_shared<serialized_session<word, out>> (Generator);
 
-    template <typename word, typename in, typename out>
-    void inline serialized<word, in, out>::parsed (const in &m) {
-        receive (m);
-    }
+            ptr<session<const std::basic_string<word> &>> low_level = Open ([
+                high_level, receiver,
+                parser = std::bind (Parser, std::placeholders::_1, ParseErrorHandler)
+            ] (
+                ptr<session<const std::basic_string<word> &>> low_level) -> std::function<void (std::basic_string_view<word>
+            )> {
+
+                high_level->Session = low_level;
+
+                auto in_handler = receiver (std::static_pointer_cast<session<out>> (high_level));
+
+                auto parse = parser (in_handler);
+
+                return [parse] (std::basic_string_view<word> i) -> void {
+                    parse->write (i.data (), i.size ());
+                };
+            });
+
+            if (low_level == nullptr) return nullptr;
+
+            return std::static_pointer_cast<session<out>> (high_level);
+        }
+    };
 
 }
 
