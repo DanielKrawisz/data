@@ -9,7 +9,7 @@
 #include <data/networking/asio/async_stream_session.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <ctre.hpp>
-#include <iostream>
+#include <data/io/unimplemented.hpp>
 
 namespace data::networking::IP {
     namespace io = boost::asio;
@@ -65,8 +65,13 @@ namespace data::networking::IP::TCP {
     struct session final : public asio::async_stream_session<session, socket, char> {
         using asio::async_stream_session<session, socket, char>::async_stream_session;
 
-        void close () final override;
-        bool closed () final override;
+        void close () final override {
+            throw method::unimplemented {"TCP::session::close"};
+        }
+
+        bool closed () final override {
+            throw method::unimplemented {"TCP::session::closed"};
+        }
 
         function<void (io_error)> HandleError;
         

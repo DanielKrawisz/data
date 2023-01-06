@@ -25,7 +25,7 @@ namespace data::networking::asio {
         void wait_for_message (
             receive_handler<derived_session, std::basic_string_view<word>> handler,
             function<void (io_error)> errors) {
-            async_wait_for_message<async_stream, word, std::basic_string_view<word>> (Queue.Stream, handler (this->shared_from_this ()), errors);
+            async_wait_for_message<async_stream, word> (Queue.Stream, handler (this->shared_from_this ()), errors);
         }
 
     };

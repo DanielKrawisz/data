@@ -9,7 +9,7 @@
 
 namespace data::networking::asio {
 
-    template <typename async_stream, typename word, typename in>
+    template <typename async_stream, typename word>
     void async_wait_for_message (
         ptr<async_stream> stream,
         function<void (std::basic_string_view<word>)> receive,
