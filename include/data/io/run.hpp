@@ -4,19 +4,15 @@
 #ifndef DATA_IO_RUN
 #define DATA_IO_RUN
 
-#include <data/networking/asio/async_to.hpp>
-#include <data/networking/asio/async_from.hpp>
-#include <boost/process.hpp>
+#include <data/types.hpp>
 
 namespace data::io {
 
-    struct session : networking::asio::session<string_view, const string &>,
-        networking::asio::async_to<boost::process::async_pipe, char>,
-        networking::asio::async_from<boost::process::async_pipe, char> {
-        virtual ~session() {}
+    struct process {
+        void send (const string &);
 
-        void close() final override;
-        void handle_error (const io_error &err) final override;
+        int exit();
+        void handle_error (const io_error &err);
     };
     
     // run an external command with standard in and standard out connected. 

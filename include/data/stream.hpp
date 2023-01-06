@@ -50,7 +50,7 @@ namespace data {
         r.read(&x, 1);
         return r;
     }
-    
+
     template <typename it, typename word>
     struct iterator_writer : writer<word> {
         it Begin;
@@ -90,14 +90,6 @@ namespace data {
             if (Begin + size > End) throw end_of_stream{};
             Begin += size;
         }
-    };
-    
-    template <typename word, typename read>
-    struct parser : public writer<word> {
-        virtual ~parser() {}
-        virtual void parsed(const read &) = 0;
-        
-        virtual void parse_error(const string &invalid) = 0;
     };
     
     using bytes_writer = data::iterator_writer<std::vector<byte>::iterator, byte>;

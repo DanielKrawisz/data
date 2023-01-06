@@ -1,54 +1,28 @@
 // Copyright (c) 2021 Daniel Krawisz
-// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_CONNECTION
 #define DATA_CONNECTION
 
-#include <data/cross.hpp>
+#include <data/types.hpp>
 
 namespace data::networking {
 
-    template <typename out>
-    using send = std::function<void (out)>;
-
-    template <typename in, typename out = in>
-    using receive = std::function<void (send<out>, in)>;
-
-    template <typename in>
-    struct from {
-        virtual ~from () {}
-        virtual void receive (in) = 0;
-    };
-
-    struct closable {
-        virtual ~closable () {}
+    template <typename message_out>
+    struct session {
+        virtual ~session () {}
+        virtual void send (message_out) = 0;
         virtual bool closed () = 0;
         virtual void close () = 0;
     };
 
-    template <typename in, typename out = in>
-    struct connection : virtual to<out>, virtual from<in> {
-        ~connection () {}
-    };
+    template <typename message_out, typename message_in = message_out>
+    using receive_handler = function<function<void (message_in)> (ptr<session<message_out>>)>;
 
-    template <typename in, typename out = in>
-    struct session : connection<in, out>, virtual closable {
-        ~session () {}
-    };
-    
-    // accept a lambda to receive incoming messages that disconnects the session on failure.
-    template <typename in>
-    struct receiver : virtual from<in>, virtual closable {
-        virtual ~receiver() {}
+    template <typename message_out, typename message_in = message_out>
+    using open = function<ptr<session<message_out>> (receive_handler<message_out, message_in>)>;
 
-        std::function<bool (in)> Receive;
-
-        void receive (in x) final override {
-            if (!Receive (x)) this->close ();
-        }
-        
-        receiver (std::function<bool (in)> receive): Receive {receive} {}
-    };
     
 }
 

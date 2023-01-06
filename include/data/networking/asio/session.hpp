@@ -1,5 +1,6 @@
 // Copyright (c) 2021 Daniel Krawisz
-// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_ASIO_ERROR_SESSION
 #define DATA_ASIO_ERROR_SESSION
@@ -10,17 +11,6 @@
 namespace data::networking::asio {
     using namespace boost::asio;
     using io_error = boost::system::error_code;
-
-    struct error_handler {
-        virtual ~error_handler () {}
-
-        virtual void handle_error (const io_error &err) = 0;
-    };
-
-    template <typename in, typename out = in>
-    struct session : networking::session<in, out>, virtual error_handler {
-        virtual ~session () {}
-    };
 
 }
 
