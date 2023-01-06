@@ -6,31 +6,25 @@
 
 #include <data/networking/serialized.hpp>
 #include <nlohmann/json.hpp>
-#include <sstream>
 
 namespace data {
     using JSON = nlohmann::json;
+
+    ptr<writer<char>> JSON_line_parser (function<void (const JSON &)>, function<void (parse_error)>);
 }
 
 namespace data::networking {
-    
-    struct JSON_line_connection : serialized<char, JSON> {
-        std::stringstream Stream;
-        
-        void write(const char *data, size_t size) final override;
-        
-        string serialize(const JSON &j) final override;
-        
-        virtual void parse_error(const string &invalid) override;
+
+    struct open_JSON_line_session {
+        function<void (parse_error)> ErrorHandler;
+        open<const string &, string_view> Open;
+
+        ptr<session<JSON>> operator() (receive_handler<JSON> receiver) {
+            return open_serialized_session<char, JSON> {&JSON_line_parser, ErrorHandler, Open, [] (const JSON &j) -> string {
+                return j.dump() + "\n";
+            }} (receiver);
+        }
     };
-    
-    string inline JSON_line_connection::serialize (const JSON &j) {
-        return j.dump() + "\n";
-    }
-    
-    void inline JSON_line_connection::parse_error (const string &invalid) {
-        throw exception{} << "Invalid JSON string: \"" << invalid << "\"";
-    }
     
 }
 

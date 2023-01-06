@@ -70,8 +70,8 @@ namespace data::functional {
 
 namespace data {
     
-    template <functional::queue list, typename prop> requires function<prop, element_of<list>, bool>
-    list select(list l, prop satisfies, list found = {}) {
+    template <functional::queue list>
+    list select(list l, function<bool (element_of<list>)> satisfies, list found = {}) {
         if (data::empty(l)) return found;
         auto f0 = first(l);
         if (satisfies(f0)) select(rest(l), satisfies, append(found, f0));
