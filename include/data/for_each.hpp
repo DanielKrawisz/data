@@ -13,7 +13,7 @@ namespace data {
     template <typename fun, typename input, 
         typename element = std::remove_const_t<std::remove_reference_t<decltype(std::declval<input>().first())>>, 
         typename output = std::remove_const_t<std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>>
-    requires function<fun, output, element> && sequence<input, element>
+    requires functional::function<fun, output, element> && sequence<input, element>
     list<output> for_each(const fun& f, const input& i) {
         return fold([&f](list<output> q, element x) -> list<output> {
             return append(q, f(x));
@@ -24,7 +24,7 @@ namespace data {
         typename key = std::remove_reference_t<decltype(std::declval<input>().values().first().key())>, 
         typename value = std::remove_reference_t<decltype(std::declval<input>().values().first().value())>, 
         typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<value>()))>>
-    requires function<fun, output, value> && functional::map<input, key, value>
+    requires functional::function<fun, output, value> && functional::map<input, key, value>
     map<key, output> inline for_each(const fun& f, const input& i) {
         return fold([&f](map<key, output> m, const entry<key, value>& e) -> map<key, output> {
             return m.insert(e.Key, f(e.Value));
@@ -34,7 +34,7 @@ namespace data {
     template <typename fun, typename input, 
         typename element = std::remove_reference_t<decltype(std::declval<input>().values().first())>, 
         typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>
-    requires function<fun, output, element> && functional::ordered_set<input, element>
+    requires functional::function<fun, output, element> && functional::ordered_set<input, element>
     list<output> inline for_each(const fun& f, const input& i) {
         return fold([&f](list<output> q, element x) -> list<output> {
             return append(q, f(x));
@@ -44,7 +44,7 @@ namespace data {
     template <typename fun, typename input, 
         typename element = std::remove_reference_t<decltype(std::declval<input>().values().first())>, 
         typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>
-    requires function<fun, output, element> && functional::tree<input, element>
+    requires functional::function<fun, output, element> && functional::tree<input, element>
     tree<output> inline for_each(const fun& f, const input& i) {
         if (empty(i)) return {};
         return {f(root(i)), for_each(f, left(i)), for_each(f, right(i))};
@@ -52,7 +52,7 @@ namespace data {
     
     template <typename fun, typename element, 
         typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>
-    requires function<fun, output, element> 
+    requires functional::function<fun, output, element>
     inline tree<output> for_each(const fun& f, const tree<element>& t) {
         if (empty(t)) return {};
         
@@ -61,7 +61,7 @@ namespace data {
     
     template <typename fun, typename element, 
         typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>
-    requires function<fun, output, element> 
+    requires functional::function<fun, output, element>
     inline cross<output> for_each(const fun& f, const cross<element>& i) {
         cross<output> z;
         z.resize(i.size());
