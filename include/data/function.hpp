@@ -10,11 +10,6 @@
 
 namespace data {
     
-    template< typename F, typename output, typename... Args >
-    concept function = std::regular_invocable<F, Args...> && requires(F&& f, Args&&... args) {
-        {std::invoke(std::forward<F>(f), std::forward<Args>(args)...)} -> std::same_as<output>;
-    };
-    
     // It is always possible to construct the identity function. 
     template <typename X>
     struct identity {

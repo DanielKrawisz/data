@@ -3,6 +3,8 @@
 
 #include <boost/process.hpp>
 #include <data/io/run.hpp>
+#include <data/networking/asio/async_message_queue.hpp>
+#include <data/networking/asio/async_wait_for_message.hpp>
 
 namespace data::io {
     namespace bp = boost::process;

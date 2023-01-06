@@ -1,12 +1,12 @@
-// Copyright (c) 2021 Daniel Krawisz
-// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+// Copyright (c) 2021-2023 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_NETWORKING_TCP
 #define DATA_NETWORKING_TCP
 
 #include <data/networking/session.hpp>
-#include <data/networking/asio/async_to.hpp>
-#include <data/networking/asio/async_from.hpp>
+#include <data/networking/asio/async_stream_session.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <ctre.hpp>
 #include <iostream>
@@ -37,6 +37,7 @@ namespace data::networking::IP {
 namespace data::networking::IP::TCP {
     using socket = io::ip::tcp::socket;
     
+    // A tcp endpoint is an ip address and port.
     struct endpoint : string {
         static constexpr auto pattern = 
             ctll::fixed_string{
@@ -55,35 +56,34 @@ namespace data::networking::IP::TCP {
         IP::address address () const;
         uint16 port () const;
     };
-    
-    ptr<asio::session<string_view, const string &>> connect(io::io_context &, const endpoint &, std::function<bool (string_view)> receive);
+
+    // open a TCP connection.
+    struct open {
+        io::io_context &Context;
+        endpoint Endpoint;
+        function<void (io_error)> HandleError;
+
+        ptr<socket> connect (io::io_context &, const endpoint &);
+
+        ptr<networking::session<const string &>> operator() (receive_handler<const string &, string_view>);
+    };
     
     // https://dens.website/tutorials/cpp-asio
     
     // we need to use enable_shared_from_this because of the possibility that 
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
-    class session : public asio::session<string_view, const string &>,
-        public asio::async_to<socket, char>,
-        public asio::async_from<socket, char> {
-        
-        ptr<socket> Socket;
+    struct session final : public asio::async_stream_session<socket, char> {
+        using asio::async_stream_session<socket, char>::async_stream_session;
 
-    public:
-        void close ();
+        void close () final override;
         bool closed () final override;
 
-        void handle_error (const io_error &err) override;
+        function<void (io_error)> HandleError;
         
-        // we schedule a wait new message as soon as the object is created. 
-        session (ptr<socket>);
-        
-        virtual ~session () {
+        ~session () {
             close ();
         }
-        
-        static ptr<socket> connect (io::io_context &, const endpoint &);
-    
     };
 
     class server {
@@ -98,24 +98,7 @@ namespace data::networking::IP::TCP {
         server (boost::asio::io_context& io_context, std::uint16_t port);
     };
     
-    void inline session::handle_error (const io_error &err) {
-        throw exception {err};
-    } 
-    
-    // we schedule a wait new message as soon as the object is created. 
-    // ensure that the object is ready to receive messages before this constructor happens!
-    inline session::session (ptr<socket> x) :
-        asio::async_to<socket, char> {x.get()},
-        asio::async_from<socket, char> {x.get()},
-        Socket {x} {
-        this->wait_for_message();
-    }
-    
-    void inline session::close () {
-        this->Socket->close();
-    }
-    
-    inline server::server (boost::asio::io_context& io_context, std::uint16_t port):
+    inline server::server (io::io_context& io_context, std::uint16_t port):
         IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
     
 }

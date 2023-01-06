@@ -1,3 +1,7 @@
+// Copyright (c) 2021-2023 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include <data/networking/TCP.hpp>
 
 namespace data::networking::IP {
@@ -23,7 +27,7 @@ namespace data::networking::IP {
     
     namespace TCP {
 
-        ptr<socket> session::connect(io::io_context &io, const endpoint &p) {
+        ptr<socket> open::connect(io::io_context &io, const endpoint &p) {
             ptr<socket> x {new socket (io)};
             io_error error;
             x->connect(io::ip::tcp::endpoint (p), error);
@@ -86,25 +90,12 @@ namespace data::networking::IP {
             return port < 65536;
         }
         
-        namespace {
+        ptr<networking::session<const string &>> open::operator() (receive_handler<const string&, string_view> receive) {
+            ptr<session> ss { new session {connect (Context, Endpoint), HandleError}};
 
-            struct lambda_session final : session {
-                lambda_session(ptr<socket> x, std::function<bool (string_view)> receive) :
-                    Receive {receive}, session{std::move(x)} {}
+            ss->wait_for_message (receive, HandleError);
 
-                std::function<bool (string_view)> Receive;
-
-                void receive (string_view x) final override {
-                    if (!Receive (x)) close();
-                }
-            };
-        }
-        
-        ptr<asio::session<string_view, const string &>> connect (
-            io::io_context &io, const endpoint &e, 
-            std::function<bool (string_view)> receive) {
-            return std::static_pointer_cast<asio::session<string_view, const string &>> (
-                std::make_shared<lambda_session> (session::connect (io, e), receive));
+            return std::static_pointer_cast<networking::session<const string &>> (ss);
         }
     }
 }
