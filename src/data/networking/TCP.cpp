@@ -90,12 +90,12 @@ namespace data::networking::IP {
             return port < 65536;
         }
         
-        ptr<networking::session<const string &>> open::operator() (receive_handler<const string&, string_view> receive) {
+        ptr<session> open::operator() (receive_handler<session, string_view> receive) {
             ptr<session> ss { new session {connect (Context, Endpoint), HandleError}};
 
             ss->wait_for_message (receive, HandleError);
 
-            return std::static_pointer_cast<networking::session<const string &>> (ss);
+            return ss;
         }
     }
 }
