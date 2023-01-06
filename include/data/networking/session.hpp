@@ -17,11 +17,11 @@ namespace data::networking {
         virtual void close () = 0;
     };
 
-    template <typename message_out, typename message_in = message_out>
-    using receive_handler = function<function<void (message_in)> (ptr<session<message_out>>)>;
+    template <typename session_out, typename message_in>
+    using receive_handler = function<function<void (message_in)> (ptr<session_out>)>;
 
-    template <typename message_out, typename message_in = message_out>
-    using open = function<ptr<session<message_out>> (receive_handler<message_out, message_in>)>;
+    template <typename session_out, typename message_in>
+    using open = function<ptr<session_out> (receive_handler<session_out, message_in>)>;
 
     
 }

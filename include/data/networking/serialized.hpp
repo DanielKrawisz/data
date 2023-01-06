@@ -34,10 +34,10 @@ namespace data::networking {
     template <typename word, typename out, typename in = out> struct open_serialized_session {
         parser<word, out> Parser;
         function<void (parse_error)> ParseErrorHandler;
-        open<const std::basic_string<word> &, std::basic_string_view<word>> Open;
+        open<session<const std::basic_string<word> &>, std::basic_string_view<word>> Open;
         function<std::basic_string<word> (const out &)> Generator;
 
-        ptr<session<out>> operator() (receive_handler<out, in> receiver) {
+        ptr<session<out>> operator() (receive_handler<session<out>, in> receiver) {
             // the high level out session. It does not know how to send messages yet.
             ptr<serialized_session<word, out>> high_level = std::make_shared<serialized_session<word, out>> (Generator);
 
