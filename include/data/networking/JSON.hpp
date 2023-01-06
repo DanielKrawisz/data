@@ -17,9 +17,9 @@ namespace data::networking {
 
     struct open_JSON_line_session {
         function<void (parse_error)> ErrorHandler;
-        open<const string &, string_view> Open;
+        open<session<const string &>, string_view> Open;
 
-        ptr<session<JSON>> operator() (receive_handler<JSON> receiver) {
+        ptr<session<JSON>> operator() (receive_handler<session<JSON>, JSON> receiver) {
             return open_serialized_session<char, JSON> {&JSON_line_parser, ErrorHandler, Open, [] (const JSON &j) -> string {
                 return j.dump() + "\n";
             }} (receiver);

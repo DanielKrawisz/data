@@ -56,25 +56,14 @@ namespace data::networking::IP::TCP {
         IP::address address () const;
         uint16 port () const;
     };
-
-    // open a TCP connection.
-    struct open {
-        io::io_context &Context;
-        endpoint Endpoint;
-        function<void (io_error)> HandleError;
-
-        ptr<socket> connect (io::io_context &, const endpoint &);
-
-        ptr<networking::session<const string &>> operator() (receive_handler<const string &, string_view>);
-    };
     
     // https://dens.website/tutorials/cpp-asio
     
     // we need to use enable_shared_from_this because of the possibility that 
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
-    struct session final : public asio::async_stream_session<socket, char> {
-        using asio::async_stream_session<socket, char>::async_stream_session;
+    struct session final : public asio::async_stream_session<session, socket, char> {
+        using asio::async_stream_session<session, socket, char>::async_stream_session;
 
         void close () final override;
         bool closed () final override;
@@ -84,6 +73,17 @@ namespace data::networking::IP::TCP {
         ~session () {
             close ();
         }
+    };
+
+    // open a TCP connection.
+    struct open {
+        io::io_context &Context;
+        endpoint Endpoint;
+        function<void (io_error)> HandleError;
+
+        ptr<socket> connect (io::io_context &, const endpoint &);
+
+        ptr<session> operator() (receive_handler<session, string_view>);
     };
 
     class server {
