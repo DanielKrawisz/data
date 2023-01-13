@@ -89,4 +89,4 @@ message(STATUS ${OUT})
 # Set C++ version
 target_compile_features(data PUBLIC cxx_std_20)
 set_target_properties(data PROPERTIES CXX_EXTENSIONS ON)
-target_compile_options(data PUBLIC "-fconcepts")
+#target_compile_options(data PUBLIC "-fconcepts")

@@ -18,14 +18,14 @@
 #include <data/cross.hpp>
 #include <data/networking/URL.hpp>
 #include <map>
+#include <utility>
 
 namespace data::networking::experimental {
-
-
+    using header = boost::beast::http::field;
+    using method = boost::beast::http::verb;
+    using status = boost::beast::http::status;
     class HTTP {
-        using header = boost::beast::http::field;
-        using method = boost::beast::http::verb;
-        using status = boost::beast::http::status;
+
 
         struct request {
             method Method;
@@ -34,17 +34,19 @@ namespace data::networking::experimental {
             string Path;
             map<header, string> Headers;
             string Body;
+            bool Secure;
 
             request(
                     method method,
                     string port,
                     string host,
                     string path,
+                    bool secure=false,
                     map<header, string> headers = {},
-                    string body = {}) : Method{method}, Port{port}, Host{host}, Path{path}, Headers{headers}, Body{body} {}
+                    string body = {}) : Method{method}, Port{std::move(port)}, Host{std::move(host)}, Path{std::move(path)}, Secure{secure}, Headers{std::move(headers)}, Body{std::move(body)} {}
 
-            request(method method, URL url, map<header, string> headers = {}, string body = {}) :
-                    Method{method}, Port{url.Port}, Host{url.Host}, Path{url.Path}, Headers{headers}, Body{body} {}
+            request(method method, const URL& url, map<header, string> headers = {}, bool secure=false, string body = {}) :
+                    Method{method}, Port{url.Port}, Host{url.Host}, Path{url.Path},Secure{secure}, Headers{std::move(headers)}, Body{std::move(body)} {}
         };
 
 
@@ -61,11 +63,16 @@ namespace data::networking::experimental {
             map<header, string> Headers;
             string Body;
         };
+        std::shared_ptr<base_response> operator()(const request & request, int redirects = 10, bool stream=false);
+
 
         HTTP(boost::asio::io_context &);
         //=SSLContext(boost::asio::ssl::context::tlsv12_client)
+
+    private:
         static boost::asio::ssl::context SSLContext;
         static bool sslInitialized;
+
     };
 }
 #endif //DATA_NHTTP_HPP
