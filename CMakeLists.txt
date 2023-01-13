@@ -68,7 +68,8 @@ add_library(
   src/data/crypto/AES.cpp
   src/data/tools/circular_queue.cpp
   src/data/tools/rate_limiter.cpp
-  src/data/log/log.cpp)
+  src/data/log/log.cpp
+  src/data/networking/nHTTP.cpp)
 
 target_include_directories(data PUBLIC include)
 
