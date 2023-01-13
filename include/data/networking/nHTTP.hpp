@@ -20,6 +20,8 @@
 #include <map>
 
 namespace data::networking::experimental {
+
+
     class HTTP {
         using header = boost::beast::http::field;
         using method = boost::beast::http::verb;
@@ -59,6 +61,11 @@ namespace data::networking::experimental {
             map<header, string> Headers;
             string Body;
         };
+
+        HTTP(boost::asio::io_context &);
+        //=SSLContext(boost::asio::ssl::context::tlsv12_client)
+        static boost::asio::ssl::context SSLContext;
+        static bool sslInitialized;
     };
 }
 #endif //DATA_NHTTP_HPP
