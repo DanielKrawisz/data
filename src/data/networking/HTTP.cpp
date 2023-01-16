@@ -72,10 +72,10 @@ namespace data::networking {
         
         if(redirects <= 0) throw data::exception {"too many redirects"};
         
-        auto hostname = req.Host.c_str();
-        auto port = req.Port.c_str();
+        auto hostname = req.URL.Host.c_str();
+        auto port = string(req.URL.Port).c_str();
         
-        bool https = req.Port == "https";
+        bool https = req.URL.Port.Protocol == protocol::HTTPS;
         
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
         if(https) {
@@ -93,12 +93,12 @@ namespace data::networking {
             boost::beast::get_lowest_layer(stream).connect(results);
             stream.handshake(boost::asio::ssl::stream_base::client);
 
-            res = http_request(stream, req.Host, req.Method, req.Path, req.Headers, req.Body, redirects);
+            res = http_request(stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         } else {
             boost::beast::tcp_stream stream(IOContext);
             auto const results = Resolver.resolve(hostname, port);
             stream.connect(results);
-            res = http_request(stream, req.Host, req.Method, req.Path, req.Headers, req.Body, redirects);
+            res = http_request(stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         }
         
         if (static_cast<unsigned int>(res.base().result()) >= 300 && static_cast<unsigned int>(res.base().result()) < 400) {
@@ -109,8 +109,8 @@ namespace data::networking {
                 if (uriParseSingleUriA(&uri, loc.c_str(), errorPos)) 
                     throw data::exception{"could not read redirect url"};
                 
-                return (*this)(HTTP::request{req.Method, fromRange(uri.portText), fromRange(uri.hostText),
-                    fromList(uri.pathHead, "/") + fromRange(uri.fragment), req.Headers, req.Body}, redirects - 1);
+                return (*this)(HTTP::request{req.Method, URL{fromRange(uri.portText), fromRange(uri.hostText),
+                    fromList(uri.pathHead, "/") + fromRange(uri.fragment)}, req.Headers, req.Body}, redirects - 1);
             }
         }
         
