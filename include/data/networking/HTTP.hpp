@@ -29,22 +29,16 @@ namespace data::networking {
         
         struct request {
             method Method;
-            string Port;
-            string Host;
-            string Path;
+            networking::URL URL;
             map<header, string> Headers;
             string Body;
             
-            request(
+            request (
                 method method, 
-                string port, 
-                string host, 
-                string path, 
+                networking::URL url,
                 map<header, string> headers = {}, 
-                string body = {}) : Method{method}, Port{port}, Host{host}, Path{path}, Headers{headers}, Body{body} {}
+                string body = {}) : Method {method}, URL {url}, Headers {headers}, Body {body} {}
             
-            request(method method, URL url, map<header, string> headers = {}, string body = {}) : 
-                Method{method}, Port{url.Port}, Host{url.Host}, Path{url.Path}, Headers{headers}, Body{body} {} 
         };
         
         struct response {
@@ -54,9 +48,9 @@ namespace data::networking {
         };
         
         // throws an exception under conditions in which no response is received.
-        response operator()(const request &, int redirects = 10);
+        response operator() (const request &, int redirects = 10);
         
-        HTTP(boost::asio::io_context &);
+        HTTP (boost::asio::io_context &);
         
         struct exception : std::exception {
             request Request;
