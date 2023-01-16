@@ -21,7 +21,7 @@ namespace data {
     // It is always possible to construct the identity function. 
     template <typename X>
     struct identity {
-        X operator()(const X& x) const {
+        X operator() (const X& x) const {
             return x;
         }
     };
@@ -31,9 +31,9 @@ namespace data {
     struct constant {
         Y Constant;
         
-        constant(Y c) : Constant{c} {}
+        constant(Y c) : Constant {c} {}
         
-        Y operator()(const X&) const {
+        Y operator() (const X&) const {
             return Constant;
         }
     };
@@ -53,6 +53,13 @@ namespace data {
             return Function(Value, x);
         }
     };
+
+    template <typename n, typename x, typename... args>
+    function<n (args...)> inline curry (function<n (x, args...)> f, x var) {
+        return [f, var] (args... a) -> n {
+            return f (var, a...);
+        };
+    }
 
 }
 
