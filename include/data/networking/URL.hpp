@@ -20,14 +20,15 @@ namespace data::networking {
     };
 
     struct port {
-        optional<string> Port;
+        string Port;
 
+        port() : Port{""} {}
         port (uint16 number) : Port {std::to_string(number)} {}
-        port (const string &);
+        port (const string & service) : Port{service} {}
 
-        operator string() const;
+        operator string() const {return Port;}
     };
-    port default_port_number (protocol);
+    port default_port(protocol);
 
     std::ostream &operator << (std::ostream &, const port &);
     std::istream &operator >> (std::istream &, port &);
