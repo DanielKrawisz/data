@@ -19,15 +19,12 @@ namespace data::networking {
         WSS
     };
 
-    struct port {
-        string Port;
+    struct port: string {
+        using string::string;
 
-        port() : Port{""} {}
-        port (uint16 number) : Port {std::to_string(number)} {}
-        port (const string & service) : Port{service} {}
-
-        operator string() const {return Port;}
+        port (uint16 number) : string{std::to_string(number)} {}
     };
+
     port default_port(protocol);
 
     std::ostream &operator << (std::ostream &, const port &);
