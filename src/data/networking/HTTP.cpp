@@ -28,7 +28,7 @@ namespace data::networking {
             return accum;
         }
 
-        template<class SyncReadStream>
+          template<class SyncReadStream>
         boost::beast::http::response<boost::beast::http::dynamic_body> http_request(
             SyncReadStream& stream, 
             std::string hostname, 
