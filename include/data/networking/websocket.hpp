@@ -8,13 +8,6 @@
 
 namespace data::networking::websocket {
     namespace io = boost::asio;
-
-    struct open {
-        io::io_context &IO;
-        string URL;
-
-        ptr<session<const string &>> operator() (receive_session<session<const string &>, string_view>);
-    };
     
     struct insecure : asio::async_stream_session<session<const string &>, websocket::stream<beast::tcp_stream>, char> {
         using asio::async_stream_session<session<const string &>, websocket::stream<beast::tcp_stream>, char>::async_stream_session;

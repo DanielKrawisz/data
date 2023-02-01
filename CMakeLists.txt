@@ -1,37 +1,38 @@
-cmake_minimum_required(VERSION 3.1...3.14)
+cmake_minimum_required (VERSION 3.16)
 
 # Back compatibility for VERSION range
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
+if (${CMAKE_VERSION} VERSION_LESS 3.12)
+  cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif ()
 
-project(
+project (
   data
   VERSION 1.0
   DESCRIPTION "wrappers and high-level programming constructs in c++"
-  LANGUAGES CXX)
+  LANGUAGES CXX
+)
 
 # Set cmake as import path for Find*.cmake files
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
+include (${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup (TARGETS)
 
 # Check if GTests is installed. If not, install it
 
-option(PACKAGE_TESTS "Build the tests" ON)
+option (PACKAGE_TESTS "Build the tests" ON)
 
-add_definitions("-DHAS_BOOST")
+add_definitions ("-DHAS_BOOST")
 
-if(PACKAGE_TESTS)
-  include(CTest)
-  find_package(GTest REQUIRED)
-  enable_testing()
-  add_subdirectory(test)
+if (PACKAGE_TESTS)
+  include (CTest)
+  find_package (GTest REQUIRED)
+  enable_testing ()
+  add_subdirectory (test)
 
-endif()
+endif ()
 
 # Add Library source files here
 
-add_library(
+add_library (
   data STATIC
   src/sv/fs.cpp
   src/sv/support/cleanse.cpp
@@ -68,11 +69,12 @@ add_library(
   src/data/crypto/AES.cpp
   src/data/tools/circular_queue.cpp
   src/data/tools/rate_limiter.cpp
-  src/data/log/log.cpp)
+  src/data/log/log.cpp
+)
 
-target_include_directories(data PUBLIC include)
+target_include_directories (data PUBLIC include)
 
-target_link_libraries(
+target_link_libraries (
   data
   CONAN_PKG::boost
   CONAN_PKG::openssl
@@ -83,9 +85,11 @@ target_link_libraries(
   CONAN_PKG::uriparser
   # PkgConfig::LIBSECP256K1
 )
-get_target_property(OUT data LINK_LIBRARIES)
-message(STATUS ${OUT})
+
+get_target_property (OUT data LINK_LIBRARIES)
+message (STATUS ${OUT})
+
 # Set C++ version
-target_compile_features(data PUBLIC cxx_std_20)
-set_target_properties(data PROPERTIES CXX_EXTENSIONS ON)
-target_compile_options(data PUBLIC "-fconcepts")
+target_compile_features (data PUBLIC cxx_std_20)
+set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
+target_compile_options (data PUBLIC "-fconcepts")
