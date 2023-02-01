@@ -1,8 +1,8 @@
 // Copyright (c) 2023 Daniel Krawisz
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
-#ifndef DATA_NETWORKING_SERIALIZED
-#define DATA_NETWORKING_SERIALIZED
+#ifndef DATA_NET_SERIALIZED
+#define DATA_NET_SERIALIZED
 
 #include <data/net/session.hpp>
 #include <data/parser.hpp>

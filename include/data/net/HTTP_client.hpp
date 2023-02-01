@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_API
-#define DATA_API
+#ifndef DATA_NET_HTTP_CLIENT
+#define DATA_NET_HTTP_CLIENT
 
 #include <data/net/REST.hpp>
 #include <data/tools/rate_limiter.hpp>

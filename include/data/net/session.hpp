@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CONNECTION
-#define DATA_CONNECTION
+#ifndef DATA_NET_SESSION
+#define DATA_NET_SESSION
 
 #include <data/types.hpp>
 

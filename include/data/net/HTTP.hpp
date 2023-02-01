@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NETWORKING_HTTP
-#define DATA_NETWORKING_HTTP
+#ifndef DATA_NET_HTTP
+#define DATA_NET_HTTP
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
