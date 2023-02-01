@@ -8,6 +8,7 @@
 #include <data/net/HTTP.hpp>
 
 namespace data::net {
+    // REST is for converting typical REST API formats into a regular HTTP request.
     struct REST {
         
         protocol Protocol; // http or https
