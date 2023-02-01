@@ -1,8 +1,8 @@
 // Copyright (c) 2022 Daniel Krawisz
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
-#ifndef DATA_NETWORKING_WEBSOCKET
-#define DATA_NETWORKING_WEBSOCKET
+#ifndef DATA_NET_WEBSOCKET
+#define DATA_NET_WEBSOCKET
 
 #include <data/net/asio/async_stream_session.hpp>
 

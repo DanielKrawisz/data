@@ -2,15 +2,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NETWORKING_REST
-#define DATA_NETWORKING_REST
+#ifndef DATA_NET_REST
+#define DATA_NET_REST
 
 #include <data/net/HTTP.hpp>
 
 namespace data::net {
     struct REST {
         
-        port Port; // http or https
+        protocol Protocol; // http or https
+
+        port Port;
+
         string Host;
         
         // a typical GET request
@@ -37,18 +40,18 @@ namespace data::net {
     };
     
     HTTP::request inline REST::GET (string path, list<entry<string, string>> params) const {
-        return HTTP::request {HTTP::method::get, URL {Port, Host, path, params}};
+        return HTTP::request {HTTP::method::get, URL {Protocol, Port, Host, path, params}};
     }
     
     // construct a more general POST request
     HTTP::request inline REST::POST (string path, map<HTTP::header, string> headers, string body) const {
         return HTTP::request {
             HTTP::method::post, 
-            URL {Port, Host, path}, headers, body};
+            URL {Protocol, Port, Host, path}, headers, body};
     }
     
     HTTP::request inline REST::operator () (const request &r) const {
-        return HTTP::request {r.Method, URL {Port, Host, r.Path, r.Params}, r.Headers, r.Body};
+        return HTTP::request {r.Method, URL {Protocol, Port, Host, r.Path, r.Params}, r.Headers, r.Body};
     }
 }
 
