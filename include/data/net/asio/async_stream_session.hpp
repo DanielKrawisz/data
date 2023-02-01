@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NETWORKING_ASIO_ASYNC_STREAM_SESSION
-#define DATA_NETWORKING_ASIO_ASYNC_STREAM_SESSION
+#ifndef DATA_NET_ASIO_ASYNC_STREAM_SESSION
+#define DATA_NET_ASIO_ASYNC_STREAM_SESSION
 
 #include <data/net/asio/async_message_queue.hpp>
 #include <data/net/asio/async_wait_for_message.hpp>

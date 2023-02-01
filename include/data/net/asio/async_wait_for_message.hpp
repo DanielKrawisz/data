@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NETWORKING_ASIO_ASYNC_RECEIVER
-#define DATA_NETWORKING_ASIO_ASYNC_RECEIVER
+#ifndef DATA_NET_ASIO_ASYNC_RECEIVER
+#define DATA_NET_ASIO_ASYNC_RECEIVER
 
 #include <data/net/asio/session.hpp>
 

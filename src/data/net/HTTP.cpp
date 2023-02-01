@@ -79,7 +79,7 @@ namespace data::net {
         auto hostname = req.URL.Host.c_str ();
         auto port = string(req.URL.Port).c_str ();
         
-        bool https = req.URL.Port.Protocol == protocol::HTTPS;
+        bool https = req.URL.Protocol == protocol::HTTPS;
         
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
         if(https) {
@@ -106,15 +106,15 @@ namespace data::net {
         }
         
         if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {
-            std::string loc = res.base ()["Location"].to_string();
-            if (!loc.empty()) {
+            std::string loc = res.base ()["Location"].to_string ();
+            if (!loc.empty ()) {
                 UriUriA uri;
                 const char **errorPos;
-                if (uriParseSingleUriA(&uri, loc.c_str(), errorPos)) 
-                    throw data::exception{"could not read redirect url"};
+                if (uriParseSingleUriA (&uri, loc.c_str (), errorPos))
+                    throw data::exception {"could not read redirect url"};
                 
-                return (*this)(HTTP::request{req.Method, URL{fromRange(uri.portText), fromRange(uri.hostText),
-                    fromList(uri.pathHead, "/") + fromRange(uri.fragment)}, req.Headers, req.Body}, redirects - 1);
+                return (*this) (HTTP::request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
+                    fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, redirects - 1);
             }
         }
         
