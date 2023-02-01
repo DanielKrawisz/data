@@ -4,11 +4,11 @@
 #ifndef DATA_NETWORKING_SERIALIZED
 #define DATA_NETWORKING_SERIALIZED
 
-#include <data/networking/session.hpp>
+#include <data/net/session.hpp>
 #include <data/parser.hpp>
 #include <functional>
 
-namespace data::networking {
+namespace data::net {
 
     template <typename word, typename out> struct serialized_session final : session<out> {
 
@@ -37,7 +37,7 @@ namespace data::networking {
         open<session<const std::basic_string<word> &>, std::basic_string_view<word>> Open;
         function<std::basic_string<word> (const out &)> Generator;
 
-        ptr<session<out>> operator() (receive_handler<session<out>, in> receiver) {
+        ptr<session<out>> operator () (receive_handler<session<out>, in> receiver) {
             // the high level out session. It does not know how to send messages yet.
             ptr<serialized_session<word, out>> high_level = std::make_shared<serialized_session<word, out>> (Generator);
 

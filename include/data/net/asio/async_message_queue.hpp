@@ -5,10 +5,10 @@
 #ifndef DATA_NETWORKING_ASIO_ASYNC_MESSAGE_QUEUE
 #define DATA_NETWORKING_ASIO_ASYNC_MESSAGE_QUEUE
 
-#include <data/networking/asio/session.hpp>
+#include <data/net/asio/session.hpp>
 #include <data/tools.hpp>
 
-namespace data::networking::asio {
+namespace data::net::asio {
 
     template <typename async_stream, typename word>
     struct async_message_queue : protected std::enable_shared_from_this<async_message_queue<async_stream, word>> {
@@ -28,7 +28,7 @@ namespace data::networking::asio {
             auto first = Queue.first ();
             Queue = Queue.rest ();
 
-            boost::asio::async_write (*Stream, boost::asio::buffer (first.data (), first.size()),
+            boost::asio::async_write (*Stream, boost::asio::buffer (first.data (), first.size ()),
                 [self = this->shared_from_this ()] (const io_error& error, size_t bytes_transferred) -> void {
                     if (error) self->HandleError (error);
 

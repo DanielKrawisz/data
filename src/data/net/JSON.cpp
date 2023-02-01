@@ -1,4 +1,4 @@
-#include <data/networking/JSON.hpp>
+#include <data/net/JSON.hpp>
 
 #include <sstream>
 

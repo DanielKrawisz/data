@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/networking/TCP.hpp>
+#include <data/net/TCP.hpp>
 
-namespace data::networking::IP {
+namespace data::net::IP {
     
     bool address::valid () const {
         io_error err {};

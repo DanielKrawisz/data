@@ -54,11 +54,11 @@ add_library (
   src/data/encoding/base64.cpp
   src/data/encoding/integer.cpp
   src/data/encoding/utf8.cpp
-  src/data/networking/URL.cpp
-  src/data/networking/HTTP.cpp
-  src/data/networking/REST.cpp
-  src/data/networking/JSON.cpp
-  src/data/networking/TCP.cpp
+  src/data/net/URL.cpp
+  src/data/net/HTTP.cpp
+  src/data/net/REST.cpp
+  src/data/net/JSON.cpp
+  src/data/net/TCP.cpp
   src/data/io/run.cpp
   src/data/tools/channel.cpp
   src/data/crypto/secret_share.cpp
