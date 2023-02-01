@@ -20,11 +20,11 @@ namespace data::net::asio {
             Queue.write (x);
         }
 
-        async_stream_session (ptr<async_stream> x, function<void (io_error)> errors) : Queue {x, errors} {}
+        async_stream_session (ptr<async_stream> x, error_handler errors) : Queue {x, errors} {}
 
         void wait_for_message (
             receive_handler<derived_session, std::basic_string_view<word>> handler,
-            function<void (io_error)> errors) {
+            error_handler errors) {
             async_wait_for_message<async_stream, word> (Queue.Stream, handler (this->shared_from_this ()), errors);
         }
 
