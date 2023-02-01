@@ -7,7 +7,7 @@
 
 #include <data/types.hpp>
 
-namespace data::networking {
+namespace data::net {
 
     // A basic session type. Not every session
     // works exactly the same way, so

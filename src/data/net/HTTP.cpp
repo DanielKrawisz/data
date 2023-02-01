@@ -3,25 +3,25 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/networking/HTTP.hpp>
-#include <data/networking/REST.hpp>
+#include <data/net/HTTP.hpp>
+#include <data/net/REST.hpp>
 
-namespace data::networking {
+namespace data::net {
     namespace {
         
-        std::string fromRange(const UriTextRangeA & rng)
+        std::string fromRange (const UriTextRangeA & rng)
         {
-            return std::string(rng.first, rng.afterLast);
+            return std::string (rng.first, rng.afterLast);
         }
 
-        std::string fromList(UriPathSegmentA * xs, const std::string & delim)
+        std::string fromList (UriPathSegmentA * xs, const std::string & delim)
         {
-            UriPathSegmentStructA * head(xs);
+            UriPathSegmentStructA * head (xs);
             std::string accum;
 
             while (head)
             {
-                accum += delim + fromRange(head->text);
+                accum += delim + fromRange (head->text);
                 head = head->next;
             }
 
@@ -29,7 +29,7 @@ namespace data::networking {
         }
 
         template<class SyncReadStream>
-        boost::beast::http::response<boost::beast::http::dynamic_body> http_request(
+        boost::beast::http::response<boost::beast::http::dynamic_body> http_request (
             SyncReadStream& stream, 
             std::string hostname, 
             HTTP::method verb, 

@@ -5,13 +5,13 @@
 #ifndef DATA_NETWORKING_TCP
 #define DATA_NETWORKING_TCP
 
-#include <data/networking/session.hpp>
-#include <data/networking/asio/async_stream_session.hpp>
+#include <data/net/session.hpp>
+#include <data/net/asio/async_stream_session.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <ctre.hpp>
 #include <data/io/unimplemented.hpp>
 
-namespace data::networking::IP {
+namespace data::net::IP {
     namespace io = boost::asio;
     using io_error = boost::system::error_code;
     
@@ -34,7 +34,7 @@ namespace data::networking::IP {
     };
 }
 
-namespace data::networking::IP::TCP {
+namespace data::net::IP::TCP {
     using socket = io::ip::tcp::socket;
     
     // A tcp endpoint is an ip address and port.
@@ -102,7 +102,7 @@ namespace data::networking::IP::TCP {
     };
     
     inline server::server (io::io_context& io_context, uint16 port):
-        IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
+        IO (io_context), Acceptor (io_context, io::ip::tcp::endpoint (io::ip::tcp::v4 (), port)) {}
     
 }
 

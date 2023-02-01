@@ -8,7 +8,7 @@
 
 #include <data/tools.hpp>
 
-namespace data::networking {
+namespace data::net {
 
     enum class protocol {
         invalid,

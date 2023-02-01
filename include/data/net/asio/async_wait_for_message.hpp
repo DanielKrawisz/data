@@ -5,9 +5,9 @@
 #ifndef DATA_NETWORKING_ASIO_ASYNC_RECEIVER
 #define DATA_NETWORKING_ASIO_ASYNC_RECEIVER
 
-#include <data/networking/asio/session.hpp>
+#include <data/net/asio/session.hpp>
 
-namespace data::networking::asio {
+namespace data::net::asio {
 
     template <typename async_stream, typename word>
     void async_wait_for_message (
@@ -20,7 +20,7 @@ namespace data::networking::asio {
         buffer->resize (buffer_size);
 
         struct wait_for_message {
-            void operator() (
+            void operator () (
                 ptr<async_stream> stream,
                 function<void (std::basic_string_view<word>)> receive,
                 function<void (io_error)> error,
