@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NETWORKING_TCP
-#define DATA_NETWORKING_TCP
+#ifndef DATA_NET_TCP
+#define DATA_NET_TCP
 
 #include <data/net/session.hpp>
 #include <data/net/asio/async_stream_session.hpp>

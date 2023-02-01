@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NETWORKING_ASIO_ASYNC_MESSAGE_QUEUE
-#define DATA_NETWORKING_ASIO_ASYNC_MESSAGE_QUEUE
+#ifndef DATA_NET_ASIO_ASYNC_MESSAGE_QUEUE
+#define DATA_NET_ASIO_ASYNC_MESSAGE_QUEUE
 
 #include <data/net/asio/session.hpp>
 #include <data/tools.hpp>

@@ -1,8 +1,8 @@
 // Copyright (c) 2021 Daniel Krawisz
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
-#ifndef DATA_NETWORKING_JSON
-#define DATA_NETWORKING_JSON
+#ifndef DATA_NET_JSON
+#define DATA_NET_JSON
 
 #include <data/net/serialized.hpp>
 #include <nlohmann/json.hpp>
