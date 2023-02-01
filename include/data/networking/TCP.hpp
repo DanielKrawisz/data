@@ -78,18 +78,16 @@ namespace data::networking::IP::TCP {
         ~session () {
             close ();
         }
+
+        static ptr<socket> connect (io::io_context &, const endpoint &);
     };
 
     // open a TCP connection.
-    struct open {
-        io::io_context &Context;
-        endpoint Endpoint;
-        function<void (io_error)> HandleError;
-
-        ptr<socket> connect (io::io_context &, const endpoint &);
-
-        ptr<session> operator() (receive_handler<session, string_view>);
-    };
+    ptr<session> open (
+        io::io_context &,
+        endpoint,
+        function<void (io_error)> error_handler,
+        receive_handler<session, string_view>);
 
     class server {
         io::io_context& IO;
@@ -100,10 +98,10 @@ namespace data::networking::IP::TCP {
         void accept ();
         
     public:
-        server (boost::asio::io_context& io_context, std::uint16_t port);
+        server (boost::asio::io_context& io_context, uint16 port);
     };
     
-    inline server::server (io::io_context& io_context, std::uint16_t port):
+    inline server::server (io::io_context& io_context, uint16 port):
         IO(io_context), Acceptor(io_context, io::ip::tcp::endpoint(io::ip::tcp::v4(), port)) {}
     
 }

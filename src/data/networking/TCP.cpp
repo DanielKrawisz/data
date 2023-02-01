@@ -27,7 +27,7 @@ namespace data::networking::IP {
     
     namespace TCP {
 
-        ptr<socket> open::connect(io::io_context &io, const endpoint &p) {
+        ptr<socket> session::connect(io::io_context &io, const endpoint &p) {
             ptr<socket> x {new socket (io)};
             io_error error;
             x->connect(io::ip::tcp::endpoint (p), error);
@@ -90,10 +90,15 @@ namespace data::networking::IP {
             return port < 65536;
         }
         
-        ptr<session> open::operator() (receive_handler<session, string_view> receive) {
-            ptr<session> ss { new session {connect (Context, Endpoint), HandleError}};
+        ptr<session> open (
+            io::io_context &context,
+            endpoint e,
+            function<void (io_error)> error_handler,
+            receive_handler<session, string_view> receive) {
 
-            ss->wait_for_message (receive, HandleError);
+            ptr<session> ss { new session {session::connect (context, e), error_handler}};
+
+            ss->wait_for_message (receive, error_handler);
 
             return ss;
         }

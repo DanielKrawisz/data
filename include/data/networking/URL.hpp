@@ -22,10 +22,10 @@ namespace data::networking {
     struct port: string {
         using string::string;
 
-        port (uint16 number) : string{std::to_string(number)} {}
+        port (uint16 number) : string {std::to_string(number)} {}
     };
 
-    port default_port(protocol);
+    port default_port (protocol);
 
     std::ostream &operator << (std::ostream &, const port &);
     std::istream &operator >> (std::istream &, port &);
@@ -37,8 +37,8 @@ namespace data::networking {
         string Path;
         list<entry<string, string>> Params;
         
-        URL (protocol protocol,string port, string host, string path, list<entry<string, string>> params = {}) :
-            Protocol(protocol), Port{port}, Host{host}, Path{path}, Params{params} {}
+        URL (protocol protocol, string port, string host, string path, list<entry<string, string>> params = {}) :
+            Protocol (protocol), Port {port}, Host {host}, Path {path}, Params {params} {}
         
         URL (const string &);
         
