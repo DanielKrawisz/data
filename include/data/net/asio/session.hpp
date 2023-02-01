@@ -12,6 +12,8 @@ namespace data::net::asio {
     using namespace boost::asio;
     using io_error = boost::system::error_code;
 
+    using error_handler = function<void (io_error)>;
+
 }
 
 #endif

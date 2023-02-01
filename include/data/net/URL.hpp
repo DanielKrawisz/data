@@ -30,6 +30,9 @@ namespace data::net {
         bool operator == (const protocol &) const;
     };
 
+    std::ostream &operator << (std::ostream &, const protocol &);
+    std::istream &operator >> (std::istream &, protocol &);
+
     struct port: string {
         using string::string;
 
