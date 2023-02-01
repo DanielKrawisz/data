@@ -6,7 +6,7 @@
 #include <data/net/HTTP.hpp>
 #include <data/net/REST.hpp>
 
-namespace data::net {
+namespace data::net::HTTP {
     namespace {
         
         std::string fromRange (const UriTextRangeA & rng)
@@ -36,24 +36,24 @@ namespace data::net {
             string path,
             map<HTTP::header, string> headers, string body, int redirects) {
             
-            boost::beast::http::request<boost::beast::http::string_body> req(verb, path.c_str(), 11);
+            boost::beast::http::request<boost::beast::http::string_body> req (verb, path.c_str (), 11);
 
-            req.set(HTTP::header::host, hostname.c_str());
-            req.set(HTTP::header::user_agent, BOOST_BEAST_VERSION_STRING);
+            req.set (HTTP::header::host, hostname.c_str ());
+            req.set (HTTP::header::user_agent, BOOST_BEAST_VERSION_STRING);
 
-            for (const auto &header: headers) req.set(header.Key, header.Value);
+            for (const auto &header: headers) req.set (header.Key, header.Value);
             
             req.body() = body;
             req.prepare_payload();
             
-            boost::beast::http::write(stream, req);
+            boost::beast::http::write (stream, req);
 
             boost::beast::flat_buffer buffer;
             boost::beast::http::response<boost::beast::http::dynamic_body> res;
             boost::beast::error_code ec;
 
             try {
-                boost::beast::http::read(stream, buffer, res, ec);
+                boost::beast::http::read (stream, buffer, res, ec);
             } catch (boost::exception &ex) {}
             return res;
             
@@ -61,23 +61,23 @@ namespace data::net {
         
     }
 
-    HTTP::HTTP () : HTTP (
+    remote_server::remote_server () : remote_server (
         std::make_shared<boost::asio::io_context> (),
         std::make_shared<boost::asio::ssl::context> (boost::asio::ssl::context::tlsv12_client)) {}
 
-    HTTP::HTTP (ptr<boost::asio::io_context> ioc, ptr<boost::asio::ssl::context> ssl) :
+    remote_server::remote_server (ptr<boost::asio::io_context> ioc, ptr<boost::asio::ssl::context> ssl) :
         IOContext {ioc}, SSLContext {ssl},
         Resolver (*IOContext) {
             SSLContext->set_default_verify_paths ();
             SSLContext->set_verify_mode (boost::asio::ssl::verify_peer);
         }
     
-    HTTP::response HTTP::operator () (const request &req, int redirects) {
+    response remote_server::operator () (const request &req, int redirects) {
         
         if(redirects <= 0) throw data::exception {"too many redirects"};
         
         auto hostname = req.URL.Host.c_str ();
-        auto port = string(req.URL.Port).c_str ();
+        auto port = string (req.URL.Port).c_str ();
         
         bool https = req.URL.Protocol == protocol::HTTPS;
         
@@ -113,14 +113,14 @@ namespace data::net {
                 if (uriParseSingleUriA (&uri, loc.c_str (), errorPos))
                     throw data::exception {"could not read redirect url"};
                 
-                return (*this) (HTTP::request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
+                return (*this) (request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
                     fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, redirects - 1);
             }
         }
         
-        map<HTTP::header, string> response_headers {};
+        map<header, string> response_headers {};
         for (const auto &field : res) response_headers = 
-            data::insert (response_headers, data::entry<HTTP::header, string> {field.name (), std::string {field.value ()}});
+            data::insert (response_headers, data::entry<header, string> {field.name (), std::string {field.value ()}});
         return response {res.base ().result (), response_headers, boost::beast::buffers_to_string(res.body ().data ())};
     }
 
