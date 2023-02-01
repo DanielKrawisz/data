@@ -1,49 +1,69 @@
-// Copyright (c) 2022 Daniel Krawisz
-// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+// Copyright (c) 2022-2023 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_NET_WEBSOCKET
 #define DATA_NET_WEBSOCKET
 
+#include <data/net/URL.hpp>
 #include <data/net/asio/async_stream_session.hpp>
 
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
+
 namespace data::net::websocket {
+
     namespace io = boost::asio;
+
+    using session = net::session<string_view>;
+
+    // open a websocket connection.
+    ptr<session> open (
+        io::io_context &,
+        const URL &,
+        asio::error_handler error_handler,
+        receive_handler<session, string_view>);
+
+    namespace beast = boost::beast;             // from <boost/beast.hpp>
+    namespace http = beast::http;               // from <boost/beast/http.hpp>
+    namespace io = boost::asio;                 // from <boost/asio.hpp>
+    using tcp = boost::asio::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
+    using insecure_stream = beast::websocket::stream<tcp::socket>;
     
-    struct insecure : asio::async_stream_session<session<const string &>, websocket::stream<beast::tcp_stream>, char> {
-        using asio::async_stream_session<session<const string &>, websocket::stream<beast::tcp_stream>, char>::async_stream_session;
+    struct insecure : asio::async_stream_session<insecure, insecure_stream, char> {
+        using asio::async_stream_session<insecure, insecure_stream, char>::async_stream_session;
 
         void close () final override {
-            throw method::unimplemented {"websocket::insecure::close"};
+            this->Queue.Stream->close (beast::websocket::close_code::normal);
         }
 
         bool closed () final override {
             throw method::unimplemented {"websocket::insecure::closed"};
         }
 
-        function<void (io_error)> HandleError;
-
         ~insecure () {
             close ();
         }
-    };
 
-    struct secure : async_stream_session<session<const string &>, websocket::stream<beast::ssl_stream<beast::tcp_stream>>, char> {
-        using asio::async_stream_session<session<const string &>, websocket::stream<beast::ssl_stream<beast::tcp_stream>>, char>::async_stream_session;
+    };
+/*
+    struct secure : asio::async_stream_session<secure, beast::websocket::stream<beast::ssl_stream<tcp::socket>>, char> {
+        using asio::async_stream_session<secure, beast::websocket::stream<beast::ssl_stream<tcp::socket>>, char>::async_stream_session;
 
         void close () final override {
-            throw method::unimplemented {"websocket::secure::close"};
+            this->Queue.Stream->close (beast::websocket::close_code::normal);
         }
 
         bool closed () final override {
             throw method::unimplemented {"websocket::secure::closed"};
         }
 
-        function<void (io_error)> HandleError;
-
         ~secure () {
             close ();
         }
-    };
+    };*/
 }
 
 #endif

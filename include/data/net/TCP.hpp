@@ -62,6 +62,15 @@ namespace data::net::IP::TCP {
     // we need to use enable_shared_from_this because of the possibility that 
     // tcp_stream will go out of scope and be deleted before one of the 
     // handlers is called from async_read_until or async_write. 
+    struct session;
+
+    // open a TCP connection.
+    ptr<session> open (
+        io::io_context &,
+        endpoint,
+        asio::error_handler error_handler,
+        receive_handler<session, string_view>);
+
     struct session final : public asio::async_stream_session<session, socket, char> {
         using asio::async_stream_session<session, socket, char>::async_stream_session;
 
@@ -72,8 +81,6 @@ namespace data::net::IP::TCP {
         bool closed () final override {
             throw method::unimplemented {"TCP::session::closed"};
         }
-
-        function<void (io_error)> HandleError;
         
         ~session () {
             close ();
@@ -81,13 +88,6 @@ namespace data::net::IP::TCP {
 
         static ptr<socket> connect (io::io_context &, const endpoint &);
     };
-
-    // open a TCP connection.
-    ptr<session> open (
-        io::io_context &,
-        endpoint,
-        function<void (io_error)> error_handler,
-        receive_handler<session, string_view>);
 
     class server {
         io::io_context& IO;
