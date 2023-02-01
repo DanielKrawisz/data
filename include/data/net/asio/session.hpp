@@ -5,10 +5,10 @@
 #ifndef DATA_ASIO_ERROR_SESSION
 #define DATA_ASIO_ERROR_SESSION
 
-#include <data/networking/session.hpp>
+#include <data/net/session.hpp>
 #include <boost/asio.hpp>
 
-namespace data::networking::asio {
+namespace data::net::asio {
     using namespace boost::asio;
     using io_error = boost::system::error_code;
 

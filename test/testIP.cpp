@@ -2,22 +2,22 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/networking/TCP.hpp"
+#include "data/net/TCP.hpp"
 #include "gtest/gtest.h"
 
-namespace data::networking::IP {
+namespace data::net::IP {
 
     // https://en.wikipedia.org/wiki/Module:IPAddress/testcases
-    TEST(IPTest, TestIPAddressFormat) {
+    TEST (IPTest, TestIPAddressFormat) {
             
         struct test_case {
             string Address;
             uint32 Version;
             
-            void test() const {
-                address ip_address(Address);
-                uint32 version = ip_address.version();
-                EXPECT_EQ(version, Version) << "expected " << Address << " to be version " << Version;
+            void test () const {
+                address ip_address (Address);
+                uint32 version = ip_address.version ();
+                EXPECT_EQ (version, Version) << "expected " << Address << " to be version " << Version;
                 
                 uint16 port = 666;
                 
@@ -27,15 +27,15 @@ namespace data::networking::IP {
                 v6_format << "[" << Address << "]:" << port;
                 v4_format << Address << ":" << port;
                 
-                TCP::endpoint v6_string{v6_format.str()};
-                TCP::endpoint v4_string{v4_format.str()};
+                TCP::endpoint v6_string {v6_format.str ()};
+                TCP::endpoint v4_string {v4_format.str ()};
                 
-                EXPECT_EQ(v6_string.valid(), version == 6) << v6_string;
-                EXPECT_EQ(v4_string.valid(), version == 4) << v4_string;
+                EXPECT_EQ (v6_string.valid (), version == 6) << v6_string;
+                EXPECT_EQ (v4_string.valid (), version == 4) << v4_string;
             }
         };
         
-        test_case test_cases[]{
+        test_case test_cases[] {
             {"200.200.200.200", 4},
             // whitespace not currently allowed
             {" 200.200.200.200", 0}, 
@@ -106,7 +106,7 @@ namespace data::networking::IP {
             {"2001::", 6} 
         };
         
-        for (const test_case &t : test_cases) t.test();
+        for (const test_case &t : test_cases) t.test ();
     }
         
 }

@@ -17,10 +17,10 @@
 #include <uriparser/Uri.h>
 #include <data/tools.hpp>
 #include <data/cross.hpp>
-#include <data/networking/URL.hpp>
+#include <data/net/URL.hpp>
 #include <map>
 
-namespace data::networking {
+namespace data::net {
     
     struct HTTP {
         using header = boost::beast::http::field;
@@ -29,13 +29,13 @@ namespace data::networking {
         
         struct request {
             method Method;
-            networking::URL URL;
+            net::URL URL;
             map<header, string> Headers;
             string Body;
             
             request (
                 method method, 
-                networking::URL url,
+                net::URL url,
                 map<header, string> headers = {}, 
                 string body = {}) : Method {method}, URL {url}, Headers {headers}, Body {body} {}
             
@@ -60,7 +60,7 @@ namespace data::networking {
             request Request;
             response Response;
             string Problem;
-            exception(const request &req, const response &res, const string &p) : 
+            exception (const request &req, const response &res, const string &p) :
                 Request {req}, Response {res}, Problem {p} {}
             const char *what () const noexcept override {
                 return Problem.c_str ();
