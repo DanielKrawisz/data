@@ -2,7 +2,7 @@
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #include <data/io/run.hpp>
-#include <data/networking/asio/async_wait_for_message.hpp>
+#include <data/net/asio/async_wait_for_message.hpp>
 
 namespace data::io {
 
@@ -20,10 +20,10 @@ namespace data::io {
 
         bp::child child{command, bp::std_out > *out, bp::std_err > *err, bp::std_in < *in};
 
-        ptr<process> p {new process {std::move (child), networking::asio::async_message_queue<pipe, char> {in, err_handler}}};
+        ptr<process> p {new process {std::move (child), net::asio::async_message_queue<pipe, char> {in, err_handler}}};
 
-        networking::asio::async_wait_for_message<pipe, char> (out, std_out_handler (p), err_handler);
-        networking::asio::async_wait_for_message<pipe, char> (err, std_err_handler (p), err_handler);
+        net::asio::async_wait_for_message<pipe, char> (out, std_out_handler (p), err_handler);
+        net::asio::async_wait_for_message<pipe, char> (err, std_err_handler (p), err_handler);
 
         return p;
     }

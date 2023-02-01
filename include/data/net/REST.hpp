@@ -5,9 +5,9 @@
 #ifndef DATA_NETWORKING_REST
 #define DATA_NETWORKING_REST
 
-#include <data/networking/HTTP.hpp>
+#include <data/net/HTTP.hpp>
 
-namespace data::networking {
+namespace data::net {
     struct REST {
         
         port Port; // http or https
@@ -32,7 +32,7 @@ namespace data::networking {
             string Body;
         };
         
-        HTTP::request operator() (const request &r) const;
+        HTTP::request operator () (const request &r) const;
         
     };
     
@@ -47,7 +47,7 @@ namespace data::networking {
             URL {Port, Host, path}, headers, body};
     }
     
-    HTTP::request inline REST::operator() (const request &r) const {
+    HTTP::request inline REST::operator () (const request &r) const {
         return HTTP::request {r.Method, URL {Port, Host, r.Path, r.Params}, r.Headers, r.Body};
     }
 }

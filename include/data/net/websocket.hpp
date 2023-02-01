@@ -4,9 +4,9 @@
 #ifndef DATA_NETWORKING_WEBSOCKET
 #define DATA_NETWORKING_WEBSOCKET
 
-#include <data/networking/asio/async_stream_session.hpp>
+#include <data/net/asio/async_stream_session.hpp>
 
-namespace data::networking::websocket {
+namespace data::net::websocket {
     namespace io = boost::asio;
     
     struct insecure : asio::async_stream_session<session<const string &>, websocket::stream<beast::tcp_stream>, char> {
