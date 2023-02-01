@@ -61,48 +61,52 @@ namespace data::networking {
         
     }
 
-    HTTP::HTTP(boost::asio::io_context &ioc) : IOContext{ioc}, 
-        SSLContext(boost::asio::ssl::context::tlsv12_client),
-        Resolver(IOContext) {
-            SSLContext.set_default_verify_paths();
-            SSLContext.set_verify_mode(boost::asio::ssl::verify_peer);
+    HTTP::HTTP () : HTTP (
+        std::make_shared<boost::asio::io_context> (),
+        std::make_shared<boost::asio::ssl::context> (boost::asio::ssl::context::tlsv12_client)) {}
+
+    HTTP::HTTP (ptr<boost::asio::io_context> ioc, ptr<boost::asio::ssl::context> ssl) :
+        IOContext {ioc}, SSLContext {ssl},
+        Resolver (*IOContext) {
+            SSLContext->set_default_verify_paths ();
+            SSLContext->set_verify_mode (boost::asio::ssl::verify_peer);
         }
     
-    HTTP::response HTTP::operator()(const request &req, int redirects) {
+    HTTP::response HTTP::operator () (const request &req, int redirects) {
         
         if(redirects <= 0) throw data::exception {"too many redirects"};
         
-        auto hostname = req.URL.Host.c_str();
-        auto port = string(req.URL.Port).c_str();
+        auto hostname = req.URL.Host.c_str ();
+        auto port = string(req.URL.Port).c_str ();
         
         bool https = req.URL.Port.Protocol == protocol::HTTPS;
         
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
         if(https) {
-            boost::beast::ssl_stream<boost::beast::tcp_stream> stream(IOContext, SSLContext);
+            boost::beast::ssl_stream<boost::beast::tcp_stream> stream (*IOContext, *SSLContext);
             
             // Set SNI Hostname (many hosts need this to handshake successfully)
-            if (!SSL_set_tlsext_host_name(stream.native_handle(), hostname)) {
-                boost::beast::error_code ec{static_cast<int>(::ERR_get_error()),
-                                            boost::asio::error::get_ssl_category()};
-                throw boost::beast::system_error{ec};
+            if (!SSL_set_tlsext_host_name(stream.native_handle (), hostname)) {
+                boost::beast::error_code ec {static_cast<int> (::ERR_get_error ()),
+                    boost::asio::error::get_ssl_category ()};
+                throw boost::beast::system_error {ec};
             }
 
-            auto const results = Resolver.resolve(hostname, port);
+            auto const results = Resolver.resolve (hostname, port);
 
-            boost::beast::get_lowest_layer(stream).connect(results);
-            stream.handshake(boost::asio::ssl::stream_base::client);
+            boost::beast::get_lowest_layer (stream).connect (results);
+            stream.handshake (boost::asio::ssl::stream_base::client);
 
-            res = http_request(stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
+            res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         } else {
-            boost::beast::tcp_stream stream(IOContext);
-            auto const results = Resolver.resolve(hostname, port);
-            stream.connect(results);
-            res = http_request(stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
+            boost::beast::tcp_stream stream (*IOContext);
+            auto const results = Resolver.resolve (hostname, port);
+            stream.connect (results);
+            res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         }
         
-        if (static_cast<unsigned int>(res.base().result()) >= 300 && static_cast<unsigned int>(res.base().result()) < 400) {
-            std::string loc = res.base()["Location"].to_string();
+        if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {
+            std::string loc = res.base ()["Location"].to_string();
             if (!loc.empty()) {
                 UriUriA uri;
                 const char **errorPos;
@@ -114,10 +118,10 @@ namespace data::networking {
             }
         }
         
-        map<HTTP::header, string> response_headers{};
+        map<HTTP::header, string> response_headers {};
         for (const auto &field : res) response_headers = 
-            data::insert(response_headers, data::entry<HTTP::header, string>{field.name(), std::string{field.value()}}); 
-        return response{res.base().result(), response_headers, boost::beast::buffers_to_string(res.body().data())};
+            data::insert (response_headers, data::entry<HTTP::header, string> {field.name (), std::string {field.value ()}});
+        return response {res.base ().result (), response_headers, boost::beast::buffers_to_string(res.body ().data ())};
     }
 
 }

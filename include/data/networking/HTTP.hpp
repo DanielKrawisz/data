@@ -48,23 +48,27 @@ namespace data::networking {
         };
         
         // throws an exception under conditions in which no response is received.
-        response operator() (const request &, int redirects = 10);
+        response operator () (const request &, int redirects = 10);
         
-        HTTP (boost::asio::io_context &);
+        // this is for when the HTTP object is your only connection to the outside world.
+        HTTP ();
+
+        // this is for when you might be connected in other ways so that you have to sync different interactions.
+        HTTP (ptr<boost::asio::io_context>, ptr<boost::asio::ssl::context>);
         
         struct exception : std::exception {
             request Request;
             response Response;
             string Problem;
             exception(const request &req, const response &res, const string &p) : 
-                Request{req}, Response{res}, Problem{p} {}
-            const char *what() const noexcept override {
-                return Problem.c_str();
+                Request {req}, Response {res}, Problem {p} {}
+            const char *what () const noexcept override {
+                return Problem.c_str ();
             }
         };
         
-        boost::asio::io_context &IOContext;
-        boost::asio::ssl::context SSLContext;
+        ptr<boost::asio::io_context> IOContext;
+        ptr<boost::asio::ssl::context> SSLContext;
         boost::asio::ip::tcp::resolver Resolver;
  
     };
