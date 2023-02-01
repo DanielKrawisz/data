@@ -9,46 +9,46 @@
 #include <data/tools/rate_limiter.hpp>
 #include <stdlib.h>
 
-namespace data::net {
-    struct HTTP_client {
-        net::HTTP &Http;
+namespace data::net::HTTP {
+    struct client {
+        remote_server &Http;
         
         REST Rest;
         
         tools::rate_limiter Rate;
         
-        HTTP_client (net::HTTP &http, const REST &rest, tools::rate_limiter rate = {});
+        client (remote_server &http, const REST &rest, tools::rate_limiter rate = {});
         
-        HTTP::response operator () (const HTTP::request &r);
+        response operator () (const request &r);
         
-        HTTP::response GET (string path, list<entry<string, string>> params = {});
+        response GET (string path, list<entry<string, string>> params = {});
         
         // POST form data
-        HTTP::response POST (string path, map<string, string> form_data = {});
+        response POST (string path, map<string, string> form_data = {});
         
-        HTTP::response POST (string path, map<HTTP::header, string> headers, string body);
+        response POST (string path, map<header, string> headers, string body);
         
     };
         
-    inline HTTP_client::HTTP_client (net::HTTP &http, const REST &rest, tools::rate_limiter rate) :
+    inline client::client (remote_server &http, const REST &rest, tools::rate_limiter rate) :
         Http {http}, Rest {rest}, Rate {rate} {}
     
-    HTTP::response inline HTTP_client::operator () (const HTTP::request &r) {
+    response inline client::operator () (const request &r) {
         auto wait = Rate.getTime ();
-        if (wait != 0) boost::asio::steady_timer {Http.IOContext, boost::asio::chrono::seconds (wait)}.wait ();
+        if (wait != 0) boost::asio::steady_timer {*Http.IOContext, boost::asio::chrono::seconds (wait)}.wait ();
         return Http (r);
     }
     
-    HTTP::response inline HTTP_client::GET (string path, list<entry<string, string>> params) {
+    response inline client::GET (string path, list<entry<string, string>> params) {
         return (*this) (Rest.GET (path, params));
     }
     
     // POST form data
-    HTTP::response inline HTTP_client::POST (string path, map<string, string> form_data) {
+    response inline client::POST (string path, map<string, string> form_data) {
         return (*this) (Rest.POST (path, form_data));
     }
     
-    HTTP::response inline HTTP_client::POST (string path, map<HTTP::header, string> headers, string body) {
+    response inline client::POST (string path, map<header, string> headers, string body) {
         return (*this) (Rest.POST (path, headers, body));
     }
 }
