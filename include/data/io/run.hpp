@@ -11,15 +11,17 @@ namespace data::io {
 
     struct process;
 
-    using output_handler = net::receive_handler<process, string_view>;
+    struct read_handlers {
+        handler<string_view> Out;
+        handler<string_view> Err;
+    };
+
+    using interaction = function<read_handlers (ptr<process>)>;
 
     using error_code = net::asio::error_code;
     using error_handler = net::asio::error_handler;
 
-    ptr<process> run (boost::asio::io_context &, string command,
-        output_handler std_out_handler,
-        output_handler std_err_handler,
-        error_handler err_handler);
+    void run (boost::asio::io_context &, string command, error_handler, interaction);
 
     using pipe = boost::process::async_pipe;
 
@@ -49,10 +51,7 @@ namespace data::io {
     private:
         process (boost::process::child &&child, net::asio::async_message_queue<pipe, char> q) : Child {std::move (child)}, Queue {q} {}
 
-        friend ptr<process> run (boost::asio::io_context &, string command,
-            output_handler std_out_handler,
-            output_handler std_err_handler,
-            error_handler err_handler);
+        friend void run (boost::asio::io_context &, string command, error_handler err_handler, interaction i);
     };
     
 }

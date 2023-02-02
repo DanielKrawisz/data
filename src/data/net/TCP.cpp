@@ -8,29 +8,29 @@ namespace data::net::IP {
     
     bool address::valid () const {
         asio::error_code err {};
-        auto addr = io::ip::make_address (static_cast<string> (*this), err);
+        auto addr = asio::ip::make_address (static_cast<string> (*this), err);
         return !bool (err);
     }
 
-    address::operator io::ip::address () const {
+    address::operator asio::ip::address () const {
         asio::error_code err {};
-        auto addr = io::ip::make_address (static_cast<string> (*this), err);
+        auto addr = asio::ip::make_address (static_cast<string> (*this), err);
         if (err) throw exception{err};
         return addr;
     }
     
     uint32 address::version () const {
         asio::error_code err {};
-        auto addr = io::ip::make_address (static_cast<string> (*this), err);
+        auto addr = asio::ip::make_address (static_cast<string> (*this), err);
         return bool (err) ? 0 : addr.is_v4 () ? 4 : 6;
     }
     
     namespace TCP {
 
-        ptr<socket> session::connect(io::io_context &io, const endpoint &p) {
+        ptr<socket> session::connect(asio::io_context &io, const endpoint &p) {
             ptr<socket> x {new socket (io)};
             asio::error_code error;
-            x->connect(io::ip::tcp::endpoint (p), error);
+            x->connect(asio::ip::tcp::endpoint (p), error);
 
             if (error) throw exception {error};
             return x;
@@ -53,7 +53,7 @@ namespace data::net::IP {
             return port;
         }
 
-        endpoint::operator io::ip::tcp::endpoint() const {
+        endpoint::operator asio::ip::tcp::endpoint() const {
             auto result = ctre::match<pattern>(*this);
             if (!bool(result)) return {};
             auto address_v4 = result.get<"V4">();
@@ -61,8 +61,8 @@ namespace data::net::IP {
             port_stream << result.get<"port">().to_string();
             uint16 port;
             port_stream >> port;
-            return io::ip::tcp::endpoint{
-                io::ip::address(IP::address{bool(address_v4) ? result.get<"V6">().to_string() : address_v4.to_string()}), 
+            return asio::ip::tcp::endpoint{
+                asio::ip::address(IP::address{bool(address_v4) ? result.get<"V6">().to_string() : address_v4.to_string()}),
                 port};
         }
         
@@ -91,10 +91,10 @@ namespace data::net::IP {
         }
         
         void open (
-            io::io_context &context,
+            asio::io_context &context,
             endpoint e,
             asio::error_handler handler_err,
-            receive_handler<session, string_view> receive,
+            interaction<string_view, session> receive,
             handler<ptr<session>> on_open) {
 
             ptr<session> ss { new session {session::connect (context, e), handler_err}};

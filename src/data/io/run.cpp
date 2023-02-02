@@ -9,23 +9,21 @@ namespace data::io {
     namespace bp = boost::process;
 
     // run an external command with standard in and standard out connected.
-    ptr<process> run (boost::asio::io_context &io, string command,
-        output_handler std_out_handler,
-        output_handler std_err_handler,
-        error_handler err_handler) {
+    void run (boost::asio::io_context &io, string command, error_handler err_handler, interaction i) {
 
         ptr<bp::async_pipe> in { new bp::async_pipe {io}};
         ptr<bp::async_pipe> out { new bp::async_pipe {io}};
         ptr<bp::async_pipe> err { new bp::async_pipe {io}};
 
-        bp::child child{command, bp::std_out > *out, bp::std_err > *err, bp::std_in < *in};
+        bp::child child {command, bp::std_out > *out, bp::std_err > *err, bp::std_in < *in};
 
         ptr<process> p {new process {std::move (child), net::asio::async_message_queue<pipe, char> {in, err_handler}}};
 
-        net::asio::async_wait_for_message<pipe, char> (out, std_out_handler (p), err_handler);
-        net::asio::async_wait_for_message<pipe, char> (err, std_err_handler (p), err_handler);
+        auto handlers = i (p);
 
-        return p;
+        net::asio::async_wait_for_message<pipe, char> (out, handlers.Out, err_handler);
+        net::asio::async_wait_for_message<pipe, char> (err, handlers.Err, err_handler);
+
     }
 
 }
