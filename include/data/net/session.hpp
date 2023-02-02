@@ -20,15 +20,16 @@ namespace data::net {
         virtual void close () = 0;
     };
 
-    // receive_handler takes a session type called
-    // session_out (which could be the type above)
-    // and returns a function that takes the message type.
-    template <typename session_out, typename message_in>
-    using receive_handler = function<handler<message_in> (ptr<session_out>)>;
+    // interaction describes an interaction with a remote peer.
+    // it takes a session type called session_out (which could be the type above)
+    // and returns a function that takes the message type that will be received
+    // by the remote peer. This method will be called when a message is received.
+    template <typename message_in, typename session_out = session<message_in>>
+    using interaction = function<handler<message_in> (ptr<session_out>)>;
 
     // a function type that would open a new session.
-    template <typename session_out, typename message_in>
-    using open = handler<receive_handler<session_out, message_in>>;
+    template <typename message_in, typename session_out = session<message_in>>
+    using open = handler<interaction<session_out, message_in>>;
 
     
 }

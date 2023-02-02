@@ -22,7 +22,7 @@ namespace data::net::asio {
         struct wait_for_message {
             void operator () (
                 ptr<async_stream> stream,
-                function<void (std::basic_string_view<word>)> receive,
+                handler<std::basic_string_view<word>> receive,
                 error_handler error,
                 std::basic_string<word> *buff) {
 
