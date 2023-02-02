@@ -20,7 +20,7 @@ namespace data::net::websocket {
     using session = net::session<string_view>;
 
     // open a websocket connection.
-    ptr<session> open (
+    void open (
         io::io_context &,
         const URL &,
         asio::error_handler error_handler,

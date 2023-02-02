@@ -26,44 +26,42 @@ namespace data::net {
 
         serialized_session (function<std::basic_string<word> (const out &)> g) : Generator {g}, Session {} {}
 
+        // write as a string.
         function<std::basic_string<word> (const out &)> Generator;
+
+        // the low-level session.
         ptr<session<const std::basic_string<word> &>> Session;
 
     };
 
-    template <typename word, typename out, typename in = out> struct open_serialized_session {
-        parser<word, out> Parser;
-        function<void (parse_error)> ParseErrorHandler;
-        open<session<const std::basic_string<word> &>, std::basic_string_view<word>> Open;
-        function<std::basic_string<word> (const out &)> Generator;
+    template <typename word, typename out, typename in = out>
+    void open_serialized_session (
+        open<session<const std::basic_string<word> &>, std::basic_string_view<word>> Open,
+        function<std::basic_string<word> (const out &)> Generator,
+        parser<word, out> Parser,
+        handler<parse_error> ParseErrorHandler,
+        receive_handler<session<out>, in> Receiver) {
 
-        ptr<session<out>> operator () (receive_handler<session<out>, in> receiver) {
-            // the high level out session. It does not know how to send messages yet.
-            ptr<serialized_session<word, out>> high_level = std::make_shared<serialized_session<word, out>> (Generator);
+        // the high level out session. It does not know how to send messages yet.
+        ptr<serialized_session<word, out>> high_level = std::make_shared<serialized_session<word, out>> (Generator);
 
-            ptr<session<const std::basic_string<word> &>> low_level = Open ([
-                high_level, receiver,
-                parser = std::bind (Parser, std::placeholders::_1, ParseErrorHandler)
-            ] (
-                ptr<session<const std::basic_string<word> &>> low_level) -> std::function<void (std::basic_string_view<word>
-            )> {
+        // Bind the parse error handler to the parser. Now we have a parser that just takes one argument
+        function<ptr<writer<word>> (handler<const out &>)> parser = std::bind (Parser, std::placeholders::_1, ParseErrorHandler);
 
+        // Open the low-level connection.
+        Open (
+            // the receive handler.
+            [high_level, parser, Receiver]
+            (ptr<session<const std::basic_string<word> &>> low_level) -> handler<std::basic_string_view<word>> {
+                // add the low level sesion to the high level session.
                 high_level->Session = low_level;
 
-                auto in_handler = receiver (std::static_pointer_cast<session<out>> (high_level));
-
-                auto parse = parser (in_handler);
-
-                return [parse] (std::basic_string_view<word> i) -> void {
+                return [parse = parser (Receiver (std::static_pointer_cast<session<out>> (high_level)))]
+                (std::basic_string_view<word> i) -> void {
                     parse->write (i.data (), i.size ());
                 };
             });
-
-            if (low_level == nullptr) return nullptr;
-
-            return std::static_pointer_cast<session<out>> (high_level);
-        }
-    };
+    }
 
 }
 

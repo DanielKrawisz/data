@@ -24,11 +24,11 @@ namespace data::net {
     // session_out (which could be the type above)
     // and returns a function that takes the message type.
     template <typename session_out, typename message_in>
-    using receive_handler = function<function<void (message_in)> (ptr<session_out>)>;
+    using receive_handler = function<handler<message_in> (ptr<session_out>)>;
 
-    // a function type that would open a new session. It takes a receiver handler.
+    // a function type that would open a new session.
     template <typename session_out, typename message_in>
-    using open = function<ptr<session_out> (receive_handler<session_out, message_in>)>;
+    using open = handler<receive_handler<session_out, message_in>>;
 
     
 }
