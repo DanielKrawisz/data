@@ -24,6 +24,7 @@ namespace data::net {
         name Name;
 
         protocol (const string &);
+        protocol (const char *);
         protocol (name);
         operator string ();
 
@@ -57,6 +58,7 @@ namespace data::net {
         URL (protocol pr, string host, string path, list<entry<string, string>> params = {});
         
         URL (const string &);
+        URL (const char *);
         
         operator string () const;
         
@@ -64,6 +66,9 @@ namespace data::net {
     
     std::ostream &operator << (std::ostream &, const URL &);
     std::istream &operator >> (std::istream &, URL &);
+
+    inline protocol::protocol (const char *meep): protocol {string {meep}} {}
+    inline URL::URL (const char *meep): URL {string {meep}} {}
 }
 
 #endif
