@@ -12,7 +12,7 @@ namespace data::io {
     ptr<process> run (boost::asio::io_context &io, string command,
         output_handler std_out_handler,
         output_handler std_err_handler,
-        function<void (error)> err_handler) {
+        error_handler err_handler) {
 
         ptr<bp::async_pipe> in { new bp::async_pipe {io}};
         ptr<bp::async_pipe> out { new bp::async_pipe {io}};

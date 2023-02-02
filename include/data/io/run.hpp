@@ -13,12 +13,13 @@ namespace data::io {
 
     using output_handler = net::receive_handler<process, string_view>;
 
-    using error = net::asio::io_error;
+    using error_code = net::asio::error_code;
+    using error_handler = net::asio::error_handler;
 
     ptr<process> run (boost::asio::io_context &, string command,
         output_handler std_out_handler,
         output_handler std_err_handler,
-        function<void (error)> err_handler);
+        error_handler err_handler);
 
     using pipe = boost::process::async_pipe;
 
@@ -51,7 +52,7 @@ namespace data::io {
         friend ptr<process> run (boost::asio::io_context &, string command,
             output_handler std_out_handler,
             output_handler std_err_handler,
-            function<void (error)> err_handler);
+            error_handler err_handler);
     };
     
 }
