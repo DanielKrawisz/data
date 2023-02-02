@@ -65,7 +65,7 @@ namespace data::net::IP::TCP {
     struct session;
 
     // open a TCP connection.
-    ptr<session> open (
+    void open (
         io::io_context &,
         endpoint,
         asio::error_handler error_handler,

@@ -90,17 +90,16 @@ namespace data::net::IP {
             return port < 65536;
         }
         
-        ptr<session> open (
+        void open (
             io::io_context &context,
             endpoint e,
             asio::error_handler handler_err,
-            receive_handler<session, string_view> receive) {
+            receive_handler<session, string_view> receive,
+            handler<ptr<session>> on_open) {
 
             ptr<session> ss { new session {session::connect (context, e), handler_err}};
 
             ss->wait_for_message (receive, handler_err);
-
-            return ss;
         }
     }
 }
