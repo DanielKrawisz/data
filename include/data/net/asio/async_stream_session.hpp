@@ -11,7 +11,7 @@
 
 namespace data::net::asio {
 
-    template <typename derived_session, typename async_stream, typename word>
+    template <typename derived_session, async_write_stream async_stream, typename word>
     struct async_stream_session : session<const std::basic_string<word> &>, std::enable_shared_from_this<derived_session> {
 
         async_message_queue<async_stream, word> Queue;

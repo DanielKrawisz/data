@@ -9,33 +9,33 @@
 
 namespace data::net::asio {
 
-    template <typename async_stream, typename word>
+    template <async_write_stream async_stream, typename word>
     void async_wait_for_message (
         ptr<async_stream> stream,
         function<void (std::basic_string_view<word>)> receive,
-        function<void (io_error)> error,
+        error_handler error,
         uint32 buffer_size = 65536) {
 
-        auto buffer = new std::basic_string<word> {};
-        buffer->resize (buffer_size);
+        auto buff = new std::basic_string<word> {};
+        buff->resize (buffer_size);
 
         struct wait_for_message {
             void operator () (
                 ptr<async_stream> stream,
                 function<void (std::basic_string_view<word>)> receive,
-                function<void (io_error)> error,
-                std::basic_string<word> *buffer) {
+                error_handler error,
+                std::basic_string<word> *buff) {
 
                 stream->async_read_some (
-                    boost::asio::buffer (buffer->data (), buffer->size ()),
-                    [stream, receive, error, buffer] (const io_error& err, size_t bytes_transferred) -> void {
+                    buffer (buff->data (), buff->size ()),
+                    [stream, receive, error, buff] (const error_code& err, size_t bytes_transferred) -> void {
 
                         if (err) goto done;
 
                         try {
 
-                            receive (std::basic_string_view {buffer->data (), bytes_transferred});
-                            wait_for_message {} (stream, receive, error, buffer);
+                            receive (std::basic_string_view {buff->data (), bytes_transferred});
+                            wait_for_message {} (stream, receive, error, buff);
 
                             return;
 
@@ -45,13 +45,13 @@ namespace data::net::asio {
 
                         stream->close ();
                         error (err);
-                        delete buffer;
+                        delete buff;
 
                     });
             }
         };
 
-        wait_for_message {} (stream, receive, error, buffer);
+        wait_for_message {} (stream, receive, error, buff);
 
     };
 

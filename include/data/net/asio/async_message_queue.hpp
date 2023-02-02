@@ -10,17 +10,17 @@
 
 namespace data::net::asio {
 
-    template <typename async_stream, typename word>
+    template <async_write_stream async_stream, typename word>
     struct async_message_queue : protected std::enable_shared_from_this<async_message_queue<async_stream, word>> {
 
         ptr<async_stream> Stream;
-        function<void (io_error)> HandleError;
+        error_handler HandleError;
 
         // whether we are writing from the queue.
         bool Writing;
         list<std::basic_string<word>> Queue;
 
-        async_message_queue (ptr<async_stream> stream, function<void (io_error)> errors):
+        async_message_queue (ptr<async_stream> stream, error_handler errors):
             Stream {std::move (stream)}, HandleError {errors}, Writing {false}, Queue {} {}
 
         void write_next_message () {
@@ -29,7 +29,7 @@ namespace data::net::asio {
             Queue = Queue.rest ();
 
             boost::asio::async_write (*Stream, boost::asio::buffer (first.data (), first.size ()),
-                [self = this->shared_from_this ()] (const io_error& error, size_t bytes_transferred) -> void {
+                [self = this->shared_from_this ()] (const error_code& error, size_t bytes_transferred) -> void {
                     if (error) self->HandleError (error);
 
                     if (data::empty (self->Queue)) self->Writing = false;

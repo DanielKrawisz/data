@@ -7,20 +7,20 @@
 namespace data::net::IP {
     
     bool address::valid () const {
-        io_error err {};
+        asio::error_code err {};
         auto addr = io::ip::make_address (static_cast<string> (*this), err);
         return !bool (err);
     }
 
     address::operator io::ip::address () const {
-        io_error err {};
+        asio::error_code err {};
         auto addr = io::ip::make_address (static_cast<string> (*this), err);
         if (err) throw exception{err};
         return addr;
     }
     
     uint32 address::version () const {
-        io_error err {};
+        asio::error_code err {};
         auto addr = io::ip::make_address (static_cast<string> (*this), err);
         return bool (err) ? 0 : addr.is_v4 () ? 4 : 6;
     }
@@ -29,7 +29,7 @@ namespace data::net::IP {
 
         ptr<socket> session::connect(io::io_context &io, const endpoint &p) {
             ptr<socket> x {new socket (io)};
-            io_error error;
+            asio::error_code error;
             x->connect(io::ip::tcp::endpoint (p), error);
 
             if (error) throw exception {error};
@@ -93,12 +93,12 @@ namespace data::net::IP {
         ptr<session> open (
             io::io_context &context,
             endpoint e,
-            function<void (io_error)> error_handler,
+            asio::error_handler handler_err,
             receive_handler<session, string_view> receive) {
 
-            ptr<session> ss { new session {session::connect (context, e), error_handler}};
+            ptr<session> ss { new session {session::connect (context, e), handler_err}};
 
-            ss->wait_for_message (receive, error_handler);
+            ss->wait_for_message (receive, handler_err);
 
             return ss;
         }

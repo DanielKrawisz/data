@@ -10,12 +10,27 @@
 
 namespace data::net::asio {
     using namespace boost::asio;
-    using io_error = boost::system::error_code;
+    using error_code = boost::system::error_code;
 
-    using error_handler = function<void (io_error)>;
+    using error_handler = function<void (error_code)>;
+
+    using write_token = function<void (error_code, size_t)>;
+
+    template <typename ConstBufferSequence>
+    concept const_buffer_sequence = std::copy_constructible<ConstBufferSequence> && std::destructible<ConstBufferSequence> &&
+        requires (const ConstBufferSequence x) {
+            { buffer_sequence_begin(x) };
+            { buffer_sequence_end(x) };
+        };
+
+    template <typename AsyncWriteStream, typename ConstBufferSequence = const_buffer>
+    concept async_write_stream = const_buffer_sequence<ConstBufferSequence> && requires (AsyncWriteStream stream) {
+        { stream.get_executor () };
+    } && requires (AsyncWriteStream stream, ConstBufferSequence bf, write_token t) {
+        { stream.async_write_some (bf, t) };
+    };
 
 }
 
 #endif
-
 
