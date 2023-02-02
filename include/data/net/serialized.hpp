@@ -40,7 +40,7 @@ namespace data::net {
         function<std::basic_string<word> (const out &)> Generator,
         parser<word, out> Parser,
         handler<parse_error> ParseErrorHandler,
-        receive_handler<session<out>, in> Receiver) {
+        interaction<in, session<out>> Interaction) {
 
         // the high level out session. It does not know how to send messages yet.
         ptr<serialized_session<word, out>> high_level = std::make_shared<serialized_session<word, out>> (Generator);
@@ -51,12 +51,12 @@ namespace data::net {
         // Open the low-level connection.
         Open (
             // the receive handler.
-            [high_level, parser, Receiver]
+            [high_level, parser, Interaction]
             (ptr<session<const std::basic_string<word> &>> low_level) -> handler<std::basic_string_view<word>> {
                 // add the low level sesion to the high level session.
                 high_level->Session = low_level;
 
-                return [parse = parser (Receiver (std::static_pointer_cast<session<out>> (high_level)))]
+                return [parse = parser (Interaction (std::static_pointer_cast<session<out>> (high_level)))]
                 (std::basic_string_view<word> i) -> void {
                     parse->write (i.data (), i.size ());
                 };

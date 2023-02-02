@@ -10,7 +10,7 @@ namespace data::net::websocket {
         io::io_context &ioc,
         const URL &url,
         asio::error_handler error_handler,
-        receive_handler<session, string_view> receive_handler) {
+        interaction<string_view, session> i) {
 
         if (url.Protocol == protocol::WSS) throw exception {} << "secure websockets not yet implemented";
 

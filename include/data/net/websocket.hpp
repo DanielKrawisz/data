@@ -24,7 +24,7 @@ namespace data::net::websocket {
         io::io_context &,
         const URL &,
         asio::error_handler error_handler,
-        receive_handler<session, string_view>);
+        interaction<string_view, session>);
 
     namespace beast = boost::beast;             // from <boost/beast.hpp>
     namespace http = beast::http;               // from <boost/beast/http.hpp>
@@ -32,7 +32,7 @@ namespace data::net::websocket {
     using tcp = boost::asio::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
     using insecure_stream = beast::websocket::stream<tcp::socket>;
     
-    struct insecure : asio::async_stream_session<insecure, insecure_stream, char> {
+    struct insecure : public session, public asio::async_stream_session<insecure, insecure_stream, char> {
         using asio::async_stream_session<insecure, insecure_stream, char>::async_stream_session;
 
         void close () final override {

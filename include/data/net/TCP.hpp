@@ -12,7 +12,6 @@
 #include <data/io/unimplemented.hpp>
 
 namespace data::net::IP {
-    namespace io = boost::asio;
     
     struct exception : data::exception {
         exception (asio::error_code err) : data::exception {} {
@@ -28,14 +27,14 @@ namespace data::net::IP {
         
         address () : string {} {}
         address (const string &x) : string {x} {}
-        operator io::ip::address () const;
+        operator asio::ip::address () const;
         bool valid () const;
         uint32 version () const;
     };
 }
 
 namespace data::net::IP::TCP {
-    using socket = io::ip::tcp::socket;
+    using socket = asio::ip::tcp::socket;
     
     // A tcp endpoint is an ip address and port.
     struct endpoint : string {
@@ -52,7 +51,7 @@ namespace data::net::IP::TCP {
         endpoint (const string &x) : string{x} {}
         endpoint (const IP::address &addr, uint16);
         bool valid () const;
-        operator io::ip::tcp::endpoint () const;
+        operator asio::ip::tcp::endpoint () const;
         IP::address address () const;
         uint16 port () const;
     };
@@ -66,10 +65,10 @@ namespace data::net::IP::TCP {
 
     // open a TCP connection.
     void open (
-        io::io_context &,
+        asio::io_context &,
         endpoint,
         asio::error_handler error_handler,
-        receive_handler<session, string_view>);
+        interaction<string_view, session>);
 
     struct session final : public asio::async_stream_session<session, socket, char> {
         using asio::async_stream_session<session, socket, char>::async_stream_session;
@@ -86,23 +85,23 @@ namespace data::net::IP::TCP {
             close ();
         }
 
-        static ptr<socket> connect (io::io_context &, const endpoint &);
+        static ptr<socket> connect (asio::io_context &, const endpoint &);
     };
 
     class server {
-        io::io_context& IO;
-        io::ip::tcp::acceptor Acceptor;
+        asio::io_context& IO;
+        asio::ip::tcp::acceptor Acceptor;
         
         virtual ptr<session> new_session (ptr<socket>) = 0;
         
         void accept ();
         
     public:
-        server (boost::asio::io_context& io_context, uint16 port);
+        server (boost::asio::io_context &io_context, uint16 port);
     };
     
-    inline server::server (io::io_context& io_context, uint16 port):
-        IO (io_context), Acceptor (io_context, io::ip::tcp::endpoint (io::ip::tcp::v4 (), port)) {}
+    inline server::server (asio::io_context &io, uint16 port):
+        IO (io), Acceptor (io, asio::ip::tcp::endpoint (asio::ip::tcp::v4 (), port)) {}
     
 }
 
