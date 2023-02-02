@@ -12,7 +12,7 @@ namespace data::net::asio {
     template <async_write_stream async_stream, typename word>
     void async_wait_for_message (
         ptr<async_stream> stream,
-        function<void (std::basic_string_view<word>)> receive,
+        handler<std::basic_string_view<word>> receive,
         error_handler error,
         uint32 buffer_size = 65536) {
 
