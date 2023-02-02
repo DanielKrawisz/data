@@ -12,7 +12,11 @@ namespace data::net::asio {
     using namespace boost::asio;
     using error_code = boost::system::error_code;
 
-    using error_handler = function<void (error_code)>;
+    using error_handler = handler<error_code>;
+
+    // a function type that would open a new session.
+    template <typename session_out, typename message_in>
+    using open = function<void (error_handler, receive_handler<session_out, message_in>)>;
 
     using write_token = function<void (error_code, size_t)>;
 
