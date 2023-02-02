@@ -11,12 +11,6 @@ namespace data::net {
     // REST is for converting typical REST API formats into a regular HTTP request.
     struct REST {
         
-        protocol Protocol; // http or https
-
-        port Port;
-
-        string Host;
-        
         // a typical GET request
         HTTP::request GET (string path, list<entry<string, string>> params = {}) const;
         
@@ -37,6 +31,15 @@ namespace data::net {
         };
         
         HTTP::request operator () (const request &r) const;
+
+        protocol Protocol; // http or https
+
+        port Port;
+
+        string Host;
+
+        REST (protocol, port, string);
+        REST (protocol, string);
         
     };
     
@@ -54,6 +57,8 @@ namespace data::net {
     HTTP::request inline REST::operator () (const request &r) const {
         return HTTP::request {r.Method, URL {Protocol, Port, Host, r.Path, r.Params}, r.Headers, r.Body};
     }
+
+    inline REST::REST (protocol pro, port p, string host): Protocol {pro}, Port {p}, Host {host} {}
 }
 
 #endif
