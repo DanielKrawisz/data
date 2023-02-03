@@ -15,8 +15,8 @@ namespace data::net::asio {
     using error_handler = handler<error_code>;
 
     // a function type that would open a new session.
-    template <typename message_in, typename session_out = session<message_in>>
-    using open = function<void (error_handler, interaction<message_in, session_out>)>;
+    template <typename in, typename out>
+    using open = function<void (error_handler, interaction<in, out>)>;
 
     using write_token = function<void (error_code, size_t)>;
 

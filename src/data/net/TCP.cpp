@@ -94,7 +94,7 @@ namespace data::net::IP {
             asio::io_context &context,
             endpoint e,
             asio::error_handler handler_err,
-            interaction<string_view, session> receive,
+            interaction<in<string_view>, session> receive,
             handler<ptr<session>> on_open) {
 
             ptr<session> ss { new session {session::connect (context, e), handler_err}};
