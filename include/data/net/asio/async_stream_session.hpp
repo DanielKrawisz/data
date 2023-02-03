@@ -12,7 +12,7 @@
 namespace data::net::asio {
 
     template <typename derived_session, async_write_stream async_stream, typename word>
-    struct async_stream_session : session<const std::basic_string<word> &>, std::enable_shared_from_this<derived_session> {
+    struct async_stream_session : out<const std::basic_string<word> &>, std::enable_shared_from_this<derived_session> {
 
         async_message_queue<async_stream, word> Queue;
 
@@ -23,9 +23,13 @@ namespace data::net::asio {
         async_stream_session (ptr<async_stream> x, error_handler errors) : Queue {x, errors} {}
 
         void wait_for_message (
-            interaction<std::basic_string_view<word>, derived_session> handler,
+            interaction<in<std::basic_string_view<word>>, derived_session> handler,
             error_handler errors) {
-            async_wait_for_message<async_stream, word> (Queue.Stream, handler (this->shared_from_this ()), errors);
+            async_wait_for_message<async_stream, word> (Queue.Stream,
+                [in = handler (this->shared_from_this ())]
+                (std::basic_string_view<word> x) -> void {
+                    in->receive (x);
+                }, errors);
         }
 
     };

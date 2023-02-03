@@ -9,14 +9,16 @@
 
 namespace data::io {
 
-    struct process;
-
-    struct read_handlers {
-        handler<string_view> Out;
-        handler<string_view> Err;
+    struct in {
+        virtual ~in () {}
+        virtual void read_out (string_view) = 0;
+        virtual void read_err (string_view) = 0;
+        virtual void close (int return_code) = 0;
     };
 
-    using interaction = function<read_handlers (ptr<process>)>;
+    struct process;
+
+    using interaction = net::interaction<in, process>;
 
     using error_code = net::asio::error_code;
     using error_handler = net::asio::error_handler;
@@ -25,22 +27,21 @@ namespace data::io {
 
     using pipe = boost::process::async_pipe;
 
-    struct process {
+    struct process : net::out<const string &> {
 
         boost::process::child Child;
 
         net::asio::async_message_queue<pipe, char> Queue;
 
-        void send (const string &x) {
+        void send (const string &x) final override {
             Queue.write(x);
         }
 
-        int close () {
-            Child.terminate ();
-            return Child.exit_code ();
+        void close () final override {
+            method::unimplemented {"process::close"};
         }
 
-        bool closed () {
+        bool closed () final override {
             return !Child.running ();
         }
 

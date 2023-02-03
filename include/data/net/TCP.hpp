@@ -68,7 +68,7 @@ namespace data::net::IP::TCP {
         asio::io_context &,
         endpoint,
         asio::error_handler error_handler,
-        interaction<string_view, session>);
+        interaction<in<string_view>, session>);
 
     struct session final : public asio::async_stream_session<session, socket, char> {
         using asio::async_stream_session<session, socket, char>::async_stream_session;
