@@ -4,7 +4,7 @@
 
 namespace data {
 
-    ptr<writer<char>> JSON_line_parser (handler<const JSON &> handle, handler<parse_error> errors) {
+    ptr<writer<char>> JSON_line_parser (handler<parse_error> errors, handler<const JSON &> handle) {
         struct parser : writer<char> {
             handler<const JSON &> Handler;
             handler<parse_error> ErrorHandler;

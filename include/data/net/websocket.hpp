@@ -17,14 +17,12 @@ namespace data::net::websocket {
 
     namespace io = boost::asio;
 
-    using session = net::session<string_view>;
-
     // open a websocket connection.
     void open (
         io::io_context &,
         const URL &,
         asio::error_handler error_handler,
-        interaction<string_view, session>);
+        interaction<in<string_view>, out<const string &>>);
 
     namespace beast = boost::beast;             // from <boost/beast.hpp>
     namespace http = beast::http;               // from <boost/beast/http.hpp>

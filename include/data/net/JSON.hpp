@@ -10,18 +10,18 @@
 namespace data {
     using JSON = nlohmann::json;
 
-    ptr<writer<char>> JSON_line_parser (handler<const JSON &>, handler<parse_error>);
+    ptr<writer<char>> JSON_line_parser (handler<parse_error>, handler<const JSON &>);
 }
 
 namespace data::net {
 
     void open_JSON_line_session (
         handler<parse_error> error_handler,
-        open<session<const string &>, string_view> open,
-        interaction<const JSON &> receiver) {
-            open_serialized_session<char, const JSON &> (open, [] (const JSON &j) -> string {
+        open<in<string_view>, out<const string &>> open,
+        interaction<in<const JSON &>, out<const JSON &>> receiver) {
+            open_serialized_session<char, const JSON &, const JSON &> (open, [] (const JSON &j) -> string {
                 return j.dump () + "\n";
-            }, &JSON_line_parser, error_handler, receiver);
+            }, parser<char, const JSON &>(JSON_line_parser), error_handler, receiver);
     }
     
 }

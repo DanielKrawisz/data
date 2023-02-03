@@ -12,7 +12,7 @@ namespace data {
     using parse_error = exception;
 
     template <typename word, typename out>
-    using parser = function<ptr<writer<word>> (handler<const out &>, handler<parse_error>)>;
+    using parser = function<ptr<writer<word>> (handler<parse_error>, handler<out>)>;
 
 }
 
