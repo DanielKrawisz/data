@@ -19,10 +19,15 @@ namespace data::io {
 
         ptr<process> p {new process {std::move (child), net::asio::async_message_queue<pipe, char> {in, err_handler}}};
 
-        auto handlers = i (p);
+        auto handle = i (p);
 
-        net::asio::async_wait_for_message<pipe, char> (out, handlers.Out, err_handler);
-        net::asio::async_wait_for_message<pipe, char> (err, handlers.Err, err_handler);
+        net::asio::async_wait_for_message<pipe, char> (out, [handle] (string_view x) -> void {
+            handle->read_out (x);
+        }, err_handler);
+
+        net::asio::async_wait_for_message<pipe, char> (err, [handle] (string_view x) -> void {
+            handle->read_err (x);
+        }, err_handler);
 
     }
 

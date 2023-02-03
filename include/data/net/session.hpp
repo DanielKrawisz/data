@@ -13,10 +13,19 @@ namespace data::net {
     // works exactly the same way, so
     // you are not required to use this.
     template <typename message_out>
-    struct session {
-        virtual ~session () {}
+    struct out {
+        virtual ~out () {}
         virtual void send (message_out) = 0;
         virtual bool closed () = 0;
+        virtual void close () = 0;
+    };
+
+    // type encompassing events that can occur during a session.
+    // the implementation of these functions tell how to react to them.
+    template <typename message_in>
+    struct in {
+        virtual ~in () {}
+        virtual void receive (message_in) = 0;
         virtual void close () = 0;
     };
 
@@ -24,12 +33,12 @@ namespace data::net {
     // it takes a session type called session_out (which could be the type above)
     // and returns a function that takes the message type that will be received
     // by the remote peer. This method will be called when a message is received.
-    template <typename message_in, typename session_out = session<message_in>>
-    using interaction = function<handler<message_in> (ptr<session_out>)>;
+    template <typename in, typename out>
+    using interaction = function<ptr<in> (ptr<out>)>;
 
     // a function type that would open a new session.
-    template <typename message_in, typename session_out = session<message_in>>
-    using open = handler<interaction<session_out, message_in>>;
+    template <typename in, typename out>
+    using open = handler<interaction<in, out>>;
 
     
 }
