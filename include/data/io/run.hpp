@@ -10,6 +10,11 @@
 
 namespace data::io {
 
+    using error_code = net::asio::error_code;
+    using error_handler = net::asio::error_handler;
+
+    class process;
+
     struct in {
         virtual ~in () {}
         virtual void read_out (string_view) = 0;
@@ -17,45 +22,19 @@ namespace data::io {
         virtual void close (int return_code) = 0;
     };
 
-    struct process;
-
     using interaction = net::interaction<in, process>;
 
-    using error_code = net::asio::error_code;
-    using error_handler = net::asio::error_handler;
-
+    // run an external commannd.
     void run (boost::asio::io_context &, string command, error_handler, interaction);
 
-    using pipe = boost::process::async_pipe;
+    class process : public net::async::message_queue<const string &, error_code> {
+        ptr<boost::process::child> Child;
+        process (ptr<boost::process::child> cx, ptr<net::async::write_stream<const string &, error_code>> stream, error_handler errors):
+            net::async::message_queue<const string &, error_code> {stream, errors}, Child {cx} {}
 
-    struct process : net::out<const string &> {
-
-        boost::process::child Child;
-
-        net::asio::async_message_queue<pipe, char> Queue;
-
-        void send (const string &x) final override {
-            Queue.write(x);
-        }
-
-        void close () final override {
-            method::unimplemented {"process::close"};
-        }
-
-        bool closed () final override {
-            return !Child.running ();
-        }
-
-        ~process () {
-            close ();
-        }
-
-    private:
-        process (boost::process::child &&child, net::async::message_queue<const string &, char> q) : Child {std::move (child)}, Queue {q} {}
-
-        friend void run (boost::asio::io_context &, string command, error_handler err_handler, interaction i);
+        friend void run (boost::asio::io_context &, string command, error_handler, interaction);
     };
-    
+
 }
 
 #endif
