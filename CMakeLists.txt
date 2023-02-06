@@ -60,7 +60,7 @@ add_library (
   src/data/net/JSON.cpp
   src/data/net/TCP.cpp
   #src/data/net/websocket.cpp
-  #src/data/io/run.cpp
+  src/data/io/run.cpp
   src/data/tools/channel.cpp
   src/data/crypto/secret_share.cpp
   src/data/math/number/gmp/mpq.cpp

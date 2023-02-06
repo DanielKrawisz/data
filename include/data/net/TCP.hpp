@@ -7,7 +7,7 @@
 
 #include <data/net/session.hpp>
 #include <data/net/async/message_queue.hpp>
-#include <data/net/asio/tcp_socket.hpp>
+#include <data/net/asio/socket.hpp>
 #include <ctre.hpp>
 #include <data/io/unimplemented.hpp>
 
@@ -60,7 +60,7 @@ namespace data::net::IP::TCP {
     // open a TCP connection.
     void open (asio::io_context &, endpoint, asio::error_handler on_error, interaction<in<string_view>, session>);
 
-    using socket = asio::tcp_socket;
+    using socket = asio::socket<asio::ip::tcp::socket>;
 
     class server {
         asio::io_context& IO;

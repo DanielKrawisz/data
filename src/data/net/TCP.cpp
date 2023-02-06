@@ -87,7 +87,7 @@ namespace data::net::IP {
             x->connect (asio::ip::tcp::endpoint (p), error);
 
             if (error) throw exception {error};
-            return ptr<socket> {new asio::tcp_socket {x}};
+            return ptr<socket> {new socket {x}};
         }
         
         void open (
