@@ -6,8 +6,8 @@
 #define DATA_NET_TCP
 
 #include <data/net/session.hpp>
-#include <data/net/asio/async_stream_session.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <data/net/async/message_queue.hpp>
+#include <data/net/asio/tcp_socket.hpp>
 #include <ctre.hpp>
 #include <data/io/unimplemented.hpp>
 
@@ -34,7 +34,6 @@ namespace data::net::IP {
 }
 
 namespace data::net::IP::TCP {
-    using socket = asio::ip::tcp::socket;
     
     // A tcp endpoint is an ip address and port.
     struct endpoint : string {
@@ -55,38 +54,13 @@ namespace data::net::IP::TCP {
         IP::address address () const;
         uint16 port () const;
     };
-    
-    // https://dens.website/tutorials/cpp-asio
-    
-    // we need to use enable_shared_from_this because of the possibility that 
-    // tcp_stream will go out of scope and be deleted before one of the 
-    // handlers is called from async_read_until or async_write. 
-    struct session;
+
+    using session = async::message_queue<const string &, asio::error_code>;
 
     // open a TCP connection.
-    void open (
-        asio::io_context &,
-        endpoint,
-        asio::error_handler error_handler,
-        interaction<in<string_view>, session>);
+    void open (asio::io_context &, endpoint, asio::error_handler on_error, interaction<in<string_view>, session>);
 
-    struct session final : public asio::async_stream_session<session, socket, char> {
-        using asio::async_stream_session<session, socket, char>::async_stream_session;
-
-        void close () final override {
-            throw method::unimplemented {"TCP::session::close"};
-        }
-
-        bool closed () final override {
-            throw method::unimplemented {"TCP::session::closed"};
-        }
-        
-        ~session () {
-            close ();
-        }
-
-        static ptr<socket> connect (asio::io_context &, const endpoint &);
-    };
+    using socket = asio::tcp_socket;
 
     class server {
         asio::io_context& IO;

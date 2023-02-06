@@ -24,8 +24,9 @@ namespace data::net {
     // the implementation of these functions tell how to react to them.
     template <typename message_in>
     struct in {
-        virtual ~in () {}
+        // how to respond when a message is received.
         virtual void receive (message_in) = 0;
+        // how to respond when the session is closed.
         virtual void close () = 0;
     };
 
