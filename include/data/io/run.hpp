@@ -4,7 +4,8 @@
 #ifndef DATA_IO_RUN
 #define DATA_IO_RUN
 
-#include <data/net/asio/async_message_queue.hpp>
+#include <data/net/asio/session.hpp>
+#include <data/net/async/message_queue.hpp>
 #include <boost/process.hpp>
 
 namespace data::io {
@@ -50,7 +51,7 @@ namespace data::io {
         }
 
     private:
-        process (boost::process::child &&child, net::asio::async_message_queue<pipe, char> q) : Child {std::move (child)}, Queue {q} {}
+        process (boost::process::child &&child, net::async::message_queue<const string &, char> q) : Child {std::move (child)}, Queue {q} {}
 
         friend void run (boost::asio::io_context &, string command, error_handler err_handler, interaction i);
     };
