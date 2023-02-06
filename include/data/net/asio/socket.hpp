@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NET_ASIO_TCP_SOCKET
-#define DATA_NET_ASIO_TCP_SOCKET
+#ifndef DATA_NET_ASIO_SOCKET
+#define DATA_NET_ASIO_SOCKET
 
 #include <data/net/asio/session.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -12,12 +12,13 @@
 
 namespace data::net::asio {
 
-    struct tcp_socket final : async::write_stream<const string &, error_code>, async::read_stream<string_view, error_code> {
+    template <async_write_stream stream>
+    struct socket final : async::write_stream<const string &, error_code>, async::read_stream<string_view, error_code> {
 
-        ptr<asio::ip::tcp::socket> Socket;
+        ptr<stream> Socket;
         ptr<string> Buffer;
 
-        tcp_socket (ptr<asio::ip::tcp::socket> socket) : Socket {socket}, Buffer {new string ()} {
+        socket (ptr<stream> socket) : Socket {socket}, Buffer {new string ()} {
             Buffer->resize (65025);
         }
 
