@@ -3,15 +3,31 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/net/websocket.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 namespace data::net::websocket {
 
-    ptr<session> open (
-        io::io_context &ioc,
+    namespace beast = boost::beast;             // from <boost/beast.hpp>
+    namespace http = beast::http;               // from <boost/beast/http.hpp>
+    namespace io = boost::asio;                 // from <boost/asio.hpp>
+    using tcp = boost::asio::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
+    using insecure_stream = beast::websocket::stream<tcp::socket>;
+
+    // TODO implement async::read_stream and async::write_stream for websocket sessions.
+    // it should work just like in net/asio/socket.hpp
+
+
+    void open (
+        asio::io_context &ioc,
         const URL &url,
         asio::error_handler error_handler,
-        interaction<is<string_view>, out<const string &>> i) {
+        interaction<string_view, const string &> interact,
+        close_handler closed) {
 
+        // TODO fill this in correctly
         if (url.Protocol == protocol::WSS) throw exception {} << "secure websockets not yet implemented";
 
         if (url.Protocol != protocol::WS) throw exception {} << "protocol " << url.Protocol << " is not websockets";

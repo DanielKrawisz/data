@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/net/TCP.hpp>
+#include <data/net/async/message_queue.hpp>
 
 namespace data::net::IP {
     
