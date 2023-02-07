@@ -6,7 +6,6 @@
 #define DATA_NET_TCP
 
 #include <data/net/session.hpp>
-#include <data/net/async/message_queue.hpp>
 #include <data/net/asio/socket.hpp>
 #include <ctre.hpp>
 #include <data/io/unimplemented.hpp>
