@@ -42,7 +42,12 @@ namespace data::net::asio {
         }
 
         bool closed () final override {
-            return !Socket->is_open ();
+            bool closed = !Socket->is_open ();
+            if (closed && !Closed) {
+                Closed = true;
+                OnClose ();
+            }
+            return closed;
         }
 
         void read (function<void (string_view, error_code)> handle) final override {
