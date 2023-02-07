@@ -17,7 +17,7 @@ namespace data::net::async {
     };
 
     template <typename message, typename error>
-    class message_queue : public out<message>, protected std::enable_shared_from_this<message_queue<message, error>> {
+    class message_queue : public session<message>, protected std::enable_shared_from_this<message_queue<message, error>> {
 
         ptr<write_stream<message, error>> Stream;
         handler<error> OnError;
