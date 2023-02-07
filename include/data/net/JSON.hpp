@@ -17,11 +17,22 @@ namespace data::net {
 
     void open_JSON_line_session (
         handler<parse_error> error_handler,
-        open<in<string_view>, out<const string &>> o,
-        interaction<in<const JSON &>, out<const JSON &>> receiver) {
-            open_serialized_session<char, const JSON &, const JSON &> (o, [] (const JSON &j) -> string {
+        open<string_view, const string &> o,
+        interaction<const JSON &> receiver,
+        close_handler on_close) {
+            serialized_session<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
                 return j.dump () + "\n";
-            }, parser<char, const JSON &> (JSON_line_parser), error_handler, receiver);
+            }, curry (parser<char, const JSON &> (JSON_line_parser), error_handler)) (on_close, receiver);
+    }
+
+    void open_JSON_session (
+        handler<parse_error> error_handler,
+        open<string_view, const string &> o,
+        interaction<const JSON &> receiver,
+        close_handler on_close) {
+            serialized_session<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
+                return j.dump ();
+            }, curry (parser<char, const JSON &> (JSON_line_parser), error_handler)) (on_close, receiver);
     }
     
 }

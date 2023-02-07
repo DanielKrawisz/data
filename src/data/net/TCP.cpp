@@ -81,31 +81,32 @@ namespace data::net::IP {
             return port < 65536;
         }
 
-        ptr<socket> connect (asio::io_context &io, const endpoint &p) {
+        ptr<socket> connect (asio::io_context &io, const endpoint &p, close_handler on_close) {
             ptr<asio::ip::tcp::socket> x {new asio::ip::tcp::socket (io)};
             asio::error_code error;
             x->connect (asio::ip::tcp::endpoint (p), error);
 
             if (error) throw exception {error};
-            return ptr<socket> {new socket {x}};
+            return ptr<socket> {new socket {x, on_close}};
         }
         
         void open (
             asio::io_context &context,
             endpoint end,
             asio::error_handler on_error,
-            interaction<in<string_view>, session> interact) {
+            interaction<string_view, const string &> interact,
+            close_handler on_close) {
 
-            ptr<socket> ss = connect (context, end);
+            ptr<socket> ss = connect (context, end, on_close);
 
-            ptr<session> zz {new session {
-                std::static_pointer_cast<async::write_stream<const string &, asio::error_code>> (ss), on_error}};
+            ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                (new async::message_queue<const string &, asio::error_code> {
+                    std::static_pointer_cast<async::write_stream<const string &, asio::error_code>> (ss), on_error})};
 
-            auto xx = interact (zz);
-
-            async::wait_for_message<string_view, asio::error_code> (std::static_pointer_cast<async::read_stream<string_view, asio::error_code>> (ss),
-                [xx] (string_view z) -> void {
-                    return xx->receive (z);
+            async::wait_for_message<string_view, asio::error_code>
+            (std::static_pointer_cast<async::read_stream<string_view, asio::error_code>> (ss),
+                [xx = interact (zz)] (string_view z) -> void {
+                    return xx (z);
                 }, on_error);
         }
     }

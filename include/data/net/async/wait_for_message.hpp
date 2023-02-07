@@ -12,6 +12,7 @@ namespace data::net::async {
     template <typename message, typename error>
     struct read_stream {
         virtual void read (function<void (message, error)>) = 0;
+        virtual bool closed () = 0;
     };
 
     template <typename message, typename error>
@@ -32,7 +33,8 @@ namespace data::net::async {
                         if (err) return errors (err);
 
                         receive (m);
-                        return wait {} (stream, receive, errors);
+
+                        if (!stream->closed ()) wait {} (stream, receive, errors);
 
                     });
             }

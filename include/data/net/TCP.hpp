@@ -55,10 +55,8 @@ namespace data::net::IP::TCP {
         uint16 port () const;
     };
 
-    using session = async::message_queue<const string &, asio::error_code>;
-
     // open a TCP connection.
-    void open (asio::io_context &, endpoint, asio::error_handler on_error, interaction<in<string_view>, session>);
+    void open (asio::io_context &, endpoint, asio::error_handler, interaction<string_view, const string &>, close_handler);
 
     using socket = asio::socket<asio::ip::tcp::socket>;
 
@@ -66,7 +64,7 @@ namespace data::net::IP::TCP {
         asio::io_context& IO;
         asio::ip::tcp::acceptor Acceptor;
         
-        virtual ptr<session> new_session (ptr<socket>) = 0;
+        virtual ptr<session<const string &>> new_session (ptr<socket>) = 0;
         
         void accept ();
         

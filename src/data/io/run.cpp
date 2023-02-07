@@ -14,7 +14,7 @@ namespace data::io {
     using socket = net::asio::socket<bp::async_pipe>;
 
     // run an external command with standard in and standard out connected.
-    void run (boost::asio::io_context &io, string command, error_handler err_handler, interaction i) {
+    void run (boost::asio::io_context &io, string command, error_handler err_handler, interaction i, close_handler close) {
 
         ptr<bp::async_pipe> in {new pipe {io}};
         ptr<bp::async_pipe> out {new pipe {io}};
@@ -22,9 +22,14 @@ namespace data::io {
 
         ptr<bp::child> child { new bp::child (command, bp::std_out > *out, bp::std_err > *err, bp::std_in < *in) };
 
-        ptr<socket> In { new socket {in}};
-        ptr<socket> Out { new socket {out}};
-        ptr<socket> Err { new socket {err}};
+        auto do_close = [child, close] () -> void {
+            child->wait();
+            close (child->exit_code ());
+        };
+
+        ptr<socket> In { new socket {in, do_close}};
+        ptr<socket> Out { new socket {out, do_close}};
+        ptr<socket> Err { new socket {err, do_close}};
 
         ptr<process> p {new process {std::move (child), In, err_handler}};
 
