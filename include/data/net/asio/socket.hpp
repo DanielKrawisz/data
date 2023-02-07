@@ -16,9 +16,14 @@ namespace data::net::asio {
     struct socket final : async::write_stream<const string &, error_code>, async::read_stream<string_view, error_code> {
 
         ptr<stream> Socket;
+
+        close_handler OnClose;
+
         ptr<string> Buffer;
 
-        socket (ptr<stream> socket) : Socket {socket}, Buffer {new string ()} {
+        bool Closed;
+
+        socket (ptr<stream> socket, close_handler on_close) : Socket {socket}, OnClose {on_close}, Buffer {new string ()}, Closed {false} {
             Buffer->resize (65025);
         }
 
@@ -30,7 +35,14 @@ namespace data::net::asio {
         }
 
         void close () final override {
+            if (Closed) return;
+            Closed = true;
             Socket->close ();
+            OnClose ();
+        }
+
+        bool closed () final override {
+            return !Socket->is_open ();
         }
 
         void read (function<void (string_view, error_code)> handle) final override {
