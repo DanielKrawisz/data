@@ -28,7 +28,7 @@ namespace data::net::asio {
         }
 
         void write (const string &x, handler<error_code> errors) final override {
-            boost::asio::async_write (*Socket, boost::asio::buffer (x.data (), x.size ()),
+            async_write (*Socket, buffer (x.data (), x.size ()),
                 [errors] (const error_code& error, size_t bytes_transferred) -> void {
                     if (error) errors (error);
                 });

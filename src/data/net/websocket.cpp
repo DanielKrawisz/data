@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/net/websocket.hpp>
+#include <data/net/async/message_queue.hpp>
+#include <data/net/async/wait_for_message.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
@@ -15,13 +17,61 @@ namespace data::net::websocket {
     namespace io = boost::asio;                 // from <boost/asio.hpp>
     using tcp = boost::asio::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
     using insecure_stream = beast::websocket::stream<tcp::socket>;
+    using secure_stream = beast::websocket::stream<beast::ssl_stream<beast::tcp_stream>>;
 
-    // TODO implement async::read_stream and async::write_stream for websocket sessions.
-    // it should work just like in net/asio/socket.hpp
+    template <typename stream>
+    struct socket final : async::write_stream<const string &, asio::error_code>, async::read_stream<string_view, asio::error_code> {
 
+        ptr<stream> Socket;
+
+        close_handler OnClose;
+
+        ptr<string> Buffer;
+
+        bool Closed;
+
+        socket (ptr<stream> socket, close_handler on_close) : Socket {socket}, OnClose {on_close}, Buffer {new string ()}, Closed {false} {
+            Buffer->resize (65025);
+        }
+
+        void write (const string &x, handler<asio::error_code> errors) final override {
+            Socket->async_write (asio::buffer (x.data (), x.size ()),
+                [errors] (const asio::error_code& error, size_t bytes_transferred) -> void {
+                    if (error) errors (error);
+                });
+        }
+
+        void close () final override {
+            if (Closed) return;
+            Closed = true;
+            // TODO put the right funnction in here
+            //Socket->close ();
+            OnClose ();
+        }
+
+        bool closed () final override {
+            bool closed = !Socket->is_open ();
+            if (closed && !Closed) {
+                Closed = true;
+                OnClose ();
+            }
+            return closed;
+        }
+
+        void read (function<void (string_view, asio::error_code)> handle) final override {
+            auto buff = Buffer;
+            // TODO using the wrong buffer type here.
+            /*
+            Socket->async_read (asio::buffer (buff->data(), buff->size ()),
+                [buff, handle] (const asio::error_code& err, size_t bytes_transferred) -> void {
+                    handle (std::basic_string_view {buff->data (), bytes_transferred}, err);
+                });
+                */
+        }
+    };
 
     void open (
-        asio::io_context &ioc,
+        HTTP::caller &caller,
         const URL &url,
         asio::error_handler error_handler,
         interaction<string_view, const string &> interact,
@@ -33,11 +83,10 @@ namespace data::net::websocket {
         if (url.Protocol != protocol::WS) throw exception {} << "protocol " << url.Protocol << " is not websockets";
 
         // These objects perform our I/O
-        tcp::resolver resolver {ioc};
-        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (ioc);
+        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
 
         // Look up the domain name
-        auto const results = resolver.resolve (url.Host, url.Port);
+        auto const results = caller.Resolver.resolve (url.Host, url.Port);
 
         // Make the connection on the IP address we get from a lookup
         auto ep = io::connect (ws->next_layer (), results);
@@ -58,6 +107,7 @@ namespace data::net::websocket {
         // Perform the websocket handshake
         ws->handshake (host, "/");
 
+        ptr<socket<insecure_stream>> z {new socket<insecure_stream> {ws, closed}};
 
     }
 
