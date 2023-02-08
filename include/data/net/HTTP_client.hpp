@@ -11,13 +11,13 @@
 
 namespace data::net::HTTP {
     struct client {
-        remote_server &Http;
+        caller &Http;
         
         REST Rest;
         
         tools::rate_limiter Rate;
         
-        client (remote_server &http, const REST &rest, tools::rate_limiter rate = {});
+        client (caller &http, const REST &rest, tools::rate_limiter rate = {});
         
         response operator () (const request &r);
         
@@ -30,7 +30,7 @@ namespace data::net::HTTP {
         
     };
         
-    inline client::client (remote_server &http, const REST &rest, tools::rate_limiter rate) :
+    inline client::client (caller &http, const REST &rest, tools::rate_limiter rate) :
         Http {http}, Rest {rest}, Rate {rate} {}
     
     response inline client::operator () (const request &r) {
