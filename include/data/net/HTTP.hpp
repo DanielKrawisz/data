@@ -64,16 +64,16 @@ namespace data::net::HTTP {
         }
     };
     
-    struct remote_server {
-        
+    struct caller {
+
         // throws an exception under conditions in which no response is received.
         response operator () (const request &, int redirects = 10);
         
         // this is for when the HTTP object is your only connection to the outside world.
-        remote_server ();
+        caller ();
 
         // this is for when you might be connected in other ways so that you have to sync different interactions.
-        remote_server (ptr<boost::asio::io_context>, ptr<boost::asio::ssl::context>);
+        caller (ptr<boost::asio::io_context>, ptr<boost::asio::ssl::context>);
 
         ptr<boost::asio::io_context> IOContext;
         ptr<boost::asio::ssl::context> SSLContext;

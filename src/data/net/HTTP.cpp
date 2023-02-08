@@ -61,18 +61,18 @@ namespace data::net::HTTP {
         
     }
 
-    remote_server::remote_server () : remote_server (
+    caller::caller () : caller (
         std::make_shared<boost::asio::io_context> (),
         std::make_shared<boost::asio::ssl::context> (boost::asio::ssl::context::tlsv12_client)) {}
 
-    remote_server::remote_server (ptr<boost::asio::io_context> ioc, ptr<boost::asio::ssl::context> ssl) :
+    caller::caller (ptr<boost::asio::io_context> ioc, ptr<boost::asio::ssl::context> ssl) :
         IOContext {ioc}, SSLContext {ssl},
         Resolver (*IOContext) {
             SSLContext->set_default_verify_paths ();
             SSLContext->set_verify_mode (boost::asio::ssl::verify_peer);
         }
     
-    response remote_server::operator () (const request &req, int redirects) {
+    response caller::operator () (const request &req, int redirects) {
         
         if(redirects <= 0) throw data::exception {"too many redirects"};
         

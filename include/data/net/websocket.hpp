@@ -6,13 +6,14 @@
 #define DATA_NET_WEBSOCKET
 
 #include <data/net/URL.hpp>
+#include <data/net/HTTP.hpp>
 #include <data/net/asio/session.hpp>
 
 namespace data::net::websocket {
 
     // open a websocket connection.
     void open (
-        asio::io_context &,
+        HTTP::caller &,
         const URL &,
         asio::error_handler error_handler,
         interaction<string_view, const string &>,
