@@ -91,7 +91,7 @@ namespace data::net::websocket {
         auto const results = caller.Resolver.resolve (url.Host, url.Port);
 
         // Make the connection on the IP address we get from a lookup
-        auto ep = io::connect (ws->next_layer(), results);
+        auto ep = io::connect (ws->next_layer (), results);
 
         // Update the host_ string. This will provide the value of the
         // Host HTTP header during the WebSocket handshake.
