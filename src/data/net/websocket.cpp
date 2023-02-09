@@ -78,36 +78,38 @@ namespace data::net::websocket {
         close_handler closed) {
 
         // TODO fill this in correctly
-        if (url.Protocol == protocol::WSS) throw exception {} << "secure websockets not yet implemented";
 
-        if (url.Protocol != protocol::WS) throw exception {} << "protocol " << url.Protocol << " is not websockets";
+        if (url.Protocol != protocol::WS && url.Protocol != protocol::WSS)
+            throw exception{} << "protocol " << url.Protocol << " is not websockets";
+        if (!caller.SSLContext && url.Protocol == protocol::WSS)
+            throw exception{} << "Secure websocket requested when SSL Context not supplied";
 
         // These objects perform our I/O
-        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
+        ptr<insecure_stream> ws = std::make_shared<insecure_stream>(*caller.IOContext);
 
         // Look up the domain name
-        auto const results = caller.Resolver.resolve (url.Host, url.Port);
+        auto const results = caller.Resolver.resolve(url.Host, url.Port);
 
         // Make the connection on the IP address we get from a lookup
-        auto ep = io::connect (ws->next_layer (), results);
+        auto ep = io::connect(ws->next_layer(), results);
 
         // Update the host_ string. This will provide the value of the
         // Host HTTP header during the WebSocket handshake.
         // See https://tools.ietf.org/html/rfc7230#section-5.4
-        string host = url.Host + ':' + std::to_string (ep.port ());
+        string host = url.Host + ':' + std::to_string(ep.port());
 
         // Set a decorator to change the User-Agent of the handshake
-        ws->set_option (beast::websocket::stream_base::decorator (
-            [] (beast::websocket::request_type& req) {
-                req.set (http::field::user_agent,
-                    std::string (BOOST_BEAST_VERSION_STRING) +
-                        " websocket-client-coro");
-            }));
+        ws->set_option(beast::websocket::stream_base::decorator(
+                [](beast::websocket::request_type &req) {
+                    req.set(http::field::user_agent,
+                            std::string(BOOST_BEAST_VERSION_STRING) +
+                            " websocket-client-coro");
+                }));
 
         // Perform the websocket handshake
-        ws->handshake (host, "/");
+        ws->handshake(host, "/");
 
-        ptr<socket<insecure_stream>> z {new socket<insecure_stream> {ws, closed}};
+        ptr<socket<insecure_stream>> z{new socket<insecure_stream>{ws, closed}};
 
     }
 
