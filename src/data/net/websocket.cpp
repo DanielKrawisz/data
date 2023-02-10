@@ -92,13 +92,14 @@ namespace data::net::websocket {
         if (url.Protocol != protocol::WS && url.Protocol != protocol::WSS)
             throw exception {} << "protocol " << url.Protocol << " is not websockets";
         if (!caller.SSLContext && url.Protocol == protocol::WSS)
-            throw exception {} << "Secure websocket requested when SSL Context not supplied";
+            throw exception{} << "Secure websocket requested when SSL Context not supplied";
 
         // These objects perform our I/O
         ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
 
-        // Look up the domain name
-        auto const results = caller.Resolver.resolve (url.Host, url.Port);
+        try {
+            // Look up the domain name
+            auto const results = caller.Resolver.resolve (url.Host, url.Port);
 
         // Make the connection on the IP address we get from a lookup
         auto ep = io::connect (ws->next_layer (), results);
