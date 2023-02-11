@@ -84,13 +84,13 @@ namespace data::net::IP {
 
         using socket = asio::socket<asio::ip::tcp::socket>;
 
-        ptr<socket> connect (asio::io_context &io, const endpoint &p, close_handler on_close) {
+        ptr<socket> connect (asio::io_context &io, const endpoint &p, asio::error_handler on_error, close_handler on_close) {
             ptr<asio::ip::tcp::socket> x {new asio::ip::tcp::socket (io)};
             asio::error_code error;
             x->connect (asio::ip::tcp::endpoint (p), error);
 
             if (error) throw exception {error};
-            return ptr<socket> {new socket {x, on_close}};
+            return ptr<socket> {new socket {x, on_error, on_close}};
         }
         
         void open (
@@ -100,17 +100,16 @@ namespace data::net::IP {
             interaction<string_view, const string &> interact,
             close_handler on_close) {
 
-            ptr<socket> ss = connect (context, end, on_close);
+            ptr<socket> ss = connect (context, end, on_error, on_close);
 
             ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                (new async::message_queue<const string &, asio::error_code> {
-                    std::static_pointer_cast<async::write_stream<const string &, asio::error_code>> (ss), on_error})};
+                (new async::message_queue<const string &> {
+                    std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
 
-            async::wait_for_message<string_view, asio::error_code>
-            (std::static_pointer_cast<async::read_stream<string_view, asio::error_code>> (ss),
+            async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
                 [xx = interact (zz)] (string_view z) -> void {
                     return xx (z);
-                }, on_error);
+                });
         }
 
         void server::accept () {
@@ -119,19 +118,20 @@ namespace data::net::IP {
             Acceptor.async_accept (*Socket, [self = shared_from_this ()] (asio::error_code error) {
                 ptr<asio::ip::tcp::socket> t {new asio::ip::tcp::socket {std::move (*self->Socket)}};
 
-                ptr<socket> ss {new socket {t, [] () -> void {}}};
-
                 auto on_error = [] (const asio::error_code &) -> void {};
+                auto on_close = [] () -> void {};
+
+                ptr<socket> ss {new socket {t, on_error, on_close}};
 
                 ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                (new async::message_queue<const string &, asio::error_code> {
-                    std::static_pointer_cast<async::write_stream<const string &, asio::error_code>> (ss), on_error})};
+                (new async::message_queue<const string &> {
+                    std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
 
-                async::wait_for_message<string_view, asio::error_code>
-                (std::static_pointer_cast<async::read_stream<string_view, asio::error_code>> (ss),
+                async::wait_for_message<string_view>
+                (std::static_pointer_cast<async::read_stream<string_view>> (ss),
                     [xx = self->Interact (zz)] (string_view z) -> void {
                         return xx (z);
-                    }, on_error);
+                    });
 
                 self->accept ();
             });

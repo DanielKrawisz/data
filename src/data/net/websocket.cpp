@@ -20,23 +20,29 @@ namespace data::net::websocket {
     using secure_stream = beast::websocket::stream<beast::ssl_stream<beast::tcp_stream>>;
 
     template <typename stream>
-    struct socket final : async::write_stream<const string &, asio::error_code>, async::read_stream<string_view, asio::error_code> {
+    struct socket final :
+        async::write_stream<const string &>,
+        async::read_stream<string_view>,
+        std::enable_shared_from_this<socket<stream>> {
 
         ptr<stream> Socket;
 
+        handler<asio::error_code> OnError;
         close_handler OnClose;
 
-        ptr<beast::flat_buffer> Buffer;
+        beast::flat_buffer Buffer;
 
         bool Closed;
 
-        socket (ptr<stream> socket, close_handler on_close) :
-        Socket {socket}, OnClose {on_close}, Buffer {new beast::flat_buffer ()}, Closed {false} {}
+        socket (ptr<stream> socket, handler<asio::error_code> errors, close_handler on_close) :
+            Socket {socket}, OnError {errors}, OnClose {on_close}, Buffer {}, Closed {false} {}
 
-        void write (const string &x, handler<asio::error_code> errors) final override {
+        void write (const string &x, function<void ()> on_complete) final override {
             Socket->async_write (asio::buffer (x.data (), x.size ()),
-                [errors] (const asio::error_code& error, size_t bytes_transferred) -> void {
-                    if (error) errors (error);
+                [self = this->shared_from_this (), on_complete] (const asio::error_code& error, size_t bytes_transferred) -> void {
+                    if (error == beast::websocket::error::closed) self->close ();
+                    else if (error) self->OnError (error);
+                    else on_complete ();
                 });
         }
 
@@ -57,17 +63,19 @@ namespace data::net::websocket {
             return closed;
         }
 
-        void read (function<void (string_view, asio::error_code)> handle) final override {
-            auto buff = Buffer;
-            Socket->async_read (*buff,
-                [buff, handle] (const asio::error_code& err, size_t bytes_transferred) -> void {
-                    auto seq = buff->data ();
+        void read (function<void (string_view)> handle) final override {
+            Socket->async_read (Buffer,
+                [self = this->shared_from_this (), handle] (const asio::error_code& error, size_t bytes_transferred) -> void {
+                    if (error == beast::websocket::error::closed) self->close ();
+                    else if (error) self->OnError (error);
+
+                    auto seq = self->Buffer.data ();
 
                     string x;
                     x.resize (bytes_transferred);
                     std::copy (boost::asio::buffer_sequence_begin(x), boost::asio::buffer_sequence_end(x), x.begin());
 
-                    handle (std::basic_string_view {x.data (), bytes_transferred}, err);
+                    handle (std::basic_string_view {x.data (), bytes_transferred});
                 });
         }
     };
@@ -111,7 +119,7 @@ namespace data::net::websocket {
         // Perform the websocket handshake
         ws->handshake (host, "/");
 
-        ptr<socket<insecure_stream>> z {new socket<insecure_stream> {ws, closed}};
+        ptr<socket<insecure_stream>> z {new socket<insecure_stream> {ws, error_handler, closed}};
 
     }
 
