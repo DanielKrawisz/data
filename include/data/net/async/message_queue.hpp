@@ -10,40 +10,30 @@
 
 namespace data::net::async {
 
-    template <typename message, typename error>
+    template <typename message>
     struct write_stream {
-        virtual void write (message, handler<error>) = 0;
+        virtual void write (message, function<void ()>) = 0;
         virtual void close () = 0;
     };
 
-    template <typename message, typename error>
-    class message_queue : public session<message>, protected std::enable_shared_from_this<message_queue<message, error>> {
+    template <typename message>
+    class message_queue : public session<message>, protected std::enable_shared_from_this<message_queue<message>> {
 
-        ptr<write_stream<message, error>> Stream;
-        handler<error> OnError;
+        ptr<write_stream<message>> Stream;
 
         // whether we are writing from the queue.
         bool Writing;
 
-        // whether the queue has been closed. If it is, then it cannot be written to
-        // and any attempt to do so will result in an error.
-        bool Closed;
-
         list<message> Queue;
 
-        void handle_error (const error &err) {
-            Closed = true;
-            OnError (err);
-        }
+        bool Closed;
 
         void write_next_message () {
 
             auto first = Queue.first ();
             Queue = Queue.rest ();
 
-            Stream->write (first, [self = this->shared_from_this ()] (const error& err) -> void {
-                if (err) self->handle_error (err);
-
+            Stream->write (first, [self = this->shared_from_this ()] () -> void {
                 if (self->Closed) self->Stream->close ();
                 else if (data::empty (self->Queue)) self->Writing = false;
                 else self->write_next_message ();
@@ -52,8 +42,8 @@ namespace data::net::async {
         }
 
     public:
-        message_queue (ptr<write_stream<message, error>> stream, handler<error> errors):
-            Stream {stream}, OnError {errors}, Writing {false}, Closed {false}, Queue {} {}
+        message_queue (ptr<write_stream<message>> stream):
+            Stream {stream}, Writing {false}, Queue {}, Closed {false} {}
 
         void send (const message &e) final override {
             if (Closed) return;
@@ -67,7 +57,9 @@ namespace data::net::async {
         }
 
         void close () final override {
+            if (Closed) return;
             Closed = true;
+            Stream->close ();
         }
 
         bool closed () final override {
