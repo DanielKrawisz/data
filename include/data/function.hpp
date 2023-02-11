@@ -11,8 +11,8 @@
 namespace data::functional {
 
     template< typename F, typename output, typename... Args >
-    concept function = std::regular_invocable<F, Args...> && requires(F&& f, Args&&... args) {
-        {std::invoke(std::forward<F>(f), std::forward<Args>(args)...)} -> std::convertible_to<output>;
+    concept function = std::regular_invocable<F, Args...> && requires (F&& f, Args&&... args) {
+        {std::invoke (std::forward<F> (f), std::forward<Args> (args)...)} -> std::convertible_to<output>;
     };
 }
 
@@ -21,10 +21,12 @@ namespace data {
     // It is always possible to construct the identity function. 
     template <typename X>
     struct identity {
-        X operator() (const X& x) const {
+        X operator () (const X& x) const {
             return x;
         }
     };
+
+    template <typename ... args> void do_nothing (args...) {}
     
     // Given an element of Y, we can construct a function from X to Y. 
     template <typename X, typename Y>

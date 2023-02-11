@@ -26,13 +26,12 @@ namespace data::net::websocket {
 
         close_handler OnClose;
 
-        ptr<string> Buffer;
+        ptr<beast::flat_buffer> Buffer;
 
         bool Closed;
 
-        socket (ptr<stream> socket, close_handler on_close) : Socket {socket}, OnClose {on_close}, Buffer {new string ()}, Closed {false} {
-            Buffer->resize (65025);
-        }
+        socket (ptr<stream> socket, close_handler on_close) :
+        Socket {socket}, OnClose {on_close}, Buffer {new beast::flat_buffer ()}, Closed {false} {}
 
         void write (const string &x, handler<asio::error_code> errors) final override {
             Socket->async_write (asio::buffer (x.data (), x.size ()),
@@ -60,13 +59,16 @@ namespace data::net::websocket {
 
         void read (function<void (string_view, asio::error_code)> handle) final override {
             auto buff = Buffer;
-            // TODO using the wrong buffer type here.
-            /*
-            Socket->async_read (asio::buffer (buff->data(), buff->size ()),
+            Socket->async_read (*buff,
                 [buff, handle] (const asio::error_code& err, size_t bytes_transferred) -> void {
-                    handle (std::basic_string_view {buff->data (), bytes_transferred}, err);
+                    auto seq = buff->data ();
+
+                    string x;
+                    x.resize (bytes_transferred);
+                    std::copy (boost::asio::buffer_sequence_begin(x), boost::asio::buffer_sequence_end(x), x.begin());
+
+                    handle (std::basic_string_view {x.data (), bytes_transferred}, err);
                 });
-                */
         }
     };
 
@@ -80,9 +82,9 @@ namespace data::net::websocket {
         // TODO fill this in correctly
 
         if (url.Protocol != protocol::WS && url.Protocol != protocol::WSS)
-            throw exception{} << "protocol " << url.Protocol << " is not websockets";
+            throw exception {} << "protocol " << url.Protocol << " is not websockets";
         if (!caller.SSLContext && url.Protocol == protocol::WSS)
-            throw exception{} << "Secure websocket requested when SSL Context not supplied";
+            throw exception {} << "Secure websocket requested when SSL Context not supplied";
 
         // These objects perform our I/O
         ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
