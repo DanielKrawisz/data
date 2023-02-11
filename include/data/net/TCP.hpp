@@ -57,18 +57,16 @@ namespace data::net::IP::TCP {
     // open a TCP connection.
     void open (asio::io_context &, endpoint, asio::error_handler, interaction<string_view, const string &>, close_handler);
 
-    using socket = asio::socket<asio::ip::tcp::socket>;
-
-    class server {
+    class server : std::enable_shared_from_this<server> {
         asio::io_context& IO;
         asio::ip::tcp::acceptor Acceptor;
-        
-        virtual ptr<session<const string &>> new_session (ptr<socket>) = 0;
+        maybe<asio::ip::tcp::socket> Socket;
+        interaction<string_view, const string &> Interact;
         
         void accept ();
         
     public:
-        server (boost::asio::io_context &io_context, uint16 port);
+        server (asio::io_context &io, uint16 port);
     };
     
     inline server::server (asio::io_context &io, uint16 port):
