@@ -9,38 +9,34 @@
 
 namespace data::net::async {
 
-    template <typename message, typename error>
+    template <typename message>
     struct read_stream {
-        virtual void read (function<void (message, error)>) = 0;
+        virtual void read (handler<message>) = 0;
         virtual bool closed () = 0;
     };
 
-    template <typename message, typename error>
+    template <typename message>
     void wait_for_message (
-        ptr<read_stream<message, error>> stream,
-        handler<message> receive,
-        handler<error> errors) {
+        ptr<read_stream<message>> stream,
+        handler<message> receive) {
 
         struct wait {
             void operator () (
-                ptr<read_stream<message, error>> stream,
-                handler<message> receive,
-                handler<error> errors) {
+                ptr<read_stream<message>> stream,
+                handler<message> receive) {
 
                 stream->read (
-                    [stream, receive, errors] (message m, const error& err) -> void {
-
-                        if (err) return errors (err);
+                    [stream, receive] (message m) -> void {
 
                         receive (m);
 
-                        if (!stream->closed ()) wait {} (stream, receive, errors);
+                        if (!stream->closed ()) wait {} (stream, receive);
 
                     });
             }
         };
 
-        wait {} (stream, receive, errors);
+        wait {} (stream, receive);
 
     };
 
