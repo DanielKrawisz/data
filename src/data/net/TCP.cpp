@@ -82,6 +82,8 @@ namespace data::net::IP {
             return port < 65536;
         }
 
+        using socket = asio::socket<asio::ip::tcp::socket>;
+
         ptr<socket> connect (asio::io_context &io, const endpoint &p, close_handler on_close) {
             ptr<asio::ip::tcp::socket> x {new asio::ip::tcp::socket (io)};
             asio::error_code error;
@@ -109,6 +111,30 @@ namespace data::net::IP {
                 [xx = interact (zz)] (string_view z) -> void {
                     return xx (z);
                 }, on_error);
+        }
+
+        void server::accept () {
+            Socket.emplace (IO);
+
+            Acceptor.async_accept (*Socket, [self = shared_from_this ()] (asio::error_code error) {
+                ptr<asio::ip::tcp::socket> t {new asio::ip::tcp::socket {std::move (*self->Socket)}};
+
+                ptr<socket> ss {new socket {t, [] () -> void {}}};
+
+                auto on_error = [] (const asio::error_code &) -> void {};
+
+                ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                (new async::message_queue<const string &, asio::error_code> {
+                    std::static_pointer_cast<async::write_stream<const string &, asio::error_code>> (ss), on_error})};
+
+                async::wait_for_message<string_view, asio::error_code>
+                (std::static_pointer_cast<async::read_stream<string_view, asio::error_code>> (ss),
+                    [xx = self->Interact (zz)] (string_view z) -> void {
+                        return xx (z);
+                    }, on_error);
+
+                self->accept ();
+            });
         }
     }
 }
