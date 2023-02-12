@@ -49,17 +49,17 @@ namespace data::net::websocket {
         void close () final override {
             if (Closed) return;
             Closed = true;
-            // TODO put the right funnction in here
-            //Socket->close ();
-            OnClose ();
+            Socket->async_close (
+                beast::websocket::close_code::normal,
+                [on_close = OnClose, on_error = OnError] (beast::error_code e) -> void {
+                    if (e) on_error (e);
+                    on_close ();
+                });
         }
 
         bool closed () final override {
             bool closed = !Socket->is_open ();
-            if (closed && !Closed) {
-                Closed = true;
-                OnClose ();
-            }
+            if (closed && !Closed) close ();
             return closed;
         }
 
@@ -119,7 +119,16 @@ namespace data::net::websocket {
         // Perform the websocket handshake
         ws->handshake (host, "/");
 
-        ptr<socket<insecure_stream>> z {new socket<insecure_stream> {ws, error_handler, closed}};
+        ptr<socket<insecure_stream>> ss {new socket<insecure_stream> {ws, error_handler, closed}};
+
+        ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                (new async::message_queue<const string &> {
+                    std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+
+        async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
+            [xx = interact (zz)] (string_view z) -> void {
+                return xx (z);
+            });
 
     }
 
