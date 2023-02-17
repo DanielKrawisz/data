@@ -94,46 +94,54 @@ namespace data::net::websocket {
         if (!caller.SSLContext && url.Protocol == protocol::WSS)
             throw exception {} << "Secure websocket requested when SSL Context not supplied";
 
-        // These objects perform our I/O
-        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
+        if(url.Protocol==protocol::WS) {
 
-        try {
-            // Look up the domain name
-            auto const results = caller.Resolver.resolve (url.Host, url.Port);
+            // These objects perform our I/O
+            ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
 
-            // Make the connection on the IP address we get from a lookup
-            auto ep = io::connect (ws->next_layer (), results);
+            try {
+                // Look up the domain name
+                auto const results = caller.Resolver.resolve (url.Host, url.Port);
 
-            // Update the host_ string. This will provide the value of the
-            // Host HTTP header during the WebSocket handshake.
-            // See https://tools.ietf.org/html/rfc7230#section-5.4
-            string host = url.Host + ':' + std::to_string (ep.port ());
+                // Make the connection on the IP address we get from a lookup
+                auto ep = io::connect (ws->next_layer (), results);
 
-            // Set a decorator to change the User-Agent of the handshake
-            ws->set_option (beast::websocket::stream_base::decorator(
-                    [] (beast::websocket::request_type &req) {
-                        req.set (http::field::user_agent,
-                                std::string (BOOST_BEAST_VERSION_STRING) +
-                                " websocket-client-coro");
-                    }));
+                // Update the host_ string. This will provide the value of the
+                // Host HTTP header during the WebSocket handshake.
+                // See https://tools.ietf.org/html/rfc7230#section-5.4
+                string host = url.Host + ':' + std::to_string (ep.port ());
 
-            // Perform the websocket handshake
-            ws->handshake (host, "/");
+                // Set a decorator to change the User-Agent of the handshake
+                ws->set_option (beast::websocket::stream_base::decorator (
+                        [] (beast::websocket::request_type &req) {
+                            req.set (http::field::user_agent,
+                                    std::string (BOOST_BEAST_VERSION_STRING) +
+                                    " websocket-client-coro");
+                        }));
 
-            ptr<socket<insecure_stream>> ss {new socket<insecure_stream> {ws, error_handler, closed}};
+                // Perform the websocket handshake
+                ws->handshake(host, "/");
 
-            ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                                            (new async::message_queue<const string &> {
-                            std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+                ptr<socket<insecure_stream>> ss{new socket<insecure_stream>{ws, error_handler, closed}};
 
-            async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
-                                                 [xx = interact (zz)] (string_view z) -> void {
-                                                     return xx (z);
-                                                 });
-        } catch (boost::system::system_error err) {
-            error_handler (err.code ());
+                ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                                                (new async::message_queue<const string &> {
+                                std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+
+                async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
+                                                     [xx = interact (zz)] (string_view z) -> void {
+                                                         return xx (z);
+                                                     });
+            } catch (boost::system::system_error err) {
+                error_handler (err.code ());
+            }
+        } else if(url.Protocol == protocol::WSS) {
+
         }
-
+        else {
+            // Should never get here, mostly here so if expand in future, no case can fall through
+            throw exception {} << "protocol " << url.Protocol << " is not websockets";
+        }
     }
 
 }
