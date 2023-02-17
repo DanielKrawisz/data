@@ -80,6 +80,99 @@ namespace data::net::websocket {
         }
     };
 
+    void insecure_open(HTTP::caller &caller,
+                       const URL &url,
+                       asio::error_handler error_handler,
+                       interaction<string_view, const string &> interact,
+                       close_handler closed) {
+        // These objects perform our I/O
+        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
+        // Look up the domain name
+        auto const results = caller.Resolver.resolve (url.Host, url.Port);
+
+        // Make the connection on the IP address we get from a lookup
+        auto ep = io::connect (ws->next_layer (), results);
+
+        // Update the host_ string. This will provide the value of the
+        // Host HTTP header during the WebSocket handshake.
+        // See https://tools.ietf.org/html/rfc7230#section-5.4
+        string host = url.Host + ':' + std::to_string (ep.port ());
+
+        // Set a decorator to change the User-Agent of the handshake
+        ws->set_option (beast::websocket::stream_base::decorator (
+                [] (beast::websocket::request_type &req) {
+                    req.set (http::field::user_agent,
+                            std::string (BOOST_BEAST_VERSION_STRING) +
+                            " websocket-client-coro");
+                }));
+
+        // Perform the websocket handshake
+        ws->handshake (host, "/");
+
+        ptr<socket<insecure_stream>> ss {new socket<insecure_stream> {ws, error_handler, closed}};
+
+        ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                                        (new async::message_queue<const string &>{
+                        std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+
+        async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
+                                             [xx = interact (zz)] (string_view z) -> void {
+                                                 return xx (z);
+                                             });
+    }
+
+    void secure_open(HTTP::caller &caller,
+                       const URL &url,
+                       asio::error_handler error_handler,
+                       interaction<string_view, const string &> interact,
+                       close_handler closed) {
+// These objects perform our I/O
+        ptr<secure_stream> ws = std::make_shared<secure_stream> (*caller.IOContext, *caller.SSLContext);
+
+        // Look up the domain name
+        auto const results = caller.Resolver.resolve (url.Host, url.Port);
+
+        // Make the connection on the IP address we get from a lookup
+        auto ep = io::connect (get_lowest_layer (*ws), results);
+        string host = url.Host;
+
+        if (!SSL_set_tlsext_host_name (ws->next_layer ().native_handle (), host.c_str ()))
+            throw beast::system_error (
+                    beast::error_code (
+                            static_cast<int>(::ERR_get_error ()),
+                            io::error::get_ssl_category ()),
+                    "Failed to set SNI Hostname");
+        // Update the host_ string. This will provide the value of the
+        // Host HTTP header during the WebSocket handshake.
+        // See https://tools.ietf.org/html/rfc7230#section-5.4
+        host += ':' + std::to_string (ep.port ());
+
+        // Preform the SSL Handshke
+        ws->next_layer ().handshake (io::ssl::stream_base::client);
+
+        // Set a decorator to change the User-Agent of the handshake
+        ws->set_option (beast::websocket::stream_base::decorator (
+                [] (beast::websocket::request_type &req) {
+                    req.set (http::field::user_agent,
+                            std::string (BOOST_BEAST_VERSION_STRING) +
+                            " websocket-client-coro");
+                }));
+
+        // Perform the websocket handshake
+        ws->handshake (host, "/");
+
+        ptr<socket<secure_stream>> ss {new socket<secure_stream> {ws, error_handler, closed}};
+
+        ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                                         (new async::message_queue<const string &> {
+                        std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+
+        async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
+                                             [xx = interact (zz)] (string_view z) -> void {
+                                                 return xx (z);
+                                             });
+    }
+
     void open (
         HTTP::caller &caller,
         const URL &url,
@@ -87,101 +180,21 @@ namespace data::net::websocket {
         interaction<string_view, const string &> interact,
         close_handler closed) {
 
-        // TODO fill this in correctly
 
         if (url.Protocol != protocol::WS && url.Protocol != protocol::WSS)
             throw exception {} << "protocol " << url.Protocol << " is not websockets";
         if (!caller.SSLContext && url.Protocol == protocol::WSS)
             throw exception {} << "Secure websocket requested when SSL Context not supplied";
 
-        if(url.Protocol==protocol::WS) {
-
-            // These objects perform our I/O
-            ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
-
+        if (url.Protocol==protocol::WS) {
             try {
-                // Look up the domain name
-                auto const results = caller.Resolver.resolve (url.Host, url.Port);
-
-                // Make the connection on the IP address we get from a lookup
-                auto ep = io::connect (ws->next_layer (), results);
-
-                // Update the host_ string. This will provide the value of the
-                // Host HTTP header during the WebSocket handshake.
-                // See https://tools.ietf.org/html/rfc7230#section-5.4
-                string host = url.Host + ':' + std::to_string (ep.port ());
-
-                // Set a decorator to change the User-Agent of the handshake
-                ws->set_option (beast::websocket::stream_base::decorator (
-                        [] (beast::websocket::request_type &req) {
-                            req.set (http::field::user_agent,
-                                    std::string (BOOST_BEAST_VERSION_STRING) +
-                                    " websocket-client-coro");
-                        }));
-
-                // Perform the websocket handshake
-                ws->handshake (host, "/");
-
-                ptr<socket<insecure_stream>> ss {new socket<insecure_stream> {ws, error_handler, closed}};
-
-                ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                                                (new async::message_queue<const string &> {
-                                std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
-
-                async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
-                                                     [xx = interact (zz)] (string_view z) -> void {
-                                                         return xx (z);
-                                                     });
+                insecure_open (caller,url,error_handler,interact,closed);
             } catch (boost::system::system_error err) {
                 error_handler (err.code ());
             }
-        } else if(url.Protocol == protocol::WSS) {
-            // These objects perform our I/O
-            ptr<secure_stream> ws = std::make_shared<secure_stream> (*caller.IOContext, *caller.SSLContext);
-
+        } else if (url.Protocol == protocol::WSS) {
             try {
-                // Look up the domain name
-                auto const results = caller.Resolver.resolve (url.Host, url.Port);
-
-                // Make the connection on the IP address we get from a lookup
-                auto ep = io::connect (get_lowest_layer(*ws), results);
-                string host = url.Host;
-
-                if(! SSL_set_tlsext_host_name(ws->next_layer ().native_handle(), host.c_str()))
-                    throw beast::system_error(
-                            beast::error_code(
-                                    static_cast<int>(::ERR_get_error()),
-                                    io::error::get_ssl_category()),
-                            "Failed to set SNI Hostname");
-                // Update the host_ string. This will provide the value of the
-                // Host HTTP header during the WebSocket handshake.
-                // See https://tools.ietf.org/html/rfc7230#section-5.4
-                host+= ':' + std::to_string (ep.port ());
-
-                // Preform the SSL Handshke
-                ws->next_layer ().handshake( io::ssl::stream_base::client);
-
-                // Set a decorator to change the User-Agent of the handshake
-                ws->set_option (beast::websocket::stream_base::decorator (
-                        [] (beast::websocket::request_type &req) {
-                            req.set (http::field::user_agent,
-                                     std::string (BOOST_BEAST_VERSION_STRING) +
-                                     " websocket-client-coro");
-                        }));
-
-                // Perform the websocket handshake
-                ws->handshake (host, "/");
-
-                ptr<socket<secure_stream>> ss {new socket<secure_stream> {ws, error_handler, closed}};
-
-                ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                                                 (new async::message_queue<const string &> {
-                                std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
-
-                async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
-                                                      [xx = interact (zz)] (string_view z) -> void {
-                                                          return xx (z);
-                                                      });
+                secure_open (caller,url,error_handler,interact,closed);
             } catch (boost::system::system_error err) {
                 error_handler (err.code ());
             }
