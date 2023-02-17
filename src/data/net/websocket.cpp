@@ -120,9 +120,9 @@ namespace data::net::websocket {
                         }));
 
                 // Perform the websocket handshake
-                ws->handshake(host, "/");
+                ws->handshake (host, "/");
 
-                ptr<socket<insecure_stream>> ss{new socket<insecure_stream>{ws, error_handler, closed}};
+                ptr<socket<insecure_stream>> ss {new socket<insecure_stream> {ws, error_handler, closed}};
 
                 ptr<session<const string &>> zz {static_cast<session<const string &> *>
                                                 (new async::message_queue<const string &> {
