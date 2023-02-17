@@ -10,7 +10,7 @@
 
 namespace data::net {
 
-    struct protocol {
+    struct protocol : string {
 
         enum name {
             invalid,
@@ -21,14 +21,19 @@ namespace data::net {
             WSS
         };
 
-        name Name;
+        operator name () const;
 
-        protocol (const string &);
-        protocol (const char *);
+        using string::string;
+
         protocol (name);
-        operator string ();
+        protocol (const string &x) : string {x} {}
 
         bool operator == (const protocol &) const;
+        bool operator == (const name &) const;
+
+        bool valid () const;
+
+        static string to_string (name);
     };
 
     std::ostream &operator << (std::ostream &, const protocol &);
@@ -55,7 +60,8 @@ namespace data::net {
         URL (protocol pr, port p, string host, string path, list<entry<string, string>> params = {}) :
             Protocol (pr), Port {p}, Host {host}, Path {path}, Params {params} {}
 
-        URL (protocol pr, string host, string path, list<entry<string, string>> params = {});
+        URL (protocol pr, string host, string path, list<entry<string, string>> params = {}) :
+            Protocol (pr), Port {}, Host {host}, Path {path}, Params {params} {}
         
         URL (const string &);
         URL (const char *);
@@ -67,8 +73,29 @@ namespace data::net {
     std::ostream &operator << (std::ostream &, const URL &);
     std::istream &operator >> (std::istream &, URL &);
 
-    inline protocol::protocol (const char *meep): protocol {string {meep}} {}
     inline URL::URL (const char *meep): URL {string {meep}} {}
+
+    bool inline protocol::valid () const {
+        return name (*this) != invalid;
+    }
+
+    inline protocol::protocol (name n) : string {to_string (n)} {}
+
+    bool inline protocol::operator == (const protocol &p) const {
+        return name (*this) == name (p);
+    }
+
+    bool inline protocol::operator == (const name &n) const {
+        return name (*this) == n;
+    }
+
+    std::ostream inline &operator << (std::ostream &o, const protocol &p) {
+        return o << static_cast<string> (p);
+    }
+
+    std::ostream inline &operator << (std::ostream &o, const port &p) {
+        return o << static_cast<string> (p);
+    }
 }
 
 #endif

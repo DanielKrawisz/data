@@ -59,6 +59,7 @@ namespace data::net {
     }
 
     inline REST::REST (protocol pro, port p, string host): Protocol {pro}, Port {p}, Host {host} {}
+    inline REST::REST (protocol pro, string host) : Protocol {pro}, Port {}, Host {host} {}
 }
 
 #endif
