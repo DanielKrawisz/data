@@ -74,7 +74,7 @@ namespace data::net::HTTP {
     
     response caller::operator () (const request &req, int redirects) {
         
-        if(redirects <= 0) throw data::exception {"too many redirects"};
+        if (redirects <= 0) throw data::exception {"too many redirects"};
         
         auto hostname = req.URL.Host.c_str ();
         auto port = string (req.URL.Port).c_str ();

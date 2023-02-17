@@ -63,7 +63,7 @@ how to use all features.
   * `mkdir build`
   * `cd build`
   * `conan install ..`
-  * `cmake .. -DCMAKE_CXX_COMPILER=g++-10`
+  * `cmake ..`
   * `make`
 
 # Version 1 progress
