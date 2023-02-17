@@ -17,7 +17,7 @@ namespace data::net::websocket {
     namespace io = boost::asio;                 // from <boost/asio.hpp>
     using tcp = boost::asio::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
     using insecure_stream = beast::websocket::stream<tcp::socket>;
-    using secure_stream = beast::websocket::stream<beast::ssl_stream<beast::tcp_stream>>;
+    using secure_stream = beast::websocket::stream<beast::ssl_stream<tcp::socket>>;
 
     template <typename stream>
     struct socket final :
@@ -136,7 +136,55 @@ namespace data::net::websocket {
                 error_handler (err.code ());
             }
         } else if(url.Protocol == protocol::WSS) {
+            // These objects perform our I/O
+            ptr<secure_stream> ws = std::make_shared<secure_stream> (*caller.IOContext, *caller.SSLContext);
 
+            try {
+                // Look up the domain name
+                auto const results = caller.Resolver.resolve (url.Host, url.Port);
+
+                // Make the connection on the IP address we get from a lookup
+                auto ep = io::connect (get_lowest_layer(*ws), results);
+                string host = url.Host;
+
+                if(! SSL_set_tlsext_host_name(ws->next_layer ().native_handle(), host.c_str()))
+                    throw beast::system_error(
+                            beast::error_code(
+                                    static_cast<int>(::ERR_get_error()),
+                                    io::error::get_ssl_category()),
+                            "Failed to set SNI Hostname");
+                // Update the host_ string. This will provide the value of the
+                // Host HTTP header during the WebSocket handshake.
+                // See https://tools.ietf.org/html/rfc7230#section-5.4
+                host+= ':' + std::to_string (ep.port ());
+
+                // Preform the SSL Handshke
+                ws->next_layer ().handshake( io::ssl::stream_base::client);
+
+                // Set a decorator to change the User-Agent of the handshake
+                ws->set_option (beast::websocket::stream_base::decorator (
+                        [] (beast::websocket::request_type &req) {
+                            req.set (http::field::user_agent,
+                                     std::string (BOOST_BEAST_VERSION_STRING) +
+                                     " websocket-client-coro");
+                        }));
+
+                // Perform the websocket handshake
+                ws->handshake (host, "/");
+
+                ptr<socket<secure_stream>> ss {new socket<secure_stream> {ws, error_handler, closed}};
+
+                ptr<session<const string &>> zz {static_cast<session<const string &> *>
+                                                 (new async::message_queue<const string &> {
+                                std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+
+                async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
+                                                      [xx = interact (zz)] (string_view z) -> void {
+                                                          return xx (z);
+                                                      });
+            } catch (boost::system::system_error err) {
+                error_handler (err.code ());
+            }
         }
         else {
             // Should never get here, mostly here so if expand in future, no case can fall through
