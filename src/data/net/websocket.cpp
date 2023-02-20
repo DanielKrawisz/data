@@ -80,15 +80,18 @@ namespace data::net::websocket {
         }
     };
 
-    void insecure_open(HTTP::caller &caller,
-                       const URL &url,
-                       asio::error_handler error_handler,
-                       interaction<string_view, const string &> interact,
-                       close_handler closed) {
+    void insecure_open (
+        asio::io_context &io,
+        const URL &url,
+        asio::error_handler error_handler,
+        interaction<string_view, const string &> interact,
+        close_handler closed) {
         // These objects perform our I/O
-        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (*caller.IOContext);
+        ptr<insecure_stream> ws = std::make_shared<insecure_stream> (io);
+
+        asio::ip::tcp::resolver resolver (io);
         // Look up the domain name
-        auto const results = caller.Resolver.resolve (url.Host, url.Port);
+        auto const results = resolver.resolve (url.Host, url.Port);
 
         // Make the connection on the IP address we get from a lookup
         auto ep = io::connect (ws->next_layer (), results);
@@ -121,16 +124,19 @@ namespace data::net::websocket {
                                              });
     }
 
-    void secure_open(HTTP::caller &caller,
-                       const URL &url,
-                       asio::error_handler error_handler,
-                       interaction<string_view, const string &> interact,
-                       close_handler closed) {
+    void secure_open (
+        asio::io_context &io,
+        const URL &url,
+        HTTP::SSL &ssl,
+        asio::error_handler error_handler,
+        interaction<string_view, const string &> interact,
+        close_handler closed) {
 // These objects perform our I/O
-        ptr<secure_stream> ws = std::make_shared<secure_stream> (*caller.IOContext, *caller.SSLContext);
+        ptr<secure_stream> ws = std::make_shared<secure_stream> (io, ssl);
 
+        asio::ip::tcp::resolver resolver (io);
         // Look up the domain name
-        auto const results = caller.Resolver.resolve (url.Host, url.Port);
+        auto const results = resolver.resolve (url.Host, url.Port);
 
         // Make the connection on the IP address we get from a lookup
         auto ep = io::connect (get_lowest_layer (*ws), results);
@@ -174,34 +180,54 @@ namespace data::net::websocket {
     }
 
     void open (
-        HTTP::caller &caller,
+        asio::io_context &io,
         const URL &url,
+        HTTP::SSL *ssl,
         asio::error_handler error_handler,
-        interaction<string_view, const string &> interact,
-        close_handler closed) {
-
+        close_handler closed,
+        interaction<string_view, const string &> interact) {
 
         if (url.Protocol != protocol::WS && url.Protocol != protocol::WSS)
             throw exception {} << "protocol " << url.Protocol << " is not websockets";
-        if (!caller.SSLContext && url.Protocol == protocol::WSS)
+        if (!ssl && url.Protocol == protocol::WSS)
             throw exception {} << "Secure websocket requested when SSL Context not supplied";
 
-        if (url.Protocol==protocol::WS) {
-            try {
-                insecure_open (caller,url,error_handler,interact,closed);
-            } catch (boost::system::system_error err) {
-                error_handler (err.code ());
-            }
-        } else if (url.Protocol == protocol::WSS) {
-            try {
-                secure_open (caller,url,error_handler,interact,closed);
-            } catch (boost::system::system_error err) {
-                error_handler (err.code ());
-            }
+        try {
+            if (url.Protocol == protocol::WS) insecure_open (io, url, error_handler, interact, closed);
+            else secure_open (io, url, *ssl, error_handler, interact, closed);
+        } catch (boost::system::system_error err) {
+            error_handler (err.code ());
         }
-        else {
-            // Should never get here, mostly here so if expand in future, no case can fall through
-            throw exception {} << "protocol " << url.Protocol << " is not websockets";
+    }
+
+    void open_secure (
+        asio::io_context &io,
+        const URL &url,
+        HTTP::SSL &ssl,
+        asio::error_handler error_handler,
+        close_handler closed,
+        interaction<string_view, const string &> interact) {
+
+        if (url.Protocol != protocol::WSS) throw exception {} << "expected protocol WSS, but got " << url.Protocol;
+        try {
+            secure_open (io, url, ssl, error_handler, interact, closed);
+        } catch (boost::system::system_error err) {
+            error_handler (err.code ());
+        }
+    }
+
+    void open_insecure (
+        asio::io_context &io,
+        const URL &url,
+        asio::error_handler error_handler,
+        close_handler closed,
+        interaction<string_view, const string &> interact) {
+
+        if (url.Protocol != protocol::WS) throw exception {} << "expected protocol WS, but got " << url.Protocol;
+        try {
+            insecure_open (io, url, error_handler, interact, closed);
+        } catch (boost::system::system_error err) {
+            error_handler (err.code ());
         }
     }
 
