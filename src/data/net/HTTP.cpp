@@ -64,6 +64,9 @@ namespace data::net::HTTP {
 
     response call (const request &req, SSL *ssl, uint32 redirects) {
 
+        if (req.URL.Protocol != protocol::HTTP && req.URL.Protocol != protocol::HTTPS)
+            throw data::exception {} << "Invalid protocol " << req.URL.Protocol << "; expected HTTP or HTTPS";
+
         bool https = req.URL.Protocol == protocol::HTTPS;
 
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
@@ -96,7 +99,7 @@ namespace data::net::HTTP {
             auto const results = resolver.resolve (hostname, port);
 
             boost::beast::get_lowest_layer (stream).connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Could not connect: " << connect_error;
+            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << connect_error;
 
             stream.handshake (asio::ssl::stream_base::client);
 
@@ -107,11 +110,11 @@ namespace data::net::HTTP {
             auto const results = resolver.resolve (hostname, port);
 
             stream.connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Could not connect: " << connect_error;
+            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << connect_error;
 
             res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         }
-
+/*
         if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {
             std::string loc = res.base ()["Location"].to_string ();
             if (!loc.empty ()) {
@@ -125,7 +128,7 @@ namespace data::net::HTTP {
                 return call (request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
                     fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, ssl, redirects - 1);
             }
-        }
+        }*/
 
         map<header, string> response_headers {};
         for (const auto &field : res) response_headers =

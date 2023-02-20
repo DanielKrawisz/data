@@ -24,7 +24,7 @@ namespace data::net::HTTP {
     }
 
     HTTP::request REST::POST (string path, map<string, string> params) const {
-        return HTTP::request (method::post, URL {Port, Host, path},
+        return HTTP::request (method::post, URL {Protocol, Port, Host, path},
             {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}}, 
               encode_form_data (params));
     }
