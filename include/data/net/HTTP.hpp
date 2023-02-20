@@ -17,10 +17,28 @@
 #include <uriparser/Uri.h>
 #include <data/tools.hpp>
 #include <data/cross.hpp>
+#include <data/net/asio/session.hpp>
 #include <data/net/URL.hpp>
 #include <map>
 
 namespace data::net::HTTP {
+
+    struct request;
+    struct response;
+
+    std::ostream &operator << (std::ostream &, const request &);
+    std::istream &operator >> (std::istream &, request &);
+
+    std::ostream &operator << (std::ostream &, const response &);
+    std::istream &operator >> (std::istream &, response &);
+
+    using SSL = asio::ssl::context;
+
+    // make an HTTP call (blocking)
+    response call (const request &, SSL * = nullptr, uint32 redirects = 10);
+
+    // async HTTP call
+    void call (asio::io_context &, handler<const response &>, const request &, SSL * = nullptr);
 
     using header = boost::beast::http::field;
     using method = boost::beast::http::verb;
@@ -46,12 +64,6 @@ namespace data::net::HTTP {
         string Body;
     };
 
-    std::ostream &operator << (std::ostream &, const request &);
-    std::istream &operator >> (std::istream &, request &);
-
-    std::ostream &operator << (std::ostream &, const response &);
-    std::istream &operator >> (std::istream &, response &);
-
     struct exception : std::exception {
         request Request;
         response Response;
@@ -63,23 +75,7 @@ namespace data::net::HTTP {
             return Problem.c_str ();
         }
     };
-    
-    struct caller {
 
-        // throws an exception under conditions in which no response is received.
-        response operator () (const request &, int redirects = 10);
-        
-        // this is for when the HTTP object is your only connection to the outside world.
-        caller ();
-
-        // this is for when you might be connected in other ways so that you have to sync different interactions.
-        caller (ptr<boost::asio::io_context>, ptr<boost::asio::ssl::context>);
-
-        ptr<boost::asio::io_context> IOContext;
-        ptr<boost::asio::ssl::context> SSLContext;
-        boost::asio::ip::tcp::resolver Resolver;
- 
-    };
 }
 
 #endif 

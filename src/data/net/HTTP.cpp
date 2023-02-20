@@ -7,6 +7,7 @@
 #include <data/net/REST.hpp>
 
 namespace data::net::HTTP {
+
     namespace {
         
         std::string fromRange (const UriTextRangeA & rng)
@@ -43,8 +44,8 @@ namespace data::net::HTTP {
 
             for (const auto &header: headers) req.set (header.Key, header.Value);
             
-            req.body() = body;
-            req.prepare_payload();
+            req.body () = body;
+            req.prepare_payload ();
             
             boost::beast::http::write (stream, req);
 
@@ -61,50 +62,48 @@ namespace data::net::HTTP {
         
     }
 
-    caller::caller () : caller (
-        std::make_shared<boost::asio::io_context> (),
-        std::make_shared<boost::asio::ssl::context> (boost::asio::ssl::context::tlsv12_client)) {}
+    response call (const request &req, SSL *ssl, uint32 redirects) {
 
-    caller::caller (ptr<boost::asio::io_context> ioc, ptr<boost::asio::ssl::context> ssl) :
-        IOContext {ioc}, SSLContext {ssl},
-        Resolver (*IOContext) {
-            SSLContext->set_default_verify_paths ();
-            SSLContext->set_verify_mode (boost::asio::ssl::verify_peer);
-        }
-    
-    response caller::operator () (const request &req, int redirects) {
-        
-        if (redirects <= 0) throw data::exception {"too many redirects"};
-        
+        bool https = req.URL.Protocol == protocol::HTTPS;
+
+        if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
+
         auto hostname = req.URL.Host.c_str ();
         auto port = string (req.URL.Port).c_str ();
-        
-        bool https = req.URL.Protocol == protocol::HTTPS;
-        
+
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
-        if(https) {
-            boost::beast::ssl_stream<boost::beast::tcp_stream> stream (*IOContext, *SSLContext);
-            
+
+        asio::io_context io {};
+
+        asio::ip::tcp::resolver resolver (io);
+
+        if (https) {
+
+            ssl->set_default_verify_paths ();
+            ssl->set_verify_mode (asio::ssl::verify_peer);
+
+            boost::beast::ssl_stream<boost::beast::tcp_stream> stream (io, *ssl);
+
             // Set SNI Hostname (many hosts need this to handshake successfully)
             if (!SSL_set_tlsext_host_name(stream.native_handle (), hostname)) {
                 boost::beast::error_code ec {static_cast<int> (::ERR_get_error ()),
-                    boost::asio::error::get_ssl_category ()};
+                    asio::error::get_ssl_category ()};
                 throw boost::beast::system_error {ec};
             }
 
-            auto const results = Resolver.resolve (hostname, port);
+            auto const results = resolver.resolve (hostname, port);
 
             boost::beast::get_lowest_layer (stream).connect (results);
-            stream.handshake (boost::asio::ssl::stream_base::client);
+            stream.handshake (asio::ssl::stream_base::client);
 
             res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         } else {
-            boost::beast::tcp_stream stream (*IOContext);
-            auto const results = Resolver.resolve (hostname, port);
+            boost::beast::tcp_stream stream (io);
+            auto const results = resolver.resolve (hostname, port);
             stream.connect (results);
             res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         }
-        
+
         if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {
             std::string loc = res.base ()["Location"].to_string ();
             if (!loc.empty ()) {
@@ -112,16 +111,19 @@ namespace data::net::HTTP {
                 const char **errorPos;
                 if (uriParseSingleUriA (&uri, loc.c_str (), errorPos))
                     throw data::exception {"could not read redirect url"};
-                
-                return (*this) (request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
-                    fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, redirects - 1);
+
+                if (redirects == 0) throw data::exception {"too many redirects"};
+
+                return call (request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
+                    fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, ssl, redirects - 1);
             }
         }
-        
+
         map<header, string> response_headers {};
-        for (const auto &field : res) response_headers = 
+        for (const auto &field : res) response_headers =
             data::insert (response_headers, data::entry<header, string> {field.name (), std::string {field.value ()}});
-        return response {res.base ().result (), response_headers, boost::beast::buffers_to_string(res.body ().data ())};
+        return response {res.base ().result (), response_headers, boost::beast::buffers_to_string (res.body ().data ())};
+
     }
 
 }
