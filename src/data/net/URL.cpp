@@ -26,13 +26,9 @@ namespace data::net {
         
     }
     
-    std::ostream &operator << (std::ostream &o, const URL &u) {
-        return o << u.Protocol << "://" << u.Host << (u.Port == "" ? string {""} : string {":"} + u.Port) << u.Path << write_params (u.Params);
-    }
-    
     URL::operator string () const {
         std::stringstream ss;
-        ss << *this;
+        ss << Protocol << "://" << Host << (Port == "" ? string {""} : string {":"} + Port) << Path << write_params (Params);
         return ss.str ();
     }
 
