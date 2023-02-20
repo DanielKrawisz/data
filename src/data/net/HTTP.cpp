@@ -72,7 +72,8 @@ namespace data::net::HTTP {
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
 
         auto hostname = req.URL.Host.c_str ();
-        auto port = string (req.URL.Port).c_str ();
+        auto tempPort = string (req.URL.Port);
+        auto port = tempPort!="" ? tempPort.c_str () : req.URL.Protocol;
 
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
 
