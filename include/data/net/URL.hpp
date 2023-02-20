@@ -21,12 +21,11 @@ namespace data::net {
             WSS
         };
 
-        operator name () const;
+        explicit operator name () const;
 
         using string::string;
 
         protocol (name);
-        protocol (const string &x) : string {x} {}
 
         bool operator == (const protocol &) const;
         bool operator == (const name &) const;
