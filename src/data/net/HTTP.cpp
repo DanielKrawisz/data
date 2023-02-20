@@ -70,16 +70,17 @@ namespace data::net::HTTP {
 
     response call (const request &req, SSL *ssl, uint32 redirects) {
 
-        if (req.URL.Protocol != protocol::HTTP && req.URL.Protocol != protocol::HTTPS)
-            throw data::exception {} << "Invalid protocol " << req.URL.Protocol << "; expected HTTP or HTTPS";
+        auto proto = req.URL.protocol ();
 
-        bool https = req.URL.Protocol == protocol::HTTPS;
+        if (proto != protocol::HTTP && proto != protocol::HTTPS)
+            throw data::exception {} << "Invalid protocol " << proto << "; expected HTTP or HTTPS";
+
+        bool https = proto == protocol::HTTPS;
 
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
 
-        auto hostname = req.URL.Host.c_str ();
-        auto tempPort = string (req.URL.Port);
-        auto port = tempPort!="" ? tempPort.c_str () : req.URL.Protocol;
+        auto hostname = req.URL.host ().c_str ();
+        auto port = req.URL.port ().c_str ();
 
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
 
@@ -104,20 +105,20 @@ namespace data::net::HTTP {
             auto const results = resolver.resolve (hostname, port);
 
             boost::beast::get_lowest_layer (stream).connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << connect_error;
+            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
 
             stream.handshake (asio::ssl::stream_base::client);
 
-            res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
+            res = http_request (stream, hostname, req.Method, req.URL.path (), req.Headers, req.Body, redirects);
         } else {
             boost::beast::tcp_stream stream (io);
 
             auto const results = resolver.resolve (hostname, port);
 
             stream.connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << connect_error;
+            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
 
-            res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
+            res = http_request (stream, hostname, req.Method, req.URL.path (), req.Headers, req.Body, redirects);
         }
 /*
         if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {

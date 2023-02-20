@@ -91,7 +91,8 @@ namespace data::net::websocket {
 
         asio::ip::tcp::resolver resolver (io);
         // Look up the domain name
-        auto const results = resolver.resolve (url.Host, url.Port);
+        auto hostname = url.host ();
+        auto const results = resolver.resolve (hostname, url.port ());
 
         // Make the connection on the IP address we get from a lookup
         auto ep = io::connect (ws->next_layer (), results);
@@ -99,7 +100,7 @@ namespace data::net::websocket {
         // Update the host_ string. This will provide the value of the
         // Host HTTP header during the WebSocket handshake.
         // See https://tools.ietf.org/html/rfc7230#section-5.4
-        string host = url.Host + ':' + std::to_string (ep.port ());
+        string host = hostname + ':' + std::to_string (ep.port ());
 
         // Set a decorator to change the User-Agent of the handshake
         ws->set_option (beast::websocket::stream_base::decorator (
@@ -136,13 +137,13 @@ namespace data::net::websocket {
 
         asio::ip::tcp::resolver resolver (io);
         // Look up the domain name
-        auto const results = resolver.resolve (url.Host, url.Port);
+        auto hostname = url.host ();
+        auto const results = resolver.resolve (hostname, url.port ());
 
         // Make the connection on the IP address we get from a lookup
         auto ep = io::connect (get_lowest_layer (*ws), results);
-        string host = url.Host;
 
-        if (!SSL_set_tlsext_host_name (ws->next_layer ().native_handle (), host.c_str ()))
+        if (!SSL_set_tlsext_host_name (ws->next_layer ().native_handle (), hostname.c_str ()))
             throw beast::system_error (
                     beast::error_code (
                             static_cast<int>(::ERR_get_error ()),
@@ -151,7 +152,7 @@ namespace data::net::websocket {
         // Update the host_ string. This will provide the value of the
         // Host HTTP header during the WebSocket handshake.
         // See https://tools.ietf.org/html/rfc7230#section-5.4
-        host += ':' + std::to_string (ep.port ());
+        hostname += ':' + std::to_string (ep.port ());
 
         // Preform the SSL Handshke
         ws->next_layer ().handshake (io::ssl::stream_base::client);
@@ -165,7 +166,7 @@ namespace data::net::websocket {
                 }));
 
         // Perform the websocket handshake
-        ws->handshake (host, "/");
+        ws->handshake (hostname, "/");
 
         ptr<socket<secure_stream>> ss {new socket<secure_stream> {ws, error_handler, closed}};
 
@@ -187,13 +188,13 @@ namespace data::net::websocket {
         close_handler closed,
         interaction<string_view, const string &> interact) {
 
-        if (url.Protocol != protocol::WS && url.Protocol != protocol::WSS)
-            throw exception {} << "protocol " << url.Protocol << " is not websockets";
-        if (!ssl && url.Protocol == protocol::WSS)
+        if (url.protocol () != protocol::WS && url.protocol () != protocol::WSS)
+            throw exception {} << "protocol " << url.protocol () << " is not websockets";
+        if (!ssl && url.protocol () == protocol::WSS)
             throw exception {} << "Secure websocket requested when SSL Context not supplied";
 
         try {
-            if (url.Protocol == protocol::WS) insecure_open (io, url, error_handler, interact, closed);
+            if (url.protocol () == protocol::WS) insecure_open (io, url, error_handler, interact, closed);
             else secure_open (io, url, *ssl, error_handler, interact, closed);
         } catch (boost::system::system_error err) {
             error_handler (err.code ());
@@ -208,7 +209,7 @@ namespace data::net::websocket {
         close_handler closed,
         interaction<string_view, const string &> interact) {
 
-        if (url.Protocol != protocol::WSS) throw exception {} << "expected protocol WSS, but got " << url.Protocol;
+        if (url.protocol () != protocol::WSS) throw exception {} << "expected protocol WSS, but got " << url.protocol ();
         try {
             secure_open (io, url, ssl, error_handler, interact, closed);
         } catch (boost::system::system_error err) {
@@ -223,7 +224,7 @@ namespace data::net::websocket {
         close_handler closed,
         interaction<string_view, const string &> interact) {
 
-        if (url.Protocol != protocol::WS) throw exception {} << "expected protocol WS, but got " << url.Protocol;
+        if (url.protocol () != protocol::WS) throw exception {} << "expected protocol WS, but got " << url.protocol ();
         try {
             insecure_open (io, url, error_handler, interact, closed);
         } catch (boost::system::system_error err) {
