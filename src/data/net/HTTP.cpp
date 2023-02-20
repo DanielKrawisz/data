@@ -77,6 +77,8 @@ namespace data::net::HTTP {
 
         asio::ip::tcp::resolver resolver (io);
 
+        asio::error_code connect_error {};
+
         if (https) {
 
             ssl->set_default_verify_paths ();
@@ -93,14 +95,20 @@ namespace data::net::HTTP {
 
             auto const results = resolver.resolve (hostname, port);
 
-            boost::beast::get_lowest_layer (stream).connect (results);
+            boost::beast::get_lowest_layer (stream).connect (results, connect_error);
+            if (connect_error) throw data::exception {} << "Could not connect: " << connect_error;
+
             stream.handshake (asio::ssl::stream_base::client);
 
             res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         } else {
             boost::beast::tcp_stream stream (io);
+
             auto const results = resolver.resolve (hostname, port);
-            stream.connect (results);
+
+            stream.connect (results, connect_error);
+            if (connect_error) throw data::exception {} << "Could not connect: " << connect_error;
+
             res = http_request (stream, req.URL.Host, req.Method, req.URL.Path, req.Headers, req.Body, redirects);
         }
 
