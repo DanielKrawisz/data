@@ -13,11 +13,27 @@ namespace data::net::websocket {
 
     // open a websocket connection.
     void open (
-        HTTP::caller &,
+        asio::io_context &,
+        const URL &,
+        HTTP::SSL *,
+        asio::error_handler error_handler,
+        close_handler,
+        interaction<string_view, const string &>);
+
+    void open_secure (
+        asio::io_context &,
+        const URL &,
+        HTTP::SSL &,
+        asio::error_handler error_handler,
+        close_handler,
+        interaction<string_view, const string &>);
+
+    void open_insecure (
+        asio::io_context &,
         const URL &,
         asio::error_handler error_handler,
-        interaction<string_view, const string &>,
-        close_handler);
+        close_handler,
+        interaction<string_view, const string &>);
     
 }
 

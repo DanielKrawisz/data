@@ -4,7 +4,7 @@
 
 #include <data/net/REST.hpp>
 
-namespace data::net {
+namespace data::net::HTTP {
     namespace {
         
         string encode_form_data (map<string, string> form_data) {
@@ -13,7 +13,7 @@ namespace data::net {
             if (form_data.size ()>0) {
 
                 for (const auto &it : form_data) {
-                    newBody.append(it.Key+"="+it.Value+"&");
+                    newBody.append (it.Key+"="+it.Value+"&");
                 }
 
                 newBody.pop_back ();
@@ -24,7 +24,7 @@ namespace data::net {
     }
 
     HTTP::request REST::POST (string path, map<string, string> params) const {
-        return HTTP::request (HTTP::method::post, URL {Port, Host, path},
+        return HTTP::request (method::post, URL {Port, Host, path},
             {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}}, 
               encode_form_data (params));
     }
