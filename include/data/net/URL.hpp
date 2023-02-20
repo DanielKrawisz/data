@@ -40,7 +40,7 @@ namespace data::net {
 
     struct port: string {
         using string::string;
-
+        port (const string &p) : string {p} {}
         port (uint16 number) : string {std::to_string (number)} {}
     };
 
@@ -50,29 +50,55 @@ namespace data::net {
     std::istream &operator >> (std::istream &, port &);
     
     struct URL {
-        protocol Protocol;
-        port Port;
-        string Host;
-        string Path;
-        list<entry<string, string>> Params;
+        const net::protocol &protocol () const;
+        net::port port () const;
+        const string &host () const;
+        const string &path () const;
+        list<entry<string, string>> params () const;
         
-        URL (protocol pr, port p, string host, string path, list<entry<string, string>> params = {}) :
+        URL (net::protocol pr, net::port p, string host, string path, list<entry<string, string>> params = {}) :
             Protocol (pr), Port {p}, Host {host}, Path {path}, Params {params} {}
 
-        URL (protocol pr, string host, string path, list<entry<string, string>> params = {}) :
+        URL (net::protocol pr, string host, string path, list<entry<string, string>> params = {}) :
             Protocol (pr), Port {}, Host {host}, Path {path}, Params {params} {}
         
         URL (const string &);
         URL (const char *);
         
         operator string () const;
-        
+
+    private:
+        net::protocol Protocol;
+        net::port Port;
+        string Host;
+        string Path;
+        list<entry<string, string>> Params;
     };
     
     std::ostream &operator << (std::ostream &, const URL &);
     std::istream &operator >> (std::istream &, URL &);
 
     inline URL::URL (const char *meep): URL {string {meep}} {}
+
+    const protocol inline &URL::protocol () const {
+        return Protocol;
+    }
+
+    port inline URL::port () const {
+        return Port == "" ? net::port {string (Protocol)} : Port;
+    }
+
+    const string inline &URL::host () const {
+        return Host;
+    }
+
+    const string inline &URL::path () const {
+        return Path;
+    }
+
+    list<entry<string, string>> inline URL::params () const {
+        return Params;
+    }
 
     bool inline protocol::valid () const {
         return name (*this) != invalid;
@@ -94,6 +120,10 @@ namespace data::net {
 
     std::ostream inline &operator << (std::ostream &o, const port &p) {
         return o << static_cast<string> (p);
+    }
+
+    std::ostream inline &operator << (std::ostream &o, const URL &u) {
+        return o << string (u);
     }
 }
 
