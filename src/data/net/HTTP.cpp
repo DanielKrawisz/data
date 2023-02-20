@@ -90,7 +90,7 @@ namespace data::net::HTTP {
             boost::beast::ssl_stream<boost::beast::tcp_stream> stream (io, *ssl);
 
             // Set SNI Hostname (many hosts need this to handshake successfully)
-            if (!SSL_set_tlsext_host_name(stream.native_handle (), hostname)) {
+            if (!SSL_set_tlsext_host_name (stream.native_handle (), hostname)) {
                 boost::beast::error_code ec {static_cast<int> (::ERR_get_error ()),
                     asio::error::get_ssl_category ()};
                 throw boost::beast::system_error {ec};
