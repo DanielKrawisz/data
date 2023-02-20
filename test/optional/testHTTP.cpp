@@ -2,16 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/numbers.hpp"
+#include "data/net/REST.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
 
+    const std::string baseurl="echo.jsontest.com";
 
-
-    TEST(HTTPTest, TestValid) {
+    TEST(HTTPTest, TestGetHttps) {
+        auto rest=data::net::HTTP::REST("https",baseurl);
+        auto request=rest.GET("key/1/key2/poppy");
         
-        EXPECT_EQ(1,1);
         
     }
 }

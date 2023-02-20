@@ -84,8 +84,6 @@ namespace data::net::HTTP {
 
         if (https) {
 
-            ssl->set_default_verify_paths ();
-            ssl->set_verify_mode (asio::ssl::verify_peer);
 
             boost::beast::ssl_stream<boost::beast::tcp_stream> stream (io, *ssl);
 
