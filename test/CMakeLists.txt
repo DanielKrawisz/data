@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1...3.14)
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
-
+option(OPTIONAL_TESTS "Build optional Tests" OFF)
 macro(package_add_test TESTNAME)
     # create an exectuable in which the tests will be stored
     add_executable(${TESTNAME} ${ARGN})
@@ -64,3 +64,7 @@ package_add_test(testIP testIP.cpp)
 package_add_test(testException testException.cpp)
 #package_add_test(testRateLimiter testRateLimiter.cpp)
 #package_add_test(testNetworking testNetworking.cpp)
+
+if(OPTIONAL_TESTS)
+    add_subdirectory(optional)
+endif()
