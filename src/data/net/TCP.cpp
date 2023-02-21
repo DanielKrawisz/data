@@ -97,8 +97,8 @@ namespace data::net::IP {
             asio::io_context &context,
             endpoint end,
             asio::error_handler on_error,
-            interaction<string_view, const string &> interact,
-            close_handler on_close) {
+            close_handler on_close,
+            interaction<string_view, const string &> interact) {
 
             ptr<socket> ss = connect (context, end, on_error, on_close);
 

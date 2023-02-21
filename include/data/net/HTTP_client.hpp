@@ -10,16 +10,10 @@
 #include <stdlib.h>
 
 namespace data::net::HTTP {
-    struct client {
-
-        ptr<HTTP::SSL> SSL;
+    struct client_blocking {
         
-        HTTP::REST REST;
-        
-        tools::rate_limiter Rate;
-        
-        client (const HTTP::REST &rest, tools::rate_limiter rate = {});
-        client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate = {});
+        client_blocking (const HTTP::REST &rest, tools::rate_limiter rate = {});
+        client_blocking (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate = {});
 
         // blocking methods
         response operator () (const request &r);
@@ -27,65 +21,91 @@ namespace data::net::HTTP {
         response POST (string path, map<header, string> headers, string body);
         response POST_form_data (string path, map<string, string> form_data = {});
 
+    private:
+        ptr<HTTP::SSL> SSL;
+
+        HTTP::REST REST;
+
+        tools::rate_limiter Rate;
+    };
+
+    struct client_async : std::enable_shared_from_this<client_async> {
+
+        client_async (ptr<asio::io_context> io, const HTTP::REST &rest, tools::rate_limiter rate = {});
+        client_async (ptr<asio::io_context> io, ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate = {});
+
         // async methods
-        void operator () (asio::io_context &, handler<const response &>, const request &r);
-        void GET (asio::io_context &, handler<const response &>, string path, list<entry<string, string>> params = {});
-        void POST (asio::io_context &, handler<const response &>, string path, map<header, string> headers, string body);
-        void POST_form_data (asio::io_context &, handler<const response &>, string path, map<string, string> form_data = {});
-        
+        void operator () (handler<const response &>, const request &r);
+        void GET (handler<const response &>, string path, list<entry<string, string>> params = {});
+        void POST (handler<const response &>, string path, map<header, string> headers, string body);
+        void POST_form_data (handler<const response &>, string path, map<string, string> form_data = {});
+
+    private:
+        ptr<asio::io_context> IO;
+        ptr<HTTP::SSL> SSL;
+
+        HTTP::REST REST;
+
+        tools::rate_limiter Rate;
+
+        list<std::pair<request, handler<const response &>>> Queue;
+        bool Writing;
+
+        void send_next_request ();
+        void send_next_request_now ();
     };
         
-    inline client::client (const HTTP::REST &rest, tools::rate_limiter rate) :
-        client {std::make_shared<HTTP::SSL> (HTTP::SSL::tlsv12_client), rest, rate} {
+    inline client_blocking::client_blocking (const HTTP::REST &rest, tools::rate_limiter rate) :
+        client_blocking {std::make_shared<HTTP::SSL> (HTTP::SSL::tlsv12_client), rest, rate} {
             SSL->set_default_verify_paths ();
             SSL->set_verify_mode (asio::ssl::verify_peer);
         }
 
-    inline client::client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
+    inline client_blocking::client_blocking (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
         SSL {ssl}, REST {rest}, Rate {rate} {}
+
+
+    inline client_async::client_async (ptr<asio::io_context> io, const HTTP::REST &rest, tools::rate_limiter rate) :
+        client_async {io, std::make_shared<HTTP::SSL> (HTTP::SSL::tlsv12_client), rest, rate} {
+            SSL->set_default_verify_paths ();
+            SSL->set_verify_mode (asio::ssl::verify_peer);
+        }
+
+    inline client_async::client_async (ptr<asio::io_context> io, ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
+        IO {io}, SSL {ssl}, REST {rest}, Rate {rate}, Queue {}, Writing {false} {}
     
-    response inline client::operator () (const request &r) {
-        auto wait = Rate.getTime ();
-        asio::io_context io {};
-        if (wait != 0) asio::steady_timer {io, asio::chrono::seconds (wait)}.wait ();
-        return HTTP::call (r, SSL.get ());
-    }
-    
-    response inline client::GET (string path, list<entry<string, string>> params) {
+    response inline client_blocking::GET (string path, list<entry<string, string>> params) {
         return (*this) (REST.GET (path, params));
     }
 
-    void inline client::GET (
-        asio::io_context &io,
+    void inline client_async::GET (
         handler<const response &> on_receive,
         string path,
         list<entry<string, string>> params) {
-        return (*this) (io, on_receive, REST.GET (path, params));
+        return (*this) (on_receive, REST.GET (path, params));
     }
 
-    response inline client::POST (string path, map<header, string> headers, string body) {
+    response inline client_blocking::POST (string path, map<header, string> headers, string body) {
         return (*this) (REST.POST (path, headers, body));
     }
 
-    void inline client::POST (
-        asio::io_context &io,
+    void inline client_async::POST (
         handler<const response &> on_receive,
         string path, map<header, string> headers,
         string body) {
-        return (*this) (io, on_receive, REST.POST (path, headers, body));
+        return (*this) (on_receive, REST.POST (path, headers, body));
     }
     
     // POST form data
-    response inline client::POST_form_data (string path, map<string, string> form_data) {
+    response inline client_blocking::POST_form_data (string path, map<string, string> form_data) {
         return (*this) (REST.POST (path, form_data));
     }
 
-    void inline client::POST_form_data (
-        asio::io_context &io,
+    void inline client_async::POST_form_data (
         handler<const response &> on_receive,
         string path,
         map<string, string> form_data) {
-        return (*this) (io, on_receive, REST.POST (path, form_data));
+        return (*this) (on_receive, REST.POST (path, form_data));
     }
 }
 
