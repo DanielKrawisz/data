@@ -55,7 +55,7 @@ namespace data::net::IP::TCP {
     };
 
     // open a TCP connection.
-    void open (asio::io_context &, endpoint, asio::error_handler, interaction<string_view, const string &>, close_handler);
+    void open (asio::io_context &, endpoint, asio::error_handler, close_handler, interaction<string_view, const string &>);
 
     class server : std::enable_shared_from_this<server> {
         asio::io_context& IO;
