@@ -62,6 +62,7 @@ package_add_test(testSecretShare testSecretShare.cpp)
 package_add_test(testLog testLog.cpp)
 package_add_test(testIP testIP.cpp)
 package_add_test(testException testException.cpp)
+package_add_test(testTCP testTCP.cpp)
 #package_add_test(testRateLimiter testRateLimiter.cpp)
 #package_add_test(testNetworking testNetworking.cpp)
 
