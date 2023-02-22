@@ -4,6 +4,7 @@
 
 #include <data/net/TCP.hpp>
 #include <data/net/async/message_queue.hpp>
+#include <iostream>
 
 namespace data::net::IP {
     

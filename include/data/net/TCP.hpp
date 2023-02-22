@@ -37,7 +37,7 @@ namespace data::net::IP::TCP {
     // A tcp endpoint is an ip address and port.
     struct endpoint : string {
         static constexpr auto pattern = 
-            ctll::fixed_string{
+            ctll::fixed_string {
                 // ip v4. 
                 "((?<V4>([0-9\\.]*))|"
                 // ip v6 with braces around it. 
@@ -46,7 +46,7 @@ namespace data::net::IP::TCP {
                 "(?<port>([0-9]{1,5}))"};
         
         endpoint () : string {} {}
-        endpoint (const string &x) : string{x} {}
+        endpoint (const string &x) : string {x} {}
         endpoint (const IP::address &addr, uint16);
         bool valid () const;
         operator asio::ip::tcp::endpoint () const;
@@ -66,11 +66,11 @@ namespace data::net::IP::TCP {
         void accept ();
         
     public:
-        server (asio::io_context &io, uint16 port);
+        server (asio::io_context &io, uint16 port, interaction<string_view, const string &> interact);
     };
     
-    inline server::server (asio::io_context &io, uint16 port):
-        IO (io), Acceptor (io, asio::ip::tcp::endpoint (asio::ip::tcp::v4 (), port)) {}
+    inline server::server (asio::io_context &io, uint16 port, interaction<string_view, const string &> interact):
+        IO {io}, Acceptor {io, asio::ip::tcp::endpoint (asio::ip::tcp::v4 (), port)}, Socket {}, Interact {interact} {}
     
 }
 
