@@ -54,8 +54,12 @@ namespace data::net::IP {
             port_stream << result.get<"port"> ().to_string ();
             uint16 port;
             port_stream >> port;
+            auto addr_v4_string = address_v4.to_string();
+            auto addr_v6_string = result.get<"V6"> ().to_string ();
+            auto addr_string = bool (!address_v4) ?  addr_v6_string : addr_v4_string;
+            auto addr=asio::ip::address::from_string (addr_string);
             return asio::ip::tcp::endpoint{
-                asio::ip::address (IP::address{bool (address_v4) ? result.get<"V6"> ().to_string () : address_v4.to_string ()}),
+                addr,
                 port};
         }
         
