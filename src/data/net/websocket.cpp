@@ -71,11 +71,11 @@ namespace data::net::websocket {
 
                     auto seq = self->Buffer.data ();
 
-                    string x;
-                    x.resize (bytes_transferred);
-                    std::copy (boost::asio::buffer_sequence_begin(x), boost::asio::buffer_sequence_end(x), x.begin());
+                    // TODO: Fix buffer issue
+                    std::string x(boost::asio::buffers_begin(seq),boost::asio::buffers_end(seq));
 
                     handle (std::basic_string_view {x.data (), bytes_transferred});
+                    self->Buffer.consume(bytes_transferred);
                 });
         }
     };
