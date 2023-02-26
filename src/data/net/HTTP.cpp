@@ -11,6 +11,7 @@
 #include <uriparser/Uri.h>
 #include <data/net/HTTP.hpp>
 #include <data/net/REST.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::net::HTTP {
 
@@ -141,6 +142,11 @@ namespace data::net::HTTP {
             data::insert (response_headers, data::entry<header, string> {field.name (), std::string {field.value ()}});
         return response {res.base ().result (), response_headers, boost::beast::buffers_to_string (res.body ().data ())};
 
+    }
+
+    // async HTTP call
+    void call (asio::io_context &, handler<const response &>, const request &, SSL *) {
+        throw data::method::unimplemented {"HTTP::call async"};
     }
 
 }
