@@ -11,6 +11,8 @@
 
 namespace data::net::HTTP {
     struct client_blocking {
+
+        HTTP::REST REST;
         
         client_blocking (const HTTP::REST &rest, tools::rate_limiter rate = {});
         client_blocking (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate = {});
@@ -23,8 +25,6 @@ namespace data::net::HTTP {
 
     private:
         ptr<HTTP::SSL> SSL;
-
-        HTTP::REST REST;
 
         tools::rate_limiter Rate;
     };
@@ -62,7 +62,7 @@ namespace data::net::HTTP {
         }
 
     inline client_blocking::client_blocking (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
-        SSL {ssl}, REST {rest}, Rate {rate} {}
+        REST {rest}, SSL {ssl}, Rate {rate} {}
 
 
     inline client_async::client_async (ptr<asio::io_context> io, const HTTP::REST &rest, tools::rate_limiter rate) :
