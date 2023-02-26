@@ -9,6 +9,7 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <iostream>
 
 namespace data::net::websocket {
 
@@ -63,20 +64,16 @@ namespace data::net::websocket {
             return closed;
         }
 
+        void read_result(function<void (string_view)> handle,beast::error_code error, std::size_t bytes_transfered) {
+            if (error == beast::websocket::error::closed) close ();
+            else if (error) OnError (error);
+
+            handle (boost::beast::buffers_to_string(Buffer.data()));
+            Buffer.consume(bytes_transfered);
+        }
         void read (function<void (string_view)> handle) final override {
-            Socket->async_read (Buffer,
-                [self = this->shared_from_this (), handle] (const asio::error_code& error, size_t bytes_transferred) -> void {
-                    if (error == beast::websocket::error::closed) self->close ();
-                    else if (error) self->OnError (error);
-
-                    auto seq = self->Buffer.data ();
-
-                    // TODO: Fix buffer issue
-                    std::string x(boost::asio::buffers_begin(seq),boost::asio::buffers_end(seq));
-
-                    handle (std::basic_string_view {x.data (), bytes_transferred});
-                    self->Buffer.consume(bytes_transferred);
-                });
+            Buffer.clear();
+            Socket->async_read (Buffer,boost::beast::bind_front_handler(&socket::read_result,this->shared_from_this (), handle));
         }
     };
 
