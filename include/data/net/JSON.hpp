@@ -18,8 +18,8 @@ namespace data::net {
     void inline open_JSON_session (
         handler<parse_error> error_handler,
         open<string_view, const string &> o,
-        interaction<const JSON &> receiver,
-        close_handler on_close) {
+        close_handler on_close,
+        interaction<const JSON &> receiver) {
             serialized_session<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
                 return j.dump ();
             }, curry (parser<char, const JSON &> (JSON_line_parser), error_handler)) (on_close, receiver);
@@ -29,8 +29,8 @@ namespace data::net {
     void inline open_JSON_line_session (
         handler<parse_error> error_handler,
         open<string_view, const string &> o,
-        interaction<const JSON &> receiver,
-        close_handler on_close) {
+        close_handler on_close,
+        interaction<const JSON &> receiver) {
             serialized_session<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
                 return j.dump () + "\n";
             }, curry (parser<char, const JSON &> (JSON_line_parser), error_handler)) (on_close, receiver);
