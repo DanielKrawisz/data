@@ -4,14 +4,15 @@
 
 namespace data {
 
-    ptr<writer<char>> JSON_line_parser (handler<parse_error> errors, handler<const JSON &> handle) {
+    ptr<writer<char>> JSON_line_parser (handler<const JSON::exception &> errors, handler<const JSON &> handle) {
         struct parser : writer<char> {
             handler<const JSON &> Handler;
-            handler<parse_error> ErrorHandler;
+            handler<const JSON::exception &> ErrorHandler;
 
             std::stringstream Stream;
 
-            parser (handler<const JSON &> handle, handler<parse_error> errors): Handler {handle}, ErrorHandler {errors}, Stream {} {}
+            parser (handler<const JSON &> handle, handler<const JSON::exception &> errors):
+                Handler {handle}, ErrorHandler {errors}, Stream {} {}
 
             void write (const char *data, size_t size) {
                 int last_new_line = 0;
@@ -22,14 +23,14 @@ namespace data {
                     try {
                         Handler (JSON::parse (Stream.str ()));
                     } catch (const JSON::exception &x) {
-                        ErrorHandler (parse_error {x.what()});
+                        ErrorHandler (x);
                     }
 
                     Stream = std::stringstream {};
                     last_new_line = i + 1;
                 }
 
-                Stream.write((const char*)(data + last_new_line), size - last_new_line);
+                Stream.write((const char*) (data + last_new_line), size - last_new_line);
             }
         };
 

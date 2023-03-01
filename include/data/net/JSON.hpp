@@ -6,34 +6,46 @@
 
 #include <data/net/serialized.hpp>
 #include <nlohmann/json.hpp>
+#include <iostream>
 
 namespace data {
     using JSON = nlohmann::json;
 
-    ptr<writer<char>> JSON_line_parser (handler<parse_error>, handler<const JSON &>);
+    ptr<writer<char>> JSON_line_parser (handler<const JSON::exception &>, handler<const JSON &>);
 }
 
 namespace data::net {
 
     void inline open_JSON_session (
-        handler<parse_error> error_handler,
+        handler<const JSON::exception &> error_handler,
         open<string_view, const string &> o,
         close_handler on_close,
         interaction<const JSON &> receiver) {
-            serialized_session<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
+            serialized_session_read<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
                 return j.dump ();
-            }, curry (parser<char, const JSON &> (JSON_line_parser), error_handler)) (on_close, receiver);
+            }, [error_handler] (string_view x) -> JSON {
+                try {
+                    auto j = JSON::parse (x);
+                    std::cout << "parsed as JSON: " << j << std::endl;
+                    return j;
+                } catch (const JSON::exception &x) {
+                    std::cout << "JSON parse error: " << x.what () << std::endl;
+                    error_handler (x);
+                }
+            }) (on_close, receiver);
     }
 
     // JSON line session means that we insert a new line at the end of every JSON type.
     void inline open_JSON_line_session (
-        handler<parse_error> error_handler,
+        handler<const JSON::exception &> error_handler,
         open<string_view, const string &> o,
         close_handler on_close,
         interaction<const JSON &> receiver) {
-            serialized_session<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
+            serialized_session_parsed<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> string {
                 return j.dump () + "\n";
-            }, curry (parser<char, const JSON &> (JSON_line_parser), error_handler)) (on_close, receiver);
+            }, [error_handler] (handler<const JSON &> handler) -> ptr<writer<char>> {
+                return JSON_line_parser (error_handler, handler);
+            }) (on_close, receiver);
     }
     
 }
