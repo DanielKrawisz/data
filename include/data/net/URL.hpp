@@ -53,7 +53,7 @@ namespace data::net {
         const net::protocol &protocol () const;
         net::port port () const;
         const string &host () const;
-        const string &path () const;
+        string path () const;
         list<entry<string, string>> params () const;
         
         URL (net::protocol pr, net::port p, string host, string path, list<entry<string, string>> params = {}) :
@@ -90,10 +90,6 @@ namespace data::net {
 
     const string inline &URL::host () const {
         return Host;
-    }
-
-    const string inline &URL::path () const {
-        return Path;
     }
 
     list<entry<string, string>> inline URL::params () const {

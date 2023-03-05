@@ -5,31 +5,36 @@
 #include <data/net/URL.hpp>
 #include <boost/algorithm/string.hpp>
 #include <string>
+#include <iostream>
 
 namespace data::net {
     namespace {
-        
         string write_params (list<entry<string, string>> params) {
             string path;
-            
-            if(params.size ()>0) {
+
+            if (params.size () > 0) {
                 path.append ("?");
                 for (const auto &it : params) {
-                    path.append(it.Key + "=" + it.Value + "&");
+                    path.append (it.Key + "=" + it.Value + "&");
                 }
 
                 path.pop_back ();
             }
-            
+
             return path;
         }
-        
+    }
+
+    string URL::path () const {
+        std::stringstream ss;
+        ss << Path << write_params (Params);
+        return string {ss.str ()};
     }
     
     URL::operator string () const {
         std::stringstream ss;
         ss << Protocol << "://" << Host << (Port == "" ? string {""} : string {":"} + Port) << Path << write_params (Params);
-        return ss.str ();
+        return string {ss.str ()};
     }
 
     protocol::operator name () const {
