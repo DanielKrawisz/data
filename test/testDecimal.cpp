@@ -78,7 +78,7 @@ namespace data {
         test_decrement_unsigned (expected, given);
         test_increment_signed (given, expected);
     }
-    /*
+
     TEST (DecimalTest, TestDecimalIncrement) {
         
         test_decrement_unsigned ("0", "0");
@@ -92,7 +92,7 @@ namespace data {
         test_increment_unsigned ("98980987676898761029390303474536547398", "98980987676898761029390303474536547399");
         test_increment_unsigned ("98980987676898761029390303474536547399", "98980987676898761029390303474536547400");
         
-    }*/
+    }
     
     void test_add_signed (const string &left, const string &right, const string &expected) {
         dec_int l (left);

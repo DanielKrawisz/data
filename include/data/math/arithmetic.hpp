@@ -166,7 +166,7 @@ namespace data::math::arithmetic {
     } 
     
     template <endian::order r, typename digit> bool inline N_is_minimal (const encoding::words<r, digit> x) {
-        return x.size () == 0 || x[1] != 0;
+        return x.size () == 0 || x[-1] != 0;
     }
     
     template <endian::order r, typename digit> bool ones_is_minimal (const encoding::words<r, digit> x) {
@@ -180,16 +180,17 @@ namespace data::math::arithmetic {
         if (biggest != max_value && biggest != 0) return true;
         // numbers that would be interpreted with the wrong sign if they were shortened. 
         digit next_biggest = x[-2];
-        return (biggest == 0 && (next_biggest & sign_bit<digit> ())) || (biggest == max_value && !(next_biggest & sign_bit<digit>));
+        return (biggest == 0 && (next_biggest & get_sign_bit<digit>::value)) ||
+            (biggest == max_value && !(next_biggest & get_sign_bit<digit>::value));
     }
     
     template <endian::order r, typename digit> bool inline twos_is_minimal (const encoding::words<r, digit> x) {
         // minimal zero. 
         return (x.size () == 0) ||
             // numbers without an initial 00 or 80. 
-            (x[-1] != 0 && x[-1] != sign_bit<digit> ()) ||
+            (x[-1] != 0 && x[-1] != get_sign_bit<digit>::value) ||
             // numbers that would be interpreted as having the wrong sign if they were shortened. 
-            (x.size () > 1 && (x[-2] & sign_bit<digit> ()));
+            (x.size () > 1 && (x[-2] & get_sign_bit<digit>::value));
     }
     
     template <endian::order r, typename digit> size_t inline N_minimal_size (const encoding::words<r, digit> x) {
@@ -201,7 +202,7 @@ namespace data::math::arithmetic {
         return size;
     }
     
-    template <endian::order r, typename digit> size_t ones_minimal_size(const encoding::words<r, digit> x) {
+    template <endian::order r, typename digit> size_t ones_minimal_size (const encoding::words<r, digit> x) {
         if (x.size () == 0) return 0;
         digit d = *x.rbegin ();
         if (d != 0xff && d != 0x00) return x.size ();
@@ -337,28 +338,19 @@ namespace data::math::arithmetic {
 
     }
 
+    // we should already be able to expect that a > b, so the result will not go from positive to negative.
     template <endian::order r, typename digit>
     void minus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
 
-        auto oit = o.rbegin ();
-        auto ait = a.rbegin ();
-        auto bit = b.rbegin ();
+        auto oit = o.begin ();
+        auto ait = a.begin ();
+        auto bit = b.begin ();
 
-        auto end_step_1 = oit + (o.size () - a.size ());
-        auto end_step_2 = oit + (o.size () - b.size ());
+        auto end_step_1 = oit + std::min (a.size (), b.size ());
+        auto end_step_2 = oit + a.size ();
 
-        while (oit != end_step_1) {
-            *oit = 0;
-            oit++;
-        }
-
-        while (oit != end_step_2) {
-            *oit = *ait;
-            ait++;
-            oit++;
-        }
-
-        data::arithmetic::minus<digit> (o.rend (), oit, ait, bit);
+        digit remainder = data::arithmetic::minus<digit> (end_step_1, oit, ait, bit);
+        data::arithmetic::minus<digit> (end_step_2, oit, remainder, ait);
 
     }
 

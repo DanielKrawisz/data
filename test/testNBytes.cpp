@@ -53,13 +53,13 @@ namespace data::math::number {
 
     TEST (NBytesTest, TestNBytesToHexString) {
         
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N_bytes<endian::big> {"0"}), std::string{"0x"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N_bytes<endian::big> {"127"}), std::string{"0x7f"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N_bytes<endian::big> {"128"}), std::string{"0x80"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big> {"0"}), std::string {"0x"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big> {"127"}), std::string {"0x7f"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big> {"128"}), std::string {"0x80"});
         
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N_bytes<endian::little> {"0"}), std::string{"0x"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N_bytes<endian::little> {"127"}), std::string{"0x7f"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N_bytes<endian::little> {"128"}), std::string{"0x80"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::little> {"0"}), std::string {"0x"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::little> {"127"}), std::string {"0x7f"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::little> {"128"}), std::string {"0x80"});
         
     }
     
@@ -138,17 +138,17 @@ namespace data::math::number {
         EXPECT_EQ (encoding::decimal::write (N_bytes<endian::big> {"5704566599993321"}), std::string {"5704566599993321"});
         EXPECT_EQ (encoding::decimal::write (N_bytes<endian::little> {"5704566599993321"}), std::string {"5704566599993321"});
         
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::big> {1}.trim ()), std::string {"0x01"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::little> {1}.trim ()), std::string {"0x01"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::big> {23}.trim ()), std::string {"0x17"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::little> {23}.trim ()), std::string {"0x17"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::big> {"5704566599993321"}), std::string {"0x144445e9ca47e9"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::little> {"5704566599993321"}), std::string {"0x144445e9ca47e9"});
         
     }
@@ -165,7 +165,7 @@ namespace data::math::number {
     
     template<endian::order r>
     math::number::N_bytes<r> N_to_N_Bytes_stupid (const math::N& n) {
-        return math::number::N_bytes<r>::read (encoding::hexidecimal::write<encoding::hex::lower> (n));
+        return math::number::N_bytes<r>::read (encoding::hexidecimal::write<hex_case::lower> (n));
     }
     
     template <typename in> void N_Bytes_to_N (in x) {

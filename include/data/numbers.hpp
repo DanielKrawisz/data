@@ -87,10 +87,10 @@ namespace data {
     
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
-    using hex_uint = hex::uint<encoding::hex::lower>;
-    using hex_int = hex::int1<encoding::hex::lower>;
-    using hex_int_ones = hex::int1<encoding::hex::lower>;
-    using hex_int_twos = hex::int2<encoding::hex::lower>;
+    using hex_uint = hex::uint<hex_case::lower>;
+    using hex_int = hex::int1<hex_case::lower>;
+    using hex_int_ones = hex::int1<hex_case::lower>;
+    using hex_int_twos = hex::int2<hex_case::lower>;
     using base58_uint = encoding::base58::string;
     
     // rational numbers. 

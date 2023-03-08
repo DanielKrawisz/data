@@ -34,18 +34,18 @@ namespace data {
         EXPECT_EQ (N {1}, N {"0x0001"});
         EXPECT_EQ (N {255}, N {"0xff"});
         
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N {0}), "0x");
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {0}), "0x");
         EXPECT_EQ (encoding::decimal::write (N {0}), "0");
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N {1}), "0x01");
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {1}), "0x01");
         EXPECT_EQ (encoding::decimal::write (N {1}), "1");
         
     }
     
     TEST (NTest, TestNToHexString) {
         
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N {"0"}), std::string {"0x"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N {"127"}), std::string {"0x7f"});
-        EXPECT_EQ (encoding::hexidecimal::write<encoding::hex::lower> (N {"128"}), std::string {"0x80"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {"0"}), std::string {"0x"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {"127"}), std::string {"0x7f"});
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {"128"}), std::string {"0x80"});
         
     }
     

@@ -124,16 +124,17 @@ namespace data::arithmetic {
     
     template <typename digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
-    digit minus (sen z, ito a, digit d, iti b) {
+    digit minus (sen z, ito &a, digit d, iti &b) {
         digit remainder = d;
         while (a != z) {
             if (*b >= remainder) {
                 *a = *b - remainder; 
-                return 0;
-            } 
-            
-            *a = encoding::lesser_half<typename encoding::twice<digit>::type> (encoding::combine<digit> (1, *b) - remainder);
-            remainder = 1;
+                remainder = 0;
+            } else {
+                *a = encoding::lesser_half<typename encoding::twice<digit>::type> (encoding::combine<digit> (1, *b) - remainder);
+                remainder = 1;
+            }
+
             a++;
             b++;
         }
@@ -162,20 +163,22 @@ namespace data::arithmetic {
     
     template <typename digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti> 
-    digit minus (sen z, ito i, iti a, iti b) {
+    digit minus (sen z, ito &i, iti &a, iti &b) {
         using two_digits = typename encoding::twice<digit>::type;
         
         two_digits remainder = 0;
         
-        int dig = 0;
         while (i != z) {
-            two_digits result = encoding::subtract<digit> (*a, *b, remainder);
-            remainder = encoding::greater_half (result);
-            *i = encoding::lesser_half (result);
+
+            auto step = encoding::combine<digit> (1, *a) - *b - remainder;
+
+            *i = encoding::lesser_half<typename encoding::twice<digit>::type> (step);
+
+            remainder = encoding::greater_half<typename encoding::twice<digit>::type> (step) == 0 ? 1 : 0;
+
             i++;
             a++;
             b++;
-            dig ++;
         }
         
         return remainder;
