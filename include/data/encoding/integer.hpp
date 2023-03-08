@@ -120,6 +120,13 @@ namespace data::encoding {
         string operator | (const string &n, const decimal::string &x);
         string operator & (const string &n, const decimal::string &x);
         string operator / (const string &n, const decimal::string &x);
+
+        string operator + (const decimal::string &n, const string &x);
+        string operator - (const decimal::string &n, const string &x);
+        string operator * (const decimal::string &n, const string &x);
+        string operator | (const decimal::string &n, const string &x);
+        string operator & (const decimal::string &n, const string &x);
+        string operator / (const decimal::string &n, const string &x);
         
         decimal::string operator % (const string &, const decimal::string &x);
         
@@ -152,7 +159,7 @@ namespace data::encoding {
         
         template <hex::letter_case cx> struct string : std::string {
             string () : string {"0x"} {}
-            explicit string (const std::string &x) : std::string {hexidecimal::valid(x) ? x : ""} {}
+            explicit string (const std::string &x) : std::string {hexidecimal::valid (x) ? x : ""} {}
             explicit string (std::string &&x) : std::string {x} {}
             bool valid () const {
                 return hexidecimal::valid (*this);
@@ -212,12 +219,21 @@ namespace data::encoding {
 
         template <complement c, hex::letter_case cx>
         integer<c, cx> operator & (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <hex::letter_case cx>
+        integer<complement::nones, cx> operator | (const integer<complement::nones, cx> &, uint64);
+
+        template <hex::letter_case cx>
+        integer<complement::nones, cx> operator & (const integer<complement::nones, cx> &, uint64);
         
         template <complement c, hex::letter_case cx>
         integer<c, cx> operator << (const integer<c, cx> &, int);
         
         template <complement c, hex::letter_case cx>
         integer<c, cx> operator >> (const integer<c, cx> &, int);
+
+        template <hex::letter_case cx>
+        integer<complement::ones, cx> operator - (const integer<complement::nones, cx> &);
         
         template <hex::letter_case cx> 
         integer<complement::ones, cx> operator - (const integer<complement::ones, cx> &);
@@ -485,6 +501,7 @@ namespace data::encoding::decimal {
         string &operator *= (uint64);
         
         explicit operator double () const;
+        explicit operator uint64 () const;
     };
     
     signed_decimal::string operator - (const string &);
@@ -529,19 +546,20 @@ namespace data::encoding::signed_decimal {
         string &operator *= (int64);
         
         explicit operator double () const;
+        explicit operator int64 () const;
     };
     
     template <endian::order r, complement n> 
-    std::ostream &write(std::ostream &w, const math::number::Z_bytes<r, n> &z) {
-        if (math::is_negative(z)) w << "-";
-        return decimal::write(w, data::abs(z));
+    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, n> &z) {
+        if (math::is_negative (z)) w << "-";
+        return decimal::write (w, data::abs (z));
     }
     
     template <endian::order r, complement n> 
-    string inline write(const math::number::Z_bytes<r, n> &z) {
+    string inline write (const math::number::Z_bytes<r, n> &z) {
         std::stringstream ss;
-        write(ss, z);
-        return string{ss.str()};
+        write (ss, z);
+        return string {ss.str ()};
     }
 }
 
@@ -557,10 +575,12 @@ namespace data::encoding::hexidecimal {
     
     template <complement c, hex::letter_case cx>
     struct integer : string<cx> {
+        using bit64 = fundamental64<math::number::signed_complement<c>::value>::type;
+
         using string<cx>::string;
         integer (const string<cx> &x): string<cx> {x} {}
         integer () : string<cx> {"0x"} {}
-        integer (fundamental64<math::number::signed_complement<c>::value>::type);
+        integer (bit64);
         
         static integer read (const std::string &);
         
@@ -588,6 +608,7 @@ namespace data::encoding::hexidecimal {
         integer &operator *= (int64);
         
         explicit operator double () const;
+        explicit operator bit64 () const;
         
         integer &trim ();
         integer trim () const;
@@ -924,13 +945,28 @@ namespace data::encoding::hexidecimal {
         (integer<complement::ones, cx> &n, const integer<complement::nones, cx> &m) {
         return n &= integer<complement::ones, cx> {math::number::extend (m, m.size () + 1)};
     }
+
+    template <hex::letter_case cx>
+    integer<complement::nones, cx> inline operator | (const integer<complement::nones, cx> &x, uint64 u) {
+        return x | integer<complement::nones, cx> {u};
+    }
+
+    template <hex::letter_case cx>
+    integer<complement::nones, cx> inline operator & (const integer<complement::nones, cx> &x, uint64 u) {
+        return x & integer<complement::nones, cx> {u};
+    }
+
+    template <hex::letter_case cx>
+    integer<complement::ones, cx> inline operator - (const integer<complement::nones, cx> &x) {
+        return -integer<complement::nones, cx> (x);
+    }
     
     namespace {
         template <complement n, hex::letter_case zz> struct read_dec_integer {
             integer<n, zz> operator () (const std::string &x) {
                 if (decimal::valid (x)) {
-                    auto z = integer<complement::nones, zz> {write<zz>(*decimal::read<endian::little> (x))};
-                    return math::number::trim (integer<n, zz>{math::number::extend (z, z.size () + 2)});
+                    auto z = integer<complement::nones, zz> {write<zz> (*decimal::read<endian::little> (x))};
+                    return math::number::trim (integer<n, zz> {math::number::extend (z, z.size () + 2)});
                 }
                 
                 if (signed_decimal::valid (x)) {
@@ -1345,7 +1381,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::math::number {
     
-    template <encoding::hex::letter_case cx> 
+    template <hex_case cx>
     encoding::hexidecimal::integer<number::complement::nones, cx> 
     trim (const encoding::hexidecimal::integer<number::complement::nones, cx> &x) {
         
@@ -1361,9 +1397,10 @@ namespace data::math::number {
         return n;
     }
     
-    template <encoding::hex::letter_case cx> 
+    template <hex_case cx>
     encoding::hexidecimal::integer<number::complement::ones, cx> 
     trim (const encoding::hexidecimal::integer<number::complement::ones, cx> &x) {
+
         if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: \"" << x << "\"";
         
         size_t min_size = minimal_size (x);
@@ -1376,7 +1413,7 @@ namespace data::math::number {
         return n;
     }
     
-    template <encoding::hex::letter_case cx> 
+    template <hex_case cx>
     encoding::hexidecimal::integer<number::complement::twos, cx> 
     trim (const encoding::hexidecimal::integer<number::complement::twos, cx> &x) {
         
@@ -1493,7 +1530,7 @@ namespace data::encoding::hexidecimal {
             
             arithmetic::bit_and<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
-            if (zz == hex::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
+            if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
 
         }
@@ -1510,7 +1547,7 @@ namespace data::encoding::hexidecimal {
             
             arithmetic::bit_or<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
-            if (zz == hex::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin() + 2);
+            if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin() + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
 
         }
@@ -1527,7 +1564,7 @@ namespace data::encoding::hexidecimal {
             
             arithmetic::bit_xor<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
-            if (zz == hex::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
+            if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
 
         }
@@ -1673,7 +1710,7 @@ namespace data::encoding::hexidecimal {
             integer<c, zz> operator () (
                 const integer<c, zz> &a, 
                 const integer<c, zz> &b) {
-                
+
                 if (a.size () < b.size ()) return add<c, zz> {} (b, a);
                 
                 bool an = math::is_negative (a);
@@ -1722,7 +1759,7 @@ namespace data::encoding::hexidecimal {
         };
         
         template <hex::letter_case zz> 
-        integer<complement::twos, zz> inline
+        integer<complement::ones, zz> inline
         minus (const integer<complement::ones, zz> &a, const integer<complement::ones, zz> &b) {
             return add<complement::ones, zz> {} (a, -b);
         }
@@ -1866,6 +1903,7 @@ namespace data::encoding::hexidecimal {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: \"" << x << "\"";
         
         if (x == std::string ("0x")) return x = integer<complement::ones, zz> {"0xff"};
+        x = math::number::extend (x, x.size () + 2);
         N_decrement (x);
         return x.trim ();
     }
@@ -1922,7 +1960,7 @@ namespace data::encoding::hexidecimal {
     integer<c, zz> inline operator << (const integer<c, zz> &x, int i) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: \"" << x << "\"";
         
-        return math::number::trim (bit_shift (x, -i));
+        return math::number::trim (bit_shift (x, i));
     }
     
     template <complement c, hex::letter_case zz> 
@@ -1951,7 +1989,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::math {
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     bool is_positive_zero (const hex::int2<zz> &z) {
         auto digit = z.begin () + 2;
         
@@ -1965,7 +2003,7 @@ namespace data::math {
         return true;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
         bool is_negative_zero (const hex::int2<zz> &z) {
         auto digit = z.begin () + 2;
         if (*digit != '8') return false;
@@ -1980,13 +2018,13 @@ namespace data::math {
         return true;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     bool inline is_negative (const hex::int2<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: \"" << x << "\"";
         return number::sign_bit_set (x) && !is_negative_zero (x);
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     bool is_zero (const hex::int2<zz> &z) {
         auto digit = z.begin () + 2;
         if (digit == z.end ()) return true;
@@ -2004,12 +2042,12 @@ namespace data::math {
 }
 
 namespace data::math::number {
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     bool inline sign_bit_set(const hex::int2<zz> &x) {
         return x.size() > 2 && encoding::hexidecimal::digit(x[2]) > 7;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     bool is_minimal(const hex::int1<zz> &x) {
         // minimal zero. 
         if (x.size () == 2) return true;
@@ -2022,7 +2060,7 @@ namespace data::math::number {
         return x[2] == '0' && d >= 8 || x[2] == 'f' && d < 8;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     bool inline is_minimal (const hex::int2<zz> &x) {
         // minimal zero. 
         return (x.size () == 2) ||
@@ -2035,7 +2073,7 @@ namespace data::math::number {
                 encoding::hexidecimal::digit (x[4]) >= 8);
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     hex::uint<zz> extend (const hex::uint<zz> &x, size_t size) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: \"" << x << "\"";
         
@@ -2059,7 +2097,7 @@ namespace data::math::number {
         return n;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     hex::int1<zz> extend (const hex::int1<zz> &x, size_t size) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: \"" << x << "\"";
         
@@ -2074,8 +2112,11 @@ namespace data::math::number {
         hex::uint<zz> n;
         n.resize (size);
         auto i = n.begin () + 2;
+
+        char fill = is_negative (x) ? (zz == hex_case::upper ? 'F' : 'f') : '0';
+
         for (int zeros = 0; zeros < size - x.size (); zeros ++) {
-            *i = '0';
+            *i = fill;
             i ++;
         }
         
@@ -2083,7 +2124,7 @@ namespace data::math::number {
         return n;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     hex::int2<zz> extend (const hex::int2<zz> &x, size_t size) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: \"" << x << "\"";
         
@@ -2118,7 +2159,7 @@ namespace data::math::number {
         
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     size_t minimal_size (const hex::uint<zz> &x) {
         int zeros = 0;
         for (auto i = x.begin () + 2; i != x.end (); i += 2)
@@ -2127,7 +2168,7 @@ namespace data::math::number {
         return x.size () - zeros;
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     size_t minimal_size (const hex::int1<zz> &x) {
         if (x.size () == 2) return 2;
         // numbers that don't begin with 00 or ff are minimal. 
@@ -2149,7 +2190,7 @@ namespace data::math::number {
         }
     }
     
-    template <encoding::hex::letter_case zz> 
+    template <hex_case zz>
     size_t minimal_size (const hex::int2<zz> &x) {
         if (x.size () == 2) return 2;
         // numbers that don't begin with 00 or 80 are minimal. 

@@ -17,7 +17,7 @@
 namespace data::encoding::hex {
     const std::string Format {"hex"};
     
-    enum letter_case {
+    enum class letter_case {
         upper, 
         lower
     };
@@ -31,7 +31,7 @@ namespace data::encoding::hex {
     }
     
     std::string inline characters (letter_case x) {
-        return x == upper ? characters_upper () : characters_lower ();
+        return x == letter_case::upper ? characters_upper () : characters_lower ();
     }
     
     static constexpr auto pattern = ctll::fixed_string {"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
@@ -56,14 +56,14 @@ namespace data::encoding::hex {
     };
     
     template <std::ranges::range range> 
-    std::ostream &write (std::ostream &o, range r, letter_case q = lower) {
+    std::ostream &write (std::ostream &o, range r, letter_case q = letter_case::lower) {
         return o << write (r, q);
     }
     
     template <std::ranges::range range> 
-    string write (range r, letter_case q = lower) {
+    string write (range r, letter_case q = letter_case::lower) {
         string output ((r.end() - r.begin ()));
-        if (q == upper) boost::algorithm::hex (r.begin (), r.end (), output.begin ());
+        if (q == letter_case::upper) boost::algorithm::hex (r.begin (), r.end (), output.begin ());
         else boost::algorithm::hex_lower (r.begin (), r.end (), output.begin ());
         return output;
     }
@@ -80,18 +80,18 @@ namespace data::encoding::hex {
     };
     
     // write numbers as fixed size hex strings.
-    fixed<8> write (uint64, letter_case = upper);
-    fixed<4> write (uint32, letter_case = upper);
-    fixed<2> write (uint16, letter_case = upper);
-    fixed<1> write (byte, letter_case = upper);
+    fixed<8> write (uint64, letter_case = letter_case::upper);
+    fixed<4> write (uint32, letter_case = letter_case::upper);
+    fixed<2> write (uint16, letter_case = letter_case::upper);
+    fixed<1> write (byte, letter_case = letter_case::upper);
     
     template <endian::order o, size_t x>
-    fixed<x> write (endian::arithmetic<false, o, x>, letter_case = upper);
+    fixed<x> write (endian::arithmetic<false, o, x>, letter_case = letter_case::upper);
     
     template <endian::order o, size_t x>
     fixed<x> write (endian::arithmetic<false, o, x> n, letter_case q) {
         fixed<x> output;
-        if (q == upper) boost::algorithm::hex (n.begin (), n.end (), output.begin ());
+        if (q == letter_case::upper) boost::algorithm::hex (n.begin (), n.end (), output.begin ());
         else boost::algorithm::hex_lower (n.begin (), n.end (), output.begin ());
         return output;
     }

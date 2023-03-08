@@ -63,6 +63,7 @@ namespace data::encoding::base58 {
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.
     std::strong_ordering operator <=> (const string &, const string &);
+    bool operator == (const string &, uint64);
     
     string& operator ++ (string &);
     string& operator -- (string &);
@@ -83,6 +84,9 @@ namespace data::encoding::base58 {
     string operator + (const string &n, uint64 x);
     string operator - (const string &n, uint64 x);
     string operator * (const string &n, uint64 x);
+
+    string operator / (const string &, const string &);
+    string operator % (const string &, const string &);
     
     string &operator += (string &a, const string &);
     string &operator -= (string &a, const string &);
@@ -110,17 +114,19 @@ namespace data::encoding::base58 {
         
         static string read (const std::string &);
         
-        string& operator += (const string&);
-        string& operator -= (const string&);
-        string& operator *= (const string&);
+        string& operator += (const string &);
+        string& operator -= (const string &);
+        string& operator *= (const string &);
         
         string& operator <<= (int);
         string& operator >>= (int);
         
-        string operator &= (const string&) const;
-        string operator |= (const string&) const;
+        string operator &= (const string &) const;
+        string operator |= (const string &) const;
 
-        math::division<string, uint64> divide(uint64) const;
+        math::division<string, uint64> divide (uint64) const;
+
+        explicit operator uint64 () const;
     };
     
     template <typename N>

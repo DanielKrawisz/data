@@ -41,6 +41,7 @@ namespace data {
         eratosthenes_test<N_bytes_little> ();
         eratosthenes_test<N_bytes_big> ();
         eratosthenes_test<dec_uint> ();
+        eratosthenes_test<hex_uint> ();
         eratosthenes_test<base58_uint> ();
         //eratosthenes_test<CryptoPP::Integer>();
         

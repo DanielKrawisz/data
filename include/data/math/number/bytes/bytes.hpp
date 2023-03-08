@@ -134,35 +134,19 @@ namespace data::math::number {
     template <endian::order r, complement c> 
     Z_bytes<r, c> operator * (const N_bytes<r> &, const Z_bytes<r, c> &);
     
-    template <endian::order r> 
-    N_bytes<r> operator + (const N_bytes<r> &, uint64);
+    template <endian::order r> N_bytes<r> operator + (const N_bytes<r> &, uint64);
+    template <endian::order r> N_bytes<r> operator - (const N_bytes<r> &, uint64);
+    template <endian::order r> N_bytes<r> operator * (const N_bytes<r> &, uint64);
     
-    template <endian::order r> 
-    N_bytes<r> operator - (const N_bytes<r> &, uint64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator + (const Z_bytes<r, c> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator - (const Z_bytes<r, c> &, int64);
+    template <endian::order r, complement c> Z_bytes<r, c> operator * (const Z_bytes<r, c> &, int64);
     
-    template <endian::order r> 
-    N_bytes<r> operator * (const N_bytes<r> &, uint64);
+    template <endian::order r> N_bytes<r> operator << (const N_bytes<r> &, int);
+    template <endian::order r> N_bytes<r> operator >> (const N_bytes<r> &, int);
     
-    template <endian::order r, complement c> 
-    Z_bytes<r, c> operator + (const Z_bytes<r, c> &, int64);
-    
-    template <endian::order r, complement c> 
-    Z_bytes<r, c> operator - (const Z_bytes<r, c> &, int64);
-    
-    template <endian::order r, complement c> 
-    Z_bytes<r, c> operator * (const Z_bytes<r, c> &, int64);
-    
-    template <endian::order r> 
-    N_bytes<r> operator << (const N_bytes<r>&, int);
-    
-    template <endian::order r> 
-    N_bytes<r> operator >> (const N_bytes<r>&, int);
-    
-    template <endian::order r, complement c> 
-    Z_bytes<r, c> operator << (const Z_bytes<r, c>&, int);
-    
-    template <endian::order r, complement c> 
-    Z_bytes<r, c> operator >> (const Z_bytes<r, c>&, int);
+    template <endian::order r, complement c> Z_bytes<r, c> operator << (const Z_bytes<r, c> &, int);
+    template <endian::order r, complement c> Z_bytes<r, c> operator >> (const Z_bytes<r, c> &, int);
     
     template <endian::order r> bool is_minimal (const N_bytes<r> &);
     template <endian::order r> bool is_minimal (const Z_bytes<r, complement::ones> &);
@@ -260,29 +244,29 @@ namespace data {
     template <endian::order r> math::sign sign (const math::N_bytes<r> &);
     template <endian::order r, math::number::complement c> math::sign sign (const math::number::Z_bytes<r, c> &);
     
-    template <endian::order r> math::number::N_bytes<r> increment (const math::number::N_bytes<r>&);
-    template <endian::order r> math::number::N_bytes<r> decrement (const math::number::N_bytes<r>&);
+    template <endian::order r> math::number::N_bytes<r> increment (const math::number::N_bytes<r> &);
+    template <endian::order r> math::number::N_bytes<r> decrement (const math::number::N_bytes<r> &);
     
-    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> increment (const math::number::Z_bytes<r, c>&);
-    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> decrement (const math::number::Z_bytes<r, c>&);
+    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> increment (const math::number::Z_bytes<r, c> &);
+    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> decrement (const math::number::Z_bytes<r, c> &);
     
 }
 
 namespace data::math::number {
     
-    template <endian::order r> N_bytes<r> operator / (const N_bytes<r>&, const N_bytes<r>&);
-    template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c>&, const Z_bytes<r, c>&);
+    template <endian::order r> N_bytes<r> operator / (const N_bytes<r> &, const N_bytes<r> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c>&, const Z_bytes<r, c> &);
     
     template <endian::order r> N_bytes<r> operator / (const N_bytes<r> &, uint64);
     template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c> &, int64);
     
     template <endian::order r> N_bytes<r> operator % (const N_bytes<r> &, const N_bytes<r> &);
-    template <endian::order r, complement c> N_bytes<r> operator % (const Z_bytes<r, c> &, const N_bytes<r>&);
+    template <endian::order r, complement c> N_bytes<r> operator % (const Z_bytes<r, c> &, const N_bytes<r> &);
     template <endian::order r> 
     Z_bytes<r, complement::twos> operator % (
         const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
     
-    template <endian::order r> uint64 operator % (const N_bytes<r>&, uint64);
+    template <endian::order r> uint64 operator % (const N_bytes<r> &, uint64);
     template <endian::order r, complement c> uint64 operator % (const Z_bytes<r, c> &, uint64);
     
     // pre-increment and decreement
@@ -320,13 +304,13 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> &operator <<= (N_bytes<r> &, int64);
     template <endian::order r, complement c> Z_bytes<r, c> &operator <<= (Z_bytes<r, c> &, int64);
     
-    template <endian::order r> N_bytes<r> &operator >>= (N_bytes<r>&, int64);
+    template <endian::order r> N_bytes<r> &operator >>= (N_bytes<r> &, int64);
     template <endian::order r, complement c> Z_bytes<r, c> &operator >>= (Z_bytes<r, c> &, int64);
     
     template <endian::order r> N_bytes<r> &operator /= (N_bytes<r> &, const N_bytes<r> &);
     template <endian::order r, complement c> Z_bytes<r, c> &operator /= (Z_bytes<r, c> &, const Z_bytes<r, c> &);
     
-    template <endian::order r> N_bytes<r> &operator /= (N_bytes<r>&, uint64);
+    template <endian::order r> N_bytes<r> &operator /= (N_bytes<r> &, uint64);
     template <endian::order r, complement c> Z_bytes<r, c> &operator /= (Z_bytes<r, c> &, int64);
     
 }
@@ -371,7 +355,7 @@ namespace data::encoding::hexidecimal {
     ptr<oriented<r, byte>> read (string_view s);
     
     template <endian::order r> 
-    std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q = hex::lower);
+    std::ostream &write (std::ostream &o, const oriented<r, byte> &d, hex_case q = hex_case::lower);
     
     template <hex_case zz> struct string;
     
