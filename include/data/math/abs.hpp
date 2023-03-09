@@ -15,43 +15,43 @@ namespace data::math {
 
 namespace data {
     template <typename X> 
-    auto abs(const X &x) -> decltype(math::abs<X>{}(x)) {
-        return math::abs<X>{}(x);
+    auto abs (const X &x) -> decltype (math::abs<X> {} (x)) {
+        return math::abs<X> {}(x);
     }
     
-    template <typename X> 
-    auto quadrance(const X &x) -> decltype(math::abs<X>{}(x)) {
-        return math::quadrance<X>{}(x);
+    template <typename X>
+    auto quadrance (const X &x) -> decltype (math::abs<X> {} (x)) {
+        return math::quadrance<X> {} (x);
     }
     
-    template <typename X> auto inline norm(const X &x) -> decltype(quadrance(x)) {
-        return quadrance(x);
+    template <typename X> auto inline norm (const X &x) -> decltype (quadrance (x)) {
+        return quadrance (x);
     }
 }
 
 namespace data::math {
     
     template <std::unsigned_integral X> struct abs<X> {
-        X operator()(const X &x) {
+        X operator () (const X &x) {
             return x;
         }
     };
     
     template <std::signed_integral X> struct abs<X> {
-        std::make_unsigned<X>::type operator()(const X &x) {
-            return static_cast<std::make_unsigned<X>::type>(x < 0 ? -x : x);
+        std::make_unsigned<X>::type operator () (const X &x) {
+            return static_cast<std::make_unsigned<X>::type> (x < 0 ? -x : x);
         }
     };
     
     template <std::unsigned_integral X> struct quadrance<X> {
-        X operator()(const X &x) {
+        X operator () (const X &x) {
             return x * x;
         }
     };
     
     template <std::signed_integral X> struct quadrance<X> {
-        std::make_unsigned<X>::type operator()(const X &x) {
-            return data::abs(x) * data::abs(x);
+        std::make_unsigned<X>::type operator () (const X &x) {
+            return data::abs (x) * data::abs (x);
         }
     };
     
