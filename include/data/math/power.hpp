@@ -10,22 +10,22 @@
 namespace data::math {
     template <typename X, typename N>
     class power {
-        static X square(X x) {
+        static X square (X x) {
             return x * x;
         }
         
-        static X pow(X so_far, X pow_2n, N p) {
+        static X pow (X so_far, X pow_2n, N p) {
             if (p == 0) return so_far;
-            division<X> d = data::divide(p, 2);
-            return pow(d.Remainder == 1 ? so_far + pow_2n : so_far, square(pow_2n), d.Quotient);
+            division<X> d = data::divide (p, 2);
+            return pow (d.Remainder == 1 ? so_far + pow_2n : so_far, square (pow_2n), d.Quotient);
         }
         
     public:
-        X operator()(X x, N n) const {
+        X operator () (X x, N n) const {
             if (n == 0) return 1;
             if (n == 1) return x;
-            if (n == 2) return square(x);
-            return pow(0, x, n);
+            if (n == 2) return square (x);
+            return pow (0, x, n);
         }
     };
 
@@ -33,8 +33,8 @@ namespace data::math {
 
 namespace data {
     template <typename X, typename N> 
-    X inline power(X x, N n) {
-        return math::power<X, N>{}(x, n);
+    X inline power (X x, N n) {
+        return math::power<X, N> {} (x, n);
     }
 }
 

@@ -10,8 +10,8 @@
 
 namespace data::interface {
     template <typename X>
-    concept has_reverse_method = requires(const X x) {
-        { x.reverse() } -> std::same_as<X>;
+    concept has_reverse_method = requires (const X x) {
+        { x.reverse () } -> std::same_as<X>;
     };
     
 }
@@ -19,20 +19,20 @@ namespace data::interface {
 namespace data {
 
     template <functional::stack list> 
-    list reverse(const list &given, const list &reversed) {
-        if (data::empty(given)) return reversed;
-        return data::reverse(rest(given), prepend(reversed, first(given)));
+    list reverse (const list &given, const list &reversed) {
+        if (data::empty (given)) return reversed;
+        return data::reverse (rest (given), prepend (reversed, first (given)));
     }
 
     template <interface::has_reverse_method X> 
-    X reverse(const X &x) {
-        return x.reverse();
+    X reverse (const X &x) {
+        return x.reverse ();
     }
 
     template <iterable X> 
-    X reverse(const X &x) {
+    X reverse (const X &x) {
         auto z = x;
-        std::reverse(z.begin(), z.end());
+        std::reverse (z.begin (), z.end ());
         return z;
     }
 
