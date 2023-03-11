@@ -12,6 +12,41 @@
 #include <data/math/sign.hpp>
 
 namespace data::endian {
+
+    template <bool is_signed, boost::endian::order Order, std::size_t bytes> struct arithmetic;
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> &operator ++ (arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> &operator -- (arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator ++ (arithmetic<z, o, s> &, int);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator -- (arithmetic<z, o, s> &, int);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator + (const arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator - (const arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator * (const arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator / (const arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> &operator += (arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> &operator -= (arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> &operator *= (arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
     
     template <bool is_signed, boost::endian::order Order, std::size_t bytes>
     struct arithmetic : boost::endian::endian_arithmetic<Order, to_native<is_signed, bytes>, 8 * bytes, boost::endian::align::no> {
@@ -88,6 +123,24 @@ namespace data::endian {
     template <bool z, boost::endian::order o, std::size_t s>
     reader<byte> inline &operator >> (reader<byte> &r, arithmetic<z, o, s> &x) {
         return r >> slice<byte> (x);
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline &operator += (arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        static_cast<arithmetic<z, o, s>::boost_arith &> (a) += static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+        return a;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline &operator -= (arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        static_cast<arithmetic<z, o, s>::boost_arith &> (a) -= static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+        return a;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline &operator *= (arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        static_cast<arithmetic<z, o, s>::boost_arith &> (a) *= static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+        return a;
     }
     
 }

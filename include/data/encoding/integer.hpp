@@ -255,6 +255,15 @@ namespace data::encoding {
         
         template <hex::letter_case cx> 
         integer<complement::ones, cx> operator * (const integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<complement::ones, cx> operator + (const integer<complement::nones, cx> &n, const integer<complement::ones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<complement::ones, cx> operator - (const integer<complement::nones, cx> &n, const integer<complement::ones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<complement::ones, cx> operator * (const integer<complement::nones, cx> &n, const integer<complement::ones, cx> &x);
         
         template <hex::letter_case cx> 
         integer<complement::ones, cx> operator | (const integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
@@ -283,6 +292,7 @@ namespace data::encoding {
     }
     
     namespace natural {
+
         static constexpr ctll::fixed_string pattern {"0|([1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
 
         static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};
@@ -297,6 +307,7 @@ namespace data::encoding {
     }
     
     namespace integer {
+
         static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)|(0x((([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)))"};
         
         static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};

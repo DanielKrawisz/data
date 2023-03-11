@@ -166,7 +166,7 @@ namespace data::encoding {
         EXPECT_EQ (base58_uint {27} * base58_uint {25}, base58_uint {675});
         
     }
-    /*
+
     TEST (StringNumbersTest, TestDivideStringNumbers) {
         
         uint64 num = 432;
@@ -189,5 +189,5 @@ namespace data::encoding {
         EXPECT_EQ (hex_uint {num}.divide (15),     hex_expected_15);
         EXPECT_EQ (base58_uint {num}.divide (57),  b58_expected_57);
         
-    }*/
+    }
 }
