@@ -50,8 +50,11 @@ namespace data {
         {power (a, b)} -> std::same_as<NN>;
     } struct test_unsigned_number : test_whole_number<NN> {
         test_unsigned_number () {
+            EXPECT_EQ (N (NN (0)), N (0)) << " number: " << NN (0) << " vs " << N (0) << " merp " << N (NN (0));
+
             EXPECT_EQ (decrement (NN {0u}), NN {0u});
-            EXPECT_EQ (N (NN (0)), N (0));
+
+            EXPECT_EQ (increment (NN {0u}), NN {1u});
         }
     };
     
@@ -62,8 +65,12 @@ namespace data {
         {z == 0};
     } struct test_signed_number : test_whole_number<ZZ> {
         test_signed_number () {
-            EXPECT_EQ (decrement (ZZ {0}), ZZ {-1});
             EXPECT_EQ (Z (ZZ (0)), Z (0));
+
+            EXPECT_EQ (decrement (ZZ {0}), ZZ {-1});
+
+            EXPECT_EQ (increment (ZZ {0}), ZZ {1});
+            EXPECT_EQ (increment (ZZ {-1}), ZZ {0});
         }
     };
     
@@ -104,8 +111,8 @@ namespace data {
     TEST (NumbersTest, TestNumberSystem) {
 
         test_number_system<uint64, int64> {};
-        //test_number_system<uint64_little, int64_little> {};
-        //test_number_system<uint64_big, int64_big> {};
+        test_number_system<uint64_little, int64_little> {};
+        test_number_system<uint64_big, int64_big> {};
 
         test_number_system<uint_little<9>, int_little<9>> {};
         test_number_system<uint_big<9>, int_big<9>> {};
@@ -121,10 +128,10 @@ namespace data {
         test_number_system<N_bytes_little, Z_bytes_little> {};
         test_number_system<N_bytes_big, Z_bytes_big> {};
 
-        //test_unsigned_number<base58_uint> {};
+        test_unsigned_number<base58_uint> {};
 
         test_number_system<dec_uint, dec_int> {};
-        //test_number_system<hex_uint, hex_int> {};
+        test_number_system<hex_uint, hex_int> {};
 /*
         test_signed_number<hex_int_twos> {};
 

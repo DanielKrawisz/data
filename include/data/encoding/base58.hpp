@@ -68,8 +68,8 @@ namespace data::encoding::base58 {
     std::strong_ordering operator <=> (const string &, const string &);
     bool operator == (const string &, uint64);
     
-    string& operator ++ (string &);
-    string& operator -- (string &);
+    string &operator ++ (string &);
+    string &operator -- (string &);
     
     string operator ++ (string &, int);
     string operator -- (string &, int);
@@ -84,27 +84,30 @@ namespace data::encoding::base58 {
     string operator & (const string &, const string &);
     string operator | (const string &, const string &);
     
-    string operator + (const string &n, uint64 x);
-    string operator - (const string &n, uint64 x);
-    string operator * (const string &n, uint64 x);
+    string operator + (const string &, uint64 x);
+    string operator - (const string &, uint64 x);
+    string operator * (const string &, uint64 x);
 
     string operator / (const string &, const string &);
     string operator % (const string &, const string &);
     
-    string &operator += (string &a, const string &);
-    string &operator -= (string &a, const string &);
-    string &operator *= (string &a, const string &);
+    string &operator <<= (string &, int);
+    string &operator >>= (string &, int);
     
-    string &operator <<= (string &a, int);
-    string &operator >>= (string &a, int);
+    string &operator |= (string &, const string&);
+    string &operator &= (string &, const string&);
     
-    string &operator |= (string &a, const string&);
-    string &operator &= (string &a, const string&);
-    
-    string &operator += (string &a, uint64);
-    string &operator -= (string &a, uint64);
-    string &operator *= (string &a, uint64);
-    
+    string &operator += (string &, uint64);
+    string &operator -= (string &, uint64);
+    string &operator *= (string &, uint64);
+
+    string &operator += (string &, const string &);
+    string &operator -= (string &, const string &);
+    string &operator *= (string &, const string &);
+
+    string &operator <<= (string &, int);
+    string &operator >>= (string &, int);
+
     struct string : std::string {
         string ();
         explicit string (const std::string &);
@@ -116,20 +119,14 @@ namespace data::encoding::base58 {
         }
         
         static string read (const std::string &);
-        
-        string &operator += (const string &);
-        string &operator -= (const string &);
-        string &operator *= (const string &);
-        
-        string &operator <<= (int);
-        string &operator >>= (int);
-        
-        string operator &= (const string &) const;
-        string operator |= (const string &) const;
 
         math::division<string, uint64> divide (uint64) const;
 
         explicit operator uint64 () const;
+        explicit operator math::N () const {
+            if (!valid ()) throw exception {} << "invalid base 58 number" << *this;
+            return *decode<math::N> (*this);
+        }
     };
     
     template <typename N>
@@ -212,6 +209,10 @@ namespace data::math {
 }
 
 namespace data::encoding::base58 {
+
+    bool inline operator == (const string &n, uint64 x) {
+        return n == string {x};
+    }
     
     string inline operator + (const string &n, uint64 x) {
         return n + string {x};

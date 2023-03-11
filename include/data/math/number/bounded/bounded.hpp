@@ -947,9 +947,10 @@ namespace data::math::number {
     
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline operator -
         (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
-        bounded<u, r, x> z {};
+            throw 0;
+        /*bounded<u, r, x> z {};
         data::arithmetic::minus<byte> (z.words ().end (), z.words ().begin (), a.words ().begin (), b.words ().begin ());
-        return z;
+        return z;*/
     }
     
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline operator *
@@ -975,11 +976,12 @@ namespace data::math::number {
     }
     
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator -=
-        (bounded<u, r, x> &a, const bounded<u, r, x> &b) {
+        (bounded<u, r, x> &a, const bounded<u, r, x> &b) {/*
         data::arithmetic::minus<byte>
             (a.words ().end (), a.words ().begin (),
                 const_cast<const bounded<u, r, x> &> (a).words ().begin (), b.words ().begin ());
-        return a;
+        return a;*/
+        throw 0;
     }
     
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator *=
