@@ -5,13 +5,20 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 option(OPTIONAL_TESTS "Build optional Tests" OFF)
+include(GoogleTest)
 macro(package_add_test TESTNAME)
     # create an exectuable in which the tests will be stored
     add_executable(${TESTNAME} ${ARGN})
     # link the Google test infrastructure, mocking library, and a default main fuction to
     # the test executable.  Remove g_test_main if writing your own main function.
-    target_include_directories(${TESTNAME} PUBLIC ${CMAKE_SOURCE_DIR}/include CONAN_PKG::boost CONAN_PKG::openssl CONAN_PKG::cryptopp CONAN_PKG::nlohmann_json CONAN_PKG::gmp CONAN_PKG::SECP256K1)
-    target_link_libraries(${TESTNAME} CONAN_PKG::gtest data)
+    target_include_directories(${TESTNAME} PUBLIC ${CMAKE_SOURCE_DIR}/include 
+    boost::boost 
+    openssl::openssl 
+    cryptopp::cryptopp 
+    nlohmann_json::nlohmann_json 
+    gmp::gmp 
+    secp256k1::secp256k1)
+    target_link_libraries(${TESTNAME} gtest::gtest data)
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
 

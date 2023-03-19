@@ -11,10 +11,13 @@ project (
   DESCRIPTION "wrappers and high-level programming constructs in c++"
   LANGUAGES CXX
 )
-
-# Set cmake as import path for Find*.cmake files
-include (${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup (TARGETS)
+find_package(Boost CONFIG REQUIRED)
+find_package(OpenSSL CONFIG REQUIRED)
+find_package(cryptopp CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(gmp CONFIG REQUIRED)
+find_package(secp256k1 CONFIG REQUIRED)
+find_package(uriparser CONFIG REQUIRED)
 
 # Check if GTests is installed. If not, install it
 
@@ -76,15 +79,16 @@ add_library (
 
 target_include_directories (data PUBLIC include)
 
+
 target_link_libraries (
   data
-  CONAN_PKG::boost
-  CONAN_PKG::openssl
-  CONAN_PKG::cryptopp
-  CONAN_PKG::nlohmann_json
-  CONAN_PKG::gmp
-  CONAN_PKG::SECP256K1
-  CONAN_PKG::uriparser
+  boost::boost
+  openssl::openssl
+  cryptopp::cryptopp
+  nlohmann_json::nlohmann_json
+  gmp::gmp
+  secp256k1::secp256k1
+  uriparser::uriparser
   # PkgConfig::LIBSECP256K1
 )
 
