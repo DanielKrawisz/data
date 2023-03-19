@@ -60,11 +60,10 @@ how to use all features.
 
 # Build instructions
 
-  * `mkdir build`
+  * `conan install .`
   * `cd build`
-  * `conan install ..`
-  * `cmake ..`
-  * `make`
+  * `cmake .. -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake`
+  * `cmake --build .`
 
 # Version 1 progress
 
