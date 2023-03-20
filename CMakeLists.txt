@@ -25,6 +25,8 @@ option (PACKAGE_TESTS "Build the tests" ON)
 
 add_definitions ("-DHAS_BOOST")
 
+
+
 if (PACKAGE_TESTS)
   include (CTest)
   find_package (GTest REQUIRED)
@@ -99,3 +101,6 @@ message (STATUS ${OUT})
 target_compile_features (data PUBLIC cxx_std_20)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
+
+install(DIRECTORY include/ DESTINATION include)
+install(TARGETS data)
