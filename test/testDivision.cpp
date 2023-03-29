@@ -43,8 +43,8 @@ namespace data {
             EXPECT_THROW (math::number::integer::divide (Z {1}, Z {0}), math::division_by_zero);
 
             test_division_integer_case<Z, N> (Z {0}, Z {1}, Z {0}, N {0});
-            test_division_integer_case<Z, N> (N {1}, N {1}, N {1}, N {0});
-            test_division_integer_case<Z, N> (N {1145}, N {916}, N {1}, N {229});
+            test_division_integer_case<Z, N> (Z {1}, Z {1}, Z {1}, N {0});
+            test_division_integer_case<Z, N> (Z {1145}, Z {916}, Z {1}, N {229});
 
         }
     };
