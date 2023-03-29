@@ -28,7 +28,7 @@ namespace data::encoding::base64 {
         return ctre::match<pattern> (s);
     }
     
-    ptr<bytes> read (string_view);
+    maybe<bytes> read (string_view);
     
     struct string : std::string {
         using std::string::string;
@@ -39,8 +39,8 @@ namespace data::encoding::base64 {
         }
         
         explicit operator bytes () const {
-            ptr<bytes> b = read (*this);
-            if (b == nullptr) throw invalid {Format, *this};
+            maybe<bytes> b = read (*this);
+            if (!b) throw invalid {Format, *this};
             return *b;
         }
     };

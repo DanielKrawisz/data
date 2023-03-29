@@ -29,7 +29,7 @@ namespace data::encoding {
         bool nonzero (string_view s);
         uint32 digits (string_view s);
         
-        template <endian::order r> ptr<math::N_bytes<r>> read (string_view s);
+        template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
         
         template <typename range> 
         std::ostream &write (std::ostream& o, range r);
@@ -77,7 +77,7 @@ namespace data::encoding {
         math::sign sign (string_view s);
         
         template <endian::order r> 
-        ptr<math::Z_bytes<r>> read (string_view s);
+        maybe<math::Z_bytes<r>> read (string_view s);
         
         using complement = math::number::complement;
         template <endian::order r, complement c> 
@@ -152,7 +152,7 @@ namespace data::encoding {
         hex::letter_case read_case (string_view s);
         
         template <endian::order r> 
-        ptr<oriented<r, byte>> read (string_view s);
+        maybe<oriented<r, byte>> read (string_view s);
         
         template <endian::order r> 
         std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q);
@@ -292,7 +292,7 @@ namespace data::encoding {
         bool nonzero (string_view s);
         uint32 digits (string_view s);
         
-        template <endian::order r> ptr<math::N_bytes<r>> read (string_view s);
+        template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
         
     }
     
@@ -311,7 +311,7 @@ namespace data::encoding {
         uint32 digits (string_view s);
 
         template <endian::order r, math::number::complement c> 
-        ptr<math::number::Z_bytes<r, c>> read (string_view s);
+        maybe<math::number::Z_bytes<r, c>> read (string_view s);
         
     }
     
@@ -857,14 +857,14 @@ namespace data::encoding::hexidecimal {
     }
     
     template <endian::order r> 
-    ptr<oriented<r, byte>> read (string_view s) {
-        if (!valid (s)) return nullptr;
+    maybe<oriented<r, byte>> read (string_view s) {
+        if (!valid (s)) return {};
         
-        ptr<oriented<r, byte>> n = std::make_shared<oriented<r, byte>> ();
-        n->resize ((s.size () - 2) / 2);
-        boost::algorithm::unhex (s.begin () + 2, s.end (), n->words ().rbegin ());
+        oriented<r, byte> n = {};
+        n.resize ((s.size () - 2) / 2);
+        boost::algorithm::unhex (s.begin () + 2, s.end (), n.words ().rbegin ());
         
-        return n;
+        return {n};
     }
     
     template <endian::order r> 
@@ -961,38 +961,6 @@ namespace data::encoding::hexidecimal {
         return -integer<complement::nones, cx> (x);
     }
     
-    namespace {
-        template <complement n, hex::letter_case zz> struct read_dec_integer {
-            integer<n, zz> operator () (const std::string &x) {
-                if (decimal::valid (x)) {
-                    auto z = integer<complement::nones, zz> {write<zz> (*decimal::read<endian::little> (x))};
-                    return math::number::trim (integer<n, zz> {math::number::extend (z, z.size () + 2)});
-                }
-                
-                if (signed_decimal::valid (x)) {
-                    auto z = integer<complement::nones, zz> {write<zz> (*decimal::read<endian::little> (x.substr (1)))};
-                    return math::number::trim (-integer<n, zz> {math::number::extend (z, z.size () + 2)});
-                }
-                
-                throw exception {} << "invalid number string: \"" << x << "\"";
-            }
-        };
-        
-        template <hex::letter_case zz> struct read_dec_integer<complement::nones, zz> {
-            integer<complement::nones, zz> operator () (const std::string &x) {
-                auto np = decimal::read<endian::little> (x);
-                if (np == nullptr) throw exception {} << "invalid number string: \"" << x << "\"";
-                return integer<complement::nones, zz> {write<zz> (*np)};
-            }
-        };
-    }
-    
-    template <complement n, hex::letter_case zz>
-    integer<n, zz> integer<n, zz>::read (const std::string &x) {
-        if (hexidecimal::valid (x)) return integer<n, zz> {x};
-        return read_dec_integer<n, zz> {} (x);
-    }
-    
 } 
 
 namespace data::encoding::natural {
@@ -1038,21 +1006,21 @@ namespace data::encoding::integer {
     }
     
     template <endian::order r, math::number::complement c> 
-    ptr<math::number::Z_bytes<r, c>> read (string_view s) {
-        if (!valid(s)) return nullptr;
+    maybe<math::number::Z_bytes<r, c>> read (string_view s) {
+        if (!valid (s)) return {};
         
         if (hexidecimal::valid (s)) {
             auto z = hexidecimal::read<r> (s);
-            if (z == nullptr) return nullptr;
-            auto x = std::make_shared<math::number::Z_bytes<r, c>> ();
-            x->resize (z->size ());
-            std::copy (z->begin (), z->end (), x->begin ());
-            return x;
+            if (!z) return {};
+            auto x = math::number::Z_bytes<r, c> {};
+            x.resize (z->size ());
+            std::copy (z->begin (), z->end (), x.begin ());
+            return {x};
         }
         
         auto z = signed_decimal::read<r, c> (s);
-        if (z == nullptr) return nullptr;
-        return std::make_shared<math::number::Z_bytes<r, c>> (*z);
+        if (!z) return {};
+        return {math::number::Z_bytes<r, c> (*z)};
     }
     
 }

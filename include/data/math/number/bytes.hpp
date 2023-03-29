@@ -105,10 +105,10 @@ namespace data::math::number {
 namespace data::encoding::decimal {
     
     template <endian::order r> 
-    ptr<math::number::N_bytes<r>> read (string_view s) {
-        if (!valid (s)) return nullptr;
+    maybe<math::number::N_bytes<r>> read (string_view s) {
+        if (!valid (s)) return {};
         
-        return std::make_shared<math::number::N_bytes<r>> (read_base<math::number::N_bytes<r>> (s, 10, digit));
+        return {math::number::N_bytes<r> (read_base<math::number::N_bytes<r>> (s, 10, digit))};
     }
     
     template <endian::order r> 
@@ -120,13 +120,13 @@ namespace data::encoding::decimal {
 namespace data::encoding::signed_decimal {
     
     template <endian::order r, math::number::complement n> 
-    ptr<math::number::Z_bytes<r, n>> read (string_view s) {
-        if (!valid (s)) return nullptr;
+    maybe<math::number::Z_bytes<r, n>> read (string_view s) {
+        if (!valid (s)) return {};
         bool negative = s[0] == '-';
         string_view positive = negative ? s.substr (1) : s;
-        auto z = std::make_shared<math::number::Z_bytes<r, n>> ((math::number::Z_bytes<r, n>) (*decimal::read<r> (positive)));
-        if (negative) *z = -*z;
-        return z;
+        auto z = math::number::Z_bytes<r, n> ((math::number::Z_bytes<r, n>) (*decimal::read<r> (positive)));
+        if (negative) z = -z;
+        return {z};
     }
     
 }
@@ -134,12 +134,12 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::natural {
     
     template <endian::order r> 
-    ptr<math::number::N_bytes<r>> inline read (string_view s) {
-        if (!valid (s)) return nullptr;
+    maybe<math::number::N_bytes<r>> inline read (string_view s) {
+        if (!valid (s)) return {};
         if (hexidecimal::valid (s)) {
             auto p = hexidecimal::read<r> (s);
-            if (p == nullptr) return nullptr;
-            return std::make_shared<math::number::N_bytes<r>> (math::number::N_bytes<r>::read (bytes_view (*p)));
+            if (!p) return {};
+            return math::number::N_bytes<r> (math::number::N_bytes<r>::read (bytes_view (*p)));
         }
         
         return decimal::read<r> (s);
@@ -245,6 +245,30 @@ namespace data::encoding::hexidecimal {
                 return math::number::natural::divide (*this, x);
             }
         };
+
+        template <complement n, hex::letter_case zz> struct read_dec_integer {
+            integer<n, zz> operator () (const std::string &x) {
+                if (decimal::valid (x)) {
+                    integer<complement::nones, zz> z {write<zz> (*decimal::read<endian::little> (x))};
+                    return math::number::trim (integer<n, zz> {math::number::extend (z, z.size () + 2)});
+                }
+
+                if (signed_decimal::valid (x)) {
+                    integer<complement::nones, zz> z {write<zz> (*decimal::read<endian::little> (x.substr (1)))};
+                    return math::number::trim (-integer<n, zz> {math::number::extend (z, z.size () + 2)});
+                }
+
+                throw exception {} << "invalid number string: \"" << x << "\"";
+            }
+        };
+
+        template <hex::letter_case zz> struct read_dec_integer<complement::nones, zz> {
+            integer<complement::nones, zz> operator () (const std::string &x) {
+                auto np = decimal::read<endian::little> (x);
+                if (!np) throw exception {} << "invalid number string: \"" << x << "\"";
+                return integer<complement::nones, zz> {write<zz> (*np)};
+            }
+        };
         
     }
     
@@ -262,6 +286,12 @@ namespace data::encoding::hexidecimal {
     template <complement c, hex::letter_case zz> 
     inline integer<c, zz>::operator double () const {
         return double (bytes_type<endian::little, c>::read (*this));
+    }
+
+    template <complement n, hex::letter_case zz>
+    integer<n, zz> integer<n, zz>::read (const std::string &x) {
+        if (hexidecimal::valid (x)) return integer<n, zz> {x};
+        return read_dec_integer<n, zz> {} (x);
     }
     
 }

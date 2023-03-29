@@ -135,7 +135,7 @@ namespace data {
         using bytestring<byte>::bytestring;
         bytes (bytestring<byte> &&b) : bytestring<byte> {b} {}
         
-        static bytes from_hex (string_view s);
+        static maybe<bytes> from_hex (string_view s);
         static bytes from_string (string_view s) {
             bytes b;
             b.resize (s.size ());

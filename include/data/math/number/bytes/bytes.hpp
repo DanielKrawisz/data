@@ -320,7 +320,7 @@ namespace data::math::number {
 namespace data::encoding::decimal {
     
     template <endian::order r> 
-    ptr<math::number::N_bytes<r>> read (string_view s);
+    maybe<math::number::N_bytes<r>> read (string_view s);
     
     struct string;
     
@@ -337,7 +337,7 @@ namespace data::encoding::decimal {
 namespace data::encoding::signed_decimal {
     
     template <endian::order r, math::number::complement n> 
-    ptr<math::number::Z_bytes<r, n>> read (string_view s);
+    maybe<math::number::Z_bytes<r, n>> read (string_view s);
     
     struct string;
     
@@ -352,7 +352,7 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::hexidecimal {
     
     template <endian::order r> 
-    ptr<oriented<r, byte>> read (string_view s);
+    maybe<oriented<r, byte>> read (string_view s);
     
     template <endian::order r> 
     std::ostream &write (std::ostream &o, const oriented<r, byte> &d, hex_case q = hex_case::lower);
@@ -367,14 +367,14 @@ namespace data::encoding::hexidecimal {
 namespace data::encoding::natural {
     
     template <endian::order r> 
-    ptr<math::number::N_bytes<r>> read (string_view s);
+    maybe<math::number::N_bytes<r>> read (string_view s);
     
 }
 
 namespace data::encoding::integer {
     
     template <endian::order r, math::number::complement c> 
-    ptr<math::number::Z_bytes<r, c>> read (string_view s);
+    maybe<math::number::Z_bytes<r, c>> read (string_view s);
     
     template <endian::order r, math::number::complement c> 
     std::ostream &write (std::ostream &, const math::number::Z_bytes<r, c> &);
