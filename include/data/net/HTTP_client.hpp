@@ -19,9 +19,9 @@ namespace data::net::HTTP {
 
         // blocking methods
         response operator () (const request &r);
-        response GET (string path, list<entry<string, string>> params = {});
-        response POST (string path, map<header, string> headers, string body);
-        response POST_form_data (string path, map<string, string> form_data = {});
+        response GET (path path, list<entry<UTF8, UTF8>> params = {});
+        response POST (path path, map<header, ASCII> headers, string body);
+        response POST_form_data (path path, map<header, ASCII> form_data = {});
 
     private:
         ptr<HTTP::SSL> SSL;
@@ -36,9 +36,9 @@ namespace data::net::HTTP {
 
         // async methods
         void operator () (handler<const response &>, const request &r);
-        void GET (handler<const response &>, string path, list<entry<string, string>> params = {});
-        void POST (handler<const response &>, string path, map<header, string> headers, string body);
-        void POST_form_data (handler<const response &>, string path, map<string, string> form_data = {});
+        void GET (handler<const response &>, path path, list<entry<UTF8, UTF8>> params = {});
+        void POST (handler<const response &>, path path, map<header, ASCII> headers, string body);
+        void POST_form_data (handler<const response &>, path path, map<header, ASCII> form_data = {});
 
     private:
         ptr<asio::io_context> IO;
@@ -74,37 +74,37 @@ namespace data::net::HTTP {
     inline client_async::client_async (ptr<asio::io_context> io, ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
         IO {io}, SSL {ssl}, REST {rest}, Rate {rate}, Queue {}, Writing {false} {}
     
-    response inline client_blocking::GET (string path, list<entry<string, string>> params) {
+    response inline client_blocking::GET (path path, list<entry<UTF8, UTF8>> params) {
         return (*this) (REST.GET (path, params));
     }
 
     void inline client_async::GET (
         handler<const response &> on_receive,
-        string path,
-        list<entry<string, string>> params) {
+        path path,
+        list<entry<UTF8, UTF8>> params) {
         return (*this) (on_receive, REST.GET (path, params));
     }
 
-    response inline client_blocking::POST (string path, map<header, string> headers, string body) {
+    response inline client_blocking::POST (path path, map<header, ASCII> headers, string body) {
         return (*this) (REST.POST (path, headers, body));
     }
 
     void inline client_async::POST (
         handler<const response &> on_receive,
-        string path, map<header, string> headers,
+        path path, map<header, ASCII> headers,
         string body) {
         return (*this) (on_receive, REST.POST (path, headers, body));
     }
     
     // POST form data
-    response inline client_blocking::POST_form_data (string path, map<string, string> form_data) {
+    response inline client_blocking::POST_form_data (path path, map<header, ASCII> form_data) {
         return (*this) (REST.POST (path, form_data));
     }
 
     void inline client_async::POST_form_data (
         handler<const response &> on_receive,
-        string path,
-        map<string, string> form_data) {
+        path path,
+        map<header, ASCII> form_data) {
         return (*this) (on_receive, REST.POST (path, form_data));
     }
 }
