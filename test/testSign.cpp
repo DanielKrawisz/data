@@ -42,81 +42,81 @@ namespace data {
     
     using q = fraction<int64, uint64>;
     
-    template <typename N> void test_N_sign() {
+    template <typename N> void test_N_sign () {
         
-        EXPECT_EQ(sign(N{0}),                     math::zero);
-        EXPECT_EQ(sign(N{1}),                     math::positive);
-        EXPECT_EQ(sign(N{2}),                     math::positive);
-        EXPECT_EQ(sign(N{7076852110923542}),      math::positive);
-        
-    };
-    
-    template <typename N> void test_Z_sign() {
-        test_N_sign<N>();
-        
-        EXPECT_EQ(sign(int64{-1}),                math::negative);
-        EXPECT_EQ(sign(int64{-2}),                math::negative);
-        EXPECT_EQ(sign(int64{-7076852110923542}), math::negative);
+        EXPECT_EQ (sign (N {0}),                     math::zero);
+        EXPECT_EQ (sign (N {1}),                     math::positive);
+        EXPECT_EQ (sign (N {2}),                     math::positive);
+        EXPECT_EQ (sign (N {7076852110923542}),      math::positive);
         
     };
     
-    TEST(SignTest, TestSign) {
-        test_Z_sign<double>();
+    template <typename N> void test_Z_sign () {
+        test_N_sign<N> ();
         
-        test_Z_sign<int64>();
-        test_N_sign<uint64>();
+        EXPECT_EQ (sign (int64 {-1}),                math::negative);
+        EXPECT_EQ (sign (int64 {-2}),                math::negative);
+        EXPECT_EQ (sign (int64 {-7076852110923542}), math::negative);
         
-        test_Z_sign<Z>();
-        test_N_sign<N>();
+    };
+    
+    TEST (SignTest, TestSign) {
+        test_Z_sign<double> ();
         
-        test_N_sign<Z_bytes_little>();
-        test_N_sign<Z_bytes_big>();
+        test_Z_sign<int64> ();
+        test_N_sign<uint64> ();
         
-        test_N_sign<N_bytes_little>();
-        test_N_sign<N_bytes_big>();
+        test_Z_sign<Z> ();
+        test_N_sign<N> ();
         
-        EXPECT_EQ(sign(Q{0}),                     math::zero);
-        EXPECT_EQ(sign(Q{1}),                     math::positive);
-        EXPECT_EQ(sign(Q{-1}),                    math::negative);
-        EXPECT_EQ(sign(Q{2}),                     math::positive);
-        EXPECT_EQ(sign(Q{-2}),                    math::negative);
-        EXPECT_EQ(sign(Q{2, 3}),                  math::positive);
-        EXPECT_EQ(sign(Q{-2, 3}),                 math::negative);
+        test_N_sign<Z_bytes_little> ();
+        test_N_sign<Z_bytes_big> ();
         
-        EXPECT_EQ(sign(q{0}),                     math::zero);
-        EXPECT_EQ(sign(q{1}),                     math::positive);
-        EXPECT_EQ(sign(q{-1}),                    math::negative);
-        EXPECT_EQ(sign(q{2}),                     math::positive);
-        EXPECT_EQ(sign(q{-2}),                    math::negative);
-        EXPECT_EQ(sign(q{2, 3}),                  math::positive);
-        EXPECT_EQ(sign(q{-2, 3}),                 math::negative);
+        test_N_sign<N_bytes_little> ();
+        test_N_sign<N_bytes_big> ();
         
-        test_Z_sign<b09>();
-        test_Z_sign<b10>();
-        test_Z_sign<b11>();
-        test_Z_sign<b20>();
+        EXPECT_EQ (sign (Q {0}),                     math::zero);
+        EXPECT_EQ (sign (Q {1}),                     math::positive);
+        EXPECT_EQ (sign (Q {-1}),                    math::negative);
+        EXPECT_EQ (sign (Q {2}),                     math::positive);
+        EXPECT_EQ (sign (Q {-2}),                    math::negative);
+        EXPECT_EQ (sign (Q {2, 3}),                  math::positive);
+        EXPECT_EQ (sign (Q {-2, 3}),                 math::negative);
         
-        test_N_sign<ub09>();
-        test_N_sign<ub10>();
-        test_N_sign<ub11>();
-        test_N_sign<ub20>();
+        EXPECT_EQ (sign (q {0}),                     math::zero);
+        EXPECT_EQ (sign (q {1}),                     math::positive);
+        EXPECT_EQ (sign (q {-1}),                    math::negative);
+        EXPECT_EQ (sign (q {2}),                     math::positive);
+        EXPECT_EQ (sign (q {-2}),                    math::negative);
+        EXPECT_EQ (sign (q {2, 3}),                  math::positive);
+        EXPECT_EQ (sign (q {-2, 3}),                 math::negative);
         
-        test_Z_sign<l09>();
-        test_Z_sign<l10>();
-        test_Z_sign<l11>();
-        test_Z_sign<l20>();
+        test_Z_sign<b09> ();
+        test_Z_sign<b10> ();
+        test_Z_sign<b11> ();
+        test_Z_sign<b20> ();
         
-        test_N_sign<ul09>();
-        test_N_sign<ul10>();
-        test_N_sign<ul11>();
-        test_N_sign<ul20>();
+        test_N_sign<ub09> ();
+        test_N_sign<ub10> ();
+        test_N_sign<ub11> ();
+        test_N_sign<ub20> ();
         
-        test_Z_sign<dec_int>();
-        test_N_sign<dec_uint>();
-        test_N_sign<base58_uint>();
-        test_N_sign<hex_uint>();
-        test_Z_sign<hex_int>();
-        test_Z_sign<hex_int_twos>();
+        test_Z_sign<l09> ();
+        test_Z_sign<l10> ();
+        test_Z_sign<l11> ();
+        test_Z_sign<l20> ();
+        
+        test_N_sign<ul09> ();
+        test_N_sign<ul10> ();
+        test_N_sign<ul11> ();
+        test_N_sign<ul20> ();
+        
+        test_Z_sign<dec_int> ();
+        test_N_sign<dec_uint> ();
+        test_N_sign<base58_uint> ();
+        test_N_sign<hex_uint> ();
+        test_Z_sign<hex_int> ();
+        test_Z_sign<hex_int_twos> ();
         
     }
 }

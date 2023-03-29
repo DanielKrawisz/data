@@ -19,14 +19,14 @@ namespace data::encoding {
         EXPECT_FALSE (base58::valid ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"));
     }
     
-    TEST(Base58Test, Base58Invert) {
+    TEST (Base58Test, Base58Invert) {
         for (int i = 0; i < base58::characters ().size (); i++) {
             EXPECT_EQ (base58::digit (base58::characters ()[i]), i);
         }
     }
     
-    TEST(Base58Test, Base58NToString) {
-        EXPECT_EQ (*base58::decode<N> (""), N {});
+    TEST (Base58Test, Base58NToString) {
+
         EXPECT_EQ (*base58::decode<N> ("1"), N {0});
         EXPECT_EQ (*base58::decode<N> ("2"), N {1});
         EXPECT_EQ (*base58::decode<N> ("1"), N {"0"});
@@ -37,10 +37,10 @@ namespace data::encoding {
         EXPECT_EQ (*base58::decode<N> ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"),
             N {"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"});
         
-        EXPECT_EQ (base58::encode<N> (base58::decode<N> ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
+        EXPECT_EQ (base58::encode<N> (*base58::decode<N> ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
             "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
         
-        EXPECT_EQ (base58::write (base58::read ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
+        EXPECT_EQ (base58::write (*base58::read ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
             "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
     }
     

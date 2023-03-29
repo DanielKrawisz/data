@@ -76,7 +76,7 @@ namespace data::math::number::GMP {
         return a.Value <=> b.Value;
     }
     
-    bool inline operator==(const Z &a, const N &b) {
+    bool inline operator == (const Z &a, const N &b) {
         return a <=> b == 0;
     }
     
@@ -133,7 +133,7 @@ namespace data::math::number::GMP {
         return n;
     }
     
-    N inline &operator--(N &n) {
+    N inline &operator -- (N &n) {
         if (n.Value != 0) --n.Value; 
         return n;
     }
@@ -237,7 +237,7 @@ namespace data::math::number::GMP {
         return sum;
     }
     
-    N inline operator+(const N &z, const N &n) {
+    N inline operator + (const N &z, const N &n) {
         N sum{};
         __gmp_binary_plus::eval(sum.Value.MPZ, z.Value.MPZ, n.Value.MPZ);
         return sum;
@@ -270,7 +270,7 @@ namespace data::math::number::GMP {
         return sum;
     }
     
-    Z inline operator+(const N &z, const Z &n) {
+    Z inline operator + (const N &z, const Z &n) {
         Z sum{};
         __gmp_binary_plus::eval(sum.MPZ, z.Value.MPZ, n.MPZ);
         return sum;
@@ -359,13 +359,13 @@ namespace data::math {
         return 0;
     }
     
-    N inline abs<N>::operator () (const N& i) {
+    N inline abs<N>::operator () (const N &i) {
         return i;
     }
     
-    N inline abs<Z>::operator () (const Z& i) {
+    N inline abs<Z>::operator () (const Z &i) {
         N n;
-        __gmp_abs_function::eval(n.Value.MPZ, i.MPZ);
+        __gmp_abs_function::eval (n.Value.MPZ, i.MPZ);
         return n;
     }
 }
@@ -395,7 +395,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::decimal {
     
-    string inline write (const math::N& n) {
+    string inline write (const math::N &n) {
         std::stringstream ss;
         write (ss, n);
         return string {ss.str ()};

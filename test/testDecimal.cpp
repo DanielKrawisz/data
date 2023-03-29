@@ -16,6 +16,7 @@ namespace data {
         EXPECT_EQ (decrement (Z::read (g)), Z::read (e));
         EXPECT_EQ (decrement (Z_bytes_little::read (g)), Z_bytes_little::read (e));
         EXPECT_EQ (decrement (Z_bytes_big::read (g)), Z_bytes_big::read (e));
+
     }
     
     void test_decrement_unsigned (const string &given, const string &expected) {
@@ -61,6 +62,7 @@ namespace data {
     }
     
     void test_increment_unsigned (const string &given, const string &expected) {
+
         dec_uint g (given);
         dec_uint e (expected);
         
@@ -121,6 +123,7 @@ namespace data {
     }
     
     TEST (DecimalTest, TestDecimalAdd) {
+
         test_add_unsigned ("0", "0", "0");
         test_add_unsigned ("0", "1", "1");
         test_add_unsigned ("1", "0", "1");
