@@ -53,12 +53,13 @@ add_library (
   include/rotella/sieve.cpp
   include/rotella/akslib.cpp
   src/data/types.cpp
+  src/data/tools.cpp
   src/data/encoding/hex.cpp
   src/data/encoding/ascii.cpp
-  src/data/encoding/base58.cpp
-  src/data/encoding/base64.cpp
-  src/data/encoding/integer.cpp
   src/data/encoding/utf8.cpp
+  src/data/encoding/base64.cpp
+  src/data/encoding/base58.cpp
+  src/data/encoding/integer.cpp
   src/data/net/URL.cpp
   src/data/net/HTTP.cpp
   src/data/net/REST.cpp

@@ -8,22 +8,22 @@
 
 namespace data {
     
-    template <typename list> void test_reverse() {
-        list l{1, 2, 3};
-        list r{3, 2, 1};
+    template <typename list> void test_reverse () {
+        list l {1, 2, 3};
+        list r {3, 2, 1};
         
-        EXPECT_TRUE(l != r);
+        EXPECT_TRUE (l != r);
         
-        EXPECT_TRUE(reverse(l) == r);
+        EXPECT_TRUE (reverse (l) == r);
     }
 
-    TEST(ReverseTest, TestReverse) {
+    TEST (ReverseTest, TestReverse) {
         
-        test_reverse<list<int>>();
-        test_reverse<stack<int>>();
-        test_reverse<cycle<int>>();
-        test_reverse<cross<int>>();
-        test_reverse<array<int, 3>>();
+        test_reverse<list<int>> ();
+        test_reverse<stack<int>> ();
+        test_reverse<cycle<int>> ();
+        test_reverse<cross<int>> ();
+        test_reverse<array<int, 3>> ();
         
     }
 

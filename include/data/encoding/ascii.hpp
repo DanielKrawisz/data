@@ -7,23 +7,18 @@
 
 #include <string>
 #include <data/cross.hpp>
+#include <data/encoding/unicode.hpp>
 
-namespace data::encoding::ascii {
+namespace data::encoding::ASCII {
     const std::string Format {"ascii"};
     
     const byte max = 0x7f;
-
-    using character = byte;
-
-    bool inline valid (character b) {
-        return b <= max && b >= 0;
-    }
 
     bool inline valid (char c) {
         return c <= max && c >= 0;
     }
     
-    bool inline valid (const std::string &x) {
+    bool inline valid (string_view x) {
         for (char c : x) if (!valid (c)) return false;
         return true;
     }
@@ -32,16 +27,25 @@ namespace data::encoding::ascii {
         using std::string::string;
         
         string (const std::string &x) : std::string {x} {}
+        string (std::string &&x) : std::string {x} {}
         
         bool valid () const {
-            return ascii::valid (*this);
+            return ASCII::valid (*this);
         }
-        
+
         explicit operator bytes () const;
+
+        explicit operator data::UTF8 () const;
 
     };
     
-    string write(const bytes_view x);
+    // for emails
+    string encode (const bytes_view x);
+    bytes decode (const string &);
+}
+
+namespace data {
+    using ASCII = encoding::ASCII::string;
 }
 
 #endif 

@@ -16,7 +16,7 @@ namespace data::encoding {
     
     namespace decimal {
         
-        string::string(uint64 x) : string{decimal::write(x)} {}
+        string::string (uint64 x) : string{decimal::write(x)} {}
         
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
@@ -32,9 +32,9 @@ namespace data::encoding {
             return std::strong_ordering::equal;
         }
         
-        std::strong_ordering operator<=>(const string &m, const string &n) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
+        std::strong_ordering operator <=> (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
             return N_compare(m, n);
         }
         
