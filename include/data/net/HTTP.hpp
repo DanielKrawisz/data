@@ -41,20 +41,20 @@ namespace data::net::HTTP {
     struct request {
         method Method;
         net::URL URL;
-        map<header, string> Headers;
+        map<header, ASCII> Headers;
         string Body;
 
         request (
             method method,
             net::URL url,
-            map<header, string> headers = {},
+            map<header, ASCII> headers = {},
             string body = {}) : Method {method}, URL {url}, Headers {headers}, Body {body} {}
 
     };
 
     struct response {
         status Status;
-        map<header, string> Headers;
+        map<header, ASCII> Headers;
         string Body;
     };
 

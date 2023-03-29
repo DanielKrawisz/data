@@ -8,7 +8,6 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/error.hpp>
 #include <boost/asio/ssl/stream.hpp>
-#include <uriparser/Uri.h>
 #include <data/net/HTTP.hpp>
 #include <data/net/REST.hpp>
 #include <data/io/unimplemented.hpp>
@@ -16,7 +15,7 @@
 namespace data::net::HTTP {
 
     namespace {
-        
+        /*
         std::string fromRange (const UriTextRangeA & rng)
         {
             return std::string (rng.first, rng.afterLast);
@@ -34,15 +33,15 @@ namespace data::net::HTTP {
             }
 
             return accum;
-        }
+        }*/
 
         template<class SyncReadStream>
         boost::beast::http::response<boost::beast::http::dynamic_body> http_request (
             SyncReadStream& stream, 
-            std::string hostname, 
+            const domain_name &hostname,
             HTTP::method verb, 
-            string path,
-            map<HTTP::header, string> headers, string body, int redirects) {
+            path path,
+            map<HTTP::header, ASCII> headers, string body, int redirects) {
             
             boost::beast::http::request<boost::beast::http::string_body> req (verb, path.c_str (), 11);
 
@@ -80,8 +79,11 @@ namespace data::net::HTTP {
 
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
 
-        auto hostname = req.URL.host ().c_str ();
-        auto port = req.URL.port ().c_str ();
+        auto host = req.URL.domain_name ();
+        if (!bool (host)) throw data::exception {"No host provided in the URL."};
+
+        auto hostname = host->c_str ();
+        auto port = req.URL.port_DNS ().c_str ();
 
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
 
@@ -92,8 +94,6 @@ namespace data::net::HTTP {
         asio::error_code connect_error {};
 
         if (https) {
-
-
             boost::beast::ssl_stream<boost::beast::tcp_stream> stream (io, *ssl);
 
             // Set SNI Hostname (many hosts need this to handshake successfully)
@@ -137,9 +137,9 @@ namespace data::net::HTTP {
             }
         }*/
 
-        map<header, string> response_headers {};
+        map<header, ASCII> response_headers {};
         for (const auto &field : res) response_headers =
-            data::insert (response_headers, data::entry<header, string> {field.name (), std::string {field.value ()}});
+            data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {string {field.value ()}}});
         return response {res.base ().result (), response_headers, boost::beast::buffers_to_string (res.body ().data ())};
 
     }

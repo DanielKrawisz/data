@@ -12,13 +12,13 @@ project (
   LANGUAGES CXX
 )
 
-find_package(Boost CONFIG REQUIRED)
-find_package(OpenSSL CONFIG REQUIRED)
-find_package(cryptopp CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
-find_package(gmp CONFIG REQUIRED)
-find_package(secp256k1 CONFIG REQUIRED)
-find_package(uriparser CONFIG REQUIRED)
+find_package (Boost CONFIG REQUIRED)
+find_package (OpenSSL CONFIG REQUIRED)
+find_package (cryptopp CONFIG REQUIRED)
+find_package (nlohmann_json CONFIG REQUIRED)
+find_package (gmp CONFIG REQUIRED)
+find_package (secp256k1 CONFIG REQUIRED)
+find_package (pegtl CONFIG REQUIRED)
 
 # Check if GTests is installed. If not, install it
 
@@ -52,12 +52,13 @@ add_library (
   include/rotella/sieve.cpp
   include/rotella/akslib.cpp
   src/data/types.cpp
+  src/data/tools.cpp
   src/data/encoding/hex.cpp
   src/data/encoding/ascii.cpp
-  src/data/encoding/base58.cpp
-  src/data/encoding/base64.cpp
-  src/data/encoding/integer.cpp
   src/data/encoding/utf8.cpp
+  src/data/encoding/base64.cpp
+  src/data/encoding/base58.cpp
+  src/data/encoding/integer.cpp
   src/data/net/URL.cpp
   src/data/net/HTTP.cpp
   src/data/net/REST.cpp
@@ -80,7 +81,6 @@ add_library (
 
 target_include_directories (data PUBLIC include)
 
-
 target_link_libraries (
   data
   boost::boost
@@ -89,7 +89,7 @@ target_link_libraries (
   nlohmann_json::nlohmann_json
   gmp::gmp
   secp256k1::secp256k1
-  uriparser::uriparser
+  taocpp::pegtl
   # PkgConfig::LIBSECP256K1
 )
 

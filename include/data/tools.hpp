@@ -60,19 +60,22 @@ namespace data {
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
     
     template <typename f, sequence A, sequence B> 
-    auto map_thread(f fun, A a, B b) {
-        if (data::size(a) != data::size(b)) throw exception {"lists must be the same size"};
+    auto map_thread (f fun, A a, B b) {
+        if (data::size (a) != data::size (b)) throw exception {"lists must be the same size"};
         
-        list<decltype(fun(data::first(std::declval<A>()), data::first(std::declval<B>())))> l;
+        list<decltype (fun (data::first (std::declval<A> ()), data::first (std::declval<B> ())))> l;
         
-        while (data::size(a) != 0) {
-            l = data::append(l, fun(data::first(a), data::first(b)));
-            a = a.rest();
-            b = b.rest();
+        while (data::size (a) != 0) {
+            l = data::append (l, fun (data::first (a), data::first (b)));
+            a = a.rest ();
+            b = b.rest ();
         }
         
         return l;
     }
+
+    // split a string by a delimiter.
+    list<string> split (string_view str, const string &delimiter);
 
 }
 
