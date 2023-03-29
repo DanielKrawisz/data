@@ -137,7 +137,7 @@ namespace data::math {
     template <uint64 pow> 
     set<base58_uint> root<base58_uint, pow>::operator () (const base58_uint& n) {
         set<base58_uint> x;
-        set<N> roots = root<N, pow> {} (encoding::base58::decode<N> (n));
+        set<N> roots = root<N, pow> {} (*encoding::base58::decode<N> (n));
         for (const N &z : roots.values ()) x = insert (x, encoding::base58::encode (z));
         return x;
     }

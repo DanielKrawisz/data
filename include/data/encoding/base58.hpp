@@ -45,13 +45,16 @@ namespace data::encoding::base58 {
             c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
     };
     
-    template <typename N> N inline decode (const string_view s) {
-        return read_base<N> (s, 58, digit);
+    template <typename N> maybe<N> inline decode (const string_view s) {
+        if (!valid (s)) return {};
+        return {read_base<N> (s, 58, digit)};
     }
     
-    bytes inline read (const string_view s) {
+    maybe<bytes> inline read (const string_view s) {
         // we take two steps with different numbers because it's a lot faster. 
-        return math::number::N_bytes<endian::big> (decode<math::N> (s));
+        auto n = decode<math::N> (s);
+        if (!bool (n)) return {};
+        return {bytes (math::number::N_bytes<endian::big> (*n))};
     }
     
     struct string;

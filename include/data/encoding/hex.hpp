@@ -40,7 +40,7 @@ namespace data::encoding::hex {
         return ctre::match<pattern> (s);
     }
     
-    ptr<bytes> read (string_view);
+    maybe<bytes> read (string_view);
     
     // A hex-encoded string
     struct string : std::string {
@@ -106,9 +106,8 @@ namespace data {
         return o << "\"" << encoding::hex::write (s) << "\"";
     }
     
-    bytes inline bytes::from_hex (string_view s) {
-        ptr<bytes> b = encoding::hex::read (s);
-        return b == nullptr ? bytes {} : *b;
+    maybe<bytes> inline bytes::from_hex (string_view s) {
+        return encoding::hex::read (s);
     }
     
 }

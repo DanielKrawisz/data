@@ -41,14 +41,17 @@ namespace data::encoding::hex {
         ToBytes = &Bytes;
     }
     
-    ptr<bytes> read (string_view x) {
-        if ((x.size () & 1)) return nullptr;
-        ptr<bytes> b = std::make_shared<bytes> (x.size () / 2);
+    maybe<bytes> read (string_view x) {
+        if ((x.size () & 1)) return {};
+
+        bytes b (x.size () / 2);
+
         try {
-            boost::algorithm::unhex (x.begin (), x.end (), b->begin ());
+            boost::algorithm::unhex (x.begin (), x.end (), b.begin ());
         } catch (boost::algorithm::hex_decode_error exception) {
-            return nullptr;
+            return {};
         }
+
         return b;
     }
     
@@ -58,7 +61,7 @@ namespace data::encoding::hex {
         else boost::algorithm::hex_lower (sourceBytes.begin (), sourceBytes.end (), output.begin ());
     }
     
-    string write(bytes_view sourceBytes, endian::order r, letter_case q) {
+    string write (bytes_view sourceBytes, endian::order r, letter_case q) {
         if (r == endian::big) return write (sourceBytes, q);
         bytes reversed (sourceBytes.size ());
         std::copy (sourceBytes.rbegin (), sourceBytes.rend (), reversed.begin ());
