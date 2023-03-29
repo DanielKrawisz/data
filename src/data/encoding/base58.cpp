@@ -76,8 +76,8 @@ namespace data::encoding::base58 {
     
     string &operator -- (string &x) {
         if (!x.valid ()) throw exception {} << "invalid base 58 string: \"" << x << "\"";
-        if (x == "") return x;
-        if (x == "2") return x = string {""};
+        if (x == "1") return x;
+        if (x == "2") return x = string {"1"};
             
         N_decrement (x);
         

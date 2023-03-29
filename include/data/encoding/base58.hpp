@@ -29,14 +29,14 @@ namespace data::encoding::base58 {
         return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     }
     
-    static constexpr auto pattern = ctll::fixed_string {"([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)?"};
+    static constexpr auto pattern = ctll::fixed_string {"1|([2-9A-HJ-NP-Za-km-z][1-9A-HJ-NP-Za-km-z]*)"};
     
     bool inline valid (const string_view s) {
         return ctre::match<pattern> (s);
     }
     
     bool inline nonzero (const string_view s) {
-        return valid (s) && s.size () > 0;
+        return valid (s) && s[0] != '1';
     }
     
     char inline digit (char c) {
@@ -117,12 +117,12 @@ namespace data::encoding::base58 {
         
         static string read (const std::string &);
         
-        string& operator += (const string &);
-        string& operator -= (const string &);
-        string& operator *= (const string &);
+        string &operator += (const string &);
+        string &operator -= (const string &);
+        string &operator *= (const string &);
         
-        string& operator <<= (int);
-        string& operator >>= (int);
+        string &operator <<= (int);
+        string &operator >>= (int);
         
         string operator &= (const string &) const;
         string operator |= (const string &) const;
@@ -134,7 +134,9 @@ namespace data::encoding::base58 {
     
     template <typename N>
     string inline encode (N n) {
-        return string {encoding::write_base<N> (n, characters ())};
+        auto w = encoding::write_base<N> (n, characters ());
+        if (w == "") return string {};
+        return string {w};
     }
     
     string inline write (const bytes_view b) {
@@ -146,21 +148,21 @@ namespace data::encoding::base58 {
 namespace data {
     using base58_uint = encoding::base58::string;
     
-    math::sign sign (const base58_uint&);
+    math::sign sign (const base58_uint &);
     
-    base58_uint increment (const base58_uint&);
-    base58_uint decrement (const base58_uint&);
+    base58_uint increment (const base58_uint &);
+    base58_uint decrement (const base58_uint &);
 }
 
 namespace data::math {
     
     template <> struct abs<base58_uint> {
-        base58_uint operator () (const base58_uint&);
+        base58_uint operator () (const base58_uint &);
     };
     
     template <uint64 pow> 
     struct root<base58_uint, pow> {
-        set<base58_uint> operator () (const base58_uint& n);
+        set<base58_uint> operator () (const base58_uint &n);
     };
     
     bool is_zero (const base58_uint &);
@@ -195,7 +197,7 @@ namespace data::math {
     }
     
     bool inline is_positive (const encoding::base58::string &x) {
-        return !is_zero(x);
+        return !is_zero (x);
     }
     
     bool inline is_zero (const base58_uint &n) {
@@ -211,15 +213,15 @@ namespace data::math {
 
 namespace data::encoding::base58 {
     
-    string inline operator + (const string& n, uint64 x) {
+    string inline operator + (const string &n, uint64 x) {
         return n + string {x};
     }
     
-    string inline operator - (const string& n, uint64 x) {
+    string inline operator - (const string &n, uint64 x) {
         return n - string {x};
     }
     
-    string inline operator * (const string& n, uint64 x) {
+    string inline operator * (const string &n, uint64 x) {
         return n * string {x};
     }
     
@@ -255,7 +257,7 @@ namespace data::encoding::base58 {
         return a = a >> i;
     }
 
-    inline string::string () : std::string{""} {}
+    inline string::string () : std::string {"1"} {}
     
     inline string::string (const std::string &x) : std::string {base58::valid (x) ? x : ""} {}
     
