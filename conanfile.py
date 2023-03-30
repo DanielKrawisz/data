@@ -26,28 +26,28 @@ class DataConan (ConanFile):
 
     def set_version (self):
         if "CIRCLE_TAG" in environ:
-            self.version = environ.get("CIRCLE_TAG")[1:]
+            self.version = environ.get ("CIRCLE_TAG")[1:]
         if "CURRENT_VERSION" in environ:
             self.version = environ['CURRENT_VERSION']
         else:
-            self.version = "v0.0.26"
+            self.version = "v0.0.24"
 
     def configure_cmake (self):
         cmake = CMake (self)
-        cmake.configure(variables={"PACKAGE_TESTS":"Off"})
+        cmake.configure (variables={"PACKAGE_TESTS":"Off"})
         return cmake
 
     def config_options (self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def layout(self):
-        cmake_layout(self)
+    def layout (self):
+        cmake_layout (self)
 
-    def generate(self):
-        deps = CMakeDeps(self)
+    def generate (self):
+        deps = CMakeDeps (self)
         deps.generate()
-        tc = CMakeToolchain(self)
+        tc = CMakeToolchain (self)
         tc.generate()
 
     def build (self):
@@ -55,7 +55,7 @@ class DataConan (ConanFile):
         cmake.build ()
 
     def package (self):
-        cmake = CMake(self)
+        cmake = CMake (self)
         cmake.install()
 
     def package_info (self):
