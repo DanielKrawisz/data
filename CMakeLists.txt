@@ -7,10 +7,11 @@ endif ()
 
 project (
   data
-  VERSION 1.0
+  VERSION 0.0.24
   DESCRIPTION "wrappers and high-level programming constructs in c++"
   LANGUAGES CXX
 )
+
 find_package(Boost CONFIG REQUIRED)
 find_package(OpenSSL CONFIG REQUIRED)
 find_package(cryptopp CONFIG REQUIRED)
@@ -24,8 +25,6 @@ find_package(uriparser CONFIG REQUIRED)
 option (PACKAGE_TESTS "Build the tests" ON)
 
 add_definitions ("-DHAS_BOOST")
-
-
 
 if (PACKAGE_TESTS)
   include (CTest)
@@ -102,5 +101,5 @@ target_compile_features (data PUBLIC cxx_std_20)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
 
-install(DIRECTORY include/ DESTINATION include)
-install(TARGETS data)
+install (DIRECTORY include/ DESTINATION include)
+install (TARGETS data)
