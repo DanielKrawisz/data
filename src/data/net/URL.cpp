@@ -390,9 +390,11 @@ namespace data::net {
         using qi::repeat;
         using qi::lit;
 
-        uint_parser<unsigned, 10, 1, 3> dec_octet;
+        ipv4_octet = qi::char_ ('0') | (qi::char_('1', '9') >> -qi::digit) |
+            (qi::char_ ('1') >> qi::digit >> qi::digit) | (qi::char_ ('2') >> qi::char_ ('0', '4') >> qi::digit) |
+            (qi::char_ ('2') >> qi::char_ ('5') >> qi::char_ ('0', '5'));
 
-        IPv4 = dec_octet >> '.' >> dec_octet >> '.' >> dec_octet >> '.' >> dec_octet;
+        IPv4 = ipv4_octet >> qi::char_ ('.') >> ipv4_octet >> qi::char_ ('.') >> ipv4_octet >> qi::char_ ('.') >> ipv4_octet;
 
         h16 = repeat (1, 4)[char_ ("0-9a-fA-F")];
         ls32 = (h16 >> ':' >> h16) | IPv4;

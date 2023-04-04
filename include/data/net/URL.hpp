@@ -468,7 +468,7 @@ namespace data::net::IP {
 
         rule IPAddress, IPv4, IPv6, IPFuture, WholeIPAddress, WholeIPFuture, WholeIPv4, WholeIPv6;
     private:
-        rule h16, ls32;
+        rule h16, ls32, ipv4_octet;
     };
 }
 

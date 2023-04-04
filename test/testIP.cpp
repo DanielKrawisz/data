@@ -65,10 +65,8 @@ namespace data::net::IP {
 
             void test () const {
 
-                if (Version == 4)
-                    EXPECT_TRUE (std::regex_match (Address, ip_v4_regex));
-                else if (Version == 6)
-                    EXPECT_TRUE (std::regex_match (Address, ip_v6_regex));
+                if (Version == 4) EXPECT_TRUE (std::regex_match (Address, ip_v4_regex));
+                else if (Version == 6) EXPECT_TRUE (std::regex_match (Address, ip_v6_regex));
 
                 EXPECT_EQ (Address.valid (), Version >= 0)
                     << "Address \"" << Address << "\" is" << (Version >= 0 ? " " : " not ") << "expected to be valid; version = " << Version;
@@ -305,7 +303,7 @@ namespace data::encoding::percent {
                 "", "example.com", ""
             }
         }) {
-            EXPECT_TRUE (tt.URI.valid ());
+            EXPECT_TRUE (tt.URI.valid ()) << "expected " << tt.URI << " to be a valid URL.";
         }
 
         struct negative_test_case {
