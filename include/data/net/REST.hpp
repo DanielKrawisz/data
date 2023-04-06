@@ -44,7 +44,7 @@ namespace data::net::HTTP {
     };
     
     HTTP::request inline REST::GET (path path, list<entry<UTF8, UTF8>> params) const {
-        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (path).query (params);
+        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (path).query_map (params);
         return HTTP::request {method::get, URL (bool (Port) ? make_url.port (*Port) : make_url)};
     }
     
@@ -55,7 +55,7 @@ namespace data::net::HTTP {
     }
     
     HTTP::request inline REST::operator () (const request &r) const {
-        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (r.Path).query (r.Params);
+        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (r.Path).query_map (r.Params);
         return HTTP::request {r.Method, URL (bool (Port) ? make_url.port (*Port) : make_url), r.Headers, r.Body};
     }
 

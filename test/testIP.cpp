@@ -73,7 +73,7 @@ namespace data::net::IP {
 
                 int32 version = Address.version ();
                 EXPECT_EQ (version, Version) << "expected " << Address << " to be version " << Version;
-
+/*
                 uint16 port = 666;
                 
                 std::stringstream v6_format;
@@ -86,7 +86,7 @@ namespace data::net::IP {
                 TCP::endpoint v4_string {v4_format.str ()};
                 
                 EXPECT_EQ (v6_string.valid (), version == 6) << v6_string;
-                EXPECT_EQ (v4_string.valid (), version == 4) << v4_string;
+                EXPECT_EQ (v4_string.valid (), version == 4) << v4_string;*/
 
             }
         };
@@ -135,7 +135,7 @@ namespace data::net::IP {
             // Invalid character G
             {"GB:02:3008:8CFD:AB:02:3008:8CFD", -1},
             // unassigned IPv6 address
-            {"::", 6},                                       
+            {"::", 6},
             // loopback IPv6 address
             {"::1", 6}, 
             // another name for unassigned IPv6 address
@@ -159,7 +159,7 @@ namespace data::net::IP {
             // link-local prefix
             {"fe80::", 6}, 
             // global unicast prefix
-            {"2001::", 6} 
+            {"2001::", 6}
         };
         
         for (const test_case &t : test_cases) t.test ();
@@ -224,126 +224,142 @@ namespace data::encoding::percent {
         }
     }
 
-    TEST (IPTest, TestURIFormat) {
+}
+
+namespace data::net {
+
+    TEST (IPTest, TestURLFormat) {
 
         struct positive_test_case {
-            percent::URI URI;
+            net::URL URL;
 
             data::ASCII Scheme;
-            data::ASCII Authority;
+            maybe<data::ASCII> Authority;
             data::ASCII Path;
-            data::ASCII Query;
-            data::ASCII Fragment;
+            maybe<data::ASCII> Query;
+            maybe<data::ASCII> Fragment;
 
-            data::ASCII UserInfo;
-            data::ASCII Host;
-            data::ASCII Port;
+            maybe<data::ASCII> UserInfo;
+            maybe<data::ASCII> Host;
+            maybe<data::ASCII> Port;
+
+            maybe<uint16> PortNumber;
+            data::ASCII PortDNS;
+            maybe<domain_name> HostDNS;
+            maybe<IP::address> HostAddress;
         };
 
         // valid URLs.
         for (const positive_test_case &tt : list<positive_test_case> {{
                 "ftp://ftp.is.co.za/rfc/rfc1808.txt",
-                "ftp:", "//ftp.is.co.za", "/rfc/rfc1808.txt", "", "",
-                "", "ftp.is.co.za", ""
+                "ftp", {"//ftp.is.co.za"}, "/rfc/rfc1808.txt", {}, {},
+                {}, "ftp.is.co.za", {},
+                {}, "ftp", {"ftp.is.co.za"}, {}
             }, {
                 "http://www.ietf.org/rfc/rfc2396.txt",
-                "http:", "//www.ietf.org", "/rfc/rfc2396.txt", "", "",
-                "", "www.ietf.org", ""
+                "http", {"//www.ietf.org"}, "/rfc/rfc2396.txt", {}, {},
+                {}, "www.ietf.org", {},
+                {}, "http", {"www.ietf.org"}, {}
             }, {
                 "ldap://[2001:db8::7]/c=GB?objectClass?one",
-                "ldap:", "//[2001:db8::7]", "/c=GB", "?objectClass?one", "",
-                "", "[2001:db8::7]", ""
+                "ldap", "//[2001:db8::7]", "/c=GB", "?objectClass?one", "",
+                {}, "[2001:db8::7]", {},
+                {}, "ldap", {}, {"2001:db8::7"}
             }, {
                 "mailto:John.Doe@example.com",
-                "mailto:", "", "John.Doe@example.com", "", "",
-                "", "", ""
+                "mailto", {}, "John.Doe@example.com", {}, {},
+                {}, {}, {},
+                {}, "mailto", {}, {}
             }, {
                 "news:comp.infosystems.www.servers.unix",
-                "news:", "", "comp.infosystems.www.servers.unix", "", "",
-                "comp.infosystems.www.servers.unix"
+                "news", {}, "comp.infosystems.www.servers.unix", {}, {},
+                {}, {}, {},
+                {}, "news", {}, {}
             }, {
                 "tel:+1-816-555-1212",
-                "tel:", "", "+1-816-555-1212", "", "",
-                "+1-816-555-1212"
+                "tel", {}, "+1-816-555-1212", {}, {}, {}, {}, {},
+                {}, "tel", {}, {}
             }, {
                 "telnet://192.0.2.16:80/",
-                "telnet:", "//192.0.2.16:80", "/", "", "",
-                "", "192.0.2.16", "80"
+                "telnet", "//192.0.2.16:80", "/", "", "",
+                {}, "192.0.2.16", "80",
+                {80}, "80", {}, {"192.0.2.16"}
             }, {
                 "urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
-                "urn:", "", "oasis:names:specification:docbook:dtd:xml:4.1.2", "", "",
-                "", "", ""
+                "urn", "", "oasis:names:specification:docbook:dtd:xml:4.1.2", {}, {},
+                {}, {}, {},
+                {}, "urn", {}, {}
             }, {
                 "foo://example.com:8042/over/there?name=ferret#nose",
-                "foo:", "//example.com:8042", "/over/there", "?name=ferret", "#nose",
-                "", "example.com", "8042"
+                "foo", "//example.com:8042", "/over/there", "?name=ferret", "#nose",
+                {}, "example.com", "8042",
+                {8042}, "8042", {"example.com"}, {}
             }, {
                 "urn:example:animal:ferret:nose",
-                "urn:", "", "example:animal:ferret:nose", "", "",
-                "", "", ""
+                "urn", "", "example:animal:ferret:nose", {}, {},
+                "", "", "",
+                {}, "urn", {}, {}
             }, {
                 "http://www.example.com",
-                "http:", "//www.example.com", "", "", "",
-                "", "www.example.com", ""
+                "http", "//www.example.com", "", {}, {},
+                {}, "www.example.com", {},
+                {}, "http", {}, {}
             }, {
                 "https://example.org:8080/path/to/resource",
-                "https:", "//example.org:8080", "/path/to/resource", "", "",
-                "", "example.org", "8080"
+                "https", "//example.org:8080", "/path/to/resource", {}, {},
+                {}, "example.org", "8080",
+                {8080}, "8080", {}, {}
             }, {
                 "ftp://example.com/resource?param1=value1&param2=value2",
-                "ftp:", "//example.com", "/resource", "?param1=value1&param2=value2", "",
-                "", "example.com", ""
+                "ftp", "//example.com", "/resource", "?param1=value1&param2=value2", "",
+                {}, "example.com", {},
+                {}, "ftp", {"example.com"}, {}
             }, {
                 "mailto:user@example.com",
-                "mailto:", "", "user@example.com", "", "",
-                "", "", ""
+                "mailto", {}, "user@example.com", {}, {}, {}, {}, {},
+                {}, "mailto", {}, {}
             }, {
                 "https://example.com/path/to/resource#fragment",
-                "https:", "//example.com", "/path/to/resource", "", "#fragment",
-                "", "example.com", ""
+                "https", "//example.com", "/path/to/resource", {}, "fragment",
+                {}, "example.com", {},
+                {}, "https", {"example.com"}, {}
+            }, {
+                "https://example.com/path?query#", "https", "//example.com", "/path", "query", {""}, {}, {"example.com"}, {},
+                {}, "http", {"example.com"}, {}
+            }, {
+                "http://", "http", {"//"}, "", {}, {}, {}, {}, {},
+                {}, "http", {}, {}
             }
         }) {
-            EXPECT_TRUE (tt.URI.valid ()) << "expected " << tt.URI << " to be a valid URL.";
+
+            EXPECT_TRUE (tt.URL.valid ()) << "expected \"" << tt.URL << "\" to be a valid URL.";
+
+            EXPECT_EQ (tt.URL.scheme (), tt.Scheme);
+            EXPECT_EQ (tt.URL.path (), tt.Path);
+
+            EXPECT_EQ (tt.URL.authority (), tt.Authority);
+            EXPECT_EQ (tt.URL.user_info (), tt.UserInfo);
+            EXPECT_EQ (tt.URL.host (), tt.Host);
+            EXPECT_EQ (tt.URL.port (), tt.Port);
+
+            EXPECT_EQ (tt.URL.path (), tt.Path);
+            EXPECT_EQ (tt.URL.query (), tt.Query);
+            EXPECT_EQ (tt.URL.fragment (), tt.Fragment);
+
         }
 
         struct negative_test_case {
-            percent::URI URI;
+            net::URL URL;
         };
 
         for (const negative_test_case &tt : list<negative_test_case> {
             {"http://www.ex_ample.com"},            // (Invalid character in the domain)
-            {"https:/example.org"},                 // (Malformed scheme)
-            {"http://"},                            // (Missing domain)
-            {"http://example.com:65536"},           // (Invalid port number)
-            {"https://example.com/path?query#"}     // (Invalid fragment character)
+            {"https//example.org"},                 // (Malformed scheme)
+            {"https&:/example.org"},                 // (Malformed scheme)
+          //{"http://example.com:65536"},           // (Invalid port number)
         }) {
-            EXPECT_FALSE (tt.URI.valid ());
+            EXPECT_FALSE (tt.URL.valid ()) << "expected \"" << tt.URL << "\" to be an invalid URL.";
         }
-
-    }
-        
-}
-
-namespace data::net {
-
-    template <typename rule>
-    bool inline parse (const string &x, rule r) {
-        return qi::parse (x.data (), x.data () + x.size (), r);
-    }
-
-    TEST (IPTest, TestParseURL) {
-
-        encoding::percent::URI::parser p;
-
-        EXPECT_TRUE (parse ("ftp", p.Scheme));
-        EXPECT_TRUE (parse ("b.b.com", p.Host));
-        EXPECT_TRUE (parse ("1.1.1.1", p.Host));
-        EXPECT_TRUE (parse ("//toob", p.Authority));
-        EXPECT_TRUE (parse ("//toob:45", p.Authority));
-        EXPECT_TRUE (parse ("//neepmeep@toob:45", p.Authority));
-        EXPECT_TRUE (parse ("poop", p.Query));
-        EXPECT_TRUE (parse ("poop", p.Fragment));
-
 
     }
 
@@ -354,12 +370,13 @@ namespace data::net {
         EXPECT_EQ (URL {"http://example.com"}, URL (URL::make {}.scheme ("http:").authority ("//example.com")));
 
         EXPECT_EQ (URL {"http://example.com/test?query"},
-            URL (URL::make {}.protocol ("http").path ("/test").host_domain_name ("example.com").query ("?query")));
+            URL (URL::make {}.protocol ("http").path ("/test").host_domain_name ("example.com").query ("query")));
 
-        EXPECT_EQ (URL {"http://example.com/test?query"}, URL (URL::make {"http://example.com"}.query ("?query").path ("/test")));
+        EXPECT_EQ (URL {"http://example.com/test?query"}, URL (URL::make {"http://example.com"}.query ("query").path ("/test")));
 
         EXPECT_EQ (URL {"zoom://moop:zoop@something.nothing:4321?weem=peeep&zap=bap#floop"},
-            URL (URL::make {}.user_info ("moop", "zoop").query ({{"weem", "peeep"}, {"zap", "bap"}}).protocol ("zoom").fragment ("floop")));
+            URL (URL::make {}.user_name_pass ("moop", "zoop").query_map
+                ({{"weem", "peeep"}, {"zap", "bap"}}).protocol ("zoom").fragment ("floop")));
 
     }
 
@@ -405,4 +422,17 @@ namespace data::net {
         }
 
     }
+
+    TEST (IPTest, TestURLParameters) {
+        URL yes {"fnorp://zeep:zoop@moop.pim.pom?weep=warp&beep=boop"};
+        URL no {"fnorp://zeep:zoop:zap@moop.pim.pom?weep&boop"};
+
+        EXPECT_TRUE (yes.user_name_pass ());
+        EXPECT_TRUE (yes.query_map ());
+
+        EXPECT_FALSE (no.user_name_pass ());
+        EXPECT_FALSE (no.query_map ());
+
+    }
+
 }

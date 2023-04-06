@@ -185,14 +185,15 @@ namespace data::net {
         std::stringstream url;
         url << *Protocol << ":";
 
-        if (Authority) {
+        if (UserInfo || Host || Port) {
             url << "//";
 
-            if (Authority->UserInfo) url << *Authority->UserInfo << "@";
-            if (Authority->Host) url << *Authority->Host;
-            if (Authority->Port) url << ":" << *Authority->Port;
+            if (UserInfo) url << *UserInfo << "@";
+            if (Host) url << *Host;
+            if (Port) url << ":" << *Port;
         }
 
+        if (Path) url << *Path;
         if (Query) url << *Query;
         if (Fragment) url << *Fragment;
 
@@ -209,42 +210,13 @@ namespace data::net {
         return m;
     }
 
-    URL::make URL::make::scheme (const ASCII &scheme) const {
-        if (!qi::parse (scheme.data (), scheme.data () + scheme.size (), parser {}.Scheme))
-            throw exception {"URL error: invalid scheme."};
-
-        return protocol (net::protocol {scheme.substr (0, scheme.size () - 1)});
-    }
-
-    URL::make URL::make::authority (const ASCII &authority) const {
-        if (Authority != nullptr) throw exception {"URL error: protocol already set."};
-
-        if (!qi::parse (authority.data (), authority.data () + authority.size (), parser {}.Authority))
-            throw exception {"URL error: invalid authority."};
-
-        make m = *this;
-        m.Authority = make::make_authority::read (authority);
-        return m;
-    }
-
-    URL::make URL::make::query (list<entry<UTF8, UTF8>> p) const {
+    URL::make URL::make::query_map (list<entry<UTF8, UTF8>> p) const {
         if (Query != nullptr) throw exception {"URL error: query already set."};
 
         make m = *this;
         m.Query = std::make_shared<pctstr> (write_params (p));
         return m;
     }
-/*
-    URL::make URL::make::fragment (const ASCII &f) const {
-        if (Fragment != nullptr) throw exception {"URL error: fragment already set."};
-
-        if (!qi::parse (f.data (), f.data () + f.size (), parser {}.Fragment))
-            throw exception {"URL error: invalid fragment."};
-
-        make m = *this;
-        m.Fragment = std::make_shared<pctstr> (f);
-        return m;
-    }*/
 
     URL::make URL::make::query (const ASCII &q) const {
         if (Query != nullptr) throw exception {"URL error: query already set."};
@@ -268,44 +240,52 @@ namespace data::net {
     URL::make URL::make::port (const uint16 &u) const {
 
         make m = *this;
-        if (m.Authority == nullptr) m.Authority = std::make_shared<make_authority> ();
-        if (m.Authority->Port != nullptr) throw exception {"URL error: port already set."};
+        if (m.Port != nullptr) throw exception {"URL error: port already set."};
 
-        m.Authority->Port = std::make_shared<pctstr> (net::port {u});
+        m.Port = std::make_shared<pctstr> (net::port {u});
         return m;
     }
 
     URL::make URL::make::host_ip_address (const IP::address &ip) const {
 
         make m = *this;
-        if (m.Authority == nullptr) m.Authority = std::make_shared<make_authority> ();
-        if (m.Authority->Host != nullptr) throw exception {"URL error: host already set."};
+        if (m.Host != nullptr) throw exception {"URL error: host already set."};
         if (ip.valid ()) throw exception {"URL error: Invalid IP address"};
 
-        m.Authority->Host = std::make_shared<pctstr> (ip);
+        m.Host = std::make_shared<pctstr> (ip);
         return m;
     }
 
     URL::make URL::make::host_domain_name (const domain_name &name) const {
         make m = *this;
-        if (m.Authority == nullptr) m.Authority = std::make_shared<make_authority> ();
-        if (m.Authority->Host != nullptr) throw exception {"URL error: host already set."};
+        if (m.Host != nullptr) throw exception {"URL error: host already set."};
         if (name.valid ()) throw exception {"URL error: Invalid domain name"};
 
-        m.Authority->Host = std::make_shared<pctstr> (name);
+        m.Host = std::make_shared<pctstr> (name);
         return m;
     }
 
-    URL::make URL::make::user_info (const UTF8 &username, const UTF8 &pass) const {
+    URL::make URL::make::user_name_pass (const UTF8 &username, const UTF8 &pass) const {
 
         make m = *this;
-        if (m.Authority == nullptr) m.Authority = std::make_shared<make_authority> ();
-        if (m.Authority->UserInfo != nullptr) throw exception {"URL error: user info already set."};
+        if (m.UserInfo != nullptr) throw exception {"URL error: user info already set."};
 
         std::stringstream user_info;
         user_info << encoding::percent::encode (username, ":/@?#") << ":" << encoding::percent::encode (pass, ":/@?#");
 
-        m.Authority->UserInfo = std::make_shared<pctstr> (user_info.str ());
+        m.UserInfo = std::make_shared<pctstr> (user_info.str ());
+        return m;
+    }
+
+    URL::make URL::make::user_info (const UTF8 &info) const {
+
+        make m = *this;
+        if (m.UserInfo != nullptr) throw exception {"URL error: user info already set."};
+
+        std::stringstream user_info;
+        user_info << encoding::percent::encode (info, "/@?#");
+
+        m.UserInfo = std::make_shared<pctstr> (user_info.str ());
         return m;
     }
 
@@ -348,152 +328,6 @@ namespace data::net {
         return x;
     }
 
-}
-
-namespace data::net::IP {
-
-    address::operator asio::ip::address () const {
-        asio::error_code err {};
-        auto addr = asio::ip::make_address (static_cast<string> (*this), err);
-        if (err) throw exception {err};
-        return addr;
-    }
-
-    namespace TCP {
-/*
-        endpoint::operator asio::ip::tcp::endpoint () const {
-            auto result = ctre::match<pattern> (*this);
-            if (!bool(result)) return {};
-            auto address_v4 = result.get<"V4"> ();
-            std::stringstream port_stream;
-            port_stream << result.get<"port"> ().to_string ();
-            uint16 port;
-            port_stream >> port;
-            auto addr_v4_string = address_v4.to_string();
-            auto addr_v6_string = result.get<"V6"> ().to_string ();
-            auto addr_string = bool (!address_v4) ?  addr_v6_string : addr_v4_string;
-            auto addr=asio::ip::address::from_string (addr_string);
-            return asio::ip::tcp::endpoint{
-                addr,
-                port};
-        }*/
-    }
-
-}
-
-#include <boost/phoenix.hpp>
-
-namespace data::net {
-    IP::address::parser::parser () : parser::base_type (IPAddress) {
-        using qi::uint_parser;
-        using qi::char_;
-        using qi::repeat;
-        using qi::lit;
-
-        ipv4_octet = qi::char_ ('0') | (qi::char_('1', '9') >> -qi::digit) |
-            (qi::char_ ('1') >> qi::digit >> qi::digit) | (qi::char_ ('2') >> qi::char_ ('0', '4') >> qi::digit) |
-            (qi::char_ ('2') >> qi::char_ ('5') >> qi::char_ ('0', '5'));
-
-        IPv4 = ipv4_octet >> qi::char_ ('.') >> ipv4_octet >> qi::char_ ('.') >> ipv4_octet >> qi::char_ ('.') >> ipv4_octet;
-
-        h16 = repeat (1, 4)[char_ ("0-9a-fA-F")];
-        ls32 = (h16 >> ':' >> h16) | IPv4;
-
-        IPv6 = -(repeat (6)[h16 >> ':']) >> ls32
-            | "::" >> repeat (5)[h16 >> ':'] >> ls32
-            | -repeat (1)[h16] >> "::" >> repeat (4)[h16 >> ':'] >> ls32
-            | -repeat (2)[h16 >> ':'] >> "::" >> repeat (3)[h16 >> ':'] >> ls32
-            | -repeat (3)[h16 >> ':'] >> "::" >> repeat (2)[h16 >> ':'] >> ls32
-            | -repeat (4)[h16 >> ':'] >> "::" >> h16 >> ':' >> ls32
-            | -repeat (5)[h16 >> ':'] >> "::" >> ls32
-            | -repeat (6)[h16 >> ':'] >> "::" >> h16
-            | -repeat (7)[h16 >> ':'] >> "::";
-
-        IPFuture = "v" >> +char_ ("0-9a-fA-F") >> "." >> +char_ ("!#$%&'*+-._`|~0-9a-zA-Z();/?:@&=+$,[]");
-
-        IPAddress = IPv4 | IPv6 | IPFuture;
-
-        WholeIPAddress = IPAddress >> qi::eoi;
-        WholeIPv4 = IPv4 >> qi::eoi;
-        WholeIPv6 = IPv6 >> qi::eoi;
-        WholeIPFuture = IPFuture >> qi::eoi;
-    }
-
-    domain_name::parser::parser () : parser::base_type (Name) {
-        using qi::char_;
-        using qi::raw;
-
-        // Domain name components should start with an alphanumeric character,
-        // followed by any combination of alphanumeric characters, hyphens, or underscores.
-        Label = raw[(char_ ("a-zA-Z0-9") >> *(char_ (R"(a-zA-Z0-9-)")))];
-
-        // Labels separated by dots
-        Name = Label % '.';
-
-        Whole = Name >> qi::eoi;
-    }
-
-    URL::make URL::read () const {
-
-        parser p {};
-
-        string_view scheme;
-        string_view user_info;
-        string_view host;
-        string_view port;
-        string_view path;
-        string_view query;
-        string_view fragment;
-
-        p.Scheme[([&scheme] (const char *b, const char *e) {
-            scheme = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        p.user_info[([&user_info] (const char *b, const char *e) {
-            user_info = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        p.Host[([&host] (const char *b, const char *e) {
-            host = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        p.port[([&port] (const char *b, const char *e) {
-            port = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        p.path[([&path] (const char *b, const char *e) {
-            path = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        p.Query[([&query] (const char *b, const char *e) {
-            query = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        p.Fragment[([&fragment] (const char *b, const char *e) {
-            fragment = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        if (!qi::parse (this->data (), this->data () + this->size (), p.WholeURI)) return {};
-
-        make m {};
-
-        m.Protocol = std::make_shared<encoding::percent::string> (scheme);
-
-        if (user_info.size () > 0 || host.size () > 0 || port.size () > 0) {
-            m.Authority = std::make_shared<make::make_authority> ();
-
-            if (user_info.size () > 0) m.Authority->UserInfo = std::make_shared<encoding::percent::string> (user_info);
-            if (host.size () > 0) m.Authority->Host = std::make_shared<encoding::percent::string> (host);
-            if (port.size () > 0) m.Authority->Port = std::make_shared<encoding::percent::string> (port);
-        }
-
-        if (path.size () > 0) m.Path = std::make_shared<encoding::percent::string> (path);
-        if (query.size () > 0) m.Query = std::make_shared<encoding::percent::string> (query);
-        if (fragment.size () > 0) m.Fragment = std::make_shared<encoding::percent::string> (fragment);
-
-        return m;
-    }
-
     maybe<uint16> URL::port_number () const {
         auto zp = this->port ();
         if (!zp) return {};
@@ -510,184 +344,399 @@ namespace data::net {
         return ip;
     }
 
-    ptr<URL::make::make_authority> URL::make::make_authority::read (const ASCII &u) {
+    maybe<entry<UTF8, UTF8>> URL::user_name_pass () const {
+        string_view hh = URI::user_info (*this);
+        if (hh.data () == nullptr) return {};
+        list<std::string> z = split (hh, ":");
+        if (z.size () != 2) return {};
+        return {entry<UTF8, UTF8> {*encoding::percent::decode (z[0]), *encoding::percent::decode (z[1])}};
+    }
 
-        string_view port;
-        string_view user_info;
-        string_view host;
+    maybe<list<entry<UTF8, UTF8>>> URL::query_map () const {
+        string_view q = URI::query (*this);
+        if (q.data () == nullptr) return {};
 
-        parser p;
+        list<std::string> z = split (q, "&");
 
-        p.port[([&port] (const char *b, const char *e) {
-            port = string_view {b, static_cast<size_t> (e - b)};
-        })];
+        list<entry<UTF8, UTF8>> params;
 
-        p.user_info[([&user_info] (const char *b, const char *e) {
-            user_info = string_view {b, static_cast<size_t> (e - b)};
-        })];
+        for (const string &e : z) {
+            list<std::string> p = split (e, "=");
+            if (p.size () != 2) return {};
+            params = params << entry<UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
+        }
 
-        p.Host[([&host] (const char *b, const char *e) {
-            host = string_view {b, static_cast<size_t> (e - b)};
-        })];
+        return {params};
+    }
 
-        if (!qi::parse (u.data (), u.data () + u.size (), p.Authority)) return nullptr;
+}
 
-        ptr<make_authority> auth = std::make_shared<make_authority> ();
+namespace data::net::IP {
 
-        if (host.size () > 0) auth->Host = std::make_shared<pctstr> (host);
-        if (user_info.size () > 0) auth->UserInfo = std::make_shared<pctstr> (user_info);
-        if (host.size () > 0) auth->Port = std::make_shared<pctstr> (host);
+    address::operator asio::ip::address () const {
+        asio::error_code err {};
+        auto addr = asio::ip::make_address (static_cast<string> (*this), err);
+        if (err) throw exception {err};
+        return addr;
+    }
 
-        return auth;
+}
 
+#include <tao/pegtl.hpp>
+
+namespace pegtl {
+
+    using namespace tao::pegtl;
+
+    // Rules for parsing domain names
+    struct domain_label : seq<alnum, star<sor<one<'-'>, alnum>>> {};
+    struct domain_name : seq<domain_label, star<one<'.'>, domain_label>> {};
+    struct domain_name_whole : seq<domain_name, eof> {};
+
+    struct gen_delim : sor<one<':'>, one<'/'>, one<'?'>, one<'#'>, one<'['>, one<']'>, one<'@'>> {};
+
+    struct sub_delim : sor<one<'!'>, one<'$'>, one<'&'>, one<'\''>,
+        one<'('>, one<')'>, one<'*'>, one<'+'>, one<','>, one<';'>, one<'='>> {};
+
+    struct reserved : sor<gen_delim, sub_delim> {};
+
+    struct unreserved : sor<alnum, one<'-'>, one<'.'>, one<'_'>, one<'~'>> {};
+
+    struct pct_encoded : seq<one<'%'>, xdigit, xdigit> {};
+
+    struct pchar : sor<unreserved, pct_encoded, sub_delim, one<':'>, one<'@'>> {};
+
+    struct segment : star<pchar> {};
+
+    struct segment_nz : plus<pchar> {};
+
+    struct segment_nz_nc : plus<sor<unreserved, pct_encoded, sub_delim, one<'@'>>> {};
+
+    struct path_ab_empty : star<seq<one<'/'>, segment>> {};
+
+    struct path_rootless : seq<segment_nz, path_ab_empty> {};
+
+    struct path_absolute : seq<one<'/'>, segment_nz, path_ab_empty> {};
+
+    struct path_after_authority : path_ab_empty {};
+
+    struct reg_name : star<sor<unreserved, pct_encoded, sub_delim>> {};
+
+    struct scheme : seq<alpha, star<sor<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
+
+    struct whole_scheme : seq<scheme, eof> {};
+
+    struct user_info : plus<sor<unreserved, pct_encoded, sub_delim, one<':'>>> {};
+
+    struct port : star<digit> {};
+
+    struct final_section : star<sor<pchar, one<'/'>, one<'?'>>> {};
+
+    struct query : final_section {};
+
+    struct fragment : final_section {};
+
+    struct ipv4_octet : sor<
+        seq<string<'2', '5'>, range<'0', '5'>>,
+        seq<one<'2'>, range<'0', '4'>, digit>,
+        seq<one<'1'>, digit, digit>,
+        seq<range<'1', '9'>, digit>,
+        digit> {};
+
+    struct ipv4 : seq<ipv4_octet, one<'.'>, ipv4_octet, one<'.'>, ipv4_octet, one<'.'>, ipv4_octet> {};
+    struct ipv4_whole : seq<ipv4, eof> {};
+
+    struct h16 : seq<xdigit, opt<xdigit>, opt<xdigit>, opt<xdigit>> {};
+
+    struct ls32 : sor<seq<h16, one<':'>, h16>, ipv4> {};
+
+    struct ipv6 : sor<
+        seq<rep<6, seq<h16, one<':'>>>, ls32>,
+        seq<string<':', ':'>, rep<5, seq<h16, one<':'>>>, ls32>,
+        seq<opt<h16>, string<':', ':'>, rep<4, seq<h16, one<':'>>>, ls32>,
+        seq<opt<seq<opt<seq<h16, one<':'>>>, h16>>, string<':', ':'>, rep<3, seq<h16, one<':'>>>, ls32>,
+        seq<opt<seq<rep<2, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, rep<2, seq<h16, one<':'>>>, ls32>,
+        seq<opt<seq<rep<3, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, seq<h16, one<':'>>, ls32>,
+        seq<opt<seq<rep<4, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, ls32>,
+        seq<opt<seq<rep<5, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, h16>,
+        seq<opt<seq<rep<6, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>>> {};
+
+    struct ip_future : seq<istring<'v'>, plus<xdigit>, one<'.'>, plus<sor<unreserved, sub_delim, one<':'>>>> {};
+
+    struct ip_literal : seq<one<'['>, sor<ipv6, ip_future>, one<']'>> {};
+
+    struct ipv6_whole : seq<ipv6, eof> {};
+
+    struct ip_address_whole : seq<sor<ipv6, ipv4>, eof> {};
+
+    struct host : sor<ip_literal, ipv4, reg_name> {};
+
+    struct authority : seq<opt<seq<user_info, one<'@'>>>, host, opt<seq<one<':'>, port>>> {};
+
+    struct authority_whole : seq<authority, eof> {};
+
+    struct hierarchical : sor<seq<string<'/', '/'>, authority, path_after_authority>, path_absolute, path_rootless> {};
+
+    struct uri : seq<scheme, one<':'>, hierarchical, opt<seq<one<'?'>, query>>, opt<seq<one<'#'>, fragment>>> {};
+
+    struct uri_whole : seq<uri, eof> {};
+
+}
+
+namespace data {
+
+    bool net::domain_name::valid () const {
+        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "domain_name");
+        return tao::pegtl::parse<pegtl::domain_name_whole> (in);
+    }
+
+    bool encoding::percent::URI::valid () const {
+        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "uri");
+        return tao::pegtl::parse<pegtl::uri_whole> (in);
+    }
+
+    bool net::IP::address::valid () const {
+        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "ip_address");
+        return tao::pegtl::parse<pegtl::ip_address_whole> (in);
+    }
+
+    int32 net::IP::address::version () const {
+        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "ip_address");
+        if (tao::pegtl::parse<pegtl::ipv4_whole> (in)) return 4;
+        if (tao::pegtl::parse<pegtl::ipv6_whole> (in)) return 6;
+        return -1;
+    }
+
+    template <typename Rule> struct domain_action : pegtl::nothing<Rule> {};
+
+    template <> struct domain_action<pegtl::domain_label> {
+        template <typename Input >
+        static void apply (const Input& in, data::list<std::string> &labels) {
+            labels = labels << in.string ();
+        }
+    };
+
+    template <typename Rule> struct make_uri_action : pegtl::nothing<Rule> {};
+
+    template <> struct make_uri_action<pegtl::scheme> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Protocol == nullptr) m.Protocol = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::user_info> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.UserInfo == nullptr) m.UserInfo = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::host> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Host == nullptr) m.Host = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::port> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Port == nullptr) m.Port = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::path_after_authority> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::path_absolute> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::path_rootless> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::query> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Query == nullptr) m.Query = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::fragment> {
+        template <typename Input >
+        static void apply (const Input& in, net::URL::make &m) {
+            if (m.Fragment == nullptr) m.Fragment = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    net::URL::make net::URL::read () const {
+        make m {};
+        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "uri");
+        return tao::pegtl::parse<pegtl::uri_whole, make_uri_action> (in, m) ? m : make {};
+    }
+
+    net::URL::make net::URL::make::authority (const ASCII &x) const {
+        if (UserInfo || Host || Port) throw exception {"URL error: authority already set."};
+        make m = *this;
+        tao::pegtl::memory_input<> in (static_cast<const string &> (x), "authority");
+        return tao::pegtl::parse<pegtl::authority_whole, make_uri_action> (in, m) ? m : make {};
     }
 }
 
 namespace data::encoding::percent {
 
-    URI::parser::parser () : parser::base_type (URI), DomainName {}, IPAddress {} {
+    template <typename Rule> struct read_scheme_action : pegtl::nothing<Rule> {};
 
-        delimiter = qi::char_ (":/?#[]@");
-        subdelimiter = qi::char_ ("!$&'()*+,;=");
-        reserved = delimiter | subdelimiter;
-        unreserved = qi::alnum | qi::digit | qi::char_ ("+-.~");
-        hex_char = qi::char_ ("0-9a-fA-F");
-        ptc_encoded = "%" >> hex_char >> hex_char;
-        pchar = unreserved | ptc_encoded | subdelimiter | qi::char_ (":@");
-        segment = *pchar;
-        final_segment = *(pchar | qi::char_ ("/?"));
-        port = *qi::digit;
-        path = *("/" >> segment);
-        path_rootless = +pchar >> path;
-        path_absolute = "/" >> -path_rootless;
-        path_no_scheme = +(unreserved | ptc_encoded | subdelimiter | qi::char_ ("@")) >> path;
-        hierarchical = -("//" >> Authority >> path) | path_absolute | path_no_scheme | path_rootless;
-        user_info = +(unreserved | ptc_encoded | subdelimiter | qi::char_ (":"));
-
-        Host = IPAddress | DomainName | *(unreserved | ptc_encoded | subdelimiter);
-
-        Scheme = qi::no_case[qi::alpha >> *(qi::alnum | qi::char_ ("+-."))];
-
-        Authority = -(user_info >> "@") >> Host >> -(":" >> port);
-
-        Query = "?" >> final_segment;
-
-        Fragment = "#" >> final_segment;
-
-        URI = Scheme >> ":" >> hierarchical >> -("?" >> Query) >> -("#" >> Fragment);
-        WholeURI = URI >> qi::eoi;
-    }
+    template <> struct read_scheme_action<pegtl::scheme> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
 
     string_view URI::scheme (string_view x) {
-        parser p {};
-
-        string_view z;
-
-        p.Scheme[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "scheme");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_scheme_action> (in, sub)) return {};
+        return sub;
     }
+
+    template <typename Rule> struct read_authority_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_authority_action<pegtl::authority> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
 
     string_view URI::authority (string_view x) {
-        parser p {};
-
-        string_view z;
-
-        p.Authority[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "authority");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_authority_action> (in, sub)) return {};
+        return sub;
     }
 
-    string_view URI::path (string_view x) {
-        parser p {};
+    template <typename Rule> struct read_user_info_action : pegtl::nothing<Rule> {};
 
-        string_view z;
+    template <> struct read_user_info_action<pegtl::user_info> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
 
-        p.path[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
+    string_view URI::user_info (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "user_info");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_user_info_action> (in, sub)) return {};
+        return sub;
     }
 
-    string_view URI::query (string_view x) {
-        parser p {};
+    template <typename Rule> struct read_host_action : pegtl::nothing<Rule> {};
 
-        string_view z;
-
-        p.Query[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
-    }
-
-    string_view URI::fragment (string_view x) {
-        parser p {};
-
-        string_view z;
-
-        p.Fragment[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
-    }
-
-    string_view URI::user_data (string_view x) {
-        parser p {};
-
-        string_view z;
-
-        p.user_info[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
-    }
+    template <> struct read_user_info_action<pegtl::host> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
 
     string_view URI::host (string_view x) {
-        parser p {};
-
-        string_view z;
-
-        p.Host[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "host");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_host_action> (in, sub)) return {};
+        return sub;
     }
+
+    template <typename Rule> struct read_port_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_user_info_action<pegtl::port> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
 
     string_view URI::port (string_view x) {
-        parser p {};
-
-        string_view z;
-
-        p.port[([&z] (const char *b, const char *e) {
-            z = string_view {b, static_cast<size_t> (e - b)};
-        })];
-
-        qi::parse (x.begin (), x.end (), p);
-
-        return z;
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "port");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_port_action> (in, sub)) return {};
+        return sub;
     }
 
+    template <typename Rule> struct read_path_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_path_action<pegtl::path_after_authority> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    template <> struct read_path_action<pegtl::path_absolute> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    template <> struct read_path_action<pegtl::path_rootless> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    string_view URI::path (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "path");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_path_action> (in, sub)) return {};
+        return sub;
+    }
+
+    template <typename Rule> struct read_query_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_user_info_action<pegtl::query> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    string_view URI::query (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "query");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_query_action> (in, sub)) return {};
+        return sub;
+    }
+
+    template <typename Rule> struct read_fragment_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_user_info_action<pegtl::fragment> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    string_view URI::fragment (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "fragment");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_fragment_action> (in, sub)) return {};
+        return sub;
+    }
 }
+

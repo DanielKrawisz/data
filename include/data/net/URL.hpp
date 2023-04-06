@@ -106,8 +106,6 @@ namespace data::net {
         domain_name (const ASCII &x) : ASCII {x} {}
 
         bool valid () const;
-
-        struct parser;
     };
 }
 
@@ -125,8 +123,6 @@ namespace data::net::IP {
 
         explicit operator bytes () const;
         operator asio::ip::address () const;
-
-        struct parser;
     };
 }
 
@@ -186,14 +182,15 @@ namespace data::encoding::percent {
         static string_view query (string_view);
         static string_view fragment (string_view);
 
-        static string_view user_data (string_view);
+        static string_view user_info (string_view);
         static string_view host (string_view);
         static string_view port (string_view);
 
         data::ASCII scheme () const;
-        maybe<data::UTF8> user_data () const;
+        maybe<data::UTF8> user_info () const;
         maybe<data::UTF8> host () const;
         maybe<data::ASCII> port () const;
+        maybe<data::UTF8> authority () const;
         net::path path () const;
         maybe<data::UTF8> query () const;
         maybe<data::UTF8> fragment () const;
@@ -203,11 +200,9 @@ namespace data::encoding::percent {
         using string::string;
         URI (const string &x) : string {x} {}
 
-        URI (const data::ASCII &protocol, const data::UTF8 &user_data,
+        URI (const data::ASCII &protocol, const data::UTF8 &user_utya,
              const data::UTF8 &host, const data::ASCII &port, const net::path &path,
              const data::UTF8 &query, const data::UTF8 &fragment);
-
-        struct parser;
 
         // convert to a standard equivalent form in which all hex digits are upper case,
         // scheme and host are lower case, and only required digits are hex-encoded.
@@ -241,7 +236,7 @@ namespace data::net {
 
         // get user info as <username>:<password>.
         // (This is insecure but supported because we sometimes still use it.)
-        maybe<entry<UTF8, UTF8>> user_info_credentials () const;
+        maybe<entry<UTF8, UTF8>> user_name_pass () const;
 
         using encoding::percent::URI::URI;
         URL (const encoding::percent::URI &x) : encoding::percent::URI {x} {}
@@ -261,34 +256,28 @@ namespace data::net {
             make host_ip_address (const IP::address &) const;
             make host_domain_name (const domain_name &) const;
 
+            make user_info (const UTF8 &info) const;
+
             // insecure
-            make user_info (const UTF8 &username, const UTF8 &pass) const;
+            make user_name_pass (const UTF8 &username, const UTF8 &pass) const;
 
             make authority (const ASCII &) const;
 
             make path (const net::path &) const;
 
-            make query (list<entry<UTF8, UTF8>>) const;
+            make query_map (list<entry<UTF8, UTF8>>) const;
             make query (const ASCII &) const;
 
             make fragment (const UTF8 &) const;
 
-        private:
             using pctstr = encoding::percent::string;
 
-            struct make_authority {
-
-                ptr<pctstr> UserInfo;
-                ptr<pctstr> Host;
-                ptr<pctstr> Port;
-
-                static ptr<make_authority> read (const ASCII &);
-                make_authority () {}
-
-            };
-
             ptr<pctstr> Protocol;
-            ptr<make_authority> Authority;
+
+            ptr<pctstr> UserInfo;
+            ptr<pctstr> Host;
+            ptr<pctstr> Port;
+
             ptr<pctstr> Path;
             ptr<pctstr> Query;
             ptr<pctstr> Fragment;
@@ -319,13 +308,19 @@ namespace data::net::IP::TCP {
 
         bool valid () const {
             return this->protocol () == protocol::FTP && bool (this->port_number ()) &&
-                bool (this->host_address ()) && !bool (this->user_data ()) &&
+                bool (this->host_address ()) && !bool (this->user_info ()) &&
                 !bool (this->fragment ()) && !bool (this->query ());
         }
 
-        operator asio::ip::tcp::endpoint () const;
         IP::address address () const;
         uint16 port () const;
+
+        operator asio::ip::tcp::endpoint () const {
+            return valid () ? asio::ip::tcp::endpoint {
+                asio::ip::address::from_string (this->address ()),
+                this->port ()
+            } : asio::ip::tcp::endpoint {};
+        }
     };
 }
 
@@ -405,6 +400,10 @@ namespace data::net {
         auto scheme = this->scheme ();
         return net::protocol {scheme.substr (0, scheme.size () - 1)};
     }
+
+    URL::make inline URL::make::scheme (const ASCII &x) const {
+        return protocol (x);
+    }
 }
 
 namespace data::encoding::percent {
@@ -418,109 +417,57 @@ namespace data::encoding::percent {
     }
 
     data::ASCII inline URI::scheme () const {
-        return data::ASCII {scheme (*this)};
-    }
-
-    maybe<data::UTF8> inline URI::user_data () const {
-        return decode (user_data (*this));
-    }
-
-    maybe<data::UTF8> inline URI::host () const {
-        return decode (host (*this));
-    }
-
-    maybe<data::ASCII> inline URI::port () const {
-        return data::ASCII {port (*this)};
-    }
-
-    maybe<data::UTF8> inline URI::query () const {
-        return decode (query (*this));
-    }
-
-    maybe<data::UTF8> inline URI::fragment () const {
-        return decode (fragment (*this));
+        string_view x = scheme (*this);
+        if (x.data () == nullptr) throw exception {"invalid URI"};
+        return data::ASCII {x};
     }
 
     net::path inline URI::path () const {
-        return net::path {path (*this)};
+        string_view x = path (*this);
+        if (x.data () == nullptr) throw exception {"invalid URI"};
+        return net::path {x};
+    }
+
+    maybe<data::UTF8> inline URI::authority () const {
+        string_view x = authority (*this);
+        if (x.data () == nullptr) return {};
+        return decode (x);
+    }
+
+    maybe<data::UTF8> inline URI::user_info () const {
+        string_view x = user_info (*this);
+        if (x.data () == nullptr) return {};
+        return decode (x);
+    }
+
+    maybe<data::UTF8> inline URI::host () const {
+        string_view x = host (*this);
+        if (x.data () == nullptr) return {};
+        return decode (x);
+    }
+
+    maybe<data::ASCII> inline URI::port () const {
+        string_view x = port (*this);
+        if (x.data () == nullptr) return {};
+        return data::ASCII {x};
+    }
+
+    maybe<data::UTF8> inline URI::query () const {
+        string_view x = query (*this);
+        if (x.data () == nullptr) return {};
+        return decode (x);
+    }
+
+    maybe<data::UTF8> inline URI::fragment () const {
+        string_view x = fragment (*this);
+        if (x.data () == nullptr) return {};
+        return decode (x);
     }
 
     URI inline URI::normalize () const {
         return net::URL (net::URL::make {*this});
     }
 
-}
-
-#include <boost/spirit/include/qi.hpp>
-
-namespace data {
-
-    using rule = boost::spirit::qi::rule<const char *>;
-    using grammar = boost::spirit::qi::grammar<const char *>;
-    namespace qi = boost::spirit::qi;
-
-}
-
-namespace data::net::IP {
-
-    struct address::parser : grammar {
-        parser ();
-
-        rule IPAddress, IPv4, IPv6, IPFuture, WholeIPAddress, WholeIPFuture, WholeIPv4, WholeIPv6;
-    private:
-        rule h16, ls32, ipv4_octet;
-    };
-}
-
-namespace data::net {
-
-    struct domain_name::parser : grammar {
-        parser ();
-
-        rule Name, Whole;
-
-    private:
-        rule Label;
-    };
-}
-
-namespace data::encoding::percent {
-
-    struct URI::parser : grammar {
-        parser ();
-
-        net::domain_name::parser DomainName;
-        net::IP::address::parser IPAddress;
-
-        rule URI, WholeURI, Scheme, Query, Fragment, Authority, Host;
-
-        rule hierarchical, user_info, port,
-            path, path_no_scheme, path_absolute, path_rootless,
-            reserved, delimiter, subdelimiter, unreserved,
-            hex_char, ptc_encoded, pchar,
-            segment, final_segment;
-    };
-}
-
-namespace data {
-    bool inline net::domain_name::valid () const {
-        return qi::parse (this->data (), this->data () + this->size (), parser {}.Whole);
-    }
-
-    bool inline encoding::percent::URI::valid () const {
-        return qi::parse (this->data (), this->data () + this->size (), parser {}.WholeURI);
-    }
-
-    bool inline net::IP::address::valid () const {
-        return qi::parse (this->data (), this->data () + this->size (), parser {}.WholeIPAddress);
-    }
-
-    int32 inline net::IP::address::version () const {
-        parser p {};
-        if (qi::parse (this->data (), this->data () + this->size (), p.WholeIPv4)) return 4;
-        if (qi::parse (this->data (), this->data () + this->size (), p.WholeIPv6)) return 6;
-        return -1;
-    }
 }
 
 #endif

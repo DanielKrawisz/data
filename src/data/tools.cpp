@@ -1,8 +1,8 @@
 #include <data/tools.hpp>
 
 namespace data {
-    list<string> split (const string &str, const string &delimiter) {
-        string s = str;
+    list<string> split (string_view str, const string &delimiter) {
+        string s {str};
         data::list<std::string> pieces;
 
         size_t pos;

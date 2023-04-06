@@ -11,21 +11,21 @@ project (
   DESCRIPTION "wrappers and high-level programming constructs in c++"
   LANGUAGES CXX
 )
-find_package(Boost CONFIG REQUIRED)
-find_package(OpenSSL CONFIG REQUIRED)
-find_package(cryptopp CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
-find_package(gmp CONFIG REQUIRED)
-find_package(secp256k1 CONFIG REQUIRED)
-find_package(uriparser CONFIG REQUIRED)
+
+find_package (Boost CONFIG REQUIRED)
+find_package (OpenSSL CONFIG REQUIRED)
+find_package (cryptopp CONFIG REQUIRED)
+find_package (nlohmann_json CONFIG REQUIRED)
+find_package (gmp CONFIG REQUIRED)
+find_package (secp256k1 CONFIG REQUIRED)
+find_package (uriparser CONFIG REQUIRED)
+find_package (pegtl CONFIG REQUIRED)
 
 # Check if GTests is installed. If not, install it
 
 option (PACKAGE_TESTS "Build the tests" ON)
 
 add_definitions ("-DHAS_BOOST")
-
-
 
 if (PACKAGE_TESTS)
   include (CTest)
@@ -82,7 +82,6 @@ add_library (
 
 target_include_directories (data PUBLIC include)
 
-
 target_link_libraries (
   data
   boost::boost
@@ -92,6 +91,7 @@ target_link_libraries (
   gmp::gmp
   secp256k1::secp256k1
   uriparser::uriparser
+  taocpp::pegtl
   # PkgConfig::LIBSECP256K1
 )
 
@@ -103,5 +103,5 @@ target_compile_features (data PUBLIC cxx_std_20)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
 
-install(DIRECTORY include/ DESTINATION include)
-install(TARGETS data)
+install (DIRECTORY include/ DESTINATION include)
+install (TARGETS data)

@@ -75,7 +75,7 @@ namespace data {
     }
 
     // split a string by a delimiter.
-    list<string> split (const string &str, const string &delimiter);
+    list<string> split (string_view str, const string &delimiter);
 
 }
 
