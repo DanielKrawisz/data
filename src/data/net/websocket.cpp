@@ -87,7 +87,7 @@ namespace data::net::websocket {
         ptr<insecure_stream> ws = std::make_shared<insecure_stream> (io);
 
         asio::ip::tcp::resolver resolver (io);
-        auto hostname = url.host_DNS ();
+        auto hostname = url.host_domain_name ();
         auto const results = resolver.resolve (hostname->c_str (), url.port_DNS ().c_str ());
 
         // Make the connection on the IP address we get from a lookup
@@ -133,7 +133,7 @@ namespace data::net::websocket {
 
         asio::ip::tcp::resolver resolver (io);
         // Look up the domain name
-        auto hostname = url.host_DNS ();
+        auto hostname = url.host_domain_name ();
         auto const results = resolver.resolve (hostname->c_str (), url.port_DNS ().c_str ());
 
         // Make the connection on the IP address we get from a lookup
@@ -189,7 +189,7 @@ namespace data::net::websocket {
         if (!ssl && url.protocol () == protocol::WSS)
             throw exception {} << "Secure websocket requested when SSL Context not supplied";
 
-        if (!url.host_DNS ()) throw exception {"Invalid URL: no host provided."};
+        if (!url.host_domain_name ()) throw exception {"Invalid URL: no host provided."};
 
         try {
             if (url.protocol () == protocol::WS) insecure_open (io, url, error_handler, interact, closed);
@@ -209,7 +209,7 @@ namespace data::net::websocket {
 
         if (url.protocol () != protocol::WSS) throw exception {} << "expected protocol WSS, but got " << url.protocol ();
 
-        if (!url.host_DNS ()) throw exception {"Invalid URL: no host provided."};
+        if (!url.host_domain_name ()) throw exception {"Invalid URL: no host provided."};
 
         try {
             secure_open (io, url, ssl, error_handler, interact, closed);
@@ -227,7 +227,7 @@ namespace data::net::websocket {
 
         if (url.protocol () != protocol::WS) throw exception {} << "expected protocol WS, but got " << url.protocol ();
 
-        if (!url.host_DNS ()) throw exception {"Invalid URL: no host provided."};
+        if (!url.host_domain_name ()) throw exception {"Invalid URL: no host provided."};
 
         try {
             insecure_open (io, url, error_handler, interact, closed);

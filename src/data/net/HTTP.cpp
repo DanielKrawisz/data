@@ -80,7 +80,7 @@ namespace data::net::HTTP {
 
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
 
-        auto host = req.URL.host_DNS ();
+        auto host = req.URL.host_domain_name ();
         if (!bool (host)) throw data::exception {"No host provided in the URL."};
 
         auto hostname = host->c_str ();

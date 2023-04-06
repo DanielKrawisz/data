@@ -252,17 +252,17 @@ namespace data::net {
         // valid URLs.
         for (const positive_test_case &tt : list<positive_test_case> {{
                 "ftp://ftp.is.co.za/rfc/rfc1808.txt",
-                "ftp", {"//ftp.is.co.za"}, "/rfc/rfc1808.txt", {}, {},
+                "ftp", {"ftp.is.co.za"}, "/rfc/rfc1808.txt", {}, {},
                 {}, "ftp.is.co.za", {},
                 {}, "ftp", {"ftp.is.co.za"}, {}
             }, {
                 "http://www.ietf.org/rfc/rfc2396.txt",
-                "http", {"//www.ietf.org"}, "/rfc/rfc2396.txt", {}, {},
+                "http", {"www.ietf.org"}, "/rfc/rfc2396.txt", {}, {},
                 {}, "www.ietf.org", {},
                 {}, "http", {"www.ietf.org"}, {}
             }, {
                 "ldap://[2001:db8::7]/c=GB?objectClass?one",
-                "ldap", "//[2001:db8::7]", "/c=GB", "?objectClass?one", "",
+                "ldap", "[2001:db8::7]", "/c=GB", "?objectClass?one", "",
                 {}, "[2001:db8::7]", {},
                 {}, "ldap", {}, {"2001:db8::7"}
             }, {
@@ -291,7 +291,7 @@ namespace data::net {
                 {}, "urn", {}, {}
             }, {
                 "foo://example.com:8042/over/there?name=ferret#nose",
-                "foo", "//example.com:8042", "/over/there", "?name=ferret", "#nose",
+                "foo", "example.com:8042", "/over/there", "?name=ferret", "#nose",
                 {}, "example.com", "8042",
                 {8042}, "8042", {"example.com"}, {}
             }, {
@@ -301,17 +301,17 @@ namespace data::net {
                 {}, "urn", {}, {}
             }, {
                 "http://www.example.com",
-                "http", "//www.example.com", "", {}, {},
+                "http", "www.example.com", "", {}, {},
                 {}, "www.example.com", {},
                 {}, "http", {}, {}
             }, {
                 "https://example.org:8080/path/to/resource",
-                "https", "//example.org:8080", "/path/to/resource", {}, {},
+                "https", "example.org:8080", "/path/to/resource", {}, {},
                 {}, "example.org", "8080",
                 {8080}, "8080", {}, {}
             }, {
                 "ftp://example.com/resource?param1=value1&param2=value2",
-                "ftp", "//example.com", "/resource", "?param1=value1&param2=value2", "",
+                "ftp", "example.com", "/resource", "?param1=value1&param2=value2", "",
                 {}, "example.com", {},
                 {}, "ftp", {"example.com"}, {}
             }, {
@@ -320,14 +320,14 @@ namespace data::net {
                 {}, "mailto", {}, {}
             }, {
                 "https://example.com/path/to/resource#fragment",
-                "https", "//example.com", "/path/to/resource", {}, "fragment",
+                "https", "example.com", "/path/to/resource", {}, "fragment",
                 {}, "example.com", {},
                 {}, "https", {"example.com"}, {}
             }, {
-                "https://example.com/path?query#", "https", "//example.com", "/path", "query", {""}, {}, {"example.com"}, {},
+                "https://example.com/path?query#", "https", "example.com", "/path", "query", {""}, {}, {"example.com"}, {},
                 {}, "http", {"example.com"}, {}
             }, {
-                "http://", "http", {"//"}, "", {}, {}, {}, {}, {},
+                "http://", "http", {""}, "", {}, {}, {}, {}, {},
                 {}, "http", {}, {}
             }
         }) {
@@ -335,16 +335,19 @@ namespace data::net {
             EXPECT_TRUE (tt.URL.valid ()) << "expected \"" << tt.URL << "\" to be a valid URL.";
 
             EXPECT_EQ (tt.URL.scheme (), tt.Scheme);
-            EXPECT_EQ (tt.URL.path (), tt.Path);
-
             EXPECT_EQ (tt.URL.authority (), tt.Authority);
+            EXPECT_EQ (tt.URL.path (), tt.Path);
+            EXPECT_EQ (tt.URL.query (), tt.Query);
+            EXPECT_EQ (tt.URL.fragment (), tt.Fragment);
+
             EXPECT_EQ (tt.URL.user_info (), tt.UserInfo);
             EXPECT_EQ (tt.URL.host (), tt.Host);
             EXPECT_EQ (tt.URL.port (), tt.Port);
 
-            EXPECT_EQ (tt.URL.path (), tt.Path);
-            EXPECT_EQ (tt.URL.query (), tt.Query);
-            EXPECT_EQ (tt.URL.fragment (), tt.Fragment);
+            EXPECT_EQ (tt.URL.port_number (), tt.PortNumber);
+            EXPECT_EQ (tt.URL.port_DNS (), tt.PortDNS);
+            EXPECT_EQ (tt.URL.host_domain_name (), tt.HostDNS);
+            EXPECT_EQ (tt.URL.host_address (), tt.HostAddress);
 
         }
 
@@ -376,7 +379,7 @@ namespace data::net {
 
         EXPECT_EQ (URL {"zoom://moop:zoop@something.nothing:4321?weem=peeep&zap=bap#floop"},
             URL (URL::make {}.user_name_pass ("moop", "zoop").query_map
-                ({{"weem", "peeep"}, {"zap", "bap"}}).protocol ("zoom").fragment ("floop")));
+                ({{"weem", "peeep"}, {"zap", "bap"}}).protocol ("zoom").fragment ("floop").host_domain_name ("something.nothing")));
 
     }
 

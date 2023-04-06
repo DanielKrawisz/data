@@ -105,6 +105,7 @@ namespace data::net {
         using ASCII::ASCII;
         domain_name (const ASCII &x) : ASCII {x} {}
 
+        static bool valid (string_view);
         bool valid () const;
     };
 }
@@ -226,7 +227,7 @@ namespace data::net {
         ASCII port_DNS () const;
 
         // attempt to get host as a DNS string.
-        maybe<domain_name> host_DNS () const;
+        maybe<domain_name> host_domain_name () const;
 
         // attempt to get host as an IP address.
         maybe<IP::address> host_address () const;
@@ -253,7 +254,7 @@ namespace data::net {
 
             make port (const uint16 &) const;
 
-            make host_ip_address (const IP::address &) const;
+            make host_address (const IP::address &) const;
             make host_domain_name (const domain_name &) const;
 
             make user_info (const UTF8 &info) const;
@@ -304,7 +305,7 @@ namespace data::net::IP::TCP {
     struct endpoint : URL {
         endpoint (const char *x) : URL {x} {}
         endpoint (const std::string &x) : URL {x} {}
-        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.host_ip_address (addr).port (port)} {}
+        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.host_address (addr).port (port)} {}
 
         bool valid () const {
             return this->protocol () == protocol::FTP && bool (this->port_number ()) &&
@@ -397,12 +398,21 @@ namespace data::net {
     }
 
     protocol inline URL::protocol () const {
-        auto scheme = this->scheme ();
-        return net::protocol {scheme.substr (0, scheme.size () - 1)};
+        return net::protocol {this->scheme ()};
     }
 
     URL::make inline URL::make::scheme (const ASCII &x) const {
         return protocol (x);
+    }
+
+    ASCII inline URL::port_DNS () const {
+        auto p = this->port ();
+        if (!p) return this->protocol ();
+        return *p;
+    }
+
+    bool inline domain_name::valid () const {
+        return valid (*this);
     }
 }
 

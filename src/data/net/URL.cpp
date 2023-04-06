@@ -246,7 +246,7 @@ namespace data::net {
         return m;
     }
 
-    URL::make URL::make::host_ip_address (const IP::address &ip) const {
+    URL::make URL::make::host_address (const IP::address &ip) const {
 
         make m = *this;
         if (m.Host != nullptr) throw exception {"URL error: host already set."};
@@ -369,6 +369,14 @@ namespace data::net {
         return {params};
     }
 
+    maybe<domain_name> URL::host_domain_name () const {
+        if (this->host_address ()) return {};
+        auto dn = this-> host ();
+        if (!dn) return {};
+        if (domain_name::valid (*dn)) return {domain_name {*dn}};
+        return {};
+    }
+
 }
 
 namespace data::net::IP {
@@ -471,7 +479,9 @@ namespace pegtl {
 
     struct host : sor<ip_literal, ipv4, reg_name> {};
 
-    struct authority : seq<opt<seq<user_info, one<'@'>>>, host, opt<seq<one<':'>, port>>> {};
+    struct user_info_at : seq<user_info, one<'@'>> {};
+
+    struct authority : seq<opt<user_info_at>, host, opt<seq<one<':'>, port>>> {};
 
     struct authority_whole : seq<authority, eof> {};
 
@@ -485,8 +495,8 @@ namespace pegtl {
 
 namespace data {
 
-    bool net::domain_name::valid () const {
-        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "domain_name");
+    bool net::domain_name::valid (string_view c) {
+        tao::pegtl::memory_input<> in (c, "domain_name");
         return tao::pegtl::parse<pegtl::domain_name_whole> (in);
     }
 
@@ -525,7 +535,7 @@ namespace data {
         }
     };
 
-    template <> struct make_uri_action<pegtl::user_info> {
+    template <> struct make_uri_action<pegtl::user_info_at> {
         template <typename Input >
         static void apply (const Input& in, net::URL::make &m) {
             if (m.UserInfo == nullptr) m.UserInfo = std::make_shared<encoding::percent::string> (in.string ());
@@ -631,7 +641,7 @@ namespace data::encoding::percent {
 
     template <typename Rule> struct read_user_info_action : pegtl::nothing<Rule> {};
 
-    template <> struct read_user_info_action<pegtl::user_info> {
+    template <> struct read_user_info_action<pegtl::user_info_at> {
         template <typename Input >
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
@@ -642,7 +652,7 @@ namespace data::encoding::percent {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "user_info");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_user_info_action> (in, sub)) return {};
-        return sub;
+        return sub.substr (0, sub.size () - 1);
     }
 
     template <typename Rule> struct read_host_action : pegtl::nothing<Rule> {};
