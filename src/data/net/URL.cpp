@@ -247,7 +247,7 @@ namespace data::net {
         return m;
     }
 
-    URL::make URL::make::host_address (const IP::address &ip) const {
+    URL::make URL::make::address (const IP::address &ip) const {
         if (Host != nullptr) throw exception {"URL error: host already set."};
         if (ip.valid ()) throw exception {"URL error: Invalid IP address"};
 
@@ -344,10 +344,10 @@ namespace data::net {
         return u;
     }
 
-    maybe<IP::address> URL::host_address () const {
-        auto hh = this->host ();
-        if (!hh) return {};
-        maybe<IP::address> ip {*hh};
+    maybe<IP::address> URL::address () const {
+        auto hh = URI::address (*this);
+        if (hh.data () == nullptr) return {};
+        maybe<IP::address> ip {hh};
         if (!ip->valid ()) return {};
         return ip;
     }
@@ -378,7 +378,7 @@ namespace data::net {
     }
 
     maybe<domain_name> URL::host_domain_name () const {
-        if (this->host_address ()) return {};
+        if (this->address ()) return {};
         auto dn = this-> host ();
         if (!dn) return {};
         if (domain_name::valid (*dn)) return {domain_name {*dn}};
@@ -754,6 +754,36 @@ namespace data::encoding::percent {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "fragment");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_fragment_action> (in, sub)) return {};
+        return sub;
+    }
+
+    template <typename Rule> struct read_ip_address_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_ip_address_action<pegtl::ipv4> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    template <> struct read_ip_address_action<pegtl::ipv6> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    template <> struct read_ip_address_action<pegtl::ip_future> {
+        template <typename Input >
+        static void apply (const Input& in, string_view &x) {
+            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+    };
+
+    string_view URI::address (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "ip_address");
+        if (!tao::pegtl::parse<pegtl::uri_whole, read_ip_address_action> (in, sub)) return {};
         return sub;
     }
 }

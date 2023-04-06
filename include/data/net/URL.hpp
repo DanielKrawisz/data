@@ -187,6 +187,8 @@ namespace data::encoding::percent {
         static string_view host (string_view);
         static string_view port (string_view);
 
+        static string_view address (string_view);
+
         data::ASCII scheme () const;
         maybe<data::UTF8> user_info () const;
         maybe<data::UTF8> host () const;
@@ -230,7 +232,7 @@ namespace data::net {
         maybe<domain_name> host_domain_name () const;
 
         // attempt to get host as an IP address.
-        maybe<IP::address> host_address () const;
+        maybe<IP::address> address () const;
 
         // attempt to get query as a map of key pairs in the form <key>=<value>&...
         maybe<list<entry<UTF8, UTF8>>> query_map () const;
@@ -254,7 +256,7 @@ namespace data::net {
 
             make port (const uint16 &) const;
 
-            make host_address (const IP::address &) const;
+            make address (const IP::address &) const;
             make host_domain_name (const domain_name &) const;
 
             make user_info (const UTF8 &info) const;
@@ -306,11 +308,11 @@ namespace data::net::IP::TCP {
     struct endpoint : URL {
         endpoint (const char *x) : URL {x} {}
         endpoint (const std::string &x) : URL {x} {}
-        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.host_address (addr).port (port)} {}
+        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.address (addr).port (port)} {}
 
         bool valid () const {
             return this->protocol () == protocol::FTP && bool (this->port_number ()) &&
-                bool (this->host_address ()) && !bool (this->user_info ()) &&
+                bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
                 !bool (this->fragment ()) && !bool (this->query ());
         }
 

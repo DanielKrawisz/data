@@ -365,7 +365,7 @@ namespace data::net {
             EXPECT_EQ (tt.URL.port_number (), tt.PortNumber);
             EXPECT_EQ (tt.URL.port_DNS (), tt.PortDNS);
             EXPECT_EQ (tt.URL.host_domain_name (), tt.HostDNS);
-            EXPECT_EQ (tt.URL.host_address (), tt.HostAddress);
+            EXPECT_EQ (tt.URL.address (), tt.HostAddress) << "incorrect host address retrieved for \"" << tt.URL << "\"";
 
             auto make_url_2 = make_url;
             if (tt.UserInfo) make_url_2 = make_url_2.user_info (*tt.UserInfo);
