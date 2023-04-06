@@ -171,12 +171,14 @@ namespace data::net {
     }
 
     protocol protocol::encode (name n) {
+
         if (n == FTP) return "ftp";
         if (n == HTTP) return "http";
         if (n == HTTPS) return "https";
         if (n == WS) return "ws";
         if (n == WSS) return "wss";
         return "";
+
     }
 
     URL::make::operator URL () const {
@@ -194,8 +196,8 @@ namespace data::net {
         }
 
         if (Path) url << *Path;
-        if (Query) url << *Query;
-        if (Fragment) url << *Fragment;
+        if (Query) url << "?" << *Query;
+        if (Fragment) url << "#" << *Fragment;
 
         return URL {url.str ()};
 
@@ -238,41 +240,47 @@ namespace data::net {
     }
 
     URL::make URL::make::port (const uint16 &u) const {
+        if (Port != nullptr) throw exception {"URL error: port already set."};
 
         make m = *this;
-        if (m.Port != nullptr) throw exception {"URL error: port already set."};
-
         m.Port = std::make_shared<pctstr> (net::port {u});
         return m;
     }
 
     URL::make URL::make::host_address (const IP::address &ip) const {
-
-        make m = *this;
-        if (m.Host != nullptr) throw exception {"URL error: host already set."};
+        if (Host != nullptr) throw exception {"URL error: host already set."};
         if (ip.valid ()) throw exception {"URL error: Invalid IP address"};
 
+        make m = *this;
         m.Host = std::make_shared<pctstr> (ip);
         return m;
     }
 
     URL::make URL::make::host_domain_name (const domain_name &name) const {
-        make m = *this;
-        if (m.Host != nullptr) throw exception {"URL error: host already set."};
+        if (Host != nullptr) throw exception {"URL error: host already set."};
         if (name.valid ()) throw exception {"URL error: Invalid domain name"};
 
+        make m = *this;
         m.Host = std::make_shared<pctstr> (name);
+        return m;
+    }
+
+    URL::make URL::make::host (const UTF8 &z) const {
+        if (Host != nullptr) throw exception {"URL error: host already set."};
+
+        make m = *this;
+        m.Host = std::make_shared<pctstr> (encoding::percent::encode (z, ":/?#"));
         return m;
     }
 
     URL::make URL::make::user_name_pass (const UTF8 &username, const UTF8 &pass) const {
 
-        make m = *this;
-        if (m.UserInfo != nullptr) throw exception {"URL error: user info already set."};
+        if (UserInfo != nullptr) throw exception {"URL error: user info already set."};
 
         std::stringstream user_info;
         user_info << encoding::percent::encode (username, ":/@?#") << ":" << encoding::percent::encode (pass, ":/@?#");
 
+        make m = *this;
         m.UserInfo = std::make_shared<pctstr> (user_info.str ());
         return m;
     }
@@ -462,12 +470,12 @@ namespace pegtl {
         seq<rep<6, seq<h16, one<':'>>>, ls32>,
         seq<string<':', ':'>, rep<5, seq<h16, one<':'>>>, ls32>,
         seq<opt<h16>, string<':', ':'>, rep<4, seq<h16, one<':'>>>, ls32>,
-        seq<opt<seq<opt<seq<h16, one<':'>>>, h16>>, string<':', ':'>, rep<3, seq<h16, one<':'>>>, ls32>,
-        seq<opt<seq<rep<2, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, rep<2, seq<h16, one<':'>>>, ls32>,
-        seq<opt<seq<rep<3, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, seq<h16, one<':'>>, ls32>,
-        seq<opt<seq<rep<4, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, ls32>,
-        seq<opt<seq<rep<5, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>, h16>,
-        seq<opt<seq<rep<6, opt<seq<h16, one<':'>>>>, h16>>, string<':', ':'>>> {};
+        seq<opt<seq<h16, opt<seq<one<':'>, h16>>>>, string<':', ':'>, rep<3, seq<h16, one<':'>>>, ls32>,
+        seq<opt<seq<h16, rep<2, opt<seq<one<':'>, h16>>>>>, string<':', ':'>, rep<2, seq<h16, one<':'>>>, ls32>,
+        seq<opt<seq<h16, rep<3, opt<seq<one<':'>, h16>>>>>, string<':', ':'>, seq<h16, one<':'>>, ls32>,
+        seq<opt<seq<h16, rep<4, opt<seq<one<':'>, h16>>>>>, string<':', ':'>, ls32>,
+        seq<opt<seq<h16, rep<5, opt<seq<one<':'>, h16>>>>>, string<':', ':'>, h16>,
+        seq<opt<seq<h16, rep<6, opt<seq<one<':'>, h16>>>>>, string<':', ':'>>> {};
 
     struct ip_future : seq<istring<'v'>, plus<xdigit>, one<'.'>, plus<sor<unreserved, sub_delim, one<':'>>>> {};
 
@@ -719,7 +727,7 @@ namespace data::encoding::percent {
 
     template <typename Rule> struct read_query_action : pegtl::nothing<Rule> {};
 
-    template <> struct read_user_info_action<pegtl::query> {
+    template <> struct read_query_action<pegtl::query> {
         template <typename Input >
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
@@ -735,7 +743,7 @@ namespace data::encoding::percent {
 
     template <typename Rule> struct read_fragment_action : pegtl::nothing<Rule> {};
 
-    template <> struct read_user_info_action<pegtl::fragment> {
+    template <> struct read_fragment_action<pegtl::fragment> {
         template <typename Input >
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};

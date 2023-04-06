@@ -263,6 +263,7 @@ namespace data::net {
             make user_name_pass (const UTF8 &username, const UTF8 &pass) const;
 
             make authority (const ASCII &) const;
+            make host (const UTF8 &) const;
 
             make path (const net::path &) const;
 
