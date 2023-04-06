@@ -665,7 +665,7 @@ namespace data::encoding::percent {
 
     template <typename Rule> struct read_host_action : pegtl::nothing<Rule> {};
 
-    template <> struct read_user_info_action<pegtl::host> {
+    template <> struct read_host_action<pegtl::host> {
         template <typename Input >
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};

@@ -445,7 +445,7 @@ namespace data::net {
             {"http://www.example.com?query=test", "http://www.example.com?query=another-test", false}, // Different queries
             {"http://www.example.com#fragment", "http://www.example.com#another-fragment", false} // Different fragments
         }) {
-            EXPECT_EQ (tt.Left == tt.Right, tt.Expected);
+            EXPECT_EQ (tt.Left == tt.Right, tt.Expected) << "expected \"" << tt.Left << "\" == \"" << tt.Right << "\"" << std::endl;
         }
 
     }
