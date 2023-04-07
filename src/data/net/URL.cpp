@@ -118,7 +118,8 @@ namespace data::encoding::percent {
         return static_cast<unsigned char> (value);
     }
 
-    maybe<data::UTF8> decode (string_view input) {
+    maybe<data::UTF8> decode (string_view input, const data::UTF8 &ignore) {
+
         if (!valid (input)) return {};
         data::UTF8 rt {};
 
@@ -163,6 +164,7 @@ namespace data::net {
         boost::to_lower (self);
 
         if (self == "ftp") return FTP;
+        if (self == "tcp") return TCP;
         if (self == "http") return HTTP;
         if (self == "https") return HTTPS;
         if (self == "ws") return WS;
@@ -173,6 +175,7 @@ namespace data::net {
     protocol protocol::encode (name n) {
 
         if (n == FTP) return "ftp";
+        if (n == TCP) return "tcp";
         if (n == HTTP) return "http";
         if (n == HTTPS) return "https";
         if (n == WS) return "ws";
@@ -182,6 +185,7 @@ namespace data::net {
     }
 
     URL::make::operator URL () const {
+
         if (!Protocol) throw exception {"invalid URI; no protocol given"};
 
         std::stringstream url;
@@ -199,7 +203,10 @@ namespace data::net {
         if (Query) url << "?" << *Query;
         if (Fragment) url << "#" << *Fragment;
 
-        return URL {url.str ()};
+        URL u {url.str ()};
+
+        if (!u.valid ()) throw exception {"invalid URI"};
+        return u;
 
     }
 
@@ -231,11 +238,8 @@ namespace data::net {
     URL::make URL::make::fragment (const UTF8 &u) const {
         if (Fragment != nullptr) throw exception {"URL error: fragment already set."};
 
-        std::stringstream z;
-        z << "#" << encoding::percent::encode (u, ":#[]@=&");
-
         make m = *this;
-        m.Fragment = std::make_shared<pctstr> (z.str ());
+        m.Fragment = std::make_shared<pctstr> (encoding::percent::encode (u, ":#[]@=&"));
         return m;
     }
 
@@ -256,9 +260,9 @@ namespace data::net {
         return m;
     }
 
-    URL::make URL::make::host_domain_name (const domain_name &name) const {
+    URL::make URL::make::domain_name (const net::domain_name &name) const {
         if (Host != nullptr) throw exception {"URL error: host already set."};
-        if (name.valid ()) throw exception {"URL error: Invalid domain name"};
+        if (name.valid ()) throw exception {} << "URL error: Invalid domain name \"" << name << "\"";
 
         make m = *this;
         m.Host = std::make_shared<pctstr> (name);
@@ -377,11 +381,11 @@ namespace data::net {
         return {params};
     }
 
-    maybe<domain_name> URL::host_domain_name () const {
+    maybe<domain_name> URL::domain_name () const {
         if (this->address ()) return {};
         auto dn = this-> host ();
         if (!dn) return {};
-        if (domain_name::valid (*dn)) return {domain_name {*dn}};
+        if (net::domain_name::valid (*dn)) return {net::domain_name {*dn}};
         return {};
     }
 
@@ -444,8 +448,6 @@ namespace pegtl {
 
     struct user_info : plus<sor<unreserved, pct_encoded, sub_delim, one<':'>>> {};
 
-    struct port : star<digit> {};
-
     struct final_section : star<sor<pchar, one<'/'>, one<'?'>>> {};
 
     struct query : final_section {};
@@ -488,6 +490,8 @@ namespace pegtl {
     struct host : sor<ip_literal, ipv4, reg_name> {};
 
     struct user_info_at : seq<user_info, one<'@'>> {};
+
+    struct port : star<digit> {};
 
     struct authority : seq<opt<user_info_at>, host, opt<seq<one<':'>, port>>> {};
 
@@ -681,7 +685,7 @@ namespace data::encoding::percent {
 
     template <typename Rule> struct read_port_action : pegtl::nothing<Rule> {};
 
-    template <> struct read_user_info_action<pegtl::port> {
+    template <> struct read_port_action<pegtl::port> {
         template <typename Input >
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};

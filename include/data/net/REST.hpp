@@ -44,18 +44,18 @@ namespace data::net::HTTP {
     };
     
     HTTP::request inline REST::GET (path path, list<entry<UTF8, UTF8>> params) const {
-        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (path).query_map (params);
+        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path).query_map (params);
         return HTTP::request {method::get, URL (bool (Port) ? make_url.port (*Port) : make_url)};
     }
     
     // construct a more general POST request
     HTTP::request inline REST::POST (path path, map<header, ASCII> headers, string body) const {
-        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (path);
+        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
         return HTTP::request {method::post, URL (bool (Port) ? make_url.port (*Port) : make_url), headers, body};
     }
     
     HTTP::request inline REST::operator () (const request &r) const {
-        auto make_url = URL::make {}.protocol (Protocol).host_domain_name (Host).path (r.Path).query_map (r.Params);
+        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (r.Path).query_map (r.Params);
         return HTTP::request {r.Method, URL (bool (Port) ? make_url.port (*Port) : make_url), r.Headers, r.Body};
     }
 

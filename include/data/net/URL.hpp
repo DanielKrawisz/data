@@ -78,6 +78,7 @@ namespace data::net {
         enum name {
             unknown,
             FTP,
+            TCP,
             HTTP,
             HTTPS,
             WS,
@@ -103,7 +104,9 @@ namespace data::net {
 
     struct domain_name : ASCII {
         using ASCII::ASCII;
-        domain_name (const ASCII &x) : ASCII {x} {}
+        domain_name (const ASCII &x) : ASCII {x} {
+            std::cout << "  ...set demain name to " << *this << std::endl;
+        }
 
         static bool valid (string_view);
         bool valid () const;
@@ -161,8 +164,8 @@ namespace data::encoding::percent {
     // encode the string, ensuring that the given characters are encoded.
     string encode (const data::UTF8 &, const data::ASCII &required = "");
 
-    // decode back to UTF8.
-    maybe<data::UTF8> decode (string_view);
+    // decode back to UTF8, ignoring the given characters.
+    maybe<data::UTF8> decode (string_view, const data::UTF8 &ignore = "");
 
     struct string : data::ASCII {
         using data::ASCII::ASCII;
@@ -229,7 +232,7 @@ namespace data::net {
         ASCII port_DNS () const;
 
         // attempt to get host as a DNS string.
-        maybe<domain_name> host_domain_name () const;
+        maybe<net::domain_name> domain_name () const;
 
         // attempt to get host as an IP address.
         maybe<IP::address> address () const;
@@ -257,7 +260,7 @@ namespace data::net {
             make port (const uint16 &) const;
 
             make address (const IP::address &) const;
-            make host_domain_name (const domain_name &) const;
+            make domain_name (const net::domain_name &) const;
 
             make user_info (const UTF8 &info) const;
 
@@ -308,16 +311,21 @@ namespace data::net::IP::TCP {
     struct endpoint : URL {
         endpoint (const char *x) : URL {x} {}
         endpoint (const std::string &x) : URL {x} {}
-        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.address (addr).port (port)} {}
+        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
 
         bool valid () const {
-            return this->protocol () == protocol::FTP && bool (this->port_number ()) &&
+            return URL::valid () && this->protocol () == protocol::TCP && bool (this->port_number ()) &&
                 bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
                 !bool (this->fragment ()) && !bool (this->query ());
         }
 
-        IP::address address () const;
-        uint16 port () const;
+        IP::address address () const {
+            return *static_cast<const URL *> (this)->address ();
+        }
+
+        uint16 port () const {
+            return *this->port_number ();
+        }
 
         operator asio::ip::tcp::endpoint () const {
             return valid () ? asio::ip::tcp::endpoint {
@@ -372,7 +380,7 @@ namespace data::net {
         return ctre::match<pattern> (*this);
     }
 
-    inline protocol::protocol (name n) : string {std::to_string (n)} {}
+    inline protocol::protocol (name n) : string {encode (n)} {}
 
     bool inline protocol::operator == (const name &n) const {
         return *this == protocol (n);
@@ -431,13 +439,13 @@ namespace data::encoding::percent {
 
     data::ASCII inline URI::scheme () const {
         string_view x = scheme (*this);
-        if (x.data () == nullptr) throw exception {"invalid URI"};
+        if (x.data () == nullptr) throw exception {} << "invalid URI \"" << *this << "\"";
         return data::ASCII {x};
     }
 
     net::path inline URI::path () const {
         string_view x = path (*this);
-        if (x.data () == nullptr) throw exception {"invalid URI"};
+        if (x.data () == nullptr) throw exception {} << "invalid URI \"" << *this << "\"";
         return net::path {x};
     }
 
