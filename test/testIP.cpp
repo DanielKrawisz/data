@@ -366,13 +366,13 @@ namespace data::net {
             EXPECT_EQ (tt.URL.port_DNS (), tt.PortDNS);
             EXPECT_EQ (tt.URL.domain_name (), tt.HostDNS);
             EXPECT_EQ (tt.URL.address (), tt.HostAddress) << "incorrect host address retrieved for \"" << tt.URL << "\"";
-/*
+
             auto make_url_2 = make_url;
             if (tt.UserInfo) make_url_2 = make_url_2.user_info (*tt.UserInfo);
             if (tt.Host) make_url_2 = make_url_2.host (*tt.Host);
             if (tt.PortNumber) make_url_2 = make_url_2.port (*tt.PortNumber);
 
-            EXPECT_EQ (tt.URL, (URL (make_url_2)));*/
+            EXPECT_EQ (tt.URL, (URL (make_url_2)));
 
         }
 
@@ -401,9 +401,9 @@ namespace data::net {
 
         EXPECT_EQ (URL {"http://example.com/test?query"}, URL (URL::make {"http://example.com"}.query ("query").path ("/test")));
 
-        EXPECT_EQ (URL {"zoom://moop:zoop@something.nothing:4321?weem=peeep&zap=bap#floop"},
-            URL (URL::make {}.user_name_pass ("moop", "zoop").query_map
-                ({{"weem", "peeep"}, {"zap", "bap"}}).protocol ("zoom").fragment ("floop").domain_name ("something.nothing")));
+        EXPECT_EQ (URL {"zoom://moop:zoop@something.nothing:4321?weem=peen&zap=bap#floop"},
+            URL (URL::make {}.user_name_pass ("moop", "zoop").query_map ({{"weem", "peen"}, {"zap", "bap"}}).protocol
+                ("zoom").fragment ("floop").domain_name ("something.nothing").port (4321)));
 
     }
 

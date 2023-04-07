@@ -18,7 +18,6 @@ find_package (cryptopp CONFIG REQUIRED)
 find_package (nlohmann_json CONFIG REQUIRED)
 find_package (gmp CONFIG REQUIRED)
 find_package (secp256k1 CONFIG REQUIRED)
-find_package (uriparser CONFIG REQUIRED)
 find_package (pegtl CONFIG REQUIRED)
 
 # Check if GTests is installed. If not, install it
@@ -90,7 +89,6 @@ target_link_libraries (
   nlohmann_json::nlohmann_json
   gmp::gmp
   secp256k1::secp256k1
-  uriparser::uriparser
   taocpp::pegtl
   # PkgConfig::LIBSECP256K1
 )

@@ -96,9 +96,13 @@ namespace data::net {
 
     struct port : ASCII {
         static constexpr auto pattern = ctll::fixed_string {R"([0-9]*)"};
-        using ASCII::ASCII;
+        //using ASCII::ASCII;
         port (const ASCII &x) : ASCII {x} {}
-        port (uint16 number) : ASCII {std::to_string (number)} {}
+
+        port (uint16 number) : ASCII {std::to_string (number)} {
+            std::cout << "&&& port " << number << " written as " << *this << std::endl;
+        }
+
         bool valid () const;
     };
 
@@ -164,8 +168,8 @@ namespace data::encoding::percent {
     // encode the string, ensuring that the given characters are encoded.
     string encode (const data::UTF8 &, const data::ASCII &required = "");
 
-    // decode back to UTF8, ignoring the given characters.
-    maybe<data::UTF8> decode (string_view, const data::UTF8 &ignore = "");
+    // decode back to UTF8.
+    maybe<data::UTF8> decode (string_view);
 
     struct string : data::ASCII {
         using data::ASCII::ASCII;
@@ -393,7 +397,7 @@ namespace data::net {
     inline URL::make::make (const URL &u) : make {u.read ()} {}
 
     bool inline operator == (const URL &a, const URL &b) {
-        return static_cast<string> (a) == static_cast<string> (b.normalize ());
+        return static_cast<string> (a.normalize ()) == static_cast<string> (b.normalize ());
     }
 
     std::ostream inline &operator << (std::ostream &o, const URL &u) {
@@ -430,7 +434,7 @@ namespace data::net {
 namespace data::encoding::percent {
 
     bool inline operator == (const URI &a, const URI &b) {
-        return static_cast<string> (a) == static_cast<string> (b.normalize ());
+        return static_cast<string> (a.normalize ()) == static_cast<string> (b.normalize ());
     }
 
     std::ostream inline &operator << (std::ostream &o, const URI &u) {
@@ -483,10 +487,6 @@ namespace data::encoding::percent {
         string_view x = fragment (*this);
         if (x.data () == nullptr) return {};
         return decode (x);
-    }
-
-    URI inline URI::normalize () const {
-        return net::URL (net::URL::make {*this});
     }
 
 }

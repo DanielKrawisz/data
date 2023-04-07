@@ -118,7 +118,7 @@ namespace data::encoding::percent {
         return static_cast<unsigned char> (value);
     }
 
-    maybe<data::UTF8> decode (string_view input, const data::UTF8 &ignore) {
+    maybe<data::UTF8> decode (string_view input) {
 
         if (!valid (input)) return {};
         data::UTF8 rt {};
@@ -126,12 +126,44 @@ namespace data::encoding::percent {
         std::ostringstream decoded;
 
         for (std::size_t i = 0; i < input.size (); ++i)
-            if (input[i] == '%' && i + 2 < input.size ()) {
+            if (input[i] == '%') {
+                if (i + 2 >= input.size ()) return {};
+
+                if (!std::isxdigit (static_cast<unsigned char> (input[i + 1])) ||
+                    !std::isxdigit (static_cast<unsigned char> (input[i + 2])))
+                    return {};
+
                 decoded << from_hex (input.substr (i + 1, 2));
                 i += 2;
-            } else {
-                decoded << input[i];
-            }
+            } else decoded << input[i];
+
+        return {decoded.str ()};
+    }
+
+    maybe<data::ASCII> decode_not_reserved (string_view input) {
+
+        if (!valid (input)) return {};
+        data::UTF8 rt {};
+
+        std::ostringstream decoded;
+
+        for (std::size_t i = 0; i < input.size (); ++i)
+            if (input[i] == '%') {
+
+                if (i + 2 >= input.size ()) return {};
+
+                if (!std::isxdigit (static_cast<unsigned char> (input[i + 1])) ||
+                    !std::isxdigit (static_cast<unsigned char> (input[i + 2])))
+                    return {};
+
+                char ch = from_hex (input.substr (i + 1, 2));
+
+                if (ch <= 0x20 || ch >= 0x7F || std::strchr (Reserved, ch) != nullptr) decoded << input[i];
+                else {
+                    decoded << ch;
+                    i += 2;
+                }
+            } else decoded << input[i];
 
         return {decoded.str ()};
     }
@@ -205,14 +237,14 @@ namespace data::net {
 
         URL u {url.str ()};
 
-        if (!u.valid ()) throw exception {"invalid URI"};
+        if (!u.valid ()) throw exception {} << "invalid URI: " << *this;
         return u;
 
     }
 
     URL::make URL::make::protocol (const net::protocol &p) const {
         if (Protocol != nullptr) throw exception {"URL error: protocol already set."};
-        if (!p.valid ()) throw exception {"URL error: Invalid protocol."};
+        if (!p.valid ()) throw exception {"URL error: invalid protocol."};
 
         make m = *this;
         m.Protocol = std::make_shared<pctstr> (p);
@@ -244,6 +276,7 @@ namespace data::net {
     }
 
     URL::make URL::make::port (const uint16 &u) const {
+        std::cout << " adding port " << u << std::endl;
         if (Port != nullptr) throw exception {"URL error: port already set."};
 
         make m = *this;
@@ -253,7 +286,7 @@ namespace data::net {
 
     URL::make URL::make::address (const IP::address &ip) const {
         if (Host != nullptr) throw exception {"URL error: host already set."};
-        if (ip.valid ()) throw exception {"URL error: Invalid IP address"};
+        if (ip.valid ()) throw exception {"URL error: invalid IP address"};
 
         make m = *this;
         m.Host = std::make_shared<pctstr> (ip);
@@ -261,8 +294,9 @@ namespace data::net {
     }
 
     URL::make URL::make::domain_name (const net::domain_name &name) const {
+
         if (Host != nullptr) throw exception {"URL error: host already set."};
-        if (name.valid ()) throw exception {} << "URL error: Invalid domain name \"" << name << "\"";
+        if (!name.valid ()) throw exception {} << "URL error: invalid domain name \"" << name << "\"";
 
         make m = *this;
         m.Host = std::make_shared<pctstr> (name);
@@ -302,7 +336,7 @@ namespace data::net {
     }
 
     URL::make URL::make::path (const net::path &p) const {
-        if (Path != nullptr) throw exception {"URL error: path already set."};
+        if (Path != nullptr && *Path != "") throw exception {"URL error: path already set."};
 
         make m = *this;
         m.Path = std::make_shared<pctstr> (p);
@@ -789,6 +823,21 @@ namespace data::encoding::percent {
         tao::pegtl::memory_input<> in (x, "ip_address");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_ip_address_action> (in, sub)) return {};
         return sub;
+    }
+
+    URI URI::normalize () const {
+        if (!valid ()) throw exception {} << "invalid URI: \"" << *this << "\"";
+
+        // we can do this because we know the URL is valid.
+        net::URL::make m {*decode_not_reserved (*this)};
+
+        // again, since we know the URL is valid, we can do this.
+        if (!m.Protocol) throw exception {} << "No protocol read in " << *this;
+
+        for (char &x : *m.Protocol) x = std::tolower (x);
+
+        if (m.Host) for (char &x : *m.Host) x = std::tolower (x);
+        return static_cast<URI> (net::URL (m));
     }
 }
 

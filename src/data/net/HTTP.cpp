@@ -8,7 +8,6 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/error.hpp>
 #include <boost/asio/ssl/stream.hpp>
-#include <uriparser/Uri.h>
 #include <data/net/HTTP.hpp>
 #include <data/net/REST.hpp>
 #include <data/io/unimplemented.hpp>
@@ -16,7 +15,7 @@
 namespace data::net::HTTP {
 
     namespace {
-        
+        /*
         std::string fromRange (const UriTextRangeA & rng)
         {
             return std::string (rng.first, rng.afterLast);
@@ -34,7 +33,7 @@ namespace data::net::HTTP {
             }
 
             return accum;
-        }
+        }*/
 
         template<class SyncReadStream>
         boost::beast::http::response<boost::beast::http::dynamic_body> http_request (
