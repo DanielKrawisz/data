@@ -174,7 +174,6 @@ namespace data::net {
     namespace {
         string write_params (list<entry<UTF8, UTF8>> params) {
             std::stringstream q;
-            q << "?";
 
             auto i = params.begin ();
 
@@ -217,7 +216,6 @@ namespace data::net {
     }
 
     URL::make::operator URL () const {
-
         if (!Protocol) throw exception {"invalid URI; no protocol given"};
 
         std::stringstream url;
@@ -237,7 +235,8 @@ namespace data::net {
 
         URL u {url.str ()};
 
-        if (!u.valid ()) throw exception {} << "invalid URI: " << *this;
+        if (!u.valid ()) throw exception {} << "invalid URI: " << u;
+
         return u;
 
     }
@@ -276,7 +275,6 @@ namespace data::net {
     }
 
     URL::make URL::make::port (const uint16 &u) const {
-        std::cout << " adding port " << u << std::endl;
         if (Port != nullptr) throw exception {"URL error: port already set."};
 
         make m = *this;
@@ -286,10 +284,17 @@ namespace data::net {
 
     URL::make URL::make::address (const IP::address &ip) const {
         if (Host != nullptr) throw exception {"URL error: host already set."};
-        if (ip.valid ()) throw exception {"URL error: invalid IP address"};
+        auto version = ip.version ();
+        if (version != 4 && version != 6) throw exception {} << "URL error: invalid IP address " << ip;
 
         make m = *this;
-        m.Host = std::make_shared<pctstr> (ip);
+
+        if (version == 4) m.Host = std::make_shared<pctstr> (ip);
+        else {
+            std::stringstream literal;
+            literal << "[" << ip << "]";
+            m.Host = std::make_shared<pctstr> (literal.str ());
+        }
         return m;
     }
 
@@ -303,7 +308,7 @@ namespace data::net {
         return m;
     }
 
-    URL::make URL::make::host (const UTF8 &z) const {
+    URL::make URL::make::registered_name (const UTF8 &z) const {
         if (Host != nullptr) throw exception {"URL error: host already set."};
 
         make m = *this;
@@ -328,10 +333,7 @@ namespace data::net {
         make m = *this;
         if (m.UserInfo != nullptr) throw exception {"URL error: user info already set."};
 
-        std::stringstream user_info;
-        user_info << encoding::percent::encode (info, "/@?#");
-
-        m.UserInfo = std::make_shared<pctstr> (user_info.str ());
+        m.UserInfo = std::make_shared<pctstr> (encoding::percent::encode (info, "/@?#"));
         return m;
     }
 
@@ -584,7 +586,8 @@ namespace data {
     template <> struct make_uri_action<pegtl::user_info_at> {
         template <typename Input >
         static void apply (const Input& in, net::URL::make &m) {
-            if (m.UserInfo == nullptr) m.UserInfo = std::make_shared<encoding::percent::string> (in.string ());
+            if (m.UserInfo == nullptr)
+                m.UserInfo = std::make_shared<encoding::percent::string> (in.begin (), in.begin () + in.size () - 1);
         }
     };
 

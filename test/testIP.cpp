@@ -231,6 +231,7 @@ namespace data::net {
     TEST (IPTest, TestURLFormat) {
 
         struct positive_test_case {
+
             net::URL URL;
 
             data::ASCII Scheme;
@@ -248,6 +249,7 @@ namespace data::net {
             data::ASCII PortDNS;
             maybe<domain_name> HostDNS;
             maybe<IP::address> HostAddress;
+
         };
 
         // valid URLs.
@@ -348,11 +350,9 @@ namespace data::net {
             EXPECT_EQ (tt.URL.query (), tt.Query) << "incorrect query retrieved for \"" << tt.URL << "\"";
             EXPECT_EQ (tt.URL.fragment (), tt.Fragment) << "incorrect fragment retrieved for \"" << tt.URL << "\"";
 
-            auto make_url = URL::make {}.scheme (tt.Scheme).path (tt.Path);
-            if (tt.Query) make_url = make_url.query (*tt.Query);
-            if (tt.Fragment) make_url = make_url.fragment (*tt.Fragment);
-
-            auto make_url_1 = make_url;
+            auto make_url_1 = URL::make {}.scheme (tt.Scheme).path (tt.Path);
+            if (tt.Fragment) make_url_1 = make_url_1.fragment (*tt.Fragment);
+            if (tt.Query) make_url_1 = make_url_1.query (*tt.Query);
             if (tt.Authority) make_url_1 = make_url_1.authority (*tt.Authority);
 
             auto url_1 = URL (make_url_1);
@@ -367,12 +367,27 @@ namespace data::net {
             EXPECT_EQ (tt.URL.domain_name (), tt.HostDNS);
             EXPECT_EQ (tt.URL.address (), tt.HostAddress) << "incorrect host address retrieved for \"" << tt.URL << "\"";
 
-            auto make_url_2 = make_url;
+            auto make_url_2 = URL::make {}.scheme (tt.Scheme).path (tt.Path);
+            if (tt.Fragment) make_url_2 = make_url_2.fragment (*tt.Fragment);
+            if (tt.Query) make_url_2 = make_url_2.query (*tt.Query);
+
             if (tt.UserInfo) make_url_2 = make_url_2.user_info (*tt.UserInfo);
-            if (tt.Host) make_url_2 = make_url_2.host (*tt.Host);
+            if (tt.HostAddress) make_url_2 = make_url_2.address (*tt.HostAddress);
+            else if (tt.HostDNS) make_url_2 = make_url_2.domain_name (*tt.HostDNS);
+            else if (tt.Host) make_url_2 = make_url_2.registered_name (*tt.Host);
             if (tt.PortNumber) make_url_2 = make_url_2.port (*tt.PortNumber);
 
-            EXPECT_EQ (tt.URL, (URL (make_url_2)));
+            auto url_2 = URL (make_url_2);
+            EXPECT_EQ (tt.URL, url_2);
+
+            if (tt.QueryMap) {
+                EXPECT_EQ (tt.URL.query_map (), tt.QueryMap);
+
+                auto make_url_3 = URL::make {}.scheme (tt.Scheme).path (tt.Path);
+                if (tt.Fragment) make_url_3 = make_url_3.fragment (*tt.Fragment);
+                if (tt.Query) make_url_3 = make_url_3.query_map (*tt.QueryMap);
+                if (tt.Authority) make_url_3 = make_url_3.authority (*tt.Authority);
+            }
 
         }
 

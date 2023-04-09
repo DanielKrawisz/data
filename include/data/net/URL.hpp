@@ -99,9 +99,7 @@ namespace data::net {
         //using ASCII::ASCII;
         port (const ASCII &x) : ASCII {x} {}
 
-        port (uint16 number) : ASCII {std::to_string (number)} {
-            std::cout << "&&& port " << number << " written as " << *this << std::endl;
-        }
+        port (uint16 number) : ASCII {std::to_string (number)} {}
 
         bool valid () const;
     };
@@ -256,7 +254,7 @@ namespace data::net {
             operator URL () const;
 
             make () {}
-            make (const URL &);
+            explicit make (const URL &);
 
             make protocol (const net::protocol &) const;
             make scheme (const ASCII &) const;
@@ -266,13 +264,17 @@ namespace data::net {
             make address (const IP::address &) const;
             make domain_name (const net::domain_name &) const;
 
+            // Handles the case that some other registeration process
+            // besides DNS is being used and we are using the
+            // registered name as the host.
+            make registered_name (const UTF8 &) const;
+
             make user_info (const UTF8 &info) const;
 
             // insecure
             make user_name_pass (const UTF8 &username, const UTF8 &pass) const;
 
             make authority (const ASCII &) const;
-            make host (const UTF8 &) const;
 
             make path (const net::path &) const;
 
@@ -292,8 +294,6 @@ namespace data::net {
             ptr<pctstr> Path;
             ptr<pctstr> Query;
             ptr<pctstr> Fragment;
-
-            friend struct URL;
         };
 
         static ASCII write_path (list<UTF8>);
