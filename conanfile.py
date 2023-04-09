@@ -18,7 +18,7 @@ class DataConan (ConanFile):
         "boost/1.80.0",
         "openssl/1.1.1t",
         "cryptopp/8.5.0",
-        "nlohmann_json/3.10.0",
+        "nlohmann_json/3.11.2",
         "gmp/6.2.1",
         "secp256k1/0.3@proofofwork/stable",
         "uriparser/0.9.6",
