@@ -48,42 +48,61 @@ namespace data::math::number {
     template <endian::order r, size_t size> inline sint<r, size>::operator double () const {
         return double (Z (Z_bytes<r, complement::ones> (*this)));
     }
-    
+}
+
+namespace data::encoding::hexidecimal {
+
+    template <endian::order r, size_t x>
+    std::ostream &write (std::ostream &o, const oriented<r, byte, x> &z, hex_case q) {
+        o << "0x";
+        return encoding::hex::write (o, z.words ().reverse (), q);
+    }
+
+    template <hex_case cx, endian::order r, size_t x>
+    string<cx> write (const oriented<r, byte, x> &z) {
+        std::stringstream ss;
+        write (ss, z, cx);
+        return string<cx> {ss.str ()};
+    }
+
+}
+
+namespace data::math::number {
+
     template struct bounded<false, endian::big, 16>;
     template struct bounded<true, endian::big, 16>;
     template struct bounded<false, endian::little, 16>;
     template struct bounded<true, endian::little, 16>;
-    
+
     template struct bounded<false, endian::big, 20>;
     template struct bounded<true, endian::big, 20>;
     template struct bounded<false, endian::little, 20>;
     template struct bounded<true, endian::little, 20>;
-    
+
     template struct bounded<false,endian::big,  28>;
     template struct bounded<true, endian::big, 28>;
     template struct bounded<false, endian::little, 28>;
     template struct bounded<true, endian::little, 28>;
-    
+
     template struct bounded<false, endian::big, 32>;
     template struct bounded<true, endian::big, 32>;
     template struct bounded<false, endian::little, 32>;
     template struct bounded<true, endian::little, 32>;
-    
+
     template struct bounded<false, endian::big, 40>;
     template struct bounded<true, endian::big, 40>;
     template struct bounded<false, endian::little, 40>;
     template struct bounded<true, endian::little, 40>;
-    
+
     template struct bounded<false, endian::big, 56>;
     template struct bounded<true, endian::big, 56>;
     template struct bounded<false, endian::little, 56>;
     template struct bounded<true, endian::little, 56>;
-    
+
     template struct bounded<false, endian::big, 64>;
     template struct bounded<true, endian::big, 64>;
     template struct bounded<false, endian::little, 64>;
     template struct bounded<true, endian::little, 64>;
-    
-}
 
+}
 #endif

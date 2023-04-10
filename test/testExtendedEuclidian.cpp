@@ -32,8 +32,8 @@ namespace data {
     
     TEST (ExtendedEuclinianTest, TestExtendedEuclidian) {
         test_extended_euclidian<int64, uint64> {};
-//        test_extended_euclidian<int64_little, uint64_little> {};
-//        test_extended_euclidian<int64_big, uint64_big> {};
+        test_extended_euclidian<int64_little, uint64_little> {};
+        test_extended_euclidian<int64_big, uint64_big> {};
         test_extended_euclidian<Z, N> {};
 
         test_extended_euclidian<Zl1, Nl> {};
@@ -43,10 +43,15 @@ namespace data {
         test_extended_euclidian<int_big<10>, uint_big<10>> {};
         test_extended_euclidian<int_big<11>, uint_big<11>> {};
         test_extended_euclidian<int_big<20>, uint_big<20>> {};
-*/
-//        test_extended_euclidian<dec_int, dec_uint> {};
-//        test_extended_euclidian<hex_int, hex_uint> {};
-/*
+
+        test_extended_euclidian<int_little<9>, uint_little<9>> {};
+        test_extended_euclidian<int_little<10>, uint_little<10>> {};
+        test_extended_euclidian<int_little<11>, uint_little<11>> {};
+        test_extended_euclidian<int_little<20>, uint_little<20>> {};
+
+        test_extended_euclidian<dec_int, dec_uint> {};
+        test_extended_euclidian<hex_int, hex_uint> {};
+
         test_extended_euclidian<hex_int_twos, hex_int_twos> {};
 
         test_extended_euclidian<Z_bytes_twos_little, Z_bytes_twos_little> {};

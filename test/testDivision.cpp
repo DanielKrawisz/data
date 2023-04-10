@@ -25,6 +25,7 @@ namespace data {
     template <typename N>
     struct test_division_natural {
         test_division_natural () {
+
             EXPECT_THROW (math::number::natural::divide (N {0}, N {0}), math::division_by_zero);
             EXPECT_THROW (math::number::natural::divide (N {1}, N {0}), math::division_by_zero);
 
@@ -52,8 +53,8 @@ namespace data {
     TEST (DivisionTest, TestDivision) {
 
         test_division_integer<int64, uint64> {};
-//        test_division_integer<int64_little, uint64_little> {};
-//        test_division_integer<int64_big, uint64_big> {};
+        test_division_integer<int64_little, uint64_little> {};
+        test_division_integer<int64_big, uint64_big> {};
         test_division_integer<Z, N> {};
 
         test_division_integer<Z_bytes_big, N_bytes_big> {};
@@ -63,11 +64,16 @@ namespace data {
         test_division_integer<int_big<10>, uint_big<10>> {};
         test_division_integer<int_big<11>, uint_big<11>> {};
         test_division_integer<int_big<20>, uint_big<20>> {};
-*/
+
+        test_division_integer<int_little<9>, uint_little<9>> {};
+        test_division_integer<int_little<10>, uint_little<10>> {};
+        test_division_integer<int_little<11>, uint_little<11>> {};
+        test_division_integer<int_little<20>, uint_little<20>> {};
+
         test_division_integer<dec_int, dec_uint> {};
         test_division_integer<hex_int, hex_uint> {};
         test_division_natural<base58_uint> {};
-/*
+
         test_division_integer<hex_int_twos> {};
 
         test_division_integer<Z_bytes_twos_little> {};

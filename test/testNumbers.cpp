@@ -55,6 +55,26 @@ namespace data {
             EXPECT_EQ (decrement (NN {0u}), NN {0u});
 
             EXPECT_EQ (increment (NN {0u}), NN {1u});
+
+            EXPECT_FALSE (NN {0u} < NN {0u});
+            EXPECT_TRUE (NN {0u} <= NN {0u});
+            EXPECT_FALSE (NN {0u} > NN {0u});
+            EXPECT_TRUE (NN {0u} >= NN {0u});
+
+            EXPECT_FALSE (NN {1u} < NN {0u});
+            EXPECT_FALSE (NN {1u} <= NN {0u});
+            EXPECT_TRUE (NN {1u} > NN {0u});
+            EXPECT_TRUE (NN {1u} >= NN {0u});
+
+            EXPECT_TRUE (NN {394u} < NN {479u});
+            EXPECT_TRUE (NN {394u} <= NN {479u});
+            EXPECT_FALSE (NN {394u} > NN {479u});
+            EXPECT_FALSE (NN {394u} >= NN {479u});
+
+            EXPECT_TRUE (NN {0x394u} < NN {0x479u});
+            EXPECT_TRUE (NN {0x394u} <= NN {0x479u});
+            EXPECT_FALSE (NN {0x394u} > NN {0x479u});
+            EXPECT_FALSE (NN {0x394u} >= NN {0x479u});
         }
     };
     

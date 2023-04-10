@@ -161,33 +161,53 @@ namespace data {
     template <bool u, endian::order r, size_t x> math::number::bounded<u, r, x> decrement (const math::number::bounded<u, r, x> &);
     
 } 
-    
-namespace data::encoding::hexidecimal {
-    
-    template <bool u, endian::order r, size_t x>
-    std::string write (const math::number::bounded<u, r, x> &n);
-
-}
 
 namespace data::encoding::decimal {
-    
-    template <endian::order r, size_t x>
-    std::string write (const math::uint<r, x> &n);
-    
+
+    struct string;
+
+    template <bool u, endian::order r, size_t x>
+    string write (const math::uint<r, x> &);
+
+    template <bool u, endian::order r, size_t x>
+    std::ostream inline &write (std::ostream &o, const math::uint<r, x> &n) {
+        return o << write (n);
+    }
+
 }
 
 namespace data::encoding::signed_decimal {
-    
+
+    struct string;
+
     template <bool u, endian::order r, size_t x>
-    std::string write (const math::sint<r, x> &n);
-    
+    string write (const math::sint<r, x> &);
+
+    template <bool u, endian::order r, size_t x>
+    std::ostream &write (std::ostream &o, const math::sint<r, x> &z) {
+        return o << write (z);
+    }
+
 }
+
+namespace data::encoding::hexidecimal {
+
+    template <endian::order r, size_t x>
+    std::ostream &write (std::ostream &, const oriented<r, byte, x> &, hex_case q = hex_case::lower);
+
+    template <hex_case zz> struct string;
+
+    template <hex_case zz, endian::order r, size_t x>
+    string<zz> write (const oriented<r, byte, x> &);
+
+}
+
 
 namespace data::math::number {
     
     template <data::endian::order r, size_t x>
     std::ostream &operator << (std::ostream &s, const uint<r, x> &n);
-    
+
     template <data::endian::order r, size_t x>
     std::ostream &operator << (std::ostream &s, const sint<r, x> &n);
     
@@ -408,9 +428,9 @@ namespace data::math::number {
         explicit operator int64 () const;
         
     private:
-        explicit bounded (const Z_bytes<r, complement::ones>& z) {
+        explicit bounded (const Z_bytes<r, complement::ones> &z) {
             if (z.size () <= size) {
-                std::copy (z.words ().begin (), z.words ().end(), this->words ().begin ());
+                std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
                 char leading = is_negative (z) ? 0xff : 0x00;
                 for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
             } else if (z <= Z_bytes<r, complement::ones> {max ()} && z >= Z_bytes<r, complement::ones> {min ()})
@@ -481,15 +501,19 @@ namespace data::math::number {
     std::weak_ordering inline operator <=> (const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
         return a <=> bounded<y, o, z> (b);
     }
-    
+
     template <data::endian::order r, size_t size>
-    std::ostream inline &operator << (std::ostream& s, const sint<r, size>& n) {
-        return s << Z_bytes<r, complement::ones> (n);
+    std::ostream inline &operator << (std::ostream &o, const uint<r, size>& n) {
+        if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
+        else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, N (n));
+        return o;
     }
 
     template <data::endian::order r, size_t size>
-    std::ostream inline &operator << (std::ostream& s, const uint<r, size>& n) {
-        return s << N_bytes<r> (n);
+    std::ostream inline &operator << (std::ostream &o, const sint<r, size>& n) {
+        if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
+        if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, Z (n));
+        return o;
     }
     
     template <endian::order r, size_t x> uint<r, x> inline operator * (const uint<r, x> &a, uint64 b) {
@@ -619,6 +643,7 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     std::weak_ordering inline operator <=> (const uint<r, size> &a, const uint<r, size> &b) {
+        std::cout << std::hex << "     +++ comparing " << a << " to " << b << std::endl;
         return arithmetic::N_compare (a.words (), b.words ());
     }
     

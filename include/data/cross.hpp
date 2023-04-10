@@ -247,11 +247,11 @@ namespace data {
         using words_type = encoding::words<r, word>;
         
         words_type words () {
-            return words_type{slice<word> (*this)};
+            return words_type {slice<word> (*this)};
         }
         
         const words_type words () const {
-            return words_type{slice<word> (*const_cast<oriented*> (this))};
+            return words_type {slice<word> (*const_cast<oriented*> (this))};
         }
     };
     
@@ -262,11 +262,11 @@ namespace data {
         using words_type = encoding::words<r, word>;
         
         words_type words () {
-            return words_type{slice<word> (*this)};
+            return words_type {slice<word> (*this)};
         }
         
         const words_type words () const {
-            return words_type{slice<word> (*const_cast<oriented*>(this))};
+            return words_type {slice<word> (*const_cast<oriented*> (this))};
         }
         
         explicit operator slice<byte> () {
@@ -303,7 +303,7 @@ namespace data {
     }
     
     template <typename X>
-    std::ostream& operator <<(std::ostream& o, const cross<X>& s) {
+    std::ostream &operator << (std::ostream &o, const cross<X> &s) {
         auto b = s.begin ();
         while (true) {
             if (b == s.end ()) return o << "]";
@@ -316,7 +316,7 @@ namespace data {
     
     template <std::unsigned_integral word>
     bytestring<word> operator ~ (const bytestring<word> &b) {
-        bytestring n(b);
+        bytestring n (b);
         n.bit_negate ();
         return n;
     }
@@ -331,7 +331,7 @@ namespace data {
     
     template <std::unsigned_integral word>    
     bytestring<word> operator >> (const bytestring<word> &b, int32 i) {
-        bytestring n(b);
+        bytestring n (b);
         if (i < 0) n.bit_shift_left (-i);
         else n.bit_shift_right (i);
         return n;
@@ -353,7 +353,7 @@ namespace data {
     }
     
     template <std::unsigned_integral word>
-    void inline bytestring<word>::bit_shift_right(uint32 x, bool fill) {
+    void inline bytestring<word>::bit_shift_right (uint32 x, bool fill) {
         encoding::words<endian::big, word> (slice<word> (*this)).bit_shift_right (x, fill);
     }
     
@@ -380,15 +380,15 @@ namespace data {
         return n;
     }
     
-    bytes inline operator~(const bytes &b) {
+    bytes inline operator ~ (const bytes &b) {
         return ~static_cast<bytestring<byte>> (b);
     }
     
-    bytes inline operator<<(const bytes &b, int i) {
+    bytes inline operator << (const bytes &b, int i) {
         return static_cast<bytestring<byte>> (b) << i;
     }
     
-    bytes inline operator>>(const bytes &b, int i) {
+    bytes inline operator >> (const bytes &b, int i) {
         return static_cast<bytestring<byte>> (b) >> i;
     }
     
@@ -424,7 +424,7 @@ namespace data {
     
     template <typename X>
     inline slice<X> cross<X>::range (int e) {
-        return operator slice<X> ().range(e);
+        return operator slice<X> ().range (e);
     }
     
     template <typename X>
@@ -443,7 +443,7 @@ namespace data {
     }
     
     template <std::unsigned_integral word, size_t size>
-    inline bytes_array<word, size>::operator view<word>() const {
+    inline bytes_array<word, size>::operator view<word> () const {
         return {this->data(), size};
     }
     
