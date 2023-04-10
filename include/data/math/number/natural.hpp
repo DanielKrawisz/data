@@ -19,7 +19,6 @@ namespace data::math::number::natural {
     // Generic division algorithm. 
     template <typename N>
     static division<N> divide (const N Dividend, const N Divisor) {
-        
         if (Divisor == 0) throw division_by_zero {};
         if (Divisor == 1) return {Dividend, 0u};
         if (Divisor == 2) return {Dividend >> 1, Dividend & 1u};
@@ -35,7 +34,7 @@ namespace data::math::number::natural {
             pow <<= digits;
             digits <<= 1;
         } 
-        
+
         while (true) {
             digits >>= 1;
             if (digits == 0) break;
@@ -47,7 +46,7 @@ namespace data::math::number::natural {
                 pow <<= digits;
             }
         }
-        
+
         while (pow > 0) {
             while (exp > remainder) {
                 exp >>= 1;
@@ -59,7 +58,6 @@ namespace data::math::number::natural {
             remainder -= exp;
         }
         out: 
-        
         return {quotient, remainder};
     }
     
