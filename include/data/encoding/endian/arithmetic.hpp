@@ -58,7 +58,8 @@ namespace data::endian {
         using iterator = byte*;
         using const_iterator = byte const*;
         
-        arithmetic (const boost_arith& x) : boost_arith (x) {}
+        arithmetic (const boost_arith &x) : boost_arith (x) {}
+        arithmetic (boost_arith &&x) : boost_arith (x) {}
         
         iterator begin () {
             return data ();
@@ -124,6 +125,11 @@ namespace data::endian {
     reader<byte> inline &operator >> (reader<byte> &r, arithmetic<z, o, s> &x) {
         return r >> slice<byte> (x);
     }
+    
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline operator + (const arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        return static_cast<const arithmetic<z, o, s>::boost_arith &> (a) + static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+    }
 
     template <bool z, boost::endian::order o, std::size_t s>
     arithmetic<z, o, s> inline &operator += (arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
@@ -141,6 +147,32 @@ namespace data::endian {
     arithmetic<z, o, s> inline &operator *= (arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
         static_cast<arithmetic<z, o, s>::boost_arith &> (a) *= static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
         return a;
+    }
+    
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline &operator ++ (arithmetic<z, o, s> &x) {
+        ++static_cast<arithmetic<z, o, s>::boost_arith &> (x);
+        return x;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline &operator -- (arithmetic<z, o, s> &x) {
+        --static_cast<arithmetic<z, o, s>::boost_arith &> (x);
+        return x;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline operator ++ (arithmetic<z, o, s> &x, int) {
+        auto n = x;
+        ++x;
+        return n;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline operator -- (arithmetic<z, o, s> &x, int) {
+        auto n = x;
+        --x;
+        return n;
     }
     
 }
