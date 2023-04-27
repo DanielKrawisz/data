@@ -10,51 +10,42 @@
     
 namespace data {
 
-    template <typename K, typename V> 
-    requires std::totally_ordered<K> && requires { K{}; } && requires { V{}; }
+    template <typename K, typename V> requires std::totally_ordered<K>
     struct entry {
         const K Key;
-        V Value;
+        const V Value;
         
-        entry(const K k, V v) : Key(k), Value(v) {}
+        entry (const K k, V v) : Key(k), Value(v) {}
         
-        // an invalid instance must exist for type value.
-        entry(const K k) : Key(k), Value{} {}
-        
-        bool valid() const {
-            return data::valid(Key) && data::valid(Value);
+        bool valid () const {
+            return data::valid (Key) && data::valid (Value);
         }
         
-        const K key() const {
+        const K key () const {
             return Key;
         }
         
-        V value() const {
+        const V value() const {
             return Value;
         }
         
-        V operator[](const K k) {
-            if (Key == k) return Value;
-            return V{};
-        }
-        
-        bool operator==(const entry& e) const {
+        bool operator == (const entry& e) const {
             return Key == e.Key && Value == e.Value;
         }
         
-        bool operator<(const entry& e) const {
+        bool operator < (const entry& e) const {
             return Key < e.Key;
         }
         
-        bool operator>(const entry& e) const {
+        bool operator > (const entry& e) const {
             return Key > e.Key;
         }
         
-        bool operator<=(const entry& e) const {
+        bool operator <= (const entry& e) const {
             return Key < e.Key;
         }
         
-        bool operator>=(const entry& e) const {
+        bool operator >= (const entry& e) const {
             return Key >= e.Key;
         }
     };
@@ -63,26 +54,26 @@ namespace data {
     
         template <typename X, typename key, typename value>
         concept has_insert_key_value = requires (X x, const key k, const value v) {
-            { x.insert(k, v) } -> std::convertible_to<X>;
+            { x.insert (k, v) } -> std::convertible_to<X>;
         };
         
         template <typename map, typename key>
         concept has_keys_method = requires (map x) {
-            { x.keys() } -> sequence<const key&>;
+            { x.keys () } -> sequence<const key&>;
         };
         
     }
 
     template <typename K, typename V> 
-    inline std::ostream& operator<<(std::ostream& o, const entry<K, V>& e) {
+    std::ostream inline &operator << (std::ostream &o, const entry<K, V> &e) {
         return o << e.Key << " -> " << e.Value;
     }
     
     namespace functional {
     
         template <typename X, 
-            typename key = decltype(std::declval<X>().values().first().key()), 
-            typename value = decltype(std::declval<X>().values().first().value())>
+            typename key = decltype (std::declval<X> ().values ().first ().key ()),
+            typename value = decltype (std::declval<X> ().values ().first ().value ())>
         concept map = container<const X, key> && 
             indexed<const X, key, value> &&
             ordered_set<const X, const entry<key, value>> &&
@@ -93,7 +84,7 @@ namespace data {
             std::default_initializable<X>;
 
         template <map M> 
-        inline std::ostream& operator<<(std::ostream& o, const M& m) {
+        std::ostream inline &operator << (std::ostream &o, const M &m) {
             return o << m.values();
         }
         
