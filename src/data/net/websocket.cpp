@@ -196,6 +196,8 @@ namespace data::net::websocket {
             else secure_open (io, url, *ssl, error_handler, interact, closed);
         } catch (boost::system::system_error err) {
             error_handler (err.code ());
+        } catch (const std::exception &err) {
+            closed ();
         }
     }
 
@@ -215,6 +217,8 @@ namespace data::net::websocket {
             secure_open (io, url, ssl, error_handler, interact, closed);
         } catch (boost::system::system_error err) {
             error_handler (err.code ());
+        } catch (const std::exception &err) {
+            closed ();
         }
     }
 
@@ -233,6 +237,8 @@ namespace data::net::websocket {
             insecure_open (io, url, error_handler, interact, closed);
         } catch (boost::system::system_error err) {
             error_handler (err.code ());
+        } catch (const std::exception &err) {
+            closed ();
         }
     }
 
