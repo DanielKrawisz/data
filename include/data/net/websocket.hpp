@@ -96,7 +96,7 @@ namespace data::net::websocket {
         websocket::stream<tcp::socket> ws_;
         beast::flat_buffer buffer_;
     };
-
+/*
     void accept_connection (tcp::acceptor &acceptor) {
         acceptor.async_accept([&] (beast::error_code ec, tcp::socket socket) {
             if (!ec)  std::make_shared<WebSocketSession> (std::move (socket))->run ();
@@ -116,7 +116,7 @@ namespace data::net::websocket {
         ioc.run ();
 
         return 0;
-    }
+    }*/
 }
 
 #endif
