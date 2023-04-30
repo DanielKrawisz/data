@@ -130,6 +130,21 @@ namespace data::endian {
     arithmetic<z, o, s> inline operator + (const arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
         return static_cast<const arithmetic<z, o, s>::boost_arith &> (a) + static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
     }
+    
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline operator - (const arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        return static_cast<const arithmetic<z, o, s>::boost_arith &> (a) - static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+    }
+    
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline operator * (const arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        return static_cast<const arithmetic<z, o, s>::boost_arith &> (a) * static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+    }
+    
+    template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> inline operator / (const arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
+        return static_cast<const arithmetic<z, o, s>::boost_arith &> (a) / static_cast<const arithmetic<z, o, s>::boost_arith &> (b);
+    }
 
     template <bool z, boost::endian::order o, std::size_t s>
     arithmetic<z, o, s> inline &operator += (arithmetic<z, o, s> &a, const arithmetic<z, o, s> &b) {
