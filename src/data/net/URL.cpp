@@ -176,13 +176,16 @@ namespace data::net {
             std::stringstream q;
 
             auto i = params.begin ();
+            
+            if (i != params.end ()) {
 
-            while (true) {
-                q << encoding::percent::encode ((*i).Key, ":#[]@=&") << "=" <<
-                    encoding::percent::encode ((*i).Value, ":#[]@=&");
-                i++;
-                if (i == params.end ()) break;
-                q << "&";
+                while (true) {
+                    q << encoding::percent::encode ((*i).Key, ":#[]@=&") << "=" <<
+                        encoding::percent::encode ((*i).Value, ":#[]@=&");
+                    i++;
+                    if (i == params.end ()) break;
+                    q << "&";
+                }
             }
 
             return q.str ();
