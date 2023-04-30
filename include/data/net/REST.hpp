@@ -12,7 +12,8 @@ namespace data::net::HTTP {
     struct REST {
         
         // a typical GET request
-        HTTP::request GET (path path, list<entry<UTF8, UTF8>> params = {}) const;
+        HTTP::request GET (path path) const;
+        HTTP::request GET (path path, list<entry<UTF8, UTF8>> params) const;
         
         // POST form data
         HTTP::request POST (path path, map<header, ASCII> params = {}) const;
@@ -42,6 +43,11 @@ namespace data::net::HTTP {
         REST (const protocol &, const domain_name &);
         
     };
+    
+    HTTP::request inline REST::GET (path path) const {
+        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
+        return HTTP::request {method::get, URL (bool (Port) ? make_url.port (*Port) : make_url)};
+    }
     
     HTTP::request inline REST::GET (path path, list<entry<UTF8, UTF8>> params) const {
         auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path).query_map (params);
