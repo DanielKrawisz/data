@@ -45,18 +45,19 @@ how to use all features.
     * HTTP client.
     
 # Dependencies
-  * Boost 1.76
+  * Boost 1.80
   * GMP
+  * PEGTL
   * Crypto++ https://github.com/weidai11/cryptopp 
   * https://github.com/BartoszMilewski/Okasaki (included as needed)
   * Rotella's implementation of AKS. (included)
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions 
   * Google test
 
+We use conan 2 for dependency management. All dependencies are available through conan 2 other than PEGTL, which must be installed separately.
+
 # Requirements
   * GCC v11
-  * Conan profile with settings.compiler.version set to 11
-  * Conan profile with settings.compiler.libcxx set to libstdc++11
 
 # Build instructions
 
