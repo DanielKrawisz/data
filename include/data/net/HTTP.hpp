@@ -40,7 +40,7 @@ namespace data::net::HTTP {
 
     struct request {
         method Method;
-        net::URL URL;
+        net::URL Target;
         map<header, ASCII> Headers;
         string Body;
 
@@ -48,7 +48,7 @@ namespace data::net::HTTP {
             method method,
             net::URL url,
             map<header, ASCII> headers = {},
-            string body = {}) : Method {method}, URL {url}, Headers {headers}, Body {body} {}
+            string body = {}) : Method {method}, Target {url}, Headers {headers}, Body {body} {}
 
     };
 
