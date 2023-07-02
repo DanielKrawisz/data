@@ -38,14 +38,12 @@ namespace data::net::HTTP {
         template<class SyncReadStream>
         boost::beast::http::response<boost::beast::http::dynamic_body> http_request (
             SyncReadStream& stream, 
-            const domain_name &hostname,
-            HTTP::method verb, 
-            path path,
-            map<HTTP::header, ASCII> headers, string body, int redirects) {
+            HTTP::method verb,
+            URL url,
+            map<HTTP::header, ASCII> headers, string body) {
             
-            boost::beast::http::request<boost::beast::http::string_body> req (verb, path.c_str (), 11);
+            boost::beast::http::request<boost::beast::http::string_body> req (verb, url.c_str (), 11);
 
-            req.set (HTTP::header::host, hostname.c_str ());
             req.set (HTTP::header::user_agent, BOOST_BEAST_VERSION_STRING);
 
             for (const auto &header: headers) req.set (header.Key, header.Value);
@@ -62,6 +60,7 @@ namespace data::net::HTTP {
             try {
                 boost::beast::http::read (stream, buffer, res, ec);
             } catch (boost::exception &ex) {}
+
             return res;
             
         }
@@ -70,7 +69,7 @@ namespace data::net::HTTP {
 
     response call (const request &req, SSL *ssl, uint32 redirects) {
 
-        auto proto = req.URL.protocol ();
+        auto proto = req.Target.protocol ();
 
         if (proto != protocol::HTTP && proto != protocol::HTTPS)
             throw data::exception {} << "Invalid protocol " << proto << "; expected HTTP or HTTPS";
@@ -79,11 +78,11 @@ namespace data::net::HTTP {
 
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
 
-        auto host = req.URL.domain_name ();
+        auto host = req.Target.domain_name ();
         if (!bool (host)) throw data::exception {"No host provided in the URL."};
 
         auto hostname = host->c_str ();
-        auto port = req.URL.port_DNS ().c_str ();
+        auto port = req.Target.port_DNS ().c_str ();
 
         boost::beast::http::response<boost::beast::http::dynamic_body> res;
 
@@ -106,20 +105,20 @@ namespace data::net::HTTP {
             auto const results = resolver.resolve (hostname, port);
 
             boost::beast::get_lowest_layer (stream).connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
+            if (connect_error) throw data::exception {} << "Failed to connect to " << req.Target << "; error " << connect_error;
 
             stream.handshake (asio::ssl::stream_base::client);
 
-            res = http_request (stream, hostname, req.Method, req.URL.path (), req.Headers, req.Body, redirects);
+            res = http_request (stream, req.Method, req.Target, req.Headers, req.Body);
         } else {
             boost::beast::tcp_stream stream (io);
 
             auto const results = resolver.resolve (hostname, port);
 
             stream.connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
+            if (connect_error) throw data::exception {} << "Failed to connect to " << req.Target << "; error " << connect_error;
 
-            res = http_request (stream, hostname, req.Method, req.URL.path (), req.Headers, req.Body, redirects);
+            res = http_request (stream, req.Method, req.Target, req.Headers, req.Body);
         }
 /*
         if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {

@@ -15,12 +15,12 @@ namespace data {
     // https://kkimdev.github.io/posts/2018/06/15/IEEE-754-Floating-Point-Type-in-C++.html.
     
     template <typename T>
-    constexpr int get_storage_bits() {
-        return sizeof(T) * CHAR_BIT;
+    constexpr int get_storage_bits () {
+        return sizeof (T) * CHAR_BIT;
     }
 
     template <typename T>
-    constexpr int get_exponent_bits() {
+    constexpr int get_exponent_bits () {
         int exponent_range = ::std::numeric_limits<T>::max_exponent -
                             ::std::numeric_limits<T>::min_exponent;
         int bits = 0;
@@ -29,7 +29,7 @@ namespace data {
     }
 
     template <typename T>
-    constexpr int get_mantissa_bits() {
+    constexpr int get_mantissa_bits () {
         return ::std::numeric_limits<T>::digits - 1;
     }
     
@@ -37,24 +37,24 @@ namespace data {
     struct Is_Ieee754_2008_Binary_Interchange_Format {
     template <typename T>
     static constexpr bool value =
-        ::std::is_floating_point<T>()            &&
+        ::std::is_floating_point<T> ()            &&
         ::std::numeric_limits<T>::is_iec559      &&
         ::std::numeric_limits<T>::radix == 2     &&
-        get_storage_bits<T>() == storage_bits    &&
-        get_exponent_bits<T>() == exponent_bits  &&
-        get_mantissa_bits<T>() == mantissa_bits;
+        get_storage_bits<T> () == storage_bits    &&
+        get_exponent_bits<T> () == exponent_bits  &&
+        get_mantissa_bits<T> () == mantissa_bits;
     };
     
     template <typename C, typename T, typename... Ts>
-    constexpr auto find_type() {
+    constexpr auto find_type () {
         throw;
 
         if constexpr (C::template value<T>) {
-            return T();
-        } else if constexpr (sizeof...(Ts) >= 1) {
-            return find_type<C, Ts...>();
+            return T ();
+        } else if constexpr (sizeof... (Ts) >= 1) {
+            return find_type<C, Ts...> ();
         } else {
-            return void();
+            return void ();
         }
     }
     
@@ -82,11 +82,11 @@ namespace data {
             int exponent_bits = standard_binary_interchange_format_exponent_bits<storage_bits>(),
             int mantissa_bits = standard_binary_interchange_format_mantissa_bits<storage_bits>()>
     using find_float =
-        decltype(find_type<
+        decltype (find_type<
                 Is_Ieee754_2008_Binary_Interchange_Format<storage_bits,
                                                         exponent_bits,
                                                         mantissa_bits>,
-                float, double, long double>());
+                float, double, long double> ());
     
     template <typename T>
     struct AssertTypeFound {
@@ -110,13 +110,13 @@ namespace data {
 namespace data::math {
     
     template <std::floating_point X> struct abs<X> {
-        X operator()(const X &x) {
+        X operator () (const X &x) {
             return x < 0 ? -x : x;
         }
     };
     
     template <std::floating_point X> struct quadrance<X> {
-        X operator()(const X &x) {
+        X operator () (const X &x) {
             return x * x;
         }
     };
@@ -127,19 +127,19 @@ namespace data::math {
     template <std::floating_point X> struct associative<times<X>, X> {};
     
     template <std::floating_point X> struct identity<plus<X>, X> {
-        X operator()() {
+        X operator () () {
             return 0;
         }
     };
     
     template <std::floating_point X> struct identity<times<X>, X> {
-        X operator()() {
+        X operator () () {
             return 1;
         }
     };
     
     template <std::floating_point X> struct inverse<plus<X>, X> {
-        X operator()(const X &a, const X &b) {
+        X operator () (const X &a, const X &b) {
             return b - a;
         }
     };
