@@ -40,7 +40,7 @@ namespace data::net::HTTP {
 
     struct request {
         method Method;
-        net::URL Target;
+        net::URL URL;
         map<header, ASCII> Headers;
         string Body;
 
@@ -48,7 +48,10 @@ namespace data::net::HTTP {
             method method,
             net::URL url,
             map<header, ASCII> headers = {},
-            string body = {}) : Method {method}, Target {url}, Headers {headers}, Body {body} {}
+            string body = {}) : Method {method}, URL {url}, Headers {headers}, Body {body} {}
+
+        bool valid () const;
+        ASCII target () const;
 
     };
 
@@ -69,6 +72,15 @@ namespace data::net::HTTP {
             return Problem.c_str ();
         }
     };
+
+    bool inline request::valid () const {
+        auto proto = URL.protocol ();
+        return proto == protocol::HTTP || proto == protocol::HTTPS;
+    }
+
+    ASCII inline request::target () const {
+        return ASCII {encoding::percent::URI::target (URL)};
+    }
 
 }
 
