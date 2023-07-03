@@ -194,13 +194,16 @@ namespace data::encoding::percent {
 
         static string_view address (string_view);
 
+        // everything from the path to the end.
+        static string_view target (string_view);
+
         data::ASCII scheme () const;
         maybe<data::UTF8> user_info () const;
         maybe<data::UTF8> host () const;
         maybe<data::ASCII> port () const;
         maybe<data::UTF8> authority () const;
         net::path path () const;
-        maybe<data::UTF8> query () const;
+        maybe<data::ASCII> query () const;
         maybe<data::UTF8> fragment () const;
 
         bool valid () const;
@@ -477,10 +480,10 @@ namespace data::encoding::percent {
         return data::ASCII {x};
     }
 
-    maybe<data::UTF8> inline URI::query () const {
+    maybe<data::ASCII> inline URI::query () const {
         string_view x = query (*this);
         if (x.data () == nullptr) return {};
-        return decode (x);
+        return {data::ASCII {x}};
     }
 
     maybe<data::UTF8> inline URI::fragment () const {

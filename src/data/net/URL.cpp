@@ -341,7 +341,7 @@ namespace data::net {
     }
 
     URL::make URL::make::path (const net::path &p) const {
-        if (Path != nullptr && *Path != "") throw exception {"URL error: path already set."};
+        if (Path != nullptr && *Path != net::path {""}) throw exception {"URL error: path already set."};
 
         make m = *this;
         m.Path = std::make_shared<pctstr> (p);
@@ -765,8 +765,16 @@ namespace data::encoding::percent {
     string_view URI::path (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "path");
+        // in theory this will not happen.
         if (!tao::pegtl::parse<pegtl::uri_whole, read_path_action> (in, sub)) return {};
         return sub;
+    }
+
+    string_view URI::target (string_view x) {
+        string_view p = path (x);
+        // in theory this should not happen.
+        if (p.data () == nullptr) return p;
+        return string_view {p.data (), x.size () - (p.data () - x.data ())};
     }
 
     template <typename Rule> struct read_query_action : pegtl::nothing<Rule> {};
