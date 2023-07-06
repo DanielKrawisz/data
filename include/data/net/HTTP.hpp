@@ -32,7 +32,7 @@ namespace data::net::HTTP {
     response call (const request &, SSL * = nullptr, uint32 redirects = 10);
 
     // async HTTP call
-    void call (asio::io_context &, handler<const response &>, const request &, SSL * = nullptr);
+    void call (asio::io_context &, handler<const response &>, const request &, SSL * = nullptr, uint32 redirects = 10);
 
     using header = boost::beast::http::field;
     using method = boost::beast::http::verb;
@@ -52,6 +52,8 @@ namespace data::net::HTTP {
 
         bool valid () const;
         ASCII target () const;
+
+        string start_line () const;
 
     };
 

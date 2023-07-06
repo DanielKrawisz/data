@@ -49,7 +49,7 @@ namespace data::net::HTTP {
         }
         
     }
-
+/*
     response call (const request &req, SSL *ssl, uint32 redirects) {
 
         auto proto = req.URL.protocol ();
@@ -102,27 +102,22 @@ namespace data::net::HTTP {
 
             res = http_request (stream, hostname, req.Method, req.target (), req.Headers, req.Body);
         }
-/*
-        if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {
-            std::string loc = res.base ()["Location"].to_string ();
-            if (!loc.empty ()) {
-                UriUriA uri;
-                const char **errorPos;
-                if (uriParseSingleUriA (&uri, loc.c_str (), errorPos))
-                    throw data::exception {"could not read redirect url"};
-
-                if (redirects == 0) throw data::exception {"too many redirects"};
-
-                return call (request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
-                    fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, ssl, redirects - 1);
-            }
-        }*/
 
         map<header, ASCII> response_headers {};
         for (const auto &field : res) response_headers =
             data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {string {field.value ()}}});
         return response {res.base ().result (), response_headers, boost::beast::buffers_to_string (res.body ().data ())};
 
+    }*/
+
+    response call (const request &q, SSL *ssl) {
+        asio::io_context io {};
+        response Response;
+        call (io, [&Response] (const response &s) -> void {
+            Response = s;
+        }, q, ssl);
+        io.run ();
+        return Response;
     }
 
     // async HTTP call
