@@ -18,7 +18,4 @@ namespace data::math::algebra {
     
 }
 
-
 #endif
-
-
