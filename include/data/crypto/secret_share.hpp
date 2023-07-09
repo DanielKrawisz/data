@@ -16,9 +16,9 @@ namespace data::crypto {
         bytes Data;
     };
     
-    cross<secret_share> secret_share_split(CryptoPP::RandomNumberGenerator&, const bytes& message, byte max, byte threshold);
+    cross<secret_share> secret_share_split (CryptoPP::RandomNumberGenerator &, const bytes &message, byte max, byte threshold);
     
-    bytes secret_share_merge(cross<secret_share>, byte threshold);
+    bytes secret_share_merge (cross<secret_share>, byte threshold);
     
 }
 
