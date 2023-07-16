@@ -43,7 +43,7 @@ namespace data {
         eratosthenes_test<dec_uint> ();
         eratosthenes_test<hex_uint> ();
         eratosthenes_test<base58_uint> ();
-        //eratosthenes_test<CryptoPP::Integer>();
+        //eratosthenes_test<CryptoPP::Integer> ();
         
     }
 

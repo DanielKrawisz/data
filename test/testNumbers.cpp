@@ -75,6 +75,9 @@ namespace data {
             EXPECT_TRUE (NN {0x394u} <= NN {0x479u});
             EXPECT_FALSE (NN {0x394u} > NN {0x479u});
             EXPECT_FALSE (NN {0x394u} >= NN {0x479u});
+
+            EXPECT_EQ (NN {0x479u} - NN {0x394u}, NN {0xe5u});
+
         }
     };
     

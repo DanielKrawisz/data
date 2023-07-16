@@ -60,6 +60,9 @@ namespace data {
         test_division_integer<Z_bytes_big, N_bytes_big> {};
         test_division_integer<Z_bytes_little, N_bytes_little> {};
 /*
+        test_division_integer<Z_bytes_twos_little> {};
+        test_division_integer<Z_bytes_twos_big> {};*/
+
         test_division_integer<int_big<9>, uint_big<9>> {};
         test_division_integer<int_big<10>, uint_big<10>> {};
         test_division_integer<int_big<11>, uint_big<11>> {};
@@ -69,15 +72,12 @@ namespace data {
         test_division_integer<int_little<10>, uint_little<10>> {};
         test_division_integer<int_little<11>, uint_little<11>> {};
         test_division_integer<int_little<20>, uint_little<20>> {};
-
+/*
         test_division_integer<dec_int, dec_uint> {};
         test_division_integer<hex_int, hex_uint> {};
-        test_division_natural<base58_uint> {};
-
-        test_division_integer<hex_int_twos> {};
-
-        test_division_integer<Z_bytes_twos_little> {};
-        test_division_integer<Z_bytes_twos_big> {};*/
+        test_division_natural<base58_uint> {};*/
+/*
+        test_division_integer<hex_int_twos> {};*/
 
     }
 

@@ -24,55 +24,58 @@ namespace data::tool {
         map Map;
         size_t Size;
         
-        rb_map(map m, size_t x) : Map{m}, Size{x} {}
+        rb_map (map m, size_t x) : Map {m}, Size {x} {}
         
     public:
-        const V &operator[](const K& k) const;
-        V *contains(const K& k);
-        const V *contains(const K& k) const;
-        bool contains(const entry& e) const;
+        const V &operator [] (const K &k) const;
+        V *contains (const K& k);
+        const V *contains (const K &k) const;
+        bool contains (const entry &e) const;
         
-        const V &root() const;
-        const rb_map &left() const;
-        const rb_map &right() const;
+        const V &root () const;
+        const rb_map &left () const;
+        const rb_map &right () const;
         
-        rb_map insert(const K& k, const V& v) const;
-        rb_map insert(const entry& e) const;
+        rb_map insert (const K& k, const V& v) const;
+        rb_map insert (const entry& e) const;
         
-        rb_map operator<<(const entry& e) const;
+        rb_map operator << (const entry &e) const;
         
-        rb_map remove(const K& k) const;
-        rb_map remove(const entry& e) const;
+        rb_map remove (const K &k) const;
+        rb_map remove (const entry &e) const;
         
-        bool valid() const {
+        bool valid () const {
+            struct not_valid {};
+
             try {
-                milewski::okasaki::forEach(Map, [](const K &k, const V &v) -> void {
-                    if (!data::valid(k) || !data::valid(v)) throw 0;
+                milewski::okasaki::forEach (Map, [] (const K &k, const V &v) -> void {
+                    if (!data::valid (k) || !data::valid (v)) throw not_valid {};
                 });
-            } catch (int) {
+            } catch (not_valid) {
                 return false;
             }
+
             return true;
         }
         
-        bool empty() const;
-        size_t size() const;
+        bool empty () const;
+        size_t size () const;
         
-        rb_map() : Map{}, Size{0} {}
-        rb_map(const entry& e) : rb_map{rb_map{} << e} {}
-        rb_map(const K& k, const V& v) : rb_map{entry{k, v}} {}
+        rb_map () : Map {}, Size {0} {}
+        rb_map (const entry &e) : rb_map {rb_map {} << e} {}
+        rb_map (const K &k, const V& v) : rb_map {entry {k, v}} {}
         
-        rb_map(std::initializer_list<std::pair<K, V>> init);
+        rb_map (std::initializer_list<std::pair<K, V>> init);
         
-        const ordered_stack<linked_stack<K>> keys() const;
+        const ordered_stack<linked_stack<K>> keys () const;
         
-        const ordered_stack<linked_stack<entry>> values() const;
+        const ordered_stack<linked_stack<entry>> values () const;
         
-        bool operator==(const rb_map& map) const;
+        bool operator == (const rb_map &map) const;
         
-        rb_map_iterator<K, V> begin() const;
+        rb_map_iterator<K, V> begin () const;
         
-        rb_map_iterator<K, V> end() const;
+        rb_map_iterator<K, V> end () const;
         
     };
     
@@ -88,25 +91,25 @@ namespace data::tool {
         
         // we need this constructor in order to satisfy some 
         // std concepts but it's not really good for anything. 
-        rb_map_iterator() : Map{nullptr}, Next{}, Last{}, Index{0} {}
+        rb_map_iterator () : Map {nullptr}, Next {}, Last {}, Index {0} {}
         
         // constructor for the end of a map. 
-        rb_map_iterator(const map *m, int size) : Map{m->_root}, Next{}, Last{}, Index{size} {}
+        rb_map_iterator (const map *m, int size) : Map {m->_root}, Next {}, Last {}, Index {size} {}
         
         // constructor for the beginning of a map. 
-        rb_map_iterator(const map *m) : Map{m->_root}, Next{m->_root}, Last{}, Index{0} {
-            go_left();
+        rb_map_iterator (const map *m) : Map {m->_root}, Next {m->_root}, Last {}, Index {0} {
+            go_left ();
         }
         
-        rb_map_iterator operator++(int);
-        rb_map_iterator &operator++();
+        rb_map_iterator operator ++ (int);
+        rb_map_iterator &operator ++ ();
         
-        const data::entry<K, V> &operator*() const;
+        const data::entry<K, V> &operator * () const;
         
-        bool operator==(const rb_map_iterator i) const;
-        int operator-(const rb_map_iterator& i) const;
+        bool operator == (const rb_map_iterator i) const;
+        int operator - (const rb_map_iterator& i) const;
         
-        void go_left();
+        void go_left ();
         
     };
 }
@@ -116,8 +119,8 @@ namespace std {
     struct iterator_traits<data::tool::rb_map_iterator<K, V>> {
         using value_type = remove_const_t<data::entry<K, V>>;
         using difference_type = int;
-        using pointer = const remove_reference_t<data::entry<K, V>>*;
-        using reference = const data::entry<K, V>&;
+        using pointer = const remove_reference_t<data::entry<K, V>> *;
+        using reference = const data::entry<K, V> &;
         using iterator_concept = input_iterator_tag;
     };
 }
@@ -125,139 +128,143 @@ namespace std {
 namespace data::tool {
     
     template <typename K, typename V>
-    std::ostream inline &operator<<(std::ostream& o, const rb_map<K, V>& x) {
-        return functional::write(o << "map", x.values());
+    std::ostream inline &operator << (std::ostream &o, const rb_map<K, V> &x) {
+        return functional::write (o << "map", x.values ());
     }
     
     template <typename K, typename V>
-    inline rb_map<K, V>::rb_map(std::initializer_list<std::pair<K, V>> init) : Map{}, Size{0} {
-        for (auto p : init) *this = insert(p.first, p.second);
+    inline rb_map<K, V>::rb_map (std::initializer_list<std::pair<K, V>> init) : Map {}, Size {0} {
+        for (auto p : init) *this = insert (p.first, p.second);
     }
     
     template <typename K, typename V>
-    bool inline rb_map<K, V>::operator==(const rb_map& map) const {
-        return values() == map.values();
+    bool inline rb_map<K, V>::operator == (const rb_map &map) const {
+        return values () == map.values ();
     }
     
     template <typename K, typename V>
-    const ordered_stack<linked_stack<K>> rb_map<K, V>::keys() const {
-        linked_stack<K> kk{};
-        milewski::okasaki::forEach(Map, [&kk](const K& k, V) -> void {
+    const ordered_stack<linked_stack<K>> rb_map<K, V>::keys () const {
+        linked_stack<K> kk {};
+
+        milewski::okasaki::forEach (Map, [&kk] (const K &k, V) -> void {
             kk = kk << k;
         });
-        ordered_stack<linked_stack<K>> x{};
-        for (const auto& k : data::reverse(kk)) x = x << k;
+
+        ordered_stack<linked_stack<K>> x {};
+        for (const auto& k : data::reverse (kk)) x = x << k;
         return x;
     }
     
     template <typename K, typename V>
-    const ordered_stack<linked_stack<entry<K, V>>> rb_map<K, V>::values() const {
-        linked_stack<entry> kk{};
-        milewski::okasaki::forEach(Map, [&kk](const K& k, V v) -> void {
-            kk = kk << entry{k, v};
+    const ordered_stack<linked_stack<entry<K, V>>> rb_map<K, V>::values () const {
+        linked_stack<entry> kk {};
+
+        milewski::okasaki::forEach (Map, [&kk] (const K &k, V v) -> void {
+            kk = kk << entry {k, v};
         });
-        ordered_stack<linked_stack<entry>> x{};
-        for (const auto& e : data::reverse(kk)) x = x << e;
+
+        ordered_stack<linked_stack<entry>> x {};
+        for (const auto& e : data::reverse (kk)) x = x << e;
         return x;
     }
     
     template <typename K, typename V>
-    const V inline &rb_map<K, V>::operator[](const K& k) const {
-        V *x = Map.find(k);
+    const V inline &rb_map<K, V>::operator [] (const K &k) const {
+        V *x = Map.find (k);
         if (x == nullptr) throw "not found";
         return *x;
     }
     
     template <typename K, typename V>
-    V inline *rb_map<K, V>::contains(const K& k) {
-        return Map.find(k);
+    V inline *rb_map<K, V>::contains (const K &k) {
+        return Map.find (k);
     }
     
     template <typename K, typename V>
-    const V inline *rb_map<K, V>::contains(const K& k) const {
-        return Map.find(k);
+    const V inline *rb_map<K, V>::contains (const K &k) const {
+        return Map.find (k);
     }
     
     template <typename K, typename V>
-    bool inline rb_map<K, V>::contains(const entry& e) const {
-        return operator[](e.Key) == e.Value;
+    bool inline rb_map<K, V>::contains (const entry &e) const {
+        return operator [] (e.Key) == e.Value;
     }
     
     template <typename K, typename V>
-    rb_map<K, V> rb_map<K, V>::insert(const K& k, const V& v) const {
-        const V *already = contains(k);
-        if (already == nullptr) return rb_map{Map.inserted(k, v), Size + 1};
+    rb_map<K, V> rb_map<K, V>::insert (const K &k, const V &v) const {
+        const V *already = contains (k);
+        if (already == nullptr) return rb_map {Map.inserted (k, v), Size + 1};
         if (*already == v) return *this;
-        rb_map removed = this->remove(k);
-        return rb_map{removed.Map.inserted(k, v), removed.Size + 1};
+        rb_map removed = this->remove (k);
+        return rb_map {removed.Map.inserted (k, v), removed.Size + 1};
     }
     
     template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::insert(const entry& e) const {
-        return insert(e.Key, e.Value);
+    rb_map<K, V> inline rb_map<K, V>::insert (const entry &e) const {
+        return insert (e.Key, e.Value);
     }
     
     // there's a more efficient way of doing this. 
     // See matt.might.net/articles/red-black-delete/ 
     template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::remove(const K& k) const {
-        rb_map m{};
-        auto v = values();
-        for (auto x = v.begin(); x != v.end(); ++x) if ((*x).Key != k) m = m.insert(*x);
+    rb_map<K, V> inline rb_map<K, V>::remove (const K &k) const {
+        rb_map m {};
+        auto v = values ();
+        for (auto x = v.begin (); x != v.end (); ++x) if ((*x).Key != k) m = m.insert (*x);
         return m;
     }
     
     template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::remove(const entry& e) const {
-        return operator[](e.Key) == e.Value ? remove(e.Key) : *this;
+    rb_map<K, V> inline rb_map<K, V>::remove (const entry &e) const {
+        return operator [] (e.Key) == e.Value ? remove (e.Key) : *this;
     }
     
     template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::operator<<(const entry& e) const {
-        return insert(e.Key, e.Value);
+    rb_map<K, V> inline rb_map<K, V>::operator << (const entry &e) const {
+        return insert (e.Key, e.Value);
     }
     
     template <typename K, typename V>
-    bool inline rb_map<K, V>::empty() const {
-        return Map.isEmpty();
+    bool inline rb_map<K, V>::empty () const {
+        return Map.isEmpty ();
     }
     
     template <typename K, typename V>
-    size_t inline rb_map<K, V>::size() const {
+    size_t inline rb_map<K, V>::size () const {
         return Size;
     }
     
     template <typename K, typename V>
-    rb_map_iterator<K, V> rb_map<K, V>::begin() const {
-        return rb_map_iterator<K, V>{&Map};
+    rb_map_iterator<K, V> rb_map<K, V>::begin () const {
+        return rb_map_iterator<K, V> {&Map};
     }
     
     template <typename K, typename V>
-    rb_map_iterator<K, V> rb_map<K, V>::end() const {
-        return rb_map_iterator<K, V>{&Map, static_cast<int>(Size)};
+    rb_map_iterator<K, V> rb_map<K, V>::end () const {
+        return rb_map_iterator<K, V> {&Map, static_cast<int> (Size)};
     }
     
     template <typename K, typename V>
-    rb_map_iterator<K, V> rb_map_iterator<K, V>::operator++(int) {
+    rb_map_iterator<K, V> rb_map_iterator<K, V>::operator ++ (int) {
         auto x = *this;
         ++(*this);
         return x;
     }
     
     template <typename K, typename V>
-    rb_map_iterator<K, V> &rb_map_iterator<K, V>::operator++() {
+    rb_map_iterator<K, V> &rb_map_iterator<K, V>::operator ++ () {
         if (Next == nullptr) return *this;
         Index++;
             
         if (Next->_rgt != nullptr) {
             Next = Next->_rgt;
-            go_left();
+            go_left ();
             return *this;
         } 
             
-        if (!data::empty(Last)) {
-            Next = Last.first();
-            Last = Last.rest();
+        if (!data::empty (Last)) {
+            Next = Last.first ();
+            Last = Last.rest ();
             return *this;
         }
         
@@ -266,25 +273,25 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    const data::entry<K, V> &rb_map_iterator<K, V>::operator*() const {
+    const data::entry<K, V> &rb_map_iterator<K, V>::operator * () const {
         return Next->_entry;
     }
     
     template <typename K, typename V>
-    bool rb_map_iterator<K, V>::operator==(const rb_map_iterator i) const {
+    bool rb_map_iterator<K, V>::operator == (const rb_map_iterator i) const {
         return Map == i.Map && Next == i.Next;
     }
     
     template <typename K, typename V>
-    int rb_map_iterator<K, V>::operator-(const rb_map_iterator& i) const {
+    int rb_map_iterator<K, V>::operator - (const rb_map_iterator& i) const {
         if (Map == i.Map) return Index - i.Index;
         return 0;
     }
     
     template <typename K, typename V>
-    void rb_map_iterator<K, V>::go_left() {
+    void rb_map_iterator<K, V>::go_left () {
         if (Next == nullptr) return;
-        while(Next->_lft != nullptr) {
+        while (Next->_lft != nullptr) {
             Last = Last << Next;
             Next = Next->_lft;
         }
