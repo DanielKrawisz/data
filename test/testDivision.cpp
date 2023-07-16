@@ -7,7 +7,6 @@
 #include "gtest/gtest.h"
 
 namespace data {
-
     template <typename N>
     void test_division_natural_case (const N &numerator, const N &denominator, const N &quotient, const N &remainder) {
         auto div = math::number::natural::divide (numerator, denominator);
@@ -31,6 +30,7 @@ namespace data {
 
             test_division_natural_case<N> (N {0}, N {1}, N {0}, N {0});
             test_division_natural_case<N> (N {1}, N {1}, N {1}, N {0});
+            test_division_natural_case<N> (N {4}, N {2}, N {2}, N {0});
             test_division_natural_case<N> (N {1145}, N {916}, N {1}, N {229});
 
         }
@@ -72,10 +72,10 @@ namespace data {
         test_division_integer<int_little<10>, uint_little<10>> {};
         test_division_integer<int_little<11>, uint_little<11>> {};
         test_division_integer<int_little<20>, uint_little<20>> {};
-/*
+
         test_division_integer<dec_int, dec_uint> {};
         test_division_integer<hex_int, hex_uint> {};
-        test_division_natural<base58_uint> {};*/
+        test_division_natural<base58_uint> {};
 /*
         test_division_integer<hex_int_twos> {};*/
 

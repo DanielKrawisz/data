@@ -84,9 +84,9 @@ namespace data::math::number {
     
     // bit or 
     template <endian::order r> N_bytes<r> operator | (const N_bytes<r> &, const N_bytes<r>&);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c>&, const Z_bytes<r, c>&);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const N_bytes<r>&, const Z_bytes<r, c>&);
-    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c>&, const N_bytes<r>&);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const N_bytes<r> &, const Z_bytes<r, c> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, const N_bytes<r> &);
     
     template <endian::order r> N_bytes<r> operator | (const N_bytes<r> &, uint64);
     template <endian::order r, complement c> Z_bytes<r, c> operator | (const Z_bytes<r, c> &, int64);

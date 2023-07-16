@@ -16,16 +16,16 @@ namespace data::encoding {
     
     namespace decimal {
         
-        string::string (uint64 x) : string{decimal::write(x)} {}
+        string::string (uint64 x) : string {decimal::write (x)} {}
         
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
-        std::strong_ordering N_compare(string_view a, string_view b) {
-            std::strong_ordering cmp_size = a.size() <=> b.size();
+        std::strong_ordering N_compare (string_view a, string_view b) {
+            std::strong_ordering cmp_size = a.size () <=> b.size ();
             if (cmp_size != std::strong_ordering::equal) return cmp_size;
             
-            for (int i = 0; i < a.size(); i++) {
-                std::strong_ordering cmp_chr = digit(a[i]) <=> digit(b[i]);
+            for (int i = 0; i < a.size (); i++) {
+                std::strong_ordering cmp_chr = digit (a[i]) <=> digit (b[i]);
                 if (cmp_chr != std::strong_ordering::equal) return cmp_chr;
             }
             
@@ -35,14 +35,14 @@ namespace data::encoding {
         std::strong_ordering operator <=> (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
-            return N_compare(m, n);
+            return N_compare (m, n);
         }
         
-        char N_increment(string &x) {
-            auto characters = decimal::characters();
+        char N_increment (string &x) {
+            auto characters = decimal::characters ();
             
-            auto i = x.rbegin();
-            auto e = x.rend();
+            auto i = x.rbegin ();
+            auto e = x.rend ();
             char remainder = 1;
             while (i != e) {
                 auto d = digit(*i) + remainder;
@@ -54,133 +54,135 @@ namespace data::encoding {
             return characters[remainder];
         }
         
-        string &operator++(string &x) {
-            if (!x.valid()) throw exception{} << "invalid decimal string: \"" << x << "\"";
+        string &operator ++ (string &x) {
+            if (!x.valid ()) throw exception {} << "invalid decimal string: \"" << x << "\"";
             char remainder = N_increment(x);
             if (remainder == '0') return x;
             string new_x;
-            new_x.resize(x.size() + 1);
+            new_x.resize (x.size () + 1);
             new_x[0] = remainder;
-            std::copy(x.begin(), x.end(), new_x.begin() + 1);
+            std::copy (x.begin (), x.end (), new_x.begin () + 1);
             return x = new_x;
         }
         
-        void N_decrement(string &x) {
-            auto characters = decimal::characters();
+        void N_decrement (string &x) {
+            auto characters = decimal::characters ();
             
-            auto i = x.rbegin();
-            auto e = x.rend();
+            auto i = x.rbegin ();
+            auto e = x.rend ();
             while (i != e) {
-                auto d = digit(*i);
+                auto d = digit (*i);
+
                 if (d != 0) {
                     *i = characters[d - 1];
                     break;
                 }
+
                 *i = characters[9];
                 i++;
             }
         }
         
-        string &operator--(string &x) {
-            if (!x.valid()) throw exception{} << "invalid decimal string: \"" << x << "\"";
+        string &operator -- (string &x) {
+            if (!x.valid ()) throw exception {} << "invalid decimal string: \"" << x << "\"";
             
             if (x == "0") return x;
-            if (x == "1") return x = string{"0"};
+            if (x == "1") return x = string {"0"};
             
-            N_decrement(x);
+            N_decrement (x);
             
-            if (!valid(x)) return x = string{x.substr(1)};
+            if (!valid (x)) return x = string {x.substr (1)};
             return x;
         }
         
-        string operator+(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write(N::read(m) + N::read(n));
+        string operator + (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            return decimal::write (N::read (m) + N::read (n));
         }
         
-        string operator-(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write(N::read(m) - N::read(n));
+        string operator - (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            return decimal::write (N::read (m) - N::read (n));
         }
         
-        string operator*(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write(N::read(m) * N::read(n));
+        string operator * (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            return decimal::write(N::read (m) * N::read (n));
         }
         
-        string operator<<(const string &m, int i) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m, "\"";
-            return decimal::write(N::read(m) << i);
+        string operator << (const string &m, int i) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m, "\"";
+            return decimal::write (N::read (m) << i);
         }
         
-        string operator>>(const string &m, int i) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            return decimal::write(N::read(m) >> i);
+        string operator >> (const string &m, int i) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            return decimal::write (N::read (m) >> i);
         }
         
-        string operator&(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write(math::N_bytes<endian::little>::read(m) & math::N_bytes<endian::little>::read(n));
+        string operator & (const string &m, const string& n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            return decimal::write (math::N_bytes<endian::little>::read (m) & math::N_bytes<endian::little>::read (n));
         }
         
-        string operator|(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write(math::N_bytes<endian::little>::read(m) | math::N_bytes<endian::little>::read(n));
+        string operator | (const string &m, const string& n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            return decimal::write(math::N_bytes<endian::little>::read (m) | math::N_bytes<endian::little>::read (n));
         }
         
-        math::division<string, N> divide(const string &n, const N &x) {
-            if (x == 0) throw math::division_by_zero{};
+        math::division<string, N> divide (const string &n, const N &x) {
+            if (x == 0) throw math::division_by_zero {};
             // it is important to have this optimization. 
             // I can't say why or I'll be embarrassed. 
             if (x == 10) {
-                int last = n.size() - 1;
-                return math::division<string, N>{n.size() == 1 ? string{} : string(n.substr(0, last)), N(digit(n[last]))};
+                int last = n.size () - 1;
+                return math::division<string, N> {n.size () == 1 ? string {} : string (n.substr(0, last)), N(digit(n[last]))};
             }
             
-            math::division<N> div = math::number::natural::divide(N::read(n), x);
+            math::division<N> div = math::number::natural::divide (N::read (n), x);
             
-            return math::division<string, N>{decimal::write(div.Quotient), div.Remainder};
+            return math::division<string, N> {decimal::write (div.Quotient), div.Remainder};
         }
         
-        math::division<string, uint64> string::divide(uint64 x) const {
-            math::division<string, N> div = decimal::divide(*this, N{x});
-            return math::division<string, uint64>{div.Quotient, uint64(div.Remainder)};
+        math::division<string, uint64> string::divide (uint64 x) const {
+            math::division<string, N> div = decimal::divide (*this, N {x});
+            return math::division<string, uint64> {div.Quotient, uint64 (div.Remainder)};
         }
         
-        string operator/(const string &m, const string &x) {
-            return decimal::write(math::number::natural::divide(N::read(m), N::read(x)).Quotient);
+        string operator / (const string &m, const string &x) {
+            return decimal::write (math::number::natural::divide (N::read (m), N::read (x)).Quotient);
         }
         
-        string operator%(const string &m, const string &x) {
-            return decimal::write(math::number::natural::divide(N::read(m), N::read(x)).Remainder);
+        string operator % (const string &m, const string &x) {
+            return decimal::write (math::number::natural::divide (N::read (m), N::read (x)).Remainder);
         }
         
-        bool string::operator==(uint64 x) const {
-            return *this == string{x};
+        bool string::operator == (uint64 x) const {
+            return *this == string {x};
         }
         
-        std::strong_ordering string::operator<=>(uint64 x) const {
-            return *this <=> string{x};
+        std::strong_ordering string::operator <=> (uint64 x) const {
+            return *this <=> string {x};
         }
         
-        string::operator double() const {
-            return double(N::read(*this));
+        string::operator double () const {
+            return double (N::read (*this));
         }
         
-        string string::read(string_view x) {
-            return decimal::write(N::read(x));
+        string string::read (string_view x) {
+            return decimal::write (N::read (x));
         }
     
-        signed_decimal::string operator-(const string &x) {
+        signed_decimal::string operator - (const string &x) {
             signed_decimal::string z;
-            z.resize(x.size() + 1);
+            z.resize (x.size () + 1);
             z[0] = '-';
-            std::copy(x.begin(), x.end(), z.begin() + 1);
+            std::copy (x.begin (), x.end (), z.begin () + 1);
             return z;
         }
     
@@ -188,115 +190,115 @@ namespace data::encoding {
     
     namespace signed_decimal {
         
-        string::string(int64 x) : string{signed_decimal::write(x)} {}
+        string::string (int64 x) : string {signed_decimal::write (x)} {}
         
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
-        std::strong_ordering operator<=>(const string& m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid hexidecimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid hexidecimal string: \"" << n << "\"";
+        std::strong_ordering operator <=> (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid hexidecimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid hexidecimal string: \"" << n << "\"";
             
-            math::sign na = sign(m);
-            math::sign nb = sign(n);
+            math::sign na = sign (m);
+            math::sign nb = sign (n);
             
             return na != nb ? na <=> nb :
                 na == math::negative && nb == math::negative ? 
-                decimal::N_compare(string_view{n.data() + 1, n.size() - 1}, string_view{m.data() + 1, m.size() - 1}) : 
-                decimal::N_compare(string_view{m.data(), m.size()}, string_view{n.data(), n.size()});
+                decimal::N_compare (string_view {n.data () + 1, n.size () - 1}, string_view {m.data () + 1, m.size () - 1}) :
+                decimal::N_compare (string_view {m.data (), m.size ()}, string_view {n.data (), n.size ()});
             
         }
         
-        string &operator++(string &x) {
-            if (math::is_negative(x)) {
-                auto z = decimal::string{x.substr(1)};
-                return x = -string{--z};
+        string &operator ++ (string &x) {
+            if (math::is_negative (x)) {
+                auto z = decimal::string {x.substr (1)};
+                return x = -string {--z};
             }
             
-            auto z = decimal::string{x};
-            return x = string{++z};
+            auto z = decimal::string {x};
+            return x = string {++z};
         }
         
-        string &operator--(string &x) {
-            if (!x.valid()) throw exception{} << "invalid signed decimal string: \"" << x << "\"";
+        string &operator -- (string &x) {
+            if (!x.valid ()) throw exception {} << "invalid signed decimal string: \"" << x << "\"";
             
-            if (!nonzero(x)) return x = string{"-1"};
+            if (!nonzero (x)) return x = string {"-1"};
             
-            if (positive(x)) {
-                auto z = decimal::string{x};
-                return x = string{--z};
+            if (positive (x)) {
+                auto z = decimal::string {x};
+                return x = string {--z};
             }
             
-            auto z = decimal::string{x.substr(1)};
-            return x = -string{++z};
+            auto z = decimal::string {x.substr (1)};
+            return x = -string {++z};
         }
         
         string operator+(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
-            return signed_decimal::write(Z::read(m) + Z::read(n));
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            return signed_decimal::write (Z::read (m) + Z::read (n));
         }
         
-        string operator-(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
-            return signed_decimal::write(Z::read(m) - Z::read(n));
+        string operator - (const string &m, const string& n) {
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            return signed_decimal::write (Z::read (m) - Z::read (n));
         }
         
-        string operator*(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
-            return signed_decimal::write(Z::read(m) * Z::read(n));
+        string operator * (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            return signed_decimal::write (Z::read (m) * Z::read (n));
         }
         
-        string operator<<(const string &m, int i) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            return signed_decimal::write(Z::read(m) << i);
+        string operator << (const string &m, int i) {
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            return signed_decimal::write (Z::read (m) << i);
         }
         
-        string operator>>(const string &m, int i) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            return signed_decimal::write(Z::read(m) >> i);
+        string operator >> (const string &m, int i) {
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            return signed_decimal::write (Z::read (m) >> i);
         }
         
-        string operator&(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
-            throw method::unimplemented{"signed_dec &"};
+        string operator & (const string &m, const string& n) {
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            throw method::unimplemented {"signed_dec &"};
         }
         
-        string operator|(const string &m, const string& n) {
-            if (!m.valid()) throw exception{} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid()) throw exception{} << "invalid signed decimal string: \"" << n << "\"";
-            throw method::unimplemented{"signed_dec |"};
+        string operator | (const string &m, const string& n) {
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            throw method::unimplemented {"signed_dec |"};
         }
         
-        bool string::operator==(int64 x) const {
-            return *this == string{x};
+        bool string::operator == (int64 x) const {
+            return *this == string {x};
         }
         
-        std::strong_ordering string::operator<=>(int64 x) const {
-            return *this <=> string{x};
+        std::strong_ordering string::operator <=> (int64 x) const {
+            return *this <=> string {x};
         }
         
-        string::operator double() const {
-            return double(N::read(*this));
+        string::operator double () const {
+            return double (N::read (*this));
         }
     
-        string operator-(const string &n) {
+        string operator - (const string &n) {
             string x;
-            if (negative(n)) {
-                x.resize(n.size() - 1);
-                std::copy(n.begin() + 1, n.end(), x.begin());
-            } if (positive(n)) {
+            if (negative (n)) {
+                x.resize (n.size () - 1);
+                std::copy (n.begin () + 1, n.end (), x.begin ());
+            } if (positive (n)) {
                 x[0] = '-';
-                x.resize(n.size() + 1);
-                std::copy(n.begin(), n.end(), x.begin() + 1);
+                x.resize (n.size () + 1);
+                std::copy (n.begin (), n.end (), x.begin () + 1);
             }
             return x;
         }
         
-        string string::read(string_view x) {
-            return signed_decimal::write(Z::read(x));
+        string string::read (string_view x) {
+            return signed_decimal::write (Z::read (x));
         }
     
     }

@@ -6,6 +6,13 @@
 #include "gtest/gtest.h"
 
 namespace data {
+
+    TEST (DecimalTest, TestDecimalUInt) {
+
+        EXPECT_EQ (dec_int {0}, dec_int {"0"});
+        EXPECT_EQ (dec_uint {"4"} & dec_uint {"1"}, dec_uint {"0"});
+
+    }
     
     void test_decrement_signed (const string &given, const string &expected) {
         

@@ -31,8 +31,8 @@ namespace data {
         {a - b} -> std::same_as<NN>;
         {a * b} -> std::same_as<NN>;
         {a / b} -> std::same_as<NN>;
-        {std::min (a, b)} -> std::same_as<const NN&>;
-        {std::max (a, b)} -> std::same_as<const NN&>;
+        {std::min (a, b)} -> std::same_as<const NN &>;
+        {std::max (a, b)} -> std::same_as<const NN &>;
     } && requires (NN &a, const NN &b) {
         {a += b} -> std::same_as<NN &>;
         {a -= b} -> std::same_as<NN &>;

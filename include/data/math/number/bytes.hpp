@@ -113,7 +113,8 @@ namespace data::encoding::decimal {
     
     template <endian::order r> 
     string inline write (const math::number::N_bytes<r> &n) {
-        return string {write_base (math::number::GMP::N (n), characters ())};
+        std::string x = write_base (math::number::GMP::N (n), characters ());
+        return x == "" ? string {"0"} : string {x};
     }
 }
 
