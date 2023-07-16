@@ -165,7 +165,7 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> inline operator & (const N_bytes<r> &a, uint64 b) {
         return a & N_bytes<r> (b);
     }
-    
+
     template <endian::order r, complement c> Z_bytes<r, c> inline operator & (const Z_bytes<r, c> &a, int64 b) {
         return a & Z_bytes<r, c> (b);
     }

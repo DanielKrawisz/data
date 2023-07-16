@@ -48,7 +48,7 @@ namespace data::encoding {
         string &operator ++ (string &);
         string &operator -- (string &);
         
-        string operator ++ (string&, int);
+        string operator ++ (string &, int);
         string operator -- (string &, int);
         
         string operator + (const string &, const string &);
