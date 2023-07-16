@@ -258,6 +258,7 @@ namespace data {
     }
     
     TEST (BoundedTest, BoundedReadWriteString) {
+
         test_bounded_read_write_string<true, endian::big, 9> ("0x00000000ffffffffff");
         test_bounded_read_write_string<true, endian::little, 9> ("0x00000000ffffffffff");
         test_bounded_read_write_string<false, endian::big, 9> ("0x00000000ffffffffff");
@@ -277,5 +278,44 @@ namespace data {
         test_bounded_read_write_string<true, endian::little, 12> ("0x000000000000ffffffffffff");
         test_bounded_read_write_string<false, endian::big, 12> ("0x000000000000ffffffffffff");
         test_bounded_read_write_string<false, endian::little, 12> ("0x000000000000ffffffffffff");
+
+    }
+
+    template<bool is_signed, endian::order o, size_t size> void test_bounded_arithmetic () {
+        bounded<is_signed, o, size> a {0x479u};
+        bounded<is_signed, o, size> b {0x394u};
+
+        bounded<is_signed, o, size> c {0xe5u};
+
+        auto x = a;
+        x -= b;
+        EXPECT_EQ (x, c);
+        x += b;
+        EXPECT_EQ (x, a);
+
+    }
+
+    TEST (BoundedTest, BoundedArithmetic) {
+
+        test_bounded_arithmetic<true, endian::big, 9> ();
+        test_bounded_arithmetic<true, endian::little, 9> ();
+        test_bounded_arithmetic<false, endian::big, 9> ();
+        test_bounded_arithmetic<false, endian::little, 9> ();
+
+        test_bounded_arithmetic<true, endian::big, 10> ();
+        test_bounded_arithmetic<true, endian::little, 10> ();
+        test_bounded_arithmetic<false, endian::big, 10> ();
+        test_bounded_arithmetic<false, endian::little, 10> ();
+
+        test_bounded_arithmetic<true, endian::big, 11> ();
+        test_bounded_arithmetic<true, endian::little, 11> ();
+        test_bounded_arithmetic<false, endian::big, 11> ();
+        test_bounded_arithmetic<false, endian::little, 11> ();
+
+        test_bounded_arithmetic<true, endian::big, 12> ();
+        test_bounded_arithmetic<true, endian::little, 12> ();
+        test_bounded_arithmetic<false, endian::big, 12> ();
+        test_bounded_arithmetic<false, endian::little, 12> ();
+
     }
 }

@@ -13,55 +13,65 @@
 #include <data/math/division.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
+#include <data/io/wait_for_enter.hpp>
 
 namespace data::math::number::natural {
     
     // Generic division algorithm. 
     template <typename N>
     static division<N> divide (const N Dividend, const N Divisor) {
+
         if (Divisor == 0) throw division_by_zero {};
         if (Divisor == 1) return {Dividend, 0u};
         if (Divisor == 2) return {Dividend >> 1, Dividend & 1u};
         
         N pow {1};
         N exp {Divisor};
-        N remainder {Dividend};
-        N quotient {0};
-        uint64 digits {1};
-        
-        while (exp <= remainder) { 
-            exp <<= digits;
-            pow <<= digits;
-            digits <<= 1;
-        } 
 
-        while (true) {
-            digits >>= 1;
-            if (digits == 0) break;
-            if (exp > remainder) {
-                exp >>= digits;
-                pow >>= digits;
-            } else { 
-                exp <<= digits;
-                pow <<= digits;
+        // initialization phase
+        {
+            uint64 digits_per_round {1};
+
+            // we increase exp by increasing powers of 2 until it is bigger than the divisor.
+            while (exp <= Dividend) {
+                exp <<= digits_per_round;
+                pow <<= digits_per_round;
+                digits_per_round <<= 1;
+            }
+
+            // we change exp (either increase or decrease) by decreasing powers of 2 until
+            // it is the maximum power of 2 that is smaller than the divisor.
+            while (true) {
+                digits_per_round >>= 1;
+                if (digits_per_round == 0) break;
+                if (exp > Dividend) {
+                    exp >>= digits_per_round;
+                    pow >>= digits_per_round;
+                } else {
+                    exp <<= digits_per_round;
+                    pow <<= digits_per_round;
+                }
             }
         }
 
+        // division phase
+        division<N> result {0, Dividend};
         while (pow > 0) {
-            while (exp > remainder) {
+            while (exp > result.Remainder) {
                 exp >>= 1;
                 pow >>= 1;
                 if (pow == 0) goto out;
             }
             
-            quotient += pow;
-            remainder -= exp;
+            result.Quotient += pow;
+            result.Remainder -= exp;
         }
+
         out: 
-        return {quotient, remainder};
+        return result;
     }
     
-    template <typename N> bool divides (const N &dividend, const N divisor) {
+    template <typename N> bool inline divides (const N &dividend, const N &divisor) {
         return divide<N> (dividend, divisor).Remainder == 0;
     }
     

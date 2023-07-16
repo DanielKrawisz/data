@@ -12,6 +12,7 @@
 #include <data/math/division.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/gmp/N.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
     
@@ -643,13 +644,12 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     std::weak_ordering inline operator <=> (const uint<r, size> &a, const uint<r, size> &b) {
-        std::cout << std::hex << "     +++ comparing " << a << " to " << b << std::endl;
         return arithmetic::N_compare (a.words (), b.words ());
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
     std::weak_ordering inline operator <=> (const bounded<x, r, n> &, const bounded<y, o, z> &) {
-        throw 0;
+        throw method::unimplemented {"bounded <=> for different types"};
     }
 
     template <endian::order r, size_t size>
@@ -970,43 +970,45 @@ namespace data::math::number {
         return z;
     }
     
-    template <bool u, endian::order r, size_t x> bounded<u, r, x> inline operator -
-        (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
-            throw 0;
-        /*bounded<u, r, x> z {};
-        data::arithmetic::minus<byte> (z.words ().end (), z.words ().begin (), a.words ().begin (), b.words ().begin ());
-        return z;*/
-    }
-    
-    template <bool u, endian::order r, size_t x> bounded<u, r, x> inline operator *
-        (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
+    template <bool u, endian::order r, size_t x>
+    bounded<u, r, x> operator - (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
         bounded<u, r, x> z {};
-        auto w = z.words ();
-        data::math::arithmetic::times (w, a.words (), b.words ());
+        auto i = z.words ().begin ();
+        auto j = a.words ().begin ();
+        auto k = b.words ().begin ();
+        data::arithmetic::minus<byte> (z.words ().end (), i, j, k);
         return z;
     }
-    
-    template <bool u, endian::order r, size_t x> bounded<u, r, x> &operator +=
-        (bounded<u, r, x> &a, const bounded<u, r, x> &b) {
+
+    template <bool u, endian::order r, size_t x>
+    bounded<u, r, x> &operator += (bounded<u, r, x> &a, const bounded<u, r, x> &b) {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
         data::arithmetic::plus<byte> (a.words ().end (), awb, cawb, bwb);
         return a;
     }
+
+    template <bool u, endian::order r, size_t x>
+    bounded<u, r, x> &operator -= (bounded<u, r, x> &a, const bounded<u, r, x> &b) {
+        auto awb = a.words ().begin ();
+        auto cawb = const_cast<const bounded<u, r, x> &> (a).words ().begin ();
+        auto bwb = b.words ().begin ();
+        data::arithmetic::minus<byte> (a.words ().end (), awb, cawb, bwb);
+        return a;
+    }
+    
+    template <bool u, endian::order r, size_t x>
+    bounded<u, r, x> inline operator * (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
+        bounded<u, r, x> z {};
+        auto w = z.words ();
+        data::math::arithmetic::times (w, a.words (), b.words ());
+        return z;
+    }
     
     template <endian::order r, size_t size>
     uint<r, size> inline operator - (const uint<r, size>& a, uint64 b) {
         return a - bounded<false, r, size> {b};
-    }
-    
-    template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator -=
-        (bounded<u, r, x> &a, const bounded<u, r, x> &b) {/*
-        data::arithmetic::minus<byte>
-            (a.words ().end (), a.words ().begin (),
-                const_cast<const bounded<u, r, x> &> (a).words ().begin (), b.words ().begin ());
-        return a;*/
-        throw 0;
     }
     
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator *=
