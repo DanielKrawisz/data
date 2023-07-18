@@ -47,7 +47,7 @@ namespace data {
         {NN (n)};
         {n == 0u};
     } && requires (const NN &a, const NN &b) {
-        {power (a, b)} -> std::same_as<NN>;
+        {pow (a, b)} -> std::same_as<NN>;
     } struct test_unsigned_number : test_whole_number<NN> {
         test_unsigned_number () {
             EXPECT_EQ (N (NN (0)), N (0)) << " number: " << NN (0) << " vs " << N (0) << " merp " << N (NN (0));
@@ -119,7 +119,7 @@ namespace data {
         {b < a} -> std::same_as<bool>;
         {b <= a} -> std::same_as<bool>;
         {b >= a} -> std::same_as<bool>;
-        {power (b, a)} -> std::same_as<ZZ>;
+        {pow (b, a)} -> std::same_as<ZZ>;
         {a + b};
         {a - b};
         {a * b};

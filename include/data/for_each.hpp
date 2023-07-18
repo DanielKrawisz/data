@@ -12,7 +12,7 @@ namespace data {
     
     template <typename fun, typename input, 
         typename element = std::remove_const_t<std::remove_reference_t<decltype (std::declval<input> ().first ())>>, 
-        typename output = std::remove_const_t<std::remove_reference_t<decltype (std::declval<fun> ()(std::declval<element> ()))>>>
+        typename output = std::remove_const_t<std::remove_reference_t<decltype (std::declval<fun> () (std::declval<element> ()))>>>
     requires functional::function<fun, output, element> && sequence<input, element>
     list<output> for_each (const fun& f, const input& i) {
         return fold ([&f] (list<output> q, element x) -> list<output> {

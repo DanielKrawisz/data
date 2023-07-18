@@ -8,7 +8,7 @@
 namespace data::math::number::GMP {
     
     bool aks_is_prime(const Z z) {
-        return ::aks(mpz_class(&z.MPZ[0]));
+        return ::aks (mpz_class (&z.MPZ[0]));
     }
     
 }

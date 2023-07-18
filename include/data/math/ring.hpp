@@ -10,11 +10,11 @@
 namespace data::math {
     
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
-    concept ring = abelian<elem, plus> && requires() {
-        {math::identity<times, elem>{}()} -> std::convertible_to<elem>; 
+    concept ring = abelian<elem, plus> && requires () {
+        {math::identity<times, elem> {} ()} -> std::convertible_to<elem>;
         typename math::associative<times, elem>;
-    } && requires(const elem &a, elem &b) {
-        {times{}(a, b)} -> std::convertible_to<elem>;
+    } && requires (const elem &a, elem &b) {
+        {times {} (a, b)} -> std::convertible_to<elem>;
     };
     
 }
