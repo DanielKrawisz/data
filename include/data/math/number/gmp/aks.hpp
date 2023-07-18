@@ -11,10 +11,10 @@
 
 namespace data::math::number::GMP {
     
-    bool aks_is_prime(const Z);
+    bool aks_is_prime (const Z);
     
-    inline bool aks_is_prime(const N n) {
-        return aks_is_prime(n.Value);
+    inline bool aks_is_prime (const N n) {
+        return aks_is_prime (n.Value);
     }
     
 }
@@ -22,14 +22,14 @@ namespace data::math::number::GMP {
 namespace data::math::number {
     
     template <> struct AKS<N> {
-        prime<N> is_prime(const N n) {
-            return GMP::aks_is_prime(n) ? prime<N>{n, prime<N>::certain} : prime<N>{};
+        prime<N> is_prime (const N n) {
+            return GMP::aks_is_prime (n) ? prime<N> {n, prime<N>::certain} : prime<N> {};
         }
     };
     
     template <> struct AKS<Z> {
-        prime<Z> is_prime(const Z z) {
-            return GMP::aks_is_prime(z) ? prime<Z>{z, prime<Z>::certain} : prime<Z>{};
+        prime<Z> is_prime (const Z z) {
+            return GMP::aks_is_prime (z) ? prime<Z> {z, prime<Z>::certain} : prime<Z> {};
         }
     };
     

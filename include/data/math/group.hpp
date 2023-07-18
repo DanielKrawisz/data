@@ -13,16 +13,16 @@
 namespace data::math {
     
     template <typename elem, typename op = plus<elem>>
-    concept group = requires(){
+    concept group = requires () {
         typename associative<op, elem>; 
-        {identity<op, elem>{}()} -> std::convertible_to<elem>; 
+        {identity<op, elem> {} ()} -> std::convertible_to<elem>;
     } && requires (const elem &a, const elem &b) {
-        {op{}(a, b)} -> std::convertible_to<elem>;
-        {inverse<op, elem>{}(a, b)} -> std::convertible_to<elem>; 
+        {op {} (a, b)} -> std::convertible_to<elem>;
+        {inverse<op, elem> {} (a, b)} -> std::convertible_to<elem>;
     };
     
     template <typename elem, typename op = elem>
-    concept abelian = group<elem, op> && requires() {
+    concept abelian = group<elem, op> && requires () {
         typename math::commutative<op, elem>;
     };
     

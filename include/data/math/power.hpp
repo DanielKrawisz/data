@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2023 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,13 +8,29 @@
 #include <data/math/division.hpp>
 
 namespace data::math {
+
     template <typename X, typename N>
-    class power {
+    struct power {
+        X Base;
+        N Exponent;
+
+        bool operator == (const power &x) const {
+            return Base == x.Base && Exponent == x.Exponent;
+        }
+    };
+
+    template <typename X, typename N>
+    std::ostream inline &operator << (std::ostream &o, const power<X, N> &p) {
+        return o << p.Base << " ^ " << p.Exponent;
+    }
+
+    template <typename X, typename N>
+    class pow {
         static X square (X x) {
             return x * x;
         }
         
-        static X pow (X so_far, X pow_2n, N p) {
+        static X power (X so_far, X pow_2n, N p) {
             if (p == 0) return so_far;
             division<X> d = data::divide (p, 2);
             return pow (d.Remainder == 1 ? so_far + pow_2n : so_far, square (pow_2n), d.Quotient);
@@ -25,7 +41,7 @@ namespace data::math {
             if (n == 0) return 1;
             if (n == 1) return x;
             if (n == 2) return square (x);
-            return pow (0, x, n);
+            return power (0, x, n);
         }
     };
 
@@ -33,8 +49,8 @@ namespace data::math {
 
 namespace data {
     template <typename X, typename N> 
-    X inline power (X x, N n) {
-        return math::power<X, N> {} (x, n);
+    X inline pow (X x, N n) {
+        return math::pow<X, N> {} (x, n);
     }
 }
 

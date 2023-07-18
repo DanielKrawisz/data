@@ -42,7 +42,7 @@ namespace data::math {
     template <typename dividend, typename divisor = dividend> struct divide;
 
     template <typename N>
-    std::ostream inline &operator << (std::ostream& o, const data::math::division<N> x) {
+    std::ostream inline &operator << (std::ostream &o, const data::math::division<N> x) {
         return o << "division {Quotient: " << x.Quotient << ", Remainder: " << x.Remainder << "}";
     }
     
@@ -50,7 +50,7 @@ namespace data::math {
 
 namespace data {
     template <typename dividend, typename divisor = dividend> 
-    auto inline divide (const dividend& a, const math::nonzero<divisor>& b) -> decltype (math::divide<dividend, divisor> {} (a, b)) {
+    auto inline divide (const dividend &a, const math::nonzero<divisor> &b) -> decltype (math::divide<dividend, divisor> {} (a, b)) {
         return math::divide<dividend, divisor> {} (a, b);
     }
     

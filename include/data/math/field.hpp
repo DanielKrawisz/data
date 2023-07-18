@@ -13,7 +13,7 @@ namespace data::math {
     
     template <typename elem, typename plus = math::plus<elem>, typename times = math::times<elem>>
     concept field = math::ring<elem, plus, times> && abelian<elem, plus> && 
-    requires(const elem &a, const math::nonzero<elem> &b) {
+    requires (const elem &a, const math::nonzero<elem> &b) {
         {a / b} -> std::same_as<elem>;
     } && math::abelian<math::nonzero<elem>, times>;
     
