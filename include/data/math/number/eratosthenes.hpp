@@ -72,9 +72,7 @@ namespace data::math::number {
     };
 
     template <typename N>
-    eratosthenes<N>::eratosthenes () : Primes {}, Next {2}, Sieve {} {
-        *this = this->next ();
-    }
+    eratosthenes<N>::eratosthenes () : Primes {}, Next {2}, Sieve {} {}
 
     template <typename N>
     eratosthenes<N>::eratosthenes (N n) : eratosthenes {eratosthenes {}.next (n)} {}
@@ -124,7 +122,9 @@ namespace data::math::number {
     }
 
     template <typename N>
-    inline primes<N>::primes (const eratosthenes<N> x) : Primes {reverse (x.Primes)}, Eratosthenes {x} {}
+    inline primes<N>::primes (const eratosthenes<N> x) : Primes {reverse (x.Primes)}, Eratosthenes {x} {
+        if (data::size (Primes) == 0) *this = this->rest ();
+    }
 
     template <typename N>
     inline primes<N>::primes (stack<prime<N>> p, eratosthenes<N> x) : Primes {p}, Eratosthenes {x} {}

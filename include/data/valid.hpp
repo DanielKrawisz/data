@@ -6,62 +6,39 @@
 
 #include <concepts>
 
-#include <data/meta/equal.hpp>
 #include <data/types.hpp>
 
 namespace data {
     
+    // when we have modules, this will be unexported.
     namespace interface {
-        
-        template <typename X>
-        concept has_valid_method = requires(X x) {
-            {x.valid()} -> std::same_as<bool>;
+        template <typename X> concept has_valid_method = requires (const X &x) {
+            { x.valid () } -> std::same_as<bool>;
         };
-        
-        template <typename X>
-        concept has_valid_member = requires(X x) {
-            {x.Valid} -> std::same_as<bool>;
-        };
-        
-    }
-    
-    namespace meta {
-        
-        template <typename X> struct is_valid {
-            bool operator()(const X&) const {
-                return true;
-            }
-            
-            bool operator()(const X* x) const {
-                return x == nullptr ? false : true;
-            }
-        };
-        
-        template <interface::has_valid_member X> struct is_valid<X> {
-            bool operator()(const X& x) const {
-                return x.Valid;
-            }
-            
-            bool operator()(const X* x) const {
-                return x == nullptr ? false : x->Valid;
-            }
-        };
-        
-        template <interface::has_valid_method X> struct is_valid<X> {
-            bool operator()(const X& x) const {
-                return x.valid();
-            }
-            
-            bool operator()(const X* x) const {
-                return x == nullptr ? false : x->valid();
-            }
-        };
-    
     }
 
-    template <typename X>
-    inline bool valid(const X x) { 
-        return meta::is_valid<X>{}(x);
+    template <typename X> bool inline valid (const X &x) {
+        return true;
+    }
+
+    template <typename X> bool inline valid (const X *x) {
+        return x != nullptr;
+    }
+
+    template <typename X> bool inline valid (const ptr<X> x) {
+        return x != nullptr;
+    }
+
+    template <interface::has_valid_method X> bool inline valid (const X &x) {
+        return x.valid ();
+    }
+
+    template <interface::has_valid_method X> bool inline valid (const X *x) {
+        return x == nullptr ? false : x->valid ();
+    }
+
+    template <interface::has_valid_method X> bool inline valid (const ptr<X> x) {
+        return x == nullptr ? false : x->valid ();
     }
 
 }
