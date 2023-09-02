@@ -11,18 +11,14 @@
 namespace data::tool {
     
     struct unit {
-        unit() {}
+        unit () {}
         
-        bool operator==(unit x) const {
+        bool operator == (unit x) const {
             return true;
-        }
-        
-        bool operator!=(unit x) const {
-            return false;
         }
     };
     
-    inline std::ostream& operator<<(std::ostream& o, unit) {
+    inline std::ostream &operator << (std::ostream &o, unit) {
         return o << "unit" << std::endl;
     }
     

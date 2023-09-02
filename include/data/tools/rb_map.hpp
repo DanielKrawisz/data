@@ -42,7 +42,6 @@ namespace data::tool {
         rb_map operator << (const entry &e) const;
         
         rb_map remove (const K &k) const;
-        rb_map remove (const entry &e) const;
         
         bool valid () const {
             struct not_valid {};
@@ -62,10 +61,8 @@ namespace data::tool {
         size_t size () const;
         
         rb_map () : Map {}, Size {0} {}
-        rb_map (const entry &e) : rb_map {rb_map {} << e} {}
-        rb_map (const K &k, const V& v) : rb_map {entry {k, v}} {}
         
-        rb_map (std::initializer_list<std::pair<K, V>> init);
+        rb_map (std::initializer_list<entry> init);
         
         const ordered_stack<linked_stack<K>> keys () const;
         
@@ -112,6 +109,33 @@ namespace data::tool {
         void go_left ();
         
     };
+
+    // a map that is good for deriving from.
+    template <typename K, typename V, typename derived> struct base_rb_map : rb_map<K, V> {
+        using rb_map<K, V>::rb_map;
+
+        // the derived type needs to inheret these constructors.
+        base_rb_map (rb_map<K, V> &&rb) : rb_map<K, V> {rb} {}
+        base_rb_map (const rb_map<K, V> &rb) : rb_map<K, V> {rb} {}
+
+        derived insert (const K& k, const V& v) const {
+            derived {rb_map<K, V>::insert (k, v)};
+        }
+
+        derived insert (const entry<K, V> &e) const {
+            derived {rb_map<K, V>::insert (e)};
+        }
+
+        derived operator << (const entry<K, V> &e) const {
+            derived {rb_map<K, V>::insert (e)};
+        }
+
+        derived remove (const K &k) const {
+            derived {rb_map<K, V>::remove (k)};
+        }
+
+    };
+
 }
 
 namespace std {
@@ -133,8 +157,8 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    inline rb_map<K, V>::rb_map (std::initializer_list<std::pair<K, V>> init) : Map {}, Size {0} {
-        for (auto p : init) *this = insert (p.first, p.second);
+    inline rb_map<K, V>::rb_map (std::initializer_list<entry> init) : Map {}, Size {0} {
+        for (auto p : init) *this = insert (p);
     }
     
     template <typename K, typename V>
@@ -212,11 +236,6 @@ namespace data::tool {
         auto v = values ();
         for (auto x = v.begin (); x != v.end (); ++x) if ((*x).Key != k) m = m.insert (*x);
         return m;
-    }
-    
-    template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::remove (const entry &e) const {
-        return operator [] (e.Key) == e.Value ? remove (e.Key) : *this;
     }
     
     template <typename K, typename V>

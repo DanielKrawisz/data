@@ -13,50 +13,48 @@ namespace data::crypto::NIST {
     struct DRBG final : random {
         // supported rngs
         enum type {
-            HMAC_DRBG, 
-            Hash_DRBG
+            HMAC,
+            Hash
         };
         
         uint32 BytesBeforeReseed;
-        ptr<entropy> Entropy;
-        CryptoPP::NIST_DRBG* Random;
+        entropy &Entropy;
+        ::CryptoPP::NIST_DRBG* Random;
         
         constexpr static uint32 SecurityStrength = 16;
         
-        DRBG(type t, ptr<entropy> e, bytes personalization, uint32_little nonce) : 
-            BytesBeforeReseed{65536}, Entropy{e}, Random{nullptr} {
-                bytes entropy = Entropy->get(SecurityStrength);
-                if (t == HMAC_DRBG) {
-                    Random = new CryptoPP::HMAC_DRBG(
-                            entropy.data(), entropy.size(), 
-                            nonce.data(), nonce.size(), 
-                            personalization.data(), personalization.size());
-                } else if (t == Hash_DRBG) {
-                    Random = new CryptoPP::Hash_DRBG(
-                            entropy.data(), entropy.size(), 
-                            nonce.data(), nonce.size(), 
-                            personalization.data(), personalization.size());
+        DRBG (type t, entropy &e, bytes personalization = {}, uint32_little nonce = 0) :
+            BytesBeforeReseed {65536}, Entropy {e}, Random {nullptr} {
+                bytes entropy = Entropy.get (SecurityStrength);
+                if (t == HMAC) {
+                    Random = new ::CryptoPP::HMAC_DRBG
+                        (entropy.data (), entropy.size (), nonce.data (), nonce.size (),
+                            personalization.data (), personalization.size ());
+                } else if (t == Hash) {
+                    Random = new ::CryptoPP::Hash_DRBG
+                        (entropy.data (), entropy.size (), nonce.data (), nonce.size (),
+                            personalization.data (), personalization.size ());
                 }
             }
         
-        bool valid() const {
-            return Entropy != nullptr && Random != nullptr;
+        bool valid () const {
+            return Random != nullptr;
         }
         
-        ~DRBG() {
+        ~DRBG () {
             delete Random;
         }
         
     private:
         
-        void get(byte* b, size_t x) override {
+        void get (byte* b, size_t x) override {
             if (BytesBeforeReseed < x) { 
-                bytes entropy = Entropy->get(Random->SecurityStrength());
-                Random->IncorporateEntropy(entropy.data(), entropy.size());
+                bytes entropy = Entropy.get (Random->SecurityStrength ());
+                Random->IncorporateEntropy (entropy.data (), entropy.size ());
                 BytesBeforeReseed = 65536;
             }
             
-            Random->GenerateBlock(b, x);
+            Random->GenerateBlock (b, x);
             BytesBeforeReseed -= x;
         }
     };
