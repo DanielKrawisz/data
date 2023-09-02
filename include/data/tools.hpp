@@ -77,6 +77,11 @@ namespace data {
     // split a string by a delimiter.
     list<string> split (string_view str, const string &delimiter);
 
+    template <typename map, typename key, typename value>
+    map inline replace_part (map X, const key &k, const value &v) {
+        return X.contains (k) ? X.remove (k).insert (k, v) : X;
+    }
+
 }
 
 #endif

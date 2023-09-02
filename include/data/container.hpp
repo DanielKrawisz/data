@@ -13,22 +13,22 @@ namespace data {
         
         template <typename X, typename element> 
         concept has_values_method = requires (X x) {
-            { x.values() } -> sequence<element>;
+            { x.values () } -> sequence<element>;
         };
         
         template <typename X, typename element> 
         concept has_contains_method = requires (X x, const element e) {
-            { x.contains(e) } -> std::convertible_to<bool>;
+            { x.contains (e) } -> std::convertible_to<bool>;
         };
     
         template <typename X, typename element>
         concept has_insert_method = requires (X x, const element e) {
-            { x.insert(e) } -> std::convertible_to<X>;
+            { x.insert (e) } -> std::convertible_to<X>;
         };
         
         template <typename X, typename element>
         concept has_remove_method = requires (X x, const element e) {
-            { x.remove(e) } -> std::convertible_to<X>;
+            { x.remove (e) } -> std::convertible_to<X>;
         };
         
     }
@@ -45,37 +45,37 @@ namespace data {
         
         template <typename X, typename E> 
         struct contains<X, E, false, false, false> {
-            bool operator()(const X& x, const E& e) {
+            bool operator () (const X& x, const E& e) {
                 return false;
             }
             
-            bool operator()(const X* x, const E& e) {
+            bool operator () (const X* x, const E& e) {
                 return false;
             }
         };
         
         template <typename X, typename E, bool is_sequence, bool is_iterable> 
         struct contains<X, E, true, is_sequence, is_iterable> {
-            bool operator()(const X& x, const E& e) {
+            bool operator () (const X& x, const E& e) {
                 return x.contains(e);
             }
             
-            bool operator()(const X* x, const E& e) {
+            bool operator () (const X* x, const E& e) {
                 return x == nullptr ? false : x->contains(e);
             }
         };
         
         template <typename X, typename E, bool is_iterable> 
         struct contains<X, E, false, true, is_iterable> {
-            bool operator()(const X& x, const E& e) {
+            bool operator () (const X& x, const E& e) {
                 return functional::contains(x, e);
             }
         };
         
         template <typename X, typename E> 
         struct contains<X, E, false, false, true> {
-            bool operator()(const X& x, const E& e) {
-                return std::find(x.begin(), x.end(), e) != x.end();
+            bool operator () (const X& x, const E& e) {
+                return std::find (x.begin(), x.end(), e) != x.end();
             }
         };
         
@@ -88,18 +88,18 @@ namespace data {
 
     template <typename X, typename E>
     requires container<X, E> || std::ranges::range<X>
-    inline bool contains(const X& x, const E& e) {
-        return meta::contains<X, E>{}(x, e);
+    inline bool contains (const X& x, const E& e) {
+        return meta::contains<X, E> {} (x, e);
     }
     
     template <typename X, typename element> requires interface::has_insert_method<X, element>
-    X insert(const X& x, const element& e) {
-        return x.insert(e);
+    X insert (const X& x, const element& e) {
+        return x.insert (e);
     }
     
     template <typename X, typename element> requires interface::has_remove_method<X, element>
-    X remove(const X& x, const element& e) {
-        return x.remove(e);
+    X remove (const X& x, const element& e) {
+        return x.remove (e);
     }
 
 }

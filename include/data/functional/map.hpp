@@ -85,7 +85,7 @@ namespace data {
 
         template <map M> 
         std::ostream inline &operator << (std::ostream &o, const M &m) {
-            return o << m.values();
+            return o << m.values ();
         }
         
     }

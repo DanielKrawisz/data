@@ -51,19 +51,19 @@ namespace data {
         linked_stack prepend(linked_stack l) const;
         
         template <typename X, typename Y, typename ... P>
-        linked_stack prepend(X x, Y y, P ... p) const;
+        linked_stack prepend (X x, Y y, P ... p) const;
         
-        linked_stack operator^(linked_stack l) const;
+        linked_stack operator ^ (linked_stack l) const;
         
-        linked_stack from(uint32 n) const;
+        linked_stack from (uint32 n) const;
         
-        const elem& operator[](uint32 n) const;
+        const elem &operator [](uint32 n) const;
         
         using iterator = sequence_iterator<linked_stack<elem>>;
         using sentinel = data::sentinel<linked_stack<elem>>;
         
-        iterator begin() const;
-        sentinel end() const;
+        iterator begin () const;
+        sentinel end () const;
         
         template <typename X> requires std::equality_comparable_with<elem, X>
         bool operator==(const linked_stack<X>& x) const {
@@ -81,13 +81,13 @@ namespace data {
             sequence_iterator<linked_stack<elem>>{s, n, i}, Prev{p} {}
         
     public:
-        linked_stack_iterator(): sequence_iterator<linked_stack<elem>>{}, Prev{} {}
+        linked_stack_iterator (): sequence_iterator<linked_stack<elem>>{}, Prev{} {}
         
-        linked_stack_iterator operator++(int);
-        linked_stack_iterator &operator++();
+        linked_stack_iterator operator ++ (int);
+        linked_stack_iterator &operator ++ ();
         
-        linked_stack_iterator operator--(int);
-        linked_stack_iterator &operator--();
+        linked_stack_iterator operator -- (int);
+        linked_stack_iterator &operator -- ();
         
         linked_stack_iterator(const linked_stack<elem> &s) : sequence_iterator<linked_stack<elem>>{s}, Prev{} {}
     };

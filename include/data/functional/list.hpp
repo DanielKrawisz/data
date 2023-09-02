@@ -21,48 +21,48 @@ namespace data::functional {
 namespace data {
     
     template <functional::pendable list> 
-    list take(const list &l, size_t x);
+    list take (const list &l, size_t x);
     
     template <functional::pendable list>
-    list join(const list&a, const list& b) {
-        if constexpr(functional::queue<list>) return functional::join_queue(a, b);
+    list join (const list&a, const list& b) {
+        if constexpr (functional::queue<list>) return functional::join_queue(a, b);
         else return functional::join_stack(a, b);
     }
     
     template <functional::pendable list> requires ordered<element_of<list>>
-    list merge(const list&a, const list& b) {
+    list merge (const list&a, const list& b) {
         if constexpr(functional::queue<list>) return functional::merge_queue(a, b);
         else return functional::merge_stack(a, b);
     }
     
     template <functional::list L>
-    inline L rotate_right(const L x) {
-        size_t s = size(x);
+    inline L rotate_right (const L x) {
+        size_t s = size (x);
         if (s == 0 || s == 1) return x; 
         
-        return prepend(rest(x), first(x));
+        return prepend (rest (x), first (x));
     }
     
     template <typename L, typename engine>
-    L shuffle(const L x, engine& e) {
+    L shuffle (const L x, engine &e) {
         L q = x;
         L z{};
-        while (!data::empty(q)) {
-            q = rotate_left(q, std::uniform_int_distribution<int>(0, q.size() - 1)(e));
-            z = z << q.first();
-            q = q.rest();
+        while (!data::empty (q)) {
+            q = rotate_left(q, std::uniform_int_distribution<int> (0, q.size () - 1) (e));
+            z = z << q.first ();
+            q = q.rest ();
         }
         return z;
     }
     
     template <typename L>
-    L shuffle(const L x) {
-        return shuffle(x, get_random_engine());
+    L shuffle (const L x) {
+        return shuffle (x, get_random_engine ());
     }
     
     template <functional::pendable L> requires ordered<element_of<L>>
-    L merge_sort(const L &x) {
-        size_t z = size(x);
+    L merge_sort (const L &x) {
+        size_t z = size (x);
         if (z < 2) return x;
         
         size_t half = z / 2;
