@@ -68,6 +68,7 @@ add_library (
   src/data/net/HTTP_client.cpp
   #src/data/io/run.cpp
   src/data/tools/channel.cpp
+  src/data/crypto/random.cpp
   src/data/crypto/secret_share.cpp
   src/data/math/number/gmp/mpq.cpp
   src/data/math/number/gmp/N.cpp

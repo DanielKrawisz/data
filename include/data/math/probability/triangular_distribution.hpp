@@ -13,8 +13,8 @@ namespace data::math {
     template <typename real = double>
     struct triangular_distribution {
         real A; // minimum
-        real B; // maximum
         real C; // the apex of the triangle, therefore A < C < B;
+        real B; // maximum
 
         template <std::uniform_random_bit_generator engine>
         real operator () (engine &e) {

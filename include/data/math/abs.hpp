@@ -16,7 +16,7 @@ namespace data::math {
 namespace data {
     template <typename X> 
     auto abs (const X &x) -> decltype (math::abs<X> {} (x)) {
-        return math::abs<X> {}(x);
+        return math::abs<X> {} (x);
     }
     
     template <typename X>

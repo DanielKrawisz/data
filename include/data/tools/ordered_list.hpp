@@ -13,50 +13,59 @@ namespace data::tool {
     
     template <functional::stack stack, ordered element = element_of<stack>>
     struct ordered_stack : stack {
-        ordered_stack() : stack{} {}
+        ordered_stack () : stack {} {}
         
-        ordered_stack insert(const element& x) const;
+        ordered_stack insert (const element &x) const;
         
         template<typename ... P>
-        ordered_stack insert(const element &a, const element &b, P ... p) const {
-            return insert(a).insert(b, p...);
+        ordered_stack insert (const element &a, const element &b, P ... p) const {
+            return insert (a).insert (b, p...);
         }
         
         template<typename ... P>
-        ordered_stack(P ... p) : stack{} {
-            *this = insert(p...);
+        ordered_stack (P ... p) : stack {} {
+            *this = insert (p...);
         }
         
-        ordered_stack operator<<(const element& x) const;
+        ordered_stack operator << (const element &x) const;
         
-        ordered_stack rest() const {
-            return {data::rest(static_cast<const stack>(*this))};
+        ordered_stack rest () const {
+            return {data::rest (static_cast<const stack> (*this))};
+        }
+
+        ordered_stack take (uint32 size) const {
+            return ordered_stack {data::take (static_cast<stack> (*this), size)};
+        }
+
+        ordered_stack remove (uint32 index) const {
+            if (index >= this->size ()) return *this;
+            return ordered_stack {data::take (static_cast<stack> (*this), size) + data::drop (static_cast<stack> (*this), size).rest ()};
         }
         
         using iterator = sequence_iterator<ordered_stack>;
         using sentinel = data::sentinel<ordered_stack>;
         
-        iterator begin() const {
-            return iterator{*this};
+        iterator begin () const {
+            return iterator {*this};
         }
         
-        sentinel end() const {
-            return sentinel{*this};
+        sentinel end () const {
+            return sentinel {*this};
         }
         
     private:
-        ordered_stack(const stack &x) : stack{x} {}
+        ordered_stack (const stack &x) : stack {x} {}
     };
     
     template <functional::stack stack, ordered element>
-    std::ostream& operator<<(std::ostream& o, const ordered_stack<stack, element>& l) {
+    std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l) {
         o << "ordered_list{";
-        if (!l.empty()) {
+        if (!l.empty ()) {
             ordered_stack<stack, element> x = l;
-            while(true) {
-                o << x.first();
-                x = x.rest();
-                if (x.empty()) break;
+            while (true) {
+                o << x.first ();
+                x = x.rest ();
+                if (x.empty ()) break;
                 o << ", ";
             }
         }
@@ -64,14 +73,14 @@ namespace data::tool {
     }
     
     template <functional::stack stack, ordered element>
-    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator<<(const element& x) const {
-        return insert(x);
+    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator << (const element &x) const {
+        return insert (x);
     }
     
     template <functional::stack stack, ordered element>
-    ordered_stack<stack, element> ordered_stack<stack, element>::insert(const element& x) const {
-        if (this->empty() || x < this->first()) return {this->prepend(x)};
-        return {rest().insert(x).prepend(this->first())};
+    ordered_stack<stack, element> ordered_stack<stack, element>::insert (const element &x) const {
+        if (this->empty () || x < this->first ()) return {this->prepend (x)};
+        return {rest ().insert (x).prepend (this->first ())};
     }
 }
 

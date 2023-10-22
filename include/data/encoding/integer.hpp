@@ -1252,7 +1252,7 @@ namespace data::encoding::hexidecimal {
     std::weak_ordering inline integer<c, zz>::operator <=> (int64 i) const {
         return *this <=> integer {i};
     }
-    
+
     template <complement c, hex::letter_case zz> 
     integer<c, zz> inline integer<c, zz>::operator + (int64 i) const {
         return *this + integer {i};
@@ -1262,7 +1262,7 @@ namespace data::encoding::hexidecimal {
     integer<c, zz> inline integer<c, zz>::operator - (int64 i) const {
         return *this - integer {i};
     }
-    
+
     template <complement c, hex::letter_case zz> 
     integer<c, zz> inline integer<c, zz>::operator * (int64 i) const {
         return *this * integer {i};

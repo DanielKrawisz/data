@@ -11,29 +11,29 @@
 namespace data {
     
     TEST(SecretShareTest, TestSecretShare) {
-        ptr<crypto::entropy> entropy = std::static_pointer_cast<crypto::entropy>(std::make_shared<crypto::fixed_entropy>(
-            bytes_view(bytes::from_string("atehulak,rc.TjmleoTHReseSRCjt"))));
+        ptr<crypto::entropy> entropy = std::static_pointer_cast<crypto::entropy> (std::make_shared<crypto::fixed_entropy>
+            (bytes_view (bytes::from_string ("atehulak,rc.TjmleoTHReseSRCjt"))));
         
-        crypto::NIST::DRBG random{crypto::NIST::DRBG::HMAC_DRBG, entropy, bytes{}, 302};
+        crypto::NIST::DRBG random {crypto::NIST::DRBG::HMAC, *entropy, bytes {}, 302};
         
         for (byte total = 1; total <= 5; total++) for (byte threshold = 1; threshold <= total; threshold++) {
             
             // generate random share 
-            bytes message(std::uniform_int_distribution<int>(3, 10)(random));
+            bytes message (std::uniform_int_distribution<int> (3, 10) (random));
             random >> message;
             
             // split share 
-            cross<crypto::secret_share> shares = crypto::secret_share_split(*random.Random, message, total, threshold);
+            cross<crypto::secret_share> shares = crypto::secret_share_split (*random.Random, message, total, threshold);
             
-            for (byte to_take = threshold; to_take <= std::min(static_cast<byte>(threshold + 2), total); to_take++) {
+            for (byte to_take = threshold; to_take <= std::min (static_cast<byte> (threshold + 2), total); to_take++) {
                 
-                std::random_shuffle(shares.begin(), shares.end(), [&random](int i) -> int {
-                    return std::uniform_int_distribution<int>(0, i - 1)(random);
+                std::random_shuffle (shares.begin (), shares.end (), [&random] (int i) -> int {
+                    return std::uniform_int_distribution<int> (0, i - 1) (random);
                 });
                 
-                bytes merged = crypto::secret_share_merge(shares, threshold);
+                bytes merged = crypto::secret_share_merge (shares, threshold);
                 
-                EXPECT_EQ(merged, message);
+                EXPECT_EQ (merged, message);
             }
             
         }

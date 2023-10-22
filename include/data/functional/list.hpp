@@ -7,6 +7,7 @@
 
 #include <data/functional/stack.hpp>
 #include <data/functional/queue.hpp>
+#include <data/cross.hpp>
 
 namespace data::functional {
     
@@ -42,36 +43,89 @@ namespace data {
         
         return prepend (rest (x), first (x));
     }
+
+    template <functional::pendable L> requires ordered<element_of<L>>
+    L merge_sort (const L &x) {
+        size_t z = size (x);
+        if (z < 2) return x;
+
+        size_t half = z / 2;
+        return merge (merge_sort (take (x, half)), merge_sort (drop (x, half)));
+    }
     
-    template <typename L, typename engine>
+    // randomly re-order a list using a random engine.
+    template <typename L, std::uniform_random_bit_generator engine>
     L shuffle (const L x, engine &e) {
         L q = x;
         L z{};
         while (!data::empty (q)) {
-            q = rotate_left(q, std::uniform_int_distribution<int> (0, q.size () - 1) (e));
+            q = rotate_left (q, std::uniform_int_distribution<int> (0, q.size () - 1) (e));
             z = z << q.first ();
             q = q.rest ();
         }
         return z;
     }
-    
+
+    // shuffle using the default engine.
     template <typename L>
     L shuffle (const L x) {
         return shuffle (x, get_random_engine ());
     }
-    
-    template <functional::pendable L> requires ordered<element_of<L>>
-    L merge_sort (const L &x) {
-        size_t z = size (x);
-        if (z < 2) return x;
-        
-        size_t half = z / 2;
-        return merge(merge_sort(take(x, half)), merge_sort(drop(x, half)));
+
+    // generate a random order.
+    template <typename engine>
+    cross<size_t> random_ordering (size_t size, engine &e) {
+        cross<size_t> ordering (size);
+        for (size_t &z : ordering) z = -1;
+
+        size_t x = 0;
+        size_t i = 0;
+
+        for (size_t x = 0; x < size; x++) {
+
+            int steps = std::uniform_int_distribution<int> (0, size - 1) (e);
+
+            while (steps > 0) {
+                if (ordering[i] != -1) steps--;
+                i = (i + 1) % size;
+            }
+
+            ordering[i] = x;
+        }
+
+        return ordering;
+    }
+
+    template <typename L>
+    L shuffle (const L ll, const cross<size_t> &ordering) {
+        if (ll.size () != ordering.size ()) throw exception {} << "sizes must be the same";
+
+        L q = ll;
+        L z{};
+
+        cross<size_t> o = ordering;
+        size_t x = 0;
+
+        while (!data::empty (q)) {
+            size_t steps = 0;
+            while (o[x] != x) {
+                if (o[x] != -1) steps++;
+                x = (x + 1) % o.size ();
+            }
+            o[x] = -1;
+            x++;
+
+            q = rotate_left (q, steps);
+            z = z << q.first ();
+            q = q.rest ();
+        }
+
+        return z;
     }
 }
 
-template <data::functional::pendable L> L inline operator+(const L &a, const L &b) {
-    return data::join(a, b);
+template <data::functional::pendable L> L inline operator + (const L &a, const L &b) {
+    return data::join (a, b);
 }
 
 #endif

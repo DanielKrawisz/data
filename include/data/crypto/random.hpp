@@ -142,6 +142,8 @@ namespace data::crypto {
         Engine.seed (seed);
     }
 
+    uint32 select_index_by_weight (cross<double>, random &r);
+
 }
 
 #endif
