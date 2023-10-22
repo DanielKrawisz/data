@@ -63,7 +63,7 @@ namespace data {
     
     template <typename X> requires requires (const X x) {
         { x.sign () } -> std::convertible_to<math::sign>;
-    } math::sign inline sign(const X& x) {
+    } math::sign inline sign (const X& x) {
         return x.sign ();
     }
 }

@@ -64,9 +64,9 @@ namespace data::tool {
         
         rb_map (std::initializer_list<entry> init);
         
-        const ordered_stack<linked_stack<K>> keys () const;
+        ordered_stack<linked_stack<K>> keys () const;
         
-        const ordered_stack<linked_stack<entry>> values () const;
+        ordered_stack<linked_stack<entry>> values () const;
         
         bool operator == (const rb_map &map) const;
         
@@ -167,7 +167,7 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    const ordered_stack<linked_stack<K>> rb_map<K, V>::keys () const {
+    ordered_stack<linked_stack<K>> rb_map<K, V>::keys () const {
         linked_stack<K> kk {};
 
         milewski::okasaki::forEach (Map, [&kk] (const K &k, V) -> void {
@@ -180,7 +180,7 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    const ordered_stack<linked_stack<entry<K, V>>> rb_map<K, V>::values () const {
+    ordered_stack<linked_stack<entry<K, V>>> rb_map<K, V>::values () const {
         linked_stack<entry> kk {};
 
         milewski::okasaki::forEach (Map, [&kk] (const K &k, V v) -> void {

@@ -6,7 +6,6 @@
 #define DATA_MATH_ARITHMETIC
 
 #include <data/math/sign.hpp> 
-#include <data/encoding/words.hpp>
 
 namespace data::math {
     
@@ -72,6 +71,8 @@ namespace data {
         return x == 0 ? 0 : x - 1;
     }
 }
+
+#include <data/encoding/words.hpp>
 
 namespace data::math::arithmetic {
     template<size_t size, size_t mod8 = size % 8, size_t mod4 = size % 4, size_t mod2 = size % 2> 
