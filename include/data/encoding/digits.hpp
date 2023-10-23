@@ -11,7 +11,7 @@
 namespace data::encoding {
     
     template <typename N>
-    string write_base (const N &n, string digits) {
+    std::string write_base (const N &n, std::string digits) {
         
         N base {digits.size ()};
         if (base < 2) return "";
@@ -24,7 +24,7 @@ namespace data::encoding {
             x = d.Quotient;
         }
         
-        string o;
+        std::string o;
         o.resize (size (dig));
         int i = 0;
         while (dig.size () > 0) {

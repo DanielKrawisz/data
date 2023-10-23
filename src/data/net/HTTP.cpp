@@ -120,7 +120,7 @@ namespace data::net::HTTP {
 
         map<header, ASCII> response_headers {};
         for (const auto &field : res) response_headers =
-            data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {string {field.value ()}}});
+            data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {std::string {field.value ()}}});
         return response {res.base ().result (), response_headers, boost::beast::buffers_to_string (res.body ().data ())};
 
     }

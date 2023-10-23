@@ -69,7 +69,7 @@ namespace data::net::IP {
                 else if (Version == 6) EXPECT_TRUE (std::regex_match (Address, ip_v6_regex));
 
                 EXPECT_EQ (Address.valid (), Version >= 0)
-                    << "Address \"" << Address << "\" is" << (Version >= 0 ? " " : " not ") << "expected to be valid; version = " << Version;
+                    << "Address " << Address << " is" << (Version >= 0 ? " " : " not ") << "expected to be valid; version = " << Version;
 
                 int32 version = Address.version ();
                 EXPECT_EQ (version, Version) << "expected " << Address << " to be version " << Version;
@@ -79,8 +79,8 @@ namespace data::net::IP {
                 std::stringstream v6_format;
                 std::stringstream v4_format;
                 
-                v6_format << "tcp://[" << Address << "]:" << port;
-                v4_format << "tcp://" << Address << ":" << port;
+                v6_format << "tcp://[" << static_cast<std::string> (Address) << "]:" << port;
+                v4_format << "tcp://" << static_cast<std::string> (Address) << ":" << port;
 
                 TCP::endpoint v6 {v6_format.str ()};
                 TCP::endpoint v4 {v4_format.str ()};
@@ -220,7 +220,7 @@ namespace data::encoding::percent {
             {"abc&", "abc%26", false}   // '&' is a reserved character
         }) {
             EXPECT_EQ (tt.Left == tt.Right, tt.Expected)
-                << "expected \"" << tt.Left << "\" " << (tt.Expected ? "==" : "!=") << " \"" << tt.Right;
+                << "expected " << tt.Left << " " << (tt.Expected ? "==" : "!=") << " " << tt.Right;
         }
     }
 
@@ -342,13 +342,13 @@ namespace data::net {
             }
         }) {
 
-            EXPECT_TRUE (tt.URL.valid ()) << "expected \"" << tt.URL << "\" to be a valid URL.";
+            EXPECT_TRUE (tt.URL.valid ()) << "expected " << tt.URL << " to be a valid URL.";
 
             EXPECT_EQ (tt.URL.scheme (), tt.Scheme);
-            EXPECT_EQ (tt.URL.authority (), tt.Authority) << "incorrect authority retrieved for \"" << tt.URL << "\"";
+            EXPECT_EQ (tt.URL.authority (), tt.Authority) << "incorrect authority retrieved for " << tt.URL;
             EXPECT_EQ (tt.URL.path (), tt.Path);
-            EXPECT_EQ (tt.URL.query (), tt.Query) << "incorrect query retrieved for \"" << tt.URL << "\"";
-            EXPECT_EQ (tt.URL.fragment (), tt.Fragment) << "incorrect fragment retrieved for \"" << tt.URL << "\"";
+            EXPECT_EQ (tt.URL.query (), tt.Query) << "incorrect query retrieved for " << tt.URL;
+            EXPECT_EQ (tt.URL.fragment (), tt.Fragment) << "incorrect fragment retrieved for " << tt.URL;
 
             auto make_url_1 = URL::make {}.scheme (tt.Scheme).path (tt.Path);
             if (tt.Fragment) make_url_1 = make_url_1.fragment (*tt.Fragment);
@@ -356,16 +356,16 @@ namespace data::net {
             if (tt.Authority) make_url_1 = make_url_1.authority (*tt.Authority);
 
             auto url_1 = URL (make_url_1);
-            EXPECT_EQ (tt.URL, url_1) << "expected \"" << tt.URL << "\" == \"" << url_1 << "\"" << std::endl;
+            EXPECT_EQ (tt.URL, url_1) << "expected " << tt.URL << " == " << url_1 << std::endl;
 
-            EXPECT_EQ (tt.URL.user_info (), tt.UserInfo) << "incorrect user_info retrieved for \"" << tt.URL << "\"";
-            EXPECT_EQ (tt.URL.host (), tt.Host) << "incorrect host retrieved for \"" << tt.URL << "\"";
-            EXPECT_EQ (tt.URL.port (), tt.Port) << "incorrect port retrieved for \"" << tt.URL << "\"";
+            EXPECT_EQ (tt.URL.user_info (), tt.UserInfo) << "incorrect user_info retrieved for " << tt.URL;
+            EXPECT_EQ (tt.URL.host (), tt.Host) << "incorrect host retrieved for " << tt.URL;
+            EXPECT_EQ (tt.URL.port (), tt.Port) << "incorrect port retrieved for " << tt.URL;
 
             EXPECT_EQ (tt.URL.port_number (), tt.PortNumber);
             EXPECT_EQ (tt.URL.port_DNS (), tt.PortDNS);
             EXPECT_EQ (tt.URL.domain_name (), tt.HostDNS);
-            EXPECT_EQ (tt.URL.address (), tt.HostAddress) << "incorrect host address retrieved for \"" << tt.URL << "\"";
+            EXPECT_EQ (tt.URL.address (), tt.HostAddress) << "incorrect host address retrieved for " << tt.URL;
 
             auto make_url_2 = URL::make {}.scheme (tt.Scheme).path (tt.Path);
             if (tt.Fragment) make_url_2 = make_url_2.fragment (*tt.Fragment);
@@ -400,7 +400,7 @@ namespace data::net {
             {"https&:/example.org"},                 // (Malformed scheme)
           //{"http://example.com:65536"},           // (Invalid port number)
         }) {
-            EXPECT_FALSE (tt.URL.valid ()) << "expected \"" << tt.URL << "\" to be an invalid URL.";
+            EXPECT_FALSE (tt.URL.valid ()) << "expected " << tt.URL << " to be an invalid URL.";
         }
 
     }

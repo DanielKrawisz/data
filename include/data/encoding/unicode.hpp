@@ -1,7 +1,7 @@
 #ifndef DATA_ENCODING_UNICODE
 #define DATA_ENCODING_UNICODE
 
-#include <data/types.hpp>
+#include <data/string.hpp>
 
 namespace data::encoding::UTF8 {
     struct string;
@@ -24,12 +24,9 @@ namespace data::encoding::UTF8 {
 
     ptr<data::unicode> decode (const string &);
 
-    struct string : std::string {
-        using std::string::string;
-
-        string (const std::string &x) : std::string {x} {}
-        string (std::string &&x) : std::string {x} {}
-        string (const data::unicode &u) : std::string {UTF8::encode (u)} {}
+    struct string : data::string {
+        using data::string::string;
+        string (const data::unicode &u) : data::string {UTF8::encode (u)} {}
     };
 
 }

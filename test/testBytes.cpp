@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/cross.hpp>
+#include <data/string.hpp>
 #include <data/encoding/hex.hpp>
 #include "gtest/gtest.h"
 
@@ -13,7 +14,7 @@ namespace data {
         
         auto it = x.begin ();
         
-        while(size != 0) {
+        while (size != 0) {
             *b = 0;
             for (int i = 7; i >= 0; i--) {
                 if (*it == '1') *b += (1 << i);

@@ -71,13 +71,13 @@ namespace data::math::number::GMP {
         return encoding::integer::negative (s) ? -Z_read_N_gmp (s.substr (1)) : Z_read_N_gmp (s);
     }
     
-    std::ostream& Z_write_dec (std::ostream& o, const Z& n) {
+    std::ostream &Z_write_dec (std::ostream &o, const Z &n) {
         if (n == 0) return o << "0";
         if (n < 0) return Z_write_dec (o << "-", -n);
         return o << encoding::write_base<N> (abs<Z> {} (n), encoding::decimal::characters ());
     }
     
-    std::ostream& N_write_dec (std::ostream& o, const N& n) {
+    std::ostream &N_write_dec (std::ostream &o, const N &n) {
         if (n == 0) return o << "0";
         return o << encoding::write_base<N> (n, encoding::decimal::characters ());
     }
@@ -120,7 +120,7 @@ namespace data::encoding::signed_decimal {
 
 namespace data::math::number::GMP {
         
-    std::ostream& operator << (std::ostream& o, const Z& n) {
+    std::ostream &operator << (std::ostream& o, const Z& n) {
         if (o.flags () & std::ios::hex) {
             encoding::hexidecimal::write (o, n, hex_case::lower, complement::ones);
             return o;
@@ -137,26 +137,26 @@ namespace data::math::number::GMP {
         return Z_read_hex_positive (x);
     }
     
-    Z N_read(string_view x) {
+    Z N_read (string_view x) {
         if (!encoding::natural::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return N_read_hex (x);
         return Z_read_N_gmp (x);
     }
     
-    N N::read(string_view x) {
+    N N::read (string_view x) {
         return N {N_read (x)};
     }
     
     // inefficient but easier to write and more certain to be correct. 
     N read_bytes_big (bytes_view x) {
         std::stringstream format_stream;
-        format_stream << "0x" << encoding::hex::write(x);
+        format_stream << "0x" << encoding::hex::write (x);
         return N {format_stream.str ()};
     }
     
-    N read_bytes_little(bytes_view x) {
-        auto z = bytes{x};
-        std::reverse(z.begin(), z.end());
+    N read_bytes_little (bytes_view x) {
+        auto z = bytes {x};
+        std::reverse (z.begin (), z.end ());
         return read_bytes_big (z);
     }
     
@@ -189,7 +189,7 @@ namespace data::math::number::GMP {
         b = *data::encoding::hex::read (data::encoding::hexidecimal::write<hex_case::lower> (n).substr (2));
     }
     
-    void N_write_little(bytes &b, const N &n) {
+    void N_write_little (bytes &b, const N &n) {
         N_write_big (b, n);
         std::reverse (b.begin (), b.end ());
     }
@@ -227,7 +227,7 @@ namespace data::math::number::GMP {
         return mpz_get_ui (Value.MPZ);
     } 
 
-    std::ostream& operator << (std::ostream &o, const N &n) {
+    std::ostream &operator << (std::ostream &o, const N &n) {
         if (o.flags () & std::ios::hex) {
             encoding::hexidecimal::write (o, n);
             return o;

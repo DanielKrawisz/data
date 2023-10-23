@@ -42,7 +42,6 @@ namespace data {
     template<typename X>
     using view = std::basic_string_view<X>;
     
-    using string = std::string;
     using string_view = std::basic_string_view<char>;
     
     using bytes_view = view<byte>;

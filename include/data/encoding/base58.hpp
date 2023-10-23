@@ -108,10 +108,9 @@ namespace data::encoding::base58 {
     string &operator <<= (string &, int);
     string &operator >>= (string &, int);
 
-    struct string : std::string {
+    struct string : data::string {
         string ();
-        explicit string (const std::string &);
-        explicit string (std::string &&x): std::string {x} {};
+        string (const std::string &x);
         string (uint64);
         
         bool valid () const {
@@ -127,6 +126,9 @@ namespace data::encoding::base58 {
             if (!valid ()) throw exception {} << "invalid base 58 number" << *this;
             return *decode<math::N> (*this);
         }
+
+        friend string operator "" _b58 (const char*, size_t);
+        friend string operator "" _b58 (unsigned long long int);
     };
     
     template <typename N>
@@ -258,9 +260,9 @@ namespace data::encoding::base58 {
         return a = a >> i;
     }
 
-    inline string::string () : std::string {"1"} {}
+    inline string::string () : data::string {"1"} {}
     
-    inline string::string (const std::string &x) : std::string {base58::valid (x) ? x : ""} {}
+    inline string::string (const std::string &x) : data::string {base58::valid (x) ? x : ""} {}
     
     inline string::string (uint64 x) : string {encode (math::N {x})} {}
     

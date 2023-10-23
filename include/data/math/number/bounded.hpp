@@ -105,4 +105,5 @@ namespace data::math::number {
     template struct bounded<true, endian::little, 64>;
 
 }
+
 #endif

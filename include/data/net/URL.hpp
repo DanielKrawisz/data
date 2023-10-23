@@ -155,6 +155,9 @@ namespace data::encoding::percent {
         return strchr (Reserved, c) != nullptr;
     }
 
+    // encode the string, ensuring that the given characters are encoded.
+    std::string encode (const data::UTF8 &, const data::ASCII &required = "");
+
     // a %-encoded string.
     struct string;
 
@@ -162,9 +165,6 @@ namespace data::encoding::percent {
     // form is unequal to its non-encoded form. Otherwise
     // they are treated as equal.
     bool operator == (const string &, const string &);
-
-    // encode the string, ensuring that the given characters are encoded.
-    string encode (const data::UTF8 &, const data::ASCII &required = "");
 
     // decode back to UTF8.
     maybe<data::UTF8> decode (string_view);
@@ -446,13 +446,13 @@ namespace data::encoding::percent {
 
     data::ASCII inline URI::scheme () const {
         string_view x = scheme (*this);
-        if (x.data () == nullptr) throw exception {} << "invalid URI \"" << *this << "\"";
+        if (x.data () == nullptr) throw exception {} << "invalid URI " << *this;
         return data::ASCII {x};
     }
 
     net::path inline URI::path () const {
         string_view x = path (*this);
-        if (x.data () == nullptr) throw exception {} << "invalid URI \"" << *this << "\"";
+        if (x.data () == nullptr) throw exception {} << "invalid URI " << *this;
         return net::path {x};
     }
 

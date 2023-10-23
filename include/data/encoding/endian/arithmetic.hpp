@@ -99,7 +99,7 @@ namespace data::endian {
         
         const byte& operator [] (int i) const {
             if (i >= int (bytes))
-                throw std::out_of_range {string {"access index "} + std::to_string (i) +
+                throw std::out_of_range {std::string {"access index "} + std::to_string (i) +
                     " in arithmetic number of size " + std::to_string (bytes)};
             if (i < 0) return operator [] (bytes + i);
             return data () [i];
@@ -108,11 +108,11 @@ namespace data::endian {
         using words_type = encoding::words<Order, byte>;
         
         words_type words () {
-            return words_type {slice<byte>(this->data(), bytes)};
+            return words_type {slice<byte> (this->data (), bytes)};
         }
         
         const words_type words () const {
-            return words_type {slice<byte>(const_cast<byte*>(this->data()), bytes)};
+            return words_type {slice<byte> (const_cast<byte*> (this->data ()), bytes)};
         }
     };
     
