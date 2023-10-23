@@ -34,6 +34,8 @@
 #include <data/cross.hpp>
 #include <data/fold.hpp>
 
+#include <data/string.hpp>
+
 namespace data {
     
     template <typename X> using stack = linked_stack<X>;

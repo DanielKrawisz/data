@@ -10,6 +10,7 @@
 
 #include <data/encoding/invalid.hpp>
 #include <data/cross.hpp>
+#include <data/string.hpp>
 #include <data/math/division.hpp>
 
 namespace data::encoding::base64 {      
@@ -30,10 +31,9 @@ namespace data::encoding::base64 {
     
     maybe<bytes> read (string_view);
     
-    struct string : std::string {
-        using std::string::string;
-        string (const std::string& x) : std::string {x} {}
-        
+    struct string : data::string {
+        using data::string::string;
+
         bool valid () const noexcept {
             return base64::valid (*this);
         }
@@ -43,6 +43,8 @@ namespace data::encoding::base64 {
             if (!b) throw invalid {Format, *this};
             return *b;
         }
+
+        friend string operator "" _b64 (const char*, size_t);
     };
     
     string write (bytes_view, endian::order);

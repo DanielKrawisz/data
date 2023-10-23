@@ -36,8 +36,7 @@ endif ()
 
 # Add Library source files here
 
-add_library (
-  data STATIC
+add_library (data STATIC
   src/sv/fs.cpp
   src/sv/support/cleanse.cpp
   src/sv/support/lockedpool.cpp
@@ -52,6 +51,7 @@ add_library (
   include/rotella/sieve.cpp
   include/rotella/akslib.cpp
   src/data/types.cpp
+  src/data/string.cpp
   src/data/tools.cpp
   src/data/encoding/hex.cpp
   src/data/encoding/ascii.cpp

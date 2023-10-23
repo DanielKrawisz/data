@@ -90,11 +90,11 @@ namespace data::math::number {
     }
     
     template <endian::order r> uint64 inline operator % (const N_bytes<r> &x, uint64 j) {
-        return uint64(natural::divide<N_bytes<r>> (x, N_bytes<r> {j}).Remainder);
+        return uint64 (natural::divide<N_bytes<r>> (x, N_bytes<r> {j}).Remainder);
     }
     
     template <endian::order r, complement c> uint64 inline operator % (const Z_bytes<r, c> &x, uint64 j) {
-        return uint64(integer::divide<Z_bytes<r, c>> (x, Z_bytes<r, c> {j}).Remainder);
+        return uint64 (integer::divide<Z_bytes<r, c>> (x, Z_bytes<r, c> {j}).Remainder);
     }
     
 }

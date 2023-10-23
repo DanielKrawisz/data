@@ -39,7 +39,7 @@ namespace data::math::number {
         
         explicit N_bytes (const string &x): N_bytes {read (x)} {}
         
-        operator N_bytes<endian::opposite(r)> () const;
+        operator N_bytes<endian::opposite (r)> () const;
         
         template <complement c>
         explicit operator Z_bytes<r, c> () const;

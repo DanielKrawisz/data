@@ -329,7 +329,7 @@ namespace data::encoding::decimal {
     
     template <endian::order r> 
     std::ostream inline &write (std::ostream &o, const math::number::N_bytes<r> &n) {
-        return o << write (n);
+        return o << static_cast<std::string> (write (n));
     }
     
 }

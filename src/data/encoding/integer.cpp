@@ -4,7 +4,6 @@
 
 #include <data/encoding/integer.hpp>
 #include <data/encoding/hex.hpp>
-#include <data/numbers.hpp>
 #include <data/math/number/bytes.hpp>
 #include <data/math/number/gmp/N.hpp>
 #include <data/encoding/digits.hpp>
@@ -16,7 +15,8 @@ namespace data::encoding {
     
     namespace decimal {
         
-        string::string (uint64 x) : string {decimal::write (x)} {}
+        // x is automatically converted to GMP.
+        string::string (uint64 x) : string {write (x)} {}
         
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
@@ -190,7 +190,8 @@ namespace data::encoding {
     
     namespace signed_decimal {
         
-        string::string (int64 x) : string {signed_decimal::write (x)} {}
+        // x is automatically converted to GMP.
+        string::string (int64 x) : string {write (x)} {}
         
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
@@ -232,7 +233,7 @@ namespace data::encoding {
             return x = -string {++z};
         }
         
-        string operator+(const string &m, const string& n) {
+        string operator + (const string &m, const string& n) {
             if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
             return signed_decimal::write (Z::read (m) + Z::read (n));

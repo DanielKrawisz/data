@@ -97,7 +97,7 @@ namespace data::encoding::percent {
         return a_iter == a.end () && b_iter == b.end ();
     }
 
-    string encode (const data::UTF8 &input, const data::ASCII &additional_chars) {
+    std::string encode (const data::UTF8 &input, const data::ASCII &additional_chars) {
         std::ostringstream encoded;
         encoded << std::hex << std::uppercase;
 
@@ -107,7 +107,7 @@ namespace data::encoding::percent {
             else encoded << ch;
         }
 
-        return string {encoded.str ()};
+        return encoded.str ();
     }
 
     unsigned char from_hex (string_view str) {
@@ -172,7 +172,7 @@ namespace data::encoding::percent {
 
 namespace data::net {
     namespace {
-        string write_params (list<entry<UTF8, UTF8>> params) {
+        std::string write_params (list<entry<UTF8, UTF8>> params) {
             std::stringstream q;
 
             auto i = params.begin ();
@@ -222,19 +222,19 @@ namespace data::net {
         if (!Protocol) throw exception {"invalid URI; no protocol given"};
 
         std::stringstream url;
-        url << *Protocol << ":";
+        url << static_cast<std::string> (*Protocol) << ":";
 
         if (UserInfo || Host || Port) {
             url << "//";
 
-            if (UserInfo) url << *UserInfo << "@";
-            if (Host) url << *Host;
-            if (Port) url << ":" << *Port;
+            if (UserInfo) url << static_cast<std::string> (*UserInfo) << "@";
+            if (Host) url << static_cast<std::string> (*Host);
+            if (Port) url << ":" << static_cast<std::string> (*Port);
         }
 
-        if (Path) url << *Path;
-        if (Query) url << "?" << *Query;
-        if (Fragment) url << "#" << *Fragment;
+        if (Path) url << static_cast<std::string> (*Path);
+        if (Query) url << "?" << static_cast<std::string> (*Query);
+        if (Fragment) url << "#" << static_cast<std::string> (*Fragment);
 
         URL u {url.str ()};
 
@@ -295,7 +295,7 @@ namespace data::net {
         if (version == 4) m.Host = std::make_shared<pctstr> (ip);
         else {
             std::stringstream literal;
-            literal << "[" << ip << "]";
+            literal << "[" << static_cast<std::string> (ip) << "]";
             m.Host = std::make_shared<pctstr> (literal.str ());
         }
         return m;
@@ -304,7 +304,7 @@ namespace data::net {
     URL::make URL::make::domain_name (const net::domain_name &name) const {
 
         if (Host != nullptr) throw exception {"URL error: host already set."};
-        if (!name.valid ()) throw exception {} << "URL error: invalid domain name \"" << name << "\"";
+        if (!name.valid ()) throw exception {} << "URL error: invalid domain name " << name;
 
         make m = *this;
         m.Host = std::make_shared<pctstr> (name);
@@ -368,9 +368,9 @@ namespace data::net {
 
         list<UTF8> x;
 
-        list<std::string> zz = split (*this, string {} + delim);
+        list<data::string> zz = split (*this, string {} + delim);
 
-        for (const std::string &z : zz) {
+        for (const data::string &z : zz) {
             auto meep = encoding::percent::decode (z);
             if (!meep) throw exception {} << "invalid percent-encoded string";
             x = x << *meep;
@@ -398,7 +398,7 @@ namespace data::net {
     maybe<entry<UTF8, UTF8>> URL::user_name_pass () const {
         string_view hh = URI::user_info (*this);
         if (hh.data () == nullptr) return {};
-        list<std::string> z = split (hh, ":");
+        list<data::string> z = split (hh, ":");
         if (z.size () != 2) return {};
         return {entry<UTF8, UTF8> {*encoding::percent::decode (z[0]), *encoding::percent::decode (z[1])}};
     }
@@ -407,12 +407,12 @@ namespace data::net {
         string_view q = URI::query (*this);
         if (q.data () == nullptr) return {};
 
-        list<std::string> z = split (q, "&");
+        list<data::string> z = split (q, "&");
 
         list<entry<UTF8, UTF8>> params;
 
         for (const string &e : z) {
-            list<std::string> p = split (e, "=");
+            list<data::string> p = split (e, "=");
             if (p.size () != 2) return {};
             params = params << entry<UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
         }
@@ -840,7 +840,7 @@ namespace data::encoding::percent {
     }
 
     URI URI::normalize () const {
-        if (!valid ()) throw exception {} << "invalid URI: \"" << *this << "\"";
+        if (!valid ()) throw exception {} << "invalid URI: " << *this;
 
         // we can do this because we know the URL is valid.
         net::URL::make m {*decode_not_reserved (*this)};

@@ -7,11 +7,11 @@
 
 namespace data {
 
-    TEST(ExceptionTest, TestException) {
+    TEST (ExceptionTest, TestException) {
         try {
-            throw (exception{} << "Hi " << 26 << " love love love");
+            throw (exception {} << "Hi " << 26 << " love love love");
         } catch (std::exception &ex) {
-            EXPECT_EQ(string{ex.what()}, "Hi 26 love love love");
+            EXPECT_EQ (std::string {ex.what ()}, "Hi 26 love love love");
         }
         
     }

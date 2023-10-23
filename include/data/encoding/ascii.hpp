@@ -6,6 +6,7 @@
 #define DATA_ENCODING_ASCII
 
 #include <string>
+#include <data/string.hpp>
 #include <data/cross.hpp>
 #include <data/encoding/unicode.hpp>
 
@@ -23,11 +24,8 @@ namespace data::encoding::ASCII {
         return true;
     }
 
-    struct string : std::string {
-        using std::string::string;
-        
-        string (const std::string &x) : std::string {x} {}
-        string (std::string &&x) : std::string {x} {}
+    struct string : data::string {
+        using data::string::string;
         
         bool valid () const {
             return ASCII::valid (*this);

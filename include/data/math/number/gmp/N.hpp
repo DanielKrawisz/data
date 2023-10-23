@@ -257,7 +257,7 @@ namespace data::math::number::GMP {
     }
     
     N inline operator-(const N &z, uint64 n) {
-        if (z <= n) return N{0};
+        if (z <= n) return N {0};
         N sum{};
         __gmp_binary_minus::eval(sum.Value.MPZ, z.Value.MPZ, n);
         return sum;

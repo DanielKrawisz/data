@@ -90,23 +90,23 @@ namespace data {
     
         template <sequence L> 
         std::ostream &write (std::ostream& o, L n) {
-            o << string {"{"};
+            o << "{";
             if (!data::empty (n)) {
                 o << n.first ();
                 L r = n.rest ();
                 while (!data::empty (r)) {
-                    o << string {", "} << r.first ();
+                    o << ", " << r.first ();
                     r = r.rest ();
                 }
             } 
-            o << string {"}"};
+            o << "}";
             return o;
         }
         
     }
     
     template <sequence list> 
-    list drop(const list &x, uint32 n) {
+    list drop (const list &x, uint32 n) {
         return data::empty (x) || n == 0 ? x : drop (rest (x), n - 1);
     }
     
