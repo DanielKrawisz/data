@@ -179,6 +179,18 @@ namespace data::encoding {
         
         template <hex::letter_case cx>
         std::weak_ordering operator <=> (const integer<complement::twos, cx> &, const integer<complement::twos, cx> &);
+
+        template <complement c, hex::letter_case cx>
+        bool operator == (const integer<c, cx> &, int64);
+
+        template <hex::letter_case cx>
+        bool operator == (const integer<complement::nones, cx> &, int64);
+
+        template <complement c, hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<c, cx> &, int64);
+
+        template <hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<complement::nones, cx> &, int64);
         
         template <hex::letter_case cx>
         integer<complement::nones, cx> &operator ++ (integer<complement::nones, cx> &);
@@ -605,9 +617,6 @@ namespace data::encoding::hexidecimal {
         
         integer operator / (const integer &x) const;
         integer operator % (const integer &x) const;
-        
-        bool operator == (int64) const;
-        std::weak_ordering operator <=> (int64) const;
         
         integer operator + (int64) const;
         integer operator - (int64) const;
@@ -1242,14 +1251,24 @@ namespace data::encoding::hexidecimal {
         return *this = *this * i;
     }
     
-    template <complement c, hex::letter_case zz> 
-    bool inline integer<c, zz>::operator == (int64 i) const {
-        return *this == integer {i};
+    template <complement c, hex::letter_case cx>
+    bool inline operator == (const integer<c, cx> &x, int64 i) {
+        return x == integer<c, cx> {i};
     }
-    
-    template <complement c, hex::letter_case zz> 
-    std::weak_ordering inline integer<c, zz>::operator <=> (int64 i) const {
-        return *this <=> integer {i};
+
+    template <hex::letter_case cx>
+    bool inline operator == (const integer<complement::nones, cx> &x, int64 i) {
+        return i < 0 ? false : x == integer<complement::nones, cx> {data::abs (i)};
+    }
+
+    template <complement c, hex::letter_case cx>
+    std::weak_ordering inline operator <=> (const integer<c, cx> &x, int64 i) {
+        return x <=> integer<c, cx> {i};
+    }
+
+    template <hex::letter_case cx>
+    std::weak_ordering inline operator <=> (const integer<complement::nones, cx> &x, int64 i) {
+        return i < 0 ? std::weak_ordering::greater : x <=> integer<complement::nones, cx> (data::abs (i));
     }
 
     template <complement c, hex::letter_case zz> 
