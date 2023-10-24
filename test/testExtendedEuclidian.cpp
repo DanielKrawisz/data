@@ -20,19 +20,19 @@ namespace data {
     struct test_extended_euclidian {
         test_extended_euclidian () {
             using X = math::number::euclidian::extended<Z, N>;
-            EXPECT_THROW (X::algorithm (N {0}, N{0}).GCD, math::division_by_zero);
+            EXPECT_THROW (X::algorithm (N {0}, N {0}).GCD, math::division_by_zero);
             
-            EXPECT_EQ (X::algorithm (N {1}, N{1}).GCD, 1);
+            EXPECT_EQ (X::algorithm (N {1}, N {1}).GCD, 1);
             
-            EXPECT_EQ (X::algorithm (N {2}, N{4}).GCD, 2);
+            EXPECT_EQ (X::algorithm (N {2}, N {4}).GCD, 2);
 
-            EXPECT_EQ (X::algorithm (N {1145}, N{916}).GCD, 229);
+            EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
         }
     };
     
     TEST (ExtendedEuclinianTest, TestExtendedEuclidian) {
 
-        test_extended_euclidian<int64, uint64> {};
+        test_extended_euclidian<int64, uint32> {};
         test_extended_euclidian<int64_little, uint64_little> {};
         test_extended_euclidian<int64_big, uint64_big> {};
         test_extended_euclidian<Z, N> {};
