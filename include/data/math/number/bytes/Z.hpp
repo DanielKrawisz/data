@@ -802,18 +802,20 @@ namespace data::math::number {
     
     template <endian::order r> 
     Z_bytes<r, complement::twos> operator + (const Z_bytes<r, complement::twos> &a, const Z_bytes<r, complement::twos> &b) {
-        throw method::unimplemented {"Z_bytes_twos + Z_bytes_twos"};
+
         bool an = is_negative (a);
         bool bn = is_negative (b);
-        auto ax = data::abs (a);
-        auto bx = data::abs (b);
+        N_bytes<r> ax = N_bytes<r>::read (static_cast<bytes> (data::abs (a)));
+        N_bytes<r> bx = N_bytes<r>::read (static_cast<bytes> (data::abs (b)));
 
-        if (!an && !bn) return ax + bx;
-        if (an && bn) return -(ax + bx);
+        if (!an && !bn) return Z_bytes<r, complement::twos> (ax + bx);
+        if (an && bn) return -Z_bytes<r, complement::twos> (ax + bx);
 
-        return ax > bx ?
-            (an ? -(ax - bx) : ax - bx) :
-            (an ? bx - ax : -(bx - ax));
+        bool agb = ax > bx;
+
+        return agb ?
+            (an ? -Z_bytes<r, complement::twos> (ax - bx) : Z_bytes<r, complement::twos> (ax - bx)) :
+            (an ? Z_bytes<r, complement::twos> (bx - ax) : -Z_bytes<r, complement::twos> (bx - ax));
     }
     
     template <endian::order r, complement c> 
@@ -858,7 +860,7 @@ namespace data::math::number {
         if (size == this->size ()) return *this;
         auto n = Z_bytes<r, complement::ones>::zero (size);
         auto w = this->words ();
-        std::copy (w.begin (), w.begin() + size, n.words ().begin ());
+        std::copy (w.begin (), w.begin () + size, n.words ().begin ());
         return n;
     }
     
