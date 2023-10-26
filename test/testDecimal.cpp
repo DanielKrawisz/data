@@ -104,14 +104,20 @@ namespace data {
     }
     
     void test_add_signed (const string &left, const string &right, const string &expected) {
+
         dec_int l (left);
         dec_int r (right);
         dec_int e (expected);
         
         EXPECT_EQ (l + r, e);
+
         EXPECT_EQ (Z::read (l) + Z::read (r), Z::read (e));
+
         EXPECT_EQ (Z_bytes_little::read (l) + Z_bytes_little::read (r), Z_bytes_little::read (e));
         EXPECT_EQ (Z_bytes_big::read (l) + Z_bytes_big::read (r), Z_bytes_big::read (e));
+
+        EXPECT_EQ (Z_bytes_twos_little::read (l) + Z_bytes_twos_little::read (r), Z_bytes_twos_little::read (e));
+        EXPECT_EQ (Z_bytes_twos_big::read (l) + Z_bytes_twos_big::read (r), Z_bytes_twos_big::read (e));
         
     }
     
@@ -173,8 +179,12 @@ namespace data {
         
         EXPECT_EQ (l - r, e);
         EXPECT_EQ (Z::read (l) - Z::read (r), Z::read (e));
+
         EXPECT_EQ (Z_bytes_little::read (l) - Z_bytes_little::read (r), Z_bytes_little::read (e));
         EXPECT_EQ (Z_bytes_big::read (l) - Z_bytes_big::read (r), Z_bytes_big::read (e));
+
+        EXPECT_EQ (Z_bytes_twos_little::read (l) - Z_bytes_twos_little::read (r), Z_bytes_twos_little::read (e));
+        EXPECT_EQ (Z_bytes_twos_big::read (l) - Z_bytes_twos_big::read (r), Z_bytes_twos_big::read (e));
 
     }
     
@@ -210,8 +220,12 @@ namespace data {
         
         EXPECT_EQ (l * r, e);
         EXPECT_EQ (Z::read (l) * Z::read (r), Z::read (e));
+
         EXPECT_EQ (Z_bytes_little::read (l) * Z_bytes_little::read (r), Z_bytes_little::read (e));
         EXPECT_EQ (Z_bytes_big::read (l) * Z_bytes_big::read (r), Z_bytes_big::read (e));
+/*
+        EXPECT_EQ (Z_bytes_twos_little::read (l) * Z_bytes_twos_little::read (r), Z_bytes_twos_little::read (e));
+        EXPECT_EQ (Z_bytes_twos_big::read (l) * Z_bytes_twos_big::read (r), Z_bytes_twos_big::read (e));*/
     }
     
     void test_multiply_unsigned (const string &left, const string &right, const string &expected) {
