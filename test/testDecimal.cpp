@@ -129,6 +129,7 @@ namespace data {
         
         EXPECT_EQ (l + r, e);
         EXPECT_EQ (N::read (l) + N::read (r), N::read (e));
+
         EXPECT_EQ (N_bytes_little::read (l) + N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) + N_bytes_big::read (r), N_bytes_big::read (e));
         
@@ -167,6 +168,7 @@ namespace data {
         
         EXPECT_EQ (l - r, e);
         EXPECT_EQ (N::read (l) - N::read (r), N::read (e));
+
         EXPECT_EQ (N_bytes_little::read (l) - N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) - N_bytes_big::read (r), N_bytes_big::read (e));
     }
@@ -223,9 +225,10 @@ namespace data {
 
         EXPECT_EQ (Z_bytes_little::read (l) * Z_bytes_little::read (r), Z_bytes_little::read (e));
         EXPECT_EQ (Z_bytes_big::read (l) * Z_bytes_big::read (r), Z_bytes_big::read (e));
-/*
+
         EXPECT_EQ (Z_bytes_twos_little::read (l) * Z_bytes_twos_little::read (r), Z_bytes_twos_little::read (e));
-        EXPECT_EQ (Z_bytes_twos_big::read (l) * Z_bytes_twos_big::read (r), Z_bytes_twos_big::read (e));*/
+        EXPECT_EQ (Z_bytes_twos_big::read (l) * Z_bytes_twos_big::read (r), Z_bytes_twos_big::read (e));
+
     }
     
     void test_multiply_unsigned (const string &left, const string &right, const string &expected) {
@@ -235,6 +238,7 @@ namespace data {
         dec_uint e (expected);
         EXPECT_EQ (l * r, e);
         EXPECT_EQ (N::read (l) * N::read (r), N::read (e));
+
         EXPECT_EQ (N_bytes_little::read (l) * N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) * N_bytes_big::read (r), N_bytes_big::read (e));
         
