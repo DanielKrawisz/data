@@ -818,12 +818,24 @@ namespace data::math::number {
             (an ? Z_bytes<r, complement::twos> (bx - ax) : -Z_bytes<r, complement::twos> (bx - ax));
     }
     
-    template <endian::order r, complement c> 
-    Z_bytes<r, c> operator * (const Z_bytes<r, c> &a, const Z_bytes<r, c> &b) {
+    template <endian::order r>
+    Z_bytes<r, complement::ones> operator *
+        (const Z_bytes<r, complement::ones> &a, const Z_bytes<r, complement::ones> &b) {
         bool an = is_negative (a);
         bool bn = is_negative (b);
-        if ((an && bn) || (!an && !bn)) return Z_bytes<r, c> (data::abs (a) * data::abs (b));
+        if ((an && bn) || (!an && !bn)) return Z_bytes<r, complement::ones> (data::abs (a) * data::abs (b));
         return -(data::abs (a) * data::abs (b));
+    }
+
+    template <endian::order r>
+    Z_bytes<r, complement::twos> operator *
+        (const Z_bytes<r, complement::twos> &a, const Z_bytes<r, complement::twos> &b) {
+        bool an = is_negative (a);
+        bool bn = is_negative (b);
+        auto mul = Z_bytes<r, complement::twos>
+            (N_bytes<r>::read (static_cast<bytes> (data::abs (a))) *
+                N_bytes<r>::read (static_cast<bytes> (data::abs (b))));
+        return (an && bn) || (!an && !bn) ? mul : -mul;
     }
     
     template <endian::order r> template<complement c> N_bytes<r>::operator Z_bytes<r, c> () const {
@@ -1109,6 +1121,7 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r, complement::ones>::Z_bytes (const Z &z) {
         auto x = Z_bytes<r, complement::ones> (N_bytes<r> {data::abs (z)});
         *this = z < 0 ? -x : x;
+        this->trim ();
     }
     
     template <endian::order r> Z_bytes<r, complement::twos>::Z_bytes (const Z &z) {
@@ -1119,10 +1132,12 @@ namespace data::math::number {
     
     template <endian::order r> N_bytes<r>::operator N () const {
         N x {};
+
         for (const byte &b : this->words ()) {
             x << 8;
             x += b;
         }
+
         return x;
     }
     
@@ -1134,10 +1149,12 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r, complement::twos>::operator Z () const {
         auto ab = data::abs (*this);
         N x {};
+
         for (const byte &b : ab.words ()) {
             x << 8;
             x += b;
         }
+
         return is_negative (*this) ? -x : Z (x);
     }
 }

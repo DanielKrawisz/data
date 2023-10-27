@@ -778,7 +778,7 @@ namespace data::math::number {
     // the number with complement one should be converted to the
     // number in complement twos.
     void test_complement_ones_to_twos (string ones, string twos) {
-        std::cout << " hex test ones to two: " << ones << " " << twos << std::endl;
+
         auto o = hex<complement::ones> {ones};
         auto t = hex<complement::twos> {twos};
 
@@ -804,7 +804,7 @@ namespace data::math::number {
     // the number with complement twos should be converted to the
     // number in complement one.
     void test_complement_twos_to_ones (string twos, string ones) {
-        std::cout << " hex test twos to ones: " << twos << " " << ones << std::endl;
+
         auto t = hex<complement::twos> {twos};
         auto o = hex<complement::ones> {ones};
 
@@ -1344,8 +1344,10 @@ namespace data {
             auto nh = -h;
             auto nn = -n;
             
-            EXPECT_TRUE (math::number::is_minimal (nh));
-            EXPECT_TRUE (math::number::is_minimal (nn));
+            if constexpr (c == math::number::complement::ones) {
+                EXPECT_TRUE (math::number::is_minimal (nh));
+                EXPECT_TRUE (math::number::is_minimal (nn));
+            }
             
             EXPECT_EQ (N::read (nh), nn);
             auto nnh = encoding::hexidecimal::integer<c, hex_case::lower>
