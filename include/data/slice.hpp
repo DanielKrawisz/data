@@ -24,7 +24,7 @@ namespace data {
         int Begin;
         int End;
         
-        range (int b, int e) : Begin{b}, End{e} {}
+        range (int b, int e) : Begin {b}, End {e} {}
         
         int size () const {
             return End - Begin;
@@ -46,13 +46,13 @@ namespace data {
     // can create smaller slices. 
     template <typename X> struct slice<X> {
         using value_type = X;
-        using iterator = X*;
-        using const_iterator = const X*;
+        using iterator = X *;
+        using const_iterator = const X *;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = const std::reverse_iterator<iterator>;
 
     protected:
-        X* Data;
+        X *Data;
 
     public:
         size_t Size;
@@ -60,7 +60,7 @@ namespace data {
         slice (iterator b, size_t size) : Data {b}, Size {size} {}
         slice (const slice& x) : Data {x.Data}, Size {x.Size} {}
         
-        slice(std::vector<X>& x) : slice {x.data (), x.size ()} {}
+        slice (std::vector<X>& x) : slice {x.data (), x.size ()} {}
         
         const size_t size () const {
             return Size;

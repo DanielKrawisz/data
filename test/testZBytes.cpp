@@ -238,6 +238,45 @@ namespace data {
         Z_Bytes_to_Z ("0xf000000a00aabbccddeeffffffffffffffff");
         
     }
+
+    TEST (ZBytesTest, TestZBytesZero) {
+        list<string> ones_zeros {"0", "0x", "0x00", "0x0000"};
+        list<string> twos_zeros {"0", "0x", "0x00", "0x0000", "0x80", "0x8000"};
+
+        for (const string &str : ones_zeros) {
+            auto zb = Z_bytes_big::read (str);
+            auto zl = Z_bytes_little::read (str);
+
+            EXPECT_EQ (zb, 0);
+            EXPECT_EQ (data::sign (zb), math::zero);
+
+            EXPECT_EQ (zl, 0);
+            EXPECT_EQ (data::sign (zl), math::zero);
+
+            EXPECT_EQ (data::abs (zb), 0);
+            EXPECT_EQ (data::abs (zl), 0);
+
+            EXPECT_EQ (encoding::signed_decimal::write (zb), "0");
+            EXPECT_EQ (encoding::signed_decimal::write (zl), "0");
+        }
+
+        for (const string &str : twos_zeros) {
+            auto zb = Z_bytes_twos_big::read (str);
+            auto zl = Z_bytes_twos_little::read (str);
+
+            EXPECT_EQ (zb, 0);
+            EXPECT_EQ (data::sign (zb), math::zero);
+
+            EXPECT_EQ (zl, 0);
+            EXPECT_EQ (data::sign (zl), math::zero);
+
+            EXPECT_EQ (data::abs (zb), 0);
+            EXPECT_EQ (data::abs (zl), 0);
+
+            EXPECT_EQ (encoding::signed_decimal::write (zb), "0");
+            EXPECT_EQ (encoding::signed_decimal::write (zl), "0");
+        }
+    }
     
 }
 

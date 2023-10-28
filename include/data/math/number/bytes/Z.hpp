@@ -413,6 +413,16 @@ namespace data {
     template <endian::order r, math::number::complement c> math::sign inline sign (const math::number::Z_bytes<r, c> &x) {
         return math::is_zero (x) ? math::zero : math::arithmetic::sign_bit (x.words ()) ? math::negative : math::positive;
     }
+
+    template <endian::order a, endian::order b>
+    bool inline identical (const math::number::N_bytes<a> &x, const math::number::N_bytes<b> &y) {
+        return static_cast<bytes> (x) == static_cast<bytes> (y);
+    }
+
+    template <endian::order a, math::number::complement b, endian::order c, math::number::complement d>
+    bool inline identical (const math::number::Z_bytes<a, b> &x, const math::number::Z_bytes<c, d> &y) {
+        return static_cast<bytes> (x) == static_cast<bytes> (y);
+    }
     
 }
 
@@ -431,7 +441,7 @@ namespace data::math {
     
     template <endian::order r> number::Z_bytes<r, number::complement::twos> inline 
     abs<number::Z_bytes<r, number::complement::twos>>::operator () (const number::Z_bytes<r, number::complement::twos> &x) {
-        return is_negative (x) ? -x : x;
+        return arithmetic::sign_bit (x.words ()) ? -x : x;
     }
     
     template <endian::order r> number::N_bytes<r> 
@@ -727,7 +737,7 @@ namespace data::math::number {
     }
     
     template <endian::order r> Z_bytes<r, complement::twos> inline operator - (const Z_bytes<r, complement::twos> &x) {
-        if (x.size () == 0) return x;
+        if (x.size () == 0) return Z_bytes<r, complement::twos>::zero (1, true);
         auto z = x;
         arithmetic::flip_sign_bit (z.words ());
         return z;
