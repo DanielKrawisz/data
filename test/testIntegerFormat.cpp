@@ -161,5 +161,29 @@ namespace data::encoding {
         
     }
 
+    TEST (IntegerFormatTest, TestReadHex) {
+
+        std::string hex_string {"0x0001020304"};
+
+        auto ob = *encoding::hexidecimal::read<endian::big> (hex_string);
+        auto ol = *encoding::hexidecimal::read<endian::little> (hex_string);
+
+        EXPECT_EQ (ob[0], 0);
+        EXPECT_EQ (ol[4], 0);
+        EXPECT_EQ (ob[4], 4);
+        EXPECT_EQ (ol[0], 4);
+
+        EXPECT_EQ (*ob.begin (), 0);
+        EXPECT_EQ (*ob.rbegin (), 4);
+        EXPECT_EQ (*ol.begin (), 4);
+        EXPECT_EQ (*ol.rbegin (), 0);
+
+        EXPECT_EQ (*ob.words ().begin (), 4);
+        EXPECT_EQ (*ob.words ().rbegin (), 0);
+        EXPECT_EQ (*ol.words ().begin (), 4);
+        EXPECT_EQ (*ol.words ().rbegin (), 0);
+
+    }
+
 }
 

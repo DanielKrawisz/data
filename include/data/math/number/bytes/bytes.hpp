@@ -43,22 +43,22 @@ namespace data::math::number {
     std::weak_ordering operator <=> (const Z_bytes<r, cl> &, const Z_bytes<r, cl> &);
     
     template <endian::order r> 
-    bool operator == (const N_bytes<r>&, uint64);
+    bool operator == (const N_bytes<r> &, uint64);
     
     template <endian::order r, complement c> 
-    bool operator == (const Z_bytes<r, c>&, int64);
+    bool operator == (const Z_bytes<r, c> &, int64);
     
     template <endian::order r> 
-    std::weak_ordering operator <=> (const N_bytes<r>&, uint64);
+    std::weak_ordering operator <=> (const N_bytes<r> &, uint64);
     
     template <endian::order r, complement c> 
-    std::weak_ordering operator <=> (const Z_bytes<r, c>&, int64);
+    std::weak_ordering operator <=> (const Z_bytes<r, c> &, int64);
     
     template <endian::order r> 
-    bool operator == (const N_bytes<r>&, N);
+    bool operator == (const N_bytes<r> &, N);
     
     template <endian::order r, complement c> 
-    bool operator == (const Z_bytes<r, c>&, Z);
+    bool operator == (const Z_bytes<r, c> &, Z);
     
     // bit negate
     template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const N_bytes<r> &);
@@ -252,6 +252,12 @@ namespace data {
     template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> increment (const math::number::Z_bytes<r, c> &);
     template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> decrement (const math::number::Z_bytes<r, c> &);
     
+    template <endian::order a, endian::order b>
+    bool identical (const math::number::N_bytes<a> &, const math::number::N_bytes<b> &);
+
+    template <endian::order a, math::number::complement b, endian::order c, math::number::complement d>
+    bool identical (const math::number::Z_bytes<a, b> &, const math::number::Z_bytes<c, d> &);
+
 }
 
 namespace data::math::number {
