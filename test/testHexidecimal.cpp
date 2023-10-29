@@ -670,7 +670,7 @@ namespace data::math::number {
     
     template <size_t size> struct fixed_test_comparison<complement::nones, size> {
         fixed_test_comparison (string i, string j, std::strong_ordering expected) {
-            auto cmpb = uint<endian::big, size>::read (extend(hex<complement::nones> (i), size * 2 + 2)) <=>
+            auto cmpb = uint<endian::big, size>::read (extend (hex<complement::nones> (i), size * 2 + 2)) <=>
                 uint<endian::big, size>::read (extend (hex<complement::nones> (j), size * 2 + 2));
             EXPECT_EQ (cmpb, expected);
             auto cmpl = uint<endian::little, size>::read (extend (hex<complement::nones> (i), size * 2 + 2)) <=>
@@ -784,10 +784,12 @@ namespace data::math::number {
         auto t = hex<complement::twos> {twos};
 
         // twos converted to ones should be equal (but not identical);
-        EXPECT_EQ (o, t) << "expected " << o << " to equal " << t;
-        EXPECT_EQ (static_cast <std::string> (hex<complement::twos> (o)),
-            static_cast <std::string> (t));
+        EXPECT_EQ (o, t) << "expected " << o << " to equal " << t << " ; converted to ones: " << hex<complement::ones> (t);
 
+        auto ot = static_cast <std::string> (hex<complement::twos> (o));
+        auto tt = static_cast <std::string> (t);
+        EXPECT_EQ (ot, tt) << "expected " << ot << " to equal " << tt;
+/*
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
         auto tbb = bytes_type<endian::big, complement::twos>::read (t);
 
@@ -798,7 +800,7 @@ namespace data::math::number {
         auto tbl = bytes_type<endian::little, complement::twos>::read (t);
 
         EXPECT_EQ (obl, tbl) << "expected " << std::hex << obl << " to equal " << tbl;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::twos> (obl)), static_cast<bytes> (tbl));
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::twos> (obl)), static_cast<bytes> (tbl));*/
 
     }
 
@@ -810,9 +812,11 @@ namespace data::math::number {
         auto o = hex<complement::ones> {ones};
 
         EXPECT_EQ (t, o) << "expected " << t << " to equal " << o;
-        EXPECT_EQ (static_cast <std::string> (hex<complement::ones> (t)),
-            static_cast <std::string> (o));
 
+        auto to = static_cast <std::string> (hex<complement::ones> (t));
+        auto oo = static_cast <std::string> (o);
+        EXPECT_EQ (to, oo) << "expected " << to << " === " << oo;
+/*
         auto tbb = bytes_type<endian::big, complement::twos>::read (t);
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
 
@@ -823,9 +827,9 @@ namespace data::math::number {
         auto obl = bytes_type<endian::little, complement::ones>::read (o);
 
         EXPECT_EQ (tbl, obl) << "expected " << std::hex << tbl << " to equal " << obl;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::ones> (tbl)), static_cast<bytes> (obl));
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::ones> (tbl)), static_cast<bytes> (obl));*/
     }
-/*
+
     // test conversions between complement ones and twos.
     // we try to convert the second number into the first.
     TEST (HexidecimalTest, TestComplementOnesAndTwos) {
@@ -852,20 +856,26 @@ namespace data::math::number {
         test_complement_twos_to_ones ("0x81", "0xff");
         test_complement_twos_to_ones ("0x8001", "0xff");
 
-        test_complement_ones_to_twos ("0x80", "0xff");
-        test_complement_ones_to_twos ("0xff80", "0xff");
-        test_complement_twos_to_ones ("0xff", "0x80");
-        test_complement_twos_to_ones ("0x807f", "0x80");
+        test_complement_ones_to_twos ("0x80", "0x8080");
+        test_complement_twos_to_ones ("0x8080", "0x80");
+
+        test_complement_ones_to_twos ("0x81", "0xff");
+        test_complement_twos_to_ones ("0xff", "0x81");
 
         test_complement_ones_to_twos ("0x00ff", "0x00ff");
         test_complement_ones_to_twos ("0x0080", "0x0080");
-        test_complement_twos_to_ones ("0x00ff", "0x00ff");
-        test_complement_twos_to_ones ("0x0080", "0x0080");
 
-        test_complement_ones_to_twos ("0xff7f", "0x8080");
-        test_complement_twos_to_ones ("0x8080", "0xff7f");
+        test_complement_ones_to_twos ("0xff80", "0x8080");
+        test_complement_twos_to_ones ("0x807f", "0x81");
 
-    }*/
+        test_complement_ones_to_twos ("0xff7f", "0x8081");
+        test_complement_twos_to_ones ("0x8081", "0xff7f");
+
+        test_complement_ones_to_twos ("0xfe7f", "0x8181");
+        test_complement_twos_to_ones ("0x8181", "0xfe7f");
+
+
+    }
     
     template <complement... > struct test_bit_shift;
     
@@ -888,7 +898,7 @@ namespace data::math::number {
             EXPECT_EQ (x, l);
             EXPECT_EQ (x >> bits, g);
             EXPECT_EQ (g >> bits, r);
-
+/*
             auto lbl = bytes_type<endian::little, n>::read (l);
             auto rbl = bytes_type<endian::little, n>::read (r);
             auto gbl = bytes_type<endian::little, n>::read (g);
@@ -903,11 +913,11 @@ namespace data::math::number {
             auto xbb = gbb << bits;
             EXPECT_EQ (xbb, lbb);
             EXPECT_EQ (xbb >> bits, gbb);
-            EXPECT_EQ (gbb >> bits, rbb);
+            EXPECT_EQ (gbb >> bits, rbb);*/
             
         }
     };
-/*
+
     TEST (HexidecimalTest, TestHexidecimalBitShift) {
 
         test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x", 0, "0x", "0x");
@@ -929,7 +939,7 @@ namespace data::math::number {
         test_bit_shift<complement::ones> ("0xff", 1, "0xfe", "0xff");
         test_bit_shift<complement::twos> ("0xff", 1, "0x80fe", "0xbf");
 
-    }*/
+    }
     
     template <complement... > struct test_plus;
     
