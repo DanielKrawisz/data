@@ -1502,18 +1502,18 @@ namespace data::encoding::hexidecimal {
         template <hex::letter_case zz, complement from, complement to> struct cast_complement;
 
         template <hex::letter_case zz> struct cast_complement<zz, complement::ones, complement::twos> {
-            integer<complement::ones, zz> operator () (const integer<complement::twos, zz> &x) {
-                return math::number::sign_bit_set (x) ?
-                    -integer<complement::ones, zz> (static_cast<string<zz>> (-x)):
-                    integer<complement::ones, zz> (static_cast<string<zz>> (x));
-            }
-        };
-
-        template <hex::letter_case zz> struct cast_complement<zz, complement::twos, complement::ones> {
             integer<complement::twos, zz> operator () (const integer<complement::ones, zz> &x) {
                 return math::is_negative (x) ?
                     -integer<complement::twos, zz> (static_cast<string<zz>> (-x)):
                     integer<complement::twos, zz> (static_cast<string<zz>> (x));
+            }
+        };
+
+        template <hex::letter_case zz> struct cast_complement<zz, complement::twos, complement::ones> {
+            integer<complement::ones, zz> operator () (const integer<complement::twos, zz> &x) {
+                return math::number::sign_bit_set (x) ?
+                    -integer<complement::ones, zz> (static_cast<string<zz>> (-x)):
+                    integer<complement::ones, zz> (static_cast<string<zz>> (x));
             }
         };
     }
