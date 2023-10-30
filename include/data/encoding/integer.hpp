@@ -1355,8 +1355,7 @@ namespace data::math {
     template <hex_case zz>
     hex::int2<zz> inline abs<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        if (math::number::sign_bit_set (x)) return -x;
-        return x;
+        return math::number::sign_bit_set (x) ? -x : math::number::trim (x);
     }
     
 }
@@ -1662,11 +1661,13 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case zz> 
     integer<complement::twos, zz> operator - (const integer<complement::twos, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        if (x == std::string {"0x"}) return integer<complement::twos, zz> {"0x80"};
+        if (math::is_zero (x)) return integer<complement::twos, zz> {"0x"};
+
         integer<complement::twos, zz> n = x;
         auto d = digit (x[2]);
         n[2] = hex::characters (zz)[(d & 0x7) | (~d & 0x8)];
-        return n;
+
+        return n.trim ();
     }
     
     namespace {

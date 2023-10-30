@@ -11,6 +11,7 @@ namespace data::math::number {
         {is_minimal (z)} -> std::same_as<bool>;
     } struct test_minimal {
         test_minimal () {
+
             EXPECT_TRUE (is_minimal (Z {string {"0x"}}));
             EXPECT_FALSE (is_minimal (Z {string {"0x00"}}));
             EXPECT_TRUE (is_minimal (Z {string {"0x01"}}));
@@ -110,16 +111,30 @@ namespace data::math::number {
         { -z } -> std::same_as<Z>;
     } struct test_negate : virtual test_zero<Z> {
         test_negate () {
-            // required that -0 => negative zero and -(negative zero) -> 0.
-            EXPECT_TRUE (data::identical (-Z::zero (1, true), Z::zero (1, false)));
-            EXPECT_TRUE (data::identical (-Z::zero (2, true), Z::zero (2, false)));
-            EXPECT_TRUE (data::identical (-Z::zero (3, true), Z::zero (3, false)));
 
-            EXPECT_TRUE (data::identical (-Z::zero (1, false), Z::zero (1, true)));
-            EXPECT_TRUE (data::identical (-Z::zero (2, false), Z::zero (2, true)));
-            EXPECT_TRUE (data::identical (-Z::zero (3, false), Z::zero (3, true)));
+            // negate always converts to the minimal representation.
+            auto zero0 = Z::zero (0, false);
+            auto neg_zero0 = -zero0;
 
-            // negative numbers should be the same size. (not minimal)
+            EXPECT_TRUE (data::identical (neg_zero0, zero0)) << "expected " << neg_zero0 << " === " << zero0;
+
+            EXPECT_TRUE (data::identical (-Z::zero (1, false), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (2, false), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (3, false), zero0));
+
+            EXPECT_TRUE (data::identical (-Z::zero (1, true), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (2, true), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (3, true), zero0));
+
+            EXPECT_TRUE (data::identical (-Z::read ("0x01"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x81"), Z::read ("0x01")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x0001"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x8001"), Z::read ("0x01")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x000001"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x800001"), Z::read ("0x01")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x00000001"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x80000001"), Z::read ("0x01")));
+
         }
     };
     
@@ -140,13 +155,23 @@ namespace data::math::number {
     } struct test_abs : virtual test_zero<Z> {
         test_abs () {
 
-            {
-                // abs must convert negative zero to positive zero.
-                EXPECT_TRUE (identical (data::abs (Z::zero (1, true)), Z::zero (1, false)));
-                EXPECT_TRUE (identical (data::abs (Z::zero (2, true)), Z::zero (2, false)));
-                EXPECT_TRUE (identical (data::abs (Z::zero (3, true)), Z::zero (3, false)));
+            // abs always converts to the minimal representation.
 
-            }
+            auto zero0 = Z::zero (0, false);
+            auto abs_zero1neg = data::abs (Z::zero (1, true));
+
+            EXPECT_TRUE (identical (abs_zero1neg, zero0)) << "expected " << abs_zero1neg << " === " << zero0;
+            EXPECT_TRUE (identical (data::abs (Z::zero (2, true)), zero0));
+            EXPECT_TRUE (identical (data::abs (Z::zero (3, true)), zero0));
+
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x01")), Z::read ("0x01")));
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x0001")), Z::read ("0x01")));
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x000001")), Z::read ("0x01")));
+
+            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x81")), -Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x8001")), -Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x800001")), -Z::read ("0x81")));
+
         }
     };
 
