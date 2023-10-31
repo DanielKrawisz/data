@@ -426,6 +426,7 @@ namespace data::math::number {
     
     template <size_t size> struct test_bit_xor_fixed<complement::ones, size> {
         test_bit_xor_fixed (string left, string right, string expected) {
+
             auto l = extend (hex<complement::ones> {left}, size * 2 + 2);
             auto r = extend (hex<complement::ones> {right}, size * 2 + 2);
             auto e = extend (hex<complement::ones> {expected}, size * 2 + 2);
@@ -443,11 +444,13 @@ namespace data::math::number {
             
             auto xb = lb ^ rb;
             EXPECT_EQ (xb, eb) << "expected " << xb << " to equal " << eb;
+
         }
     };
     
     template <> struct test_bit_xor<complement::ones> {
         test_bit_xor (string left, string right, string expected) {
+
             auto l = hex<complement::ones> {left};
             auto r = hex<complement::ones> {right};
             auto e = hex<complement::ones> {expected};
@@ -467,11 +470,13 @@ namespace data::math::number {
             test_bit_xor_fixed<complement::ones, 11> (l, r, e);
             test_bit_xor_fixed<complement::ones, 12> (l, r, e);
             test_bit_xor_fixed<complement::ones, 13> (l, r, e);
+
         }
     };
     
     template <> struct test_bit_xor<complement::nones> {
         test_bit_xor (string left, string right, string expected) {
+
             auto l = hex<complement::nones> {left};
             auto r = hex<complement::nones> {right};
             auto e = hex<complement::nones> {expected};
@@ -480,14 +485,17 @@ namespace data::math::number {
             test_bit_xor_fixed<complement::nones, 11> (l, r, e);
             test_bit_xor_fixed<complement::nones, 12> (l, r, e);
             test_bit_xor_fixed<complement::nones, 13> (l, r, e);
+
         }
     };
 
     TEST (HexidecimalTest, TestHexBitXor) {
+
         test_bit_negate<complement::nones, complement::ones> {"0x", "0xff"};
         test_bit_xor<complement::nones, complement::ones> {"0x", "0x", "0x"};
         test_bit_xor<complement::nones, complement::ones> {"0xff", "0xff", "0x"};
         test_bit_xor<complement::nones, complement::ones> {"0x", "0xff", "0xff"};
+
     }
     
     template <complement n, size_t size> struct test_increment_fixed;
@@ -834,7 +842,7 @@ namespace data::math::number {
         auto ot = static_cast <std::string> (hex<complement::twos> (o));
         auto tt = static_cast <std::string> (t);
         EXPECT_EQ (ot, tt) << "expected " << ot << " to equal " << tt;
-/*
+
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
         auto tbb = bytes_type<endian::big, complement::twos>::read (t);
 
@@ -845,7 +853,7 @@ namespace data::math::number {
         auto tbl = bytes_type<endian::little, complement::twos>::read (t);
 
         EXPECT_EQ (obl, tbl) << "expected " << std::hex << obl << " to equal " << tbl;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::twos> (obl)), static_cast<bytes> (tbl));*/
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::twos> (obl)), static_cast<bytes> (tbl));
 
     }
 
@@ -861,18 +869,23 @@ namespace data::math::number {
         auto to = static_cast <std::string> (hex<complement::ones> (t));
         auto oo = static_cast <std::string> (o);
         EXPECT_EQ (to, oo) << "expected " << to << " === " << oo;
-/*
+
         auto tbb = bytes_type<endian::big, complement::twos>::read (t);
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
 
         EXPECT_EQ (tbb, obb) << "expected " << std::hex << tbb << " to equal " << obb;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::big, complement::ones> (tbb)), static_cast<bytes> (obb));
+
+        auto otbb = static_cast<bytes> (bytes_type<endian::big, complement::ones> (tbb));
+        auto ttbb = static_cast<bytes> (obb);
+        EXPECT_EQ (otbb, ttbb) << "expected " << otbb << " === " << ttbb;
 
         auto tbl = bytes_type<endian::little, complement::twos>::read (t);
         auto obl = bytes_type<endian::little, complement::ones>::read (o);
 
         EXPECT_EQ (tbl, obl) << "expected " << std::hex << tbl << " to equal " << obl;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::ones> (tbl)), static_cast<bytes> (obl));*/
+        auto otbl = static_cast<bytes> (bytes_type<endian::little, complement::ones> (tbl));
+        auto ttbl = static_cast<bytes> (obl);
+        EXPECT_EQ (otbl, ttbl) << "expected " << otbl << " === " << ttbl;
     }
 
     // test conversions between complement ones and twos.
@@ -935,6 +948,7 @@ namespace data::math::number {
     
     template <complement n> struct test_bit_shift<n> {
         test_bit_shift (string given, byte bits, string expected_left, string expected_right) {
+
             auto l = hex<n> {expected_left};
             auto r = hex<n> {expected_right};
             auto g = hex<n> {given};
@@ -1134,7 +1148,7 @@ namespace data::math::number {
         test_minus<complement::ones> {"0xff", "0x00ff", "0xff00"};
 
         test_minus<complement::nones, complement::ones> {"0x80", "0x", "0x80"};
-        //test_minus<complement::twos> {"0x80", "0x", "0x"};
+        test_minus<complement::twos> {"0x80", "0x", "0x"};
 
         test_minus<complement::twos> {"0x", "0x01", "0x81"};
         test_minus<complement::twos> {"0x8000", "0x01", "0x81"};
@@ -1438,10 +1452,8 @@ namespace data {
             auto nh = -h;
             auto nn = -n;
             
-            if constexpr (c == math::number::complement::ones) {
-                EXPECT_TRUE (math::number::is_minimal (nh));
-                EXPECT_TRUE (math::number::is_minimal (nn));
-            }
+            EXPECT_TRUE (math::number::is_minimal (nh));
+            EXPECT_TRUE (math::number::is_minimal (nn));
             
             EXPECT_EQ (N::read (nh), nn);
             auto nnh = encoding::hexidecimal::integer<c, hex_case::lower>

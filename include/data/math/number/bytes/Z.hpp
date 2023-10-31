@@ -971,6 +971,7 @@ namespace data::math::number {
     
     template <endian::order r> 
     inline Z_bytes<r, complement::twos>::operator Z_bytes<r, complement::ones> () const {
+        if (is_zero (*this)) return Z_bytes<r, complement::ones>::zero ();
         if (is_negative (*this)) return -Z_bytes<r, complement::ones> (data::abs (*this));
         auto z = Z_bytes<r, complement::ones>::zero (this->size ());
         std::copy (this->begin (), this->end (), z.begin ());
