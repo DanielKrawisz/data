@@ -45,25 +45,81 @@ namespace data::math::number {
 
         }
     };
-    
-    template <typename Z> requires requires (const Z &a, const Z &b) {
-        {a == b} -> std::same_as<bool>;
-        {a != b} -> std::same_as<bool>;
-    } struct test_equal {
-        test_equal () {
+
+    template <typename Z> requires requires (const Z &z) {
+        { -z } -> std::same_as<Z>;
+    } struct test_negate : virtual test_zero<Z> {
+        test_negate () {
+
+            // negate always converts to the minimal representation.
+            auto zero0 = Z::zero (0, false);
+            auto neg_zero0 = -zero0;
+
+            EXPECT_TRUE (data::identical (neg_zero0, zero0)) << "expected " << neg_zero0 << " === " << zero0;
+
+            EXPECT_TRUE (data::identical (-Z::zero (1, false), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (2, false), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (3, false), zero0));
+
+            EXPECT_TRUE (data::identical (-Z::zero (1, true), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (2, true), zero0));
+            EXPECT_TRUE (data::identical (-Z::zero (3, true), zero0));
+
+            EXPECT_TRUE (data::identical (-Z::read ("0x01"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x81"), Z::read ("0x01")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x0001"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x8001"), Z::read ("0x01")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x000001"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x800001"), Z::read ("0x01")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x00000001"), Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (-Z::read ("0x80000001"), Z::read ("0x01")));
+
+        }
+    };
+
+    template <typename Z> requires requires (const Z &z) {
+        { data::abs (z) } -> std::convertible_to<Z>;
+    } struct test_abs : virtual test_zero<Z> {
+        test_abs () {
+
+            // abs always converts to the minimal representation.
+
+            auto zero0 = Z::zero (0, false);
+            auto abs_zero1neg = data::abs (Z::zero (1, true));
+
+            EXPECT_TRUE (identical (abs_zero1neg, zero0)) << "expected " << abs_zero1neg << " === " << zero0;
+            EXPECT_TRUE (identical (data::abs (Z::zero (2, true)), zero0));
+            EXPECT_TRUE (identical (data::abs (Z::zero (3, true)), zero0));
+
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x01")), Z::read ("0x01")));
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x0001")), Z::read ("0x01")));
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x000001")), Z::read ("0x01")));
+
+            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x81")), -Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x8001")), -Z::read ("0x81")));
+            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x800001")), -Z::read ("0x81")));
+
+        }
+    };
+
+    template <typename Z> requires requires (const Z &z) {
+        { increment (z) } -> std::same_as<Z>;
+        { decrement (z) } -> std::same_as<Z>;
+    } struct test_increment_and_decrement {
+        test_increment_and_decrement () {
 
         }
     };
     
     template <typename Z> requires requires (const Z &a, const Z &b) {
+        {a == b} -> std::same_as<bool>;
+        {a != b} -> std::same_as<bool>;
         {a < b} -> std::same_as<bool>;
         {a > b} -> std::same_as<bool>;
         {a <= b} -> std::same_as<bool>;
         {a >= b} -> std::same_as<bool>;
     } struct test_compare {
-        test_compare () {
-
-        }
+        test_compare () {}
     };
     
     template <typename Z> requires requires (const Z &a, const Z &b) {
@@ -97,47 +153,7 @@ namespace data::math::number {
 
         }
     };
-    
-    template <typename Z> requires requires (const Z &z) {
-        { increment (z) } -> std::same_as<Z>;
-        { decrement (z) } -> std::same_as<Z>;
-    } struct test_increment_and_decrement {
-        test_increment_and_decrement () {
-            // what does 0x81 increment to? 0x or 0x00 or 0x80?
-        }
-    };
-    
-    template <typename Z> requires requires (const Z &z) {
-        { -z } -> std::same_as<Z>;
-    } struct test_negate : virtual test_zero<Z> {
-        test_negate () {
 
-            // negate always converts to the minimal representation.
-            auto zero0 = Z::zero (0, false);
-            auto neg_zero0 = -zero0;
-
-            EXPECT_TRUE (data::identical (neg_zero0, zero0)) << "expected " << neg_zero0 << " === " << zero0;
-
-            EXPECT_TRUE (data::identical (-Z::zero (1, false), zero0));
-            EXPECT_TRUE (data::identical (-Z::zero (2, false), zero0));
-            EXPECT_TRUE (data::identical (-Z::zero (3, false), zero0));
-
-            EXPECT_TRUE (data::identical (-Z::zero (1, true), zero0));
-            EXPECT_TRUE (data::identical (-Z::zero (2, true), zero0));
-            EXPECT_TRUE (data::identical (-Z::zero (3, true), zero0));
-
-            EXPECT_TRUE (data::identical (-Z::read ("0x01"), Z::read ("0x81")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x81"), Z::read ("0x01")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x0001"), Z::read ("0x81")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x8001"), Z::read ("0x01")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x000001"), Z::read ("0x81")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x800001"), Z::read ("0x01")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x00000001"), Z::read ("0x81")));
-            EXPECT_TRUE (data::identical (-Z::read ("0x80000001"), Z::read ("0x01")));
-
-        }
-    };
-    
     template <typename Z> requires requires (const Z &a, const Z &b) {
         { a + b } -> std::same_as<Z>;
         { a - b } -> std::same_as<Z>;
@@ -150,40 +166,14 @@ namespace data::math::number {
         }
     };
 
-    template <typename Z> requires requires (const Z &z) {
-        { data::abs (z) } -> std::convertible_to<Z>;
-    } struct test_abs : virtual test_zero<Z> {
-        test_abs () {
-
-            // abs always converts to the minimal representation.
-
-            auto zero0 = Z::zero (0, false);
-            auto abs_zero1neg = data::abs (Z::zero (1, true));
-
-            EXPECT_TRUE (identical (abs_zero1neg, zero0)) << "expected " << abs_zero1neg << " === " << zero0;
-            EXPECT_TRUE (identical (data::abs (Z::zero (2, true)), zero0));
-            EXPECT_TRUE (identical (data::abs (Z::zero (3, true)), zero0));
-
-            EXPECT_TRUE (identical (data::abs (Z::read ("0x01")), Z::read ("0x01")));
-            EXPECT_TRUE (identical (data::abs (Z::read ("0x0001")), Z::read ("0x01")));
-            EXPECT_TRUE (identical (data::abs (Z::read ("0x000001")), Z::read ("0x01")));
-
-            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x81")), -Z::read ("0x81")));
-            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x8001")), -Z::read ("0x81")));
-            EXPECT_TRUE (data::identical (data::abs (Z::read ("0x800001")), -Z::read ("0x81")));
-
-        }
-    };
-
     template <typename Z>
     struct test_twos_complement :
-        test_abs<Z>, test_arithmetic<Z>, test_negate<Z>,
-        test_increment_and_decrement<Z>, //test_bit_logic<Z>,
-        //test_logic<Z>, test_min_max<Z>,
-        test_compare<Z>, test_equal<Z>, test_minimal<Z> {
-        test_twos_complement () {
-
-        }
+        test_negate<Z>, test_abs<Z>,
+        test_increment_and_decrement<Z>,
+        test_arithmetic<Z>,
+        //test_bit_logic<Z>, test_logic<Z>, test_min_max<Z>,
+        test_compare<Z>, test_minimal<Z> {
+        test_twos_complement () {}
     };
     
     TEST (TwosComplementTest, TestTwosComplement) {
