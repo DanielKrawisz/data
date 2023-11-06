@@ -556,11 +556,6 @@ namespace data::math::number {
 
         }
     };
-
-    template <> struct test_increment_bytes<complement::twos> {
-        // TODO fill this in when we do complement twos.
-        test_increment_bytes (string given, string expected) {}
-    };
     
     template <size_t size> struct test_increment_fixed<complement::nones, size> {
         test_increment_fixed (hex<complement::nones> given, hex<complement::nones> expected) {
@@ -1048,11 +1043,6 @@ namespace data::math::number {
         }
     };
 
-    // TODO remember to remove this when we do complement twos.
-    template <> struct test_plus_bytes<complement::twos> {
-        test_plus_bytes (string left, string right, string expected) {}
-    };
-
     TEST (HexidecimalTest, TestHexidecimalPlus) {
 
         test_plus<complement::nones, complement::ones, complement::twos> ("0x", "0x", "0x");
@@ -1444,10 +1434,11 @@ namespace data {
             EXPECT_TRUE (math::number::is_minimal (hmm));
             EXPECT_TRUE (math::number::is_minimal (nmm));
             
-            EXPECT_EQ (N::read (hmm), nmm);
+            auto hnm = N::read (hmm);
+            EXPECT_EQ (hnm, nmm) << std::hex << "expected " << hnm << " == " << nmm;
             auto hhmm = encoding::hexidecimal::integer<c, hex_case::lower>
                 {encoding::hexidecimal::write<hex_case::lower> (nmm)};
-            EXPECT_EQ (hmm, hhmm);
+            EXPECT_EQ (hmm, hhmm) << std::hex << "expected " << hmm << " == " << hhmm;
             
             auto hpp = increment (hmm);
             auto npp = increment (nmm);
@@ -1562,13 +1553,14 @@ namespace data {
 
     TEST (HexidecimalTest, TestHexReadAndWriteBytes) {
         list<string> cases {
-            "0x", "0x00", "0x0000", "0xff", "0x00ff", "0xffff", "0x80", "0x8000", "0x0080", "0x01", "0x0001", "0x81", "0x8001"};
+            "0x", "0x00", "0x0000", "0xc0", "0xff", "0x00ff", "0xffff",
+            "0x80", "0x8000", "0x0080", "0x01", "0x0001", "0x81", "0x8001"};
         test_hex_read_and_write_bytes<N_bytes_little> (cases);
         test_hex_read_and_write_bytes<N_bytes_big> (cases);
         test_hex_read_and_write_bytes<Z_bytes_little> (cases);
         test_hex_read_and_write_bytes<Z_bytes_big> (cases);
-        //test_hex_read_and_write_bytes<Z_bytes_twos_little> (cases);
-        //test_hex_read_and_write_bytes<Z_bytes_twos_big> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_twos_little> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_twos_big> (cases);
     }
 
 }

@@ -1023,6 +1023,7 @@ namespace data::math::number {
     }
     
     template <endian::order r> Z_bytes<r, complement::twos> &operator ++ (Z_bytes<r, complement::twos> &x) {
+
         if (is_zero (x)) return x = Z_bytes<r, complement::twos> {1};
         if (arithmetic::sign_bit (x.words ())) return x = -decrement (-x);
 
@@ -1031,8 +1032,18 @@ namespace data::math::number {
         
         auto remainder = data::arithmetic::plus<byte> (x.words ().end (), oit, 1, iit);
         if (remainder != 0) {
-            x = extend (x, x.size () + 1);
-            x.words ()[-1] = remainder;
+            Z_bytes<r, complement::twos> n = Z_bytes<r, complement::twos>::zero (x.size () + 1);
+            auto xw = x.words ();
+            auto nw = n.words ();
+            std::copy (xw.begin (), xw.end (), nw.begin ());
+            n.words ()[-1] = remainder;
+            x = n;
+        } else if (arithmetic::sign_bit (x.words ())) {
+            Z_bytes<r, complement::twos> n = Z_bytes<r, complement::twos>::zero (x.size () + 1);
+            auto xw = x.words ();
+            auto nw = n.words ();
+            std::copy (xw.begin (), xw.end (), nw.begin ());
+            x = n;
         }
         
         return x = trim (x);
