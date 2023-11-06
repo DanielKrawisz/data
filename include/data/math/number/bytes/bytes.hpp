@@ -62,7 +62,7 @@ namespace data::math::number {
     
     // bit negate
     template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const N_bytes<r> &);
-    template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const Z_bytes<r, complement::ones> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator ~ (const Z_bytes<r, c> &);
     
     // bit xor
     template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const N_bytes<r> &, const N_bytes<r> &);
@@ -94,6 +94,15 @@ namespace data::math::number {
     template <endian::order r> Z_bytes<r, complement::ones> operator - (const N_bytes<r> &);
     template <endian::order r> Z_bytes<r, complement::ones> operator - (const Z_bytes<r, complement::ones> &);
     template <endian::order r> Z_bytes<r, complement::twos> operator - (const Z_bytes<r, complement::twos> &);
+
+    template <endian::order r>
+    Z_bytes<r, complement::twos> operator ! (const Z_bytes<r, complement::twos> &);
+
+    template <endian::order r> Z_bytes<r, complement::twos> operator &&
+        (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
+
+    template <endian::order r> Z_bytes<r, complement::twos> operator ||
+        (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
     
     template <endian::order r> 
     N_bytes<r> operator + (const N_bytes<r> &, const N_bytes<r> &);
