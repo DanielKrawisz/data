@@ -107,8 +107,20 @@ namespace data::math::number {
         { decrement (z) } -> std::same_as<Z>;
     } struct test_increment_and_decrement {
         test_increment_and_decrement () {
-
+/*
+            test_increment ("0x", "0x01");
+            test_increment ("0x00", "0x01");
+            test_increment ("0x0000", "0x01");
+            test_increment ("0x01", "0x02");
+            test_increment ("0x00ff", "0x0100");
+            test_increment ("0x80", "0x01");
+            test_increment ("0x81", "0x");
+            test_increment ("0x82", "0x81");
+            test_increment ("0x7f", "0x0080");
+            test_increment ("0x8080", "0xff");*/
         }
+
+        void test_increment (const std::string &from, const std::string &to);
     };
     
     template <typename Z> requires requires (const Z &a, const Z &b) {
