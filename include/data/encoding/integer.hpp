@@ -292,11 +292,20 @@ namespace data::encoding {
         template <hex::letter_case cx> 
         integer<complement::twos, cx> operator - (const integer<complement::twos, cx> &);
         
-        template <hex::letter_case cx> 
+        template <hex::letter_case cx>
         integer<complement::ones, cx> operator ~ (const integer<complement::ones, cx> &);
         
         template <hex::letter_case cx> integer<complement::ones, cx> operator ^
             (const integer<complement::ones, cx> &, const integer<complement::ones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<complement::twos, cx> operator ! (const integer<complement::twos, cx> &);
+
+        template <hex::letter_case cx> integer<complement::twos, cx> operator &&
+            (const integer<complement::twos, cx> &, const integer<complement::twos, cx> &);
+
+        template <hex::letter_case cx> integer<complement::twos, cx> operator ||
+            (const integer<complement::twos, cx> &, const integer<complement::twos, cx> &);
         
         template <hex::letter_case cx> 
         integer<complement::ones, cx> operator + (const integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
@@ -1617,7 +1626,7 @@ namespace data::math::number {
     template <hex_case cx>
     encoding::hexidecimal::integer<number::complement::twos, cx> 
     trim (const encoding::hexidecimal::integer<number::complement::twos, cx> &x) {
-        
+
         if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         if (is_minimal (x)) return x;
         
@@ -1645,7 +1654,7 @@ namespace data::math::number {
 
 namespace data::encoding::hexidecimal {
     
-    template <hex::letter_case zz> 
+    template <hex::letter_case zz>
     integer<complement::ones, zz> operator ~ (const integer<complement::ones, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         if (x == std::string {"0x"}) return integer<complement::ones, zz> {std::string {"0xff"}};
@@ -1880,9 +1889,7 @@ namespace data::encoding::hexidecimal {
         
         template <hex::letter_case zz> 
         integer<complement::twos, zz> inline bit_shift (const integer<complement::twos, zz> &x, int i) {
-            return math::is_negative (x) ?
-                -integer<complement::twos, zz> {shift (-x, i)} :
-                integer<complement::twos, zz> {shift (x, i)};
+            return integer<complement::twos, zz> (bit_shift (integer<complement::ones, zz> (x), i));
         }
         
         template <complement c, hex::letter_case zz> struct add;
@@ -2109,20 +2116,26 @@ namespace data::encoding::hexidecimal {
     
     template <hex::letter_case zz> 
     integer<complement::twos, zz> &operator ++ (integer<complement::twos, zz> &x) {
+
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         if (math::is_negative (x)) return x = -decrement (-x);
         if (math::is_negative_zero (x)) return x = integer<complement::twos, zz> {"0x01"};
         
         char remainder = N_increment (x);
-        integer<complement::twos, zz> n {};
-        n.resize (x.size() + 2);
-        std::copy (x.begin() + 2, x.end (), n.begin () + 4);
         if (remainder != '0') {
+            integer<complement::twos, zz> n;
+            n.resize (x.size () + 2);
+            std::copy (x.begin () + 2, x.end (), n.begin () + 4);
+
             n[2] = '0';
             n[3] = remainder;
             x = n;
-        } else if (math::is_negative (x)) {
+        } else if (math::number::sign_bit_set (x)) {
+            integer<complement::twos, zz> n;
+            n.resize (x.size () + 2);
+            std::copy (x.begin () + 2, x.end (), n.begin () + 4);
+
             n[2] = '0';
             n[3] = '0';
             x = n;
@@ -2133,8 +2146,9 @@ namespace data::encoding::hexidecimal {
     
     template <hex::letter_case zz> 
     integer<complement::twos, zz> &operator -- (integer<complement::twos, zz> &x) {
-        if (math::is_negative (x)) return x = -increment (-x);
+
         if (math::is_zero (x)) return x = integer<complement::twos, zz> {"0x81"};
+        if (math::is_negative (x)) return x = -increment (-x);
         N_decrement (x);
         return x.trim ();
     }

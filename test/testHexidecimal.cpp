@@ -447,7 +447,7 @@ namespace data::math::number {
 
         }
     };
-    
+
     template <> struct test_bit_xor<complement::ones> {
         test_bit_xor (string left, string right, string expected) {
 
@@ -506,13 +506,13 @@ namespace data::math::number {
     
     template <complement n> struct test_increment<n> {
         test_increment (string given, string expected) {
-            
+
             auto gh = hex<n> {given};
             auto ih = increment (gh);
             auto dh = decrement (ih);
             
             EXPECT_EQ (static_cast<string> (ih), expected) << "expected " << given << " to increment to " << expected ;
-            EXPECT_EQ (dh, gh);
+            EXPECT_EQ (dh, gh) << "expected " << dh << " == " << gh << std::endl;
             EXPECT_TRUE (is_minimal (ih));
             EXPECT_TRUE (is_minimal (dh));
 
@@ -622,9 +622,12 @@ namespace data::math::number {
         test_increment<complement::ones> {"0xffff", "0x"};
         test_increment<complement::ones> {"0x7f", "0x0080"};
         test_increment<complement::ones> {"0x80", "0x81"};
+        test_increment<complement::ones> {"0xfe", "0xff"};
         test_increment<complement::twos> {"0x80", "0x01"};
         test_increment<complement::twos> {"0x81", "0x"};
         test_increment<complement::twos> {"0x82", "0x81"};
+        test_increment<complement::twos> {"0x7f", "0x0080"};
+        test_increment<complement::twos> {"0x8080", "0xff"};
 
         // TODO need to test that decrement 0 is 0 for unsigned numbers.
 
@@ -920,6 +923,9 @@ namespace data::math::number {
         test_complement_ones_to_twos ("0x81", "0xff");
         test_complement_twos_to_ones ("0xff", "0x81");
 
+        test_complement_ones_to_twos ("0xc0", "0xc0");
+        test_complement_twos_to_ones ("0xc0", "0xc0");
+
         test_complement_ones_to_twos ("0x00ff", "0x00ff");
         test_complement_ones_to_twos ("0x0080", "0x0080");
 
@@ -955,16 +961,16 @@ namespace data::math::number {
             auto x = g << bits;
 
             EXPECT_EQ (x, l);
-            EXPECT_EQ (x >> bits, g);
-            EXPECT_EQ (g >> bits, r);
-/*
+            EXPECT_EQ (x >> bits, g) << "expected " << x << " >> " << uint64 (bits) << " => " << g;
+            EXPECT_EQ (g >> bits, r) << "expected " << g << " >> " << uint64 (bits) << " => " << r;
+
             auto lbl = bytes_type<endian::little, n>::read (l);
             auto rbl = bytes_type<endian::little, n>::read (r);
             auto gbl = bytes_type<endian::little, n>::read (g);
             auto xbl = gbl << bits;
             EXPECT_EQ (xbl, lbl);
             EXPECT_EQ (xbl >> bits, gbl);
-            EXPECT_EQ (gbl >> bits, rbl);
+            EXPECT_EQ (gbl >> bits, rbl) << "expected " << std::hex << gbl << " >> " << uint64 (bits) << " => " << rbl;
             
             auto lbb = bytes_type<endian::big, n>::read (l);
             auto rbb = bytes_type<endian::big, n>::read (r);
@@ -972,7 +978,7 @@ namespace data::math::number {
             auto xbb = gbb << bits;
             EXPECT_EQ (xbb, lbb);
             EXPECT_EQ (xbb >> bits, gbb);
-            EXPECT_EQ (gbb >> bits, rbb);*/
+            EXPECT_EQ (gbb >> bits, rbb) << "expected " << std::hex << gbb << " >> " << uint64 (bits) << " => " << rbb;
             
         }
     };
@@ -996,7 +1002,7 @@ namespace data::math::number {
         test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 18, "0x0c000000", "0x");
         test_bit_shift<complement::nones> ("0xff", 1, "0x01fe", "0x7f");
         test_bit_shift<complement::ones> ("0xff", 1, "0xfe", "0xff");
-        test_bit_shift<complement::twos> ("0xff", 1, "0x80fe", "0xbf");
+        test_bit_shift<complement::twos> ("0xff", 1, "0x80fe", "0xc0");
 
     }
     
@@ -1446,8 +1452,8 @@ namespace data {
             auto hpp = increment (hmm);
             auto npp = increment (nmm);
 
-            EXPECT_EQ (n, npp);
-            EXPECT_EQ (h, hpp);
+            EXPECT_EQ (n, npp) << "expected " << std::hex << n << " == " << npp;
+            EXPECT_EQ (h, hpp) << "expected " << std::hex << h << " == " << hpp;
             
             auto nh = -h;
             auto nn = -n;

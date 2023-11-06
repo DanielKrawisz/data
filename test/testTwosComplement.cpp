@@ -123,8 +123,8 @@ namespace data::math::number {
     };
     
     template <typename Z> requires requires (const Z &a, const Z &b) {
-        { std::min (a, b) } -> std::same_as<Z>;
-        { std::max (a, b) } -> std::same_as<Z>;
+        { std::min (a, b) } -> std::convertible_to<Z>;
+        { std::max (a, b) } -> std::convertible_to<Z>;
     } struct test_min_max {
         test_min_max () {
 
@@ -139,17 +139,6 @@ namespace data::math::number {
         { !a } -> std::same_as<Z>;
     } struct test_logic {
         test_logic () {
-
-        }
-    };
-    
-    template <typename Z> requires requires (const Z &a, const Z &b) {
-        { a & b } -> std::same_as<Z>;
-        { a | b } -> std::same_as<Z>;
-    } && requires (const Z &a) {
-        { ~a } -> std::same_as<Z>;
-    } struct test_bit_logic {
-        test_bit_logic () {
 
         }
     };
@@ -168,11 +157,10 @@ namespace data::math::number {
 
     template <typename Z>
     struct test_twos_complement :
-        test_negate<Z>, test_abs<Z>,
+        test_minimal<Z>, test_negate<Z>, test_abs<Z>,
         test_increment_and_decrement<Z>,
-        test_arithmetic<Z>,
-        //test_bit_logic<Z>, test_logic<Z>, test_min_max<Z>,
-        test_compare<Z>, test_minimal<Z> {
+        test_arithmetic<Z>, test_min_max<Z>,
+        test_logic<Z>, test_compare<Z> {
         test_twos_complement () {}
     };
     
