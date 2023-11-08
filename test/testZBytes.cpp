@@ -264,7 +264,7 @@ namespace data {
             auto zb = Z_bytes_twos_big::read (str);
             auto zl = Z_bytes_twos_little::read (str);
 
-            EXPECT_EQ (zb, 0);
+            EXPECT_EQ (zb, 0) << "expected " << std::hex << zb << " to be zero.";
             EXPECT_EQ (data::sign (zb), math::zero);
 
             EXPECT_EQ (zl, 0);
@@ -273,8 +273,10 @@ namespace data {
             EXPECT_EQ (data::abs (zb), 0);
             EXPECT_EQ (data::abs (zl), 0);
 
-            EXPECT_EQ (encoding::signed_decimal::write (zb), "0");
-            EXPECT_EQ (encoding::signed_decimal::write (zl), "0");
+            auto write_zb = encoding::signed_decimal::write (zb);
+            auto write_zl = encoding::signed_decimal::write (zl);
+            EXPECT_EQ (write_zb, "0") << "expected " << std::hex << zb << " to write as " << write_zb;
+            EXPECT_EQ (write_zl, "0") << "expected " << std::hex << zl << " to write as " << write_zl;
         }
     }
     

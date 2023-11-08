@@ -107,22 +107,38 @@ namespace data::math::number {
         { decrement (z) } -> std::same_as<Z>;
     } struct test_increment_and_decrement {
         test_increment_and_decrement () {
-/*
+
             test_increment ("0x", "0x01");
             test_increment ("0x00", "0x01");
             test_increment ("0x0000", "0x01");
             test_increment ("0x01", "0x02");
+            test_increment ("0x0001", "0x02");
             test_increment ("0x00ff", "0x0100");
             test_increment ("0x80", "0x01");
+            test_increment ("0x8000", "0x01");
             test_increment ("0x81", "0x");
             test_increment ("0x82", "0x81");
             test_increment ("0x7f", "0x0080");
-            test_increment ("0x8080", "0xff");*/
+            test_increment ("0x8080", "0xff");
+            test_increment ("0x800080", "0xff");
         }
 
-        void test_increment (const std::string &from, const std::string &to);
+        void test_increment (const std::string &from, const std::string &to) {
+            Z given = Z::read (from);
+            Z expected = Z::read (to);
+
+            Z incremented = increment (given);
+            Z decremented = decrement (expected);
+
+            EXPECT_TRUE (is_minimal (incremented));
+            EXPECT_TRUE (is_minimal (decremented));
+
+            EXPECT_EQ (expected, incremented);
+            EXPECT_EQ (given, decremented);
+        }
     };
     
+    // adequetly tested in hexidecimal tests
     template <typename Z> requires requires (const Z &a, const Z &b) {
         {a == b} -> std::same_as<bool>;
         {a != b} -> std::same_as<bool>;
@@ -143,18 +159,39 @@ namespace data::math::number {
         }
     };
     
-    // TODO need xor and not zero.
+    // anything other than zero is true. All types of zeros are false.
     template <typename Z> requires requires (const Z &a, const Z &b) {
         { a && b } -> std::same_as<Z>;
         { a || b } -> std::same_as<Z>;
     } && requires (const Z &a) {
         { !a } -> std::same_as<Z>;
-    } struct test_logic {
+    } struct test_logic : virtual test_zero<Z> {
         test_logic () {
+
+            EXPECT_FALSE (bool (Z::zero (1, false)));
+            EXPECT_FALSE (bool (Z::zero (2, false)));
+            EXPECT_FALSE (bool (Z::zero (3, false)));
+
+            EXPECT_FALSE (bool (Z::zero (1, true)));
+            EXPECT_FALSE (bool (Z::zero (2, true)));
+            EXPECT_FALSE (bool (Z::zero (3, true)));
+
+            EXPECT_TRUE (bool (Z::read ("0x01")));
+            EXPECT_TRUE (bool (Z::read ("0x81")));
+            EXPECT_TRUE (bool (Z::read ("0x0002")));
+            EXPECT_TRUE (bool (Z::read ("0x8002")));
+
+            EXPECT_EQ (!Z::read ("0x"), Z::read ("0x01"));
+            EXPECT_EQ (!Z::read ("0x00"), Z::read ("0x01"));
+            EXPECT_EQ (!Z::read ("0x80"), Z::read ("0x01"));
+            EXPECT_EQ (!Z::read ("0x01"), Z::read ("0x"));
+            EXPECT_EQ (!Z::read ("0x0009"), Z::read ("0x"));
+            EXPECT_EQ (!Z::read ("0x80cc"), Z::read ("0x"));
 
         }
     };
 
+    // adequetly tested elsewhere
     template <typename Z> requires requires (const Z &a, const Z &b) {
         { a + b } -> std::same_as<Z>;
         { a - b } -> std::same_as<Z>;

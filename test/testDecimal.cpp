@@ -50,7 +50,6 @@ namespace data {
         
         EXPECT_EQ (increment (g), e);
         EXPECT_EQ (increment (Z::read (g)), Z::read (e));
-        
         EXPECT_EQ (increment (Z_bytes_little::read (g)), Z_bytes_little::read (e));
         EXPECT_EQ (increment (Z_bytes_big::read (g)), Z_bytes_big::read (e));
         

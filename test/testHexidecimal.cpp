@@ -933,7 +933,6 @@ namespace data::math::number {
         test_complement_ones_to_twos ("0xfe7f", "0x8181");
         test_complement_twos_to_ones ("0x8181", "0xfe7f");
 
-
     }
     
     template <complement... > struct test_bit_shift;
@@ -1425,8 +1424,8 @@ namespace data {
         test_signed_stuff (const N &, const encoding::hexidecimal::integer<c, hex_case::lower> &) {}
     };
     
-    template <typename N, math::number::complement c> struct test_signed_stuff<N, c, true> {
-        test_signed_stuff (const N &n, const encoding::hexidecimal::integer<c, hex_case::lower> &h) {
+    template <typename N, math::number::complement zz> struct test_signed_stuff<N, zz, true> {
+        test_signed_stuff (const N &n, const encoding::hexidecimal::integer<zz, hex_case::lower> &h) {
 
             auto hmm = decrement (h);
             auto nmm = decrement (n);
@@ -1436,7 +1435,7 @@ namespace data {
             
             auto hnm = N::read (hmm);
             EXPECT_EQ (hnm, nmm) << std::hex << "expected " << hnm << " == " << nmm;
-            auto hhmm = encoding::hexidecimal::integer<c, hex_case::lower>
+            auto hhmm = encoding::hexidecimal::integer<zz, hex_case::lower>
                 {encoding::hexidecimal::write<hex_case::lower> (nmm)};
             EXPECT_EQ (hmm, hhmm) << std::hex << "expected " << hmm << " == " << hhmm;
             
@@ -1448,12 +1447,12 @@ namespace data {
             
             auto nh = -h;
             auto nn = -n;
-            
+
             EXPECT_TRUE (math::number::is_minimal (nh));
             EXPECT_TRUE (math::number::is_minimal (nn));
             
             EXPECT_EQ (N::read (nh), nn);
-            auto nnh = encoding::hexidecimal::integer<c, hex_case::lower>
+            auto nnh = encoding::hexidecimal::integer<zz, hex_case::lower>
                 {encoding::hexidecimal::write<hex_case::lower> (nn)};
             EXPECT_EQ (nh, nnh);
         }
@@ -1461,7 +1460,7 @@ namespace data {
     
     // we should find that the hex strings are the same when read into a number 
     // and written back. 
-    template <typename N> void test_hex_read_and_write_bytes (list<string> cases) {
+    template <typename N, math::number::complement zz> void test_hex_read_and_write_bytes (list<string> cases) {
         list<std::pair<N, encoding::hexidecimal::integer<number_complement<N>, hex_case::lower>>> numbers;
         for (const string &x : cases) {
 
@@ -1480,12 +1479,12 @@ namespace data {
             EXPECT_TRUE (math::number::is_minimal (hpp));
             EXPECT_TRUE (math::number::is_minimal (npp));
             
-            EXPECT_EQ (N::read (hpp), npp);
+            EXPECT_EQ (N::read (hpp), npp) << "expected " << hpp << " == " << std::hex << npp;
             auto hhpp = encoding::hexidecimal::integer<number_complement<N>, hex_case::lower>
                 {encoding::hexidecimal::write<hex_case::lower> (npp)};
             EXPECT_EQ (hpp, hhpp);
             
-            test_signed_stuff<N> {n, h};
+            test_signed_stuff<N, zz> {n, h};
 
             for (auto &p : numbers) {
                 EXPECT_EQ (n <=> p.first, h <=> p.second);
@@ -1555,12 +1554,12 @@ namespace data {
         list<string> cases {
             "0x", "0x00", "0x0000", "0xc0", "0xff", "0x00ff", "0xffff",
             "0x80", "0x8000", "0x0080", "0x01", "0x0001", "0x81", "0x8001"};
-        test_hex_read_and_write_bytes<N_bytes_little> (cases);
-        test_hex_read_and_write_bytes<N_bytes_big> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_little> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_big> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_twos_little> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_twos_big> (cases);
+        test_hex_read_and_write_bytes<N_bytes_little, math::number::complement::nones> (cases);
+        test_hex_read_and_write_bytes<N_bytes_big, math::number::complement::nones> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_little, math::number::complement::ones> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_big, math::number::complement::ones> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_twos_little, math::number::complement::twos> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_twos_big, math::number::complement::twos> (cases);
     }
 
 }
