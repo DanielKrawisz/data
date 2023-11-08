@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from os import environ
 
-
 class DataConan (ConanFile):
     name = "data"
     license = "MIT"
@@ -29,7 +28,7 @@ class DataConan (ConanFile):
         if "CURRENT_VERSION" in environ:
             self.version = environ['CURRENT_VERSION']
         else:
-            self.version = "v0.0.25"
+            self.version = "v0.0.26"
 
     def configure_cmake (self):
         cmake = CMake (self)
