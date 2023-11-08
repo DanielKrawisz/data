@@ -699,6 +699,7 @@ namespace data::encoding::hexidecimal {
         integer &operator *= (int64);
         
         explicit operator double () const;
+        explicit operator bool () const;
         
         integer &trim ();
         integer trim () const;
@@ -728,6 +729,11 @@ namespace data::encoding::hexidecimal {
     template <complement c, hex::letter_case cx>
     string<cx> inline trim (const string<cx> &x) {
         return data::math::number::trim (integer<c, cx> {x});
+    }
+
+    template <complement c, hex::letter_case zz>
+    inline integer<c, zz>::operator bool () const {
+        return !math::is_zero (*this);
     }
     
 }
@@ -1653,6 +1659,34 @@ namespace data::math::number {
 }
 
 namespace data::encoding::hexidecimal {
+
+    template <hex::letter_case zz>
+    integer<complement::twos, zz> operator ! (const integer<complement::twos, zz> &x) {
+        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
+        return bool (x) ?
+            integer<complement::twos, zz> {std::string {"0x"}} :
+            integer<complement::twos, zz> {std::string {"0x01"}};
+    }
+
+    template <hex::letter_case zz>
+    integer<complement::twos, zz> operator &&
+        (const integer<complement::twos, zz> &x, const integer<complement::twos, zz> &y) {
+        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
+        if (!y.valid ()) throw exception {} << "invalid hexidecimal string: " << y;
+        return bool (x) && bool (y) ?
+            integer<complement::twos, zz> {std::string {"0x01"}} :
+            integer<complement::twos, zz> {std::string {"0x"}};
+    }
+
+    template <hex::letter_case zz>
+    integer<complement::twos, zz> operator ||
+        (const integer<complement::twos, zz> &x, const integer<complement::twos, zz> &y) {
+        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
+        if (!y.valid ()) throw exception {} << "invalid hexidecimal string: " << y;
+        return bool (x) || bool (y) ?
+            integer<complement::twos, zz> {std::string {"0x01"}} :
+            integer<complement::twos, zz> {std::string {"0x"}};
+    }
     
     template <hex::letter_case zz>
     integer<complement::ones, zz> operator ~ (const integer<complement::ones, zz> &x) {
@@ -1740,7 +1774,7 @@ namespace data::encoding::hexidecimal {
             boost::algorithm::unhex (a.begin () + 2, a.end (), a_d.begin ());
             boost::algorithm::unhex (b.begin () + 2, b.end (), b_d.begin ());
             
-            arithmetic::bit_and<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            math::number::arithmetic::bit_and<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
@@ -1757,7 +1791,7 @@ namespace data::encoding::hexidecimal {
             boost::algorithm::unhex (a.begin () + 2, a.end (), a_d.begin ());
             boost::algorithm::unhex (b.begin () + 2, b.end (), b_d.begin ());
             
-            arithmetic::bit_or<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            math::number::arithmetic::bit_or<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin() + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
@@ -1774,7 +1808,7 @@ namespace data::encoding::hexidecimal {
             boost::algorithm::unhex (a.begin () + 2, a.end (), a_d.begin ());
             boost::algorithm::unhex (b.begin () + 2, b.end (), b_d.begin ());
             
-            arithmetic::bit_xor<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            math::number::arithmetic::bit_xor<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);

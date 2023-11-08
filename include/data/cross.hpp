@@ -115,7 +115,7 @@ namespace data {
         explicit operator bytes () const;
         
         void bit_negate () {
-            arithmetic::bit_negate<word>(this->end (), this->begin (), this->begin ());
+            math::number::arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
         }
         
         void bit_shift_left (uint32 x, bool fill = false);
@@ -205,15 +205,18 @@ namespace data {
         
     protected:
         void bit_and (const slice<word, size> a) {
-            arithmetic::bit_and<word> (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
+            math::number::arithmetic::bit_and<word>
+                (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
         }
         
         void bit_or (const slice<word, size> a) {
-            arithmetic::bit_or<word> (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
+            math::number::arithmetic::bit_or<word>
+                (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
         }
         
         void bit_xor (const slice<word, size> a) {
-            arithmetic::bit_xor<word> (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
+            math::number::arithmetic::bit_xor<word>
+                (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
         }
         
         void fill (byte b) {
@@ -360,7 +363,7 @@ namespace data {
     template <std::unsigned_integral word, size_t size> 
     bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
+        math::number::arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
         return n;
     }
     

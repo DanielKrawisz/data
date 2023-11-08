@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_BYTES_Z
 
 #include <data/math/number/gmp/N.hpp>
-#include <data/cross.hpp>
+#include <data/math/number/bytes/complements.hpp>
 #include <data/math/arithmetic.hpp>
 
 namespace data::math::number {
@@ -28,7 +28,7 @@ namespace data::math::number {
         static N_bytes read (bytes_view x);
 
         // trim the number to its minimal representation.
-        N_bytes trim () const;
+        N_bytes &trim ();
 
         // get a representation of zero of any size.
         static N_bytes zero (size_t size = 0);
@@ -50,8 +50,8 @@ namespace data::math::number {
         explicit N_bytes (const N &);
         explicit operator N () const;
 
-    private:
-        N_bytes (size_t size, byte fill) : oriented<r, byte>(size, fill) {}
+        N_bytes (bytestring<byte> &&b): oriented<r, byte> {b} {}
+
     };
     
     template <endian::order r> struct Z_bytes<r, complement::ones> : oriented<r, byte> {
@@ -76,12 +76,13 @@ namespace data::math::number {
         explicit Z_bytes (const Z &);
         explicit operator Z () const;
         
-        Z_bytes trim () const;
-        
-    private:
-        Z_bytes (size_t size, byte fill) : oriented<r, byte> (size, fill) {}
+        Z_bytes &trim ();
+
+        Z_bytes (bytestring<byte> &&b): oriented<r, byte> {b} {}
+
     };
     
+    // for little endian, these are an implementation of bitcoin numbers.
     template <endian::order r> struct Z_bytes<r, complement::twos> : oriented<r, byte> {
         Z_bytes () : oriented<r, byte> {} {}
         
@@ -103,23 +104,14 @@ namespace data::math::number {
         explicit Z_bytes (const Z &);
         explicit operator Z () const;
 
-        Z_bytes trim () const;
+        Z_bytes &trim ();
 
-        // these functions do not necessarily return the minimal versions of the numbers.
-        static Z_bytes negate (const Z_bytes &);
-        static Z_bytes abs (const Z_bytes &);
-        
-    private:
-        Z_bytes (size_t size, byte fill) : oriented<r, byte> (size, fill) {}
+        Z_bytes (bytestring<byte> &&b): oriented<r, byte> {b} {}
+
+        explicit operator bool () const {
+            return !is_zero (*this);
+        }
     };
-    
-    template <endian::order r> N_bytes<r> inline trim (const N_bytes<r> &n) {
-        return n.trim ();
-    }
-    
-    template <endian::order r, complement c> Z_bytes<r, c> inline trim (const Z_bytes<r, c> &z) {
-        return z.trim ();
-    }
     
     // some functions that can easily be implemented as other functions using conversions. 
     template <endian::order r, complement c> 
@@ -129,19 +121,19 @@ namespace data::math::number {
     
     template <endian::order r, complement c> 
     std::weak_ordering inline operator <=> (const N_bytes<r> &a, const Z_bytes<r, c> &b) {
-        return Z_bytes<r, c>(a) <=> b;
+        return Z_bytes<r, c> (a) <=> b;
     }
     
     template <endian::order r> Z_bytes<r, complement::ones> inline operator ~ (const N_bytes<r> &b) {
         return ~Z_bytes<r, complement::ones> (b);
     }
     
-    template <endian::order r> Z_bytes<r, complement::ones> inline operator^(
+    template <endian::order r> Z_bytes<r, complement::ones> inline operator ^ (
         const Z_bytes<r, complement::ones> &a, const N_bytes<r> &b) {
         return a ^ Z_bytes<r, complement::ones> (b);
     }
     
-    template <endian::order r> Z_bytes<r, complement::ones> inline operator^(
+    template <endian::order r> Z_bytes<r, complement::ones> inline operator ^ (
         const N_bytes<r> &a, const Z_bytes<r, complement::ones> &b) {
         return Z_bytes<r, complement::ones> (a) ^ b;
     }
@@ -200,7 +192,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, complement c> 
-    Z_bytes<r, c> inline operator -(const Z_bytes<r, c> &a, const N_bytes<r> &b) {
+    Z_bytes<r, c> inline operator - (const Z_bytes<r, c> &a, const N_bytes<r> &b) {
         return a - Z_bytes<r, c> (b);
     }
     
@@ -256,7 +248,7 @@ namespace data::math::number {
     
     template <endian::order r, complement c> 
     Z_bytes<r, c> inline operator * (const Z_bytes<r, c> &a, int64 b) {
-        return a * Z_bytes<r, c>(b);
+        return a * Z_bytes<r, c> (b);
     }
     
     template <endian::order r>
@@ -274,12 +266,12 @@ namespace data::math::number {
     }
     
     template <endian::order r>
-    N_bytes<r> inline &operator += (N_bytes<r> &x, const N_bytes<r>& n) {
+    N_bytes<r> inline &operator += (N_bytes<r> &x, const N_bytes<r> &n) {
         return x = x + n;
     }
     
     template <endian::order r>
-    N_bytes<r> inline &operator -= (N_bytes<r> &x, const N_bytes<r>& n) {
+    N_bytes<r> inline &operator -= (N_bytes<r> &x, const N_bytes<r> &n) {
         return x = x - n;
     }
     
@@ -294,7 +286,7 @@ namespace data::math::number {
     }
     
     template <endian::order r>
-    N_bytes<r> inline &operator *= (N_bytes<r> &x, const N_bytes<r>& n) {
+    N_bytes<r> inline &operator *= (N_bytes<r> &x, const N_bytes<r> &n) {
         return x = x * n;
     }
     
@@ -388,34 +380,13 @@ namespace data::math::number {
 
 namespace data {
     
-    template <endian::order r> math::number::N_bytes<r> inline increment (const math::number::N_bytes<r> &n) {
-        auto x = n;
-        return ++x;
-    }
-    
-    template <endian::order r, math::number::complement c> 
-    math::number::Z_bytes<r, c> inline increment (const math::number::Z_bytes<r, c> &n) {
-        auto x = n;
-        return ++x; 
-    }
-    
-    template <endian::order r> math::number::N_bytes<r> inline decrement (const math::number::N_bytes<r> &n) {
-        auto x = n;
-        return --x;
-    }
-    
-    template <endian::order r, math::number::complement c> 
-    math::number::Z_bytes<r, c> inline decrement (const math::number::Z_bytes<r, c> &n) {
-        auto x = n;
-        return --x;
-    }
-    
     template <endian::order r> math::sign inline sign (const math::N_bytes<r> &x) {
-        return math::arithmetic::N_sign (x.words ());
+        return math::number::arithmetic::nones::sign (x.words ());
     }
     
     template <endian::order r, math::number::complement c> math::sign inline sign (const math::number::Z_bytes<r, c> &x) {
-        return math::is_zero (x) ? math::zero : math::arithmetic::sign_bit (x.words ()) ? math::negative : math::positive;
+        if constexpr (c == math::number::complement::ones) return math::number::arithmetic::ones::sign (x.words ());
+        if constexpr (c == math::number::complement::twos) return math::number::arithmetic::twos::sign (x.words ());
     }
 
     template <endian::order a, endian::order b>
@@ -448,7 +419,7 @@ namespace data::math {
     abs<number::Z_bytes<r, number::complement::twos>>::operator ()
     (const number::Z_bytes<r, number::complement::twos> &x)
     {
-        return number::trim (number::Z_bytes<r, number::complement::twos>::abs (x));
+        return number::arithmetic::twos::trim<r> (number::arithmetic::twos::abs<r> (x));
     }
     
     template <endian::order r>
@@ -482,39 +453,39 @@ namespace data::math {
     }
     
     template <endian::order r> bool inline is_negative (const Z_bytes<r> &x) {
-        return arithmetic::sign_bit (x.words ());
+        return number::arithmetic::sign_bit (x.words ());
     }
     
     template <endian::order r> bool inline is_negative (const Z_bytes_twos<r> &x) {
-        return !is_zero (x) && arithmetic::sign_bit (x.words ());
+        return !is_zero (x) && number::arithmetic::sign_bit (x.words ());
     }
     
     template <endian::order r> bool inline is_positive (const Z_bytes<r> &x) {
-        return !is_zero (x) && !arithmetic::sign_bit (x.words ());
+        return !is_zero (x) && !number::arithmetic::sign_bit (x.words ());
     }
     
     template <endian::order r> bool inline is_positive (const Z_bytes_twos<r> &x) {
-        return !is_zero (x) && !arithmetic::sign_bit (x.words ());
+        return !is_zero (x) && !number::arithmetic::sign_bit (x.words ());
     }
     
     template <endian::order r> bool inline is_zero (const N_bytes<r> &x) {
-        return arithmetic::ones_is_zero (x.words ());
+        return number::arithmetic::is_zero (x.words ());
     }
     
     template <endian::order r> bool inline is_zero (const Z_bytes<r> &x) {
-        return arithmetic::ones_is_zero (x.words ());
+        return number::arithmetic::is_zero (x.words ());
     }
     
     template <endian::order r> bool inline is_zero (const Z_bytes_twos<r> &x) {
-        return arithmetic::twos_is_zero (x.words ());
+        return number::arithmetic::twos::is_zero (x.words ());
     }
     
     template <endian::order r> bool inline is_positive_zero (const Z_bytes_twos<r> &x) {
-        return is_zero (x) && !arithmetic::sign_bit (x.words ());
+        return is_zero (x) && !number::arithmetic::sign_bit (x.words ());
     }
     
     template <endian::order r> bool inline is_negative_zero (const Z_bytes_twos<r> &x) {
-        return is_zero (x) && arithmetic::sign_bit (x.words ());
+        return is_zero (x) && number::arithmetic::sign_bit (x.words ());
     }
     
 }
@@ -523,96 +494,49 @@ namespace data::math {
 // level functions in arithmetic. 
 namespace data::math::number {
     
-    template <endian::order r> bool inline is_minimal (const N_bytes<r> &x) {
-        return arithmetic::N_is_minimal (x.words ());
+    template <endian::order r>
+    bool inline is_minimal (const N_bytes<r> &x) {
+        return arithmetic::nones::is_minimal (x.words ());
     }
     
-    template <endian::order r> bool inline is_minimal (const Z_bytes<r, complement::ones> &x) {
-        return arithmetic::ones_is_minimal (x.words ());
+    template <endian::order r>
+    bool inline is_minimal (const Z_bytes<r, complement::ones> &x) {
+        return arithmetic::ones::is_minimal (x.words ());
     }
     
-    template <endian::order r> bool inline is_minimal (const Z_bytes<r, complement::twos> &x) {
-        return arithmetic::twos_is_minimal (x.words ());
+    template <endian::order r>
+    bool inline is_minimal (const Z_bytes<r, complement::twos> &x) {
+        return arithmetic::twos::is_minimal (x.words ());
     }
     
-    template <endian::order r> size_t inline minimal_size (const N_bytes<r> &x) {
-        return arithmetic::N_minimal_size (x.words ());
+    template <endian::order r>
+    size_t inline minimal_size (const N_bytes<r> &x) {
+        return arithmetic::nones::minimal_size (x.words ());
     }
     
-    template <endian::order r> size_t inline minimal_size (const Z_bytes<r, complement::ones> &x) {
-        return arithmetic::ones_minimal_size (x.words ());
+    template <endian::order r>
+    size_t inline minimal_size (const Z_bytes<r, complement::ones> &x) {
+        return arithmetic::ones::minimal_size (x.words ());
     }
     
-    template <endian::order r> size_t inline minimal_size (const Z_bytes<r, complement::twos> &x) {
-        return arithmetic::twos_minimal_size (x.words ());
+    template <endian::order r>
+    size_t inline minimal_size (const Z_bytes<r, complement::twos> &x) {
+        return arithmetic::twos::minimal_size (x.words ());
     }
     
-    template <endian::order r> N_bytes<r> extend (const N_bytes<r> &x, size_t size) {
-        if (size < x.size ()) {
-            size_t min_size = minimal_size (x);
-            if (size < min_size) throw std::invalid_argument {"cannot extend smaller than minimal size"};
-            return extend (trim (x), size);
-        }
-        
-        if (size == x.size ()) return x;
-        
-        N_bytes<r> z;
-        z.resize (size);
-        
-        auto i = z.words ().rbegin ();
-        for (int n = 0; n < size - x.size (); n++) {
-            *i = 0;
-            i++;
-        }
-        
-        std::copy (x.words ().rbegin (), x.words ().rend (), i);
-        return z;
+    template <endian::order r>
+    N_bytes<r> inline extend (const N_bytes<r> &x, size_t size) {
+        return arithmetic::nones::extend<r> (x, size);
     }
     
-    template <endian::order r> Z_bytes<r, complement::ones> extend (const Z_bytes<r, complement::ones> &x, size_t size) {
-        if (size < x.size ()) {
-            size_t min_size = minimal_size (x);
-            if (size < min_size) throw std::invalid_argument {"cannot extend smaller than minimal size"};
-            return extend (trim(x), size);
-        }
-        
-        if (size == x.size ()) return x;
-        
-        Z_bytes<r, complement::ones> z;
-        z.resize (size);
-        byte extend_digit = is_negative (x) ? 0xff : 0x00;
-        
-        auto i = z.words ().rbegin ();
-        for (int n = 0; n < size - x.size (); n++) {
-            *i = extend_digit;
-            i++;
-        }
-        
-        std::copy (x.words ().rbegin (), x.words ().rend (), i);
-        return z;
+    template <endian::order r>
+    Z_bytes<r, complement::ones> inline extend (const Z_bytes<r, complement::ones> &x, size_t size) {
+        return arithmetic::ones::extend<r> (x, size);
     }
     
-    template <endian::order r> Z_bytes<r, complement::twos> extend(const Z_bytes<r, complement::twos> &x, size_t size) {
-        if (size < x.size ()) {
-            size_t min_size = minimal_size(x); 
-            if (size < min_size) throw std::invalid_argument{"cannot extend smaller than minimal size"};
-            return extend (trim (x), size);
-        }
-        
-        if (size == x.size ()) return x;
-        
-        auto z = Z_bytes<r, complement::twos>::zero (size);
-        
-        if (x.size () == 0) return z;
-        
-        auto xw = x.words ();
-        auto zw = z.words ();
-        std::copy (xw.begin (), xw.end () - 1, zw.begin ());
-        byte last = xw[-1];
-        
-        zw[-1] = last & 0x80 ? 0x80 : 0x00;
-        zw[x.size () - 1] = last & 0x7f;
-        return z;
+    template <endian::order r>
+    Z_bytes<r, complement::twos> inline extend (const Z_bytes<r, complement::twos> &x, size_t size) {
+        return arithmetic::twos::extend<r> (x, size);
     }
     
     template <endian::order r> 
@@ -627,7 +551,7 @@ namespace data::math::number {
     
     template <endian::order r> 
     std::weak_ordering inline operator <=> (const N_bytes<r> &a, const N_bytes<r> &b) {
-        return arithmetic::N_compare (a.words (), b.words());
+        return arithmetic::nones::compare (a.words (), b.words ());
     }
     
     template <endian::order r> 
@@ -639,10 +563,10 @@ namespace data::math::number {
         if (na && nb) {
             auto ya = -b;
             auto yb = -a;
-            return arithmetic::N_compare (ya.words(), yb.words());
+            return arithmetic::nones::compare (ya.words (), yb.words ());
         }
         
-        if (!na && !nb) return arithmetic::N_compare (a.words(), b.words());
+        if (!na && !nb) return arithmetic::nones::compare (a.words (), b.words ());
         return na ? std::weak_ordering::less : std::weak_ordering::greater;
     }
     
@@ -660,12 +584,12 @@ namespace data::math::number {
         
         if (nb == zero) return na == positive ? std::weak_ordering::greater : std::weak_ordering::less;
         
-        if (na == positive && nb == positive) return arithmetic::N_compare (a.words (), b.words ());
+        if (na == positive && nb == positive) return arithmetic::nones::compare (a.words (), b.words ());
 
         if (na == negative && nb == negative) {
             auto ya = -b;
             auto yb = -a;
-            return arithmetic::N_compare (ya.words (), yb.words ());
+            return arithmetic::nones::compare (ya.words (), yb.words ());
         }
         
         return na == negative ? std::weak_ordering::less : std::weak_ordering::greater;
@@ -684,7 +608,7 @@ namespace data::math::number {
     template <endian::order r> 
     bool inline operator == (const N_bytes<r> &x, uint64 i) {
         if (i < 0) return false;
-        return arithmetic::N_compare (x.words (), endian::arithmetic<false, r, 8> {i}.words ()) == 0;
+        return arithmetic::nones::compare (x.words (), endian::arithmetic<false, r, 8> {i}.words ()) == 0;
     }
     
     template <endian::order r, complement c> 
@@ -730,42 +654,55 @@ namespace data::math::number {
     
     template <endian::order r> 
     N_bytes<r> inline N_bytes<r>::zero (size_t size) {
-        return N_bytes {size, 0x00};
+        return arithmetic::zero<r, byte> (size);
     }
     
     template <endian::order r> 
     Z_bytes<r, complement::ones> inline Z_bytes<r, complement::ones>::zero (size_t size) {
-        return Z_bytes {size, 0x00};
+        return arithmetic::zero<r, byte> (size);
     }
     
     template <endian::order r> 
     Z_bytes<r, complement::twos> Z_bytes<r, complement::twos>::zero (size_t size, bool negative) {
-        if (size == 0 && negative) throw std::invalid_argument {"invalid size for negative zero"};
-        auto z = Z_bytes (size, 0x00);
-        if (negative) z.words ()[-1] = 0x80;
-        return z;
-    }
-
-    template <endian::order r>
-    Z_bytes<r, complement::twos> inline Z_bytes<r, complement::twos>::negate (const Z_bytes &x) {
-        if (x.size () == 0) return Z_bytes<r, complement::twos>::zero (1, true);
-        auto z = x;
-        arithmetic::flip_sign_bit (z.words ());
-        return z;
-    }
-
-    template <endian::order r>
-    Z_bytes<r, complement::twos> inline Z_bytes<r, complement::twos>::abs (const Z_bytes &x) {
-        return arithmetic::sign_bit (x.words ()) ? negate (x) : x;
+        return arithmetic::twos::zero<r, byte> (size, negative);
     }
     
-    template <endian::order r> Z_bytes<r, complement::twos> inline operator - (const Z_bytes<r, complement::twos> &x) {
-        return trim (Z_bytes<r, complement::twos>::negate (x));
+    template <endian::order r>
+    Z_bytes<r, complement::twos> inline operator - (const Z_bytes<r, complement::twos> &x) {
+        return arithmetic::twos::trim<r> (arithmetic::twos::negate<r> (x));
+    }
+
+    namespace {
+        template <endian::order r>
+        const Z_bytes<r, complement::twos> &true_value () {
+            static Z_bytes<r, complement::twos> TrueValue = Z_bytes<r, complement::twos>::read ("0x01");
+            return TrueValue;
+        }
+
+        template <endian::order r>
+        const Z_bytes<r, complement::twos> &false_value () {
+            static Z_bytes<r, complement::twos> FalseValue = Z_bytes<r, complement::twos>::read ("0x");
+            return FalseValue;
+        };
+    }
+
+    template <endian::order r> Z_bytes<r, complement::twos> inline operator ! (const Z_bytes<r, complement::twos> &x) {
+        return bool (x) ? false_value<r> () : true_value<r> ();
+    }
+
+    template <endian::order r> Z_bytes<r, complement::twos> inline operator &&
+        (const Z_bytes<r, complement::twos> &x, const Z_bytes<r, complement::twos> &y) {
+        return bool (x) && bool (y) ? true_value<r> () : false_value<r> ();
+    }
+
+    template <endian::order r> Z_bytes<r, complement::twos> inline operator ||
+        (const Z_bytes<r, complement::twos> &x, const Z_bytes<r, complement::twos> &y) {
+        return bool (x) || bool (y) ? true_value<r> () : false_value<r> ();
     }
     
     template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const Z_bytes<r, complement::ones> &x) {
         auto z = extend (x, x.size () + 1);
-        data::arithmetic::bit_negate<byte> (z.words ().end (), z.words ().begin (), z.words ().begin ());
+        arithmetic::bit_negate<byte> (z.words ().end (), z.words ().begin (), z.words ().begin ());
         return trim (z);
     }
     
@@ -773,7 +710,7 @@ namespace data::math::number {
         if (a.size () < b.size ()) return b & a;
         auto bt = extend (b, a.size ());
         auto x = N_bytes<r>::zero (a.size ());
-        data::arithmetic::bit_and<byte> (x.end (), x.begin (), a.begin (),
+        arithmetic::bit_and<byte> (x.end (), x.begin (), a.begin (),
             const_cast<const N_bytes<r> &> (bt).begin ());
         return x.trim ();
     }
@@ -782,7 +719,7 @@ namespace data::math::number {
         if (a.size () < b.size ()) return b & a;
         auto bt = extend (b, a.size ());
         auto x = Z_bytes<r, c>::zero (a.size ());
-        data::arithmetic::bit_and<byte> (x.end (), x.begin (), a.begin (),
+        arithmetic::bit_and<byte> (x.end (), x.begin (), a.begin (),
             const_cast<const Z_bytes<r, c> &> (bt).begin ());
         return x.trim ();
     }
@@ -791,7 +728,7 @@ namespace data::math::number {
         if (a.size () < b.size ()) return b | a;
         auto bt = extend (b, a.size ());
         auto x = N_bytes<r>::zero (a.size ());
-        data::arithmetic::bit_or<byte> (x.end (), x.begin (), a.begin (), const_cast<const N_bytes<r>&> (bt).begin ());
+        arithmetic::bit_or<byte> (x.end (), x.begin (), a.begin (), const_cast<const N_bytes<r>&> (bt).begin ());
         return x.trim ();
     }
     
@@ -799,7 +736,7 @@ namespace data::math::number {
         if (a.size () < b.size ()) return b | a;
         auto bt = extend (b, a.size ());
         auto x = Z_bytes<r, c>::zero (a.size ());
-        data::arithmetic::bit_or<byte> (x.end (), x.begin (), a.begin (),
+        arithmetic::bit_or<byte> (x.end (), x.begin (), a.begin (),
             const_cast<const Z_bytes<r, c> &> (bt).begin ());
         return x.trim ();
     }
@@ -809,7 +746,7 @@ namespace data::math::number {
         if (a.size () < b.size ()) return b ^ a;
         auto bt = extend (b, a.size ());
         auto x = Z_bytes<r, complement::ones>::zero (a.size ());
-        data::arithmetic::bit_xor<byte> (x.end (), x.begin (), a.begin (),
+        arithmetic::bit_xor<byte> (x.end (), x.begin (), a.begin (),
             const_cast<const Z_bytes<r, complement::ones> &> (bt).begin ());
         return x.trim ();
     }
@@ -891,33 +828,29 @@ namespace data::math::number {
         std::copy (n.begin (), n.end (), this->begin ());
         *this = this->trim ();
     }
-    
-    template <endian::order r> N_bytes<r> N_bytes<r>::trim () const {
-        size_t size = minimal_size (*this);
-        if (size == this->size ()) return *this;
-        auto n = N_bytes<r>::zero (size);
-        auto w = this->words ();
-        std::copy (w.begin (), w.begin () + size, n.words ().begin ());
-        return n;
+
+    template <endian::order r> N_bytes<r> inline trim (const N_bytes<r> &n) {
+        return arithmetic::nones::trim<r> (n);
+    }
+
+    template <endian::order r, complement c> Z_bytes<r, c> inline trim (const Z_bytes<r, c> &z) {
+        if constexpr (c == complement::ones) return arithmetic::ones::trim<r, byte> (z);
+        if constexpr (c == complement::twos) return arithmetic::twos::trim<r, byte> (z);
     }
     
-    template <endian::order r> Z_bytes<r, complement::ones> Z_bytes<r, complement::ones>::trim () const {
-        size_t size = minimal_size (*this);
-        if (size == this->size ()) return *this;
-        auto n = Z_bytes<r, complement::ones>::zero (size);
-        auto w = this->words ();
-        std::copy (w.begin (), w.begin () + size, n.words ().begin ());
-        return n;
+    template <endian::order r> N_bytes<r> inline &N_bytes<r>::trim () {
+        arithmetic::nones::trim<r, byte> (*this);
+        return *this;
     }
     
-    template <endian::order r> Z_bytes<r, complement::twos> Z_bytes<r, complement::twos>::trim () const {
-        size_t min_size = minimal_size (*this);
-        if (min_size == this->size ()) return *this;
-        auto n = Z_bytes<r, complement::twos>::zero (min_size);
-        auto w = this->words ();
-        std::copy (w.begin (), w.begin() + min_size, n.words ().begin ());
-        if (min_size != 0) n.words ()[-1] |= (this->words ()[-1] & 0x80);
-        return n;
+    template <endian::order r> Z_bytes<r, complement::ones> inline &Z_bytes<r, complement::ones>::trim () {
+        arithmetic::ones::trim<r, byte> (*this);
+        return *this;
+    }
+    
+    template <endian::order r> Z_bytes<r, complement::twos> inline &Z_bytes<r, complement::twos>::trim () {
+        arithmetic::twos::trim<r, byte> (*this);
+        return *this;
     }
     
     template <endian::order r> N_bytes<r>::operator uint64 () const {
@@ -978,85 +911,26 @@ namespace data::math::number {
         return z.trim ();
     }
     
-    template <endian::order r> N_bytes<r> &operator ++ (N_bytes<r> &x) {
-        x = trim (x);
-
-        auto o = x.words ().begin ();
-        auto i = x.words ().begin ();
-        auto remainder = data::arithmetic::plus<byte> (x.words ().end (), o, 1, i);
-        
-        if (remainder != 0) {
-            x = extend (x, x.size () + 1);
-            x.words ()[-1] = remainder;
-        }
-        
+    template <endian::order r> N_bytes<r> inline &operator ++ (N_bytes<r> &x) {
+        arithmetic::nones::increment<r> (arithmetic::nones::trim<r> (x));
         return x;
     }
     
     template <endian::order r> N_bytes<r> inline &operator -- (N_bytes<r> &x) {
-        auto xx = x.words ().begin ();
-        auto xy = x.words ().begin ();
-        if (!is_zero (x)) data::arithmetic::minus<byte> (x.words ().end (), xx, 1, xy);
-        return x = trim (x);
+        arithmetic::nones::trim<r> (arithmetic::nones::decrement<r> (x));
+        return x;
     }
-    
-    template <endian::order r> Z_bytes<r, complement::ones> &operator ++ (Z_bytes<r, complement::ones> &x) {
-        x = extend (x, x.size () + 1);
 
-        auto oit = x.words ().begin ();
-        auto iit = x.words ().begin ();
-
-        auto remainder = data::arithmetic::plus<byte> (x.words ().end (), oit, 1, iit);
-        return x = trim (x);
+    template <endian::order r, complement c> Z_bytes<r, c> inline &operator ++ (Z_bytes<r, c> &x) {
+        if constexpr (c == complement::ones) arithmetic::ones::trim<r> (arithmetic::ones::increment<r> (x));
+        if constexpr (c == complement::twos) arithmetic::twos::trim<r> (arithmetic::twos::increment<r> (x));
+        return x;
     }
-    
-    template <endian::order r> Z_bytes<r, complement::ones> &operator -- (Z_bytes<r, complement::ones> &x) {
-        if (is_zero (x)) return x = Z_bytes<r, complement::ones> {-1};
 
-        x = extend (x, x.size () + 1);
-
-        auto xx = x.words ().begin ();
-        auto xy = x.words ().begin ();
-        auto remainder = data::arithmetic::minus<byte> (x.words ().end (), xx, 1, xy);
-        
-        return x = trim (x);
-    }
-    
-    template <endian::order r> Z_bytes<r, complement::twos> &operator ++ (Z_bytes<r, complement::twos> &x) {
-
-        if (is_zero (x)) return x = Z_bytes<r, complement::twos> {1};
-        if (arithmetic::sign_bit (x.words ())) return x = -decrement (-x);
-
-        auto oit = x.words ().begin ();
-        auto iit = x.words ().begin ();
-        
-        auto remainder = data::arithmetic::plus<byte> (x.words ().end (), oit, 1, iit);
-        if (remainder != 0) {
-            Z_bytes<r, complement::twos> n = Z_bytes<r, complement::twos>::zero (x.size () + 1);
-            auto xw = x.words ();
-            auto nw = n.words ();
-            std::copy (xw.begin (), xw.end (), nw.begin ());
-            n.words ()[-1] = remainder;
-            x = n;
-        } else if (arithmetic::sign_bit (x.words ())) {
-            Z_bytes<r, complement::twos> n = Z_bytes<r, complement::twos>::zero (x.size () + 1);
-            auto xw = x.words ();
-            auto nw = n.words ();
-            std::copy (xw.begin (), xw.end (), nw.begin ());
-            x = n;
-        }
-        
-        return x = trim (x);
-    }
-    
-    template <endian::order r> Z_bytes<r, complement::twos> &operator -- (Z_bytes<r, complement::twos> &x) {
-        if (is_zero (x)) return x = Z_bytes<r, complement::twos> {-1};
-        if (arithmetic::sign_bit (x.words ())) return x = -increment (-x);
-        
-        auto xx = x.words ().begin ();
-        auto xy = x.words ().begin ();
-        data::arithmetic::minus<byte> (x.words ().end (), xx, 1, xy);
-        return x = trim (x);
+    template <endian::order r, complement c> Z_bytes<r, c> inline &operator -- (Z_bytes<r, c> &x) {
+        if constexpr (c == complement::ones) arithmetic::ones::trim<r> (arithmetic::ones::decrement<r> (x));
+        if constexpr (c == complement::twos) arithmetic::twos::trim<r> (arithmetic::twos::decrement<r> (x));
+        return x;
     }
     
     namespace {
@@ -1093,7 +967,7 @@ namespace data::math::number {
         N_bytes<r> plus (const N_bytes<r> &a, const N_bytes<r> &b) {
             N_bytes<r> n = N_bytes<r>::zero (std::max (a.size (), b.size ()) + 1);
             auto w = n.words ();
-            data::math::arithmetic::plus (w, a.words (), b.words ());
+            arithmetic::plus (w, a.words (), b.words ());
             return n;
         }
 
@@ -1102,7 +976,7 @@ namespace data::math::number {
             if (b > a) return N_bytes<r>::zero ();
             N_bytes<r> n = N_bytes<r>::zero (a.size () + 1);
             auto w = n.words ();
-            data::math::arithmetic::minus (w, a.words (), b.words ());
+            arithmetic::minus (w, a.words (), b.words ());
             return n;
         }
 
@@ -1110,7 +984,7 @@ namespace data::math::number {
         N_bytes<r> times (const N_bytes<r> &a, const N_bytes<r> &b) {
             N_bytes<r> n = N_bytes<r>::zero (a.size () + b.size () + 1);
             auto w = n.words ();
-            data::math::arithmetic::times (w, a.words (), b.words ());
+            arithmetic::times (w, a.words (), b.words ());
             return n;
         }
         

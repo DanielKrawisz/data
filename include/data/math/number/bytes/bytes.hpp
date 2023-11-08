@@ -255,12 +255,6 @@ namespace data {
     template <endian::order r> math::sign sign (const math::N_bytes<r> &);
     template <endian::order r, math::number::complement c> math::sign sign (const math::number::Z_bytes<r, c> &);
     
-    template <endian::order r> math::number::N_bytes<r> increment (const math::number::N_bytes<r> &);
-    template <endian::order r> math::number::N_bytes<r> decrement (const math::number::N_bytes<r> &);
-    
-    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> increment (const math::number::Z_bytes<r, c> &);
-    template <endian::order r, math::number::complement c> math::number::Z_bytes<r, c> decrement (const math::number::Z_bytes<r, c> &);
-    
     template <endian::order a, endian::order b>
     bool identical (const math::number::N_bytes<a> &, const math::number::N_bytes<b> &);
 
