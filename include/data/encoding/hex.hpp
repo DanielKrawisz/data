@@ -106,10 +106,6 @@ namespace data {
         return o << "\"" << encoding::hex::write (s) << "\"";
     }
     
-    maybe<bytes> inline bytes::from_hex (string_view s) {
-        return encoding::hex::read (s);
-    }
-    
 }
 
 #endif

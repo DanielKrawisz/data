@@ -3,6 +3,11 @@
 #include <data/stream.hpp>
 
 namespace data {
+    string::operator bytes () const {
+        bytes b (this->size ());
+        std::copy (begin (), end (), b.data ());
+        return b;
+    }
 
     template <typename X>
     void inline write_to_stream (std::ostream &o, X x) {

@@ -164,12 +164,10 @@ namespace data::math::number {
     template <endian::order r> bool is_minimal (const Z_bytes<r, complement::twos> &);
     
     template <endian::order r> size_t minimal_size (const N_bytes<r> &);
-    template <endian::order r> size_t minimal_size (const Z_bytes<r, complement::ones> &);
-    template <endian::order r> size_t minimal_size (const Z_bytes<r, complement::twos> &);
+    template <endian::order r, complement c> size_t minimal_size (const Z_bytes<r, c> &);
     
     template <endian::order r> N_bytes<r> extend (const N_bytes<r> &, size_t);
-    template <endian::order r> Z_bytes<r, complement::ones> extend (const Z_bytes<r, complement::ones> &, size_t);
-    template <endian::order r> Z_bytes<r, complement::twos> extend (const Z_bytes<r, complement::twos> &, size_t);
+    template <endian::order r, complement c> Z_bytes<r, c> extend (const Z_bytes<r, c> &, size_t);
     
     template <endian::order r> N_bytes<r> trim (const N_bytes<r> &);
     template <endian::order r, complement c> Z_bytes<r, c> trim (const Z_bytes<r, c> &);
@@ -289,7 +287,7 @@ namespace data::math::number {
     
     // post-increment and decrement
     template <endian::order r> N_bytes<r> operator ++ (N_bytes<r> &, int);
-    template <endian::order r, complement c> Z_bytes<r, c> operator++(Z_bytes<r, c> &, int);
+    template <endian::order r, complement c> Z_bytes<r, c> operator ++ (Z_bytes<r, c> &, int);
     
     template <endian::order r> N_bytes<r> operator -- (N_bytes<r> &, int);
     template <endian::order r, complement c> Z_bytes<r, c> operator -- (Z_bytes<r, c> &, int);

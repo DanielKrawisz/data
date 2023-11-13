@@ -46,7 +46,7 @@ namespace data {
     }
     
     TEST (BytesTest, TestBitNegate) {
-        string initial { "00000000111111110101010100110011"};
+        string initial {"00000000111111110101010100110011"};
         string expected {"11111111000000001010101011001100"};
         
         test_bit_negate (
@@ -154,7 +154,8 @@ namespace data {
         EXPECT_EQ (n, e) << "expected " << x << " >> " << i << " = " << n << " to equal " << e;
     }
     
-    template <typename word, size_t x> void test_bit_shift (string given, int bits, string expected_left, string expected_right) {
+    template <typename word, size_t x>
+    void test_bit_shift (string given, int bits, string expected_left, string expected_right) {
         
         auto g = byte_array_from_bits<word, x> (given);
         auto el = byte_array_from_bits<word, x> (expected_left);
@@ -199,7 +200,7 @@ namespace data {
     } 
     
     TEST (BytesTest, TestSliceBytes) {
-        maybe<bytes> x = bytes::from_hex ("00");
+        maybe<bytes> x = encoding::hex::read ("00");
         EXPECT_TRUE (bool (x));
         auto a = *x;
         EXPECT_EQ (a.size (), 1);

@@ -18,8 +18,8 @@ namespace data {
     // it is the same as a vector with some slight improvements. 
     template <typename X> struct cross : std::vector<X> {
         cross ();
-        cross (size_t size);
-        cross (size_t size, X fill);
+        explicit cross (size_t size);
+        explicit cross (size_t size, X fill);
         
         cross (std::initializer_list<X> x);
         
@@ -52,7 +52,7 @@ namespace data {
         
         slice<X> range (data::range r);
         
-        explicit cross (std::vector<X> &&v) : std::vector<X> {v} {}
+        cross (std::vector<X> &&v) : std::vector<X> {v} {}
         
     protected:
         void fill (const X& x) {
@@ -66,7 +66,9 @@ namespace data {
     
     template <typename X, size_t... > struct array;
     
+    // standard c++ arrays are not containers. This is a container.
     template <typename X, size_t size> struct array<X, size> : public cross<X> {
+        array (const std::array<X, size> &);
         array () : cross<X> (size) {}
         
         array (std::initializer_list<X> x) : cross<X> {x} {
@@ -92,10 +94,10 @@ namespace data {
     template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public cross<array<X, sizes...>> {
         array () : cross<array<X, sizes...>> (size) {}
     };
-    
-    struct bytes;
-    
-    std::ostream &operator << (std::ostream &o, const bytes &s);
+
+    template <std::unsigned_integral word> struct bytestring;
+
+    using bytes = bytestring<byte>;
     
     template <std::unsigned_integral word>
     struct bytestring : public cross<word> {
@@ -112,10 +114,9 @@ namespace data {
             return {this->data (), this->size ()};
         }
         
-        explicit operator bytes () const;
-        
-        void bit_negate () {
+        bytestring &bit_negate () {
             math::number::arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
+            return *this;
         }
         
         void bit_shift_left (uint32 x, bool fill = false);
@@ -128,53 +129,36 @@ namespace data {
     template <std::unsigned_integral word>
     bytestring<word> operator << (const bytestring<word> &b, int32 i);
     
-    template <std::unsigned_integral word>    
+    template <std::unsigned_integral word>
     bytestring<word> operator >> (const bytestring<word> &b, int32 i);
     
-    struct bytes : bytestring<byte> {
-        using bytestring<byte>::bytestring;
-        bytes (bytestring<byte> &&b) : bytestring<byte> {b} {}
-        
-        static maybe<bytes> from_hex (string_view s);
-        static bytes from_string (string_view s) {
-            bytes b;
-            b.resize (s.size ());
-            for (int i = 0; i < s.size (); i++) b[i] = static_cast<byte> (s[i]);
-            return b;
-        }
-        
-        template <typename X, typename... P>
-        static bytes write (size_t size, X x, P... p) {
-            bytes b (size);
-            bytes_writer w (b.begin (), b.end ());
-            write (w, x, p...);
-            return b;
-        }
-        
-    private:
+    namespace {
         template <typename X>
-        static writer<byte> &write (writer<byte> &w, X x) {
+        static writer<byte> &write_to_writer (writer<byte> &w, X x) {
             return w << x;
         }
-        
+
         template <typename X, typename... P>
-        static writer<byte> &write (writer<byte> &w, X x, P... p) {
-           return write (write (w, x), p...);
+        static writer<byte> &write_to_writer (writer<byte> &w, X x, P... p) {
+           return write_to_writer (write_to_writer (w, x), p...);
         }
-    };
-    
-    bytes operator ~ (const bytes &b);
-    
-    bytes operator << (const bytes &b, int i);
-    
-    bytes operator >> (const bytes &b, int i);
+
+    }
+
+    template <typename X, typename... P>
+    static bytes write_bytes (size_t size, X x, P... p) {
+        bytes b (size);
+        bytes_writer w (b.begin (), b.end ());
+        write_to_writer (w, x, p...);
+        return b;
+    }
     
     template <std::unsigned_integral word, size_t...> struct bytes_array;
     
     template <std::unsigned_integral word, size_t size> struct bytes_array<word, size> : public bytestring<word> {
         bytes_array () : bytestring<word> (size) {}
         
-        static bytes_array filled (const word& x) {
+        static bytes_array filled (const word &x) {
             bytes_array n {};
             n.fill (x);
             return n;
@@ -201,26 +185,24 @@ namespace data {
             return n;
         }
         
-        explicit operator bytes () const;
-        
     protected:
         void bit_and (const slice<word, size> a) {
             math::number::arithmetic::bit_and<word>
-                (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
+                (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
         }
         
         void bit_or (const slice<word, size> a) {
             math::number::arithmetic::bit_or<word>
-                (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
+                (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
         }
         
         void bit_xor (const slice<word, size> a) {
             math::number::arithmetic::bit_xor<word>
-                (this->end (), this->begin (), const_cast<const word*> (this->data ()), a.begin ());
+                (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
         }
         
         void fill (byte b) {
-            for (byte& z : *this) z = b;
+            for (byte &z : *this) z = b;
         }
         
     };
@@ -234,17 +216,14 @@ namespace data {
     template <std::unsigned_integral word, size_t size> 
     bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
     
-    template <std::unsigned_integral word>
-    std::ostream inline &operator << (std::ostream &o, const bytestring<word> &s);
-    
-    template <std::unsigned_integral word, size_t size> 
-    std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s);
+    std::ostream &operator << (std::ostream &o, const bytes &s);
     
     template <size_t size> using byte_array = bytes_array<byte, size>;
     
     template <endian::order r, typename word, size_t ... sizes> struct oriented;
     
-    template <endian::order r, std::unsigned_integral word> struct oriented<r, word> : bytestring<word> {
+    template <endian::order r, std::unsigned_integral word>
+    struct oriented<r, word> : bytestring<word> {
         using bytestring<word>::bytestring;
         
         using words_type = encoding::words<r, word>;
@@ -258,7 +237,8 @@ namespace data {
         }
     };
     
-    template <endian::order r, std::unsigned_integral word, size_t size> struct oriented<r, word, size> : bytes_array<word, size> {
+    template <endian::order r, std::unsigned_integral word, size_t size>
+    struct oriented<r, word, size> : bytes_array<word, size> {
         using bytes_array<word, size>::bytes_array;
         oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
         
@@ -341,16 +321,6 @@ namespace data {
     }
     
     template <std::unsigned_integral word>
-    std::ostream inline &operator << (std::ostream &o, const bytestring<word> &s) {
-        return o << bytes (s);
-    }
-    
-    template <std::unsigned_integral word, size_t size> 
-    std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s) {
-        return o << bytes (s);
-    }
-    
-    template <std::unsigned_integral word>
     void inline bytestring<word>::bit_shift_left (uint32 x, bool fill) {
         encoding::words<endian::big, word> (slice<word> (*this)).bit_shift_left (x, fill);
     }
@@ -381,18 +351,6 @@ namespace data {
         if (i < 0) n.bit_shift_left (-i);
         else n.bit_shift_right (i);
         return n;
-    }
-    
-    bytes inline operator ~ (const bytes &b) {
-        return ~static_cast<bytestring<byte>> (b);
-    }
-    
-    bytes inline operator << (const bytes &b, int i) {
-        return static_cast<bytestring<byte>> (b) << i;
-    }
-    
-    bytes inline operator >> (const bytes &b, int i) {
-        return static_cast<bytestring<byte>> (b) >> i;
     }
     
     template <typename X>
@@ -447,25 +405,7 @@ namespace data {
     
     template <std::unsigned_integral word, size_t size>
     inline bytes_array<word, size>::operator view<word> () const {
-        return {this->data(), size};
-    }
-    
-    template <std::unsigned_integral word>
-    bytestring<word>::operator bytes () const {
-        size_t x = sizeof (word) * this->size ();
-        bytes b (x);
-        const byte *w = (const byte*) (this->data ());
-        std::copy (w, w + x, b.begin ());
-        return b;
-    }
-    
-    template <std::unsigned_integral word, size_t size> 
-    bytes_array<word, size>::operator bytes () const {
-        size_t x = sizeof (word) * size;
-        bytes b (x);
-        const byte *w = (const byte*) (this->data ());
-        std::copy (w, w + x, b.begin ());
-        return b;
+        return {this->data (), size};
     }
     
 }

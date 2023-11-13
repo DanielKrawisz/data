@@ -7,6 +7,7 @@
 
 #include <data/math/sign.hpp>
 #include <data/encoding/halves.hpp>
+#include <data/math/number/complement.hpp>
 
 #include <iostream>
 
@@ -305,6 +306,72 @@ namespace data::math::number::arithmetic {
         for (const auto &d : x) if (d != 0) return false;
         return true;
     }
+
+    template <complement c, range X>
+    size_t minimal_size (X x) {
+        if constexpr (c == complement::nones) {
+            int xsize = size (x);
+            for (auto i = x.rbegin (); i != x.rend (); i++) {
+                if (*i != 0) break;
+                else xsize--;
+            }
+
+            return xsize;
+        } else if constexpr (c == complement::ones) {
+            if (size (x) == 0) return 0;
+            digit<X> d = *x.rbegin ();
+            if (d != std::numeric_limits<digit<X>>::max () && d != 0) return size (x);
+            int repeated_bytes = 0;
+            auto i = x.rbegin () + 1;
+            while (true) {
+                // if we reach the end, then the number is either 0 or -1.
+                if (i == x.rend ()) return d == 0 ? 0 : 1;
+                if (*i == d) repeated_bytes ++;
+                else return size (x) - repeated_bytes -
+                    (*i < get_sign_bit<digit<X>>::value && d == 0 ||
+                        *i >= get_sign_bit<digit<X>>::value && d == std::numeric_limits<digit<X>>::max () ? 1 : 0);
+                i++;
+            }
+        } else if constexpr (c == complement::twos) {
+            if (size (x) == 0) return 0;
+            // numbers that don't begin with 00 or 80 are minimal.
+            auto i = x.rbegin ();
+            digit<X> d = *i;
+            if (d != get_sign_bit<digit<X>>::value && d != 0) return size (x);
+
+            // count the number of zero bytes after the first.
+            int extra_zero_bytes = 0;
+            while (true) {
+                i++;
+                // if we reach the end then this number is zero.
+                if (i == x.rend ()) return 0;
+                if (*i == 0) extra_zero_bytes ++;
+                // if the first non-zero digit does not have the
+                // sign bit set then we can remove an extra digit.
+                else return size (x) - extra_zero_bytes - (*i < get_sign_bit<digit<X>>::value ? 1 : 0);
+            }
+        }
+    }
+
+    template <complement c, range X>
+    std::weak_ordering compare (X a, X b) {
+        if constexpr (c == complement::nones) {
+            auto za = size (a);
+            auto zb = size (b);
+            if (za < zb) return 0 <=> compare<c> (b, a);
+            size_t size_difference = za - zb;
+
+            auto ai = a.rbegin ();
+            for (int i = 0; i < size_difference; i++) {
+                if (0 != *ai) return std::weak_ordering::greater;
+                ai++;
+            }
+
+            return arithmetic::compare (a.rend (), ai, b.rbegin ());
+        } else if constexpr (c == complement::ones) {
+        } else if constexpr (c == complement::twos) {}
+    }
+
 }
 
 namespace data::math::number::arithmetic::nones {
@@ -312,17 +379,6 @@ namespace data::math::number::arithmetic::nones {
     template <range X>
     bool inline is_minimal (X x) {
         return size (x) == 0 || x[-1] != 0;
-    }
-
-    template <range X>
-    size_t minimal_size (X x) {
-        int xsize = size (x);
-        for (auto i = x.rbegin (); i != x.rend (); i++) {
-            if (*i != 0) break;
-            else xsize--;
-        }
-
-        return xsize;
     }
 
     template <range X>
@@ -339,20 +395,6 @@ namespace data::math::number::arithmetic::nones {
     math::sign inline sign (X x) {
         for (auto i = x.rbegin (); i != x.rend (); i++) if (*i != 0) return math::positive;
         return math::zero;
-    }
-
-    template <range X>
-    std::weak_ordering compare (X a, X b) {
-        if (size (a) < size (b)) return 0 <=> nones::compare (b, a);
-        size_t size_difference = size (a) - size (b);
-
-        auto ai = a.rbegin ();
-        for (int i = 0; i < size_difference; i++) {
-            if (0 != *ai) return std::weak_ordering::greater;
-            ai++;
-        }
-
-        return arithmetic::compare (a.rend (), ai, b.rbegin ());
     }
 
 }
@@ -376,24 +418,6 @@ namespace data::math::number::arithmetic::ones {
     }
 
     template <range X>
-    size_t minimal_size (X x) {
-        if (size (x) == 0) return 0;
-        digit<X> d = *x.rbegin ();
-        if (d != std::numeric_limits<digit<X>>::max () && d != 0) return size (x);
-        int repeated_bytes = 0;
-        auto i = x.rbegin () + 1;
-        while (true) {
-            // if we reach the end, then the number is either 0 or -1.
-            if (i == x.rend ()) return d == 0 ? 0 : 1;
-            if (*i == d) repeated_bytes ++;
-            else return size (x) - repeated_bytes -
-                (*i < get_sign_bit<digit<X>>::value && d == 0 ||
-                    *i >= get_sign_bit<digit<X>>::value && d == std::numeric_limits<digit<X>>::max () ? 1 : 0);
-            i++;
-        }
-    }
-
-    template <range X>
     bool inline is_positive (X x) {
         return !is_zero (x) && !sign_bit (x);
     }
@@ -414,9 +438,6 @@ namespace data::math::number::arithmetic::ones {
         }
         return math::zero;
     }
-
-    template <range X>
-    std::weak_ordering compare (X, X);
 
 }
 
@@ -454,27 +475,6 @@ namespace data::math::number::arithmetic::twos {
     }
 
     template <range X>
-    size_t minimal_size (X x) {
-        if (size (x) == 0) return 0;
-        // numbers that don't begin with 00 or 80 are minimal.
-        auto i = x.rbegin ();
-        digit<X> d = *i;
-        if (d != get_sign_bit<digit<X>>::value && d != 0) return size (x);
-
-        // count the number of zero bytes after the first.
-        int extra_zero_bytes = 0;
-        while (true) {
-            i++;
-            // if we reach the end then this number is zero.
-            if (i == x.rend ()) return 0;
-            if (*i == 0) extra_zero_bytes ++;
-            // if the first non-zero digit does not have the
-            // sign bit set then we can remove an extra digit.
-            else return size (x) - extra_zero_bytes - (*i < get_sign_bit<digit<X>>::value ? 1 : 0);
-        }
-    }
-
-    template <range X>
     bool is_positive (X x);
 
     template <range X>
@@ -492,9 +492,6 @@ namespace data::math::number::arithmetic::twos {
             if (*i != 0) return nonzero;
         }
     }
-
-    template <range X>
-    std::weak_ordering compare (X, X);
 
     template <range X>
     bool inline cast_to_bool (X x) {

@@ -20,16 +20,16 @@ namespace data::crypto::hash::bitcoind {
         
         hash Hash;
         
-        writer() : Hash{} {}
+        writer () : Hash {} {}
         
-        void write(const byte *b, size_t x) override {
-            Hash.Write(b, x);
+        void write (const byte *b, size_t x) override {
+            Hash.Write (b, x);
         }
         
-        digest<size> finalize() {
+        digest<size> finalize () {
             digest<size> d;
-            Hash.Finalize(d.data());
-            Hash.Reset();
+            Hash.Finalize (d.data());
+            Hash.Reset ();
             return d;
         }
         
@@ -39,18 +39,22 @@ namespace data::crypto::hash::bitcoind {
 
 namespace data::crypto::hash {
     
-    struct SHA1 : bitcoind::writer<CSHA1, 20> {}; 
+    struct SHA1 : bitcoind::writer<CSHA1, 20> {};
     
-    template <> struct RIPEMD<20> : bitcoind::writer<CRIPEMD160, 20> {}; 
+    template <> struct RIPEMD<20> : bitcoind::writer<CRIPEMD160, 20> {};
     
     template <> struct SHA2<32> : bitcoind::writer<CSHA256, 32> {};
     
-    digest<20> inline RIPEMD_160(bytes_view b) {
-        return calculate<RIPEMD<20>>(b);
+}
+
+namespace data::crypto {
+
+    digest160 inline RIPEMD_160 (bytes_view b) {
+        return hash::calculate<hash::RIPEMD<20>> (b);
     }
-    
-    digest<32> inline SHA2_256(bytes_view b) {
-        return calculate<SHA2<32>>(b);
+
+    digest256 inline SHA2_256 (bytes_view b) {
+        return hash::calculate<hash::SHA2<32>> (b);
     }
 
 }
