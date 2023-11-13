@@ -5,7 +5,7 @@
 #ifndef DATA_STRING
 #define DATA_STRING
 
-#include "types.hpp"
+#include "cross.hpp"
 
 namespace data {
 
@@ -16,6 +16,8 @@ namespace data {
 
         string (const std::string &x) : std::string {x} {}
         string (std::string &&x) : std::string {x} {}
+
+        explicit operator bytes () const;
     };
 
     string drop (const std::string &, int64 begin);

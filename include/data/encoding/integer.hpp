@@ -664,7 +664,7 @@ namespace data::encoding::hexidecimal {
     struct complemented_string<complement::nones, cx> : string<cx> {
         using string<cx>::string;
         complemented_string (const string<cx> &x): string<cx> {x} {}
-        complemented_string (int64);
+        complemented_string (uint64);
 
         explicit operator uint64 () const;
         explicit operator integer<complement::ones, cx> () const;
@@ -1538,7 +1538,7 @@ namespace data::encoding::hexidecimal {
     }
 
     template <hex::letter_case zz>
-    inline complemented_string<complement::nones, zz>::complemented_string (int64 x):
+    inline complemented_string<complement::nones, zz>::complemented_string (uint64 x):
         complemented_string {write_int<complement::nones, zz> {} (x)} {
         *this = trim<complement::nones, zz> (*this);
     }

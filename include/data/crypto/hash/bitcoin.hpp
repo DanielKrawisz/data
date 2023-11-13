@@ -15,14 +15,14 @@ namespace data::crypto::hash {
         
         constexpr static size_t size = 20;
         
-        Bitcoin() : Writer{} {}
+        Bitcoin () : Writer {} {}
         
-        void write(const byte *b, size_t x) override {
-            Writer.write(b, x);
+        void write (const byte *b, size_t x) override {
+            Writer.write (b, x);
         }
         
-        digest<20> finalize() {
-            return calculate<RIPEMD<20>>(Writer.finalize());
+        digest<20> finalize () {
+            return calculate<RIPEMD<20>> (Writer.finalize ());
         }
     };
     
@@ -32,25 +32,28 @@ namespace data::crypto::hash {
         
         constexpr static size_t size = 32;
         
-        Bitcoin() : Writer{} {}
+        Bitcoin () : Writer {} {}
         
-        void write(const byte *b, size_t x) override {
-            Writer.write(b, x);
+        void write (const byte *b, size_t x) override {
+            Writer.write (b, x);
         }
         
-        digest<32> finalize() {
-            return calculate<SHA2<32>>(Writer.finalize());
+        digest<32> finalize () {
+            return calculate<SHA2<32>> (Writer.finalize ());
         }
     };
-    
-    digest<20> inline Bitcoin_160(bytes_view b) {
-        return calculate<Bitcoin<20>>(b);
-    }
-    
-    digest<32> inline Bitcoin_256(bytes_view b) {
-        return calculate<Bitcoin<32>>(b);
+
+}
+
+namespace data::crypto::hash {
+
+    digest<20> inline Bitcoin_160 (bytes_view b) {
+        return calculate<Bitcoin<20>> (b);
     }
 
+    digest<32> inline Bitcoin_256 (bytes_view b) {
+        return calculate<Bitcoin<32>> (b);
+    }
 }
 
 #endif

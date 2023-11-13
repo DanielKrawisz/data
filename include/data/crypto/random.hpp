@@ -82,7 +82,7 @@ namespace data::crypto {
         bytes get (size_t x) override {
             bytes left = Left->get (x);
             bytes right = Right->get (x);
-            return bytes::write (left.size () + right.size (), left, right);
+            return write_bytes (left.size () + right.size (), left, right);
         }
     };
     

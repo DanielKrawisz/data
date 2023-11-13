@@ -9,7 +9,7 @@
 namespace data::math::number {
     
     TEST (NBytesTest, TestStringToNBytes) {
-        
+
         EXPECT_THROW (N_bytes<endian::big>::read (""), std::invalid_argument);
         EXPECT_THROW (N_bytes<endian::big>::read ("a"), std::invalid_argument);
         EXPECT_THROW (N_bytes<endian::big>::read ("-"), std::invalid_argument);
