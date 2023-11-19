@@ -144,7 +144,7 @@ namespace data {
     
     TEST (NumbersTest, TestNumberSystem) {
 
-        test_number_system<uint64, int64> {};/*
+        test_number_system<uint64, int64> {};
         test_number_system<uint64_little, int64_little> {};
         test_number_system<uint64_big, int64_big> {};
 
@@ -155,8 +155,8 @@ namespace data {
         test_number_system<uint_little<11>, int_little<11>> {};
         test_number_system<uint_big<11>, int_big<11>> {};
         test_number_system<uint_little<20>, int_little<20>> {};
-        test_number_system<uint_big<20>, int_big<20>> {};*
-/*
+        test_number_system<uint_big<20>, int_big<20>> {};
+
         test_number_system<N, Z> {};
 
         test_number_system<N_bytes_little, Z_bytes_little> {};
@@ -165,12 +165,12 @@ namespace data {
         test_unsigned_number<base58_uint> {};
 
         test_number_system<dec_uint, dec_int> {};
-        test_number_system<hex_uint, hex_int> {};*/
-/*
+        test_number_system<hex_uint, hex_int> {};
+
         test_signed_number<hex_int_twos> {};
 
         test_signed_number<Z_bytes_twos_little> {};
-        test_signed_number<Z_bytes_twos_big> {};*/
+        test_signed_number<Z_bytes_twos_big> {};
 
     }
     

@@ -74,6 +74,7 @@ namespace data::math::number::arithmetic::nones {
     template <endian::order r, std::integral word> bytestring<word> &plus (bytestring<word> &, view<word>);
     template <endian::order r, std::integral word> bytestring<word> plus (view<word>, view<word>);
 
+    // assume first input is greater than second.
     template <endian::order r, std::integral word> bytestring<word> &minus (bytestring<word> &, view<word>);
     template <endian::order r, std::integral word> bytestring<word> minus (view<word>, view<word>);
 
@@ -212,22 +213,16 @@ namespace data::math::number::arithmetic::nones {
         return div_by_2<r> (y);
     }
 
-    template <endian::order r, std::integral word>
-    bytestring<word> inline plus (view<word> x, view<word> z) {
-        bytestring<word> y {x};
-        return plus<r> (y, z);
+    template <endian::order r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, view<word>y) {
+        return x = plus<r> (view<word> (x), y);
     }
 
-    template <endian::order r, std::integral word>
-    bytestring<word> inline minus (view<word> x, view<word> z) {
-        bytestring<word> y {x};
-        return minus<r> (y, z);
+    template <endian::order r, std::integral word> bytestring<word> inline &minus (bytestring<word> &x, view<word>y) {
+        return x = minus<r> (view<word> (x), y);
     }
 
-    template <endian::order r, std::integral word>
-    bytestring<word> inline times (view<word> x, view<word> z) {
-        bytestring<word> y {x};
-        return times<r> (y, z);
+    template <endian::order r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, view<word>y) {
+        return x = times<r> (view<word> (x), y);
     }
 
 }
@@ -270,16 +265,12 @@ namespace data::math::number::arithmetic::ones {
         return abs<r> (y);
     }
 
-    template <endian::order r, std::integral word>
-    bytestring<word> inline plus (view<word> x, view<word> z) {
-        bytestring<word> y {x};
-        return plus<r> (y, z);
+    template <endian::order r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, view<word>y) {
+        return x = plus<r> (view<word> (x), y);
     }
 
-    template <endian::order r, std::integral word>
-    bytestring<word> inline times (view<word> x, view<word> z) {
-        bytestring<word> y {x};
-        return times<r> (y, z);
+    template <endian::order r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, view<word>y) {
+        return x = times<r> (view<word> (x), y);
     }
 
 }
@@ -483,6 +474,25 @@ namespace data::math::number::arithmetic::nones {
         if (!is_zero (w)) arithmetic::minus<byte> (w.end (), xx, 1, xy);
         return x;
     }
+
+    template <endian::order r, std::integral word> bytestring<word> plus (view<word> a, view<word> b) {
+        bytestring<word> n (std::max (a.size (), b.size ()), 0);
+        auto wn = words<r> (n);
+        word remainder = arithmetic::plus<r, byte> (wn, words<r> (a), words<r> (b));
+        if (remainder > 0) {
+            extend<r, complement::nones, word> (n, n.size () + 1);
+            *words<r> (n).rbegin () = remainder;
+        }
+        return n;
+    }
+
+    // assume a > b;
+    template <endian::order r, std::integral word> bytestring<word> minus (view<word> a, view<word> b) {
+        bytestring<word> n (a.size (), 0);
+        auto wn = words<r> (n);
+        arithmetic::minus<r, byte> (wn, words<r> (a), words<r> (b));
+        return n;
+    }
 }
 
 namespace data::math::number::arithmetic::ones {
@@ -628,6 +638,52 @@ namespace data::math::number::arithmetic::twos {
         auto w = words<r> (x);
         if (sign_bit (w)) return negate<r> (x);
         return x;
+    }
+
+    template <endian::order r, std::integral word> bytestring<word> plus (view<word> a, view<word> b) {
+
+        auto wa = words<r> (a);
+        auto wb = words<r> (b);
+
+        bool an = is_negative (wa);
+        {
+            bool bn = is_negative (wb);
+            if (!an && !bn) {
+                bytestring<word> c (std::max (a.size (), b.size ()), 9);
+                auto wc = words<r> (c);
+                word remainder = arithmetic::plus<r, byte> (wc, wa, wb);
+                if (remainder > 0 || sign_bit (wc)) {
+                    extend<r, complement::nones, word> (c, c.size () + 1);
+                    *words<r> (c).rbegin () = remainder;
+                }
+                return c;
+            }
+
+            if (an && bn) return negate<r, byte> (plus<r, byte> (negate<r, byte> (a),  negate<r, byte> (b)));
+        }
+
+        if (an) {
+            bytestring<word> na = negate<r, byte> (a);
+            return compare<r, word> (na, b) > 0 ? negate<r, byte> (nones::minus<r, word> (na, b)): nones::minus<r, word> (b, na);
+        } else {
+            bytestring<word> nb = negate<r, byte> (b);
+            return compare<r, word> (a, nb) > 0 ? nones::minus<r, word> (a, nb): negate<r, byte> (nones::minus<r, word> (nb, a));
+        }
+    }
+
+    template <endian::order r, std::integral word> bytestring<word> times (view<word> a, view<word> b) {
+
+        auto as = abs<r, byte> (a);
+        auto bs = abs<r, byte> (b);
+        bytestring<word> cs (as.size () + bs.size () + 1, 0);
+
+        auto wa = words<r> (as);
+        auto wb = words<r> (bs);
+        auto wc = words<r> (cs);
+
+        arithmetic::times (wc, wa, wb);
+
+        return is_negative (words<r> (a)) == is_negative (words<r> (b)) ? cs : negate<r, byte> (cs);
     }
 }
 

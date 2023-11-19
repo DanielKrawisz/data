@@ -7,7 +7,6 @@
 
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/bytes/complements.hpp>
-#include <data/math/arithmetic.hpp>
 
 namespace data::math::number {
     
@@ -717,20 +716,7 @@ namespace data::math::number {
     Z_bytes<r, complement::twos> operator +
     (const Z_bytes<r, complement::twos> &a, const Z_bytes<r, complement::twos> &b)
     {
-
-        bool an = is_negative (a);
-        bool bn = is_negative (b);
-        N_bytes<r> ax = N_bytes<r>::read (static_cast<bytes> (data::abs (a)));
-        N_bytes<r> bx = N_bytes<r>::read (static_cast<bytes> (data::abs (b)));
-
-        if (!an && !bn) return Z_bytes<r, complement::twos> (ax + bx);
-        if (an && bn) return -Z_bytes<r, complement::twos> (ax + bx);
-
-        bool agb = ax > bx;
-
-        return agb ?
-            (an ? -Z_bytes<r, complement::twos> (ax - bx) : Z_bytes<r, complement::twos> (ax - bx)) :
-            (an ? Z_bytes<r, complement::twos> (bx - ax) : -Z_bytes<r, complement::twos> (bx - ax));
+        return arithmetic::trim<r, complement::twos, byte> (arithmetic::twos::plus<r, byte> (trim (a), trim (b)));
     }
     
     template <endian::order r>
@@ -747,12 +733,7 @@ namespace data::math::number {
     Z_bytes<r, complement::twos> operator *
     (const Z_bytes<r, complement::twos> &a, const Z_bytes<r, complement::twos> &b)
     {
-        bool an = is_negative (a);
-        bool bn = is_negative (b);
-        auto mul = Z_bytes<r, complement::twos>
-            (N_bytes<r>::read (static_cast<bytes> (data::abs (a))) *
-                N_bytes<r>::read (static_cast<bytes> (data::abs (b))));
-        return (an && bn) || (!an && !bn) ? mul : -mul;
+        return arithmetic::trim<r, complement::twos, byte> (arithmetic::twos::times<r, byte> (trim (a), trim (b)));
     }
     
     template <endian::order r> template<complement c> N_bytes<r>::operator Z_bytes<r, c> () const {
@@ -909,20 +890,14 @@ namespace data::math::number {
         }
 
         template <endian::order r>
-        N_bytes<r> plus (const N_bytes<r> &a, const N_bytes<r> &b) {
-            N_bytes<r> n = N_bytes<r>::zero (std::max (a.size (), b.size ()) + 1);
-            auto w = n.words ();
-            arithmetic::plus (w, a.words (), b.words ());
-            return n;
+        N_bytes<r> inline plus (const N_bytes<r> &a, const N_bytes<r> &b) {
+            return arithmetic::nones::plus<r, byte> (a, b);
         }
 
         template <endian::order r>
-        N_bytes<r> minus (const N_bytes<r> &a, const N_bytes<r> &b) {
+        N_bytes<r> inline minus (const N_bytes<r> &a, const N_bytes<r> &b) {
             if (b > a) return N_bytes<r>::zero ();
-            N_bytes<r> n = N_bytes<r>::zero (a.size () + 1);
-            auto w = n.words ();
-            arithmetic::minus (w, a.words (), b.words ());
-            return n;
+            return arithmetic::nones::minus<r, byte> (a, b);
         }
 
         template <endian::order r>

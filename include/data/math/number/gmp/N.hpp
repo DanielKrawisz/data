@@ -46,19 +46,16 @@ namespace data::math::number::GMP {
             return *this;
         };
         
-        math::division<N> divide (const N& n) const {
+        math::division<N> divide (const N &n) const {
             auto div = Value.divide (n.Value);
             return math::division<N> {N {div.Quotient}, N {div.Remainder}};
         }
         
         template <endian::order o>
-        explicit N (const N_bytes<o>& n) : N {bytes_view (n), o} {}
-        /*
-        template <endian::order o, size_t size> 
-        explicit N(const bounded<false, o, size>& b) : Value{b} {}*/
+        explicit N (const N_bytes<o> &n) : N {bytes_view (n), o} {}
         
     private:
-        explicit N (const Z& z) : Value {z} {}
+        explicit N (const Z &z) : Value {z} {}
         
         N (bytes_view, endian::order);
         

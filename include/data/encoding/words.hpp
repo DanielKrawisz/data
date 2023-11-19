@@ -165,9 +165,9 @@ namespace data::math::number::arithmetic {
     }
 
     template <endian::order r, typename digit>
-    void plus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
+    digit plus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
         if (a.size () < b.size ()) return plus (o, b, a);
-        if (o.size () <= a.size ()) throw exception {"need a bigger space to add numbers"};
+        if (o.size () < a.size ()) throw exception {"need a bigger space to add numbers"};
 
         auto oit = o.begin ();
         auto ait = a.begin ();
@@ -179,13 +179,13 @@ namespace data::math::number::arithmetic {
         digit remainder_1 = plus<digit> (end_step_1, oit, ait, bit);
         digit remainder_2 = plus (end_step_2, oit, remainder_1, ait);
         auto oiti = oit;
-        plus (o.end (), oit, remainder_2, oiti);
+        return plus (o.end (), oit, remainder_2, oiti);
 
     }
 
     // we should already be able to expect that a > b, so the result will not go from positive to negative.
     template <endian::order r, typename digit>
-    void minus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
+    digit minus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
 
         auto oit = o.begin ();
         auto ait = a.begin ();
@@ -195,7 +195,7 @@ namespace data::math::number::arithmetic {
         auto end_step_2 = oit + a.size ();
 
         digit remainder = minus<digit> (end_step_1, oit, ait, bit);
-        minus<digit> (end_step_2, oit, remainder, ait);
+        return minus<digit> (end_step_2, oit, remainder, ait);
 
     }
 
@@ -205,7 +205,7 @@ namespace data::math::number::arithmetic {
         // if the size of b is zero, then the answer is zero and we can skip to the end.
         if (a.size () == 0 || b.size () == 0) return;
 
-        // we ensure that a is at least as big as b.
+        // ensure that a is at least as big as b.
         if (a.size () < b.size ()) return times (o, b, a);
 
         using two_digits = typename encoding::twice<digit>::type;
