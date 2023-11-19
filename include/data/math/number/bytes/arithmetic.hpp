@@ -457,7 +457,17 @@ namespace data::math::number::arithmetic::twos {
     }
 
     template <range X>
-    bool is_negative_zero (X x);
+    bool is_negative_zero (X x) {
+        auto i = x.rbegin ();
+        auto e = x.rend ();
+        if (i == e) return false;
+        if (*i != get_sign_bit<digit<X>>::value) return false;
+        while (true) {
+            i++;
+            if (i == e) return true;
+            if (*i != 0) return false;
+        }
+    }
 
     template <range X>
     bool inline is_positive_zero (X x) {
@@ -475,10 +485,14 @@ namespace data::math::number::arithmetic::twos {
     }
 
     template <range X>
-    bool is_positive (X x);
+    bool inline is_positive (X x) {
+        return !sign_bit (x) && !is_positive_zero (x);
+    }
 
     template <range X>
-    bool is_negative (X x);
+    bool inline is_negative (X x) {
+        return sign_bit (x) && !is_negative_zero (x);
+    }
 
     template <range X>
     math::sign sign (X x) {

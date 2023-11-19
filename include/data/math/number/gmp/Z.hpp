@@ -39,7 +39,7 @@ namespace data::math::number::GMP {
             mpz_set (MPZ, n.MPZ);
         }
         
-        Z (Z&& n) : Z {} {
+        Z (Z &&n) : Z {} {
             mpz_swap (MPZ, n.MPZ);
         }
         
@@ -278,7 +278,7 @@ namespace data::math::number::GMP {
     
     Z inline operator * (const Z &z, int64 n) {
         Z sum;
-        __gmp_binary_multiplies::eval(sum.MPZ, z.MPZ, n);
+        __gmp_binary_multiplies::eval (sum.MPZ, z.MPZ, n);
         return sum;
     }
     
