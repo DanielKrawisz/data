@@ -70,6 +70,12 @@ namespace data::crypto::hash {
 
 namespace data::crypto {
 
+#ifndef USE_BITCOIND_HASH_FUNCTIONS
+    digest160 inline SHA1 (bytes_view b) {
+        return hash::calculate<hash::SHA1> (b);
+    }
+#endif
+
     digest128 inline RIPEMD_128 (bytes_view b) {
         return hash::calculate<hash::RIPEMD<16>> (b);
     }

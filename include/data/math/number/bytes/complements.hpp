@@ -321,13 +321,6 @@ namespace data::math::number::arithmetic::twos {
         return x = times<r> (view<word> (x), y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> zero (size_t size, bool negative) {
-        if (negative && size == 0) throw exception {"cannot make negative zero of size zero."};
-        bytestring<word> z (size, 0);
-        if (negative) words<r> (z)[-1] = get_sign_bit<word>::value;
-        return z;
-    }
-
 }
 
 namespace data::math::number::arithmetic {
@@ -555,6 +548,13 @@ namespace data::math::number::arithmetic::ones {
 }
 
 namespace data::math::number::arithmetic::twos {
+
+    template <endian::order r, std::integral word> bytestring<word> zero (size_t size, bool negative) {
+        if (negative && size == 0) throw exception {"cannot make negative zero of size zero."};
+        bytestring<word> z (size, 0);
+        if (negative) words<r> (z)[-1] = get_sign_bit<word>::value;
+        return z;
+    }
 
     template <endian::order r, std::integral word> std::weak_ordering compare (view<word> a, view<word> b) {
 
