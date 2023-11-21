@@ -2,15 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/crypto/hash/hash.h"
+#include "data/crypto/hash/hash.hpp"
+#include "gtest/gtest.h"
 
 namespace data::crypto {
 
-    TEST (HashTest, TestSHA1) {
-
-    }
-
-    TEST (HashTest, TestSHA2) {
+    TEST (HashTest, TestSHA) {
 
     }
 
@@ -18,8 +15,10 @@ namespace data::crypto {
 
     }
 
-    TEST (HashTest, TestSHA3) {
-
+    TEST (HashTest, TestBitcoinHash) {
+        bytes data = *encoding::hex::read ("00010203fdfeff");
+        digest256 digest = Bitcoin_256 (data);
+        EXPECT_TRUE (true);
     }
 
 }

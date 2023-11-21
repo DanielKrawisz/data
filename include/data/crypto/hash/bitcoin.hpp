@@ -45,14 +45,14 @@ namespace data::crypto::hash {
 
 }
 
-namespace data::crypto::hash {
+namespace data::crypto {
 
-    digest<20> inline Bitcoin_160 (bytes_view b) {
-        return calculate<Bitcoin<20>> (b);
+    digest160 inline Bitcoin_160 (bytes_view b) {
+        return hash::calculate<hash::Bitcoin<20>> (b);
     }
 
-    digest<32> inline Bitcoin_256 (bytes_view b) {
-        return calculate<Bitcoin<32>> (b);
+    digest256 inline Bitcoin_256 (bytes_view b) {
+        return hash::calculate<hash::Bitcoin<32>> (b);
     }
 }
 
