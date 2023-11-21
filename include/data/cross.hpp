@@ -107,7 +107,7 @@ namespace data {
         }
         
         operator view<word> () const {
-            return bytes_view (cross<word>::data (), cross<word>::size ());
+            return view<word> {cross<word>::data (), cross<word>::size ()};
         }
         
         operator slice<word> () {

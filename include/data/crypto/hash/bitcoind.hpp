@@ -28,7 +28,7 @@ namespace data::crypto::hash::bitcoind {
         
         digest<size> finalize () {
             digest<size> d;
-            Hash.Finalize (d.data());
+            Hash.Finalize (d.data ());
             Hash.Reset ();
             return d;
         }

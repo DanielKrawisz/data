@@ -22,37 +22,37 @@ void Transform(uint32_t *s, const unsigned char *chunk, size_t blocks);
 namespace {
 /// Internal SHA-256 implementation.
 namespace sha256 {
-    inline uint32_t Ch(uint32_t x, uint32_t y, uint32_t z) {
+    inline uint32_t Ch (uint32_t x, uint32_t y, uint32_t z) {
         return z ^ (x & (y ^ z));
     }
-    inline uint32_t Maj(uint32_t x, uint32_t y, uint32_t z) {
+    inline uint32_t Maj (uint32_t x, uint32_t y, uint32_t z) {
         return (x & y) | (z & (x | y));
     }
-    inline uint32_t Sigma0(uint32_t x) {
+    inline uint32_t Sigma0 (uint32_t x) {
         return (x >> 2 | x << 30) ^ (x >> 13 | x << 19) ^ (x >> 22 | x << 10);
     }
-    inline uint32_t Sigma1(uint32_t x) {
+    inline uint32_t Sigma1 (uint32_t x) {
         return (x >> 6 | x << 26) ^ (x >> 11 | x << 21) ^ (x >> 25 | x << 7);
     }
-    inline uint32_t sigma0(uint32_t x) {
+    inline uint32_t sigma0 (uint32_t x) {
         return (x >> 7 | x << 25) ^ (x >> 18 | x << 14) ^ (x >> 3);
     }
-    inline uint32_t sigma1(uint32_t x) {
+    inline uint32_t sigma1 (uint32_t x) {
         return (x >> 17 | x << 15) ^ (x >> 19 | x << 13) ^ (x >> 10);
     }
 
     /** One round of SHA-256. */
-    inline void Round(uint32_t a, uint32_t b, uint32_t c, uint32_t &d,
+    inline void Round (uint32_t a, uint32_t b, uint32_t c, uint32_t &d,
                       uint32_t e, uint32_t f, uint32_t g, uint32_t &h,
                       uint32_t k, uint32_t w) {
-        uint32_t t1 = h + Sigma1(e) + Ch(e, f, g) + k + w;
-        uint32_t t2 = Sigma0(a) + Maj(a, b, c);
+        uint32_t t1 = h + Sigma1 (e) + Ch(e, f, g) + k + w;
+        uint32_t t2 = Sigma0 (a) + Maj(a, b, c);
         d += t1;
         h = t1 + t2;
     }
 
     /** Initialize SHA-256 state. */
-    inline void Initialize(uint32_t *s) {
+    inline void Initialize (uint32_t *s) {
         s[0] = 0x6a09e667ul;
         s[1] = 0xbb67ae85ul;
         s[2] = 0x3c6ef372ul;
@@ -72,11 +72,11 @@ namespace sha256 {
             uint32_t w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13,
                 w14, w15;
 
-            Round(a, b, c, d, e, f, g, h, 0x428a2f98, w0 = ReadBE32(chunk + 0));
-            Round(h, a, b, c, d, e, f, g, 0x71374491, w1 = ReadBE32(chunk + 4));
-            Round(g, h, a, b, c, d, e, f, 0xb5c0fbcf, w2 = ReadBE32(chunk + 8));
-            Round(f, g, h, a, b, c, d, e, 0xe9b5dba5,
-                  w3 = ReadBE32(chunk + 12));
+            Round (a, b, c, d, e, f, g, h, 0x428a2f98, w0 = ReadBE32 (chunk + 0));
+            Round (h, a, b, c, d, e, f, g, 0x71374491, w1 = ReadBE32 (chunk + 4));
+            Round (g, h, a, b, c, d, e, f, 0xb5c0fbcf, w2 = ReadBE32 (chunk + 8));
+            Round (f, g, h, a, b, c, d, e, 0xe9b5dba5,
+                  w3 = ReadBE32 (chunk + 12));
             Round(e, f, g, h, a, b, c, d, 0x3956c25b,
                   w4 = ReadBE32(chunk + 16));
             Round(d, e, f, g, h, a, b, c, 0x59f111f1,
@@ -103,37 +103,37 @@ namespace sha256 {
                   w15 = ReadBE32(chunk + 60));
 
             Round(a, b, c, d, e, f, g, h, 0xe49b69c1,
-                  w0 += sigma1(w14) + w9 + sigma0(w1));
+                  w0 += sigma1(w14) + w9 + sigma0 (w1));
             Round(h, a, b, c, d, e, f, g, 0xefbe4786,
-                  w1 += sigma1(w15) + w10 + sigma0(w2));
+                  w1 += sigma1(w15) + w10 + sigma0 (w2));
             Round(g, h, a, b, c, d, e, f, 0x0fc19dc6,
-                  w2 += sigma1(w0) + w11 + sigma0(w3));
+                  w2 += sigma1(w0) + w11 + sigma0 (w3));
             Round(f, g, h, a, b, c, d, e, 0x240ca1cc,
-                  w3 += sigma1(w1) + w12 + sigma0(w4));
+                  w3 += sigma1(w1) + w12 + sigma0 (w4));
             Round(e, f, g, h, a, b, c, d, 0x2de92c6f,
-                  w4 += sigma1(w2) + w13 + sigma0(w5));
+                  w4 += sigma1(w2) + w13 + sigma0 (w5));
             Round(d, e, f, g, h, a, b, c, 0x4a7484aa,
-                  w5 += sigma1(w3) + w14 + sigma0(w6));
+                  w5 += sigma1(w3) + w14 + sigma0 (w6));
             Round(c, d, e, f, g, h, a, b, 0x5cb0a9dc,
-                  w6 += sigma1(w4) + w15 + sigma0(w7));
+                  w6 += sigma1(w4) + w15 + sigma0 (w7));
             Round(b, c, d, e, f, g, h, a, 0x76f988da,
-                  w7 += sigma1(w5) + w0 + sigma0(w8));
+                  w7 += sigma1(w5) + w0 + sigma0 (w8));
             Round(a, b, c, d, e, f, g, h, 0x983e5152,
-                  w8 += sigma1(w6) + w1 + sigma0(w9));
+                  w8 += sigma1(w6) + w1 + sigma0 (w9));
             Round(h, a, b, c, d, e, f, g, 0xa831c66d,
-                  w9 += sigma1(w7) + w2 + sigma0(w10));
+                  w9 += sigma1(w7) + w2 + sigma0 (w10));
             Round(g, h, a, b, c, d, e, f, 0xb00327c8,
-                  w10 += sigma1(w8) + w3 + sigma0(w11));
+                  w10 += sigma1(w8) + w3 + sigma0 (w11));
             Round(f, g, h, a, b, c, d, e, 0xbf597fc7,
-                  w11 += sigma1(w9) + w4 + sigma0(w12));
+                  w11 += sigma1(w9) + w4 + sigma0 (w12));
             Round(e, f, g, h, a, b, c, d, 0xc6e00bf3,
-                  w12 += sigma1(w10) + w5 + sigma0(w13));
+                  w12 += sigma1(w10) + w5 + sigma0 (w13));
             Round(d, e, f, g, h, a, b, c, 0xd5a79147,
-                  w13 += sigma1(w11) + w6 + sigma0(w14));
+                  w13 += sigma1(w11) + w6 + sigma0 (w14));
             Round(c, d, e, f, g, h, a, b, 0x06ca6351,
-                  w14 += sigma1(w12) + w7 + sigma0(w15));
+                  w14 += sigma1(w12) + w7 + sigma0 (w15));
             Round(b, c, d, e, f, g, h, a, 0x14292967,
-                  w15 += sigma1(w13) + w8 + sigma0(w0));
+                  w15 += sigma1(w13) + w8 + sigma0 (w0));
 
             Round(a, b, c, d, e, f, g, h, 0x27b70a85,
                   w0 += sigma1(w14) + w9 + sigma0(w1));
@@ -148,58 +148,58 @@ namespace sha256 {
             Round(d, e, f, g, h, a, b, c, 0x766a0abb,
                   w5 += sigma1(w3) + w14 + sigma0(w6));
             Round(c, d, e, f, g, h, a, b, 0x81c2c92e,
-                  w6 += sigma1(w4) + w15 + sigma0(w7));
+                  w6 += sigma1 (w4) + w15 + sigma0(w7));
             Round(b, c, d, e, f, g, h, a, 0x92722c85,
-                  w7 += sigma1(w5) + w0 + sigma0(w8));
+                  w7 += sigma1 (w5) + w0 + sigma0(w8));
             Round(a, b, c, d, e, f, g, h, 0xa2bfe8a1,
-                  w8 += sigma1(w6) + w1 + sigma0(w9));
+                  w8 += sigma1 (w6) + w1 + sigma0(w9));
             Round(h, a, b, c, d, e, f, g, 0xa81a664b,
-                  w9 += sigma1(w7) + w2 + sigma0(w10));
+                  w9 += sigma1 (w7) + w2 + sigma0(w10));
             Round(g, h, a, b, c, d, e, f, 0xc24b8b70,
-                  w10 += sigma1(w8) + w3 + sigma0(w11));
+                  w10 += sigma1 (w8) + w3 + sigma0(w11));
             Round(f, g, h, a, b, c, d, e, 0xc76c51a3,
-                  w11 += sigma1(w9) + w4 + sigma0(w12));
+                  w11 += sigma1 (w9) + w4 + sigma0(w12));
             Round(e, f, g, h, a, b, c, d, 0xd192e819,
-                  w12 += sigma1(w10) + w5 + sigma0(w13));
+                  w12 += sigma1 (w10) + w5 + sigma0(w13));
             Round(d, e, f, g, h, a, b, c, 0xd6990624,
-                  w13 += sigma1(w11) + w6 + sigma0(w14));
+                  w13 += sigma1 (w11) + w6 + sigma0(w14));
             Round(c, d, e, f, g, h, a, b, 0xf40e3585,
-                  w14 += sigma1(w12) + w7 + sigma0(w15));
+                  w14 += sigma1 (w12) + w7 + sigma0(w15));
             Round(b, c, d, e, f, g, h, a, 0x106aa070,
-                  w15 += sigma1(w13) + w8 + sigma0(w0));
+                  w15 += sigma1 (w13) + w8 + sigma0(w0));
 
             Round(a, b, c, d, e, f, g, h, 0x19a4c116,
-                  w0 += sigma1(w14) + w9 + sigma0(w1));
-            Round(h, a, b, c, d, e, f, g, 0x1e376c08,
-                  w1 += sigma1(w15) + w10 + sigma0(w2));
-            Round(g, h, a, b, c, d, e, f, 0x2748774c,
-                  w2 += sigma1(w0) + w11 + sigma0(w3));
-            Round(f, g, h, a, b, c, d, e, 0x34b0bcb5,
-                  w3 += sigma1(w1) + w12 + sigma0(w4));
-            Round(e, f, g, h, a, b, c, d, 0x391c0cb3,
-                  w4 += sigma1(w2) + w13 + sigma0(w5));
-            Round(d, e, f, g, h, a, b, c, 0x4ed8aa4a,
-                  w5 += sigma1(w3) + w14 + sigma0(w6));
-            Round(c, d, e, f, g, h, a, b, 0x5b9cca4f,
-                  w6 += sigma1(w4) + w15 + sigma0(w7));
-            Round(b, c, d, e, f, g, h, a, 0x682e6ff3,
-                  w7 += sigma1(w5) + w0 + sigma0(w8));
-            Round(a, b, c, d, e, f, g, h, 0x748f82ee,
-                  w8 += sigma1(w6) + w1 + sigma0(w9));
-            Round(h, a, b, c, d, e, f, g, 0x78a5636f,
-                  w9 += sigma1(w7) + w2 + sigma0(w10));
-            Round(g, h, a, b, c, d, e, f, 0x84c87814,
-                  w10 += sigma1(w8) + w3 + sigma0(w11));
-            Round(f, g, h, a, b, c, d, e, 0x8cc70208,
-                  w11 += sigma1(w9) + w4 + sigma0(w12));
-            Round(e, f, g, h, a, b, c, d, 0x90befffa,
-                  w12 += sigma1(w10) + w5 + sigma0(w13));
-            Round(d, e, f, g, h, a, b, c, 0xa4506ceb,
-                  w13 += sigma1(w11) + w6 + sigma0(w14));
-            Round(c, d, e, f, g, h, a, b, 0xbef9a3f7,
-                  w14 + sigma1(w12) + w7 + sigma0(w15));
-            Round(b, c, d, e, f, g, h, a, 0xc67178f2,
-                  w15 + sigma1(w13) + w8 + sigma0(w0));
+                  w0 += sigma1 (w14) + w9 + sigma0(w1));
+            Round (h, a, b, c, d, e, f, g, 0x1e376c08,
+                  w1 += sigma1 (w15) + w10 + sigma0(w2));
+            Round (g, h, a, b, c, d, e, f, 0x2748774c,
+                  w2 += sigma1 (w0) + w11 + sigma0(w3));
+            Round (f, g, h, a, b, c, d, e, 0x34b0bcb5,
+                  w3 += sigma1 (w1) + w12 + sigma0(w4));
+            Round (e, f, g, h, a, b, c, d, 0x391c0cb3,
+                  w4 += sigma1 (w2) + w13 + sigma0(w5));
+            Round (d, e, f, g, h, a, b, c, 0x4ed8aa4a,
+                  w5 += sigma1 (w3) + w14 + sigma0(w6));
+            Round (c, d, e, f, g, h, a, b, 0x5b9cca4f,
+                  w6 += sigma1 (w4) + w15 + sigma0(w7));
+            Round (b, c, d, e, f, g, h, a, 0x682e6ff3,
+                  w7 += sigma1 (w5) + w0 + sigma0(w8));
+            Round (a, b, c, d, e, f, g, h, 0x748f82ee,
+                  w8 += sigma1 (w6) + w1 + sigma0(w9));
+            Round (h, a, b, c, d, e, f, g, 0x78a5636f,
+                  w9 += sigma1 (w7) + w2 + sigma0(w10));
+            Round (g, h, a, b, c, d, e, f, 0x84c87814,
+                  w10 += sigma1 (w8) + w3 + sigma0(w11));
+            Round (f, g, h, a, b, c, d, e, 0x8cc70208,
+                  w11 += sigma1 (w9) + w4 + sigma0(w12));
+            Round (e, f, g, h, a, b, c, d, 0x90befffa,
+                  w12 += sigma1 (w10) + w5 + sigma0(w13));
+            Round (d, e, f, g, h, a, b, c, 0xa4506ceb,
+                  w13 += sigma1 (w11) + w6 + sigma0(w14));
+            Round (c, d, e, f, g, h, a, b, 0xbef9a3f7,
+                  w14 + sigma1 (w12) + w7 + sigma0(w15));
+            Round (b, c, d, e, f, g, h, a, 0xc67178f2,
+                  w15 + sigma1 (w13) + w8 + sigma0(w0));
 
             s[0] += a;
             s[1] += b;
@@ -215,9 +215,9 @@ namespace sha256 {
 
 } // namespace sha256
 
-typedef void (*TransformType)(uint32_t *, const unsigned char *, size_t);
+typedef void (*TransformType) (uint32_t *, const unsigned char *, size_t);
 
-bool SelfTest(TransformType tr) {
+bool SelfTest (TransformType tr) {
     static const unsigned char in1[65] = {0, 0x80};
     static const unsigned char in2[129] = {
         0,  32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,   32, 32,
@@ -238,17 +238,17 @@ bool SelfTest(TransformType tr) {
                                      0xe0676bc8ul, 0x79fc77a1ul, 0x2abe1f49ul,
                                      0xb2b055dful, 0x1069523eul};
     uint32_t buf[8];
-    memcpy(buf, init, sizeof(buf));
+    memcpy (buf, init, sizeof (buf));
     // Process nothing, and check we remain in the initial state.
-    tr(buf, nullptr, 0);
-    if (memcmp(buf, init, sizeof(buf))) return false;
+    tr (buf, nullptr, 0);
+    if (memcmp (buf, init, sizeof (buf))) return false;
     // Process the padded empty string (unaligned)
-    tr(buf, in1 + 1, 1);
-    if (memcmp(buf, out1, sizeof(buf))) return false;
+    tr (buf, in1 + 1, 1);
+    if (memcmp (buf, out1, sizeof (buf))) return false;
     // Process 64 spaces (unaligned)
-    memcpy(buf, init, sizeof(buf));
-    tr(buf, in2 + 1, 2);
-    if (memcmp(buf, out2, sizeof(buf))) return false;
+    memcpy (buf, init, sizeof (buf));
+    tr (buf, in2 + 1, 2);
+    if (memcmp (buf, out2, sizeof (buf))) return false;
     return true;
 }
 
@@ -261,19 +261,19 @@ std::string SHA256AutoDetect() {
     uint32_t eax, ebx, ecx, edx;
     if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) && (ecx >> 19) & 1) {
         Transform = sha256_sse4::Transform;
-        assert(SelfTest(Transform));
+        assert (SelfTest (Transform));
         return "sse4";
     }
 #endif
 
-    assert(SelfTest(Transform));
+    assert (SelfTest (Transform));
     return "standard";
 }
 
 ////// SHA-256
 
-CSHA256::CSHA256() : bytes(0) {
-    sha256::Initialize(s);
+CSHA256::CSHA256 () : bytes (0) {
+    sha256::Initialize (s);
 }
 
 CSHA256 &CSHA256::Write(const uint8_t *data, size_t len) {
@@ -281,44 +281,44 @@ CSHA256 &CSHA256::Write(const uint8_t *data, size_t len) {
     size_t bufsize = bytes % 64;
     if (bufsize && bufsize + len >= 64) {
         // Fill the buffer, and process it.
-        memcpy(buf + bufsize, data, 64 - bufsize);
+        memcpy (buf + bufsize, data, 64 - bufsize);
         bytes += 64 - bufsize;
         data += 64 - bufsize;
-        Transform(s, buf, 1);
+        Transform (s, buf, 1);
         bufsize = 0;
     }
     if (end - data >= 64) {
         size_t blocks = (end - data) / 64;
-        Transform(s, data, blocks);
+        Transform (s, data, blocks);
         data += 64 * blocks;
         bytes += 64 * blocks;
     }
     if (end > data) {
         // Fill the buffer with what remains.
-        memcpy(buf + bufsize, data, end - data);
+        memcpy (buf + bufsize, data, end - data);
         bytes += end - data;
     }
     return *this;
 }
 
-void CSHA256::Finalize(uint8_t hash[OUTPUT_SIZE]) {
+void CSHA256::Finalize (uint8_t hash[OUTPUT_SIZE]) {
     static const uint8_t pad[64] = {0x80};
     uint8_t sizedesc[8];
-    WriteBE64(sizedesc, bytes << 3);
-    Write(pad, 1 + ((119 - (bytes % 64)) % 64));
-    Write(sizedesc, 8);
-    WriteBE32(hash, s[0]);
-    WriteBE32(hash + 4, s[1]);
-    WriteBE32(hash + 8, s[2]);
-    WriteBE32(hash + 12, s[3]);
-    WriteBE32(hash + 16, s[4]);
-    WriteBE32(hash + 20, s[5]);
-    WriteBE32(hash + 24, s[6]);
-    WriteBE32(hash + 28, s[7]);
+    WriteBE64 (sizedesc, bytes << 3);
+    Write (pad, 1 + ((119 - (bytes % 64)) % 64));
+    Write (sizedesc, 8);
+    WriteBE32 (hash, s[0]);
+    WriteBE32 (hash + 4, s[1]);
+    WriteBE32 (hash + 8, s[2]);
+    WriteBE32 (hash + 12, s[3]);
+    WriteBE32 (hash + 16, s[4]);
+    WriteBE32 (hash + 20, s[5]);
+    WriteBE32 (hash + 24, s[6]);
+    WriteBE32 (hash + 28, s[7]);
 }
 
-CSHA256 &CSHA256::Reset() {
+CSHA256 &CSHA256::Reset () {
     bytes = 0;
-    sha256::Initialize(s);
+    sha256::Initialize (s);
     return *this;
 }
