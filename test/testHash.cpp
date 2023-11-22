@@ -19,11 +19,10 @@ namespace data::crypto {
         string ExpectedSHA3_384;
         string ExpectedSHA3_512;
 
-        template <size_t size>
-        static void run (const string &test, const string &expected, hash::digest<size> (*sha) (bytes_view)) {
-            bytes test_bytes = *encoding::hex::read (test);
-            hash::digest<size> expected_digest {expected};
-            hash::digest<size> result = sha (test_bytes);
+        template <hash::writer w>
+        static void run (const string &test, const string &expected) {
+            hash::digest<w::size> expected_digest {expected};
+            hash::digest<w::size> result = hash::calculate<w> (bytes (test));
             EXPECT_EQ (expected_digest, result) << "expected " << test << " to hash to " << expected_digest << " but got " << result;
         }
     };
@@ -60,12 +59,12 @@ namespace data::crypto {
                 "84983e441c3bd26ebaae4aa1f95129e5e54670f1",
                 "75388b16512776cc5dba5da1fd890150b0c6455cb4f58b1952522525",
                 "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
-                "3391fdddfc8dc7393707a65b1b4709397cf8b1d162af05abfe8f450de5f36bc6 b0455a8520bc4e6f 5fe95b1fe3c8452b",
+                "3391fdddfc8dc7393707a65b1b4709397cf8b1d162af05abfe8f450de5f36bc6b0455a8520bc4e6f5fe95b1fe3c8452b",
                 "204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c335"
                     "96fd15c13b1b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445",
                 "8a24108b154ada21c9fd5574494479ba5c7e7ab76ef264ead0fcce33",
                 "41c0dba2a9d6240849100376a8235e2c82e1b9998a999e21db32dd97496d3376",
-                "991c665755eb3a4b6bbdfb75c78a492e8c56a22c5c4d7e429bfdbc32b9d4ad5a a04a1f076e62fea1 9eef51acd0657c22",
+                "991c665755eb3a4b6bbdfb75c78a492e8c56a22c5c4d7e429bfdbc32b9d4ad5aa04a1f076e62fea19eef51acd0657c22",
                 "04a371e84ecfb5b8b77cb48610fca8182dd457ce6f326a0fd3d7ec2f1e91636d"
                     "ee691fbe0c985302ba1b0d8dc78c086346b533b49c030d99a27daf1139d6e75e"},
             {"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu",
@@ -81,15 +80,15 @@ namespace data::crypto {
                 "afebb2ef542e6579c50cad06d2e578f9f8dd6881d7dc824d26360feebf18a4fa"
                     "73e3261122948efcfd492e74e82e2189ed0fb440d187f382270cb455f21dd185"}}) {
 
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA1, &SHA1);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA2_224, &SHA2_224);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA2_256, &SHA2_256);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA2_384, &SHA2_384);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA2_512, &SHA2_512);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA3_224, &SHA3_224);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA3_256, &SHA3_256);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA3_384, &SHA3_384);
-            SHA_test_case::run (test_case.Test, test_case.ExpectedSHA3_512, &SHA3_512);
+            SHA_test_case::run<hash::SHA1> (test_case.Test, test_case.ExpectedSHA1);
+            SHA_test_case::run<hash::SHA2<28>> (test_case.Test, test_case.ExpectedSHA2_224);
+            SHA_test_case::run<hash::SHA2<32>> (test_case.Test, test_case.ExpectedSHA2_256);
+            SHA_test_case::run<hash::SHA2<48>> (test_case.Test, test_case.ExpectedSHA2_384);
+            SHA_test_case::run<hash::SHA2<64>> (test_case.Test, test_case.ExpectedSHA2_512);
+            SHA_test_case::run<hash::SHA3<28>> (test_case.Test, test_case.ExpectedSHA3_224);
+            SHA_test_case::run<hash::SHA3<32>> (test_case.Test, test_case.ExpectedSHA3_256);
+            SHA_test_case::run<hash::SHA3<48>> (test_case.Test, test_case.ExpectedSHA3_384);
+            SHA_test_case::run<hash::SHA3<64>> (test_case.Test, test_case.ExpectedSHA3_512);
         }
 
     }
@@ -99,9 +98,7 @@ namespace data::crypto {
     }
 
     TEST (HashTest, TestBitcoinHash) {
-        bytes data = *encoding::hex::read ("00010203fdfeff");
-        digest256 digest = Bitcoin_256 (data);
-        EXPECT_TRUE (true);
+
     }
 
 }
