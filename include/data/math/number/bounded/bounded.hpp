@@ -366,7 +366,7 @@ namespace data::math::number {
         operator N_bytes<r> () const;
         
         operator bytes_view () const {
-            return bytes_view (*this);
+            return bytes_view (static_cast<bytes_array<byte, size>> (*this));
         }
         
         explicit operator N () const {
@@ -411,7 +411,7 @@ namespace data::math::number {
         math::division<bounded> divide (const bounded &) const;
         
         operator bytes_view () const {
-            return bytes_view (*this);
+            return bytes_view (static_cast<bytes_array<byte, size>> (*this));
         }
         
         operator Z_bytes<r, complement::ones> () const;

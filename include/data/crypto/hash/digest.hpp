@@ -10,16 +10,8 @@
 namespace data::crypto::hash {
     
     template <size_t s>
-    struct digest : math::uint_little<s> {
-        
+    struct digest : public math::uint_little<s> {
         using math::uint_little<s>::uint_little;
-        
-        digest () : math::uint_little<s> () {}
-        
-        digest (bytes_view b) : math::uint_little<s> {0} {
-            if (b.size () == s) std::copy (b.begin (), b.end (), this->begin ());
-        }
-        
         bool valid () const;
     };
     

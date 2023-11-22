@@ -157,6 +157,10 @@ namespace data {
     
     template <std::unsigned_integral word, size_t size> struct bytes_array<word, size> : public bytestring<word> {
         bytes_array () : bytestring<word> (size) {}
+
+        bytes_array (view<word> v) : bytestring<word> {v} {
+            if (v.size () != size) throw exception {} << "invalid size " << v.size () << "; expected " << size;
+        }
         
         static bytes_array filled (const word &x) {
             bytes_array n {};
@@ -223,7 +227,7 @@ namespace data {
     template <endian::order r, typename word, size_t ... sizes> struct oriented;
     
     template <endian::order r, std::unsigned_integral word>
-    struct oriented<r, word> : bytestring<word> {
+    struct oriented<r, word> : public bytestring<word> {
         using bytestring<word>::bytestring;
         
         using words_type = encoding::words<r, word>;
@@ -238,7 +242,7 @@ namespace data {
     };
     
     template <endian::order r, std::unsigned_integral word, size_t size>
-    struct oriented<r, word, size> : bytes_array<word, size> {
+    struct oriented<r, word, size> : public bytes_array<word, size> {
         using bytes_array<word, size>::bytes_array;
         oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
         
