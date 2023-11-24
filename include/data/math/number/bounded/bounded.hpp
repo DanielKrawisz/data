@@ -365,10 +365,6 @@ namespace data::math::number {
         
         operator N_bytes<r> () const;
         
-        operator bytes_view () const {
-            return bytes_view (static_cast<bytes_array<byte, size>> (*this));
-        }
-        
         explicit operator N () const {
             return N (N_bytes<r> (*this));
         }
@@ -409,10 +405,6 @@ namespace data::math::number {
         static bounded read (string_view);
 
         math::division<bounded> divide (const bounded &) const;
-        
-        operator bytes_view () const {
-            return bytes_view (static_cast<bytes_array<byte, size>> (*this));
-        }
         
         operator Z_bytes<r, complement::ones> () const;
         

@@ -98,7 +98,10 @@ namespace data::crypto {
     }
 
     TEST (HashTest, TestBitcoinHash) {
+        bytes test = *encoding::hex::read ("00010203fdfeff");
+        digest256 expected {"be586c8b20dee549bdd66018c7a79e2b67bb88b7c7d428fa4c970976d2bec5ba"};
 
+        EXPECT_EQ (Bitcoin_256 (test), expected);
     }
 
 }

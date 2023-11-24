@@ -32,7 +32,7 @@ namespace data::crypto::hash {
         
         constexpr static size_t size = 32;
         
-        Bitcoin () : Writer {} {}
+        Bitcoin () : data::writer<byte> {}, Writer {} {}
         
         void write (const byte *b, size_t x) override {
             Writer.write (b, x);
