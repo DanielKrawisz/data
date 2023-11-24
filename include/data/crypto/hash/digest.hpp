@@ -22,7 +22,7 @@ namespace data::crypto::hash {
 
     template <size_t size> 
     std::ostream inline &operator << (std::ostream &o, const digest<size> &s) {
-        return o << "digest{" << static_cast<math::uint_little<size>> (s) << "}";
+        return o << "digest{" << encoding::hexidecimal::write (s) << "}";
     }
     
 }

@@ -256,7 +256,7 @@ TransformType Transform = sha256::Transform;
 
 } // namespace
 
-std::string SHA256AutoDetect() {
+std::string SHA256AutoDetect () {
 #if defined(USE_ASM) && (defined(__x86_64__) || defined(__amd64__))
     uint32_t eax, ebx, ecx, edx;
     if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) && (ecx >> 19) & 1) {

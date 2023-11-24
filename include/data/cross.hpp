@@ -259,10 +259,6 @@ namespace data {
         explicit operator slice<byte> () {
             return slice<byte> {(byte*) this->data (), size * sizeof (word)};
         }
-        
-        explicit operator bytes_view () const {
-            return bytes_view {(byte*) const_cast<word*> (this->data ()), size * sizeof (word)};
-        }
     };
     
     template <std::unsigned_integral word>
