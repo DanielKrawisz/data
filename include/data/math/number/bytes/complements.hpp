@@ -358,11 +358,12 @@ namespace data::math::number::arithmetic {
 
     template <endian::order r, complement c, std::integral word> bool inline sign_bit (view<word> x) {
         if constexpr (c == complement::nones) return false;
-        else number::arithmetic::sign_bit (words<r> (x));
+        else return number::arithmetic::sign_bit (words<r> (x));
     }
 
     template <endian::order r, complement c, std::integral word>
     bytestring<word> &trim (bytestring<word> &x) {
+
         auto w = words<r> (x);
         size_t min_size = minimal_size<c> (w);
         if (min_size == size (w)) return x;

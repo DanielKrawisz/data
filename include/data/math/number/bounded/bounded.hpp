@@ -905,7 +905,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    uint<r, size>::bounded (const uint64 x) : oriented<r, byte, size> {bytes_array<byte, size>::filled (0)} {
+    uint<r, size>::bounded (const uint64 x) : bounded {} {
         endian::arithmetic<false, endian::little, 8> n {x};
         std::copy (n.begin (), n.end (), this->words ().begin ());
     }

@@ -746,14 +746,14 @@ namespace data::math::number {
         this->resize (8);
         endian::arithmetic<false, r, 8> xx {x};
         std::copy (xx.begin (), xx.end (), this->begin ());
-        *this = this->trim ();
+        this->trim ();
     }
     
     template <endian::order r> inline Z_bytes<r, complement::ones>::Z_bytes (int64 x) : oriented<r, byte> {} {
         this->resize (8);
         endian::arithmetic<true, r, 8> n {x};
         std::copy (n.begin (), n.end (), this->begin ());
-        *this = this->trim ();
+        this->trim ();
     }
 
     template <endian::order r> N_bytes<r> inline trim (const N_bytes<r> &n) {
@@ -963,7 +963,7 @@ namespace data::math::number {
         for (auto i = n.Value.end () - 1; i >= n.Value.begin (); i--)
             *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8) + *i;
 
-        *this = this->trim ();
+        this->trim ();
     }
     
     template <endian::order r> Z_bytes<r, complement::ones>::Z_bytes (const Z &z) {
@@ -973,8 +973,8 @@ namespace data::math::number {
     }
     
     template <endian::order r> Z_bytes<r, complement::twos>::Z_bytes (const Z &z) {
-        auto x = Z_bytes<r, complement::twos> (N_bytes<r> {data::abs (z)});
-        *this = z < 0 ? -x : x;
+        *this = Z_bytes<r, complement::twos> (N_bytes<r> {data::abs (z)});
+        if (z < 0) *this = -*this;
         this->trim ();
     }
     
