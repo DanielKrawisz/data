@@ -631,6 +631,7 @@ namespace data::encoding::signed_decimal {
 
     template <endian::order r>
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::twos> &z) {
+        if (math::is_zero (z)) return w << "0";
         if (math::is_negative (z)) w << "-";
         return decimal::write (w, math::number::N_bytes<r>::read (data::abs (z)));
     }
@@ -1370,7 +1371,7 @@ namespace data::math {
     template <hex_case zz>
     hex::int2<zz> inline abs<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        return math::number::sign_bit_set (x) ? -x : math::number::trim (x);
+        return math::is_negative (x) ? -x : x;
     }
     
 }

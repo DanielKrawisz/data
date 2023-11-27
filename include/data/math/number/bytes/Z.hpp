@@ -422,7 +422,7 @@ namespace data::math {
     abs<number::Z_bytes<r, number::complement::twos>>::operator ()
     (const number::Z_bytes<r, number::complement::twos> &x)
     {
-        return number::arithmetic::trim<r, number::complement::twos, byte> (number::arithmetic::twos::abs<r, byte> (x));
+        return is_negative (x) ? -x : x;
     }
     
     template <endian::order r>
