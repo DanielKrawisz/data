@@ -275,8 +275,8 @@ namespace data {
 
             auto write_zb = encoding::signed_decimal::write (zb);
             auto write_zl = encoding::signed_decimal::write (zl);
-            EXPECT_EQ (write_zb, "0") << "expected " << std::hex << zb << " to write as " << write_zb;
-            EXPECT_EQ (write_zl, "0") << "expected " << std::hex << zl << " to write as " << write_zl;
+            EXPECT_EQ (write_zb, "0") << "expected " << std::hex << zb << " to write as 0 but got " << write_zb;
+            EXPECT_EQ (write_zl, "0") << "expected " << std::hex << zl << " to write as 0 but got " << write_zl;
         }
     }
     

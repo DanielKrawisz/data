@@ -82,18 +82,16 @@ namespace data::math::number {
     } struct test_abs : virtual test_zero<Z> {
         test_abs () {
 
-            // abs always converts to the minimal representation.
+            // abs will not change the number if it is not negative.
+            // otherwise, it will return the minimal representation.
 
-            auto zero0 = Z::zero (0, false);
-            auto abs_zero1neg = data::abs (Z::zero (1, true));
-
-            EXPECT_TRUE (identical (abs_zero1neg, zero0)) << "expected " << abs_zero1neg << " === " << zero0;
-            EXPECT_TRUE (identical (data::abs (Z::zero (2, true)), zero0));
-            EXPECT_TRUE (identical (data::abs (Z::zero (3, true)), zero0));
+            EXPECT_TRUE (identical (data::abs (Z::zero (1, true)), Z::zero (1, true)));
+            EXPECT_TRUE (identical (data::abs (Z::zero (2, true)), Z::zero (2, true)));
+            EXPECT_TRUE (identical (data::abs (Z::zero (3, true)), Z::zero (3, true)));
 
             EXPECT_TRUE (identical (data::abs (Z::read ("0x01")), Z::read ("0x01")));
-            EXPECT_TRUE (identical (data::abs (Z::read ("0x0001")), Z::read ("0x01")));
-            EXPECT_TRUE (identical (data::abs (Z::read ("0x000001")), Z::read ("0x01")));
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x0001")), Z::read ("0x0001")));
+            EXPECT_TRUE (identical (data::abs (Z::read ("0x000001")), Z::read ("0x000001")));
 
             EXPECT_TRUE (data::identical (data::abs (Z::read ("0x81")), -Z::read ("0x81")));
             EXPECT_TRUE (data::identical (data::abs (Z::read ("0x8001")), -Z::read ("0x81")));
