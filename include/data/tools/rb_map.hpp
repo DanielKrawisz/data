@@ -15,7 +15,7 @@ namespace data::tool {
     
     template <typename K, typename V> struct rb_map_iterator;
     
-    template <typename K, typename V>
+    template <typename K, std::equality_comparable V>
     struct rb_map {
         using entry = data::entry<K, V>;
         using map = milewski::okasaki::RBMap<K, V>;
@@ -28,7 +28,7 @@ namespace data::tool {
         
     public:
         const V &operator [] (const K &k) const;
-        V *contains (const K& k);
+        V *contains (const K &k);
         const V *contains (const K &k) const;
         bool contains (const entry &e) const;
         
