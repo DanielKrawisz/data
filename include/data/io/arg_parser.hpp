@@ -5,7 +5,7 @@
 #ifndef DATA_IO_ARG_PARSER
 #define DATA_IO_ARG_PARSER
 
-#include <tools.hpp>
+#include <data/tools.hpp>
 #include <argh.h>
 
 namespace data::io {
@@ -13,18 +13,20 @@ namespace data::io {
     struct arg_parser {
 
         argh::parser Parser;
-        arg_parser (int arg_count, const char* const arg_values[]) : Parser {arg_count, arg_values} {}
+        arg_parser (int arg_count, const char *const arg_values[]);
 
         bool has (const std::string &) const;
 
-        template <X> maybe<X> operator [] (const std::string &) const;
-        template <X> maybe<X> operator [] (uint32) const;
+        template <typename X> maybe<X> operator [] (const std::string &) const;
+        template <typename X> maybe<X> operator [] (uint32) const;
 
-        template <X> void get (const std::string &, maybe<X> &) const;
-        template <X> void get (int, maybe<X> &) const;
-        template <X> void get (int, const std::string &, maybe<X> &) const;
+        template <typename X> void get (const std::string &, maybe<X> &) const;
+        template <typename X> void get (uint32, maybe<X> &) const;
+        template <typename X> void get (uint32, const std::string &, maybe<X> &) const;
 
-        list<const char const *> Arguments;
+        template <typename X> maybe<X> get (uint32, const std::string &) const;
+
+        list<char const * const> Arguments;
     };
 
     // we have a model consisting of
@@ -34,44 +36,107 @@ namespace data::io {
     // * a single letter in a sequence preceeded by -
     // * a string preceeded by --
     // Options can be provided positionally or in the form --name=value
-    template <typename Flag>
+    template <typename K>
     struct command {
         struct flag {
-            flag (Flag value, const std::string &name);
-            flag (Flag value, const std::string &name, const char);
+            flag (K key, const std::string &name);
+            flag (K key, const std::string &name, const char);
+
+            bool operator () (const arg_parser &) const;
+
+            K Key;
+            std::string Name;
+            maybe<char> Short;
         };
 
         struct option {
-            option (Flag value, const std::string &name);
-            option (Flag value, const std::string &name, const uint32 pos);
+            option (K key, const std::string &name);
+
+            maybe<std::string> operator () (const arg_parser &) const;
+
+            K Key;
+            std::string Name;
+            maybe<uint32> Position;
         };
 
         struct parsed {
-            set<Flag> Flags;
-            map<Flag, string> Options;
+            set<K> Keys;
+            map<K, string> Options;
+            parsed (): Keys {}, Options {} {}
         };
 
+        command (list<option> positional, list<option> options, list<flag> flags);
+
         parsed read (int arg_count, const char* const arg_values[]);
+
+        list<flag> Flags;
+        list<option> Options;
     };
+
+    template <typename K> inline command<K>::flag::flag (K key, const std::string &name): Key {key}, Name {name}, Short {} {}
+    template <typename K> inline command<K>::flag::flag (K key, const std::string &name, const char u): Key {key}, Name {name}, Short {u} {}
+    template <typename K> inline command<K>::option::option (K key, const std::string &name): Key {key}, Name {name} {}
+
+    template <typename K> command<K>::command (list<option> positional, list<option> options, list<flag> flags) : Flags {flags} {
+        uint32 i = 1;
+        for (const option &o : positional) {
+            option opt = o;
+            opt.Position = i;
+            Options <<= opt;
+            i++;
+        }
+
+        Options = Options + options;
+    }
+
+    template <typename K> command<K>::parsed command<K>::read (int arg_count, const char *const arg_values[]) {
+        arg_parser p {arg_count, arg_values};
+        parsed r {};
+        for (const option &o : Options) {
+            maybe<std::string> val = o (p);
+            if (val) r.Options = r.Options.insert (o.Key, *val);
+        }
+
+        for (const flag &f : Flags) if (f (p)) r.Keys = r.Keys.insert (f.Key);
+    }
+
+    template <typename K>
+    bool inline command<K>::flag::operator () (const arg_parser &p) const {
+        if (Short) throw exception {} << "I don't know how to do this yet";
+        return p.has (Name);
+    }
+
+    template <typename K>
+    maybe<std::string> inline command<K>::option::option::operator () (const arg_parser &p) const {
+        maybe<std::string> x;
+        if (Position) p.get<std::string> (*Position, Name, x);
+        return x;
+    }
 
     bool inline arg_parser::has (const std::string &x) const {
         return Parser[x];
     }
 
-    template <X> maybe<X> inline arg_parser::operator [] (const std::string &x) const {
+    template <typename X> maybe<X> inline arg_parser::operator [] (const std::string &x) const {
         maybe<X> m;
         get (x, m);
         return m;
     }
 
-    template <X> maybe<X> inline arg_parser::operator [] (uint32 i) const {
+    template <typename X> maybe<X> inline arg_parser::operator [] (uint32 i) const {
         maybe<X> m;
         get (i, m);
         return m;
     }
 
+    template <typename X> maybe<X> inline arg_parser::get (uint32 i, const std::string &x) const {
+        maybe<X> m;
+        get (i, x, m);
+        return m;
+    }
+
     inline arg_parser::arg_parser (int arg_count, const char* const arg_values[]) : Parser {arg_count, arg_values}, Arguments {} {
-        for (int i = 0, i < arg_count, i++) Arguments <<= arg_values [i];
+        for (int i = 0; i < arg_count; i++) Arguments <<= arg_values [i];
     }
 
     namespace {
@@ -90,24 +155,24 @@ namespace data::io {
 
     }
 
-    template <X> void arg_parser::get (const std::string &, maybe<X> &) const {
+    template <typename X> void inline arg_parser::get (const std::string &option, maybe<X> &m) const {
         X x;
-        if (auto positional = p (index); positional) read_from_stream<X> {} (positional, x);
+        if (auto opt = Parser (option); opt) read_from_stream<X> {} (opt, x);
         else return;
         m = x;
     }
 
-    template <X> void arg_parser::get (int, maybe<X> &) const {
+    template <typename X> void inline arg_parser::get (uint32 index, maybe<X> &m) const {
         X x;
-        if (auto opt = p (option); opt) read_from_stream<X> {} (opt, x);
+        if (auto positional = Parser (index); positional) read_from_stream<X> {} (positional, x);
         else return;
         m = x;
     }
 
-    template <X> void arg_parser::get (int, const std::string &, maybe<X> &) const {
+    template <typename X> void inline arg_parser::get (uint32 index, const std::string &option, maybe<X> &m) const {
         X x;
-        if (auto positional = p (index); positional) read_from_stream<X> {} (positional, x);
-        else if (auto opt = p (option); opt) read_from_stream<X> {} (opt, x);
+        if (auto positional = Parser (index); positional) read_from_stream<X> {} (positional, x);
+        else if (auto opt = Parser (option); opt) read_from_stream<X> {} (opt, x);
         else return;
         m = x;
     }

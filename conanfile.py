@@ -20,6 +20,7 @@ class DataConan (ConanFile):
         "nlohmann_json/3.11.2",
         "gmp/6.2.1",
         "secp256k1/0.3@proofofwork/stable",
+        "argh/1.3.2",
         "gtest/1.12.1"]
 
     def set_version (self):

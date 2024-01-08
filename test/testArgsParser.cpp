@@ -1,8 +1,9 @@
-// Copyright (c) 2023 Katrina Swales
+// Copyright (c) 2023 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/io/arg_parser.hpp"
+#include "gtest/gtest.h"
 
 namespace data::io {
 
@@ -17,7 +18,10 @@ namespace data::io {
 
     TEST (ArgsParserTest, TestFlagsOptions) {
         // a single flag.
-        command<parameter> cmd {option {verb, "verb"}, flag {article, "article"}};
+        command<parameter> cmd {
+            {{verb, "verb"}, {verb, "subject"}},
+            {{verb, "object"}},
+            {{article, "article", 'A'}, {preposition, "preposition", 'P'}, {complement, "complement", 'C'}}};
 
     }
 }
