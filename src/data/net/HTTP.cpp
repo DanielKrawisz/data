@@ -3,7 +3,6 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <boost/beast/version.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/error.hpp>
@@ -14,27 +13,35 @@
 
 namespace data::net::HTTP {
 
+    namespace beast {
+        using request = boost::beast::http::request<boost::beast::http::string_body>;
+
+        request from (const HTTP::request &r) {
+            boost::beast::http::request<boost::beast::http::string_body> req (r.Method, r.target ().c_str (), 11);
+
+            req.set (HTTP::header::host, r.URL.domain_name ()->c_str ());
+            req.set (HTTP::header::user_agent, r.UserAgent);
+
+            for (const auto &header: r.Headers) req.set (header.Key, header.Value);
+
+            req.body () = r.Body;
+            req.prepare_payload ();
+            return req;
+        }
+    };
+
+    std::ostream &operator << (std::ostream &o, const request &r) {
+        return o << beast::from (r);
+    }
+
     namespace {
 
         template<class SyncReadStream>
         boost::beast::http::response<boost::beast::http::dynamic_body> http_request (
             SyncReadStream& stream, 
-            const domain_name &hostname,
-            HTTP::method verb,
-            ASCII target,
-            map<HTTP::header, ASCII> headers, string body) {
+            const request &req) {
             
-            boost::beast::http::request<boost::beast::http::string_body> req (verb, target.c_str (), 11);
-
-            req.set (HTTP::header::host, hostname.c_str ());
-            req.set (HTTP::header::user_agent, BOOST_BEAST_VERSION_STRING);
-
-            for (const auto &header: headers) req.set (header.Key, header.Value);
-            
-            req.body () = body;
-            req.prepare_payload ();
-            
-            boost::beast::http::write (stream, req);
+            boost::beast::http::write (stream, beast::from (req));
 
             boost::beast::flat_buffer buffer;
             boost::beast::http::response<boost::beast::http::dynamic_body> res;
@@ -91,7 +98,7 @@ namespace data::net::HTTP {
 
             stream.handshake (asio::ssl::stream_base::client);
 
-            res = http_request (stream, hostname, req.Method, req.target (), req.Headers, req.Body);
+            res = http_request (stream, req);
         } else {
             boost::beast::tcp_stream stream (io);
 
@@ -100,7 +107,7 @@ namespace data::net::HTTP {
             stream.connect (results, connect_error);
             if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
 
-            res = http_request (stream, hostname, req.Method, req.target (), req.Headers, req.Body);
+            res = http_request (stream, req);
         }
 /*
         if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {

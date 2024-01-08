@@ -14,6 +14,7 @@
 #include <data/net/asio/session.hpp>
 #include <data/net/URL.hpp>
 #include <map>
+#include <boost/beast/version.hpp>
 
 namespace data::net::HTTP {
 
@@ -43,12 +44,15 @@ namespace data::net::HTTP {
         net::URL URL;
         map<header, ASCII> Headers;
         string Body;
+        string UserAgent;
 
         request (
             method method,
             net::URL url,
             map<header, ASCII> headers = {},
-            string body = {}) : Method {method}, URL {url}, Headers {headers}, Body {body} {}
+            string body = {},
+            string user_agent = BOOST_BEAST_VERSION_STRING) :
+            Method {method}, URL {url}, Headers {headers}, Body {body}, UserAgent {user_agent} {}
 
         bool valid () const;
         ASCII target () const;
