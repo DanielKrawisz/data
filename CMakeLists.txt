@@ -19,6 +19,7 @@ find_package (nlohmann_json CONFIG REQUIRED)
 find_package (gmp CONFIG REQUIRED)
 find_package (secp256k1 CONFIG REQUIRED)
 find_package (pegtl CONFIG REQUIRED)
+find_package (argh CONFIG REQUIRED)
 
 # Check if GTests is installed. If not, install it
 
@@ -91,6 +92,7 @@ target_link_libraries (
   gmp::gmp
   secp256k1::secp256k1
   taocpp::pegtl
+  argh
   # PkgConfig::LIBSECP256K1
 )
 
