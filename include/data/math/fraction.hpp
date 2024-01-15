@@ -103,9 +103,11 @@ namespace data::math {
 
         fraction ();
 
-        template <typename ZZ> fraction (ZZ n);
+        template <typename ZZ> requires std::convertible_to<ZZ, Z>
+        fraction (ZZ n);
 
-        template <typename ZZ, typename NN> fraction (ZZ n, NN d);
+        template <typename ZZ, typename NN> requires std::convertible_to<ZZ, Z> && std::convertible_to<NN, N>
+        fraction (ZZ n, NN d);
         
         bool operator == (const Z &z) const;
 
@@ -143,11 +145,11 @@ namespace data::math {
     inline fraction<Z, N>::fraction () : Numerator {0}, Denominator {1u} {}
 
     template <typename Z, typename N>
-    template <typename ZZ, typename NN>
+    template <typename ZZ, typename NN> requires std::convertible_to<ZZ, Z> && std::convertible_to<NN, N>
     inline fraction<Z, N>::fraction (ZZ n, NN d) : fraction (divide (Z (n), N (d))) {}
 
     template <typename Z, typename N>
-    template <typename ZZ>
+    template <typename ZZ> requires std::convertible_to<ZZ, Z>
     inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
     template <typename Z, typename N>

@@ -10,12 +10,12 @@
     
 namespace data {
 
-    template <typename K, typename V> requires std::totally_ordered<K>
+    template <std::totally_ordered K, typename V>
     struct entry {
         const K Key;
-        const V Value;
+        V Value;
         
-        entry (const K k, V v) : Key(k), Value(v) {}
+        entry (const K &k, const V &v) : Key (k), Value (v) {}
         
         bool valid () const {
             return data::valid (Key) && data::valid (Value);
@@ -25,30 +25,32 @@ namespace data {
             return Key;
         }
         
-        const V value() const {
+        const V value () const {
             return Value;
         }
         
-        bool operator == (const entry& e) const {
-            return Key == e.Key && Value == e.Value;
-        }
-        
-        bool operator < (const entry& e) const {
+        bool operator < (const entry &e) const {
             return Key < e.Key;
         }
         
-        bool operator > (const entry& e) const {
+        bool operator > (const entry &e) const {
             return Key > e.Key;
         }
         
-        bool operator <= (const entry& e) const {
+        bool operator <= (const entry &e) const {
             return Key < e.Key;
         }
         
-        bool operator >= (const entry& e) const {
+        bool operator >= (const entry &e) const {
             return Key >= e.Key;
         }
     };
+
+
+    template <std::totally_ordered K, typename V>
+    bool operator == (const entry<K, V> &l, const entry<K, V> &r) {
+        return l.Key == r.Key && r.Value == l.Value;
+    }
     
     namespace interface {
     
@@ -66,7 +68,7 @@ namespace data {
 
     template <typename K, typename V> 
     std::ostream inline &operator << (std::ostream &o, const entry<K, V> &e) {
-        return o << e.Key << " -> " << e.Value;
+        return o << e.Key << ": " << e.Value;
     }
     
     namespace functional {
@@ -84,7 +86,7 @@ namespace data {
             std::default_initializable<X>;
 
         template <map M> 
-        std::ostream inline &operator << (std::ostream &o, const M &m) {
+        std::ostream inline &write (std::ostream &o, const M &m) {
             return o << m.values ();
         }
         
