@@ -37,26 +37,31 @@ namespace data::tool {
         priority_queue(const element& e);
         
         template<typename ... P>
-        priority_queue(const element& a, const element& b, P... p);
+        priority_queue (const element& a, const element& b, P... p);
         
-        bool valid() const;
+        bool valid () const;
         
-        const element& first() const;
-        priority_queue rest() const;
+        const element& first () const;
+        priority_queue rest () const;
         
         priority_queue insert(const element& elem) const;
         
         template <typename list> requires sequence<list, element>
-        priority_queue insert(list l) const;
+        priority_queue insert (list l) const;
         
         template <typename list> requires sequence<list, element> 
-        priority_queue(list l);
+        priority_queue (list l);
         
         using iterator = functional::tree_iterator<tree>;
         using sentinel = data::sentinel<tree>;
         
-        iterator begin() const;
-        sentinel end() const;
+        iterator begin () const;
+        sentinel end () const;
+
+        template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
+        bool operator == (const X& x) const {
+            return sequence_equal (*this, x);
+        }
     };
     
     template <functional::tree tree, typename element = element_of<tree>> 

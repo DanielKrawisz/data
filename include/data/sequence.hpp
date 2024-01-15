@@ -114,19 +114,15 @@ namespace data {
     bool sorted (const L &x) {
         return size (x) < 2 ? true : first (x) <= first (rest (x)) && sorted (rest (x));
     }
-    
-}
 
-template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>> 
-bool inline operator == (const X &a, const Y &b) {
-    return (void*) &a == (void*) &b ? true :
-        data::empty (a) && data::empty (b) ? true :
-            data::empty (a) || data::empty (b) ? false :
-                data::first (a) != data::first (b) ? false :
-                    data::rest (a) == data::rest (b);
-}
-
-namespace data {
+    template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>>
+    bool inline sequence_equal (const X &a, const Y &b) {
+        return (void*) &a == (void*) &b ? true :
+            data::empty (a) && data::empty (b) ? true :
+                data::empty (a) || data::empty (b) ? false :
+                    data::first (a) != data::first (b) ? false :
+                        data::rest (a) == data::rest (b);
+    }
     
     // iterator types for a sequence     
     template <typename L> 

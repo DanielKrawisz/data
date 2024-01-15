@@ -52,6 +52,11 @@ namespace data::tool {
         sentinel end () const {
             return sentinel {*this};
         }
+
+        template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
+        bool operator == (const X& x) const {
+            return sequence_equal (*this, x);
+        }
         
     private:
         ordered_stack (const stack &x) : stack {x} {}
