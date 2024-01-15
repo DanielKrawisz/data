@@ -18,7 +18,7 @@ namespace data::net::HTTP {
         class session : public std::enable_shared_from_this<session> {
         public:
             // Constructor
-            session (tcp::socket&& socket, request_handler handler) : socket_( std::move (socket)), handler_( std::move (handler)) {}
+            session (tcp::socket &&socket, request_handler handler) : socket_ (std::move (socket)), handler_ (std::move (handler)) {}
 
             // Start the session
             void start () {
@@ -62,7 +62,7 @@ namespace data::net::HTTP {
 
         public:
         // Constructor
-        server (boost::asio::io_context& ioc, tcp::endpoint endpoint, RequestHandler handler) :
+        server (boost::asio::io_context &ioc, tcp::endpoint endpoint, RequestHandler handler) :
             ioc_ (ioc), acceptor_ (ioc), handler_ (std::move (handler)) {
             boost::system::error_code ec;
 

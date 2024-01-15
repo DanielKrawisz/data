@@ -52,9 +52,6 @@ namespace data {
             return *this = *this << e;
         }
         
-        bool operator == (const functional_queue &q) const;
-        bool operator != (const functional_queue &q) const;
-        
         static functional_queue make ();
         
         template <typename A, typename ... M>
@@ -77,6 +74,11 @@ namespace data {
         template <typename X, typename ... P>
         functional_queue append (functional_queue q, X x, P... p) const {
             return append (q).append (x, p...);
+        }
+
+        template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
+        bool operator == (const X& x) const {
+            return sequence_equal (*this, x);
         }
         
     private:
@@ -187,20 +189,6 @@ namespace data {
     template <typename stack, typename element>
     functional_queue<stack, element> inline functional_queue<stack, element>::operator << (const element e) const {
         return append (e);
-    }
-    
-    template <typename stack, typename element>
-    bool functional_queue<stack, element>::operator == (const functional_queue& q) const {
-        if (this == &q) return true;
-        if (size () != q.size ()) return false;
-        if (size () == 0) return true;
-        if (first () != q.first ()) return false;
-        return rest () == q.rest ();
-    }
-    
-    template <typename stack, typename element>
-    bool inline functional_queue<stack, element>::operator != (const functional_queue& q) const {
-        return !operator == (q);
     }
     
     template <typename stack, typename element>

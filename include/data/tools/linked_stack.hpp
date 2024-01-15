@@ -65,9 +65,9 @@ namespace data {
         iterator begin () const;
         sentinel end () const;
         
-        template <typename X> requires std::equality_comparable_with<elem, X>
-        bool operator == (const linked_stack<X>& x) const {
-            return ::operator == (*this, x);
+        template <data::sequence X> requires std::equality_comparable_with<elem, data::element_of<X>>
+        bool operator == (const X& x) const {
+            return sequence_equal (*this, x);
         }
         
     };

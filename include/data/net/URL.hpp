@@ -40,9 +40,10 @@ namespace data::net {
 
     struct path;
 
-    std::ostream &operator << (std::ostream &, const protocol &);
+    std::ostream &operator << (std::ostream &, const path &);
 
-    bool operator == (const protocol &, const protocol &);
+    bool operator == (const path &, const path &);
+
 }
 
 namespace data::net::IP {
@@ -62,6 +63,16 @@ namespace data::net::IP::TCP {
     std::ostream &operator << (std::ostream &, const endpoint &);
 
     bool operator == (const endpoint &, const endpoint &);
+
+}
+
+namespace data::net::email {
+
+    struct address;
+
+    std::ostream &operator << (std::ostream &, const address &);
+
+    bool operator == (const address &, const address &);
 
 }
 
@@ -106,9 +117,7 @@ namespace data::net {
 
     struct domain_name : ASCII {
         using ASCII::ASCII;
-        domain_name (const ASCII &x) : ASCII {x} {
-            std::cout << "  ...set demain name to " << *this << std::endl;
-        }
+        domain_name (const ASCII &x) : ASCII {x} {}
 
         static bool valid (string_view);
         bool valid () const;
@@ -131,6 +140,21 @@ namespace data::net::IP {
         operator asio::ip::address () const;
     };
 }
+
+namespace data::net::email {
+
+    struct address : ASCII {
+        using ASCII::ASCII;
+        address (const ASCII &x) : ASCII {x} {}
+
+        static bool valid (string_view);
+        bool valid () const;
+
+        static string_view local_part (string_view);
+        static string_view domain (string_view);
+    };
+}
+
 
 // RFC3986 defines certain reserved characters which
 // denote the structure of a URI. Percent encoding
