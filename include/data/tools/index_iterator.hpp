@@ -14,36 +14,36 @@ namespace data {
         slice Slice;
         uint32 Index;
         
-        index_iterator& operator=(index_iterator i) {
+        index_iterator &operator = (index_iterator i) {
             Slice = i.Slice;
             Index = i.Index;
             return *this;
         }
         
-        index_iterator operator++(int) { // Postfix
+        index_iterator operator ++ (int) { // Postfix
             index_iterator n = *this;
-            operator=(index_iterator{Slice, Index + 1});
+            operator = (index_iterator {Slice, Index + 1});
             return n;
         }
         
-        index_iterator& operator++() { // Prefix
-            return operator=(index_iterator{Slice, Index + 1});
+        index_iterator &operator ++ () { // Prefix
+            return operator = (index_iterator {Slice, Index + 1});
         }
         
-        X operator*() {
+        X operator * () {
             return Slice[Index];
         }
         
-        const X operator*() const {
+        const X operator * () const {
             return Slice[Index];
         }
         
-        bool operator==(const index_iterator i) const {
+        bool operator == (const index_iterator i) const {
             return Slice == i.Slice && Index == i.Index;
         }
         
-        bool operator!=(const index_iterator i) const {
-            return !operator==(i);
+        bool operator != (const index_iterator i) const {
+            return !operator == (i);
         }
         
     };

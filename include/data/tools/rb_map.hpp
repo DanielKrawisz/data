@@ -15,7 +15,7 @@ namespace data::tool {
     
     template <typename K, typename V> struct rb_map_iterator;
     
-    template <typename K, std::equality_comparable V>
+    template <typename K, typename V>
     struct rb_map {
         using entry = data::entry<K, V>;
         using map = milewski::okasaki::RBMap<K, V>;
@@ -36,8 +36,8 @@ namespace data::tool {
         const rb_map &left () const;
         const rb_map &right () const;
         
-        rb_map insert (const K& k, const V& v) const;
-        rb_map insert (const entry& e) const;
+        rb_map insert (const K &k, const V &v) const;
+        rb_map insert (const entry &e) const;
         
         rb_map operator << (const entry &e) const;
         
@@ -68,13 +68,14 @@ namespace data::tool {
         
         ordered_stack<linked_stack<entry>> values () const;
         
-        bool operator == (const rb_map &map) const;
-        
         rb_map_iterator<K, V> begin () const;
         
         rb_map_iterator<K, V> end () const;
         
     };
+
+    template <typename K, std::equality_comparable V>
+    bool operator == (const rb_map<K, V> &, const rb_map<K, V> &);
     
     template <typename K, typename V> 
     struct rb_map_iterator {
@@ -161,9 +162,9 @@ namespace data::tool {
         for (auto p : init) *this = insert (p);
     }
     
-    template <typename K, typename V>
-    bool inline rb_map<K, V>::operator == (const rb_map &map) const {
-        return values () == map.values ();
+    template <typename K, std::equality_comparable V>
+    bool inline operator == (const rb_map<K, V> &l, const rb_map<K, V> &r) {
+        return l.values () == r.values ();
     }
     
     template <typename K, typename V>
@@ -218,9 +219,10 @@ namespace data::tool {
     rb_map<K, V> rb_map<K, V>::insert (const K &k, const V &v) const {
         const V *already = contains (k);
         if (already == nullptr) return rb_map {Map.inserted (k, v), Size + 1};
+        throw exception {} << "key already exists";/*
         if (*already == v) return *this;
         rb_map removed = this->remove (k);
-        return rb_map {removed.Map.inserted (k, v), removed.Size + 1};
+        return rb_map {removed.Map.inserted (k, v), removed.Size + 1};*/
     }
     
     template <typename K, typename V>
