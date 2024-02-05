@@ -27,9 +27,11 @@ namespace data::net::HTTP {
     void client_async::send_next_request_now () {
         auto next = data::first (Queue);
         Queue = data::rest (Queue);
-        HTTP::call (*IO, [] (const HTTP::error &e) {
+        HTTP::call (*IO, [req = next.first] (const asio::error_code &e) {
             // TODO get a better error function
-            std::cout << " HTTP error: " << e.ErrorCode << "; " << e.What << std::endl;
+            std::stringstream ss;
+            ss << " HTTP error: " << e << std::endl;
+            throw exception {req, response {}, ss.str ()};
         }, next.second, next.first, SSL.get ());
         if (data::empty (Queue)) Writing = false;
         else send_next_request ();
