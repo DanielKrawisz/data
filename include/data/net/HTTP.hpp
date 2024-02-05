@@ -33,14 +33,9 @@ namespace data::net::HTTP {
     // error is thrown.
     response call (const request &, SSL * = nullptr, uint32 redirects = 10);
 
-    struct error {
-        boost::beast::error_code ErrorCode;
-        std::string What;
-    };
-
     // async HTTP call
     // Once this is done, call run () on the io_context to actually make the HTTP call and handle the response.
-    void call (asio::io_context &, handler<const error &>, handler<const response &>, const request &, SSL * = nullptr);
+    void call (asio::io_context &, asio::error_handler, handler<const response &>, const request &, SSL * = nullptr);
 
     using header = boost::beast::http::field;
     using method = boost::beast::http::verb;
@@ -75,12 +70,13 @@ namespace data::net::HTTP {
     struct exception : std::exception {
         request Request;
         response Response;
-        error Error;
-        exception (const request &req, const response &res, const error &p) :
-            Request {req}, Response {res}, Error {p} {}
+        string Error;
+
+        exception (const request &req, const response &res, const string &w) :
+            Request {req}, Response {res}, Error {w} {}
 
         const char *what () const noexcept override {
-            return Error.What.c_str ();
+            return Error.c_str ();
         }
     };
 
