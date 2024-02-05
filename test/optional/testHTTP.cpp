@@ -18,8 +18,8 @@ namespace data {
         auto request = rest.GET ("/key/pup/test/poppy");
         auto response = client (request);
         json ex1 = json::parse (response.Body);
-        EXPECT_EQ (ex1["test"],"poppy") << "JSON mangled";
-        EXPECT_EQ (ex1["key"],"pup") << "JSON mangled";
+        EXPECT_EQ (ex1["test"], "poppy") << "JSON mangled";
+        EXPECT_EQ (ex1["key"], "pup") << "JSON mangled";
     }
 }
 
