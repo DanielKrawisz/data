@@ -31,6 +31,7 @@ namespace data {
                     std::cout << "Received " << x << std::endl;
                 };
             });
+
         using clock = std::chrono::system_clock;
         clock::time_point nowp = clock::now ();
         io.run ();

@@ -54,7 +54,7 @@ namespace data::net::websocket {
     public:
         explicit WebSocketSession (tcp::socket socket) : ws_ (std::move (socket)) {}
 
-        void run() {
+        void run () {
             ws_.async_accept (beast::bind_front_handler(&WebSocketSession::on_accept, shared_from_this()));
         }
 

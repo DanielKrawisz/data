@@ -36,7 +36,7 @@ namespace data::net {
 
     bool operator == (const protocol &, const protocol &);
 
-    port default_port (protocol);
+    uint16 default_port (const protocol &);
 
     struct path;
 
@@ -139,6 +139,10 @@ namespace data::net::IP {
         explicit operator bytes () const;
         operator asio::ip::address () const;
     };
+
+    namespace TCP {
+        struct endpoint;
+    }
 }
 
 namespace data::net::email {
@@ -154,7 +158,6 @@ namespace data::net::email {
         static string_view domain (string_view);
     };
 }
-
 
 // RFC3986 defines certain reserved characters which
 // denote the structure of a URI. Percent encoding
@@ -272,6 +275,8 @@ namespace data::net {
         // get user info as <username>:<password>.
         // (This is insecure but supported because we sometimes still use it.)
         maybe<entry<UTF8, UTF8>> user_name_pass () const;
+
+        maybe<IP::TCP::endpoint> endpoint () const;
 
         using encoding::percent::URI::URI;
         URL (const encoding::percent::URI &x) : encoding::percent::URI {x} {}

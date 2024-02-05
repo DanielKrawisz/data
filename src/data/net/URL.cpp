@@ -171,6 +171,25 @@ namespace data::encoding::percent {
 }
 
 namespace data::net {
+
+    uint16 default_port (const protocol &p) {
+        switch (protocol::name (p)) {
+            default: return 0;
+            case (protocol::FTP) : return 20;
+            case (protocol::HTTP) : return 80;
+            case (protocol::HTTPS) : return 443;
+        }
+    }
+
+    maybe<IP::TCP::endpoint> URL::endpoint () const {
+        auto addr = this->address ();
+        if (!addr) return {};
+        auto p = this->port_number ();
+        uint16 port = bool (p) ? *p : default_port (this->protocol ());
+        if (port == 0) return {};
+        return {IP::TCP::endpoint {*addr, port}};
+    }
+
     namespace {
         std::string write_params (list<entry<UTF8, UTF8>> params) {
             std::stringstream q;
