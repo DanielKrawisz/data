@@ -9,12 +9,12 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/ssl.hpp>
+#include <boost/beast/version.hpp>
 #include <data/tools.hpp>
 #include <data/cross.hpp>
 #include <data/net/asio/session.hpp>
 #include <data/net/URL.hpp>
 #include <map>
-#include <boost/beast/version.hpp>
 
 namespace data::net::HTTP {
 
@@ -29,11 +29,18 @@ namespace data::net::HTTP {
 
     using SSL = asio::ssl::context;
 
-    // make an HTTP call (blocking)
+    // make an HTTP call (blocking).
+    // error is thrown.
     response call (const request &, SSL * = nullptr, uint32 redirects = 10);
 
+    struct error {
+        boost::beast::error_code ErrorCode;
+        std::string What;
+    };
+
     // async HTTP call
-    void call (asio::io_context &, handler<const response &>, const request &, SSL * = nullptr);
+    // Once this is done, call run () on the io_context to actually make the HTTP call and handle the response.
+    void call (asio::io_context &, handler<const error &>, handler<const response &>, const request &, SSL * = nullptr);
 
     using header = boost::beast::http::field;
     using method = boost::beast::http::verb;
@@ -68,12 +75,12 @@ namespace data::net::HTTP {
     struct exception : std::exception {
         request Request;
         response Response;
-        string Problem;
-        exception (const request &req, const response &res, const string &p) :
-            Request {req}, Response {res}, Problem {p} {}
+        error Error;
+        exception (const request &req, const response &res, const error &p) :
+            Request {req}, Response {res}, Error {p} {}
 
         const char *what () const noexcept override {
-            return Problem.c_str ();
+            return Error.What.c_str ();
         }
     };
 

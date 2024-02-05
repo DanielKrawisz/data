@@ -23,8 +23,8 @@ namespace data::net::asio {
     template <typename ConstBufferSequence>
     concept const_buffer_sequence = std::copy_constructible<ConstBufferSequence> && std::destructible<ConstBufferSequence> &&
         requires (const ConstBufferSequence x) {
-            { buffer_sequence_begin(x) };
-            { buffer_sequence_end(x) };
+            { buffer_sequence_begin (x) };
+            { buffer_sequence_end (x) };
         };
 
     template <typename AsyncWriteStream, typename ConstBufferSequence = const_buffer>
