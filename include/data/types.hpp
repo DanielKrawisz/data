@@ -34,7 +34,7 @@ namespace data {
 
     template <typename X> using function = std::function<X>;
 
-    template <typename X> using handler = std::function<void (X)>;
+    template <typename... X> using handler = std::function<void (X...)>;
 
     template <typename X> using maybe = std::optional<X>;
 
