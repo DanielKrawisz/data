@@ -26,6 +26,10 @@ namespace data {
     string substring (const std::string &, int64 begin);
     string substring (const std::string &, int64 begin, int64 end);
 
+    string to_upper (const std::string &);
+
+    string to_lower (const std::string &);
+
     std::strong_ordering inline operator <=> (const string &a, const string &b) {
         return static_cast<const std::string &> (a) <=> static_cast<const std::string &> (b);
     }
@@ -44,6 +48,20 @@ namespace data {
 
     string inline substring (const std::string &x, int64 begin) {
         return substring (x, begin, x.size ());
+    }
+
+    string inline to_upper (const std::string &x) {
+        string m = x;
+        std::transform (m.begin (), m.end (), m.begin (),
+            [] (unsigned char c) { return std::toupper (c); });
+        return m;
+    }
+
+    string inline to_lower (const std::string &x) {
+        string m = x;
+        std::transform (m.begin (), m.end (), m.begin (),
+            [] (unsigned char c) { return std::tolower (c); });
+        return m;
     }
 
 }

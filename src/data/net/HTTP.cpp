@@ -125,9 +125,12 @@ namespace data::net::HTTP {
             }
         }*/
 
+        // note: it is possible for a header to be known by boost::beast. In that case it gets deleted. Kind of dumb.
         map<header, ASCII> response_headers {};
-        for (const auto &field : res) response_headers =
-            data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {std::string {field.value ()}}});
+        for (const auto &field : res)
+            if (field.name () != header::unknown) response_headers =
+                data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {std::string {field.value ()}}});
+
         return response {res.base ().result (), response_headers, boost::beast::buffers_to_string (res.body ().data ())};
 
     }
