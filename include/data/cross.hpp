@@ -170,6 +170,7 @@ namespace data {
         
         operator view<word> () const;
         operator slice<word, size> ();
+        operator const slice<word, size> () const;
         
         bytes_array operator | (const slice<word, size> a) const {
             bytes_array n (*this);
@@ -406,6 +407,11 @@ namespace data {
     template <std::unsigned_integral word, size_t size>
     inline bytes_array<word, size>::operator view<word> () const {
         return {this->data (), size};
+    }
+
+    template <std::unsigned_integral word, size_t size>
+    inline bytes_array<word, size>::operator const slice<word, size> () const {
+        return {const_cast<word *> (this->data ())};
     }
     
 }
