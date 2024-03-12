@@ -62,7 +62,7 @@ namespace data::encoding::hex {
     
     template <std::ranges::range range> 
     string write (range r, letter_case q = letter_case::lower) {
-        string output ((r.end() - r.begin ()));
+        string output ((r.end () - r.begin ()));
         if (q == letter_case::upper) boost::algorithm::hex (r.begin (), r.end (), output.begin ());
         else boost::algorithm::hex_lower (r.begin (), r.end (), output.begin ());
         return output;

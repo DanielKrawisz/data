@@ -56,7 +56,7 @@ namespace data::endian {
         using boost_arith = boost::endian::endian_arithmetic<Order, native_type, 8 * bytes, boost::endian::align::no>;
         using boost_arith::data;
         using boost_arith::boost_arith;
-        using iterator = byte*;
+        using iterator = byte *;
         using const_iterator = byte const*;
         
         arithmetic (const boost_arith &x) : boost_arith (x) {}
@@ -98,7 +98,7 @@ namespace data::endian {
             return bytes;
         }
         
-        const byte& operator [] (int i) const {
+        const byte &operator [] (int i) const {
             if (i >= int (bytes))
                 throw std::out_of_range {std::string {"access index "} + std::to_string (i) +
                     " in arithmetic number of size " + std::to_string (bytes)};
@@ -206,7 +206,7 @@ namespace data::encoding {
             return type {half_of<endian::to_native<is_signed, size>>::greater_half ((endian::to_native<is_signed, size>) (u))};
         }
         
-        static type lesser_half(endian::arithmetic<is_signed, o, size> u) {
+        static type lesser_half (endian::arithmetic<is_signed, o, size> u) {
             return type {half_of<endian::to_native<is_signed, size>>::lesser_half ((endian::to_native<is_signed, size>) (u))};
         }
     };
