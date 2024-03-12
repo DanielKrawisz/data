@@ -14,6 +14,7 @@
 #include <random>
 #include <optional>
 #include <variant>
+#include <functional>
 #include <boost/endian/arithmetic.hpp>
 #include <data/io/exception.hpp>
 

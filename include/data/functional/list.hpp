@@ -11,10 +11,10 @@
 
 namespace data::functional {
     
-    template <typename Q, typename elem = std::remove_reference_t<decltype(std::declval<Q>().first())>>
+    template <typename Q, typename elem = std::remove_reference_t<decltype (std::declval<Q> ().first ())>>
     concept list = stack<Q, elem> && queue<Q, elem>;
     
-    template <typename Q, typename elem = std::remove_reference_t<decltype(std::declval<Q>().first())>>
+    template <typename Q, typename elem = std::remove_reference_t<decltype (std::declval<Q> ().first ())>>
     concept pendable = stack<Q, elem> || queue<Q, elem>;
     
 }
@@ -25,15 +25,15 @@ namespace data {
     list take (const list &l, size_t x);
     
     template <functional::pendable list>
-    list join (const list&a, const list& b) {
-        if constexpr (functional::queue<list>) return functional::join_queue(a, b);
-        else return functional::join_stack(a, b);
+    list join (const list &a, const list &b) {
+        if constexpr (functional::queue<list>) return functional::join_queue (a, b);
+        else return functional::join_stack (a, b);
     }
     
     template <functional::pendable list> requires ordered<element_of<list>>
-    list merge (const list&a, const list& b) {
-        if constexpr(functional::queue<list>) return functional::merge_queue(a, b);
-        else return functional::merge_stack(a, b);
+    list merge (const list &a, const list &b) {
+        if constexpr (functional::queue<list>) return functional::merge_queue (a, b);
+        else return functional::merge_stack (a, b);
     }
     
     template <functional::list L>
@@ -57,7 +57,7 @@ namespace data {
     template <typename L, std::uniform_random_bit_generator engine>
     L shuffle (const L x, engine &e) {
         L q = x;
-        L z{};
+        L z {};
         while (!data::empty (q)) {
             q = rotate_left (q, std::uniform_int_distribution<int> (0, q.size () - 1) (e));
             z = z << q.first ();

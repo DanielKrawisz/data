@@ -82,14 +82,14 @@ namespace data {
     
     namespace functional {
         template <typename list, typename element> requires sequence<list, element>
-        bool contains (const list& x, const element& e) {
+        bool contains (const list &x, const element &e) {
             if (data::empty (x)) return false;
             if (data::first (x) == e) return true;
             return contains (data::rest (x), e);
         }
     
         template <sequence L> 
-        std::ostream &write (std::ostream& o, L n) {
+        std::ostream &write (std::ostream &o, L n) {
             o << "{";
             if (!data::empty (n)) {
                 o << n.first ();
@@ -125,7 +125,7 @@ namespace data {
     }
     
     // iterator types for a sequence     
-    template <typename L> 
+    template <typename L>
     struct sequence_iterator {
         const L *Sequence;
         L Next;
@@ -167,48 +167,48 @@ namespace std {
 
 namespace data {
     
-    template <sequence L> 
-    inline sequence_iterator<L>& sequence_iterator<L>::operator = (const sequence_iterator &i) {
+    template <typename L>
+    inline sequence_iterator<L> &sequence_iterator<L>::operator = (const sequence_iterator &i) {
         Sequence = i.Sequence;
         Next = i.Next;
         Index = i.Index;
         return *this;
     }
     
-    template <sequence L> 
+    template <typename L>
     inline sequence_iterator<L>& sequence_iterator<L>::operator ++ () { // Prefix
         if (Sequence == nullptr || data::empty (Next)) return *this;
         return *this = sequence_iterator {*Sequence, data::rest (Next), Index + 1};
     }
     
-    template <sequence L> 
+    template <typename L>
     inline sequence_iterator<L> sequence_iterator<L>::operator ++ (int) { // Postfix
         sequence_iterator n = *this;
         ++(*this);
         return n;
     }
     
-    template <sequence L> 
+    template <typename L>
     const element_of<L> inline &sequence_iterator<L>::operator * () const {
         return data::first (Next);
     }
     
-    template <sequence L> 
+    template <typename L>
     bool inline sequence_iterator<L>::operator == (const sequence_iterator i) const {
         return Sequence == i.Sequence && Index == i.Index;
     }
     
-    template <sequence L> 
+    template <typename L>
     bool inline sequence_iterator<L>::operator == (const sentinel<L> i) const {
         return Sequence == i.Structure && Index == data::size(*Sequence);
     }
     
-    template <sequence L> 
+    template <typename L>
     bool inline sequence_iterator<L>::operator != (const sentinel<L> i) const {
         return !(*this == i);
     }
     
-    template <sequence L> 
+    template <typename L>
     int inline sequence_iterator<L>::operator - (const sequence_iterator& i) const {
         if (Sequence != i.Sequence) return 0;
         return static_cast<int> (Index) - i.Index;
