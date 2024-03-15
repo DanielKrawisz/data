@@ -54,7 +54,7 @@ namespace data::tool {
         }
 
         template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
-        bool operator == (const X& x) const {
+        bool operator == (const X &x) const {
             return sequence_equal (*this, x);
         }
         
@@ -92,8 +92,11 @@ namespace data::tool {
     
     template <functional::stack stack, ordered element>
     ordered_stack<stack, element> ordered_stack<stack, element>::insert (const element &x) const {
-        if (this->empty () || x < this->first ()) return {this->prepend (x)};
-        return {rest ().insert (x).prepend (this->first ())};
+        if (this->empty () || x < this->first ()) {
+            return ordered_stack {this->prepend (x)};
+        }
+
+        return ordered_stack {rest ().insert (x).prepend (this->first ())};
     }
 }
 

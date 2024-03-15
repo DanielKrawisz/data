@@ -111,8 +111,8 @@ namespace milewski::okasaki {
         
         RBMap inserted (const K &x, const V &v) const
         {
-            RBMap t = ins(x, v);
-            return RBMap(B, t.left(), t.rootKey (), t.rootValue (), t.right ());
+            RBMap t = ins (x, v);
+            return RBMap (B, t.left (), t.rootKey (), t.rootValue (), t.right ());
         }
         
         template<class F>
@@ -153,7 +153,8 @@ namespace milewski::okasaki {
         
         RBMap ins (const K &x, const V &v) const
         {
-            assert1();
+
+            assert1 ();
             if (isEmpty ())
                 return RBMap (R, RBMap (), x, v, RBMap ());
             K y = rootKey ();

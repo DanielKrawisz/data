@@ -112,6 +112,7 @@ namespace data::tool {
     };
 
     // a map that is good for deriving from.
+    // NOTE: it seems that using this type leads to segmentation faults, not sure why.
     template <typename K, typename V, typename derived> struct base_rb_map : rb_map<K, V> {
         using rb_map<K, V>::rb_map;
 
