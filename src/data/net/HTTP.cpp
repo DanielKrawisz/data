@@ -15,6 +15,7 @@ namespace data::net::HTTP {
 
     namespace beast {
         using request = boost::beast::http::request<boost::beast::http::string_body>;
+        using response = boost::beast::http::response<boost::beast::http::dynamic_body>;
 
         request from (const HTTP::request &r) {
             boost::beast::http::request<boost::beast::http::string_body> req (r.Method, r.target ().c_str (), 11);
@@ -28,23 +29,29 @@ namespace data::net::HTTP {
             req.prepare_payload ();
             return req;
         }
+
+        response from (const HTTP::response &r);
     };
 
     std::ostream &operator << (std::ostream &o, const request &r) {
         return o << beast::from (r);
     }
 
+    std::ostream &operator << (std::ostream &o, const response &r) {
+        return o << "HTTP response {status: " << r.Status << ", headers: " << r.Headers << ", body: " << r.Body << "}";
+    }
+
     namespace {
 
         template<class SyncReadStream>
-        boost::beast::http::response<boost::beast::http::dynamic_body> http_request (
+        beast::response http_request (
             SyncReadStream& stream, 
             const request &req) {
             
             boost::beast::http::write (stream, beast::from (req));
 
             boost::beast::flat_buffer buffer;
-            boost::beast::http::response<boost::beast::http::dynamic_body> res;
+            beast::response res;
             boost::beast::error_code ec;
 
             try {
