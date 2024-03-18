@@ -16,23 +16,24 @@ namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 
 namespace data {
 
-    const std::string websocketUrl="ws://localhost:8765/";
+    const std::string websocketUrl = "ws://localhost:8765/";
 
-    TEST(HTTPTest, TestGetHttp) {
+    TEST (WebsocketsTest, TestWebsockets) {
         boost::asio::io_context io;
-        ssl::context ctx{ssl::context::tlsv12_client};
-        ctx.set_default_verify_paths();
-        data::net::websocket::open(io,data::net::URL {data::net::protocol::WS,"8765","127.0.0.1","/"},&ctx,
-                                   [] (boost::system::error_code temp) { FAIL() << "Failed with errror code: " << temp; },
-                                   [](){},
-                                   [] (ptr<data::net::session<const string &>> session) -> handler<string_view> {
-                                       return [session](string_view x) {
-                                           std::cout << "Received " << x << std::endl;
-                                       };
-        });
+        ssl::context ctx {ssl::context::tlsv12_client};
+        ctx.set_default_verify_paths ();
+        data::net::websocket::open (io, data::net::URL {"ws://localhost:8765/"}, &ctx,
+            [] (boost::system::error_code temp) {
+                FAIL () << "Failed with errror code: " << temp;
+            }, [] () {},
+            [] (ptr<data::net::session<const string &>> session) -> handler<string_view> {
+                return [session] (string_view x) {
+                    std::cout << "Received " << x << std::endl;
+                };
+            });
         using clock = std::chrono::system_clock;
-        clock::time_point nowp = clock::now();
-        io.run();
+        clock::time_point nowp = clock::now ();
+        io.run ();
     }
 }
 
