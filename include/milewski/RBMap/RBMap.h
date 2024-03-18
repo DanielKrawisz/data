@@ -65,7 +65,7 @@ namespace milewski::okasaki {
         
         const data::entry<K, V> &root () const
         {
-            assert(!isEmpty());
+            assert (!isEmpty ());
             return _root->_entry;
         }
         
