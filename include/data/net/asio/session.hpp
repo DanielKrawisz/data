@@ -16,7 +16,10 @@ namespace data::net::asio {
 
     // a function type that would open a new session.
     template <typename in, typename out>
-    using open = function<void (error_handler, close_handler, interaction<in, out>)>;
+    using open = handler<error_handler, net::open <in, out>>;
+
+    template <typename in, typename out>
+    using async_open = handler<io_context &, open <in, out>>;
 
     using write_token = function<void (error_code, size_t)>;
 
