@@ -35,15 +35,23 @@ namespace data::net::HTTP::beast {
         return req;
     }
 
-    HTTP::response to (const http::response<http::string_body>);
-
     response from (const HTTP::response &r);
 
+    struct header_already_exists {
+        response Response;
+        map<header, ASCII> operator () (map<header, ASCII> m, const header &h, const ASCII &o, const ASCII &n) const {
+            throw data::exception {} << "HTTP response " << Response << " contains duplicate header " << h;
+        }
+    };
+
     // note: it is possible for a header to be known by boost::beast. In that case it gets deleted. Kind of dumb.
-    HTTP::response to (const http::response<http::string_body> res) {
+    HTTP::response to (const response &res) {
+
         map<header, ASCII> response_headers {};
-        for (const auto &field : res) response_headers =
-            data::insert (response_headers, data::entry<header, ASCII> {field.name (), ASCII {std::string {field.value ()}}});
+
+        for (const auto &field : res) if (field.name () != header::unknown) response_headers = response_headers.insert
+            (field.name (), ASCII {std::string {field.value ()}}, header_already_exists {res});
+
         return HTTP::response {res.base ().result (), response_headers, res.body ()};
     }
 }

@@ -36,8 +36,9 @@ namespace data::tool {
         const rb_map &left () const;
         const rb_map &right () const;
         
-        rb_map insert (const K &k, const V &v) const;
         rb_map insert (const entry &e) const;
+        rb_map insert (const K &k, const V &v) const;
+        rb_map insert (const K &k, const V &v, function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const;
         
         rb_map operator << (const entry &e) const;
         
@@ -224,6 +225,13 @@ namespace data::tool {
         if (*already == v) return *this;
         rb_map removed = this->remove (k);
         return rb_map {removed.Map.inserted (k, v), removed.Size + 1};*/
+    }
+
+    template <typename K, typename V>
+    rb_map<K, V> rb_map<K, V>::insert
+    (const K &k, const V &v, function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const {
+        const V *already = contains (k);
+        return already == nullptr ? rb_map {Map.inserted (k, v), Size + 1} : already_exists (*this, k, *already, v);
     }
     
     template <typename K, typename V>
