@@ -16,6 +16,8 @@
 #include <data/function.hpp>
 #include <data/size.hpp>
 
+#include <iostream>
+
 namespace data::interface {
     
     template <typename list, typename element>
@@ -49,19 +51,25 @@ namespace data::functional {
     list take_stack (const list &x, size_t n, const list &z = {});
     
     template <functional::stack list>
-    list join_stack (const list&a, const list& b);
-    
+    list join_stack (const list &a, const list &b);
+
+    // merges two stacks sorted by < into a single sorted stack.
     template <stack L> requires ordered<element_of<L>>
-    L merge_stack (const L &a, const L &b, const L &n = {});
+    L merge_stack (const L &a, const L &b);
+    /*
+    template <stack L> requires ordered<element_of<L>>
+    L merge_stack (const L &a, const L &b, const L &n = {});*/
     
     template <typename times, typename L1, typename L2, typename plus, typename value>
     value inner (times t, L1 l1, L2 l2, plus p);
 }
 
 namespace data {
-
+/*
     template <functional::stack list> 
-    list reverse(const list &given, const list &reversed = {});
+    list reverse (const list &given, const list &reversed = {});*/
+
+    template <functional::stack list> list reverse (const list &);
 }
 
 namespace data::functional { 
@@ -71,15 +79,40 @@ namespace data::functional {
         if (data::empty (a)) return b;
         return prepend (join_stack (rest (a), b), first (a));
     }
-    
+    /*
     template <stack L> requires ordered<element_of<L>>
     L merge_stack (const L &a, const L &b, const L &n) {
-        if (data::empty (a) && data::empty(b)) return reverse(n);
+        std::cout << " merging two lists of size " << data::size (a) << " and " << data::size (b) << " with " << data::size (n) << " complete." << std::endl;
+        if (data::empty (a) && data::empty (b)) return reverse (n);
         if (data::empty (a)) return merge_stack (a, rest (b), prepend (n, first (b)));
         if (data::empty (b)) return merge_stack (rest (a), b, prepend (n, first (a)));
         return first (a) < first (b) ?
-            merge_stack(rest(a), b, prepend (n, first (a))):
-            merge_stack (a, rest(b), prepend (n, first (b)));
+            merge_stack (rest (a), b, prepend (n, first (a))):
+            merge_stack (a, rest (b), prepend (n, first (b)));
+    }*/
+
+    template <stack L> requires ordered<element_of<L>>
+    L merge_stack (const L &a, const L &b) {
+        L l = a;
+        L r = b;
+        L n {};
+
+        while (true) {
+            if (data::empty (l) && data::empty (r)) return reverse (n);
+            else if (data::empty (l)) {
+                n = prepend (n, first (r));
+                r = rest (r);
+            } else if (data::empty (r)) {
+                n = prepend (n, first (l));
+                l = rest (l);
+            } else if (first (l) < first (r)) {
+                n = prepend (n, first (l));
+                l = rest (l);
+            } else {
+                n = prepend (n, first (r));
+                r = rest (r);
+            }
+        }
     }
     
     template <typename times, typename L1, typename L2, typename plus, typename value>

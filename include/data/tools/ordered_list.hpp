@@ -8,6 +8,7 @@
 #include <concepts>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/linked_stack.hpp>
+#include <data/reverse.hpp>
     
 namespace data::tool {
     
@@ -57,19 +58,15 @@ namespace data::tool {
         bool operator == (const X &x) const {
             return sequence_equal (*this, x);
         }
+
+        ordered_stack merge (const ordered_stack &a) const {
+            return ordered_stack {data::functional::merge_stack (static_cast<const stack> (*this), static_cast<const stack> (a))};
+        }
         
     private:
         ordered_stack (const stack &x) : stack {x} {}
     };
 
-
-    template <functional::stack stack, ordered element = element_of<stack>>
-    ordered_stack<stack, element> inline merge (ordered_stack<stack, element> a, ordered_stack<stack, element> b) {
-        return fold ([] (ordered_stack<stack, element> s, const element &e) -> ordered_stack<stack, element> {
-            return s.insert (e);
-        }, ordered_stack<stack, element> {}, data::reverse (data::merge (static_cast<stack> (a), static_cast<stack> (b))));
-    }
-    
     template <functional::stack stack, ordered element>
     std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l) {
         o << "ordered_list{";
