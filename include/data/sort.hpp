@@ -10,20 +10,20 @@
 namespace data {
 
     template <functional::pendable L> requires ordered<element_of<L>>
-    L inline sort(const L &x) {
-        return merge_sort(x);
+    L inline sort (const L &x) {
+        return merge_sort (x);
     }
 
     template <iterable X> 
-    X sort(const X &x) {
+    X sort (const X &x) {
         auto z = x;
-        std::sort(z.begin(), z.end());
+        std::sort (z.begin (), z.end ());
         return z;
     }
 
     template <iterable X> 
-    bool inline sorted(const X &x) {
-        return std::is_sorted(x.begin(), x.end());
+    bool inline sorted (const X &x) {
+        return std::is_sorted (x.begin (), x.end ());
     }
 
 }
