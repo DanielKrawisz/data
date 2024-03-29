@@ -9,7 +9,6 @@
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/number/integer.hpp>
 #include <data/encoding/integer.hpp>
-#include <data/io/unimplemented.hpp>
 
 namespace data::math::number::GMP {
     

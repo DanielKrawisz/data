@@ -26,6 +26,10 @@ namespace data::math {
             return x < f ? A + std::sqrt (x * ba * ca) : B - std::sqrt ((1 - x) * ba * (B - C));
         }
 
+        real mean () const {
+            return (A + B + C) / 3;
+        }
+
     };
 
 }
