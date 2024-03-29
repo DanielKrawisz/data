@@ -12,7 +12,6 @@
 #include <data/math/division.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/gmp/N.hpp>
-#include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
     
@@ -394,9 +393,7 @@ namespace data::math::number {
         explicit operator uint64 () const;
         
     private:
-        bounded (const sint<r, size> &) {
-            throw method::unimplemented {"bounded<size, o, false>{bounded<size, o, true>}"};
-        }
+        bounded (const sint<r, size> &);
         
     };
     
@@ -652,9 +649,7 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::weak_ordering inline operator <=> (const bounded<x, r, n> &, const bounded<y, o, z> &) {
-        throw method::unimplemented {"bounded <=> for different types"};
-    }
+    std::weak_ordering inline operator <=> (const bounded<x, r, n> &a, const bounded<y, o, z> &b);
 
     template <endian::order r, size_t size>
     uint<r, size> inline operator | (const uint<r, size> &a, uint64 b) {
