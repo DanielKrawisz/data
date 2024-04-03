@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/net/URL.hpp"
+#include "data/encoding/hex.hpp"
 #include "gtest/gtest.h"
 #include <regex>
 
@@ -62,6 +63,7 @@ namespace data::net::IP {
         struct test_case {
             address Address;
             int32 Version;
+            string Bytes;
 
             void test () const {
 
@@ -88,78 +90,81 @@ namespace data::net::IP {
                 EXPECT_EQ (v6.valid (), version == 6) << v6;
                 EXPECT_EQ (v4.valid (), version == 4) << v4;
 
+                EXPECT_EQ (bytes (Address), *encoding::hex::read (Bytes));
+
             }
         };
 
         test_case test_cases[] {
-            {"200.200.200.200", 4},
+            {"200.200.200.200", 4, "c8c8c8c8"},
             // whitespace not currently allowed
-            {" 200.200.200.200", -1},
+            {" 200.200.200.200", -1, ""},
             // whitespace not currently allowed
-            {"200.200.200.200 ", -1},
-            {"200.200.256.200", -1},
-            {"200.200.200.200.", -1},
-            {"200.200.200", -1},
-            {"200.200.200.2d0", -1},
-            {"0.0.0.0", 4},
+            {"200.200.200.200 ", -1, ""},
+            {"200.200.256.200", -1, ""},
+            {"200.200.200.200.", -1, ""},
+            {"200.200.200", -1, ""},
+            {"200.200.200.2d0", -1, ""},
+            {"0.0.0.0", 4, "00000000"},
             // according to talkpage, leading zeroes unacceptable.
-            {"00.00.00.00", -1},
+            {"00.00.00.00", -1, ""},
             // according to talkpage, leading zeroes unacceptable.
-            {"100.100.020.100", -1},
-            {"255.255.255.255", 4},
-            {"-1.0.0.0", -1},
-            {"200000000000000000000000000000000000000000000000000000000000000000000000000000.200.200.200", -1},
-            {"00000000000005.10.10.10", -1},
+            {"100.100.020.100", -1, ""},
+            {"255.255.255.255", 4, "ffffffff"},
+            {"-1.0.0.0", -1, ""},
+            {"200000000000000000000000000000000000000000000000000000000000000000000000000000.200.200.200", -1, ""},
+            {"00000000000005.10.10.10", -1, ""},
             // full length
-            {"00AB:0002:3008:8CFD:00AB:0002:3008:8CFD", 6},
+            {"00AB:0002:3008:8CFD:00AB:0002:3008:8CFD", 6, "00AB000230088CFD00AB000230088CFD"},
             // lowercase
-            {"00ab:0002:3008:8cfd:00ab:0002:3008:8cfd", 6},
+            {"00ab:0002:3008:8cfd:00ab:0002:3008:8cfd", 6, "00AB000230088CFD00AB000230088CFD"},
             // mixed case
-            {"00aB:0002:3008:8cFd:00Ab:0002:3008:8cfD", 6},
+            {"00aB:0002:3008:8cFd:00Ab:0002:3008:8cfD", 6, "00AB000230088CFD00AB000230088CFD"},
             // at most 4 digits per segment
-            {"00AB:00002:3008:8CFD:00AB:0002:3008:8CFD", -1},
+            {"00AB:00002:3008:8CFD:00AB:0002:3008:8CFD", -1, ""},
             // can"t remove all 0s from first segment unless using ::
-            {":0002:3008:8CFD:00AB:0002:3008:8CFD", -1},
+            {":0002:3008:8CFD:00AB:0002:3008:8CFD", -1, ""},
             // can"t remove all 0s from last segment unless using ::
-            {"00AB:0002:3008:8CFD:00AB:0002:3008:", -1},
+            {"00AB:0002:3008:8CFD:00AB:0002:3008:", -1, ""},
             // abbreviated
-            {"AB:02:3008:8CFD:AB:02:3008:8CFD", 6}, 
+            {"AB:02:3008:8CFD:AB:02:3008:8CFD", 6, "00AB000230088CFD00AB000230088CFD"},
             // too long
-            {"AB:02:3008:8CFD:AB:02:3008:8CFD:02", -1},
+            {"AB:02:3008:8CFD:AB:02:3008:8CFD:02", -1, ""},
             // correct use of ::
-            {"AB:02:3008:8CFD::02:3008:8CFD", 6},
+            {"AB:02:3008:8CFD::02:3008:8CFD", 6, "00AB000230088CFD0000000230088CFD"},
             // too long
-            {"AB:02:3008:8CFD::02:3008:8CFD:02", -1},
+            {"AB:02:3008:8CFD::02:3008:8CFD:02", -1, ""},
             // can"t have two ::s
-            {"AB:02:3008:8CFD::02::8CFD", -1},
+            {"AB:02:3008:8CFD::02::8CFD", -1, ""},
             // Invalid character G
-            {"GB:02:3008:8CFD:AB:02:3008:8CFD", -1},
+            {"GB:02:3008:8CFD:AB:02:3008:8CFD", -1, ""},
             // unassigned IPv6 address
-            {"::", 6},
+            {"::", 6, "00000000000000000000000000000000"},
             // loopback IPv6 address
-            {"::1", 6}, 
+            // could be 0 to 7.
+            {"::1", 6, "00000000000000000000000000000001"},
             // another name for unassigned IPv6 address
-            {"0::", 6},
+            {"0::", 6, "00000000000000000000000000000000"},
             // another name for unassigned IPv6 address
-            {"0::0", 6},
+            {"0::0", 6, "00000000000000000000000000000000"},
             // illegal: three colons
-            {"2:::3", -1},
+            {"2:::3", -1, ""},
             // full form of IPv6
-            {"fe80:0000:0000:0000:0204:61ff:fe9d:f156", 6},
+            {"fe80:0000:0000:0000:0204:61ff:fe9d:f156", 6, "fe80000000000000020461fffe9df156"},
             // drop leading zeroes
-            {"fe80:0:0:0:204:61ff:fe9d:f156", 6}, 
+            {"fe80:0:0:0:204:61ff:fe9d:f156", 6,"fe80000000000000020461fffe9df156"},
             // collapse multiple zeroes to :: in the IPv6 address
-            {"fe80::204:61ff:fe9d:f156", 6},
-            // IPv4 dotted quad at the end
-            {"fe80:0000:0000:0000:0204:61ff:254.157.241.86", 6},
+            {"fe80::204:61ff:fe9d:f156", 6, "fe80000000000000020461fffe9df156"},
+            // IPv4 dotted quad at the end"fe80000000000000020461fffe9df156"
+            {"fe80:0000:0000:0000:0204:61ff:254.157.241.86", 6, "fe80000000000000020461fffe9df156"},
             // drop leading zeroes, IPv4 dotted quad at the end
-            {"fe80:0:0:0:0204:61ff:254.157.241.86", 6}, 
+            {"fe80:0:0:0:0204:61ff:254.157.241.86", 6, "fe80000000000000020461fffe9df156"},
             // dotted quad at the end, multiple zeroes collapsed
-            {"fe80::204:61ff:254.157.241.86", 6}, 
+            {"fe80::204:61ff:254.157.241.86", 6, "fe80000000000000020461fffe9df156"},
             // link-local prefix
-            {"fe80::", 6}, 
+            {"fe80::", 6, "fe800000000000000000000000000000"},
             // global unicast prefix
-            {"2001::", 6}
+            {"2001::", 6, "20010000000000000000000000000000"}
         };
         
         for (const test_case &t : test_cases) t.test ();

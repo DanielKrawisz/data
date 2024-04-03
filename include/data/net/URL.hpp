@@ -132,12 +132,32 @@ namespace data::net::IP {
 
         using UTF8::UTF8;
         address (const UTF8 &x) : UTF8 {x} {}
+        address (const byte_array<4> &);
+        address (const byte_array<16> &);
 
         bool valid () const;
+
+        // 4 or 6 or -1 for error.
         int32 version () const;
 
+        // will be length 4 for ipv4 and 16 for ipv6
         explicit operator bytes () const;
         operator asio::ip::address () const;
+    };
+
+    // for when you need just one type of adress.
+    struct v4_address : address {
+        v4_address (const UTF8 &x) : address {x} {}
+        v4_address (const byte_array<4> &);
+
+        explicit operator byte_array<4> () const;
+    };
+
+    struct v6_address : address {
+        v6_address (const UTF8 &x) : address {x} {}
+        v6_address (const byte_array<16> &);
+
+        explicit operator byte_array<16> () const;
     };
 
     namespace TCP {
@@ -207,6 +227,9 @@ namespace data::encoding::percent {
     };
 
     // https://www.ietf.org/rfc/rfc3986.txt
+    // A URI is a universal resource indicator, as opposed to locator.
+    // the URI may not enable you to retrieve the document but it will
+    // uniquely specify the document.
     struct URI : string {
 
         static string_view scheme (string_view);
@@ -345,31 +368,46 @@ namespace data::net {
 namespace data::net::IP::TCP {
 
     struct endpoint : URL {
-        endpoint (const char *x) : URL {x} {}
-        endpoint (const std::string &x) : URL {x} {}
-        endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
 
-        bool valid () const {
-            return URL::valid () && this->protocol () == protocol::TCP && bool (this->port_number ()) &&
-                bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
-                !bool (this->fragment ()) && !bool (this->query ());
-        }
+        endpoint (const IP::address &addr, uint16 port);
 
-        IP::address address () const {
-            return *static_cast<const URL *> (this)->address ();
-        }
+        // input endpoint as a string.
+        endpoint (const char *x);
+        endpoint (const std::string &x);
 
-        uint16 port () const {
-            return *this->port_number ();
-        }
+        bool valid () const;
 
-        operator asio::ip::tcp::endpoint () const {
-            return valid () ? asio::ip::tcp::endpoint {
-                asio::ip::address::from_string (this->address ()),
-                this->port ()
-            } : asio::ip::tcp::endpoint {};
-        }
+        IP::address address () const;
+        uint16 port () const;
+
+        operator asio::ip::tcp::endpoint () const;
     };
+
+    inline endpoint::endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
+
+    inline endpoint::endpoint (const char *x) : URL {x} {}
+    inline endpoint::endpoint (const std::string &x) : URL {x} {}
+
+    bool inline endpoint::valid () const {
+        return URL::valid () && this->protocol () == protocol::TCP && bool (this->port_number ()) &&
+            bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
+            !bool (this->fragment ()) && !bool (this->query ());
+    }
+
+    IP::address inline endpoint::address () const {
+        return *static_cast<const URL *> (this)->address ();
+    }
+
+    uint16 inline endpoint::port () const {
+        return *this->port_number ();
+    }
+
+    inline endpoint::operator asio::ip::tcp::endpoint () const {
+        return valid () ? asio::ip::tcp::endpoint {
+            asio::ip::address::from_string (this->address ()),
+            this->port ()
+        } : asio::ip::tcp::endpoint {};
+    }
 }
 
 namespace data {
