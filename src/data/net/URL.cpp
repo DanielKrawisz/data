@@ -526,8 +526,7 @@ namespace pegtl {
 
     struct ls32 : sor<seq<h16, one<':'>, h16>, ipv4> {};
 
-    struct ipv6 : sor<
-        seq<rep<6, seq<h16, one<':'>>>, ls32>,
+    struct ipv6 : sor<seq<rep<6, seq<h16, one<':'>>>, ls32>,
         seq<string<':', ':'>, rep<5, seq<h16, one<':'>>>, ls32>,
         seq<opt<h16>, string<':', ':'>, rep<4, seq<h16, one<':'>>>, ls32>,
         seq<opt<seq<h16, opt<seq<one<':'>, h16>>>>, string<':', ':'>, rep<3, seq<h16, one<':'>>>, ls32>,
@@ -872,5 +871,144 @@ namespace data::encoding::percent {
         if (m.Host) for (char &x : *m.Host) x = std::tolower (x);
         return static_cast<URI> (net::URL (m));
     }
+}
+
+namespace data::net::IP {
+
+    // read the ip address as a series of bites.
+    address::operator bytes () const {
+        auto v = version ();
+        if (v == -1) return {};
+
+        auto pi = this->begin ();
+
+        // version 4 address
+        if (v == 4) {
+            bytes b (4);
+            auto bi = b.begin ();
+            byte octet = 0;
+
+            while (true) {
+                if (pi == this->end () || *pi == '.') {
+                    *bi = octet;
+                    bi++;
+
+                    if (bi == b.end ()) return b;
+
+                    octet = 0;
+                } else {
+                    octet *= 10;
+                    octet += static_cast<byte> (*pi - '0');
+                }
+
+                // we know we are not at the end because we
+                // know that this is a vaild ipv4 address.
+                pi++;
+            }
+        }
+
+        // otherwise, version 6 address.
+
+        // an initial ':' must be an initial "::". We skip ahead.
+        if (*pi == ':') pi = pi += 1;
+
+        // ports to the left of the "::".
+        list<uint16_big> ports_left {};
+
+        // ports to the right of the "::"
+        list<uint16_big> ports_right {};
+
+        list<uint16_big> *ports = &ports_left;
+
+        // list of octet bytes which are optionally at the end.
+        list<byte> octets;
+
+        // whether we have encountered an IPV4 ending.
+        bool ipv4_ending = false;
+        while (true) {
+
+            auto pb = pi;
+
+            while (pi != this->end () && *pi != ':' && *pi != '.') pi++;
+
+            auto end = pi == this->end ();
+            if (pi - pb == 0) {
+
+                ports = &ports_right;
+
+                // this means that the "::" we already found is at the end of the ip address.
+                if (end) break;
+
+                // otherwise we have found a "::"
+                pi++;
+                continue;
+            }
+
+            if (!end && *pi == '.') ipv4_ending = true;
+
+            if (ipv4_ending) {
+                byte octet = 0;
+
+                while (pb != pi) {
+                    octet *= 10;
+                    octet += static_cast<byte> (*pb - '0');
+                    pb++;
+                }
+
+                octets <<= octet;
+            } else {
+                uint16_big port = 0;
+
+                while (pb != pi) {
+                    port <<= 4;
+                    if (*pb <= 'F' && *pb >= 'A') port += static_cast<uint16> (*pb - 'A' + 10);
+                    else if (*pb <= 'f' && *pb >= 'a') port += static_cast<uint16> (*pb - 'a' + 10);
+                    else port += static_cast<uint16> (*pb - '0');
+                    pb++;
+                }
+
+                *ports <<= port;
+            }
+
+            if (end) break;
+            pi++;
+
+        }
+
+        bytes b (16);
+
+        // now we can figure out how many zeros we need to fill in.
+        int zeros = 8 - (data::size (ports_left) + data::size (ports_right) + data::size (octets) / 2);\
+
+        auto bi = b.begin ();
+        for (uint16_big upl : ports_left) {
+            *bi = upl[0];
+            bi++;
+            *bi = upl[1];
+            bi++;
+        }
+
+        for (int i = 0; i < zeros; i++) {
+            *bi = 0;
+            bi++;
+            *bi = 0;
+            bi++;
+        }
+
+        for (uint16_big upr : ports_right) {
+            *bi = upr[0];
+            bi++;
+            *bi = upr[1];
+            bi++;
+        }
+
+        for (byte octet : octets) {
+            *bi = octet;
+            bi++;
+        }
+
+        return b;
+    }
+
 }
 

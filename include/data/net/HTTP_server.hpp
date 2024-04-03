@@ -60,7 +60,7 @@ namespace data::net::HTTP {
         tcp::acceptor acceptor_;
         RequestHandler handler_;
 
-        public:
+    public:
         // Constructor
         server (boost::asio::io_context &ioc, tcp::endpoint endpoint, RequestHandler handler) :
             ioc_ (ioc), acceptor_ (ioc), handler_ (std::move (handler)) {
