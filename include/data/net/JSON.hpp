@@ -6,7 +6,6 @@
 
 #include <data/net/serialized.hpp>
 #include <nlohmann/json.hpp>
-#include <iostream>
 
 namespace data {
     using JSON = nlohmann::json;
@@ -26,10 +25,8 @@ namespace data::net {
             }, [error_handler] (string_view x) -> JSON {
                 try {
                     auto j = JSON::parse (x);
-                    std::cout << "parsed as JSON: " << j << std::endl;
                     return j;
                 } catch (const JSON::exception &x) {
-                    std::cout << "JSON parse error: " << x.what () << std::endl;
                     error_handler (x);
                 }
             }) (on_close, receiver);

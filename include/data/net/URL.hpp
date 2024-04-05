@@ -380,6 +380,7 @@ namespace data::net::IP::TCP {
         IP::address address () const;
         uint16 port () const;
 
+        // we use asio for the backend of some of this stuff.
         operator asio::ip::tcp::endpoint () const;
     };
 

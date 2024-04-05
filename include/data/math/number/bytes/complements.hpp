@@ -57,7 +57,7 @@ namespace data::math::number::arithmetic {
 
 namespace data::math::number::arithmetic::nones {
 
-    template <endian::order r, std::integral word> std::weak_ordering compare (view<word>, view<word>);
+    template <endian::order r, std::integral word> std::strong_ordering compare (view<word>, view<word>);
 
     template <endian::order r, std::integral word> bytestring<word> &increment (bytestring<word> &);
     template <endian::order r, std::integral word> bytestring<word> increment (view<word>);
@@ -85,7 +85,7 @@ namespace data::math::number::arithmetic::nones {
 
 namespace data::math::number::arithmetic::ones {
 
-    template <endian::order r, std::integral word> std::weak_ordering compare (view<word>, view<word>);
+    template <endian::order r, std::integral word> std::strong_ordering compare (view<word>, view<word>);
 
     template <endian::order r, std::integral word> bytestring<word> &negate (bytestring<word> &);
     template <endian::order r, std::integral word> bytestring<word> negate (view<word>);
@@ -440,7 +440,7 @@ namespace data::math::number::arithmetic {
 namespace data::math::number::arithmetic::nones {
 
     // must be the same size.
-    template <endian::order r, std::integral word> std::weak_ordering inline compare (view<word> a, view<word> b) {
+    template <endian::order r, std::integral word> std::strong_ordering inline compare (view<word> a, view<word> b) {
         return arithmetic::compare<complement::nones> (words<r> (a), words<r> (b));
     }
 
@@ -494,7 +494,7 @@ namespace data::math::number::arithmetic::ones {
         return increment<r, word> (x.bit_negate ());
     }
 
-    template <endian::order r, std::integral word> std::weak_ordering compare (view<word> a, view<word> b) {
+    template <endian::order r, std::integral word> std::strong_ordering compare (view<word> a, view<word> b) {
 
         auto wa = words<r> (a);
         auto wb = words<r> (b);
@@ -509,7 +509,7 @@ namespace data::math::number::arithmetic::ones {
         }
 
         if (!na && !nb) return arithmetic::compare<complement::nones> (wa, wb);
-        return na ? std::weak_ordering::less : std::weak_ordering::greater;
+        return na ? std::strong_ordering::less : std::strong_ordering::greater;
     }
 
     // we extend the number once with every increment, which will get very

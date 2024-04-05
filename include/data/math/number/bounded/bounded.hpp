@@ -227,19 +227,19 @@ namespace data::math::number {
     bool operator == (const bounded<x, r, n> &, const bounded<y, o, z> &);
     
     template <endian::order r, size_t size>
-    std::weak_ordering operator <=> (const sint<r, size> &, const sint<r, size> &);
+    std::strong_ordering operator <=> (const sint<r, size> &, const sint<r, size> &);
     
     template <endian::order r, size_t size>
-    std::weak_ordering operator <=> (const uint<r, size> &, const uint<r, size> &);
+    std::strong_ordering operator <=> (const uint<r, size> &, const uint<r, size> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::weak_ordering operator <=> (const bounded<x, r, n> &, const bounded<y, o, z> &);
+    std::strong_ordering operator <=> (const bounded<x, r, n> &, const bounded<y, o, z> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
     bool operator == (const bounded<x, r, n> &, const endian::arithmetic<y, o, z> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::weak_ordering operator <=> (const bounded<x, r, n> &, const endian::arithmetic<y, o, z> &);
+    std::strong_ordering operator <=> (const bounded<x, r, n> &, const endian::arithmetic<y, o, z> &);
     
     template <endian::order r, size_t size, endian::order o>
     bool operator == (const sint<r, size> &, const Z_bytes<o, complement::ones> &);
@@ -264,6 +264,10 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     std::weak_ordering operator <=> (const uint<r, size> &, const N &);
+
+    template <endian::order r, size_t x> std::weak_ordering inline operator <=> (const uint<r, x> &a, int64 b);
+
+    template <endian::order r, size_t x> std::weak_ordering inline operator <=> (const sint<r, x> &a, int64 b);
     
     template <endian::order r, size_t size>
     sint<r, size> operator | (const sint<r, size> &, const uint<r, size> &);
@@ -636,20 +640,20 @@ namespace data {
 namespace data::math::number {
     
     template <endian::order r, size_t size>
-    std::weak_ordering operator <=> (const sint<r, size> &a, const sint<r, size> &b) {
+    std::strong_ordering operator <=> (const sint<r, size> &a, const sint<r, size> &b) {
         bool na = is_negative (a);
         bool nb = is_negative (b);
         if (na == nb) return arithmetic::compare<complement::nones> (a.words (), b.words ());
-        return na ? std::weak_ordering::less : std::weak_ordering::greater;
+        return na ? std::strong_ordering::less : std::strong_ordering::greater;
     }
     
     template <endian::order r, size_t size>
-    std::weak_ordering inline operator <=> (const uint<r, size> &a, const uint<r, size> &b) {
+    std::strong_ordering inline operator <=> (const uint<r, size> &a, const uint<r, size> &b) {
         return arithmetic::compare<complement::nones> (a.words (), b.words ());
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::weak_ordering inline operator <=> (const bounded<x, r, n> &a, const bounded<y, o, z> &b);
+    std::strong_ordering inline operator <=> (const bounded<x, r, n> &a, const bounded<y, o, z> &b);
 
     template <endian::order r, size_t size>
     uint<r, size> inline operator | (const uint<r, size> &a, uint64 b) {
@@ -907,7 +911,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t x> std::weak_ordering inline operator <=> (const sint<r, x> &a, int64 b) {
-        return Z_bytes<r, complement::ones> (a) <=> Z_bytes<r, complement::ones> (b);
+        return arithmetic::ones::compare<r, byte> (a, bytes_view (endian::arithmetic<true, r, 8> (b)));
     }
     
     template <endian::order r, size_t size>
