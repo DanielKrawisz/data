@@ -48,14 +48,14 @@ namespace data::math::number::arithmetic {
 
     template <typename sen, typename it>
     requires std::input_iterator<it> && std::sentinel_for<sen, it>
-    std::weak_ordering compare (sen z, it i, it j) {
+    std::strong_ordering compare (sen z, it i, it j) {
         while (i != z) {
-            if (*i < *j) return std::weak_ordering::less;
-            if (*i > *j) return std::weak_ordering::greater;
+            if (*i < *j) return std::strong_ordering::less;
+            if (*i > *j) return std::strong_ordering::greater;
             i++;
             j++;
         }
-        return std::weak_ordering::equivalent;
+        return std::strong_ordering::equal;
     }
 
     template <typename digit, typename sen, typename ito, typename iti>
@@ -354,7 +354,7 @@ namespace data::math::number::arithmetic {
     }
 
     template <complement c, range X>
-    std::weak_ordering compare (X a, X b) {
+    std::strong_ordering compare (X a, X b) {
         if constexpr (c == complement::nones) {
             auto za = size (a);
             auto zb = size (b);
@@ -363,7 +363,7 @@ namespace data::math::number::arithmetic {
 
             auto ai = a.rbegin ();
             for (int i = 0; i < size_difference; i++) {
-                if (0 != *ai) return std::weak_ordering::greater;
+                if (0 != *ai) return std::strong_ordering::greater;
                 ai++;
             }
 
