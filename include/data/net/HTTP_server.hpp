@@ -5,10 +5,13 @@
 #ifndef DATA_NET_HTTP_SERVER
 #define DATA_NET_HTTP_SERVER
 
-#include <data/net/HTTP.hpp>
 #include <stdlib.h>
+#include <data/net/asio/session.hpp>
+
+#include <data/net/beast/beast.hpp>
 
 namespace data::net::HTTP {
+
     using request_handler = function<response (const request &)>;
 
     // Accepts incoming connections and creates new session objects to handle them
@@ -18,7 +21,7 @@ namespace data::net::HTTP {
         class session : public std::enable_shared_from_this<session> {
         public:
             // Constructor
-            session (tcp::socket &&socket, request_handler handler) : socket_ (std::move (socket)), handler_ (std::move (handler)) {}
+            session (asio::ip::tcp::socket &&socket, request_handler handler) : Socket (std::move (socket)), Handler (std::move (handler)) {}
 
             // Start the session
             void start () {
@@ -29,7 +32,7 @@ namespace data::net::HTTP {
             // Read an HTTP request from the socket
             void do_read () {
                 auto self = shared_from_this ();
-                http::async_read (socket_, buffer_, request_, [self] (boost::system::error_code ec, std::size_t bytes_transferred) {
+                beast::http::async_read (Socket, Buffer, Request, [self] (asio::error_code ec, std::size_t bytes_transferred) {
                     if (!ec) self->do_handle_request ();
                 });
             }
@@ -37,45 +40,46 @@ namespace data::net::HTTP {
             // Apply the request handler to the request and send the response back
             void do_handle_request () {
                 auto self = shared_from_this ();
-                http::async_write (socket_, handler_(request_), [self] (boost::system::error_code ec, std::size_t bytes_transferred) {
-                    if (!ec) self->socket_.shutdown (tcp::socket::shutdown_send, ec);
+                beast::http::async_write
+                (Socket, beast::from (Handler (beast::to (Request))), [self] (asio::error_code ec, std::size_t bytes_transferred) {
+                    if (!ec) self->Socket.shutdown (asio::ip::tcp::socket::shutdown_send, ec);
                 });
             }
 
-            tcp::socket socket_;
-            boost::beast::flat_buffer buffer_ {8192};
-            http::request<http::string_body> request_;
-            request_handler handler_;
+            asio::ip::tcp::socket Socket;
+            boost::beast::flat_buffer Buffer {8192};
+            beast::request Request;
+            request_handler Handler;
         };
 
         // Accept a new connection and start a new session to handle it
         void do_accept () {
-            acceptor_.async_accept (boost::asio::make_strand (ioc_), [this] (boost::system::error_code ec, tcp::socket socket) {
-                if (!ec) std::make_shared<Session> (std::move (socket), handler_)->start ();
-                do_accept();
+            Acceptor.async_accept (asio::make_strand (IO), [this] (asio::error_code ec, asio::ip::tcp::socket socket) {
+                if (!ec) std::make_shared<session> (std::move (socket), Handler)->start ();
+                do_accept ();
             });
         }
 
-        boost::asio::io_context& ioc_;
-        tcp::acceptor acceptor_;
-        RequestHandler handler_;
+        asio::io_context &IO;
+        asio::ip::tcp::acceptor Acceptor;
+        request_handler Handler;
 
     public:
         // Constructor
-        server (boost::asio::io_context &ioc, tcp::endpoint endpoint, RequestHandler handler) :
-            ioc_ (ioc), acceptor_ (ioc), handler_ (std::move (handler)) {
-            boost::system::error_code ec;
+        server (asio::io_context &ioc, asio::ip::tcp::endpoint endpoint, request_handler handler) :
+            IO {ioc}, Acceptor {ioc}, Handler {std::move (handler)} {
+            asio::error_code ec;
 
             // Open the acceptor
-            acceptor_.open (endpoint.protocol (), ec);
+            Acceptor.open (endpoint.protocol (), ec);
             if (ec) throw std::runtime_error ("Error opening acceptor: " + ec.message ());
 
             // Bind to the endpoint
-            acceptor_.bind (endpoint, ec);
+            Acceptor.bind (endpoint, ec);
             if (ec) throw std::runtime_error ("Error binding acceptor: " + ec.message ());
 
             // Start listening for connections
-            acceptor_.listen (boost::asio::socket_base::max_listen_connections, ec);
+            Acceptor.listen (asio::socket_base::max_listen_connections, ec);
             if (ec) throw std::runtime_error ("Error listening for connections: " + ec.message ());
         }
 
