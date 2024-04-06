@@ -14,38 +14,9 @@ namespace data::net::IP {
             this->write ("IO error: ", err.message ());
         }
     };
-    /*
-    struct address : string {
-        
-        address () : string {} {}
-        address (const string &x) : string {x} {}
-        operator asio::ip::address () const;
-        bool valid () const;
-        uint32 version () const;
-    };*/
 }
 
 namespace data::net::IP::TCP {
-    /*
-    // A tcp endpoint is an ip address and port.
-    struct endpoint : string {
-        static constexpr auto pattern = 
-            ctll::fixed_string {
-                // ip v4. 
-                "((?<V4>([0-9\\.]*))|"
-                // ip v6 with braces around it. 
-                "(\\[(?<V6>([0-9a-fA-F:\\.]*))\\])):"
-                // port number, which can be 0 to 65535. 
-                "(?<port>([0-9]{1,5}))"};
-        
-        endpoint () : string {} {}
-        endpoint (const string &x) : string {x} {}
-        endpoint (const IP::address &addr, uint16);
-        bool valid () const;
-        operator asio::ip::tcp::endpoint () const;
-        IP::address address () const;
-        uint16 port () const;
-    };*/
 
     // open a TCP connection.
     void open (asio::io_context &, endpoint, asio::error_handler, close_handler, interaction<string_view, const string &>);
