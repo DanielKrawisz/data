@@ -480,15 +480,15 @@ namespace pegtl {
 
     struct unreserved : sor<alnum, one<'-'>, one<'.'>, one<'_'>, one<'~'>> {};
 
-    struct pct_encoded : seq<one<'%'>, xdigit, xdigit> {};
+    struct percent_encoded : seq<one<'%'>, xdigit, xdigit> {};
 
-    struct pchar : sor<unreserved, pct_encoded, sub_delim, one<':'>, one<'@'>> {};
+    struct pchar : sor<unreserved, percent_encoded, sub_delim, one<':'>, one<'@'>> {};
 
     struct segment : star<pchar> {};
 
     struct segment_nz : plus<pchar> {};
 
-    struct segment_nz_nc : plus<sor<unreserved, pct_encoded, sub_delim, one<'@'>>> {};
+    struct segment_nz_nc : plus<sor<unreserved, percent_encoded, sub_delim, one<'@'>>> {};
 
     struct path_ab_empty : star<seq<one<'/'>, segment>> {};
 
@@ -498,13 +498,13 @@ namespace pegtl {
 
     struct path_after_authority : path_ab_empty {};
 
-    struct reg_name : star<sor<unreserved, pct_encoded, sub_delim>> {};
+    struct reg_name : star<sor<unreserved, percent_encoded, sub_delim>> {};
 
     struct scheme : seq<alpha, star<sor<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
 
     struct whole_scheme : seq<scheme, eof> {};
 
-    struct user_info : plus<sor<unreserved, pct_encoded, sub_delim, one<':'>>> {};
+    struct user_info : plus<sor<unreserved, percent_encoded, sub_delim, one<':'>>> {};
 
     struct final_section : star<sor<pchar, one<'/'>, one<'?'>>> {};
 
