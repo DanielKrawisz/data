@@ -12,6 +12,7 @@
 
 namespace data::net {
 
+    // universal resource locator. Consists of a scheme, authority, path, query, and fragment.
     struct URL;
 
     std::ostream &operator << (std::ostream &, const URL &);
@@ -30,6 +31,7 @@ namespace data::net {
 
     bool operator == (const port &, const port &);
 
+    // protocol is the first part of the URL, and it could be something like ftp or http.
     struct protocol;
 
     std::ostream &operator << (std::ostream &, const protocol &);
@@ -58,6 +60,7 @@ namespace data::net::IP {
 
 namespace data::net::IP::TCP {
 
+    // a TCP endpoint is a URL consisting of TCP as the protocol with an ip address and port.
     struct endpoint;
 
     std::ostream &operator << (std::ostream &, const endpoint &);
@@ -145,7 +148,7 @@ namespace data::net::IP {
         operator asio::ip::address () const;
     };
 
-    // for when you need just one type of adress.
+    // for when you need just one type of address.
     struct v4_address : address {
         v4_address (const UTF8 &x) : address {x} {}
         v4_address (const byte_array<4> &);
@@ -159,10 +162,6 @@ namespace data::net::IP {
 
         explicit operator byte_array<16> () const;
     };
-
-    namespace TCP {
-        struct endpoint;
-    }
 }
 
 namespace data::net::email {

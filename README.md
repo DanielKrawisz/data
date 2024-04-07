@@ -40,41 +40,46 @@ how to use all features.
     * NIST_DRBG 
   * concurrency
     * golang-style communication channel. 
-  * networking
-    * TCP protocols.
-    * HTTP client.
+  * networking in a functional style.
+    * URLs
+    * TCP
+    * HTTP
+    * Websockets
     
 # Dependencies
   * Boost 1.80
   * GMP
   * PEGTL
   * Crypto++ https://github.com/weidai11/cryptopp 
+  * OpenSSL
+  * secp256k1
   * https://github.com/BartoszMilewski/Okasaki (included as needed)
   * Rotella's implementation of AKS. (included)
-  * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions 
+  * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions (included)
   * Google test
 
-We use conan 2 for dependency management. All dependencies are available through conan 2 other than PEGTL, which must be installed separately.
+We use conan 2 for dependency management. All dependencies are included in the repo or are
+available through conan 2 other than PEGTL, which must be installed separately.
+
+secp256k1 must be added to a local conan repo using https://github.com/Gigamonkey-BSV/secp256k1-conan-recipe
 
 # Requirements
-  * GCC v11
+  * GCC v13
 
 # Build instructions
 
-  * `conan install . --build=missing`
+  * `mkdir build`
+  * `cd build`
+  * `conan install .. --build=missing`
   * `cd build`
   * `cmake .. -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release`
-  * `cmake --build .`
+  * `make`
 
 # Version 1 progress
 
-This library is an alpha product. This is what is planned for version 1. 
-  * use c++ 20 concepts to define interfaces. (See c++20 branch)
-  * everything needs to be properly tested. There are tests now but they are incomplete. 
+This library is an alpha product. This is what is planned for version 1.
   * documentation. 
   * new features to be included. 
-    * finite size signed and unsigned numbers for every size. There are versions of these types
-      already but not everything about them works. See c++20 branch for overhauled versions. 
     * list works more like Mathematica's List. 
       * inner
       * outer
@@ -85,14 +90,11 @@ This library is an alpha product. This is what is planned for version 1.
     * finite fields. Right now we do prime fields but we need to be able to generate minimal
       polynomials for arbitrary finite fields. 
     * elliptic curves using NTL. 
-    * permutations
-    * merge sort
     * Rabin, ElGamal, and RSA signatures. 
   * optimizatons
     * map.remove should use matt.might.net/articles/red-black-delete/
     * use NTL to hide GMP. 
     * use NTL integer exponentiation. 
-    * secp256k1 should use libsecp256k1. 
-  * required fixes
-    * encoding/ascii.hpp, encoding/unicode.hpp, and encoding utf8.hpp are out of date
-      and don't work. They should either be deleted or brought up to date and working.
+  * networking
+    * websockets
+    * run external programs
