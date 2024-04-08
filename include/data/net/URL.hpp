@@ -1,5 +1,5 @@
 
-// Copyright (c) 2027 Daniel Krawisz
+// Copyright (c) 2023-2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,26 +10,17 @@
 #include <data/tools.hpp>
 #include <data/encoding/ascii.hpp>
 
+// Implementation of a URL as described in RFC3986
+// https://www.rfc-editor.org/rfc/rfc3986
+
 namespace data::net {
 
-    // universal resource locator. Consists of a scheme, authority, path, query, and fragment.
+    // universal resource locator.
     struct URL;
 
     std::ostream &operator << (std::ostream &, const URL &);
 
     bool operator == (const URL &, const URL &);
-
-    struct domain_name;
-
-    std::ostream &operator << (std::ostream &, const domain_name &);
-
-    bool operator == (const domain_name &, const domain_name &);
-
-    struct port;
-
-    std::ostream &operator << (std::ostream &, const port &);
-
-    bool operator == (const port &, const port &);
 
     // protocol is the first part of the URL, and it could be something like ftp or http.
     struct protocol;
@@ -37,6 +28,21 @@ namespace data::net {
     std::ostream &operator << (std::ostream &, const protocol &);
 
     bool operator == (const protocol &, const protocol &);
+
+    // the domain name appears in URLs that do not directly refer to an IP address.
+    struct domain_name;
+
+    std::ostream &operator << (std::ostream &, const domain_name &);
+
+    bool operator == (const domain_name &, const domain_name &);
+
+    // a port may be directly specified in a url or may be inferred
+    // from the protocol.
+    struct port;
+
+    std::ostream &operator << (std::ostream &, const port &);
+
+    bool operator == (const port &, const port &);
 
     uint16 default_port (const protocol &);
 
@@ -66,16 +72,6 @@ namespace data::net::IP::TCP {
     std::ostream &operator << (std::ostream &, const endpoint &);
 
     bool operator == (const endpoint &, const endpoint &);
-
-}
-
-namespace data::net::email {
-
-    struct address;
-
-    std::ostream &operator << (std::ostream &, const address &);
-
-    bool operator == (const address &, const address &);
 
 }
 
@@ -161,20 +157,6 @@ namespace data::net::IP {
         v6_address (const byte_array<16> &);
 
         explicit operator byte_array<16> () const;
-    };
-}
-
-namespace data::net::email {
-
-    struct address : ASCII {
-        using ASCII::ASCII;
-        address (const ASCII &x) : ASCII {x} {}
-
-        static bool valid (string_view);
-        bool valid () const;
-
-        static string_view local_part (string_view);
-        static string_view domain (string_view);
     };
 }
 
@@ -382,32 +364,6 @@ namespace data::net::IP::TCP {
         // we use asio for the backend of some of this stuff.
         operator asio::ip::tcp::endpoint () const;
     };
-
-    inline endpoint::endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
-
-    inline endpoint::endpoint (const char *x) : URL {x} {}
-    inline endpoint::endpoint (const std::string &x) : URL {x} {}
-
-    bool inline endpoint::valid () const {
-        return URL::valid () && this->protocol () == protocol::TCP && bool (this->port_number ()) &&
-            bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
-            !bool (this->fragment ()) && !bool (this->query ());
-    }
-
-    IP::address inline endpoint::address () const {
-        return *static_cast<const URL *> (this)->address ();
-    }
-
-    uint16 inline endpoint::port () const {
-        return *this->port_number ();
-    }
-
-    inline endpoint::operator asio::ip::tcp::endpoint () const {
-        return valid () ? asio::ip::tcp::endpoint {
-            asio::ip::address::from_string (this->address ()),
-            this->port ()
-        } : asio::ip::tcp::endpoint {};
-    }
 }
 
 namespace data {
@@ -559,6 +515,34 @@ namespace data::encoding::percent {
         return decode (x);
     }
 
+}
+
+namespace data::net::IP::TCP {
+    inline endpoint::endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
+
+    inline endpoint::endpoint (const char *x) : URL {x} {}
+    inline endpoint::endpoint (const std::string &x) : URL {x} {}
+
+    bool inline endpoint::valid () const {
+        return URL::valid () && this->protocol () == protocol::TCP && bool (this->port_number ()) &&
+            bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
+            !bool (this->fragment ()) && !bool (this->query ());
+    }
+
+    IP::address inline endpoint::address () const {
+        return *static_cast<const URL *> (this)->address ();
+    }
+
+    uint16 inline endpoint::port () const {
+        return *this->port_number ();
+    }
+
+    inline endpoint::operator asio::ip::tcp::endpoint () const {
+        return valid () ? asio::ip::tcp::endpoint {
+            asio::ip::address::from_string (this->address ()),
+            this->port ()
+        } : asio::ip::tcp::endpoint {};
+    }
 }
 
 #endif
