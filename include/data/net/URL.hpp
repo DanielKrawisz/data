@@ -234,8 +234,8 @@ namespace data::encoding::percent {
         maybe<data::ASCII> port () const;
         maybe<data::UTF8> authority () const;
         net::path path () const;
-        maybe<data::ASCII> query () const;
-        maybe<data::UTF8> fragment () const;
+        maybe<data::ASCII> query () const; // the part after ? and before #
+        maybe<data::UTF8> fragment () const; // the part after the #
 
         bool valid () const;
 
@@ -277,9 +277,10 @@ namespace data::net {
         maybe<list<entry<UTF8, UTF8>>> query_map () const;
 
         // get user info as <username>:<password>.
-        // (This is insecure but supported because we sometimes still use it.)
+        // (This is insecure but supported because we sometimes still use it anyway)
         maybe<entry<UTF8, UTF8>> user_name_pass () const;
 
+        // attempt to read as a TCP endpoint.
         maybe<IP::TCP::endpoint> endpoint () const;
 
         using encoding::percent::URI::URI;

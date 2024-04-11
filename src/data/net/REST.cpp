@@ -36,4 +36,12 @@ namespace data::net::HTTP {
             {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}}, 
               encode_form_data (params));
     }
+
+    HTTP::request REST::operator () (const request &r) const {
+        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (r.Path);
+        if (bool (r.Query)) make_url = make_url.query_map (*r.Query);
+        if (bool (r.Fragment)) make_url = make_url.fragment (*r.Fragment);
+        if (bool (Port)) make_url = make_url.port (*Port);
+        return HTTP::request {r.Method, URL (make_url), r.Headers, r.Body};
+    }
 }

@@ -20,27 +20,34 @@ namespace data::net::HTTP {
         
         // construct a more general POST request
         HTTP::request POST (path path, map<header, ASCII> headers, string body) const;
-        
+
+        REST (const protocol &, const domain_name &);
+        REST (const protocol &, const domain_name &, uint16);
+
+        // http or https
+        protocol Protocol;
+        domain_name Host;
+        maybe<uint16> Port;
+
         // an HTTP request without host and port missing that can be used to
         // construct any other kind of request. 
         struct request {
+            // normally GET or POST but HTTP has many other methods defined for it.
             method Method;
+
+            // The part of the URL after the host but before '?'
             path Path;
-            list<entry<UTF8, UTF8>> Params;
+
+            // The part after '?' and before '#'
+            maybe<list<entry<UTF8, UTF8>>> Query;
+
+            // the part after '"'
+            maybe<data::UTF8> Fragment;
             map<header, ASCII> Headers;
             string Body;
         };
         
         HTTP::request operator () (const request &r) const;
-
-        protocol Protocol; // http or https
-
-        maybe<uint16> Port;
-
-        domain_name Host;
-
-        REST (const protocol &, const domain_name &, uint16);
-        REST (const protocol &, const domain_name &);
         
     };
     
@@ -58,11 +65,6 @@ namespace data::net::HTTP {
     HTTP::request inline REST::POST (path path, map<header, ASCII> headers, string body) const {
         auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
         return HTTP::request {method::post, URL (bool (Port) ? make_url.port (*Port) : make_url), headers, body};
-    }
-    
-    HTTP::request inline REST::operator () (const request &r) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (r.Path).query_map (r.Params);
-        return HTTP::request {r.Method, URL (bool (Port) ? make_url.port (*Port) : make_url), r.Headers, r.Body};
     }
 
     inline REST::REST (const protocol &pro, const domain_name &host, uint16 p): Protocol {pro}, Port {p}, Host {host} {}
