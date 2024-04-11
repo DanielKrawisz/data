@@ -350,6 +350,7 @@ namespace data::net::IP::TCP {
 
     struct endpoint : URL {
 
+        endpoint () : URL {} {}
         endpoint (const IP::address &addr, uint16 port);
 
         // input endpoint as a string.
