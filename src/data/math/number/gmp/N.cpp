@@ -232,10 +232,12 @@ namespace data::math::number::GMP {
             encoding::hexidecimal::write (o, n);
             return o;
         }
+
         if (o.flags () & std::ios::dec) {
             Z_write_dec (o, n.Value);
             return o;
         }
+
         o << &n.Value.MPZ;
         return o;
     }
