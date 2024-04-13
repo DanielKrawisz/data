@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CRYPTO_NIST
-#define DATA_CRYPTO_NIST
+#ifndef DATA_CRYPTO_NIST_DRBG
+#define DATA_CRYPTO_NIST_DRBG
 
 #include <data/crypto/random.hpp>
 #include <cryptopp/drbg.h>

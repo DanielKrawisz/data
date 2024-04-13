@@ -27,7 +27,9 @@ namespace data::encoding::UTF8 {
     struct string : data::string {
         using data::string::string;
         string (const data::unicode &u) : data::string {UTF8::encode (u)} {}
+        string operator + (const string &) const;
     };
+
 
 }
 
@@ -46,5 +48,10 @@ namespace data::encoding::unicode {
 
 }
 
+namespace data::encoding::UTF8 {
+    string inline string::operator + (const string &x) const {
+        return string {static_cast<std::string> (*this) + static_cast<std::string> (x)};
+    }
+}
 
 #endif
