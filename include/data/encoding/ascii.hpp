@@ -31,15 +31,12 @@ namespace data::encoding::ASCII {
             return ASCII::valid (*this);
         }
 
+        explicit string (const bytes &);
         explicit operator bytes () const;
 
         explicit operator data::UTF8 () const;
 
     };
-    
-    // for emails
-    string encode (const bytes_view x);
-    bytes decode (const string &);
 }
 
 namespace data {
