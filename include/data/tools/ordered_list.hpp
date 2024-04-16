@@ -17,15 +17,19 @@ namespace data::tool {
         ordered_stack () : stack {} {}
         
         ordered_stack insert (const element &x) const;
-        
+
+        ordered_stack (const element &x): stack {} {
+            *this = insert (x);
+        }
+
         template<typename ... P>
         ordered_stack insert (const element &a, const element &b, P ... p) const {
             return insert (a).insert (b, p...);
         }
         
         template<typename ... P>
-        ordered_stack (P ... p) : stack {} {
-            *this = insert (p...);
+        ordered_stack (const element &x, P ... p) : stack {} {
+            *this = insert (x).insert (p...);
         }
         
         ordered_stack operator << (const element &x) const;
