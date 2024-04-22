@@ -72,8 +72,10 @@ namespace data::tool {
     };
 
     template <functional::stack stack, ordered element>
-    std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l) {
-        o << "ordered_list{";
+    requires requires (std::ostream &o, const element &e) {
+        { o << e } -> std::same_as<std::ostream &>;
+    } std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l) {
+        o << "ordered_list {";
         if (!l.empty ()) {
             ordered_stack<stack, element> x = l;
             while (true) {

@@ -148,7 +148,7 @@ namespace data {
         bool operator != (const sentinel<L> i) const;
         bool operator == (const sequence_iterator i) const;
         
-        int operator - (const sequence_iterator& i) const;
+        int operator - (const sequence_iterator &i) const;
         
         sequence_iterator (const L &s) : Sequence {&s}, Next {s}, Index {0} {}
     };
