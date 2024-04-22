@@ -38,16 +38,16 @@ namespace data {
         template <uint32 n, typename first, typename... rest>
         struct get<n, tuple<first, tuple<rest...>>> {
             using type = typename get<n - 1, rest...>::type;
-            type operator()(tuple<first, rest...> t) {
-                return get<n - 1, tuple<rest...>>{}(t.Rest);
+            type operator () (tuple<first, rest...> t) {
+                return get<n - 1, tuple<rest...>> {} (t.Rest);
             }
         };
     
     }
     
     template <uint32 n, typename tuple>
-    typename meta::get<n, tuple>::type get(tuple t) {
-        return meta::get<n, tuple>{}(t);
+    typename meta::get<n, tuple>::type get (tuple t) {
+        return meta::get<n, tuple> {} (t);
     }
 
 }
