@@ -106,7 +106,9 @@ namespace std {
 
 namespace data {
     
-    template <typename elem> inline std::ostream &operator << (std::ostream &o, const linked_stack<elem> &x) {
+    template <typename elem> requires requires (std::ostream &o, const elem &e) {
+        { o << e } -> std::same_as<std::ostream &>;
+    } std::ostream inline &operator << (std::ostream &o, const linked_stack<elem> &x) {
         return functional::write (o << "stack", x);
     }
     
@@ -131,22 +133,22 @@ namespace data {
     // will dereference a nullptr. It is your
     // responsibility to check. 
     template <typename elem>
-    inline const elem &linked_stack<elem>::first () const {
+    const elem inline &linked_stack<elem>::first () const {
         return Next->First;
     }
     
     template <typename elem>
-    inline elem &linked_stack<elem>::first () {
+    elem inline &linked_stack<elem>::first () {
         return Next->First;
     }
     
     template <typename elem>
-    inline bool linked_stack<elem>::empty () const {
+    bool inline linked_stack<elem>::empty () const {
         return Next == nullptr;
     }
     
     template <typename elem>
-    inline linked_stack<elem> linked_stack<elem>::rest () const {
+    linked_stack<elem> inline linked_stack<elem>::rest () const {
         if (empty ()) return {};
         
         return Next->rest ();
@@ -160,7 +162,7 @@ namespace data {
     }
     
     template <typename elem>
-    inline bool linked_stack<elem>::contains (elem x) const {
+    bool inline linked_stack<elem>::contains (elem x) const {
         if (empty ()) return false;
             
         return Next->contains (x);
@@ -174,17 +176,17 @@ namespace data {
     }
     
     template <typename elem>
-    inline linked_stack<elem> linked_stack<elem>::operator <<(elem x) const {
+    linked_stack<elem> inline linked_stack<elem>::operator <<(elem x) const {
         return {x, *this};
     }
     
     template <typename elem>
-    inline linked_stack<elem> linked_stack<elem>::prepend (elem x) const {
+    linked_stack<elem> inline linked_stack<elem>::prepend (elem x) const {
         return {x, *this};
     }
     
     template <typename elem>
-    inline linked_stack<elem>& linked_stack<elem>::operator <<= (elem x) {
+    linked_stack<elem> inline &linked_stack<elem>::operator <<= (elem x) {
         return operator = (prepend (x));
     }
     
@@ -200,12 +202,12 @@ namespace data {
     
     template <typename elem>
     template <typename X, typename Y, typename ... P>
-    inline linked_stack<elem> linked_stack<elem>::prepend (X x, Y y, P ... p) const {
+    linked_stack<elem> inline linked_stack<elem>::prepend (X x, Y y, P ... p) const {
         return prepend (x).prepend (y, p...);
     }
     
     template <typename elem>
-    inline linked_stack<elem> linked_stack<elem>::operator ^ (linked_stack l) const {
+    linked_stack<elem> inline linked_stack<elem>::operator ^ (linked_stack l) const {
         return prepend (l);
     }
     

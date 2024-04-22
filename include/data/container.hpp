@@ -56,39 +56,39 @@ namespace data {
         
         template <typename X, typename E, bool is_sequence, bool is_iterable> 
         struct contains<X, E, true, is_sequence, is_iterable> {
-            bool operator () (const X& x, const E& e) {
-                return x.contains(e);
+            bool operator () (const X &x, const E &e) {
+                return x.contains (e);
             }
             
-            bool operator () (const X* x, const E& e) {
-                return x == nullptr ? false : x->contains(e);
+            bool operator () (const X *x, const E &e) {
+                return x == nullptr ? false : x->contains (e);
             }
         };
         
         template <typename X, typename E, bool is_iterable> 
         struct contains<X, E, false, true, is_iterable> {
-            bool operator () (const X& x, const E& e) {
-                return functional::contains(x, e);
+            bool operator () (const X &x, const E &e) {
+                return functional::contains (x, e);
             }
         };
         
         template <typename X, typename E> 
         struct contains<X, E, false, false, true> {
-            bool operator () (const X& x, const E& e) {
-                return std::find (x.begin(), x.end(), e) != x.end();
+            bool operator () (const X &x, const E &e) {
+                return std::find (x.begin (), x.end (), e) != x.end ();
             }
         };
         
     }
     
-    template <typename X, typename V = decltype(std::declval<X>().values())> requires interface::has_values_method<X, V>
-    V values(const X& x) {
-        return x.values();
+    template <typename X, typename V = decltype (std::declval<X> ().values ())> requires interface::has_values_method<X, V>
+    V values (const X &x) {
+        return x.values ();
     }
 
     template <typename X, typename E>
     requires container<X, E> || std::ranges::range<X>
-    inline bool contains (const X& x, const E& e) {
+    inline bool contains (const X &x, const E &e) {
         return meta::contains<X, E> {} (x, e);
     }
     

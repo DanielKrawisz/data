@@ -96,8 +96,10 @@ namespace data {
         return a.append (b);
     }
 
-    template <typename X> 
-    std::ostream inline &operator << (std::ostream &o, const functional_queue<X> n) {
+    template <typename stack, typename element = element_of<stack>>
+    requires requires (std::ostream &o, const element &e) {
+        { o << e } -> std::same_as<std::ostream &>;
+    } std::ostream inline &operator << (std::ostream &o, const functional_queue<stack, element> n) {
         return functional::write (o, n);
     }
 
