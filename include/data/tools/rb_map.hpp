@@ -104,6 +104,7 @@ namespace data::tool {
         rb_map_iterator &operator ++ ();
         
         const data::entry<K, V> &operator * () const;
+        const data::entry<K, V> *operator -> () const;
         
         bool operator == (const rb_map_iterator i) const;
         int operator - (const rb_map_iterator& i) const;
@@ -228,7 +229,7 @@ namespace data::tool {
     }
 
     template <typename K, typename V>
-    rb_map<K, V> rb_map<K, V>::insert
+    rb_map<K, V> inline rb_map<K, V>::insert
     (const K &k, const V &v, function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const {
         const V *already = contains (k);
         return already == nullptr ? rb_map {Map.inserted (k, v), Size + 1} : already_exists (*this, k, *already, v);
@@ -265,12 +266,12 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    rb_map_iterator<K, V> rb_map<K, V>::begin () const {
+    rb_map_iterator<K, V> inline rb_map<K, V>::begin () const {
         return rb_map_iterator<K, V> {&Map};
     }
     
     template <typename K, typename V>
-    rb_map_iterator<K, V> rb_map<K, V>::end () const {
+    rb_map_iterator<K, V> inline rb_map<K, V>::end () const {
         return rb_map_iterator<K, V> {&Map, static_cast<int> (Size)};
     }
     
@@ -303,17 +304,22 @@ namespace data::tool {
     }
     
     template <typename K, typename V>
-    const data::entry<K, V> &rb_map_iterator<K, V>::operator * () const {
+    const data::entry<K, V> inline &rb_map_iterator<K, V>::operator * () const {
         return Next->_entry;
+    }
+
+    template <typename K, typename V>
+    const data::entry<K, V> inline *rb_map_iterator<K, V>::operator -> () const {
+        return &Next->_entry;
     }
     
     template <typename K, typename V>
-    bool rb_map_iterator<K, V>::operator == (const rb_map_iterator i) const {
+    bool inline rb_map_iterator<K, V>::operator == (const rb_map_iterator i) const {
         return Map == i.Map && Next == i.Next;
     }
     
     template <typename K, typename V>
-    int rb_map_iterator<K, V>::operator - (const rb_map_iterator& i) const {
+    int inline rb_map_iterator<K, V>::operator - (const rb_map_iterator& i) const {
         if (Map == i.Map) return Index - i.Index;
         return 0;
     }

@@ -34,16 +34,16 @@ namespace data {
             return Slice[Index];
         }
         
-        const X operator * () const {
+        const X &operator * () const {
             return Slice[Index];
+        }
+
+        const X *operator -> () const {
+            return &Slice[Index];
         }
         
         bool operator == (const index_iterator i) const {
             return Slice == i.Slice && Index == i.Index;
-        }
-        
-        bool operator != (const index_iterator i) const {
-            return !operator == (i);
         }
         
     };

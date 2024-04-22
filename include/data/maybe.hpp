@@ -21,15 +21,33 @@ namespace data {
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
+        { a == b } -> std::convertible_to<bool>;
+    } bool operator == (const maybe<X> &a, const X &b) {
+        return bool (a) ? *a == b : false;
+    }
+
+    template <typename X> requires requires (const X &a, const X &b) {
         { a + b } -> std::convertible_to<bool>;
     } maybe<X> operator + (const maybe<X> &a, const maybe<X> &b) {
-        return bool (a) ? (bool (b) ? maybe<X> {a + b} : a) : bool (b) ? b : maybe<X> {};
+        return bool (a) ? (bool (b) ? maybe<X> {*a + *b} : a) : bool (b) ? b : maybe<X> {};
+    }
+
+    template <typename X> requires requires (const X &a, const X &b) {
+        { a + b } -> std::convertible_to<bool>;
+    } maybe<X> operator + (const maybe<X> &a, const X &b) {
+        return bool (a) ? maybe<X> {*a + b} : maybe<X> {b};
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
         { a * b } -> std::convertible_to<bool>;
     } maybe<X> operator * (const maybe<X> &a, const maybe<X> &b) {
-        return bool (a) && bool (b) ? maybe<X> {a * b} : maybe<X> {};
+        return bool (a) && bool (b) ? maybe<X> {*a * *b} : maybe<X> {};
+    }
+
+    template <typename X> requires requires (const X &a, const X &b) {
+        { a * b } -> std::convertible_to<bool>;
+    } maybe<X> operator * (const maybe<X> &a, const X &b) {
+        return bool (a) ? maybe<X> {*a * b} : maybe<X> {};
     }
 
     template <typename X> requires requires (std::ostream &o, const X &x) {

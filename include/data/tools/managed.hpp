@@ -15,96 +15,92 @@ namespace data::managed {
         ptr<X> Pointer;
         X* Value;
     public:
-        const X& operator*() const {
+        const X &operator * () const {
             return *Value;
         }
         
-        X& operator*() {
+        X &operator * () {
             return *Value;
         }
         
-        const X& value() const {
+        const X &value () const {
             return *Value;
         }
         
-        X& value() {
+        X &value () {
             return *Value;
         }
         
-        pointer() : Pointer{nullptr}, Value{nullptr} {}
-        pointer(X* p) : Pointer{p}, Value{&*Pointer} {}
-        pointer(const X x) : pointer{new X{x}} {}
-        pointer(const pointer& m) : Pointer{m.Pointer}, Value{m.Value} {}
-        pointer(pointer&& m) : Pointer{m.Pointer}, Value{m.Data} {
+        pointer () : Pointer {nullptr}, Value {nullptr} {}
+        pointer (X *p) : Pointer {p}, Value {&*Pointer} {}
+        pointer (const X x) : pointer {new X {x}} {}
+        pointer (const pointer &m) : Pointer {m.Pointer}, Value {m.Value} {}
+        pointer (pointer &&m) : Pointer {m.Pointer}, Value {m.Data} {
             m.Pointer = {};
         }
         
-        pointer& operator=(const pointer& m) {
+        pointer &operator = (const pointer &m) {
             Pointer = m.Pointer;
             Value = m.Value;
             return *this;
         }
         
-        bool operator==(const pointer& p) const {
+        bool operator == (const pointer &p) const {
             if (Value == p.Value) return true;
             return *Value == *p.Value;
-        }
-        
-        bool operator!=(const pointer& p) const {
-            return !operator==(p);
         }
     };
     
     template <typename X, typename x, typename iter, typename const_iter>
     struct indexed : public pointer<X> {
-        constexpr static container::iterable<X, iter, const_iter> Given{};
-        constexpr static container::iterable<indexed, iter, const_iter> Required{};
+        constexpr static container::iterable<X, iter, const_iter> Given {};
+        constexpr static container::iterable<indexed, iter, const_iter> Required {};
         
-        x operator[](uint32 n) {
-            return pointer<X>::value()[n];
+        x operator [] (uint32 n) {
+            return pointer<X>::value () [n];
         }
         
-        const x operator[](uint32 n) const {
-            return pointer<X>::value()[n];
+        const x operator [] (uint32 n) const {
+            return pointer<X>::value () [n];
         }
         
         iter begin() {
-            return pointer<X>::value().begin();
+            return pointer<X>::value ().begin ();
         }
         
         const_iter begin() const {
-            return pointer<X>::value().begin();
+            return pointer<X>::value ().begin ();
         }
         
         iter end() {
-            return pointer<X>::value().end();
+            return pointer<X>::value ().end ();
         }
         
-        const_iter end() const {
-            return pointer<X>::value().end();
+        const_iter end () const {
+            return pointer<X>::value ().end ();
         }
         
-        indexed() : pointer<X>{} {}
-        indexed(X* p) : pointer<X>{p} {}
-        indexed(const X& d) : pointer<X>{d} {}
-        indexed(const indexed& m) : pointer<X>{static_cast<const pointer<X>&>(m)} {}
-        indexed(indexed&& m) : pointer<X>{static_cast<pointer<X>&&>(m)} {}
+        indexed () : pointer<X> {} {}
+        indexed (X *p) : pointer<X> {p} {}
+        indexed (const X &d) : pointer<X> {d} {}
+        indexed (const indexed& m) : pointer<X> {static_cast<const pointer<X> &> (m)} {}
+        indexed (indexed &&m) : pointer<X> {static_cast<pointer<X> &&> (m)} {}
         
-        indexed& operator=(const indexed& m) {
-            pointer<X>::operator=(static_cast<const pointer<X>&>(m));
+        indexed &operator = (const indexed &m) {
+            pointer<X>::operator = (static_cast<const pointer<X> &> (m));
             return *this;
         }
         
-        bool operator==(const indexed& p) const {
-            return pointer<X>::operator==(static_cast<const pointer<X>&>(p));
+        bool operator == (const indexed &p) const {
+            return pointer<X>::operator == (static_cast<const pointer<X> &> (p));
         }
         
-        bool operator!=(const indexed& p) const {
-            return pointer<X>::operator!=(static_cast<const pointer<X>&>(p));
+        bool operator != (const indexed &p) const {
+            return pointer<X>::operator!=(static_cast<const pointer<X> &> (p));
         }
         
-        x* data() {
-            return pointer<X>::Value->data();
+        x *data () {
+            return pointer<X>::Value->data ();
         }
     };
     

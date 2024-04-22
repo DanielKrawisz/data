@@ -240,13 +240,13 @@ namespace data::net {
             net::URL URL;
 
             data::ASCII Scheme;
-            maybe<data::ASCII> Authority;
+            maybe<data::UTF8> Authority;
             data::ASCII Path;
             maybe<data::ASCII> Query;
-            maybe<data::ASCII> Fragment;
+            maybe<data::UTF8> Fragment;
 
-            maybe<data::ASCII> UserInfo;
-            maybe<data::ASCII> Host;
+            maybe<data::UTF8> UserInfo;
+            maybe<data::UTF8> Host;
             maybe<data::ASCII> Port;
             maybe<list<entry<data::UTF8, data::UTF8>>> QueryMap;
 
