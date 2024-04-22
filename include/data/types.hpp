@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,25 +36,23 @@ namespace data {
 
     template <typename... X> using handler = std::function<void (X...)>;
 
-    template <typename X> using maybe = std::optional<X>;
-
     template <typename... X> using either = std::variant<X...>;
 
     template<typename X>
     using view = std::basic_string_view<X>;
-    
+
     using string_view = std::basic_string_view<char>;
-    
+
     using bytes_view = view<byte>;
-    
+
     namespace meta {
         using yes = std::true_type;
         using no = std::false_type;
     }
-    
-    // TODO replace this with something good. 
+
+    // TODO replace this with something good.
     using random_engine = std::default_random_engine;
-    
+
     random_engine& get_random_engine ();
 
 }

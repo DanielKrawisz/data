@@ -11,8 +11,10 @@
 #include <ctre.hpp>
 
 #include <boost/algorithm/hex.hpp>
+
 #include <data/encoding/invalid.hpp>
 #include <data/cross.hpp>
+#include <data/maybe.hpp>
 
 namespace data::encoding::hex {
     const std::string Format {"hex"};

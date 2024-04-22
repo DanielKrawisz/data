@@ -11,6 +11,8 @@
 // This library uses a valid() method and a Valid member in a stereotyped way. 
 #include <data/valid.hpp>
 
+#include <data/maybe.hpp>
+
 // Interfaces related to data structures. 
 #include <data/functional/set.hpp>
 #include <data/functional/list.hpp>
