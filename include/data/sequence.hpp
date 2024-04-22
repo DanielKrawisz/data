@@ -143,6 +143,7 @@ namespace data {
         sequence_iterator &operator ++ ();
         
         const element_of<L> &operator * () const;
+        const element_of<L> *operator -> () const;
         
         bool operator == (const sentinel<L> i) const;
         bool operator != (const sentinel<L> i) const;
@@ -191,6 +192,11 @@ namespace data {
     template <typename L>
     const element_of<L> inline &sequence_iterator<L>::operator * () const {
         return data::first (Next);
+    }
+
+    template <typename L>
+    const element_of<L> inline *sequence_iterator<L>::operator -> () const {
+        return &data::first (Next);
     }
     
     template <typename L>
