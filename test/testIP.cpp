@@ -95,7 +95,7 @@ namespace data::net::IP {
             }
         };
 
-        test_case test_cases[] {
+        test_case test_cases [] {
             {"200.200.200.200", 4, "c8c8c8c8"},
             // whitespace not currently allowed
             {" 200.200.200.200", -1, ""},

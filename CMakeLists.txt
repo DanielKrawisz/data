@@ -57,6 +57,11 @@ add_library (data STATIC
   src/data/string.cpp
   src/data/tools.cpp
 
+  src/data/math/number/gmp/mpq.cpp
+  src/data/math/number/gmp/N.cpp
+  src/data/math/number/gmp/aks.cpp
+  src/data/math/number/gmp/sqrt.cpp
+
   src/data/encoding/hex.cpp
   src/data/encoding/ascii.cpp
   src/data/encoding/utf8.cpp
@@ -72,16 +77,13 @@ add_library (data STATIC
   src/data/net/TCP.cpp
   src/data/net/websocket.cpp
   src/data/net/HTTP_client.cpp
+  src/data/net/email.cpp
 
   #src/data/io/run.cpp
 
   src/data/tools/channel.cpp
   src/data/crypto/random.cpp
   src/data/crypto/secret_share.cpp
-  src/data/math/number/gmp/mpq.cpp
-  src/data/math/number/gmp/N.cpp
-  src/data/math/number/gmp/aks.cpp
-  src/data/math/number/gmp/sqrt.cpp
   src/data/crypto/AES.cpp
   src/data/tools/circular_queue.cpp
   src/data/tools/rate_limiter.cpp

@@ -43,7 +43,7 @@ namespace data {
 
 namespace data::functional {
     
-    template <typename L, typename elem = decltype(std::declval<L> ().first())>
+    template <typename L, typename elem = decltype (std::declval<L> ().first ())>
     concept queue = sequence<const L, elem> && interface::has_append_method<const L, elem> && 
         interface::has_queue_constructor<L, elem> && std::default_initializable<L>;
     
@@ -58,12 +58,12 @@ namespace data::functional {
     
     template <queue L> requires ordered<element_of<L>>
     L merge_queue (const L &a, const L &b, const L &n = {}) {
-        if (data::empty (a) && data::empty(b)) return reverse(n);
-        if (data::empty (a)) return merge_queue(a, rest(b), prepend(n, first(b)));
-        if (data::empty (b)) return merge_queue(rest(a), b, prepend(n, first(a)));
+        if (data::empty (a) && data::empty(b)) return reverse (n);
+        if (data::empty (a)) return merge_queue (a, rest (b), prepend (n, first (b)));
+        if (data::empty (b)) return merge_queue (rest (a), b, prepend (n, first (a)));
         return first (a) < first(b) ?
-            merge_queue (rest (a), b, prepend(n, first(a))):
-            merge_queue (a, rest(b), prepend(n, first(b)));
+            merge_queue (rest (a), b, prepend (n, first (a))):
+            merge_queue (a, rest (b), prepend (n, first (b)));
     }
     
 }

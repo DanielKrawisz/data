@@ -1,18 +1,17 @@
 #include <data/tools.hpp>
 
 namespace data {
-    list<string> split (string_view str, const string &delimiter) {
-        string s {str};
-        data::list<string> pieces;
+    list<string_view> split (const string_view &s, const string &delimiter) {
+        data::list<string_view> pieces;
 
-        size_t pos;
-        while ((pos = s.find (delimiter)) != string::npos) {
-            auto token = substring (s, 0, pos);
-            pieces = pieces << token;
-            s.erase (0, pos + delimiter.length ());
+        size_t begin_pos = 0;
+        size_t end_pos;
+        while ((end_pos = s.find (delimiter, begin_pos)) != string::npos) {
+            pieces = pieces << string_view {s.data () + begin_pos, end_pos - begin_pos};
+            begin_pos = end_pos + delimiter.length ();
         }
 
-        return pieces << s;
+        return pieces << string_view {s.data () + begin_pos, s.size () - begin_pos};
     }
 
 }

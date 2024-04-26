@@ -387,9 +387,9 @@ namespace data::net {
 
         list<UTF8> x;
 
-        list<data::string> zz = split (*this, string {} + delim);
+        list<string_view> zz = split (*this, string {} + delim);
 
-        for (const data::string &z : zz) {
+        for (const string_view &z : zz) {
             auto meep = encoding::percent::decode (z);
             if (!meep) throw exception {} << "invalid percent-encoded string";
             x = x << *meep;
@@ -417,7 +417,7 @@ namespace data::net {
     maybe<entry<UTF8, UTF8>> URL::user_name_pass () const {
         string_view hh = URI::user_info (*this);
         if (hh.data () == nullptr) return {};
-        list<data::string> z = split (hh, ":");
+        list<string_view> z = split (hh, ":");
         if (z.size () != 2) return {};
         return {entry<UTF8, UTF8> {*encoding::percent::decode (z[0]), *encoding::percent::decode (z[1])}};
     }
@@ -426,12 +426,12 @@ namespace data::net {
         string_view q = URI::query (*this);
         if (q.data () == nullptr) return {};
 
-        list<data::string> z = split (q, "&");
+        list<string_view> z = split (q, "&");
 
         list<entry<UTF8, UTF8>> params;
 
-        for (const string &e : z) {
-            list<data::string> p = split (e, "=");
+        for (const string_view &e : z) {
+            list<string_view> p = split (e, "=");
             if (p.size () != 2) return {};
             params = params << entry<UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
         }
@@ -502,7 +502,7 @@ namespace pegtl {
 
     struct scheme : seq<alpha, star<sor<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
 
-    struct whole_scheme : seq<scheme, eof> {};
+    struct whole_scheme : seq<eof, scheme, eof> {};
 
     struct user_info : plus<sor<unreserved, percent_encoded, sub_delim, one<':'>>> {};
 
@@ -520,7 +520,7 @@ namespace pegtl {
         digit> {};
 
     struct ipv4 : seq<ipv4_octet, one<'.'>, ipv4_octet, one<'.'>, ipv4_octet, one<'.'>, ipv4_octet> {};
-    struct ipv4_whole : seq<ipv4, eof> {};
+    struct ipv4_whole : seq<eof, ipv4, eof> {};
 
     struct h16 : seq<xdigit, opt<xdigit>, opt<xdigit>, opt<xdigit>> {};
 
@@ -540,7 +540,7 @@ namespace pegtl {
 
     struct ip_literal : seq<one<'['>, sor<ipv6, ip_future>, one<']'>> {};
 
-    struct ipv6_whole : seq<ipv6, eof> {};
+    struct ipv6_whole : seq<eof, ipv6, eof> {};
 
     struct ip_address_whole : seq<sor<ipv6, ipv4>, eof> {};
 
@@ -663,14 +663,14 @@ namespace data {
 
     net::URL::make net::URL::read () const {
         make m {};
-        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "uri");
+        tao::pegtl::memory_input<> in (*this, "uri");
         return tao::pegtl::parse<pegtl::uri_whole, make_uri_action> (in, m) ? m : make {};
     }
 
     net::URL::make net::URL::make::authority (const ASCII &x) const {
         if (UserInfo || Host || Port) throw exception {"URL error: authority already set."};
         make m = *this;
-        tao::pegtl::memory_input<> in (static_cast<const string &> (x), "authority");
+        tao::pegtl::memory_input<> in (x, "authority");
         return tao::pegtl::parse<pegtl::authority_whole, make_uri_action> (in, m) ? m : make {};
     }
 }

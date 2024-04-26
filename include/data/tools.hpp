@@ -8,7 +8,7 @@
 // basic types
 #include <data/types.hpp>
 
-// This library uses a valid() method and a Valid member in a stereotyped way. 
+// This library uses a valid () method and a Valid member in a stereotyped way.
 #include <data/valid.hpp>
 
 #include <data/maybe.hpp>
@@ -79,7 +79,7 @@ namespace data {
     }
 
     // split a string by a delimiter.
-    list<string> split (string_view str, const string &delimiter);
+    list<string_view> split (const string_view &s, const string &delimiter);
 
     template <typename map, typename key, typename value>
     map inline replace_part (map X, const key &k, const value &v) {
