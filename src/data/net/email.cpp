@@ -381,25 +381,25 @@ namespace data::net::email {
     namespace {
 
         struct header_counter {
-            uint32 orig_date;
-            uint32 message_id;
-            uint32 from;
-            uint32 sender;
-            uint32 reply_to;
-            uint32 to;
-            uint32 cc;
-            uint32 bcc;
-            uint32 in_reply_to;
-            uint32 references;
-            uint32 subject;
-            uint32 resent_date;
-            uint32 resent_from;
-            uint32 resent_sender;
-            uint32 resent_to;
-            uint32 resent_cc;
-            uint32 resent_bcc;
-            uint32 resent_message_id;
-            uint32 trace;
+            uint32 orig_date {0};
+            uint32 message_id {0};
+            uint32 from {0};
+            uint32 sender {0};
+            uint32 reply_to {0};
+            uint32 to {0};
+            uint32 cc {0};
+            uint32 bcc {0};
+            uint32 in_reply_to {0};
+            uint32 references {0};
+            uint32 subject {0};
+            uint32 resent_date {0};
+            uint32 resent_from {0};
+            uint32 resent_sender {0};
+            uint32 resent_to {0};
+            uint32 resent_cc {0};
+            uint32 resent_bcc {0};
+            uint32 resent_message_id {0};
+            uint32 trace {0};
         };
 
         template <typename Rule> struct count_headers : pegtl::nothing<Rule> {};
