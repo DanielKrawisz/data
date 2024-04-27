@@ -16,6 +16,7 @@
 #include <data/math/root.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/digits.hpp>
+#include <data/string.hpp>
 
 // base 58 is a format for writing natural numbers using
 // 58 digits that are easily distinguished by the human

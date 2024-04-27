@@ -5,7 +5,7 @@
 #ifndef DATA_STRING
 #define DATA_STRING
 
-#include "cross.hpp"
+#include "tools.hpp"
 
 namespace data {
 
@@ -29,6 +29,16 @@ namespace data {
     string to_upper (const std::string &);
 
     string to_lower (const std::string &);
+
+    // split a string by a delimiter.
+    list<string_view> split (const string_view &s, const string_view &delimiter);
+
+    template <typename X>
+    string string_join (list<X> l) {
+        std::stringstream ss;
+        for (const X &x : l) ss << x;
+        return ss.str ();
+    }
 
     std::strong_ordering inline operator <=> (const string &a, const string &b) {
         return static_cast<const std::string &> (a) <=> static_cast<const std::string &> (b);

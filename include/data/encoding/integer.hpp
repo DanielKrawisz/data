@@ -16,6 +16,8 @@
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/root.hpp>
 
+#include <data/string.hpp>
+
 #include <iostream>
 
 namespace data::encoding {

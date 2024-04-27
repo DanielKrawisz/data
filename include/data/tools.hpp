@@ -36,8 +36,6 @@
 #include <data/cross.hpp>
 #include <data/fold.hpp>
 
-#include <data/string.hpp>
-
 namespace data {
     
     template <typename X> using stack = linked_stack<X>;
@@ -77,9 +75,6 @@ namespace data {
         
         return l;
     }
-
-    // split a string by a delimiter.
-    list<string_view> split (const string_view &s, const string &delimiter);
 
     template <typename map, typename key, typename value>
     map inline replace_part (map X, const key &k, const value &v) {

@@ -22,7 +22,8 @@ namespace data::net::email {
             "example.firstname-lastname@email.com",
             "jon.o'conner@example.com",
             R"("bob" <bob@zoob.com>)",
-            R"(Set Na <sed@na.co>)"
+            R"(Set Na <sed@na.co>)",
+            "Joomba loomba <jl @ (hi, this is a comment) na.co>"
         }) EXPECT_TRUE (address::valid (addr));
 
         for (const ASCII &addr : list<ASCII> {

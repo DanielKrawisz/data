@@ -8,6 +8,7 @@
 
 #include <data/stream.hpp>
 #include <data/net/URL.hpp>
+#include <data/for_each.hpp>
 
 // https://www.rfc-editor.org/rfc/rfc5322
 // https://www.rfc-editor.org/rfc/rfc6854
@@ -103,8 +104,10 @@ namespace data::net::email {
             orig_date
         };
 
+        static ASCII to_string (name);
+
         using ASCII::ASCII;
-        field (name);
+        field (name n) : field {to_string (n)} {}
         field (const ASCII &x) : ASCII {x} {}
 
         static bool valid (string_view);
@@ -115,6 +118,9 @@ namespace data::net::email {
         using ASCII::ASCII;
         header (const ASCII &x) : ASCII {x} {};
         header (const field &f, const ASCII &v);
+
+        static string_view name (string_view);
+        static string_view value (string_view);
 
         field name () const;
         ASCII value () const;
@@ -128,16 +134,23 @@ namespace data::net::email {
     struct date_time : ASCII {
         using ASCII::ASCII;
         date_time (const ASCII &);
+
+        static bool valid (string_view);
+        bool valid () const;
     };
 
+    // a msg_id looks similar to an email address but is less restrictive.
     struct msg_id : ASCII {
         using ASCII::ASCII;
         msg_id (const ASCII &);
+
+        static bool valid (string_view);
+        bool valid () const;
     };
 
     struct message : ASCII {
         using ASCII::ASCII;
-        message (const ASCII &);
+        message (const ASCII &x): ASCII {x} {}
 
         // an email message is divided into lines divided by CRLF.
         static list<string_view> lines (const ASCII &x);
@@ -145,7 +158,7 @@ namespace data::net::email {
         static list<std::pair<string_view, string_view>> headers (string_view);
 
         // body is optional
-        static bytes_view body (string_view);
+        static string_view body (string_view);
 
         email::headers headers () const;
 
@@ -154,21 +167,82 @@ namespace data::net::email {
         static bool valid (string_view);
         bool valid () const;
 
-        // obsolete versions of the email format are accepted but not considered valid.
-        static bool obsolete (string_view);
-        bool obsolete () const;
-
         // lines are not more than 78 chars.
         // message_id field is included.
-        // resent fields are correct if included.
         static bool standard (string_view);
         bool standard () const;
 
         message (email::headers, const ASCII &body);
 
+        // header values having to do with information on
+        // the sender and receiver.
+        struct sent_info {
+            // these are the only two required fields.
+            date_time Date;
+            address From;
+            maybe<address> Sender;
+
+            maybe<msg_id> MessageID;
+
+            // one of these fields will be present.
+            maybe<list<address>> To;
+            maybe<list<address>> Cc;
+            maybe<list<address>> Bcc;
+        };
+
+        // more than one indicates a resend, most recent first.
+        list<sent_info> sent () const;
+
+        maybe<ASCII> subject () const;
+        maybe<list<address>> reply_to () const;
+
+        maybe<list<msg_id>> in_reply_to () const;
+        maybe<list<msg_id>> references () const;
+
+        list<ASCII> comments () const;
+        list<list<ASCII>> keywords () const;
+
         // put a list of headers here followed by the body.
         template <typename... P>
-        message (P... p);
+        explicit message (const header &, P... p);
+
+        // for writing a message before you send it.
+        struct write {
+            sent_info Sent;
+
+            maybe<ASCII> Subject;
+            list<ASCII> Comments;
+            list<list<ASCII>> Keywords;
+
+            maybe<list<address>> ReplyTo;
+            maybe<list<msg_id>> InReplyTo;
+            maybe<list<msg_id>> References;
+
+            list<header> Optional;
+
+            maybe<ASCII> Body;
+        };
+
+        message (const write &);
+
+        // construct headers for a reply message.
+        write reply () const;
+
+        write read (string_view) const;
+        write read () const;
+
+        // add appropriate resend fields.
+        message resend () const;
+
+        struct trace {
+            mailbox ReturnPath;
+            string ReceivedToken;
+            date_time ReceivedTime;
+        };
+
+        list<trace> traces () const;
+
+        message add_trace (const trace &);
 
         static string_view date (string_view);
         static string_view from (string_view);
@@ -183,33 +257,15 @@ namespace data::net::email {
         static string_view references (string_view);
         static list<string_view> comments (string_view);
         static list<string_view> keywords (string_view);
-
-        // these are the only two required fields.
-        date_time date () const;
-        address from () const;
-
-        maybe<msg_id> message_id () const;
-
-        maybe<ASCII> subject () const;
-
-        maybe<address> sender () const;
-        maybe<list<address>> reply_to () const;
-
-        maybe<list<address>> to () const;
-        maybe<list<address>> cc () const;
-        maybe<list<address>> bcc () const;
-
-        maybe<list<msg_id>> in_reply_to () const;
-        maybe<list<msg_id>> references () const;
-
-        list<ASCII> comments () const;
-        list<list<ASCII>> keywords () const;
-
-        // construct headers for a reply message.
-        email::headers reply () const;
-
-        // add appropriate resend fields.
-        message resend () const;
+        static list<string_view> return_path (string_view);
+        static list<string_view> received (string_view);
+        static list<string_view> resent_date (string_view);
+        static list<string_view> resent_from (string_view);
+        static list<string_view> resent_message_id (string_view);
+        static list<string_view> resent_sender (string_view);
+        static list<string_view> resent_to (string_view);
+        static list<string_view> resent_cc (string_view);
+        static list<string_view> resent_bcc (string_view);
     };
 
     struct date : header {
@@ -221,11 +277,11 @@ namespace data::net::email {
     };
 
     struct sender : header {
-        sender (list<address>);
+        sender (const address &a): header {field::sender, a} {}
     };
 
     struct reply_to : header {
-        reply_to (const address &ad): header {field::reply_to, ad} {}
+        reply_to (list<address>);
     };
 
     struct to : header {
@@ -253,16 +309,83 @@ namespace data::net::email {
     };
 
     struct subject : header {
-        subject (const ASCII &);
+        subject (const ASCII &x) : header {field::subject, x} {}
     };
 
-    struct comment : header {
-        comment (const ASCII &);
+    struct comments : header {
+        comments (const ASCII &c) : header {field::comments, c} {}
     };
 
     struct keywords : header {
         keywords (list<ASCII>);
     };
+
+    struct return_path : header {
+        return_path (const mailbox &m) : header {field::return_path, m} {}
+    };
+
+    struct received : header {
+        received (const string &token, const date_time &);
+    };
+
+    struct resent_date : header {
+        resent_date (const date_time &d): header {field::orig_date, d} {}
+    };
+
+    struct resent_from : header {
+        resent_from (list<address>);
+    };
+
+    struct resent_sender : header {
+        resent_sender (list<address>);
+    };
+
+    struct resent_to : header {
+        resent_to (list<address>);
+    };
+
+    struct resent_cc : header {
+        resent_cc (list<address>);
+    };
+
+    struct resent_bcc : header {
+        resent_bcc (list<address>);
+    };
+
+    struct resent_message_id : header {
+        resent_message_id (const msg_id &d): header {field::message_id, d} {}
+    };
+
+    namespace {
+        struct incomplete_message {
+
+            headers Headers;
+            ASCII Body;
+
+            incomplete_message attach (const header &h) {
+                return incomplete_message {Headers << h, Body};
+            }
+
+            incomplete_message attach (const ASCII &b) {
+                return incomplete_message {Headers, b};
+            }
+
+            template <typename... P>
+            incomplete_message attach (const header &h, P... p) {
+                return attach (h).attach (p...);
+            }
+
+            operator message () const {
+                return message {Headers, Body};
+            }
+        };
+
+    }
+
+    template <typename... P>
+    inline message::message (const header &h, P... p) {
+        *this = message (incomplete_message {}.attach (h, p...));
+    }
 
     bool inline address::valid () const {
         return valid (*this);
@@ -280,12 +403,16 @@ namespace data::net::email {
         return valid (*this);
     }
 
-    bool inline message::valid () const {
+    bool inline date_time::valid () const {
         return valid (*this);
     }
 
-    bool inline message::obsolete () const {
-        return obsolete (*this);
+    bool inline msg_id::valid () const {
+        return valid (*this);
+    }
+
+    bool inline message::valid () const {
+        return valid (*this);
     }
 
     bool inline message::standard () const {
@@ -321,6 +448,8 @@ namespace data::net::email {
 
     inline address::address (const ASCII &display, const ASCII &local, const IP::address &addr):
         ASCII {display + " <" + local + "@[" + addr + "]>"} {}
+
+    inline header::header (const field &f, const ASCII &v) : ASCII {f + ":" + v} {}
 
     maybe<ASCII> inline address::local_part () const {
         string_view x = local_part (*this);
@@ -366,14 +495,84 @@ namespace data::net::email {
 
     ASCII inline mailbox::domain () const {
         string_view x = address::domain (*this);
-        if (x.data () == nullptr) return {};
+        if (x.data () == nullptr) throw exception {} << "invalid mailbox";
         return data::ASCII {x};
+    }
+
+    field inline header::name () const {
+        return field {header::name (*this)};
+    }
+
+    ASCII inline header::value () const {
+        return data::ASCII {header::value (*this)};
     }
 
     list<string_view> inline message::lines (const ASCII &x) {
         char CRLF[] = {13, 10};
         return split (x, std::string {CRLF});
     }
+
+    string_view inline header::name (string_view x) {
+        auto z = split (x, ":");
+        if (z.size () < 2) throw exception {} << "invalid header";
+        return z[1];
+    }
+
+    string_view inline header::value (string_view x) {
+        auto z = split (x, ":");
+        if (z.size () < 2) throw exception {} << "invalid header";
+        return string_view {x.data () + z[1].size () + 1, x.size () - z[1].size () - 1};
+    }
+
+    email::headers inline message::headers () const {
+        return for_each ([] (std::pair<string_view, string_view> x) -> email::header {
+            return email::header {email::field (x.first), ASCII (x.second)};
+        }, headers (*this));
+    }
+
+    ASCII inline message::body () const {
+        return ASCII {body (*this)};
+    }
+
+    list<ASCII> inline message::comments () const {
+        return for_each ([] (string_view x) -> ASCII {
+            return ASCII {x};
+        }, comments (*this));
+    }
+
+    maybe<ASCII> inline message::subject () const {
+        string_view x = message::subject (*this);
+        if (x.data () == nullptr) return {};
+        return {data::ASCII {x}};
+    }
+
+    inline from::from (list<address> x) : header {field::from, string_join (riffle (x, ", "))} {}
+
+    inline reply_to::reply_to (list<address> x) : header {field::reply_to, string_join (riffle (x, ", "))} {}
+
+    inline to::to (list<address> x) : header {field::to, string_join (riffle (x, ", "))} {}
+
+    inline cc::cc (list<address> x) : header {field::cc, string_join (riffle (x, ", "))} {}
+
+    inline bcc::bcc (list<address> x) : header {field::bcc, string_join (riffle (x, ", "))} {}
+
+    inline in_reply_to::in_reply_to (list<msg_id> x) : header {field::in_reply_to, string_join (riffle (x, ", "))} {}
+
+    inline references::references (list<msg_id> x) : header {field::references, string_join (riffle (x, ", "))} {}
+
+    inline keywords::keywords (list<ASCII> x): header {field::keywords, string_join (riffle (x, ", "))} {}
+
+    inline resent_from::resent_from (list<address> x) : header {field::resent_from, string_join (riffle (x, ", "))} {}
+
+    inline resent_sender::resent_sender (list<address> x) : header {field::resent_sender, string_join (riffle (x, ", "))} {}
+
+    inline resent_to::resent_to (list<address> x) : header {field::resent_to, string_join (riffle (x, ", "))} {}
+
+    inline resent_cc::resent_cc (list<address> x) : header {field::resent_cc, string_join (riffle (x, ", "))} {}
+
+    inline resent_bcc::resent_bcc (list<address> x) : header {field::resent_bcc, string_join (riffle (x, ", "))} {}
+
+    inline received::received (const string &token, const date_time &time): header {field::received, token + "; " + time} {}
 }
 
 
