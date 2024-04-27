@@ -10,6 +10,8 @@
 
 namespace data::net::email {
 
+    char CRLF[] = {13, 10};
+
     bool lines_lengths_exceed (string_view, size_t);
 
     // although not required, lines should be 78 chars or less.
@@ -29,6 +31,220 @@ namespace data::net::email {
         if (x.data () == nullptr) return {};
         return remove_folded_whitespace (data::ASCII {x});
     }
+
+    ASCII field::to_string (name n) {
+        switch (n) {
+            case orig_date : return ASCII {"Date"};
+            case from : return ASCII {"From"};
+            case subject : return ASCII {"Subject"};
+            case message_id : return ASCII {"Message-ID"};
+            case sender : return ASCII {"Sender"};
+            case reply_to : return ASCII {"Reply-To"};
+            case to : return ASCII {"To"};
+            case cc : return ASCII {"Cc"};
+            case bcc : return ASCII {"Bcc"};
+            case in_reply_to : return ASCII {"In-Reply-To"};
+            case references : return ASCII {"References"};
+            case comments : return ASCII {"Comments"};
+            case keywords : return ASCII {"Keywords"};
+            case return_path : return ASCII {"Return-Path"};
+            case received : return ASCII {"Received"};
+            case resent_date : return ASCII {"Resent-Date"};
+            case resent_from : return ASCII {"Resent-From"};
+            case resent_sender : return ASCII {"Resent-Sender"};
+            case resent_to : return ASCII {"Resent-To"};
+            case resent_cc : return ASCII {"Resent-Cc"};
+            case resent_bcc : return ASCII {"Resent-Bcc"};
+            case resent_msg_id : return ASCII {"Resent-Message-ID"};
+            default: throw exception {} << "unknown field type.";
+        }
+    }
+
+    list<std::pair<string_view, string_view>> message::headers (string_view x) {
+        char empty_line[] = {13, 10, 13, 10};
+        list<string_view> z = split (x, std::string {empty_line});
+        if (z.size () != 2) throw exception {} << "invalid message";
+        list<string_view> hz = split (z[0], string_view {CRLF, 2});
+        list<std::pair<string_view, string_view>> result;
+        for (string_view h : hz) result <<= std::pair<string_view, string_view> {header::name (h), header::value (h)};
+        return result;
+    }
+
+    string_view message::body (string_view x) {
+        char empty_line[] = {13, 10, 13, 10};
+        list<string_view> z = split (x, string_view {empty_line, 4});
+        if (z.size () != 2) throw exception {} << "invalid message";
+        return z[1];
+    }
+
+    message::message (email::headers hz, const ASCII &body) {
+        std::stringstream ss;
+        for (const auto &h : hz) ss << h << CRLF;
+        ss << CRLF << body;
+        message m {ss.str ()};
+
+        // try to satisfy the recommended 78 character line limit.
+        if (auto mm = break_lines (m, 78); bool (mm)) {
+            *this = *mm;
+            return;
+        }
+
+        // if not, try to satisfy the required 998 character line limit.
+        if (auto mm = break_lines (m, 998); bool (mm)) {
+            *this = *mm;
+            return;
+        }
+
+        // if not, then this message is not valid and the user will have to
+        // fix it himself.
+        *this = m;
+    }
+
+    list<message::sent_info> message::sent () const {
+
+        string_view d = date (*this);
+        string_view f = from (*this);
+        string_view i = message_id (*this);
+        string_view s = sender (*this);
+        string_view t = to (*this);
+        string_view c = cc (*this);
+        string_view b = bcc (*this);
+
+        list<string_view> ddd = resent_date (*this);
+        list<string_view> fff = resent_from (*this);
+        list<string_view> iii = resent_message_id (*this);
+        list<string_view> sss = resent_sender (*this);
+        list<string_view> ttt = resent_to (*this);
+        list<string_view> ccc = resent_cc (*this);
+        list<string_view> bbb = resent_bcc (*this);
+
+        if (d.data () == nullptr) throw exception {"invalid message"};
+        if (f.data () == nullptr) throw exception {"invalid message"};
+
+        if (fff.size () != ddd.size ()) throw exception {"invalid message"};
+
+        if (i.data () == nullptr && iii.size () != 0 || i.data () != nullptr && iii.size () != fff.size ()) throw exception {"invalid message"};
+        if (s.data () == nullptr && sss.size () != 0 || s.data () != nullptr && sss.size () != fff.size ()) throw exception {"invalid message"};
+        if (t.data () == nullptr && ttt.size () != 0 || t.data () != nullptr && ttt.size () != fff.size ()) throw exception {"invalid message"};
+        if (c.data () == nullptr && ccc.size () != 0 || c.data () != nullptr && ccc.size () != fff.size ()) throw exception {"invalid message"};
+        if (b.data () == nullptr && bbb.size () != 0 || b.data () != nullptr && bbb.size () != fff.size ()) throw exception {"invalid message"};
+
+        list<sent_info> result;
+        while (fff.size () > 0) {
+            sent_info si {};
+            si.Date = date_time {ddd.first ()};
+            ddd = ddd.rest ();
+            si.From = address {fff.first ()};
+            fff = fff.rest ();
+
+            if (iii.size () > 0) {
+                si.MessageID = msg_id {iii.first ()};
+                iii = iii.rest ();
+            }
+
+            if (sss.size () > 0) {
+                si.Sender = address {sss.first ()};
+                sss = sss.rest ();
+            }
+
+            if (ttt.size () > 0) {
+                si.To = for_each ([] (string_view x) -> address {
+                    return address {x};
+                }, split (ttt.first (), ","));
+                ttt = ttt.rest ();
+            }
+
+            if (ccc.size () > 0) {
+                si.Cc = for_each ([] (string_view x) -> address {
+                    return address {x};
+                }, split (ccc.first (), ","));
+                ccc = ccc.rest ();
+            }
+
+            if (bbb.size () > 0) {
+                si.Bcc = for_each ([] (string_view x) -> address {
+                    return address {x};
+                }, split (bbb.first (), ","));
+                bbb = bbb.rest ();
+            }
+
+            result <<= si;
+        }
+
+        sent_info si {};
+        si.Date = date_time {d};
+        si.From = address {f};
+
+        if (i.data () != nullptr) si.MessageID = msg_id {i};
+        if (s.data () != nullptr) si.Sender = address {s};
+        if (t.data () != nullptr) si.To = for_each ([] (string_view x) -> address {
+                return address {x};
+            }, split (t, ","));
+        if (c.data () != nullptr) si.Cc = for_each ([] (string_view x) -> address {
+                return address {x};
+            }, split (c, ","));
+        if (b.data () != nullptr) si.Bcc = for_each ([] (string_view x) -> address {
+                return address {x};
+            }, split (b, ","));
+
+        result <<= si;
+        return result;
+    }
+
+    maybe<list<address>> message::reply_to () const {
+        string_view rt = reply_to (*this);
+        if (rt.data () == nullptr) return {};
+        return for_each ([] (string_view x) -> address {
+            return address {x};
+        }, split (rt, ","));
+    }
+
+    maybe<list<msg_id>> message::in_reply_to () const {
+        string_view irt = in_reply_to (*this);
+        if (irt.data () == nullptr) return {};
+        return for_each ([] (string_view x) -> msg_id {
+            return msg_id {x};
+        }, split (irt, ","));
+    }
+
+    maybe<list<msg_id>> message::references () const {
+        string_view r = references (*this);
+        if (r.data () == nullptr) return {};
+        return for_each ([] (string_view x) -> msg_id {
+            return msg_id {x};
+        }, split (r, ","));
+    }
+
+    list<list<ASCII>> message::keywords () const {
+        list<string_view> kkk = keywords (*this);
+        if (kkk.size () == 0) return {};
+        return for_each ([] (string_view k) -> list<ASCII> {
+            return for_each ([] (string_view x) -> ASCII {
+                return ASCII {x};
+            }, split (k, ","));
+        }, kkk);
+    }
+
+    message::message (const write &w) {
+        incomplete_message i {};
+        i = i.attach (email::date {w.Sent.Date});
+        i = i.attach (email::from {w.Sent.From});
+        if (bool (w.Sent.MessageID)) i = i.attach (email::message_id (*w.Sent.MessageID));
+        if (bool (w.Sent.Sender)) i = i.attach (email::sender (*w.Sent.Sender));
+        if (bool (w.Sent.To)) i = i.attach (email::to (*w.Sent.To));
+        if (bool (w.Sent.Cc)) i = i.attach (email::cc (*w.Sent.Cc));
+        if (bool (w.Sent.Bcc)) i = i.attach (email::bcc (*w.Sent.Bcc));
+        if (bool (w.Subject)) i = i.attach (email::subject (*w.Subject));
+        for (auto &x : w.Comments) i = i.attach (email::comments {x});
+        for (auto &x : w.Keywords) i = i.attach (email::keywords {x});
+        if (bool (w.ReplyTo)) i = i.attach (email::reply_to (*w.ReplyTo));
+        if (bool (w.InReplyTo)) i = i.attach (email::in_reply_to (*w.InReplyTo));
+        if (bool (w.References)) i = i.attach (email::references (*w.References));
+        for (auto &h : w.Optional) i = i.attach (h);
+        if (bool (w.Body)) i = i.attach (*w.Body);
+        *this = message (i);
+    }
+
 }
 
 #include <tao/pegtl.hpp>
@@ -154,6 +370,8 @@ namespace pegtl {
 
     struct date_time : seq<opt<day_of_week, one<','>>, date, time, CFWS> {};
 
+    struct date_time_whole : seq<bof, date_time, eof> {};
+
     struct header_orig_date : seq<string<'D', 'a', 't', 'e', ':'>, date_time> {};
 
     //updated in rfc6854
@@ -175,6 +393,8 @@ namespace pegtl {
 
     struct msg_id : seq<CFWS, one<'<'>, dot_atext, one<'@'>, sor<dot_atext, no_fold_literal>, one<'>'>, CFWS> {};
 
+    struct msg_id_whole : seq<bof, msg_id, eof> {};
+
     struct header_message_id : seq<string<'M', 'e', 's', 's', 'a', 'g', 'e', '-', 'I', 'D', ':'>, msg_id> {};
 
     struct header_in_reply_to : seq<string<'I', 'n', '-', 'R', 'e', 'p', 'l', 'y', '-', 'T', 'o', ':'>, plus<msg_id>> {};
@@ -183,7 +403,7 @@ namespace pegtl {
 
     struct header_subject : seq<string<'S', 'u', 'b', 'j', 'e', 'c', 't', ':'>, unstructured> {};
 
-    struct header_comment : seq<string<'C', 'o', 'm', 'm', 'e', 'n', 't', 's', ':'>, unstructured> {};
+    struct header_comments : seq<string<'C', 'o', 'm', 'm', 'e', 'n', 't', 's', ':'>, unstructured> {};
 
     struct header_keywords : seq<string<'K', 'e', 'y', 'w', 'o', 'r', 'd', 's', ':'>, seq<phrase, opt<one<','>, phrase>>> {};
 
@@ -199,7 +419,7 @@ namespace pegtl {
 
     struct header_resent_bcc : seq<string<'R', 'e', 's', 'e', 'n', 't', '-', 'B', 'c', 'c', ':'>, sor<address_list, CFWS>> {};
 
-    struct header_resent_msg_id :
+    struct header_resent_message_id :
         seq<string<'R', 'e', 's', 'e', 'n', 't', '-', 'M', 'e', 's', 's', 'a', 'g', 'e', '-', 'I', 'D', ':'>, msg_id> {};
 
     struct path : sor<angle_addr, seq<CFWS, one<'<'>, CFWS, one<'>'>, CFWS>> {};
@@ -225,23 +445,23 @@ namespace pegtl {
 
     struct optional_field : minus<field,
         sor<header_from, header_orig_date, header_subject, header_sender, header_reply_to, header_to, header_cc, header_bcc,
-            header_message_id, header_in_reply_to, header_references, header_comment, header_keywords, header_resent_date,
-            header_resent_from, header_resent_sender, header_resent_to, header_resent_cc, header_resent_bcc, header_resent_msg_id,
-            header_return_path, header_received>> {};
+            header_message_id, header_in_reply_to, header_references, header_comments, header_keywords, header_resent_date,
+            header_resent_from, header_resent_sender, header_resent_to, header_resent_cc, header_resent_bcc,
+            header_resent_message_id, header_return_path, header_received>> {};
 
     struct header : sor<header_from, header_orig_date, header_subject, header_sender, header_reply_to, header_to, header_cc, header_bcc,
-            header_message_id, header_in_reply_to, header_references, header_comment, header_keywords, header_resent_date,
-            header_resent_from, header_resent_sender, header_resent_to, header_resent_cc, header_resent_bcc, header_resent_msg_id,
-            header_return_path, header_received, optional_field> {};
+            header_message_id, header_in_reply_to, header_references, header_comments, header_keywords, header_resent_date,
+            header_resent_from, header_resent_sender, header_resent_to, header_resent_cc, header_resent_bcc,
+            header_resent_message_id, header_return_path, header_received, optional_field> {};
 
     struct header_whole : seq<bof, header, eof> {};
 
     struct resent_headers : sor<header_resent_date, header_resent_from, header_resent_sender, header_resent_to,
-        header_resent_cc, header_resent_bcc, header_resent_msg_id> {};
+        header_resent_cc, header_resent_bcc, header_resent_message_id> {};
 
     struct headers : seq<star<trace, star<resent_headers>, star<optional_field>>,
         star<sor<header_subject, header_from, header_orig_date, header_sender, header_reply_to, header_to, header_cc, header_bcc,
-            header_message_id, header_in_reply_to, header_references, header_comment, header_keywords, optional_field>>> {};
+            header_message_id, header_in_reply_to, header_references, header_comments, header_keywords, optional_field>>> {};
 
     // an email message is divided into lines by CLRF
     // in the body, CL and RF may not appear on their own in the body.
@@ -254,6 +474,11 @@ namespace pegtl {
     struct message : seq<headers, CLRF, opt<body>> {};
 
     struct message_whole : seq<bof, message, eof> {};
+
+    // TODO
+    struct message_obsolete : message {};
+
+    struct message_obsolete_whole : seq<bof, message_obsolete, eof> {};
 
 }
 
@@ -313,7 +538,7 @@ namespace data::net::email {
 
         template <typename Rule> struct read_addr_spec : pegtl::nothing<Rule> {};
 
-        template <> struct read_ip_address<pegtl::addr_spec> {
+        template <> struct read_addr_spec<pegtl::addr_spec> {
             template <typename Input>
             static void apply (const Input &in, string_view &ad) {
                 ad = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
@@ -321,42 +546,42 @@ namespace data::net::email {
         };
     }
 
-    static string_view display_name (string_view x) {
+    string_view address::display_name (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view name {};
         tao::pegtl::parse<pegtl::mailbox_whole, read_display_name> (in, name);
         return name;
     }
 
-    static string_view local_part (string_view x) {
+    string_view address::local_part (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view lp {};
         tao::pegtl::parse<pegtl::mailbox_whole, read_local_part> (in, lp);
         return lp;
     }
 
-    static string_view domain (string_view x) {
+    string_view address::domain (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view d {};
         tao::pegtl::parse<pegtl::mailbox_whole, read_domain> (in, d);
         return d;
     }
 
-    static string_view domain_name (string_view x) {
+    string_view address::domain_name (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view d {};
-        tao::pegtl::parse<pegtl::mailbox_whole, read_domain> (in, d);
+        tao::pegtl::parse<pegtl::mailbox_whole, read_domain_name> (in, d);
         return d;
     }
 
-    static string_view ip_address (string_view x) {
+    string_view address::ip_address (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view ip {};
-        tao::pegtl::parse<pegtl::mailbox_whole, read_domain> (in, ip);
+        tao::pegtl::parse<pegtl::mailbox_whole, read_ip_address> (in, ip);
         return ip;
     }
 
-    static string_view addr_spec (string_view x) {
+    string_view address::addr_spec (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view ad {};
         tao::pegtl::parse<pegtl::mailbox_whole, read_domain> (in, ad);
@@ -376,6 +601,16 @@ namespace data::net::email {
     bool header::valid (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_header");
         return tao::pegtl::parse<pegtl::header_whole> (in);
+    }
+
+    bool date_time::valid (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_date");
+        return tao::pegtl::parse<pegtl::date_time_whole> (in);
+    }
+
+    bool msg_id::valid (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_id");
+        return tao::pegtl::parse<pegtl::msg_id_whole> (in);
     }
 
     namespace {
@@ -523,7 +758,7 @@ namespace data::net::email {
             }
         };
 
-        template <> struct count_headers<pegtl::header_resent_msg_id> {
+        template <> struct count_headers<pegtl::header_resent_message_id> {
             template <typename Input>
             static void apply (const Input &in, header_counter &h) {
                 h.resent_message_id++;
@@ -547,6 +782,16 @@ namespace data::net::email {
                 if (static_cast<size_t> (in.end () - in.begin ()) > max_size) throw line_is_too_big {};
             }
         };
+
+        template <typename Rule> struct find_excessive_lines : pegtl::nothing<Rule> {};
+
+        template <> struct find_excessive_lines<pegtl::line> {
+            template <typename Input>
+            static void apply (const Input &in, size_t max_size, list<string_view> &x) {
+                if (static_cast<size_t> (in.end () - in.begin ()) > max_size)
+                    x <<= string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+            }
+        };
     }
 
     bool lines_lengths_exceed (string_view x, size_t size) {
@@ -564,7 +809,7 @@ namespace data::net::email {
         tao::pegtl::memory_input<> in (x, "email_message");
         header_counter c {};
         return tao::pegtl::parse<pegtl::message_whole, count_headers> (in, c) &&
-            // check that every line is under 998 characters.
+            // check that every line is not greater than 998 characters.
             !lines_lengths_exceed (x, 998) &&
             // there are also rules about how often certain headers may appear.
             // there must be one orig_date, and one from field.
@@ -578,20 +823,269 @@ namespace data::net::email {
             // resent fields must be present in a block preceeding the other fields.
             c.resent_from == c.resent_date &&
             c.resent_sender == c.resent_from * c.sender &&
-            c.resent_to == c.resent_from * c.to &&
-            c.resent_cc == c.resent_from * c.cc &&
-            c.resent_bcc == c.resent_from * c.bcc &&
-            c.resent_message_id == c.resent_from * c.message_id;
+            c.resent_to == c.resent_to * c.to &&
+            c.resent_cc == c.resent_cc * c.cc &&
+            c.resent_bcc == c.resent_bcc * c.bcc &&
+            c.resent_message_id == c.resent_message_id * c.message_id;
     }
 
-    template <typename Rule> struct read_header_from : pegtl::nothing<Rule> {};
+    bool message::standard (string_view x) {
+        return valid (x) && !lines_lengths_exceed (x, 78) && bool (message_id (x).data () != nullptr);
+    }
 
-    template <> struct read_header_from<pegtl::header_from> {
-        template <typename Input>
-        static void apply (const Input &in, string_view &name) {
-            name = string_view {&*in.begin () + 5, static_cast<size_t> (in.end () - in.begin () - 5)};
+    struct insert {
+        string This;
+        size_t At;
+
+        bool valid () const {
+            return This != "";
         }
     };
+
+    insert insert_CLRF_before_whitespace (string_view line, uint32 limit) {
+        for (int i = limit; i >= 0; i--) if (line[i] == 32 || line[i] == 9) return insert {string {CRLF}, static_cast<size_t> (i)};
+        return insert {"", 0};
+    }
+
+    // break lines up so that none is longer than the given limit (not including CRLFs)
+    // this may require inserting comments containing line breaks and whitespace.
+    // string is only returned if the limit could be satisfied.
+    maybe<message> inline break_lines (const message &m, uint32 limit) {
+        tao::pegtl::memory_input<> in (m, "email_message");
+        list<string_view> big_lines;
+        tao::pegtl::parse<pegtl::message_whole, find_excessive_lines> (in, limit, big_lines);
+        if (data::empty (big_lines)) return {m};
+
+        // let's look at the lines.
+        auto lines = message::lines (m);
+
+        list<insert> insertions;
+
+        size_t begin_pos = 0;
+        for (string_view line : lines) {
+            if (line.size () > limit) {
+                if (insert i = insert_CLRF_before_whitespace (line, limit); i.valid ()) {
+                    i.At += begin_pos;
+                    insertions <<= i;
+                    // TODO it is possible that we could try other things to insert a line break.
+                    // for example, there may be places where we could insert a comment that
+                    // contains whitespace, which means it can have a line break.
+                } else return {};
+            }
+            begin_pos += line.size () + 2;
+        }
+
+        begin_pos = 0;
+        std::stringstream ss;
+        for (const insert &i : insertions) {
+            ss << string_view {m.data () + begin_pos, i.At};
+            ss << CRLF;
+            begin_pos += i.At;
+        }
+
+        ss << string_view {m.data () + begin_pos, m.size () - begin_pos};
+        return {message {ss.str ()}};
+    }
+
+    namespace {
+        template <typename Rule> struct read_header_from : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_from<pegtl::header_from> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 5, static_cast<size_t> (in.end () - in.begin () - 5)};
+            }
+        };
+
+        template <typename Rule> struct read_header_date : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_date<pegtl::header_orig_date> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 5, static_cast<size_t> (in.end () - in.begin () - 5)};
+            }
+        };
+
+        template <typename Rule> struct read_header_message_id : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_message_id<pegtl::header_message_id> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 11, static_cast<size_t> (in.end () - in.begin () - 11)};
+            }
+        };
+
+        template <typename Rule> struct read_header_subject : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_subject<pegtl::header_subject> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 8, static_cast<size_t> (in.end () - in.begin () - 8)};
+            }
+        };
+
+        template <typename Rule> struct read_header_sender : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_sender<pegtl::header_sender> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 7, static_cast<size_t> (in.end () - in.begin () - 7)};
+            }
+        };
+
+        template <typename Rule> struct read_header_in_reply_to : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_in_reply_to<pegtl::header_in_reply_to> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 12, static_cast<size_t> (in.end () - in.begin () - 12)};
+            }
+        };
+
+        template <typename Rule> struct read_header_reply_to : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_reply_to<pegtl::header_reply_to> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_to : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_to<pegtl::header_to> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 3, static_cast<size_t> (in.end () - in.begin () - 3)};
+            }
+        };
+
+        template <typename Rule> struct read_header_cc : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_cc<pegtl::header_cc> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 3, static_cast<size_t> (in.end () - in.begin () - 3)};
+            }
+        };
+
+        template <typename Rule> struct read_header_bcc : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_bcc<pegtl::header_bcc> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 4, static_cast<size_t> (in.end () - in.begin () - 4)};
+            }
+        };
+
+        template <typename Rule> struct read_header_references : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_references<pegtl::header_references> {
+            template <typename Input>
+            static void apply (const Input &in, string_view &name) {
+                name = string_view {&*in.begin () + 11, static_cast<size_t> (in.end () - in.begin () - 11)};
+            }
+        };
+
+        template <typename Rule> struct read_header_comments : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_comments<pegtl::header_comments> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_keywords : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_keywords<pegtl::header_keywords> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_return_path : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_return_path<pegtl::header_return_path> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 12, static_cast<size_t> (in.end () - in.begin () - 12)};
+            }
+        };
+
+        template <typename Rule> struct read_header_received : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_received<pegtl::header_received> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+        template <typename Rule> struct read_header_resent_from : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_from<pegtl::header_resent_from> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_resent_date : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_date<pegtl::header_resent_date> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_resent_message_id : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_message_id<pegtl::header_resent_message_id> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_resent_sender : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_sender<pegtl::header_resent_sender> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_resent_to : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_to<pegtl::header_resent_to> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_resent_cc : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_cc<pegtl::header_resent_cc> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+        template <typename Rule> struct read_header_resent_bcc : pegtl::nothing<Rule> {};
+
+        template <> struct read_header_resent_bcc<pegtl::header_resent_bcc> {
+            template <typename Input>
+            static void apply (const Input &in, list<string_view> &xx) {
+                xx <<= string_view {&*in.begin () + 9, static_cast<size_t> (in.end () - in.begin () - 9)};
+            }
+        };
+
+    }
 
     string_view message::from (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
@@ -600,19 +1094,150 @@ namespace data::net::email {
         return value;
     }
 
-    template <typename Rule> struct read_header_date : pegtl::nothing<Rule> {};
-
-    template <> struct read_header_date<pegtl::header_orig_date> {
-        template <typename Input>
-        static void apply (const Input &in, string_view &name) {
-            name = string_view {&*in.begin () + 5, static_cast<size_t> (in.end () - in.begin () - 5)};
-        }
-    };
-
     string_view message::date (string_view x) {
         tao::pegtl::memory_input<> in (x, "email_message");
         string_view value {};
         tao::pegtl::parse<pegtl::message_whole, read_header_date> (in, value);
+        return value;
+    }
+
+    string_view message::message_id (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_message_id> (in, value);
+        return value;
+    }
+
+    string_view message::subject (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_subject> (in, value);
+        return value;
+    }
+
+    string_view message::sender (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_sender> (in, value);
+        return value;
+    }
+
+    string_view message::reply_to (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_reply_to> (in, value);
+        return value;
+    }
+
+    string_view message::to (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_to> (in, value);
+        return value;
+    }
+
+    string_view message::cc (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_cc> (in, value);
+        return value;
+    }
+
+    string_view message::bcc (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_bcc> (in, value);
+        return value;
+    }
+
+    string_view message::in_reply_to (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_in_reply_to> (in, value);
+        return value;
+    }
+
+    string_view message::references (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        string_view value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_references> (in, value);
+        return value;
+    }
+
+    list<string_view> message::comments (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_comments> (in, value);
+        return value;
+    }
+
+    list<string_view> message::keywords (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_keywords> (in, value);
+        return value;
+    }
+
+    list<string_view> message::return_path (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_return_path> (in, value);
+        return value;
+    }
+
+    list<string_view> message::received (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_received> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_date (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_date> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_from (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_from> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_message_id (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_message_id> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_sender (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_sender> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_to (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_to> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_cc (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_cc> (in, value);
+        return value;
+    }
+
+    list<string_view> message::resent_bcc (string_view x) {
+        tao::pegtl::memory_input<> in (x, "email_message");
+        list<string_view> value {};
+        tao::pegtl::parse<pegtl::message_whole, read_header_resent_bcc> (in, value);
         return value;
     }
 

@@ -31,7 +31,7 @@ namespace data {
             return true;
         }
         
-        X& operator [] (int i) {
+        X &operator [] (int i) {
             size_t size = this->size ();
             if (size == 0) throw std::out_of_range {"cross size 0"};
             if (i < 0 || i >= size) return this->operator [] ((i + size) % size);

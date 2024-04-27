@@ -122,6 +122,18 @@ namespace data {
 
         return z;
     }
+
+    template <typename L, typename elem>
+    L riffle (L l, const elem &e) {
+        L result {};
+        while (l.size () > 1) {
+            result <<= l.first ();
+            result <<= e;
+            l = l.rest ();
+        }
+        if (l.size () == 1) result <<= l.first ();
+        return result;
+    }
 }
 
 template <data::functional::pendable L> L inline operator + (const L &a, const L &b) {

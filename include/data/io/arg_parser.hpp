@@ -6,6 +6,7 @@
 #define DATA_IO_ARG_PARSER
 
 #include <data/tools.hpp>
+#include <data/string.hpp>
 #include <argh.h>
 
 namespace data::io {
