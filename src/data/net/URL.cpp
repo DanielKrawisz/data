@@ -469,7 +469,7 @@ namespace pegtl {
     // Rules for parsing domain names
     struct domain_label : seq<alnum, star<sor<one<'-'>, alnum>>> {};
     struct domain_name : seq<domain_label, star<one<'.'>, domain_label>> {};
-    struct domain_name_whole : seq<domain_name, eof> {};
+    struct domain_name_whole : seq<bof, domain_name, eof> {};
 
     struct gen_delim : sor<one<':'>, one<'/'>, one<'?'>, one<'#'>, one<'['>, one<']'>, one<'@'>> {};
 
@@ -520,7 +520,7 @@ namespace pegtl {
         digit> {};
 
     struct ipv4 : seq<ipv4_octet, one<'.'>, ipv4_octet, one<'.'>, ipv4_octet, one<'.'>, ipv4_octet> {};
-    struct ipv4_whole : seq<eof, ipv4, eof> {};
+    struct ipv4_whole : seq<bof, ipv4, eof> {};
 
     struct h16 : seq<xdigit, opt<xdigit>, opt<xdigit>, opt<xdigit>> {};
 
@@ -540,7 +540,7 @@ namespace pegtl {
 
     struct ip_literal : seq<one<'['>, sor<ipv6, ip_future>, one<']'>> {};
 
-    struct ipv6_whole : seq<eof, ipv6, eof> {};
+    struct ipv6_whole : seq<ipv6, eof> {};
 
     struct ip_address_whole : seq<sor<ipv6, ipv4>, eof> {};
 
@@ -552,13 +552,13 @@ namespace pegtl {
 
     struct authority : seq<opt<user_info_at>, host, opt<seq<one<':'>, port>>> {};
 
-    struct authority_whole : seq<authority, eof> {};
+    struct authority_whole : seq<bof, authority, eof> {};
 
     struct hierarchical : sor<seq<string<'/', '/'>, authority, path_after_authority>, path_absolute, path_rootless> {};
 
     struct uri : seq<scheme, one<':'>, hierarchical, opt<seq<one<'?'>, query>>, opt<seq<one<'#'>, fragment>>> {};
 
-    struct uri_whole : seq<uri, eof> {};
+    struct uri_whole : seq<bof, uri, eof> {};
 
 }
 
@@ -570,17 +570,17 @@ namespace data {
     }
 
     bool encoding::percent::URI::valid () const {
-        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "uri");
+        tao::pegtl::memory_input<> in (*this, "uri");
         return tao::pegtl::parse<pegtl::uri_whole> (in);
     }
 
     bool net::IP::address::valid () const {
-        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "ip_address");
+        tao::pegtl::memory_input<> in (*this, "ip_address");
         return tao::pegtl::parse<pegtl::ip_address_whole> (in);
     }
 
     int32 net::IP::address::version () const {
-        tao::pegtl::memory_input<> in (static_cast<const string &> (*this), "ip_address");
+        tao::pegtl::memory_input<> in (*this, "ip_address");
         if (tao::pegtl::parse<pegtl::ipv4_whole> (in)) return 4;
         if (tao::pegtl::parse<pegtl::ipv6_whole> (in)) return 6;
         return -1;
