@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <random>
 #include <optional>
-#include <variant>
 #include <functional>
 #include <boost/endian/arithmetic.hpp>
 #include <data/io/exception.hpp>
@@ -35,8 +34,6 @@ namespace data {
     template <typename X> using function = std::function<X>;
 
     template <typename... X> using handler = std::function<void (X...)>;
-
-    template <typename... X> using either = std::variant<X...>;
 
     template<typename X>
     using view = std::basic_string_view<X>;
