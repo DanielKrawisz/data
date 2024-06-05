@@ -24,8 +24,8 @@ namespace data::tool {
     
     // turn any map into a set. 
     template <typename M, 
-        typename K = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>().keys().first())>::type>::type, 
-        typename V = typename std::remove_const<typename std::remove_reference<decltype(std::declval<M>()[std::declval<K>()])>::type>::type>
+        typename K = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ().keys ().first ())>::type>::type, 
+        typename V = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ()[std::declval<K> ()])>::type>::type>
     requires functional::map<M, K, V> && std::same_as<unit, V>
     struct map_set {
         using key = K;
