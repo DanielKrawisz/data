@@ -80,6 +80,17 @@ namespace data {
         bool operator == (const X& x) const {
             return sequence_equal (*this, x);
         }
+
+        template <typename X> requires std::convertible_to<element, X>
+        operator functional_queue<X> () const {
+            return functional_queue<X> {X (first ()), functional_queue<X> {rest ()}};
+        }
+
+        template <typename X> requires (!std::is_convertible_v<element, X>) && requires (const element &e) {
+            { X (e) };
+        } explicit operator functional_queue<X> () const {
+            return functional_queue<X> {X (first ()), functional_queue<X> {rest ()}};
+        }
         
     private:
         stack Left;

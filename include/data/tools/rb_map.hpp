@@ -28,8 +28,8 @@ namespace data::tool {
         
     public:
         const V &operator [] (const K &k) const;
-        V *contains (const K &k);
-        const V *contains (const K &k) const;
+        std::remove_reference_t<V> *contains (const K &k);
+        const std::remove_reference_t<V> *contains (const K &k) const;
         bool contains (const entry &e) const;
         
         const V &root () const;
@@ -72,6 +72,21 @@ namespace data::tool {
         rb_map_iterator<K, V> begin () const;
         
         rb_map_iterator<K, V> end () const;
+
+        template <typename X> requires std::convertible_to<V, X>
+        operator rb_map<K, X> () const {
+            rb_map<K, X> m;
+            for (const auto &e : *this) m = m.insert (e);
+            return m;
+        }
+
+        template <typename X> requires (!std::is_convertible_v<V, X>) && requires (const V &e) {
+            { X (e) };
+        } explicit operator rb_map<K, X> () const {
+            rb_map<K, X> m;
+            for (const auto &e : *this) m = m.insert (e);
+            return m;
+        }
         
     };
 
@@ -198,18 +213,18 @@ namespace data::tool {
     
     template <typename K, typename V>
     const V inline &rb_map<K, V>::operator [] (const K &k) const {
-        V *x = Map.find (k);
+        std::remove_reference_t<V> *x = Map.find (k);
         if (x == nullptr) throw "not found";
         return *x;
     }
     
     template <typename K, typename V>
-    V inline *rb_map<K, V>::contains (const K &k) {
+    std::remove_reference_t<V> inline *rb_map<K, V>::contains (const K &k) {
         return Map.find (k);
     }
     
     template <typename K, typename V>
-    const V inline *rb_map<K, V>::contains (const K &k) const {
+    const std::remove_reference_t<V> inline *rb_map<K, V>::contains (const K &k) const {
         return Map.find (k);
     }
     
@@ -220,7 +235,7 @@ namespace data::tool {
     
     template <typename K, typename V>
     rb_map<K, V> rb_map<K, V>::insert (const K &k, const V &v) const {
-        const V *already = contains (k);
+        const std::remove_reference_t<V> *already = contains (k);
         if (already == nullptr) return rb_map {Map.inserted (k, v), Size + 1};
         throw exception {} << "key already exists";/*
         if (*already == v) return *this;
