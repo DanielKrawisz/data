@@ -94,7 +94,7 @@ namespace milewski::okasaki {
                 return true;
         }
         
-        V *find (const K &key) const
+        std::remove_reference_t<V> *find (const K &key) const
         {
             if (isEmpty ()) {
                 return nullptr;

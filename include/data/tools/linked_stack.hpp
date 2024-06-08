@@ -69,6 +69,17 @@ namespace data {
         bool operator == (const X& x) const {
             return sequence_equal (*this, x);
         }
+
+        template <typename X> requires std::convertible_to<elem, X>
+        operator linked_stack<X> () const {
+            return reverse (linked_stack<X> {X (first ()), linked_stack<X> {rest ()}});
+        }
+
+        template <typename X> requires (!std::is_convertible_v<elem, X>) && requires (const elem &e) {
+            { X (e) };
+        } explicit operator linked_stack<X> () const {
+            return reverse (linked_stack<X> {X (first ()), linked_stack<X> {rest ()}});
+        }
         
     };
     
