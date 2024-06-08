@@ -5,6 +5,7 @@
 #ifndef DATA_MAYBE
 #define DATA_MAYBE
 
+#include <optional>
 #include <data/types.hpp>
 
 namespace data {
