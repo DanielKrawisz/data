@@ -12,6 +12,8 @@
 #include <data/math/sign.hpp>
 #include <data/math/division.hpp>
 
+#include <boost/endian/arithmetic.hpp>
+
 namespace data::endian {
 
     template <bool is_signed, boost::endian::order Order, std::size_t bytes> struct arithmetic;

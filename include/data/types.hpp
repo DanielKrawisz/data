@@ -7,15 +7,12 @@
 
 #include <vector>
 #include <array>
-#include <memory>
 #include <string>
+#include <memory>
 #include <stdint.h>
 #include <algorithm>
 #include <random>
-#include <optional>
 #include <functional>
-#include <boost/endian/arithmetic.hpp>
-#include <data/io/exception.hpp>
 
 namespace data {
 
@@ -41,11 +38,6 @@ namespace data {
     using string_view = std::basic_string_view<char>;
 
     using bytes_view = view<byte>;
-
-    namespace meta {
-        using yes = std::true_type;
-        using no = std::false_type;
-    }
 
     // TODO replace this with something good.
     using random_engine = std::default_random_engine;
