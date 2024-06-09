@@ -38,7 +38,8 @@ namespace data::tool {
         
         rb_map insert (const entry &e) const;
         rb_map insert (const K &k, const V &v) const;
-        rb_map insert (const K &k, const V &v, function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const;
+        rb_map insert (const K &k, const V &v, 
+            function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const;
         
         rb_map operator << (const entry &e) const;
         
