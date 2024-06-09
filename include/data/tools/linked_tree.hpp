@@ -10,7 +10,7 @@
 namespace data {
 
     template <typename value>
-    struct linked_tree {
+    class linked_tree {
         
         using node = functional::tree_node<value, linked_tree>;
         using next = ptr<node>;
@@ -18,6 +18,7 @@ namespace data {
         next Node;
         size_t Size;
         
+    public:
         bool empty () const;
         
         const value &root () const;
@@ -30,7 +31,7 @@ namespace data {
         size_t size () const;
         
         bool valid () const {
-            return Size == 0 || (data::valid(root ()) && left ().valid() && right ().valid ());
+            return Size == 0 || (data::valid (root ()) && left ().valid () && right ().valid ());
         }
         
         linked_tree ();
@@ -38,7 +39,7 @@ namespace data {
         linked_tree (const value &v);
         linked_tree (const linked_tree &t);
         
-        linked_tree& operator = (const linked_tree &t);
+        linked_tree &operator = (const linked_tree &t);
         
         template <typename X> requires std::equality_comparable_with<value, X>
         bool operator == (const data::linked_tree<X>& x) const {
@@ -48,6 +49,17 @@ namespace data {
             if (left () != x.left ()) return false;
             return right () == x.right ();
         }
+
+        template <typename X> requires std::convertible_to<value, X>
+        operator linked_tree<X> () const {
+            return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
+        }
+
+        template <typename X> requires (!std::is_convertible_v<value, X>) && requires (const value &e) {
+            { X (e) };
+        } explicit operator linked_tree<X> () const {
+            return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
+        }
         
         using iterator = functional::tree_iterator<linked_tree>;
         using sentinel = data::sentinel<linked_tree>;
@@ -56,17 +68,6 @@ namespace data {
         sentinel end () const;
         
         std::ostream &write (std::ostream &o) const;
-
-        template <typename X> requires std::convertible_to<value, X>
-        operator linked_tree<X> () const {
-            return linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
-        }
-
-        template <typename X> requires (!std::is_convertible_v<value, X>) && requires (const value &e) {
-            { X (e) };
-        } explicit operator linked_tree<X> () const {
-            return linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
-        }
     };
 
     template <typename X> 
