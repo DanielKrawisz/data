@@ -24,9 +24,8 @@ namespace data::tool {
     
     // turn any map into a set. 
     template <typename M, 
-        typename K = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ().keys ().first ())>::type>::type, 
-        typename V = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ()[std::declval<K> ()])>::type>::type>
-    requires functional::map<M, K, V> && std::same_as<unit, V>
+        typename K = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ().keys ().first ())>::type>::type>
+    requires functional::map<M, K, unit>
     struct map_set {
         using key = K;
         
@@ -82,7 +81,7 @@ namespace data::tool {
             return Map.keys ();
         }
         
-        map_set() : Map {} {}
+        map_set () : Map {} {}
         
         explicit map_set (M m) : Map (m) {}
         
@@ -146,15 +145,15 @@ namespace data::tool {
         }
     };
     
-    template <typename M, typename K, typename V>
-    inline std::ostream &operator << (std::ostream &o, const map_set<M, K, V> &m) {
+    template <typename M, typename K>
+    inline std::ostream &operator << (std::ostream &o, const map_set<M, K> &m) {
         return functional::write (o << "set", m.values ());
     }
     
-    template <typename M, typename K, typename V>
-    requires functional::map<M, K, V> && std::same_as<unit, V>
+    template <typename M, typename K>
+    requires functional::map<M, K> 
     template <typename ... P>
-    inline map_set<M, K, V>::map_set (K k, P... p) :
+    inline map_set<M, K>::map_set (K k, P... p) :
         map_set {map_set {}.insert (k, p...)} {}
 
 }
