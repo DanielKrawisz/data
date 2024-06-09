@@ -376,6 +376,7 @@ namespace data {
         while (!l.empty ()) {
             *b = l.first ();
             l = l.rest ();
+            b++;
         }
     }
     
