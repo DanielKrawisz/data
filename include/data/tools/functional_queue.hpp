@@ -81,15 +81,15 @@ namespace data {
             return sequence_equal (*this, x);
         }
 
-        template <typename X> requires std::convertible_to<element, X>
-        operator functional_queue<X> () const {
-            return functional_queue<X> {X (first ()), functional_queue<X> {rest ()}};
+        template <typename Z> requires std::convertible_to<stack, Z>
+        operator functional_queue<Z> () const {
+            return functional_queue<Z> {Z (Left), Z (Right)};
         }
 
-        template <typename X> requires (!std::is_convertible_v<element, X>) && requires (const element &e) {
-            { X (e) };
-        } explicit operator functional_queue<X> () const {
-            return functional_queue<X> {X (first ()), functional_queue<X> {rest ()}};
+        template <typename Z> requires (!std::is_convertible_v<stack, Z>) && requires (const stack &x) {
+            { Z (x) };
+        } explicit operator functional_queue<Z> () const {
+            return functional_queue<Z> {Z (Left), Z (Right)};
         }
         
     private:
@@ -99,6 +99,10 @@ namespace data {
         functional_queue (stack l, stack r);
         
         static functional_queue check (const stack &l, const stack &r);
+        
+        template <typename Z, typename E> requires requires (const Z &z) {
+            { stack (z) };
+        } friend struct functional_queue;
     
     };
 
