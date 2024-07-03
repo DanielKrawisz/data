@@ -123,13 +123,13 @@ namespace data::encoding {
             return decimal::write (N::read (m) >> i);
         }
         
-        string operator & (const string &m, const string& n) {
+        string operator & (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
             return decimal::write (math::N_bytes<endian::little>::read (m) & math::N_bytes<endian::little>::read (n));
         }
         
-        string operator | (const string &m, const string& n) {
+        string operator | (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
             return decimal::write(math::N_bytes<endian::little>::read (m) | math::N_bytes<endian::little>::read (n));
@@ -199,8 +199,8 @@ namespace data::encoding {
             if (!m.valid ()) throw exception {} << "invalid hexidecimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid hexidecimal string: \"" << n << "\"";
             
-            math::sign na = sign (m);
-            math::sign nb = sign (n);
+            math::signature na = sign (m);
+            math::signature nb = sign (n);
             
             return na != nb ? na <=> nb :
                 na == math::negative && nb == math::negative ? 
@@ -210,7 +210,7 @@ namespace data::encoding {
         }
         
         string &operator ++ (string &x) {
-            if (math::is_negative (x)) {
+            if (is_negative (x)) {
                 auto z = decimal::string {x.substr (1)};
                 return x = -string {--z};
             }
@@ -233,13 +233,13 @@ namespace data::encoding {
             return x = -string {++z};
         }
         
-        string operator + (const string &m, const string& n) {
+        string operator + (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
             return signed_decimal::write (Z::read (m) + Z::read (n));
         }
         
-        string operator - (const string &m, const string& n) {
+        string operator - (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
             return signed_decimal::write (Z::read (m) - Z::read (n));
@@ -261,13 +261,13 @@ namespace data::encoding {
             return signed_decimal::write (Z::read (m) >> i);
         }
         
-        string operator & (const string &m, const string& n) {
+        string operator & (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
             throw method::unimplemented {"signed_dec &"};
         }
         
-        string operator | (const string &m, const string& n) {
+        string operator | (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
             if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
             throw method::unimplemented {"signed_dec |"};

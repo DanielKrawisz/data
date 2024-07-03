@@ -252,21 +252,6 @@ namespace data::math {
         }
     };
 
-    template <bool s, boost::endian::order o, std::size_t z>
-    bool inline is_zero (const endian::arithmetic<s, o, z> &x) {
-        return x == 0;
-    }
-
-    template <bool s, boost::endian::order o, std::size_t z>
-    bool inline is_negative (const endian::arithmetic<s, o, z> &x) {
-        return x < 0;
-    }
-
-    template <bool s, boost::endian::order o, std::size_t z>
-    bool inline is_positive (const endian::arithmetic<s, o, z> &x) {
-        return x > 0;
-    }
-
     template <endian::order r, size_t x>
     struct divide<endian::arithmetic<false, r, x>, endian::arithmetic<false, r, x>> {
         division<endian::arithmetic<false, r, x>, endian::arithmetic<false, r, x>> operator ()
@@ -294,10 +279,6 @@ namespace data::math {
 }
 
 namespace data {
-
-    template <bool s, boost::endian::order o, std::size_t z> math::sign inline sign (const endian::arithmetic<s, o, z> &x) {
-        return math::is_negative (x) ? math::negative : math::is_positive (x) ? math::positive : math::zero;
-    }
 
     template <bool s, boost::endian::order o, std::size_t z>
     endian::arithmetic<s, o, z> inline increment (const endian::arithmetic<s, o, z> &x) {

@@ -25,14 +25,32 @@ namespace data::math::number {
         static const bool value = false;
     };
     
-    std::ostream inline &operator<<(std::ostream &o, complement c) {
-        switch(c) {
+    std::ostream inline &operator << (std::ostream &o, complement c) {
+        switch (c) {
             default: return o << "none's complement"; 
             case complement::ones: return o << "one's complement";
             case complement::twos: return o << "two's complement";
         }
     }
+}
+
+namespace data::math {
+
+    template <typename X> struct is_negative_zero;
+    template <typename X> struct is_positive_zero;
     
+}
+
+namespace data {
+
+    template <typename X> bool inline is_negative_zero (const X &x) {
+        return math::is_negative_zero<X> {} (x);
+    }
+
+    template <typename X> bool inline is_positive_zero (const X &x) {
+        return math::is_positive_zero<X> {} (x);
+    }
+
 }
 
 #endif

@@ -141,14 +141,34 @@ namespace data::math {
     template <endian::order r, size_t x> struct quadrance<sint<r, x>> {
         uint<r, x> operator () (const sint<r, x> &);
     };
+
+    template <endian::order r, size_t x> struct sign<uint<r, x>> {
+        signature operator () (const uint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct sign<sint<r, x>> {
+        signature operator () (const sint<r, x> &);
+    };
     
-    template <bool u, endian::order r, size_t x> bool is_zero (const number::bounded<u, r, x> &);
+    template <bool u, endian::order r, size_t x> struct is_zero<number::bounded<u, r, x>> {
+        bool operator () (const number::bounded<u, r, x> &);
+    };
     
-    template <endian::order r, size_t x> bool is_negative (const uint<r, x> &);
-    template <endian::order r, size_t x> bool is_negative (const sint<r, x> &);
+    template <endian::order r, size_t x> struct is_negative<uint<r, x>> {
+        bool operator () (const uint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct is_negative<sint<r, x>> {
+        bool operator () (const sint<r, x> &);
+    };
     
-    template <endian::order r, size_t x> bool is_positive (const uint<r, x> &);
-    template <endian::order r, size_t x> bool is_positive (const sint<r, x> &);
+    template <endian::order r, size_t x> struct is_positive<uint<r, x>> {
+        bool operator () (const uint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct is_positive<sint<r, x>> {
+        bool operator () (const sint<r, x> &);
+    };
 
     template <endian::order r, size_t x> struct divide<uint<r, x>, uint<r, x>> {
         division<uint<r, x>, uint<r, x>> operator () (const uint<r, x> &, const uint<r, x> &);
@@ -165,9 +185,6 @@ namespace data::math {
 }
 
 namespace data {
-    
-    template <endian::order r, size_t x> math::sign sign (const math::uint<r, x> &);
-    template <endian::order r, size_t x> math::sign sign (const math::sint<r, x> &);
     
     template <bool u, endian::order r, size_t x> math::number::bounded<u, r, x> increment (const math::number::bounded<u, r, x> &);
     template <bool u, endian::order r, size_t x> math::number::bounded<u, r, x> decrement (const math::number::bounded<u, r, x> &);
@@ -437,7 +454,7 @@ namespace data::math::number {
         explicit bounded (const Z_bytes<r, complement::ones> &z) {
             if (z.size () <= size) {
                 std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
-                char leading = is_negative (z) ? 0xff : 0x00;
+                char leading = data::is_negative (z) ? 0xff : 0x00;
                 for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
             } else if (z <= Z_bytes<r, complement::ones> {max ()} && z >= Z_bytes<r, complement::ones> {min ()})
                 std::copy (z.words ().begin (), z.words ().begin () + size, this->begin ());
@@ -586,14 +603,6 @@ namespace data::math::number {
 
 namespace data {
     
-    template <endian::order r, size_t x> math::sign inline sign (const math::uint<r, x> &z) {
-        return math::number::arithmetic::nones::sign (z.words ());
-    }
-    
-    template <endian::order r, size_t x> math::sign inline sign (const math::sint<r, x> &z) {
-        return math::number::arithmetic::ones::sign (z.words ());
-    }
-    
     template <bool u, endian::order r, size_t x>
     math::number::bounded<u, r, x> inline increment (const math::number::bounded<u, r, x> &n) {
         auto z = n;
@@ -641,8 +650,8 @@ namespace data::math::number {
     
     template <endian::order r, size_t size>
     std::strong_ordering operator <=> (const sint<r, size> &a, const sint<r, size> &b) {
-        bool na = is_negative (a);
-        bool nb = is_negative (b);
+        bool na = data::is_negative (a);
+        bool nb = data::is_negative (b);
         if (na == nb) return arithmetic::compare<complement::nones> (a.words (), b.words ());
         return na ? std::strong_ordering::less : std::strong_ordering::greater;
     }
@@ -770,17 +779,33 @@ namespace data::math::number {
 }
 
 namespace data::math {
-    
-    template <endian::order r, size_t x> bool inline is_positive (const uint<r, x> &n) {
-        return !is_zero (n);
+
+    template <endian::order r, size_t x> math::signature inline sign<math::uint<r, x>>::operator () (const math::uint<r, x> &z) {
+        return math::number::arithmetic::nones::sign (z.words ());
+    }
+
+    template <endian::order r, size_t x> math::signature inline sign<math::sint<r, x>>::operator () (const math::sint<r, x> &z) {
+        return math::number::arithmetic::ones::sign (z.words ());
     }
     
-    template <endian::order r, size_t x> bool inline is_positive (const sint<r, x> &n) {
-        return !is_negative (n) && !is_zero (n);
+    template <endian::order r, size_t x> bool inline is_positive<uint<r, x>>::operator () (const uint<r, x> &n) {
+        return !data::is_zero (n);
     }
     
-    template <endian::order r, size_t x> bool inline is_negative (const uint<r, x> &n) {
+    template <endian::order r, size_t x> bool inline is_positive<sint<r, x>>::operator () (const sint<r, x> &n) {
+        return !data::is_negative (n) && !data::is_zero (n);
+    }
+    
+    template <endian::order r, size_t x> bool inline is_negative<uint<r, x>>::operator () (const uint<r, x> &n) {
         return false;
+    }
+
+    template <endian::order r, size_t x> bool inline is_negative<sint<r, x>>::operator () (const sint<r, x> &z) {
+        return number::arithmetic::sign_bit (z.words ());
+    }
+
+    template <bool u, endian::order r, size_t x> bool inline is_zero<number::bounded<u, r, x>>::operator () (const number::bounded<u, r, x> &z) {
+        return number::arithmetic::is_zero (z.words ());
     }
     
     template <bool u, endian::order r, size_t x> 
@@ -795,7 +820,7 @@ namespace data::math {
     template <endian::order r, size_t x> inline uint<r, x> abs<sint<r, x>>::operator () (const sint<r, x> &z) {
         uint<r, x> n {};
         std::copy (z.begin (), z.end (), n.begin ());
-        if (is_negative (z)) number::arithmetic::negate_ones (n.words ());
+        if (data::is_negative (z)) number::arithmetic::negate_ones (n.words ());
         return n;
     }
     
@@ -812,14 +837,6 @@ namespace data::math {
         const number::bounded<u, r, x> &a, 
         const number::bounded<u, r, x> &b) {
         return b - a;
-    }
-    
-    template <endian::order r, size_t x> bool inline is_negative (const sint<r, x> &z) {
-        return number::arithmetic::sign_bit (z.words ());
-    }
-
-    template <bool u, endian::order r, size_t x> bool inline is_zero (const number::bounded<u, r, x> &z) {
-        return number::arithmetic::is_zero (z.words ());
     }
 }
 
@@ -1078,13 +1095,13 @@ namespace data::math::number {
     
     template <bool is_signed, endian::order r, size_t size>
     bounded<is_signed, r, size> inline &operator <<= (bounded<is_signed, r, size> &n, int i) {
-        (i < 0 ? shift_right<r, size> : shift_left<r, size>) (n, i, is_negative (n));
+        (i < 0 ? shift_right<r, size> : shift_left<r, size>) (n, i, data::is_negative (n));
         return n; 
     }
     
     template <bool is_signed, endian::order r, size_t size>
     bounded<is_signed, r, size> inline &operator >>= (bounded<is_signed, r, size> &n, int i) {
-        (i < 0 ? shift_left<r, size> : shift_right<r, size>) (n, i, is_negative (n));
+        (i < 0 ? shift_left<r, size> : shift_right<r, size>) (n, i, data::is_negative (n));
         return n; 
     }
     

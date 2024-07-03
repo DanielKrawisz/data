@@ -14,8 +14,23 @@
 
 namespace data::math {
 
-    template <std::totally_ordered elem> 
-    struct permutation {
+    template <std::totally_ordered elem> struct permutation;
+
+    template <std::totally_ordered elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
+
+    template <std::totally_ordered elem> struct identity<times<permutation<elem>>, permutation<elem>> {
+        permutation<elem> operator () ();
+    };
+
+    template <std::totally_ordered elem> struct inverse<times<permutation<elem>>, permutation<elem>> {
+        permutation<elem> operator () (const permutation<elem> &);
+    };
+
+    template <std::totally_ordered elem> struct sign<permutation<elem>> {
+        signature operator () (const permutation<elem> &);
+    };
+
+    template <std::totally_ordered elem> struct permutation {
         using replacements = std::list<entry<elem, elem>>;
         
         static replacements compose (replacements, replacements);
@@ -25,7 +40,7 @@ namespace data::math {
         static bool valid (const cycle &);
         static cycle inverse (const cycle &);
         static set<elem> elements (const cycle &);
-        static math::sign sign (const cycle &);
+        static math::signature sign (const cycle &);
         static replacements as_replacements (const cycle &);
 
         // the identity cycle is the same as all cycles
@@ -51,7 +66,7 @@ namespace data::math {
         
         bool valid () const;
         
-        math::sign sign () const;
+        math::signature sign () const;
         
         static permutation identity () {
             return permutation ();
@@ -96,11 +111,14 @@ namespace data::math {
     // Declare associativity and commutivity of operators + and * on N. 
     template <typename elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
     
-    template <typename elem> struct identity<times<permutation<elem>>, permutation<elem>> {
-        static const permutation<elem> value () {
-            return permutation<elem>::identity ();
-        }
-    }; 
+    template <typename elem>
+    permutation<elem> inline identity<times<permutation<elem>>, permutation<elem>>::operator () () {
+        return permutation<elem>::identity ();
+    }
+
+    template <std::totally_ordered elem> signature inline sign<permutation<elem>>::operator () (const permutation<elem> &p) {
+        return p.sign ();
+    }
     
     template <typename elem> 
     permutation<elem>::replacements permutation<elem>::compose (replacements a, replacements b) {
@@ -237,15 +255,15 @@ namespace data::math {
     }
     
     template <typename elem> 
-    math::sign permutation<elem>::sign () const {
+    math::signature permutation<elem>::sign () const {
         if (!valid ()) return math::zero;
-        return data::fold<math::sign> ([] (math::sign x, const cycle& c) -> math::sign {
+        return data::fold<math::signature> ([] (math::signature x, const cycle &c) -> math::signature {
             return x * permutation<elem>::sign (c);
         }, math::positive, Cycles);
     }
     
     template <typename elem> 
-    math::sign permutation<elem>::sign (const cycle &c) {
+    math::signature permutation<elem>::sign (const cycle &c) {
         if (!c.valid ()) return math::zero;
         size_t nx = normalize (c).size ();
         return nx == 0 ? math::positive : nx % 2 == 0 ? math::negative : math::positive; 

@@ -392,7 +392,7 @@ namespace data::math::number::arithmetic::nones {
     }
 
     template <range X>
-    math::sign inline sign (X x) {
+    math::signature inline sign (X x) {
         for (auto i = x.rbegin (); i != x.rend (); i++) if (*i != 0) return math::positive;
         return math::zero;
     }
@@ -428,7 +428,7 @@ namespace data::math::number::arithmetic::ones {
     }
 
     template <range X>
-    math::sign sign (X x) {
+    math::signature sign (X x) {
         auto i = x.rbegin ();
         if (i == x.rend ()) return math::zero;
         if (*i & get_sign_bit<digit<X>>::value) return math::negative;
@@ -495,10 +495,10 @@ namespace data::math::number::arithmetic::twos {
     }
 
     template <range X>
-    math::sign sign (X x) {
+    math::signature sign (X x) {
         auto i = x.rbegin ();
         if (i == x.rend ()) return math::zero;
-        math::sign nonzero = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
+        signature nonzero = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
         if (*i & ~get_sign_bit<digit<X>>::value) return nonzero;
         while (true) {
             i++;

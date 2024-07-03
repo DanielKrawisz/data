@@ -180,20 +180,49 @@ namespace data::math {
     template <endian::order r> using Z_bytes = number::Z_bytes<r, number::complement::ones>;
     template <endian::order r> using Z_bytes_twos = number::Z_bytes<r, number::complement::twos>;
     
-    template <endian::order r> bool is_zero (const N_bytes<r> &);
-    template <endian::order r> bool is_zero (const Z_bytes<r> &);
-    template <endian::order r> bool is_zero (const Z_bytes_twos<r> &);
+    template <endian::order r> struct is_zero<N_bytes<r>> {
+        bool operator () (const N_bytes<r> &);
+    };
+
+    template <endian::order r> struct is_zero<Z_bytes<r>> {
+        bool operator () (const Z_bytes<r> &);
+    };
+
+    template <endian::order r> struct is_zero<Z_bytes_twos<r>> {
+        bool operator () (const Z_bytes_twos<r> &);
+    };
     
-    template <endian::order r> bool is_negative (const N_bytes<r> &);
-    template <endian::order r> bool is_negative (const Z_bytes<r> &x);
-    template <endian::order r> bool is_negative (const Z_bytes_twos<r> &x);
+    template <endian::order r> struct is_negative<N_bytes<r>> {
+        bool operator () (const N_bytes<r> &);
+    };
+
+    template <endian::order r> struct is_negative<Z_bytes<r>> {
+        bool operator () (const Z_bytes<r> &x);
+    };
+
+    template <endian::order r> struct is_negative<Z_bytes_twos<r>> {
+        bool operator () (const Z_bytes_twos<r> &x);
+    };
     
-    template <endian::order r> bool is_positive (const N_bytes<r> &x);
-    template <endian::order r> bool is_positive (const Z_bytes<r> &);
-    template <endian::order r> bool is_positive (const Z_bytes_twos<r> &);
+    template <endian::order r> struct is_positive<N_bytes<r>> {
+        bool operator () (const N_bytes<r> &x);
+    };
+
+    template <endian::order r> struct is_positive<Z_bytes<r>> {
+        bool operator () (const Z_bytes<r> &);
+    };
+
+    template <endian::order r> struct is_positive<Z_bytes_twos<r>> {
+        bool operator () (const Z_bytes_twos<r> &);
+    };
     
-    template <endian::order r> bool is_positive_zero (const Z_bytes<r> &);
-    template <endian::order r> bool is_negative_zero (const Z_bytes_twos<r> &);
+    template <endian::order r> struct is_positive_zero<Z_bytes_twos<r>> {
+        bool operator () (const Z_bytes_twos<r> &);
+    };
+
+    template <endian::order r> struct is_negative_zero<Z_bytes_twos<r>> {
+        bool operator () (const Z_bytes_twos<r> &);
+    };
     
     template <endian::order r> struct abs<N_bytes<r>> {
         N_bytes<r> operator () (const N_bytes<r> &);
@@ -266,13 +295,18 @@ namespace data::math {
     template <endian::order r> struct divide<Z_bytes_twos<r>, Z_bytes_twos<r>> {
         division<Z_bytes_twos<r>, Z_bytes_twos<r>> operator () (const Z_bytes_twos<r> &, const Z_bytes_twos<r> &);
     };
+
+    template <endian::order r> struct sign<N_bytes<r>> {
+        signature operator () (const math::N_bytes<r> &);
+    };
+
+    template <endian::order r, math::number::complement c> struct sign<math::number::Z_bytes<r, c>> {
+        signature operator () (const math::number::Z_bytes<r, c> &);
+    };
     
 }
 
 namespace data {
-    
-    template <endian::order r> math::sign sign (const math::N_bytes<r> &);
-    template <endian::order r, math::number::complement c> math::sign sign (const math::number::Z_bytes<r, c> &);
     
     template <endian::order a, endian::order b>
     bool identical (const math::number::N_bytes<a> &, const math::number::N_bytes<b> &);
@@ -285,7 +319,7 @@ namespace data {
 namespace data::math::number {
     
     template <endian::order r> N_bytes<r> operator / (const N_bytes<r> &, const N_bytes<r> &);
-    template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c>&, const Z_bytes<r, c> &);
+    template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c> &, const Z_bytes<r, c> &);
     
     template <endian::order r> N_bytes<r> operator / (const N_bytes<r> &, uint64);
     template <endian::order r, complement c> Z_bytes<r, c> operator / (const Z_bytes<r, c> &, int64);

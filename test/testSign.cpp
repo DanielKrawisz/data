@@ -62,10 +62,10 @@ namespace data {
     
     TEST (SignTest, TestSign) {
         test_Z_sign<double> ();
-        /*
+
         test_Z_sign<int64> ();
         test_N_sign<uint64> ();
-        */
+
         test_Z_sign<Z> ();
         test_N_sign<N> ();
         
