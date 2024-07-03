@@ -76,7 +76,7 @@ namespace data::encoding {
         bool nonzero (string_view s);
         bool positive (string_view s);
         bool negative (string_view s);
-        math::sign sign (string_view s);
+        math::signature sign (string_view s);
         
         template <endian::order r> 
         maybe<math::Z_bytes<r>> read (string_view s);
@@ -401,13 +401,6 @@ namespace data {
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
     
-    math::sign sign (const dec_uint &);
-    math::sign sign (const dec_int &);
-    
-    template <hex_case zz> math::sign sign (const hex::uint<zz> &);
-    template <hex_case zz> math::sign sign (const hex::int1<zz> &);
-    template <hex_case zz> math::sign sign (const hex::int2<zz> &);
-    
     dec_uint increment (const dec_uint &);
     dec_uint decrement (const dec_uint &);
     
@@ -425,6 +418,26 @@ namespace data {
 }
 
 namespace data::math {
+
+    template <> struct sign<dec_uint> {
+        math::signature operator () (const dec_uint &);
+    };
+
+    template <> struct sign<dec_int> {
+        math::signature operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct sign<hex::uint<zz>> {
+        math::signature operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct sign<hex::int1<zz>> {
+        math::signature operator () (const hex::int1<zz> &);
+    };
+
+    template <hex_case zz> struct sign<hex::int2<zz>> {
+        math::signature operator () (const hex::int2<zz> &);
+    };
     
     template <> struct abs<dec_uint> {
         dec_uint operator () (const dec_uint &);
@@ -478,30 +491,65 @@ namespace data::math {
     template <number::complement c, hex_case zz> 
     struct associative<times<hex::integer<c, zz>>, hex::integer<c, zz>> {};
 
-    bool is_zero (const dec_uint &);
-    bool is_negative (const dec_uint &);
-    bool is_positive (const dec_uint &);
+    template <> struct is_zero<dec_uint> {
+        bool operator () (const dec_uint &);
+    };
+
+    template <> struct is_negative<dec_uint> {
+        bool operator () (const dec_uint &);
+    };
+
+    template <> struct is_positive<dec_uint> {
+        bool operator () (const dec_uint &);
+    };
+
+    template <> struct is_zero<dec_int> {
+        bool operator () (const dec_int &);
+    };
+
+    template <> struct is_negative<dec_int> {
+        bool operator () (const dec_int &);
+    };
+
+    template <> struct is_positive<dec_int> {
+        bool operator () (const dec_int &);
+    };
     
-    bool is_zero (const dec_int &);
-    bool is_negative (const dec_int &);
-    bool is_positive (const dec_int &);
+    template <hex_case zz> struct is_zero<hex::uint<zz>> {
+        bool operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct is_zero<hex::int1<zz>> {
+        bool operator () (const hex::int1<zz> &);
+    };
+
+    template <hex_case zz> struct is_zero<hex::int2<zz>> {
+        bool operator () (const hex::int2<zz> &);
+    };
     
-    template <hex_case zz> bool is_zero (const hex::uint<zz> &);
-    template <hex_case zz> bool is_zero (const hex::int1<zz> &);
-    template <hex_case zz> bool is_zero (const hex::int2<zz> &);
+    template <hex_case zz> struct is_negative<hex::uint<zz>> {
+        bool operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct is_negative<hex::int1<zz>> {
+        bool operator () (const hex::int1<zz> &);
+    };
+
+    template <hex_case zz> struct is_negative<hex::int2<zz>> {
+        bool operator () (const hex::int2<zz> &);
+    };
     
-    template <hex_case zz> bool is_negative (const hex::uint<zz> &);
-    template <hex_case zz> bool is_negative (const hex::int1<zz> &);
-    template <hex_case zz> bool is_negative (const hex::int2<zz> &);
+    template <number::complement c, hex_case zz> struct is_positive<hex::integer<c, zz>> {
+        bool operator () (const hex::integer<c, zz> &);
+    };
     
-    template <number::complement c, hex_case zz>
-    bool is_positive (const hex::integer<c, zz> &);
+    template <hex_case cx> struct is_positive_zero<hex::int2<cx>> {
+        bool operator () (const hex::int2<cx> &);
+    };
     
-    template <hex_case cx> 
-    bool is_positive_zero (const hex::int2<cx> &);
-    
-    template <hex_case cx> 
-    bool is_negative_zero (const hex::int2<cx> &);
+    template <hex_case cx> struct is_negative_zero<hex::int2<cx>> {
+        bool operator () (const hex::int2<cx> &);
+    };
 
     template <> struct divide<dec_uint, dec_uint> {
         division<dec_uint, dec_uint> operator () (const dec_uint &, const dec_uint &);
@@ -671,15 +719,15 @@ namespace data::encoding::signed_decimal {
     
     template <endian::order r>
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::ones> &z) {
-        if (math::is_negative (z)) w << "-";
+        if (data::is_negative (z)) w << "-";
         return decimal::write (w, data::abs (z));
     }
 
     template <endian::order r>
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::twos> &z) {
-        if (math::is_zero (z)) return w << "0";
-        if (math::is_negative (z)) w << "-";
-        return decimal::write (w, math::number::N_bytes<r>::read (data::abs (z)));
+        if (is_zero (z)) return w << "0";
+        if (is_negative (z)) w << "-";
+        return decimal::write (w, math::number::N_bytes<r>::read (abs (z)));
     }
     
     template <endian::order r, complement n> 
@@ -762,32 +810,32 @@ namespace data::encoding::hexidecimal {
 
     template <complement c, hex::letter_case cx>
     bool inline is_minimal (const string<cx> &x) {
-        return data::math::number::is_minimal (integer<c, cx> {x});
+        return math::number::is_minimal (integer<c, cx> {x});
     }
 
     template <complement c, hex::letter_case cx>
     bool inline is_negative (const string<cx> &x) {
-        return data::math::is_negative (integer<c, cx> {x});
+        return is_negative (integer<c, cx> {x});
     }
 
     template <complement c, hex::letter_case cx>
     size_t inline minimal_size (const string<cx> &x) {
-        return data::math::number::minimal_size (integer<c, cx> {x});
+        return math::number::minimal_size (integer<c, cx> {x});
     }
 
     template <complement c, hex::letter_case cx>
     string<cx> inline extend (const string<cx> &x, size_t z) {
-        return data::math::number::extend (integer<c, cx> {x}, z);
+        return math::number::extend (integer<c, cx> {x}, z);
     }
 
     template <complement c, hex::letter_case cx>
     string<cx> inline trim (const string<cx> &x) {
-        return data::math::number::trim (integer<c, cx> {x});
+        return math::number::trim (integer<c, cx> {x});
     }
 
     template <complement c, hex::letter_case zz>
     inline integer<c, zz>::operator bool () const {
-        return !math::is_zero (*this);
+        return !is_zero (*this);
     }
     
 }
@@ -977,7 +1025,7 @@ namespace data::encoding::signed_decimal {
         return valid (s) && s[0] != '-' && s[0] != '0';
     }
     
-    math::sign inline sign (string_view s) {
+    math::signature inline sign (string_view s) {
         if (!valid (s)) throw exception {} << "invalid decimal string: " << s;
         return s[0] == '-' ? math::negative : s[0] == '0' ? math::zero : math::positive;
     }
@@ -1330,37 +1378,6 @@ namespace data::math::number {
 
 namespace data {
     
-    math::sign inline sign (const dec_uint &n) {
-        if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
-        
-        return encoding::decimal::nonzero (n) ? math::positive : math::zero;
-    }
-    
-    math::sign inline sign (const dec_int &n) {
-        return encoding::signed_decimal::sign (n);
-    }
-    
-    template <hex_case cx>
-    math::sign inline sign (const hex::uint<cx> &x) {
-        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        
-        return math::is_zero (x) ? math::zero : math::positive;
-    }
-    
-    template <hex_case cx>
-    math::sign inline sign (const hex::int1<cx> &x) {
-        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        
-        return math::is_negative (x) ? math::negative : math::is_zero (x) ? math::zero : math::positive;
-    }
-    
-    template <hex_case cx>
-    math::sign inline sign (const hex::int2<cx> &x) {
-        if (!x.valid ()) throw exception{} << "invalid hexidecimal string: " << x;
-        
-        return math::is_zero (x) ? math::zero : math::number::sign_bit_set (x) ? math::negative : math::positive;
-    }
-    
     dec_uint inline increment (const dec_uint &n) {
         auto x = n;
         return ++x;
@@ -1400,43 +1417,75 @@ namespace data {
 }
 
 namespace data::math {
+
+    signature inline sign<dec_uint>::operator () (const dec_uint &n) {
+        if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+
+        return encoding::decimal::nonzero (n) ? math::positive : math::zero;
+    }
+
+    signature inline sign<dec_int>::operator () (const dec_int &n) {
+        return encoding::signed_decimal::sign (n);
+    }
+
+    template <hex_case cx>
+    signature inline sign<hex::uint<cx>>::operator () (const hex::uint<cx> &x) {
+        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
+
+        return data::is_zero (x) ? math::zero : math::positive;
+    }
+
+    template <hex_case cx>
+    signature inline sign<hex::int1<cx>>::operator () (const hex::int1<cx> &x) {
+        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
+
+        return data::is_negative (x) ? math::negative : data::is_zero (x) ? math::zero : math::positive;
+    }
+
+    template <hex_case cx>
+    math::signature inline sign<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
+        if (!x.valid ()) throw exception{} << "invalid hexidecimal string: " << x;
+
+        return data::is_zero (x) ? math::zero : math::number::sign_bit_set (x) ? math::negative : math::positive;
+    }
     
-    bool inline is_zero (const dec_uint &n) {
+    bool inline is_zero<dec_uint>::operator () (const dec_uint &n) {
         if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
         return !encoding::decimal::nonzero (n);
     }
     
-    bool inline is_negative (const dec_uint &n) {
+    bool inline is_negative<dec_uint>::operator () (const dec_uint &n) {
         if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
         return false;
     }
     
-    bool inline is_positive (const dec_uint &n) {
+    bool inline is_positive<dec_uint>::operator () (const dec_uint &n) {
         if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
         return encoding::decimal::nonzero (n);
     }
     
-    bool inline is_zero (const dec_int &n) {
+    bool inline is_zero<dec_int>::operator () (const dec_int &n) {
         if (!encoding::signed_decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
         return !encoding::signed_decimal::nonzero (n);
     }
     
-    bool inline is_negative (const dec_int &n) {
+    bool inline is_negative<dec_int>::operator () (const dec_int &n) {
         if (!encoding::signed_decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
         return encoding::signed_decimal::negative (n);
     }
     
-    bool inline is_positive (const dec_int &n) {
+    bool inline is_positive<dec_int>::operator () (const dec_int &n) {
         if (!encoding::signed_decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
         return encoding::signed_decimal::positive (n);
     }
+
     template <number::complement c, hex_case zz>
-    bool inline is_positive (const hex::integer<c, zz> &z) {
-        return !is_negative (z) && !is_zero (z);
+    bool inline is_positive<hex::integer<c, zz>>::operator () (const hex::integer<c, zz> &z) {
+        return !is_negative<hex::integer<c, zz>> {} (z) && !is_zero<hex::integer<c, zz>> {} (z);
     }
     
     template <hex_case cx> 
-    bool inline is_zero (const hex::uint<cx> &z) {
+    bool inline is_zero<hex::uint<cx>>::operator () (const hex::uint<cx> &z) {
         if (!z.valid ()) throw exception {} << "invalid hex integer: " << z;
         
         for (auto digit = z.begin () + 2; digit != z.end (); digit++) if (*digit != '0') return false;
@@ -1444,7 +1493,7 @@ namespace data::math {
     }
     
     template <hex_case cx> 
-    bool inline is_zero (const hex::int1<cx> &z) {
+    bool inline is_zero<hex::int1<cx>>::operator () (const hex::int1<cx> &z) {
         if (!z.valid ()) throw exception {} << "invalid hex integer: " << z;
         
         for (auto digit = z.begin () + 2; digit != z.end (); digit++) if (*digit != '0') return false;
@@ -1452,12 +1501,12 @@ namespace data::math {
     }
     
     template <hex_case cx> 
-    bool inline is_negative (const hex::uint<cx> &) {
+    bool inline is_negative<hex::uint<cx>>::operator () (const hex::uint<cx> &) {
         return false;
     }
     
     template <hex_case cx> 
-    bool inline is_negative (const hex::int1<cx> &x) {
+    bool inline is_negative<hex::int1<cx>>::operator () (const hex::int1<cx> &x) {
         if (!x.valid ()) throw exception {} << "invalid hex integer: " << x;
         
         if (x.size () < 3) return false;
@@ -1470,7 +1519,7 @@ namespace data::math {
     }
     
     dec_uint inline abs<dec_int>::operator () (const dec_int &x) {
-        if (math::is_negative (x)) return dec_uint {x.substr (1)};
+        if (is_negative<dec_int> {} (x)) return dec_uint {x.substr (1)};
         return dec_uint {x};
     }
     
@@ -1483,14 +1532,14 @@ namespace data::math {
     template <hex_case zz>
     hex::uint<zz> inline abs<hex::int1<zz>>::operator () (const hex::int1<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        if (math::is_negative (x)) return hex::uint<zz> {-x};
+        if (data::is_negative (x)) return hex::uint<zz> {-x};
         return hex::uint<zz> {x};
     }
     
     template <hex_case zz>
     hex::int2<zz> inline abs<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        return math::is_negative (x) ? -x : x;
+        return data::is_negative (x) ? -x : x;
     }
     
 }
@@ -1652,7 +1701,7 @@ namespace data::encoding::hexidecimal {
 
         template <hex::letter_case zz> struct cast_complement<zz, complement::ones, complement::twos> {
             integer<complement::twos, zz> operator () (const integer<complement::ones, zz> &x) {
-                return math::is_negative (x) ?
+                return is_negative (x) ?
                     -integer<complement::twos, zz> (static_cast<string<zz>> (-x)):
                     integer<complement::twos, zz> (static_cast<string<zz>> (x));
             }
@@ -1772,7 +1821,7 @@ namespace data::math::number {
         if (is_minimal (x)) return x;
         
         encoding::hexidecimal::integer<number::complement::twos, cx> n {};
-        if (is_zero (x)) return n;
+        if (data::is_zero (x)) return n;
         
         auto i = x.begin () + 4;
         while (i != x.end () && i[0] == '0' && i[1] == '0') i += 2;
@@ -1839,7 +1888,7 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case zz> 
     integer<complement::twos, zz> operator - (const integer<complement::twos, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        if (math::is_zero (x)) return integer<complement::twos, zz> {"0x"};
+        if (data::is_zero (x)) return integer<complement::twos, zz> {"0x"};
 
         integer<complement::twos, zz> n = x;
         auto d = digit (x[2]);
@@ -2092,8 +2141,8 @@ namespace data::encoding::hexidecimal {
 
                 if (a.size () < b.size ()) return add<c, zz> {} (b, a);
                 
-                bool an = math::is_negative (a);
-                bool bn = math::is_negative (b);
+                bool an = is_negative (a);
+                bool bn = is_negative (b);
                 
                 if (an && bn) return -add<c, zz> {} (-a, -b);
                 
@@ -2189,8 +2238,8 @@ namespace data::encoding::hexidecimal {
         if (!a.valid ()) throw exception {} << "invalid hexidecimal string: " << a;
         if (!b.valid ()) throw exception {} << "invalid hexidecimal string: " << b;
         
-        bool na = math::is_negative (a);
-        bool nb = math::is_negative (b);
+        bool na = is_negative (a);
+        bool nb = is_negative (b);
         
         if (na && nb) {
             auto ya = -b;
@@ -2205,8 +2254,8 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case zz> 
     std::weak_ordering operator <=> (const integer<complement::twos, zz> &a, const integer<complement::twos, zz> &b) {
 
-        math::sign na = sign (a);
-        math::sign nb = sign (b);
+        math::signature na = sign (a);
+        math::signature nb = sign (b);
         
         if (na == math::zero) switch (nb) {
             case math::positive: return std::weak_ordering::less;
@@ -2249,7 +2298,7 @@ namespace data::encoding::hexidecimal {
     integer<complement::nones, zz> &operator -- (integer<complement::nones, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
-        if (math::is_zero (x)) return x;
+        if (is_zero (x)) return x;
         N_decrement (x);
         return x.trim ();
     }
@@ -2258,10 +2307,10 @@ namespace data::encoding::hexidecimal {
     integer<complement::ones, zz> &operator ++ (integer<complement::ones, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
-        bool neg = math::is_negative (x);
+        bool neg = data::is_negative (x);
         char remainder = N_increment (x);
         
-        if (!neg && (remainder != '0' || math::is_negative (x))) {
+        if (!neg && (remainder != '0' || data::is_negative (x))) {
             integer<complement::ones, zz> n {};
             n.resize (x.size () + 2);
             std::copy (x.begin () + 2, x.end (), n.begin () + 4);
@@ -2288,8 +2337,8 @@ namespace data::encoding::hexidecimal {
 
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
-        if (math::is_negative (x)) return x = -decrement (-x);
-        if (math::is_negative_zero (x)) return x = integer<complement::twos, zz> {"0x01"};
+        if (is_negative (x)) return x = -decrement (-x);
+        if (is_negative_zero (x)) return x = integer<complement::twos, zz> {"0x01"};
         
         char remainder = N_increment (x);
         if (remainder != '0') {
@@ -2316,8 +2365,8 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case zz> 
     integer<complement::twos, zz> &operator -- (integer<complement::twos, zz> &x) {
 
-        if (math::is_zero (x)) return x = integer<complement::twos, zz> {"0x81"};
-        if (math::is_negative (x)) return x = -increment (-x);
+        if (is_zero (x)) return x = integer<complement::twos, zz> {"0x81"};
+        if (is_negative (x)) return x = -increment (-x);
         N_decrement (x);
         return x.trim ();
     }
@@ -2372,7 +2421,7 @@ namespace data::encoding::hexidecimal {
 namespace data::math {
     
     template <hex_case zz>
-    bool is_positive_zero (const hex::int2<zz> &z) {
+    bool is_positive_zero<hex::int2<zz>>::operator () (const hex::int2<zz> &z) {
         auto digit = z.begin () + 2;
         
         while (true) {
@@ -2386,7 +2435,7 @@ namespace data::math {
     }
     
     template <hex_case zz>
-        bool is_negative_zero (const hex::int2<zz> &z) {
+        bool is_negative_zero<hex::int2<zz>>::operator () (const hex::int2<zz> &z) {
         auto digit = z.begin () + 2;
         if (*digit != '8') return false;
     
@@ -2401,13 +2450,13 @@ namespace data::math {
     }
     
     template <hex_case zz>
-    bool inline is_negative (const hex::int2<zz> &x) {
+    bool inline is_negative<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        return number::sign_bit_set (x) && !is_negative_zero (x);
+        return number::sign_bit_set (x) && !data::is_negative_zero (x);
     }
     
     template <hex_case zz>
-    bool is_zero (const hex::int2<zz> &z) {
+    bool is_zero<hex::int2<zz>>::operator () (const hex::int2<zz> &z) {
         auto digit = z.begin () + 2;
         if (digit == z.end ()) return true;
         if (*digit != '0' && *digit != '8') return false;
@@ -2495,7 +2544,7 @@ namespace data::math::number {
         n.resize (size);
         auto i = n.begin () + 2;
 
-        char fill = is_negative (x) ? (zz == hex_case::upper ? 'F' : 'f') : '0';
+        char fill = data::is_negative (x) ? (zz == hex_case::upper ? 'F' : 'f') : '0';
 
         for (int zeros = 0; zeros < size - x.size (); zeros ++) {
             *i = fill;

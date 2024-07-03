@@ -37,15 +37,15 @@ namespace data::math::number {
     template <endian::order r, complement c, size_t size> using fixed_type = get_fixed_type<r, c, size>::value;
     
     template <complement c> struct hex_test_case {
-        hex_test_case (string test_x, string test_trimmed, sign expected_sign) {
+        hex_test_case (string test_x, string test_trimmed, signature expected_sign) {
             {
                 auto x = hex<c> {test_x};
                 auto trimmed = hex<c> {test_trimmed};
 
                 EXPECT_TRUE (x.valid ());
-                EXPECT_EQ (is_zero (x), expected_sign == zero);
-                EXPECT_EQ (is_positive (x), expected_sign == positive);
-                EXPECT_EQ (is_negative (x), expected_sign == negative);
+                EXPECT_EQ (data::is_zero (x), expected_sign == zero);
+                EXPECT_EQ (data::is_positive (x), expected_sign == positive);
+                EXPECT_EQ (data::is_negative (x), expected_sign == negative);
                 EXPECT_EQ (data::sign (x), expected_sign);
                 EXPECT_EQ (is_minimal (x), static_cast<string> (test_x) == static_cast<string> (test_trimmed));
                 EXPECT_EQ (static_cast<string> (trim (x)), static_cast<string> (trimmed));
@@ -65,9 +65,9 @@ namespace data::math::number {
                 EXPECT_EQ (test_x, encoding::hexidecimal::write<hex_case::lower> (x));
                 EXPECT_EQ (test_trimmed, encoding::hexidecimal::write<hex_case::lower> (trimmed));
                 
-                EXPECT_EQ (is_zero (x), expected_sign == zero);
-                EXPECT_EQ (is_positive (x), expected_sign == positive);
-                EXPECT_EQ (is_negative (x), expected_sign == negative);
+                EXPECT_EQ (data::is_zero (x), expected_sign == zero);
+                EXPECT_EQ (data::is_positive (x), expected_sign == positive);
+                EXPECT_EQ (data::is_negative (x), expected_sign == negative);
                 EXPECT_EQ (data::sign (x), expected_sign);
                 EXPECT_EQ (is_minimal (x), test_x == test_trimmed);
                 EXPECT_EQ (static_cast<bytes> (trim (x)), static_cast<bytes> (trimmed));
@@ -87,9 +87,9 @@ namespace data::math::number {
                 EXPECT_EQ (test_x, encoding::hexidecimal::write<hex_case::lower> (x));
                 EXPECT_EQ (test_trimmed, encoding::hexidecimal::write<hex_case::lower> (trimmed));
                 
-                EXPECT_EQ (is_zero (x), expected_sign == zero);
-                EXPECT_EQ (is_positive (x), expected_sign == positive);
-                EXPECT_EQ (is_negative (x), expected_sign == negative);
+                EXPECT_EQ (data::is_zero (x), expected_sign == zero);
+                EXPECT_EQ (data::is_positive (x), expected_sign == positive);
+                EXPECT_EQ (data::is_negative (x), expected_sign == negative);
                 EXPECT_EQ (data::sign (x), expected_sign);
                 EXPECT_EQ (is_minimal (x), test_x == test_trimmed);
                 EXPECT_EQ (static_cast<bytes> (trim (x)), static_cast<bytes> (trimmed));

@@ -191,8 +191,8 @@ namespace data {
     
     template<endian::order r, math::number::complement zz>
     Z Z_Bytes_to_Z_stupid (const math::number::Z_bytes<r, zz> &z) {
-        if (math::is_negative (z)) return -N_Bytes_to_N_stupid (data::abs (z));
-        return N_Bytes_to_N_stupid (data::abs (z));
+        if (is_negative (z)) return -N_Bytes_to_N_stupid (data::abs (z));
+        return N_Bytes_to_N_stupid (abs (z));
     }
     
     template<endian::order r, math::number::complement zz>

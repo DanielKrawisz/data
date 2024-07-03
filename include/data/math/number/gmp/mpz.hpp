@@ -25,20 +25,20 @@ namespace data::math::number::GMP {
     
     const __mpz_struct MPZInvalid = __mpz_struct {0, 0, nullptr};
     
-    inline bool equal (const __mpz_struct& a, const __mpz_struct& b) {
+    bool inline equal (const __mpz_struct& a, const __mpz_struct& b) {
         return a._mp_alloc == b._mp_alloc && a._mp_size == b._mp_size && a._mp_d == b._mp_d;
     }
     
-    inline uint32 size (const __mpz_struct& a) {
+    uint32 inline size (const __mpz_struct& a) {
         return a._mp_alloc;
     }
     
-    inline bool valid (const __mpz_struct& mpz) {
+    bool inline valid (const __mpz_struct& mpz) {
         return mpz._mp_d != nullptr;
     }
     
-    inline math::sign sign (const __mpz_struct& mpz) {
-        return !valid (mpz) ? zero : math::sign {mpz_cmp_si (&mpz, 0)};
+    math::signature inline sign (const __mpz_struct& mpz) {
+        return !valid (mpz) ? zero : math::signature {mpz_cmp_si (&mpz, 0)};
     }
     
     struct N;
@@ -222,7 +222,15 @@ namespace data::math {
     template <> struct divide<Z, N> {
         division<Z, N> operator () (const Z &, const N &);
     };
-    
+
+    template <> struct sign<N> {
+        math::signature operator () (const N &x);
+    };
+
+    template <> struct sign<Z> {
+        math::signature operator () (const Z &x);
+    };
+    /*
     bool is_zero (const N&);
     bool is_zero (const Z&);
     
@@ -230,14 +238,11 @@ namespace data::math {
     bool is_positive (const Z&);
     
     bool is_negative (const N&);
-    bool is_negative (const Z&);
+    bool is_negative (const Z&);*/
     
 }
 
 namespace data {
-    
-    math::sign sign (const math::N &x);
-    math::sign sign (const math::Z &x);
     
     math::N square (const math::N &n);
     math::N square (const math::Z &z);
@@ -252,7 +257,7 @@ namespace data {
 
 namespace data::encoding::decimal {
     struct string;
-    string write (const math::N&);
+    string write (const math::N &);
     
     std::ostream &write (std::ostream &, const math::N &);
     

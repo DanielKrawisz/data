@@ -18,10 +18,14 @@ namespace data::math {
     };
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
-    concept integral_domain = ring<elem, plus, times> && requires () {
-        typename math::commutative<times, elem>;
-    } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
+    concept skew_integral_domain = ring<elem, plus, times> &&
+    requires (const nonzero<elem> &a, const nonzero<elem> &b) {
         {times {} (a, b)} -> std::convertible_to<nonzero<elem>>;
+    };
+
+    template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
+    concept integral_domain = skew_integral_domain<elem, plus, times> && requires () {
+        typename math::commutative<times, elem>;
     };
     
 }

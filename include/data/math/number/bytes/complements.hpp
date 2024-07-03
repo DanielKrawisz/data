@@ -562,8 +562,8 @@ namespace data::math::number::arithmetic::twos {
         auto wa = words<r> (a);
         auto wb = words<r> (b);
 
-        math::sign na = sign (wa);
-        math::sign nb = sign (wb);
+        signature na = sign (wa);
+        signature nb = sign (wb);
 
         if (na == math::zero) switch (nb) {
             case positive: return std::weak_ordering::less;

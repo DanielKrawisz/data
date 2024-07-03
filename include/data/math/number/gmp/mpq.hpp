@@ -15,21 +15,21 @@ namespace data {
             
             namespace GMP {
                 
-                const __mpq_struct MPQInvalid = __mpq_struct{MPZInvalid, MPZInvalid};
+                const __mpq_struct MPQInvalid = __mpq_struct {MPZInvalid, MPZInvalid};
                 
-                inline bool equal(const __mpq_struct& a, const __mpq_struct& b) {
-                    return equal(a._mp_num, b._mp_num) && equal(a._mp_den, b._mp_den);
+                inline bool equal (const __mpq_struct &a, const __mpq_struct &b) {
+                    return equal (a._mp_num, b._mp_num) && equal (a._mp_den, b._mp_den);
                 }
                 
-                inline bool valid(const __mpq_struct& mpq) {
-                    return valid(mpq._mp_den) && valid(mpq._mp_num);
+                inline bool valid (const __mpq_struct &mpq) {
+                    return valid (mpq._mp_den) && valid (mpq._mp_num);
                 }
                 
-                inline math::sign sign(const __mpq_struct& mpq) {
-                    return !valid(mpq) ? zero : math::sign(sign(mpq._mp_num) * sign(mpq._mp_den));
+                inline math::signature sign (const __mpq_struct &mpq) {
+                    return !valid (mpq) ? zero : sign (mpq._mp_num) * sign (mpq._mp_den);
                 }
                 
-                void swap(__mpq_struct& a, __mpq_struct& b) {
+                void swap (__mpq_struct &a, __mpq_struct& b) {
                     __mpq_struct MPQ_temp = a;
                     a = b;
                     b = MPQ_temp;
@@ -39,78 +39,78 @@ namespace data {
                 struct mpq {
                     __mpq_struct MPQ;
                     
-                    void init() {
-                        mpq_init(&MPQ);
+                    void init () {
+                        mpq_init (&MPQ);
                     }
                     
-                    mpq() : MPQ{MPQInvalid} {}
+                    mpq () : MPQ {MPQInvalid} {}
                     
-                    bool valid() const {
-                        return GMP::valid(MPQ);
+                    bool valid () const {
+                        return GMP::valid (MPQ);
                     }
                     
-                    virtual ~mpq() {
-                        if (valid()) mpq_clear(&MPQ);
+                    virtual ~mpq () {
+                        if (valid ()) mpq_clear (&MPQ);
                     }
                     
-                    mpq(const __mpq_struct& q) {
-                        mpq_set(&MPQ, &q);
+                    mpq (const __mpq_struct& q) {
+                        mpq_set (&MPQ, &q);
                     }
                     
-                    mpq(__mpq_struct&& q) {
-                        swap(MPQ, q);
+                    mpq (__mpq_struct &&q) {
+                        swap (MPQ, q);
                     }
                     
-                    mpq(const mpq& q) : mpq(q.MPQ) {}
+                    mpq (const mpq &q) : mpq (q.MPQ) {}
                     
-                    mpq(mpq&& q) {
-                        swap(MPQ, q.MPQ);
+                    mpq (mpq &&q) {
+                        swap (MPQ, q.MPQ);
                     }
                     
-                    mpq(gmp_uint n, gmp_uint d) {
-                        mpq_init(&MPQ);
-                        mpq_set_ui(&MPQ, n, d);
+                    mpq (gmp_uint n, gmp_uint d) {
+                        mpq_init (&MPQ);
+                        mpq_set_ui (&MPQ, n, d);
                     }
                     
-                    mpq(gmp_uint n) : mpq(n, 1) {}
+                    mpq (gmp_uint n) : mpq (n, 1) {}
                     
-                    mpq(gmp_int n, gmp_uint d) {
-                        mpq_init(&MPQ);
-                        mpq_set_si(&MPQ, n, d);
+                    mpq (gmp_int n, gmp_uint d) {
+                        mpq_init (&MPQ);
+                        mpq_set_si (&MPQ, n, d);
                     }
                     
-                    mpq(gmp_int n) : mpq(n, 1) {}
+                    mpq (gmp_int n) : mpq (n, 1) {}
                     
-                    mpq(const __mpz_struct& num, gmp_uint den) {
-                        mpz_set(&MPQ._mp_num, &num);
-                        mpz_init_set_ui(&MPQ._mp_den, den);
+                    mpq (const __mpz_struct& num, gmp_uint den) {
+                        mpz_set (&MPQ._mp_num, &num);
+                        mpz_init_set_ui (&MPQ._mp_den, den);
                     }
                     
-                    mpq(const __mpz_struct& n) : mpq(n, 1) {}
+                    mpq (const __mpz_struct &n) : mpq (n, 1) {}
                     
-                    mpq(const __mpz_struct& num, const __mpz_struct& den) {
-                        mpz_set(&MPQ._mp_num, &num);
-                        mpz_set(&MPQ._mp_den, &den);
+                    mpq (const __mpz_struct &num, const __mpz_struct &den) {
+                        mpz_set (&MPQ._mp_num, &num);
+                        mpz_set (&MPQ._mp_den, &den);
                     }
                     
-                    mpq& operator=(const mpq& q) {
-                        mpq_set(&MPQ, &q.MPQ);
+                    mpq &operator = (const mpq& q) {
+                        mpq_set (&MPQ, &q.MPQ);
                         return *this;
                     }
                     
-                    math::sign sign() {
-                        return GMP::sign(MPQ);
+                    math::signature sign () {
+                        return GMP::sign (MPQ);
                     }
                     
-                    bool operator==(const mpq&&) const;
+                    bool operator == (const mpq &&) const;
                     
-                    bool operator<(const mpq&&) const;
+                    bool operator < (const mpq &&) const;
                     
-                    bool operator>(const mpq&&) const;
+                    bool operator > (const mpq &&) const;
                     
-                    bool operator<=(const mpq&&) const;
+                    bool operator <= (const mpq &&) const;
                     
-                    bool operator>=(const mpq&&) const;
+                    bool operator >= (const mpq &&) const;
                 };
                 
             }

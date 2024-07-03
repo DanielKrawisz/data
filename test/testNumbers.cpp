@@ -8,51 +8,51 @@
 namespace data {
     
     template <typename NN> requires requires (const NN &n) {
-        {math::is_zero (n)} -> std::same_as<bool>;
-        {math::is_positive (n)} -> std::same_as<bool>;
-        {math::is_negative (n)} -> std::same_as<bool>;
-        {sign (n)} -> std::same_as<math::sign>;
-        {increment (n)} -> std::same_as<NN>;
-        {decrement (n)} -> std::same_as<NN>;
-        {sqrt (n)} -> std::same_as<set<NN>>;
+        { is_zero (n) } -> std::same_as<bool>;
+        { is_positive (n) } -> std::same_as<bool>;
+        { is_negative (n) } -> std::same_as<bool>;
+        { sign (n) } -> std::same_as<math::signature>;
+        { increment (n) } -> std::same_as<NN>;
+        { decrement (n) } -> std::same_as<NN>;
+        { sqrt (n) } -> std::same_as<set<NN>>;
     } && requires (NN &n) {
-        {++n} -> std::same_as<NN &>;
-        {n++} -> std::same_as<NN>;
-        {--n} -> std::same_as<NN &>;
-        {n++} -> std::same_as<NN>;
+        { ++n } -> std::same_as<NN &>;
+        { n++ } -> std::same_as<NN>;
+        { --n } -> std::same_as<NN &>;
+        { n++ } -> std::same_as<NN>;
     } && requires (const NN &a, const NN &b) {
-        {a == b} -> std::same_as<bool>;
-        {a != b} -> std::same_as<bool>;
-        {a > b} -> std::same_as<bool>;
-        {a < b} -> std::same_as<bool>;
-        {a <= b} -> std::same_as<bool>;
-        {a >= b} -> std::same_as<bool>;
-        {a + b} -> std::same_as<NN>;
-        {a - b} -> std::same_as<NN>;
-        {a * b} -> std::same_as<NN>;
-        {a / b} -> std::same_as<NN>;
-        {std::min (a, b)} -> std::same_as<const NN &>;
-        {std::max (a, b)} -> std::same_as<const NN &>;
+        { a == b } -> std::same_as<bool>;
+        { a != b } -> std::same_as<bool>;
+        { a > b } -> std::same_as<bool>;
+        { a < b } -> std::same_as<bool>;
+        { a <= b } -> std::same_as<bool>;
+        { a >= b } -> std::same_as<bool>;
+        { a + b } -> std::same_as<NN>;
+        { a - b } -> std::same_as<NN>;
+        { a * b } -> std::same_as<NN>;
+        { a / b } -> std::same_as<NN>;
+        { std::min (a, b) } -> std::same_as<const NN &>;
+        { std::max (a, b) } -> std::same_as<const NN &>;
     } && requires (NN &a, const NN &b) {
-        {a += b} -> std::same_as<NN &>;
-        {a -= b} -> std::same_as<NN &>;
-        {a *= b} -> std::same_as<NN &>;
+        { a += b } -> std::same_as<NN &>;
+        { a -= b } -> std::same_as<NN &>;
+        { a *= b } -> std::same_as<NN &>;
     } struct test_whole_number {
         test_whole_number () {}
     };
     
     template <typename NN> requires std::convertible_to<uint64, NN> && 
     requires (const NN &n) {
-        {uint64 (n)};
-        {NN (n)};
-        {n == 0u} -> std::same_as<bool>;
-        {n != 0u} -> std::same_as<bool>;
-        {n > 0u} -> std::same_as<bool>;
-        {n < 0u} -> std::same_as<bool>;
-        {n >= 0u} -> std::same_as<bool>;
-        {n <= 0u} -> std::same_as<bool>;
+        { uint64 (n) };
+        { NN (n) };
+        { n == 0u } -> std::same_as<bool>;
+        { n != 0u } -> std::same_as<bool>;
+        { n > 0u } -> std::same_as<bool>;
+        { n < 0u } -> std::same_as<bool>;
+        { n >= 0u } -> std::same_as<bool>;
+        { n <= 0u } -> std::same_as<bool>;
     } && requires (const NN &a, const NN &b) {
-        {pow (a, b)} -> std::same_as<NN>;
+        { pow (a, b) } -> std::same_as<NN>;
     } struct test_unsigned_number : test_whole_number<NN> {
         test_unsigned_number () {
             EXPECT_EQ (N (NN (0)), N (0)) << " number: " << NN (0) << " vs " << N (0) << " merp " << N (NN (0));
@@ -88,15 +88,15 @@ namespace data {
     
     template <typename ZZ> requires std::convertible_to<int64, ZZ> && 
     requires (const ZZ &z) {
-        {int64 (z)};
-        {ZZ (z)};
-        {z == 0};
-        {z == 0};
-        {z != 0};
-        {z > 0};
-        {z < 0};
-        {z >= 0};
-        {z <= 0};
+        { int64 (z) };
+        { ZZ (z) };
+        { z == 0 };
+        { z == 0 };
+        { z != 0 };
+        { z > 0 };
+        { z < 0 };
+        { z >= 0 };
+        { z <= 0 };
     } struct test_signed_number : test_whole_number<ZZ> {
         test_signed_number () {
             EXPECT_EQ (Z (ZZ (0)), Z (0));

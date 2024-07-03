@@ -148,13 +148,27 @@ namespace data::encoding::base58 {
 namespace data {
     using base58_uint = encoding::base58::string;
     
-    math::sign sign (const base58_uint &);
-    
     base58_uint increment (const base58_uint &);
     base58_uint decrement (const base58_uint &);
 }
 
 namespace data::math {
+
+    template <> struct sign<base58_uint> {
+        signature operator () (const base58_uint &);
+    };
+
+    template <> struct is_zero<base58_uint> {
+        bool operator () (const base58_uint &);
+    };
+
+    template <> struct is_negative<base58_uint> {
+        bool operator () (const base58_uint &);
+    };
+
+    template <> struct is_positive<base58_uint> {
+        bool operator () (const base58_uint &);
+    };
     
     template <> struct abs<base58_uint> {
         base58_uint operator () (const base58_uint &);
@@ -164,10 +178,6 @@ namespace data::math {
     struct root<base58_uint, pow> {
         set<base58_uint> operator () (const base58_uint &n);
     };
-    
-    bool is_zero (const base58_uint &);
-    bool is_negative (const base58_uint &);
-    bool is_positive (const base58_uint &);
 
     template <>
     struct divide<base58_uint> {
@@ -181,11 +191,6 @@ namespace data::math {
 
 namespace data {
     
-    math::sign inline sign (const base58_uint &u) {
-        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string: \"" << u << "\"";
-        return encoding::base58::nonzero (u) ? math::positive : math::zero;
-    }
-    
     base58_uint inline increment (const base58_uint &n) {
         auto x = n;
         return ++x;
@@ -198,22 +203,27 @@ namespace data {
 }
 
 namespace data::math {
+
+    signature inline sign<base58_uint>::operator () (const base58_uint &u) {
+        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string: \"" << u << "\"";
+        return encoding::base58::nonzero (u) ? math::positive : math::zero;
+    }
     
     base58_uint inline abs<base58_uint>::operator () (const base58_uint &u) {
         if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string: \"" << u << "\"";
         return u;
     }
     
-    bool inline is_positive (const encoding::base58::string &x) {
-        return !is_zero (x);
+    bool inline is_positive<base58_uint>::operator () (const encoding::base58::string &x) {
+        return !data::is_zero (x);
     }
     
-    bool inline is_zero (const base58_uint &n) {
+    bool inline is_zero<base58_uint>::operator () (const base58_uint &n) {
         if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
         return !encoding::base58::nonzero (n);
     }
     
-    bool inline is_negative (const base58_uint &n) {
+    bool inline is_negative<base58_uint>::operator () (const base58_uint &n) {
         if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
         return false;
     }

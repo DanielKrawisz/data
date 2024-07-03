@@ -373,6 +373,10 @@ namespace data::math {
     nonzero<N> inline times<N>::operator () (const nonzero<N> &a, const nonzero<N> &b) {
         return a * b;
     }
+
+    signature inline sign<N>::operator () (const N &z) {
+        return math::number::GMP::sign (z.Value.MPZ[0]);
+    }
 }
 
 namespace data::math::number {
@@ -409,10 +413,6 @@ namespace data::encoding::decimal {
 }
 
 namespace data {
-    
-    math::sign inline sign (const math::N &z) {
-        return math::number::GMP::sign (z.Value.MPZ[0]);
-    }
     
     math::N inline square (const math::N &n) {
         return n * n;

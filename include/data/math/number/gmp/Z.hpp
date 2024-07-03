@@ -146,13 +146,11 @@ namespace data::math::number::GMP {
     
 }
 
-namespace data {
-    math::sign inline sign (const math::Z &z) {
-        return math::number::GMP::sign (z.MPZ[0]);
-    }
-}
 
 namespace data::math {
+    math::signature inline sign<Z>::operator () (const Z &z) {
+        return math::number::GMP::sign (z.MPZ[0]);
+    }
     
     Z inline identity<plus<Z>, Z>::operator () () {
         return 0;

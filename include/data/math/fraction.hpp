@@ -81,7 +81,7 @@ namespace data::math {
             return data::valid (Numerator) && data::valid (Denominator);
         }
         
-        math::sign sign () const {
+        signature sign () const {
             return data::sign (Numerator);
         }
         

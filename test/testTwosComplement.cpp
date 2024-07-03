@@ -22,9 +22,9 @@ namespace data::math::number {
     };
     
     template <typename Z> requires requires (const Z &z) {
-        { is_zero (z) } -> std::same_as<bool>;
-        { is_positive_zero (z) } -> std::same_as<bool>;
-        { is_negative_zero (z) } -> std::same_as<bool>;
+        { data::is_zero (z) } -> std::same_as<bool>;
+        { data::is_positive_zero (z) } -> std::same_as<bool>;
+        { data::is_negative_zero (z) } -> std::same_as<bool>;
     } && requires (const Z &a, const Z &b) {
         { data::identical (a, b) } -> std::same_as<bool>;
     } && requires (size_t size, bool negative) {
