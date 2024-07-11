@@ -23,8 +23,8 @@ namespace data::encoding::base58 {
     }
     
     std::strong_ordering operator <=> (const string &m, const string &n) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
-        if (!n.valid ()) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
+        if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
         return N_compare (m, n);
     }
     
@@ -45,7 +45,7 @@ namespace data::encoding::base58 {
     }
     
     string &operator ++ (string &x) {
-        if (!x.valid ()) throw exception {} << "invalid base 58 string: \"" << x << "\"";
+        if (!x.valid ()) throw exception {} << "invalid base 58 string: " << x;
         char remainder = N_increment (x);
         if (remainder == '1') return x;
         string new_x;
@@ -56,7 +56,7 @@ namespace data::encoding::base58 {
     }
     
     void N_decrement (string &x) {
-        if (!x.valid ()) throw exception {} << "invalid base 58 string: \"" << x << "\"";
+        if (!x.valid ()) throw exception {} << "invalid base 58 string: " << x;
         auto characters = base58::characters ();
         
         auto i = x.rbegin ();
@@ -75,7 +75,7 @@ namespace data::encoding::base58 {
     }
     
     string &operator -- (string &x) {
-        if (!x.valid ()) throw exception {} << "invalid base 58 string: \"" << x << "\"";
+        if (!x.valid ()) throw exception {} << "invalid base 58 string: " << x;
         if (x == "1") return x;
         if (x == "2") return x = string {"1"};
             
@@ -86,48 +86,48 @@ namespace data::encoding::base58 {
     }
     
     string operator + (const string &m, const string &n) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
-        if (!n.valid ()) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
+        if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) + read_base<N_bytes_little> (n, 58, &digit));
     }
     
     string operator - (const string &m, const string &n) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
-        if (!n.valid ()) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
+        if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) - read_base<N_bytes_little> (n, 58, &digit));
     }
     
     string operator | (const string &m, const string &n) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
-        if (!n.valid ()) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
+        if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) | read_base<N_bytes_little> (n, 58, &digit));
     }
     
     string operator & (const string &m, const string &n) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
-        if (!n.valid ()) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
+        if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) & read_base<N_bytes_little> (n, 58, &digit));
     }
     
     string operator * (const string &m, const string &n) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
-        if (!n.valid ()) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
+        if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) * read_base<N_bytes_little> (n, 58, &digit));
     }
     
     string operator << (const string &m, int i) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) << i);
     }
     
     string operator >> (const string &m, int i) {
-        if (!m.valid ()) throw exception {} << "invalid base 58 string: \"" << m << "\"";
+        if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
         
         return encode (read_base<N_bytes_little> (m, 58, &digit) >> i);
     }

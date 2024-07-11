@@ -13,49 +13,63 @@ namespace data {
     
     template <typename X> concept ordered = std::totally_ordered<X>;
     
-    template <ordered X> inline bool equal(const X& a, const X& b);
-    template <ordered X> inline bool unequal(const X& a, const X& b);
-    template <ordered X> inline bool less_equal(const X& a, const X& b);
-    template <ordered X> inline bool greater_equal(const X& a, const X& b);
-    template <ordered X> inline bool less(const X& a, const X& b);
-    template <ordered X> inline bool greater(const X& a, const X& b);
+    template <ordered X> bool equal (const X &a, const X &b);
+    template <ordered X> bool unequal (const X &a, const X &b);
+    template <ordered X> bool less_equal (const X &a, const X &b);
+    template <ordered X> bool greater_equal (const X &a, const X &b);
+    template <ordered X> bool less (const X &a, const X &b);
+    template <ordered X> bool greater (const X &a, const X &b);
+    template <ordered X> const X &max (const X &a, const X &b);
+    template <ordered X> const X &min (const X &a, const X &b);
     
 }
 
 namespace data::math {
     template <ordered X> struct equal {
-        bool operator()(const X& a, const X& b) {
+        bool operator () (const X &a, const X &b) {
             return a == b;
         }
     };
     
     template <ordered X> struct unequal {
-        bool operator()(const X& a, const X& b) {
+        bool operator () (const X &a, const X &b) {
             return a != b;
         }
     };
     
     template <ordered X> struct greater {
-        bool operator()(const X& a, const X& b) {
+        bool operator () (const X &a, const X &b) {
             return a > b;
         }
     };
     
     template <ordered X> struct less {
-        bool operator()(const X& a, const X& b) {
+        bool operator () (const X & a, const X &b) {
             return a < b;
         }
     };
     
     template <ordered X> struct greater_equal {
-        bool operator()(const X& a, const X& b) {
+        bool operator () (const X& a, const X& b) {
             return a >= b;
         }
     };
     
     template <ordered X> struct less_equal {
-        bool operator()(const X& a, const X& b) {
+        bool operator () (const X &a, const X &b) {
             return a <= b;
+        }
+    };
+
+    template <ordered X> struct min {
+        const X &operator () (const X &a, const X &b) {
+            return std::min (a, b);
+        }
+    };
+
+    template <ordered X> struct mmax {
+        const X &operator () (const X & a, const X &b) {
+            return std::max (a, b);
         }
     };
     
@@ -63,28 +77,36 @@ namespace data::math {
 
 namespace data {
     
-    template <ordered X> inline bool equal(const X& a, const X& b) {
-        return math::equal<X>{}(a, b);
+    template <ordered X> bool inline equal (const X &a, const X &b) {
+        return math::equal<X> {} (a, b);
     }
     
-    template <ordered X> inline bool unequal(const X& a, const X& b) {
-        return math::unequal<X>{}(a, b);
+    template <ordered X> bool inline unequal (const X &a, const X &b) {
+        return math::unequal<X> {} (a, b);
     }
     
-    template <ordered X> inline bool less_equal(const X& a, const X& b) {
-        return math::less_equal<X>{}(a, b);
+    template <ordered X> bool inline less_equal (const X& a, const X &b) {
+        return math::less_equal<X> {} (a, b);
     }
     
-    template <ordered X> inline bool greater_equal(const X& a, const X& b) {
-        return math::greater_equal<X>{}(a, b);
+    template <ordered X> bool inline greater_equal (const X& a, const X &b) {
+        return math::greater_equal<X> {} (a, b);
     }
     
-    template <ordered X> inline bool less(const X& a, const X& b) {
-        return math::less<X>{}(a, b);
+    template <ordered X> bool inline less (const X &a, const X &b) {
+        return math::less<X> {} (a, b);
     }
     
-    template <ordered X> inline bool greater(const X& a, const X& b) {
-        return math::greater<X>{}(a, b);
+    template <ordered X> bool inline greater (const X &a, const X &b) {
+        return math::greater<X> {} (a, b);
+    }
+
+    template <ordered X> const X inline &min (const X &a, const X &b) {
+        return math::less<X> {} (a, b);
+    }
+
+    template <ordered X> const X inline &max (const X &a, const X &b) {
+        return math::greater<X> {} (a, b);
     }
     
 }

@@ -19,28 +19,4 @@ namespace data::math {
 
 }
 
-namespace data {
-    template <std::integral X> X inline increment (const X &x) {
-        return x + 1;
-    }
-    
-    template <std::signed_integral X> X inline decrement (const X &x) {
-        return x - 1;
-    }
-    
-    template <std::unsigned_integral X> X inline decrement (const X &x) {
-        return x == 0 ? 0 : x - 1;
-    }
-
-    template <typename X> X inline increment (const X &x) {
-        X n = x;
-        return ++n;
-    }
-
-    template <typename X> X inline decrement (const X &x) {
-        X n = x;
-        return --n;
-    }
-}
-
 #endif

@@ -11,6 +11,11 @@ namespace data::math {
 
     // root{}(number) => set<number>
     template <typename number, uint64 power> struct root;
+
+    template <typename field, typename number> struct radical {
+        field Value;
+        number InversePower;
+    };
 }
 
 namespace data {

@@ -423,26 +423,38 @@ namespace data {
         return n * n;
     }
     
-    math::N inline increment (const math::N &n) {
-        auto x = n;
-        return ++x;
+}
+
+namespace data::math::number {
+
+    nonzero<N> inline increment<N>::operator () (const N &n) {
+        nonzero<N> x {n};
+        x.Value++;
+        return x;
     }
-    
-    math::N inline decrement (const math::N &n) {
+
+    N inline decrement<N>::operator () (const nonzero<N> &n) {
+        std::cout << " **** u decrementing " << n << std::endl;
+        auto x = n.Value;
+        return --x;
+    }
+
+    N inline decrement<N>::operator () (const N &n) {
+        std::cout << " **** z decrementing " << n << std::endl;
+        if (n == 0) return n;
         auto x = n;
         return --x;
     }
-    
-    math::Z inline increment (const math::Z &n) {
+
+    Z inline increment<Z>::operator () (const Z &n) {
         auto x = n;
         return ++x;
     }
-    
-    math::Z inline decrement (const math::Z &n) {
+
+    Z inline decrement<Z>::operator () (const Z &n) {
         auto x = n;
         return --x;
     }
-    
 }
 
 #endif

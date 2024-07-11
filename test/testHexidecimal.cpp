@@ -508,12 +508,12 @@ namespace data::math::number {
         test_increment (string given, string expected) {
 
             auto gh = hex<n> {given};
-            auto ih = increment (gh);
-            auto dh = decrement (ih);
+            auto ih = increment<hex<n>> {} (gh);
+            auto dh = decrement<hex<n>> {} (ih);
             
             EXPECT_EQ (static_cast<string> (ih), expected) << "expected " << given << " to increment to " << expected ;
             EXPECT_EQ (dh, gh) << "expected " << dh << " == " << gh << std::endl;
-            EXPECT_TRUE (is_minimal (ih));
+            EXPECT_TRUE (is_minimal (hex<n> (ih)));
             EXPECT_TRUE (is_minimal (dh));
 
             test_increment_bytes<n> {given, expected};
@@ -536,21 +536,21 @@ namespace data::math::number {
 
             auto gbl = bytes_type<endian::little, n>::read (given);
             auto ebl = bytes_type<endian::little, n>::read (expected);
-            auto ibl = increment (gbl);
+            auto ibl = increment<bytes_type<endian::little, n>> {} (gbl);
             EXPECT_EQ (static_cast<bytes> (ibl), static_cast<bytes> (ebl)) << "expected " << ibl << " === " << ebl;
-            EXPECT_TRUE (is_minimal (ibl));
+            EXPECT_TRUE (is_minimal (bytes_type<endian::little, n> (ibl)));
 
             auto gbb = bytes_type<endian::big, n>::read (given);
             auto ebb = bytes_type<endian::big, n>::read (expected);
-            auto ibb = increment (gbb);
+            auto ibb = increment<bytes_type<endian::big, n>> {} (gbb);
             EXPECT_EQ (static_cast<bytes> (ibb), static_cast<bytes> (ebb)) << "expected " << ibb << " === " << ebb;
-            EXPECT_TRUE (is_minimal (ibb));
+            EXPECT_TRUE (is_minimal (bytes_type<endian::big, n> (ibb)));
 
-            auto dbl = decrement (ibl);
+            auto dbl = decrement<bytes_type<endian::little, n>> {} (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " == " << gbl;
             EXPECT_TRUE (is_minimal (dbl));
 
-            auto dbb = decrement (ibb);
+            auto dbb = decrement<bytes_type<endian::big, n>> {} (ibb);
             EXPECT_EQ (dbb, gbb) << "expected " << dbb << " == " << gbb;
             EXPECT_TRUE (is_minimal (dbb));
 
@@ -563,17 +563,17 @@ namespace data::math::number {
             auto gbl = uint<endian::little, size>::read (extend (given, size * 2 + 2));
             auto ebl = uint<endian::little, size>::read (extend (expected, size * 2 + 2));
             
-            auto ibl = increment (gbl);
+            auto ibl = increment<uint<endian::little, size>> {} (gbl);
             EXPECT_EQ (ibl, ebl) << "expected " << ibl << " to equal " << ebl << std::endl;
-            auto dbl = decrement (ibl);
+            auto dbl = decrement<uint<endian::little, size>> {} (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " to equal " << gbl << std::endl;
             
             auto gbb = uint<endian::big, size>::read (extend (given, size * 2 + 2));
             auto ebb = uint<endian::big, size>::read (extend (expected, size * 2 + 2));
             
-            auto ibb = increment (gbb);
+            auto ibb = increment<uint<endian::big, size>> {} (gbb);
             EXPECT_EQ (ibb, ebb) << "expected " << ibb << " to equal " << ebb << std::endl;
-            auto dbb = decrement (ibb);
+            auto dbb = decrement<uint<endian::big, size>> {} (ibb);
             EXPECT_EQ (dbb, gbb) << "expected " << dbb << " to equal " << gbl << std::endl;
         }
     };
@@ -584,17 +584,17 @@ namespace data::math::number {
             auto gbl = sint<endian::little, size>::read (extend (given, size * 2 + 2));
             auto ebl = sint<endian::little, size>::read (extend (expected, size * 2 + 2));
             
-            auto ibl = increment (gbl);
+            auto ibl = increment<sint<endian::little, size>> {} (gbl);
             EXPECT_EQ (ibl, ebl) << "expected " << ibl << " to equal " << ebl << std::endl;
-            auto dbl = decrement (ibl);
+            auto dbl = decrement<sint<endian::little, size>> {} (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " to equal " << gbl << std::endl;
             
             auto gbb = sint<endian::big, size>::read (extend (given, size * 2 + 2));
             auto ebb = sint<endian::big, size>::read (extend (expected, size * 2 + 2));
             
-            auto ibb = increment (gbb);
+            auto ibb = increment<sint<endian::big, size>> {} (gbb);
             EXPECT_EQ (ibb, ebb) << "expected " << ibb << " to equal " << ebb << std::endl;
-            auto dbb = decrement (ibb);
+            auto dbb = decrement<sint<endian::big, size>> {} (ibb);
             EXPECT_EQ (dbb, gbb) << "expected " << dbb << " to equal " << gbl << std::endl;
         }
     };
@@ -1426,9 +1426,10 @@ namespace data {
     
     template <typename N, math::number::complement zz> struct test_signed_stuff<N, zz, true> {
         test_signed_stuff (const N &n, const encoding::hexidecimal::integer<zz, hex_case::lower> &h) {
+            using H = encoding::hexidecimal::integer<zz, hex_case::lower>;
 
-            auto hmm = decrement (h);
-            auto nmm = decrement (n);
+            auto hmm = math::number::decrement<H> {} (h);
+            auto nmm = math::number::decrement<N> {} (n);
 
             EXPECT_TRUE (math::number::is_minimal (hmm));
             EXPECT_TRUE (math::number::is_minimal (nmm));
@@ -1439,8 +1440,8 @@ namespace data {
                 {encoding::hexidecimal::write<hex_case::lower> (nmm)};
             EXPECT_EQ (hmm, hhmm) << std::hex << "expected " << hmm << " == " << hhmm;
             
-            auto hpp = increment (hmm);
-            auto npp = increment (nmm);
+            auto hpp = math::number::increment<H> {} (hmm);
+            auto npp = math::number::increment<N> {} (nmm);
 
             EXPECT_EQ (n, npp) << "expected " << std::hex << n << " == " << npp;
             EXPECT_EQ (h, hpp) << "expected " << std::hex << h << " == " << hpp;
@@ -1463,8 +1464,9 @@ namespace data {
     template <typename N, math::number::complement zz> void test_hex_read_and_write_bytes (list<string> cases) {
         list<std::pair<N, encoding::hexidecimal::integer<number_complement<N>, hex_case::lower>>> numbers;
         for (const string &x : cases) {
+            using H = encoding::hexidecimal::integer<number_complement<N>, hex_case::lower>;
 
-            encoding::hexidecimal::integer<number_complement<N>, hex_case::lower> h {x};
+            H h {x};
             N n = N::read (x);
             EXPECT_EQ (data::sign (h), data::sign (n));
             
@@ -1473,15 +1475,15 @@ namespace data {
             EXPECT_EQ (math::number::is_minimal (h), math::number::is_minimal (n));
             EXPECT_EQ (x, encoding::hexidecimal::write<hex_case::lower> (n));
             
-            auto hpp = increment (h);
-            auto npp = increment (n);
+            auto hpp = math::number::increment<H> {} (h);
+            auto npp = math::number::increment<N> {} (n);
 
-            EXPECT_TRUE (math::number::is_minimal (hpp));
-            EXPECT_TRUE (math::number::is_minimal (npp));
+            EXPECT_TRUE (math::number::is_minimal (H (hpp)));
+            EXPECT_TRUE (math::number::is_minimal (N (npp)));
             
-            EXPECT_EQ (N::read (hpp), npp) << "expected " << hpp << " == " << std::hex << npp;
+            EXPECT_EQ (N::read (H (hpp)), N (npp)) << "expected " << hpp << " == " << std::hex << npp;
             auto hhpp = encoding::hexidecimal::integer<number_complement<N>, hex_case::lower>
-                {encoding::hexidecimal::write<hex_case::lower> (npp)};
+                {encoding::hexidecimal::write<hex_case::lower> (N (npp))};
             EXPECT_EQ (hpp, hhpp);
             
             test_signed_stuff<N, zz> {n, h};

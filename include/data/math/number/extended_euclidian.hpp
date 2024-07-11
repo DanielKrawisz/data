@@ -49,7 +49,7 @@ namespace data::math::number::euclidian {
             Z BezoutT;
             
             sequence operator / (const sequence &s) const {
-                division<N> div = natural::divide<N> (Div.Remainder, s.Div.Remainder);
+                division<N> div = natural_divide<N> (Div.Remainder, s.Div.Remainder);
                 return {div, BezoutS - s.BezoutS * div.Quotient , BezoutT - s.BezoutT * div.Quotient};
             }
             

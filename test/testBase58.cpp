@@ -14,6 +14,7 @@
 namespace data::encoding {
     
     TEST (Base58Test, Base58ValidString) {
+        EXPECT_TRUE (base58::valid ("1"));
         EXPECT_TRUE (base58::valid ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"));
         EXPECT_TRUE (base58::valid ("3m8npvpNDU6k8zcAH8RBcUZeDLWx"));
         EXPECT_FALSE (base58::valid ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMIHPj74cgBWRmRvBS"));

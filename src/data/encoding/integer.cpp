@@ -144,7 +144,7 @@ namespace data::encoding {
                 return math::division<string, N> {n.size () == 1 ? string {} : string (n.substr(0, last)), N(digit(n[last]))};
             }
             
-            math::division<N> div = math::number::natural::divide (N::read (n), x);
+            math::division<N> div = math::number::natural_divide (N::read (n), x);
             
             return math::division<string, N> {decimal::write (div.Quotient), div.Remainder};
         }
@@ -155,11 +155,11 @@ namespace data::encoding {
         }
         
         string operator / (const string &m, const string &x) {
-            return decimal::write (math::number::natural::divide (N::read (m), N::read (x)).Quotient);
+            return decimal::write (math::number::natural_divide (N::read (m), N::read (x)).Quotient);
         }
         
         string operator % (const string &m, const string &x) {
-            return decimal::write (math::number::natural::divide (N::read (m), N::read (x)).Remainder);
+            return decimal::write (math::number::natural_divide (N::read (m), N::read (x)).Remainder);
         }
         
         bool string::operator == (uint64 x) const {

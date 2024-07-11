@@ -13,6 +13,15 @@ namespace data::math::number {
     // an implementation of the natural numbers that is
     // encoded as a big or little endian sequence of bytes. 
     template <endian::order> struct N_bytes;
+
+    template <endian::order r> struct increment<N_bytes<r>> {
+        nonzero<N_bytes<r>> operator () (const N_bytes<r> &);
+    };
+
+    template <endian::order r> struct decrement<N_bytes<r>> {
+        N_bytes<r> operator () (const nonzero<N_bytes<r>> &);
+        N_bytes<r> operator () (const N_bytes<r> &);
+    };
     
     // similar implementation of the integers. We have both 
     // one's and two's complement. N_bytes works as the absolute
@@ -20,6 +29,14 @@ namespace data::math::number {
     // works as its own number system without a corresponding 
     // natural number type. 
     template <endian::order, complement> struct Z_bytes;
+
+    template <endian::order r, complement c> struct increment<Z_bytes<r, c>> {
+        Z_bytes<r, c> operator () (const Z_bytes<r, c> &);
+    };
+
+    template <endian::order r, complement c> struct decrement<Z_bytes<r, c>> {
+        Z_bytes<r, c> operator () (const Z_bytes<r, c> &);
+    };
     
     template <endian::order r> 
     bool operator == (const N_bytes<r> &, const N_bytes<r> &);
@@ -232,6 +249,11 @@ namespace data::math {
         N_bytes<r> operator () (const number::Z_bytes<r, number::complement::ones> &);
     };
 
+    template <endian::order r> struct times<number::N_bytes<r>> {
+        number::N_bytes<r> operator () (const number::N_bytes<r> &a, const number::N_bytes<r> &b);
+        nonzero<number::N_bytes<r>> operator () (const nonzero<number::N_bytes<r>> &a, const nonzero<number::N_bytes<r>> &b);
+    };
+
     template <endian::order r, number::complement zz> struct times<number::Z_bytes<r, zz>> {
         number::Z_bytes<r, zz> operator () (const number::Z_bytes<r, zz> &a, const number::Z_bytes<r, zz> &b);
         nonzero<number::Z_bytes<r, zz>> operator () (const nonzero<number::Z_bytes<r, zz>> &a, const nonzero<number::Z_bytes<r, zz>> &b);
@@ -280,20 +302,10 @@ namespace data::math {
         }
     };
 
-    template <endian::order r> struct divide<N_bytes<r>, N_bytes<r>> {
-        division<N_bytes<r>, N_bytes<r>> operator () (const N_bytes<r> &, const N_bytes<r> &);
-    };
-
-    template <endian::order r> struct divide<Z_bytes<r>, Z_bytes<r>> {
-        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &, const Z_bytes<r> &);
-    };
-
     template <endian::order r> struct divide<Z_bytes<r>, N_bytes<r>> {
-        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &, const N_bytes<r> &);
-    };
-
-    template <endian::order r> struct divide<Z_bytes_twos<r>, Z_bytes_twos<r>> {
-        division<Z_bytes_twos<r>, Z_bytes_twos<r>> operator () (const Z_bytes_twos<r> &, const Z_bytes_twos<r> &);
+        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &a, const N_bytes<r> &b) {
+            return divide<Z_bytes<r>, Z_bytes<r>> {} (a, Z_bytes<r> (b));
+        }
     };
 
     template <endian::order r> struct sign<N_bytes<r>> {

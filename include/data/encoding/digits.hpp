@@ -19,7 +19,7 @@ namespace data::encoding {
         linked_stack<char> dig {};
         N x = n;
         while (x > 0u) {
-            math::division<N> d = math::number::natural::divide (x, base);
+            math::division<N> d = math::number::natural_divide (x, base);
             dig = dig << digits[(uint64) (d.Remainder)];
             x = d.Quotient;
         }

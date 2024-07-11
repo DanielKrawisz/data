@@ -115,6 +115,31 @@ namespace data::math::number {
         operator Z_bytes<endian::opposite (r), complement::twos> () const;
         operator Z_bytes<r, complement::ones> () const;
     };
+
+    template <endian::order r> nonzero<N_bytes<r>> inline increment<N_bytes<r>>::operator () (const N_bytes<r> &n) {
+        return nonzero<N_bytes<r>> {n + 1};
+    }
+
+    template <endian::order r> N_bytes<r> inline decrement<N_bytes<r>>::operator () (const nonzero<N_bytes<r>> &n) {
+        auto x = n.Value;
+        return --x;
+    }
+
+    template <endian::order r> N_bytes<r> inline decrement<N_bytes<r>>::operator () (const N_bytes<r> &n) {
+        if (data::is_zero (n)) return n;
+        auto x = n;
+        return --x;
+    }
+
+    template <endian::order r, complement c> Z_bytes<r, c> inline increment<Z_bytes<r, c>>::operator () (const Z_bytes<r, c> &n) {
+        auto x = n;
+        return ++x;
+    }
+
+    template <endian::order r, complement c> Z_bytes<r, c> inline decrement<Z_bytes<r, c>>::operator () (const Z_bytes<r, c> &n) {
+        auto x = n;
+        return --x;
+    }
     
     // some functions that can easily be implemented as other functions using conversions. 
     template <endian::order r, complement c> 
@@ -460,7 +485,7 @@ namespace data::math {
     }
     
     template <endian::order r> N_bytes<r> inline next (const N_bytes<r> &n) {
-        return increment (n);
+        return number::increment<N_bytes<r>> (n).Value;
     }
     
     template <endian::order r> number::Z_bytes<r, number::complement::twos> inline next

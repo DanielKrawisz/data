@@ -400,17 +400,6 @@ namespace data::hex {
 namespace data {
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
-    
-    dec_uint increment (const dec_uint &);
-    dec_uint decrement (const dec_uint &);
-    
-    dec_int increment (const dec_int &);
-    dec_int decrement (const dec_int &);
-    
-    template <math::number::complement c, hex_case zz>
-    hex::integer<c, zz> increment (const hex::integer<c, zz> &);
-    template <math::number::complement c, hex_case zz>
-    hex::integer<c, zz> decrement (const hex::integer<c, zz> &);
 
     template<math::number::complement a, hex_case b, math::number::complement c, hex_case d>
     bool identical (const hex::integer<a, b> &, const hex::integer<c, d> &);
@@ -578,7 +567,7 @@ namespace data::math {
         division<hex::int1<zz>, hex::uint<zz>> operator () (const hex::int1<zz> &, const hex::uint<zz> &);
     };
 
-    template <hex_case zz>
+    template <hex_case zz> requires number::integer<hex::int2<zz>>
     struct divide<hex::int2<zz>, hex::int2<zz>> {
         division<hex::int2<zz>, hex::int2<zz>> operator () (const hex::int2<zz> &, const hex::int2<zz> &);
     };
@@ -586,7 +575,41 @@ namespace data::math {
 }
 
 namespace data::math::number {
-    
+
+    template <> struct increment<dec_uint> {
+        nonzero<dec_uint> operator () (const dec_uint &);
+    };
+
+    template <> struct decrement<dec_uint> {
+        dec_uint operator () (const nonzero<dec_uint> &);
+        dec_uint operator () (const dec_uint &);
+    };
+
+    template <> struct increment<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <> struct decrement<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct increment<hex::uint<zz>> {
+        nonzero<hex::uint<zz>> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct decrement<hex::uint<zz>> {
+        hex::uint<zz> operator () (const nonzero<hex::uint<zz>> &);
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <math::number::complement c, hex_case zz> struct increment<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
+    };
+
+    template <math::number::complement c, hex_case zz> struct decrement<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
+    };
+
     template <hex_case cx> 
     bool sign_bit_set (const hex::int2<cx> &);
     
@@ -1368,6 +1391,61 @@ namespace data::encoding::integer {
 }
 
 namespace data::math::number {
+
+    nonzero<dec_uint> inline increment<dec_uint>::operator () (const dec_uint &n) {
+        return nonzero<dec_uint> {n + 1};
+    }
+
+    dec_uint inline decrement<dec_uint>::operator () (const nonzero<dec_uint> &n) {
+        auto x = n.Value;
+        return --x;
+    }
+
+    dec_uint inline decrement<dec_uint>::operator () (const dec_uint &n) {
+        if (data::is_zero (n)) return n;
+        auto x = n;
+        return --x;
+    }
+
+    dec_int inline increment<dec_int>::operator () (const dec_int &n) {
+        auto x = n;
+        return ++x;
+    }
+
+    dec_int inline decrement<dec_int>::operator () (const dec_int &n) {
+        auto x = n;
+        return --x;
+    }
+
+    template <hex_case zz>
+    nonzero<hex::uint<zz>> inline increment<hex::uint<zz>>::operator () (const hex::uint<zz> &n) {
+        return nonzero<hex::uint<zz>> {n + 1};
+    }
+
+    template <hex_case zz>
+    hex::uint<zz> inline decrement<hex::uint<zz>>::operator () (const nonzero<hex::uint<zz>> &n) {
+        auto x = n.Value;
+        return --x;
+    }
+
+    template <hex_case zz>
+    hex::uint<zz> inline decrement<hex::uint<zz>>::operator () (const hex::uint<zz> &n) {
+        if (data::is_zero (n)) return n;
+        auto x = n;
+        return --x;
+    }
+
+    template <math::number::complement c, hex_case zz>
+    hex::integer<c, zz> inline increment<hex::integer<c, zz>>::operator () (const hex::integer<c, zz> &n) {
+        auto x = n;
+        return ++x;
+    }
+
+    template <math::number::complement c, hex_case zz>
+    hex::integer<c, zz> inline decrement<hex::integer<c, zz>>::operator () (const hex::integer<c, zz> &n) {
+        auto x = n;
+        return --x;
+    }
     
     template <hex_case cx> 
     bool inline is_minimal (const hex::uint<cx> &x) {
@@ -1377,38 +1455,6 @@ namespace data::math::number {
 }
 
 namespace data {
-    
-    dec_uint inline increment (const dec_uint &n) {
-        auto x = n;
-        return ++x;
-    }
-    
-    dec_uint inline decrement (const dec_uint &n) {
-        auto x = n;
-        return --x;
-    }
-    
-    dec_int inline increment (const dec_int &n) {
-        auto x = n;
-        return ++x;
-    }
-    
-    dec_int inline decrement (const dec_int &n) {
-        auto x = n;
-        return --x;
-    }
-    
-    template <math::number::complement c, hex_case zz>
-    hex::integer<c, zz> inline increment (const hex::integer<c, zz> &n) {
-        auto x = n;
-        return ++x;
-    }
-    
-    template <math::number::complement c, hex_case zz>
-    hex::integer<c, zz> inline decrement (const hex::integer<c, zz> &n) {
-        auto x = n;
-        return --x;
-    }
 
     template<math::number::complement a, hex_case b, math::number::complement c, hex_case d>
     bool inline identical (const hex::integer<a, b> &x, const hex::integer<c, d> &y) {
@@ -1561,9 +1607,10 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case cx>
-    integer<complement::ones, cx> inline operator - (const integer<complement::ones, cx> &x) {
-        if (!x.valid ()) throw exception {} << "invalid hex string: " << x;
-        return increment (~x);
+    integer<complement::ones, cx> inline operator - (const integer<complement::ones, cx> &n) {
+        if (!n.valid ()) throw exception {} << "invalid hex string: " << n;
+        auto x = ~n;
+        return ++x;
     }
     
     template <complement c, hex::letter_case zz> 
@@ -2337,7 +2384,7 @@ namespace data::encoding::hexidecimal {
 
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
-        if (is_negative (x)) return x = -decrement (-x);
+        if (is_negative (x)) return x = -math::number::decrement<integer<complement::twos, zz>> {} (-x);
         if (is_negative_zero (x)) return x = integer<complement::twos, zz> {"0x01"};
         
         char remainder = N_increment (x);
@@ -2366,7 +2413,7 @@ namespace data::encoding::hexidecimal {
     integer<complement::twos, zz> &operator -- (integer<complement::twos, zz> &x) {
 
         if (is_zero (x)) return x = integer<complement::twos, zz> {"0x81"};
-        if (is_negative (x)) return x = -increment (-x);
+        if (is_negative (x)) return x = -math::number::increment<integer<complement::twos, zz>> {} (-x);
         N_decrement (x);
         return x.trim ();
     }

@@ -8,40 +8,17 @@
 namespace data {
     
     template <typename NN> requires requires (const NN &n) {
-        { is_zero (n) } -> std::same_as<bool>;
-        { is_positive (n) } -> std::same_as<bool>;
-        { is_negative (n) } -> std::same_as<bool>;
-        { sign (n) } -> std::same_as<math::signature>;
-        { increment (n) } -> std::same_as<NN>;
-        { decrement (n) } -> std::same_as<NN>;
         { sqrt (n) } -> std::same_as<set<NN>>;
-    } && requires (NN &n) {
-        { ++n } -> std::same_as<NN &>;
-        { n++ } -> std::same_as<NN>;
-        { --n } -> std::same_as<NN &>;
-        { n++ } -> std::same_as<NN>;
     } && requires (const NN &a, const NN &b) {
-        { a == b } -> std::same_as<bool>;
-        { a != b } -> std::same_as<bool>;
-        { a > b } -> std::same_as<bool>;
-        { a < b } -> std::same_as<bool>;
-        { a <= b } -> std::same_as<bool>;
-        { a >= b } -> std::same_as<bool>;
         { a + b } -> std::same_as<NN>;
         { a - b } -> std::same_as<NN>;
         { a * b } -> std::same_as<NN>;
         { a / b } -> std::same_as<NN>;
-        { std::min (a, b) } -> std::same_as<const NN &>;
-        { std::max (a, b) } -> std::same_as<const NN &>;
-    } && requires (NN &a, const NN &b) {
-        { a += b } -> std::same_as<NN &>;
-        { a -= b } -> std::same_as<NN &>;
-        { a *= b } -> std::same_as<NN &>;
     } struct test_whole_number {
         test_whole_number () {}
     };
     
-    template <typename NN> requires std::convertible_to<uint64, NN> && 
+    template <typename NN> requires math::number::natural<NN> && std::convertible_to<uint64, NN> &&
     requires (const NN &n) {
         { uint64 (n) };
         { NN (n) };
@@ -54,12 +31,13 @@ namespace data {
     } && requires (const NN &a, const NN &b) {
         { pow (a, b) } -> std::same_as<NN>;
     } struct test_unsigned_number : test_whole_number<NN> {
-        test_unsigned_number () {
+        test_unsigned_number (string type = "") {
             EXPECT_EQ (N (NN (0)), N (0)) << " number: " << NN (0) << " vs " << N (0) << " merp " << N (NN (0));
 
-            EXPECT_EQ (decrement (NN {0u}), NN {0u});
+            std::cout << " testing decrement for number type " << type << std::endl;
+            EXPECT_EQ (math::number::decrement<NN> {} (NN {0u}), NN {0u});
 
-            EXPECT_EQ (increment (NN {0u}), NN {1u});
+            EXPECT_EQ (math::number::increment<NN> {} (NN {0u}), NN {1u});
 
             EXPECT_FALSE (NN {0u} < NN {0u});
             EXPECT_TRUE (NN {0u} <= NN {0u});
@@ -86,7 +64,7 @@ namespace data {
         }
     };
     
-    template <typename ZZ> requires std::convertible_to<int64, ZZ> && 
+    template <typename ZZ> requires math::number::integer<ZZ> && std::convertible_to<int64, ZZ> &&
     requires (const ZZ &z) {
         { int64 (z) };
         { ZZ (z) };
@@ -101,10 +79,10 @@ namespace data {
         test_signed_number () {
             EXPECT_EQ (Z (ZZ (0)), Z (0));
 
-            EXPECT_EQ (decrement (ZZ {0}), ZZ {-1});
+            EXPECT_EQ (math::number::decrement<ZZ> {} (ZZ {0}), ZZ {-1});
 
-            EXPECT_EQ (increment (ZZ {0}), ZZ {1});
-            EXPECT_EQ (increment (ZZ {-1}), ZZ {0});
+            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {0}), ZZ {1});
+            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {-1}), ZZ {0});
         }
     };
     
@@ -139,7 +117,7 @@ namespace data {
         {b * a};
         {b % a} -> std::convertible_to<NN>;
     } struct test_number_system : test_unsigned_number<NN>, test_signed_number<ZZ> {
-        test_number_system () {}
+        test_number_system (string type = ""): test_unsigned_number<NN> {type}, test_signed_number<ZZ> {} {}
     };
     
     TEST (NumbersTest, TestNumberSystem) {
@@ -148,19 +126,19 @@ namespace data {
         test_number_system<uint64_little, int64_little> {};
         test_number_system<uint64_big, int64_big> {};
 
-        test_number_system<uint_little<9>, int_little<9>> {};
-        test_number_system<uint_big<9>, int_big<9>> {};
-        test_number_system<uint_little<10>, int_little<10>> {};
+        test_number_system<uint_little<9>, int_little<9>> {"uint_little<9>"};
+        test_number_system<uint_big<9>, int_big<9>> {"uint_big<9>"};
+        test_number_system<uint_little<10>, int_little<10>> {"uint_little<10>"};
         test_number_system<uint_big<10>, int_big<10>> {};
         test_number_system<uint_little<11>, int_little<11>> {};
         test_number_system<uint_big<11>, int_big<11>> {};
         test_number_system<uint_little<20>, int_little<20>> {};
         test_number_system<uint_big<20>, int_big<20>> {};
 
-        test_number_system<N, Z> {};
+        test_number_system<N, Z> {"N"};
 
-        test_number_system<N_bytes_little, Z_bytes_little> {};
-        test_number_system<N_bytes_big, Z_bytes_big> {};
+        test_number_system<N_bytes_little, Z_bytes_little> {"N_bytes_little"};
+        test_number_system<N_bytes_big, Z_bytes_big> {"N_bytes_big"};
 
         test_unsigned_number<base58_uint> {};
 

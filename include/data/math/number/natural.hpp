@@ -6,20 +6,52 @@
 #define DATA_MATH_NUMBER_NATURAL
 
 #include <data/types.hpp>
-#include <data/math/countable.hpp>
 #include <data/math/arithmetic.hpp>
 #include <data/math/ordered.hpp>
 #include <data/math/ring.hpp>
 #include <data/math/division.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
+#include <data/math/nonnegative.hpp>
+#include <data/math/abs.hpp>
 #include <data/io/wait_for_enter.hpp>
 
-namespace data::math::number::natural {
+namespace data::math::number {
+
+    template <typename N> struct increment;
+    template <typename N> struct decrement;
+
+    template <typename N> concept natural = ordered<N> && requires (const N &n) {
+        { data::is_zero (n) } -> std::same_as<bool>;
+        { data::is_positive (n) } -> std::same_as<bool>;
+        { data::is_negative (n) } -> std::same_as<bool>;
+        { data::sign (n) } -> std::same_as<math::signature>;
+        { data::abs (n) } -> std::same_as<N>;
+        { increment<N> {} (n) } -> std::same_as<nonzero<N>>;
+    } && requires (const nonzero<N> &n) {
+        { decrement<N> {} (n) } -> std::same_as<N>;
+    } && requires (N &n) {
+        { ++n } -> std::same_as<N &>;
+        { n++ } -> std::same_as<N>;
+        { --n } -> std::same_as<N &>;
+        { n++ } -> std::same_as<N>;
+    } && requires (N &a, const N &b) {
+        { a += b } -> std::same_as<N &>;
+        { a -= b } -> std::same_as<N &>;
+        { a *= b } -> std::same_as<N &>;
+    };
+
+    template <std::unsigned_integral N> struct increment<N> {
+        nonzero<N> operator () (const N &);
+    };
+
+    template <std::unsigned_integral N> struct decrement<N> {
+        N operator () (const nonzero<N> &);
+        N operator () (const N &);
+    };
     
     // Generic division algorithm. 
-    template <typename N>
-    static division<N> divide (const N &Dividend, const N &Divisor) {
+    template <typename N> division<N> natural_divide (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
         if (Divisor == 1) return {Dividend, 0u};
@@ -70,11 +102,33 @@ namespace data::math::number::natural {
         out: 
         return result;
     }
+}
+
+namespace data::math {
+
+    template <number::natural N> struct divide<N, N> {
+        division<N> operator () (const N &Dividend, const N &Divisor) {
+            return number::natural_divide (Dividend, Divisor);
+        }
+    };
     
-    template <typename N> bool inline divides (const N &dividend, const N &divisor) {
-        return divide<N> (dividend, divisor).Remainder == 0;
+}
+
+namespace data::math::number {
+    template <std::unsigned_integral N> nonzero<N> inline increment<N>::operator () (const N &n) {
+        nonzero<N> x {n};
+        ++x.Value;
+        return x;
     }
-    
+
+    template <std::unsigned_integral N> N inline decrement<N>::operator () (const nonzero<N> &n) {
+        return n.Value - 1;
+    }
+
+    template <std::unsigned_integral N> N inline decrement<N>::operator () (const N &n) {
+        if (n == 0) return n;
+        return n - 1;
+    }
 }
 
 namespace data {
@@ -127,72 +181,6 @@ namespace data {
     
     template <size_t N> decimal (const char (&)[N]) -> decimal<N>;
     template <size_t N> decimal (decimal<N>) -> decimal<N>;
-}
-
-// Peano axioms. 
-namespace data::math::number::peano {
-    
-    constexpr decimal zero {"0"};
-    
-    template <auto&> struct 
-    number;
-    
-    template <typename> struct 
-    natural;
-    
-    // axiom 1: zero is a natural number. 
-    template <> struct 
-    natural<number<zero>> {};
-    
-    template <typename, typename> struct 
-    equal;
-    
-    // axiom 2: equality is reflexive.
-    template <typename x> struct 
-    equal<x, x> {};
-    
-    // axiom 3: equality is symmetric. 
-    template <typename x, typename y> 
-    equal<y, x> symmetric_equal (equal<x, y>);
-    
-    // axiom 4: equality is transitive. 
-    template <typename x, typename y, typename z> 
-    equal<x, z> transitive_equal (equal<x, y>, equal<y, z>);
-    
-    template <typename x, typename y> 
-    natural<y> closed_equal (equal<x, y>, natural<x>);
-    
-    template <typename> struct 
-    suc;
-    
-    template <typename x> 
-    natural<suc<x>> closed_successor (natural<x>);
-    
-    template <typename x, typename y>
-    equal<suc<x>, suc<y>> injection_up (equal<x, y>);
-    
-    template <typename x, typename y>
-    equal<x, y> injection_down (equal<suc<x>, suc<y>>);
-    
-    template <template<typename> typename predicate, typename x, typename y> 
-    predicate<x> induction (natural<x>, predicate<number<zero>>, predicate<suc<y>> (*) (natural<y>, predicate<y>));
-    
-    template <typename, typename> struct add;
-    
-    template <typename x> struct
-    equal<add<x, number<zero>>, x> {};
-    
-    template <typename x, typename y> struct
-    equal<add<x, suc<y>>, suc<add<x, y>>> {};
-    
-    template <typename, typename> struct mul;
-    
-    template <typename x> struct
-    equal<mul<x, number<zero>>, number<zero>> {};
-    
-    template <typename x, typename y> struct
-    equal<mul<x, suc<y>>, add<x, mul<x, y>>> {};
-    
 }
 
 #endif
