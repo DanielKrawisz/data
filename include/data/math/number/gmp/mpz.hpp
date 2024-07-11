@@ -14,7 +14,7 @@
 #include <data/math/arithmetic.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
-#include <data/math/division.hpp>
+#include <data/math/number/integer.hpp>
 #include <data/math/number/complement.hpp>
 #include <data/encoding/hex.hpp>
 
@@ -230,29 +230,26 @@ namespace data::math {
     template <> struct sign<Z> {
         math::signature operator () (const Z &x);
     };
-    /*
-    bool is_zero (const N&);
-    bool is_zero (const Z&);
-    
-    bool is_positive (const N&);
-    bool is_positive (const Z&);
-    
-    bool is_negative (const N&);
-    bool is_negative (const Z&);*/
     
 }
 
-namespace data {
-    
-    math::N square (const math::N &n);
-    math::N square (const math::Z &z);
-    
-    math::N increment (const math::N &);
-    math::N decrement (const math::N &);
-    
-    math::Z increment (const math::Z &);
-    math::Z decrement (const math::Z &);
-    
+namespace data::math::number {
+    template <> struct increment<N> {
+        nonzero<N> operator () (const N &);
+    };
+
+    template <> struct decrement<N> {
+        N operator () (const nonzero<N> &);
+        N operator () (const N &);
+    };
+
+    template <> struct increment<Z> {
+        Z operator () (const Z &);
+    };
+
+    template <> struct decrement<Z> {
+        Z operator () (const Z &);
+    };
 }
 
 namespace data::encoding::decimal {

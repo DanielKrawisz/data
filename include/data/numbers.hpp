@@ -129,13 +129,13 @@ namespace data {
 namespace data::math {
     template <> struct divide<uint64, uint64> {
         division<uint64> operator () (uint64 a, uint64 b) {
-            return number::natural::divide (a, b);
+            return number::natural_divide (a, b);
         }
     };
     
     template <> struct divide<int64, int64> {
-        division<int64> operator () (int64 a, int64 b) {
-            return number::natural::divide (a, b);
+        division<int64, uint64> operator () (int64 a, int64 b) {
+            return number::integer_divide (a, b);
         }
     };
 }

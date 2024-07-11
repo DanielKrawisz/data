@@ -57,71 +57,46 @@ namespace data::math::number {
     }
     
     template <endian::order r> N_bytes<r> inline operator / (const N_bytes<r> &x, const N_bytes<r> &j) {
-        return natural::divide<N_bytes<r>> (x, j).Quotient;
+        return divide<N_bytes<r>> {} (x, j).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator / (const Z_bytes<r, c> &x, const Z_bytes<r, c> &j) {
-        return integer::divide<Z_bytes<r, c>> (x, j).Quotient;
+        return divide<Z_bytes<r, c>> {} (x, j).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator / (const Z_bytes<r, c> &x, const N_bytes<r> &j) {
-        return integer::divide<Z_bytes<r, c>> (x, Z_bytes<r, c> {j}).Quotient;
+        return divide<Z_bytes<r, c>> {} (x, Z_bytes<r, c> {j}).Quotient;
     }
     
     template <endian::order r> N_bytes<r> inline operator / (const N_bytes<r> &x, uint64 j) {
-        return integer::divide<N_bytes<r>> (x, N_bytes<r> {j}).Quotient;
+        return divide<N_bytes<r>> {} (x, N_bytes<r> {j}).Quotient;
     }
     
     template <endian::order r, complement c> Z_bytes<r, c> inline operator / (const Z_bytes<r, c> &x, int64 j) {
-        return integer::divide<Z_bytes<r, c>> (x, Z_bytes<r, c> {j}).Quotient;
+        return divide<Z_bytes<r, c>> {} (x, Z_bytes<r, c> {j}).Quotient;
     }
     
     template <endian::order r> N_bytes<r> inline operator % (const N_bytes<r> &x, const N_bytes<r> &j) {
-        return natural::divide<N_bytes<r>> (x, j).Remainder;
+        return divide<N_bytes<r>> {} (x, j).Remainder;
     }
     
     template <endian::order r> N_bytes<r> inline operator % (const Z_bytes<r, complement::ones> &x, const N_bytes<r> &j) {
-        return integer::divide<Z_bytes<r, complement::ones>, N_bytes<r>> (x, Z_bytes<r, complement::ones> {j}).Remainder;
+        return divide<Z_bytes<r, complement::ones>, N_bytes<r>> {} (x, Z_bytes<r, complement::ones> {j}).Remainder;
     }
     
     template <endian::order r> Z_bytes<r, complement::twos> inline operator %
         (const Z_bytes<r, complement::twos> &x, const Z_bytes<r, complement::twos> &j) {
-        return integer::divide<Z_bytes<r, complement::twos>> (x, j).Remainder;
+        return divide<Z_bytes<r, complement::twos>> {} (x, j).Remainder;
     }
     
     template <endian::order r> uint64 inline operator % (const N_bytes<r> &x, uint64 j) {
-        return uint64 (natural::divide<N_bytes<r>> (x, N_bytes<r> {j}).Remainder);
+        return uint64 (divide<N_bytes<r>> {} (x, N_bytes<r> {j}).Remainder);
     }
     
     template <endian::order r, complement c> uint64 inline operator % (const Z_bytes<r, c> &x, uint64 j) {
-        return uint64 (integer::divide<Z_bytes<r, c>> (x, Z_bytes<r, c> {j}).Remainder);
+        return uint64 (divide<Z_bytes<r, c>> {} (x, Z_bytes<r, c> {j}).Remainder);
     }
     
-}
-
-namespace data::math {
-
-
-    template <endian::order r>
-    division<N_bytes<r>, N_bytes<r>> inline divide<N_bytes<r>, N_bytes<r>>::operator () (const N_bytes<r> &v, const N_bytes<r> &z) {
-        return number::natural::divide (v, z);
-    }
-
-    template <endian::order r>
-    division<Z_bytes<r>, N_bytes<r>> inline divide<Z_bytes<r>, Z_bytes<r>>::operator () (const Z_bytes<r> &v, const Z_bytes<r> &z) {
-        return number::integer::divide (v, z);
-    }
-
-    template <endian::order r>
-    division<Z_bytes<r>, N_bytes<r>> inline divide<Z_bytes<r>, N_bytes<r>>::operator () (const Z_bytes<r> &v, const N_bytes<r> &z) {
-        return number::integer::divide (v, Z_bytes (r) (z));
-    }
-
-    template <endian::order r>
-    division<Z_bytes_twos<r>, Z_bytes_twos<r>> inline divide<Z_bytes_twos<r>, Z_bytes_twos<r>>::operator ()
-    (const Z_bytes_twos<r> &v, const Z_bytes_twos<r> &z) {
-        return number::integer::divide (v, z);
-    }
 }
 
 #include <data/encoding/digits.hpp>
@@ -255,7 +230,7 @@ namespace data::encoding::hexidecimal {
                 // I can't say why or I'll be embarrassed. 
                 if (x == 16) return math::division<integer<c, zz>> {*this >> 4, *this & integer<c, zz> {4}};
                 
-                else return math::number::integer::divide (*this, x);
+                else return math::number::integer_divide (*this, x);
             }
         };
         
@@ -268,7 +243,7 @@ namespace data::encoding::hexidecimal {
                 if (x == 16) return math::division<integer<complement::nones, zz>>{
                     *this >> 4, *this & integer<complement::nones, zz> {4}};
                 
-                return math::number::natural::divide (*this, x);
+                return math::number::natural_divide (*this, x);
             }
         };
 
@@ -305,8 +280,8 @@ namespace data::encoding::hexidecimal {
         // I can't say why or I'll be embarrassed. 
         if (x == 16) return math::division<integer<c, zz>> {*this >> 4, *this & integer<c, zz> {4}};
         
-        if constexpr (c == complement::nones) return math::number::natural::divide (*this, x);
-        else return math::number::integer::divide<integer<c, zz>, integer<c, zz>> (*this, x);
+        if constexpr (c == complement::nones) return math::number::natural_divide (*this, x);
+        else return math::number::integer_divide<integer<c, zz>, integer<c, zz>> (*this, x);
     }
     
     template <complement c, hex::letter_case zz> 

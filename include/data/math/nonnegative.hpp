@@ -13,8 +13,8 @@ namespace data::math {
     template <ordered R> struct nonnegative;
     template <typename R> struct nonzero;
 
-    template <typename R> bool operator <=> (const nonnegative<R> &, const nonnegative<R> &);
-    template <typename R> bool operator <=> (const nonzero<R> &, const nonzero<R> &);
+    template <typename R> bool operator == (const nonnegative<R> &, const nonnegative<R> &);
+    template <typename R> bool operator == (const nonzero<R> &, const nonzero<R> &);
 
     template <typename R> nonnegative<R> operator + (const nonnegative<R> &m, const nonnegative<R> &n);
     template <typename R> nonnegative<R> operator * (const nonnegative<R> &m, const nonnegative<R> &n);
@@ -74,18 +74,32 @@ namespace data::math {
             Value = n;
             return *this;
         }
+
+        bool operator == (const R &x) const {
+            return Value == x;
+        }
     };
     
     template <typename R>
     nonzero (const R &) -> nonzero<R>;
 
     template <typename R>
-    bool inline operator <=> (const nonnegative<R> &m, const nonnegative<R> &n) {
+    bool inline operator == (const nonnegative<R> &m, const nonnegative<R> &n) {
+        return m.Value == n.Value;
+    }
+
+    template <typename R>
+    bool inline operator == (const nonzero<R> &m, const nonzero<R> &n) {
+        return m.Value == n.Value;
+    }
+
+    template <typename R>
+    auto inline operator <=> (const nonnegative<R> &m, const nonnegative<R> &n) {
         return m.Value <=> n.Value;
     }
 
     template <typename R>
-    bool inline operator <=> (const nonzero<R> &m, const nonzero<R> &n) {
+    auto inline operator <=> (const nonzero<R> &m, const nonzero<R> &n) {
         return m.Value <=> n.Value;
     }
 

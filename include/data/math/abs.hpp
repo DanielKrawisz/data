@@ -23,10 +23,6 @@ namespace data {
     auto quadrance (const X &x) -> decltype (math::abs<X> {} (x)) {
         return math::quadrance<X> {} (x);
     }
-    
-    template <typename X> auto inline norm (const X &x) -> decltype (quadrance (x)) {
-        return quadrance (x);
-    }
 }
 
 namespace data::math {

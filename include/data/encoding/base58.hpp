@@ -147,9 +147,6 @@ namespace data::encoding::base58 {
 
 namespace data {
     using base58_uint = encoding::base58::string;
-    
-    base58_uint increment (const base58_uint &);
-    base58_uint decrement (const base58_uint &);
 }
 
 namespace data::math {
@@ -186,31 +183,31 @@ namespace data::math {
             return {encoding::base58::encode (d.Quotient), encoding::base58::encode (d.Remainder)};
         }
     };
-    
+
 }
 
-namespace data {
+namespace data::math::number {
+
+    template <> struct increment<base58_uint> {
+        nonzero<base58_uint> operator () (const base58_uint &);
+    };
+
+    template <> struct decrement<base58_uint> {
+        base58_uint operator () (const nonzero<base58_uint> &);
+        base58_uint operator () (const base58_uint &);
+    };
     
-    base58_uint inline increment (const base58_uint &n) {
-        auto x = n;
-        return ++x;
-    }
-    
-    base58_uint inline decrement (const base58_uint &n) {
-        auto x = n;
-        return --x;
-    }
 }
 
 namespace data::math {
 
     signature inline sign<base58_uint>::operator () (const base58_uint &u) {
-        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string: \"" << u << "\"";
+        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string provided to sign: " << u;
         return encoding::base58::nonzero (u) ? math::positive : math::zero;
     }
     
     base58_uint inline abs<base58_uint>::operator () (const base58_uint &u) {
-        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string: \"" << u << "\"";
+        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string provided to abs: " << u;
         return u;
     }
     
@@ -219,12 +216,12 @@ namespace data::math {
     }
     
     bool inline is_zero<base58_uint>::operator () (const base58_uint &n) {
-        if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!encoding::base58::valid (n)) throw exception {} << "invalid base 58 string provided to is_zero: " << n;
         return !encoding::base58::nonzero (n);
     }
     
     bool inline is_negative<base58_uint>::operator () (const base58_uint &n) {
-        if (encoding::base58::valid (n)) throw exception {} << "invalid base 58 string: \"" << n << "\"";
+        if (!encoding::base58::valid (n)) throw exception {} << "invalid base 58 string provided to is_negative: " << n;
         return false;
     }
 }
@@ -285,6 +282,27 @@ namespace data::encoding::base58 {
     
     inline string::string (uint64 x) : string {encode (math::N {x})} {}
     
+}
+
+namespace data::math::number {
+
+    nonzero<base58_uint> inline increment<base58_uint>::operator () (const base58_uint &u) {
+        nonzero<base58_uint> x {u};
+        ++x.Value;
+        return x;
+    }
+
+    base58_uint inline decrement<base58_uint>::operator () (const nonzero<base58_uint> &u) {
+        auto x = u.Value;
+        return --x;
+    }
+
+    base58_uint inline decrement<base58_uint>::operator () (const base58_uint &u) {
+        if (data::is_zero (u)) return u;
+        auto x = u;
+        return --x;
+    }
+
 }
 
 #endif

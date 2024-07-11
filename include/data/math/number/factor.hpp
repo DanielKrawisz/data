@@ -33,7 +33,7 @@ namespace data::math::number {
             // search for the next prime factor.
             while (true) {
                 p = P.first ();
-                d = math::number::natural::divide (x, p.Prime);
+                d = math::number::natural_divide (x, p.Prime);
 
                 // in this case, the number itself must be prime.
                 if (d.Quotient < p.Prime) {
@@ -54,7 +54,7 @@ namespace data::math::number {
             power<prime<N>, N> factor {p, 1};
 
             while (true) {
-                division<N> d = math::number::natural::divide (x, factor.Base.Prime);
+                division<N> d = math::number::natural_divide (x, factor.Base.Prime);
                 if (d.Remainder != 0) break;
                 factor.Exponent++;
                 x = d.Quotient;

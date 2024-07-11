@@ -5,6 +5,7 @@
 #ifndef DATA_MATH_RING
 #define DATA_MATH_RING
 
+#include <data/math/nonnegative.hpp>
 #include <data/math/group.hpp>
 
 namespace data::math {

@@ -101,8 +101,8 @@ namespace data::math::number {
     };
 
     template <typename Z> requires requires (const Z &z) {
-        { increment (z) } -> std::same_as<Z>;
-        { decrement (z) } -> std::same_as<Z>;
+        { increment<Z> {} (z) } -> std::same_as<Z>;
+        { decrement<Z> {} (z) } -> std::same_as<Z>;
     } struct test_increment_and_decrement {
         test_increment_and_decrement () {
 
@@ -125,8 +125,8 @@ namespace data::math::number {
             Z given = Z::read (from);
             Z expected = Z::read (to);
 
-            Z incremented = increment (given);
-            Z decremented = decrement (expected);
+            Z incremented = increment<Z> {} (given);
+            Z decremented = decrement<Z> {} (expected);
 
             EXPECT_TRUE (is_minimal (incremented));
             EXPECT_TRUE (is_minimal (decremented));

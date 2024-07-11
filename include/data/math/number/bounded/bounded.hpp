@@ -116,6 +116,15 @@ namespace data::math {
     template <bool is_signed, endian::order r, size_t size> 
     struct associative<times<number::bounded<is_signed, r, size>>, 
         number::bounded<is_signed, r, size>> {};
+
+    template <bool is_signed, endian::order r, size_t size>
+    struct times<number::bounded<is_signed, r, size>> {
+        number::bounded<is_signed, r, size> operator ()
+        (const number::bounded<is_signed, r, size> &a, const number::bounded<is_signed, r, size> &b);
+
+        nonzero<number::bounded<is_signed, r, size>> operator ()
+        (const nonzero<number::bounded<is_signed, r, size>> &a, const nonzero<number::bounded<is_signed, r, size>> &b);
+    };
     
     template <bool u, endian::order r, size_t x> struct first<number::bounded<u, r, x>> {
         number::bounded<u, r, x> operator () ();
@@ -184,13 +193,6 @@ namespace data::math {
 
 }
 
-namespace data {
-    
-    template <bool u, endian::order r, size_t x> math::number::bounded<u, r, x> increment (const math::number::bounded<u, r, x> &);
-    template <bool u, endian::order r, size_t x> math::number::bounded<u, r, x> decrement (const math::number::bounded<u, r, x> &);
-    
-} 
-
 namespace data::encoding::decimal {
 
     struct string;
@@ -233,6 +235,23 @@ namespace data::encoding::hexidecimal {
 
 
 namespace data::math::number {
+
+    template <endian::order r, size_t x> struct increment<uint<r, x>> {
+        nonzero<uint<r, x>> operator () (const uint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct decrement<uint<r, x>> {
+        uint<r, x> operator () (const nonzero<uint<r, x>> &);
+        uint<r, x> operator () (const uint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct increment<sint<r, x>> {
+        sint<r, x> operator () (const sint<r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct decrement<sint<r, x>> {
+        sint<r, x> operator () (const sint<r, x> &);
+    };
     
     template <data::endian::order r, size_t x>
     std::ostream &operator << (std::ostream &s, const uint<r, x> &n);
@@ -603,25 +622,6 @@ namespace data::math::number {
 
 namespace data {
     
-    template <bool u, endian::order r, size_t x>
-    math::number::bounded<u, r, x> inline increment (const math::number::bounded<u, r, x> &n) {
-        auto z = n;
-        return ++z;
-    }
-    
-    template <endian::order r, size_t x>
-    math::number::bounded<true, r, x> inline decrement (const math::number::bounded<true, r, x> &n) {
-        auto z = n;
-        return --z;
-    }
-
-    template <endian::order r, size_t x>
-    math::number::bounded<false, r, x> inline decrement (const math::number::bounded<false, r, x> &n) {
-        if (n == 0) return 0;
-        auto z = n;
-        return --z;
-    }
-
     namespace encoding::hexidecimal {
 
         template <bool is_signed, endian::order r, size_t size>
@@ -647,6 +647,35 @@ namespace data {
 }
 
 namespace data::math::number {
+
+    template <endian::order r, size_t x> nonzero<uint<r, x>> inline increment<uint<r, x>>::operator () (const uint<r, x> &n) {
+        if (n == uint<r, x>::max ()) throw exception {} << "cannot increment";
+        return nonzero<uint<r, x>> {n + 1};
+    }
+
+    template <endian::order r, size_t x> uint<r, x> inline decrement<uint<r, x>>::operator () (const nonzero<uint<r, x>> &n) {
+        auto z = n.Value;
+        return --z;
+    }
+
+    template <endian::order r, size_t x> uint<r, x> inline decrement<uint<r, x>>::operator () (const uint<r, x> &n) {
+        std::cout << " + decrementing " << n << std::endl;
+        if (data::is_zero (n)) return n;
+        auto z = n;
+        return --z;
+    }
+
+    template <endian::order r, size_t x> sint<r, x> inline increment<sint<r, x>>::operator () (const sint<r, x> &n) {
+        if (n == sint<r, x>::max ()) throw exception {} << "cannot increment";
+        auto z = n;
+        return ++z;
+    }
+
+    template <endian::order r, size_t x> sint<r, x> inline decrement<sint<r, x>>::operator () (const sint<r, x> &n) {
+        if (n == sint<r, x>::min ()) throw exception {} << "cannot decrement";
+        auto z = n;
+        return --z;
+    }
     
     template <endian::order r, size_t size>
     std::strong_ordering operator <=> (const sint<r, size> &a, const sint<r, size> &b) {
