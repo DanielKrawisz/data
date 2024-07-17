@@ -176,7 +176,7 @@ namespace data::encoding {
         string operator + (const string &, const string &);
         string operator - (const string &, const string &);
         string operator * (const string &, const string &);
-            
+
         string operator << (const string &, int);
         string operator >> (const string &, int);
         

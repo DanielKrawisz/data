@@ -18,6 +18,8 @@
 #include <data/math/number/complement.hpp>
 #include <data/encoding/hex.hpp>
 
+#include <string>
+
 namespace data::math::number::GMP {
     
     typedef mp_limb_t gmp_uint;
@@ -41,63 +43,194 @@ namespace data::math::number::GMP {
         return !valid (mpz) ? zero : math::signature {mpz_cmp_si (&mpz, 0)};
     }
     
+    struct Z {
+        mpz_t MPZ;
+
+        Z ();
+
+        //Z (const N &);
+
+        virtual ~Z ();
+
+        Z (gmp_int n);
+
+        static Z read (string_view x);
+
+        explicit Z (const std::string &x);
+
+        Z (const Z &n);
+
+        Z (Z &&n);
+
+        Z &operator = (const Z &n);
+
+        Z &operator = (Z &&n);
+
+        size_t size () const;
+
+        using index = uint32;
+
+        mp_limb_t &operator [] (index i);
+
+        const mp_limb_t &operator [] (index i) const;
+
+        mp_limb_t *begin ();
+
+        mp_limb_t *end ();
+
+        const mp_limb_t *begin () const;
+
+        const mp_limb_t *end () const;
+
+        explicit operator int64 () const;
+
+        explicit operator double () const;
+
+        Z operator ^ (uint32 n) const;
+
+        Z& operator ^= (uint32 n);
+
+        //division<Z, N> divide (const Z &z) const;
+
+    };
+
+    bool operator == (const Z &, const Z &);
+
+    std::weak_ordering operator <=> (const Z &, const Z &);
+
+    bool operator == (const Z &, int64);
+
+    std::weak_ordering operator <=> (const Z &, int64);
+
+    Z operator - (const Z &);
+
+    Z operator + (const Z &, const Z &);
+    Z operator - (const Z &, const Z &);
+    Z operator * (const Z &, const Z &);
+
+    Z operator + (const Z &, int64);
+    Z operator - (const Z &, int64);
+    Z operator * (const Z &, int64);
+
+    Z operator + (int64, const Z &);
+    Z operator - (int64, const Z &);
+    Z operator * (int64, const Z &);
+
+    Z operator / (const Z &, const Z &);
+    Z operator / (const Z &, int64);
+
+    Z operator | (const Z &, const Z &);
+    Z operator & (const Z &, const Z &);
+
+    Z &operator ++ (Z &);
+    Z &operator -- (Z &);
+
+    Z operator ++ (Z &, int);
+    Z operator -- (Z &, int);
+}
+
+namespace data::math {
+    using Z = number::GMP::Z;
+
+    template <> struct times<Z> {
+        Z operator () (const Z &a, const Z &b);
+        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
+    };
+
+    template <> struct commutative<plus<Z>, Z> {};
+    template <> struct associative<plus<Z>, Z> {};
+    template <> struct commutative<times<Z>, Z> {};
+    template <> struct associative<times<Z>, Z> {};
+
+    template <> struct identity<plus<Z>, Z> {
+        Z operator () ();
+    };
+
+    template <> struct inverse<plus<Z>, Z> {
+        Z operator () (const Z &a, const Z &b);
+    };
+
+    template <> struct inverse<times<Z>, Z> {
+        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
+    };
+
+    template <> struct identity<times<Z>, Z> {
+        Z operator () ();
+    };
+
+    template <> struct sign<Z> {
+        math::signature operator () (const Z &x);
+    };
+}
+
+namespace data::math::number {
+
+    template <> struct increment<Z> {
+        Z operator () (const Z &);
+    };
+
+    template <> struct decrement<Z> {
+        Z operator () (const Z &);
+    };
+}
+
+namespace data::math::number::GMP {
+
+    Z &operator += (Z &, const Z &);
+    Z &operator -= (Z &, const Z &);
+    Z &operator *= (Z &, const Z &);
+
+    Z &operator += (Z &, int64);
+    Z &operator -= (Z &, int64);
+    Z &operator *= (Z &, int64);
+
+    Z &operator &= (Z &, const Z &);
+    Z &operator |= (Z &, const Z &);
+
+    Z &operator <<= (Z &, int);
+    Z &operator >>= (Z &, int);
+}
+
+static_assert (data::math::number::integer<data::math::Z>);
+
+namespace data::math::number::GMP {
     struct N;
-    struct Z;
 
     bool operator == (const N &, const N &);
 
     std::weak_ordering operator <=> (const N &, const N &);
-    
-    bool operator == (const Z &, const Z &);
-    
-    std::weak_ordering operator <=> (const Z &, const Z &);
-    
+
     bool operator == (const Z &, const N &);
-    
+
     std::weak_ordering operator <=> (const Z &, const N &);
-    
-    bool operator == (const Z &, int64);
-    
-    std::weak_ordering operator <=> (const Z &, int64);
-    
+
     bool operator == (const N &, uint64);
-    
+
     std::weak_ordering operator <=> (const N &, int64);
-    
+
     Z operator - (const N &);
-    Z operator - (const Z &);
-    
+
     N operator + (const N &, const N &);
     N operator - (const N &, const N &);
     N operator * (const N &, const N &);
-    
-    Z operator + (const Z &, const Z &);
-    Z operator - (const Z &, const Z &);
-    Z operator * (const Z &, const Z &);
-    
+
     Z operator + (const N &, const Z &);
     Z operator - (const N &, const Z &);
     Z operator * (const N &, const Z &);
-    
+
     Z operator + (const Z &, const N &);
     Z operator - (const Z &, const N &);
     Z operator * (const Z &, const N &);
+
+    std::ostream &operator << (std::ostream& o, const Z &n);
     
     N operator + (const N &, uint64);
     N operator - (const N &, uint64);
     N operator * (const N &, uint64);
     
-    Z operator + (const Z &, int64);
-    Z operator - (const Z &, int64);
-    Z operator * (const Z &, int64);
-    
     N operator + (uint64, const N &);
     N operator - (uint64, const N &);
     N operator * (uint64, const N &);
-    
-    Z operator + (int64, const Z &);
-    Z operator - (int64, const Z &);
-    Z operator * (int64, const Z &);
     
     // exponential 
     N operator ^ (const N &, const N &);
@@ -108,11 +241,9 @@ namespace data::math::number::GMP {
     
     // divided by
     N operator / (const N &, const N &);
-    Z operator / (const Z &, const Z &);
     Z operator / (const Z &, const N &);
     
     N operator / (const N &, uint64);
-    Z operator / (const Z &, int64);
     
     // mod
     N operator % (const N &, const N &);
@@ -125,9 +256,6 @@ namespace data::math::number::GMP {
     N operator | (const N &, const N &);
     N operator & (const N &, const N &);
     
-    Z operator | (const Z &, const Z &);
-    Z operator & (const Z &, const Z &);
-    
     // bit shift, which really just means 
     // powers of two. 
     N operator << (const N &, int);
@@ -139,25 +267,18 @@ namespace data::math::number::GMP {
     // pre increment
     N &operator ++ (N &);
     N &operator -- (N &);
-        
-    Z &operator ++ (Z &);
-    Z &operator -- (Z &);
     
     // post increment
     N operator ++ (N &, int);
     N operator -- (N &, int);
-        
-    Z operator ++ (Z &, int);
-    Z operator -- (Z &, int);
     
-    std::ostream& operator << (std::ostream& o, const N &n);
-    std::ostream& operator << (std::ostream& o, const Z &n);
+    std::ostream &operator << (std::ostream& o, const N &n);
     
 }
 
 namespace data::math {
+
     using N = number::GMP::N;
-    using Z = number::GMP::Z;
     
     template <> struct abs<N> { 
         N operator () (const N &);
@@ -171,44 +292,18 @@ namespace data::math {
         N operator () (const N &a, const N &b);
         nonzero<N> operator () (const nonzero<N> &a, const nonzero<N> &b);
     };
-
-    template <> struct times<Z> {
-        Z operator () (const Z &a, const Z &b);
-        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
-    };
     
     template <> struct commutative<plus<N>, N> {};
     template <> struct associative<plus<N>, N> {};
     template <> struct commutative<times<N>, N> {};
     template <> struct associative<times<N>, N> {};
     
-    template <> struct commutative<plus<Z>, Z> {};
-    template <> struct associative<plus<Z>, Z> {};
-    template <> struct commutative<times<Z>, Z> {};
-    template <> struct associative<times<Z>, Z> {};
-    
     template <> struct identity<plus<N>, N> {
         N operator () ();
     };
-    
-    template <> struct identity<plus<Z>, Z> {
-        Z operator () ();
-    };
-    
+
     template <> struct identity<times<N>, N> {
         N operator () ();
-    };
-    
-    template <> struct identity<times<Z>, Z> {
-        Z operator () ();
-    };
-    
-    template <> struct inverse<plus<Z>, Z> {
-        Z operator () (const Z &a, const Z &b);
-    };
-
-    template <> struct inverse<times<Z>, Z> {
-        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
     };
 
     template <> struct divide<N, N> {
@@ -226,10 +321,6 @@ namespace data::math {
     template <> struct sign<N> {
         math::signature operator () (const N &x);
     };
-
-    template <> struct sign<Z> {
-        math::signature operator () (const Z &x);
-    };
     
 }
 
@@ -241,14 +332,6 @@ namespace data::math::number {
     template <> struct decrement<math::N> {
         math::N operator () (const nonzero<math::N> &);
         math::N operator () (const math::N &);
-    };
-
-    template <> struct increment<Z> {
-        Z operator () (const Z &);
-    };
-
-    template <> struct decrement<Z> {
-        Z operator () (const Z &);
     };
 }
 
@@ -287,10 +370,6 @@ namespace data::math::number::GMP {
     N &operator -= (N &, const N &);
     N &operator *= (N &, const N &);
     
-    Z &operator += (Z &, const Z &);
-    Z &operator -= (Z &, const Z &);
-    Z &operator *= (Z &, const Z &);
-    
     Z &operator += (N &, const Z &);
     Z &operator -= (N &, const Z &);
     Z &operator *= (N &, const Z &);
@@ -303,15 +382,8 @@ namespace data::math::number::GMP {
     N &operator -= (N &, uint64);
     N &operator *= (N &, uint64);
     
-    Z &operator += (Z &, int64);
-    Z &operator -= (Z &, int64);
-    Z &operator *= (Z &, int64);
-    
     N &operator &= (N &, const N &);
     N &operator |= (N &, const N &);
-    
-    Z &operator &= (Z &, const Z &);
-    Z &operator |= (Z &, const Z &);
     
     Z &operator &= (N &, const Z &);
     Z &operator |= (N &, const Z &);
@@ -333,9 +405,6 @@ namespace data::math::number::GMP {
     
     N &operator <<= (N &, int);
     N &operator >>= (N &, int);
-    
-    Z &operator <<= (Z &, int);
-    Z &operator >>= (Z &, int);
     
 }
 

@@ -15,6 +15,9 @@ namespace data::math::number::GMP {
     
     struct N {
         Z Value;
+        operator Z () const {
+            return Value;
+        }
         
         N () : Value {} {}
         
@@ -45,7 +48,8 @@ namespace data::math::number::GMP {
         };
         
         math::division<N> divide (const N &n) const {
-            auto div = Value.divide (n.Value);
+            if (n == 0) throw division_by_zero {};
+            auto div = math::divide<Z> {} (Value, nonzero<Z> {n.Value});
             return math::division<N> {N {div.Quotient}, N {div.Remainder}};
         }
         
@@ -88,35 +92,42 @@ namespace data::math::number::GMP {
     }
     
     Z inline operator / (const Z &a, const Z &z) {
-        return a.divide (z).Quotient;
+        if (z == 0) throw division_by_zero {};
+        return divide<Z> {} (a, nonzero<Z> {z}).Quotient;
     }
     
     N inline operator % (const Z &a, const N &z) {
-        return a.divide (z).Remainder;
+        if (z == 0) throw division_by_zero {};
+        return divide<Z, N> {} (a, nonzero<N> {z}).Remainder;
     }
     
     uint64 inline operator % (const N &a, uint64 b) {
-        return uint64 (a.divide (b).Remainder);
+        if (b == 0) throw division_by_zero {};
+        return uint64 (divide<N> {} (a, nonzero<N> {N (b)}).Remainder);
     }
     
     uint64 inline operator % (const Z &a, uint64 b) {
-        return uint64 (a.divide (b).Remainder);
+        if (b == 0) throw division_by_zero {};
+        return uint64 (divide<Z, N> {} (a, nonzero<N> {N (b)}).Remainder);
     }
     
     N inline operator / (const N &a, const N &n) {
-        return a.divide (n).Quotient;
+        if (n == 0) throw division_by_zero {};
+        return divide<N> {} (a, nonzero<N> {n}).Quotient;
     }
     
     N inline operator / (const N &a, uint64 b) {
-        return a.divide (N {b}).Quotient;
+        if (b == 0) throw division_by_zero {};
+        return divide<N> {} (a, nonzero<N> {N (b)}).Quotient;
     }
     
     N inline operator % (const N &a, const N &n) {
-        return a.divide (n).Remainder;
+        if (n == 0) throw division_by_zero {};
+        return divide<N> {} (a, nonzero<N> {n}).Remainder;
     }
     
     N inline &operator %= (N &a, const N &n) {
-        return a = a.divide (n).Remainder;
+        return a = a % n;
     }
     
     N inline &operator /= (N &a, const N& n) {
@@ -233,7 +244,7 @@ namespace data::math::number::GMP {
     }
     
     N inline operator + (const N &z, const N &n) {
-        N sum{};
+        N sum {};
         __gmp_binary_plus::eval(sum.Value.MPZ, z.Value.MPZ, n.Value.MPZ);
         return sum;
     }
@@ -251,7 +262,7 @@ namespace data::math::number::GMP {
         return sum;
     }
     
-    N inline operator-(const N &z, uint64 n) {
+    N inline operator - (const N &z, uint64 n) {
         if (z <= n) return N {0};
         N sum{};
         __gmp_binary_minus::eval(sum.Value.MPZ, z.Value.MPZ, n);
@@ -334,12 +345,12 @@ namespace data::math::number::GMP {
         __gmp_binary_rshift::eval (a.Value.MPZ, a.Value.MPZ, x);
         return a;
     }
-    
+    /*
     division<Z, N> inline Z::divide (const Z& z) const {
         division<Z, N> qr {};
         mpz_fdiv_qr (qr.Quotient.MPZ, qr.Remainder.Value.MPZ, MPZ, z.MPZ);
         return qr;
-    }
+    }*/
     
 }
 
