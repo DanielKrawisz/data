@@ -9,8 +9,6 @@
 
 namespace data::math::number::GMP {
     
-    Z::Z (const N &n) : Z {n.Value} {}
-    
     Z Z_read_N_gmp (string_view s) {
         Z z {};
         //mpz_init(z.MPZ);

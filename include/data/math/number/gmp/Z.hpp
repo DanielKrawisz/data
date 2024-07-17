@@ -13,100 +13,82 @@
 namespace data::math::number::GMP {
     
     struct N;
-    
-    struct Z {
-        mpz_t MPZ;
-        
-        Z (): Z {0} {}
-        
-        Z (const N &);
-        
-        virtual ~Z () {
-            mpz_clear (MPZ);
-        }
-        
-        Z (gmp_int n) : MPZ {} {
-            mpz_init_set_si (MPZ, n);
-        }
-        
-        static Z read (string_view x);
-        
-        explicit Z (const string &x) : Z {read (x)} {};
-        
-        Z (const Z &n) {
-            mpz_init (MPZ);
-            mpz_set (MPZ, n.MPZ);
-        }
-        
-        Z (Z &&n) : Z {} {
-            mpz_swap (MPZ, n.MPZ);
-        }
-        
-        Z& operator = (const Z &n) {
-            mpz_set (MPZ, n.MPZ);
-            return *this;
-        }
-        
-        Z& operator = (Z &&n) {
-            mpz_swap (MPZ, n.MPZ);
-            return *this;
-        }
-        
-        size_t size () const {
-            return GMP::size (MPZ[0]);
-        }
-        
-        using index = uint32;
-        
-        mp_limb_t &operator [] (index i) {
-            if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
-            return *(MPZ[0]._mp_d + i);
-        }
-        
-        const mp_limb_t &operator [] (index i) const {
-            if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
-            return *(MPZ[0]._mp_d + i);
-        }
-        
-        mp_limb_t *begin () {
-            return MPZ[0]._mp_d;
-        }
-        
-        mp_limb_t *end () {
-            return MPZ[0]._mp_d + MPZ[0]._mp_alloc;
-        }
-        
-        const mp_limb_t *begin () const {
-            return MPZ[0]._mp_d;
-        }
-        
-        const mp_limb_t *end () const {
-            return MPZ[0]._mp_d + MPZ[0]._mp_alloc;
-        };
-        
-        explicit operator int64 () const;
-        
-        explicit operator double () const {
-            return mpz_get_d (MPZ);
-        }
-        
-        Z operator ^ (uint32 n) const {
-            Z pow {};
-            mpz_pow_ui (pow.MPZ, MPZ, n);
-            return pow;
-        }
-        
-        Z& operator ^= (uint32 n) {
-            mpz_pow_ui (MPZ, MPZ, n);
-            return *this;
-        }
-        
-        division<Z, N> divide (const Z &z) const;
-        
-        template <endian::order o> 
-        explicit Z (const N_bytes<o> &b) : Z (bytes_view (b), o) {}
-        
+
+    inline Z::Z (): Z {0} {}
+
+    inline Z::~Z () {
+        mpz_clear (MPZ);
+    }
+
+    inline Z::Z (gmp_int n) : MPZ {} {
+        mpz_init_set_si (MPZ, n);
+    }
+
+    inline Z::Z (const std::string &x) : Z {read (x)} {};
+
+    inline Z::Z (const Z &n) {
+        mpz_init (MPZ);
+        mpz_set (MPZ, n.MPZ);
+    }
+
+    inline Z::Z (Z &&n) : Z {} {
+        mpz_swap (MPZ, n.MPZ);
+    }
+
+    Z inline &Z::operator = (const Z &n) {
+        mpz_set (MPZ, n.MPZ);
+        return *this;
+    }
+
+    Z inline &Z::operator = (Z &&n) {
+        mpz_swap (MPZ, n.MPZ);
+        return *this;
+    }
+
+    size_t inline Z::size () const {
+        return GMP::size (MPZ[0]);
+    }
+
+    mp_limb_t inline &Z::operator [] (Z::index i) {
+        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
+        return *(MPZ[0]._mp_d + i);
+    }
+
+    const mp_limb_t inline &Z::operator [] (Z::index i) const {
+        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
+        return *(MPZ[0]._mp_d + i);
+    }
+
+    mp_limb_t inline *Z::begin () {
+        return MPZ[0]._mp_d;
+    }
+
+    mp_limb_t inline *Z::end () {
+        return MPZ[0]._mp_d + MPZ[0]._mp_alloc;
+    }
+
+    const mp_limb_t inline *Z::begin () const {
+        return MPZ[0]._mp_d;
+    }
+
+    const mp_limb_t inline *Z::end () const {
+        return MPZ[0]._mp_d + MPZ[0]._mp_alloc;
     };
+
+    inline Z::operator double () const {
+        return mpz_get_d (MPZ);
+    }
+
+    Z inline Z::operator ^ (uint32 n) const {
+        Z pow {};
+        mpz_pow_ui (pow.MPZ, MPZ, n);
+        return pow;
+    }
+
+    Z inline &Z::operator ^= (uint32 n) {
+        mpz_pow_ui (MPZ, MPZ, n);
+        return *this;
+    }
     
     bool inline operator == (const Z &a, const Z &b) {
         return a <=> b == 0;

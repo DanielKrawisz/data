@@ -162,7 +162,7 @@ namespace data::encoding {
         EXPECT_EQ (hex_int {27} * hex_int {25}, hex_int {675});
         EXPECT_EQ (hex_int_twos{27} * hex_int_twos {25}, hex_int_twos {675});
         EXPECT_EQ (hex_int {27} * hex_int {-25}, hex_int {-675});
-        EXPECT_EQ (hex_int_twos {27} * hex_int_twos{-25}, hex_int_twos {-675});
+        EXPECT_EQ (hex_int_twos {27} * hex_int_twos {-25}, hex_int_twos {-675});
         EXPECT_EQ (base58_uint {27} * base58_uint {25}, base58_uint {675});
         
     }

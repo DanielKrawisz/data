@@ -14,7 +14,6 @@ namespace data::math::number {
         { data::is_positive (z) } -> std::same_as<bool>;
         { data::is_negative (z) } -> std::same_as<bool>;
         { data::sign (z) } -> std::same_as<math::signature>;
-        { data::abs (z) };
         { data::increment (z) } -> std::same_as<Z>;
         { data::decrement (z) } -> std::same_as<Z>;
     } && requires (const Z &a, const Z &b) {
