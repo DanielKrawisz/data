@@ -7,11 +7,12 @@
 #include <string>
 
 #include <data/encoding/base64.hpp>
+#include <data/numbers.hpp>
 
 namespace data::encoding::base64 {
     
     size_t size (string_view source) {
-        size_t source_size = source.size();
+        size_t source_size = source.size ();
         if (source_size < 4) return 0;
         if (source[source_size - 1] == '=') {
             if (source[source_size - 2] == '=') return ((source_size - 4) / 4) * 3 + 1;
@@ -86,7 +87,7 @@ namespace data::encoding::base64 {
     string write(bytes_view sourceBytes) {
         std::string output;
         const auto size = sourceBytes.size ();
-        output.reserve(((size / 3) + (size % 3 > 0)) * 4);
+        output.reserve (((size / 3) + (size % 3 > 0)) * 4);
         
         std::string Characters = characters ();
 

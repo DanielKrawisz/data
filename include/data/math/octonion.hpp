@@ -18,10 +18,9 @@ namespace data::math {
         using ham = quaternion<R>;
         using oct = cayley_dickson<R, ham>;
     public:
-        
-        octonion () : ham {} {}
-        octonion (const R &r) : ham {r} {}
-        octonion (const ham &a, const ham &b) : oct {a, b} {}
+        using oct::oct;
+        octonion (const com &x) : octonion {ham {x}} {}
+        octonion (const ham &x) : oct {x, ham {}} {}
         octonion (const com &a, const com &b, const com &c, const com &d) :
             octonion {ham {a, b}, ham {c, d}} {}
         octonion (R r, R i, R j, R k, R l, R m, R n, R o) :

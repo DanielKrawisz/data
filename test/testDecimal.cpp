@@ -19,10 +19,10 @@ namespace data {
         dec_int g (given);
         dec_int e (expected);
         
-        EXPECT_EQ (math::number::decrement<dec_int> {} (g), e);
-        EXPECT_EQ (math::number::decrement<Z> {} (Z::read (g)), Z::read (e));
-        EXPECT_EQ (math::number::decrement<Z_bytes_little> {} (Z_bytes_little::read (g)), Z_bytes_little::read (e));
-        EXPECT_EQ (math::number::decrement<Z_bytes_big> {} (Z_bytes_big::read (g)), Z_bytes_big::read (e));
+        EXPECT_EQ (decrement (g), e);
+        EXPECT_EQ (decrement (Z::read (g)), Z::read (e));
+        EXPECT_EQ (decrement (Z_bytes_little::read (g)), Z_bytes_little::read (e));
+        EXPECT_EQ (decrement (Z_bytes_big::read (g)), Z_bytes_big::read (e));
 
     }
     
@@ -31,32 +31,32 @@ namespace data {
         dec_uint g (given);
         dec_uint e (expected);
         
-        EXPECT_EQ (math::number::decrement<dec_uint> {} (g), e);
+        EXPECT_EQ (decrement (g), e);
 
         auto Ng = N::read (g);
         auto Ne = N::read (e);
-        auto Ngd = math::number::decrement<N> {} (Ng);
+        auto Ngd = decrement (Ng);
         EXPECT_EQ (Ngd, Ne) << "expected " << Ng << " to decrement to " << Ne << " but got " << Ngd;
         
-        EXPECT_EQ (math::number::decrement<N_bytes_little> {} (N_bytes_little::read (g)), N_bytes_little::read (e));
-        EXPECT_EQ (math::number::decrement<N_bytes_big> {} (N_bytes_big::read (g)), N_bytes_big::read (e));
+        EXPECT_EQ (decrement (N_bytes_little::read (g)), N_bytes_little::read (e));
+        EXPECT_EQ (decrement (N_bytes_big::read (g)), N_bytes_big::read (e));
         
         auto gg = base58_uint::read (g);
         auto ee = base58_uint::read (e);
 
-        auto ggd = math::number::decrement<base58_uint> {} (gg);
+        auto ggd = decrement (gg);
         EXPECT_EQ (ggd, ee);
         
-        EXPECT_EQ (math::number::decrement<hex_uint> {} (hex_uint::read (g)), hex_uint::read (e));
+        EXPECT_EQ (decrement (hex_uint::read (g)), hex_uint::read (e));
         
     }
     
     void test_increment_signed_final (const dec_int &g, const dec_int &e) {
         
-        EXPECT_EQ (math::number::increment<dec_int> {} (g), e);
-        EXPECT_EQ (math::number::increment<Z> {} (Z::read (g)), Z::read (e));
-        EXPECT_EQ (math::number::increment<Z_bytes_little> {} (Z_bytes_little::read (g)), Z_bytes_little::read (e));
-        EXPECT_EQ (math::number::increment<Z_bytes_big> {} (Z_bytes_big::read (g)), Z_bytes_big::read (e));
+        EXPECT_EQ (increment (g), e);
+        EXPECT_EQ (increment (Z::read (g)), Z::read (e));
+        EXPECT_EQ (increment (Z_bytes_little::read (g)), Z_bytes_little::read (e));
+        EXPECT_EQ (increment (Z_bytes_big::read (g)), Z_bytes_big::read (e));
         
     }
     
@@ -77,16 +77,16 @@ namespace data {
         dec_uint g (given);
         dec_uint e (expected);
         
-        EXPECT_EQ (math::number::increment<dec_uint> {} (g), e);
-        EXPECT_EQ (math::number::increment<N> {} (N::read (g)), N::read (e));
-        EXPECT_EQ (math::number::increment<N_bytes_little> {} (N_bytes_little::read (g)), N_bytes_little::read (e));
-        EXPECT_EQ (math::number::increment<N_bytes_big> {} (N_bytes_big::read (g)), N_bytes_big::read (e));
+        EXPECT_EQ (increment (g), e);
+        EXPECT_EQ (increment (N::read (g)), N::read (e));
+        EXPECT_EQ (increment (N_bytes_little::read (g)), N_bytes_little::read (e));
+        EXPECT_EQ (increment (N_bytes_big::read (g)), N_bytes_big::read (e));
         
         auto b58g = base58_uint::read (g);
         auto b58e = base58_uint::read (e);
-        auto b58i = math::number::increment <base58_uint> {} (b58g);
+        auto b58i = increment (b58g);
         EXPECT_EQ (b58i, b58e);
-        EXPECT_EQ (math::number::increment <hex_uint> {} (hex_uint::read (g)), hex_uint::read (e));
+        EXPECT_EQ (increment (hex_uint::read (g)), hex_uint::read (e));
         
         test_decrement_unsigned (expected, given);
         test_increment_signed (given, expected);

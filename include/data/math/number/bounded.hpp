@@ -45,7 +45,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size> inline uint<r, size>::operator double () const {
-        return double (N (N_bytes<r> (*this)));
+        return double (math::N (N_bytes<r> (*this)));
     }
     
     template <endian::order r, size_t size> inline sint<r, size>::operator double () const {

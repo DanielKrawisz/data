@@ -377,19 +377,6 @@ namespace data::math {
     }
 }
 
-namespace data::math::number {
-    
-    N inline square (const N &n) {
-        return n * n;
-    }
-    
-    N inline square (const Z &z) {
-        return data::abs (z) * data::abs (z);
-    }
-    
-}
-    
-
 namespace data::encoding::hexidecimal { 
     
     template <hex_case zz> integer<complement::nones, zz> inline write (const math::N &n) {
@@ -425,18 +412,18 @@ namespace data {
 
 namespace data::math::number {
 
-    nonzero<N> inline increment<N>::operator () (const N &n) {
-        nonzero<N> x {n};
+    nonzero<math::N> inline increment<math::N>::operator () (const math::N &n) {
+        nonzero<math::N> x {n};
         x.Value++;
         return x;
     }
 
-    N inline decrement<N>::operator () (const nonzero<N> &n) {
+    math::N inline decrement<math::N>::operator () (const nonzero<math::N> &n) {
         auto x = n.Value;
         return --x;
     }
 
-    N inline decrement<N>::operator () (const N &n) {
+    math::N inline decrement<math::N>::operator () (const math::N &n) {
         if (n == 0) return n;
         auto x = n;
         return --x;

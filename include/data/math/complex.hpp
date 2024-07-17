@@ -18,10 +18,8 @@ namespace data::math {
     struct complex : cayley_dickson<R, R> {
         
         constexpr static complex I = {0, 1};
-        
-        complex () : cayley_dickson<R, R> {} {}
-        complex (const R &r) : cayley_dickson<R, R> {r} {}
-        complex (R r, R i) : cayley_dickson<R, R> {r, i} {}
+
+        using cayley_dickson<R, R>::cayley_dickson;
         complex (cayley_dickson<R, R> &&c) : cayley_dickson<R, R> {c} {}
         
         complex operator ~ () const {
@@ -88,19 +86,6 @@ namespace data::math {
         nonzero<complex<q>> operator () (const nonzero<complex<q>> &a, const nonzero<complex<q>> &b) {
             return b / a;
         }
-    };
-
-    template <typename q>
-    struct divide<complex<q>, complex<q>> {
-        complex<q> operator () (const complex<q> &a, const nonzero<complex<q>> &b) {
-            if (b == 0) throw division_by_zero {};
-            return a / b.Value;
-        }
-    };
-
-    template <typename q>
-    struct divide<complex<q>, q> {
-        complex<q> operator () (const complex<q> &a, const nonzero<q> &b);
     };
 
 }

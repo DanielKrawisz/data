@@ -33,18 +33,6 @@ namespace data::math {
     };
 
     template <typename dividend, typename divisor = dividend> struct divide;
-
-    template <std::unsigned_integral dividend> struct divide<dividend, dividend> {
-        division<dividend> operator () (dividend, dividend);
-    };
-
-    template <std::signed_integral dividend> struct divide<dividend, dividend> {
-        division<dividend, std::make_unsigned_t<dividend>> operator () (dividend, dividend);
-    };
-
-    template <std::signed_integral dividend, std::unsigned_integral divisor> struct divide<dividend, divisor> {
-        division<dividend, divisor> operator () (dividend, std::make_unsigned_t<dividend>);
-    };
     
 }
 
@@ -55,7 +43,7 @@ namespace data {
     }
     
     template <typename dividend, typename divisor = dividend> 
-    bool inline divides (const dividend &a, divisor &b) {
+    bool inline divides (const dividend &a, const math::nonzero<divisor> &b) {
         return b == 0 ? true : math::divide<dividend, divisor> {} (a, b).Remainder == 0;
     }
 }

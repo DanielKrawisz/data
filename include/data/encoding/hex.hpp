@@ -15,6 +15,7 @@
 #include <data/encoding/invalid.hpp>
 #include <data/cross.hpp>
 #include <data/maybe.hpp>
+#include <data/encoding/endian/arithmetic.hpp>
 
 namespace data::encoding::hex {
     const std::string Format {"hex"};

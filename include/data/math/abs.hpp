@@ -26,27 +26,27 @@ namespace data::math {
 
 namespace data {
     template <typename X> 
-    auto abs (const X &x) -> decltype (math::abs<X> {} (x)) {
+    auto inline abs (const X &x) -> decltype (math::abs<X> {} (x)) {
         return math::abs<X> {} (x);
     }
     
     template <typename X>
-    auto quadrance (const X &x) -> decltype (math::abs<X> {} (x)) {
+    auto inline quadrance (const X &x) -> decltype (math::abs<X> {} (x)) {
         return math::quadrance<X> {} (x);
     }
     
     template <typename X> 
-    X conjugate (const X &x) {
+    X inline conjugate (const X &x) {
         return math::conjugate<X> {} (x);
     }
     
     template <typename X> 
-    auto re (const X &x) -> decltype (math::abs<X> {} (x)) {
+    auto inline re (const X &x) -> decltype (math::abs<X> {} (x)) {
         return math::re<X> {} (x);
     }
     
     template <typename X> 
-    auto im (const X &x) -> decltype(math::abs<X> {} (x)) {
+    auto inline im (const X &x) -> decltype (math::abs<X> {} (x)) {
         return math::im<X> {} (x);
     }
     

@@ -37,11 +37,11 @@ namespace data {
     struct Is_Ieee754_2008_Binary_Interchange_Format {
     template <typename T>
     static constexpr bool value =
-        ::std::is_floating_point<T> ()            &&
+        ::std::is_floating_point<T> ()           &&
         ::std::numeric_limits<T>::is_iec559      &&
         ::std::numeric_limits<T>::radix == 2     &&
-        get_storage_bits<T> () == storage_bits    &&
-        get_exponent_bits<T> () == exponent_bits  &&
+        get_storage_bits<T> () == storage_bits   &&
+        get_exponent_bits<T> () == exponent_bits &&
         get_mantissa_bits<T> () == mantissa_bits;
     };
     
@@ -59,7 +59,7 @@ namespace data {
     }
     
     template <int storage_bits>
-    constexpr int standard_binary_interchange_format_exponent_bits() {
+    constexpr int standard_binary_interchange_format_exponent_bits () {
         if (storage_bits == 16) return 5;
         if (storage_bits == 32) return 8;
         if (storage_bits == 64) return 11;
@@ -69,7 +69,7 @@ namespace data {
     }
     
     template <int storage_bits>
-    constexpr int standard_binary_interchange_format_mantissa_bits() {
+    constexpr int standard_binary_interchange_format_mantissa_bits () {
         if (storage_bits == 16) return 10;
         if (storage_bits == 32) return 23;
         if (storage_bits == 64) return 52;
@@ -79,8 +79,8 @@ namespace data {
     }
     
     template <int storage_bits,
-            int exponent_bits = standard_binary_interchange_format_exponent_bits<storage_bits>(),
-            int mantissa_bits = standard_binary_interchange_format_mantissa_bits<storage_bits>()>
+            int exponent_bits = standard_binary_interchange_format_exponent_bits<storage_bits> (),
+            int mantissa_bits = standard_binary_interchange_format_mantissa_bits<storage_bits> ()>
     using find_float =
         decltype (find_type<
                 Is_Ieee754_2008_Binary_Interchange_Format<storage_bits,

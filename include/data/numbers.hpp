@@ -288,4 +288,44 @@ namespace data::encoding::hexidecimal {
     template struct integer<math::number::complement::twos, hex_case::upper>;
 }
 
+namespace data {
+
+    static_assert (math::number::natural<N>);
+    static_assert (math::number::integer<Z>);
+
+    static_assert (math::number::natural<dec_uint>);
+    static_assert (math::number::integer<dec_int>);
+
+    static_assert (math::number::natural<hex_uint>);
+
+    static_assert (math::number::integer<hex_int>);
+    static_assert (math::number::integer<hex_int_ones>);
+    static_assert (math::number::integer<hex_int_twos>);
+
+    static_assert (math::number::natural<base58_uint>);
+
+    static_assert (math::number::natural<N_bytes_little>);
+    static_assert (math::number::natural<N_bytes_big>);
+    static_assert (math::number::integer<Z_bytes_little>);
+    static_assert (math::number::integer<Z_bytes_big>);
+    static_assert (math::number::integer<Z_bytes_twos_little>);
+    static_assert (math::number::integer<Z_bytes_twos_big>);
+
+    static_assert (math::number::natural<uint128>); //uint_little<16>;
+    static_assert (math::number::natural<uint160>); //uint_little<20>;
+    static_assert (math::number::natural<uint224>); //uint_little<28>;
+    static_assert (math::number::natural<uint256>); //uint_little<32>;
+    static_assert (math::number::natural<uint320>); //uint_little<40>;
+    static_assert (math::number::natural<uint448>); //uint_little<56>;
+    static_assert (math::number::natural<uint512>); //uint_little<64>;
+
+    static_assert (math::number::integer<int128>); //int_little<16>;
+    static_assert (math::number::integer<int160>); //int_little<20>;
+    static_assert (math::number::integer<int224>); //int_little<28>;
+    static_assert (math::number::integer<int256>); //int_little<32>;
+    static_assert (math::number::integer<int320>); //int_little<40>;
+    static_assert (math::number::integer<int448>); //int_little<56>;
+    static_assert (math::number::integer<int512>); //int_little<64>;
+}
+
 #endif

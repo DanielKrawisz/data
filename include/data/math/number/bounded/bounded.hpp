@@ -296,10 +296,10 @@ namespace data::math::number {
     std::weak_ordering operator <=> (const sint<r, size> &, const Z &);
     
     template <endian::order r, size_t size>
-    bool operator == (const uint<r, size> &, const N &);
+    bool operator == (const uint<r, size> &, const math::N &);
     
     template <endian::order r, size_t size>
-    std::weak_ordering operator <=> (const uint<r, size> &, const N &);
+    std::weak_ordering operator <=> (const uint<r, size> &, const math::N &);
 
     template <endian::order r, size_t x> std::weak_ordering inline operator <=> (const uint<r, x> &a, int64 b);
 
@@ -416,14 +416,14 @@ namespace data::math::number {
         
         operator N_bytes<r> () const;
         
-        explicit operator N () const {
-            return N (N_bytes<r> (*this));
+        explicit operator math::N () const {
+            return math::N (N_bytes<r> (*this));
         }
         
         explicit operator double () const;
         explicit operator bounded<true, r, size> () const;
 
-        explicit bounded (const N &n): bounded {N_bytes<r> (n)} {}
+        explicit bounded (const math::N &n): bounded {N_bytes<r> (n)} {}
         explicit bounded (const N_bytes<r>& n) : bounded {} {
             if (n.size () <= size) std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
             else if (N_bytes<r> (n) <= N_bytes<r> {max ()}) std::copy (n.words ().begin (), n.words ().begin () + size, this->begin ());
@@ -515,7 +515,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    bool inline operator == (const uint<r, size> &a, const N &b) {
+    bool inline operator == (const uint<r, size> &a, const math::N &b) {
         return (a <=> b) == 0;
     }
     
@@ -535,8 +535,8 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    std::weak_ordering inline operator <=> (const uint<r, size> &a, const N &b) {
-        return N (a) <=> b;
+    std::weak_ordering inline operator <=> (const uint<r, size> &a, const math::N &b) {
+        return math::N (a) <=> b;
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
@@ -547,7 +547,7 @@ namespace data::math::number {
     template <data::endian::order r, size_t size>
     std::ostream inline &operator << (std::ostream &o, const uint<r, size>& n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
-        else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, N (n));
+        else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, math::N (n));
         return o;
     }
 

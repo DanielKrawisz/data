@@ -14,7 +14,7 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> inline N_bytes<r>::read (string_view x) {
         if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
         if (encoding::hexidecimal::valid (x)) return *encoding::natural::read<r> (x);
-        if (encoding::decimal::valid (x)) return N_bytes<r> (N::read (x));
+        if (encoding::decimal::valid (x)) return N_bytes<r> (math::N::read (x));
         throw std::invalid_argument {string {"invalid number string"} + string {x}};
     }
     
@@ -33,7 +33,7 @@ namespace data::math::number {
     template <endian::order r> 
     std::ostream inline &operator << (std::ostream &o, const N_bytes<r> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
-        else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, N (n));
+        else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, math::N (n));
         return o;
     }
     
@@ -45,7 +45,7 @@ namespace data::math::number {
     }
     
     template <endian::order r> inline N_bytes<r>::operator double () const {
-        return double (N (*this));
+        return double (math::N (*this));
     }
     
     template <endian::order r> inline Z_bytes<r, complement::ones>::operator double () const {

@@ -41,6 +41,9 @@ namespace data::endian {
     arithmetic<z, o, s> operator / (const arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
+    arithmetic<z, o, s> operator % (const arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
+
+    template <bool z, boost::endian::order o, std::size_t s>
     arithmetic<z, o, s> &operator += (arithmetic<z, o, s> &, const arithmetic<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
@@ -82,7 +85,7 @@ namespace data::endian {
             return opposite_endian {native_type ()};
         }
         
-        explicit arithmetic (const opposite_endian& x) : boost_arith {native_type (x)} {}
+        explicit arithmetic (const opposite_endian &x) : boost_arith {native_type (x)} {}
         
         size_t size () const {
             return bytes;
@@ -296,6 +299,42 @@ namespace data {
     typedef endian::arithmetic<false, endian::little, 6>  uint48_little;
     typedef endian::arithmetic<false, endian::little, 7>  uint56_little;
     typedef endian::arithmetic<false, endian::little, 8>  uint64_little;
+
+    static_assert (math::number::integer<int8_big>);
+    static_assert (math::number::integer<int16_big>);
+    static_assert (math::number::integer<int24_big>);
+    static_assert (math::number::integer<int32_big>);
+    static_assert (math::number::integer<int40_big>);
+    static_assert (math::number::integer<int48_big>);
+    static_assert (math::number::integer<int56_big>);
+    static_assert (math::number::integer<int64_big>);
+
+    static_assert (math::number::natural<uint8_big>);
+    static_assert (math::number::natural<uint16_big>);
+    static_assert (math::number::natural<uint24_big>);
+    static_assert (math::number::natural<uint32_big>);
+    static_assert (math::number::natural<uint40_big>);
+    static_assert (math::number::natural<uint48_big>);
+    static_assert (math::number::natural<uint56_big>);
+    static_assert (math::number::natural<uint64_big>);
+
+    static_assert (math::number::integer<int8_little>);
+    static_assert (math::number::integer<int16_little>);
+    static_assert (math::number::integer<int24_little>);
+    static_assert (math::number::integer<int32_little>);
+    static_assert (math::number::integer<int40_little>);
+    static_assert (math::number::integer<int48_little>);
+    static_assert (math::number::integer<int56_little>);
+    static_assert (math::number::integer<int64_little>);
+
+    static_assert (math::number::natural<uint8_little>);
+    static_assert (math::number::natural<uint16_little>);
+    static_assert (math::number::natural<uint24_little>);
+    static_assert (math::number::natural<uint32_little>);
+    static_assert (math::number::natural<uint40_little>);
+    static_assert (math::number::natural<uint48_little>);
+    static_assert (math::number::natural<uint56_little>);
+    static_assert (math::number::natural<uint64_little>);
     
 }
 
