@@ -43,9 +43,9 @@ namespace data::math::number::GMP {
     
     struct N;
     struct Z;
-    
+
     bool operator == (const N &, const N &);
-    
+
     std::weak_ordering operator <=> (const N &, const N &);
     
     bool operator == (const Z &, const Z &);
@@ -234,13 +234,13 @@ namespace data::math {
 }
 
 namespace data::math::number {
-    template <> struct increment<N> {
-        nonzero<N> operator () (const N &);
+    template <> struct increment<math::N> {
+        nonzero<math::N> operator () (const math::N &);
     };
 
-    template <> struct decrement<N> {
-        N operator () (const nonzero<N> &);
-        N operator () (const N &);
+    template <> struct decrement<math::N> {
+        math::N operator () (const nonzero<math::N> &);
+        math::N operator () (const math::N &);
     };
 
     template <> struct increment<Z> {

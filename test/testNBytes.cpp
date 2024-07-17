@@ -95,12 +95,12 @@ namespace data::math::number {
     
     TEST (NBytesTest, TestNToNBytes) {
         
-        EXPECT_EQ (N_bytes<endian::big> {N::read ("1")}, N_bytes<endian::big>::read ("1"));
-        EXPECT_EQ (N_bytes<endian::little> {N::read ("1")}, N_bytes<endian::little>::read ("1"));
-        EXPECT_EQ (N_bytes<endian::big> {N::read ("23")}, N_bytes<endian::big>::read ("23"));
-        EXPECT_EQ (N_bytes<endian::little> {N::read ("23")}, N_bytes<endian::little>::read ("23"));
-        EXPECT_EQ (N_bytes<endian::big> {N::read ("5704566599993321")}, N_bytes<endian::big>::read ("5704566599993321"));
-        EXPECT_EQ (N_bytes<endian::little> {N::read ("5704566599993321")}, N_bytes<endian::little>::read ("5704566599993321"));
+        EXPECT_EQ (N_bytes<endian::big> {math::N::read ("1")}, N_bytes<endian::big>::read ("1"));
+        EXPECT_EQ (N_bytes<endian::little> {math::N::read ("1")}, N_bytes<endian::little>::read ("1"));
+        EXPECT_EQ (N_bytes<endian::big> {math::N::read ("23")}, N_bytes<endian::big>::read ("23"));
+        EXPECT_EQ (N_bytes<endian::little> {math::N::read ("23")}, N_bytes<endian::little>::read ("23"));
+        EXPECT_EQ (N_bytes<endian::big> {math::N::read ("5704566599993321")}, N_bytes<endian::big>::read ("5704566599993321"));
+        EXPECT_EQ (N_bytes<endian::little> {math::N::read ("5704566599993321")}, N_bytes<endian::little>::read ("5704566599993321"));
         
     }
     
@@ -110,8 +110,8 @@ namespace data::math::number {
             EXPECT_EQ (N_bytes<r> (num) >> shift, N_bytes<r> (num) << -shift);
             EXPECT_EQ (N_bytes<r> (num) << shift, N_bytes<r> (num) >> -shift);
             EXPECT_EQ (N_bytes<r> (num) << shift >> shift, N_bytes<r> (num));
-            EXPECT_EQ (N (num) >> shift, N (N_bytes<r> (num) >> shift));
-            EXPECT_EQ (N (num) << shift, N (N_bytes<r> (num) << shift));
+            EXPECT_EQ (math::N (num) >> shift, math::N (N_bytes<r> (num) >> shift));
+            EXPECT_EQ (math::N (num) << shift, math::N (N_bytes<r> (num) << shift));
         }
     };
     
@@ -154,8 +154,8 @@ namespace data::math::number {
     }
     
     template<endian::order r>
-    N N_Bytes_to_N_stupid (const math::number::N_bytes<r>& n) {
-        N x {0};
+    math::N N_Bytes_to_N_stupid (const math::number::N_bytes<r> &n) {
+        math::N x {0};
         for (const byte &b : n.words ().reverse ()) {
             x <<= 8;
             x += b;
@@ -164,13 +164,13 @@ namespace data::math::number {
     }
     
     template<endian::order r>
-    math::number::N_bytes<r> N_to_N_Bytes_stupid (const math::N& n) {
+    math::number::N_bytes<r> N_to_N_Bytes_stupid (const math::N &n) {
         return math::number::N_bytes<r>::read (encoding::hexidecimal::write<hex_case::lower> (n));
     }
     
     template <typename in> void N_Bytes_to_N (in x) {
         
-        N n {x};
+        math::N n {x};
         
         N_bytes_big big {x};
         N_bytes_little little {x};
@@ -181,11 +181,11 @@ namespace data::math::number {
         EXPECT_EQ (stupid_big, big);
         EXPECT_EQ (stupid_little, little);
         
-        N N_big = N (big);
-        N N_little = N (little);
+        math::N N_big = math::N (big);
+        math::N N_little = math::N (little);
         
-        N N_big_stupid = N_Bytes_to_N_stupid (big);
-        N N_little_stupid = N_Bytes_to_N_stupid (little);
+        math::N N_big_stupid = N_Bytes_to_N_stupid (big);
+        math::N N_little_stupid = N_Bytes_to_N_stupid (little);
         
         EXPECT_EQ (N_big_stupid, N_big);
         EXPECT_EQ (N_little_stupid, N_little);

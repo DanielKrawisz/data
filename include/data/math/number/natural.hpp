@@ -14,12 +14,10 @@
 #include <data/math/associative.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/abs.hpp>
+#include <data/math/number/increment.hpp>
 #include <data/io/wait_for_enter.hpp>
 
 namespace data::math::number {
-
-    template <typename N> struct increment;
-    template <typename N> struct decrement;
 
     template <typename N> concept natural = ordered<N> && requires (const N &n) {
         { data::is_zero (n) } -> std::same_as<bool>;
@@ -27,9 +25,15 @@ namespace data::math::number {
         { data::is_negative (n) } -> std::same_as<bool>;
         { data::sign (n) } -> std::same_as<math::signature>;
         { data::abs (n) } -> std::same_as<N>;
-        { increment<N> {} (n) } -> std::same_as<nonzero<N>>;
+        { data::increment (n) } -> std::same_as<nonzero<N>>;
     } && requires (const nonzero<N> &n) {
         { decrement<N> {} (n) } -> std::same_as<N>;
+    } && requires (const N &a, const N &b) {
+        { a + b } -> std::same_as<N>;
+        { a - b } -> std::same_as<N>;
+        { a * b } -> std::same_as<N>;
+        { a / b } -> std::same_as<N>;
+        { a % b } -> std::same_as<N>;
     } && requires (N &n) {
         { ++n } -> std::same_as<N &>;
         { n++ } -> std::same_as<N>;
@@ -40,68 +44,9 @@ namespace data::math::number {
         { a -= b } -> std::same_as<N &>;
         { a *= b } -> std::same_as<N &>;
     };
-
-    template <std::unsigned_integral N> struct increment<N> {
-        nonzero<N> operator () (const N &);
-    };
-
-    template <std::unsigned_integral N> struct decrement<N> {
-        N operator () (const nonzero<N> &);
-        N operator () (const N &);
-    };
     
     // Generic division algorithm. 
-    template <typename N> division<N> natural_divide (const N &Dividend, const N &Divisor) {
-
-        if (Divisor == 0) throw division_by_zero {};
-        if (Divisor == 1) return {Dividend, 0u};
-        if (Divisor == 2) return {Dividend >> 1, Dividend & 1u};
-        
-        N pow {1};
-        N exp {Divisor};
-
-        // initialization phase
-        {
-            uint64 digits_per_round {1};
-
-            // we increase exp by increasing powers of 2 until it is bigger than the divisor.
-            while (exp <= Dividend) {
-                exp <<= digits_per_round;
-                pow <<= digits_per_round;
-                digits_per_round <<= 1;
-            }
-
-            // we change exp (either increase or decrease) by decreasing powers of 2 until
-            // it is the maximum power of 2 that is smaller than the divisor.
-            while (true) {
-                digits_per_round >>= 1;
-                if (digits_per_round == 0) break;
-                if (exp > Dividend) {
-                    exp >>= digits_per_round;
-                    pow >>= digits_per_round;
-                } else {
-                    exp <<= digits_per_round;
-                    pow <<= digits_per_round;
-                }
-            }
-        }
-
-        // division phase
-        division<N> result {0, Dividend};
-        while (pow > 0) {
-            while (exp > result.Remainder) {
-                exp >>= 1;
-                pow >>= 1;
-                if (pow == 0) goto out;
-            }
-            
-            result.Quotient += pow;
-            result.Remainder -= exp;
-        }
-
-        out: 
-        return result;
-    }
+    template <typename N> division<N> natural_divide (const N &Dividend, const N &Divisor);
 }
 
 namespace data::math {
@@ -112,23 +57,6 @@ namespace data::math {
         }
     };
     
-}
-
-namespace data::math::number {
-    template <std::unsigned_integral N> nonzero<N> inline increment<N>::operator () (const N &n) {
-        nonzero<N> x {n};
-        ++x.Value;
-        return x;
-    }
-
-    template <std::unsigned_integral N> N inline decrement<N>::operator () (const nonzero<N> &n) {
-        return n.Value - 1;
-    }
-
-    template <std::unsigned_integral N> N inline decrement<N>::operator () (const N &n) {
-        if (n == 0) return n;
-        return n - 1;
-    }
 }
 
 namespace data {
@@ -173,6 +101,62 @@ namespace data {
     
     template <size_t N> decimal (const char (&)[N]) -> decimal<N>;
     template <size_t N> decimal (decimal<N>) -> decimal<N>;
+}
+
+namespace data::math::number {
+
+    // Generic division algorithm.
+    template <typename N> division<N> natural_divide (const N &Dividend, const N &Divisor) {
+
+        if (Divisor == 0) throw division_by_zero {};
+        if (Divisor == 1) return {Dividend, 0u};
+        if (Divisor == 2) return {Dividend >> 1, Dividend & 1u};
+
+        N pow {1};
+        N exp {Divisor};
+
+        // initialization phase
+        {
+            uint64 digits_per_round {1};
+
+            // we increase exp by increasing powers of 2 until it is bigger than the divisor.
+            while (exp <= Dividend) {
+                exp <<= digits_per_round;
+                pow <<= digits_per_round;
+                digits_per_round <<= 1;
+            }
+
+            // we change exp (either increase or decrease) by decreasing powers of 2 until
+            // it is the maximum power of 2 that is smaller than the divisor.
+            while (true) {
+                digits_per_round >>= 1;
+                if (digits_per_round == 0) break;
+                if (exp > Dividend) {
+                    exp >>= digits_per_round;
+                    pow >>= digits_per_round;
+                } else {
+                    exp <<= digits_per_round;
+                    pow <<= digits_per_round;
+                }
+            }
+        }
+
+        // division phase
+        division<N> result {0, Dividend};
+        while (pow > 0) {
+            while (exp > result.Remainder) {
+                exp >>= 1;
+                pow >>= 1;
+                if (pow == 0) goto out;
+            }
+
+            result.Quotient += pow;
+            result.Remainder -= exp;
+        }
+
+        out:
+        return result;
+    }
 }
 
 #endif

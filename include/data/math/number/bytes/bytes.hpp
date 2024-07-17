@@ -72,7 +72,7 @@ namespace data::math::number {
     std::weak_ordering operator <=> (const Z_bytes<r, c> &, int64);
     
     template <endian::order r> 
-    bool operator == (const N_bytes<r> &, N);
+    bool operator == (const N_bytes<r> &, math::N);
     
     template <endian::order r, complement c> 
     bool operator == (const Z_bytes<r, c> &, Z);
@@ -303,8 +303,8 @@ namespace data::math {
     };
 
     template <endian::order r> struct divide<Z_bytes<r>, N_bytes<r>> {
-        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &a, const N_bytes<r> &b) {
-            return divide<Z_bytes<r>, Z_bytes<r>> {} (a, Z_bytes<r> (b));
+        division<Z_bytes<r>, N_bytes<r>> operator () (const Z_bytes<r> &a, const nonzero<N_bytes<r>> &b) {
+            return divide<Z_bytes<r>, Z_bytes<r>> {} (a, nonzero {Z_bytes<r> (b.Value)});
         }
     };
 

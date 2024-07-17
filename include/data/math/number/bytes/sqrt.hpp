@@ -11,20 +11,20 @@
 namespace data::math {
     template <endian::order r, uint64 pow> 
     struct root<number::N_bytes<r>, pow> {
-        set<number::N_bytes<r>> operator()(const number::N_bytes<r>& n) {
-            set<N> roots = root<N, pow>{}(N(n));
-            set<number::N_bytes<r>> n_roots{};
-            for(const N &x : roots.values()) n_roots = data::insert(n_roots, N_bytes<r>(x));
+        set<number::N_bytes<r>> operator () (const number::N_bytes<r> &n) {
+            set<N> roots = root<N, pow> {} (N (n));
+            set<number::N_bytes<r>> n_roots {};
+            for (const N &x : roots.values ()) n_roots = data::insert (n_roots, N_bytes<r> (x));
             return n_roots;
         }
     };
     
     template <endian::order r, number::complement zz, uint64 pow> 
     struct root<number::Z_bytes<r, zz>, pow> {
-        set<number::Z_bytes<r, zz>> operator()(const number::Z_bytes<r, zz>& z) {
-            set<Z> roots = root<Z, pow>{}(Z(z));
-            set<number::Z_bytes<r, zz>> z_roots{};
-            for(const Z &x : roots.values()) z_roots = data::insert(z_roots, number::Z_bytes<r, zz>(x));
+        set<number::Z_bytes<r, zz>> operator () (const number::Z_bytes<r, zz> &z) {
+            set<Z> roots = root<Z, pow> {} (Z (z));
+            set<number::Z_bytes<r, zz>> z_roots {};
+            for (const Z &x : roots.values ()) z_roots = data::insert (z_roots, number::Z_bytes<r, zz> (x));
             return z_roots;
         }
     };

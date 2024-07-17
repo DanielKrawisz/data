@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/numbers.hpp>
+#include <data/math/number/bytes.hpp>
 #include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {

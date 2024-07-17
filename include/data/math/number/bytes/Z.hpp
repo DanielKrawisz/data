@@ -47,8 +47,8 @@ namespace data::math::number {
         
         explicit operator uint64 () const;
         
-        explicit N_bytes (const N &);
-        explicit operator N () const;
+        explicit N_bytes (const math::N &);
+        explicit operator math::N () const;
 
         N_bytes (bytestring<byte> &&b): oriented<r, byte> {b} {}
 
@@ -1016,7 +1016,7 @@ namespace data::math::number {
         return trim (times (trim (a), trim (b)));
     }
 
-    template <endian::order r> N_bytes<r>::N_bytes (const N &n) : N_bytes {} {
+    template <endian::order r> N_bytes<r>::N_bytes (const math::N &n) : N_bytes {} {
         for (auto i = n.Value.end () - 1; i >= n.Value.begin (); i--)
             *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8) + *i;
 
@@ -1035,8 +1035,8 @@ namespace data::math::number {
         this->trim ();
     }
     
-    template <endian::order r> N_bytes<r>::operator N () const {
-        N x {};
+    template <endian::order r> N_bytes<r>::operator math::N () const {
+        math::N x {};
 
         for (const byte &b : this->words ().reverse ()) {
             x <<= 8;
@@ -1047,13 +1047,13 @@ namespace data::math::number {
     }
     
     template <endian::order r> Z_bytes<r, complement::ones>::operator Z () const {
-        N x = N (data::abs (*this));
+        math::N x = math::N (data::abs (*this));
         return data::is_negative (*this) ? -x : Z (x);
     }
     
     template <endian::order r> Z_bytes<r, complement::twos>::operator Z () const {
         auto ab = data::abs (*this);
-        N x {};
+        math::N x {};
 
         for (const byte &b : ab.words ().reverse ()) {
             x <<= 8;

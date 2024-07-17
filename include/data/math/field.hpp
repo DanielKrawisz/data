@@ -14,8 +14,8 @@ namespace data::math {
 
     template <typename elem, typename plus = math::plus<elem>, typename times = math::times<elem>>
     concept skew_field = skew_integral_domain<elem, plus, times> &&
-    requires (const elem &a, const nonzero<elem> &b) {
-        {divide<elem> {} (a, b)} -> std::same_as<elem>;
+    requires (const elem &a, const elem &b) {
+        {a / b} -> std::same_as<elem>;
     } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
         {inverse<times, elem> {} (a, b)} -> std::convertible_to<nonzero<elem>>;
     };

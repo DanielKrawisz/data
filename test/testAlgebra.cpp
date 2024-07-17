@@ -12,16 +12,17 @@
 #include "gtest/gtest.h"
 
 namespace data::math::linear {
+
     // representations of numbers.
-    constexpr auto d1 = decimal {"1"};
-    constexpr auto d2 = decimal {"2"};
-    constexpr auto d3 = decimal {"3"};
-    constexpr auto d4 = decimal {"4"};
-    constexpr auto d5 = decimal {"5"};
-    constexpr auto d6 = decimal {"6"};
-    constexpr auto d7 = decimal {"7"};
-    constexpr auto d8 = decimal {"8"};
-    constexpr auto d9 = decimal {"9"};
+    constexpr auto d1  = decimal {"1"};
+    constexpr auto d2  = decimal {"2"};
+    constexpr auto d3  = decimal {"3"};
+    constexpr auto d4  = decimal {"4"};
+    constexpr auto d5  = decimal {"5"};
+    constexpr auto d6  = decimal {"6"};
+    constexpr auto d7  = decimal {"7"};
+    constexpr auto d8  = decimal {"8"};
+    constexpr auto d9  = decimal {"9"};
     constexpr auto d10 = decimal {"10"};
     constexpr auto d11 = decimal {"11"};
     constexpr auto d12 = decimal {"12"};
@@ -38,6 +39,7 @@ namespace data::math::linear {
     }; 
     
     TEST (AlgebraTest, TestGroup) {
+
         test_group<cyclic_group<uint64, d1>> {};
         test_group<cyclic_group<uint64, d2>> {};
         test_group<cyclic_group<uint64, d3>> {};
@@ -122,7 +124,7 @@ namespace data::math::linear {
         test_inner_space<double, array<double, 0>> {};
         test_inner_space<double, array<double, 1>> {};
         test_inner_space<double, array<double, 2>> {};
-        
+
         [] (bool x) -> void { EXPECT_TRUE (x); } (dimensions<double, array<double, 0>>::value == 0);
         [] (bool x) -> void { EXPECT_TRUE (x); } (dimensions<double, array<double, 1>>::value == 1);
         [] (bool x) -> void { EXPECT_TRUE (x); } (dimensions<double, array<double, 2>>::value == 2);

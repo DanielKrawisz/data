@@ -9,7 +9,6 @@
 #include <data/slice.hpp>
 #include <data/valid.hpp>
 #include <data/encoding/words.hpp>
-#include <data/encoding/endian/arithmetic.hpp>
 #include <data/stream.hpp>
 
 namespace data {

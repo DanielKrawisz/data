@@ -18,10 +18,9 @@ namespace data::math {
         using hamiltonian = cayley_dickson<R, complex>;
         
     public:
-        quaternion () : hamiltonian {} {}
-        quaternion (const R &r) : hamiltonian {r} {}
-        quaternion (const complex& a, const complex &b) : hamiltonian {a, b} {}
+        using hamiltonian::hamiltonian;
         quaternion (R r, R i, R j, R k) : quaternion {complex {r, i}, complex {j, k}} {}
+        quaternion (const complex &x) : quaternion {complex {x}, complex {}} {}
         quaternion (hamiltonian &&c) : hamiltonian {c} {}
         
         constexpr static quaternion I = {0, 1, 0, 0};
@@ -90,24 +89,6 @@ namespace data::math {
         nonzero<quaternion<q>> operator () (const nonzero<quaternion<q>> &a, const nonzero<quaternion<q>> &b) {
             return b / a;
         }
-    };
-
-    template <typename q>
-    struct divide<quaternion<q>, quaternion<q>> {
-        quaternion<q> operator () (const quaternion<q> &a, const nonzero<quaternion<q>> &b) {
-            if (b == 0) throw division_by_zero {};
-            return a / b.Value;
-        }
-    };
-
-    template <typename q>
-    struct divide<quaternion<q>, complex<q>> {
-        quaternion<q> operator () (const quaternion<q> &a, const nonzero<complex<q>> &b);
-    };
-
-    template <typename q>
-    struct divide<quaternion<q>, q> {
-        quaternion<q> operator () (const quaternion<q> &a, const nonzero<q> &b);
     };
     
 }
