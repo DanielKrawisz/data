@@ -12,7 +12,7 @@
 #include <data/math/number/gmp/Z.hpp>
 
 namespace data::math::number::GMP {
-    
+    /*
     struct N {
         Z Value;
         operator Z () const {
@@ -264,7 +264,7 @@ namespace data::math::number::GMP {
     
     N inline operator - (const N &z, uint64 n) {
         if (z <= n) return N {0};
-        N sum{};
+        N sum {};
         __gmp_binary_minus::eval(sum.Value.MPZ, z.Value.MPZ, n);
         return sum;
     }
@@ -277,7 +277,7 @@ namespace data::math::number::GMP {
     }
     
     Z inline operator + (const N &z, const Z &n) {
-        Z sum{};
+        Z sum {};
         __gmp_binary_plus::eval(sum.MPZ, z.Value.MPZ, n.MPZ);
         return sum;
     }
@@ -344,7 +344,7 @@ namespace data::math::number::GMP {
     N inline &operator >>= (N &a, int x) {
         __gmp_binary_rshift::eval (a.Value.MPZ, a.Value.MPZ, x);
         return a;
-    }
+    }*/
     /*
     division<Z, N> inline Z::divide (const Z& z) const {
         division<Z, N> qr {};
@@ -353,7 +353,7 @@ namespace data::math::number::GMP {
     }*/
     
 }
-
+/*
 // Declare associativity and commutivity of operators + and * on N. 
 namespace data::math {
     
@@ -386,26 +386,6 @@ namespace data::math {
     signature inline sign<N>::operator () (const N &z) {
         return math::number::GMP::sign (z.Value.MPZ[0]);
     }
-}
-
-namespace data::encoding::hexidecimal { 
-    
-    template <hex_case zz> integer<complement::nones, zz> inline write (const math::N &n) {
-        std::stringstream ss;
-        write (ss, n, zz);
-        return integer<complement::nones, zz> {ss.str ()};
-    }
-    
-}
-
-namespace data::encoding::decimal {
-    
-    string inline write (const math::N &n) {
-        std::stringstream ss;
-        write (ss, n);
-        return string {ss.str ()};
-    }
-    
 }
 
 namespace data {
@@ -449,6 +429,6 @@ namespace data::math::number {
         auto x = n;
         return --x;
     }
-}
+}*/
 
 #endif

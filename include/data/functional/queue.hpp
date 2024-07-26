@@ -7,7 +7,7 @@
 
 // a stack is the most basic functional data structure. 
 
-#include <type_traits>
+#include <data/concepts.hpp>
 #include <data/iterable.hpp>
 #include <data/valid.hpp>
 
@@ -22,12 +22,12 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_append_method = requires (list x, element e) {
-        { x.append (e) } -> std::convertible_to<list>;
+        { x.append (e) } -> convertible_to<list>;
     };
     
     template <typename list>
     concept has_sort_method = requires (list x) {
-        { x.sort () } -> std::convertible_to<list>;
+        { x.sort () } -> convertible_to<list>;
     };
     
 }

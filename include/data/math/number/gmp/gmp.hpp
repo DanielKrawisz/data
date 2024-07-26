@@ -10,20 +10,13 @@
 
 namespace data::math {
 
-    division<N, N> inline divide<N, N>::operator () (const N &v, const nonzero<N> &z) {
-        return number::natural_divide (v, z.Value);
-    }
-
-    division<Z, N> inline divide<Z, Z>::operator () (const Z &v, const nonzero<Z> &z) {
-        return number::integer_divide (v, z.Value);
-    }
-
-    division<Z, N> inline divide<Z, N>::operator () (const Z &v, const nonzero<N> &z) {
-        return number::integer_natural_divide (v, z.Value);
-    }
-
     division<dec_uint, dec_uint> inline divide<dec_uint, dec_uint>::operator () (const dec_uint &v, const nonzero<dec_uint> &z) {
-        auto d = divide<N> {} (N (v), nonzero<N> {N (z.Value)});
+        std::cout << "   divide dec " << v << " / " << z << std::endl;
+        //auto d = divide<N> {} (N (v), nonzero<N> {N (z.Value)});
+        N nv {v};
+        nonzero<N> nz {N {z.Value}};
+        std::cout << "   divide dec to Z " << nv << " / " << nz << std::endl;
+        auto d = divide<N> {} (nv, nz);
         return {encoding::decimal::write (d.Quotient), encoding::decimal::write (d.Remainder)};
     }
 
@@ -33,7 +26,7 @@ namespace data::math {
     }
 
     division<dec_int, dec_uint> inline divide<dec_int, dec_int>::operator () (const dec_int &v, const nonzero<dec_int> &z) {
-        auto d = divide<Z, Z> {} (Z (v), nonzero<Z> {Z (z.Value)});
+        auto d = divide<Z, Z> {} (Z {v}, nonzero<Z> {Z {z.Value}});
         return {encoding::signed_decimal::write (d.Quotient), encoding::decimal::write (d.Remainder)};
     }
 
@@ -67,13 +60,7 @@ namespace data::math {
 
 namespace data::encoding::decimal {
     inline string::operator math::N () const {
-        return math::N::read (*this);
-    }
-}
-
-namespace data::encoding::signed_decimal {
-    inline string::operator math::Z () const {
-        return math::Z::read (*this);
+        return math::N {*this};
     }
 }
 
@@ -84,7 +71,7 @@ namespace data::encoding::hexidecimal {
     }
 
     template <hex::letter_case cx> inline complemented_string<complement::nones, cx>::operator math::N () const {
-        return math::N::read (*this);
+        return math::N {*this};
     }
 }
 

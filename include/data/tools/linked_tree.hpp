@@ -50,12 +50,12 @@ namespace data {
             return right () == x.right ();
         }
 
-        template <typename X> requires std::convertible_to<value, X>
+        template <typename X> requires convertible_to<value, X>
         operator linked_tree<X> () const {
             return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
         }
 
-        template <typename X> requires (!std::is_convertible_v<value, X>) && requires (const value &e) {
+        template <typename X> requires (!is_convertible_v<value, X>) && requires (const value &e) {
             { X (e) };
         } explicit operator linked_tree<X> () const {
             return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};

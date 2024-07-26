@@ -50,8 +50,8 @@ namespace data {
 
 namespace data::math {
 
-    template <typename N>
-    std::ostream inline &operator << (std::ostream &o, const data::math::division<N> x) {
+    template <typename N, typename R>
+    std::ostream inline &operator << (std::ostream &o, const data::math::division<N, R> x) {
         return o << "division {Quotient: " << x.Quotient << ", Remainder: " << x.Remainder << "}";
     }
 

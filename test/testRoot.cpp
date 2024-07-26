@@ -10,22 +10,22 @@ namespace data::mat {
     
     template <typename N> void test_root_N () {
         
-        auto root_17_0 = root<0> (N::read ("17"));
-        auto root_25_0 = root<0> (N::read ("25"));
-        auto root_422_1 = root<1> (N::read ("422"));
-        auto root_4_2 = root<2> (N::read ("4"));
-        auto root_16_2 = root<2> (N::read ("16"));
-        auto root_25_2 = root<2> (N::read ("25"));
-        auto root_27_2 = root<2> (N::read ("27"));
-        auto root_125_3 = root<3> (N::read ("125"));
-        auto root_128_3 = root<3> (N::read ("128"));
-        auto root_128_7 = root<7> (N::read ("128"));
+        auto root_17_0 = root<0> (N ("17"));
+        auto root_25_0 = root<0> (N ("25"));
+        auto root_422_1 = root<1> (N ("422"));
+        auto root_4_2 = root<2> (N ("4"));
+        auto root_16_2 = root<2> (N ("16"));
+        auto root_25_2 = root<2> (N ("25"));
+        auto root_27_2 = root<2> (N ("27"));
+        auto root_125_3 = root<3> (N ("125"));
+        auto root_128_3 = root<3> (N ("128"));
+        auto root_128_7 = root<7> (N ("128"));
         auto root_1798307508862833999690304313948111955510002315423096853_19 =
-            root<19> (N::read ("1798307508862833999690304313948111955510002315423096853"));
+            root<19> (N ("1798307508862833999690304313948111955510002315423096853"));
         auto root_1798307508862833999690304313948111955510002315423096853_18 =
-            root<18> (N::read ("1798307508862833999690304313948111955510002315423096853"));
+            root<18> (N ("1798307508862833999690304313948111955510002315423096853"));
         auto root_1798307508862833999690304313948111955510002315423096851_19 =
-            root<19> (N::read ("1798307508862833999690304313948111955510002315423096851"));
+            root<19> (N ("1798307508862833999690304313948111955510002315423096851"));
         
         EXPECT_TRUE (data::empty (root_17_0));
         EXPECT_TRUE (data::empty (root_25_0));
@@ -41,13 +41,13 @@ namespace data::mat {
         EXPECT_TRUE (data::empty (root_1798307508862833999690304313948111955510002315423096853_18));
         EXPECT_TRUE (data::empty (root_1798307508862833999690304313948111955510002315423096851_19));
         
-        bool contains_422_1 = contains (root_422_1, N::read ("422"));
-        bool contains_4_2 = contains (root_4_2, N::read ("2"));
-        bool contains_16_2 = contains (root_16_2, N::read ("4"));
-        bool contains_25_2 = contains (root_25_2, N::read ("5"));
-        bool contains_125_3 = contains (root_125_3, N::read ("5"));
-        bool contains_128_7 = contains (root_128_7, N::read ("2"));
-        bool contains_xxxx = contains (root_1798307508862833999690304313948111955510002315423096853_19, N::read ("717"));
+        bool contains_422_1 = contains (root_422_1, N ("422"));
+        bool contains_4_2 = contains (root_4_2, N ("2"));
+        bool contains_16_2 = contains (root_16_2, N ("4"));
+        bool contains_25_2 = contains (root_25_2, N ("5"));
+        bool contains_125_3 = contains (root_125_3, N ("5"));
+        bool contains_128_7 = contains (root_128_7, N ("2"));
+        bool contains_xxxx = contains (root_1798307508862833999690304313948111955510002315423096853_19, N ("717"));
         
         EXPECT_TRUE (contains_422_1);
         EXPECT_TRUE (contains_4_2);
@@ -79,6 +79,7 @@ namespace data::mat {
     };
     
     TEST (RootsTest, TestRoots) {
+
         test_root_N<N> ();
         test_root_N<N_bytes_little> ();
         test_root_N<N_bytes_big> ();
@@ -92,5 +93,6 @@ namespace data::mat {
         test_root_Z<dec_int> ();
         test_root_Z<hex_int> ();
         test_root_Z<hex_int_twos> ();
+
     }
 }

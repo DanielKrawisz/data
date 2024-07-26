@@ -5,6 +5,7 @@
 #ifndef DATA_FUNCTIONAL_TREE
 #define DATA_FUNCTIONAL_TREE
 
+#include <data/concepts.hpp>
 #include <data/functional/list.hpp>
 #include <data/tools/linked_stack.hpp>
 #include <data/tools/iterator_list.hpp>
@@ -13,12 +14,12 @@ namespace data::interface {
         
     template <typename tree>
     concept has_left_method = requires (tree t) {
-        { t.left () } -> std::convertible_to<tree>;
+        { t.left () } -> convertible_to<tree>;
     };
     
     template <typename tree>
     concept has_right_method  = requires (tree t) {
-        { t.right () } -> std::convertible_to<tree>;
+        { t.right () } -> convertible_to<tree>;
     };
         
     template <typename tree>

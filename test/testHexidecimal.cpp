@@ -1343,7 +1343,7 @@ namespace data {
             list<N> zeros;
             for (size_t i : xx) {
                 
-                N zero = N::read (hex_zero (i));
+                N zero = N (hex_zero (i));
                 EXPECT_EQ (N {}, zero);
                 EXPECT_GE (N {}, zero);
                 EXPECT_LE (N {}, zero);

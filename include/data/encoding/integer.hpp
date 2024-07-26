@@ -755,7 +755,7 @@ namespace data::encoding::signed_decimal {
         
         explicit operator double () const;
         explicit operator int64 () const;
-        explicit operator math::Z () const;
+        //explicit operator math::Z () const;
     };
     
     template <endian::order r>

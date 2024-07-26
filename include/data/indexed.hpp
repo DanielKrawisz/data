@@ -6,12 +6,13 @@
 #define DATA_INDEXED
 
 #include <data/types.hpp>
+#include <data/concepts.hpp>
 
 namespace data {
     
-    template <typename M, typename key, typename value = decltype(std::declval<const M>()[std::declval<const key>()])>
-    concept indexed = requires(M m, key k) {
-        { m[k] } -> std::convertible_to<value>;
+    template <typename M, typename key, typename value = decltype (std::declval<const M> () [std::declval<const key> ()])>
+    concept indexed = requires (M m, key k) {
+        { m[k] } -> convertible_to<value>;
     };
     
 }

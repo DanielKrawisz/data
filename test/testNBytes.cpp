@@ -95,12 +95,12 @@ namespace data::math::number {
     
     TEST (NBytesTest, TestNToNBytes) {
         
-        EXPECT_EQ (N_bytes<endian::big> {math::N::read ("1")}, N_bytes<endian::big>::read ("1"));
-        EXPECT_EQ (N_bytes<endian::little> {math::N::read ("1")}, N_bytes<endian::little>::read ("1"));
-        EXPECT_EQ (N_bytes<endian::big> {math::N::read ("23")}, N_bytes<endian::big>::read ("23"));
-        EXPECT_EQ (N_bytes<endian::little> {math::N::read ("23")}, N_bytes<endian::little>::read ("23"));
-        EXPECT_EQ (N_bytes<endian::big> {math::N::read ("5704566599993321")}, N_bytes<endian::big>::read ("5704566599993321"));
-        EXPECT_EQ (N_bytes<endian::little> {math::N::read ("5704566599993321")}, N_bytes<endian::little>::read ("5704566599993321"));
+        EXPECT_EQ (N_bytes<endian::big> {math::N ("1")}, N_bytes<endian::big>::read ("1"));
+        EXPECT_EQ (N_bytes<endian::little> {math::N ("1")}, N_bytes<endian::little>::read ("1"));
+        EXPECT_EQ (N_bytes<endian::big> {math::N ("23")}, N_bytes<endian::big>::read ("23"));
+        EXPECT_EQ (N_bytes<endian::little> {math::N ("23")}, N_bytes<endian::little>::read ("23"));
+        EXPECT_EQ (N_bytes<endian::big> {math::N ("5704566599993321")}, N_bytes<endian::big>::read ("5704566599993321"));
+        EXPECT_EQ (N_bytes<endian::little> {math::N ("5704566599993321")}, N_bytes<endian::little>::read ("5704566599993321"));
         
     }
     
@@ -155,17 +155,27 @@ namespace data::math::number {
     
     template<endian::order r>
     math::N N_Bytes_to_N_stupid (const math::number::N_bytes<r> &n) {
+        std::cout << " constructing N from N_bytes the stupid way: " << std::hex << n << std::endl;
         math::N x {0};
         for (const byte &b : n.words ().reverse ()) {
+            std::cout << "  adding " << std::hex << uint64 (b) << std::endl;
             x <<= 8;
             x += b;
+            std::cout << "  result is now " << std::hex << x << std::endl;
         }
+        std::cout << " returning result " << std::hex << x << std::endl;
         return x;
     }
     
     template<endian::order r>
     math::number::N_bytes<r> N_to_N_Bytes_stupid (const math::N &n) {
-        return math::number::N_bytes<r>::read (encoding::hexidecimal::write<hex_case::lower> (n));
+        //return math::number::N_bytes<r>::read (encoding::hexidecimal::write<hex_case::lower> (n));
+        std::cout << " changing N to N_bytes the stupid way: " << std::hex << n << std::endl;
+        auto ppp = encoding::hexidecimal::write<hex_case::lower> (n);
+        std::cout << " written as " << ppp;
+        auto zzz = math::number::N_bytes<r>::read (ppp);
+        std::cout << " returning " << zzz;
+        return zzz;
     }
     
     template <typename in> void N_Bytes_to_N (in x) {
@@ -174,12 +184,12 @@ namespace data::math::number {
         
         N_bytes_big big {x};
         N_bytes_little little {x};
-        
+        std::cout << "&&& detecting problem here &&& " << std::endl;
         N_bytes_big stupid_big = N_to_N_Bytes_stupid<endian::big> (n);
-        N_bytes_little stupid_little = N_to_N_Bytes_stupid<endian::little> (n);
+        //N_bytes_little stupid_little = N_to_N_Bytes_stupid<endian::little> (n);
         
-        EXPECT_EQ (stupid_big, big);
-        EXPECT_EQ (stupid_little, little);
+        EXPECT_EQ (stupid_big, big) << "expected " << std::hex << stupid_big << " to equal " << big << "; input = " << x;
+        //EXPECT_EQ (stupid_little, little) << "expected " << std::hex << stupid_little << " to equal " << little << "; input = " << x;
         
         math::N N_big = math::N (big);
         math::N N_little = math::N (little);

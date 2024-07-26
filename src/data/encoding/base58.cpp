@@ -144,12 +144,13 @@ namespace data::encoding::base58 {
                 static_cast<uint64> (digit (std::string::operator [] (last)))};
         }
         
-        math::division<nat> div = decode<nat> (*this)->divide (nat {static_cast<uint64> (x)});
+        math::division<nat> div = math::divide<nat> {}
+            (*decode<nat> (*this), math::nonzero {nat {static_cast<uint64> (x)}});
         return math::division<string, uint64> {encode (div.Quotient), uint64 (div.Remainder)};
     }
     
     string string::read (const std::string &x) {
-        return encode (nat::read (x));
+        return encode (nat {x});
     }
 
     math::division<string> string::divide (const string &x) const {

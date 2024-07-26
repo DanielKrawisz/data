@@ -6,6 +6,7 @@
 #define DATA_CONTAINER
 
 #include <data/sequence.hpp>
+#include <data/concepts.hpp>
 
 namespace data {
     
@@ -18,17 +19,17 @@ namespace data {
         
         template <typename X, typename element> 
         concept has_contains_method = requires (X x, const element e) {
-            { x.contains (e) } -> std::convertible_to<bool>;
+            { x.contains (e) } -> convertible_to<bool>;
         };
     
         template <typename X, typename element>
         concept has_insert_method = requires (X x, const element e) {
-            { x.insert (e) } -> std::convertible_to<X>;
+            { x.insert (e) } -> convertible_to<X>;
         };
         
         template <typename X, typename element>
         concept has_remove_method = requires (X x, const element e) {
-            { x.remove (e) } -> std::convertible_to<X>;
+            { x.remove (e) } -> convertible_to<X>;
         };
         
     }

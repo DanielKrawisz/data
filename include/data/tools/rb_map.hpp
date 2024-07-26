@@ -74,14 +74,14 @@ namespace data::tool {
         
         rb_map_iterator<K, V> end () const;
 
-        template <typename X> requires std::convertible_to<V, X>
+        template <typename X> requires convertible_to<V, X>
         operator rb_map<K, X> () const {
             rb_map<K, X> m;
             for (const auto &e : *this) m = m.insert (e);
             return m;
         }
 
-        template <typename X> requires (!std::is_convertible_v<V, X>) && requires (const V &e) {
+        template <typename X> requires (!is_convertible_v<V, X>) && requires (const V &e) {
             { X (e) };
         } explicit operator rb_map<K, X> () const {
             rb_map<K, X> m;

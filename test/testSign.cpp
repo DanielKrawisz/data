@@ -47,6 +47,7 @@ namespace data {
     };
     
     TEST (SignTest, TestSign) {
+
         test_Z_sign<double> ();
 
         test_Z_sign<int64> ();
@@ -60,7 +61,7 @@ namespace data {
         
         test_N_sign<N_bytes_little> ();
         test_N_sign<N_bytes_big> ();
-        
+
         EXPECT_EQ (sign (Q {0}),                     math::zero);
         EXPECT_EQ (sign (Q {1}),                     math::positive);
         EXPECT_EQ (sign (Q {-1}),                    math::negative);
@@ -68,7 +69,7 @@ namespace data {
         EXPECT_EQ (sign (Q {-2}),                    math::negative);
         EXPECT_EQ (sign (Q {2, 3}),                  math::positive);
         EXPECT_EQ (sign (Q {-2, 3}),                 math::negative);
-        
+
         EXPECT_EQ (sign (q {0}),                     math::zero);
         EXPECT_EQ (sign (q {1}),                     math::positive);
         EXPECT_EQ (sign (q {-1}),                    math::negative);
@@ -76,7 +77,7 @@ namespace data {
         EXPECT_EQ (sign (q {-2}),                    math::negative);
         EXPECT_EQ (sign (q {2, 3}),                  math::positive);
         EXPECT_EQ (sign (q {-2, 3}),                 math::negative);
-        
+
         test_Z_sign<b09> ();
         test_Z_sign<b10> ();
         test_Z_sign<b11> ();

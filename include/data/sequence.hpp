@@ -5,7 +5,7 @@
 #ifndef DATA_SEQUENCE
 #define DATA_SEQUENCE
 
-#include <type_traits>
+#include <data/concepts.hpp>
 #include <data/empty.hpp>
 #include <data/function.hpp>
 #include <data/math/ordered.hpp>
@@ -16,7 +16,7 @@ namespace data {
     namespace interface {
         
         template <typename X, typename Y>
-        concept convertible = std::convertible_to<X, Y> || std::convertible_to<Y, X>;
+        concept convertible = convertible_to<X, Y> || convertible_to<Y, X>;
         
         template <typename list, typename elem> 
         concept has_first_method = requires (list x) {
@@ -25,7 +25,7 @@ namespace data {
         
         template <typename list> 
         concept has_rest_method = requires (list x) {
-            { x.rest () } -> std::convertible_to<list>;
+            { x.rest () } -> convertible_to<list>;
         };
         
     }

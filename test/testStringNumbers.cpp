@@ -136,7 +136,8 @@ namespace data::encoding {
     
     TEST (StringNumbersTest, TestSubtractStringNumbers) {
 
-        EXPECT_EQ (dec_uint {2} - dec_uint {1}, "1");
+        auto dec_minus_result = dec_uint {2} - dec_uint {1};
+        EXPECT_EQ (dec_minus_result, "1");
         EXPECT_EQ (hex_uint {2} - hex_uint {1}, "0x01");
         EXPECT_EQ (base58_uint {2} - base58_uint {1}, "2");
         
@@ -147,6 +148,7 @@ namespace data::encoding {
         auto hex_int_1 = hex_int {1};
         auto hex_int_2 = hex_int {2};
         auto hex_minus = hex_int_1 - hex_int_2;
+
         EXPECT_EQ (hex_minus, "0xff");
         EXPECT_EQ (hex_int_twos {1} - hex_int_twos {2}, "0x81");
         EXPECT_EQ (base58_uint {1} - base58_uint {2}, "1");

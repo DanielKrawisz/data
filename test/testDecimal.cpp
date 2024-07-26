@@ -27,26 +27,27 @@ namespace data {
     }
     
     void test_decrement_unsigned (const string &given, const string &expected) {
-        
+        std::cout << " test decrement unsigned " << given << "; " << expected << std::endl;
         dec_uint g (given);
         dec_uint e (expected);
-        
+        std::cout << " test decrement unsigned A" << std::endl;
         EXPECT_EQ (decrement (g), e);
-
-        auto Ng = N::read (g);
-        auto Ne = N::read (e);
+        std::cout << " test decrement unsigned B" << std::endl;
+        auto Ng = N {g};
+        auto Ne = N {e};
+        std::cout << " test decrement unsigned E" << std::endl;
         auto Ngd = decrement (Ng);
         EXPECT_EQ (Ngd, Ne) << "expected " << Ng << " to decrement to " << Ne << " but got " << Ngd;
-        
+        std::cout << " test decrement unsigned J" << std::endl;
         EXPECT_EQ (decrement (N_bytes_little::read (g)), N_bytes_little::read (e));
         EXPECT_EQ (decrement (N_bytes_big::read (g)), N_bytes_big::read (e));
-        
+        std::cout << " test decrement unsigned M" << std::endl;
         auto gg = base58_uint::read (g);
         auto ee = base58_uint::read (e);
-
+        std::cout << " test decrement unsigned Q" << std::endl;
         auto ggd = decrement (gg);
         EXPECT_EQ (ggd, ee);
-        
+        std::cout << " test decrement unsigned V" << std::endl;
         EXPECT_EQ (decrement (hex_uint::read (g)), hex_uint::read (e));
         
     }
@@ -73,12 +74,12 @@ namespace data {
     }
     
     void test_increment_unsigned (const string &given, const string &expected) {
-
+        std::cout << " test increment unsigned: " << given << "; " << expected << std::endl;
         dec_uint g (given);
         dec_uint e (expected);
         
         EXPECT_EQ (increment (g), e);
-        EXPECT_EQ (increment (N::read (g)), N::read (e));
+        EXPECT_EQ (increment (N (g)), N (e));
         EXPECT_EQ (increment (N_bytes_little::read (g)), N_bytes_little::read (e));
         EXPECT_EQ (increment (N_bytes_big::read (g)), N_bytes_big::read (e));
         
@@ -93,7 +94,7 @@ namespace data {
     }
 
     TEST (DecimalTest, TestDecimalIncrement) {
-        
+
         test_decrement_unsigned ("0", "0");
         
         test_increment_unsigned ("0", "1");
@@ -132,7 +133,7 @@ namespace data {
         dec_uint e (expected);
         
         EXPECT_EQ (l + r, e);
-        EXPECT_EQ (N::read (l) + N::read (r), N::read (e));
+        EXPECT_EQ (N (l) + N (r), N (e));
 
         EXPECT_EQ (N_bytes_little::read (l) + N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) + N_bytes_big::read (r), N_bytes_big::read (e));
@@ -171,7 +172,7 @@ namespace data {
         dec_uint e (expected);
         
         EXPECT_EQ (l - r, e);
-        EXPECT_EQ (N::read (l) - N::read (r), N::read (e));
+        EXPECT_EQ (N (l) - N (r), N (e));
 
         EXPECT_EQ (N_bytes_little::read (l) - N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) - N_bytes_big::read (r), N_bytes_big::read (e));
@@ -241,7 +242,7 @@ namespace data {
         dec_uint r (right);
         dec_uint e (expected);
         EXPECT_EQ (l * r, e);
-        EXPECT_EQ (N::read (l) * N::read (r), N::read (e));
+        EXPECT_EQ (N (l) * N (r), N (e));
 
         EXPECT_EQ (N_bytes_little::read (l) * N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) * N_bytes_big::read (r), N_bytes_big::read (e));

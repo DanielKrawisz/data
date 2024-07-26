@@ -5,14 +5,14 @@
 #ifndef DATA_FUNCTION
 #define DATA_FUNCTION
 
-#include <concepts>
+#include <data/concepts.hpp>
 #include <data/types.hpp>
 
 namespace data::functional {
 
     template< typename F, typename output, typename... Args >
     concept function = std::regular_invocable<F, Args...> && requires (F&& f, Args&&... args) {
-        {std::invoke (std::forward<F> (f), std::forward<Args> (args)...)} -> std::convertible_to<output>;
+        {std::invoke (std::forward<F> (f), std::forward<Args> (args)...)} -> convertible_to<output>;
     };
 }
 
