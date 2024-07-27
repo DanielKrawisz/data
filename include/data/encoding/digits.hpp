@@ -38,11 +38,16 @@ namespace data::encoding {
     
     template <typename N, typename f>
     N read_base (string_view s, uint32 base, f inverse_digits) {
+        std::cout << "  read base " << base << " for string \"" << s << "\"" << std::endl;
         N n {0};
         N pow {1};
         for (auto x = s.rbegin (); x != s.rend (); ++x) {
-            n += pow * inverse_digits (*x);
+            std::cout << "   read base: n is " << n << std::endl;
+            //n += pow * inverse_digits (*x);
+            auto zzzz = pow * inverse_digits (*x);
+            n += zzzz;
             pow *= base;
+            std::cout << "   add " << pow << " * " << uint64 (inverse_digits (*x)) << " = " << zzzz << std::endl;
         }
         return n;
     }

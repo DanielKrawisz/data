@@ -27,19 +27,19 @@ namespace data::math::number::GMP {
     
     const __mpz_struct MPZInvalid = __mpz_struct {0, 0, nullptr};
     
-    bool inline equal (const __mpz_struct& a, const __mpz_struct& b) {
+    bool inline equal (const __mpz_struct &a, const __mpz_struct &b) {
         return a._mp_alloc == b._mp_alloc && a._mp_size == b._mp_size && a._mp_d == b._mp_d;
     }
     
-    uint32 inline size (const __mpz_struct& a) {
+    uint32 inline size (const __mpz_struct &a) {
         return a._mp_alloc;
     }
     
-    bool inline valid (const __mpz_struct& mpz) {
+    bool inline valid (const __mpz_struct &mpz) {
         return mpz._mp_d != nullptr;
     }
     
-    math::signature inline sign (const __mpz_struct& mpz) {
+    math::signature inline sign (const __mpz_struct &mpz) {
         return !valid (mpz) ? zero : math::signature {mpz_cmp_si (&mpz, 0)};
     }
 
@@ -195,8 +195,11 @@ namespace data::math::number::GMP {
         explicit operator int64 () const;
         explicit operator double () const;
 
+        static Z make (uint64);
     };
 }
+
+static_assert (data::math::number::integer<data::math::number::GMP::Z>);
 
 namespace data::math::number {
 
@@ -229,6 +232,26 @@ namespace data::math::number {
         explicit operator uint64 () const;
 
     };
+
+    N<GMP::Z> operator + (const N<GMP::Z> &, uint64);
+    N<GMP::Z> operator - (const N<GMP::Z> &, uint64);
+    N<GMP::Z> operator * (const N<GMP::Z> &, uint64);
+
+    N<GMP::Z> operator + (uint64, const N<GMP::Z> &);
+    N<GMP::Z> operator - (uint64, const N<GMP::Z> &);
+    N<GMP::Z> operator * (uint64, const N<GMP::Z> &);
+
+    N<GMP::Z> &operator += (N<GMP::Z> &, const N<GMP::Z> &);
+    N<GMP::Z> &operator -= (N<GMP::Z> &, const N<GMP::Z> &);
+    N<GMP::Z> &operator *= (N<GMP::Z> &, const N<GMP::Z> &);
+
+    N<GMP::Z> &operator += (N<GMP::Z> &, const GMP::Z &);
+    N<GMP::Z> &operator -= (N<GMP::Z> &, const GMP::Z &);
+    N<GMP::Z> &operator *= (N<GMP::Z> &, const GMP::Z &);
+
+    N<GMP::Z> &operator += (N<GMP::Z> &, uint64);
+    N<GMP::Z> &operator -= (N<GMP::Z> &, uint64);
+    N<GMP::Z> &operator *= (N<GMP::Z> &, uint64);
 
     std::ostream &operator << (std::ostream &o, const N<GMP::Z> &n);
 
@@ -278,7 +301,9 @@ namespace data::encoding::signed_decimal {
 
 namespace data::math::number::GMP {
 
-    inline Z::Z (): Z {0} {}
+    inline Z::Z () {
+        mpz_init (MPZ);
+    }
 
     inline Z::~Z () {
         mpz_clear (MPZ);

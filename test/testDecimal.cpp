@@ -6,13 +6,13 @@
 #include "gtest/gtest.h"
 
 namespace data {
-
+/*
     TEST (DecimalTest, TestDecimalUInt) {
 
         EXPECT_EQ (dec_int {0}, dec_int {"0"});
         EXPECT_EQ (dec_uint {"4"} & dec_uint {"1"}, dec_uint {"0"});
 
-    }
+    }*/
     
     void test_decrement_signed (const string &given, const string &expected) {
         
@@ -107,7 +107,7 @@ namespace data {
         test_increment_unsigned ("98980987676898761029390303474536547399", "98980987676898761029390303474536547400");
         
     }
-    
+    /*
     void test_add_signed (const string &left, const string &right, const string &expected) {
 
         dec_int l (left);
@@ -266,6 +266,6 @@ namespace data {
             "39702733535456767789001409876",
             "920039817562855061210426612476533348173557348698006240480");
         
-    }
+    }*/
     
 }

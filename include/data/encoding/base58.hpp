@@ -52,6 +52,7 @@ namespace data::encoding::base58 {
     }
     
     maybe<bytes> inline read (const string_view s) {
+        std::cout << " reading base 58 string " << s << std::endl;
         // we take two steps with different numbers because it's a lot faster. 
         auto n = decode<math::N> (s);
         if (!bool (n)) return {};

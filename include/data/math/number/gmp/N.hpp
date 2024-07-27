@@ -5,10 +5,6 @@
 #ifndef DATA_MATH_NUMBER_GMP_N
 #define DATA_MATH_NUMBER_GMP_N
 
-#include <limits>
-#include <sstream>
-#include <data/math/number/natural.hpp>
-#include <data/math/abs.hpp>
 #include <data/math/number/gmp/Z.hpp>
 
 namespace data::math::number::GMP {
