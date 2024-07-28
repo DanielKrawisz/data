@@ -5,7 +5,7 @@
 #include <data/encoding/integer.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
-#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/io/unimplemented.hpp>
@@ -33,8 +33,8 @@ namespace data::encoding {
         }
         
         std::strong_ordering operator <=> (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
             return N_compare (m, n);
         }
         
@@ -55,7 +55,7 @@ namespace data::encoding {
         }
         
         string &operator ++ (string &x) {
-            if (!x.valid ()) throw exception {} << "invalid decimal string: \"" << x << "\"";
+            if (!x.valid ()) throw exception {} << "invalid decimal string: " << x;
             char remainder = N_increment (x);
             if (remainder == '0') return x;
             string new_x;
@@ -84,7 +84,7 @@ namespace data::encoding {
         }
         
         string &operator -- (string &x) {
-            if (!x.valid ()) throw exception {} << "invalid decimal string: \"" << x << "\"";
+            if (!x.valid ()) throw exception {} << "invalid decimal string: " << x;
             
             if (x == "0") return x;
             if (x == "1") return x = string {"0"};
@@ -96,42 +96,42 @@ namespace data::encoding {
         }
         
         string operator + (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write (N::read (m) + N::read (n));
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
+            return decimal::write (N {m} + N {n});
         }
         
         string operator - (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write (N::read (m) - N::read (n));
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
+            return decimal::write (N {m} - N {n});
         }
         
         string operator * (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
-            return decimal::write(N::read (m) * N::read (n));
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
+            return decimal::write (N {m} * N {n});
         }
         
         string operator << (const string &m, int i) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m, "\"";
-            return decimal::write (N::read (m) << i);
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            return decimal::write (N {m} << i);
         }
         
         string operator >> (const string &m, int i) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            return decimal::write (N::read (m) >> i);
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            return decimal::write (N {m} >> i);
         }
         
         string operator & (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
             return decimal::write (math::N_bytes<endian::little>::read (m) & math::N_bytes<endian::little>::read (n));
         }
         
         string operator | (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid decimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
             return decimal::write(math::N_bytes<endian::little>::read (m) | math::N_bytes<endian::little>::read (n));
         }
         
@@ -141,10 +141,10 @@ namespace data::encoding {
             // I can't say why or I'll be embarrassed. 
             if (x == 10) {
                 int last = n.size () - 1;
-                return math::division<string, N> {n.size () == 1 ? string {} : string (n.substr(0, last)), N(digit(n[last]))};
+                return math::division<string, N> {n.size () == 1 ? string {} : string (n.substr (0, last)), N (digit (n[last]))};
             }
             
-            math::division<N> div = math::number::natural_divide (N::read (n), x);
+            math::division<N> div = math::number::natural_divide (N {n}, x);
             
             return math::division<string, N> {decimal::write (div.Quotient), div.Remainder};
         }
@@ -155,11 +155,11 @@ namespace data::encoding {
         }
         
         string operator / (const string &m, const string &x) {
-            return decimal::write (math::number::natural_divide (N::read (m), N::read (x)).Quotient);
+            return decimal::write (math::number::natural_divide (N {m}, N {x}).Quotient);
         }
         
         string operator % (const string &m, const string &x) {
-            return decimal::write (math::number::natural_divide (N::read (m), N::read (x)).Remainder);
+            return decimal::write (math::number::natural_divide (N {m}, N {x}).Remainder);
         }
         
         bool string::operator == (uint64 x) const {
@@ -171,11 +171,11 @@ namespace data::encoding {
         }
         
         string::operator double () const {
-            return double (N::read (*this));
+            return double (N {*this});
         }
         
         string string::read (string_view x) {
-            return decimal::write (N::read (x));
+            return decimal::write (N {x});
         }
     
         signed_decimal::string operator - (const string &x) {
@@ -282,7 +282,7 @@ namespace data::encoding {
         }
         
         string::operator double () const {
-            return double (N::read (*this));
+            return double (N {*this});
         }
     
         string operator - (const string &n) {

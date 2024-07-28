@@ -5,8 +5,9 @@
 #ifndef DATA_MATH_NUMBER_BYTES_Z
 #define DATA_MATH_NUMBER_BYTES_Z
 
-#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/bytes/complements.hpp>
+//#include <data/math/number/bytes/GCC_carry_arithmetic.hpp>
 
 namespace data::math::number {
     
@@ -1017,8 +1018,8 @@ namespace data::math::number {
     }
 
     template <endian::order r> N_bytes<r>::N_bytes (const math::N &n) : N_bytes {} {
-        for (auto i = n.Value.end () - 1; i >= n.Value.begin (); i--)
-            *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8) + *i;
+        size_t z = mpz_size (n.Value.MPZ);
+        for (size_t i = z; i > 0; --i) *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8) + mpz_getlimbn (n.Value.MPZ, i - 1);
 
         this->trim ();
     }

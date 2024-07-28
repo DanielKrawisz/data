@@ -7,9 +7,9 @@
 
 // a stack is the most basic functional data structure. 
 
-#include <type_traits>
 #include <iterator>
 
+#include <data/concepts.hpp>
 #include <data/valid.hpp>
 #include <data/sequence.hpp>
 #include <data/iterable.hpp>
@@ -29,7 +29,7 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_prepend_method = requires (list x, element e) {
-        { x.prepend (e) } -> std::convertible_to<list>;
+        { x.prepend (e) } -> convertible_to<list>;
     };
     
 }

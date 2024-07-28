@@ -16,7 +16,7 @@ namespace data {
         EXPECT_THROW (N {"-1"}, exception);
         EXPECT_THROW (N {"01"}, exception);
         EXPECT_THROW (N {"0x1"}, exception);
-        
+
         EXPECT_NO_THROW (N {0});
         EXPECT_NO_THROW (N {"0"});
         EXPECT_NO_THROW (N {"0x"});
@@ -40,7 +40,7 @@ namespace data {
         EXPECT_EQ (encoding::decimal::write (N {1}), "1");
         
     }
-    
+
     TEST (NTest, TestNToHexString) {
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {"0"}), std::string {"0x"});

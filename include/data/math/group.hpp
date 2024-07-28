@@ -5,6 +5,7 @@
 #ifndef DATA_MATH_GROUP
 #define DATA_MATH_GROUP
 
+#include <data/concepts.hpp>
 #include <data/math/associative.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/arithmetic.hpp>
@@ -15,10 +16,10 @@ namespace data::math {
     template <typename elem, typename op = plus<elem>>
     concept group = requires () {
         typename associative<op, elem>; 
-        {identity<op, elem> {} ()} -> std::convertible_to<elem>;
+        {identity<op, elem> {} ()} -> convertible_to<elem>;
     } && requires (const elem &a, const elem &b) {
-        {op {} (a, b)} -> std::convertible_to<elem>;
-        {inverse<op, elem> {} (a, b)} -> std::convertible_to<elem>;
+        {op {} (a, b)} -> convertible_to<elem>;
+        {inverse<op, elem> {} (a, b)} -> convertible_to<elem>;
     };
     
     template <typename elem, typename op = elem>

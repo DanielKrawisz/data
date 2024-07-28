@@ -52,7 +52,7 @@ namespace data::encoding::base58 {
     }
     
     maybe<bytes> inline read (const string_view s) {
-        // we take two steps with different numbers because it's a lot faster. 
+        // we take two steps with different numbers because it's a lot faster.
         auto n = decode<math::N> (s);
         if (!bool (n)) return {};
         return {bytes (math::number::N_bytes<endian::big> (*n))};
@@ -115,6 +115,7 @@ namespace data::encoding::base58 {
         string ();
         string (const std::string &x);
         string (uint64);
+        explicit string (const math::N &n): string {encode<math::N> (n)} {}
         
         bool valid () const {
             return base58::valid (*this);

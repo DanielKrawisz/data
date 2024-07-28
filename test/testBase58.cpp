@@ -4,7 +4,7 @@
 
 #include "data/encoding/base58.hpp"
 #include "data/encoding/hex.hpp"
-#include "data/math/number/gmp/N.hpp"
+#include "data/math/number/gmp/Z.hpp"
 #include "data/encoding/invalid.hpp"
 #include <data/data.hpp>
 #include "gtest/gtest.h"
@@ -49,8 +49,9 @@ namespace data::encoding {
         bytes testArray {0x80,0x5A,0xA7,0x86,0xA5,0x7B,0x3B,0xFC,0x0D,0xFD,0xF2,0xEC,0x86,0x76,0x03,0x39,0xF0,0x18,0x11,
             0x4A,0x7E,0x30,0xC2,0xD2,0x70,0x1C,0xF2,0x94,0xDC,0x60,0x82,0x9D,0x9B,0x01,0x1C,0xD8,0xE3,0x91};
         
-        EXPECT_EQ (base58::write (testArray), "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
-        EXPECT_EQ (*base58::read (base58::write (testArray)), testArray);
+        auto b58_string = base58::write (testArray);
+        EXPECT_EQ (b58_string, "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
+        EXPECT_EQ (*base58::read (b58_string), testArray);
     }
     
 }

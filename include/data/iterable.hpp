@@ -6,12 +6,13 @@
 #define DATA_ITERABLE
 
 #include <ranges>
+#include <data/concepts.hpp>
 
 namespace data {
     
     template <typename X, typename elem = std::remove_const_t<decltype (*std::declval<X> ().begin ())>>
     concept const_iterable = std::ranges::input_range<X> && requires (const X x) {
-        { *x.begin () } -> std::convertible_to<const elem>;
+        { *x.begin () } -> convertible_to<const elem>;
     };
     
     template <typename X, typename elem = decltype (*std::declval<const X> ().begin ())>

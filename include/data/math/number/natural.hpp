@@ -108,11 +108,11 @@ namespace data::math::number {
     // Generic division algorithm.
     template <typename N> division<N> natural_divide (const N &Dividend, const N &Divisor) {
 
-        if (Divisor == 0) throw division_by_zero {};
-        if (Divisor == 1) return {Dividend, 0u};
-        if (Divisor == 2) return {Dividend >> 1, Dividend & 1u};
+        if (Divisor == 0u) throw division_by_zero {};
+        if (Divisor == 1u) return {Dividend, 0u};
+        if (Divisor == 2u) return {Dividend >> 1, Dividend & 1u};
 
-        N pow {1};
+        N pow {1u};
         N exp {Divisor};
 
         // initialization phase

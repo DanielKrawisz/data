@@ -11,7 +11,7 @@
 #include <data/math/sign.hpp>
 #include <data/math/division.hpp>
 #include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
 
 namespace data::math::number {
     
@@ -670,7 +670,6 @@ namespace data::math::number {
     }
 
     template <endian::order r, size_t x> uint<r, x> inline decrement<uint<r, x>>::operator () (const uint<r, x> &n) {
-        std::cout << " + decrementing " << n << std::endl;
         if (data::is_zero (n)) return n;
         auto z = n;
         return --z;

@@ -5,10 +5,11 @@
 #ifndef DATA_TOOLS_FUNCTIONAL_QUEUE
 #define DATA_TOOLS_FUNCTIONAL_QUEUE
 
+#include <data/concepts.hpp>
 #include <data/functional/list.hpp>
 #include <data/reverse.hpp>
 #include <data/fold.hpp>
-#include <iostream>
+//#include <iostream>
     
 namespace data {
     
@@ -77,16 +78,16 @@ namespace data {
         }
 
         template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
-        bool operator == (const X& x) const {
+        bool operator == (const X &x) const {
             return sequence_equal (*this, x);
         }
 
-        template <typename Z> requires std::convertible_to<stack, Z>
+        template <typename Z> requires convertible_to<stack, Z>
         operator functional_queue<Z> () const {
             return functional_queue<Z> {Z (Left), Z (Right)};
         }
 
-        template <typename Z> requires (!std::is_convertible_v<stack, Z>) && requires (const stack &x) {
+        template <typename Z> requires (!is_convertible_v<stack, Z>) && requires (const stack &x) {
             { Z (x) };
         } explicit operator functional_queue<Z> () const {
             return functional_queue<Z> {Z (Left), Z (Right)};

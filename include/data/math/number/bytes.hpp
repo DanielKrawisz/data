@@ -14,20 +14,20 @@ namespace data::math::number {
     template <endian::order r> N_bytes<r> inline N_bytes<r>::read (string_view x) {
         if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
         if (encoding::hexidecimal::valid (x)) return *encoding::natural::read<r> (x);
-        if (encoding::decimal::valid (x)) return N_bytes<r> (math::N::read (x));
+        if (encoding::decimal::valid (x)) return N_bytes<r> (math::N {x});
         throw std::invalid_argument {string {"invalid number string"} + string {x}};
     }
     
     template <endian::order r> Z_bytes<r, complement::ones> inline Z_bytes<r, complement::ones>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::ones> (x);
-        return Z_bytes<r, complement::ones> (Z::read (x));
+        return Z_bytes<r, complement::ones> (Z {x});
     }
     
     template <endian::order r> Z_bytes<r, complement::twos> inline Z_bytes<r, complement::twos>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::twos> (x);
-        return Z_bytes<r, complement::twos> (Z::read (x));
+        return Z_bytes<r, complement::twos> (Z {x});
     }
     
     template <endian::order r> 
@@ -118,8 +118,7 @@ namespace data::encoding::decimal {
     template <endian::order r> 
     maybe<math::number::N_bytes<r>> read (string_view s) {
         if (!valid (s)) return {};
-        
-        return {math::number::N_bytes<r> (read_base<math::number::N_bytes<r>> (s, 10, digit))};
+        return {read_base<math::number::N_bytes<r>> (s, 10, digit)};
     }
     
     template <endian::order r> 

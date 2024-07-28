@@ -27,72 +27,23 @@ namespace data::math::number::GMP {
     
     const __mpz_struct MPZInvalid = __mpz_struct {0, 0, nullptr};
     
-    bool inline equal (const __mpz_struct& a, const __mpz_struct& b) {
+    bool inline equal (const __mpz_struct &a, const __mpz_struct &b) {
         return a._mp_alloc == b._mp_alloc && a._mp_size == b._mp_size && a._mp_d == b._mp_d;
     }
     
-    uint32 inline size (const __mpz_struct& a) {
+    uint32 inline size (const __mpz_struct &a) {
         return a._mp_alloc;
     }
     
-    bool inline valid (const __mpz_struct& mpz) {
+    bool inline valid (const __mpz_struct &mpz) {
         return mpz._mp_d != nullptr;
     }
     
-    math::signature inline sign (const __mpz_struct& mpz) {
+    math::signature inline sign (const __mpz_struct &mpz) {
         return !valid (mpz) ? zero : math::signature {mpz_cmp_si (&mpz, 0)};
     }
-    
-    struct Z {
-        mpz_t MPZ;
 
-        Z ();
-
-        //Z (const N &);
-
-        virtual ~Z ();
-
-        Z (gmp_int n);
-
-        static Z read (string_view x);
-
-        explicit Z (const std::string &x);
-
-        Z (const Z &n);
-
-        Z (Z &&n);
-
-        Z &operator = (const Z &n);
-
-        Z &operator = (Z &&n);
-
-        size_t size () const;
-
-        using index = uint32;
-
-        mp_limb_t &operator [] (index i);
-
-        const mp_limb_t &operator [] (index i) const;
-
-        mp_limb_t *begin ();
-
-        mp_limb_t *end ();
-
-        const mp_limb_t *begin () const;
-
-        const mp_limb_t *end () const;
-
-        explicit operator int64 () const;
-
-        explicit operator double () const;
-
-        Z operator ^ (uint32 n) const;
-
-        Z& operator ^= (uint32 n);
-
-        //division<Z, N> divide (const Z &z) const;
-
-    };
+    struct Z;
 
     bool operator == (const Z &, const Z &);
 
@@ -122,11 +73,20 @@ namespace data::math::number::GMP {
     Z operator | (const Z &, const Z &);
     Z operator & (const Z &, const Z &);
 
+    uint64 operator % (const Z &, uint64);
+
     Z &operator ++ (Z &);
     Z &operator -- (Z &);
 
     Z operator ++ (Z &, int);
     Z operator -- (Z &, int);
+
+    Z operator << (const Z &, int);
+    Z operator >> (const Z &, int);
+
+    Z operator ^ (const Z &, uint32 n);
+
+    std::ostream &operator << (std::ostream &o, const Z &n);
 }
 
 namespace data::math {
@@ -179,160 +139,135 @@ namespace data::math::number::GMP {
     Z &operator += (Z &, const Z &);
     Z &operator -= (Z &, const Z &);
     Z &operator *= (Z &, const Z &);
+    Z &operator /= (Z &, const Z &);
 
     Z &operator += (Z &, int64);
     Z &operator -= (Z &, int64);
     Z &operator *= (Z &, int64);
+    Z &operator /= (Z &, int64);
 
     Z &operator &= (Z &, const Z &);
     Z &operator |= (Z &, const Z &);
 
     Z &operator <<= (Z &, int);
     Z &operator >>= (Z &, int);
+
+    Z &operator ^= (Z &, uint32 n);
+
+    struct Z {
+        mpz_t MPZ;
+
+        Z ();
+
+        virtual ~Z ();
+
+        Z (gmp_int n);
+
+        static Z read (string_view x);
+
+        //Z (const std::string &x);
+        Z (string_view);
+
+        Z (const Z &n);
+
+        Z (Z &&n);
+
+        Z &operator = (const Z &n);
+
+        Z &operator = (Z &&n);
+
+        size_t size () const;
+
+        using index = uint32;
+
+        mp_limb_t &operator [] (index i);
+
+        const mp_limb_t &operator [] (index i) const;
+
+        mp_limb_t *begin ();
+
+        mp_limb_t *end ();
+
+        const mp_limb_t *begin () const;
+
+        const mp_limb_t *end () const;
+
+        explicit operator int64 () const;
+        explicit operator double () const;
+
+        static Z make (uint64);
+    };
 }
 
-static_assert (data::math::number::integer<data::math::Z>);
+namespace data::math::number {
+
+    // implementation of naturals given an implementation of integers.
+    template <> struct N<GMP::Z> {
+        using Z = GMP::Z;
+        Z Value;
+
+        N () : Value {} {}
+
+        N (uint64 u);
+
+        N (const Z &z) : Value {z} {}
+        //explicit N (Z &&z) : Value {z} {}
+
+        N (string_view);
+
+        operator Z () const {
+            return Value;
+        }
+
+        bool valid () const {
+            return data::valid (Value) && Value >= 0;
+        }
+
+        explicit operator double () const {
+            return double (Value);
+        }
+
+        explicit operator uint64 () const;
+
+    };
+
+    N<GMP::Z> operator + (const N<GMP::Z> &, uint64);
+    N<GMP::Z> operator - (const N<GMP::Z> &, uint64);
+    N<GMP::Z> operator * (const N<GMP::Z> &, uint64);
+
+    N<GMP::Z> operator + (uint64, const N<GMP::Z> &);
+    N<GMP::Z> operator - (uint64, const N<GMP::Z> &);
+    N<GMP::Z> operator * (uint64, const N<GMP::Z> &);
+
+    N<GMP::Z> &operator += (N<GMP::Z> &, const N<GMP::Z> &);
+    N<GMP::Z> &operator -= (N<GMP::Z> &, const N<GMP::Z> &);
+    N<GMP::Z> &operator *= (N<GMP::Z> &, const N<GMP::Z> &);
+
+    N<GMP::Z> &operator += (N<GMP::Z> &, const GMP::Z &);
+    N<GMP::Z> &operator -= (N<GMP::Z> &, const GMP::Z &);
+    N<GMP::Z> &operator *= (N<GMP::Z> &, const GMP::Z &);
+
+    N<GMP::Z> &operator += (N<GMP::Z> &, uint64);
+    N<GMP::Z> &operator -= (N<GMP::Z> &, uint64);
+    N<GMP::Z> &operator *= (N<GMP::Z> &, uint64);
+
+    std::ostream &operator << (std::ostream &o, const N<GMP::Z> &n);
+
+}
 
 namespace data::math::number::GMP {
-    struct N;
 
-    bool operator == (const N &, const N &);
-
-    std::weak_ordering operator <=> (const N &, const N &);
-
-    bool operator == (const Z &, const N &);
-
-    std::weak_ordering operator <=> (const Z &, const N &);
-
-    bool operator == (const N &, uint64);
-
-    std::weak_ordering operator <=> (const N &, int64);
-
-    Z operator - (const N &);
-
-    N operator + (const N &, const N &);
-    N operator - (const N &, const N &);
-    N operator * (const N &, const N &);
-
-    Z operator + (const N &, const Z &);
-    Z operator - (const N &, const Z &);
-    Z operator * (const N &, const Z &);
-
-    Z operator + (const Z &, const N &);
-    Z operator - (const Z &, const N &);
-    Z operator * (const Z &, const N &);
-
-    std::ostream &operator << (std::ostream& o, const Z &n);
-    
-    N operator + (const N &, uint64);
-    N operator - (const N &, uint64);
-    N operator * (const N &, uint64);
-    
-    N operator + (uint64, const N &);
-    N operator - (uint64, const N &);
-    N operator * (uint64, const N &);
-    
-    // exponential 
-    N operator ^ (const N &, const N &);
-    Z operator ^ (const Z &, const N &);
-
-    N operator ^ (const N &, uint64);
-    Z operator ^ (const Z &, uint64);
-    
-    // divided by
-    N operator / (const N &, const N &);
-    Z operator / (const Z &, const N &);
-    
-    N operator / (const N &, uint64);
-    
-    // mod
-    N operator % (const N &, const N &);
-    N operator % (const Z &, const N &);
-    
-    uint64 operator % (const N &, uint64);
-    uint64 operator % (const Z &, uint64);
-    
-    // bit operations 
-    N operator | (const N &, const N &);
-    N operator & (const N &, const N &);
-    
-    // bit shift, which really just means 
-    // powers of two. 
-    N operator << (const N &, int);
-    N operator >> (const N &, int);
-    
-    Z operator << (const Z &, int);
-    Z operator >> (const Z &, int);
-    
-    // pre increment
-    N &operator ++ (N &);
-    N &operator -- (N &);
-    
-    // post increment
-    N operator ++ (N &, int);
-    N operator -- (N &, int);
-    
-    std::ostream &operator << (std::ostream& o, const N &n);
-    
+    using N = number::N<Z>;
 }
 
 namespace data::math {
 
     using N = number::GMP::N;
     
-    template <> struct abs<N> { 
-        N operator () (const N &);
-    };
-    
     template <> struct abs<Z> { 
         N operator () (const Z &);
     };
-
-    template <> struct times<N> {
-        N operator () (const N &a, const N &b);
-        nonzero<N> operator () (const nonzero<N> &a, const nonzero<N> &b);
-    };
     
-    template <> struct commutative<plus<N>, N> {};
-    template <> struct associative<plus<N>, N> {};
-    template <> struct commutative<times<N>, N> {};
-    template <> struct associative<times<N>, N> {};
-    
-    template <> struct identity<plus<N>, N> {
-        N operator () ();
-    };
-
-    template <> struct identity<times<N>, N> {
-        N operator () ();
-    };
-
-    template <> struct divide<N, N> {
-        division<N, N> operator () (const N &, const nonzero<N> &);
-    };
-
-    template <> struct divide<Z, Z> {
-        division<Z, N> operator () (const Z &, const nonzero<Z> &);
-    };
-
-    template <> struct divide<Z, N> {
-        division<Z, N> operator () (const Z &, const nonzero<N> &);
-    };
-
-    template <> struct sign<N> {
-        math::signature operator () (const N &x);
-    };
-    
-}
-
-namespace data::math::number {
-    template <> struct increment<math::N> {
-        nonzero<math::N> operator () (const math::N &);
-    };
-
-    template <> struct decrement<math::N> {
-        math::N operator () (const nonzero<math::N> &);
-        math::N operator () (const math::N &);
-    };
 }
 
 namespace data::encoding::decimal {
@@ -347,9 +282,9 @@ namespace data::encoding::hexidecimal {
     using complement = math::number::complement;
     template <complement, hex_case> struct integer;
     
-    template <hex_case zz> integer<complement::nones, zz> write (const math::N&);
-    template <complement n, hex_case zz> integer<n, zz> write (const math::Z&);
-    
+    template <hex_case zz> integer<complement::nones, zz> write (const math::N &);
+    template <complement n, hex_case zz> integer<n, zz> write (const math::Z &);
+
     std::ostream &write (std::ostream &, const math::N &, hex_case = hex_case::lower);
     std::ostream &write (std::ostream &, const math::Z &, hex_case = hex_case::lower, complement = complement::ones);
     
@@ -360,52 +295,163 @@ namespace data::encoding::signed_decimal {
     string write (const math::Z &);
     
     std::ostream &write (std::ostream &, const math::Z &);
-    
 }
 
 namespace data::math::number::GMP {
-    
-    // modify number in place. 
-    N &operator += (N &, const N &);
-    N &operator -= (N &, const N &);
-    N &operator *= (N &, const N &);
-    
-    Z &operator += (N &, const Z &);
-    Z &operator -= (N &, const Z &);
-    Z &operator *= (N &, const Z &);
-    
-    Z &operator += (Z &, const N &);
-    Z &operator -= (Z &, const N &);
-    Z &operator *= (Z &, const N &);
-    
-    N &operator += (N &, uint64);
-    N &operator -= (N &, uint64);
-    N &operator *= (N &, uint64);
-    
-    N &operator &= (N &, const N &);
-    N &operator |= (N &, const N &);
-    
-    Z &operator &= (N &, const Z &);
-    Z &operator |= (N &, const Z &);
-    
-    Z &operator &= (Z &, const N &);
-    Z &operator |= (Z &, const N &);
-    
-    N &operator ^= (N &, const N &);
-    Z &operator ^= (Z &, const N &);
-    
-    N &operator ^= (N &, uint64);
-    Z &operator ^= (Z &, uint64);
-    
-    N &operator /= (N &, const N &);
-    Z &operator /= (Z &, const Z &);
-    
-    N &operator /= (N &, uint64);
-    Z &operator /= (Z &, int64);
-    
-    N &operator <<= (N &, int);
-    N &operator >>= (N &, int);
-    
+
+    inline Z::Z () {
+        mpz_init (MPZ);
+    }
+
+    inline Z::~Z () {
+        mpz_clear (MPZ);
+    }
+
+    inline Z::Z (gmp_int n) : MPZ {} {
+        mpz_init_set_si (MPZ, n);
+    }
+
+    inline Z::Z (const Z &n) {
+        mpz_init (MPZ);
+        mpz_set (MPZ, n.MPZ);
+    }
+
+    inline Z::Z (Z &&n) : Z {} {
+        mpz_swap (MPZ, n.MPZ);
+    }
+
+    Z inline &Z::operator = (const Z &n) {
+        mpz_set (MPZ, n.MPZ);
+        return *this;
+    }
+
+    Z inline &Z::operator = (Z &&n) {
+        mpz_swap (MPZ, n.MPZ);
+        return *this;
+    }
+
+    size_t inline Z::size () const {
+        return GMP::size (MPZ[0]);
+    }
+
+    mp_limb_t inline &Z::operator [] (Z::index i) {
+        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
+        return *(MPZ[0]._mp_d + i);
+    }
+
+    const mp_limb_t inline &Z::operator [] (Z::index i) const {
+        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
+        return *(MPZ[0]._mp_d + i);
+    }
+
+    mp_limb_t inline *Z::begin () {
+        return mpz_limbs_modify (this->MPZ, mpz_size (this->MPZ));
+    }
+
+    mp_limb_t inline *Z::end () {
+        return mpz_limbs_modify (this->MPZ, mpz_size (this->MPZ)) + mpz_size (this->MPZ);
+    }
+
+    const mp_limb_t inline *Z::begin () const {
+        return mpz_limbs_read (this->MPZ);
+    }
+
+    const mp_limb_t inline *Z::end () const {
+        return mpz_limbs_read (this->MPZ) + mpz_size (this->MPZ);
+    };
+
+    inline Z::operator double () const {
+        return mpz_get_d (MPZ);
+    }
+
+    Z inline operator ^ (const Z &a, uint32 n) {
+        Z pow {};
+        mpz_pow_ui (pow.MPZ, a.MPZ, n);
+        return pow;
+    }
+
+    Z inline &operator ^= (Z &a, uint32 n) {
+        mpz_pow_ui (a.MPZ, a.MPZ, n);
+        return a;
+    }
+
+    bool inline operator == (const Z &a, const Z &b) {
+        return a <=> b == 0;
+    }
+
+    bool inline operator == (const Z &a, int64 b) {
+        return a <=> b == 0;
+    }
+
+    std::weak_ordering inline operator <=> (const Z &a, const Z &b) {
+        auto cmp = mpz_cmp (a.MPZ, b.MPZ);
+        return cmp < 0 ? std::weak_ordering::less :
+            cmp > 0 ? std::weak_ordering::greater : std::weak_ordering::equivalent;
+    }
+
+    std::weak_ordering inline operator <=> (const Z &a, int64 b) {
+        auto cmp = mpz_cmp_si (a.MPZ, b);
+        return cmp < 0 ? std::weak_ordering::less :
+            cmp > 0 ? std::weak_ordering::greater : std::weak_ordering::equivalent;
+    }
+
+    Z inline operator / (const Z &a, const Z& b) {
+        if (b == 0) throw division_by_zero {};
+        return math::divide<Z, Z> {} (a, nonzero {b}).Quotient;
+    }
+
+    Z inline &operator /= (Z &a, const Z& z) {
+        return a = a / z;
+    }
+
+    Z inline operator ++ (Z &n, int) {
+        Z z = n;
+        ++ (n);
+        return z;
+    }
+
+    Z inline operator -- (Z &n, int) {
+        Z z = n;
+        ++ (n);
+        return z;
+    }
+
+    uint64 inline operator % (const Z &a, uint64 b) {
+        return uint64 (a % N (b));
+    }
+
+}
+
+namespace data::math {
+    signature inline sign<Z>::operator () (const Z &z) {
+        return z == 0 ? zero : z < 0 ? negative : positive;
+    }
+
+    Z inline identity<plus<Z>, Z>::operator () () {
+        return 0;
+    }
+
+    Z inline identity<times<Z>, Z>::operator () () {
+        return 1;
+    }
+
+    Z inline inverse<plus<Z>, Z>::operator () (const Z &a, const Z &b) {
+        return b - a;
+    }
+
+    Z inline times<Z>::operator () (const Z &a, const Z &b) {
+        return a * b;
+    }
+
+    nonzero<Z> inline times<Z>::operator () (const nonzero<Z> &a, const nonzero<Z> &b) {
+        return a * b;
+    }
+}
+
+namespace data::math::number {
+    inline N<GMP::Z>::N (uint64 n) : Value {} {
+        mpz_init_set_ui (Value.MPZ, n);
+    }
 }
 
 #undef __GMP_DEFINE_UNARY_FUNCTION
