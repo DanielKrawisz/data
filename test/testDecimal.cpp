@@ -6,12 +6,53 @@
 #include "gtest/gtest.h"
 
 namespace data {
+    void test_dec_to_hex (const string &x) {
 
-    TEST (DecimalTest, TestDecimalUInt) {
+        N nx {x};
 
-        EXPECT_EQ (dec_int {0}, dec_int {"0"});
-        EXPECT_EQ (dec_uint {"4"} & dec_uint {"1"}, dec_uint {"0"});
+        EXPECT_EQ (x, encoding::decimal::write (nx));
 
+        N_bytes_little nlx = *encoding::decimal::read<endian::little> (x);
+        N_bytes_big nbx = *encoding::decimal::read<endian::big> (x);
+
+        N_bytes_little nxl (nx);
+        N_bytes_big nxb (nx);
+        EXPECT_EQ (nlx, nxl) << std::hex << "expected " << nlx << " to equal " << nxl;
+        EXPECT_EQ (nbx, nxb) << std::hex << "expected " << nbx << " to equal " << nxb;
+
+        EXPECT_EQ (nx, N (nlx));
+        EXPECT_EQ (nx, N (nbx));
+
+        string nlxx = encoding::decimal::write (nlx);
+        string nbxx = encoding::decimal::write (nbx);
+        EXPECT_EQ (x, nlxx) << std::hex << "expected " << x << " to equal " << nbxx;
+        EXPECT_EQ (x, nbxx) << std::hex << "expected " << x << " to equal " << nbxx;
+
+        EXPECT_EQ (nlx, N_bytes_little (nbx));
+        EXPECT_EQ (nbx, N_bytes_big (nlx));
+
+        auto nxh = encoding::hexidecimal::write<hex_case::lower> (nx);
+
+        EXPECT_EQ (nxh, encoding::hexidecimal::write<hex_case::lower> (nlx));
+        EXPECT_EQ (nxh, encoding::hexidecimal::write<hex_case::lower> (nbx));
+
+        EXPECT_EQ (nx, N (nxh));
+        EXPECT_EQ (nlx, N_bytes_little (nxh));
+        EXPECT_EQ (nbx, N_bytes_big (nxh));
+
+    }
+
+    TEST (DecimalTest, TestDecToHex) {
+
+        test_dec_to_hex ("129");
+        test_dec_to_hex ("7493");
+        test_dec_to_hex ("749384");
+        test_dec_to_hex ("483749384");
+        test_dec_to_hex ("7206483749384");
+        test_dec_to_hex ("24397842987206483749384");
+        test_dec_to_hex ("98980987676898761029390303474536547398");
+        test_dec_to_hex ("98980987676898761029390303474536547399");
+        test_dec_to_hex ("98980987676898761029390303474536547400");
     }
     
     void test_decrement_signed (const string &given, const string &expected) {
@@ -27,26 +68,31 @@ namespace data {
     }
     
     void test_decrement_unsigned (const string &given, const string &expected) {
-        
+
         dec_uint g (given);
         dec_uint e (expected);
-        
         EXPECT_EQ (decrement (g), e);
 
-        auto Ng = N::read (g);
-        auto Ne = N::read (e);
-        auto Ngd = decrement (Ng);
-        EXPECT_EQ (Ngd, Ne) << "expected " << Ng << " to decrement to " << Ne << " but got " << Ngd;
-        
-        EXPECT_EQ (decrement (N_bytes_little::read (g)), N_bytes_little::read (e));
-        EXPECT_EQ (decrement (N_bytes_big::read (g)), N_bytes_big::read (e));
-        
+        auto Ng = N {g};
+        auto Ne = N {e};
+        auto Nd = decrement (Ng);
+        EXPECT_EQ (Nd, Ne) << "expected " << Ng << " to decrement to " << Ne << " but got " << Nd;
+
+        auto Nblg = N_bytes_little::read (g);
+        auto Nble = N_bytes_little::read (e);
+        auto Nbld = decrement (Nblg);
+        EXPECT_EQ (Nbld, Nble) << "expected " << std::hex << Nblg << " to decrement to " << Nble << " but got " << Nbld;
+
+        auto Nbbg = N_bytes_big::read (g);
+        auto Nbbe = N_bytes_big::read (e);
+        auto Nbbd = decrement (Nbbg);
+        EXPECT_EQ (Nbbd, Nbbe) << "expected " << std::hex << Nbbg << " to decrement to " << Nbbe << " but got " << Nbbd;
+
         auto gg = base58_uint::read (g);
         auto ee = base58_uint::read (e);
-
         auto ggd = decrement (gg);
+
         EXPECT_EQ (ggd, ee);
-        
         EXPECT_EQ (decrement (hex_uint::read (g)), hex_uint::read (e));
         
     }
@@ -78,13 +124,14 @@ namespace data {
         dec_uint e (expected);
         
         EXPECT_EQ (increment (g), e);
-        EXPECT_EQ (increment (N::read (g)), N::read (e));
+        EXPECT_EQ (increment (N (g)), N (e));
         EXPECT_EQ (increment (N_bytes_little::read (g)), N_bytes_little::read (e));
         EXPECT_EQ (increment (N_bytes_big::read (g)), N_bytes_big::read (e));
         
         auto b58g = base58_uint::read (g);
         auto b58e = base58_uint::read (e);
         auto b58i = increment (b58g);
+
         EXPECT_EQ (b58i, b58e);
         EXPECT_EQ (increment (hex_uint::read (g)), hex_uint::read (e));
         
@@ -93,7 +140,7 @@ namespace data {
     }
 
     TEST (DecimalTest, TestDecimalIncrement) {
-        
+
         test_decrement_unsigned ("0", "0");
         
         test_increment_unsigned ("0", "1");
@@ -106,7 +153,14 @@ namespace data {
         test_increment_unsigned ("98980987676898761029390303474536547399", "98980987676898761029390303474536547400");
         
     }
-    
+
+    TEST (DecimalTest, TestDecimalUInt) {
+
+        EXPECT_EQ (dec_int {0}, dec_int {"0"});
+        EXPECT_EQ (dec_uint {"4"} & dec_uint {"1"}, dec_uint {"0"});
+
+    }
+
     void test_add_signed (const string &left, const string &right, const string &expected) {
 
         dec_int l (left);
@@ -132,7 +186,7 @@ namespace data {
         dec_uint e (expected);
         
         EXPECT_EQ (l + r, e);
-        EXPECT_EQ (N::read (l) + N::read (r), N::read (e));
+        EXPECT_EQ (N (l) + N (r), N (e));
 
         EXPECT_EQ (N_bytes_little::read (l) + N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) + N_bytes_big::read (r), N_bytes_big::read (e));
@@ -171,7 +225,7 @@ namespace data {
         dec_uint e (expected);
         
         EXPECT_EQ (l - r, e);
-        EXPECT_EQ (N::read (l) - N::read (r), N::read (e));
+        EXPECT_EQ (N (l) - N (r), N (e));
 
         EXPECT_EQ (N_bytes_little::read (l) - N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) - N_bytes_big::read (r), N_bytes_big::read (e));
@@ -241,7 +295,7 @@ namespace data {
         dec_uint r (right);
         dec_uint e (expected);
         EXPECT_EQ (l * r, e);
-        EXPECT_EQ (N::read (l) * N::read (r), N::read (e));
+        EXPECT_EQ (N (l) * N (r), N (e));
 
         EXPECT_EQ (N_bytes_little::read (l) * N_bytes_little::read (r), N_bytes_little::read (e));
         EXPECT_EQ (N_bytes_big::read (l) * N_bytes_big::read (r), N_bytes_big::read (e));

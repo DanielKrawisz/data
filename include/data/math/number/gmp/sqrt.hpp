@@ -7,7 +7,7 @@
 
 #include <data/encoding/integer.hpp>
 #include <data/encoding/base58.hpp>
-#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
 
 namespace data::math::number::GMP {
     
@@ -33,7 +33,7 @@ namespace data::math {
     template <uint64 pow> 
     set<dec_uint> root<dec_uint, pow>::operator () (const dec_uint &n) {
         set<dec_uint> x;
-        set<N> roots = root<N, pow> {} (N::read (n));
+        set<N> roots = root<N, pow> {} (N {n});
         for (const N &z : roots.values ()) x = insert (x, encoding::decimal::write (z));
         return x;
     }
@@ -41,7 +41,7 @@ namespace data::math {
     template <uint64 pow> 
     set<dec_int> root<dec_int, pow>::operator () (const dec_int &n) {
         set<dec_int> x;
-        set<Z> roots = root<Z, pow> {} (Z::read (n));
+        set<Z> roots = root<Z, pow> {} (Z {n});
         for (const Z &z : roots.values ()) x = insert (x, encoding::signed_decimal::write (z));
         return x;
     }
@@ -49,7 +49,7 @@ namespace data::math {
     template <hex_case zz, uint64 pow> 
     set<hex::uint<zz>> root<hex::uint<zz>, pow>::operator () (const hex::uint<zz> &n) {
         set<hex::uint<zz>> x;
-        set<N> roots = root<N, pow> {} (N::read (n));
+        set<N> roots = root<N, pow> {} (N {n});
         for (const N &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<zz> (z));
         return x;
     }
@@ -57,7 +57,7 @@ namespace data::math {
     template <hex_case zz, uint64 pow> 
     set<hex::int1<zz>> root<hex::int1<zz>, pow>::operator () (const hex::int1<zz> &n) {
         set<hex::int1<zz>> x;
-        set<Z> roots = root<Z, pow> {} (Z::read (n));
+        set<Z> roots = root<Z, pow> {} (Z {n});
         for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::ones, zz> (z));
         return x;
     }
@@ -65,7 +65,7 @@ namespace data::math {
     template <hex_case zz, uint64 pow> 
     set<hex::int2<zz>> root<hex::int2<zz>, pow>::operator () (const hex::int2<zz> &n) {
         set<hex::int2<zz>> x;
-        set<Z> roots = root<Z, pow> {} (Z::read (n));
+        set<Z> roots = root<Z, pow> {} (Z {n});
         for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::twos, zz> (z));
         return x;
     }
@@ -73,7 +73,7 @@ namespace data::math {
     template <uint64 pow>
     set<base58_uint> root<base58_uint, pow>::operator () (const base58_uint &n) {
         set<base58_uint> x;
-        set<N> roots = root<N, pow> {} (N (n));
+        set<N> roots = root<N, pow> {} (N {n});
         for (const N &z : roots.values ()) x = insert (x, encoding::base58::encode<N> (z));
         return x;
     }

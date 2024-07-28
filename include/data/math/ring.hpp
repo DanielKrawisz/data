@@ -12,10 +12,10 @@ namespace data::math {
     
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
     concept ring = abelian<elem, plus> && requires () {
-        {math::identity<times, elem> {} ()} -> std::convertible_to<elem>;
+        {math::identity<times, elem> {} ()} -> convertible_to<elem>;
         typename math::associative<times, elem>;
     } && requires (const elem &a, elem &b) {
-        {times {} (a, b)} -> std::convertible_to<elem>;
+        {times {} (a, b)} -> convertible_to<elem>;
     };
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
@@ -24,7 +24,7 @@ namespace data::math {
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
     concept skew_integral_domain = ring<elem, plus, times> &&
     requires (const nonzero<elem> &a, const nonzero<elem> &b) {
-        {times {} (a, b)} -> std::convertible_to<nonzero<elem>>;
+        {times {} (a, b)} -> convertible_to<nonzero<elem>>;
     };
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>

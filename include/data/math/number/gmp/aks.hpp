@@ -6,7 +6,6 @@
 #define DATA_MATH_NUMBER_GMP_AKS
 
 #include <data/math/number/prime.hpp>
-#include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/Z.hpp>
 
 namespace data::math::number::GMP {

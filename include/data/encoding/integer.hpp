@@ -674,6 +674,7 @@ namespace data::encoding::decimal {
         explicit string (const std::string &x);
         explicit string (std::string &&x);
         string (uint64);
+        explicit string (const math::N &);
         
         bool valid () const {
             return decimal::valid (*this);
@@ -709,7 +710,6 @@ namespace data::encoding::decimal {
         
         explicit operator double () const;
         explicit operator uint64 () const;
-        explicit operator math::N () const;
     };
     
     signed_decimal::string operator - (const string &);
@@ -723,6 +723,7 @@ namespace data::encoding::signed_decimal {
         explicit string (const std::string &x) : data::string {signed_decimal::valid (x) ? x : ""} {}
         explicit string (std::string &&x) : data::string {x} {}
         string (int64);
+        explicit string (const math::Z &);
         
         bool valid () const {
             return signed_decimal::valid (*this);
@@ -755,7 +756,7 @@ namespace data::encoding::signed_decimal {
         
         explicit operator double () const;
         explicit operator int64 () const;
-        explicit operator math::Z () const;
+        //explicit operator math::Z () const;
     };
     
     template <endian::order r>
@@ -788,6 +789,7 @@ namespace data::encoding::hexidecimal {
         using string<cx>::string;
         complemented_string (const string<cx> &x): string<cx> {x} {}
         complemented_string (int64);
+        explicit complemented_string (const math::Z &);
 
         explicit operator int64 () const;
         explicit operator integer<complement (-int (c) + 3), cx> () const;
@@ -806,6 +808,7 @@ namespace data::encoding::hexidecimal {
         using string<cx>::string;
         complemented_string (const string<cx> &x): string<cx> {x} {}
         complemented_string (uint64);
+        explicit complemented_string (const math::N &);
 
         explicit operator uint64 () const;
         explicit operator integer<complement::ones, cx> () const;
@@ -814,8 +817,6 @@ namespace data::encoding::hexidecimal {
         data::hex::uint<cx> operator + (uint64) const;
         data::hex::uint<cx> operator - (uint64) const;
         data::hex::uint<cx> operator * (uint64) const;
-
-        explicit operator math::N () const;
     };
     
     template <complement c, hex::letter_case cx>

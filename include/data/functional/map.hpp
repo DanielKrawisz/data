@@ -5,6 +5,7 @@
 #ifndef DATA_MAP
 #define DATA_MAP
 
+#include <data/concepts.hpp>
 #include <data/functional/set.hpp>
 #include <data/indexed.hpp>
     
@@ -56,7 +57,7 @@ namespace data {
     
         template <typename X, typename key, typename value>
         concept has_insert_key_value = requires (X x, const key k, const value v) {
-            { x.insert (k, v) } -> std::convertible_to<X>;
+            { x.insert (k, v) } -> convertible_to<X>;
         };
         
         template <typename map, typename key>

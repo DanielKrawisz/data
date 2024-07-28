@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-#include <data/math/number/gmp/N.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/integer.hpp>
 
 namespace data::math::number {

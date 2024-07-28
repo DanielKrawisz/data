@@ -51,11 +51,27 @@ namespace data {
     template <typename N, typename M> void test_suite () {
 
         EXPECT_EQ (M (N {0}), M {0});
-        EXPECT_EQ (M (f1<N> ()), f1<M> ());
-        EXPECT_EQ (M (f2<N> ()), f2<M> ());
-        EXPECT_EQ (M (f3<N> ()), f3<M> ());
-        EXPECT_EQ (M (f4<N> ()), f4<M> ());
-        EXPECT_EQ (M (f5<N> ()), f5<M> ());
+
+        auto f1m = f1<M> ();
+        M f1nm (f1<N> ());
+        std::cout << " comparing " << f1nm << " to " << f1m << std::endl;
+        EXPECT_EQ (f1nm, f1m) << "expected " << f1nm << " to equal " << f1m;
+
+        auto f2m = f2<M> ();
+        M f2nm (f2<N> ());
+        EXPECT_EQ (f2nm, f2m) << "expected " << f2nm << " to equal " << f2m;
+
+        auto f3m = f3<M> ();
+        M f3nm (f3<N> ());
+        EXPECT_EQ (f3nm, f3m) << "expected " << f3nm << " to equal " << f3m;
+
+        auto f4m = f4<M> ();
+        M f4nm (f4<N> ());
+        EXPECT_EQ (f4nm, f4m) << "expected " << f4nm << " to equal " << f4m;
+
+        auto f5m = f5<M> ();
+        M f5nm (f5<N> ());
+        EXPECT_EQ (f5nm, f5m) << "expected " << f5nm << " to equal " << f5m;
 
     }
     

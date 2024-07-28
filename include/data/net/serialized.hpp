@@ -99,11 +99,7 @@ namespace data::net {
 
                         return [In = interact (std::static_pointer_cast<session<message_out>> (high_level)), Reader]
                             (std::basic_string_view<word> x) {
-                                std::cout << "meep meep meep ... " << x << std::endl;
-                                auto j = Reader (x);
-                                std::cout << "moop moop moop" << std::endl;
-                                std::cout << "read message " << j << std::endl;
-                                In (j);
+                                In (Reader (x));
                             };
 
                     });

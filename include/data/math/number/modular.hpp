@@ -73,8 +73,7 @@ namespace data::math::number {
     };
 
     template <typename X, auto & mod>
-    inline std::ostream& operator << (std::ostream& o,
-        const data::math::number::modular<X, mod>& m) {
+    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<X, mod> &m) {
         return o << m.Value;
     }
     
@@ -177,33 +176,33 @@ namespace data::math::number {
         return Mod;
     }
     
-    template <typename X, auto & mod>
+    template <typename X, auto &mod>
     template <typename... P>
     inline modular<X, mod>::modular (P... p) : Value (p...) {
         Value %= modulus ();
     }
     
-    template <typename X, auto & mod>
+    template <typename X, auto &mod>
     bool inline modular<X, mod>::valid () const {
         return Value >= 0 && Value < modulus ();
     }
     
-    template <auto & mod>
+    template <auto &mod>
     CryptoPP::ModularArithmetic &modular<CryptoPP::Integer, mod>::arithmetic () {
         static CryptoPP::ModularArithmetic Mod {CryptoPP::Integer (mod)};
         return Mod;
     }
     
-    template <auto & mod>
+    template <auto &mod>
     const CryptoPP::Integer inline &modular<CryptoPP::Integer, mod>::modulus () {
         return arithmetic ().GetModulus ();
     }
     
-    template <auto & mod>
+    template <auto &mod>
     template <typename... P>
     inline modular<CryptoPP::Integer, mod>::modular (P... p) : Value (p...) {}
     
-    template <auto & mod>
+    template <auto &mod>
     bool inline modular<CryptoPP::Integer, mod>::valid () const {
         return Value >= 0 && Value < arithmetic ().GetModulus ();
     }
