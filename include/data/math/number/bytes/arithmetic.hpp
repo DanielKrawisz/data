@@ -2,12 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_TWOS_COMPLEMENT
-#define DATA_MATH_NUMBER_TWOS_COMPLEMENT
+#ifndef DATA_MATH_NUMBER_BYTES_ARITHMETIC
+#define DATA_MATH_NUMBER_BYTES_ARITHMETIC
 
 #include <data/math/sign.hpp>
 #include <data/encoding/halves.hpp>
 #include <data/math/number/complement.hpp>
+#include <data/math/number/bytes/GCC_carry_arithmetic.hpp>
 
 #include <iostream>
 
@@ -100,7 +101,7 @@ namespace data::math::number::arithmetic {
             b++;
         }
     }
-
+/*
     template <typename digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
     digit plus (sen z, ito &a, digit d, iti &b) {
@@ -179,7 +180,7 @@ namespace data::math::number::arithmetic {
         }
 
         return remainder;
-    }
+    }*/
 
     // bit shift operations are defined in terms of big-endian numbers.
     // but really they are operations to powers of 2 ignoring sign,
@@ -287,6 +288,32 @@ namespace data::math::number::arithmetic {
 
     template <typename X> using sign_bit_of = get_sign_bit<X>::value;
 
+    template <typename digit> struct get_limit;
+
+    template<> struct get_limit<byte> {
+        static const byte max_unsigned = 0xff;
+        static const byte max_signed = 0x7f;
+    };
+
+    template<> struct get_limit<uint16> {
+        static const uint16 max_unsigned = 0xffff;
+        static const uint16 max_signed = 0x7fff;
+    };
+
+    template<> struct get_limit<uint32> {
+        static const uint32 max_unsigned = 0xffffffff;
+        static const uint32 max_signed = 0x7ffffff;
+    };
+
+    template<> struct get_limit<uint64> {
+        static const uint64 max_unsigned = 0xffffffffffffffff;
+        static const uint64 max_signed = 0x7fffffffffffffff;
+    };
+
+    template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
+    template <typename digit> const digit max_signed_ones = get_limit<digit>::max_signed;
+    template <typename digit> const digit min_unsigned_ones = get_sign_bit<digit>::value;
+
     template <typename X> concept range = std::ranges::random_access_range<X>;
 
     template <typename X> using digit = std::remove_const_t<std::remove_reference_t<decltype (std::declval<const X> ()[0])>>;
@@ -304,6 +331,13 @@ namespace data::math::number::arithmetic {
     template <range X>
     bool inline is_zero (const X x) {
         for (const auto &d : x) if (d != 0) return false;
+        return true;
+    }
+
+    template <range X>
+    bool inline is_negative_one_ones (const X x) {
+        if (size (x) == 0) return false;
+        for (const auto &d : x) if (d != max_unsigned<digit<X>>) return false;
         return true;
     }
 

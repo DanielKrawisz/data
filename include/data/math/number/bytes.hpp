@@ -116,7 +116,7 @@ namespace data::math::number {
 namespace data::encoding::decimal {
     
     template <endian::order r> 
-    maybe<math::number::N_bytes<r>> read (string_view s) {
+    maybe<math::number::N_bytes<r>> inline read (string_view s) {
         if (!valid (s)) return {};
         return {read_base<math::number::N_bytes<r>> (s, 10, digit)};
     }

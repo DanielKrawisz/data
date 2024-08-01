@@ -40,14 +40,10 @@ namespace data::encoding {
     N read_base (string_view s, uint32 base, f inverse_digits) {
         N n {0};
         N pow {1};
-        //std::cout << "  () read base " << base << " \"" << s << "\"" << std::endl;
-        //std::cout << "   () n is " << std::hex << n << std::endl;
         for (auto x = s.rbegin (); x != s.rend (); ++x) {
             n += pow * inverse_digits (*x);
-            //std::cout << "   () digit is " << *x << "; n is " << std::hex << n << std::endl;
             pow *= base;
         }
-        //std::cout << "  () returning " << std::hex << n << std::endl;
         return n;
     }
 }
