@@ -8,7 +8,7 @@
 #include <data/sequence.hpp>
 #include <data/slice.hpp>
 #include <data/valid.hpp>
-#include <data/encoding/words.hpp>
+#include <data/arithmetic/words.hpp>
 #include <data/stream.hpp>
 
 namespace data {
@@ -137,7 +137,7 @@ namespace data {
         }
         
         bytestring &bit_negate () {
-            math::number::arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
+            arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
             return *this;
         }
         
@@ -214,17 +214,17 @@ namespace data {
         
     protected:
         void bit_and (const slice<word, size> a) {
-            math::number::arithmetic::bit_and<word>
+            arithmetic::bit_and<word>
                 (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
         }
         
         void bit_or (const slice<word, size> a) {
-            math::number::arithmetic::bit_or<word>
+            arithmetic::bit_or<word>
                 (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
         }
         
         void bit_xor (const slice<word, size> a) {
-            math::number::arithmetic::bit_xor<word>
+            arithmetic::bit_xor<word>
                 (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
         }
         
@@ -253,7 +253,7 @@ namespace data {
     struct oriented<r, word> : public bytestring<word> {
         using bytestring<word>::bytestring;
         
-        using words_type = encoding::words<r, word>;
+        using words_type = arithmetic::Words<r, word>;
         
         words_type words () {
             return words_type {slice<word> (*this)};
@@ -269,7 +269,7 @@ namespace data {
         using bytes_array<word, size>::bytes_array;
         oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
         
-        using words_type = encoding::words<r, word>;
+        using words_type = arithmetic::Words<r, word>;
         
         words_type words () {
             return words_type {slice<word> (*this)};
@@ -345,18 +345,18 @@ namespace data {
     
     template <std::unsigned_integral word>
     void inline bytestring<word>::bit_shift_left (uint32 x, bool fill) {
-        encoding::words<endian::big, word> (slice<word> (*this)).bit_shift_left (x, fill);
+        arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_left (x, fill);
     }
     
     template <std::unsigned_integral word>
     void inline bytestring<word>::bit_shift_right (uint32 x, bool fill) {
-        encoding::words<endian::big, word> (slice<word> (*this)).bit_shift_right (x, fill);
+        arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_right (x, fill);
     }
     
     template <std::unsigned_integral word, size_t size> 
     bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        math::number::arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
+        arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
         return n;
     }
     

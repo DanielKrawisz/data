@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_WORDS
-#define DATA_ENCODING_WORDS
+#ifndef DATA_ARITHMETIC_WORDS
+#define DATA_ARITHMETIC_WORDS
 
 #include <iterator>
 #include <limits>
@@ -11,17 +11,17 @@
 #include <sstream>
 #include <data/io/exception.hpp>
 #include <data/slice.hpp>
-#include <data/math/number/bytes/arithmetic.hpp>
+#include <data/arithmetic/arithmetic.hpp>
 #include <data/tools/index_iterator.hpp>
 
-namespace data::encoding {
+namespace data::arithmetic {
     
-    // words is for iterating over digits that have an endian order.
-    // Using words, you will always iterate from least to most
+    // Words is for iterating over digits that have an endian order.
+    // Using Words, you will always iterate from least to most
     // significant digits. Reverse iteration will go from most to least.
-    template <endian::order o, typename digit> struct words;
+    template <endian::order o, typename digit> struct Words;
     
-    template <typename digit> struct words<endian::little, digit> {
+    template <typename digit> struct Words<endian::little, digit> {
         slice<digit> Data;
         
         digit &operator [] (int i);
@@ -44,7 +44,7 @@ namespace data::encoding {
         const_reverse_iterator rbegin () const;
         const_reverse_iterator rend () const;
         
-        words<endian::big, digit> reverse () const;
+        Words<endian::big, digit> reverse () const;
         
         size_t size () const {
             return end () - begin ();
@@ -56,7 +56,7 @@ namespace data::encoding {
         
     };
     
-    template <typename digit> struct words<endian::big, digit> {
+    template <typename digit> struct Words<endian::big, digit> {
         slice<digit> Data;
         
         digit &operator [] (int i);
@@ -79,7 +79,7 @@ namespace data::encoding {
         const_reverse_iterator rbegin () const;
         const_reverse_iterator rend () const;
         
-        words<endian::little, digit> reverse () const;
+        Words<endian::little, digit> reverse () const;
         
         size_t size () const {
             return end () - begin ();
@@ -90,17 +90,14 @@ namespace data::encoding {
         void bit_shift_right (uint32 x, bool fill = false);
         
     };
-}
-
-namespace data::math::number::arithmetic {
 
     // must check that the input has at least size 1 to use.
-    template <endian::order r, typename digit> void inline flip_sign_bit (encoding::words<r, digit> x) {
+    template <endian::order r, typename digit> void inline flip_sign_bit (Words<r, digit> x) {
         if (x[-1] & get_sign_bit<digit>::value) x[-1] &= ~get_sign_bit<digit>::value;
         else x[-1] |= get_sign_bit<digit>::value;
     }
 
-    template <endian::order r, typename digit> void negate_ones (encoding::words<r, digit> x) {
+    template <endian::order r, typename digit> void negate_ones (Words<r, digit> x) {
         bit_negate<digit> (x.end (), x.begin (), x.begin ());
         auto o = x.begin ();
         auto i = x.begin ();
@@ -108,18 +105,18 @@ namespace data::math::number::arithmetic {
         add_with_carry<digit> (x.end (), o, i, 1);
     }
 
-    template <endian::order r, typename digit> void inline negate_twos (encoding::words<r, digit> x) {
+    template <endian::order r, typename digit> void inline negate_twos (Words<r, digit> x) {
         if (x.size () == 0) return;
         flip_sign_bit (x);
     }
 
     template <endian::order r, typename digit>
-    void set_max_unsigned (encoding::words<r, digit> a) {
+    void set_max_unsigned (Words<r, digit> a) {
         for (digit &x : a) x = max_unsigned<digit>;
     }
 
     template <endian::order r, typename digit>
-    void set_max_signed_ones (encoding::words<r, digit> a) {
+    void set_max_signed_ones (Words<r, digit> a) {
         auto i = a.rbegin ();
         if (i == a.rend ()) return;
         *i = max_signed_ones<digit>;
@@ -131,7 +128,7 @@ namespace data::math::number::arithmetic {
     }
 
     template <endian::order r, typename digit>
-    void set_min_signed_ones (encoding::words<r, digit> a) {
+    void set_min_signed_ones (Words<r, digit> a) {
         auto i = a.rbegin ();
         if (i == a.rend ()) return;
         *i = min_unsigned_ones<digit>;
@@ -143,7 +140,7 @@ namespace data::math::number::arithmetic {
     }
 
     template <endian::order r, typename digit>
-    digit plus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
+    digit plus (Words<r, digit> &o, const Words<r, digit> &a, const Words<r, digit> &b) {
         if (a.size () < b.size ()) return plus (o, b, a);
         if (o.size () < a.size ()) throw exception {"need a bigger space to add numbers"};
 
@@ -166,7 +163,7 @@ namespace data::math::number::arithmetic {
 
     // we should already be able to expect that a > b, so the result will not go from positive to negative.
     template <endian::order r, typename digit>
-    digit minus (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
+    digit minus (Words<r, digit> &o, const Words<r, digit> &a, const Words<r, digit> &b) {
 
         auto oit = o.begin ();
         auto ait = a.begin ();
@@ -184,7 +181,7 @@ namespace data::math::number::arithmetic {
     }
 
     template <endian::order r, typename digit>
-    void times (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
+    void times (Words<r, digit> &o, const Words<r, digit> &a, const Words<r, digit> &b) {
 
         // if the size of b is zero, then the answer is zero.
         if (a.size () == 0 || b.size () == 0) {
@@ -297,142 +294,139 @@ namespace data::math::number::arithmetic {
         }
 
     }
-}
-
-namespace data::encoding {
 
     template <typename digit> 
-    digit inline &words<endian::little, digit>::operator [] (int i) {
+    digit inline &Words<endian::little, digit>::operator [] (int i) {
         return Data[i];
     }
     
     template <typename digit> 
-    const digit inline &words<endian::little, digit>::operator [] (int i) const {
+    const digit inline &Words<endian::little, digit>::operator [] (int i) const {
         return Data[i];
     }
     
     template <typename digit>
-    digit inline &words<endian::big, digit>::operator [] (int i) {
+    digit inline &Words<endian::big, digit>::operator [] (int i) {
         return Data[-i - 1];
     }
     
     template <typename digit> 
-    const digit inline &words<endian::big, digit>::operator [] (int i) const {
+    const digit inline &Words<endian::big, digit>::operator [] (int i) const {
         return Data[-i - 1];
     }
     
     template <typename digit> 
-    words<endian::little, digit>::iterator inline words<endian::little, digit>::begin () {
+    Words<endian::little, digit>::iterator inline Words<endian::little, digit>::begin () {
         return Data.begin ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::iterator inline words<endian::little, digit>::end () {
+    Words<endian::little, digit>::iterator inline Words<endian::little, digit>::end () {
         return Data.end ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::iterator inline words<endian::big, digit>::begin () {
+    Words<endian::big, digit>::iterator inline Words<endian::big, digit>::begin () {
         return Data.rbegin ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::iterator inline words<endian::big, digit>::end () {
+    Words<endian::big, digit>::iterator inline Words<endian::big, digit>::end () {
         return Data.rend ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::const_iterator inline words<endian::little, digit>::begin () const {
+    Words<endian::little, digit>::const_iterator inline Words<endian::little, digit>::begin () const {
         return Data.begin ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::const_iterator inline words<endian::little, digit>::end () const {
+    Words<endian::little, digit>::const_iterator inline Words<endian::little, digit>::end () const {
         return Data.end ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::const_iterator inline words<endian::big, digit>::begin () const {
+    Words<endian::big, digit>::const_iterator inline Words<endian::big, digit>::begin () const {
         return Data.rbegin ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::const_iterator inline words<endian::big, digit>::end () const {
+    Words<endian::big, digit>::const_iterator inline Words<endian::big, digit>::end () const {
         return Data.rend ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::reverse_iterator inline words<endian::little, digit>::rbegin () {
+    Words<endian::little, digit>::reverse_iterator inline Words<endian::little, digit>::rbegin () {
         return Data.rbegin ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::reverse_iterator inline words<endian::little, digit>::rend () {
+    Words<endian::little, digit>::reverse_iterator inline Words<endian::little, digit>::rend () {
         return Data.rend ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::reverse_iterator inline words<endian::big, digit>::rbegin () {
+    Words<endian::big, digit>::reverse_iterator inline Words<endian::big, digit>::rbegin () {
         return Data.begin ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::reverse_iterator inline words<endian::big, digit>::rend () {
+    Words<endian::big, digit>::reverse_iterator inline Words<endian::big, digit>::rend () {
         return Data.end ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::const_reverse_iterator inline words<endian::little, digit>::rbegin () const {
+    Words<endian::little, digit>::const_reverse_iterator inline Words<endian::little, digit>::rbegin () const {
         return Data.rbegin ();
     }
     
     template <typename digit> 
-    words<endian::little, digit>::const_reverse_iterator inline words<endian::little, digit>::rend () const {
+    Words<endian::little, digit>::const_reverse_iterator inline Words<endian::little, digit>::rend () const {
         return Data.rend ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::const_reverse_iterator inline words<endian::big, digit>::rbegin () const {
+    Words<endian::big, digit>::const_reverse_iterator inline Words<endian::big, digit>::rbegin () const {
         return Data.begin ();
     }
     
     template <typename digit> 
-    words<endian::big, digit>::const_reverse_iterator inline words<endian::big, digit>::rend () const {
+    Words<endian::big, digit>::const_reverse_iterator inline Words<endian::big, digit>::rend () const {
         return Data.end ();
     }
     
     template <typename digit> 
-    words<endian::big, digit> inline words<endian::little, digit>::reverse () const {
+    Words<endian::big, digit> inline Words<endian::little, digit>::reverse () const {
         return {Data};
     }
     
     template <typename digit> 
-    words<endian::little, digit> inline words<endian::big, digit>::reverse () const {
+    Words<endian::little, digit> inline Words<endian::big, digit>::reverse () const {
         return {Data};
     }
 
     template <typename digit>
-    void words<endian::little, digit>::bit_shift_left (uint32 x, bool fill) {
-        math::number::arithmetic::bit_shift_left (
+    void Words<endian::little, digit>::bit_shift_left (uint32 x, bool fill) {
+        arithmetic::bit_shift_left (
             std::reverse_iterator {(byte*) Data.data () + Data.size () * sizeof (digit)},
             std::reverse_iterator {(byte*) Data.data ()}, x, fill);
     }
 
     template <typename digit>
-    void words<endian::little, digit>::bit_shift_right (uint32 x, bool fill) {
+    void Words<endian::little, digit>::bit_shift_right (uint32 x, bool fill) {
         auto it = (byte*) Data.data ();
-        math::number::arithmetic::bit_shift_right (it, it + Data.size () * sizeof (digit), x, fill);
+        arithmetic::bit_shift_right (it, it + Data.size () * sizeof (digit), x, fill);
     }
     
     template <typename digit>
-    void words<endian::big, digit>::bit_shift_left (uint32 x, bool fill) {
+    void Words<endian::big, digit>::bit_shift_left (uint32 x, bool fill) {
         auto it = (byte*) Data.data ();
-        math::number::arithmetic::bit_shift_left (it, it + Data.size () * sizeof (digit), x, fill);
+        arithmetic::bit_shift_left (it, it + Data.size () * sizeof (digit), x, fill);
     }
 
     template <typename digit>
-    void words<endian::big, digit>::bit_shift_right (uint32 x, bool fill) {
-        math::number::arithmetic::bit_shift_right (
+    void Words<endian::big, digit>::bit_shift_right (uint32 x, bool fill) {
+        arithmetic::bit_shift_right (
             std::reverse_iterator {(byte*) Data.data () + Data.size () * sizeof (digit)},
             std::reverse_iterator {(byte*) Data.data ()}, x, fill);
     }

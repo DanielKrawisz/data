@@ -13,7 +13,7 @@
 
 // numbers of either endian of any size up to 64 bits
 // using boost. 
-#include <data/encoding/endian/arithmetic.hpp>
+#include <data/arithmetic/endian.hpp>
 
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/number/gmp/mpz.hpp>

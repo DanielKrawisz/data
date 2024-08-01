@@ -272,10 +272,10 @@ namespace data::math::number {
     std::strong_ordering operator <=> (const bounded<x, r, n> &, const bounded<y, o, z> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    bool operator == (const bounded<x, r, n> &, const endian::arithmetic<y, o, z> &);
+    bool operator == (const bounded<x, r, n> &, const arithmetic::endian_integral<y, o, z> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::strong_ordering operator <=> (const bounded<x, r, n> &, const endian::arithmetic<y, o, z> &);
+    std::strong_ordering operator <=> (const bounded<x, r, n> &, const arithmetic::endian_integral<y, o, z> &);
     
     template <endian::order r, size_t size, endian::order o>
     bool operator == (const sint<r, size> &, const Z_bytes<o, complement::ones> &);
@@ -495,7 +495,7 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    bool inline operator == (const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
+    bool inline operator == (const bounded<x, r, n> &a, const arithmetic::endian_integral<y, o, z> &b) {
         return (a <=> b) == 0;
     }
     
@@ -540,7 +540,7 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z>
-    std::weak_ordering inline operator <=> (const bounded<x, r, n> &a, const endian::arithmetic<y, o, z> &b) {
+    std::weak_ordering inline operator <=> (const bounded<x, r, n> &a, const arithmetic::endian_integral<y, o, z> &b) {
         return a <=> bounded<y, o, z> (b);
     }
 
@@ -820,11 +820,11 @@ namespace data::math::number {
 namespace data::math {
 
     template <endian::order r, size_t x> math::signature inline sign<math::uint<r, x>>::operator () (const math::uint<r, x> &z) {
-        return math::number::arithmetic::nones::sign (z.words ());
+        return arithmetic::nones::sign (z.words ());
     }
 
     template <endian::order r, size_t x> math::signature inline sign<math::sint<r, x>>::operator () (const math::sint<r, x> &z) {
-        return math::number::arithmetic::ones::sign (z.words ());
+        return arithmetic::ones::sign (z.words ());
     }
     
     template <endian::order r, size_t x> bool inline is_positive<uint<r, x>>::operator () (const uint<r, x> &n) {
@@ -840,11 +840,11 @@ namespace data::math {
     }
 
     template <endian::order r, size_t x> bool inline is_negative<sint<r, x>>::operator () (const sint<r, x> &z) {
-        return number::arithmetic::sign_bit (z.words ());
+        return arithmetic::sign_bit (z.words ());
     }
 
     template <bool u, endian::order r, size_t x> bool inline is_zero<number::bounded<u, r, x>>::operator () (const number::bounded<u, r, x> &z) {
-        return number::arithmetic::is_zero (z.words ());
+        return arithmetic::is_zero (z.words ());
     }
     
     template <bool u, endian::order r, size_t x> 
@@ -859,7 +859,7 @@ namespace data::math {
     template <endian::order r, size_t x> inline uint<r, x> abs<sint<r, x>>::operator () (const sint<r, x> &z) {
         uint<r, x> n {};
         std::copy (z.begin (), z.end (), n.begin ());
-        if (data::is_negative (z)) number::arithmetic::negate_ones (n.words ());
+        if (data::is_negative (z)) arithmetic::negate_ones (n.words ());
         return n;
     }
     
@@ -963,16 +963,16 @@ namespace data::math::number {
     
     template <endian::order r, size_t x> std::weak_ordering inline operator <=> (const uint<r, x> &a, int64 b) {
         if (b < 0) return std::weak_ordering::greater;
-        return arithmetic::compare<complement::nones> (a.words (), endian::arithmetic<true, r, 8> {b}.words ());
+        return arithmetic::compare<complement::nones> (a.words (), arithmetic::endian_integral<true, r, 8> {b}.words ());
     }
     
     template <endian::order r, size_t x> std::weak_ordering inline operator <=> (const sint<r, x> &a, int64 b) {
-        return arithmetic::ones::compare<r, byte> (a, bytes_view (endian::arithmetic<true, r, 8> (b)));
+        return arithmetic::ones::compare<r, byte> (a, bytes_view (arithmetic::endian_integral<true, r, 8> (b)));
     }
     
     template <endian::order r, size_t size>
     uint<r, size>::bounded (const uint64 x) : bounded {} {
-        endian::arithmetic<false, endian::little, 8> n {x};
+        arithmetic::endian_integral<false, endian::little, 8> n {x};
         std::copy (n.begin (), n.end (), this->words ().begin ());
     }
     
@@ -981,7 +981,7 @@ namespace data::math::number {
         {x < 0 ?
             bytes_array<byte, size>::filled (0xff) :
             bytes_array<byte, size>::filled (0x00)} {
-        endian::arithmetic<true, endian::little, 8> n {x};
+        arithmetic::endian_integral<true, endian::little, 8> n {x};
         std::copy (n.begin (), n.end (), this->words ().begin ());
     }
     
@@ -1084,7 +1084,6 @@ namespace data::math::number {
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator ++ (bounded<u, r, x> &n) {
         auto o = n.words ().begin ();
         auto i = n.words ().begin ();
-        //arithmetic::plus<byte> (n.words ().end (), o, 1, i);
         arithmetic::add_with_carry<byte> (n.words ().end (), o, i, 1);
         return n;
     }   

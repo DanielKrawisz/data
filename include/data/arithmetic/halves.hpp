@@ -7,7 +7,7 @@
 
 #include <type_traits>
 #include <concepts>
-#include <data/encoding/endian/endian.hpp>
+#include <data/encoding/endian.hpp>
 
 namespace data::encoding {
     

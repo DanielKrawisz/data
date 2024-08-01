@@ -9,6 +9,7 @@
 #include <data/encoding/hex.hpp>
 
 namespace data::math::number {
+    using complement = arithmetic::complement;
     
     // an implementation of the natural numbers that is
     // encoded as a big or little endian sequence of bytes. 

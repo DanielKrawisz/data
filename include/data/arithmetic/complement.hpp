@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_COMPLEMENT
-#define DATA_MATH_COMPLEMENT
+#ifndef DATA_ARITHMETIC_COMPLEMENT
+#define DATA_ARITHMETIC_COMPLEMENT
 
 #include <ostream>
 
-namespace data::math::number {
+namespace data::arithmetic {
     
     enum class complement {
         nones = 0, 

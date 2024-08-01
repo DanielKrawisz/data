@@ -6,10 +6,10 @@
 #define DATA_OVERFLOW
 
 #include <data/types.hpp>
-#include <data/encoding/halves.hpp>
+#include <data/arithmetic/halves.hpp>
 #include <iostream>
 
-namespace data::math::number::arithmetic {
+namespace data::arithmetic {
 
     template <std::unsigned_integral x> bool add_with_carry (x &result, x a, x b);
 
