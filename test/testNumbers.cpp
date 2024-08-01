@@ -33,7 +33,8 @@ namespace data {
 
             EXPECT_EQ (math::number::decrement<NN> {} (NN {0u}), NN {0u});
 
-            EXPECT_EQ (math::number::increment<NN> {} (NN {0u}), NN {1u});
+            auto i0 = math::number::increment<NN> {} (NN {0u});
+            EXPECT_EQ (i0, NN {1u});
 
             EXPECT_FALSE (NN {0u} < NN {0u});
             EXPECT_TRUE (NN {0u} <= NN {0u});
@@ -57,6 +58,10 @@ namespace data {
 
             EXPECT_EQ (NN {0x479u} - NN {0x394u}, NN {0xe5u});
 
+            EXPECT_EQ (NN {0x858u} + NN {0x1edu}, NN {0xa45u});
+
+            EXPECT_EQ (NN {0x64u} * NN {0xau}, NN {0x3e8u});
+
         }
     };
     
@@ -73,12 +78,20 @@ namespace data {
         { z <= 0 };
     } struct test_signed_number : test_whole_number<ZZ> {
         test_signed_number () {
-            EXPECT_EQ (Z (ZZ (0)), Z (0));
 
-            EXPECT_EQ (math::number::decrement<ZZ> {} (ZZ {0}), ZZ {-1});
+            ZZ zz_zero {0};
+            EXPECT_EQ (Z (zz_zero), Z (0));
 
-            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {0}), ZZ {1});
-            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {-1}), ZZ {0});
+            EXPECT_EQ (math::number::decrement<ZZ> {} (zz_zero), ZZ {-1});
+
+            EXPECT_EQ (math::number::increment<ZZ> {} (zz_zero), ZZ {1});
+            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {-1}), zz_zero);
+
+            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {0xffu}), ZZ {0x100u});
+
+            EXPECT_EQ (-zz_zero, zz_zero);
+            EXPECT_EQ (-ZZ {1}, ZZ {-1});
+            EXPECT_EQ (-ZZ {-1}, ZZ {1});
         }
     };
     

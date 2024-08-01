@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 namespace data {
-    
+
     TEST (ZBytesTest, TestZBytesToHexString) {
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big::read ("0")), std::string ("0x"));
@@ -26,7 +26,7 @@ namespace data {
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little::read ("-129")), std::string ("0xff7f"));
         
     }
-    
+
     TEST (ZBytesTest, TestStringToZBytes) {
         
         EXPECT_NO_THROW (Z_bytes_big {});
@@ -85,7 +85,7 @@ namespace data {
         EXPECT_EQ (Z_bytes_little::read ("0xffffff"), Z_bytes_little {-1});
         
     }
-    
+
     TEST (ZBytesTest, TestZToZBytes) {
         
         EXPECT_EQ (Z_bytes_big {Z::read ("1")}, Z_bytes_big::read ("1"));
@@ -100,7 +100,7 @@ namespace data {
         EXPECT_EQ (Z_bytes_little {Z::read ("-3393939987200333")}, Z_bytes_little::read ("-3393939987200333"));
         
     }
-    
+
     TEST (ZBytesTest, TestZBytesIncrement) {
         
         auto zb0 = Z_bytes_big::read ("0x");
@@ -140,7 +140,7 @@ namespace data {
         EXPECT_EQ (--zl3, Z_bytes_little {-1});
         
     }
-    
+
     TEST (ZBytesTest, TestZBytesToString) {
         
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big::read ("1")), std::string {"1"});
@@ -227,16 +227,19 @@ namespace data {
         EXPECT_EQ (Z_little, z);
         
     }
-    
+
     TEST (ZBytesTest, TestZBytesToZ) {
-        
+
+        Z_Bytes_to_Z (-1);
         Z_Bytes_to_Z (0);
         Z_Bytes_to_Z (1);
         Z_Bytes_to_Z (3);
+        Z_Bytes_to_Z (-3);
         Z_Bytes_to_Z (229);
         Z_Bytes_to_Z (767);
         Z_Bytes_to_Z (916);
         Z_Bytes_to_Z (1145);
+        Z_Bytes_to_Z (-1145);
         Z_Bytes_to_Z ("0x0f00000a00aabbccddeeffffffffffffffff");
         Z_Bytes_to_Z ("0xf000000a00aabbccddeeffffffffffffffff");
         

@@ -119,18 +119,14 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial_division<fraction<dec_int>> {};
     test_polynomial_division<fraction<hex_int_ones>> {};
     test_polynomial_division<fraction<hex_int_twos>> {};
-
-    // can't get complex numbers yet for some reason.
-    // quaternions and octonions are not a field so they don't work because of that.
-    // However, they ought to work with the right concepts.
-    /*
+/*
     test_polynomial<G> {};
     test_polynomial<GH> {};
-    test_polynomial<GO> {};*/
-    /*
+    test_polynomial<GO> {};
+
     test_polynomial_division<QC> {};
     test_polynomial_division<QH> {};
-    test_polynomial_division<QO> {};*/
+    test_polynomial_division<QO> {};
 
     // can't test these as fields because can't reliably subtract
     // two numbers that ought to be equal to get zero.
@@ -139,18 +135,17 @@ TEST (PolynomialTest, TestPolynomial) {
     // floats use partial_ordering. There ought to be a way to figure out the correct
     // ordering.
 
-    /*test_polynomial<float64> {};
+    test_polynomial<float64> {};
     test_polynomial<float32> {};
     test_polynomial<complex128> {};
     test_polynomial<complex64> {};
     test_polynomial<quat256> {};
     test_polynomial<quat128> {};
     test_polynomial<oct512> {};
-    test_polynomial<oct256> {};*/
+    test_polynomial<oct256> {};
 
     // should be able to do finite fields eventually.
 
-/*
     test_polynomial_division<prime_field<2>>;
     test_polynomial_division<prime_field<3>>;
     test_polynomial_division<prime_field<5>>;

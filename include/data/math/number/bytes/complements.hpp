@@ -421,7 +421,7 @@ namespace data::math::number::arithmetic {
         if (a.size () < b.size ()) return bit_and<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
         auto x = N_bytes<r>::zero (a.size ());
-        bit_and<byte> (x.end (), x.begin (), a.begin (),
+        bit_and<word> (x.end (), x.begin (), a.begin (),
             view<word> (bt).begin ());
         return x;
     }
@@ -431,7 +431,7 @@ namespace data::math::number::arithmetic {
         if (a.size () < b.size ()) return bit_or<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
         auto x = N_bytes<r>::zero (a.size ());
-        bit_or<byte> (x.end (), x.begin (), a.begin (),
+        bit_or<word> (x.end (), x.begin (), a.begin (),
             view<word> (bt).begin ());
         return x;
     }
@@ -450,9 +450,9 @@ namespace data::math::number::arithmetic::nones {
 
         auto o = w.begin ();
         auto i = w.begin ();
-        auto remainder = arithmetic::plus<byte> (w.end (), o, 1, i);
-
-        if (remainder != 0) {
+        //auto remainder = arithmetic::plus<word> (w.end (), o, 1, i);
+        bool remainder = arithmetic::add_with_carry<word> (w.end (), o, i, 1);
+        if (remainder) {
             x = extend<r, complement::nones> (x, size (w) + 1);
             words<r> (x)[-1] = remainder;
         }
@@ -465,18 +465,20 @@ namespace data::math::number::arithmetic::nones {
         auto w = words<r> (x);
         auto xx = w.begin ();
         auto xy = w.begin ();
-        if (!is_zero (w)) arithmetic::minus<byte> (w.end (), xx, 1, xy);
+        //if (!is_zero (w)) arithmetic::minus<word> (w.end (), xx, 1, xy);
+        if (!is_zero (w)) arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
         return x;
     }
 
     template <endian::order r, std::integral word> bytestring<word> plus (view<word> a, view<word> b) {
         bytestring<word> n (std::max (a.size (), b.size ()), 0);
         auto wn = words<r> (n);
-        word remainder = arithmetic::plus<r, byte> (wn, words<r> (a), words<r> (b));
+        word remainder = arithmetic::plus<r, word> (wn, words<r> (a), words<r> (b));
         if (remainder > 0) {
             extend<r, complement::nones, word> (n, n.size () + 1);
             *words<r> (n).rbegin () = remainder;
         }
+
         return n;
     }
 
@@ -484,7 +486,7 @@ namespace data::math::number::arithmetic::nones {
     template <endian::order r, std::integral word> bytestring<word> minus (view<word> a, view<word> b) {
         bytestring<word> n (a.size (), 0);
         auto wn = words<r> (n);
-        arithmetic::minus<r, byte> (wn, words<r> (a), words<r> (b));
+        arithmetic::minus<r, word> (wn, words<r> (a), words<r> (b));
         return n;
     }
 }
@@ -518,20 +520,23 @@ namespace data::math::number::arithmetic::ones {
     template <endian::order r, std::integral word>
     bytestring<word> &increment (bytestring<word> &x) {
 
-        extend<r, complement::ones> (x, size (words<r> (x)) + 1);
-
         auto w = words<r> (x);
+        if (is_negative_one_ones (w)) return x = zero<r, word> (0);
+
+        // always extend by one in case we would increment something that would produce a positive number.
+        extend<r, complement::ones> (x, size (w) + 1);
+        w = words<r> (x);
+
         auto oit = w.begin ();
         auto iit = w.begin ();
 
-        // a remainder is provided here that we throw out
-        // but it could be used to detect an overflow.
-        arithmetic::plus<byte> (w.end (), oit, 1, iit);
+        arithmetic::add_with_carry<word> (w.end (), oit, iit, 1);
         return x;
     }
 
     template <endian::order r, std::integral word>
     bytestring<word> &decrement (bytestring<word> &x) {
+
         auto w = words<r> (x);
         if (is_zero (w)) return x = bytestring<word> (1, std::numeric_limits<word>::max ());
 
@@ -543,7 +548,7 @@ namespace data::math::number::arithmetic::ones {
 
         // a remainder is provided here that we throw out
         // but it could be used to detect an overflow.
-        arithmetic::minus<byte> (w.end (), xx, 1, xy);
+        arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
         return x;
     }
 }
@@ -587,16 +592,22 @@ namespace data::math::number::arithmetic::twos {
 
     template <endian::order r, std::integral word>
     bytestring<word> &increment (bytestring<word> &x) {
-        if (is_zero (words<r> (x))) x = zero<r, word> (1);
-
         auto w = words<r> (x);
-        if (sign_bit (w))
-            return negate<r> (decrement<r> (negate<r> (x)));
+
+        // zero can be empty, so we handle this case separately.
+        if (is_zero (w)) {
+            x = zero<r, word> (1);
+            words<r> (x)[1] = 1;
+            return x;
+        }
+
+        if (sign_bit (w)) return negate<r> (decrement<r> (negate<r> (x)));
 
         auto oit = w.begin ();
         auto iit = w.begin ();
 
-        auto remainder = arithmetic::plus<byte> (w.end (), oit, 1, iit);
+        //auto remainder = arithmetic::plus<word> (w.end (), oit, 1, iit);
+        auto remainder = arithmetic::add_with_carry<word> (w.end (), oit, iit, 1);
         if (remainder != 0) {
             auto n = zero<r, word> (size (w) + 1);
             auto v = words<r> (n);
@@ -622,7 +633,8 @@ namespace data::math::number::arithmetic::twos {
 
         auto xx = w.begin ();
         auto xy = w.begin ();
-        arithmetic::minus<byte> (w.end (), xx, 1, xy);
+        //arithmetic::minus<word> (w.end (), xx, 1, xy);
+        arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
         return x;
     }
 
@@ -652,7 +664,7 @@ namespace data::math::number::arithmetic::twos {
             if (!an && !bn) {
                 bytestring<word> c (std::max (a.size (), b.size ()), 9);
                 auto wc = words<r> (c);
-                word remainder = arithmetic::plus<r, byte> (wc, wa, wb);
+                word remainder = arithmetic::plus<r, word> (wc, wa, wb);
                 if (remainder > 0 || sign_bit (wc)) {
                     extend<r, complement::nones, word> (c, c.size () + 1);
                     *words<r> (c).rbegin () = remainder;
@@ -660,22 +672,22 @@ namespace data::math::number::arithmetic::twos {
                 return c;
             }
 
-            if (an && bn) return negate<r, byte> (plus<r, byte> (negate<r, byte> (a),  negate<r, byte> (b)));
+            if (an && bn) return negate<r, word> (plus<r, word> (negate<r, word> (a),  negate<r, word> (b)));
         }
 
         if (an) {
-            bytestring<word> na = negate<r, byte> (a);
-            return compare<r, word> (na, b) > 0 ? negate<r, byte> (nones::minus<r, word> (na, b)): nones::minus<r, word> (b, na);
+            bytestring<word> na = negate<r, word> (a);
+            return compare<r, word> (na, b) > 0 ? negate<r, word> (nones::minus<r, word> (na, b)): nones::minus<r, word> (b, na);
         } else {
-            bytestring<word> nb = negate<r, byte> (b);
-            return compare<r, word> (a, nb) > 0 ? nones::minus<r, word> (a, nb): negate<r, byte> (nones::minus<r, word> (nb, a));
+            bytestring<word> nb = negate<r, word> (b);
+            return compare<r, word> (a, nb) > 0 ? nones::minus<r, word> (a, nb): negate<r, word> (nones::minus<r, word> (nb, a));
         }
     }
 
     template <endian::order r, std::integral word> bytestring<word> times (view<word> a, view<word> b) {
 
-        auto as = abs<r, byte> (a);
-        auto bs = abs<r, byte> (b);
+        auto as = abs<r, word> (a);
+        auto bs = abs<r, word> (b);
         bytestring<word> cs (as.size () + bs.size () + 1, 0);
 
         auto wa = words<r> (as);
@@ -684,7 +696,7 @@ namespace data::math::number::arithmetic::twos {
 
         arithmetic::times (wc, wa, wb);
 
-        return is_negative (words<r> (a)) == is_negative (words<r> (b)) ? cs : negate<r, byte> (cs);
+        return is_negative (words<r> (a)) == is_negative (words<r> (b)) ? cs : negate<r, word> (cs);
     }
 }
 

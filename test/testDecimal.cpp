@@ -44,6 +44,9 @@ namespace data {
 
     TEST (DecimalTest, TestDecToHex) {
 
+        test_dec_to_hex ("0");
+        test_dec_to_hex ("1");
+        test_dec_to_hex ("9");
         test_dec_to_hex ("129");
         test_dec_to_hex ("7493");
         test_dec_to_hex ("749384");
@@ -54,7 +57,7 @@ namespace data {
         test_dec_to_hex ("98980987676898761029390303474536547399");
         test_dec_to_hex ("98980987676898761029390303474536547400");
     }
-    
+
     void test_decrement_signed (const string &given, const string &expected) {
         
         dec_int g (given);

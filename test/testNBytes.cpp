@@ -7,7 +7,61 @@
 #include <iostream>
 
 namespace data::math::number {
-    
+
+    template<endian::order r>
+    math::N N_Bytes_to_N_stupid (const math::number::N_bytes<r> &n) {
+        math::N x {0};
+        for (const byte &b : n.words ().reverse ()) {
+            x <<= 8;
+            x += b;
+        }
+        return x;
+    }
+
+    template<endian::order r>
+    math::number::N_bytes<r> inline N_to_N_Bytes_stupid (const math::N &n) {
+        return math::number::N_bytes<r>::read (encoding::hexidecimal::write<hex_case::lower> (n));
+    }
+
+    template <typename in> void N_Bytes_to_N (in x) {
+
+        math::N n {x};
+
+        N_bytes_big big {x};
+        N_bytes_little little {x};
+
+        N_bytes_big stupid_big = N_to_N_Bytes_stupid<endian::big> (n);
+        N_bytes_little stupid_little = N_to_N_Bytes_stupid<endian::little> (n);
+
+        EXPECT_EQ (stupid_big, big) << "expected " << std::hex << stupid_big << " to equal " << big << "; input = " << x;
+        EXPECT_EQ (stupid_little, little) << "expected " << std::hex << stupid_little << " to equal " << little << "; input = " << x;
+
+        math::N N_big = math::N (big);
+        math::N N_little = math::N (little);
+
+        math::N N_big_stupid = N_Bytes_to_N_stupid (big);
+        math::N N_little_stupid = N_Bytes_to_N_stupid (little);
+
+        EXPECT_EQ (N_big_stupid, N_big);
+        EXPECT_EQ (N_little_stupid, N_little);
+
+        EXPECT_EQ (N_big, n);
+        EXPECT_EQ (N_little, n);
+
+    }
+
+    TEST (NBytesTest, TestNBytesToN) {
+
+        N_Bytes_to_N<uint64> (0);
+        N_Bytes_to_N<uint64> (1);
+        N_Bytes_to_N<uint64> (3);
+        N_Bytes_to_N<uint64> (767);
+        N_Bytes_to_N<uint64> (7439);
+        N_Bytes_to_N<string> ("0x0f00000a00aabbccddeeffffffffffffffff");
+        N_Bytes_to_N<string> ("0xf000000a00aabbccddeeffffffffffffffff");
+
+    }
+
     TEST (NBytesTest, TestStringToNBytes) {
 
         EXPECT_THROW (N_bytes<endian::big>::read (""), std::invalid_argument);
@@ -100,6 +154,7 @@ namespace data::math::number {
     
     TEST (NBytesTest, TestNToNBytes) {
 
+        test_N_to_N_bytes ("0");
         test_N_to_N_bytes ("1");
         test_N_to_N_bytes ("23");
         test_N_to_N_bytes ("5704566599993321");
@@ -108,7 +163,7 @@ namespace data::math::number {
         test_N_to_N_bytes ("98980987676898761029390303474536547400");
         
     }
-    
+
     template <endian::order r> 
     struct test_bit_shift {
         test_bit_shift (string num, int shift) {
@@ -155,60 +210,6 @@ namespace data::math::number {
             N_bytes<endian::big> {"5704566599993321"}), std::string {"0x144445e9ca47e9"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::little> {"5704566599993321"}), std::string {"0x144445e9ca47e9"});
-        
-    }
-    
-    template<endian::order r>
-    math::N N_Bytes_to_N_stupid (const math::number::N_bytes<r> &n) {
-        math::N x {0};
-        for (const byte &b : n.words ().reverse ()) {
-            x <<= 8;
-            x += b;
-        }
-        return x;
-    }
-    
-    template<endian::order r>
-    math::number::N_bytes<r> inline N_to_N_Bytes_stupid (const math::N &n) {
-        return math::number::N_bytes<r>::read (encoding::hexidecimal::write<hex_case::lower> (n));
-    }
-    
-    template <typename in> void N_Bytes_to_N (in x) {
-        
-        math::N n {x};
-        
-        N_bytes_big big {x};
-        N_bytes_little little {x};
-
-        N_bytes_big stupid_big = N_to_N_Bytes_stupid<endian::big> (n);
-        N_bytes_little stupid_little = N_to_N_Bytes_stupid<endian::little> (n);
-        
-        EXPECT_EQ (stupid_big, big) << "expected " << std::hex << stupid_big << " to equal " << big << "; input = " << x;
-        EXPECT_EQ (stupid_little, little) << "expected " << std::hex << stupid_little << " to equal " << little << "; input = " << x;
-        
-        math::N N_big = math::N (big);
-        math::N N_little = math::N (little);
-        
-        math::N N_big_stupid = N_Bytes_to_N_stupid (big);
-        math::N N_little_stupid = N_Bytes_to_N_stupid (little);
-        
-        EXPECT_EQ (N_big_stupid, N_big);
-        EXPECT_EQ (N_little_stupid, N_little);
-        
-        EXPECT_EQ (N_big, n);
-        EXPECT_EQ (N_little, n);
-        
-    }
-    
-    TEST (NBytesTest, TestNBytesToN) {
-        
-        N_Bytes_to_N<uint64> (0);
-        N_Bytes_to_N<uint64> (1);
-        N_Bytes_to_N<uint64> (3);
-        N_Bytes_to_N<uint64> (767);
-        N_Bytes_to_N<uint64> (7439);
-        N_Bytes_to_N<string> ("0x0f00000a00aabbccddeeffffffffffffffff");
-        N_Bytes_to_N<string> ("0xf000000a00aabbccddeeffffffffffffffff");
         
     }
     

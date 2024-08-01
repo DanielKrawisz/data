@@ -537,6 +537,7 @@ namespace data::math::number {
             auto gbl = bytes_type<endian::little, n>::read (given);
             auto ebl = bytes_type<endian::little, n>::read (expected);
             auto ibl = data::increment (gbl);
+            std::cout << " test increment: " << given << " expected to decrement to " << expected << std::endl;
             EXPECT_EQ (static_cast<bytes> (ibl), static_cast<bytes> (ebl)) << "expected " << ibl << " === " << ebl;
             EXPECT_TRUE (is_minimal (bytes_type<endian::little, n> (ibl)));
 
@@ -627,7 +628,7 @@ namespace data::math::number {
         // TODO need to test that decrement 0 is 0 for unsigned numbers.
 
     }
-    
+
     template <typename N> struct test_negation_number {
         test_negation_number (string initial, string expected) {
 
@@ -1243,7 +1244,7 @@ namespace data::math::number {
 // this test in the first step in getting my numbers working. 
 // we only work with hexidecimal format. 
 namespace data {
-    
+
     enum sizes {
         any = 0
     };

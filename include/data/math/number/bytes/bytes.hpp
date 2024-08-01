@@ -71,11 +71,8 @@ namespace data::math::number {
     template <endian::order r, complement c> 
     std::weak_ordering operator <=> (const Z_bytes<r, c> &, int64);
     
-    template <endian::order r> 
-    bool operator == (const N_bytes<r> &, math::N);
-    
-    template <endian::order r, complement c> 
-    bool operator == (const Z_bytes<r, c> &, Z);
+    template <endian::order r> bool operator == (const N_bytes<r> &, const math::N &);
+    template <endian::order r, complement c> bool operator == (const Z_bytes<r, c> &, const math::Z &);
     
     // bit negate
     template <endian::order r> Z_bytes<r, complement::ones> operator ~ (const N_bytes<r> &);

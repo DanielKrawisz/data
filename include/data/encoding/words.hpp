@@ -104,39 +104,14 @@ namespace data::math::number::arithmetic {
         bit_negate<digit> (x.end (), x.begin (), x.begin ());
         auto o = x.begin ();
         auto i = x.begin ();
-        plus (x.end (), o, 1, i);
+        //plus (x.end (), o, 1, i);
+        add_with_carry<digit> (x.end (), o, i, 1);
     }
 
     template <endian::order r, typename digit> void inline negate_twos (encoding::words<r, digit> x) {
         if (x.size () == 0) return;
         flip_sign_bit (x);
     }
-
-    template <typename digit> struct get_limit;
-
-    template<> struct get_limit<byte> {
-        static const byte max_unsigned = 0xff;
-        static const byte max_signed = 0x7f;
-    };
-
-    template<> struct get_limit<uint16> {
-        static const uint16 max_unsigned = 0xffff;
-        static const uint16 max_signed = 0x7fff;
-    };
-
-    template<> struct get_limit<uint32> {
-        static const uint32 max_unsigned = 0xffffffff;
-        static const uint32 max_signed = 0x7ffffff;
-    };
-
-    template<> struct get_limit<uint64> {
-        static const uint64 max_unsigned = 0xffffffffffffffff;
-        static const uint64 max_signed = 0x7fffffffffffffff;
-    };
-
-    template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
-    template <typename digit> const digit max_signed_ones = get_limit<digit>::max_signed;
-    template <typename digit> const digit min_unsigned_ones = get_sign_bit<digit>::value;
 
     template <endian::order r, typename digit>
     void set_max_unsigned (encoding::words<r, digit> a) {
@@ -179,10 +154,13 @@ namespace data::math::number::arithmetic {
         auto end_step_1 = oit + b.size ();
         auto end_step_2 = oit + a.size ();
 
-        digit remainder_1 = plus<digit> (end_step_1, oit, ait, bit);
-        digit remainder_2 = plus (end_step_2, oit, remainder_1, ait);
+        //digit remainder_1 = plus<digit> (end_step_1, oit, ait, bit);
+        bool carry_1 = add_with_carry<digit> (end_step_1, oit, ait, bit);
+        //digit remainder_2 = plus (end_step_2, oit, remainder_1, ait);
+        bool carry_2 = add_with_carry<digit> (end_step_2, oit, ait, carry_1 ? 1 : 0);
         auto oiti = oit;
-        return plus (o.end (), oit, remainder_2, oiti);
+        //return plus (o.end (), oit, remainder_2, oiti);
+        return add_with_carry<digit> (o.end (), oit, oiti, carry_2 ? 1 : 0) ? 1 : 0;
 
     }
 
@@ -197,29 +175,32 @@ namespace data::math::number::arithmetic {
         auto end_step_1 = oit + std::min (a.size (), b.size ());
         auto end_step_2 = oit + a.size ();
 
-        digit remainder = minus<digit> (end_step_1, oit, ait, bit);
-        return minus<digit> (end_step_2, oit, remainder, ait);
+        //digit remainder = minus<digit> (end_step_1, oit, ait, bit);
+        //return minus<digit> (end_step_2, oit, remainder, ait);
+
+        bool carry = subtract_with_carry<digit> (end_step_1, oit, ait, bit);
+        return subtract_with_carry<digit> (end_step_2, oit, ait, carry ? 1 : 0) ? 1 : 0;
 
     }
 
     template <endian::order r, typename digit>
     void times (encoding::words<r, digit> &o, const encoding::words<r, digit> &a, const encoding::words<r, digit> &b) {
 
-        // if the size of b is zero, then the answer is zero and we can skip to the end.
-        if (a.size () == 0 || b.size () == 0) return;
+        // if the size of b is zero, then the answer is zero.
+        if (a.size () == 0 || b.size () == 0) {
+            for (auto io = o.begin (); io != o.end (); io++) *io = 0;
+            return;
+        }
 
         // ensure that a is at least as big as b.
         if (a.size () < b.size ()) return times (o, b, a);
-
-        using two_digits = typename encoding::twice<digit>::type;
+        if (a.size () > o.size ()) throw exception {} << "multiplication output must be at least as big as inputs";
 
         auto io = o.begin ();
         auto ia = a.begin ();
         auto ib = b.begin ();
 
         // We leave iterators at the beginning of a and b.
-        // We know that neither of these is at the end and
-        // we will use that information.
         auto ba = ia;
         auto bb = ib;
 
@@ -232,15 +213,17 @@ namespace data::math::number::arithmetic {
             auto bx = ib;
 
             while (true) {
-                two_digits result = two_digits (*ax) * two_digits (*bx);
+                auto [lesser, greater] = multiply_with_carry (*ax, *bx);
 
                 auto pio = io;
                 auto pia = io;
-                plus<digit> (o.end (), pio, encoding::lesser_half (result), pia);
+                add_with_carry<digit> (o.end (), pio, pia, lesser);
 
+                // we know that we will not go off the end because we are
+                // not yet at the end of b, which we know is smaller than a.
                 auto mio = io + 1;
                 auto mia = io + 1;
-                plus<digit> (o.end (), mio, encoding::greater_half (result), mia);
+                add_with_carry<digit> (o.end (), mio, mia, greater);
 
                 if (ax == ia) break;
                 ax++;
@@ -265,15 +248,15 @@ namespace data::math::number::arithmetic {
             auto bx = ib - 1;
 
             while (true) {
-                two_digits result = two_digits (*ax) * two_digits (*bx);
+                auto [lesser, greater] = multiply_with_carry (*ax, *bx);
 
                 auto pio = io;
                 auto pia = io;
-                plus<digit> (o.end (), pio, encoding::lesser_half (result), pia);
+                add_with_carry<digit> (o.end (), pio, pia, lesser);
 
                 auto mio = io + 1;
                 auto mia = io + 1;
-                plus<digit> (o.end (), mio, encoding::greater_half (result), mia);
+                add_with_carry <digit> (o.end (), mio, mia, greater);
 
                 // when this happens, bx will be back at the beginning of b.
                 if (ax == ia) break;
@@ -296,15 +279,15 @@ namespace data::math::number::arithmetic {
             auto bx = ib - 1;
 
             while (ax != a.end ()) {
-                two_digits result = two_digits (*ax) * two_digits (*bx);
+                auto [lesser, greater] = multiply_with_carry (*ax, *bx);
 
                 auto pio = io;
                 auto pia = io;
-                plus<digit> (o.end (), pio, encoding::lesser_half (result), pia);
+                add_with_carry<digit> (o.end (), pio, pia, lesser);
 
                 auto mio = io + 1;
                 auto mia = io + 1;
-                plus<digit> (o.end (), mio, encoding::greater_half (result), mia);
+                add_with_carry <digit> (o.end (), mio, mia, greater);
 
                 ax++;
                 bx--;

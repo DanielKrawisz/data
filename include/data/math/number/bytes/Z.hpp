@@ -7,7 +7,6 @@
 
 #include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/bytes/complements.hpp>
-//#include <data/math/number/bytes/GCC_carry_arithmetic.hpp>
 
 namespace data::math::number {
     
@@ -57,7 +56,6 @@ namespace data::math::number {
     
     template <endian::order r> struct Z_bytes<r, complement::ones> : oriented<r, byte> {
         
-        //explicit Z_bytes (const std::string &);
         Z_bytes () : oriented<r, byte> {} {}
         
         Z_bytes (int64 x);
@@ -80,7 +78,7 @@ namespace data::math::number {
         
         Z_bytes &trim ();
 
-        Z_bytes (bytestring<byte> &&b) : oriented<r, byte> {b} {}
+        Z_bytes (bytes &&b) : oriented<r, byte> {b} {}
 
     };
     
@@ -107,7 +105,7 @@ namespace data::math::number {
 
         Z_bytes &trim ();
 
-        Z_bytes (bytestring<byte> &&b): oriented<r, byte> {b} {}
+        Z_bytes (bytes &&b): oriented<r, byte> {b} {}
 
         explicit operator bool () const {
             return !data::is_zero (*this);
@@ -118,7 +116,9 @@ namespace data::math::number {
     };
 
     template <endian::order r> nonzero<N_bytes<r>> inline increment<N_bytes<r>>::operator () (const N_bytes<r> &n) {
-        return nonzero<N_bytes<r>> {n + 1};
+        nonzero<N_bytes<r>> v {n};
+        ++v.Value;
+        return v;
     }
 
     template <endian::order r> N_bytes<r> inline decrement<N_bytes<r>>::operator () (const nonzero<N_bytes<r>> &n) {
@@ -641,6 +641,14 @@ namespace data::math::number {
         return a == Z_bytes<r, cl> (b);
     }
 
+    template <endian::order r> bool inline operator == (const N_bytes<r> &a, const math::N &b) {
+        return math::N (a) == b;
+    }
+
+    template <endian::order r, complement c> bool inline operator == (const Z_bytes<r, c> &a, const math::Z &b) {
+        return math::Z (a) == b;
+    }
+
     template <endian::order r, complement cl, complement cr>
     std::weak_ordering inline operator <=> (const Z_bytes<r, cl> &a, const Z_bytes<r, cl> &b) {
         return a <=> Z_bytes<r, cl> (b);
@@ -1019,7 +1027,15 @@ namespace data::math::number {
 
     template <endian::order r> N_bytes<r>::N_bytes (const math::N &n) : N_bytes {} {
         size_t z = mpz_size (n.Value.MPZ);
-        for (size_t i = z; i > 0; --i) *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8) + mpz_getlimbn (n.Value.MPZ, i - 1);
+
+        if (z == 0) return;
+        size_t i = z - 1;
+        while (true) {
+            *this += mpz_getlimbn (n.Value.MPZ, i);
+            if (i == 0) break;
+            *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8);
+            --i;
+        }
 
         this->trim ();
     }

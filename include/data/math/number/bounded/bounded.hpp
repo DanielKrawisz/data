@@ -408,7 +408,7 @@ namespace data::math::number {
         explicit bounded (const string &s) : bounded {read (s)} {}
         static bounded read (string_view);
         
-        math::division<bounded> divide (const bounded&) const;
+        math::division<bounded> divide (const bounded &) const;
         
         static bounded max ();
         static bounded min ();
@@ -424,7 +424,7 @@ namespace data::math::number {
         explicit operator bounded<true, r, size> () const;
 
         explicit bounded (const math::N &n): bounded {N_bytes<r> (n)} {}
-        explicit bounded (const N_bytes<r>& n) : bounded {} {
+        explicit bounded (const N_bytes<r> &n) : bounded {} {
             if (n.size () <= size) std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
             else if (N_bytes<r> (n) <= N_bytes<r> {max ()}) std::copy (n.words ().begin (), n.words ().begin () + size, this->begin ());
             else throw std::invalid_argument {"N_bytes too big"};
@@ -1025,7 +1025,8 @@ namespace data::math::number {
         auto i = z.words ().begin ();
         auto j = a.words ().begin ();
         auto k = b.words ().begin ();
-        arithmetic::plus<byte> (z.words ().end (), i, j, k);
+        //arithmetic::plus<byte> (z.words ().end (), i, j, k);
+        arithmetic::add_with_carry<byte> (z.words ().end (), i, j, k);
         return z;
     }
     
@@ -1035,7 +1036,8 @@ namespace data::math::number {
         auto i = z.words ().begin ();
         auto j = a.words ().begin ();
         auto k = b.words ().begin ();
-        arithmetic::minus<byte> (z.words ().end (), i, j, k);
+        //arithmetic::minus<byte> (z.words ().end (), i, j, k);
+        arithmetic::subtract_with_carry<byte> (z.words ().end (), i, j, k);
         return z;
     }
 
@@ -1044,7 +1046,8 @@ namespace data::math::number {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
-        arithmetic::plus<byte> (a.words ().end (), awb, cawb, bwb);
+        //arithmetic::plus<byte> (a.words ().end (), awb, cawb, bwb);
+        arithmetic::add_with_carry<byte> (a.words ().end (), awb, cawb, bwb);
         return a;
     }
 
@@ -1053,7 +1056,8 @@ namespace data::math::number {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
-        arithmetic::minus<byte> (a.words ().end (), awb, cawb, bwb);
+        //arithmetic::minus<byte> (a.words ().end (), awb, cawb, bwb);
+        arithmetic::subtract_with_carry<byte> (a.words ().end (), awb, cawb, bwb);
         return a;
     }
     
@@ -1080,14 +1084,16 @@ namespace data::math::number {
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator ++ (bounded<u, r, x> &n) {
         auto o = n.words ().begin ();
         auto i = n.words ().begin ();
-        arithmetic::plus<byte> (n.words ().end (), o, 1, i);
+        //arithmetic::plus<byte> (n.words ().end (), o, 1, i);
+        arithmetic::add_with_carry<byte> (n.words ().end (), o, i, 1);
         return n;
     }   
     
     template <bool u, endian::order r, size_t x> bounded<u, r, x> inline &operator -- (bounded<u, r, x> &n) {
         auto xx = n.words ().begin ();
         auto xy = n.words ().begin ();
-        arithmetic::minus<byte> (n.words ().end (), xx, 1, xy);
+        //arithmetic::minus<byte> (n.words ().end (), xx, 1, xy);
+        arithmetic::subtract_with_carry<byte> (n.words ().end (), xx, xy, 1);
         return n;
     }
     

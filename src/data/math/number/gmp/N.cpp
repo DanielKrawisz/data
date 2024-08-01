@@ -55,14 +55,16 @@ namespace data::math::number::GMP {
     }
     
     Z Z_read_hex (string_view x) {
-        //std::cout << "(Z read hex " << x << ")";
+
         if (encoding::hexidecimal::zero (x)) return Z {0};
+
         if (encoding::integer::negative (x)) {
             std::stringstream ss;
             ss << "0x01";
             for (int i = 0; i < x.size () - 2; i += 2) ss << "00";
             return N {x} - Z_read_hex_positive (ss.str ());
         };
+
         return Z_read_hex_positive (x);
     }
     

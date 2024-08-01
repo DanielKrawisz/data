@@ -41,10 +41,11 @@ namespace data::encoding {
         EXPECT_EQ (base58::encode<N> (*base58::decode<N> ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
             "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
         
-        EXPECT_EQ (base58::write (*base58::read ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
-            "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
+        string k = "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS";
+        auto rw = base58::write (*base58::read (k));
+        EXPECT_EQ (rw, k) << "expected " << rw << " to equal " << k;
     }
-    
+
     TEST (Base58Test, Base58WriteBytes) {
         bytes testArray {0x80,0x5A,0xA7,0x86,0xA5,0x7B,0x3B,0xFC,0x0D,0xFD,0xF2,0xEC,0x86,0x76,0x03,0x39,0xF0,0x18,0x11,
             0x4A,0x7E,0x30,0xC2,0xD2,0x70,0x1C,0xF2,0x94,0xDC,0x60,0x82,0x9D,0x9B,0x01,0x1C,0xD8,0xE3,0x91};
