@@ -15,7 +15,7 @@
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
 #include <data/math/number/integer.hpp>
-#include <data/math/number/complement.hpp>
+#include <data/arithmetic/complement.hpp>
 #include <data/encoding/hex.hpp>
 
 #include <string>
@@ -279,7 +279,7 @@ namespace data::encoding::decimal {
 }
 
 namespace data::encoding::hexidecimal {
-    using complement = math::number::complement;
+    using complement = arithmetic::complement;
     template <complement, hex_case> struct integer;
     
     template <hex_case zz> integer<complement::nones, zz> write (const math::N &);

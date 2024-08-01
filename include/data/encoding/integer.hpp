@@ -12,7 +12,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <data/encoding/invalid.hpp>
-#include <data/math/number/complement.hpp>
+#include <data/arithmetic/complement.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/math/root.hpp>
 
@@ -1741,7 +1741,7 @@ namespace data::encoding::hexidecimal {
     
     namespace {
         template <hex::letter_case cx, bool is_signed, endian::order r, size_t size> 
-        string<cx> write_arith (const endian::arithmetic<is_signed, r, size> &z) {
+        string<cx> write_arith (const arithmetic::endian_integral<is_signed, r, size> &z) {
             std::stringstream ss;
             ss << "0x";
             hex::write (ss, z, cx);
@@ -1758,19 +1758,19 @@ namespace data::encoding::hexidecimal {
 
             integer<complement::nones, zz> operator () (uint64 i) {
                 return integer<complement::nones, zz>
-                    {write_arith<zz> (endian::arithmetic<false, endian::big, 8> {i})};
+                    {write_arith<zz> (arithmetic::endian_integral<false, endian::big, 8> {i})};
             }
         };
         
         template <hex::letter_case zz> struct write_int<complement::ones, zz> {
             integer<complement::ones, zz> operator () (uint64 i) {
                 return integer<complement::nones, zz>
-                    {write_arith<zz> (endian::arithmetic<false, endian::big, 8> {i})};
+                    {write_arith<zz> (arithmetic::endian_integral<false, endian::big, 8> {i})};
             }
 
             integer<complement::ones, zz> operator () (int64 i) {
                 return integer<complement::ones, zz>
-                    {write_arith<zz> (endian::arithmetic<true, endian::big, 8> {i})};
+                    {write_arith<zz> (arithmetic::endian_integral<true, endian::big, 8> {i})};
             }
         };
         
@@ -1786,7 +1786,7 @@ namespace data::encoding::hexidecimal {
         private:
             integer<complement::twos, zz> write_uint (uint64 i) {
                 return integer<complement::twos, zz>
-                    {write_arith<zz> (endian::arithmetic<false, endian::big, 8> {i})};
+                    {write_arith<zz> (arithmetic::endian_integral<false, endian::big, 8> {i})};
             } 
         };
 
@@ -2046,7 +2046,7 @@ namespace data::encoding::hexidecimal {
             boost::algorithm::unhex (a.begin () + 2, a.end (), a_d.begin ());
             boost::algorithm::unhex (b.begin () + 2, b.end (), b_d.begin ());
             
-            math::number::arithmetic::bit_and<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            arithmetic::bit_and<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
@@ -2063,7 +2063,7 @@ namespace data::encoding::hexidecimal {
             boost::algorithm::unhex (a.begin () + 2, a.end (), a_d.begin ());
             boost::algorithm::unhex (b.begin () + 2, b.end (), b_d.begin ());
             
-            math::number::arithmetic::bit_or<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            arithmetic::bit_or<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin() + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
@@ -2080,7 +2080,7 @@ namespace data::encoding::hexidecimal {
             boost::algorithm::unhex (a.begin () + 2, a.end (), a_d.begin ());
             boost::algorithm::unhex (b.begin () + 2, b.end (), b_d.begin ());
             
-            math::number::arithmetic::bit_xor<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            arithmetic::bit_xor<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);

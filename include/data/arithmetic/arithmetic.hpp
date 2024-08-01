@@ -1,18 +1,18 @@
-// Copyright (c) 2023 Daniel Krawisz
+// Copyright (c) 2023-2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BYTES_ARITHMETIC
-#define DATA_MATH_NUMBER_BYTES_ARITHMETIC
+#ifndef DATA_ARITHMETIC_ARITHMETIC
+#define DATA_ARITHMETIC_ARITHMETIC
 
 #include <data/math/sign.hpp>
-#include <data/encoding/halves.hpp>
-#include <data/math/number/complement.hpp>
-#include <data/math/number/bytes/GCC_carry_arithmetic.hpp>
+#include <data/arithmetic/halves.hpp>
+#include <data/arithmetic/complement.hpp>
+#include <data/arithmetic/carry.hpp>
 
 #include <iostream>
 
-namespace data::math::number::arithmetic {
+namespace data::arithmetic {
 
     template <typename sen, typename it>
     requires std::input_iterator<it> && std::sentinel_for<sen, it>
@@ -101,86 +101,6 @@ namespace data::math::number::arithmetic {
             b++;
         }
     }
-/*
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit plus (sen z, ito &a, digit d, iti &b) {
-        using two_digits = typename encoding::twice<digit>::type;
-
-        digit remainder = d;
-        while (a != z) {
-            two_digits result = encoding::add<digit> (*b, 0, remainder);
-            *a = encoding::lesser_half (result);
-            remainder = encoding::greater_half (result);
-
-            a++;
-            b++;
-        }
-
-        return remainder;
-    }
-
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit minus (sen z, ito &a, digit d, iti &b) {
-        digit remainder = d;
-        while (a != z) {
-            if (*b >= remainder) {
-                *a = *b - remainder;
-                remainder = 0;
-            } else {
-                *a = encoding::lesser_half<typename encoding::twice<digit>::type> (encoding::combine<digit> (1, *b) - remainder);
-                remainder = 1;
-            }
-
-            a++;
-            b++;
-        }
-
-        return remainder;
-    }
-
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit plus (sen z, ito &i, iti &a, iti &b) {
-        using two_digits = typename encoding::twice<digit>::type;
-
-        digit remainder = 0;
-
-        while (i != z) {
-            two_digits result = encoding::add<digit> (*a, *b, remainder);
-            remainder = encoding::greater_half (result);
-            *i = encoding::lesser_half (result);
-            i++;
-            a++;
-            b++;
-        }
-
-        return remainder;
-    }
-
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit minus (sen z, ito &i, iti &a, iti &b) {
-        using two_digits = typename encoding::twice<digit>::type;
-
-        two_digits remainder = 0;
-
-        while (i != z) {
-
-            auto step = encoding::combine<digit> (1, *a) - *b - remainder;
-
-            *i = encoding::lesser_half<typename encoding::twice<digit>::type> (step);
-
-            remainder = encoding::greater_half<typename encoding::twice<digit>::type> (step) == 0 ? 1 : 0;
-
-            i++;
-            a++;
-            b++;
-        }
-
-        return remainder;
-    }*/
 
     // bit shift operations are defined in terms of big-endian numbers.
     // but really they are operations to powers of 2 ignoring sign,
@@ -334,13 +254,6 @@ namespace data::math::number::arithmetic {
         return true;
     }
 
-    template <range X>
-    bool inline is_negative_one_ones (const X x) {
-        if (size (x) == 0) return false;
-        for (const auto &d : x) if (d != max_unsigned<digit<X>>) return false;
-        return true;
-    }
-
     template <complement c, range X>
     size_t minimal_size (X x) {
         if constexpr (c == complement::nones) {
@@ -408,7 +321,7 @@ namespace data::math::number::arithmetic {
 
 }
 
-namespace data::math::number::arithmetic::nones {
+namespace data::arithmetic::nones {
 
     template <range X>
     bool inline is_minimal (X x) {
@@ -433,7 +346,7 @@ namespace data::math::number::arithmetic::nones {
 
 }
 
-namespace data::math::number::arithmetic::ones {
+namespace data::arithmetic::ones {
 
     template <range X>
     bool is_minimal (X x) {
@@ -473,9 +386,16 @@ namespace data::math::number::arithmetic::ones {
         return math::zero;
     }
 
+    template <range X>
+    bool inline is_negative_one (const X x) {
+        if (size (x) == 0) return false;
+        for (const auto &d : x) if (d != max_unsigned<digit<X>>) return false;
+        return true;
+    }
+
 }
 
-namespace data::math::number::arithmetic::twos {
+namespace data::arithmetic::twos {
 
     template <range X>
     bool is_zero (X x) {
@@ -532,7 +452,7 @@ namespace data::math::number::arithmetic::twos {
     math::signature sign (X x) {
         auto i = x.rbegin ();
         if (i == x.rend ()) return math::zero;
-        signature nonzero = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
+        math::signature nonzero = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
         if (*i & ~get_sign_bit<digit<X>>::value) return nonzero;
         while (true) {
             i++;
