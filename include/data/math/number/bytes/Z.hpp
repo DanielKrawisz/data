@@ -59,6 +59,9 @@ namespace data::math::number {
         Z_bytes () : oriented<r, byte> {} {}
         
         Z_bytes (int64 x);
+        Z_bytes (uint64);
+        Z_bytes (int32);
+        Z_bytes (uint32);
         
         static Z_bytes read (string_view x);
         static Z_bytes read (bytes_view x);
@@ -89,6 +92,9 @@ namespace data::math::number {
         Z_bytes () : oriented<r, byte> {} {}
         
         Z_bytes (int64 x);
+        Z_bytes (uint64);
+        Z_bytes (int32);
+        Z_bytes (uint32);
         
         static Z_bytes read (string_view x);
         static Z_bytes read (bytes_view x);
@@ -385,8 +391,11 @@ namespace data::math::number {
     Z_bytes<r, c> inline &operator >>= (Z_bytes<r, c> &x, int64 i) {
         return x = x >> i;
     }
-    
+
     template <endian::order r> inline Z_bytes<r, complement::twos>::Z_bytes (int64 x):
+        Z_bytes {Z_bytes (Z_bytes<r, complement::ones> {x})} {}
+
+    template <endian::order r> inline Z_bytes<r, complement::twos>::Z_bytes (int32 x):
         Z_bytes {Z_bytes (Z_bytes<r, complement::ones> {x})} {}
     
     // check if the number is negative, and then do bit shift on the absolute value.
@@ -819,6 +828,49 @@ namespace data::math::number {
         this->resize (8);
         arithmetic::endian_integral<true, r, 8> n {x};
         std::copy (n.begin (), n.end (), this->begin ());
+        this->trim ();
+    }
+
+    template <endian::order r> inline Z_bytes<r, complement::ones>::Z_bytes (int32 x) : oriented<r, byte> {} {
+        this->resize (4);
+        arithmetic::endian_integral<true, r, 4> n {x};
+        std::copy (n.begin (), n.end (), this->begin ());
+        this->trim ();
+    }
+
+    template <endian::order r> Z_bytes<r, complement::ones>::Z_bytes (uint64 x) : oriented<r, byte> {} {
+        this->resize (9);
+        arithmetic::endian_integral<false, r, 8> n {x};
+        auto nw = n.words ();
+        auto zw = this->words ();
+        std::copy (nw.begin (), nw.end (), zw.begin ());
+        this->trim ();
+    }
+
+    template <endian::order r> Z_bytes<r, complement::ones>::Z_bytes (uint32 x) : oriented<r, byte> {} {
+        this->resize (5);
+        arithmetic::endian_integral<false, r, 4> n {x};
+        auto nw = n.words ();
+        auto zw = this->words ();
+        std::copy (nw.begin (), nw.end (), zw.begin ());
+        this->trim ();
+    }
+
+    template <endian::order r> Z_bytes<r, complement::twos>::Z_bytes (uint64 x) : oriented<r, byte> {} {
+        this->resize (9);
+        arithmetic::endian_integral<false, r, 8> n {x};
+        auto nw = n.words ();
+        auto zw = this->words ();
+        std::copy (nw.begin (), nw.end (), zw.begin ());
+        this->trim ();
+    }
+
+    template <endian::order r> Z_bytes<r, complement::twos>::Z_bytes (uint32 x) : oriented<r, byte> {} {
+        this->resize (5);
+        arithmetic::endian_integral<false, r, 4> n {x};
+        auto nw = n.words ();
+        auto zw = this->words ();
+        std::copy (nw.begin (), nw.end (), zw.begin ());
         this->trim ();
     }
 

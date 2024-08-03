@@ -164,5 +164,20 @@ namespace data {
         test_signed_number<Z_bytes_twos_big> {};
 
     }
+/*
+    struct integer {
+        integer (uint32);
+        integer (int32);
+        integer (uint64);
+        integer (int64);
+    };
+
+    TEST (NumbersTest, TestIntegralConstructors) {
+        integer {23};
+        integer {-23};
+        integer {23u};
+        integer {23l};
+        integer {-23l};
+    }*/
     
 }
