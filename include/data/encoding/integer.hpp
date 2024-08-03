@@ -829,10 +829,6 @@ namespace data::encoding::hexidecimal {
         integer &operator += (const integer &);
         integer &operator -= (const integer &);
         integer &operator *= (const integer &);
-
-        integer<c, cx> &operator += (int64);
-        integer<c, cx> &operator -= (int64);
-        integer<c, cx> &operator *= (int64);
         
         integer &operator <<= (int i);
         integer &operator >>= (int i);
@@ -1702,21 +1698,6 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case cx>
     data::hex::uint<cx> inline complemented_string<complement::nones, cx>::operator * (uint64 i) const {
         return data::hex::uint<cx> {*this} * data::hex::uint<cx> {i};
-    }
-
-    template <complement c, hex::letter_case zz> 
-    integer<c, zz> inline &integer<c, zz>::operator += (int64 i) {
-        return *this += integer {i};
-    }
-    
-    template <complement c, hex::letter_case zz> 
-    integer<c, zz> inline &integer<c, zz>::operator -= (int64 i) {
-        return *this -= integer {i};
-    }
-    
-    template <complement c, hex::letter_case zz> 
-    integer<c, zz> inline &integer<c, zz>::operator *= (int64 i) {
-        return *this *= integer {i};
     }
     
     template <complement c, hex::letter_case zz> 
