@@ -55,7 +55,7 @@ namespace data::encoding::base58 {
         // we take two steps with different numbers because it's a lot faster.
         auto n = decode<math::N> (s);
         if (!bool (n)) return {};
-        return {bytes (math::number::N_bytes<endian::big> (*n))};
+        return {bytes (math::number::N_bytes<endian::big, byte> (*n))};
     }
     
     struct string;
@@ -95,8 +95,8 @@ namespace data::encoding::base58 {
     string &operator <<= (string &, int);
     string &operator >>= (string &, int);
     
-    string &operator |= (string &, const string&);
-    string &operator &= (string &, const string&);
+    string &operator |= (string &, const string &);
+    string &operator &= (string &, const string &);
     
     string &operator += (string &, uint64);
     string &operator -= (string &, uint64);
@@ -145,7 +145,7 @@ namespace data::encoding::base58 {
     }
     
     string inline write (const bytes_view b) {
-        return encode<math::N> (math::N (math::number::N_bytes<endian::big>::read (b)));
+        return encode<math::N> (math::N (math::number::N_bytes<endian::big, byte>::read (b)));
     }
     
 }

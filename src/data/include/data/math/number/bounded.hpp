@@ -13,79 +13,88 @@
 
 namespace data::math::number {
 
-    template <bool u, endian::order r, size_t x> bounded<u, r, x> inline operator / (const bounded<u, r, x> &a, const bounded<u, r, x> &b) {
+    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<bounded<u, r, x>> {} (a, nonzero<bounded<u, r, x>> {b}).Quotient;
+        return divide<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
     }
     
-    template <endian::order r, size_t x> uint<r, x> inline operator / (const uint<r, x> &a, uint64 b) {
-        return a / uint<r, x> (b);
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
+        return a / uint<r, x, word> (b);
     }
     
-    template <endian::order r, size_t x> sint<r, x> inline operator / (const sint<r, x> &a, int64 b) {
-        return a / sint<r, x> (b);
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
+        return a / sint<r, x, word> (b);
     }
 
-    template <endian::order r, size_t x> uint<r, x> inline operator % (const uint<r, x> &a, const uint<r, x> &b) {
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> inline operator % (const uint<r, x, word> &a, const uint<r, x, word> &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<uint<r, x>> (a, nonzero<uint<r, x>> {x}).Remainder;
+        return divide<uint<r, x, word>> (a, nonzero<uint<r, x, word>> {x}).Remainder;
     }
     
-    template <endian::order r, size_t x> uint<r, x> inline operator % (const sint<r, x> &a, const uint<r, x> &b) {
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> inline operator % (const sint<r, x, word> &a, const uint<r, x, word> &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<sint<r, x>> (a, nonzero<sint<r, x>> {sint<r, x> (x)}).Remainder;
+        return divide<sint<r, x, word>> (a, nonzero<sint<r, x, word>> {sint<r, x, word> (x)}).Remainder;
     }
     
-    template <endian::order r, size_t x> uint64 inline operator % (const uint<r, x> &a, uint64 b) {
-        return uint64 (a % uint<r, x> (x));
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
+        return uint64 (a % uint<r, x, word> (x));
     }
     
-    template <endian::order r, size_t x> uint64 inline operator % (const sint<r, x> &a, uint64 b) {
-        return uint64 (a % uint<r, x> (x));
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
+        return uint64 (a % uint<r, x, word> (x));
     }
     
-    template <endian::order r, size_t size> inline uint<r, size>::operator double () const {
-        return double (math::N (N_bytes<r> (*this)));
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    inline uint<r, size, word>::operator double () const {
+        return double (math::N (N_bytes<r, word> (*this)));
     }
     
-    template <endian::order r, size_t size> inline sint<r, size>::operator double () const {
-        return double (Z (Z_bytes<r, complement::ones> (*this)));
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    inline sint<r, size, word>::operator double () const {
+        return double (Z (Z_bytes<r, complement::ones, word> (*this)));
     }
 }
 
 namespace data::math {
-    template <endian::order r, size_t x>
-    division<uint<r, x>, uint<r, x>> inline divide<uint<r, x>, uint<r, x>>::operator ()
-    (const uint<r, x> &v, const nonzero<uint<r, x>> &z) {
-        auto d = divide<N_bytes<r>, N_bytes<r>> {} (v, nonzero<N_bytes<r>> {z.Value});
-        return {uint<r, x> {d.Quotient}, uint<r, x> {d.Remainder}};
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    division<uint<r, x, word>, uint<r, x, word>> inline divide<uint<r, x, word>, uint<r, x, word>>::operator ()
+    (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
+        auto d = divide<N_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
+        return {uint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
     }
 
-    template <endian::order r, size_t x>
-    division<sint<r, x>, uint<r, x>> inline divide<sint<r, x>, sint<r, x>>::operator ()
-    (const sint<r, x> &v, const nonzero<sint<r, x>> &z) {
-        auto d = divide<Z_bytes<r>, Z_bytes<r>> {} (v, nonzero<Z_bytes<r>> {z.Value});
-        return {sint<r, x> {d.Quotient}, uint<r, x> {d.Remainder}};
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    division<sint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, sint<r, x, word>>::operator ()
+    (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
+        auto d = divide<Z_bytes<r, word>, Z_bytes<r, word>> {} (v, nonzero<Z_bytes<r, word>> {z.Value});
+        return {sint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
     }
 
-    template <endian::order r, size_t x>
-    division<sint<r, x>, uint<r, x>> inline divide<sint<r, x>, uint<r, x>>::operator ()
-    (const sint<r, x> &v, const nonzero<uint<r, x>> &z) {
-        auto d = divide<Z_bytes<r>, N_bytes<r>> {} (v, nonzero<N_bytes<r>> {z.Value});
-        return {sint<r, x> {d.Quotient}, uint<r, x> {d.Remainder}};
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    division<sint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, uint<r, x, word>>::operator ()
+    (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
+        auto d = divide<Z_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
+        return {sint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
     }
 }
 
 namespace data::encoding::hexidecimal {
 
-    template <endian::order r, size_t x>
-    std::ostream &write (std::ostream &o, const oriented<r, byte, x> &z, hex_case q) {
+    template <endian::order r, std::unsigned_integral word, size_t x>
+    std::ostream &write (std::ostream &o, const oriented<r, word, x> &z, hex_case q) {
         o << "0x";
         return encoding::hex::write (o, z.words ().reverse (), q);
     }
 
-    template <hex_case cx, endian::order r, size_t x>
-    string<cx> write (const oriented<r, byte, x> &z) {
+    template <hex_case cx, endian::order r, std::unsigned_integral word, size_t x>
+    string<cx> write (const oriented<r, word, x> &z) {
         std::stringstream ss;
         write (ss, z, cx);
         return string<cx> {ss.str ()};
@@ -95,40 +104,40 @@ namespace data::encoding::hexidecimal {
 
 namespace data::math::number {
 
-    template struct bounded<false, endian::big, 16>;
-    template struct bounded<true, endian::big, 16>;
-    template struct bounded<false, endian::little, 16>;
-    template struct bounded<true, endian::little, 16>;
+    template struct bounded<false, endian::big, 16, byte>;
+    template struct bounded<true, endian::big, 16, byte>;
+    template struct bounded<false, endian::little, 16, byte>;
+    template struct bounded<true, endian::little, 16, byte>;
 
-    template struct bounded<false, endian::big, 20>;
-    template struct bounded<true, endian::big, 20>;
-    template struct bounded<false, endian::little, 20>;
-    template struct bounded<true, endian::little, 20>;
+    template struct bounded<false, endian::big, 20, byte>;
+    template struct bounded<true, endian::big, 20, byte>;
+    template struct bounded<false, endian::little, 20, byte>;
+    template struct bounded<true, endian::little, 20, byte>;
 
-    template struct bounded<false,endian::big,  28>;
-    template struct bounded<true, endian::big, 28>;
-    template struct bounded<false, endian::little, 28>;
-    template struct bounded<true, endian::little, 28>;
+    template struct bounded<false,endian::big, 28, byte>;
+    template struct bounded<true, endian::big, 28, byte>;
+    template struct bounded<false, endian::little, 28, byte>;
+    template struct bounded<true, endian::little, 28, byte>;
 
-    template struct bounded<false, endian::big, 32>;
-    template struct bounded<true, endian::big, 32>;
-    template struct bounded<false, endian::little, 32>;
-    template struct bounded<true, endian::little, 32>;
+    template struct bounded<false, endian::big, 32, byte>;
+    template struct bounded<true, endian::big, 32, byte>;
+    template struct bounded<false, endian::little, 32, byte>;
+    template struct bounded<true, endian::little, 32, byte>;
 
-    template struct bounded<false, endian::big, 40>;
-    template struct bounded<true, endian::big, 40>;
-    template struct bounded<false, endian::little, 40>;
-    template struct bounded<true, endian::little, 40>;
+    template struct bounded<false, endian::big, 40, byte>;
+    template struct bounded<true, endian::big, 40, byte>;
+    template struct bounded<false, endian::little, 40, byte>;
+    template struct bounded<true, endian::little, 40, byte>;
 
-    template struct bounded<false, endian::big, 56>;
-    template struct bounded<true, endian::big, 56>;
-    template struct bounded<false, endian::little, 56>;
-    template struct bounded<true, endian::little, 56>;
+    template struct bounded<false, endian::big, 56, byte>;
+    template struct bounded<true, endian::big, 56, byte>;
+    template struct bounded<false, endian::little, 56, byte>;
+    template struct bounded<true, endian::little, 56, byte>;
 
-    template struct bounded<false, endian::big, 64>;
-    template struct bounded<true, endian::big, 64>;
-    template struct bounded<false, endian::little, 64>;
-    template struct bounded<true, endian::little, 64>;
+    template struct bounded<false, endian::big, 64, byte>;
+    template struct bounded<true, endian::big, 64, byte>;
+    template struct bounded<false, endian::little, 64, byte>;
+    template struct bounded<true, endian::little, 64, byte>;
 
 }
 

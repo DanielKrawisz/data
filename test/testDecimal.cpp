@@ -12,8 +12,8 @@ namespace data {
 
         EXPECT_EQ (x, encoding::decimal::write (nx));
 
-        N_bytes_little nlx = *encoding::decimal::read<endian::little> (x);
-        N_bytes_big nbx = *encoding::decimal::read<endian::big> (x);
+        N_bytes_little nlx = *encoding::decimal::read<endian::little, byte> (x);
+        N_bytes_big nbx = *encoding::decimal::read<endian::big, byte> (x);
 
         N_bytes_little nxl (nx);
         N_bytes_big nxb (nx);

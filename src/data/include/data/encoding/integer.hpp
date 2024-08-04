@@ -32,16 +32,18 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
+        template <endian::order r, std::unsigned_integral word>
+        maybe<math::N_bytes<r, word>> read (string_view s);
         
-        template <endian::order r> std::ostream &write (std::ostream &, const math::number::N_bytes<r> &);
+        template <endian::order r, std::unsigned_integral word>
+        std::ostream &write (std::ostream &, const math::number::N_bytes<r, word> &);
         
         // a decimal string inherets from string but is
         // a big number that supports standard numerical operations. 
         struct string;
         
-        template <endian::order r> 
-        string write (const math::number::N_bytes<r> &z);
+        template <endian::order r, std::unsigned_integral word>
+        string write (const math::number::N_bytes<r, word> &z);
         
     }
     
@@ -55,23 +57,23 @@ namespace data::encoding {
         constexpr bool negative (string_view s);
         constexpr math::signature sign (string_view s);
 
-        template <endian::order r>
-        maybe<math::Z_bytes<r>> read (string_view s);
+        template <endian::order r, std::unsigned_integral word>
+        maybe<math::Z_bytes<r, word>> read (string_view s);
 
         using complement = math::number::complement;
 
-        template <endian::order r>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::ones> &z);
+        template <endian::order r, std::unsigned_integral word>
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::ones, word> &z);
 
-        template <endian::order r>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::twos> &z);
+        template <endian::order r, std::unsigned_integral word>
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, complement::twos, word> &z);
 
         // a decimal string inherets from string but is
         // a big number that supports standard numerical operations.
         struct string;
 
-        template <endian::order r, complement c>
-        string write (const math::number::Z_bytes<r, c> &z);
+        template <endian::order r, complement c, std::unsigned_integral word>
+        string write (const math::number::Z_bytes<r, c, word> &z);
         
     }
     
@@ -90,11 +92,11 @@ namespace data::encoding {
 
         constexpr hex::letter_case read_case (string_view s);
 
-        template <endian::order r>
-        maybe<oriented<r, byte>> read (string_view s);
+        template <endian::order r, std::unsigned_integral word>
+        maybe<oriented<r, word>> read (string_view s);
 
-        template <endian::order r>
-        std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q);
+        template <endian::order r, std::unsigned_integral word>
+        std::ostream inline &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q);
 
         template <hex::letter_case cx> struct string : data::string {
             string () : string {"0x"} {}
@@ -104,8 +106,8 @@ namespace data::encoding {
             }
         };
 
-        template <hex::letter_case cx, endian::order r>
-        string<cx> write (const oriented<r, byte> &z);
+        template <hex::letter_case cx, endian::order r, std::unsigned_integral word>
+        string<cx> write (const oriented<r, word> &z);
 
         using complement = math::number::complement;
 
@@ -137,7 +139,7 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
+        template <endian::order r, std::unsigned_integral word> maybe<math::N_bytes<r, word>> read (string_view s);
         
     }
     
@@ -156,8 +158,8 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r, math::number::complement c> 
-        maybe<math::number::Z_bytes<r, c>> read (string_view s);
+        template <endian::order r, math::number::complement c, std::unsigned_integral word>
+        maybe<math::number::Z_bytes<r, c, word>> read (string_view s);
         
     }
     
@@ -823,21 +825,21 @@ namespace data::encoding::signed_decimal {
         //explicit operator math::Z () const;
     };
     
-    template <endian::order r>
-    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::ones> &z) {
+    template <endian::order r, std::unsigned_integral word>
+    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::ones, word> &z) {
         if (data::is_negative (z)) w << "-";
         return decimal::write (w, data::abs (z));
     }
 
-    template <endian::order r>
-    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::twos> &z) {
+    template <endian::order r, std::unsigned_integral word>
+    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, complement::twos, word> &z) {
         if (is_zero (z)) return w << "0";
         if (is_negative (z)) w << "-";
-        return decimal::write (w, math::number::N_bytes<r>::read (abs (z)));
+        return decimal::write (w, math::number::N_bytes<r, word>::read (abs (z)));
     }
     
-    template <endian::order r, complement n> 
-    string inline write (const math::number::Z_bytes<r, n> &z) {
+    template <endian::order r, complement n, std::unsigned_integral word>
+    string inline write (const math::number::Z_bytes<r, n, word> &z) {
         std::stringstream ss;
         write (ss, z);
         return string {ss.str ()};
@@ -1193,12 +1195,12 @@ namespace data::encoding::hexidecimal {
         return -1;
     }
     
-    template <endian::order r> 
-    maybe<oriented<r, byte>> read (string_view s) {
+    template <endian::order r, std::unsigned_integral word>
+    maybe<oriented<r, word>> read (string_view s) {
 
         if (!valid (s)) return {};
         
-        oriented<r, byte> n = {};
+        oriented<r, word> n = {};
         size_t new_size = (s.size () - 2) / 2;
         n.resize (new_size);
         boost::algorithm::unhex (s.begin () + 2, s.end (), n.words ().rbegin ());
@@ -1206,14 +1208,14 @@ namespace data::encoding::hexidecimal {
         return {n};
     }
     
-    template <endian::order r> 
-    std::ostream inline &write (std::ostream &o, const oriented<r, byte> &d, hex::letter_case q) {
+    template <endian::order r, std::unsigned_integral word>
+    std::ostream inline &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q) {
         o << "0x"; 
         return encoding::hex::write (o, d.words ().reverse (), q);
     }
     
-    template <hex::letter_case cx, endian::order r> 
-    string<cx> write (const oriented<r, byte> &z) {
+    template <hex::letter_case cx, endian::order r, std::unsigned_integral word>
+    string<cx> write (const oriented<r, word> &z) {
         std::stringstream ss;
         write (ss, z, cx);
         return string<cx> {ss.str ()};
@@ -1394,23 +1396,23 @@ namespace data::encoding::integer {
         return negative (s) ? natural::digits (s.substr (1, s.size () - 1)) : natural::digits (s);
     }
     
-    template <endian::order r, math::number::complement c> 
-    maybe<math::number::Z_bytes<r, c>> read (string_view s) {
+    template <endian::order r, math::number::complement c, std::unsigned_integral word>
+    maybe<math::number::Z_bytes<r, c, word>> read (string_view s) {
 
         if (!valid (s)) return {};
         
         if (hexidecimal::valid (s)) {
-            auto z = hexidecimal::read<r> (s);
+            auto z = hexidecimal::read<r, word> (s);
             if (!z) return {};
-            auto x = math::number::Z_bytes<r, c> {};
+            auto x = math::number::Z_bytes<r, c, word> {};
             x.resize (z->size ());
             std::copy (z->begin (), z->end (), x.begin ());
             return {x};
         }
         
-        auto z = signed_decimal::read<r, c> (s);
+        auto z = signed_decimal::read<r, c, word> (s);
         if (!z) return {};
-        return {math::number::Z_bytes<r, c> (*z)};
+        return {math::number::Z_bytes<r, c, word> (*z)};
     }
     
 }

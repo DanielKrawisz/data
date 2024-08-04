@@ -98,15 +98,15 @@ namespace data::encoding::decimal {
 namespace data::encoding::hexidecimal {
     
     std::ostream &write (std::ostream &o, const math::N &n, hex::letter_case q) {
-        return write (o, math::number::N_bytes<endian::big> (n));
+        return write (o, math::number::N_bytes<endian::big, byte> (n));
     }
     
     std::ostream &write (std::ostream &o, const math::Z &z, hex::letter_case q, complement n) {
 
         switch (n) {
             case (complement::nones): throw data::exception {} << "can't do " << n << ".";
-            case (complement::ones): return write (o << "0x", math::number::Z_bytes<endian::big, complement::ones> (z), q);
-            case (complement::twos): return write (o << "0x", math::number::Z_bytes<endian::big, complement::twos> (z), q);
+            case (complement::ones): return write (o << "0x", math::number::Z_bytes<endian::big, complement::ones, byte> (z), q);
+            case (complement::twos): return write (o << "0x", math::number::Z_bytes<endian::big, complement::twos, byte> (z), q);
         }
         
         return o;

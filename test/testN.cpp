@@ -93,7 +93,7 @@ namespace data {
         
     }
         
-    template<endian::order r> using N_bytes = math::number::N_bytes<r>;
+    template<endian::order r> using N_bytes = math::number::N_bytes<r, byte>;
     
     TEST (NTest, TestN) {
         
