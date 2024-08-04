@@ -64,9 +64,10 @@ namespace data {
             return range (0, b);
         }
 
-        template <size_t b, size_t e> requires requires {
-            e >= b;
-        } slice<X, e - b> range () const;
+        template <size_t b, size_t e>
+        slice<X, e - b> range () const {
+            return slice<X, e - b> {this->data () + b, e - b};
+        }
 
         using iterator = std::span<X>::iterator;
         using const_iterator = view<X>::iterator;
@@ -90,7 +91,7 @@ namespace data {
     template <typename X, size_t n> struct slice<X, n> : public std::span<X, n> {
 
         using std::span<X, n>::span;
-        slice (X *x): std::span<X, n> {x, x + n} {}
+        slice (X *x): std::span<X, n> {x, n} {}
 
         constexpr X& operator [] (size_t i) const {
             if (this->size () == 0) throw std::out_of_range {"slice size 0"};
@@ -114,7 +115,7 @@ namespace data {
         operator view<X> () const;
 
         template <size_t b, size_t e> slice<X, e - b> range () const {
-            slice<X, e - b> {this->data ()};
+            return slice<X, e - b> {this->data () + b, e - b};
         }
 
     };
