@@ -49,8 +49,6 @@ namespace data {
         slice<X> range (int);
         slice<X> range (int, int);
         
-        slice<X> range (data::range r);
-        
         cross (std::vector<X> &&v) : std::vector<X> {v} {}
         
     protected:
@@ -215,17 +213,17 @@ namespace data {
     protected:
         void bit_and (const slice<word, size> a) {
             arithmetic::bit_and<word>
-                (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
+                (this->end (), this->begin (), slice<word, size> (*this).begin (), a.begin ());
         }
         
         void bit_or (const slice<word, size> a) {
             arithmetic::bit_or<word>
-                (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
+                (this->end (), this->begin (), slice<word, size> (*this).begin (), a.begin ());
         }
         
         void bit_xor (const slice<word, size> a) {
             arithmetic::bit_xor<word>
-                (this->end (), this->begin (), const_cast<const word *> (this->data ()), a.begin ());
+                (this->end (), this->begin (), slice<word, size> (*this).begin (), a.begin ());
         }
         
         void fill (byte b) {
@@ -415,11 +413,6 @@ namespace data {
     template <typename X>
     inline slice<X> cross<X>::range (int b, int e) {
         return operator slice<X> ().range (e);
-    }
-    
-    template <typename X>
-    inline slice<X> cross<X>::range (data::range r) {
-        return operator slice<X> ().range (r);
     }
     
     template <std::unsigned_integral word, size_t size>

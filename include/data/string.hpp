@@ -18,6 +18,8 @@ namespace data {
         string (std::string &&x) : std::string {x} {}
 
         explicit operator bytes () const;
+
+        explicit string (const bytes &);
     };
 
     string drop (const std::string &, int64 begin);
@@ -72,6 +74,11 @@ namespace data {
         std::transform (m.begin (), m.end (), m.begin (),
             [] (unsigned char c) { return std::tolower (c); });
         return m;
+    }
+
+    inline string::string (const bytes &x) : data::string {} {
+        this->resize (x.size ());
+        for (int i = 0; i < x.size (); i++) (*this)[i] = static_cast<char> (x[i]);
     }
 
 }

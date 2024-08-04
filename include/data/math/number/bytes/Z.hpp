@@ -91,6 +91,7 @@ namespace data::math::number {
         //explicit Z_bytes (const std::string &);
         Z_bytes () : oriented<r, byte> {} {}
         
+        Z_bytes (bool);
         Z_bytes (int64 x);
         Z_bytes (uint64);
         Z_bytes (int32);
@@ -872,6 +873,13 @@ namespace data::math::number {
         auto zw = this->words ();
         std::copy (nw.begin (), nw.end (), zw.begin ());
         this->trim ();
+    }
+
+    template <endian::order r> inline Z_bytes<r, complement::twos>::Z_bytes (bool b) : oriented<r, byte> {} {
+        if (b) {
+            this->resize (1);
+            (*this)[0] = 1;
+        }
     }
 
     template <endian::order r> N_bytes<r> inline trim (const N_bytes<r> &n) {

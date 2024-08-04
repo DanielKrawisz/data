@@ -31,9 +31,6 @@ namespace data::encoding::ASCII {
             return ASCII::valid (*this);
         }
 
-        explicit string (const bytes &);
-        explicit operator bytes () const;
-
         explicit operator data::UTF8 () const;
 
     };
