@@ -161,7 +161,10 @@ namespace data::math::number::GMP {
 
         virtual ~Z ();
 
-        Z (gmp_int n);
+        Z (uint64);
+        Z (int64);
+        Z (uint32);
+        Z (int32);
 
         static Z read (string_view x);
 
@@ -307,8 +310,20 @@ namespace data::math::number::GMP {
         mpz_clear (MPZ);
     }
 
-    inline Z::Z (gmp_int n) : MPZ {} {
+    inline Z::Z (int64 n) : MPZ {} {
         mpz_init_set_si (MPZ, n);
+    }
+
+    inline Z::Z (int32 n) : MPZ {} {
+        mpz_init_set_si (MPZ, n);
+    }
+
+    inline Z::Z (uint64 n) : MPZ {} {
+        mpz_init_set_ui (MPZ, n);
+    }
+
+    inline Z::Z (uint32 n) : MPZ {} {
+        mpz_init_set_ui (MPZ, n);
     }
 
     inline Z::Z (const Z &n) {

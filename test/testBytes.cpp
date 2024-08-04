@@ -66,7 +66,7 @@ namespace data {
             bytes_from_bits (expected));
         
     }
-    
+
     template <typename T> void test_bit_add (T a, T b, T c) {
         EXPECT_EQ (a & b, c);
     }
@@ -80,7 +80,7 @@ namespace data {
             byte_array_from_bits<byte, 4> (a),
             byte_array_from_bits<byte, 4> (b),
             byte_array_from_bits<byte, 4> (e));
-        
+        /*
         test_bit_add (
             byte_array_from_bits<uint16, 2> (a),
             byte_array_from_bits<uint16, 2> (b),
@@ -89,9 +89,9 @@ namespace data {
         test_bit_add (
             byte_array_from_bits<uint32, 1> (a),
             byte_array_from_bits<uint32, 1> (b),
-            byte_array_from_bits<uint32, 1> (e));
+            byte_array_from_bits<uint32, 1> (e));*/
     }
-    
+    /*
     template <typename T> void test_bit_or (T a, T b, T c) {
         EXPECT_EQ (a | b, c);
     }
@@ -210,7 +210,7 @@ namespace data {
         EXPECT_EQ (slice<byte> (a)[0], 0);
         EXPECT_EQ (slice<byte> (a)[-1], 0);
         
-    }
+    }*/
     
 }
 

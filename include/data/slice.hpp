@@ -5,6 +5,7 @@
 #ifndef DATA_SLICE
 #define DATA_SLICE
 
+#include <span>
 #include <data/tools/index_iterator.hpp>
 #include <data/meta/greater.hpp>
 #include <data/meta/unsigned_minus.hpp>
@@ -20,77 +21,40 @@ namespace data::meta {
 
 namespace data {
     
-    struct range {
-        int Begin;
-        int End;
-        
-        range (int b, int e) : Begin {b}, End {e} {}
-        
-        int size () const {
-            return End - Begin;
-        }
-        
-        range operator % (size_t Size) const {
-            range x (Begin, End);
-            if (x.Begin < 0) x.Begin += Size;
-            if (x.End < 0) x.End += Size;
-            return x;
-        }
-    };
-    
     // Slice is an indexed section of an array which
     // can create smaller slices. 
     template <typename X, size_t ...> struct slice;
     
     // Slice is an indexed section of an array which
     // can create smaller slices. 
-    template <typename X> struct slice<X> {
-        using value_type = X;
-        using iterator = X *;
-        using const_iterator = const X *;
-        using reverse_iterator = std::reverse_iterator<iterator>;
-        using const_reverse_iterator = const std::reverse_iterator<iterator>;
+    template <typename X> struct slice<X> : std::span<X> {
+        using std::span<X>::span;
+        
+        constexpr X& operator [] (size_t i) const {
+            if (this->size () == 0) throw std::out_of_range {"slice size 0"};
+            if (i < 0 || i >= this->size ()) return this->operator [] ((i + this->size ()) % this->size ());
+            return this->data ()[i];
+        }
+        
+        bool operator == (const slice<X> s) const {
+            if (this->data () == s.data ()) return true;
+            if (this->size () != s.size ()) return false;
+            for (int i = 0; i < this->size (); i++)
+                if (operator [] (i) != s[i])
+                    return false;
+            return true;
+        }
 
-    protected:
-        X *Data;
-
-    public:
-        size_t Size;
-        slice () : Data {nullptr}, Size {0} {}
-        slice (iterator b, size_t size) : Data {b}, Size {size} {}
-        slice (const slice& x) : Data {x.Data}, Size {x.Size} {}
-        
-        slice (std::vector<X>& x) : slice {x.data (), x.size ()} {}
-        
-        const size_t size () const {
-            return Size;
-        }
-        
-        bool valid () const {
-            return Data != nullptr && Size >= 0;
-        }
-        
-        X& operator [] (size_t i) const {
-            if (Size == 0) throw std::out_of_range {"slice size 0"};
-            if (i < 0 || i >= Size) return this->operator [] ((i + Size) % Size);
-            return Data[i];
-        }
+        operator view<X> () const;
 
         /// Selects a range from the current slice
         /// \param b range begins from this index inclusive
         /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range (int b, int e) {
-            if (b > static_cast<int> (Size) || e > static_cast<int> (Size)) return slice {};
-            data::range x = data::range {b, e} % Size;
-            int new_size = x.size ();
-            return new_size < 0 ? slice {} : slice {Data + x.Begin, static_cast<size_t> (new_size)};
-        }
-        
-        slice<X> range (data::range r) {
-            data::range x = r % Size;
-            int new_size = x.size ();
-            return new_size < 0 ? slice {} : slice {Data + x.Begin, static_cast<size_t>(new_size)};
+        [[nodiscard]] slice<X> range (int begin, int end) {
+            if (end < 0) end = this->size () + end;
+            if (begin >= end || begin >= this->size () || end > this->size ()) return slice {};
+            return slice {this->data () + begin, this->data () + end};
         }
 
         /// Selects a range from the current slice up to end of slice
@@ -99,118 +63,100 @@ namespace data {
         [[nodiscard]] slice<X> range (int32 b) {
             return range (0, b);
         }
-        
-        template <size_t b, size_t e>
-        slice<X, meta::unsigned_minus<e, b>::result> range () const;
-        
-        slice& operator = (const slice<X> &s) {
-            Data = s.Data;
-            Size = s.Size;
-            return *this;
+
+        template <size_t b, size_t e> requires requires {
+            e >= b;
+        } slice<X, e - b> range () const;
+
+        using iterator = std::span<X>::iterator;
+        using const_iterator = view<X>::iterator;
+        using reverse_iterator = std::span<X>::reverse_iterator;
+        using const_reverse_iterator = view<X>::reverse_iterator;
+
+        iterator begin ();
+        iterator end ();
+
+        const_iterator begin () const;
+        const_iterator end () const;
+
+        reverse_iterator rbegin ();
+        reverse_iterator rend ();
+
+        const_reverse_iterator rbegin () const;
+        const_reverse_iterator rend () const;
+
+    };
+    
+    template <typename X, size_t n> struct slice<X, n> : public std::span<X, n> {
+
+        using std::span<X, n>::span;
+        slice (X *x): std::span<X, n> {x, x + n} {}
+
+        constexpr X& operator [] (size_t i) const {
+            if (this->size () == 0) throw std::out_of_range {"slice size 0"};
+            if (i < 0 || i >= this->size ()) return this->operator [] ((i + this->size ()) % this->size ());
+            return this->data ()[i];
         }
-        
-        slice& operator = (const slice<X> &&s) {
-            Data = s.Data;
-            Size = s.Size;
-            return *this;
-        }
-        
-        bool operator == (const slice<X> s) const {
-            if (Data == s.Data && Size == s.Size) return true;
-            if (this->Size != s.Size) return false;
-            for (int i=0;i<size ();i++)
-                if(operator [] (i)!=s[i])
+
+        bool operator == (const slice<X, n> s) const {
+            if (this->data () == s.data ()) return true;
+            if (this->size () != s.size ()) return false;
+            for (int i = 0; i < this->size (); i++)
+                if (operator [] (i) != s[i])
                     return false;
             return true;
         }
-        
-        bool operator != (const slice<X> s) const {
-            return !operator == (s);
+
+        operator slice<X> () const {
+            return slice<X> {this->data (), this->data () + n};
         }
-        
-        X* data () {
-            return Data;
+
+        operator view<X> () const;
+
+        template <size_t b, size_t e> slice<X, e - b> range () const {
+            slice<X, e - b> {this->data ()};
         }
-        
-        const X* data () const {
-            return Data;
-        }
-        
-        iterator begin () {
-            return Data;
-        }
-        
-        iterator end () {
-            return Data + Size * sizeof (X);
-        }
-        
-        const_iterator begin () const {
-            return Data;
-        }
-        
-        const_iterator end () const {
-            return Data + Size * sizeof (X);
-        }
-        
-        reverse_iterator rbegin () {
-            return reverse_iterator {Data + Size * sizeof(X)};
-        }
-        
-        reverse_iterator rend () {
-            return reverse_iterator {Data};
-        }
-        
-        const_reverse_iterator rbegin () const {
-            return reverse_iterator {Data + Size * sizeof(X)};
-        }
-        
-        const_reverse_iterator rend () const {
-            return reverse_iterator {Data};
-        }
-        
-        operator std::basic_string_view<X> () const {
-            return std::basic_string_view<X> {Data, Size * sizeof(X)};
-        }
-        
+
     };
-    
-    template <typename X, size_t n> struct slice<X, n> : public slice<X> {
-        bool valid () const {
-            return slice<X>::valid () && slice<X>::Size == n;
-        }
-        
-        slice(X* x) : slice<X> {x, n} {}
-        
-        static const slice make (const X* x) {
-            return slice {const_cast<X*>(x)};
-        }
-        
-        template <int b, int e>
-        slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result> range () const;
-        
-        using slice<X>::range;
-        
-        bool operator == (const slice<X, n> s) const {
-            return slice<X>::operator == (static_cast<slice<X>> (s));
-        }
-        
-        bool operator != (const slice<X, n> s) const {
-            return !operator == (s);
-        }
-    };
-    
-    template <typename X> 
-    template <size_t b, size_t e>
-    inline slice<X, meta::unsigned_minus<e, b>::result> slice<X>::range () const {
-        return slice<X, meta::unsigned_minus<e, b>::result> {slice<X>::Data + b};
+
+    template <typename X> inline slice<X>::operator view<X> () const {
+        return view<X> {this->data (), this->size () * sizeof (X)};
     }
-    
-    template <typename X, size_t n> 
-    template <int b, int e>
-    inline slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result> 
-    slice<X, n>::range () const {
-        return slice<X, meta::unsigned_minus<meta::ceiling<e, n>::value, meta::ceiling<b, n>::value>::result>
-            {slice<X>::Data + meta::ceiling<b, n>::value};
+
+    template <typename X> slice<X>::iterator inline slice<X>::begin () {
+        return std::span<X>::begin ();
+    }
+
+    template <typename X> slice<X>::iterator inline slice<X>::end () {
+        return std::span<X>::end ();
+    }
+
+    template <typename X> slice<X>::const_iterator inline slice<X>::begin () const {
+        return view<X> (*this).begin ();
+    }
+
+    template <typename X> slice<X>::const_iterator inline slice<X>::end () const {
+        return view<X> (*this).end ();
+    }
+
+    template <typename X> slice<X>::reverse_iterator inline slice<X>::rbegin () {
+        return std::span<X>::rbegin ();
+    }
+
+    template <typename X> slice<X>::reverse_iterator inline slice<X>::rend () {
+        return std::span<X>::rend ();
+    }
+
+    template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rbegin () const {
+        return view<X> (*this).rbegin ();
+    }
+
+    template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rend () const {
+        return view<X> (*this).rend ();
+    }
+
+    template <typename X, size_t n> inline slice<X, n>::operator view<X> () const {
+        return view<X> {this->data (), n};
     }
 
 }

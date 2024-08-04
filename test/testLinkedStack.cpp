@@ -122,7 +122,7 @@ namespace data {
 
         accept_stack_of_string_views (test);
 
-        linked_stack<N> numbers {1, 2, 3, 4};
+        linked_stack<N> numbers {1u, 2u, 3u, 4u};
 
         EXPECT_EQ (linked_stack<N> (test), numbers);
 

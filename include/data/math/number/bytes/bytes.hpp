@@ -113,11 +113,11 @@ namespace data::math::number {
     template <endian::order r>
     Z_bytes<r, complement::twos> operator ! (const Z_bytes<r, complement::twos> &);
 
-    template <endian::order r> Z_bytes<r, complement::twos> operator &&
-        (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
+    template <endian::order r> Z_bytes<r, complement::twos>
+    operator && (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
 
-    template <endian::order r> Z_bytes<r, complement::twos> operator ||
-        (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
+    template <endian::order r> Z_bytes<r, complement::twos>
+    operator || (const Z_bytes<r, complement::twos> &, const Z_bytes<r, complement::twos> &);
     
     template <endian::order r> 
     N_bytes<r> operator + (const N_bytes<r> &, const N_bytes<r> &);

@@ -62,7 +62,6 @@ add_library (data STATIC
   src/data/math/number/gmp/sqrt.cpp
 
   src/data/encoding/hex.cpp
-  src/data/encoding/ascii.cpp
   src/data/encoding/utf8.cpp
   src/data/encoding/base64.cpp
   src/data/encoding/base58.cpp
