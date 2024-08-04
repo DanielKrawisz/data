@@ -165,8 +165,8 @@ namespace data::encoding {
 
         std::string hex_string {"0x0001020304"};
 
-        auto ob = *encoding::hexidecimal::read<endian::big> (hex_string);
-        auto ol = *encoding::hexidecimal::read<endian::little> (hex_string);
+        auto ob = *encoding::hexidecimal::read<endian::big, byte> (hex_string);
+        auto ol = *encoding::hexidecimal::read<endian::little, byte> (hex_string);
 
         EXPECT_EQ (ob[0], 0);
         EXPECT_EQ (ol[4], 0);

@@ -45,31 +45,31 @@ namespace data {
     // representation. They can be big or little endian. 
     // Z_bytes are one's complement. 
     
-    using N_bytes_little = math::number::N_bytes<endian::little>;
+    using N_bytes_little = math::number::N_bytes<endian::little, byte>;
     
-    using N_bytes_big = math::number::N_bytes<endian::big>;
+    using N_bytes_big = math::number::N_bytes<endian::big, byte>;
     
-    using Z_bytes_little = math::number::Z_bytes<endian::little, math::number::complement::ones>;
+    using Z_bytes_little = math::number::Z_bytes<endian::little, math::number::complement::ones, byte>;
     
-    using Z_bytes_big = math::number::Z_bytes<endian::big, math::number::complement::ones>;
+    using Z_bytes_big = math::number::Z_bytes<endian::big, math::number::complement::ones, byte>;
     
-    using Z_bytes_twos_little = math::number::Z_bytes<endian::little, math::number::complement::twos>;
+    using Z_bytes_twos_little = math::number::Z_bytes<endian::little, math::number::complement::twos, byte>;
     
-    using Z_bytes_twos_big = math::number::Z_bytes<endian::big, math::number::complement::twos>;
+    using Z_bytes_twos_big = math::number::Z_bytes<endian::big, math::number::complement::twos, byte>;
     
     // fixed size numbers of any size, similar to the 
     // built-in types. 
     template <size_t size> 
-    using int_little = math::sint<endian::little, size>;
+    using int_little = math::sint<endian::little, size, byte>;
     
     template <size_t size> 
-    using int_big = math::sint<endian::big, size>;
+    using int_big = math::sint<endian::big, size, byte>;
     
     template <size_t size> 
-    using uint_little = math::uint<endian::little, size>;
+    using uint_little = math::uint<endian::little, size, byte>;
     
     template <size_t size> 
-    using uint_big = math::uint<endian::big, size>;
+    using uint_big = math::uint<endian::big, size, byte>;
     
     using uint128 = uint_little<16>;
     using uint160 = uint_little<20>;
@@ -132,136 +132,137 @@ namespace data {
 namespace data::math::number {
     
     // explicit instantiations
-    template struct N_bytes<endian::big>;
-    template struct N_bytes<endian::little>;
-    template struct Z_bytes<endian::big, complement::ones>;
-    template struct Z_bytes<endian::little, complement::ones>;
-    template struct Z_bytes<endian::big, complement::twos>;
-    template struct Z_bytes<endian::little, complement::twos>;
+    template struct N_bytes<endian::big, byte>;
+    template struct N_bytes<endian::little, byte>;
+    template struct Z_bytes<endian::big, complement::ones, byte>;
+    template struct Z_bytes<endian::little, complement::ones, byte>;
+    template struct Z_bytes<endian::big, complement::twos, byte>;
+    template struct Z_bytes<endian::little, complement::twos, byte>;
     
-    template std::weak_ordering operator <=> (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
-    template std::weak_ordering operator <=> (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
+    template std::weak_ordering operator <=> (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
+    template std::weak_ordering operator <=> (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
     
     template std::weak_ordering operator <=>
-        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
+        (const Z_bytes<endian::big, complement::ones, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
     template std::weak_ordering operator <=>
-        (const Z_bytes<endian::little, complement::ones> &, const Z_bytes<endian::little, complement::ones> &);
+        (const Z_bytes<endian::little, complement::ones, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
     template std::weak_ordering operator <=>
-        (const Z_bytes<endian::big, complement::twos> &, const Z_bytes<endian::big, complement::twos> &);
+        (const Z_bytes<endian::big, complement::twos, byte> &, const Z_bytes<endian::big, complement::twos, byte> &);
     template std::weak_ordering operator <=>
-        (const Z_bytes<endian::little, complement::twos> &, const Z_bytes<endian::little, complement::twos> &);
+        (const Z_bytes<endian::little, complement::twos, byte> &, const Z_bytes<endian::little, complement::twos, byte> &);
     
-    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::ones>&, const N_bytes<endian::big> &);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::twos>&, const N_bytes<endian::big> &);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::ones>&, const N_bytes<endian::little> &);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::twos>&, const N_bytes<endian::little> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::ones, byte> &, const N_bytes<endian::big, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::twos, byte> &, const N_bytes<endian::big, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::ones, byte> &, const N_bytes<endian::little, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::twos, byte> &, const N_bytes<endian::little, byte> &);
     
-    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::ones> &, int64);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::twos> &, int64);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::ones> &, int64);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::twos> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::ones, byte> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, complement::twos, byte> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::ones, byte> &, int64);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, complement::twos, byte> &, int64);
     
-    template bool operator == (const N_bytes<endian::big> &, uint64);
-    template bool operator == (const Z_bytes<endian::big, complement::ones> &, int64);
-    template bool operator == (const Z_bytes<endian::big, complement::twos> &, int64);
+    template bool operator == (const N_bytes<endian::big, byte> &, uint64);
+    template bool operator == (const Z_bytes<endian::big, complement::ones, byte> &, int64);
+    template bool operator == (const Z_bytes<endian::big, complement::twos, byte> &, int64);
     
-    template bool operator == (const N_bytes<endian::little> &, uint64);
-    template bool operator == (const Z_bytes<endian::little, complement::ones> &, int64);
-    template bool operator == (const Z_bytes<endian::little, complement::twos> &, int64);
+    template bool operator == (const N_bytes<endian::little, byte> &, uint64);
+    template bool operator == (const Z_bytes<endian::little, complement::ones, byte> &, int64);
+    template bool operator == (const Z_bytes<endian::little, complement::twos, byte> &, int64);
     
-    template Z_bytes<endian::big, complement::ones> operator ~ (const N_bytes<endian::big> &);
-    template Z_bytes<endian::big, complement::ones> operator ~ (const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator ~ (const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator ~ (const Z_bytes<endian::big, complement::ones, byte> &);
     
-    template Z_bytes<endian::big, complement::ones> operator ^ (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
-    template Z_bytes<endian::big, complement::ones> operator ^
-        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
-    template Z_bytes<endian::big, complement::ones> operator ^
-        (const Z_bytes<endian::big, complement::ones> &, const N_bytes<endian::big> &);
-    template Z_bytes<endian::big, complement::ones> operator ^
-        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator ^ (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator ^
+        (const Z_bytes<endian::big, complement::ones, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator ^
+        (const Z_bytes<endian::big, complement::ones, byte> &, const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator ^
+        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
     
-    template N_bytes<endian::big> operator & (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
-    template N_bytes<endian::big> operator | (const N_bytes<endian::big> &, const N_bytes<endian::big> &);
-    template Z_bytes<endian::big, complement::ones> operator - (const N_bytes<endian::big> &);
+    template N_bytes<endian::big, byte> operator & (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
+    template N_bytes<endian::big, byte> operator | (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator - (const N_bytes<endian::big, byte> &);
     
-    template Z_bytes<endian::big, complement::ones> operator &
-        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
-    template Z_bytes<endian::big, complement::ones> operator &
-        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::ones> &);
-    template Z_bytes<endian::big, complement::ones> operator &
-        (const Z_bytes<endian::big, complement::ones> &, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator &
+        (const Z_bytes<endian::big, complement::ones, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator &
+        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator &
+        (const Z_bytes<endian::big, complement::ones, byte> &, const N_bytes<endian::big, byte> &);
     
-    template Z_bytes<endian::big, complement::ones> operator |
-        (const Z_bytes<endian::big, complement::ones> &, const Z_bytes<endian::big, complement::ones> &);
-    template Z_bytes<endian::big, complement::ones> operator |
-        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::ones> &);
-    template Z_bytes<endian::big, complement::ones> operator |
-        (const Z_bytes<endian::big, complement::ones> &, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator |
+        (const Z_bytes<endian::big, complement::ones, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator |
+        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, complement::ones, byte> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator |
+        (const Z_bytes<endian::big, complement::ones, byte> &, const N_bytes<endian::big, byte> &);
     
-    template Z_bytes<endian::big, complement::ones> operator - (const Z_bytes<endian::big, complement::ones> &);
+    template Z_bytes<endian::big, complement::ones, byte> operator - (const Z_bytes<endian::big, complement::ones, byte> &);
     
-    template Z_bytes<endian::big, complement::twos> operator &
-        (const Z_bytes<endian::big, complement::twos>&, const Z_bytes<endian::big, complement::twos> &);
-    template Z_bytes<endian::big, complement::twos> operator &
-        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::twos> &);
-    template Z_bytes<endian::big, complement::twos> operator &
-        (const Z_bytes<endian::big, complement::twos>&, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator &
+        (const Z_bytes<endian::big, complement::twos, byte> &, const Z_bytes<endian::big, complement::twos, byte> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator &
+        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, complement::twos, byte> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator &
+        (const Z_bytes<endian::big, complement::twos, byte> &, const N_bytes<endian::big, byte> &);
     
-    template Z_bytes<endian::big, complement::twos> operator |
-        (const Z_bytes<endian::big, complement::twos> &, const Z_bytes<endian::big, complement::twos> &);
-    template Z_bytes<endian::big, complement::twos> operator |
-        (const N_bytes<endian::big> &, const Z_bytes<endian::big, complement::twos> &);
-    template Z_bytes<endian::big, complement::twos> operator |
-        (const Z_bytes<endian::big, complement::twos> &, const N_bytes<endian::big> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator |
+        (const Z_bytes<endian::big, complement::twos, byte> &, const Z_bytes<endian::big, complement::twos, byte> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator |
+        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, complement::twos, byte> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator |
+        (const Z_bytes<endian::big, complement::twos, byte> &, const N_bytes<endian::big, byte> &);
     
-    template Z_bytes<endian::big, complement::twos> operator - (const Z_bytes<endian::big, complement::twos> &);
+    template Z_bytes<endian::big, complement::twos, byte> operator - (const Z_bytes<endian::big, complement::twos, byte> &);
     
-    template Z_bytes<endian::little, complement::ones> operator ~ (const N_bytes<endian::little> &);
-    template Z_bytes<endian::little, complement::ones> operator ~ (const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator ~ (const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator ~ (const Z_bytes<endian::little, complement::ones, byte> &);
     
-    template Z_bytes<endian::little, complement::ones> operator ^ (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
-    template Z_bytes<endian::little, complement::ones> operator ^
-        (const Z_bytes<endian::little, complement::ones> &, const Z_bytes<endian::little, complement::ones> &);
-    template Z_bytes<endian::little, complement::ones> operator ^
-        (const Z_bytes<endian::little, complement::ones> &, const N_bytes<endian::little> &);
-    template Z_bytes<endian::little, complement::ones> operator ^
-        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator ^
+        (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator ^
+        (const Z_bytes<endian::little, complement::ones, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator ^
+        (const Z_bytes<endian::little, complement::ones, byte> &, const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator ^
+        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
     
-    template N_bytes<endian::little> operator & (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
-    template N_bytes<endian::little> operator | (const N_bytes<endian::little> &, const N_bytes<endian::little> &);
-    template Z_bytes<endian::little, complement::ones> operator - (const N_bytes<endian::little> &);
+    template N_bytes<endian::little, byte> operator & (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
+    template N_bytes<endian::little, byte> operator | (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator - (const N_bytes<endian::little, byte> &);
     
-    template Z_bytes<endian::little, complement::ones> operator &
-        (const Z_bytes<endian::little, complement::ones>&, const Z_bytes<endian::little, complement::ones> &);
-    template Z_bytes<endian::little, complement::ones> operator &
-        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::ones> &);
-    template Z_bytes<endian::little, complement::ones> operator &
-        (const Z_bytes<endian::little, complement::ones>&, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator &
+        (const Z_bytes<endian::little, complement::ones, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator &
+        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator &
+        (const Z_bytes<endian::little, complement::ones, byte> &, const N_bytes<endian::little, byte> &);
     
-    template Z_bytes<endian::little, complement::ones> operator |
-        (const Z_bytes<endian::little, complement::ones> &, const Z_bytes<endian::little, complement::ones> &);
-    template Z_bytes<endian::little, complement::ones> operator |
-        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::ones> &);
-    template Z_bytes<endian::little, complement::ones> operator |
-        (const Z_bytes<endian::little, complement::ones> &, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator |
+        (const Z_bytes<endian::little, complement::ones, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator |
+        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, complement::ones, byte> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator |
+        (const Z_bytes<endian::little, complement::ones, byte> &, const N_bytes<endian::little, byte> &);
     
-    template Z_bytes<endian::little, complement::ones> operator - (const Z_bytes<endian::little, complement::ones> &);
+    template Z_bytes<endian::little, complement::ones, byte> operator - (const Z_bytes<endian::little, complement::ones, byte> &);
     
-    template Z_bytes<endian::little, complement::twos> operator &
-        (const Z_bytes<endian::little, complement::twos> &, const Z_bytes<endian::little, complement::twos> &);
-    template Z_bytes<endian::little, complement::twos> operator &
-        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::twos> &);
-    template Z_bytes<endian::little, complement::twos> operator &
-        (const Z_bytes<endian::little, complement::twos> &, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator &
+        (const Z_bytes<endian::little, complement::twos, byte> &, const Z_bytes<endian::little, complement::twos, byte> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator &
+        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, complement::twos, byte> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator &
+        (const Z_bytes<endian::little, complement::twos, byte> &, const N_bytes<endian::little, byte> &);
     
-    template Z_bytes<endian::little, complement::twos> operator |
-        (const Z_bytes<endian::little, complement::twos> &, const Z_bytes<endian::little, complement::twos> &);
-    template Z_bytes<endian::little, complement::twos> operator |
-        (const N_bytes<endian::little> &, const Z_bytes<endian::little, complement::twos> &);
-    template Z_bytes<endian::little, complement::twos> operator |
-        (const Z_bytes<endian::little, complement::twos> &, const N_bytes<endian::little> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator |
+        (const Z_bytes<endian::little, complement::twos, byte> &, const Z_bytes<endian::little, complement::twos, byte> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator |
+        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, complement::twos, byte> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator |
+        (const Z_bytes<endian::little, complement::twos, byte> &, const N_bytes<endian::little, byte> &);
     
-    template Z_bytes<endian::little, complement::twos> operator - (const Z_bytes<endian::little, complement::twos> &);
+    template Z_bytes<endian::little, complement::twos, byte> operator - (const Z_bytes<endian::little, complement::twos, byte> &);
     
 }
 

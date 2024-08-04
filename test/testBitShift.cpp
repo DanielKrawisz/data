@@ -11,24 +11,24 @@
 namespace data {
     
     template<bool is_signed, data::endian::order o, size_t size> 
-    using bounded = data::math::number::bounded<is_signed, o, size>;
+    using bounded = data::math::number::bounded<is_signed, o, size, byte>;
     
     template <size_t size> 
-    using integer_little = data::math::number::bounded<true, endian::little, size>;
+    using integer_little = data::math::number::bounded<true, endian::little, size, byte>;
     
     template <size_t size> 
-    using integer_big = data::math::number::bounded<true, endian::big, size>;
+    using integer_big = data::math::number::bounded<true, endian::big, size, byte>;
     
     template <size_t size> 
-    using uint_little = data::math::number::bounded<false, endian::little, size>;
+    using uint_little = data::math::number::bounded<false, endian::little, size, byte>;
     
     template <size_t size> 
-    using uint_big = data::math::number::bounded<false, endian::big, size>;
+    using uint_big = data::math::number::bounded<false, endian::big, size, byte>;
     
     template <typename Z>
     void test_bit_negate () {
-        EXPECT_EQ (~Z(0), Z(-1)) << "expected ~" << Z (0) << " to equal " << Z (-1);
-        EXPECT_EQ (~Z(-1), Z(0)) << "expected ~" << Z (-1) << " to equal " << Z (0);;
+        EXPECT_EQ (~Z (0), Z (-1)) << "expected ~" << Z (0) << " to equal " << Z (-1);
+        EXPECT_EQ (~Z (-1), Z (0)) << "expected ~" << Z (-1) << " to equal " << Z (0);;
     }
     
     TEST (BitShiftTest, BitNegate) {

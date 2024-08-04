@@ -72,7 +72,7 @@ namespace data::encoding::hexidecimal {
 
     template <complement c, hex::letter_case cx> inline complemented_string<c, cx>::operator math::Z () const {
         if constexpr (c == complement::ones) return math::Z {string_view (*this)};
-        else return math::Z (math::Z_bytes_twos<endian::big>::read (*this));
+        else return math::Z (math::Z_bytes_twos<endian::big, byte>::read (*this));
     }
 
     template <hex::letter_case zz>

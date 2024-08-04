@@ -8,8 +8,8 @@
 
 namespace data::math {
     
-    using Nb = number::N_bytes<endian::big>;
-    using Nl = number::N_bytes<endian::little>;
+    using Nb = number::N_bytes<endian::big, byte>;
+    using Nl = number::N_bytes<endian::little, byte>;
     
     using Zb1 = Z_bytes_big;
     using Zl1 = Z_bytes_little;
@@ -44,15 +44,15 @@ namespace data::math {
         test_extended_euclidian<Z_bytes_twos_little, Z_bytes_twos_little> {};
         test_extended_euclidian<Z_bytes_twos_big, Z_bytes_twos_big> {};
 
-        test_extended_euclidian<int_big<9>, uint_big<9>> {};
-        test_extended_euclidian<int_big<10>, uint_big<10>> {};
-        test_extended_euclidian<int_big<11>, uint_big<11>> {};
-        test_extended_euclidian<int_big<20>, uint_big<20>> {};
+        test_extended_euclidian<int_big<9, byte>, uint_big<9, byte>> {};
+        test_extended_euclidian<int_big<10, byte>, uint_big<10, byte>> {};
+        test_extended_euclidian<int_big<11, byte>, uint_big<11, byte>> {};
+        test_extended_euclidian<int_big<20, byte>, uint_big<20, byte>> {};
 
-        test_extended_euclidian<int_little<9>, uint_little<9>> {};
-        test_extended_euclidian<int_little<10>, uint_little<10>> {};
-        test_extended_euclidian<int_little<11>, uint_little<11>> {};
-        test_extended_euclidian<int_little<20>, uint_little<20>> {};
+        test_extended_euclidian<int_little<9, byte>, uint_little<9, byte>> {};
+        test_extended_euclidian<int_little<10, byte>, uint_little<10, byte>> {};
+        test_extended_euclidian<int_little<11, byte>, uint_little<11, byte>> {};
+        test_extended_euclidian<int_little<20, byte>, uint_little<20, byte>> {};
 
         test_extended_euclidian<dec_int, dec_uint> {};
         test_extended_euclidian<hex_int, hex_uint> {};

@@ -12,7 +12,7 @@
 namespace data {
     
     template<bool is_signed, endian::order o, size_t size> 
-    using bounded = math::number::bounded<is_signed, o, size>;
+    using bounded = math::number::bounded<is_signed, o, size, byte>;
     
     using u8l = bounded<false, data::endian::little, 8>;
     using u8b = bounded<false, data::endian::big, 8>;
@@ -34,10 +34,10 @@ namespace data {
     using s11l = bounded<true, data::endian::little, 11>;
     using s11b  = bounded<true, data::endian::big, 11>;
     
-    using nl = math::number::N_bytes<data::endian::little>;
-    using nb = math::number::N_bytes<data::endian::big>;
-    using zl = math::number::Z_bytes<data::endian::little, math::number::complement::ones>;
-    using zb = math::number::Z_bytes<data::endian::big, math::number::complement::ones>;
+    using nl = math::number::N_bytes<data::endian::little, byte>;
+    using nb = math::number::N_bytes<data::endian::big, byte>;
+    using zl = math::number::Z_bytes<data::endian::little, math::number::complement::ones, byte>;
+    using zb = math::number::Z_bytes<data::endian::big, math::number::complement::ones, byte>;
     
     TEST (BoundedTest, BoundedReadString) {
         

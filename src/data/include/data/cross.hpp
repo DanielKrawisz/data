@@ -148,6 +148,9 @@ namespace data {
     writer<word> &operator << (writer<word> &, const bytestring<word> &);
 
     using bytes = bytestring<byte>;
+
+    template <std::integral word>
+    std::ostream &operator << (std::ostream &o, const bytestring<byte> &s);
     
     template <std::integral word>
     struct bytestring : public cross<word> {
@@ -270,8 +273,6 @@ namespace data {
 
     template <std::integral word, size_t size>
     bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
-    
-    std::ostream &operator << (std::ostream &o, const bytes &s);
     
     template <size_t size> using byte_array = bytes_array<byte, size>;
     
@@ -593,7 +594,8 @@ namespace data {
         return x;
     }
 
-    std::ostream inline &operator << (std::ostream &o, const bytes &s) {
+    template <std::integral word>
+    std::ostream inline &operator << (std::ostream &o, const bytestring<word> &s) {
         return o << "\"" << encoding::hex::write (s) << "\"";
     }
 

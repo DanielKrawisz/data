@@ -11,11 +11,11 @@ namespace data::math::number {
     template <complement c> using hex = encoding::hexidecimal::integer<c, hex_case::lower>;
     
     template <endian::order r, complement c> struct get_bytes_type {
-        using value = Z_bytes<r, c>;
+        using value = Z_bytes<r, c, byte>;
     };
     
     template <endian::order r> struct get_bytes_type<r, complement::nones> {
-        using value = N_bytes<r>;
+        using value = N_bytes<r, byte>;
     };
     
     template <endian::order r, complement c> using bytes_type = get_bytes_type<r, c>::value;
@@ -23,11 +23,11 @@ namespace data::math::number {
     template <endian::order r, complement c, size_t size> struct get_fixed_type;
     
     template <endian::order r, size_t size> struct get_fixed_type<r, complement::nones, size> {
-        using value = uint<r, size>;
+        using value = uint<r, size, byte>;
     };
     
     template <endian::order r, size_t size> struct get_fixed_type<r, complement::ones, size> {
-        using value = sint<r, size>;
+        using value = sint<r, size, byte>;
     };
     
     template <endian::order r, size_t size> struct get_fixed_type<r, complement::twos, size> {
@@ -185,42 +185,42 @@ namespace data::math::number {
     
     template <size_t size> struct test_bit_and_fixed<complement::nones, size> {
         test_bit_and_fixed (hex<complement::nones> left, hex<complement::nones> right, hex<complement::nones> expected) {
-            auto ll = uint<endian::little, size>::read (extend (left, size * 2 + 2));
-            auto rl = uint<endian::little, size>::read (extend (right, size * 2 + 2));
-            auto el = uint<endian::little, size>::read (extend (expected, size * 2 + 2));
+            auto ll = uint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = uint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = uint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll & rl, el);
             
-            auto lb = uint<endian::big, size>::read (extend (left, size * 2 + 2));
-            auto rb = uint<endian::big, size>::read (extend (right, size * 2 + 2));
-            auto eb = uint<endian::big, size>::read (extend (expected, size * 2 + 2));
+            auto lb = uint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = uint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = uint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb & rb, eb);
         }
     };
     
     template <size_t size> struct test_bit_or_fixed<complement::nones, size> {
         test_bit_or_fixed (hex<complement::nones> left, hex<complement::nones> right, hex<complement::nones> expected) {
-            auto ll = uint<endian::little, size>::read (extend (left, size * 2 + 2));
-            auto rl = uint<endian::little, size>::read (extend (right, size * 2 + 2));
-            auto el = uint<endian::little, size>::read (extend (expected, size * 2 + 2));
+            auto ll = uint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = uint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = uint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll | rl, el);
             
-            auto lb = uint<endian::big, size>::read (extend (left, size * 2 + 2));
-            auto rb = uint<endian::big, size>::read (extend (right, size * 2 + 2));
-            auto eb = uint<endian::big, size>::read (extend (expected, size * 2 + 2));
+            auto lb = uint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = uint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = uint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb | rb, eb);
         }
     };
     
     template <size_t size> struct test_bit_and_fixed<complement::ones, size> {
         test_bit_and_fixed (hex<complement::ones> left, hex<complement::ones> right, hex<complement::ones> expected) {
-            auto ll = sint<endian::little, size>::read (extend (left, size * 2 + 2));
-            auto rl = sint<endian::little, size>::read (extend (right, size * 2 + 2));
-            auto el = sint<endian::little, size>::read (extend (expected, size * 2 + 2));
+            auto ll = sint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = sint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = sint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll & rl, el);
             
-            auto lb = sint<endian::big, size>::read (extend (left, size * 2 + 2));
-            auto rb = sint<endian::big, size>::read (extend (right, size * 2 + 2));
-            auto eb = sint<endian::big, size>::read (extend (expected, size * 2 + 2));
+            auto lb = sint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = sint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = sint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb & rb, eb);
         }
     };
@@ -228,14 +228,14 @@ namespace data::math::number {
     template <size_t size> struct test_bit_or_fixed<complement::ones, size> {
         test_bit_or_fixed (hex<complement::ones> left, hex<complement::ones> right, hex<complement::ones> expected) {
             
-            auto ll = sint<endian::little, size>::read (extend (left, size * 2 + 2));
-            auto rl = sint<endian::little, size>::read (extend (right, size * 2 + 2));
-            auto el = sint<endian::little, size>::read (extend (expected, size * 2 + 2));
+            auto ll = sint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = sint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = sint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll | rl, el);
             
-            auto lb = sint<endian::big, size>::read (extend (left, size * 2 + 2));
-            auto rb = sint<endian::big, size>::read (extend (right, size * 2 + 2));
-            auto eb = sint<endian::big, size>::read (extend (expected, size * 2 + 2));
+            auto lb = sint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = sint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = sint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb | rb, eb);
         }
     };
@@ -333,12 +333,12 @@ namespace data::math::number {
             auto g = extend (hex<complement::ones> {given}, size * 2 + 2);
             auto e = extend (hex<complement::ones> {expected}, size * 2 + 2);
             
-            auto gl = sint<endian::little, size>::read (g);
-            auto el = sint<endian::little, size>::read (e);
+            auto gl = sint<endian::little, size, byte>::read (g);
+            auto el = sint<endian::little, size, byte>::read (e);
             EXPECT_EQ (~gl, el);
             
-            auto gb = sint<endian::big, size>::read (g);
-            auto eb = sint<endian::big, size>::read (e);
+            auto gb = sint<endian::big, size, byte>::read (g);
+            auto eb = sint<endian::big, size, byte>::read (e);
             EXPECT_EQ (~gb, eb);
         }
     };
@@ -348,12 +348,12 @@ namespace data::math::number {
             auto g = extend (hex<complement::ones> {given}, size * 2 + 2);
             auto e = extend (hex<complement::ones> {expected}, size * 2 + 2);
             
-            auto gl = uint<endian::little, size>::read (g);
-            auto el = uint<endian::little, size>::read (e);
+            auto gl = uint<endian::little, size, byte>::read (g);
+            auto el = uint<endian::little, size, byte>::read (e);
             EXPECT_EQ (~gl, el);
             
-            auto gb = uint<endian::big, size>::read (g);
-            auto eb = uint<endian::big, size>::read (e);
+            auto gb = uint<endian::big, size, byte>::read (g);
+            auto eb = uint<endian::big, size, byte>::read (e);
             EXPECT_EQ (~gb, eb);
         }
     };
@@ -408,16 +408,16 @@ namespace data::math::number {
             auto r = extend (hex<complement::ones> {right}, size * 2 + 2);
             auto e = extend (hex<complement::ones> {expected}, size * 2 + 2);
             
-            auto ll = uint<endian::little, size>::read (l);
-            auto rl = uint<endian::little, size>::read (r);
-            auto el = uint<endian::little, size>::read (e);
+            auto ll = uint<endian::little, size, byte>::read (l);
+            auto rl = uint<endian::little, size, byte>::read (r);
+            auto el = uint<endian::little, size, byte>::read (e);
             
             auto xl = ll ^ rl;
             EXPECT_EQ (xl, el) << "expected " << xl << " to equal " << el;
             
-            auto lb = uint<endian::big, size>::read (l);
-            auto rb = uint<endian::big, size>::read (r);
-            auto eb = uint<endian::big, size>::read (e);
+            auto lb = uint<endian::big, size, byte>::read (l);
+            auto rb = uint<endian::big, size, byte>::read (r);
+            auto eb = uint<endian::big, size, byte>::read (e);
             
             auto xb = lb ^ rb;
             EXPECT_EQ (xb, eb) << "expected " << xb << " to equal " << eb;
@@ -431,16 +431,16 @@ namespace data::math::number {
             auto r = extend (hex<complement::ones> {right}, size * 2 + 2);
             auto e = extend (hex<complement::ones> {expected}, size * 2 + 2);
             
-            auto ll = sint<endian::little, size>::read (l);
-            auto rl = sint<endian::little, size>::read (r);
-            auto el = sint<endian::little, size>::read (e);
+            auto ll = sint<endian::little, size, byte>::read (l);
+            auto rl = sint<endian::little, size, byte>::read (r);
+            auto el = sint<endian::little, size, byte>::read (e);
             
             auto xl = ll ^ rl;
             EXPECT_EQ (xl, el) << "expected " << xl << " to equal " << el;
             
-            auto lb = sint<endian::big, size>::read (l);
-            auto rb = sint<endian::big, size>::read (r);
-            auto eb = sint<endian::big, size>::read (e);
+            auto lb = sint<endian::big, size, byte>::read (l);
+            auto rb = sint<endian::big, size, byte>::read (r);
+            auto eb = sint<endian::big, size, byte>::read (e);
             
             auto xb = lb ^ rb;
             EXPECT_EQ (xb, eb) << "expected " << xb << " to equal " << eb;
@@ -560,16 +560,16 @@ namespace data::math::number {
     template <size_t size> struct test_increment_fixed<complement::nones, size> {
         test_increment_fixed (hex<complement::nones> given, hex<complement::nones> expected) {
 
-            auto gbl = uint<endian::little, size>::read (extend (given, size * 2 + 2));
-            auto ebl = uint<endian::little, size>::read (extend (expected, size * 2 + 2));
+            auto gbl = uint<endian::little, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebl = uint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibl = data::increment (gbl);
             EXPECT_EQ (ibl, ebl) << "expected " << ibl << " to equal " << ebl << std::endl;
             auto dbl = data::decrement (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " to equal " << gbl << std::endl;
             
-            auto gbb = uint<endian::big, size>::read (extend (given, size * 2 + 2));
-            auto ebb = uint<endian::big, size>::read (extend (expected, size * 2 + 2));
+            auto gbb = uint<endian::big, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebb = uint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibb = data::increment (gbb);
             EXPECT_EQ (ibb, ebb) << "expected " << ibb << " to equal " << ebb << std::endl;
@@ -581,16 +581,16 @@ namespace data::math::number {
     template <size_t size> struct test_increment_fixed<complement::ones, size> {
         test_increment_fixed (hex<complement::ones> given, hex<complement::ones> expected) {
             
-            auto gbl = sint<endian::little, size>::read (extend (given, size * 2 + 2));
-            auto ebl = sint<endian::little, size>::read (extend (expected, size * 2 + 2));
+            auto gbl = sint<endian::little, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebl = sint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibl = data::increment (gbl);
             EXPECT_EQ (ibl, ebl) << "expected " << ibl << " to equal " << ebl << std::endl;
             auto dbl = data::decrement (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " to equal " << gbl << std::endl;
             
-            auto gbb = sint<endian::big, size>::read (extend (given, size * 2 + 2));
-            auto ebb = sint<endian::big, size>::read (extend (expected, size * 2 + 2));
+            auto gbb = sint<endian::big, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebb = sint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibb = data::increment (gbb);
             EXPECT_EQ (ibb, ebb) << "expected " << ibb << " to equal " << ebb << std::endl;
@@ -642,11 +642,11 @@ namespace data::math::number {
     };
 
     template <endian::order r, complement n>
-    struct test_negation_number<Z_bytes<r, n>> {
+    struct test_negation_number<Z_bytes<r, n, byte>> {
         test_negation_number (string initial, string expected) {
 
-            auto hi = Z_bytes<r, n>::read (initial);
-            auto he = Z_bytes<r, n>::read (expected);
+            auto hi = Z_bytes<r, n, byte>::read (initial);
+            auto he = Z_bytes<r, n, byte>::read (expected);
             auto hn = -hi;
             auto ho = -hn;
 
@@ -721,11 +721,11 @@ namespace data::math::number {
     
     template <size_t size> struct fixed_test_comparison<complement::nones, size> {
         fixed_test_comparison (string i, string j, std::strong_ordering expected) {
-            auto cmpb = uint<endian::big, size>::read (extend (hex<complement::nones> (i), size * 2 + 2)) <=>
-                uint<endian::big, size>::read (extend (hex<complement::nones> (j), size * 2 + 2));
+            auto cmpb = uint<endian::big, size, byte>::read (extend (hex<complement::nones> (i), size * 2 + 2)) <=>
+                uint<endian::big, size, byte>::read (extend (hex<complement::nones> (j), size * 2 + 2));
             EXPECT_EQ (cmpb, expected);
-            auto cmpl = uint<endian::little, size>::read (extend (hex<complement::nones> (i), size * 2 + 2)) <=>
-                uint<endian::little, size>::read (extend (hex<complement::nones> (j), size * 2 + 2));
+            auto cmpl = uint<endian::little, size, byte>::read (extend (hex<complement::nones> (i), size * 2 + 2)) <=>
+                uint<endian::little, size, byte>::read (extend (hex<complement::nones> (j), size * 2 + 2));
             EXPECT_EQ (cmpl, expected);
         }
     };
@@ -736,11 +736,11 @@ namespace data::math::number {
             string exi = extend (hex<complement::ones> (i), size * 2 + 2);
             string exj = extend (hex<complement::ones> (j), size * 2 + 2);
 
-            auto sbi = sint<endian::big, size>::read (exi);
-            auto sbj = sint<endian::big, size>::read (exj);
+            auto sbi = sint<endian::big, size, byte>::read (exi);
+            auto sbj = sint<endian::big, size, byte>::read (exj);
 
-            auto sli = sint<endian::little, size>::read (exi);
-            auto slj = sint<endian::little, size>::read (exj);
+            auto sli = sint<endian::little, size, byte>::read (exi);
+            auto slj = sint<endian::little, size, byte>::read (exj);
 
             auto cmpb = sbi <=> sbj;
             auto cmpl = sli <=> slj;
@@ -1254,7 +1254,7 @@ namespace data {
     };
     
     template <bool x, endian::order r, size_t s>
-    struct get_number_size<math::number::bounded<x, r, s>> {
+    struct get_number_size<math::number::bounded<x, r, s, byte>> {
         static const sizes value = sizes (s);
     };
     
@@ -1266,12 +1266,12 @@ namespace data {
     };
     
     template <endian::order r>
-    struct get_number_complement<math::number::Z_bytes<r, math::number::complement::twos>> {
+    struct get_number_complement<math::number::Z_bytes<r, math::number::complement::twos, byte>> {
         static const math::number::complement value = math::number::complement::twos;
     };
     
     template <endian::order r>
-    struct get_number_complement<math::number::N_bytes<r>> {
+    struct get_number_complement<math::number::N_bytes<r, byte>> {
         static const math::number::complement value = math::number::complement::nones;
     };
     
@@ -1281,7 +1281,7 @@ namespace data {
     };
     
     template <endian::order r, size_t s>
-    struct get_number_complement<math::uint<r, s>> {
+    struct get_number_complement<math::uint<r, s, byte>> {
         static const math::number::complement value = math::number::complement::nones;
     };
     
@@ -1293,12 +1293,12 @@ namespace data {
     };
     
     template <endian::order r>
-    struct get_number_signed<math::number::N_bytes<r>> {
+    struct get_number_signed<math::number::N_bytes<r, byte>> {
         static const bool value = false;
     };
     
     template <bool x, endian::order r, size_t s>
-    struct get_number_signed<math::number::bounded<x, r, s>> {
+    struct get_number_signed<math::number::bounded<x, r, s, byte>> {
         static const bool value = false;
     };
     

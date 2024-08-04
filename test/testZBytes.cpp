@@ -212,7 +212,7 @@ namespace data {
     }
     
     template<endian::order r>
-    N N_Bytes_to_N_stupid (const math::number::N_bytes<r> &n) {
+    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, byte> &n) {
         N x {0};
         for (const byte &b : n.words ().reverse ()) {
             x <<= 8;
@@ -222,15 +222,15 @@ namespace data {
     }
     
     template<endian::order r, math::number::complement zz>
-    Z Z_Bytes_to_Z_stupid (const math::number::Z_bytes<r, zz> &z) {
+    Z Z_Bytes_to_Z_stupid (const math::number::Z_bytes<r, zz, byte> &z) {
         if (is_negative (z)) return -N_Bytes_to_N_stupid (data::abs (z));
         return N_Bytes_to_N_stupid (abs (z));
     }
     
     template<endian::order r, math::number::complement zz>
-    math::number::Z_bytes<r, zz> Z_to_Z_Bytes_stupid (const math::Z& n) {
-        return math::number::Z_bytes<r, zz>::read
-            (encoding::hexidecimal::write<math::number::complement::ones, hex_case::lower>(n));
+    math::number::Z_bytes<r, zz, byte> Z_to_Z_Bytes_stupid (const math::Z &n) {
+        return math::number::Z_bytes<r, zz, byte>::read
+            (encoding::hexidecimal::write<math::number::complement::ones, hex_case::lower> (n));
     }
     
     template <typename in> void Z_Bytes_to_Z (in x) {
