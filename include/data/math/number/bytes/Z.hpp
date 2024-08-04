@@ -382,6 +382,10 @@ namespace data::math::number {
     Z_bytes<r, c> inline &operator *= (Z_bytes<r, c> &x, const int64 n) {
         return x = x * n;
     }
+
+    template <endian::order r, complement c> Z_bytes<r, c> inline &operator /= (Z_bytes<r, c> &a, const Z_bytes<r, c> &b) {
+        return a = a / b;
+    }
     
     template <endian::order r, complement c>
     Z_bytes<r, c> inline &operator <<= (Z_bytes<r, c> &x, int64 i) {
