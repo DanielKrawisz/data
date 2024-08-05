@@ -24,6 +24,38 @@ namespace data {
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little::read ("128")), std::string ("0x0080"));
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little::read ("-128")), std::string ("0x80"));
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little::read ("-129")), std::string ("0xff7f"));
+
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("0")), std::string ("0x"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("-1")), std::string ("0xff"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("-2")), std::string ("0xfe"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("127")), std::string ("0x7f"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("128")), std::string ("0x0080"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("-128")), std::string ("0x80"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big ("-129")), std::string ("0xff7f"));
+
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("0")), std::string ("0x"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("-1")), std::string ("0xff"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("-2")), std::string ("0xfe"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("127")), std::string ("0x7f"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("128")), std::string ("0x0080"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("-128")), std::string ("0x80"));
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("-129")), std::string ("0xff7f"));
+
+        EXPECT_EQ (bytes_view (Z_bytes_big ("0")), *encoding::hex::read (""));
+        EXPECT_EQ (bytes_view (Z_bytes_big ("-1")), *encoding::hex::read ("ff"));
+        EXPECT_EQ (bytes_view (Z_bytes_big ("-2")), *encoding::hex::read ("fe"));
+        EXPECT_EQ (bytes_view (Z_bytes_big ("127")), *encoding::hex::read ("7f"));
+        EXPECT_EQ (bytes_view (Z_bytes_big ("128")), *encoding::hex::read ("0080"));
+        EXPECT_EQ (bytes_view (Z_bytes_big ("-128")), *encoding::hex::read ("80"));
+        EXPECT_EQ (bytes_view (Z_bytes_big ("-129")), *encoding::hex::read ("ff7f"));
+
+        EXPECT_EQ (bytes_view (Z_bytes_little ("0")), *encoding::hex::read (""));
+        EXPECT_EQ (bytes_view (Z_bytes_little ("-1")), *encoding::hex::read ("ff"));
+        EXPECT_EQ (bytes_view (Z_bytes_little ("-2")), *encoding::hex::read ("fe"));
+        EXPECT_EQ (bytes_view (Z_bytes_little ("127")), *encoding::hex::read ("7f"));
+        EXPECT_EQ (bytes_view (Z_bytes_little ("128")), *encoding::hex::read ("8000"));
+        EXPECT_EQ (bytes_view (Z_bytes_little ("-128")), *encoding::hex::read ("80"));
+        EXPECT_EQ (bytes_view (Z_bytes_little ("-129")), *encoding::hex::read ("7fff"));
         
     }
 
@@ -286,8 +318,8 @@ namespace data {
         }
 
         for (const string &str : twos_zeros) {
-            auto zb = Z_bytes_twos_big::read (str);
-            auto zl = Z_bytes_twos_little::read (str);
+            auto zb = Z_bytes_twos_big (str);
+            auto zl = Z_bytes_twos_little (str);
 
             EXPECT_EQ (zb, 0) << "expected " << std::hex << zb << " to be zero.";
             EXPECT_EQ (data::sign (zb), math::zero);
