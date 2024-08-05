@@ -689,7 +689,7 @@ namespace data::math::number {
     }
     
     template <endian::order r> Z_bytes<r, complement::twos> Z_bytes<r, complement::twos>::read (bytes_view b) {
-        auto x = Z_bytes<r, complement::ones> {};
+        auto x = Z_bytes<r, complement::twos> {};
         x.resize (b.size ());
         std::copy (b.begin (), b.end (), x.begin ());
         return x;
