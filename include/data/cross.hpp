@@ -309,10 +309,10 @@ namespace data {
     template <typename X>
     std::ostream &operator << (std::ostream &o, const cross<X> &s) {
         auto b = s.begin ();
+        o << "[";
         while (true) {
             if (b == s.end ()) return o << "]";
-            else if (b == s.begin ()) o << "[";
-            else o << ", ";
+            else if (b != s.begin ()) o << ", ";
             o << *b;
             b++;
         }
