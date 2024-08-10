@@ -127,4 +127,14 @@ namespace data {
         EXPECT_EQ (linked_stack<N> (test), numbers);
 
     }
+
+    TEST (LinkedStackTest, TestLinkedStackNumbers) {
+        linked_stack<Z_bytes_little> {};
+        linked_stack<Z_bytes_little> ();
+        linked_stack<Z_bytes_little> {1};
+        linked_stack<Z_bytes_little> (1);
+        linked_stack<Z_bytes_little> {1, 2};
+        linked_stack<Z_bytes_little> (1, 2);
+        //linked_stack<Z_bytes_little> ({1});
+    }
 }
