@@ -82,9 +82,8 @@ namespace data::math::number {
     // bit xor
     template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const N_bytes<r> &, const N_bytes<r> &);
     
-    template <endian::order r> 
-    Z_bytes<r, complement::ones> operator ^
-        (const Z_bytes<r, complement::ones> &, const Z_bytes<r, complement::ones> &);
+    template <endian::order r>
+    Z_bytes<r, complement::ones> operator ^ (const Z_bytes<r, complement::ones> &, const Z_bytes<r, complement::ones> &);
     
     template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const Z_bytes<r, complement::ones>&, const N_bytes<r> &);
     template <endian::order r> Z_bytes<r, complement::ones> operator ^ (const N_bytes<r>&, const Z_bytes<r, complement::ones> &);

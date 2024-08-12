@@ -21,6 +21,8 @@ namespace data {
         using std::variant<X...>::variant;
         either (std::variant<X...> &&x) : std::variant<X...> {x} {}
         
+        using std::variant<X...>::operator =;
+
         std::ostream &write (std::ostream &o) const {
             return writer<X...> {} (o, *this);
         }
