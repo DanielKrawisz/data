@@ -7,6 +7,8 @@
 #include "gtest/gtest.h"
 
 namespace data {
+
+    template <typename T> using permutation = math::permutation<T>;
     
     TEST (PermutationTest, TestCycle) {
         using ucycle = cycle<uint32>;

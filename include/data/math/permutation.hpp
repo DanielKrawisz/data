@@ -7,32 +7,28 @@
 
 #include <list>
 #include <data/for_each.hpp>
-
-//#include <data/math/arithmetic.hpp>
 #include <data/math/associative.hpp>
 #include <data/math/group.hpp>
 
-#include <list>
-
 namespace data::math {
 
-    template <std::totally_ordered elem> struct permutation;
+    template <ordered elem> struct permutation;
 
-    template <std::totally_ordered elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
+    template <ordered elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
 
-    template <std::totally_ordered elem> struct identity<times<permutation<elem>>, permutation<elem>> {
+    template <ordered elem> struct identity<times<permutation<elem>>, permutation<elem>> {
         permutation<elem> operator () ();
     };
 
-    template <std::totally_ordered elem> struct inverse<times<permutation<elem>>, permutation<elem>> {
+    template <ordered elem> struct inverse<times<permutation<elem>>, permutation<elem>> {
         permutation<elem> operator () (const permutation<elem> &);
     };
 
-    template <std::totally_ordered elem> struct sign<permutation<elem>> {
+    template <ordered elem> struct sign<permutation<elem>> {
         signature operator () (const permutation<elem> &);
     };
 
-    template <std::totally_ordered elem> struct permutation {
+    template <ordered elem> struct permutation {
         using replacements = std::list<entry<elem, elem>>;
         
         static replacements compose (replacements, replacements);
@@ -48,6 +44,8 @@ namespace data::math {
         // the identity cycle is the same as all cycles
         // consisting of repetitions of a single element.
         static cycle normalize (const cycle &);
+
+        elem operator () (const elem &) const;
         
         list<cycle> Cycles;
         explicit permutation (replacements);
@@ -92,7 +90,7 @@ namespace data::math {
             return (a.elements () | b.elements ()) == set<elem> {};
         }
         
-        permutation operator * (const permutation& p) const {
+        permutation operator * (const permutation &p) const {
             return permutation (compose (replacements (*this), replacements (p)));
         }
         
@@ -118,7 +116,7 @@ namespace data::math {
         return permutation<elem>::identity ();
     }
 
-    template <std::totally_ordered elem> signature inline sign<permutation<elem>>::operator () (const permutation<elem> &p) {
+    template <ordered elem> signature inline sign<permutation<elem>>::operator () (const permutation<elem> &p) {
         return p.sign ();
     }
     
@@ -200,6 +198,7 @@ namespace data::math {
             elem first = r.front ().Key;
             elem last = r.front ().Value;
             r.pop_front ();
+            if (first == last) continue;
             z.Cycle = z.Cycle << first << last;
             
             while (true) {
@@ -276,6 +275,13 @@ namespace data::math {
         if (!c.valid ()) return false;
         set<elem> el = elements ();
         return el.size () == c.size () || el.size () == 1;
+    }
+
+    template <typename elem>
+    elem permutation<elem>::operator () (const elem &e) const {
+        for (const cycle &c : Cycles) for (auto it = c.Cycle.begin (); it != c.Cycle.end (); it++)
+            if (*it == e) return ++it == c.Cycle.end () ? c.Cycle.first () : *it;
+        return e;
     }
 }
 

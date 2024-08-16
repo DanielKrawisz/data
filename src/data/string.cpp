@@ -56,7 +56,7 @@ namespace data {
         return x.substr (positive_begin, positive_end);
     }
 
-    list<string_view> split (const string_view &s, const string_view &delimiter) {
+    list<string_view> split (string_view s, string_view delimiter) {
         data::list<string_view> pieces;
 
         size_t begin_pos = 0;
@@ -67,6 +67,14 @@ namespace data {
         }
 
         return pieces << string_view {s.data () + begin_pos, s.size () - begin_pos};
+    }
+
+    string string_join (list<string> s, string_view delimiter) {
+        if (data::empty (s)) return "";
+        std::stringstream ss;
+        ss << static_cast<std::string> (first (s));
+        for (const string &x : rest (s)) ss << delimiter << static_cast<std::string> (x);
+        return ss.str ();
     }
 
 }
