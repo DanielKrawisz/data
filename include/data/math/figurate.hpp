@@ -17,7 +17,7 @@ namespace data::math {
     }
 
     template <typename N> binomial (const N &n, const N &k) {
-        if (k > n) return 0;
+        if (n < 0 || k < 0 || k > n) return 0;
         if (n - k > k) return binomial (n, n - k);
         N z = n;
         N y = 1;
