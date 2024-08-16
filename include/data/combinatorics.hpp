@@ -6,6 +6,7 @@
 #define DATA_COMBINATORICS
 
 #include <data/math/permutation.hpp>
+#include <data/math/figurate.hpp>
 
 namespace data {
 
@@ -15,6 +16,20 @@ namespace data {
     template <typename elem> list<list<elem>> sublists (list<elem> a, size_t from, size_t to);
     template <typename elem> list<list<elem>> partition (list<elem> a, size_t size);
     template <typename elem> list<list<elem>> partition (list<elem> a, size_t size, size_t offset);
+
+    template <typename N> N sublists_count (const N &list_size, N sub_size) {
+        if (sub_size > list_size) return 0;
+        if (sub_size == list_size) return 1;
+        if (sub_size == 0) return 1;
+        if (sub_size == 1) return list_size;
+        N x = 0;
+        for (N i = 1; n <= list_size - sub_size; n++) x += sublists_count (list_size - i, sub_size - 1);
+        return x;
+    }
+
+    template <typename> N permutations_count (const N &list_size) {
+        return factorial<N> (list_size);
+    }
 
     template <typename elem> list<list<elem>> inline sublists (list<elem> a, size_t from, size_t to) {
         return reduce (join<list<list<elem>>>, for_each ([a] (size_t size) -> list<list<elem>> {
