@@ -94,12 +94,12 @@ namespace data {
     }
     
     template <typename X, typename element> requires interface::has_insert_method<X, element>
-    X insert (const X& x, const element& e) {
+    X insert (const X &x, const element &e) {
         return x.insert (e);
     }
     
     template <typename X, typename element> requires interface::has_remove_method<X, element>
-    X remove (const X& x, const element& e) {
+    X remove (const X &x, const element &e) {
         return x.remove (e);
     }
 

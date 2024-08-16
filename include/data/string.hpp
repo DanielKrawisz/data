@@ -33,7 +33,8 @@ namespace data {
     string to_lower (const std::string &);
 
     // split a string by a delimiter.
-    list<string_view> split (const string_view &s, const string_view &delimiter);
+    list<string_view> split (string_view s, string_view delimiter);
+    string string_join (list<string>, string_view delimiter);
 
     template <typename X>
     string string_join (list<X> l) {

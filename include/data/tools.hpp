@@ -61,6 +61,42 @@ namespace data {
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
     
+    template <typename f, sequence A, sequence B>
+    auto map_thread (f fun, A a, B b);
+
+    template <typename map, typename key, typename value>
+    map replace_part (map X, const key &k, const value &v);
+
+    template <typename elem>
+    stack<elem> reverse (const ordered_list<elem> x);
+
+    template <typename elem>
+    ordered_list<elem> select (const ordered_list<elem> x, function<bool (const elem &)> satisfies);
+
+    namespace {
+        template <typename given> struct flat {
+            using type = given;
+            type operator () (given g) {
+                return g;
+            }
+        };
+
+        template <typename given> struct flat<list<list<given>>> {
+            using type = flat<list<given>>::type;
+            type operator () (list<list<given>> g) {
+                return fold ([] (type t, list<given> g) -> type {
+                    return t + flat<list<given>> {} (g);
+                }, type {}, g);
+            }
+        };
+    }
+
+    template <typename given> using flattened = flat<given>::type;
+
+    template <typename given> flattened<given> inline flatten (given g) {
+        return flat<given> {} (g);
+    }
+
     template <typename f, sequence A, sequence B> 
     auto map_thread (f fun, A a, B b) {
         if (data::size (a) != data::size (b)) throw exception {"lists must be the same size"};
@@ -96,6 +132,7 @@ namespace data {
         for (const elem &e : n) r = r.insert (e);
         return r;
     }
+
 
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -23,11 +23,21 @@ namespace data {
     
     template <functional::pendable list> 
     list take (const list &l, size_t x);
+
+    template <functional::pendable list>
+    list inline take (const list &l, size_t from, size_t to) {
+        return take (drop (l, from), to - from);
+    }
     
     template <functional::pendable list>
     list join (const list &a, const list &b) {
         if constexpr (functional::queue<list>) return functional::join_queue (a, b);
         else return functional::join_stack (a, b);
+    }
+
+    template <functional::pendable list>
+    list inline remove_index (const list &l, size_t x) {
+        return join (take (l, x), drop (l, x + 1));
     }
     
     template <functional::pendable list> requires ordered<element_of<list>>
