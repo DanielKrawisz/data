@@ -7,37 +7,48 @@
 
 #include <data/tools/ordered_list.hpp>
 #include <data/tools/linked_stack.hpp>
+#include <data/tools/linked_tree.hpp>
+
 #include <data/functional/map.hpp>
 #include <data/fold.hpp>
-#include <milewski/RBMap/RBMap.h>
     
 namespace data::tool {
     
+    enum class rb_color : char {
+        negative_black = -1,
+        red = 0;
+        black = 1;
+        double_black = 2;
+    };
+
+    template <typename K, typename V> rb_entry : entry<K, V> {
+        rb_color Color;
+        rb_entry (rb_color, const K &, const V &);
+    };
+
+    // https://matt.might.net/articles/red-black-delete/
+
     template <typename K, typename V> struct rb_map_iterator;
     
     template <typename K, typename V>
-    struct rb_map {
+    struct rb_map : linked_tree<rb_entry<K, V>> {
         using entry = data::entry<K, V>;
-        using map = milewski::okasaki::RBMap<K, V>;
         
-    private:
-        map Map;
-        size_t Size;
-        
-        rb_map (map m, size_t x) : Map {m}, Size {x} {}
-        
-    public:
         const V &operator [] (const K &k) const;
         std::remove_reference_t<V> *contains (const K &k);
         const std::remove_reference_t<V> *contains (const K &k) const;
         bool contains (const entry &e) const;
         
         const V &root () const;
+
+        // left and right branches of the tree.
         const rb_map &left () const;
         const rb_map &right () const;
         
         rb_map insert (const entry &e) const;
         rb_map insert (const K &k, const V &v) const;
+
+        // try to insert something and call a function if it already exists.
         rb_map insert (const K &k, const V &v, 
             function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const;
         
@@ -75,19 +86,11 @@ namespace data::tool {
         rb_map_iterator<K, V> end () const;
 
         template <typename X> requires convertible_to<V, X>
-        operator rb_map<K, X> () const {
-            rb_map<K, X> m;
-            for (const auto &e : *this) m = m.insert (e);
-            return m;
-        }
+        operator rb_map<K, X> () const;
 
         template <typename X> requires (!is_convertible_v<V, X>) && requires (const V &e) {
             { X (e) };
-        } explicit operator rb_map<K, X> () const {
-            rb_map<K, X> m;
-            for (const auto &e : *this) m = m.insert (e);
-            return m;
-        }
+        } explicit operator rb_map<K, X> () const;
         
     };
 
@@ -129,33 +132,6 @@ namespace data::tool {
         
     };
 
-    // a map that is good for deriving from.
-    // NOTE: it seems that using this type leads to segmentation faults, not sure why.
-    template <typename K, typename V, typename derived> struct base_rb_map : rb_map<K, V> {
-        using rb_map<K, V>::rb_map;
-
-        // the derived type needs to inheret these constructors.
-        base_rb_map (rb_map<K, V> &&rb) : rb_map<K, V> {rb} {}
-        base_rb_map (const rb_map<K, V> &rb) : rb_map<K, V> {rb} {}
-
-        derived insert (const K& k, const V& v) const {
-            derived {rb_map<K, V>::insert (k, v)};
-        }
-
-        derived insert (const entry<K, V> &e) const {
-            derived {rb_map<K, V>::insert (e)};
-        }
-
-        derived operator << (const entry<K, V> &e) const {
-            derived {rb_map<K, V>::insert (e)};
-        }
-
-        derived remove (const K &k) const {
-            derived {rb_map<K, V>::remove (k)};
-        }
-
-    };
-
 }
 
 namespace std {
@@ -172,153 +148,43 @@ namespace std {
 namespace data::tool {
     
     template <typename K, typename V>
-    std::ostream inline &operator << (std::ostream &o, const rb_map<K, V> &x) {
-        return functional::write (o << "map", x.values ());
-    }
-    
-    template <typename K, typename V>
-    inline rb_map<K, V>::rb_map (std::initializer_list<entry> init) : Map {}, Size {0} {
-        for (auto p : init) *this = insert (p);
-    }
-    
-    template <typename K, std::equality_comparable V>
-    bool inline operator == (const rb_map<K, V> &l, const rb_map<K, V> &r) {
-        return l.values () == r.values ();
-    }
-    
-    template <typename K, typename V>
-    ordered_stack<linked_stack<K>> rb_map<K, V>::keys () const {
-        linked_stack<K> kk {};
-
-        milewski::okasaki::forEach (Map, [&kk] (const K &k, V) -> void {
-            kk = kk << k;
-        });
-
-        ordered_stack<linked_stack<K>> x {};
-        for (const auto& k : data::reverse (kk)) x = x << k;
-        return x;
-    }
-    
-    template <typename K, typename V>
-    ordered_stack<linked_stack<entry<K, V>>> rb_map<K, V>::values () const {
-        linked_stack<entry> kk {};
-
-        milewski::okasaki::forEach (Map, [&kk] (const K &k, V v) -> void {
-            kk = kk << entry {k, v};
-        });
-
-        ordered_stack<linked_stack<entry>> x {};
-        for (const auto& e : data::reverse (kk)) x = x << e;
-        return x;
-    }
-    
-    template <typename K, typename V>
-    const V inline &rb_map<K, V>::operator [] (const K &k) const {
-        std::remove_reference_t<V> *x = Map.find (k);
-        if (x == nullptr) throw "not found";
-        return *x;
-    }
-    
-    template <typename K, typename V>
-    std::remove_reference_t<V> inline *rb_map<K, V>::contains (const K &k) {
-        return Map.find (k);
-    }
-    
-    template <typename K, typename V>
-    const std::remove_reference_t<V> inline *rb_map<K, V>::contains (const K &k) const {
-        return Map.find (k);
-    }
-    
-    template <typename K, typename V>
-    bool inline rb_map<K, V>::contains (const entry &e) const {
-        return operator [] (e.Key) == e.Value;
-    }
-    
-    template <typename K, typename V>
-    rb_map<K, V> rb_map<K, V>::insert (const K &k, const V &v) const {
-        const std::remove_reference_t<V> *already = contains (k);
-        if (already == nullptr) return rb_map {Map.inserted (k, v), Size + 1};
-        throw exception {} << "key already exists";/*
-        if (*already == v) return *this;
-        rb_map removed = this->remove (k);
-        return rb_map {removed.Map.inserted (k, v), removed.Size + 1};*/
-    }
-
-    template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::insert
-    (const K &k, const V &v, function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const {
-        const V *already = contains (k);
-        return already == nullptr ? rb_map {Map.inserted (k, v), Size + 1} : already_exists (*this, k, *already, v);
-    }
-    
-    template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::insert (const entry &e) const {
-        return insert (e.Key, e.Value);
-    }
-    
-    // there's a more efficient way of doing this. 
-    // See matt.might.net/articles/red-black-delete/ 
-    template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::remove (const K &k) const {
-        rb_map m {};
-        auto v = values ();
-        for (auto x = v.begin (); x != v.end (); ++x) if ((*x).Key != k) m = m.insert (*x);
-        return m;
-    }
-    
-    template <typename K, typename V>
-    rb_map<K, V> inline rb_map<K, V>::operator << (const entry &e) const {
-        return insert (e.Key, e.Value);
-    }
-    
-    template <typename K, typename V>
-    bool inline rb_map<K, V>::empty () const {
-        return Map.isEmpty ();
-    }
-    
-    template <typename K, typename V>
-    size_t inline rb_map<K, V>::size () const {
-        return Size;
-    }
-    
-    template <typename K, typename V>
     rb_map_iterator<K, V> inline rb_map<K, V>::begin () const {
         return rb_map_iterator<K, V> {&Map};
     }
-    
+
     template <typename K, typename V>
     rb_map_iterator<K, V> inline rb_map<K, V>::end () const {
         return rb_map_iterator<K, V> {&Map, static_cast<int> (Size)};
     }
-    
+
     template <typename K, typename V>
     rb_map_iterator<K, V> rb_map_iterator<K, V>::operator ++ (int) {
         auto x = *this;
         ++(*this);
         return x;
     }
-    
+
     template <typename K, typename V>
     rb_map_iterator<K, V> &rb_map_iterator<K, V>::operator ++ () {
         if (Next == nullptr) return *this;
         Index++;
-            
+
         if (Next->_rgt != nullptr) {
             Next = Next->_rgt;
             go_left ();
             return *this;
-        } 
-            
+        }
+
         if (!data::empty (Last)) {
             Next = Last.first ();
             Last = Last.rest ();
             return *this;
         }
-        
+
         Next = nullptr;
         return *this;
     }
-    
+
     template <typename K, typename V>
     const data::entry<K, V> inline &rb_map_iterator<K, V>::operator * () const {
         return Next->_entry;
@@ -328,18 +194,18 @@ namespace data::tool {
     const data::entry<K, V> inline *rb_map_iterator<K, V>::operator -> () const {
         return &Next->_entry;
     }
-    
+
     template <typename K, typename V>
     bool inline rb_map_iterator<K, V>::operator == (const rb_map_iterator i) const {
         return Map == i.Map && Next == i.Next;
     }
-    
+
     template <typename K, typename V>
     int inline rb_map_iterator<K, V>::operator - (const rb_map_iterator& i) const {
         if (Map == i.Map) return Index - i.Index;
         return 0;
     }
-    
+
     template <typename K, typename V>
     void rb_map_iterator<K, V>::go_left () {
         if (Next == nullptr) return;
@@ -348,7 +214,7 @@ namespace data::tool {
             Next = Next->_lft;
         }
     }
-    
+
 }
 
 #endif
