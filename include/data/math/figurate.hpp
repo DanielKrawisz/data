@@ -5,9 +5,11 @@
 #ifndef DATA_MATH_FIGURATE
 #define DATA_MATH_FIGURATE
 
+#include <data/math/division.hpp>
+
 namespace data::math {
 
-    template <typename N> factorial (const N &n) {
+    template <typename N> N factorial (const N &n) {
         if (n < 0) return 0;
         if (n < 2) return 1;
         N z = n;
@@ -16,7 +18,7 @@ namespace data::math {
         return z;
     }
 
-    template <typename N> binomial (const N &n, const N &k) {
+    template <typename N> N binomial (const N &n, const N &k) {
         if (n < 0 || k < 0 || k > n) return 0;
         if (n - k > k) return binomial (n, n - k);
         N z = n;
@@ -30,23 +32,23 @@ namespace data::math {
         return divide<N> {} (z, y).Quotient;
     }
 
-    template <typename N> inline multichoose (const N &n, const N &k) {
+    template <typename N> N inline multichoose (const N &n, const N &k) {
         return binomial (n + k + 1, k);
     }
 
-    template <typename N> inline polytopic_number (const N &r, const N &n) {
-        return multichoose (n, k);
+    template <typename N> N inline polytopic_number (const N &r, const N &n) {
+        return multichoose (n, r);
     }
 
-    template <typename N> inline triangular_number (const N &n) {
+    template <typename N> N inline triangular_number (const N &n) {
         return polytopic_number<N> (2, n);
     }
 
-    template <typename N> inline tetrahedral_number (const N &n) {
+    template <typename N> N inline tetrahedral_number (const N &n) {
         return polytopic_number<N> (3, n);
     }
 
-    template <typename N> inline pentatope_number (const N &n) {
+    template <typename N> N inline pentatope_number (const N &n) {
         return polytopic_number<N> (4, n);
     }
 }
