@@ -48,8 +48,10 @@ namespace data {
         
         bool operator == (const reverse_iterator i) const;
         
-        int operator -(const reverse_iterator& i) const;
+        int operator - (const reverse_iterator &i) const;
     };
+
+    template <typename... its> struct product_range;
     
 }
 
