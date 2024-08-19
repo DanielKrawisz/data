@@ -33,6 +33,27 @@ namespace data::math {
     };
 
     template <typename dividend, typename divisor = dividend> struct divide;
+
+    template <>
+    struct divide<int, int> {
+        division<int, unsigned int> operator () (int x, nonzero<int> y) {
+            return {x / y, static_cast<unsigned int> (x % y)};
+        }
+    };
+
+    template <>
+    struct divide<unsigned int, unsigned int> {
+        division<unsigned int, unsigned int> operator () (unsigned int x, nonzero<unsigned int> y) {
+            return {x / y, x % y};
+        }
+    };
+
+    template <>
+    struct divide<long unsigned int, long unsigned int> {
+        division<long unsigned int, long unsigned int> operator () (long unsigned int x, nonzero<long unsigned int> y) {
+            return {x / y, x % y};
+        }
+    };
     
 }
 

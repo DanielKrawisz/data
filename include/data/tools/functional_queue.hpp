@@ -9,10 +9,9 @@
 #include <data/functional/list.hpp>
 #include <data/reverse.hpp>
 #include <data/fold.hpp>
-//#include <iostream>
     
 namespace data {
-    
+
     // functional queue based on Milewski's implementation of Okasaki. 
     // it is built out of any stack. 
     template <typename stack, typename element = element_of<stack>>
@@ -67,6 +66,10 @@ namespace data {
         
         sentinel end () const {
             return sentinel {*this};
+        }
+
+        operator stack () const {
+            return data::reverse (Right).prepend (data::reverse (Left));
         }
 
         template <typename X, typename Y, typename ... P>
