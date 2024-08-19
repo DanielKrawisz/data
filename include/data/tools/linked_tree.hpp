@@ -10,15 +10,10 @@
 namespace data {
 
     template <typename value>
-    class linked_tree {
-        
+    struct linked_tree {
         using node = functional::tree_node<value, linked_tree>;
         using next = ptr<node>;
-        
-        next Node;
-        size_t Size;
-        
-    public:
+
         bool empty () const;
         
         const value &root () const;
@@ -42,7 +37,7 @@ namespace data {
         linked_tree &operator = (const linked_tree &t);
         
         template <typename X> requires std::equality_comparable_with<value, X>
-        bool operator == (const data::linked_tree<X>& x) const {
+        bool operator == (const data::linked_tree<X> &x) const {
             if (Node == x.Node) return true;
             if (Node == nullptr || x.Node == nullptr) return false;
             if (root () != x.root ()) return false;
@@ -68,6 +63,10 @@ namespace data {
         sentinel end () const;
         
         std::ostream &write (std::ostream &o) const;
+
+    private:
+        next Node;
+        size_t Size;
     };
 
     template <typename X> 

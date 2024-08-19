@@ -50,7 +50,7 @@ namespace data {
     
     // a functional map implemented as a red-black tree
     // wrapper of Milewski's implementation of Okasaki.
-    template <typename K, typename V> using map = tool::rb_map<K, V>;
+    template <typename K, typename V> using map = tool::RB::map<K, V>;
     
     // set implemented as a map. 
     template <typename X> using set = tool::map_set<map<X, tool::unit>>;
