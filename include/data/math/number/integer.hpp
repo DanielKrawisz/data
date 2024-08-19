@@ -61,22 +61,6 @@ namespace data::math {
         }
     };
 
-    template <std::unsigned_integral dividend> requires number::natural<dividend>
-    struct divide<dividend, dividend> {
-        division<dividend> operator () (dividend, nonzero<dividend>);
-    };
-
-    template <std::signed_integral dividend> requires number::integer<dividend>
-    struct divide<dividend, dividend> {
-        division<dividend, std::make_unsigned_t<dividend>> operator () (dividend, nonzero<dividend>);
-    };
-
-    template <std::signed_integral dividend, std::unsigned_integral divisor>
-    requires std::same_as<std::make_unsigned_t<dividend>, divisor> && number::integer<dividend> && number::natural<divisor>
-    struct divide<dividend, divisor> {
-        division<dividend, divisor> operator () (dividend, nonzero<std::make_unsigned_t<dividend>>);
-    };
-
 }
 
 namespace data::math::number {

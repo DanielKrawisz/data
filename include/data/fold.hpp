@@ -6,6 +6,7 @@
 #define DATA_FOLD
 
 #include <data/sequence.hpp>
+#include <data/function.hpp>
 
 namespace data {
 
@@ -15,14 +16,14 @@ namespace data {
         return fold (fun, fun (init, data::first (ls)), data::rest (ls));
     }
     
-    template <typename x, typename f>
-    inline x nest (f fun, uint32 rounds, x init) {
+    template <typename x>
+    inline x nest (function<x (const x&)> fun, uint32 rounds, x init) {
         if (rounds == 0) return init;
         return nest (fun, fun (init), rounds - 1);
     }
     
-    template <typename x, typename f, sequence l>
-    inline x reduce (f fun, l ls) {
+    template <typename x, sequence l>
+    inline x reduce (function<x (const x&, const x&)> fun, l ls) {
         if (data::empty (ls)) return x {};
         return fun (data::first (ls), reduce<x> (fun, data::rest (ls)));
     }

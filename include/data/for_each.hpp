@@ -14,7 +14,7 @@ namespace data {
         typename element = std::remove_const_t<std::remove_reference_t<decltype (std::declval<input> ().first ())>>, 
         typename output = decltype (std::declval<fun> () (std::declval<element> ()))>
     requires functional::function<fun, output, element> && sequence<input, element>
-    list<output> for_each (const fun& f, const input& i) {
+    list<output> for_each (const fun &f, const input &i) {
         return fold ([&f] (list<output> q, element x) -> list<output> {
             return append (q, f (x));
         }, list<output> {}, i);
@@ -25,8 +25,8 @@ namespace data {
         typename value = std::remove_reference_t<decltype (std::declval<input> ().values ().first ().value ())>, 
         typename output = decltype (std::declval<fun> () (std::declval<value> ()))>
     requires functional::function<fun, output, value> && functional::map<input, key, value>
-    map<key, output> inline for_each (const fun& f, const input& i) {
-        return fold ([&f] (map<key, output> m, const entry<key, value>& e) -> map<key, output> {
+    map<key, output> inline for_each (const fun &f, const input &i) {
+        return fold ([&f] (map<key, output> m, const entry<key, value> &e) -> map<key, output> {
             return m.insert (e.Key, f (e.Value));
         }, map<key, output> {}, i.values ());
     }

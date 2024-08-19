@@ -9,6 +9,10 @@
 #include <data/functional/stack.hpp>
     
 namespace data {
+
+    template <typename elem> class linked_stack;
+
+    template <typename elem> linked_stack<elem> operator + (linked_stack<elem>, linked_stack<elem>);
     
     template <typename elem>
     class linked_stack {
@@ -86,6 +90,10 @@ namespace data {
         }
         
     };
+
+    template <typename elem> linked_stack<elem> operator + (linked_stack<elem> a, linked_stack<elem> b) {
+        return b.prepend (data::reverse (a));
+    }
     
     // a bidirectional iterator in case you need one. 
     template <typename elem>
@@ -209,7 +217,7 @@ namespace data {
     linked_stack<elem> linked_stack<elem>::prepend (linked_stack l) const {
         linked_stack x = *this;
         while (!l.empty ()) {
-            x = x + l.first ();
+            x = x << l.first ();
             l = l.rest ();
         }
         return x;

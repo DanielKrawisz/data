@@ -118,8 +118,8 @@ namespace data {
     template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>>
     bool inline sequence_equal (const X &a, const Y &b) {
         return (void*) &a == (void*) &b ? true :
-            data::empty (a) && data::empty (b) ? true :
-                data::empty (a) || data::empty (b) ? false :
+            data::size (a) != data::size (b) ? false :
+                data::empty (a) ? true :
                     data::first (a) != data::first (b) ? false :
                         data::rest (a) == data::rest (b);
     }
@@ -206,7 +206,7 @@ namespace data {
     
     template <typename L>
     bool inline sequence_iterator<L>::operator == (const sentinel<L> i) const {
-        return Sequence == i.Structure && Index == data::size(*Sequence);
+        return Sequence == i.Structure && Index == data::size (*Sequence);
     }
     
     template <typename L>
