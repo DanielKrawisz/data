@@ -24,7 +24,11 @@ namespace data {
 
         bool operator == (const permutations &) const;
 
+        // forward iterator
         struct iterator {
+            using difference_type = int;
+            using value_type = stack<elem>;
+
             stack<elem> operator * () const;
             bool operator == (const iterator &) const;
             iterator &operator ++ ();
@@ -61,7 +65,11 @@ namespace data {
 
         bool operator == (const sublists &) const;
 
+        // forward iterator
         struct iterator {
+            using difference_type = int;
+            using value_type = stack<elem>;
+
             stack<elem> operator * () const;
             bool operator == (const iterator &) const;
             iterator &operator ++ ();
@@ -98,7 +106,11 @@ namespace data {
 
         bool operator == (const partitions &) const;
 
+        // forward iterator
         struct iterator {
+            using difference_type = int;
+            using value_type = stack<elem>;
+
             stack<elem> operator * () const;
             bool operator == (const iterator &) const;
             iterator &operator ++ ();
@@ -371,34 +383,34 @@ namespace data {
         return reverse (ls);
     }
 
-    template <ordered elem> permutations<elem>::iterator inline &permutations<elem>::operator += (uint32 u) {
+    template <ordered elem> permutations<elem>::iterator inline &permutations<elem>::iterator::operator += (uint32 u) {
         for (uint32 i = 0; i < u; i++) ++(*this);
         return *this;
     }
 
-    template <ordered elem> permutations<elem>::iterator inline permutations<elem>::operator + (uint32 u) {
+    template <ordered elem> permutations<elem>::iterator inline permutations<elem>::iterator::operator + (uint32 u) {
         auto n = *this;
         for (uint32 i = 0; i < u; i++) ++n;
         return n;
     }
 
-    template <typename elem> sublists<elem>::iterator inline &sublists<elem>::operator += (uint32 u) {
+    template <typename elem> sublists<elem>::iterator inline &sublists<elem>::iterator::operator += (uint32 u) {
         for (uint32 i = 0; i < u; i++) ++(*this);
         return *this;
     }
 
-    template <typename elem> sublists<elem>::iterator inline sublists<elem>::operator + (uint32 u) {
+    template <typename elem> sublists<elem>::iterator inline sublists<elem>::iterator::operator + (uint32 u) {
         auto n = *this;
         for (uint32 i = 0; i < u; i++) ++n;
         return n;
     }
 
-    template <typename elem> permutations<elem>::iterator inline &permutations<elem>::operator += (uint32 u) {
+    template <typename elem> partitions<elem>::iterator inline &partitions<elem>::iterator::operator += (uint32 u) {
         for (uint32 i = 0; i < u; i++) ++(*this);
         return *this;
     }
 
-    template <typename elem> permutations<elem>::iterator inline permutations<elem>::operator + (uint32 u) {
+    template <typename elem> partitions<elem>::iterator inline partitions<elem>::iterator::operator + (uint32 u) {
         auto n = *this;
         for (uint32 i = 0; i < u; i++) ++n;
         return n;
