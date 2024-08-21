@@ -7,42 +7,52 @@
 
 #include <data/iterable.hpp>
 #include <data/cross.hpp>
+#include <data/function.hpp>
+#include <future>
 
 namespace data::distributed {
+
+    using std::future;
+    using std::promise;
+    using std::mutex;
+    using std::thread;
+    using lock = std::unique_lock<mutex>;
+
+    template <typename X, typename it> using test = function<maybe<X> (const it &)>;
 
     // return a future to a solution to a problem that will be solved by searching a space
     // of solutions over many threads. This function blocks but an another farther down is
     // non-blocking.
-    template <typename X, std::random_access_iterator iterator> requires requires (iterator &i) {
-        { *i } -> std::convertible_to<const X &> ;
-    } maybe<X> search (uint32 threads, function<bool (const X &)> trial, iterator begin, iterator end);
+    template <typename X, std::forward_iterator it>
+    maybe<X> search (uint32 threads, test<X, it> trial, it begin, it end, int iteration_range = 10000);
 
-    template <typename iterator> struct parameter_range {
-        iterator Begin;
-        iterator End;
+    template <typename it> struct parameter_range {
+        it Begin;
+        it End;
 
         operator bool () const {
-            return (End - Begin);
+            return (Begin != End);
         }
     };
 
-    template <typename X, std::random_access_iterator iterator> class running;
+    template <typename X, std::forward_iterator it> class running;
 
-    template <typename X, std::random_access_iterator iterator>
-    class searcher : std::enable_shared_from_this<searcher> {
-        std::mutex Mutex {};
+    template <typename X, std::forward_iterator it>
+    class searcher : std::enable_shared_from_this<searcher<X, it>> {
+    private:
+        mutable mutex Mutex {};
         bool Closed {false};
-        int IterationRange {25000};
-        std::promise<maybe<X>> Promise {}
+        bool Solved {false};
+        promise<X> Promise {};
 
-        iterator Next;
-        iterator End;
+        it Next;
+        it End;
+        int IterationRange;
 
     public:
-
         // Get a new iterator range to search throuogh.
         // range will be zero if the channel is closed.
-        parameter_range<iterator> poll ();
+        parameter_range<it> get ();
 
         // submit a solution.
         void solve (const X &solution);
@@ -52,110 +62,136 @@ namespace data::distributed {
 
         bool closed () const;
 
-        searcher (iterator begin, iterator end) : Next {begin}, End {end} {}
+        bool solved () const;
 
-        ptr<running<X, iterator>> start (uint32 threads, function<bool (const X &)> trial);
+        searcher (it begin, it end, int iteration_range = 10000) :
+            Next {begin}, End {end}, IterationRange {iteration_range} {}
+
+        friend class running<X, it>;
     };
 
     // search in the background with the option to wait for the solution.
-    template <typename X, std::random_access_iterator iterator> requires requires (iterator &i) {
-        { *i } -> std::convertible_to<const X &> ;
-    } ptr<running<X, iterator>> inline search_in_background (uint32 threads, function<bool (const X &)> trial, iterator begin, iterator end) {
-        return std::make_shared<searcher<X, iterator>> (begin, end)->start (threads, trial);
+    template <typename X, std::forward_iterator it>
+    ptr<running<X, it>> inline search_in_background
+        (uint32 threads, test<X, it> trial, it begin, it end, int iteration_range = 10000) {
+        auto xx = std::make_shared<searcher<X, it>> (begin, end, iteration_range);
+        return std::make_shared<running<X, it>> (threads, trial, xx);
     }
 
-    template <typename X, std::random_access_iterator iterator> struct running {
-        std::future<maybe<X>> Future;
-        running (uint32 threads, function<bool (const X &)> trial, std::future<maybe<X>> &&f, ptr<searcher<X, iterator>> x);
+    template <typename X, std::forward_iterator it> struct running {
+        running (uint32 threads, test<X, it> trial, ptr<searcher<X, it>> x);
         ~running ();
+        maybe<X> wait ();
     private:
-        ptr<searcher<X, iterator>> Searcher;
-        cross<std::thread> Workers;
+        ptr<searcher<X, it>> Searcher;
+        cross<thread> Workers;
+        future<X> Future;
     };
 
-    template <typename X, std::random_access_iterator iterator> requires requires (iterator &i) {
-        { *i } -> std::convertible_to<const X &> ;
-    } maybe<X> search (uint32 threads, function<bool (const X &)> trial, iterator begin, iterator end) {
-        return search_in_background (threads, trial, begin, end)->Future.get ();
+    template <typename X, std::forward_iterator it>
+    maybe<X> inline search (uint32 threads, test<X, it> trial, it begin, it end, int iteration_range) {
+        return search_in_background (threads, trial, begin, end, iteration_range)->wait ();
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    parameter_range<iterator> channel<X, iterator>::poll () {
+    template <typename X, std::forward_iterator it>
+    parameter_range<it> searcher<X, it>::get () {
         // no new locks can be created until this lock is destructed.
-        std::unique_lock<std::mutex> lock (Mutex);
-        if (Next == End) {
-            if (!Closed) {
-                Closed = true;
-                wait_for_shutdown ();
-            }
+        lock _ (Mutex);
 
-            return parameter_range<iterator> {End, End};
+        if (Next == End) {
+            if (!Closed) Closed = true;
+
+            return parameter_range<it> {End, End};
         }
-        iterator next = Next + IterationRange;
-        if (next > End) next = End;
-        return parameter_range<iterator> {Next, Next = next};
+
+        it next = Next;
+        for (int i = 0; i < IterationRange; i++) {
+            next++;
+            if (next == End) break;
+        }
+
+        return parameter_range<it> {Next, Next = next};
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    void searcher<X, iterator>::close () {
-        std::unique_lock<std::mutex> lock (Mutex);
+    template <typename X, std::forward_iterator it>
+    void searcher<X, it>::close () {
+        lock _ (Mutex);
+
         if (!Closed) {
             Closed = true;
-            Promise.fulfill ({});
-            wait_for_shutdown ();
+            Promise.set_value ({});
         }
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    void searcher<X, iterator>::solve (const X &solution) {
-        std::unique_lock<std::mutex> lock (Mutex);
+    template <typename X, std::forward_iterator it>
+    void searcher<X, it>::solve (const X &solution) {
+        lock _ (Mutex);
         if (Closed) return;
         Closed = true;
-        Promise.fulfill (solution);
-        wait_for_shutdown ();
+        Solved = true;
+        Promise.set_value (solution);
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    bool searcher<X, iterator>::closed () const {
-        std::unique_lock<std::mutex> lock (Mutex);
+    template <typename X, std::forward_iterator it>
+    bool inline searcher<X, it>::closed () const {
+        lock _ (Mutex);
         return Closed;
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    void search_thread (channel<X, iterator> &x, function<bool (const X &)> trial) {
+    template <typename X, std::forward_iterator it>
+    bool inline searcher<X, it>::solved () const {
+        lock _ (Mutex);
+        return Solved;
+    }
+
+    template <typename X, std::forward_iterator it>
+    void search_thread (searcher<X, it> *x, test<X, it> trial, uint32 index) {
+        std::cout << " thread " << index << " begin " << std::endl;
         try {
             while (true) {
-                parameter_range<iterator> r = x->poll ();
+                parameter_range<it> r = x->get ();
                 while (bool (r)) {
-                    if (trial (*r.Begin)) {
-                        x->solve (*r.Begin);
+                    auto solution = trial (r.Begin);
+                    if (bool (solution)) {
+                        std::cout << " thread " << index << " solution found! " << std::endl;
+                        x->solve (*solution);
                         return;
                     }
                 }
 
                 if (x->closed ()) return;
             }
-        } catch (const std::exception &x) {
-            std::cout << "Error " << x.what () << std::endl;
+        } catch (const std::exception &z) {
+            std::cout << "Error " << z.what () << std::endl;
+        } catch (...) {
+            std::cout << "unknown error caught" << std::endl;
         }
+        std::cout << " thread " << index << " end " << std::endl;
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    ptr<running<X, iterator>> start (uint32 threads, function<bool (const X &)> trial) {
-        return std::make_shared<running> (threads, trial, Promise.get_future (), this->shared_from_this ());
+    template <typename X, std::forward_iterator it>
+    maybe<X> running<X, it>::wait () {
+        Searcher->close ();
+        for (auto &w: Workers) w.join ();
+        if (Searcher->solved ()) return Future.get ();
+        return {};
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    maybe<X> running<X, iterator>::~running () {
+    template <typename X, std::forward_iterator it>
+    inline running<X, it>::~running () {
         Searcher->close ();
         for (auto &w: Workers) w.join ();
     }
 
-    template <typename X, std::random_access_iterator iterator>
-    running<X, iterator>::running (uint32 threads, function<bool (const X &)> trial, std::future<maybe<X>> &&f, ptr<searcher<X, iterator>> x):
-        Future {f}, Searcher {x} {
+    template <typename X, std::forward_iterator it>
+    running<X, it>::running
+        (uint32 threads, test<X, it> trial, ptr<searcher<X, it>> x):
+        Future {x->Promise.get_future ()}, Searcher {x} {
 
-        for (int i = 0; i < threads; i++) Workers.emplace_back (&search_thread, *x, trial);
+        for (int i = 0; i < threads; i++) Workers.emplace_back (search_thread<X, it>, x.get (), trial, i);
     }
 
 }
+
+#endif
+
