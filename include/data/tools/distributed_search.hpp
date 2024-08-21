@@ -146,17 +146,16 @@ namespace data::distributed {
 
     template <typename X, std::forward_iterator it>
     void search_thread (searcher<X, it> *x, test<X, it> trial, uint32 index) {
-        std::cout << " thread " << index << " begin " << std::endl;
         try {
             while (true) {
                 parameter_range<it> r = x->get ();
                 while (bool (r)) {
                     auto solution = trial (r.Begin);
                     if (bool (solution)) {
-                        std::cout << " thread " << index << " solution found! " << std::endl;
                         x->solve (*solution);
                         return;
                     }
+                    r.Begin++;
                 }
 
                 if (x->closed ()) return;
