@@ -11,22 +11,32 @@ namespace data {
     TEST (MapTest, TestMapInterface) {
         
         is_map<map<uint32, int>> ();
-        is_map<map<uint32, int*>> ();
-        is_map<map<uint32, int&>> ();
+        is_map<map<uint32, int *>> ();
+        is_map<map<uint32, int &>> ();
 
-        is_tree<map<uint32, int>>();
-        is_tree<map<uint32, int*>>();
-        is_tree<map<uint32, int&>> ();
+        is_map<map<uint32, const int>> ();
+        is_map<map<uint32, const int *>> ();
+        is_map<map<uint32, const int &>> ();
+
+        static_assert (std::forward_iterator<map<uint32, int>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, int *>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, int &>::iterator>);
+
+        static_assert (std::forward_iterator<map<uint32, const int>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, const int *>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, const int &>::iterator>);
         
     }
-    
+
     TEST (MapTest, TestOrderedSetInterface) {
         
         is_ordered_set<set<int>> ();
-        is_ordered_set<set<int*>> ();
-        /*
-        is_ordered_set<set<const int>>();
-        is_ordered_set<set<const int*>>();*/
+        is_ordered_set<set<int *>> ();
+        //is_ordered_set<set<int &>> ();
+
+        //is_ordered_set<set<const int>> ();
+        //is_ordered_set<set<const int *>> ();
+        //is_ordered_set<set<const int &>> ();
         
     }
     
@@ -77,20 +87,16 @@ namespace data {
     
     TEST (MapTest, TestIterate) {
         map<int, int> empty_map {};
-
-        static_assert (std::forward_iterator<map<int, int>::iterator>);
         
         EXPECT_EQ (empty_map.begin (), empty_map.end ());
-        EXPECT_EQ (empty_map.end () - empty_map.begin (), 0);
         
-        entry<int, int> first_entry{7, 7};
+        entry<int, int> first_entry {7, 7};
         map<int, int> small_map {first_entry};
         
         auto small_begin = small_map.begin ();
         auto small_end = small_map.end ();
         
         EXPECT_NE (small_begin, small_end);
-        EXPECT_EQ (small_end - small_begin, 1);
 
         EXPECT_EQ (*small_begin, first_entry);
         

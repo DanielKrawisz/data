@@ -13,7 +13,7 @@ namespace data {
 
     template <std::totally_ordered K, typename V>
     struct entry {
-        const K Key;
+        K Key;
         V Value;
         
         entry (const K &k, const V &v) : Key (k), Value (v) {}
@@ -22,11 +22,11 @@ namespace data {
             return data::valid (Key) && data::valid (Value);
         }
         
-        const K key () const {
+        const K &key () const {
             return Key;
         }
         
-        const V value () const {
+        const V &value () const {
             return Value;
         }
         
@@ -75,13 +75,13 @@ namespace data {
     namespace functional {
     
         template <typename X, 
-            typename key = decltype (std::declval<X> ().values ().first ().key ()),
-            typename value = decltype (std::declval<X> ().values ().first ().value ())>
-        concept map = container<const X, key> && 
+            typename key = decltype (std::declval<X> ().values ().first ().Key),
+            typename value = decltype (std::declval<X> ().values ().first ().Value)>
+        concept map = container<const X, key> &&
             indexed<const X, key, value> &&
             ordered_set<const X, const entry<key, value>> &&
             interface::has_insert_key_value<const X, key, value> && 
-            interface::has_insert_method<X, const entry<key, value>> && 
+            interface::has_insert_method<X, const entry<key, value>> &&
             interface::has_keys_method<const X, key> && 
             interface::has_remove_method<const X, const key> && 
             std::default_initializable<X>;

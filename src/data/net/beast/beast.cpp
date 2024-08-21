@@ -19,7 +19,7 @@ namespace data::net::HTTP::beast {
 
     struct header_already_exists {
         response Response;
-        map<header, ASCII> operator () (map<header, ASCII> m, const header &h, const ASCII &o, const ASCII &n) const {
+        ASCII operator () (const header &h, const ASCII &o, const ASCII &n) const {
             throw data::exception {} << "HTTP response " << Response << " contains duplicate header " << h;
         }
     };

@@ -45,11 +45,13 @@ namespace data {
             return right () == x.right ();
         }
 
+        // explicit conversions
         template <typename X> requires convertible_to<value, X>
         operator linked_tree<X> () const {
             return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
         }
 
+        // implicit conversions
         template <typename X> requires (!is_convertible_v<value, X>) && requires (const value &e) {
             { X (e) };
         } explicit operator linked_tree<X> () const {

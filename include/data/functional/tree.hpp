@@ -175,11 +175,10 @@ namespace data::functional {
         const element_of<T> *operator -> () const;
         
         bool operator == (const sentinel<T> i) const;
-        bool operator != (const sentinel<T> i) const;
         
         bool operator == (const tree_iterator i) const;
         
-        int operator - (const tree_iterator& i) const;
+        int operator - (const tree_iterator &i) const;
         
     private:
         void go_left ();
@@ -247,11 +246,6 @@ namespace data::functional {
     template <typename T> 
     bool inline tree_iterator<T>::operator == (const sentinel<T> i) const {
         return Tree == i.Structure && Index == data::size (Current);
-    }
-    
-    template <typename T> 
-    bool inline tree_iterator<T>::operator != (const sentinel<T> i) const {
-        return !(*this == i);
     }
     
     template <typename T> 
