@@ -12,12 +12,11 @@ namespace data {
         
         is_map<map<uint32, int>> ();
         is_map<map<uint32, int*>> ();
-        /*
+        is_map<map<uint32, int&>> ();
+
         is_tree<map<uint32, int>>();
-        is_tree<map<uint32, int*>>();*/
-        /*
-        is_map<map<uint32, const int>>();
-        is_map<map<uint32, const int*>>();*/
+        is_tree<map<uint32, int*>>();
+        is_tree<map<uint32, int&>> ();
         
     }
     
@@ -78,6 +77,8 @@ namespace data {
     
     TEST (MapTest, TestIterate) {
         map<int, int> empty_map {};
+
+        static_assert (std::forward_iterator<map<int, int>::iterator>);
         
         EXPECT_EQ (empty_map.begin (), empty_map.end ());
         EXPECT_EQ (empty_map.end () - empty_map.begin (), 0);

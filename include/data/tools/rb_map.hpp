@@ -33,9 +33,7 @@ namespace data::tool::RB {
     };
 
     // Need to provide an ordering for map entries.
-    template <typename K, typename V> bool inline operator < (const entry<K, V> &a, const entry<K, V> &b) {
-        return static_cast<data::entry<K, V>> (a) < static_cast<data::entry<K, V>> (b);
-    }
+    template <typename K, typename V> bool operator < (const entry<K, V> &a, const entry<K, V> &b);
 
     template <typename K, typename V> struct map;
 
@@ -48,18 +46,16 @@ namespace data::tool::RB {
     template <typename K, typename V>
     struct map : linked_tree<entry<K, V>> {
         using tree = linked_tree<entry<K, V>>;
+
+        static bool balanced (tree);
+        static map balance (tree);
         
         const V &operator [] (const K &k) const;
         std::remove_reference_t<V> *contains (const K &k);
         const std::remove_reference_t<V> *contains (const K &k) const;
         bool contains (const data::entry<K, V> &e) const;
         
-        const V &root () const;
-
-        // left and right branches of the tree.
-        const map &left () const;
-        const map &right () const;
-        
+        // if a key already exists, the default behavior is NOT to replace that key.
         map insert (const data::entry<K, V> &e) const;
         map insert (const K &k, const V &v) const;
 
@@ -74,23 +70,15 @@ namespace data::tool::RB {
         map remove (const K &k) const;
         
         bool valid () const {
-            return tree::empty () && balanced ();
+            return tree::valid () && balanced ();
         }
         
         map () : tree {} {}
         
-        map (std::initializer_list<data::entry<K, V>> init) {
-            for (const auto &i : init) *this = insert (i);
-        }
-        
+        map (std::initializer_list<data::entry<K, V>> init);
+
         ordered_stack<linked_stack<K>> keys () const;
-        
         ordered_stack<linked_stack<entry<K, V>>> values () const;
-
-        using iterator = RB::iterator<K, V>;
-
-        iterator begin () const;
-        iterator end () const;
 
         // implicit conversion
         template <typename X> requires convertible_to<V, X>
@@ -101,12 +89,21 @@ namespace data::tool::RB {
             { X (e) };
         } explicit operator map<K, X> () const;
 
+        using iterator = RB::iterator<K, V>;
+        using sentinel = data::sentinel<map>;
+
+        iterator begin () const;
+        sentinel end () const;
+
     private:
-        bool balanced () const;
+        map (tree &&t) : tree {t} {}
     };
 
     template <typename K, typename V> struct iterator : map<K, V>::tree::iterator {
         using map<K, V>::tree::iterator::iterator;
+
+        using difference_type = int;
+        using value_type = data::entry<K, V>;
 
         iterator operator ++ (int);
         iterator &operator ++ ();
@@ -117,21 +114,78 @@ namespace data::tool::RB {
         int operator - (const iterator &i) const;
     };
 
-}
+    template <typename K, typename V> bool inline operator < (const entry<K, V> &a, const entry<K, V> &b) {
+        return static_cast<data::entry<K, V>> (a) < static_cast<data::entry<K, V>> (b);
+    }
 
-namespace std {
-    // standard definitons for an iterator according to the standard library.
-    template <typename K, typename V> 
-    struct iterator_traits<data::tool::RB::iterator<K, V>> {
-        using value_type = remove_const_t<data::entry<K, V>>;
-        using difference_type = int;
-        using pointer = const remove_reference_t<data::entry<K, V>> *;
-        using reference = const data::entry<K, V> &;
-        using iterator_concept = input_iterator_tag;
-    };
-}
-    
-namespace data::tool::RB {
+    template <typename K, typename V> iterator<K, V> inline iterator<K, V>::operator ++ (int) {
+        auto x = *this;
+        ++(*this);
+        return x;
+    }
+
+    template <typename K, typename V> iterator<K, V> inline &iterator<K, V>::operator ++ () {
+        ++static_cast<map<K, V>::tree::iterator &> (*this);
+        return *this;
+    }
+
+    template <typename K, typename V> const data::entry<K, V> inline &iterator<K, V>::operator * () const {
+        return static_cast<const data::entry<K, V> &> (*static_cast<const map<K, V>::tree::iterator &> (*this));
+    }
+
+    template <typename K, typename V> const data::entry<K, V> inline *iterator<K, V>::operator -> () const {
+        return static_cast<const data::entry<K, V> *> (this->operator -> ());
+    }
+
+    template <typename K, typename V> int inline iterator<K, V>::operator - (const iterator<K, V> &i) const {
+        return static_cast<const map<K, V>::tree::iterator &> (*this) - static_cast<const map<K, V>::tree::iterator &> (i);
+    }
+
+    template <typename K, typename V> iterator<K, V> inline &map<K, V>::begin () const {
+        return iterator {*this};
+    }
+
+    template <typename K, typename V> map<K, V>sentinel; inline &map<K, V>::end () const {
+        return sentinel {*this};
+    }
+
+    template <typename K, std::equality_comparable V> bool operator == (const map<K, V> &a, const map<K, V> &b) {
+        if (a.size () != b.size ()) return false;
+        auto bi = b.begin ();
+        for (auto ai = a.begin (); a != a.end (); a++) if (*a != *b) return false;
+        else bi++;
+        return true;
+    }
+
+    template <typename K, typename V> inline map<K, V>::map (std::initializer_list<data::entry<K, V>> init) {
+        for (const auto &i : init) *this = insert (i);
+    }
+
+    template <typename K, typename V> bool inline contains (const data::entry<K, V> &e) const {
+        auto v = contains (e.Key);
+        if (!bool (v)) return false;
+        return *v == e.Value;
+    }
+
+    template <typename K, typename V> ordered_stack<linked_stack<K>> map<K, V>::keys () const {
+
+    }
+
+    template <typename K, typename V> ordered_stack<linked_stack<entry<K, V>>> map<K, V>::values () const {
+
+    }
+
+    template <typename K, typename V> template <typename X> requires convertible_to<V, X>
+    map<K, V>::operator map<K, X> () const {
+
+    }
+
+    template <typename K, typename V> template <typename X> requires (!is_convertible_v<V, X>) && requires (const V &e) {
+        { X (e) };
+    } map<K, V>::operator map<K, X> () const {
+
+    }
+
     // put function definitions here.
 }
 

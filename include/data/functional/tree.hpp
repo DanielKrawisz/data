@@ -155,6 +155,7 @@ namespace data::functional {
     
     template <typename T> 
     struct tree_iterator {
+
         const T *Tree;
         T Current;
         linked_stack<const T> Prev;
