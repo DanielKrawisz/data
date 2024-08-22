@@ -165,12 +165,10 @@ namespace data::distributed {
         } catch (...) {
             std::cout << "unknown error caught" << std::endl;
         }
-        std::cout << " thread " << index << " end " << std::endl;
     }
 
     template <typename X, std::forward_iterator it>
     maybe<X> running<X, it>::wait () {
-        Searcher->close ();
         for (auto &w: Workers) w.join ();
         if (Searcher->solved ()) return Future.get ();
         return {};
