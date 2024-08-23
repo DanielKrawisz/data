@@ -21,10 +21,10 @@ namespace data {
     }
     
     template <typename fun, typename input, 
-        typename key = std::remove_reference_t<decltype (std::declval<input> ().values ().first ().key ())>, 
-        typename value = std::remove_reference_t<decltype (std::declval<input> ().values ().first ().value ())>, 
+        typename key = decltype (std::declval<input> ().values ().first ().Key),
+        typename value = decltype (std::declval<input> ().values ().first ().Value),
         typename output = decltype (std::declval<fun> () (std::declval<value> ()))>
-    requires functional::function<fun, output, value> && functional::map<input, key, value>
+    requires functional::map<input, key, value>
     map<key, output> inline for_each (const fun &f, const input &i) {
         return fold ([&f] (map<key, output> m, const entry<key, value> &e) -> map<key, output> {
             return m.insert (e.Key, f (e.Value));
@@ -45,9 +45,9 @@ namespace data {
         typename element = std::remove_reference_t<decltype(std::declval<input>().values().first())>, 
         typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>
     requires functional::function<fun, output, element> && functional::tree<input, element>
-    tree<output> inline for_each(const fun& f, const input& i) {
-        if (empty(i)) return {};
-        return {f(root(i)), for_each(f, left(i)), for_each(f, right(i))};
+    tree<output> inline for_each (const fun& f, const input& i) {
+        if (empty (i)) return {};
+        return {f (root (i)), for_each (f, left (i)), for_each (f, right (i))};
     }*/
     
     template <typename fun, typename element, 

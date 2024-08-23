@@ -48,16 +48,18 @@ namespace data::tool::RB {
         using tree = linked_tree<RB::entry<const K, V>>;
         using entry = data::entry<const K, V>;
 
-        static bool balanced (tree);
-        static map balance (tree);
-        
         const V &operator [] (const K &k) const;
+
         std::remove_reference_t<V> *contains (const K &k);
         const std::remove_reference_t<V> *contains (const K &k) const;
         bool contains (const entry &e) const;
+
+        // *** begin methods that need to be implemented *** //
+
+        static bool balanced (tree);
+        static map balance (tree);
         
         // if a key already exists, the default behavior is NOT to replace that key.
-        map insert (const entry &e) const;
         map insert (const K &k, const V &v) const;
 
         // try to insert something and call a function if it already exists.
@@ -65,16 +67,22 @@ namespace data::tool::RB {
         map insert (const K &k, const V &v,
             function<V (const K &k, const V &old_v, const V &new_v)> already_exists) const;
         
-        map operator << (const entry &e) const;
-        
         // this is the difficult one. Follow
         // https://matt.might.net/articles/red-black-delete/
         map remove (const K &k) const;
+
+        // **** end methods that need to be implemented **** //
+
+        map insert (const entry &e) const;
+
+        map replace (const V &old, const V &replacement) const;
+        map replace_part (const K &old, const V &replacement) const;
+
+        map operator << (const entry &e) const;
         
         bool valid () const;
         
         map () : tree {} {}
-        
         map (std::initializer_list<entry> init);
 
         using key_list = ordered_stack<linked_stack<const K>>;
@@ -100,7 +108,6 @@ namespace data::tool::RB {
         iterator begin () const;
         sentinel end () const;
 
-    private:
         map (tree &&t) : tree {t} {}
     };
 
@@ -200,9 +207,8 @@ namespace data::tool::RB {
     }
 
     template <typename K, typename V> bool inline map<K, V>::contains (const data::entry<const K, V> &e) const {
-        auto v = contains (e.Key);
-        if (!bool (v)) return false;
-        return *v == e.Value;
+        const V *v = contains (e.Key);
+        return bool (v) ? *v == e.Value : false;
     }
 
     template <typename K, typename V> map<K, V>::key_list map<K, V>::keys () const {
@@ -223,6 +229,62 @@ namespace data::tool::RB {
         value_list x {};
         for (const auto& e : data::reverse (kk)) x = x << e;
         return x;
+    }
+
+    template <typename K, typename V> map<K, V> inline map<K, V>::replace (const V &old, const V &replacement) const {
+        map m;
+        for (const auto &e : *this) m = m.insert (e.Key, e.Value == old ? replacement : e.Value);
+        return m;
+    }
+
+    template <typename K, typename V> map<K, V> inline map<K, V>::replace_part (const K &old, const V &replacement) const {
+        map m;
+        for (const auto &e : *this) m = m.insert (e.Key, e.Key == old ? replacement : e.Value);
+        return m;
+    }
+
+    template <typename K, typename V> map<K, V> inline map<K, V>::insert (const data::entry<const K, V> &e) const {
+        return insert (e.Key, e.Value);
+    }
+
+    template <typename K, typename V> const V inline &map<K, V>::operator [] (const K &k) const {
+        const auto *v = contains (k);
+        if (v == nullptr) throw exception {} << "map does not contain the given key";
+        return v->Value;
+    }
+
+    namespace {
+        template <typename K, typename V>
+        const entry<const K, V> inline *binary_search (const linked_tree<entry<const K, V>> &tree, const K &k) {
+            return data::empty (tree) ? nullptr :
+                tree.root ().Key == k ?
+                    &tree.root () :
+                    tree.root ().Key < k ?
+                        binary_search (tree.right (), k) :
+                        binary_search (tree.left (), k);
+        }
+
+        template <typename K, typename V>
+        entry<const K, V> inline *binary_search (linked_tree<entry<const K, V>> &tree, const K &k) {
+            return data::empty (tree) ? nullptr :
+                tree.root ().Key == k ?
+                    &tree.root () :
+                    tree.root ().Key < k ?
+                        binary_search (tree.right (), k) :
+                        binary_search (tree.left (), k);
+        }
+    }
+
+    template <typename K, typename V> std::remove_reference_t<V> *map<K, V>::contains (const K &k) {
+        auto *v = binary_search (*this, k);
+        if (v == nullptr) return nullptr;
+        return &v->Value;
+    }
+
+    template <typename K, typename V> const std::remove_reference_t<V> *map<K, V>::contains (const K &k) const {
+        const auto *v = binary_search (*this, k);
+        if (v == nullptr) return nullptr;
+        return &v->Value;
     }
 
     // put function definitions here.

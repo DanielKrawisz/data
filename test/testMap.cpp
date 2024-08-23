@@ -39,6 +39,21 @@ namespace data {
         is_ordered_set<set<const int &>> ();
         
     }
+
+    template <typename K, typename V>
+    void test_case_balanced (linked_tree<tool::RB::entry<const K, V>> t, bool expected) {
+        EXPECT_EQ (map<K, V>::balanced (t), expected);
+        EXPECT_TRUE (map<K, V>::balanced (map<K, V>::balance (t)));
+    }
+
+    TEST (MapTest, TestMapBalanced) {
+        using tree = linked_tree<tool::RB::entry<const int, int>>;
+
+        test_case_balanced (tree {}, true);
+        test_case_balanced (tree {1}, true);
+
+        // need more test cases. (both negative and positive)
+    }
     
     TEST (MapTest, TestMapEqual) {
         
