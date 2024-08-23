@@ -62,7 +62,7 @@ namespace data {
         
         template <typename map, typename key>
         concept has_keys_method = requires (map x) {
-            { x.keys () } -> sequence<const key&>;
+            { x.keys () } -> sequence<const key &>;
         };
         
     }
@@ -77,12 +77,12 @@ namespace data {
         template <typename X, 
             typename key = decltype (std::declval<X> ().values ().first ().Key),
             typename value = decltype (std::declval<X> ().values ().first ().Value)>
-        concept map = container<const X, key> &&
-            indexed<const X, key, value> &&
-            ordered_set<const X, const entry<key, value>> &&
-            interface::has_insert_key_value<const X, key, value> && 
-            interface::has_insert_method<X, const entry<key, value>> &&
-            interface::has_keys_method<const X, key> && 
+        concept map = container<const X, const key> &&
+            indexed<const X, const key, value> &&
+            ordered_set<const X, const entry<const key, value>> &&
+            interface::has_insert_key_value<const X, const key, value> &&
+            interface::has_insert_method<X, const entry<const key, value>> &&
+            interface::has_keys_method<const X, const key> &&
             interface::has_remove_method<const X, const key> && 
             std::default_initializable<X>;
 

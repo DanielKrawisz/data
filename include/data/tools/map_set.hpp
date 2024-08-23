@@ -24,8 +24,8 @@ namespace data::tool {
     
     // turn any map into a set. 
     template <typename M, 
-        typename K = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ().keys ().first ())>::type>::type>
-    requires functional::map<M, K, unit>
+        typename K = decltype (std::declval<const M> ().values ().first ().Key)>
+    requires functional::map<M, std::remove_const_t<K>, unit>
     struct map_set {
         using key = K;
         
@@ -77,7 +77,7 @@ namespace data::tool {
             return map_set {Map.remove (k)};
         }
         
-        const ordered_stack<linked_stack<key>> values () const {
+        ordered_stack<linked_stack<const key>> values () const {
             return Map.keys ();
         }
         

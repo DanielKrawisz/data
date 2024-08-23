@@ -10,10 +10,10 @@
 namespace data::functional { 
     
     template <typename X, typename element>
-    concept set = container<X, element> && interface::has_insert_method<const X, element> && std::default_initializable<X>;
+    concept set = container<X, element> && interface::has_insert_method<X, element> && std::default_initializable<X>;
     
     template <typename X, typename element = decltype (std::declval<X> ().values ().first ())>
-    concept ordered_set = set<const X, element> && interface::has_values_method<const X, element> && std::totally_ordered<element>;
+    concept ordered_set = set<X, element> && interface::has_values_method<X, element> && std::totally_ordered<element>;
     
 }
 

@@ -28,6 +28,7 @@ namespace data {
         linked_stack (const elem &e, const linked_stack &l);
         linked_stack (const elem &e);
         
+        // can't do initializer list because of lists of references.
         template<typename ... P>
         linked_stack (const elem &a, const elem &b, P... p);
         
@@ -146,7 +147,7 @@ namespace data {
     
     template <typename elem>
     inline linked_stack<elem>::linked_stack (const elem &e) : linked_stack {e, linked_stack {}} {}
-    
+
     template <typename elem>
     template <typename ... P>
     inline linked_stack<elem>::linked_stack (const elem &a, const elem &b, P... p) :
@@ -222,7 +223,7 @@ namespace data {
         }
         return x;
     }
-    
+
     template <typename elem>
     template <typename X, typename Y, typename ... P>
     linked_stack<elem> inline linked_stack<elem>::prepend (X x, Y y, P ... p) const {

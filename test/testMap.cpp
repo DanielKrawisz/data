@@ -29,14 +29,14 @@ namespace data {
     }
 
     TEST (MapTest, TestOrderedSetInterface) {
-        
+
         is_ordered_set<set<int>> ();
         is_ordered_set<set<int *>> ();
-        //is_ordered_set<set<int &>> ();
+        is_ordered_set<set<int &>> ();
 
-        //is_ordered_set<set<const int>> ();
-        //is_ordered_set<set<const int *>> ();
-        //is_ordered_set<set<const int &>> ();
+        is_ordered_set<set<const int>> ();
+        is_ordered_set<set<const int *>> ();
+        is_ordered_set<set<const int &>> ();
         
     }
     
@@ -53,9 +53,10 @@ namespace data {
         EXPECT_NE (m3, m4);
         EXPECT_NE (m4, m1);
         
-        stack<entry<int, int>> v1 {entry<int, int> {1, 7}, entry<int, int> {2, 1}, entry<int, int>{3, 5}};
-        stack<entry<int, int>> v3 {entry<int, int> {3, 5}, entry<int, int> {5, 2}, entry<int, int>{8, 3}};
-        stack<entry<int, int>> v4 {entry<int, int> {3, 5}, entry<int, int> {5, 2}};
+        using e = entry<const int, int>;
+        stack<e> v1 (e {1, 7}, e {2, 1}, e {3, 5});
+        stack<e> v3 (e {3, 5}, e {5, 2}, e {8, 3});
+        stack<e> v4 (e {3, 5}, e {5, 2});
         
         EXPECT_TRUE (m1.values () == v1);
         EXPECT_TRUE (m2.values () == v1);
@@ -90,7 +91,7 @@ namespace data {
         
         EXPECT_EQ (empty_map.begin (), empty_map.end ());
         
-        entry<int, int> first_entry {7, 7};
+        entry<const int, int> first_entry {7, 7};
         map<int, int> small_map {first_entry};
         
         auto small_begin = small_map.begin ();
@@ -110,11 +111,11 @@ namespace data {
         set<string> b;
         set<Z> c;
         set<N> d;
-/*
+
         set<const int> ax;
         set<const string> bx;
         set<const Z> cx;
-        set<const N> dx;*/
+        set<const N> dx;
     }
 }
 
