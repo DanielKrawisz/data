@@ -18,7 +18,7 @@ namespace data {
         
         const value &root () const;
         value &root ();
-        
+
         linked_tree left () const;
         linked_tree right () const;
         

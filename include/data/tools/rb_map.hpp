@@ -250,23 +250,13 @@ namespace data::tool::RB {
     template <typename K, typename V> const V inline &map<K, V>::operator [] (const K &k) const {
         const auto *v = contains (k);
         if (v == nullptr) throw exception {} << "map does not contain the given key";
-        return v->Value;
+        return *v;
     }
 
     namespace {
         template <typename K, typename V>
-        const entry<const K, V> inline *binary_search (const linked_tree<entry<const K, V>> &tree, const K &k) {
-            return data::empty (tree) ? nullptr :
-                tree.root ().Key == k ?
-                    &tree.root () :
-                    tree.root ().Key < k ?
-                        binary_search (tree.right (), k) :
-                        binary_search (tree.left (), k);
-        }
-
-        template <typename K, typename V>
-        entry<const K, V> inline *binary_search (linked_tree<entry<const K, V>> &tree, const K &k) {
-            return data::empty (tree) ? nullptr :
+        entry<const K, V> inline *binary_search (linked_tree<entry<const K, V>> tree, const K &k) {
+            return tree.empty () ? nullptr :
                 tree.root ().Key == k ?
                     &tree.root () :
                     tree.root ().Key < k ?

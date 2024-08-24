@@ -19,11 +19,14 @@ namespace data {
     struct functional_queue {
         
         functional_queue ();
-        functional_queue (const element &x);
+        explicit functional_queue (const element &x);
+        explicit functional_queue (const functional_queue &l, const element &e);
+        explicit functional_queue (const element &e, const functional_queue &l);
         functional_queue (stack l);
-        
-        template <typename X, typename Y, typename ... P>
-        functional_queue (X x, Y y, P... p);
+
+        functional_queue (std::initializer_list<wrap<element>> init) {
+            for (int i = 0; i < init.size (); i++) *this = append (*(init.begin () + i));
+        }
         
         bool empty () const;
         
@@ -39,12 +42,6 @@ namespace data {
         functional_queue append (const element &e) const;
         functional_queue prepend (const element &e) const;
         functional_queue append (functional_queue q) const;
-
-        functional_queue (std::initializer_list<element> x) {
-            functional_queue q;
-            for (const element &e : x) q = q.append (e);
-            *this = q;
-        }
         
         functional_queue operator << (const element &e) const;
         
@@ -121,6 +118,11 @@ namespace data {
     } std::ostream inline &operator << (std::ostream &o, const functional_queue<stack, element> n) {
         return functional::write (o, n);
     }
+    template <typename stack, typename element>
+    inline functional_queue<stack, element>::functional_queue (const functional_queue &l, const element &e) : functional_queue {l.append (e)} {}
+
+    template <typename stack, typename element>
+    inline functional_queue<stack, element>::functional_queue (const element &e, const functional_queue &l) : functional_queue {l.prepend (e)} {}
 
     template <typename stack, typename element>
     inline functional_queue<stack, element>::functional_queue (stack l, stack r) : Left {l}, Right {r} {}
@@ -133,11 +135,6 @@ namespace data {
     
     template <typename stack, typename element>
     inline functional_queue<stack, element>::functional_queue (stack l) : Left {l}, Right {} {}
-    
-    template <typename stack, typename element>
-    template <typename X, typename Y, typename ... P>
-    inline functional_queue<stack, element>::functional_queue (X x, Y y, P... p) :
-        functional_queue {functional_queue {}.append (x, y, p...)} {}
     
     template <typename stack, typename element>
     bool inline functional_queue<stack, element>::empty () const {

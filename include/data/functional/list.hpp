@@ -21,7 +21,7 @@ namespace data::functional {
 
 namespace data {
     
-    template <functional::pendable list> 
+    template <functional::pendable list>
     list take (const list &l, size_t x);
 
     template <functional::pendable list>

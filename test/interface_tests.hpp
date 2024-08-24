@@ -23,7 +23,7 @@ namespace data {
     template <functional::stack X>
     void is_stack () {}
 
-    template <functional::list X>
+    template <typename X, typename elem> requires functional::list<X, elem>
     void is_list () {}
 
     template <functional::tree X>

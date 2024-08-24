@@ -42,15 +42,16 @@ namespace data {
 
     template <typename K, typename V>
     void test_case_balanced (linked_tree<tool::RB::entry<const K, V>> t, bool expected) {
-        EXPECT_EQ (map<K, V>::balanced (t), expected);
-        EXPECT_TRUE (map<K, V>::balanced (map<K, V>::balance (t)));
+        bool balanced = map<K, V>::balanced (t);
+        EXPECT_EQ (balanced, expected);
+        bool balanced_next = map<K, V>::balanced (map<K, V>::balance (t));
+        EXPECT_TRUE (balanced_next);
     }
 
     TEST (MapTest, TestMapBalanced) {
-        using tree = linked_tree<tool::RB::entry<const int, int>>;
 
-        test_case_balanced (tree {}, true);
-        test_case_balanced (tree {1}, true);
+        test_case_balanced (map<int, int> (), true);
+        test_case_balanced (map<int, int> {{1, 1}}, true);
 
         // need more test cases. (both negative and positive)
     }
@@ -69,9 +70,9 @@ namespace data {
         EXPECT_NE (m4, m1);
         
         using e = entry<const int, int>;
-        stack<e> v1 (e {1, 7}, e {2, 1}, e {3, 5});
-        stack<e> v3 (e {3, 5}, e {5, 2}, e {8, 3});
-        stack<e> v4 (e {3, 5}, e {5, 2});
+        stack<e> v1 {{1, 7}, {2, 1}, {3, 5}};
+        stack<e> v3 {{3, 5}, {5, 2}, {8, 3}};
+        stack<e> v4 {{3, 5}, {5, 2}};
         
         EXPECT_TRUE (m1.values () == v1);
         EXPECT_TRUE (m2.values () == v1);

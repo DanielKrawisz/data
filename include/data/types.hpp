@@ -39,6 +39,16 @@ namespace data {
 
     using bytes_view = view<byte>;
 
+    template <typename X> struct wrapper {
+        using type = X;
+    };
+
+    template <typename X> struct wrapper<X &> {
+        using type = std::reference_wrapper<X>;
+    };
+
+    template <typename X> using wrap = wrapper<X>::type;
+
     // TODO replace this with something good.
     using random_engine = std::default_random_engine;
 

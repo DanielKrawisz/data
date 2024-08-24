@@ -25,12 +25,12 @@ namespace data {
         
     public:
         linked_stack ();
-        linked_stack (const elem &e, const linked_stack &l);
-        linked_stack (const elem &e);
+        explicit linked_stack (const elem &e, const linked_stack &l);
+        explicit linked_stack (const elem &e);
         
-        // can't do initializer list because of lists of references.
-        template<typename ... P>
-        linked_stack (const elem &a, const elem &b, P... p);
+        linked_stack (std::initializer_list<wrap<elem>> init) {
+            for (int i = init.size () - 1; i >= 0; i--) *this = prepend (*(init.begin () + i));
+        }
         
         // if the list is empty, then this function
         // will dereference a nullptr. It is your
@@ -147,11 +147,6 @@ namespace data {
     
     template <typename elem>
     inline linked_stack<elem>::linked_stack (const elem &e) : linked_stack {e, linked_stack {}} {}
-
-    template <typename elem>
-    template <typename ... P>
-    inline linked_stack<elem>::linked_stack (const elem &a, const elem &b, P... p) :
-        linked_stack {a, linked_stack {b, linked_stack {p...}}} {}
     
     // if the list is empty, then this function
     // will dereference a nullptr. It is your
@@ -201,12 +196,12 @@ namespace data {
     
     template <typename elem>
     linked_stack<elem> inline linked_stack<elem>::operator <<(elem x) const {
-        return {x, *this};
+        return linked_stack {x, *this};
     }
     
     template <typename elem>
     linked_stack<elem> inline linked_stack<elem>::prepend (elem x) const {
-        return {x, *this};
+        return linked_stack {x, *this};
     }
     
     template <typename elem>
