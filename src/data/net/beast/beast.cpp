@@ -19,8 +19,9 @@ namespace data::net::HTTP::beast {
 
     struct header_already_exists {
         response Response;
-        map<header, ASCII> operator () (map<header, ASCII> m, const header &h, const ASCII &o, const ASCII &n) const {
-            throw data::exception {} << "HTTP response " << Response << " contains duplicate header " << h;
+        header Header;
+        ASCII operator () (const ASCII &o, const ASCII &n) const {
+            throw data::exception {} << "HTTP response " << Response << " contains duplicate header " << Header;
         }
     };
 
@@ -30,7 +31,7 @@ namespace data::net::HTTP::beast {
         map<header, ASCII> response_headers {};
 
         for (const auto &field : res) if (field.name () != header::unknown) response_headers = response_headers.insert
-            (field.name (), ASCII {std::string {field.value ()}}, header_already_exists {res});
+            (field.name (), ASCII {std::string {field.value ()}}, header_already_exists {res, field.name ()});
 
         return HTTP::response {res.base ().result (), response_headers, res.body ()};
     }

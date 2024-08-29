@@ -11,7 +11,7 @@
 #include <data/reverse.hpp>
     
 namespace data::tool {
-    
+
     template <functional::stack stack, ordered element = element_of<stack>>
     struct ordered_stack : stack {
         ordered_stack () : stack {} {}
@@ -68,8 +68,12 @@ namespace data::tool {
         }
         
     private:
-        ordered_stack (const stack &x) : stack {x} {}
+        ordered_stack (stack &&x) : stack {x} {}
     };
+
+    template <functional::stack stack> ordered_stack<stack> inline operator + (ordered_stack<stack> a, ordered_stack<stack> b) {
+        return a.merge (b);
+    }
 
     template <functional::stack stack, ordered element>
     requires requires (std::ostream &o, const element &e) {
