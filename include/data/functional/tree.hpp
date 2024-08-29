@@ -199,12 +199,12 @@ namespace std {
     
 namespace data::functional {
     template <typename T> 
-    inline tree_iterator<T>::tree_iterator (const T &t): Tree {&t}, Current {t}, Prev{}, Index{0} {
+    inline tree_iterator<T>::tree_iterator (const T &t) : Tree {&t}, Current {t}, Prev {}, Index {0} {
         go_left ();
     } 
     
     template <typename T> 
-    tree_iterator<T> &tree_iterator<T>::operator =(const tree_iterator &n) {
+    tree_iterator<T> &tree_iterator<T>::operator = (const tree_iterator &n) {
         Tree = n.Tree;
         Current = n.Current;
         Prev = n.Prev;
@@ -212,7 +212,7 @@ namespace data::functional {
     }
     
     template <typename T> 
-    tree_iterator<T> tree_iterator<T>::operator ++(int) {
+    tree_iterator<T> tree_iterator<T>::operator ++ (int) {
         auto z = *this;
         ++(*this);
         return z;

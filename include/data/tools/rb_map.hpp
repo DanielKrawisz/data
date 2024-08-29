@@ -39,7 +39,9 @@ namespace data::tool {
         rb_map insert (const entry &e) const;
         rb_map insert (const K &k, const V &v) const;
         rb_map insert (const K &k, const V &v, 
-            function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const;
+            function<V (const V &old_v, const V &new_v)> already_exists) const;
+
+        rb_map replace_part (const K &k, const V& v) const;
         
         rb_map operator << (const entry &e) const;
         
@@ -246,9 +248,16 @@ namespace data::tool {
 
     template <typename K, typename V>
     rb_map<K, V> inline rb_map<K, V>::insert
-    (const K &k, const V &v, function<rb_map (rb_map now, const K &k, const V &old_v, const V &new_v)> already_exists) const {
+    (const K &k, const V &v, function<V (const V &old_v, const V &new_v)> already_exists) const {
         const V *already = contains (k);
-        return already == nullptr ? rb_map {Map.inserted (k, v), Size + 1} : already_exists (*this, k, *already, v);
+        return already == nullptr ? rb_map {Map.inserted (k, v), Size + 1} : this->replace_part (k, already_exists (*already, v));
+    }
+
+    template <typename K, typename V>
+    rb_map<K, V> inline rb_map<K, V>::replace_part (const K &k, const V &v) const {
+        rb_map r {};
+        for (const auto &e : *this) r = r.insert (e.Key, e.Key == k ? v : e.Value);
+        return r;
     }
     
     template <typename K, typename V>
