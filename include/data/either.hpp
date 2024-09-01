@@ -5,26 +5,53 @@
 #ifndef DATA_EITHER
 #define DATA_EITHER
 
-#include <variant>
-#include <data/types.hpp>
+#include <data/meta.hpp>
 
 namespace data {
+
     template <typename... X> struct either;
     
     template <> struct either<> {
-        std::ostream &write (std::ostream &o) const {
-            return o;
-        }
+        either () = delete;
     };
 
-    template <typename... X> struct either : std::variant<X...> {
-        using std::variant<X...>::variant;
-        either (std::variant<X...> &&x) : std::variant<X...> {x} {}
+    template <typename... X> struct either : std::variant<meta::contain<X>...> {
+        using std::variant<meta::contain<X>...>::variant;
+        constexpr either (std::variant<X...> &&x) : std::variant<meta::contain<X>...> {x} {}
         
-        using std::variant<X...>::operator =;
+        using std::variant<meta::contain<X>...>::operator =;
 
         std::ostream &write (std::ostream &o) const {
-            return writer<X...> {} (o, *this);
+            return writer<meta::replace<X, meta::rule<void, std::monostate>>...> {} (o, *this);
+        }
+
+        constexpr bool valid () const {
+            return !this->valueless_by_exception ();
+        }
+
+        template <typename Z>
+        constexpr bool is () const {
+            return std::holds_alternative<meta::contain<Z>> (*this);
+        }
+
+        template <typename Z>
+        constexpr meta::retrieve<Z> get () {
+            return (meta::retrieve<Z>) std::get<meta::contain<Z>> (*this);
+        }
+
+        template <typename Z>
+        constexpr const meta::retrieve<Z> get () const {
+            return (const meta::retrieve<Z>) std::get<meta::contain<Z>> (*this);
+        }
+
+        template <typename Z>
+        constexpr Z *get_if () {
+            return std::get_if<meta::contain<Z>> (*this);
+        }
+
+        template <typename Z>
+        constexpr const Z *get_if () const {
+            return std::get_if<meta::contain<Z>> (*this);
         }
         
     private:

@@ -51,7 +51,7 @@ namespace data::math {
         cayley_dickson (const q &x) : Re {x}, Im {0} {}
         
         // conjugate
-        cayley_dickson operator * () const;
+        cayley_dickson operator ~ () const;
         
         cayley_dickson operator + (const cayley_dickson &x) const;
         
@@ -91,7 +91,7 @@ namespace data::math::linear {
     
     template <typename q, typename nda> 
     struct dimensions<q, cayley_dickson<q, nda>> {
-        constexpr static dimension value = dimensions<q, nda>::value * 2;
+        static constexpr dimension value = dimensions<q, nda>::value * 2;
     };
 
     template <typename q, typename nda>
@@ -119,7 +119,7 @@ namespace data::math {
     }
     
     template <typename q, typename nda> 
-    cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator * () const {
+    cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator ~ () const {
         return data::conjugate (*this);
     }
     

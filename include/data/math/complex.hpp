@@ -11,13 +11,17 @@ namespace data::math {
 
     template <typename R> struct complex;
 
-    template <typename R>
-    bool operator == (const complex<R> &, const complex<R> &);
+    template <typename R> bool operator == (const complex<R> &, const complex<R> &);
+
+    template <typename R> std::ostream &operator << (std::ostream &, const complex<R> &);
     
     template <typename R>
     struct complex : cayley_dickson<R, R> {
         
-        constexpr static complex I = {0, 1};
+        static complex I () {
+            static complex i {0, 1};
+            return i;
+        }
 
         using cayley_dickson<R, R>::cayley_dickson;
         complex (cayley_dickson<R, R> &&c) : cayley_dickson<R, R> {c} {}
@@ -87,6 +91,10 @@ namespace data::math {
             return b / a;
         }
     };
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const complex<R> &x) {
+        return o << "(" << x.Re << " + i" << x.Im << ")";
+    }
 
 }
 
