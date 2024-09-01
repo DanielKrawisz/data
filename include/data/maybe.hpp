@@ -7,13 +7,25 @@
 
 #include <optional>
 #include <data/concepts.hpp>
-#include <data/types.hpp>
+#include <data/meta.hpp>
 
 namespace data {
 
-    template <typename X> struct maybe : std::optional<X> {
-        using std::optional<X>::optional;
-        maybe (std::optional<X> &&x) : std::optional<X> {x} {}
+    template <typename X> struct maybe : std::optional<meta::contain<X>> {
+        using std::optional<meta::contain<X>>::optional;
+        constexpr maybe (std::optional<meta::contain<X>> &&x) : std::optional<meta::contain<X>> {x} {}
+
+        constexpr meta::retrieve<X> operator * () {
+            return (meta::retrieve<X>) *static_cast<std::optional<meta::contain<X>> &> (*this);
+        }
+
+        constexpr const meta::retrieve<X> operator * () const {
+            return (const meta::retrieve<X>) *static_cast<const std::optional<meta::contain<X>> &> (*this);
+        }
+    };
+
+    template <> struct maybe<void> {
+        maybe () = delete;
     };
 
     template <typename X> requires requires (const X &a, const X &b) {

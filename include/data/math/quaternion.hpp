@@ -12,6 +12,8 @@ namespace data::math {
 
     template <typename R> bool operator == (const quaternion<R> &, const quaternion<R> &);
 
+    template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x);
+
     template <typename R>
     class quaternion : public cayley_dickson<R, complex<R>> {
         using complex = math::complex<R>;
@@ -23,9 +25,20 @@ namespace data::math {
         quaternion (const complex &x) : quaternion {complex {x}, complex {}} {}
         quaternion (hamiltonian &&c) : hamiltonian {c} {}
         
-        constexpr static quaternion I = {0, 1, 0, 0};
-        constexpr static quaternion J = {0, 0, 1, 0};
-        constexpr static quaternion K = {0, 0, 0, 1};
+        static quaternion I () {
+            static quaternion i {0, 1, 0, 0};
+            return i;
+        }
+
+        static quaternion J () {
+            static quaternion j {0, 0, 1, 0};
+            return j;
+        }
+
+        static quaternion K () {
+            static quaternion k {0, 0, 0, 1};
+            return k;
+        }
         
         quaternion conjugate () const {
             return hamiltonian::conjugate ();
@@ -59,6 +72,10 @@ namespace data::math {
             return hamiltonian::inverse ();
         }
     };
+
+    template <typename R> bool operator == (const quaternion<R> &a, const quaternion<R> &b) {
+        return static_cast<cayley_dickson<R, complex<R>>> (a) == static_cast<cayley_dickson<R, complex<R>>> (b);
+    }
     
     template <typename R> struct conjugate<quaternion<R>> {
         quaternion<R> operator () (const quaternion<R>& x) {
@@ -90,6 +107,10 @@ namespace data::math {
             return b / a;
         }
     };
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x) {
+        return o << "(" << x.Re << " + j" << x.Im << ")";
+    }
     
 }
 
@@ -100,7 +121,7 @@ namespace data::math::linear {
 
     template <typename q>
     struct dimensions<complex<q>, quaternion<q>> {
-        constexpr static dimension value = 2;
+        static constexpr dimension value = 2;
     };
 
     template <typename q>

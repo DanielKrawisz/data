@@ -7,11 +7,14 @@
 
 #include <type_traits>
 
-#include <data/types.hpp>
+#include <data/concepts.hpp>
 
 namespace data {
     
     template <typename X> concept ordered = std::totally_ordered<X>;
+    template <typename X> concept sortable = requires (const X &a, const X &b) {
+        {a < b} -> convertible_to<bool>;
+    };
     
     template <ordered X> bool equal (const X &a, const X &b);
     template <ordered X> bool unequal (const X &a, const X &b);

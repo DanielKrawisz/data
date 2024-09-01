@@ -12,11 +12,14 @@ namespace data::math {
 
     template <typename R> bool operator == (const octonion<R> &, const octonion<R> &);
 
+    template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x);
+
     template <typename R>
     class octonion : public cayley_dickson<R, quaternion<R>> {
         using com = complex<R>;
         using ham = quaternion<R>;
         using oct = cayley_dickson<R, ham>;
+
     public:
         using oct::oct;
         octonion (const com &x) : octonion {ham {x}} {}
@@ -27,14 +30,44 @@ namespace data::math {
             octonion {com {r, i}, com {j, k}, com {l, m}, com {n, o}} {}
         octonion (oct &&o) : oct {o} {}
         
-        constexpr static octonion E0 = {1, 0, 0, 0, 0, 0, 0, 0};
-        constexpr static octonion E1 = {0, 1, 0, 0, 0, 0, 0, 0};
-        constexpr static octonion E2 = {0, 0, 1, 0, 0, 0, 0, 0};
-        constexpr static octonion E3 = {0, 0, 0, 1, 0, 0, 0, 0};
-        constexpr static octonion E4 = {0, 0, 0, 0, 1, 0, 0, 0};
-        constexpr static octonion E5 = {0, 0, 0, 0, 0, 1, 0, 0};
-        constexpr static octonion E6 = {0, 0, 0, 0, 0, 0, 1, 0};
-        constexpr static octonion E7 = {0, 0, 0, 0, 0, 0, 0, 1};
+        static octonion E0 () {
+            static octonion e0 {1, 0, 0, 0, 0, 0, 0, 0};
+            return e0;
+        }
+
+        static octonion E1 () {
+            static octonion e1 {0, 1, 0, 0, 0, 0, 0, 0};
+            return e1;
+        }
+
+        static octonion E2 () {
+            static octonion e2 {0, 0, 1, 0, 0, 0, 0, 0};
+            return e2;
+        }
+        static octonion E3 () {
+            static octonion e3 {0, 0, 0, 1, 0, 0, 0, 0};
+            return e3;
+        }
+
+        static octonion E4 () {
+            static octonion e4 {0, 0, 0, 0, 1, 0, 0, 0};
+            return e4;
+        }
+
+        static octonion E5 () {
+            static octonion e5 {0, 0, 0, 0, 0, 1, 0, 0};
+            return e5;
+        }
+
+        static octonion E6 () {
+            static octonion e6 {0, 0, 0, 0, 0, 0, 1, 0};
+            return e6;
+        }
+
+        static octonion E7 () {
+            static octonion e7 {0, 0, 0, 0, 0, 0, 0, 1};
+            return e7;
+        }
         
         octonion operator ~ () const {
             return oct::operator ~ ();
@@ -64,6 +97,10 @@ namespace data::math {
             return oct::inverse ();
         }
     };
+
+    template <typename R> bool inline operator == (const octonion<R> &a, const octonion<R> &b) {
+        return static_cast<cayley_dickson<R, quaternion<R>>> (a) == static_cast<cayley_dickson<R, quaternion<R>>> (b);
+    }
     
     template <typename R> struct conjugate<octonion<R>> {
         octonion<R> operator () (const octonion<R> &x) {
@@ -118,6 +155,10 @@ namespace data::math {
     struct divide<octonion<q>, q> {
         octonion<q> operator () (const octonion<q> &a, const nonzero<q> &b);
     };
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x) {
+        return o << "(" << x.Re << " + k" << x.Im << ")";
+    }
     
 }
 
@@ -128,12 +169,12 @@ namespace data::math::linear {
 
     template <typename q>
     struct dimensions<complex<q>, octonion<q>> {
-        constexpr static dimension value = 4;
+        static constexpr dimension value = 4;
     };
 
     template <typename q>
     struct dimensions<quaternion<q>, octonion<q>> {
-        constexpr static dimension value = 2;
+        static constexpr dimension value = 2;
     };
 
     template <typename q>

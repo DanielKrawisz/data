@@ -12,7 +12,7 @@
     
 namespace data::tool {
 
-    template <functional::stack stack, ordered element = element_of<stack>>
+    template <functional::stack stack, sortable element = element_of<stack>>
     struct ordered_stack : stack {
         ordered_stack () : stack {} {}
         
@@ -67,19 +67,31 @@ namespace data::tool {
             return ordered_stack {data::functional::merge_stack (static_cast<const stack> (*this), static_cast<const stack> (a))};
         }
         
-    private:
         ordered_stack (stack &&x) : stack {x} {}
+
+        bool valid () const {
+            if (this->size () == 0) return true;
+            auto it = begin ();
+            while (true) {
+                if (!data::valid (*it)) return false;
+                auto last = it++;
+                if (it == end ()) return true;
+                if (!(*last < *it)) return false;
+            }
+
+            return true;
+        }
     };
 
     template <functional::stack stack> ordered_stack<stack> inline operator + (ordered_stack<stack> a, ordered_stack<stack> b) {
         return a.merge (b);
     }
 
-    template <functional::stack stack, ordered element>
+    template <functional::stack stack, sortable element>
     requires requires (std::ostream &o, const element &e) {
         { o << e } -> std::same_as<std::ostream &>;
     } std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l) {
-        o << "ordered_list {";
+        o << "sortable_list {";
         if (!l.empty ()) {
             ordered_stack<stack, element> x = l;
             while (true) {
@@ -92,12 +104,12 @@ namespace data::tool {
         return o << "}";
     }
     
-    template <functional::stack stack, ordered element>
+    template <functional::stack stack, sortable element>
     ordered_stack<stack, element> inline ordered_stack<stack, element>::operator << (const element &x) const {
         return insert (x);
     }
     
-    template <functional::stack stack, ordered element>
+    template <functional::stack stack, sortable element>
     ordered_stack<stack, element> ordered_stack<stack, element>::insert (const element &x) const {
         if (this->empty () || x < this->first ()) {
             return ordered_stack {this->prepend (x)};
