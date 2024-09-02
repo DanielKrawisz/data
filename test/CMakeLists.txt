@@ -31,6 +31,7 @@ macro (package_add_test TESTNAME)
 endmacro ()
 
 package_add_test (TestMaybeEither testMaybeEither.cpp)
+package_add_test (TestStore testStore.cpp)
 package_add_test (TestException testException.cpp)
 package_add_test (TestEndian testEndian.cpp)
 package_add_test (TestHex testHex.cpp)

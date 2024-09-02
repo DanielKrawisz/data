@@ -9,22 +9,27 @@
 
 namespace data {
 
-    // store a value returned from a function and retrieve it later.
-    // You can use this to make a member function that take a lambda
-    // and returns the value from the lambda with some preparation and
-    // potential cleanup after. The type branches on void.
-    template <typename X, typename... args> struct store<X (args...)> {
+    // store is for storing a value to retrieve later, or not, depending
+    // on the return value of the function. It is for operations that take
+    // a lambda but require some preparation and cleanup but may need to
+    // return the value returned by the lambda, but the lambda may also
+    // return void. If you want to pass in references, wrap them in other
+    // types.
+    template <typename X> struct store {
         meta::contain<X> Value;
 
-        store {function<X (args...)> f, args... a} : Value {std::invoke (f, a...)} {}
+        template <typename ...args>
+        store (function<X (args ...)> f, args ...a) : Value {std::invoke (f, a...)} {}
 
         meta::retrieve<X> retrieve () {
             return (meta::retrieve<X>) Value;
         }
     };
 
-    template <typename X, typename... args> struct store<void (args...)> {
-        store {function<void (args...)> f, args... a} {
+    template <> struct store<void> {
+
+        template <typename ...args>
+        store (function<void (args ...)> f, args ...a) {
             std::invoke (f, a...);
         }
 
