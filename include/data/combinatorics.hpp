@@ -119,11 +119,11 @@ namespace data {
             iterator operator + (uint32);
 
             iterator ();
-            iterator (const partitions &, int i);
+            iterator (const partitions &, size_t i);
 
         private:
             partitions const *Partitions;
-            int Index;
+            size_t Index;
         };
 
         iterator begin () const;
@@ -255,7 +255,7 @@ namespace data {
     template <typename elem> inline partitions<elem>::iterator::iterator ():
         Partitions {nullptr}, Index {0} {}
 
-    template <typename elem> inline partitions<elem>::iterator::iterator (const partitions &p, int i):
+    template <typename elem> inline partitions<elem>::iterator::iterator (const partitions &p, size_t i):
         Partitions {&p}, Index {i} {}
 
     template <ordered elem> bool inline permutations<elem>::iterator::operator == (const iterator &i) const {
