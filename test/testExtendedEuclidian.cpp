@@ -32,7 +32,7 @@ namespace data::math {
     
     TEST (ExtendedEuclinianTest, TestExtendedEuclidian) {
 
-        //test_extended_euclidian<int64, uint32> {};
+        test_extended_euclidian<int64, uint32> {};
         test_extended_euclidian<int64_little, uint64_little> {};
         test_extended_euclidian<int64_big, uint64_big> {};
 

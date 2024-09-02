@@ -156,16 +156,40 @@ namespace data::encoding {
     }
     
     TEST (StringNumbersTest, TestMultiplyStringNumbers) {
+
+        int a = 27;
+        int b = 25;
+        int nb = -25;
+        int c = 675;
+        int nc = -675;
+
+        unsigned int ua = 27;
+        unsigned int ub = 25;
+        unsigned int uc = 675;
         
-        EXPECT_EQ (dec_uint {27} * dec_uint {25}, "675");
-        EXPECT_EQ (dec_int {27} * dec_int {25}, "675");
-        EXPECT_EQ (dec_int {27} * dec_int {-25}, dec_int {"-675"});
-        EXPECT_EQ (hex_uint {27} * hex_uint {25}, hex_uint {675});
-        EXPECT_EQ (hex_int {27} * hex_int {25}, hex_int {675});
-        EXPECT_EQ (hex_int_twos{27} * hex_int_twos {25}, hex_int_twos {675});
-        EXPECT_EQ (hex_int {27} * hex_int {-25}, hex_int {-675});
-        EXPECT_EQ (hex_int_twos {27} * hex_int_twos {-25}, hex_int_twos {-675});
-        EXPECT_EQ (base58_uint {27} * base58_uint {25}, base58_uint {675});
+        EXPECT_EQ (dec_uint {ua} * dec_uint {ub}, "675");
+        EXPECT_EQ (dec_int {a} * dec_int {b}, "675");
+        EXPECT_EQ (dec_int {a} * dec_int {nb}, dec_int {"-675"});
+        EXPECT_EQ (hex_uint {ua} * hex_uint {ub}, hex_uint {uc});
+        EXPECT_EQ (hex_int {a} * hex_int {b}, hex_int {c});
+        EXPECT_EQ (hex_int {a} * hex_int {nb}, hex_int {nc});
+
+        hex_int_twos h2a {a};
+        hex_int_twos h2b {b};
+        hex_int_twos h2c {c};
+        hex_int_twos h2r = h2a * h2b;
+
+        EXPECT_EQ (h2r, h2c);
+
+        hex_int_twos h2nb {nb};
+        hex_int_twos h2nc {nc};
+        hex_int_twos h2nr = h2a * h2nb;
+
+        EXPECT_EQ (h2nr, h2nc) <<
+            "hex 2's complement: expected " << h2a << " * " << h2nb <<
+            " -> " << h2nc << " but got " << h2nr;
+
+        EXPECT_EQ (base58_uint {ua} * base58_uint {ub}, base58_uint {uc});
         
     }
 
