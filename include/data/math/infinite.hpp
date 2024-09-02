@@ -79,8 +79,6 @@ namespace data::math {
         constexpr signed_limit (const X &x) : Value {x} {}
         constexpr signed_limit (X &&x, int) : Value {x} {}
 
-        constexpr signed_limit &operator = (const signed_limit &);
-
         static const signed_limit &infinity ();
 
         static const signed_limit &negative_infinity ();
