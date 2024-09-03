@@ -48,8 +48,6 @@ namespace data::encoding::base64 {
         friend string operator "" _b64 (const char*, size_t);
     };
     
-    string write (bytes_view, endian::order);
-    
     string write (bytes_view);
     string write (uint64);
     string write (uint32);
