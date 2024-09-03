@@ -84,7 +84,7 @@ namespace data::encoding::base64 {
         return b;
     }
     
-    string write(bytes_view sourceBytes) {
+    string write (bytes_view sourceBytes) {
         std::string output;
         const auto size = sourceBytes.size ();
         output.reserve (((size / 3) + (size % 3 > 0)) * 4);
@@ -129,13 +129,6 @@ namespace data::encoding::base64 {
         }
 
         return {output};
-    }
-    
-    string write (bytes_view sourceBytes, endian::order r) {
-        if (r == endian::big) return write (sourceBytes);
-        bytes reversed (sourceBytes.size ());
-        std::copy (sourceBytes.rbegin (), sourceBytes.rend (), reversed.begin ());
-        return write (reversed);
     }
     
     string write (uint64 x) {
