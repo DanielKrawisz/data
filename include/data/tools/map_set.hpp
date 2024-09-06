@@ -21,6 +21,8 @@ namespace data::tool {
     inline std::ostream &operator << (std::ostream &o, unit) {
         return o << "unit" << std::endl;
     }
+
+    template <typename it> struct map_set_iterator;
     
     // turn any map into a set. 
     template <typename M, 
@@ -143,6 +145,14 @@ namespace data::tool {
         bool valid () const {
             return values ().valid ();
         }
+
+        auto begin () const {
+            return map_set_iterator<decltype (std::declval<const M> ().begin ())> {Map.begin ()};
+        }
+
+        auto end () const {
+            return map_set_iterator<decltype (std::declval<const M> ().end ())> {Map.end ()};
+        }
     };
     
     template <typename M, typename K>
@@ -150,11 +160,47 @@ namespace data::tool {
         return functional::write (o << "set", m.values ());
     }
     
+    // TODO use initializer list.
     template <typename M, typename K>
     requires functional::map<M, K> 
     template <typename ... P>
     inline map_set<M, K>::map_set (K k, P... p) :
         map_set {map_set {}.insert (k, p...)} {}
+
+    template <typename it> struct map_set_iterator {
+        it It;
+
+        map_set_iterator ();
+        map_set_iterator (it i): It {i} {}
+
+        map_set_iterator &operator ++ () {
+            ++It;
+            return *this;
+        }
+
+        map_set_iterator operator ++ (int) {
+            auto x = *this;
+            ++(*this);
+            return x;
+        }
+
+        const auto &operator * () const {
+            return It->Key;
+        }
+
+        const auto *operator -> () const {
+            return &It->Key;
+        }
+
+        template <typename I> // in case there's a sentinel at the end.
+        bool operator == (const map_set_iterator<I> i) const {
+            return It == i.It;
+        }
+
+        int operator - (const map_set_iterator &i) const {
+            return It - i.It;
+        }
+    };
 
 }
 
