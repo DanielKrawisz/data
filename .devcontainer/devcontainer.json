@@ -7,6 +7,14 @@
 		"context": "..",
 		// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
 		"dockerfile": "./Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools-extension-pack"
+			]
+		}
 	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

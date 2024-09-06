@@ -4,6 +4,7 @@ cmake_minimum_required (VERSION 3.16)
 if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
 
 project (
   data
@@ -12,14 +13,23 @@ project (
   LANGUAGES CXX
 )
 
-find_package (Boost CONFIG REQUIRED)
-find_package (OpenSSL CONFIG REQUIRED)
-find_package (cryptopp CONFIG REQUIRED)
-find_package (nlohmann_json CONFIG REQUIRED)
-find_package (gmp CONFIG REQUIRED)
-find_package (secp256k1 CONFIG REQUIRED)
-find_package (pegtl CONFIG REQUIRED)
-find_package (argh CONFIG REQUIRED)
+find_package (Boost COMPONENTS thread chrono log_setup log REQUIRED)
+find_package (OpenSSL REQUIRED Crypto SSL)
+find_package (GMP REQUIRED)
+find_package (SECP256K1 REQUIRED)
+find_package (pegtl REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+FetchContent_Declare(argh URL https://github.com/adishavit/argh/archive/refs/tags/v1.3.2.zip)
+FetchContent_MakeAvailable(argh)
+
+
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(Cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
 
 # Check if GTests is installed. If not, install it
 
@@ -29,7 +39,12 @@ add_definitions ("-DHAS_BOOST")
 
 if (PACKAGE_TESTS)
   include (CTest)
-  find_package (GTest REQUIRED)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+  )
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
   enable_testing ()
   add_subdirectory (test)
 
@@ -92,12 +107,18 @@ target_include_directories (data PUBLIC include)
 
 target_link_libraries (
   data
-  boost::boost
-  openssl::openssl
-  cryptopp::cryptopp
+  
+  Boost::boost
+  Boost::chrono
+  Boost::thread
+  Boost::log_setup
+  Boost::log
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  PkgConfig::Cryptopp
   nlohmann_json::nlohmann_json
-  gmp::gmp
-  secp256k1::secp256k1
+  gmp
+  secp256k1
   taocpp::pegtl
   argh
   # PkgConfig::LIBSECP256K1
