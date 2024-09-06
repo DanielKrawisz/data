@@ -125,7 +125,7 @@ namespace data::tool {
         const data::entry<K, V> *operator -> () const;
         
         bool operator == (const rb_map_iterator i) const;
-        int operator - (const rb_map_iterator& i) const;
+        int operator - (const rb_map_iterator &i) const;
         
         void go_left ();
         

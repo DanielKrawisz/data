@@ -12,22 +12,22 @@ namespace data::math {
 
     template <typename real = double>
     struct triangular_distribution {
-        real A; // minimum
-        real C; // the apex of the triangle, therefore A < C < B;
-        real B; // maximum
+        real Min; // minimum
+        real Mode; // the apex of the triangle, therefore A < C < B;
+        real Max; // maximum
 
         template <std::uniform_random_bit_generator engine>
         real operator () (engine &e) {
             std::uniform_real_distribution<real> dis (0.0, 1.0);
-            real ca = C - A;
-            real ba = B - A;
+            real ca = Mode - Min;
+            real ba = Max - Min;
             real f = ca / ba;
             real x = dis (e);
-            return x < f ? A + std::sqrt (x * ba * ca) : B - std::sqrt ((1 - x) * ba * (B - C));
+            return x < f ? Min + std::sqrt (x * ba * ca) : Max - std::sqrt ((1 - x) * ba * (Max - Mode));
         }
 
         real mean () const {
-            return (A + B + C) / 3;
+            return (Min + Max + Mode) / 3;
         }
 
     };
