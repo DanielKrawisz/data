@@ -1,20 +1,9 @@
-FROM ubuntu:bionic
-RUN apt-get update && \
-	apt-get install -y build-essential git cmake autoconf libtool pkg-config libcrypto++ wget
-WORKDIR /
-RUN git clone https://github.com/hanickadot/compile-time-regular-expressions.git ctre
-WORKDIR ctre/build
-RUN cmake ..
-RUN make
-RUN make install
-WORKDIR /
-RUN git clone --recurse-submodules -j8 https://github.com/boostorg/boost.git boost 
-WORKDIR boost
-RUN ./bootstrap.sh
-RUN ./b2 install
-RUN mkdir -p /src
-WORKDIR /src
+FROM gigamonkey/gigamonkey-base-dev:latest
+
+WORKDIR /home/data
 COPY . .
-WORKDIR /src/build
-RUN cmake ..
-RUN make
+RUN mkdir build
+WORKDIR /home/data/build
+RUN cmake ../
+RUN cmake --build .
+CMD ["ctest"]
