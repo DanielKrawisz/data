@@ -126,7 +126,6 @@ target_link_libraries (
 )
 
 get_target_property (OUT data LINK_LIBRARIES)
-message (STATUS ${OUT})
 
 # Set C++ version
 target_compile_features (data PUBLIC cxx_std_23)
