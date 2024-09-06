@@ -1,0 +1,17 @@
+name: Test Commit
+on:
+  push:
+    branches:
+      - '*'
+env:
+  BUILD_TYPE: Release
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Build Docker image
+        run: docker build -t local .
+      - name: Run Docker tests
+        run: docker run local
