@@ -65,15 +65,18 @@ secp256k1 must be added to a local conan repo using https://github.com/Gigamonke
 
 # Requirements
   * GCC v13
+  * Boost 
+  * OpenSSL 
+  * Crypto++
+  * GMP 
+  * SECP256k1
 
 # Build instructions
 
   * `mkdir build`
   * `cd build`
-  * `conan install .. --build=missing`
-  * `cd build`
-  * `cmake .. -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release`
-  * `make`
+  * `cmake .. -DCMAKE_BUILD_TYPE=Release`
+  * `cmake --build .`
 
 # Version 1 progress
 
