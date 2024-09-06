@@ -12,13 +12,24 @@ macro (package_add_test TESTNAME)
     # link the Google test infrastructure, mocking library, and a default main fuction to
     # the test executable.  Remove g_test_main if writing your own main function.
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_SOURCE_DIR}/include
-    boost::boost 
-    openssl::openssl 
-    cryptopp::cryptopp 
+    )
+    target_link_libraries (${TESTNAME} 
+    Boost::boost
+    Boost::chrono
+    Boost::thread
+    Boost::log_setup
+    Boost::log
+    
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    PkgConfig::Cryptopp
     nlohmann_json::nlohmann_json 
-    gmp::gmp 
-    secp256k1::secp256k1)
-    target_link_libraries (${TESTNAME} gtest::gtest data)
+    gmp 
+    secp256k1
+    gtest
+    gmock gtest gmock gtest_main data)
+    get_target_property (OUT ${TESTNAME}  LINK_LIBRARIES)
+    message (STATUS ${OUT})
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
 
