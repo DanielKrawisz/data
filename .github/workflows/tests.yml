@@ -6,7 +6,8 @@ on:
 env:
   BUILD_TYPE: Release
 jobs:
-  prep:
+  test:
+    name: Test Data
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo

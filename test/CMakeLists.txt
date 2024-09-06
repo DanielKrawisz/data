@@ -29,7 +29,6 @@ macro (package_add_test TESTNAME)
     gtest
     gmock gtest gmock gtest_main data)
     get_target_property (OUT ${TESTNAME}  LINK_LIBRARIES)
-    message (STATUS ${OUT})
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
 
