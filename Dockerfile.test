@@ -4,6 +4,6 @@ WORKDIR /home/data
 COPY . .
 RUN mkdir build
 WORKDIR /home/data/build
-RUN cmake -DPACKAGE_TESTS=OFF ../
+RUN cmake ../
 RUN cmake --build .
-RUN cmake --install .
+CMD ["ctest"]
