@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - '*'
+  pull_request:
+    types: [opened]
+    branches:
+      - 'production'
+      - 'main'
 env:
   BUILD_TYPE: Release
 jobs:
