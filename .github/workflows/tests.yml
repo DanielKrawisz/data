@@ -13,6 +13,6 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Build Docker image
-        run: docker build -t local .
+        run: docker build -f Dockerfile.test -t test .
       - name: Run Docker tests
-        run: docker run local
+        run: docker run test
