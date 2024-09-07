@@ -217,7 +217,7 @@ namespace data::tool {
     template <typename K, typename V>
     const V inline &rb_map<K, V>::operator [] (const K &k) const {
         std::remove_reference_t<V> *x = Map.find (k);
-        if (x == nullptr) throw "not found";
+        if (x == nullptr) throw exception {} << "key not found in map";
         return *x;
     }
     
