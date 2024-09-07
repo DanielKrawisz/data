@@ -53,10 +53,6 @@ jobs:
                     context: .
                     labels: ${{ steps.meta.outputs.labels }}
                     outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
-                    build-args: |
-                        SECP256K1_VERSION=${{ fromJson(steps.set_var.outputs.versionsJson).SECP256K1_VERSION}}
-                        PEGTL_VERSION=${{ fromJson(steps.set_var.outputs.versionsJson).PEGTL_VERSION}}
-                        BOOST_VERSION=${{ fromJson(steps.set_var.outputs.versionsJson).BOOST_VERSION}}
             - 
                 name: Export digest
                 run: |
