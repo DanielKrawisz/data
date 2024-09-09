@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CAC
 
 project (
   data
-  VERSION 0.0.24
+  VERSION 0.0.27
   DESCRIPTION "wrappers and high-level programming constructs in c++"
   LANGUAGES CXX
 )
@@ -26,6 +26,8 @@ FetchContent_MakeAvailable(json)
 FetchContent_Declare(argh URL https://github.com/adishavit/argh/archive/refs/tags/v1.3.2.zip)
 FetchContent_MakeAvailable(argh)
 
+FetchContent_Declare(ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.9.0.zip)
+FetchContent_MakeAvailable(ctre)
 
 
 find_package(PkgConfig REQUIRED)
@@ -52,85 +54,11 @@ endif ()
 
 # Add Library source files here
 
-add_library (data STATIC
-  src/sv/fs.cpp
-  src/sv/support/cleanse.cpp
-  src/sv/support/lockedpool.cpp
-  src/sv/crypto/chacha20.cpp
-  src/sv/crypto/hmac_sha512.cpp
-  src/sv/crypto/ripemd160.cpp
-  src/sv/crypto/sha1.cpp
-  src/sv/crypto/sha256.cpp
-  src/sv/crypto/sha512.cpp
-  src/sv/utiltime.cpp
+add_subdirectory(src/rotella)
+add_subdirectory(src/milewski)
+add_subdirectory(src/gmp)
+add_subdirectory(src/sv)
+add_subdirectory(src/data)
 
-  include/rotella/aks.cpp
-  include/rotella/sieve.cpp
-  include/rotella/akslib.cpp
 
-  src/data/types.cpp
-  src/data/string.cpp
-  src/data/io/wait_for_enter.cpp
 
-  src/data/math/number/gmp/mpq.cpp
-  src/data/math/number/gmp/N.cpp
-  src/data/math/number/gmp/aks.cpp
-  src/data/math/number/gmp/sqrt.cpp
-
-  src/data/encoding/hex.cpp
-  src/data/encoding/utf8.cpp
-  src/data/encoding/base64.cpp
-  src/data/encoding/base58.cpp
-  src/data/encoding/integer.cpp
-
-  src/data/net/URL.cpp
-  src/data/net/beast/beast.cpp
-  src/data/net/HTTP.cpp
-  src/data/net/REST.cpp
-  src/data/net/JSON.cpp
-  src/data/net/TCP.cpp
-  src/data/net/websocket.cpp
-  src/data/net/HTTP_client.cpp
-  src/data/net/email.cpp
-
-  #src/data/io/run.cpp
-
-  src/data/tools/channel.cpp
-  src/data/crypto/random.cpp
-  src/data/crypto/secret_share.cpp
-  src/data/crypto/AES.cpp
-  src/data/tools/circular_queue.cpp
-  src/data/tools/rate_limiter.cpp
-  src/data/log/log.cpp
-)
-
-target_include_directories (data PUBLIC include)
-
-target_link_libraries (
-  data
-  
-  Boost::boost
-  Boost::chrono
-  Boost::thread
-  Boost::log_setup
-  Boost::log
-  OpenSSL::SSL
-  OpenSSL::Crypto
-  PkgConfig::Cryptopp
-  nlohmann_json::nlohmann_json
-  gmp
-  secp256k1
-  taocpp::pegtl
-  argh
-  # PkgConfig::LIBSECP256K1
-)
-
-get_target_property (OUT data LINK_LIBRARIES)
-
-# Set C++ version
-target_compile_features (data PUBLIC cxx_std_23)
-set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
-target_compile_options (data PUBLIC "-fconcepts")
-
-install (DIRECTORY include/ DESTINATION include)
-install (TARGETS data)
