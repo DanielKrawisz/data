@@ -65,9 +65,19 @@ target_link_libraries (
 get_target_property (OUT data LINK_LIBRARIES)
 
 # Set C++ version
+
 target_compile_features (data PUBLIC cxx_std_23)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
 
-install (DIRECTORY include/ DESTINATION include)
-install (TARGETS data)
+install(TARGETS data EXPORT dataTargets
+ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+)
+
+# install (EXPORT dataTargets
+#         NAMESPACE data::
+#         DESTINATION lib/cmake/data
+# )
