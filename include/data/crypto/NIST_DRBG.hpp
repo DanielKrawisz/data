@@ -17,25 +17,38 @@ namespace data::crypto::NIST {
             HMAC,
             Hash
         };
+
+        constexpr static uint32 DefaultBytesBeforeReseed = 0xffff;
         
         uint32 BytesBeforeReseed;
         entropy &Entropy;
         ::CryptoPP::NIST_DRBG* Random;
         
         constexpr static uint32 SecurityStrength = 16;
+
+        struct initialization {
+            entropy &Entropy;
+            bytes Personalization;
+            uint32_little Nonce;
+
+            initialization (entropy &e, bytes personalization = {}, uint32_little nonce = 0):
+                Entropy {e}, Personalization {personalization}, Nonce {nonce} {}
+        };
         
-        DRBG (type t, entropy &e, bytes personalization = {}, uint32_little nonce = 0) :
-            BytesBeforeReseed {65536}, Entropy {e}, Random {nullptr} {
+        DRBG (type t, initialization i, uint32 bytes_before_reseed = DefaultBytesBeforeReseed) :
+            BytesBeforeReseed {bytes_before_reseed}, Entropy {i.Entropy}, Random {nullptr},
+            BytesRemaining {bytes_before_reseed} {
                 bytes entropy = Entropy.get (SecurityStrength);
+
                 if (t == HMAC) {
                     Random = new ::CryptoPP::HMAC_DRBG
-                        (entropy.data (), entropy.size (), nonce.data (), nonce.size (),
-                            personalization.data (), personalization.size ());
+                        (entropy.data (), entropy.size (), i.Nonce.data (), i.Nonce.size (),
+                            i.Personalization.data (), i.Personalization.size ());
                 } else if (t == Hash) {
                     Random = new ::CryptoPP::Hash_DRBG
-                        (entropy.data (), entropy.size (), nonce.data (), nonce.size (),
-                            personalization.data (), personalization.size ());
-                }
+                        (entropy.data (), entropy.size (), i.Nonce.data (), i.Nonce.size (),
+                            i.Personalization.data (), i.Personalization.size ());
+                } else throw exception {} << "Invalid NIST DRBG type";
             }
         
         bool valid () const {
@@ -47,16 +60,16 @@ namespace data::crypto::NIST {
         }
         
     private:
-        
+        uint32 BytesRemaining;
         void get (byte* b, size_t x) override {
-            if (BytesBeforeReseed < x) { 
+            if (BytesRemaining < x) {
                 bytes entropy = Entropy.get (Random->SecurityStrength ());
                 Random->IncorporateEntropy (entropy.data (), entropy.size ());
-                BytesBeforeReseed = 65536;
+                BytesRemaining = BytesBeforeReseed - (x - BytesRemaining);
             }
             
             Random->GenerateBlock (b, x);
-            BytesBeforeReseed -= x;
+            BytesRemaining -= x;
         }
     };
 
