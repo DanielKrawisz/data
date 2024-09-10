@@ -17,7 +17,7 @@ namespace data::math {
         real Max; // maximum
 
         template <std::uniform_random_bit_generator engine>
-        real operator () (engine &e) {
+        real operator () (engine &e) const {
             std::uniform_real_distribution<real> dis (0.0, 1.0);
             real ca = Mode - Min;
             real ba = Max - Min;
