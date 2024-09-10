@@ -4,6 +4,9 @@ cmake_minimum_required (VERSION 3.16)
 if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+  message(FATAL_ERROR "In-source builds are not allowed")
+endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
 
 project (
@@ -13,6 +16,13 @@ project (
   LANGUAGES CXX
 )
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${ipo_supported})
+message(STATUS "IPO is supported: ${ipo_supported}")
 find_package (Boost COMPONENTS thread chrono log_setup log REQUIRED)
 find_package (OpenSSL REQUIRED Crypto SSL)
 find_package (GMP REQUIRED)
@@ -54,11 +64,4 @@ endif ()
 
 # Add Library source files here
 
-add_subdirectory(src/rotella)
-add_subdirectory(src/milewski)
-add_subdirectory(src/gmp)
-add_subdirectory(src/sv)
-add_subdirectory(src/data)
-
-
-
+add_subdirectory(src bin) 
