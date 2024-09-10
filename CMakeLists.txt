@@ -55,6 +55,7 @@ add_library (data STATIC
 
   src/data/types.cpp
   src/data/string.cpp
+  src/data/io/wait_for_enter.cpp
 
   src/data/math/number/gmp/mpq.cpp
   src/data/math/number/gmp/N.cpp
