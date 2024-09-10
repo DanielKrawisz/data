@@ -9,11 +9,9 @@
 
 namespace data {
 
-    void inline wait_for_enter (std::string message = "Press enter to continue...") {
-        do {
-            std::cout << '\n' << message;
-        } while (std::cin.get() != '\n');
-    }
+    void wait_for_enter (std::string message = "Press enter to continue...");
+
+    bool get_user_yes_or_no (std::string message = "");
 
 }
 
