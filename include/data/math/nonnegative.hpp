@@ -25,7 +25,7 @@ namespace data::math {
     template <ordered R> struct nonnegative {
         R Value;
         
-        explicit nonnegative (const R& n) : Value {n} {}
+        explicit nonnegative (const R &n) : Value {n} {}
         explicit nonnegative (R &&n) : Value {n} {}
         nonnegative () : Value {-1} {}
         

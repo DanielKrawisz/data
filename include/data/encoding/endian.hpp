@@ -43,7 +43,7 @@ namespace data::endian {
     
     template <bool is_signed, std::size_t bytes> struct native_representation;
     
-    template <bool is_signed, std::size_t bytes> using to_native = typename native_representation<is_signed, bytes>::type;
+    template <bool is_signed, std::size_t bytes> using to_native = native_representation<is_signed, bytes>::type;
     
     template <> struct native_representation<true, 1> {
         using type = int_least8_t;
