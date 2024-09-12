@@ -1,4 +1,5 @@
 #include <data/crypto/random.hpp>
+#include <data/tools.hpp>
 
 namespace data::crypto {
 
@@ -19,5 +20,27 @@ namespace data::crypto {
         return weights.size () - 1;
     }
 
+    bytes user_entropy::get (size_t x) {
+        Cout << UserMessageAsk << std::endl;
+        // we get some extra to account for user lack of entropy.
+        size_t true_size = x * 4;
+        size_t size_so_far = 0;
+        list<std::string> user_lines;
+        while (true) {
+            std::string input;
+            std::getline (Cin, input);
+            size_so_far += input.size ();
+            user_lines <<= input;
+
+            if (size_so_far >= true_size) {
+                bytes b (size_so_far);
+                data::iterator_writer<bytes::iterator, byte> bb {b.begin (), b.end ()};
+                for (const auto &str : user_lines) bb.write ((byte *) (str.data ()), str.size ());
+                return b;
+            }
+
+            Cout << UserMessageAskMore << std::endl;
+        }
+    }
 
 }

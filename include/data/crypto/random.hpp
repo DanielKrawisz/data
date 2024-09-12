@@ -86,26 +86,21 @@ namespace data::crypto {
         }
     };
     
+    // ask the user to type random characters into a keyboard.
     struct user_entropy : entropy {
         std::string UserMessageAsk;
+        std::string UserMessageAskMore;
         std::string UserMessageConfirm;
         std::ostream &Cout;
         std::istream &Cin;
         
-        user_entropy (std::string ask, std::string confirm, std::ostream &out, std::istream &in) :
-            UserMessageAsk {ask}, UserMessageConfirm {confirm}, Cout {out}, Cin {in} {}
+        user_entropy (const std::string &ask, const std::string &ask_more, const std::string &confirm, std::ostream &out, std::istream &in) :
+            UserMessageAsk {ask}, UserMessageAskMore {ask_more}, UserMessageConfirm {confirm}, Cout {out}, Cin {in} {}
         
-        bytes get (size_t x) override {
-            Cout << UserMessageAsk << std::endl;
-            bytes b (x * 4);
-            for (uint32 i = 0; i < x * 4; i++) Cin >> b[i];
-            Cout << UserMessageConfirm << std::endl;
-            Cin.seekg (0, std::ios::end);
-            Cin.clear ();
-            return b;
-        }
+        bytes get (size_t x) override;
     };
     
+    // the famous one-time pad.
     struct fixed_entropy : entropy {
         bytes Entropy;
         int Position;

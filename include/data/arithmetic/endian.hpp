@@ -66,7 +66,7 @@ namespace data::arithmetic {
         using boost_arith::data;
         using boost_arith::boost_arith;
         using iterator = byte *;
-        using const_iterator = byte const*;
+        using const_iterator = byte const *;
         
         endian_integral (const boost_arith &x);
         endian_integral (boost_arith &&x);
