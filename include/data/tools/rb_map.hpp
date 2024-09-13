@@ -90,7 +90,11 @@ namespace data::tool {
             for (const auto &e : *this) m = m.insert (e);
             return m;
         }
-        
+
+    private:
+        static V default_key_already_exists (const V &, const V &) {
+            throw exception {} << "Key already exists";
+        }
     };
 
     template <typename K, std::equality_comparable V>
@@ -141,19 +145,27 @@ namespace data::tool {
         base_rb_map (const rb_map<K, V> &rb) : rb_map<K, V> {rb} {}
 
         derived insert (const K& k, const V& v) const {
-            derived {rb_map<K, V>::insert (k, v)};
+            return derived {rb_map<K, V>::insert (k, v)};
         }
 
         derived insert (const entry<K, V> &e) const {
-            derived {rb_map<K, V>::insert (e)};
+            return derived {rb_map<K, V>::insert (e)};
+        }
+
+        derived insert (const K &k, const V &v, function<V (const V &old_v, const V &new_v)> already_exists) const {
+            return derived {rb_map<K, V>::insert (k, v, already_exists)};
+        }
+
+        derived replace_part (const K &k, const V& v) const {
+            return derived {rb_map<K, V>::replace_part (k, v)};
         }
 
         derived operator << (const entry<K, V> &e) const {
-            derived {rb_map<K, V>::insert (e)};
+            return derived {rb_map<K, V>::insert (e)};
         }
 
         derived remove (const K &k) const {
-            derived {rb_map<K, V>::remove (k)};
+            return derived {rb_map<K, V>::remove (k)};
         }
 
     };
@@ -238,12 +250,7 @@ namespace data::tool {
     
     template <typename K, typename V>
     rb_map<K, V> rb_map<K, V>::insert (const K &k, const V &v) const {
-        const std::remove_reference_t<V> *already = contains (k);
-        if (already == nullptr) return rb_map {Map.inserted (k, v), Size + 1};
-        throw exception {} << "key already exists";/*
-        if (*already == v) return *this;
-        rb_map removed = this->remove (k);
-        return rb_map {removed.Map.inserted (k, v), removed.Size + 1};*/
+        return insert (k, v, default_key_already_exists);
     }
 
     template <typename K, typename V>
