@@ -20,14 +20,6 @@ namespace data {
         is_tree<tree<const int *>> ();
         is_tree<tree<const int &>> ();
         
-        is_const_iterable<tree<int>> ();
-        is_const_iterable<tree<int *>> ();
-        is_const_iterable<tree<int &>> ();
-        
-        is_const_iterable<tree<const int>> ();
-        is_const_iterable<tree<const int *>> ();
-        is_const_iterable<tree<const int &>> ();
-        
     }
     
     TEST (LinkedTreeTest, TestTreeSize) {
@@ -36,24 +28,20 @@ namespace data {
         tree<int> t2 = tree<int> {4, tree<int> {}, tree<int> {3}};
         tree<int> t3 = tree<int> {2, tree<int> {1}, tree<int> {}};
         
-        EXPECT_EQ (t0.size(), 0);
+        EXPECT_EQ (t0.size (), 0);
         EXPECT_EQ (t1.size (), 1);
         EXPECT_EQ (t2.size (), 2);
         EXPECT_EQ (t3.size (), 2);
         
-        EXPECT_EQ (t0.right ().size(), 0);
-        EXPECT_EQ (t1.right ().size(), 0);
-        EXPECT_EQ (t2.right ().size(), 1);
-        EXPECT_EQ (t3.right ().size(), 0);
+        EXPECT_EQ (t0.right ().size (), 0);
+        EXPECT_EQ (t1.right ().size (), 0);
+        EXPECT_EQ (t2.right ().size (), 1);
+        EXPECT_EQ (t3.right ().size (), 0);
         
-        EXPECT_EQ (t0.left ().size(), 0);
-        EXPECT_EQ (t1.left ().size(), 0);
-        EXPECT_EQ (t2.left ().size(), 0);
-        EXPECT_EQ (t3.left ().size(), 1);
-        
-        EXPECT_EQ (t0.begin(), t0.end());
-        EXPECT_NE (t1.begin(), t1.end());
-        EXPECT_EQ (*t1.begin(), 6);
+        EXPECT_EQ (t0.left ().size (), 0);
+        EXPECT_EQ (t1.left ().size (), 0);
+        EXPECT_EQ (t2.left ().size (), 0);
+        EXPECT_EQ (t3.left ().size (), 1);
         
     }
     
@@ -86,7 +74,7 @@ namespace data {
         
     }
     
-    void test_copy_linked_tree(tree<int>& p, int max) {
+    void test_copy_linked_tree (tree<int>& p, int max) {
         p = tree<int> {};
         tree<int> new_tree {};
         for (int i = 0; i < max; i++) new_tree = tree<int> {i, new_tree, tree<int> {}};
@@ -97,8 +85,8 @@ namespace data {
         tree<int> p;
         test_copy_linked_tree (p, 7);
         EXPECT_EQ (p.size (), 7);
-        EXPECT_EQ (p.left ().size(), 6);
-        EXPECT_EQ (p.right ().size(), 0);
+        EXPECT_EQ (p.left ().size (), 6);
+        EXPECT_EQ (p.right ().size (), 0);
     }
 
     void accept_tree_of_string_views (linked_tree<string_view>) {}

@@ -82,7 +82,7 @@ namespace data::functional {
     
     template <typename T, typename X> requires search_tree<T, X> && buildable_tree<T, X>
     T insert (T t, X x) {
-        if (empty (t)) return T {x, T {}, T{}};
+        if (empty (t)) return T {x, T {}, T {}};
         X &r = root (t);
         if (x == r) return t;
         if (x < r) return T {r, insert (left (t), x), right (t)};
@@ -150,129 +150,6 @@ bool inline operator == (const X &a, const X &b) {
                 data::root (a) != data::root (b) ? false :
                     data::left (a) == data::left (b) && data::right (a) == data::right (b);
 }
-    
-namespace data::functional {
-    
-    template <typename T> 
-    struct tree_iterator {
-        const T *Tree;
-        T Current;
-        linked_stack<const T> Prev;
-        int Index;
-        
-        tree_iterator (const T &s, T n, int i) : Tree {&s}, Current {n}, Prev {}, Index {i} {}
-        
-        tree_iterator () : Tree {}, Current {}, Prev {}, Index {0} {}
-        tree_iterator (const T &t);
-        
-        tree_iterator &operator = (const tree_iterator &n);
-        
-        tree_iterator operator ++ (int);
-        tree_iterator &operator ++ ();
-        
-        const element_of<T> &operator * () const;
-        const element_of<T> *operator -> () const;
-        
-        bool operator == (const sentinel<T> i) const;
-        bool operator != (const sentinel<T> i) const;
-        
-        bool operator == (const tree_iterator i) const;
-        
-        int operator - (const tree_iterator& i) const;
-        
-    private:
-        void go_left ();
-    };
-    
-}
 
-namespace std {
-    template <typename tree> 
-    struct iterator_traits<data::functional::tree_iterator<tree>> {
-        using value_type = remove_const_t<data::element_of<tree>>;
-        using difference_type = int;
-        using pointer = const remove_reference_t<data::element_of<tree>> *;
-        using reference = const data::element_of<tree> &;
-        using iterator_concept = input_iterator_tag;
-    };
-}
-    
-namespace data::functional {
-    template <typename T> 
-    inline tree_iterator<T>::tree_iterator (const T &t) : Tree {&t}, Current {t}, Prev {}, Index {0} {
-        go_left ();
-    } 
-    
-    template <typename T> 
-    tree_iterator<T> &tree_iterator<T>::operator = (const tree_iterator &n) {
-        Tree = n.Tree;
-        Current = n.Current;
-        Prev = n.Prev;
-        Index = n.Index;
-    }
-    
-    template <typename T> 
-    tree_iterator<T> tree_iterator<T>::operator ++ (int) {
-        auto z = *this;
-        ++(*this);
-        return z;
-    }
-    
-    template <typename T> 
-    tree_iterator<T> &tree_iterator<T>::operator ++ () {
-        if (data::empty (Current)) return *this;
-        
-        Index++;
-        if (!data::empty(right (Current))) {
-            Current = right (Current);
-            go_left ();
-        } else if (!data::empty (Prev)) {
-            Current = first (Prev);
-            Prev = rest (Prev);
-        } else Current = T {};
-        return *this;
-    }
-    
-    template <typename T> 
-    const element_of<T> inline &tree_iterator<T>::operator * () const {
-        return Current.root ();
-    }
-
-    template <typename T>
-    const element_of<T> inline *tree_iterator<T>::operator -> () const {
-        return *Current.root ();
-    }
-    
-    template <typename T> 
-    bool inline tree_iterator<T>::operator == (const sentinel<T> i) const {
-        return Tree == i.Structure && Index == data::size (Current);
-    }
-    
-    template <typename T> 
-    bool inline tree_iterator<T>::operator != (const sentinel<T> i) const {
-        return !(*this == i);
-    }
-    
-    template <typename T> 
-    bool inline tree_iterator<T>::operator == (const tree_iterator i) const {
-        return Tree == i.Tree && Index == i.Index;
-    }
-    
-    template <typename T> 
-    int inline tree_iterator<T>::operator - (const tree_iterator &i) const {
-        return Index - i.Index;
-    }
-    
-    template <typename T> 
-    void tree_iterator<T>::go_left () {
-        if (data::empty (Current)) return;
-        
-        while (!data::empty (left (Current))) {
-            Prev = prepend (Prev, Current);
-            Current = left (Current);
-        }
-    }
-    
-}
 
 #endif

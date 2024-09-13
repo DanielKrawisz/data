@@ -15,22 +15,7 @@ namespace data::tool {
     template <functional::tree tree, typename element = element_of<tree>> requires
     requires (const element &a, const element &b) {
         {a <= b} -> convertible_to<bool>;
-    } class priority_queue {
-        tree Tree;
-        priority_queue (tree t) : Tree {t} {}
-        
-        static tree merge (const tree &left, const tree right) {
-            if (left.empty ())
-                return right;
-            if (right.empty ())
-                return left;
-            if (left.root () <= right.root ())
-                return tree {left.root (), left.left (), merge (left.right (), right)};
-            else
-                return tree {right.root (), right.left (), merge (left, right.right ())};
-        }
-        
-    public:
+    } struct priority_queue {
         
         size_t size () const;
         bool empty () const;
@@ -53,16 +38,24 @@ namespace data::tool {
         
         template <typename list> requires sequence<list, element> 
         priority_queue (list l);
-        
-        using iterator = functional::tree_iterator<tree>;
-        using sentinel = data::sentinel<tree>;
-        
-        iterator begin () const;
-        sentinel end () const;
 
         template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
         bool operator == (const X &x) const {
             return sequence_equal (*this, x);
+        }
+
+        tree Tree;
+        priority_queue (tree t) : Tree {t} {}
+
+        static tree merge (const tree &left, const tree right) {
+            if (left.empty ())
+                return right;
+            if (right.empty ())
+                return left;
+            if (left.root () <= right.root ())
+                return tree {left.root (), left.left (), merge (left.right (), right)};
+            else
+                return tree {right.root (), right.left (), merge (left, right.right ())};
         }
     };
     
@@ -70,9 +63,14 @@ namespace data::tool {
     priority_queue<tree, element> inline operator << (const priority_queue<tree, element> p, const element &elem) {
         return p.insert (elem);
     }
+
+    template <functional::tree tree, typename element = element_of<tree>>
+    priority_queue<tree, element> inline operator <<= (priority_queue<tree, element> &p, const element &elem) {
+        return p = p.insert (elem);
+    }
     
     template <functional::tree tree, typename element = element_of<tree>> 
-    bool inline operator==(const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
+    bool inline operator == (const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
         if (data::empty (a) && data::empty (b)) return true;
         if (data::empty (a) || data::empty (b)) return false;
         if (a.first () != b.first ()) return false;
@@ -126,16 +124,6 @@ namespace data::tool {
     template <functional::tree tree, typename element> 
     template <typename list> requires sequence<list, element> 
     inline priority_queue<tree, element>::priority_queue (list l) : priority_queue {priority_queue {}.insert (l)} {}
-    
-    template <functional::tree tree, typename element> 
-    priority_queue<tree, element>::iterator inline priority_queue<tree, element>::begin () const {
-        return iterator {Tree};
-    }
-    
-    template <functional::tree tree, typename element> 
-    priority_queue<tree, element>::sentinel inline priority_queue<tree, element>::end () const {
-        return sentinel {Tree};
-    }
     
     template <functional::tree tree, typename element> 
     bool inline priority_queue<tree, element>::valid () const {

@@ -17,13 +17,3 @@ TEST (PriorityQueueTest, TestPriorityQueue) {
     EXPECT_EQ (1, first (pq {} << 2 << 1));
 }
 
-TEST (PriorityQueueTest, TestPriorityQueueIterate) {
-    using namespace data;
-
-    using pq = priority_queue<int>;
-    pq e {};
-    pq i = e << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8 << 9 << 10;
-    for (int x : e) {}
-    for (int x : i) {}
-}
-    
