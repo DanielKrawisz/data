@@ -61,12 +61,6 @@ namespace data {
             return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
         }
         
-        using iterator = functional::tree_iterator<linked_tree>;
-        using sentinel = data::sentinel<linked_tree>;
-        
-        iterator begin () const;
-        sentinel end () const;
-        
         std::ostream &write (std::ostream &o) const;
     };
 
@@ -122,16 +116,6 @@ namespace data {
     
     template <typename value>
     inline linked_tree<value>::linked_tree (const value &v) : linked_tree {v, linked_tree {}, linked_tree {}} {}
-    
-    template <typename value>
-    inline linked_tree<value>::iterator linked_tree<value>::begin () const {
-        return iterator {*this};
-    } 
-    
-    template <typename value>
-    inline linked_tree<value>::sentinel linked_tree<value>::end () const {
-        return sentinel {*this};
-    }
     
     template <typename value>
     inline linked_tree<value>::linked_tree (const linked_tree &t) {
