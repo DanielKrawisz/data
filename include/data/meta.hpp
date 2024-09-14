@@ -34,12 +34,24 @@ namespace data::meta {
         using type = X &;
     };
 
+    template <typename X> struct setter {
+        using type = const X &;
+    };
+
     template <typename X> using contain = container<X>::type;
     template <typename X> using retrieve = retriever<X>::type;
+    template <typename X> using set = setter<X>::type;
+
+    template <std::integral X> struct setter<X> {
+        using type = X;
+    };
+
+    template <> struct setter<bool> {
+        using type = bool;
+    };
 
     template <> struct container<void> {
         using type = std::monostate;
-        using return_type = void;
     };
 
     template <> struct retriever<void> {
@@ -52,6 +64,10 @@ namespace data::meta {
 
     template <typename X> struct retriever<X &> {
         using type = X &;
+    };
+
+    template <typename X> struct setter<X &> {
+        using type = const X &;
     };
 
 }
