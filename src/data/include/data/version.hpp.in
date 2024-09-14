@@ -4,4 +4,5 @@
 // define your version_libinterface
 #define DATA_VERSION "@CMAKE_PROJECT_VERSION@"
 
+
 #endif // VERSION_CONFIG_H

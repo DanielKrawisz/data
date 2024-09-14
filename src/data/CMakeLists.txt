@@ -35,12 +35,12 @@ add_library (data STATIC
   log/log.cpp
 )
 
-target_include_directories (data PUBLIC include)
-
+configure_file(include/data/version.hpp.in generated/data/version.hpp )
+target_include_directories(data PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories (data PUBLIC $<INSTALL_INTERFACE:include>)
 target_link_libraries (
   data
-
-
+  PUBLIC
   Boost::boost
   Boost::chrono
   Boost::thread
@@ -50,7 +50,7 @@ target_link_libraries (
   OpenSSL::Crypto
   PkgConfig::Cryptopp
   nlohmann_json::nlohmann_json
-  gmp
+  GMP::GMP
   secp256k1
   taocpp::pegtl
   argh
@@ -70,14 +70,44 @@ target_compile_features (data PUBLIC cxx_std_23)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
 
-install(TARGETS data EXPORT dataTargets
-ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
+include(GNUInstallDirs)
+install(DIRECTORY
+  include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(TARGETS data nlohmann_json argh rotella milewski gmpxx sv
+EXPORT DataTargets ARCHIVE 
 )
 
-# install (EXPORT dataTargets
-#         NAMESPACE data::
-#         DESTINATION lib/cmake/data
-# )
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp 
+DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/data)
+
+install(EXPORT DataTargets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/data
+  FILE dataTargets.cmake
+  NAMESPACE Data::
+)
+
+include(CMakePackageConfigHelpers)
+# generate the config file that includes the exports
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/dataConfig.cmake"
+  INSTALL_DESTINATION "lib/cmake/dataFunctions"
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+  )
+
+  write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/dataConfigVersion.cmake"
+  COMPATIBILITY AnyNewerVersion
+)
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/dataConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/dataConfigVersion.cmake
+  DESTINATION lib/cmake/data
+  )
+
+  set(CPACK_PACKAGE_VENDOR "Daniel Krawisz")
+set(CPACK_PACKAGE_CONTACT "email@example.com")
+set(CPACK_PACKAGE_DESCRIPTION "data")
+include(CPack)
