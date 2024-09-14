@@ -32,6 +32,8 @@ namespace data {
 
     template <typename... X> using handler = std::function<void (X...)>;
 
+    template <typename... X> using tuple = std::tuple<X...>;
+
     template<typename X>
     using view = std::basic_string_view<X>;
 
