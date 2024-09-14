@@ -3,7 +3,6 @@
 #include <chrono>
 
 namespace data {
-    
     random_engine& get_random_engine() {
         static random_engine Engine;
         static bool Seeded = false;

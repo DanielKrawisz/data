@@ -19,10 +19,6 @@ project (
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${ipo_supported})
-message(STATUS "IPO is supported: ${ipo_supported}")
 find_package (Boost COMPONENTS thread chrono log_setup log REQUIRED)
 find_package (OpenSSL REQUIRED Crypto SSL)
 find_package (GMP REQUIRED)
@@ -52,11 +48,12 @@ add_definitions ("-DHAS_BOOST")
 if (PACKAGE_TESTS)
   include (CTest)
   FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-  )
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(googletest)
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG v1.14.0
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
   enable_testing ()
   add_subdirectory (test)
 

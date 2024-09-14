@@ -17,7 +17,7 @@
 #include <iostream>
 #include <gmp.h>
 #include <gmpxx.h>
-#include "akslib.h"
+#include "rotella/akslib.h"
 
 using namespace std;
 

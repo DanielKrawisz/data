@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/math/number/gmp/mpq.hpp>
-#include <gmp/gmpxx.h>
+#include <gmpxx.h>
 
 namespace data {
     
