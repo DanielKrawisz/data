@@ -11,4 +11,16 @@ support/cleanse.cpp
 support/lockedpool.cpp
 )
 
-target_include_directories(sv PUBLIC include)
+target_include_directories(sv PUBLIC
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+
+include(GNUInstallDirs)
+install(DIRECTORY
+include/sv
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(TARGETS sv
+EXPORT svTargets ARCHIVE 
+)
