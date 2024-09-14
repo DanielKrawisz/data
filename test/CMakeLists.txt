@@ -6,95 +6,66 @@ if (${CMAKE_VERSION} VERSION_LESS 3.12)
 endif ()
 option (OPTIONAL_TESTS "Build optional Tests" OFF)
 include (GoogleTest)
-macro (package_add_test TESTNAME)
-    # create an exectuable in which the tests will be stored
-    add_executable (${TESTNAME} ${ARGN})
-    # link the Google test infrastructure, mocking library, and a default main fuction to
-    # the test executable.  Remove g_test_main if writing your own main function.
-    target_include_directories (${TESTNAME} PUBLIC ${CMAKE_SOURCE_DIR}/include
-    )
-    target_link_libraries (${TESTNAME} 
-    Boost::boost
-    Boost::chrono
-    Boost::thread
-    Boost::log_setup
-    Boost::log
-    
-    OpenSSL::SSL
-    OpenSSL::Crypto
-    PkgConfig::Cryptopp
-    nlohmann_json::nlohmann_json 
-    gmp 
-    secp256k1
-    gtest
-    gmock gtest gmock gtest_main data)
-    get_target_property (OUT ${TESTNAME}  LINK_LIBRARIES)
-    # gtest_discover_tests replaces gtest_add_tests,
-    # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
+add_executable(unit_tests
 
-    gtest_discover_tests (${TESTNAME}
-            # set a working directory so your project root so that you can find test data via paths relative to the project root
-            SOURCES ${ARGN}
-            WORKING_DIRECTORY ${PROJECT_DIR}
-            )
-    set_target_properties (${TESTNAME} PROPERTIES FOLDER tests)
-endmacro ()
+testMaybeEither.cpp
+testStore.cpp
+testException.cpp
+testEndian.cpp
+testHex.cpp
+testAscii.cpp
+testStream.cpp
+testHash.cpp
+testIntegerFormat.cpp
+testFunctionalInterfaces.cpp
+testLinkedStack.cpp
+testList.cpp
+testCircularQueue.cpp
+testReverse.cpp
+testContains.cpp
+testTake.cpp
+testOrderedList.cpp
+testSort.cpp
+testLinkedTree.cpp
+testMap.cpp
+testPriorityQueue.cpp
+testForEach.cpp
+testPermutation.cpp
+testCombinatorics.cpp
+testBytes.cpp
+testSign.cpp
+testBitShift.cpp
+testN.cpp
+testZ.cpp
+testNBytes.cpp
+testRoot.cpp
+testZBytes.cpp
+testAbs.cpp
+testBounded.cpp
+testBase58.cpp
+testNumbers.cpp
+testStringNumbers.cpp
+testDecimal.cpp
+testHexidecimal.cpp
+testInfinite.cpp
+testDivision.cpp
+testTwosComplement.cpp
+testExtendedEuclidian.cpp
+testCaylayDickson.cpp
+testModular.cpp
+testAlgebra.cpp
+testPolynomial.cpp
+testSecretShare.cpp
+testLog.cpp
+testArgsParser.cpp
+testIP.cpp
+testEmail.cpp
 
-package_add_test (TestMaybeEither testMaybeEither.cpp)
-package_add_test (TestStore testStore.cpp)
-package_add_test (TestException testException.cpp)
-package_add_test (TestEndian testEndian.cpp)
-package_add_test (TestHex testHex.cpp)
-package_add_test (TestAscii testAscii.cpp)
-package_add_test (TestStream testStream.cpp)
-package_add_test (TestHash testHash.cpp)
-package_add_test (TestIntegerFormat testIntegerFormat.cpp)
-package_add_test (TestFunctionalInterfaces testFunctionalInterfaces.cpp)
-package_add_test (TestLinkedStack testLinkedStack.cpp)
-package_add_test (TestList testList.cpp)
-package_add_test (TestCircularQueue testCircularQueue.cpp)
-package_add_test (TestReverse testReverse.cpp)
-package_add_test (TestContains testContains.cpp)
-package_add_test (TestTake testTake.cpp)
-package_add_test (TestOrderedList testOrderedList.cpp)
-package_add_test (TestSort testSort.cpp)
-package_add_test (TestLinkedTree testLinkedTree.cpp)
-package_add_test (TestMap testMap.cpp)
-package_add_test (TestPriorityQueue testPriorityQueue.cpp)
-package_add_test (TestForEach testForEach.cpp)
-package_add_test (TestPermutation testPermutation.cpp)
-package_add_test (TestCombinatorics testCombinatorics.cpp)
-package_add_test (TestBytes testBytes.cpp)
-package_add_test (TestSign testSign.cpp)
-package_add_test (TestBitShift testBitShift.cpp)
-package_add_test (TestN testN.cpp)
-package_add_test (TestZ testZ.cpp)
-package_add_test (TestNBytes testNBytes.cpp)
-package_add_test (TestRoot testRoot.cpp)
-package_add_test (TestZBytes testZBytes.cpp)
-package_add_test (TestAbs testAbs.cpp)
-package_add_test (TestBounded testBounded.cpp)
-package_add_test (TestBase58 testBase58.cpp)
-package_add_test (TestNumbers testNumbers.cpp)
-package_add_test (TestStringNumbers testStringNumbers.cpp)
-package_add_test (TestDecimal testDecimal.cpp)
-package_add_test (TestHexidecimal testHexidecimal.cpp)
-package_add_test (TestInfinite testInfinite.cpp)
-package_add_test (TestDivision testDivision.cpp)
-package_add_test (TestTwosComplement testTwosComplement.cpp)
-package_add_test (TestExtendedEuclidian testExtendedEuclidian.cpp)
-package_add_test (TestCaylayDickson testCaylayDickson.cpp)
-package_add_test (TestModular testModular.cpp)
-package_add_test (TestAlgebra testAlgebra.cpp)
-package_add_test (TestPolynomial testPolynomial.cpp)
-package_add_test (TestSecretShare testSecretShare.cpp)
-package_add_test (TestLog testLog.cpp)
-package_add_test (TestArgsParser testArgsParser.cpp)
-package_add_test (TestIP testIP.cpp)
-package_add_test (TestEmail testEmail.cpp)
-package_add_test (TestTCP testTCP.cpp)
-#package_add_test (TestRateLimiter testRateLimiter.cpp)
-#package_add_test (TestNetworking testNetworking.cpp)
+
+)
+target_link_libraries(unit_tests
+PRIVATE data gtest_main gmock)
+gtest_discover_tests(unit_tests)
 
 if (OPTIONAL_TESTS)
     add_subdirectory (optional)

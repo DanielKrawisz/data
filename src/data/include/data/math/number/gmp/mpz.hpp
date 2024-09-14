@@ -7,7 +7,7 @@
 
 #include <compare>
 #include <gmp.h>
-#include <gmp/gmpxx.h>
+#include <gmpxx.h>
 
 #include <data/math/sign.hpp>
 #include <data/math/abs.hpp>

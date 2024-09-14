@@ -8,8 +8,8 @@
  *      Author: Rotella
  ******************************************************/
 
-#include "aks.h"
-#include "sieve.h"
+#include "rotella/aks.h"
+#include "rotella/sieve.h"
 #include <iostream>
 
 int aks(mpz_class n)

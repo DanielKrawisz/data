@@ -11,7 +11,7 @@
 
 #include <gmp.h>
 #include <gmpxx.h>
-#include "sieve.h"
+#include "rotella/sieve.h"
 
 sieve::sieve() {
     mpz_init(table);

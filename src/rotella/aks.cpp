@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "aks.h"
+#include "rotella/aks.h"
 using namespace std;
 
 mpz_pX::mpz_pX() {
