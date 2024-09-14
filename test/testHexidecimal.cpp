@@ -537,7 +537,6 @@ namespace data::math::number {
             auto gbl = bytes_type<endian::little, n>::read (given);
             auto ebl = bytes_type<endian::little, n>::read (expected);
             auto ibl = data::increment (gbl);
-            std::cout << " test increment: " << given << " expected to decrement to " << expected << std::endl;
             EXPECT_EQ (static_cast<bytes> (ibl), static_cast<bytes> (ebl)) << "expected " << ibl << " === " << ebl;
             EXPECT_TRUE (is_minimal (bytes_type<endian::little, n> (ibl)));
 

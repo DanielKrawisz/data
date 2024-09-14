@@ -15,6 +15,8 @@ namespace data {
         either () = delete;
     };
 
+    // either works just like std::variant except that it is less wordy
+    // and can take references and void as subtypes.
     template <typename... X> struct either : std::variant<meta::contain<X>...> {
         using std::variant<meta::contain<X>...>::variant;
         constexpr either (std::variant<X...> &&x) : std::variant<meta::contain<X>...> {x} {}

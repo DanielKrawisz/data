@@ -37,7 +37,7 @@ namespace data {
             return std::vector<X>::operator [] (i);
         }
         
-        const X& operator [] (int i) const {
+        const X &operator [] (int i) const {
             size_t size = this->size ();
             if (size == 0) throw std::out_of_range {"cross size 0"};
             if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
@@ -52,7 +52,7 @@ namespace data {
         cross (std::vector<X> &&v) : std::vector<X> {v} {}
         
     protected:
-        void fill (const X& x) {
+        void fill (const X &x) {
             for (X& z : *this) z = x;
         }
         
