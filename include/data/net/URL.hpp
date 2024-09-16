@@ -249,6 +249,7 @@ namespace data::encoding::percent {
 
         // convert to a standard equivalent form in which all hex digits are upper case,
         // scheme and host are lower case, and only required digits are hex-encoded.
+        // this is used to test equality of URLs.
         URI normalize () const;
 
     };

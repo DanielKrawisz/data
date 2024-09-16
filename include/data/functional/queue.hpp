@@ -80,7 +80,7 @@ namespace data {
     
     template <functional::queue L>
     L rotate_left (const L x) {
-        size_t s = size (x);
+        size_t s = data::size (x);
         if (s == 0 || s == 1) return x; 
         
         return append (rest (x), first (x));

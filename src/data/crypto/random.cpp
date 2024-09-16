@@ -26,20 +26,17 @@ namespace data::crypto {
         // we get some extra to account for user lack of entropy.
         size_t true_size = x * 4;
         size_t size_so_far = 0;
-        list<string> user_lines;
+
+        lazy_bytes_writer b;
         while (true) {
             string input;
             std::getline (Cin, input);
             size_so_far += input.size ();
-            user_lines <<= input;
+            b.write ((byte*) input.data (), input.size ());
 
             if (size_so_far >= true_size) {
                 Cout << UserMessageConfirm << std::endl;
-                bytes b {};
-                b.resize (size_so_far);
-                data::iterator_writer<bytes::iterator, byte> bb {b.begin (), b.end ()};
-                for (const auto &str : user_lines) bb.write ((byte *) (str.data ()), str.size ());
-                return b;
+                return bytes (b);
             }
 
             Cout << UserMessageAskMore << std::endl;

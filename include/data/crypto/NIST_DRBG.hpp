@@ -58,19 +58,20 @@ namespace data::crypto::NIST {
         ~DRBG () {
             delete Random;
         }
-        
-    private:
-        uint32 BytesRemaining;
+
         void get (byte* b, size_t x) override {
             if (BytesRemaining < x) {
                 bytes entropy = Entropy.get (Random->SecurityStrength ());
                 Random->IncorporateEntropy (entropy.data (), entropy.size ());
                 BytesRemaining = BytesBeforeReseed - (x - BytesRemaining);
             }
-            
+
             Random->GenerateBlock (b, x);
             BytesRemaining -= x;
         }
+        
+    private:
+        uint32 BytesRemaining;
     };
 
 }
