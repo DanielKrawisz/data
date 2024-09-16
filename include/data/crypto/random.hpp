@@ -51,7 +51,7 @@ namespace data::crypto {
         static constexpr byte max () {
             return 255;
         }
-        
+
         byte operator () () {
             byte b;
             *this >> b;
@@ -60,7 +60,6 @@ namespace data::crypto {
 
         virtual ~random () {}
         
-    protected: 
         virtual void get (byte*, size_t) = 0;
     };
     
@@ -127,10 +126,36 @@ namespace data::crypto {
 
         std_random () : std_random {std::chrono::system_clock::now ().time_since_epoch ().count ()} {}
         std_random (data::uint64 seed);
-    protected:
+
         void get (byte *b, size_t z) override {
             for (int i = 0; i < z; i++) b[i] = Engine ();
         }
+    };
+
+    struct linear_combination_random : random {
+        size_t Ratio;
+        ptr<random> Cheap;
+        // get one secure byte for every Ratio cheap bytes and xor it with them.
+        ptr<random> Secure;
+
+        linear_combination_random (size_t r, ptr<random> cheap, ptr<random> secure) : Ratio {r}, Cheap {cheap}, Secure {secure} {}
+
+        void get (byte *b, size_t z) override {
+            if (current_cheap + z > Ratio) {
+                size_t until_next = z - ((current_cheap + z) - Ratio);
+                get (b, until_next);
+                *Secure >> current_secure;
+                current_cheap = 0;
+                get (b + until_next, z - until_next);
+            }
+            Cheap->get (b, z);
+            for (size_t t = 0; t < z; t++) b[t] ^= current_secure;
+            current_cheap += z;
+        }
+
+    protected:
+        byte current_secure;
+        size_t current_cheap;
     };
 
     template <> inline std_random<std::default_random_engine>::std_random (data::uint64 seed) : Engine {} {
