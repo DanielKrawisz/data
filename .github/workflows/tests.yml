@@ -20,4 +20,16 @@ jobs:
       - name: Build Docker image
         run: docker build -f Dockerfile.test -t test .
       - name: Run Docker tests
-        run: docker run test
+        run: docker run --name test test /home/data/build/test/unit_tests --gtest_output=xml
+      - name: Prepare test results
+        run: mkdir test_results
+      - name: Grab test results
+        run: docker cp test:/home/data/build/test_detail.xml ./test_results/test_detail.xml
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            test-results/**/*.xml
+            test-results/**/*.trx
+            test-results/**/*.json
