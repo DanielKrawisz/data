@@ -22,8 +22,10 @@ jobs:
       - name: Run Docker tests
         run: docker run --name test test /home/data/build/test/unit_tests --gtest_output=xml
       - name: Prepare test results
+        if: always()
         run: mkdir test_results
       - name: Grab test results
+        if: always()
         run: docker cp test:/home/data/build/test_detail.xml ./test_results/test_detail.xml
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
