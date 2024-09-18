@@ -68,7 +68,7 @@ how to use all features.
 
 # Build instructions
 
-  * `cmale -B build -S .`
+  * `cmake -B build -S .`
   * `cmake --build build`
   * `cmake --install build`
 
