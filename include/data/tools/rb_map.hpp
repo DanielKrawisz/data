@@ -91,6 +91,12 @@ namespace data::tool {
             return m;
         }
 
+        rb_map operator + (rb_map x) const {
+            auto m = *this;
+            for (const auto &e : x) m = m.insert (e);
+            return m;
+        }
+
     private:
         static V default_key_already_exists (const V &, const V &) {
             throw exception {} << "Key already exists";
