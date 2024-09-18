@@ -3,7 +3,7 @@ Tools and high-level programming constructs in c++.
 
 ## Features 
 
-`#include<data.hpp>` to gain all usable features. See `data.hpp` for 
+`#include <data\data.hpp>` to gain all usable features. See `data.hpp` for 
 how to use all features. 
 
   * Functional data structures
@@ -58,11 +58,6 @@ how to use all features.
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions (included)
   * Google test
 
-We use conan 2 for dependency management. All dependencies are included in the repo or are
-available through conan 2 other than PEGTL, which must be installed separately.
-
-secp256k1 must be added to a local conan repo using https://github.com/Gigamonkey-BSV/secp256k1-conan-recipe
-
 # Requirements
   * GCC v13
   * Boost 
@@ -73,10 +68,9 @@ secp256k1 must be added to a local conan repo using https://github.com/Gigamonke
 
 # Build instructions
 
-  * `mkdir build`
-  * `cd build`
-  * `cmake .. -DCMAKE_BUILD_TYPE=Release`
-  * `cmake --build .`
+  * `cmale -B build -S .`
+  * `cmake --build build`
+  * `cmake --install build`
 
 # Version 1 progress
 
