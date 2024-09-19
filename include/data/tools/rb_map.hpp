@@ -42,6 +42,7 @@ namespace data::tool {
             function<V (const V &old_v, const V &new_v)> already_exists) const;
 
         rb_map replace_part (const K &k, const V& v) const;
+        rb_map replace_part (const K &k, function<V (const V &)>) const;
         
         rb_map operator << (const entry &e) const;
         
@@ -162,8 +163,12 @@ namespace data::tool {
             return derived {rb_map<K, V>::insert (k, v, already_exists)};
         }
 
-        derived replace_part (const K &k, const V& v) const {
+        derived replace_part (const K &k, const V &v) const {
             return derived {rb_map<K, V>::replace_part (k, v)};
+        }
+
+        derived replace_part (const K &k, function<V (const V &)> f) const {
+            return derived {rb_map<K, V>::replace_part (k, f)};
         }
 
         derived operator << (const entry<K, V> &e) const {
@@ -270,6 +275,13 @@ namespace data::tool {
     rb_map<K, V> inline rb_map<K, V>::replace_part (const K &k, const V &v) const {
         rb_map r {};
         for (const auto &e : *this) r = r.insert (e.Key, e.Key == k ? v : e.Value);
+        return r;
+    }
+
+    template <typename K, typename V>
+    rb_map<K, V> inline rb_map<K, V>::replace_part (const K &k, function<V (const V &)> f) const {
+        rb_map r {};
+        for (const auto &e : *this) r = r.insert (e.Key, e.Key == k ? f (e.Value) : e.Value);
         return r;
     }
     
