@@ -41,7 +41,6 @@ namespace data::net::HTTP {
         using enum boost::beast::http::field;
         using ASCII::ASCII;
         header (boost::beast::http::field);
-        bool operator == (header) const;
     };
 
     using method = boost::beast::http::verb;
@@ -49,10 +48,12 @@ namespace data::net::HTTP {
     struct status {
         using enum boost::beast::http::status;
         boost::beast::http::status Status;
-        status (boost::beast::http::status);
-        status (unsigned);
+
+        status (boost::beast::http::status x);
+        status (unsigned u);
         operator unsigned () const;
-        bool operator == (status) const;
+
+        bool operator == (boost::beast::http::status) const;
     };
 
     struct request {
@@ -104,6 +105,20 @@ namespace data::net::HTTP {
 
     ASCII inline request::target () const {
         return ASCII {encoding::percent::URI::target (URL)};
+    }
+
+    inline status::status (boost::beast::http::status x) : Status {x} {}
+
+    inline status::status (unsigned u) : Status {u} {}
+
+    inline status::operator unsigned () const {
+        return static_cast<unsigned> (Status);
+    }
+
+    inline header::header (boost::beast::http::field x) : ASCII {std::string {boost::beast::http::to_string (x)}} {}
+
+    bool inline status::operator == (boost::beast::http::status x) const {
+        return Status == x;
     }
 
 }

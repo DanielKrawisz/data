@@ -26,10 +26,7 @@ namespace data::net {
         error (const JSON &j) : JSON {j} {}
 
         // none of these fields are actually required.
-        static bool valid (const JSON &j) {
-            return j.is_object ();
-        }
-
+        static bool valid (const JSON &j);
         static URL type (const JSON &);
         static maybe<string> title (const JSON &);
         static maybe<net::HTTP::status> status (const JSON &);
@@ -59,6 +56,14 @@ namespace data::net {
 
     maybe<URL> inline error::instance () const {
         return instance (*this);
+    }
+
+    bool inline error::valid (const JSON &j) {
+        return j.is_object ();
+    }
+
+    URL inline error::type (const JSON &j) {
+        return j.contains ("type") ? j["type"] : "about:blank";
     }
 
 }
