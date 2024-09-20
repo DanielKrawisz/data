@@ -78,7 +78,7 @@ namespace data::net::HTTP {
     HTTP::request inline REST::POST (path path, map<ASCII, ASCII> params) const {
         auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
         return HTTP::request {method::post, URL (bool (Port) ? make_url.port (*Port) : make_url),
-            {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}},
+            {{header::content_type, "application/x-www-form-urlencoded"}},
               encode_form_data (params)};
     }
 

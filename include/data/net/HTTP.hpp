@@ -56,6 +56,8 @@ namespace data::net::HTTP {
         bool operator == (boost::beast::http::status) const;
     };
 
+    std::ostream &operator << (std::ostream &, status);
+
     struct request {
         method Method;
         net::URL URL;
@@ -77,9 +79,13 @@ namespace data::net::HTTP {
     };
 
     struct response {
-        status Status;
-        map<header, ASCII> Headers;
-        string Body;
+        status Status {0};
+        map<header, ASCII> Headers {};
+        string Body {};
+
+        response () {}
+        response (status x, map<header, ASCII> headers, string body = ""):
+            Status {x}, Headers {headers}, Body {body} {}
     };
 
     struct exception : std::exception {
@@ -119,6 +125,10 @@ namespace data::net::HTTP {
 
     bool inline status::operator == (boost::beast::http::status x) const {
         return Status == x;
+    }
+
+    std::ostream inline &operator << (std::ostream &o, status x) {
+        return o << x.Status;
     }
 
 }
