@@ -5,36 +5,27 @@
 #include <data/net/REST.hpp>
 
 namespace data::net::HTTP {
-    namespace {
         
-        string encode_form_data (map<header, ASCII> form_data) {
-            std::stringstream newBody;
+    string REST::encode_form_data (map<ASCII, ASCII> form_data) {
+        std::stringstream newBody;
 
-            auto entries = form_data.values ();
+        auto entries = form_data.values ();
             
-            if (data::size (entries) > 0) {
+        if (data::size (entries) > 0) {
 
-                auto it = entries.begin ();
+            auto it = entries.begin ();
 
-                while (true) {
-                    newBody << boost::beast::http::to_string ((*it).Key) << "=" << (*it).Value;
+            while (true) {
+                newBody << std::string (it->Key) << "=" << it->Value;
 
-                    it++;
-                    if (it == entries.end ()) break;
+                it++;
+                if (it == entries.end ()) break;
 
-                    newBody << "&";
-                }
+                newBody << "&";
             }
-            
-            return newBody.str ();
         }
-    }
-
-    HTTP::request REST::POST (path path, map<header, ASCII> params) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
-        return HTTP::request (method::post, URL (bool (Port) ? make_url.port (*Port) : make_url),
-            {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}}, 
-              encode_form_data (params));
+            
+        return newBody.str ();
     }
 
     HTTP::request REST::operator () (const request &r) const {

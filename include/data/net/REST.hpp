@@ -16,7 +16,7 @@ namespace data::net::HTTP {
         HTTP::request GET (path path, list<entry<UTF8, UTF8>> params) const;
         
         // POST form data
-        HTTP::request POST (path path, map<header, ASCII> params = {}) const;
+        HTTP::request POST (path path, map<ASCII, ASCII> params = {}) const;
         
         // construct a more general POST request
         HTTP::request POST (path path, map<header, ASCII> headers, string body) const;
@@ -41,13 +41,21 @@ namespace data::net::HTTP {
             // The part after '?' and before '#'
             maybe<list<entry<UTF8, UTF8>>> Query;
 
-            // the part after '"'
+            // the part after '#'
             maybe<data::UTF8> Fragment;
             map<header, ASCII> Headers;
             string Body;
+
+            request (method m, path p,
+                maybe<list<entry<UTF8, UTF8>>> q = {},
+                maybe<data::UTF8> frag = {},
+                map<header, ASCII> h = {},
+                string body = ""): Method {m}, Path {p}, Query {q}, Fragment {frag}, Headers {h}, Body {body} {}
         };
         
         HTTP::request operator () (const request &r) const;
+
+        static string encode_form_data (map<ASCII, ASCII> form_data);
         
     };
     
@@ -65,6 +73,13 @@ namespace data::net::HTTP {
     HTTP::request inline REST::POST (path path, map<header, ASCII> headers, string body) const {
         auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
         return HTTP::request {method::post, URL (bool (Port) ? make_url.port (*Port) : make_url), headers, body};
+    }
+
+    HTTP::request REST::POST (path path, map<ASCII, ASCII> params) const {
+        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
+        return HTTP::request (method::post, URL (bool (Port) ? make_url.port (*Port) : make_url),
+            {{boost::beast::http::field::content_type, "application/x-www-form-urlencoded"}},
+              encode_form_data (params));
     }
 
     inline REST::REST (const protocol &pro, const domain_name &host, uint16 p): Protocol {pro}, Port {p}, Host {host} {}
