@@ -37,9 +37,23 @@ namespace data::net::HTTP {
     // Once this is done, call run () on the io_context to actually make the HTTP call and handle the response.
     void call (asio::io_context &, asio::error_handler, handler<const response &>, const request &, SSL * = nullptr);
 
-    using header = boost::beast::http::field;
+    struct header : ASCII {
+        using enum boost::beast::http::field;
+        using ASCII::ASCII;
+        header (boost::beast::http::field);
+        bool operator == (header) const;
+    };
+
     using method = boost::beast::http::verb;
-    using status = boost::beast::http::status;
+
+    struct status {
+        using enum boost::beast::http::status;
+        boost::beast::http::status Status;
+        status (boost::beast::http::status);
+        status (unsigned);
+        operator unsigned () const;
+        bool operator == (status) const;
+    };
 
     struct request {
         method Method;
@@ -69,11 +83,14 @@ namespace data::net::HTTP {
 
     struct exception : std::exception {
         request Request;
-        response Response;
+        maybe<response> Response;
         string Error;
 
         exception (const request &req, const response &res, const string &w) :
             Request {req}, Response {res}, Error {w} {}
+
+        exception (const request &req, const string &w) :
+            Request {req}, Response {}, Error {w} {}
 
         const char *what () const noexcept override {
             return Error.c_str ();

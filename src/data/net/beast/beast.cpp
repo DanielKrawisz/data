@@ -25,7 +25,7 @@ namespace data::net::HTTP::beast {
         }
     };
 
-    // note: it is possible for a header to be known by boost::beast. In that case it gets deleted. Kind of dumb.
+    // note: it is possible for a header to be unknown by boost::beast. In that case it gets deleted. Kind of dumb.
     HTTP::response to (const response &res) {
 
         map<header, ASCII> response_headers {};

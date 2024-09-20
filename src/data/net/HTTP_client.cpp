@@ -28,10 +28,9 @@ namespace data::net::HTTP {
         auto next = data::first (Queue);
         Queue = data::rest (Queue);
         HTTP::call (*IO, [req = next.first] (const asio::error_code &e) {
-            // TODO get a better error function
             std::stringstream ss;
             ss << " HTTP error: " << e << std::endl;
-            throw exception {req, response {}, ss.str ()};
+            throw exception {req, ss.str ()};
         }, next.second, next.first, SSL.get ());
         if (data::empty (Queue)) Writing = false;
         else send_next_request ();

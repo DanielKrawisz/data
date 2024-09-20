@@ -21,7 +21,7 @@ namespace data::net::HTTP {
         response operator () (const request &r);
         response GET (path path, list<entry<UTF8, UTF8>> params = {});
         response POST (path path, map<header, ASCII> headers, string body);
-        response POST_form_data (path path, map<header, ASCII> form_data = {});
+        response POST_form_data (path path, map<ASCII, ASCII> form_data = {});
 
     private:
         ptr<HTTP::SSL> SSL;
@@ -38,7 +38,7 @@ namespace data::net::HTTP {
         void operator () (handler<const response &>, const request &r);
         void GET (handler<const response &>, path path, list<entry<UTF8, UTF8>> params = {});
         void POST (handler<const response &>, path path, map<header, ASCII> headers, string body);
-        void POST_form_data (handler<const response &>, path path, map<header, ASCII> form_data = {});
+        void POST_form_data (handler<const response &>, path path, map<ASCII, ASCII> form_data = {});
 
     private:
         ptr<asio::io_context> IO;
@@ -97,14 +97,14 @@ namespace data::net::HTTP {
     }
     
     // POST form data
-    response inline client_blocking::POST_form_data (path path, map<header, ASCII> form_data) {
+    response inline client_blocking::POST_form_data (path path, map<ASCII, ASCII> form_data) {
         return (*this) (REST.POST (path, form_data));
     }
 
     void inline client_async::POST_form_data (
         handler<const response &> on_receive,
         path path,
-        map<header, ASCII> form_data) {
+        map<ASCII, ASCII> form_data) {
         return (*this) (on_receive, REST.POST (path, form_data));
     }
 }
