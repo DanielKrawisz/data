@@ -37,7 +37,7 @@ add_library (data STATIC
 
 configure_file(include/data/version.hpp.in generated/data/version.hpp )
 target_include_directories(data PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories (data PUBLIC $<INSTALL_INTERFACE:include>)
+target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_link_libraries (
   data
   PUBLIC
