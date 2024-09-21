@@ -22,12 +22,18 @@ namespace data::net::HTTP {
         HTTP::request POST (path path, map<header, ASCII> headers, string body) const;
 
         REST (const protocol &, const domain_name &);
-        REST (const protocol &, const domain_name &, uint16);
+        REST (const protocol &, const domain_name &, uint16 port);
+        REST (const protocol &, const domain_name &, const path &);
+        REST (const protocol &, const domain_name &, const path &, uint16 port);
 
         // http or https
         protocol Protocol;
         domain_name Host;
+        // the part of the path that is common to the whole API.
+        path Path;
         maybe<uint16> Port;
+        // if this is present, it will be put in the Authorization header.
+        maybe<ASCII> Authorization;
 
         // an HTTP request without host and port missing that can be used to
         // construct any other kind of request. 
@@ -60,30 +66,35 @@ namespace data::net::HTTP {
     };
     
     HTTP::request inline REST::GET (path path) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
-        return HTTP::request {method::get, URL (bool (Port) ? make_url.port (*Port) : make_url)};
+        return operator () (REST::request {method::get, path});
     }
     
     HTTP::request inline REST::GET (path path, list<entry<UTF8, UTF8>> params) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path).query_map (params);
-        return HTTP::request {method::get, URL (bool (Port) ? make_url.port (*Port) : make_url)};
+        return operator () (REST::request {method::get, path, params});
     }
     
     // construct a more general POST request
     HTTP::request inline REST::POST (path path, map<header, ASCII> headers, string body) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
-        return HTTP::request {method::post, URL (bool (Port) ? make_url.port (*Port) : make_url), headers, body};
+        return operator () (REST::request {method::post, path, {}, {}, headers, body});
     }
 
     HTTP::request inline REST::POST (path path, map<ASCII, ASCII> params) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (path);
-        return HTTP::request {method::post, URL (bool (Port) ? make_url.port (*Port) : make_url),
+        return operator () (REST::request {method::post, path, {}, {},
             {{header::content_type, "application/x-www-form-urlencoded"}},
-              encode_form_data (params)};
+              encode_form_data (params)});
     }
 
-    inline REST::REST (const protocol &pro, const domain_name &host, uint16 p): Protocol {pro}, Port {p}, Host {host} {}
-    inline REST::REST (const protocol &pro, const domain_name &host) : Protocol {pro}, Port {}, Host {host} {}
+    inline REST::REST (const protocol &pro, const domain_name &host):
+        Protocol {pro}, Host {host}, Path {}, Port {} {}
+
+    inline REST::REST (const protocol &pro, const domain_name &host, uint16 p):
+        Protocol {pro}, Host {host}, Path {}, Port {p} {}
+
+    inline REST::REST (const protocol &pro, const domain_name &host, const path &p):
+        Protocol {pro}, Host {host}, Path {p}, Port {} {}
+
+    inline REST::REST (const protocol &pro, const domain_name &host, const path &p, uint16 port):
+        Protocol {pro}, Host {host}, Path {p}, Port {port} {}
 
 }
 
