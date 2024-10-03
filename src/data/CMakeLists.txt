@@ -25,7 +25,7 @@ add_library (data STATIC
   net/email.cpp
 
   #io/run.cpp
-
+  io/wait_for_enter.cpp
   tools/channel.cpp
   crypto/random.cpp
   crypto/secret_share.cpp
