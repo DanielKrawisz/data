@@ -15,7 +15,7 @@ namespace data {
         } while (std::cin.get () != '\n');
     }
 
-    std::optional<bool> get_user_yes_or_no (std::string message ,std::string default_value="Y") {
+    std::optional<bool> get_user_yes_or_no (std::string message ,std::string default_value) {
             std::string input;
             std::cout << message << " (Y/N)" << std::endl;
             std::getline(std::cin,input);
