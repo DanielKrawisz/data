@@ -15,19 +15,25 @@ namespace data {
         } while (std::cin.get () != '\n');
     }
 
-    std::optional<bool> get_user_yes_or_no (std::string message ,std::string default_value) {
+   bool get_user_yes_or_no (std::string message ,maybe<bool> default_value) {
             std::string input;
-            std::cout << message << " (Y/N)" << std::endl;
-            std::getline(std::cin,input);
-            if(input.length()>0){
-                char answer=std::tolower(input[0]);
-                if(answer=='y' || answer=='n')
-                    return answer=='y';
-                return {};
+            while(true) {
+                std::cout << message << " (";
+                std::cout << ((default_value.has_value() && default_value.value()) ? "Y":"y");
+                std::cout << "/";
+                std::cout << ((default_value.has_value() && !default_value.value()) ? "N":"n");
+                std::cout << ")" << std::endl;
+                std::getline(std::cin,input);
+
+                if(input.length()>0){
+                    char answer=std::tolower(input[0]);
+                    if(answer=='y' || answer=='n')
+                        return answer=='y';
+                    continue;
+                }
+                if(default_value.has_value())
+                    return default_value.value();
             }
-            if(default_value!="")
-                return std::tolower(default_value[0])=='y';
-            return {};
     }
 
 }
