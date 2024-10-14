@@ -25,7 +25,7 @@ namespace data::math::number {
     template <endian::order r, size_t x> sint<r, x> inline operator / (const sint<r, x> &a, int64 b) {
         return a / sint<r, x> (b);
     }
-    
+
     template <endian::order r, size_t x> uint<r, x> inline operator % (const uint<r, x> &a, const uint<r, x> &b) {
         if (b == 0) throw division_by_zero {};
         return divide<uint<r, x>> (a, nonzero<uint<r, x>> {x}).Remainder;

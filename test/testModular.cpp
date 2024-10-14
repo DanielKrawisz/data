@@ -106,7 +106,15 @@ namespace data {
         test_modular<N> {};
         //test_modular<CryptoPP::Integer> {};
         test_modular<N_bytes_little> {};
-        test_modular<N_bytes_big> {};
+        test_modular<N_bytes_big> {};/*
+        test_modular<uint_big<9>> {};
+        test_modular<uint_little<9>> {};
+        test_modular<uint_big<10>> {};
+        test_modular<uint_little<10>> {};
+        test_modular<uint_big<11>> {};
+        test_modular<uint_little<11>> {};
+        test_modular<uint_big<12>> {};
+        test_modular<uint_little<12>> {};*/
         test_modular<dec_uint> {};
         test_modular<base58_uint> {};
 

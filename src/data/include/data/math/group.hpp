@@ -16,10 +16,10 @@ namespace data::math {
     template <typename elem, typename op = plus<elem>>
     concept group = requires () {
         typename associative<op, elem>; 
-        {identity<op, elem> {} ()} -> convertible_to<elem>;
+        {identity<op, elem> {} ()} -> implicitly_convertible_to<elem>;
     } && requires (const elem &a, const elem &b) {
-        {op {} (a, b)} -> convertible_to<elem>;
-        {inverse<op, elem> {} (a, b)} -> convertible_to<elem>;
+        {op {} (a, b)} -> implicitly_convertible_to<elem>;
+        {inverse<op, elem> {} (a, b)} -> implicitly_convertible_to<elem>;
     };
     
     template <typename elem, typename op = elem>

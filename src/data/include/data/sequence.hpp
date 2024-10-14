@@ -16,7 +16,7 @@ namespace data {
     namespace interface {
         
         template <typename X, typename Y>
-        concept convertible = convertible_to<X, Y> || convertible_to<Y, X>;
+        concept convertible = implicitly_convertible_to<X, Y> || implicitly_convertible_to<Y, X>;
         
         template <typename list, typename elem> 
         concept has_first_method = requires (list x) {
@@ -25,7 +25,7 @@ namespace data {
         
         template <typename list> 
         concept has_rest_method = requires (list x) {
-            { x.rest () } -> convertible_to<list>;
+            { x.rest () } -> implicitly_convertible_to<list>;
         };
         
     }

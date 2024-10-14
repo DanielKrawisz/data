@@ -162,7 +162,7 @@ namespace data::tool {
     
     // TODO use initializer list.
     template <typename M, typename K>
-    requires functional::map<M, K> 
+    requires functional::map<M, K, unit>
     template <typename ... P>
     inline map_set<M, K>::map_set (K k, P... p) :
         map_set {map_set {}.insert (k, p...)} {}

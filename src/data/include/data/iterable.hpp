@@ -12,7 +12,7 @@ namespace data {
     
     template <typename X, typename elem = std::remove_const_t<decltype (*std::declval<X> ().begin ())>>
     concept const_iterable = std::ranges::input_range<X> && requires (const X x) {
-        { *x.begin () } -> convertible_to<const elem>;
+        { *x.begin () } -> implicitly_convertible_to<const elem>;
         { x.end () };
     };
     

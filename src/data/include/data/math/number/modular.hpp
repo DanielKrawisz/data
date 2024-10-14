@@ -175,13 +175,13 @@ namespace data::math::number {
         static X Mod (mod);
         return Mod;
     }
-    
+
     template <typename X, auto &mod>
     template <typename... P>
     inline modular<X, mod>::modular (P... p) : Value (p...) {
         Value %= modulus ();
     }
-    
+
     template <typename X, auto &mod>
     bool inline modular<X, mod>::valid () const {
         return Value >= 0 && Value < modulus ();

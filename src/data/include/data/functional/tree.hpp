@@ -14,12 +14,12 @@ namespace data::interface {
         
     template <typename tree>
     concept has_left_method = requires (tree t) {
-        { t.left () } -> convertible_to<tree>;
+        { t.left () } -> implicitly_convertible_to<tree>;
     };
     
     template <typename tree>
     concept has_right_method  = requires (tree t) {
-        { t.right () } -> convertible_to<tree>;
+        { t.right () } -> implicitly_convertible_to<tree>;
     };
         
     template <typename tree>

@@ -13,7 +13,7 @@ namespace data {
     
     template <typename X> concept ordered = std::totally_ordered<X>;
     template <typename X> concept sortable = requires (const X &a, const X &b) {
-        {a < b} -> convertible_to<bool>;
+        {a < b} -> implicitly_convertible_to<bool>;
     };
     
     template <ordered X> bool equal (const X &a, const X &b);

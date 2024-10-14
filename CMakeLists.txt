@@ -6,7 +6,7 @@ if (${CMAKE_VERSION} VERSION_LESS 3.12)
 endif ()
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source builds are not allowed")
-endif()
+endif ()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
 
 project (
@@ -16,8 +16,8 @@ project (
   LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_STANDARD 23)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package (Boost COMPONENTS thread chrono log_setup log REQUIRED)
 find_package (OpenSSL REQUIRED Crypto SSL)
@@ -52,7 +52,8 @@ if (PACKAGE_TESTS)
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG v1.14.0
 )
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+set (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
   enable_testing ()
   add_subdirectory (test)

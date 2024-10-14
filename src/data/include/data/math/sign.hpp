@@ -37,7 +37,7 @@ namespace data::math {
     };
 
     template <typename X> requires requires (const X &x) {
-        { x.sign () } -> convertible_to<signature>;
+        { x.sign () } -> implicitly_convertible_to<signature>;
     } struct sign<X> {
         math::signature constexpr operator () (const X &x) {
             return x.sign ();
@@ -45,7 +45,7 @@ namespace data::math {
     };
 
     template <typename X>  requires requires (const X x) {
-        {x == 0} -> convertible_to<bool>;
+        {x == 0} -> implicitly_convertible_to<bool>;
     } struct is_zero<X> {
         bool constexpr operator () (const X &x) {
             return x == 0;
@@ -53,7 +53,7 @@ namespace data::math {
     };
 
     template <typename X> requires requires (const X x) {
-        {x > 0} -> convertible_to<bool>;
+        {x > 0} -> implicitly_convertible_to<bool>;
     } struct is_positive<X> {
         bool constexpr operator () (const X &x) {
             return x > 0;
@@ -61,7 +61,7 @@ namespace data::math {
     };
 
     template <typename X>  requires requires (const X x) {
-        {x < 0} -> convertible_to<bool>;
+        {x < 0} -> implicitly_convertible_to<bool>;
     } struct is_negative<X> {
         bool constexpr operator () (const X &x) {
             return x < 0;
@@ -79,25 +79,25 @@ namespace data::math {
 
 namespace data {
     template <typename X> requires requires (const X x) {
-        { math::sign<X> {} (x) } -> convertible_to<math::signature>;
+        { math::sign<X> {} (x) } -> implicitly_convertible_to<math::signature>;
     } math::signature inline sign (const X &x) {
         return math::sign<X> {} (x);
     }
 
     template <typename X> requires requires (const X x) {
-        { math::is_zero<X> {} (x) } -> convertible_to<bool>;
+        { math::is_zero<X> {} (x) } -> implicitly_convertible_to<bool>;
     } bool inline is_zero (const X &x) {
         return math::is_zero<X> {} (x);
     }
 
     template <typename X> requires requires (const X x) {
-        { math::is_positive<X> {} (x) } -> convertible_to<bool>;
+        { math::is_positive<X> {} (x) } -> implicitly_convertible_to<bool>;
     } bool inline is_positive (const X &x) {
         return math::is_positive<X> {} (x);
     }
 
     template <typename X> requires requires (const X x) {
-        { math::is_negative<X> {} (x) } -> convertible_to<bool>;
+        { math::is_negative<X> {} (x) } -> implicitly_convertible_to<bool>;
     } bool inline is_negative (const X &x) {
         return math::is_negative<X> {} (x);
     }
@@ -106,7 +106,7 @@ namespace data {
 namespace data::math {
             
     template <typename X> concept has_sign_function = requires (const X &x) {
-        {data::sign (x)} -> convertible_to<signature>;
+        {data::sign (x)} -> implicitly_convertible_to<signature>;
     };
 
 }
