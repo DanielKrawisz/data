@@ -85,14 +85,14 @@ namespace data {
             return sequence_equal (*this, x);
         }
 
-        template <typename Z> requires convertible_to<stack, Z>
+        template <typename Z> requires implicitly_convertible_to<stack, Z>
         operator functional_queue<Z> () const {
             return functional_queue<Z> {Z (Left), Z (Right)};
         }
 
-        template <typename Z> requires (!is_convertible_v<stack, Z>) && requires (const stack &x) {
-            { Z (x) };
-        } explicit operator functional_queue<Z> () const {
+        // explicit c
+        template <typename Z> requires explicitly_convertible_to<stack, Z>
+        explicit operator functional_queue<Z> () const {
             return functional_queue<Z> {Z (Left), Z (Right)};
         }
         
@@ -104,9 +104,7 @@ namespace data {
         
         static functional_queue check (const stack &l, const stack &r);
         
-        template <typename Z, typename E> requires requires (const Z &z) {
-            { stack (z) };
-        } friend struct functional_queue;
+        template <typename Z, typename E> requires functional::stack<Z, E> friend struct functional_queue;
     
     };
 
@@ -122,44 +120,44 @@ namespace data {
         return functional::write (o, n);
     }
 
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     inline functional_queue<stack, element>::functional_queue (stack l, stack r) : Left {l}, Right {r} {}
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     inline functional_queue<stack, element>::functional_queue () : Left {}, Right {} {}
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     inline functional_queue<stack, element>::functional_queue (const element &x) : Left {x}, Right {} {}
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     inline functional_queue<stack, element>::functional_queue (stack l) : Left {l}, Right {} {}
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     template <typename X, typename Y, typename ... P>
     inline functional_queue<stack, element>::functional_queue (X x, Y y, P... p) :
         functional_queue {functional_queue {}.append (x, y, p...)} {}
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     bool inline functional_queue<stack, element>::empty () const {
         return data::empty (Left);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     size_t inline functional_queue<stack, element>::size () const {
         return data::size (Left) + data::size (Right);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     bool inline functional_queue<stack, element>::valid () const {
         return Left.valid () && Right.valid ();
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     const element inline &functional_queue<stack, element>::first () const {
         return data::first (Left);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     const element &functional_queue<stack, element>::operator [] (uint32 i) const {
         if (i >= size ()) throw std::out_of_range ("queue index");
         uint32 left = Left.size ();
@@ -167,7 +165,7 @@ namespace data {
         return Left[i];
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> functional_queue<stack, element>::check (const stack &l, const stack &r) {
         if (l.empty ()) {
             if (!r.empty ()) return functional_queue {data::reverse (r), stack {}};
@@ -175,49 +173,49 @@ namespace data {
         } else return functional_queue (l, r);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> inline functional_queue<stack, element>::rest () const {
         return check (Left.rest (), Right);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     const element inline functional_queue<stack, element>::last () const {
         return check (Right, Left).Left.first ();
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> inline functional_queue<stack, element>::append (const element &e) const {
         return check (Left, Right << e);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> inline functional_queue<stack, element>::prepend (const element &e) const {
         return check (Left << e, Right);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> inline functional_queue<stack, element>::append (functional_queue q) const {
         if (q.empty ()) return *this;
         return append (q.first ()).append (q.rest ());
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     template <typename X, typename Y, typename ... P>
     functional_queue<stack, element> inline functional_queue<stack, element>::append (X x, Y y, P... p) const {
         return append (element (x)).append (y, p...);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> inline functional_queue<stack, element>::operator << (const element &e) const {
         return append (e);
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     functional_queue<stack, element> inline functional_queue<stack, element>::make () {
         return functional_queue {};
     }
     
-    template <typename stack, typename element>
+    template <typename stack, typename element> requires functional::stack<stack, element>
     template <typename A, typename ... M>
     functional_queue<stack, element> inline functional_queue<stack, element>::make (const A x, M... m) {
         return make (m...).prepend (x);

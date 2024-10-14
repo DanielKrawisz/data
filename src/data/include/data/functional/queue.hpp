@@ -22,12 +22,12 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_append_method = requires (list x, element e) {
-        { x.append (e) } -> convertible_to<list>;
+        { x.append (e) } -> implicitly_convertible_to<list>;
     };
     
     template <typename list>
     concept has_sort_method = requires (list x) {
-        { x.sort () } -> convertible_to<list>;
+        { x.sort () } -> implicitly_convertible_to<list>;
     };
     
 }

@@ -29,7 +29,7 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_prepend_method = requires (list x, element e) {
-        { x.prepend (e) } -> convertible_to<list>;
+        { x.prepend (e) } -> implicitly_convertible_to<list>;
     };
     
 }

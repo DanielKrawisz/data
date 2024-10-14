@@ -75,16 +75,15 @@ namespace data {
         }
 
         // automatic conversions 
-        template <typename X> requires convertible_to<elem, X>
+        template <typename X> requires implicitly_convertible_to<elem, X>
         operator linked_stack<X> () const {
             if (size () == 0) return linked_stack<X> {};
             return linked_stack<X> {rest ()}.prepend (X (first ()));
         }
 
         // explicit conversions
-        template <typename X> requires (!is_convertible_v<elem, X>) && requires (const elem &e) {
-            { X (e) };
-        } explicit operator linked_stack<X> () const {
+        template <typename X> requires explicitly_convertible_to<elem, X>
+        explicit operator linked_stack<X> () const {
             if (size () == 0) return linked_stack<X> {};
             return linked_stack<X> {rest ()}.prepend (X (first ()));
         }

@@ -12,7 +12,7 @@ namespace data {
     
     template <typename M, typename key, typename value = decltype (std::declval<const M> () [std::declval<const key> ()])>
     concept indexed = requires (M m, key k) {
-        { m[k] } -> convertible_to<value>;
+        { m[k] } -> implicitly_convertible_to<value>;
     };
     
 }

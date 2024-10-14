@@ -89,24 +89,24 @@ namespace data {
     };
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> convertible_to<X>;
+        {x + y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> convertible_to<X>;
+        {x + y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x * y} -> convertible_to<X>;
+        {x * y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x * y} -> convertible_to<X>;
+        {x * y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> convertible_to<X>;
-        {x * y} -> convertible_to<X>;
+        {x + y} -> implicitly_convertible_to<X>;
+        {x * y} -> implicitly_convertible_to<X>;
     } && requires () {
         {X {0}};
     } X operator * (const array<X, sizes...> &a, const array<X, sizes...> &b);
@@ -431,7 +431,7 @@ namespace data {
     }
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> convertible_to<X>;
+        {x + y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
         array<X, sizes...> x {};
         auto ai = a.begin ();
@@ -447,7 +447,7 @@ namespace data {
     }
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x - y} -> convertible_to<X>;
+        {x - y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
         array<X, sizes...> x {};
         auto ai = a.begin ();
@@ -463,7 +463,7 @@ namespace data {
     }
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x * y} -> convertible_to<X>;
+        {x * y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator * (const array<X, sizes...> &a, const X &b) {
         array<X, sizes...> x {};
 
@@ -477,7 +477,7 @@ namespace data {
     }
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x / y} -> convertible_to<X>;
+        {x / y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator / (const array<X, sizes...> &a, const X &b) {
         array<X, sizes...> x {};
 
@@ -491,8 +491,8 @@ namespace data {
     }
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> convertible_to<X>;
-        {x * y} -> convertible_to<X>;
+        {x + y} -> implicitly_convertible_to<X>;
+        {x * y} -> implicitly_convertible_to<X>;
     } && requires () {
         {X {0}};
     } X operator * (const array<X, sizes...> &a, const array<X, sizes...> &b) {

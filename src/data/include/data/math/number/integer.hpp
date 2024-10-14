@@ -282,7 +282,7 @@ namespace data::math::number {
         return {Z (d.Quotient), d.Remainder};
     }
 
-    template <typename Z, typename N = decltype (data::abs (std::declval<Z> ()))>
+    template <typename Z, typename N>
     division<Z, N> integer_divide (const Z &Dividend, const Z &Divisor) {
         // first we divide the absolute values.
         N divisor = data::abs (Divisor);

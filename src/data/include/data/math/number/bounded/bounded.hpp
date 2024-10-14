@@ -391,6 +391,9 @@ namespace data::math::number {
     template <endian::order r, size_t x> uint<r, x> &operator /= (uint<r, x> &, uint64);
     template <endian::order r, size_t x> sint<r, x> &operator /= (sint<r, x> &, int64);
 
+    template <endian::order r, size_t x> uint<r, x> &operator %= (uint<r, x> &, const uint<r, x> &);
+    template <endian::order r, size_t x> uint<r, x> &operator %= (sint<r, x> &, const uint<r, x> &);
+
     template <endian::order r, size_t size>
     struct bounded<false, r, size> : oriented<r, byte, size> {
         

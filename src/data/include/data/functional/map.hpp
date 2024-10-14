@@ -57,7 +57,7 @@ namespace data {
     
         template <typename X, typename key, typename value>
         concept has_insert_key_value = requires (X x, const key k, const value v) {
-            { x.insert (k, v) } -> convertible_to<X>;
+            { x.insert (k, v) } -> implicitly_convertible_to<X>;
         };
         
         template <typename map, typename key>

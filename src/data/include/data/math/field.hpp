@@ -18,7 +18,7 @@ namespace data::math {
     requires (const elem &a, const elem &b) {
         {a / b} -> std::same_as<elem>;
     } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
-        {inverse<times, elem> {} (a, b)} -> convertible_to<nonzero<elem>>;
+        {inverse<times, elem> {} (a, b)} -> implicitly_convertible_to<nonzero<elem>>;
     };
     
     template <typename elem, typename plus = math::plus<elem>, typename times = math::times<elem>>

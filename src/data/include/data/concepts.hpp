@@ -10,22 +10,34 @@
 
 namespace data {
 
-    template <typename From, typename To> using is_convertible = std::is_convertible<From, To>;
+    // the main purpose of this file is to create concepts for implicit and explicit conversions.
+    // Sometimes I like to different types to pass on conversions from a sub-type and if I do
+    // that I want to know which are explicit and which are implicit.
+
+    template <typename A, typename B> concept same_as = std::same_as<A, B>;
+
+    // types containing static members that say whether one type is constructible.
     template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
-
-    template <typename From, typename To> inline constexpr bool is_convertible_v = std::is_convertible<From, To>::value;
     template <typename Type, typename Argument> inline constexpr bool is_constructible_v = std::is_constructible<Type, Argument>::value;
-
-    template <typename From, typename To> concept convertible_to = std::convertible_to<From, To>;
     template <typename Type, typename Argument> concept constructible_from = std::constructible_from<Type, Argument>;
 
-    template <typename Type, typename Argument>
-    struct is_explicitly_constructible :
-        std::bool_constant<is_constructible_v<Type, Argument> && !is_convertible_v<Argument, Type>> {};
+    template <typename From, typename To> using is_implicitly_convertible = std::is_convertible<From, To>;
+
+    template <typename From, typename To> inline constexpr bool is_implicitly_convertible_v = is_implicitly_convertible<From, To>::value;
+
+    template <typename From, typename To> concept implicitly_convertible_to = std::convertible_to<From, To>;
+    template <typename From, typename To> concept explicitly_convertible_to =
+        !is_implicitly_convertible_v<From, To> && requires (From from) {
+            { To (from) };
+        };
 
     template <typename Type, typename Argument>
     struct is_implicitly_constructible :
-        std::bool_constant<is_constructible_v<Type, Argument> && is_convertible_v<Argument, Type>> {};
+        std::bool_constant<is_constructible_v<Type, Argument> && is_implicitly_convertible_v<Argument, Type>> {};
+
+    template <typename Type, typename Argument>
+    struct is_explicitly_constructible :
+        std::bool_constant<is_constructible_v<Type, Argument> && !is_implicitly_convertible_v<Argument, Type>> {};
 
     template <typename Type, typename Argument> inline constexpr bool
     is_explicitly_constructible_v = is_explicitly_constructible<Type, Argument>::value;
