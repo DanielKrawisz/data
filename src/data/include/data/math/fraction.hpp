@@ -130,6 +130,7 @@ namespace data::math {
         fraction &operator /= (const fraction &f);
 
         friend class inverse<times<fraction<Z>>, fraction<Z>>;
+        friend struct abs<fraction<Z, N>>;
 
     };
 

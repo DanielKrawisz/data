@@ -270,6 +270,42 @@ namespace data::math {
     template <> struct abs<Z> { 
         N operator () (const Z &);
     };
+
+    template <> struct abs<N> {
+        N operator () (const N &);
+    };
+
+    template <> struct quadrance<Z> {
+        N operator () (const Z &);
+    };
+
+    template <> struct quadrance<N> {
+        N operator () (const N &);
+    };
+
+    template <> struct conjugate<Z> {
+        Z operator () (const Z &);
+    };
+
+    template <> struct re<N> {
+        N operator () (const N &);
+    };
+
+    template <> struct re<Z> {
+        Z operator () (const Z &);
+    };
+
+    template <> struct im<N> {
+        N operator () (const N &);
+    };
+
+    template <> struct im<Z> {
+        Z operator () (const Z &);
+    };
+
+    template <> struct inner<N> {
+        N operator () (const N &, const N &);
+    };
     
 }
 

@@ -27,10 +27,10 @@ namespace data::encoding {
         static constexpr ctll::fixed_string pattern {"0|([1-9][0-9]*)"};
         
         const std::string &characters ();
-        char digit (char x);
-        bool valid (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
+        constexpr char digit (char x);
+        constexpr bool valid (string_view s);
+        constexpr bool nonzero (string_view s);
+        constexpr uint32 digits (string_view s);
         
         template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
         
@@ -49,11 +49,11 @@ namespace data::encoding {
 
         static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)"};
 
-        bool valid (string_view s);
-        bool nonzero (string_view s);
-        bool positive (string_view s);
-        bool negative (string_view s);
-        math::signature sign (string_view s);
+        constexpr bool valid (string_view s);
+        constexpr bool nonzero (string_view s);
+        constexpr bool positive (string_view s);
+        constexpr bool negative (string_view s);
+        constexpr math::signature sign (string_view s);
 
         template <endian::order r>
         maybe<math::Z_bytes<r>> read (string_view s);
@@ -82,13 +82,13 @@ namespace data::encoding {
         static constexpr ctll::fixed_string lower_case_pattern {"0x([0-9a-f][0-9a-f])*"};
         static constexpr ctll::fixed_string upper_case_pattern {"0x([0-9A-F][0-9A-F])*"};
 
-        bool valid (string_view s);
-        bool zero (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
-        char digit (char x);
+        constexpr bool valid (string_view s);
+        constexpr bool zero (string_view s);
+        constexpr bool nonzero (string_view s);
+        constexpr uint32 digits (string_view s);
+        constexpr char digit (char x);
 
-        hex::letter_case read_case (string_view s);
+        constexpr hex::letter_case read_case (string_view s);
 
         template <endian::order r>
         maybe<oriented<r, byte>> read (string_view s);
@@ -99,7 +99,7 @@ namespace data::encoding {
         template <hex::letter_case cx> struct string : data::string {
             string () : string {"0x"} {}
             explicit string (const std::string &x) : data::string {hexidecimal::valid (x) ? x : ""} {}
-            bool valid () const {
+            constexpr bool valid () const {
                 return hexidecimal::valid (*this);
             }
         };
@@ -132,10 +132,10 @@ namespace data::encoding {
         
         static constexpr ctll::fixed_string zero_pattern {"0|0x(00)*"};
         
-        bool valid (string_view s);
-        bool zero (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
+        constexpr bool valid (string_view s);
+        constexpr bool zero (string_view s);
+        constexpr bool nonzero (string_view s);
+        constexpr uint32 digits (string_view s);
         
         template <endian::order r> maybe<math::N_bytes<r>> read (string_view s);
         
@@ -150,11 +150,11 @@ namespace data::encoding {
         static constexpr ctll::fixed_string negative_pattern 
             {"(-(0*[1-9][0-9]*))|0x(([8-9a-f][0-9a-f]([0-9a-f][0-9a-f])*)|([8-9A-F][0-9A-F]([0-9A-F][0-9A-F])*))"};
         
-        bool valid (string_view s);
-        bool negative (string_view s);
-        bool zero (string_view s);
-        bool nonzero (string_view s);
-        uint32 digits (string_view s);
+        constexpr bool valid (string_view s);
+        constexpr bool negative (string_view s);
+        constexpr bool zero (string_view s);
+        constexpr bool nonzero (string_view s);
+        constexpr uint32 digits (string_view s);
         
         template <endian::order r, math::number::complement c> 
         maybe<math::number::Z_bytes<r, c>> read (string_view s);
@@ -461,6 +461,70 @@ namespace data::math {
     
     template <hex_case zz> struct abs<hex::int2<zz>> {
         hex::int2<zz> operator () (const hex::int2<zz> &);
+    };
+
+    template <> struct quadrance<dec_uint> {
+        dec_uint operator () (const dec_uint &);
+    };
+
+    template <> struct quadrance<dec_int> {
+        dec_uint operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct quadrance<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct quadrance<hex::int1<zz>> {
+        hex::uint<zz> operator () (const hex::int1<zz> &);
+    };
+
+    template <hex_case zz> struct quadrance<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &);
+    };
+
+    template <> struct re<dec_uint> {
+        dec_uint operator () (const dec_uint &);
+    };
+
+    template <> struct re<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <> struct im<dec_uint> {
+        dec_uint operator () (const dec_uint &);
+    };
+
+    template <> struct im<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <math::number::complement c, hex_case zz> struct re<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
+    };
+
+    template <math::number::complement c, hex_case zz> struct im<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
+    };
+
+    template <> struct conjugate<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct conjugate<hex::int1<zz>> {
+        hex::uint<zz> operator () (const hex::int1<zz> &);
+    };
+
+    template <hex_case zz> struct conjugate<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &);
+    };
+
+    template <> struct inner<dec_uint> {
+        dec_uint operator () (const dec_uint &, const dec_uint &);
+    };
+
+    template <hex_case zz> struct inner<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &, const hex::uint<zz> &);
     };
 
     template <> struct times<dec_int> {
@@ -888,19 +952,19 @@ namespace data::encoding::decimal {
         return Dec;
     }
     
-    char inline digit (char x) {
+    constexpr char inline digit (char x) {
         return x < '0' || x > '9' ? -1 : x - '0';
     }
         
-    bool inline valid (string_view s) {
+    constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
     } 
     
-    bool inline nonzero (string_view s) {
+    constexpr bool inline nonzero (string_view s) {
         return valid (s) && s[0] != '0';
     }
     
-    uint32 inline digits (string_view s) {
+    constexpr uint32 inline digits (string_view s) {
         return valid (s) ? s.size () : 0;
     }
     
@@ -986,23 +1050,23 @@ namespace data::encoding::decimal {
 
 namespace data::encoding::signed_decimal {
     
-    bool inline valid (string_view s) {
+    constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
     }
     
-    bool inline nonzero (string_view s) {
+    constexpr bool inline nonzero (string_view s) {
         return valid (s) && s[0] != '0';
     }
     
-    bool inline negative (string_view s) {
+    constexpr bool inline negative (string_view s) {
         return valid (s) && s[0] == '-';
     }
     
-    bool inline positive (string_view s) {
+    constexpr bool inline positive (string_view s) {
         return valid (s) && s[0] != '-' && s[0] != '0';
     }
     
-    math::signature inline sign (string_view s) {
+    constexpr math::signature inline sign (string_view s) {
         if (!valid (s)) throw exception {} << "invalid decimal string: " << s;
         return s[0] == '-' ? math::negative : s[0] == '0' ? math::zero : math::positive;
     }
@@ -1102,27 +1166,27 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
     
-    bool inline valid (string_view s) {
+    constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
     } 
     
-    bool inline zero (string_view s) {
+    constexpr bool inline zero (string_view s) {
         return ctre::match<zero_pattern> (s);
     }
     
-    bool inline nonzero (string_view s) {
+    constexpr bool inline nonzero (string_view s) {
         return valid (s) && !ctre::match<zero_pattern> (s);
     }
     
-    uint32 inline digits (string_view s) {
+    constexpr uint32 inline digits (string_view s) {
         return valid (s) ? s.size () - 2 : 0;
     }
         
-    hex::letter_case inline read_case (string_view s) {
+    constexpr hex::letter_case inline read_case (string_view s) {
         return ctre::match<upper_case_pattern> (s) ? hex_case::upper : ctre::match<lower_case_pattern> (s) ? hex_case::lower : hex_case::unknown;
     }
     
-    char inline digit (char x) {
+    constexpr char inline digit (char x) {
         if (x >= '0' && x <= '9') return x - '0';
         if (x >= 'A' && x <= 'F') return x - 'A' + 10;
         if (x >= 'a' && x <= 'f') return x - 'a' + 10;
@@ -1290,19 +1354,19 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::natural {
     
-    bool inline valid (string_view s) {
+    constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
     } 
     
-    bool inline zero (string_view s) {
+    constexpr bool inline zero (string_view s) {
         return ctre::match<zero_pattern> (s);
     }
     
-    bool inline nonzero (string_view s) {
+    constexpr bool inline nonzero (string_view s) {
         return valid (s) && ! ctre::match<zero_pattern> (s);
     }
     
-    uint32 inline digits (string_view s) {
+    constexpr uint32 inline digits (string_view s) {
         return std::max (decimal::digits (s), hexidecimal::digits (s));
     }
     
@@ -1310,23 +1374,23 @@ namespace data::encoding::natural {
 
 namespace data::encoding::integer {
     
-    bool inline valid (string_view s) {
+    constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
     } 
     
-    bool inline negative (string_view s) {
+    constexpr bool inline negative (string_view s) {
         return ctre::match<negative_pattern> (s);
     }
     
-    bool inline zero (string_view s) {
+    constexpr bool inline zero (string_view s) {
         return ctre::match<zero_pattern> (s);
     }
     
-    bool inline nonzero (string_view s) {
+    constexpr bool inline nonzero (string_view s) {
         return valid (s) && ! ctre::match<zero_pattern> (s);
     }
     
-    uint32 inline digits (string_view s) {
+    constexpr uint32 inline digits (string_view s) {
         return negative (s) ? natural::digits (s.substr (1, s.size () - 1)) : natural::digits (s);
     }
     

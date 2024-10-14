@@ -25,19 +25,19 @@ find_package (GMP REQUIRED)
 find_package (SECP256K1 REQUIRED)
 find_package (pegtl REQUIRED)
 
-include(FetchContent)
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
-FetchContent_MakeAvailable(json)
+include (FetchContent)
+FetchContent_Declare (json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable (json)
 
-FetchContent_Declare(argh URL https://github.com/adishavit/argh/archive/refs/tags/v1.3.2.zip)
-FetchContent_MakeAvailable(argh)
+FetchContent_Declare (argh URL https://github.com/adishavit/argh/archive/refs/tags/v1.3.2.zip)
+FetchContent_MakeAvailable (argh)
 
-FetchContent_Declare(ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.9.0.zip)
-FetchContent_MakeAvailable(ctre)
+FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.9.0.zip)
+FetchContent_MakeAvailable (ctre)
 
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(Cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
+find_package (PkgConfig REQUIRED)
+pkg_check_modules (Cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
 
 # Check if GTests is installed. If not, install it
 
@@ -54,7 +54,7 @@ if (PACKAGE_TESTS)
 )
 
 set (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+FetchContent_MakeAvailable (googletest)
   enable_testing ()
   add_subdirectory (test)
 
@@ -62,4 +62,4 @@ endif ()
 
 # Add Library source files here
 
-add_subdirectory(src bin) 
+add_subdirectory (src bin)
