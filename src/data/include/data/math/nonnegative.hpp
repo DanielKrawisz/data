@@ -139,12 +139,12 @@ namespace data::math {
         return nonzero<R> {m.Value * n.Value};
     }
     
-    template <typename R> nonnegative<R> inline &nonnegative<R>::operator ++ () {
+    template <ordered R> nonnegative<R> inline &nonnegative<R>::operator ++ () {
         ++Value;
         return *this;
     }
     
-    template <typename R> nonnegative<R> inline nonnegative<R>::operator ++ (int) {
+    template <ordered R> nonnegative<R> inline nonnegative<R>::operator ++ (int) {
         nonnegative<R> n = *this;
         ++Value;
         return n;

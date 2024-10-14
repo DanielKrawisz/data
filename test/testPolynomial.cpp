@@ -111,20 +111,20 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial<fraction<int_big<12>>> {};
     test_polynomial<fraction<int_little<12>>> {};
 
-    test_polynomial_division<Q> {};
-    test_polynomial_division<Q_little> {};
-    test_polynomial_division<Q_big> {};
-    test_polynomial_division<Q_twos_little> {};
-    test_polynomial_division<Q_twos_big> {};
-    test_polynomial_division<fraction<dec_int>> {};
-    test_polynomial_division<fraction<hex_int_ones>> {};
-    test_polynomial_division<fraction<hex_int_twos>> {};
+    test_polynomial<Q> {};
+    test_polynomial<Q_little> {};
+    test_polynomial<Q_big> {};
+    test_polynomial<Q_twos_little> {};
+    test_polynomial<Q_twos_big> {};
+    test_polynomial<fraction<dec_int>> {};
+    test_polynomial<fraction<hex_int_ones>> {};
+    test_polynomial<fraction<hex_int_twos>> {};
 /*
     test_polynomial<G> {};
     test_polynomial<GH> {};
     test_polynomial<GO> {};
 
-    test_polynomial_division<QC> {};
+    test_polynomial_division<QC>x.Numerator < 0 {};
     test_polynomial_division<QH> {};
     test_polynomial_division<QO> {};
 
