@@ -22,6 +22,12 @@ namespace data {
     /// @return true if yes, false otherwise.
     bool get_user_yes_or_no (std::string message ,maybe<bool> default_value=false);
 
+    /// @brief Gets a password from the user
+    /// @param message message to ask user for password
+    /// @param mask masking character to use
+    /// @return password returned
+    std::string get_user_password(std::string message, char mask='*');
+
 }
 
 #endif
