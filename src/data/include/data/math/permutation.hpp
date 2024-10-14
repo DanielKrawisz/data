@@ -111,7 +111,7 @@ namespace data::math {
     // Declare associativity and commutivity of operators + and * on N. 
     template <typename elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
     
-    template <typename elem>
+    template <ordered elem>
     permutation<elem> inline identity<times<permutation<elem>>, permutation<elem>>::operator () () {
         return permutation<elem>::identity ();
     }
@@ -120,7 +120,7 @@ namespace data::math {
         return p.sign ();
     }
     
-    template <typename elem> 
+    template <ordered elem>
     permutation<elem>::replacements permutation<elem>::compose (replacements a, replacements b) {
         
         if (a.empty ()) return b;
@@ -150,17 +150,17 @@ namespace data::math {
         return x;
     }
 
-    template <typename elem>
+    template <ordered elem>
     permutation<elem>::cycle inline permutation<elem>::inverse (const permutation<elem>::cycle &c) {
         return c.reverse ();
     }
 
-    template <typename elem>
+    template <ordered elem>
     set<elem> inline permutation<elem>::elements (const permutation<elem>::cycle &c) {
         return set<elem> {c.Cycle};
     }
     
-    template <typename elem> 
+    template <ordered elem>
     permutation<elem>::cycle permutation<elem>::normalize (const permutation<elem>::cycle &c) {
         if (c.size () == 0 || c.size () == 1) return cycle {};
         
@@ -172,7 +172,7 @@ namespace data::math {
         return cycle {};
     }
     
-    template <typename elem> 
+    template <ordered elem>
     permutation<elem>::replacements permutation<elem>::as_replacements (const cycle &c) {
         if (c.Cycle.empty ()) return replacements {};
         auto a = c.Cycle.first ();
@@ -189,7 +189,7 @@ namespace data::math {
         return x;
     }
     
-    template <typename elem> 
+    template <ordered elem>
     permutation<elem>::permutation (replacements x): permutation {} {
         replacements r = x;
         
@@ -219,7 +219,7 @@ namespace data::math {
         }
     }
     
-    template <typename elem>    
+    template <ordered elem>
     permutation<elem> inline
     permutation<elem>::normalize () const {
         permutation p {};
@@ -227,7 +227,7 @@ namespace data::math {
         return p;
     }
     
-    template <typename elem>     
+    template <ordered elem>
     bool permutation<elem>::valid () const {
         set<elem> elements {};
         for (const auto &c : Cycles) for (const auto &v : c.Cycle) if (elements.contains (v)) return false;
@@ -235,7 +235,7 @@ namespace data::math {
         return true;
     }
     
-    template <typename elem> 
+    template <ordered elem>
     permutation<elem> inline
     permutation<elem>::inverse () const {
         return permutation {for_each ([] (const cycle c) -> cycle {
@@ -243,19 +243,19 @@ namespace data::math {
         }, normalize ().Cycles)};
     }
     
-    template <typename elem> 
+    template <ordered elem>
     bool permutation<elem>::operator == (const permutation &p) const {
         if (Cycles.size () != p.Cycles.size ()) return false;
         if (Cycles.size () == 0) return true;
         return permutation {} == operator * (p.inverse ());
     }
     
-    template <typename elem> 
+    template <ordered elem>
     inline bool permutation<elem>::operator != (const permutation& p) const {
         return !operator == (p);
     }
     
-    template <typename elem> 
+    template <ordered elem>
     math::signature permutation<elem>::sign () const {
         if (!valid ()) return math::zero;
         return data::fold<math::signature> ([] (math::signature x, const cycle &c) -> math::signature {
@@ -263,21 +263,21 @@ namespace data::math {
         }, math::positive, Cycles);
     }
     
-    template <typename elem> 
+    template <ordered elem>
     math::signature permutation<elem>::sign (const cycle &c) {
         if (!c.valid ()) return math::zero;
         size_t nx = normalize (c).size ();
         return nx == 0 ? math::positive : nx % 2 == 0 ? math::negative : math::positive; 
     }
     
-    template <typename elem> 
+    template <ordered elem>
     bool permutation<elem>::valid (const cycle &c) {
         if (!c.valid ()) return false;
         set<elem> el = elements ();
         return el.size () == c.size () || el.size () == 1;
     }
 
-    template <typename elem>
+    template <ordered elem>
     elem permutation<elem>::operator () (const elem &e) const {
         for (const cycle &c : Cycles) for (auto it = c.Cycle.begin (); it != c.Cycle.end (); it++)
             if (*it == e) return ++it == c.Cycle.end () ? c.Cycle.first () : *it;
