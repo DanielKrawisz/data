@@ -6,6 +6,7 @@
 #include <data/io/wait_for_enter.hpp>
 #include <unistd.h>
 #include <stdio.h>
+#include <termios.h>
 
 namespace data {
 
@@ -36,4 +37,31 @@ namespace data {
             }
     }
 
+std::string get_user_password(std::string message, char mask)
+{
+    struct termios term, original;
+    std::string password;
+     // Get current terminal settings
+    if (tcgetattr(STDIN_FILENO, &term) != 0)
+        return "";
+    original = term;
+    // Unset ECHO flag
+    term.c_lflag &= ~ECHO & ~ICANON;
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &term) != 0)
+        return "";
+    // Prompt for password
+    std::cout << message;
+    
+    char c;
+    c=getchar();
+    while(c!='\n') {
+        std::cout << mask;
+        password.push_back(c);
+        c=getchar();
+    }
+    std::cout<<std::endl;
+     // Set ECHO flag
+    tcsetattr(STDIN_FILENO, TCSANOW, &original);
+    return password;
+}
 }
