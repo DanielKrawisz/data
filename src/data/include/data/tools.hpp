@@ -133,24 +133,30 @@ namespace data {
         return r;
     }
 
-    // lazy bytes writer can be used without knowing the size
+    // lazy writer can be used without knowing the size
     // of the data to be written beforehand.
-    struct lazy_bytes_writer : data::writer<byte> {
-        list<bytes> Bytes;
+    template <std::integral word> struct lazy_writer : message_writer<bytestring<word>, word> {
+        list<bytestring<word>> Bytes;
 
-        void write (const byte* b, size_t size) override {
-            Bytes = Bytes << bytes (bytes_view {b, size});
+        void write (const word* b, size_t size) final override {
+            Bytes = Bytes << bytestring<word> (view<word> {b, size});
         }
 
-        operator bytes () const {
+        operator bytestring<word> () const {
             size_t size = 0;
-            for (const bytes &b : Bytes) size += b.size ();
-            bytes z (size);
-            bytes_writer w {z.begin (), z.end ()};
-            for (const bytes &b : Bytes) w << b;
+            for (const bytestring<word> &b : Bytes) size += b.size ();
+            bytestring<word> z (size);
+            iterator_writer w {z.begin (), z.end ()};
+            for (const bytestring<word> &b : Bytes) w << b;
             return z;
         }
+
+        bytestring<word> complete () final override {
+            return bytestring<word> (*this);
+        }
     };
+
+    using lazy_bytes_writer = lazy_writer<byte>;
 
 }
 

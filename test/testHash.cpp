@@ -4,6 +4,7 @@
 
 #include "data/crypto/hash/hash.hpp"
 #include "data/math/number/bytes.hpp"
+#include "data/arithmetic/endian.hpp"
 #include "gtest/gtest.h"
 
 namespace data::crypto {
@@ -22,8 +23,8 @@ namespace data::crypto {
 
         template <hash::writer w>
         static void run (const string &test, const string &expected) {
-            hash::digest<w::size> expected_digest {expected};
-            hash::digest<w::size> result = hash::calculate<w> (bytes (test));
+            digest<w::size> expected_digest {expected};
+            digest<w::size> result = hash::calculate<w> (bytes (test));
             EXPECT_EQ (expected_digest, result) << "expected " << test << " to hash to " << expected_digest << " but got " << result;
         }
     };
@@ -94,7 +95,21 @@ namespace data::crypto {
 
     }
 
+    void RIPEMD_test_case (string test, string dig) {
+        EXPECT_EQ (RIPEMD_160 (test), digest<20> {dig});
+    }
+
+    // from https://rosettacode.org/wiki/RIPEMD-160
     TEST (HashTest, TestRIPEMD) {
+
+        RIPEMD_test_case ("", "9c1185a5c5e9fc54612808977ee8f548b2258d31");
+        RIPEMD_test_case ("a", "0bdc9d2d256b3ee9daae347be6f4dc835a467ffe");
+        RIPEMD_test_case ("abc", "8eb208f7e05d987a9b044a8e98c6b087f15a0bfc");
+        RIPEMD_test_case ("message digest", "5d0689ef49d2fae572b881b123a85ffa21595f36");
+        RIPEMD_test_case ("abcdefghijklmnopqrstuvwxyz",
+            "f71c27109c692c1b56bbdceb5b9d2865b3708dbc");
+        RIPEMD_test_case ("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+            "12a053384a9c0c88e405a06c27dcf49ada62eb2b");
 
     }
 
@@ -105,5 +120,28 @@ namespace data::crypto {
         EXPECT_EQ (Bitcoin_256 (test), expected);
     }
 
-}
+    TEST (HashTest, TestHashWriter) {
 
+        hash::RIPEMD<20> RIPEMD_160_hash_writer;
+        hash::SHA2<32> SHA_2_256_hash_writer;
+        hash::Bitcoin<20> bitcoin_20_hash_writer;
+        hash::Bitcoin<32> bitcoin_32_hash_writer;
+
+        RIPEMD_160_hash_writer << bytes_view {};
+        SHA_2_256_hash_writer << bytes_view {};
+        bitcoin_20_hash_writer << bytes_view {};
+        bitcoin_32_hash_writer << bytes_view {};
+
+        RIPEMD_160_hash_writer << uint32_little {3};
+        SHA_2_256_hash_writer << uint32_little {3};
+        bitcoin_20_hash_writer << uint32_little {3};
+        bitcoin_32_hash_writer << uint32_little {3};
+
+        RIPEMD_160_hash_writer << byte (89);
+        SHA_2_256_hash_writer << byte (89);
+        bitcoin_20_hash_writer << byte (89);
+        bitcoin_32_hash_writer << byte (89);
+
+    }
+
+}

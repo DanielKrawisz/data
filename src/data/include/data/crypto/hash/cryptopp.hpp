@@ -16,18 +16,18 @@ namespace data::crypto::hash::CryptoPP {
     
     template <class Transform, size_t Size> 
     requires std::derived_from<Transform, HashTransformation>
-    struct writer : data::writer<byte> {
+    struct writer : message_writer<digest<Size>, byte> {
         constexpr static size_t size = Size;
         
         Transform Hash;
         
         writer () : Hash {} {}
         
-        void write (const byte *b, size_t x) override {
+        void write (const byte *b, size_t x) final override {
             Hash.Update (b, x);
         }
         
-        digest<size> finalize () {
+        digest<size> complete () final override {
             digest<size> d;
             Hash.Final (d.data ());
             Hash.Restart ();

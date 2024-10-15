@@ -7,38 +7,9 @@
 #include <vector>
 #include <string>
 
-#include <data/encoding/hex.hpp>
+#include <data/cross.hpp>
 
 namespace data::encoding::hex {
-    struct view : public string_view {
-        bytes Bytes;
-        bytes *ToBytes;
-        
-        explicit operator bytes_view () const {
-            if (ToBytes == nullptr) throw invalid {Format, *this};
-            return Bytes;
-        }
-        
-        bool valid () const noexcept {
-            return ToBytes != nullptr;
-        }
-        
-        view (string_view);
-    };
-    
-    string::operator bytes () const {
-        if (!valid ()) throw invalid {Format, *this};
-        return view {*this}.Bytes;
-    }
-    
-    view::view (string_view sourceString) : string_view {sourceString}, Bytes ((sourceString.size () + 1) / 2), ToBytes {nullptr} {
-        try {
-            boost::algorithm::unhex (string_view::begin (), string_view::end (), Bytes.begin ());
-        } catch (boost::algorithm::hex_decode_error exception) {
-            return;
-        }
-        ToBytes = &Bytes;
-    }
     
     maybe<bytes> read (string_view x) {
         if ((x.size () & 1)) return {};
@@ -54,7 +25,7 @@ namespace data::encoding::hex {
         return b;
     }
     
-    void write_hex (string& output, bytes_view sourceBytes, letter_case q) {
+    void write_hex (string &output, bytes_view sourceBytes, letter_case q) {
         output.resize (sourceBytes.size ());
         if (q == letter_case::upper) boost::algorithm::hex (sourceBytes.begin (), sourceBytes.end (), output.begin ());
         else boost::algorithm::hex_lower (sourceBytes.begin (), sourceBytes.end (), output.begin ());

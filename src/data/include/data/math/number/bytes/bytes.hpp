@@ -7,6 +7,7 @@
 
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/hex.hpp>
+#include <data/cross.hpp>
 
 namespace data::math::number {
     using complement = arithmetic::complement;

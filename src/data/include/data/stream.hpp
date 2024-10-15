@@ -12,55 +12,72 @@ namespace data {
     static const std::string EndOfStreamError {"End of stream"};
     
     struct end_of_stream : std::exception {
-        const char* what () const noexcept final override {
+        const char *what () const noexcept final override {
             return EndOfStreamError.c_str ();
         }
     };
-    
-    template <typename word>
+
+    // do not attempt to replace this with a concept because
+    // then the compiler won't be able to find some of the
+    // functions defined on it.
+    template <std::integral word>
     struct writer {
         virtual void write (const word *, size_t size) = 0;
         virtual ~writer () {}
     };
-    
-    template <typename word>
-    writer<word> &operator << (writer<word> &w, const word &x);
-    
-    template <typename word>
+
+    template <std::integral word>
+    writer<word> &operator << (writer<word> &w, word x);
+
+    template <std::integral word>
     writer<word> &operator << (writer<word> &w, view<word> x);
     
-    template <typename word>
+    template <std::integral word>
     writer<word> &operator << (writer<word> &w, const std::string &x);
-    
-    template <typename word>
+
+    template <std::integral word>
     struct reader {
         virtual void read (word *, size_t size) = 0;
-        virtual void skip (size_t) = 0;
+        virtual void skip (size_t size) = 0;
         virtual ~reader () {}
     };
     
-    template <typename word>
+    template <std::integral word>
     reader<word> inline &operator >> (reader<word> &r, slice<word> x) {
         r.read (x.data (), x.size ());
         return r;
     }
     
-    template <typename word>
+    template <std::integral word>
     reader<word> inline &operator >> (reader<word> &r, word &x) {
         r.read (&x, 1);
         return r;
     }
 
+    // a message writer has the concept of an end to a message.
+    template <typename message, std::integral word>
+    struct message_writer : virtual writer<word> {
+        virtual message complete () = 0;
+    };
+
+    struct end_message {};
+
+    template <typename message, std::integral word>
+    message inline &operator << (message_writer<message, word> &w, end_message) {
+        return w.complete ();
+    }
+
     // you have to know how big the string is going to be in
     // order to use this.
-    template <typename it, typename word>
-    struct iterator_writer : writer<word> {
+    template <typename word, std::output_iterator<word> it>
+    struct iterator_writer final : virtual writer<word> {
+
         it Begin;
         it End;
         
         iterator_writer (it b, it e) : Begin {b}, End {e} {}
         
-        void write (const word *b, size_t size) override {
+        void write (const word *b, size_t size) final override {
             for (int i = 0; i < size; i++) {
                 if (Begin == End) throw end_of_stream {};
                 *Begin = b[i];
@@ -69,9 +86,14 @@ namespace data {
         }
         
     };
+
+    template <typename it>
+    iterator_writer (it b, it e) -> iterator_writer<std::remove_reference_t<decltype (*std::declval<it> ())>, it>;
     
-    template <typename it, typename word>
-    struct iterator_reader : reader<word> {
+    template <std::input_iterator it>
+    struct iterator_reader final : virtual reader<std::remove_const_t<std::remove_reference_t<decltype (*std::declval<it> ())>>> {
+        using word = std::remove_const_t<std::remove_reference_t<decltype (*std::declval<it> ())>>;
+
         it Begin;
         it End;
         iterator_reader (const it b, const it e) : Begin {b}, End {e} {}
@@ -80,7 +102,7 @@ namespace data {
             return Begin == End;
         }
 
-        void read (word *b, size_t size) override {
+        void read (word *b, size_t size) final override {
             for (int i = 0; i < size; i++) {
                 if (empty ()) throw end_of_stream {};
                 b[i] = *Begin;
@@ -88,46 +110,32 @@ namespace data {
             }
         }
         
-        void skip (size_t size) override {
+        void skip (size_t size) final override {
             if (Begin + size > End) throw end_of_stream {};
             Begin += size;
         }
     };
-    
-    using bytes_writer = data::iterator_writer<std::vector<byte>::iterator, byte>;
-    using bytes_reader = data::iterator_reader<const byte *, byte>;
 
-    template <typename c>
-    using standard_string_writer = data::iterator_writer<typename std::basic_string<c>::iterator, c>;
+    template <std::input_iterator it>
+    iterator_reader (it b, it e) -> iterator_reader<it>;
 
-    template <typename c>
-    using standard_string_reader = data::iterator_reader<const c *, c>;
-
-    using string_writer = standard_string_writer<char>;
-    using string_reader = standard_string_reader<char>;
-
-    template <typename word>
-    writer<word> inline &operator << (writer<word> &w, const word &x) {
+    template <std::integral word>
+    writer<word> inline &operator << (writer<word> &w, word x) {
         w.write (&x, 1);
         return w;
     }
 
-    template <typename word>
+    template <std::integral word>
     writer<word> inline &operator << (writer<word> &w, view<word> x) {
         w.write (x.data (), x.size ());
         return w;
     }
 
-    template <typename word>
+    template <std::integral word>
     writer<word> inline &operator << (writer<word> &w, const std::string &x) {
         w.write ((const byte *) (x.data ()), x.size ());
         return w;
     }
-    
-    template writer<byte> &operator << (writer<byte> &, const byte &);
-    template writer<byte> &operator << (writer<byte> &, bytes_view);
-    template writer<byte> &operator << (writer<byte> &, const std::string &);
-    template reader<byte> &operator >> (reader<byte> &, slice<byte>);
     
 }
 

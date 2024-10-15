@@ -5,19 +5,10 @@
 #ifndef DATA_CRYPTO_HASH_FUNCTIONS
 #define DATA_CRYPTO_HASH_FUNCTIONS
 
-#include "digest.hpp"
+#include <data/crypto/digest.hpp>
 #include <data/crypto/one_way.hpp>
 
 namespace data::crypto {
-
-    using digest128 = hash::digest<16>;
-    using digest160 = hash::digest<20>;
-    using digest224 = hash::digest<28>;
-    using digest256 = hash::digest<32>;
-    using digest320 = hash::digest<40>;
-    using digest384 = hash::digest<48>;
-    using digest448 = hash::digest<56>;
-    using digest512 = hash::digest<64>;
 
     // supported hash functions.
     digest160 SHA1 (bytes_view);
@@ -32,8 +23,8 @@ namespace data::crypto {
     digest512 SHA2_512 (bytes_view);
     digest512 SHA2_512 (string_view);
 
-    template <size_t size> hash::digest<size> SHA3 (bytes_view);
-    template <size_t size> hash::digest<size> SHA3 (string_view);
+    template <size_t size> digest<size> SHA3 (bytes_view);
+    template <size_t size> digest<size> SHA3 (string_view);
 
     digest224 SHA3_224 (bytes_view);
     digest224 SHA3_224 (string_view);
@@ -69,20 +60,16 @@ namespace data::crypto::hash {
     } && one_way<f, d, bytes_view>;
     
     template <typename W> 
-    concept writer = requires {
+    concept writer = std::derived_from<W, message_writer<digest<W::size>, byte>> && requires {
         { W {} };
         { W::size };
-    } && requires (W w, const byte *b, size_t x) {
-        { w.write (b, x) };
-    } && requires (W w) {
-        { w.finalize () } -> std::same_as<digest<W::size>>;
     };
     
     template <writer W>
     digest<W::size> inline calculate (bytes_view b) {
         W w {};
         w.write (b.data (), b.size ());
-        return w.finalize ();
+        return w.complete ();
     }
     
     // these are both functions and writers. 

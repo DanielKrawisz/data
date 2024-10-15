@@ -8,9 +8,10 @@
 #include <data/crypto/hash/functions.hpp>
 
 namespace data::crypto::hash {
+    using namespace data;
     
     // Bitcoin hash 160 is difined to be RIPEMD_160 * SHA2_256
-    template<> struct Bitcoin<20> : data::writer<byte> {
+    template<> struct Bitcoin<20> : message_writer<digest<20>, byte> {
 
         SHA2<32> Writer;
         
@@ -18,30 +19,30 @@ namespace data::crypto::hash {
         
         Bitcoin () : Writer {} {}
         
-        void write (const byte *b, size_t x) override {
+        void write (const byte *b, size_t x) final override {
             Writer.write (b, x);
         }
         
-        digest<20> finalize () {
-            return calculate<RIPEMD<20>> (Writer.finalize ());
+        digest<20> complete () final override {
+            return calculate<RIPEMD<20>> (Writer.complete ());
         }
     };
     
     // Bitcoin hash 256 is difined to be SHA2_256 * SHA_256
-    template<> struct Bitcoin<32> : data::writer<byte> {
+    template<> struct Bitcoin<32> : message_writer<digest<32>, byte> {
         
         SHA2<32> Writer;
         
         constexpr static size_t size = 32;
         
-        Bitcoin () : data::writer<byte> {}, Writer {} {}
+        Bitcoin () : Writer {} {}
         
-        void write (const byte *b, size_t x) override {
+        void write (const byte *b, size_t x) final override {
             Writer.write (b, x);
         }
         
-        digest<32> finalize () {
-            return calculate<SHA2<32>> (Writer.finalize ());
+        digest<32> complete () final override {
+            return calculate<SHA2<32>> (Writer.complete ());
         }
     };
 

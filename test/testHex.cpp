@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/encoding/hex.hpp"
-#include "data/encoding/invalid.hpp"
+#include "data/cross.hpp"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
@@ -11,7 +10,7 @@
 namespace data::encoding::hex {
 
     TEST (HexTest, HexHexToArray) {
-        string hexString (std::string ("0063EA172D63808C"));
+        string hexString ("0063EA172D63808C");
         ASSERT_TRUE (hexString.valid ());
         bytes b = (bytes) (hexString);
         ASSERT_THAT (b, ::testing::ElementsAre (0x00, 0x63, 0xEA, 0x17, 0x2D, 0x63, 0x80, 0x8C));
@@ -26,7 +25,7 @@ namespace data::encoding::hex {
     }
 
     TEST (HexTest, HexInvalidExceptionOnError) {
-        string malformedHexString (std::string ("0063EA172D63808"));
+        string malformedHexString ("0063EA172D63808");
         ASSERT_THROW ((bytes) (malformedHexString), invalid);
     }
 

@@ -10,13 +10,16 @@
 #include <data/valid.hpp>
 #include <data/arithmetic/words.hpp>
 #include <data/stream.hpp>
+#include <data/math/abs.hpp>
+#include <data/encoding/hex.hpp>
 
 namespace data {
+    using hex_string = encoding::hex::string;
     
     // The cartesian product. 
     // it is the same as a vector with some slight improvements. 
     template <typename X> struct cross : std::vector<X> {
-        cross ();
+        constexpr cross ();
         explicit cross (size_t size);
         explicit cross (size_t size, X fill);
         
@@ -26,7 +29,7 @@ namespace data {
         explicit cross (list l);
         
         bool valid () const {
-            for (const X& x : *this) if (!data::valid (x)) return false;
+            for (const X &x : *this) if (!data::valid (x)) return false;
             return true;
         }
         
@@ -45,9 +48,13 @@ namespace data {
         }
         
         explicit operator slice<X> ();
+        explicit operator slice<const X> () const;
         
         slice<X> range (int);
         slice<X> range (int, int);
+
+        slice<const X> range (int) const;
+        slice<const X> range (int, int) const;
         
         cross (std::vector<X> &&v) : std::vector<X> {v} {}
         
@@ -60,27 +67,34 @@ namespace data {
     
     template <typename X>
     std::ostream &operator << (std::ostream &o, const cross<X> &s);
-    
+
     template <typename X, size_t... > struct array;
     
-    // standard c++ arrays are not containers. This is a container.
-    template <typename X, size_t size> struct array<X, size> : public cross<X> {
-        array (const std::array<X, size> &);
-        array () : cross<X> (size) {}
-        
-        array (std::initializer_list<X> x) : cross<X> {x} {
-            if (x.size () != size) throw exception {} << "invalid size " << x.size () << "; expected " << size;
-        }
-        
-        static array filled (const X &x) {
-            array n {};
-            n.fill (x);
-            return n;
-        }
+    template <typename X, size_t size> struct array<X, size> : public std::array<X, size> {
+        constexpr static size_t Size = size;
+        using std::array<X, size>::array;
+
+        constexpr array (std::initializer_list<X> x);
+        // make an array filled with a particular value.
+        static array filled (const X &x);
+
+        bool valid () const;
+
+        X &operator [] (size_t i);
+        const X &operator [] (size_t i) const;
+
+        explicit operator slice<X, size> ();
+
+        slice<X> range (int);
+        slice<X> range (int, int);
+
+        explicit operator slice<const X, size> () const;
+
+        slice<const X> range (int) const;
+        slice<const X> range (int, int) const;
         
     protected:
-        template <typename iterator>
-        array (iterator it) : array () {
+        template <typename iterator> array (iterator it) : array () {
             for (X &x : *this) {
                 x = *it; 
                 it++;
@@ -88,6 +102,17 @@ namespace data {
         }
     };
 
+    template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
+        constexpr static size_t Size = size * array<X, sizes...>::Size;
+        array ();
+        array (std::initializer_list<array<X, sizes...>>);
+
+        slice<X, sizes...> &operator [] (size_t i);
+        slice<const X, sizes...> &operator [] (size_t i) const;
+
+    };
+
+    // vector addition and subtraction.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x + y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
@@ -96,91 +121,91 @@ namespace data {
         {x + y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
 
+    template <typename X, size_t... sizes> requires requires (const X &x) {
+        {-x} -> implicitly_convertible_to<X>;
+    } array<X, sizes...> operator - (const array<X, sizes...> &);
+
+    // scalar multiplication and division.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x * y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x * y} -> implicitly_convertible_to<X>;
+        {x / y} -> implicitly_convertible_to<X>;
     } array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
 
-    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+    // multiplication operation good enough for an inner product and matrix multiplication
+    template <typename X, size_t... A, size_t C, size_t... B> requires requires (const X &x, const X &y) {
         {x + y} -> implicitly_convertible_to<X>;
-        {x * y} -> implicitly_convertible_to<X>;
+        {x * inner (x, y)} -> implicitly_convertible_to<X>;
     } && requires () {
-        {X {0}};
-    } X operator * (const array<X, sizes...> &a, const array<X, sizes...> &b);
-    
-    template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public cross<array<X, sizes...>> {
-        array () : cross<array<X, sizes...>> (size) {}
-    };
+        {X {}};
+    } array<X, A..., B...> operator * (const array<X, A..., C> &a, const array<X, C, B...> &b);
 
-    template <std::unsigned_integral word> struct bytestring;
+    template <std::integral word> struct bytestring;
+
+    template <std::integral word>
+    writer<word> &operator << (writer<word> &, const bytestring<word> &);
 
     using bytes = bytestring<byte>;
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     struct bytestring : public cross<word> {
         using cross<word>::cross;
-        bytestring (view<word> v) : cross<word> (v.size ()) {
-            std::copy (v.begin (), v.end (), this->begin ());
-        }
+        bytestring (view<word> v);
+        bytestring (const hex_string &);
         
-        operator view<word> () const {
-            return view<word> {this->data (), this->size ()};
-        }
+        operator view<word> () const;
         
-        operator slice<word> () {
-            return {this->data (), this->size ()};
-        }
+        operator slice<word> ();
         
-        bytestring &bit_negate () {
-            arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
-            return *this;
-        }
+        bytestring &bit_negate ();
         
         void bit_shift_left (uint32 x, bool fill = false);
         void bit_shift_right (uint32 x, bool fill = false);
     };
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     bytestring<word> operator ~ (const bytestring<word> &b);
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     bytestring<word> operator << (const bytestring<word> &b, int32 i);
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     bytestring<word> operator >> (const bytestring<word> &b, int32 i);
     
     namespace {
         template <typename X>
-        static writer<byte> &write_to_writer (writer<byte> &w, X x) {
+        writer<byte> &write_to_writer (writer<byte> &w, X x) {
             return w << x;
         }
 
         template <typename X, typename... P>
-        static writer<byte> &write_to_writer (writer<byte> &w, X x, P... p) {
+        writer<byte> &write_to_writer (writer<byte> &w, X x, P... p) {
            return write_to_writer (write_to_writer (w, x), p...);
         }
-
     }
 
     template <typename X, typename... P>
-    static bytes write_bytes (size_t size, X x, P... p) {
+    bytes write_bytes (size_t size, X x, P... p) {
         bytes b (size);
-        bytes_writer w (b.begin (), b.end ());
+        iterator_writer w (b.begin (), b.end ());
         write_to_writer (w, x, p...);
         return b;
     }
     
-    template <std::unsigned_integral word, size_t...> struct bytes_array;
-    
-    template <std::unsigned_integral word, size_t size> struct bytes_array<word, size> : public bytestring<word> {
-        bytes_array () : bytestring<word> (size) {}
+    template <std::integral word, size_t...> struct bytes_array;
 
-        bytes_array (view<word> v) : bytestring<word> {v} {
-            if (v.size () != size) throw exception {} << "invalid size " << v.size () << "; expected " << size;
-        }
+    template <std::integral word, size_t... sizes>
+    writer<word> &operator << (writer<word> &, const bytes_array<word, sizes...> &);
+    
+    // all constructors constexpr
+    template <std::integral word, size_t size> struct bytes_array<word, size> : public array<word, size> {
+        using array<word, size>::array;
+
+        constexpr bytes_array (slice<const word, size> v);
+
+        bytes_array (const hex_string &);
         
         static bytes_array filled (const word &x) {
             bytes_array n {};
@@ -190,7 +215,7 @@ namespace data {
         
         operator view<word> () const;
         operator slice<word, size> ();
-        operator const slice<word, size> () const;
+        operator slice<const word, size> () const;
         
         bytes_array operator | (const slice<word, size> a) const {
             bytes_array n (*this);
@@ -208,6 +233,11 @@ namespace data {
             bytes_array n (*this);
             n.bit_xor (a);
             return n;
+        }
+
+        bytes_array &bit_negate () {
+            arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
+            return *this;
         }
         
     protected:
@@ -232,13 +262,13 @@ namespace data {
         
     };
     
-    template <std::unsigned_integral word, size_t size> 
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator ~ (const bytes_array<word, size> &b);
     
-    template <std::unsigned_integral word, size_t size> 
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i);
-    
-    template <std::unsigned_integral word, size_t size> 
+
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
     
     std::ostream &operator << (std::ostream &o, const bytes &s);
@@ -262,10 +292,11 @@ namespace data {
         }
     };
     
+    // all constructors constexpr
     template <endian::order r, std::unsigned_integral word, size_t size>
     struct oriented<r, word, size> : public bytes_array<word, size> {
         using bytes_array<word, size>::bytes_array;
-        oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
+        constexpr oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
         
         using words_type = arithmetic::Words<r, word>;
         
@@ -281,6 +312,61 @@ namespace data {
             return slice<byte> {(byte*) this->data (), size * sizeof (word)};
         }
     };
+
+    template <typename X, size_t size>
+    constexpr inline array<X, size>::array (std::initializer_list<X> x) : std::array<X, size> {} {
+        if (x.size () != size) throw exception {} << "out of range";
+        size_t index = 0;
+        for (const X &xx : x) std::array<X, size>::operator [] (index++) = xx;
+    }
+
+    template <typename X, size_t size>
+    array<X, size> inline array<X, size>::filled (const X &x) {
+        array n {};
+        n.fill (x);
+        return n;
+    }
+
+    template <typename X, size_t size>
+    bool inline array<X, size>::valid () const {
+        for (const X &x : *this) if (!data::valid (x)) return false;
+        return true;
+    }
+
+    template <std::integral word>
+    inline bytestring<word>::bytestring (view<word> v) : cross<word> (v.size ()) {
+        std::copy (v.begin (), v.end (), this->begin ());
+    }
+
+    template <std::integral word>
+    inline bytestring<word>::operator view<word> () const {
+        return view<word> {this->data (), this->size ()};
+    }
+
+    template <std::integral word>
+    inline bytestring<word>::operator slice<word> () {
+        return {this->data (), this->size ()};
+    }
+
+    template <std::integral word>
+    bytestring<word> inline &bytestring<word>::bit_negate () {
+        arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
+        return *this;
+    }
+
+    template <typename X, size_t size>
+    X inline &array<X, size>::operator [] (size_t i) {
+        if (size == 0) throw std::out_of_range {"cross size 0"};
+        if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
+        return std::array<X, size>::operator [] (i);
+    }
+
+    template <typename X, size_t size>
+    const X inline &array<X, size>::operator [] (size_t i) const {
+        if (size == 0) throw std::out_of_range {"cross size 0"};
+        if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
+        return std::array<X, size>::operator [] (i);
+    }
     
     template <std::unsigned_integral word>
     writer<word> inline &operator << (writer<word> &w, const bytestring<word> &x) {
@@ -288,21 +374,21 @@ namespace data {
         return w;
     }
     
-    template <std::unsigned_integral word, size_t size> 
-    writer<word> inline &operator << (writer<word> &w, const bytes_array<word, size> &x) {
-        w.write (x.data (), size);
+    template <std::unsigned_integral word, size_t... sizes>
+    writer<word> inline &operator << (writer<word> &w, const bytes_array<word, sizes...> &x) {
+        w.write (x.data (), (1 * sizes)...);
         return w;
     }
     
     template <std::unsigned_integral word>
-    reader<word> inline &operator >> (reader<byte> &r, bytestring<word> &x) {
+    reader<word> inline &operator >> (reader<word> &r, bytestring<word> &x) {
         r.read (x.data (), x.size ());
         return r;
     }
     
-    template <std::unsigned_integral word, size_t size> 
-    reader<word> inline &operator >> (reader<word> &r, bytes_array<word, size> &x) {
-        r.read (x.data (), size);
+    template <std::unsigned_integral word, size_t... sizes>
+    reader<word> inline &operator >> (reader<word> &r, bytes_array<word, sizes...> &x) {
+        r.read (x.data (), (1 * sizes)...);
         return r;
     }
     
@@ -375,7 +461,7 @@ namespace data {
     }
     
     template <typename X>
-    inline cross<X>::cross () : std::vector<X> {} {}
+    constexpr inline cross<X>::cross () : std::vector<X> {} {}
     
     template <typename X>
     inline cross<X>::cross (size_t size) : std::vector<X> (size) {}
@@ -426,7 +512,7 @@ namespace data {
     }
 
     template <std::unsigned_integral word, size_t size>
-    inline bytes_array<word, size>::operator const slice<word, size> () const {
+    inline bytes_array<word, size>::operator slice<const word, size> () const {
         return {const_cast<word *> (this->data ())};
     }
 
@@ -505,6 +591,18 @@ namespace data {
         }
 
         return x;
+    }
+
+    std::ostream inline &operator << (std::ostream &o, const bytes &s) {
+        return o << "\"" << encoding::hex::write (s) << "\"";
+    }
+
+    template <std::integral word>
+    bytestring<word>::bytestring (const hex_string &x) {
+        if (!x.valid () || ((x.size () / 2) % sizeof (word) != 0)) throw encoding::invalid {encoding::hex::Format, x};
+        if ((x.size () / 2) % sizeof (word) != 0) throw exception {} << "invalid hex string size";
+        this->resize (x.size () / (sizeof (word) * 2));
+        boost::algorithm::unhex (x.begin (), x.end (), static_cast<byte *> (this->data ()));
     }
     
 }

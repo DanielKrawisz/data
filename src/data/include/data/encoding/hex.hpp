@@ -13,9 +13,14 @@
 #include <boost/algorithm/hex.hpp>
 
 #include <data/encoding/invalid.hpp>
-#include <data/cross.hpp>
 #include <data/maybe.hpp>
 #include <data/arithmetic/endian.hpp>
+
+namespace data {
+    template <std::integral word> struct bytestring;
+
+    using bytes = bytestring<byte>;
+}
 
 namespace data::encoding::hex {
     const std::string Format {"hex"};
@@ -45,7 +50,7 @@ namespace data::encoding::hex {
     
     static constexpr auto pattern = ctll::fixed_string {"(([0-9a-f][0-9a-f])*)|(([0-9A-F][0-9A-F])*)"};
 
-    bool inline valid (string_view s) {
+    constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
     }
     
@@ -54,14 +59,13 @@ namespace data::encoding::hex {
     // A hex-encoded string
     struct string : std::string {
         string () : std::string {} {}
-        string (const std::string &x) : std::string {x} {}
+        explicit string (const char *x) : std::string {x} {}
+        explicit string (const std::string &x) : std::string {x} {}
         string (size_t n) : std::string (2 * n, '0') {}
         
         bool valid () const {
             return hex::valid (*this);
         }
-        
-        explicit operator bytes () const;
     };
     
     template <std::ranges::range range> 
@@ -110,10 +114,7 @@ namespace data::encoding::hex {
 namespace data {
     
     using hex_case = encoding::hex::letter_case;
-    
-    std::ostream inline &operator << (std::ostream &o, const bytes &s) {
-        return o << "\"" << encoding::hex::write (s) << "\"";
-    }
+    using hex_string = encoding::hex::string;
     
 }
 

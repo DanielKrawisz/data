@@ -15,18 +15,18 @@
 
 namespace data::crypto::hash::bitcoind {
     template <class hash, size_t Size> 
-    struct writer : data::writer<byte> {
+    struct writer : message_writer<digest<Size>, byte> {
         constexpr static size_t size = Size;
         
         hash Hash;
         
         writer () : Hash {} {}
         
-        void write (const byte *b, size_t x) override {
+        void write (const byte *b, size_t x) final override {
             Hash.Write (b, x);
         }
         
-        digest<size> finalize () {
+        digest<size> complete () final override {
             digest<size> d;
             Hash.Finalize ((byte *) d.data ());
             Hash.Reset ();

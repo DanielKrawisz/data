@@ -158,6 +158,22 @@ namespace data::math {
     template <endian::order r, size_t x> struct sign<sint<r, x>> {
         signature operator () (const sint<r, x> &);
     };
+
+    template <bool u, endian::order r, size_t x> struct re<number::bounded<u, r, x>> {
+        number::bounded<u, r, x> operator () (const number::bounded<u, r, x> &);
+    };
+
+    template <bool u, endian::order r, size_t x> struct im<number::bounded<u, r, x>> {
+        number::bounded<u, r, x> operator () (const number::bounded<u, r, x> &);
+    };
+
+    template <endian::order r, size_t x> struct conjugate<sint<r, x>> {
+        sint<r, x> operator () (const sint<r, x> &);
+    };
+
+    template <bool u, endian::order r, size_t x> struct inner<number::bounded<u, r, x>> {
+        number::bounded<u, r, x> & operator () (const number::bounded<u, r, x> &, const number::bounded<u, r, x> &);
+    };
     
     template <bool u, endian::order r, size_t x> struct is_zero<number::bounded<u, r, x>> {
         bool operator () (const number::bounded<u, r, x> &);
@@ -397,19 +413,25 @@ namespace data::math::number {
     template <endian::order r, size_t size>
     struct bounded<false, r, size> : oriented<r, byte, size> {
         
-        bounded () : oriented<r, byte, size> () {
+        constexpr bounded () : oriented<r, byte, size> () {
             this->fill (0x00);
         }
         
-        bounded (const uint64 x);
+        constexpr bounded (int32);
+        constexpr bounded (uint32);
+        constexpr bounded (uint64 x);
         
-        bounded (const byte_array<size> &);
+        constexpr bounded (const byte_array<size> &);
         
         explicit bounded (slice<byte, size> x);
         
         // The string can be a hex string or a representation of a number. 
-        explicit bounded (const string &s) : bounded {read (s)} {}
-        static bounded read (string_view);
+        explicit bounded (const std::string &s): bounded {read (s)} {}
+        explicit bounded (const char *x): bounded {read (string_view {x, std::strlen (x)})} {}
+        explicit bounded (const string_view);
+        static bounded read (string_view x) {
+            return bounded {x};
+        }
         
         math::division<bounded> divide (const bounded &) const;
         
@@ -427,7 +449,7 @@ namespace data::math::number {
         explicit operator bounded<true, r, size> () const;
 
         explicit bounded (const math::N &n): bounded {N_bytes<r> (n)} {}
-        explicit bounded (const N_bytes<r> &n) : bounded {} {
+        constexpr explicit bounded (const N_bytes<r> &n) : bounded {} {
             if (n.size () <= size) std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
             else if (N_bytes<r> (n) <= N_bytes<r> {max ()}) std::copy (n.words ().begin (), n.words ().begin () + size, this->begin ());
             else throw std::invalid_argument {"N_bytes too big"};
@@ -443,18 +465,25 @@ namespace data::math::number {
     template <endian::order r, size_t size>
     struct bounded<true, r, size> : oriented<r, byte, size> {
         
-        bounded () : oriented<r, byte, size> {} {
+        constexpr bounded () : oriented<r, byte, size> {} {
             this->fill (0);
         }
         
-        bounded (const int64 x);
+        constexpr bounded (int64 x);
+        constexpr bounded (int32);
+        constexpr bounded (uint64 x);
+        constexpr bounded (uint32);
         
-        bounded (const byte_array<size> &x) : oriented<r, byte, size> {x} {}
+        constexpr bounded (const byte_array<size> &x) : oriented<r, byte, size> {x} {}
         
         bounded (const bounded<false, r, size> &);
         
-        explicit bounded (string_view s) : bounded {read (s)} {}
-        static bounded read (string_view);
+        explicit bounded (const char *x): bounded {read (string_view {x, std::strlen (x)})} {}
+        explicit bounded (const std::string &s): bounded {read (s)} {}
+        explicit bounded (string_view s);
+        static bounded read (string_view x) {
+            return bounded {x};
+        }
 
         math::division<bounded> divide (const bounded &) const;
         
@@ -473,7 +502,7 @@ namespace data::math::number {
 
         explicit operator int64 () const;
         
-        explicit bounded (const Z_bytes<r, complement::ones> &z) {
+        constexpr explicit bounded (const Z_bytes<r, complement::ones> &z) {
             if (z.size () <= size) {
                 std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
                 char leading = data::is_negative (z) ? 0xff : 0x00;
@@ -627,7 +656,7 @@ namespace data::math {
     
     template <size_t size, endian::order o>
     struct abs<number::bounded<size, o, false>> {
-        number::bounded<size, o, false> operator()(const number::bounded<size, o, false>& i) {
+        number::bounded<size, o, false> operator () (const number::bounded<size, o, false> &i) {
             return i;
         }
     };
@@ -885,32 +914,22 @@ namespace data::math {
 namespace data::math::number {
     
     template <endian::order r, size_t size>
-    uint<r, size> uint<r, size>::read (string_view x) {
+    bounded<false, r, size>::bounded (string_view x) {
         if (encoding::decimal::valid (x) || encoding::hexidecimal::valid (x) && x.size () == 2 * size + 2)
-            return bounded {N_bytes<r>::read (x)};
-        
-        if (encoding::hex::valid (x) && x.size () == 2 * size) {
-            bounded z;
-            boost::algorithm::unhex (x.begin (), x.end (), z.begin ());
-            return z;
-        }
-        
-        throw std::invalid_argument {std::string {"invalid natural string "} + std::string {x}};
+            *this = bounded {N_bytes<r>::read (x)};
+        else if (encoding::hex::valid (x) && x.size () == 2 * size)
+            boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
+        else throw std::invalid_argument {std::string {"invalid natural string "} + std::string {x}};
     }
     
     template <endian::order r, size_t size>
-    sint<r, size> sint<r, size>::read (string_view x) {
+    bounded<true, r, size>::bounded (string_view x) {
         if (encoding::signed_decimal::valid (x) ||
             encoding::hexidecimal::valid (x) && x.size () == 2 * size + 2)
-                return bounded {Z_bytes<r, complement::ones>::read (x)};
-        
-        if (encoding::hex::valid (x) && x.size () == 2 * size) {
-            bounded z;
-            boost::algorithm::unhex (x.begin (), x.end (), z.begin ());
-            return z;
-        }
-        
-        throw std::invalid_argument {"invalid integer string"};
+                *this = bounded {Z_bytes<r, complement::ones>::read (x)};
+        else if (encoding::hex::valid (x) && x.size () == 2 * size)
+            boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
+        else throw std::invalid_argument {"invalid integer string"};
     }
     
     template <endian::order o, size_t size>
@@ -974,13 +993,48 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    uint<r, size>::bounded (const uint64 x) : bounded {} {
+    constexpr uint<r, size>::bounded (uint64 x) : bounded {} {
         arithmetic::endian_integral<false, endian::little, 8> n {x};
         std::copy (n.begin (), n.end (), this->words ().begin ());
     }
-    
+
     template <endian::order r, size_t size>
-    sint<r, size>::bounded (const int64 x) : oriented<r, byte, size>
+    constexpr sint<r, size>::bounded (uint64 x) : bounded {} {
+        arithmetic::endian_integral<false, endian::little, 8> n {x};
+        std::copy (n.begin (), n.end (), this->words ().begin ());
+    }
+
+    template <endian::order r, size_t size>
+    constexpr uint<r, size>::bounded (uint32 x) : bounded {} {
+        arithmetic::endian_integral<false, endian::little, 4> n {x};
+        std::copy (n.begin (), n.end (), this->words ().begin ());
+    }
+
+    template <endian::order r, size_t size>
+    constexpr sint<r, size>::bounded (int32 x) : bounded {} {
+        if (x < 0) {
+            *this = -bounded {-x};
+            return;
+        }
+        arithmetic::endian_integral<false, endian::little, 4> n {static_cast<uint32> (x)};
+        std::copy (n.begin (), n.end (), this->words ().begin ());
+    }
+
+    template <endian::order r, size_t size>
+    constexpr uint<r, size>::bounded (int32 x) : bounded {} {
+        if (x < 0) throw exception {} << "assign negative number to unsigned bounded";
+        arithmetic::endian_integral<false, endian::little, 4> n {static_cast<uint32> (x)};
+        std::copy (n.begin (), n.end (), this->words ().begin ());
+    }
+
+    template <endian::order r, size_t size>
+    constexpr sint<r, size>::bounded (uint32 x) : bounded {} {
+        arithmetic::endian_integral<false, endian::little, 4> n {x};
+        std::copy (n.begin (), n.end (), this->words ().begin ());
+    }
+
+    template <endian::order r, size_t size>
+    constexpr sint<r, size>::bounded (int64 x) : oriented<r, byte, size>
         {x < 0 ?
             bytes_array<byte, size>::filled (0xff) :
             bytes_array<byte, size>::filled (0x00)} {
@@ -989,7 +1043,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    uint<r, size>::bounded (const byte_array<size>& b) : oriented<r, byte, size> {b} {}
+    constexpr uint<r, size>::bounded (const byte_array<size> &b) : oriented<r, byte, size> {b} {}
     
     template <endian::order r, size_t size>
     uint<r, size>::bounded (slice<byte, size> x) {
@@ -1011,7 +1065,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size>
-    uint<r, size> inline operator + (const uint<r, size>& a, uint64 b) {
+    uint<r, size> inline operator + (const uint<r, size> &a, uint64 b) {
         return a + bounded<false, r, size> {b};
     }
     
