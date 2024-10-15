@@ -14,19 +14,19 @@ namespace data::crypto {
     template <size_t size> 
     using symmetric_key = byte_array<size>;
     
-    using initialization_vector = byte_array<32>;
+    using initialization_vector = bytes;
     
-    template <size_t size>
-    using encryption = bytes (*) (bytes_view, const symmetric_key<size> &, const initialization_vector &);
+    template <size_t key_size>
+    using encryption = bytes (*) (bytes_view, const symmetric_key<key_size> &, const initialization_vector &);
     
-    template <size_t size>
-    using decryption = bytes (*) (bytes_view, const symmetric_key<size> &, const initialization_vector &);
+    template <size_t key_size>
+    using decryption = bytes (*) (bytes_view, const symmetric_key<key_size> &, const initialization_vector &);
     
     template <size_t size> 
     struct retriever {
         virtual symmetric_key<size> retrieve () = 0;
     };
-    
+
     struct encrypted {
         bytes Data;
         initialization_vector &IV;
@@ -40,16 +40,16 @@ namespace data::crypto {
         }
     };
     
-    template <size_t size>
+    template <size_t key_size>
     inline encrypted encrypt
-        (bytes_view b, encryption<size> e, const symmetric_key<size> &k, const initialization_vector &iv) {
+        (bytes_view b, encryption<key_size> e, const symmetric_key<key_size> &k, const initialization_vector &iv) {
         return {e (write_bytes (12 + b.size (), uint64_big {0}, uint64_big {b.size ()}, b, uint64_big {0}), k, iv), iv};
     }
     
     struct decrypted;
     
-    template <size_t size>
-    decrypted decrypt (const encrypted &e, decryption<size> d, const symmetric_key<size> &k);
+    template <size_t key_size>
+    decrypted decrypt (const encrypted &e, decryption<key_size> d, const symmetric_key<key_size> &k);
     
     struct decrypted : bytes {
         struct fail : std::exception {
@@ -64,14 +64,14 @@ namespace data::crypto {
         decrypted (const size_t size) : bytes (size) {}
         decrypted (const decrypted &) = delete;
         
-        template <size_t size>
-        friend decrypted decrypt (const encrypted &e, decryption<size> d, const symmetric_key<size> &k);
+        template <size_t key_size>
+        friend decrypted decrypt (const encrypted &e, decryption<key_size> d, const symmetric_key<key_size> &k);
     };
     
-    template <size_t size>
-    decrypted decrypt (const encrypted &e, decryption<size> d, const symmetric_key<size> &k) {
+    template <size_t key_size>
+    decrypted decrypt (const encrypted &e, decryption<key_size> d, const symmetric_key<key_size> &k) {
         bytes x = d (e.Data, k, e.IV);
-        iterator_reader<bytes::iterator, byte> r (x.begin (), x.end ());
+        iterator_reader r (x.begin (), x.end ());
         uint64_big check_start;
         r >> check_start;
         if (check_start != 0) throw decrypted::fail {};
@@ -86,25 +86,25 @@ namespace data::crypto {
         return data;
     }
     
-    template <size_t size>
+    template <size_t key_size>
     struct locked : encrypted {
-        ptr<retriever<size>> Retriever;
-        crypto::decryption<size> Decrypt;
+        ptr<retriever<key_size>> Retriever;
+        crypto::decryption<key_size> Decrypt;
         decrypted decrypt () const {
             return crypto::decrypt (*this, Decrypt, Retriever->retrieve ());
         };
         
-        locked(const bytes& b, 
+        locked (const bytes &b,
             initialization_vector iv, 
-            crypto::decryption<size> d, 
-            ptr<retriever<size>> r) : encrypted {b, iv}, Retriever {r}, Decrypt {d} {}
+            crypto::decryption<key_size> d,
+            ptr<retriever<key_size>> r) : encrypted {b, iv}, Retriever {r}, Decrypt {d} {}
     };
     
-    template <size_t size>
-    struct trivial_passphrase : retriever<size> {
-        symmetric_key<size> Key;
+    template <size_t key_size>
+    struct trivial_passphrase : retriever<key_size> {
+        symmetric_key<key_size> Key;
         
-        symmetric_key<size> retrieve () override {
+        symmetric_key<key_size> retrieve () override {
             return Key;
         }
     };
@@ -123,7 +123,7 @@ namespace data::crypto {
             std::string line;
             std::getline (Cin, line);
             symmetric_key<32> x;
-            auto d = SHA2_256 (bytes_view {(byte*) line.data (), line.size ()});
+            auto d = SHA2_256 (bytes_view {(byte *) line.data (), line.size ()});
             std::copy (d.begin (), d.end (), x.begin ());
             return x;
         }

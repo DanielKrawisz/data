@@ -20,15 +20,15 @@ namespace data::net::email {
     struct message;
     struct header;
 
-    bytes_writer &operator << (bytes_writer &, const address &);
-    bytes_writer &operator << (bytes_writer &, const mailbox &);
-    bytes_writer &operator << (bytes_writer &, const message &);
-    bytes_writer &operator << (bytes_writer &, const header &);
+    writer<byte> &operator << (writer<byte> &, const address &);
+    writer<byte> &operator << (writer<byte> &, const mailbox &);
+    writer<byte> &operator << (writer<byte> &, const message &);
+    writer<byte> &operator << (writer<byte> &, const header &);
 
-    bytes_reader &operator >> (bytes_reader &, const address &);
-    bytes_reader &operator >> (bytes_reader &, const mailbox &);
-    bytes_reader &operator >> (bytes_reader &, const message &);
-    bytes_reader &operator >> (bytes_reader &, const header &);
+    reader<byte> &operator >> (reader<byte> &, const address &);
+    reader<byte> &operator >> (reader<byte> &, const mailbox &);
+    reader<byte> &operator >> (reader<byte> &, const message &);
+    reader<byte> &operator >> (reader<byte> &, const header &);
 
     struct address : ASCII {
         using ASCII::ASCII;
@@ -419,22 +419,22 @@ namespace data::net::email {
         return standard (*this);
     }
 
-    bytes_writer inline &operator << (bytes_writer &b, const address &a) {
+    writer<byte> inline &operator << (writer<byte> &b, const address &a) {
         b.write ((byte const *) (a.data ()), a.size ());
         return b;
     }
 
-    bytes_writer inline &operator << (bytes_writer &b, const mailbox &m) {
+    writer<byte> inline &operator << (writer<byte> &b, const mailbox &m) {
         b.write ((byte const *) (m.data ()), m.size ());
         return b;
     }
 
-    bytes_writer inline &operator << (bytes_writer &b, const message &m) {
+    writer<byte> inline &operator << (writer<byte> &b, const message &m) {
         b.write ((byte const *) (m.data ()), m.size ());
         return b;
     }
 
-    bytes_writer inline &operator << (bytes_writer &b, const header &h) {
+    writer<byte> inline &operator << (writer<byte> &b, const header &h) {
         b.write ((byte const *) (h.data ()), h.size ());
         return b;
     }
