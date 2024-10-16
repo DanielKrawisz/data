@@ -231,31 +231,37 @@ namespace data::math {
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline fraction<Z, N>::operator * (const Z &z) const {
         return *this * fraction {z};
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline fraction<Z, N>::operator / (const Z &z) const {
         return operator / (fraction {z});
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline &fraction<Z, N>::operator += (const fraction &f) {
         return *this = (operator + (f));
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline &fraction<Z, N>::operator -= (const fraction &f) {
         return *this = (operator - (f));
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline &fraction<Z, N>::operator *= (const fraction &f) {
         return *this = (operator * (f));
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline &fraction<Z, N>::operator /= (const fraction &f) {
         return *this = (operator / (f));
     }
