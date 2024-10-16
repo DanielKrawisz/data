@@ -151,13 +151,16 @@ namespace data::math {
     };
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     inline fraction<Z, N>::fraction () : Numerator {0}, Denominator {1u} {}
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     template <typename ZZ, typename NN> requires implicitly_convertible_to<ZZ, Z> && implicitly_convertible_to<NN, N>
     inline fraction<Z, N>::fraction (ZZ n, NN d) : fraction (divide (Z (n), N (d))) {}
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     template <typename ZZ> requires implicitly_convertible_to<ZZ, Z>
     inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
@@ -172,6 +175,7 @@ namespace data::math {
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     bool inline fraction<Z, N>::operator == (const Z &z) const {
         return *this == fraction {z};
     }
@@ -215,11 +219,13 @@ namespace data::math {
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> inline fraction<Z, N>::operator + (const Z &z) const {
         return operator + (fraction {z});
     }
 
     template <typename Z, typename N>
+    requires ring<Z, plus<Z>, times<Z>> && ordered<Z>
     fraction<Z, N> fraction<Z, N>::operator - (const Z &z) const {
         return operator - (fraction {z});
     }
