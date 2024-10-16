@@ -18,6 +18,7 @@ namespace data::crypto {
         CryptoPP::PKCS5_PBKDF2_HMAC<hash_func> pbkdf;
         byte_array<size> key;
         pbkdf.DeriveKey (key.data (), size, false, password.data (), password.size (), salt.data (), salt.size (), iterations, 0.0f);
+        return key;
     }
 
     template <size_t size, typename hash_func>
@@ -25,6 +26,7 @@ namespace data::crypto {
         CryptoPP::PKCS5_PBKDF2_HMAC<hash_func> pbkdf;
         byte_array<size> key;
         pbkdf.DeriveKey (key.data (), size, false, password.data (), password.size (), salt.data (), salt.size (), 0, seconds.count ());
+        return key;
     }
 
 }
