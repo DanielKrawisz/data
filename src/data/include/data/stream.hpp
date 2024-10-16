@@ -63,7 +63,7 @@ namespace data {
     struct end_message {};
 
     template <typename message, std::integral word>
-    message inline &operator << (message_writer<message, word> &w, end_message) {
+    message inline operator << (message_writer<message, word> &w, end_message) {
         return w.complete ();
     }
 

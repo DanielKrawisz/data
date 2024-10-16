@@ -109,6 +109,7 @@ namespace data::RB {
     // now let's talk about how to balance an RB tree.
 
     // finally, how to remove an RB tree.
+    // See matt.might.net/articles/red-black-delete/
 
 }
 

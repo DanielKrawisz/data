@@ -12,59 +12,59 @@
 
 namespace data::math {
     
-    template <typename N, auto & natural>
-    struct alternating_group : permutation<number::modular<N, natural>> {
+    template <auto natural, typename N = decltype (natural)>
+    struct alternating_group : permutation<number::modular<natural, N>> {
         
-        alternating_group operator*(const alternating_group& e) const;
-        alternating_group operator/(const alternating_group& e) const;
+        alternating_group operator * (const alternating_group &e) const;
+        alternating_group operator / (const alternating_group &e) const;
         
-        alternating_group inverse() const;
+        alternating_group inverse () const;
         
-        bool operator==(const alternating_group& e) const;
-        bool operator!=(const alternating_group& e) const;
+        bool operator == (const alternating_group &e) const;
+        bool operator != (const alternating_group &e) const;
         
-        alternating_group() : permutation<number::modular<N, natural>>{} {}
+        alternating_group () : permutation<number::modular<natural, N>> {} {}
         
-        static ptr<alternating_group> make(const permutation<number::modular<N, natural>>& p);
+        static ptr<alternating_group> make (const permutation<number::modular<natural, N>> &p);
         
-        bool valid() const {
-            return permutation<number::modular<N, natural>>::valid() && 
-                permutation<number::modular<N, natural>>::signature() == positive;
+        bool valid () const {
+            return permutation<number::modular<natural, N>>::valid () &&
+                permutation<number::modular<natural, N>>::signature () == positive;
         }
         
     private:
-        alternating_group(const permutation<number::modular<N, natural>>& p) : permutation<number::modular<N, natural>>{p} {}
+        alternating_group (const permutation<number::modular<natural, N>> &p) : permutation<number::modular<natural, N>> {p} {}
         
     };
 
     template <typename N, auto & natural>
-    inline std::ostream& operator<<(std::ostream& o, const alternating_group<N, natural>& m) {
-        return o << "alternating<"<<natural<<">{"<<static_cast<const permutation<number::modular<N, natural>>&>(m)<<"}";
+    inline std::ostream &operator << (std::ostream &o, const alternating_group<natural, N> &m) {
+        return o << "alternating<" << natural << ">{" << static_cast<const permutation<number::modular<natural, N>> &> (m) <<"}";
     }
     
 }
 
 namespace data::math {
     
-    template <typename N, auto & natural>
+    template <auto natural, typename N>
     struct associative<
-        times<alternating_group<N, natural>>, 
-        alternating_group<N, natural>>
+        times<alternating_group<natural, N>>,
+        alternating_group<natural, N>>
         : associative<plus<N>, N> {};
     
-    template <typename N, auto & natural>
+    template <auto natural, typename N>
     struct identity<
-        times<alternating_group<N, natural>>, 
-        alternating_group<N, natural>>
+        times<alternating_group<natural, N>>,
+        alternating_group<natural, N>>
         : identity<times<N>, N> {
-        alternating_group<N, natural> operator()() {
-            return {identity<times<N>, N>::value()};
+        alternating_group<natural, N> operator () () {
+            return {identity<times<N>, N>::value ()};
         }
     };
     
-    template <typename N, auto & natural>
-    struct inverse<times<alternating_group<N, natural>>, alternating_group<N, natural>> {
-        alternating_group<N, natural> operator()(const alternating_group<N, natural>& a, const alternating_group<N, natural>& b) {
+    template <auto natural, typename N>
+    struct inverse<times<alternating_group<natural, N>>, alternating_group<natural, N>> {
+        alternating_group<natural, N> operator () (const alternating_group<natural, N> &a, const alternating_group<natural, N> &b) {
             return b / a;
         }
     };

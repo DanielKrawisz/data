@@ -103,6 +103,10 @@ namespace data::crypto {
         return hash::calculate<hash::SHA2<32>> (b);
     }
 #endif
+
+    template <size_t size> digest<size> inline SHA3 (bytes_view b) {
+        return hash::calculate<hash::SHA3<size>> (b);
+    }
     
     digest384 inline SHA2_384 (bytes_view b) {
         return hash::calculate<hash::SHA2<48>> (b);

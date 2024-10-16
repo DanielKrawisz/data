@@ -29,14 +29,13 @@ add_library (data STATIC
   tools/channel.cpp
   crypto/random.cpp
   crypto/secret_share.cpp
-  crypto/AES.cpp
   tools/circular_queue.cpp
   tools/rate_limiter.cpp
   log/log.cpp
 )
 
-configure_file(include/data/version.hpp.in generated/data/version.hpp )
-target_include_directories(data PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+configure_file (include/data/version.hpp.in generated/data/version.hpp )
+target_include_directories (data PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_link_libraries (
   data
@@ -70,25 +69,25 @@ target_compile_features (data PUBLIC cxx_std_23)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
 
-include(GNUInstallDirs)
-install(DIRECTORY
+include (GNUInstallDirs)
+install (DIRECTORY
   include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-install(TARGETS data nlohmann_json argh rotella milewski gmpxx sv
+install (TARGETS data nlohmann_json argh rotella milewski gmpxx sv
 EXPORT DataTargets ARCHIVE 
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp 
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/data)
 
-install(EXPORT DataTargets
+install (EXPORT DataTargets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/data
   FILE dataTargets.cmake
   NAMESPACE Data::
 )
 
-include(CMakePackageConfigHelpers)
+include (CMakePackageConfigHelpers)
 # generate the config file that includes the exports
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/dataConfig.cmake"
@@ -101,13 +100,14 @@ configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/dataConfigVersion.cmake"
   COMPATIBILITY AnyNewerVersion
 )
-install(FILES
+
+install (FILES
   ${CMAKE_CURRENT_BINARY_DIR}/dataConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/dataConfigVersion.cmake
   DESTINATION lib/cmake/data
-  )
+)
 
-  set(CPACK_PACKAGE_VENDOR "Daniel Krawisz")
-set(CPACK_PACKAGE_CONTACT "email@example.com")
-set(CPACK_PACKAGE_DESCRIPTION "data")
-include(CPack)
+set (CPACK_PACKAGE_VENDOR "Daniel Krawisz")
+set (CPACK_PACKAGE_CONTACT "email@example.com")
+set (CPACK_PACKAGE_DESCRIPTION "data")
+include (CPack)

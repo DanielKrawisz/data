@@ -7,48 +7,51 @@
 
 #include <data/types.hpp>
 #include <data/math/power.hpp>
+#include <data/math/abs.hpp>
+#include <data/math/commutative.hpp>
+#include <data/math/associative.hpp>
 
 #include <cryptopp/integer.h>
 #include <cryptopp/modarith.h>
 
 namespace data::math::number {
     
-    template <typename X, auto & mod> struct modular;
+    template <auto mod, typename X = decltype (mod)> struct modular;
     
-    template <typename X, auto & mod>
-    std::weak_ordering operator <=> (const modular<X, mod> &, const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    std::weak_ordering operator <=> (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <typename X, auto & mod>
-    bool operator == (const modular<X, mod> &, const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    bool operator == (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <typename X, auto & mod>
-    modular<X, mod> operator + (const modular<X, mod> &, const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    modular<mod, X> operator + (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <typename X, auto & mod>
-    modular<X, mod> operator - (const modular<X, mod> &, const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    modular<mod, X> operator - (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <typename X, auto & mod>
-    modular<X, mod> operator - (const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    modular<mod, X> operator - (const modular<mod, X> &);
     
-    template <typename X, auto & mod>
-    modular<X, mod> operator * (const modular<X, mod> &, const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    modular<mod, X> operator * (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <typename X, auto & mod>
-    modular<X, mod> operator ^ (const modular<X, mod> &, const modular<X, mod> &);
+    template <auto mod, typename X = decltype (mod)>
+    modular<mod, X> operator ^ (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> operator + (const modular<CryptoPP::Integer, mod> &, const modular<CryptoPP::Integer, mod> &);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> operator + (const modular<mod, CryptoPP::Integer> &, const modular<mod, CryptoPP::Integer> &);
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> operator - (const modular<CryptoPP::Integer, mod> &, const modular<CryptoPP::Integer, mod> &);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> operator - (const modular<mod, CryptoPP::Integer> &, const modular<mod, CryptoPP::Integer> &);
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> operator * (const modular<CryptoPP::Integer, mod> &, const modular<CryptoPP::Integer, mod> &);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> operator * (const modular<mod, CryptoPP::Integer> &, const modular<mod, CryptoPP::Integer> &);
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> operator ^ (const modular<CryptoPP::Integer, mod> &, const modular<CryptoPP::Integer, mod> &);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> operator ^ (const modular<mod, CryptoPP::Integer> &, const modular<mod, CryptoPP::Integer> &);
     
-    template <typename X, auto & mod> struct modular {
+    template <auto mod, typename X> struct modular {
         X Value;
         static const X &modulus ();
         
@@ -60,7 +63,7 @@ namespace data::math::number {
         
     };
     
-    template <auto & mod> struct modular<CryptoPP::Integer, mod> {
+    template <auto mod> struct modular<mod, CryptoPP::Integer> {
         CryptoPP::Integer Value;
         static CryptoPP::ModularArithmetic &arithmetic ();
         static const CryptoPP::Integer &modulus ();
@@ -72,8 +75,8 @@ namespace data::math::number {
         operator CryptoPP::Integer () const;
     };
 
-    template <typename X, auto & mod>
-    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<X, mod> &m) {
+    template <auto mod, typename X = decltype (mod)>
+    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<mod, X> &m) {
         return o << m.Value;
     }
     
@@ -81,25 +84,25 @@ namespace data::math::number {
 
 namespace data::math {
     
-    template <typename X, auto & mod>
-    struct commutative<plus<number::modular<X, mod>>, number::modular<X, mod>>
+    template <auto mod, typename X>
+    struct commutative<plus<number::modular<mod, X>>, number::modular<mod, X>>
         : commutative<plus<X>, X> {};
     
-    template <typename X, auto & mod>
-    struct associative<plus<number::modular<X, mod>>, number::modular<X, mod>>
+    template <auto mod, typename X>
+    struct associative<plus<number::modular<mod, X>>, number::modular<mod, X>>
         : associative<plus<X>, X> {};
     
-    template <typename X, auto & mod>
-    struct identity<plus<number::modular<X, mod>>, number::modular<X, mod>>
+    template <auto mod, typename X>
+    struct identity<plus<number::modular<mod, X>>, number::modular<mod, X>>
         : identity<plus<X>, X> {
-        number::modular<X, mod> operator () () {
+        number::modular<mod, X> operator () () {
             return {identity<plus<X>, X>::value ()};
         }
     };
     
-    template <typename X, auto & mod>
-    struct inverse<plus<number::modular<X, mod>>, number::modular<X, mod>> {
-        number::modular<X, mod> operator () (const number::modular<X, mod> &a, const number::modular<X, mod> &b) {
+    template <auto mod, typename X>
+    struct inverse<plus<number::modular<mod, X>>, number::modular<mod, X>> {
+        number::modular<mod, X> operator () (const number::modular<mod, X> &a, const number::modular<mod, X> &b) {
             return b - a;
         }
     };
@@ -108,102 +111,102 @@ namespace data::math {
 
 namespace data::math::number {
     
-    template <typename X, auto & mod>
-    bool inline operator == (const modular<X, mod> &a, const modular<X, mod> &b) {
+    template <auto mod, typename X>
+    bool inline operator == (const modular<mod, X> &a, const modular<mod, X> &b) {
         return a.Value == b.Value;
     }
 
-    template <typename X, auto & mod>
-    std::weak_ordering inline operator <=> (const modular<X, mod> &a, const modular<X, mod> &b) {
+    template <auto mod, typename X>
+    std::weak_ordering inline operator <=> (const modular<mod, X> &a, const modular<mod, X> &b) {
         return a.Value <=> b.Value;
     }
     
-    template <typename X, auto & mod>
-    modular<X, mod> inline operator + (const modular<X, mod> &a, const modular<X, mod> &b) {
-        return (a.Value + b.Value) % modular<X, mod>::modulus ();
+    template <auto mod, typename X>
+    modular<mod, X> inline operator + (const modular<mod, X> &a, const modular<mod, X> &b) {
+        return (a.Value + b.Value) % modular<mod, X>::modulus ();
     }
     
-    template <typename X, auto & mod>
-    modular<X, mod> inline operator * (const modular<X, mod> &a, const modular<X, mod> &b) {
-        return (a.Value * b.Value) % modular<X, mod>::modulus ();
+    template <auto mod, typename X>
+    modular<mod, X> inline operator * (const modular<mod, X> &a, const modular<mod, X> &b) {
+        return (a.Value * b.Value) % modular<mod, X>::modulus ();
     }
     
-    template <typename X, auto & mod>
-    modular<X, mod> inline operator - (const modular<X, mod> &a, const modular<X, mod> &b) {
-        if (a.Value < b.Value) return modular<X, mod>::modulus () - (b.Value - a.Value);
+    template <auto mod, typename X>
+    modular<mod, X> inline operator - (const modular<mod, X> &a, const modular<mod, X> &b) {
+        if (a.Value < b.Value) return modular<mod, X>::modulus () - (b.Value - a.Value);
         return a.Value - b.Value;
     }
     
-    template <typename X, auto & mod>
-    modular<X, mod> inline operator - (const modular<X, mod> &a) {
-        return {modular<X, mod>::modulus () - a.Value};
+    template <auto mod, typename X>
+    modular<mod, X> inline operator - (const modular<mod, X> &a) {
+        return {modular<mod, X>::modulus () - a.Value};
     }
     
-    template <typename X, auto & mod>
-    modular<X, mod> inline operator^(const modular<X, mod> &a, const X &b) {
-        return {power_mod<X>{}(modular<X, mod>::modulus(), a.Value, b)};
+    template <auto mod, typename X>
+    modular<mod, X> inline operator^(const modular<mod, X> &a, const X &b) {
+        return {power_mod<X>{}(modular<mod, X>::modulus(), a.Value, b)};
     }
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> inline operator +
-    (const modular<CryptoPP::Integer, mod> &a, const modular<CryptoPP::Integer, mod> &b) {
-        return modular<CryptoPP::Integer, mod>::arithmetic ().Add (a.Value, b.Value);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> inline operator +
+    (const modular<mod, CryptoPP::Integer> &a, const modular<mod, CryptoPP::Integer> &b) {
+        return modular<mod, CryptoPP::Integer>::arithmetic ().Add (a.Value, b.Value);
     }
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> inline operator -
-    (const modular<CryptoPP::Integer, mod> &a, const modular<CryptoPP::Integer, mod> &b) {
-        return modular<CryptoPP::Integer, mod>::arithmetic ().Subject (a.Value, b.Value);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> inline operator -
+    (const modular<mod, CryptoPP::Integer> &a, const modular<mod, CryptoPP::Integer> &b) {
+        return modular<mod, CryptoPP::Integer>::arithmetic ().Subject (a.Value, b.Value);
     }
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> inline operator *
-    (const modular<CryptoPP::Integer, mod> &a, const modular<CryptoPP::Integer, mod> &b) {
-        return modular<CryptoPP::Integer, mod>::arithmetic ().Multiply (a.Value, b.Value);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> inline operator *
+    (const modular<mod, CryptoPP::Integer> &a, const modular<mod, CryptoPP::Integer> &b) {
+        return modular<mod, CryptoPP::Integer>::arithmetic ().Multiply (a.Value, b.Value);
     }
     
-    template <auto & mod>
-    modular<CryptoPP::Integer, mod> inline operator ^
-    (const modular<CryptoPP::Integer, mod> &a, const CryptoPP::Integer &b) {
-        modular<CryptoPP::Integer, mod> result;
-        modular<CryptoPP::Integer, mod>::arithmetic ().CascadeExponentiate (&result.Value, a.Value, &b, 1);
+    template <auto mod>
+    modular<mod, CryptoPP::Integer> inline operator ^
+    (const modular<mod, CryptoPP::Integer> &a, const CryptoPP::Integer &b) {
+        modular<mod, CryptoPP::Integer> result;
+        modular<mod, CryptoPP::Integer>::arithmetic ().CascadeExponentiate (&result.Value, a.Value, &b, 1);
         return result;
     }
     
-    template <typename X, auto & mod>
-    const X &modular<X, mod>::modulus () {
+    template <auto mod, typename X>
+    const X &modular<mod, X>::modulus () {
         static X Mod (mod);
         return Mod;
     }
-
-    template <typename X, auto &mod>
+    
+    template <auto mod, typename X>
     template <typename... P>
-    inline modular<X, mod>::modular (P... p) : Value (p...) {
+    inline modular<mod, X>::modular (P... p) : Value (p...) {
         Value %= modulus ();
     }
-
-    template <typename X, auto &mod>
-    bool inline modular<X, mod>::valid () const {
+    
+    template <auto mod, typename X>
+    bool inline modular<mod, X>::valid () const {
         return Value >= 0 && Value < modulus ();
     }
     
-    template <auto &mod>
-    CryptoPP::ModularArithmetic &modular<CryptoPP::Integer, mod>::arithmetic () {
+    template <auto mod>
+    CryptoPP::ModularArithmetic &modular<mod, CryptoPP::Integer>::arithmetic () {
         static CryptoPP::ModularArithmetic Mod {CryptoPP::Integer (mod)};
         return Mod;
     }
     
-    template <auto &mod>
-    const CryptoPP::Integer inline &modular<CryptoPP::Integer, mod>::modulus () {
+    template <auto mod>
+    const CryptoPP::Integer inline &modular<mod, CryptoPP::Integer>::modulus () {
         return arithmetic ().GetModulus ();
     }
     
-    template <auto &mod>
+    template <auto mod>
     template <typename... P>
-    inline modular<CryptoPP::Integer, mod>::modular (P... p) : Value (p...) {}
+    inline modular<mod, CryptoPP::Integer>::modular (P... p) : Value (p...) {}
     
-    template <auto &mod>
-    bool inline modular<CryptoPP::Integer, mod>::valid () const {
+    template <auto mod>
+    bool inline modular<mod, CryptoPP::Integer>::valid () const {
         return Value >= 0 && Value < arithmetic ().GetModulus ();
     }
 

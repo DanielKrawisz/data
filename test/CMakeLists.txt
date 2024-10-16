@@ -7,7 +7,6 @@ endif ()
 option (OPTIONAL_TESTS "Build optional Tests" OFF)
 include (GoogleTest)
 add_executable (unit_tests
-
     testMaybeEither.cpp
     testStore.cpp
     testException.cpp
@@ -16,7 +15,6 @@ add_executable (unit_tests
     testBase64.cpp
     testAscii.cpp
     testStream.cpp
-    testHash.cpp
     testIntegerFormat.cpp
     testFunctionalInterfaces.cpp
     testLinkedStack.cpp
@@ -56,12 +54,14 @@ add_executable (unit_tests
     testModular.cpp
     testAlgebra.cpp
     testPolynomial.cpp
+    testGeometry.cpp
+    testHash.cpp
+    testSymmetricCrypto.cpp
     testSecretShare.cpp
     testLog.cpp
     testArgsParser.cpp
     testIP.cpp
     testEmail.cpp
-
 )
 
 target_link_libraries (unit_tests
