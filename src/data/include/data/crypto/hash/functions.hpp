@@ -94,63 +94,67 @@ namespace data::crypto::hash {
 namespace data::crypto {
 
     digest160 inline SHA1 (string_view b) {
-        return SHA1 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA1 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest224 inline SHA2_224 (string_view b) {
-        return SHA2_224 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA2_224 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest256 inline SHA2_256 (string_view b) {
-        return SHA2_256 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA2_256 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest384 inline SHA2_384 (string_view b) {
-        return SHA2_384 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA2_384 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest512 inline SHA2_512 (string_view b) {
-        return SHA2_512 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA2_512 (bytes_view {(const byte *) (b.data ()), b.size ()});
+    }
+
+    template <size_t size> digest<size> SHA3 (string_view b) {
+        return SHA3<size> (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest224 inline SHA3_224 (string_view b) {
-        return SHA3_224 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA3_224 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest256 inline SHA3_256 (string_view b) {
-        return SHA3_256 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA3_256 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest384 inline SHA3_384 (string_view b) {
-        return SHA3_384 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA3_384 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest512 inline SHA3_512 (string_view b) {
-        return SHA3_512 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return SHA3_512 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest128 inline RIPEMD_128 (string_view b) {
-        return RIPEMD_128 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return RIPEMD_128 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest160 inline RIPEMD_160 (string_view b) {
-        return RIPEMD_160 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return RIPEMD_160 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest256 inline RIPEMD_256 (string_view b) {
-        return RIPEMD_256 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return RIPEMD_256 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest320 inline RIPEMD_320 (string_view b) {
-        return RIPEMD_320 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return RIPEMD_320 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest160 inline Bitcoin_160 (string_view b) {
-        return Bitcoin_160 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return Bitcoin_160 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
     digest256 inline Bitcoin_256 (string_view b) {
-        return Bitcoin_256 (bytes_view {(const byte*) (b.data ()), b.size ()});
+        return Bitcoin_256 (bytes_view {(const byte *) (b.data ()), b.size ()});
     }
 
 }

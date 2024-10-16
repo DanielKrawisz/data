@@ -11,7 +11,7 @@
 
 namespace data::math {
     
-    template <typename N, auto & natural> using cyclic_group = number::modular<N, natural>;
+    template <auto natural, typename N = decltype (natural)> using cyclic_group = number::modular<natural, N>;
     
 }
 

@@ -75,6 +75,7 @@ namespace data {
         using std::array<X, size>::array;
 
         constexpr array (std::initializer_list<X> x);
+
         // make an array filled with a particular value.
         static array filled (const X &x);
 
@@ -92,14 +93,6 @@ namespace data {
 
         slice<const X> range (int) const;
         slice<const X> range (int, int) const;
-        
-    protected:
-        template <typename iterator> array (iterator it) : array () {
-            for (X &x : *this) {
-                x = *it; 
-                it++;
-            }
-        }
     };
 
     template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
@@ -599,11 +592,16 @@ namespace data {
         return o << "\"" << encoding::hex::write (s) << "\"";
     }
 
-    template <std::integral word>
-    bytestring<word>::bytestring (const hex_string &x) {
+    template <std::integral word> bytestring<word>::bytestring (const hex_string &x) {
         if (!x.valid () || ((x.size () / 2) % sizeof (word) != 0)) throw encoding::invalid {encoding::hex::Format, x};
         if ((x.size () / 2) % sizeof (word) != 0) throw exception {} << "invalid hex string size";
         this->resize (x.size () / (sizeof (word) * 2));
+        boost::algorithm::unhex (x.begin (), x.end (), static_cast<byte *> (this->data ()));
+    }
+
+    template <std::integral word, size_t size> bytes_array<word, size>::bytes_array (const hex_string &x) {
+        if (!x.valid () || ((x.size () / 2) % sizeof (word) != 0)) throw encoding::invalid {encoding::hex::Format, x};
+        if ((x.size () / 2) != sizeof (word) * size) throw exception {} << "invalid hex string size";
         boost::algorithm::unhex (x.begin (), x.end (), static_cast<byte *> (this->data ()));
     }
     

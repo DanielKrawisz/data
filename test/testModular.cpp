@@ -78,24 +78,24 @@ namespace data {
     template <typename N> struct test_modular {
         test_modular () {
 
-            test_suite<N, math::number::modular<N, d2>> ();
-            test_suite<N, math::number::modular<N, d3>> ();
-            test_suite<N, math::number::modular<N, d4>> ();
-            test_suite<N, math::number::modular<N, d5>> ();
-            test_suite<N, math::number::modular<N, d6>> ();
-            test_suite<N, math::number::modular<N, d7>> ();
-            test_suite<N, math::number::modular<N, d8>> ();
-            test_suite<N, math::number::modular<N, d9>> ();
-            test_suite<N, math::number::modular<N, d10>> ();
-            test_suite<N, math::number::modular<N, d11>> ();
-            test_suite<N, math::number::modular<N, d12>> ();
-            test_suite<N, math::number::modular<N, d13>> ();
-            test_suite<N, math::number::modular<N, d14>> ();
-            test_suite<N, math::number::modular<N, d15>> ();
-            test_suite<N, math::number::modular<N, d16>> ();
-            test_suite<N, math::number::modular<N, d17>> ();
-            test_suite<N, math::number::modular<N, d18>> ();
-            test_suite<N, math::number::modular<N, d19>> ();
+            test_suite<N, math::number::modular<d2, N>> ();
+            test_suite<N, math::number::modular<d3, N>> ();
+            test_suite<N, math::number::modular<d4, N>> ();
+            test_suite<N, math::number::modular<d5, N>> ();
+            test_suite<N, math::number::modular<d6, N>> ();
+            test_suite<N, math::number::modular<d7, N>> ();
+            test_suite<N, math::number::modular<d8, N>> ();
+            test_suite<N, math::number::modular<d9, N>> ();
+            test_suite<N, math::number::modular<d10, N>> ();
+            test_suite<N, math::number::modular<d11, N>> ();
+            test_suite<N, math::number::modular<d12, N>> ();
+            test_suite<N, math::number::modular<d13, N>> ();
+            test_suite<N, math::number::modular<d14, N>> ();
+            test_suite<N, math::number::modular<d15, N>> ();
+            test_suite<N, math::number::modular<d16, N>> ();
+            test_suite<N, math::number::modular<d17, N>> ();
+            test_suite<N, math::number::modular<d18, N>> ();
+            test_suite<N, math::number::modular<d19, N>> ();
 
         }
     };
