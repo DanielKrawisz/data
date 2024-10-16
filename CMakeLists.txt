@@ -4,10 +4,10 @@ cmake_minimum_required (VERSION 3.16)
 if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
-if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source builds are not allowed")
 endif ()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
 
 project (
   data
@@ -47,7 +47,7 @@ add_definitions ("-DHAS_BOOST")
 
 if (PACKAGE_TESTS)
   include (CTest)
-  FetchContent_Declare(
+  FetchContent_Declare (
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG v1.14.0
