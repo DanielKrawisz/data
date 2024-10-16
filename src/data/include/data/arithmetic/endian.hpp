@@ -5,12 +5,12 @@
 #ifndef DATA_ARITHMETIC_ENDIAN
 #define DATA_ARITHMETIC_ENDIAN
 
+#include <boost/endian/arithmetic.hpp>
+
 #include <data/stream.hpp>
 #include <data/arithmetic/halves.hpp>
 #include <data/arithmetic/words.hpp>
 #include <data/math/number/integer.hpp>
-
-#include <boost/endian/arithmetic.hpp>
 
 namespace data::arithmetic {
 
@@ -210,16 +210,51 @@ namespace data::math {
         }
     };
 
+    template <bool x, boost::endian::order o, std::size_t z>
+    struct re<arithmetic::endian_integral<x, o, z>> {
+        arithmetic::endian_integral<x, o, z> operator () (const arithmetic::endian_integral<x, o, z> &n) {
+            return n;
+        }
+    };
+
+    template <bool x, boost::endian::order o, std::size_t z>
+    struct im<arithmetic::endian_integral<x, o, z>> {
+        arithmetic::endian_integral<x, o, z> operator () (const arithmetic::endian_integral<x, o, z> &n) {
+            return 0;
+        }
+    };
+
+    template <bool x, boost::endian::order o, std::size_t z>
+    struct inner<arithmetic::endian_integral<x, o, z>> {
+        arithmetic::endian_integral<x, o, z> operator () (
+            const arithmetic::endian_integral<x, o, z> &n,
+            const arithmetic::endian_integral<x, o, z> &m) {
+            return n * m;
+        }
+    };
+
+    template <boost::endian::order o, std::size_t z>
+    struct conjugate<arithmetic::endian_integral<true, o, z>> {
+        arithmetic::endian_integral<true, o, z> operator () (
+            const arithmetic::endian_integral<true, o, z> &x) {
+            return x;
+        }
+    };
+
     template <endian::order r, size_t x>
     struct inverse<plus<arithmetic::endian_integral<true, r, x>>, arithmetic::endian_integral<true, r, x>> {
-        arithmetic::endian_integral<true, r, x> operator () (const arithmetic::endian_integral<true, r, x> &a, const arithmetic::endian_integral<true, r, x> &b) {
+        arithmetic::endian_integral<true, r, x> operator () (
+            const arithmetic::endian_integral<true, r, x> &a,
+            const arithmetic::endian_integral<true, r, x> &b) {
             return b - a;
         }
     };
 
     template <bool z, boost::endian::order o, std::size_t n>
     struct times<arithmetic::endian_integral<z, o, n>> {
-        arithmetic::endian_integral<z, o, n> operator () (const arithmetic::endian_integral<z, o, n> &a, const arithmetic::endian_integral<z, o, n> &b) {
+        arithmetic::endian_integral<z, o, n> operator () (
+            const arithmetic::endian_integral<z, o, n> &a,
+            const arithmetic::endian_integral<z, o, n> &b) {
             return a * b;
         }
 
@@ -378,7 +413,8 @@ namespace data::arithmetic {
 
     template <bool z, boost::endian::order o, std::size_t s>
     writer<byte> inline &operator << (writer<byte> &w, endian_integral<z, o, s> x) {
-        return w << bytes_view (x);
+        w.write (x.data (), s);
+        return w;
     }
 
     template <bool z, boost::endian::order o, std::size_t s>
@@ -489,7 +525,7 @@ namespace data::arithmetic {
     template struct endian_integral<false, endian::little, 6>;
     template struct endian_integral<false, endian::little, 7>;
     template struct endian_integral<false, endian::little, 8>;
-    
+
     template writer<byte> &operator << (writer<byte> &w, endian_integral<true, endian::big, 1> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<true, endian::big, 1> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<true, endian::big, 2> x);
@@ -506,7 +542,7 @@ namespace data::arithmetic {
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<true, endian::big, 7> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<true, endian::big, 8> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<true, endian::big, 8> &x);
-    
+
     template writer<byte> &operator << (writer<byte> &w, endian_integral<false, endian::big, 1> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<false, endian::big, 1> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<false, endian::big, 2> x);
@@ -523,7 +559,7 @@ namespace data::arithmetic {
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<false, endian::big, 7> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<false, endian::big, 8> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<false, endian::big, 8> &x);
-    
+
     template writer<byte> &operator << (writer<byte> &w, endian_integral<true, endian::little, 1> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<true, endian::little, 1> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<true, endian::little, 2> x);
@@ -540,7 +576,7 @@ namespace data::arithmetic {
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<true, endian::little, 7> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<true, endian::little, 8> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<true, endian::little, 8> &x);
-    
+
     template writer<byte> &operator << (writer<byte> &w, endian_integral<false, endian::little, 1> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<false, endian::little, 1> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<false, endian::little, 2> x);
@@ -557,6 +593,7 @@ namespace data::arithmetic {
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<false, endian::little, 7> &x);
     template writer<byte> &operator << (writer<byte> &w, endian_integral<false, endian::little, 8> x);
     template reader<byte> &operator >> (reader<byte> &r, endian_integral<false, endian::little, 8> &x);
+
 }
 
 #endif
