@@ -370,14 +370,14 @@ namespace data {
         return reverse (ls);
     }
 
-    template <ordered elem> stack<elem> sublists<elem>::iterator::operator * () const {
+    template <typename elem> stack<elem> sublists<elem>::iterator::operator * () const {
         stack<elem> ls;
         for (int i = 0; i < Indices.size (); i++)
             ls <<= Sublists->List[Indices[i]];
         return reverse (ls);
     }
 
-    template <ordered elem> stack<elem> partitions<elem>::iterator::operator * () const {
+    template <typename elem> stack<elem> partitions<elem>::iterator::operator * () const {
         stack<elem> ls;
         for (int i = 0; i < Partitions->Size.Value; i++) ls <<= Partitions->List[i + Index];
         return reverse (ls);

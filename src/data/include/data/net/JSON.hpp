@@ -20,16 +20,17 @@ namespace data::net {
         open<string_view, const std::string &> o,
         close_handler on_close,
         interaction<const JSON &> receiver) {
-            serialized_session_read<const JSON &, const JSON &, char> (o, [] (const JSON &j) -> std::string {
-                return j.dump ();
-            }, [error_handler] (string_view x) -> JSON {
-                try {
-                    auto j = JSON::parse (x);
-                    return j;
-                } catch (const JSON::exception &x) {
-                    error_handler (x);
-                }
-            }) (on_close, receiver);
+            serialized_session_read<const JSON &, JSON, char> (o,
+                [] (const JSON &j) -> std::string {
+                    return j.dump ();
+                }, [error_handler] (string_view x) -> JSON {
+                    try {
+                        auto j = JSON::parse (x);
+                        return j;
+                    } catch (const JSON::exception &x) {
+                        error_handler (x);
+                    }
+                }) (on_close, receiver);
     }
 
     // JSON line session means that we insert a new line at the end of every JSON type.
