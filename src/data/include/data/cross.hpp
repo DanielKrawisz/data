@@ -368,25 +368,25 @@ namespace data {
         return std::array<X, size>::operator [] (i);
     }
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     writer<word> inline &operator << (writer<word> &w, const bytestring<word> &x) {
         w.write (x.data (), x.size ());
         return w;
     }
     
-    template <std::unsigned_integral word, size_t... sizes>
+    template <std::integral word, size_t... sizes>
     writer<word> inline &operator << (writer<word> &w, const bytes_array<word, sizes...> &x) {
         w.write (x.data (), (1 * sizes)...);
         return w;
     }
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     reader<word> inline &operator >> (reader<word> &r, bytestring<word> &x) {
         r.read (x.data (), x.size ());
         return r;
     }
     
-    template <std::unsigned_integral word, size_t... sizes>
+    template <std::integral word, size_t... sizes>
     reader<word> inline &operator >> (reader<word> &r, bytes_array<word, sizes...> &x) {
         r.read (x.data (), (1 * sizes)...);
         return r;
@@ -411,7 +411,7 @@ namespace data {
         return n;
     }
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     bytestring<word> operator << (const bytestring<word> &b, int32 i) {
         bytestring n (b);
         if (i < 0) n.bit_shift_right (-i);
@@ -419,7 +419,7 @@ namespace data {
         return n;
     }
     
-    template <std::unsigned_integral word>    
+    template <std::integral word>
     bytestring<word> operator >> (const bytestring<word> &b, int32 i) {
         bytestring n (b);
         if (i < 0) n.bit_shift_left (-i);
@@ -427,24 +427,24 @@ namespace data {
         return n;
     }
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     void inline bytestring<word>::bit_shift_left (uint32 x, bool fill) {
         arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_left (x, fill);
     }
     
-    template <std::unsigned_integral word>
+    template <std::integral word>
     void inline bytestring<word>::bit_shift_right (uint32 x, bool fill) {
         arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_right (x, fill);
     }
     
-    template <std::unsigned_integral word, size_t size> 
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
         return n;
     }
     
-    template <std::unsigned_integral word, size_t size> 
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i) {
         bytes_array<word, size> n (b);
         if (i < 0) n.bit_shift_right (-i);
@@ -452,7 +452,7 @@ namespace data {
         return n;
     }
     
-    template <std::unsigned_integral word, size_t size>
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i) {
         bytes_array<word, size> n (b);
         if (i < 0) n.bit_shift_left (-i);
@@ -501,17 +501,17 @@ namespace data {
         return operator slice<X> ().range (e);
     }
     
-    template <std::unsigned_integral word, size_t size>
+    template <std::integral word, size_t size>
     inline bytes_array<word, size>::operator slice<word, size> () {
         return {this->data ()};
     }
     
-    template <std::unsigned_integral word, size_t size>
+    template <std::integral word, size_t size>
     inline bytes_array<word, size>::operator view<word> () const {
         return {this->data (), size};
     }
 
-    template <std::unsigned_integral word, size_t size>
+    template <std::integral word, size_t size>
     inline bytes_array<word, size>::operator slice<const word, size> () const {
         return {const_cast<word *> (this->data ())};
     }

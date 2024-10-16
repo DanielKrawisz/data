@@ -106,45 +106,42 @@ namespace data::math::linear {
 
 namespace data::math {
 
-    template <typename q, typename nda>
-    requires ordered<q> && conjugate_algebra<q, nda>
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     q inline quadrance<cayley_dickson<q, nda>>::operator () (const cayley_dickson<q, nda> &x) {
         return linear::inner<q, cayley_dickson<q, nda>> {} (x, x);
     }
 
-    template <typename q, typename nda>
-    requires ordered<q> && conjugate_algebra<q, nda>
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     cayley_dickson<q, nda> conjugate<cayley_dickson<q, nda>>::operator () (const cayley_dickson<q, nda> &x) {
         return cayley_dickson<q, nda> {data::conjugate (x.Re), -x.Im};
     }
     
-    template <typename q, typename nda> 
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator ~ () const {
         return data::conjugate (*this);
     }
     
-    template <typename q, typename nda> 
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator + (const cayley_dickson &x) const {
         return {Re + x.Re, Im + x.Im};
     }
     
-    template <typename q, typename nda> 
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator - () const {
         return {-Re, -Im};
     }
     
-    template <typename q, typename nda> 
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator - (const cayley_dickson &x) const {
         return {Re - x.Re, Im - x.Im};
     }
     
-    template <typename q, typename nda> 
+    template <typename q, typename nda> requires ordered<q> && conjugate_algebra<q, nda>
     cayley_dickson<q, nda> inline cayley_dickson<q, nda>::operator * (const cayley_dickson &x) const {
         return {Re * x.Re - x.Im * conjugate<nda> {} (Im), conjugate<nda> {} (Re) * x.Im + x.Re * Im};
     }
 
-    template <typename q, typename nda>
-    requires ordered<q> && normed_division_algebra<q, nda>
+    template <typename q, typename nda> requires ordered<q> && normed_division_algebra<q, nda>
     cayley_dickson<q, nda> inline operator / (const cayley_dickson<q, nda> &a, const nonzero<cayley_dickson<q, nda>> &b) {
         return a * inverse<times<cayley_dickson<q, nda>>, cayley_dickson<q, nda>> {} (b).Value;
     }
