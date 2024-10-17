@@ -24,9 +24,9 @@ namespace data::encoding::base64 {
     
     constexpr static char Pad = '=';
     
-    static constexpr auto pattern = ctll::fixed_string {"(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})"};
+    constexpr static auto pattern = ctll::fixed_string {"(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})"};
 
-    inline bool valid (string_view s) {
+    constexpr inline bool valid (string_view s) {
         return ctre::match<pattern> (s);
     }
     

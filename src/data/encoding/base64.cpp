@@ -22,27 +22,26 @@ namespace data::encoding::base64 {
     }
     
     uint32 padding (string_view source) {
-        size_t source_size = source.size();
+        size_t source_size = source.size ();
+
         if (source_size < 4) return 0;
+
         if (source[source_size - 1] == '=') {
             if (source[source_size - 2] == '=') return 2;
             else return 1;
         }
+
         return 0;
     }
     
     maybe<bytes> read (string_view source) {
         if (!base64::valid (source)) return {};
         
-        uint32 padding = base64::padding (source);
-        
         const static uint32_t mask = 0x000000FF;
         
         bytes b {};
 
-        const size_t length = source.length ();
-        if (length & 3) return {};
-        b.reserve (((length / 4) * 3) - padding);
+        b.reserve (((source.length () / 4) * 3) - base64::padding (source));
 
         uint32_t value = 0;
         for (auto cursor = source.begin (); cursor < source.end ();) {
