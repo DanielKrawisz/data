@@ -135,7 +135,6 @@ namespace data {
         if (Size == 1) return o << "{" << root () << "}";
         return right ().write (left ().write (o << "{" << root () << ", ") << ", ") << "}";
     }
-
 }
 
 #endif

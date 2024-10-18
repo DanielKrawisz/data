@@ -215,7 +215,7 @@ namespace data {
         }
         return x;
     }
-    
+
     template <typename elem>
     template <typename X, typename Y, typename ... P>
     linked_stack<elem> inline linked_stack<elem>::prepend (X x, Y y, P ... p) const {

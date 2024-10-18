@@ -32,19 +32,27 @@ namespace data {
         
         static_assert (container<ordered_list<int>, const int>);
         static_assert (container<ordered_list<int *>, const int *>);
-        static_assert (container<ordered_list<int &>, const int>);
+        static_assert (container<ordered_list<int &>, const int &>);
         
         static_assert (container<ordered_list<const int>, const int>);
         static_assert (container<ordered_list<const int *>, const int *>);
-        static_assert (container<ordered_list<const int &>, const int>);
+        static_assert (container<ordered_list<const int &>, const int &>);
         
         static_assert (container<priority_queue<int>, const int>);
         static_assert (container<priority_queue<int *>, const int *>);
-        static_assert (container<priority_queue<int &>, const int>);
+        static_assert (container<priority_queue<int &>, const int &>);
         
         static_assert (container<priority_queue<const int>, const int>);
         static_assert (container<priority_queue<const int *>, const int *>);
-        static_assert (container<priority_queue<const int &>, const int>);
+        static_assert (container<priority_queue<const int &>, const int &>);
+
+        static_assert (container<set<const int>, const int>);
+        static_assert (container<set<const int *>, const int *>);
+        static_assert (container<set<const int &>, const int &>);
+
+        static_assert (container<set<const int>, const int>);
+        static_assert (container<set<const int *>, const int *>);
+        static_assert (container<set<const int &>, const int &>);
         
     }
 
@@ -57,6 +65,14 @@ namespace data {
         static_assert (std::forward_iterator<decltype (std::declval<const ordered_list<const int>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const ordered_list<const int *>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const ordered_list<const int &>> ().begin ())>);
+
+        static_assert (std::forward_iterator<decltype (std::declval<const set<int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const set<int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const set<int &>> ().begin ())>);
+
+        static_assert (std::forward_iterator<decltype (std::declval<const set<const int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const set<const int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const set<const int &>> ().begin ())>);
 
     }
 }
