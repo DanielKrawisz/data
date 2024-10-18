@@ -22,7 +22,7 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_stack_constructor = requires (list x, element e) {
-        { list {e, x} } -> std::same_as<list>;
+        { list (e, x) } -> std::same_as<list>;
     } && requires (element e) {
         { list {e} } -> std::same_as<list>;
     };

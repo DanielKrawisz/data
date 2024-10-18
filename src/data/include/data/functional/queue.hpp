@@ -15,7 +15,7 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_queue_constructor = requires (list x, element e) {
-        { list {x, e} } -> std::same_as<list>;
+        { list (x, e) } -> std::same_as<list>;
     } && requires (element e) {
         { list {e} } -> std::same_as<list>;
     };

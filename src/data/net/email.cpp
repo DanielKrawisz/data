@@ -228,7 +228,7 @@ namespace data::net::email {
     message::message (const write &w) {
         incomplete_message i {};
         i = i.attach (email::date {w.Sent.Date});
-        i = i.attach (email::from {w.Sent.From});
+        i = i.attach (email::from {{w.Sent.From}});
         if (bool (w.Sent.MessageID)) i = i.attach (email::message_id (*w.Sent.MessageID));
         if (bool (w.Sent.Sender)) i = i.attach (email::sender (*w.Sent.Sender));
         if (bool (w.Sent.To)) i = i.attach (email::to (*w.Sent.To));

@@ -36,27 +36,27 @@ namespace data {
         
         is_container<ordered_list<const int>, const int> ();
         is_container<ordered_list<const int *>, const int *> ();
-        is_container<ordered_list<const int &>, const int &> ();
+        is_container<ordered_list<const int &>, const int> ();
         
         is_container<priority_queue<int>, const int> ();
         is_container<priority_queue<int *>, const int *> ();
-        is_container<priority_queue<int &>, const int &> ();
+        is_container<priority_queue<int &>, const int>();
         
         is_container<priority_queue<const int>, const int> ();
         is_container<priority_queue<const int *>, const int *> ();
-        is_container<priority_queue<const int &>, const int &> ();
+        is_container<priority_queue<const int &>, const int> ();
         
     }
     
     TEST (FunctionalInterfaceTest, TestList) {
         
-        is_list<list<int>> ();
-        is_list<list<int *>> ();
-        is_list<list<int &>> ();
+        is_list<list<int>, int> ();
+        is_list<list<int *>, int *> ();
+        is_list<list<int &>, int &> ();
         
-        is_list<list<const int>> ();
-        is_list<list<const int *>> ();
-        is_list<list<const int &>> ();
+        is_list<list<const int>, const int> ();
+        is_list<list<const int *>, const int *> ();
+        is_list<list<const int &>, const int &> ();
         
     }
     
