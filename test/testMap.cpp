@@ -13,30 +13,30 @@ namespace data {
         static_assert (functional::map<map<uint32, int>>);
         static_assert (functional::map<map<uint32, int *>>);
         static_assert (functional::map<map<uint32, int &>>);
-/*
+
         static_assert (functional::map<map<uint32, const int>>);
         static_assert (functional::map<map<uint32, const int *>>);
-        static_assert (functional::map<map<uint32, const int &>>);*/
+        static_assert (functional::map<map<uint32, const int &>>);
 
-        static_assert (std::forward_iterator<tool::rb_map_iterator<uint32, int>>);
-        static_assert (std::forward_iterator<tool::rb_map_iterator<uint32, int *>>);
-        static_assert (std::forward_iterator<tool::rb_map_iterator<uint32, int &>>);
+        static_assert (std::forward_iterator<map<uint32, int>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, int *>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, int &>::iterator>);
 
-        static_assert (std::forward_iterator<tool::rb_map_iterator<uint32, const int>>);
-        static_assert (std::forward_iterator<tool::rb_map_iterator<uint32, const int *>>);
-        static_assert (std::forward_iterator<tool::rb_map_iterator<uint32, const int &>>);
+        static_assert (std::forward_iterator<map<uint32, const int>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, const int *>::iterator>);
+        static_assert (std::forward_iterator<map<uint32, const int &>::iterator>);
         
     }
 
     TEST (MapTest, TestOrderedSetInterface) {
 
         static_assert (functional::ordered_set<set<int>>);
-        static_assert (functional::ordered_set<set<int *>>);/*
+        static_assert (functional::ordered_set<set<int *>>);
         static_assert (functional::ordered_set<set<int &>>);
 
         static_assert (functional::ordered_set<set<const int>>);
         static_assert (functional::ordered_set<set<const int *>>);
-        static_assert (functional::ordered_set<set<const int &>>);*/
+        static_assert (functional::ordered_set<set<const int &>>);
         
     }
     
@@ -53,7 +53,7 @@ namespace data {
         EXPECT_NE (m3, m4);
         EXPECT_NE (m4, m1);
         
-        using e = entry<int, int>;
+        using e = entry<const int, int>;
         stack<e> v1 {{1, 7}, {2, 1}, {3, 5}};
         stack<e> v3 {{3, 5}, {5, 2}, {8, 3}};
         stack<e> v4 {{3, 5}, {5, 2}};
@@ -91,7 +91,7 @@ namespace data {
         
         EXPECT_EQ (empty_map.begin (), empty_map.end ());
         
-        entry<int, int> first_entry {7, 7};
+        entry<const int, int> first_entry {7, 7};
         map<int, int> small_map {first_entry};
         
         auto small_begin = small_map.begin ();
@@ -111,11 +111,11 @@ namespace data {
         set<string> b;
         set<Z> c;
         set<N> d;
-/*
+
         set<const int> ax;
         set<const string> bx;
         set<const Z> cx;
-        set<const N> dx;*/
+        set<const N> dx;
     }
 
     TEST (MapTest, TestInsert) {
@@ -124,7 +124,7 @@ namespace data {
         // it's ok for a set though.
         EXPECT_NO_THROW (set<int> {}.insert (1).insert (1));
         // However, we can make it work by adding a special function.
-        EXPECT_NO_THROW ((map<int, int> {}. insert (0, 1).insert (0, 2, [] (const int &a, const int &b) {
+        EXPECT_NO_THROW ((map<int, int> {}. insert (0, 1).insert (0, 2, [] (const int &a, const int &b) -> const int & {
             return a;
         })));
 

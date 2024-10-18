@@ -41,6 +41,8 @@ namespace data {
 
     using bytes_view = view<byte>;
 
+    template <typename X, typename Y> using pair = std::pair<X, Y>;
+
     template <typename X>
     using unref = std::remove_reference_t<X>;
 
