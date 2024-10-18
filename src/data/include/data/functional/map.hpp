@@ -69,10 +69,10 @@ namespace data {
             typename key = decltype (std::declval<X> ().values ().first ().Key),
             typename value = decltype (std::declval<X> ().values ().first ().Value)>
         concept map = container<const X, const key> &&
-            indexed<const X, const key, value> &&
-            ordered_set<const X, const entry<key, value>> &&
+            indexed<const X, const key, const value> &&
+            ordered_set<const X, const entry<const key, value>> &&
             interface::has_insert_key_value<const X, const key, value> &&
-            interface::has_insert_method<X, const entry<key, value>> &&
+            interface::has_insert_method<X, const entry<const key, value>> &&
             interface::has_keys_method<const X, const key> &&
             interface::has_remove_method<const X, const key> && 
             std::default_initializable<X>;
@@ -82,6 +82,80 @@ namespace data {
             return o << m.values ();
         }
 
+    }
+
+    namespace tool {
+        // we find that it is useful to have a map that also has other
+        // attributes. This type is useful for creating a map that can
+        // be extended.
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        struct base_map : M {
+            using M::map;
+
+            // the derived type needs to inheret these constructors.
+            base_map (M &&rb);
+            base_map (const M &rb);
+
+            derived insert (const K &k, const V &v) const;
+            derived insert (const entry<K, V> &e) const;
+            derived insert (const K &k, const V &v, function<V (const V &old_v, const V &new_v)> already_exists) const;
+
+            derived operator << (const entry<K, V> &e) const;
+
+            derived replace (const V &a, const V &b) const;
+            derived replace_part (const K &k, const V &v) const;
+            derived replace_part (const K &k, function<V (const V &)> f) const;
+
+            derived remove (const K &k) const;
+
+        };
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        inline base_map<derived, K, V, M>::base_map (M &&rb) : M {rb} {}
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        inline base_map<derived, K, V, M>::base_map (const M &rb) : M {rb} {}
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::insert (const K &k, const V &v) const {
+            return derived {M::insert (k, v)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::insert (const entry<K, V> &e) const {
+            return derived {M::insert (e)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::insert (const K &k, const V &v, function<V (const V &old_v, const V &new_v)> already_exists) const {
+            return derived {M::insert (k, v, already_exists)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::operator << (const entry<K, V> &e) const {
+            return derived {M::insert (e)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::replace (const V &a, const V &b) const {
+            return derived {M::replace (a, b)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::replace_part (const K &k, const V &v) const {
+            return derived {M::replace_part (k, v)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::replace_part (const K &k, function<V (const V &)> f) const {
+            return derived {M::replace_part (k, f)};
+        }
+
+        template <typename derived, typename K, typename V, functional::map<K, V> M>
+        derived inline base_map<derived, K, V, M>::remove (const K &k) const {
+            return derived {M::remove (k)};
+        }
     }
 
 }

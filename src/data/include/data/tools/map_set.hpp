@@ -25,9 +25,8 @@ namespace data::tool {
     template <typename it> struct map_set_iterator;
     
     // turn any map into a set. 
-    template <typename M, 
-        typename K = typename std::remove_const<typename std::remove_reference<decltype (std::declval<M> ().keys ().first ())>::type>::type>
-    requires functional::map<M, K, unit>
+    template <typename M, typename K = decltype (std::declval<const M> ().values ().first ().Key)>
+    requires functional::map<M, std::remove_const_t<K>, unit>
     struct map_set {
         using key = K;
         
@@ -79,7 +78,7 @@ namespace data::tool {
             return map_set {Map.remove (k)};
         }
         
-        const ordered_stack<linked_stack<key>> values () const {
+        ordered_stack<linked_stack<const key &>> values () const {
             return Map.keys ();
         }
         
@@ -93,7 +92,7 @@ namespace data::tool {
         }
         
         template <typename ... P>
-        map_set (K k, P... p);
+        map_set (K k, P... p) : map_set {map_set {}.insert (k, p...)} {}
         
         bool operator == (const map_set &m) const {
             return values () == m.values ();
@@ -159,13 +158,6 @@ namespace data::tool {
     inline std::ostream &operator << (std::ostream &o, const map_set<M, K> &m) {
         return functional::write (o << "set", m.values ());
     }
-    
-    // TODO use initializer list.
-    template <typename M, typename K>
-    requires functional::map<M, K, unit>
-    template <typename ... P>
-    inline map_set<M, K>::map_set (K k, P... p) :
-        map_set {map_set {}.insert (k, p...)} {}
 
     template <typename it> struct map_set_iterator {
         it It;

@@ -25,9 +25,10 @@
 
 // A implementations of data structures. 
 #include <data/tools/linked_stack.hpp>
-#include <data/tools/rb_map.hpp>
+#include <data/tools/rb.hpp>
 #include <data/tools/functional_queue.hpp>
 #include <data/tools/linked_tree.hpp>
+#include <data/tools/binary_search_tree.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/tools/ordered_list.hpp>
@@ -49,11 +50,12 @@ namespace data {
     template <typename X> using tree = linked_tree<X>;
     
     // a functional map implemented as a red-black tree
-    // wrapper of Milewski's implementation of Okasaki.
-    template <typename K, typename V> using map = tool::rb_map<K, V>;
+    template <typename K, typename V> using map = binary_search_map<K, V,
+        RB::tree<data::entry<const K, V>,
+            tree<RB::colored<data::entry<const K, V>>>>>;
     
     // set implemented as a map. 
-    template <typename X> using set = tool::map_set<map<X, tool::unit>>;
+    template <typename X> using set = RB::tree<X, tree<RB::colored<X>>>;
     
     // priority queue. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using priority_queue = tool::priority_queue<tree<X>>;

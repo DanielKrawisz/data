@@ -46,6 +46,7 @@ namespace data::RB {
         explicit operator colored<X> () const;
     };
 
+    // Need to provide an ordering for map entries.
     template <ordered V> auto inline operator <=> (const colored<V> &a, const colored<V> &b) {
         return a.Value <=> b.Value;
     }
@@ -75,6 +76,51 @@ namespace data::RB {
     }
 
     template <sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    struct tree : binary_search_tree<colored<V>, T> {
+        tree ();
+        tree (const binary_search_tree<colored<V>, T> &t);
+        tree (binary_search_tree<colored<V>, T> &&t);
+
+        tree (std::initializer_list<wrapped<V>> x);
+
+        const V &root () const;
+        V &root ();
+
+        tree left () const;
+        tree right () const;
+
+        tree insert (inserted<V> v) const;
+
+        template <typename ...P>
+        tree insert (inserted<V> a, inserted<V> b, P... p);
+
+        unref<V> *contains (inserted<V> x) const;
+
+        tree remove (inserted<V>) const;
+
+        struct iterator : binary_search_tree<colored<V>, T>::iterator {
+            using parent = binary_search_tree<colored<V>, T>::iterator;
+            using parent::iterator;
+
+            using value_type = const unref<V>;
+
+            iterator operator ++ (int);
+            iterator &operator ++ ();
+
+            const unref<V> &operator * () const;
+            const unref<V> *operator -> () const;
+
+            bool operator == (const iterator i) const;
+        };
+
+        iterator begin () const;
+        iterator end () const;
+
+        tool::ordered_stack<linked_stack<inserted<V>>> values () const;
+
+    };
 
     // now let's talk about how to check whether a tree is balanced.
     template <sortable V, functional::buildable_tree<colored<V>> T>
@@ -110,6 +156,78 @@ namespace data::RB {
 
     // finally, how to remove an RB tree.
     // See matt.might.net/articles/red-black-delete/
+
+    // member functions of the tree
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    inline tree<V, T>::tree (): binary_search_tree<colored<V>, T> {} {}
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    inline tree<V, T>::tree (const binary_search_tree<colored<V>, T> &t): binary_search_tree<colored<V>, T> {t} {}
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    inline tree<V, T>::tree (binary_search_tree<colored<V>, T> &&t): binary_search_tree<colored<V>, T> {t} {}
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    inline tree<V, T>::tree (std::initializer_list<wrapped<V>> x) {
+        for (auto &v : x) *this = insert (v);
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    const V inline &tree<V, T>::root () const {
+        return binary_search_tree<colored<V>, T>::root ().Value;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    V inline &tree<V, T>::root () {
+        return binary_search_tree<colored<V>, T>::root ().Value;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tree<V, T> inline tree<V, T>::left () const {
+        return binary_search_tree<colored<V>, T>::left ();
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tree<V, T> inline tree<V, T>::right () const {
+        return binary_search_tree<colored<V>, T>::right ();
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <typename ...P>
+    tree<V, T> inline tree<V, T>::insert (inserted<V> a, inserted<V> b, P... p) {
+        return insert (a).insert (b, p...);
+    }
+
+    // member functions for the iterator
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tree<V, T>::iterator inline tree<V, T>::iterator::operator ++ (int) {
+        auto x = *this;
+        ++(*this);
+        return x;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tree<V, T>::iterator inline &tree<V, T>::iterator::operator ++ () {
+        ++static_cast<parent &> (*this);
+        return *this;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    const unref<V> inline &tree<V, T>::iterator::operator * () const {
+        return static_cast<const parent &> (*this)->Value;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    const unref<V> inline *tree<V, T>::iterator::operator -> () const {
+        return &static_cast<const parent &> (*this)->Value;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    bool inline tree<V, T>::iterator::operator == (const iterator i) const {
+        return static_cast<const parent &> (*this) == static_cast<const parent &> (i);
+    }
 
 }
 
