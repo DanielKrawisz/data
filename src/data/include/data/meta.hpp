@@ -44,12 +44,16 @@ namespace data {
         template <typename X> struct retriever<X &> {
             using type = X &;
         };
+
+        template <typename X> struct retriever<X *> {
+            using type = X *;
+        };
     }
 
     template <typename X> using retrieved = meta::retriever<X>::type;
 
     namespace meta {
-        // insert has to do with values that put into a data structure.
+        // insert has to do with values that we put into a data structure.
         template <typename X> struct insert {
             using type = const X &;
         };
@@ -58,21 +62,10 @@ namespace data {
             using type = X &;
         };
 
-        template <typename X> struct insert<const X &> {
-            using type = const X &;
-        };
-
         template <typename X> struct insert<X *> {
             using type = X *;
         };
 
-        template <typename X> struct insert<const X *> {
-            using type = const X *;
-        };
-
-        template <typename X> struct insert<X *const> {
-            using type = X *const;
-        };
     }
 
     template <typename X> using inserted = meta::insert<X>::type;

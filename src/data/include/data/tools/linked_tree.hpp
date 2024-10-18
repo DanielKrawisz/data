@@ -33,9 +33,6 @@ namespace data {
         linked_tree ();
         linked_tree (const value &v, linked_tree l, linked_tree r);
         linked_tree (const value &v);
-        linked_tree (const linked_tree &t);
-        
-        linked_tree &operator = (const linked_tree &t);
         
         template <typename X> requires std::equality_comparable_with<value, X>
         bool operator == (const data::linked_tree<X> &x) const;
@@ -105,19 +102,6 @@ namespace data {
     
     template <typename value>
     inline linked_tree<value>::linked_tree (const value &v) : linked_tree {v, linked_tree {}, linked_tree {}} {}
-    
-    template <typename value>
-    inline linked_tree<value>::linked_tree (const linked_tree &t) {
-        Node = t.Node;
-        Size = t.Size;
-    }
-    
-    template <typename value>
-    inline linked_tree<value> &linked_tree<value>::operator = (const linked_tree &t) {
-        Node = t.Node;
-        Size = t.Size;
-        return *this;
-    }
     
     template <typename value>
     std::ostream &linked_tree<value>::write (std::ostream &o) const {
