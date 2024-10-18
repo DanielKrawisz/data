@@ -44,9 +44,10 @@ namespace data {
         EXPECT_NE (m3, m4);
         EXPECT_NE (m4, m1);
         
-        stack<entry<int, int>> v1 {entry<int, int> {1, 7}, entry<int, int> {2, 1}, entry<int, int>{3, 5}};
-        stack<entry<int, int>> v3 {entry<int, int> {3, 5}, entry<int, int> {5, 2}, entry<int, int>{8, 3}};
-        stack<entry<int, int>> v4 {entry<int, int> {3, 5}, entry<int, int> {5, 2}};
+        using e = entry<int, int>;
+        stack<e> v1 {{1, 7}, {2, 1}, {3, 5}};
+        stack<e> v3 {{3, 5}, {5, 2}, {8, 3}};
+        stack<e> v4 {{3, 5}, {5, 2}};
         
         EXPECT_TRUE (m1.values () == v1);
         EXPECT_TRUE (m2.values () == v1);

@@ -34,7 +34,7 @@ namespace data {
         auto empty = stack<int &> {};
         auto zero = stack<int &> {Zero, {}};
         auto one = stack<int &> {One, {}};
-        auto one_zero = stack<int &>{One, {Zero,{}}};
+        auto one_zero = stack<int &> {One, zero};
         
         EXPECT_TRUE (empty == empty);
         EXPECT_TRUE (one == one);
@@ -42,10 +42,10 @@ namespace data {
         EXPECT_FALSE (one == zero);
         EXPECT_TRUE (one.first () == One);
         
-        EXPECT_TRUE (stack<int&> (One).first () == One);
+        EXPECT_TRUE (stack<int &> (One).first () == One);
         EXPECT_TRUE (one.rest() == empty);
         EXPECT_TRUE (one_zero.rest () == zero);
-        EXPECT_TRUE (stack<int&> (One).size () == 1);
+        EXPECT_TRUE (stack<int &> (One).size () == 1);
         
     }
 
@@ -134,7 +134,5 @@ namespace data {
         linked_stack<Z_bytes_little> {1};
         linked_stack<Z_bytes_little> (1);
         linked_stack<Z_bytes_little> {1, 2};
-        linked_stack<Z_bytes_little> (1, 2);
-        //linked_stack<Z_bytes_little> ({1});
     }
 }

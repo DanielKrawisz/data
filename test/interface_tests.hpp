@@ -15,33 +15,33 @@ namespace data {
 
     template <typename X, typename elem>
     requires iterable<X, elem>
-    void is_iterable() {}
+    void is_iterable () {}
 
     template <const_iterable X> 
-    void is_const_iterable() {}
+    void is_const_iterable () {}
     
     template <functional::stack X>
-    void is_stack() {}
+    void is_stack () {}
 
-    template <functional::list X>
-    void is_list() {}
+    template <typename X, typename elem> requires functional::list<X, elem>
+    void is_list () {}
 
     template <functional::tree X>
-    void is_tree() {}
+    void is_tree () {}
 
     template <functional::map X>
-    void is_map() {}
+    void is_map () {}
 
     template <functional::ordered_set X>
-    void is_ordered_set() {}
+    void is_ordered_set () {}
     
     template <std::input_iterator X>
-    void is_input_iterator() {}
+    void is_input_iterator () {}
     
     template <typename X, typename elem> requires std::output_iterator<X, elem>
-    void is_output_iterator() {}
+    void is_output_iterator () {}
     
     template <std::bidirectional_iterator X>
-    void is_bidirectional_iterator() {}
+    void is_bidirectional_iterator () {}
     
 }
