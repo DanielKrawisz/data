@@ -5,6 +5,7 @@
 #ifndef DATA_FUNCTIONAL_TREE
 #define DATA_FUNCTIONAL_TREE
 
+#include <data/types.hpp>
 #include <data/concepts.hpp>
 #include <data/functional/list.hpp>
 #include <data/tools/linked_stack.hpp>
@@ -77,7 +78,7 @@ namespace data::functional {
 
     template <typename T, typename X> requires search_tree<T, X>
     unref<X> inline *contains (T t, X x) {
-        return empty (t) ? nullptr: x == root (t) ? &root (t):
+        return data::empty (t) ? nullptr: x == root (t) ? &root (t):
             x < root (t) ? contains (left (t), x) : contains (right (t), x);
     }
     
@@ -88,11 +89,21 @@ namespace data::functional {
 
     template <typename T, typename X = element_of<T>>
     requires search_tree<T, X> && buildable_tree<T, X>
-    T inline insert (T t, inserted<X> x) {
-        return empty (t) ? T {x, T {}, T {}}:
-            x == root (t) ? t:
-                x < root (t) ? T {root (t), insert (left (t), x), right (t)}:
-                    T {root (t), left (t), insert (right (t), x)};
+    T inline insert (T t, inserted<X> x, data::function<inserted<X> (inserted<X>, inserted<X>)> if_equivalent) {
+        return data::empty (t) ? T {x, T {}, T {}}:
+            x <=> data::root (t) == 0 ? T {if_equivalent (root (t), x), left (t), right (t)}:
+                x < data::root (t) ? T {data::root (t), insert<T, X> (left (t), x, if_equivalent), right (t)}:
+                    T {data::root (t), left (t), insert<T, X> (right (t), x, if_equivalent)};
+    }
+
+    template <typename value>
+    inserted<value> inline keep_old (inserted<value> old_val, inserted<value> new_val) {
+        return old_val;
+    }
+
+    template <typename value>
+    inserted<value> inline replace_new (inserted<value> old_val, inserted<value> new_val) {
+        return new_val;
     }
     
     template <typename tree, typename P> 

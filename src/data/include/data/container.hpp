@@ -13,22 +13,22 @@ namespace data {
     namespace interface {
         
         template <typename X, typename element> 
-        concept has_values_method = requires (X x) {
+        concept has_values_method = requires (const X x) {
             { x.values () } -> sequence<element>;
         };
         
         template <typename X, typename element> 
-        concept has_contains_method = requires (X x, const element e) {
+        concept has_contains_method = requires (const X x, const element e) {
             { x.contains (e) } -> implicitly_convertible_to<bool>;
         };
     
         template <typename X, typename element>
-        concept has_insert_method = requires (X x, const element e) {
+        concept has_insert_method = requires (const X x, const element e) {
             { x.insert (e) } -> implicitly_convertible_to<X>;
         };
         
         template <typename X, typename element>
-        concept has_remove_method = requires (X x, const element e) {
+        concept has_remove_method = requires (const X x, const element e) {
             { x.remove (e) } -> implicitly_convertible_to<X>;
         };
         
