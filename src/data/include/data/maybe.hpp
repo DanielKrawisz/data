@@ -11,16 +11,16 @@
 
 namespace data {
 
-    template <typename X> struct maybe : std::optional<meta::contain<X>> {
-        using std::optional<meta::contain<X>>::optional;
-        constexpr maybe (std::optional<meta::contain<X>> &&x) : std::optional<meta::contain<X>> {x} {}
+    template <typename X> struct maybe : std::optional<wrapped<X>> {
+        using std::optional<wrapped<X>>::optional;
+        constexpr maybe (std::optional<wrapped<X>> &&x) : std::optional<wrapped<X>> {x} {}
 
         constexpr meta::retrieve<X> operator * () {
-            return (meta::retrieve<X>) *static_cast<std::optional<meta::contain<X>> &> (*this);
+            return (meta::retrieve<X>) *static_cast<std::optional<wrapped<X>> &> (*this);
         }
 
         constexpr const meta::retrieve<X> operator * () const {
-            return (const meta::retrieve<X>) *static_cast<const std::optional<meta::contain<X>> &> (*this);
+            return (const meta::retrieve<X>) *static_cast<const std::optional<wrapped<X>> &> (*this);
         }
     };
 

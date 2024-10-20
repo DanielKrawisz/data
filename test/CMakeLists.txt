@@ -27,7 +27,7 @@ add_executable (unit_tests
     testTake.cpp
     testOrderedList.cpp
     testSort.cpp
-    testLinkedTree.cpp
+    testTree.cpp
     testMap.cpp
     testPriorityQueue.cpp
     testForEach.cpp

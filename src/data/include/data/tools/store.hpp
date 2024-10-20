@@ -16,7 +16,7 @@ namespace data {
     // return void. If you want to pass in references, wrap them in other
     // types.
     template <typename X> struct store {
-        meta::contain<X> Value;
+        wrapped<X> Value;
 
         template <typename ...args>
         store (function<X (args ...)> f, args ...a) : Value {std::invoke (f, a...)} {}
