@@ -5,24 +5,26 @@
 #include "interface_tests.hpp"
 #include <data/string.hpp>
 #include <data/numbers.hpp>
+#include <data/tools/binary_search_tree.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
     
     // test whether these data structures satisfy the correct interfaces. 
-    TEST (LinkedTreeTest, TestTreeInterfaces) {
+    TEST (TreeTest, TestTreeInterfaces) {
         
-        is_tree<tree<int>> ();
-        is_tree<tree<int *>> ();
-        is_tree<tree<int &>> ();
+        static_assert (functional::tree<tree<int>>);
+        static_assert (functional::tree<tree<int *>>);
+        static_assert (functional::tree<tree<int &>>);
         
-        is_tree<tree<const int>> ();
-        is_tree<tree<const int *>> ();
-        is_tree<tree<const int &>> ();
+        static_assert (functional::tree<tree<const int>>);
+        static_assert (functional::tree<tree<const int *>>);
+        static_assert (functional::tree<tree<const int &>>);
         
     }
     
-    TEST (LinkedTreeTest, TestTreeSize) {
+    TEST (TreeTest, TestTreeSize) {
+
         tree<int> t0 = tree<int> {};
         tree<int> t1 = tree<int> {6};
         tree<int> t2 = tree<int> {4, tree<int> {}, tree<int> {3}};
@@ -45,7 +47,7 @@ namespace data {
         
     }
     
-    TEST (LinkedTreeTest, TestTreeEqual) {
+    TEST (TreeTest, TestTreeEqual) {
         
         tree<int> t1 {1, tree<int> {2, tree<int> {3}, tree<int> {}}, tree<int> {4}};
         tree<int> t2 {1, tree<int> {2, tree<int> {3}, tree<int> {}}, tree<int> {4}};
@@ -74,14 +76,14 @@ namespace data {
         
     }
     
-    void test_copy_linked_tree (tree<int>& p, int max) {
+    void test_copy_linked_tree (tree<int> &p, int max) {
         p = tree<int> {};
         tree<int> new_tree {};
         for (int i = 0; i < max; i++) new_tree = tree<int> {i, new_tree, tree<int> {}};
         p = new_tree;
     }
     
-    TEST (LinkedTreeTest, TestLinkedTreeCopy) {
+    TEST (TreeTest, TestLinkedTreeCopy) {
         tree<int> p;
         test_copy_linked_tree (p, 7);
         EXPECT_EQ (p.size (), 7);
@@ -91,7 +93,7 @@ namespace data {
 
     void accept_tree_of_string_views (linked_tree<string_view>) {}
 
-    TEST (LinkedTreeTest, TestLinkedTreeConvert) {
+    TEST (TreeTest, TestLinkedTreeConvert) {
         linked_tree<string> test {"1", 
             linked_tree<string> {"2"}, 
             linked_tree<string> {"3", linked_tree<string> {"4"}, linked_tree<string> {}}};
@@ -101,6 +103,53 @@ namespace data {
         linked_tree<N> numbers {1, linked_tree<N> {2}, linked_tree<N> {3, linked_tree<N> {4}, linked_tree<N> {}}};
 
         EXPECT_EQ (linked_tree<N> (test), numbers);
+
+    }
+
+    template <typename X>
+    using bxt = binary_search_tree<X, linked_tree<X>>;
+
+    TEST (TreeTest, TestBinarySearchTree) {
+/*
+        static_assert (const_iterable<bxt<int>>);
+        static_assert (const_iterable<bxt<int *>>);
+        //static_assert (const_iterable<bxt<int &>>);
+
+        static_assert (const_iterable<bxt<const int>>);
+        static_assert (const_iterable<bxt<const int *>>);
+        //static_assert (const_iterable<bxt<const int &>>);
+
+        static_assert (iterable<bxt<int>, int>);
+        static_assert (iterable<bxt<int *>, int *>);
+        //static_assert (iterable<bxt<int &>, int &>);
+
+        static_assert (iterable<bxt<const int>, const int>);
+        static_assert (iterable<bxt<const int *>, const int *>);
+        //static_assert (iterable<bxt<const int &>, const int &>);*/
+
+        bxt<int> empty {};
+        EXPECT_TRUE (empty.valid ());
+        EXPECT_EQ (empty.begin (), empty.end ());
+
+        EXPECT_EQ (empty, bxt<int> {});
+
+        EXPECT_NE (bxt<int> {1}, bxt<int> {0});
+
+        EXPECT_TRUE (bxt<int> {1}.valid ());
+        EXPECT_TRUE (bxt<int> {0}.valid ());
+
+        bxt<int> t3l {1, 2, 3};
+        bxt<int> t3r {3, 1, 2};
+
+        EXPECT_TRUE (bxt<int>::sorted (t3l));
+        EXPECT_TRUE (bxt<int>::sorted (t3r));
+
+        EXPECT_TRUE (t3l.valid ());
+        EXPECT_TRUE (t3r.valid ());
+        EXPECT_EQ (t3l, t3r);
+
+        EXPECT_EQ ((bxt<int> {1, 2, 3, 4, 5, 6, 7}), (bxt<int> {7, 6, 5, 4, 3, 2, 1}));
+
 
     }
     

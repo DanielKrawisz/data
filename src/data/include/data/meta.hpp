@@ -7,6 +7,58 @@
 
 #include <variant>
 #include <data/types.hpp>
+namespace data {
+    namespace meta {
+        // wrapper enables std types to use references and void.
+        template <typename X> struct wrapper {
+            using type = X;
+        };
+
+        template <typename X> struct wrapper<X &> {
+            using type = std::reference_wrapper<X>;
+        };
+
+        template <typename X> struct wrapper<const X &> {
+            using type = std::reference_wrapper<const X>;
+        };
+
+        template <> struct wrapper<void> {
+            using type = std::monostate;
+        };
+    }
+
+    template <typename X> using wrapped = meta::wrapper<X>::type;
+
+    namespace meta {
+
+        template <typename X> struct insert {
+            using type = const X &;
+        };
+
+        template <typename X> struct insert<X &> {
+            using type = X &;
+        };
+
+        template <typename X> struct insert<const X &> {
+            using type = const X &;
+        };
+
+        template <typename X> struct insert<X *> {
+            using type = X *;
+        };
+
+        template <typename X> struct insert<const X *> {
+            using type = const X *;
+        };
+
+        template <typename X> struct insert<X *const> {
+            using type = X *const;
+        };
+    }
+
+    template <typename X> using inserted = meta::insert<X>::type;
+
+}
 
 namespace data::meta {
 
@@ -26,10 +78,6 @@ namespace data::meta {
         static constexpr bool replaced = false;
     };
 
-    template <typename X> struct container {
-        using type = X;
-    };
-
     template <typename X> struct retriever {
         using type = X &;
     };
@@ -38,7 +86,6 @@ namespace data::meta {
         using type = const X &;
     };
 
-    template <typename X> using contain = container<X>::type;
     template <typename X> using retrieve = retriever<X>::type;
     template <typename X> using set = setter<X>::type;
 
@@ -50,16 +97,8 @@ namespace data::meta {
         using type = bool;
     };
 
-    template <> struct container<void> {
-        using type = std::monostate;
-    };
-
     template <> struct retriever<void> {
         using type = void;
-    };
-
-    template <typename X> struct container<X &> {
-        using type = std::reference_wrapper<X>;
     };
 
     template <typename X> struct retriever<X &> {

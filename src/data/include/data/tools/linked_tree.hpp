@@ -6,24 +6,20 @@
 #define DATA_TREE_LINKED
 
 #include <data/functional/tree.hpp>
+#include <data/tools/ordered_list.hpp>
     
 namespace data {
 
     template <typename value>
-    class linked_tree {
-        
+    struct linked_tree {
         using node = functional::tree_node<value, linked_tree>;
         using next = ptr<node>;
-        
-        next Node;
-        size_t Size;
-        
-    public:
+
         bool empty () const;
         
         const value &root () const;
         value &root ();
-        
+
         linked_tree left () const;
         linked_tree right () const;
         
@@ -42,7 +38,7 @@ namespace data {
         linked_tree &operator = (const linked_tree &t);
         
         template <typename X> requires std::equality_comparable_with<value, X>
-        bool operator == (const data::linked_tree<X>& x) const {
+        bool operator == (const data::linked_tree<X> &x) const {
             if (Node == x.Node) return true;
             if (Node == nullptr || x.Node == nullptr) return false;
             if (root () != x.root ()) return false;
@@ -61,6 +57,10 @@ namespace data {
         }
         
         std::ostream &write (std::ostream &o) const;
+
+    private:
+        next Node;
+        size_t Size;
     };
 
     template <typename X> 
@@ -135,6 +135,7 @@ namespace data {
         if (Size == 1) return o << "{" << root () << "}";
         return right ().write (left ().write (o << "{" << root () << ", ") << ", ") << "}";
     }
+
 }
 
 #endif

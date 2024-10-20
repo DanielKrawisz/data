@@ -17,11 +17,11 @@ namespace data {
 
     // either works just like std::variant except that it is less wordy
     // and can take references and void as subtypes.
-    template <typename... X> struct either : std::variant<meta::contain<X>...> {
-        using std::variant<meta::contain<X>...>::variant;
-        constexpr either (std::variant<X...> &&x) : std::variant<meta::contain<X>...> {x} {}
+    template <typename... X> struct either : std::variant<wrapped<X>...> {
+        using std::variant<wrapped<X>...>::variant;
+        constexpr either (std::variant<X...> &&x) : std::variant<wrapped<X>...> {x} {}
         
-        using std::variant<meta::contain<X>...>::operator =;
+        using std::variant<wrapped<X>...>::operator =;
 
         std::ostream &write (std::ostream &o) const {
             return writer<meta::replace<X, meta::rule<void, std::monostate>>...> {} (o, *this);
@@ -33,27 +33,27 @@ namespace data {
 
         template <typename Z>
         constexpr bool is () const {
-            return std::holds_alternative<meta::contain<Z>> (*this);
+            return std::holds_alternative<wrapped<Z>> (*this);
         }
 
         template <typename Z>
         constexpr meta::retrieve<Z> get () {
-            return (meta::retrieve<Z>) std::get<meta::contain<Z>> (*this);
+            return (meta::retrieve<Z>) std::get<wrapped<Z>> (*this);
         }
 
         template <typename Z>
         constexpr const meta::retrieve<Z> get () const {
-            return (const meta::retrieve<Z>) std::get<meta::contain<Z>> (*this);
+            return (const meta::retrieve<Z>) std::get<wrapped<Z>> (*this);
         }
 
         template <typename Z>
         constexpr Z *get_if () {
-            return std::get_if<meta::contain<Z>> (*this);
+            return std::get_if<wrapped<Z>> (*this);
         }
 
         template <typename Z>
         constexpr const Z *get_if () const {
-            return std::get_if<meta::contain<Z>> (*this);
+            return std::get_if<wrapped<Z>> (*this);
         }
         
     private:
