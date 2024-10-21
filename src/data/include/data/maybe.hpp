@@ -15,12 +15,12 @@ namespace data {
         using std::optional<wrapped<X>>::optional;
         constexpr maybe (std::optional<wrapped<X>> &&x) : std::optional<wrapped<X>> {x} {}
 
-        constexpr meta::retrieve<X> operator * () {
-            return (meta::retrieve<X>) *static_cast<std::optional<wrapped<X>> &> (*this);
+        constexpr retrieved<X> operator * () {
+            return (retrieved<X>) *static_cast<std::optional<wrapped<X>> &> (*this);
         }
 
-        constexpr const meta::retrieve<X> operator * () const {
-            return (const meta::retrieve<X>) *static_cast<const std::optional<wrapped<X>> &> (*this);
+        constexpr const retrieved<X> operator * () const {
+            return (const retrieved<X>) *static_cast<const std::optional<wrapped<X>> &> (*this);
         }
     };
 

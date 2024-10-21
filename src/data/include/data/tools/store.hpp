@@ -21,8 +21,8 @@ namespace data {
         template <typename ...args>
         store (function<X (args ...)> f, args ...a) : Value {std::invoke (f, a...)} {}
 
-        meta::retrieve<X> retrieve () {
-            return (meta::retrieve<X>) Value;
+        retrieved<X> retrieve () {
+            return (retrieved<X>) Value;
         }
     };
 

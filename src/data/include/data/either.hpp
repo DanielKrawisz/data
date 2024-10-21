@@ -37,13 +37,13 @@ namespace data {
         }
 
         template <typename Z>
-        constexpr meta::retrieve<Z> get () {
-            return (meta::retrieve<Z>) std::get<wrapped<Z>> (*this);
+        constexpr retrieved<Z> get () {
+            return (retrieved<Z>) std::get<wrapped<Z>> (*this);
         }
 
         template <typename Z>
-        constexpr const meta::retrieve<Z> get () const {
-            return (const meta::retrieve<Z>) std::get<wrapped<Z>> (*this);
+        constexpr const retrieved<Z> get () const {
+            return (const retrieved<Z>) std::get<wrapped<Z>> (*this);
         }
 
         template <typename Z>

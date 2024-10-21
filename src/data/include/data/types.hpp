@@ -34,12 +34,15 @@ namespace data {
 
     template <typename... X> using tuple = std::tuple<X...>;
 
-    template<typename X>
+    template <typename X>
     using view = std::basic_string_view<X>;
 
     using string_view = std::basic_string_view<char>;
 
     using bytes_view = view<byte>;
+
+    template <typename X>
+    using unref = std::remove_reference_t<X>;
 
     // TODO replace this with something good.
     using random_engine = std::default_random_engine;

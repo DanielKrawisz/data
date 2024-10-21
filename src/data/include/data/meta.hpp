@@ -30,7 +30,25 @@ namespace data {
     template <typename X> using wrapped = meta::wrapper<X>::type;
 
     namespace meta {
+        // avoid copying certain types when we retrieve the
+        // value from a data structure.
+        template <typename X> struct retriever {
+            using type = X &;
+        };
 
+        template <> struct retriever<void> {
+            using type = void;
+        };
+
+        template <typename X> struct retriever<X &> {
+            using type = X &;
+        };
+    }
+
+    template <typename X> using retrieved = meta::retriever<X>::type;
+
+    namespace meta {
+        // insert has to do with values that put into a data structure.
         template <typename X> struct insert {
             using type = const X &;
         };
@@ -78,15 +96,10 @@ namespace data::meta {
         static constexpr bool replaced = false;
     };
 
-    template <typename X> struct retriever {
-        using type = X &;
-    };
-
     template <typename X> struct setter {
         using type = const X &;
     };
 
-    template <typename X> using retrieve = retriever<X>::type;
     template <typename X> using set = setter<X>::type;
 
     template <std::integral X> struct setter<X> {
@@ -95,14 +108,6 @@ namespace data::meta {
 
     template <> struct setter<bool> {
         using type = bool;
-    };
-
-    template <> struct retriever<void> {
-        using type = void;
-    };
-
-    template <typename X> struct retriever<X &> {
-        using type = X &;
     };
 
     template <typename X> struct setter<X &> {

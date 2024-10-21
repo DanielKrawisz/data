@@ -13,13 +13,15 @@ namespace data {
     // test whether these data structures satisfy the correct interfaces. 
     TEST (TreeTest, TestTreeInterfaces) {
         
-        static_assert (functional::tree<tree<int>>);
-        static_assert (functional::tree<tree<int *>>);
-        static_assert (functional::tree<tree<int &>>);
+        static_assert (functional::buildable_tree<tree<int>>);
+        static_assert (functional::buildable_tree<tree<int &>>);
+        static_assert (functional::buildable_tree<tree<int *>>);
         
-        static_assert (functional::tree<tree<const int>>);
-        static_assert (functional::tree<tree<const int *>>);
-        static_assert (functional::tree<tree<const int &>>);
+        static_assert (functional::buildable_tree<tree<const int>>);
+        static_assert (functional::buildable_tree<tree<const int &>>);
+        static_assert (functional::buildable_tree<tree<const int *>>);
+        static_assert (functional::buildable_tree<tree<int *const>>);
+        static_assert (functional::buildable_tree<tree<const int *const>>);
         
     }
     
@@ -110,22 +112,16 @@ namespace data {
     using bxt = binary_search_tree<X, linked_tree<X>>;
 
     TEST (TreeTest, TestBinarySearchTree) {
-/*
-        static_assert (const_iterable<bxt<int>>);
-        static_assert (const_iterable<bxt<int *>>);
-        //static_assert (const_iterable<bxt<int &>>);
 
-        static_assert (const_iterable<bxt<const int>>);
-        static_assert (const_iterable<bxt<const int *>>);
-        //static_assert (const_iterable<bxt<const int &>>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<int &>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<int *>> ().begin ())>);
 
-        static_assert (iterable<bxt<int>, int>);
-        static_assert (iterable<bxt<int *>, int *>);
-        //static_assert (iterable<bxt<int &>, int &>);
-
-        static_assert (iterable<bxt<const int>, const int>);
-        static_assert (iterable<bxt<const int *>, const int *>);
-        //static_assert (iterable<bxt<const int &>, const int &>);*/
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<const int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<const int &>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<const int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<int *const>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<bxt<const int *const>> ().begin ())>);
 
         bxt<int> empty {};
         EXPECT_TRUE (empty.valid ());

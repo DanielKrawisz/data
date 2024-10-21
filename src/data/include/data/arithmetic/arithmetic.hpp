@@ -236,7 +236,7 @@ namespace data::arithmetic {
 
     template <typename X> concept range = std::ranges::random_access_range<X>;
 
-    template <typename X> using digit = std::remove_const_t<std::remove_reference_t<decltype (std::declval<const X> ()[0])>>;
+    template <typename X> using digit = std::remove_const_t<unref<decltype (std::declval<const X> ()[0])>>;
 
     template <range X>
     size_t inline size (const X x) {

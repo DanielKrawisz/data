@@ -11,7 +11,7 @@
 namespace data {
     
     template <typename fun, typename input, 
-        typename element = std::remove_const_t<std::remove_reference_t<decltype (std::declval<input> ().first ())>>, 
+        typename element = std::remove_const_t<unref<decltype (std::declval<input> ().first ())>>,
         typename output = decltype (std::declval<fun> () (std::declval<element> ()))>
     requires functional::function<fun, output, element> && sequence<input, element>
     list<output> for_each (const fun &f, const input &i) {
@@ -21,8 +21,8 @@ namespace data {
     }
     
     template <typename fun, typename input, 
-        typename key = std::remove_reference_t<decltype (std::declval<input> ().values ().first ().key ())>, 
-        typename value = std::remove_reference_t<decltype (std::declval<input> ().values ().first ().value ())>, 
+        typename key = unref<decltype (std::declval<input> ().values ().first ().key ())>,
+        typename value = unref<decltype (std::declval<input> ().values ().first ().value ())>,
         typename output = decltype (std::declval<fun> () (std::declval<value> ()))>
     requires functional::function<fun, output, value> && functional::map<input, key, value>
     map<key, output> inline for_each (const fun &f, const input &i) {
@@ -32,7 +32,7 @@ namespace data {
     }
     
     template <typename fun, typename input, 
-        typename element = std::remove_reference_t<decltype (std::declval<input> ().values ().first ())>,
+        typename element = unref<decltype (std::declval<input> ().values ().first ())>,
         typename output = decltype (std::declval<fun> () (std::declval<element> ()))>
     requires functional::function<fun, output, element> && functional::ordered_set<input, element>
     list<output> inline for_each (const fun &f, const input &i) {
@@ -42,8 +42,8 @@ namespace data {
     }
     /*
     template <typename fun, typename input, 
-        typename element = std::remove_reference_t<decltype(std::declval<input>().values().first())>, 
-        typename output = std::remove_reference_t<decltype(std::declval<fun>()(std::declval<element>()))>>
+        typename element = unref<decltype(std::declval<input>().values().first())>,
+        typename output = unref<decltype(std::declval<fun>()(std::declval<element>()))>>
     requires functional::function<fun, output, element> && functional::tree<input, element>
     tree<output> inline for_each(const fun& f, const input& i) {
         if (empty(i)) return {};
@@ -51,7 +51,7 @@ namespace data {
     }*/
     
     template <typename fun, typename element, 
-        typename output = std::remove_reference_t<decltype (std::declval<fun> () (std::declval<element> ()))>>
+        typename output = unref<decltype (std::declval<fun> () (std::declval<element> ()))>>
     requires functional::function<fun, output, element>
     inline tree<output> for_each (const fun &f, const tree<element> &t) {
         if (empty (t)) return {};
@@ -60,7 +60,7 @@ namespace data {
     }
     
     template <typename fun, typename element, 
-        typename output = std::remove_reference_t<decltype (std::declval<fun> () (std::declval<element> ()))>>
+        typename output = unref<decltype (std::declval<fun> () (std::declval<element> ()))>>
     requires functional::function<fun, output, element>
     inline cross<output> for_each (const fun &f, const cross<element> &i) {
         cross<output> z;
