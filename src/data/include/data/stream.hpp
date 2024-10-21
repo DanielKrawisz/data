@@ -88,11 +88,11 @@ namespace data {
     };
 
     template <typename it>
-    iterator_writer (it b, it e) -> iterator_writer<std::remove_reference_t<decltype (*std::declval<it> ())>, it>;
+    iterator_writer (it b, it e) -> iterator_writer<unref<decltype (*std::declval<it> ())>, it>;
     
     template <std::input_iterator it>
-    struct iterator_reader final : virtual reader<std::remove_const_t<std::remove_reference_t<decltype (*std::declval<it> ())>>> {
-        using word = std::remove_const_t<std::remove_reference_t<decltype (*std::declval<it> ())>>;
+    struct iterator_reader final : virtual reader<std::remove_const_t<unref<decltype (*std::declval<it> ())>>> {
+        using word = std::remove_const_t<unref<decltype (*std::declval<it> ())>>;
 
         it Begin;
         it End;

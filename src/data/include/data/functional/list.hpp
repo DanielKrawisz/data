@@ -11,10 +11,10 @@
 
 namespace data::functional {
     
-    template <typename Q, typename elem = std::remove_reference_t<decltype (std::declval<Q> ().first ())>>
+    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
     concept list = stack<Q, elem> && queue<Q, elem>;
     
-    template <typename Q, typename elem = std::remove_reference_t<decltype (std::declval<Q> ().first ())>>
+    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
     concept pendable = stack<Q, elem> || queue<Q, elem>;
     
 }

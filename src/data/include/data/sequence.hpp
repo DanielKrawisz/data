@@ -30,7 +30,7 @@ namespace data {
         
     }
     
-    template <typename L, typename elem = std::remove_reference_t<decltype (std::declval<L> ().first ())>>
+    template <typename L, typename elem = unref<decltype (std::declval<L> ().first ())>>
     concept sequence = 
         (interface::has_empty_method<L> || interface::has_size_method<L>) && 
         interface::has_rest_method<L> && 
@@ -41,7 +41,7 @@ namespace data {
     
     template <sequence X>
     struct element<X> {
-        using type = std::remove_reference_t<decltype (std::declval<X> ().first ())>;
+        using type = unref<decltype (std::declval<X> ().first ())>;
     };
     
     template <typename X> using element_of = element<X>::type;
@@ -49,21 +49,21 @@ namespace data {
     namespace meta {
         
         template <typename X> struct rest {
-            X operator () (const X& x) {
+            X operator () (const X &x) {
                 return x;
             }
             
-            const X* operator () (const X* x) {
+            const X* operator () (const X *x) {
                 return x;
             }
         };
         
         template <interface::has_rest_method X> struct rest<X> {
-            X operator () (const X& x) {
+            X operator () (const X &x) {
                 return x.rest ();
             }
             
-            const X* operator () (const X* x) {
+            const X* operator () (const X *x) {
                 return x == nullptr ? nullptr : x->rest ();
             }
         };
@@ -155,7 +155,7 @@ namespace data {
 
         using iterator_category = std::forward_iterator_tag;
         using value_type        = element_of<L>;
-        using difference_type   = std::ptrdiff_t;
+        using difference_type   = int;
         using pointer           = element_of<L>*;
         using reference         = element_of<L>&;
     };

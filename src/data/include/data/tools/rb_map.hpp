@@ -28,8 +28,8 @@ namespace data::tool {
         
     public:
         const V &operator [] (const K &k) const;
-        std::remove_reference_t<V> *contains (const K &k);
-        const std::remove_reference_t<V> *contains (const K &k) const;
+        unref<V> *contains (const K &k);
+        const unref<V> *contains (const K &k) const;
         bool contains (const entry &e) const;
         
         const V &root () const;
@@ -238,18 +238,18 @@ namespace data::tool {
     
     template <typename K, typename V>
     const V inline &rb_map<K, V>::operator [] (const K &k) const {
-        std::remove_reference_t<V> *x = Map.find (k);
+        unref<V> *x = Map.find (k);
         if (x == nullptr) throw exception {} << "key not found in map";
         return *x;
     }
     
     template <typename K, typename V>
-    std::remove_reference_t<V> inline *rb_map<K, V>::contains (const K &k) {
+    unref<V> inline *rb_map<K, V>::contains (const K &k) {
         return Map.find (k);
     }
     
     template <typename K, typename V>
-    const std::remove_reference_t<V> inline *rb_map<K, V>::contains (const K &k) const {
+    const unref<V> inline *rb_map<K, V>::contains (const K &k) const {
         return Map.find (k);
     }
     

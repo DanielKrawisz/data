@@ -43,7 +43,7 @@ namespace data {
 
 namespace data::functional { 
     
-    template <typename L, typename elem = std::remove_reference_t<decltype (std::declval<L> ().first ())>>
+    template <typename L, typename elem = unref<decltype (std::declval<L> ().first ())>>
     concept stack = sequence<const L, elem> && interface::has_prepend_method<const L, elem> && 
         interface::has_stack_constructor<L, elem> && std::default_initializable<L>;
     
