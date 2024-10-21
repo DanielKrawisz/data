@@ -12,7 +12,13 @@ namespace data {
 
     template <typename elem> class linked_stack;
 
+    // stack two stacks together.
     template <typename elem> linked_stack<elem> operator + (linked_stack<elem>, linked_stack<elem>);
+
+    template <typename elem>
+    struct element<linked_stack<elem>> {
+        using type = elem;
+    };
     
     template <typename elem>
     class linked_stack {
@@ -64,30 +70,22 @@ namespace data {
         
         const elem &operator [] (uint32 n) const;
         
-        using iterator = sequence_iterator<linked_stack<elem>>;
-        using sentinel = data::sentinel<linked_stack<elem>>;
+        using iterator = sequence_iterator<const linked_stack<elem>>;
+        using sentinel = data::sentinel<const linked_stack<elem>>;
         
         iterator begin () const;
         sentinel end () const;
         
         template <data::sequence X> requires std::equality_comparable_with<elem, data::element_of<X>>
-        bool operator == (const X& x) const {
-            return sequence_equal (*this, x);
-        }
+        bool operator == (const X &x) const;
 
         // automatic conversions 
         template <typename X> requires implicitly_convertible_to<elem, X>
-        operator linked_stack<X> () const {
-            if (size () == 0) return linked_stack<X> {};
-            return linked_stack<X> {rest ()}.prepend (X (first ()));
-        }
+        operator linked_stack<X> () const;
 
         // explicit conversions
         template <typename X> requires explicitly_convertible_to<elem, X>
-        explicit operator linked_stack<X> () const {
-            if (size () == 0) return linked_stack<X> {};
-            return linked_stack<X> {rest ()}.prepend (X (first ()));
-        }
+        explicit operator linked_stack<X> () const;
         
     };
 
@@ -123,7 +121,7 @@ namespace std {
         using difference_type = int;
         using pointer = const remove_reference_t<elem>*;
         using reference = const elem &;
-        using iterator_concept = input_iterator_tag;
+        using iterator_concept = forward_iterator_tag;
     };
 }
 
@@ -276,9 +274,29 @@ namespace data {
         if (data::empty (Prev)) return *this;
         return *this = linked_stack_iterator {
             *sequence_iterator<linked_stack<elem>>::Sequence, 
-            first(sequence_iterator<linked_stack<elem>>::Prev), 
+            first (sequence_iterator<linked_stack<elem>>::Prev),
             sequence_iterator<linked_stack<elem>>::Index - 1, 
-            rest(sequence_iterator<linked_stack<elem>>::Prev)};
+            rest (sequence_iterator<linked_stack<elem>>::Prev)};
+    }
+
+    template <typename elem>
+    template <data::sequence X> requires std::equality_comparable_with<elem, data::element_of<X>>
+    bool inline linked_stack<elem>::operator == (const X &x) const {
+        return sequence_equal (*this, x);
+    }
+
+    template <typename elem>
+    template <typename X> requires implicitly_convertible_to<elem, X>
+    inline linked_stack<elem>::operator linked_stack<X> () const {
+        if (size () == 0) return linked_stack<X> {};
+        return linked_stack<X> {rest ()}.prepend (X (first ()));
+    }
+
+    template <typename elem>
+    template <typename X> requires explicitly_convertible_to<elem, X>
+    inline linked_stack<elem>::operator linked_stack<X> () const {
+        if (size () == 0) return linked_stack<X> {};
+        return linked_stack<X> {rest ()}.prepend (X (first ()));
     }
 
 }

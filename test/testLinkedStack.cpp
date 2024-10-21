@@ -2,11 +2,48 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "interface_tests.hpp"
+#include <iterator>
+#include "data/tools.hpp"
 #include <data/numbers.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
+
+    TEST (LinkedStackTest, TestStackInterfaces) {
+
+        static_assert (sequence<linked_stack<int>>);
+        static_assert (sequence<linked_stack<int *>>);
+        static_assert (sequence<linked_stack<const int *>>);
+        static_assert (sequence<linked_stack<int *const>>);
+        static_assert (sequence<linked_stack<const int *const>>);
+        static_assert (sequence<linked_stack<int &>>);
+        static_assert (sequence<linked_stack<const int &>>);
+
+        static_assert (container<linked_stack<int>, int>);
+        static_assert (container<linked_stack<int *>, int *>);
+        static_assert (container<linked_stack<const int *>, const int *>);
+        static_assert (container<linked_stack<int *const>, int *const>);
+        static_assert (container<linked_stack<const int *const>, const int *const>);
+        static_assert (container<linked_stack<int &>, int &>);
+        static_assert (container<linked_stack<const int &>, const int &>);
+
+        static_assert (functional::stack<linked_stack<int>, int>);
+        static_assert (functional::stack<linked_stack<int *>, int *>);
+        static_assert (functional::stack<linked_stack<const int *>, const int *>);
+        static_assert (functional::stack<linked_stack<int *const>, int *const>);
+        static_assert (functional::stack<linked_stack<const int *const>, const int *const>);
+        static_assert (functional::stack<linked_stack<int &>, int &>);
+        static_assert (functional::stack<linked_stack<const int &>, const int &>);
+
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<int &>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int &>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int *const >> ().begin ())>);
+
+    }
 
     TEST (LinkedStackTest, TestLinkedStack1) {
         
@@ -49,7 +86,7 @@ namespace data {
         
     }
 
-    TEST(LinkedStackTest, TestLinkedStackConstruct) {
+    TEST (LinkedStackTest, TestLinkedStackConstruct) {
     
         stack<int> l {1, 2, 3};
         stack<int> r {};
@@ -61,7 +98,13 @@ namespace data {
         EXPECT_EQ (b.size (), 2);
         EXPECT_TRUE (l != r);
         EXPECT_TRUE (l == r << 3 << 2 << 1);
-        
+
+        int val[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+        linked_stack<int> {1, 2, 3, 4, 5, 6, 7};
+        linked_stack<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
+        linked_stack<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
+
     }
     
     TEST (LinkedStackTest, TestLinkedStackEqual) {
@@ -112,7 +155,7 @@ namespace data {
         EXPECT_EQ (i, t.end ());
         
         for (int x : t) ;
-        for (const int& x : t) ;
+        for (const int &x : t) ;
     }
 
     void accept_stack_of_string_views (linked_stack<string_view>) {}

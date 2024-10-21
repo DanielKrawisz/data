@@ -20,7 +20,7 @@ namespace data::net::HTTP {
 
     template<class SyncReadStream>
     beast::response http_request (
-        SyncReadStream& stream,
+        SyncReadStream &stream,
         const request &req) {
 
         beast::http::write (stream, beast::from (req));

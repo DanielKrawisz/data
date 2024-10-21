@@ -128,7 +128,7 @@ namespace data {
     template <typename L>
     struct sequence_iterator {
         const L *Sequence;
-        L Next;
+        std::remove_const_t<L> Next;
         int Index;
         
         sequence_iterator (const L &s, L n, int i) : Sequence {&s}, Next {n}, Index {i} {}
@@ -152,21 +152,13 @@ namespace data {
         int operator - (const sequence_iterator &i) const;
         
         sequence_iterator (const L &s) : Sequence {&s}, Next {s}, Index {0} {}
-    };
-}
 
-namespace std {
-    template <typename list> 
-    struct iterator_traits<data::sequence_iterator<list>> {
-        using value_type = remove_const_t<data::element_of<list>>;
-        using difference_type = int;
-        using pointer = const remove_reference_t<data::element_of<list>> *;
-        using reference = const data::element_of<list> &;
-        using iterator_concept = input_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = element_of<L>;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = element_of<L>*;
+        using reference         = element_of<L>&;
     };
-}
-
-namespace data {
     
     template <typename L>
     inline sequence_iterator<L> &sequence_iterator<L>::operator = (const sequence_iterator &i) {
