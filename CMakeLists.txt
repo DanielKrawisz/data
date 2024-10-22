@@ -19,7 +19,7 @@ project (
 set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package (Boost COMPONENTS thread chrono log_setup log REQUIRED)
+find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
 find_package (OpenSSL REQUIRED Crypto SSL)
 find_package (GMP REQUIRED)
 find_package (SECP256K1 REQUIRED)
