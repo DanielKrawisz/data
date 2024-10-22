@@ -2,7 +2,6 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "interface_tests.hpp"
 #include <data/string.hpp>
 #include <data/numbers.hpp>
 #include <data/tools/binary_search_tree.hpp>

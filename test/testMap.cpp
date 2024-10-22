@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "interface_tests.hpp"
+#include <data/tools.hpp>
 #include <data/numbers.hpp>
 #include "gtest/gtest.h"
 
@@ -10,24 +10,15 @@ namespace data {
     
     TEST (MapTest, TestMapInterface) {
         
-        is_map<map<uint32, int>> ();
-        is_map<map<uint32, int*>> ();
-        /*
-        is_tree<map<uint32, int>>();
-        is_tree<map<uint32, int*>>();*/
-        /*
-        is_map<map<uint32, const int>>();
-        is_map<map<uint32, const int*>>();*/
+        static_assert (functional::map<map<uint32, int>>);
+        static_assert (functional::map<map<uint32, int*>>);
         
     }
     
     TEST (MapTest, TestOrderedSetInterface) {
         
-        is_ordered_set<set<int>> ();
-        is_ordered_set<set<int*>> ();
-        /*
-        is_ordered_set<set<const int>>();
-        is_ordered_set<set<const int*>>();*/
+        static_assert (functional::ordered_set<set<int>>);
+        static_assert (functional::ordered_set<set<int*>>);
         
     }
     

@@ -31,8 +31,8 @@ namespace data {
         
     public:
         linked_stack ();
-        explicit linked_stack (const elem &e, const linked_stack &l);
-        explicit linked_stack (const elem &e);
+        explicit linked_stack (inserted<elem> e, const linked_stack &l);
+        explicit linked_stack (inserted<elem> e);
         
         linked_stack (std::initializer_list<wrapped<elem>> init) {
             for (int i = init.size () - 1; i >= 0; i--) *this = prepend (*(init.begin () + i));
@@ -55,10 +55,10 @@ namespace data {
         
         size_t size () const;
         
-        linked_stack operator << (elem x) const;
-        linked_stack &operator <<= (elem x);
+        linked_stack operator << (inserted<elem> x) const;
+        linked_stack &operator <<= (inserted<elem> x);
         
-        linked_stack prepend (elem x) const;
+        linked_stack prepend (inserted<elem> x) const;
         linked_stack prepend (linked_stack l) const;
         
         template <typename X, typename Y, typename ... P>
@@ -140,10 +140,10 @@ namespace data {
     inline linked_stack<elem>::linked_stack () : Next {nullptr} {}
     
     template <typename elem>
-    inline linked_stack<elem>::linked_stack (const elem &e, const linked_stack &l) : linked_stack {std::make_shared<node> (e, l)} {}
+    inline linked_stack<elem>::linked_stack (inserted<elem> e, const linked_stack &l) : linked_stack {std::make_shared<node> (e, l)} {}
     
     template <typename elem>
-    inline linked_stack<elem>::linked_stack (const elem &e) : linked_stack {e, linked_stack {}} {}
+    inline linked_stack<elem>::linked_stack (inserted<elem> e) : linked_stack {e, linked_stack {}} {}
     
     // if the list is empty, then this function
     // will dereference a nullptr. It is your
@@ -192,17 +192,17 @@ namespace data {
     }
     
     template <typename elem>
-    linked_stack<elem> inline linked_stack<elem>::operator <<(elem x) const {
+    linked_stack<elem> inline linked_stack<elem>::operator <<(inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
     template <typename elem>
-    linked_stack<elem> inline linked_stack<elem>::prepend (elem x) const {
+    linked_stack<elem> inline linked_stack<elem>::prepend (inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
     template <typename elem>
-    linked_stack<elem> inline &linked_stack<elem>::operator <<= (elem x) {
+    linked_stack<elem> inline &linked_stack<elem>::operator <<= (inserted<elem> x) {
         return operator = (prepend (x));
     }
     
