@@ -138,62 +138,11 @@ namespace data::tool {
         int operator - (const rb_map_iterator &i) const;
         
         void go_left ();
+
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = data::entry<K, V>;
         
     };
-
-    // a map that is good for deriving from.
-    // NOTE: it seems that using this type leads to segmentation faults, not sure why.
-    template <typename K, typename V, typename derived> struct base_rb_map : rb_map<K, V> {
-        using rb_map<K, V>::rb_map;
-
-        // the derived type needs to inheret these constructors.
-        base_rb_map (rb_map<K, V> &&rb) : rb_map<K, V> {rb} {}
-        base_rb_map (const rb_map<K, V> &rb) : rb_map<K, V> {rb} {}
-
-        derived insert (const K& k, const V& v) const {
-            return derived {rb_map<K, V>::insert (k, v)};
-        }
-
-        derived insert (const entry<K, V> &e) const {
-            return derived {rb_map<K, V>::insert (e)};
-        }
-
-        derived insert (const K &k, const V &v, function<V (const V &old_v, const V &new_v)> already_exists) const {
-            return derived {rb_map<K, V>::insert (k, v, already_exists)};
-        }
-
-        derived replace_part (const K &k, const V &v) const {
-            return derived {rb_map<K, V>::replace_part (k, v)};
-        }
-
-        derived replace_part (const K &k, function<V (const V &)> f) const {
-            return derived {rb_map<K, V>::replace_part (k, f)};
-        }
-
-        derived operator << (const entry<K, V> &e) const {
-            return derived {rb_map<K, V>::insert (e)};
-        }
-
-        derived remove (const K &k) const {
-            return derived {rb_map<K, V>::remove (k)};
-        }
-
-    };
-
-}
-
-namespace std {
-    template <typename K, typename V> 
-    struct iterator_traits<data::tool::rb_map_iterator<K, V>> {
-        using value_type = remove_const_t<data::entry<K, V>>;
-        using difference_type = int;
-        using pointer = const remove_reference_t<data::entry<K, V>> *;
-        using reference = const data::entry<K, V> &;
-        using iterator_concept = input_iterator_tag;
-    };
-}
-    
-namespace data::tool {
     
     template <typename K, typename V>
     std::ostream inline &operator << (std::ostream &o, const rb_map<K, V> &x) {

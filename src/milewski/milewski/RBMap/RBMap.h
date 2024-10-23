@@ -5,17 +5,18 @@
 #include <memory>
 
 #include <data/functional/map.hpp>
+#include <data/functional/tree.hpp>
+#include <data/tools/rb.hpp>
 
 namespace milewski::okasaki {
 
-    enum Color { R, B };
+    using Color = data::RB::color;
 
     // 1. No red node has a red child.
     // 2. Every path from rootKey to empty node contains the same
     // number of black nodes.
     template<class K, class V>
-    struct Node
-    {
+    struct Node {
         Node (Color c,
             std::shared_ptr<const Node> const &lft,
             const K key, V val,
@@ -29,8 +30,7 @@ namespace milewski::okasaki {
     };
 
     template<class K, class V>
-    struct RBMap
-    {
+    struct RBMap {
         using Node = okasaki::Node<K, V>;
         
         explicit RBMap (std::shared_ptr<const Node> const &node) : _root (node) {}
@@ -57,14 +57,12 @@ namespace milewski::okasaki {
             return _root->_entry.Key;
         }
         
-        V &rootValue () const
-        {
+        V &rootValue () const {
             assert (!isEmpty ());
             return const_cast<V &> (_root->_entry.Value);
         }
         
-        const data::entry<K, V> &root () const
-        {
+        const data::entry<K, V> &root () const {
             assert (!isEmpty ());
             return _root->_entry;
         }
@@ -81,8 +79,7 @@ namespace milewski::okasaki {
             return RBMap (_root->_rgt);
         }
         
-        bool member (const K &x) const
-        {
+        bool member (const K &x) const {
             if (isEmpty ())
                 return false;
             K y = rootKey ();
@@ -112,14 +109,14 @@ namespace milewski::okasaki {
         RBMap inserted (const K &x, const V &v) const
         {
             RBMap t = ins (x, v);
-            return RBMap (B, t.left (), t.rootKey (), t.rootValue (), t.right ());
+            return RBMap (Color::black, t.left (), t.rootKey (), t.rootValue (), t.right ());
         }
         
         template<class F>
         RBMap insertedWith (K k, V v, F combine)
         {
             RBMap t = insWith (k, v, combine);
-            return RBMap (B, t.left (), t.rootKey (), t.rootValue (), t.right ());
+            return RBMap (Color::black, t.left (), t.rootKey (), t.rootValue (), t.right ());
         }
         
         // 1. No red node has a red child.
@@ -129,11 +126,11 @@ namespace milewski::okasaki {
             {
                 auto lft = left ();
                 auto rgt = right ();
-                if (rootColor () == R)
-                {
-                    assert (lft.isEmpty () || lft.rootColor () == B);
-                    assert (rgt.isEmpty () || rgt.rootColor () == B);
+                if (rootColor () == Color::red) {
+                    assert (lft.isEmpty () || lft.rootColor () == Color::black);
+                    assert (rgt.isEmpty () || rgt.rootColor () == Color::black);
                 }
+
                 lft.assert1 ();
                 rgt.assert1 ();
             }
@@ -141,14 +138,13 @@ namespace milewski::okasaki {
         
         // 2. Every path from root to empty node contains the same
         // number of black nodes.
-        int countB () const
-        {
+        int countB () const {
             if (isEmpty ())
                 return 0;
             int lft = left ().countB ();
             int rgt = right ().countB ();
             assert (lft == rgt);
-            return (rootColor () == B) ? 1 + lft : lft;
+            return (rootColor () == Color::black) ? 1 + lft : lft;
         }
         
         RBMap ins (const K &x, const V &v) const
@@ -156,11 +152,11 @@ namespace milewski::okasaki {
 
             assert1 ();
             if (isEmpty ())
-                return RBMap (R, RBMap (), x, v, RBMap ());
+                return RBMap (Color::red, RBMap (), x, v, RBMap ());
             K y = rootKey ();
             V yv = rootValue ();
             Color c = rootColor ();
-            if (rootColor () == B)
+            if (rootColor () == Color::black)
             {
                 if (x < y)
                     return balance (left ().ins (x, v), y, yv, right ());
@@ -181,25 +177,21 @@ namespace milewski::okasaki {
         }
         
         template<class F>
-        RBMap insWith (const K &x, const V &v, F combine) const
-        {
+        RBMap insWith (const K &x, const V &v, F combine) const {
             assert1 ();
             if (isEmpty ())
-                return RBMap (R, RBMap (), x, v, RBMap ());
+                return RBMap (Color::red, RBMap (), x, v, RBMap ());
             K y = rootKey ();
             V yv = rootValue ();
             Color c = rootColor ();
-            if (rootColor () == B)
-            {
+            if (rootColor () == Color::black) {
                 if (x < y)
                     return balance (left ().insWith (x, v, combine), y, yv, right ());
                 else if (y < x)
                     return balance (left (), y, yv, right ().insWith (x, v, combine));
                 else
                     return RBMap (c, left (), y, combine (yv, v), right ());
-            }
-            else
-            {
+            } else {
                 if (x < y)
                     return RBMap (c, left ().insWith (x, v, combine), y, yv, right ());
                 else if (y < x)
@@ -213,53 +205,53 @@ namespace milewski::okasaki {
         static RBMap balance (RBMap const &lft, K x, V v, RBMap const &rgt)
         {
             if (lft.doubledLeft ())
-                return RBMap (R
-                , lft.left ().paint (B)
+                return RBMap (Color::red
+                , lft.left ().paint (Color::black)
                 , lft.rootKey ()
                 , lft.rootValue ()
-                , RBMap(B, lft.right(), x, v, rgt));
+                , RBMap (Color::black, lft.right(), x, v, rgt));
             else if (lft.doubledRight ())
-                return RBMap (R
-                , RBMap (B, lft.left (), lft.rootKey (), lft.rootValue (), lft.right ().left ())
+                return RBMap (Color::red
+                , RBMap (Color::black, lft.left (), lft.rootKey (), lft.rootValue (), lft.right ().left ())
                 , lft.right ().rootKey ()
                 , lft.right ().rootValue ()
-                , RBMap (B, lft.right ().right (), x, v, rgt));
+                , RBMap (Color::black, lft.right ().right (), x, v, rgt));
             else if (rgt.doubledLeft ())
-                return RBMap (R
-                , RBMap (B, lft, x, v, rgt.left ().left ())
+                return RBMap (Color::red
+                , RBMap (Color::black, lft, x, v, rgt.left ().left ())
                 , rgt.left ().rootKey ()
                 , rgt.left ().rootValue ()
-                , RBMap (B, rgt.left ().right (), rgt.rootKey (), rgt.rootValue (), rgt.right ()));
+                , RBMap (Color::black, rgt.left ().right (), rgt.rootKey (), rgt.rootValue (), rgt.right ()));
             else if (rgt.doubledRight ())
-                return RBMap (R
-                , RBMap (B, lft, x, v, rgt.left ())
+                return RBMap (Color::red
+                , RBMap (Color::black, lft, x, v, rgt.left ())
                 , rgt.rootKey ()
                 , rgt.rootValue ()
-                , rgt.right ().paint (B));
+                , rgt.right ().paint (Color::black));
             else
-                return RBMap (B, lft, x, v, rgt);
+                return RBMap (Color::black, lft, x, v, rgt);
         }
         
         bool doubledLeft () const
         {
             return !isEmpty ()
-                && rootColor () == R
+                && rootColor () == Color::red
                 && !left ().isEmpty ()
-                && left ().rootColor () == R;
+                && left ().rootColor () == Color::red;
         }
         
         bool doubledRight () const
         {
             return !isEmpty ()
-                && rootColor () == R
+                && rootColor () == Color::red
                 && !right ().isEmpty ()
-                && right ().rootColor () == R;
+                && right ().rootColor () == Color::red;
         }
         
-        RBMap paint(Color c) const
+        RBMap paint (Color c) const
         {
-            assert(!isEmpty ());
-            return RBMap (c, left (), rootKey (), rootValue (), right());
+            assert (!isEmpty ());
+            return RBMap (c, left (), rootKey (), rootValue (), right ());
         }
         
         std::shared_ptr<const Node> _root;

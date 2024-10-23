@@ -147,5 +147,41 @@ namespace data {
 
 
     }
+
+    namespace test_RB {
+
+        template <typename V>
+        void test_case_balanced (linked_tree<RB::colored<V>> t, bool expected) {
+            EXPECT_EQ ((RB::balanced<V> (t)), expected);
+            //EXPECT_TRUE ((RB::balanced<V> (RB::balance<V> (t))));
+        }
+
+        using colored = RB::colored<int>;
+        using tree = linked_tree<RB::colored<int>>;
+
+        colored inline black (int i) {
+            return colored {RB::color::black, i};
+        }
+
+        colored inline red (int i) {
+            return colored {RB::color::red, i};
+        }
+
+        TEST (TreeTest, TestRBBalanced) {
+
+            test_case_balanced (tree {}, true);
+            test_case_balanced (tree {red (1)}, true);
+            test_case_balanced (tree {black (0)}, true);
+
+            test_case_balanced (tree {red (0), tree {}, tree {black (3)}}, false);
+            test_case_balanced (tree {red (0), tree {black (2)}, tree {}}, false);
+            test_case_balanced (tree {red (0), tree {black (2)}, tree {black (3)}}, true);
+
+            test_case_balanced (tree {red (0), tree {}, tree {red (3)}}, false);
+            test_case_balanced (tree {red (0), tree {red (2)}, tree {}}, false);
+            test_case_balanced (tree {red (0), tree {red (2)}, tree {red (3)}}, false);
+
+        }
+    }
     
 }
