@@ -21,8 +21,8 @@ namespace data {
     }
     
     template <typename fun, typename input, 
-        typename key = unref<decltype (std::declval<input> ().values ().first ().key ())>,
-        typename value = unref<decltype (std::declval<input> ().values ().first ().value ())>,
+        typename key = std::remove_const_t<unref<decltype (std::declval<input> ().values ().first ().key ())>>,
+        typename value = std::remove_const_t<unref<decltype (std::declval<input> ().values ().first ().value ())>>,
         typename output = decltype (std::declval<fun> () (std::declval<value> ()))>
     requires functional::function<fun, output, value> && functional::map<input, key, value>
     map<key, output> inline for_each (const fun &f, const input &i) {

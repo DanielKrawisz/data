@@ -24,9 +24,9 @@ namespace data {
         
         EXPECT_TRUE (for_each_test_stack);
         EXPECT_TRUE (for_each_test_list);
-        //EXPECT_TRUE(for_each_test_priority_queue)
+        //EXPECT_TRUE (for_each_test_priority_queue)
         EXPECT_TRUE (for_each_test_vector);
-        //EXPECT_TRUE(for_each_test_set);
+        //EXPECT_TRUE (for_each_test_set);
         EXPECT_TRUE (for_each_test_map);
         EXPECT_TRUE (for_each_test_tree);
 
