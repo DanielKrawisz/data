@@ -30,22 +30,6 @@ namespace data {
         const V &value () const {
             return Value;
         }
-        
-        bool operator < (const entry &e) const {
-            return Key < e.Key;
-        }
-        
-        bool operator > (const entry &e) const {
-            return Key > e.Key;
-        }
-        
-        bool operator <= (const entry &e) const {
-            return Key < e.Key;
-        }
-        
-        bool operator >= (const entry &e) const {
-            return Key >= e.Key;
-        }
     };
 
     // equal if the keys are equal.
@@ -53,6 +37,11 @@ namespace data {
     template <ordered K, typename V>
     bool operator == (const entry<K, V> &l, const entry<K, V> &r) {
         return l.Key == r.Key;
+    }
+
+    template <ordered K, typename V>
+    auto operator <=> (const entry<K, V> &l, const entry<K, V> &r) {
+        return l.Key <=> r.Key;
     }
     
     namespace interface {
