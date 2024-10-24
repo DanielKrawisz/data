@@ -32,7 +32,7 @@ namespace data::RB {
         return color (int16 (a) + int16 (b));
     }
 
-    template <sortable V> struct colored {
+    template <ordered V> struct colored {
         color Color;
         V Value;
         colored (color c, const V &v) : Color {c}, Value {v} {}
@@ -46,11 +46,11 @@ namespace data::RB {
         explicit operator colored<X> () const;
     };
 
-    template <sortable V> bool inline operator < (const colored<V> &a, const colored<V> &b) {
-        return a.Value < b.Value;
+    template <ordered V> auto inline operator <=> (const colored<V> &a, const colored<V> &b) {
+        return a.Value <=> b.Value;
     }
 
-    template <sortable V> bool inline operator == (const colored<V> &a, const colored<V> &b) {
+    template <ordered V> bool inline operator == (const colored<V> &a, const colored<V> &b) {
         return a.Value == b.Value;
     }
 
