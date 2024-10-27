@@ -67,12 +67,12 @@ namespace data::RB {
         return data::valid (t) && balanced (t);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> bool balance (T t);
+    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (T t);
 
     // insert a node into an RB tree
     template <sortable V, functional::buildable_tree<colored<V>> T>
     T inline insert (T t, const V &v) {
-        return balance (functional::insert (t, colored<V> {color::black, v}));
+        return balance<V> (functional::insert (t, colored<V> {color::black, v}));
     }
 
     template <sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
@@ -80,8 +80,8 @@ namespace data::RB {
     template <sortable V, functional::buildable_tree<colored<V>> T>
     struct tree : binary_search_tree<colored<V>, T> {
         tree ();
-        tree (const binary_search_tree<colored<V>, T> &t);
-        tree (binary_search_tree<colored<V>, T> &&t);
+        tree (const T &t);
+        tree (T &&t);
 
         tree (std::initializer_list<wrapped<V>> x);
 
@@ -91,7 +91,9 @@ namespace data::RB {
         tree left () const;
         tree right () const;
 
-        tree insert (inserted<V> v) const;
+        tree insert (inserted<V> v) const {
+            return RB::insert (static_cast<T> (*this), v);
+        }
 
         template <typename ...P>
         tree insert (inserted<V> a, inserted<V> b, P... p);
@@ -163,10 +165,10 @@ namespace data::RB {
     inline tree<V, T>::tree (): binary_search_tree<colored<V>, T> {} {}
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
-    inline tree<V, T>::tree (const binary_search_tree<colored<V>, T> &t): binary_search_tree<colored<V>, T> {t} {}
+    inline tree<V, T>::tree (const T &t): binary_search_tree<colored<V>, T> {t} {}
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
-    inline tree<V, T>::tree (binary_search_tree<colored<V>, T> &&t): binary_search_tree<colored<V>, T> {t} {}
+    inline tree<V, T>::tree (T &&t): binary_search_tree<colored<V>, T> {t} {}
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
     inline tree<V, T>::tree (std::initializer_list<wrapped<V>> x) {
