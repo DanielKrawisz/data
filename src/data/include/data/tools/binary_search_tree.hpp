@@ -58,7 +58,7 @@ namespace data {
 
         binary_search_tree (std::initializer_list<wrapped<value>> x);
 
-        tool::ordered_stack<linked_stack<const value &>> values () const;
+        tool::ordered_stack<linked_stack<inserted<value>>> values () const;
 
         using iterator = functional::binary_search_iterator<value, tree>;
 
@@ -170,10 +170,10 @@ namespace data {
     }
 
     template <ordered value, functional::buildable_tree<value> tree>
-    tool::ordered_stack<linked_stack<const value &>> inline binary_search_tree<value, tree>::values () const {
-        linked_stack<const value &> st;
-        for (const value &v : *this) st <<= v;
-        return tool::ordered_stack<linked_stack<const value &>> {reverse (st)};
+    tool::ordered_stack<linked_stack<inserted<value>>> inline binary_search_tree<value, tree>::values () const {
+        linked_stack<inserted<value>> st;
+        for (inserted<value> v : *this) st <<= v;
+        return tool::ordered_stack<linked_stack<inserted<value>>> {reverse (st)};
     }
 
     template <ordered value, functional::buildable_tree<value> tree>

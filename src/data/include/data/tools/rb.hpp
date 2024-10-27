@@ -231,6 +231,24 @@ namespace data::RB {
         return static_cast<const parent &> (*this) == static_cast<const parent &> (i);
     }
 
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tree<V, T>::iterator inline tree<V, T>::begin () const {
+        return iterator {this, *this};
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tree<V, T>::iterator inline tree<V, T>::end () const {
+        return iterator {this, tree {}};
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    tool::ordered_stack<linked_stack<inserted<V>>> tree<V, T>::values () const {
+        linked_stack<inserted<V>> st;
+        for (inserted<V> v : *this) st <<= v;
+        return tool::ordered_stack<linked_stack<inserted<V>>> {reverse (st)};
+    }
+
+
 }
 
 #endif
