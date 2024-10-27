@@ -293,10 +293,10 @@ namespace data::RB {
     }
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
-    tool::ordered_stack<linked_stack<inserted<V>>> inline tree<V, T>::values () const {
-        return fold ([] (tool::ordered_stack<linked_stack<inserted<V>>> x, const colored<V> &e) {
-            return x.insert (e.Value);
-        }, tool::ordered_stack<linked_stack<inserted<V>>> {}, reverse (binary_search_tree<colored<V>, T>::values ()));
+    tool::ordered_stack<linked_stack<inserted<V>>> tree<V, T>::values () const {
+        linked_stack<inserted<V>> st;
+        for (inserted<V> v : *this) st <<= v;
+        return tool::ordered_stack<linked_stack<inserted<V>>> {reverse (st)};
     }
 
 }
