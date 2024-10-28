@@ -214,7 +214,7 @@ namespace data::crypto {
 
     template <uint16 block_size> struct mode_cipher_block_chain {
         byte_array<block_size> Last;
-        mode_cipher_block_chain (const byte_array<block_size> &);
+        mode_cipher_block_chain (const initialization_vector<block_size> &);
 
         using block_in = slice<const byte, block_size>;
         using block_out = slice<byte, block_size>;
@@ -227,7 +227,7 @@ namespace data::crypto {
 
     template <uint16 block_size> struct mode_output_feedback {
         byte_array<block_size> Last;
-        mode_output_feedback (const byte_array<block_size> &iv);
+        mode_output_feedback (const initialization_vector<block_size> &iv);
 
         using block_in = slice<const byte, block_size>;
         using block_out = slice<byte, block_size>;
@@ -247,7 +247,7 @@ namespace data::crypto {
 
     template <uint16 block_size> struct mode_cipher_feedback {
         byte_array<block_size> Last;
-        mode_cipher_feedback (const byte_array<block_size> &iv);
+        mode_cipher_feedback (const initialization_vector<block_size> &iv);
 
         using block_in = slice<const byte, block_size>;
         using block_out = slice<byte, block_size>;
@@ -292,7 +292,7 @@ namespace data::crypto {
     }
 
     template <uint16 block_size>
-    inline mode_cipher_block_chain<block_size>::mode_cipher_block_chain (const byte_array<block_size> &iv) : Last {iv} {}
+    inline mode_cipher_block_chain<block_size>::mode_cipher_block_chain (const initialization_vector<block_size> &iv) : Last {iv} {}
 
     template <uint16 block_size>
     template <typename cipher, uint16 key_size>
@@ -312,7 +312,7 @@ namespace data::crypto {
     }
 
     template <uint16 block_size>
-    inline mode_output_feedback<block_size>::mode_output_feedback (const byte_array<block_size> &iv) : Last {iv} {}
+    inline mode_output_feedback<block_size>::mode_output_feedback (const initialization_vector<block_size> &iv) : Last {iv} {}
 
     template <uint16 block_size>
     template <typename cipher, uint16 key_size>
@@ -344,7 +344,7 @@ namespace data::crypto {
     }
 
     template <uint16 block_size>
-    inline mode_cipher_feedback<block_size>::mode_cipher_feedback (const byte_array<block_size> &iv) : Last {iv} {}
+    inline mode_cipher_feedback<block_size>::mode_cipher_feedback (const initialization_vector<block_size> &iv) : Last {iv} {}
 /*
     template <uint16 block_size>
     template <typename cipher, uint16 key_size>
