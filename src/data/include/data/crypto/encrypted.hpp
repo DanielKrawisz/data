@@ -11,25 +11,27 @@
 
 namespace data::crypto {
     
-    template <size_t size> 
-    using symmetric_key = byte_array<size>;
-    
-    using initialization_vector = bytes;
-    
     template <size_t key_size>
-    using encryption = bytes (*) (bytes_view, const symmetric_key<key_size> &, const initialization_vector &);
+    using symmetric_key = byte_array<key_size>;
     
-    template <size_t key_size>
-    using decryption = bytes (*) (bytes_view, const symmetric_key<key_size> &, const initialization_vector &);
+    template <size_t block_size>
+    using initialization_vector = byte_array<block_size>;
+    
+    template <size_t block_size, size_t key_size>
+    using encryption = function<bytes (const initialization_vector<block_size> &, const symmetric_key<key_size> &, bytes_view)>;
+    
+    template <size_t block_size, size_t key_size>
+    using decryption = function<bytes (const initialization_vector<block_size> &, const symmetric_key<key_size> &, bytes_view)>;
     
     template <size_t size> 
     struct retriever {
         virtual symmetric_key<size> retrieve () = 0;
     };
 
+    template <size_t block_size>
     struct encrypted {
         bytes Data;
-        initialization_vector &IV;
+        initialization_vector<block_size> &IV;
         
         bool operator == (const encrypted &e) const {
             return Data == e.Data && IV == e.IV;
@@ -40,17 +42,17 @@ namespace data::crypto {
         }
     };
     
-    template <size_t key_size>
-    inline encrypted encrypt
-        (bytes_view b, encryption<key_size> e, const symmetric_key<key_size> &k, const initialization_vector &iv) {
+    template <size_t block_size, size_t key_size>
+    inline encrypted<block_size> encrypt
+        (bytes_view b, encryption<block_size, key_size> e, const symmetric_key<key_size> &k, const initialization_vector<block_size> &iv) {
         return {e (write_bytes (12 + b.size (), uint64_big {0}, uint64_big {b.size ()}, b, uint64_big {0}), k, iv), iv};
     }
     
     struct decrypted;
     
-    template <size_t key_size>
-    decrypted decrypt (const encrypted &e, decryption<key_size> d, const symmetric_key<key_size> &k);
-    
+    template <size_t block_size, size_t key_size>
+    decrypted decrypt (const encrypted<block_size> &e, decryption<block_size, key_size> d, const symmetric_key<key_size> &k);
+
     struct decrypted : bytes {
         struct fail : std::exception {
             const char* what () const noexcept override {
@@ -64,12 +66,12 @@ namespace data::crypto {
         decrypted (const size_t size) : bytes (size) {}
         decrypted (const decrypted &) = delete;
         
-        template <size_t key_size>
-        friend decrypted decrypt (const encrypted &e, decryption<key_size> d, const symmetric_key<key_size> &k);
+        template <size_t block_size, size_t key_size>
+        friend decrypted decrypt (const encrypted<block_size> &e, decryption<block_size, key_size> d, const symmetric_key<key_size> &k);
     };
     
-    template <size_t key_size>
-    decrypted decrypt (const encrypted &e, decryption<key_size> d, const symmetric_key<key_size> &k) {
+    template <size_t block_size, size_t key_size>
+    decrypted decrypt (const encrypted<block_size> &e, decryption<block_size, key_size> d, const symmetric_key<key_size> &k) {
         bytes x = d (e.Data, k, e.IV);
         iterator_reader r (x.begin (), x.end ());
         uint64_big check_start;
@@ -86,18 +88,18 @@ namespace data::crypto {
         return data;
     }
     
-    template <size_t key_size>
-    struct locked : encrypted {
+    template <size_t block_size, size_t key_size>
+    struct locked : encrypted<block_size> {
         ptr<retriever<key_size>> Retriever;
-        crypto::decryption<key_size> Decrypt;
+        crypto::decryption<block_size, key_size> Decrypt;
         decrypted decrypt () const {
             return crypto::decrypt (*this, Decrypt, Retriever->retrieve ());
         };
         
         locked (const bytes &b,
-            initialization_vector iv, 
-            crypto::decryption<key_size> d,
-            ptr<retriever<key_size>> r) : encrypted {b, iv}, Retriever {r}, Decrypt {d} {}
+            initialization_vector<block_size> iv,
+            crypto::decryption<block_size, key_size> d,
+            ptr<retriever<key_size>> r) : encrypted<block_size> {b, iv}, Retriever {r}, Decrypt {d} {}
     };
     
     template <size_t key_size>
