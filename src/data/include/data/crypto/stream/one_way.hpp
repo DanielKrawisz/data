@@ -1,11 +1,9 @@
-
-
 // Copyright (c) 2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CRYPTO_STREAM_OFB
-#define DATA_CRYPTO_STREAM_OFB
+#ifndef DATA_CRYPTO_STREAM_ONE_WAY
+#define DATA_CRYPTO_STREAM_ONE_WAY
 
 #include <data/crypto/block/cipher.hpp>
 #include <data/crypto/hash/hash.hpp>
