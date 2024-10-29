@@ -22,7 +22,9 @@ namespace data::crypto {
 
     // we should be able to encrypt a message and decrypt it to the same thing.
     template <typename cipher, size_t block_size, size_t key_size, block_cipher_mode<cipher, block_size, key_size> mode>
-    void test_encryption_mode (mode &m, const symmetric_key<key_size> &key, const char *message);
+    void test_encryption_mode (mode &m, const symmetric_key<key_size> &key, const char *message) {
+        // TODO
+    }
 
     template <size_t... X> struct keys : tuple<symmetric_key<X>...> {
         using tuple<symmetric_key<X>...>::tuple;

@@ -26,7 +26,7 @@ namespace data {
     /// @param message message to ask user for password
     /// @param mask masking character to use
     /// @return password returned
-    std::string get_user_password(std::string message, char mask='*');
+    std::string get_user_password (std::string message, char mask='*');
 
 }
 

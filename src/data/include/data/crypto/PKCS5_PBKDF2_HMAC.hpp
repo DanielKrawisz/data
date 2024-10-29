@@ -13,21 +13,21 @@
 
 namespace data::crypto {
 
-    template <size_t size, typename hash_func>
+    template <size_t size, typename hash>
     requires std::derived_from<hash, CryptoPP::HashTransformation>
-    byte_array<size> PKCS5_PBKDF2_HMAC (bytes password, int iterations, const bytes salt = {}) {
+    byte_array<size> PKCS5_PBKDF2_HMAC (const std::string &password, int iterations, const bytes salt = {}) {
         CryptoPP::PKCS5_PBKDF2_HMAC<hash> pbkdf;
         byte_array<size> key;
-        pbkdf.DeriveKey (key.data (), size, false, password.data (), password.size (), salt.data (), salt.size (), iterations, 0.0f);
+        pbkdf.DeriveKey (key.data (), size, false, (const byte *) password.data (), password.size (), salt.data (), salt.size (), iterations, 0.0f);
         return key;
     }
 
     template <size_t size, typename hash>
     requires std::derived_from<hash, CryptoPP::HashTransformation>
-    byte_array<size> PKCS5_PBKDF2_HMAC (bytes password, std::chrono::duration<float> seconds, const bytes salt = {}) {
+    byte_array<size> PKCS5_PBKDF2_HMAC (const std::string &password, std::chrono::duration<float> seconds, const bytes salt = {}) {
         CryptoPP::PKCS5_PBKDF2_HMAC<hash> pbkdf;
         byte_array<size> key;
-        pbkdf.DeriveKey (key.data (), size, false, password.data (), password.size (), salt.data (), salt.size (), 0, seconds.count ());
+        pbkdf.DeriveKey (key.data (), size, false, (const byte *) password.data (), password.size (), salt.data (), salt.size (), 0, seconds.count ());
         return key;
     }
 
