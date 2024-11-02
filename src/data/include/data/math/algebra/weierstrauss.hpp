@@ -11,36 +11,36 @@
 
 namespace data::math::algebra::elliptic_curve {
     
-    template <typename field, auto& a, auto& b> struct weierstrauss;
+    template <typename field, auto &a, auto &b> struct weierstrauss;
     
-    template <typename field, auto& A, auto& B>
-    weierstrauss<field, A, B> operator+(
-        const weierstrauss<field, A, B>& p, 
-        const weierstrauss<field, A, B>& q);
+    template <typename field, auto &A, auto &B>
+    weierstrauss<field, A, B> operator + (
+        const weierstrauss<field, A, B> &p,
+        const weierstrauss<field, A, B> &q);
     
-    template <typename field, auto& A, auto& B>
-    weierstrauss<field, A, B> operator-(
-        const weierstrauss<field, A, B>& p, 
-        const weierstrauss<field, A, B>& q);
+    template <typename field, auto& A, auto &B>
+    weierstrauss<field, A, B> operator - (
+        const weierstrauss<field, A, B> &p,
+        const weierstrauss<field, A, B> &q);
     
-    template <typename field, auto& A, auto& B>
-    weierstrauss<field, A, B> operator-(
-        const weierstrauss<field, A, B>& p);
+    template <typename field, auto &A, auto &B>
+    weierstrauss<field, A, B> operator - (
+        const weierstrauss<field, A, B> &p);
     
-    template <typename field, auto& A, auto& B, typename N>
-    weierstrauss<field, A, B> operator*(
-        const weierstrauss<field, A, B>&, 
-        const N&);
+    template <typename field, auto& A, auto &B, typename N>
+    weierstrauss<field, A, B> operator * (
+        const weierstrauss<field, A, B> &,
+        const N &);
     
-    template <typename field, auto& a, auto& b>
+    template <typename field, auto &a, auto &b>
     struct weierstrauss {
-        static field A() {
-            static field A{a};
+        static field A () {
+            static field A {a};
             return A;
         }
         
-        static field B() {
-            static field B{b};
+        static field B () {
+            static field B {b};
             return B;
         }
         
@@ -48,32 +48,32 @@ namespace data::math::algebra::elliptic_curve {
         field Y;
         bool Infinite;
         
-        weierstrauss() : X{}, Y{}, Infinite{true} {}
-        weierstrauss(const field& x, const field& y) : X{x}, Y{y}, Infinite{false} {}
+        weierstrauss () : X {}, Y {}, Infinite {true} {}
+        weierstrauss (const field &x, const field &y) : X {x}, Y {y}, Infinite {false} {}
         
-        bool valid() const {
-            static field Discriminant = A() * A() * A() * 4 + B() * B() * 27;
-            return Discriminant != 0 && (Infinite || (valid(X) && valid(Y)));
+        bool valid () const {
+            static field Discriminant = A () * A () * A () * 4 + B () * B () * 27;
+            return Discriminant != 0 && (Infinite || (valid (X) && valid (Y)));
         }
     };
     
     template <typename field, auto& A, auto& B>
-    weierstrauss<field, A, B> inline operator-(
-        const weierstrauss<field, A, B>& p, 
-        const weierstrauss<field, A, B>& q) {
+    weierstrauss<field, A, B> inline operator - (
+        const weierstrauss<field, A, B> &p,
+        const weierstrauss<field, A, B> &q) {
         return p + (-q);
     }
     
     template <typename field, auto& A, auto& B>
-    weierstrauss<field, A, B> inline operator-(
-        const weierstrauss<field, A, B>& p) {
+    weierstrauss<field, A, B> inline operator - (
+        const weierstrauss<field, A, B> &p) {
         return {p.X, -p.Y};
     }
     
-    template <typename field, auto& A, auto& B>
-    weierstrauss<field, A, B> operator+(
-        const weierstrauss<field, A, B>& p, 
-        const weierstrauss<field, A, B>& q) {
+    template <typename field, auto &A, auto &B>
+    weierstrauss<field, A, B> operator + (
+        const weierstrauss<field, A, B> &p,
+        const weierstrauss<field, A, B> &q) {
         if (p.Infinite) return q;
         if (q.Infinite) return p;
         
@@ -84,23 +84,23 @@ namespace data::math::algebra::elliptic_curve {
         }
         
         if (p.Y == q.Y && p.Y != 0) {
-            field m = (p.X * p.X * 3 + weierstrauss<field, A, B>::A()) / (p.Y * 2);
+            field m = (p.X * p.X * 3 + weierstrauss<field, A, B>::A ()) / (p.Y * 2);
             field x = m * m - p.X * 2;
             return {x, m * (p.X - x) - p.Y};
         }
         
-        return weierstrauss<field, A, B>{};
+        return weierstrauss<field, A, B> {};
         
     }
     
-    template <typename field, auto& A, auto& B, typename N>
-    weierstrauss<field, A, B> operator*(
-        const weierstrauss<field, A, B>& p, const N& k) {
-        weierstrauss<field, A, B> m{};
+    template <typename field, auto& A, auto &B, typename N>
+    weierstrauss<field, A, B> operator * (
+        const weierstrauss<field, A, B> &p, const N &k) {
+        weierstrauss<field, A, B> m {};
         weierstrauss<field, A, B> n = p;
         N x = k;
         while (x != 0) {
-            division<field, uint64> d = divide(x, 2);
+            division<field, uint64> d = divide (x, 2);
             if (d.Remainder != 0) m = m + n;
             n = n + n;
         }
@@ -111,32 +111,32 @@ namespace data::math::algebra::elliptic_curve {
 
 namespace data::math {
     
-    template <typename field, auto& A, auto& B>
-    struct commutative<
+    template <typename field, auto &A, auto &B>
+    struct is_commutative<
         plus<algebra::elliptic_curve::weierstrauss<field, A, B>>, 
         algebra::elliptic_curve::weierstrauss<field, A, B>> {};
     
-    template <typename field, auto& A, auto& B>
-    struct associative<
+    template <typename field, auto &A, auto &B>
+    struct is_associative<
         plus<algebra::elliptic_curve::weierstrauss<field, A, B>>, 
         algebra::elliptic_curve::weierstrauss<field, A, B>> {};
     
-    template <typename field, auto& A, auto& B>
-    struct commutative<
+    template <typename field, auto &A, auto &B>
+    struct is_commutative<
         times<algebra::elliptic_curve::weierstrauss<field, A, B>>, 
         algebra::elliptic_curve::weierstrauss<field, A, B>> {};
     
-    template <typename field, auto& A, auto& B>
-    struct associative<
+    template <typename field, auto &A, auto &B>
+    struct is_associative<
         times<algebra::elliptic_curve::weierstrauss<field, A, B>>, 
         algebra::elliptic_curve::weierstrauss<field, A, B>> {};
     
-    template <typename field, auto& A, auto& B>
+    template <typename field, auto &A, auto &B>
     struct identity<
         plus<algebra::elliptic_curve::weierstrauss<field, A, B>>, 
         algebra::elliptic_curve::weierstrauss<field, A, B>> {
-        static algebra::elliptic_curve::weierstrauss<field, A, B> value() {
-            return algebra::elliptic_curve::weierstrauss<field, A, B>{};
+        static algebra::elliptic_curve::weierstrauss<field, A, B> value () {
+            return algebra::elliptic_curve::weierstrauss<field, A, B> {};
         }
     };
     

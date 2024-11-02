@@ -9,10 +9,17 @@
 
 namespace data::math {
     
-    template <typename f, typename x> struct commutative;
+    template <typename f, typename x> struct is_commutative;
+
+    template <typename f, typename x> concept commutative = requires {
+        is_commutative<f, x> {};
+    };
     
-    template <typename x> using commutative_plus = commutative<plus<x>, x>;
-    template <typename x> using commutative_times = commutative<times<x>, x>;
+    template <typename x> concept commutative_plus = commutative<plus<x>, x>;
+    template <typename x> concept commutative_times = commutative<times<x>, x>;
+
+    template <std::integral num> struct is_commutative<times<num>, num> {};
+    template <std::integral num> struct is_commutative<plus<num>, num> {};
     
 }
 

@@ -85,12 +85,12 @@ namespace data::math::number {
 namespace data::math {
     
     template <auto mod, typename X>
-    struct commutative<plus<number::modular<mod, X>>, number::modular<mod, X>>
-        : commutative<plus<X>, X> {};
+    struct is_commutative<plus<number::modular<mod, X>>, number::modular<mod, X>>
+        : is_commutative<plus<X>, X> {};
     
     template <auto mod, typename X>
-    struct associative<plus<number::modular<mod, X>>, number::modular<mod, X>>
-        : associative<plus<X>, X> {};
+    struct is_associative<plus<number::modular<mod, X>>, number::modular<mod, X>>
+        : is_associative<plus<X>, X> {};
     
     template <auto mod, typename X>
     struct identity<plus<number::modular<mod, X>>, number::modular<mod, X>>

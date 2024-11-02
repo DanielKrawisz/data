@@ -6,8 +6,7 @@
 #define DATA_MATH_NUMBER_BYTES_BYTES
 
 #include <data/math/number/gmp/mpz.hpp>
-#include <data/encoding/hex.hpp>
-#include <data/cross.hpp>
+#include <data/bytes.hpp>
 
 namespace data::math::number {
     using complement = arithmetic::complement;
@@ -360,28 +359,28 @@ namespace data::math {
     
     // Declare that the plus and times operation are commutative and associative. 
     template <endian::order r, std::unsigned_integral word>
-    struct commutative<plus<N_bytes<r, word>>, N_bytes<r, word>> {};
+    struct is_commutative<plus<N_bytes<r, word>>, N_bytes<r, word>> {};
     
     template <endian::order r, std::unsigned_integral word>
-    struct associative<plus<N_bytes<r, word>>, N_bytes<r, word>> {};
+    struct is_associative<plus<N_bytes<r, word>>, N_bytes<r, word>> {};
     
     template <endian::order r, std::unsigned_integral word>
-    struct commutative<times<N_bytes<r, word>>, N_bytes<r, word>> {};
+    struct is_commutative<times<N_bytes<r, word>>, N_bytes<r, word>> {};
     
     template <endian::order r, std::unsigned_integral word>
-    struct associative<times<N_bytes<r, word>>, N_bytes<r, word>> {};
+    struct is_associative<times<N_bytes<r, word>>, N_bytes<r, word>> {};
     
     template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct commutative<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
+    struct is_commutative<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
     
     template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct associative<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
+    struct is_associative<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
     
     template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct commutative<times<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
+    struct is_commutative<times<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
     
     template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct associative<times<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
+    struct is_associative<times<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
     
     template <endian::order r, number::complement c, std::unsigned_integral word>
     struct inverse<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {

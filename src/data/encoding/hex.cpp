@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include <data/cross.hpp>
+#include <data/bytes.hpp>
 
 namespace data::encoding::hex {
     

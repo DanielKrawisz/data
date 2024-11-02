@@ -11,6 +11,7 @@
 #include <data/arithmetic/halves.hpp>
 #include <data/arithmetic/words.hpp>
 #include <data/math/number/integer.hpp>
+#include <data/math/infinite.hpp>
 
 namespace data::arithmetic {
 
@@ -181,6 +182,32 @@ namespace data::math::number {
 }
 
 namespace data::math {
+
+    template <bool x, boost::endian::order o, std::size_t z>
+    struct numeric_limits<arithmetic::endian_integral<x, o, z>> {
+        constexpr static arithmetic::endian_integral<x, o, z> Max {std::numeric_limits<endian::to_native<x, z>>::max ()};
+        constexpr static arithmetic::endian_integral<x, o, z> Min {std::numeric_limits<endian::to_native<x, z>>::min ()};
+
+        constexpr static arithmetic::endian_integral<x, o, z> &max () {
+            return Max;
+        }
+
+        constexpr static arithmetic::endian_integral<x, o, z> &min () {
+            return Min;
+        }
+    };
+
+    template <bool z, boost::endian::order o, std::size_t n>
+    struct is_associative<times<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
+
+    template <bool z, boost::endian::order o, std::size_t n>
+    struct is_associative<plus<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
+
+    template <bool z, boost::endian::order o, std::size_t n>
+    struct is_commutative<times<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
+
+    template <bool z, boost::endian::order o, std::size_t n>
+    struct is_commutative<plus<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
 
     template <boost::endian::order o, std::size_t z>
     struct abs<arithmetic::endian_integral<false, o, z>> {

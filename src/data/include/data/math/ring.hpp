@@ -9,14 +9,16 @@
 #include <data/math/group.hpp>
 
 namespace data::math {
-    
+
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
-    concept ring = abelian<elem, plus> && requires () {
+    concept non_associative_ring = abelian<elem, plus> && requires () {
         {math::identity<times, elem> {} ()} -> implicitly_convertible_to<elem>;
-        typename math::associative<times, elem>;
     } && requires (const elem &a, elem &b) {
         {times {} (a, b)} -> implicitly_convertible_to<elem>;
     };
+    
+    template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
+    concept ring = non_associative_ring<elem, plus, times> && associative<times, elem>;
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
     concept commutative_ring = ring<elem, plus, times> && abelian<elem, times>;
@@ -28,9 +30,7 @@ namespace data::math {
     };
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
-    concept integral_domain = skew_integral_domain<elem, plus, times> && requires () {
-        typename math::commutative<times, elem>;
-    };
+    concept integral_domain = skew_integral_domain<elem, plus, times> && commutative<times, elem>;
     
 }
 

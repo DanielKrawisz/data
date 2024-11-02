@@ -14,8 +14,7 @@
 namespace data::math {
     
     template <typename elem, typename op = plus<elem>>
-    concept group = requires () {
-        typename associative<op, elem>; 
+    concept group = associative<op, elem> && requires () {
         {identity<op, elem> {} ()} -> implicitly_convertible_to<elem>;
     } && requires (const elem &a, const elem &b) {
         {op {} (a, b)} -> implicitly_convertible_to<elem>;
@@ -23,9 +22,7 @@ namespace data::math {
     };
     
     template <typename elem, typename op = elem>
-    concept abelian = group<elem, op> && requires () {
-        typename math::commutative<op, elem>;
-    };
+    concept abelian = group<elem, op> && commutative<op, elem>;
     
 }
 
