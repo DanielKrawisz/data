@@ -6,7 +6,7 @@
 #define DATA_CRYPTO_RANDOM
 
 #include <data/iterable.hpp>
-#include <data/cross.hpp>
+#include <data/bytes.hpp>
 #include <data/size.hpp>
 #include <iostream>
 #include <random>

@@ -105,19 +105,19 @@ namespace data::math {
     // plus and times are associative and commutative
     // for both bounded and bytes. 
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct commutative<plus<number::bounded<is_signed, r, size, word>>,
+    struct is_commutative<plus<number::bounded<is_signed, r, size, word>>,
         number::bounded<is_signed, r, size, word>> {};
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct associative<plus<number::bounded<is_signed, r, size, word>>,
+    struct is_associative<plus<number::bounded<is_signed, r, size, word>>,
         number::bounded<is_signed, r, size, word>> {};
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct commutative<times<number::bounded<is_signed, r, size, word>>,
+    struct is_commutative<times<number::bounded<is_signed, r, size, word>>,
         number::bounded<is_signed, r, size, word>> {};
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct associative<times<number::bounded<is_signed, r, size, word>>,
+    struct is_associative<times<number::bounded<is_signed, r, size, word>>,
         number::bounded<is_signed, r, size, word>> {};
 
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>

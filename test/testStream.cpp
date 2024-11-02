@@ -3,10 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/arithmetic/endian.hpp"
-#include "data/cross.hpp"
+#include "data/bytes.hpp"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "gmock/gmock-matchers.h"
+
 namespace {
     using namespace data;
     class StreamTest : public ::testing::Test {

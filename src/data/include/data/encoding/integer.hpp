@@ -539,27 +539,27 @@ namespace data::math {
         nonzero<hex::integer<c, zz>> operator () (const nonzero<hex::integer<c, zz>> &, const nonzero<hex::integer<c, zz>> &);
     };
     
-    template <> struct commutative<plus<dec_uint>, dec_uint> {};
-    template <> struct associative<plus<dec_uint>, dec_uint> {};
-    template <> struct commutative<times<dec_uint>, dec_uint> {};
-    template <> struct associative<times<dec_uint>, dec_uint> {};
+    template <> struct is_commutative<plus<dec_uint>, dec_uint> {};
+    template <> struct is_associative<plus<dec_uint>, dec_uint> {};
+    template <> struct is_commutative<times<dec_uint>, dec_uint> {};
+    template <> struct is_associative<times<dec_uint>, dec_uint> {};
     
-    template <> struct commutative<plus<dec_int>, dec_int> {};
-    template <> struct associative<plus<dec_int>, dec_int> {};
-    template <> struct commutative<times<dec_int>, dec_int> {};
-    template <> struct associative<times<dec_int>, dec_int> {};
-    
-    template <number::complement c, hex_case zz> 
-    struct commutative<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {};
+    template <> struct is_commutative<plus<dec_int>, dec_int> {};
+    template <> struct is_associative<plus<dec_int>, dec_int> {};
+    template <> struct is_commutative<times<dec_int>, dec_int> {};
+    template <> struct is_associative<times<dec_int>, dec_int> {};
     
     template <number::complement c, hex_case zz> 
-    struct associative<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {};
+    struct is_commutative<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {};
     
     template <number::complement c, hex_case zz> 
-    struct commutative<times<hex::integer<c, zz>>, hex::integer<c, zz>> {};
+    struct is_associative<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {};
     
     template <number::complement c, hex_case zz> 
-    struct associative<times<hex::integer<c, zz>>, hex::integer<c, zz>> {};
+    struct is_commutative<times<hex::integer<c, zz>>, hex::integer<c, zz>> {};
+    
+    template <number::complement c, hex_case zz> 
+    struct is_associative<times<hex::integer<c, zz>>, hex::integer<c, zz>> {};
 
     template <> struct is_zero<dec_uint> {
         bool operator () (const dec_uint &);

@@ -227,10 +227,10 @@ namespace data::math {
         nonzero<number::N<Z>> operator () (const nonzero<number::N<Z>> &a, const nonzero<number::N<Z>> &b);
     };
 
-    template <number::integer Z> struct commutative<plus<number::N<Z>>, number::N<Z>> : commutative<plus<Z>, Z> {};
-    template <number::integer Z> struct associative<plus<number::N<Z>>, number::N<Z>> : associative<plus<Z>, Z> {};
-    template <number::integer Z> struct commutative<times<number::N<Z>>, number::N<Z>> : commutative<times<Z>, Z> {};
-    template <number::integer Z> struct associative<times<number::N<Z>>, number::N<Z>> : associative<times<Z>, Z> {};
+    template <number::integer Z> struct is_commutative<plus<number::N<Z>>, number::N<Z>> : is_commutative<plus<Z>, Z> {};
+    template <number::integer Z> struct is_associative<plus<number::N<Z>>, number::N<Z>> : is_associative<plus<Z>, Z> {};
+    template <number::integer Z> struct is_commutative<times<number::N<Z>>, number::N<Z>> : is_commutative<times<Z>, Z> {};
+    template <number::integer Z> struct is_associative<times<number::N<Z>>, number::N<Z>> : is_associative<times<Z>, Z> {};
 
     template <number::integer Z> struct identity<plus<number::N<Z>>, number::N<Z>> : identity<plus<Z>, Z> {
         number::N<Z> operator () ();

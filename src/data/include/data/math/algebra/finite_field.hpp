@@ -74,24 +74,24 @@ namespace data::math {
     };
     
     template <typename N, typename Z, auto prime>
-    struct commutative<plus<prime_field_element<N, Z, prime>>, 
+    struct is_commutative<plus<prime_field_element<N, Z, prime>>,
         prime_field_element<N, Z, prime>>
-        : commutative<plus<N>, N> {};
+        : is_commutative<plus<N>, N> {};
     
     template <typename N, typename Z, auto prime>
-    struct associative<plus<prime_field_element<N, Z, prime>>,
+    struct is_associative<plus<prime_field_element<N, Z, prime>>,
         prime_field_element<N, Z, prime>>
-        : associative<plus<N>, N> {};
+        : is_associative<plus<N>, N> {};
     
     template <typename N, typename Z, auto prime>
-    struct commutative<times<prime_field_element<N, Z, prime>>,
+    struct is_commutative<times<prime_field_element<N, Z, prime>>,
         prime_field_element<N, Z, prime>>
-        : commutative<times<N>, N> {};
+        : is_commutative<times<N>, N> {};
     
     template <typename N, typename Z, auto prime>
-    struct associative<times<prime_field_element<N, Z, prime>>,
+    struct is_associative<times<prime_field_element<N, Z, prime>>,
         prime_field_element<N, Z, prime>>
-        : associative<times<N>, N> {};
+        : is_associative<times<N>, N> {};
     
     template <typename N, typename Z, auto prime>
     struct identity<plus<prime_field_element<N, Z, prime>>,

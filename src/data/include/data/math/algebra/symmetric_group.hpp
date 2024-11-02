@@ -38,10 +38,10 @@ namespace data::math {
     }
     
     template <auto natural, typename N>
-    struct associative<
+    struct is_associative<
         times<symmetric_group<natural, N>>,
         symmetric_group<natural, N>>
-        : associative<plus<N>, N> {};
+        : is_associative<plus<N>, N> {};
     
     template <auto natural, typename N>
     struct identity<

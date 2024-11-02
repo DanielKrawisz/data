@@ -139,10 +139,10 @@ namespace data::math {
         }
     };
     
-    template <std::floating_point X> struct commutative<plus<X>, X> {};
-    template <std::floating_point X> struct commutative<times<X>, X> {};
-    template <std::floating_point X> struct associative<plus<X>, X> {};
-    template <std::floating_point X> struct associative<times<X>, X> {};
+    template <std::floating_point X> struct is_commutative<plus<X>, X> {};
+    template <std::floating_point X> struct is_commutative<times<X>, X> {};
+    template <std::floating_point X> struct is_associative<plus<X>, X> {};
+    template <std::floating_point X> struct is_associative<times<X>, X> {};
     
     template <std::floating_point X> struct identity<plus<X>, X> {
         X operator () () {

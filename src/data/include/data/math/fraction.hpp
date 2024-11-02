@@ -26,16 +26,16 @@ namespace data::math {
     template <typename Z> fraction<Z> operator * (const fraction<Z> &, const fraction<Z> &);
 
     template <typename Z, typename N>
-    struct commutative<plus<fraction<Z, N>>, fraction<Z, N>> : commutative<plus<Z>, Z> {};
+    struct is_commutative<plus<fraction<Z, N>>, fraction<Z, N>> : is_commutative<plus<Z>, Z> {};
 
     template <typename Z, typename N>
-    struct associative<plus<fraction<Z, N>>, fraction<Z, N>> : associative<plus<Z>, Z> {};
+    struct is_associative<plus<fraction<Z, N>>, fraction<Z, N>> : is_associative<plus<Z>, Z> {};
 
     template <typename Z, typename N>
-    struct commutative<times<fraction<Z, N>>, fraction<Z, N>> : commutative<times<Z>, Z> {};
+    struct is_commutative<times<fraction<Z, N>>, fraction<Z, N>> : is_commutative<times<Z>, Z> {};
 
     template <typename Z, typename N>
-    struct associative<times<fraction<Z, N>>, fraction<Z, N>> : associative<times<Z>, Z> {};
+    struct is_associative<times<fraction<Z, N>>, fraction<Z, N>> : is_associative<times<Z>, Z> {};
 
     template <typename Z, typename N>
     struct identity<plus<fraction<Z, N>>, fraction<Z, N>> : identity<plus<Z>, Z> {

@@ -97,10 +97,10 @@ namespace data::math {
         nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
     };
 
-    template <> struct commutative<plus<Z>, Z> {};
-    template <> struct associative<plus<Z>, Z> {};
-    template <> struct commutative<times<Z>, Z> {};
-    template <> struct associative<times<Z>, Z> {};
+    template <> struct is_commutative<plus<Z>, Z> {};
+    template <> struct is_associative<plus<Z>, Z> {};
+    template <> struct is_commutative<times<Z>, Z> {};
+    template <> struct is_associative<times<Z>, Z> {};
 
     template <> struct identity<plus<Z>, Z> {
         Z operator () ();
@@ -305,6 +305,21 @@ namespace data::math {
 
     template <> struct inner<N> {
         N operator () (const N &, const N &);
+    };
+
+    template <> struct numeric_limits<Z> {
+
+        constexpr static const signed_limit<Z> &Max = signed_limit<Z>::Infinity;
+        constexpr static const signed_limit<Z> &Min = signed_limit<Z>::NegativeInfinity;
+
+
+        constexpr static const signed_limit<Z> &max () {
+            return Max;
+        }
+
+        constexpr static const signed_limit<Z> &min () {
+            return Min;
+        }
     };
     
 }

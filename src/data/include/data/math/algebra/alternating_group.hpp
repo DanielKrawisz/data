@@ -47,10 +47,10 @@ namespace data::math {
 namespace data::math {
     
     template <auto natural, typename N>
-    struct associative<
+    struct is_associative<
         times<alternating_group<natural, N>>,
         alternating_group<natural, N>>
-        : associative<plus<N>, N> {};
+        : is_associative<plus<N>, N> {};
     
     template <auto natural, typename N>
     struct identity<

@@ -14,7 +14,7 @@ namespace data::math {
 
     template <ordered elem> struct permutation;
 
-    template <ordered elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
+    template <ordered elem> struct is_associative<times<permutation<elem>>, permutation<elem>> {};
 
     template <ordered elem> struct identity<times<permutation<elem>>, permutation<elem>> {
         permutation<elem> operator () ();
@@ -109,7 +109,7 @@ namespace data::math {
     }
 
     // Declare associativity and commutivity of operators + and * on N. 
-    template <typename elem> struct associative<times<permutation<elem>>, permutation<elem>> {};
+    template <typename elem> struct is_associative<times<permutation<elem>>, permutation<elem>> {};
     
     template <ordered elem>
     permutation<elem> inline identity<times<permutation<elem>>, permutation<elem>>::operator () () {

@@ -64,6 +64,18 @@ namespace data::math {
     };
 
     template <typename q, typename nda>
+    struct is_associative<plus<cayley_dickson<q, nda>>, cayley_dickson<q, nda>> : is_associative<plus<q>, q> {};
+
+    template <typename q, typename nda>
+    struct is_commutative<plus<cayley_dickson<q, nda>>, cayley_dickson<q, nda>> : is_commutative<plus<q>, q> {};
+
+    template <typename q> struct is_associative<times<cayley_dickson<q, q>>, cayley_dickson<q, q>> : is_associative<times<q>, q> {};
+    template <typename q> struct is_commutative<times<cayley_dickson<q, q>>, cayley_dickson<q, q>> : is_commutative<times<q>, q> {};
+
+    template <typename q, typename nda>
+    struct is_associative<times<cayley_dickson<q, nda>>, cayley_dickson<q, nda>> : is_commutative<times<nda>, nda> {};
+
+    template <typename q, typename nda>
     requires ordered<q> && conjugate_algebra<q, nda>
     struct inverse<plus<cayley_dickson<q, nda>>, cayley_dickson<q, nda>> {
         cayley_dickson<q, nda> operator () (const cayley_dickson<q, nda> &a, const cayley_dickson<q, nda> &b) {
