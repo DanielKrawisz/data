@@ -12,7 +12,7 @@ namespace data::math {
 
     enum signature : int8_t { zero = 0 , positive = 1 , negative = -1 };
 
-    signature constexpr inline operator * (signature a, signature b) {
+    constexpr signature inline operator * (signature a, signature b) {
         return signature (int8_t (a) * int8_t (b));
     }
     
@@ -31,7 +31,7 @@ namespace data::math {
 
     template <typename X> requires std::integral<X> || std::floating_point<X>
     struct sign<X> {
-        math::signature constexpr operator () (const X &x) {
+        constexpr math::signature operator () (const X &x) {
             return x == 0 ? math::zero : x > 0 ? math::positive : math::negative;
         }
     };
@@ -39,7 +39,7 @@ namespace data::math {
     template <typename X> requires requires (const X &x) {
         { x.sign () } -> implicitly_convertible_to<signature>;
     } struct sign<X> {
-        math::signature constexpr operator () (const X &x) {
+        constexpr math::signature operator () (const X &x) {
             return x.sign ();
         }
     };
@@ -47,7 +47,7 @@ namespace data::math {
     template <typename X>  requires requires (const X x) {
         {x == 0} -> implicitly_convertible_to<bool>;
     } struct is_zero<X> {
-        bool constexpr operator () (const X &x) {
+        constexpr bool operator () (const X &x) {
             return x == 0;
         }
     };
@@ -55,7 +55,7 @@ namespace data::math {
     template <typename X> requires requires (const X x) {
         {x > 0} -> implicitly_convertible_to<bool>;
     } struct is_positive<X> {
-        bool constexpr operator () (const X &x) {
+        constexpr bool operator () (const X &x) {
             return x > 0;
         }
     };
@@ -63,14 +63,14 @@ namespace data::math {
     template <typename X>  requires requires (const X x) {
         {x < 0} -> implicitly_convertible_to<bool>;
     } struct is_negative<X> {
-        bool constexpr operator () (const X &x) {
+        constexpr bool operator () (const X &x) {
             return x < 0;
         }
     };
 
     template <typename X>
     struct sign {
-        signature operator () (const X &x) {
+        constexpr signature operator () (const X &x) {
             return is_negative<X> {} (x) ? negative : is_positive<X> {} (x) ? positive : zero;
         }
     };
@@ -80,25 +80,25 @@ namespace data::math {
 namespace data {
     template <typename X> requires requires (const X x) {
         { math::sign<X> {} (x) } -> implicitly_convertible_to<math::signature>;
-    } math::signature inline sign (const X &x) {
+    } constexpr math::signature inline sign (const X &x) {
         return math::sign<X> {} (x);
     }
 
     template <typename X> requires requires (const X x) {
         { math::is_zero<X> {} (x) } -> implicitly_convertible_to<bool>;
-    } bool inline is_zero (const X &x) {
+    } constexpr bool inline is_zero (const X &x) {
         return math::is_zero<X> {} (x);
     }
 
     template <typename X> requires requires (const X x) {
         { math::is_positive<X> {} (x) } -> implicitly_convertible_to<bool>;
-    } bool inline is_positive (const X &x) {
+    } constexpr bool inline is_positive (const X &x) {
         return math::is_positive<X> {} (x);
     }
 
     template <typename X> requires requires (const X x) {
         { math::is_negative<X> {} (x) } -> implicitly_convertible_to<bool>;
-    } bool inline is_negative (const X &x) {
+    } constexpr bool inline is_negative (const X &x) {
         return math::is_negative<X> {} (x);
     }
 }
