@@ -10,6 +10,8 @@
 
 namespace data {
 
+    template <std::integral word> struct bytestring;
+
     using bytes = bytestring<byte>;
 
     template <std::integral word>

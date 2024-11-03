@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Daniel Krawisz
+// Copyright (c) 2020-2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,10 +14,12 @@
 namespace data::math {
     // attach infinite values to a type.
 
-    // attach a single infinite value.
+    // unsigned limit is suitable for adding an infinite value to unsigned numbers
+    // as well as to unordered types to represent a point at infinity, such as for
+    // the Riemann sphere.
     template <typename X> struct unsigned_limit;
 
-    // attach two infinite values, one negative and one positive.
+    // signed limit is suitable for types along the real line, such as the integers or rationals.
     template <ordered X> struct signed_limit;
 
     template <typename X, typename Y>
@@ -47,15 +49,27 @@ namespace data::math {
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
     constexpr auto operator <=> (const signed_limit<X> &, const Y &);
 
-    template <typename X> std::ostream &operator << (std::ostream &, const unsigned_limit<X> &x);
-    template <ordered X> std::ostream &operator << (std::ostream &, const signed_limit<X> &x);
-
     template <typename X> constexpr bool is_infinite (const X &);
     constexpr bool inline is_infinite (const float &x);
     constexpr bool inline is_infinite (const double &x);
     constexpr bool inline is_infinite (const long double &x);
     template <typename X> constexpr bool is_infinite (const unsigned_limit<X> &);
     template <typename X> constexpr bool is_infinite (const signed_limit<X> &);
+
+    template <typename X> requires requires {
+        typename sign<X>;
+    } struct sign<unsigned_limit<X>> {
+        constexpr signature operator () (const unsigned_limit<X> &x) const;
+    };
+
+    template <ordered X> requires requires {
+        typename sign<X>;
+    } struct sign<signed_limit<X>> {
+        constexpr signature operator () (const signed_limit<X> &x) const;
+    };
+
+    template <typename X> std::ostream &operator << (std::ostream &, const unsigned_limit<X> &x);
+    template <ordered X> std::ostream &operator << (std::ostream &, const signed_limit<X> &x);
     
     template <typename X> struct unsigned_limit {
         using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
@@ -76,10 +90,6 @@ namespace data::math {
         
         constexpr static const unsigned_limit &infinity () {
             return Infinity;
-        }
-
-        signature sign () const {
-            return infinite () ? positive : data::sign (*Value);
         }
         
         constexpr unsigned_limit operator + (const X &x) const {
@@ -129,10 +139,6 @@ namespace data::math {
         
         constexpr bool negative_infinite () const {
             return Value.template is<bool> () && !Value.template get<bool> ();
-        }
-
-        signature sign () const {
-            return finite () ? data::sign (*static_cast<either<X, bool>> (*this)) : positive_infinite () ? positive : negative;
         }
 
         signed_limit operator - () const {
@@ -233,6 +239,18 @@ namespace data::math {
     constexpr auto inline operator <=> (const signed_limit<X> &a, const Y &b) {
         return a.finite () ? a.Value.template get<X> () <=> static_cast<X> (b) :
             a.Value.template get<bool> () ? signed_limit<X>::comparison::greater : signed_limit<X>::comparison::less;
+    }
+
+    template <typename X> requires requires {
+        typename sign<X>;
+    } constexpr signature inline sign<unsigned_limit<X>>::operator () (const unsigned_limit<X> &x) const {
+        return x.infinite () ? positive : data::sign (*x.Value);
+    }
+
+    template <ordered X> requires requires {
+        typename sign<X>;
+    } constexpr signature inline sign<signed_limit<X>>::operator () (const signed_limit<X> &x) const {
+        return x.finite () ? data::sign (x.Value) : x.positive_infinite () ? positive : negative;
     }
 
     template <typename X> std::ostream inline &operator << (std::ostream &o, const unsigned_limit<X> &x) {
