@@ -7,13 +7,14 @@
 #include <concepts>
 
 #include <data/types.hpp>
+#include <data/concepts.hpp>
 
 namespace data {
     
     // when we have modules, this will be unexported.
     namespace interface {
         template <typename X> concept has_valid_method = requires (const X &x) {
-            { x.valid () } -> std::same_as<bool>;
+            { x.valid () } -> implicitly_convertible_to<bool>;
         };
     }
 
@@ -29,7 +30,7 @@ namespace data {
         return x != nullptr;
     }
 
-    template <interface::has_valid_method X> bool inline valid (const X &x) {
+    template <interface::has_valid_method X> auto inline valid (const X &x) {
         return x.valid ();
     }
 
