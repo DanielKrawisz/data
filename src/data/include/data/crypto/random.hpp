@@ -21,17 +21,17 @@ namespace data::crypto {
         }
         
         random &operator >> (uint16_t &x) {
-            get (reinterpret_cast<byte*> (&x), 2);
+            get (reinterpret_cast<byte *> (&x), 2);
             return *this;
         }
         
         random &operator >> (uint32_t &x) {
-            get (reinterpret_cast<byte*> (&x), 4);
+            get (reinterpret_cast<byte *> (&x), 4);
             return *this;
         }
         
         random &operator >> (uint64_t &x) {
-            get (reinterpret_cast<byte*> (&x), 8);
+            get (reinterpret_cast<byte *> (&x), 8);
             return *this;
         }
         
@@ -44,11 +44,11 @@ namespace data::crypto {
         // std::uniform_random_bit_generator concept. 
         using result_type = byte;
         
-        static constexpr byte min () {
+        constexpr static byte min () {
             return 0;
         }
         
-        static constexpr byte max () {
+        constexpr static byte max () {
             return 255;
         }
 
@@ -132,6 +132,7 @@ namespace data::crypto {
         }
     };
 
+    // combine two random sources via xor.
     struct linear_combination_random : random {
         size_t Ratio;
         ptr<random> Cheap;

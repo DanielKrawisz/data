@@ -33,6 +33,7 @@ namespace data::tool {
         }
         
         ordered_stack operator << (const element &x) const;
+        ordered_stack operator <<= (const element &x);
         
         ordered_stack rest () const {
             return {data::rest (static_cast<const stack> (*this))};
@@ -107,6 +108,11 @@ namespace data::tool {
     template <functional::stack stack, sortable element>
     ordered_stack<stack, element> inline ordered_stack<stack, element>::operator << (const element &x) const {
         return insert (x);
+    }
+
+    template <functional::stack stack, sortable element>
+    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator <<= (const element &x) {
+        return *this = insert (x);
     }
     
     template <functional::stack stack, sortable element>
