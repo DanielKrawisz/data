@@ -151,7 +151,7 @@ namespace data {
     
     template <typename stack, typename element> requires functional::stack<stack, element>
     const element &functional_queue<stack, element>::operator [] (uint32 i) const {
-        if (i >= size ()) throw std::out_of_range ("queue index");
+        if (i >= size ()) throw exception {} << "index " << i << " called on queue of size " << size ();
         uint32 left = Left.size ();
         if (i >= left) return Right[Right.size () - (i - left) - 1];
         return Left[i];

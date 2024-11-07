@@ -14,22 +14,24 @@ namespace data::tool {
 
     template <functional::stack stack, sortable element = element_of<stack>>
     struct ordered_stack : stack {
-        ordered_stack () : stack {} {}
-        
-        ordered_stack insert (const element &x) const;
 
-        ordered_stack (const element &x): stack {} {
-            *this = insert (x);
-        }
+        // an ordered_stack is valid if every element is
+        // valid and if the list of elements is ordered.
+        bool valid () const;
+
+        ordered_stack () : stack {} {}
+
+        ordered_stack (stack &&x) : stack {x} {}
+
+        ordered_stack insert (const element &x) const;
 
         template<typename ... P>
         ordered_stack insert (const element &a, const element &b, P ... p) const {
             return insert (a).insert (b, p...);
         }
-        
-        template<typename ... P>
-        ordered_stack (const element &x, P ... p) : stack {} {
-            *this = insert (x).insert (p...);
+
+        ordered_stack (std::initializer_list<wrapped<element>> z) {
+            for (wrapped<element> w : z) *this = insert (w);
         }
         
         ordered_stack operator << (const element &x) const;
@@ -47,17 +49,6 @@ namespace data::tool {
             if (index >= this->size ()) return *this;
             return ordered_stack {data::take (static_cast<stack> (*this), size) + data::drop (static_cast<stack> (*this), size).rest ()};
         }
-        
-        using iterator = sequence_iterator<ordered_stack>;
-        using sentinel = data::sentinel<ordered_stack>;
-        
-        iterator begin () const {
-            return iterator {*this};
-        }
-        
-        sentinel end () const {
-            return sentinel {*this};
-        }
 
         template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
         bool operator == (const X &x) const {
@@ -68,19 +59,15 @@ namespace data::tool {
             return ordered_stack {data::functional::merge_stack (static_cast<const stack> (*this), static_cast<const stack> (a))};
         }
         
-        ordered_stack (stack &&x) : stack {x} {}
-
-        bool valid () const {
-            if (this->size () == 0) return true;
-            auto it = begin ();
-            while (true) {
-                if (!data::valid (*it)) return false;
-                auto last = it++;
-                if (it == end ()) return true;
-                if (!(*last < *it)) return false;
-            }
-
-            return true;
+        using iterator = sequence_iterator<ordered_stack>;
+        using sentinel = data::sentinel<ordered_stack>;
+        
+        iterator begin () const {
+            return iterator {*this};
+        }
+        
+        sentinel end () const {
+            return sentinel {*this};
         }
     };
 
@@ -117,11 +104,24 @@ namespace data::tool {
     
     template <functional::stack stack, sortable element>
     ordered_stack<stack, element> ordered_stack<stack, element>::insert (const element &x) const {
-        if (this->empty () || x < this->first ()) {
+        if (this->empty () || x < this->first ())
             return ordered_stack {this->prepend (x)};
-        }
 
         return ordered_stack {rest ().insert (x).prepend (this->first ())};
+    }
+
+    template <functional::stack stack, sortable element>
+    bool ordered_stack<stack, element>::valid () const {
+        if (this->size () == 0) return true;
+        auto it = begin ();
+        while (true) {
+            if (!data::valid (*it)) return false;
+            auto last = it++;
+            if (it == end ()) return true;
+            if (!(*last < *it)) return false;
+        }
+
+        return true;
     }
 }
 

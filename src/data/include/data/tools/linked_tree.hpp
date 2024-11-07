@@ -38,23 +38,13 @@ namespace data {
         linked_tree &operator = (const linked_tree &t);
         
         template <typename X> requires std::equality_comparable_with<value, X>
-        bool operator == (const data::linked_tree<X> &x) const {
-            if (Node == x.Node) return true;
-            if (Node == nullptr || x.Node == nullptr) return false;
-            if (root () != x.root ()) return false;
-            if (left () != x.left ()) return false;
-            return right () == x.right ();
-        }
+        bool operator == (const data::linked_tree<X> &x) const;
 
         template <typename X> requires implicitly_convertible_to<value, X>
-        operator linked_tree<X> () const {
-            return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
-        }
+        operator linked_tree<X> () const;
 
         template <typename X> requires explicitly_convertible_to<value, X>
-        explicit operator linked_tree<X> () const {
-            return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
-        }
+        explicit operator linked_tree<X> () const;
         
         std::ostream &write (std::ostream &o) const;
 
@@ -134,6 +124,28 @@ namespace data {
         if (Size == 0) return o << "{}";
         if (Size == 1) return o << "{" << root () << "}";
         return right ().write (left ().write (o << "{" << root () << ", ") << ", ") << "}";
+    }
+
+    template <typename value>
+    template <typename X> requires std::equality_comparable_with<value, X>
+    bool linked_tree<value>::operator == (const data::linked_tree<X> &x) const {
+        if (Node == x.Node) return true;
+        if (Node == nullptr || x.Node == nullptr) return false;
+        if (root () != x.root ()) return false;
+        if (left () != x.left ()) return false;
+        return right () == x.right ();
+    }
+
+    template <typename value>
+    template <typename X> requires implicitly_convertible_to<value, X>
+    inline linked_tree<value>::operator linked_tree<X> () const {
+        return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
+    }
+
+    template <typename value>
+    template <typename X> requires explicitly_convertible_to<value, X>
+    inline linked_tree<value>::operator linked_tree<X> () const {
+        return empty () ? linked_tree <X> {} : linked_tree<X> {X (root ()), linked_tree<X> {left ()}, linked_tree<X> {right ()}};
     }
 
 }
