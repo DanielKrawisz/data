@@ -41,7 +41,7 @@ namespace data::encoding::UTF8 {
             p->resize (it - m.begin ());
             std::copy (m.begin (), it, p->begin ());
             return p;
-        } catch (::utf8::exception& e) {
+        } catch (::utf8::exception &e) {
             return nullptr;
         }
     }

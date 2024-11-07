@@ -28,9 +28,7 @@ namespace data {
             
             for (byte to_take = threshold; to_take <= std::min (static_cast<byte> (threshold + 2), total); to_take++) {
                 
-                std::random_shuffle (shares.begin (), shares.end (), [&random] (int i) -> int {
-                    return std::uniform_int_distribution<int> (0, i - 1) (random);
-                });
+                std::shuffle (shares.begin (), shares.end (), random);
                 
                 bytes merged = crypto::secret_share_merge (shares, threshold);
                 
