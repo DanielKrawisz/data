@@ -147,26 +147,23 @@ namespace milewski::okasaki {
             return (rootColor () == Color::black) ? 1 + lft : lft;
         }
         
-        RBMap ins (const K &x, const V &v) const
-        {
+        RBMap ins (const K &x, const V &v) const {
 
             assert1 ();
-            if (isEmpty ())
-                return RBMap (Color::red, RBMap (), x, v, RBMap ());
+            if (isEmpty ()) return RBMap (Color::red, RBMap (), x, v, RBMap ());
+
             K y = rootKey ();
             V yv = rootValue ();
             Color c = rootColor ();
-            if (rootColor () == Color::black)
-            {
+
+            if (rootColor () == Color::black) {
                 if (x < y)
                     return balance (left ().ins (x, v), y, yv, right ());
                 else if (y < x)
                     return balance (left (), y, yv, right ().ins (x, v));
                 else
                     return *this; // no duplicates
-            }
-            else
-            {
+            } else {
                 if (x < y)
                     return RBMap (c, left ().ins (x, v), y, yv, right ());
                 else if (y < x)
