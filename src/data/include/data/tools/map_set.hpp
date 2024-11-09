@@ -46,7 +46,7 @@ namespace data::tool {
         }
         
         map_set insert (const key &k) const {
-            return map_set {Map.insert (k, unit {})};
+            return map_set {Map.insert (k, unit {}, [] (const unit &a, const unit &b) {return a;})};
         }
         
         template <typename list> requires sequence<list, key>

@@ -117,5 +117,17 @@ namespace data {
         set<const Z> cx;
         set<const N> dx;*/
     }
+
+    TEST (MapTest, TestInsert) {
+        // it is not ok to insert the same key into a map twice
+        EXPECT_THROW ((map<int, int> {}.insert (0, 1).insert (0, 2)), exception);
+        // it's ok for a set though.
+        EXPECT_NO_THROW (set<int> {}.insert (1).insert (1));
+        // However, we can make it work by adding a special function.
+        EXPECT_NO_THROW ((map<int, int> {}. insert (0, 1).insert (0, 2, [] (const int &a, const int &b) {
+            return a;
+        })));
+
+    }
 }
 
