@@ -153,7 +153,8 @@ namespace data {
         template <typename V>
         void test_case_balanced (linked_tree<RB::colored<V>> t, bool expected) {
             EXPECT_EQ ((RB::balanced<V> (t)), expected);
-            //EXPECT_TRUE ((RB::balanced<V> (RB::balance<V> (t))));
+            //auto balanced = RB::balance<V> (t);
+            //EXPECT_TRUE ((RB::balanced<V> (balanced)));
         }
 
         using colored = RB::colored<int>;

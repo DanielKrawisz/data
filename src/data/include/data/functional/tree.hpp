@@ -88,7 +88,7 @@ namespace data::functional {
 
     template <typename T, typename X = element_of<T>>
     requires search_tree<T, X> && buildable_tree<T, X>
-    T inline insert (T t, X x) {
+    T inline insert (T t, inserted<X> x) {
         return empty (t) ? T {x, T {}, T {}}:
             x == root (t) ? t:
                 x < root (t) ? T {root (t), insert (left (t), x), right (t)}:

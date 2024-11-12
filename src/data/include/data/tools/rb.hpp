@@ -58,6 +58,11 @@ namespace data::RB {
         return o << c.Value;
     }
 
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    const unref<V> inline &root (T t) {
+        return data::root (t).Value;
+    }
+
     // an RB tree is balanced if no red node has a red child and if the sum
     // of all black nodes from all leaves to the root is the same.
     template <sortable V, functional::buildable_tree<colored<V>> T> bool balanced (T t);
@@ -66,17 +71,14 @@ namespace data::RB {
         return data::valid (t) && balanced (t);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> bool balance (T t);
+    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (T t);
 
     // insert a node into an RB tree
     template <sortable V, functional::buildable_tree<colored<V>> T>
-    T inline insert (T t, const V &v) {
-        return balance (functional::insert (t, colored<V> {color::black, v}));
-    }
+    T insert (T t, inserted<V> v);
 
     template <sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
 
-    // now let's talk about how to check whether a tree is balanced.
     template <sortable V, functional::buildable_tree<colored<V>> T>
     color inline root_color (T t) {
         return empty (t) ? color::black : root (t).Color;
@@ -85,9 +87,9 @@ namespace data::RB {
     // a requirement for being balanced.
     template <sortable V, functional::buildable_tree<colored<V>> T>
     bool inline red_nodes_have_no_red_children (T t) {
-        return empty (t) ? true :
-            root (t).Color != color::red ? true:
-                root_color<V> (left (t)) != color::red && root_color<V> (right (t)) != color::red;
+        if (empty (t)) return true;
+        if (root_color<V> (t) == color::red && (root_color<V> (left (t)) == color::red || root_color<V> (right (t)) == color::red)) return false;
+        return red_nodes_have_no_red_children<V> (left (t)) && red_nodes_have_no_red_children<V> (right (t));
     }
 
     // The depth of black paths need to be compared to
@@ -106,7 +108,60 @@ namespace data::RB {
         return bool (blackness<V> (t)) && red_nodes_have_no_red_children<V> (t);
     }
 
+    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (inserted<V> v, T l, T r);
+
+    // if the tree is balanced when this method is used on
+    // it, it will be balanced when the method is done.
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    T inline insert (T t, inserted<V> v) {
+        return data::empty (t) ? T {colored<V> {color::red, v}, T {}, T {}}:
+            v == root<V> (t) ? t: root_color<V> (t) != color::red ?
+                (v < root<V> (t) ?
+                    balance<V> (data::root (t), insert (left (t), v), right (t)):
+                    balance<V> (data::root (t), left (t), insert (right (t), v))):
+                (v < root<V> (t) ?
+                    T {root<V> (t), insert (left (t), v), right (t)}:
+                    T {root<V> (t), left (t), insert (right (t), v)});
+    }
+
     // now let's talk about how to balance an RB tree.
+    template <sortable V, functional::buildable_tree<colored<V>> T> bool inline doubled_left (T t) {
+        return !empty (t) && root_color<V> (t) == color::red &&
+            !empty (left (t)) && root_color<V> (left (t)) == color::red;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T> bool inline doubled_right (T t) {
+        return !empty (t) && root_color<V> (t) == color::red &&
+            !empty (right (t)) && root_color<V> (right (t)) == color::red;
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T> T inline blacken (T t) {
+        return empty (t) ? T {} : T {colored<V> {color::red, root<V> (t)}, left (t), right (t)};
+    }
+
+    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (inserted<V> v, T l, T r) {
+        if (doubled_left<V> (l))
+            return T {colored<V> {color::red, root<V> (l)},
+                blacken<V> (left (l)),
+                T {colored<V> {color::black, v}, right (l), r}};
+
+        if (doubled_right<V> (l))
+            return T {colored<V> {color::red, root<V> (right (l))},
+                T {colored<V> {color::black, root<V> (l)}, left (l), left (right (l))},
+                T {colored<V> {color::black, v}, right (right (l)), r}};
+
+        if (doubled_left<V> (r))
+            return T {colored<V> {color::red, root<V> (left (r))},
+                T {colored<V> {color::black, v}, left (l), left (left (r))},
+                T {colored<V> {color::black, root<V> (r)}, right (left (r)), right (r)}};
+
+        if (doubled_right<V> (r))
+            return T {colored<V> {color::red, root<V> (r)},
+                T {colored<V> {color::black, v}, l, left (r)},
+                blacken<V> (right (r))};
+
+        return T (colored<V> {color::black, v}, l, r);
+    }
 
     // finally, how to remove an RB tree.
     // See matt.might.net/articles/red-black-delete/
