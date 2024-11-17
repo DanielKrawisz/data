@@ -37,7 +37,7 @@ FetchContent_MakeAvailable (ctre)
 
 
 find_package (PkgConfig REQUIRED)
-pkg_check_modules (Cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
+pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
 
 # Check if GTests is installed. If not, install it
 
