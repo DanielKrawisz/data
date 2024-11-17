@@ -60,6 +60,60 @@ FetchContent_MakeAvailable (googletest)
 
 endif ()
 
+
 # Add Library source files here
+
+if(CMAKE_C_BYTE_ORDER STREQUAL "BIG_ENDIAN")
+add_compile_definitions(WORDS_BIGENDIAN)
+else()
+add_compile_definitions(WORDS_LITTLEENDIAN)
+endif()
+
+include(CheckSymbolExists)
+
+CHECK_INCLUDE_FILE("endian.h" HAVE_ENDIAN_H)
+CHECK_INCLUDE_FILE("sys/endian.h" HAVE_SYS_ENDIAN_H)
+
+set(SYMBOLS_TO_CHECK
+    "htole16-endian.h"
+    "be16toh-endian.h"
+    "le16toh-endian.h"
+    "htobe32-endian.h"
+    "htole32-endian.h"
+    "be32toh-endian.h"
+    "le32toh-endian.h"
+    "htobe64-endian.h"
+    "htole64-endian.h"
+    "be64toh-endian.h"
+    "le64toh-endian.h"
+    "htobe16-endian.h"
+    "bswap_16-byteswap.h"
+)
+list(LENGTH SYMBOLS_TO_CHECK L_LENGTH)
+message(${L_LENGTH})
+CHECK_INCLUDE_FILE("endian.h" HAVE_ENDIAN_H)
+CHECK_INCLUDE_FILE("sys/endian.h" HAVE_SYS_ENDIAN_H)
+foreach(SYMBOL_HEADER_PATH ${SYMBOLS_TO_CHECK})
+  string(REPLACE "-" ";" SYMBOL_HEADER_PAIR ${SYMBOL_HEADER_PATH})
+  message(${SYMBOL_HEADER_PAIR})
+  list(GET SYMBOL_HEADER_PAIR 0 SYMBOL)
+  list(GET SYMBOL_HEADER_PAIR 1 HEADER)
+  message("Checking ${SYMBOL} from ${HEADER}")
+  set(SYMBOL_EXISTS_RESULT_VAR "SYMBOL_EXISTS_${SYMBOL}")
+  CHECK_SYMBOL_EXISTS(${SYMBOL} "${HEADER}" ${SYMBOL_EXISTS_RESULT_VAR})
+
+  if(${SYMBOL_EXISTS_RESULT_VAR})
+    string(TOUPPER ${SYMBOL} SYMBOL_UPPERCASE)
+    add_compile_definitions(HAVE_DECL_${SYMBOL_UPPERCASE})
+  endif()
+endforeach()
+
+
+if(HAVE_ENDIAN_H)
+  add_compile_definitions(HAVE_ENDIAN_H)
+endif()
+if(HAVE_SYS_ENDIAN_H)
+  add_compile_definitions(HAVE_SYS_ENDIAN_H)
+endif()
 
 add_subdirectory (src bin)
