@@ -13,15 +13,15 @@
 #include <gmpxx.h>
 #include "rotella/sieve.h"
 
-sieve::sieve() {
-    mpz_init(table);
+sieve::sieve () {
+    mpz_init (table);
     size = 2;
 }
 
-int sieve::isPrime(mpz_class r) {
+int sieve::isPrime (mpz_class r) {
 
     unsigned int rul = mpz_get_ui(r.get_mpz_t());
-    if(size >= rul) { /* just a lookup */
+    if (size >= rul) { /* just a lookup */
         return !mpz_tstbit(table,rul);
     }
     else
@@ -40,6 +40,6 @@ int sieve::isPrime(mpz_class r) {
         return !mpz_tstbit(table,rul);
     }
 }
-sieve::~sieve() {
-    mpz_clear(table);
+sieve::~sieve () {
+    mpz_clear (table);
 }
