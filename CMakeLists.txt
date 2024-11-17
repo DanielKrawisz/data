@@ -38,10 +38,15 @@ FetchContent_MakeAvailable (ctre)
 
 find_package (PkgConfig REQUIRED)
 IF (WIN32)
+IF (WIN32)
 pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
 ELSE()
   pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
 ENDIF()
+else()
+pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
+endif()
+
 # Check if GTests is installed. If not, install it
 
 option (PACKAGE_TESTS "Build the tests" ON)
