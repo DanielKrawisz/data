@@ -47,7 +47,7 @@ target_link_libraries (
   Boost::log
   OpenSSL::SSL
   OpenSSL::Crypto
-  PkgConfig::Cryptopp
+  PkgConfig::cryptopp
   nlohmann_json::nlohmann_json
   GMP::GMP
   secp256k1

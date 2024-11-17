@@ -16,7 +16,6 @@
 #include <math.h>
 #include <gmp.h>
 #include <gmpxx.h>
-
 using namespace std;
 
 class mpz_pX {
