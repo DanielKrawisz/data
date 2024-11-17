@@ -18,9 +18,9 @@ namespace data::math {
     
     std::ostream inline &operator << (std::ostream &o, signature x) {
         switch (x) {
-            default: return o << "zero";
-            case positive: return o << "positive";
-            case negative: return o << "negative";
+            default: return o << std::string {"zero"};
+            case positive: return o << std::string {"positive"};
+            case negative: return o << std::string {"negative"};
         }
     }
 
