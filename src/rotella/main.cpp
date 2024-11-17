@@ -21,7 +21,7 @@
 
 using namespace std;
 
-int main() {
+int main () {
 
     // Declare GMP class
     mpz_class x;
@@ -30,7 +30,7 @@ int main() {
 
     cin >> x;   // Store value in object x
 
-    if(aks(x)==1)
+    if (aks (x) == 1)
         cout << x << " is a prime" << endl;
     else
         cout << x << " is composite " << endl;

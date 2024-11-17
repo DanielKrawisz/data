@@ -15,7 +15,7 @@
 #include "rotella/aks.h"
 using namespace std;
 
-mpz_pX::mpz_pX() {
+mpz_pX::mpz_pX () {
     degree = 0;
     coef = (mpz_class**)calloc(1,sizeof(mpz_class*));
     coef[0] = new mpz_class(0);
@@ -47,7 +47,7 @@ inline mpz_class mpz_pX::getCoef(unsigned int i) const {
 }
 
 
-int mpz_pX::isEqual(mpz_pX o) {
+int mpz_pX::isEqual (mpz_pX o) {
     if(o.getDegree() != degree)
         return 0;
     unsigned int i;
