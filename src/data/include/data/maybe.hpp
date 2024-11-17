@@ -67,7 +67,7 @@ namespace data {
     template <typename X> requires requires (std::ostream &o, const X &x) {
         { o << x } -> std::same_as<std::ostream &>;
     } std::ostream inline &operator << (std::ostream &o, const maybe<X> &x) {
-        o << "*";
+        o << std::string{"*"};
         if (bool (x)) o << *x;
         return o;
     }
