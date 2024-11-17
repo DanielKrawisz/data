@@ -11,8 +11,10 @@
 
 namespace data::arithmetic {
 
+    // add two numbers and return whether the carry bit was set.
     template <std::unsigned_integral x> bool add_with_carry (x &result, x a, x b);
 
+    // add two numbers and return
     template <std::unsigned_integral x> bool subtract_with_carry (x &result, x a, x b);
 
     template <> bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
@@ -29,6 +31,16 @@ namespace data::arithmetic {
 
     template <> bool inline subtract_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
         return __builtin_usubl_overflow (a, b, &result);
+    }
+
+    template <> bool inline add_with_carry<unsigned long long int>
+    (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
+        return __builtin_uaddll_overflow (a, b, &result);
+    }
+
+    template <> bool inline subtract_with_carry<unsigned long long int>
+    (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
+        return __builtin_usubll_overflow (a, b, &result);
     }
 
     template <> bool inline add_with_carry<unsigned short int> (unsigned short int &result, unsigned short int a, unsigned short int b) {
