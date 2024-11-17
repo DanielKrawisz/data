@@ -10,6 +10,7 @@
 
 #include "rotella/aks.h"
 #include "rotella/sieve.h"
+#include <data/integral_to_mpz.hpp>
 #include <iostream>
 
 int aks (mpz_class n) {
@@ -20,8 +21,7 @@ int aks (mpz_class n) {
     
     sieve s;
     mpz_class r = 2;
-    // temporary hack
-    mpz_class logn = ((unsigned long)mpz_sizeinbase(n.get_mpz_t(),2));
+    mpz_class logn = integral_to_mpz (mpz_sizeinbase (n.get_mpz_t (), 2));
     mpz_class limit = logn * logn;
     limit *= 4;
 
