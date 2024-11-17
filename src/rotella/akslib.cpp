@@ -20,7 +20,8 @@ int aks (mpz_class n) {
     
     sieve s;
     mpz_class r = 2;
-    mpz_class logn = mpz_sizeinbase (n.get_mpz_t (),2);
+    // temporary hack
+    mpz_class logn = ((unsigned long)mpz_sizeinbase(n.get_mpz_t(),2));
     mpz_class limit = logn * logn;
     limit *= 4;
 
