@@ -62,6 +62,7 @@ add_executable (unit_tests
     testArgsParser.cpp
     testIP.cpp
     testEmail.cpp
+    testCarry.cpp
 )
 
 target_link_libraries (unit_tests
