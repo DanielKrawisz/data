@@ -16,7 +16,40 @@ namespace data::arithmetic {
 
     // add two numbers and return
     template <std::unsigned_integral x> bool subtract_with_carry (x &result, x a, x b);
+    #if defined(FORCE_CARRY_FALLBACK) || !(defined(__linux__) && (defined(__clang__) || defined(__GNUC__)))
 
+    template <> bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
+        result = a + b;
+        return result < a;
+    }
+
+    template <> bool inline subtract_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
+        result = a - b;
+        return a < b;
+    }
+
+    template <> bool inline add_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
+        result = a + b;
+        return result < a;
+    }
+
+    template <> bool inline subtract_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
+        result = a - b;
+        return a < b;
+    }
+
+    template <> bool inline add_with_carry<unsigned long long int>
+    (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
+       result = a + b;
+        return result < a;
+    }
+
+    template <> bool inline subtract_with_carry<unsigned long long int>
+    (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
+        result = a - b;
+        return a < b;
+    }
+#else
     template <> bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
         return __builtin_uadd_overflow (a, b, &result);
     }
@@ -42,7 +75,7 @@ namespace data::arithmetic {
     (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
         return __builtin_usubll_overflow (a, b, &result);
     }
-
+#endif
     template <> bool inline add_with_carry<unsigned short int> (unsigned short int &result, unsigned short int a, unsigned short int b) {
         using twice = typename encoding::twice<unsigned short int>::type;
         twice r = static_cast<twice> (a) + static_cast<twice> (b);
