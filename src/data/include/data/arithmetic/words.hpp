@@ -47,7 +47,7 @@ namespace data::arithmetic {
         Words<endian::big, digit> reverse () const;
         
         size_t size () const {
-            return end () - begin ();
+            return Data.size ();
         }
         
         void bit_shift_left (uint32 x, bool fill = false);

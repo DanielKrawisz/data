@@ -50,12 +50,14 @@ namespace data::arithmetic {
     template <typename sen, typename it>
     requires std::input_iterator<it> && std::sentinel_for<sen, it>
     std::strong_ordering compare (sen z, it i, it j) {
+
         while (i != z) {
             if (*i < *j) return std::strong_ordering::less;
             if (*i > *j) return std::strong_ordering::greater;
             i++;
             j++;
         }
+
         return std::strong_ordering::equal;
     }
 
@@ -227,6 +229,7 @@ namespace data::arithmetic {
     size_t minimal_size (X x) {
         if constexpr (c == complement::nones) {
             int xsize = size (x);
+
             for (auto i = x.rbegin (); i != x.rend (); i++) {
                 if (*i != 0) break;
                 else xsize--;
@@ -278,6 +281,7 @@ namespace data::arithmetic {
     template <complement c, range X>
     std::strong_ordering compare (X a, X b) {
         if constexpr (c == complement::nones) {
+
             auto za = size (a);
             auto zb = size (b);
             if (za < zb) return 0 <=> compare<c> (b, a);
@@ -291,7 +295,10 @@ namespace data::arithmetic {
 
             return arithmetic::compare (a.rend (), ai, b.rbegin ());
         } else if constexpr (c == complement::ones) {
-        } else if constexpr (c == complement::twos) {}
+            throw exception {} << "function unimplemented";
+        } else if constexpr (c == complement::twos) {
+            throw exception {} << "function unimplemented";
+        }
     }
 
 }

@@ -882,9 +882,25 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word> inline
     N_bytes<r, word>::N_bytes (const uint64 x) : oriented<r, word> {} {
-        this->resize (8);
-        arithmetic::endian_integral<false, r, 8> xx {x};
-        std::copy (xx.begin (), xx.end (), this->begin ());
+        if constexpr (sizeof (uint64) <= sizeof (word)) {
+            this->resize (1);
+            *this->begin () = x;
+        } else if constexpr (sizeof (word) == 1) {
+            this->resize (8);
+            arithmetic::endian_integral<false, r, 8> xx {x};
+            std::copy (xx.begin (), xx.end (), this->begin ());
+        } else {
+            constexpr int iterations = sizeof (uint64) / sizeof (word);
+            constexpr int shift = sizeof (word) * 8;
+            this->resize (iterations);
+
+            uint64 xx = x;
+            for (word &w : this->words ()) {
+                w = xx & std::numeric_limits<word>::max ();
+                xx >>= shift;
+            }
+        }
+
         this->trim ();
     }
     
