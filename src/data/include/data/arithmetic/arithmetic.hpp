@@ -188,47 +188,16 @@ namespace data::arithmetic {
         using type = byte;
     };
 
-    template <std::integral digit> struct get_sign_bit;
-
-    template <> struct get_sign_bit<byte> {
-        static const byte value = 0x80;
+    template <std::unsigned_integral digit> struct get_limit {
+        constexpr static const digit max_unsigned = std::numeric_limits<digit>::max ();
+        constexpr static const digit max_signed = (static_cast<digit> (max_unsigned << 1)) >> 1;
     };
 
-    template <> struct get_sign_bit<uint16> {
-        static const uint16 value = 0x8000;
-    };
-
-    template <> struct get_sign_bit<uint32> {
-        static const uint32 value = 0x80000000;
-    };
-
-    template <> struct get_sign_bit<uint64> {
-        static const uint64 value = 0x8000000000000000;
+    template <std::unsigned_integral digit> struct get_sign_bit {
+        constexpr static const digit value = ~static_cast<digit> (get_limit<digit>::max_signed);
     };
 
     template <typename X> using sign_bit_of = get_sign_bit<X>::value;
-
-    template <typename digit> struct get_limit;
-
-    template<> struct get_limit<byte> {
-        static const byte max_unsigned = 0xff;
-        static const byte max_signed = 0x7f;
-    };
-
-    template<> struct get_limit<uint16> {
-        static const uint16 max_unsigned = 0xffff;
-        static const uint16 max_signed = 0x7fff;
-    };
-
-    template<> struct get_limit<uint32> {
-        static const uint32 max_unsigned = 0xffffffff;
-        static const uint32 max_signed = 0x7ffffff;
-    };
-
-    template<> struct get_limit<uint64> {
-        static const uint64 max_unsigned = 0xffffffffffffffff;
-        static const uint64 max_signed = 0x7fffffffffffffff;
-    };
 
     template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
     template <typename digit> const digit max_signed_ones = get_limit<digit>::max_signed;
@@ -281,18 +250,24 @@ namespace data::arithmetic {
             }
         } else if constexpr (c == complement::twos) {
             if (size (x) == 0) return 0;
+
             // numbers that don't begin with 00 or 80 are minimal.
             auto i = x.rbegin ();
             digit<X> d = *i;
+
             if (d != get_sign_bit<digit<X>>::value && d != 0) return size (x);
 
             // count the number of zero bytes after the first.
             int extra_zero_bytes = 0;
+
             while (true) {
                 i++;
+
                 // if we reach the end then this number is zero.
                 if (i == x.rend ()) return 0;
+
                 if (*i == 0) extra_zero_bytes ++;
+
                 // if the first non-zero digit does not have the
                 // sign bit set then we can remove an extra digit.
                 else return size (x) - extra_zero_bytes - (*i < get_sign_bit<digit<X>>::value ? 1 : 0);

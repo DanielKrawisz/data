@@ -22,7 +22,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, complement::ones, word> inline Z_bytes<r, complement::ones, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::ones, byte> (x);
+        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::ones, word> (x);
         return Z_bytes<r, complement::ones, word> (Z {x});
     }
     
@@ -166,10 +166,10 @@ namespace data::encoding::natural {
         if (hexidecimal::valid (s)) {
             auto p = hexidecimal::read<r, word> (s);
             if (!p) return {};
-            return math::number::N_bytes<r, word> (math::number::N_bytes<r, word>::read (bytes_view (*p)));
+            return math::number::N_bytes<r, word> (math::number::N_bytes<r, word>::read (view<word> (*p)));
         }
         
-        return decimal::read<r, byte> (s);
+        return decimal::read<r, word> (s);
     }
     
 }
