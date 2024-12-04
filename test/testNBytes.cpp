@@ -11,10 +11,12 @@ namespace data::math::number {
     template<endian::order r>
     math::N N_Bytes_to_N_stupid (const math::number::N_bytes<r, byte> &n) {
         math::N x {0};
+
         for (const byte &b : n.words ().reverse ()) {
             x <<= 8;
             x += b;
         }
+
         return x;
     }
 
