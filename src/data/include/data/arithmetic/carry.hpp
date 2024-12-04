@@ -77,26 +77,29 @@ namespace data::arithmetic {
         x Greater;
     };
 
-    template <std::unsigned_integral digit> multiply_result<digit> inline
+    template <std::unsigned_integral digit>
+    requires requires {
+        typename encoding::twice<digit>::type;
+    } multiply_result<digit> inline
     multiply_with_carry (digit a, digit b) {
         using twice = typename encoding::twice<digit>::type;
         twice r = static_cast<twice> (a) * static_cast<twice> (b);
         return {encoding::lesser_half (r), encoding::greater_half (r)};
     }
 
-    template <> multiply_result<uint64> inline
-    multiply_with_carry (uint64 a, uint64 b) {
-        uint64 d1 = static_cast<uint64> (encoding::lesser_half (a)) * static_cast<uint64> (encoding::lesser_half (b));
+    template <std::unsigned_integral digit>
+    multiply_result<digit> multiply_with_carry (digit a, digit b) {
+        digit d1 = static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::lesser_half (b));
 
-        uint64 d3;
-        bool carry = add_with_carry<uint64> (d3,
-            static_cast<uint64> (encoding::greater_half (a)) * static_cast<uint64> (encoding::lesser_half (b)),
-            static_cast<uint64> (encoding::lesser_half (a)) * static_cast<uint64> (encoding::greater_half (b)));
+        digit d3;
+        bool carry = add_with_carry<digit> (d3,
+            static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::lesser_half (b)),
+            static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::greater_half (b)));
 
-        uint64 d4 = static_cast<uint64> (encoding::greater_half (a)) * static_cast<uint64> (encoding::greater_half (b));
+        digit d4 = static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::greater_half (b));
 
-        return {d1 + static_cast<uint64> (encoding::lesser_half (d3)) << 32,
-            d4 + encoding::greater_half (d3) + (carry ? (uint64 (1) << 32) : 0)};
+        return {d1 + static_cast<digit> (encoding::lesser_half (d3)) << 32,
+            d4 + encoding::greater_half (d3) + (carry ? (digit (1) << 32) : 0)};
 
     }
 

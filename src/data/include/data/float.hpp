@@ -14,12 +14,12 @@ namespace data {
     
     // https://kkimdev.github.io/posts/2018/06/15/IEEE-754-Floating-Point-Type-in-C++.html.
     
-    template <typename T>
+    template <std::floating_point T>
     constexpr int get_storage_bits () {
         return sizeof (T) * CHAR_BIT;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr int get_exponent_bits () {
         int exponent_range = ::std::numeric_limits<T>::max_exponent -
                             ::std::numeric_limits<T>::min_exponent;
@@ -28,7 +28,7 @@ namespace data {
         return bits;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr int get_mantissa_bits () {
         return ::std::numeric_limits<T>::digits - 1;
     }
