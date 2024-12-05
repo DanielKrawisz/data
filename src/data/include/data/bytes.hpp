@@ -175,10 +175,10 @@ namespace data {
         const words_type words () const {
             return words_type {slice<word> (*const_cast<oriented*> (this))};
         }
-
+/*
         explicit operator slice<byte> () {
             return slice<byte> {(byte*) this->data (), size * sizeof (word)};
-        }
+        }*/
     };
 
     template <std::integral word>
