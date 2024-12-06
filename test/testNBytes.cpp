@@ -58,10 +58,10 @@ namespace data::math::number {
         math::N N_little = math::N (little);
 
         math::N N_big_stupid = N_Bytes_to_N_stupid<endian::big, word> (big);
-        math::N N_little_stupid = N_Bytes_to_N_stupid<endian::big, word> (little);
+        math::N N_little_stupid = N_Bytes_to_N_stupid<endian::little, word> (little);
 
-        EXPECT_EQ (N_big_stupid, N_big);
-        EXPECT_EQ (N_little_stupid, N_little);
+        EXPECT_EQ (N_big_stupid, N_big) << "expected " << std::hex << N_big_stupid << " to equal " << N_big << "; input = " << x;
+        EXPECT_EQ (N_little_stupid, N_little) << "expected " << std::hex << N_little_stupid << " to equal " << N_little << "; input = " << x;
 
         EXPECT_EQ (N_big, n);
         EXPECT_EQ (N_little, n);
@@ -69,9 +69,9 @@ namespace data::math::number {
     }
 
     template <typename in> void N_Bytes_to_N (in x) {
-        N_Bytes_to_N_by_word<in, byte> (x);/*
+        N_Bytes_to_N_by_word<in, byte> (x);
         N_Bytes_to_N_by_word<in, unsigned short> (x);
-        N_Bytes_to_N_by_word<in, unsigned> (x);
+        N_Bytes_to_N_by_word<in, unsigned> (x);/*
         N_Bytes_to_N_by_word<in, unsigned long> (x);
         N_Bytes_to_N_by_word<in, unsigned long long> (x);*/
     }
@@ -277,15 +277,27 @@ namespace data::math::number {
             };
         
     }
+
+    template <endian::order o, std::unsigned_integral word>
+    void test_N_Bytes_to_string_decimal () {
+        EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {1}), std::string {"1"});
+        EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {23}), std::string {"23"});
+        EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {767}), std::string {"767"});
+        EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {"5704566599993321"}), std::string {"5704566599993321"});
+    }
     
     TEST (NBytesTest, TestNBytesToString) {
         
-        EXPECT_EQ (encoding::decimal::write (N_bytes<endian::big, byte> {1}), std::string {"1"});
-        EXPECT_EQ (encoding::decimal::write (N_bytes<endian::little, byte> {1}), std::string {"1"});
-        EXPECT_EQ (encoding::decimal::write (N_bytes<endian::big, byte> {23}), std::string {"23"});
-        EXPECT_EQ (encoding::decimal::write (N_bytes<endian::little, byte> {23}), std::string {"23"});
-        EXPECT_EQ (encoding::decimal::write (N_bytes<endian::big, byte> {"5704566599993321"}), std::string {"5704566599993321"});
-        EXPECT_EQ (encoding::decimal::write (N_bytes<endian::little, byte> {"5704566599993321"}), std::string {"5704566599993321"});
+        test_N_Bytes_to_string_decimal<endian::big, byte> ();
+        test_N_Bytes_to_string_decimal<endian::little, byte> ();
+        test_N_Bytes_to_string_decimal<endian::big, unsigned short> ();
+        test_N_Bytes_to_string_decimal<endian::little, unsigned short> ();
+        test_N_Bytes_to_string_decimal<endian::big, unsigned> ();
+        test_N_Bytes_to_string_decimal<endian::little, unsigned> ();/*
+        test_N_Bytes_to_string_decimal<endian::big, unsigned long> ();
+        test_N_Bytes_to_string_decimal<endian::little, unsigned long> ();
+        test_N_Bytes_to_string_decimal<endian::big, unsigned long long> ();
+        test_N_Bytes_to_string_decimal<endian::little, unsigned long long> ();*/
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::big, byte> {1}.trim ()), std::string {"0x01"});
