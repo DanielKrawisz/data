@@ -22,7 +22,16 @@ namespace data::math::number {
 
     template<endian::order r, std::unsigned_integral word>
     math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const math::N &n) {
-        return math::number::N_bytes<r, word>::read (encoding::hexidecimal::write<hex_case::lower> (n));
+        auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
+
+        size_t bytes_encoded = (hex_string.size () - 2) / 2;
+
+        size_t bytes_extended = bytes_encoded % sizeof (word) == 0 ? bytes_encoded :
+            ((bytes_encoded / sizeof (word)) + 1) * sizeof (word);
+
+        auto hex_resized = encoding::hexidecimal::extend<complement::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
+
+        return math::number::N_bytes<r, word>::read (hex_resized);
     }
 
     template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
@@ -32,7 +41,7 @@ namespace data::math::number {
     template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, math::number::complement::ones, word>;
     template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, math::number::complement::twos, word>;
 
-    template <typename in, std::unsigned_integral word> void N_Bytes_to_N (in x) {
+    template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
 
         math::N n {x};
 
@@ -59,17 +68,32 @@ namespace data::math::number {
 
     }
 
+    template <typename in> void N_Bytes_to_N (in x) {
+        N_Bytes_to_N_by_word<in, byte> (x);/*
+        N_Bytes_to_N_by_word<in, unsigned short> (x);
+        N_Bytes_to_N_by_word<in, unsigned> (x);
+        N_Bytes_to_N_by_word<in, unsigned long> (x);
+        N_Bytes_to_N_by_word<in, unsigned long long> (x);*/
+    }
+
     TEST (NBytesTest, TestNBytesToN) {
 
-        N_Bytes_to_N<uint64, byte> (0);
-        //N_Bytes_to_N<uint64, unsigned short> (0);
+        N_Bytes_to_N<uint64> (0);
+        N_Bytes_to_N<uint64> (1);
+        N_Bytes_to_N<uint64> (3);
+        N_Bytes_to_N<uint64> (767);
+        N_Bytes_to_N<uint64> (7439);
+        N_Bytes_to_N<uint64> (10920960978709);
 
-        N_Bytes_to_N<uint64, byte> (1);
-        N_Bytes_to_N<uint64, byte> (3);
-        N_Bytes_to_N<uint64, byte> (767);
-        N_Bytes_to_N<uint64, byte> (7439);
-        N_Bytes_to_N<string, byte> ("0x0f00000a00aabbccddeeffffffffffffffff");
-        N_Bytes_to_N<string, byte> ("0xf000000a00aabbccddeeffffffffffffffff");
+        N_Bytes_to_N<string> ("0x0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+                                "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+                                "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
+                                "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
+
+        N_Bytes_to_N<string> ("0xf0abcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+                                "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+                                "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
+                                "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
 
     }
 
@@ -89,6 +113,60 @@ namespace data::math::number {
         EXPECT_THROW ((N_bytes<endian::little, byte>::read ("01")), std::invalid_argument);
         EXPECT_THROW ((N_bytes<endian::little, byte>::read ("0x1")), std::invalid_argument);
 
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("a")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("-")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("-1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("0x01")), std::invalid_argument);
+
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("a")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("-")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("-1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("0x01")), std::invalid_argument);
+
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("a")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("-")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("-1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x0001")), std::invalid_argument);
+
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("a")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("-")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("-1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x0001")), std::invalid_argument);
+/*
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("a")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("-")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("-1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x0001")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x00000001")), std::invalid_argument);
+
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("a")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("-")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("-1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x0001")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x00000001")), std::invalid_argument);
+*/
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte> {}));
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte>::read ("0")));
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte>::read ("0x")));
