@@ -10,6 +10,8 @@
 
 // these functions will not trim the input or result.
 
+// TODO replace all views with const slices.
+// bytestring& can be replaced with slices.
 namespace data::arithmetic {
 
     // provide a zero of a given size.
