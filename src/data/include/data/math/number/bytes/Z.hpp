@@ -1219,8 +1219,8 @@ namespace data::math::number {
     N_bytes<r, word>::operator math::N () const {
         math::N x {};
 
-        for (const byte &b : this->words ().reverse ()) {
-            x <<= 8;
+        for (const word &b : this->words ().reverse ()) {
+            x <<= sizeof (word) * 8;
             x += b;
         }
 
