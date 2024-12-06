@@ -175,10 +175,6 @@ namespace data {
         const words_type words () const {
             return words_type {slice<word> (*const_cast<oriented*> (this))};
         }
-/*
-        explicit operator slice<byte> () {
-            return slice<byte> {(byte*) this->data (), size * sizeof (word)};
-        }*/
     };
 
     template <std::integral word>
@@ -299,7 +295,7 @@ namespace data {
 
     template <std::integral word>
     std::ostream inline &operator << (std::ostream &o, const bytestring<word> &s) {
-        return o << "\"" << encoding::hex::write (s) << "\"";
+        return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
     }
 
     template <std::integral word> bytestring<word>::bytestring (const hex_string &x) {

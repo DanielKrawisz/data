@@ -13,8 +13,13 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
-        if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::natural::read<r, word> (x);
+        if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string "} + string {x}};
+
+        if (encoding::hexidecimal::valid (x)) {
+            if (auto m = encoding::natural::read<r, word> (x); bool (m)) return *m;
+            else throw std::invalid_argument {string {"invalid hex string size "} + string {x}};
+        }
+
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (math::N {x});
         throw std::invalid_argument {string {"invalid number string"} + string {x}};
     }
@@ -162,7 +167,9 @@ namespace data::encoding::natural {
     
     template <endian::order r, std::unsigned_integral word>
     maybe<math::number::N_bytes<r, word>> inline read (string_view s) {
+
         if (!valid (s)) return {};
+
         if (hexidecimal::valid (s)) {
             auto p = hexidecimal::read<r, word> (s);
             if (!p) return {};
