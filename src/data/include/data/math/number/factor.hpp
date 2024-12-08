@@ -5,19 +5,31 @@
 #ifndef DATA_MATH_NUMBER_FACTOR
 #define DATA_MATH_NUMBER_FACTOR
 
+#include <data/tools.hpp>
 #include <data/math/power.hpp>
 #include <data/math/number/eratosthenes.hpp>
-#include <data/math/number/natural.hpp>
 
 namespace data::math::number {
 
-    template <typename N> struct factorization : list<power<prime<N>, N>> {};
+    template <typename N> struct factorization : list<power<prime<N>, N>> {
+        using list<power<prime<N>, N>>::list;
+        factorization (list<power<prime<N>, N>> &&x): list<power<prime<N>, N>> {x} {}
 
-    template <typename N> factorization<N> factor (N n, eratosthenes<N> &e) {
+        bool operator == (const factorization &x) const {
+            return static_cast<const list<power<prime<N>, N>> &> (*this) == static_cast<const list<power<prime<N>, N>> &> (x);
+        }
 
-        factorization<N> factors;
+        factorization rest () const {
+            return static_cast<const list<power<prime<N>, N>> &> (*this).rest ();
+        }
+    };
+
+    template <typename N> factorization<N> factorize (N n, eratosthenes<N> &e) {
+
+        factorization<N> factors {};
 
         if (n == 0) return factors;
+
         // create an infinite list of primes.
         primes<N> P {e};
 
@@ -33,6 +45,7 @@ namespace data::math::number {
             // search for the next prime factor.
             while (true) {
                 p = P.first ();
+
                 d = math::number::natural_divide (x, p.Prime);
 
                 // in this case, the number itself must be prime.
