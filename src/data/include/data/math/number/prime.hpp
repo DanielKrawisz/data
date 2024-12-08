@@ -13,12 +13,11 @@ namespace data::math::number {
     template <typename N> struct AKS;
 
     template <typename N> struct factorization;
-    template <typename N> factorization<N> factor (N, eratosthenes<N> &);
+    template <typename N> factorization<N> factorize (N, eratosthenes<N> &);
 
     // A number that is known to be prime.
     // So far eratosthenes is the only way
     // to construct this type.
-    // TODO support AKS.
     template <typename N>
     struct prime : nonzero<N> {
         enum likelihood {
@@ -37,7 +36,7 @@ namespace data::math::number {
         prime () : Prime {0}, Likelihood {impossible} {}
 
         bool operator == (const prime &p) const {
-            return Prime = p.Prime;
+            return Prime == p.Prime;
         }
 
     private:
@@ -45,8 +44,11 @@ namespace data::math::number {
 
         friend struct eratosthenes<N>;
         friend struct AKS<N>;
-        friend factorization<N> factor<N> (N, eratosthenes<N> &);
+        friend factorization<N> factorize<N> (N, eratosthenes<N> &);
     };
+
+    template <typename N> factorization<N> operator * (const prime<N> &, const prime<N> &);
+    template <typename N> factorization<N> operator * (factorization<N>, factorization<N>);
 
     template <typename N>
     std::ostream inline &operator << (std::ostream &o, const prime<N> &p) {

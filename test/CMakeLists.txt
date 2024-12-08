@@ -54,6 +54,7 @@ add_executable (unit_tests
     testModular.cpp
     testAlgebra.cpp
     testPolynomial.cpp
+    testNumberTheory.cpp
     testGeometry.cpp
     testHash.cpp
     testSymmetricCrypto.cpp

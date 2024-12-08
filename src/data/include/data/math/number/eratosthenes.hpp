@@ -67,6 +67,11 @@ namespace data::math::number {
         stack<prime<N>> Primes;
         eratosthenes<N> Eratosthenes;
 
+        prime<N> operator [] (N n) {
+            if (n == 0) return first ();
+            return rest ()[n - 1];
+        }
+
     private:
         primes (stack<prime<N>> p, eratosthenes<N> x);
     };
