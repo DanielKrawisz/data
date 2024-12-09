@@ -31,7 +31,7 @@ namespace data::math::number {
     }
 
     template <typename N> maybe<N> primitive_root (prime<N> p, eratosthenes<N> &e) {
-        if (p < 3) return {};
+        if (p.Prime < 3) return {};
         primitive_roots<N> roots {p, e};
         // note: we can skip all powers, for example 4, 8, 9, 16, 25, 27...
         N a {2};
@@ -60,7 +60,7 @@ namespace data::math::number {
     }, factorize<N> (Totient, e))} {}
 
     template <typename N> primitive_roots<N>::primitive_roots (const prime<N> &p, eratosthenes<N> &e):
-    P {p.Prime}, Totient {toitent<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
+    P {p.Prime}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
         return p.Base;
     }, factorize<N> (Totient, e))} {}
 
