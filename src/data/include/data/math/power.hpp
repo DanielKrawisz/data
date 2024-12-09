@@ -51,13 +51,12 @@ namespace data::math {
     template <typename X, typename N = X>
     class pow_mod {
         static X square (const X &mod, const X &x) {
-            auto n = x * x;
-            return n > mod ? n % mod : n;
+            return x * x % mod;
         }
         
         static X loop (const X &mod, const X &so_far, const X &pow_2n, const N &p) {
             if (p == 0) return so_far;
-            return loop (mod, (p & N {1}) == 1 ? so_far * pow_2n : so_far, square (mod, pow_2n), p >> 1);
+            return loop (mod, (p & N {1}) == 1 ? (so_far * pow_2n) % mod : so_far, square (mod, pow_2n), p >> 1);
         }
         
     public:

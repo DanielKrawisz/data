@@ -22,6 +22,8 @@ namespace data::math::number {
         factorization rest () const {
             return static_cast<const list<power<prime<N>, N>> &> (*this).rest ();
         }
+
+        operator N () const;
     };
 
     template <typename N> factorization<N> factorize (N n, eratosthenes<N> &e) {

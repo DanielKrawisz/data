@@ -84,6 +84,7 @@ namespace data {
 
             test_division_integer_case<Z, N> (Z {0}, Z {1}, Z {0}, N {0});
             test_division_integer_case<Z, N> (Z {1}, Z {1}, Z {1}, N {0});
+            test_division_integer_case<Z, N> (Z {389}, Z {3}, Z {129}, N {2});
             test_division_integer_case<Z, N> (Z {1145}, Z {916}, Z {1}, N {229});
             test_division_integer_case<Z, N> (Z {-2}, Z {3}, Z {-1}, N {1});
             test_division_integer_case<Z, N> (Z {2}, Z {-3}, Z {0}, N {2});
@@ -97,7 +98,7 @@ namespace data {
 
     TEST (DivisionTest, TestDivision) {
 
-        //test_division_integer<int64, uint64> {};
+        test_division_integer<int64, uint64> {};
         //test_division_integer<int64_little, uint64_little> {};
         //test_division_integer<int64_big, uint64_big> {};
 
