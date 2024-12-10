@@ -60,7 +60,10 @@ namespace data::math {
         }
         
     public:
-        X operator () (const X &mod, const X &x, const N &p) const {
+        X operator () (const X &mod, const X &x, const N &P) const {
+            if (mod == 0) throw math::division_by_zero {};
+            if (mod == 1) return 0;
+            N p = P % (mod - 1);
             if (p == 0) return 1;
             if (p == 1) return x % mod;
             if (p == 2) return square (mod, x);
