@@ -63,7 +63,10 @@ namespace data::math {
 
     }
 
-    TEST (NumberTheoryTest, TestPowerMod) {
+    template <typename N> void test_power_mod () {
+
+        EXPECT_EQ ((data::pow_mod<N> (N {257}, N {3}, N {200})), N {120});
+        EXPECT_EQ ((data::pow_mod<N> (N {257}, N {120}, N {200})), N {241});
 
         EXPECT_EQ ((data::pow_mod<N> (N {761}, N {2}, N {380})), N {1});
         EXPECT_EQ ((data::pow_mod<N> (N {761}, N {3}, N {380})), N {760});
@@ -72,7 +75,11 @@ namespace data::math {
         EXPECT_EQ ((data::pow_mod<N> (N {761}, N {6}, N {380})), N {760});
         EXPECT_EQ ((data::pow_mod<N> (N {761}, N {6}, N {40})), N {761 - 263});
         EXPECT_EQ ((data::pow_mod<N> (N {65537}, N {2}, N {32768})), N {1});
+    }
 
+    TEST (NumberTheoryTest, TestPowerMod) {
+        test_power_mod<N> ();
+        test_power_mod<uint64> ();
     }
 
     TEST (NumberTheoryTest, TestPrimitiveRoot) {
@@ -115,7 +122,7 @@ namespace data::math {
         {67447, 3}, {67453, 2}, {67477, 2}, {67481, 3}, {67489, 23}, {67493, 2}, {67499, 2}, {67511, 11},
         {67523, 2}, {67531, 10}, {67537, 5}, {67547, 2}, {67559, 7}, {67567, 3}, {67577, 3}, {67579, 7},
         {67589, 2}, {67601, 3}, {67607, 5}, {67619, 2}, {67631, 7}, {67651, 11}, {67679, 19}, {67699, 2},
-        {67709, 2}, {67723, 5}, {67733, 2}, {67741, 6}, {67751, 13}, {67757, 3}, {67759, 6}, {67763, 2},
+        {67709, 2}, {67723, 5}, {67733, 2}, {67741, 6}, {67751,  13}, {67757, 3}, {67759, 6}, {67763, 2},
         {67777, 5}, {67783, 3}, {67789, 6}, {67801, 11}, {67807, 3}, {67819, 10}, {67829, 2}, {67843, 14},
         {67853, 2}, {67867, 2}, {67883, 2}, {67891, 3}, {67901, 3}, {67927, 3}, {67931, 6}, {67933, 2},
         {67939, 3}, {67943, 5}, {67957, 2}, {67961, 3}, {67967, 5}, {67979, 2}, {67987, 2}, {67993, 5},
@@ -806,13 +813,16 @@ namespace data::math {
         {131023, 6}, {131041, 17}, {131059, 2}, {131063, 5}, {131071, 3}};
 
     // test how long it takes to prove that these numbers are prime.
-    // TODO test that these results really are primitive roots.
     TEST (NumberTheoryTest, Test9BitPrimes) {
         for (const auto &[prime, root] : cryptosystems_9_bit) {
             auto fact = number::factorize<uint32> (prime, e32);
             EXPECT_EQ ((fact.size ()), 1);
             EXPECT_EQ (fact[0].Exponent, 1);
             EXPECT_TRUE (number::is_primitive_root<uint32> (prime, root, e32));
+
+            // TODO generate random primitive roots and verify that
+            // an exponent only corresponds to a primitive root when
+            // it is relatively prime to P - 1.
         }
     }
 
@@ -822,6 +832,53 @@ namespace data::math {
             EXPECT_EQ ((fact.size ()), 1);
             EXPECT_EQ (fact[0].Exponent, 1);
             EXPECT_TRUE (number::is_primitive_root<uint64> (prime, root, e64));
+        }
+    }
+
+    TEST (NumberTheoryTest, TestDiffieHelman) {
+        {
+            byte alice_secret = 180;
+            byte bob_secret = 200;
+            for (const auto &[prime, root] : cryptosystems_9_bit)
+                EXPECT_EQ ((data::pow_mod (prime, data::pow_mod (prime, root, alice_secret), bob_secret)),
+                    (data::pow_mod (prime, data::pow_mod (prime, root, bob_secret), alice_secret)));
+        }
+        {
+            uint16 alice_secret = 13030;
+            uint16 bob_secret = 29101;
+            for (const auto &[prime, root] : cryptosystems_17_bit)
+                EXPECT_EQ ((data::pow_mod (prime, data::pow_mod (prime, root, alice_secret), bob_secret)),
+                    (data::pow_mod (prime, data::pow_mod (prime, root, bob_secret), alice_secret)));
+        }
+    }
+
+    TEST (NumberTheoryTest, TestIES) {
+        {
+            // note: for prime p, there must be another number x such that secret_key * x = 1 mod p.
+            uint32 random_number = 101;
+            uint32 secret_key = 200;
+            uint32 message = 131;
+
+            for (const auto &[prime, base] : cryptosystems_9_bit) {
+                auto public_key = data::pow_mod (prime, base, secret_key);
+                // corresponds to the point R in a digital signature.
+                auto header_R = data::pow_mod (prime, base, random_number);
+                // For encryption, we use these shared secrets to generate an authenticated encryption scheme.
+                EXPECT_EQ ((data::pow_mod (prime, public_key, random_number)), (data::pow_mod (prime, header_R, secret_key)));
+            }
+        }
+
+        {
+            uint64 random_number = 35777;
+            uint64 secret_key = 12314;
+            uint64 message = 47989;
+            for (const auto &[prime, base] : cryptosystems_17_bit) {
+                auto public_key = data::pow_mod (prime, base, secret_key);
+                // corresponds to the point R in a digital signature.
+                auto header_R = data::pow_mod (prime, base, random_number);
+                // we use these shared secrets to generate an authenticated encryption scheme.
+                EXPECT_EQ ((data::pow_mod (prime, public_key, random_number)), (data::pow_mod (prime, header_R, secret_key)));
+            }
         }
     }
 
