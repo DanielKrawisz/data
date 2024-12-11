@@ -3,9 +3,7 @@
 
 #include <data/math/linear/space.hpp>
 
-namespace data {
-    
-    namespace math {
+namespace data::math {
         
         namespace linear {
                 

@@ -9,6 +9,15 @@
 #include <data/math/linear/space.hpp>
 #include <data/math/algebra/algebra.hpp>
 
+namespace data::math {
+
+    template <skew_field X, size_t A, size_t B> using matrix = array<X, A, B>;
+
+    template <skew_field X, size_t A, size_t B> X det (const matrix<X, A, B> &);
+    template <skew_field X, size_t A> X det (const matrix<X, A, A> &);
+
+};
+
 namespace data::math::space {
 
     template <skew_field X, size_t order, size_t dim> struct exterior;
@@ -35,25 +44,33 @@ namespace data::math::space {
 
     template <skew_field X, size_t u, size_t dim>
     exterior <X, u, dim> operator + (const exterior<X, u, dim> &, const exterior<X, u, dim> &);
-    
-    template <skew_field X, size_t A, size_t B> using matrix = array<X, A, B>;
 
     // affine geometry is like Euclid without circles.
-    // we need a norm.
     template <skew_field X, size_t dim> struct affine {
-        template <size_t order>
-        struct simplex : exterior<X, order + 1, dim + 1> {
+        template <size_t order> struct simplex;
+
+        using point = simplex<0>;
+        using line = simplex<1>;
+        using plane = simplex<2>;
+        using space = simplex<3>;
+
+        // whether a line contains a point, etc.
+        template <size_t a, size_t b>
+        static bool contains (const simplex<a> &, const simplex<b> &);
+
+        // connect two points to make a line, etc.
+        template <size_t a, size_t b>
+        static simplex<a + b> connect (const simplex<a> &, const simplex<b> &);
+
+        // we represent objects as exterior algebraic objects of one higher dimension.
+        template <size_t order> struct simplex : exterior<X, order + 1, dim + 1> {
+            // valid if a valid exterior object and nonzero.
             bool valid () const;
 
             simplex operator + (const exterior<X, order, dim> &v) const;
 
             exterior<X, order, dim> operator - (const simplex &p) const;
         };
-
-        using point = simplex<1>;
-        using line = simplex<2>;
-        using plane = simplex<3>;
-        using space = simplex<4>;
 
         struct transformation : matrix<X, dim + 1, dim + 1> {
             transformation (const simplex<dim> &from, const simplex<dim> &to);
@@ -69,13 +86,17 @@ namespace data::math::space {
 
     template <skew_field X, ordered Q, size_t dim> requires normed<X, Q>
     struct Euclidian : affine<X, dim> {
+        template <size_t order> using simplex = affine<X, dim>::simplex;
+
         using point = affine<X, dim>::point;
         using line = affine<X, dim>::line;
         using plane = affine<X, dim>::plane;
         using space = affine<X, dim>::space;
 
-        struct transformation : affine<X, dim>::transformation {
+        // distance squared
+        Q quadrance (const point &, const point &);
 
+        struct transformation : affine<X, dim>::transformation {
             bool valid () const;
 
             transformation operator * (const transformation &) const;
@@ -84,11 +105,15 @@ namespace data::math::space {
         static transformation translation (const vector<X, dim> &);
         static transformation scale (const X &);
         static transformation flip (const vector<X, dim> &);
+        // from two flips we can get a rotation. We do not have a native
+        // function for rotations because you cannot do an arbitrary
+        // rotation, depending on the field.
     };
 
-    template <skew_field X, size_t dim> struct elliptic {
+    template <skew_field X, ordered Q, size_t dim> requires normed<X, Q>
+    struct elliptic {
         template <size_t order>
-        struct simplex : exterior<X, order, dim + 1> {
+        struct simplex : exterior<X, order + 1, dim + 1> {
             bool valid () const;
         };
 
@@ -97,7 +122,11 @@ namespace data::math::space {
         using plane = simplex<3>;
         using space = simplex<4>;
 
+        template <size_t a, size_t b>
+        static bool contains (const simplex<a> &, const simplex<b> &);
+
         struct transformation : simplex<2> {
+            // must be orthogonal.
             bool valid () const;
 
             template <size_t order>
@@ -107,7 +136,17 @@ namespace data::math::space {
 
     template <skew_field X, size_t dim> struct projective {
         template <size_t order>
-        struct simplex : exterior<X, order + 1, dim + 1> {
+        struct exterior : space::exterior<X, order, dim> {
+            bool valid () const;
+
+            bool operator == (const exterior &x) const;
+        };
+
+        using value = unsigned_limit<X>;
+
+        template <size_t order>
+        struct simplex : space::exterior<value, order + 1, dim + 1> {
+
             bool valid () const;
 
             bool operator == (const simplex &x) const;
@@ -118,57 +157,35 @@ namespace data::math::space {
         using plane = simplex<3>;
         using space = simplex<4>;
 
-        struct transformation : matrix<X, dim + 1, dim + 1> {
+        struct transformation : exterior<2> {
             transformation (const simplex<dim> &from, const simplex<dim> &to);
             bool valid () const;
-            transformation operator * (const transformation &) const;
+            template <size_t order>
+            transformation operator * (const exterior<order> &) const;
             template <size_t order>
             simplex<order> operator * (const simplex<order> &) const;
         };
     };
 
-    template <skew_field X, size_t dim> struct projective_point : array<unsigned_limit<X>, dim> {
-        bool valid () const;
+    namespace {
+        // Primary template
+        template <typename X, size_t u, size_t N, size_t... Args>
+        struct box_array : box_array<X, u - 1, N, N, Args...> {};
+
+        // Specialization to end recursion
+        template <typename X, size_t N, size_t... Args>
+        struct box_array<X, 0, N, Args...> {
+            using type = array<X, Args...>;
+        };
+    }
+
+    template <skew_field X, size_t order, size_t dim> struct exterior : box_array<X, order, dim>::type {
+        using array = box_array<X, order, dim>::type;
+        exterior (array &&);
+        exterior (const array &);
+        // it's valid if the symmetry properties are correct.
+        bool valid ();
     };
-
-    template <skew_field X, size_t dim>
-    template <size_t order>
-    bool inline projective<X, dim>::simplex<order>::valid () const {
-        return static_cast<exterior<X, order, dim + 1>> (*this) != exterior<X, order, dim + 1> {};
-    }
-
-    template <skew_field X, size_t dim>
-    template <size_t order>
-    bool projective<X, dim>::simplex<order>::operator == (const simplex &x) const {
-        X ratio {};
-
-        for (int i = 0; i < dim + 1; i++) {
-            const X &left = (*this)[i];
-            const X &right = x[i];
-
-            if (left == X {} || right == X {}) {
-                if (left != right) return false;
-            } else if (ratio == X {}) ratio = left / right;
-            else if (ratio != left / right) return false;
-        }
-
-        return true;
-    }
-
-    template <skew_field X, size_t dim>
-    bool projective_point<X, dim>::valid () const {
-        bool finite = false;
-
-        for (const X &x : *this) {
-            if (!data::valid (x)) return false;
-            if (x != X::infinity ()) {
-                if (finite) return false;
-                finite = true;
-            }
-        }
-
-        return true;
-    }
     
 }
 
