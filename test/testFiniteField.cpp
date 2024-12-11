@@ -8,24 +8,24 @@
 
 namespace data {
     // representations of numbers. 
-    constexpr auto d2 = decimal {"2"};
-    constexpr auto d3 = decimal {"3"};
-    constexpr auto d4 = decimal {"4"};
-    constexpr auto d5 = decimal {"5"};
-    constexpr auto d6 = decimal {"6"};
-    constexpr auto d7 = decimal {"7"};
-    constexpr auto d8 = decimal {"8"};
-    constexpr auto d9 = decimal {"9"};
-    constexpr auto d10 = decimal {"10"};
-    constexpr auto d11 = decimal {"11"};
-    constexpr auto d12 = decimal {"12"};
-    constexpr auto d13 = decimal {"13"};
-    constexpr auto d14 = decimal {"14"};
-    constexpr auto d15 = decimal {"15"};
-    constexpr auto d16 = decimal {"16"};
-    constexpr auto d17 = decimal {"17"};
-    constexpr auto d18 = decimal {"18"};
-    constexpr auto d19 = decimal {"19"};
+    constexpr decimal d2 {"2"};
+    constexpr decimal d3 {"3"};
+    constexpr decimal d4 {"4"};
+    constexpr decimal d5 {"5"};
+    constexpr decimal d6 {"6"};
+    constexpr decimal d7 {"7"};
+    constexpr decimal d8 {"8"};
+    constexpr decimal d9 {"9"};
+    constexpr decimal d10 {"10"};
+    constexpr decimal d11 {"11"};
+    constexpr decimal d12 {"12"};
+    constexpr decimal d13 {"13"};
+    constexpr decimal d14 {"14"};
+    constexpr decimal d15 {"15"};
+    constexpr decimal d16 {"16"};
+    constexpr decimal d17 {"17"};
+    constexpr decimal d18 {"18"};
+    constexpr decimal d19 {"19"};
     
     template <auto & mod>
     using prime_field_element = math::prime_field_element<uint64, int64, mod>;

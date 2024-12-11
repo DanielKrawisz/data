@@ -59,6 +59,7 @@ add_executable (unit_tests
     testHash.cpp
     testSymmetricCrypto.cpp
     testSecretShare.cpp
+    testEllipticCurve.cpp
     testLog.cpp
     testArgsParser.cpp
     testIP.cpp
