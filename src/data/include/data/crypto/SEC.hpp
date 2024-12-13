@@ -83,7 +83,7 @@ namespace data::crypto::SEC {
             (size / 8)
             // two characters for one byte
             * 2 +
-            // the prefi, which will be 0x for numbers or 02, 03, or 04 for points.
+            // the prefix, which will be 0x for numbers or 02, 03, or 04 for points.
             2 +
             // some extra if size doesn't fit perfectly into a list of bytes
             (size % 8 > 0 ? 2 : 0) +
@@ -104,8 +104,6 @@ namespace data::crypto::SEC {
 
         constexpr P (hexidecimal<pstr> m, hexidecimal<pstr> a, hexidecimal<pstr> b, point<pstr> g, hexidecimal<pstr + 2> n, uint32 c):
             M {m}, A {a}, B {b}, G {g}, N {n}, C {c} {}
-
-        //operator elliptic_curve<math::prime_field<data::N, data::Z, hexidecimal<pstr>>, data::N> () const;
     };
 
     constexpr P<192> secp192k1 {

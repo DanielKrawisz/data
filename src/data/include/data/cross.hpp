@@ -28,24 +28,11 @@ namespace data {
         template<sequence list>
         explicit cross (list l);
         
-        bool valid () const {
-            for (const X &x : *this) if (!data::valid (x)) return false;
-            return true;
-        }
+        bool valid () const;
         
-        X &operator [] (int i) {
-            size_t size = this->size ();
-            if (size == 0) throw std::out_of_range {"cross size 0"};
-            if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
-            return std::vector<X>::operator [] (i);
-        }
+        X &operator [] (int i);
         
-        const X &operator [] (int i) const {
-            size_t size = this->size ();
-            if (size == 0) throw std::out_of_range {"cross size 0"};
-            if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
-            return std::vector<X>::operator [] (i);
-        }
+        const X &operator [] (int i) const;
         
         explicit operator slice<X> ();
         explicit operator slice<const X> () const;
@@ -97,11 +84,40 @@ namespace data {
 
     template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
         constexpr static size_t Size = size * array<X, sizes...>::Size;
+
         array ();
         array (std::initializer_list<array<X, sizes...>>);
 
         slice<X, sizes...> &operator [] (size_t i);
         slice<const X, sizes...> &operator [] (size_t i) const;
+
+    };
+
+    template <typename X> struct array<X> {
+        constexpr static size_t Size = 1;
+        array (const X &);
+        array (X &&);
+        operator X () const;
+
+        X Value;
+
+        bool valid () const;
+
+        explicit operator slice<X, 1> ();
+
+        slice<X> range (int);
+        slice<X> range (int, int);
+
+        explicit operator slice<const X, 1> () const;
+
+        slice<const X> range (int) const;
+        slice<const X> range (int, int) const;
+
+        slice<X>::iterator begin ();
+        slice<X>::iterator end ();
+
+        slice<const X>::iterator begin () const;
+        slice<const X>::iterator end () const;
 
     };
 
@@ -147,6 +163,27 @@ namespace data::math {
 }
 
 namespace data {
+    template <typename X>
+    bool cross<X>::valid () const {
+        for (const X &x : *this) if (!data::valid (x)) return false;
+        return true;
+    }
+
+    template <typename X>
+    X &cross<X>::operator [] (int i) {
+        size_t size = this->size ();
+        if (size == 0) throw std::out_of_range {"cross size 0"};
+        if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
+        return std::vector<X>::operator [] (i);
+    }
+
+    template <typename X>
+    const X &cross<X>::operator [] (int i) const {
+        size_t size = this->size ();
+        if (size == 0) throw std::out_of_range {"cross size 0"};
+        if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
+        return std::vector<X>::operator [] (i);
+    }
 
     template <typename X, size_t size>
     constexpr inline array<X, size>::array (std::initializer_list<X> x) : std::array<X, size> {} {
