@@ -685,8 +685,7 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     bool inline operator == (const N_bytes<r, word> &x, uint64 i) {
-        if (i < 0) return false;
-        return arithmetic::compare<complement::nones> (x.words (), arithmetic::endian_integral<false, r, 8> {i}.words ()) == 0;
+        return x == N_bytes<r, word> {i};
     }
     
     template <endian::order r, complement c, std::unsigned_integral word>
