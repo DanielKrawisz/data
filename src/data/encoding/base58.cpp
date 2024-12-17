@@ -89,7 +89,7 @@ namespace data::encoding::base58 {
     string operator + (const string &m, const string &n) {
         if (!m.valid ()) throw exception {} << "invalid base 58 string: " << m;
         if (!n.valid ()) throw exception {} << "invalid base 58 string: " << n;
-        
+
         return encode (read_base<N_bytes_little> (m, 58, &digit) + read_base<N_bytes_little> (n, 58, &digit));
     }
     

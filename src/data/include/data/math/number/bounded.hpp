@@ -32,13 +32,13 @@ namespace data::math::number {
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> inline operator % (const uint<r, x, word> &a, const uint<r, x, word> &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<uint<r, x, word>> (a, nonzero<uint<r, x, word>> {x}).Remainder;
+        return data::divide<uint<r, x, word>> (a, nonzero<uint<r, x, word>> {x}).Remainder;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> inline operator % (const sint<r, x, word> &a, const uint<r, x, word> &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<sint<r, x, word>> (a, nonzero<sint<r, x, word>> {sint<r, x, word> (x)}).Remainder;
+        return data::divide<sint<r, x, word>> (a, nonzero<sint<r, x, word>> {sint<r, x, word> (x)}).Remainder;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
