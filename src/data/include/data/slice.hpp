@@ -69,10 +69,10 @@ namespace data {
             return slice<X, e - b> {this->data () + b, e - b};
         }
 
-        using iterator = std::span<X>::iterator;
-        using const_iterator = std::span<X>::const_iterator;
-        using reverse_iterator = std::span<X>::reverse_iterator;
-        using const_reverse_iterator = std::span<X>::const_reverse_iterator;
+        using iterator = decltype (std::declval<std::span<X>> ().begin ());
+        using const_iterator = decltype (std::declval<const std::span<X>> ().begin ());
+        using reverse_iterator = decltype (std::declval<std::span<X>> ().rbegin ());
+        using const_reverse_iterator = decltype (std::declval<const std::span<X>> ().rbegin ());
 
         iterator begin ();
         iterator end ();
