@@ -1007,9 +1007,9 @@ namespace data::math::number {
     
     template <endian::order r, size_t size, std::unsigned_integral word>
     bounded<false, r, size, word>::bounded (string_view x) {
-        if (encoding::decimal::valid (x) || encoding::hexidecimal::valid (x) && x.size () == 2 * size + 2)
+        if (encoding::decimal::valid (x) || encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
             *this = bounded {N_bytes<r, word>::read (x)};
-        else if (encoding::hex::valid (x) && x.size () == 2 * size)
+        else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
             boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
         else throw std::invalid_argument {std::string {"invalid natural string "} + std::string {x}};
     }
@@ -1017,9 +1017,9 @@ namespace data::math::number {
     template <endian::order r, size_t size, std::unsigned_integral word>
     bounded<true, r, size, word>::bounded (string_view x) {
         if (encoding::signed_decimal::valid (x) ||
-            encoding::hexidecimal::valid (x) && x.size () == 2 * size + 2)
+            encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
                 *this = bounded {Z_bytes<r, complement::ones, word>::read (x)};
-        else if (encoding::hex::valid (x) && x.size () == 2 * size)
+        else if (encoding::hex::valid (x) && x.size () == 2 * size * sizeof (word))
             boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
         else throw std::invalid_argument {"invalid integer string"};
     }
@@ -1327,14 +1327,14 @@ namespace data::math::number {
     namespace {
         template <endian::order r, size_t size, std::unsigned_integral word>
         void shift_right (bytes_array<word, size> &n, uint32 i, byte fill) {
-            if (r == endian::big) arithmetic::bit_shift_right (n.rbegin (), n.rend (), i, fill);
-            else arithmetic::bit_shift_right (n.begin (), n.end (), i, fill);
+            if (r == endian::big) arithmetic::bit_shift_right<word> (n.rbegin (), n.rend (), i, fill);
+            else arithmetic::bit_shift_right<word> (n.begin (), n.end (), i, fill);
         }
         
         template <endian::order r, size_t size, std::unsigned_integral word>
         void shift_left (bytes_array<word, size> &n, uint32 i, byte fill) {
-            if (r == endian::big) arithmetic::bit_shift_left (n.begin (), n.end (), i, fill);
-            else arithmetic::bit_shift_left (n.rbegin (), n.rend (), i, fill);
+            if (r == endian::big) arithmetic::bit_shift_left<word> (n.begin (), n.end (), i, fill);
+            else arithmetic::bit_shift_left<word> (n.rbegin (), n.rend (), i, fill);
         }
     }
     

@@ -109,15 +109,17 @@ namespace data::arithmetic {
     // regardless of the way that a number is actually represented.
     // we can only do this with bytes and not bigger numbers because of
     // little-endian encoding.
-    template <typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, byte> && std::sentinel_for<sen, itb>
-    void shift_left (ita &i, sen z, itb b, byte amount, byte fill) {
-        using two_digits = typename encoding::twice<byte>::type;
+    template <typename sen, typename ita, typename itb, std::unsigned_integral word>
+    requires std::input_iterator<itb> &&
+        std::output_iterator<ita, word> &&
+        std::sentinel_for<sen, itb>
+    void shift_left (ita &i, sen z, itb b, uint32 amount, word fill) {
+        using two_digits = typename encoding::twice<word>::type;
 
         while (b != z) {
             auto bp = b;
             bp++;
-            two_digits result = encoding::combine<byte> (*b, bp != z ? *bp : fill) << amount;
+            two_digits result = encoding::combine<word> (*b, bp != z ? *bp : fill) << amount;
             *i = encoding::greater_half (result);
             i++;
             b = bp;
@@ -125,30 +127,31 @@ namespace data::arithmetic {
     }
 
     // you have to use reverse iterators for this function.
-    template <typename sen, typename ita, typename itb>
-    requires std::input_iterator<itb> && std::output_iterator<ita, byte> && std::sentinel_for<sen, itb>
-    void shift_right (ita &i, sen z, itb b, byte amount, byte fill) {
-        using two_digits = typename encoding::twice<byte>::type;
+    template <typename sen, typename ita, typename itb, std::unsigned_integral word>
+    requires std::input_iterator<itb> && std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
+    void shift_right (ita &i, sen z, itb b, uint32 amount, word fill) {
+        using two_digits = typename encoding::twice<word>::type;
 
         while (b != z) {
             auto bp = b;
             bp++;
-            two_digits x = encoding::combine<byte> (bp != z ? *bp : fill, *b);
-            two_digits result = encoding::combine<byte> (bp != z ? *bp : fill, *b) >> amount;
+            two_digits x = encoding::combine<word> (bp != z ? *bp : fill, *b);
+            two_digits result = encoding::combine<word> (bp != z ? *bp : fill, *b) >> amount;
             *i = encoding::lesser_half (result);
             i++;
             b = bp;
         }
     }
 
-    template <typename it, typename sen>
+    template <std::unsigned_integral word, typename it, typename sen>
+    requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
     void bit_shift_left (it i, sen z, uint32 x, bool fill) {
-        auto bytes = x / 8;
-        auto bits = x % 8;
-        byte filler = fill ? ~0 : 0;
+        size_t words = x / (8 * sizeof (decltype (*i)));
+        uint32 bits = x % (8 * sizeof (decltype (*i)));
+        word filler = fill ? ~0 : 0;
 
         size_t size = z - i;
-        if (bytes <= size) arithmetic::shift_left (i, z, i + bytes, bits, filler);
+        if (words <= size) arithmetic::shift_left (i, z, i + words, bits, filler);
 
         while (i != z) {
             *i = filler;
@@ -156,14 +159,15 @@ namespace data::arithmetic {
         }
     }
 
-    template <typename it, typename sen>
+    template <std::unsigned_integral word, typename it, typename sen>
+    requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
     void bit_shift_right (it i, sen z, uint32 x, bool fill) {
-        auto bytes = x / 8;
-        auto bits = x % 8;
-        byte filler = fill ? ~0 : 0;
+        size_t words = x / (8 * sizeof (decltype (*i)));
+        uint32 bits = x % (8 * sizeof (decltype (*i)));
+        word filler = fill ? ~0 : 0;
 
         size_t size = z - i;
-        if (bytes <= size) arithmetic::shift_right (i, z, i + bytes, bits, filler);
+        if (words <= size) arithmetic::shift_right (i, z, i + words, bits, filler);
 
         while (i != z) {
             *i = filler;

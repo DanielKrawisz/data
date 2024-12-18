@@ -254,13 +254,13 @@ namespace data::math::number {
 
 namespace data::math {
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, std::unsigned_integral word = byte>
     using N_bytes = number::N_bytes<r, word>;
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, std::unsigned_integral word = byte>
     using Z_bytes = number::Z_bytes<r, number::complement::ones, word>;
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, std::unsigned_integral word = byte>
     using Z_bytes_twos = number::Z_bytes<r, number::complement::twos, word>;
     
     template <endian::order r, std::unsigned_integral word>
@@ -556,14 +556,14 @@ namespace data::math::number {
 // we also have base58 but that works a priori for any number. 
 namespace data::encoding::decimal {
     
-    template <endian::order r, std::unsigned_integral word> maybe<math::number::N_bytes<r, word>> read (string_view s);
+    template <endian::order r, std::unsigned_integral word> maybe<math::N_bytes<r, word>> read (string_view s);
     
     struct string;
     
-    template <endian::order r, std::unsigned_integral word> string write (const math::number::N_bytes<r, word> &z);
+    template <endian::order r, std::unsigned_integral word> string write (const math::N_bytes<r, word> &z);
     
     template <endian::order r, std::unsigned_integral word>
-    std::ostream inline &write (std::ostream &o, const math::number::N_bytes<r, word> &n) {
+    std::ostream inline &write (std::ostream &o, const math::N_bytes<r, word> &n) {
         return o << static_cast<std::string> (write (n));
     }
     
@@ -602,7 +602,7 @@ namespace data::encoding::hexidecimal {
 namespace data::encoding::natural {
     
     template <endian::order r, std::unsigned_integral word>
-    maybe<math::number::N_bytes<r, word>> read (string_view s);
+    maybe<math::N_bytes<r, word>> read (string_view s);
     
 }
 
