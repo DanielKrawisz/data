@@ -44,7 +44,7 @@ namespace data {
     // N_bytes and Z_bytes are big numbers with a specific
     // representation. They can be big or little endian. 
     // Z_bytes are one's complement. 
-    
+
     using N_bytes_little = math::number::N_bytes<endian::little, byte>;
     
     using N_bytes_big = math::number::N_bytes<endian::big, byte>;
@@ -59,17 +59,17 @@ namespace data {
     
     // fixed size numbers of any size, similar to the 
     // built-in types. 
-    template <size_t size> 
-    using int_little = math::sint<endian::little, size, byte>;
+    template <size_t size, std::unsigned_integral word = byte>
+    using int_little = math::sint<endian::little, size, word>;
     
-    template <size_t size> 
-    using int_big = math::sint<endian::big, size, byte>;
+    template <size_t size, std::unsigned_integral word = byte>
+    using int_big = math::sint<endian::big, size, word>;
     
-    template <size_t size> 
-    using uint_little = math::uint<endian::little, size, byte>;
+    template <size_t size, std::unsigned_integral word = byte>
+    using uint_little = math::uint<endian::little, size, word>;
     
-    template <size_t size> 
-    using uint_big = math::uint<endian::big, size, byte>;
+    template <size_t size, std::unsigned_integral word = byte>
+    using uint_big = math::uint<endian::big, size, word>;
     
     using uint128 = uint_little<16>;
     using uint160 = uint_little<20>;

@@ -137,13 +137,13 @@ namespace data::math::number {
 namespace data::encoding::decimal {
     
     template <endian::order r, std::unsigned_integral word>
-    maybe<math::number::N_bytes<r, word>> inline read (string_view s) {
+    maybe<math::N_bytes<r, word>> inline read (string_view s) {
         if (!valid (s)) return {};
-        return {read_base<math::number::N_bytes<r, word>> (s, 10, digit)};
+        return {read_base<math::N_bytes<r, word>> (s, 10, digit)};
     }
     
     template <endian::order r, std::unsigned_integral word>
-    string inline write (const math::number::N_bytes<r, word> &n) {
+    string inline write (const math::N_bytes<r, word> &n) {
         std::string x = write_base (math::number::GMP::N (n), characters ());
         return x == "" ? string {"0"} : string {x};
     }
@@ -166,7 +166,7 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::natural {
     
     template <endian::order r, std::unsigned_integral word>
-    maybe<math::number::N_bytes<r, word>> inline read (string_view s) {
+    maybe<math::N_bytes<r, word>> inline read (string_view s) {
 
         if (!valid (s)) return {};
 

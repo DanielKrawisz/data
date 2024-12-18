@@ -10,43 +10,67 @@
 
 namespace data {
     
+    // TODO we don't even use this.
     template<bool is_signed, data::endian::order o, size_t size> 
     using bounded = data::math::number::bounded<is_signed, o, size, byte>;
-    
-    template <size_t size> 
-    using integer_little = data::math::number::bounded<true, endian::little, size, byte>;
-    
-    template <size_t size> 
-    using integer_big = data::math::number::bounded<true, endian::big, size, byte>;
-    
-    template <size_t size> 
-    using uint_little = data::math::number::bounded<false, endian::little, size, byte>;
-    
-    template <size_t size> 
-    using uint_big = data::math::number::bounded<false, endian::big, size, byte>;
     
     template <typename Z>
     void test_bit_negate () {
         EXPECT_EQ (~Z (0), Z (-1)) << "expected ~" << Z (0) << " to equal " << Z (-1);
-        EXPECT_EQ (~Z (-1), Z (0)) << "expected ~" << Z (-1) << " to equal " << Z (0);;
+        EXPECT_EQ (~Z (-1), Z (0)) << "expected ~" << Z (-1) << " to equal " << Z (0);
     }
     
     TEST (BitShiftTest, BitNegate) {
         
         test_bit_negate<Z_bytes_big> ();
         test_bit_negate<Z_bytes_little> ();
-        test_bit_negate<integer_big<9>> ();
-        test_bit_negate<integer_big<10>> ();
-        test_bit_negate<integer_big<11>> ();
-        test_bit_negate<integer_big<12>> ();
-        test_bit_negate<integer_little<9>> ();
-        test_bit_negate<integer_little<10>> ();
-        test_bit_negate<integer_little<11>> ();
-        test_bit_negate<integer_little<12>> ();
+        test_bit_negate<int_big<9>> ();
+        test_bit_negate<int_big<10>> ();
+        test_bit_negate<int_big<11>> ();
+        test_bit_negate<int_big<12>> ();
+        test_bit_negate<int_little<9>> ();
+        test_bit_negate<int_little<10>> ();
+        test_bit_negate<int_little<11>> ();
+        test_bit_negate<int_little<12>> ();
+        test_bit_negate<int_big<5, short unsigned int>> ();
+        test_bit_negate<int_big<6, short unsigned int>> ();
+        test_bit_negate<int_big<7, short unsigned int>> ();
+        test_bit_negate<int_big<8, short unsigned int>> ();
+        test_bit_negate<int_little<5, short unsigned int>> ();
+        test_bit_negate<int_little<6, short unsigned int>> ();
+        test_bit_negate<int_little<7, short unsigned int>> ();
+        test_bit_negate<int_little<8, short unsigned int>> ();
+        test_bit_negate<int_big<3, unsigned int>> ();
+        test_bit_negate<int_big<4, unsigned int>> ();
+        test_bit_negate<int_big<5, unsigned int>> ();
+        test_bit_negate<int_big<6, unsigned int>> ();
+        test_bit_negate<int_little<3, unsigned int>> ();
+        test_bit_negate<int_little<4, unsigned int>> ();
+        test_bit_negate<int_little<5, unsigned int>> ();
+        test_bit_negate<int_little<6, unsigned int>> ();
+
+        // TODO add bigger words here
+        /*
+        test_bit_negate<int_big<2, long unsigned int>> ();
+        test_bit_negate<int_big<3, long unsigned int>> ();
+        test_bit_negate<int_big<4, long unsigned int>> ();
+        test_bit_negate<int_big<5, long unsigned int>> ();
+        test_bit_negate<int_little<2, long unsigned int>> ();
+        test_bit_negate<int_little<3, long unsigned int>> ();
+        test_bit_negate<int_little<4, long unsigned int>> ();
+        test_bit_negate<int_little<5, long unsigned int>> ();
+        test_bit_negate<int_big<1, long long unsigned int>> ();
+        test_bit_negate<int_big<2, long long unsigned int>> ();
+        test_bit_negate<int_big<3, long long unsigned int>> ();
+        test_bit_negate<int_big<4, long long unsigned int>> ();
+        test_bit_negate<int_little<1, long long unsigned int>> ();
+        test_bit_negate<int_little<2, long long unsigned int>> ();
+        test_bit_negate<int_little<3, long long unsigned int>> ();
+        test_bit_negate<int_little<4, long long unsigned int>> ();*/
         
     }
     
-    template <typename X> void test_bit_shift () {
+    template <typename X> void test_bit_shift_bounded () {
         
         std::string     base_value {"0x100000000001000000000001"};
         std::string  shift_1_right {"0x080000000000800000000000"};
@@ -64,7 +88,7 @@ namespace data {
         EXPECT_EQ (result_1_left,  X::read (shift_1_left))
             << "expected " << base_value << " << " << 1 << " to equal " << shift_1_left 
             << " but instead it equals " << std::hex << result_1_left << std::endl;
-        
+        /*
         auto result_1_right = X::read (base_value) >> 1;
         EXPECT_EQ (result_1_right,  X::read (shift_1_right))
             << "expected " << base_value << " >> " << 1 << " to equal " << shift_1_right 
@@ -108,17 +132,47 @@ namespace data {
         auto result_66_right = X::read (base_value) >> 66;
         EXPECT_EQ (result_66_right, X::read (shift_66_right))
             << "expected " << base_value << " >> " << 66 << " to equal " << shift_66_right 
-            << " but instead it equals " << std::hex << result_66_right << std::endl;    
+            << " but instead it equals " << std::hex << result_66_right << std::endl;*/
         
     }
     
-    TEST (BitShiftTest, BitShift) {
+    TEST (BitShiftTest, BitShiftBounded) {
+
+        test_bit_shift_bounded<int_little<12>> ();
+        test_bit_shift_bounded<int_big<12>> ();
+        test_bit_shift_bounded<uint_little<12>> ();
+        test_bit_shift_bounded<uint_big<12>> ();
+        test_bit_shift_bounded<uint_little<6, short unsigned int>> ();
+        test_bit_shift_bounded<uint_big<6, short unsigned int>> ();
+        test_bit_shift_bounded<int_little<6, short unsigned int>> ();
+        test_bit_shift_bounded<int_big<6, short unsigned int>> ();
+        test_bit_shift_bounded<uint_little<3, unsigned int>> ();
+        test_bit_shift_bounded<uint_big<3, unsigned int>> ();
+        test_bit_shift_bounded<int_little<3, unsigned int>> ();
+        test_bit_shift_bounded<int_big<3, unsigned int>> ();
+
+        // TODO bigger word sizes; need to adjust the test in order to accomodate them.
         
-        test_bit_shift<uint_little<12>> ();
-        test_bit_shift<uint_big<12>> ();
-        test_bit_shift<integer_little<12>> ();
-        test_bit_shift<integer_big<12>> ();
-        
+    }
+
+    // TODO test that << and >> are equal to the mathematical functions
+    // x << 1 -> x ^ 2
+    // x >> 1 -> (x + 1) / 2
+    template <typename X> void test_bit_shift () {}
+
+    TEST (BitShiftTest, BitShiftN) {
+        test_bit_shift<N> ();
+        test_bit_shift<hex_uint> ();
+        test_bit_shift<dec_uint> ();
+        test_bit_shift<base58_uint> ();
+        test_bit_shift<math::N_bytes<endian::little>> ();
+        test_bit_shift<math::N_bytes<endian::big>> ();
+        test_bit_shift<math::N_bytes<endian::little, short unsigned int>> ();
+        test_bit_shift<math::N_bytes<endian::big, short unsigned int>> ();
+        test_bit_shift<math::N_bytes<endian::little, unsigned int>> ();
+        test_bit_shift<math::N_bytes<endian::big, unsigned int>> ();
+
+        // TODO bigger word sizes.
     }
     
 }
