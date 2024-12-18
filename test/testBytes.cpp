@@ -195,7 +195,6 @@ namespace data {
 
     }
 
-    /*
     template <typename T> void test_shift_left (T x, int i, T e) {
         auto n = x << i;
         EXPECT_EQ (n, e) << "expected " << x << " << " << i << " = " << n << " to equal " << e;
@@ -208,19 +207,22 @@ namespace data {
     
     template <typename word, size_t x>
     void test_bit_shift (string given, int bits, string expected_left, string expected_right) {
-        
+        std::cout << " bit shift test sub case " << given << "; bits = " << bits << std::endl;
         auto g = byte_array_from_bits<word, x> (given);
         auto el = byte_array_from_bits<word, x> (expected_left);
         auto er = byte_array_from_bits<word, x> (expected_right);
+        std::cout << " bit shift test sub case: " << g << "; " << el << "; " << er << std::endl;
         
         test_shift_left (g, bits, el);
         test_shift_right (g, bits, er);
     }
     
     void test_shift (string given, int bits, string expected_left, string expected_right) {
+        std::cout << "bit shift test case" << std::endl;
         test_bit_shift<byte, 4> (given, bits, expected_left, expected_right);
         test_bit_shift<uint16, 2> (given, bits, expected_left, expected_right);
         test_bit_shift<uint32, 1> (given, bits, expected_left, expected_right);
+        // TODO add bigger words.
     }
     
     TEST (BytesTest, TestBitShift) {
@@ -262,7 +264,7 @@ namespace data {
         EXPECT_EQ (slice<byte> (a)[0], 0);
         EXPECT_EQ (slice<byte> (a)[-1], 0);
         
-    }*/
+    }
     
 }
 

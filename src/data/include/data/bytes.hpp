@@ -69,6 +69,9 @@ namespace data {
     template <std::integral word, size_t... sizes>
     writer<word> &operator << (writer<word> &, const bytes_array<word, sizes...> &);
 
+    template <std::integral word, size_t size>
+    std::ostream &operator << (std::ostream &o, const bytes_array<word, size> &);
+
     // all constructors constexpr
     template <std::integral word, size_t size> struct bytes_array<word, size> : public array<word, size> {
         using array<word, size>::array;
@@ -110,6 +113,9 @@ namespace data {
             return *this;
         }
 
+        void bit_shift_left (uint32 x, bool fill = false);
+        void bit_shift_right (uint32 x, bool fill = false);
+
     protected:
         void bit_and (const slice<word, size> a) {
             arithmetic::bit_and<word>
@@ -126,8 +132,8 @@ namespace data {
                 (this->end (), this->begin (), slice<word, size> (*this).begin (), a.begin ());
         }
 
-        void fill (byte b) {
-            for (byte &z : *this) z = b;
+        void fill (word b) {
+            for (word &z : *this) z = b;
         }
 
     };
@@ -256,6 +262,16 @@ namespace data {
     }
 
     template <std::integral word, size_t size>
+    void inline bytes_array<word, size>::bit_shift_left (uint32 x, bool fill) {
+        arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_left (x, fill);
+    }
+
+    template <std::integral word, size_t size>
+    void inline bytes_array<word, size>::bit_shift_right (uint32 x, bool fill) {
+        arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_right (x, fill);
+    }
+
+    template <std::integral word, size_t size>
     bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
@@ -309,6 +325,11 @@ namespace data {
         if (!x.valid () || ((x.size () / 2) % sizeof (word) != 0)) throw encoding::invalid {encoding::hex::Format, x};
         if ((x.size () / 2) != sizeof (word) * size) throw exception {} << "invalid hex string size";
         boost::algorithm::unhex (x.begin (), x.end (), static_cast<byte *> (this->data ()));
+    }
+
+    template <std::integral word, size_t size>
+    std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s) {
+        return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
     }
 
 }
