@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <data/concepts.hpp>
 #include <data/numbers.hpp>
 #include "gtest/gtest.h"
 
@@ -13,8 +14,9 @@ namespace data {
         test_whole_number () {}
     };
     
-    template <typename NN> requires math::number::natural<NN> && std::convertible_to<uint64, NN> &&
-    requires (const NN &n) {
+    template <typename NN> requires math::number::natural<NN> &&
+    implicitly_convertible_to<uint64, NN> &&
+    implicitly_convertible_to<uint32, NN> && requires (const NN &n) {
         { uint64 (n) };
         { NN (n) };
         { n == 0u } -> std::same_as<bool>;
@@ -23,6 +25,11 @@ namespace data {
         { n < 0u } -> std::same_as<bool>;
         { n >= 0u } -> std::same_as<bool>;
         { n <= 0u } -> std::same_as<bool>;
+        { n + 1u };
+        { n * 1u};
+        { n - 1u};
+        { n / 1u};
+        { n % 1u};
     } && requires (const NN &a, const math::nonzero<NN> &b) {
         { data::divide (a, b) } -> std::same_as<math::division<NN>>;
     } && requires (const NN &a, const NN &b) {

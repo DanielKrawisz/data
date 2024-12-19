@@ -36,6 +36,7 @@ add_executable (unit_tests
     testBitShift.cpp
     testN.cpp
     testZ.cpp
+    testCarry.cpp
     testNBytes.cpp
     testRoot.cpp
     testZBytes.cpp
@@ -64,7 +65,6 @@ add_executable (unit_tests
     testArgsParser.cpp
     testIP.cpp
     testEmail.cpp
-    testCarry.cpp
 )
 
 target_link_libraries (unit_tests
