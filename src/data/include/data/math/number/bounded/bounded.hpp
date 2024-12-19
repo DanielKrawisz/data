@@ -523,8 +523,8 @@ namespace data::math::number {
             this->fill (0);
         }
         
-        constexpr bounded (int64 x);
-        constexpr bounded (int32);
+        constexpr bounded (const int64 &);
+        constexpr bounded (const int32 &);
         constexpr bounded (uint64 x);
         constexpr bounded (uint32);
         
@@ -1122,7 +1122,7 @@ namespace data::math::number {
     }
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    constexpr sint<r, size, word>::bounded (int32 x) : oriented<r, word, size>
+    constexpr sint<r, size, word>::bounded (const int32 &x) : oriented<r, word, size>
         {x < 0 ?
             bytes_array<word, size>::filled (std::numeric_limits<word>::max ()) :
             bytes_array<word, size>::filled (0x00)} {
@@ -1163,10 +1163,11 @@ namespace data::math::number {
     }
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    constexpr sint<r, size, word>::bounded (int64 x) : oriented<r, word, size>
+    constexpr sint<r, size, word>::bounded (const int64 &x) : oriented<r, word, size>
         {x < 0 ?
             bytes_array<word, size>::filled (std::numeric_limits<word>::max ()) :
             bytes_array<word, size>::filled (0x00)} {
+
         if constexpr (sizeof (int64) <= sizeof (word)) {
             *this->words ().begin () = x;
         } else {
