@@ -8,7 +8,7 @@
 namespace data {
     
     TEST (AbsTest, TestDecrement) {
-        std::cout << "Version is " << DATA_VERSION << std::endl;
+
         int_big<9> ib9 {0};
         int_big<10> ib10 {0};
         int_big<11> ib11 {0};

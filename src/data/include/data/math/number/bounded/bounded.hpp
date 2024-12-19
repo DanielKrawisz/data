@@ -15,7 +15,7 @@
 
 namespace data::math::number {
     
-    // satisfies range<byte>
+    // satisfies range<word>
     template <bool u, endian::order, size_t size, std::unsigned_integral word> struct bounded;
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
@@ -1078,19 +1078,18 @@ namespace data::math::number {
     template <endian::order r, size_t x, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const uint<r, x, word> &a, int64 b) {
         if (b < 0) return std::weak_ordering::greater;
-        return arithmetic::compare<complement::nones> (a.words (), arithmetic::endian_integral<true, r, 8> {b}.words ());
+        return a <=> uint<r, x, word> {static_cast<uint64> (b)};
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int64 b) {
-        return arithmetic::ones::compare<r, word> (a, bytes_view (arithmetic::endian_integral<true, r, 8> (b)));
+        return a <=> sint<r, x, word> {b};
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
     constexpr uint<r, size, word>::bounded (uint64 x) : bounded {} {
-        if constexpr (sizeof (uint64) <= sizeof (word)) {
-            *this->words ().begin () = x;
-        } else {
+        if constexpr (sizeof (uint64) <= sizeof (word)) *this->words ().begin () = x;
+        else {
             data::arithmetic::Words<boost::endian::order::native, word> n {
                 slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
 
@@ -1220,7 +1219,6 @@ namespace data::math::number {
         auto i = z.words ().begin ();
         auto j = a.words ().begin ();
         auto k = b.words ().begin ();
-        //arithmetic::plus<byte> (z.words ().end (), i, j, k);
         arithmetic::add_with_carry<word> (z.words ().end (), i, j, k);
         return z;
     }
@@ -1231,7 +1229,6 @@ namespace data::math::number {
         auto i = z.words ().begin ();
         auto j = a.words ().begin ();
         auto k = b.words ().begin ();
-        //arithmetic::minus<byte> (z.words ().end (), i, j, k);
         arithmetic::subtract_with_carry<word> (z.words ().end (), i, j, k);
         return z;
     }
@@ -1241,7 +1238,6 @@ namespace data::math::number {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x, word> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
-        //arithmetic::plus<byte> (a.words ().end (), awb, cawb, bwb);
         arithmetic::add_with_carry<word> (a.words ().end (), awb, cawb, bwb);
         return a;
     }
@@ -1251,7 +1247,6 @@ namespace data::math::number {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x, word> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
-        //arithmetic::minus<byte> (a.words ().end (), awb, cawb, bwb);
         arithmetic::subtract_with_carry<word> (a.words ().end (), awb, cawb, bwb);
         return a;
     }
@@ -1280,7 +1275,7 @@ namespace data::math::number {
     bounded<u, r, x, word> inline &operator ++ (bounded<u, r, x, word> &n) {
         auto o = n.words ().begin ();
         auto i = n.words ().begin ();
-        arithmetic::add_with_carry<byte> (n.words ().end (), o, i, 1);
+        arithmetic::add_with_carry<word> (n.words ().end (), o, i, 1);
         return n;
     }   
     
@@ -1288,8 +1283,7 @@ namespace data::math::number {
     bounded<u, r, x, word> inline &operator -- (bounded<u, r, x, word> &n) {
         auto xx = n.words ().begin ();
         auto xy = n.words ().begin ();
-        //arithmetic::minus<byte> (n.words ().end (), xx, 1, xy);
-        arithmetic::subtract_with_carry<byte> (n.words ().end (), xx, xy, 1);
+        arithmetic::subtract_with_carry<word> (n.words ().end (), xx, xy, 1);
         return n;
     }
     
