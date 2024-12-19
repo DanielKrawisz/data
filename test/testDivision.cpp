@@ -92,6 +92,7 @@ namespace data {
             test_division_integer_case<Z, N> (Z {-2}, Z {2}, Z {-1}, N {0});
             test_division_integer_case<Z, N> (Z {-2}, Z {1}, Z {-2}, N {0});
             test_division_integer_case<Z, N> (Z {2}, Z {-2}, Z {-1}, N {0});
+            test_division_integer_case<Z, N> (Z {-3}, Z {2}, Z {-2}, N {1});
 
         }
     };
@@ -119,6 +120,38 @@ namespace data {
         test_division_integer<int_little<10>, uint_little<10>> {};
         test_division_integer<int_little<11>, uint_little<11>> {};
         test_division_integer<int_little<20>, uint_little<20>> {};
+/*
+        test_division_integer<math::Z_bytes<endian::big, short unsigned>, math::N_bytes<endian::big, short unsigned>> {};
+        test_division_integer<math::Z_bytes<endian::little, short unsigned>, math::N_bytes<endian::little, short unsigned>> {};
+
+        test_division_integer<math::Z_bytes_twos<endian::big, short unsigned>> {};
+        test_division_integer<math::Z_bytes_twos<endian::little, short unsigned>> {};
+
+        test_division_integer<int_big<5, short unsigned>, uint_big<5, short unsigned>> {};
+        test_division_integer<int_big<6, short unsigned>, uint_big<6, short unsigned>> {};
+        test_division_integer<int_big<7, short unsigned>, uint_big<7, short unsigned>> {};
+        test_division_integer<int_big<8, short unsigned>, uint_big<8, short unsigned>> {};
+
+        test_division_integer<int_little<5, short unsigned>, uint_little<5, short unsigned>> {};
+        test_division_integer<int_little<6, short unsigned>, uint_little<6, short unsigned>> {};
+        test_division_integer<int_little<7, short unsigned>, uint_little<7, short unsigned>> {};
+        test_division_integer<int_little<8, short unsigned>, uint_little<8, short unsigned>> {};
+
+        test_division_integer<math::Z_bytes<endian::big, unsigned>, math::N_bytes<endian::big, unsigned>> {};
+        test_division_integer<math::Z_bytes<endian::little, unsigned>, math::N_bytes<endian::little, unsigned>> {};
+
+        test_division_integer<math::Z_bytes_twos<endian::big, unsigned>> {};
+        test_division_integer<math::Z_bytes_twos<endian::little, unsigned>> {};
+
+        test_division_integer<int_big<3, unsigned>, uint_big<3, unsigned>> {};
+        test_division_integer<int_big<4, unsigned>, uint_big<4, unsigned>> {};
+        test_division_integer<int_big<5, unsigned>, uint_big<5, unsigned>> {};
+        test_division_integer<int_big<6, unsigned>, uint_big<6, unsigned>> {};
+
+        test_division_integer<int_little<3, unsigned>, uint_little<3, unsigned>> {};
+        test_division_integer<int_little<4, unsigned>, uint_little<4, unsigned>> {};
+        test_division_integer<int_little<5, unsigned>, uint_little<5, unsigned>> {};
+        test_division_integer<int_little<6, unsigned>, uint_little<6, unsigned>> {};*/
 
         test_division_integer<dec_int, dec_uint> {};
         test_division_integer<hex_int, hex_uint> {};
