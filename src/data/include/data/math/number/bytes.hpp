@@ -16,8 +16,8 @@ namespace data::math::number {
         if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string "} + string {x}};
 
         if (encoding::hexidecimal::valid (x)) {
-            if (auto m = encoding::natural::read<r, word> (x); bool (m)) return *m;
-            else throw std::invalid_argument {string {"invalid hex string size "} + string {x}};
+            if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) return N_bytes<r, word> {view<word> (*m)};
+            else throw std::invalid_argument {string {"invalid hex string size "} + std::to_string (x.size ()) + "; " + string {x}};
         }
 
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (math::N {x});

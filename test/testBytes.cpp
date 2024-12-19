@@ -207,11 +207,10 @@ namespace data {
     
     template <typename word, size_t x>
     void test_bit_shift (string given, int bits, string expected_left, string expected_right) {
-        std::cout << " bit shift test sub case " << given << "; bits = " << bits << std::endl;
+
         auto g = byte_array_from_bits<word, x> (given);
         auto el = byte_array_from_bits<word, x> (expected_left);
         auto er = byte_array_from_bits<word, x> (expected_right);
-        std::cout << " bit shift test sub case: " << g << "; " << el << "; " << er << std::endl;
         
         test_shift_left (g, bits, el);
         test_shift_right (g, bits, er);

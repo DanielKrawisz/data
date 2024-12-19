@@ -54,8 +54,8 @@ namespace data {
 
         auto f1m = f1<M> ();
         M f1nm (f1<N> ());
-        std::cout << " comparing " << f1nm << " to " << f1m << std::endl;
-        EXPECT_EQ (f1nm, f1m) << "expected " << f1nm << " to equal " << f1m;
+
+        EXPECT_EQ (f1nm, f1m) << "expected " << std::hex << f1nm << " to equal " << f1m;
 
         auto f2m = f2<M> ();
         M f2nm (f2<N> ());
@@ -99,6 +99,8 @@ namespace data {
 
         }
     };
+
+    // TODO something with a modulus that is nearly the same size as the max value of the number type.
     
     TEST (TestModular, TestModularArithmetic) {
 
@@ -106,7 +108,10 @@ namespace data {
         test_modular<N> {};
         //test_modular<CryptoPP::Integer> {};
         test_modular<N_bytes_little> {};
-        test_modular<N_bytes_big> {};/*
+        test_modular<N_bytes_big> {};
+        test_modular<dec_uint> {};
+        test_modular<base58_uint> {};
+
         test_modular<uint_big<9>> {};
         test_modular<uint_little<9>> {};
         test_modular<uint_big<10>> {};
@@ -114,9 +119,44 @@ namespace data {
         test_modular<uint_big<11>> {};
         test_modular<uint_little<11>> {};
         test_modular<uint_big<12>> {};
-        test_modular<uint_little<12>> {};*/
-        test_modular<dec_uint> {};
-        test_modular<base58_uint> {};
+        test_modular<uint_little<12>> {};
+        /*
+        test_modular<uint_big<5, short unsigned int>> {};
+        test_modular<uint_little<5, short unsigned int>> {};
+        test_modular<uint_big<6, short unsigned int>> {};
+        test_modular<uint_little<6, short unsigned int>> {};
+        test_modular<uint_big<7, short unsigned int>> {};
+        test_modular<uint_little<7, short unsigned int>> {};
+        test_modular<uint_big<8, short unsigned int>> {};
+        test_modular<uint_little<8, short unsigned int>> {};
+        test_modular<uint_big<3, unsigned int>> {};
+        test_modular<uint_little<3, unsigned int>> {};
+        test_modular<uint_big<4, unsigned int>> {};
+        test_modular<uint_little<4, unsigned int>> {};
+        test_modular<uint_big<5, unsigned int>> {};
+        test_modular<uint_little<5, unsigned int>> {};
+        test_modular<uint_big<6, unsigned int>> {};
+        test_modular<uint_little<6, unsigned int>> {};*/
+
+        // TODO bigger words
+        /*
+        test_modular<uint_big<2, long unsigned int>> {};
+        test_modular<uint_little<2, long unsigned int>> {};
+        test_modular<uint_big<3, long unsigned int>> {};
+        test_modular<uint_little<3, long unsigned int>> {};
+        test_modular<uint_big<4, long unsigned int>> {};
+        test_modular<uint_little<4, long unsigned int>> {};
+        test_modular<uint_big<5, long unsigned int>> {};
+        test_modular<uint_little<5, long unsigned int>> {};
+        test_modular<uint_big<1, long long unsigned int>> {};
+        test_modular<uint_little<1, long long unsigned int>> {};
+        test_modular<uint_big<2, long long unsigned int>> {};
+        test_modular<uint_little<2, long long unsigned int>> {};
+        test_modular<uint_big<3, long long unsigned int>> {};
+        test_modular<uint_little<3, long long unsigned int>> {};
+        test_modular<uint_big<4, long long unsigned int>> {};
+        test_modular<uint_little<4, long long unsigned int>> {};
+        */
 
     }
 }

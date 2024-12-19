@@ -1200,14 +1200,19 @@ namespace data::encoding::hexidecimal {
 
         if (!valid (s)) return {};
         
+        // first read as a string of bytes.
         oriented<r, byte> n = {};
         size_t new_size = (s.size () - 2) / 2;
         n.resize (new_size);
         boost::algorithm::unhex (s.begin () + 2, s.end (), n.words ().rbegin ());
 
+        // if word is byte, then we're done.
         if constexpr (sizeof (word) == 1) return {n};
+
+        // check if the string size is a multiple of the word size.
         if (new_size % sizeof (word) != 0) return {};
 
+        // convert the string of bytes to words.
         oriented<r, word> w {};
         w.resize (new_size / sizeof (word));
 
