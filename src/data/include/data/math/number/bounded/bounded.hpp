@@ -1090,18 +1090,30 @@ namespace data::math::number {
     constexpr uint<r, size, word>::bounded (uint64 x) : bounded {} {
         if constexpr (sizeof (uint64) <= sizeof (word)) *this->words ().begin () = x;
         else {
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
+            auto w = this->words ();
+            auto i = w.begin ();
+            for (int n = 0; n < sizeof (uint64) / sizeof (word); n++) {
+                *i = static_cast<word> (x & std::numeric_limits<word>::max ());
+                x >>= sizeof (word) * 8;
+                i++;
+            }
 
-            std::copy (n.begin (), n.end (), this->words ().begin ());
+            //slice<word> z {(word*) (&x), sizeof (uint64) / sizeof (word)};
+            //data::arithmetic::Words<boost::endian::order::native, word> n {z};
+            //std::cout << " the number: ";
+            //for (const word &w : n) std::cout << w << " ";
+            //std::cout << std::endl;
+            //std::copy (n.begin (), n.end (), w.begin ());
         }
     }
 
     template <endian::order r, size_t size, std::unsigned_integral word>
     constexpr sint<r, size, word>::bounded (uint64 x) : bounded {} {
-        if constexpr (sizeof (uint64) <= sizeof (word)) {
-            *this->words ().begin () = x;
-        } else {
+        if constexpr (sizeof (uint64) <= sizeof (word)) *this->words ().begin () = x;
+
+        else {
+
+
             data::arithmetic::Words<boost::endian::order::native, word> n {
                 slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
 
