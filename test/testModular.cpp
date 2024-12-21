@@ -120,7 +120,7 @@ namespace data {
         test_modular<uint_little<11>> {};
         test_modular<uint_big<12>> {};
         test_modular<uint_little<12>> {};
-        /*
+
         test_modular<uint_big<5, short unsigned int>> {};
         test_modular<uint_little<5, short unsigned int>> {};
         test_modular<uint_big<6, short unsigned int>> {};
@@ -136,7 +136,7 @@ namespace data {
         test_modular<uint_big<5, unsigned int>> {};
         test_modular<uint_little<5, unsigned int>> {};
         test_modular<uint_big<6, unsigned int>> {};
-        test_modular<uint_little<6, unsigned int>> {};*/
+        test_modular<uint_little<6, unsigned int>> {};
 
         // TODO bigger words
         /*
