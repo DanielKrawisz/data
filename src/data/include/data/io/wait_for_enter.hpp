@@ -28,6 +28,11 @@ namespace data {
     /// @return password returned
     std::string get_user_password (std::string message, char mask='*');
 
+    /// @brief reads a decimal number from the user
+    /// @param question question to ask the user.
+    /// @return number returned as double
+    double read_decimal (const std::string &question);
+
 }
 
 #endif
