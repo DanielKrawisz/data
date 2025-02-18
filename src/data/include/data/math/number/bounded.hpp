@@ -52,12 +52,12 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
-    inline uint<r, size, word>::operator double () const {
+    inline bounded<false, r, size, word>::operator double () const {
         return double (math::N (N_bytes<r, word> (*this)));
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
-    inline sint<r, size, word>::operator double () const {
+    inline bounded<true, r, size, word>::operator double () const {
         return double (Z (Z_bytes<r, complement::ones, word> (*this)));
     }
 }
