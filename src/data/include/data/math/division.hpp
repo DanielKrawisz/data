@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_DIVISION
 
 #include <data/math/nonnegative.hpp>
+#include <iostream> // required on windows
 
 namespace data::math {
     struct division_by_zero : std::logic_error {
