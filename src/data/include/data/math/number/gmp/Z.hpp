@@ -45,7 +45,7 @@ namespace data::encoding::decimal {
 }
 
 namespace data::math::number::GMP {
-    
+    /*
     Z inline &operator ++ (Z &n) {
         __gmp_unary_increment::eval (n.MPZ);
         return n;
@@ -94,14 +94,14 @@ namespace data::math::number::GMP {
     Z inline &operator |= (Z &a, const Z &b) {
         __gmp_binary_ior::eval (a.MPZ, a.MPZ, b.MPZ);
         return a;
-    }
+    }*/
     
     Z inline operator - (const Z &n) {
         Z z {n};
         z.MPZ[0]._mp_size = -z.MPZ[0]._mp_size;
         return z;
     }
-    
+    /*
     Z inline operator + (const Z &z, int64 n) {
         Z sum;
         __gmp_binary_plus::eval (sum.MPZ, z.MPZ, n);
@@ -188,7 +188,7 @@ namespace data::math::number::GMP {
     Z inline &operator >>= (Z &a, int x) {
         __gmp_binary_rshift::eval (a.MPZ, a.MPZ, x);
         return a;
-    }
+    }*/
 }
 
 namespace data::math {
@@ -209,7 +209,7 @@ namespace data::math::number {
         auto n = z;
         return --n;
     }
-
+/*
     N<GMP::Z> inline operator + (const N<GMP::Z> &n, uint64 u) {
         N<GMP::Z> sum;
         __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, u);
@@ -294,7 +294,7 @@ namespace data::math::number {
     N<GMP::Z> inline &operator *= (N<GMP::Z> &n, uint64 u) {
         __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, u);
         return n;
-    }
+    }*/
 }
 
 

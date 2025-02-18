@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_PRIME
 
 #include <data/math/nonnegative.hpp>
+#include <iostream> // required by windows.
 
 namespace data::math::number {
     template <typename N> struct eratosthenes;
