@@ -31,43 +31,39 @@ namespace data {
 namespace data::math::number {
 
     template <std::unsigned_integral N> struct increment<N> {
-        nonzero<N> operator () (const N &);
+        nonzero<N> operator () (const N &) const;
     };
 
     template <std::unsigned_integral N> struct decrement<N> {
-        N operator () (const nonzero<N> &);
-        N operator () (const N &);
+        N operator () (const nonzero<N> &) const;
+        N operator () (const N &) const;
     };
 
-    template <std::signed_integral Z> struct increment<Z> {
-        Z operator () (const Z &);
+    template <std::signed_integral N> struct increment<N> {
+        N operator () (const N &z) const {
+            return z + 1;
+        }
     };
 
-    template <std::signed_integral Z> struct decrement<Z> {
-        Z operator () (const Z &);
+    template <std::signed_integral N> struct decrement<N> {
+        N operator () (const N &z) const {
+            return z - 1;
+        }
     };
 
-    template <std::unsigned_integral N> nonzero<N> inline increment<N>::operator () (const N &n) {
+    template <std::unsigned_integral N> nonzero<N> inline increment<N>::operator () (const N &n) const {
         nonzero<N> x {n};
         ++x.Value;
         return x;
     }
 
-    template <std::unsigned_integral N> N inline decrement<N>::operator () (const nonzero<N> &n) {
+    template <std::unsigned_integral N> N inline decrement<N>::operator () (const nonzero<N> &n) const {
         return n.Value - 1;
     }
 
-    template <std::unsigned_integral N> N inline decrement<N>::operator () (const N &n) {
+    template <std::unsigned_integral N> N inline decrement<N>::operator () (const N &n) const {
         if (n == 0) return n;
         return n - 1;
-    }
-
-    template <std::signed_integral Z> Z inline increment<Z>::operator () (const Z &z) {
-        return z + 1;
-    }
-
-    template <std::signed_integral Z> Z inline decrement<Z>::operator () (const Z &z) {
-        return z - 1;
     }
 
 }
