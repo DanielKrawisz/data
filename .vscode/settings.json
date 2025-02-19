@@ -3,7 +3,8 @@
         "random": "cpp",
         "iostream": "cpp",
         "iosfwd": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "concepts": "cpp"
     },
     "git.ignoreLimitWarning": true
 }

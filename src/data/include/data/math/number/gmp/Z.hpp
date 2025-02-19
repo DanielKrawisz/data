@@ -45,7 +45,7 @@ namespace data::encoding::decimal {
 }
 
 namespace data::math::number::GMP {
-    /*
+    
     Z inline &operator ++ (Z &n) {
         __gmp_unary_increment::eval (n.MPZ);
         return n;
@@ -57,7 +57,7 @@ namespace data::math::number::GMP {
     }
     
     Z inline &operator += (Z &z, int64 n) {
-        __gmp_binary_plus::eval (z.MPZ, z.MPZ, n);
+        __gmp_binary_plus::eval (z.MPZ, z.MPZ, long int (n));
         return z;
     }
     
@@ -67,7 +67,7 @@ namespace data::math::number::GMP {
     }
     
     Z inline &operator -= (Z &z, int64 n) {
-        __gmp_binary_minus::eval (z.MPZ, z.MPZ, n);
+        __gmp_binary_minus::eval (z.MPZ, z.MPZ, long int (n));
         return z;
     }
     
@@ -77,7 +77,7 @@ namespace data::math::number::GMP {
     }
     
     Z inline &operator *= (Z &z, int64 n) {
-        __gmp_binary_multiplies::eval (z.MPZ, z.MPZ, n);
+        __gmp_binary_multiplies::eval (z.MPZ, z.MPZ, long int (n));
         return z;
     }
     
@@ -94,23 +94,23 @@ namespace data::math::number::GMP {
     Z inline &operator |= (Z &a, const Z &b) {
         __gmp_binary_ior::eval (a.MPZ, a.MPZ, b.MPZ);
         return a;
-    }*/
+    }
     
     Z inline operator - (const Z &n) {
         Z z {n};
         z.MPZ[0]._mp_size = -z.MPZ[0]._mp_size;
         return z;
     }
-    /*
+    
     Z inline operator + (const Z &z, int64 n) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, z.MPZ, n);
+        __gmp_binary_plus::eval (sum.MPZ, z.MPZ, long int (n));
         return sum;
     }
     
     Z inline operator + (int64 n, const Z &z) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n, z.MPZ);
+        __gmp_binary_plus::eval (sum.MPZ, long int (n), z.MPZ);
         return sum;
     }
     
@@ -122,13 +122,13 @@ namespace data::math::number::GMP {
     
     Z inline operator - (const Z &z, int64 n) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, z.MPZ, n);
+        __gmp_binary_minus::eval (diff.MPZ, z.MPZ, long int (n));
         return diff;
     }
     
     Z inline operator - (int64 n, const Z &z) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, n, z.MPZ);
+        __gmp_binary_minus::eval (diff.MPZ, long int (n), z.MPZ);
         return diff;
     }
     
@@ -140,13 +140,13 @@ namespace data::math::number::GMP {
     
     Z inline operator * (const Z &z, int64 n) {
         Z prod;
-        __gmp_binary_multiplies::eval (prod.MPZ, z.MPZ, n);
+        __gmp_binary_multiplies::eval (prod.MPZ, z.MPZ, long int (n));
         return prod;
     }
     
     Z inline operator * (int64 n, const Z &z) {
         Z prod;
-        __gmp_binary_multiplies::eval (prod.MPZ, n, z.MPZ);
+        __gmp_binary_multiplies::eval (prod.MPZ, long int (n), z.MPZ);
         return prod;
     }
     
@@ -188,7 +188,7 @@ namespace data::math::number::GMP {
     Z inline &operator >>= (Z &a, int x) {
         __gmp_binary_rshift::eval (a.MPZ, a.MPZ, x);
         return a;
-    }*/
+    }
 }
 
 namespace data::math {
@@ -209,42 +209,42 @@ namespace data::math::number {
         auto n = z;
         return --n;
     }
-/*
+
     N<GMP::Z> inline operator + (const N<GMP::Z> &n, uint64 u) {
         N<GMP::Z> sum;
-        __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, u);
+        __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, long unsigned int (u));
         return sum;
     }
 
     N<GMP::Z> inline operator - (const N<GMP::Z> &n, uint64 u) {
         if (n <= u) return 0;
         N<GMP::Z> diff;
-        __gmp_binary_minus::eval (diff.Value.MPZ, n.Value.MPZ, u);
+        __gmp_binary_minus::eval (diff.Value.MPZ, n.Value.MPZ, long unsigned int (u));
         return diff;
     }
 
     N<GMP::Z> inline operator * (const N<GMP::Z> &n, uint64 u) {
         N<GMP::Z> prod;
-        __gmp_binary_multiplies::eval (prod.Value.MPZ, n.Value.MPZ, u);
+        __gmp_binary_multiplies::eval (prod.Value.MPZ, n.Value.MPZ, long unsigned int (u));
         return prod;
     }
 
     N<GMP::Z> inline operator + (uint64 u, const N<GMP::Z> & n) {
         N<GMP::Z> sum;
-        __gmp_binary_plus::eval (sum.Value.MPZ, u, n.Value.MPZ);
+        __gmp_binary_plus::eval (sum.Value.MPZ, long unsigned int (u), n.Value.MPZ);
         return sum;
     }
 
     N<GMP::Z> inline operator - (uint64 u, const N<GMP::Z> & n) {
         if (u <= n) return 0;
         N<GMP::Z> diff;
-        __gmp_binary_minus::eval (diff.Value.MPZ, u, n.Value.MPZ);
+        __gmp_binary_minus::eval (diff.Value.MPZ, long unsigned int (u), n.Value.MPZ);
         return diff;
     }
 
     N<GMP::Z> inline operator * (uint64 u, const N<GMP::Z> & n) {
         N<GMP::Z> prod;
-        __gmp_binary_multiplies::eval (prod.Value.MPZ, u, n.Value.MPZ);
+        __gmp_binary_multiplies::eval (prod.Value.MPZ, long unsigned int (u), n.Value.MPZ);
         return prod;
     }
 
@@ -281,20 +281,20 @@ namespace data::math::number {
     }
 
     N<GMP::Z> inline &operator += (N<GMP::Z> &n, uint64 u) {
-        __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, u);
+        __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, long unsigned int (u));
         return n;
     }
 
     N<GMP::Z> inline &operator -= (N<GMP::Z> &n, uint64 u) {
         if (n <= u) n = 0;
-        else __gmp_binary_minus::eval (n.Value.MPZ, n.Value.MPZ, u);
+        else __gmp_binary_minus::eval (n.Value.MPZ, n.Value.MPZ, long unsigned int (u));
         return n;
     }
 
     N<GMP::Z> inline &operator *= (N<GMP::Z> &n, uint64 u) {
-        __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, u);
+        __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, long unsigned int (u));
         return n;
-    }*/
+    }
 }
 
 
