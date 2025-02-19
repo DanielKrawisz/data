@@ -2,6 +2,8 @@
     "files.associations": {
         "random": "cpp",
         "iostream": "cpp",
-        "iosfwd": "cpp"
-    }
+        "iosfwd": "cpp",
+        "functional": "cpp"
+    },
+    "git.ignoreLimitWarning": true
 }

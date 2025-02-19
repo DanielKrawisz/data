@@ -21,7 +21,7 @@ namespace data::math {
         {inverse<op, elem> {} (a, b)} -> implicitly_convertible_to<elem>;
     };
     
-    template <typename elem, typename op = elem>
+    template <typename elem, typename op = plus<elem>>
     concept abelian = group<elem, op> && commutative<op, elem>;
     
 }
