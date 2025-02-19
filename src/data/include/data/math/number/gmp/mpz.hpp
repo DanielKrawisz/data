@@ -40,7 +40,7 @@ namespace data::math::number::GMP {
     }
     
     math::signature inline sign (const __mpz_struct &mpz) {
-        return !valid (mpz) ? zero : math::signature {mpz_cmp_si (&mpz, 0)};
+        return !valid (mpz) ? zero : math::signature {static_cast<int8_t> (mpz_cmp_si (&mpz, 0))};
     }
 
     struct Z;
@@ -309,9 +309,9 @@ namespace data::math {
 
     template <> struct numeric_limits<Z> {
 
-        constexpr static const signed_limit<Z> &Max = signed_limit<Z>::Infinity;
-        constexpr static const signed_limit<Z> &Min = signed_limit<Z>::NegativeInfinity;
-
+        // note: these values should be constexpr. 
+        static const inline signed_limit<Z> &Max = signed_limit<Z>::infinity ();
+        static const inline signed_limit<Z> &Min = signed_limit<Z>::negative_infinity ();
 
         constexpr static const signed_limit<Z> &max () {
             return Max;
