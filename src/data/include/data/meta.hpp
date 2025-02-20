@@ -5,7 +5,6 @@
 #ifndef DATA_META
 #define DATA_META
 
-#include <variant>
 #include <data/types.hpp>
 namespace data {
     namespace meta {

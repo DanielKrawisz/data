@@ -6,6 +6,7 @@
 #define DATA_EITHER
 
 #include <data/meta.hpp>
+#include <variant>
 
 namespace data {
 
