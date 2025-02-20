@@ -18,7 +18,6 @@ namespace data::math {
     struct invalid_proof : std::exception {};
 }
 
-
 namespace data::math::number::euclidian {
     template <typename Z, typename N>
     struct extended {
