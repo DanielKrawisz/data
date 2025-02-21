@@ -213,10 +213,14 @@ namespace data::math {
         if (!encoding::base58::valid (n)) throw exception {} << "invalid base 58 string provided to is_negative: " << n;
         return false;
     }
-
+    
     division<base58_uint> divide<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
-        auto d = divide<N> {} (N (v), nonzero<N> {N (z.Value)});
-        return {encoding::base58::encode (d.Quotient), encoding::base58::encode (d.Remainder)};
+        // we have some extra lines here that shouldn't be necessary because the windows compiler gets confused here
+        // for some reason. 
+        N vn = v.operator N ();
+        N zn = z.Value.operator N ();
+        division<N> d = divide<N> {} (vn, nonzero<N> {zn});
+        return {encoding::base58::encode<N> (d.Quotient), encoding::base58::encode<N> (d.Remainder)};
     }
     
 }
