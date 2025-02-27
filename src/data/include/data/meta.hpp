@@ -6,6 +6,8 @@
 #define DATA_META
 
 #include <data/types.hpp>
+#include <variant> // for std::monostate
+
 namespace data {
     namespace meta {
         // wrapper enables std types to use references and void.

@@ -214,7 +214,7 @@ namespace data::math {
         return false;
     }
     
-    division<base58_uint> divide<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
+    division<base58_uint> inline divide<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
         // we have some extra lines here that shouldn't be necessary because the windows compiler gets confused here
         // for some reason. 
         N vn = v.operator N ();
