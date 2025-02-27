@@ -543,7 +543,7 @@ namespace data::net::IP::TCP {
 
     inline endpoint::operator asio::ip::tcp::endpoint () const {
         return valid () ? asio::ip::tcp::endpoint {
-            asio::ip::address::from_string (this->address ()),
+            asio::ip::make_address (this->address ()),
             this->port ()
         } : asio::ip::tcp::endpoint {};
     }
