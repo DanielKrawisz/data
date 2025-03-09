@@ -4,9 +4,11 @@ cmake_minimum_required (VERSION 3.16)
 if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
+
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source builds are not allowed")
 endif ()
+
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
 
 project (
@@ -20,6 +22,9 @@ set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
+
+add_definitions ("-DHAS_BOOST")
+
 find_package (OpenSSL REQUIRED Crypto SSL)
 find_package (GMP REQUIRED)
 find_package (SECP256K1 REQUIRED)
@@ -35,23 +40,17 @@ FetchContent_MakeAvailable (argh)
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.9.0.zip)
 FetchContent_MakeAvailable (ctre)
 
-
 find_package (PkgConfig REQUIRED)
+
 IF (WIN32)
-IF (WIN32)
-pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
-ELSE()
+  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
+ELSE ()
   pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
-ENDIF()
-else()
-pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
-endif()
+ENDIF ()
 
 # Check if GTests is installed. If not, install it
 
 option (PACKAGE_TESTS "Build the tests" ON)
-
-add_definitions ("-DHAS_BOOST")
 
 if (PACKAGE_TESTS)
   include (CTest)
@@ -75,14 +74,14 @@ if(CMAKE_C_BYTE_ORDER STREQUAL "BIG_ENDIAN")
 add_compile_definitions(WORDS_BIGENDIAN)
 else()
 add_compile_definitions(WORDS_LITTLEENDIAN)
-endif()
+endif ()
 
-include(CheckSymbolExists)
+include (CheckSymbolExists)
 
-CHECK_INCLUDE_FILE("endian.h" HAVE_ENDIAN_H)
-CHECK_INCLUDE_FILE("sys/endian.h" HAVE_SYS_ENDIAN_H)
+CHECK_INCLUDE_FILE ("endian.h" HAVE_ENDIAN_H)
+CHECK_INCLUDE_FILE ("sys/endian.h" HAVE_SYS_ENDIAN_H)
 
-set(SYMBOLS_TO_CHECK
+set (SYMBOLS_TO_CHECK
     "htole16-endian.h"
     "be16toh-endian.h"
     "le16toh-endian.h"
@@ -97,8 +96,10 @@ set(SYMBOLS_TO_CHECK
     "htobe16-endian.h"
     "bswap_16-byteswap.h"
 )
-list(LENGTH SYMBOLS_TO_CHECK L_LENGTH)
+
+list (LENGTH SYMBOLS_TO_CHECK L_LENGTH)
 message(${L_LENGTH})
+
 CHECK_INCLUDE_FILE("endian.h" HAVE_ENDIAN_H)
 CHECK_INCLUDE_FILE("sys/endian.h" HAVE_SYS_ENDIAN_H)
 foreach(SYMBOL_HEADER_PATH ${SYMBOLS_TO_CHECK})
@@ -115,7 +116,6 @@ foreach(SYMBOL_HEADER_PATH ${SYMBOLS_TO_CHECK})
     add_compile_definitions(HAVE_DECL_${SYMBOL_UPPERCASE})
   endif()
 endforeach()
-
 
 if(HAVE_ENDIAN_H)
   add_compile_definitions(HAVE_ENDIAN_H)

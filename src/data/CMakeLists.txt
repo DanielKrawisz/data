@@ -1,5 +1,4 @@
 add_library (data STATIC
-
   types.cpp
   string.cpp
 
@@ -34,9 +33,10 @@ add_library (data STATIC
   log/log.cpp
 )
 
-configure_file (include/data/version.hpp.in generated/data/version.hpp )
-target_include_directories (data PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+configure_file (include/data/version.hpp.in generated/data/version.hpp)
+target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
 target_link_libraries (
   data
   PUBLIC
@@ -74,12 +74,14 @@ install (DIRECTORY
   include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
 install (TARGETS data nlohmann_json argh rotella milewski gmpxx sv
-EXPORT DataTargets ARCHIVE 
+  EXPORT DataTargets ARCHIVE
 )
 
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
-DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/data)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/data
+)
 
 install (EXPORT DataTargets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/data
@@ -88,15 +90,16 @@ install (EXPORT DataTargets
 )
 
 include (CMakePackageConfigHelpers)
+
 # generate the config file that includes the exports
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+configure_package_config_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/dataConfig.cmake"
   INSTALL_DESTINATION "lib/cmake/dataFunctions"
   NO_SET_AND_CHECK_MACRO
   NO_CHECK_REQUIRED_COMPONENTS_MACRO
-  )
+)
 
-  write_basic_package_version_file(
+write_basic_package_version_file (
   "${CMAKE_CURRENT_BINARY_DIR}/dataConfigVersion.cmake"
   COMPATIBILITY AnyNewerVersion
 )
