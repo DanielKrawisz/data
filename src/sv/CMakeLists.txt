@@ -23,6 +23,7 @@ target_link_libraries (
 )
 
 include (GNUInstallDirs)
+
 install (DIRECTORY
   include/sv
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
