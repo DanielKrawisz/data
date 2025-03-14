@@ -40,7 +40,7 @@ namespace data::arithmetic {
 
     template <> bool inline add_with_carry<unsigned long long int>
     (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
-       result = a + b;
+        result = a + b;
         return result < a;
     }
 
