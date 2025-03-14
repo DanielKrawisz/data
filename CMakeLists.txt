@@ -22,13 +22,44 @@ set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
+# if we do not have boost
+#   * linux:
+#     * go to the boost website, download and extract the latest version.
+#     * `./bootstrap.sh`
+#     * `./b2`
+#     * `sudo ./b2 install`
 
 add_definitions ("-DHAS_BOOST")
 
 find_package (OpenSSL REQUIRED Crypto SSL)
+# if we do not have openssl
+#   * on linux, `sudo apt-get install libssl-dev`
+
 find_package (GMP REQUIRED)
+# if we do not have GMP
+#   * on linux, `sudo apt-get install libgmp3-dev`
+
 find_package (SECP256K1 REQUIRED)
+# if we do not have SECP256K1
+#   * on linux
+#     * go to `https://github.com/bitcoin-core/secp256k1`, download the repo, and follow the instructions.
+#     * you mighht need autoconf: `sudo apt install autoconf`
+#     * and libtool: `sudo apt-get install libtool-bin`
+
 find_package (pegtl REQUIRED)
+# If we do not have PegTL
+#   * on linux, `sudo apt-get install tao-pegtl-dev`
+
+IF (WIN32)
+  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
+ELSE ()
+  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
+  # If we do not have crypto++, go to `https://github.com/weidai11/cryptopp` and follow the instructions.
+ENDIF ()
+
+find_package (PkgConfig REQUIRED)
+# If we do not have PkgConfig
+#   * on linux, `sudo apt-get install pkg-config`
 
 include (FetchContent)
 FetchContent_Declare (json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
@@ -40,17 +71,10 @@ FetchContent_MakeAvailable (argh)
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.9.0.zip)
 FetchContent_MakeAvailable (ctre)
 
-find_package (PkgConfig REQUIRED)
-
-IF (WIN32)
-  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
-ELSE ()
-  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
-ENDIF ()
-
 # Check if GTests is installed. If not, install it
 
 option (PACKAGE_TESTS "Build the tests" ON)
+include (CTest)
 
 if (PACKAGE_TESTS)
   include (CTest)
@@ -64,16 +88,14 @@ set (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable (googletest)
   enable_testing ()
   add_subdirectory (test)
-
 endif ()
-
 
 # Add Library source files here
 
 if(CMAKE_C_BYTE_ORDER STREQUAL "BIG_ENDIAN")
-add_compile_definitions(WORDS_BIGENDIAN)
+  add_compile_definitions(WORDS_BIGENDIAN)
 else()
-add_compile_definitions(WORDS_LITTLEENDIAN)
+  add_compile_definitions(WORDS_LITTLEENDIAN)
 endif ()
 
 include (CheckSymbolExists)
