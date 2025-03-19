@@ -100,6 +100,9 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, complement::ones, word> operator ^ (const N_bytes<r, word>&, const Z_bytes<r, complement::ones, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
+    Z_bytes<r, complement::twos, word> operator ^ (const Z_bytes<r, complement::twos, word>&, const Z_bytes<r, complement::twos, word> &);
     
     // bit and 
     template <endian::order r, std::unsigned_integral word>
