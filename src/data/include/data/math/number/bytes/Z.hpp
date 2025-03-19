@@ -793,7 +793,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, complement::twos, word> inline operator ||
     (const Z_bytes<r, complement::twos, word> &x, const Z_bytes<r, complement::twos, word> &y) {
-        return bool (x) || bool (y) ? true_value<r> () : false_value<r> ();
+        return bool (x) || bool (y) ? true_value<r, word> () : false_value<r, word> ();
     }
     
     template <endian::order r, std::unsigned_integral word>
