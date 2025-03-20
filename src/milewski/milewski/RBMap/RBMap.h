@@ -91,19 +91,13 @@ namespace milewski::okasaki {
                 return true;
         }
         
-        std::remove_reference_t<V> *find (const K &key) const
-        {
-            if (isEmpty ()) {
-                return nullptr;
-            }
+        std::remove_reference_t<V> *find (const K &key) const {
+            if (isEmpty ()) return nullptr;
             
             K y = rootKey ();
-            if (key < y)
-                return left ().find (key);
-            else if (y < key)
-                return right ().find (key);
-            else
-                return &rootValue ();
+            if (key < y) return left ().find (key);
+            else if (y < key) return right ().find (key);
+            else return &rootValue ();
         }
         
         RBMap inserted (const K &x, const V &v) const
