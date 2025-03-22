@@ -509,7 +509,16 @@ namespace data::math::number {
             else throw std::invalid_argument {"N_bytes too big"};
         }
 
-        explicit operator uint64 () const;
+        explicit operator uint64 () const {
+            if constexpr (!same_as<word, byte>) throw data::exception {"unimplemented function"};
+            uint64_little u {0};
+            if constexpr (size <= 8) {
+                std::copy (this->words ().begin (), this->words ().end (), u.begin ());
+            } else if (*this > std::numeric_limits<uint64>::max ())
+                throw data::exception {"Number is too big to cast to uint64"};
+            else std::copy (this->words ().begin (), this->words ().begin () + 8, u.begin ());
+            return uint64 (u);
+        }
         
     private:
         bounded (const sint<r, size, word> &);
