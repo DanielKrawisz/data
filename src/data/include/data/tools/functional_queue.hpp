@@ -92,7 +92,7 @@ namespace data {
         explicit operator functional_queue<Z> () const {
             return functional_queue<Z> {Z (Left), Z (Right)};
         }
-        
+
     private:
         stack Left;
         stack Right;
@@ -115,6 +115,11 @@ namespace data {
         { o << e } -> std::same_as<std::ostream &>;
     } std::ostream inline &operator << (std::ostream &o, const functional_queue<stack, element> n) {
         return functional::write (o, n);
+    }
+
+    template <typename stack, typename element>
+    auto inline last (functional_queue<stack, element> q) {
+        return q.last ();
     }
 
     template <typename stack, typename element> requires functional::stack<stack, element>

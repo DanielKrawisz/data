@@ -361,7 +361,8 @@ namespace data::net {
     }
 
     URL::make URL::make::path (const net::path &p) const {
-        if (Path != nullptr && *Path != net::path {""}) throw exception {"URL error: path already set."};
+        if (Path != nullptr && *Path != pctstr {""}) 
+            throw exception {"URL error: path already set."};
 
         make m = *this;
         m.Path = std::make_shared<pctstr> (p);

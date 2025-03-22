@@ -11,6 +11,7 @@
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/math/commutative.hpp>
 #include <data/math/associative.hpp>
+#include <data/tools.hpp>
 
 namespace data::math {
     template <typename N, typename Z, auto P> struct prime_field_element;
@@ -55,6 +56,9 @@ namespace data::math {
         template <typename... X>
         prime_field_element<N, Z, P> make (X... x);
     };
+
+    template <typename N, typename Z, auto P>
+    set<prime_field_element<N, Z, P>> square_root (prime_field_element<N, Z, P>);
 
     template <typename N, typename Z, auto P>
     std::ostream inline &operator << (std::ostream &o, const prime_field_element<N, Z, P> &m) {

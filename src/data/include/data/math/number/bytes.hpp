@@ -13,8 +13,13 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
-        if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::natural::read<r, word> (x);
+        if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string "} + string {x}};
+
+        if (encoding::hexidecimal::valid (x)) {
+            if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) return N_bytes<r, word> {view<word> (*m)};
+            else throw std::invalid_argument {string {"invalid hex string size "} + std::to_string (x.size ()) + "; " + string {x}};
+        }
+
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (math::N {x});
         throw std::invalid_argument {string {"invalid number string"} + string {x}};
     }
@@ -22,7 +27,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, complement::ones, word> inline Z_bytes<r, complement::ones, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::ones, byte> (x);
+        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::ones, word> (x);
         return Z_bytes<r, complement::ones, word> (Z {x});
     }
     
@@ -132,13 +137,13 @@ namespace data::math::number {
 namespace data::encoding::decimal {
     
     template <endian::order r, std::unsigned_integral word>
-    maybe<math::number::N_bytes<r, word>> inline read (string_view s) {
+    maybe<math::N_bytes<r, word>> inline read (string_view s) {
         if (!valid (s)) return {};
-        return {read_base<math::number::N_bytes<r, word>> (s, 10, digit)};
+        return {read_base<math::N_bytes<r, word>> (s, 10, digit)};
     }
     
     template <endian::order r, std::unsigned_integral word>
-    string inline write (const math::number::N_bytes<r, word> &n) {
+    string inline write (const math::N_bytes<r, word> &n) {
         std::string x = write_base (math::number::GMP::N (n), characters ());
         return x == "" ? string {"0"} : string {x};
     }
@@ -161,15 +166,17 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::natural {
     
     template <endian::order r, std::unsigned_integral word>
-    maybe<math::number::N_bytes<r, word>> inline read (string_view s) {
+    maybe<math::N_bytes<r, word>> inline read (string_view s) {
+
         if (!valid (s)) return {};
+
         if (hexidecimal::valid (s)) {
             auto p = hexidecimal::read<r, word> (s);
             if (!p) return {};
-            return math::number::N_bytes<r, word> (math::number::N_bytes<r, word>::read (bytes_view (*p)));
+            return math::number::N_bytes<r, word> (math::number::N_bytes<r, word>::read (view<word> (*p)));
         }
         
-        return decimal::read<r, byte> (s);
+        return decimal::read<r, word> (s);
     }
     
 }

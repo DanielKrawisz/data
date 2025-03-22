@@ -50,6 +50,7 @@ namespace data {
 
     template <typename Type, typename Argument>
     concept implicitly_constructible_from = is_implicitly_constructible<Type, Argument>::value;
+
 }
 
 #endif

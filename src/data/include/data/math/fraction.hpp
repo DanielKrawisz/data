@@ -8,6 +8,7 @@
 #include <data/math/number/rational.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/number/extended_euclidian.hpp>
+#include <compare>
 
 namespace data::math {
 
@@ -61,10 +62,7 @@ namespace data::math {
         nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &, const nonzero<fraction<Z>> &);
     };
 
-    template <integral_domain Z> struct inverse<times<fraction<Z>>, fraction<Z>> {
-        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &);
-        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &, const nonzero<fraction<Z>> &);
-    };
+    template <integral_domain Z> struct inverse<times<fraction<Z>>, fraction<Z>>;
 
     template <integral_domain Z> struct divide<fraction<Z>> {
         fraction<Z> operator () (const fraction<Z> &, const nonzero<fraction<Z>> &);
@@ -134,6 +132,17 @@ namespace data::math {
 
     };
 
+    template <integral_domain Z> struct inverse<times<fraction<Z>>, fraction<Z>> {
+        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &x) const {
+            if (x.Value.Numerator == 0) throw division_by_zero {};
+            return nonzero {fraction<Z> {Z (x.Value.Denominator.Value) * data::sign (x.Value.Numerator), nonzero {data::abs (x.Value.Numerator)}}};
+        }
+
+        nonzero<fraction<Z>> operator () (const nonzero<fraction<Z>> &a, const nonzero<fraction<Z>> &b) const {
+            return nonzero {b.Value / a.Value};
+        }
+    };
+
     template <typename Z, typename N>
     std::ostream inline &operator << (std::ostream &o, const fraction<Z, N> &x) {
         if (x.Denominator.Value == 1) return o << x.Numerator;
@@ -201,17 +210,6 @@ namespace data::math {
     template <typename Z>
     fraction<Z> inline operator * (const fraction<Z> &a, const fraction<Z> &b) {
         return fraction<Z> {a.Numerator * b.Numerator, a.Denominator.Value * b.Denominator.Value};
-    }
-
-    template <integral_domain Z>
-    nonzero<fraction<Z>> inverse<times<fraction<Z>>, fraction<Z>>::operator () (const nonzero<fraction<Z>> &x) {
-        if (x.Value.Numerator == 0) throw division_by_zero {};
-        return nonzero {fraction<Z> {Z (x.Value.Denominator.Value) * data::sign (x.Value.Numerator), nonzero {data::abs (x.Value.Numerator)}}};
-    }
-
-    template <integral_domain Z>
-    nonzero<fraction<Z>> inverse<times<fraction<Z>>, fraction<Z>>::operator () (const nonzero<fraction<Z>> &a, const nonzero<fraction<Z>> &b) {
-        return nonzero {b.Value / a.Value};
     }
 
     template <integral_domain Z> fraction<Z> operator / (const fraction<Z> &a, const fraction<Z> &b) {

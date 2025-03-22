@@ -5,18 +5,20 @@
 #include <data/cross.hpp>
 #include <data/string.hpp>
 #include <data/encoding/hex.hpp>
+#include <data/arithmetic/words.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
     
-    void from_bits (byte* b, size_t size, string x) {
-        if (x.size () != size * 8) throw "bad string";
+    template <std::unsigned_integral word>
+    void from_bits (word* b, size_t size, string x) {
+        if (x.size () / 8 != size * sizeof (word)) throw exception {} << "bad string";
         
         auto it = x.begin ();
         
         while (size != 0) {
             *b = 0;
-            for (int i = 7; i >= 0; i--) {
+            for (int i = sizeof (word) * 8 - 1; i >= 0; i--) {
                 if (*it == '1') *b += (1 << i);
                 it++;
             }
@@ -29,13 +31,14 @@ namespace data {
     template <std::unsigned_integral word, size_t size>
     bytes_array<word, size> byte_array_from_bits (string x) {
         bytes_array<word, size> z;
-        from_bits ((byte*) z.data (), size * sizeof (word), x);
+        from_bits<word> (z.data (), size, x);
         return z;
     }
-    
-    bytes bytes_from_bits (string x) {
-        size_t size = x.size () / 8;
-        bytes b (size);
+
+    template <std::unsigned_integral word>
+    bytestring<word> bytes_from_bits (string x) {
+        size_t size = x.size () / (sizeof (word) * 8);
+        bytestring<word> b (size);
         from_bits (b.data (), size, x);
         return b;
     }
@@ -46,24 +49,37 @@ namespace data {
     }
     
     TEST (BytesTest, TestBitNegate) {
+
         string initial {"00000000111111110101010100110011"};
         string expected {"11111111000000001010101011001100"};
-        
+
         test_bit_negate (
             byte_array_from_bits<byte, 4> (initial),
             byte_array_from_bits<byte, 4> (expected));
-        
+
         test_bit_negate (
             byte_array_from_bits<uint16, 2> (initial),
             byte_array_from_bits<uint16, 2> (expected));
-        
+
         test_bit_negate (
             byte_array_from_bits<uint32, 1> (initial),
             byte_array_from_bits<uint32, 1> (expected));
-        
+
+        // TODO bigger numbers
+
         test_bit_negate (
-            bytes_from_bits (initial),
-            bytes_from_bits (expected));
+            bytes_from_bits<byte> (initial),
+            bytes_from_bits<byte> (expected));
+
+        test_bit_negate (
+            bytes_from_bits<byte> (initial),
+            bytes_from_bits<byte> (expected));
+
+        test_bit_negate (
+            bytes_from_bits<byte> (initial),
+            bytes_from_bits<byte> (expected));
+
+        // TODO bigger numbers
         
     }
 
@@ -80,7 +96,7 @@ namespace data {
             byte_array_from_bits<byte, 4> (a),
             byte_array_from_bits<byte, 4> (b),
             byte_array_from_bits<byte, 4> (e));
-        /*
+
         test_bit_add (
             byte_array_from_bits<uint16, 2> (a),
             byte_array_from_bits<uint16, 2> (b),
@@ -89,9 +105,11 @@ namespace data {
         test_bit_add (
             byte_array_from_bits<uint32, 1> (a),
             byte_array_from_bits<uint32, 1> (b),
-            byte_array_from_bits<uint32, 1> (e));*/
+            byte_array_from_bits<uint32, 1> (e));
+
+        // TODO bigger numbers
     }
-    /*
+
     template <typename T> void test_bit_or (T a, T b, T c) {
         EXPECT_EQ (a | b, c);
     }
@@ -115,9 +133,11 @@ namespace data {
             byte_array_from_bits<uint32, 1> (a),
             byte_array_from_bits<uint32, 1> (b),
             byte_array_from_bits<uint32, 1> (e));
+
+        // TODO bigger numbers
         
     }
-    
+
     template <typename T> void test_bit_xor (T a, T b, T c) {
         EXPECT_EQ (a ^ b, c);
     }
@@ -126,24 +146,55 @@ namespace data {
         string a {"11001100010111000101100110101100"};
         string b {"11110000101001011100101010010011"};
         string e {"00111100111110011001001100111111"};
-        
+
         test_bit_xor (
             byte_array_from_bits<byte, 4> (a),
             byte_array_from_bits<byte, 4> (b),
             byte_array_from_bits<byte, 4> (e));
-        
+
         test_bit_xor (
             byte_array_from_bits<uint16, 2> (a),
             byte_array_from_bits<uint16, 2> (b),
             byte_array_from_bits<uint16, 2> (e));
-        
+
         test_bit_xor (
             byte_array_from_bits<uint32, 1> (a),
             byte_array_from_bits<uint32, 1> (b),
             byte_array_from_bits<uint32, 1> (e));
-        
+
     }
-    
+
+    template <std::unsigned_integral word> void test_words (bytestring<word> a) {
+        EXPECT_EQ (a.size (), a.end () - a.begin ());
+
+        arithmetic::Words<endian::little, word> wl {slice<word> (a)};
+        arithmetic::Words<endian::big, word> wr {slice<word> (a)};
+
+        EXPECT_EQ (a.size (), wl.size ());
+        EXPECT_EQ (a.size (), wr.size ());
+
+        EXPECT_EQ (wl.size (), wl.end () - wl.begin ());
+        EXPECT_EQ (wr.size (), wr.end () - wr.begin ());
+
+        const arithmetic::Words<endian::little, word> &wlc = wl;
+        const arithmetic::Words<endian::big, word> &wrc = wr;
+
+        EXPECT_EQ (a.size (), wlc.size ());
+        EXPECT_EQ (a.size (), wrc.size ());
+
+        EXPECT_EQ (wlc.size (), wlc.end () - wlc.begin ());
+        EXPECT_EQ (wrc.size (), wrc.end () - wrc.begin ());
+    }
+
+    TEST (BytesTest, TestWords) {
+        string initial {"00000000111111110101010100110011"};
+
+        test_words (bytes_from_bits<byte> (initial));
+        test_words (bytes_from_bits<uint16> (initial));
+        test_words (bytes_from_bits<uint32> (initial));
+
+    }
+
     template <typename T> void test_shift_left (T x, int i, T e) {
         auto n = x << i;
         EXPECT_EQ (n, e) << "expected " << x << " << " << i << " = " << n << " to equal " << e;
@@ -156,7 +207,7 @@ namespace data {
     
     template <typename word, size_t x>
     void test_bit_shift (string given, int bits, string expected_left, string expected_right) {
-        
+
         auto g = byte_array_from_bits<word, x> (given);
         auto el = byte_array_from_bits<word, x> (expected_left);
         auto er = byte_array_from_bits<word, x> (expected_right);
@@ -166,9 +217,11 @@ namespace data {
     }
     
     void test_shift (string given, int bits, string expected_left, string expected_right) {
+        std::cout << "bit shift test case" << std::endl;
         test_bit_shift<byte, 4> (given, bits, expected_left, expected_right);
         test_bit_shift<uint16, 2> (given, bits, expected_left, expected_right);
         test_bit_shift<uint32, 1> (given, bits, expected_left, expected_right);
+        // TODO add bigger words.
     }
     
     TEST (BytesTest, TestBitShift) {
@@ -210,7 +263,7 @@ namespace data {
         EXPECT_EQ (slice<byte> (a)[0], 0);
         EXPECT_EQ (slice<byte> (a)[-1], 0);
         
-    }*/
+    }
     
 }
 

@@ -47,7 +47,7 @@ namespace data::arithmetic {
         Words<endian::big, digit> reverse () const;
         
         size_t size () const {
-            return end () - begin ();
+            return Data.size ();
         }
         
         void bit_shift_left (uint32 x, bool fill = false);
@@ -407,28 +407,28 @@ namespace data::arithmetic {
 
     template <typename digit>
     void Words<endian::little, digit>::bit_shift_left (uint32 x, bool fill) {
-        arithmetic::bit_shift_left (
-            std::reverse_iterator {(byte*) Data.data () + Data.size () * sizeof (digit)},
-            std::reverse_iterator {(byte*) Data.data ()}, x, fill);
+        arithmetic::bit_shift_left<digit> (
+            std::reverse_iterator {Data.begin () + Data.size ()},
+            std::reverse_iterator {Data.begin ()}, x, fill);
     }
 
     template <typename digit>
     void Words<endian::little, digit>::bit_shift_right (uint32 x, bool fill) {
-        auto it = (byte*) Data.data ();
-        arithmetic::bit_shift_right (it, it + Data.size () * sizeof (digit), x, fill);
+        auto it = Data.begin ();
+        arithmetic::bit_shift_right<digit> (it, it + Data.size (), x, fill);
     }
     
     template <typename digit>
     void Words<endian::big, digit>::bit_shift_left (uint32 x, bool fill) {
-        auto it = (byte*) Data.data ();
-        arithmetic::bit_shift_left (it, it + Data.size () * sizeof (digit), x, fill);
+        auto it = Data.begin ();
+        arithmetic::bit_shift_left<digit> (it, it + Data.size (), x, fill);
     }
 
     template <typename digit>
     void Words<endian::big, digit>::bit_shift_right (uint32 x, bool fill) {
-        arithmetic::bit_shift_right (
-            std::reverse_iterator {(byte*) Data.data () + Data.size () * sizeof (digit)},
-            std::reverse_iterator {(byte*) Data.data ()}, x, fill);
+        arithmetic::bit_shift_right<digit> (
+            std::reverse_iterator {Data.begin () + Data.size ()},
+            std::reverse_iterator {Data.begin ()}, x, fill);
     }
 }
 

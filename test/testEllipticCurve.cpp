@@ -3,13 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "gtest/gtest.h"
-#include <data/math/point.hpp>
+#include <data/crypto/SEC.hpp>
 
 namespace data::crypto {
-
-    // test euclidian transformations.
 
     // Key here is to test projective point <=> projective vector.
 
 
 }
+

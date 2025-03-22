@@ -100,4 +100,15 @@ namespace data {
         list<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
         list<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
     }
+
+    TEST (ListTest, TestListLast) {
+
+        EXPECT_EQ (last (list<int> {1}), 1);
+        EXPECT_EQ ((last (append (list<int> {1}, 2))), 2);
+        EXPECT_EQ ((last (list<int> {1, 2, 3})), 3);
+        EXPECT_EQ ((last (rest (list<int> {1, 2, 3}))), 3);
+        EXPECT_EQ ((last (reverse (list<int> {1, 2, 3}))), 1);
+        EXPECT_EQ ((last (rest (reverse (list<int> {1, 2, 3})))), 1);
+        EXPECT_EQ ((last (reverse (rest (list<int> {1, 2, 3})))), 2);
+    }
 }

@@ -45,7 +45,7 @@ namespace data {
             return true;
         }
 
-        operator view<X> () const;
+        explicit operator view<X> () const;
 
         /// Selects a range from the current slice
         /// \param b range begins from this index inclusive
@@ -69,10 +69,10 @@ namespace data {
             return slice<X, e - b> {this->data () + b, e - b};
         }
 
-        using iterator = std::span<X>::iterator;
-        using const_iterator = view<X>::iterator;
-        using reverse_iterator = std::span<X>::reverse_iterator;
-        using const_reverse_iterator = view<X>::reverse_iterator;
+        using iterator = decltype (std::declval<std::span<X>> ().begin ());
+        using const_iterator = decltype (std::declval<const std::span<X>> ().begin ());
+        using reverse_iterator = decltype (std::declval<std::span<X>> ().rbegin ());
+        using const_reverse_iterator = decltype (std::declval<const std::span<X>> ().rbegin ());
 
         iterator begin ();
         iterator end ();
@@ -133,11 +133,11 @@ namespace data {
     }
 
     template <typename X> slice<X>::const_iterator inline slice<X>::begin () const {
-        return view<X> (*this).begin ();
+        return std::span<X>::begin ();
     }
 
     template <typename X> slice<X>::const_iterator inline slice<X>::end () const {
-        return view<X> (*this).end ();
+        return std::span<X>::end ();
     }
 
     template <typename X> slice<X>::reverse_iterator inline slice<X>::rbegin () {
@@ -149,11 +149,11 @@ namespace data {
     }
 
     template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rbegin () const {
-        return view<X> (*this).rbegin ();
+        return std::span<X>::rbegin ();
     }
 
     template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rend () const {
-        return view<X> (*this).rend ();
+        return std::span<X>::rend ();
     }
 
     template <typename X, size_t n> inline slice<X, n>::operator view<X> () const {

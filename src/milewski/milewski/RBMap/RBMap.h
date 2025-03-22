@@ -91,19 +91,13 @@ namespace milewski::okasaki {
                 return true;
         }
         
-        std::remove_reference_t<V> *find (const K &key) const
-        {
-            if (isEmpty ()) {
-                return nullptr;
-            }
+        std::remove_reference_t<V> *find (const K &key) const {
+            if (isEmpty ()) return nullptr;
             
             K y = rootKey ();
-            if (key < y)
-                return left ().find (key);
-            else if (y < key)
-                return right ().find (key);
-            else
-                return &rootValue ();
+            if (key < y) return left ().find (key);
+            else if (y < key) return right ().find (key);
+            else return &rootValue ();
         }
         
         RBMap inserted (const K &x, const V &v) const
@@ -152,22 +146,18 @@ namespace milewski::okasaki {
             assert1 ();
             if (isEmpty ()) return RBMap (Color::red, RBMap (), x, v, RBMap ());
 
-            K y = rootKey ();
-            V yv = rootValue ();
-            Color c = rootColor ();
-
             if (rootColor () == Color::black) {
-                if (x < y)
-                    return balance (left ().ins (x, v), y, yv, right ());
-                else if (y < x)
-                    return balance (left (), y, yv, right ().ins (x, v));
+                if (x < rootKey ())
+                    return balance (left ().ins (x, v), rootKey (), rootValue (), right ());
+                else if (rootKey () < x)
+                    return balance (left (), rootKey (), rootValue (), right ().ins (x, v));
                 else
                     return *this; // no duplicates
             } else {
-                if (x < y)
-                    return RBMap (c, left ().ins (x, v), y, yv, right ());
-                else if (y < x)
-                    return RBMap (c, left (), y, yv, right ().ins (x, v));
+                if (x < rootKey ())
+                    return RBMap (rootColor (), left ().ins (x, v), rootKey (), rootValue (), right ());
+                else if (rootKey () < x)
+                    return RBMap (rootColor (), left (), rootKey (), rootValue (), right ().ins (x, v));
                 else
                     return *this; // no duplicates
             }
@@ -199,14 +189,13 @@ namespace milewski::okasaki {
         }
         
         // Called only when parent is black
-        static RBMap balance (RBMap const &lft, K x, V v, RBMap const &rgt)
-        {
+        static RBMap balance (RBMap const &lft, K x, V v, RBMap const &rgt) {
             if (lft.doubledLeft ())
                 return RBMap (Color::red
                 , lft.left ().paint (Color::black)
                 , lft.rootKey ()
                 , lft.rootValue ()
-                , RBMap (Color::black, lft.right(), x, v, rgt));
+                , RBMap (Color::black, lft.right (), x, v, rgt));
             else if (lft.doubledRight ())
                 return RBMap (Color::red
                 , RBMap (Color::black, lft.left (), lft.rootKey (), lft.rootValue (), lft.right ().left ())

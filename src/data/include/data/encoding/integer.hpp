@@ -1200,17 +1200,38 @@ namespace data::encoding::hexidecimal {
 
         if (!valid (s)) return {};
         
-        oriented<r, word> n = {};
+        // first read as a string of bytes.
+        oriented<r, byte> n = {};
         size_t new_size = (s.size () - 2) / 2;
         n.resize (new_size);
         boost::algorithm::unhex (s.begin () + 2, s.end (), n.words ().rbegin ());
-        
-        return {n};
+
+        // if word is byte, then we're done.
+        if constexpr (sizeof (word) == 1) return {n};
+
+        // check if the string size is a multiple of the word size.
+        if (new_size % sizeof (word) != 0) return {};
+
+        // convert the string of bytes to words.
+        oriented<r, word> w {};
+        w.resize (new_size / sizeof (word));
+
+        auto x = n.words ().begin ();
+        for (word &ww : w.words ()) {
+            ww = 0;
+            for (int i = 0; i < sizeof (word); i++) {
+                ww += *x << (i * 8);
+                x++;
+            }
+        }
+
+        return w;
+
     }
     
     template <endian::order r, std::unsigned_integral word>
     std::ostream inline &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q) {
-        o << "0x"; 
+        o << "0x";
         return encoding::hex::write (o, d.words ().reverse (), q);
     }
     

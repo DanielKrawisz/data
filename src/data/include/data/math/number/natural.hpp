@@ -104,6 +104,10 @@ namespace data {
 }
 
 namespace data::math::number {
+    template <std::unsigned_integral N> division<N> inline natural_divide (const N &Dividend, const N &Divisor) {
+        if (Divisor == 0) throw division_by_zero {};
+        return division<N> {Dividend / Divisor, Dividend % Divisor};
+    }
 
     // Generic division algorithm.
     template <typename N> division<N> natural_divide (const N &Dividend, const N &Divisor) {
@@ -120,6 +124,8 @@ namespace data::math::number {
             uint64 digits_per_round {1};
 
             // we increase exp by increasing powers of 2 until it is bigger than the divisor.
+            // NOTE: this step should not be necessary. There ought to be a function that
+            // tells us how many digits a number has.
             while (exp <= Dividend) {
                 exp <<= digits_per_round;
                 pow <<= digits_per_round;
