@@ -8,6 +8,7 @@
 #include <data/math/number/rational.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/number/extended_euclidian.hpp>
+#include <data/math/norm.hpp>
 #include <compare>
 
 namespace data::math {

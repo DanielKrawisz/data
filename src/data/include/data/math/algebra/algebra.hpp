@@ -4,7 +4,9 @@
 
 #ifndef DATA_MATH_ALGEBRA_ALGEBRA
 #define DATA_MATH_ALGEBRA_ALGEBRA
+
 #include <data/math/linear/space.hpp>
+#include <data/math/norm.hpp>
 
 namespace data::math {
     template <typename F, typename V>

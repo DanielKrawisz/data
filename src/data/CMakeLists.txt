@@ -2,16 +2,9 @@ add_library (data STATIC
   types.cpp
   string.cpp
 
-  math/number/gmp/mpq.cpp
-  math/number/gmp/N.cpp
-  math/number/gmp/aks.cpp
-  math/number/gmp/sqrt.cpp
-
   encoding/hex.cpp
   encoding/utf8.cpp
   encoding/base64.cpp
-  encoding/base58.cpp
-  encoding/integer.cpp
 
   net/URL.cpp
   net/beast/beast.cpp
@@ -33,9 +26,25 @@ add_library (data STATIC
   log/log.cpp
 )
 
+add_library (numbers STATIC
+
+  math/number/gmp/mpq.cpp
+  math/number/gmp/N.cpp
+  math/number/gmp/aks.cpp
+  math/number/gmp/sqrt.cpp
+
+  encoding/base58.cpp
+  encoding/integer.cpp
+
+)
+
 configure_file (include/data/version.hpp.in generated/data/version.hpp)
 target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
+configure_file (include/data/version.hpp.in generated/data/version.hpp)
+target_include_directories (numbers PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories (numbers PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
 target_link_libraries (
   data
@@ -61,13 +70,43 @@ target_link_libraries (
   # PkgConfig::LIBSECP256K1 
 )
 
+target_link_libraries (
+  numbers
+  PUBLIC
+  data
+  Boost::boost
+  Boost::chrono
+  Boost::thread
+  Boost::log_setup
+  Boost::log
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  PkgConfig::cryptopp
+  nlohmann_json::nlohmann_json
+  GMP::GMP
+  secp256k1
+  taocpp::pegtl
+  argh
+  rotella
+  milewski
+  gmpxx
+  sv
+  ctre
+  # PkgConfig::LIBSECP256K1
+)
+
 get_target_property (OUT data LINK_LIBRARIES)
+get_target_property (OUT numbers LINK_LIBRARIES)
 
 # Set C++ version
 
 target_compile_features (data PUBLIC cxx_std_20)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
+
+target_compile_features (numbers PUBLIC cxx_std_20)
+set_target_properties (numbers PROPERTIES CXX_EXTENSIONS ON)
+target_compile_options (numbers PUBLIC "-fconcepts")
 
 include (GNUInstallDirs)
 install (DIRECTORY

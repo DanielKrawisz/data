@@ -5,11 +5,11 @@
 #ifndef DATA_NUMBERS
 #define DATA_NUMBERS
 
-#include <data/math/power.hpp>
-
 // defines float32 and float64
 #include <data/float.hpp>
-#include <data/math.hpp>
+
+#include <data/math/number/built_in.hpp>
+#include <data/math/power.hpp>
 
 // numbers of either endian of any size up to 64 bits
 // using boost. 

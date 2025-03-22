@@ -10,6 +10,7 @@
 #include <data/stream.hpp>
 #include <data/arithmetic/halves.hpp>
 #include <data/arithmetic/words.hpp>
+#include <data/math/norm.hpp>
 #include <data/math/number/integer.hpp>
 #include <data/math/infinite.hpp>
 
@@ -69,6 +70,7 @@ namespace data::arithmetic {
         using iterator = byte *;
         using const_iterator = byte const *;
         
+        // TODO I would like these to be constexpr
         endian_integral (const boost_arith &x);
         endian_integral (boost_arith &&x);
         

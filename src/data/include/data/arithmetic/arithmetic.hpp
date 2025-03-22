@@ -9,7 +9,7 @@
 #include <data/arithmetic/halves.hpp>
 #include <data/arithmetic/complement.hpp>
 #include <data/arithmetic/carry.hpp>
-
+#include <data/io/exception.hpp>
 #include <iostream>
 
 namespace data::arithmetic {

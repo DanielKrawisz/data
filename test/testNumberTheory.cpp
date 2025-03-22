@@ -5,6 +5,7 @@
 #include "data/numbers.hpp"
 
 #include <data/tools.hpp>
+#include <data/for_each.hpp>
 #include <data/math/power.hpp>
 #include <data/math/number/eratosthenes.hpp>
 
