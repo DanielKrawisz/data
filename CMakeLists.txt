@@ -13,7 +13,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CA
 
 project (
   data
-  VERSION 0.0.28
+  VERSION 0.0.29
   DESCRIPTION "wrappers and high-level programming constructs in c++"
   LANGUAGES CXX
 )
