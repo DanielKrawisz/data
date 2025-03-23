@@ -6,23 +6,19 @@
 #define DATA_MATH_GROUP
 
 #include <data/concepts.hpp>
-#include <data/math/associative.hpp>
-#include <data/math/commutative.hpp>
 #include <data/math/arithmetic.hpp>
+#include <data/math/algebra.hpp>
 #include <data/function.hpp>
 
 namespace data::math {
     
     template <typename elem, typename op = plus<elem>>
-    concept group = associative<op, elem> && requires () {
+    concept group = requires () {
         {identity<op, elem> {} ()} -> implicitly_convertible_to<elem>;
     } && requires (const elem &a, const elem &b) {
         {op {} (a, b)} -> implicitly_convertible_to<elem>;
         {inverse<op, elem> {} (a, b)} -> implicitly_convertible_to<elem>;
     };
-    
-    template <typename elem, typename op = plus<elem>>
-    concept abelian = group<elem, op> && commutative<op, elem>;
     
 }
 

@@ -14,7 +14,7 @@
 namespace data::math {
 
     // Not every elliptic curve can be expressed in Weierstrauss form, but those that can't are very much exceptions.
-    template <skew_field field> struct Weierstrauss {
+    template <field field> struct Weierstrauss {
         field A;
         field B;
 
@@ -112,103 +112,103 @@ namespace data::math {
         };
     };
 
-    template <skew_field field>
+    template <field field>
     bool inline Weierstrauss<field>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
-    template <skew_field field>
+    template <field field>
     field inline Weierstrauss<field>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::point inline Weierstrauss<field>::point::operator * (const point &x) const {
         return Curve.multiply (*this, x);
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::point inline Weierstrauss<field>::point::operator / (const point &x) const {
         return Curve.multiply (*this, Curve.invert (x));
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::compressed_point Weierstrauss<field>::compressed_point::operator * (const compressed_point &x) const {
         return Curve.multiply (*this, x);
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::compressed_point Weierstrauss<field>::compressed_point::operator / (const compressed_point &x) const {
         return Curve.multiply (*this, Curve.invert (x));
     }
 
-    template <skew_field field>
+    template <field field>
     bool inline Weierstrauss<field>::compressed_point::valid () const {
         return uncompress ().valid ();
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::projective_vector inline Weierstrauss<field>::projective_vector::operator * (const projective_vector &x) const {
         return Curve.multiply (*this, x);
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::projective_vector inline Weierstrauss<field>::projective_vector::operator / (const projective_vector &x) const {
         return Curve.multiply (*this, Curve.invert (x));
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::Jacobian_point inline Weierstrauss<field>::Jacobian_point::operator * (const Jacobian_point &x) const {
         return Curve.multiply (*this, x);
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::Jacobian_point inline Weierstrauss<field>::Jacobian_point::operator / (const Jacobian_point &x) const {
         return Curve.multiply (*this, Curve.invert (x));
     }
 
-    template <skew_field field> template <typename N>
+    template <field field> template <typename N>
     Weierstrauss<field>::compressed_point inline Weierstrauss<field>::compressed_point::operator ^ (const N &n) const {
         return (this->uncompress () ^ n).compress ();
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::compressed_point inline Weierstrauss<field>::invert (const compressed_point &u) {
         return invert (u.uncompress ()).compress ();
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::compressed_point inline Weierstrauss<field>::multiply (const compressed_point &a, const compressed_point &b) {
         return multiply (a.uncompress (), b.uncompress ()).compress ();
     }
 
-    template <skew_field field> template <typename N>
+    template <field field> template <typename N>
     Weierstrauss<field>::point inline Weierstrauss<field>::point::operator ^ (const N &n) const {
         return data::pow<field, N> (*this, n);
     }
 
-    template <skew_field field> template <typename N>
+    template <field field> template <typename N>
     Weierstrauss<field>::projective_vector inline Weierstrauss<field>::projective_vector::operator ^ (const N &n) const {
         return data::pow<field, N> (*this, n);
     }
 
-    template <skew_field field> template <typename N>
+    template <field field> template <typename N>
     Weierstrauss<field>::Jacobian_point inline Weierstrauss<field>::Jacobian_point::operator ^ (const N &n) const {
         return data::pow<field, N> (*this, n);
     }
 
-    template <skew_field field>
+    template <field field>
     bool inline Weierstrauss<field>::point::valid () const {
         return is_infinite (*this) || y () * y () == x () * x () * x () + A * x () + B;
     }
 
-    template <skew_field field>
+    template <field field>
     bool inline Weierstrauss<field>::projective_vector::valid () const {
         return y () * y () * z () == x () * x () * x () + A * x () * z () * z () + B * z () * z () * z ();
     }
 
-    template <skew_field field>
+    template <field field>
     bool Weierstrauss<field>::Jacobian_point::valid () const {
         auto zz = z () * z ();
         auto zzz = zz * z ();
@@ -217,42 +217,42 @@ namespace data::math {
         return y () * y () == x () * x () * x () + A * x () * zzzz + B * zzzzzz;
     }
 /*
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::point multiply (const point &a, const point &b) {
         if (is_infinite (a)) return b;
         if (is_infinite (b)) return a;
         if (a == b) return
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::projective_vector Weierstrauss<field>::multiply (const projective_vector &a, const projective_vector &b) {
 
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::Jacobian_point Weierstrauss<field>::multiply (const Jacobian_point &a, const Jacobian_point &b) {
 
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::point invert (const point &p) {
         if (is_infinite (p)) return p;
         return point {p.x (), field {1} / p.y ()};
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::compressed_point invert (const compressed_point &p) {
         if (is_infinite (p)) return p;
         compressed z = p.Value.get<compressed> ();
         return compressed {z.X, -z.YSign};
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::projective_vector invert (const projective_vector &p) {
         return projective_vector {x (), field {1} / y (), z ()};
     }
 
-    template <skew_field field>
+    template <field field>
     Weierstrauss<field>::Jacobian_point invert (const Jacobian_point &p) {
         return Jacobian_point {x (), field {1} / y (), z ()};
     }*/

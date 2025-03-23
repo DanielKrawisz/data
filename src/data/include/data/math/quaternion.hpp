@@ -73,22 +73,6 @@ namespace data::math {
         }
     };
 
-    template <typename R>
-    struct is_associative<plus<quaternion<R>>, quaternion<R>> :
-        is_associative<plus<cayley_dickson<R, complex<R>>>, cayley_dickson<R, complex<R>>> {};
-
-    template <typename R>
-    struct is_commutative<plus<quaternion<R>>, quaternion<R>> :
-        is_commutative<plus<cayley_dickson<R, complex<R>>>, cayley_dickson<R, complex<R>>> {};
-
-    template <typename R>
-    struct is_associative<times<quaternion<R>>, quaternion<R>> :
-        is_associative<times<cayley_dickson<R, complex<R>>>, cayley_dickson<R, complex<R>>> {};
-
-    template <typename R>
-    struct is_commutative<times<quaternion<R>>, quaternion<R>> :
-        is_commutative<times<cayley_dickson<R, complex<R>>>, cayley_dickson<R, complex<R>>> {};
-
     template <typename R> bool operator == (const quaternion<R> &a, const quaternion<R> &b) {
         return static_cast<cayley_dickson<R, complex<R>>> (a) == static_cast<cayley_dickson<R, complex<R>>> (b);
     }

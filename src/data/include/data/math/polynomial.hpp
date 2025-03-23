@@ -40,18 +40,6 @@ namespace data::math {
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p);
 
     template <typename A, typename N, char x>
-    struct is_commutative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : is_commutative<plus<A>, A> {};
-
-    template <typename A, typename N, char x>
-    struct is_associative<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : is_associative<plus<A>, A> {};
-
-    template <typename A, typename N, char x>
-    struct is_commutative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : is_commutative<times<A>, A> {};
-
-    template <typename A, typename N, char x>
-    struct is_associative<times<polynomial<A, N, x>>, polynomial<A, N, x>> : is_associative<times<A>, A> {};
-
-    template <typename A, typename N, char x>
     struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {
         polynomial<A, N, x> operator () ();
     };

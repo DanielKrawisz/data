@@ -9,8 +9,7 @@
 #include <data/math/number/modular.hpp>
 #include <data/math/field.hpp>
 #include <data/math/number/extended_euclidian.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
+#include <data/math/algebra.hpp>
 #include <data/tools.hpp>
 
 namespace data::math {
@@ -76,26 +75,6 @@ namespace data::math {
             return nonzero<prime_field_element<N, Z, prime>> {a.Value * b.Value};
         }
     };
-    
-    template <typename N, typename Z, auto prime>
-    struct is_commutative<plus<prime_field_element<N, Z, prime>>,
-        prime_field_element<N, Z, prime>>
-        : is_commutative<plus<N>, N> {};
-    
-    template <typename N, typename Z, auto prime>
-    struct is_associative<plus<prime_field_element<N, Z, prime>>,
-        prime_field_element<N, Z, prime>>
-        : is_associative<plus<N>, N> {};
-    
-    template <typename N, typename Z, auto prime>
-    struct is_commutative<times<prime_field_element<N, Z, prime>>,
-        prime_field_element<N, Z, prime>>
-        : is_commutative<times<N>, N> {};
-    
-    template <typename N, typename Z, auto prime>
-    struct is_associative<times<prime_field_element<N, Z, prime>>,
-        prime_field_element<N, Z, prime>>
-        : is_associative<times<N>, N> {};
     
     template <typename N, typename Z, auto prime>
     struct identity<plus<prime_field_element<N, Z, prime>>,

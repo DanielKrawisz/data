@@ -47,12 +47,6 @@ namespace data::math {
 namespace data::math {
     
     template <auto natural, typename N>
-    struct is_associative<
-        times<alternating_group<natural, N>>,
-        alternating_group<natural, N>>
-        : is_associative<plus<N>, N> {};
-    
-    template <auto natural, typename N>
     struct identity<
         times<alternating_group<natural, N>>,
         alternating_group<natural, N>>
