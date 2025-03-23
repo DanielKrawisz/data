@@ -38,12 +38,6 @@ namespace data::math {
     }
     
     template <typename N, auto natural>
-    struct is_associative<
-        times<dihedral_group<natural, N>>,
-        dihedral_group<natural, N>>:
-            is_associative<plus<N>, N> {};
-    
-    template <typename N, auto natural>
     struct identity<
         times<dihedral_group<natural, N>>,
         dihedral_group<natural, N>>:

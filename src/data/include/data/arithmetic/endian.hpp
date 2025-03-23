@@ -197,18 +197,6 @@ namespace data::math {
         }
     };
 
-    template <bool z, boost::endian::order o, std::size_t n>
-    struct is_associative<times<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
-
-    template <bool z, boost::endian::order o, std::size_t n>
-    struct is_associative<plus<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
-
-    template <bool z, boost::endian::order o, std::size_t n>
-    struct is_commutative<times<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
-
-    template <bool z, boost::endian::order o, std::size_t n>
-    struct is_commutative<plus<arithmetic::endian_integral<z, o, n>>, arithmetic::endian_integral<z, o, n>> {};
-
     template <boost::endian::order o, std::size_t z>
     struct abs<arithmetic::endian_integral<false, o, z>> {
         arithmetic::endian_integral<false, o, z> operator () (const arithmetic::endian_integral<false, o, z> &x) {

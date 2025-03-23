@@ -11,53 +11,53 @@
 
 namespace data::math::linear {
 
-    template <skew_field X, size_t A, size_t B> using matrix = array<X, A, B>;
+    template <field X, size_t A, size_t B> using matrix = array<X, A, B>;
 
-    template <skew_field X, size_t A, size_t B> X det (const matrix<X, A, B> &);
-    template <skew_field X, size_t A> X det (const matrix<X, A, A> &);
+    template <field X, size_t A, size_t B> X det (const matrix<X, A, B> &);
+    template <field X, size_t A> X det (const matrix<X, A, A> &);
 
-    template <skew_field X, size_t A, size_t B> bool invertable (const matrix<X, A, B> &);
-    template <skew_field X, size_t A> bool invertable (const matrix<X, A, A> &);
-    template <skew_field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &);
+    template <field X, size_t A, size_t B> bool invertable (const matrix<X, A, B> &);
+    template <field X, size_t A> bool invertable (const matrix<X, A, A> &);
+    template <field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &);
 
 };
 
 namespace data::math::space {
 
     // the exterior algebra comprises scalars, vectors, asymmetric 2-tensors, etc.
-    template <skew_field X, size_t order, size_t dim> struct exterior;
+    template <field X, size_t order, size_t dim> struct exterior;
 
-    template <skew_field X, size_t dim> using scalar = exterior<X, 0, dim>;
-    template <skew_field X, size_t dim> using vector = exterior<X, 1, dim>;
+    template <field X, size_t dim> using scalar = exterior<X, 0, dim>;
+    template <field X, size_t dim> using vector = exterior<X, 1, dim>;
     // nonstandard terminology but it helps to remember what these things are.
-    template <skew_field X, size_t dim> using planar = exterior<X, 2, dim>;
-    template <skew_field X, size_t dim> using spacer = exterior<X, 3, dim>;
+    template <field X, size_t dim> using planar = exterior<X, 2, dim>;
+    template <field X, size_t dim> using spacer = exterior<X, 3, dim>;
 
     // scalar multiplication
-    template <skew_field X, size_t u, size_t dim>
+    template <field X, size_t u, size_t dim>
     exterior <X, u, dim> operator * (const exterior<X, u, dim> &, const X &);
 
     // addition
-    template <skew_field X, size_t u, size_t dim>
+    template <field X, size_t u, size_t dim>
     exterior <X, u, dim> operator + (const exterior<X, u, dim> &, const exterior<X, u, dim> &);
 
-    template <skew_field X, size_t A, size_t B, size_t dim>
+    template <field X, size_t A, size_t B, size_t dim>
     exterior <X, A + B, dim> operator ^ (const exterior<X, A, dim> &, const exterior<X, B, dim> &);
 
-    template <skew_field X, size_t order, size_t dim>
+    template <field X, size_t order, size_t dim>
     X operator * (const exterior<X, order, dim> &, const exterior<X, dim - order, dim> &);
 
     // generate a matrix that projects onto the subspace defined by the exterior object.
     // the second exterior object is left unchanged.
-    template <skew_field X, size_t order, size_t dim>
+    template <field X, size_t order, size_t dim>
     linear::matrix<X, dim, dim> projector (const exterior<X, order, dim> &a, const exterior<X, dim - order, dim> &b);
 
-    template <skew_field X, size_t order, size_t dim> requires requires (const X &x, const X &y) {
+    template <field X, size_t order, size_t dim> requires requires (const X &x, const X &y) {
         {x * inner (x, y)};
     } auto operator * (const exterior<X, order, dim> &a, const exterior<X, order, dim> &b);
 
     // Hodge star
-    template <skew_field X, size_t order, size_t dim>
+    template <field X, size_t order, size_t dim>
     requires requires (const X &x, const X &y) {
         {x * inner (x, y)};
     } exterior<X, dim - order, dim> operator * (const exterior<X, order, dim> &);
@@ -66,7 +66,7 @@ namespace data::math::space {
     // technically, we do not have the full exterior algebra
     // available because we don't have the Hodge star without
     // a notion of perpendicularity.
-    template <skew_field X, size_t dim> struct affine {
+    template <field X, size_t dim> struct affine {
         // technically, this is an incorrect use of the term.
         template <size_t order> struct simplex;
 
@@ -118,7 +118,7 @@ namespace data::math::space {
         static transformation flip (const exterior<X, order, dim> &, const exterior<X, dim - order, dim> &);
     };
 
-    template <skew_field X, ordered Q, size_t dim> requires normed<X, Q>
+    template <field X, ordered Q, size_t dim> requires normed<X, Q>
     struct Euclidian : affine<X, dim> {
         template <size_t order> using simplex = affine<X, dim>::simplex;
 
@@ -151,7 +151,7 @@ namespace data::math::space {
         static transformation flip (const exterior<X, order, dim> &);
     };
 
-    template <skew_field X, ordered Q, size_t dim>
+    template <field X, ordered Q, size_t dim>
     struct elliptic : Euclidian<X, Q, dim> {
         template <size_t order>
         struct simplex : Euclidian<X, Q, dim>::simplex<order> {
@@ -180,7 +180,7 @@ namespace data::math::space {
         };
     };
 
-    template <skew_field X, size_t dim> struct projective {
+    template <field X, size_t dim> struct projective {
         template <size_t order> using affine_exterior = space::template exterior<X, order, dim + 1>;
 
         template <size_t order>
@@ -228,7 +228,7 @@ namespace data::math::space {
         };
     }
 
-    template <skew_field X, size_t order, size_t dim> struct exterior : box_array<X, order, dim>::type {
+    template <field X, size_t order, size_t dim> struct exterior : box_array<X, order, dim>::type {
         using array = box_array<X, order, dim>::type;
         using array::array;
         exterior (array &&);
@@ -241,15 +241,15 @@ namespace data::math::space {
 
 namespace data::math::linear {
 
-    template <skew_field X, size_t A, size_t B> X inline det (const matrix<X, A, B> &) {
+    template <field X, size_t A, size_t B> X inline det (const matrix<X, A, B> &) {
         return 0;
     }
 
-    template <skew_field X, size_t A, size_t B> bool inline invertable (const matrix<X, A, B> &) {
+    template <field X, size_t A, size_t B> bool inline invertable (const matrix<X, A, B> &) {
         return false;
     }
 
-    template <skew_field X, size_t A> bool inline invertable (const matrix<X, A, A> &m) {
+    template <field X, size_t A> bool inline invertable (const matrix<X, A, A> &m) {
         return det (m) != 0;
     }
 
@@ -261,12 +261,12 @@ namespace data::math::linear {
 
 namespace data::math::space {
     // valid if nonzero.
-    template <skew_field X, size_t dim> template <size_t order>
+    template <field X, size_t dim> template <size_t order>
     bool inline projective<X, dim>::exterior<order>::valid () const {
         return affine_exterior<order + 1>::valid () && static_cast<affine_exterior<order + 1>> (*this) != affine_exterior<order + 1> {0};
     }
 
-    template <skew_field X, size_t dim>
+    template <field X, size_t dim>
     template <size_t order>
     bool inline projective<X, dim>::exterior<order>::operator == (const exterior &x) const {
         auto ia = this->begin ();
@@ -286,7 +286,7 @@ namespace data::math::space {
         return true;
     }
 
-    template <skew_field X, size_t dim> template <size_t order>
+    template <field X, size_t dim> template <size_t order>
     bool projective<X, dim>::simplex<order>::valid () const {
         if (!space::template exterior<value, order, dim>::valid ()) return false;
         // infinite values are not allowed to appear after the first finite value.
@@ -297,19 +297,19 @@ namespace data::math::space {
         return true;
     };
 
-    template <skew_field X, ordered Q, size_t dim> template <size_t order>
+    template <field X, ordered Q, size_t dim> template <size_t order>
     bool inline elliptic<X, Q, dim>::simplex<order>::valid () const {
         return static_cast<exterior<X, order + 1, dim + 1>> (*this) * static_cast<exterior<X, order + 1, dim + 1>> (*this) == X {0};
     }
 
-    template <skew_field X, size_t dim>
+    template <field X, size_t dim>
     bool affine<X, dim>::transformation::valid () const {
         if (!invertable (*this) && (*this)[dim * dim - 1] != X {1}) return false;
         for (int index = dim * (dim - 1); index < dim * dim - 1; index++) if ((*this)[index] != X {0}) return false;
         return true;
     }
 
-    template <skew_field X, size_t dim> template <size_t order>
+    template <field X, size_t dim> template <size_t order>
     affine<X, dim>::transformation inline affine<X, dim>::flip (const exterior<X, order, dim> &a, const exterior<X, dim - order, dim> &b) {
         return projector (b, a) - projector (a, b);
     }

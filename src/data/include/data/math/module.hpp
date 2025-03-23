@@ -15,7 +15,7 @@ namespace data::math {
         typename ring_plus = plus<ring_elem>, 
         typename ring_times = times<ring_elem>, 
         typename group_plus = plus<group_elem>>
-    concept algebraic_module = ring<ring_elem, ring_plus, ring_times> && abelian<group_elem, group_plus>;
+    concept algebraic_module = ring<ring_elem, ring_plus, ring_times> && group<group_elem, group_plus>;
     
 }
 

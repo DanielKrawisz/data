@@ -55,18 +55,6 @@ namespace data::math {
         }
     };
 
-    template <typename R>
-    struct is_associative<plus<complex<R>>, complex<R>> : is_associative<plus<cayley_dickson<R, R>>, cayley_dickson<R, R>> {};
-
-    template <typename R>
-    struct is_commutative<plus<complex<R>>, complex<R>> : is_commutative<plus<cayley_dickson<R, R>>, cayley_dickson<R, R>> {};
-
-    template <typename R>
-    struct is_associative<times<complex<R>>, complex<R>> : is_associative<times<cayley_dickson<R, R>>, cayley_dickson<R, R>> {};
-
-    template <typename R>
-    struct is_commutative<times<complex<R>>, complex<R>> : is_commutative<times<cayley_dickson<R, R>>, cayley_dickson<R, R>> {};
-    
     template <typename q> struct conjugate<complex<q>> {
         complex<q> operator () (const complex<q> &x) {
             return {conjugate<cayley_dickson<q, q>> {} (x)};

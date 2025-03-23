@@ -7,14 +7,11 @@
 
 #include <list>
 #include <data/for_each.hpp>
-#include <data/math/associative.hpp>
 #include <data/math/group.hpp>
 
 namespace data::math {
 
     template <ordered elem> struct permutation;
-
-    template <ordered elem> struct is_associative<times<permutation<elem>>, permutation<elem>> {};
 
     template <ordered elem> struct identity<times<permutation<elem>>, permutation<elem>> {
         permutation<elem> operator () ();
@@ -107,9 +104,6 @@ namespace data::math {
     std::ostream inline &operator << (std::ostream &o, const permutation<elem> &m) {
         return o << "permutation" << m.Cycles;
     }
-
-    // Declare associativity and commutivity of operators + and * on N. 
-    template <typename elem> struct is_associative<times<permutation<elem>>, permutation<elem>> {};
     
     template <ordered elem>
     permutation<elem> inline identity<times<permutation<elem>>, permutation<elem>>::operator () () {

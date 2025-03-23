@@ -8,8 +8,7 @@
 #include <data/types.hpp>
 #include <data/math/power.hpp>
 #include <data/math/abs.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
+#include <data/math/algebra.hpp>
 
 #include <cryptopp/integer.h>
 #include <cryptopp/modarith.h>
@@ -83,14 +82,6 @@ namespace data::math::number {
 }
 
 namespace data::math {
-    
-    template <auto mod, typename X>
-    struct is_commutative<plus<number::modular<mod, X>>, number::modular<mod, X>>
-        : is_commutative<plus<X>, X> {};
-    
-    template <auto mod, typename X>
-    struct is_associative<plus<number::modular<mod, X>>, number::modular<mod, X>>
-        : is_associative<plus<X>, X> {};
     
     template <auto mod, typename X>
     struct identity<plus<number::modular<mod, X>>, number::modular<mod, X>>

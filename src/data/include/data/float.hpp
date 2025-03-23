@@ -7,8 +7,6 @@
 
 #include <data/math/abs.hpp>
 #include <data/math/algebra.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
 
 namespace data {
     
@@ -138,11 +136,6 @@ namespace data::math {
             return a / b.Value;
         }
     };
-    
-    template <std::floating_point X> struct is_commutative<plus<X>, X> {};
-    template <std::floating_point X> struct is_commutative<times<X>, X> {};
-    template <std::floating_point X> struct is_associative<plus<X>, X> {};
-    template <std::floating_point X> struct is_associative<times<X>, X> {};
     
     template <std::floating_point X> struct identity<plus<X>, X> {
         X operator () () {

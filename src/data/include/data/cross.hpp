@@ -11,8 +11,6 @@
 #include <data/arithmetic/words.hpp>
 #include <data/stream.hpp>
 #include <data/math/abs.hpp>
-#include <data/math/associative.hpp>
-#include <data/math/commutative.hpp>
 
 namespace data {
     
@@ -150,19 +148,7 @@ namespace data {
     } && requires () {
         {X {}};
     } array<X, A..., B...> operator * (const array<X, A..., C> &a, const array<X, C, B...> &b);
-}
 
-namespace data::math {
-    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> implicitly_convertible_to<X>;
-    } struct is_associative<plus<array<X, sizes...>>, array<X, sizes...>> : is_associative<plus<X>, X> {};
-
-    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> implicitly_convertible_to<X>;
-    } struct is_commutative<plus<array<X, sizes...>>, array<X, sizes...>> : is_commutative<plus<X>, X> {};
-}
-
-namespace data {
     template <typename X>
     bool cross<X>::valid () const {
         for (const X &x : *this) if (!data::valid (x)) return false;

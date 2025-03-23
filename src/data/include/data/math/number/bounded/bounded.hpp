@@ -102,24 +102,6 @@ namespace data::math {
     template <size_t size, std::unsigned_integral word>
     using int_big = typename number::bounded<true, endian::big, size, word>;
 
-    // plus and times are associative and commutative
-    // for both bounded and bytes. 
-    template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct is_commutative<plus<number::bounded<is_signed, r, size, word>>,
-        number::bounded<is_signed, r, size, word>> {};
-    
-    template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct is_associative<plus<number::bounded<is_signed, r, size, word>>,
-        number::bounded<is_signed, r, size, word>> {};
-    
-    template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct is_commutative<times<number::bounded<is_signed, r, size, word>>,
-        number::bounded<is_signed, r, size, word>> {};
-    
-    template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    struct is_associative<times<number::bounded<is_signed, r, size, word>>,
-        number::bounded<is_signed, r, size, word>> {};
-
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
     struct times<number::bounded<is_signed, r, size, word>> {
         number::bounded<is_signed, r, size, word> operator ()
