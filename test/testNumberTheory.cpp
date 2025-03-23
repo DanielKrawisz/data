@@ -66,16 +66,16 @@ namespace data::math {
 
     template <typename N> void test_power_mod () {
 
-        EXPECT_EQ ((data::pow_mod<N> (N {257}, N {3}, N {200})), N {120});
-        EXPECT_EQ ((data::pow_mod<N> (N {257}, N {120}, N {200})), N {241});
+        EXPECT_EQ ((data::pow_mod<N> (N {3}, N {200}, N {257})), N {120});
+        EXPECT_EQ ((data::pow_mod<N> (N {120}, N {200}, N {257})), N {241});
 
-        EXPECT_EQ ((data::pow_mod<N> (N {761}, N {2}, N {380})), N {1});
-        EXPECT_EQ ((data::pow_mod<N> (N {761}, N {3}, N {380})), N {760});
-        EXPECT_EQ ((data::pow_mod<N> (N {761}, N {3}, N {152})), N {1});
-        EXPECT_EQ ((data::pow_mod<N> (N {761}, N {5}, N {380})), N {1});
-        EXPECT_EQ ((data::pow_mod<N> (N {761}, N {6}, N {380})), N {760});
-        EXPECT_EQ ((data::pow_mod<N> (N {761}, N {6}, N {40})), N {761 - 263});
-        EXPECT_EQ ((data::pow_mod<N> (N {65537}, N {2}, N {32768})), N {1});
+        EXPECT_EQ ((data::pow_mod<N> (N {2}, N {380}, N {761})), N {1});
+        EXPECT_EQ ((data::pow_mod<N> (N {3}, N {380}, N {761})), N {760});
+        EXPECT_EQ ((data::pow_mod<N> (N {3}, N {152}, N {761})), N {1});
+        EXPECT_EQ ((data::pow_mod<N> (N {5}, N {380}, N {761})), N {1});
+        EXPECT_EQ ((data::pow_mod<N> (N {6}, N {380}, N {761})), N {760});
+        EXPECT_EQ ((data::pow_mod<N> (N {6}, N {40}, N {761})), N {761 - 263});
+        EXPECT_EQ ((data::pow_mod<N> (N {2}, N {32768}, N {65537})), N {1});
     }
 
     TEST (NumberTheoryTest, TestPowerMod) {
@@ -841,15 +841,15 @@ namespace data::math {
             byte alice_secret = 180;
             byte bob_secret = 200;
             for (const auto &[prime, root] : cryptosystems_9_bit)
-                EXPECT_EQ ((data::pow_mod (prime, data::pow_mod (prime, root, alice_secret), bob_secret)),
-                    (data::pow_mod (prime, data::pow_mod (prime, root, bob_secret), alice_secret)));
+                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, prime), bob_secret, prime)),
+                    (data::pow_mod (data::pow_mod (root, bob_secret, prime), alice_secret, prime)));
         }
         {
             uint16 alice_secret = 13030;
             uint16 bob_secret = 29101;
             for (const auto &[prime, root] : cryptosystems_17_bit)
-                EXPECT_EQ ((data::pow_mod (prime, data::pow_mod (prime, root, alice_secret), bob_secret)),
-                    (data::pow_mod (prime, data::pow_mod (prime, root, bob_secret), alice_secret)));
+                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, prime), bob_secret, prime)),
+                    (data::pow_mod (data::pow_mod (root, bob_secret, prime), alice_secret, prime)));
         }
     }
 
@@ -861,11 +861,11 @@ namespace data::math {
             uint32 message = 131;
 
             for (const auto &[prime, base] : cryptosystems_9_bit) {
-                auto public_key = data::pow_mod (prime, base, secret_key);
+                auto public_key = data::pow_mod (base, secret_key, prime);
                 // corresponds to the point R in a digital signature.
-                auto header_R = data::pow_mod (prime, base, random_number);
+                auto header_R = data::pow_mod (base, random_number, prime);
                 // For encryption, we use these shared secrets to generate an authenticated encryption scheme.
-                EXPECT_EQ ((data::pow_mod (prime, public_key, random_number)), (data::pow_mod (prime, header_R, secret_key)));
+                EXPECT_EQ ((data::pow_mod (public_key, random_number, prime)), (data::pow_mod (header_R, secret_key, prime)));
             }
         }
 
@@ -874,11 +874,11 @@ namespace data::math {
             uint64 secret_key = 12314;
             uint64 message = 47989;
             for (const auto &[prime, base] : cryptosystems_17_bit) {
-                auto public_key = data::pow_mod (prime, base, secret_key);
+                auto public_key = data::pow_mod (base, secret_key, prime);
                 // corresponds to the point R in a digital signature.
-                auto header_R = data::pow_mod (prime, base, random_number);
+                auto header_R = data::pow_mod (base, random_number, prime);
                 // we use these shared secrets to generate an authenticated encryption scheme.
-                EXPECT_EQ ((data::pow_mod (prime, public_key, random_number)), (data::pow_mod (prime, header_R, secret_key)));
+                EXPECT_EQ ((data::pow_mod (public_key, random_number, prime)), (data::pow_mod (header_R, secret_key, prime)));
             }
         }
     }

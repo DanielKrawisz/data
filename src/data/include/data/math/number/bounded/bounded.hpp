@@ -130,11 +130,6 @@ namespace data::math {
     };
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    struct first<number::bounded<u, r, x, word>> {
-        number::bounded<u, r, x, word> operator () ();
-    };
-    
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct inverse<plus<number::bounded<u, r, x, word>>, number::bounded<u, r, x, word>> {
         number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &a, const number::bounded<u, r, x, word> &b);
     };
@@ -974,11 +969,6 @@ namespace data::math {
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     bool inline is_zero<number::bounded<u, r, x, word>>::operator () (const number::bounded<u, r, x, word> &z) {
         return arithmetic::is_zero (z.words ());
-    }
-    
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    number::bounded<u, r, x, word> inline first<number::bounded<u, r, x, word>>::operator () () {
-        return number::bounded<u, r, x, word> {};
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>

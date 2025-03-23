@@ -144,7 +144,7 @@ namespace data::math::number {
     
     template <auto mod, typename X>
     modular<mod, X> inline operator ^ (const modular<mod, X> &a, const X &b) {
-        return {pow_mod<X> {} (modular<mod, X>::modulus (), a.Value, b)};
+        return {data::pow_mod (a.Value, b, modular<mod, X>::modulus ())};
     }
     
     template <auto mod>

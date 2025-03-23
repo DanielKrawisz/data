@@ -6,27 +6,16 @@
 #define DATA_MATH_ALGEBRA
 
 #include <data/math/nonnegative.hpp>
+#include <data/math/arithmetic.hpp>
 
 namespace data::math {
 
     template <typename F, typename x> struct identity;
     template <typename F, typename x> struct inverse;
 
-    template <typename X> struct plus {
-        X operator () (const X &a, const X &b) {
-            return a + b;
-        }
-    };
-
     template <typename X> struct identity<plus<X>, X> {
         X operator () () {
             return X {0};
-        }
-    };
-
-    template <typename X> struct times {
-        X operator () (const X &a, const X &b) {
-            return a * b;
         }
     };
 

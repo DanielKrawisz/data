@@ -8,6 +8,7 @@
 
 #include <data/math/abs.hpp>
 #include <data/arithmetic/arithmetic.hpp>
+#include <data/math/arithmetic.hpp>
 
 namespace data::math {
 
@@ -35,6 +36,10 @@ namespace data::math {
         std::make_unsigned_t<A> operator () (const A &x) const {
             return static_cast<std::make_unsigned_t<A>> (x == std::numeric_limits<A>::min () || x > 0 ? x : -x);
         }
+    };
+
+    template <std::unsigned_integral A> struct digits_base_2<A> {
+        size_t operator () (const A &);
     };
 }
 

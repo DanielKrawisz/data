@@ -67,7 +67,7 @@ namespace data::math::number {
     template <typename N> bool primitive_roots<N>::is (N a) const {
         // for exach prime factor p, test that a^(s/p) != 1.
         for (const prime<N> &p : PrimeFactors)
-            if (data::pow_mod (P, a, Totient / p.Prime) == N {1}) return false;
+            if (data::pow_mod (a, Totient / p.Prime, P) == N {1}) return false;
         return true;
     }
 
