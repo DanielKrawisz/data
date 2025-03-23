@@ -290,7 +290,7 @@ namespace data {
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x - y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
+    } array<X, sizes...> operator - (const array<X, sizes...> &a, const array<X, sizes...> &b) {
         array<X, sizes...> x {};
         auto ai = a.begin ();
         auto bi = b.begin ();
