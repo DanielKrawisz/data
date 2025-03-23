@@ -14,7 +14,7 @@
 namespace data::math::linear {
     
     template <typename F, typename V>
-    concept space = algebraic_module<F, V> && skew_field<F>;
+    concept space = algebraic_module<F, V> && field<F>;
     
     using dimension = unsigned_limit<size_t>;
     
@@ -40,7 +40,7 @@ namespace data::math::linear {
 
 namespace data::math {
     
-    template <typename F, size_t... sizes> requires skew_field<F>
+    template <typename F, size_t... sizes> requires field<F>
     struct inverse<plus<array<F, sizes...>>, array<F, sizes...>> {
         array<F, sizes...> operator () (const array<F, sizes...> &a, const array<F, sizes...> &b) {
             return b - a;

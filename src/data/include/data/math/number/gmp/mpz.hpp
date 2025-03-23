@@ -12,8 +12,7 @@
 #include <data/math/sign.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/arithmetic.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
+#include <data/math/algebra.hpp>
 #include <data/math/number/integer.hpp>
 #include <data/arithmetic/complement.hpp>
 #include <data/encoding/hex.hpp>
@@ -96,11 +95,6 @@ namespace data::math {
         Z operator () (const Z &a, const Z &b);
         nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
     };
-
-    template <> struct is_commutative<plus<Z>, Z> {};
-    template <> struct is_associative<plus<Z>, Z> {};
-    template <> struct is_commutative<times<Z>, Z> {};
-    template <> struct is_associative<times<Z>, Z> {};
 
     template <> struct identity<plus<Z>, Z> {
         Z operator () ();

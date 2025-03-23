@@ -98,14 +98,6 @@ namespace data::math {
         }
     };
 
-    template <typename R>
-    struct is_associative<plus<octonion<R>>, octonion<R>> :
-        is_associative<plus<cayley_dickson<R, quaternion<R>>>, cayley_dickson<R, quaternion<R>>> {};
-
-    template <typename R>
-    struct is_commutative<plus<octonion<R>>, octonion<R>> :
-        is_commutative<plus<cayley_dickson<R, quaternion<R>>>, cayley_dickson<R, quaternion<R>>> {};
-
     template <typename R> bool inline operator == (const octonion<R> &a, const octonion<R> &b) {
         return static_cast<cayley_dickson<R, quaternion<R>>> (a) == static_cast<cayley_dickson<R, quaternion<R>>> (b);
     }

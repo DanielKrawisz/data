@@ -10,8 +10,6 @@
 #include <data/math/ordered.hpp>
 #include <data/math/ring.hpp>
 #include <data/math/division.hpp>
-#include <data/math/commutative.hpp>
-#include <data/math/associative.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/abs.hpp>
 #include <data/math/number/increment.hpp>

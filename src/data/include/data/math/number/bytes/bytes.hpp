@@ -354,31 +354,6 @@ namespace data::math {
         auto operator () (const number::Z_bytes<r, c, word> &x) -> decltype (data::abs (x));
     };
     
-    // Declare that the plus and times operation are commutative and associative. 
-    template <endian::order r, std::unsigned_integral word>
-    struct is_commutative<plus<N_bytes<r, word>>, N_bytes<r, word>> {};
-    
-    template <endian::order r, std::unsigned_integral word>
-    struct is_associative<plus<N_bytes<r, word>>, N_bytes<r, word>> {};
-    
-    template <endian::order r, std::unsigned_integral word>
-    struct is_commutative<times<N_bytes<r, word>>, N_bytes<r, word>> {};
-    
-    template <endian::order r, std::unsigned_integral word>
-    struct is_associative<times<N_bytes<r, word>>, N_bytes<r, word>> {};
-    
-    template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct is_commutative<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
-    
-    template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct is_associative<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
-    
-    template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct is_commutative<times<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
-    
-    template <endian::order r, number::complement c, std::unsigned_integral word>
-    struct is_associative<times<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {};
-    
     template <endian::order r, number::complement c, std::unsigned_integral word>
     struct inverse<plus<number::Z_bytes<r, c, word>>, number::Z_bytes<r, c, word>> {
         number::Z_bytes<r, c, word> operator () (const number::Z_bytes<r, c, word> &a, const number::Z_bytes<r, c, word> &b) {
