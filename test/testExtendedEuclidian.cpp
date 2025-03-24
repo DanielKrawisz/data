@@ -13,8 +13,8 @@ namespace data::math {
     
     using Zb1 = Z_bytes_big;
     using Zl1 = Z_bytes_little;
-    using Zb2 = Z_bytes_twos_big;
-    using Zl2 = Z_bytes_twos_little;
+    using Zb2 = Z_bytes_BC_big;
+    using Zl2 = Z_bytes_BC_little;
     
     template <typename Z, typename N>
     struct test_extended_euclidian {
@@ -30,19 +30,27 @@ namespace data::math {
         }
     };
     
-    TEST (ExtendedEuclinianTest, TestExtendedEuclidian) {
+    TEST (ExtendedEuclidianTest, TestExtendedEuclidian) {
 
-        test_extended_euclidian<int64, uint32> {};
+        test_extended_euclidian<int64, uint64> {};
         test_extended_euclidian<int64_little, uint64_little> {};
         test_extended_euclidian<int64_big, uint64_big> {};
+
+        test_extended_euclidian<int80, uint80> {};
+        test_extended_euclidian<int80_little, uint80_little> {};
+        test_extended_euclidian<int80_big, uint80_big> {};
+
+        test_extended_euclidian<int128, uint128> {};
+        test_extended_euclidian<int128_little, uint128_little> {};
+        test_extended_euclidian<int128_big, uint128_big> {};
 
         test_extended_euclidian<Z, N> {};
 
         test_extended_euclidian<Zl1, Nl> {};
         test_extended_euclidian<Zb1, Nb> {};
 
-        test_extended_euclidian<Z_bytes_twos_little, Z_bytes_twos_little> {};
-        test_extended_euclidian<Z_bytes_twos_big, Z_bytes_twos_big> {};
+        test_extended_euclidian<Z_bytes_BC_little, Z_bytes_BC_little> {};
+        test_extended_euclidian<Z_bytes_BC_big, Z_bytes_BC_big> {};
 
         test_extended_euclidian<int_big<9, byte>, uint_big<9, byte>> {};
         test_extended_euclidian<int_big<10, byte>, uint_big<10, byte>> {};
@@ -57,7 +65,7 @@ namespace data::math {
         test_extended_euclidian<dec_int, dec_uint> {};
         test_extended_euclidian<hex_int, hex_uint> {};
 
-        test_extended_euclidian<hex_int_twos, hex_int_twos> {};
+        test_extended_euclidian<hex_int_BC, hex_int_BC> {};
         
     }
     

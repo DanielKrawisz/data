@@ -7,7 +7,9 @@
 
 #include <data/encoding/integer.hpp>
 #include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/integer.hpp>
+#include <data/math/number/division.hpp>
+
+#include <data/encoding/digits.hpp>
 
 namespace data::math::number {
     
@@ -67,72 +69,7 @@ namespace data::math::number {
         return double (Z (*this));
     }
     
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator / (const N_bytes<r, word> &x, const N_bytes<r, word> &j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<N_bytes<r, word>> {} (x, nonzero<N_bytes<r, word>> {j}).Quotient;
-    }
-    
-    template <endian::order r, complement c, std::unsigned_integral word>
-    Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, const Z_bytes<r, c, word> &j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<Z_bytes<r, c, word>> {} (x, nonzero<Z_bytes<r, c, word>> {j}).Quotient;
-    }
-    
-    template <endian::order r, complement c, std::unsigned_integral word>
-    Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, const N_bytes<r, word> &j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<Z_bytes<r, c, word>> {} (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Quotient;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator / (const N_bytes<r, word> &x, uint64 j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<N_bytes<r, word>> {} (x, nonzero<N_bytes<r, word>> {N_bytes<r, word> {j}}).Quotient;
-    }
-    
-    template <endian::order r, complement c, std::unsigned_integral word>
-    Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, int64 j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<Z_bytes<r, c, word>> {} (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Quotient;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator % (const N_bytes<r, word> &x, const N_bytes<r, word> &j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<N_bytes<r, word>> {} (x, nonzero<N_bytes<r, word>> {j}).Remainder;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator % (const Z_bytes<r, complement::ones, word> &x, const N_bytes<r, word> &j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<Z_bytes<r, complement::ones, word>, N_bytes<r, word>> {}
-            (x, nonzero<Z_bytes<r, complement::ones, word>> {Z_bytes<r, complement::ones, word> {j}}).Remainder;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> inline operator %
-        (const Z_bytes<r, complement::twos, word> &x, const Z_bytes<r, complement::twos, word> &j) {
-        if (j == 0) throw division_by_zero {};
-        return divide<Z_bytes<r, complement::twos, word>> {} (x, nonzero<Z_bytes<r, complement::twos, word>> {j}).Remainder;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    uint64 inline operator % (const N_bytes<r, word> &x, uint64 j) {
-        if (j == 0) throw division_by_zero {};
-        return uint64 (divide<N_bytes<r, word>> {} (x, nonzero<N_bytes<r, word>> {N_bytes<r, word> {j}}).Remainder);
-    }
-
-    template <endian::order r, complement c, std::unsigned_integral word>
-    uint64 inline operator % (const Z_bytes<r, c, word> &x, uint64 j) {
-        if (j == 0) throw division_by_zero {};
-        return uint64 (divide<Z_bytes<r, c, word>> {} (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Remainder);
-    }
-    
 }
-
-#include <data/encoding/digits.hpp>
-#include <data/math/number/integer.hpp>
 
 namespace data::encoding::decimal {
     
@@ -256,28 +193,32 @@ namespace data::encoding::hexidecimal {
                 remainder = total >> 4;
             }
         }
-        
+
         template <math::number::complement c, hex::letter_case zz> struct divide {
-            math::division<integer<c, zz>> operator () (const integer<c, zz> &n, const integer<c, zz> &x) const {
-                if (x == 0) throw math::division_by_zero {};
-                // it is important to have this optimization. 
-                // I can't say why or I'll be embarrassed. 
-                if (x == 16) return math::division<integer<c, zz>> {*this >> 4, *this & integer<c, zz> {4}};
+            // if c is ones, nn must be either ones or nones.
+            // if c is twos, nn must be twos.
+            template <math::number::complement nn>
+            division<integer<c, zz>, decltype (abs (std::declval<integer<c, zz>> ()))>
+            operator () (const integer<c, zz> &n, const math::nonzero<integer<nn, zz>> &x) const {
+                if (x.Value == 0) throw math::division_by_zero {};
+
+                using abs_type = decltype (abs (std::declval<integer<c, zz>> ()));
+                // We need this optimization because we use division to convert from hex strings to N.
+                if (x.Value == 16) return division<integer<c, zz>, abs_type> {n >> 4, n & integer<c, zz> {4}};
                 
-                else return math::number::integer_divide (*this, x);
+                else return math::number::integer_divide (n, x.Value);
             }
         };
         
         template <hex::letter_case zz> struct divide<complement::nones, zz> {
-            math::division<integer<complement::nones, zz>> operator ()
-                (const integer<complement::nones, zz> &n, const integer<complement::nones, zz> &x) const {
-                if (x == 0) throw math::division_by_zero {} ;
-                // it is important to have this optimization. 
-                // I can't say why or I'll be embarrassed. 
-                if (x == 16) return math::division<integer<complement::nones, zz>>{
-                    *this >> 4, *this & integer<complement::nones, zz> {4}};
+            division<integer<complement::nones, zz>> operator ()
+                (const integer<complement::nones, zz> &n, const math::nonzero<integer<complement::nones, zz>> &x) const {
+                if (x.Value == 0) throw math::division_by_zero {} ;
+                // We need this optimization because we use division to convert from hex strings to N.
+                if (x.Value == 16) return division<integer<complement::nones, zz>>{
+                    n >> 4, n & integer<complement::nones, zz> {4}};
                 
-                return math::number::natural_divide (*this, x);
+                return math::number::natural_divide (n, x.Value);
             }
         };
 
@@ -305,17 +246,6 @@ namespace data::encoding::hexidecimal {
             }
         };
         
-    }
-    
-    template <complement c, hex::letter_case zz>
-    math::division<integer<c, zz>> integer<c, zz>::divide (const integer<c, zz> &x) const {
-        if (x == 0) throw math::division_by_zero {};
-        // it is important to have this optimization. 
-        // I can't say why or I'll be embarrassed. 
-        if (x == 16) return math::division<integer<c, zz>> {*this >> 4, *this & integer<c, zz> {4}};
-        
-        if constexpr (c == complement::nones) return math::number::natural_divide (*this, x);
-        else return math::number::integer_divide<integer<c, zz>, integer<c, zz>> (*this, x);
     }
     
     template <complement c, hex::letter_case zz> 
@@ -358,6 +288,83 @@ namespace data::encoding::integer {
         return ss.str ();
     }
     
+}
+
+namespace data::math {
+
+    template <hex_case zz>
+    division<hex::uint<zz>, unsigned int> inline
+    divide<hex::uint<zz>, int>::operator () (const hex::uint<zz> &d, const nonzero<int> &z) {
+        if (z.Value == 16) {
+            if (d < 16) return {hex::uint<zz> {"0x"}, static_cast<unsigned int> (uint64 (d))};
+            return {hex::uint<zz> {std::string {"0x0"} + d.substr (2, d.size () - 3)}, static_cast<unsigned int> (uint64 (d & 0x0f))};
+        }
+
+        auto [quotient, remainder] = divide<Z, Z> {} (Z (d), nonzero<Z> {z.Value});
+        return division<hex::uint<zz>, unsigned int> {hex::uint<zz> {data::abs (quotient)}, static_cast<unsigned int> (uint64 (remainder))};
+    }
+
+    template <hex_case zz>
+    division<hex::int1<zz>, unsigned int> inline
+    divide<hex::int1<zz>, int>::operator () (const hex::int1<zz> &d, const nonzero<int> &z) {
+        if (z.Value == 16) {
+            if (d < 0) {
+                auto [quotient, remainder] = division<hex::intBC<zz>, int> {} (-d, z);
+                return {-quotient - 1, 16 - remainder};
+            }
+
+            if (d < 16) return {hex::int1<zz> {"0x"}, static_cast<unsigned int> (int64 (d))};
+            return {hex::int1<zz> {std::string {"0x0"} + d.substr (2, d.size () - 3)}, static_cast<unsigned int> (int64 (d & 0x0f))};
+        }
+
+        auto [quotient, remainder] = divide<Z, Z> {} (Z (d), nonzero<Z> {z.Value});
+        return division<hex::int1<zz>, unsigned int> {hex::int1<zz> {quotient}, static_cast<unsigned int> (uint64 (remainder))};
+    }
+
+    template <hex_case zz>
+    division<hex::intBC<zz>, int> inline
+    divide<hex::intBC<zz>, int>::operator () (const hex::intBC<zz> &d, const nonzero<int> &z) {
+        if (z.Value == 16) {
+            if (d < 0) {
+                auto [quotient, remainder] = division<hex::intBC<zz>, int> {} (-d, z);
+                return {-quotient - 1, 16 - remainder};
+            }
+
+            if (d < 16) return {hex::intBC<zz> {"0x"}, static_cast<unsigned int> (int64 (d))};
+            return {hex::intBC<zz> {std::string {"0x0"} + d.substr (2, d.size () - 3)}, static_cast<int> (int64 (d & 0x0f))};
+        }
+
+        auto [quotient, remainder] = divide<Z, Z> {} (Z (d), nonzero<Z> {z.Value});
+        return division<hex::intBC<zz>, unsigned int> {hex::intBC<zz> {quotient}, static_cast<unsigned int> (uint64 (remainder))};
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    division<N_bytes<r, word>, N_bytes<r, word>> inline
+    divide<N_bytes<r, word>, N_bytes<r, word>>::operator ()
+        (const N_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
+        return number::natural_divide (a, b.Value);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    division<Z_bytes<r, word>, N_bytes<r, word>> inline
+    divide<Z_bytes<r, word>, N_bytes<r, word>>::operator ()
+        (const Z_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
+        return number::integer_divide (a, b.Value);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    division<Z_bytes<r, word>, N_bytes<r, word>> inline
+    divide<Z_bytes<r, word>, Z_bytes<r, word>>::operator ()
+        (const Z_bytes<r, word> &a, const nonzero<Z_bytes<r, word>> &b) {
+        return number::integer_divide (a, b.Value);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    division<Z_bytes_BC<r, word>, Z_bytes_BC<r, word>> inline
+    divide<Z_bytes_BC<r, word>, Z_bytes_BC<r, word>>::operator ()
+        (const Z_bytes_BC<r, word> &a, const nonzero<Z_bytes_BC<r, word>> &b) {
+        return number::integer_divide (a, b.Value);
+    }
 }
 
 #endif

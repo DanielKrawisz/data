@@ -14,11 +14,8 @@ namespace data::functional {
     concept function = std::regular_invocable<F, Args...> && requires (F &&f, Args&&... args) {
         {std::invoke (std::forward<F> (f), std::forward<Args> (args)...)} -> implicitly_convertible_to<output>;
     };
-}
 
-namespace data {
-    
-    // It is always possible to construct the identity function. 
+    // It is always possible to construct the identity function.
     template <typename X>
     struct identity {
         X operator () (const X &x) const {
@@ -28,27 +25,27 @@ namespace data {
 
     // and the do nothing function.
     template <typename ... args> void do_nothing (args...) {}
-    
-    // Given an element of Y, we can construct a function from X to Y. 
+
+    // Given an element of Y, we can construct a function from X to Y.
     template <typename X, typename Y>
     struct constant {
         Y Constant;
-        
+
         constant (Y c) : Constant {c} {}
-        
+
         Y operator () (const X &) const {
             return Constant;
         }
     };
-    
+
     template <typename F, typename X, typename Y> struct inverse;
-    
+
     template <typename X> struct inverse<identity<X>, X, X> {
         X operator () (const X &x) {
             return identity<X> {} (x);
         }
     };
-    
+
     template <typename F, typename X> struct action {
         F Function;
         X Value;
@@ -56,6 +53,9 @@ namespace data {
             return Function (Value, x);
         }
     };
+}
+
+namespace data {
 
     template <typename n, typename a, typename... args>
     function<n (args...)> inline curry (function<n (a, args...)> f, a va) {

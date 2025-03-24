@@ -103,7 +103,7 @@ namespace data {
         test_N_sign<base58_uint> ();
         test_N_sign<hex_uint> ();
         test_Z_sign<hex_int> ();
-        test_Z_sign<hex_int_twos> ();
+        test_Z_sign<hex_int_BC> ();
         
     }
 }

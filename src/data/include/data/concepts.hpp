@@ -31,6 +31,12 @@ namespace data {
             { To (from) };
         };
 
+    // here convertible to means either explicit or implicit.
+    template <typename From, typename To> concept convertible_to =
+        std::convertible_to<From, To> || requires (From from) {
+            { To (from) };
+        };
+
     template <typename Type, typename Argument>
     struct is_implicitly_constructible :
         std::bool_constant<is_constructible_v<Type, Argument> && is_implicitly_convertible_v<Argument, Type>> {};

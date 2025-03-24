@@ -5,7 +5,9 @@
 #ifndef DATA_ARITHMETIC_ARITHMETIC
 #define DATA_ARITHMETIC_ARITHMETIC
 
-#include <data/math/sign.hpp>
+#include <data/sign.hpp>
+#include <data/math/norm.hpp>
+#include <data/math/algebra.hpp>
 #include <data/arithmetic/halves.hpp>
 #include <data/arithmetic/complement.hpp>
 #include <data/arithmetic/carry.hpp>

@@ -5,8 +5,10 @@
 #ifndef DATA_MATH_NUMBER_GMP_Z
 #define DATA_MATH_NUMBER_GMP_Z
 
+#include <data/power.hpp>
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/math/number/division.hpp>
 
 namespace data::encoding::hexidecimal { 
     
@@ -189,6 +191,207 @@ namespace data::math::number::GMP {
         __gmp_binary_rshift::eval (a.MPZ, a.MPZ, x);
         return a;
     }
+    bool inline operator == (const N &a, const N &b) {
+        return a.Value == b.Value;
+    }
+
+    auto inline operator <=> (const N &a, const N &b) -> decltype (std::declval<Z> () <=> std::declval<Z> ()) {
+        return a.Value <=> b.Value;
+    }
+
+    N inline operator + (const N &a, const N &b) {
+        return N {a.Value + b.Value};
+    }
+
+    N inline operator - (const N &a, const N &b) {
+        return N {a.Value < b.Value ? 0 : a.Value - b.Value};
+    }
+
+    N inline operator * (const N &a, const N &b) {
+        return N {a.Value * b.Value};
+    }
+
+    Z inline operator + (const N &a, const Z &b) {
+        return a.Value + b;
+    }
+
+    Z inline operator - (const N &a, const Z &b) {
+        return a.Value - b;
+    }
+
+    Z inline operator * (const N &a, const Z &b) {
+        return a.Value * b;
+    }
+
+    Z inline operator + (const Z &a, const N &b) {
+        return a + b.Value;
+    }
+
+    Z inline operator - (const Z &a, const N &b) {
+        return a - b.Value;
+    }
+
+    Z inline operator * (const Z &a, const N &b) {
+        return a * b.Value;
+    }
+
+    Z inline operator - (const N &a) {
+        return -a.Value;
+    }
+
+    // bit operations
+    N inline operator | (const N &a, const N &b) {
+        return N {a.Value | b};
+    }
+
+    N inline operator & (const N &a, const N &b) {
+        return N {a.Value & b};
+    }
+
+    // divided by
+    N inline operator / (const N &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return N {divide<Z> {} (a.Value, nonzero {b.Value}).Quotient};
+    }
+
+    Z inline operator / (const Z &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return divide<Z> {} (a, nonzero {b.Value}).Quotient;
+    }
+
+    N inline operator / (const N &a, uint64 b) {
+        if (b == 0) throw division_by_zero {};
+        return N {divide<Z> {} (a.Value, nonzero {Z (b)}).Quotient};
+    }
+
+    // mod
+    N inline operator % (const N &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return divide<N> {} (a, nonzero {b}).Remainder;
+    }
+
+    N inline operator % (const Z &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return divide<Z> {} (a, nonzero {b.Value}).Remainder;
+    }
+
+    uint64 inline operator % (const N &a, uint64 b) {
+        if (b == 0) throw division_by_zero {};
+        return uint64 (divide<Z> {} (a.Value, nonzero {Z (b)}).Remainder);
+    }
+
+    // bit shift, which really just means
+    // powers of two.
+    N inline operator << (const N &a, int b) {
+        return N {a.Value << b};
+    }
+
+    N inline operator >> (const N &a, int b) {
+        return N {a.Value >> b};
+    }
+
+    // pre increment
+    N inline &operator ++ (N &a) {
+        ++a.Value;
+        return a;
+    }
+
+    N inline &operator -- (N &a) {
+        --a.Value;
+        return a;
+    }
+
+    // post increment
+    N inline operator ++ (N &a, int) {
+        auto b = a;
+        ++a;
+        return b;
+    }
+
+    N inline operator -- (N &a, int) {
+        auto b = a;
+        --a;
+        return b;
+    }
+
+    Z inline &operator += (Z &a, const N &b) {
+        a += b.Value;
+        return a;
+    }
+
+    Z inline &operator -= (Z &a, const N &b) {
+        return a -= b.Value;
+    }
+
+    Z inline &operator *= (Z &a, const N &b) {
+        a *= b.Value;
+        return a;
+    }
+
+    N inline &operator &= (N &a, const N &b) {
+        a.Value &= b.Value;
+        return a;
+    }
+
+    N inline &operator |= (N &a, const N &b) {
+        a.Value |= b.Value;
+        return a;
+    }
+
+    N inline &operator ^= (N &a, uint64 b) {
+        a.Value ^= b;
+        return a;
+    }
+
+    N inline &operator /= (N &a, const N &b) {
+        a.Value /= b.Value;
+        return a;
+    }
+
+    N inline &operator /= (N &a, uint64 b) {
+        a.Value /= b;
+        return a;
+    }
+
+    N inline &operator %= (N &a, const N &b) {
+        a.Value = a.Value % b;
+        return a;
+    }
+
+    N inline &operator <<= (N &a, int i) {
+        a.Value <<= i;
+        return a;
+    }
+
+    N inline &operator >>= (N &a, int i) {
+        a.Value >>= i;
+        return a;
+    }
+
+    // exponential
+    N inline operator ^ (const N &a, const N &b) {
+        return data::pow<N, N> (a, b);
+    }
+
+    Z inline operator ^ (const Z &a, const N &b) {
+        return data::pow<Z, N> (a, b);
+    }
+
+    N inline operator ^ (const N &a, uint64 b) {
+        return data::pow<N, uint64> (a, b);
+    }
+
+    bool inline operator == (const uint64 &u, const N &n) {
+        return Z (u) == n.Value;
+    }
+
+    std::weak_ordering inline operator <=> (const uint64 &u, const N &n) {
+        return Z (u) <=> n.Value;
+    }
+
+    std::weak_ordering inline operator <=> (const int64 &i, const Z &n) {
+        return Z (i) <=> n;
+    }
 }
 
 namespace data::math {
@@ -196,6 +399,19 @@ namespace data::math {
     N inline abs<Z>::operator () (const Z &z) {
         return N {z < 0 ? -z : z};
     }
+
+    division<N, N> inline divide<N, N>::operator () (const N &a, const nonzero<N> &b) {
+        return number::natural_divide (a, b.Value);
+    }
+
+    division<Z, N> inline divide<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
+        return number::integer_divide (a, b.Value);
+    }
+
+    division<Z, N> inline divide<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
+        return number::integer_divide (a, b.Value);
+    }
+
 }
 
 namespace data::math::number {
@@ -210,88 +426,108 @@ namespace data::math::number {
         return --n;
     }
 
-    N<GMP::Z> inline operator + (const N<GMP::Z> &n, uint64 u) {
-        N<GMP::Z> sum;
+    nonzero<N> inline increment<N>::operator () (const N &n) {
+        nonzero<N> x {n};
+        ++x.Value;
+        return x;
+    }
+
+    N inline decrement<N>::operator () (const nonzero<N> &n) {
+        auto x = n.Value;
+        return --x;
+    }
+
+    N inline decrement<N>::operator () (const N &n) {
+        if (n == 0) return n;
+        auto x = n;
+        return --x;
+    }
+}
+
+namespace data::math::number::GMP {
+
+    N inline operator + (const N &n, uint64 u) {
+        N sum;
         __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return sum;
     }
 
-    N<GMP::Z> inline operator - (const N<GMP::Z> &n, uint64 u) {
+    N inline operator - (const N &n, uint64 u) {
         if (n <= u) return 0;
-        N<GMP::Z> diff;
+        N diff;
         __gmp_binary_minus::eval (diff.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return diff;
     }
 
-    N<GMP::Z> inline operator * (const N<GMP::Z> &n, uint64 u) {
-        N<GMP::Z> prod;
+    N inline operator * (const N &n, uint64 u) {
+        N prod;
         __gmp_binary_multiplies::eval (prod.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return prod;
     }
 
-    N<GMP::Z> inline operator + (uint64 u, const N<GMP::Z> & n) {
-        N<GMP::Z> sum;
+    N inline operator + (uint64 u, const N & n) {
+        N sum;
         __gmp_binary_plus::eval (sum.Value.MPZ, (long unsigned int) (u), n.Value.MPZ);
         return sum;
     }
 
-    N<GMP::Z> inline operator - (uint64 u, const N<GMP::Z> & n) {
+    N inline operator - (uint64 u, const N & n) {
         if (u <= n) return 0;
-        N<GMP::Z> diff;
+        N diff;
         __gmp_binary_minus::eval (diff.Value.MPZ, (long unsigned int) (u), n.Value.MPZ);
         return diff;
     }
 
-    N<GMP::Z> inline operator * (uint64 u, const N<GMP::Z> & n) {
-        N<GMP::Z> prod;
+    N inline operator * (uint64 u, const N & n) {
+        N prod;
         __gmp_binary_multiplies::eval (prod.Value.MPZ, (long unsigned int) (u), n.Value.MPZ);
         return prod;
     }
 
-    N<GMP::Z> inline &operator += (N<GMP::Z> &n, const N<GMP::Z> &z) {
+    N inline &operator += (N &n, const N &z) {
         __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, z.Value.MPZ);
         return n;
     }
 
-    N<GMP::Z> inline &operator -= (N<GMP::Z> &n, const N<GMP::Z> &z) {
+    N inline &operator -= (N &n, const N &z) {
         if (n <= z) n = 0;
         else __gmp_binary_minus::eval (n.Value.MPZ, n.Value.MPZ, z.Value.MPZ);
         return n;
     }
 
-    N<GMP::Z> inline &operator *= (N<GMP::Z> &n, const N<GMP::Z> &z) {
+    N inline &operator *= (N &n, const N &z) {
         __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, z.Value.MPZ);
         return n;
     }
 
-    N<GMP::Z> inline &operator += (N<GMP::Z> &n, const GMP::Z &z) {
+    N inline &operator += (N &n, const GMP::Z &z) {
         __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, z.MPZ);
         return n;
     }
 
-    N<GMP::Z> inline &operator -= (N<GMP::Z> &n, const GMP::Z &z) {
+    N inline &operator -= (N &n, const GMP::Z &z) {
         if (n <= z) n = 0;
         else __gmp_binary_minus::eval (n.Value.MPZ, n.Value.MPZ, z.MPZ);
         return n;
     }
 
-    N<GMP::Z> inline &operator *= (N<GMP::Z> &n, const GMP::Z &z) {
+    N inline &operator *= (N &n, const GMP::Z &z) {
         __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, z.MPZ);
         return n;
     }
 
-    N<GMP::Z> inline &operator += (N<GMP::Z> &n, uint64 u) {
+    N inline &operator += (N &n, uint64 u) {
         __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return n;
     }
 
-    N<GMP::Z> inline &operator -= (N<GMP::Z> &n, uint64 u) {
+    N inline &operator -= (N &n, uint64 u) {
         if (n <= u) n = 0;
         else __gmp_binary_minus::eval (n.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return n;
     }
 
-    N<GMP::Z> inline &operator *= (N<GMP::Z> &n, uint64 u) {
+    N inline &operator *= (N &n, uint64 u) {
         __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return n;
     }

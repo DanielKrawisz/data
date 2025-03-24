@@ -6,8 +6,8 @@
 #define DATA_MATH_NONNEGATIVE
 
 #include <data/valid.hpp>
-#include <data/math/ordered.hpp>
-#include <data/math/sign.hpp>
+#include <data/ordered.hpp>
+#include <data/sign.hpp>
 
 namespace data::math {
     

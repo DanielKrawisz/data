@@ -75,8 +75,8 @@ namespace data::math::space {
         using plane = simplex<2>;
         using space = simplex<3>;
 
-        using vector = typename space::vector<X, dim>;
-        using planar = typename space::planar<X, dim>;
+        using vector = typename space::template vector<X, dim>;
+        using planar = typename space::template planar<X, dim>;
 
         // whether a line contains a point, etc.
         template <size_t a, size_t b>
@@ -87,7 +87,7 @@ namespace data::math::space {
         static simplex<a + b> connect (const simplex<a> &, const simplex<b> &);
 
         // we represent objects as exterior algebraic objects of one higher dimension.
-        template <size_t order> struct simplex : space::exterior<X, order + 1, dim + 1> {
+        template <size_t order> struct simplex : space::template exterior<X, order + 1, dim + 1> {
             simplex (std::initializer_list<simplex<order - 1>>);
 
             // valid if nonzero and not parallel to the affine subspace.
@@ -154,7 +154,7 @@ namespace data::math::space {
     template <field X, ordered Q, size_t dim>
     struct elliptic : Euclidian<X, Q, dim> {
         template <size_t order>
-        struct simplex : Euclidian<X, Q, dim>::simplex<order> {
+        struct simplex : Euclidian<X, Q, dim>::template simplex<order> {
             using Euclidian<X, Q, dim>::template simplex<order>::simplex;
 
             // must be of quadrance 1.
@@ -194,6 +194,7 @@ namespace data::math::space {
 
         using value = unsigned_limit<X>;
 
+        // the rule is that no finite value can appear before an infinite value.
         template <size_t order>
         struct simplex : space::exterior<value, order, dim> {
             bool valid () const;

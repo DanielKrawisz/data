@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2022 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,37 +6,16 @@
 #define DATA_MATH_ALGEBRA
 
 #include <data/math/nonnegative.hpp>
+#include <data/arithmetic.hpp>
 
 namespace data::math {
 
     template <typename F, typename x> struct identity;
     template <typename F, typename x> struct inverse;
 
-    template <typename X> struct plus {
-        X operator () (const X &a, const X &b) {
-            return a + b;
-        }
-    };
-
     template <typename X> struct identity<plus<X>, X> {
         X operator () () {
             return X {0};
-        }
-    };
-
-    template <typename X> struct times {
-        X operator () (const X &a, const X &b) {
-            return a * b;
-        }
-    };
-
-    template <std::signed_integral X> struct times<X> {
-        X operator () (const X &a, const X &b) {
-            return a * b;
-        }
-
-        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
-            return a.Value * b.Value;
         }
     };
 

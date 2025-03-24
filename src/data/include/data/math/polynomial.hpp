@@ -6,12 +6,28 @@
 #define DATA_MATH_POLYNOMIAL
 
 #include <data/tools.hpp>
-#include <data/math/division.hpp>
-#include <data/math/arithmetic.hpp>
-#include <data/math/power.hpp>
+#include <data/divide.hpp>
+#include <data/arithmetic.hpp>
 #include <data/math/field.hpp>
 
 namespace data::math {
+
+    template <typename A, typename Exp = A>
+    struct power {
+        A Base;
+        Exp Exponent;
+
+        bool operator == (const power &x) const {
+            return Base == x.Base && Exponent == x.Exponent;
+        }
+    };
+
+    template <typename A, typename Mod>
+    std::ostream inline &operator << (std::ostream &o, const power<A, Mod> &p) {
+        o << p.Base;
+        if (p.Exponent != 1) o << " ^ " << p.Exponent;
+        return o;
+    }
 
     template <ring A, typename N, char x> struct polynomial;
 

@@ -6,15 +6,14 @@
 #define DATA_MATH_NUMBER_MODULAR
 
 #include <data/types.hpp>
-#include <data/math/power.hpp>
-#include <data/math/abs.hpp>
+#include <data/integral.hpp>
 #include <data/math/algebra.hpp>
 
 #include <cryptopp/integer.h>
 #include <cryptopp/modarith.h>
 
 namespace data::math::number {
-    
+    // TODO modular must satisfy group_integral
     template <auto mod, typename X = decltype (mod)> struct modular;
     
     template <auto mod, typename X = decltype (mod)>
@@ -72,6 +71,14 @@ namespace data::math::number {
         bool valid () const;
 
         operator CryptoPP::Integer () const;
+    };
+
+    template <auto mod, typename X> struct increment<modular<mod, X>> {
+        modular<mod, X> operator () (const modular<mod, X>);
+    };
+
+    template <auto mod, typename X> struct decrement<modular<mod, X>> {
+        modular<mod, X> operator () (const modular<mod, X>);
     };
 
     template <auto mod, typename X = decltype (mod)>

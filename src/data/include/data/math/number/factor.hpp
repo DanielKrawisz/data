@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_FACTOR
 
 #include <data/tools.hpp>
-#include <data/math/power.hpp>
+#include <data/math/polynomial.hpp>
 #include <data/math/number/eratosthenes.hpp>
 
 namespace data::math::number {

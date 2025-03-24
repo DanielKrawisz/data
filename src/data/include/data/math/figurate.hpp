@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_FIGURATE
 #define DATA_MATH_FIGURATE
 
-#include <data/math/division.hpp>
+#include <data/divide.hpp>
 
 namespace data::math {
 
