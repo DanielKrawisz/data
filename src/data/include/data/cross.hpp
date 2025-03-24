@@ -10,7 +10,7 @@
 #include <data/valid.hpp>
 #include <data/arithmetic/words.hpp>
 #include <data/stream.hpp>
-#include <data/math/abs.hpp>
+#include <data/abs.hpp>
 
 namespace data {
     

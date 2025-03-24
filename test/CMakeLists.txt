@@ -51,8 +51,10 @@ add_executable (unit_tests
     testHexidecimal.cpp
     testInfinite.cpp
     testDivision.cpp
-    testTwosComplement.cpp
+    testBitcoinNumbers.cpp
     testExtendedEuclidian.cpp
+    testEratosthenes.cpp
+    testPower.cpp
     testCaylayDickson.cpp
     testModular.cpp
     testAlgebra.cpp

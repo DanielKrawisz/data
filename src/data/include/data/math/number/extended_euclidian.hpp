@@ -5,13 +5,15 @@
 #ifndef DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 #define DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 
-#include <data/math/abs.hpp>
-#include <data/math/number/integer.hpp>
+#include <data/integral.hpp>
 #include <data/valid.hpp>
+#include <data/math/number/division.hpp>
 #include <sstream>
 
 namespace data::math::number::euclidian {
-    template <typename Z, typename N = decltype (data::abs (std::declval<Z> ()))> struct extended;
+    template <typename Z, typename N = decltype (data::abs (std::declval<Z> ()))>
+    requires integral_system<Z, N>
+    struct extended;
 }
 
 namespace data::math {
@@ -19,7 +21,7 @@ namespace data::math {
 }
 
 namespace data::math::number::euclidian {
-    template <typename Z, typename N>
+    template <typename Z, typename N> requires integral_system<Z, N>
     struct extended {
         N GCD;
         Z BezoutS;
@@ -49,7 +51,9 @@ namespace data::math::number::euclidian {
             
             sequence operator / (const sequence &s) const {
                 division<N> div = natural_divide<N> (Div.Remainder, s.Div.Remainder);
-                return {div, BezoutS - s.BezoutS * div.Quotient , BezoutT - s.BezoutT * div.Quotient};
+                return {div,
+                    static_cast<Z> (BezoutS - s.BezoutS * div.Quotient),
+                    static_cast<Z> (BezoutT - s.BezoutT * div.Quotient)};
             }
             
         };

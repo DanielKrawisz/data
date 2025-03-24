@@ -8,7 +8,7 @@
 #include <data/concepts.hpp>
 #include <data/functional/set.hpp>
 #include <data/indexed.hpp>
-#include <data/math/ordered.hpp>
+#include <data/ordered.hpp>
     
 namespace data {
 

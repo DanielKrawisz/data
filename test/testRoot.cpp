@@ -93,6 +93,6 @@ namespace data {
         test_root_Z<Z_bytes_big> ();
         test_root_Z<dec_int> ();
         test_root_Z<hex_int> ();
-        test_root_Z<hex_int_twos> ();
+        test_root_Z<hex_int_BC> ();
     }
 }

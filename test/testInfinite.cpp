@@ -79,13 +79,13 @@ namespace data {
         test_unsigned_infinite<N_bytes_little> ();
         test_signed_infinite<Z_bytes_big> ();
         test_unsigned_infinite<N_bytes_big> ();
-        test_signed_infinite<Z_bytes_twos_little> ();
+        test_signed_infinite<Z_bytes_BC_little> ();
         test_unsigned_infinite<dec_uint> ();
         test_unsigned_infinite<hex_uint> ();
         test_signed_infinite<dec_int> ();
         test_unsigned_infinite<base58_uint> ();
         test_signed_infinite<hex_int> ();
-        test_signed_infinite<hex_int_twos> ();
+        test_signed_infinite<hex_int_BC> ();
 
     }
 

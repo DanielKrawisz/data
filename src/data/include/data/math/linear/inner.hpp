@@ -6,7 +6,7 @@
 #define DATA_MATH_LINEAR_INNER
 
 #include <data/math/linear/space.hpp>
-#include <data/math/abs.hpp>
+#include <data/abs.hpp>
 
 namespace data::math::linear {
     template <typename F, typename V> struct inner;

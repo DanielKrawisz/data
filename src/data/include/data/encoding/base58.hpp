@@ -10,9 +10,9 @@
 #include <ctre.hpp>
 
 #include <data/encoding/invalid.hpp>
-#include <data/math/division.hpp>
-#include <data/math/sign.hpp>
-#include <data/math/abs.hpp>
+#include <data/divide.hpp>
+#include <data/sign.hpp>
+#include <data/abs.hpp>
 #include <data/math/root.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/digits.hpp>
@@ -132,8 +132,8 @@ namespace data::encoding::base58 {
         friend string operator "" _b58 (const char*, size_t);
         friend string operator "" _b58 (unsigned long long int);
 
-        math::division<string, uint64> divide (uint64) const;
-        math::division<string> divide (const string&) const;
+        //division<string, uint64> divide (uint64) const;
+        //division<string> divide (const string&) const;
 
     };
 
@@ -171,6 +171,10 @@ namespace data::math {
 
     template <> struct divide<base58_uint> {
         division<base58_uint> operator () (const base58_uint &v, const nonzero<base58_uint> &z);
+    };
+
+    template <> struct divide<base58_uint, int> {
+        division<base58_uint, unsigned int> operator () (const base58_uint &w, nonzero<int> x);
     };
 
 }
@@ -293,11 +297,11 @@ namespace data::encoding::base58 {
     inline string::string (uint64 x) : string {encode (math::N {x})} {}
 
     string inline operator / (const string &x, const string &y) {
-        return x.divide (y).Quotient;
+        return math::divide<string, string> {} (x, math::nonzero {y}).Quotient;
     }
 
     string inline operator % (const string &x, const string &y) {
-        return x.divide (y).Remainder;
+        return math::divide<string, string> {} (x, math::nonzero {y}).Remainder;
     }
 
     string inline &operator /= (string &x, const string &y) {

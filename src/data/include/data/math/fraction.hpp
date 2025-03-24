@@ -5,6 +5,7 @@
 #ifndef DATA_MATH_FRACTION
 #define DATA_MATH_FRACTION
 
+#include <data/math/norm.hpp>
 #include <data/math/number/rational.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/number/extended_euclidian.hpp>

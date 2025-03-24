@@ -63,10 +63,10 @@ namespace data {
     TEST (AbsTest, TestNegative) {
         
         using test_case = test_case_negative<int64, Z, Z_bytes_little, Z_bytes_big, 
-            Z_bytes_twos_little, Z_bytes_twos_big, 
+            Z_bytes_BC_little, Z_bytes_BC_big,
             int_big<9>, int_big<10>, int_big<11>, int_big<20>, 
             int_little<9>, int_little<10>, int_little<11>, int_little<20>, 
-            dec_int, hex_int, hex_int_twos>;
+            dec_int, hex_int, hex_int_BC>;
         
         test_case {0, 0};
         test_case {-1, 1};
@@ -97,6 +97,11 @@ namespace data {
         
         using test_case = test_case_abs<
             int64, uint64, Z, N,
+            int64_little, uint64_little,
+            int64_big, uint64_big,
+            int80, uint80,
+            int128, uint128,
+            int160, uint160,
             int_big<20>, uint_big<20>,
             int_big<9>, uint_big<9>,
             int_big<10>, uint_big<10>, 
@@ -107,11 +112,11 @@ namespace data {
             int_little<11>, uint_little<11>,
             Z_bytes_little, N_bytes_little,
             Z_bytes_big, N_bytes_big,
-            Z_bytes_twos_big, Z_bytes_twos_big,
-            Z_bytes_twos_little, Z_bytes_twos_little,
+            Z_bytes_BC_big, Z_bytes_BC_big,
+            Z_bytes_BC_little, Z_bytes_BC_little,
             dec_int, dec_uint,
             hex_int, hex_uint,
-            hex_int_twos, hex_int_twos>;
+            hex_int_BC, hex_int_BC>;
         
         test_case {0, 0u};
         test_case {1, 1u};

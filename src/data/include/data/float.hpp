@@ -5,7 +5,8 @@
 #ifndef DATA_FLOAT
 #define DATA_FLOAT
 
-#include <data/math/abs.hpp>
+#include <data/divide.hpp>
+#include <data/math/norm.hpp>
 #include <data/math/algebra.hpp>
 
 namespace data {
@@ -106,12 +107,6 @@ namespace data {
 }
 
 namespace data::math {
-    
-    template <std::floating_point X> struct abs<X> {
-        X operator () (const X &x) {
-            return x < 0 ? -x : x;
-        }
-    };
     
     template <std::floating_point X> struct quadrance<X> {
         X operator () (const X &x) {

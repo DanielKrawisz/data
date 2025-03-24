@@ -95,11 +95,11 @@ TEST (PolynomialTest, TestPolynomial) {
 
     test_polynomial<Z_bytes_little> {};
     test_polynomial<Z_bytes_big> {};
-    test_polynomial<Z_bytes_twos_little> {};
-    test_polynomial<Z_bytes_twos_big> {};
+    test_polynomial<Z_bytes_BC_little> {};
+    test_polynomial<Z_bytes_BC_big> {};
     test_polynomial<dec_int> {};
     test_polynomial<hex_int_ones> {};
-    test_polynomial<hex_int_twos> {};
+    test_polynomial<hex_int_BC> {};
 
     test_polynomial<fraction<int64>> {};
     test_polynomial<fraction<int_big<9>>> {};
@@ -114,11 +114,11 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial<Q> {};
     test_polynomial<Q_little> {};
     test_polynomial<Q_big> {};
-    test_polynomial<Q_twos_little> {};
-    test_polynomial<Q_twos_big> {};
+    test_polynomial<Q_BC_little> {};
+    test_polynomial<Q_BC_big> {};
     test_polynomial<fraction<dec_int>> {};
     test_polynomial<fraction<hex_int_ones>> {};
-    test_polynomial<fraction<hex_int_twos>> {};
+    test_polynomial<fraction<hex_int_BC>> {};
 /*
     test_polynomial<G> {};
     test_polynomial<GH> {};

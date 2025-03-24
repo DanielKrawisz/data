@@ -8,6 +8,7 @@
 #include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
+#include <data/math/number/division.hpp>
 #include <data/io/unimplemented.hpp>
 #include <algorithm>
 
@@ -132,26 +133,20 @@ namespace data::encoding {
         string operator | (const string &m, const string &n) {
             if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
             if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
-            return decimal::write(math::N_bytes<endian::little, byte>::read (m) | math::N_bytes<endian::little, byte>::read (n));
+            return decimal::write (math::N_bytes<endian::little, byte>::read (m) | math::N_bytes<endian::little, byte>::read (n));
         }
         
-        math::division<string, N> divide (const string &n, const N &x) {
+        division<string, N> divide (const string &n, const N &x) {
             if (x == 0) throw math::division_by_zero {};
-            // it is important to have this optimization. 
-            // I can't say why or I'll be embarrassed. 
+            // we need this optimization because we use divide to convert to N.
             if (x == 10) {
                 int last = n.size () - 1;
-                return math::division<string, N> {n.size () == 1 ? string {} : string (n.substr (0, last)), N (digit (n[last]))};
+                return division<string, N> {n.size () == 1 ? string {} : string (n.substr (0, last)), N (digit (n[last]))};
             }
             
-            math::division<N> div = math::number::natural_divide (N {n}, x);
+            division<N> div = math::number::natural_divide (N {n}, x);
             
-            return math::division<string, N> {decimal::write (div.Quotient), div.Remainder};
-        }
-        
-        math::division<string, uint64> string::divide (uint64 x) const {
-            math::division<string, N> div = decimal::divide (*this, N {x});
-            return math::division<string, uint64> {div.Quotient, uint64 (div.Remainder)};
+            return division<string, N> {decimal::write (div.Quotient), div.Remainder};
         }
         
         string operator / (const string &m, const string &x) {
@@ -304,5 +299,21 @@ namespace data::encoding {
     
     }
     
+}
+
+namespace data::math {
+
+    division<dec_uint, unsigned int> divide<dec_uint, int>::operator ()
+        (const dec_uint &x, const nonzero<int> &y) {
+        division<dec_uint, N> div = encoding::decimal::divide (x, N {y.Value});
+        return division<dec_uint, unsigned int> {div.Quotient, static_cast<unsigned int> (uint64 (div.Remainder))};
+    }
+
+    division<dec_int, unsigned int> divide<dec_int, int>::operator ()
+        (const dec_int &x, const nonzero<int> &y) {
+        division<dec_uint, unsigned int> d = math::divide<dec_uint, int> {} (abs<dec_int> {} (x), y);
+        return division<dec_int, unsigned int> {x < 0 || y.Value < 0 ? -d.Quotient: dec_int {d.Quotient}, d.Remainder};
+    }
+
 }
 

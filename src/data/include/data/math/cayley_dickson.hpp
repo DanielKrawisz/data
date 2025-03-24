@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_CAYLEY_DICKSON
 #define DATA_MATH_CAYLEY_DICKSON
 
-#include <data/math/abs.hpp>
+#include <data/abs.hpp>
 #include <data/math/nonnegative.hpp>
 #include <data/math/field.hpp>
 #include <data/math/algebra/algebra.hpp>

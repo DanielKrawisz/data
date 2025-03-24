@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/numbers.hpp"
-#include "data/math/power.hpp"
+#include "data/power.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -19,10 +19,10 @@ namespace data {
     TEST (TestPower, TestPower) {
 
         test_power<N> ();
-        //test_power<N_bytes_little> ();
-        //test_power<N_bytes_big> ();
-        //test_power<dec_uint> ();
-        //test_power<base58_uint> ();
+        test_power<N_bytes_little> ();
+        test_power<N_bytes_big> ();
+        test_power<dec_uint> ();
+        test_power<base58_uint> ();
 
     }
 

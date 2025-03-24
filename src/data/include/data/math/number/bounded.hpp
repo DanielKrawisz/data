@@ -9,13 +9,11 @@
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/math/number/gmp/Z.hpp>
-#include <data/math/number/integer.hpp>
 
 namespace data::math::number {
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        if (b == 0) throw division_by_zero {};
         return divide<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
     }
     
@@ -31,13 +29,11 @@ namespace data::math::number {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> inline operator % (const uint<r, x, word> &a, const uint<r, x, word> &b) {
-        if (b == 0) throw division_by_zero {};
         return data::divide<uint<r, x, word>> (a, nonzero<uint<r, x, word>> {b}).Remainder;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> inline operator % (const sint<r, x, word> &a, const uint<r, x, word> &b) {
-        if (b == 0) throw division_by_zero {};
         return data::divide<sint<r, x, word>> (a, nonzero<sint<r, x, word>> {sint<r, x, word> (b)}).Remainder;
     }
     
@@ -104,40 +100,85 @@ namespace data::encoding::hexidecimal {
 
 namespace data::math::number {
 
+    template struct bounded<false, endian::big, 10, byte>;
+    template struct bounded<true, endian::big, 10, byte>;
+    template struct bounded<false, endian::little, 10, byte>;
+    template struct bounded<true, endian::little, 10, byte>;
+
+    template struct bounded<false, endian::big, 5, uint16>;
+    template struct bounded<true, endian::big, 5, uint16>;
+    template struct bounded<false, endian::little, 5, uint16>;
+    template struct bounded<true, endian::little, 5, uint16>;
+
     template struct bounded<false, endian::big, 16, byte>;
     template struct bounded<true, endian::big, 16, byte>;
     template struct bounded<false, endian::little, 16, byte>;
     template struct bounded<true, endian::little, 16, byte>;
+
+    template struct bounded<false, endian::big, 4, uint32>;
+    template struct bounded<true, endian::big, 4, uint32>;
+    template struct bounded<false, endian::little, 4, uint32>;
+    template struct bounded<true, endian::little, 4, uint32>;
 
     template struct bounded<false, endian::big, 20, byte>;
     template struct bounded<true, endian::big, 20, byte>;
     template struct bounded<false, endian::little, 20, byte>;
     template struct bounded<true, endian::little, 20, byte>;
 
+    template struct bounded<false, endian::big, 5, uint32>;
+    template struct bounded<true, endian::big, 5, uint32>;
+    template struct bounded<false, endian::little, 5, uint32>;
+    template struct bounded<true, endian::little, 5, uint32>;
+
     template struct bounded<false,endian::big, 28, byte>;
     template struct bounded<true, endian::big, 28, byte>;
     template struct bounded<false, endian::little, 28, byte>;
     template struct bounded<true, endian::little, 28, byte>;
+
+    template struct bounded<false,endian::big, 7, uint32>;
+    template struct bounded<true, endian::big, 7, uint32>;
+    template struct bounded<false, endian::little, 7, uint32>;
+    template struct bounded<true, endian::little, 7, uint32>;
 
     template struct bounded<false, endian::big, 32, byte>;
     template struct bounded<true, endian::big, 32, byte>;
     template struct bounded<false, endian::little, 32, byte>;
     template struct bounded<true, endian::little, 32, byte>;
 
+    template struct bounded<false, endian::big, 8, uint32>;
+    template struct bounded<true, endian::big, 8, uint32>;
+    template struct bounded<false, endian::little, 8, uint32>;
+    template struct bounded<true, endian::little, 8, uint32>;
+
     template struct bounded<false, endian::big, 40, byte>;
     template struct bounded<true, endian::big, 40, byte>;
     template struct bounded<false, endian::little, 40, byte>;
     template struct bounded<true, endian::little, 40, byte>;
+
+    template struct bounded<false, endian::big, 10, uint32>;
+    template struct bounded<true, endian::big, 10, uint32>;
+    template struct bounded<false, endian::little, 10, uint32>;
+    template struct bounded<true, endian::little, 10, uint32>;
 
     template struct bounded<false, endian::big, 56, byte>;
     template struct bounded<true, endian::big, 56, byte>;
     template struct bounded<false, endian::little, 56, byte>;
     template struct bounded<true, endian::little, 56, byte>;
 
+    template struct bounded<false, endian::big, 14, uint32>;
+    template struct bounded<true, endian::big, 14, uint32>;
+    template struct bounded<false, endian::little, 14, uint32>;
+    template struct bounded<true, endian::little, 14, uint32>;
+
     template struct bounded<false, endian::big, 64, byte>;
     template struct bounded<true, endian::big, 64, byte>;
     template struct bounded<false, endian::little, 64, byte>;
     template struct bounded<true, endian::little, 64, byte>;
+
+    template struct bounded<false, endian::big, 16, uint32>;
+    template struct bounded<true, endian::big, 16, uint32>;
+    template struct bounded<false, endian::little, 16, uint32>;
+    template struct bounded<true, endian::little, 16, uint32>;
 
 }
 

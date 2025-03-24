@@ -163,7 +163,7 @@ namespace data {
 
     template <typename elem> template <typename N> N inline partitions<elem>::size () const {
         N b {List.size () - (Size.Value - Offset.Value)};
-        math::division<N> d = math::divide<N> {} (b, math::nonzero<N> {N (Offset.Value)});
+        division<N> d = math::divide<N> {} (b, math::nonzero<N> {N (Offset.Value)});
         return d.Remainder == 0 || d.Remainder >= Size.Value - Offset.Value ? d.Quotient : d.Quotient - 1;
     }
 

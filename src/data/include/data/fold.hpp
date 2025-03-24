@@ -6,7 +6,6 @@
 #define DATA_FOLD
 
 #include <data/sequence.hpp>
-#include <data/function.hpp>
 
 namespace data {
 

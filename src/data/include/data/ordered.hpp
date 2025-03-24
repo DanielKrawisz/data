@@ -6,7 +6,7 @@
 #define DATA_MATH_ORDERED
 
 #include <type_traits>
-
+#include <algorithm>
 #include <data/concepts.hpp>
 
 namespace data {

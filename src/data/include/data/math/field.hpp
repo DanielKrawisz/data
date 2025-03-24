@@ -6,7 +6,7 @@
 #define DATA_MATH_FIELD
 
 #include <data/concepts.hpp>
-#include <data/math/division.hpp>
+#include <data/divide.hpp>
 #include <data/math/ring.hpp>
 
 namespace data::math {

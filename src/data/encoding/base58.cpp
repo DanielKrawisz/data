@@ -6,8 +6,9 @@
 #include <data/math/number/bytes.hpp>
 #include <data/encoding/digits.hpp>
 
+using nat = data::math::N;
+
 namespace data::encoding::base58 {
-    using nat = math::N;
     
     // TODO it should be possible to compare decimal strings 
     // with basic functions in math::arithmetic.
@@ -133,32 +134,29 @@ namespace data::encoding::base58 {
         return encode (read_base<N_bytes_little> (m, 58, &digit) >> i);
     }
 
-    math::division<string, uint64> string::divide (uint64 x) const {
-        if (x == 0) throw math::division_by_zero {};
-
-        // it is important to have this optimization. 
-        if (x == 58) {
-            int last = string::size () - 1;
-            return math::division<string, uint64> {
-                string {std::string::substr (0, last)},
-                static_cast<uint64> (digit (std::string::operator [] (last)))};
-        }
-        
-        math::division<nat> div = math::divide<nat> {}
-            (*decode<nat> (*this), math::nonzero {nat {static_cast<uint64> (x)}});
-        return math::division<string, uint64> {encode (div.Quotient), uint64 (div.Remainder)};
-    }
-    
     string string::read (const std::string &x) {
         return encode (nat {x});
     }
 
-    math::division<string> string::divide (const string &x) const {
-        auto div = math::divide<N_bytes_little> {}
-        (read_base<N_bytes_little> (*this, 58, &digit), math::nonzero<N_bytes_little> {read_base<N_bytes_little> (x, 58, &digit)});
+}
 
-        return math::division<string> {encode (div.Quotient), encode (div.Remainder)};
+namespace data::math {
+
+    division<base58_uint, unsigned int> divide<base58_uint, int>::operator () (const base58_uint &w, nonzero<int> x) {
+        if (x == 0) throw math::division_by_zero {};
+
+        // it is important to have this optimization.
+        if (x == 58) {
+            int last = w.size () - 1;
+
+            return division<base58_uint, unsigned int> {
+                base58_uint {w.substr (0, last)},
+                static_cast<unsigned int> (encoding::base58::digit (w[last]))};
+        }
+
+        division<nat> div = math::divide<nat> {}
+            (*decode<nat> (w), math::nonzero {nat {static_cast<uint64> (x)}});
+        return division<base58_uint, unsigned int> {encoding::base58::encode (div.Quotient), static_cast<unsigned int> (uint64 (div.Remainder))};
     }
-
 }
 

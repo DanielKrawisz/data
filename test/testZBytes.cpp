@@ -279,21 +279,21 @@ namespace data {
 
     TEST (ZBytesTest, TestZBytesOnesAndTwos) {
 
-        EXPECT_EQ (Z_bytes_big (Z_bytes_twos_big (Z_bytes_big {1145})), Z_bytes_big {1145});
-        EXPECT_EQ (Z_bytes_big (Z_bytes_twos_big (Z_bytes_big {916})), Z_bytes_big {916});
-        EXPECT_EQ (Z_bytes_big (Z_bytes_twos_big (Z_bytes_big {229})), Z_bytes_big {229});
+        EXPECT_EQ (Z_bytes_big (Z_bytes_BC_big (Z_bytes_big {1145})), Z_bytes_big {1145});
+        EXPECT_EQ (Z_bytes_big (Z_bytes_BC_big (Z_bytes_big {916})), Z_bytes_big {916});
+        EXPECT_EQ (Z_bytes_big (Z_bytes_BC_big (Z_bytes_big {229})), Z_bytes_big {229});
 
-        EXPECT_EQ (Z_bytes_little (Z_bytes_twos_little (Z_bytes_little {1145})), Z_bytes_little {1145});
-        EXPECT_EQ (Z_bytes_little (Z_bytes_twos_little (Z_bytes_little {916})), Z_bytes_little {916});
-        EXPECT_EQ (Z_bytes_little (Z_bytes_twos_little (Z_bytes_little {229})), Z_bytes_little {229});
+        EXPECT_EQ (Z_bytes_little (Z_bytes_BC_little (Z_bytes_little {1145})), Z_bytes_little {1145});
+        EXPECT_EQ (Z_bytes_little (Z_bytes_BC_little (Z_bytes_little {916})), Z_bytes_little {916});
+        EXPECT_EQ (Z_bytes_little (Z_bytes_BC_little (Z_bytes_little {229})), Z_bytes_little {229});
 
-        EXPECT_EQ (Z_bytes_twos_big (Z_bytes_big (Z_bytes_twos_big {1145})), Z_bytes_twos_big {1145});
-        EXPECT_EQ (Z_bytes_twos_big (Z_bytes_big (Z_bytes_twos_big {916})), Z_bytes_twos_big {916});
-        EXPECT_EQ (Z_bytes_twos_big (Z_bytes_big (Z_bytes_twos_big {229})), Z_bytes_twos_big {229});
+        EXPECT_EQ (Z_bytes_BC_big (Z_bytes_big (Z_bytes_BC_big {1145})), Z_bytes_BC_big {1145});
+        EXPECT_EQ (Z_bytes_BC_big (Z_bytes_big (Z_bytes_BC_big {916})), Z_bytes_BC_big {916});
+        EXPECT_EQ (Z_bytes_BC_big (Z_bytes_big (Z_bytes_BC_big {229})), Z_bytes_BC_big {229});
 
-        EXPECT_EQ (Z_bytes_twos_little (Z_bytes_little (Z_bytes_twos_little {1145})), Z_bytes_twos_little {1145});
-        EXPECT_EQ (Z_bytes_twos_little (Z_bytes_little (Z_bytes_twos_little {916})), Z_bytes_twos_little {916});
-        EXPECT_EQ (Z_bytes_twos_little (Z_bytes_little (Z_bytes_twos_little {229})), Z_bytes_twos_little {229});
+        EXPECT_EQ (Z_bytes_BC_little (Z_bytes_little (Z_bytes_BC_little {1145})), Z_bytes_BC_little {1145});
+        EXPECT_EQ (Z_bytes_BC_little (Z_bytes_little (Z_bytes_BC_little {916})), Z_bytes_BC_little {916});
+        EXPECT_EQ (Z_bytes_BC_little (Z_bytes_little (Z_bytes_BC_little {229})), Z_bytes_BC_little {229});
     }
 
     TEST (ZBytesTest, TestZBytesZero) {
@@ -318,8 +318,8 @@ namespace data {
         }
 
         for (const string &str : twos_zeros) {
-            auto zb = Z_bytes_twos_big (str);
-            auto zl = Z_bytes_twos_little (str);
+            auto zb = Z_bytes_BC_big (str);
+            auto zl = Z_bytes_BC_little (str);
 
             EXPECT_EQ (zb, 0) << "expected " << std::hex << zb << " to be zero.";
             EXPECT_EQ (data::sign (zb), math::zero);

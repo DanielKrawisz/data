@@ -6,7 +6,7 @@
 #define DATA_MATH_LINEAR_SPACE
 
 #include <data/cross.hpp>
-#include <data/math/arithmetic.hpp>
+#include <data/arithmetic.hpp>
 #include <data/math/module.hpp>
 #include <data/math/field.hpp>
 #include <data/math/infinite.hpp>

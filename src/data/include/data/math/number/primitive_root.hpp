@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_PRIMITIVE_ROOT
 #define DATA_MATH_NUMBER_PRIMITIVE_ROOT
 
-#include <data/math/power.hpp>
+#include <data/power.hpp>
 #include <data/math/number/totient.hpp>
 
 namespace data::math::number {
@@ -55,19 +55,19 @@ namespace data::math::number {
     }
 
     template <typename N> primitive_roots<N>::primitive_roots (const N &p, eratosthenes<N> &e):
-    P {p}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
-        return p.Base;
-    }, factorize<N> (Totient, e))} {}
+        P {p}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
+            return p.Base;
+        }, factorize<N> (Totient, e))} {}
 
     template <typename N> primitive_roots<N>::primitive_roots (const prime<N> &p, eratosthenes<N> &e):
-    P {p.Prime}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
-        return p.Base;
-    }, factorize<N> (Totient, e))} {}
+        P {p.Prime}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
+            return p.Base;
+        }, factorize<N> (Totient, e))} {}
 
     template <typename N> bool primitive_roots<N>::is (N a) const {
         // for exach prime factor p, test that a^(s/p) != 1.
         for (const prime<N> &p : PrimeFactors)
-            if (data::pow_mod (P, a, Totient / p.Prime) == N {1}) return false;
+            if (data::pow_mod (a, Totient / p.Prime, P) == N {1}) return false;
         return true;
     }
 
