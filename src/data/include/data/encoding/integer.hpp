@@ -327,6 +327,12 @@ namespace data::encoding {
         integer<c, cx> operator & (const integer<c, cx> &, const integer<c, cx> &);
 
         template <complement c, hex::letter_case cx>
+        integer<c, cx> operator / (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <complement c, hex::letter_case cx>
+        integer<c, cx> &operator /= (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <complement c, hex::letter_case cx>
         integer<c, cx> operator | (const integer<c, cx> &, uint64);
 
         template <complement c, hex::letter_case cx>
@@ -388,6 +394,9 @@ namespace data::encoding {
         
         template <hex::letter_case cx> 
         integer<complement::ones, cx> operator / (const integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<complement::ones, cx> operator % (const integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
         
         template <hex::letter_case cx> 
         integer<complement::ones, cx> &operator += (integer<complement::ones, cx> &n, const integer<complement::nones, cx> &x);
@@ -410,7 +419,7 @@ namespace data::encoding {
 namespace data::hex {
     template <hex_case zz> using uint = encoding::hexidecimal::integer<math::number::complement::nones, zz>;
     template <hex_case zz> using int1 = encoding::hexidecimal::integer<math::number::complement::ones, zz>;
-    template <hex_case zz> using int2 = encoding::hexidecimal::integer<math::number::complement::twos, zz>;
+    template <hex_case zz> using intBC = encoding::hexidecimal::integer<math::number::complement::twos, zz>;
     template <math::number::complement c, hex_case zz> using integer = encoding::hexidecimal::integer<c, zz>;
 }
 
@@ -441,8 +450,8 @@ namespace data::math {
         math::signature operator () (const hex::int1<zz> &);
     };
 
-    template <hex_case zz> struct sign<hex::int2<zz>> {
-        math::signature operator () (const hex::int2<zz> &);
+    template <hex_case zz> struct sign<hex::intBC<zz>> {
+        math::signature operator () (const hex::intBC<zz> &);
     };
     
     template <> struct abs<dec_uint> {
@@ -451,6 +460,14 @@ namespace data::math {
     
     template <> struct abs<dec_int> {
         dec_uint operator () (const dec_int &);
+    };
+
+    template <> struct negate<dec_uint> {
+        dec_int operator () (const dec_uint &);
+    };
+
+    template <> struct negate<dec_int> {
+        dec_int operator () (const dec_int &);
     };
     
     template <hex_case zz> struct abs<hex::uint<zz>> {
@@ -461,72 +478,20 @@ namespace data::math {
         hex::uint<zz> operator () (const hex::int1<zz> &);
     };
     
-    template <hex_case zz> struct abs<hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &);
+    template <hex_case zz> struct abs<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
 
-    template <> struct quadrance<dec_uint> {
-        dec_uint operator () (const dec_uint &);
+    template <hex_case zz> struct negate<hex::uint<zz>> {
+        hex::int1<zz> operator () (const hex::uint<zz> &);
     };
 
-    template <> struct quadrance<dec_int> {
-        dec_uint operator () (const dec_int &);
+    template <hex_case zz> struct negate<hex::int1<zz>> {
+        hex::int1<zz> operator () (const hex::int1<zz> &);
     };
 
-    template <hex_case zz> struct quadrance<hex::uint<zz>> {
-        hex::uint<zz> operator () (const hex::uint<zz> &);
-    };
-
-    template <hex_case zz> struct quadrance<hex::int1<zz>> {
-        hex::uint<zz> operator () (const hex::int1<zz> &);
-    };
-
-    template <hex_case zz> struct quadrance<hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &);
-    };
-
-    template <> struct re<dec_uint> {
-        dec_uint operator () (const dec_uint &);
-    };
-
-    template <> struct re<dec_int> {
-        dec_int operator () (const dec_int &);
-    };
-
-    template <> struct im<dec_uint> {
-        dec_uint operator () (const dec_uint &);
-    };
-
-    template <> struct im<dec_int> {
-        dec_int operator () (const dec_int &);
-    };
-
-    template <math::number::complement c, hex_case zz> struct re<hex::integer<c, zz>> {
-        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
-    };
-
-    template <math::number::complement c, hex_case zz> struct im<hex::integer<c, zz>> {
-        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
-    };
-
-    template <> struct conjugate<dec_int> {
-        dec_int operator () (const dec_int &);
-    };
-
-    template <hex_case zz> struct conjugate<hex::int1<zz>> {
-        hex::uint<zz> operator () (const hex::int1<zz> &);
-    };
-
-    template <hex_case zz> struct conjugate<hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &);
-    };
-
-    template <> struct inner<dec_uint> {
-        dec_uint operator () (const dec_uint &, const dec_uint &);
-    };
-
-    template <hex_case zz> struct inner<hex::uint<zz>> {
-        hex::uint<zz> operator () (const hex::uint<zz> &, const hex::uint<zz> &);
+    template <hex_case zz> struct negate<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
 
     template <> struct times<dec_int> {
@@ -571,8 +536,8 @@ namespace data::math {
         bool operator () (const hex::int1<zz> &);
     };
 
-    template <hex_case zz> struct is_zero<hex::int2<zz>> {
-        bool operator () (const hex::int2<zz> &);
+    template <hex_case zz> struct is_zero<hex::intBC<zz>> {
+        bool operator () (const hex::intBC<zz> &);
     };
     
     template <hex_case zz> struct is_negative<hex::uint<zz>> {
@@ -583,20 +548,20 @@ namespace data::math {
         bool operator () (const hex::int1<zz> &);
     };
 
-    template <hex_case zz> struct is_negative<hex::int2<zz>> {
-        bool operator () (const hex::int2<zz> &);
+    template <hex_case zz> struct is_negative<hex::intBC<zz>> {
+        bool operator () (const hex::intBC<zz> &);
     };
     
     template <number::complement c, hex_case zz> struct is_positive<hex::integer<c, zz>> {
         bool operator () (const hex::integer<c, zz> &);
     };
     
-    template <hex_case cx> struct is_positive_zero<hex::int2<cx>> {
-        bool operator () (const hex::int2<cx> &);
+    template <hex_case cx> struct is_positive_zero<hex::intBC<cx>> {
+        bool operator () (const hex::intBC<cx> &);
     };
     
-    template <hex_case cx> struct is_negative_zero<hex::int2<cx>> {
-        bool operator () (const hex::int2<cx> &);
+    template <hex_case cx> struct is_negative_zero<hex::intBC<cx>> {
+        bool operator () (const hex::intBC<cx> &);
     };
 
     template <> struct divide<dec_uint, dec_uint> {
@@ -626,9 +591,33 @@ namespace data::math {
         division<hex::int1<zz>, hex::uint<zz>> operator () (const hex::int1<zz> &, const nonzero<hex::uint<zz>> &);
     };
 
-    template <hex_case zz> requires number::integer<hex::int2<zz>>
-    struct divide<hex::int2<zz>, hex::int2<zz>> {
-        division<hex::int2<zz>, hex::int2<zz>> operator () (const hex::int2<zz> &, const nonzero<hex::int2<zz>> &);
+    template <hex_case zz>
+    struct divide<hex::intBC<zz>, hex::intBC<zz>> {
+        division<hex::intBC<zz>, hex::intBC<zz>> operator () (const hex::intBC<zz> &, const nonzero<hex::intBC<zz>> &);
+    };
+
+    // We have special cases for converting from string to N.
+    template <> struct divide<dec_uint, int> {
+        division<dec_uint, unsigned int> operator () (const dec_uint &, const nonzero<int> &);
+    };
+
+    template <> struct divide<dec_int, int> {
+        division<dec_int, unsigned int> operator () (const dec_int &, const nonzero<int> &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::uint<zz>, int> {
+        division<hex::uint<zz>, unsigned int> operator () (const hex::uint<zz> &, const nonzero<int> &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::int1<zz>, int> {
+        division<hex::int1<zz>, unsigned int> operator () (const hex::int1<zz> &, const nonzero<int> &);
+    };
+
+    template <hex_case zz>
+    struct divide<hex::intBC<zz>, int> {
+        division<hex::intBC<zz>, int> operator () (const hex::intBC<zz> &, const nonzero<int> &);
     };
     
 }
@@ -670,7 +659,7 @@ namespace data::math::number {
     };
 
     template <hex_case cx> 
-    bool sign_bit_set (const hex::int2<cx> &);
+    bool sign_bit_set (const hex::intBC<cx> &);
     
     template <hex_case cx> 
     bool is_minimal (const hex::uint<cx> &);
@@ -679,7 +668,7 @@ namespace data::math::number {
     bool is_minimal (const hex::int1<cx> &);
     
     template <hex_case cx> 
-    bool is_minimal (const hex::int2<cx> &);
+    bool is_minimal (const hex::intBC<cx> &);
     
     template <hex_case cx> 
     size_t minimal_size (const hex::uint<cx> &);
@@ -688,7 +677,7 @@ namespace data::math::number {
     size_t minimal_size (const hex::int1<cx> &);
     
     template <hex_case cx> 
-    size_t minimal_size (const hex::int2<cx> &);
+    size_t minimal_size (const hex::intBC<cx> &);
     
     template <hex_case cx> 
     hex::uint<cx> extend (const hex::uint<cx> &, size_t);
@@ -697,7 +686,7 @@ namespace data::math::number {
     hex::int1<cx> extend (const hex::int1<cx> &, size_t);
     
     template <hex_case cx> 
-    hex::int2<cx> extend (const hex::int2<cx> &, size_t);
+    hex::intBC<cx> extend (const hex::intBC<cx> &, size_t);
     
     template <hex_case cx> 
     hex::uint<cx> trim (const hex::uint<cx> &);
@@ -706,7 +695,7 @@ namespace data::math::number {
     hex::int1<cx> trim (const hex::int1<cx> &);
     
     template <hex_case cx> 
-    hex::int2<cx> trim (const hex::int2<cx> &);
+    hex::intBC<cx> trim (const hex::intBC<cx> &);
     
 }
 
@@ -739,8 +728,6 @@ namespace data::encoding::decimal {
         string &operator /= (const string &);
         string &operator %= (const string &);
         
-        math::division<string, uint64> divide (uint64) const;
-        
         bool operator == (uint64) const;
         std::strong_ordering operator <=> (uint64) const;
         
@@ -751,6 +738,15 @@ namespace data::encoding::decimal {
         string &operator += (uint64);
         string &operator -= (uint64);
         string &operator *= (uint64);
+
+        //string operator & (uint64 u) const;
+
+        string operator | (uint64) const;
+
+        string &operator &= (uint64);
+        string &operator |= (uint64);
+
+        string &operator /= (uint64);
         
         explicit operator double () const;
         explicit operator uint64 () const;
@@ -784,8 +780,8 @@ namespace data::encoding::signed_decimal {
         
         string &operator |= (const string &) const;
         string &operator &= (const string &) const;
-        
-        math::division<string, int64> divide (int64) const;
+
+        string &operator /= (const string &);
         
         bool operator == (int64) const;
         std::strong_ordering operator <=> (int64) const;
@@ -793,10 +789,19 @@ namespace data::encoding::signed_decimal {
         string operator + (int64) const;
         string operator - (int64) const;
         string operator * (int64) const;
+        string operator / (int64) const;
         
         string &operator += (int64);
         string &operator -= (int64);
         string &operator *= (int64);
+
+        string operator & (int64) const;
+        string operator | (int64) const;
+
+        string &operator &= (int64);
+        string &operator |= (int64);
+
+        string &operator /= (int64);
         
         explicit operator double () const;
         explicit operator int64 () const;
@@ -847,6 +852,18 @@ namespace data::encoding::hexidecimal {
         integer<c, cx> operator - (int64) const;
         integer<c, cx> operator * (int64) const;
 
+        integer<c, cx> &operator += (int64);
+        integer<c, cx> &operator -= (int64);
+        integer<c, cx> &operator *= (int64);
+
+        integer<c, cx> operator & (int64) const;
+        integer<c, cx> operator | (int64) const;
+
+        integer<c, cx> &operator &= (int64);
+        integer<c, cx> &operator |= (int64);
+
+        integer<c, cx> &operator /= (int64);
+
         explicit operator math::Z () const;
     };
 
@@ -857,13 +874,29 @@ namespace data::encoding::hexidecimal {
         complemented_string (uint64);
         explicit complemented_string (const math::N &);
 
-        explicit operator uint64 () const;
         explicit operator integer<complement::ones, cx> () const;
         explicit operator integer<complement::twos, cx> () const;
+        explicit operator uint64 () const {
+            return uint64 (math::N (*this));
+        }
 
         data::hex::uint<cx> operator + (uint64) const;
         data::hex::uint<cx> operator - (uint64) const;
         data::hex::uint<cx> operator * (uint64) const;
+
+        data::hex::uint<cx> &operator += (uint64);
+        data::hex::uint<cx> &operator -= (uint64);
+        data::hex::uint<cx> &operator *= (uint64);
+
+        data::hex::uint<cx> operator & (uint64) const;
+        data::hex::uint<cx> operator | (uint64) const;
+
+        data::hex::uint<cx> &operator &= (uint64);
+        data::hex::uint<cx> &operator |= (uint64);
+
+        data::hex::uint<cx> &operator /= (uint64);
+        data::hex::uint<cx> &operator %= (uint64);
+
     };
     
     template <complement c, hex::letter_case cx>
@@ -879,8 +912,6 @@ namespace data::encoding::hexidecimal {
         
         integer &operator <<= (int i);
         integer &operator >>= (int i);
-        
-        math::division<integer> divide (const integer &) const;
         
         integer operator / (const integer &x) const;
         integer operator % (const integer &x) const;
@@ -1116,17 +1147,14 @@ namespace data::encoding::signed_decimal {
     }
 
     string inline operator / (const string &v, const decimal::string &z) {
-        if (z == 0) throw math::division_by_zero {};
         return math::divide<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Quotient;
     }
 
     string inline operator / (const string &v, const string &z) {
-        if (z == 0) throw math::division_by_zero {};
         return math::divide<string, string> {} (v, math::nonzero<string> {z}).Quotient;
     }
 
     decimal::string inline operator % (const string &v, const decimal::string &z) {
-        if (z == 0) throw math::division_by_zero {};
         return math::divide<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Remainder;
     }
     
@@ -1515,7 +1543,7 @@ namespace data::math {
     }
 
     template <hex_case cx>
-    math::signature inline sign<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
+    math::signature inline sign<hex::intBC<cx>>::operator () (const hex::intBC<cx> &x) {
         if (!x.valid ()) throw exception{} << "invalid hexidecimal string: " << x;
 
         return data::is_zero (x) ? math::zero : math::number::sign_bit_set (x) ? math::negative : math::positive;
@@ -1609,7 +1637,7 @@ namespace data::math {
     }
     
     template <hex_case zz>
-    hex::int2<zz> inline abs<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
+    hex::intBC<zz> inline abs<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         return data::is_negative (x) ? -x : x;
     }
@@ -1666,8 +1694,8 @@ namespace data::math {
     };
 
     template <hex_case zz>
-    struct inverse<plus<hex::int2<zz>>, hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
+    struct inverse<plus<hex::intBC<zz>>, hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &a, const hex::intBC<zz> &b) {
             return b - a;
         }
     };
@@ -1693,8 +1721,8 @@ namespace data::math {
     };
 
     template <hex_case zz, uint64 pow>
-    struct root<hex::int2<zz>, pow> {
-        set<hex::int2<zz>> operator () (const hex::int2<zz> &n);
+    struct root<hex::intBC<zz>, pow> {
+        set<hex::intBC<zz>> operator () (const hex::intBC<zz> &n);
     };
 
 }
@@ -1780,17 +1808,17 @@ namespace data::encoding::hexidecimal {
         
     template <complement c, hex::letter_case zz> 
     integer<c, zz> inline integer<c, zz>::operator / (const integer &x) const {
-        return divide (x).Quotient;
+        return math::divide<integer<c, zz>> {} (*this, math::nonzero {x}).Quotient;
     }
     
     template <complement c, hex::letter_case zz> 
     integer<c, zz> inline integer<c, zz>::operator % (const integer &x) const {
-        return divide (x).Remainder;
+        return math::divide<integer<c, zz>> {} (*this, math::nonzero {x}).Remainder;
     }
     
     namespace {
         template <hex::letter_case cx, bool is_signed, endian::order r, size_t size> 
-        string<cx> write_arith (const arithmetic::endian_integral<is_signed, r, size> &z) {
+        string<cx> write_arith (const endian_integral<is_signed, r, size> &z) {
             std::stringstream ss;
             ss << "0x";
             hex::write (ss, z, cx);
@@ -1807,19 +1835,19 @@ namespace data::encoding::hexidecimal {
 
             integer<complement::nones, zz> operator () (uint64 i) {
                 return integer<complement::nones, zz>
-                    {write_arith<zz> (arithmetic::endian_integral<false, endian::big, 8> {i})};
+                    {write_arith<zz> (endian_integral<false, endian::big, 8> {i})};
             }
         };
         
         template <hex::letter_case zz> struct write_int<complement::ones, zz> {
             integer<complement::ones, zz> operator () (uint64 i) {
                 return integer<complement::nones, zz>
-                    {write_arith<zz> (arithmetic::endian_integral<false, endian::big, 8> {i})};
+                    {write_arith<zz> (endian_integral<false, endian::big, 8> {i})};
             }
 
             integer<complement::ones, zz> operator () (int64 i) {
                 return integer<complement::ones, zz>
-                    {write_arith<zz> (arithmetic::endian_integral<true, endian::big, 8> {i})};
+                    {write_arith<zz> (endian_integral<true, endian::big, 8> {i})};
             }
         };
         
@@ -1835,7 +1863,7 @@ namespace data::encoding::hexidecimal {
         private:
             integer<complement::twos, zz> write_uint (uint64 i) {
                 return integer<complement::twos, zz>
-                    {write_arith<zz> (arithmetic::endian_integral<false, endian::big, 8> {i})};
+                    {write_arith<zz> (endian_integral<false, endian::big, 8> {i})};
             } 
         };
 
@@ -1957,12 +1985,12 @@ namespace data::math::number {
 
     }
     
-    template <hex_case cx> hex::int2<cx> trim (const hex::int2<cx> &x) {
+    template <hex_case cx> hex::intBC<cx> trim (const hex::intBC<cx> &x) {
         
         if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         if (is_minimal (x)) return x;
 
-        hex::int2<cx> n {};
+        hex::intBC<cx> n {};
         if (data::is_zero (x)) return n;
         
         auto i = x.begin () + 4;
@@ -2563,7 +2591,7 @@ namespace data::encoding::hexidecimal {
 namespace data::math {
     
     template <hex_case zz>
-    bool is_positive_zero<hex::int2<zz>>::operator () (const hex::int2<zz> &z) {
+    bool is_positive_zero<hex::intBC<zz>>::operator () (const hex::intBC<zz> &z) {
         auto digit = z.begin () + 2;
         
         while (true) {
@@ -2577,7 +2605,7 @@ namespace data::math {
     }
     
     template <hex_case zz>
-        bool is_negative_zero<hex::int2<zz>>::operator () (const hex::int2<zz> &z) {
+        bool is_negative_zero<hex::intBC<zz>>::operator () (const hex::intBC<zz> &z) {
         auto digit = z.begin () + 2;
         if (*digit != '8') return false;
     
@@ -2592,13 +2620,13 @@ namespace data::math {
     }
     
     template <hex_case zz>
-    bool inline is_negative<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
+    bool inline is_negative<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         return number::sign_bit_set (x) && !data::is_negative_zero (x);
     }
     
     template <hex_case zz>
-    bool is_zero<hex::int2<zz>>::operator () (const hex::int2<zz> &z) {
+    bool is_zero<hex::intBC<zz>>::operator () (const hex::intBC<zz> &z) {
         auto digit = z.begin () + 2;
         if (digit == z.end ()) return true;
         if (*digit != '0' && *digit != '8') return false;
@@ -2616,7 +2644,7 @@ namespace data::math {
 
 namespace data::math::number {
     template <hex_case zz>
-    bool inline sign_bit_set (const hex::int2<zz> &x) {
+    bool inline sign_bit_set (const hex::intBC<zz> &x) {
         return x.size () > 2 && encoding::hexidecimal::digit (x[2]) > 7;
     }
     
@@ -2634,7 +2662,7 @@ namespace data::math::number {
     }
     
     template <hex_case zz>
-    bool inline is_minimal (const hex::int2<zz> &x) {
+    bool inline is_minimal (const hex::intBC<zz> &x) {
         // minimal zero. 
         return (x.size () == 2) ||
             // numbers without an initial 0x00 or 0x80
@@ -2698,7 +2726,7 @@ namespace data::math::number {
     }
     
     template <hex_case zz>
-    hex::int2<zz> extend (const hex::int2<zz> &x, size_t size) {
+    hex::intBC<zz> extend (const hex::intBC<zz> &x, size_t size) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         if (size & 1 || size < 2) throw exception {} << "invalid size " << size;
@@ -2711,7 +2739,7 @@ namespace data::math::number {
         
         if (x.size () == size) return x;
         
-        hex::int2<zz> n;
+        hex::intBC<zz> n;
         n.resize (size);
         auto i = n.begin () + 2;
         for (int zeros = 0; zeros < size - x.size (); zeros ++) {
@@ -2765,7 +2793,7 @@ namespace data::math::number {
     }
     
     template <hex_case zz>
-    size_t minimal_size (const hex::int2<zz> &x) {
+    size_t minimal_size (const hex::intBC<zz> &x) {
         if (x.size () == 2) return 2;
         // numbers that don't begin with 00 or 80 are minimal. 
         char z = x[2];

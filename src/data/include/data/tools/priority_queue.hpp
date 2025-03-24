@@ -8,7 +8,7 @@
 #include <data/functional/tree.hpp>
 #include <data/tools/linked_stack.hpp>
 #include <data/tools/linked_tree.hpp>
-#include <data/math/ordered.hpp>
+#include <data/ordered.hpp>
     
 namespace data::tool {
 

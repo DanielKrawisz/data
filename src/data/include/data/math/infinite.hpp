@@ -7,8 +7,8 @@
 
 #include <data/maybe.hpp>
 #include <data/either.hpp>
-#include <data/math/ordered.hpp>
-#include <data/math/sign.hpp>
+#include <data/ordered.hpp>
+#include <data/sign.hpp>
 #include <iostream>
 
 namespace data::math {

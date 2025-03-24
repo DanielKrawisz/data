@@ -58,14 +58,14 @@ namespace data::math {
         base58_uint b {""};
         hex_uint h0 {""};
         hex_int_ones h1 {""};
-        hex_int_twos h2 {""};
+        hex_int_BC h2 {""};
         
         dec_uint dv {"1"};
         dec_int sv {"1"};
         base58_uint bv {"1"};
         hex_uint h0v {"1"};
         hex_int_ones h1v {"1"};
-        hex_int_twos h2v {"1"};
+        hex_int_BC h2v {"1"};
         
         test_invalid (d, dv);
         test_invalid (s, sv);
@@ -98,7 +98,7 @@ namespace data::encoding {
         EXPECT_EQ (dec_int {}, "0");
         EXPECT_EQ (hex_uint {}, "0x");
         EXPECT_EQ (hex_int {}, "0x");
-        EXPECT_EQ (hex_int_twos {}, "0x");
+        EXPECT_EQ (hex_int_BC {}, "0x");
         EXPECT_EQ (base58_uint {}, "1");
         
         EXPECT_EQ (dec_uint {}, dec_uint {0u});
@@ -126,8 +126,8 @@ namespace data::encoding {
         EXPECT_EQ (hex_uint_1 + hex_uint_2, "0x03");
         
         EXPECT_EQ (hex_int {1} + hex_int {2}, "0x03");
-        auto hex_int2_1 = hex_int_twos {1};
-        auto hex_int2_2 = hex_int_twos {2};
+        auto hex_int2_1 = hex_int_BC {1};
+        auto hex_int2_2 = hex_int_BC {2};
         EXPECT_EQ (hex_int2_1 + hex_int2_2, "0x03");
         
         EXPECT_EQ (base58_uint {1} + base58_uint {2}, "4");
@@ -150,7 +150,7 @@ namespace data::encoding {
         auto hex_minus = hex_int_1 - hex_int_2;
 
         EXPECT_EQ (hex_minus, "0xff");
-        EXPECT_EQ (hex_int_twos {1} - hex_int_twos {2}, "0x81");
+        EXPECT_EQ (hex_int_BC {1} - hex_int_BC {2}, "0x81");
         EXPECT_EQ (base58_uint {1} - base58_uint {2}, "1");
         
     }
@@ -174,16 +174,16 @@ namespace data::encoding {
         EXPECT_EQ (hex_int {a} * hex_int {b}, hex_int {c});
         EXPECT_EQ (hex_int {a} * hex_int {nb}, hex_int {nc});
 
-        hex_int_twos h2a {a};
-        hex_int_twos h2b {b};
-        hex_int_twos h2c {c};
-        hex_int_twos h2r = h2a * h2b;
+        hex_int_BC h2a {a};
+        hex_int_BC h2b {b};
+        hex_int_BC h2c {c};
+        hex_int_BC h2r = h2a * h2b;
 
         EXPECT_EQ (h2r, h2c);
 
-        hex_int_twos h2nb {nb};
-        hex_int_twos h2nc {nc};
-        hex_int_twos h2nr = h2a * h2nb;
+        hex_int_BC h2nb {nb};
+        hex_int_BC h2nc {nc};
+        hex_int_BC h2nr = h2a * h2nb;
 
         EXPECT_EQ (h2nr, h2nc) <<
             "hex 2's complement: expected " << h2a << " * " << h2nb <<
@@ -197,27 +197,26 @@ namespace data::encoding {
         
         uint64 num = 432;
         
-        auto hex_div_16 = hex_uint {num}.divide (16);
+        division<dec_uint, unsigned int>    dec_expected_10 {43, 2};
+        division<hex_uint, unsigned int>    hex_expected_16 {27, 0};
+        division<base58_uint, unsigned int> b58_expected_58 {7, 26};
         
-        math::division<dec_uint, uint64>    dec_expected_10 {43, 2};
-        math::division<hex_uint>            hex_expected_16 {27, 0};
-        math::division<base58_uint, uint64> b58_expected_58 {7, 26};
+        division<dec_uint, unsigned int>    dec_expected_9 {48, 0};
+        division<hex_uint, unsigned int>    hex_expected_15 {28, 12};
+        division<base58_uint, unsigned int> b58_expected_57 {7, 33};
         
-        math::division<dec_uint, uint64>     dec_expected_9 {48, 0};
-        math::division<hex_uint>           hex_expected_15 {28, 12};
-        math::division<base58_uint, uint64> b58_expected_57 {7, 33};
-        
-        EXPECT_EQ (dec_uint {num}.divide (10),     dec_expected_10);
-        EXPECT_EQ (hex_div_16,                     hex_expected_16);
-        EXPECT_EQ (base58_uint {num}.divide (58),  b58_expected_58);
-        
-        EXPECT_EQ (dec_uint {num}.divide (9),       dec_expected_9);
-        EXPECT_EQ (hex_uint {num}.divide (15),     hex_expected_15);
-        EXPECT_EQ (base58_uint {num}.divide (57),  b58_expected_57);
+        EXPECT_EQ (data::divide (dec_uint {num},    math::nonzero {10}),  dec_expected_10);
+        EXPECT_EQ (data::divide (hex_uint {num},    math::nonzero {16}),  hex_expected_16);
+        EXPECT_EQ (data::divide (base58_uint {num}, math::nonzero {58}),  b58_expected_58);
+
+        EXPECT_EQ (data::divide (dec_uint {num},    math::nonzero {9}),   dec_expected_9);
+        EXPECT_EQ (data::divide (hex_uint {num},    math::nonzero {15}),  hex_expected_15);
+        EXPECT_EQ (data::divide (base58_uint {num}, math::nonzero {57}),  b58_expected_57);
         
     }
 
     TEST (StringNumbersTest, TestConvertStringNumbers) {
+
         EXPECT_EQ (N (dec_uint {1145}), N (1145));
         EXPECT_EQ (N (dec_uint {916}), N (916));
         EXPECT_EQ (N (dec_uint {229}), N (229));
@@ -238,8 +237,9 @@ namespace data::encoding {
         EXPECT_EQ (Z (hex_int {916}), Z (916));
         EXPECT_EQ (Z (hex_int {229}), Z (229));
 
-        EXPECT_EQ (Z (hex_int_twos {1145}), Z (1145));
-        EXPECT_EQ (Z (hex_int_twos {916}), Z (916));
-        EXPECT_EQ (Z (hex_int_twos {229}), Z (229));
+        EXPECT_EQ (Z (hex_int_BC {1145}), Z (1145));
+        EXPECT_EQ (Z (hex_int_BC {916}), Z (916));
+        EXPECT_EQ (Z (hex_int_BC {229}), Z (229));
+
     }
 }

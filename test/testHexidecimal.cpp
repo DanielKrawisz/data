@@ -829,7 +829,7 @@ namespace data::math::number {
 
     // the number with complement one should be converted to the
     // number in complement twos.
-    void test_complement_ones_to_twos (string ones, string twos) {
+    void test_complement_ones_to_BC (string ones, string twos) {
 
         auto o = hex<complement::ones> {ones};
         auto t = hex<complement::twos> {twos};
@@ -857,7 +857,7 @@ namespace data::math::number {
 
     // the number with complement twos should be converted to the
     // number in complement one.
-    void test_complement_twos_to_ones (string twos, string ones) {
+    void test_complement_BC_to_ones (string twos, string ones) {
 
         auto t = hex<complement::twos> {twos};
         auto o = hex<complement::ones> {ones};
@@ -890,48 +890,48 @@ namespace data::math::number {
     // we try to convert the second number into the first.
     TEST (HexidecimalTest, TestComplementOnesAndTwos) {
 
-        test_complement_ones_to_twos ("0x", "0x");
-        test_complement_ones_to_twos ("0x00", "0x");
-        test_complement_twos_to_ones ("0x", "0x");
-        test_complement_twos_to_ones ("0x00", "0x");
-        test_complement_twos_to_ones ("0x80", "0x");
-        test_complement_twos_to_ones ("0x8000", "0x");
+        test_complement_ones_to_BC ("0x", "0x");
+        test_complement_ones_to_BC ("0x00", "0x");
+        test_complement_BC_to_ones ("0x", "0x");
+        test_complement_BC_to_ones ("0x00", "0x");
+        test_complement_BC_to_ones ("0x80", "0x");
+        test_complement_BC_to_ones ("0x8000", "0x");
 
-        test_complement_ones_to_twos ("0x01", "0x01");
-        test_complement_ones_to_twos ("0x0001", "0x01");
-        test_complement_twos_to_ones ("0x01", "0x01");
-        test_complement_twos_to_ones ("0x0001", "0x01");
+        test_complement_ones_to_BC ("0x01", "0x01");
+        test_complement_ones_to_BC ("0x0001", "0x01");
+        test_complement_BC_to_ones ("0x01", "0x01");
+        test_complement_BC_to_ones ("0x0001", "0x01");
 
-        test_complement_ones_to_twos ("0x7f", "0x7f");
-        test_complement_ones_to_twos ("0x007f", "0x7f");
-        test_complement_twos_to_ones ("0x7f", "0x7f");
-        test_complement_twos_to_ones ("0x007f", "0x7f");
+        test_complement_ones_to_BC ("0x7f", "0x7f");
+        test_complement_ones_to_BC ("0x007f", "0x7f");
+        test_complement_BC_to_ones ("0x7f", "0x7f");
+        test_complement_BC_to_ones ("0x007f", "0x7f");
 
-        test_complement_ones_to_twos ("0xff", "0x81");
-        test_complement_ones_to_twos ("0xffff", "0x81");
-        test_complement_twos_to_ones ("0x81", "0xff");
-        test_complement_twos_to_ones ("0x8001", "0xff");
+        test_complement_ones_to_BC ("0xff", "0x81");
+        test_complement_ones_to_BC ("0xffff", "0x81");
+        test_complement_BC_to_ones ("0x81", "0xff");
+        test_complement_BC_to_ones ("0x8001", "0xff");
 
-        test_complement_ones_to_twos ("0x80", "0x8080");
-        test_complement_twos_to_ones ("0x8080", "0x80");
+        test_complement_ones_to_BC ("0x80", "0x8080");
+        test_complement_BC_to_ones ("0x8080", "0x80");
 
-        test_complement_ones_to_twos ("0x81", "0xff");
-        test_complement_twos_to_ones ("0xff", "0x81");
+        test_complement_ones_to_BC ("0x81", "0xff");
+        test_complement_BC_to_ones ("0xff", "0x81");
 
-        test_complement_ones_to_twos ("0xc0", "0xc0");
-        test_complement_twos_to_ones ("0xc0", "0xc0");
+        test_complement_ones_to_BC ("0xc0", "0xc0");
+        test_complement_BC_to_ones ("0xc0", "0xc0");
 
-        test_complement_ones_to_twos ("0x00ff", "0x00ff");
-        test_complement_ones_to_twos ("0x0080", "0x0080");
+        test_complement_ones_to_BC ("0x00ff", "0x00ff");
+        test_complement_ones_to_BC ("0x0080", "0x0080");
 
-        test_complement_ones_to_twos ("0xff80", "0x8080");
-        test_complement_twos_to_ones ("0x807f", "0x81");
+        test_complement_ones_to_BC ("0xff80", "0x8080");
+        test_complement_BC_to_ones ("0x807f", "0x81");
 
-        test_complement_ones_to_twos ("0xff7f", "0x8081");
-        test_complement_twos_to_ones ("0x8081", "0xff7f");
+        test_complement_ones_to_BC ("0xff7f", "0x8081");
+        test_complement_BC_to_ones ("0x8081", "0xff7f");
 
-        test_complement_ones_to_twos ("0xfe7f", "0x8181");
-        test_complement_twos_to_ones ("0x8181", "0xfe7f");
+        test_complement_ones_to_BC ("0xfe7f", "0x8181");
+        test_complement_BC_to_ones ("0x8181", "0xfe7f");
 
     }
     
@@ -1217,7 +1217,7 @@ namespace data::math::number {
             auto den = hex<n>::read (denominator);
             auto qu = hex<n>::read (quotient);
             auto re = hex<n>::read (remainder);
-            auto x = num.divide (den);
+            auto x = data::divide (num, math::nonzero {den});
 
             EXPECT_EQ (x.Quotient, qu);
             EXPECT_EQ (x.Remainder, re);
@@ -1396,8 +1396,8 @@ namespace data {
         test_hex_read_zero<N_bytes_big> {sizes};
         test_hex_read_zero<Z_bytes_little> {sizes};
         test_hex_read_zero<Z_bytes_big> {sizes};
-        test_hex_read_zero<Z_bytes_twos_little> {sizes};
-        test_hex_read_zero<Z_bytes_twos_big> {sizes};
+        test_hex_read_zero<Z_bytes_BC_little> {sizes};
+        test_hex_read_zero<Z_bytes_BC_big> {sizes};
         test_hex_read_zero<N> {sizes};
         test_hex_read_zero<Z> {sizes};
         test_hex_read_zero<uint_little<9>> {sizes};
@@ -1560,8 +1560,8 @@ namespace data {
         test_hex_read_and_write_bytes<N_bytes_big, math::number::complement::nones> (cases);
         test_hex_read_and_write_bytes<Z_bytes_little, math::number::complement::ones> (cases);
         test_hex_read_and_write_bytes<Z_bytes_big, math::number::complement::ones> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_twos_little, math::number::complement::twos> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_twos_big, math::number::complement::twos> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_BC_little, math::number::complement::twos> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_BC_big, math::number::complement::twos> (cases);
     }
 
 }

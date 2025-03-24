@@ -63,8 +63,8 @@ namespace data::math {
     }
     
     template <hex_case zz, uint64 pow> 
-    set<hex::int2<zz>> root<hex::int2<zz>, pow>::operator () (const hex::int2<zz> &n) {
-        set<hex::int2<zz>> x;
+    set<hex::intBC<zz>> root<hex::intBC<zz>, pow>::operator () (const hex::intBC<zz> &n) {
+        set<hex::intBC<zz>> x;
         set<Z> roots = root<Z, pow> {} (Z {n});
         for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::twos, zz> (z));
         return x;

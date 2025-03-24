@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_RATIONAL
 
 #include <data/math/field.hpp>
-#include <data/math/ordered.hpp>
+#include <data/ordered.hpp>
 
 namespace data::math {
     template <typename Q> concept rational = ordered<Q> && field<Q, plus<Q>, times<Q>>;

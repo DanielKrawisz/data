@@ -203,18 +203,18 @@ namespace data::math::number {
     };
 
     template <typename Z>
-    struct test_twos_complement :
+    struct test_BC_complement :
         test_minimal<Z>, test_negate<Z>, test_abs<Z>,
         test_increment_and_decrement<Z>,
         test_arithmetic<Z>, test_min_max<Z>,
         test_logic<Z>, test_compare<Z> {
-        test_twos_complement () {}
+        test_BC_complement () {}
     };
     
     TEST (TwosComplementTest, TestTwosComplement) {
-        test_twos_complement<hex_int_twos> {};
-        test_twos_complement<Z_bytes_twos_big> {};
-        test_twos_complement<Z_bytes_twos_little> {};
+        test_BC_complement<hex_int_BC> {};
+        test_BC_complement<Z_bytes_BC_big> {};
+        test_BC_complement<Z_bytes_BC_little> {};
     }
     
 }

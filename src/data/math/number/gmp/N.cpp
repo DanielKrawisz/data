@@ -230,19 +230,16 @@ namespace data::math::number::GMP {
         return mpz_get_si (MPZ);
     } 
 
-}
+    N::N (string_view x) : Value {GMP::N_read (x)} {}
 
-namespace data::math::number {
-    N<GMP::Z>::N (string_view x) : Value {GMP::N_read (x)} {}
-
-    N<GMP::Z>::operator uint64 () const {
+    N::operator uint64 () const {
         if (__gmp_binary_greater::eval (Value.MPZ, (unsigned long int) (std::numeric_limits<uint64>::max ())))
             throw exception {"too big"};
         if (*this < 0) throw exception {"too big"};
         return mpz_get_ui (Value.MPZ);
     }
 
-    std::ostream &operator << (std::ostream &o, const N<GMP::Z> &n) {
+    std::ostream &operator << (std::ostream &o, const N &n) {
         if (o.flags () & std::ios::hex) {
             encoding::hexidecimal::write (o, n);
             return o;

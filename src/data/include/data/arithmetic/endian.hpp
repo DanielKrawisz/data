@@ -8,50 +8,83 @@
 #include <boost/endian/arithmetic.hpp>
 
 #include <data/stream.hpp>
+#include <data/increment.hpp>
+#include <data/divide.hpp>
 #include <data/arithmetic/halves.hpp>
 #include <data/arithmetic/words.hpp>
-#include <data/math/number/integer.hpp>
 #include <data/math/infinite.hpp>
 
-namespace data::arithmetic {
+namespace data {
 
     template <bool is_signed, boost::endian::order Order, std::size_t bytes> struct endian_integral;
 
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> &operator ++ (endian_integral<z, o, s> &);
+    // big endian signed integer unaligned types
+    typedef endian_integral<true, endian::big, 1>           int8_big;
+    typedef endian_integral<true, endian::big, 2>          int16_big;
+    typedef endian_integral<true, endian::big, 3>          int24_big;
+    typedef endian_integral<true, endian::big, 4>          int32_big;
+    typedef endian_integral<true, endian::big, 5>          int40_big;
+    typedef endian_integral<true, endian::big, 6>          int48_big;
+    typedef endian_integral<true, endian::big, 7>          int56_big;
+    typedef endian_integral<true, endian::big, 8>          int64_big;
+
+    // big endian unsigned integer unaligned types
+    typedef endian_integral<false, endian::big, 1>         uint8_big;
+    typedef endian_integral<false, endian::big, 2>        uint16_big;
+    typedef endian_integral<false, endian::big, 3>        uint24_big;
+    typedef endian_integral<false, endian::big, 4>        uint32_big;
+    typedef endian_integral<false, endian::big, 5>        uint40_big;
+    typedef endian_integral<false, endian::big, 6>        uint48_big;
+    typedef endian_integral<false, endian::big, 7>        uint56_big;
+    typedef endian_integral<false, endian::big, 8>        uint64_big;
+
+    // little endian signed integer unaligned types
+    typedef endian_integral<true, endian::little, 1>     int8_little;
+    typedef endian_integral<true, endian::little, 2>    int16_little;
+    typedef endian_integral<true, endian::little, 3>    int24_little;
+    typedef endian_integral<true, endian::little, 4>    int32_little;
+    typedef endian_integral<true, endian::little, 5>    int40_little;
+    typedef endian_integral<true, endian::little, 6>    int48_little;
+    typedef endian_integral<true, endian::little, 7>    int56_little;
+    typedef endian_integral<true, endian::little, 8>    int64_little;
+
+    // little endian unsigned integer unaligned types
+    typedef endian_integral<false, endian::little, 1>   uint8_little;
+    typedef endian_integral<false, endian::little, 2>  uint16_little;
+    typedef endian_integral<false, endian::little, 3>  uint24_little;
+    typedef endian_integral<false, endian::little, 4>  uint32_little;
+    typedef endian_integral<false, endian::little, 5>  uint40_little;
+    typedef endian_integral<false, endian::little, 6>  uint48_little;
+    typedef endian_integral<false, endian::little, 7>  uint56_little;
+    typedef endian_integral<false, endian::little, 8>  uint64_little;
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> &operator -- (endian_integral<z, o, s> &);
+    endian_integral<z, o, s> operator << (const endian_integral<z, o, s> &, int);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator ++ (endian_integral<z, o, s> &, int);
+    endian_integral<z, o, s> operator >> (const endian_integral<z, o, s> &, int);
+
+    // arithmetic
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<true, o, s> operator - (const endian_integral<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator -- (endian_integral<z, o, s> &, int);
+    endian_integral<true, o, s> operator % (const endian_integral<z, o, s> &, const endian_integral<true, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator + (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
+    endian_integral<z, o, s> operator &= (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator - (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
+    endian_integral<z, o, s> operator |= (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator * (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
+    endian_integral<z, o, s> operator ^= (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator / (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
+    endian_integral<z, o, s> &operator &= (endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> operator % (const endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> &operator += (endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> &operator -= (endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> &operator *= (endian_integral<z, o, s> &, const endian_integral<z, o, s> &);
+    endian_integral<false, o, s> &operator %= (endian_integral<z, o, s> &, uint64);
 
     template <bool z, boost::endian::order o, std::size_t s>
     writer<byte> &operator << (writer<byte> &w, endian_integral<z, o, s> x);
@@ -65,10 +98,12 @@ namespace data::arithmetic {
         using native_type = endian::to_native<is_signed, bytes>;
         using boost_arith = boost::endian::endian_arithmetic<Order, native_type, 8 * bytes, boost::endian::align::no>;
         using boost_arith::data;
+        // TODO these constructors should be constexpr
         using boost_arith::boost_arith;
         using iterator = byte *;
         using const_iterator = byte const *;
         
+        // TODO these constructors should be constexpr
         endian_integral (const boost_arith &x);
         endian_integral (boost_arith &&x);
         
@@ -87,11 +122,32 @@ namespace data::arithmetic {
         }
         
         explicit endian_integral (const opposite_endian &x) : boost_arith {native_type (x)} {}
-        
+
+        endian_integral &operator ++ ();
+        endian_integral &operator -- ();
+        endian_integral operator ++ (int);
+        endian_integral operator -- (int);
+
+        endian_integral &operator += (endian_integral);
+        endian_integral &operator -= (endian_integral);
+        endian_integral &operator *= (endian_integral);
+        endian_integral &operator /= (endian_integral);
+
+        endian_integral &operator += (native_type);
+        endian_integral &operator -= (native_type);
+        endian_integral &operator *= (native_type);
+        endian_integral &operator /= (native_type);
+
+        endian_integral &operator &= (native_type);
+        endian_integral &operator |= (native_type);
+
+        endian_integral &operator <<= (int);
+        endian_integral &operator >>= (int);
+
         size_t size () const {
             return bytes;
         }
-        
+
         const byte &operator [] (int i) const {
             if (i >= int (bytes))
                 throw std::out_of_range {std::string {"access index "} + std::to_string (i) +
@@ -99,13 +155,13 @@ namespace data::arithmetic {
             if (i < 0) return operator [] (bytes + i);
             return data () [i];
         }
-        
+
         using words_type = arithmetic::Words<Order, byte>;
-        
+
         words_type words () {
             return words_type {slice<byte> (this->data (), bytes)};
         }
-        
+
         const words_type words () const {
             return words_type {slice<byte> (const_cast<byte*> (this->data ()), bytes)};
         }
@@ -115,25 +171,25 @@ namespace data::arithmetic {
 
 namespace data::encoding {
     
-    template <bool z, endian::order o, size_t size> struct count_digits<arithmetic::endian_integral<z, o, size>> {
+    template <bool z, endian::order o, size_t size> struct count_digits<endian_integral<z, o, size>> {
         constexpr static bool is_signed = z;
         constexpr static size_t value = size;
     };
     
-    template <bool is_signed, endian::order o, size_t size> struct half_of<arithmetic::endian_integral<is_signed, o, size>> {
-        using type = arithmetic::endian_integral<is_signed, o, count_digits<typename half_of<endian::to_native<is_signed, size>>::type>::value>;
-        static type greater_half (arithmetic::endian_integral<is_signed, o, size> u) {
+    template <bool is_signed, endian::order o, size_t size> struct half_of<endian_integral<is_signed, o, size>> {
+        using type = endian_integral<is_signed, o, count_digits<typename half_of<endian::to_native<is_signed, size>>::type>::value>;
+        static type greater_half (endian_integral<is_signed, o, size> u) {
             return type {half_of<endian::to_native<is_signed, size>>::greater_half ((endian::to_native<is_signed, size>) (u))};
         }
         
-        static type lesser_half (arithmetic::endian_integral<is_signed, o, size> u) {
+        static type lesser_half (endian_integral<is_signed, o, size> u) {
             return type {half_of<endian::to_native<is_signed, size>>::lesser_half ((endian::to_native<is_signed, size>) (u))};
         }
     };
     
-    template <bool is_signed, endian::order o, size_t size> struct twice<arithmetic::endian_integral<is_signed, o, size>> {
-        using type = arithmetic::endian_integral<is_signed, o, 2 * size>;
-        static type extend (arithmetic::endian_integral<is_signed, o, size> x) {
+    template <bool is_signed, endian::order o, size_t size> struct twice<endian_integral<is_signed, o, size>> {
+        using type = endian_integral<is_signed, o, 2 * size>;
+        static type extend (endian_integral<is_signed, o, size> x) {
             return (typename twice<endian::to_native<is_signed, size>>::type) (x);
         }
     };
@@ -142,30 +198,30 @@ namespace data::encoding {
 
 namespace data::math::number {
     template <boost::endian::order o, std::size_t z>
-    struct increment<arithmetic::endian_integral<false, o, z>> {
-        nonzero<arithmetic::endian_integral<false, o, z>> operator () (const arithmetic::endian_integral<false, o, z> &u) {
-            nonzero<arithmetic::endian_integral<false, o, z>> x {u};
+    struct increment<endian_integral<false, o, z>> {
+        nonzero<endian_integral<false, o, z>> operator () (const endian_integral<false, o, z> &u) {
+            nonzero<endian_integral<false, o, z>> x {u};
             x.Value++;
             return x;
         }
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct increment<arithmetic::endian_integral<true, o, z>> {
-        arithmetic::endian_integral<true, o, z> operator () (const arithmetic::endian_integral<true, o, z> &u) {
+    struct increment<endian_integral<true, o, z>> {
+        endian_integral<true, o, z> operator () (const endian_integral<true, o, z> &u) {
             auto x = u;
             return ++x;
         }
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct decrement<arithmetic::endian_integral<false, o, z>> {
-        arithmetic::endian_integral<false, o, z> operator () (const nonzero<arithmetic::endian_integral<false, o, z>> &u) {
+    struct decrement<endian_integral<false, o, z>> {
+        endian_integral<false, o, z> operator () (const nonzero<endian_integral<false, o, z>> &u) {
             auto x = u.Value;
             return --x;
         }
 
-        arithmetic::endian_integral<false, o, z> operator () (const arithmetic::endian_integral<false, o, z> &u) {
+        endian_integral<false, o, z> operator () (const endian_integral<false, o, z> &u) {
             if (data::is_zero (u)) return u;
             auto x = u;
             return --x;
@@ -173,8 +229,8 @@ namespace data::math::number {
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct decrement<arithmetic::endian_integral<true, o, z>> {
-        arithmetic::endian_integral<true, o, z> operator () (const arithmetic::endian_integral<true, o, z> &u) {
+    struct decrement<endian_integral<true, o, z>> {
+        endian_integral<true, o, z> operator () (const endian_integral<true, o, z> &u) {
             auto x = u;
             return --x;
         }
@@ -184,211 +240,103 @@ namespace data::math::number {
 namespace data::math {
 
     template <bool x, boost::endian::order o, std::size_t z>
-    struct numeric_limits<arithmetic::endian_integral<x, o, z>> {
-        constexpr static arithmetic::endian_integral<x, o, z> Max {std::numeric_limits<endian::to_native<x, z>>::max ()};
-        constexpr static arithmetic::endian_integral<x, o, z> Min {std::numeric_limits<endian::to_native<x, z>>::min ()};
+    struct numeric_limits<endian_integral<x, o, z>> {
+        constexpr static endian_integral<x, o, z> Max {std::numeric_limits<endian::to_native<x, z>>::max ()};
+        constexpr static endian_integral<x, o, z> Min {std::numeric_limits<endian::to_native<x, z>>::min ()};
 
-        constexpr static arithmetic::endian_integral<x, o, z> &max () {
+        constexpr static endian_integral<x, o, z> &max () {
             return Max;
         }
 
-        constexpr static arithmetic::endian_integral<x, o, z> &min () {
+        constexpr static endian_integral<x, o, z> &min () {
             return Min;
         }
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct abs<arithmetic::endian_integral<false, o, z>> {
-        arithmetic::endian_integral<false, o, z> operator () (const arithmetic::endian_integral<false, o, z> &x) {
+    struct abs<endian_integral<false, o, z>> {
+        endian_integral<false, o, z> operator () (const endian_integral<false, o, z> &x) {
             return x;
         }
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct abs<arithmetic::endian_integral<true, o, z>> {
-        arithmetic::endian_integral<false, o, z> operator () (const arithmetic::endian_integral<true, o, z> &x) {
-            return arithmetic::endian_integral<false, o, z> (data::abs ((typename arithmetic::endian_integral<true, o, z>::native_type) (x)));
+    struct abs<endian_integral<true, o, z>> {
+        endian_integral<false, o, z> operator () (const endian_integral<true, o, z> &x) {
+            return endian_integral<false, o, z> (data::abs ((typename endian_integral<true, o, z>::native_type) (x)));
         }
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct quadrance<arithmetic::endian_integral<false, o, z>> {
-        arithmetic::endian_integral<false, o, z> operator () (const arithmetic::endian_integral<false, o, z> &x) {
-            return x * x;
-        }
+    struct negate<endian_integral<false, o, z>> {
+        endian_integral<true, o, z> operator () (const endian_integral<false, o, z> &x);
     };
 
     template <boost::endian::order o, std::size_t z>
-    struct quadrance<arithmetic::endian_integral<true, o, z>> {
-        arithmetic::endian_integral<false, o, z> operator () (const arithmetic::endian_integral<true, o, z> &x) {
-            return data::abs (x) * data::abs (x);
-        }
-    };
-
-    template <bool x, boost::endian::order o, std::size_t z>
-    struct re<arithmetic::endian_integral<x, o, z>> {
-        arithmetic::endian_integral<x, o, z> operator () (const arithmetic::endian_integral<x, o, z> &n) {
-            return n;
-        }
-    };
-
-    template <bool x, boost::endian::order o, std::size_t z>
-    struct im<arithmetic::endian_integral<x, o, z>> {
-        arithmetic::endian_integral<x, o, z> operator () (const arithmetic::endian_integral<x, o, z> &n) {
-            return 0;
-        }
-    };
-
-    template <bool x, boost::endian::order o, std::size_t z>
-    struct inner<arithmetic::endian_integral<x, o, z>> {
-        arithmetic::endian_integral<x, o, z> operator () (
-            const arithmetic::endian_integral<x, o, z> &n,
-            const arithmetic::endian_integral<x, o, z> &m) {
-            return n * m;
-        }
-    };
-
-    template <boost::endian::order o, std::size_t z>
-    struct conjugate<arithmetic::endian_integral<true, o, z>> {
-        arithmetic::endian_integral<true, o, z> operator () (
-            const arithmetic::endian_integral<true, o, z> &x) {
-            return x;
-        }
+    struct negate<endian_integral<true, o, z>> {
+        endian_integral<true, o, z> operator () (const endian_integral<true, o, z> &x);
     };
 
     template <endian::order r, size_t x>
-    struct inverse<plus<arithmetic::endian_integral<true, r, x>>, arithmetic::endian_integral<true, r, x>> {
-        arithmetic::endian_integral<true, r, x> operator () (
-            const arithmetic::endian_integral<true, r, x> &a,
-            const arithmetic::endian_integral<true, r, x> &b) {
+    struct inverse<plus<endian_integral<true, r, x>>, endian_integral<true, r, x>> {
+        endian_integral<true, r, x> operator () (
+            const endian_integral<true, r, x> &a,
+            const endian_integral<true, r, x> &b) {
             return b - a;
         }
     };
 
     template <bool z, boost::endian::order o, std::size_t n>
-    struct times<arithmetic::endian_integral<z, o, n>> {
-        arithmetic::endian_integral<z, o, n> operator () (
-            const arithmetic::endian_integral<z, o, n> &a,
-            const arithmetic::endian_integral<z, o, n> &b) {
+    struct times<endian_integral<z, o, n>> {
+        endian_integral<z, o, n> operator () (
+            const endian_integral<z, o, n> &a,
+            const endian_integral<z, o, n> &b) {
             return a * b;
         }
 
-        nonzero<arithmetic::endian_integral<z, o, n>> operator ()
-        (const nonzero<arithmetic::endian_integral<z, o, n>> &a, const nonzero<arithmetic::endian_integral<z, o, n>> &b) {
-            return nonzero<arithmetic::endian_integral<z, o, n>> {a.Value * b.Value};
+        nonzero<endian_integral<z, o, n>> operator ()
+        (const nonzero<endian_integral<z, o, n>> &a, const nonzero<endian_integral<z, o, n>> &b) {
+            return nonzero<endian_integral<z, o, n>> {a.Value * b.Value};
         }
     };
 
     template <endian::order r, size_t x>
-    requires math::number::natural<arithmetic::endian_integral<false, r, x>>
-    struct divide<arithmetic::endian_integral<false, r, x>, arithmetic::endian_integral<false, r, x>> {
-        division<arithmetic::endian_integral<false, r, x>, arithmetic::endian_integral<false, r, x>> operator ()
-        (const arithmetic::endian_integral<false, r, x> &v, const nonzero<arithmetic::endian_integral<false, r, x>> &z) {
-            return {v / z.Value, v % z.Value};
+    struct divide<endian_integral<false, r, x>, endian_integral<false, r, x>> {
+        using ue = endian_integral<false, r, x>;
+        using uen = ue::native_type;
+        division<ue, ue> operator () (const ue &dividend, const nonzero<ue> &divisor) {
+            return {static_cast<ue> (static_cast<uen> (dividend) / static_cast<uen> (divisor.Value)),
+                static_cast<ue> (static_cast<uen> (dividend) % static_cast<uen> (divisor.Value))};
         }
     };
 
     template <endian::order r, size_t x>
-    requires math::number::integer<arithmetic::endian_integral<true, r, x>>
-    struct divide<arithmetic::endian_integral<true, r, x>, arithmetic::endian_integral<true, r, x>> {
-        division<arithmetic::endian_integral<true, r, x>, arithmetic::endian_integral<false, r, x>> operator ()
-        (const arithmetic::endian_integral<true, r, x> &v, const nonzero<arithmetic::endian_integral<true, r, x>> &z) {
-            return {v / z.Value, v % z.Value};
+    struct divide<endian_integral<true, r, x>, endian_integral<false, r, x>> {
+        using se = endian_integral<true, r, x>;
+        using ue = endian_integral<false, r, x>;
+        using sen = se::native_type;
+        using uen = ue::native_type;
+        division<se, ue> operator () (const se &dividend, const nonzero<ue> &divisor) {
+            auto d = divide<sen, uen> {} (static_cast<sen> (dividend), nonzero<uen> {static_cast<uen> (divisor.Value)});
+            return division<se, ue> {se (d.Quotient), ue (d.Remainder)};
         }
     };
 
     template <endian::order r, size_t x>
-    requires math::number::integer<arithmetic::endian_integral<true, r, x>> && math::number::natural<arithmetic::endian_integral<false, r, x>>
-    struct divide<arithmetic::endian_integral<true, r, x>, arithmetic::endian_integral<false, r, x>> {
-        division<arithmetic::endian_integral<true, r, x>, arithmetic::endian_integral<false, r, x>> operator ()
-        (const arithmetic::endian_integral<true, r, x> &v, const nonzero<arithmetic::endian_integral<false, r, x>> &z) {
-            return {v / z.Value, v % z.Value};
+    struct divide<endian_integral<true, r, x>, endian_integral<true, r, x>> {
+        using se = endian_integral<true, r, x>;
+        using ue = endian_integral<false, r, x>;
+        using sen = se::native_type;
+        using uen = ue::native_type;
+        division<se, ue> operator () (const se &dividend, const nonzero<se> &divisor) {
+            auto d = divide<sen, sen> {} (static_cast<sen> (dividend), nonzero<sen> {static_cast<sen> (divisor.Value)});
+            return division<se, ue> {se (d.Quotient), ue (d.Remainder)};
         }
     };
 
 }
 
 namespace data {
-    
-    // big endian signed integer unaligned types
-    typedef arithmetic::endian_integral<true, endian::big, 1>           int8_big;
-    typedef arithmetic::endian_integral<true, endian::big, 2>          int16_big;
-    typedef arithmetic::endian_integral<true, endian::big, 3>          int24_big;
-    typedef arithmetic::endian_integral<true, endian::big, 4>          int32_big;
-    typedef arithmetic::endian_integral<true, endian::big, 5>          int40_big;
-    typedef arithmetic::endian_integral<true, endian::big, 6>          int48_big;
-    typedef arithmetic::endian_integral<true, endian::big, 7>          int56_big;
-    typedef arithmetic::endian_integral<true, endian::big, 8>          int64_big;
-    
-    // big endian unsigned integer unaligned types
-    typedef arithmetic::endian_integral<false, endian::big, 1>         uint8_big;
-    typedef arithmetic::endian_integral<false, endian::big, 2>        uint16_big;
-    typedef arithmetic::endian_integral<false, endian::big, 3>        uint24_big;
-    typedef arithmetic::endian_integral<false, endian::big, 4>        uint32_big;
-    typedef arithmetic::endian_integral<false, endian::big, 5>        uint40_big;
-    typedef arithmetic::endian_integral<false, endian::big, 6>        uint48_big;
-    typedef arithmetic::endian_integral<false, endian::big, 7>        uint56_big;
-    typedef arithmetic::endian_integral<false, endian::big, 8>        uint64_big;
-    
-    // little endian signed integer unaligned types
-    typedef arithmetic::endian_integral<true, endian::little, 1>     int8_little;
-    typedef arithmetic::endian_integral<true, endian::little, 2>    int16_little;
-    typedef arithmetic::endian_integral<true, endian::little, 3>    int24_little;
-    typedef arithmetic::endian_integral<true, endian::little, 4>    int32_little;
-    typedef arithmetic::endian_integral<true, endian::little, 5>    int40_little;
-    typedef arithmetic::endian_integral<true, endian::little, 6>    int48_little;
-    typedef arithmetic::endian_integral<true, endian::little, 7>    int56_little;
-    typedef arithmetic::endian_integral<true, endian::little, 8>    int64_little;
-    
-    // little endian unsigned integer unaligned types
-    typedef arithmetic::endian_integral<false, endian::little, 1>   uint8_little;
-    typedef arithmetic::endian_integral<false, endian::little, 2>  uint16_little;
-    typedef arithmetic::endian_integral<false, endian::little, 3>  uint24_little;
-    typedef arithmetic::endian_integral<false, endian::little, 4>  uint32_little;
-    typedef arithmetic::endian_integral<false, endian::little, 5>  uint40_little;
-    typedef arithmetic::endian_integral<false, endian::little, 6>  uint48_little;
-    typedef arithmetic::endian_integral<false, endian::little, 7>  uint56_little;
-    typedef arithmetic::endian_integral<false, endian::little, 8>  uint64_little;
-
-    static_assert (math::number::integer<int8_big>);
-    static_assert (math::number::integer<int16_big>);
-    static_assert (math::number::integer<int24_big>);
-    static_assert (math::number::integer<int32_big>);
-    static_assert (math::number::integer<int40_big>);
-    static_assert (math::number::integer<int48_big>);
-    static_assert (math::number::integer<int56_big>);
-    static_assert (math::number::integer<int64_big>);
-
-    static_assert (math::number::natural<uint8_big>);
-    static_assert (math::number::natural<uint16_big>);
-    static_assert (math::number::natural<uint24_big>);
-    static_assert (math::number::natural<uint32_big>);
-    static_assert (math::number::natural<uint40_big>);
-    static_assert (math::number::natural<uint48_big>);
-    static_assert (math::number::natural<uint56_big>);
-    static_assert (math::number::natural<uint64_big>);
-
-    static_assert (math::number::integer<int8_little>);
-    static_assert (math::number::integer<int16_little>);
-    static_assert (math::number::integer<int24_little>);
-    static_assert (math::number::integer<int32_little>);
-    static_assert (math::number::integer<int40_little>);
-    static_assert (math::number::integer<int48_little>);
-    static_assert (math::number::integer<int56_little>);
-    static_assert (math::number::integer<int64_little>);
-
-    static_assert (math::number::natural<uint8_little>);
-    static_assert (math::number::natural<uint16_little>);
-    static_assert (math::number::natural<uint24_little>);
-    static_assert (math::number::natural<uint32_little>);
-    static_assert (math::number::natural<uint40_little>);
-    static_assert (math::number::natural<uint48_little>);
-    static_assert (math::number::natural<uint56_little>);
-    static_assert (math::number::natural<uint64_little>);
-    
-}
-
-namespace data::arithmetic {
 
     template <bool z, boost::endian::order o, std::size_t n>
     endian_integral<z, o, n>::endian_integral (const boost_arith &x) : boost_arith (x) {}
@@ -438,67 +386,124 @@ namespace data::arithmetic {
     }
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline operator + (const endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        return static_cast<const endian_integral<z, o, s>::boost_arith &> (a) + static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator ++ () {
+        ++static_cast<endian_integral<z, o, s>::boost_arith &> (*this);
+        return *this;
     }
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline operator - (const endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        return static_cast<const endian_integral<z, o, s>::boost_arith &> (a) - static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator -- () {
+        --static_cast<endian_integral<z, o, s>::boost_arith &> (*this);
+        return *this;
     }
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline operator * (const endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        return static_cast<const endian_integral<z, o, s>::boost_arith &> (a) * static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline operator / (const endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        return static_cast<const endian_integral<z, o, s>::boost_arith &> (a) / static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline &operator += (endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        static_cast<endian_integral<z, o, s>::boost_arith &> (a) += static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
-        return a;
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline &operator -= (endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        static_cast<endian_integral<z, o, s>::boost_arith &> (a) -= static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
-        return a;
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline &operator *= (endian_integral<z, o, s> &a, const endian_integral<z, o, s> &b) {
-        static_cast<endian_integral<z, o, s>::boost_arith &> (a) *= static_cast<const endian_integral<z, o, s>::boost_arith &> (b);
-        return a;
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline &operator ++ (endian_integral<z, o, s> &x) {
-        ++static_cast<endian_integral<z, o, s>::boost_arith &> (x);
-        return x;
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline &operator -- (endian_integral<z, o, s> &x) {
-        --static_cast<endian_integral<z, o, s>::boost_arith &> (x);
-        return x;
-    }
-
-    template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline operator ++ (endian_integral<z, o, s> &x, int) {
-        auto n = x;
-        ++x;
+    endian_integral<z, o, s> inline endian_integral<z, o, s>::operator ++ (int) {
+        auto n = *this;
+        ++(*this);
         return n;
     }
 
     template <bool z, boost::endian::order o, std::size_t s>
-    endian_integral<z, o, s> inline operator -- (endian_integral<z, o, s> &x, int) {
-        auto n = x;
-        --x;
+    endian_integral<z, o, s> inline endian_integral<z, o, s>::operator -- (int) {
+        auto n = *this;
+        --(*this);
         return n;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<true, o, s> inline operator - (const endian_integral<z, o, s> &x) {
+        using p = endian_integral<z, o, s>::native_type;
+        using q = std::make_signed_t<p>;
+        return static_cast<endian_integral<true, o, s>> (-static_cast<q> (static_cast<p> (x)));
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<true, o, s> inline operator % (const endian_integral<z, o, s> &a, const endian_integral<true, o, s> &b) {
+        return static_cast<endian_integral<true, o, s>> (
+            static_cast<typename endian_integral<z, o, s>::native_type> (a) % static_cast<typename endian_integral<true, o, s>::native_type> (b));
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline operator << (const endian_integral<z, o, s> &x, int i) {
+        return (typename endian_integral<z, o, s>::native_type) (x) << i;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline operator >> (const endian_integral<z, o, s> &x, int i) {
+        return (typename endian_integral<z, o, s>::native_type) (x) >> i;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator += (endian_integral x) {
+        static_cast<boost_arith &> (*this) += static_cast<boost_arith> (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator -= (endian_integral x) {
+        static_cast<boost_arith &> (*this) -= static_cast<boost_arith> (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator *= (endian_integral x) {
+        static_cast<boost_arith &> (*this) *= static_cast<boost_arith> (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator /= (endian_integral x) {
+        static_cast<boost_arith &> (*this) /= static_cast<boost_arith> (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator += (native_type x) {
+        boost_arith::operator += (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator -= (native_type x) {
+        boost_arith::operator -= (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator *= (native_type x) {
+        boost_arith::operator *= (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator /= (native_type x) {
+        boost_arith::operator /= (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator &= (native_type x) {
+        boost_arith::operator &= (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator |= (native_type x) {
+        boost_arith::operator |= (x);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator <<= (int i) {
+        boost_arith::operator <<= (i);
+        return *this;
+    }
+
+    template <bool z, boost::endian::order o, std::size_t s>
+    endian_integral<z, o, s> inline &endian_integral<z, o, s>::operator >>= (int i) {
+        boost_arith::operator >>= (i);
+        return *this;
     }
 
     // big endian signed integer unaligned types

@@ -6,9 +6,8 @@
 #define DATA_MATH_GROUP
 
 #include <data/concepts.hpp>
-#include <data/math/arithmetic.hpp>
+#include <data/arithmetic.hpp>
 #include <data/math/algebra.hpp>
-#include <data/function.hpp>
 
 namespace data::math {
     

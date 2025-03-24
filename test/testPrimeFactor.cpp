@@ -39,6 +39,10 @@ namespace data::math::number {
 
     TEST (PrimeFactorTest, TestPrimeFactor) {
 
+        prime_factor_test<uint64> ();
+        prime_factor_test<uint64_little> ();
+        prime_factor_test<uint64_big> ();
+        prime_factor_test<uint80> ();
         prime_factor_test<N> ();
         prime_factor_test<N_bytes_little> ();
         prime_factor_test<N_bytes_big> ();

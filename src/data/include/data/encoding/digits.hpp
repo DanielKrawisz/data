@@ -6,11 +6,11 @@
 #define DATA_ENCODING_DIGITS
 
 #include <data/tools/linked_stack.hpp>
-#include <data/math/number/natural.hpp>
+#include <data/math/number/division.hpp>
 
 namespace data::encoding {
     
-    template <typename N>
+    template <integral N>
     std::string write_base (const N &n, std::string digits) {
         N base {digits.size ()};
         if (base < 2) return "";
@@ -18,7 +18,7 @@ namespace data::encoding {
         linked_stack<char> dig {};
         N x = n;
         while (x > 0u) {
-            math::division<N> d = math::number::natural_divide (x, base);
+            division<N> d = math::number::natural_divide (x, base);
             dig = dig << digits[(uint64) (d.Remainder)];
             x = d.Quotient;
         }
@@ -35,7 +35,7 @@ namespace data::encoding {
         return o;
     }
     
-    template <typename N, typename f>
+    template <integral N, typename f>
     N read_base (string_view s, uint32 base, f inverse_digits) {
 
         N n {0};
