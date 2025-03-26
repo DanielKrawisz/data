@@ -41,7 +41,7 @@ namespace data::encoding::base58 {
     }
 
     char inline digit (char c) {
-        return c < '1' ? -1 : c <= '9' ?  c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 :
+        return c < '1' ? -1 : c <= '9' ? c - '1' : c < 'A' ? -1 : c <= 'H' ? c - 'A' + 9 :
             c < 'J' ? -1 : c <= 'N' ? c - 'J' + 17 : c < 'P' ? -1 : c <= 'Z' ? c - 'P' + 22 :
             c < 'a' ? -1 : c <= 'k' ? c - 'a' + 33 : c < 'm' ? -1 : c <= 'z' ? c - 'm' + 44 : -1;
     };
