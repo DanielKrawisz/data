@@ -66,6 +66,7 @@ namespace data::math::number {
         static Z_bytes read (string_view x);
         static Z_bytes read (view<word> x);
         explicit Z_bytes (const std::string &x): Z_bytes {read (x)} {}
+        explicit Z_bytes (const char *x) : Z_bytes {std::string {x}} {}
         
         operator Z_bytes<endian::opposite (r), complement::ones, word> () const;
         operator Z_bytes<r, complement::twos, word> () const;
