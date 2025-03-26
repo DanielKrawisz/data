@@ -12,7 +12,6 @@ namespace data::encoding {
     
     template <typename N>
     std::string write_base (const N &n, std::string digits) {
-        
         N base {digits.size ()};
         if (base < 2) return "";
         
@@ -38,12 +37,15 @@ namespace data::encoding {
     
     template <typename N, typename f>
     N read_base (string_view s, uint32 base, f inverse_digits) {
+
         N n {0};
         N pow {1};
+
         for (auto x = s.rbegin (); x != s.rend (); ++x) {
             n += pow * inverse_digits (*x);
             pow *= base;
         }
+
         return n;
     }
 }
