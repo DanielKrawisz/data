@@ -330,7 +330,19 @@ namespace data::math::number {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int64 b);
-    
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, uint64 b);
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, uint64 b);
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, int32 b);
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int32 b);
+
     template <endian::order r, size_t size, std::unsigned_integral word>
     sint<r, size, word> operator | (const sint<r, size, word> &, const uint<r, size, word> &);
 
@@ -1076,6 +1088,37 @@ namespace data::math::number {
     std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int64 b) {
         return a <=> sint<r, x, word> {b};
     }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, uint64 b) {
+        return a <=> uint<r, x, word> {b};
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, uint64 b) {
+        return a <=> uint<r, x, word> {b};
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, int32 b) {
+        if (b < 0) return std::weak_ordering::greater;
+        return a <=> uint<r, x, word> {static_cast<uint32> (b)};
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int32 b) {
+        return a <=> sint<r, x, word> {b};
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, uint32 b) {
+        return a <=> uint<r, x, word> {b};
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, uint32 b) {
+        return a <=> uint<r, x, word> {b};
+    }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
     constexpr bounded<false, r, size, word>::bounded (uint64 x) : bounded {} {
@@ -1270,9 +1313,7 @@ namespace data::math::number {
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     bounded<u, r, x, word> inline &operator *= (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        auto w = a.words ();
-        arithmetic::times (w, const_cast<const bounded<u, r, x, word> &> (a).words (), b.words ());
-        return a;
+        return a = a * b;
     }
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
