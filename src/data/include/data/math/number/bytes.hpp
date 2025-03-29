@@ -34,10 +34,10 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> inline Z_bytes<r, complement::twos, word>::read (string_view x) {
+    Z_bytes<r, complement::BC, word> inline Z_bytes<r, complement::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::twos, word> (x);
-        return Z_bytes<r, complement::twos, word> (Z {x});
+        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::BC, word> (x);
+        return Z_bytes<r, complement::BC, word> (Z {x});
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -65,7 +65,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, complement::twos, word>::operator double () const {
+    Z_bytes<r, complement::BC, word>::operator double () const {
         return double (Z (*this));
     }
     
