@@ -30,7 +30,7 @@ namespace data::math::number {
         using value = sint<r, size, byte>;
     };
     
-    template <endian::order r, size_t size> struct get_fixed_type<r, complement::twos, size> {
+    template <endian::order r, size_t size> struct get_fixed_type<r, complement::BC, size> {
         using value = void;
     };
     
@@ -104,67 +104,67 @@ namespace data::math::number {
 
         hex_test_case<complement::nones> ("0x", "0x", zero);
         hex_test_case<complement::ones> ("0x", "0x", zero);
-        hex_test_case<complement::twos> ("0x", "0x", zero);
+        hex_test_case<complement::BC> ("0x", "0x", zero);
         
         hex_test_case<complement::nones> ("0x00", "0x", zero);
         hex_test_case<complement::ones> ("0x00", "0x", zero);
-        hex_test_case<complement::twos> ("0x00", "0x", zero);
+        hex_test_case<complement::BC> ("0x00", "0x", zero);
         
         hex_test_case<complement::nones> ("0x0000", "0x", zero);
         hex_test_case<complement::ones> ("0x0000", "0x", zero);
-        hex_test_case<complement::twos> ("0x0000", "0x", zero);
+        hex_test_case<complement::BC> ("0x0000", "0x", zero);
         
         hex_test_case<complement::nones> ("0x80", "0x80", positive);
         hex_test_case<complement::ones> ("0x80", "0x80", negative);
-        hex_test_case<complement::twos> ("0x80", "0x", zero);
+        hex_test_case<complement::BC> ("0x80", "0x", zero);
 
         hex_test_case<complement::nones> ("0x8000", "0x8000", positive);
         hex_test_case<complement::ones> ("0x8000", "0x8000", negative);
-        hex_test_case<complement::twos> ("0x8000", "0x", zero);
+        hex_test_case<complement::BC> ("0x8000", "0x", zero);
         
         hex_test_case<complement::nones> ("0x01", "0x01", positive);
         hex_test_case<complement::ones> ("0x01", "0x01", positive);
-        hex_test_case<complement::twos> ("0x01", "0x01", positive);
+        hex_test_case<complement::BC> ("0x01", "0x01", positive);
         
         hex_test_case<complement::nones> ("0x0001", "0x01", positive);
         hex_test_case<complement::ones> ("0x0001", "0x01", positive);
-        hex_test_case<complement::twos> ("0x0001", "0x01", positive);
+        hex_test_case<complement::BC> ("0x0001", "0x01", positive);
 
         hex_test_case<complement::nones> ("0xff", "0xff", positive);
         hex_test_case<complement::ones> ("0xff", "0xff", negative);
-        hex_test_case<complement::twos> ("0xff", "0xff", negative);
+        hex_test_case<complement::BC> ("0xff", "0xff", negative);
 
         hex_test_case<complement::nones> ("0xffff", "0xffff", positive);
         hex_test_case<complement::ones> ("0xffff", "0xff", negative);
-        hex_test_case<complement::twos> ("0xffff", "0xffff", negative);
+        hex_test_case<complement::BC> ("0xffff", "0xffff", negative);
 
         hex_test_case<complement::nones> ("0x0080", "0x80", positive);
         hex_test_case<complement::ones> ("0x0080", "0x0080", positive);
-        hex_test_case<complement::twos> ("0x0080", "0x0080", positive);
+        hex_test_case<complement::BC> ("0x0080", "0x0080", positive);
         
         hex_test_case<complement::nones> ("0x81", "0x81", positive);
         hex_test_case<complement::ones> ("0x81", "0x81", negative);
-        hex_test_case<complement::twos> ("0x81", "0x81", negative);
+        hex_test_case<complement::BC> ("0x81", "0x81", negative);
         
         hex_test_case<complement::nones> ("0x8001", "0x8001", positive);
         hex_test_case<complement::ones> ("0x8001", "0x8001", negative);
-        hex_test_case<complement::twos> ("0x8001", "0x81", negative);
+        hex_test_case<complement::BC> ("0x8001", "0x81", negative);
         
         hex_test_case<complement::nones> ("0x00ff", "0xff", positive);
         hex_test_case<complement::ones> ("0x00ff", "0x00ff", positive);
-        hex_test_case<complement::twos> ("0x00ff", "0x00ff", positive);
+        hex_test_case<complement::BC> ("0x00ff", "0x00ff", positive);
         
         hex_test_case<complement::nones> ("0x0200", "0x0200", positive);
         hex_test_case<complement::ones> ("0x0200", "0x0200", positive);
-        hex_test_case<complement::twos> ("0x0200", "0x0200", positive);
+        hex_test_case<complement::BC> ("0x0200", "0x0200", positive);
         
         hex_test_case<complement::nones> ("0x2000", "0x2000", positive);
         hex_test_case<complement::ones> ("0x2000", "0x2000", positive);
-        hex_test_case<complement::twos> ("0x2000", "0x2000", positive);
+        hex_test_case<complement::BC> ("0x2000", "0x2000", positive);
 
         hex_test_case<complement::nones> ("0x010000", "0x010000", positive);
         hex_test_case<complement::ones> ("0x010000", "0x010000", positive);
-        hex_test_case<complement::twos> ("0x010000", "0x010000", positive);
+        hex_test_case<complement::BC> ("0x010000", "0x010000", positive);
     }
     
     template <complement... > struct test_bit_and;
@@ -240,12 +240,12 @@ namespace data::math::number {
         }
     };
     
-    template <size_t size> struct test_bit_and_fixed<complement::twos, size> {
-        test_bit_and_fixed (hex<complement::twos> left, hex<complement::twos> right, hex<complement::twos> expected) {}
+    template <size_t size> struct test_bit_and_fixed<complement::BC, size> {
+        test_bit_and_fixed (hex<complement::BC> left, hex<complement::BC> right, hex<complement::BC> expected) {}
     };
     
-    template <size_t size> struct test_bit_or_fixed<complement::twos, size> {
-        test_bit_or_fixed (hex<complement::twos> left, hex<complement::twos> right, hex<complement::twos> expected) {}
+    template <size_t size> struct test_bit_or_fixed<complement::BC, size> {
+        test_bit_or_fixed (hex<complement::BC> left, hex<complement::BC> right, hex<complement::BC> expected) {}
     };
     
     template <complement n> struct test_bit_and<n> {
@@ -301,21 +301,21 @@ namespace data::math::number {
 
     TEST (HexidecimalTest, TestHexBitAnd) {
 
-        test_bit_and<complement::nones, complement::ones, complement::twos> {"0x", "0x", "0x"};
-        test_bit_and<complement::nones, complement::ones, complement::twos> {"0x01", "0x01", "0x01"};
-        test_bit_and<complement::nones, complement::ones, complement::twos> {"0x", "0x01", "0x"};
-        test_bit_and<complement::nones, complement::ones, complement::twos> {"0xff", "0xff", "0xff"};
-        test_bit_and<complement::nones, complement::ones, complement::twos> {"0x", "0xff", "0x"};
+        test_bit_and<complement::nones, complement::ones, complement::BC> {"0x", "0x", "0x"};
+        test_bit_and<complement::nones, complement::ones, complement::BC> {"0x01", "0x01", "0x01"};
+        test_bit_and<complement::nones, complement::ones, complement::BC> {"0x", "0x01", "0x"};
+        test_bit_and<complement::nones, complement::ones, complement::BC> {"0xff", "0xff", "0xff"};
+        test_bit_and<complement::nones, complement::ones, complement::BC> {"0x", "0xff", "0x"};
 
     }
     
     TEST (HexidecimalTest, TestHexBitOr) {
 
-        test_bit_or<complement::nones, complement::ones, complement::twos> {"0x", "0x", "0x"};
-        test_bit_or<complement::nones, complement::ones, complement::twos> {"0x01", "0x01", "0x01"};
-        test_bit_or<complement::nones, complement::ones, complement::twos> {"0x01", "0x", "0x01"};
-        test_bit_or<complement::nones, complement::ones, complement::twos> {"0xff", "0xff", "0xff"};
-        test_bit_or<complement::nones, complement::ones, complement::twos> {"0x", "0xff", "0xff"};
+        test_bit_or<complement::nones, complement::ones, complement::BC> {"0x", "0x", "0x"};
+        test_bit_or<complement::nones, complement::ones, complement::BC> {"0x01", "0x01", "0x01"};
+        test_bit_or<complement::nones, complement::ones, complement::BC> {"0x01", "0x", "0x01"};
+        test_bit_or<complement::nones, complement::ones, complement::BC> {"0xff", "0xff", "0xff"};
+        test_bit_or<complement::nones, complement::ones, complement::BC> {"0x", "0xff", "0xff"};
 
     }
     
@@ -599,30 +599,30 @@ namespace data::math::number {
         }
     };
     
-    template <size_t size> struct test_increment_fixed<complement::twos, size> {
-        test_increment_fixed (hex<complement::twos> given, hex<complement::twos> expected) {}
+    template <size_t size> struct test_increment_fixed<complement::BC, size> {
+        test_increment_fixed (hex<complement::BC> given, hex<complement::BC> expected) {}
     };
 
     TEST (HexidecimalTest, TestHexidecimalIncrement) {
 
-        test_increment<complement::nones, complement::ones, complement::twos> {"0x", "0x01"};
-        test_increment<complement::nones, complement::ones, complement::twos> {"0x00", "0x01"};
-        test_increment<complement::nones, complement::ones, complement::twos> {"0x0000", "0x01"};
-        test_increment<complement::nones, complement::ones, complement::twos> {"0x01", "0x02"};
+        test_increment<complement::nones, complement::ones, complement::BC> {"0x", "0x01"};
+        test_increment<complement::nones, complement::ones, complement::BC> {"0x00", "0x01"};
+        test_increment<complement::nones, complement::ones, complement::BC> {"0x0000", "0x01"};
+        test_increment<complement::nones, complement::ones, complement::BC> {"0x01", "0x02"};
         test_increment<complement::nones> {"0xff", "0x0100"};
         test_increment<complement::nones> {"0x7f", "0x80"};
         test_increment<complement::nones> {"0xffff", "0x010000"};
-        test_increment<complement::nones, complement::ones, complement::twos> {"0x00ff", "0x0100"};
+        test_increment<complement::nones, complement::ones, complement::BC> {"0x00ff", "0x0100"};
         test_increment<complement::ones> {"0xff", "0x"};
         test_increment<complement::ones> {"0xffff", "0x"};
         test_increment<complement::ones> {"0x7f", "0x0080"};
         test_increment<complement::ones> {"0x80", "0x81"};
         test_increment<complement::ones> {"0xfe", "0xff"};
-        test_increment<complement::twos> {"0x80", "0x01"};
-        test_increment<complement::twos> {"0x81", "0x"};
-        test_increment<complement::twos> {"0x82", "0x81"};
-        test_increment<complement::twos> {"0x7f", "0x0080"};
-        test_increment<complement::twos> {"0x8080", "0xff"};
+        test_increment<complement::BC> {"0x80", "0x01"};
+        test_increment<complement::BC> {"0x81", "0x"};
+        test_increment<complement::BC> {"0x82", "0x81"};
+        test_increment<complement::BC> {"0x7f", "0x0080"};
+        test_increment<complement::BC> {"0x8080", "0xff"};
 
         // TODO need to test that decrement 0 is 0 for unsigned numbers.
 
@@ -697,13 +697,13 @@ namespace data::math::number {
 
     TEST (HexidecimalTest, TestNegation) {
         
-        test_negation<complement::twos> {"0x", "0x"};
-        test_negation<complement::twos> {"0x00", "0x"};
-        test_negation<complement::twos> {"0x80", "0x"};
-        test_negation<complement::twos> {"0x81", "0x01"};
-        test_negation<complement::twos> {"0x01", "0x81"};
-        test_negation<complement::twos> {"0x8001", "0x01"};
-        test_negation<complement::twos> {"0x0001", "0x81"};
+        test_negation<complement::BC> {"0x", "0x"};
+        test_negation<complement::BC> {"0x00", "0x"};
+        test_negation<complement::BC> {"0x80", "0x"};
+        test_negation<complement::BC> {"0x81", "0x01"};
+        test_negation<complement::BC> {"0x01", "0x81"};
+        test_negation<complement::BC> {"0x8001", "0x01"};
+        test_negation<complement::BC> {"0x0001", "0x81"};
         
         test_negation<complement::ones> {"0x", "0x"};
         test_negation<complement::ones> {"0x00", "0x"};
@@ -751,7 +751,7 @@ namespace data::math::number {
     };
     
     // we do nothing here because we don't have fixed size 2s complement numbers.
-    template <size_t size> struct fixed_test_comparison<complement::twos, size> {
+    template <size_t size> struct fixed_test_comparison<complement::BC, size> {
         fixed_test_comparison (string a, string b, std::strong_ordering expected) {}
     };
     
@@ -823,61 +823,61 @@ namespace data::math::number {
         
         test_comparison<complement::nones> (values, o0);
         test_comparison<complement::ones> (values, o1);
-        test_comparison<complement::twos> (values, o2);
+        test_comparison<complement::BC> (values, o2);
         
     }
 
     // the number with complement one should be converted to the
-    // number in complement twos.
-    void test_complement_ones_to_BC (string ones, string twos) {
+    // number Bitcoin format.
+    void test_complement_ones_to_BC (string ones, string bc) {
 
         auto o = hex<complement::ones> {ones};
-        auto t = hex<complement::twos> {twos};
+        auto b = hex<complement::BC> {bc};
 
         // twos converted to ones should be equal (but not identical);
-        EXPECT_EQ (o, t) << "expected " << o << " to equal " << t << " ; converted to ones: " << hex<complement::ones> (t);
+        EXPECT_EQ (o, b) << "expected " << o << " to equal " << b << " ; converted to ones: " << hex<complement::ones> (b);
 
-        auto ot = static_cast <std::string> (hex<complement::twos> (o));
-        auto tt = static_cast <std::string> (t);
-        EXPECT_EQ (ot, tt) << "expected " << ot << " to equal " << tt;
+        auto ob = static_cast <std::string> (hex<complement::BC> (o));
+        auto bb = static_cast <std::string> (b);
+        EXPECT_EQ (ob, bb) << "expected " << ob << " to equal " << bb;
 
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
-        auto tbb = bytes_type<endian::big, complement::twos>::read (t);
+        auto tbb = bytes_type<endian::big, complement::BC>::read (b);
 
         EXPECT_EQ (obb, tbb) << "expected " << std::hex << obb << " to equal " << tbb;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::big, complement::twos> (obb)), static_cast<bytes> (tbb));
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::big, complement::BC> (obb)), static_cast<bytes> (tbb));
 
         auto obl = bytes_type<endian::little, complement::ones>::read (o);
-        auto tbl = bytes_type<endian::little, complement::twos>::read (t);
+        auto tbl = bytes_type<endian::little, complement::BC>::read (b);
 
         EXPECT_EQ (obl, tbl) << "expected " << std::hex << obl << " to equal " << tbl;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::twos> (obl)), static_cast<bytes> (tbl));
+        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, complement::BC> (obl)), static_cast<bytes> (tbl));
 
     }
 
     // the number with complement twos should be converted to the
     // number in complement one.
-    void test_complement_BC_to_ones (string twos, string ones) {
+    void test_complement_BC_to_ones (string bc, string ones) {
 
-        auto t = hex<complement::twos> {twos};
+        auto b = hex<complement::BC> {bc};
         auto o = hex<complement::ones> {ones};
 
-        EXPECT_EQ (t, o) << "expected " << t << " to equal " << o;
+        EXPECT_EQ (b, o) << "expected " << b << " to equal " << o;
 
-        auto to = static_cast <std::string> (hex<complement::ones> (t));
+        auto bo = static_cast <std::string> (hex<complement::ones> (b));
         auto oo = static_cast <std::string> (o);
-        EXPECT_EQ (to, oo) << "expected " << to << " === " << oo;
+        EXPECT_EQ (bo, oo) << "expected " << bo << " === " << oo;
 
-        auto tbb = bytes_type<endian::big, complement::twos>::read (t);
+        auto bbb = bytes_type<endian::big, complement::BC>::read (b);
         auto obb = bytes_type<endian::big, complement::ones>::read (o);
 
-        EXPECT_EQ (tbb, obb) << "expected " << std::hex << tbb << " to equal " << obb;
+        EXPECT_EQ (bbb, obb) << "expected " << std::hex << bbb << " to equal " << obb;
 
-        auto otbb = static_cast<bytes> (bytes_type<endian::big, complement::ones> (tbb));
+        auto otbb = static_cast<bytes> (bytes_type<endian::big, complement::ones> (bbb));
         auto ttbb = static_cast<bytes> (obb);
         EXPECT_EQ (otbb, ttbb) << "expected " << otbb << " === " << ttbb;
 
-        auto tbl = bytes_type<endian::little, complement::twos>::read (t);
+        auto tbl = bytes_type<endian::little, complement::BC>::read (b);
         auto obl = bytes_type<endian::little, complement::ones>::read (o);
 
         EXPECT_EQ (tbl, obl) << "expected " << std::hex << tbl << " to equal " << obl;
@@ -979,24 +979,24 @@ namespace data::math::number {
 
     TEST (HexidecimalTest, TestHexidecimalBitShift) {
 
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x", 0, "0x", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x", 1, "0x", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x", 21, "0x", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x01", 0, "0x01", "0x01");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x01", 1, "0x02", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x01", 2, "0x04", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x01", 5, "0x0020", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x01", 17, "0x020000", "0x00");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 1, "0x0600", "0x0180");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 2, "0x0c00", "0x00c0");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 8, "0x030000", "0x03");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 9, "0x060000", "0x01");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 16, "0x03000000", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 17, "0x06000000", "0x");
-        test_bit_shift<complement::nones, complement::ones, complement::twos> ("0x0300", 18, "0x0c000000", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x", 0, "0x", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x", 1, "0x", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x", 21, "0x", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x01", 0, "0x01", "0x01");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x01", 1, "0x02", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x01", 2, "0x04", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x01", 5, "0x0020", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x01", 17, "0x020000", "0x00");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 1, "0x0600", "0x0180");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 2, "0x0c00", "0x00c0");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 8, "0x030000", "0x03");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 9, "0x060000", "0x01");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 16, "0x03000000", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 17, "0x06000000", "0x");
+        test_bit_shift<complement::nones, complement::ones, complement::BC> ("0x0300", 18, "0x0c000000", "0x");
         test_bit_shift<complement::nones> ("0xff", 1, "0x01fe", "0x7f");
         test_bit_shift<complement::ones> ("0xff", 1, "0xfe", "0xff");
-        test_bit_shift<complement::twos> ("0xff", 1, "0x80fe", "0xc0");
+        test_bit_shift<complement::BC> ("0xff", 1, "0x80fe", "0xc0");
 
     }
     
@@ -1044,30 +1044,30 @@ namespace data::math::number {
 
     TEST (HexidecimalTest, TestHexidecimalPlus) {
 
-        test_plus<complement::nones, complement::ones, complement::twos> ("0x", "0x", "0x");
+        test_plus<complement::nones, complement::ones, complement::BC> ("0x", "0x", "0x");
         
-        test_plus<complement::nones, complement::ones, complement::twos> ("0", "0", "0");
-        test_plus<complement::nones, complement::ones, complement::twos> ("0", "1", "1");
-        test_plus<complement::nones, complement::ones, complement::twos> ("1", "1", "2");
-        test_plus<complement::nones, complement::ones, complement::twos>
+        test_plus<complement::nones, complement::ones, complement::BC> ("0", "0", "0");
+        test_plus<complement::nones, complement::ones, complement::BC> ("0", "1", "1");
+        test_plus<complement::nones, complement::ones, complement::BC> ("1", "1", "2");
+        test_plus<complement::nones, complement::ones, complement::BC>
             ("231938875480", "397027301409876", "397259240285356");
-        test_plus<complement::nones, complement::ones, complement::twos>
+        test_plus<complement::nones, complement::ones, complement::BC>
             ("23173210900987658780938875480", "39702733535456767789001409876", "62875944436444426569940285356");
         
-        test_plus<complement::ones, complement::twos> ("-1", "0", "-1");
-        test_plus<complement::ones, complement::twos> ("-1", "-1", "-2");
-        test_plus<complement::ones, complement::twos> ("-1", "1", "0");
-        test_plus<complement::ones, complement::twos> ("1", "-1", "0");
-        test_plus<complement::ones, complement::twos> ("-2", "1", "-1");
-        test_plus<complement::ones, complement::twos> ("2", "-1", "1");
-        test_plus<complement::ones, complement::twos>
+        test_plus<complement::ones, complement::BC> ("-1", "0", "-1");
+        test_plus<complement::ones, complement::BC> ("-1", "-1", "-2");
+        test_plus<complement::ones, complement::BC> ("-1", "1", "0");
+        test_plus<complement::ones, complement::BC> ("1", "-1", "0");
+        test_plus<complement::ones, complement::BC> ("-2", "1", "-1");
+        test_plus<complement::ones, complement::BC> ("2", "-1", "1");
+        test_plus<complement::ones, complement::BC>
             ("-23173210900987658780938875480", "23173210900987658780938875480", "0");
-        test_plus<complement::ones, complement::twos>
+        test_plus<complement::ones, complement::BC>
             ("23173210900987658780938875480", "-23173210900987658780938875480", "0");
 
-        test_plus<complement::twos> {"0x", "0x01", "0x01"};
-        test_plus<complement::twos> {"0x8000", "0x01", "0x01"};
-        test_plus<complement::twos> {"0x", "0x81", "0x81"};
+        test_plus<complement::BC> {"0x", "0x01", "0x01"};
+        test_plus<complement::BC> {"0x8000", "0x01", "0x01"};
+        test_plus<complement::BC> {"0x", "0x81", "0x81"};
 
     }
     
@@ -1111,42 +1111,42 @@ namespace data::math::number {
     };
 
     // TODO remember to remove this when we do two's complement. '
-    template <> struct test_minus_bytes<complement::twos> {
+    template <> struct test_minus_bytes<complement::BC> {
         test_minus_bytes (string left, string right, string expected) {}
     };
 
     TEST (HexidecimalTest, TestHexidecimalMinus) {
 
-        test_minus<complement::nones, complement::ones, complement::twos> ("0x", "0x", "0x");
+        test_minus<complement::nones, complement::ones, complement::BC> ("0x", "0x", "0x");
 
-        test_minus<complement::nones, complement::ones, complement::twos> ("0x008000", "0x00ff", "0x7f01");
-        test_minus<complement::nones, complement::ones, complement::twos> ("0x008000", "0x00000000ff", "0x7f01");
+        test_minus<complement::nones, complement::ones, complement::BC> ("0x008000", "0x00ff", "0x7f01");
+        test_minus<complement::nones, complement::ones, complement::BC> ("0x008000", "0x00000000ff", "0x7f01");
         
-        test_minus<complement::nones, complement::ones, complement::twos> ("0", "0", "0");
+        test_minus<complement::nones, complement::ones, complement::BC> ("0", "0", "0");
 
-        test_minus<complement::nones, complement::ones, complement::twos> ("1", "0", "1");
-        test_minus<complement::nones, complement::ones, complement::twos> ("1", "1", "0");
+        test_minus<complement::nones, complement::ones, complement::BC> ("1", "0", "1");
+        test_minus<complement::nones, complement::ones, complement::BC> ("1", "1", "0");
 
-        test_minus<complement::nones, complement::ones, complement::twos> ("37", "12", "25");
-        test_minus<complement::nones, complement::ones, complement::twos>
+        test_minus<complement::nones, complement::ones, complement::BC> ("37", "12", "25");
+        test_minus<complement::nones, complement::ones, complement::BC>
             ("4502938948920982780930898389", "4502938948920982780930898389", "0");
 
-        test_minus<complement::ones, complement::twos> ("12", "37", "-25");
+        test_minus<complement::ones, complement::BC> ("12", "37", "-25");
         test_minus<complement::nones> ("12", "37", "0");
 
         test_minus<complement::nones> ("4502938948920982780930898389", "4502938948920982780930898390", "0");
-        test_minus<complement::ones, complement::twos>
+        test_minus<complement::ones, complement::BC>
             ("4502938948920982780930898389", "4502938948920982780930898390", "-1");
-        test_minus<complement::ones, complement::twos> ("1", "-1", "2");
+        test_minus<complement::ones, complement::BC> ("1", "-1", "2");
 
         test_minus<complement::ones> {"0x00ff", "0xff", "0x0100"};
         test_minus<complement::ones> {"0xff", "0x00ff", "0xff00"};
 
         test_minus<complement::nones, complement::ones> {"0x80", "0x", "0x80"};
-        test_minus<complement::twos> {"0x80", "0x", "0x"};
+        test_minus<complement::BC> {"0x80", "0x", "0x"};
 
-        test_minus<complement::twos> {"0x", "0x01", "0x81"};
-        test_minus<complement::twos> {"0x8000", "0x01", "0x81"};
+        test_minus<complement::BC> {"0x", "0x01", "0x81"};
+        test_minus<complement::BC> {"0x8000", "0x01", "0x81"};
     }
     
     template <complement... > struct test_times;
@@ -1177,29 +1177,29 @@ namespace data::math::number {
         }
     };
 
-    template <> struct test_times<complement::twos> {
+    template <> struct test_times<complement::BC> {
         test_times (string left, string right, string expected) {}
     };
 
     TEST (HexidecimalTest, TestHexidecimalTimes) {
         
-        test_times<complement::nones, complement::ones, complement::twos> ("0", "0", "0");
-        test_times<complement::nones, complement::ones, complement::twos> ("0", "1", "0");
-        test_times<complement::nones, complement::ones, complement::twos> ("1", "1", "1");
-        test_times<complement::nones, complement::ones, complement::twos> ("1", "2", "2");
-        test_times<complement::nones, complement::ones, complement::twos> ("2", "1", "2");
-        test_times<complement::nones, complement::ones, complement::twos> ("2", "2", "4");
-        test_times<complement::nones, complement::ones, complement::twos> ("2", "5", "10");
-        test_times<complement::nones, complement::ones, complement::twos> ("5", "7", "35");
-        test_times<complement::nones, complement::ones, complement::twos> ("17", "19", "323");
-        test_times<complement::nones, complement::ones, complement::twos>
+        test_times<complement::nones, complement::ones, complement::BC> ("0", "0", "0");
+        test_times<complement::nones, complement::ones, complement::BC> ("0", "1", "0");
+        test_times<complement::nones, complement::ones, complement::BC> ("1", "1", "1");
+        test_times<complement::nones, complement::ones, complement::BC> ("1", "2", "2");
+        test_times<complement::nones, complement::ones, complement::BC> ("2", "1", "2");
+        test_times<complement::nones, complement::ones, complement::BC> ("2", "2", "4");
+        test_times<complement::nones, complement::ones, complement::BC> ("2", "5", "10");
+        test_times<complement::nones, complement::ones, complement::BC> ("5", "7", "35");
+        test_times<complement::nones, complement::ones, complement::BC> ("17", "19", "323");
+        test_times<complement::nones, complement::ones, complement::BC>
             ("23173210900987658780938875480", "39702733535456767789001409876",
             "920039817562855061210426612476533348173557348698006240480");
         
-        test_times<complement::ones, complement::twos> ("-1", "0", "0");
-        test_times<complement::ones, complement::twos> ("0", "-1", "0");
-        test_times<complement::ones, complement::twos> ("-1", "1", "-1");
-        test_times<complement::ones, complement::twos> ("1", "-1", "-1");
+        test_times<complement::ones, complement::BC> ("-1", "0", "0");
+        test_times<complement::ones, complement::BC> ("0", "-1", "0");
+        test_times<complement::ones, complement::BC> ("-1", "1", "-1");
+        test_times<complement::ones, complement::BC> ("1", "-1", "-1");
     }
     
     template <complement... > struct test_divide;
@@ -1226,8 +1226,8 @@ namespace data::math::number {
     };
 
     TEST (HexidecimalTest, TestHexidecimalDivide) {
-        test_divide<complement::nones, complement::ones, complement::twos> ("0", "1", "0", "0");
-        test_divide<complement::nones, complement::ones, complement::twos> ("1", "1", "1", "0");
+        test_divide<complement::nones, complement::ones, complement::BC> ("0", "1", "0", "0");
+        test_divide<complement::nones, complement::ones, complement::BC> ("1", "1", "1", "0");
     }
 
     TEST (HexidecimalTest, TestHexidecimalOnes) {
@@ -1266,8 +1266,8 @@ namespace data {
     };
     
     template <endian::order r>
-    struct get_number_complement<math::number::Z_bytes<r, math::number::complement::twos, byte>> {
-        static const math::number::complement value = math::number::complement::twos;
+    struct get_number_complement<math::number::Z_bytes<r, math::number::complement::BC, byte>> {
+        static const math::number::complement value = math::number::complement::BC;
     };
     
     template <endian::order r>
@@ -1359,7 +1359,7 @@ namespace data {
         }
     };
     
-    template <typename N> struct test_hex_read_zero<N, math::number::complement::twos, any> {
+    template <typename N> struct test_hex_read_zero<N, math::number::complement::BC, any> {
         test_hex_read_zero (list<size_t> xx) {
             list<N> zeros;
             for (size_t i : xx) {
@@ -1560,8 +1560,8 @@ namespace data {
         test_hex_read_and_write_bytes<N_bytes_big, math::number::complement::nones> (cases);
         test_hex_read_and_write_bytes<Z_bytes_little, math::number::complement::ones> (cases);
         test_hex_read_and_write_bytes<Z_bytes_big, math::number::complement::ones> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_BC_little, math::number::complement::twos> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_BC_big, math::number::complement::twos> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_BC_little, math::number::complement::BC> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_BC_big, math::number::complement::BC> (cases);
     }
 
 }

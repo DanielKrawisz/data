@@ -257,7 +257,7 @@ namespace data::arithmetic {
                         *i >= get_sign_bit<digit<X>>::value && d == std::numeric_limits<digit<X>>::max () ? 1 : 0);
                 i++;
             }
-        } else if constexpr (c == complement::twos) {
+        } else if constexpr (c == complement::BC) {
             if (size (x) == 0) return 0;
 
             // numbers that don't begin with 00 or 80 are minimal.
@@ -302,7 +302,7 @@ namespace data::arithmetic {
             return arithmetic::compare (a.rend (), ai, b.rbegin ());
         } else if constexpr (c == complement::ones) {
             throw exception {} << "function unimplemented";
-        } else if constexpr (c == complement::twos) {
+        } else if constexpr (c == complement::BC) {
             throw exception {} << "function unimplemented";
         }
     }
@@ -383,7 +383,7 @@ namespace data::arithmetic::ones {
 
 }
 
-namespace data::arithmetic::twos {
+namespace data::arithmetic::BC {
 
     template <range X>
     bool is_zero (X x) {

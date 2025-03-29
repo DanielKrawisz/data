@@ -66,7 +66,7 @@ namespace data::math {
     set<hex::intBC<zz>> root<hex::intBC<zz>, pow>::operator () (const hex::intBC<zz> &n) {
         set<hex::intBC<zz>> x;
         set<Z> roots = root<Z, pow> {} (Z {n});
-        for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::twos, zz> (z));
+        for (const Z &z : roots.values ()) x = insert (x, encoding::hexidecimal::write<number::complement::BC, zz> (z));
         return x;
     }
 

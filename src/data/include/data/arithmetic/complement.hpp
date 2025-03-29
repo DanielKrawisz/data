@@ -12,7 +12,8 @@ namespace data::arithmetic {
     enum class complement {
         nones = 0, 
         ones = 1, 
-        twos = 2
+        //twos = 2,
+        BC = 3
     };
 
     template <complement x>
@@ -29,7 +30,8 @@ namespace data::arithmetic {
         switch (c) {
             default: return o << "none's complement"; 
             case complement::ones: return o << "one's complement";
-            case complement::twos: return o << "two's complement";
+            //case complement::twos: return o << "two's complement";
+            case complement::BC: return o << "Bitcoin";
         }
     }
 }

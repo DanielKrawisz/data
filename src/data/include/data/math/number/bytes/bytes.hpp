@@ -51,7 +51,7 @@ namespace data::math {
     using Z_bytes = number::Z_bytes<r, number::complement::ones, word>;
 
     template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes_BC = number::Z_bytes<r, number::complement::twos, word>;
+    using Z_bytes_BC = number::Z_bytes<r, number::complement::BC, word>;
 
 }
 
@@ -100,7 +100,7 @@ namespace data::math::number {
     std::weak_ordering operator <=> (const Z_bytes<r, complement::ones, word> &, const Z_bytes<r, complement::ones, word> &);
     
     template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, complement::twos, word> &, const Z_bytes<r, complement::twos, word> &);
+    std::weak_ordering operator <=> (const Z_bytes<r, complement::BC, word> &, const Z_bytes<r, complement::BC, word> &);
 
     template <endian::order r, complement cl, complement cr, std::unsigned_integral word>
     std::weak_ordering operator <=> (const Z_bytes<r, cl, word> &, const Z_bytes<r, cl, word> &);
@@ -139,8 +139,8 @@ namespace data::math::number {
         (const Z_bytes<r, complement::ones, word> &, const Z_bytes<r, complement::ones, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator ^
-        (const Z_bytes<r, complement::twos, word> &, const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator ^
+        (const Z_bytes<r, complement::BC, word> &, const Z_bytes<r, complement::BC, word> &);
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, complement::ones, word> operator ^ (const Z_bytes<r, complement::ones, word> &, const N_bytes<r, word> &);
@@ -240,17 +240,17 @@ namespace data::math::number {
     Z_bytes<r, complement::ones, word> operator - (const Z_bytes<r, complement::ones, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator - (const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator - (const Z_bytes<r, complement::BC, word> &);
 
     // logical
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator ! (const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator ! (const Z_bytes<r, complement::BC, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator && (const Z_bytes<r, complement::twos, word> &, const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator && (const Z_bytes<r, complement::BC, word> &, const Z_bytes<r, complement::BC, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator || (const Z_bytes<r, complement::twos, word> &, const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator || (const Z_bytes<r, complement::BC, word> &, const Z_bytes<r, complement::BC, word> &);
     
     // arithmetic
     template <endian::order r, std::unsigned_integral word>
@@ -273,8 +273,8 @@ namespace data::math::number {
         (const Z_bytes<r, complement::ones, word> &, const Z_bytes<r, complement::ones, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator *
-        (const Z_bytes<r, complement::twos, word> &, const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator *
+        (const Z_bytes<r, complement::BC, word> &, const Z_bytes<r, complement::BC, word> &);
     
     template <endian::order r, complement c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
@@ -383,9 +383,9 @@ namespace data::math::number {
     N_bytes<r, word> operator % (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> operator % (
-        const Z_bytes<r, complement::twos, word> &,
-        const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> operator % (
+        const Z_bytes<r, complement::BC, word> &,
+        const Z_bytes<r, complement::BC, word> &);
     
     // functions having to do with size.
     template <endian::order r, std::unsigned_integral word>
@@ -395,7 +395,7 @@ namespace data::math::number {
     bool is_minimal (const Z_bytes<r, complement::ones, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    bool is_minimal (const Z_bytes<r, complement::twos, word> &);
+    bool is_minimal (const Z_bytes<r, complement::BC, word> &);
     
     template <endian::order r, std::unsigned_integral word>
     size_t minimal_size (const N_bytes<r, word> &);
@@ -602,8 +602,8 @@ namespace data::math::number {
     N_bytes<r, word> &operator %= (Z_bytes<r, c, word> &, const N_bytes<r, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::twos, word> &operator %=
-        (Z_bytes<r, complement::twos, word> &, const Z_bytes<r, complement::twos, word> &);
+    Z_bytes<r, complement::BC, word> &operator %=
+        (Z_bytes<r, complement::BC, word> &, const Z_bytes<r, complement::BC, word> &);
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> &operator %= (N_bytes<r, word> &, uint64);
