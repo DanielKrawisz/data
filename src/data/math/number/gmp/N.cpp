@@ -106,7 +106,7 @@ namespace data::encoding::hexidecimal {
         switch (n) {
             case (complement::nones): throw data::exception {} << "can't do " << n << ".";
             case (complement::ones): return write (o << "0x", math::number::Z_bytes<endian::big, complement::ones, byte> (z), q);
-            case (complement::twos): return write (o << "0x", math::number::Z_bytes<endian::big, complement::twos, byte> (z), q);
+            case (complement::BC): return write (o << "0x", math::number::Z_bytes<endian::big, complement::BC, byte> (z), q);
         }
         
         return o;

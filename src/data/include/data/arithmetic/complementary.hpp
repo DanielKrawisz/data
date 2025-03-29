@@ -118,7 +118,7 @@ namespace data::arithmetic::ones {
 
 }
 
-namespace data::arithmetic::twos {
+namespace data::arithmetic::BC {
 
     template <endian::order r, std::integral word> std::weak_ordering compare (view<word>, view<word>);
 
@@ -277,7 +277,7 @@ namespace data::arithmetic::ones {
 
 }
 
-namespace data::arithmetic::twos {
+namespace data::arithmetic::BC {
 
     template <endian::order r, std::integral word>
     bytestring<word> inline negate (view<word> x) {
@@ -351,8 +351,8 @@ namespace data::arithmetic {
 
     template <endian::order r, complement c, std::integral word>
     bool inline is_zero (view<word> x) {
-        if constexpr (c == complement::twos) {
-            return arithmetic::twos::is_zero (words<r> (x));
+        if constexpr (c == complement::BC) {
+            return arithmetic::BC::is_zero (words<r> (x));
         } else {
             return arithmetic::is_zero (words<r> (x));
         }
@@ -372,7 +372,7 @@ namespace data::arithmetic {
         auto n = zero<r, word> (min_size);
         std::copy (w.begin (), w.begin () + min_size, words<r> (n).begin ());
 
-        if constexpr (c == complement::twos)
+        if constexpr (c == complement::BC)
             if (min_size != 0) words<r> (n)[-1] |= (w[-1] & get_sign_bit<word>::value);
 
         return x = n;
@@ -404,7 +404,7 @@ namespace data::arithmetic {
             }
 
             std::copy (w.rbegin (), w.rend (), i);
-        } else if constexpr (c == complement::twos) {
+        } else if constexpr (c == complement::BC) {
             if (size (w) == 0) return x = z;
 
             auto v = words<r> (z);
@@ -555,7 +555,7 @@ namespace data::arithmetic::ones {
     }
 }
 
-namespace data::arithmetic::twos {
+namespace data::arithmetic::BC {
 
     template <endian::order r, std::integral word> bytestring<word> zero (size_t size, bool negative) {
         if (negative && size == 0) throw exception {"cannot make negative zero of size zero."};
@@ -597,7 +597,7 @@ namespace data::arithmetic::twos {
         auto w = words<r> (x);
 
         // zero can be empty, so we handle this case separately.
-        if (twos::is_zero (w)) {
+        if (BC::is_zero (w)) {
             x = zero<r, word> (1);
             words<r> (x)[1] = 1;
             return x;
@@ -628,7 +628,7 @@ namespace data::arithmetic::twos {
     template <endian::order r, std::integral word>
     bytestring<word> &decrement (bytestring<word> &x) {
         auto w = words<r> (x);
-        if (twos::is_zero (w)) return negate<r> (increment<r> (x = zero<r, word> (0)));
+        if (BC::is_zero (w)) return negate<r> (increment<r> (x = zero<r, word> (0)));
 
         if (arithmetic::sign_bit (w))
             return negate<r> (increment<r> (negate<r> (x)));

@@ -54,8 +54,8 @@ namespace data::math {
     divide<hex::intBC<zz>, hex::intBC<zz>>::operator ()
         (const hex::intBC<zz> &v, const nonzero<hex::intBC<zz>> &z) {
         auto d = divide<Z, Z> {} (Z (v), nonzero<Z> {Z (z.Value)});
-        return {encoding::hexidecimal::write<number::complement::twos, zz> (d.Quotient),
-            encoding::hexidecimal::write<number::complement::twos, zz> (d.Remainder)};
+        return {encoding::hexidecimal::write<number::complement::BC, zz> (d.Quotient),
+            encoding::hexidecimal::write<number::complement::BC, zz> (d.Remainder)};
     }
 }
 
