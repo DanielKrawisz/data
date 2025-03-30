@@ -6,7 +6,7 @@
 #define DATA_ENDIAN
 
 #include <data/types.hpp>
-#include <data/math/norm.hpp>
+#include <data/norm.hpp>
 #include <boost/endian/conversion.hpp>
 
 namespace data::endian {

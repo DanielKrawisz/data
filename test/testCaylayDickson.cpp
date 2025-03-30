@@ -3,7 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/numbers.hpp"
+#include "data/math.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -31,6 +31,7 @@ namespace data {
     template <typename X> void test_quaternion (X zero, X one, X i, X j) {
         test_complex<X> (zero, one, i);
         test_complex<X> (zero, one, j);
+
         EXPECT_NE (i, j);
         EXPECT_NE (-i, j);
 

@@ -9,7 +9,7 @@
 #include <data/math/algebra/alternating_group.hpp>
 #include <data/math/algebra/cyclic_group.hpp>
 #include <data/math/algebra/dihedral_group.hpp>
-#include <data/numbers.hpp>
+#include <data/math.hpp>
 #include "gtest/gtest.h"
 
 namespace data::math::linear {
@@ -116,7 +116,7 @@ namespace data::math::linear {
         test_inner_space () {}
     }; 
     
-    template <typename F, typename V> requires division_algebra<F, V> struct test_division_algebra : test_vector_space<F, V> {
+    template <typename F, typename V> requires field<V> struct test_division_algebra : test_vector_space<F, V> {
         test_division_algebra () {}
     }; 
     

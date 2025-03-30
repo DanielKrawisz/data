@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ABS
-#define DATA_MATH_ABS
+#ifndef DATA_ABS
+#define DATA_ABS
 
 #include <data/concepts.hpp>
 #include <data/ordered.hpp>
@@ -74,6 +74,7 @@ namespace data {
 
     template <signed_type A> using to_unsigned = make_unsigned<A>::type;
     template <unsigned_type A> using to_signed = make_signed<A>::type;
+
     template <typename A> auto inline negate (const A &x) {
         return math::negate<A> {} (x);
     }

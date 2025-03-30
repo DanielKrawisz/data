@@ -12,18 +12,25 @@ namespace data::math {
 
     template <typename R> bool operator == (const quaternion<R> &, const quaternion<R> &);
 
+    template <typename q> struct inner<quaternion<q>, quaternion<q>> : inner<cayley_dickson<complex<q>>, cayley_dickson<complex<q>>> {};
+
+    template <typename q> struct quadrance<quaternion<q>> : quadrance<cayley_dickson<complex<q>>> {};
+
+    template <typename q> struct norm<quaternion<q>> : norm<cayley_dickson<complex<q>>> {};
+
     template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x);
 
     template <typename R>
-    class quaternion : public cayley_dickson<R, complex<R>> {
+    class quaternion : public cayley_dickson<complex<R>> {
         using complex = math::complex<R>;
-        using hamiltonian = cayley_dickson<R, complex>;
+        using hamiltonian = cayley_dickson<complex>;
         
     public:
         using hamiltonian::hamiltonian;
         quaternion (R r, R i, R j, R k) : quaternion {complex {r, i}, complex {j, k}} {}
-        quaternion (const complex &x) : quaternion {complex {x}, complex {}} {}
+        quaternion (const complex &x) : quaternion {x, complex {}} {}
         quaternion (hamiltonian &&c) : hamiltonian {c} {}
+        quaternion (const R &x) : cayley_dickson<complex> {complex {x}} {}
         
         static quaternion I () {
             static quaternion i {0, 1, 0, 0};
@@ -74,12 +81,16 @@ namespace data::math {
     };
 
     template <typename R> bool operator == (const quaternion<R> &a, const quaternion<R> &b) {
-        return static_cast<cayley_dickson<R, complex<R>>> (a) == static_cast<cayley_dickson<R, complex<R>>> (b);
+        return static_cast<cayley_dickson<complex<R>>> (a) == static_cast<cayley_dickson<complex<R>>> (b);
     }
+
+    template <typename q> struct re<quaternion<q>> : re<cayley_dickson<complex<q>>> {};
+
+    template <typename q> struct im<quaternion<q>> : im<cayley_dickson<complex<q>>> {};
     
     template <typename R> struct conjugate<quaternion<R>> {
         quaternion<R> operator () (const quaternion<R>& x) {
-            return {conjugate<cayley_dickson<R, complex<R>>> {} (x)};
+            return {conjugate<cayley_dickson<complex<R>>> {} (x)};
         }
     };
     
@@ -117,16 +128,11 @@ namespace data::math {
 namespace data::math::linear {
     
     template <typename q> 
-    struct dimensions<q, quaternion<q>> : dimensions<q, cayley_dickson<q, complex<q>>> {};
+    struct dimensions<q, quaternion<q>> : dimensions<q, cayley_dickson<complex<q>>> {};
 
     template <typename q>
     struct dimensions<complex<q>, quaternion<q>> {
         static constexpr dimension value = 2;
-    };
-
-    template <typename q>
-    struct inner<q, quaternion<q>> {
-        q operator () (const quaternion<q> &a, const quaternion<q> &b);
     };
     
 }

@@ -205,7 +205,7 @@ namespace data::math {
     };
 
     template <> struct quadrance<Z> {
-        N operator () (const Z &);
+        Z operator () (const Z &);
     };
 
     template <> struct quadrance<N> {
