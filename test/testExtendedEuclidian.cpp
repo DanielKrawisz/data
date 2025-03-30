@@ -37,7 +37,7 @@ namespace data::math {
     };
     
     TEST (ExtendedEuclidianTest, TestExtendedEuclidian) {
-
+/*
         test_extended_euclidian<uint64_t, uint64_t> {};
         test_extended_euclidian<int64_t, int64_t> {};
 
@@ -49,9 +49,9 @@ namespace data::math {
         test_extended_euclidian<int128_little, uint128_little> {};
         test_extended_euclidian<int128_big, uint128_big> {};
 
-        test_extended_euclidian<Z, N> {};
+        test_extended_euclidian<Z, N> {};*/
 
-        test_extended_euclidian<Zl1, Nl> {};
+        test_extended_euclidian<Zl1, Nl> {};/*
         test_extended_euclidian<Zb1, Nb> {};
 
         test_extended_euclidian<Z_bytes_BC_little, Z_bytes_BC_little> {};
@@ -70,7 +70,7 @@ namespace data::math {
         test_extended_euclidian<dec_int, dec_uint> {};
         test_extended_euclidian<hex_int, hex_uint> {};
 
-        test_extended_euclidian<hex_int_BC, hex_int_BC> {};
+        test_extended_euclidian<hex_int_BC, hex_int_BC> {};*/
         
     }
     

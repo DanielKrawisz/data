@@ -12,16 +12,16 @@
 
 namespace data::encoding::hexidecimal { 
     
-    template <math::number::complement n, hex_case zz> integer<n, zz> inline write (const math::Z &z) {
+    template <math::negativity n, hex_case zz> integer<n, zz> inline write (const math::Z &z) {
         std::stringstream ss;
         write (ss, z, zz, n);
         return integer<n, zz> {ss.str ()};
     }
 
-    template <hex_case zz> integer<complement::nones, zz> inline write (const math::N &n) {
+    template <hex_case zz> integer<negativity::nones, zz> inline write (const math::N &n) {
         std::stringstream ss;
         write (ss, n, zz);
-        return integer<complement::nones, zz> {ss.str ()};
+        return integer<negativity::nones, zz> {ss.str ()};
     }
 
 }

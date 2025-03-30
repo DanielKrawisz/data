@@ -9,7 +9,7 @@
 #include <data/norm.hpp>
 #include <data/math/algebra.hpp>
 #include <data/arithmetic/halves.hpp>
-#include <data/arithmetic/complement.hpp>
+#include <data/arithmetic/negativity.hpp>
 #include <data/arithmetic/carry.hpp>
 
 #include <iostream>
@@ -230,9 +230,9 @@ namespace data::arithmetic {
         return true;
     }
 
-    template <complement c, range X>
+    template <negativity c, range X>
     size_t minimal_size (X x) {
-        if constexpr (c == complement::nones) {
+        if constexpr (c == negativity::nones) {
             int xsize = size (x);
 
             for (auto i = x.rbegin (); i != x.rend (); i++) {
@@ -241,7 +241,7 @@ namespace data::arithmetic {
             }
 
             return xsize;
-        } else if constexpr (c == complement::ones) {
+        } else if constexpr (c == negativity::twos) {
             if (size (x) == 0) return 0;
             digit<X> d = *x.rbegin ();
             if (d != std::numeric_limits<digit<X>>::max () && d != 0) return size (x);
@@ -256,7 +256,7 @@ namespace data::arithmetic {
                         *i >= get_sign_bit<digit<X>>::value && d == std::numeric_limits<digit<X>>::max () ? 1 : 0);
                 i++;
             }
-        } else if constexpr (c == complement::BC) {
+        } else if constexpr (c == negativity::BC) {
             if (size (x) == 0) return 0;
 
             // numbers that don't begin with 00 or 80 are minimal.
@@ -283,9 +283,9 @@ namespace data::arithmetic {
         }
     }
 
-    template <complement c, range X>
+    template <negativity c, range X>
     std::strong_ordering compare (X a, X b) {
-        if constexpr (c == complement::nones) {
+        if constexpr (c == negativity::nones) {
 
             auto za = size (a);
             auto zb = size (b);
@@ -299,9 +299,9 @@ namespace data::arithmetic {
             }
 
             return arithmetic::compare (a.rend (), ai, b.rbegin ());
-        } else if constexpr (c == complement::ones) {
+        } else if constexpr (c == negativity::twos) {
             throw exception {} << "function unimplemented";
-        } else if constexpr (c == complement::BC) {
+        } else if constexpr (c == negativity::BC) {
             throw exception {} << "function unimplemented";
         }
     }
@@ -333,7 +333,7 @@ namespace data::arithmetic::nones {
 
 }
 
-namespace data::arithmetic::ones {
+namespace data::arithmetic::twos {
 
     template <range X>
     bool is_minimal (X x) {
