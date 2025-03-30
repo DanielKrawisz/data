@@ -6,7 +6,7 @@
 #define DATA_ARITHMETIC_COMPLEMENTARY
 
 #include <data/cross.hpp>
-#include <data/arithmetic/complement.hpp>
+#include <data/arithmetic/negativity.hpp>
 
 // these functions will not trim the input or result.
 
@@ -17,42 +17,42 @@ namespace data::arithmetic {
     // provide a zero of a given size.
     template <endian::order r, std::integral word> bytestring<word> zero (size_t new_size);
 
-    template <endian::order r, complement c, std::integral word> bool is_zero (view<word>);
+    template <endian::order r, negativity c, std::integral word> bool is_zero (view<word>);
 
-    template <endian::order r, complement c, std::integral word> bool sign_bit (view<word>);
+    template <endian::order r, negativity c, std::integral word> bool sign_bit (view<word>);
 
-    template <endian::order r, complement c, std::integral word> size_t minimal_size (view<word>);
+    template <endian::order r, negativity c, std::integral word> size_t minimal_size (view<word>);
 
-    template <endian::order r, complement c, std::integral word> bool is_minimal (view<word>);
+    template <endian::order r, negativity c, std::integral word> bool is_minimal (view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &extend (bytestring<word> &, size_t new_size);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> extend (view<word>, size_t new_size);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &trim (bytestring<word> &);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> trim (view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &bit_and (bytestring<word> &, view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &bit_or (bytestring<word> &, view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &bit_xor (bytestring<word> &, view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> bit_and (view<word>, view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> bit_or (view<word>, view<word>);
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> bit_xor (view<word>, view<word>);
 
 }
@@ -85,7 +85,7 @@ namespace data::arithmetic::nones {
 
 }
 
-namespace data::arithmetic::ones {
+namespace data::arithmetic::twos {
 
     template <endian::order r, std::integral word> std::strong_ordering compare (view<word>, view<word>);
 
@@ -156,19 +156,19 @@ namespace data::arithmetic::BC {
 
 namespace data::arithmetic {
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> inline extend (view<word> x, size_t new_size) {
         bytestring<word> y {x};
         return extend<r, c> (y, new_size);
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> inline trim (view<word> x) {
         bytestring<word> y {x};
         return trim<r, c> (y);
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> inline &bit_and (bytestring<word> &a, view<word> b) {
         if (a.size () == b.size ()) {
             for (int i = 0; i < a.size (); i++) a[i] &= b[i];
@@ -177,7 +177,7 @@ namespace data::arithmetic {
         return a = view<word> (a) & b;
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> inline &bit_or (bytestring<word> &a, view<word> b) {
         if (a.size () == b.size ()) {
             for (int i = 0; i < a.size (); i++) a[i] |= b[i];
@@ -229,7 +229,7 @@ namespace data::arithmetic::nones {
 
 }
 
-namespace data::arithmetic::ones {
+namespace data::arithmetic::twos {
 
     template <endian::order r, std::integral word>
     bytestring<word> inline negate (view<word> x) {
@@ -337,11 +337,11 @@ namespace data::arithmetic {
         return Words<r, word> {slice<word> {const_cast<word *> (z.data ()), z.size ()}};
     }
 
-    template <endian::order r, complement c, std::integral word> size_t inline minimal_size (view<word> x) {
+    template <endian::order r, negativity c, std::integral word> size_t inline minimal_size (view<word> x) {
         return minimal_size<c> (words<r> (x));
     }
 
-    template <endian::order r, complement c, std::integral word> bool inline is_minimal (view<word> x) {
+    template <endian::order r, negativity c, std::integral word> bool inline is_minimal (view<word> x) {
         return minimal_size<r, c> (x) == x.size ();
     }
 
@@ -349,21 +349,21 @@ namespace data::arithmetic {
         return bytestring<word> (size, 0);
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bool inline is_zero (view<word> x) {
-        if constexpr (c == complement::BC) {
+        if constexpr (c == negativity::BC) {
             return arithmetic::BC::is_zero (words<r> (x));
         } else {
             return arithmetic::is_zero (words<r> (x));
         }
     }
 
-    template <endian::order r, complement c, std::integral word> bool inline sign_bit (view<word> x) {
-        if constexpr (c == complement::nones) return false;
+    template <endian::order r, negativity c, std::integral word> bool inline sign_bit (view<word> x) {
+        if constexpr (c == negativity::nones) return false;
         else return arithmetic::sign_bit (words<r> (x));
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &trim (bytestring<word> &x) {
 
         auto w = words<r> (x);
@@ -372,13 +372,13 @@ namespace data::arithmetic {
         auto n = zero<r, word> (min_size);
         std::copy (w.begin (), w.begin () + min_size, words<r> (n).begin ());
 
-        if constexpr (c == complement::BC)
+        if constexpr (c == negativity::BC)
             if (min_size != 0) words<r> (n)[-1] |= (w[-1] & get_sign_bit<word>::value);
 
         return x = n;
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> &extend (bytestring<word> &x, size_t new_size) {
         auto w = words<r> (x);
 
@@ -392,10 +392,10 @@ namespace data::arithmetic {
 
         bytestring<word> z = zero<r, word> (new_size);
 
-        if constexpr (c == complement::nones) {
+        if constexpr (c == negativity::nones) {
             std::copy (w.rbegin (), w.rend (), words<r> (z).rbegin () + new_size - size (w));
-        } else if constexpr (c == complement::ones) {
-            word extend_digit = ones::is_negative (w) ? std::numeric_limits<word>::max () : 0;
+        } else if constexpr (c == negativity::twos) {
+            word extend_digit = twos::is_negative (w) ? std::numeric_limits<word>::max () : 0;
 
             auto i = words<r> (z).rbegin ();
             for (int n = 0; n < new_size - size (w); n++) {
@@ -404,7 +404,7 @@ namespace data::arithmetic {
             }
 
             std::copy (w.rbegin (), w.rend (), i);
-        } else if constexpr (c == complement::BC) {
+        } else if constexpr (c == negativity::BC) {
             if (size (w) == 0) return x = z;
 
             auto v = words<r> (z);
@@ -418,7 +418,7 @@ namespace data::arithmetic {
         return x = z;
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> bit_and (view<word> a, view<word> b) {
         if (a.size () < b.size ()) return bit_and<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
@@ -428,7 +428,7 @@ namespace data::arithmetic {
         return x;
     }
 
-    template <endian::order r, complement c, std::integral word>
+    template <endian::order r, negativity c, std::integral word>
     bytestring<word> bit_or (view<word> a, view<word> b) {
         if (a.size () < b.size ()) return bit_or<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
@@ -443,7 +443,7 @@ namespace data::arithmetic::nones {
 
     // must be the same size.
     template <endian::order r, std::integral word> std::strong_ordering inline compare (view<word> a, view<word> b) {
-        return arithmetic::compare<complement::nones> (words<r> (a), words<r> (b));
+        return arithmetic::compare<negativity::nones> (words<r> (a), words<r> (b));
     }
 
     template <endian::order r, std::integral word>
@@ -455,7 +455,7 @@ namespace data::arithmetic::nones {
         //auto remainder = arithmetic::plus<word> (w.end (), o, 1, i);
         bool remainder = arithmetic::add_with_carry<word> (w.end (), o, i, 1);
         if (remainder) {
-            x = extend<r, complement::nones> (x, size (w) + 1);
+            x = extend<r, negativity::nones> (x, size (w) + 1);
             words<r> (x)[-1] = remainder;
         }
 
@@ -477,7 +477,7 @@ namespace data::arithmetic::nones {
         auto wn = words<r> (n);
         word remainder = arithmetic::plus<r, word> (wn, words<r> (a), words<r> (b));
         if (remainder > 0) {
-            extend<r, complement::nones, word> (n, n.size () + 1);
+            extend<r, negativity::nones, word> (n, n.size () + 1);
             *words<r> (n).rbegin () = remainder;
         }
 
@@ -493,7 +493,7 @@ namespace data::arithmetic::nones {
     }
 }
 
-namespace data::arithmetic::ones {
+namespace data::arithmetic::twos {
     template <endian::order r, std::integral word> bytestring<word> inline &negate (bytestring<word> &x) {
         return increment<r, word> (x.bit_negate ());
     }
@@ -506,13 +506,15 @@ namespace data::arithmetic::ones {
         bool na = is_negative (wa);
         bool nb = is_negative (wb);
 
+        // TODO it should be possible to compare negative numbers
+        // without negating them.
         if (na && nb) {
             auto ya = negate<r> (b);
             auto yb = negate<r> (a);
-            return arithmetic::compare<complement::nones> (words<r> (ya), words<r> (yb));
+            return arithmetic::compare<negativity::nones> (words<r> (ya), words<r> (yb));
         }
 
-        if (!na && !nb) return arithmetic::compare<complement::nones> (wa, wb);
+        if (!na && !nb) return arithmetic::compare<negativity::nones> (wa, wb);
         return na ? std::strong_ordering::less : std::strong_ordering::greater;
     }
 
@@ -526,7 +528,7 @@ namespace data::arithmetic::ones {
         if (is_negative_one (w)) return x = zero<r, word> (0);
 
         // always extend by one in case we would increment something that would produce a positive number.
-        extend<r, complement::ones> (x, size (w) + 1);
+        extend<r, negativity::twos> (x, size (w) + 1);
         w = words<r> (x);
 
         auto oit = w.begin ();
@@ -542,7 +544,7 @@ namespace data::arithmetic::ones {
         auto w = words<r> (x);
         if (is_zero (w)) return x = bytestring<word> (1, std::numeric_limits<word>::max ());
 
-        extend<r, complement::ones> (x, size (w) + 1);
+        extend<r, negativity::twos> (x, size (w) + 1);
 
         w = words<r> (x);
         auto xx = w.begin ();
@@ -581,12 +583,12 @@ namespace data::arithmetic::BC {
         if (nb == math::zero) return na == math::positive ? std::weak_ordering::greater : std::weak_ordering::less;
 
         if (na == math::positive && nb == math::positive)
-            return arithmetic::compare<complement::nones> (wa, wb);
+            return arithmetic::compare<negativity::nones> (wa, wb);
 
         if (na == math::negative && nb == math::negative) {
             auto ya = negate<r> (b);
             auto yb = negate<r> (a);
-            return arithmetic::compare<complement::nones> (words<r> (ya), words<r> (yb));
+            return arithmetic::compare<negativity::nones> (words<r> (ya), words<r> (yb));
         }
 
         return na == math::negative ? std::weak_ordering::less : std::weak_ordering::greater;
@@ -667,7 +669,7 @@ namespace data::arithmetic::BC {
                 auto wc = words<r> (c);
                 word remainder = arithmetic::plus<r, word> (wc, wa, wb);
                 if (remainder > 0 || sign_bit (wc)) {
-                    extend<r, complement::nones, word> (c, c.size () + 1);
+                    extend<r, negativity::nones, word> (c, c.size () + 1);
                     *words<r> (c).rbegin () = remainder;
                 }
                 return c;

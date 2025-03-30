@@ -59,11 +59,11 @@ namespace data {
     }
 
     template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
-    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, math::number::complement::ones, word>;
-    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, math::number::complement::BC, word>;
+    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, math::negativity::twos, word>;
+    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, math::negativity::BC, word>;
     template <std::unsigned_integral word> using Nb = math::number::N_bytes<endian::big, word>;
-    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, math::number::complement::ones, word>;
-    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, math::number::complement::BC, word>;
+    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, math::negativity::twos, word>;
+    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, math::negativity::BC, word>;
 
     void test_decrement_signed (const string &given, const string &expected) {
         

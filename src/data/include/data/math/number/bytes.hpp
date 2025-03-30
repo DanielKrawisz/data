@@ -27,17 +27,17 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::ones, word> inline Z_bytes<r, complement::ones, word>::read (string_view x) {
+    Z_bytes<r, negativity::twos, word> inline Z_bytes<r, negativity::twos, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::ones, word> (x);
-        return Z_bytes<r, complement::ones, word> (Z {x});
+        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, negativity::twos, word> (x);
+        return Z_bytes<r, negativity::twos, word> (Z {x});
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, complement::BC, word> inline Z_bytes<r, complement::BC, word>::read (string_view x) {
+    Z_bytes<r, negativity::BC, word> inline Z_bytes<r, negativity::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, complement::BC, word> (x);
-        return Z_bytes<r, complement::BC, word> (Z {x});
+        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, negativity::BC, word> (x);
+        return Z_bytes<r, negativity::BC, word> (Z {x});
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -47,7 +47,7 @@ namespace data::math::number {
         return o;
     }
     
-    template <endian::order r, complement c, std::unsigned_integral word>
+    template <endian::order r, negativity c, std::unsigned_integral word>
     std::ostream inline &operator << (std::ostream &o, const Z_bytes<r, c, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, Z (n));
@@ -60,12 +60,12 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, complement::ones, word>::operator double () const {
+    Z_bytes<r, negativity::twos, word>::operator double () const {
         return double (Z (*this));
     }
     
     template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, complement::BC, word>::operator double () const {
+    Z_bytes<r, negativity::BC, word>::operator double () const {
         return double (Z (*this));
     }
     
@@ -88,7 +88,7 @@ namespace data::encoding::decimal {
 
 namespace data::encoding::signed_decimal {
     
-    template <endian::order r, math::number::complement n, std::unsigned_integral word>
+    template <endian::order r, math::negativity n, std::unsigned_integral word>
     maybe<math::number::Z_bytes<r, n, word>> read (string_view s) {
         if (!valid (s)) return {};
         bool negative = s[0] == '-';
@@ -121,21 +121,21 @@ namespace data::encoding::natural {
 namespace data::encoding::hexidecimal {
     
     namespace {
-        template <endian::order r, complement c> struct get_bytes_type {
+        template <endian::order r, negativity c> struct get_bytes_type {
             using value = math::number::Z_bytes<r, c, byte>;
         };
         
-        template <endian::order r> struct get_bytes_type<r, complement::nones> {
+        template <endian::order r> struct get_bytes_type<r, negativity::nones> {
             using value = math::number::N_bytes<r, byte>;
         };
         
-        template <endian::order r, math::number::complement c>
+        template <endian::order r, math::negativity c>
         using bytes_type = get_bytes_type<r, c>::value;
         
         using nat = math::number::GMP::N;
         
         template <hex::letter_case zz>
-        inline nat read_num (const integer<complement::nones, zz> &n) {
+        inline nat read_num (const integer<negativity::nones, zz> &n) {
             return read_base<nat> (n.substr (2), 16, &digit);
         } 
         
@@ -158,9 +158,9 @@ namespace data::encoding::hexidecimal {
         }
         
         template <hex::letter_case zz> 
-        integer<complement::ones, zz> inline bit_shift (const integer<complement::ones, zz> &x, int i) {
+        integer<negativity::twos, zz> inline bit_shift (const integer<negativity::twos, zz> &x, int i) {
             auto o = read<endian::big, byte> (x);
-            math::number::Z_bytes<endian::big, complement::ones, byte> n;
+            math::number::Z_bytes<endian::big, negativity::twos, byte> n;
             n.resize (o->size ());
             std::copy (o->begin (), o->end (), n.begin ());
             return write<zz> (n << i);
@@ -194,10 +194,10 @@ namespace data::encoding::hexidecimal {
             }
         }
 
-        template <math::number::complement c, hex::letter_case zz> struct divide {
-            // if c is ones, nn must be either ones or nones.
-            // if c is twos, nn must be twos.
-            template <math::number::complement nn>
+        template <math::negativity c, hex::letter_case zz> struct divide {
+            // if c is twos, nn must be either twos or nones.
+            // if c is BC, nn must be BC.
+            template <math::negativity nn>
             division<integer<c, zz>, decltype (abs (std::declval<integer<c, zz>> ()))>
             operator () (const integer<c, zz> &n, const math::nonzero<integer<nn, zz>> &x) const {
                 if (x.Value == 0) throw math::division_by_zero {};
@@ -210,27 +210,27 @@ namespace data::encoding::hexidecimal {
             }
         };
         
-        template <hex::letter_case zz> struct divide<complement::nones, zz> {
-            division<integer<complement::nones, zz>> operator ()
-                (const integer<complement::nones, zz> &n, const math::nonzero<integer<complement::nones, zz>> &x) const {
+        template <hex::letter_case zz> struct divide<negativity::nones, zz> {
+            division<integer<negativity::nones, zz>> operator ()
+                (const integer<negativity::nones, zz> &n, const math::nonzero<integer<negativity::nones, zz>> &x) const {
                 if (x.Value == 0) throw math::division_by_zero {} ;
                 // We need this optimization because we use division to convert from hex strings to N.
-                if (x.Value == 16) return division<integer<complement::nones, zz>>{
-                    n >> 4, n & integer<complement::nones, zz> {4}};
+                if (x.Value == 16) return division<integer<negativity::nones, zz>>{
+                    n >> 4, n & integer<negativity::nones, zz> {4}};
                 
                 return math::number::natural_divide (n, x.Value);
             }
         };
 
-        template <complement n, hex::letter_case zz> struct read_dec_integer {
+        template <negativity n, hex::letter_case zz> struct read_dec_integer {
             integer<n, zz> operator () (const data::string &x) {
                 if (decimal::valid (x)) {
-                    integer<complement::nones, zz> z {write<zz> (*decimal::read<endian::little, byte> (x))};
+                    integer<negativity::nones, zz> z {write<zz> (*decimal::read<endian::little, byte> (x))};
                     return math::number::trim (integer<n, zz> {math::number::extend (z, z.size () + 2)});
                 }
 
                 if (signed_decimal::valid (x)) {
-                    integer<complement::nones, zz> z {write<zz> (*decimal::read<endian::little, byte> (x.substr (1)))};
+                    integer<negativity::nones, zz> z {write<zz> (*decimal::read<endian::little, byte> (x.substr (1)))};
                     return math::number::trim (-integer<n, zz> {math::number::extend (z, z.size () + 2)});
                 }
 
@@ -238,22 +238,22 @@ namespace data::encoding::hexidecimal {
             }
         };
 
-        template <hex::letter_case zz> struct read_dec_integer<complement::nones, zz> {
-            integer<complement::nones, zz> operator () (const data::string &x) {
+        template <hex::letter_case zz> struct read_dec_integer<negativity::nones, zz> {
+            integer<negativity::nones, zz> operator () (const data::string &x) {
                 auto np = decimal::read<endian::little, byte> (x);
                 if (!np) throw exception {} << "invalid number string: " << x;
-                return integer<complement::nones, zz> {write<zz> (*np)};
+                return integer<negativity::nones, zz> {write<zz> (*np)};
             }
         };
         
     }
     
-    template <complement c, hex::letter_case zz> 
+    template <negativity c, hex::letter_case zz>
     inline integer<c, zz>::operator double () const {
         return double (bytes_type<endian::little, c>::read (*this));
     }
 
-    template <complement n, hex::letter_case zz>
+    template <negativity n, hex::letter_case zz>
     integer<n, zz> integer<n, zz>::read (const std::string &x) {
         if (hexidecimal::valid (x)) return integer<n, zz> {x};
         return read_dec_integer<n, zz> {} (x);
@@ -263,13 +263,13 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::integer {
     
-    template <endian::order r, math::number::complement c, std::unsigned_integral word>
+    template <endian::order r, math::negativity c, std::unsigned_integral word>
     std::ostream inline &write (std::ostream &o, const math::number::Z_bytes<r, c, word> &z) {
         if (sign (z) == math::negative) o << "-";
         return decimal::write (o, abs (z));
     }
     
-    template <endian::order r, math::number::complement c, std::unsigned_integral word>
+    template <endian::order r, math::negativity c, std::unsigned_integral word>
     string inline write (const math::number::Z_bytes<r, c, word> &z) {
         std::stringstream ss;
         write (ss, z);
@@ -305,20 +305,20 @@ namespace data::math {
     }
 
     template <hex_case zz>
-    division<hex::int1<zz>, unsigned int> inline
-    divide<hex::int1<zz>, int>::operator () (const hex::int1<zz> &d, const nonzero<int> &z) {
+    division<hex::int2<zz>, unsigned int> inline
+    divide<hex::int2<zz>, int>::operator () (const hex::int2<zz> &d, const nonzero<int> &z) {
         if (z.Value == 16) {
             if (d < 0) {
-                auto [quotient, remainder] = division<hex::intBC<zz>, int> {} (-d, z);
+                auto [quotient, remainder] = division<hex::int2<zz>, int> {} (-d, z);
                 return {-quotient - 1, 16 - remainder};
             }
 
-            if (d < 16) return {hex::int1<zz> {"0x"}, static_cast<unsigned int> (int64 (d))};
-            return {hex::int1<zz> {std::string {"0x0"} + d.substr (2, d.size () - 3)}, static_cast<unsigned int> (int64 (d & 0x0f))};
+            if (d < 16) return {hex::int2<zz> {"0x"}, static_cast<unsigned int> (int64 (d))};
+            return {hex::int2<zz> {std::string {"0x0"} + d.substr (2, d.size () - 3)}, static_cast<unsigned int> (int64 (d & 0x0f))};
         }
 
         auto [quotient, remainder] = divide<Z, Z> {} (Z (d), nonzero<Z> {z.Value});
-        return division<hex::int1<zz>, unsigned int> {hex::int1<zz> {quotient}, static_cast<unsigned int> (uint64 (remainder))};
+        return division<hex::int2<zz>, unsigned int> {hex::int2<zz> {quotient}, static_cast<unsigned int> (uint64 (remainder))};
     }
 
     template <hex_case zz>

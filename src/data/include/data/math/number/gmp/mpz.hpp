@@ -13,7 +13,7 @@
 #include <data/abs.hpp>
 #include <data/arithmetic.hpp>
 #include <data/math/algebra.hpp>
-#include <data/arithmetic/complement.hpp>
+#include <data/arithmetic/negativity.hpp>
 #include <data/encoding/hex.hpp>
 
 #include <string>
@@ -350,14 +350,14 @@ namespace data::encoding::decimal {
 }
 
 namespace data::encoding::hexidecimal {
-    using complement = arithmetic::complement;
-    template <complement, hex_case> struct integer;
+    using negativity = arithmetic::negativity;
+    template <negativity, hex_case> struct integer;
     
-    template <hex_case zz> integer<complement::nones, zz> write (const math::N &);
-    template <complement n, hex_case zz> integer<n, zz> write (const math::Z &);
+    template <hex_case zz> integer<negativity::nones, zz> write (const math::N &);
+    template <negativity n, hex_case zz> integer<n, zz> write (const math::Z &);
 
     std::ostream &write (std::ostream &, const math::N &, hex_case = hex_case::lower);
-    std::ostream &write (std::ostream &, const math::Z &, hex_case = hex_case::lower, complement = complement::ones);
+    std::ostream &write (std::ostream &, const math::Z &, hex_case = hex_case::lower, negativity = negativity::twos);
     
 }
 

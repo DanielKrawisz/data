@@ -212,18 +212,20 @@ namespace data::math {
     }
 
     // we now define shifts in terms of mul_2 and div_2
-    template <group_integral A> A inline arithmatic_shift_right (const A &a, uint32 u) {
+    template <group_integral A> A arithmatic_shift_right (const A &a, uint32 u) {
         A x = a;
-        while (u > 0) a = data::mul_2 (a);
+        while (u-- > 0) x = data::mul_2 (x);
+        return x;
     }
 
     template <unsigned_group_integral A> A arithmatic_shift_left (const A &a, uint32 u) {
         A x = a;
-        while (u > 0) a = data::div_2 (a);
+        while (u-- > 0) x = data::div_2 (x);
+        return x;
     }
 
     // we now implement plus and minus in terms of bit operations.
-    // this only works for complement one.
+    // this only works for complement one or two.
     template <bit_integral A> A bit_plus (const A &a, const A &b) {
         A x = a;
         A c = b;

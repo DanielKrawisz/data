@@ -55,7 +55,7 @@ namespace data::math::number {
     
     template <endian::order r, size_t size, std::unsigned_integral word>
     inline bounded<true, r, size, word>::operator double () const {
-        return double (Z (Z_bytes<r, complement::ones, word> (*this)));
+        return double (Z (Z_bytes<r, negativity::twos, word> (*this)));
     }
 }
 
