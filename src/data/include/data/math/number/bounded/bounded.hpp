@@ -387,10 +387,10 @@ namespace data::math::number {
     std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian_integral<y, o, z> &);
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
-    bool operator == (const sint<r, size, word> &, const Z_bytes<o, complement::ones, word> &);
+    bool operator == (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const sint<r, size, word> &, const Z_bytes<o, complement::ones, word> &);
+    std::weak_ordering operator <=> (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     bool operator == (const uint<r, size, word> &, const N_bytes<o, word> &);
@@ -680,10 +680,10 @@ namespace data::math::number {
 
         division<bounded> divide (const bounded &) const;
         
-        operator Z_bytes<r, complement::ones, word> () const;
+        operator Z_bytes<r, negativity::twos, word> () const;
         
         explicit operator Z () const {
-            return Z (Z_bytes<r, complement::ones, word> (*this));
+            return Z (Z_bytes<r, negativity::twos, word> (*this));
         }
         
         explicit bounded (slice<word, size>);
@@ -695,12 +695,12 @@ namespace data::math::number {
 
         explicit operator int64 () const;
         
-        constexpr explicit bounded (const Z_bytes<r, complement::ones, word> &z) {
+        constexpr explicit bounded (const Z_bytes<r, negativity::twos, word> &z) {
             if (z.size () <= size) {
                 std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
                 char leading = data::is_negative (z) ? 0xff : 0x00;
                 for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
-            } else if (z <= Z_bytes<r, complement::ones, word> {max ()} && z >= Z_bytes<r, complement::ones, word> {min ()})
+            } else if (z <= Z_bytes<r, negativity::twos, word> {max ()} && z >= Z_bytes<r, negativity::twos, word> {min ()})
                 std::copy (z.words ().begin (), z.words ().begin () + size, this->begin ());
             else throw std::invalid_argument {"Z_bytes too big"};
         }
@@ -748,7 +748,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
-    bool inline operator == (const sint<r, size, word> &a, const Z_bytes<o, complement::ones, word> &b) {
+    bool inline operator == (const sint<r, size, word> &a, const Z_bytes<o, negativity::twos, word> &b) {
         return (a <=> b) == 0;
     }
     
@@ -768,13 +768,13 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const sint<r, size, word> &a, const Z_bytes<o, complement::ones, word> &b) {
-        return Z_bytes<r, complement::ones, word> (a) <=> b;
+    std::weak_ordering inline operator <=> (const sint<r, size, word> &a, const Z_bytes<o, negativity::twos, word> &b) {
+        return Z_bytes<r, negativity::twos, word> (a) <=> b;
     }
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const uint<r, size, word> &a, const N_bytes<o, word> &b) {
-        return Z_bytes<r, complement::ones, word> (a) <=> b;
+        return Z_bytes<r, negativity::twos, word> (a) <=> b;
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
@@ -954,13 +954,13 @@ namespace data::math::number {
     std::strong_ordering operator <=> (const sint<r, size, word> &a, const sint<r, size, word> &b) {
         bool na = data::is_negative (a);
         bool nb = data::is_negative (b);
-        if (na == nb) return arithmetic::compare<complement::nones> (a.words (), b.words ());
+        if (na == nb) return arithmetic::compare<negativity::nones> (a.words (), b.words ());
         return na ? std::strong_ordering::less : std::strong_ordering::greater;
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
     std::strong_ordering inline operator <=> (const uint<r, size, word> &a, const uint<r, size, word> &b) {
-        return arithmetic::compare<complement::nones> (a.words (), b.words ());
+        return arithmetic::compare<negativity::nones> (a.words (), b.words ());
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
@@ -1092,7 +1092,7 @@ namespace data::math {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     math::signature inline sign<math::sint<r, x, word>>::operator () (const math::sint<r, x, word> &z) {
-        return arithmetic::ones::sign (z.words ());
+        return arithmetic::twos::sign (z.words ());
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -1156,7 +1156,7 @@ namespace data::math::number {
     bounded<true, r, size, word>::bounded (string_view x) {
         if (encoding::signed_decimal::valid (x) ||
             encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
-                *this = bounded {Z_bytes<r, complement::ones, word>::read (x)};
+                *this = bounded {Z_bytes<r, negativity::twos, word>::read (x)};
         else if (encoding::hex::valid (x) && x.size () == 2 * size * sizeof (word))
             boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
         else throw std::invalid_argument {"invalid integer string"};
@@ -1376,8 +1376,8 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
-    bounded<true, r, size, word>::operator Z_bytes<r, complement::ones, word> () const {
-        Z_bytes<r, complement::ones, word> z {};
+    bounded<true, r, size, word>::operator Z_bytes<r, negativity::twos, word> () const {
+        Z_bytes<r, negativity::twos, word> z {};
         z.resize (size);
         std::copy (this->begin (), this->end (), z.begin ());
         return z;

@@ -101,12 +101,12 @@ namespace data::encoding::hexidecimal {
         return write (o, math::number::N_bytes<endian::big, byte> (n));
     }
     
-    std::ostream &write (std::ostream &o, const math::Z &z, hex::letter_case q, complement n) {
+    std::ostream &write (std::ostream &o, const math::Z &z, hex::letter_case q, negativity n) {
 
         switch (n) {
-            case (complement::nones): throw data::exception {} << "can't do " << n << ".";
-            case (complement::ones): return write (o << "0x", math::number::Z_bytes<endian::big, complement::ones, byte> (z), q);
-            case (complement::BC): return write (o << "0x", math::number::Z_bytes<endian::big, complement::BC, byte> (z), q);
+            case (negativity::nones): throw data::exception {} << "can't do " << n << ".";
+            case (negativity::twos): return write (o << "0x", math::number::Z_bytes<endian::big, negativity::twos, byte> (z), q);
+            case (negativity::BC): return write (o << "0x", math::number::Z_bytes<endian::big, negativity::BC, byte> (z), q);
         }
         
         return o;
@@ -127,7 +127,7 @@ namespace data::math::number::GMP {
     std::ostream &operator << (std::ostream &o, const Z &n) {
 
         if (o.flags () & std::ios::hex) {
-            encoding::hexidecimal::write (o, n, hex_case::lower, complement::ones);
+            encoding::hexidecimal::write (o, n, hex_case::lower, negativity::twos);
             return o;
         }
 

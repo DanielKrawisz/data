@@ -46,8 +46,8 @@ namespace data::math {
     }
     
     template <hex_case zz, uint64 pow> 
-    set<hex::int1<zz>> root<hex::int1<zz>, pow>::operator () (const hex::int1<zz> &n) {
-        return set<hex::int1<zz>> (root<Z, pow> {} (Z {n}));
+    set<hex::int2<zz>> root<hex::int2<zz>, pow>::operator () (const hex::int2<zz> &n) {
+        return set<hex::int2<zz>> (root<Z, pow> {} (Z {n}));
     }
     
     template <hex_case zz, uint64 pow> 

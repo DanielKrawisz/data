@@ -106,7 +106,11 @@ namespace data::encoding {
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big {-1}), std::string {"-1"});
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big {-11}), std::string {"-11"});
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big {-23}), std::string {"-23"});
-        EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big::read ("-5704566599993321")), std::string {"-5704566599993321"});
+
+        std::string d4m {"-5704566599993321"};
+        std::string d4mb = encoding::signed_decimal::write (Z_bytes_big::read (d4m));
+        EXPECT_EQ (d4mb, d4m)
+            << "read " << d4m << " as Z_bytes_big. It should haveb been written as the same thing but got " << d4mb;
         EXPECT_EQ (encoding::signed_decimal::write
             (Z_bytes_little::read ("-57045489000484922397266599993321")),
                 std::string {"-57045489000484922397266599993321"});

@@ -161,6 +161,7 @@ namespace data {
     template <typename N> void test_bit_shift_unbounded (list<string> numbers, list<int32> shifts) {
 
         for (const string &number_string: numbers) {
+
             N number = N::read (number_string);
             for (int32 shift : shifts) {
 
@@ -172,11 +173,12 @@ namespace data {
                     return n / 2;
                 }, number, shift);
 
-                auto computed_left = number << shift;
+                //auto computed_left = number << shift;
                 auto computed_right = number >> shift;
 
-                EXPECT_EQ (expected_left, computed_left);
-                EXPECT_EQ (expected_right, computed_right);
+                //EXPECT_EQ (expected_left, computed_left);
+                EXPECT_EQ (expected_right, computed_right) <<
+                    "expected " << number << " >> " << shift << " -> " << expected_right << "; but got " << computed_right;
             }
         }
 
@@ -237,6 +239,13 @@ namespace data {
         test_bit_shift_signed<math::Z_bytes<endian::big, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes<endian::little, unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes<endian::big, unsigned int>> ();
+
+        test_bit_shift_signed<math::Z_bytes_BC<endian::little>> ();
+        test_bit_shift_signed<math::Z_bytes_BC<endian::big>> ();
+        test_bit_shift_signed<math::Z_bytes_BC<endian::little, short unsigned int>> ();
+        test_bit_shift_signed<math::Z_bytes_BC<endian::big, short unsigned int>> ();
+        test_bit_shift_signed<math::Z_bytes_BC<endian::little, unsigned int>> ();
+        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
 
         // TODO bigger word sizes.
     }

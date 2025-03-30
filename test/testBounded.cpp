@@ -36,8 +36,8 @@ namespace data {
     
     using nl = math::number::N_bytes<data::endian::little, byte>;
     using nb = math::number::N_bytes<data::endian::big, byte>;
-    using zl = math::number::Z_bytes<data::endian::little, math::number::complement::ones, byte>;
-    using zb = math::number::Z_bytes<data::endian::big, math::number::complement::ones, byte>;
+    using zl = math::number::Z_bytes<data::endian::little, math::negativity::twos, byte>;
+    using zb = math::number::Z_bytes<data::endian::big, math::negativity::twos, byte>;
     
     TEST (BoundedTest, BoundedReadString) {
         

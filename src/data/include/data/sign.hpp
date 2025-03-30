@@ -7,6 +7,7 @@
 
 #include <data/concepts.hpp>
 #include <data/types.hpp>
+
 namespace data::math {
 
     enum signature : int8_t { zero = 0 , positive = 1 , negative = -1 };

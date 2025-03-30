@@ -34,19 +34,19 @@ namespace data::math {
     }
 
     template <hex_case zz>
-    division<hex::int1<zz>, hex::uint<zz>> inline
-    divide<hex::int1<zz>, hex::int1<zz>>::operator ()
-        (const hex::int1<zz> &v, const nonzero<hex::int1<zz>> &z) {
+    division<hex::int2<zz>, hex::uint<zz>> inline
+    divide<hex::int2<zz>, hex::int2<zz>>::operator ()
+        (const hex::int2<zz> &v, const nonzero<hex::int2<zz>> &z) {
         auto d = divide<Z> {} (Z (v), nonzero<Z> {Z (z.Value)});
-        return {encoding::hexidecimal::write<number::complement::ones, zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
+        return {encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
     template <hex_case zz>
-    division<hex::int1<zz>, hex::uint<zz>> inline
-    divide<hex::int1<zz>, hex::uint<zz>>::operator ()
-        (const hex::int1<zz> &v, const nonzero<hex::uint<zz>> &z) {
+    division<hex::int2<zz>, hex::uint<zz>> inline
+    divide<hex::int2<zz>, hex::uint<zz>>::operator ()
+        (const hex::int2<zz> &v, const nonzero<hex::uint<zz>> &z) {
         auto d = divide<Z, N> {} (Z (v), nonzero<N> {N (z.Value)});
-        return {encoding::hexidecimal::write<number::complement::ones, zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
+        return {encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
     template <hex_case zz>
@@ -54,8 +54,8 @@ namespace data::math {
     divide<hex::intBC<zz>, hex::intBC<zz>>::operator ()
         (const hex::intBC<zz> &v, const nonzero<hex::intBC<zz>> &z) {
         auto d = divide<Z, Z> {} (Z (v), nonzero<Z> {Z (z.Value)});
-        return {encoding::hexidecimal::write<number::complement::BC, zz> (d.Quotient),
-            encoding::hexidecimal::write<number::complement::BC, zz> (d.Remainder)};
+        return {encoding::hexidecimal::write<negativity::BC, zz> (d.Quotient),
+            encoding::hexidecimal::write<negativity::BC, zz> (d.Remainder)};
     }
 }
 
@@ -75,17 +75,17 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    template <complement c, hex::letter_case cx> inline complemented_string<c, cx>::operator math::Z () const {
-        if constexpr (c == complement::ones) return math::Z {string_view (*this)};
+    template <negativity c, hex::letter_case cx> inline complemented_string<c, cx>::operator math::Z () const {
+        if constexpr (c == negativity::twos) return math::Z {string_view (*this)};
         else return math::Z (math::Z_bytes_BC<endian::big, byte>::read (*this));
     }
 
     template <hex::letter_case zz>
-    inline complemented_string<complement::nones, zz>::complemented_string (const math::N &n) {
+    inline complemented_string<negativity::nones, zz>::complemented_string (const math::N &n) {
         *this = write<zz> (n);
     }
 
-    template <complement c, hex::letter_case zz>
+    template <negativity c, hex::letter_case zz>
     inline complemented_string<c, zz>::complemented_string (const math::Z &n) {
         *this = write<c, zz> (n);
     }

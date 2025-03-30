@@ -11,9 +11,9 @@ namespace data {
 
         auto div = divide (numerator, math::nonzero {denominator});
         EXPECT_EQ (div.Quotient, quotient)
-            << "expected " << numerator << " / " << denominator << " = " << quotient << " but got " << div.Quotient;
+            << "expected " << numerator << " / " << denominator << " -> " << quotient << " but got " << div.Quotient;
         EXPECT_EQ (div.Remainder, remainder)
-            << "expected " << numerator << " % " << denominator << " = " << remainder << " but got " << div.Remainder;
+            << "expected " << numerator << " % " << denominator << " -> " << remainder << " but got " << div.Remainder;
     }
 
     template <typename Z, typename N>
@@ -21,9 +21,9 @@ namespace data {
 
         auto div = divide (numerator, math::nonzero {denominator});
         EXPECT_EQ (div.Quotient, quotient)
-            << "expected " << numerator << " / " << denominator << " = " << quotient << " but got " << div.Quotient;
+            << "expected " << numerator << " / " << denominator << " -> " << quotient << " but got " << div.Quotient;
         EXPECT_EQ (div.Remainder, remainder)
-            << "expected " << numerator << " % " << denominator << " = " << remainder << " but got " << div.Remainder;
+            << "expected " << numerator << " % " << denominator << " -> " << remainder << " but got " << div.Remainder;
     }
 
     template <typename Z, typename N>
@@ -31,9 +31,9 @@ namespace data {
 
         auto div = divide (numerator, math::nonzero {denominator});
         EXPECT_EQ (div.Quotient, quotient)
-            << "expected " << numerator << " / " << denominator << " = " << quotient << " but got " << div.Quotient;
+            << "expected " << numerator << " / " << denominator << " -> " << quotient << " but got " << div.Quotient;
         EXPECT_EQ (div.Remainder, remainder)
-            << "expected " << numerator << " % " << denominator << " = " << remainder << " but got " << div.Remainder;
+            << "expected " << numerator << " % " << denominator << " -> " << remainder << " but got " << div.Remainder;
     }
 
     template <typename N>
