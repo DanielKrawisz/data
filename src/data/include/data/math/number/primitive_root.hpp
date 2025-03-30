@@ -5,6 +5,7 @@
 #ifndef DATA_MATH_NUMBER_PRIMITIVE_ROOT
 #define DATA_MATH_NUMBER_PRIMITIVE_ROOT
 
+#include <data/for_each.hpp>
 #include <data/power.hpp>
 #include <data/math/number/totient.hpp>
 

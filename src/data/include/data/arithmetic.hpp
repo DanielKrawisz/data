@@ -6,6 +6,7 @@
 #define DATA_ARITHMETIC
 
 #include <data/types.hpp>
+#include <data/math/nonnegative.hpp>
 
 namespace data {
 
@@ -255,6 +256,16 @@ namespace data::math {
 namespace data::math {
     template <std::unsigned_integral X> struct digits_base_2<X> {
         size_t operator () (X);
+    };
+
+    template <std::integral X> struct times<X, X> {
+        X operator () (X x, X y) {
+            return x * y;
+        }
+
+        nonzero<X> operator () (nonzero<X> x, nonzero<X> y) {
+            return x.Value * y.Value;
+        }
     };
 }
 

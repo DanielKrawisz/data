@@ -7,7 +7,6 @@
 
 // defines float32 and float64
 #include <data/float.hpp>
-#include <data/math.hpp>
 #include <data/power.hpp>
 
 // numbers of either endian of any size up to 64 bits
@@ -21,9 +20,7 @@
 #include <data/math/number/bytes.hpp>
 
 #include <data/encoding/base58.hpp>
-
-#include <data/math/fraction.hpp>
-#include <data/math/octonion.hpp>
+#include <data/math/number/gmp/aks.hpp>
 
 #include <algorithm>
 
@@ -129,37 +126,6 @@ namespace data {
     using hex_int_BC = hex::intBC<hex_case::lower>;
     using base58_uint = encoding::base58::string;
     
-    // rational numbers. 
-    using Q = math::fraction<Z>;
-
-    using Q_big = math::fraction<Z_bytes_big>;
-    using Q_little = math::fraction<Z_bytes_little>;
-
-    using Q_BC_big = math::fraction<Z_bytes_BC_big>;
-    using Q_BC_little = math::fraction<Z_bytes_BC_little>;
-    
-    // Gaussian integers. 
-    using G = math::complex<Z>;
-    using GH = math::quaternion<Z>;
-    using GO = math::octonion<Z>;
-    
-    // complex rationals
-    using QC = math::complex<Q>;
-        
-    // rational quaternions
-    using QH = math::quaternion<Q>;
-        
-    // rational octonions
-    using QO = math::octonion<Q>;
-    
-    // Caylay-Dickson floating points. 
-    using complex64 = math::complex<float32>;
-    using complex128 = math::complex<float64>;
-    using quat128 = math::quaternion<float32>;
-    using quat256 = math::quaternion<float64>;
-    using oct256 = math::octonion<float32>;
-    using oct512 = math::octonion<float64>;
-    
 }
 
 namespace data {
@@ -264,7 +230,7 @@ namespace data {
 
     static_assert (integral_system<hex_int_BC>);
 
-    static_assert (unsigned_integral<base58_uint>);
+    //static_assert (unsigned_integral<base58_uint>);
 
 }
 

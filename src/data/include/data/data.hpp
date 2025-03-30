@@ -33,7 +33,7 @@ template <typename X> using chan = tool::channel<X>;
 #include <data/numbers.hpp>
 
 // Some important math functions.
-#include <data/math/abs.hpp>
+#include <data/abs.hpp>
 #include <data/math/root.hpp>
 
 // Natural numbers and integers

@@ -216,14 +216,11 @@ namespace data::math {
         sint<r, x, word> operator () (const sint<r, x, word> &);
     };
     
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    struct quadrance<uint<r, x, word>> {
-        uint<r, x, word> operator () (const uint<r, x, word> &);
-    };
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    struct quadrance<sint<r, x, word>> {
-        uint<r, x, word> operator () (const sint<r, x, word> &);
+    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    struct quadrance<number::bounded<u, r, x, word>> {
+        number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &z) {
+            return z * z;
+        }
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -1051,16 +1048,6 @@ namespace data::math {
         std::copy (z.begin (), z.end (), n.begin ());
         if (data::is_negative (z)) arithmetic::negate_ones (n.words ());
         return n;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline quadrance<uint<r, x, word>>::operator () (const uint<r, x, word> &z) {
-        return z * z;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline quadrance<sint<r, x, word>>::operator () (const sint<r, x, word> &z) {
-        return data::abs (z * z);
     }
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>

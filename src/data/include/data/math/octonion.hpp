@@ -12,13 +12,20 @@ namespace data::math {
 
     template <typename R> bool operator == (const octonion<R> &, const octonion<R> &);
 
+    template <typename q> struct inner<octonion<q>, octonion<q>> :
+        inner<cayley_dickson<quaternion<q>>, cayley_dickson<quaternion<q>>> {};
+
+    template <typename q> struct quadrance<octonion<q>> : quadrance<cayley_dickson<quaternion<q>>> {};
+
+    template <typename q> struct norm<octonion<q>> : norm<cayley_dickson<quaternion<q>>> {};
+
     template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x);
 
     template <typename R>
-    class octonion : public cayley_dickson<R, quaternion<R>> {
+    class octonion : public cayley_dickson<quaternion<R>> {
         using com = complex<R>;
         using ham = quaternion<R>;
-        using oct = cayley_dickson<R, ham>;
+        using oct = cayley_dickson<ham>;
 
     public:
         using oct::oct;
@@ -29,6 +36,7 @@ namespace data::math {
         octonion (R r, R i, R j, R k, R l, R m, R n, R o) :
             octonion {com {r, i}, com {j, k}, com {l, m}, com {n, o}} {}
         octonion (oct &&o) : oct {o} {}
+        octonion (const R &x) : cayley_dickson<quaternion<R>> {com {x}} {}
         
         static octonion E0 () {
             static octonion e0 {1, 0, 0, 0, 0, 0, 0, 0};
@@ -99,12 +107,12 @@ namespace data::math {
     };
 
     template <typename R> bool inline operator == (const octonion<R> &a, const octonion<R> &b) {
-        return static_cast<cayley_dickson<R, quaternion<R>>> (a) == static_cast<cayley_dickson<R, quaternion<R>>> (b);
+        return static_cast<cayley_dickson<quaternion<R>>> (a) == static_cast<cayley_dickson<quaternion<R>>> (b);
     }
     
     template <typename R> struct conjugate<octonion<R>> {
         octonion<R> operator () (const octonion<R> &x) {
-            return {conjugate<cayley_dickson<R, quaternion<R>>> {} (x)};
+            return {conjugate<cayley_dickson<quaternion<R>>> {} (x)};
         }
     };
     
@@ -141,6 +149,10 @@ namespace data::math {
         }
     };
 
+    template <typename q> struct re<octonion<q>> : re<cayley_dickson<quaternion<q>>> {};
+
+    template <typename q> struct im<octonion<q>> : im<cayley_dickson<quaternion<q>>> {};
+
     template <typename q>
     struct divide<octonion<q>, quaternion<q>> {
         octonion<q> operator () (const octonion<q> &a, const nonzero<quaternion<q>> &b);
@@ -165,7 +177,7 @@ namespace data::math {
 namespace data::math::linear {
     
     template <typename q> 
-    struct dimensions<q, octonion<q>> : dimensions<q, cayley_dickson<q, quaternion<q>>> {};
+    struct dimensions<q, octonion<q>> : dimensions<q, cayley_dickson<quaternion<q>>> {};
 
     template <typename q>
     struct dimensions<complex<q>, octonion<q>> {
@@ -175,11 +187,6 @@ namespace data::math::linear {
     template <typename q>
     struct dimensions<quaternion<q>, octonion<q>> {
         static constexpr dimension value = 2;
-    };
-
-    template <typename q>
-    struct inner<q, octonion<q>> {
-        q operator () (const octonion<q> &a, const octonion<q> &b);
     };
     
 }

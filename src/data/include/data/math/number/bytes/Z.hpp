@@ -533,14 +533,9 @@ namespace data::math {
         return a * b;
     }
     
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline quadrance<N_bytes<r, word>>::operator () (const N_bytes<r, word> &x) {
+    template <endian::order r, number::complement c, std::unsigned_integral word>
+    number::Z_bytes<r, c, word> inline quadrance<number::Z_bytes<r, c, word>>::operator () (const number::Z_bytes<r, c, word> &x) {
         return x * x;
-    }
-    
-    template <endian::order r, number::complement c, std::unsigned_integral word> auto inline
-    quadrance<number::Z_bytes<r, c, word>>::operator () (const number::Z_bytes<r, c, word> &x) -> decltype (data::abs (x)) {
-        return data::abs (x) * data::abs (x);
     }
     
     template <endian::order r, std::unsigned_integral word>

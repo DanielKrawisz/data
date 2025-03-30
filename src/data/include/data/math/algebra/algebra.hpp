@@ -10,14 +10,6 @@ namespace data::math {
     template <typename F, typename V>
     concept algebra = linear::space<F, V> && ring<V>;
 
-    template <typename F, typename V>
-    concept division_algebra = algebra<F, V> && requires (const V &a, const V &b) {
-        {a / b} -> std::same_as<V>;
-    };
-
-    template <typename F, typename V>
-    concept normed_division_algebra = division_algebra<F, V> && normed<F, V>;
-
 }
 
 #endif

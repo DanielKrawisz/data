@@ -13,59 +13,65 @@ namespace data::math {
 
     template <typename R> bool operator == (const complex<R> &, const complex<R> &);
 
+    template <typename q> struct inner<complex<q>, complex<q>> : inner<cayley_dickson<q>, cayley_dickson<q>> {};
+
+    template <typename q> struct quadrance<complex<q>> : quadrance<cayley_dickson<q>> {};
+
+    template <typename q> struct norm<complex<q>> : norm<cayley_dickson<q>> {};
+
     template <typename R> std::ostream &operator << (std::ostream &, const complex<R> &);
     
     template <typename R>
-    struct complex : cayley_dickson<R, R> {
+    struct complex : cayley_dickson<R> {
         
         static complex I () {
             static complex i {0, 1};
             return i;
         }
 
-        using cayley_dickson<R, R>::cayley_dickson;
-        complex (cayley_dickson<R, R> &&c) : cayley_dickson<R, R> {c} {}
+        using cayley_dickson<R>::cayley_dickson;
+        complex (const R &x) : cayley_dickson<R> {x, R {0}} {}
+        complex (cayley_dickson<R> &&c) : cayley_dickson<R> {c} {}
         
         complex operator ~ () const {
-            return cayley_dickson<R, R>::operator ~ ();
+            return cayley_dickson<R>::operator ~ ();
         }
         
         complex operator + (const complex &x) const {
-            return cayley_dickson<R, R>::operator + (x);
+            return cayley_dickson<R>::operator + (x);
         }
         
         complex operator - () const {
-            return cayley_dickson<R, R>::operator - ();
+            return cayley_dickson<R>::operator - ();
         }
         
         complex operator - (const complex &x) const {
-            return cayley_dickson<R, R>::operator - (x);
+            return cayley_dickson<R>::operator - (x);
         }
         
         complex operator * (const complex &x) const {
-            return cayley_dickson<R, R>::operator * (x);
+            return cayley_dickson<R>::operator * (x);
         }
         
         complex operator / (const complex &x) const {
-            return cayley_dickson<R, R>::operator / (x);
+            return cayley_dickson<R>::operator / (x);
         }
         
         complex inverse () const {
-            return cayley_dickson<R, R>::inverse ();
+            return cayley_dickson<R>::inverse ();
         }
     };
 
     template <typename q> struct conjugate<complex<q>> {
         complex<q> operator () (const complex<q> &x) {
-            return {conjugate<cayley_dickson<q, q>> {} (x)};
+            return {conjugate<cayley_dickson<q>> {} (x)};
         }
     };
     
-    template <typename q> struct im<complex<q>> {
-        q operator () (const complex<q> &x) {
-            return x.Im;
-        }
-    };
+
+    template <typename q> struct re<complex<q>> : re<cayley_dickson<q>> {};
+
+    template <typename q> struct im<complex<q>> : im<cayley_dickson<q>> {};
     
     template <typename q>
     struct inverse<plus<complex<q>>, complex<q>> {
@@ -101,19 +107,14 @@ namespace data::math {
 namespace data::math::linear {
     
     template <typename q> 
-    struct dimensions<q, complex<q>> : dimensions<q, cayley_dickson<q, q>> {};
-
-    template <typename q>
-    struct inner<q, complex<q>> {
-        q operator () (const complex<q> &a, const complex<q> &b);
-    };
+    struct dimensions<q, complex<q>> : dimensions<q, cayley_dickson<q>> {};
 
 }
 
 namespace data::math {
 
     template <typename R> bool inline operator == (const complex<R> &a, const complex<R> &b) {
-        return static_cast<cayley_dickson<R, R>> (a) == static_cast<cayley_dickson<R, R>> (b);
+        return static_cast<cayley_dickson<R>> (a) == static_cast<cayley_dickson<R>> (b);
     }
 }
 
