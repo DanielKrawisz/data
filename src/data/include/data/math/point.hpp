@@ -118,7 +118,8 @@ namespace data::math::space {
         static transformation flip (const exterior<X, order, dim> &, const exterior<X, dim - order, dim> &);
     };
 
-    template <field X, ordered Q, size_t dim> requires normed<X, Q>
+    template <field X, size_t dim> requires normed<X> &&
+    ordered<decltype (data::norm (std::declval<X> ()))>
     struct Euclidian : affine<X, dim> {
         template <size_t order> using simplex = affine<X, dim>::simplex;
 
@@ -127,11 +128,13 @@ namespace data::math::space {
         using plane = affine<X, dim>::plane;
         using space = affine<X, dim>::space;
 
+        using R = decltype (data::norm (std::declval<X> ()));
+
         // distance squared
-        Q quadrance (const point &, const point &);
+        R quadrance (const point &, const point &);
 
         // rational trigonometry
-        Q spread (const line &, const line &);
+        R spread (const line &, const line &);
 
         struct transformation : affine<X, dim>::transformation {
             // must be orthogonal.
@@ -151,11 +154,11 @@ namespace data::math::space {
         static transformation flip (const exterior<X, order, dim> &);
     };
 
-    template <field X, ordered Q, size_t dim>
-    struct elliptic : Euclidian<X, Q, dim> {
+    template <field X, size_t dim>
+    struct elliptic : Euclidian<X, dim> {
         template <size_t order>
-        struct simplex : Euclidian<X, Q, dim>::template simplex<order> {
-            using Euclidian<X, Q, dim>::template simplex<order>::simplex;
+        struct simplex : Euclidian<X, dim>::template simplex<order> {
+            using Euclidian<X, dim>::template simplex<order>::simplex;
 
             // must be of quadrance 1.
             bool valid () const;
@@ -298,8 +301,8 @@ namespace data::math::space {
         return true;
     };
 
-    template <field X, ordered Q, size_t dim> template <size_t order>
-    bool inline elliptic<X, Q, dim>::simplex<order>::valid () const {
+    template <field X, size_t dim> template <size_t order>
+    bool inline elliptic<X, dim>::simplex<order>::valid () const {
         return static_cast<exterior<X, order + 1, dim + 1>> (*this) * static_cast<exterior<X, order + 1, dim + 1>> (*this) == X {0};
     }
 

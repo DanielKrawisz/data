@@ -513,13 +513,9 @@ namespace data::math {
             (const nonzero<number::Z_bytes<r, zz, word>> &a, const nonzero<number::Z_bytes<r, zz, word>> &b);
     };
     
-    template <endian::order r, std::unsigned_integral word> struct quadrance<N_bytes<r, word>> {
-        N_bytes<r, word> operator () (const N_bytes<r, word> &);
-    };
-    
     template <endian::order r, number::complement c, std::unsigned_integral word>
     struct quadrance<number::Z_bytes<r, c, word>> {
-        auto operator () (const number::Z_bytes<r, c, word> &x) -> decltype (data::abs (x));
+        number::Z_bytes<r, c, word> operator () (const number::Z_bytes<r, c, word> &);
     };
     
     template <endian::order r, number::complement c, std::unsigned_integral word>

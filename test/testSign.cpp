@@ -26,7 +26,7 @@ namespace data {
     typedef uint_little<11> ul11;
     typedef uint_little<20> ul20;
     
-    using q = fraction<int64, uint64>;
+    using q = fraction<int64>;
     
     template <typename N> void test_N_sign () {
         
