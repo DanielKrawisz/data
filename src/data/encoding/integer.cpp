@@ -191,8 +191,8 @@ namespace data::encoding {
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
         std::strong_ordering operator <=> (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid hexidecimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid hexidecimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid hexidecimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid hexidecimal string: " << n;
             
             math::signature na = sign (m);
             math::signature nb = sign (n);
@@ -215,7 +215,7 @@ namespace data::encoding {
         }
         
         string &operator -- (string &x) {
-            if (!x.valid ()) throw exception {} << "invalid signed decimal string: \"" << x << "\"";
+            if (!x.valid ()) throw exception {} << "invalid signed decimal string: " << x;
             
             if (!nonzero (x)) return x = string {"-1"};
             
@@ -229,43 +229,48 @@ namespace data::encoding {
         }
         
         string operator + (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
             return signed_decimal::write (Z::read (m) + Z::read (n));
         }
         
         string operator - (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
             return signed_decimal::write (Z::read (m) - Z::read (n));
         }
         
         string operator * (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
             return signed_decimal::write (Z::read (m) * Z::read (n));
         }
         
         string operator << (const string &m, int i) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
             return signed_decimal::write (Z::read (m) << i);
         }
         
         string operator >> (const string &m, int i) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
             return signed_decimal::write (Z::read (m) >> i);
         }
         
         string operator & (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
-            throw method::unimplemented {"signed_dec &"};
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
+            return signed_decimal::write (Z_bytes_little {m} & Z_bytes_little {n});
+        }
+
+        string string::operator & (int64 n) const {
+            if (!this->valid ()) throw exception {} << "invalid signed decimal string: " << *this;
+            return signed_decimal::write (Z_bytes_little {*this} & Z_bytes_little {n});
         }
         
         string operator | (const string &m, const string &n) {
-            if (!m.valid ()) throw exception {} << "invalid signed decimal string: \"" << m << "\"";
-            if (!n.valid ()) throw exception {} << "invalid signed decimal string: \"" << n << "\"";
-            throw method::unimplemented {"signed_dec |"};
+            if (!m.valid ()) throw exception {} << "invalid signed decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
+            return signed_decimal::write (Z_bytes_little {m} | Z_bytes_little {n});
         }
         
         bool string::operator == (int64 x) const {

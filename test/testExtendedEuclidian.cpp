@@ -15,18 +15,24 @@ namespace data::math {
     using Zl1 = Z_bytes_little;
     using Zb2 = Z_bytes_BC_big;
     using Zl2 = Z_bytes_BC_little;
+
+    template <typename N, typename Z>
+    void extended_euclidian_test () {
+        using X = math::number::euclidian::extended<N, Z>;
+        EXPECT_THROW (X::algorithm (N {0}, N {0}).GCD, math::division_by_zero);
+
+        EXPECT_EQ (X::algorithm (N {1}, N {1}).GCD, 1);
+
+        EXPECT_EQ (X::algorithm (N {2}, N {4}).GCD, 2);
+
+        EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
+    }
     
     template <typename Z, typename N>
     struct test_extended_euclidian {
         test_extended_euclidian () {
-            using X = math::number::euclidian::extended<Z, N>;
-            EXPECT_THROW (X::algorithm (N {0}, N {0}).GCD, math::division_by_zero);
-            
-            EXPECT_EQ (X::algorithm (N {1}, N {1}).GCD, 1);
-            
-            EXPECT_EQ (X::algorithm (N {2}, N {4}).GCD, 2);
-
-            EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
+            extended_euclidian_test<N, Z> ();
+            extended_euclidian_test<Z, Z> ();
         }
     };
     

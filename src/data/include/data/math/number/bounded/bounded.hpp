@@ -453,7 +453,9 @@ namespace data::math::number {
     uint<r, x, word> operator & (const uint<r, x, word> &, uint64);
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> operator & (const sint<r, x, word> &, int64);
+    sint<r, x, word> inline operator & (const sint<r, x, word> &z, int64 u) {
+        return z & sint<r, x, word> {u};
+    }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> operator | (const uint<r, x, word> &, uint64);
