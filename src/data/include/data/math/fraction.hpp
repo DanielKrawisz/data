@@ -84,7 +84,7 @@ namespace data::math {
         fraction (Z n, nonzero<N> d) : Numerator {n}, Denominator {d} {}
         
         static N gcd (N a, N b) {
-            return number::euclidian::extended<Z, N>::algorithm (a, b).GCD;
+            return number::euclidian::extended<N, Z>::algorithm (a, b).GCD;
         }
 
     public:

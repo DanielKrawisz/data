@@ -771,12 +771,23 @@ namespace data::encoding::signed_decimal {
         
         static string read (string_view x);
         
-        string &operator += (const string &);
-        string &operator -= (const string &);
+        string &operator += (const string &x) {
+            return *this = *this + x;
+        }
+
+        string &operator -= (const string &x) {
+            return *this = *this - x;
+        }
+
         string &operator *= (const string &);
         
-        string &operator <<= (int);
-        string &operator >>= (int);
+        string &operator <<= (int i) {
+            return *this = *this << i;
+        }
+
+        string &operator >>= (int i) {
+            return *this = *this >> i;
+        }
         
         string &operator |= (const string &) const;
         string &operator &= (const string &) const;
