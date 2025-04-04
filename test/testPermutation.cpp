@@ -2,11 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/math.hpp"
+#include <data/math/permutation.hpp>
 #include "data/math/algebra/cyclic_group.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
+
+    template <ordered X> using permutation = math::permutation<X>;
     
     TEST (PermutationTest, TestCycle) {
         using ucycle = cycle<uint32>;

@@ -36,7 +36,9 @@ namespace data::math {
         octonion (R r, R i, R j, R k, R l, R m, R n, R o) :
             octonion {com {r, i}, com {j, k}, com {l, m}, com {n, o}} {}
         octonion (oct &&o) : oct {o} {}
-        octonion (const R &x) : cayley_dickson<quaternion<R>> {com {x}} {}
+
+        template <typename RR> requires implicitly_convertible_to<RR, R>
+        octonion (const RR &x) : cayley_dickson<ham> {com {x}} {}
         
         static octonion E0 () {
             static octonion e0 {1, 0, 0, 0, 0, 0, 0, 0};
