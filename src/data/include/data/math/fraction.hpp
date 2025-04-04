@@ -97,7 +97,6 @@ namespace data::math {
         }
         
     private:
-        fraction (Z n, nonzero<N> d) : Numerator {n}, Denominator {d} {}
         
         static N gcd (N a, N b) {
             return number::euclidian::extended<N, Z>::algorithm (a, b).GCD;
@@ -107,7 +106,7 @@ namespace data::math {
         // reduce to lowest terms.
         static fraction divide (Z n, N d) {
             if (d == 0) return fraction {Z {0}, nonzero<N> {N {0u}}}; // Invalid value.
-            if (n == 0) return fraction {Z {0}, nonzero<N> {N {1u}}};
+            if (n == Z (0)) return fraction {Z {0}, nonzero<N> {N {1u}}};
             N gcd_ab = gcd (data::abs (n), d);
             return fraction (n / Z (gcd_ab), nonzero<N> (d / gcd_ab));
         }
@@ -132,10 +131,8 @@ namespace data::math {
         fraction &operator *= (const fraction &f);
         fraction &operator /= (const fraction &f);
 
-        friend struct inverse<times<fraction<Z>>, fraction<Z>>;
-        friend struct inner<fraction<Z>, fraction<Z>>;
-        friend struct abs<fraction<Z>>;
-        friend struct norm<fraction<Z>>;
+        // only use this if your fraction is already in lowest terms.
+        fraction (Z n, nonzero<N> d) : Numerator {n}, Denominator {d} {}
 
     };
 
