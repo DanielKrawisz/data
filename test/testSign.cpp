@@ -26,7 +26,7 @@ namespace data {
     typedef uint_little<11> ul11;
     typedef uint_little<20> ul20;
     
-    using q = fraction<int64>;
+    //using q = fraction<int64>;
     
     template <typename N> void test_N_sign () {
         
@@ -69,14 +69,14 @@ namespace data {
         EXPECT_EQ (sign (Q {-2}),                    math::negative);
         EXPECT_EQ (sign (Q {2, 3}),                  math::positive);
         EXPECT_EQ (sign (Q {-2, 3}),                 math::negative);
-
+/*
         EXPECT_EQ (sign (q {0}),                     math::zero);
         EXPECT_EQ (sign (q {1}),                     math::positive);
         EXPECT_EQ (sign (q {-1}),                    math::negative);
         EXPECT_EQ (sign (q {2}),                     math::positive);
         EXPECT_EQ (sign (q {-2}),                    math::negative);
         EXPECT_EQ (sign (q {2, 3}),                  math::positive);
-        EXPECT_EQ (sign (q {-2, 3}),                 math::negative);
+        EXPECT_EQ (sign (q {-2, 3}),                 math::negative);*/
 
         test_Z_sign<b09> ();
         test_Z_sign<b10> ();

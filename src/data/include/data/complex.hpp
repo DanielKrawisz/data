@@ -6,6 +6,7 @@
 #define DATA_COMPLEX
 
 #include <data/abs.hpp>
+#include <data/arithmetic.hpp>
 #include <data/math/ring.hpp>
 
 namespace data {
@@ -88,7 +89,7 @@ namespace data::math {
     template <typename X, typename Y>
     struct inner {
         auto operator () (const X &x, const Y &y) {
-            return x * y;
+            return data::times (x, y);
         }
     };
 

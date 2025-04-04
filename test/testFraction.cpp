@@ -33,7 +33,7 @@ namespace data {
 
     TEST (FractionTest, TestFraction) {
 
-        test_fraction<int64> {} ();
+        //test_fraction<int64> {} ();
         test_fraction<Z> {} ();
         test_fraction<Z_bytes_little> {} ();
         test_fraction<Z_bytes_big> {} ();

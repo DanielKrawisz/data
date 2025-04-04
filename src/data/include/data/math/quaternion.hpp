@@ -30,7 +30,9 @@ namespace data::math {
         quaternion (R r, R i, R j, R k) : quaternion {complex {r, i}, complex {j, k}} {}
         quaternion (const complex &x) : quaternion {x, complex {}} {}
         quaternion (hamiltonian &&c) : hamiltonian {c} {}
-        quaternion (const R &x) : cayley_dickson<complex> {complex {x}} {}
+
+        template <typename RR> requires implicitly_convertible_to<RR, R>
+        quaternion (const RR &x) : cayley_dickson<complex> {complex {x}} {}
         
         static quaternion I () {
             static quaternion i {0, 1, 0, 0};

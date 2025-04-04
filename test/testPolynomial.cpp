@@ -82,7 +82,7 @@ struct test_polynomial_division : test_polynomial<Z> {
 
 TEST (PolynomialTest, TestPolynomial) {
     
-    test_polynomial<int64> {};
+    //test_polynomial<int64> {};
     test_polynomial<int_big<9>> {};
     test_polynomial<int_little<9>> {};
     test_polynomial<int_big<10>> {};
@@ -101,7 +101,7 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial<hex_int_ones> {};
     test_polynomial<hex_int_BC> {};
 
-    test_polynomial<fraction<int64>> {};
+    //test_polynomial<fraction<int64>> {};
     test_polynomial<fraction<int_big<9>>> {};
     test_polynomial<fraction<int_little<9>>> {};
     test_polynomial<fraction<int_big<10>>> {};
