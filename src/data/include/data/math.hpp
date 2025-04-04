@@ -220,7 +220,7 @@ namespace data {
 
     static_assert (quaternionic<math::quaternion<fraction<Z>>> &&
         math::normed_field<math::quaternion<fraction<Z>>>);
-/*
+
     static_assert (octonionic<math::octonion<fraction<int64>>> &&
         math::normed_field<math::octonion<fraction<int64>>>);
     static_assert (octonionic<math::octonion<fraction<int64_little>>> &&
@@ -246,7 +246,7 @@ namespace data {
 
     static_assert (octonionic<math::octonion<fraction<Z>>> &&
         math::normed_field<math::octonion<fraction<Z>>>);
-
+/*
     static_assert (complex<fraction<math::complex<int64>>> && math::normed_field<fraction<math::complex<int64>>>);
     static_assert (complex<fraction<math::complex<int64_little>>> && math::normed_field<fraction<math::complex<int64_little>>>);
     static_assert (complex<fraction<math::complex<int64_big>>> && math::normed_field<fraction<math::complex<int64_big>>>);
