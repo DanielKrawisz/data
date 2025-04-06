@@ -17,13 +17,12 @@ namespace data {
 
         bool empty () const;
         
-        const value &root () const;
-        value &root ();
+        inserted<value> root () const;
 
         linked_tree left () const;
         linked_tree right () const;
         
-        bool contains (const value &v) const;
+        bool contains (inserted<value> v) const;
         size_t size () const;
         
         bool valid () const {
@@ -31,8 +30,8 @@ namespace data {
         }
         
         linked_tree ();
-        linked_tree (const value &v, linked_tree l, linked_tree r);
-        linked_tree (const value &v);
+        linked_tree (inserted<value> v, linked_tree l, linked_tree r);
+        linked_tree (inserted<value> v);
         
         template <typename X> requires std::equality_comparable_with<value, X>
         bool operator == (const data::linked_tree<X> &x) const;
@@ -44,6 +43,20 @@ namespace data {
         explicit operator linked_tree<X> () const;
         
         std::ostream &write (std::ostream &o) const;
+
+        linked_tree for_each (function<value (inserted<value>)> f) const {
+            if (empty ()) return *this;
+            inserted<value> r = root ();
+            value mutated = f (r);
+            if (mutated != r) return linked_tree {mutated, left ().for_each (f), right ().for_each (f)};
+            linked_tree ll = left ();
+            linked_tree mutated_left = ll.for_each (f);
+            if (ll.Node != mutated_left.Node) return linked_tree {r, mutated_left, right ().for_each (f)};
+            linked_tree rr = right ();
+            linked_tree mutated_right = rr.for_each (f);
+            if (rr.Node != mutated_right.Node) return linked_tree {r, ll, mutated_right};
+            return *this;
+        }
 
     private:
         next Node;
@@ -61,12 +74,7 @@ namespace data {
     }
     
     template <typename value>
-    inline const value &linked_tree<value>::root () const {
-        return Node->Value;
-    }
-    
-    template <typename value>
-    inline value &linked_tree<value>::root () {
+    inserted<value> inline linked_tree<value>::root () const {
         return Node->Value;
     }
     
@@ -81,7 +89,7 @@ namespace data {
     }
     
     template <typename value>
-    bool linked_tree<value>::contains (const value &v) const {
+    bool linked_tree<value>::contains (inserted<value> v) const {
         if (Node == nullptr) return false;
         if (Node->Value == v) return true;
         if (Node->Left.contains (v)) return true;
@@ -97,11 +105,11 @@ namespace data {
     inline linked_tree<value>::linked_tree () : Node {nullptr}, Size {0} {}
     
     template <typename value>
-    inline linked_tree<value>::linked_tree (const value &v, linked_tree l, linked_tree r) :
+    inline linked_tree<value>::linked_tree (inserted<value> v, linked_tree l, linked_tree r) :
         Node {std::make_shared<node> (v, l, r)}, Size {1 + l.size () + r.size ()} {}
     
     template <typename value>
-    inline linked_tree<value>::linked_tree (const value &v) : linked_tree {v, linked_tree {}, linked_tree {}} {}
+    inline linked_tree<value>::linked_tree (inserted<value> v) : linked_tree {v, linked_tree {}, linked_tree {}} {}
     
     template <typename value>
     std::ostream &linked_tree<value>::write (std::ostream &o) const {

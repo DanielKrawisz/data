@@ -21,7 +21,7 @@ namespace data::tool {
 
         ordered_stack () : stack {} {}
 
-        ordered_stack (stack &&x) : stack {x} {}
+        ordered_stack (stack x) : stack {x} {}
 
         ordered_stack insert (const element &x) const;
 

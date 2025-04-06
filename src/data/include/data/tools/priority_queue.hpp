@@ -17,7 +17,7 @@ namespace data::tool {
         {a <= b} -> implicitly_convertible_to<bool>;
     };
     
-    template <functional::tree tree, typename element = element_of<tree>>
+    template <functional::tree tree, typename element>
     requires prioritized<element>
     struct priority_queue {
         

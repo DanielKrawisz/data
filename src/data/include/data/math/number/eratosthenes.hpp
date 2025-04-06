@@ -42,7 +42,7 @@ namespace data::math::number {
             }
         };
         
-        using heap = tool::priority_queue<linked_tree<entry>>;
+        using heap = tool::priority_queue<linked_tree<entry>, entry>;
         heap Sieve;
         
         eratosthenes (stack<prime<N>> p, N m, heap sieve) : Primes {p}, Next {m}, Sieve {sieve} {}

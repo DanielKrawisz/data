@@ -77,7 +77,7 @@ namespace data::functional {
     concept search_tree = tree<T, element> && ordered<element>;
 
     template <typename T, typename X> requires search_tree<T, X>
-    unref<X> inline *contains (T t, X x) {
+    unref<X> inline *contains (const T t, X x) {
         return data::empty (t) ? nullptr: x == root (t) ? &root (t):
             x < root (t) ? contains (left (t), x) : contains (right (t), x);
     }
@@ -89,7 +89,7 @@ namespace data::functional {
 
     template <typename T, typename X = element_of<T>>
     requires search_tree<T, X> && buildable_tree<T, X>
-    T inline insert (T t, inserted<X> x, data::function<inserted<X> (inserted<X>, inserted<X>)> if_equivalent) {
+    T inline insert (const T t, inserted<X> x, data::function<const X &(const X &, const X &)> if_equivalent) {
         return data::empty (t) ? T {x, T {}, T {}}:
             x <=> data::root (t) == 0 ? T {if_equivalent (root (t), x), left (t), right (t)}:
                 x < data::root (t) ? T {data::root (t), insert<T, X> (left (t), x, if_equivalent), right (t)}:
@@ -97,13 +97,30 @@ namespace data::functional {
     }
 
     template <typename value>
-    inserted<value> inline keep_old (inserted<value> old_val, inserted<value> new_val) {
+    const value &keep_old (const value &old_val, const value &new_val) {
         return old_val;
     }
 
     template <typename value>
-    inserted<value> inline replace_new (inserted<value> old_val, inserted<value> new_val) {
+    const value &replace_new (const value &old_val, const value &new_val) {
         return new_val;
+    }
+
+    template <typename T, typename X = element_of<T>>
+    requires search_tree<T, X> && buildable_tree<T, X>
+    T inline remove (const T t, inserted<X> x) {
+        struct combine {
+            T operator () (const T left, const T right) {
+                if (data::empty (left)) return right;
+                if (data::empty (right)) return left;
+                return T {data::root (left), data::left (left), combine {} (data::right (left), right)};
+            }
+        };
+
+        return data::empty (t) ? t:
+            x <=> data::root (t) == 0 ? combine {} (left (t), right (t)):
+                x < data::root (t) ? T {data::root (t), remove<T, X> (left (t), x), right (t)}:
+                    T {data::root (t), left (t), remove<T, X> (right (t), x)};
     }
     
     template <typename tree, typename P> 
