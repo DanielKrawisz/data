@@ -43,7 +43,7 @@ namespace data {
     TEST (MapTest, TestMapEqual) {
         
         map<int, int> m1 {{2, 1}, {3, 5}, {1, 7}};
-        map<int, int> m2 {{2, 1}, {3, 5}, {1, 7}};
+        map<int, int> m2 {{3, 5}, {2, 1}, {1, 7}};
         map<int, int> m3 {{5, 2}, {3, 5}, {8, 3}};
         map<int, int> m4 {{5, 2}, {3, 5}};
         
@@ -57,16 +57,23 @@ namespace data {
         stack<e> v1 {{1, 7}, {2, 1}, {3, 5}};
         stack<e> v3 {{3, 5}, {5, 2}, {8, 3}};
         stack<e> v4 {{3, 5}, {5, 2}};
+
+        std::cout << "map 1 is " << m1 << std::endl;
+
+        auto m1v = m1.values ();
+        auto m2v = m2.values ();
+        auto m3v = m3.values ();
+        auto m4v = m4.values ();
         
-        EXPECT_TRUE (m1.values () == v1);
-        EXPECT_TRUE (m2.values () == v1);
-        EXPECT_TRUE (m3.values () == v3);
-        EXPECT_TRUE (m4.values () == v4);
+        EXPECT_TRUE (m1v == v1) << "expected " << m1v << " == " << v1;
+        EXPECT_TRUE (m2v == v1) << "expected " << m2v << " == " << v1;
+        EXPECT_TRUE (m3v == v3) << "expected " << m3v << " == " << v3;
+        EXPECT_TRUE (m4v == v4) << "expected " << m4v << " == " << v4;
         
-        EXPECT_TRUE (m1.values () != v3);
-        EXPECT_TRUE (m2.values () != v4);
-        EXPECT_TRUE (m3.values () != v1);
-        EXPECT_TRUE (m4.values () != v1);
+        EXPECT_TRUE (m1v != v3);
+        EXPECT_TRUE (m2v != v4);
+        EXPECT_TRUE (m3v != v1);
+        EXPECT_TRUE (m4v != v1);
     }
     
     TEST (MapTest, TestMapEmpty) {
@@ -107,8 +114,10 @@ namespace data {
     }
 
     TEST (MapTest, TestInsert) {
+        using key_already_exists = map<int, int>::key_already_exists;
+
         // it is not ok to insert the same key into a map twice
-        EXPECT_THROW ((map<int, int> {}.insert (0, 1).insert (0, 2)), exception);
+        EXPECT_THROW ((map<int, int> {}.insert (0, 1).insert (0, 2)), key_already_exists);
         // it's ok for a set though.
         EXPECT_NO_THROW (set<int> {}.insert (1).insert (1));
         // However, we can make it work by adding a special function.

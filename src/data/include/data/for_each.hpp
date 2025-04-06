@@ -19,22 +19,16 @@ namespace data {
             return append (q, f (x));
         }, list<output> {}, i);
     }
-/*
-<<<<<<< HEAD
-    template <typename fun, typename input, 
-        typename key = std::remove_const_t<unref<decltype (std::declval<input> ().values ().first ().key ())>>,
-        typename value = std::remove_const_t<unref<decltype (std::declval<input> ().values ().first ().value ())>>,
-=======*/
+
     template <typename fun, typename input,
         typename key = decltype (std::declval<input> ().values ().first ().Key),
         typename value = decltype (std::declval<input> ().values ().first ().Value),
-//>>>>>>> d841ac9 (New design for RB map -- incomplete)
         typename output = decltype (std::declval<fun> () (std::declval<value> ()))>
     requires functional::map<input, key, value>
     map<key, output> inline for_each (const fun &f, const input &i) {
-        return fold ([&f] (map<key, output> m, const entry<key, value> &e) -> map<key, output> {
-            return m.insert (e.Key, f (e.Value));
-        }, map<key, output> {}, i.values ());
+        map<key, output> m;
+        for (const auto &e : i) m = m.insert (e.Key, f (e.Value));
+        return m;
     }
     
     template <typename fun, typename input, 
