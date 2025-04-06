@@ -338,12 +338,8 @@ namespace data {
     tool::ordered_stack<linked_stack<const data::entry<const key, value> &>>
     binary_search_map<key, value, tree>::values () const {
         linked_stack<const entry &> kk {};
-
         for (const entry &e : *this) kk <<= e;
-
-        tool::ordered_stack<linked_stack<const entry &>> x {};
-        for (const auto &e : data::reverse (kk)) x = x << e;
-        return x;
+        return tool::ordered_stack<linked_stack<const entry &>> {data::reverse (kk)};
     }
 
     template <ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
