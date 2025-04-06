@@ -7,9 +7,11 @@
 namespace data::math::number::GMP {
     
     set<N> root (const N &n, uint32 p) {
-        if (p == 0) return n == 1 ? set<N> {n} : set<N> {};
-        
+        // one is the only number with a zeroth root.
+        if (p == 0) return n == 1 ? set<N> {N {1}} : set<N> {};
+
         if (p == 1 || n == 0 || n == 1) return set<N> {n};
+
         N p_root {};
         if (0 == mpz_root (p_root.Value.MPZ, n.Value.MPZ, p)) return set<N> {};
         return set<N> {p_root};
