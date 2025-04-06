@@ -19,7 +19,11 @@ namespace data {
         //bool for_each_test_priority_queue = for_each (&f, priority_queue<uint32> {})
         bool for_each_test_vector = for_each (&f, cross<uint32> {3, 5, 7}) == cross<string> {"3", "5", "7"};
         //bool for_each_test_set = for_each (&f, set<uint32> {4, 5, 6, 999}) == list<string>{"4", "5", "6", "999"};
-        bool for_each_test_map = for_each (&f, map<int, uint32> {{1, 1}, {2, 2}, {3, 3}}) == map<int, string> {{1, "1"}, {2, "2"}, {3, "3"}};
+
+        map<int, uint32> test_map_from {{1, 1}, {2, 2}, {3, 3}};
+        map<int, string> test_map_to {{1, "1"}, {2, "2"}, {3, "3"}};
+        map<int, string> test_map_test = for_each (&f, test_map_from);
+        bool for_each_test_map = test_map_test == test_map_to;
         bool for_each_test_tree = for_each (&f, tree<uint32> {55004}) == tree<string> {"55004"};
         
         EXPECT_TRUE (for_each_test_stack);
@@ -27,7 +31,7 @@ namespace data {
         //EXPECT_TRUE (for_each_test_priority_queue)
         EXPECT_TRUE (for_each_test_vector);
         //EXPECT_TRUE (for_each_test_set);
-        EXPECT_TRUE (for_each_test_map);
+        EXPECT_TRUE (for_each_test_map) << "expected " << test_map_from << " => " << test_map_to << " but got " << test_map_test;
         EXPECT_TRUE (for_each_test_tree);
 
     }
