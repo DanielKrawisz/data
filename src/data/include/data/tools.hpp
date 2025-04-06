@@ -58,7 +58,7 @@ namespace data {
     template <typename X> using set = RB::tree<X, tree<RB::colored<X>>>;
     
     // priority queue. wrapper of Milewski's implementation of Okasaki.
-    template <typename X> using priority_queue = tool::priority_queue<tree<X>>;
+    template <typename X> using priority_queue = tool::priority_queue<tree<X>, X>;
     
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;

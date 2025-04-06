@@ -106,18 +106,6 @@ namespace data {
         
     }
 
-    TEST (MapTest, TestMapSet) {
-        set<int> a;
-        set<string> b;
-        set<Z> c;
-        set<N> d;
-
-        set<const int> ax;
-        set<const string> bx;
-        set<const Z> cx;
-        set<const N> dx;
-    }
-
     TEST (MapTest, TestInsert) {
         // it is not ok to insert the same key into a map twice
         EXPECT_THROW ((map<int, int> {}.insert (0, 1).insert (0, 2)), exception);

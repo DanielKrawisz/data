@@ -20,7 +20,6 @@ namespace data {
     // functional solution
     /* template <functional::stack list>
     list reverse (const list &given, const list &reversed) {
-        std::cout << "reversing list of size " << data::size (given) << std::endl;
         if (data::empty (given)) return reversed;
         return data::reverse (rest (given), prepend (reversed, first (given)));
     }*/

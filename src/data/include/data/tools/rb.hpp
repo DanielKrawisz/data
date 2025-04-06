@@ -80,11 +80,12 @@ namespace data::RB {
 
     template <sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
 
+    template <sortable V, functional::buildable_tree<colored<V>> T> const unref<V> *contains (const T t, inserted<V> v);
+
     template <sortable V, functional::buildable_tree<colored<V>> T>
     struct tree : binary_search_tree<colored<V>, T> {
         tree ();
         tree (const T &t);
-        tree (T &&t);
 
         tree (std::initializer_list<wrapped<V>> x);
 
@@ -93,16 +94,36 @@ namespace data::RB {
         tree left () const;
         tree right () const;
 
-        tree insert (inserted<V> v, function<inserted<V> (inserted<V>, inserted<V>)> already_equivalent = &functional::keep_old<V>) const {
+        const unref<V> *contains (inserted<V> x) const {
+            return RB::contains<V, T> (*this, x);
+        }
+
+        tree insert (inserted<V> v, function<const V & (const V &, const V &)> already_equivalent = &functional::keep_old<V>) const {
             return RB::insert<V, T> (*this, v, already_equivalent);
         }
 
         template <typename ...P>
         tree insert (inserted<V> a, inserted<V> b, P... p);
 
-        unref<V> *contains (inserted<V> x) const;
+        tree remove (inserted<V> v) const {
+            tree t;
+            for (const auto &x : *this) if (x != v) t = t.insert (x);
+            return t;
+        }
 
-        tree remove (inserted<V>) const;
+        template <typename X, typename U> requires implicitly_convertible_to<V, X>
+        operator tree<X, U> () const {
+            tree<X, U> u {};
+            for (const V &v : *this) u = u.insert (X (v));
+            return u;
+        }
+
+        template <typename X, typename U> requires explicitly_convertible_to<V, X>
+        explicit operator tree<X, U> () const {
+            tree<X, U> u {};
+            for (const V &v : *this) u = u.insert (X (v));
+            return u;
+        }
 
         struct iterator : binary_search_tree<colored<V>, T>::iterator {
             using parent = binary_search_tree<colored<V>, T>::iterator;
@@ -123,6 +144,16 @@ namespace data::RB {
         iterator end () const;
 
         tool::ordered_stack<linked_stack<inserted<V>>> values () const;
+
+    protected:
+        // note: this function has quite a bad design. The point of it is to enable
+        // functions in RB map such as replace and replace_part. It also assumes
+        // that we are using linked_tree.
+        T for_each (function<V (inserted<V>)> f) const {
+            static_cast<const T &> (*this).for_each ([f] (inserted<colored<V>> cx) -> colored<V> {
+                return colored<V> {cx.Color, f (cx.Value)};
+            });
+        }
 
     };
 
@@ -212,6 +243,15 @@ namespace data::RB {
         return T (colored<V> {color::black, v}, l, r);
     }
 
+    template <sortable V, functional::buildable_tree<colored<V>> T>
+    const unref<V> *contains (const T t, inserted<V> x) {
+        if (data::empty (t)) return nullptr;
+        const auto &e = data::root (t);
+        return e.Value == x ? &e.Value: x < e.Value ?
+        contains<V, T> (data::left (t), x) :
+        contains<V, T> (data::right (t), x);
+    }
+
     // finally, how to remove an RB tree.
     // See matt.might.net/articles/red-black-delete/
 
@@ -222,9 +262,6 @@ namespace data::RB {
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
     inline tree<V, T>::tree (const T &t): binary_search_tree<colored<V>, T> {t} {}
-
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    inline tree<V, T>::tree (T &&t): binary_search_tree<colored<V>, T> {t} {}
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
     inline tree<V, T>::tree (std::initializer_list<wrapped<V>> x) {
