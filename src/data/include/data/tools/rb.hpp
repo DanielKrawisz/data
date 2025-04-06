@@ -333,7 +333,9 @@ namespace data::RB {
     tool::ordered_stack<linked_stack<inserted<V>>> tree<V, T>::values () const {
         linked_stack<inserted<V>> st;
         for (inserted<V> v : *this) st <<= v;
-        return tool::ordered_stack<linked_stack<inserted<V>>> {reverse (st)};
+        linked_stack<inserted<V>> ts;
+        for (inserted<V> v : st) ts <<= v;
+        return tool::ordered_stack<linked_stack<inserted<V>>> {st};
     }
 
 }

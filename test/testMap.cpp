@@ -58,8 +58,6 @@ namespace data {
         stack<e> v3 {{3, 5}, {5, 2}, {8, 3}};
         stack<e> v4 {{3, 5}, {5, 2}};
 
-        std::cout << "map 1 is " << m1 << std::endl;
-
         auto m1v = m1.values ();
         auto m2v = m2.values ();
         auto m3v = m3.values ();
