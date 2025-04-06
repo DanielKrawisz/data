@@ -337,9 +337,14 @@ namespace data {
     requires interface::has_insert_method<tree, data::entry<const key, value>>
     tool::ordered_stack<linked_stack<const data::entry<const key, value> &>>
     binary_search_map<key, value, tree>::values () const {
+        linked_stack<const entry &> k {};
+        for (const entry &e : *this) k <<= e;
+        // revese the order of the elements
+        // we have to do this instead of using the reverse method
+        // to avoid a seg fault and I'm not sure why that happens.
         linked_stack<const entry &> kk {};
-        for (const entry &e : *this) kk <<= e;
-        return tool::ordered_stack<linked_stack<const entry &>> {data::reverse (kk)};
+        for (const entry &e : k) kk <<= e;
+        return tool::ordered_stack<linked_stack<const entry &>> {kk};
     }
 
     template <ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
