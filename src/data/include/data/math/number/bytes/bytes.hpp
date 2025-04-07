@@ -383,6 +383,11 @@ namespace data::math::number {
     N_bytes<r, word> operator % (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
 
     template <endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> operator % (
+        const Z_bytes<r, complement::ones, word> &,
+        const Z_bytes<r, complement::ones, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, complement::BC, word> operator % (
         const Z_bytes<r, complement::BC, word> &,
         const Z_bytes<r, complement::BC, word> &);

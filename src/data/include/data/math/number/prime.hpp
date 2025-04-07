@@ -5,21 +5,21 @@
 #ifndef DATA_MATH_NUMBER_PRIME
 #define DATA_MATH_NUMBER_PRIME
 
-#include <data/math/nonnegative.hpp>
+#include <data/integral.hpp>
 #include <iostream> // required by windows.
 
 namespace data::math::number {
-    template <typename N> struct eratosthenes;
-    template <typename N> struct primes;
-    template <typename N> struct AKS;
+    template <unsigned_integral N> struct eratosthenes;
+    template <unsigned_integral N> struct primes;
+    template <unsigned_integral N> struct AKS;
 
-    template <typename N> struct factorization;
-    template <typename N> factorization<N> factorize (N, eratosthenes<N> &);
+    template <unsigned_integral N> struct factorization;
+    template <unsigned_integral N> factorization<N> factorize (nonzero<N>, eratosthenes<N> &);
 
     // A number that is known to be prime.
     // So far eratosthenes is the only way
     // to construct this type.
-    template <typename N>
+    template <integral N>
     struct prime : nonzero<N> {
         enum likelihood {
             certain,
@@ -27,7 +27,7 @@ namespace data::math::number {
             impossible
         };
 
-        N Prime;
+        nonzero<N> Prime;
         likelihood Likelihood;
 
         bool valid () const {
@@ -45,7 +45,7 @@ namespace data::math::number {
 
         friend struct eratosthenes<N>;
         friend struct AKS<N>;
-        friend factorization<N> factorize<N> (N, eratosthenes<N> &);
+        friend factorization<N> factorize<N> (nonzero<N>, eratosthenes<N> &);
     };
 
     template <typename N> factorization<N> operator * (const prime<N> &, const prime<N> &);

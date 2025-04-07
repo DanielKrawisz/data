@@ -11,7 +11,7 @@
 
 namespace data::math::number {
 
-    template <typename N> struct factorization : list<power<prime<N>, N>> {
+    template <unsigned_integral N> struct factorization : list<power<prime<N>, N>> {
         using list<power<prime<N>, N>>::list;
         factorization (list<power<prime<N>, N>> &&x): list<power<prime<N>, N>> {x} {}
 
@@ -26,11 +26,9 @@ namespace data::math::number {
         operator N () const;
     };
 
-    template <typename N> factorization<N> factorize (N n, eratosthenes<N> &e) {
+    template <unsigned_integral N> factorization<N> factorize (nonzero<N> n, eratosthenes<N> &e) {
 
         factorization<N> factors {};
-
-        if (n == 0) return factors;
 
         // create an infinite list of primes.
         primes<N> P {e};
@@ -48,10 +46,10 @@ namespace data::math::number {
             while (true) {
                 p = P.first ();
 
-                d = math::number::natural_divide (x, p.Prime);
+                d = data::divide<N> (x, p.Prime);
 
                 // in this case, the number itself must be prime.
-                if (d.Quotient < p.Prime) {
+                if (d.Quotient < p.Prime.Value) {
                     p = prime<N> {x, prime<N>::certain};
                     x = 1;
                     break;
@@ -69,7 +67,7 @@ namespace data::math::number {
             power<prime<N>, N> factor {p, 1};
 
             while (true) {
-                division<N> d = math::number::natural_divide (x, factor.Base.Prime);
+                division<N> d = math::number::natural_divide (x, factor.Base.Prime.Value);
                 if (d.Remainder != 0) break;
                 factor.Exponent++;
                 x = d.Quotient;
