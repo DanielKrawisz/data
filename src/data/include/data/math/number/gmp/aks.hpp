@@ -20,20 +20,13 @@ namespace data::math::number::GMP {
 
 namespace data::math::number {
     
-    template <> struct AKS<math::N> {
-        prime<math::N> is_prime (const math::N n) {
-            return GMP::aks_is_prime (n) ? prime<math::N> {n, prime<math::N>::certain} : prime<math::N> {};
+    template <> struct AKS<N> {
+        prime<N> is_prime (const N n) {
+            return GMP::aks_is_prime (n) ? prime<N> {n, prime<N>::certain} : prime<N> {};
         }
     };
     
-    template <> struct AKS<Z> {
-        prime<Z> is_prime (const Z z) {
-            return GMP::aks_is_prime (z) ? prime<Z> {z, prime<Z>::certain} : prime<Z> {};
-        }
-    };
-    
-    template struct AKS<math::N>;
-    template struct AKS<Z>;
+    template struct AKS<N>;
     
 }
 

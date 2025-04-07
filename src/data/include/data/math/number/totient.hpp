@@ -10,14 +10,14 @@
 
 namespace data::math::number {
 
-    template <typename N> N inline totient (N n, eratosthenes<N> &e) {
-        return fold ([] (const N &n, const power<prime<N>, N> &p) -> N {
-            return n * data::pow<N, N> (p.Base.Prime, p.Exponent - 1) * (p.Base.Prime - 1);
-        }, N {1}, factorize<N> (n, e));
+    template <unsigned_integral N> nonzero<N> inline totient (nonzero<N> n, eratosthenes<N> &e) {
+        return nonzero<N> {fold ([] (const N &n, const power<prime<N>, N> &p) -> N {
+            return n * data::pow<N, N> (p.Base.Prime.Value, p.Exponent - 1) * (p.Base.Prime.Value - 1);
+        }, N {1}, factorize<N> (n, e))};
     }
 
-    template <typename N> N inline totient (prime<N> p, eratosthenes<N> &e) {
-        return p.Prime - 1;
+    template <unsigned_integral N> nonzero<N> inline totient (prime<N> p, eratosthenes<N> &e) {
+        return nonzero<N> {p.Prime.Value - 1};
     }
 
 }

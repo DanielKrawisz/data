@@ -6,6 +6,7 @@
 #define DATA_ARITHMETIC
 
 #include <data/types.hpp>
+#include <data/maybe.hpp>
 #include <data/math/nonnegative.hpp>
 
 namespace data {
@@ -15,13 +16,6 @@ namespace data {
     template <typename A, typename B> auto minus (const A &, const B &);
     template <typename A, typename B> auto times (const A &, const B &);
     template <typename A, typename Exp> A pow (const A &, const Exp &);
-
-    // modular arithmetic
-    template <typename A, typename Mod> A negate_mod (const A &, const Mod &);
-    template <typename A, typename B, typename Mod> A plus_mod (const A &, const B &, const Mod &);
-    template <typename A, typename B, typename Mod> A minus_mod (const A &, const B &, const Mod &);
-    template <typename A, typename B, typename Mod> A times_mod (const A &, const B &, const Mod &);
-    template <typename A, typename Exp, typename Mod> A pow_mod (const A &, const Exp &, const Mod &);
 
     // bit arithmetic
     template <typename A> auto bit_not (const A &);
@@ -39,6 +33,9 @@ namespace data {
         return i < 0 ? bit_shift_right (x, static_cast<uint32> (-i)) : bit_shift_left (x, static_cast<uint32> (i));
     }
 
+    // may not exist
+    template <typename A, typename Mod = A> auto invert_mod (const A &, const math::nonzero<Mod> &);
+
     // helper functions needed to implement some of these.
 
     // count digits in a number.
@@ -48,10 +45,6 @@ namespace data {
     template <typename A> A div_2 (const A &);
 
     template <typename A> A square (const A &);
-
-    template <typename A, typename B> A mul_2_mod (const A &, const B &);
-
-    template <typename A, typename B> A square_mod (const A &, const B &);
 
 }
 
@@ -63,14 +56,8 @@ namespace data::math {
 
     template <typename A> struct square;
 
-    template <typename A, typename Mod = A> struct mul_2_mod;
-    template <typename A, typename Mod = A> struct square_mod;
-
     template <typename A, typename B = A> struct plus;
     template <typename A, typename B = A> struct minus;
-    template <typename A> struct negate_mod;
-    template <typename A, typename B = A, typename Mod = B> struct plus_mod;
-    template <typename A, typename B = A, typename Mod = B> struct minus_mod;
 
     template <typename A> struct bit_not;
     template <typename A, typename B = A> struct bit_and;
@@ -82,10 +69,7 @@ namespace data::math {
     template <typename A> struct bit_shift_right;
 
     template <typename A, typename B = A> struct times;
-    template <typename A, typename B = A, typename Mod = B> struct times_mod;
-
     template <typename A, typename Exp = A> struct pow;
-    template <typename A, typename Exp = A, typename Mod = Exp> struct pow_mod;
 
     template <typename A, typename B> struct times {
         auto operator () (const A &x, const B &y) const {
@@ -112,28 +96,12 @@ namespace data {
         return math::mul_2<A> {} (x);
     }
 
-    template <typename A, typename Mod = A> A inline mul_2_mod (const A &x, const Mod &z) {
-        return math::mul_2_mod<A, Mod> {} (x, z);
-    }
-
-    template <typename A, typename Mod = A> A inline square_mod (const A &x, const Mod &z) {
-        return math::square_mod<A, Mod> {} (x, z);
-    }
-
     template <typename A, typename B> auto inline plus (const A &x, const B &y) {
         return math::plus<A, B> {} (x, y);
     }
 
     template <typename A, typename B> auto inline minus (const A &x, const B &y) {
         return math::minus<A, B> {} (x, y);
-    }
-
-    template <typename A, typename B, typename Mod> A inline plus_mod (const A &x, const B &y, const Mod &n) {
-        return math::plus_mod<A, B, Mod> {} (x, y, n);
-    }
-
-    template <typename A, typename B, typename Mod> A inline minus_mod (const A &x, const B &y, const Mod &n) {
-        return math::minus_mod<A, B, Mod> {} (x, y, n);
     }
 
     template <typename A> auto bit_not (const A &x) {
@@ -172,58 +140,14 @@ namespace data {
         return math::times<A, B> {} (x, y);
     }
 
-    template <typename A, typename Exp, typename Mod> A inline times_mod (const A &x, const Exp &y, const Mod &n) {
-        return math::times_mod<A, Exp, Mod> {} (x, y, n);
-    }
-
     template <typename A, typename Mod> A inline pow (const A &x, const Mod &y) {
         return math::pow<A, Mod> {} (x, y);
-    }
-
-    template <typename A, typename Exp, typename Mod> A inline pow_mod (const A &x, const Exp &y, const Mod &n) {
-        return math::pow_mod<A, Exp, Mod> {} (x, y, n);
     }
 }
 
 
 // default behaviors for these functions is to use the operators.
 namespace data::math {
-
-    template <typename A, typename B> struct bit_and {
-        auto operator () (const A &x, const B &y) const {
-            return x & y;
-        }
-    };
-
-    template <typename A, typename B> struct bit_or {
-        auto operator () (const A &x, const B &y) const {
-            return x | y;
-        }
-    };
-
-    template <typename A, typename Mod> struct mul_2_mod {
-        A operator () (const A &x, const Mod &mod) const {
-            return data::mul_2 (x) % mod;
-        }
-    };
-
-    template <typename A, typename B, typename N> struct plus_mod {
-        auto operator () (const A &x, const B &y, const N &n) const {
-            return data::plus (x, y) % n;
-        }
-    };
-
-    template <typename A, typename B, typename N> struct minus_mod {
-        auto operator () (const A &x, const B &y, const N &n) const {
-            return data::minus (x, y) % n;
-        }
-    };
-
-    template <typename A, typename N> struct square_mod {
-        auto operator () (const A &x, const N &n) const {
-            return data::square (x) % n;
-        }
-    };
 
     template <typename A, typename B>
     requires requires (const A &x, const B &y) {
@@ -248,6 +172,24 @@ namespace data::math {
     } struct square<A> {
         A operator () (const A &x) const {
             return x * x;
+        }
+    };
+
+    template <typename A, typename B>
+    requires requires (const A &x, const B &y) {
+        { x & y };
+    } struct bit_and<A, B> {
+        auto operator () (const A &x, const B &y) const {
+            return x & y;
+        }
+    };
+
+    template <typename A, typename B>
+    requires requires (const A &x, const B &y) {
+        { x | y };
+    } struct bit_or<A, B> {
+        auto operator () (const A &x, const B &y) const {
+            return x | y;
         }
     };
 }

@@ -79,6 +79,45 @@ namespace data::math {
         auto d = divide<Z_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
         return {sint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
     }
+
+    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> square_mod<number::bounded<a, r, x, word>, uint<r, x, word>>::operator () (
+        const number::bounded<a, r, x, word> &m,
+        const nonzero<uint<r, x, word>> &q) {
+        return times_mod<number::bounded<a, r, x, word>, number::bounded<a, r, x, word>, uint<r, x, word>> {} (m, m, q);
+    }
+
+    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> inline plus_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
+        const number::bounded<a, r, x, word> &m,
+        const number::bounded<b, r, x, word> &n,
+        const nonzero<uint<r, x, word>> &q) {
+        return uint<r, x, word> ((number::bounded<a, r, x + 1, word> (m) +
+            number::bounded<b, r, x + 1, word> (n)) % uint<r, x + 1, word> (q.Value));
+    }
+
+    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> inline times_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
+        const number::bounded<a, r, x, word> &m,
+        const number::bounded<b, r, x, word> &n,
+        const nonzero<uint<r, x, word>> &q) {
+        return uint<r, x, word> (binary_accumulate_times_mod (
+            number::bounded<a, r, x + 1, word> (m),
+            number::bounded<b, r, x + 1, word> (n),
+            nonzero {uint<r, x + 1, word> (q.Value)}));
+    }
+
+    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
+    uint<r, x, word> inline pow_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
+        const number::bounded<a, r, x, word> &m,
+        const number::bounded<b, r, x, word> &n,
+        const nonzero<uint<r, x, word>> &q) {
+        return uint<r, x, word> (binary_accumulate_pow_mod (
+            number::bounded<a, r, x * 2, word> (m),
+            number::bounded<b, r, x * 2, word> (n),
+            nonzero {uint<r, x * 2, word> (q.Value)}));
+    }
+
 }
 
 namespace data::encoding::hexidecimal {

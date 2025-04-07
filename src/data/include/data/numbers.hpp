@@ -7,7 +7,9 @@
 
 // defines float32 and float64
 #include <data/float.hpp>
+
 #include <data/power.hpp>
+#include <data/math/number/extended_euclidian.hpp>
 
 // numbers of either endian of any size up to 64 bits
 // using boost. 

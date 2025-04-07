@@ -5,9 +5,9 @@
 #ifndef DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 #define DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
 
-#include <data/integral.hpp>
 #include <data/valid.hpp>
 #include <data/math/number/division.hpp>
+#include <data/integral.hpp>
 #include <sstream>
 
 namespace data::math::number::euclidian {
@@ -73,6 +73,18 @@ namespace data::math::number::euclidian {
     public:
         static extended algorithm (const N &a, const N &b) {
             return a < b ? run (b, a) : run (a, b);
+        }
+    };
+}
+
+namespace data::math {
+    template <ring_integral Z, ring_integral N> struct invert_mod<Z, N> {
+        using return_type = decltype (divide<Z, N> {} (std::declval<Z> (), std::declval<nonzero<N>> ()).Remainder);
+        maybe<return_type> operator () (const Z &x, const nonzero<N> &mod) {
+            if (mod.Value < 0) throw exception {} << "mod by negative number";
+            auto proof = number::euclidian::extended<return_type>::algorithm (return_type (mod.Value), divide<Z, N> {} (x, mod).Remainder);
+            if (proof.GCD != 1) return {};
+            return divide<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
         }
     };
 }
