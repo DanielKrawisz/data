@@ -91,7 +91,7 @@ namespace data::math::linear {
     }; 
     
     template <auto & mod>
-    using prime_field = math::prime_field_element<uint64, int64, mod>;
+    using prime_field = math::prime_field_element<uint64, mod>;
     
     TEST (AlgebraTest, TestField) {
         test_field<double> {};

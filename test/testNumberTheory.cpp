@@ -27,46 +27,69 @@ namespace data::math {
 
     TEST (NumberTheoryTest, TestFactor) {
 
-        EXPECT_EQ ((number::factorize<N> (N {0}, e)), (number::factorization<N> {}));
-        EXPECT_EQ ((number::factorize<N> (N {1}, e)), (number::factorization<N> {}));
-        EXPECT_EQ ((number::factorize<N> (N {2}, e)), (number::factorization<N> {{p2, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {3}, e)), (number::factorization<N> {{p3, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {4}, e)), (number::factorization<N> {{p2, 2}}));
-        EXPECT_EQ ((number::factorize<N> (N {5}, e)), (number::factorization<N> {{p5, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {6}, e)), (number::factorization<N> {{p2, 1}, {p3, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {8}, e)), (number::factorization<N> {{p2, 3}}));
-        EXPECT_EQ ((number::factorize<N> (N {9}, e)), (number::factorization<N> {{p3, 2}}));
-        EXPECT_EQ ((number::factorize<N> (N {10}, e)), (number::factorization<N> {{p2, 1}, {p5, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {12}, e)), (number::factorization<N> {{p2, 2}, {p3, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {17}, e)), (number::factorization<N> {{p17, 1}}));
-        EXPECT_EQ ((number::factorize<N> (N {21}, e)), (number::factorization<N> {{p3, 1}, {p7, 1}}));
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {1}, e)),
+            (number::factorization<N> {}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {2}, e)),
+            (number::factorization<N> {{p2, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {3}, e)),
+            (number::factorization<N> {{p3, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {4}, e)),
+            (number::factorization<N> {{p2, 2}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {5}, e)),
+            (number::factorization<N> {{p5, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {6}, e)),
+            (number::factorization<N> {{p2, 1}, {p3, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {8}, e)),
+            (number::factorization<N> {{p2, 3}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {9}, e)),
+            (number::factorization<N> {{p3, 2}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {10}, e)),
+            (number::factorization<N> {{p2, 1}, {p5, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {12}, e)),
+            (number::factorization<N> {{p2, 2}, {p3, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {17}, e)),
+            (number::factorization<N> {{p17, 1}}));
+
+        EXPECT_EQ ((number::factorize<N> (nonzero<N> {21}, e)),
+            (number::factorization<N> {{p3, 1}, {p7, 1}}));
 
     }
 
     TEST (NumberTheoryTest, TestTotient) {
 
-        EXPECT_EQ (number::totient<N> (N {1}, e), N {1});
-        EXPECT_EQ (number::totient<N> (N {2}, e), N {1});
-        EXPECT_EQ (number::totient<N> (N {5}, e), N {4});
-        EXPECT_EQ (number::totient<N> (N {6}, e), N {2});
-        EXPECT_EQ (number::totient<N> (N {10}, e), N {4});
-        EXPECT_EQ (number::totient<N> (N {15}, e), N {8});
-        EXPECT_EQ (number::totient<N> (N {16}, e), N {8});
-        EXPECT_EQ (number::totient<N> (N {25}, e), N {20});
-        EXPECT_EQ (number::totient<N> (N {36}, e), N {12});
-        EXPECT_EQ (number::totient<N> (N {100}, e), N {40});
-        EXPECT_EQ (number::totient<N> (N {101}, e), N {100});
-        EXPECT_EQ (number::totient<N> (N {210}, e), N {48});
-        EXPECT_EQ (number::totient<N> (N {760}, e), N {288});
-        EXPECT_EQ (number::totient<N> (N {761}, e), N {760});
-        EXPECT_EQ (number::totient<N> (N {997}, e), N {996});
-        EXPECT_EQ (number::totient<N> (N {1024}, e), N {512});
-        EXPECT_EQ (number::totient<N> (N {12345}, e), N {6576});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {1}, e), N {1});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {2}, e), N {1});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {5}, e), N {4});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {6}, e), N {2});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {10}, e), N {4});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {15}, e), N {8});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {16}, e), N {8});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {25}, e), N {20});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {36}, e), N {12});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {100}, e), N {40});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {101}, e), N {100});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {210}, e), N {48});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {760}, e), N {288});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {761}, e), N {760});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {997}, e), N {996});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {1024}, e), N {512});
+        EXPECT_EQ (number::totient<N> (nonzero<N> {12345}, e), N {6576});
 
     }
 
     template <typename N> void power_mod_test_case (N mod, N base, N exp, N expected) {
-        EXPECT_EQ ((data::pow_mod<N> (base, exp, mod)), expected) << "expected " << base << " ^ " << exp << " % " << mod << " == " << expected;
+        EXPECT_EQ ((data::pow_mod<N> (base, exp, nonzero {mod})), expected) <<
+            "expected " << base << " ^ " << exp << " % " << mod << " == " << expected;
     }
 
     template <typename N> void test_power_mod () {
@@ -93,12 +116,15 @@ namespace data::math {
         test_power_mod<uint80> ();
         test_power_mod<uint80_little> ();
         test_power_mod<uint80_big> ();
+        test_power_mod<uint256> ();
+        test_power_mod<uint256_little> ();
+        test_power_mod<uint56_big> ();
         test_power_mod<dec_uint> ();
         test_power_mod<hex_uint> ();
     }
 
     TEST (NumberTheoryTest, TestPrimitiveRoot) {
-        EXPECT_EQ ((*number::primitive_root<N> (N {761}, e)), N {6});
+        EXPECT_EQ ((*number::primitive_root<N> (nonzero<N> {761}, e)), N {6});
     }
 
     number::eratosthenes<uint32> e32 {};
@@ -830,10 +856,10 @@ namespace data::math {
     // test how long it takes to prove that these numbers are prime.
     TEST (NumberTheoryTest, Test9BitPrimes) {
         for (const auto &[prime, root] : cryptosystems_9_bit) {
-            auto fact = number::factorize<uint32> (prime, e32);
+            auto fact = number::factorize<uint32> (nonzero {prime}, e32);
             EXPECT_EQ ((fact.size ()), 1);
             EXPECT_EQ (fact[0].Exponent, 1);
-            EXPECT_TRUE (number::is_primitive_root<uint32> (prime, root, e32));
+            EXPECT_TRUE (number::is_primitive_root<uint32> (nonzero {prime}, root, e32));
 
             // TODO generate random primitive roots and verify that
             // an exponent only corresponds to a primitive root when
@@ -843,10 +869,10 @@ namespace data::math {
 
     TEST (NumberTheoryTest, Test17BitPrimes) {
         for (const auto &[prime, root] : cryptosystems_17_bit) {
-            auto fact = number::factorize<uint64> (prime, e64);
+            auto fact = number::factorize<uint64> (nonzero {prime}, e64);
             EXPECT_EQ ((fact.size ()), 1);
             EXPECT_EQ (fact[0].Exponent, 1);
-            EXPECT_TRUE (number::is_primitive_root<uint64> (prime, root, e64));
+            EXPECT_TRUE (number::is_primitive_root<uint64> (nonzero {prime}, root, e64));
         }
     }
 
@@ -855,15 +881,15 @@ namespace data::math {
             byte alice_secret = 180;
             byte bob_secret = 200;
             for (const auto &[prime, root] : cryptosystems_9_bit)
-                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, prime), bob_secret, prime)),
-                    (data::pow_mod (data::pow_mod (root, bob_secret, prime), alice_secret, prime)));
+                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, nonzero {prime}), bob_secret, nonzero {prime})),
+                    (data::pow_mod (data::pow_mod (root, bob_secret, nonzero {prime}), alice_secret, nonzero {prime})));
         }
         {
             uint16 alice_secret = 13030;
             uint16 bob_secret = 29101;
             for (const auto &[prime, root] : cryptosystems_17_bit)
-                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, prime), bob_secret, prime)),
-                    (data::pow_mod (data::pow_mod (root, bob_secret, prime), alice_secret, prime)));
+                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, nonzero {prime}), bob_secret, nonzero {prime})),
+                    (data::pow_mod (data::pow_mod (root, bob_secret, nonzero {prime}), alice_secret, nonzero {prime})));
         }
     }
 
@@ -875,11 +901,11 @@ namespace data::math {
             uint32 message = 131;
 
             for (const auto &[prime, base] : cryptosystems_9_bit) {
-                auto public_key = data::pow_mod (base, secret_key, prime);
+                auto public_key = data::pow_mod (base, secret_key, nonzero {prime});
                 // corresponds to the point R in a digital signature.
-                auto header_R = data::pow_mod (base, random_number, prime);
+                auto header_R = data::pow_mod (base, random_number, nonzero {prime});
                 // For encryption, we use these shared secrets to generate an authenticated encryption scheme.
-                EXPECT_EQ ((data::pow_mod (public_key, random_number, prime)), (data::pow_mod (header_R, secret_key, prime)));
+                EXPECT_EQ ((data::pow_mod (public_key, random_number, nonzero {prime})), (data::pow_mod (header_R, secret_key, nonzero {prime})));
             }
         }
 
@@ -888,11 +914,11 @@ namespace data::math {
             uint64 secret_key = 12314;
             uint64 message = 47989;
             for (const auto &[prime, base] : cryptosystems_17_bit) {
-                auto public_key = data::pow_mod (base, secret_key, prime);
+                auto public_key = data::pow_mod (base, secret_key, nonzero {prime});
                 // corresponds to the point R in a digital signature.
-                auto header_R = data::pow_mod (base, random_number, prime);
+                auto header_R = data::pow_mod (base, random_number, nonzero {prime});
                 // we use these shared secrets to generate an authenticated encryption scheme.
-                EXPECT_EQ ((data::pow_mod (public_key, random_number, prime)), (data::pow_mod (header_R, secret_key, prime)));
+                EXPECT_EQ ((data::pow_mod (public_key, random_number, nonzero {prime})), (data::pow_mod (header_R, secret_key, nonzero {prime})));
             }
         }
     }

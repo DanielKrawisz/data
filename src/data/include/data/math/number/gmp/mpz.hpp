@@ -95,6 +95,7 @@ namespace data::math::number::GMP {
     N operator | (const N &, const N &);
     N operator & (const N &, const N &);
 
+    N operator % (const Z &, const Z &);
     N operator % (const Z &, const N &);
     N operator % (const N &, const N &);
 
@@ -168,7 +169,7 @@ namespace data::math {
     };
 
     template <> struct abs<N> {
-        N operator () (const N &);
+        N operator () (const N &n);
     };
 
     template <> struct times<Z> {

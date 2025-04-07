@@ -400,6 +400,10 @@ namespace data::math {
         return N {z < 0 ? -z : z};
     }
 
+    N inline abs<N>::operator () (const N &n) {
+        return n;
+    }
+
     division<N, N> inline divide<N, N>::operator () (const N &a, const nonzero<N> &b) {
         return number::natural_divide (a, b.Value);
     }

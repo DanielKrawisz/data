@@ -17,7 +17,7 @@ namespace data {
             
         list<N> primes = for_each (
             [] (const prime p) -> N {
-                return p.Prime;
+                return p.Prime.Value;
             }, 
             data::math::number::eratosthenes<N> {N {max_primes}}.Primes);
         
