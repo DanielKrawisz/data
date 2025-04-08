@@ -75,8 +75,8 @@ namespace data::RB {
     template <sortable V, functional::buildable_tree<colored<V>> T> T balance (T t);
 
     // insert a node into an RB tree
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    T insert (const T t, inserted<V> v, function<inserted<V> (inserted<V>, inserted<V>)> already_equivalent = &functional::keep_old<V>);
+    template <sortable V, functional::buildable_tree<colored<V>> T, typename already_equivalent>
+    T insert (const T t, inserted<V> v, already_equivalent);
 
     template <sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
 
@@ -98,8 +98,14 @@ namespace data::RB {
             return RB::contains<V, T> (*this, x);
         }
 
-        tree insert (inserted<V> v, function<const V & (const V &, const V &)> already_equivalent = &functional::keep_old<V>) const {
-            return RB::insert<V, T> (*this, v, already_equivalent);
+        tree insert (inserted<V> v) const {
+            return RB::insert<V, T> (*this, v, &functional::keep_old<V>);
+        }
+
+        template <typename already_equivalent> requires requires (already_equivalent f, const V &old_v, const V &new_v) {
+            { f (old_v, new_v) } -> implicitly_convertible_to<V>;
+        } tree insert (inserted<V> v, already_equivalent f) const {
+            return RB::insert<V, T> (*this, v, f);
         }
 
         template <typename ...P>
@@ -191,17 +197,17 @@ namespace data::RB {
 
     // if the tree is balanced when this method is used on
     // it, it will be balanced when the method is done.
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    T inline insert (const T t, inserted<V> v, function<inserted<V> (inserted<V>, inserted<V>)> already_equivalent) {
+    template <sortable V, functional::buildable_tree<colored<V>> T, typename already_equivalent>
+    T inline insert (const T t, inserted<V> v, already_equivalent f) {
         return data::empty (t) ? T {colored<V> {color::red, v}, T {}, T {}}:
-            v <=> root<V> (t) == 0 ? T {colored<V> {root_color<V> (t), already_equivalent (root<V> (t), v)}, left (t), right (t)}:
+            v <=> root<V> (t) == 0 ? T {colored<V> {root_color<V> (t), f (root<V> (t), v)}, left (t), right (t)}:
                 root_color<V> (t) != color::red ?
                     (v < root<V> (t) ?
-                        balance<V, T> (root<V> (t), insert<V, T> (left (t), v), right (t)):
-                        balance<V, T> (root<V> (t), left (t), insert<V, T> (right (t), v))):
+                        balance<V, T> (root<V> (t), insert<V, T> (left (t), v, f), right (t)):
+                        balance<V, T> (root<V> (t), left (t), insert<V, T> (right (t), v, f))):
                     (v < root<V> (t) ?
-                        T {data::root (t), insert<V, T> (left (t), v), right (t)}:
-                        T {data::root (t), left (t), insert<V, T> (right (t), v)});
+                        T {data::root (t), insert<V, T> (left (t), v, f), right (t)}:
+                        T {data::root (t), left (t), insert<V, T> (right (t), v, f)});
     }
 
     // now let's talk about how to balance an RB tree.
