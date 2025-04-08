@@ -56,10 +56,17 @@ namespace data {
         iterator begin () const;
         iterator end () const;
 
+        binary_search_tree insert (inserted<value> v) {
+            return insert (v, &functional::keep_old<value>);
+        }
+
         // if we have equivalent elements in the tree, the default behavior is to keep the old one.
         // however, you could also use functional::replace_new.
-        binary_search_tree insert (inserted<value>,
-            function<const value & (const value &, const value &)> = &functional::keep_old<value>) const;
+        template <typename already_exists> requires requires (already_exists f, const value &old_v, const value &new_v) {
+            { f (old_v, new_v) } -> implicitly_convertible_to<value>;
+        } binary_search_tree insert (inserted<value> v, already_exists f) const {
+            return functional::insert (static_cast<const tree &> (*this), v, f);
+        }
     };
 
     // we can use the above tree as the search tree with
@@ -71,7 +78,10 @@ namespace data {
     struct binary_search_map : tree {
         using entry = data::entry<const key, value>;
 
-        bool valid () const;
+        bool valid () const {
+            for (const auto &e : *this) if (!data::valid (e)) return false;
+            return true;
+        }
 
         binary_search_map ();
         binary_search_map (std::initializer_list<entry>);
@@ -83,6 +93,10 @@ namespace data {
         const unref<value> *contains (inserted<key>) const;
         bool contains (const entry &e) const;
 
+        binary_search_map insert (const key &k, const value &v) const {
+            return insert (k, v, &default_key_already_exists);
+        }
+
         binary_search_map insert (const entry &e) const {
             return insert (e.Key, e.Value);
         }
@@ -93,10 +107,15 @@ namespace data {
         // try to insert something and call a function if it already exists.
         // (so that the user can decide whether he wants to replace it or not or combine them or whatever)
         // if a key already exists, the default behavior is to throw an exception.
-        binary_search_map insert (const key &k, const value &v,
-            function<const value & (const value & old_v, const value & new_v)> already_exists = &default_key_already_exists) const;
+        template <typename already_exists> requires requires (already_exists f, const value &old_v, const value &new_v) {
+            { f (old_v, new_v) } -> implicitly_convertible_to<value>;
+        } binary_search_map insert (const key &k, const value &v, already_exists f) const {
+            return static_cast<tree> (*this).insert (entry {k, v}, [f] (const entry &old_e, const entry &new_e) {
+                return entry {old_e.Key, f (old_e.Value, new_e.Value)};
+            });
+        }
 
-        // NOTE: these next 3 functions assume that we are using linked_tree.
+        // NOTE: these next 3 functions assume that we have a for_each method.
         binary_search_map replace (inserted<value> a, inserted<value> b) const {
             return this->for_each ([a, b] (inserted<entry> x) -> entry {
                 return x.Value == a ? entry {x.Key, b} : x;
@@ -110,9 +129,9 @@ namespace data {
         }
 
         binary_search_map replace_part (const key &k, function<value (const value &)> f) const {
-            return this->for_each ([k, f] (inserted<entry> x) -> entry {
-                return x.Key == k ? entry {k.Key, f (k.Value)} : x;
-            });
+            return binary_search_map {this->for_each ([k, f] (inserted<entry> x) -> entry {
+                return x.Key == k ? entry {x.Key, f (x.Value)} : x;
+            })};
         }
 
         binary_search_map remove (const key &k) const;
@@ -159,7 +178,7 @@ namespace data {
         };
 
     private:
-        static const value & default_key_already_exists (const value & old_v, const value & new_v);
+        static const value &default_key_already_exists (const value & old_v, const value & new_v);
     };
 
     template <ordered value, functional::buildable_tree<value> tree>
@@ -228,22 +247,6 @@ namespace data {
         if (data::empty (*this)) return nullptr;
         const auto &e = data::root (*this);
         return e.Key == k ? &e.Value: k < e.Key ? data::left (*this).contains (k) : data::right (*this).contains (k);
-    }
-
-    template <ordered value, functional::buildable_tree<value> tree>
-    binary_search_tree<value, tree> inline binary_search_tree<value, tree>::insert (inserted<value> v,
-        function<const value & (const value &, const value &)> already) const {
-        return functional::insert (static_cast<const tree &> (*this), v, already);
-    }
-
-    template <ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
-    requires interface::has_insert_method<tree, data::entry<const key, value>>
-    binary_search_map<key, value, tree> inline
-    binary_search_map<key, value, tree>::insert (const key &k, const value &v,
-        function<const value & (const value & old_v, const value & new_v)> already_exists) const {
-        return static_cast<tree> (*this).insert (entry {k, v}, [already_exists] (const entry &old_e, const entry &new_e) -> const entry & {
-            return &already_exists (old_e.Value, new_e.Value) == &old_e.Value ? old_e : new_e;
-        });
     }
 
     template <ordered value, functional::buildable_tree<value> tree>

@@ -9,17 +9,15 @@ namespace data::net::HTTP {
     string REST::encode_form_data (map<ASCII, ASCII> form_data) {
         std::stringstream newBody;
 
-        auto entries = form_data.values ();
-            
-        if (data::size (entries) > 0) {
+        auto it = form_data.begin ();
 
-            auto it = entries.begin ();
+        if (it != form_data.end ()) {
 
             while (true) {
                 newBody << std::string (it->Key) << "=" << it->Value;
 
                 it++;
-                if (it == entries.end ()) break;
+                if (it == form_data.end ()) break;
 
                 newBody << "&";
             }
