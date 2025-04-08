@@ -87,9 +87,9 @@ namespace data::functional {
         interface::has_tree_constructor<T, element> && 
         std::default_initializable<T>;
 
-    template <typename T, typename X = element_of<T>>
+    template <typename T, typename X = element_of<T>, typename already_exists>
     requires search_tree<T, X> && buildable_tree<T, X>
-    T inline insert (const T t, inserted<X> x, data::function<const X &(const X &, const X &)> if_equivalent) {
+    T inline insert (const T t, inserted<X> x, already_exists if_equivalent) {
         return data::empty (t) ? T {x, T {}, T {}}:
             x <=> data::root (t) == 0 ? T {if_equivalent (root (t), x), left (t), right (t)}:
                 x < data::root (t) ? T {data::root (t), insert<T, X> (left (t), x, if_equivalent), right (t)}:
