@@ -9,6 +9,7 @@
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/extended_euclidian.hpp>
 
 namespace data::math::number {
 
@@ -118,6 +119,16 @@ namespace data::math {
             nonzero {uint<r, x * 2, word> (q.Value)}));
     }
 
+    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
+    maybe<uint<r, x, word>> invert_mod<number::bounded<a, r, x, word>, uint<r, x, word>>::operator () (
+        const number::bounded<a, r, x, word> &q,
+        const nonzero<uint<r, x, word>> &mod) {
+        auto invt = number::natural_invert_mod (
+            number::bounded<a, r, x + 1, word> (x),
+            nonzero {uint<r, x + 1, word> (mod.Value)});
+        if (!bool (invt)) return {};
+        return static_cast<uint<r, x, word>> (*invt);
+    }
 }
 
 namespace data::encoding::hexidecimal {
