@@ -75,16 +75,27 @@ namespace data::math::number::euclidian {
             return a < b ? run (b, a) : run (a, b);
         }
     };
+
+}
+
+namespace data::math::number {
+    template <ring_integral Z, ring_integral N>
+    auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
+        maybe<decltype (divide<Z, N> {} (x, mod).Remainder)> {
+        if (mod.Value < 0) throw exception {} << "mod by negative number";
+        using return_type = decltype (divide<Z, N> {} (x, mod).Remainder);
+        auto proof = number::euclidian::extended<return_type>::algorithm
+            (return_type (mod.Value), divide<Z, N> {} (x, mod).Remainder);
+        if (proof.GCD != 1) return {};
+        return divide<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
+    }
 }
 
 namespace data::math {
-    template <ring_integral Z, ring_integral N> struct invert_mod<Z, N> {
-        using return_type = decltype (divide<Z, N> {} (std::declval<Z> (), std::declval<nonzero<N>> ()).Remainder);
-        maybe<return_type> operator () (const Z &x, const nonzero<N> &mod) {
-            if (mod.Value < 0) throw exception {} << "mod by negative number";
-            auto proof = number::euclidian::extended<return_type>::algorithm (return_type (mod.Value), divide<Z, N> {} (x, mod).Remainder);
-            if (proof.GCD != 1) return {};
-            return divide<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
+    template <typename Z, typename N>
+    struct invert_mod {
+        auto operator () (const Z &x, const nonzero<N> &mod) {
+            return number::natural_invert_mod<Z, N> (x, mod);
         }
     };
 }
