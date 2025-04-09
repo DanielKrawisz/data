@@ -329,6 +329,12 @@ namespace data::math {
             const nonzero<uint<r, x, word>> &);
     };
 
+    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
+    struct invert_mod<number::bounded<a, r, x, word>, uint<r, x, word>> {
+        maybe<uint<r, x, word>> operator () (
+            const number::bounded<a, r, x, word> &,
+            const nonzero<uint<r, x, word>> &);
+    };
 }
 
 namespace data::encoding::decimal {
