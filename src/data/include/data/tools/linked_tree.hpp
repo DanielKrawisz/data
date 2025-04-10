@@ -65,7 +65,7 @@ namespace data {
 
     template <typename X> 
     inline std::ostream &operator << (std::ostream &o, const linked_tree<X>& x) {
-        return x.write (o << "tree");
+        return x.write (o << "tree ");
     }
     
     template <typename value>

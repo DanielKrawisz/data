@@ -123,15 +123,15 @@ namespace data {
         }
 
         binary_search_map replace_part (const key &k, const value &v) const {
-            return this->for_each ([k, v] (inserted<entry> x) -> entry {
+            return binary_search_map {tree {this->for_each ([k, v] (inserted<entry> x) -> entry {
                 return x.Key == k ? entry {x.Key, v} : x;
-            });
+            })}};
         }
 
         binary_search_map replace_part (const key &k, function<value (const value &)> f) const {
-            return binary_search_map {this->for_each ([k, f] (inserted<entry> x) -> entry {
+            return binary_search_map {tree {this->for_each ([k, f] (inserted<entry> x) -> entry {
                 return x.Key == k ? entry {x.Key, f (x.Value)} : x;
-            })};
+            })}};
         }
 
         binary_search_map remove (const key &k) const;
