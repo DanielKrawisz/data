@@ -63,8 +63,9 @@ namespace data {
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
     
-    template <typename f, sequence A, sequence B>
-    auto map_thread (f fun, A a, B b);
+    // Take a function fun and some lists {x, ...}, {y, ...}, {z, ...} ... and return {f (x, y, z, ...), ...}
+    template <typename f, sequence... Vals, typename f_result = decltype (std::declval<f> () (data::first (std::declval<Vals> ())...))>
+    auto map_thread (f fun, Vals... lists) -> stack<f_result>;
 
     template <typename map, typename key, typename value>
     map replace_part (map X, const key &k, const value &v);
@@ -99,24 +100,22 @@ namespace data {
         return flat<given> {} (g);
     }
 
-    template <typename f, sequence A, sequence B> 
-    auto map_thread (f fun, A a, B b) {
-        if (data::size (a) != data::size (b)) throw exception {"lists must be the same size"};
-        
-        list<decltype (fun (data::first (std::declval<A> ()), data::first (std::declval<B> ())))> l;
-        
-        while (data::size (a) != 0) {
-            l = data::append (l, fun (data::first (a), data::first (b)));
-            a = a.rest ();
-            b = b.rest ();
-        }
-        
-        return l;
+    template <typename f, sequence... Vals, typename f_result>
+    auto map_thread (f fun, Vals... lists) -> stack<f_result> {
+        if constexpr (sizeof... (lists) > 0) {
+            if (!(data::size (lists) == ...)) throw exception {} << "map thread provided lists of different sizes";
+            function<stack<f_result> (f, Vals...)> inner = [&inner] (f fun, Vals... lists) {
+                if ((data::empty (lists) && ...)) return stack<f_result> {};
+                f_result x = fun (data::first (lists)...);
+                return data::prepend (inner (fun, data::rest (lists)...), x);
+            };
+            return inner (fun, lists...);
+        } else throw exception {} << "map thread with no inputs";
     }
 
     template <typename map, typename key, typename value>
-    map inline replace_part (map X, const key &k, const value &v) {
-        return X.contains (k) ? X.remove (k).insert (k, v) : X;
+    map inline replace_part (map m, const key &k, const value &v) {
+        return m.replace_part (k, v);
     }
 
     template <typename elem>
