@@ -5,8 +5,8 @@
 #ifndef DATA_CRYPTO_STREAM_ONE_WAY
 #define DATA_CRYPTO_STREAM_ONE_WAY
 
-#include <data/crypto/block/cipher.hpp>
-#include <data/crypto/hash/hash.hpp>
+#include <data/crypto/block/mode.hpp>
+#include <data/crypto/hash.hpp>
 
 namespace data::crypto {
 

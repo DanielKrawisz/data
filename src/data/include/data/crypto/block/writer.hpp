@@ -1,53 +1,66 @@
-// Copyright (c) 2024 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_CRYPTO_BLOCK_WRITER
 #define DATA_CRYPTO_BLOCK_WRITER
 
-#include <data/slice.hpp>
+#include <data/stream.hpp>
+#include <data/crypto/block/mode.hpp>
+#include <data/crypto/transform.hpp>
+
+namespace data::crypto::CryptoPP {
+    using namespace ::CryptoPP;
+
+    // should conatin a typedef named value that returns the cryptopp type.
+    template <typename cipher, size_t block_size, size_t key_size>
+    requires block_cipher<cipher, block_size, key_size> struct get_cipher_type;
+
+    template <typename mode, typename cipher, size_t block_size, size_t key_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size> struct get_mode_type;
+
+    void inline detach_all (BufferedTransformation *tf) {
+        if (tf == nullptr) return;
+        detach_all (tf->AttachedTransformation ());
+        tf->Detach ();
+    }
+
+}
 
 namespace data::crypto {
+    using block_padding = CryptoPP::BlockPaddingSchemeDef;
 
-    template <typename W, uint16 block_size>
-    concept block_writer = requires (W &w, slice<const byte, block_size> x) {
-        { w.write (x) };
+    template <size_t block_size>
+    struct update_IV_session : session<byte> {
+        void update_IV (const byte_array<block_size> &) = 0;
+
+        virtual ~update_IV_session () {}
     };
 
-    using padding = function <writer<byte> &(writer<byte> &, uint16 Index)>;
+    // add padding to a block cypher once a message is complete.
+    template <typename mode, typename cipher, size_t block_size, size_t key_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    struct encrypt_pad_session final : update_IV_session<block_size> {
+        session<byte> &Output;
+        void write (const byte *, size_t size) final override;
 
-    template <uint16 block_size, block_writer<block_size> W>
-    struct padded_block_writer {
-        void write (byte *, size_t size);
-        void complete ();
+        // add the final padding.
+        void complete () final override;
 
-    private:
-        W &Writer;
-        padding Padding;
-        byte_array<block_size> Block;
-        uint16 Index;
+        encrypt_pad_session (session<byte> &, const mode &, const symmetric_key<key_size> &, block_padding);
     };
 
-    template <uint16 block_size, block_writer<block_size> W>
-    void padded_block_writer<block_size, W>::write (byte *b, size_t size) {
-        if (size + Index >= block_size) {
-            size_t step_size = block_size - Index;
-            write (b, step_size);
-            write (b + step_size, size - step_size);
-        }
+    template <typename mode, typename cipher, size_t block_size, size_t key_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    struct prepend_IV_session final : session<byte> {
+        update_IV_session<block_size> &Output;
+        void write (const byte *, size_t size) final override;
 
-        std::copy (b, Block.begin () + Index, Block.begin () + Index + size);
-        Index += size;
-        if (Index == block_size) {
-            Index = 0;
-            Writer.write (Block);
-        }
-    }
+        // add the final padding.
+        void complete () final override;
 
-    template <uint16 block_size, block_writer<block_size> W>
-    void inline padded_block_writer<block_size, W>::complete () {
-        padding (*this, Index);
-    }
+        prepend_IV_session ();
+    };
 
 }
 

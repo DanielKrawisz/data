@@ -7,8 +7,10 @@
 
 #define USE_BITCOIND_HASH_FUNCTIONS
 
+#ifdef USE_BITCOIND_HASH_FUNCTIONS
 // Hash functions provided by bitcoind. 
 #include <data/crypto/hash/bitcoind.hpp>
+#endif
 
 #include <data/crypto/hash/cryptopp.hpp>
 

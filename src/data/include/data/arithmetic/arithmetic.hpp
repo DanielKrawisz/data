@@ -16,8 +16,8 @@
 
 namespace data::arithmetic {
 
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
+    template <typename sen, std::input_iterator it>
+    requires std::sentinel_for<sen, it>
     bool equal (sen z, it i, it j) {
         while (i != z) {
             if (*i != *j) return false;
@@ -27,8 +27,8 @@ namespace data::arithmetic {
         return true;
     }
 
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
+    template <typename sen, std::input_iterator it>
+    requires std::sentinel_for<sen, it>
     bool greater (sen z, it i, it j) {
         while (i != z) {
             if (*i > *j) return true;
@@ -38,8 +38,8 @@ namespace data::arithmetic {
         return false;
     }
 
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
+    template <typename sen, std::input_iterator it>
+    requires std::sentinel_for<sen, it>
     bool less (sen z, it i, it j) {
         while (i != z) {
             if (*i < *j) return true;
@@ -49,8 +49,8 @@ namespace data::arithmetic {
         return false;
     }
 
-    template <typename sen, typename it>
-    requires std::input_iterator<it> && std::sentinel_for<sen, it>
+    template <typename sen, std::input_iterator it>
+    requires std::sentinel_for<sen, it>
     std::strong_ordering compare (sen z, it i, it j) {
 
         while (i != z) {
@@ -63,8 +63,8 @@ namespace data::arithmetic {
         return std::strong_ordering::equal;
     }
 
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
+    template <typename digit, typename sen, typename ito, std::input_iterator iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
     void bit_negate (sen z, ito i, iti j) {
         while (i != z) {
             *i = ~ *j;
@@ -73,8 +73,8 @@ namespace data::arithmetic {
         }
     }
 
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
+    template <typename digit, typename sen, typename ito, std::input_iterator iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
     void bit_and (sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a & *b;
@@ -84,8 +84,8 @@ namespace data::arithmetic {
         }
     }
 
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
+    template <typename digit, typename sen, typename ito, std::input_iterator iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
     void bit_or (sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a | *b;
@@ -95,8 +95,8 @@ namespace data::arithmetic {
         }
     }
 
-    template <typename digit, typename sen, typename ito, typename iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
+    template <typename digit, typename sen, typename ito, std::input_iterator iti>
+    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
     void bit_xor (sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a ^ *b;
@@ -111,9 +111,8 @@ namespace data::arithmetic {
     // regardless of the way that a number is actually represented.
     // we can only do this with bytes and not bigger numbers because of
     // little-endian encoding.
-    template <typename sen, typename ita, typename itb, std::unsigned_integral word>
-    requires std::input_iterator<itb> &&
-        std::output_iterator<ita, word> &&
+    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    requires std::output_iterator<ita, word> &&
         std::sentinel_for<sen, itb>
     void shift_left (ita &i, sen z, itb b, uint32 amount, word fill) {
         using two_digits = typename encoding::twice<word>::type;
@@ -129,8 +128,8 @@ namespace data::arithmetic {
     }
 
     // you have to use reverse iterators for this function.
-    template <typename sen, typename ita, typename itb, std::unsigned_integral word>
-    requires std::input_iterator<itb> && std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
+    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     void shift_right (ita &i, sen z, itb b, uint32 amount, word fill) {
         using two_digits = typename encoding::twice<word>::type;
 
