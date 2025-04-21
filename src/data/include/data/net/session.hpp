@@ -29,7 +29,6 @@ namespace data::net {
     // a function type that would open a new session.
     template <typename in, typename out = in>
     using open = handler<close_handler, interaction<in, out>>;
-
     
 }
 

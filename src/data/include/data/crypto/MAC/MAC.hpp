@@ -22,6 +22,18 @@ namespace data::crypto::MAC {
         return w.complete ();
     }
 
+    template <typename W, size_t key_size>
+    requires writer<W, key_size>
+    struct add_MAC_writer final : data::session<byte> {
+        data::session<byte> &Output;
+        W HMACWriter;
+
+        void write (const byte *, size_t size) final override;
+
+        // add the final padding.
+        void complete () final override;
+    };
+
 }
 
 #endif

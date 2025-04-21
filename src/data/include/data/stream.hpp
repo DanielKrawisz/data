@@ -17,9 +17,6 @@ namespace data {
         }
     };
 
-    // do not attempt to replace this with a concept because
-    // then the compiler won't be able to find some of the
-    // functions defined on it.
     template <std::integral word>
     struct writer {
         virtual void write (const word *, size_t size) = 0;
@@ -58,13 +55,41 @@ namespace data {
     template <typename message, std::integral word>
     struct message_writer : virtual writer<word> {
         virtual message complete () = 0;
+        virtual ~message_writer () {};
     };
+
+    template <typename message, std::integral word, typename T> requires requires (writer<word> &w, const T &x) {
+        { w << x };
+    } message_writer<message, word> &operator << (message_writer<message, word> &w, const T &x) {
+        static_cast<writer<word> &> (w) << x;
+        return w;
+    }
+
+    // a message writer has the concept of an end to a message.
+    template <std::integral word>
+    struct session : virtual writer<word> {
+        virtual void complete () = 0;
+        virtual ~session () {};
+    };
+
+    template <std::integral word, typename T> requires requires (writer<word> &w, const T &x) {
+        { w << x };
+    } session<word> &operator << (session<word> &w, const T &x) {
+        static_cast<writer<word> &> (w) << x;
+        return w;
+    }
 
     struct end_message {};
 
     template <typename message, std::integral word>
     message inline operator << (message_writer<message, word> &w, end_message) {
         return w.complete ();
+    }
+
+    template <std::integral word>
+    session<word> inline operator << (session<word> &w, end_message) {
+        w.complete ();
+        return w;
     }
 
     // you have to know how big the string is going to be in

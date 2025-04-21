@@ -30,7 +30,7 @@ namespace data {
     template <typename X> struct slice<X> : std::span<X> {
         using std::span<X>::span;
         
-        constexpr X& operator [] (size_t i) const {
+        constexpr X &operator [] (size_t i) const {
             if (this->size () == 0) throw std::out_of_range {"slice size 0"};
             if (i < 0 || i >= this->size ()) return this->operator [] ((i + this->size ()) % this->size ());
             return this->data ()[i];
@@ -89,6 +89,7 @@ namespace data {
     };
     
     template <typename X, size_t n> struct slice<X, n> : public std::span<X, n> {
+        //constexpr const static size_t size = n;
 
         using std::span<X, n>::span;
         slice (X *x): std::span<X, n> {x, n} {}
