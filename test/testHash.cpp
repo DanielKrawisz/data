@@ -127,20 +127,20 @@ namespace data::crypto {
         hash::Bitcoin<20> bitcoin_20_hash_writer;
         hash::Bitcoin<32> bitcoin_32_hash_writer;
 
-        RIPEMD_160_hash_writer << bytes_view {};
-        SHA_2_256_hash_writer << bytes_view {};
-        bitcoin_20_hash_writer << bytes_view {};
-        bitcoin_32_hash_writer << bytes_view {};
+        RIPEMD_160_hash_writer << bytes_view {} << end_message {};
+        SHA_2_256_hash_writer << bytes_view {} << end_message {};
+        bitcoin_20_hash_writer << bytes_view {} << end_message {};
+        bitcoin_32_hash_writer << bytes_view {} << end_message {};
 
-        RIPEMD_160_hash_writer << uint32_little {3};
-        SHA_2_256_hash_writer << uint32_little {3};
-        bitcoin_20_hash_writer << uint32_little {3};
-        bitcoin_32_hash_writer << uint32_little {3};
+        RIPEMD_160_hash_writer << uint32_little {3} << end_message {};
+        SHA_2_256_hash_writer << uint32_little {3} << end_message {};
+        bitcoin_20_hash_writer << uint32_little {3} << end_message {};
+        bitcoin_32_hash_writer << uint32_little {3} << end_message {};
 
-        RIPEMD_160_hash_writer << byte (89);
-        SHA_2_256_hash_writer << byte (89);
-        bitcoin_20_hash_writer << byte (89);
-        bitcoin_32_hash_writer << byte (89);
+        RIPEMD_160_hash_writer << byte (89) << end_message {};
+        SHA_2_256_hash_writer << byte (89) << end_message {};
+        bitcoin_20_hash_writer << byte (89) << end_message {};
+        bitcoin_32_hash_writer << byte (89) << end_message {};
 
     }
 
