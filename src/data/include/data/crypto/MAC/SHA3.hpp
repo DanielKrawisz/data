@@ -10,6 +10,7 @@
 
 namespace data::crypto::MAC {
 
+    // note: this is not really how you're supposed to use sha3 as a stream cipher.
     template <size_t Size, size_t key_size>
     struct SHA3_MAC_writer : message_writer<digest<Size>, byte> {
         constexpr static size_t size = Size;

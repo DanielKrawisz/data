@@ -16,49 +16,49 @@
 #include <cryptopp/des.h>
 
 namespace data::crypto::CryptoPP {
-    template <size_t block_size, size_t key_size>
-    struct get_cipher_type<crypto::Rijndael, block_size, key_size> {
-        using value = Rijndael;
+    template <>
+    struct get_cipher_type<crypto::Rijndael> {
+        using type = CryptoPP::Rijndael;
     };
 
-    template <size_t block_size, size_t key_size>
-    struct get_cipher_type<crypto::Serpent, block_size, key_size> {
-        using value = Serpent;
+    template <>
+    struct get_cipher_type<crypto::Serpent> {
+        using type = CryptoPP::Serpent;
     };
 
-    template <size_t block_size, size_t key_size>
-    struct get_cipher_type<crypto::Twofish, block_size, key_size> {
-        using value = Twofish;
+    template <>
+    struct get_cipher_type<crypto::Twofish> {
+        using type = CryptoPP::Twofish;
     };
 
-    template <size_t block_size, size_t key_size>
-    struct get_cipher_type<crypto::RC6, block_size, key_size> {
-        using value = RC6;
+    template <>
+    struct get_cipher_type<crypto::RC6> {
+        using type = CryptoPP::RC6;
     };
 
-    template <size_t block_size, size_t key_size>
-    struct get_cipher_type<crypto::MARS, block_size, key_size> {
-        using value = MARS;
+    template <>
+    struct get_cipher_type<crypto::MARS> {
+        using type = CryptoPP::MARS;
     };
 
-    template <typename cipher, size_t block_size, size_t key_size>
-    struct get_mode_type<crypto::ECB<block_size>, cipher, block_size, key_size> {
-        using value = ECB_Mode<typename get_cipher_type<cipher, block_size, key_size>::value>;
+    template <size_t block_size, typename cipher>
+    struct get_block_mode_type<crypto::ECB<block_size>, cipher> {
+        using type = ECB_Mode<typename get_cipher_type<cipher>::type>;
     };
 
-    template <typename cipher, size_t block_size, size_t key_size>
-    struct get_mode_type<crypto::CBC<block_size>, cipher, block_size, key_size> {
-        using value = CBC_Mode<typename get_cipher_type<cipher, block_size, key_size>::value>;
+    template <size_t block_size, typename cipher>
+    struct get_block_mode_type<crypto::CBC<block_size>, cipher> {
+        using type = CBC_Mode<typename get_cipher_type<cipher>::type>;
     };
 
-    template <typename cipher, size_t block_size, size_t key_size>
-    struct get_mode_type<crypto::CFB<block_size>, cipher, block_size, key_size> {
-        using value = CFB_Mode<typename get_cipher_type<cipher, block_size, key_size>::value>;
+    template <size_t block_size, typename cipher>
+    struct get_block_mode_type<crypto::CFB<block_size>, cipher> {
+        using type = CFB_Mode<typename get_cipher_type<cipher>::type>;
     };
 
-    template <typename cipher, size_t block_size, size_t key_size>
-    struct get_mode_type<crypto::OFB<block_size>, cipher, block_size, key_size> {
-        using value = OFB_Mode<typename get_cipher_type<cipher, block_size, key_size>::value>;
+    template <size_t block_size, typename cipher>
+    struct get_block_mode_type<crypto::OFB<block_size>, cipher> {
+        using type = OFB_Mode<typename get_cipher_type<cipher>::type>;
     };
 
 }
