@@ -87,7 +87,7 @@ namespace data {
     }
 
     template <std::integral word>
-    session<word> inline operator << (session<word> &w, end_message) {
+    session<word> inline &operator << (session<word> &w, end_message) {
         w.complete ();
         return w;
     }

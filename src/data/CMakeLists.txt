@@ -13,6 +13,10 @@ add_library (data STATIC
   encoding/base58.cpp
   encoding/integer.cpp
 
+  crypto/random.cpp
+  crypto/secret_share.cpp
+  crypto/block.cpp
+
   net/URL.cpp
   net/beast/beast.cpp
   net/HTTP.cpp
@@ -26,8 +30,6 @@ add_library (data STATIC
   #io/run.cpp
   io/wait_for_enter.cpp
   tools/channel.cpp
-  crypto/random.cpp
-  crypto/secret_share.cpp
   tools/circular_queue.cpp
   tools/rate_limiter.cpp
   log/log.cpp
