@@ -49,14 +49,16 @@ namespace data::crypto {
     }
 
     // encrypt and decrypt single blocks.
-    template <typename cipher, size_t block_size, size_t key_size, block_cipher_mode<cipher, block_size, key_size> mode>
+    template <typename cipher, typename mode, size_t key_size, size_t block_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size>
     byte_array<block_size> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
         byte_array<block_size> x;
         m.template encrypt<cipher, key_size> (x, key, block);
         return x;
     }
 
-    template <typename cipher, size_t block_size, size_t key_size, block_cipher_mode<cipher, block_size, key_size> mode>
+    template <typename cipher, typename mode, size_t key_size, size_t block_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size>
     byte_array<block_size> inline decrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
         byte_array<block_size> x;
         m.template decrypt<cipher, key_size> (x, key, block);
@@ -64,7 +66,8 @@ namespace data::crypto {
     }
 
     // encrypt and decrypt a whole message
-    template <typename cipher, size_t block_size, size_t key_size, block_cipher_mode<cipher, block_size, key_size> mode>
+    template <typename cipher, typename mode, size_t key_size, size_t block_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size>
     cross<byte_array<block_size>> encrypt (mode &m, const cross<byte_array<block_size>> &message, const symmetric_key<key_size> &k) {
         cross<byte_array<block_size>> result;
         result.resize (message.size ());
@@ -72,7 +75,8 @@ namespace data::crypto {
         return result;
     }
 
-    template <typename cipher, size_t block_size, size_t key_size, block_cipher_mode<cipher, block_size, key_size> mode>
+    template <typename cipher, typename mode, size_t key_size, size_t block_size>
+    requires block_cipher_mode<mode, cipher, block_size, key_size>
     cross<byte_array<block_size>> decrypt (mode &m, const cross<byte_array<block_size>> &encrypted, const symmetric_key<key_size> &k) {
         cross<byte_array<block_size>> result;
         result.resize (encrypted.size ());
@@ -123,7 +127,7 @@ namespace data::crypto {
     };
 
     template <size_t block_size> struct mode_cipher_block_chain {
-        byte_array<block_size> Last;
+        initialization_vector<block_size> IV;
         mode_cipher_block_chain (const initialization_vector<block_size> &);
 
         using block_in = slice<const byte, block_size>;
@@ -136,7 +140,7 @@ namespace data::crypto {
     };
 
     template <size_t block_size> struct mode_output_feedback {
-        byte_array<block_size> Last;
+        initialization_vector<block_size> IV;
         mode_output_feedback (const initialization_vector<block_size> &iv);
 
         using block_in = slice<const byte, block_size>;
@@ -156,7 +160,7 @@ namespace data::crypto {
     };
 
     template <size_t block_size> struct mode_cipher_feedback {
-        byte_array<block_size> Last;
+        initialization_vector<block_size> IV;
         mode_cipher_feedback (const initialization_vector<block_size> &iv);
 
         using block_in = slice<const byte, block_size>;
@@ -172,7 +176,7 @@ namespace data::crypto {
     // the counter should be, we allow both.
     template <size_t block_size, endian::order r>
     struct mode_counter {
-        math::uint<r, block_size, byte> Last;
+        math::uint<r, block_size, byte> IV;
         mode_counter (const math::uint<r, block_size, byte> &iv);
 
         using block_in = slice<const byte, block_size>;
@@ -202,14 +206,14 @@ namespace data::crypto {
     }
 
     template <size_t block_size>
-    inline mode_cipher_block_chain<block_size>::mode_cipher_block_chain (const initialization_vector<block_size> &iv) : Last {iv} {}
+    inline mode_cipher_block_chain<block_size>::mode_cipher_block_chain (const initialization_vector<block_size> &iv) : IV {iv} {}
 
     template <size_t block_size>
     template <typename cipher, size_t key_size>
     requires block_cipher<cipher, block_size, key_size>
     void inline mode_cipher_block_chain<block_size>::encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        cipher::encrypt (o, key, Last ^ i);
-        Last = o;
+        cipher::encrypt (o, key, IV ^ i);
+        IV = o;
     }
 
     template <size_t block_size>
@@ -217,12 +221,12 @@ namespace data::crypto {
     requires block_cipher<cipher, block_size, key_size>
     void inline mode_cipher_block_chain<block_size>::decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
         cipher::decrypt (o, key, i);
-        o ^= Last;
-        Last = i;
+        o ^= IV;
+        IV = i;
     }
 
     template <size_t block_size>
-    inline mode_output_feedback<block_size>::mode_output_feedback (const initialization_vector<block_size> &iv) : Last {iv} {}
+    inline mode_output_feedback<block_size>::mode_output_feedback (const initialization_vector<block_size> &iv) : IV {iv} {}
 
     template <size_t block_size>
     template <typename cipher, size_t key_size>
@@ -242,8 +246,8 @@ namespace data::crypto {
     template <typename cipher, size_t key_size>
     requires block_cipher<cipher, block_size, key_size>
     void inline mode_output_feedback<block_size>::crypt (block_out out, const symmetric_key<key_size> &key, block_in in) {
-        Last = update (key, Last);
-        out = in ^ Last;
+        IV = update (key, IV);
+        out = in ^ IV;
     }
 
     template <size_t block_size>
@@ -254,7 +258,7 @@ namespace data::crypto {
     }
 
     template <size_t block_size>
-    inline mode_cipher_feedback<block_size>::mode_cipher_feedback (const initialization_vector<block_size> &iv) : Last {iv} {}
+    inline mode_cipher_feedback<block_size>::mode_cipher_feedback (const initialization_vector<block_size> &iv) : IV {iv} {}
 /*
     template <size_t block_size>
     template <typename cipher, size_t key_size>
@@ -267,7 +271,7 @@ namespace data::crypto {
     void inline mode_cipher_feedback<block_size>::decrypt (block_out, block_in, const symmetric_key<key_size> &key);
 */
     template <size_t block_size, endian::order r>
-    inline mode_counter<block_size, r>::mode_counter (const math::uint<r, block_size, byte> &iv) : Last {iv} {}
+    inline mode_counter<block_size, r>::mode_counter (const math::uint<r, block_size, byte> &iv) : IV {iv} {}
 /*
     template <size_t block_size, endian::order r>
     template <typename cipher, size_t key_size>
