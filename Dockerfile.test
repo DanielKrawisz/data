@@ -1,4 +1,4 @@
-FROM gigamonkey/gigamonkey-base-dev:v2.1
+FROM gigamonkey/gigamonkey-base-dev:v2.2.1
 
 WORKDIR /home/data
 COPY . .
