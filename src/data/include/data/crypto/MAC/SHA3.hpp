@@ -5,7 +5,7 @@
 #define DATA_CRYPTO_SHA3
 
 #include <data/crypto/MAC/MAC.hpp>
-#include <data/crypto/hash/hash.hpp>
+#include <data/crypto/hash.hpp>
 #include <cryptopp/hmac.h>
 
 namespace data::crypto::MAC {

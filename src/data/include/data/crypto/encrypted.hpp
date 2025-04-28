@@ -7,7 +7,7 @@
 
 #include <data/iterable.hpp>
 #include <data/stream.hpp>
-#include <data/crypto/hash/hash.hpp>
+#include <data/crypto/hash.hpp>
 
 namespace data::crypto {
     
