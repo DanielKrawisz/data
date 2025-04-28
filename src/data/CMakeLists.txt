@@ -61,6 +61,7 @@ target_link_libraries (
   sv
   ctre
   # PkgConfig::LIBSECP256K1 
+  sqlite_orm::sqlite_orm
 )
 
 get_target_property (OUT data LINK_LIBRARIES)
