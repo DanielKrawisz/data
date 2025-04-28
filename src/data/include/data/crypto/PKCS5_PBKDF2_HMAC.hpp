@@ -9,7 +9,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/pwdbased.h>
 #include <cryptopp/sha.h>
-#include <data/crypto/hash/hash.hpp>
+#include <data/crypto/hash.hpp>
 
 namespace data::crypto {
 
