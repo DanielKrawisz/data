@@ -18,96 +18,6 @@ namespace data::net::HTTP {
         return o << "HTTP response {status: " << r.Status << ", headers: " << r.Headers << ", body: " << r.Body << "}";
     }
 
-    template<class SyncReadStream>
-    beast::response http_request (
-        SyncReadStream &stream,
-        const request &req) {
-
-        beast::http::write (stream, beast::from (req));
-
-        beast::flat_buffer buffer;
-        beast::response res;
-        beast::error_code ec;
-
-        try {
-            beast::http::read (stream, buffer, res, ec);
-        } catch (boost::exception &ex) {}
-
-        return res;
-
-    }
-
-    response call (const request &req, SSL *ssl, uint32 redirects) {
-
-        auto proto = req.URL.protocol ();
-
-        if (!req.valid ()) throw data::exception {} << "Invalid protocol " << proto << "; expected HTTP or HTTPS";
-
-        bool https = proto == protocol::HTTPS;
-
-        if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
-
-        auto host = req.URL.domain_name ();
-        if (!bool (host)) throw data::exception {"No host provided in the URL."};
-
-        auto hostname = host->c_str ();
-        auto port = req.URL.port_DNS ().c_str ();
-
-        beast::response res;
-
-        asio::io_context io {};
-
-        asio::ip::tcp::resolver resolver (io);
-
-        asio::error_code connect_error {};
-
-        if (https) {
-            beast::ssl_stream<beast::tcp_stream> stream (io, *ssl);
-
-            // Set SNI Hostname (many hosts need this to handshake successfully)
-            if (!SSL_set_tlsext_host_name (stream.native_handle (), hostname)) {
-                beast::error_code ec {static_cast<int> (::ERR_get_error ()),
-                    asio::error::get_ssl_category ()};
-                throw beast::system_error {ec};
-            }
-
-            auto const results = resolver.resolve (hostname, port);
-
-            beast::get_lowest_layer (stream).connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
-
-            stream.handshake (asio::ssl::stream_base::client);
-
-            res = http_request (stream, req);
-        } else {
-            beast::tcp_stream stream (io);
-
-            auto const results = resolver.resolve (hostname, port);
-
-            stream.connect (results, connect_error);
-            if (connect_error) throw data::exception {} << "Failed to connect to " << req.URL << "; error " << connect_error;
-
-            res = http_request (stream, req);
-        }
-/*
-        if (static_cast<unsigned int> (res.base ().result ()) >= 300 && static_cast<unsigned int> (res.base ().result ()) < 400) {
-            std::string loc = res.base ()["Locaboost::beast::http::response<boost::beast::http::dynamic_body>tion"].to_string ();
-            if (!loc.empty ()) {
-                UriUriA uri;
-                const char **errorPos;
-                if (uriParseSingleUriA (&uri, loc.c_str (), errorPos))
-                    throw data::exception {"could not read redirect url"};
-
-                if (redirects == 0) throw data::exception {"too many redirects"};
-
-                return call (request {req.Method, URL {fromRange (uri.portText), fromRange (uri.hostText),
-                    fromList (uri.pathHead, "/") + fromRange (uri.fragment)}, req.Headers, req.Body}, ssl, redirects - 1);
-            }
-        }*/
-
-        return beast::to (res);
-    }
-
 }
 
 namespace data::net::HTTP::beast {
@@ -312,7 +222,6 @@ namespace data::net::HTTP {
     void call (asio::io_context &io, asio::error_handler error_handler, handler<const response &> on_response, const request &req, SSL *ssl) {
 
         // first we check that the protocol is valid.
-
         auto proto = req.URL.protocol ();
 
         if (!req.valid ()) throw data::exception {} << "Invalid protocol " << proto << "; expected HTTP or HTTPS";
@@ -332,7 +241,6 @@ namespace data::net::HTTP {
     }
 
     // blocking call function once we get async working.
-    /*
     response call (const request &r, SSL *ssl, uint32 redirects) {
         request req = r;
         // the response that will eventually be returned.
@@ -358,12 +266,12 @@ namespace data::net::HTTP {
             if (static_cast<unsigned int> (res.Status) < 300 || static_cast<unsigned int> (res.Status) >= 400) return res;
 
             URL u (res.Headers [boost::beast::http::field::location]);
-            if (!u.valid ()) throw exception {req, res, error {boost::beast::error_code {}, "could not read redirect URL"}};
+            if (!u.valid ()) throw exception {req, res, "could not read redirect URL"};
             req.URL = u;
         }
 
-        throw exception {req, res, error {boost::beast::error_code {}, "too many redirects"}};
+        throw exception {req, res, "too many redirects"};
 
-    }*/
+    }
 
 }
