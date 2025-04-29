@@ -5,7 +5,7 @@
 #ifndef DATA_CRYPTO_HASH_FUNCTIONS
 #define DATA_CRYPTO_HASH_FUNCTIONS
 
-#include <data/crypto/digest.hpp>
+#include <data/crypto/hash/digest.hpp>
 #include <data/crypto/one_way.hpp>
 
 namespace data::crypto {
