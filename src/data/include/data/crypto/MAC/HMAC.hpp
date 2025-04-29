@@ -9,7 +9,6 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/hmac.h>
 
-#include <data/crypto/digest.hpp>
 #include <data/crypto/hash.hpp>
 
 namespace data::crypto::MAC {
