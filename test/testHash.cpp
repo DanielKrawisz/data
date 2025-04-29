@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/crypto/hash/hash.hpp"
+#include "data/crypto/hash.hpp"
 #include "data/math/number/bytes.hpp"
 #include "data/arithmetic/endian.hpp"
 #include "gtest/gtest.h"
