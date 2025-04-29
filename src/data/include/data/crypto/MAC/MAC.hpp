@@ -5,7 +5,7 @@
 #ifndef DATA_CRYPTO_MAC
 #define DATA_CRYPTO_MAC
 
-#include <data/crypto/digest.hpp>
+#include <data/crypto/hash/digest.hpp>
 
 namespace data::crypto::MAC {
 
