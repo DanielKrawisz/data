@@ -18,8 +18,9 @@ namespace data {
     // either works just like std::variant except that it is less wordy
     // and can take references and void as subtypes.
     template <typename... X> struct either : std::variant<wrapped<X>...> {
-        using std::variant<wrapped<X>...>::variant;
-        constexpr either (std::variant<X...> &&x) : std::variant<wrapped<X>...> {x} {}
+        using parent = std::variant<wrapped<X>...>;
+        using parent::variant;
+        constexpr either (parent &&x) : parent {x} {}
         
         using std::variant<wrapped<X>...>::operator =;
 
@@ -48,16 +49,15 @@ namespace data {
 
         template <typename Z>
         constexpr Z *get_if () {
-            return std::get_if<wrapped<Z>> (*this);
+            return std::get_if<wrapped<Z>> (static_cast<parent *> (this));
         }
 
         template <typename Z>
         constexpr const Z *get_if () const {
-            return std::get_if<wrapped<Z>> (*this);
+            return std::get_if<wrapped<Z>> (static_cast<const parent *> (this));
         }
         
     private:
-        
         template <typename Y, typename... A>
         struct writer {
             std::ostream &operator () (std::ostream &o, const either<X...> &x) {
