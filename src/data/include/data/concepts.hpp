@@ -57,6 +57,8 @@ namespace data {
     template <typename Type, typename Argument>
     concept implicitly_constructible_from = is_implicitly_constructible<Type, Argument>::value;
 
+    template <typename Type> concept member_function_pointer = std::is_member_function_pointer_v<Type>;
+
 }
 
 #endif

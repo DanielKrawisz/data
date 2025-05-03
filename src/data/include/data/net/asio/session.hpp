@@ -10,9 +10,9 @@
 
 namespace data::net::asio {
     using namespace boost::asio;
-    using error_code = boost::system::error_code;
+    using error = boost::system::error_code;
 
-    using error_handler = handler<error_code>;
+    using error_handler = handler<error>;
 
     // a function type that would open a new session.
     template <typename in, typename out>
@@ -21,7 +21,7 @@ namespace data::net::asio {
     template <typename in, typename out>
     using async_open = handler<io_context &, open <in, out>>;
 
-    using write_token = function<void (error_code, size_t)>;
+    using write_token = function<void (error, size_t)>;
 
     template <typename ConstBufferSequence>
     concept const_buffer_sequence = std::copy_constructible<ConstBufferSequence> && std::destructible<ConstBufferSequence> &&
