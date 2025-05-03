@@ -11,7 +11,7 @@
 
 namespace data::math::number {
 
-    template <unsigned_integral N> struct factorization : list<power<prime<N>, N>> {
+    template <typename N> struct factorization : list<power<prime<N>, N>> {
         using list<power<prime<N>, N>>::list;
         factorization (list<power<prime<N>, N>> &&x): list<power<prime<N>, N>> {x} {}
 
@@ -26,7 +26,7 @@ namespace data::math::number {
         operator N () const;
     };
 
-    template <unsigned_integral N> factorization<N> factorize (nonzero<N> n, eratosthenes<N> &e) {
+    template <typename N> factorization<N> factorize (nonzero<N> n, eratosthenes<N> &e) {
 
         factorization<N> factors {};
 

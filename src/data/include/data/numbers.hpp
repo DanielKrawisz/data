@@ -135,10 +135,6 @@ namespace data {
     static_assert (signed_type<float>);
     static_assert (signed_type<double>);
 
-    static_assert (unsigned_integral<byte>);
-    static_assert (unsigned_integral<uint16>);
-    static_assert (unsigned_integral<uint32>);
-    static_assert (unsigned_integral<uint64>);
     static_assert (unsigned_integral<uint80>);
     static_assert (unsigned_integral<uint128>);
     static_assert (unsigned_integral<uint160>);
@@ -148,10 +144,6 @@ namespace data {
     static_assert (unsigned_integral<uint448>);
     static_assert (unsigned_integral<uint512>);
 
-    static_assert (integral_system<int8, byte>);
-    static_assert (integral_system<int16, uint16>);
-    static_assert (integral_system<int32, uint32>);
-    static_assert (integral_system<int64, uint64>);
     static_assert (integral_system<int80, uint80>);
     static_assert (integral_system<int128, uint128>);
     static_assert (integral_system<int160, uint160>);

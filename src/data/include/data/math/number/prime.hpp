@@ -9,12 +9,12 @@
 #include <iostream> // required by windows.
 
 namespace data::math::number {
-    template <unsigned_integral N> struct eratosthenes;
-    template <unsigned_integral N> struct primes;
-    template <unsigned_integral N> struct AKS;
+    template <typename N> struct eratosthenes;
+    template <typename N> struct primes;
+    template <typename N> struct AKS;
 
-    template <unsigned_integral N> struct factorization;
-    template <unsigned_integral N> factorization<N> factorize (nonzero<N>, eratosthenes<N> &);
+    template <typename N> struct factorization;
+    template <typename N> factorization<N> factorize (nonzero<N>, eratosthenes<N> &);
 
     // A number that is known to be prime.
     // So far eratosthenes is the only way
