@@ -6,47 +6,22 @@
 
 namespace data::net::HTTP {
 
-    response client_blocking::operator () (const request &r) {
-        auto wait = Rate.getTime ();
-        if (wait != 0) {
-            asio::io_context io {};
-            asio::steady_timer {io, asio::chrono::seconds (wait)}.wait ();
-        }
-        return HTTP::call (r, SSL.get ());
+    awaitable<response> client::operator () (const request &r) {
+        std::chrono::milliseconds wait = Rate.get_time ();
+        if (wait != std::chrono::milliseconds {0}) co_await sleep (wait);
+        co_return co_await HTTP::call (r, SSL.get ());
     }
 
-    void client_async::operator () (handler<const response &> handle, const request &req) {
-        Queue = Queue << std::pair<request, handler<const response &>> {req, handle};
-
-        if (!Writing) {
-            Writing = true;
-            send_next_request ();
-        }
+    void client::operator () (exec ex, asio::error_handler err, handler<const response &> hr, request r) {
+        std::chrono::milliseconds wait = Rate.get_time ();
+        if (wait == std::chrono::milliseconds {0}) HTTP::call (ex, err, hr, r, SSL.get ());
+        auto timer = std::make_shared<boost::asio::steady_timer> (ex, wait);
+        timer->async_wait ([timer, ex, err, hr, r, ssl = SSL](const boost::system::error_code &ec) {
+            if (!ec) call (ex, err, hr, r, ssl.get ());
+            err (ec);
+        });
     }
 
-    void client_async::send_next_request_now () {
-        auto next = data::first (Queue);
-        Queue = data::rest (Queue);
-        HTTP::call (*IO, [req = next.first] (const asio::error_code &e) {
-            std::stringstream ss;
-            ss << " HTTP error: " << e << std::endl;
-            throw exception {req, ss.str ()};
-        }, next.second, next.first, SSL.get ());
-        if (data::empty (Queue)) Writing = false;
-        else send_next_request ();
-    }
-
-    void client_async::send_next_request () {
-
-        auto wait = Rate.getTime ();
-        if (wait != 0) asio::steady_timer {*IO, asio::chrono::seconds (wait)}.async_wait (
-            [self = this->shared_from_this ()] (asio::error_code err) {
-                if (err) throw data::exception {} << "something went wrong with the timer " << err;
-                self->send_next_request_now ();
-            }
-        );
-        else send_next_request_now ();
-    }
 
 }
 

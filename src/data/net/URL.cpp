@@ -454,7 +454,7 @@ namespace data::net {
 namespace data::net::IP {
 
     address::operator asio::ip::address () const {
-        asio::error_code err {};
+        asio::error err {};
         auto addr = asio::ip::make_address (static_cast<string> (*this), err);
         if (err) throw exception {err};
         return addr;

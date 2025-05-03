@@ -60,13 +60,13 @@ namespace data::net::HTTP::beast {
     // ensure that handlers do not execute concurrently.
     struct http_session final : session<tcp_stream, http_session> {
         http_session (
-            asio::io_context &io,
+            exec ex,
             asio::error_handler error_handler,
             handler<const HTTP::response &> response_handler,
             const HTTP::request &req) :
             session<tcp_stream, http_session> {
-                new asio::ip::tcp::resolver {net::make_strand (io)},
-                new tcp_stream {net::make_strand (io)},
+                new asio::ip::tcp::resolver {net::make_strand (ex)},
+                new tcp_stream {net::make_strand (ex)},
                 error_handler, response_handler, req} {}
 
         void on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) final override;
@@ -75,13 +75,13 @@ namespace data::net::HTTP::beast {
 
     struct https_session final : session<ssl_stream<tcp_stream>, https_session> {
         https_session (
-            asio::io_context &io, SSL &ssl,
+            exec ex, SSL &ssl,
             asio::error_handler error_handler,
             handler<const HTTP::response &> response_handler,
             const HTTP::request &req) :
             session<ssl_stream<tcp_stream>, https_session> {
-                new asio::ip::tcp::resolver {net::make_strand (io)},
-                new ssl_stream<tcp_stream> {net::make_strand (io), ssl},
+                new asio::ip::tcp::resolver {net::make_strand (ex)},
+                new ssl_stream<tcp_stream> {net::make_strand (ex), ssl},
                 error_handler, response_handler, req} {
 
             auto host = Request.URL.domain_name ();
@@ -219,7 +219,7 @@ namespace data::net::HTTP::beast {
 namespace data::net::HTTP {
 
     // async HTTP call
-    void call (asio::io_context &io, asio::error_handler error_handler, handler<const response &> on_response, const request &req, SSL *ssl) {
+    void call (exec ex, asio::error_handler err, handler<const response &> on_response, const request &req, SSL *ssl) {
 
         // first we check that the protocol is valid.
         auto proto = req.URL.protocol ();
@@ -228,42 +228,40 @@ namespace data::net::HTTP {
 
         bool https = proto == protocol::HTTPS;
 
-        // TODO: does beast provide an error code for this case? We shouldn't throw exceptions in this function ideally.
         if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
 
         // next we check on whether we need to use DNS.
-        // TODO: another case where an exception is thrown instead of using the error handler.
         if (!bool (req.URL.domain_name ()) && ! bool (req.URL.endpoint ()))
             throw data::exception {"Neither tcp endpoint nor host can be reconstructed from the URL"};
 
-        if (https) std::make_shared<beast::https_session> (io, *ssl, error_handler, on_response, req)->run ();
-        else std::make_shared<beast::http_session> (io, error_handler, on_response, req)->run ();
+        if (https) std::make_shared<beast::https_session> (ex, *ssl, err, on_response, req)->run ();
+        else std::make_shared<beast::http_session> (ex, err, on_response, req)->run ();
     }
 
-    // blocking call function once we get async working.
-    response call (const request &r, SSL *ssl, uint32 redirects) {
+    awaitable<response> call_once (const request &req, SSL *ssl) {
+        // Get the executor from this coroutine (needed for handler to resume)
+        exec ex = co_await asio::this_coro::executor;
+
+        co_return co_await asio::async_initiate<decltype (asio::use_awaitable), void (response)> (
+            [&req, ssl, ex] (auto &&handler) {
+                call (ex, [&handler] (asio::error err) {
+                    throw data::exception {} << "network error " << err;
+                }, [&handler] (const response &r) {
+                    handler (r);
+                }, req, ssl);
+            },
+            // this tells Boost we're using coroutines
+            asio::use_awaitable);
+    }
+
+    awaitable<response> call (const request &r, SSL *ssl, uint32 redirects) {
         request req = r;
-        // the response that will eventually be returned.
         response res;
-
-        auto error_handler = [&req, &res] (asio::error_code e) -> void {
-            std::stringstream ss;
-            ss << "boost error code " << e;
-            throw exception {req, res, ss.str ()};
-        };
-
-        auto response_handler = [&res] (const response &r) -> void {
-            res = r;
-        };
-
-        asio::io_context io;
-
         // keep trying with more redirects
         for (uint32 redirect = 0; redirect < redirects; redirect++) {
-            call (io, error_handler, response_handler, req, ssl);
-            io.run ();
+            res = co_await call_once (req, ssl);
 
-            if (static_cast<unsigned int> (res.Status) < 300 || static_cast<unsigned int> (res.Status) >= 400) return res;
+            if (static_cast<unsigned int> (res.Status) < 300 || static_cast<unsigned int> (res.Status) >= 400) co_return res;
 
             URL u (res.Headers [boost::beast::http::field::location]);
             if (!u.valid ()) throw exception {req, res, "could not read redirect URL"};

@@ -10,7 +10,7 @@
 namespace data::net::IP {
     
     struct exception : data::exception {
-        exception (asio::error_code err) : data::exception {} {
+        exception (asio::error err) : data::exception {} {
             this->write ("IO error: ", err.message ());
         }
     };
