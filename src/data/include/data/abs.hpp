@@ -7,6 +7,7 @@
 
 #include <data/concepts.hpp>
 #include <data/ordered.hpp>
+#include <data/io/exception.hpp>
 
 namespace data {
 
@@ -121,27 +122,28 @@ namespace data::math {
         }
     };
 
-    template <std::signed_integral A> struct negate<A> {
+    template <std::unsigned_integral A> struct abs<A> {
+        A operator () (const A &x) const {
+            return x;
+        }
+    };
+
+    template <std::signed_integral A> struct abs<A> {
+        A operator () (const A &x) const {
+            return x < 0 ? -x : x;
+        }
+    };
+
+    template <std::unsigned_integral A> struct negate<A> {
         A operator () (const A &x) const {
             return -x;
         }
     };
 
-    template <std::signed_integral A> struct abs<A> {
-        std::make_unsigned_t<A> operator () (const A &x) const {
-            return static_cast<std::make_unsigned_t<A>> (x < 0 ? -x : x);
-        }
-    };
-
-    template <std::unsigned_integral A> struct negate<A> {
-        std::make_signed_t<A> operator () (const A &x) const {
-            return -static_cast<std::make_signed_t<A>> (x);
-        }
-    };
-
-    template <std::unsigned_integral A> struct abs<A> {
+    template <std::signed_integral A> struct negate<A> {
         A operator () (const A &x) const {
-            return x;
+            if (x == std::numeric_limits<A>::min ()) throw exception {} << "invalid negate value " << x;
+            return -x;
         }
     };
 }

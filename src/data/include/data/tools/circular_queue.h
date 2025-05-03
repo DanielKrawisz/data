@@ -11,25 +11,38 @@
 #include <vector>
 
 namespace data::tools {
+    template <std::totally_ordered T>
     struct circular_queue {
         // Initialize front and rear
         int cur;
         
         // Circular Queue
-        int size;
-        std::vector<long> circularQueue;
+        size_t size;
+        std::vector<T> circularQueue;
 
-        explicit circular_queue (int sz, long init_value = 0) {
+        explicit circular_queue (size_t sz, T init_value = T {0}) {
             cur = 0;
             size = sz;
-            circularQueue.resize(sz);
-            std::fill(circularQueue.begin(), circularQueue.end(), init_value);
+            circularQueue.resize (sz);
+            std::fill (circularQueue.begin (), circularQueue.end (), init_value);
         }
         
-        void setValue(long val);
-        void next();
-        long getValue();
+        void set (const T &val);
+        const T &get ();
     };
+
+    template <std::totally_ordered T>
+    void circular_queue<T>::set (const T &val) {
+        circularQueue[cur] = val;
+        cur = (cur + 1) % size;
+    }
+
+    template <std::totally_ordered T>
+    const T &circular_queue<T>::get () {
+        T &x = circularQueue[cur];
+        return x;
+    }
+
 }
 
 #endif //DATA_CIRCULAR_QUEUE_H
