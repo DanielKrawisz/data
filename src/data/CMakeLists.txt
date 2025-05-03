@@ -18,6 +18,8 @@ add_library (data STATIC
   crypto/block.cpp
 
   net/URL.cpp
+
+  async.cpp
   net/beast/beast.cpp
   net/HTTP.cpp
   net/REST.cpp
@@ -30,7 +32,6 @@ add_library (data STATIC
   #io/run.cpp
   io/wait_for_enter.cpp
   tools/channel.cpp
-  tools/circular_queue.cpp
   tools/rate_limiter.cpp
   log/log.cpp
 )
@@ -61,7 +62,7 @@ target_link_libraries (
   sv
   ctre
   # PkgConfig::LIBSECP256K1 
-  sqlite_orm::sqlite_orm
+  # sqlite_orm::sqlite_orm
 )
 
 get_target_property (OUT data LINK_LIBRARIES)

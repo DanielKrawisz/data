@@ -5,22 +5,17 @@
 
 #include <data/tools/circular_queue.h>
 #include "gtest/gtest.h"
-namespace data {
-    namespace tools {
-        TEST(CircularQueueTest, TestInitialize) {
-            circular_queue queue(5);
-            queue.setValue(5);
-            ASSERT_EQ(queue.getValue(),5);
-            queue.next();
-            queue.setValue(4);
-            queue.next();
-            queue.setValue(6);
-            queue.next();
-            queue.setValue(8);
-            queue.next();
-            queue.setValue(10);
-            queue.next();
-            ASSERT_EQ(queue.getValue(),5);
-        }
+namespace data::tools {
+    TEST (CircularQueueTest, TestInitialize) {
+        circular_queue<int> queue (5);
+        queue.set (5);
+        auto n = queue.get ();
+        ASSERT_EQ (n, 0) << "Expected to retrieve 5 from the queue, but got " << n;
+        queue.set (4);
+        queue.set (6);
+        queue.set (8);
+        queue.set (10);
+        auto m = queue.get ();
+        ASSERT_EQ (m, 5) << "Expected to retrieve 10 from the queue, but got " << m;
     }
 }

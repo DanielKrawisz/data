@@ -10,25 +10,22 @@ namespace data {
             if (m_duration == 0) return 0;
             
             long now = std::chrono::duration_cast<std::chrono::seconds>(
-                    std::chrono::system_clock::now().time_since_epoch()).count();
+                    std::chrono::system_clock::now ().time_since_epoch ()).count ();
                     
-            long lastSent = m_queue.getValue();
+            long lastSent = m_queue.get ();
             
             if(lastSent == -1) {
-                m_queue.setValue(now);
-                m_queue.next();
+                m_queue.set (now);
                 return 0;
             }
             
             if(now - lastSent < m_duration) {
                 long wait_name = m_duration - (now-lastSent);
-                m_queue.setValue(now + wait_name);
-                m_queue.next();
+                m_queue.set (now + wait_name);
                 return wait_name;
             }
             
-            m_queue.setValue(now);
-            m_queue.next();
+            m_queue.set (now);
             
             return 0;
         }

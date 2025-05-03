@@ -81,7 +81,7 @@ namespace data {
     template <typename N> struct test_modular {
         test_modular () {
 
-            test_suite<N, math::number::modular<d2, N>> ();/*
+            test_suite<N, math::number::modular<d2, N>> ();
             test_suite<N, math::number::modular<d3, N>> ();
             test_suite<N, math::number::modular<d4, N>> ();
             test_suite<N, math::number::modular<d5, N>> ();
@@ -98,7 +98,7 @@ namespace data {
             test_suite<N, math::number::modular<d16, N>> ();
             test_suite<N, math::number::modular<d17, N>> ();
             test_suite<N, math::number::modular<d18, N>> ();
-            test_suite<N, math::number::modular<d19, N>> ();*/
+            test_suite<N, math::number::modular<d19, N>> ();
 
         }
     };
@@ -107,7 +107,6 @@ namespace data {
     
     TEST (TestModular, TestModularArithmetic) {
 
-        test_modular<uint64> {};/*
         test_modular<N> {};
         //test_modular<CryptoPP::Integer> {};
         test_modular<N_bytes_little> {};
@@ -139,7 +138,7 @@ namespace data {
         test_modular<uint_big<5, unsigned int>> {};
         test_modular<uint_little<5, unsigned int>> {};
         test_modular<uint_big<6, unsigned int>> {};
-        test_modular<uint_little<6, unsigned int>> {};*/
+        test_modular<uint_little<6, unsigned int>> {};
 
         // TODO bigger words
         /*

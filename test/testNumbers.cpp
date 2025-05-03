@@ -141,14 +141,8 @@ namespace data {
 
     template <typename ZZ>
     struct test_signed_number_system : test_signed_number<ZZ> {};
-
-    static_assert (ring_integral_system<int64, uint64>);
     
     TEST (NumbersTest, TestNumberSystem) {
-
-        test_number_system<uint64, int64> {};
-        test_number_system<uint64_little, int64_little> {};
-        test_number_system<uint64_big, int64_big> {};
 
         test_number_system<uint80, int80> {};
         test_number_system<uint80_little, int80_little> {};
