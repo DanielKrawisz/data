@@ -14,7 +14,7 @@ namespace data::net::IP {
 
         ptr<socket> connect (asio::io_context &io, const endpoint &p, asio::error_handler on_error, close_handler on_close) {
             ptr<asio::ip::tcp::socket> x {new asio::ip::tcp::socket (io)};
-            asio::error_code error;
+            asio::error error;
             x->connect (asio::ip::tcp::endpoint (p), error);
 
             if (error) throw exception {error};
@@ -43,10 +43,10 @@ namespace data::net::IP {
         void server::accept () {
             Socket.emplace (IO);
 
-            Acceptor.async_accept (*Socket, [self = shared_from_this ()] (asio::error_code error) {
+            Acceptor.async_accept (*Socket, [self = shared_from_this ()] (asio::error error) {
                 ptr<asio::ip::tcp::socket> t {new asio::ip::tcp::socket {std::move (*self->Socket)}};
 
-                auto on_error = [] (const asio::error_code &) -> void {};
+                auto on_error = [] (const asio::error &) -> void {};
                 auto on_close = [] () -> void {};
 
                 ptr<socket> ss {new socket {t, on_error, on_close}};

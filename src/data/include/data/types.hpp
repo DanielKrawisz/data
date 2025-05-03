@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <random>
 #include <functional>
+#include <expected>
 
 namespace data {
 

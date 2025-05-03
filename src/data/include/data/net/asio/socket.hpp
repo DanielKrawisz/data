@@ -20,21 +20,21 @@ namespace data::net::asio {
 
         ptr<stream> Socket;
 
-        handler<error_code> OnError;
+        handler<error> OnError;
         close_handler OnClose;
 
         string Buffer;
 
         bool Closed;
 
-        socket (ptr<stream> socket, handler<error_code> errors, close_handler on_close) :
+        socket (ptr<stream> socket, handler<error> errors, close_handler on_close) :
             Socket {socket}, OnError {errors}, OnClose {on_close}, Buffer {}, Closed {false} {
             Buffer.resize (65025);
         }
 
         void write (const string &x, function<void ()> on_complete) final override {
             async_write (*Socket, buffer (x.data (), x.size ()),
-                [self = this->shared_from_this (), on_complete] (const error_code& error, size_t bytes_transferred) -> void {
+                [self = this->shared_from_this (), on_complete] (const error &error, size_t bytes_transferred) -> void {
                     if (error == boost::asio::error::eof) self->close ();
                     else if (error) self->OnError (error);
                     else on_complete ();
@@ -59,7 +59,7 @@ namespace data::net::asio {
 
         void read (function<void (string_view)> handle) final override {
             Socket->async_read_some (buffer (Buffer.data(), Buffer.size ()),
-                [self = this->shared_from_this (), handle] (const error_code& error, size_t bytes_transferred) -> void {
+                [self = this->shared_from_this (), handle] (const error& error, size_t bytes_transferred) -> void {
                     if (error == boost::asio::error::eof) self->close ();
                     if (bytes_transferred > 0) handle (std::basic_string_view {self->Buffer.data (), bytes_transferred});
                 });

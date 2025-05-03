@@ -10,6 +10,7 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
+#include <data/async.hpp>
 #include <data/tools.hpp>
 #include <data/cross.hpp>
 #include <data/net/asio/session.hpp>
@@ -30,12 +31,11 @@ namespace data::net::HTTP {
     using SSL = asio::ssl::context;
 
     // make an HTTP call (blocking).
-    // error is thrown.
-    response call (const request &, SSL * = nullptr, uint32 redirects = 10);
+    awaitable<response> call (const request &, SSL * = nullptr, uint32 redirects = 10);
 
     // async HTTP call
     // Once this is done, call run () on the io_context to actually make the HTTP call and handle the response.
-    void call (asio::io_context &, asio::error_handler, handler<const response &>, const request &, SSL * = nullptr);
+    void call (exec, asio::error_handler, handler<const response &>, const request &, SSL * = nullptr);
 
     struct header : ASCII {
         using enum boost::beast::http::field;

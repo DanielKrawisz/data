@@ -28,19 +28,19 @@ namespace data::net::websocket {
 
         ptr<stream> Socket;
 
-        handler<asio::error_code> OnError;
+        handler<asio::error> OnError;
         close_handler OnClose;
 
         beast::flat_buffer Buffer;
 
         bool Closed;
 
-        socket (ptr<stream> socket, handler<asio::error_code> errors, close_handler on_close) :
+        socket (ptr<stream> socket, handler<asio::error> errors, close_handler on_close) :
             Socket {socket}, OnError {errors}, OnClose {on_close}, Buffer {}, Closed {false} {}
 
         void write (const string &x, function<void ()> on_complete) final override {
             Socket->async_write (asio::buffer (x.data (), x.size ()),
-                [self = this->shared_from_this (), on_complete] (const asio::error_code& error, size_t bytes_transferred) -> void {
+                [self = this->shared_from_this (), on_complete] (const asio::error& error, size_t bytes_transferred) -> void {
                     if (error == beast::websocket::error::closed) self->close ();
                     else if (error) self->OnError (error);
                     else on_complete ();
