@@ -12,6 +12,7 @@
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/use_future.hpp>
+#include <boost/asio/bind_executor.hpp>
 
 namespace data {
 
@@ -34,7 +35,7 @@ namespace data {
     template <typename fun, typename... args>
     requires std::regular_invocable<fun, args...> && requires (fun f, args... a) {
         { std::invoke (std::forward<fun> (f), std::forward<args> (a)...) } -> is_awaitable<>;
-    } auto sync (fun &&f, args &&...a) {
+    } auto synced (fun &&f, args &&...a) {
         using namespace boost::asio;
         boost::asio::io_context ioc;
         return co_spawn (ioc.get_executor (),
@@ -43,6 +44,18 @@ namespace data {
             }, use_future  // This turns the coroutine into a std::future
         ).get ();  // Block and get the result
 
+    }
+
+    template <typename fun, typename... args>
+    requires std::regular_invocable<fun, args...>
+    auto asynced (exec ex, fun &&f, args &&...a) -> awaitable<decltype (std::invoke (std::forward<fun> (f), std::forward<args> (a)...))>
+    {
+        co_return co_await boost::asio::post (
+            boost::asio::bind_executor (ex,
+                [f, a...]() { return std::invoke (f, a...); }
+            ),
+            boost::asio::use_awaitable
+        );
     }
 
     using milliseconds = std::chrono::milliseconds;
