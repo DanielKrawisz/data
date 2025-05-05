@@ -4,7 +4,7 @@
 namespace data::net::HTTP::beast {
 
     // convert to beast format
-    request from (const HTTP::request &r) {
+    request to (const HTTP::request &r) {
         request req (r.Method, r.target ().c_str (), 11);
 
         req.set (HTTP::header::host, r.URL.domain_name ()->c_str ());
@@ -26,7 +26,7 @@ namespace data::net::HTTP::beast {
     };
 
     // note: it is possible for a header to be unknown by boost::beast. In that case it gets deleted. Kind of dumb.
-    HTTP::response to (const response &res) {
+    HTTP::response from (const response &res) {
 
         map<header, ASCII> response_headers {};
 

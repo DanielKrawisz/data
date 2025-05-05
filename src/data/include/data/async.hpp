@@ -52,7 +52,7 @@ namespace data {
     {
         co_return co_await boost::asio::post (
             boost::asio::bind_executor (ex,
-                [f, a...]() { return std::invoke (f, a...); }
+                [f = std::forward<fun> (f), ... a = std::forward<args> (a)]() { return std::invoke (f, a...); }
             ),
             boost::asio::use_awaitable
         );
