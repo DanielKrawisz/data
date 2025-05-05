@@ -5,6 +5,7 @@
 #ifndef DATA_RATE_LIMITER_H
 #define DATA_RATE_LIMITER_H
 
+#include <data/types.hpp>
 #include <data/async.hpp>
 #include "circular_queue.h"
 
@@ -15,17 +16,19 @@ namespace data::tools {
     struct rate_limiter {
         // the rate limiter will not allow more actions than 'hits' per 'duration'. 
 
-        rate_limiter (size_t hits, milliseconds duration) : m_queue (hits), m_duration (duration) {};
+        rate_limiter (size_t hits, milliseconds duration) :
+            m_queue (hits), m_duration (duration), mutex {std::make_shared<std::mutex> ()} {};
         
         // how much time we need to wait until an action can be taken?
         milliseconds get_time ();
         
         // use this to make an unlimited rate limiter that does nothing. 
-        rate_limiter () : m_queue (0), m_duration (0) {};
+        rate_limiter () : m_queue (0), m_duration (0), mutex {} {};
     
     private:
         circular_queue<milliseconds> m_queue;
         milliseconds m_duration;
+        ptr<std::mutex> mutex;
     };
 }
 
