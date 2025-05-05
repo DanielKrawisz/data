@@ -7,6 +7,10 @@
 namespace data::tools {
 
     milliseconds rate_limiter::get_time () {
+        if (m_queue.size == 0) return milliseconds {0};
+
+        std::scoped_lock lock (*mutex);
+
         using namespace std::chrono;
         if (m_duration == milliseconds {0}) return milliseconds {0};
             
@@ -19,7 +23,7 @@ namespace data::tools {
             m_queue.set (now + wait_name);
             return wait_name;
         }
-            
+
         m_queue.set (now);
 
         return milliseconds {0};

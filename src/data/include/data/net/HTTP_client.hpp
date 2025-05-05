@@ -48,7 +48,7 @@ namespace data::net::HTTP {
         co_return co_await (*this) (REST.GET (path, params));
     }
 
-    awaitable<response> client::POST (path path, map<header, ASCII> headers, string body) {
+    awaitable<response> inline client::POST (path path, map<header, ASCII> headers, string body) {
         co_return co_await (*this) (REST.POST (path, headers, body));
     }
     

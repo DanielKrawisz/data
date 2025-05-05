@@ -27,12 +27,12 @@ namespace data::net::HTTP {
             // Read an HTTP request from the socket
             awaitable<void> read () {
                 beast::request Request;
-                co_await beast::http::async_read (Socket, Buffer, Request, use_awaitable);
+                co_await beast::http::async_read (Socket, Buffer, Request, asio::use_awaitable);
                 co_await handle_request (Request);
             }
 
             ~session () {
-                asio::error_code ec;
+                asio::error ec;
                 Socket.shutdown (asio::ip::tcp::socket::shutdown_send, ec);
             }
 
@@ -41,7 +41,7 @@ namespace data::net::HTTP {
             // Apply the request handler to the request and send the response back
             awaitable<void> handle_request (const beast::request req) {
                 // Write the response
-                co_await beast::http::async_write (Socket, beast::to (co_await Handler (beast::from (req))), use_awaitable);
+                co_await beast::http::async_write (Socket, beast::to (co_await Handler (beast::from (req))), asio::use_awaitable);
             }
 
             asio::ip::tcp::socket Socket;
@@ -56,8 +56,8 @@ namespace data::net::HTTP {
             // Spawn a new session to handle the connection
             co_spawn (
                 Acceptor.get_executor (),
-                     [sock = std::move (socket), Handler = this->RequestHandler] () mutable -> awaitable<void> {
-                         co_await session {std::move (sock), Handler}->read ();
+                     [sock = std::move (socket), Handler = this->Handler] () mutable -> awaitable<void> {
+                         co_await session {std::move (sock), Handler}.read ();
                          co_return;
                      },
                      asio::detached
@@ -69,9 +69,9 @@ namespace data::net::HTTP {
 
     public:
         // Constructor
-        server (exec ec, asio::ip::tcp::endpoint endpoint, request_handler handler) :
-            Acceptor {ec}, Handler {std::move (handler)} {
-            asio::error_code ec;
+        server (exec ex, asio::ip::tcp::endpoint endpoint, request_handler handler) :
+            Acceptor {ex}, Handler {std::move (handler)} {
+            asio::error ec;
 
             // Open the acceptor
             Acceptor.open (endpoint.protocol (), ec);
@@ -89,7 +89,7 @@ namespace data::net::HTTP {
         // Start accepting connections
         awaitable<void> run () {
             while (true) {
-                co_await do_accept ();
+                co_await accept ();
             }
         }
 

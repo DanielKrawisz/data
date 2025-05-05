@@ -23,14 +23,14 @@ namespace data::net::HTTP::beast {
     using response = boost::beast::http::response<boost::beast::http::string_body>;
 
     // convert to beast format
-    request from (const HTTP::request &r);
+    request to (const HTTP::request &r);
 
-    response from (const HTTP::response &r);
+    response to (const HTTP::response &r);
 
     // note: it is possible for a header to be known by boost::beast. In that case it gets deleted. Kind of dumb.
-    HTTP::response to (const response &res);
+    HTTP::response from (const response &res);
 
-    HTTP::request to (const request &);
+    HTTP::request from (const request &);
 }
 
 #endif

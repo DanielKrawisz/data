@@ -11,7 +11,7 @@
 namespace data::net::HTTP {
 
     std::ostream &operator << (std::ostream &o, const request &r) {
-        return o << beast::from (r);
+        return o << beast::to (r);
     }
 
     std::ostream &operator << (std::ostream &o, const response &r) {
@@ -149,7 +149,7 @@ namespace data::net::HTTP::beast {
         get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
 
         // Send the HTTP request to the remote host
-        http::async_write (*Stream, from (Request), beast::bind_front_handler (&session::on_write, this->shared_from_this ()));
+        http::async_write (*Stream, to (Request), beast::bind_front_handler (&session::on_write, this->shared_from_this ()));
     }
 
     void https_session::on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) {
@@ -166,7 +166,7 @@ namespace data::net::HTTP::beast {
         get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
 
         // Send the HTTP request to the remote host
-        http::async_write (*Stream, from (Request), beast::bind_front_handler (&session::on_write, this->shared_from_this ()));
+        http::async_write (*Stream, to (Request), beast::bind_front_handler (&session::on_write, this->shared_from_this ()));
     }
 
     void http_session::on_read (beast::error_code ec, std::size_t bytes_transferred) {
@@ -175,7 +175,7 @@ namespace data::net::HTTP::beast {
         if (ec) return this->OnError (ec);
 
         // return the message
-        OnResponse (to (res_));
+        OnResponse (from (res_));
 
         // Gracefully close the socket
         get_lowest_layer (*Stream).socket ().shutdown (tcp::socket::shutdown_both, ec);
@@ -193,7 +193,7 @@ namespace data::net::HTTP::beast {
         if (ec) return this->OnError (ec);
 
         // return the message
-        OnResponse (to (res_));
+        OnResponse (from (res_));
 
         // Set a timeout on the operation
         get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
