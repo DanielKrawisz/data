@@ -192,7 +192,7 @@ namespace data::net {
     }
 
     namespace {
-        std::string write_params (list<entry<UTF8, UTF8>> params) {
+        std::string write_params (dispatch<UTF8, UTF8> params) {
             std::stringstream q;
 
             auto i = params.begin ();
@@ -556,7 +556,15 @@ namespace pegtl {
 
     struct authority_whole : seq<bof, authority, eof> {};
 
+    struct path : sor<path_after_authority, path_absolute, path_rootless> {};
+
+    struct path_whole : seq<bof, path, eof> {};
+
     struct hierarchical : sor<seq<string<'/', '/'>, authority, path_after_authority>, path_absolute, path_rootless> {};
+
+    struct target : seq<sor<path_after_authority, path_absolute, path_rootless>, opt<seq<one<'?'>, query>>, opt<seq<one<'#'>, fragment>>> {};
+
+    struct target_whole : seq<bof, target, eof> {};
 
     struct uri : seq<scheme, one<':'>, hierarchical, opt<seq<one<'?'>, query>>, opt<seq<one<'#'>, fragment>>> {};
 
@@ -579,6 +587,21 @@ namespace data {
     bool net::IP::address::valid () const {
         tao::pegtl::memory_input<> in (*this, "ip_address");
         return tao::pegtl::parse<pegtl::ip_address_whole> (in);
+    }
+
+    bool net::authority::valid (string_view c) {
+        tao::pegtl::memory_input<> in (c, "authority");
+        return tao::pegtl::parse<pegtl::authority_whole> (in);
+    }
+
+    bool net::path::valid (string_view c) {
+        tao::pegtl::memory_input<> in (c, "path");
+        return tao::pegtl::parse<pegtl::path_whole> (in);
+    }
+
+    bool net::target::valid (string_view c) {
+        tao::pegtl::memory_input<> in (c, "target");
+        return tao::pegtl::parse<pegtl::target_whole> (in);
     }
 
     int32 net::IP::address::version () const {
@@ -669,15 +692,15 @@ namespace data {
         return tao::pegtl::parse<pegtl::uri_whole, make_uri_action> (in, m) ? m : make {};
     }
 
-    net::URL::make net::URL::make::authority (const ASCII &x) const {
+    net::URL::make net::URL::make::authority (const UTF8 &x) const {
         if (UserInfo || Host || Port) throw exception {"URL error: authority already set."};
         make m = *this;
-        tao::pegtl::memory_input<> in (x, "authority");
+
+        UTF8 encoded = encoding::percent::encode (x);
+        tao::pegtl::memory_input<> in (encoded, "authority");
+
         return tao::pegtl::parse<pegtl::authority_whole, make_uri_action> (in, m) ? m : make {};
     }
-}
-
-namespace data::encoding::percent {
 
     template <typename Rule> struct read_scheme_action : pegtl::nothing<Rule> {};
 
@@ -688,7 +711,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::scheme (string_view x) {
+    string_view encoding::percent::URI::scheme (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "scheme");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_scheme_action> (in, sub)) return {};
@@ -704,7 +727,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::authority (string_view x) {
+    string_view encoding::percent::URI::authority (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "authority");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_authority_action> (in, sub)) return {};
@@ -720,7 +743,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::user_info (string_view x) {
+    string_view encoding::percent::URI::user_info (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "user_info");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_user_info_action> (in, sub)) return {};
@@ -736,7 +759,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::host (string_view x) {
+    string_view encoding::percent::URI::host (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "host");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_host_action> (in, sub)) return {};
@@ -752,7 +775,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::port (string_view x) {
+    string_view encoding::percent::URI::port (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "port");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_port_action> (in, sub)) return {};
@@ -782,7 +805,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::path (string_view x) {
+    string_view encoding::percent::URI::path (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "path");
         // in theory this will not happen.
@@ -790,7 +813,7 @@ namespace data::encoding::percent {
         return sub;
     }
 
-    string_view URI::target (string_view x) {
+    string_view encoding::percent::URI::target (string_view x) {
         string_view p = path (x);
         // in theory this should not happen.
         if (p.data () == nullptr) return p;
@@ -806,7 +829,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::query (string_view x) {
+    string_view encoding::percent::URI::query (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "query");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_query_action> (in, sub)) return {};
@@ -822,7 +845,7 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::fragment (string_view x) {
+    string_view encoding::percent::URI::fragment (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "fragment");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_fragment_action> (in, sub)) return {};
@@ -852,14 +875,14 @@ namespace data::encoding::percent {
         }
     };
 
-    string_view URI::address (string_view x) {
+    string_view encoding::percent::URI::address (string_view x) {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "ip_address");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_ip_address_action> (in, sub)) return {};
         return sub;
     }
 
-    URI URI::normalize () const {
+    encoding::percent::URI encoding::percent::URI::normalize () const {
         if (!valid ()) throw exception {} << "invalid URI: " << *this;
 
         // we can do this because we know the URL is valid.
@@ -873,6 +896,76 @@ namespace data::encoding::percent {
         if (m.Host) for (char &x : *m.Host) x = std::tolower (x);
         return static_cast<URI> (net::URL (m));
     }
+
+    net::path net::target::path () const {
+        string_view sub;
+        tao::pegtl::memory_input<> in (*this, "path");
+        // in theory this will not happen.
+        if (!tao::pegtl::parse<pegtl::target_whole, read_path_action> (in, sub))
+            throw data::exception {"invalid target"};
+        return net::path {sub};
+    }
+
+    maybe<ASCII> net::target::query () const {
+        string_view sub;
+        tao::pegtl::memory_input<> in (*this, "query");
+        if (!tao::pegtl::parse<pegtl::target_whole, read_query_action> (in, sub))
+            throw data::exception {"invalid target"};
+        if (sub.data () == nullptr) return {};
+        return ASCII {sub};
+    }
+
+    maybe<UTF8> net::target::fragment () const {
+        string_view sub;
+        tao::pegtl::memory_input<> in (*this, "fragment");
+        if (!tao::pegtl::parse<pegtl::target_whole, read_fragment_action> (in, sub))
+            throw data::exception {"invalid target"};
+        if (sub.data () == nullptr) return {};
+        return encoding::percent::decode (sub);
+    }
+
+    maybe<ASCII> net::authority::port () const {
+        string_view sub;
+        tao::pegtl::memory_input<> in (*this, "port");
+        if (!tao::pegtl::parse<pegtl::authority_whole, read_port_action> (in, sub))
+            throw data::exception {"invalid authority"};
+        if (sub.data () == nullptr) return {};
+        return ASCII {sub};
+    }
+
+    maybe<UTF8> net::authority::host () const {
+        string_view sub;
+        tao::pegtl::memory_input<> in (*this, "host");
+        if (!tao::pegtl::parse<pegtl::authority_whole, read_host_action> (in, sub))
+            throw data::exception {"invalid authority"};
+        if (sub.data () == nullptr) return {};
+        return encoding::percent::decode (sub);
+    }
+
+    maybe<net::IP::address> net::authority::address () const {
+        string_view sub;
+        tao::pegtl::memory_input<> in (*this, "ip_address");
+        if (!tao::pegtl::parse<pegtl::authority_whole, read_ip_address_action> (in, sub))
+            throw data::exception {"invalid authority"};
+        if (sub.data () == nullptr) return {};
+        return encoding::percent::decode (sub);
+    }
+
+    maybe<uint16> net::authority::port_number () const {
+        auto zp = this->port ();
+        if (!zp) return {};
+        maybe<uint16> u {0};
+        *u = std::stoi (*zp);
+        return u;
+    }
+
+    maybe<net::IP::TCP::endpoint> net::authority::endpoint () const {
+        maybe<uint16> p = port_number ();
+        maybe<net::IP::address> a = address ();
+        if (!bool (p) || !bool (a)) return {};
+        return net::IP::TCP::endpoint {*a, *p};
+    }
+
 }
 
 namespace data::net::IP {

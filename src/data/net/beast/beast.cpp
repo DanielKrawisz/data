@@ -3,37 +3,45 @@
 
 namespace data::net::HTTP::beast {
 
+    template <typename msg> dispatch<header, ASCII> read_headers (const msg &m) {
+        dispatch<header, ASCII> x;
+        for (const auto &field : m)
+            x <<= entry<header, ASCII> {header {field.name_string ()}, ASCII {field.value ()}};
+        return x;
+    }
+
+    template <typename msg> void write_headers (msg &m, dispatch<header, ASCII> x) {
+        for (const auto &[h, v]: x) m.insert (h, v);
+    }
+
     // convert to beast format
     request to (const HTTP::request &r) {
-        request req (r.Method, r.target ().c_str (), 11);
+        request req (r.Method, r.Target.c_str (), 11);
 
-        req.set (HTTP::header::host, r.URL.domain_name ()->c_str ());
-        req.set (HTTP::header::user_agent, r.UserAgent);
+        write_headers (req, r.Headers);
 
-        for (const auto &header: r.Headers) req.set (header.Key, header.Value);
-
-        req.body () = r.Body;
+        req.body () = string (r.Body);
         req.prepare_payload ();
         return req;
     }
 
-    struct header_already_exists {
-        response Response;
-        header Header;
-        inserted<ASCII> operator () (inserted<ASCII> o, inserted<ASCII> n) const {
-            throw data::exception {} << "HTTP response " << Response << " contains duplicate header " << Header;
-        }
-    };
-
     // note: it is possible for a header to be unknown by boost::beast. In that case it gets deleted. Kind of dumb.
     HTTP::response from (const response &res) {
+        return HTTP::response {res.base ().result (), read_headers (res), res.body ()};
+    }
 
-        map<header, ASCII> response_headers {};
+    HTTP::request from (const request &req) {
+        return HTTP::request {req.method (), data::net::target {req.target ()}, read_headers (req), bytes (string (req.body ()))};
+    }
 
-        for (const auto &field : res) if (field.name () != header::unknown) response_headers = response_headers.insert
-            (field.name (), ASCII {std::string {field.value ()}}, header_already_exists {res, field.name ()});
+    response to (const HTTP::response &r) {
+        response res {r.Status.Status, 11};
 
-        return HTTP::response {res.base ().result (), response_headers, res.body ()};
+        write_headers (res, r.Headers);
+
+        res.body () = string (r.Body);
+        res.prepare_payload ();
+        return res;
     }
 
 }

@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/net/beast/beast.hpp>
+#include <data/io/exception.hpp>
 #include <boost/asio/ssl/error.hpp>
 #include <boost/asio/ssl/stream.hpp>
 #include <boost/asio/strand.hpp>
@@ -18,258 +19,211 @@ namespace data::net::HTTP {
         return o << "HTTP response {status: " << r.Status << ", headers: " << r.Headers << ", body: " << r.Body << "}";
     }
 
+    list<ASCII> get_headers (dispatch<header, ASCII> x, header n) {
+        list<ASCII> z;
+        for (const auto &[h, v] : x) if (h == n) z <<= v;
+        return z;
+    }
+
+    ASCII write_content_type (content::type x) {
+        switch (x) {
+            case content::text_plain: return "text/plain";
+            case content::text_html: return "text/html";
+            case content::application_json: return "application/json";
+            case content::application_x_www_form_urlencoded: return "application/x-www-form-urlencoded";
+            case content::multipart_form_data: return "multipart/form-data";
+            case content::application_octet_stream: return "application/octet-stream";
+            case content::application_xml: return "application/xml";
+            case content::application_javascript: return "application/javascript";
+            case content::image_png: return "image/png";
+            case content::image_jpeg: return "image/jpeg";
+            default: throw data::exception {} << "unknown content type";
+        }
+    }
+
+    content::content (content::type x): ASCII {write_content_type (x)} {}
+
+    request::make::operator request () const {
+        if (!bool (Method)) throw data::exception {} << "Method is not set";
+        if (!bool (Path)) throw data::exception {} << "Path is not set";
+        if (!bool (Body)) {
+            for (auto &[h, setting] : Headers) if (h == header::content_type) goto content_type_set;
+            throw data::exception {} << "there is a body but content-type is not set";
+        }
+        content_type_set:
+
+        {
+            for (auto &[h, setting] : Headers) if (h == header::host) goto host_set;
+            throw data::exception {} << "there is a body but content-type is not set";
+        }
+        host_set:
+
+        std::stringstream target_stream;
+        target_stream << *Path;
+        if (bool (Query)) target_stream << "?" << *Query;
+        if (bool (Fragment)) target_stream << "#" << *Fragment;
+
+        return request {*Method, net::target {target_stream.str ()}, Headers, bool (Body) ? *Body : bytes {}};
+
+    }
+
+    maybe<content> request::content_type () const {
+        for (auto [h, val]: Headers) if (h == header::content_type) return content {val};
+        return {};
+    }
+
+    maybe<content> response::content_type () const {
+        for (auto [h, val]: Headers) if (h == header::content_type) return content {val};
+        return {};
+    }
+
+    request::make request::make::method (const HTTP::method &m) const {
+        if (bool (Method)) throw data::exception {"method already set"};
+        auto r = *this;
+        r.Method = m;
+        return r;
+    }
+
+    request::make request::make::path (const net::path &p) const {
+        if (bool (Path)) throw data::exception {"path already set"};
+        auto r = *this;
+        r.Path = encoding::percent::encode (p);
+        return r;
+    }
+
+    request::make request::make::query (const ASCII &p) const {
+        if (bool (Query)) throw data::exception {"query already set"};
+        auto r = *this;
+        r.Query = encoding::percent::encode (p);
+        return r;
+    }
+
+    request::make request::make::fragment (const UTF8 &p) const {
+        if (bool (Query)) throw data::exception {"query already set"};
+        auto r = *this;
+        r.Query = encoding::percent::encode (p);
+        return r;
+    }
+
+    request::make request::make::add_headers (dispatch<HTTP::header, ASCII> h) const {
+        auto r = *this;
+        r.Headers = r.Headers + h;
+        return r;
+    }
+
+    request::make request::make::body (const bytes &b, const content &content_type) const {
+        if (bool (Body)) throw data::exception {"body is already set"};
+
+        auto r = add_headers ({entry<header, ASCII> {header::content_type, content_type}});
+
+        r.Body = b;
+        return r;
+    }
+
+    request::make request::make::host (const UTF8 &u) const {
+        return add_headers ({entry<header, ASCII> {header::host, encoding::percent::encode (u)}});
+    }
+
+    request::make request::make::authorization (const ASCII &a) const {
+        return add_headers ({entry<header, ASCII> {header::authorization, a}});
+    }
+
+
 }
 
 namespace data::net::HTTP::beast {
-    template <typename stream, typename base>
-    struct session : public std::enable_shared_from_this<base> {
-        asio::ip::tcp::resolver *Resolver;
-        stream *Stream;
-        asio::error_handler OnError;
-        handler<const HTTP::response &> OnResponse;
-        HTTP::request Request;
+    template <typename stream>
+    awaitable<void> connect (stream &x, const authority &host_or_endpoint, bool use_ssl) {
+        get_lowest_layer (x).expires_after (std::chrono::seconds (30));
 
-        http::response<http::string_body> res_;
-        flat_buffer buffer_; // (Must persist between reads)
+        maybe<IP::TCP::endpoint> maybe_endpoint = host_or_endpoint.endpoint ();
 
-        session (
-            asio::ip::tcp::resolver *rr, stream *ss,
-            asio::error_handler error_handler,
-            handler<const HTTP::response &> response_handler,
-            const HTTP::request &req): Resolver {rr}, Stream {ss}, OnError {error_handler}, OnResponse {response_handler}, Request {req} {}
+        if (bool (maybe_endpoint)) {
+            cross<asio::ip::tcp::endpoint> results {{asio::ip::tcp::endpoint (*maybe_endpoint)}};
 
-        // Start the asynchronous operation
-        void run ();
+            co_await get_lowest_layer (x).async_connect (results, asio::use_awaitable);
+        } else {
+            maybe<domain_name> maybe_host = host_or_endpoint.host ();
 
-        void on_resolve (beast::error_code ec, tcp::resolver::results_type results);
+            if (!bool (maybe_host)) throw data::exception {} << "could not read endpoint or host from " << host_or_endpoint;
 
-        virtual void on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) = 0;
+            maybe<ASCII> maybe_port = host_or_endpoint.port ();
+            ASCII port = bool (maybe_port) ? *maybe_port : bool (use_ssl) ? ASCII {"https"} : ASCII {"HTTP"};
 
-        void on_write (beast::error_code ec, std::size_t bytes_transferred);
+            asio::ip::tcp::resolver resolver {asio::make_strand (co_await asio::this_coro::executor)};
+            auto results = co_await resolver.async_resolve (*maybe_host, port, asio::use_awaitable);
 
-        virtual void on_read (beast::error_code ec, std::size_t bytes_transferred) = 0;
+            co_await get_lowest_layer (x).async_connect (results, asio::use_awaitable);
+        }
+    }
 
-        virtual ~session () {
-            delete Resolver;
-            delete Stream;
+    awaitable<void> handshake (ssl_stream<tcp_stream> &x) {
+        co_await x.async_handshake (asio::ssl::stream_base::client, asio::use_awaitable);
+    }
+
+    template <typename Stream>
+    asio::awaitable<response> send_http_request (Stream &stream, const request &req, flat_buffer &buffer) {
+
+        response res;
+
+        co_await http::async_write (stream, req, asio::use_awaitable);
+        co_await http::async_read (stream, buffer, res, asio::use_awaitable);
+
+        co_return res;
+    }
+
+    template <typename stream>
+    struct session : HTTP::session {
+        stream Stream;
+        flat_buffer Buffer; // (Must persist between reads)
+
+        session (stream &&x): Stream {std::move (x)} {}
+
+        awaitable<void> start (const authority &host_or_endpoint);
+
+        virtual bool is_open () final override {
+            return get_lowest_layer (Stream).socket ().is_open ();
+        }
+
+        virtual void close () final override {
+            boost::system::error_code ec;
+            get_lowest_layer (Stream).socket ().shutdown (boost::asio::ip::tcp::socket::shutdown_both, ec);
+            get_lowest_layer (Stream).socket ().close (ec);
+        }
+
+        virtual awaitable<HTTP::response> request (const HTTP::request &req) final override {
+            co_return from (co_await send_http_request (Stream, to (req), Buffer));
         }
 
     };
 
-    // Objects are constructed with a strand to
-    // ensure that handlers do not execute concurrently.
-    struct http_session final : session<tcp_stream, http_session> {
-        http_session (
-            exec ex,
-            asio::error_handler error_handler,
-            handler<const HTTP::response &> response_handler,
-            const HTTP::request &req) :
-            session<tcp_stream, http_session> {
-                new asio::ip::tcp::resolver {net::make_strand (ex)},
-                new tcp_stream {net::make_strand (ex)},
-                error_handler, response_handler, req} {}
-
-        void on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) final override;
-        void on_read (beast::error_code ec, std::size_t bytes_transferred) final override;
-    };
-
-    struct https_session final : session<ssl_stream<tcp_stream>, https_session> {
-        https_session (
-            exec ex, SSL &ssl,
-            asio::error_handler error_handler,
-            handler<const HTTP::response &> response_handler,
-            const HTTP::request &req) :
-            session<ssl_stream<tcp_stream>, https_session> {
-                new asio::ip::tcp::resolver {net::make_strand (ex)},
-                new ssl_stream<tcp_stream> {net::make_strand (ex), ssl},
-                error_handler, response_handler, req} {
-
-            auto host = Request.URL.domain_name ();
-            if (!bool (host)) return;
-
-            // Set SNI Hostname (many hosts need this to handshake successfully)
-            if (!SSL_set_tlsext_host_name (Stream->native_handle (), host->c_str ())) {
-                beast::error_code ec {static_cast<int> (::ERR_get_error ()), net::error::get_ssl_category ()};
-                std::cerr << ec.message () << "\n";
-                return;
-            }
-        }
-
-        void on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) final override;
-        void on_handshake (beast::error_code ec);
-        void on_read (beast::error_code ec, std::size_t bytes_transferred) final override;
-        void on_shutdown (beast::error_code ec);
-    };
-
-    // Start the asynchronous operation
-    template <typename stream, typename base>
-    void session<stream, base>::run () {
-        auto host = Request.URL.domain_name ();
-        auto endpoint = Request.URL.endpoint ();
-
-        if (bool (host)) { // if we have a host, use the resolver
-            // Look up the domain name
-            Resolver->async_resolve (host->c_str (), Request.URL.port_DNS ().c_str (),
-                beast::bind_front_handler (&session::on_resolve, this->shared_from_this ()));
-        } else {           // otherwise just call directly.
-            // Set a timeout on the operation
-            get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
-
-            // Make the connection on the IP address we get from a lookup
-            get_lowest_layer (*Stream).async_connect (cross<asio::ip::tcp::endpoint> {{asio::ip::tcp::endpoint (*endpoint)}},
-                beast::bind_front_handler (&session::on_connect, this->shared_from_this ()));
-        }
+    template <> awaitable<void> session<tcp_stream>::start (const authority &host_or_endpoint) {
+        co_await connect (Stream, host_or_endpoint, false);
     }
 
-    template <typename stream, typename base>
-    void session<stream, base>::on_resolve (beast::error_code ec, tcp::resolver::results_type results) {
-        if (ec) return OnError (ec);
-
-        // Set a timeout on the operation
-        get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
-
-        // Make the connection on the IP address we get from a lookup
-        get_lowest_layer (*Stream).async_connect (results, beast::bind_front_handler (&session::on_connect, this->shared_from_this ()));
-    }
-
-    template <typename stream, typename base>
-    void session<stream, base>::on_write (beast::error_code ec, std::size_t bytes_transferred) {
-        boost::ignore_unused (bytes_transferred);
-
-        if (ec) return this->OnError (ec);
-
-        // Receive the HTTP response
-        http::async_read (*Stream, buffer_, res_, beast::bind_front_handler (&session::on_read, this->shared_from_this ()));
-    }
-
-    void http_session::on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) {
-        if (ec) return this->OnError (ec);
-
-        // Set a timeout on the operation
-        get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
-
-        // Send the HTTP request to the remote host
-        http::async_write (*Stream, to (Request), beast::bind_front_handler (&session::on_write, this->shared_from_this ()));
-    }
-
-    void https_session::on_connect (beast::error_code ec, tcp::resolver::results_type::endpoint_type) {
-        if (ec) return this->OnError (ec);
-
-        // Perform the SSL handshake
-        Stream->async_handshake (ssl::stream_base::client, beast::bind_front_handler (&https_session::on_handshake, this->shared_from_this ()));
-    }
-
-    void https_session::on_handshake (beast::error_code ec) {
-        if (ec) return this->OnError (ec);
-
-        // Set a timeout on the operation
-        get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
-
-        // Send the HTTP request to the remote host
-        http::async_write (*Stream, to (Request), beast::bind_front_handler (&session::on_write, this->shared_from_this ()));
-    }
-
-    void http_session::on_read (beast::error_code ec, std::size_t bytes_transferred) {
-        boost::ignore_unused (bytes_transferred);
-
-        if (ec) return this->OnError (ec);
-
-        // return the message
-        OnResponse (from (res_));
-
-        // Gracefully close the socket
-        get_lowest_layer (*Stream).socket ().shutdown (tcp::socket::shutdown_both, ec);
-
-        // not_connected happens sometimes so don't bother reporting it.
-        if (ec && ec != beast::errc::not_connected)
-            return OnError (ec);
-
-        // If we get here then the connection is closed gracefully
-    }
-
-    void https_session::on_read (beast::error_code ec, std::size_t bytes_transferred) {
-        boost::ignore_unused (bytes_transferred);
-
-        if (ec) return this->OnError (ec);
-
-        // return the message
-        OnResponse (from (res_));
-
-        // Set a timeout on the operation
-        get_lowest_layer (*Stream).expires_after (std::chrono::seconds (30));
-
-        // Gracefully close the stream
-        Stream->async_shutdown (beast::bind_front_handler (&https_session::on_shutdown, this->shared_from_this ()));
-
-    }
-
-    void https_session::on_shutdown (beast::error_code ec) {
-        if (ec == net::error::eof) {
-            // Rationale:
-            // http://stackoverflow.com/questions/25587403/boost-asio-ssl-async-shutdown-always-finishes-with-an-error
-            ec = {};
-        }
-
-        if (ec) return this->OnError (ec);
-
-        // If we get here then the connection is closed gracefully
+    template <> awaitable<void> session<ssl_stream<tcp_stream>>::start (const authority &host_or_endpoint) {
+        co_await connect (Stream, host_or_endpoint, true);
+        co_await handshake (Stream);
     }
 }
 
 namespace data::net::HTTP {
 
     // async HTTP call
-    void call (exec ex, asio::error_handler err, handler<const response &> on_response, const request &req, SSL *ssl) {
+    awaitable<ptr<session>> connect (version v, const authority &host_or_endpoint, SSL *ssl) {
+        if (v != version_1_1) throw data::exception {} << "Only version 1.1 supported.";
 
-        // first we check that the protocol is valid.
-        auto proto = req.URL.protocol ();
-
-        if (!req.valid ()) throw data::exception {} << "Invalid protocol " << proto << "; expected HTTP or HTTPS";
-
-        bool https = proto == protocol::HTTPS;
-
-        if (https && ssl == nullptr) throw data::exception {"https call with no ssl context provided"};
-
-        // next we check on whether we need to use DNS.
-        if (!bool (req.URL.domain_name ()) && ! bool (req.URL.endpoint ()))
-            throw data::exception {"Neither tcp endpoint nor host can be reconstructed from the URL"};
-
-        if (https) std::make_shared<beast::https_session> (ex, *ssl, err, on_response, req)->run ();
-        else std::make_shared<beast::http_session> (ex, err, on_response, req)->run ();
-    }
-
-    awaitable<response> call_once (const request &req, SSL *ssl) {
-        // Get the executor from this coroutine (needed for handler to resume)
-        exec ex = co_await asio::this_coro::executor;
-
-        co_return co_await asio::async_initiate<decltype (asio::use_awaitable), void (response)> (
-            [&req, ssl, ex] (auto &&handler) {
-                call (ex, [&handler] (asio::error err) {
-                    throw data::exception {} << "network error " << err;
-                }, [&handler] (const response &r) {
-                    handler (r);
-                }, req, ssl);
-            },
-            // this tells Boost we're using coroutines
-            asio::use_awaitable);
-    }
-
-    awaitable<response> call (const request &r, SSL *ssl, uint32 redirects) {
-        request req = r;
-        response res;
-        // keep trying with more redirects
-        for (uint32 redirect = 0; redirect < redirects; redirect++) {
-            res = co_await call_once (req, ssl);
-
-            if (static_cast<unsigned int> (res.Status) < 300 || static_cast<unsigned int> (res.Status) >= 400) co_return res;
-
-            URL u (res.Headers [boost::beast::http::field::location]);
-            if (!u.valid ()) throw exception {req, res, "could not read redirect URL"};
-            req.URL = u;
+        if (bool (ssl)) {
+            auto z = new beast::session<beast::ssl_stream<beast::tcp_stream>>
+                {std::move (beast::ssl_stream<beast::tcp_stream> {beast::net::make_strand (co_await asio::this_coro::executor), *ssl})};
+            co_await z->start (host_or_endpoint);
+            co_return ptr<session> {static_cast<session *> (z)};
+        } else {
+            auto z = new beast::session<beast::tcp_stream>
+                {std::move (beast::tcp_stream {beast::net::make_strand (co_await asio::this_coro::executor)})};
+            co_await z->start (host_or_endpoint);
+            co_return ptr<session> {static_cast<session *> (z)};
         }
-
-        throw exception {req, res, "too many redirects"};
-
     }
 
 }

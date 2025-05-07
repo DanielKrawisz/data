@@ -6,7 +6,7 @@
 
 namespace data::net::HTTP {
         
-    string REST::encode_form_data (map<ASCII, ASCII> form_data) {
+    UTF8 REST::encode_form_data (list<entry<UTF8, UTF8>> form_data) {
         std::stringstream newBody;
 
         auto it = form_data.begin ();
@@ -26,13 +26,9 @@ namespace data::net::HTTP {
         return newBody.str ();
     }
 
-    HTTP::request REST::operator () (const request &r) const {
-        auto make_url = URL::make {}.protocol (Protocol).domain_name (Host).path (Path + r.Path);
-        if (bool (r.Query)) make_url = make_url.query_map (*r.Query);
-        if (bool (r.Fragment)) make_url = make_url.fragment (*r.Fragment);
-        if (bool (Port)) make_url = make_url.port (*Port);
-        return HTTP::request {r.Method, URL (make_url),
-            bool (Authorization) ? r.Headers.insert (header::authorization, *Authorization): r.Headers,
-            r.Body};
+    HTTP::request::make REST::operator () (const HTTP::request::make &r) const {
+        auto rr = r.host (Host);
+        if (bool (Authorization)) rr = rr.authorization (*Authorization);
+        return rr;
     }
 }
