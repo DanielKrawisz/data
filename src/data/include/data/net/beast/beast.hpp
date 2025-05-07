@@ -19,15 +19,14 @@ namespace data::net::HTTP::beast {
     using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
     namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 
-    using request = boost::beast::http::request<boost::beast::http::string_body>;
-    using response = boost::beast::http::response<boost::beast::http::string_body>;
+    using request = http::request<http::string_body>;
+    using response = http::response<http::string_body>;
 
     // convert to beast format
     request to (const HTTP::request &r);
 
     response to (const HTTP::response &r);
 
-    // note: it is possible for a header to be known by boost::beast. In that case it gets deleted. Kind of dumb.
     HTTP::response from (const response &res);
 
     HTTP::request from (const request &);
