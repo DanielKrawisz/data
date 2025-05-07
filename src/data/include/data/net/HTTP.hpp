@@ -14,8 +14,8 @@
 #include <data/tools.hpp>
 #include <data/cross.hpp>
 #include <data/net/asio/session.hpp>
+#include <data/net/JSON.hpp>
 #include <data/net/URL.hpp>
-#include <map>
 
 namespace data::net::HTTP {
 
@@ -30,17 +30,13 @@ namespace data::net::HTTP {
 
     using SSL = asio::ssl::context;
 
-    // make an HTTP call (blocking).
-    awaitable<response> call (const request &, SSL * = nullptr, uint32 redirects = 10);
-
-    // async HTTP call
-    // Once this is done, call run () on the io_context to actually make the HTTP call and handle the response.
-    void call (exec, asio::error_handler, handler<const response &>, const request &, SSL * = nullptr);
-
     struct header : ASCII {
         using enum boost::beast::http::field;
         using ASCII::ASCII;
         header (boost::beast::http::field);
+        bool operator == (boost::beast::http::field x) const {
+            return *this == header {x};
+        }
     };
 
     using method = boost::beast::http::verb;
@@ -58,35 +54,134 @@ namespace data::net::HTTP {
 
     std::ostream &operator << (std::ostream &, status);
 
+    // the body of an HTTP request must correspond to a
+    // content-type header field that explains how to
+    // interpret it. This is a general type for content
+    // that includes common use cases as an enum.
+    struct content : ASCII {
+        enum type {
+            // Plain UTF-8 text.
+            text_plain,
+
+            // HTML markup.
+            text_html,
+
+            // JSON-encoded data (e.g., {"name": "Alice"}).
+            application_json,
+
+            // URL-encoded key-value pairs like key1=value1&key2=value2.
+            application_x_www_form_urlencoded,
+
+            // Used for file uploads; body is split by boundary strings.
+            multipart_form_data,
+
+            // Raw binary data (e.g., file content).
+            application_octet_stream,
+
+            // XML content.
+            application_xml,
+
+            // Raw JavaScript code (rare in requests, common in responses).
+            application_javascript,
+
+            image_png,
+
+            image_jpeg,
+
+            something_else
+        };
+
+        using ASCII::ASCII;
+        content (type);
+    };
+
     struct request {
         method Method;
-        net::URL URL;
-        map<header, ASCII> Headers;
-        string Body;
-        string UserAgent;
 
-        request (
-            method method,
-            net::URL url,
-            map<header, ASCII> headers = {},
-            string body = {},
-            string user_agent = BOOST_BEAST_VERSION_STRING) :
-            Method {method}, URL {url}, Headers {headers}, Body {body}, UserAgent {user_agent} {}
+        // the remaining part of the url starting with the path.
+        net::target Target;
 
+        // additional headers.
+        dispatch<header, ASCII> Headers;
+
+        bytes Body;
+
+        struct make {
+            operator request () const;
+
+            make () {}
+
+            make method (const HTTP::method &) const;
+            make target (const target &) const;
+            make path (const net::path &) const;
+            make query (const ASCII &) const;
+            make fragment (const UTF8 &) const;
+            make host (const UTF8 &) const;
+            make user_agent (const ASCII &) const;
+            make authorization (const ASCII &) const;
+
+            make body (const bytes &, const content &content_type = "application/octet-stream") const;
+
+            make body (const JSON &j) const {
+                return body (bytes (string {j.dump ()}), "application/json");
+            }
+
+            make body (const std::string &u) const {
+                return body (bytes (string (u)), "text/plain");
+            }
+
+            make add_headers (dispatch<HTTP::header, ASCII>) const;
+
+        private:
+            using pctstr = encoding::percent::string;
+
+            maybe<HTTP::method> Method;
+
+            maybe<pctstr> Path {};
+            maybe<pctstr> Query {};
+            maybe<pctstr> Fragment {};
+
+            dispatch<HTTP::header, ASCII> Headers;
+
+            maybe<bytes> Body;
+        };
+
+        // host is required.
         bool valid () const;
-        ASCII target () const;
+
+        domain_name host () const;
+
+        maybe<content> content_type () const;
 
     };
 
     struct response {
         status Status {0};
-        map<header, ASCII> Headers {};
+        dispatch<header, ASCII> Headers {};
         string Body {};
 
         response () {}
-        response (status x, map<header, ASCII> headers, string body = ""):
+        response (status x, dispatch<header, ASCII> headers, string body = ""):
             Status {x}, Headers {headers}, Body {body} {}
+
+        maybe<content> content_type () const;
     };
+
+    struct session {
+        virtual bool is_open () = 0;
+        virtual void close () = 0;
+        virtual awaitable<response> request (const HTTP::request &) = 0;
+        virtual ~session () {}
+    };
+
+    enum version {
+        version_1_1,
+        version_2,
+        version_3
+    };
+
+    // we only support 1.1 now.
+    awaitable<ptr<session>> connect (version, const authority &host_or_endpoint, SSL * = nullptr);
 
     struct exception : std::exception {
         request Request;
@@ -103,15 +198,6 @@ namespace data::net::HTTP {
             return Error.c_str ();
         }
     };
-
-    bool inline request::valid () const {
-        auto proto = URL.protocol ();
-        return proto == protocol::HTTP || proto == protocol::HTTPS;
-    }
-
-    ASCII inline request::target () const {
-        return ASCII {encoding::percent::URI::target (URL)};
-    }
 
     inline status::status (boost::beast::http::status x) : Status {x} {}
 

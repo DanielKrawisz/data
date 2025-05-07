@@ -7,21 +7,13 @@
 namespace data::net::HTTP {
 
     awaitable<response> client::operator () (const request &r) {
+        if (Session.get () == nullptr || !Session->is_open ())
+            Session = co_await connect (version_1_1, REST.Host, SSL.get ());
+
         std::chrono::milliseconds wait = Rate.get_time ();
         if (wait != std::chrono::milliseconds {0}) co_await sleep (wait);
-        co_return co_await HTTP::call (r, SSL.get ());
+        co_return co_await Session->request (r);
     }
-
-    void client::operator () (exec ex, asio::error_handler err, handler<const response &> hr, request r) {
-        std::chrono::milliseconds wait = Rate.get_time ();
-        if (wait == std::chrono::milliseconds {0}) HTTP::call (ex, err, hr, r, SSL.get ());
-        auto timer = std::make_shared<boost::asio::steady_timer> (ex, wait);
-        timer->async_wait ([timer, ex, err, hr, r, ssl = SSL](const boost::system::error_code &ec) {
-            if (!ec) call (ex, err, hr, r, ssl.get ());
-            err (ec);
-        });
-    }
-
 
 }
 

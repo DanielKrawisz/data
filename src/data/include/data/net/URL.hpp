@@ -53,6 +53,20 @@ namespace data::net {
 
     bool operator == (const path &, const path &);
 
+    // the path all the way to the end.
+    struct target;
+
+    std::ostream &operator << (std::ostream &, const target &);
+
+    bool operator == (const target &, const target &);
+
+    // the authority is the domain name or an IP address, possibly with port included.
+    struct authority;
+
+    std::ostream &operator << (std::ostream &, const authority &);
+
+    bool operator == (const authority &, const authority &);
+
 }
 
 namespace data::net::IP {
@@ -105,6 +119,8 @@ namespace data::net {
         static protocol encode (name);
     };
 
+    // port is a uint16 that may be in a url, but it may be inferred from the protocol.
+    // sometimes people call the protocol the port.
     struct port : ASCII {
         static constexpr auto pattern = ctll::fixed_string {R"([0-9]*)"};
         //using ASCII::ASCII;
@@ -121,6 +137,26 @@ namespace data::net {
 
         static bool valid (string_view);
         bool valid () const;
+    };
+
+    struct authority : UTF8 {
+        using UTF8::UTF8;
+
+        authority (const domain_name &d);
+        authority (const IP::address &ad);
+
+        authority (const domain_name &d, uint16 port);
+        authority (const IP::address &ad, uint16 port);
+
+        maybe<IP::address> address () const;
+        maybe<IP::TCP::endpoint> endpoint () const;
+        maybe<UTF8> host () const;
+        maybe<ASCII> port () const;
+        maybe<uint16> port_number () const;
+
+        static bool valid (string_view);
+        bool valid () const;
+
     };
 }
 
@@ -234,6 +270,7 @@ namespace data::encoding::percent {
         maybe<data::UTF8> host () const;
         maybe<data::ASCII> port () const;
         maybe<data::UTF8> authority () const;
+        net::target target () const;
         net::path path () const;
         maybe<data::ASCII> query () const; // the part after ? and before #
         maybe<data::UTF8> fragment () const; // the part after the #
@@ -253,6 +290,32 @@ namespace data::encoding::percent {
         URI normalize () const;
 
     };
+    /* funny mnemonic to remember which parts of a URL can be percent encoded.
+
+        "Ugly Hippos Push Strange Quests, Possibly Even Frightening Frilly Unicorns!" 🦄
+
+        Each word stands for a part of a URL:
+
+        Ugly → Userinfo (username:password@)
+
+        Hippos → Host (only percent-encoded for IPv6 literals in some contexts — usually not encoded)
+
+        Push → Path
+
+        Strange → Search (query string)
+
+        Quests → Query (alt word for search—helps reinforce)
+
+        Possibly → Port (rarely encoded; mostly numeric, but technically valid)
+
+        Even → Encoded path segments
+
+        Frightening → Fragment
+
+        Frilly → (for double “F” mnemonic)
+
+        Unicorns → (Unifying idea — "URLs are weird but lovable")
+    */
 
 }
 
@@ -276,7 +339,7 @@ namespace data::net {
         maybe<IP::address> address () const;
 
         // attempt to get query as a map of key pairs in the form <key>=<value>&...
-        maybe<list<entry<UTF8, UTF8>>> query_map () const;
+        maybe<dispatch<UTF8, UTF8>> query_map () const;
 
         // get user info as <username>:<password>.
         // (This is insecure but supported because we sometimes still use it anyway)
@@ -313,11 +376,12 @@ namespace data::net {
             // insecure
             make user_name_pass (const UTF8 &username, const UTF8 &pass) const;
 
-            make authority (const ASCII &) const;
+            make authority (const UTF8 &) const;
 
             make path (const net::path &) const;
+            make target (const net::target &) const;
 
-            make query_map (list<entry<UTF8, UTF8>>) const;
+            make query_map (dispatch<UTF8, UTF8>) const;
             make query (const ASCII &) const;
 
             make fragment (const UTF8 &) const;
@@ -341,11 +405,32 @@ namespace data::net {
         make read () const;
     };
 
+    // path must be a percent encoded string because
+    // since percent encoding is optional, it is possible
+    // that a delimeter character is percent encoded,
+    // which would change structure of the path if it
+    // were decoded.
     struct path : encoding::percent::string {
         using encoding::percent::string::string;
-        path (const encoding::percent::string &x) : encoding::percent::string {x} {}
         path (list<UTF8>, char delim = '/');
         list<UTF8> read (char delim = '/') const;
+
+        static bool valid (string_view);
+        bool valid () const;
+    };
+
+    // same with target, which includes path.
+    struct target : encoding::percent::string {
+        using encoding::percent::string::string;
+
+        net::path path () const;
+
+        maybe<ASCII> query () const; // the part after ? and before #
+        maybe<UTF8> fragment () const; // the part after the #
+
+        static bool valid (string_view);
+        bool valid () const;
+
     };
 }
 
@@ -410,6 +495,14 @@ namespace data::net {
         return o << static_cast<string> (x);
     }
 
+    std::ostream inline &operator << (std::ostream &o, const authority &x) {
+        return o << static_cast<string> (x);
+    }
+
+    std::ostream inline &operator << (std::ostream &o, const target &x) {
+        return o << static_cast<string> (x);
+    }
+
     bool inline net::protocol::valid () const {
         return ctre::match<pattern> (*this);
     }
@@ -458,6 +551,24 @@ namespace data::net {
 
     bool inline domain_name::valid () const {
         return valid (*this);
+    }
+
+    inline authority::authority (const domain_name &d): UTF8 {d} {}
+    inline authority::authority (const IP::address &ad): UTF8 {ad} {}
+
+    inline authority::authority (const domain_name &d, uint16 port): UTF8 {std::string {d} + ":" + net::port {port}} {}
+    inline authority::authority (const IP::address &ad, uint16 port): UTF8 {std::string {ad} + ":" + net::port {port}} {}
+
+    bool inline path::valid () const {
+        return valid (*this);
+    }
+
+    bool inline target::valid () const {
+        return valid (*this);
+    }
+
+    bool inline authority::valid () const {
+        return valid (encoding::percent::encode (*this));
     }
 }
 
@@ -522,8 +633,8 @@ namespace data::encoding::percent {
 }
 
 namespace data::net::IP::TCP {
-    inline endpoint::endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
 
+    inline endpoint::endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
     inline endpoint::endpoint (const char *x) : URL {x} {}
     inline endpoint::endpoint (const std::string &x) : URL {x} {}
 

@@ -62,6 +62,8 @@ namespace data {
     
     // ordered_list. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
+
+    template <typename K, typename V> using dispatch = list<entry<K, V>>;
     
     // Take a function fun and some lists {x, ...}, {y, ...}, {z, ...} ... and return {f (x, y, z, ...), ...}
     template <typename f, sequence... Vals, typename f_result = decltype (std::declval<f> () (data::first (std::declval<Vals> ())...))>

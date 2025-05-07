@@ -8,93 +8,54 @@
 #include <data/net/HTTP.hpp>
 
 namespace data::net::HTTP {
+
     // REST is for converting typical REST API formats into a regular HTTP request.
     struct REST {
+        using form = dispatch<UTF8, UTF8>;
         
         // a typical GET request
-        HTTP::request GET (path path) const;
-        HTTP::request GET (path path, list<entry<UTF8, UTF8>> params) const;
+        HTTP::request::make GET (path path) const;
+        HTTP::request::make GET (path path, form params) const;
         
         // POST form data
-        HTTP::request POST (path path, map<ASCII, ASCII> params = {}) const;
-        
-        // construct a more general POST request
-        HTTP::request POST (path path, map<header, ASCII> headers, string body) const;
+        HTTP::request::make POST (path path, form params = {}) const;
 
-        REST (const protocol &, const domain_name &);
-        REST (const protocol &, const domain_name &, uint16 port);
-        REST (const protocol &, const domain_name &, const path &);
-        REST (const protocol &, const domain_name &, const path &, uint16 port);
+        REST (const ASCII &);
+        REST (const ASCII &, const path &);
 
-        // http or https
-        protocol Protocol;
-        domain_name Host;
+        // a host is either a domain name or an IP address.
+        ASCII Host;
+
         // the part of the path that is common to the whole API.
         path Path;
-        maybe<uint16> Port;
+
         // if this is present, it will be put in the Authorization header.
         maybe<ASCII> Authorization;
 
-        // an HTTP request without host and port missing that can be used to
-        // construct any other kind of request. 
-        struct request {
-            // normally GET or POST but HTTP has many other methods defined for it.
-            method Method;
+        HTTP::request::make operator () (const HTTP::request::make &r) const;
 
-            // The part of the URL after the host but before '?'
-            path Path;
-
-            // The part after '?' and before '#'
-            maybe<list<entry<UTF8, UTF8>>> Query;
-
-            // the part after '#'
-            maybe<data::UTF8> Fragment;
-            map<header, ASCII> Headers;
-            string Body;
-
-            request (method m, path p,
-                maybe<list<entry<UTF8, UTF8>>> q = {},
-                maybe<data::UTF8> frag = {},
-                map<header, ASCII> h = {},
-                string body = ""): Method {m}, Path {p}, Query {q}, Fragment {frag}, Headers {h}, Body {body} {}
-        };
-        
-        HTTP::request operator () (const request &r) const;
-
-        static string encode_form_data (map<ASCII, ASCII> form_data);
+        static UTF8 encode_form_data (form form_data);
         
     };
     
-    HTTP::request inline REST::GET (path path) const {
-        return operator () (REST::request {method::get, path});
+    HTTP::request::make inline REST::GET (path path) const {
+        return operator () (HTTP::request::make {}.method (method::get).path (Path + path));
     }
     
-    HTTP::request inline REST::GET (path path, list<entry<UTF8, UTF8>> params) const {
-        return operator () (REST::request {method::get, path, params});
-    }
-    
-    // construct a more general POST request
-    HTTP::request inline REST::POST (path path, map<header, ASCII> headers, string body) const {
-        return operator () (REST::request {method::post, path, {}, {}, headers, body});
+    HTTP::request::make inline REST::GET (path path, dispatch<UTF8, UTF8> params) const {
+        return operator () (HTTP::request::make {}.method (method::get).path (Path + path).query (encode_form_data (params)));
     }
 
-    HTTP::request inline REST::POST (path path, map<ASCII, ASCII> params) const {
-        return operator () (REST::request {method::post, path, {}, {},
-            {{header::content_type, "application/x-www-form-urlencoded"}},
-              encode_form_data (params)});
+    HTTP::request::make inline REST::POST (path path, dispatch<UTF8, UTF8> params) const {
+        return operator () (HTTP::request::make {}.method (method::post).path (Path + path).body (bytes (encode_form_data (params)),
+            content::application_x_www_form_urlencoded));
     }
 
-    inline REST::REST (const protocol &pro, const domain_name &host):
-        Protocol {pro}, Host {host}, Path {}, Port {} {}
+    inline REST::REST (const ASCII &host):
+        Host {host}, Path {} {}
 
-    inline REST::REST (const protocol &pro, const domain_name &host, uint16 p):
-        Protocol {pro}, Host {host}, Path {}, Port {p} {}
-
-    inline REST::REST (const protocol &pro, const domain_name &host, const path &p):
-        Protocol {pro}, Host {host}, Path {p}, Port {} {}
-
-    inline REST::REST (const protocol &pro, const domain_name &host, const path &p, uint16 port):
-        Protocol {pro}, Host {host}, Path {p}, Port {port} {}
+    inline REST::REST (const ASCII &host, const path &p):
+        Host {host}, Path {p} {}
 
 }
 

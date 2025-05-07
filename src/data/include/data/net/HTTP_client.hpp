@@ -17,22 +17,14 @@ namespace data::net::HTTP {
         client (const HTTP::REST &rest, tools::rate_limiter rate = {});
         client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate = {});
 
-        // async methods
         awaitable<response> operator () (const request &r);
-        awaitable<response> GET (path path, list<entry<UTF8, UTF8>> params = {});
-        awaitable<response> POST (path path, map<header, ASCII> headers, string body);
-        awaitable<response> POST_form_data (path path, map<ASCII, ASCII> form_data = {});
-
-        // handler methods
-        void operator () (exec, asio::error_handler, handler<const response &>, request r);
-        void GET (exec, asio::error_handler, handler<const response &>, path path, list<entry<UTF8, UTF8>> params = {});
-        void POST (exec, asio::error_handler, handler<const response &>, path path, map<header, ASCII> headers, string body);
-        void POST_form_data (exec, asio::error_handler, handler<const response &>, path path, map<ASCII, ASCII> form_data = {});
+        awaitable<response> GET (path path, dispatch<UTF8, UTF8> params = {});
+        awaitable<response> POST (path path, dispatch<UTF8, UTF8> form_data = {});
 
     private:
         ptr<HTTP::SSL> SSL;
-
         tools::rate_limiter Rate;
+        ptr<session> Session;
     };
         
     inline client::client (const HTTP::REST &rest, tools::rate_limiter rate) :
@@ -42,31 +34,15 @@ namespace data::net::HTTP {
         }
 
     inline client::client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
-        REST {rest}, SSL {ssl}, Rate {rate} {}
+        REST {rest}, SSL {ssl}, Rate {rate}, Session {} {}
     
-    awaitable<response> inline client::GET (path path, list<entry<UTF8, UTF8>> params) {
+    awaitable<response> inline client::GET (path path, dispatch<UTF8, UTF8> params) {
         co_return co_await (*this) (REST.GET (path, params));
-    }
-
-    awaitable<response> inline client::POST (path path, map<header, ASCII> headers, string body) {
-        co_return co_await (*this) (REST.POST (path, headers, body));
     }
     
     // POST form data
-    awaitable<response> inline client::POST_form_data (path path, map<ASCII, ASCII> form_data) {
+    awaitable<response> inline client::POST (path path, dispatch<UTF8, UTF8> form_data) {
         co_return co_await (*this) (REST.POST (path, form_data));
-    }
-
-    void inline client::GET (exec e, asio::error_handler err, handler<const response &> rh, path path, list<entry<UTF8, UTF8>> params) {
-        return (*this) (e, err, rh, REST.GET (path, params));
-    }
-
-    void inline client::POST (exec e, asio::error_handler err, handler<const response &> rh, path path, map<header, ASCII> headers, string body) {
-        return (*this) (e, err, rh, REST.POST (path, headers, body));
-    }
-
-    void inline client::POST_form_data (exec e, asio::error_handler err, handler<const response &> rh, path path, map<ASCII, ASCII> form_data) {
-        return (*this) (e, err, rh, REST.POST (path, form_data));
     }
 }
 
