@@ -45,7 +45,7 @@ namespace data {
             return true;
         }
 
-        explicit operator view<X> () const;
+        explicit operator view<unconst<X>> () const;
 
         /// Selects a range from the current slice
         /// \param b range begins from this index inclusive
@@ -94,7 +94,7 @@ namespace data {
         using std::span<X, n>::span;
         slice (X *x): std::span<X, n> {x, n} {}
 
-        constexpr X& operator [] (size_t i) const {
+        constexpr X &operator [] (size_t i) const {
             if (this->size () == 0) throw std::out_of_range {"slice size 0"};
             if (i < 0 || i >= this->size ()) return this->operator [] ((i + this->size ()) % this->size ());
             return this->data ()[i];
@@ -113,7 +113,7 @@ namespace data {
             return slice<X> {this->data (), this->data () + n};
         }
 
-        operator view<X> () const;
+        operator view<unconst<X>> () const;
 
         template <size_t b, size_t e> slice<X, e - b> range () const {
             return slice<X, e - b> {this->data () + b, e - b};
@@ -121,8 +121,8 @@ namespace data {
 
     };
 
-    template <typename X> inline slice<X>::operator view<X> () const {
-        return view<X> {this->data (), this->size () * sizeof (X)};
+    template <typename X> inline slice<X>::operator view<unconst<X>> () const {
+        return view<unconst<X>> {this->data (), this->size () * sizeof (X)};
     }
 
     template <typename X> slice<X>::iterator inline slice<X>::begin () {
@@ -157,8 +157,8 @@ namespace data {
         return std::span<X>::rend ();
     }
 
-    template <typename X, size_t n> inline slice<X, n>::operator view<X> () const {
-        return view<X> {this->data (), n};
+    template <typename X, size_t n> inline slice<X, n>::operator view<unconst<X>> () const {
+        return view<unconst<X>> {this->data (), n};
     }
 
 }
