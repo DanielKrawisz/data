@@ -44,8 +44,8 @@ namespace data {
 
     template <typename X, typename Y> using pair = std::pair<X, Y>;
 
-    template <typename X>
-    using unref = std::remove_reference_t<X>;
+    template <typename X> using unref = std::remove_reference_t<X>;
+    template <typename X> using unconst = std::remove_const_t<X>;
 
     // TODO replace this with something good.
     using random_engine = std::default_random_engine;

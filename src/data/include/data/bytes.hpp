@@ -76,7 +76,9 @@ namespace data {
     template <std::integral word, size_t size> struct bytes_array<word, size> : public array<word, size> {
         using array<word, size>::array;
 
-        constexpr bytes_array (slice<const word, size> v);
+        constexpr bytes_array (slice<const word, size> v) {
+            std::copy (v.begin (), v.end (), this->begin ());
+        }
 
         bytes_array (const hex_string &);
 
