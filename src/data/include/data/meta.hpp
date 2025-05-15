@@ -33,24 +33,24 @@ namespace data {
     namespace meta {
         // avoid copying certain types when we retrieve the
         // value from a data structure.
-        template <typename X> struct retriever {
+        template <typename X> struct retrieve {
             using type = X &;
         };
 
-        template <> struct retriever<void> {
+        template <> struct retrieve<void> {
             using type = void;
         };
 
-        template <typename X> struct retriever<X &> {
+        template <typename X> struct retrieve<X &> {
             using type = X &;
         };
 
-        template <typename X> struct retriever<X *> {
+        template <typename X> struct retrieve<X *> {
             using type = X *;
         };
     }
 
-    template <typename X> using retrieved = meta::retriever<X>::type;
+    template <typename X> using retrieved = meta::retrieve<X>::type;
 
     namespace meta {
         // insert has to do with values that we put into a data structure.
@@ -64,6 +64,10 @@ namespace data {
 
         template <typename X> struct insert<X *> {
             using type = X *;
+        };
+
+        template <std::integral X> struct insert<X> {
+            using type = X;
         };
 
     }
