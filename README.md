@@ -110,3 +110,5 @@ Version 2 will focus on organization and documentation.
   * optimizatons
     * use NTL to hide GMP. 
     * use NTL integer exponentiation. 
+  * numbers
+    * endian numbers should be totally constexpr
