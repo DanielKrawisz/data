@@ -75,23 +75,38 @@ how to use all features.
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1.
-  * documentation. 
-  * new features to be included. 
-    * list works more like Mathematica's List. 
-      * inner
-      * outer
-      * flatten
-      * riffle
-      * partition
-    * minimal polynomials using NTL. 
-    * finite fields. Right now we do prime fields but we need to be able to generate minimal
-      polynomials for arbitrary finite fields. 
-    * elliptic curves using NTL. 
-    * Rabin, ElGamal, and RSA signatures. 
-  * optimizatons
-    * map.remove should use matt.might.net/articles/red-black-delete/
-    * use NTL to hide GMP. 
-    * use NTL integer exponentiation. 
+  * debug/release compilation candidates
+  * Windows
+  * functional RB map remove. 
+  * Polynomial algorithms
+    * minimal polynomials.
+    * irreducible polynomial.
+  * finite fields. Right now we do prime fields but we need to be able to 
+    generate irreducible polynomials for arbitrary finite fields. 
+  * geometry
+    * Affine space using real, complex, and quaternionic numbers.
+    * Euclidian space
+    * Projective space
+    * Hyperbolic space
+    * infinite classes of compact Lie Groups (no exceptionals for now)
+  * More block cipher modes
+  * Stream ciphers, including block cyphers as stream ciphers.
+  * Elliptic curves (SEC and other standard curves)
+  * Rabin, ElGamal, and RSA signatures. 
+  * Async: golang style channel
   * networking
     * websockets
     * run external programs
+    * thread safe (multithreaded async lock)
+    * Arbitrary p2p protocols
+  * list works more like Mathematica's List. 
+    * inner
+    * outer
+    * flatten
+    * riffle
+    * partition
+
+Version 2 will focus on organization and documentation. 
+  * optimizatons
+    * use NTL to hide GMP. 
+    * use NTL integer exponentiation. 

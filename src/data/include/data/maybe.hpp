@@ -22,6 +22,15 @@ namespace data {
         constexpr const retrieved<X> operator * () const {
             return (const retrieved<X>) *static_cast<const std::optional<wrapped<X>> &> (*this);
         }
+
+        constexpr unref<X> *operator -> () {
+            return &*(*this);
+        }
+
+        constexpr const unref<X> *operator -> () const {
+            return &*(*this);
+        }
+
     };
 
     template <> struct maybe<void> {
