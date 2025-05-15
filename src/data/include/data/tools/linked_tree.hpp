@@ -17,7 +17,7 @@ namespace data {
 
         bool empty () const;
         
-        inserted<value> root () const;
+        const retrieved<value> root () const;
 
         linked_tree left () const;
         linked_tree right () const;
@@ -46,7 +46,7 @@ namespace data {
 
         linked_tree for_each (function<value (inserted<value>)> f) const {
             if (empty ()) return *this;
-            inserted<value> r = root ();
+            const retrieved<value> r = root ();
             value mutated = f (r);
             if (mutated != r) return linked_tree {mutated, left ().for_each (f), right ().for_each (f)};
             linked_tree ll = left ();
@@ -74,7 +74,7 @@ namespace data {
     }
     
     template <typename value>
-    inserted<value> inline linked_tree<value>::root () const {
+    const retrieved<value> inline linked_tree<value>::root () const {
         return Node->Value;
     }
     
