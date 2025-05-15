@@ -27,6 +27,7 @@ add_library (data STATIC
   net/TCP.cpp
   net/websocket.cpp
   net/HTTP_client.cpp
+  net/HTTP_server.cpp
   net/email.cpp
 
   #io/run.cpp

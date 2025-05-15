@@ -89,7 +89,7 @@ namespace data::RB {
 
         tree (std::initializer_list<wrapped<V>> x);
 
-        const unref<V> &root () const;
+        const retrieved<V> root () const;
 
         tree left () const;
         tree right () const;
@@ -275,7 +275,7 @@ namespace data::RB {
     }
 
     template <sortable V, functional::buildable_tree<colored<V>> T>
-    const unref<V> inline &tree<V, T>::root () const {
+    const retrieved<V> inline tree<V, T>::root () const {
         return binary_search_tree<colored<V>, T>::root ().Value;
     }
 

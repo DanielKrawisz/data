@@ -10,6 +10,11 @@
 #include <data/net/asio/session.hpp>
 #include <data/net/beast/beast.hpp>
 
+namespace data::net::HTTP::beast {
+    bool is_websocket_upgrade (const request &);
+    awaitable<void> write_websocket_decline (asio::ip::tcp::socket &);
+}
+
 namespace data::net::HTTP {
 
     using request_handler = function<awaitable<response> (const request &)>;
@@ -26,9 +31,15 @@ namespace data::net::HTTP {
 
             // Read an HTTP request from the socket
             awaitable<void> read () {
-                beast::request Request;
-                co_await beast::http::async_read (Socket, Buffer, Request, asio::use_awaitable);
-                co_await handle_request (Request);
+                while (true) {
+                    beast::flat_buffer buff;
+                    beast::request req;
+                    co_await beast::http::async_read (Socket, buff, req, asio::use_awaitable);
+
+                    co_await handle_request (req);
+
+                    if (!req.keep_alive ()) break;
+                }
             }
 
             ~session () {
@@ -40,12 +51,13 @@ namespace data::net::HTTP {
 
             // Apply the request handler to the request and send the response back
             awaitable<void> handle_request (const beast::request req) {
+                if (beast::is_websocket_upgrade (req))
+                    co_await beast::write_websocket_decline (Socket);
                 // Write the response
-                co_await beast::http::async_write (Socket, beast::to (co_await Handler (beast::from (req))), asio::use_awaitable);
+                else co_await beast::http::async_write (Socket, beast::to (co_await Handler (beast::from (req))), asio::use_awaitable);
             }
 
             asio::ip::tcp::socket Socket;
-            boost::beast::flat_buffer Buffer {8192};
             request_handler Handler;
         };
 
