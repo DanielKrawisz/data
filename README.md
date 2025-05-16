@@ -75,7 +75,6 @@ how to use all features.
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1.
-  * debug/release compilation candidates
   * Windows
   * functional RB map remove. 
   * Polynomial algorithms
