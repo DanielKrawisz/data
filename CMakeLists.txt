@@ -93,9 +93,9 @@ endif ()
 # Add Library source files here
 
 if(CMAKE_C_BYTE_ORDER STREQUAL "BIG_ENDIAN")
-  add_compile_definitions(WORDS_BIGENDIAN)
+  add_compile_definitions (WORDS_BIGENDIAN)
 else()
-  add_compile_definitions(WORDS_LITTLEENDIAN)
+  add_compile_definitions (WORDS_LITTLEENDIAN)
 endif ()
 
 include (CheckSymbolExists)
@@ -120,30 +120,42 @@ set (SYMBOLS_TO_CHECK
 )
 
 list (LENGTH SYMBOLS_TO_CHECK L_LENGTH)
-message(${L_LENGTH})
+message (${L_LENGTH})
 
-CHECK_INCLUDE_FILE("endian.h" HAVE_ENDIAN_H)
-CHECK_INCLUDE_FILE("sys/endian.h" HAVE_SYS_ENDIAN_H)
-foreach(SYMBOL_HEADER_PATH ${SYMBOLS_TO_CHECK})
-  string(REPLACE "-" ";" SYMBOL_HEADER_PAIR ${SYMBOL_HEADER_PATH})
-  message(${SYMBOL_HEADER_PAIR})
-  list(GET SYMBOL_HEADER_PAIR 0 SYMBOL)
-  list(GET SYMBOL_HEADER_PAIR 1 HEADER)
-  message("Checking ${SYMBOL} from ${HEADER}")
-  set(SYMBOL_EXISTS_RESULT_VAR "SYMBOL_EXISTS_${SYMBOL}")
-  CHECK_SYMBOL_EXISTS(${SYMBOL} "${HEADER}" ${SYMBOL_EXISTS_RESULT_VAR})
+CHECK_INCLUDE_FILE ("endian.h" HAVE_ENDIAN_H)
+CHECK_INCLUDE_FILE ("sys/endian.h" HAVE_SYS_ENDIAN_H)
+
+foreach (SYMBOL_HEADER_PATH ${SYMBOLS_TO_CHECK})
+  string (REPLACE "-" ";" SYMBOL_HEADER_PAIR ${SYMBOL_HEADER_PATH})
+  message (${SYMBOL_HEADER_PAIR})
+  list (GET SYMBOL_HEADER_PAIR 0 SYMBOL)
+  list (GET SYMBOL_HEADER_PAIR 1 HEADER)
+  message ("Checking ${SYMBOL} from ${HEADER}")
+  set (SYMBOL_EXISTS_RESULT_VAR "SYMBOL_EXISTS_${SYMBOL}")
+  CHECK_SYMBOL_EXISTS (${SYMBOL} "${HEADER}" ${SYMBOL_EXISTS_RESULT_VAR})
 
   if(${SYMBOL_EXISTS_RESULT_VAR})
-    string(TOUPPER ${SYMBOL} SYMBOL_UPPERCASE)
-    add_compile_definitions(HAVE_DECL_${SYMBOL_UPPERCASE})
-  endif()
-endforeach()
+    string (TOUPPER ${SYMBOL} SYMBOL_UPPERCASE)
+    add_compile_definitions (HAVE_DECL_${SYMBOL_UPPERCASE})
+  endif ()
+endforeach ()
 
-if(HAVE_ENDIAN_H)
-  add_compile_definitions(HAVE_ENDIAN_H)
-endif()
-if(HAVE_SYS_ENDIAN_H)
-  add_compile_definitions(HAVE_SYS_ENDIAN_H)
-endif()
+if (HAVE_ENDIAN_H)
+  add_compile_definitions (HAVE_ENDIAN_H)
+endif ()
+if (HAVE_SYS_ENDIAN_H)
+  add_compile_definitions (HAVE_SYS_ENDIAN_H)
+endif ()
 
 add_subdirectory (src bin)
+
+# Default to Debug if no build type is specified
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set (CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif ()
+
+# Optional: Show message
+message (STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+set (CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+set (CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
