@@ -109,6 +109,7 @@ namespace data::math::number {
         static Z_bytes zero (size_t size = 0, bool negative = false);
         
         explicit operator int64 () const;
+        explicit operator size_t () const;
         
         explicit Z_bytes (const Z &);
         explicit operator Z () const;
@@ -1032,10 +1033,10 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word>::operator int64 () const {
-        if (*this > Z_bytes {std::numeric_limits<int64>::max ()}) throw std::invalid_argument {"value too big"};
-        if (*this < Z_bytes {std::numeric_limits<int64>::min ()}) throw std::invalid_argument {"value too small"};
+        if (*this > std::numeric_limits<int64>::max ()) throw std::invalid_argument {"value too big"};
+        if (*this < std::numeric_limits<int64>::min ()) throw std::invalid_argument {"value too small"};
 
-        endian_integral<false, endian::little, 8> xx {0};
+        endian_integral<true, endian::little, 8> xx {0};
         std::copy (this->words ().begin (),
             this->words ().begin () + std::min (static_cast<size_t> (8),
             this->size ()), xx.begin ());
@@ -1047,6 +1048,20 @@ namespace data::math::number {
     Z_bytes<r, negativity::BC, word>::operator int64 () const {
         return int64 (Z_bytes<r, negativity::twos, word> (*this));
     } 
+
+    template <endian::order r, std::unsigned_integral word> inline
+    Z_bytes<r, negativity::BC, word>::operator size_t () const {
+        if (data::is_negative (*this)) throw std::invalid_argument {"negative value"};
+        if (*this > std::numeric_limits<size_t>::max ()) throw std::invalid_argument {"value too big"};
+
+        constexpr const size_t size = sizeof (std::declval<size_t> ());
+
+        endian_integral<false, endian::little, size> xx {0};
+        std::copy (this->words ().begin (),
+            this->words ().begin () + std::min (size, this->size ()), xx.begin ());
+
+        return size_t (xx);
+    }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word>::operator Z_bytes<endian::opposite (r), negativity::twos, word> () const {
