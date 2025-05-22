@@ -33,6 +33,8 @@ namespace data {
 
     };
 
+    static_assert (same_as<decltype (*std::declval<maybe<uint32>> ()), uint32 &>);
+
     template <> struct maybe<void> {
         maybe () = delete;
     };

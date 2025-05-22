@@ -62,14 +62,14 @@ namespace data::math {
 namespace data::encoding::decimal {
 
     inline string::string (const math::N &n) {
-        *this = write (n);
+        *this = decimal::write (n);
     }
 }
 
 namespace data::encoding::signed_decimal {
 
     inline string::string (const math::Z &n) {
-        *this = write (n);
+        *this = signed_decimal::write (n);
     }
 }
 
