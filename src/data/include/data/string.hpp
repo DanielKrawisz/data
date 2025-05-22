@@ -20,6 +20,9 @@ namespace data {
         explicit operator bytes () const;
 
         explicit string (const bytes &);
+
+        template <typename ...X>
+        static string write (X &&...);
     };
 
     string drop (const std::string &, int64 begin);
@@ -80,6 +83,33 @@ namespace data {
     inline string::string (const bytes &x) : data::string {} {
         this->resize (x.size ());
         for (int i = 0; i < x.size (); i++) (*this)[i] = static_cast<char> (x[i]);
+    }
+
+    namespace {
+        template <typename ...X> struct write_string;
+
+        template <> struct write_string<> {
+            write_string (std::ostream &) {}
+        };
+
+        template <typename X> struct write_string<X> {
+            write_string (std::ostream &ss, X &&x) {
+                ss << x;
+            }
+        };
+
+        template <typename X, typename ...Y> struct write_string<X, Y...> {
+            write_string (std::ostream &ss, X &&x, Y &&...y) {
+                write_string<Y...> {ss << x, y...};
+            }
+        };
+    }
+
+    template <typename ...X>
+    string string::write (X &&...x) {
+        std::stringstream ss;
+        write_string<X...> {ss, x...};
+        return ss.str ();
     }
 
 }

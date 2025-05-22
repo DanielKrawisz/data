@@ -19,6 +19,8 @@ namespace data::net::HTTP {
 
     using request_handler = function<awaitable<response> (const request &)>;
 
+
+
     // Accepts incoming connections and creates new session objects to handle them
     class server {
 
@@ -61,29 +63,16 @@ namespace data::net::HTTP {
             request_handler Handler;
         };
 
-        // Accept a new connection and start a new session to handle it
-        awaitable<void> accept () {
-
-            asio::ip::tcp::socket socket = co_await Acceptor.async_accept (asio::use_awaitable);
-            // Spawn a new session to handle the connection
-            co_spawn (
-                Acceptor.get_executor (),
-                     [sock = std::move (socket), Handler = this->Handler] () mutable -> awaitable<void> {
-                         co_await session {std::move (sock), Handler}.read ();
-                         co_return;
-                     },
-                     asio::detached
-            );
-        }
-
         asio::ip::tcp::acceptor Acceptor;
         request_handler Handler;
 
     public:
         // Constructor
-        server (exec ex, asio::ip::tcp::endpoint endpoint, request_handler handler) :
+        server (exec ex, net::IP::TCP::endpoint ep, request_handler handler) :
             Acceptor {ex}, Handler {std::move (handler)} {
+
             asio::error ec;
+            asio::ip::tcp::endpoint endpoint (ep);
 
             // Open the acceptor
             Acceptor.open (endpoint.protocol (), ec);
@@ -98,11 +87,35 @@ namespace data::net::HTTP {
             if (ec) throw std::runtime_error ("Error listening for connections: " + ec.message ());
         }
 
-        // Start accepting connections
-        awaitable<void> run () {
-            while (true) {
-                co_await accept ();
+        void close () {
+            return Acceptor.close ();
+        }
+
+        // Accept a new connection and start a new session to handle it
+        awaitable<bool> accept () {
+            if (!Acceptor.is_open ()) co_return false;
+
+            try {
+                asio::ip::tcp::socket socket = co_await Acceptor.async_accept (asio::use_awaitable);
+
+                auto ex = co_await asio::this_coro::executor;
+                // Spawn a new session to handle the connection
+                co_spawn (ex,
+                    [sock = std::move (socket), Handler = this->Handler] () mutable -> awaitable<void> {
+                        co_await session {std::move (sock), Handler}.read ();
+                        co_return;
+                    },
+                    asio::detached
+                );
+                // yield if single-threaded
+                co_await asio::post (ex, asio::use_awaitable);
+            } catch (const boost::system::system_error &e) {
+                if (e.code () == boost::asio::error::operation_aborted) {
+                    co_return false;  // The acceptor was closed—time to shut down
+                } else throw e;
             }
+
+            co_return true;
         }
 
     };
