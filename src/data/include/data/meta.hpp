@@ -70,6 +70,10 @@ namespace data {
             using type = X;
         };
 
+        template <> struct insert<void> {
+            using type = void;
+        };
+
     }
 
     template <typename X> using inserted = meta::insert<X>::type;

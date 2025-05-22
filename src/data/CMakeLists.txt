@@ -75,20 +75,26 @@ set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 target_compile_options (data PUBLIC "-fconcepts")
 
 include (GNUInstallDirs)
-install (DIRECTORY
-  include/
+
+# copy include directory into install destination
+install (
+  DIRECTORY include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install (TARGETS data nlohmann_json argh rotella milewski gmpxx sv
-  EXPORT DataTargets ARCHIVE
+install (
+  TARGETS data nlohmann_json argh rotella milewski gmpxx sv
+  EXPORT DataTargets
+  ARCHIVE
 )
 
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
+install (
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/data
 )
 
-install (EXPORT DataTargets
+install (
+  EXPORT DataTargets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/data
   FILE dataTargets.cmake
   NAMESPACE Data::
