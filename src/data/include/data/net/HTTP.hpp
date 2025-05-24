@@ -93,6 +93,8 @@ namespace data::net::HTTP {
 
         using ASCII::ASCII;
         content (type);
+
+        bool operator == (type) const;
     };
 
     struct request {
@@ -121,14 +123,8 @@ namespace data::net::HTTP {
             make authorization (const ASCII &) const;
 
             make body (const bytes &, const content &content_type = "application/octet-stream") const;
-
-            make body (const JSON &j) const {
-                return body (bytes (string {j.dump ()}), "application/json");
-            }
-
-            make body (const std::string &u) const {
-                return body (bytes (string (u)), "text/plain");
-            }
+            make body (const JSON &j) const;
+            make body (const std::string &u) const;
 
             make add_headers (dispatch<HTTP::header, ASCII>) const;
 
@@ -215,6 +211,18 @@ namespace data::net::HTTP {
 
     std::ostream inline &operator << (std::ostream &o, status x) {
         return o << x.Status;
+    }
+
+    bool inline content::operator == (type ttt) const {
+        return *this == content {ttt};
+    }
+
+    request::make inline request::make::body (const JSON &j) const {
+        return body (bytes (string {j.dump ()}), "application/json");
+    }
+
+    request::make inline request::make::body (const std::string &u) const {
+        return body (bytes (string (u)), "text/plain");
     }
 
 }
