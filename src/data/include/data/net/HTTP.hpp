@@ -154,10 +154,10 @@ namespace data::net::HTTP {
     struct response {
         status Status {0};
         dispatch<header, ASCII> Headers {};
-        string Body {};
+        bytes Body {};
 
         response () {}
-        response (status x, dispatch<header, ASCII> headers, string body = ""):
+        response (status x, dispatch<header, ASCII> headers = {}, bytes body = {}):
             Status {x}, Headers {headers}, Body {body} {}
 
         maybe<content> content_type () const;
