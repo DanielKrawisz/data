@@ -27,7 +27,7 @@ namespace data::net::HTTP::beast {
 
     // note: it is possible for a header to be unknown by boost::beast. In that case it gets deleted. Kind of dumb.
     HTTP::response from (const response &res) {
-        return HTTP::response {res.base ().result (), read_headers (res), res.body ()};
+        return HTTP::response {res.base ().result (), read_headers (res), bytes (data::string (res.body ()))};
     }
 
     HTTP::request from (const request &req) {
