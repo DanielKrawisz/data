@@ -503,6 +503,10 @@ namespace data::net {
         return o << static_cast<string> (x);
     }
 
+    std::ostream inline &operator << (std::ostream &o, const path &x) {
+        return o << static_cast<string> (x);
+    }
+
     bool inline net::protocol::valid () const {
         return ctre::match<pattern> (*this);
     }
