@@ -89,18 +89,18 @@ namespace data {
         template <typename ...X> struct write_string;
 
         template <> struct write_string<> {
-            write_string (std::ostream &) {}
+            void operator () (std::ostream &) {}
         };
 
         template <typename X> struct write_string<X> {
-            write_string (std::ostream &ss, X &&x) {
+            void operator () (std::ostream &ss, X &&x) {
                 ss << x;
             }
         };
 
         template <typename X, typename ...Y> struct write_string<X, Y...> {
-            write_string (std::ostream &ss, X &&x, Y &&...y) {
-                write_string<Y...> {ss << x, y...};
+            void operator () (std::ostream &ss, X &&x, Y &&...y) {
+                write_string<Y...> {} (ss << x, std::forward<Y> (y)...);
             }
         };
     }
@@ -108,11 +108,10 @@ namespace data {
     template <typename ...X>
     string string::write (X &&...x) {
         std::stringstream ss;
-        write_string<X...> {ss, x...};
+        write_string<X...> {} (ss, std::forward<X> (x)...);
         return ss.str ();
     }
 
 }
 
 #endif
-
