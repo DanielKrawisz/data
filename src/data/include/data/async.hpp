@@ -4,7 +4,7 @@
 
 #ifndef DATA_ASYNC
 #define DATA_ASYNC
-
+#include <iostream>
 #include <functional>
 #include <chrono>
 #include <data/concepts.hpp>
@@ -28,6 +28,16 @@ namespace data {
     }
 
     template <typename X> concept is_awaitable = meta::is_awaitable<X>::value;
+
+    // spawn a coroutine and rethrow all exceptions.
+    template<typename Coroutine>
+    void spawn (exec ex, Coroutine &&coro) {
+        co_spawn (ex,
+            std::forward<Coroutine> (coro),
+            [] (std::exception_ptr eptr) {
+                if (eptr) std::rethrow_exception (eptr);
+            });
+    }
 
     // sync takes an async function and arguments and runs as an ordinary sync function.
     // the first argument can be a callable type or a member function pointer. If it's

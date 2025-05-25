@@ -384,7 +384,7 @@ namespace data::net {
     }
 
     list<UTF8> path::read (char delim) const {
-        if (delim < 32 || delim >= 127 || strchr ("/?#[]", delim) != nullptr)
+        if (delim < 32 || delim >= 127 || strchr ("/?#[]", delim) == nullptr)
             throw exception {} << "invalid path delimiter " << delim;
 
         list<UTF8> x;

@@ -6,6 +6,7 @@
 #define DATA_NET_HTTP_SERVER
 
 #include <stdlib.h>
+#include <data/async.hpp>
 #include <data/net/HTTP.hpp>
 #include <data/net/asio/session.hpp>
 #include <data/net/beast/beast.hpp>
@@ -18,8 +19,6 @@ namespace data::net::HTTP::beast {
 namespace data::net::HTTP {
 
     using request_handler = function<awaitable<response> (const request &)>;
-
-
 
     // Accepts incoming connections and creates new session objects to handle them
     class server {
@@ -100,13 +99,12 @@ namespace data::net::HTTP {
 
                 auto ex = co_await asio::this_coro::executor;
                 // Spawn a new session to handle the connection
-                co_spawn (ex,
+                spawn (ex,
                     [sock = std::move (socket), Handler = this->Handler] () mutable -> awaitable<void> {
                         co_await session {std::move (sock), Handler}.read ();
                         co_return;
-                    },
-                    asio::detached
-                );
+                    });
+
                 // yield if single-threaded
                 co_await asio::post (ex, asio::use_awaitable);
             } catch (const boost::system::system_error &e) {
