@@ -10,6 +10,7 @@
 #include <data/net/HTTP.hpp>
 #include <data/net/asio/session.hpp>
 #include <data/net/beast/beast.hpp>
+#include <unordered_set>
 
 namespace data::net::HTTP::beast {
     bool is_websocket_upgrade (const request &);
@@ -23,33 +24,21 @@ namespace data::net::HTTP {
     // Accepts incoming connections and creates new session objects to handle them
     class server {
 
-        // Handles an HTTP request and sends back an HTTP response
-        class session {
+        class session;
+
+        class sessions {
+
+            std::unordered_set<ptr<session>> Sessions;
+            std::mutex Mtx;
+
         public:
-            // Constructor
-            session (asio::ip::tcp::socket &&socket, request_handler handler) :
-                Socket (std::move (socket)), Handler (std::move (handler)) {}
+            void add (ptr<session>);
+            void remove (ptr<session>);
+            void remove_all ();
+        };
 
-            // Read an HTTP request from the socket
-            awaitable<void> read () {
-                while (true) {
-                    beast::flat_buffer buff;
-                    beast::request req;
-                    co_await beast::http::async_read (Socket, buff, req, asio::use_awaitable);
-
-                    co_await handle_request (req);
-
-                    if (!req.keep_alive ()) break;
-                }
-            }
-
-            ~session () {
-                asio::error ec;
-                Socket.shutdown (asio::ip::tcp::socket::shutdown_send, ec);
-            }
-
-        private:
-
+        // Handles an HTTP request and sends back an HTTP response
+        class session : std::enable_shared_from_this<session> {
             // Apply the request handler to the request and send the response back
             awaitable<void> handle_request (const beast::request req) {
                 if (beast::is_websocket_upgrade (req))
@@ -60,60 +49,48 @@ namespace data::net::HTTP {
 
             asio::ip::tcp::socket Socket;
             request_handler Handler;
+            sessions &Sessions;
+
+            void shutdown () {
+                Sessions.remove (this->shared_from_this ());
+            }
+
+        public:
+            // Constructor
+            session (sessions &x, asio::ip::tcp::socket &&socket, request_handler handler) :
+                Sessions {x}, Socket (std::move (socket)), Handler (std::move (handler)) {}
+
+            // Read an HTTP request from the socket
+            awaitable<void> read ();
+
+            ~session () {
+                Socket.cancel ();
+            }
         };
 
         asio::ip::tcp::acceptor Acceptor;
         request_handler Handler;
 
+        sessions Sessions;
+
     public:
         // Constructor
-        server (exec ex, net::IP::TCP::endpoint ep, request_handler handler) :
-            Acceptor {ex}, Handler {std::move (handler)} {
-
-            asio::error ec;
-            asio::ip::tcp::endpoint endpoint (ep);
-
-            // Open the acceptor
-            Acceptor.open (endpoint.protocol (), ec);
-            if (ec) throw std::runtime_error ("Error opening acceptor: " + ec.message ());
-
-            // Bind to the endpoint
-            Acceptor.bind (endpoint, ec);
-            if (ec) throw std::runtime_error ("Error binding acceptor: " + ec.message ());
-
-            // Start listening for connections
-            Acceptor.listen (asio::socket_base::max_listen_connections, ec);
-            if (ec) throw std::runtime_error ("Error listening for connections: " + ec.message ());
-        }
-
-        void close () {
-            return Acceptor.close ();
-        }
+        server (exec ex, net::IP::TCP::endpoint ep, request_handler handler);
 
         // Accept a new connection and start a new session to handle it
-        awaitable<bool> accept () {
-            if (!Acceptor.is_open ()) co_return false;
+        awaitable<bool> accept ();
 
-            try {
-                asio::ip::tcp::socket socket = co_await Acceptor.async_accept (asio::use_awaitable);
-
-                auto ex = co_await asio::this_coro::executor;
-                // Spawn a new session to handle the connection
-                spawn (ex,
-                    [sock = std::move (socket), Handler = this->Handler] () mutable -> awaitable<void> {
-                        co_await session {std::move (sock), Handler}.read ();
-                        co_return;
-                    });
-
-                // yield if single-threaded
-                co_await asio::post (ex, asio::use_awaitable);
-            } catch (const boost::system::system_error &e) {
-                if (e.code () == boost::asio::error::operation_aborted) {
-                    co_return false;  // The acceptor was closed—time to shut down
-                } else throw e;
+        void close () {
+            if (!Acceptor.is_open ()) {
+                Acceptor.cancel ();
+                Acceptor.close ();
             }
 
-            co_return true;
+            Sessions.remove_all ();
+        }
+
+        ~server () {
+            close ();
         }
 
     };
