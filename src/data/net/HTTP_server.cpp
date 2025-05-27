@@ -72,7 +72,7 @@ namespace data::net::HTTP {
             try {
                 co_await beast::http::async_read (Socket, buff, req, asio::use_awaitable);
             } catch (const boost::system::system_error &e) {
-                if (e.code() == boost::asio::error::eof) {
+                if (e.code () == boost::asio::error::eof) {
                     // Remote side closed connection
                     shutdown ();
                     co_return;
@@ -92,6 +92,7 @@ namespace data::net::HTTP {
         std::lock_guard<std::mutex> lock (Mtx);
         auto x = Sessions.begin ();
         while (x != Sessions.end ()) {
+            (*x)->close ();
             x = Sessions.erase (x);
         }
     }
@@ -103,6 +104,7 @@ namespace data::net::HTTP {
 
     void server::sessions::remove (ptr<session> x) {
         std::lock_guard<std::mutex> lock (Mtx);
+        x->close ();
         Sessions.erase (x);
     }
 }
