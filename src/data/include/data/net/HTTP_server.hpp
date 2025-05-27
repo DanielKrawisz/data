@@ -63,7 +63,7 @@ namespace data::net::HTTP {
             // Read an HTTP request from the socket
             awaitable<void> read ();
 
-            ~session () {
+            void close () {
                 Socket.cancel ();
             }
         };
@@ -81,7 +81,7 @@ namespace data::net::HTTP {
         awaitable<bool> accept ();
 
         void close () {
-            if (!Acceptor.is_open ()) {
+            if (Acceptor.is_open ()) {
                 Acceptor.cancel ();
                 Acceptor.close ();
             }
