@@ -38,7 +38,7 @@ namespace data::net::HTTP {
         };
 
         // Handles an HTTP request and sends back an HTTP response
-        class session : std::enable_shared_from_this<session> {
+        class session {
             // Apply the request handler to the request and send the response back
             awaitable<void> handle_request (const beast::request req) {
                 if (beast::is_websocket_upgrade (req))
@@ -51,10 +51,6 @@ namespace data::net::HTTP {
             request_handler Handler;
             sessions &Sessions;
 
-            void shutdown () {
-                Sessions.remove (this->shared_from_this ());
-            }
-
         public:
             // Constructor
             session (sessions &x, asio::ip::tcp::socket &&socket, request_handler handler) :
@@ -66,6 +62,8 @@ namespace data::net::HTTP {
             void close () {
                 Socket.cancel ();
             }
+
+            ptr<session> Self {};
         };
 
         asio::ip::tcp::acceptor Acceptor;
