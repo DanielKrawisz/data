@@ -44,15 +44,19 @@ namespace data::net::HTTP {
 
         try {
             asio::ip::tcp::socket socket = co_await Acceptor.async_accept (asio::use_awaitable);
-            auto ex = co_await asio::this_coro::executor;
             // Spawn a new session to handle the connection
-            spawn (ex,
-                [sock = std::move (socket), self = this] () mutable -> awaitable<void> {
-                    auto xxx = std::make_shared<session> (self->Sessions, std::move (sock), self->Handler);
-                    self->Sessions.add (xxx);
-                    co_await xxx->read ();
-                    co_return;
-                });
+            ptr<session> sess = std::make_shared<session> (this->Sessions, std::move (socket), this->Handler);
+            this->Sessions.add (sess);
+
+            sess->Self = sess;
+
+            auto ex = co_await asio::this_coro::executor;
+
+            spawn (ex, [sess] () -> awaitable<void> {
+                co_await sess->read ();
+                sess->Self = nullptr;
+                co_return;
+            });
 
             // yield if single-threaded
             co_await asio::post (ex, asio::use_awaitable);
@@ -72,11 +76,14 @@ namespace data::net::HTTP {
             try {
                 co_await beast::http::async_read (Socket, buff, req, asio::use_awaitable);
             } catch (const boost::system::system_error &e) {
-                if (e.code () == boost::asio::error::eof) {
+                // Normal: client closed connection after request
+                if (e.code () == beast::http::error::end_of_stream ||
+                    e.code () == boost::asio::error::eof) {
                     // Remote side closed connection
-                    shutdown ();
+                    Sessions.remove (Self);
                     co_return;
-                } else if (e.code () == boost::asio::error::operation_aborted || e.code () == boost::asio::error::bad_descriptor) {
+                } else if (e.code () == boost::asio::error::operation_aborted ||
+                    e.code () == boost::asio::error::bad_descriptor) {
                     // You cancelled this (e.g. during shutdown)
                     co_return;
                 } else throw e;
@@ -97,9 +104,10 @@ namespace data::net::HTTP {
         }
     }
 
-    void server::sessions::add (ptr<session>x) {
+    void server::sessions::add (ptr<session> x) {
         std::lock_guard<std::mutex> lock (Mtx);
         Sessions.insert (x);
+        std::cout << "sessions is now of size " << Sessions.size () << std::endl;
     }
 
     void server::sessions::remove (ptr<session> x) {
