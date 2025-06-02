@@ -1224,16 +1224,25 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word>::N_bytes (const math::N &n) : N_bytes {} {
-        size_t z = mpz_size (n.Value.MPZ);
+        size_t n_size = mpz_size (n.Value.MPZ);
 
-        if (z == 0) return;
-        size_t i = z - 1;
-        while (true) {
-            *this += mpz_getlimbn (n.Value.MPZ, i);
-            if (i == 0) break;
-            *this = shift_left (*this, sizeof (mp_limb_t), sizeof (mp_limb_t) * 8);
-            --i;
-        }
+        if (n_size == 0) return;
+
+        if constexpr (same_as<word, GMP::gmp_uint>) {
+            this->resize (n_size);
+            std::copy (n.Value.begin (), n.Value.end (), this->words.begin ());
+        } else if (sizeof (word) < sizeof (GMP::gmp_uint)) {
+            this->resize (n_size * (sizeof (GMP::gmp_uint) / sizeof (word)));
+            auto x = this->words ().begin ();
+            for (const GMP::gmp_uint &limb : n.Value) {
+                GMP::gmp_uint z = limb;
+                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
+                    *x = static_cast<word> (z & std::numeric_limits<word>::max ());
+                    x++;
+                    z >>= (sizeof (word) * 8);
+                }
+            }
+        } else throw exception {} << "unhandled case in N -> N_bytes";
 
         this->trim ();
     }
