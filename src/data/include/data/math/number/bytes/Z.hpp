@@ -1230,7 +1230,7 @@ namespace data::math::number {
 
         if constexpr (same_as<word, GMP::gmp_uint>) {
             this->resize (n_size);
-            std::copy (n.Value.begin (), n.Value.end (), this->words.begin ());
+            std::copy (n.Value.begin (), n.Value.end (), this->words ().begin ());
         } else if (sizeof (word) < sizeof (GMP::gmp_uint)) {
             this->resize (n_size * (sizeof (GMP::gmp_uint) / sizeof (word)));
             auto x = this->words ().begin ();
