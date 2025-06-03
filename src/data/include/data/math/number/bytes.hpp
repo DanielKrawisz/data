@@ -15,15 +15,17 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
-        if (!encoding::natural::valid (x)) throw std::invalid_argument {string {"invalid number string "} + string {x}};
+        if (!encoding::natural::valid (x))
+            throw exception {} << "invalid number string " << x;
 
         if (encoding::hexidecimal::valid (x)) {
-            if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) return N_bytes<r, word> {view<word> (*m)};
-            else throw std::invalid_argument {string {"invalid hex string size "} + std::to_string (x.size ()) + "; " + string {x}};
+            if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) {
+                return N_bytes<r, word> {view<word> (*m)};
+            } else throw exception {} << "invalid hex string size " << x.size () << "; " << x;
         }
 
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (math::N {x});
-        throw std::invalid_argument {string {"invalid number string"} + string {x}};
+        throw exception {} << "invalid number string" << x;
     }
     
     template <endian::order r, std::unsigned_integral word>

@@ -167,17 +167,8 @@ namespace data {
         }
     };
     
-}
-
-namespace data::encoding {
-    
-    template <bool z, endian::order o, size_t size> struct count_digits<endian_integral<z, o, size>> {
-        constexpr static bool is_signed = z;
-        constexpr static size_t value = size;
-    };
-    
     template <bool is_signed, endian::order o, size_t size> struct half_of<endian_integral<is_signed, o, size>> {
-        using type = endian_integral<is_signed, o, count_digits<typename half_of<endian::to_native<is_signed, size>>::type>::value>;
+        using type = endian_integral<is_signed, o, size>;
         static type greater_half (endian_integral<is_signed, o, size> u) {
             return type {half_of<endian::to_native<is_signed, size>>::greater_half ((endian::to_native<is_signed, size>) (u))};
         }

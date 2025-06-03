@@ -81,28 +81,28 @@ namespace data {
 
         EXPECT_EQ (decrement (Zl1<unsigned>::read (g)), Zl1<unsigned>::read (e));
         EXPECT_EQ (decrement (Zb1<unsigned>::read (g)), Zb1<unsigned>::read (e));
-/*
+
         EXPECT_EQ (decrement (Zl1<unsigned long>::read (g)), Zl1<unsigned long>::read (e));
         EXPECT_EQ (decrement (Zb1<unsigned long>::read (g)), Zb1<unsigned long>::read (e));
 
         EXPECT_EQ (decrement (Zl1<unsigned long long>::read (g)), Zl1<unsigned long long>::read (e));
         EXPECT_EQ (decrement (Zb1<unsigned long long>::read (g)), Zb1<unsigned long long>::read (e));
-*/
+
         EXPECT_EQ (decrement (Zl2<byte>::read (g)), Zl2<byte>::read (e));
         EXPECT_EQ (decrement (Zb2<byte>::read (g)), Zb2<byte>::read (e));
-/*
+
         EXPECT_EQ (decrement (Zl2<unsigned short>::read (g)), Zl2<unsigned short>::read (e));
         EXPECT_EQ (decrement (Zb2<unsigned short>::read (g)), Zb2<unsigned short>::read (e));
 
         EXPECT_EQ (decrement (Zl2<unsigned>::read (g)), Zl2<unsigned>::read (e));
-        EXPECT_EQ (decrement (Zb2<unsigned>::read (g)), Zb2<unsigned>::read (e));*/
-/*
+        EXPECT_EQ (decrement (Zb2<unsigned>::read (g)), Zb2<unsigned>::read (e));
+
         EXPECT_EQ (decrement (Zl2<unsigned long>::read (g)), Zl2<unsigned long>::read (e));
         EXPECT_EQ (decrement (Zb2<unsigned long>::read (g)), Zb2<unsigned long>::read (e));
 
         EXPECT_EQ (decrement (Zl2<unsigned long long>::read (g)), Zl2<unsigned long long>::read (e));
         EXPECT_EQ (decrement (Zb2<unsigned long long>::read (g)), Zb2<unsigned long long>::read (e));
-*/
+
         // TODO test bounded numbers here.
 
     }
@@ -143,8 +143,8 @@ namespace data {
         test_decrement_N_b<byte> (g, e);
         test_decrement_N_b<unsigned short> (g, e);
         test_decrement_N_b<unsigned> (g, e);
-        //test_decrement_N_b<unsigned long> (g, e);
-        //test_decrement_N_b<unsigned long long> (g, e);
+        test_decrement_N_b<unsigned long> (g, e);
+        test_decrement_N_b<unsigned long long> (g, e);
         
     }
     
@@ -170,7 +170,7 @@ namespace data {
 
         EXPECT_EQ (increment (Zl2<unsigned>::read (g)), Zl2<unsigned>::read (e));
         EXPECT_EQ (increment (Zb2<unsigned>::read (g)), Zb2<unsigned>::read (e));
-/*
+
         EXPECT_EQ (increment (Zl1<unsigned long>::read (g)), Zl1<unsigned long>::read (e));
         EXPECT_EQ (increment (Zb1<unsigned long>::read (g)), Zb1<unsigned long>::read (e));
 
@@ -182,7 +182,7 @@ namespace data {
 
         EXPECT_EQ (increment (Zl2<unsigned long long>::read (g)), Zl2<unsigned long long>::read (e));
         EXPECT_EQ (increment (Zb2<unsigned long long>::read (g)), Zb2<unsigned long long>::read (e));
-*/
+
         // TODO test bounded numbers here.
         
     }
@@ -225,12 +225,12 @@ namespace data {
 
         EXPECT_EQ (increment (Nl<unsigned>::read (g)), Nl<unsigned>::read (e));
         EXPECT_EQ (increment (Nb<unsigned>::read (g)), Nb<unsigned>::read (e));
-/*
+
         EXPECT_EQ (increment (Nl<unsigned long>::read (g)), Nl<unsigned long>::read (e));
         EXPECT_EQ (increment (Nb<unsigned long>::read (g)), Nb<unsigned long>::read (e));
 
         EXPECT_EQ (increment (Nl<unsigned long long>::read (g)), Nl<unsigned long long>::read (e));
-        EXPECT_EQ (increment (Nb<unsigned long long>::read (g)), Nb<unsigned long long>::read (e));*/
+        EXPECT_EQ (increment (Nb<unsigned long long>::read (g)), Nb<unsigned long long>::read (e));
 
         // TODO bounded numbers here.
     }
@@ -242,11 +242,11 @@ namespace data {
         test_increment_unsigned ("0", "1");
         test_increment_unsigned ("1", "2");
         test_increment_unsigned ("9", "10");
-        test_increment_unsigned ("10", "11");/*
+        test_increment_unsigned ("10", "11");
         test_increment_unsigned ("99999999999", "100000000000");
         test_increment_unsigned ("102939030347", "102939030348");
         test_increment_unsigned ("98980987676898761029390303474536547398", "98980987676898761029390303474536547399");
-        test_increment_unsigned ("98980987676898761029390303474536547399", "98980987676898761029390303474536547400");*/
+        test_increment_unsigned ("98980987676898761029390303474536547399", "98980987676898761029390303474536547400");
         
     }
 
@@ -284,7 +284,7 @@ namespace data {
 
         EXPECT_EQ (Zl2<unsigned>::read (l) + Zl2<unsigned>::read (r), Zl2<unsigned>::read (e));
         EXPECT_EQ (Zb2<unsigned>::read (l) + Zb2<unsigned>::read (r), Zb2<unsigned>::read (e));
-/*
+
         EXPECT_EQ (Zl1<unsigned long>::read (l) + Zl1<unsigned long>::read (r), Zl1<unsigned long>::read (e));
         EXPECT_EQ (Zb1<unsigned long>::read (l) + Zb1<unsigned long>::read (r), Zb1<unsigned long>::read (e));
 
@@ -296,7 +296,7 @@ namespace data {
 
         EXPECT_EQ (Zl2<unsigned long long>::read (l) + Zl2<unsigned long long>::read (r), Zl2<unsigned long long>::read (e));
         EXPECT_EQ (Zb2<unsigned long long>::read (l) + Zb2<unsigned long long>::read (r), Zb2<unsigned long long>::read (e));
-*/
+
         // TODO test bounded numbers
         
     }
@@ -319,13 +319,13 @@ namespace data {
 
         EXPECT_EQ (Nl<unsigned>::read (l) + Nl<unsigned>::read (r), Nl<unsigned>::read (e));
         EXPECT_EQ (Nb<unsigned>::read (l) + Nb<unsigned>::read (r), Nb<unsigned>::read (e));
-/*
+
         EXPECT_EQ (Nl<unsigned long>::read (l) + Nl<unsigned long>::read (r), Nl<unsigned long>::read (e));
         EXPECT_EQ (Nb<unsigned long>::read (l) + Nb<unsigned long>::read (r), Nb<unsigned long>::read (e));
 
         EXPECT_EQ (Nl<unsigned long long>::read (l) + Nl<unsigned long long>::read (r), Nl<unsigned long long>::read (e));
         EXPECT_EQ (Nb<unsigned long long>::read (l) + Nb<unsigned long long>::read (r), Nb<unsigned long long>::read (e));
-*/
+
         test_add_signed (left, right, expected);
 
         // TODO test bounded numbers
@@ -373,12 +373,12 @@ namespace data {
 
         EXPECT_EQ (Nb<unsigned>::read (l) - Nb<unsigned>::read (r), Nb<unsigned>::read (e));
         EXPECT_EQ (Nb<unsigned>::read (l) - Nb<unsigned>::read (r), Nb<unsigned>::read (e));
-/*
+
         EXPECT_EQ (Nb<unsigned long>::read (l) - Nb<unsigned long>::read (r), Nb<unsigned long>::read (e));
         EXPECT_EQ (Nb<unsigned long>::read (l) - Nb<unsigned long>::read (r), Nb<unsigned long>::read (e));
 
         EXPECT_EQ (Nb<unsigned long long>::read (l) - Nb<unsigned long long>::read (r), Nb<unsigned long long>::read (e));
-        EXPECT_EQ (Nb<unsigned long long>::read (l) - Nb<unsigned long long>::read (r), Nb<unsigned long long>::read (e));*/
+        EXPECT_EQ (Nb<unsigned long long>::read (l) - Nb<unsigned long long>::read (r), Nb<unsigned long long>::read (e));
 
         // TODO test bounded numbers
     }
@@ -409,7 +409,7 @@ namespace data {
 
         EXPECT_EQ (Zl2<unsigned>::read (l) - Zl2<unsigned>::read (r), Zl2<unsigned>::read (e));
         EXPECT_EQ (Zb2<unsigned>::read (l) - Zb2<unsigned>::read (r), Zb2<unsigned>::read (e));
-/*
+
         EXPECT_EQ (Zl1<unsigned long>::read (l) - Zl1<unsigned long>::read (r), Zl1<unsigned long>::read (e));
         EXPECT_EQ (Zb1<unsigned long>::read (l) - Zb1<unsigned long>::read (r), Zb1<unsigned long>::read (e));
 
@@ -420,7 +420,7 @@ namespace data {
         EXPECT_EQ (Zb1<unsigned long long>::read (l) - Zb1<unsigned long long>::read (r), Zb1<unsigned long long>::read (e));
 
         EXPECT_EQ (Zl2<unsigned long long>::read (l) - Zl2<unsigned long long>::read (r), Zl2<unsigned long long>::read (e));
-        EXPECT_EQ (Zb2<unsigned long long>::read (l) - Zb2<unsigned long long>::read (r), Zb2<unsigned long long>::read (e));*/
+        EXPECT_EQ (Zb2<unsigned long long>::read (l) - Zb2<unsigned long long>::read (r), Zb2<unsigned long long>::read (e));
 
         // TODO test bounded numbers.
 
@@ -476,7 +476,7 @@ namespace data {
 
         EXPECT_EQ (Zl2<unsigned>::read (l) * Zl2<unsigned>::read (r), Zl2<unsigned>::read (e));
         EXPECT_EQ (Zb2<unsigned>::read (l) * Zb2<unsigned>::read (r), Zb2<unsigned>::read (e));
-/*
+
         EXPECT_EQ (Zl1<unsigned long>::read (l) * Zl1<unsigned long>::read (r), Zl1<unsigned long>::read (e));
         EXPECT_EQ (Zb1<unsigned long>::read (l) * Zb1<unsigned long>::read (r), Zb1<unsigned long>::read (e));
 
@@ -487,7 +487,7 @@ namespace data {
         EXPECT_EQ (Zb1<unsigned long long>::read (l) * Zb1<unsigned long long>::read (r), Zb1<unsigned long long>::read (e));
 
         EXPECT_EQ (Zl2<unsigned long long>::read (l) * Zl2<unsigned long long>::read (r), Zl2<unsigned long long>::read (e));
-        EXPECT_EQ (Zb2<unsigned long long>::read (l) * Zb2<unsigned long long>::read (r), Zb2<unsigned long long>::read (e));*/
+        EXPECT_EQ (Zb2<unsigned long long>::read (l) * Zb2<unsigned long long>::read (r), Zb2<unsigned long long>::read (e));
 
         // TODO test bounded numbers
 
@@ -501,7 +501,6 @@ namespace data {
         EXPECT_EQ (l * r, e);
         EXPECT_EQ (N (l) * N (r), N (e));
 
-        // TODO
         EXPECT_EQ (Nl<byte>::read (l) * Nl<byte>::read (r), Nl<byte>::read (e));
         EXPECT_EQ (Nb<byte>::read (l) * Nb<byte>::read (r), Nb<byte>::read (e));
 
@@ -510,12 +509,12 @@ namespace data {
 
         EXPECT_EQ (Nl<unsigned>::read (l) * Nl<unsigned>::read (r), Nl<unsigned>::read (e));
         EXPECT_EQ (Nb<unsigned>::read (l) * Nb<unsigned>::read (r), Nb<unsigned>::read (e));
-/*
+
         EXPECT_EQ (Nl<unsigned long>::read (l) * Nl<unsigned long>::read (r), Nl<unsigned long>::read (e));
         EXPECT_EQ (Nb<unsigned long>::read (l) * Nb<unsigned long>::read (r), Nb<unsigned long>::read (e));
 
         EXPECT_EQ (Nl<unsigned long long>::read (l) * Nl<unsigned long long>::read (r), Nl<unsigned long long>::read (e));
-        EXPECT_EQ (Nb<unsigned long long>::read (l) * Nb<unsigned long long>::read (r), Nb<unsigned long long>::read (e));*/
+        EXPECT_EQ (Nb<unsigned long long>::read (l) * Nb<unsigned long long>::read (r), Nb<unsigned long long>::read (e));
         
         test_multiply_signed (left, right, expected);
 
