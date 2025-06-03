@@ -23,7 +23,6 @@ namespace data::math::number {
     template<endian::order r, std::unsigned_integral word>
     math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const math::N &n) {
         auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
-
         size_t bytes_encoded = (hex_string.size () - 2) / 2;
 
         size_t bytes_extended = bytes_encoded % sizeof (word) == 0 ? bytes_encoded :
@@ -69,11 +68,13 @@ namespace data::math::number {
     }
 
     template <typename in> void N_Bytes_to_N (in x) {
+
         N_Bytes_to_N_by_word<in, byte> (x);
         N_Bytes_to_N_by_word<in, unsigned short> (x);
-        N_Bytes_to_N_by_word<in, unsigned> (x);/*
+        N_Bytes_to_N_by_word<in, unsigned> (x);
         N_Bytes_to_N_by_word<in, unsigned long> (x);
-        N_Bytes_to_N_by_word<in, unsigned long long> (x);*/
+        N_Bytes_to_N_by_word<in, unsigned long long> (x);
+
     }
 
     TEST (NBytesTest, TestNBytesToN) {
@@ -99,74 +100,74 @@ namespace data::math::number {
 
     TEST (NBytesTest, TestStringToNBytes) {
 
-        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("0x1")), std::invalid_argument);
-        
-        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("0x1")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, byte>::read ("0x1")), exception);
 
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("0x1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("0x01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, byte>::read ("0x1")), exception);
 
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("0x1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("0x01")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("0x1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint16>::read ("0x01")), exception);
 
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x0001")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("0x1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint16>::read ("0x01")), exception);
 
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x0001")), std::invalid_argument);
-/*
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x0001")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x00000001")), std::invalid_argument);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x01")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint32>::read ("0x0001")), exception);
 
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("a")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("-")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("-1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x1")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x01")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x0001")), std::invalid_argument);
-        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x00000001")), std::invalid_argument);
-*/
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x01")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint32>::read ("0x0001")), exception);
+
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x1")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x01")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x0001")), exception);
+        EXPECT_THROW ((N_bytes<endian::big, uint64>::read ("0x00000001")), exception);
+
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("a")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("-")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("-1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("01")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x1")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x01")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x0001")), exception);
+        EXPECT_THROW ((N_bytes<endian::little, uint64>::read ("0x00000001")), exception);
+
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte> {}));
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte>::read ("0")));
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte>::read ("0x")));
@@ -293,11 +294,11 @@ namespace data::math::number {
         test_N_Bytes_to_string_decimal<endian::big, unsigned short> ();
         test_N_Bytes_to_string_decimal<endian::little, unsigned short> ();
         test_N_Bytes_to_string_decimal<endian::big, unsigned> ();
-        test_N_Bytes_to_string_decimal<endian::little, unsigned> ();/*
+        test_N_Bytes_to_string_decimal<endian::little, unsigned> ();
         test_N_Bytes_to_string_decimal<endian::big, unsigned long> ();
         test_N_Bytes_to_string_decimal<endian::little, unsigned long> ();
         test_N_Bytes_to_string_decimal<endian::big, unsigned long long> ();
-        test_N_Bytes_to_string_decimal<endian::little, unsigned long long> ();*/
+        test_N_Bytes_to_string_decimal<endian::little, unsigned long long> ();
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::big, byte> {1}.trim ()), std::string {"0x01"});

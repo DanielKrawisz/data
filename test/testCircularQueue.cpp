@@ -6,6 +6,7 @@
 #include <data/tools/circular_queue.h>
 #include "gtest/gtest.h"
 namespace data::tools {
+
     TEST (CircularQueueTest, TestInitialize) {
         circular_queue<int> queue (5);
         queue.set (5);

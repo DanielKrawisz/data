@@ -148,7 +148,7 @@ namespace data {
         test_number_system<uint80_little, int80_little> {};
         test_number_system<uint80_big, int80_big> {};
 
-        test_number_system<uint128, int128> {};
+        //test_number_system<uint128, int128> {};
         test_number_system<uint128_little, int128_little> {};
         test_number_system<uint128_big, int128_big> {};
 

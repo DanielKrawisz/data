@@ -1228,7 +1228,7 @@ namespace data::math::number {
 
         if (n_size == 0) return;
 
-        if constexpr (same_as<word, GMP::gmp_uint>) {
+        if constexpr (sizeof (word) == sizeof (GMP::gmp_uint)) {
             this->resize (n_size);
             std::copy (n.Value.begin (), n.Value.end (), this->words ().begin ());
         } else if (sizeof (word) < sizeof (GMP::gmp_uint)) {
@@ -1241,6 +1241,18 @@ namespace data::math::number {
                     x++;
                     z >>= (sizeof (word) * 8);
                 }
+            }
+        } else if (sizeof (word) > sizeof (GMP::gmp_uint)) {
+            this->resize (n_size / (sizeof (GMP::gmp_uint) / sizeof (word)));
+            auto x = this->words ().begin ();
+            auto b = n.Value.begin ();
+            while (b != n.Value.end ()) {
+                *x = 0;
+                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
+                    *x += static_cast<word> (*b) << (i * sizeof (GMP::gmp_uint) * 8);
+                    b++;
+                }
+                x++;
             }
         } else throw exception {} << "unhandled case in N -> N_bytes";
 
@@ -1263,14 +1275,11 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word>::operator math::N () const {
-        math::N x {};
+        math::N n {};
 
-        for (const word &b : this->words ().reverse ()) {
-            x <<= sizeof (word) * 8;
-            x += b;
-        }
+        mpz_import (n.Value.MPZ, this->size (), r == endian::little ? -1 : 1, sizeof (word), 0, 0, this->data ());
 
-        return x;
+        return n;
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -1281,15 +1290,12 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::BC, word>::operator Z () const {
-        auto ab = data::abs (*this);
-        math::N x {};
+        if (data::is_negative (*this)) return -Z (-(*this));
 
-        for (const byte &b : ab.words ().reverse ()) {
-            x <<= 8;
-            x += b;
-        }
-
-        return data::is_negative (*this) ? -x : Z (x);
+        N_bytes<r, word> n;
+        n.resize (this->size ());
+        std::copy (this->begin (), this->end (), n.begin ());
+        return math::N (n).Value;
     }
 
     template <endian::order r, std::unsigned_integral word>
