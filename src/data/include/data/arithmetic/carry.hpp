@@ -16,7 +16,7 @@ namespace data::arithmetic {
 
     // add two numbers and return
     template <std::unsigned_integral x> bool subtract_with_carry (x &result, x a, x b);
-    #if defined(FORCE_CARRY_FALLBACK) || !(defined(__linux__) && (defined(__clang__) || defined(__GNUC__)))
+#if defined(FORCE_CARRY_FALLBACK) || !(defined(__linux__) && (defined(__clang__) || defined(__GNUC__)))
 
     template <> bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
         result = a + b;
@@ -105,37 +105,6 @@ namespace data::arithmetic {
         return encoding::greater_half (r) != 0;
     }
 
-    template <std::unsigned_integral x> struct multiply_result {
-        x Lesser;
-        x Greater;
-    };
-
-    template <std::unsigned_integral digit>
-    requires requires {
-        typename encoding::twice<digit>::type;
-    } multiply_result<digit> inline
-    multiply_with_carry (digit a, digit b) {
-        using twice = typename encoding::twice<digit>::type;
-        twice r = static_cast<twice> (a) * static_cast<twice> (b);
-        return {encoding::lesser_half (r), encoding::greater_half (r)};
-    }
-
-    template <std::unsigned_integral digit>
-    multiply_result<digit> multiply_with_carry (digit a, digit b) {
-        digit d1 = static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::lesser_half (b));
-
-        digit d3;
-        bool carry = add_with_carry<digit> (d3,
-            static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::lesser_half (b)),
-            static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::greater_half (b)));
-
-        digit d4 = static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::greater_half (b));
-
-        return {d1 + static_cast<digit> (encoding::lesser_half (d3)) << 32,
-            d4 + encoding::greater_half (d3) + (carry ? (digit (1) << 32) : 0)};
-
-    }
-
     // make sure a and b can be iterated at least as far as i.
     template <std::unsigned_integral digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
@@ -202,6 +171,57 @@ namespace data::arithmetic {
         }
 
         return remainder;
+    }
+
+    namespace {
+        template<typename, typename = void>
+        struct has_twice : std::false_type { };
+
+        template<typename T>
+        struct has_twice<T, std::void_t<typename encoding::twice<T>::type>> : std::true_type { };
+    }
+
+    template <std::unsigned_integral x> struct multiply_result {
+        x Lesser;
+        x Greater;
+
+        bool operator == (const multiply_result &n) const {
+            return Lesser == n.Lesser && Greater == n.Greater;
+        }
+    };
+
+    template <typename digit>
+    std::enable_if_t<has_twice<digit>::value, multiply_result<digit>>
+    multiply_with_carry (digit a, digit b) {
+        using twice = typename encoding::twice<digit>::type;
+        twice r = static_cast<twice> (a) * static_cast<twice> (b);
+        return {encoding::lesser_half (r), encoding::greater_half (r)};
+    }
+
+    // If twice<T> doesn't exist, emulate multiply with carry
+    template <typename digit>
+    std::enable_if_t<!has_twice<digit>::value, multiply_result<digit>>
+    multiply_with_carry (digit a, digit b) {
+        constexpr static size_t half_size = sizeof (digit) / 2;
+
+        digit d1 = static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::lesser_half (b));
+
+        digit d3;
+        bool carry_d3 = add_with_carry<digit> (d3,
+            static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::lesser_half (b)),
+            static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::greater_half (b)));
+
+        digit bb2 = static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::lesser_half (b));
+        digit bb3 = static_cast<digit> (encoding::lesser_half (a)) * static_cast<digit> (encoding::greater_half (b));
+
+        digit d4 = static_cast<digit> (encoding::greater_half (a)) * static_cast<digit> (encoding::greater_half (b));
+
+        multiply_result<digit> mr;
+
+        bool carry_lesser = add_with_carry (mr.Lesser, d1, static_cast<digit> (encoding::lesser_half (d3)) << (half_size * 8));
+
+        mr.Greater = d4 + encoding::greater_half (d3) + (carry_d3 ? (digit (1) << (half_size * 8)) : digit (0)) + (carry_lesser ? digit (1) : digit (0));
+        return mr;
     }
 
 }

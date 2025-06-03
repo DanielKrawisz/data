@@ -5,6 +5,12 @@
 #include <data/arithmetic/carry.hpp>
 #include "gtest/gtest.h"
 
+static_assert (sizeof (char) == 1);
+static_assert (sizeof (short) == 2);
+static_assert (sizeof (int) == 4);
+static_assert (sizeof (long int) == 8);
+static_assert (sizeof (long long int) == 8);
+
 namespace data {
     
 #pragma region Add With Carry
@@ -66,7 +72,7 @@ namespace data {
         unsigned int temp;
         unsigned int num1=10;
         unsigned int num2=20;
-        EXPECT_FALSE (arithmetic::add_with_carry (temp, num1,num2)) << "10 + 20 should not carry in an unsigned int";
+        EXPECT_FALSE (arithmetic::add_with_carry (temp, num1, num2)) << "10 + 20 should not carry in an unsigned int";
 
     }
 
@@ -101,22 +107,22 @@ namespace data {
         SubtractWithCarryTests,
         SubtractWithCarryTypedTest,
             ::testing::Values (
-                SubtractWithCarryTestParams {"unsigned char",20, 10, false, 10},
-                SubtractWithCarryTestParams {"unsigned char",0, 1, true, std::numeric_limits<unsigned char>::max ()},
-                SubtractWithCarryTestParams {"unsigned short",20, 10, false, 10},
-                SubtractWithCarryTestParams {"unsigned short",0,1, true,std::numeric_limits<unsigned short>::max ()},
+                SubtractWithCarryTestParams {"unsigned char", 20, 10, false, 10},
+                SubtractWithCarryTestParams {"unsigned char", 0, 1, true, std::numeric_limits<unsigned char>::max ()},
+                SubtractWithCarryTestParams {"unsigned short", 20, 10, false, 10},
+                SubtractWithCarryTestParams {"unsigned short", 0,1, true, std::numeric_limits<unsigned short>::max ()},
                 SubtractWithCarryTestParams {"unsigned short int", 20, 10, false, 10},
-                SubtractWithCarryTestParams {"unsigned short int", 0,1,true,std::numeric_limits<unsigned short int>::max ()},
-                SubtractWithCarryTestParams {"unsigned int",20, 10, false, 10},
-                SubtractWithCarryTestParams {"unsigned int",0, 1,true,std::numeric_limits<unsigned int>::max ()},
+                SubtractWithCarryTestParams {"unsigned short int", 0, 1, true, std::numeric_limits<unsigned short int>::max ()},
+                SubtractWithCarryTestParams {"unsigned int", 20, 10, false, 10},
+                SubtractWithCarryTestParams {"unsigned int", 0, 1, true, std::numeric_limits<unsigned int>::max ()},
                 SubtractWithCarryTestParams {"unsigned long", 20, 10, false, 10},
-                SubtractWithCarryTestParams {"unsigned long", 0,1,true, std::numeric_limits<unsigned long>::max ()},
+                SubtractWithCarryTestParams {"unsigned long", 0, 1, true, std::numeric_limits<unsigned long>::max ()},
                 SubtractWithCarryTestParams {"unsigned long long", 20, 10, false, 10},
-                SubtractWithCarryTestParams {"unsigned long long", 0, 1,true,std::numeric_limits<unsigned long long>::max ()}
+                SubtractWithCarryTestParams {"unsigned long long", 0, 1, true, std::numeric_limits<unsigned long long>::max ()}
             )
     );
 
-    TEST_P (SubtractWithCarryTypedTest, HandleSubtraction) {
+    TEST_P (SubtractWithCarryTypedTest, HandleMultiply) {
         SubtractWithCarryTestParams params = GetParam ();
         std::string typeName = params.type;
         if (typeName == "unsigned char") RunTest<unsigned char> (params);
@@ -131,10 +137,70 @@ namespace data {
         unsigned int temp;
         unsigned int num1 = 20;
         unsigned int num2 = 10;
-        EXPECT_FALSE (arithmetic::subtract_with_carry (temp,num1,num2)) << "20 - 10 should not carry in an unsigned int";
-
+        EXPECT_FALSE (arithmetic::subtract_with_carry (temp, num1, num2)) << "20 - 10 should not carry in an unsigned int";
     }
 
 #pragma endregion
 
+#pragma region Multiply with Carry
+
+    struct MultiplyWithCarryTestParams {
+        std::string type;
+        unsigned long long num1;
+        unsigned long long num2;
+        unsigned long long expectedCarry;
+        unsigned long long expectedResult;
+    };
+
+    class MultiplyWithCarryTypedTest : public ::testing::TestWithParam<MultiplyWithCarryTestParams> {
+    protected:
+        template <typename T>
+        void RunTest (const MultiplyWithCarryTestParams &params) {
+            T temp;
+            T num1 = static_cast<T> (params.num1);
+            T num2 = static_cast<T> (params.num2);
+
+            arithmetic::multiply_result<T> expected {static_cast<T> (params.expectedResult), static_cast<T> (params.expectedCarry)};
+            arithmetic::multiply_result<T> result = arithmetic::multiply_with_carry (num1, num2);
+
+            EXPECT_EQ (result, expected);
+        }
+    };
+
+    INSTANTIATE_TEST_SUITE_P (
+        MultiplyWithCarryTests,
+        MultiplyWithCarryTypedTest,
+            ::testing::Values (
+                MultiplyWithCarryTestParams {"unsigned char",
+                    std::numeric_limits<unsigned char>::max (),
+                    std::numeric_limits<unsigned char>::max (),
+                    std::numeric_limits<unsigned char>::max () - 1, 1},
+                MultiplyWithCarryTestParams {"unsigned short",
+                    std::numeric_limits<unsigned short>::max (),
+                    std::numeric_limits<unsigned short>::max (),
+                    std::numeric_limits<unsigned short>::max () - 1, 1},
+                MultiplyWithCarryTestParams {"unsigned int",
+                    std::numeric_limits<unsigned int>::max (),
+                    std::numeric_limits<unsigned int>::max (),
+                    std::numeric_limits<unsigned int>::max () - 1, 1},
+                MultiplyWithCarryTestParams {"unsigned long",
+                    std::numeric_limits<unsigned long>::max (),
+                    std::numeric_limits<unsigned long>::max (),
+                    std::numeric_limits<unsigned long>::max () - 1, 1},
+                MultiplyWithCarryTestParams {"unsigned long long",
+                    std::numeric_limits<unsigned long long>::max (),
+                    std::numeric_limits<unsigned long long>::max (),
+                    std::numeric_limits<unsigned long long>::max () - 1, 1}
+            )
+    );
+
+    TEST_P (MultiplyWithCarryTypedTest, HandleSubtraction) {
+        MultiplyWithCarryTestParams params = GetParam ();
+        std::string typeName = params.type;
+        if (typeName == "unsigned char") RunTest<unsigned char> (params);
+        else if (typeName == "unsigned short") RunTest<unsigned short> (params);
+        else if (typeName == "unsigned int") RunTest<unsigned int> (params);
+        else if (typeName == "unsigned long") RunTest<unsigned long> (params);
+        else if (typeName == "unsigned long long") RunTest<unsigned long long> (params);
+    }
 }

@@ -10,6 +10,45 @@
 #include <data/encoding/endian.hpp>
 
 namespace data::encoding {
+    template<std::size_t S> struct int_by_size;
+    template<> struct int_by_size<1> { using type = std::int8_t; };
+    template<> struct int_by_size<2> { using type = std::int16_t; };
+    template<> struct int_by_size<4> { using type = std::int32_t; };
+    template<> struct int_by_size<8> { using type = std::int64_t; };
+
+    template<std::size_t S> struct uint_by_size;
+    template<> struct uint_by_size<1> { using type = std::uint8_t; };
+    template<> struct uint_by_size<2> { using type = std::uint16_t; };
+    template<> struct uint_by_size<4> { using type = std::uint32_t; };
+    template<> struct uint_by_size<8> { using type = std::uint64_t; };
+
+    template<std::unsigned_integral T>
+    struct half_of : uint_by_size<sizeof (T) / 2> {
+        using type = uint_by_size<sizeof (T) / 2>::type;
+
+        static type greater_half (T u) {
+            return u >> sizeof (type) * 8;
+        }
+
+        static type lesser_half (T u) {
+            return static_cast<T> (u & std::numeric_limits<type>::max ());
+        }
+    };
+
+    template<typename T, typename = void>
+    struct twice { }; // leave undefined or empty when invalid
+
+    template<typename T>
+    struct twice<T, std::void_t<typename uint_by_size<sizeof(T) * 2>::type>> {
+        using type = typename uint_by_size<sizeof(T) * 2>::type;
+    };
+
+    // Aliases for ease of use
+    template<typename T>
+    using half_of_t = typename half_of<T>::type;
+
+    template<typename T>
+    using twice_t = typename twice<T>::type;
 
     template <typename X> struct count_digits;
     
@@ -23,48 +62,6 @@ namespace data::encoding {
     struct halves {
         constexpr static const whole greater = static_cast<whole> (std::numeric_limits<whole>::max () << (sizeof (half) * 8));
         constexpr static const whole lesser = static_cast<whole> (std::numeric_limits<whole>::max () >> (sizeof (half) * 8));
-    };
-
-    namespace {
-        template <bool is_next, typename... Y> struct get_next_half_type;
-
-        template <typename whole, typename X, typename... Y> struct get_next_half_type<true, whole, X, Y...> {
-            using type = X;
-        };
-
-        template <typename whole, typename X, typename Y, typename... Z> struct get_next_half_type<false, whole, X, Y, Z...> {
-            using type = get_next_half_type<sizeof (Y) * 2 == sizeof (whole), whole, Y, Z...>::type;
-        };
-
-        template <typename whole, typename X, typename... Y> struct find_half {
-            using type = get_next_half_type<sizeof (X) * 2 == sizeof (whole), whole, X, Y...>::type;
-        };
-    }
-
-    template <typename whole> struct half_of;
-    
-    template <std::unsigned_integral whole> struct half_of<whole> {
-        using type = find_half<whole, unsigned long long, unsigned long, unsigned, unsigned short, byte>::type;
-
-        static type greater_half (whole u) {
-            return u >> count_digits<type>::value * 8;
-        }
-
-        static type lesser_half (whole u) {
-            return u & halves<type, whole>::lesser;
-        }
-    };
-
-    template <std::signed_integral whole> struct half_of<whole> {
-        using type = find_half<whole, long long, long, int, short, char>::type;
-
-        static type greater_half (whole u) {
-            return u >> count_digits<type>::value * 8;
-        }
-
-        static type lesser_half (whole u) {
-            return u & halves<type, whole>::lesser;
-        }
     };
     
     template <typename whole>
@@ -92,25 +89,6 @@ namespace data::encoding {
             using type = get_next_twice_type<sizeof (X) == sizeof (half) * 2, half, X, Y...>::type;
         };
     }
-
-    
-    template <typename half> struct twice;
-
-    template <std::unsigned_integral half> struct twice<half> {
-        using type = find_twice<half, unsigned short, unsigned, unsigned long, unsigned long long>::type;
-
-        static type extend (half x) {
-            return (type) (x);
-        }
-    };
-
-    template <std::signed_integral half> struct twice<half> {
-        using type = find_twice<half, short, int, long, long long>::type;
-
-        static type extend (half x) {
-            return (type) (x);
-        }
-    };
     
     template <typename half>
     typename twice<half>::type inline combine (half greater, half lesser) {

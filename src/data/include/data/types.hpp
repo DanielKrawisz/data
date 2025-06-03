@@ -15,6 +15,32 @@
 #include <functional>
 #include <expected>
 
+#ifndef UINT8_MAX
+static_assert (false, "Must support bytes");
+#endif
+#ifndef UINT16_MAX
+static_assert (false, "Must support uint16");
+#endif
+#ifndef UINT32_MAX
+static_assert (false, "Must support uint32");
+#endif
+#ifndef UINT64_MAX
+static_assert (false, "Must support uint64");
+#endif
+
+#ifndef INT8_MAX
+static_assert (false, "Must support int8");
+#endif
+#ifndef INT16_MAX
+static_assert (false, "Must support int16");
+#endif
+#ifndef INT32_MAX
+static_assert (false, "Must support int32");
+#endif
+#ifndef INT64_MAX
+static_assert (false, "Must support int64");
+#endif
+
 namespace data {
 
     using byte = uint8_t;
