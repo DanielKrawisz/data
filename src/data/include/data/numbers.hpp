@@ -66,22 +66,40 @@ namespace data {
     using uint_big = math::uint<endian::big, size, word>;
 
     using  uint80 = math::uint<endian::little, 5, uint16>;
-    using uint128 = math::uint<endian::little, 4, uint32>;
-    using uint160 = math::uint<endian::little, 5, uint32>;
-    using uint224 = math::uint<endian::little, 7, uint32>;
-    using uint256 = math::uint<endian::little, 8, uint32>;
-    using uint320 = math::uint<endian::little, 10, uint32>;
-    using uint448 = math::uint<endian::little, 14, uint32>;
-    using uint512 = math::uint<endian::little, 16, uint32>;
-    
     using   int80 = math::sint<endian::little, 5, uint16>;
-    using  int128 = math::sint<endian::little, 4, uint32>;
+
+#if !defined(__SIZEOF_INT128__)
+    using uint128 = math::uint<endian::little, 2, uint64>;
+    using  int128 = math::sint<endian::little, 2, uint64>;
+#endif
+
+    using uint160 = math::uint<endian::little, 5, uint32>;
     using  int160 = math::sint<endian::little, 5, uint32>;
+
+    using uint224 = math::uint<endian::little, 7, uint32>;
     using  int224 = math::sint<endian::little, 7, uint32>;
-    using  int256 = math::sint<endian::little, 8, uint32>;
-    using  int320 = math::sint<endian::little, 10, uint32>;
-    using  int448 = math::sint<endian::little, 14, uint32>;
-    using  int512 = math::sint<endian::little, 16, uint32>;
+
+#if !defined(__SIZEOF_INT128__)
+    using uint256 = math::uint<endian::little, 2, uint128>;
+    using  int256 = math::sint<endian::little, 2, uint128>;
+#else
+    using uint256 = math::uint<endian::little, 4, uint64>;
+    using  int256 = math::sint<endian::little, 4, uint64>;
+#endif
+
+    using uint320 = math::uint<endian::little, 5, uint64>;
+    using  int320 = math::sint<endian::little, 5, uint64>;
+
+    using uint448 = math::uint<endian::little, 7, uint64>;
+    using  int448 = math::sint<endian::little, 7, uint64>;
+
+#if !defined(__SIZEOF_INT128__)
+    using uint512 = math::uint<endian::little, 4, uint128>;
+    using  int512 = math::sint<endian::little, 4, uint128>;
+#else
+    using uint512 = math::uint<endian::little, 8, uint64>;
+    using  int512 = math::sint<endian::little, 8, uint64>;
+#endif
 
     using  uint80_little = uint_little<10>;
     using uint128_little = uint_little<16>;
@@ -136,7 +154,6 @@ namespace data {
     static_assert (signed_type<double>);
 
     static_assert (unsigned_integral<uint80>);
-    static_assert (unsigned_integral<uint128>);
     static_assert (unsigned_integral<uint160>);
     static_assert (unsigned_integral<uint224>);
     static_assert (unsigned_integral<uint256>);
@@ -145,7 +162,6 @@ namespace data {
     static_assert (unsigned_integral<uint512>);
 
     static_assert (integral_system<int80, uint80>);
-    static_assert (integral_system<int128, uint128>);
     static_assert (integral_system<int160, uint160>);
     static_assert (integral_system<int224, uint224>);
     static_assert (integral_system<int256, uint256>);

@@ -1211,39 +1211,36 @@ namespace data::encoding::hexidecimal {
         if (x >= 'a' && x <= 'f') return x - 'a' + 10;
         return -1;
     }
+
+    uint8_t inline hex_digit_to_value (char c) {
+        if ('0' <= c && c <= '9') return c - '0';
+        else if ('a' <= c && c <= 'f') return 10 + (c - 'a');
+        else if ('A' <= c && c <= 'F') return 10 + (c - 'A');
+        else throw std::invalid_argument("Invalid hex digit");
+    }
     
     template <endian::order r, std::unsigned_integral word>
     maybe<oriented<r, word>> read (string_view s) {
-
         if (!valid (s)) return {};
-        
-        // first read as a string of bytes.
-        oriented<r, byte> n = {};
-        size_t new_size = (s.size () - 2) / 2;
-        n.resize (new_size);
-        boost::algorithm::unhex (s.begin () + 2, s.end (), n.words ().rbegin ());
 
-        // if word is byte, then we're done.
-        if constexpr (sizeof (word) == 1) return {n};
+        if ((((s.size () - 2) / 2) % sizeof (word)) != 0) return {};
 
-        // check if the string size is a multiple of the word size.
-        if (new_size % sizeof (word) != 0) return {};
+        oriented<r, word> n;
+        n.resize ((s.size () - 2) / (2 * sizeof (word)));
 
-        // convert the string of bytes to words.
-        oriented<r, word> w {};
-        w.resize (new_size / sizeof (word));
-
-        auto x = n.words ().begin ();
-        for (word &ww : w.words ()) {
-            ww = 0;
-            for (int i = 0; i < sizeof (word); i++) {
-                ww += *x << (i * 8);
-                x++;
+        auto x = n.words ().rbegin ();
+        auto y = s.begin () + 2;
+        while (x != n.words ().rend ()) {
+            *x = 0;
+            for (int i = sizeof (word) - 1; i >= 0; i--) {
+                *x |= static_cast<word> ((hex_digit_to_value (*y) << 4) | (hex_digit_to_value (*(y + 1)))) << (i * 8);
+                y += 2;
             }
+
+            x++;
         }
 
-        return w;
-
+        return n;
     }
     
     template <endian::order r, std::unsigned_integral word>

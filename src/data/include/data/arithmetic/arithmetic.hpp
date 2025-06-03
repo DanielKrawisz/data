@@ -109,38 +109,75 @@ namespace data::arithmetic {
     // bit shift operations are defined in terms of big-endian numbers.
     // but really they are operations to powers of 2 ignoring sign,
     // regardless of the way that a number is actually represented.
-    // we can only do this with bytes and not bigger numbers because of
-    // little-endian encoding.
+
+    // amount should be less than the number of digits base 2 in the word.
+    // We should iterate from little to big endian.
     template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
-    requires std::output_iterator<ita, word> &&
-        std::sentinel_for<sen, itb>
-    void shift_left (ita &i, sen z, itb b, uint32 amount, word fill) {
-        using two_digits = typename encoding::twice<word>::type;
+    requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
+    std::enable_if_t<has_twice<word>::value, void>
+    shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
+        using two_digits = typename twice<word>::type;
 
         while (b != z) {
             auto bp = b;
             bp++;
-            two_digits result = encoding::combine<word> (*b, bp != z ? *bp : fill) << amount;
-            *i = encoding::greater_half (result);
+            two_digits result = combine<word> (*b, bp != z ? *bp : fill) << amount;
+            *i =  greater_half (result);
             i++;
             b = bp;
         }
     }
 
-    // you have to use reverse iterators for this function.
+    // amount should be less than the number of digits base 2 in the word.
+    // We should iterate from big to little endian.
     template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
-    void shift_right (ita &i, sen z, itb b, uint32 amount, word fill) {
-        using two_digits = typename encoding::twice<word>::type;
+    std::enable_if_t<has_twice<word>::value, void>
+    shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
+        using two_digits = typename twice<word>::type;
 
         while (b != z) {
             auto bp = b;
             bp++;
-            two_digits x = encoding::combine<word> (bp != z ? *bp : fill, *b);
-            two_digits result = encoding::combine<word> (bp != z ? *bp : fill, *b) >> amount;
-            *i = encoding::lesser_half (result);
+            two_digits x =  combine<word> (bp != z ? *bp : fill, *b);
+            two_digits result =  combine<word> (bp != z ? *bp : fill, *b) >> amount;
+            *i =  lesser_half (result);
             i++;
             b = bp;
+        }
+    }
+
+    // amount should be less than the number of digits base 2 in the word.
+    // We should iterate from little to big endian.
+    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
+    std::enable_if_t<!has_twice<word>::value, void>
+    shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
+        constexpr static const uint16 digits = sizeof (word) * 8;
+        word prev = fill >> (digits - amount);
+
+        while (b != z) {
+            *i = prev + (*b << amount);
+            prev = *b >> (digits - amount);
+            i++;
+            b++;
+        }
+    }
+
+    // amount should be less than the number of digits base 2 in the word.
+    // We should iterate from big to little endian.
+    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
+    std::enable_if_t<!has_twice<word>::value, void>
+    shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
+        constexpr static const uint16 digits = sizeof (word) * 8;
+        word prev = fill << (digits - amount);
+
+        while (b != z) {
+            *i = prev + (*b >> amount);
+            prev = *b << (digits - amount);
+            i++;
+            b++;
         }
     }
 

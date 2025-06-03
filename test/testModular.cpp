@@ -141,7 +141,6 @@ namespace data {
         test_modular<uint_little<6, unsigned int>> {};
 
         // TODO bigger words
-        /*
         test_modular<uint_big<2, long unsigned int>> {};
         test_modular<uint_little<2, long unsigned int>> {};
         test_modular<uint_big<3, long unsigned int>> {};
@@ -158,7 +157,6 @@ namespace data {
         test_modular<uint_little<3, long long unsigned int>> {};
         test_modular<uint_big<4, long long unsigned int>> {};
         test_modular<uint_little<4, long long unsigned int>> {};
-        */
 
     }
 }
