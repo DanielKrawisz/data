@@ -50,7 +50,7 @@ namespace data {
         test_bit_negate<int_little<6, unsigned int>> ();
 
         // TODO add bigger words here
-        /*
+
         test_bit_negate<int_big<2, long unsigned int>> ();
         test_bit_negate<int_big<3, long unsigned int>> ();
         test_bit_negate<int_big<4, long unsigned int>> ();
@@ -66,7 +66,7 @@ namespace data {
         test_bit_negate<int_little<1, long long unsigned int>> ();
         test_bit_negate<int_little<2, long long unsigned int>> ();
         test_bit_negate<int_little<3, long long unsigned int>> ();
-        test_bit_negate<int_little<4, long long unsigned int>> ();*/
+        test_bit_negate<int_little<4, long long unsigned int>> ();
         
     }
     
