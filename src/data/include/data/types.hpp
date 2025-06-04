@@ -42,32 +42,9 @@ static_assert (false, "Must support int64");
 #endif
 
 #if defined(__SIZEOF_INT128__)
-inline std::ostream &operator << (std::ostream &os, __uint128_t value) {
-    if (value == 0)
-        return os << '0';
-    std::vector<std::uint16_t> digits;
-    while (value > 0) {
-        digits.push_back (value % 10);
-        value /= 10;
-    }
-    for (auto b = digits.rbegin (); b != digits.rend (); b++) os << *b;
-    return os;
-}
-
-inline std::ostream &operator << (std::ostream &os, __int128_t value) {
-    if (value == 0)
-        return os << '0';
-
-    if (value < 0) os << "-";
-    value = -value;
-    std::vector<std::uint16_t> digits;
-    while (value > 0) {
-        digits.push_back (value % 10);
-        value /= 10;
-    }
-    for (auto b = digits.rbegin (); b != digits.rend (); b++) os << *b;
-    return os;
-}
+// can't use << because it won't be found by the compiler.
+std::ostream &print (std::ostream &os, __int128_t unsigned val);
+std::ostream &print (std::ostream &os, __int128_t val);
 #endif
 
 namespace data {
@@ -81,11 +58,6 @@ namespace data {
     using int16 = std::int16_t;
     using int32 = std::int32_t;
     using int64 = std::int64_t;
-
-#if defined(__SIZEOF_INT128__)
-    using uint128 = __uint128_t;
-    using int128 = __int128_t;
-#endif
 
     template <typename X> using ptr = std::shared_ptr<X>;
 
