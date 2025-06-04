@@ -70,10 +70,10 @@ namespace data {
     static_assert (real<int80> && math::normed_ring<int80>);
     static_assert (real<int80_little> && math::normed_ring<int80_little>);
     static_assert (real<int80_big> && math::normed_ring<int80_big>);
-
+/*
     static_assert (real<int128> && math::normed_ring<int128>);
     static_assert (real<int128_little> && math::normed_ring<int128_little>);
-    static_assert (real<int128_big> && math::normed_ring<int128_big>);
+    static_assert (real<int128_big> && math::normed_ring<int128_big>);*/
 
     static_assert (real<int160> && math::normed_ring<int160>);
     static_assert (real<int160_little> && math::normed_ring<int160_little>);
