@@ -68,10 +68,8 @@ namespace data {
     using  uint80 = math::uint<endian::little, 5, uint16>;
     using   int80 = math::sint<endian::little, 5, uint16>;
 
-#if !defined(__SIZEOF_INT128__)
     using uint128 = math::uint<endian::little, 2, uint64>;
     using  int128 = math::sint<endian::little, 2, uint64>;
-#endif
 
     using uint160 = math::uint<endian::little, 5, uint32>;
     using  int160 = math::sint<endian::little, 5, uint32>;
@@ -79,13 +77,8 @@ namespace data {
     using uint224 = math::uint<endian::little, 7, uint32>;
     using  int224 = math::sint<endian::little, 7, uint32>;
 
-#if !defined(__SIZEOF_INT128__)
-    using uint256 = math::uint<endian::little, 2, uint128>;
-    using  int256 = math::sint<endian::little, 2, uint128>;
-#else
     using uint256 = math::uint<endian::little, 4, uint64>;
     using  int256 = math::sint<endian::little, 4, uint64>;
-#endif
 
     using uint320 = math::uint<endian::little, 5, uint64>;
     using  int320 = math::sint<endian::little, 5, uint64>;
@@ -93,13 +86,8 @@ namespace data {
     using uint448 = math::uint<endian::little, 7, uint64>;
     using  int448 = math::sint<endian::little, 7, uint64>;
 
-#if !defined(__SIZEOF_INT128__)
-    using uint512 = math::uint<endian::little, 4, uint128>;
-    using  int512 = math::sint<endian::little, 4, uint128>;
-#else
     using uint512 = math::uint<endian::little, 8, uint64>;
     using  int512 = math::sint<endian::little, 8, uint64>;
-#endif
 
     using  uint80_little = uint_little<10>;
     using uint128_little = uint_little<16>;
