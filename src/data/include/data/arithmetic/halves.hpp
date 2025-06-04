@@ -23,7 +23,7 @@ namespace data::encoding {
     template <> struct uint_by_size<8> { using type = std::uint64_t; };
 
 #if defined(__SIZEOF_INT128__)
-    template <> struct uint_by_size<16> { using type = __uint128_t; };
+    template <> struct uint_by_size<16> { using type = unsigned __int128_t; };
     template <> struct int_by_size<16> { using type = __int128_t; };
 #endif
 }
@@ -60,28 +60,28 @@ namespace data {
 #if defined(__SIZEOF_INT128__)
 
     template <>
-    struct half_of<uint128> : encoding::uint_by_size<8> {
+    struct half_of<unsigned __int128_t> : encoding::uint_by_size<8> {
         using type = encoding::uint_by_size<8>::type;
 
-        static type greater_half (uint128 u) {
+        static type greater_half (__int128_t unsigned u) {
             return u >> sizeof (type) * 8;
         }
 
-        static type lesser_half (uint128 u) {
-            return static_cast<uint128> (u & std::numeric_limits<type>::max ());
+        static type lesser_half (__int128_t unsigned u) {
+            return static_cast<__int128_t unsigned> (u & std::numeric_limits<type>::max ());
         }
     };
 
     template <>
-    struct half_of<int128> : encoding::int_by_size<8> {
+    struct half_of<__int128_t> : encoding::int_by_size<8> {
         using type = encoding::int_by_size<8>::type;
 
-        static type greater_half (int128 u) {
+        static type greater_half (__int128_t u) {
             return u >> sizeof (type) * 8;
         }
 
-        static type lesser_half (int128 u) {
-            return static_cast<int128> (u & std::numeric_limits<type>::max ());
+        static type lesser_half (__int128_t u) {
+            return static_cast<__int128_t> (u & std::numeric_limits<type>::max ());
         }
     };
 #endif
