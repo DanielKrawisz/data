@@ -11,7 +11,7 @@ namespace data::math::number {
 
     // Generic division algorithm.
     template <ring_integral N>
-    division<N> natural_divide (const N &Dividend, const N &Divisor) {
+    constexpr division<N> natural_divide (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0u) throw division_by_zero {};
         if (Divisor == 1u) return {Dividend, 0u};

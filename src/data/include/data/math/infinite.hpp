@@ -28,9 +28,9 @@ namespace data::math {
 
     // detect infinite values. 
     template <typename X> constexpr bool is_infinite (const X &);
-    bool inline is_infinite (const float &x);
-    bool inline is_infinite (const double &x);
-    bool inline is_infinite (const long double &x);
+    constexpr bool inline is_infinite (const float &x);
+    constexpr bool inline is_infinite (const double &x);
+    constexpr bool inline is_infinite (const long double &x);
     template <typename X> constexpr bool is_infinite (const unsigned_limit<X> &);
     template <typename X> constexpr bool is_infinite (const signed_limit<X> &);
 
@@ -160,15 +160,15 @@ namespace data::math {
         return false;
     }
 
-    bool inline is_infinite (const float &x) {
+    constexpr bool inline is_infinite (const float &x) {
         return std::isinf (x);
     }
 
-    bool inline is_infinite (const double &x) {
+    constexpr bool inline is_infinite (const double &x) {
         return std::isinf (x);
     }
 
-    bool inline is_infinite (const long double &x) {
+    constexpr bool inline is_infinite (const long double &x) {
         return std::isinf (x);
     }
 

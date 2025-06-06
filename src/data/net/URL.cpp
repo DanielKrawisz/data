@@ -1073,13 +1073,13 @@ namespace data::net::IP {
         bytes b (16);
 
         // now we can figure out how many zeros we need to fill in.
-        int zeros = 8 - (data::size (ports_left) + data::size (ports_right) + data::size (octets) / 2);\
+        int zeros = 8 - (data::size (ports_left) + data::size (ports_right) + data::size (octets) / 2);
 
         auto bi = b.begin ();
         for (uint16_big upl : ports_left) {
-            *bi = upl[0];
+            *bi = upl.data ()[0];
             bi++;
-            *bi = upl[1];
+            *bi = upl.data ()[1];
             bi++;
         }
 
@@ -1091,9 +1091,9 @@ namespace data::net::IP {
         }
 
         for (uint16_big upr : ports_right) {
-            *bi = upr[0];
+            *bi = upr.data ()[0];
             bi++;
-            *bi = upr[1];
+            *bi = upr.data ()[1];
             bi++;
         }
 

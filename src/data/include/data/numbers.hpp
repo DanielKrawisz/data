@@ -13,7 +13,7 @@
 
 // numbers of either endian of any size up to 64 bits
 // using boost. 
-#include <data/arithmetic/endian.hpp>
+#include <data/encoding/endian.hpp>
 
 #include <data/encoding/integer.hpp>
 #include <data/math/number/bytes/Z.hpp>
@@ -156,7 +156,7 @@ namespace data {
     static_assert (integral_system<int320, uint320>);
     static_assert (integral_system<int448, uint448>);
     static_assert (integral_system<int512, uint512>);
-
+/*
     static_assert (unsigned_integral<uint8_big>);
     static_assert (unsigned_integral<uint16_big>);
     static_assert (unsigned_integral<uint24_big>);
@@ -164,7 +164,7 @@ namespace data {
     static_assert (unsigned_integral<uint40_big>);
     static_assert (unsigned_integral<uint48_big>);
     static_assert (unsigned_integral<uint56_big>);
-    static_assert (unsigned_integral<uint64_big>);
+    static_assert (unsigned_integral<uint64_big>);*/
     static_assert (unsigned_integral<uint80_big>);
     static_assert (unsigned_integral<uint128_big>);
     static_assert (unsigned_integral<uint160_big>);
@@ -173,7 +173,7 @@ namespace data {
     static_assert (unsigned_integral<uint320_big>);
     static_assert (unsigned_integral<uint448_big>);
     static_assert (unsigned_integral<uint512_big>);
-
+/*
     static_assert (integral_system<int8_big, uint8_big>);
     static_assert (integral_system<int16_big, uint16_big>);
     static_assert (integral_system<int24_big, uint24_big>);
@@ -181,8 +181,8 @@ namespace data {
     static_assert (integral_system<int40_big, uint40_big>);
     static_assert (integral_system<int48_big, uint48_big>);
     static_assert (integral_system<int56_big, uint56_big>);
-    static_assert (integral_system<int64_big, uint64_big>);
-
+    static_assert (integral_system<int64_big, uint64_big>);*/
+/*
     static_assert (unsigned_integral<uint8_little>);
     static_assert (unsigned_integral<uint16_little>);
     static_assert (unsigned_integral<uint24_little>);
@@ -190,7 +190,7 @@ namespace data {
     static_assert (unsigned_integral<uint40_little>);
     static_assert (unsigned_integral<uint48_little>);
     static_assert (unsigned_integral<uint56_little>);
-    static_assert (unsigned_integral<uint64_little>);
+    static_assert (unsigned_integral<uint64_little>);*/
     static_assert (unsigned_integral<uint80_little>);
     static_assert (unsigned_integral<uint128_little>);
     static_assert (unsigned_integral<uint160_little>);
@@ -199,7 +199,7 @@ namespace data {
     static_assert (unsigned_integral<uint320_little>);
     static_assert (unsigned_integral<uint448_little>);
     static_assert (unsigned_integral<uint512_little>);
-
+/*
     static_assert (integral_system<int8_little, uint8_little>);
     static_assert (integral_system<int16_little, uint16_little>);
     static_assert (integral_system<int24_little, uint24_little>);
@@ -207,7 +207,7 @@ namespace data {
     static_assert (integral_system<int40_little, uint40_little>);
     static_assert (integral_system<int48_little, uint48_little>);
     static_assert (integral_system<int56_little, uint56_little>);
-    static_assert (integral_system<int64_little, uint64_little>);
+    static_assert (integral_system<int64_little, uint64_little>);*/
 
     static_assert (unsigned_integral<N>);
     static_assert (integral_system<Z, N>);

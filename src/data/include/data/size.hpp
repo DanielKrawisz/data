@@ -14,12 +14,12 @@ namespace data {
         
         template <typename X>
         concept has_finite_size_method = requires(X x) {
-            { x.size() } -> std::same_as<size_t>;
+            { x.size () } -> std::same_as<size_t>;
         };
         
         template <typename X>
         concept has_infinite_size_method = requires(X x) {
-            { x.size() } -> std::same_as<cardinality>;
+            { x.size () } -> std::same_as<cardinality>;
         };
         
         template <typename X>
@@ -30,40 +30,40 @@ namespace data {
     namespace meta {
         
         template <typename X> struct size {
-            math::unsigned_limit<size_t> operator()(const X&) {
+            math::unsigned_limit<size_t> operator () (const X &) {
                 return 0;
             }
             
-            math::unsigned_limit<size_t> operator()(const X*) {
+            math::unsigned_limit<size_t> operator () (const X *) {
                 return 0;
             }
         };
         
         template <interface::has_finite_size_method X> struct size<X> {
-            size_t operator()(const X& x) {
-                return x.size();
+            size_t operator () (const X &x) {
+                return x.size ();
             }
             
-            size_t operator()(const X* x) {
-                return x == nullptr ? 0 : x->size();
+            size_t operator () (const X *x) {
+                return x == nullptr ? 0 : x->size ();
             }
         };
         
         template <interface::has_infinite_size_method X> struct size<X> {
-            cardinality operator()(const X& x) {
-                return x.size();
+            cardinality operator () (const X &x) {
+                return x.size ();
             }
             
-            cardinality operator()(const X* x) {
-                return x == nullptr ? 0 : x->size();
+            cardinality operator () (const X *x) {
+                return x == nullptr ? 0 : x->size ();
             }
         };
         
     }
 
     template <typename X>
-    inline auto size(const X x) -> decltype(meta::size<X>{}(x)) {
-        return meta::size<X>{}(x);
+    inline auto size (const X x) -> decltype (meta::size<X> {} (x)) {
+        return meta::size<X> {} (x);
     }
 
 }
