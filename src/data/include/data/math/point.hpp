@@ -95,6 +95,15 @@ namespace data::math::space {
         exterior (Args &&...args) : Values {flatten<X, dim, order> (exterior_components<X, dim, order> {std::forward<Args> (args)...})} {}
     };
 
+    template <field X, size_t order, size_t dim> struct exterior : array<X, binomial (dim, order)> {
+
+        template <typename... indexes>
+        requires (sizeof...(indexes) == order) &&
+            (std::conjunction_v<std::is_convertible<indexes, size_t>...>)
+        const X &operator [] (indexes... is) const;
+
+    };
+
     // affine geometry is like Euclid without circles.
     // technically, we do not have the full exterior algebra
     // available because we don't have the Hodge star without
