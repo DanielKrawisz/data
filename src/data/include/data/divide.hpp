@@ -13,10 +13,10 @@
 namespace data {
 
     template <typename dividend, typename divisor>
-    auto divide (const dividend &a, const math::nonzero<divisor> &b);
+    constexpr auto divide (const dividend &a, const math::nonzero<divisor> &b);
 
     template <typename dividend, typename divisor>
-    bool divides (const dividend &a, const math::nonzero<divisor> &b);
+    constexpr bool divides (const dividend &a, const math::nonzero<divisor> &b);
 
     template <typename N, typename R = N> struct division {
         N Quotient;
@@ -29,28 +29,26 @@ namespace data {
         constexpr division (const N &q, const R &r) : Quotient {q}, Remainder {r} {}
         constexpr division () : Quotient {}, Remainder {} {}
 
-        bool operator == (const division &d) const {
+        constexpr bool operator == (const division &d) const {
             return Quotient == d.Quotient && Remainder == d.Remainder;
-        }
-
-        bool operator != (const division &d) const {
-            return !(*this == d);
         }
     };
 
     // modular arithmetic
-    template <typename A, typename Mod = A> auto mod (const A &, const math::nonzero<Mod> &);
-    template <typename A, typename Mod = A> auto negate_mod (const A &, const math::nonzero<Mod> &);
+    template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
+    template <typename A, typename Mod = A> constexpr auto negate_mod (const A &, const math::nonzero<Mod> &);
 
-    template <typename A, typename B, typename Mod> auto plus_mod (const A &, const B &, const math::nonzero<Mod> &);
-    template <typename A, typename B, typename Mod> auto minus_mod (const A &, const B &, const math::nonzero<Mod> &);
+    template <typename A, typename B, typename Mod> constexpr auto plus_mod (const A &, const B &, const math::nonzero<Mod> &);
+    template <typename A, typename B, typename Mod> constexpr auto minus_mod (const A &, const B &, const math::nonzero<Mod> &);
 
-    template <typename A, typename B, typename Mod> auto times_mod (const A &, const B &, const math::nonzero<Mod> &);
-    template <typename A, typename Exp = A, typename Mod = Exp> auto pow_mod (const A &, const Exp &, const math::nonzero<Mod> &);
+    template <typename A, typename B, typename Mod> constexpr auto times_mod (const A &, const B &, const math::nonzero<Mod> &);
+    template <typename A, typename Exp = A, typename Mod = Exp> constexpr auto pow_mod (const A &, const Exp &, const math::nonzero<Mod> &);
+
+    template <typename A, typename Mod> constexpr auto invert_mod (const A &x, const math::nonzero<Mod> &n);
 
     // helper functions for computing pow mod and times mod.
-    template <typename A, typename Mod = A> auto mul_2_mod (const A &, const math::nonzero<Mod> &);
-    template <typename A, typename Mod = A> auto square_mod (const A &, const math::nonzero<Mod> &);
+    template <typename A, typename Mod = A> constexpr auto mul_2_mod (const A &, const math::nonzero<Mod> &);
+    template <typename A, typename Mod = A> constexpr auto square_mod (const A &, const math::nonzero<Mod> &);
 }
 
 namespace data::math {
@@ -110,48 +108,48 @@ namespace data::math {
 
 namespace data {
     template <typename dividend, typename divisor>
-    auto inline divide (const dividend &a, const math::nonzero<divisor> &b) {
+    constexpr auto inline divide (const dividend &a, const math::nonzero<divisor> &b) {
         return math::divide<dividend, divisor> {} (a, b);
     }
     
     template <typename dividend, typename divisor>
-    bool inline divides (const dividend &a, const math::nonzero<divisor> &b) {
+    constexpr bool inline divides (const dividend &a, const math::nonzero<divisor> &b) {
         return b == 0 ? true : math::divide<dividend, divisor> {} (a, b).Remainder == 0;
     }
 
-    template <typename A, typename Mod> auto mod (const A &x, const math::nonzero<Mod> &n) {
+    template <typename A, typename Mod> constexpr auto mod (const A &x, const math::nonzero<Mod> &n) {
         return math::mod<A, Mod> {} (x, n);
     }
 
-    template <typename A, typename Mod> auto negate_mod (const A &x, const math::nonzero<Mod> &n) {
+    template <typename A, typename Mod> constexpr auto negate_mod (const A &x, const math::nonzero<Mod> &n) {
         return math::negate_mod<A, Mod> {} (x, n);
     }
 
-    template <typename A, typename B, typename Mod> auto inline plus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename B, typename Mod> constexpr auto inline plus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
         return math::plus_mod<A, B, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename B, typename Mod> auto inline minus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename B, typename Mod> constexpr auto inline minus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
         return math::minus_mod<A, B, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename Exp, typename Mod> auto inline times_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename Exp, typename Mod> constexpr auto inline times_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
         return math::times_mod<A, Exp, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename Exp, typename Mod> auto inline pow_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename Exp, typename Mod> constexpr auto inline pow_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
         return math::pow_mod<A, Exp, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename Mod> auto invert_mod (const A &x, const math::nonzero<Mod> &n) {
+    template <typename A, typename Mod> constexpr auto invert_mod (const A &x, const math::nonzero<Mod> &n) {
         return math::invert_mod<A, Mod> {} (x, n);
     }
 
-    template <typename A, typename Mod> auto inline mul_2_mod (const A &x, const math::nonzero<Mod> &z) {
+    template <typename A, typename Mod> constexpr auto inline mul_2_mod (const A &x, const math::nonzero<Mod> &z) {
         return math::mul_2_mod<A, Mod> {} (x, z);
     }
 
-    template <typename A, typename Mod> auto inline square_mod (const A &x, const math::nonzero<Mod> &z) {
+    template <typename A, typename Mod> constexpr auto inline square_mod (const A &x, const math::nonzero<Mod> &z) {
         return math::square_mod<A, Mod> {} (x, z);
     }
 
@@ -166,19 +164,19 @@ namespace data::math {
 
     // default definition of mod in terms of divide.
     template <typename A, typename Mod> struct mod {
-        auto operator () (const A &x, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
             return divide<A, Mod> {} (x, n).Remainder;
         }
     };
 
     template <std::integral A, std::integral Mod> struct mod<A, Mod> {
-        auto operator () (const A &x, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
             return data::abs (x) % data::abs (n.Value);
         }
     };
 
     template <typename A, typename Mod> struct negate_mod {
-        auto operator () (const A &x, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
             return x < n.Value ?
             data::mod (n.Value - x, n):
             data::mod (n.Value - data::mod (x, n), n);
@@ -186,32 +184,32 @@ namespace data::math {
     };
 
     template <typename A, typename Mod> struct mul_2_mod {
-        auto operator () (const A &x, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
             return data::mod (data::mul_2 (x), n);
         }
     };
 
     template <typename A, typename B, typename Mod> struct plus_mod {
-        auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
             return data::mod (data::plus (x, y), n);
         }
     };
 
     template <typename A, typename B, typename Mod> struct minus_mod {
-        auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
             return data::mod (data::minus (x, y), n);
         }
     };
 
     template <typename A, typename Mod> struct square_mod {
-        auto operator () (const A &x, const nonzero<Mod> &n) const {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
             return data::mod (data::square (x), n);
         }
     };
 
     // note: should have a special case for integral that uses twice.
     template <typename A, typename B, typename Mod> struct times_mod {
-        auto operator () (A a, B b, nonzero<Mod> n) {
+        constexpr auto operator () (A a, B b, nonzero<Mod> n) {
             return data::mod ((data::abs (a) * data::abs (b)), n);
         }
     };

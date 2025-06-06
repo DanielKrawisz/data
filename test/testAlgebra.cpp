@@ -13,27 +13,6 @@
 #include "gtest/gtest.h"
 
 namespace data::math::linear {
-
-    // representations of numbers.
-    constexpr auto d1  = decimal {"1"};
-    constexpr auto d2  = decimal {"2"};
-    constexpr auto d3  = decimal {"3"};
-    constexpr auto d4  = decimal {"4"};
-    constexpr auto d5  = decimal {"5"};
-    constexpr auto d6  = decimal {"6"};
-    constexpr auto d7  = decimal {"7"};
-    constexpr auto d8  = decimal {"8"};
-    constexpr auto d9  = decimal {"9"};
-    constexpr auto d10 = decimal {"10"};
-    constexpr auto d11 = decimal {"11"};
-    constexpr auto d12 = decimal {"12"};
-    constexpr auto d13 = decimal {"13"};
-    constexpr auto d14 = decimal {"14"};
-    constexpr auto d15 = decimal {"15"};
-    constexpr auto d16 = decimal {"16"};
-    constexpr auto d17 = decimal {"17"};
-    constexpr auto d18 = decimal {"18"};
-    constexpr auto d19 = decimal {"19"};
     
     template <typename F, typename op = plus<F>> requires group<F, op> struct test_group {
         test_group () {}
@@ -41,41 +20,41 @@ namespace data::math::linear {
     
     TEST (AlgebraTest, TestGroup) {
 
-        test_group<cyclic_group<d1, uint64>> {};
-        test_group<cyclic_group<d2, uint64>> {};
-        test_group<cyclic_group<d3, uint64>> {};
-        test_group<cyclic_group<d4, uint64>> {};
-        test_group<cyclic_group<d5, uint64>> {};
-        test_group<cyclic_group<d6, uint64>> {};
-        test_group<cyclic_group<d7, uint64>> {};
-        test_group<cyclic_group<d8, uint64>> {};
+        test_group<cyclic_group<uint64 {1}>> {};
+        test_group<cyclic_group<uint64 {2}>> {};
+        test_group<cyclic_group<uint64 {3}>> {};
+        test_group<cyclic_group<uint64 {4}>> {};
+        test_group<cyclic_group<uint64 {5}>> {};
+        test_group<cyclic_group<uint64 {6}>> {};
+        test_group<cyclic_group<uint64 {7}>> {};
+        test_group<cyclic_group<uint64 {8}>> {};
         
-        test_group<dihedral_group<d1, uint64>, times<dihedral_group<d1, uint64>>> {};
-        test_group<dihedral_group<d2, uint64>, times<dihedral_group<d2, uint64>>> {};
-        test_group<dihedral_group<d3, uint64>, times<dihedral_group<d3, uint64>>> {};
-        test_group<dihedral_group<d4, uint64>, times<dihedral_group<d4, uint64>>> {};
-        test_group<dihedral_group<d5, uint64>, times<dihedral_group<d5, uint64>>> {};
-        test_group<dihedral_group<d6, uint64>, times<dihedral_group<d6, uint64>>> {};
-        test_group<dihedral_group<d7, uint64>, times<dihedral_group<d7, uint64>>> {};
-        test_group<dihedral_group<d8, uint64>, times<dihedral_group<d8, uint64>>> {};
+        test_group<dihedral_group<uint64 {1}>, times<dihedral_group<uint64 {1}>>> {};
+        test_group<dihedral_group<uint64 {2}>, times<dihedral_group<uint64 {2}>>> {};
+        test_group<dihedral_group<uint64 {3}>, times<dihedral_group<uint64 {3}>>> {};
+        test_group<dihedral_group<uint64 {4}>, times<dihedral_group<uint64 {4}>>> {};
+        test_group<dihedral_group<uint64 {5}>, times<dihedral_group<uint64 {5}>>> {};
+        test_group<dihedral_group<uint64 {6}>, times<dihedral_group<uint64 {6}>>> {};
+        test_group<dihedral_group<uint64 {7}>, times<dihedral_group<uint64 {7}>>> {};
+        test_group<dihedral_group<uint64 {8}>, times<dihedral_group<uint64 {8}>>> {};
         
-        test_group<symmetric_group<d1, uint64>, times<symmetric_group<d1, uint64>>> {};
-        test_group<symmetric_group<d2, uint64>, times<symmetric_group<d2, uint64>>> {};
-        test_group<symmetric_group<d3, uint64>, times<symmetric_group<d3, uint64>>> {};
-        test_group<symmetric_group<d4, uint64>, times<symmetric_group<d4, uint64>>> {};
-        test_group<symmetric_group<d5, uint64>, times<symmetric_group<d5, uint64>>> {};
-        test_group<symmetric_group<d6, uint64>, times<symmetric_group<d6, uint64>>> {};
-        test_group<symmetric_group<d7, uint64>, times<symmetric_group<d7, uint64>>> {};
-        test_group<symmetric_group<d8, uint64>, times<symmetric_group<d8, uint64>>> {};
+        test_group<symmetric_group<uint64 {1}>, times<symmetric_group<uint64 {1}>>> {};
+        test_group<symmetric_group<uint64 {2}>, times<symmetric_group<uint64 {2}>>> {};
+        test_group<symmetric_group<uint64 {3}>, times<symmetric_group<uint64 {3}>>> {};
+        test_group<symmetric_group<uint64 {4}>, times<symmetric_group<uint64 {4}>>> {};
+        test_group<symmetric_group<uint64 {5}>, times<symmetric_group<uint64 {5}>>> {};
+        test_group<symmetric_group<uint64 {6}>, times<symmetric_group<uint64 {6}>>> {};
+        test_group<symmetric_group<uint64 {7}>, times<symmetric_group<uint64 {7}>>> {};
+        test_group<symmetric_group<uint64 {8}>, times<symmetric_group<uint64 {8}>>> {};
         
-        test_group<alternating_group<d1, uint64>, times<alternating_group<d1, uint64>>> {};
-        test_group<alternating_group<d2, uint64>, times<alternating_group<d2, uint64>>> {};
-        test_group<alternating_group<d3, uint64>, times<alternating_group<d3, uint64>>> {};
-        test_group<alternating_group<d4, uint64>, times<alternating_group<d4, uint64>>> {};
-        test_group<alternating_group<d5, uint64>, times<alternating_group<d5, uint64>>> {};
-        test_group<alternating_group<d6, uint64>, times<alternating_group<d6, uint64>>> {};
-        test_group<alternating_group<d7, uint64>, times<alternating_group<d7, uint64>>> {};
-        test_group<alternating_group<d8, uint64>, times<alternating_group<d8, uint64>>> {};
+        test_group<alternating_group<uint64 {1}>, times<alternating_group<uint64 {1}>>> {};
+        test_group<alternating_group<uint64 {2}>, times<alternating_group<uint64 {2}>>> {};
+        test_group<alternating_group<uint64 {3}>, times<alternating_group<uint64 {3}>>> {};
+        test_group<alternating_group<uint64 {4}>, times<alternating_group<uint64 {4}>>> {};
+        test_group<alternating_group<uint64 {5}>, times<alternating_group<uint64 {5}>>> {};
+        test_group<alternating_group<uint64 {6}>, times<alternating_group<uint64 {6}>>> {};
+        test_group<alternating_group<uint64 {7}>, times<alternating_group<uint64 {7}>>> {};
+        test_group<alternating_group<uint64 {8}>, times<alternating_group<uint64 {8}>>> {};
     }
     
     template <typename F> requires field<F> struct test_field {
@@ -90,22 +69,22 @@ namespace data::math::linear {
         }
     }; 
     
-    template <auto & mod>
-    using prime_field = math::prime_field_element<uint64, mod>;
+    template <auto mod>
+    using prime_field = math::prime_field_element<mod, uint64>;
     
     TEST (AlgebraTest, TestField) {
         test_field<double> {};
         test_field<complex128> {};
         test_field<Q> {};
         test_field<QC> {};
-        test_field<prime_field<d2>> {};
-        test_field<prime_field<d3>> {};
-        test_field<prime_field<d5>> {};
-        test_field<prime_field<d7>> {};
-        test_field<prime_field<d11>> {};
-        test_field<prime_field<d13>> {};
-        test_field<prime_field<d17>> {};
-        test_field<prime_field<d19>> {};
+        test_field<prime_field<uint64 {2}>> {};
+        test_field<prime_field<uint64 {3}>> {};
+        test_field<prime_field<uint64 {5}>> {};
+        test_field<prime_field<uint64 {7}>> {};
+        test_field<prime_field<uint64 {11}>> {};
+        test_field<prime_field<uint64 {13}>> {};
+        test_field<prime_field<uint64 {17}>> {};
+        test_field<prime_field<uint64 {19}>> {};
     }
     
     template <typename F, typename V> requires space<F, V> struct test_vector_space {

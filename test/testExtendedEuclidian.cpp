@@ -38,8 +38,14 @@ namespace data::math {
     
     TEST (ExtendedEuclidianTest, TestExtendedEuclidian) {
 
-        test_extended_euclidian<uint64_t, uint64_t> {};
-        test_extended_euclidian<int64_t, int64_t> {};
+        test_extended_euclidian<uint64, uint64> {};
+        test_extended_euclidian<int64, int64> {};
+
+        test_extended_euclidian<uint64_little, uint64_little> {};
+        test_extended_euclidian<int64_little, int64_little> {};
+
+        test_extended_euclidian<uint64_big, uint64_big> {};
+        test_extended_euclidian<int64_big, int64_big> {};
 
         test_extended_euclidian<int80, uint80> {};
         test_extended_euclidian<int80_little, uint80_little> {};

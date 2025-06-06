@@ -35,21 +35,24 @@ namespace data::math::number::euclidian {
             return gcd == a * s + b * t;
         }
         
-        extended (Z a, Z b, N gcd, Z s, Z t) : GCD {gcd}, BezoutS {s}, BezoutT {s} {
+        constexpr extended (Z a, Z b, N gcd, Z s, Z t) : GCD {gcd}, BezoutS {s}, BezoutT {s} {
             if (!valid_proof (gcd, a, b, s, t)) throw invalid_proof {};
         }
         
     private:
-        extended () : GCD {}, BezoutS {}, BezoutT {} {}
+        constexpr extended () : GCD {}, BezoutS {}, BezoutT {} {}
         
-        extended (const N gcd, const Z s, const Z t) : GCD {gcd}, BezoutS {s}, BezoutT {t} {}
+        constexpr extended (const N gcd, const Z s, const Z t) : GCD {gcd}, BezoutS {s}, BezoutT {t} {}
         
         struct sequence {
             division<N> Div;
             Z BezoutS;
             Z BezoutT;
+
+            constexpr sequence (const division<N> d, const Z &s, const Z &t):
+                Div {d}, BezoutS {s}, BezoutT {t} {}
             
-            sequence operator / (const sequence &s) const {
+            constexpr sequence operator / (const sequence &s) const {
                 division<N> div = natural_divide<N> (Div.Remainder, s.Div.Remainder);
                 return {div,
                     static_cast<Z> (BezoutS - s.BezoutS * div.Quotient),
@@ -59,19 +62,19 @@ namespace data::math::number::euclidian {
         };
         
         // must provide prev.Div.Remainder > current.Div.Remainder.
-        static extended loop (const sequence prev, const sequence current) {
+        constexpr static extended loop (const sequence prev, const sequence current) {
             sequence next = prev / current;
             if (next.Div.Remainder == 0) return extended {current.Div.Remainder, current.BezoutS, current.BezoutT};
             return loop (current, next);
         }
         
         // we know that a >= b
-        static extended run (const N &a, const N &b) {
+        constexpr static extended run (const N &a, const N &b) {
             return loop (sequence {{0, a}, Z {1}, Z {0}}, sequence {{0, b}, Z {0}, Z {1}});
         }
         
     public:
-        static extended algorithm (const N &a, const N &b) {
+        constexpr static extended algorithm (const N &a, const N &b) {
             return a < b ? run (b, a) : run (a, b);
         }
     };
@@ -80,7 +83,7 @@ namespace data::math::number::euclidian {
 
 namespace data::math::number {
     template <ring_integral Z, ring_integral N>
-    auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
+    constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
         maybe<decltype (divide<Z, N> {} (x, mod).Remainder)> {
         if (mod.Value < 0) throw exception {} << "mod by negative number";
         using return_type = decltype (divide<Z, N> {} (x, mod).Remainder);
@@ -94,10 +97,17 @@ namespace data::math::number {
 namespace data::math {
     template <typename Z, typename N>
     struct invert_mod {
-        auto operator () (const Z &x, const nonzero<N> &mod) {
+        constexpr auto operator () (const Z &x, const nonzero<N> &mod) {
             return number::natural_invert_mod<Z, N> (x, mod);
         }
     };
+}
+
+namespace data {
+    template <typename N, typename Z = N>
+    constexpr N inline GCD (const N &a, const N &b) {
+        return data::math::number::euclidian::extended<N, Z>::algorithm (a, b).GCD;
+    }
 }
 
 #endif

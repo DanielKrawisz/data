@@ -276,7 +276,7 @@ namespace data::math {
     struct divide<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, boost::endian::endian_arithmetic<Order, U, n_bits, Align>> {
         using se = boost::endian::endian_arithmetic<Order, T, n_bits, Align>;
         using ue = boost::endian::endian_arithmetic<Order, U, n_bits, Align>;
-        division<se, ue> operator () (const se &dividend, const nonzero<ue> &divisor) {
+        constexpr division<se, ue> operator () (const se &dividend, const nonzero<ue> &divisor) {
             auto d = divide<T, U> {} (dividend.value (), nonzero<U> {divisor.Value.value ()});
             return division<se, ue> {se (d.Quotient), ue (d.Remainder)};
         }
@@ -286,8 +286,8 @@ namespace data::math {
     struct divide<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
         using se = boost::endian::endian_arithmetic<Order, T, n_bits, Align>;
         using ue = boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>;
-        division<se, ue> operator () (const se &dividend, const nonzero<se> &divisor) {
-            auto d = divide<T, std::make_unsigned_t<T>> {} (dividend.value (), nonzero<T> {divisor.Value.value ()});
+        constexpr division<se, ue> operator () (const se &dividend, const nonzero<se> &divisor) {
+            auto d = divide<T, T> {} (dividend.value (), nonzero<T> {divisor.Value.value ()});
             return division<se, ue> {se (d.Quotient), ue (d.Remainder)};
         }
     };
@@ -295,7 +295,7 @@ namespace data::math {
     template <endian::order Order, class T, std::size_t n_bits, boost::endian::align Align>
     struct negate_mod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>,
         boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> {
-        boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align> operator () (
+        constexpr boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align> operator () (
             boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
             nonzero<boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> n) {
             return data::negate_mod (a.value (), nonzero {n.Value.value ()});
