@@ -14,31 +14,31 @@ namespace data::math {
     template <typename F, typename x> struct inverse;
 
     template <typename X> struct identity<plus<X>, X> {
-        X operator () () {
+        constexpr X operator () () {
             return X {0};
         }
     };
 
     template <typename X> struct identity<times<X>, X> {
-        X operator () () {
+        constexpr X operator () () {
             return X {1};
         }
     };
 
     template <std::signed_integral X> struct inverse<plus<X>, X> {
-        X operator () (X a, X b) {
+        constexpr X operator () (X a, X b) {
             return b - a;
         }
     };
 
     template <typename X> struct inverse<times<X>, nonzero<X>> {
-        nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+        constexpr nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
             return b / a;
         }
     };
 
     template <typename X> struct identity<times<X>, nonzero<X>> {
-        nonzero<X> operator () () {
+        constexpr nonzero<X> operator () () {
             return 1;
         }
     };

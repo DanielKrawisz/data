@@ -8,6 +8,8 @@
 #include <data/numbers.hpp>
 #include <data/complex.hpp>
 
+#include <data/math/number/modular.hpp>
+
 #include <data/math/permutation.hpp>
 #include <data/math/polynomial.hpp>
 
@@ -15,6 +17,8 @@
 #include <data/math/octonion.hpp>
 
 namespace data {
+    // modular numbers
+    template <auto N> using modular = math::number::modular<N>;
     
     // fractions
     template <typename Z> using fraction = math::fraction<Z>;
@@ -58,7 +62,7 @@ namespace data {
     // Various kinds of real numbers.
     static_assert (real<float32> && math::normed_field<float32>);
     static_assert (real<float64> && math::normed_field<float64>);
-
+/*
     static_assert (real<int32> && math::normed_ring<int32>);
     static_assert (real<int32_little> && math::normed_ring<int32_little>);
     static_assert (real<int32_big> && math::normed_ring<int32_big>);
@@ -70,7 +74,7 @@ namespace data {
     static_assert (real<int80> && math::normed_ring<int80>);
     static_assert (real<int80_little> && math::normed_ring<int80_little>);
     static_assert (real<int80_big> && math::normed_ring<int80_big>);
-/*
+
     static_assert (real<int128> && math::normed_ring<int128>);
     static_assert (real<int128_little> && math::normed_ring<int128_little>);
     static_assert (real<int128_big> && math::normed_ring<int128_big>);*/

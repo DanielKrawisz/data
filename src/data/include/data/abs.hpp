@@ -13,10 +13,10 @@ namespace data {
 
     // we determine whether a type is siged or not based on whether
     // the negate function returns the same or different type.
-    template <typename A> auto negate (const A &);
+    template <typename A> constexpr auto negate (const A &);
 
     // abs should match with negate
-    template <typename A> auto abs (const A &);
+    template <typename A> constexpr auto abs (const A &);
 
 }
 
@@ -76,12 +76,12 @@ namespace data {
     template <signed_type A> using to_unsigned = make_unsigned<A>::type;
     template <unsigned_type A> using to_signed = make_signed<A>::type;
 
-    template <typename A> auto inline negate (const A &x) {
+    template <typename A> constexpr auto inline negate (const A &x) {
         return math::negate<A> {} (x);
     }
 
     // abs should match with negate
-    template <typename A> auto inline abs (const A &x) {
+    template <typename A> constexpr auto inline abs (const A &x) {
         return math::abs<A> {} (x);
     }
 
@@ -111,37 +111,37 @@ namespace data {
 namespace data::math {
 
     template <std::floating_point A> struct negate<A> {
-        A operator () (const A &x) const {
+        constexpr A operator () (const A &x) const {
             return -x;
         }
     };
 
     template <std::floating_point A> struct abs<A> {
-        A operator () (const A &x) const {
+        constexpr A operator () (const A &x) const {
             return x < 0 ? -x : x;
         }
     };
 
     template <std::unsigned_integral A> struct abs<A> {
-        A operator () (const A &x) const {
+        constexpr A operator () (const A &x) const {
             return x;
         }
     };
 
     template <std::signed_integral A> struct abs<A> {
-        A operator () (const A &x) const {
+        constexpr A operator () (const A &x) const {
             return x < 0 ? -x : x;
         }
     };
 
     template <std::unsigned_integral A> struct negate<A> {
-        A operator () (const A &x) const {
+        constexpr A operator () (const A &x) const {
             return -x;
         }
     };
 
     template <std::signed_integral A> struct negate<A> {
-        A operator () (const A &x) const {
+        constexpr A operator () (const A &x) const {
             if (x == std::numeric_limits<A>::min ()) throw exception {} << "invalid negate value " << x;
             return -x;
         }

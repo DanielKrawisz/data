@@ -12,6 +12,8 @@
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/arithmetic.hpp>
+#include <data/divide.hpp>
+#include <data/increment.hpp>
 #include <data/math/algebra.hpp>
 #include <data/arithmetic/negativity.hpp>
 #include <data/encoding/hex.hpp>

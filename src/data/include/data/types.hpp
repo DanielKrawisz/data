@@ -41,12 +41,6 @@ static_assert (false, "Must support int32");
 static_assert (false, "Must support int64");
 #endif
 
-#if defined(__SIZEOF_INT128__)
-// can't use << because it won't be found by the compiler.
-std::ostream &print (std::ostream &os, __int128_t unsigned val);
-std::ostream &print (std::ostream &os, __int128_t val);
-#endif
-
 namespace data {
 
     using byte = std::uint8_t;
@@ -67,8 +61,7 @@ namespace data {
 
     template <typename... X> using tuple = std::tuple<X...>;
 
-    template <typename X>
-    using view = std::basic_string_view<X>;
+    template <typename X> using view = std::basic_string_view<X>;
 
     using string_view = std::basic_string_view<char>;
 

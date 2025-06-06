@@ -199,26 +199,26 @@ namespace data {
 
 namespace data::math {
     // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <bit_integral A> A inline bit_mul_2 (const A &x) {
+    template <bit_integral A> constexpr A inline bit_mul_2 (const A &x) {
         return x << 1;
     }
 
-    template <unsigned_bit_integral A> A inline bit_div_2 (const A &x) {
+    template <unsigned_bit_integral A> constexpr A inline bit_div_2 (const A &x) {
         return x >> 1;
     }
 
-    template <signed_bit_integral A> A inline bit_div_2 (const A &x) {
+    template <signed_bit_integral A> constexpr A inline bit_div_2 (const A &x) {
         return (data::is_negative (x) ? data::increment (x) : x) >> 1;
     }
 
     // we now define shifts in terms of mul_2 and div_2
-    template <group_integral A> A arithmatic_shift_right (const A &a, uint32 u) {
+    template <group_integral A> constexpr A arithmatic_shift_right (const A &a, uint32 u) {
         A x = a;
         while (u-- > 0) x = data::mul_2 (x);
         return x;
     }
 
-    template <unsigned_group_integral A> A arithmatic_shift_left (const A &a, uint32 u) {
+    template <unsigned_group_integral A> constexpr A arithmatic_shift_left (const A &a, uint32 u) {
         A x = a;
         while (u-- > 0) x = data::div_2 (x);
         return x;
@@ -226,7 +226,7 @@ namespace data::math {
 
     // we now implement plus and minus in terms of bit operations.
     // this only works for complement one or two.
-    template <bit_integral A> A bit_plus (const A &a, const A &b) {
+    template <bit_integral A> constexpr A bit_plus (const A &a, const A &b) {
         A x = a;
         A c = b;
         while (c != 0) {
@@ -236,7 +236,7 @@ namespace data::math {
         return x;
     }
 
-    template <bit_integral A> A bit_minus (const A &a, const A &b) {
+    template <bit_integral A> constexpr A bit_minus (const A &a, const A &b) {
         A x = a;
         A c = b;
         while (c != 0) {
@@ -247,7 +247,7 @@ namespace data::math {
     }
 
     // for the rest of these, we need to know if A is signed or unsigned.
-    template <unsigned_group_integral A> A arithmatic_bit_and (const A &x, const A &y) {
+    template <unsigned_group_integral A> constexpr A arithmatic_bit_and (const A &x, const A &y) {
         if (x == 0) return 0;
         if (y == 0) return 0;
         A rx = arithmatic_shift_right (x);
@@ -256,7 +256,7 @@ namespace data::math {
         return arithmatic_shift_left (arithmatic_bit_and (rx, ry)) + digit;
     }
 
-    template <unsigned_group_integral A> A algebraic_bit_or (const A &x, const A &y) {
+    template <unsigned_group_integral A> constexpr A algebraic_bit_or (const A &x, const A &y) {
         if (x == 0) return 0;
         if (y == 0) return 0;
         A rx = arithmatic_shift_right (x);
@@ -266,31 +266,31 @@ namespace data::math {
     }
 
     template <bit_integral A> struct bit_shift_right<A> {
-        auto operator () (const A &x, uint32 i) const {
+        constexpr auto operator () (const A &x, uint32 i) const {
             return x >> i;
         }
     };
 
     template <bit_integral A> struct bit_shift_left<A> {
-        auto operator () (const A &x, uint32 i) const {
+        constexpr auto operator () (const A &x, uint32 i) const {
             return x << i;
         }
     };
 
     template <bit_integral X> struct mul_2<X> {
-        X operator () (const X &x) {
+        constexpr X operator () (const X &x) {
             return bit_mul_2 (x);
         }
     };
 
     template <bit_integral X> struct div_2<X> {
-        X operator () (const X &x) {
+        constexpr X operator () (const X &x) {
             return bit_div_2 (x);
         }
     };
 
     template <group_integral A, group_integral B> struct minus<A, B> {
-        auto operator () (const A &x, const B &y) const {
+        constexpr auto operator () (const A &x, const B &y) const {
             return x - y;
         }
     };

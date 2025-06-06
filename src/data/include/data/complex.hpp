@@ -11,13 +11,13 @@
 
 namespace data {
 
-    template <typename A> auto conjugate (const A &);
+    template <typename A> constexpr auto conjugate (const A &);
 
-    template <typename A> auto re (const A &);
+    template <typename A> constexpr auto re (const A &);
 
-    template <typename A> auto im (const A &);
+    template <typename A> constexpr auto im (const A &);
 
-    template <typename A, typename B = A> auto inner (const A &, const B &);
+    template <typename A, typename B = A> constexpr auto inner (const A &, const B &);
 }
 
 namespace data::math {
@@ -29,21 +29,21 @@ namespace data::math {
 
 namespace data {
     template <typename X>
-    auto inline conjugate (const X &x) {
+    constexpr auto inline conjugate (const X &x) {
         return math::conjugate<X> {} (x);
     }
 
     template <typename X>
-    auto inline re (const X &x) {
+    constexpr auto inline re (const X &x) {
         return math::re<X> {} (x);
     }
 
     template <typename X>
-    auto inline im (const X &x) {
+    constexpr auto inline im (const X &x) {
         return math::im<X> {} (x);
     }
 
-    template <typename A, typename B> auto inline inner (const A &x, const B &y) {
+    template <typename A, typename B> constexpr auto inline inner (const A &x, const B &y) {
         return math::inner<A, B> {} (x, y);
     }
 
@@ -69,26 +69,26 @@ namespace data::math {
 
     // default definitions
     template <typename X> struct conjugate {
-        X operator () (const X &x) {
+        constexpr X operator () (const X &x) {
             return x;
         }
     };
 
     template <typename X> struct re {
-        X operator () (const X &x) {
+        constexpr X operator () (const X &x) {
             return x;
         }
     };
 
     template <typename X> struct im {
-        X operator () (const X &x) {
+        constexpr X operator () (const X &x) {
             return X {0};
         }
     };
 
     template <typename X, typename Y>
     struct inner {
-        auto operator () (const X &x, const Y &y) {
+        constexpr auto operator () (const X &x, const Y &y) {
             return data::times (x, y);
         }
     };

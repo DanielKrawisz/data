@@ -118,7 +118,7 @@ namespace data::math {
         test_power_mod<uint80_big> ();
         test_power_mod<uint256> ();
         test_power_mod<uint256_little> ();
-        test_power_mod<uint56_big> ();
+        test_power_mod<uint256_big> ();
         test_power_mod<dec_uint> ();
         test_power_mod<hex_uint> ();
     }
