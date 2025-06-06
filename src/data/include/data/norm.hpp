@@ -9,9 +9,9 @@
 
 namespace data {
 
-    template <typename A> auto norm (const A &);
+    template <typename A> constexpr auto norm (const A &);
 
-    template <typename A> auto quadrance (const A &);
+    template <typename A> constexpr auto quadrance (const A &);
 }
 
 namespace data::math {
@@ -23,7 +23,7 @@ namespace data::math {
     template <typename X> requires requires (const X &x) {
         { abs<X> {} (quadrance<X> {} (x)) };
     } struct norm<X> {
-        auto operator () (const X &x) {
+        constexpr auto operator () (const X &x) {
             return abs<X> {} (quadrance<X> {} (x));
         }
     };
@@ -35,7 +35,7 @@ namespace data::math {
     template <typename X> requires (!data::real<X>) && requires (const X &x) {
         { inner<X, X> {} (x) };
     } struct quadrance<X> {
-        auto operator () (const X &x) {
+        constexpr auto operator () (const X &x) {
             return inner<X, X> {} (x, x);
         }
     };
@@ -43,12 +43,11 @@ namespace data::math {
 
 namespace data {
 
-    template <typename A>
-    auto inline quadrance (const A &x) {
+    template <typename A> constexpr auto inline quadrance (const A &x) {
         return math::quadrance<A> {} (x);
     }
 
-    template <typename A> auto inline norm (const A &x) {
+    template <typename A> constexpr auto inline norm (const A &x) {
         return math::norm<A> {} (x);
     }
 
