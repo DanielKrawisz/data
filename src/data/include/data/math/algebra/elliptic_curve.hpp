@@ -5,124 +5,149 @@
 #ifndef DATA_MATH_CRYPTO_ELLIPTIC_CURVE
 #define DATA_MATH_CRYPTO_ELLIPTIC_CURVE
 
-#include <data/math/number/prime.hpp>
-#include <data/math/number/modular.hpp>
 #include <data/math/field.hpp>
 #include <data/math/point.hpp>
 #include <data/power.hpp>
 
-namespace data::math {
+namespace data::math::elliptic {
 
     // Not every elliptic curve can be expressed in Weierstrauss form, but those that can't are very much exceptions.
-    template <field field> struct Weierstrauss {
-        field A;
-        field B;
+    template <auto A, auto B, field F = decltype (A)>
+    requires same_as<decltype (A), decltype (B)>
+    struct Weierstrass {
+        using field = F;
 
+        static bool valid ();
+
+        static field discriminant ();
+
+        using point = typename space::projective<field, 2>::simplex<1>;
+        using projective_point = typename space::projective<field, 2>::exterior<0>;
+
+        using signature = byte;
+        using coordinate = typename space::projective<field, 2>::coordinate;
+
+        struct compressed_point {
+            coordinate X;
+            signature Sign;
+        };
+
+        using Jacobian_point = typename space::affine<field, 3>::exterior<1>;
+
+        static bool valid (const point &);
+        static bool valid (const compressed_point &);
+        static bool valid (const projective_point &);
+        static bool valid (const Jacobian_point &);
+
+        static point identity ();
+        static compressed_point identity_compressed ();
+        static projective_point identity_projective ();
+        static Jacobian_point identity_Jacobian ();
+
+        static point invert (const point &);
+        static compressed_point invert (const compressed_point &);
+        static projective_point invert (const projective_point &);
+        static Jacobian_point invert (const Jacobian_point &);
+
+        static point plus (const point &, const point &);
+        static compressed_point plus (const compressed_point &, const compressed_point &);
+        static projective_point plus (const projective_point &, const projective_point &);
+        static Jacobian_point plus (const Jacobian_point &, const Jacobian_point &);
+
+        static point minus (const point &, const point &);
+        static compressed_point minus (const compressed_point &, const compressed_point &);
+        static projective_point minus (const projective_point &, const projective_point &);
+        static Jacobian_point minus (const Jacobian_point &, const Jacobian_point &);
+    };
+
+    template <typename curve> struct compressed_point;
+
+    template <typename curve>
+    struct point : unsigned_limit<typename space::affine<typename curve::field, 2>::point> {
         bool valid () const;
 
-        bool operator == (const Weierstrauss &) const;
+        bool operator == (const point &) const;
 
-        field discriminant () const;
+        point operator + (const point &) const;
+        point operator - (const point &) const;
 
-        struct point;
-        struct compressed_point;
-        struct projective_vector;
-        struct Jacobian_point;
+        template <typename N> point operator * (const N &) const;
 
-        point invert (const point &);
-        compressed_point invert (const compressed_point &);
-        projective_vector invert (const projective_vector &);
-        Jacobian_point invert (const Jacobian_point &);
+        compressed_point<curve> compress () const;
 
-        point multiply (const point &, const point &);
-        compressed_point multiply (const compressed_point &, const compressed_point &);
-        projective_vector multiply (const projective_vector &, const projective_vector &);
-        Jacobian_point multiply (const Jacobian_point &, const Jacobian_point &);
+        typename curve::coordinate x () const;
+        typename curve::coordinate y () const;
 
-        struct point : unsigned_limit<typename space::affine<field, 2>::point> {
-            const Weierstrauss &Curve;
-            bool valid () const;
-
-            bool operator == (const projective_vector &) const;
-
-            point operator * (const point &) const;
-            point operator / (const point &) const;
-
-            template <typename N> point operator ^ (const N &) const;
-
-            compressed_point compress () const;
-
-            field x () const;
-            field y () const;
-
-        protected:
-            point (const Weierstrauss &curve, unsigned_limit<typename space::affine<field, 2>::point>);
-        };
-
-        struct compressed {
-            field X;
-            signature YSign;
-        };
-
-        struct compressed_point : unsigned_limit<compressed> {
-            const Weierstrauss &Curve;
-            bool valid () const;
-
-            bool operator == (const projective_vector &) const;
-
-            compressed_point operator * (const compressed_point &) const;
-            compressed_point operator / (const compressed_point &) const;
-
-            template <typename N> compressed_point operator ^ (const N &) const;
-
-            point uncompress () const;
-
-            field x () const;
-            field y () const;
-        };
-
-        struct projective_vector : space::projective<field, 3>::exterior<1> {
-            const Weierstrauss &Curve;
-            bool valid () const;
-
-            bool operator == (const projective_vector &) const;
-
-            projective_vector operator * (const projective_vector &) const;
-            projective_vector operator / (const projective_vector &) const;
-
-            template <typename N> projective_vector operator ^ (const N &) const;
-
-            field x () const;
-            field y () const;
-            field z () const;
-        };
-
-        struct Jacobian_point : space::projective<field, 3>::exterior<1> {
-            const Weierstrauss &Curve;
-            bool valid () const;
-
-            Jacobian_point operator * (const Jacobian_point &) const;
-            Jacobian_point operator / (const Jacobian_point &) const;
-
-            template <typename N> Jacobian_point operator ^ (const N &) const;
-
-            field x () const;
-            field y () const;
-            field z () const;
-        };
+        point (unsigned_limit<typename space::affine<typename curve::field, 2>::point>);
     };
 
     template <field field>
-    bool inline Weierstrauss<field>::valid () const {
+    struct compressed {
+        field X;
+        signature YSign;
+    };
+
+    template <typename curve>
+    struct compressed_point : unsigned_limit<compressed<typename curve::field>> {
+        bool valid () const;
+
+        bool operator == (const compressed_point &) const;
+
+        compressed_point operator + (const compressed_point &) const;
+        compressed_point operator - (const compressed_point &) const;
+
+        template <typename N> compressed_point operator * (const N &) const;
+
+        point<curve> uncompress () const;
+
+        curve::coordinate x () const;
+        curve::coordinate y () const;
+    };
+
+    template <typename curve>
+    struct projective_point : space::affine<typename curve::field, 3>::exterior<1> {
+        bool valid () const;
+
+        bool operator == (const projective_point &) const;
+
+        projective_point operator + (const projective_point &) const;
+        projective_point operator - (const projective_point &) const;
+
+        template <typename N> projective_point operator * (const N &) const;
+
+    private:
+        curve::field u () const;
+        curve::field v () const;
+        curve::field w () const;
+    };
+
+    template <typename curve> struct Jacobian_point : space::affine<typename curve::field, 3>::exterior<1> {
+        bool valid () const;
+
+        Jacobian_point operator + (const Jacobian_point &) const;
+        Jacobian_point operator - (const Jacobian_point &) const;
+
+        template <typename N> Jacobian_point operator * (const N &) const;
+
+    private:
+        curve::field u () const;
+        curve::field v () const;
+        curve::field w () const;
+    };
+
+    template <auto A, auto B, field F>
+    requires same_as<decltype (A), decltype (B)>
+    bool inline Weierstrass<A, B, F>::valid () {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
-    template <field field>
-    field inline Weierstrauss<field>::discriminant () const {
+    template <auto A, auto B, field F>
+    requires same_as<decltype (A), decltype (B)>
+    F inline Weierstrass<A, B, F>::discriminant () {
         return A * A * A * 4 + B * B * 27;
     }
-
+/*
     template <field field>
     Weierstrauss<field>::point inline Weierstrauss<field>::point::operator * (const point &x) const {
         return Curve.multiply (*this, x);
@@ -204,18 +229,18 @@ namespace data::math {
     }
 
     template <field field>
-    bool inline Weierstrauss<field>::projective_vector::valid () const {
+    bool inline Weierstrauss<field>::valid (const projective_point &p) const {
         return y () * y () * z () == x () * x () * x () + A * x () * z () * z () + B * z () * z () * z ();
     }
 
     template <field field>
-    bool Weierstrauss<field>::Jacobian_point::valid () const {
+    bool Weierstrauss<field>::valid (const Jacobian_point &j) const {
         auto zz = z () * z ();
         auto zzz = zz * z ();
         auto zzzz = zz * zz;
         auto zzzzzz = zzz * zzz;
         return y () * y () == x () * x () * x () + A * x () * zzzz + B * zzzzzz;
-    }
+    }*/
 /*
     template <field field>
     Weierstrauss<field>::point multiply (const point &a, const point &b) {

@@ -207,6 +207,26 @@ public:
         return buf_.data();
     }
 
+    BOOST_CONSTEXPR unsigned char const * begin() const BOOST_NOEXCEPT
+    {
+        return buf_.data();
+    }
+
+    BOOST_CONSTEXPR unsigned char * begin() BOOST_NOEXCEPT
+    {
+        return buf_.data();
+    }
+
+    BOOST_CONSTEXPR unsigned char const * end() const BOOST_NOEXCEPT
+    {
+        return buf_.data() + n_bits / 8;
+    }
+
+    BOOST_CONSTEXPR unsigned char * end() BOOST_NOEXCEPT
+    {
+        return buf_.data() + n_bits / 8;
+    }
+
     BOOST_CONSTEXPR operator value_type() const BOOST_NOEXCEPT
     {
         return this->value();

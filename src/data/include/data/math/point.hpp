@@ -195,11 +195,11 @@ namespace data::math::space {
             bool operator == (const exterior &x) const;
         };
 
-        using value = unsigned_limit<X>;
+        using coordinate = unsigned_limit<X>;
 
-        // the rule is that no finite value can appear before an infinite value.
+        // no finite value can appear before an infinite value.
         template <size_t order>
-        struct simplex : space::exterior<value, order, dim> {
+        struct simplex : space::exterior<coordinate, order, dim> {
             bool valid () const;
         };
 
@@ -292,10 +292,10 @@ namespace data::math::space {
 
     template <field X, size_t dim> template <size_t order>
     bool projective<X, dim>::simplex<order>::valid () const {
-        if (!space::template exterior<value, order, dim>::valid ()) return false;
+        if (!space::template exterior<coordinate, order, dim>::valid ()) return false;
         // infinite values are not allowed to appear after the first finite value.
         bool first_finite_value = false;
-        for (const value &v : *this)
+        for (const coordinate &v : *this)
             if (!is_infinite (v)) first_finite_value = true;
             else if (first_finite_value) return false;
         return true;

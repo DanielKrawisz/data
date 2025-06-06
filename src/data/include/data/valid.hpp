@@ -18,27 +18,27 @@ namespace data {
         };
     }
 
-    template <typename X> bool inline valid (const X &x) {
+    template <typename X> constexpr bool inline valid (const X &x) {
         return true;
     }
 
-    template <typename X> bool inline valid (const X *x) {
+    template <typename X> constexpr bool inline valid (const X *x) {
         return x != nullptr;
     }
 
-    template <typename X> bool inline valid (const ptr<X> x) {
+    template <typename X> constexpr bool inline valid (const ptr<X> x) {
         return x != nullptr;
     }
 
-    template <interface::has_valid_method X> auto inline valid (const X &x) {
+    template <interface::has_valid_method X> constexpr auto inline valid (const X &x) {
         return x.valid ();
     }
 
-    template <interface::has_valid_method X> bool inline valid (const X *x) {
+    template <interface::has_valid_method X> constexpr bool inline valid (const X *x) {
         return x == nullptr ? false : x->valid ();
     }
 
-    template <interface::has_valid_method X> bool inline valid (const ptr<X> x) {
+    template <interface::has_valid_method X> constexpr bool inline valid (const ptr<X> x) {
         return x == nullptr ? false : x->valid ();
     }
 
