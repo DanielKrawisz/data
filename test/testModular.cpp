@@ -61,34 +61,34 @@ namespace data {
 
     }
 
+    template <auto N> using modular = math::number::modular<N>;
+
     template <typename N> struct test_modular {
         test_modular () {
-            math::number::modular<plus (times (N {2}, N {3}), minus (N {7}, N {2}))> test_mod_A {3};
-            math::number::modular<GCD (N {21}, N {14})> test_mod_B {3};
 
-            test_suite<N, math::number::modular<N {2}>> ();
-            test_suite<N, math::number::modular<N {3}>> ();
-            test_suite<N, math::number::modular<N {4}>> ();
-            test_suite<N, math::number::modular<N {5}>> ();
-            test_suite<N, math::number::modular<N {6}>> ();
-            test_suite<N, math::number::modular<N {7}>> ();
-            test_suite<N, math::number::modular<N {8}>> ();
-            test_suite<N, math::number::modular<N {9}>> ();
-            test_suite<N, math::number::modular<N {10}>> ();
-            test_suite<N, math::number::modular<N {11}>> ();
-            test_suite<N, math::number::modular<N {12}>> ();
-            test_suite<N, math::number::modular<N {13}>> ();
-            test_suite<N, math::number::modular<N {14}>> ();
-            test_suite<N, math::number::modular<N {15}>> ();
-            test_suite<N, math::number::modular<N {16}>> ();
-            test_suite<N, math::number::modular<N {17}>> ();
-            test_suite<N, math::number::modular<N {18}>> ();
-            test_suite<N, math::number::modular<N {19}>> ();
+            test_suite<N, modular<N {2}>> ();
+            test_suite<N, modular<N {3}>> ();
+            test_suite<N, modular<N {4}>> ();
+            test_suite<N, modular<N {5}>> ();
+            test_suite<N, modular<N {6}>> ();
+            test_suite<N, modular<N {7}>> ();
+            test_suite<N, modular<N {8}>> ();
+            test_suite<N, modular<N {9}>> ();
+            test_suite<N, modular<N {10}>> ();
+            test_suite<N, modular<N {11}>> ();
+            test_suite<N, modular<N {12}>> ();
+            test_suite<N, modular<N {13}>> ();
+            test_suite<N, modular<N {14}>> ();
+            test_suite<N, modular<N {15}>> ();
+            test_suite<N, modular<N {16}>> ();
+            test_suite<N, modular<N {17}>> ();
+            test_suite<N, modular<N {18}>> ();
+            test_suite<N, modular<N {19}>> ();
 
         }
     };
 
-    TEST (TestModular, TestModularArithmetic) {
+    TEST (ModularTest, TestModularArithmetic) {
 
         test_modular<byte> ();
         test_modular<uint16> ();

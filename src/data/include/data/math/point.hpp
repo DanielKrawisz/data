@@ -66,7 +66,11 @@ namespace data::math::space {
         X Value;
     public:
 
-        exterior (const X &x) : Value {x} {}
+        constexpr exterior (const X &x) : Value {x} {}
+
+        constexpr const X &operator [] () const {
+            return Value;
+        }
     };
 
     namespace {
@@ -92,16 +96,11 @@ namespace data::math::space {
 
     public:
         template <typename... Args>
-        exterior (Args &&...args) : Values {flatten<X, dim, order> (exterior_components<X, dim, order> {std::forward<Args> (args)...})} {}
-    };
-
-    template <field X, size_t order, size_t dim> struct exterior : array<X, binomial (dim, order)> {
+        constexpr exterior (Args &&...args) : Values {flatten<X, dim, order> (exterior_components<X, dim, order> {std::forward<Args> (args)...})} {}
 
         template <typename... indexes>
-        requires (sizeof...(indexes) == order) &&
-            (std::conjunction_v<std::is_convertible<indexes, size_t>...>)
+        requires (sizeof...(indexes) == order) && (std::conjunction_v<std::is_convertible<indexes, size_t>...>)
         const X &operator [] (indexes... is) const;
-
     };
 
     // affine geometry is like Euclid without circles.

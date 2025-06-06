@@ -29,17 +29,17 @@ namespace data::math::number {
     constexpr modular<mod, X> operator - (const modular<mod, X> &);
     
     template <auto mod, typename X = decltype (mod)>
-    modular<mod, X> operator * (const modular<mod, X> &, const modular<mod, X> &);
+    constexpr modular<mod, X> operator * (const modular<mod, X> &, const modular<mod, X> &);
     
     template <auto mod, typename X = decltype (mod)>
-    modular<mod, X> operator ^ (const modular<mod, X> &, const modular<mod, X> &);
+    constexpr modular<mod, X> operator ^ (const modular<mod, X> &, const modular<mod, X> &);
     
     template <auto mod, typename X> struct modular {
         X Value;
         
         template <typename... P> constexpr modular (P... p);
         
-        bool valid () const;
+        constexpr bool valid () const;
 
         constexpr operator X () const {
             return Value;
@@ -99,7 +99,7 @@ namespace data::math::number {
     }
     
     template <auto mod, typename X>
-    modular<mod, X> inline operator * (const modular<mod, X> &a, const modular<mod, X> &b) {
+    constexpr modular<mod, X> inline operator * (const modular<mod, X> &a, const modular<mod, X> &b) {
         return data::times_mod (a.Value, b.Value, nonzero {mod});
     }
     
@@ -126,7 +126,7 @@ namespace data::math::number {
     }
     
     template <auto mod, typename X>
-    bool inline modular<mod, X>::valid () const {
+    constexpr bool inline modular<mod, X>::valid () const {
         return Value >= 0 && Value < mod;
     }
 

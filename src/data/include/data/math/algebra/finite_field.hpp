@@ -90,12 +90,12 @@ namespace data::math {
             return a / b;
         }
     };
-    
+
     template <auto P, typename N>
     constexpr bool inline operator == (const prime_field<P, N> &a, const prime_field<P, N> &b) {
         return static_cast<const number::modular<P, N> &> (a) == static_cast<const number::modular<P, N> &> (b);
     }
-    
+
     template <auto P, typename N>
     constexpr prime_field<P, N> inline prime_field<P, N>::operator + (const prime_field<P, N> &e) const {
         return {static_cast<const number::modular<P, N> &> (*this) + static_cast<const number::modular<P, N> &> (e)};

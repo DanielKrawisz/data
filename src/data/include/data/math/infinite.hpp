@@ -52,16 +52,16 @@ namespace data::math {
     // if X is ordered, then an ordering operation exists
     // that sets infinity higher than any finite value.
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto operator <=> (const unsigned_limit<X> &, const unsigned_limit<Y> &);
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) operator <=> (const unsigned_limit<X> &, const unsigned_limit<Y> &);
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto operator <=> (const signed_limit<X> &, const signed_limit<Y> &);
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) operator <=> (const signed_limit<X> &, const signed_limit<Y> &);
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto operator <=> (const unsigned_limit<X> &, const Y &);
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) operator <=> (const unsigned_limit<X> &, const Y &);
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto operator <=> (const signed_limit<X> &, const Y &);
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) operator <=> (const signed_limit<X> &, const Y &);
 
     // extend sign to infinite types if the underlying type has a sign value defined for it. 
     // for unsigned_limit, infinite value is assumed positive. 
@@ -95,8 +95,6 @@ namespace data::math {
         constexpr unsigned_limit operator + (const X &x) const;
         constexpr unsigned_limit operator * (const X &x) const;
 
-        using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
-
         maybe<X> Value;
 
     private:
@@ -118,8 +116,6 @@ namespace data::math {
         constexpr bool finite () const;
         constexpr bool positive_infinite () const;
         constexpr bool negative_infinite () const;
-
-        using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
 
         signed_limit operator - () const;
 
@@ -210,26 +206,29 @@ namespace data::math {
     }
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto inline operator <=> (const unsigned_limit<X> &a, const unsigned_limit<Y> &b) {
-        return b.finite () ? a <=> static_cast<X> (*b.Value) : a.infinite () ? X {0} <=> X {0} : unsigned_limit<X>::comparison::less;
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) inline operator <=> (const unsigned_limit<X> &a, const unsigned_limit<Y> &b) {
+        using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
+        return b.finite () ? a <=> static_cast<X> (*b.Value) : a.infinite () ? X {0} <=> X {0} : comparison::less;
     }
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto inline operator <=> (const signed_limit<X> &a, const signed_limit<Y> &b) {
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) inline operator <=> (const signed_limit<X> &a, const signed_limit<Y> &b) {
         return b.finite () ? a <=> static_cast<X> (b.Value.template get<Y> ()) :
             a.infinite () ? ((a.Value.template get<bool> () ? X {1} : X {0}) <=> (b.Value.template get<bool> () ? X {1} : X {0})) :
-                    b.Value.template get<bool> () ? X {0} <=> X {1} : X {1} <=> X {0};
+                b.Value.template get<bool> () ? X {0} <=> X {1} : X {1} <=> X {0};
     }
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto inline operator <=> (const unsigned_limit<X> &a, const Y &b) {
-        return a.infinite () ? unsigned_limit<X>::comparison::greater : *a.Value <=> static_cast<X> (b);
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) inline operator <=> (const unsigned_limit<X> &a, const Y &b) {
+        using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
+        return a.infinite () ? comparison::greater : *a.Value <=> static_cast<X> (b);
     }
 
     template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
-    constexpr auto inline operator <=> (const signed_limit<X> &a, const Y &b) {
+    constexpr decltype (std::declval<X> () <=> std::declval<X> ()) inline operator <=> (const signed_limit<X> &a, const Y &b) {
+        using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
         return a.finite () ? a.Value.template get<X> () <=> static_cast<X> (b) :
-            a.Value.template get<bool> () ? signed_limit<X>::comparison::greater : signed_limit<X>::comparison::less;
+            a.Value.template get<bool> () ? comparison::greater : comparison::less;
     }
 
     template <typename X> requires requires {

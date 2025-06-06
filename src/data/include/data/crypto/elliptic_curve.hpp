@@ -9,38 +9,36 @@
 
 namespace data::crypto {
 
-    template <math::field field, typename N> struct elliptic_curve : math::Weierstrauss<field> {
+    template <auto A, auto B, auto X, auto Y, auto P, uint32 cofactor> struct elliptic_curve : math::Weierstrauss<A, B> {
+        using field = decltype (A);
+        using factor = decltype (P);
+
+        using point = math::Weierstrauss<A, B>::point;
+
         // this representation does not have the infinite point.
         // The infinite point is not available as a public key in cryptography.
         // It only exists internally.
-        struct point : math::space::affine<field, 2>::point {
-            const elliptic_curve &Curve;
+        struct pubkey : math::space::affine<field, 2>::point {
             bool valid () const;
 
-            point operator * (const point &) const;
-            point operator ^ (const N &) const;
+            pubkey operator + (const pubkey &) const;
+            pubkey operator - (const pubkey &) const;
+            pubkey operator * (const factor &) const;
 
             operator math::Weierstrauss<field>::point () const;
 
             field x () const;
             field y () const;
-
-        private:
-            point (const math::Weierstrauss<field>::point &);
         };
 
-        point Base;
+        static pubkey base () const;
 
-        // order of Base. Must be prime.
-        N Order;
+        struct secret : math::prime_field<P> {
+            pubkey to_public () const;
+        };
 
         // Cofactor * Order = size of the whole group
         uint32 Cofactor;
-
-        using secret = N;
-        using pubkey = point;
-
-        pubkey to_public (const secret &) const;
 
         N invert (const N &) const;
 
