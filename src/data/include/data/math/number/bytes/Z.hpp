@@ -1023,7 +1023,7 @@ namespace data::math::number {
     N_bytes<r, word>::operator uint64 () const {
         if (*this > N_bytes {std::numeric_limits<uint64>::max ()}) throw std::invalid_argument {"value too big"};
 
-        endian_integral<false, endian::little, 8> xx {0};
+        endian::integral<false, endian::little, 8> xx {0};
         std::copy (this->words ().begin (),
             this->words ().begin () + std::min (static_cast<size_t> (8),
             this->size ()), xx.begin ());
@@ -1036,7 +1036,7 @@ namespace data::math::number {
         if (*this > std::numeric_limits<int64>::max ()) throw std::invalid_argument {"value too big"};
         if (*this < std::numeric_limits<int64>::min ()) throw std::invalid_argument {"value too small"};
 
-        endian_integral<true, endian::little, 8> xx {0};
+        endian::integral<true, endian::little, 8> xx {0};
         std::copy (this->words ().begin (),
             this->words ().begin () + std::min (static_cast<size_t> (8),
             this->size ()), xx.begin ());
@@ -1056,7 +1056,7 @@ namespace data::math::number {
 
         constexpr const size_t size = sizeof (std::declval<size_t> ());
 
-        endian_integral<false, endian::little, size> xx {0};
+        endian::integral<false, endian::little, size> xx {0};
         std::copy (this->words ().begin (),
             this->words ().begin () + std::min (size, this->size ()), xx.begin ());
 

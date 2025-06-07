@@ -1826,7 +1826,7 @@ namespace data::encoding::hexidecimal {
     
     namespace {
         template <hex::letter_case cx, bool is_signed, endian::order r, size_t size> 
-        string<cx> write_arith (const endian_integral<is_signed, r, size> &z) {
+        string<cx> write_arith (const endian::integral<is_signed, r, size> &z) {
             std::stringstream ss;
             ss << "0x";
             hex::write (ss, z, cx);
@@ -1843,19 +1843,19 @@ namespace data::encoding::hexidecimal {
 
             integer<negativity::nones, zz> operator () (uint64 i) {
                 return integer<negativity::nones, zz>
-                    {write_arith<zz> (endian_integral<false, endian::big, 8> {i})};
+                    {write_arith<zz, false, endian::big, 8> (endian::integral<false, endian::big, 8> {i})};
             }
         };
         
         template <hex::letter_case zz> struct write_int<negativity::twos, zz> {
             integer<negativity::twos, zz> operator () (uint64 i) {
                 return integer<negativity::nones, zz>
-                    {write_arith<zz> (endian_integral<false, endian::big, 8> {i})};
+                    {write_arith<zz, false, endian::big, 8> (endian::integral<false, endian::big, 8> {i})};
             }
 
             integer<negativity::twos, zz> operator () (int64 i) {
                 return integer<negativity::twos, zz>
-                    {write_arith<zz> (endian_integral<true, endian::big, 8> {i})};
+                    {write_arith<zz, true, endian::big, 8> (endian::integral<true, endian::big, 8> {i})};
             }
         };
         
@@ -1871,7 +1871,7 @@ namespace data::encoding::hexidecimal {
         private:
             integer<negativity::BC, zz> write_uint (uint64 i) {
                 return integer<negativity::BC, zz>
-                    {write_arith<zz> (endian_integral<false, endian::big, 8> {i})};
+                    {write_arith<zz, false, endian::big, 8> (endian::integral<false, endian::big, 8> {i})};
             } 
         };
 
