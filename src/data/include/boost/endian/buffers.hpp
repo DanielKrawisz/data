@@ -3,6 +3,7 @@
 //  (C) Copyright Darin Adler 2000
 //  (C) Copyright Beman Dawes 2006, 2009, 2014
 //  (C) Copyright Peter Dimov 2019
+//  (C) Copyright Daniel Krawisz 2025
 
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
@@ -205,9 +206,8 @@ namespace endian
 template< order Order, class T, std::size_t n_bits >
 class endian_buffer<Order, T, n_bits, align::no>
 {
-#ifdef BOOST_ENDIAN_NO_CTORS
+
 public:
-#endif
 
     BOOST_ENDIAN_STATIC_ASSERT( (n_bits/8)*8 == n_bits );
 
@@ -219,32 +219,32 @@ public:
 
 #ifndef BOOST_ENDIAN_NO_CTORS
 
-    endian_buffer() = default;
+    BOOST_CONSTEXPR endian_buffer() = default;
 
-    explicit endian_buffer( T val ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR explicit endian_buffer( T val ) BOOST_NOEXCEPT
     {
         boost::endian::endian_store<T, n_bits / 8, Order>( value_, val );
     }
 
 #endif
 
-    endian_buffer& operator=( T val ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_buffer& operator=( T val ) BOOST_NOEXCEPT
     {
         boost::endian::endian_store<T, n_bits / 8, Order>( value_, val );
         return *this;
     }
 
-    value_type value() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR value_type value() const BOOST_NOEXCEPT
     {
         return boost::endian::endian_load<T, n_bits / 8, Order>( value_ );
     }
 
-    unsigned char const * data() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char const * data() const BOOST_NOEXCEPT
     {
         return value_;
     }
 
-    unsigned char * data() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char * data() BOOST_NOEXCEPT
     {
         return value_;
     }
@@ -274,32 +274,32 @@ public:
 
 #ifndef BOOST_ENDIAN_NO_CTORS
 
-    endian_buffer() = default;
+    BOOST_CONSTEXPR endian_buffer() = default;
 
-    explicit endian_buffer( T val ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR explicit endian_buffer( T val ) BOOST_NOEXCEPT
     {
         boost::endian::endian_store<T, n_bits / 8, Order>( value_, val );
     }
 
 #endif
 
-    endian_buffer& operator=( T val ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_buffer& operator=( T val ) BOOST_NOEXCEPT
     {
         boost::endian::endian_store<T, n_bits / 8, Order>( value_, val );
         return *this;
     }
 
-    value_type value() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR value_type value() const BOOST_NOEXCEPT
     {
         return boost::endian::endian_load<T, n_bits / 8, Order>( value_ );
     }
 
-    unsigned char const * data() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char const * data() const BOOST_NOEXCEPT
     {
         return value_;
     }
 
-    unsigned char * data() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char * data() BOOST_NOEXCEPT
     {
         return value_;
     }
@@ -323,31 +323,31 @@ public:
 
 #ifndef BOOST_ENDIAN_NO_CTORS
 
-    endian_buffer() = default;
+    BOOST_CONSTEXPR endian_buffer() = default;
 
-    explicit endian_buffer( T val ) BOOST_NOEXCEPT: value_( val )
+    BOOST_CONSTEXPR explicit endian_buffer( T val ) BOOST_NOEXCEPT: value_( val )
     {
     }
 
 #endif
 
-    endian_buffer& operator=( T val ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_buffer& operator=( T val ) BOOST_NOEXCEPT
     {
         value_ = val;
         return *this;
     }
 
-    value_type value() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR value_type value() const BOOST_NOEXCEPT
     {
         return value_;
     }
 
-    unsigned char const * data() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char const * data() const BOOST_NOEXCEPT
     {
         return reinterpret_cast< unsigned char const* >( &value_ );
     }
 
-    unsigned char * data() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char * data() BOOST_NOEXCEPT
     {
         return reinterpret_cast< unsigned char* >( &value_ );
     }

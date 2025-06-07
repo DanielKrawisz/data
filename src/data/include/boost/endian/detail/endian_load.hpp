@@ -2,6 +2,7 @@
 #define BOOST_ENDIAN_DETAIL_ENDIAN_LOAD_HPP_INCLUDED
 
 // Copyright 2019 Peter Dimov
+// Copyright 2025 Daniel Krawisz
 //
 // Distributed under the Boost Software License, Version 1.0.
 // http://www.boost.org/LICENSE_1_0.txt
@@ -37,7 +38,7 @@ template<class T, std::size_t N1, order O1, std::size_t N2, order O2> struct end
 //    if N < sizeof(T), T is integral or enum
 
 template<class T, std::size_t N, order Order>
-inline T endian_load( unsigned char const * p ) BOOST_NOEXCEPT
+BOOST_CONSTEXPR inline T endian_load( unsigned char const * p ) BOOST_NOEXCEPT
 {
     BOOST_ENDIAN_STATIC_ASSERT( sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8 );
     BOOST_ENDIAN_STATIC_ASSERT( N >= 1 && N <= sizeof(T) );
@@ -57,7 +58,9 @@ template<class T, std::size_t N, order O> struct endian_load_impl<T, N, O, N, O>
         BOOST_ENDIAN_STATIC_ASSERT( is_trivially_copyable<T>::value );
 
         T t;
+
         std::memcpy( &t, p, N );
+
         return t;
     }
 };
@@ -70,13 +73,15 @@ template<class T, std::size_t N, order O1, order O2> struct endian_load_impl<T, 
     {
         BOOST_ENDIAN_STATIC_ASSERT( is_trivially_copyable<T>::value );
 
+        T t;
+
         typename integral_by_size<N>::type tmp;
         std::memcpy( &tmp, p, N );
 
         endian_reverse_inplace( tmp );
 
-        T t;
         std::memcpy( &t, &tmp, N );
+
         return t;
     }
 };

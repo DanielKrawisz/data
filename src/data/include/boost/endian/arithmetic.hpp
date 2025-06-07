@@ -3,6 +3,7 @@
 //  (C) Copyright Darin Adler 2000
 //  (C) Copyright Beman Dawes 2006, 2009, 2014
 //  (C) Copyright Peter Dimov 2019
+//  (C) Copyright Daniel Krawisz 2025
 
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
@@ -33,6 +34,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <climits>
+#include <string_view>
 
 #if defined(BOOST_BORLANDC) || defined(BOOST_CODEGEARC)
 # pragma pack(push, 1)
@@ -170,151 +172,180 @@ private:
 
     typedef endian_buffer<Order, T, n_bits, Align> buffer_type;
 
-#ifdef BOOST_ENDIAN_NO_CTORS
 public:
-#else
-private:
-#endif
 
     buffer_type buf_;
-
-public:
 
     typedef T value_type;
 
 #ifndef BOOST_ENDIAN_NO_CTORS
 
-    endian_arithmetic() = default;
+    BOOST_CONSTEXPR endian_arithmetic() = default;
 
-    BOOST_ENDIAN_EXPLICIT_OPT endian_arithmetic( T val ) BOOST_NOEXCEPT: buf_( val )
+    BOOST_CONSTEXPR BOOST_ENDIAN_EXPLICIT_OPT endian_arithmetic( T val ) BOOST_NOEXCEPT: buf_( val )
     {
     }
 
 #endif
 
-    endian_arithmetic& operator=( T val ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator=( T val ) BOOST_NOEXCEPT
     {
         buf_ = val;
         return *this;
     }
 
-    value_type value() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR value_type value() const BOOST_NOEXCEPT
     {
         return buf_.value();
     }
 
-    unsigned char const * data() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char const * data() const BOOST_NOEXCEPT
     {
         return buf_.data();
     }
 
-    unsigned char * data() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char * data() BOOST_NOEXCEPT
     {
         return buf_.data();
     }
 
-    operator value_type() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char const & operator [] (size_t i) const BOOST_NOEXCEPT
+    {
+        return buf_.data()[i];
+    }
+
+    BOOST_CONSTEXPR unsigned char & operator [] (size_t i) BOOST_NOEXCEPT
+    {
+        return buf_.data()[i];
+    }
+
+    BOOST_CONSTEXPR unsigned char const * begin() const BOOST_NOEXCEPT
+    {
+        return buf_.data();
+    }
+
+    BOOST_CONSTEXPR unsigned char * begin() BOOST_NOEXCEPT
+    {
+        return buf_.data();
+    }
+
+    BOOST_CONSTEXPR unsigned char const * end() const BOOST_NOEXCEPT
+    {
+        return buf_.data() + n_bits / 8;
+    }
+
+    BOOST_CONSTEXPR unsigned char * end() BOOST_NOEXCEPT
+    {
+        return buf_.data() + n_bits / 8;
+    }
+
+    BOOST_CONSTEXPR operator std::basic_string_view<unsigned char> () const BOOST_NOEXCEPT
+    {
+        return std::basic_string_view<unsigned char> (buf_.data (), n_bits / 8);
+    }
+
+    BOOST_CONSTEXPR operator value_type() const BOOST_NOEXCEPT
     {
         return this->value();
     }
 
-    operator buffer_type& () BOOST_NOEXCEPT
+    BOOST_CONSTEXPR operator buffer_type& () BOOST_NOEXCEPT
     {
         return buf_;
     }
 
-    operator buffer_type const& () BOOST_NOEXCEPT
+    BOOST_CONSTEXPR operator buffer_type const& () BOOST_NOEXCEPT
     {
         return buf_;
     }
 
     // operators
 
-    T operator+() const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR T operator+() const BOOST_NOEXCEPT
     {
         return this->value();
     }
 
-    endian_arithmetic& operator+=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator+=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() + y );
         return *this;
     }
 
-    endian_arithmetic& operator-=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator-=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() - y );
         return *this;
     }
 
-    endian_arithmetic& operator*=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator*=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() * y );
         return *this;
     }
 
-    endian_arithmetic& operator/=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator/=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() / y );
         return *this;
     }
 
-    endian_arithmetic& operator%=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator%=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() % y );
         return *this;
     }
 
-    endian_arithmetic& operator&=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator&=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() & y );
         return *this;
     }
 
-    endian_arithmetic& operator|=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator|=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() | y );
         return *this;
     }
 
-    endian_arithmetic& operator^=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator^=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() ^ y );
         return *this;
     }
 
-    endian_arithmetic& operator<<=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator<<=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() << y );
         return *this;
     }
 
-    endian_arithmetic& operator>>=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator>>=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() >> y );
         return *this;
     }
 
-    endian_arithmetic& operator++() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator++() BOOST_NOEXCEPT
     {
         *this += 1;
         return *this;
     }
 
-    endian_arithmetic& operator--() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator--() BOOST_NOEXCEPT
     {
         *this -= 1;
         return *this;
     }
 
-    endian_arithmetic operator++(int) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic operator++(int) BOOST_NOEXCEPT
     {
         endian_arithmetic tmp( *this );
         *this += 1;
         return tmp;
     }
 
-    endian_arithmetic operator--(int) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic operator--(int) BOOST_NOEXCEPT
     {
         endian_arithmetic tmp( *this );
         *this -= 1;
