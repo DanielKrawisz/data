@@ -42,11 +42,11 @@ namespace data::crypto::NIST {
 
                 if (t == HMAC) {
                     Random = new ::CryptoPP::HMAC_DRBG
-                        (entropy.data (), entropy.size (), i.Nonce.data (), i.Nonce.size (),
+                        (entropy.data (), data::size (entropy), i.Nonce.data (), data::size (i.Nonce),
                             i.Personalization.data (), i.Personalization.size ());
                 } else if (t == Hash) {
                     Random = new ::CryptoPP::Hash_DRBG
-                        (entropy.data (), entropy.size (), i.Nonce.data (), i.Nonce.size (),
+                        (entropy.data (), data::size (entropy), i.Nonce.data (), data::size (i.Nonce),
                             i.Personalization.data (), i.Personalization.size ());
                 } else throw exception {} << "Invalid NIST DRBG type";
             }

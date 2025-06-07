@@ -1,6 +1,7 @@
 //  boost/endian/conversion.hpp  -------------------------------------------------------//
 
 //  Copyright Beman Dawes 2010, 2011, 2014
+//  Copyright Daniel Krawisz 2025
 
 //  Distributed under the Boost Software License, Version 1.0.
 //  http://www.boost.org/LICENSE_1_0.txt
@@ -115,28 +116,28 @@ namespace endian
 
   //  reverse in place unless native endianness is big
   template <class EndianReversibleInplace>
-    inline void big_to_native_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
+    inline BOOST_CONSTEXPR void big_to_native_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
     //  Effects: none if native byte-order is big, otherwise endian_reverse_inplace(x)
   template <class EndianReversibleInplace>
-    inline void native_to_big_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
+    inline BOOST_CONSTEXPR void native_to_big_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
     //  Effects: none if native byte-order is big, otherwise endian_reverse_inplace(x)
 
   //  reverse in place unless native endianness is little
   template <class EndianReversibleInplace>
-    inline void little_to_native_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
+    inline BOOST_CONSTEXPR void little_to_native_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
     //  Effects: none if native byte-order is little, otherwise endian_reverse_inplace(x);
   template <class EndianReversibleInplace>
-    inline void native_to_little_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
+    inline BOOST_CONSTEXPR void native_to_little_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
     //  Effects: none if native byte-order is little, otherwise endian_reverse_inplace(x);
 
   //  generic conditional reverse in place
   template <order From, order To,
     class EndianReversibleInplace>
-  inline void conditional_reverse_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
+  inline BOOST_CONSTEXPR void conditional_reverse_inplace(EndianReversibleInplace& x) BOOST_NOEXCEPT;
 
   //  runtime reverse in place
   template <class EndianReversibleInplace>
-  inline void conditional_reverse_inplace(EndianReversibleInplace& x,
+  inline BOOST_CONSTEXPR void conditional_reverse_inplace(EndianReversibleInplace& x,
     order from_order, order to_order)
     BOOST_NOEXCEPT;
 
@@ -205,25 +206,25 @@ inline BOOST_CONSTEXPR EndianReversible conditional_reverse( EndianReversible x,
 //--------------------------------------------------------------------------------------//
 
 template <class EndianReversibleInplace>
-inline void big_to_native_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void big_to_native_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
 {
     boost::endian::conditional_reverse_inplace<order::big, order::native>( x );
 }
 
 template <class EndianReversibleInplace>
-inline void native_to_big_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void native_to_big_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
 {
     boost::endian::conditional_reverse_inplace<order::native, order::big>( x );
 }
 
 template <class EndianReversibleInplace>
-inline void little_to_native_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void little_to_native_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
 {
     boost::endian::conditional_reverse_inplace<order::little, order::native>( x );
 }
 
 template <class EndianReversibleInplace>
-inline void native_to_little_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void native_to_little_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
 {
     boost::endian::conditional_reverse_inplace<order::native, order::little>( x );
 }
@@ -232,12 +233,12 @@ namespace detail
 {
 
 template<class EndianReversibleInplace>
-inline void conditional_reverse_inplace_impl( EndianReversibleInplace&, std::true_type ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void conditional_reverse_inplace_impl( EndianReversibleInplace&, std::true_type ) BOOST_NOEXCEPT
 {
 }
 
 template<class EndianReversibleInplace>
-inline void conditional_reverse_inplace_impl( EndianReversibleInplace& x, std::false_type ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void conditional_reverse_inplace_impl( EndianReversibleInplace& x, std::false_type ) BOOST_NOEXCEPT
 {
     endian_reverse_inplace( x );
 }
@@ -246,7 +247,7 @@ inline void conditional_reverse_inplace_impl( EndianReversibleInplace& x, std::f
 
 // generic conditional reverse in place
 template <order From, order To, class EndianReversibleInplace>
-inline void conditional_reverse_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
+inline BOOST_CONSTEXPR void conditional_reverse_inplace( EndianReversibleInplace& x ) BOOST_NOEXCEPT
 {
     BOOST_ENDIAN_STATIC_ASSERT(
         std::is_class<EndianReversibleInplace>::value ||
@@ -258,7 +259,7 @@ inline void conditional_reverse_inplace( EndianReversibleInplace& x ) BOOST_NOEX
 
 // runtime reverse in place
 template <class EndianReversibleInplace>
-inline void conditional_reverse_inplace( EndianReversibleInplace& x,
+inline BOOST_CONSTEXPR void conditional_reverse_inplace( EndianReversibleInplace& x,
     order from_order, order to_order ) BOOST_NOEXCEPT
 {
     BOOST_ENDIAN_STATIC_ASSERT(

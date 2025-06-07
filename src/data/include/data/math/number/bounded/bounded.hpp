@@ -381,10 +381,10 @@ namespace data::encoding::hexidecimal {
 namespace data::math::number {
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    bool operator == (const bounded<x, r, n, word> &, const endian_integral<y, o, z> &);
+    bool operator == (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian_integral<y, o, z> &);
+    std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
     
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     bool operator == (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
@@ -743,7 +743,7 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    bool inline operator == (const bounded<x, r, n, word> &a, const endian_integral<y, o, z> &b) {
+    bool inline operator == (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
         return (a <=> b) == 0;
     }
     
@@ -788,7 +788,7 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const bounded<x, r, n, word> &a, const endian_integral<y, o, z> &b) {
+    std::weak_ordering inline operator <=> (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
         return a <=> bounded<y, o, z, word> (b);
     }
 
