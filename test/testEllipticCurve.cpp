@@ -9,6 +9,5 @@ namespace data::crypto {
 
     // Key here is to test projective point <=> projective vector.
 
-
 }
 
