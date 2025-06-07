@@ -4,7 +4,7 @@
 
 #include "data/crypto/hash.hpp"
 #include "data/math/number/bytes.hpp"
-#include "data/arithmetic/endian.hpp"
+#include "data/encoding/endian.hpp"
 #include "gtest/gtest.h"
 
 namespace data::crypto {

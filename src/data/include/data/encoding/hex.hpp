@@ -14,7 +14,7 @@
 
 #include <data/encoding/invalid.hpp>
 #include <data/maybe.hpp>
-#include <data/arithmetic/endian.hpp>
+#include <data/encoding/endian.hpp>
 
 namespace data {
     template <std::integral word> struct bytestring;
@@ -99,10 +99,10 @@ namespace data::encoding::hex {
     fixed<1> write (byte, letter_case = letter_case::upper);
     
     template <endian::order o, size_t x>
-    fixed<x> write (endian_integral<false, o, x>, letter_case = letter_case::upper);
+    fixed<x> write (endian::integral<false, o, x>, letter_case = letter_case::upper);
     
     template <endian::order o, size_t x>
-    fixed<x> write (endian_integral<false, o, x> n, letter_case q) {
+    fixed<x> write (endian::integral<false, o, x> n, letter_case q) {
         fixed<x> output;
         if (q == letter_case::upper) boost::algorithm::hex (n.begin (), n.end (), output.begin ());
         else boost::algorithm::hex_lower (n.begin (), n.end (), output.begin ());
