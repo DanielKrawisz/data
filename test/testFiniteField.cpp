@@ -7,86 +7,19 @@
 #include "gtest/gtest.h"
 
 namespace data {
-    // representations of numbers. 
-    constexpr decimal d2 {"2"};
-    constexpr decimal d3 {"3"};
-    constexpr decimal d4 {"4"};
-    constexpr decimal d5 {"5"};
-    constexpr decimal d6 {"6"};
-    constexpr decimal d7 {"7"};
-    constexpr decimal d8 {"8"};
-    constexpr decimal d9 {"9"};
-    constexpr decimal d10 {"10"};
-    constexpr decimal d11 {"11"};
-    constexpr decimal d12 {"12"};
-    constexpr decimal d13 {"13"};
-    constexpr decimal d14 {"14"};
-    constexpr decimal d15 {"15"};
-    constexpr decimal d16 {"16"};
-    constexpr decimal d17 {"17"};
-    constexpr decimal d18 {"18"};
-    constexpr decimal d19 {"19"};
     
-    template <auto & mod>
-    using prime_field_element = math::prime_field_element<uint64, int64, mod>;
-    
-    template <auto & mod>
-    using prime_field = math::prime_field<uint64, int64, mod>;
-    
-    TEST (PrimeFieldTest, TestPrimeField) {
-        // We have to prove that a number is prime in order to 
-        // construct a prime field, so we generate the first 8 primes. 
-        stack<math::number::prime<uint64>> primes = reverse (math::number::eratosthenes<uint64> {8}.Primes);
-        
-        prime_field<d2> f2 {primes[0]};
-        prime_field<d3> f3 {primes[1]};
-        prime_field<d4> f4 {math::number::prime<uint64> {}};
-        prime_field<d5> f5 {primes[2]};
-        prime_field<d6> f6 {math::number::prime<uint64> {}};
-        prime_field<d7> f7 {primes[3]};
-        prime_field<d8> f8 {math::number::prime<uint64> {}};
-        prime_field<d9> f9 {math::number::prime<uint64> {}};
-        prime_field<d10> f10 {math::number::prime<uint64> {}};
-        prime_field<d11> f11 {primes[4]};
-        prime_field<d12> f12 {math::number::prime<uint64> {}};
-        prime_field<d13> f13 {primes[5]};
-        prime_field<d14> f14 {math::number::prime<uint64> {}};
-        prime_field<d15> f15 {math::number::prime<uint64> {}};
-        prime_field<d16> f16 {math::number::prime<uint64> {}};
-        prime_field<d17> f17 {primes[6]};
-        prime_field<d16> f18 {math::number::prime<uint64> {}};
-        prime_field<d19> f19 {primes[7]};
-        
-        // fields are only valid when we have given 
-        // a proof for the correct prime number. 
-        EXPECT_TRUE (f2.valid ());
-        EXPECT_TRUE (f3.valid ());
-        EXPECT_FALSE (f4.valid ());
-        EXPECT_TRUE (f5.valid ());
-        EXPECT_FALSE (f6.valid ());
-        EXPECT_TRUE (f7.valid ());
-        EXPECT_FALSE (f8.valid ());
-        EXPECT_FALSE (f9.valid ());
-        EXPECT_FALSE (f10.valid ());
-        EXPECT_TRUE (f11.valid ());
-        EXPECT_FALSE (f12.valid ());
-        EXPECT_TRUE (f13.valid ());
-        EXPECT_FALSE (f14.valid ());
-        EXPECT_FALSE (f15.valid ());
-        EXPECT_FALSE (f16.valid ());
-        EXPECT_TRUE (f17.valid ());
-        EXPECT_FALSE (f18.valid ());
-        EXPECT_TRUE (f19.valid ());
-        
-        // make the zero element for each prime field. 
-        prime_field_element<d2> f2_0 = f2.make (0);
-        prime_field_element<d3> f3_0 = f3.make (0);
-        prime_field_element<d5> f5_0 = f5.make (0);
-        prime_field_element<d7> f7_0 = f7.make (0);
-        prime_field_element<d11> f11_0 = f11.make (0);
-        prime_field_element<d13> f13_0 = f13.make (0);
-        prime_field_element<d17> f17_0 = f17.make (0);
-        prime_field_element<d19> f19_0 = f19.make (0);
+    template <typename N>
+    void test_prime_field () {
+
+        // make the zero element for each prime field.
+        prime_field<N {2}> f2_0 {0};
+        prime_field<N {3}> f3_0 {0};
+        prime_field<N {5}> f5_0 {0};
+        prime_field<N {7}> f7_0 {0};
+        prime_field<N {11}> f11_0 {0};
+        prime_field<N {13}> f13_0 {0};
+        prime_field<N {17}> f17_0 {0};
+        prime_field<N {19}> f19_0 {0};
         
         EXPECT_TRUE (f2_0.valid ());
         EXPECT_TRUE (f3_0.valid ());
@@ -134,14 +67,14 @@ namespace data {
         EXPECT_EQ (f19_0.inverse (), nullptr);
         
         // make the 1 element for each prime field. 
-        prime_field_element<d2> f2_1 = f2.make (1);
-        prime_field_element<d3> f3_1 = f3.make (1);
-        prime_field_element<d5> f5_1 = f5.make (1);
-        prime_field_element<d7> f7_1 = f7.make (1);
-        prime_field_element<d11> f11_1 = f11.make (1);
-        prime_field_element<d13> f13_1 = f13.make (1);
-        prime_field_element<d17> f17_1 = f17.make (1);
-        prime_field_element<d19> f19_1 = f19.make (1);
+        prime_field<N {2}> f2_1 {1};
+        prime_field<N {3}> f3_1 {1};
+        prime_field<N {5}> f5_1 {1};
+        prime_field<N {7}> f7_1 {1};
+        prime_field<N {11}> f11_1 {1};
+        prime_field<N {13}> f13_1 {1};
+        prime_field<N {17}> f17_1 {1};
+        prime_field<N {19}> f19_1 {1};
         
         EXPECT_TRUE (f2_1.valid ());
         EXPECT_TRUE (f3_1.valid ());
@@ -197,13 +130,13 @@ namespace data {
         EXPECT_EQ (f17_1 * f17_1, f17_1);
         EXPECT_EQ (f19_1 * f19_1, f19_1);
         
-        prime_field_element<d3> f3_2 = f3.make (2);
-        prime_field_element<d5> f5_2 = f5.make (2);
-        prime_field_element<d7> f7_2 = f7.make (2);
-        prime_field_element<d11> f11_2 = f11.make (2);
-        prime_field_element<d13> f13_2 = f13.make (2);
-        prime_field_element<d17> f17_2 = f17.make (2);
-        prime_field_element<d19> f19_2 = f19.make (2);
+        prime_field<N {3}> f3_2 {2};
+        prime_field<N {5}> f5_2 {2};
+        prime_field<N {7}> f7_2 {2};
+        prime_field<N {11}> f11_2 {2};
+        prime_field<N {13}> f13_2 {2};
+        prime_field<N {17}> f17_2 {2};
+        prime_field<N {19}> f19_2 {2};
         
         EXPECT_EQ (f2_1 + f2_1, f2_0);
         EXPECT_EQ (f3_1 + f3_1, f3_2);
@@ -216,43 +149,127 @@ namespace data {
         
         EXPECT_EQ (f2_0 - f2_1, f2_1);
         EXPECT_EQ (f3_0 - f3_1, f3_2);
-        EXPECT_EQ (f5_0 - f5_1, f5.make (4));
-        EXPECT_EQ (f7_0 - f7_1, f7.make (6));
-        EXPECT_EQ (f11_0 - f11_1, f11.make (10));
+        EXPECT_EQ (f5_0 - f5_1, prime_field<N {5}> (4));
+        EXPECT_EQ (f7_0 - f7_1, prime_field<N {7}> (6));
+        EXPECT_EQ (f11_0 - f11_1, prime_field<N {11}> (10));
         EXPECT_EQ (f13_0 - f13_1, f13.make (12));
         EXPECT_EQ (f17_0 - f17_1, f17.make (16));
         EXPECT_EQ (f19_0 - f19_1, f19.make (18));
         
         EXPECT_EQ (f3_2.inverse (), f3_2);
-        EXPECT_EQ (f5_2.inverse (), f5.make (3));
-        EXPECT_EQ (f7_2.inverse (), f7.make (4));
-        EXPECT_EQ (f11_2.inverse (), f11.make (6));
-        EXPECT_EQ (f13_2.inverse (), f13.make (7));
-        EXPECT_EQ (f17_2.inverse (), f17.make (9));
-        EXPECT_EQ (f19_2.inverse (), f19.make (10));
+        EXPECT_EQ (f5_2.inverse (), prime_field<N {5}> (3));
+        EXPECT_EQ (f7_2.inverse (), prime_field<N {7}> (4));
+        EXPECT_EQ (f11_2.inverse (), prime_field<N {11}> (6));
+        EXPECT_EQ (f13_2.inverse (), prime_field<N {13}> (7));
+        EXPECT_EQ (f17_2.inverse (), prime_field<N {17}> (9));
+        EXPECT_EQ (f19_2.inverse (), prime_field<N {19}> (10));
         
-        EXPECT_EQ (f5.make (3).inverse (), f5_2);
-        EXPECT_EQ (f7.make (3).inverse (), f7.make (5));
-        EXPECT_EQ (f11.make (3).inverse (), f11.make (4));
-        EXPECT_EQ (f13.make (3).inverse (), f13.make (9));
-        EXPECT_EQ (f17.make (3).inverse (), f17.make (6));
-        EXPECT_EQ (f19.make (3).inverse (), f19.make (13));
+        EXPECT_EQ (prime_field<N {5}> (3).inverse (), f5_2);
+        EXPECT_EQ (prime_field<N {7}> (3).inverse (), prime_field<N {7}> (5));
+        EXPECT_EQ (prime_field<N {11}> (3).inverse (), f11.make (4));
+        EXPECT_EQ (prime_field<N {13}> (3).inverse (), prime_field<N {13}> (9));
+        EXPECT_EQ (prime_field<N {17}> (3).inverse (), prime_field<N {17}> (6));
+        EXPECT_EQ (prime_field<N {19}> (3).inverse (), prime_field<N {19}> (13));
         
         EXPECT_EQ (f3_2 * f3_2, f3_1);
-        EXPECT_EQ (f5_2 * f5.make (3), f5_1);
-        EXPECT_EQ (f7_2 * f7.make (4), f7_1);
-        EXPECT_EQ (f11_2 * f11.make (6), f11_1);
-        EXPECT_EQ (f13_2 * f13.make (7), f13_1);
-        EXPECT_EQ (f17_2 * f17.make (9), f17_1);
-        EXPECT_EQ (f19_2 * f19.make (10), f19_1);
+        EXPECT_EQ (f5_2 * prime_field<N {5}> (3), f5_1);
+        EXPECT_EQ (f7_2 * prime_field<N {7}> (4), f7_1);
+        EXPECT_EQ (f11_2 * prime_field<N {11}> (6), f11_1);
+        EXPECT_EQ (f13_2 * prime_field<N {13}> (7), f13_1);
+        EXPECT_EQ (f17_2 * prime_field<N {17}> (9), f17_1);
+        EXPECT_EQ (f19_2 * prime_field<N {19}> (10), f19_1);
         
-        EXPECT_EQ (f5.make (3) * f5_2, f5_1);
-        EXPECT_EQ (f7.make (3) * f7.make (5), f7_1);
-        EXPECT_EQ (f11.make (3) * f11.make (4), f11_1);
-        EXPECT_EQ (f13.make (3) * f13.make (9), f13_1);
-        EXPECT_EQ (f17.make (3) * f17.make (6), f17_1);
-        EXPECT_EQ (f19.make (3) * f19.make (13), f19_1);
+        EXPECT_EQ (prime_field<N {5}> (3) * f5_2, f5_1);
+        EXPECT_EQ (prime_field<N {7}> (3) * prime_field<N {7}> (5), f7_1);
+        EXPECT_EQ (prime_field<N {11}> (3) * prime_field<N {11}> (4), f11_1);
+        EXPECT_EQ (prime_field<N {13}> (3) * prime_field<N {13}> (9), f13_1);
+        EXPECT_EQ (prime_field<N {17}> (3) * prime_field<N {17}> (6), f17_1);
+        EXPECT_EQ (prime_field<N {19}> (3) * prime_field<N {19}> (13), f19_1);
         
+    }
+
+    TEST (PrimeFieldTest, TestPrimeField) {
+
+        test_prime_field<byte> ();
+        test_prime_field<uint16> ();
+        test_prime_field<uint32> ();
+        test_prime_field<uint64> ();
+
+        test_prime_field<int8> ();
+        test_prime_field<int16> ();
+        test_prime_field<int32> ();
+        test_prime_field<int64> ();
+
+        test_prime_field<uint8_little> ();
+        test_prime_field<uint16_little> ();
+        test_prime_field<uint32_little> ();
+        test_prime_field<uint64_little> ();
+
+        test_prime_field<int8_little> ();
+        test_prime_field<int16_little> ();
+        test_prime_field<int32_little> ();
+        test_prime_field<int64_little> ();
+
+        test_prime_field<uint8_big> ();
+        test_prime_field<uint16_big> ();
+        test_prime_field<uint32_big> ();
+        test_prime_field<uint64_big> ();
+
+        test_prime_field<int8_big> ();
+        test_prime_field<int16_big> ();
+        test_prime_field<int32_big> ();
+        test_prime_field<int64_big> ();
+
+        /*
+        test_prime_field<N> {};
+        test_prime_field<N_bytes_little> {};
+        test_prime_field<N_bytes_big> {};
+        test_prime_field<dec_uint> {};
+        test_prime_field<base58_uint> {};
+
+        test_prime_field<uint_big<9>> {};
+        test_prime_field<uint_little<9>> {};
+        test_prime_field<uint_big<10>> {};
+        test_prime_field<uint_little<10>> {};
+        test_prime_field<uint_big<11>> {};
+        test_prime_field<uint_little<11>> {};
+        test_prime_field<uint_big<12>> {};
+        test_prime_field<uint_little<12>> {};
+
+        test_prime_field<uint_big<5, short unsigned int>> {};
+        test_prime_field<uint_little<5, short unsigned int>> {};
+        test_prime_field<uint_big<6, short unsigned int>> {};
+        test_prime_field<uint_little<6, short unsigned int>> {};
+        test_prime_field<uint_big<7, short unsigned int>> {};
+        test_prime_field<uint_little<7, short unsigned int>> {};
+        test_prime_field<uint_big<8, short unsigned int>> {};
+        test_prime_field<uint_little<8, short unsigned int>> {};
+        test_prime_field<uint_big<3, unsigned int>> {};
+        test_prime_field<uint_little<3, unsigned int>> {};
+        test_prime_field<uint_big<4, unsigned int>> {};
+        test_prime_field<uint_little<4, unsigned int>> {};
+        test_prime_field<uint_big<5, unsigned int>> {};
+        test_prime_field<uint_little<5, unsigned int>> {};
+        test_prime_field<uint_big<6, unsigned int>> {};
+        test_prime_field<uint_little<6, unsigned int>> {};
+
+        // TODO bigger words
+        test_prime_field<uint_big<2, long unsigned int>> {};
+        test_prime_field<uint_little<2, long unsigned int>> {};
+        test_prime_field<uint_big<3, long unsigned int>> {};
+        test_prime_field<uint_little<3, long unsigned int>> {};
+        test_prime_field<uint_big<4, long unsigned int>> {};
+        test_prime_field<uint_little<4, long unsigned int>> {};
+        test_prime_field<uint_big<5, long unsigned int>> {};
+        test_prime_field<uint_little<5, long unsigned int>> {};
+        test_prime_field<uint_big<1, long long unsigned int>> {};
+        test_prime_field<uint_little<1, long long unsigned int>> {};
+        test_prime_field<uint_big<2, long long unsigned int>> {};
+        test_prime_field<uint_little<2, long long unsigned int>> {};
+        test_prime_field<uint_big<3, long long unsigned int>> {};
+        test_prime_field<uint_little<3, long long unsigned int>> {};
+        test_prime_field<uint_big<4, long long unsigned int>> {};
+        test_prime_field<uint_little<4, long long unsigned int>> {};*/
     }
     
 }
