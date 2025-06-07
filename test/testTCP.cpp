@@ -19,7 +19,7 @@ namespace data::net::IP::TCP {
     struct echo_client {
     public:
         echo_client(boost::asio::io_context& io) : timer(io, boost::asio::chrono::seconds(5)), io(io) {
-            timer.async_wait(boost::bind(&echo_client::connect,this));
+            timer.async_wait (boost::bind (&echo_client::connect,this));
         }
         void connect() {
             std::cout << " Starting to connect" << std::endl;
