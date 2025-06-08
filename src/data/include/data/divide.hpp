@@ -26,8 +26,8 @@ namespace data {
             return data::valid (Quotient) && data::valid (Remainder);
         }
 
-        division (const N &q, const R &r) : Quotient {q}, Remainder {r} {}
-        division () : Quotient {}, Remainder {} {}
+        constexpr division (const N &q, const R &r) : Quotient {q}, Remainder {r} {}
+        constexpr division () : Quotient {}, Remainder {} {}
 
         bool operator == (const division &d) const {
             return Quotient == d.Quotient && Remainder == d.Remainder;
@@ -63,14 +63,14 @@ namespace data::math {
 
     template <std::unsigned_integral X>
     struct divide<X, X> {
-        division<X, X> operator () (X dividend, nonzero<X> divisor) {
+        constexpr division<X, X> operator () (X dividend, nonzero<X> divisor) {
             return {static_cast<X> (dividend / static_cast<X> (divisor.Value)), static_cast<X> (dividend % divisor.Value)};
         }
     };
 
     template <std::signed_integral X, std::unsigned_integral Y>
     struct divide<X, Y> {
-        division<X, Y> operator () (X dividend, nonzero<Y> divisor) {
+        constexpr division<X, Y> operator () (X dividend, nonzero<Y> divisor) {
             auto quotient = static_cast<X> (dividend / static_cast<X> (divisor.Value));
             auto remainder = static_cast<X> (dividend % divisor.Value);
             if (remainder == 0) return {quotient, 0};
@@ -81,7 +81,7 @@ namespace data::math {
 
     template <std::signed_integral X>
     struct divide<X, X> {
-        division<X, std::make_unsigned_t<X>> operator () (X dividend, nonzero<X> divisor) {
+        constexpr division<X, std::make_unsigned_t<X>> operator () (X dividend, nonzero<X> divisor) {
             auto quotient = static_cast<X> (dividend / divisor.Value);
             auto remainder = static_cast<X> (dividend % divisor.Value);
             if (remainder == 0) return {quotient, 0};

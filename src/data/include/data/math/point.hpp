@@ -6,6 +6,7 @@
 #define DATA_POINT
 
 #include <data/types.hpp>
+#include <data/math/figurate.hpp>
 #include <data/math/linear/space.hpp>
 #include <data/math/algebra/algebra.hpp>
 
@@ -25,42 +26,74 @@ namespace data::math::linear {
 namespace data::math::space {
 
     // the exterior algebra comprises scalars, vectors, asymmetric 2-tensors, etc.
-    template <field X, size_t order, size_t dim> struct exterior;
+    template <field X, size_t dim, size_t order> struct exterior;
 
-    template <field X, size_t dim> using scalar = exterior<X, 0, dim>;
-    template <field X, size_t dim> using vector = exterior<X, 1, dim>;
+    template <field X, size_t dim> using scalar = exterior<X, dim, 0>;
+    template <field X, size_t dim> using vector = exterior<X, dim, 1>;
     // nonstandard terminology but it helps to remember what these things are.
-    template <field X, size_t dim> using planar = exterior<X, 2, dim>;
-    template <field X, size_t dim> using spacer = exterior<X, 3, dim>;
+    template <field X, size_t dim> using planar = exterior<X, dim, 2>;
+    template <field X, size_t dim> using spacer = exterior<X, dim, 3>;
 
     // scalar multiplication
-    template <field X, size_t u, size_t dim>
-    exterior <X, u, dim> operator * (const exterior<X, u, dim> &, const X &);
+    template <field X, size_t dim, size_t u>
+    exterior <X, dim, u> operator * (const exterior<X, dim, u> &, const X &);
 
     // addition
-    template <field X, size_t u, size_t dim>
-    exterior <X, u, dim> operator + (const exterior<X, u, dim> &, const exterior<X, u, dim> &);
+    template <field X, size_t dim, size_t u>
+    exterior <X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
 
-    template <field X, size_t A, size_t B, size_t dim>
-    exterior <X, A + B, dim> operator ^ (const exterior<X, A, dim> &, const exterior<X, B, dim> &);
+    // exterior product
+    template <field X, size_t dim, size_t A, size_t B>
+    exterior <X, dim, A + B> operator ^ (const exterior<X, dim, A> &, const exterior<X, dim, B> &);
 
-    template <field X, size_t order, size_t dim>
-    X operator * (const exterior<X, order, dim> &, const exterior<X, dim - order, dim> &);
+    // Hodge star
+    template <field X, size_t dim, size_t order>
+    requires requires (const X &x, const X &y) {
+        {x * data::inner (x, y)};
+    } exterior<X, dim, dim - order> operator * (const exterior<X, dim, order> &);
 
     // generate a matrix that projects onto the subspace defined by the exterior object.
     // the second exterior object is left unchanged.
-    template <field X, size_t order, size_t dim>
-    linear::matrix<X, dim, dim> projector (const exterior<X, order, dim> &a, const exterior<X, dim - order, dim> &b);
+    template <field X, size_t dim, size_t order>
+    linear::matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
 
-    template <field X, size_t order, size_t dim> requires requires (const X &x, const X &y) {
-        {x * inner (x, y)};
-    } auto operator * (const exterior<X, order, dim> &a, const exterior<X, order, dim> &b);
+    template <field X, size_t dim, size_t order> requires requires (const X &x, const X &y) {
+        {x * data::inner (x, y)};
+    } auto operator * (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b);
 
-    // Hodge star
-    template <field X, size_t order, size_t dim>
-    requires requires (const X &x, const X &y) {
-        {x * inner (x, y)};
-    } exterior<X, dim - order, dim> operator * (const exterior<X, order, dim> &);
+    // specialization for scalar type.
+    template <field X, size_t dim> class exterior<X, dim, 0> {
+        X Value;
+    public:
+
+        exterior (const X &x) : Value {x} {}
+    };
+
+    namespace {
+
+        // Forward declaration
+        template <typename, size_t, size_t, typename> struct exterior_component_tuple;
+
+        // Specialization using index sequence
+        template <typename X, size_t dim, size_t order, size_t... is>
+        struct exterior_component_tuple<X, dim, order, std::index_sequence<is...>> {
+            using type = std::tuple<exterior<X, dim - is, order>...>;
+        };
+
+        template <typename X, size_t dim, size_t order>
+        using exterior_components = exterior_component_tuple<X, dim - 1, order - 1, std::make_index_sequence<dim - order + 1>>::type;
+
+        template <field X, size_t dim, size_t order>
+        array<X, binomial (dim, order)> flatten (const exterior_components<X, dim, order> &);
+    }
+
+    template <field X, size_t dim, size_t order> class exterior {
+        array<X, binomial (dim, order)> Values;
+
+    public:
+        template <typename... Args>
+        exterior (Args &&...args) : Values {flatten<X, dim, order> (exterior_components<X, dim, order> {std::forward<Args> (args)...})} {}
+    };
 
     // affine geometry is like Euclid without circles.
     // technically, we do not have the full exterior algebra
@@ -75,8 +108,8 @@ namespace data::math::space {
         using plane = simplex<2>;
         using space = simplex<3>;
 
-        using vector = typename space::template vector<X, dim>;
-        using planar = typename space::template planar<X, dim>;
+        using vector = data::math::space::exterior<X, dim, 1>;
+        using planar = data::math::space::exterior<X, dim, 2>;
 
         // whether a line contains a point, etc.
         template <size_t a, size_t b>
@@ -87,8 +120,7 @@ namespace data::math::space {
         static simplex<a + b> connect (const simplex<a> &, const simplex<b> &);
 
         // we represent objects as exterior algebraic objects of one higher dimension.
-        template <size_t order> struct simplex : space::template exterior<X, order + 1, dim + 1> {
-            simplex (std::initializer_list<simplex<order - 1>>);
+        template <size_t order> struct simplex : data::math::space::exterior<X, dim + 1, order + 1> {
 
             // valid if nonzero and not parallel to the affine subspace.
             bool valid () const;
@@ -195,11 +227,11 @@ namespace data::math::space {
             bool operator == (const exterior &x) const;
         };
 
-        using value = unsigned_limit<X>;
+        using coordinate = unsigned_limit<X>;
 
-        // the rule is that no finite value can appear before an infinite value.
+        // no finite value can appear before an infinite value.
         template <size_t order>
-        struct simplex : space::exterior<value, order, dim> {
+        struct simplex : space::exterior<coordinate, order, dim> {
             bool valid () const;
         };
 
@@ -219,28 +251,19 @@ namespace data::math::space {
             simplex<order> operator * (const simplex<order> &) const;
         };
     };
-
-    namespace {
-        // Primary template
-        template <typename X, size_t u, size_t N, size_t... Args>
-        struct box_array : box_array<X, u - 1, N, N, Args...> {};
-
-        // Specialization to end recursion
-        template <typename X, size_t N, size_t... Args>
-        struct box_array<X, 0, N, Args...> {
-            using type = array<X, Args...>;
-        };
-    }
-
-    template <field X, size_t order, size_t dim> struct exterior : box_array<X, order, dim>::type {
-        using array = box_array<X, order, dim>::type;
-        using array::array;
-        exterior (array &&);
-        exterior (const array &);
-        // it's valid if the symmetry properties are correct.
-        bool valid ();
-    };
     
+}
+
+namespace data::math {
+    template <field X, size_t dim, size_t order>
+    struct inverse<plus<space::exterior<X, dim, order>>, space::exterior<X, dim, order>> {
+        space::exterior<X, dim, order> operator () (const space::exterior<X, dim, order> &, const space::exterior<X, dim, order> &) const;
+    };
+
+    template <field X, size_t dim, size_t order>
+    struct conjugate<space::exterior<X, dim, order>> {
+        space::exterior<X, dim, dim - order> operator () (const space::exterior<X, dim, order> &) const;
+    };
 }
 
 namespace data::math::linear {
@@ -292,10 +315,10 @@ namespace data::math::space {
 
     template <field X, size_t dim> template <size_t order>
     bool projective<X, dim>::simplex<order>::valid () const {
-        if (!space::template exterior<value, order, dim>::valid ()) return false;
+        if (!space::template exterior<coordinate, order, dim>::valid ()) return false;
         // infinite values are not allowed to appear after the first finite value.
         bool first_finite_value = false;
-        for (const value &v : *this)
+        for (const coordinate &v : *this)
             if (!is_infinite (v)) first_finite_value = true;
             else if (first_finite_value) return false;
         return true;
