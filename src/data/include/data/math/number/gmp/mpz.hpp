@@ -336,6 +336,7 @@ namespace data::math::number::GMP {
         }
 
         explicit operator uint64 () const;
+        explicit operator int32 () const;
 
     };
 
