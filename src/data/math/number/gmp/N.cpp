@@ -233,10 +233,15 @@ namespace data::math::number::GMP {
     N::N (string_view x) : Value {GMP::N_read (x)} {}
 
     N::operator uint64 () const {
-        if (__gmp_binary_greater::eval (Value.MPZ, (unsigned long int) (std::numeric_limits<uint64>::max ())))
+        if (__gmp_binary_greater::eval (Value.MPZ, static_cast<long unsigned int> (std::numeric_limits<uint64>::max ())))
             throw exception {"too big"};
-        if (*this < 0) throw exception {"too big"};
         return mpz_get_ui (Value.MPZ);
+    }
+
+    N::operator int32 () const {
+        if (__gmp_binary_greater::eval (Value.MPZ, static_cast<long int> (std::numeric_limits<int32>::max ())))
+            throw exception {"too big"};
+        return mpz_get_si (Value.MPZ);
     }
 
     std::ostream &operator << (std::ostream &o, const N &n) {
