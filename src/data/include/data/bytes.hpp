@@ -17,6 +17,40 @@ namespace data {
     template <std::integral word>
     std::ostream &operator << (std::ostream &o, const bytestring<byte> &s);
 
+    template <std::integral word>
+    bytestring<word> operator ~ (const bytestring<word> &b);
+
+    template <std::integral word>
+    bytestring<word> operator << (const bytestring<word> &b, int32 i);
+
+    template <std::integral word>
+    bytestring<word> operator >> (const bytestring<word> &b, int32 i);
+
+    template <std::integral word, size_t...> struct bytes_array;
+
+    template <std::integral word, size_t... sizes>
+    writer<word> &operator << (writer<word> &, const bytes_array<word, sizes...> &);
+
+    template <std::integral word, size_t size>
+    bool operator == (const bytes_array<word, size> &, const bytes_array<word, size> &);
+
+    template <std::integral word, size_t size>
+    std::strong_ordering operator <=> (const bytes_array<word, size> &, const bytes_array<word, size> &);
+
+    template <std::integral word, size_t size>
+    std::ostream &operator << (std::ostream &o, const bytes_array<word, size> &);
+
+    template <std::integral word, size_t size>
+    bytes_array<word, size> operator ~ (const bytes_array<word, size> &b);
+
+    template <std::integral word, size_t size>
+    bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i);
+
+    template <std::integral word, size_t size>
+    bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
+
+    template <size_t size> using byte_array = bytes_array<byte, size>;
+
     using hex_string = encoding::hex::string;
 
     template <std::integral word>
@@ -34,15 +68,6 @@ namespace data {
         void bit_shift_left (uint32 x, bool fill = false);
         void bit_shift_right (uint32 x, bool fill = false);
     };
-
-    template <std::integral word>
-    bytestring<word> operator ~ (const bytestring<word> &b);
-
-    template <std::integral word>
-    bytestring<word> operator << (const bytestring<word> &b, int32 i);
-
-    template <std::integral word>
-    bytestring<word> operator >> (const bytestring<word> &b, int32 i);
 
     namespace {
         template <typename X>
@@ -63,14 +88,6 @@ namespace data {
         write_to_writer (w, x, p...);
         return b;
     }
-
-    template <std::integral word, size_t...> struct bytes_array;
-
-    template <std::integral word, size_t... sizes>
-    writer<word> &operator << (writer<word> &, const bytes_array<word, sizes...> &);
-
-    template <std::integral word, size_t size>
-    std::ostream &operator << (std::ostream &o, const bytes_array<word, size> &);
 
     // all constructors constexpr
     template <std::integral word, size_t size> struct bytes_array<word, size> : public array<word, size> {
@@ -139,17 +156,6 @@ namespace data {
         }
 
     };
-
-    template <std::integral word, size_t size>
-    bytes_array<word, size> operator ~ (const bytes_array<word, size> &b);
-
-    template <std::integral word, size_t size>
-    bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i);
-
-    template <std::integral word, size_t size>
-    bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
-
-    template <size_t size> using byte_array = bytes_array<byte, size>;
 
     template <endian::order r, typename word, size_t ... sizes> struct oriented;
 
@@ -332,6 +338,16 @@ namespace data {
     template <std::integral word, size_t size>
     std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s) {
         return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
+    }
+
+    template <std::integral word, size_t size>
+    bool inline operator == (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+        return static_cast<array<word, size>> (a) == static_cast<array<word, size>> (b);
+    }
+
+    template <std::integral word, size_t size>
+    std::strong_ordering inline operator <=> (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+        return static_cast<array<word, size>> (a) <=> static_cast<array<word, size>> (b);
     }
 
 }
