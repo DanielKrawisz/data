@@ -54,30 +54,89 @@ namespace data {
     std::ostream &operator << (std::ostream &o, const cross<X> &s);
 
     template <typename X, size_t... > struct array;
-    
-    template <typename X, size_t size> struct array<X, size> : public std::array<X, size> {
-        constexpr static size_t Size = size;
-        using std::array<X, size>::array;
 
+    template <typename X, size_t... sizes>
+    bool operator == (const array<X, sizes...> &a, const array<X, sizes... > &b);
+
+    template <typename X, size_t... sizes>
+    auto operator <=> (const array<X, sizes...> &a, const array<X, sizes... > &b) -> decltype (*a.begin () <=> *b.begin ());
+    
+    // this array is a structural type and therefore can be
+    // used as a non-type template parameter.
+    template <typename X, size_t z> struct array<X, z> {
+        constexpr static size_t Size = z;
+
+        X Values[Size];
+
+        constexpr array ();
         constexpr array (std::initializer_list<X> x);
 
         // make an array filled with a particular value.
-        static array filled (const X &x);
+        constexpr static array filled (const X &x);
 
-        bool valid () const;
+        constexpr bool valid () const;
 
-        X &operator [] (size_t i);
-        const X &operator [] (size_t i) const;
+        constexpr X &operator [] (size_t i);
+        constexpr const X &operator [] (size_t i) const;
 
-        explicit operator slice<X, size> ();
+        constexpr explicit operator slice<X, Size> ();
 
-        slice<X> range (int);
-        slice<X> range (int, int);
+        constexpr slice<X> range (int);
+        constexpr slice<X> range (int, int);
 
-        explicit operator slice<const X, size> () const;
+        constexpr explicit operator slice<const X, Size> () const;
 
-        slice<const X> range (int) const;
-        slice<const X> range (int, int) const;
+        constexpr slice<const X> range (int) const;
+        constexpr slice<const X> range (int, int) const;
+
+        constexpr size_t size () const {
+            return Size;
+        }
+
+        constexpr X *data () {
+            return Values;
+        }
+
+        constexpr const X *data () const {
+            return Values;
+        }
+
+        using iterator = slice<X, Size>::iterator;
+        using const_iterator = slice<const X, Size>::iterator;
+        using reverse_iterator = slice<X, Size>::reverse_iterator;
+        using const_reverse_iterator = slice<const X, Size>::reverse_iterator;;
+
+        iterator begin () {
+            return slice<X, Size> (*this).begin ();
+        }
+
+        iterator end () {
+            return slice<X, Size> (*this).end ();
+        }
+
+        const_iterator begin () const {
+            return slice<const X, Size> (*this).begin ();
+        }
+
+        const_iterator end () const {
+            return slice<const X, Size> (*this).end ();
+        }
+
+        reverse_iterator rbegin () {
+            return slice<X, Size> (*this).rbegin ();
+        }
+
+        reverse_iterator rend () {
+            return slice<X, Size> (*this).rend ();
+        }
+
+        const_reverse_iterator rbegin () const {
+            return slice<const X, Size> (*this).rbegin ();
+        }
+
+        const_reverse_iterator rend () const {
+            return slice<const X, Size> (*this).rend ();
+        }
     };
 
     template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
@@ -93,13 +152,26 @@ namespace data {
 
     template <typename X> struct array<X> {
         constexpr static size_t Size = 1;
-        array (const X &);
-        array (X &&);
-        operator X () const;
 
         X Value;
 
-        bool valid () const;
+        constexpr array (const X &x): Value {x} {}
+
+        array &operator = (const X &x) {
+            Value = x;
+            return *this;
+        }
+
+        constexpr array (X &&x): Value {std::move (x)} {}
+
+        constexpr array &operator = (X &&x) {
+            Value = std::move (x);
+            return *this;
+        }
+
+        constexpr operator X () const;
+
+        constexpr bool valid () const;
 
         explicit operator slice<X, 1> ();
 
@@ -111,35 +183,45 @@ namespace data {
         slice<const X> range (int) const;
         slice<const X> range (int, int) const;
 
-        slice<X>::iterator begin ();
-        slice<X>::iterator end ();
+        constexpr slice<X>::iterator begin () {
+            return slice<X> {&Value, 1}.begin ();
+        }
 
-        slice<const X>::iterator begin () const;
-        slice<const X>::iterator end () const;
+        constexpr slice<X>::iterator end () {
+            return slice<X> {&Value, 1}.end ();
+        }
+
+        constexpr slice<const X>::iterator begin () const {
+            return slice<const X> {&Value, 1}.begin ();
+        }
+
+        constexpr slice<const X>::iterator end () const {
+            return slice<const X> {&Value, 1}.end ();
+        }
 
     };
 
     // vector addition and subtraction.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x + y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
+    } constexpr array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x + y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
+    } constexpr array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x) {
         {-x} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator - (const array<X, sizes...> &);
+    } constexpr array<X, sizes...> operator - (const array<X, sizes...> &);
 
     // scalar multiplication and division.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x * y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
+    } constexpr array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x / y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
+    } constexpr array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
 
     // multiplication operation good enough for an inner product and matrix multiplication
     template <typename X, size_t... A, size_t C, size_t... B> requires requires (const X &x, const X &y) {
@@ -147,7 +229,7 @@ namespace data {
         {x * inner (x, y)} -> implicitly_convertible_to<X>;
     } && requires () {
         {X {}};
-    } array<X, A..., B...> operator * (const array<X, A..., C> &a, const array<X, C, B...> &b);
+    } constexpr array<X, A..., B...> operator * (const array<X, A..., C> &a, const array<X, C, B...> &b);
 
     template <typename X>
     bool cross<X>::valid () const {
@@ -172,37 +254,76 @@ namespace data {
     }
 
     template <typename X, size_t size>
-    constexpr inline array<X, size>::array (std::initializer_list<X> x) : std::array<X, size> {} {
-        if (x.size () != size) throw exception {} << "out of range";
-        size_t index = 0;
-        for (const X &xx : x) std::array<X, size>::operator [] (index++) = xx;
+    constexpr inline array<X, size>::array () {
+        for (size_t index = 0; index < Size; index++) Values[index] = X {};
     }
 
     template <typename X, size_t size>
-    array<X, size> inline array<X, size>::filled (const X &x) {
+    constexpr inline array<X, size>::array (std::initializer_list<X> x) {
+        if (x.size () != Size) throw exception {} << "out of range";
+        size_t index = 0;
+        for (const X &xx : x) Values[index++] = xx;
+    }
+
+    template <typename X, size_t... sizes>
+    bool inline operator == (const array<X, sizes...> &a, const array<X, sizes... > &b) {
+        auto i = a.begin ();
+        auto j = b.begin ();
+        while (i != a.end ()) {
+            if (*i != *j) return false;
+            i++;
+            j++;
+        }
+        return true;
+    }
+
+    template <typename X, size_t... sizes>
+    auto operator <=> (const array<X, sizes...> &a, const array<X, sizes... > &b) -> decltype (*a.begin () <=> *b.begin ()) {
+        auto i = a.begin ();
+        auto j = b.begin ();
+
+        // For certain types of comparison we can have equivalent
+        // values that are not equal so we keep track of a running
+        // value for that case.
+        using comparison = decltype (*i <=> *j);
+        comparison so_far = comparison::equal;
+
+        while (i != a.end ()) {
+            auto comp = *i <=> *j;
+            if (comp == comparison::greater || comp == comparison::less) return comp;
+            if (comp != comparison::equal) so_far = comp;
+            i++;
+            j++;
+        }
+
+        return so_far;
+    }
+
+    template <typename X, size_t size>
+    constexpr array<X, size> inline array<X, size>::filled (const X &z) {
         array n {};
-        n.fill (x);
+        for (X &x: n.Values) x = z;
         return n;
     }
 
     template <typename X, size_t size>
-    bool inline array<X, size>::valid () const {
+    constexpr bool inline array<X, size>::valid () const {
         for (const X &x : *this) if (!data::valid (x)) return false;
         return true;
     }
 
     template <typename X, size_t size>
-    X inline &array<X, size>::operator [] (size_t i) {
-        if (size == 0) throw std::out_of_range {"cross size 0"};
-        if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
-        return std::array<X, size>::operator [] (i);
+    constexpr X inline &array<X, size>::operator [] (size_t i) {
+        if (Size == 0) throw std::out_of_range {"cross size 0"};
+        if (i < 0 || i >= Size) return this->operator [] ((i + Size) % Size);
+        return Values[i];
     }
 
     template <typename X, size_t size>
-    const X inline &array<X, size>::operator [] (size_t i) const {
-        if (size == 0) throw std::out_of_range {"cross size 0"};
-        if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
-        return std::array<X, size>::operator [] (i);
+    constexpr const X inline &array<X, size>::operator [] (size_t i) const {
+        if (Size == 0) throw std::out_of_range {"cross size 0"};
+        if (i < 0 || i >= Size) return this->operator [] ((i + Size) % Size);
+        return Values[i];
     }
     
     template <typename X>
@@ -260,7 +381,7 @@ namespace data {
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x + y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
+    } constexpr array<X, sizes...> operator + (const array<X, sizes...> &a, const array<X, sizes...> &b) {
         array<X, sizes...> x {};
         auto ai = a.begin ();
         auto bi = b.begin ();
@@ -276,7 +397,7 @@ namespace data {
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x - y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator - (const array<X, sizes...> &a, const array<X, sizes...> &b) {
+    } constexpr array<X, sizes...> operator - (const array<X, sizes...> &a, const array<X, sizes...> &b) {
         array<X, sizes...> x {};
         auto ai = a.begin ();
         auto bi = b.begin ();
@@ -292,7 +413,7 @@ namespace data {
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x * y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator * (const array<X, sizes...> &a, const X &b) {
+    } constexpr array<X, sizes...> operator * (const array<X, sizes...> &a, const X &b) {
         array<X, sizes...> x {};
 
         auto ai = a.begin ();
@@ -306,7 +427,7 @@ namespace data {
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         {x / y} -> implicitly_convertible_to<X>;
-    } array<X, sizes...> operator / (const array<X, sizes...> &a, const X &b) {
+    } constexpr array<X, sizes...> operator / (const array<X, sizes...> &a, const X &b) {
         array<X, sizes...> x {};
 
         auto ai = a.begin ();
