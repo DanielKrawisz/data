@@ -424,13 +424,10 @@ namespace data::net {
         return {entry<UTF8, UTF8> {*encoding::percent::decode (z[0]), *encoding::percent::decode (z[1])}};
     }
 
-    maybe<list<entry<UTF8, UTF8>>> URL::query_map () const {
-        string_view q = URI::query (*this);
-        if (q.data () == nullptr) return {};
+    dispatch<UTF8, UTF8> read_query_map (string_view query) {
+        list<string_view> z = split (query, "&");
 
-        list<string_view> z = split (q, "&");
-
-        list<entry<UTF8, UTF8>> params;
+        dispatch<UTF8, UTF8> params;
 
         for (const string_view &e : z) {
             list<string_view> p = split (e, "=");
@@ -438,7 +435,14 @@ namespace data::net {
             params = params << entry<UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
         }
 
-        return {params};
+        return params;
+    }
+
+    maybe<dispatch<UTF8, UTF8>> URL::query_map () const {
+        string_view q = URI::query (*this);
+        if (q.data () == nullptr) return {};
+
+        return read_query_map (q);
     }
 
     maybe<domain_name> URL::domain_name () const {
@@ -913,6 +917,14 @@ namespace data {
             throw data::exception {"invalid target"};
         if (sub.data () == nullptr) return {};
         return ASCII {sub};
+    }
+
+    maybe<list<entry<UTF8, UTF8>>> net::target::query_map () const {
+        maybe<ASCII> q = query ();
+
+        if (!bool (q)) return {};
+
+        return read_query_map (*q);
     }
 
     maybe<UTF8> net::target::fragment () const {

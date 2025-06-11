@@ -64,6 +64,16 @@ namespace data {
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
 
     template <typename K, typename V> using dispatch = list<entry<K, V>>;
+
+    template <typename K, typename V>
+    map<K, list<V>> dispatch_to_map (dispatch<K, V> d) {
+        map<K, list<V>> map;
+        for (const auto &[key, val] : d)
+            map = map.insert (key, {val}, [] (list<V> old_value, list<V> new_value) {
+                return old_value + new_value;
+            });
+        map;
+    }
     
     // Take a function fun and some lists {x, ...}, {y, ...}, {z, ...} ... and return {f (x, y, z, ...), ...}
     template <typename f, sequence... Vals, typename f_result = decltype (std::declval<f> () (data::first (std::declval<Vals> ())...))>
