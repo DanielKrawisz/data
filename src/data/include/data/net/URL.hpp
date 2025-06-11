@@ -421,14 +421,17 @@ namespace data::net {
 
     // same with target, which includes path.
     struct target : encoding::percent::string {
+        static bool valid (string_view);
+
         using encoding::percent::string::string;
 
         net::path path () const;
 
         maybe<ASCII> query () const; // the part after ? and before #
+        maybe<dispatch<UTF8, UTF8>> query_map () const;
+
         maybe<UTF8> fragment () const; // the part after the #
 
-        static bool valid (string_view);
         bool valid () const;
 
     };
