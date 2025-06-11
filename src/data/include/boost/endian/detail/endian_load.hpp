@@ -53,13 +53,18 @@ namespace detail
 
 template<class T, std::size_t N, order O> struct endian_load_impl<T, N, O, N, O>
 {
-    inline T operator()( unsigned char const * p ) const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR inline T operator()( unsigned char const * p ) const BOOST_NOEXCEPT
     {
         BOOST_ENDIAN_STATIC_ASSERT( is_trivially_copyable<T>::value );
 
         T t;
 
-        std::memcpy( &t, p, N );
+        if consteval {
+            t = 0;
+            for (size_t i = 0; i < N; i++) t |= T (p[i]) << (i * 8);
+        } else {
+            std::memcpy( &t, p, N );
+        }
 
         return t;
     }
@@ -69,18 +74,23 @@ template<class T, std::size_t N, order O> struct endian_load_impl<T, N, O, N, O>
 
 template<class T, std::size_t N, order O1, order O2> struct endian_load_impl<T, N, O1, N, O2>
 {
-    inline T operator()( unsigned char const * p ) const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR inline T operator()( unsigned char const * p ) const BOOST_NOEXCEPT
     {
         BOOST_ENDIAN_STATIC_ASSERT( is_trivially_copyable<T>::value );
 
         T t;
 
-        typename integral_by_size<N>::type tmp;
-        std::memcpy( &tmp, p, N );
+        if consteval {
+            t = 0;
+            for (size_t i = 0; i < N; i++) t |= T (p[i]) << ((N - i - 1) * 8);
+        } else {
+            typename integral_by_size<N>::type tmp;
+            std::memcpy( &tmp, p, N );
 
-        endian_reverse_inplace( tmp );
+            endian_reverse_inplace( tmp );
 
-        std::memcpy( &t, &tmp, N );
+            std::memcpy( &t, &tmp, N );
+        }
 
         return t;
     }
