@@ -20,7 +20,7 @@ namespace data {
         EXPECT_EQ (~Z (-1), Z (0)) << "expected ~" << Z (-1) << " to equal " << Z (0);
     }
     
-    TEST (BitShiftTest, BitNegate) {
+    TEST (BitOpsTest, BitNegate) {
         
         test_bit_negate<Z_bytes_big> ();
         test_bit_negate<Z_bytes_little> ();
@@ -136,7 +136,7 @@ namespace data {
         
     }
     
-    TEST (BitShiftTest, BitShiftBounded) {
+    TEST (BitOpsTest, BitShiftBounded) {
 
         test_bit_shift_bounded<int_little<12>> ();
         test_bit_shift_bounded<int_big<12>> ();
@@ -213,7 +213,7 @@ namespace data {
         test_bit_shift_unbounded<N> (positive_numbers, shifts);
     }
 
-    TEST (BitShiftTest, BitShiftUnbounded) {
+    TEST (BitOpsTest, BitShiftUnbounded) {
         // NOTE some of the commented tests don't compile and others are too slow.
         /*
         test_bit_shift_unsigned<N> ();
@@ -248,6 +248,13 @@ namespace data {
         test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
 
         // TODO bigger word sizes.
+    }
+
+    // Test that numbers get extended to perform bit ops if necessary.
+    TEST (BitOpsTest, BitAndOrXor) {
+
+
+
     }
     
 }

@@ -50,11 +50,11 @@ namespace data::crypto::hash {
 
 namespace data::crypto {
 
-    digest160 inline Bitcoin_160 (bytes_view b) {
+    digest160 inline Bitcoin_160 (slice<const byte> b) {
         return hash::calculate<hash::Bitcoin<20>> (b);
     }
 
-    digest256 inline Bitcoin_256 (bytes_view b) {
+    digest256 inline Bitcoin_256 (slice<const byte> b) {
         return hash::calculate<hash::Bitcoin<32>> (b);
     }
 }

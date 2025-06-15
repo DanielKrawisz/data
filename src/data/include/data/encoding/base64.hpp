@@ -49,7 +49,7 @@ namespace data::encoding::base64 {
         friend string operator "" _b64 (const char*, size_t);
     };
     
-    string write (bytes_view);
+    string write (slice<const byte>);
     string write (uint64);
     string write (uint32);
     string write (uint16);

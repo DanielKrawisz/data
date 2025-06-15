@@ -28,6 +28,9 @@ namespace data {
 
     template <std::integral word>
     writer<word> &operator << (writer<word> &w, view<word> x);
+
+    template <std::integral word>
+    writer<word> &operator << (writer<word> &w, slice<const word> x);
     
     template <std::integral word>
     writer<word> &operator << (writer<word> &w, const std::string &x);
@@ -152,6 +155,12 @@ namespace data {
 
     template <std::integral word>
     writer<word> inline &operator << (writer<word> &w, view<word> x) {
+        w.write (x.data (), x.size ());
+        return w;
+    }
+
+    template <std::integral word>
+    writer<word> inline &operator << (writer<word> &w, slice<const word> x) {
         w.write (x.data (), x.size ());
         return w;
     }

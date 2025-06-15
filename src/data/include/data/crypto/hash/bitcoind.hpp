@@ -49,15 +49,15 @@ namespace data::crypto::hash {
 
 namespace data::crypto {
 
-    digest160 inline SHA1 (bytes_view b) {
+    digest160 inline SHA1 (slice<const byte> b) {
         return hash::calculate<hash::SHA1> (b);
     }
 
-    digest160 inline RIPEMD_160 (bytes_view b) {
+    digest160 inline RIPEMD_160 (slice<const byte> b) {
         return hash::calculate<hash::RIPEMD<20>> (b);
     }
 
-    digest256 inline SHA2_256 (bytes_view b) {
+    digest256 inline SHA2_256 (slice<const byte> b) {
         return hash::calculate<hash::SHA2<32>> (b);
     }
 

@@ -9,6 +9,7 @@
 #include <data/tools/index_iterator.hpp>
 #include <data/meta/greater.hpp>
 #include <data/meta/unsigned_minus.hpp>
+#include <data/io/exception.hpp>
 
 namespace data::meta {
 
@@ -45,13 +46,11 @@ namespace data {
             return true;
         }
 
-        explicit operator view<unconst<X>> () const;
-
         /// Selects a range from the current slice
         /// \param b range begins from this index inclusive
         /// \param e range ends at this index excluisive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range (int begin, int end) {
+        [[nodiscard]] slice<X> range (int begin, int end) const {
             if (end < 0) end = this->size () + end;
             if (begin >= end || begin >= this->size () || end > this->size ()) return slice {};
             return slice {this->data () + begin, this->data () + end};
@@ -60,13 +59,18 @@ namespace data {
         /// Selects a range from the current slice up to end of slice
         /// \param b  range begins from this index inclusive
         /// \return a slice containing the requested range
-        [[nodiscard]] slice<X> range (int32 b) {
+        [[nodiscard]] slice<X> range (int32 b) const {
             return range (0, b);
         }
 
         template <size_t b, size_t e>
         slice<X, e - b> range () const {
             return slice<X, e - b> {this->data () + b, e - b};
+        }
+
+        slice<X> drop (int32 b) const {
+            if (b < 0) throw data::exception {} << "I don't know what this would mean";
+            return range (b, this->size ());
         }
 
         using iterator = decltype (std::declval<std::span<X>> ().begin ());
@@ -113,17 +117,11 @@ namespace data {
             return slice<X> {this->data (), this->data () + n};
         }
 
-        operator view<unconst<X>> () const;
-
         template <size_t b, size_t e> slice<X, e - b> range () const {
             return slice<X, e - b> {this->data () + b, e - b};
         }
 
     };
-
-    template <typename X> inline slice<X>::operator view<unconst<X>> () const {
-        return view<unconst<X>> {this->data (), this->size () * sizeof (X)};
-    }
 
     template <typename X> slice<X>::iterator inline slice<X>::begin () {
         return std::span<X>::begin ();
@@ -155,10 +153,6 @@ namespace data {
 
     template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rend () const {
         return std::span<X>::rend ();
-    }
-
-    template <typename X, size_t n> inline slice<X, n>::operator view<unconst<X>> () const {
-        return view<unconst<X>> {this->data (), n};
     }
 
 }

@@ -320,29 +320,6 @@ namespace data::arithmetic {
         }
     }
 
-    template <negativity c, range X>
-    std::strong_ordering compare (X a, X b) {
-        if constexpr (c == negativity::nones) {
-
-            auto za = size (a);
-            auto zb = size (b);
-            if (za < zb) return 0 <=> compare<c> (b, a);
-            size_t size_difference = za - zb;
-
-            auto ai = a.rbegin ();
-            for (int i = 0; i < size_difference; i++) {
-                if (0 != *ai) return std::strong_ordering::greater;
-                ai++;
-            }
-
-            return arithmetic::compare (a.rend (), ai, b.rbegin ());
-        } else if constexpr (c == negativity::twos) {
-            throw exception {} << "function unimplemented";
-        } else if constexpr (c == negativity::BC) {
-            throw exception {} << "function unimplemented";
-        }
-    }
-
 }
 
 namespace data::arithmetic::nones {
@@ -490,6 +467,93 @@ namespace data::arithmetic::BC {
         return !is_zero (x);
     }
 
+}
+
+namespace data::arithmetic {
+
+    template <negativity c, range X>
+    std::strong_ordering compare (X a, X b) {
+        if constexpr (c == negativity::nones) {
+
+            auto za = size (a);
+            auto zb = size (b);
+            if (za < zb) return 0 <=> compare<c> (b, a);
+            size_t size_difference = za - zb;
+
+            auto ai = a.rbegin ();
+            for (int i = 0; i < size_difference; i++) {
+                if (0 != *ai) return std::strong_ordering::greater;
+                ai++;
+            }
+
+            return arithmetic::compare (a.rend (), ai, b.rbegin ());
+        } else {
+
+            math::signature sga;
+            math::signature sgb;
+
+            if constexpr (c == negativity::twos) {
+                sga = twos::sign (a);
+                sgb = twos::sign (b);
+            } else if constexpr (c == negativity::BC) {
+                sga = BC::sign (a);
+                sgb = BC::sign (b);
+            } else throw exception {} << "it shouldn't be possible to get here.";
+
+            if (sga != sgb) {
+                if (sga == math::negative) return std::strong_ordering::less;
+                if (sgb == math::negative) return std::strong_ordering::greater;
+                if (sga == math::zero) return std::strong_ordering::less;
+                if (sgb == math::zero) return std::strong_ordering::greater;
+
+                throw exception {} << "it shouldn't be possible to get here.";
+            }
+
+            if (sga == math::zero) return std::strong_ordering::equal;
+
+            auto za = size (a);
+            auto zb = size (b);
+
+            X *greater;
+            X *lesser;
+
+            size_t size_difference;
+            bool reversed;
+
+            if (za >= zb) {
+                greater = &a;
+                lesser = &b;
+                size_difference = za - zb;
+                reversed = false;
+            } else {
+                greater = &b;
+                lesser = &a;
+                size_difference = zb - za;
+                reversed = true;
+            }
+
+            using word = decltype (*a.begin ());
+            word check_digit;
+            std::strong_ordering base_case_result;
+            if (sga == math::negative) {
+                base_case_result = reversed ? std::strong_ordering::greater : std::strong_ordering::less;
+                check_digit = std::numeric_limits<word>::max ();
+            } else {
+                base_case_result = reversed ? std::strong_ordering::less : std::strong_ordering::greater;
+                check_digit = 0;
+            }
+
+            auto ai = greater->rbegin ();
+            for (int i = 0; i < size_difference; i++) {
+                if (check_digit != *ai) return base_case_result;
+                ai++;
+            }
+
+            std::strong_ordering compare = arithmetic::compare (a.rend (), ai, b.rbegin ());
+
+            return reversed ? 0 <=> compare : compare;
+        }
+    }
 }
 
 #endif

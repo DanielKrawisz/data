@@ -83,7 +83,7 @@ namespace data::encoding::base64 {
         return b;
     }
     
-    string write (bytes_view sourceBytes) {
+    string write (slice<const byte> sourceBytes) {
         std::string output;
         const auto size = sourceBytes.size ();
         output.reserve (((size / 3) + (size % 3 > 0)) * 4);
