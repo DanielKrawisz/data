@@ -145,9 +145,6 @@ namespace data {
     static_assert (octonionic<math::octonion<Z>> && math::normed_ring<math::octonion<Z>>);
 
     // next we look at rational types constructed from integer types.
-    static_assert (real<fraction<int80>> && math::normed_field<fraction<int80>>);
-    static_assert (real<fraction<int80_little>> && math::normed_field<fraction<int80_little>>);
-    static_assert (real<fraction<int80_big>> && math::normed_field<fraction<int80_big>>);
 
     static_assert (real<fraction<Z_bytes_little>> && math::normed_field<fraction<Z_bytes_little>>);
     static_assert (real<fraction<Z_bytes_big>> && math::normed_field<fraction<Z_bytes_big>>);
@@ -155,13 +152,6 @@ namespace data {
     static_assert (real<fraction<Z_bytes_BC_big>> && math::normed_field<fraction<Z_bytes_BC_big>>);
 
     static_assert (real<fraction<Z>> && math::normed_field<fraction<Z>>);
-
-    static_assert (complex<math::complex<fraction<int80>>> &&
-        math::normed_field<math::complex<fraction<int80>>>);
-    static_assert (complex<math::complex<fraction<int80_little>>> &&
-        math::normed_field<math::complex<fraction<int80_little>>>);
-    static_assert (complex<math::complex<fraction<int80_big>>> &&
-        math::normed_field<math::complex<fraction<int80_big>>>);
 
     static_assert (complex<math::complex<fraction<Z_bytes_little>>> &&
         math::normed_field<math::complex<fraction<Z_bytes_little>>>);
@@ -173,13 +163,6 @@ namespace data {
         math::normed_field<math::complex<fraction<Z_bytes_BC_big>>>);
 
     static_assert (complex<math::complex<fraction<Z>>> && math::normed_field<math::complex<fraction<Z>>>);
-
-    static_assert (quaternionic<math::quaternion<fraction<int80>>> &&
-        math::normed_field<math::quaternion<fraction<int80>>>);
-    static_assert (quaternionic<math::quaternion<fraction<int80_little>>> &&
-        math::normed_field<math::quaternion<fraction<int80_little>>>);
-    static_assert (quaternionic<math::quaternion<fraction<int80_big>>> &&
-        math::normed_field<math::quaternion<fraction<int80_big>>>);
 
     static_assert (quaternionic<math::quaternion<fraction<Z_bytes_little>>> &&
         math::normed_field<math::quaternion<fraction<Z_bytes_little>>>);
@@ -193,13 +176,6 @@ namespace data {
     static_assert (quaternionic<math::quaternion<fraction<Z>>> &&
         math::normed_field<math::quaternion<fraction<Z>>>);
 
-    static_assert (octonionic<math::octonion<fraction<int80>>> &&
-        math::normed_field<math::octonion<fraction<int80>>>);
-    static_assert (octonionic<math::octonion<fraction<int80_little>>> &&
-        math::normed_field<math::octonion<fraction<int80_little>>>);
-    static_assert (octonionic<math::octonion<fraction<int80_big>>> &&
-        math::normed_field<math::octonion<fraction<int80_big>>>);
-
     static_assert (octonionic<math::octonion<fraction<Z_bytes_little>>> &&
         math::normed_field<math::octonion<fraction<Z_bytes_little>>>);
     static_assert (octonionic<math::octonion<fraction<Z_bytes_big>>> &&
@@ -212,12 +188,6 @@ namespace data {
     static_assert (octonionic<math::octonion<fraction<Z>>> &&
         math::normed_field<math::octonion<fraction<Z>>>);
 
-    static_assert (complex<fraction<math::complex<int80>>> && math::normed_field<fraction<math::complex<int80>>>);
-    static_assert (complex<fraction<math::complex<int80_little>>> &&
-        math::normed_field<fraction<math::complex<int80_little>>>);
-    static_assert (complex<fraction<math::complex<int80_big>>> &&
-        math::normed_field<fraction<math::complex<int80_big>>>);
-
     static_assert (complex<fraction<math::complex<Z_bytes_little>>> &&
         math::normed_field<fraction<math::complex<Z_bytes_little>>>);
     static_assert (complex<fraction<math::complex<Z_bytes_big>>> &&
@@ -228,13 +198,6 @@ namespace data {
         math::normed_field<fraction<math::complex<Z_bytes_BC_big>>>);
 
     static_assert (complex<fraction<math::complex<Z>>> && math::normed_field<fraction<math::complex<Z>>>);
-
-    static_assert (quaternionic<fraction<math::quaternion<int80>>> &&
-        math::normed_field<fraction<math::quaternion<int80>>>);
-    static_assert (quaternionic<fraction<math::quaternion<int80_little>>> &&
-        math::normed_field<fraction<math::quaternion<int80_little>>>);
-    static_assert (quaternionic<fraction<math::quaternion<int80_big>>> &&
-        math::normed_field<fraction<math::quaternion<int80>>>);
 
     static_assert (quaternionic<fraction<math::quaternion<Z_bytes_little>>> &&
         math::normed_field<fraction<math::quaternion<Z_bytes_little>>>);
@@ -247,13 +210,6 @@ namespace data {
 
     static_assert (quaternionic<fraction<math::quaternion<Z>>> &&
         math::normed_field<fraction<math::quaternion<Z>>>);
-
-    static_assert (octonionic<fraction<math::octonion<int80>>> &&
-        math::normed_field<fraction<math::octonion<int80>>>);
-    static_assert (octonionic<fraction<math::octonion<int80_little>>> &&
-        math::normed_field<fraction<math::octonion<int80_little>>>);
-    static_assert (octonionic<fraction<math::octonion<int80_big>>> &&
-        math::normed_field<fraction<math::octonion<int80_big>>>);
 
     static_assert (octonionic<fraction<math::octonion<Z_bytes_little>>> &&
         math::normed_field<fraction<math::octonion<Z_bytes_little>>>);

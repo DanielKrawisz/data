@@ -20,7 +20,7 @@ namespace data::math::number {
 
         if (encoding::hexidecimal::valid (x)) {
             if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) {
-                return N_bytes<r, word> {view<word> (*m)};
+                return N_bytes<r, word> {slice<const word> (*m)};
             } else throw exception {} << "invalid hex string size " << x.size () << "; " << x;
         }
 

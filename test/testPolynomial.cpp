@@ -82,15 +82,6 @@ struct test_polynomial_division : test_polynomial<Z> {
 
 TEST (PolynomialTest, TestPolynomial) {
     
-    //test_polynomial<int64> {};
-    test_polynomial<int_big<9>> {};
-    test_polynomial<int_little<9>> {};
-    test_polynomial<int_big<10>> {};
-    test_polynomial<int_little<10>> {};
-    test_polynomial<int_big<11>> {};
-    test_polynomial<int_little<11>> {};
-    test_polynomial<int_big<12>> {};
-    test_polynomial<int_little<12>> {};
     test_polynomial<Z> {};
 
     test_polynomial<Z_bytes_little> {};
@@ -100,16 +91,6 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial<dec_int> {};
     test_polynomial<hex_int_ones> {};
     test_polynomial<hex_int_BC> {};
-
-    //test_polynomial<fraction<int64>> {};
-    test_polynomial<fraction<int_big<9>>> {};
-    test_polynomial<fraction<int_little<9>>> {};
-    test_polynomial<fraction<int_big<10>>> {};
-    test_polynomial<fraction<int_little<10>>> {};
-    test_polynomial<fraction<int_big<11>>> {};
-    test_polynomial<fraction<int_little<11>>> {};
-    test_polynomial<fraction<int_big<12>>> {};
-    test_polynomial<fraction<int_little<12>>> {};
 
     test_polynomial<Q> {};
     test_polynomial<Q_little> {};

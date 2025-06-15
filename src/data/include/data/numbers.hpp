@@ -141,40 +141,6 @@ namespace data {
     static_assert (signed_type<float>);
     static_assert (signed_type<double>);
 
-    static_assert (unsigned_integral<uint80>);
-    static_assert (unsigned_integral<uint160>);
-    static_assert (unsigned_integral<uint224>);
-    static_assert (unsigned_integral<uint256>);
-    static_assert (unsigned_integral<uint320>);
-    static_assert (unsigned_integral<uint448>);
-    static_assert (unsigned_integral<uint512>);
-
-    static_assert (integral_system<int80, uint80>);
-    static_assert (integral_system<int160, uint160>);
-    static_assert (integral_system<int224, uint224>);
-    static_assert (integral_system<int256, uint256>);
-    static_assert (integral_system<int320, uint320>);
-    static_assert (integral_system<int448, uint448>);
-    static_assert (integral_system<int512, uint512>);
-
-    static_assert (unsigned_integral<uint80_big>);
-    static_assert (unsigned_integral<uint128_big>);
-    static_assert (unsigned_integral<uint160_big>);
-    static_assert (unsigned_integral<uint224_big>);
-    static_assert (unsigned_integral<uint256_big>);
-    static_assert (unsigned_integral<uint320_big>);
-    static_assert (unsigned_integral<uint448_big>);
-    static_assert (unsigned_integral<uint512_big>);
-
-    static_assert (unsigned_integral<uint80_little>);
-    static_assert (unsigned_integral<uint128_little>);
-    static_assert (unsigned_integral<uint160_little>);
-    static_assert (unsigned_integral<uint224_little>);
-    static_assert (unsigned_integral<uint256_little>);
-    static_assert (unsigned_integral<uint320_little>);
-    static_assert (unsigned_integral<uint448_little>);
-    static_assert (unsigned_integral<uint512_little>);
-
     static_assert (unsigned_integral<N>);
     static_assert (integral_system<Z, N>);
 

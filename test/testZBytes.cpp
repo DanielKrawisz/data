@@ -41,21 +41,21 @@ namespace data {
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("-128")), std::string ("0x80"));
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_little ("-129")), std::string ("0xff7f"));
 
-        EXPECT_EQ (bytes_view (Z_bytes_big ("0")), *encoding::hex::read (""));
-        EXPECT_EQ (bytes_view (Z_bytes_big ("-1")), *encoding::hex::read ("ff"));
-        EXPECT_EQ (bytes_view (Z_bytes_big ("-2")), *encoding::hex::read ("fe"));
-        EXPECT_EQ (bytes_view (Z_bytes_big ("127")), *encoding::hex::read ("7f"));
-        EXPECT_EQ (bytes_view (Z_bytes_big ("128")), *encoding::hex::read ("0080"));
-        EXPECT_EQ (bytes_view (Z_bytes_big ("-128")), *encoding::hex::read ("80"));
-        EXPECT_EQ (bytes_view (Z_bytes_big ("-129")), *encoding::hex::read ("ff7f"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("0")), *encoding::hex::read (""));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("-1")), *encoding::hex::read ("ff"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("-2")), *encoding::hex::read ("fe"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("127")), *encoding::hex::read ("7f"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("128")), *encoding::hex::read ("0080"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("-128")), *encoding::hex::read ("80"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_big ("-129")), *encoding::hex::read ("ff7f"));
 
-        EXPECT_EQ (bytes_view (Z_bytes_little ("0")), *encoding::hex::read (""));
-        EXPECT_EQ (bytes_view (Z_bytes_little ("-1")), *encoding::hex::read ("ff"));
-        EXPECT_EQ (bytes_view (Z_bytes_little ("-2")), *encoding::hex::read ("fe"));
-        EXPECT_EQ (bytes_view (Z_bytes_little ("127")), *encoding::hex::read ("7f"));
-        EXPECT_EQ (bytes_view (Z_bytes_little ("128")), *encoding::hex::read ("8000"));
-        EXPECT_EQ (bytes_view (Z_bytes_little ("-128")), *encoding::hex::read ("80"));
-        EXPECT_EQ (bytes_view (Z_bytes_little ("-129")), *encoding::hex::read ("7fff"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("0")), *encoding::hex::read (""));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("-1")), *encoding::hex::read ("ff"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("-2")), *encoding::hex::read ("fe"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("127")), *encoding::hex::read ("7f"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("128")), *encoding::hex::read ("8000"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("-128")), *encoding::hex::read ("80"));
+        EXPECT_EQ (slice<const byte> (Z_bytes_little ("-129")), *encoding::hex::read ("7fff"));
         
     }
 

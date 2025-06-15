@@ -25,7 +25,7 @@ namespace data::math::number {
         //explicit N_bytes (const std::string &);
 
         // read in the number as a string of bytes.
-        static N_bytes read (view<word> x);
+        static N_bytes read (slice<const word> x);
 
         // trim the number to its minimal representation.
         N_bytes &trim ();
@@ -64,7 +64,7 @@ namespace data::math::number {
         Z_bytes (uint32);
         
         static Z_bytes read (string_view x);
-        static Z_bytes read (view<word> x);
+        static Z_bytes read (slice<const word> x);
         explicit Z_bytes (const std::string &x): Z_bytes {read (x)} {}
         explicit Z_bytes (const char *x) : Z_bytes {std::string {x}} {}
         
@@ -99,7 +99,7 @@ namespace data::math::number {
         Z_bytes (uint32);
         
         static Z_bytes read (string_view x);
-        static Z_bytes read (view<word> x);
+        static Z_bytes read (slice<const word> x);
         explicit Z_bytes (string_view x): Z_bytes {read (x)} {}
         explicit Z_bytes (const std::string &x): Z_bytes {read (x)} {}
         explicit Z_bytes (const char *x) : Z_bytes {std::string {x}} {}
@@ -710,7 +710,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> N_bytes<r, word>::read (view<word> b) {
+    N_bytes<r, word> N_bytes<r, word>::read (slice<const word> b) {
         auto x = N_bytes<r, word> {};
         x.resize (b.size ());
         std::copy (b.begin (), b.end (), x.begin ());
@@ -719,7 +719,7 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word>
-    Z_bytes<r, negativity::twos, word>::read (view<word> b) {
+    Z_bytes<r, negativity::twos, word>::read (slice<const word> b) {
         auto x = Z_bytes<r, negativity::twos, word> {};
         x.resize (b.size ());
         std::copy (b.begin (), b.end (), x.begin ());
@@ -727,7 +727,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word> Z_bytes<r, negativity::BC, word>::read (view<word> b) {
+    Z_bytes<r, negativity::BC, word> Z_bytes<r, negativity::BC, word>::read (slice<const word> b) {
         auto x = Z_bytes<r, negativity::BC, word> {};
         x.resize (b.size ());
         std::copy (b.begin (), b.end (), x.begin ());

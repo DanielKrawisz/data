@@ -60,9 +60,9 @@ namespace data::encoding::base58 {
 
     struct string;
 
-    template <typename N> string inline encode (N n);
+    template <typename N> string encode (N n);
 
-    string inline write (const bytes_view b);
+    string write (slice<const byte> b);
 
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.
@@ -238,7 +238,7 @@ namespace data::encoding::base58 {
         return string {w};
     }
 
-    string inline write (const bytes_view b) {
+    string inline write (slice<const byte> b) {
         return encode<math::N> (math::N (math::number::N_bytes<endian::big, byte>::read (b)));
     }
 

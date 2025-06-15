@@ -71,64 +71,64 @@ namespace data::crypto::hash {
 namespace data::crypto {
 
 #ifndef USE_BITCOIND_HASH_FUNCTIONS
-    digest160 inline SHA1 (bytes_view b) {
+    digest160 inline SHA1 (slice<const byte> b) {
         return hash::calculate<hash::SHA1> (b);
     }
 #endif
 
-    digest128 inline RIPEMD_128 (bytes_view b) {
+    digest128 inline RIPEMD_128 (slice<const byte> b) {
         return hash::calculate<hash::RIPEMD<16>> (b);
     }
 
 #ifndef USE_BITCOIND_HASH_FUNCTIONS
-    digest160 inline RIPEMD_160 (bytes_view b) {
+    digest160 inline RIPEMD_160 (slice<const byte> b) {
         return hash::calculate<hash::RIPEMD<20>> (b);
     }
 #endif
 
-    digest256 inline RIPEMD_256 (bytes_view b) {
+    digest256 inline RIPEMD_256 (slice<const byte> b) {
         return hash::calculate<hash::RIPEMD<32>> (b);
     }
 
-    digest320 inline RIPEMD_320 (bytes_view b) {
+    digest320 inline RIPEMD_320 (slice<const byte> b) {
         return hash::calculate<hash::RIPEMD<40>> (b);
     }
 
-    digest224 inline SHA2_224 (bytes_view b) {
+    digest224 inline SHA2_224 (slice<const byte> b) {
         return hash::calculate<hash::SHA2<28>> (b);
     }
 
 #ifndef USE_BITCOIND_HASH_FUNCTIONS
-    digest256 inline SHA2_256 (bytes_view b) {
+    digest256 inline SHA2_256 (slice<const byte> b) {
         return hash::calculate<hash::SHA2<32>> (b);
     }
 #endif
 
-    template <size_t size> digest<size> inline SHA3 (bytes_view b) {
+    template <size_t size> digest<size> inline SHA3 (slice<const byte> b) {
         return hash::calculate<hash::SHA3<size>> (b);
     }
     
-    digest384 inline SHA2_384 (bytes_view b) {
+    digest384 inline SHA2_384 (slice<const byte> b) {
         return hash::calculate<hash::SHA2<48>> (b);
     }
 
-    digest512 inline SHA2_512 (bytes_view b) {
+    digest512 inline SHA2_512 (slice<const byte> b) {
         return hash::calculate<hash::SHA2<64>> (b);
     }
 
-    digest224 inline SHA3_224 (bytes_view b) {
+    digest224 inline SHA3_224 (slice<const byte> b) {
         return hash::calculate<hash::SHA3<28>> (b);
     }
 
-    digest256 inline SHA3_256 (bytes_view b) {
+    digest256 inline SHA3_256 (slice<const byte> b) {
         return hash::calculate<hash::SHA3<32>> (b);
     }
 
-    digest384 inline SHA3_384 (bytes_view b) {
+    digest384 inline SHA3_384 (slice<const byte> b) {
         return hash::calculate<hash::SHA3<48>> (b);
     }
 
-    digest512 inline SHA3_512 (bytes_view b) {
+    digest512 inline SHA3_512 (slice<const byte> b) {
         return hash::calculate<hash::SHA2<64>> (b);
     }
 
