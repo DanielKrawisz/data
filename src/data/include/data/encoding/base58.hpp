@@ -238,7 +238,7 @@ namespace data::encoding::base58 {
         return string {w};
     }
 
-    string inline write (slice<const byte> b) {
+    string inline write (byte_slice b) {
         return encode<math::N> (math::N (math::number::N_bytes<endian::big, byte>::read (b)));
     }
 

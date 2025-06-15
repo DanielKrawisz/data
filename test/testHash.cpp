@@ -127,10 +127,10 @@ namespace data::crypto {
         hash::Bitcoin<20> bitcoin_20_hash_writer;
         hash::Bitcoin<32> bitcoin_32_hash_writer;
 
-        RIPEMD_160_hash_writer << bytes_view {} << end_message {};
-        SHA_2_256_hash_writer << bytes_view {} << end_message {};
-        bitcoin_20_hash_writer << bytes_view {} << end_message {};
-        bitcoin_32_hash_writer << bytes_view {} << end_message {};
+        RIPEMD_160_hash_writer << byte_slice {} << end_message {};
+        SHA_2_256_hash_writer << byte_slice {} << end_message {};
+        bitcoin_20_hash_writer << byte_slice {} << end_message {};
+        bitcoin_32_hash_writer << byte_slice {} << end_message {};
 
         RIPEMD_160_hash_writer << uint32_little {3} << end_message {};
         SHA_2_256_hash_writer << uint32_little {3} << end_message {};

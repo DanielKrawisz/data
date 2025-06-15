@@ -104,7 +104,7 @@ namespace data::crypto {
         bytes Entropy;
         int Position;
         
-        fixed_entropy (slice<const byte> b) : Entropy {b}, Position {0} {}
+        fixed_entropy (byte_slice b) : Entropy {b}, Position {0} {}
         
         bytes get (size_t x) override {
             if (x > Entropy.size () - Position) throw entropy::fail {};
