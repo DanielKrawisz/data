@@ -12,6 +12,7 @@ namespace data::crypto {
     template <size_t s>
     struct digest : public math::uint_little<s, byte> {
         using math::uint_little<s, byte>::uint_little;
+        digest (const math::uint_little<s, byte> &u) : math::uint_little<s, byte> {u} {}
         bool valid () const;
     };
 

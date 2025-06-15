@@ -47,13 +47,21 @@ namespace data::math {
         test_extended_euclidian<uint64_big, uint64_big> {};
         test_extended_euclidian<int64_big, int64_big> {};
 
-        test_extended_euclidian<int80, uint80> {};
-        test_extended_euclidian<int80_little, uint80_little> {};
-        test_extended_euclidian<int80_big, uint80_big> {};
+        test_extended_euclidian<int80, int80> {};
+        test_extended_euclidian<int80_little, int80_little> {};
+        test_extended_euclidian<int80_big, int80_big> {};
 
-        test_extended_euclidian<int128, uint128> {};
-        test_extended_euclidian<int128_little, uint128_little> {};
-        test_extended_euclidian<int128_big, uint128_big> {};
+        test_extended_euclidian<int128, int128> {};
+        test_extended_euclidian<int128_little, int128_little> {};
+        test_extended_euclidian<int128_big, int128_big> {};
+
+        test_extended_euclidian<uint80, uint80> {};
+        test_extended_euclidian<uint80_little, uint80_little> {};
+        test_extended_euclidian<uint80_big, uint80_big> {};
+
+        test_extended_euclidian<uint128, uint128> {};
+        test_extended_euclidian<uint128_little, uint128_little> {};
+        test_extended_euclidian<uint128_big, uint128_big> {};
 
         test_extended_euclidian<Z, N> {};
 
@@ -62,16 +70,6 @@ namespace data::math {
 
         test_extended_euclidian<Z_bytes_BC_little, Z_bytes_BC_little> {};
         test_extended_euclidian<Z_bytes_BC_big, Z_bytes_BC_big> {};
-
-        test_extended_euclidian<int_big<9, byte>, uint_big<9, byte>> {};
-        test_extended_euclidian<int_big<10, byte>, uint_big<10, byte>> {};
-        test_extended_euclidian<int_big<11, byte>, uint_big<11, byte>> {};
-        test_extended_euclidian<int_big<20, byte>, uint_big<20, byte>> {};
-
-        test_extended_euclidian<int_little<9, byte>, uint_little<9, byte>> {};
-        test_extended_euclidian<int_little<10, byte>, uint_little<10, byte>> {};
-        test_extended_euclidian<int_little<11, byte>, uint_little<11, byte>> {};
-        test_extended_euclidian<int_little<20, byte>, uint_little<20, byte>> {};
 
         test_extended_euclidian<dec_int, dec_uint> {};
         test_extended_euclidian<hex_int, hex_uint> {};

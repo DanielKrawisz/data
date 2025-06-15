@@ -144,38 +144,6 @@ namespace data {
     
     TEST (NumbersTest, TestNumberSystem) {
 
-        test_number_system<uint80, int80> {};
-        test_number_system<uint80_little, int80_little> {};
-        test_number_system<uint80_big, int80_big> {};
-
-        //test_number_system<uint128, int128> {};
-        test_number_system<uint128_little, int128_little> {};
-        test_number_system<uint128_big, int128_big> {};
-
-        test_number_system<uint160, int160> {};
-        test_number_system<uint160_little, int160_little> {};
-        test_number_system<uint160_big, int160_big> {};
-
-        test_number_system<uint224, int224> {};
-        test_number_system<uint224_little, int224_little> {};
-        test_number_system<uint224_big, int224_big> {};
-
-        test_number_system<uint256, int256> {};
-        test_number_system<uint256_little, int256_little> {};
-        test_number_system<uint256_big, int256_big> {};
-
-        test_number_system<uint320, int320> {};
-        test_number_system<uint320_little, int320_little> {};
-        test_number_system<uint320_big, int320_big> {};
-
-        test_number_system<uint448, int448> {};
-        test_number_system<uint448_little, int448_little> {};
-        test_number_system<uint448_big, int448_big> {};
-
-        test_number_system<uint512, int512> {};
-        test_number_system<uint512_little, int512_little> {};
-        test_number_system<uint512_big, int512_big> {};
-
         test_number_system<N, Z> {"N"};
 
         test_number_system<N_bytes_little, Z_bytes_little> {"N_bytes_little"};

@@ -47,17 +47,23 @@ namespace data::crypto {
         using parent::tuple;
     };
 
+    template <size_t size> symmetric_key<size> read_key (const std::string &x) {
+        symmetric_key<size> k;
+        boost::algorithm::unhex (x.begin (), x.end (), k.begin ());
+        return k;
+    }
+
     // here are the keys we will try using.
     // if a particular key is not supported for a block cipher, it will be skipped.
     keys<16, 20, 24, 28, 32, 40, 48, 56> kkk {
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e3"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e38d27c16b"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a1"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e70b61c72d83e94fa5"}},
-        {encoding::hex::string {"0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e70b61c72d83e94fa50da741eb852fc963"}}};
+        read_key<16> ("0123456789abcdef0369cf258be147ad"),
+        read_key<20> ("0123456789abcdef0369cf258be147ad05af49e3"),
+        read_key<24> ("0123456789abcdef0369cf258be147ad05af49e38d27c16b"),
+        read_key<28> ("0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a1"),
+        read_key<32> ("0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29"),
+        read_key<40> ("0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"),
+        read_key<48> ("0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e70b61c72d83e94fa5"),
+        read_key<56> ("0123456789abcdef0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e70b61c72d83e94fa50da741eb852fc963")};
 
     // first test is MACs. We have two kinds of MACs. SHA3 and HMAC.
     const char *MACMessage = "This is a message that will be hashed using a secret key to produce a MAC. Thank you.";
@@ -128,8 +134,9 @@ namespace data::crypto {
     template <typename...> struct ciphers {};
     ciphers<Rijndael, Serpent, Twofish, MARS, RC6> supported_ciphers {};
 
-    byte_array<block_size> IV1 {encoding::hex::string {"0123456789abcdef0369cf258be147ad"}};
-    byte_array<block_size> IV2 {encoding::hex::string {"abcdef01234567890000000000000000"}};
+    byte_array<block_size> IV1 = read_byte_array<block_size> (hex_string {"0123456789abcdef0369cf258be147ad"});
+
+    byte_array<block_size> IV2 = read_byte_array<block_size> (hex_string {"abcdef01234567890000000000000000"});
 
     // modes of operation that we support and that can be used as block ciphers.
     tuple<ECB<block_size>, CBC<block_size>> block_modes {{}, {IV1}};

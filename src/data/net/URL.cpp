@@ -424,7 +424,7 @@ namespace data::net {
         return {entry<UTF8, UTF8> {*encoding::percent::decode (z[0]), *encoding::percent::decode (z[1])}};
     }
 
-    dispatch<UTF8, UTF8> read_query_map (string_view query) {
+    maybe<dispatch<UTF8, UTF8>> read_query_map (string_view query) {
         list<string_view> z = split (query, "&");
 
         dispatch<UTF8, UTF8> params;

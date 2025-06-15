@@ -158,19 +158,19 @@ namespace data::math::number::GMP {
     Z::Z (string_view x) : Z {Z_read (x)} {}
     
     // inefficient but easier to write and more certain to be correct. 
-    N read_bytes_big (bytes_view x) {
+    N read_bytes_big (slice<const byte> x) {
         std::stringstream format_stream;
         format_stream << "0x" << encoding::hex::write (x);
         return N {format_stream.str ()};
     }
     
-    N read_bytes_little (bytes_view x) {
+    N read_bytes_little (slice<const byte> x) {
         auto z = bytes {x};
         std::reverse (z.begin (), z.end ());
         return read_bytes_big (z);
     }
     
-    N read_bytes (bytes_view x, endian::order o) {
+    N read_bytes (slice<const byte> x, endian::order o) {
         if (o == endian::order::big) return read_bytes_big (x);
         return read_bytes_little (x);
         /* 
