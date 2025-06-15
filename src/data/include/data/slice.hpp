@@ -25,6 +25,8 @@ namespace data {
     // Slice is an indexed section of an array which
     // can create smaller slices. 
     template <typename X, size_t ...> struct slice;
+
+    using byte_slice = slice<const byte>;
     
     // Slice is an indexed section of an array which
     // can create smaller slices. 

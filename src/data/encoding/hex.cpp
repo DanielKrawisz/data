@@ -25,13 +25,13 @@ namespace data::encoding::hex {
         return b;
     }
     
-    void write_hex (string &output, bytes_view sourceBytes, letter_case q) {
+    void write_hex (string &output, byte_slice sourceBytes, letter_case q) {
         output.resize (sourceBytes.size ());
         if (q == letter_case::upper) boost::algorithm::hex (sourceBytes.begin (), sourceBytes.end (), output.begin ());
         else boost::algorithm::hex_lower (sourceBytes.begin (), sourceBytes.end (), output.begin ());
     }
     
-    string write (bytes_view sourceBytes, endian::order r, letter_case q) {
+    string write (byte_slice sourceBytes, endian::order r, letter_case q) {
         if (r == endian::big) return write (sourceBytes, q);
         bytes reversed (sourceBytes.size ());
         std::copy (sourceBytes.rbegin (), sourceBytes.rend (), reversed.begin ());
@@ -40,25 +40,25 @@ namespace data::encoding::hex {
     
     fixed<8> write (uint64 x, letter_case q) {
         fixed<8> output;
-        write_hex (output, bytes_view {uint64_big {x}.data(), sizeof (uint64)}, q);
+        write_hex (output, byte_slice {uint64_big {x}.data(), sizeof (uint64)}, q);
         return output;
     }
     
     fixed<4> write (uint32 x, letter_case q) {
         fixed<4> output;
-        write_hex (output, bytes_view {uint32_big {x}.data (), sizeof (uint32)}, q);
+        write_hex (output, byte_slice {uint32_big {x}.data (), sizeof (uint32)}, q);
         return output;
     }
     
     fixed<2> write (uint16 x, letter_case q) {
         fixed<2> output;
-        write_hex (output, bytes_view {uint16_big {x}.data (), sizeof (uint16)}, q);
+        write_hex (output, byte_slice {uint16_big {x}.data (), sizeof (uint16)}, q);
         return output;
     }
     
     fixed<1> write (byte x, letter_case q) {
         fixed<1> output;
-        write_hex (output, bytes_view {(byte*) (&x), sizeof (byte)}, q);
+        write_hex (output, byte_slice {(byte*) (&x), sizeof (byte)}, q);
         return output;
     }
 }

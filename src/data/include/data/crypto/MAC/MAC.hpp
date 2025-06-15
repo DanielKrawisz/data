@@ -16,7 +16,7 @@ namespace data::crypto::MAC {
     };
 
     template <size_t key_size, writer<key_size> W>
-    digest<W::size> inline calculate (const symmetric_key<key_size> &k, bytes_view b) {
+    digest<W::size> inline calculate (const symmetric_key<key_size> &k, byte_slice b) {
         W w {k};
         w.write (b.data (), b.size ());
         return w.complete ();

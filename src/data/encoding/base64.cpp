@@ -83,7 +83,7 @@ namespace data::encoding::base64 {
         return b;
     }
     
-    string write (slice<const byte> sourceBytes) {
+    string write (byte_slice sourceBytes) {
         std::string output;
         const auto size = sourceBytes.size ();
         output.reserve (((size / 3) + (size % 3 > 0)) * 4);
@@ -131,18 +131,18 @@ namespace data::encoding::base64 {
     }
     
     string write (uint64 x) {
-        return write (bytes_view {uint64_big {x}.data (), sizeof (uint64)});
+        return write (byte_slice {uint64_big {x}.data (), sizeof (uint64)});
     }
     
     string write (uint32 x) {
-        return write (bytes_view {uint32_big {x}.data (), sizeof (uint32)});
+        return write (byte_slice {uint32_big {x}.data (), sizeof (uint32)});
     }
     
     string write (uint16 x) {
-        return write (bytes_view {uint16_big {x}.data (), sizeof (uint16)});
+        return write (byte_slice {uint16_big {x}.data (), sizeof (uint16)});
     }
     
     string write (byte x) {
-        return write (bytes_view {(byte*) (&x), sizeof (byte)});
+        return write (byte_slice {(byte*) (&x), sizeof (byte)});
     }
 }

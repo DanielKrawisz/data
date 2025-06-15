@@ -17,14 +17,14 @@ namespace {
             for (int i = 0; i < 20; i++)
                 test.push_back (i + 1);
             sliceTestWrite = slice<byte> (test);
-            sliceTestRead = bytes_view {test.data (), test.size ()};
+            sliceTestRead = byte_slice {test.data (), test.size ()};
         }
 
         void TearDown () override {}
 
         std::vector<byte> test;
         slice<byte> sliceTestWrite;
-        bytes_view sliceTestRead;
+        byte_slice sliceTestRead;
     };
 
     TEST_F (StreamTest, StreamWriteUint16Big) {

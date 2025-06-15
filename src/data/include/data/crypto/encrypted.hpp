@@ -18,10 +18,10 @@ namespace data::crypto {
     using initialization_vector = byte_array<block_size>;
     
     template <size_t block_size, size_t key_size>
-    using encryption = function<bytes (const initialization_vector<block_size> &, const symmetric_key<key_size> &, bytes_view)>;
+    using encryption = function<bytes (const initialization_vector<block_size> &, const symmetric_key<key_size> &, byte_slice)>;
     
     template <size_t block_size, size_t key_size>
-    using decryption = function<bytes (const initialization_vector<block_size> &, const symmetric_key<key_size> &, bytes_view)>;
+    using decryption = function<bytes (const initialization_vector<block_size> &, const symmetric_key<key_size> &, byte_slice)>;
     
     template <size_t size> 
     struct retriever {
@@ -44,7 +44,7 @@ namespace data::crypto {
     
     template <size_t block_size, size_t key_size>
     inline encrypted<block_size> encrypt
-        (bytes_view b, encryption<block_size, key_size> e, const symmetric_key<key_size> &k, const initialization_vector<block_size> &iv) {
+        (byte_slice b, encryption<block_size, key_size> e, const symmetric_key<key_size> &k, const initialization_vector<block_size> &iv) {
         return {e (write_bytes (12 + b.size (), uint64_big {0}, uint64_big {b.size ()}, b, uint64_big {0}), k, iv), iv};
     }
     
@@ -125,7 +125,7 @@ namespace data::crypto {
             std::string line;
             std::getline (Cin, line);
             symmetric_key<32> x;
-            auto d = SHA2_256 (bytes_view {(byte *) line.data (), line.size ()});
+            auto d = SHA2_256 (byte_slice {(byte *) line.data (), line.size ()});
             std::copy (d.begin (), d.end (), x.begin ());
             return x;
         }
