@@ -14,34 +14,9 @@
 
 namespace data::crypto {
     
-    struct random {
-        random &operator >> (byte &x) {
-            get (&x, 1);
-            return *this;
-        }
+    struct entropy : reader<byte> {
         
-        random &operator >> (uint16_t &x) {
-            get (reinterpret_cast<byte *> (&x), 2);
-            return *this;
-        }
-        
-        random &operator >> (uint32_t &x) {
-            get (reinterpret_cast<byte *> (&x), 4);
-            return *this;
-        }
-        
-        random &operator >> (uint64_t &x) {
-            get (reinterpret_cast<byte *> (&x), 8);
-            return *this;
-        }
-        
-        template <typename X>
-        random &operator >> (X &x) {
-            get (x.data (), data::size (x));
-            return *this;
-        }
-        
-        // std::uniform_random_bit_generator concept. 
+        // std::uniform_entropy_bit_generator concept.
         using result_type = byte;
         
         constexpr static byte min () {
@@ -58,98 +33,99 @@ namespace data::crypto {
             return b;
         }
 
-        virtual ~random () {}
-        
-        virtual void get (byte*, size_t) = 0;
-    };
-    
-    struct entropy {
+        virtual ~entropy () {}
+
+        // throw this when something goes wrong.
         struct fail : std::exception {
             const char *what () const noexcept override {
-                return "failed to get entropy";
+                return "failed to read entropy stream";
             }
         };
-        
-        virtual bytes get (size_t) = 0;
-        virtual ~entropy () {}
+
+        void skip (size_t size) final override {}
     };
     
-    struct entropy_sum : entropy {
+    struct entropy_sum final : entropy {
         ptr<entropy> Left;
         ptr<entropy> Right;
+
+        entropy_sum (ptr<entropy> left, ptr<entropy> right): Left {left}, Right {right} {}
         
-        bytes get (size_t x) override {
-            bytes left = Left->get (x);
-            bytes right = Right->get (x);
-            return write_bytes (left.size () + right.size (), left, right);
+        void read (byte *b, size_t x) final override {
+            Left->read (b, x);
+            bytes c;
+            c.resize (x);
+            Right->read (c.data (), x);
+            arithmetic::bit_xor<byte> (c.data () + x, c.data (), c.data (), b);
         }
     };
     
     // ask the user to type random characters into a keyboard.
-    struct user_entropy : entropy {
+    struct user_entropy final : entropy {
         std::string UserMessageAsk;
         std::string UserMessageAskMore;
         std::string UserMessageConfirm;
         std::ostream &Cout;
         std::istream &Cin;
+
+        bytes Input;
+        size_t Position;
         
         user_entropy (const std::string &ask, const std::string &ask_more, const std::string &confirm, std::ostream &out, std::istream &in) :
-            UserMessageAsk {ask}, UserMessageAskMore {ask_more}, UserMessageConfirm {confirm}, Cout {out}, Cin {in} {}
+            UserMessageAsk {ask}, UserMessageAskMore {ask_more}, UserMessageConfirm {confirm}, Cout {out}, Cin {in}, Input {}, Position {0} {}
         
-        bytes get (size_t x) override;
+        void read (byte *, size_t x) final override;
     };
     
     // the famous one-time pad.
-    struct fixed_entropy : entropy {
+    struct fixed_entropy final : entropy {
         bytes Entropy;
         int Position;
         
         fixed_entropy (byte_slice b) : Entropy {b}, Position {0} {}
         
-        bytes get (size_t x) override {
+        void read (byte *b, size_t x) final override {
             if (x > Entropy.size () - Position) throw entropy::fail {};
             
-            bytes b (x * 4);
             for (int i = 0; i < x; i++) {
-                b[i] = Entropy[i];
+                b[i] = Entropy[i + Position];
                 Position++;
             }
-            
-            return b;
         }
     };
 
     template <std::uniform_random_bit_generator engine>
-    struct std_random : random {
+    struct std_random final : entropy {
 
         engine Engine;
 
         std_random () : std_random {std::chrono::system_clock::now ().time_since_epoch ().count ()} {}
         std_random (data::uint64 seed);
 
-        void get (byte *b, size_t z) override {
+        void read (byte *b, size_t z) override {
             for (int i = 0; i < z; i++) b[i] = Engine ();
         }
     };
 
     // combine two random sources via xor.
-    struct linear_combination_random : random {
+    struct linear_combination_random final : entropy {
         size_t Ratio;
-        ptr<random> Cheap;
+        ptr<entropy> Cheap;
         // get one secure byte for every Ratio cheap bytes and xor it with them.
-        ptr<random> Secure;
+        ptr<entropy> Secure;
 
-        linear_combination_random (size_t r, ptr<random> cheap, ptr<random> secure) : Ratio {r}, Cheap {cheap}, Secure {secure} {}
+        linear_combination_random (size_t r, ptr<entropy> cheap, ptr<entropy> secure) : Ratio {r}, Cheap {cheap}, Secure {secure} {}
 
-        void get (byte *b, size_t z) override {
+        void read (byte *b, size_t z) override {
             if (current_cheap + z > Ratio) {
                 size_t until_next = z - ((current_cheap + z) - Ratio);
-                get (b, until_next);
+                read (b, until_next);
                 *Secure >> current_secure;
                 current_cheap = 0;
-                get (b + until_next, z - until_next);
+                read (b + until_next, z - until_next);
             }
-            Cheap->get (b, z);
+
+            Cheap->read (b, z);
             for (size_t t = 0; t < z; t++) b[t] ^= current_secure;
             current_cheap += z;
         }
@@ -163,7 +139,7 @@ namespace data::crypto {
         Engine.seed (seed);
     }
 
-    uint32 select_index_by_weight (cross<double>, random &r);
+    uint32 select_index_by_weight (cross<double>, entropy &r);
 
 }
 
