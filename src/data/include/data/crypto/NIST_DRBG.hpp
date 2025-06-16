@@ -11,7 +11,7 @@
 
 namespace data::crypto::NIST {
     
-    struct DRBG final : random {
+    struct DRBG final : entropy {
         // supported rngs
         enum type {
             HMAC,
@@ -31,14 +31,15 @@ namespace data::crypto::NIST {
             bytes Personalization;
             uint32_little Nonce;
 
-            initialization (entropy &e, bytes personalization = {}, uint32_little nonce = 0):
+            initialization (entropy &e, const bytes &personalization = {}, uint32_little nonce = 0):
                 Entropy {e}, Personalization {personalization}, Nonce {nonce} {}
         };
         
         DRBG (type t, initialization i, uint32 bytes_before_reseed = DefaultBytesBeforeReseed) :
             BytesBeforeReseed {bytes_before_reseed}, Entropy {i.Entropy}, Random {nullptr},
             BytesRemaining {bytes_before_reseed} {
-                bytes entropy = Entropy.get (SecurityStrength);
+                bytes entropy (SecurityStrength);
+                Entropy >> entropy;
 
                 if (t == HMAC) {
                     Random = new ::CryptoPP::HMAC_DRBG
@@ -59,9 +60,10 @@ namespace data::crypto::NIST {
             delete Random;
         }
 
-        void get (byte* b, size_t x) override {
+        void read (byte* b, size_t x) final override {
             if (BytesRemaining < x) {
-                bytes entropy = Entropy.get (Random->SecurityStrength ());
+                bytes entropy (SecurityStrength);
+                Entropy >> entropy;
                 Random->IncorporateEntropy (entropy.data (), entropy.size ());
                 BytesRemaining = BytesBeforeReseed - (x - BytesRemaining);
             }
