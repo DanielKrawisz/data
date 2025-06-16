@@ -44,6 +44,12 @@ namespace data::crypto {
 
         void skip (size_t size) final override {}
     };
+
+    template <std::integral X>
+    entropy inline &operator >> (entropy &e, X &x) {
+        e.read ((byte *) (&x), sizeof (x));
+        return e;
+    }
     
     struct entropy_sum final : entropy {
         ptr<entropy> Left;

@@ -22,16 +22,21 @@ namespace data::crypto {
     }
 
     void user_entropy::read (byte *bb, size_t expected_size) {
-        if (Input.size () - Position < expected_size) {
+
+        // if the amount of bytes we need is less than what we have, provide it.
+        if (Input.size () - Position >= expected_size) {
             std::copy (Input.data () + Position, Input.data () + Position + expected_size, bb);
+            Position += expected_size;
             return;
         }
 
+        // povide the bytes we already have.
         std::copy (Input.data () + Position, Input.data () + Input.size (), bb);
 
         size_t required_size = expected_size - (Input.size () - Position);
         size_t size_so_far = 0;
 
+        // ask the user for bytes.
         Cout << UserMessageAsk << std::endl;
 
         lazy_bytes_writer w;
