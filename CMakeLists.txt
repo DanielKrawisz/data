@@ -39,7 +39,7 @@ find_package (GMP REQUIRED)
 # if we do not have GMP
 #   * on linux, `sudo apt-get install libgmp3-dev`
 
-find_package (SECP256K1 REQUIRED)
+#find_package (SECP256K1 REQUIRED)
 # if we do not have SECP256K1
 #   * on linux
 #     * go to `https://github.com/bitcoin-core/secp256k1`, download the repo, and follow the instructions.
@@ -50,16 +50,16 @@ find_package (pegtl REQUIRED)
 # If we do not have PegTL
 #   * on linux, `sudo apt-get install tao-pegtl-dev`
 
+find_package (PkgConfig REQUIRED)
+# If we do not have PkgConfig
+#   * on linux, `sudo apt-get install pkg-config`
+
 IF (WIN32)
   pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
 ELSE ()
   pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
   # If we do not have crypto++, go to `https://github.com/weidai11/cryptopp` and follow the instructions.
 ENDIF ()
-
-find_package (PkgConfig REQUIRED)
-# If we do not have PkgConfig
-#   * on linux, `sudo apt-get install pkg-config`
 
 include (FetchContent)
 FetchContent_Declare (json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
