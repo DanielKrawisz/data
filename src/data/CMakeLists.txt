@@ -70,7 +70,7 @@ get_target_property (OUT data LINK_LIBRARIES)
 
 # Set C++ version
 
-target_compile_features (data PUBLIC cxx_std_20)
+target_compile_features (data PUBLIC cxx_std_23)
 set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 
 include (GNUInstallDirs)

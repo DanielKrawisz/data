@@ -4,7 +4,8 @@
         "iostream": "cpp",
         "iosfwd": "cpp",
         "functional": "cpp",
-        "concepts": "cpp"
+        "concepts": "cpp",
+        "limits": "cpp"
     },
     "git.ignoreLimitWarning": true
 }
