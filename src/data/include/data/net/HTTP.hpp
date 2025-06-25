@@ -214,7 +214,7 @@ namespace data::net::HTTP {
     }
 
     bool inline content::operator == (type ttt) const {
-        return *this == content {ttt};
+        return static_cast<ASCII> (*this) == static_cast<ASCII> (content (ttt));
     }
 
     request::make inline request::make::body (const JSON &j) const {
