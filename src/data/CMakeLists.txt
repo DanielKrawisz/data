@@ -54,7 +54,7 @@ target_link_libraries (
   PkgConfig::cryptopp
   nlohmann_json::nlohmann_json
   GMP::GMP
-  secp256k1
+  # secp256k1
   taocpp::pegtl
   argh
   rotella
