@@ -39,6 +39,7 @@ find_package (GMP REQUIRED)
 # if we do not have GMP
 #   * on linux, `sudo apt-get install libgmp3-dev`
 
+# Note: we do not use secp256k1 in data
 #find_package (SECP256K1 REQUIRED)
 # if we do not have SECP256K1
 #   * on linux
