@@ -161,15 +161,15 @@ namespace data::math {
     }
 
     constexpr bool inline is_infinite (const float &x) {
-        return std::isinf (x);
+        return x == std::numeric_limits<float>::infinity () || x == -std::numeric_limits<float>::infinity ();
     }
 
     constexpr bool inline is_infinite (const double &x) {
-        return std::isinf (x);
+        return x == std::numeric_limits<float>::infinity () || x == -std::numeric_limits<float>::infinity ();
     }
 
     constexpr bool inline is_infinite (const long double &x) {
-        return std::isinf (x);
+        return x == std::numeric_limits<float>::infinity () || x == -std::numeric_limits<float>::infinity ();
     }
 
     template <typename X> constexpr bool inline is_infinite (const unsigned_limit<X> &x) {
