@@ -133,12 +133,26 @@ namespace data::RB {
 
         struct iterator : binary_search_tree<colored<V>, T>::iterator {
             using parent = binary_search_tree<colored<V>, T>::iterator;
-            using parent::iterator;
+            
+            // all constructors of the parent class are available to the 
+            // base class. We cannot use the standard method because we 
+            // don't really know the name of the base class. In gcc, 
+            // using parent::iterator works but not in windows. 
+            template <typename ...Args>
+            iterator (Args &&...args): parent {std::forward<Args> (args)...} {}
 
             using value_type = const unref<V>;
 
-            iterator operator ++ (int);
-            iterator &operator ++ ();
+            iterator operator ++ (int) {
+                auto x = *this;
+                ++(*this);
+                return x;
+            }
+
+            iterator &operator ++ () {
+                ++static_cast<parent &> (*this);
+                return *this;
+            }
 
             const unref<V> &operator * () const;
             const unref<V> *operator -> () const;
@@ -296,20 +310,6 @@ namespace data::RB {
     }
 
     // member functions for the iterator
-
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    tree<V, T>::iterator inline tree<V, T>::iterator::operator ++ (int) {
-        auto x = *this;
-        ++(*this);
-        return x;
-    }
-
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    tree<V, T>::iterator inline &tree<V, T>::iterator::operator ++ () {
-        ++static_cast<parent &> (*this);
-        return *this;
-    }
-
     template <sortable V, functional::buildable_tree<colored<V>> T>
     const unref<V> inline &tree<V, T>::iterator::operator * () const {
         return static_cast<const parent &> (*this)->Value;
