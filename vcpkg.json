@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "boost",
+    "cryptopp",
+    "openssl",
+    "pegtl",
+    "gmp"
+  ]
+}
