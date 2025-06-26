@@ -124,6 +124,7 @@ namespace data::encoding::base58 {
         static string read (const std::string &);
 
         explicit operator uint64 () const;
+        
         explicit operator math::N () const {
             if (!valid ()) throw exception {} << "invalid base 58 number" << *this;
             return *decode<math::N> (*this);

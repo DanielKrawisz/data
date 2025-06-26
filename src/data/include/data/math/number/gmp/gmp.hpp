@@ -12,17 +12,23 @@ namespace data::math {
 
     division<dec_uint, dec_uint> inline divide<dec_uint, dec_uint>::operator () (const dec_uint &v, const nonzero<dec_uint> &z) {
         auto d = divide<N> {} (N (v), nonzero<N> {N (z.Value)});
-        return {encoding::decimal::write (d.Quotient), encoding::decimal::write (d.Remainder)};
+        return {
+            encoding::decimal::write (d.Quotient), 
+            encoding::decimal::write (d.Remainder)};
     }
 
     division<dec_int, dec_uint> inline divide<dec_int, dec_uint>::operator () (const dec_int &v, const nonzero<dec_uint> &z) {
         auto d = divide<Z, N> {} (Z (v), nonzero<N> {N (z.Value)});
-        return {encoding::signed_decimal::write (d.Quotient), encoding::decimal::write (d.Remainder)};
+        return {
+            encoding::signed_decimal::write (d.Quotient), 
+            encoding::decimal::write (d.Remainder)};
     }
 
     division<dec_int, dec_uint> inline divide<dec_int, dec_int>::operator () (const dec_int &v, const nonzero<dec_int> &z) {
         auto d = divide<Z, Z> {} (Z {v}, nonzero<Z> {Z {z.Value}});
-        return {encoding::signed_decimal::write (d.Quotient), encoding::decimal::write (d.Remainder)};
+        return {
+            encoding::signed_decimal::write (d.Quotient), 
+            encoding::decimal::write (d.Remainder)};
     }
 
     template <hex_case zz>
@@ -30,31 +36,38 @@ namespace data::math {
     divide<hex::uint<zz>, hex::uint<zz>>::operator ()
         (const hex::uint<zz> &v, const nonzero<hex::uint<zz>> &z) {
         auto d = divide<N> {} (N (v), nonzero<N> {N (z.Value)});
-        return {encoding::hexidecimal::write<zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
+        return {
+            encoding::hexidecimal::write<zz> (d.Quotient), 
+            encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
     template <hex_case zz>
     division<hex::int2<zz>, hex::uint<zz>> inline
     divide<hex::int2<zz>, hex::int2<zz>>::operator ()
         (const hex::int2<zz> &v, const nonzero<hex::int2<zz>> &z) {
-        auto d = divide<Z> {} (Z (v), nonzero<Z> {Z (z.Value)});
-        return {encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
+        auto d = divide<Z> {} (Z::read (v), nonzero<Z> {Z::read (z.Value)});
+        return {
+            encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient), 
+            encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
     template <hex_case zz>
     division<hex::int2<zz>, hex::uint<zz>> inline
     divide<hex::int2<zz>, hex::uint<zz>>::operator ()
         (const hex::int2<zz> &v, const nonzero<hex::uint<zz>> &z) {
-        auto d = divide<Z, N> {} (Z (v), nonzero<N> {N (z.Value)});
-        return {encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient), encoding::hexidecimal::write<zz> (d.Remainder)};
+        auto d = divide<Z, N> {} (Z::read (v), nonzero<N> {N {Z::read (z.Value)}});
+        return {
+            encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient), 
+            encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
     template <hex_case zz>
     division<hex::intBC<zz>, hex::intBC<zz>> inline
     divide<hex::intBC<zz>, hex::intBC<zz>>::operator ()
         (const hex::intBC<zz> &v, const nonzero<hex::intBC<zz>> &z) {
-        auto d = divide<Z, Z> {} (Z (v), nonzero<Z> {Z (z.Value)});
-        return {encoding::hexidecimal::write<negativity::BC, zz> (d.Quotient),
+        auto d = divide<Z, Z> {} (Z (Z_bytes_BC<endian::big> (v)), nonzero<Z> {Z (Z_bytes_BC<endian::big> (z.Value))});
+        return {
+            encoding::hexidecimal::write<negativity::BC, zz> (d.Quotient),
             encoding::hexidecimal::write<negativity::BC, zz> (d.Remainder)};
     }
 }

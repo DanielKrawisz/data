@@ -4,8 +4,9 @@
 
 #include <limits>
 #include <data/io/wait_for_enter.hpp>
-#include <unistd.h>
+
 #include <stdio.h>
+#include <unistd.h>
 #include <termios.h>
 
 namespace data {
@@ -18,11 +19,11 @@ namespace data {
 
     bool get_user_yes_or_no (std::string message, maybe<bool> default_value) {
                 std::string input;
-                while(true) {
+                while (true) {
                     std::cout << message << " (";
-                    std::cout << ((default_value.has_value () && default_value.value()) ? "Y":"y");
+                    std::cout << ((default_value.has_value () && default_value.value ()) ? "Y":"y");
                     std::cout << "/";
-                    std::cout << ((default_value.has_value () && !default_value.value()) ? "N":"n");
+                    std::cout << ((default_value.has_value () && !default_value.value ()) ? "N":"n");
                     std::cout << ")" << std::endl;
                     std::getline (std::cin,input);
 

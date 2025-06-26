@@ -217,29 +217,29 @@ namespace data::encoding {
 
     TEST (StringNumbersTest, TestConvertStringNumbers) {
 
-        EXPECT_EQ (N (dec_uint {1145}), N (1145));
-        EXPECT_EQ (N (dec_uint {916}), N (916));
-        EXPECT_EQ (N (dec_uint {229}), N (229));
+        EXPECT_EQ (static_cast<N> (dec_uint {1145}), N (1145));
+        EXPECT_EQ (static_cast<N> (dec_uint {916}), N (916));
+        EXPECT_EQ (static_cast<N> (dec_uint {229}), N (229));
 
-        EXPECT_EQ (Z (dec_int {1145}), Z (1145));
-        EXPECT_EQ (Z (dec_int {916}), Z (916));
-        EXPECT_EQ (Z (dec_int {229}), Z (229));
+        EXPECT_EQ (static_cast<Z> (dec_int {1145}), Z (1145));
+        EXPECT_EQ (static_cast<Z> (dec_int {916}), Z (916));
+        EXPECT_EQ (static_cast<Z> (dec_int {229}), Z (229));
 
-        EXPECT_EQ (N (base58_uint {1145}), N (1145));
-        EXPECT_EQ (N (base58_uint {916}), N (916));
-        EXPECT_EQ (N (base58_uint {229}), N (229));
+        EXPECT_EQ (static_cast<N> (base58_uint {1145}), N (1145));
+        EXPECT_EQ (static_cast<N> (base58_uint {916}), N (916));
+        EXPECT_EQ (static_cast<N> (base58_uint {229}), N (229));
 
-        EXPECT_EQ (N (hex_uint {1145}), N (1145));
-        EXPECT_EQ (N (hex_uint {916}), N (916));
-        EXPECT_EQ (N (hex_uint {229}), N (229));
+        EXPECT_EQ (static_cast<N> (hex_uint {1145}), N (1145));
+        EXPECT_EQ (static_cast<N> (hex_uint {916}), N (916));
+        EXPECT_EQ (static_cast<N> (hex_uint {229}), N (229));
 
-        EXPECT_EQ (Z (hex_int {1145}), Z (1145));
-        EXPECT_EQ (Z (hex_int {916}), Z (916));
-        EXPECT_EQ (Z (hex_int {229}), Z (229));
+        EXPECT_EQ (static_cast<Z> (hex_int {1145}), Z (1145));
+        EXPECT_EQ (static_cast<Z> (hex_int {916}), Z (916));
+        EXPECT_EQ (static_cast<Z> (hex_int {229}), Z (229));
 
-        EXPECT_EQ (Z (hex_int_BC {1145}), Z (1145));
-        EXPECT_EQ (Z (hex_int_BC {916}), Z (916));
-        EXPECT_EQ (Z (hex_int_BC {229}), Z (229));
+        EXPECT_EQ (static_cast<Z> (hex_int_BC {1145}), Z (1145));
+        EXPECT_EQ (static_cast<Z> (hex_int_BC {916}), Z (916));
+        EXPECT_EQ (static_cast<Z> (hex_int_BC {229}), Z (229));
 
     }
 }
