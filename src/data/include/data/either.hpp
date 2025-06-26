@@ -19,7 +19,7 @@ namespace data {
     // and can take references and void as subtypes.
     template <typename... X> struct either : std::variant<wrapped<X>...> {
         using parent = std::variant<wrapped<X>...>;
-        using parent::variant;
+        using typename parent::variant;
         constexpr either (parent &&x) : parent {x} {}
         
         using std::variant<wrapped<X>...>::operator =;

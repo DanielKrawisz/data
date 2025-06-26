@@ -46,7 +46,7 @@ namespace data::encoding::base64 {
             return *b;
         }
 
-        friend string operator "" _b64 (const char*, size_t);
+        friend string operator ""_b64 (const char*, size_t);
     };
     
     string write (byte_slice);

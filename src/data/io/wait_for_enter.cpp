@@ -6,8 +6,6 @@
 #include <data/io/wait_for_enter.hpp>
 
 #include <stdio.h>
-#include <unistd.h>
-#include <termios.h>
 
 namespace data {
 
@@ -18,26 +16,52 @@ namespace data {
     }
 
     bool get_user_yes_or_no (std::string message, maybe<bool> default_value) {
-                std::string input;
-                while (true) {
-                    std::cout << message << " (";
-                    std::cout << ((default_value.has_value () && default_value.value ()) ? "Y":"y");
-                    std::cout << "/";
-                    std::cout << ((default_value.has_value () && !default_value.value ()) ? "N":"n");
-                    std::cout << ")" << std::endl;
-                    std::getline (std::cin,input);
+        std::string input;
+        while (true) {
+            std::cout << message << " (";
+            std::cout << ((default_value.has_value () && default_value.value ()) ? "Y":"y");
+            std::cout << "/";
+            std::cout << ((default_value.has_value () && !default_value.value ()) ? "N":"n");
+            std::cout << ")" << std::endl;
+            std::getline (std::cin,input);
 
-                    if (input.length () > 0){
-                        char answer = std::tolower (input[0]);
-                        if (answer =='y' || answer =='n')
-                            return answer=='y';
-                        continue;
-                    }
+            if (input.length () > 0) {
+                char answer = std::tolower (input[0]);
+                if (answer =='y' || answer =='n')
+                    return answer=='y';
+                continue;
+            }
 
-                    if (default_value.has_value ())
-                        return default_value.value ();
-                }
+            if (default_value.has_value ())
+                return default_value.value ();
         }
+    }
+
+    double read_decimal (const std::string &question) {
+        double value;
+        while (true) {
+            std::cout << question << " ";
+            std::cin >> value;
+
+            // Check if input was valid
+            if (std::cin.fail ()) {
+                std::cin.clear ();  // Clear error flag
+                std::cin.ignore (std::numeric_limits<std::streamsize>::max (), '\n'); // Discard invalid input
+                std::cout << "Invalid input. Please enter a decimal number.\n";
+            } else {
+                std::cin.ignore (std::numeric_limits<std::streamsize>::max (), '\n'); // Clear buffer
+                return value;
+            }
+        }
+    }
+}
+
+
+#if defined (__unix__) || defined (__APPLE__)
+#include <unistd.h>
+#include <termios.h>
+
+namespace data {
 
     std::string get_user_password (std::string message, char mask) {
         struct termios term, original;
@@ -69,22 +93,6 @@ namespace data {
         tcsetattr (STDIN_FILENO, TCSANOW, &original);
         return password;
     }
-
-    double read_decimal (const std::string &question) {
-        double value;
-        while (true) {
-            std::cout << question << " ";
-            std::cin >> value;
-
-            // Check if input was valid
-            if (std::cin.fail ()) {
-                std::cin.clear ();  // Clear error flag
-                std::cin.ignore (std::numeric_limits<std::streamsize>::max (), '\n'); // Discard invalid input
-                std::cout << "Invalid input. Please enter a decimal number.\n";
-            } else {
-                std::cin.ignore (std::numeric_limits<std::streamsize>::max (), '\n'); // Clear buffer
-                return value;
-            }
-        }
-    }
 }
+
+#endif 

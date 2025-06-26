@@ -30,6 +30,7 @@ namespace data::net {
                     } catch (const JSON::exception &x) {
                         error_handler (x);
                     }
+                    return nullptr;
                 }) (on_close, receiver);
     }
 

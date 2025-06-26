@@ -65,19 +65,5 @@ namespace data::math {
 
         EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
     }
-
-    template <typename Z, typename N>
-    struct test_extended_euclidian {
-        test_extended_euclidian () {
-            using X = math::number::euclidian::extended<N, Z>;
-            EXPECT_THROW (X::algorithm (N {0}, N {0}).GCD, math::division_by_zero);
-
-            EXPECT_EQ (X::algorithm (N {1}, N {1}).GCD, 1);
-
-            EXPECT_EQ (X::algorithm (N {2}, N {4}).GCD, 2);
-
-            EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
-        }
-    };
     
 }

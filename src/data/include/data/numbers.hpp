@@ -67,10 +67,10 @@ namespace data {
 
     using  uint80 = math::uint<endian::little, 5, uint16>;
     using   int80 = math::sint<endian::little, 5, uint16>;
-
+#ifndef USING_INT128
     using uint128 = math::uint<endian::little, 2, uint64>;
     using  int128 = math::sint<endian::little, 2, uint64>;
-
+#endif
     using uint160 = math::uint<endian::little, 5, uint32>;
     using  int160 = math::sint<endian::little, 5, uint32>;
 

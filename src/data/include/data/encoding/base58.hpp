@@ -130,8 +130,8 @@ namespace data::encoding::base58 {
             return *decode<math::N> (*this);
         }
 
-        friend string operator "" _b58 (const char*, size_t);
-        friend string operator "" _b58 (unsigned long long int);
+        friend string operator ""_b58 (const char*, size_t);
+        friend string operator ""_b58 (unsigned long long int);
 
         //division<string, uint64> divide (uint64) const;
         //division<string> divide (const string&) const;

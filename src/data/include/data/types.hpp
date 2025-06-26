@@ -75,6 +75,17 @@ namespace data {
 
     random_engine& get_random_engine ();
 
+// here we define int128 and uint128 for when we are using gcc.
+// NOTE: this type is not good enough for regular use, so we 
+// have it commented out for now. 
+//   * No support for cout << int128
+//   * no constexpr support
+#if defined (__SIZEOF_INT128__) && !(defined (__clang__) && defined (__GNUCC__))
+/* #define USING_INT128
+    using int128 = __int128;
+    using uint128 = __int128 unsigned; */
+#endif
 }
+
 
 #endif

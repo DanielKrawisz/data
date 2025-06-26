@@ -26,8 +26,6 @@ namespace data::math::number {
         }
     };
     
-    template struct AKS<N>;
-    
 }
 
 #endif

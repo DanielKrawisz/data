@@ -102,7 +102,7 @@ namespace data::math {
     private:
         // constructor for producing the infinite value.
         constexpr unsigned_limit (maybe<X> &&x, int) : Value {x} {}
-        friend struct infinite<unsigned_limit<X>>;
+        friend struct math::infinite<unsigned_limit<X>>;
     };
     
     template <ordered X> struct signed_limit {
@@ -127,7 +127,7 @@ namespace data::math {
     private:
         // constructor for producing the infinite value.
         constexpr signed_limit (either<X, bool> &&v, int) : Value {v} {}
-        friend struct infinite<signed_limit<X>>;
+        friend struct math::infinite<signed_limit<X>>;
     };
 
     // NOTE: these values ought to be declared constexpr. This may be possible in c++23
