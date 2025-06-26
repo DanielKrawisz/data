@@ -149,7 +149,7 @@ namespace data::encoding::hexidecimal {
 }
 
 namespace data::math::number {
-
+    
     template struct bounded<false, endian::big, 10, byte>;
     template struct bounded<true, endian::big, 10, byte>;
     template struct bounded<false, endian::little, 10, byte>;
