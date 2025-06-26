@@ -1487,14 +1487,14 @@ namespace data::math::number {
     sint<r, size, word> inline bounded<true, r, size, word>::max () {
         uint<r, size, word> n;
         arithmetic::set_max_signed_ones (n.words ());
-        return sint<r, size, word> {n};
+        return sint<r, size, word> (n);
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
     sint<r, size, word> inline bounded<true, r, size, word>::min () {
         uint<r, size, word> n;
         arithmetic::set_min_signed_ones (n.words ());
-        return sint<r, size, word> {n};
+        return sint<r, size, word> (n);
     }
     
     namespace {
