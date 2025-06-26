@@ -59,7 +59,7 @@ namespace data {
     implicitly_convertible_to<uint64, NN> &&
     implicitly_convertible_to<uint32, NN> && requires (const NN &n) {
         { uint64 (n) };
-        { N (n) };
+        { static_cast<N> (n) };
         { data::abs (n) } -> std::same_as<NN>;
     } && requires (const NN &a, const NN &b) {
         { a % b } -> implicitly_convertible_to<NN>;
@@ -85,7 +85,7 @@ namespace data {
     template <signed_integral ZZ> requires std::convertible_to<int64, ZZ> &&
     requires (const ZZ &z) {
         { int64 (z) };
-        { Z (z) };
+        { static_cast<Z> (z) };
     } struct test_signed_number : test_whole_number<ZZ> {
         test_signed_number () {
 
