@@ -241,7 +241,7 @@ namespace data::net {
 
             data::ASCII Scheme;
             maybe<data::UTF8> Authority;
-            data::ASCII Path;
+            data::net::path Path;
             maybe<data::ASCII> Query;
             maybe<data::UTF8> Fragment;
 
