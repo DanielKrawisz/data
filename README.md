@@ -75,13 +75,12 @@ how to use all features.
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1.
-  * Windows
   * functional RB map remove. 
   * Polynomial algorithms
     * minimal polynomials.
     * irreducible polynomial.
-  * finite fields. Right now we do prime fields but we need to be able to 
-    generate irreducible polynomials for arbitrary finite fields. 
+  * finite fields. 
+    * Generate irreducible polynomials for arbitrary finite fields. 
   * geometry
     * Affine space using real, complex, and quaternionic numbers.
     * Euclidian space
@@ -109,5 +108,3 @@ Version 2 will focus on organization and documentation.
   * optimizatons
     * use NTL to hide GMP. 
     * use NTL integer exponentiation. 
-  * numbers
-    * endian numbers should be totally constexpr

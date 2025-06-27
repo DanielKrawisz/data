@@ -17,7 +17,7 @@ namespace data {
 
     TEST (AsciiTests, AsciiInvalidAscii) {
         char temp[] = "This is a test";
-        temp[3] =- 20;
+        temp[3] = -20;
         string temp2 = temp;
         ASCII stringTest (temp2);
         ASSERT_FALSE (stringTest.valid ());
@@ -39,7 +39,7 @@ namespace data {
 
     TEST (AsciiTests, UnicodeToUTF8) {
         UTF8 expected {"Hello, World! Привет, мир!"};
-        unicode test {{U"Hello, World! Привет, мир!"}};
+        unicode test {U"Hello, World! Привет, мир!"};
 
         EXPECT_EQ (expected, encoding::UTF8::encode (test));
     }

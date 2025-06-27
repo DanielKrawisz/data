@@ -73,14 +73,6 @@ namespace data::tool {
         return p = p.insert (elem);
     }
     
-    template <functional::tree tree, typename element = element_of<tree>>
-    bool inline operator == (const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
-        if (data::empty (a) && data::empty (b)) return true;
-        if (data::empty (a) || data::empty (b)) return false;
-        if (a.first () != b.first ()) return false;
-        return a.rest () == b.rest ();
-    }
-    
     template <functional::tree tree, typename element> requires prioritized<element>
     size_t inline priority_queue<tree, element>::size () const {
         return data::size (Tree);
