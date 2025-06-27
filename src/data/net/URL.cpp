@@ -98,7 +98,7 @@ namespace data::encoding::percent {
         return a_iter == a.end () && b_iter == b.end ();
     }
 
-    std::string encode (const data::UTF8 &input, const data::ASCII &additional_chars) {
+    string encode (const data::UTF8 &input, const data::ASCII &additional_chars) {
         std::ostringstream encoded;
         encoded << std::hex << std::uppercase;
 

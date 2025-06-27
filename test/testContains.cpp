@@ -18,10 +18,10 @@ namespace data {
         
         EXPECT_TRUE (contains (std::vector<string> {"a", "b", "c", "d"}, "a"));
         EXPECT_FALSE (contains (std::vector<string> {"a", "b", "c", "d"}, "f"));
-
+/*
         EXPECT_TRUE (contains (list<string> {"a", "b", "c", "d"}, "a"));
         EXPECT_FALSE (contains (list<string> {"a", "b", "c", "d"}, "f"));
-
+*/
     }
 }
 

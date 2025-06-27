@@ -51,7 +51,7 @@ namespace data::net {
 
     std::ostream &operator << (std::ostream &, const path &);
 
-    bool operator == (const path &, const path &);
+    //bool operator == (const path &, const path &);
 
     // the path all the way to the end.
     struct target;
@@ -220,11 +220,11 @@ namespace data::encoding::percent {
         return strchr (Reserved, c) != nullptr;
     }
 
-    // encode the string, ensuring that the given characters are encoded.
-    std::string encode (const data::UTF8 &, const data::ASCII &required = "");
-
     // a %-encoded string.
     struct string;
+
+    // encode the string, ensuring that the given characters are encoded.
+    string encode (const data::UTF8 &, const data::ASCII &required = "");
 
     // If a character is reserved, then its percent-encoded
     // form is unequal to its non-encoded form. Otherwise
