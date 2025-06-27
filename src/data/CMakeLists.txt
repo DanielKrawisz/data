@@ -32,7 +32,6 @@ add_library (data STATIC
 
   #io/run.cpp
   io/wait_for_enter.cpp
-  tools/channel.cpp
   tools/rate_limiter.cpp
   log/log.cpp
 )

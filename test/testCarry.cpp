@@ -5,12 +5,6 @@
 #include <data/arithmetic/carry.hpp>
 #include "gtest/gtest.h"
 
-static_assert (sizeof (char) == 1);
-static_assert (sizeof (short) == 2);
-static_assert (sizeof (int) == 4);
-static_assert (sizeof (long int) == 8);
-static_assert (sizeof (long long int) == 8);
-
 namespace data {
     
 #pragma region Add With Carry
@@ -70,8 +64,8 @@ namespace data {
 
     TEST (CarryTest, TestAddWithCarry) {
         unsigned int temp;
-        unsigned int num1=10;
-        unsigned int num2=20;
+        unsigned int num1 = 10;
+        unsigned int num2 = 20;
         EXPECT_FALSE (arithmetic::add_with_carry (temp, num1, num2)) << "10 + 20 should not carry in an unsigned int";
 
     }

@@ -20,7 +20,7 @@ namespace data::crypto {
             point operator * (const point &) const;
             point operator ^ (const N &) const;
 
-            operator math::Weierstrauss<field>::point () const;
+            operator typename math::Weierstrauss<field>::point () const;
 
             field x () const;
             field y () const;
@@ -97,7 +97,7 @@ namespace data::crypto {
         auto s_1 = invert (x.S);
         auto u1 = s_1 * message % Order;
         auto u2 = s_1 * x.R[0] % Order;
-        return R == (Base ^ u1) * (key ^ u2);
+        return x.R == (Base ^ u1) * (key ^ u2);
     }
 
     template <math::field field, typename N>
@@ -111,7 +111,7 @@ namespace data::crypto {
     }
 
     template <math::field field, typename N>
-    inline elliptic_curve<field, N>::point::operator math::Weierstrauss<field>::point () const {
+    inline elliptic_curve<field, N>::point::operator typename math::Weierstrauss<field>::point () const {
         return math::Weierstrauss<field>::point (Curve, static_cast<math::space::affine<field, 2>::point> (*this));
     }
 

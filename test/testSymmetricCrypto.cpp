@@ -44,7 +44,7 @@ namespace data::crypto {
 
     template <size_t... X> struct keys : tuple<symmetric_key<X>...> {
         using parent = tuple<symmetric_key<X>...>;
-        using parent::tuple;
+        using typename parent::tuple;
     };
 
     template <size_t size> symmetric_key<size> read_key (const std::string &x) {
