@@ -81,7 +81,7 @@ namespace data::math {
             field y () const;
         };
 
-        struct projective_vector : space::projective<field, 3>::exterior<1> {
+        struct projective_vector : space::projective<field, 3>::template exterior<1> {
             const Weierstrauss &Curve;
             bool valid () const;
 
@@ -97,7 +97,7 @@ namespace data::math {
             field z () const;
         };
 
-        struct Jacobian_point : space::projective<field, 3>::exterior<1> {
+        struct Jacobian_point : space::projective<field, 3>::template exterior<1> {
             const Weierstrauss &Curve;
             bool valid () const;
 
