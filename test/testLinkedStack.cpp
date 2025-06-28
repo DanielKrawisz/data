@@ -154,8 +154,8 @@ namespace data {
         i++;
         EXPECT_EQ (i, t.end ());
         
-        for (int x : t) ;
-        for (const int &x : t) ;
+        for (int x : t) (void) x;
+        for (const int &x : t) (void) x;
     }
 
     void accept_stack_of_string_views (linked_stack<string_view>) {}
