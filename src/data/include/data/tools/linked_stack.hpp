@@ -203,7 +203,7 @@ namespace data {
     
     template <typename elem>
     linked_stack<elem> inline &linked_stack<elem>::operator <<= (inserted<elem> x) {
-        return operator = (prepend (x));
+        return *this = (prepend (x));
     }
     
     template <typename elem>
