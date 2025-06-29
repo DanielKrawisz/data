@@ -8,63 +8,19 @@
 #include <cstdint>
 #include <cstring>
 
-#include <sv/compat/endian.h>
 #include <boost/endian/conversion.hpp>
 
-static inline uint16_t ReadLE16 (const uint8_t *ptr) {
-    uint16_t x;
-    memcpy ((char *) &x, ptr, 2);
-    return boost::endian::little_to_native (x);
-}
+#define ReadLE16(p) (boost::endian::endian_load<uint16_t, 2, boost::endian::order::little> (p))
+#define ReadLE32(p) (boost::endian::endian_load<uint32_t, 4, boost::endian::order::little> (p))
+#define ReadLE64(p) (boost::endian::endian_load<uint64_t, 8, boost::endian::order::little> (p))
+#define ReadBE32(p) (boost::endian::endian_load<uint32_t, 4, boost::endian::order::big> (p))
+#define ReadBE64(p) (boost::endian::endian_load<uint64_t, 8, boost::endian::order::big> (p))
 
-static inline uint32_t ReadLE32 (const uint8_t *ptr) {
-    uint32_t x;
-    memcpy ((char *) &x, ptr, 4);
-    return boost::endian::little_to_native (x);
-}
-
-static inline uint64_t ReadLE64 (const uint8_t *ptr) {
-    uint64_t x;
-    memcpy ((char *)&x, ptr, 8);
-    return boost::endian::little_to_native (x);
-}
-
-static inline void WriteLE16 (uint8_t *ptr, uint16_t x) {
-    uint16_t v = boost::endian::native_to_little (x);
-    memcpy (ptr, (char *)&v, 2);
-}
-
-static inline void WriteLE32 (uint8_t *ptr, uint32_t x) {
-    uint32_t v = boost::endian::native_to_little (x);
-    memcpy (ptr, (char *) &v, 4);
-}
-
-static inline void WriteLE64 (uint8_t *ptr, uint64_t x) {
-    uint64_t v = boost::endian::native_to_little (x);
-    memcpy (ptr, (char *) &v, 8);
-}
-
-static inline uint32_t ReadBE32 (const uint8_t *ptr) {
-    uint32_t x;
-    memcpy ((char *) &x, ptr, 4);
-    return boost::endian::big_to_native (x);
-}
-
-static inline uint64_t ReadBE64 (const uint8_t *ptr) {
-    uint64_t x;
-    memcpy ((char *) &x, ptr, 8);
-    return boost::endian::big_to_native (x);
-}
-
-static inline void WriteBE32 (uint8_t *ptr, uint32_t x) {
-    uint32_t v = boost::endian::native_to_big (x);
-    memcpy(ptr, (char *) &v, 4);
-}
-
-static inline void WriteBE64 (uint8_t *ptr, uint64_t x) {
-    uint64_t v = boost::endian::native_to_big (x);
-    memcpy (ptr, (char *) &v, 8);
-}
+#define WriteLE16(p, x) (boost::endian::endian_store<uint16_t, 2, boost::endian::order::little> (p, x))
+#define WriteLE32(p, x) (boost::endian::endian_store<uint32_t, 4, boost::endian::order::little> (p, x))
+#define WriteLE64(p, x) (boost::endian::endian_store<uint64_t, 8, boost::endian::order::little> (p, x))
+#define WriteBE32(p, x) (boost::endian::endian_store<uint32_t, 4, boost::endian::order::big> (p, x))
+#define WriteBE64(p, x) (boost::endian::endian_store<uint64_t, 8, boost::endian::order::big> (p, x))
 
 /**
  * Return the smallest number n such that (x >> n) == 0 (or 64 if the highest
