@@ -24,7 +24,7 @@ namespace data::math {
 
     // signed limit is suitable for types along the real line, such as the integers or rationals.
     // don't use signed_limit with built-in floating points since they already have infinite values. 
-    template <ordered X> struct signed_limit;
+    template <Ordered X> struct signed_limit;
 
     // detect infinite values. 
     template <typename X> constexpr bool is_infinite (const X &);
@@ -37,30 +37,30 @@ namespace data::math {
     // equality operators provided for infinite extensions.
     // Infinite values are equal to each other. 
     template <typename X, typename Y>
-    requires implicitly_convertible_to<Y, X>
+    requires ImplicitlyConvertible<Y, X>
     constexpr bool operator == (const unsigned_limit<X> &, const unsigned_limit<Y> &);
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool operator == (const signed_limit<X> &, const signed_limit<Y> &);
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool operator == (const unsigned_limit<X> &, const Y &);
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool operator == (const signed_limit<X> &, const Y &);
 
     // if X is ordered, then an ordering operation exists
     // that sets infinity higher than any finite value.
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto operator <=> (const unsigned_limit<X> &, const unsigned_limit<Y> &);
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto operator <=> (const signed_limit<X> &, const signed_limit<Y> &);
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto operator <=> (const unsigned_limit<X> &, const Y &);
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto operator <=> (const signed_limit<X> &, const Y &);
 
     // extend sign to infinite types if the underlying type has a sign value defined for it. 
@@ -71,7 +71,7 @@ namespace data::math {
         constexpr signature operator () (const unsigned_limit<X> &x) const;
     };
 
-    template <ordered X> requires requires {
+    template <Ordered X> requires requires {
         typename sign<X>;
     } struct sign<signed_limit<X>> {
         constexpr signature operator () (const signed_limit<X> &x) const;
@@ -79,7 +79,7 @@ namespace data::math {
 
     // Extend << to infinite extensions if the underlying type has << defined on it. 
     template <typename X> std::ostream &operator << (std::ostream &, const unsigned_limit<X> &x);
-    template <ordered X> std::ostream &operator << (std::ostream &, const signed_limit<X> &x);
+    template <Ordered X> std::ostream &operator << (std::ostream &, const signed_limit<X> &x);
     
     template <typename X> struct unsigned_limit {
 
@@ -105,7 +105,7 @@ namespace data::math {
         friend struct infinite<unsigned_limit<X>>;
     };
     
-    template <ordered X> struct signed_limit {
+    template <Ordered X> struct signed_limit {
 
         constexpr signed_limit ();
         constexpr signed_limit (const X &x);
@@ -189,44 +189,44 @@ namespace data {
 
 namespace data::math {
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool inline operator == (const unsigned_limit<X> &a, const unsigned_limit<Y> &b) {
         return a.Value == static_cast<maybe<X>> (b.Value);
     }
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool inline operator == (const signed_limit<X> &a, const signed_limit<Y> &b) {
         return a.Value == static_cast<either<X, bool>> (b.Value);
     }
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool inline operator == (const unsigned_limit<X> &a, const Y &b) {
         return a.infinite () ? false : *a.Value == static_cast<X> (b);
     }
 
-    template <typename X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <typename X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr bool inline operator == (const signed_limit<X> &a, const Y &b) {
         return a.finite () ? a.Value.template get<X> () == static_cast<X> (b) : false;
     }
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto inline operator <=> (const unsigned_limit<X> &a, const unsigned_limit<Y> &b) {
         return b.finite () ? a <=> static_cast<X> (*b.Value) : a.infinite () ? X {0} <=> X {0} : unsigned_limit<X>::comparison::less;
     }
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto inline operator <=> (const signed_limit<X> &a, const signed_limit<Y> &b) {
         return b.finite () ? a <=> static_cast<X> (b.Value.template get<Y> ()) :
             a.infinite () ? ((a.Value.template get<bool> () ? X {1} : X {0}) <=> (b.Value.template get<bool> () ? X {1} : X {0})) :
                     b.Value.template get<bool> () ? X {0} <=> X {1} : X {1} <=> X {0};
     }
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto inline operator <=> (const unsigned_limit<X> &a, const Y &b) {
         return a.infinite () ? unsigned_limit<X>::comparison::greater : *a.Value <=> static_cast<X> (b);
     }
 
-    template <ordered X, typename Y> requires implicitly_convertible_to<Y, X>
+    template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto inline operator <=> (const signed_limit<X> &a, const Y &b) {
         return a.finite () ? a.Value.template get<X> () <=> static_cast<X> (b) :
             a.Value.template get<bool> () ? signed_limit<X>::comparison::greater : signed_limit<X>::comparison::less;
@@ -238,7 +238,7 @@ namespace data::math {
         return x.infinite () ? positive : data::sign (*x.Value);
     }
 
-    template <ordered X> requires requires {
+    template <Ordered X> requires requires {
         typename sign<X>;
     } constexpr signature inline sign<signed_limit<X>>::operator () (const signed_limit<X> &x) const {
         return x.finite () ? data::sign (x.Value) : x.positive_infinite () ? positive : negative;
@@ -249,7 +249,7 @@ namespace data::math {
         return o << *x.Value;
     }
 
-    template <ordered X> std::ostream inline &operator << (std::ostream &o, const signed_limit<X> &x) {
+    template <Ordered X> std::ostream inline &operator << (std::ostream &o, const signed_limit<X> &x) {
         if (x.finite ()) return o << x.Value.template get<X> ();
         if (!x.Value.template get<bool> ()) o << "-";
         return o << "infinity";
@@ -281,35 +281,35 @@ namespace data::math {
         return {*Value * x};
     }
     
-    template <ordered X> constexpr signed_limit<X>::signed_limit () : Value {X {}} {}
-    template <ordered X> constexpr signed_limit<X>::signed_limit (const X &x) : Value {x} {}
-    template <ordered X> constexpr signed_limit<X>::signed_limit (X &&x) : Value {x} {}
+    template <Ordered X> constexpr signed_limit<X>::signed_limit () : Value {X {}} {}
+    template <Ordered X> constexpr signed_limit<X>::signed_limit (const X &x) : Value {x} {}
+    template <Ordered X> constexpr signed_limit<X>::signed_limit (X &&x) : Value {x} {}
 
-    template <ordered X> constexpr const signed_limit<X> &signed_limit<X>::infinity () {
+    template <Ordered X> constexpr const signed_limit<X> &signed_limit<X>::infinity () {
         return math::infinite<signed_limit<X>>::Positive;
     }
 
-    template <ordered X> constexpr const signed_limit<X> &signed_limit<X>::negative_infinity () {
+    template <Ordered X> constexpr const signed_limit<X> &signed_limit<X>::negative_infinity () {
         return math::infinite<signed_limit<X>>::Negative;
     }
     
-    template <ordered X> constexpr bool signed_limit<X>::infinite () const {
+    template <Ordered X> constexpr bool signed_limit<X>::infinite () const {
         return Value.template is<bool> ();
     }
 
-    template <ordered X> constexpr bool signed_limit<X>::finite () const {
+    template <Ordered X> constexpr bool signed_limit<X>::finite () const {
         return !Value.template is<bool> ();
     }
     
-    template <ordered X> constexpr bool signed_limit<X>::positive_infinite () const {
+    template <Ordered X> constexpr bool signed_limit<X>::positive_infinite () const {
         return Value.template is<bool> () && Value.template get<bool> ();
     }
     
-    template <ordered X> constexpr bool signed_limit<X>::negative_infinite () const {
+    template <Ordered X> constexpr bool signed_limit<X>::negative_infinite () const {
         return Value.template is<bool> () && !Value.template get<bool> ();
     }
 
-    template <ordered X> signed_limit<X> signed_limit<X>::operator - () const {
+    template <Ordered X> signed_limit<X> signed_limit<X>::operator - () const {
         return finite () ? signed_limit {-Value.template get<X> ()} : Value.template get<bool> ? negative_infinity () : infinity ();
     }
 }

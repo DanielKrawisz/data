@@ -31,7 +31,7 @@ namespace data::math {
         quaternion (const complex &x) : quaternion {x, complex {}} {}
         quaternion (hamiltonian &&c) : hamiltonian {c} {}
 
-        template <typename RR> requires implicitly_convertible_to<RR, R>
+        template <typename RR> requires ImplicitlyConvertible<RR, R>
         quaternion (const RR &x) : cayley_dickson<complex> {complex {x}} {}
         
         static quaternion I () {

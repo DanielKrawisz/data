@@ -6,11 +6,28 @@
 #define DATA_META
 
 #include <data/types.hpp>
+#include <data/concepts.hpp>
 #include <variant> // for std::monostate
 
 namespace data {
     namespace meta {
         // wrapper enables std types to use references and void.
+        template <typename X> struct wrapper;
+
+        // insert has to do with values that we put into a data structure.
+        template <typename X> struct insert;
+
+        // this is for if you want a container to be able to contain void.
+        template <typename X> struct retrieve;
+    }
+    
+    template <typename X> using wrapped = meta::wrapper<X>::type;
+
+    template <typename X> using inserted = meta::insert<X>::type;
+
+    template <typename X> using retrieved = meta::retrieve<X>::type;
+    
+    namespace meta {
         template <typename X> struct wrapper {
             using type = X;
         };
@@ -26,13 +43,7 @@ namespace data {
         template <> struct wrapper<void> {
             using type = std::monostate;
         };
-    }
 
-    template <typename X> using wrapped = meta::wrapper<X>::type;
-
-    namespace meta {
-        // avoid copying certain types when we retrieve the
-        // value from a data structure.
         template <typename X> struct retrieve {
             using type = X &;
         };
@@ -40,20 +51,7 @@ namespace data {
         template <> struct retrieve<void> {
             using type = void;
         };
-
-        template <typename X> struct retrieve<X &> {
-            using type = X &;
-        };
-
-        template <typename X> struct retrieve<X *> {
-            using type = X *;
-        };
-    }
-
-    template <typename X> using retrieved = meta::retrieve<X>::type;
-
-    namespace meta {
-        // insert has to do with values that we put into a data structure.
+        
         template <typename X> struct insert {
             using type = const X &;
         };
@@ -76,7 +74,7 @@ namespace data {
 
     }
 
-    template <typename X> using inserted = meta::insert<X>::type;
+    static_assert (Same<inserted<const int &>, const int &>);
 
 }
 

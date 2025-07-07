@@ -14,7 +14,7 @@ namespace data::crypto {
     // encrypt or decrypt a whole message.
     template <typename cipher>
     concept stream_cipher = requires (cipher &y, byte in) {
-        { y.crypt (in) } -> std::same_as<byte>;
+        { y.crypt (in) } -> Same<byte>;
     };
 
 }

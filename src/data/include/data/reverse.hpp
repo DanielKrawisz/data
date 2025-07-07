@@ -11,7 +11,7 @@
 namespace data::interface {
     template <typename X>
     concept has_reverse_method = requires (const X x) {
-        { x.reverse () } -> std::same_as<X>;
+        { x.reverse () } -> Same<X>;
     };
     
 }
@@ -25,7 +25,7 @@ namespace data {
     }*/
 
     // we had to rely on iterated because we get a segmentation fault if the list is too big for functional.
-    template <functional::stack list>
+    template <Stack list>
     list reverse (const list &given) {
         list g = given;
         list r {};

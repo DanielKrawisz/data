@@ -12,7 +12,7 @@ namespace data::functional {
 
     template< typename F, typename output, typename... Args >
     concept function = std::regular_invocable<F, Args...> && requires (F &&f, Args&&... args) {
-        {std::invoke (std::forward<F> (f), std::forward<Args> (args)...)} -> implicitly_convertible_to<output>;
+        {std::invoke (std::forward<F> (f), std::forward<Args> (args)...)} -> ImplicitlyConvertible<output>;
     };
 
     // It is always possible to construct the identity function.

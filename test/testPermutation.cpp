@@ -8,7 +8,7 @@
 
 namespace data {
 
-    template <ordered X> using permutation = math::permutation<X>;
+    template <Ordered X> using permutation = math::permutation<X>;
     
     TEST (PermutationTest, TestCycle) {
         using ucycle = cycle<uint32>;
@@ -52,8 +52,8 @@ namespace data {
         EXPECT_NE (c123, c132);
         EXPECT_NE (c321, c231);
         
-        EXPECT_EQ (c123.reverse(), c321);
-        EXPECT_EQ (c321.reverse(), c123);
+        EXPECT_EQ (c123.reverse (), c321);
+        EXPECT_EQ (c321.reverse (), c123);
         
     }
     

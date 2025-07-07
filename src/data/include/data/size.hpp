@@ -14,12 +14,12 @@ namespace data {
         
         template <typename X>
         concept has_finite_size_method = requires(X x) {
-            { x.size () } -> std::same_as<size_t>;
+            { x.size () } -> Same<size_t>;
         };
         
         template <typename X>
         concept has_infinite_size_method = requires(X x) {
-            { x.size () } -> std::same_as<cardinality>;
+            { x.size () } -> Same<cardinality>;
         };
         
         template <typename X>

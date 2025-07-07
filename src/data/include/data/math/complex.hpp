@@ -32,7 +32,7 @@ namespace data::math {
         using cayley_dickson<R>::cayley_dickson;
         complex (cayley_dickson<R> &&c) : cayley_dickson<R> {c} {}
 
-        template <typename RR> requires implicitly_convertible_to<RR, R>
+        template <typename RR> requires ImplicitlyConvertible<RR, R>
         complex (const RR &x) : cayley_dickson<R> {R (x), R {0}} {}
         
         complex operator ~ () const {

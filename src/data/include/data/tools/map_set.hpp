@@ -48,7 +48,7 @@ namespace data::tool {
             return map_set {Map.insert (k, unit {}, [] (const unit &a, const unit &b) {return a;})};
         }
         
-        template <typename list> requires sequence<list, key>
+        template <typename list> requires SequenceOf<list, key>
         map_set insert (list keys) const {
             if (keys.empty ()) return *this;
             return insert (keys.first ()).insert (keys.rest ());
@@ -57,17 +57,6 @@ namespace data::tool {
         template <typename ... P>
         map_set insert (K k, P... p) const {
             return insert (k).insert (p...);
-        }
-        
-        template <typename X> requires interface::has_values_method<X, key>
-        map_set insert (X m) const {
-            auto v = m.values ();
-            auto q = *this;
-            while (!v.empty ()) {
-                q = q.insert (v.first ());
-                v = v.rest ();
-            }
-            return q;
         }
         
         map_set operator << (const key &k) const {
@@ -86,7 +75,7 @@ namespace data::tool {
         
         explicit map_set (M m) : Map (m) {}
         
-        template <typename list> requires sequence<list, key>
+        template <typename list> requires SequenceOf<list, key>
         explicit map_set (list keys) : Map {} {
             *this = insert (keys);
         }

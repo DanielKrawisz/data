@@ -10,12 +10,12 @@
 
 namespace data::functional { 
     
-    template <stack list> 
+    template <Stack list> 
     list take_stack (const list &x, size_t n, const list &z) {
         return data::empty (x) || n == 0 ? reverse (z) : take_stack (rest (x), n - 1, prepend (z, first (x)));
     }
     
-    template <queue list> 
+    template <Queue list> 
     list take_queue (const list &x, size_t n, const list &z) {
         return data::empty (x) || n == 0 ? z : take_queue (rest (x), n - 1, append (z, first (x)));
     }
@@ -23,9 +23,9 @@ namespace data::functional {
 
 namespace data {
     
-    template <functional::pendable list> 
+    template <Pendable list> 
     list inline take (const list &l, size_t size) {
-        if constexpr (functional::queue<list>) return functional::take_queue (l, size);
+        if constexpr (Queue<list>) return functional::take_queue (l, size);
         return functional::take_stack (l, size);
     }
 

@@ -217,7 +217,7 @@ namespace data {
     }
     
     void test_shift (string given, int bits, string expected_left, string expected_right) {
-        std::cout << "bit shift test case" << std::endl;
+        
         test_bit_shift<byte, 4> (given, bits, expected_left, expected_right);
         test_bit_shift<uint16, 2> (given, bits, expected_left, expected_right);
         test_bit_shift<uint32, 1> (given, bits, expected_left, expected_right);
