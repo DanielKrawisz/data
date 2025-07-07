@@ -30,13 +30,13 @@ namespace data {
 
     TEST (MapTest, TestOrderedSetInterface) {
 
-        static_assert (functional::ordered_set<set<int>>);
-        static_assert (functional::ordered_set<set<int *>>);
-        static_assert (functional::ordered_set<set<int &>>);
+        static_assert (OrderedSet<set<int>>);
+        static_assert (OrderedSet<set<int *>>);
+        static_assert (OrderedSet<set<int &>>);
 
-        static_assert (functional::ordered_set<set<const int>>);
-        static_assert (functional::ordered_set<set<const int *>>);
-        static_assert (functional::ordered_set<set<const int &>>);
+        static_assert (OrderedSet<set<const int>>);
+        static_assert (OrderedSet<set<const int *>>);
+        static_assert (OrderedSet<set<const int &>>);
         
     }
     

@@ -12,15 +12,15 @@ namespace data::math {
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
     concept ring = group<elem, plus> && requires () {
-        {math::identity<times, elem> {} ()} -> implicitly_convertible_to<elem>;
+        {math::identity<times, elem> {} ()} -> ImplicitlyConvertible<elem>;
     } && requires (const elem &a, elem &b) {
-        {times {} (a, b)} -> implicitly_convertible_to<elem>;
+        {times {} (a, b)} -> ImplicitlyConvertible<elem>;
     };
 
     template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
     concept integral_domain = ring<elem, plus, times> &&
     requires (const nonzero<elem> &a, const nonzero<elem> &b) {
-        {times {} (a, b)} -> implicitly_convertible_to<nonzero<elem>>;
+        {times {} (a, b)} -> ImplicitlyConvertible<nonzero<elem>>;
     };
     
 }

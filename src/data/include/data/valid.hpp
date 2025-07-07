@@ -14,7 +14,7 @@ namespace data {
     // when we have modules, this will be unexported.
     namespace interface {
         template <typename X> concept has_valid_method = requires (const X &x) {
-            { x.valid () } -> implicitly_convertible_to<bool>;
+            { x.valid () } -> ImplicitlyConvertible<bool>;
         };
     }
 

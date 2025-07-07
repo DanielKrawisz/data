@@ -15,36 +15,25 @@ namespace data {
     
     namespace interface {
         
-        template <typename X, typename Y>
-        concept convertible = implicitly_convertible_to<X, Y> || implicitly_convertible_to<Y, X>;
-        
-        template <typename list, typename elem> 
+        template <typename list> 
         concept has_first_method = requires (list x) {
-            { x.first () } -> convertible<const elem>;
+            { x.first () } -> Reference<> ;
         };
         
         template <typename list> 
         concept has_rest_method = requires (list x) {
-            { x.rest () } -> implicitly_convertible_to<list>;
+            { x.rest () } -> ImplicitlyConvertible<const list>;
         };
         
     }
     
-    template <typename L, typename elem = unref<decltype (std::declval<L> ().first ())>>
-    concept sequence = 
-        (interface::has_empty_method<L> || interface::has_size_method<L>) && 
-        interface::has_rest_method<L> && 
-        interface::has_first_method<L, elem>;
-        
-    // used to find the element of a sequence or container. 
-    template <typename X> struct element;
-    
-    template <sequence X>
-    struct element<X> {
-        using type = unref<decltype (std::declval<X> ().first ())>;
-    };
-    
-    template <typename X> using element_of = element<X>::type;
+    template <typename L>
+    concept Sequence = requires (const L x) {
+        { data::empty (x) } -> Same<bool>;
+    } && interface::has_rest_method<L> && interface::has_first_method<L>;
+
+    template <typename L, typename elem>
+    concept SequenceOf = Sequence<L> && ImplicitlyConvertible<decltype (std::declval<L> ().first ()), inserted<elem>>;
     
     namespace meta {
         
@@ -70,25 +59,37 @@ namespace data {
         
     }
 
-    template <typename X>
-    inline const decltype (std::declval<const X> ().first ()) first (const X& x) {
+    template <typename X> requires interface::has_first_method<X>
+    const auto inline &first (const X &x) {
         return x.first ();
     }
 
-    template <typename X>
-    inline X rest (const X& x) {
-        return meta::rest<X> {} (x);
+    template <typename X> requires interface::has_first_method<X>
+    const auto inline &first (X const *const x) {
+        return x->first ();
+    }
+
+    template <typename X> requires interface::has_first_method<X>
+    const auto inline rest (const X &x) {
+        return x.rest ();
+    }
+
+    template <typename X> requires interface::has_first_method<X>
+    const auto inline rest (X const *const x) {
+        if (x == nullptr) return nullptr;
+        return x->rest ();
     }
     
     namespace functional {
-        template <typename list, typename element> requires sequence<list, element>
-        bool contains (const list &x, const element &e) {
+        template <typename list, typename element> requires Sequence<list> && requires (const list x, const element e) {
+            { x.first () == e } -> Same<bool>;
+        } bool contains (const list &x, const element &e) {
             if (data::empty (x)) return false;
             if (data::first (x) == e) return true;
             return contains (data::rest (x), e);
         }
-    
-        template <sequence L> 
+
+        template <Sequence L> 
         std::ostream &write (std::ostream &o, L n) {
             o << "{";
             if (!data::empty (n)) {
@@ -105,17 +106,18 @@ namespace data {
         
     }
     
-    template <sequence list> 
+    template <Sequence list> 
     list drop (const list &x, uint32 n) {
         return data::empty (x) || n == 0 ? x : drop (rest (x), n - 1);
     }
     
-    template <sequence L> requires ordered<element_of<L>>
+    template <Sequence L> requires Ordered<decltype (first (std::declval<const L> ()))>
     bool sorted (const L &x) {
         return size (x) < 2 ? true : first (x) <= first (rest (x)) && sorted (rest (x));
     }
 
-    template <data::sequence X, data::sequence Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>>
+    template <Sequence X, Sequence Y> 
+    requires std::equality_comparable_with<decltype (first (std::declval<const X> ())), decltype (first (std::declval<const Y> ()))>
     bool inline sequence_equal (const X &a, const Y &b) {
         return (void*) &a == (void*) &b ? true :
             data::size (a) != data::size (b) ? false :
@@ -127,6 +129,13 @@ namespace data {
     // iterator types for a sequence     
     template <typename L>
     struct sequence_iterator {
+
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = unref<decltype (first (std::declval<const L> ()))>;
+        using difference_type   = int;
+        using pointer           = value_type *;
+        using reference         = value_type &;
+
         const L *Sequence;
         std::remove_const_t<L> Next;
         int Index;
@@ -142,22 +151,17 @@ namespace data {
         sequence_iterator operator ++ (int);
         sequence_iterator &operator ++ ();
         
-        const element_of<L> &operator * () const;
-        const element_of<L> *operator -> () const;
+        const reference operator * () const;
+        const pointer operator -> () const;
+        
+        bool operator == (const sequence_iterator i) const;
         
         bool operator == (const sentinel<L> i) const;
         bool operator != (const sentinel<L> i) const;
-        bool operator == (const sequence_iterator i) const;
         
         int operator - (const sequence_iterator &i) const;
         
         sequence_iterator (const L &s) : Sequence {&s}, Next {s}, Index {0} {}
-
-        using iterator_category = std::forward_iterator_tag;
-        using value_type        = element_of<L>;
-        using difference_type   = int;
-        using pointer           = element_of<L>*;
-        using reference         = element_of<L>&;
     };
     
     template <typename L>
@@ -169,7 +173,7 @@ namespace data {
     }
     
     template <typename L>
-    inline sequence_iterator<L>& sequence_iterator<L>::operator ++ () { // Prefix
+    inline sequence_iterator<L> &sequence_iterator<L>::operator ++ () { // Prefix
         if (Sequence == nullptr || data::empty (Next)) return *this;
         return *this = sequence_iterator {*Sequence, data::rest (Next), Index + 1};
     }
@@ -182,12 +186,12 @@ namespace data {
     }
     
     template <typename L>
-    const element_of<L> inline &sequence_iterator<L>::operator * () const {
+    const sequence_iterator<L>::reference inline sequence_iterator<L>::operator * () const {
         return data::first (Next);
     }
 
     template <typename L>
-    const element_of<L> inline *sequence_iterator<L>::operator -> () const {
+    const sequence_iterator<L>::pointer inline sequence_iterator<L>::operator -> () const {
         return &data::first (Next);
     }
     

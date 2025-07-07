@@ -9,7 +9,7 @@
 
 namespace data {
 
-    template <functional::pendable L> requires ordered<element_of<L>>
+    template <Pendable L> requires Ordered<decltype (std::declval<L> ().first ())>
     L inline sort (const L &x) {
         return merge_sort (x);
     }

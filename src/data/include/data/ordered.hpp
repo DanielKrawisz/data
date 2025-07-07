@@ -11,106 +11,61 @@
 
 namespace data {
     
-    template <typename X> concept ordered = std::totally_ordered<X>;
-    template <typename X> concept sortable = requires (const X &a, const X &b) {
-        {a < b} -> implicitly_convertible_to<bool>;
+    template <typename X> concept Ordered = std::totally_ordered<X>;
+    template <typename X> concept Sortable = requires (const X &a, const X &b) {
+        {a < b} -> ImplicitlyConvertible<bool>;
     };
     
-    template <ordered X> bool equal (const X &a, const X &b);
-    template <ordered X> bool unequal (const X &a, const X &b);
-    template <ordered X> bool less_equal (const X &a, const X &b);
-    template <ordered X> bool greater_equal (const X &a, const X &b);
-    template <ordered X> bool less (const X &a, const X &b);
-    template <ordered X> bool greater (const X &a, const X &b);
-    template <ordered X> const X &max (const X &a, const X &b);
-    template <ordered X> const X &min (const X &a, const X &b);
-    
-}
-
-namespace data::math {
-    template <ordered X> struct equal {
-        bool operator () (const X &a, const X &b) {
-            return a == b;
-        }
-    };
-    
-    template <ordered X> struct unequal {
-        bool operator () (const X &a, const X &b) {
-            return a != b;
-        }
-    };
-    
-    template <ordered X> struct greater {
-        bool operator () (const X &a, const X &b) {
-            return a > b;
-        }
-    };
-    
-    template <ordered X> struct less {
-        bool operator () (const X & a, const X &b) {
-            return a < b;
-        }
-    };
-    
-    template <ordered X> struct greater_equal {
-        bool operator () (const X& a, const X& b) {
-            return a >= b;
-        }
-    };
-    
-    template <ordered X> struct less_equal {
-        bool operator () (const X &a, const X &b) {
-            return a <= b;
-        }
-    };
-
-    template <ordered X> struct min {
-        const X &operator () (const X &a, const X &b) {
-            return std::min (a, b);
-        }
-    };
-
-    template <ordered X> struct mmax {
-        const X &operator () (const X & a, const X &b) {
-            return std::max (a, b);
-        }
-    };
-    
-}
-
-namespace data {
-    
-    template <ordered X> bool inline equal (const X &a, const X &b) {
-        return math::equal<X> {} (a, b);
+    template <typename X, typename Y> requires 
+    requires (const X x, const X y) {
+        { x == y } -> Same<bool>;
+    } bool inline equal (const X &a, const Y &b) {
+        return a == b;
     }
     
-    template <ordered X> bool inline unequal (const X &a, const X &b) {
-        return math::unequal<X> {} (a, b);
-    }
-    
-    template <ordered X> bool inline less_equal (const X& a, const X &b) {
-        return math::less_equal<X> {} (a, b);
-    }
-    
-    template <ordered X> bool inline greater_equal (const X& a, const X &b) {
-        return math::greater_equal<X> {} (a, b);
-    }
-    
-    template <ordered X> bool inline less (const X &a, const X &b) {
-        return math::less<X> {} (a, b);
-    }
-    
-    template <ordered X> bool inline greater (const X &a, const X &b) {
-        return math::greater<X> {} (a, b);
+    template <typename X, typename Y> requires 
+    requires (const X x, const X y) {
+        { x != y } -> Same<bool>;
+    } bool inline unequal (const X &a, const Y &b) {
+        return a != b;
     }
 
-    template <ordered X> const X inline &min (const X &a, const X &b) {
-        return math::less<X> {} (a, b);
+    template <typename X, typename Y> requires 
+    requires (const X x, const Y y) {
+        { x <= y } -> Same<bool>;
+    } bool inline less_equal (const X &a, const Y &b) {
+        return a <= b;
     }
 
-    template <ordered X> const X inline &max (const X &a, const X &b) {
-        return math::greater<X> {} (a, b);
+    template <typename X, typename Y> requires 
+    requires (const X x, const Y y) {
+        { x >= y } -> Same<bool>;
+    } bool inline greater_equal (const X &a, const Y &b) {
+        return a >= b;
     }
+
+    template <typename X, typename Y> requires 
+    requires (const X x, const Y y) {
+        { x < y } -> Same<bool>;
+    } bool inline less (const X &a, const Y &b) {
+        return a < b;
+    }
+
+    template <typename X, typename Y> requires 
+    requires (const X x, const Y y) {
+        { x > y } -> Same<bool>;
+    } bool inline greater (const X &a, const Y &b) {
+        return a > b;
+    }
+
+    template <Ordered X> const X inline &max (const X &a, const X &b) {
+        return std::max (a, b);
+    }
+
+    template <Ordered X> const X inline &min (const X &a, const X &b) {
+        return std::max (a, b);
+    }
+    
     
 }
 

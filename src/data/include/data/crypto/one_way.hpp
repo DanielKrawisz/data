@@ -19,21 +19,21 @@ namespace data::crypto {
     // sk and pk. 
     template <typename sk, typename pk> 
     concept keypair = requires (sk s) {
-        {to_public(s)} -> std::same_as<pk>;
+        {to_public(s)} -> Same<pk>;
     };
     
     template <typename sk, typename pk, typename message, typename signature> 
     concept signature_scheme = keypair<sk, pk> && requires (message m, sk k) {
-        {sign(m, k)} -> std::same_as<signature>;
+        {sign(m, k)} -> Same<signature>;
     } && requires (message m, signature x, pk k) {
-        {verify(m, x, k)} -> std::same_as<bool>;
+        {verify(m, x, k)} -> Same<bool>;
     };
     
     template <typename sk, typename pk, typename message, typename encrypted> 
     concept encryption_scheme = keypair<sk, pk> && requires (message m, pk k) {
-        {encrypt(m, k)} -> std::same_as<encrypted>;
+        {encrypt(m, k)} -> Same<encrypted>;
     } && requires (encrypted m, sk k) {
-        {decrypt(m, k)} -> std::same_as<message>;
+        {decrypt(m, k)} -> Same<message>;
     };
     
 }

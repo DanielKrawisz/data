@@ -47,15 +47,15 @@ namespace data {
         return math::inner<A, B> {} (x, y);
     }
 
-    template <typename A> concept real = ordered<A> && math::ring<A> && requires (const A &x) {
-        { inner (x, x) } -> implicitly_convertible_to<A>;
-        { re (x) } -> implicitly_convertible_to<A>;
+    template <typename A> concept real = Ordered<A> && math::ring<A> && requires (const A &x) {
+        { inner (x, x) } -> ImplicitlyConvertible<A>;
+        { re (x) } -> ImplicitlyConvertible<A>;
     };
 
     template <typename A> concept caylay_dickson = math::ring<A> && requires (const A &x) {
         { inner (x, x) };
-    } && same_as<decltype (re (std::declval<A> ())), decltype (im (std::declval<A> ()))> &&
-        same_as<decltype (inner (std::declval<A> (), std::declval<A> ())),
+    } && Same<decltype (re (std::declval<A> ())), decltype (im (std::declval<A> ()))> &&
+        Same<decltype (inner (std::declval<A> (), std::declval<A> ())),
             decltype (inner (re (std::declval<A> ()), re (std::declval<A> ())))>;
 
     template <typename A> concept complex = caylay_dickson<A> && real<decltype (re (std::declval<A> ()))>;

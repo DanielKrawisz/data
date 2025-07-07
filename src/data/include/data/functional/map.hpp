@@ -12,7 +12,7 @@
     
 namespace data {
 
-    template <ordered K, typename V>
+    template <Ordered K, typename V>
     struct entry {
         K Key;
         V Value;
@@ -34,12 +34,12 @@ namespace data {
 
     // equal if the keys are equal.
     // NOTE this totally breaks some things.
-    template <ordered K, typename V>
+    template <Ordered K, typename V>
     bool operator == (const entry<K, V> &l, const entry<K, V> &r) {
         return l.Key == r.Key;
     }
 
-    template <ordered K, typename V>
+    template <Ordered K, typename V>
     auto operator <=> (const entry<K, V> &l, const entry<K, V> &r) {
         return l.Key <=> r.Key;
     }
@@ -48,12 +48,12 @@ namespace data {
     
         template <typename X, typename key, typename value>
         concept has_insert_key_value = requires (X x, const key k, const value v) {
-            { x.insert (k, v) } -> implicitly_convertible_to<X>;
+            { x.insert (k, v) } -> ImplicitlyConvertible<X>;
         };
         
         template <typename map, typename key>
         concept has_keys_method = requires (map x) {
-            { x.keys () } -> sequence<const key &>;
+            { x.keys () } -> SequenceOf<const key &>;
         };
         
     }
@@ -68,9 +68,9 @@ namespace data {
         template <typename X, 
             typename key = decltype (std::declval<X> ().values ().first ().Key),
             typename value = decltype (std::declval<X> ().values ().first ().Value)>
-        concept map = container<const X, const key> &&
+        concept map = Container<const X, const key> &&
             indexed<const X, const key, const value> &&
-            ordered_set<const X, const entry<const key, value>> &&
+            OrderedSet<const X, const entry<const key, value>> &&
             interface::has_insert_key_value<const X, const key, value> &&
             interface::has_insert_method<X, const entry<const key, value>> &&
             interface::has_keys_method<const X, const key> &&

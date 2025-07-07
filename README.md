@@ -1,5 +1,5 @@
 # data
-Tools and high-level programming constructs in c++.
+Tools and high-level programming constructs in c++. 
 
 ## Features 
 
@@ -47,13 +47,11 @@ how to use all features.
     * Websockets
     
 # Dependencies
-  * Boost 1.80
+  * Boost 1.86
   * GMP
   * PEGTL
   * Crypto++ https://github.com/weidai11/cryptopp 
   * OpenSSL
-  * secp256k1
-  * https://github.com/BartoszMilewski/Okasaki (included as needed)
   * Rotella's implementation of AKS. (included)
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions (included)
   * Google test
@@ -75,7 +73,11 @@ how to use all features.
 # Version 1 progress
 
 This library is an alpha product. This is what is planned for version 1.
-  * functional RB map remove. 
+  * functional RB map algorithms
+    * remove
+    * merge
+    * interction
+    * complements
   * Polynomial algorithms
     * minimal polynomials.
     * irreducible polynomial.

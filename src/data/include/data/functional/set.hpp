@@ -7,19 +7,14 @@
 
 #include <data/container.hpp>
 
-namespace data::functional { 
+namespace data { 
     
     template <typename X, typename element>
-    concept set = container<X, element> && interface::has_insert_method<X, element> && std::default_initializable<X>;
+    concept Set = Container<X, element> && interface::has_insert_method<X, element> && std::default_initializable<X>;
     
     template <typename X, typename element = decltype (std::declval<X> ().values ().first ())>
-    concept ordered_set = set<X, element> && interface::has_values_method<X, element> && std::totally_ordered<element>;
+    concept OrderedSet = Set<X, element> && interface::has_values_method<X> && std::totally_ordered<element>;
     
-}
-
-template <typename X, typename element> requires data::functional::set<X, element>
-std::ostream inline &operator << (std::ostream &o, const X &x) {
-    return o << x.values ();
 }
 
 #endif

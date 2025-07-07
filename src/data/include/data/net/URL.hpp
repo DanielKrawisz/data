@@ -51,8 +51,6 @@ namespace data::net {
 
     std::ostream &operator << (std::ostream &, const path &);
 
-    bool operator == (const path &, const path &);
-
     // the path all the way to the end.
     struct target;
 
@@ -202,7 +200,7 @@ namespace data::net::IP {
 // ensures that arbitrary UTF8 strings can be included
 // in a URL without affecting the structure of the URL.
 //
-// A  UTF8 character is percent encoded as "%" followed
+// A UTF8 character is percent encoded as "%" followed
 // by the hexidecimal value of the encoded character.
 //
 // Control characters and non-ASCII characters are

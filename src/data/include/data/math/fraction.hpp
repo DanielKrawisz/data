@@ -33,10 +33,10 @@ namespace data::math {
     template <typename Z>
     bool operator == (const fraction<Z> &, const fraction<Z> &);
 
-    template <ordered Z>
+    template <Ordered Z>
     auto operator <=> (const fraction<Z> &x, const fraction<Z> &y);
 
-    template <ordered Z> struct sign<fraction<Z>> {
+    template <Ordered Z> struct sign<fraction<Z>> {
         signature operator () (const fraction<Z> &x) {
             return x == 0 ? zero : x < fraction<Z> {0} ? negative : positive;
         }
@@ -110,10 +110,10 @@ namespace data::math {
 
         fraction ();
 
-        template <typename ZZ> requires implicitly_convertible_to<ZZ, Z>
+        template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
         fraction (ZZ n);
 
-        template <typename ZZ> requires implicitly_convertible_to<ZZ, Z>
+        template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
         fraction (ZZ n, ZZ d);
 
         bool operator == (const Z &z) const;
@@ -200,11 +200,11 @@ namespace data::math {
     inline fraction<Z>::fraction () : Numerator {0}, Denominator {1u} {}
 
     template <typename Z> requires integral_domain<Z> && normed<Z>
-    template <typename ZZ> requires implicitly_convertible_to<ZZ, Z>
+    template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     inline fraction<Z>::fraction (ZZ n, ZZ d) : fraction (data::over<Z> (Z (n), Z (d))) {}
 
     template <typename Z> requires integral_domain<Z> && normed<Z>
-    template <typename ZZ> requires implicitly_convertible_to<ZZ, Z>
+    template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     inline fraction<Z>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
     template <typename Z>
@@ -323,7 +323,7 @@ namespace data::math {
         return fraction<decltype (quadrance<Z> {} (std::declval<Z> ()))> {data::quadrance (z.Numerator), z.Denominator};
     }
 
-    template <ordered Z>
+    template <Ordered Z>
     auto inline operator <=> (const fraction<Z> &x, const fraction<Z> &y) {
         return x.Numerator * static_cast<Z> (y.Denominator.Value) <=> static_cast<Z> (y.Numerator * x.Denominator.Value);
     }

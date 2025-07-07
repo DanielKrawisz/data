@@ -19,7 +19,7 @@ namespace data::encoding {
         N x = n;
         while (x > 0u) {
             division<N> d = math::number::natural_divide (x, base);
-            dig = dig << digits[(uint64) (d.Remainder)];
+            dig >>= digits[(uint64) (d.Remainder)];
             x = d.Quotient;
         }
         

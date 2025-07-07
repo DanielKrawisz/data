@@ -12,14 +12,14 @@ namespace data::math {
 namespace data {
     
     template <integral NN> requires requires (const NN &a) {
-        { sqrt (a) } -> implicitly_convertible_to<set<NN>>;
-        { square (a) } -> implicitly_convertible_to<NN>;
-        { quadrance (a) } -> implicitly_convertible_to<NN>;
+        { sqrt (a) } -> ImplicitlyConvertible<set<NN>>;
+        { square (a) } -> ImplicitlyConvertible<NN>;
+        { quadrance (a) } -> ImplicitlyConvertible<NN>;
     } && requires (const NN &a, const NN &b) {
-        { plus (a, b) } -> implicitly_convertible_to<NN>;
-        { minus (a, b) } -> implicitly_convertible_to<NN>;
-        { times (a, b) } -> implicitly_convertible_to<NN>;
-        { pow (a, b) } -> implicitly_convertible_to<NN>;
+        { plus (a, b) } -> ImplicitlyConvertible<NN>;
+        { minus (a, b) } -> ImplicitlyConvertible<NN>;
+        { times (a, b) } -> ImplicitlyConvertible<NN>;
+        { pow (a, b) } -> ImplicitlyConvertible<NN>;
     } struct test_whole_number {
         test_whole_number () {
 
@@ -56,24 +56,24 @@ namespace data {
 
     
     template <unsigned_integral NN> requires
-    implicitly_convertible_to<uint64, NN> &&
-    implicitly_convertible_to<uint32, NN> && requires (const NN &n) {
+    ImplicitlyConvertible<uint64, NN> &&
+    ImplicitlyConvertible<uint32, NN> && requires (const NN &n) {
         { uint64 (n) };
         { static_cast<N> (n) };
         { data::abs (n) } -> std::same_as<NN>;
     } && requires (const NN &a, const NN &b) {
-        { a % b } -> implicitly_convertible_to<NN>;
+        { a % b } -> ImplicitlyConvertible<NN>;
     } && requires (const NN &a, const math::nonzero<NN> &b) {
         { divide (a, b) } -> std::same_as<division<NN>>;
-        { mod (a, b) } -> implicitly_convertible_to<NN>;
-        { negate_mod (a, b) } -> implicitly_convertible_to<NN>;
-        { mul_2_mod (a, b) } -> implicitly_convertible_to<NN>;
-        { square_mod (a, b) } -> implicitly_convertible_to<NN>;
+        { mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { mul_2_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { square_mod (a, b) } -> ImplicitlyConvertible<NN>;
     } && requires (const NN &a, const NN &b, const math::nonzero<NN> &c) {
-        { plus_mod (a, b, c) } -> implicitly_convertible_to<NN>;
-        { minus_mod (a, b, c) } -> implicitly_convertible_to<NN>;
-        { times_mod (a, b, c) } -> implicitly_convertible_to<NN>;
-        { pow_mod (a, b, c) } -> implicitly_convertible_to<NN>;
+        { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+        { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+        { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+        { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
     } struct test_unsigned_number : test_whole_number<NN> {
         test_unsigned_number (string type = "") {
             EXPECT_EQ (N (NN (0)), N (0)) << " number: " << NN (0) << " vs " << N (0) << " merp " << N (NN (0));
@@ -118,23 +118,23 @@ namespace data {
         { b + a };
         { b - a };
         { b * a };
-        { b % a } -> implicitly_convertible_to<NN>;
+        { b % a } -> ImplicitlyConvertible<NN>;
     } && requires (const NN &a, const math::nonzero<NN> &b) {
-        { mul_2_mod (a, b) } -> implicitly_convertible_to<NN>;
-        { square_mod (a, b) } -> implicitly_convertible_to<NN>;
-        { invert_mod (a, b) } -> implicitly_convertible_to<maybe<NN>>;
+        { mul_2_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { square_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
     } && requires (const ZZ &a, const math::nonzero<NN> &b) {
         { data::divide (a, b) } -> std::same_as<division<ZZ, NN>>;
-        { mod (a, b) } -> implicitly_convertible_to<NN>;
-        { negate_mod (a, b) } -> implicitly_convertible_to<NN>;
-        { invert_mod (a, b) } -> implicitly_convertible_to<maybe<NN>>;
-        { mul_2_mod (a, b) } -> implicitly_convertible_to<NN>;
-        { square_mod (a, b) } -> implicitly_convertible_to<NN>;
+        { mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
+        { mul_2_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        { square_mod (a, b) } -> ImplicitlyConvertible<NN>;
     } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
-        { plus_mod (a, b, c) } -> implicitly_convertible_to<NN>;
-        { minus_mod (a, b, c) } -> implicitly_convertible_to<NN>;
-        { times_mod (a, b, c) } -> implicitly_convertible_to<NN>;
-        { pow_mod (a, b, c) } -> implicitly_convertible_to<NN>;
+        { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+        { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+        { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+        { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
     } struct test_number_system : test_unsigned_number<NN>, test_signed_number<ZZ> {
         test_number_system (string type = ""): test_unsigned_number<NN> {type}, test_signed_number<ZZ> {} {}
     };

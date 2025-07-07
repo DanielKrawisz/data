@@ -11,7 +11,7 @@
 
 namespace data::math {
     
-    template <ordered R> struct nonnegative;
+    template <Ordered R> struct nonnegative;
     template <typename R> struct nonzero;
 
     template <typename R> constexpr bool operator == (const nonnegative<R> &, const nonnegative<R> &);
@@ -22,7 +22,7 @@ namespace data::math {
 
     template <typename R> constexpr nonzero<R> operator * (const nonzero<R> &m, const nonzero<R> &n);
 
-    template <ordered R> struct nonnegative {
+    template <Ordered R> struct nonnegative {
         R Value;
         
         constexpr explicit nonnegative (const R &n) : Value {n} {}
@@ -139,12 +139,12 @@ namespace data::math {
         return nonzero<R> {m.Value * n.Value};
     }
     
-    template <ordered R> constexpr nonnegative<R> inline &nonnegative<R>::operator ++ () {
+    template <Ordered R> constexpr nonnegative<R> inline &nonnegative<R>::operator ++ () {
         ++Value;
         return *this;
     }
     
-    template <ordered R> constexpr nonnegative<R> inline nonnegative<R>::operator ++ (int) {
+    template <Ordered R> constexpr nonnegative<R> inline nonnegative<R>::operator ++ (int) {
         nonnegative<R> n = *this;
         ++Value;
         return n;

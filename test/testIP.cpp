@@ -7,6 +7,103 @@
 #include "gtest/gtest.h"
 #include <regex>
 
+namespace data::encoding::percent {
+
+    TEST (IPTest, TestPercentEncoding) {
+
+        struct positive_test_case {
+            data::UTF8 Valid;
+            string Additional;
+            data::encoding::percent::string Expected;
+        };
+
+        // for invalid percent encoded strings
+        struct negative_test_case {
+            string Invalid;
+        };
+
+        for (const positive_test_case &tt : list<positive_test_case> {{
+            "Hello, World! Привет, мир!", "!,.",
+            R"(Hello%2C%20World%21%20%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82%2C%20%D0%BC%D0%B8%D1%80%21)"
+        }, {"example.com/path?query=value#fragment", "/?=#",
+            "example.com%2Fpath%3Fquery%3Dvalue%23fragment"
+
+        }}) {
+            auto encoded = encode (tt.Valid, tt.Additional);
+            EXPECT_EQ (encoded, tt.Expected) << "expected " << encoded << " == " << tt.Expected;
+            EXPECT_EQ (*percent::decode (encoded), tt.Valid);
+        }
+
+        for (const negative_test_case &tt : list<negative_test_case> {
+            {R"(Hello%2GWorld)"},
+            {R"(Hello%)"},
+            {R"(Hello )"}
+        }) {
+            EXPECT_FALSE (bool (percent::decode (tt.Invalid)));
+        }
+
+        struct test_equal {
+            string Left;
+            string Right;
+            bool Expected;
+        };
+
+        for (const test_equal &tt : list<test_equal> {
+            {"abc", "abc", true},       // No percent encoding
+            // the next several tests have to do with reserved characters. 
+            // reserved characters that are percent encoded are not equal 
+            // to their decoded form. 
+            {"abc+", "abc%2B", false},  // '+' is a reserved character
+            {"abc/", "abc%2F", false},  // '/' is a reserved character
+            {"abc?", "abc%3F", false},  // '?' is a reserved character
+            {"abc#", "abc%23", false},  // '#' is a reserved character
+            {"abc[", "abc%5B", false},  // '[' is a reserved character
+            {"abc]", "abc%5D", false},  // ']' is a reserved character
+            {"abc@", "abc%40", false},  // '@' is a reserved character
+            {"abc!", "abc%21", false},  // '!' is a reserved character
+            {"abc$", "abc%24", false},  // '$' is a reserved character
+            {"abc&", "abc%26", false}/*,  // '&' is a reserved character
+            {"%C3%A9", "%c3%a9", true},
+            {"%20", " ", true},
+            {"%41", "A", true}*/
+        }) {
+            EXPECT_EQ (tt.Left == tt.Right, tt.Expected)
+                << "expected " << tt.Left << " " << (tt.Expected ? "==" : "!=") << " " << tt.Right;
+        }
+    }
+/*
+    // this test has to do with finding the right == operator in gcc vs clang.
+    TEST (IPTest, TestPercentEncodedStringEqual) {
+        // when we have an std::string and a percent encoded string, we should choose regular string ==
+        // when we have a percent encoded string and a path, we should choose percent encoding equal. 
+
+        std::string encoded_string {"%41"};
+        std::string decoded_string {"A"};
+        string encoded_percent {"%41"};
+        string decoded_percent {"A"};
+        net::path encoded_path {"%41"};
+        net::path decoded_path {"A"};
+
+        EXPECT_NE (encoded_string, decoded_string);
+        EXPECT_EQ (encoded_percent, decoded_percent);
+        EXPECT_EQ (encoded_path, decoded_path);
+
+        EXPECT_NE (encoded_percent, decoded_string);
+        EXPECT_NE (decoded_percent, encoded_string);
+
+        EXPECT_EQ (encoded_percent, encoded_string);
+        EXPECT_EQ (encoded_string, encoded_percent);
+
+        EXPECT_NE (encoded_percent, decoded_path);
+        EXPECT_NE (decoded_percent, encoded_path);
+
+        EXPECT_EQ (encoded_percent, encoded_path);
+        EXPECT_EQ (encoded_path, encoded_percent);
+
+    }*/
+
+}
+
 namespace data::net::IP {
 
     TEST (IPTest, TestIPFormats) {
@@ -169,66 +266,6 @@ namespace data::net::IP {
         
         for (const test_case &t : test_cases) t.test ();
     }
-}
-
-namespace data::encoding::percent {
-
-    TEST (IPTest, TestPercentEncoding) {
-
-        struct positive_test_case {
-            data::UTF8 Valid;
-            string Additional;
-            data::encoding::percent::string Expected;
-        };
-
-        struct negative_test_case {
-            string Invalid;
-        };
-
-        for (const positive_test_case &tt : list<positive_test_case> {{
-            "Hello, World! Привет, мир!", "!,.",
-            R"(Hello%2C%20World%21%20%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82%2C%20%D0%BC%D0%B8%D1%80%21)"
-        }, {"example.com/path?query=value#fragment", "/?=#",
-            "example.com%2Fpath%3Fquery%3Dvalue%23fragment"
-
-        }}) {
-            auto encoded = encode (tt.Valid, tt.Additional);
-            EXPECT_EQ (encoded, tt.Expected) << "expected " << encoded << " == " << tt.Expected;
-            EXPECT_EQ (*percent::decode (encoded), tt.Valid);
-        }
-
-        for (const negative_test_case &tt : list<negative_test_case> {
-            {R"(Hello%2GWorld)"},
-            {R"(Hello%)"},
-            {R"(Hello )"}
-        }) {
-            EXPECT_FALSE (bool (percent::decode (tt.Invalid)));
-        }
-
-        struct test_equal {
-            string Left;
-            string Right;
-            bool Expected;
-        };
-
-        for (const test_equal &tt : list<test_equal> {
-            {"abc", "abc", true},       // No percent encoding
-            {"abc+", "abc%2B", false},  // '+' is a reserved character
-            {"abc/", "abc%2F", false},  // '/' is a reserved character
-            {"abc?", "abc%3F", false},  // '?' is a reserved character
-            {"abc#", "abc%23", false},  // '#' is a reserved character
-            {"abc[", "abc%5B", false},  // '[' is a reserved character
-            {"abc]", "abc%5D", false},  // ']' is a reserved character
-            {"abc@", "abc%40", false},  // '@' is a reserved character
-            {"abc!", "abc%21", false},  // '!' is a reserved character
-            {"abc$", "abc%24", false},  // '$' is a reserved character
-            {"abc&", "abc%26", false}   // '&' is a reserved character
-        }) {
-            EXPECT_EQ (tt.Left == tt.Right, tt.Expected)
-                << "expected " << tt.Left << " " << (tt.Expected ? "==" : "!=") << " " << tt.Right;
-        }
-    }
-
 }
 
 namespace data::net {

@@ -18,73 +18,72 @@ namespace data {
     // It can be assigned from a integer literal, has a concept
     // of being signed or unsigned.
     template <typename X> concept proto_integral =
-        ordered<X> && requires {
+        Ordered<X> && requires {
             { X (0) };
         } && requires (const X &n) {
-            { is_zero (n) } -> same_as<bool>;
-            { is_positive (n) } -> same_as<bool>;
-            { is_negative (n) } -> same_as<bool>;
+            { is_zero (n) } -> Same<bool>;
+            { is_positive (n) } -> Same<bool>;
+            { is_negative (n) } -> Same<bool>;
             { sign (n) };
             { increment (n) };
         } && requires (X &n) {
-            { ++n } -> same_as<X &>;
-            { n++ } -> same_as<X>;
-            { --n } -> same_as<X &>;
-            { n++ } -> same_as<X>;
+            { ++n } -> Same<X &>;
+            { n++ } -> Same<X>;
+            { --n } -> Same<X &>;
+            { n++ } -> Same<X>;
         } && requires (const X &a) {
-            {a == 0} -> same_as<bool>;
-            {a != 0} -> same_as<bool>;
-            {a > 0} -> same_as<bool>;
-            {a < 0} -> same_as<bool>;
-            {a >= 0} -> same_as<bool>;
-            {a <= 0} -> same_as<bool>;
+            {a == 0} -> Same<bool>;
+            {a != 0} -> Same<bool>;
+            {a > 0} -> Same<bool>;
+            {a < 0} -> Same<bool>;
+            {a >= 0} -> Same<bool>;
+            {a <= 0} -> Same<bool>;
         };
 
     template <typename A> concept signed_proto_integral =
         proto_integral<A> && signed_type<A> && requires (const A &n) {
-            { negate (abs (n)) } -> same_as<A>;
-            { decrement (n) } -> same_as<A>;
+            { negate (abs (n)) } -> Same<A>;
+            { decrement (n) } -> Same<A>;
         };
 
     template <typename A> concept unsigned_proto_integral =
         proto_integral<A> && unsigned_type<A> && requires (const A &n) {
-            { digits_base_2 (n) } -> same_as<size_t>;
+            { digits_base_2 (n) } -> Same<size_t>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N = Z> concept proto_integral_system =
-        signed_proto_integral<Z> && proto_integral<N> &&
-        convertible_to<N, Z> &&
+        signed_proto_integral<Z> && proto_integral<N> && Convertible<N, Z> &&
         requires (const Z &a) {
-            { abs (a) } -> same_as<N>;
+            { abs (a) } -> Same<N>;
         } && requires (const N &a) {
-            { negate (a) } -> same_as<Z>;
+            { negate (a) } -> Same<Z>;
         } && requires (const Z &a, const N &b) {
-            {a == b} -> same_as<bool>;
-            {a < b} -> same_as<bool>;
-            {a > b} -> same_as<bool>;
-            {a <= b} -> same_as<bool>;
-            {a >= b} -> same_as<bool>;
-            {b == a} -> same_as<bool>;
-            {b < a} -> same_as<bool>;
-            {b > a} -> same_as<bool>;
-            {b <= a} -> same_as<bool>;
-            {b >= a} -> same_as<bool>;
+            {a == b} -> Same<bool>;
+            {a < b} -> Same<bool>;
+            {a > b} -> Same<bool>;
+            {a <= b} -> Same<bool>;
+            {a >= b} -> Same<bool>;
+            {b == a} -> Same<bool>;
+            {b < a} -> Same<bool>;
+            {b > a} -> Same<bool>;
+            {b <= a} -> Same<bool>;
+            {b >= a} -> Same<bool>;
         };
 
     // bit_integral has bit operations.
     template <typename X> concept bit_integral =
         proto_integral<X> &&
         requires (const X &a) {
-            {a << 1} -> implicitly_convertible_to<X>;
-            {a >> 1} -> implicitly_convertible_to<X>;
-            {a & 1} -> implicitly_convertible_to<X>;
-            {a | 1} -> implicitly_convertible_to<X>;
+            {a << 1} -> ImplicitlyConvertible<X>;
+            {a >> 1} -> ImplicitlyConvertible<X>;
+            {a & 1} -> ImplicitlyConvertible<X>;
+            {a | 1} -> ImplicitlyConvertible<X>;
         } && requires (X &a) {
-            {a <<= 1} -> same_as<X &>;
-            {a >>= 1} -> same_as<X &>;
-            {a &= 1} -> same_as<X &>;
-            {a |= 1} -> same_as<X &>;
+            {a <<= 1} -> Same<X &>;
+            {a >>= 1} -> Same<X &>;
+            {a &= 1} -> Same<X &>;
+            {a |= 1} -> Same<X &>;
         };
 
     template <typename A> concept signed_bit_integral = bit_integral<A> && signed_proto_integral<A>;
@@ -98,18 +97,18 @@ namespace data {
     template <typename X> concept group_integral =
         proto_integral<X> &&
         requires (const X &a, const X &b) {
-            { a + b } -> implicitly_convertible_to<X>;
-            { a - b } -> implicitly_convertible_to<X>;
+            { a + b } -> ImplicitlyConvertible<X>;
+            { a - b } -> ImplicitlyConvertible<X>;
         } && requires (const X &n) {
-            { div_2 (n) } -> implicitly_convertible_to<X>;
-            { n + 1 } -> implicitly_convertible_to<X>;
-            { n - 1 } -> implicitly_convertible_to<X>;
+            { div_2 (n) } -> ImplicitlyConvertible<X>;
+            { n + 1 } -> ImplicitlyConvertible<X>;
+            { n - 1 } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
-            { a += b } -> same_as<X &>;
-            { a -= b } -> same_as<X &>;
+            { a += b } -> Same<X &>;
+            { a -= b } -> Same<X &>;
         } && requires (X &a) {
-            { a += 1 } -> same_as<X &>;
-            { a -= 1 } -> same_as<X &>;
+            { a += 1 } -> Same<X &>;
+            { a -= 1 } -> Same<X &>;
         };
 
     template <typename A> concept signed_group_integral = group_integral<A> && signed_proto_integral<A>;
@@ -119,27 +118,27 @@ namespace data {
     template <typename Z, typename N = Z> concept group_integral_system =
         proto_integral_system<Z, N> && signed_group_integral<Z> && group_integral<N> &&
         requires (const Z &a, const N &b) {
-            { a + b } -> implicitly_convertible_to<Z>;
-            { a - b } -> implicitly_convertible_to<Z>;
-            { b + a } -> implicitly_convertible_to<Z>;
-            { b - a } -> implicitly_convertible_to<Z>;
+            { a + b } -> ImplicitlyConvertible<Z>;
+            { a - b } -> ImplicitlyConvertible<Z>;
+            { b + a } -> ImplicitlyConvertible<Z>;
+            { b - a } -> ImplicitlyConvertible<Z>;
         } && requires (Z &a, const N &b) {
-            { a += b } -> same_as<Z &>;
-            { a -= b } -> same_as<Z &>;
+            { a += b } -> Same<Z &>;
+            { a -= b } -> Same<Z &>;
         };
 
     // ring integral has * operations.
     template <typename X> concept ring_integral =
         group_integral<X> &&
         requires (const X &a, const X &b) {
-            { a * b } -> implicitly_convertible_to<X>;
+            { a * b } -> ImplicitlyConvertible<X>;
         } && requires (const X &n) {
-            { mul_2 (n) } -> implicitly_convertible_to<X>;
-            { n * 1 } -> implicitly_convertible_to<X>;
+            { mul_2 (n) } -> ImplicitlyConvertible<X>;
+            { n * 1 } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
-            { a *= b } -> same_as<X &>;
+            { a *= b } -> Same<X &>;
         } && requires (X &a) {
-            { a *= 1 } -> same_as<X &>;
+            { a *= 1 } -> Same<X &>;
         };
 
     template <typename A> concept signed_ring_integral =
@@ -152,47 +151,47 @@ namespace data {
     template <typename Z, typename N = Z> concept ring_integral_system =
         group_integral_system<Z, N> && signed_ring_integral<Z> && ring_integral<N> &&
         requires (const Z &a, const N &b) {
-            { a * b } -> implicitly_convertible_to<Z>;
+            { a * b } -> ImplicitlyConvertible<Z>;
         } && requires (Z &a, const N &b) {
-            { a *= b } -> implicitly_convertible_to<Z &>;
+            { a *= b } -> ImplicitlyConvertible<Z &>;
         };
 
     template <typename X> concept integral =
         bit_integral<X> && ring_integral<X> &&
         requires (const X &a, const X &b) {
-            { a / b } -> implicitly_convertible_to<X>;
+            { a / b } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
-            { a /= b } -> same_as<X &>;
+            { a /= b } -> Same<X &>;
         } && requires (const X &a) {
-            { a / 1 } -> implicitly_convertible_to<X>;
+            { a / 1 } -> ImplicitlyConvertible<X>;
             { a % 1 };
         } && requires (X &a) {
-            { a /= 1 } -> same_as<X &>;
+            { a /= 1 } -> Same<X &>;
         };
 
     template <typename A> concept signed_integral =
         integral<A> && signed_ring_integral<A> && signed_bit_integral<A> &&
         requires (const A &a, const A &b) {
-            { divide (a, math::nonzero<A> {b}) } -> same_as<division<A, to_unsigned<A>>>;
+            { divide (a, math::nonzero<A> {b}) } -> Same<division<A, to_unsigned<A>>>;
         };
 
     template <typename A> concept unsigned_integral =
         integral<A> && unsigned_ring_integral<A> && unsigned_bit_integral<A> &&
         requires (const A &a, const A &b) {
-            { a % b} -> implicitly_convertible_to<A>;
-            { divide (a, math::nonzero<A> {b}) } -> same_as<division<A, A>>;
+            { a % b} -> ImplicitlyConvertible<A>;
+            { divide (a, math::nonzero<A> {b}) } -> Same<division<A, A>>;
         } && requires (A &a) {
-            { a %= 1 } -> same_as<A &>;
+            { a %= 1 } -> Same<A &>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N = Z> concept integral_system =
         signed_integral<Z> && integral<N> &&
         requires (const Z &a, const N &b) {
-            { a % b } -> implicitly_convertible_to<N>;
-            { a / b } -> implicitly_convertible_to<Z>;
-            { b / a } -> implicitly_convertible_to<Z>;
-            { divide (a, math::nonzero<N> {b}) } -> same_as<division<Z, N>>;
+            { a % b } -> ImplicitlyConvertible<N>;
+            { a / b } -> ImplicitlyConvertible<Z>;
+            { b / a } -> ImplicitlyConvertible<Z>;
+            { divide (a, math::nonzero<N> {b}) } -> Same<division<Z, N>>;
         };
 
 }

@@ -11,15 +11,20 @@
 namespace data {
 
     template <typename elem> class linked_stack;
+    
+    template <typename elem> bool empty (const linked_stack<elem> &x);
+    template <typename elem> size_t size (const linked_stack<elem> &x);
 
     // stack two stacks together.
     template <typename elem> linked_stack<elem> operator + (linked_stack<elem>, linked_stack<elem>);
 
-    template <typename elem>
-    struct element<linked_stack<elem>> {
-        using type = elem;
-    };
-    
+    // if elem has a << operator, then we can print the whole stack
+    template <typename elem> requires requires (std::ostream &o, const elem &e) {
+        { o << e } -> Same<std::ostream &>;
+    } std::ostream inline &operator << (std::ostream &o, const linked_stack<elem> &x);
+
+    template <typename elem> linked_stack<elem> values (const linked_stack<elem> &x);
+
     template <typename elem>
     class linked_stack {
         
@@ -44,6 +49,8 @@ namespace data {
         const elem &first () const;
         
         elem &first ();
+
+        // if elem is a reference, then const elem & and elem & are both simply elem
     
         bool empty () const;
         
@@ -55,8 +62,8 @@ namespace data {
         
         size_t size () const;
         
-        linked_stack operator << (inserted<elem> x) const;
-        linked_stack &operator <<= (inserted<elem> x);
+        linked_stack operator >> (inserted<elem> x) const;
+        linked_stack &operator >>= (inserted<elem> x);
         
         linked_stack prepend (inserted<elem> x) const;
         linked_stack prepend (linked_stack l) const;
@@ -76,15 +83,15 @@ namespace data {
         iterator begin () const;
         sentinel end () const;
         
-        template <data::sequence X> requires std::equality_comparable_with<elem, data::element_of<X>>
+        template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
         bool operator == (const X &x) const;
 
         // automatic conversions 
-        template <typename X> requires implicitly_convertible_to<elem, X>
+        template <typename X> requires ImplicitlyConvertible<elem, X>
         operator linked_stack<X> () const;
 
         // explicit conversions
-        template <typename X> requires explicitly_convertible_to<elem, X>
+        template <typename X> requires ExplicitlyConvertible<elem, X>
         explicit operator linked_stack<X> () const;
         
     };
@@ -92,8 +99,21 @@ namespace data {
     template <typename elem> linked_stack<elem> operator + (linked_stack<elem> a, linked_stack<elem> b) {
         return b.prepend (data::reverse (a));
     }
+
+    template <typename elem> bool inline empty (const linked_stack<elem> &x) {
+        return x.empty ();
+    }
+
+    template <typename elem> linked_stack<elem> inline values (const linked_stack<elem> &x) {
+        return x;
+    }
+
+    template <typename elem> size_t inline size (const linked_stack<elem> &x) {
+        return x.size ();
+    }
     
     // a bidirectional iterator in case you need one. 
+    // TODO this should go in sequence.hpp
     template <typename elem>
     class linked_stack_iterator : public sequence_iterator<linked_stack<elem>> {
         linked_stack<const linked_stack<elem> &> Prev;
@@ -112,23 +132,9 @@ namespace data {
         
         linked_stack_iterator (const linked_stack<elem> &s) : sequence_iterator<linked_stack<elem>> {s}, Prev {} {}
     };
-}
-
-namespace std {
-    template <typename elem> 
-    struct iterator_traits<data::linked_stack_iterator<elem>> {
-        using value_type = remove_const_t<elem>;
-        using difference_type = int;
-        using pointer = const remove_reference_t<elem>*;
-        using reference = const elem &;
-        using iterator_concept = forward_iterator_tag;
-    };
-}
-
-namespace data {
     
     template <typename elem> requires requires (std::ostream &o, const elem &e) {
-        { o << e } -> std::same_as<std::ostream &>;
+        { o << e } -> Same<std::ostream &>;
     } std::ostream inline &operator << (std::ostream &o, const linked_stack<elem> &x) {
         return functional::write (o << "stack", x);
     }
@@ -192,7 +198,7 @@ namespace data {
     }
     
     template <typename elem>
-    linked_stack<elem> inline linked_stack<elem>::operator <<(inserted<elem> x) const {
+    linked_stack<elem> inline linked_stack<elem>::operator >> (inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
@@ -202,7 +208,7 @@ namespace data {
     }
     
     template <typename elem>
-    linked_stack<elem> inline &linked_stack<elem>::operator <<= (inserted<elem> x) {
+    linked_stack<elem> inline &linked_stack<elem>::operator >>= (inserted<elem> x) {
         return *this = (prepend (x));
     }
     
@@ -236,7 +242,7 @@ namespace data {
     
     template <typename elem>
     const elem inline &linked_stack<elem>::operator [] (uint32 n) const {
-        return from (n).first();
+        return from (n).first ();
     }
     
     template <typename elem>
@@ -280,20 +286,20 @@ namespace data {
     }
 
     template <typename elem>
-    template <data::sequence X> requires std::equality_comparable_with<elem, data::element_of<X>>
+    template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
     bool inline linked_stack<elem>::operator == (const X &x) const {
         return sequence_equal (*this, x);
     }
 
     template <typename elem>
-    template <typename X> requires implicitly_convertible_to<elem, X>
+    template <typename X> requires ImplicitlyConvertible<elem, X>
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};
         return linked_stack<X> {rest ()}.prepend (X (first ()));
     }
 
     template <typename elem>
-    template <typename X> requires explicitly_convertible_to<elem, X>
+    template <typename X> requires ExplicitlyConvertible<elem, X>
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};
         return linked_stack<X> {rest ()}.prepend (X (first ()));

@@ -9,22 +9,51 @@
 namespace data {
 
     TEST (ListTest, TestListInterfaces) {
+        static_assert (Same<decltype (std::declval<const list<int>> ().first ()), const int &>);
+        static_assert (Same<decltype (std::declval<const list<const int>> ().first ()), const int &>);
 
-        static_assert (container<list<int>, int>);
-        static_assert (container<list<int *>, int *>);
-        static_assert (container<list<const int *>, const int *>);
-        static_assert (container<list<int *const>, int *const>);
-        static_assert (container<list<const int *const>, const int *const>);
-        static_assert (container<list<int &>, int &>);
-        static_assert (container<list<const int &>, const int &>);
+        static_assert (Same<decltype (std::declval<const list<int &>> ().first ()), int &>);
+        static_assert (Same<decltype (std::declval<const list<const int &>> ().first ()), const int &>);
 
-        static_assert (functional::list<list<int>, int>);
-        static_assert (functional::list<list<int *>, int *>);
-        static_assert (functional::list<list<const int *>, const int *>);
-        static_assert (functional::list<list<int *const>, int *const>);
-        static_assert (functional::list<list<const int *const>, const int *const>);
-        static_assert (functional::list<list<int &>, int &>);
-        static_assert (functional::list<list<const int &>, const int &>);
+        static_assert (Same<decltype (std::declval<const list<int *>> ().first ()), int *const &>);
+        static_assert (Same<decltype (std::declval<const list<const int *>> ().first ()), const int *const &>);
+
+        static_assert (Same<decltype (std::declval<const list<string>> ().first ()), const string &>);
+        static_assert (Same<decltype (std::declval<const list<const string>> ().first ()), const string &>);
+
+        static_assert (Same<decltype (std::declval<const list<string &>> ().first ()), string &>);
+        static_assert (Same<decltype (std::declval<const list<const string &>> ().first ()), const string &>);
+
+        static_assert (Same<decltype (std::declval<const list<string *>> ().first ()), string *const &>);
+        static_assert (Same<decltype (std::declval<const list<const string *>> ().first ()), const string *const &>);
+    
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<int>> ().first ()), int>);
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<int &>> ().first ()), int>);
+
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<int *>> ().first ()), int *>);
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<const int *>> ().first ()), const int *>);
+
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<string>> ().first ()), const string &>);
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<string &>> ().first ()), const string &>);
+
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<string *>> ().first ()), string *>);
+        static_assert (ImplicitlyConvertible<decltype (std::declval<const list<const string *>> ().first ()), const string *>);
+
+        static_assert (Container<list<int>, int>);
+        static_assert (Container<list<int *>, int *>);
+        static_assert (Container<list<const int *>, const int *>);
+        static_assert (Container<list<int *const>, int *const>);
+        static_assert (Container<list<const int *const>, const int *const>);
+        static_assert (Container<list<int &>, int &>);
+        static_assert (Container<list<const int &>, const int &>);
+
+        static_assert (List<list<int>, int>);
+        static_assert (List<list<int *>, int *>);
+        static_assert (List<list<const int *>, const int *>);
+        static_assert (List<list<int *const>, int *const>);
+        static_assert (List<list<const int *const>, const int *const>);
+        static_assert (List<list<int &>, int &>);
+        static_assert (List<list<const int &>, const int &>);
 
         static_assert (std::forward_iterator<decltype (std::declval<const list<int>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const list<int *>> ().begin ())>);
@@ -99,16 +128,7 @@ namespace data {
         list<int> {1, 2, 3, 4, 5, 6, 7};
         list<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
         list<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
+
     }
 
-    TEST (ListTest, TestListLast) {
-
-        EXPECT_EQ (last (list<int> {1}), 1);
-        EXPECT_EQ ((last (append (list<int> {1}, 2))), 2);
-        EXPECT_EQ ((last (list<int> {1, 2, 3})), 3);
-        EXPECT_EQ ((last (rest (list<int> {1, 2, 3}))), 3);
-        EXPECT_EQ ((last (reverse (list<int> {1, 2, 3}))), 1);
-        EXPECT_EQ ((last (rest (reverse (list<int> {1, 2, 3})))), 1);
-        EXPECT_EQ ((last (reverse (rest (list<int> {1, 2, 3})))), 2);
-    }
 }

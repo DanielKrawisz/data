@@ -5,68 +5,53 @@
 #ifndef DATA_EMPTY
 #define DATA_EMPTY
 
-#include <concepts>
+#include <data/iterable.hpp>
 #include <data/size.hpp>
 
 namespace data {
     
+    template <typename X> bool empty (const X x);
+    
     namespace interface {
         
-        template <typename X>
-        concept has_empty_method = requires(X x) {
-            { x.empty() } -> std::same_as<bool>;
+        template <typename X> concept has_empty_method = requires (X x) {
+            { x.empty () } -> Same<bool>;
         };
         
     }
     
     namespace meta {
         
-        template <typename X> struct is_empty {
-            bool operator()(const X&) {
-                return true;
-            }
-            
-            bool operator()(const X*) {
-                return true;
-            }
-        };
+        template <typename X> struct is_empty {};
         
-        template <interface::has_empty_method X> struct is_empty<X> {
-            bool operator()(const X& x) {
-                return x.empty();
-            }
-            
-            bool operator()(const X* x) {
-                return x == nullptr ? true : x->empty();
-            }
-        };
-        
-        template <typename X> requires interface::has_empty_method<X> && interface::has_size_method<X>
+        template <typename X> 
+        requires interface::has_empty_method<const X> || interface::has_size_method<const X> || const_iterable<X>
         struct is_empty<X> {
-            bool operator()(const X& x) {
-                return x.empty();
+            bool operator () (const X &x) {
+                if constexpr (interface::has_empty_method<const X>) {
+                    return x.empty ();
+                } else if constexpr (interface::has_size_method<const X>) {
+                    return x.size () == 0;
+                } else if constexpr (const_iterable<X>) {
+                    return std::empty (x);
+                }
             }
             
-            bool operator()(const X* x) {
-                return x == nullptr ? true : x->empty();
-            }
-        };
-        
-        template <interface::has_size_method X> struct is_empty<X> {
-            bool operator()(const X& x) {
-                return x.size() == 0;
+            bool operator () (const X *x) {
+                if (x == nullptr) return true;
+                return is_empty<X> {} (*x);
             }
             
-            bool operator()(const X* x) {
-                return x == nullptr ? true : x->size() == 0;
+            bool operator () (const ptr<X> *x) {
+                if (x == nullptr) return true;
+                return is_empty<X> {} (*x);
             }
         };
         
     }
 
-    template <typename X>
-    inline bool empty(const X x) {
-        return meta::is_empty<X>{}(x);
+    template <typename X> bool inline empty (const X x) {
+        return meta::is_empty<X> {} (x);
     }
 
 }

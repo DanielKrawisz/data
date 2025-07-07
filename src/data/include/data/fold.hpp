@@ -9,7 +9,7 @@
 
 namespace data {
 
-    template <typename x, typename f, sequence l>
+    template <typename x, typename f, Sequence l>
     x inline fold (f fun, x init, l ls) {
         if (data::empty (ls)) return init;
         return fold (fun, fun (init, data::first (ls)), data::rest (ls));
@@ -21,7 +21,7 @@ namespace data {
         return nest (fun, fun (init), rounds - 1);
     }
     
-    template <typename x, sequence l>
+    template <typename x, Sequence l>
     x inline reduce (function<x (const x&, const x&)> fun, l ls) {
         if (data::empty (ls)) return x {};
         return fun (data::first (ls), reduce<x> (fun, data::rest (ls)));

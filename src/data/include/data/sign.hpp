@@ -87,7 +87,7 @@ namespace data::math {
     };
 
     template <typename X> requires requires (const X &x) {
-        { x.sign () } -> implicitly_convertible_to<signature>;
+        { x.sign () } -> ImplicitlyConvertible<signature>;
     } struct sign<X> {
         constexpr math::signature operator () (const X &x) {
             return x.sign ();
@@ -123,7 +123,7 @@ namespace data::math {
     };
 
     template <typename X> concept has_sign_function = requires (const X &x) {
-        {data::sign (x)} -> implicitly_convertible_to<signature>;
+        {data::sign (x)} -> ImplicitlyConvertible<signature>;
     };
 
 }

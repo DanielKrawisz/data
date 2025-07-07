@@ -12,7 +12,26 @@
     
 namespace data::tool {
 
-    template <functional::stack stack, sortable element = element_of<stack>>
+    template <Stack stack, Sortable element = unref<unconst<decltype (std::declval<stack> ().first ())>>>
+    struct ordered_stack;
+    
+    // merge two stacks together. 
+    template <Stack stack> ordered_stack<stack> operator & (ordered_stack<stack>, ordered_stack<stack>);
+    template <Stack stack> ordered_stack<stack> operator | (ordered_stack<stack>, ordered_stack<stack>);
+    template <Stack stack> ordered_stack<stack> operator ^ (ordered_stack<stack>, ordered_stack<stack>);
+
+    // print a stack
+    template <Stack stack, Sortable element>
+    requires requires (std::ostream &o, const element &e) {
+        { o << e } -> Same<std::ostream &>;
+    } std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l);
+
+    template <Stack stack> ordered_stack<stack> empty (ordered_stack<stack>);
+    template <Stack stack> size_t size (ordered_stack<stack>);
+    template <Stack stack> ordered_stack<stack> take (ordered_stack<stack>, size_t size);
+    template <Stack stack> ordered_stack<stack> merge (ordered_stack<stack>, ordered_stack<stack>);
+
+    template <Stack stack, Sortable element>
     struct ordered_stack : stack {
 
         // an ordered_stack is valid if every element is
@@ -50,7 +69,7 @@ namespace data::tool {
             return ordered_stack {data::take (static_cast<stack> (*this), size) + data::drop (static_cast<stack> (*this), size).rest ()};
         }
 
-        template <data::sequence X> requires std::equality_comparable_with<element, data::element_of<X>>
+        template <Sequence X> requires std::equality_comparable_with<element, decltype (std::declval<X> ().first ())>
         bool operator == (const X &x) const {
             return sequence_equal (*this, x);
         }
@@ -71,15 +90,23 @@ namespace data::tool {
         }
     };
 
-    template <functional::stack stack> ordered_stack<stack> inline operator + (ordered_stack<stack> a, ordered_stack<stack> b) {
+    template <Stack stack> ordered_stack<stack> inline empty (ordered_stack<stack> x) {
+        return x.empty ();
+    }
+
+    template <Stack stack> ordered_stack<stack> inline operator & (ordered_stack<stack> a, ordered_stack<stack> b) {
         return a.merge (b);
     }
 
-    template <functional::stack stack, sortable element>
+    template <Stack stack> ordered_stack<stack> inline merge (ordered_stack<stack> a, ordered_stack<stack> b) {
+        return a.merge (b);
+    }
+
+    template <Stack stack, Sortable element>
     requires requires (std::ostream &o, const element &e) {
-        { o << e } -> std::same_as<std::ostream &>;
+        { o << e } -> Same<std::ostream &>;
     } std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l) {
-        o << "sortable_list {";
+        o << "ordered_list {";
         if (!l.empty ()) {
             ordered_stack<stack, element> x = l;
             while (true) {
@@ -91,18 +118,22 @@ namespace data::tool {
         }
         return o << "}";
     }
+
+    template <Stack stack> ordered_stack<stack> take (ordered_stack<stack> x, size_t size) {
+        return x.take (size);
+    }
     
-    template <functional::stack stack, sortable element>
+    template <Stack stack, Sortable element>
     ordered_stack<stack, element> inline ordered_stack<stack, element>::operator << (const element &x) const {
         return insert (x);
     }
 
-    template <functional::stack stack, sortable element>
+    template <Stack stack, Sortable element>
     ordered_stack<stack, element> inline ordered_stack<stack, element>::operator <<= (const element &x) {
         return *this = insert (x);
     }
     
-    template <functional::stack stack, sortable element>
+    template <Stack stack, Sortable element>
     ordered_stack<stack, element> ordered_stack<stack, element>::insert (const element &x) const {
         if (this->empty () || x < this->first ())
             return ordered_stack {this->prepend (x)};
@@ -110,7 +141,7 @@ namespace data::tool {
         return ordered_stack {rest ().insert (x).prepend (this->first ())};
     }
 
-    template <functional::stack stack, sortable element>
+    template <Stack stack, Sortable element>
     bool ordered_stack<stack, element>::valid () const {
         if (this->size () == 0) return true;
         auto it = begin ();

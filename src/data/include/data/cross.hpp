@@ -21,7 +21,7 @@ namespace data {
         
         cross (std::initializer_list<X> x);
         
-        template<sequence list>
+        template<Sequence list>
         explicit cross (list l);
         
         bool valid () const;
@@ -48,6 +48,19 @@ namespace data {
         
     };
     
+    template <typename X>
+    cross<X> drop (const cross<X> &x, size_t size) {
+        cross<X> n;
+        if (size >= x.size ()) return n;
+        n.resize (x.size () - size);
+        auto i = x.begin () + size;
+        for (X &z : n) {
+            z = *i;
+            i++;
+        }
+        return n;
+    }
+
     template <typename X>
     std::ostream &operator << (std::ostream &o, const cross<X> &s);
 
@@ -100,7 +113,7 @@ namespace data {
     inline cross<X>::cross (std::initializer_list<X> x) : std::vector<X> {x} {}
     
     template <typename X>
-    template<sequence list>
+    template<Sequence list>
     cross<X>::cross (list l) : cross {} {
         std::vector<X>::resize (data::size (l));
         auto b = std::vector<X>::begin ();

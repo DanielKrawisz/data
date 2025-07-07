@@ -11,12 +11,12 @@
 
 namespace data {
 
-    template <ordered elem> stack<elem> range (elem from, elem to, elem by = 1);
+    template <Ordered elem> stack<elem> range (elem from, elem to, elem by = 1);
 
     // a representation of the permutations of a list that can be iterated over.
     // NOTE: The iteration order is not the same as what you get if you generate
     // the whole list.
-    template <ordered elem> struct permutations {
+    template <Ordered elem> struct permutations {
         stack<elem> List;
 
         operator list<list<elem>> () const;
@@ -130,9 +130,9 @@ namespace data {
         iterator end () const;
     };
 
-    template <ordered elem> stack<elem> inline range (elem from, elem to, elem by) {
+    template <Ordered elem> stack<elem> inline range (elem from, elem to, elem by) {
         stack<elem> x;
-        for (elem e = from; e <= to; e += by) x <<= e;
+        for (elem e = from; e <= to; e += by) x >>= e;
         return reverse (x);
     }
 
@@ -150,7 +150,7 @@ namespace data {
         if (Offset.Value <= 0 || Size.Value <= 0) throw exception {} << "offset cannot be " << Offset;
     }
 
-    template <ordered elem> template <typename N> N inline permutations<elem>::size () const {
+    template <Ordered elem> template <typename N> N inline permutations<elem>::size () const {
         if (List.size () == 0) return 0;
         return math::factorial<N> (N (List.size ()));
     }
@@ -186,7 +186,7 @@ namespace data {
         }
     }
 
-    template <ordered elem> permutations<elem>::operator list<list<elem>> () const {
+    template <Ordered elem> permutations<elem>::operator list<list<elem>> () const {
         if (data::empty (List)) return {};
         if (data::size (List) == 1) return {List};
         return for_each ([x = List] (const math::permutation<elem> &p) -> list<elem> {
@@ -222,7 +222,7 @@ namespace data {
         return x;
     }
 
-    template <ordered elem> permutations<elem>::iterator inline permutations<elem>::iterator::operator ++ (int) {
+    template <Ordered elem> permutations<elem>::iterator inline permutations<elem>::iterator::operator ++ (int) {
         auto x = *this;
         ++(*this);
         return x;
@@ -240,10 +240,10 @@ namespace data {
         return x;
     }
 
-    template <ordered elem> inline permutations<elem>::iterator::iterator ():
+    template <Ordered elem> inline permutations<elem>::iterator::iterator ():
         Permutations {nullptr}, Indices {} {}
 
-    template <ordered elem> inline permutations<elem>::iterator::iterator (const permutations &p, const cross<int> &i) :
+    template <Ordered elem> inline permutations<elem>::iterator::iterator (const permutations &p, const cross<int> &i) :
         Permutations {&p}, Indices {i} {}
 
     template <typename elem> inline sublists<elem>::iterator::iterator ():
@@ -258,7 +258,7 @@ namespace data {
     template <typename elem> inline partitions<elem>::iterator::iterator (const partitions &p, size_t i):
         Partitions {&p}, Index {i} {}
 
-    template <ordered elem> bool inline permutations<elem>::iterator::operator == (const iterator &i) const {
+    template <Ordered elem> bool inline permutations<elem>::iterator::operator == (const iterator &i) const {
         return Permutations == i.Permutations && Indices == i.Indices;
     }
 
@@ -270,7 +270,7 @@ namespace data {
         return Partitions == i.Partitions && Index == i.Index;
     }
 
-    template <ordered elem> bool inline permutations<elem>::operator == (const permutations &p) const {
+    template <Ordered elem> bool inline permutations<elem>::operator == (const permutations &p) const {
         return List == p.List;
     }
 
@@ -282,13 +282,13 @@ namespace data {
         return List == p.List && Size == p.Size && Offset == p.Offset;
     }
 
-    template <ordered elem> inline permutations<elem>::iterator permutations<elem>::begin () const {
+    template <Ordered elem> inline permutations<elem>::iterator permutations<elem>::begin () const {
         cross<int> ind (List.size ());
         for (int i = 0; i < ind.size (); i++) ind[i] = i;
         return iterator {*this, ind};
     }
 
-    template <ordered elem> inline permutations<elem>::iterator permutations<elem>::end () const {
+    template <Ordered elem> inline permutations<elem>::iterator permutations<elem>::end () const {
         return iterator {*this, cross<int> (List.size (), -1)};
     }
 
@@ -315,7 +315,7 @@ namespace data {
         return iterator {*this, z * Offset.Value};
     }
 
-    template <ordered elem> permutations<elem>::iterator &permutations<elem>::iterator::operator ++ () {
+    template <Ordered elem> permutations<elem>::iterator &permutations<elem>::iterator::operator ++ () {
         int i = Indices.size () - 1;
         while (i >= 0) {
             int x = -1;
@@ -364,31 +364,31 @@ namespace data {
         return *this;
     }
 
-    template <ordered elem> stack<elem> permutations<elem>::iterator::operator * () const {
+    template <Ordered elem> stack<elem> permutations<elem>::iterator::operator * () const {
         stack<elem> ls;
-        for (int i = 0; i < Indices.size (); i++) ls <<= Permutations->List[Indices[i]];
+        for (int i = 0; i < Indices.size (); i++) ls >>= Permutations->List[Indices[i]];
         return reverse (ls);
     }
 
     template <typename elem> stack<elem> sublists<elem>::iterator::operator * () const {
         stack<elem> ls;
         for (int i = 0; i < Indices.size (); i++)
-            ls <<= Sublists->List[Indices[i]];
+            ls >>= Sublists->List[Indices[i]];
         return reverse (ls);
     }
 
     template <typename elem> stack<elem> partitions<elem>::iterator::operator * () const {
         stack<elem> ls;
-        for (int i = 0; i < Partitions->Size.Value; i++) ls <<= Partitions->List[i + Index];
+        for (int i = 0; i < Partitions->Size.Value; i++) ls >>= Partitions->List[i + Index];
         return reverse (ls);
     }
 
-    template <ordered elem> permutations<elem>::iterator inline &permutations<elem>::iterator::operator += (uint32 u) {
+    template <Ordered elem> permutations<elem>::iterator inline &permutations<elem>::iterator::operator += (uint32 u) {
         for (uint32 i = 0; i < u; i++) ++(*this);
         return *this;
     }
 
-    template <ordered elem> permutations<elem>::iterator inline permutations<elem>::iterator::operator + (uint32 u) {
+    template <Ordered elem> permutations<elem>::iterator inline permutations<elem>::iterator::operator + (uint32 u) {
         auto n = *this;
         for (uint32 i = 0; i < u; i++) ++n;
         return n;

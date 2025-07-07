@@ -9,50 +9,57 @@
 #include <data/functional/queue.hpp>
 #include <data/cross.hpp>
 
-namespace data::functional {
-    
-    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
-    concept list = stack<Q, elem> && queue<Q, elem>;
-    
-    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
-    concept pendable = stack<Q, elem> || queue<Q, elem>;
-    
-}
-
 namespace data {
     
-    template <functional::pendable list>
+    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
+    concept List = Stack<Q, elem> && Queue<Q, elem>;
+    
+    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
+    concept Pendable = Stack<Q, elem> || Queue<Q, elem>;
+    
+    template <Pendable list>
     list take (const list &l, size_t x);
 
-    template <functional::pendable list>
+    template <Pendable list>
     list inline take (const list &l, size_t from, size_t to) {
         return take (drop (l, from), to - from);
     }
     
-    template <functional::pendable list>
+    template <Pendable list>
     list join (const list &a, const list &b) {
-        if constexpr (functional::queue<list>) return functional::join_queue (a, b);
+        if constexpr (Queue<list>) return functional::join_queue (a, b);
         else return functional::join_stack (a, b);
     }
 
-    template <functional::pendable list>
+
+    template <Pendable list>
     list inline remove_index (const list &l, size_t x) {
         return join (take (l, x), drop (l, x + 1));
     }
+}
+
+namespace data::functional {
     
-    template <functional::pendable list> requires ordered<element_of<list>>
+    template <Pendable list> requires Ordered<decltype (std::declval<list> ().first ())>
     list merge (const list &a, const list &b) {
-        if constexpr (functional::queue<list>) return functional::merge_queue (a, b);
+        if constexpr (Queue<list>) return functional::merge_queue (a, b);
         else return functional::merge_stack (a, b);
     }
+    
+    template <Pendable list, typename elem>
+    list remove (const list &l, elem x);
 
-    template <functional::pendable L> requires ordered<element_of<L>>
-    L merge_sort (const L &x) {
+}
+
+namespace data {
+
+    template <Pendable list> requires Ordered<decltype (std::declval<list> ().first ())>
+    list merge_sort (const list &x) {
         size_t z = size (x);
         if (z < 2) return x;
 
         size_t half = z / 2;
-        return merge (merge_sort (take (x, half)), merge_sort (drop (x, half)));
+        return functional::merge (merge_sort (take (x, half)), merge_sort (drop (x, half)));
     }
     
     // randomly re-order a list using a random engine.
@@ -152,10 +159,6 @@ namespace data {
         if (l.size () == 1) result <<= l.first ();
         return result;
     }
-}
-
-template <data::functional::pendable L> L inline operator + (const L &a, const L &b) {
-    return data::join (a, b);
 }
 
 #endif

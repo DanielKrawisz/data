@@ -6,101 +6,83 @@
 #define DATA_CONTAINER
 
 #include <data/sequence.hpp>
-#include <data/concepts.hpp>
+#include <data/iterable.hpp>
+#include <data/functional/list.hpp>
 
 namespace data {
     
     namespace interface {
         
-        template <typename X, typename element> 
+        template <typename X> 
         concept has_values_method = requires (const X x) {
-            { x.values () } -> sequence<element>;
+            { x.values () } -> Sequence<>;
         };
         
         template <typename X, typename element> 
         concept has_contains_method = requires (const X x, const element e) {
-            { x.contains (e) } -> implicitly_convertible_to<bool>;
+            { x.contains (e) } -> ImplicitlyConvertible<bool>;
         };
     
         template <typename X, typename element>
         concept has_insert_method = requires (const X x, const element e) {
-            { x.insert (e) } -> implicitly_convertible_to<X>;
+            { x.insert (e) } -> ImplicitlyConvertible<const X>;
         };
         
         template <typename X, typename element>
         concept has_remove_method = requires (const X x, const element e) {
-            { x.remove (e) } -> implicitly_convertible_to<X>;
+            { x.remove (e) } -> ImplicitlyConvertible<const X>;
         };
         
-    }
-        
-    template <typename X, typename E> 
-    concept container = sequence<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
-    
-    namespace meta {
-        
-        template <typename X, typename E, 
-            bool has_contains = interface::has_contains_method<X, E>, 
-            bool is_sequence = sequence<X, E>, 
-            bool is_iterable = std::ranges::range<X>> struct contains;
-        
-        template <typename X, typename E> 
-        struct contains<X, E, false, false, false> {
-            bool operator () (const X& x, const E& e) {
-                return false;
-            }
-            
-            bool operator () (const X* x, const E& e) {
-                return false;
-            }
-        };
-        
-        template <typename X, typename E, bool is_sequence, bool is_iterable> 
-        struct contains<X, E, true, is_sequence, is_iterable> {
-            bool operator () (const X &x, const E &e) {
-                return x.contains (e);
-            }
-            
-            bool operator () (const X *x, const E &e) {
-                return x == nullptr ? false : x->contains (e);
-            }
-        };
-        
-        template <typename X, typename E, bool is_iterable> 
-        struct contains<X, E, false, true, is_iterable> {
-            bool operator () (const X &x, const E &e) {
-                return functional::contains (x, e);
-            }
-        };
-        
-        template <typename X, typename E> 
-        struct contains<X, E, false, false, true> {
-            bool operator () (const X &x, const E &e) {
-                return std::find (x.begin (), x.end (), e) != x.end ();
-            }
-        };
-        
-    }
-    
-    template <typename X, typename V = decltype (std::declval<X> ().values ())> requires interface::has_values_method<X, V>
-    V values (const X &x) {
-        return x.values ();
     }
 
+    template <typename X, typename E> 
+    concept Container = SequenceOf<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
+
     template <typename X, typename E>
-    requires container<X, E> || std::ranges::range<X>
-    inline bool contains (const X &x, const E &e) {
-        return meta::contains<X, E> {} (x, e);
+    bool inline contains (const X &x, const E &e) {
+        if constexpr (requires () {
+            { x.contains (e) } -> Same<bool>;
+        }) {
+            return x.contains (e);
+        } else if constexpr (interface::has_rest_method<X> && requires () {
+            { x.first () == e } -> Same<bool>;
+        }) {
+            auto xx = x;
+            while (!data::empty (xx)) {
+                if (first (xx) == e) return true;
+                xx = rest (xx);
+            }
+            return false;
+        } if constexpr (const_iterable<X>) {
+            return std::find (x.begin (), x.end (), e) != x.end ();
+        } else {
+            throw "cannot construct contains method";
+        }
+    }
+
+    template <typename X> requires interface::has_values_method<X>
+    auto values (const X &x) {
+        return x.values ();
     }
     
     template <typename X, typename element> requires interface::has_insert_method<X, element>
-    X insert (const X &x, const element &e) {
+    X insert (const X &x, element e) {
         return x.insert (e);
     }
     
-    template <typename X, typename element> requires interface::has_remove_method<X, element>
-    X remove (const X &x, const element &e) {
-        return x.remove (e);
+    template <typename X, typename E> 
+    X remove (const X &x, const E &e) {
+        if constexpr (requires () {
+            { x.remove (e) } -> ImplicitlyConvertible<const X>;
+        }) {
+            return x.remove (e);
+        } else if constexpr (interface::has_rest_method<X> && requires () {
+            { x.first () == e } -> Same<bool>;
+        }) {
+            functional::remove (x, e);
+        } else {
+            throw "cannot construct remove method";
+        }
     }
 
 }

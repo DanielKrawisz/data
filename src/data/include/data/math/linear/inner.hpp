@@ -12,7 +12,7 @@ namespace data::math::linear {
     template <typename F, typename V> struct inner;
         
     template <typename F, typename V> concept inner_space = space<F, V> && requires (const V &a, const V &b) {
-        { inner<F, V> {} (a, b) } -> std::same_as<F>;
+        { inner<F, V> {} (a, b) } -> Same<F>;
     };
     
     template <typename F, typename V> requires inner_space<F, V> 

@@ -14,7 +14,7 @@ namespace data {
     // Sometimes I like to different types to pass on conversions from a sub-type and if I do
     // that I want to know which are explicit and which are implicit.
 
-    template <typename A, typename B> concept same_as = std::same_as<A, B>;
+    template <typename A, typename B> concept Same = std::same_as<A, B>;
 
     // types containing static members that say whether one type is constructible.
     template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
@@ -25,14 +25,15 @@ namespace data {
 
     template <typename From, typename To> inline constexpr bool is_implicitly_convertible_v = is_implicitly_convertible<From, To>::value;
 
-    template <typename From, typename To> concept implicitly_convertible_to = std::convertible_to<From, To>;
-    template <typename From, typename To> concept explicitly_convertible_to =
+    template <typename From, typename To> concept ImplicitlyConvertible = std::is_convertible_v<From, To>;
+
+    template <typename From, typename To> concept ExplicitlyConvertible =
         !is_implicitly_convertible_v<From, To> && requires (From from) {
             { To (from) };
         };
 
     // here convertible to means either explicit or implicit.
-    template <typename From, typename To> concept convertible_to =
+    template <typename From, typename To> concept Convertible =
         std::convertible_to<From, To> || requires (From from) {
             { To (from) };
         };
@@ -58,6 +59,11 @@ namespace data {
     concept implicitly_constructible_from = is_implicitly_constructible<Type, Argument>::value;
 
     template <typename Type> concept member_function_pointer = std::is_member_function_pointer_v<Type>;
+
+    template <typename Type> concept Reference = std::is_reference_v<Type>;
+
+    template <typename X> using unref = std::remove_reference_t<X>;
+    template <typename X> using unconst = std::remove_const_t<X>;
 
 }
 

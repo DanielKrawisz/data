@@ -21,75 +21,90 @@ namespace data::RB {
 
     // In the course of deleting an entry, some entries may take on non-standard colors.
     // However, all maps that are provided to the user will only use standard red and black.
-    enum class color : int16 {
-        negative_black = -1,
+    enum class color : byte {
         red = 0,
         black = 1,
-        double_black = 2
     };
-
-    color inline operator + (const color a, const color b) {
-        return color (int16 (a) + int16 (b));
+    
+    std::ostream inline &operator << (std::ostream &o, const color &c) {
+        return o << (c == color::red ? "RED" : "BLACK");
     }
 
-    template <ordered V> struct colored {
+    color inline operator + (const color a, const color b) {
+        return color (byte (a) + byte (b));
+    }
+
+    template <Ordered V> struct colored {
         color Color;
         V Value;
         colored (color c, const V &v) : Color {c}, Value {v} {}
 
         // automatic conversions
-        template <typename X> requires implicitly_convertible_to<V, X>
+        template <typename X> requires ImplicitlyConvertible<V, X>
         operator colored<X> () const;
 
         // explicit conversions
-        template <typename X> requires explicitly_convertible_to<V, X>
+        template <typename X> requires ExplicitlyConvertible<V, X>
         explicit operator colored<X> () const;
     };
 
     // Need to provide an ordering for map entries.
-    template <ordered V> auto inline operator <=> (const colored<V> &a, const colored<V> &b) {
+    template <Ordered V> auto inline operator <=> (const colored<V> &a, const colored<V> &b) {
         return a.Value <=> b.Value;
     }
 
-    template <ordered V> bool inline operator == (const colored<V> &a, const colored<V> &b) {
+    template <Ordered V> bool inline operator == (const colored<V> &a, const colored<V> &b) {
         return a.Value == b.Value;
     }
 
-    template <sortable V> std::ostream inline &operator << (std::ostream &o, const colored<V> &c) {
-        return o << c.Value;
+    template <Sortable V> std::ostream inline &operator << (std::ostream &o, const colored<V> &c) {
+        return o << "(" << c.Color << " " << c.Value << ")";
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     const unref<V> inline &root (T t) {
         return data::root (t).Value;
     }
 
     // an RB tree is balanced if no red node has a red child and if the sum
     // of all black nodes from all leaves to the root is the same.
-    template <sortable V, functional::buildable_tree<colored<V>> T> bool balanced (T t);
+    template <Sortable V, functional::buildable_tree<colored<V>> T> bool balanced (T t);
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> bool inline valid (T t) {
+    template <Sortable V, functional::buildable_tree<colored<V>> T> bool inline valid (T t) {
         return data::valid (t) && balanced (t);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (T t);
+    template <Sortable V, functional::buildable_tree<colored<V>> T> T balance (T t);
 
     // insert a node into an RB tree
-    template <sortable V, functional::buildable_tree<colored<V>> T, typename already_equivalent>
+    template <Sortable V, functional::buildable_tree<colored<V>> T, typename already_equivalent>
     T insert (const T t, inserted<V> v, already_equivalent);
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
+    template <Sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> const unref<V> *contains (const T t, inserted<V> v);
+    template <Sortable V, functional::buildable_tree<colored<V>> T> const unref<V> *contains (const T t, inserted<V> v);
+    
+    template <Sortable V, functional::buildable_tree<colored<V>> T> struct tree;
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <typename V, typename T> std::ostream &operator << (std::ostream &, const tree<V, T> &t);
+
+    template <typename V, typename T> bool empty (const tree<V, T> &t);
+    template <typename V, typename T> size_t size (const tree<V, T> &t);
+
+    template <Sortable V, functional::buildable_tree<colored<V>> T> struct tree;
+
+    template <typename V, typename T> tree<V, T> operator & (const tree<V, T> &, const tree<V, T> &);
+    template <typename V, typename T> tree<V, T> operator | (const tree<V, T> &, const tree<V, T> &);
+    template <typename V, typename T> tree<V, T> operator ^ (const tree<V, T> &, const tree<V, T> &);
+
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     struct tree : binary_search_tree<colored<V>, T> {
         tree ();
         tree (const T &t);
 
         tree (std::initializer_list<wrapped<V>> x);
 
-        retrieved<const V> root () const;
+        const V &root () const;
 
         tree left () const;
         tree right () const;
@@ -103,7 +118,7 @@ namespace data::RB {
         }
 
         template <typename already_equivalent> requires requires (already_equivalent f, const V &old_v, const V &new_v) {
-            { f (old_v, new_v) } -> implicitly_convertible_to<V>;
+            { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
         } tree insert (inserted<V> v, already_equivalent f) const {
             return RB::insert<V, T> (*this, v, f);
         }
@@ -111,20 +126,22 @@ namespace data::RB {
         template <typename ...P>
         tree insert (inserted<V> a, inserted<V> b, P... p);
 
+        tool::ordered_stack<linked_stack<const V &>> values () const;
+
         tree remove (inserted<V> v) const {
             tree t;
             for (const auto &x : *this) if (x != v) t = t.insert (x);
             return t;
         }
 
-        template <typename X, typename U> requires implicitly_convertible_to<V, X>
+        template <typename X, typename U> requires ImplicitlyConvertible<V, X>
         operator tree<X, U> () const {
             tree<X, U> u {};
             for (const V &v : *this) u = u.insert (X (v));
             return u;
         }
 
-        template <typename X, typename U> requires explicitly_convertible_to<V, X>
+        template <typename X, typename U> requires ExplicitlyConvertible<V, X>
         explicit operator tree<X, U> () const {
             tree<X, U> u {};
             for (const V &v : *this) u = u.insert (X (v));
@@ -141,7 +158,11 @@ namespace data::RB {
             template <typename ...Args>
             iterator (Args &&...args): parent {std::forward<Args> (args)...} {}
 
-            using value_type = const unref<V>;
+            using iterator_category = std::forward_iterator_tag;
+            using value_type        = unref<V>;
+            using reference         = const V &;
+            using pointer           = const value_type *;
+            using difference_type   = int;
 
             iterator operator ++ (int) {
                 auto x = *this;
@@ -154,16 +175,14 @@ namespace data::RB {
                 return *this;
             }
 
-            const unref<V> &operator * () const;
-            const unref<V> *operator -> () const;
+            reference operator * () const;
+            pointer operator -> () const;
 
             bool operator == (const iterator i) const;
         };
 
         iterator begin () const;
         iterator end () const;
-
-        tool::ordered_stack<linked_stack<inserted<V>>> values () const;
 
     protected:
         // note: this function has quite a bad design. The point of it is to enable
@@ -177,14 +196,23 @@ namespace data::RB {
 
     };
 
+    template <typename V, typename T>
+    std::ostream inline &operator << (std::ostream &o, const tree<V, T> &t) {
+        return o << t.values ();
+    }
+    
+    template <typename V, typename T> bool inline empty (const tree<V, T> &t) {
+        return t.empty ();
+    }
+
     // now let's talk about how to check whether a tree is balanced.
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     color inline root_color (T t) {
         return data::empty (t) ? color::black : root (t).Color;
     }
 
     // a requirement for being balanced.
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     bool inline red_nodes_have_no_red_children (T t) {
         if (data::empty (t)) return true;
         if (root_color<V> (t) == color::red && (root_color<V> (left (t)) == color::red || root_color<V> (right (t)) == color::red)) return false;
@@ -193,7 +221,7 @@ namespace data::RB {
 
     // The depth of black paths need to be compared to
     // check if a tree is balanced.
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     maybe<color> blackness (T t) {
         if (t.empty ()) return color::red;
         maybe<color> right_blackness = blackness<V> (right (t));
@@ -202,16 +230,16 @@ namespace data::RB {
         return *right_blackness + root (t).Color;
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     bool inline balanced (T t) {
         return bool (blackness<V> (t)) && red_nodes_have_no_red_children<V> (t);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (inserted<V> v, T l, T r);
+    template <Sortable V, functional::buildable_tree<colored<V>> T> T balance (inserted<V> v, T l, T r);
 
     // if the tree is balanced when this method is used on
     // it, it will be balanced when the method is done.
-    template <sortable V, functional::buildable_tree<colored<V>> T, typename already_equivalent>
+    template <Sortable V, functional::buildable_tree<colored<V>> T, typename already_equivalent>
     T inline insert (const T t, inserted<V> v, already_equivalent f) {
         return data::empty (t) ? T {colored<V> {color::red, v}, T {}, T {}}:
             v <=> root<V> (t) == 0 ? T {colored<V> {root_color<V> (t), f (root<V> (t), v)}, left (t), right (t)}:
@@ -225,21 +253,21 @@ namespace data::RB {
     }
 
     // now let's talk about how to balance an RB tree.
-    template <sortable V, functional::buildable_tree<colored<V>> T> bool inline doubled_left (T t) {
+    template <Sortable V, functional::buildable_tree<colored<V>> T> bool inline doubled_left (T t) {
         return !data::empty (t) && root_color<V> (t) == color::red &&
             !data::empty (left (t)) && root_color<V> (left (t)) == color::red;
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> bool inline doubled_right (T t) {
+    template <Sortable V, functional::buildable_tree<colored<V>> T> bool inline doubled_right (T t) {
         return !data::empty (t) && root_color<V> (t) == color::red &&
             !data::empty (right (t)) && root_color<V> (right (t)) == color::red;
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> T inline blacken (T t) {
+    template <Sortable V, functional::buildable_tree<colored<V>> T> T inline blacken (T t) {
         return data::empty (t) ? T {} : T {colored<V> {color::red, root<V> (t)}, left (t), right (t)};
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T> T balance (inserted<V> v, T l, T r) {
+    template <Sortable V, functional::buildable_tree<colored<V>> T> T balance (inserted<V> v, T l, T r) {
         if (doubled_left<V> (l))
             return T {colored<V> {color::red, root<V> (l)},
                 blacken<V> (left (l)),
@@ -263,7 +291,7 @@ namespace data::RB {
         return T (colored<V> {color::black, v}, l, r);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     const unref<V> *contains (const T t, inserted<V> x) {
         if (data::empty (t)) return nullptr;
         const auto &e = data::root (t);
@@ -277,71 +305,70 @@ namespace data::RB {
 
     // member functions of the tree
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     inline tree<V, T>::tree (): binary_search_tree<colored<V>, T> {} {}
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     inline tree<V, T>::tree (const T &t): binary_search_tree<colored<V>, T> {t} {}
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     inline tree<V, T>::tree (std::initializer_list<wrapped<V>> x) {
         for (auto &v : x) *this = insert (v);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    retrieved<const V> inline tree<V, T>::root () const {
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
+    const V inline &tree<V, T>::root () const {
         return binary_search_tree<colored<V>, T>::root ().Value;
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     tree<V, T> inline tree<V, T>::left () const {
         return binary_search_tree<colored<V>, T>::left ();
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     tree<V, T> inline tree<V, T>::right () const {
         return binary_search_tree<colored<V>, T>::right ();
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     template <typename ...P>
     tree<V, T> inline tree<V, T>::insert (inserted<V> a, inserted<V> b, P... p) {
         return insert (a).insert (b, p...);
     }
 
     // member functions for the iterator
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    const unref<V> inline &tree<V, T>::iterator::operator * () const {
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
+    typename tree<V, T>::iterator::reference inline tree<V, T>::iterator::operator * () const {
         return static_cast<const parent &> (*this)->Value;
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    const unref<V> inline *tree<V, T>::iterator::operator -> () const {
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
+    typename tree<V, T>::iterator::pointer inline tree<V, T>::iterator::operator -> () const {
         return &static_cast<const parent &> (*this)->Value;
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     bool inline tree<V, T>::iterator::operator == (const iterator i) const {
         return static_cast<const parent &> (*this) == static_cast<const parent &> (i);
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     tree<V, T>::iterator inline tree<V, T>::begin () const {
         return iterator {this, *this};
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
     tree<V, T>::iterator inline tree<V, T>::end () const {
         return iterator {this, tree {}};
     }
 
-    template <sortable V, functional::buildable_tree<colored<V>> T>
-    tool::ordered_stack<linked_stack<inserted<V>>> tree<V, T>::values () const {
-        linked_stack<inserted<V>> st;
-        for (inserted<V> v : *this) st <<= v;
-        linked_stack<inserted<V>> ts;
-        for (inserted<V> v : st) ts <<= v;
-        return tool::ordered_stack<linked_stack<inserted<V>>> {st};
+    template <Sortable V, functional::buildable_tree<colored<V>> T>
+    tool::ordered_stack<linked_stack<const V &>> tree<V, T>::values () const {
+        linked_stack<const V &> st;
+        for (const V &v : *this) 
+            st >>= v;
+        return tool::ordered_stack<linked_stack<const V &>> {reverse (st)};
     }
 
 }

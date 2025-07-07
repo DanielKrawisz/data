@@ -54,7 +54,7 @@ namespace data {
     // NOTE: if abs is defined, then it must return the same type as norm.
     template <typename F> concept normed = requires (const F &x) {
         { norm (x) };
-    } && ordered<decltype (norm (std::declval<F> ()))>;
+    } && Ordered<decltype (norm (std::declval<F> ()))>;
 }
 
 #endif
