@@ -59,9 +59,9 @@ namespace data::encoding::percent {
         return true;
     }
 
-    bool operator == (const string &a, const string &b) {
+    bool equivalent (const std::string &a, const std::string &b) {
 
-        if (!a.valid () || !b.valid ()) return false;
+        if (!valid (a) || !valid (b)) return false;
 
         auto a_iter = a.begin ();
         auto b_iter = b.begin ();
