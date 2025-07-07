@@ -221,13 +221,10 @@ namespace data::encoding::percent {
     // encode the string, ensuring that the given characters are encoded.
     std::string encode (const data::UTF8 &, const data::ASCII &required = "");
 
+    bool equivalent (const std::string &, const std::string &);
+
     // a %-encoded string.
     struct string;
-
-    // If a character is reserved, then its percent-encoded
-    // form is unequal to its non-encoded form. Otherwise
-    // they are treated as equal.
-    bool operator == (const string &, const string &);
 
     // decode back to UTF8.
     maybe<data::UTF8> decode (string_view);
@@ -236,6 +233,13 @@ namespace data::encoding::percent {
         using data::ASCII::ASCII;
 
         string (const data::ASCII &x) : data::ASCII {x} {}
+
+        // If a character is reserved, then its percent-encoded
+        // form is unequal to its non-encoded form. Otherwise
+        // they are treated as equal.
+        bool operator == (const string &x) const {
+            return equivalent (*this, x);
+        }
 
         bool valid () const {
             return percent::valid (*this);

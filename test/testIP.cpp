@@ -62,16 +62,16 @@ namespace data::encoding::percent {
             {"abc@", "abc%40", false},  // '@' is a reserved character
             {"abc!", "abc%21", false},  // '!' is a reserved character
             {"abc$", "abc%24", false},  // '$' is a reserved character
-            {"abc&", "abc%26", false}/*,  // '&' is a reserved character
+            {"abc&", "abc%26", false},  // '&' is a reserved character
             {"%C3%A9", "%c3%a9", true},
-            {"%20", " ", true},
-            {"%41", "A", true}*/
+            {"%20", " ", false},        // ' ' is a control character.
+            {"%41", "A", true}
         }) {
             EXPECT_EQ (tt.Left == tt.Right, tt.Expected)
                 << "expected " << tt.Left << " " << (tt.Expected ? "==" : "!=") << " " << tt.Right;
         }
     }
-/*
+
     // this test has to do with finding the right == operator in gcc vs clang.
     TEST (IPTest, TestPercentEncodedStringEqual) {
         // when we have an std::string and a percent encoded string, we should choose regular string ==
@@ -94,13 +94,13 @@ namespace data::encoding::percent {
         EXPECT_EQ (encoded_percent, encoded_string);
         EXPECT_EQ (encoded_string, encoded_percent);
 
-        EXPECT_NE (encoded_percent, decoded_path);
-        EXPECT_NE (decoded_percent, encoded_path);
+        EXPECT_EQ (encoded_percent, decoded_path);
+        EXPECT_EQ (decoded_percent, encoded_path);
 
         EXPECT_EQ (encoded_percent, encoded_path);
         EXPECT_EQ (encoded_path, encoded_percent);
 
-    }*/
+    }
 
 }
 
