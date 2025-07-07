@@ -33,52 +33,52 @@ namespace data {
 
     };
 
-    static_assert (same_as<decltype (*std::declval<maybe<uint32>> ()), uint32 &>);
+    static_assert (Same<decltype (*std::declval<maybe<uint32>> ()), uint32 &>);
 
     template <> struct maybe<void> {
         maybe () = delete;
     };
 
     template <typename X> requires requires (const X &a, const X &b) {
-        { a == b } -> implicitly_convertible_to<bool>;
+        { a == b } -> ImplicitlyConvertible<bool>;
     } bool operator == (const maybe<X> &a, const maybe<X> &b) {
         return bool (a) != bool (b) ? false : !bool (a) ? true : *a == *b;
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
-        { a == b } -> implicitly_convertible_to<bool>;
+        { a == b } -> ImplicitlyConvertible<bool>;
     } bool operator == (const maybe<X> &a, const X &b) {
         return bool (a) ? *a == b : false;
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
-        { a + b } -> implicitly_convertible_to<bool>;
+        { a + b } -> ImplicitlyConvertible<bool>;
     } maybe<X> operator + (const maybe<X> &a, const maybe<X> &b) {
         return bool (a) ? (bool (b) ? maybe<X> {*a + *b} : a) : bool (b) ? b : maybe<X> {};
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
-        { a + b } -> implicitly_convertible_to<bool>;
+        { a + b } -> ImplicitlyConvertible<bool>;
     } maybe<X> operator + (const maybe<X> &a, const X &b) {
         return bool (a) ? maybe<X> {*a + b} : maybe<X> {b};
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
-        { a * b } -> implicitly_convertible_to<bool>;
+        { a * b } -> ImplicitlyConvertible<bool>;
     } maybe<X> operator * (const maybe<X> &a, const maybe<X> &b) {
         return bool (a) && bool (b) ? maybe<X> {*a * *b} : maybe<X> {};
     }
 
     template <typename X> requires requires (const X &a, const X &b) {
-        { a * b } -> implicitly_convertible_to<bool>;
+        { a * b } -> ImplicitlyConvertible<bool>;
     } maybe<X> operator * (const maybe<X> &a, const X &b) {
         return bool (a) ? maybe<X> {*a * b} : maybe<X> {};
     }
 
     template <typename X> requires requires (std::ostream &o, const X &x) {
-        { o << x } -> std::same_as<std::ostream &>;
+        { o << x } -> Same<std::ostream &>;
     } std::ostream inline &operator << (std::ostream &o, const maybe<X> &x) {
-        o << std::string{"*"};
+        o << std::string {"*"};
         if (bool (x)) o << *x;
         return o;
     }

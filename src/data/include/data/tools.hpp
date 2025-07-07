@@ -42,7 +42,7 @@ namespace data {
     template <typename X> using stack = linked_stack<X>;
     
     // functional queue built using the list. 
-    template <typename X> using list = functional_queue<stack<X>>;
+    template <typename X> using list = functional_queue<stack<X>, X>;
     
     template <typename X> using cycle = tool::cycle<list<X>, X>;
     
@@ -56,6 +56,9 @@ namespace data {
     
     // set implemented as a map. 
     template <typename X> using set = RB::tree<X, tree<RB::colored<X>>>;
+    
+    template <typename X> set<X> merge (set<X>, set<X>);
+    template <typename X> set<X> remove (set<X>, const X &);
     
     // priority queue. wrapper of Milewski's implementation of Okasaki.
     template <typename X> using priority_queue = tool::priority_queue<tree<X>, X>;
@@ -74,9 +77,25 @@ namespace data {
             });
         map;
     }
+
+    template <typename X, Proposition<X> F>
+    ordered_list<X> select (const ordered_list<X> &, F fun);
+
+    template <typename X, Proposition<X> F>
+    priority_queue<X> select (const priority_queue<X> &, F fun);
+
+    template <typename K, typename V, Proposition<V> F>
+    map<K, V> select (map<K, V>, F fun);
+
+    template <typename X> using replacements = list<pair<X>>;
+
+    template <typename X> stack<X> replace (stack<X>, replacements<X>);
+    template <typename X> list<X> replace (list<X>, replacements<X>);
+    template <typename X> tree<X> replace (tree<X>, replacements<X>);
+    template <typename K, typename V> map<K, V> replace (map<K, V>, replacements<V>);
     
     // Take a function fun and some lists {x, ...}, {y, ...}, {z, ...} ... and return {f (x, y, z, ...), ...}
-    template <typename f, sequence... Vals, typename f_result = decltype (std::declval<f> () (data::first (std::declval<Vals> ())...))>
+    template <typename f, Sequence... Vals, typename f_result = decltype (std::declval<f> () (first (std::declval<Vals> ())...))>
     auto map_thread (f fun, Vals... lists) -> stack<f_result>;
 
     template <typename map, typename key, typename value>
@@ -112,7 +131,7 @@ namespace data {
         return flat<given> {} (g);
     }
 
-    template <typename f, sequence... Vals, typename f_result>
+    template <typename f, Sequence... Vals, typename f_result>
     auto map_thread (f fun, Vals... lists) -> stack<f_result> {
         if constexpr (sizeof... (lists) > 0) {
             if (!(data::size (lists) == ...)) throw exception {} << "map thread provided lists of different sizes";
@@ -133,14 +152,14 @@ namespace data {
     template <typename elem>
     stack<elem> reverse (const ordered_list<elem> x) {
         stack<elem> n;
-        for (const elem &e : x) n <<= e;
+        for (const elem &e : x) n >>= e;
         return n;
     }
 
     template <typename elem>
     ordered_list<elem> select (const ordered_list<elem> x, function<bool (const elem &)> satisfies) {
         stack<const elem &> n;
-        for (const elem &e : x) if (satisfies (e)) n <<= e;
+        for (const elem &e : x) if (satisfies (e)) n >>= e;
         ordered_list<elem> r;
         for (const elem &e : n) r = r.insert (e);
         return r;

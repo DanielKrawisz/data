@@ -1,1 +1,1 @@
-FROM gigamonkey/gigamonkey-base-dev:v1.1.4
+FROM gigamonkey/gigamonkey-base-dev:v2.2.1

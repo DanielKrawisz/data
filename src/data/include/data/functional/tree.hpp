@@ -15,17 +15,17 @@ namespace data::interface {
         
     template <typename tree>
     concept has_left_method = requires (tree t) {
-        { t.left () } -> implicitly_convertible_to<tree>;
+        { t.left () } -> ImplicitlyConvertible<tree>;
     };
     
     template <typename tree>
     concept has_right_method  = requires (tree t) {
-        { t.right () } -> implicitly_convertible_to<tree>;
+        { t.right () } -> ImplicitlyConvertible<tree>;
     };
         
     template <typename tree>
     concept has_root_method = requires (tree t) {
-        { t.root () };
+        { t.root () } -> Reference<>;
     };
 
     template <typename tree, typename element>
@@ -73,8 +73,8 @@ namespace data::functional {
         interface::has_right_method<const T> && 
         interface::has_root_method<const T>;
     
-    template <typename T, typename element = element_of<T>>
-    concept search_tree = tree<T, element> && ordered<element>;
+    template <typename T, typename element = decltype (std::declval<T> ().root ())>
+    concept search_tree = tree<T, element> && Ordered<element>;
 
     template <typename T, typename X> requires search_tree<T, X>
     unref<X> inline *contains (const T t, X x) {
@@ -82,14 +82,14 @@ namespace data::functional {
             x < root (t) ? contains (left (t), x) : contains (right (t), x);
     }
     
-    template <typename T, typename element = element_of<T>>
+    template <typename T, typename element = decltype (std::declval<T> ().root ())>
     concept buildable_tree = tree<T, element> && 
         interface::has_tree_constructor<T, element> && 
         std::default_initializable<T>;
 
-    template <typename T, typename X = element_of<T>, typename already_exists>
+    template <typename T, typename X, typename already_exists>
     requires search_tree<T, X> && buildable_tree<T, X>
-    T inline insert (const T t, inserted<X> x, already_exists if_equivalent) {
+    T inline insert (const T t, X x, already_exists if_equivalent) {
         return data::empty (t) ? T {x, T {}, T {}}:
             x <=> data::root (t) == 0 ? T {if_equivalent (root (t), x), left (t), right (t)}:
                 x < data::root (t) ? T {data::root (t), insert<T, X> (left (t), x, if_equivalent), right (t)}:
@@ -106,7 +106,7 @@ namespace data::functional {
         return new_val;
     }
 
-    template <typename T, typename X = element_of<T>>
+    template <typename T, typename X = decltype (std::declval<T> ().root ())>
     requires search_tree<T, X> && buildable_tree<T, X>
     T inline remove (const T t, inserted<X> x) {
         struct combine {
@@ -139,19 +139,19 @@ namespace data::functional {
         for_each_prefix (data::right (t), f);
     }
     
-    template <functional::stack out, functional::tree in> 
+    template <Stack out, functional::tree in> 
     out values_infix (const in &t) {
         out o {};
-        functional::for_each_infix (t, [&o] (const element_of<in> &x) -> void {
+        functional::for_each_infix (t, [&o] (const decltype (std::declval<in> ().root ()) &x) -> void {
             o = prepend (o, x);
         });
         return reverse (o);
     }
     
-    template <functional::stack out, functional::tree in> 
+    template <Stack out, functional::tree in> 
     out values_prefix (const in &t) {
         out o {};
-        functional::for_each_prefix (t, [&o] (const element_of<in> &x) -> void {
+        functional::for_each_prefix (t, [&o] (const decltype (std::declval<in> ().root ()) &x) -> void {
             o = prepend (o, x);
         });
         return reverse (o);
@@ -169,12 +169,15 @@ namespace data::functional {
     // an iterator for a tree that treats it as a binary search tree
     // since there are other ways that the elements of a tree could
     // be organized, we don't have any natural iterator for a tree.
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     struct binary_search_iterator {
         using sentinel = data::sentinel<T>;
 
-        using value_type = unref<X>;
-        using difference_type = int;
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = unref<X>;
+        using reference         = const X &;
+        using pointer           = const value_type *;
+        using difference_type   = int;
 
         const T *Tree;
         T Next;
@@ -191,8 +194,8 @@ namespace data::functional {
         binary_search_iterator operator ++ (int);
         binary_search_iterator &operator ++ ();
 
-        const unref<X> &operator * () const;
-        const unref<X> *operator -> () const;
+        reference operator * () const;
+        pointer operator -> () const;
 
         bool operator == (const binary_search_iterator &i) const;
 
@@ -201,28 +204,18 @@ namespace data::functional {
     private:
         void go_left ();
     };
-}
 
-namespace data {
+    template <data::functional::tree X, data::functional::tree Y> 
+    requires std::equality_comparable_with<decltype (std::declval<X> ().root ()), decltype (std::declval<Y> ().root ())>
+    bool inline tree_equal (const X &a, const X &b) {
+        return &a == &b ? true :
+            data::empty (a) && data::empty (b) ? true :
+                data::empty (a) || data::empty (b) ? false :
+                    data::root (a) != data::root (b) ? false :
+                        data::left (a) == data::left (b) && data::right (a) == data::right (b);
+    }
 
-    template <functional::tree X>
-    struct element<X> {
-        using type = unref<decltype (std::declval<X> ().root ())>;
-    };
-
-}
-
-template <data::functional::tree X, data::functional::tree Y> requires std::equality_comparable_with<data::element_of<X>, data::element_of<Y>>
-bool inline operator == (const X &a, const X &b) {
-    return &a == &b ? true :
-        data::empty (a) && data::empty (b) ? true :
-            data::empty (a) || data::empty (b) ? false :
-                data::root (a) != data::root (b) ? false :
-                    data::left (a) == data::left (b) && data::right (a) == data::right (b);
-}
-
-namespace data::functional {
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     binary_search_iterator<X, T>
     binary_search_iterator<X, T>::operator ++ (int) {
         auto x = *this;
@@ -230,7 +223,7 @@ namespace data::functional {
         return x;
     }
 
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     binary_search_iterator<X, T>
     &binary_search_iterator<X, T>::operator ++ () {
         if (Next.empty ()) return *this;
@@ -251,34 +244,34 @@ namespace data::functional {
         return *this;
     }
 
-    template <ordered X, tree<X> T>
-    const unref<X> inline &binary_search_iterator<X, T>::operator * () const {
+    template <Ordered X, tree<X> T>
+    binary_search_iterator<X, T>::reference inline binary_search_iterator<X, T>::operator * () const {
         return Next.root ();
     }
 
-    template <ordered X, tree<X> T>
-    const unref<X> inline *binary_search_iterator<X, T>::operator -> () const {
+    template <Ordered X, tree<X> T>
+    binary_search_iterator<X, T>::pointer inline binary_search_iterator<X, T>::operator -> () const {
         return &Next.root ();
     }
 
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     bool inline binary_search_iterator<X, T>::operator == (const binary_search_iterator &i) const {
         return Tree == i.Tree && Next == i.Next;
     }
 
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     void binary_search_iterator<X, T>::go_left () {
         if (Next.empty ()) return;
         while (!Next.left ().empty ()) {
-            Last = Last << Next;
+            Last >>= Next;
             Next = Next.left ();
         }
     }
 
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     inline binary_search_iterator<X, T>::binary_search_iterator () : Tree {nullptr}, Next {}, Last {} {}
 
-    template <ordered X, tree<X> T>
+    template <Ordered X, tree<X> T>
     inline binary_search_iterator<X, T>::binary_search_iterator (const T *m, const T &n) : Tree {m}, Next {n}, Last {} {
         go_left ();
     }

@@ -22,14 +22,14 @@ namespace data::interface {
     
     template <typename list, typename element>
     concept has_stack_constructor = requires (list x, element e) {
-        { list (e, x) } -> std::same_as<list>;
+        { list (e, x) } -> Same<list>;
     } && requires (element e) {
-        { list {e} } -> std::same_as<list>;
+        { list {e} } -> Same<list>;
     };
     
     template <typename list, typename element>
     concept has_prepend_method = requires (list x, element e) {
-        { x.prepend (e) } -> implicitly_convertible_to<list>;
+        { x.prepend (e) } -> ImplicitlyConvertible<const list>;
     };
     
 }
@@ -39,59 +39,40 @@ namespace data {
     inline list prepend (const list &x, elem e) {
         return x.prepend (e);
     }
+
+    template <typename L, typename elem = unref<decltype (std::declval<L> ().first ())>>
+    concept Stack = SequenceOf<const L, elem> && interface::has_prepend_method<const L, elem> && 
+        interface::has_stack_constructor<L, elem> && std::default_initializable<L>;
+
+    template <Stack list> list reverse (const list &);
 }
 
 namespace data::functional { 
     
-    template <typename L, typename elem = unref<decltype (std::declval<L> ().first ())>>
-    concept stack = sequence<const L, elem> && interface::has_prepend_method<const L, elem> && 
-        interface::has_stack_constructor<L, elem> && std::default_initializable<L>;
     
-    template <stack list> 
+    template <Stack list> 
     list take_stack (const list &x, size_t n, const list &z = {});
     
-    template <functional::stack list>
+    template <Stack list>
     list join_stack (const list &a, const list &b);
 
     // merges two stacks sorted by < into a single sorted stack.
-    template <stack L> requires ordered<element_of<L>>
+    template <Stack L> requires Ordered<decltype (std::declval<L> ().first ())>
     L merge_stack (const L &a, const L &b);
-    /*
-    template <stack L> requires ordered<element_of<L>>
-    L merge_stack (const L &a, const L &b, const L &n = {});*/
     
     template <typename times, typename L1, typename L2, typename plus, typename value>
     value inner (times t, L1 l1, L2 l2, plus p);
-}
-
-namespace data {
-/*
-    template <functional::stack list> 
-    list reverse (const list &given, const list &reversed = {});*/
-
-    template <functional::stack list> list reverse (const list &);
-}
-
-namespace data::functional { 
     
-    template <functional::stack list>
+    template <Stack list>
     list join_stack (const list &a, const list &b) {
         if (data::empty (a)) return b;
         return prepend (join_stack (rest (a), b), first (a));
     }
-    /*
-    template <stack L> requires ordered<element_of<L>>
-    L merge_stack (const L &a, const L &b, const L &n) {
-        std::cout << " merging two lists of size " << data::size (a) << " and " << data::size (b) << " with " << data::size (n) << " complete." << std::endl;
-        if (data::empty (a) && data::empty (b)) return reverse (n);
-        if (data::empty (a)) return merge_stack (a, rest (b), prepend (n, first (b)));
-        if (data::empty (b)) return merge_stack (rest (a), b, prepend (n, first (a)));
-        return first (a) < first (b) ?
-            merge_stack (rest (a), b, prepend (n, first (a))):
-            merge_stack (a, rest (b), prepend (n, first (b)));
-    }*/
 
-    template <stack L> requires ordered<element_of<L>>
+    template <Stack list>
+    list remove_stack (const list &);
+
+    template <Stack L> requires Ordered<decltype (std::declval<L> ().first ())>
     L merge_stack (const L &a, const L &b) {
         L l = a;
         L r = b;

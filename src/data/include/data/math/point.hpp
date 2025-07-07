@@ -151,7 +151,7 @@ namespace data::math::space {
     };
 
     template <field X, size_t dim> requires normed<X> &&
-    ordered<decltype (data::norm (std::declval<X> ()))>
+    Ordered<decltype (data::norm (std::declval<X> ()))>
     struct Euclidian : affine<X, dim> {
         template <size_t order> using simplex = affine<X, dim>::simplex;
 

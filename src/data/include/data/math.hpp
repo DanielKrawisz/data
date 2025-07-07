@@ -26,7 +26,7 @@ namespace data {
     // Polynomials 
     template <typename X, typename N, char x = 'x'> using polynomial = math::polynomial<X, N, x>;
 
-    template <ordered X> using permutation = math::permutation<X>;
+    template <Ordered X> using permutation = math::permutation<X>;
 
     // rational numbers.
     using Q = fraction<Z>;

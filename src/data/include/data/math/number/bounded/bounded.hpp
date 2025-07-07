@@ -643,7 +643,7 @@ namespace data::math::number {
         }
 
         explicit operator uint64 () const {
-            if constexpr (!same_as<word, byte>) throw data::exception {"unimplemented function"};
+            if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
             uint64_little u {0};
             if constexpr (size <= 8) {
                 std::copy (this->words ().begin (), this->words ().end (), u.begin ());

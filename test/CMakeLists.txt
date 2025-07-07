@@ -18,9 +18,9 @@ add_executable (unit_tests
     testAscii.cpp
     testStream.cpp
     testIntegerFormat.cpp
-    testFunctionalInterfaces.cpp
     testLinkedStack.cpp
     testList.cpp
+    testFunctionalInterfaces.cpp
     testCircularQueue.cpp
     testReverse.cpp
     testContains.cpp
