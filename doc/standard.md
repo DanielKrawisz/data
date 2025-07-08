@@ -10,67 +10,53 @@ Daniel Krawisz
 
 We use `c++23`.
 
-## `data/concepts.hpp`
+## Functional Programming
 
-### `concept Same`
+### `data/concepts.hpp`
+
+#### `concept Same`
 
 Equivalant to `std::same_as`.
 
-### `concept ImplicitlyConvertible`
+#### `concept ImplicitlyConvertible`
 
 Eqivalent to `std::convertible_to`.
 
-### `concept Convertible`
+#### `concept Convertible`
 
 Implicitly or explicitly convertable.
 
-### `concept ExplicitlyConvertible`
+#### `concept ExplicitlyConvertible`
 
 Explicitly convertible but not implicitly convertable.
 
-## `data/ordered.hpp`
+### `data/ordered.hpp`
 
-### `concept Sortable`
+#### `concept Sortable`
 
-### `concept Ordered`
+A type `X`, is sortable if for values `const X a` and `const X b`, `a > b -> bool`
 
-### `equal`
+#### `concept Ordered`
 
-### `unequal`
+Equivalent to `std::totally_ordered`. 
 
-### `greater_equal`
+### `data/valid.hpp`
 
-### `less_equal`
+#### `valid`
 
-### `greater`
+### `data/sequence.hpp`
 
-### `less`
+#### `concept Sequence`
 
-## `data/valid.hpp`
+#### `concept SequenceOf`
 
-### `valid`
+### `data/stack.hpp`
 
-## `data/empty.hpp`
+### `concept Stack`
 
-### `empty`
+### `class stack`
 
-## `data/maybe.hpp`
+## Mathematics
 
-### `maybe`
-
-## `data/either.hpp`
-
-### `either`
-
-## `data/math/infinite.hpp`
-
-## `data/size.hpp`
-
-### `size`
-
-## `data/sequence.hpp`
-
-### `Sequence`
-
-### `SequenceOf`
+### `data/math/infinite.hpp`
 
