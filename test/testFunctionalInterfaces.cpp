@@ -375,13 +375,6 @@ namespace data {
             //using priority_queue_has_insert = decltype (insert (std::declval<priority_queue<X>> (), y));
             //using map_has_insert = decltype (insert (std::declval<map<X, X>> (), y, y));
 
-            using stack_has_remove = decltype (remove (std::declval<stack<X>> (), y));
-            using list_has_remove = decltype (remove (std::declval<list<X>> (), y));/*
-            using set_has_remove = decltype (remove (std::declval<set<X>> (), y));
-            using ordered_list_has_remove = decltype (remove (std::declval<ordered_list<X>> (), y));
-            using priority_queue_has_remove = decltype (remove (std::declval<priority_queue<X>> (), y));
-            using map_has_remove = decltype (remove (std::declval<map<X, X>> (), y));*/
-
             //using stack_has_prepend = decltype (prepend (std::declval<stack<X>> (), y));
             //using list_has_prepend = decltype (prepend (std::declval<list<X>> (), y));
             //using ordered_list_has_prepend = decltype (prepend (std::declval<ordered_list<X>> (), y));

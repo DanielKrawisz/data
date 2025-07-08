@@ -66,7 +66,6 @@ namespace data {
         linked_stack &operator >>= (inserted<elem> x);
         
         linked_stack prepend (inserted<elem> x) const;
-        linked_stack prepend (linked_stack l) const;
         
         template <typename X, typename Y, typename ... P>
         linked_stack prepend (X x, Y y, P ... p) const;
@@ -97,7 +96,7 @@ namespace data {
     };
 
     template <typename elem> linked_stack<elem> operator + (linked_stack<elem> a, linked_stack<elem> b) {
-        return b.prepend (data::reverse (a));
+        return join (a, b);
     }
 
     template <typename elem> bool inline empty (const linked_stack<elem> &x) {
@@ -161,6 +160,7 @@ namespace data {
     
     template <typename elem>
     elem inline &linked_stack<elem>::first () {
+        if (Next == nullptr) throw empty_sequence_exception {};
         return Next->First;
     }
     
@@ -210,16 +210,6 @@ namespace data {
     template <typename elem>
     linked_stack<elem> inline &linked_stack<elem>::operator >>= (inserted<elem> x) {
         return *this = (prepend (x));
-    }
-    
-    template <typename elem>
-    linked_stack<elem> linked_stack<elem>::prepend (linked_stack l) const {
-        linked_stack x = *this;
-        while (!l.empty ()) {
-            x = x << l.first ();
-            l = l.rest ();
-        }
-        return x;
     }
 
     template <typename elem>

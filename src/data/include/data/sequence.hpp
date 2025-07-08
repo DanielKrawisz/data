@@ -34,6 +34,11 @@ namespace data {
 
     template <typename L, typename elem>
     concept SequenceOf = Sequence<L> && ImplicitlyConvertible<decltype (std::declval<L> ().first ()), inserted<elem>>;
+
+    // may be thrown when calling first on an empty sequence;
+    struct empty_sequence_exception : std::logic_error {
+        empty_sequence_exception (): std::logic_error {"first called on an empty sequence"} {}
+    };
     
     namespace meta {
         
@@ -59,8 +64,13 @@ namespace data {
         
     }
 
-    template <typename X> requires interface::has_first_method<X>
+    template <typename X> requires interface::has_first_method<const X>
     const auto inline &first (const X &x) {
+        return x.first ();
+    }
+
+    template <typename X> requires interface::has_first_method<X>
+    auto inline &first (X &x) {
         return x.first ();
     }
 
