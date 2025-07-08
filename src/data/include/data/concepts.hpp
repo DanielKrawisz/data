@@ -62,6 +62,17 @@ namespace data {
 
     template <typename Type> concept Reference = std::is_reference_v<Type>;
 
+    template <typename Type> struct is_effectively_const : std::false_type {};
+
+    template <typename Type> inline constexpr bool is_effectively_const_v = is_effectively_const<Type>::value;
+    
+    template <typename Type> struct is_effectively_const<Type &> : std::true_type {};
+    template <typename Type> struct is_effectively_const<Type &&> : std::true_type {};
+    template <typename Type> struct is_effectively_const<const Type> : std::true_type {};
+    template <typename Type> struct is_effectively_const<Type *const> : std::true_type {};
+
+    template <typename Type> concept Const = is_effectively_const_v<Type>;
+
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
 

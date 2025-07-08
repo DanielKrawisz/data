@@ -238,3 +238,124 @@ namespace data {
         linked_stack<Z_bytes_little> {1, 2};
     }
 }
+
+template <typename X> struct stack_test : ::testing::Test {
+    using type = data::stack<X>;
+    using element = X;
+};
+
+using stack_test_cases = ::testing::Types<
+    int, const int, int &, const int &, int *, int *const, const int *, const int *const, 
+    data::string, const data::string, data::string &, const data::string &, data::string *, 
+    data::string *const, const data::string *, const data::string *const>;
+
+TYPED_TEST_SUITE (stack_test, stack_test_cases);
+
+TYPED_TEST (stack_test, TestStackEmpty) {
+    using type = typename TestFixture::type;
+    auto is_empty = empty (type {});
+    static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
+    EXPECT_TRUE (is_empty);
+}
+
+TYPED_TEST (stack_test, TestStackSize) {
+    using type = typename TestFixture::type;
+    auto empty_size = size (type {});
+    static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
+    EXPECT_EQ (empty_size, 0);
+}
+
+TYPED_TEST (stack_test, TestStackFirst) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using return_type = decltype (first (type {}));
+    using const_return_type = decltype (first (std::declval<const type> ()));
+    /*
+    static_assert (data::ImplicitlyConvertible<return_type, const element>);
+    static_assert (data::Reference<return_type>);
+    EXPECT_THROW (first (type {}), data::empty_sequence_exception);
+
+    if constexpr (data::Reference<element>) {
+        static_assert (data::Same<element, return_type>);
+        static_assert (data::Same<element, const_return_type>);
+    } else if constexpr (data::Const<element>) {
+        static_assert (data::Same<return_type, const_return_type>);
+    } else {
+        static_assert (data::Same<data::unconst<const_return_type>, return_type>);
+    }*/
+}
+
+TYPED_TEST (stack_test, TestStackRest) {
+    using type = typename TestFixture::type;
+    using return_type = decltype (rest (type {}));
+    static_assert (data::ImplicitlyConvertible<return_type, const type>);
+}
+
+TYPED_TEST (stack_test, TestStackValues) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using return_type = decltype (values (type {}));
+    static_assert (data::SequenceOf<return_type, element>);
+}
+
+TYPED_TEST (stack_test, TestStackReverse) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using return_type = decltype (reverse (type {}));
+    static_assert (data::SequenceOf<return_type, element>);
+}
+
+TYPED_TEST (stack_test, TestStackContains) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_contains = decltype (contains (type {}, std::declval<element> ()));
+}
+
+TYPED_TEST (stack_test, TestStackRemove) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_remove = decltype (remove (type {}, size_t (0)));
+}
+
+TYPED_TEST (stack_test, TestStackPrepend) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_prepend = decltype (prepend (type {}, std::declval<element> ()));
+    using has_rshift = decltype (type {} >> std::declval<element> ());
+    type stack {};
+    using has_rshift_equals = decltype (stack >>= std::declval<element> ());
+}
+
+TYPED_TEST (stack_test, TestStackTakeDrop) {
+    using type = typename TestFixture::type;
+    using has_take = decltype (take (type {}, size_t (0)));
+    using has_drop = decltype (drop (type {}, size_t (0)));
+}
+
+TYPED_TEST (stack_test, TestStackJoin) {
+    using type = typename TestFixture::type;
+    (void) join (type {}, type {});
+    (void) (type {} + type {});
+}
+
+TYPED_TEST (stack_test, TestStackSort) {
+    using type = typename TestFixture::type;
+    (void) sort (type {});
+    EXPECT_TRUE (sorted (type {}));
+}
+
+TYPED_TEST (stack_test, TestStackSelect) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_select = decltype (contains (type {}, std::declval<element> ()));
+}
+
+        /*
+            replace
+            select
+            fold
+            reduce
+            for_each
+            map_thread
+            transpose
+        */
