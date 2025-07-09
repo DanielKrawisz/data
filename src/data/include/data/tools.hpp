@@ -1,48 +1,32 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_TOOLS
 #define DATA_TOOLS
 
-// basic types
-#include <data/types.hpp>
-
-// This library uses a valid () method and a Valid member in a stereotyped way.
-#include <data/valid.hpp>
+#include <data/list.hpp>
 
 #include <data/maybe.hpp>
 
 // Interfaces related to data structures. 
 #include <data/functional/set.hpp>
-#include <data/functional/list.hpp>
 #include <data/functional/map.hpp>
 #include <data/functional/tree.hpp>
 
-#include <data/reverse.hpp>
-#include <data/take.hpp>
-#include <data/sort.hpp>
-
-// A implementations of data structures. 
-#include <data/tools/linked_stack.hpp>
+// Implementations of data structures. 
+#include <data/tools/cycle.hpp>
 #include <data/tools/rb.hpp>
-#include <data/tools/functional_queue.hpp>
 #include <data/tools/linked_tree.hpp>
 #include <data/tools/binary_search_tree.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
 #include <data/tools/ordered_list.hpp>
-#include <data/tools/cycle.hpp>
 
 #include <data/bytes.hpp>
 #include <data/fold.hpp>
 
 namespace data {
-    
-    template <typename X> using stack = linked_stack<X>;
-    
-    // functional queue built using the list. 
-    template <typename X> using list = functional_queue<stack<X>, X>;
     
     template <typename X> using cycle = tool::cycle<list<X>, X>;
     
@@ -60,10 +44,10 @@ namespace data {
     template <typename X> set<X> merge (set<X>, set<X>);
     template <typename X> set<X> remove (set<X>, const X &);
     
-    // priority queue. wrapper of Milewski's implementation of Okasaki.
+    // priority queue. 
     template <typename X> using priority_queue = tool::priority_queue<tree<X>, X>;
     
-    // ordered_list. wrapper of Milewski's implementation of Okasaki.
+    // ordered_list. 
     template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
 
     template <typename K, typename V> using dispatch = list<entry<K, V>>;

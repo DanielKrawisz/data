@@ -33,7 +33,7 @@ add_library (data STATIC
   #io/run.cpp
   io/wait_for_enter.cpp
   tools/rate_limiter.cpp
-  log/log.cpp
+  io/log.cpp
 )
 
 configure_file (include/data/version.hpp.in generated/data/version.hpp)
