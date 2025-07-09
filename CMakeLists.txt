@@ -39,14 +39,6 @@ find_package (GMP REQUIRED)
 # if we do not have GMP
 #   * on linux, `sudo apt-get install libgmp3-dev`
 
-# Note: we do not use secp256k1 in data
-#find_package (SECP256K1 REQUIRED)
-# if we do not have SECP256K1
-#   * on linux
-#     * go to `https://github.com/bitcoin-core/secp256k1`, download the repo, and follow the instructions.
-#     * you mighht need autoconf: `sudo apt install autoconf`
-#     * and libtool: `sudo apt-get install libtool-bin`
-
 find_package (pegtl REQUIRED)
 # If we do not have PegTL
 #   * on linux, `sudo apt-get install tao-pegtl-dev`

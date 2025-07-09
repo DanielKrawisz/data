@@ -6,7 +6,6 @@
 #define DATA_CRYPTO_SECRET_SHARE
 
 #include <data/crypto/NIST_DRBG.hpp>
-#include <data/tools.hpp>
 #include <cryptopp/drbg.h>
 
 namespace data::crypto {
