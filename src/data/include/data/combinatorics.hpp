@@ -7,7 +7,7 @@
 
 #include <data/math/permutation.hpp>
 #include <data/math/figurate.hpp>
-#include <data/tools.hpp>
+#include <data/stack.hpp>
 
 namespace data {
 

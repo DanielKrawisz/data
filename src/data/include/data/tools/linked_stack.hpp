@@ -10,7 +10,7 @@
     
 namespace data {
 
-    template <typename elem> class linked_stack;
+    template <Element elem> class linked_stack;
     
     template <typename elem> bool empty (const linked_stack<elem> &x);
     template <typename elem> size_t size (const linked_stack<elem> &x);
@@ -25,7 +25,7 @@ namespace data {
 
     template <typename elem> linked_stack<elem> values (const linked_stack<elem> &x);
 
-    template <typename elem>
+    template <Element elem>
     class linked_stack {
         
         using node = functional::stack_node<elem, linked_stack>;
@@ -74,7 +74,7 @@ namespace data {
         
         linked_stack from (uint32 n) const;
         
-        const elem &operator [] (uint32 n) const;
+        const elem &operator [] (size_t n) const;
         
         using iterator = sequence_iterator<const linked_stack<elem>>;
         using sentinel = data::sentinel<const linked_stack<elem>>;
@@ -138,109 +138,109 @@ namespace data {
         return functional::write (o << "stack", x);
     }
     
-    template <typename elem>
+    template <Element elem>
     inline linked_stack<elem>::linked_stack (next n) : Next {n} {}
     
-    template <typename elem>
+    template <Element elem>
     inline linked_stack<elem>::linked_stack () : Next {nullptr} {}
     
-    template <typename elem>
+    template <Element elem>
     inline linked_stack<elem>::linked_stack (inserted<elem> e, const linked_stack &l) : linked_stack {std::make_shared<node> (e, l)} {}
     
-    template <typename elem>
+    template <Element elem>
     inline linked_stack<elem>::linked_stack (inserted<elem> e) : linked_stack {e, linked_stack {}} {}
     
     // if the list is empty, then this function
     // will dereference a nullptr. It is your
     // responsibility to check. 
-    template <typename elem>
+    template <Element elem>
     const elem inline &linked_stack<elem>::first () const {
         return Next->First;
     }
     
-    template <typename elem>
+    template <Element elem>
     elem inline &linked_stack<elem>::first () {
         if (Next == nullptr) throw empty_sequence_exception {};
         return Next->First;
     }
     
-    template <typename elem>
+    template <Element elem>
     bool inline linked_stack<elem>::empty () const {
         return Next == nullptr;
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem> inline linked_stack<elem>::rest () const {
         if (empty ()) return {};
         
         return Next->rest ();
     }
     
-    template <typename elem>
+    template <Element elem>
     inline bool linked_stack<elem>::valid () const {
         if (empty ()) return true;
         if (!data::valid (first ())) return false;
         return rest ().valid ();
     }
     
-    template <typename elem>
+    template <Element elem>
     bool inline linked_stack<elem>::contains (elem x) const {
         if (empty ()) return false;
             
         return Next->contains (x);
     }
     
-    template <typename elem>
+    template <Element elem>
     inline size_t linked_stack<elem>::size () const {
         if (empty ()) return 0;
             
         return Next->size ();
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem> inline linked_stack<elem>::operator >> (inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem> inline linked_stack<elem>::prepend (inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem> inline &linked_stack<elem>::operator >>= (inserted<elem> x) {
         return *this = (prepend (x));
     }
 
-    template <typename elem>
+    template <Element elem>
     template <typename X, typename Y, typename ... P>
     linked_stack<elem> inline linked_stack<elem>::prepend (X x, Y y, P ... p) const {
         return prepend (x).prepend (y, p...);
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem> inline linked_stack<elem>::operator ^ (linked_stack l) const {
         return prepend (l);
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem> linked_stack<elem>::from (uint32 n) const {
         if (empty ()) return {};
         if (n == 0) return *this;
         return rest ().from (n - 1);
     }
     
-    template <typename elem>
-    const elem inline &linked_stack<elem>::operator [] (uint32 n) const {
+    template <Element elem>
+    const elem inline &linked_stack<elem>::operator [] (size_t n) const {
         return from (n).first ();
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem>::iterator inline linked_stack<elem>::begin () const {
         return iterator {*this};
     }
     
-    template <typename elem>
+    template <Element elem>
     linked_stack<elem>::sentinel inline linked_stack<elem>::end () const {
         return sentinel {*this};
     }
@@ -275,20 +275,20 @@ namespace data {
             rest (sequence_iterator<linked_stack<elem>>::Prev)};
     }
 
-    template <typename elem>
+    template <Element elem>
     template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
     bool inline linked_stack<elem>::operator == (const X &x) const {
         return sequence_equal (*this, x);
     }
 
-    template <typename elem>
+    template <Element elem>
     template <typename X> requires ImplicitlyConvertible<elem, X>
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};
         return linked_stack<X> {rest ()}.prepend (X (first ()));
     }
 
-    template <typename elem>
+    template <Element elem>
     template <typename X> requires ExplicitlyConvertible<elem, X>
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};

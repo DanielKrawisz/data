@@ -97,7 +97,7 @@ namespace data {
         }
 
         operator stack () const {
-            return data::reverse (Right).prepend (data::reverse (Left));
+            return join (Left, Right);
         }
 
         template <typename X, typename Y, typename ... P>

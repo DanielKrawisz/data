@@ -115,8 +115,8 @@ namespace data::functional {
         stack_node (inserted<X> x, Y r);
         stack_node (inserted<X> x);
         
-        X& first ();
-        const X& first() const;
+        X &first ();
+        const X &first () const;
         Y rest () const;
         
         bool valid () const;
@@ -125,7 +125,7 @@ namespace data::functional {
     };
     
     template <typename X, typename Y>
-    inline stack_node<X, Y>::stack_node (inserted<X> x, Y r) : First (x), Rest(r), Size {data::size (r) + 1} {}
+    inline stack_node<X, Y>::stack_node (inserted<X> x, Y r) : First (x), Rest (r), Size {data::size (r) + 1} {}
     
     template <typename X, typename Y>
     inline stack_node<X, Y>::stack_node (inserted<X> x) : First (x), Rest {}, Size {1} {}

@@ -1,11 +1,12 @@
-// Copyright (c) 2023 Daniel Krawisz
+// Copyright (c) 2023 - 2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_STRING
 #define DATA_STRING
 
-#include "tools.hpp"
+#include "stack.hpp"
+#include "bytes.hpp"
 
 namespace data {
 
@@ -36,15 +37,10 @@ namespace data {
     string to_lower (const std::string &);
 
     // split a string by a delimiter.
-    list<string_view> split (string_view s, string_view delimiter);
-    string string_join (list<string>, string_view delimiter);
+    stack<string_view> split (string_view s, string_view delimiter);
 
-    template <typename X>
-    string string_join (list<X> l) {
-        std::stringstream ss;
-        for (const X &x : l) ss << x;
-        return ss.str ();
-    }
+    template <Sequence list>
+    string string_join (list, string_view delimiter = {});
 
     std::strong_ordering inline operator <=> (const string &a, const string &b) {
         return static_cast<const std::string &> (a) <=> static_cast<const std::string &> (b);
@@ -109,6 +105,15 @@ namespace data {
     string string::write (X &&...x) {
         std::stringstream ss;
         write_string<X...> {} (ss, std::forward<X> (x)...);
+        return ss.str ();
+    }
+
+    template <Sequence list>
+    string string_join (list s, string_view delimiter) {
+        if (data::empty (s)) return "";
+        std::stringstream ss;
+        ss << static_cast<std::string> (first (s));
+        for (const string &x : rest (s)) ss << delimiter << static_cast<std::string> (x);
         return ss.str ();
     }
 

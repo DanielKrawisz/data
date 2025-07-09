@@ -7,8 +7,6 @@
 
 #include <span>
 #include <data/tools/index_iterator.hpp>
-#include <data/meta/greater.hpp>
-#include <data/meta/unsigned_minus.hpp>
 #include <data/io/exception.hpp>
 
 namespace data::meta {

@@ -19,7 +19,7 @@ namespace data {
     // types containing static members that say whether one type is constructible.
     template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
     template <typename Type, typename Argument> inline constexpr bool is_constructible_v = std::is_constructible<Type, Argument>::value;
-    template <typename Type, typename Argument> concept constructible_from = std::constructible_from<Type, Argument>;
+    template <typename Type, typename Argument> concept ConstructibleFrom = std::constructible_from<Type, Argument>;
 
     template <typename From, typename To> using is_implicitly_convertible = std::is_convertible<From, To>;
 
@@ -72,6 +72,8 @@ namespace data {
     template <typename Type> struct is_effectively_const<Type *const> : std::true_type {};
 
     template <typename Type> concept Const = is_effectively_const_v<Type>;
+
+    template <typename Type> concept Element = std::is_constructible_v<Type, Type>;
 
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
