@@ -5,7 +5,7 @@
 #ifndef DATA_ENCODING_DIGITS
 #define DATA_ENCODING_DIGITS
 
-#include <data/tools/linked_stack.hpp>
+#include <data/stack.hpp>
 #include <data/math/number/division.hpp>
 
 namespace data::encoding {
@@ -15,7 +15,7 @@ namespace data::encoding {
         N base {digits.size ()};
         if (base < 2) return "";
         
-        linked_stack<char> dig {};
+        stack<char> dig {};
         N x = n;
         while (x > 0u) {
             division<N> d = math::number::natural_divide (x, base);

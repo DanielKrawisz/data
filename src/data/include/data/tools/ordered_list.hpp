@@ -6,8 +6,6 @@
 #define DATA_TOOLS_ORDERED_LIST
 
 #include <concepts>
-#include <data/tools/functional_queue.hpp>
-#include <data/tools/linked_stack.hpp>
 #include <data/reverse.hpp>
     
 namespace data::tool {
@@ -26,7 +24,7 @@ namespace data::tool {
         { o << e } -> Same<std::ostream &>;
     } std::ostream &operator << (std::ostream &o, const ordered_stack<stack, element> &l);
 
-    template <Stack stack> ordered_stack<stack> empty (ordered_stack<stack>);
+    template <Stack stack> bool empty (ordered_stack<stack>);
     template <Stack stack> size_t size (ordered_stack<stack>);
     template <Stack stack> ordered_stack<stack> take (ordered_stack<stack>, size_t size);
     template <Stack stack> ordered_stack<stack> merge (ordered_stack<stack>, ordered_stack<stack>);
@@ -53,8 +51,8 @@ namespace data::tool {
             for (wrapped<element> w : z) *this = insert (w);
         }
         
-        ordered_stack operator << (const element &x) const;
-        ordered_stack operator <<= (const element &x);
+        ordered_stack operator >> (const element &x) const;
+        ordered_stack operator >>= (const element &x);
         
         ordered_stack rest () const {
             return {data::rest (static_cast<const stack> (*this))};
@@ -90,8 +88,12 @@ namespace data::tool {
         }
     };
 
-    template <Stack stack> ordered_stack<stack> inline empty (ordered_stack<stack> x) {
+    template <Stack stack> bool inline empty (ordered_stack<stack> x) {
         return x.empty ();
+    }
+
+    template <Stack stack> size_t inline size (ordered_stack<stack> x) {
+        return x.size ();
     }
 
     template <Stack stack> ordered_stack<stack> inline operator & (ordered_stack<stack> a, ordered_stack<stack> b) {
@@ -124,12 +126,12 @@ namespace data::tool {
     }
     
     template <Stack stack, Sortable element>
-    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator << (const element &x) const {
+    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator >> (const element &x) const {
         return insert (x);
     }
 
     template <Stack stack, Sortable element>
-    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator <<= (const element &x) {
+    ordered_stack<stack, element> inline ordered_stack<stack, element>::operator >>= (const element &x) {
         return *this = insert (x);
     }
     

@@ -50,29 +50,29 @@ namespace data {
         static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<string *>> ().first ()), string *>);
         static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<const string *>> ().first ()), const string *>);
 
-        static_assert (SequenceOf<linked_stack<int>, int>);
-        static_assert (SequenceOf<linked_stack<int *>, int *>);
-        static_assert (SequenceOf<linked_stack<const int *>, const int *>);
-        static_assert (SequenceOf<linked_stack<int *const>, int *const>);
-        static_assert (SequenceOf<linked_stack<const int *const>, const int *const>);
-        static_assert (SequenceOf<linked_stack<int &>, int &>);
-        static_assert (SequenceOf<linked_stack<const int &>, const int &>);
+        static_assert (SequenceOf<stack<int>, int>);
+        static_assert (SequenceOf<stack<int *>, int *>);
+        static_assert (SequenceOf<stack<const int *>, const int *>);
+        static_assert (SequenceOf<stack<int *const>, int *const>);
+        static_assert (SequenceOf<stack<const int *const>, const int *const>);
+        static_assert (SequenceOf<stack<int &>, int &>);
+        static_assert (SequenceOf<stack<const int &>, const int &>);
 
-        static_assert (Stack<linked_stack<int>, int>);
-        static_assert (Stack<linked_stack<int *>, int *>);
-        static_assert (Stack<linked_stack<const int *>, const int *>);
-        static_assert (Stack<linked_stack<int *const>, int *const>);
-        static_assert (Stack<linked_stack<const int *const>, const int *const>);
-        static_assert (Stack<linked_stack<int &>, int &>);
-        static_assert (Stack<linked_stack<const int &>, const int &>);
+        static_assert (Stack<stack<int>, int>);
+        static_assert (Stack<stack<int *>, int *>);
+        static_assert (Stack<stack<const int *>, const int *>);
+        static_assert (Stack<stack<int *const>, int *const>);
+        static_assert (Stack<stack<const int *const>, const int *const>);
+        static_assert (Stack<stack<int &>, int &>);
+        static_assert (Stack<stack<const int &>, const int &>);
 
-        static_assert (Container<linked_stack<int>, int>);
-        static_assert (Container<linked_stack<int *>, int *>);
-        static_assert (Container<linked_stack<const int *>, const int *>);
-        static_assert (Container<linked_stack<int *const>, int *const>);
-        static_assert (Container<linked_stack<const int *const>, const int *const>);
-        static_assert (Container<linked_stack<int &>, int &>);
-        static_assert (Container<linked_stack<const int &>, const int &>);
+        static_assert (Container<stack<int>, int>);
+        static_assert (Container<stack<int *>, int *>);
+        static_assert (Container<stack<const int *>, const int *>);
+        static_assert (Container<stack<int *const>, int *const>);
+        static_assert (Container<stack<const int *const>, const int *const>);
+        static_assert (Container<stack<int &>, int &>);
+        static_assert (Container<stack<const int &>, const int &>);
 
         static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
         static_assert (Same<decltype (std::declval<stack<int &>> ().first ()), int &>);
@@ -94,13 +94,13 @@ namespace data {
         static_assert (Same<decltype (std::declval<const stack<const int *>> ().first ()), const int *const &>);
         static_assert (Same<decltype (std::declval<const stack<const int *const>> ().first ()), const int *const &>);
 
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<int &>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int &>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const linked_stack<const int *const >> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<int &>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int *>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int &>> ().begin ())>);
+        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int *const >> ().begin ())>);
 
     }
 
@@ -160,9 +160,9 @@ namespace data {
 
         int val[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-        linked_stack<int> {1, 2, 3, 4, 5, 6, 7};
-        linked_stack<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
-        linked_stack<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
+        stack<int> {1, 2, 3, 4, 5, 6, 7};
+        stack<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
+        stack<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
 
     }
     
@@ -180,7 +180,7 @@ namespace data {
         EXPECT_TRUE (t4 != t1);
     }
     
-    void test_copy_linked_stack (stack<int> &p, int max) {
+    void test_copy_stack (stack<int> &p, int max) {
         p = stack<int> {};
         stack<int> new_stack {};
         for(int i = 1; i <= max; i++) new_stack = new_stack >> i;
@@ -191,7 +191,7 @@ namespace data {
     // if they were copied. This test ensures that this does not happen.
     TEST (LinkedStackTest, TestLinkedStackCopy) {
         stack<int> p;
-        test_copy_linked_stack (p, 7);
+        test_copy_stack (p, 7);
         EXPECT_EQ (p.size (), 7);
         EXPECT_EQ (p.first (), 7);
         EXPECT_EQ (p.rest ().size (), 6);
@@ -217,25 +217,25 @@ namespace data {
         for (const int &x : t) (void) x;
     }
 
-    void accept_stack_of_string_views (linked_stack<string_view>) {}
+    void accept_stack_of_string_views (stack<string_view>) {}
 
     TEST (LinkedStackTest, TestLinkedStackConvert) {
-        linked_stack<string> test {"1", "2", "3", "4"};
+        stack<string> test {"1", "2", "3", "4"};
 
         accept_stack_of_string_views (test);
 
-        linked_stack<N> numbers {1u, 2u, 3u, 4u};
+        stack<N> numbers {1u, 2u, 3u, 4u};
 
-        EXPECT_EQ (linked_stack<N> (test), numbers);
+        EXPECT_EQ (stack<N> (test), numbers);
 
     }
 
     TEST (LinkedStackTest, TestLinkedStackNumbers) {
-        linked_stack<Z_bytes_little> {};
-        linked_stack<Z_bytes_little> ();
-        linked_stack<Z_bytes_little> {1};
-        linked_stack<Z_bytes_little> (1);
-        linked_stack<Z_bytes_little> {1, 2};
+        stack<Z_bytes_little> {};
+        stack<Z_bytes_little> ();
+        stack<Z_bytes_little> {1};
+        stack<Z_bytes_little> (1);
+        stack<Z_bytes_little> {1, 2};
     }
 }
 

@@ -12,7 +12,7 @@ namespace data {
         using list = X;
     };
 
-    using test_cases = ::testing::Types<stack<int>, list<int>, cross<int>, ordered_list<int>>;
+    using test_cases = ::testing::Types<stack<int>, list<int>, cross<int>, ordered_sequence<int>>;
 
     TYPED_TEST_SUITE (take_test, test_cases);
 

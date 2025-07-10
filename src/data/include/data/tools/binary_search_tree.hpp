@@ -6,7 +6,7 @@
 #define DATA_BINARY_SEARCH_TREE
 
 #include <data/tools/linked_tree.hpp>
-#include <data/meta.hpp>
+#include <data/ordered_sequence.hpp>
 
 namespace data {
 
@@ -53,7 +53,7 @@ namespace data {
 
         const unref<value> *contains (inserted<value>) const;
 
-        tool::ordered_stack<linked_stack<inserted<value>>> values () const;
+        ordered_sequence<inserted<value>> values () const;
 
         using iterator = functional::binary_search_iterator<value, tree>;
 
@@ -140,9 +140,9 @@ namespace data {
 
         binary_search_map remove (const key &k) const;
 
-        tool::ordered_stack<linked_stack<const key &>> keys () const;
+        ordered_sequence<const key &> keys () const;
 
-        tool::ordered_stack<linked_stack<const entry &>> values () const;
+        ordered_sequence<const entry &> values () const;
 
         template <typename X, typename T>
         requires ImplicitlyConvertible<value, X>
@@ -224,10 +224,10 @@ namespace data {
     }
 
     template <Ordered value, functional::buildable_tree<value> tree>
-    tool::ordered_stack<linked_stack<inserted<value>>> inline binary_search_tree<value, tree>::values () const {
-        linked_stack<inserted<value>> st;
+    ordered_sequence<inserted<value>> inline binary_search_tree<value, tree>::values () const {
+        stack<inserted<value>> st;
         for (inserted<value> v : *this) st <<= v;
-        return tool::ordered_stack<linked_stack<inserted<value>>> {reverse (st)};
+        return ordered_sequence<inserted<value>> {reverse (st)};
     }
 
     template <Ordered value, functional::buildable_tree<value> tree>
@@ -334,29 +334,28 @@ namespace data {
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
     requires interface::has_insert_method<tree, data::entry<const key, value>>
-    tool::ordered_stack<linked_stack<const key &>>
-    binary_search_map<key, value, tree>::keys () const {
-        linked_stack<const key &> kk {};
+    ordered_sequence<const key &> binary_search_map<key, value, tree>::keys () const {
+        stack<const key &> kk {};
 
         for (const entry &e : *this) kk >>= e.Key;
 
-        tool::ordered_stack<linked_stack<const key &>> x {};
+        ordered_sequence<const key &> x {};
         for (const auto &k : data::reverse (kk)) x = x >> k;
         return x;
     }
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
     requires interface::has_insert_method<tree, data::entry<const key, value>>
-    tool::ordered_stack<linked_stack<const data::entry<const key, value> &>>
+    ordered_sequence<const data::entry<const key, value> &>
     binary_search_map<key, value, tree>::values () const {
-        linked_stack<const entry &> k {};
+        stack<const entry &> k {};
         for (const entry &e : *this) k >>= e;
         // revese the order of the elements
         // we have to do this instead of using the reverse method
         // to avoid a seg fault and I'm not sure why that happens.
-        linked_stack<const entry &> kk {};
+        stack<const entry &> kk {};
         for (const entry &e : k) kk >>= e;
-        return tool::ordered_stack<linked_stack<const entry &>> {kk};
+        return ordered_sequence<const entry &> {kk};
     }
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>

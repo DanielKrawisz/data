@@ -6,9 +6,9 @@
 #define DATA_TOOLS_PRIORITY_QUEUE
 
 #include <data/functional/tree.hpp>
-#include <data/tools/linked_stack.hpp>
+#include <data/stack.hpp>
 #include <data/tools/linked_tree.hpp>
-#include <data/tools/ordered_list.hpp>
+#include <data/ordered_sequence.hpp>
 #include <data/ordered.hpp>
     
 namespace data::tool {
@@ -36,7 +36,7 @@ namespace data::tool {
     priority_queue<tree, element> inline operator <<= (priority_queue<tree, element> &p, const element &elem);
 
     template <functional::tree tree, prioritized element>
-    tool::ordered_stack<linked_stack<element>> values (priority_queue<tree, element> pq);
+    ordered_sequence<element> values (priority_queue<tree, element> pq);
     
     template <functional::tree tree, prioritized element>
     priority_queue<tree, element> take (priority_queue<tree, element> x, size_t size);
@@ -106,8 +106,8 @@ namespace data::tool {
     }
 
     template <functional::tree tree, prioritized element>
-    tool::ordered_stack<linked_stack<element>> values (priority_queue<tree, element> pq) {
-        linked_stack<element> vals;
+    ordered_sequence<element> values (priority_queue<tree, element> pq) {
+        stack<element> vals;
         while (!empty (pq)) {
             vals >>= first (pq);
             pq = rest (pq);
