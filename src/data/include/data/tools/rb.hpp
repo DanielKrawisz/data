@@ -6,7 +6,7 @@
 #define DATA_TOOLS_RB
 
 #include <data/tools/ordered_list.hpp>
-#include <data/tools/linked_stack.hpp>
+#include <data/stack.hpp>
 #include <data/tools/linked_tree.hpp>
 #include <data/tools/binary_search_tree.hpp>
 
@@ -126,7 +126,7 @@ namespace data::RB {
         template <typename ...P>
         tree insert (inserted<V> a, inserted<V> b, P... p);
 
-        tool::ordered_stack<linked_stack<const V &>> values () const;
+        ordered_sequence<const V &> values () const;
 
         tree remove (inserted<V> v) const {
             tree t;
@@ -364,11 +364,10 @@ namespace data::RB {
     }
 
     template <Sortable V, functional::buildable_tree<colored<V>> T>
-    tool::ordered_stack<linked_stack<const V &>> tree<V, T>::values () const {
-        linked_stack<const V &> st;
-        for (const V &v : *this) 
-            st >>= v;
-        return tool::ordered_stack<linked_stack<const V &>> {reverse (st)};
+    ordered_sequence<const V &> tree<V, T>::values () const {
+        stack<const V &> st;
+        for (const V &v : *this) st >>= v;
+        return ordered_sequence<const V &> {reverse (st)};
     }
 
 }

@@ -6,7 +6,6 @@
 #define DATA_TREE_LINKED
 
 #include <data/functional/tree.hpp>
-#include <data/tools/ordered_list.hpp>
     
 namespace data {
 

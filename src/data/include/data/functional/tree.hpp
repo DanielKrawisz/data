@@ -8,7 +8,7 @@
 #include <data/types.hpp>
 #include <data/concepts.hpp>
 #include <data/functional/list.hpp>
-#include <data/tools/linked_stack.hpp>
+#include <data/stack.hpp>
 #include <data/tools/iterator_list.hpp>
     
 namespace data::interface {
@@ -181,7 +181,7 @@ namespace data::functional {
 
         const T *Tree;
         T Next;
-        linked_stack<const T> Last;
+        stack<const T> Last;
 
         // we need this constructor in order to satisfy some
         // std concepts but it's not really good for anything.
