@@ -15,13 +15,13 @@
 #include <data/functional/tree.hpp>
 
 // Implementations of data structures. 
+#include <data/ordered_sequence.hpp>
 #include <data/tools/cycle.hpp>
 #include <data/tools/rb.hpp>
 #include <data/tools/linked_tree.hpp>
 #include <data/tools/binary_search_tree.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
-#include <data/tools/ordered_list.hpp>
 
 #include <data/bytes.hpp>
 #include <data/fold.hpp>
@@ -46,9 +46,6 @@ namespace data {
     
     // priority queue. 
     template <typename X> using priority_queue = tool::priority_queue<tree<X>, X>;
-    
-    // ordered_list. 
-    template <typename X> using ordered_list = tool::ordered_stack<stack<X>>;
 
     template <typename K, typename V> using dispatch = list<entry<K, V>>;
 
@@ -63,7 +60,7 @@ namespace data {
     }
 
     template <typename X, Proposition<X> F>
-    ordered_list<X> select (const ordered_list<X> &, F fun);
+    ordered_sequence<X> select (const ordered_sequence<X> &, F fun);
 
     template <typename X, Proposition<X> F>
     priority_queue<X> select (const priority_queue<X> &, F fun);
@@ -86,10 +83,10 @@ namespace data {
     map replace_part (map X, const key &k, const value &v);
 
     template <typename elem>
-    stack<elem> reverse (const ordered_list<elem> x);
+    stack<elem> reverse (const ordered_sequence<elem> x);
 
     template <typename elem>
-    ordered_list<elem> select (const ordered_list<elem> x, function<bool (const elem &)> satisfies);
+    ordered_sequence<elem> select (const ordered_sequence<elem> x, function<bool (const elem &)> satisfies);
 
     namespace {
         template <typename given> struct flat {
@@ -134,17 +131,17 @@ namespace data {
     }
 
     template <typename elem>
-    stack<elem> reverse (const ordered_list<elem> x) {
+    stack<elem> reverse (const ordered_sequence<elem> x) {
         stack<elem> n;
         for (const elem &e : x) n >>= e;
         return n;
     }
 
     template <typename elem>
-    ordered_list<elem> select (const ordered_list<elem> x, function<bool (const elem &)> satisfies) {
+    ordered_sequence<elem> select (const ordered_sequence<elem> x, function<bool (const elem &)> satisfies) {
         stack<const elem &> n;
         for (const elem &e : x) if (satisfies (e)) n >>= e;
-        ordered_list<elem> r;
+        ordered_sequence<elem> r;
         for (const elem &e : n) r = r.insert (e);
         return r;
     }

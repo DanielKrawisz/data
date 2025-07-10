@@ -59,7 +59,7 @@ namespace data {
     
     TEST (SortTest, TestOrderedStack) {
 
-        test_sorted_list<ordered_list<int>> ();
+        test_sorted_list<ordered_sequence<int>> ();
         test_sorted_list<priority_queue<int>> ();
 
     }

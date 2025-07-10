@@ -5,7 +5,7 @@
 #ifndef DATA_TOOLS_MAP_SET
 #define DATA_TOOLS_MAP_SET
 
-#include <data/tools/linked_stack.hpp>
+#include <data/stack.hpp>
 #include <data/tools/functional_queue.hpp>
     
 namespace data::tool {
@@ -67,7 +67,7 @@ namespace data::tool {
             return map_set {Map.remove (k)};
         }
         
-        ordered_stack<linked_stack<const key &>> values () const {
+        ordered_stack<stack<const key &>> values () const {
             return Map.keys ();
         }
         

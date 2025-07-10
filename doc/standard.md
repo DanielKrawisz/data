@@ -32,6 +32,10 @@ Explicitly convertible but not implicitly convertable.
 
 #### `concept data::Element`
 
+Suitable to be an element in a data structure. References are allowed. 
+
+`template <typename Type> concept Element = std::is_constructible_v<Type, Type>;`
+
 ### `data/ordered.hpp`
 
 #### `concept data::Sortable`
@@ -46,19 +50,35 @@ Equivalent to `std::totally_ordered`.
 
 #### `data::valid`
 
+`valid` takes a value of any type and returns bool. 
+
+* For pointers, `nullptr` is `false`. Otherwise it dereferences the pointer and calls `valid` on the value. 
+* For a class `X`, `valid` looks for `X::valid const () -> bool` and calls that. Otherwise it returns `true`.
+* For floating points, `valid` checks for `NaN` and returns `false`. Otherwise returns `true`.
+
 ### `data/sequence.hpp`
+
+#### `first`
+
+#### `rest`
 
 #### `concept data::Sequence`
 
+A supporting `empty`, `size`, `first`, and `rest`.
+
 #### `concept data::SequenceOf`
+
+`SequnceOf<seq, elem>` is a `Sequence` such that `first` returns a value that can be implicitly converted to `const elem`.
 
 ### `data/stack.hpp`
 
 #### `concept data::Stack`
 
+A supporting `empty`, `size`, `first`, `rest`, and `prepend`.
+
 #### `class data::stack`
 
-A stack of values supporting `size`, `first`, `rest`, and `prepend`.
+An implementation of `Stack` supporting `empty`, `size`, `first`, `rest`, and `prepend`.
 
 For a value `z` of type `stack<X>`.: 
 
