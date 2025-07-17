@@ -14,7 +14,6 @@
 #include <data/encoding/invalid.hpp>
 #include <data/arithmetic/negativity.hpp>
 #include <data/math/number/bytes/bytes.hpp>
-#include <data/math/root.hpp>
 
 #include <data/string.hpp>
 
@@ -1706,31 +1705,6 @@ namespace data::math {
         hex::intBC<zz> operator () (const hex::intBC<zz> &a, const hex::intBC<zz> &b) {
             return b - a;
         }
-    };
-
-    template <uint64 pow>
-    struct root<dec_uint, pow> {
-        set<dec_uint> operator () (const dec_uint &n);
-    };
-
-    template <uint64 pow>
-    struct root<dec_int, pow> {
-        set<dec_int> operator () (const dec_int &n);
-    };
-
-    template <hex_case zz, uint64 pow>
-    struct root<hex::uint<zz>, pow> {
-        set<hex::uint<zz>> operator () (const hex::uint<zz> &n);
-    };
-
-    template <hex_case zz, uint64 pow>
-    struct root<hex::int2<zz>, pow> {
-        set<hex::int2<zz>> operator () (const hex::int2<zz> &n);
-    };
-
-    template <hex_case zz, uint64 pow>
-    struct root<hex::intBC<zz>, pow> {
-        set<hex::intBC<zz>> operator () (const hex::intBC<zz> &n);
     };
 
 }

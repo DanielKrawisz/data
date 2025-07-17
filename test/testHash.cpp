@@ -4,6 +4,7 @@
 
 #include "data/crypto/hash.hpp"
 #include "data/math/number/bytes.hpp"
+#include "data/list.hpp"
 #include "data/encoding/endian.hpp"
 #include "gtest/gtest.h"
 

@@ -6,7 +6,6 @@
 #define DATA_MATH_NUMBER_GMP
 
 #include <data/math/number/gmp/Z.hpp>
-#include <data/math/number/gmp/sqrt.hpp>
 
 namespace data::math {
 

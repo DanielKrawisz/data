@@ -1,6 +1,21 @@
-add_library (data STATIC
+add_library (data_core STATIC 
   types.cpp
   string.cpp
+)
+
+target_compile_features (data_core PUBLIC cxx_std_23)
+set_target_properties (data_core PROPERTIES CXX_EXTENSIONS ON)
+
+target_include_directories (data_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories (data_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
+target_link_libraries (
+  data_core
+  PUBLIC
+  ctre
+)
+
+add_library (data STATIC
 
   math/number/gmp/mpq.cpp
   math/number/gmp/N.cpp
@@ -43,6 +58,7 @@ target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE
 target_link_libraries (
   data
   PUBLIC
+  data_core
   Boost::boost
   Boost::chrono
   Boost::thread
@@ -53,16 +69,12 @@ target_link_libraries (
   PkgConfig::cryptopp
   nlohmann_json::nlohmann_json
   GMP::GMP
-  # secp256k1
   taocpp::pegtl
   argh
   rotella
-  milewski
   gmpxx
   sv
   ctre
-  # PkgConfig::LIBSECP256K1 
-  # sqlite_orm::sqlite_orm
 )
 
 get_target_property (OUT data LINK_LIBRARIES)
@@ -81,7 +93,7 @@ install (
 )
 
 install (
-  TARGETS data nlohmann_json argh rotella milewski gmpxx sv
+  TARGETS data data_core nlohmann_json argh rotella milewski gmpxx sv
   EXPORT DataTargets
   ARCHIVE
 )

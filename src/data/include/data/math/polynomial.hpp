@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_POLYNOMIAL
 #define DATA_MATH_POLYNOMIAL
 
-#include <data/tools.hpp>
+#include <data/ordered_sequence.hpp>
 #include <data/divide.hpp>
 #include <data/arithmetic.hpp>
 #include <data/math/field.hpp>

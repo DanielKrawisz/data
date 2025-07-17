@@ -7,7 +7,7 @@
 #include <string>
 
 #include <data/encoding/base64.hpp>
-#include <data/numbers.hpp>
+#include <data/string.hpp>
 
 namespace data::encoding::base64 {
     

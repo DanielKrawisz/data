@@ -9,32 +9,34 @@ option (OPTIONAL_TESTS "Build optional Tests" OFF)
 include (GoogleTest)
 
 add_executable (unit_tests
+    # These tests only require data_core. 
     testMaybeEither.cpp
     testStore.cpp
     testException.cpp
-    testEndian.cpp
-    testHex.cpp
-    testBase64.cpp
-    testAscii.cpp
-    testStream.cpp
     testIntegerFormat.cpp
     testLinkedStack.cpp
     testList.cpp
-    testFunctionalInterfaces.cpp
-    testCircularQueue.cpp
+    testOrderedList.cpp
+    testTake.cpp
     testReverse.cpp
     testContains.cpp
-    testTake.cpp
-    testOrderedList.cpp
+    testFunctionalInterfaces.cpp
+    testCircularQueue.cpp
     testSort.cpp
     testTree.cpp
     testSet.cpp
     testMap.cpp
     testPriorityQueue.cpp
     testForEach.cpp
+    testBytes.cpp
+
+    testEndian.cpp
+    testHex.cpp
+    testBase64.cpp
+    testAscii.cpp
+    testStream.cpp
     testPermutation.cpp
     testCombinatorics.cpp
-    testBytes.cpp
     testSign.cpp
     testBitShift.cpp
     testN.cpp

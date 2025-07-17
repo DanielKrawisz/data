@@ -1,5 +1,5 @@
 #include <data/crypto/random.hpp>
-#include <data/tools.hpp>
+#include <data/tools/lazy_writer.hpp>
 #include <data/string.hpp>
 
 namespace data::crypto {

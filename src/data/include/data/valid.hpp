@@ -22,6 +22,10 @@ namespace data {
         return true;
     }
 
+    template <std::floating_point X> constexpr bool inline valid (X x) {
+        return !std::isnan (x);
+    }
+
     template <typename X> constexpr bool inline valid (const X *x) {
         return x != nullptr;
     }

@@ -5,8 +5,6 @@
 #ifndef DATA_TOOLS
 #define DATA_TOOLS
 
-#include <data/list.hpp>
-
 #include <data/maybe.hpp>
 
 // Interfaces related to data structures. 
@@ -15,10 +13,12 @@
 #include <data/functional/tree.hpp>
 
 // Implementations of data structures. 
+#include <data/list.hpp>
+#include <data/tree.hpp>
+
 #include <data/ordered_sequence.hpp>
 #include <data/tools/cycle.hpp>
 #include <data/tools/rb.hpp>
-#include <data/tools/linked_tree.hpp>
 #include <data/tools/binary_search_tree.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
@@ -30,9 +30,6 @@ namespace data {
     
     template <typename X> using cycle = tool::cycle<list<X>, X>;
     
-    // tree. 
-    template <typename X> using tree = linked_tree<X>;
-    
     // a functional map implemented as a red-black tree
     template <typename K, typename V> using map = binary_search_map<K, V,
         RB::tree<data::entry<const K, V>,
@@ -40,6 +37,8 @@ namespace data {
     
     // set implemented as a map. 
     template <typename X> using set = RB::tree<X, tree<RB::colored<X>>>;
+
+    set<int> get_numbers ();
     
     template <typename X> set<X> merge (set<X>, set<X>);
     template <typename X> set<X> remove (set<X>, const X &);
@@ -81,9 +80,6 @@ namespace data {
 
     template <typename map, typename key, typename value>
     map replace_part (map X, const key &k, const value &v);
-
-    template <typename elem>
-    stack<elem> reverse (const ordered_sequence<elem> x);
 
     template <typename elem>
     ordered_sequence<elem> select (const ordered_sequence<elem> x, function<bool (const elem &)> satisfies);
@@ -131,13 +127,6 @@ namespace data {
     }
 
     template <typename elem>
-    stack<elem> reverse (const ordered_sequence<elem> x) {
-        stack<elem> n;
-        for (const elem &e : x) n >>= e;
-        return n;
-    }
-
-    template <typename elem>
     ordered_sequence<elem> select (const ordered_sequence<elem> x, function<bool (const elem &)> satisfies) {
         stack<const elem &> n;
         for (const elem &e : x) if (satisfies (e)) n >>= e;
@@ -145,31 +134,6 @@ namespace data {
         for (const elem &e : n) r = r.insert (e);
         return r;
     }
-
-    // lazy writer can be used without knowing the size
-    // of the data to be written beforehand.
-    template <std::integral word> struct lazy_writer : message_writer<bytestring<word>, word> {
-        list<bytestring<word>> Bytes;
-
-        void write (const word* b, size_t size) final override {
-            Bytes = Bytes << bytestring<word> (view<word> {b, size});
-        }
-
-        operator bytestring<word> () const {
-            size_t size = 0;
-            for (const bytestring<word> &b : Bytes) size += b.size ();
-            bytestring<word> z (size);
-            iterator_writer w {z.begin (), z.end ()};
-            for (const bytestring<word> &b : Bytes) w << b;
-            return z;
-        }
-
-        bytestring<word> complete () final override {
-            return bytestring<word> (*this);
-        }
-    };
-
-    using lazy_bytes_writer = lazy_writer<byte>;
 
 }
 

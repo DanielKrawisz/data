@@ -19,7 +19,7 @@ namespace data {
         static_assert (Same<decltype (std::declval<const ordered_sequence<int &>> ().first ()), int &>);
         static_assert (Same<decltype (std::declval<ordered_sequence<const int &>> ().first ()), const int &>);
 
-        static_assert (Same<decltype (std::declval<ordered_sequence<int *>> ().first ()), int *&>);
+        static_assert (Same<decltype (std::declval<ordered_sequence<int *>> ().first ()), int * &>);
         static_assert (Same<decltype (std::declval<const ordered_sequence<int *>> ().first ()), int *const &>);
         static_assert (Same<decltype (std::declval<ordered_sequence<const int *>> ().first ()), const int *&>);
         static_assert (Same<decltype (std::declval<const ordered_sequence<const int *>> ().first ()), const int *const &>);
@@ -65,26 +65,6 @@ namespace data {
         static_assert (Container<ordered_sequence<int &>, int &>);
         static_assert (Container<ordered_sequence<const int &>, const int &>);
 
-        static_assert (Same<decltype (std::declval<ordered_sequence<int>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<int *>> ().first ()), int *&>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<int *const>> ().first ()), int *const &>);
-                
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int &>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int *>> ().first ()), const int *&>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int *const>> ().first ()), const int *const &>);
-
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int *>> ().first ()), int *const &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int *const>> ().first ()), int *const &>);
-        
-        static_assert (Same<decltype (std::declval<const ordered_sequence<const int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<const int &>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<const int *>> ().first ()), const int *const &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<const int *const>> ().first ()), const int *const &>);
-
         static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int *>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int &>> ().begin ())>);
@@ -97,16 +77,39 @@ namespace data {
 
     TEST (OrderedListTest, TestOrderedList) {
 
-        ordered_sequence<int> a {1};
-        ordered_sequence<int> b {1, 2};
-        ordered_sequence<int> c {1, 2, 3};
-        ordered_sequence<int> ca {3, 2, 1};
-        ordered_sequence<int> cb {2, 3, 1};
-        ordered_sequence<int> cc {1, 3, 2};
-        ordered_sequence<int> cd {2, 1, 3};
-        ordered_sequence<int> ce {3, 1, 2};
-        ordered_sequence<int> d;
+        ordered_sequence<int> a {{1}};
+        ordered_sequence<int> b {{1, 2}};
+        ordered_sequence<int> c {{1, 2, 3}};
+        ordered_sequence<int> ca {{3, 2, 1}};
+        ordered_sequence<int> cb {{2, 3, 1}};
+        ordered_sequence<int> cc {{1, 3, 2}};
+        ordered_sequence<int> cd {{2, 1, 3}};
+        ordered_sequence<int> ce {{3, 1, 2}};
+        ordered_sequence<int> d {};
 
+        EXPECT_EQ (size (a), 1);
+        EXPECT_EQ (size (b), 2);
+        EXPECT_EQ (size (c), 3);
+        EXPECT_EQ (size (d), 0);
+
+        EXPECT_NE (a, b);
+
+        std::cout << "testing NE " << a << " vs " << b << std::endl;
+        bool a_eq_b = a == b;
+        std::cout << "Are they equal? " << a_eq_b << std::endl;
+        std::cout << "sizes: " << size (a) << " vs " << size (b) << std::endl;
+        std::cout << "empty: " << empty (a) << " vs " << empty (b) << std::endl;
+        std::cout << "rest " << rest (a) << " vs " << rest (b) << std::endl;
+        
+        EXPECT_FALSE ((sequence_equal (a, b)));
+
+        std::cout << "testing NE " << a << " vs " << d << std::endl;
+        std::cout << "sizes: " << size (a) << " vs " << size (d) << std::endl;
+        
+        // here's where the crash happens. 
+        //EXPECT_FALSE ((sequence_equal (a.Stack, d.Stack)));
+        EXPECT_FALSE ((sequence_equal (a, d)));
+        std::cout << " now on to the real tests" << std::endl;
         EXPECT_NE (a, d);
         EXPECT_NE (b, d);
         EXPECT_NE (c, d);
@@ -127,10 +130,12 @@ namespace data {
         ordered_sequence<int> e {d};
 
         EXPECT_EQ (e, d);
+
+        EXPECT_EQ (ordered_sequence<int> {}, stack<int> {});
     }
 
 }
-
+/*
 template <typename X> struct ordseq_test : ::testing::Test {
     using type = data::ordered_sequence<X>;
     using element = X;
@@ -142,14 +147,14 @@ using ordseq_test_cases = ::testing::Types<
     data::string *const, const data::string *, const data::string *const>;
 
 TYPED_TEST_SUITE (ordseq_test, ordseq_test_cases);
-/*
+
 TYPED_TEST (ordseq_test, TestOrdSeqEmpty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
-}*/
-/*
+}
+
 TYPED_TEST (ordseq_test, TestOrdSeqSize) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
