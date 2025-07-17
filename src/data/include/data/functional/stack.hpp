@@ -40,15 +40,14 @@ namespace data {
         return x.prepend (e);
     }
 
-    template <typename L, typename elem = unref<decltype (std::declval<L> ().first ())>>
-    concept Stack = SequenceOf<const L, elem> && interface::has_prepend_method<const L, elem> && 
-        interface::has_stack_constructor<L, elem> && std::default_initializable<L>;
+    template <typename L>
+    concept Stack = std::default_initializable<L> && Sequence<const L> && 
+        interface::has_prepend_method<const L, decltype (std::declval<L> ().first ())>;
 
     template <Stack list> list reverse (const list &);
 }
 
 namespace data::functional { 
-    
     
     template <Stack list> 
     list take_stack (const list &x, size_t n, const list &z = {});

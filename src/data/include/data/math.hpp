@@ -16,6 +16,42 @@
 #include <data/math/fraction.hpp>
 #include <data/math/octonion.hpp>
 
+#include <data/math/root.hpp>
+#include <data/math/number/bytes/sqrt.hpp>
+
+namespace data::math {
+
+    template <uint64 pow>
+    struct root<dec_uint, pow> {
+        set<dec_uint> operator () (const dec_uint &n);
+    };
+
+    template <uint64 pow>
+    struct root<dec_int, pow> {
+        set<dec_int> operator () (const dec_int &n);
+    };
+
+    template <hex_case zz, uint64 pow>
+    struct root<hex::uint<zz>, pow> {
+        set<hex::uint<zz>> operator () (const hex::uint<zz> &n);
+    };
+
+    template <hex_case zz, uint64 pow>
+    struct root<hex::int2<zz>, pow> {
+        set<hex::int2<zz>> operator () (const hex::int2<zz> &n);
+    };
+
+    template <hex_case zz, uint64 pow>
+    struct root<hex::intBC<zz>, pow> {
+        set<hex::intBC<zz>> operator () (const hex::intBC<zz> &n);
+    };
+
+    template <uint64 pow> struct root<base58_uint, pow> {
+        set<base58_uint> operator () (const base58_uint &n);
+    };
+
+}
+
 namespace data {
     // modular numbers
     template <auto N> using modular = math::number::modular<N>;
@@ -223,6 +259,39 @@ namespace data {
     static_assert (octonionic<fraction<math::octonion<Z>>> &&
         math::normed_field<fraction<math::octonion<Z>>>);
     
+}
+
+namespace data::math {
+
+    template <uint64 pow> 
+    set<dec_uint> root<dec_uint, pow>::operator () (const dec_uint &n) {
+        return set<dec_uint> (root<N, pow> {} (N {n}));
+    }
+    
+    template <uint64 pow> 
+    set<dec_int> root<dec_int, pow>::operator () (const dec_int &n) {
+        return set<dec_int> (root<Z, pow> {} (Z {n}));
+    }
+    
+    template <hex_case zz, uint64 pow> 
+    set<hex::uint<zz>> root<hex::uint<zz>, pow>::operator () (const hex::uint<zz> &n) {
+        return set<hex::uint<zz>> (root<N, pow> {} (N {n}));
+    }
+    
+    template <hex_case zz, uint64 pow> 
+    set<hex::int2<zz>> root<hex::int2<zz>, pow>::operator () (const hex::int2<zz> &n) {
+        return set<hex::int2<zz>> (root<Z, pow> {} (Z {n}));
+    }
+    
+    template <hex_case zz, uint64 pow> 
+    set<hex::intBC<zz>> root<hex::intBC<zz>, pow>::operator () (const hex::intBC<zz> &n) {
+        return set<hex::intBC<zz>> (root<Z, pow> {} (Z {n}));
+    }
+
+    template <uint64 pow>
+    set<base58_uint> root<base58_uint, pow>::operator () (const base58_uint &n) {
+        return set<base58_uint> (root<N, pow> {} (N {n}));
+    }
 }
 
 #endif

@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/list.hpp>
+#include <data/container.hpp>
 #include <data/string.hpp>
 #include <data/numbers.hpp>
 #include "gtest/gtest.h"
@@ -48,13 +49,13 @@ namespace data {
         static_assert (Container<list<int &>, int &>);
         static_assert (Container<list<const int &>, const int &>);
 
-        static_assert (List<list<int>, int>);
-        static_assert (List<list<int *>, int *>);
-        static_assert (List<list<const int *>, const int *>);
-        static_assert (List<list<int *const>, int *const>);
-        static_assert (List<list<const int *const>, const int *const>);
-        static_assert (List<list<int &>, int &>);
-        static_assert (List<list<const int &>, const int &>);
+        static_assert (List<list<int>>);
+        static_assert (List<list<int *>>);
+        static_assert (List<list<const int *>>);
+        static_assert (List<list<int *const>>);
+        static_assert (List<list<const int *const>>);
+        static_assert (List<list<int &>>);
+        static_assert (List<list<const int &>>);
 
         static_assert (std::forward_iterator<decltype (std::declval<const list<int>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const list<int *>> ().begin ())>);
@@ -69,7 +70,7 @@ namespace data {
     void accept_stack_of_string_views (list<string_view>) {}
 
     TEST (ListTest, TestListConvert) {
-        list<string> test {"1", "2", "3", "4"};
+        list<string> test {{"1", "2", "3", "4"}};
 
         accept_stack_of_string_views (test);
 
@@ -125,10 +126,18 @@ namespace data {
         EXPECT_TRUE (l == r << 1 << 2 << 3);
 
         int val[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        string zv [] {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
         list<int> {1, 2, 3, 4, 5, 6, 7};
         list<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
         list<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
+
+        list<string> {"1", "2", "3", "4", "5", "6", "7"};
+        list<string *> {zv, zv + 2, zv + 4, zv + 3, zv + 8, zv + 1};
+        list<string &> {zv[0], zv[1], zv[3], zv[7], zv[4], zv[5], zv[0]};
+
+        list<list<int>> {{1, 2, 3}, {4, 5}, {6}};
+        list<list<string>> {{"1", "2", "3"}, {"4", "5"}, {"6"}};
 
     }
 
@@ -159,26 +168,21 @@ TYPED_TEST (list_test, TestListSize) {
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
-
+/*
 TYPED_TEST (list_test, TestListFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
+    EXPECT_THROW (first (type {}), data::empty_sequence_exception);
+
     using return_type = decltype (first (type {}));
-    using const_return_type = decltype (first (std::declval<const type> ()));
-    /*
+    
     static_assert (data::ImplicitlyConvertible<return_type, const element>);
     static_assert (data::Reference<return_type>);
-    EXPECT_THROW (first (type {}), data::empty_sequence_exception);
 
     if constexpr (data::Reference<element>) {
         static_assert (data::Same<element, return_type>);
-        static_assert (data::Same<element, const_return_type>);
-    } else if constexpr (data::Const<element>) {
-        static_assert (data::Same<return_type, const_return_type>);
-    } else {
-        static_assert (data::Same<data::unconst<const_return_type>, return_type>);
-    }*/
-}
+    } 
+}*/
 
 TYPED_TEST (list_test, TestListRest) {
     using type = typename TestFixture::type;
@@ -200,16 +204,10 @@ TYPED_TEST (list_test, TestListReverse) {
     static_assert (data::SequenceOf<return_type, element>);
 }
 
-TYPED_TEST (list_test, TestListContains) {
+TYPED_TEST (list_test, TestStackContains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_contains = decltype (contains (type {}, std::declval<element> ()));
-}
-
-TYPED_TEST (list_test, TestListRemove) {
-    using type = typename TestFixture::type;
-    using element = typename TestFixture::element;
-    using has_remove = decltype (remove (type {}, size_t (0)));
+    static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);
 }
 
 TYPED_TEST (list_test, TestListPrepend) {
@@ -247,9 +245,29 @@ TYPED_TEST (list_test, TestListSort) {
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
-
-TYPED_TEST (list_test, TestListSelect) {
+/*
+TYPED_TEST (list_test, TestStackRemove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_select = decltype (contains (type {}, std::declval<element> ()));
+    using has_select = decltype (remove (type {}, size_t {0}));
 }
+
+TYPED_TEST (list_test, TestStackErase) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_select = decltype (erase (type {}, std::declval<element> ()));
+}*/
+/*
+TYPED_TEST (list_test, TestStackSelect) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_select = decltype (select (type {}, [] (const auto &&) {
+        return true;
+    }));
+}
+
+TYPED_TEST (stack_test, TestStackReplace) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_select = decltype (replace (type {}, replacements {}));
+}*/

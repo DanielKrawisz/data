@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_FACTOR
 #define DATA_MATH_NUMBER_FACTOR
 
-#include <data/tools.hpp>
+#include <data/list.hpp>
 #include <data/math/polynomial.hpp>
 #include <data/math/number/eratosthenes.hpp>
 

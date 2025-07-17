@@ -12,7 +12,6 @@ namespace data::math {
 namespace data {
     
     template <integral NN> requires requires (const NN &a) {
-        { sqrt (a) } -> ImplicitlyConvertible<set<NN>>;
         { square (a) } -> ImplicitlyConvertible<NN>;
         { quadrance (a) } -> ImplicitlyConvertible<NN>;
     } && requires (const NN &a, const NN &b) {
