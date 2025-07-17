@@ -40,9 +40,9 @@ namespace data {
         return x.append (e);
     }
     
-    template <typename L, typename elem = decltype (std::declval<const L> ().first ())>
-    concept Queue = SequenceOf<const L, elem> && interface::has_append_method<const L, elem> && 
-        interface::has_queue_constructor<L, elem> && std::default_initializable<L>;
+    template <typename L>
+    concept Queue = std::default_initializable<L> && Sequence<const L> && 
+        interface::has_append_method<const L, decltype (std::declval<const L> ().first ())>;
     
 }
 
