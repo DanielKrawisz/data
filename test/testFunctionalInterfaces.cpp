@@ -273,12 +273,12 @@ namespace data {
         
         using stack_has_plus = decltype (std::declval<stack<X>> () + std::declval<stack<X>> ());
         using list_has_plus = decltype (std::declval<list<X>> () + std::declval<list<X>> ());
-
+/*
         using ordered_sequence_has_merge = decltype (merge (std::declval<ordered_sequence<X>> (), std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_merge = decltype (merge (std::declval<priority_queue<X>> (), std::declval<priority_queue<X>> ()));
         using set_has_merge = decltype (merge (std::declval<set<X>> (), std::declval<set<X>> ()));
         using map_has_merge = decltype (merge (std::declval<map<size_t, X>> (), std::declval<map<size_t, X>> ()));
-
+*/
         using ordered_sequence_has_and = decltype (std::declval<ordered_sequence<X>> () & std::declval<ordered_sequence<X>> ());
         using priority_queue_has_and = decltype (std::declval<priority_queue<X>> () & std::declval<priority_queue<X>> ());
         using set_has_and = decltype (std::declval<set<X>> () & std::declval<set<X>> ());

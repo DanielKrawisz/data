@@ -285,21 +285,37 @@ TYPED_TEST (stack_test, TestStackSize) {
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
-/*
+
 TYPED_TEST (stack_test, TestStackFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    EXPECT_THROW (first (type {}), data::empty_sequence_exception);
+
+    type z {};
+    const type cz {};
+
+    EXPECT_THROW (first (z), data::empty_sequence_exception);
+    EXPECT_THROW (first (cz), data::empty_sequence_exception);
     
-    using return_type = decltype (first (type {}));
+    using return_type = decltype (first (z));
+    using const_return_type = decltype (first (cz));
     
-    static_assert (data::ImplicitlyConvertible<return_type, const element>);
+    static_assert (data::ImplicitlyConvertible<return_type, element>);
+    static_assert (data::ImplicitlyConvertible<const_return_type, const element>);
+
     static_assert (data::Reference<return_type>);
+    static_assert (data::Reference<const_return_type>);
 
     if constexpr (data::Reference<element>) {
         static_assert (data::Same<element, return_type>);
-    } 
-}*/
+        static_assert (data::Same<return_type, const_return_type>);
+    } else if constexpr (data::Const<element>) {
+        static_assert (data::Same<element &, return_type>);
+        static_assert (data::Same<return_type, const_return_type>);
+    } else {
+        static_assert (data::Same<element &, return_type>);
+        static_assert (data::Same<const element &, const_return_type>);
+    }
+}
 
 TYPED_TEST (stack_test, TestStackRest) {
     using type = typename TestFixture::type;

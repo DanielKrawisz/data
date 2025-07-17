@@ -30,7 +30,7 @@ namespace data {
 
     }
     
-    template <typename list> requires Sequence<list> && std::equality_comparable_with<decltype (std::declval<list> ().first ()), int> 
+    template <typename list> requires Sequence<list> && std::equality_comparable_with<decltype (std::declval<const list> ().first ()), int> 
     void test_sorted_list () {
 
         list oA {4, 5, 1, 3, 2};

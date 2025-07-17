@@ -35,11 +35,11 @@ namespace data {
         linked_stack (next n);
         
     public:
-        linked_stack ();
+        constexpr linked_stack ();
         explicit linked_stack (inserted<elem> e, const linked_stack &l);
         explicit linked_stack (inserted<elem> e);
         
-        linked_stack (std::initializer_list<wrapped<elem>> init) {
+        linked_stack (std::initializer_list<wrapped<elem>> init): linked_stack {} {
             for (int i = init.size () - 1; i >= 0; i--) *this = prepend (*(init.begin () + i));
         }
         
@@ -142,7 +142,7 @@ namespace data {
     inline linked_stack<elem>::linked_stack (next n) : Next {n} {}
     
     template <Element elem>
-    inline linked_stack<elem>::linked_stack () : Next {nullptr} {}
+    constexpr inline linked_stack<elem>::linked_stack () : Next {nullptr} {}
     
     template <Element elem>
     inline linked_stack<elem>::linked_stack (inserted<elem> e, const linked_stack &l) : linked_stack {std::make_shared<node> (e, l)} {}
@@ -155,6 +155,7 @@ namespace data {
     // responsibility to check. 
     template <Element elem>
     const elem inline &linked_stack<elem>::first () const {
+        if (Next == nullptr) throw empty_sequence_exception {};
         return Next->First;
     }
     
