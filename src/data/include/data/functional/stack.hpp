@@ -42,7 +42,7 @@ namespace data {
 
     template <typename L>
     concept Stack = std::default_initializable<L> && Sequence<const L> && 
-        interface::has_prepend_method<const L, decltype (std::declval<L> ().first ())>;
+        interface::has_prepend_method<const L, decltype (std::declval<const L> ().first ())>;
 
     template <Stack list> list reverse (const list &);
 }

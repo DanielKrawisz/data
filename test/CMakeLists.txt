@@ -29,14 +29,14 @@ add_executable (unit_tests
     testPriorityQueue.cpp
     testForEach.cpp
     testBytes.cpp
-
-    testEndian.cpp
     testHex.cpp
     testBase64.cpp
     testAscii.cpp
     testStream.cpp
+
     testPermutation.cpp
     testCombinatorics.cpp
+    testEndian.cpp
     testSign.cpp
     testBitShift.cpp
     testN.cpp

@@ -9,7 +9,7 @@
     
 namespace data::tool {
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     struct cycle {
         
         list Cycle;
@@ -39,19 +39,19 @@ namespace data::tool {
         bool operator != (const cycle &c) const;
     };
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     std::ostream &operator << (std::ostream &o, const cycle<list, X> n) {
         return o << "cycle" << n.Cycle;
     }
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     cycle<list, X> cycle<list, X>::remove () const {
         size_t s = size ();
         if (s == 0) return cycle {};
         return {Cycle.rest ()};
     }
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     cycle<list, X> cycle<list, X>::remove (uint32 n) const {
         if (n == 0) return *this;
         size_t s = size ();
@@ -59,7 +59,7 @@ namespace data::tool {
         return remove (n - 1).remove ();
     }
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     bool cycle<list, X>::operator == (const cycle &c) const {
         size_t s = size ();
         if (s != c.size ()) return false;
@@ -75,69 +75,69 @@ namespace data::tool {
         return false;
     }
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline bool cycle<list, X>::operator != (const cycle &c) const {
         return !operator == (c);
     }
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline bool cycle<list, X>::valid () const {
         return data::valid (Cycle);
     }
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X>::cycle () : Cycle {} {}
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X>::cycle (list l) : Cycle {l} {}
     
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X>::cycle (std::initializer_list<X> x) : Cycle {} {
         for (X e : x) Cycle = Cycle << e;
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> &cycle<list, X>::operator = (const cycle &c) {
         Cycle = c.Cycle;
         return *this;
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline size_t cycle<list, X>::size () const {
         return data::size (Cycle);
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline const X& cycle<list, X>::head () const {
         return Cycle.first ();
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> cycle<list, X>::insert (const X &x) const {
         return cycle {Cycle.insert (x)};
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> cycle<list, X>::reverse () const {
         return cycle {data::reverse (Cycle)};
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> cycle<list, X>::rotate_left () const {
         return cycle {data::rotate_left (Cycle)};
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> cycle<list, X>::rotate_right () const {
         return cycle {data::rotate_right (Cycle)};
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> cycle<list, X>::rotate_left (uint32 n) const {
         return cycle {data::rotate_left (Cycle, n)};
     }
         
-    template <typename list, typename X> requires List<list, X>
+    template <List list, typename X> requires SequenceOf<list, X>
     inline cycle<list, X> cycle<list, X>::rotate_right (uint32 n) const {
         return cycle {data::rotate_right (Cycle, n)};
     }

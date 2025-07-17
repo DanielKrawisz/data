@@ -11,11 +11,11 @@
 
 namespace data {
     
-    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
-    concept List = Stack<Q> && Queue<Q, elem>;
+    template <typename Q>
+    concept List = Stack<Q> && Queue<Q>;
     
-    template <typename Q, typename elem = unref<decltype (std::declval<Q> ().first ())>>
-    concept Pendable = Stack<Q> || Queue<Q, elem>;
+    template <typename Q>
+    concept Pendable = Stack<Q> || Queue<Q>;
     
     template <Pendable list>
     list take (const list &l, size_t x);
