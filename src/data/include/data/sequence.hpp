@@ -65,18 +65,13 @@ namespace data {
     }
 
     template <typename X> requires interface::has_first_method<const X>
-    const auto inline &first (const X &x) {
+    decltype (auto) inline first (const X &x) {
         return x.first ();
     }
 
-    template <typename X> requires interface::has_first_method<X>
-    auto inline &first (X &x) {
+    template <typename X> requires interface::has_first_method<const X>
+    decltype (auto) inline first (X &x) {
         return x.first ();
-    }
-
-    template <typename X> requires interface::has_first_method<X>
-    const auto inline &first (X const *const x) {
-        return x->first ();
     }
 
     template <typename X> requires interface::has_first_method<X>

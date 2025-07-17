@@ -168,7 +168,7 @@ TYPED_TEST (list_test, TestListSize) {
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
-/*
+
 TYPED_TEST (list_test, TestListFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
@@ -181,8 +181,12 @@ TYPED_TEST (list_test, TestListFirst) {
 
     if constexpr (data::Reference<element>) {
         static_assert (data::Same<element, return_type>);
-    } 
-}*/
+    } else if constexpr (data::Const<element>) {
+        static_assert (data::Same<element &, return_type>);
+    } else {
+        static_assert (data::Same<const element &, return_type>);
+    }
+}
 
 TYPED_TEST (list_test, TestListRest) {
     using type = typename TestFixture::type;
