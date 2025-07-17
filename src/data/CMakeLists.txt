@@ -1,6 +1,10 @@
+#note: we should get rid of types.cpp and replace it with random.hpp and random.cpp. 
 add_library (data_core STATIC 
   types.cpp
+  encoding/hex.cpp
+  encoding/utf8.cpp
   string.cpp
+  encoding/base64.cpp
 )
 
 target_compile_features (data_core PUBLIC cxx_std_23)
@@ -12,25 +16,39 @@ target_include_directories (data_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_S
 target_link_libraries (
   data_core
   PUBLIC
+  Boost::boost
   ctre
 )
 
-add_library (data STATIC
+add_library (data_numbers STATIC
 
   math/number/gmp/mpq.cpp
   math/number/gmp/N.cpp
   math/number/gmp/aks.cpp
   math/number/gmp/sqrt.cpp
-
-  encoding/hex.cpp
-  encoding/utf8.cpp
-  encoding/base64.cpp
   encoding/base58.cpp
   encoding/integer.cpp
 
-  crypto/random.cpp
-  crypto/secret_share.cpp
-  crypto/block.cpp
+)
+
+target_compile_features (data_numbers PUBLIC cxx_std_23)
+set_target_properties (data_numbers PROPERTIES CXX_EXTENSIONS ON)
+
+target_include_directories (data_numbers PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories (data_numbers PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
+target_link_libraries (
+  data_numbers
+  PUBLIC
+  data_core
+  Boost::boost
+  GMP::GMP
+  rotella
+  gmpxx
+  ctre
+)
+
+add_library (data_net STATIC
 
   net/URL.cpp
 
@@ -44,6 +62,28 @@ add_library (data STATIC
   net/HTTP_client.cpp
   net/HTTP_server.cpp
   net/email.cpp
+)
+
+target_compile_features (data_net PUBLIC cxx_std_23)
+set_target_properties (data_net PROPERTIES CXX_EXTENSIONS ON)
+
+target_include_directories (data_net PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories (data_net PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
+target_link_libraries (
+  data_net
+  PUBLIC
+  data_core
+  Boost::boost
+  nlohmann_json::nlohmann_json
+  taocpp::pegtl
+)
+
+add_library (data STATIC
+
+  crypto/random.cpp
+  crypto/secret_share.cpp
+  crypto/block.cpp
 
   #io/run.cpp
   io/wait_for_enter.cpp
@@ -58,6 +98,8 @@ target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE
 target_link_libraries (
   data
   PUBLIC
+  data_numbers
+  data_net
   data_core
   Boost::boost
   Boost::chrono
@@ -93,7 +135,7 @@ install (
 )
 
 install (
-  TARGETS data data_core nlohmann_json argh rotella milewski gmpxx sv
+  TARGETS data data_numbers data_net data_core nlohmann_json argh rotella milewski gmpxx sv
   EXPORT DataTargets
   ARCHIVE
 )
