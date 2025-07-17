@@ -8,45 +8,8 @@
 
 static_assert (std::convertible_to<int &, const int &>);
 
-/* 
-
-  sequence of X: 
-    in: const X &
-    out: X &
-    const out: X &
-
-  sequence of const X: 
-    in: const X &
-    out: const X &
-    const out: const X &
-
-  sequence of X &
-    in: X &
-    out: X &
-    const out: X &
-
-  sequence of X &
-    in: X &
-    out: X &
-    const out: X &
-
-*/
-
 // test whether data structures satisfy the correct interfaces. 
 namespace data {
-
-/*
-    // a pointer to a const int
-    const int *
-    int const *
-
-    // a const pointer to int
-    int *const 
-
-    // a const pointer to const int 
-    const int *const
-    int const *const
-*/
     
     TEST (FunctionalInterfaceTest, TestSequence) {
 
@@ -245,7 +208,7 @@ namespace data {
         using set_has_empty = decltype (empty (std::declval<set<X>> ()));
         //using ordered_sequence_has_empty = decltype (empty (std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_empty = decltype (empty (std::declval<priority_queue<X>> ()));
-        using map_has_empty = decltype (empty (std::declval<map<X, X>> ()));
+        using map_has_empty = decltype (empty (std::declval<map<size_t, X>> ()));
     
         using stack_has_size = decltype (size (std::declval<stack<X>> ()));
         using list_has_size = decltype (size (std::declval<list<X>> ()));/*
@@ -253,7 +216,7 @@ namespace data {
         using set_has_size = decltype (size (std::declval<set<X>> ()));
         using ordered_sequence_has_size = decltype (size (std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_size = decltype (size (std::declval<priority_queue<X>> ()));
-        using map_has_size = decltype (size (std::declval<map<X, X>> ()));*/
+        using map_has_size = decltype (size (std::declval<map<size_t, X>> ()));*/
     
         // equality (only supported for types with their own == operator)
         using stack_has_equal = decltype (equal (std::declval<stack<X>> (), std::declval<stack<X>> ()));
@@ -262,7 +225,7 @@ namespace data {
         using set_has_equal = decltype (equal (std::declval<set<X>> (), std::declval<set<X>> ()));
         using ordered_sequence_has_equal = decltype (equal (std::declval<ordered_sequence<X>> (), std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_equal = decltype (equal (std::declval<priority_queue<X>> (), std::declval<priority_queue<X>> ()));
-        using map_has_equal = decltype (equal (std::declval<map<X, X>> (), std::declval<map<X, X>> ()));
+        using map_has_equal = decltype (equal (std::declval<map<size_t, X>> (), std::declval<map<size_t, X>> ()));
 
         using stack_has_unequal = decltype (unequal (std::declval<stack<X>> (), std::declval<stack<X>> ()));
         using list_has_unequal = decltype (unequal (std::declval<list<X>> (), std::declval<list<X>> ()));
@@ -270,16 +233,16 @@ namespace data {
         using set_has_unequal = decltype (unequal (std::declval<set<X>> (), std::declval<set<X>> ()));
         using ordered_sequence_has_unequal = decltype (unequal (std::declval<ordered_sequence<X>> (), std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_unequal = decltype (unequal (std::declval<priority_queue<X>> (), std::declval<priority_queue<X>> ()));
-        using map_has_unequal = decltype (unequal (std::declval<map<X, X>> (), std::declval<map<X, X>> ()));
+        using map_has_unequal = decltype (unequal (std::declval<map<size_t, X>> (), std::declval<map<size_t, X>> ()));
 
         // tree doesn't have a values method because it doesn't have an 
         // iteration order. 
         using stack_has_values = decltype (values (std::declval<stack<X>> ()));
         using list_has_values = decltype (values (std::declval<list<X>> ()));
-        using ordered_sequence_has_values = decltype (values (std::declval<ordered_sequence<X>> ()));
+        //using ordered_sequence_has_values = decltype (values (std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_values = decltype (values (std::declval<priority_queue<X>> ()));
         using set_has_values = decltype (values (std::declval<set<X>> ()));
-        using map_has_values = decltype (values (std::declval<map<X, X>> ()));
+        using map_has_values = decltype (values (std::declval<map<size_t, X>> ()));
 
         // stack and queue functions
         using stack_has_first = decltype (first (std::declval<stack<X>> ()));
@@ -294,7 +257,7 @@ namespace data {
 
         using stack_has_take = decltype (take (std::declval<stack<X>> (), 0));
         using list_has_take = decltype (take (std::declval<list<X>> (), 0));
-        using ordered_sequence_has_take = decltype (take (std::declval<ordered_sequence<X>> (), 0));
+        //using ordered_sequence_has_take = decltype (take (std::declval<ordered_sequence<X>> (), 0));
         using priority_queue_has_take = decltype (take (std::declval<priority_queue<X>> (), 0));
 
         using stack_has_drop = decltype (drop (std::declval<stack<X>> (), 0));
@@ -314,22 +277,22 @@ namespace data {
         using ordered_sequence_has_merge = decltype (merge (std::declval<ordered_sequence<X>> (), std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_merge = decltype (merge (std::declval<priority_queue<X>> (), std::declval<priority_queue<X>> ()));
         using set_has_merge = decltype (merge (std::declval<set<X>> (), std::declval<set<X>> ()));
-        using map_has_merge = decltype (merge (std::declval<map<X, X>> (), std::declval<map<X, X>> ()));
+        using map_has_merge = decltype (merge (std::declval<map<size_t, X>> (), std::declval<map<size_t, X>> ()));
 
         using ordered_sequence_has_and = decltype (std::declval<ordered_sequence<X>> () & std::declval<ordered_sequence<X>> ());
         using priority_queue_has_and = decltype (std::declval<priority_queue<X>> () & std::declval<priority_queue<X>> ());
         using set_has_and = decltype (std::declval<set<X>> () & std::declval<set<X>> ());
-        using map_has_and = decltype (std::declval<map<X, X>> () & std::declval<map<X, X>> ());
+        using map_has_and = decltype (std::declval<map<size_t, X>> () & std::declval<map<size_t, X>> ());
 
         using ordered_sequence_has_or = decltype (std::declval<ordered_sequence<X>> () | std::declval<ordered_sequence<X>> ());
         using priority_queue_has_or = decltype (std::declval<priority_queue<X>> () | std::declval<priority_queue<X>> ());
         using set_has_or = decltype (std::declval<set<X>> () | std::declval<set<X>> ());
-        using map_has_or = decltype (std::declval<map<X, X>> () | std::declval<map<X, X>> ());
+        using map_has_or = decltype (std::declval<map<size_t, X>> () | std::declval<map<size_t, X>> ());
 
         using ordered_sequence_has_xor = decltype (std::declval<ordered_sequence<X>> () ^ std::declval<ordered_sequence<X>> ());
         using priority_queue_has_xor = decltype (std::declval<priority_queue<X>> () ^ std::declval<priority_queue<X>> ());
         using set_has_xor = decltype (std::declval<set<X>> () ^ std::declval<set<X>> ());
-        using map_has_xor = decltype (std::declval<map<X, X>> () ^ std::declval<map<X, X>> ());
+        using map_has_xor = decltype (std::declval<map<size_t, X>> () ^ std::declval<map<size_t, X>> ());
   
         using stack_has_sort = decltype (sort (std::declval<stack<X>> ()));
         using list_has_sort = decltype (sort (std::declval<list<X>> ()));
@@ -350,7 +313,7 @@ namespace data {
         using stack_has_replace = decltype (replace (std::declval<stack<X>> (), {}));
         using list_has_replace = decltype (replace (std::declval<list<X>> (), {}));
         using tree_has_replace = decltype (replace (std::declval<tree<X>> (), {}));
-        using map_has_replace = decltype (replace (std::declval<map<X, X>> (), {}));
+        using map_has_replace = decltype (replace (std::declval<map<size_t, X>> (), {}));
     };
 
     template <typename X> bool doop (const X &) {
@@ -368,12 +331,28 @@ namespace data {
             using set_has_contains = decltype (contains (std::declval<set<X>> (), y));
             using ordered_sequence_has_contains = decltype (contains (std::declval<ordered_sequence<X>> (), y));
             using priority_queue_has_contains = decltype (contains (std::declval<priority_queue<X>> (), y));
-            using map_has_contains = decltype (contains (std::declval<map<X, X>> (), y));
+            using map_has_contains = decltype (contains (std::declval<map<size_t, X>> (), y));
+/*
+            using stack_has_remove = decltype (remove (std::declval<stack<X>> (), 0));
+            using list_has_remove = decltype (remove (std::declval<list<X>> (), 0));
+            using ordered_sequence_has_remove = decltype (remove (std::declval<ordered_sequence<X>> (), 0));
+            using tree_has_remove = decltype (remove (std::declval<tree<X>> (), 0));
+            using set_has_remove = decltype (remove (std::declval<set<X>> (), 0));
+            using priority_queue_has_remove = decltype (remove (std::declval<priority_queue<X>> (), 0));
+            using map_has_remove = decltype (remove (std::declval<map<size_t, X>> (), 0));
+
+            using stack_has_erase = decltype (erase (std::declval<stack<X>> (), y));
+            using list_has_erase = decltype (erase (std::declval<list<X>> (), y));
+            using ordered_sequence_has_erase = decltype (erase (std::declval<ordered_sequence<X>> (), y));
+            using tree_has_erase = decltype (erase (std::declval<tree<X>> (), y));
+            using set_has_erase = decltype (erase (std::declval<set<X>> (), y));
+            using priority_queue_has_erase = decltype (erase (std::declval<priority_queue<X>> (), y));
+            using map_has_erase = decltype (erase (std::declval<map<size_t, X>> (), y));*/
 
             //using set_has_insert = decltype (insert (std::declval<set<X>> (), y));
             //using ordered_sequence_has_insert = decltype (insert (std::declval<ordered_sequence<X>> (), y));
             //using priority_queue_has_insert = decltype (insert (std::declval<priority_queue<X>> (), y));
-            //using map_has_insert = decltype (insert (std::declval<map<X, X>> (), y, y));
+            //using map_has_insert = decltype (insert (std::declval<map<size_t, X>> (), y, y));
 
             //using stack_has_prepend = decltype (prepend (std::declval<stack<X>> (), y));
             //using list_has_prepend = decltype (prepend (std::declval<list<X>> (), y));
@@ -385,7 +364,7 @@ namespace data {
             using set_has_select = decltype (select (std::declval<set<X>> (), &doop<y>));
             using ordered_sequence_has_select = decltype (select (std::declval<ordered_sequence<X>> (), &doop<y>));
             using priority_queue_has_select = decltype (select (std::declval<priority_queue<X>> (), &doop<y>));
-            using map_has_select = decltype (select (std::declval<map<X, X>> (), &doop<y>));
+            using map_has_select = decltype (select (std::declval<map<size_t, X>> (), &doop<y>));
 */
         }
 

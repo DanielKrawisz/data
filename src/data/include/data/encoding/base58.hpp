@@ -13,7 +13,6 @@
 #include <data/divide.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
-#include <data/math/root.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/string.hpp>
@@ -164,10 +163,6 @@ namespace data::math {
 
     template <> struct abs<base58_uint> {
         base58_uint operator () (const base58_uint &);
-    };
-
-    template <uint64 pow> struct root<base58_uint, pow> {
-        set<base58_uint> operator () (const base58_uint &n);
     };
 
     template <> struct divide<base58_uint> {
