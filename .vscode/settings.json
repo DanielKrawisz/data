@@ -107,7 +107,8 @@
         "string_view": "cpp",
         "rope": "cpp",
         "numbers": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "slist": "cpp"
     },
     "git.ignoreLimitWarning": true
 }

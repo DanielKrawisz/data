@@ -44,7 +44,7 @@ namespace data {
         explicit functional_queue (inserted<element> e, const functional_queue &l);
         functional_queue (stack l);
 
-        functional_queue (std::initializer_list<wrapped<element>> init) {
+        functional_queue (std::initializer_list<wrapped<element>> init): functional_queue {} {
             for (int i = 0; i < init.size (); i++) *this = append (*(init.begin () + i));
         }
         

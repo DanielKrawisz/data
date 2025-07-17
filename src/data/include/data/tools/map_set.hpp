@@ -67,7 +67,7 @@ namespace data::tool {
             return map_set {Map.remove (k)};
         }
         
-        ordered_stack<stack<const key &>> values () const {
+        ordered_sequence<const key &> values () const {
             return Map.keys ();
         }
         

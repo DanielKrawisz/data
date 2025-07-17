@@ -15,15 +15,14 @@
 // Implementations of data structures. 
 #include <data/list.hpp>
 #include <data/tree.hpp>
-
 #include <data/ordered_sequence.hpp>
+
 #include <data/tools/cycle.hpp>
 #include <data/tools/rb.hpp>
 #include <data/tools/binary_search_tree.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
 
-#include <data/bytes.hpp>
 #include <data/fold.hpp>
 
 namespace data {
