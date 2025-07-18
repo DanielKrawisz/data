@@ -57,6 +57,10 @@ namespace data::tool {
             return Stack.first ();
         }
 
+        const elem &operator [] (size_t z) const {
+            return Stack[z];
+        }
+
         ordered_stack insert (inserted<elem> x) const;
 
         template<typename ... P>
