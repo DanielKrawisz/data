@@ -154,6 +154,10 @@ TYPED_TEST (ordseq_test, TestOrdSeqFirst) {
     EXPECT_THROW (first (type {}), data::empty_sequence_exception);
 
     using return_type = decltype (first (type {}));
+
+    EXPECT_THROW (type {}[size_t {0}], data::empty_sequence_exception);
+
+    static_assert (data::Same<decltype (type {}[size_t {0}]), return_type>);
     
     static_assert (data::ImplicitlyConvertible<return_type, const element>);
     static_assert (data::Reference<return_type>);

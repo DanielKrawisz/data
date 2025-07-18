@@ -298,6 +298,12 @@ TYPED_TEST (stack_test, TestStackFirst) {
     
     using return_type = decltype (first (z));
     using const_return_type = decltype (first (cz));
+
+    EXPECT_THROW (z[size_t {0}], data::empty_sequence_exception);
+    EXPECT_THROW (cz[size_t {0}], data::empty_sequence_exception);
+
+    static_assert (data::Same<decltype (z[size_t {0}]), return_type>);
+    static_assert (data::Same<decltype (cz[size_t {0}]), const_return_type>);
     
     static_assert (data::ImplicitlyConvertible<return_type, element>);
     static_assert (data::ImplicitlyConvertible<const_return_type, const element>);
