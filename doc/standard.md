@@ -78,9 +78,35 @@ Equivalent to `std::totally_ordered`.
 
 ## Functional Data Structures
 
-Functional data structures have an interface using member functions. 
+The data library supports three data structures:
 
-An aditional interface using functions found by argument-dependent lookup is also available. 
+* stack
+* list
+* ordered_sequence
+
+A set of member functions is provided to work with them, as well as functions
+with the same name that can be found by argument dependent lookup. 
+
+The functional data structures library has the following includes:
+
+* `data/sequence.hpp`
+* `data/stack.hpp`
+* `data/list.hpp`
+* `data/ordered_sequence.hpp`
+<!--
+* `data/transpose.hpp`
+* `data/map_thread`
+* `data/cycle.hpp`
+* `data/tree.hpp`
+* `data/container.hpp`
+* `data/set.hpp`
+* `data/map.hpp`
+* `data/remove.hpp`
+* `data/erase.hpp`
+* `data/select.hpp`
+* `data/replace.hpp`
+* `data/for_each.hpp`
+-->
 
 ### `data/sequence.hpp`
 
@@ -90,21 +116,29 @@ A type `seq` is a `data::Sequence` if it supports `seq::size`, `seq::first`, and
 
 #### `concept data::SequenceOf`
 
-`SequnceOf<seq, elem>` is a `Sequence` such that `first` returns a value that can be implicitly converted to `const elem`.
+#### `concept data::Stack`
 
-#### `data::empty`
+Defined in `data/stack.hpp`, `data/list.hpp`, `data/ordered_sequence.hpp`
 
-#### `data::size`
+A type `X` supporting `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. 
 
-#### `data::first`
+For a value `x` of `X`, `x.prepend (x.first ()) -> X`.
 
-#### `data::rest`
+#### `data::drop`
+
+#### `concept data::Queue`
+
+#### `concept data::List`
+
+#### `data::take`
+
+A `List` is both a `Stack` and a `Queue`. 
+
+#### `data::reverse`
 
 ### `data/stack.hpp`
 
-#### `concept data::Stack`
-
-A type `X` supporting `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. For a value `x` of `X`, `x.prepend (x.first ()) -> X`
+A `Stack` is a `Sequence`.
 
 #### `class data::stack`
 
@@ -176,11 +210,11 @@ If `n > size (z)` return an empty stack.
 
 #### `reverse`
 
+#### `sort`
+
+#### `sorted`
+
 ### `data/list.hpp`
-
-#### `concept data::Queue`
-
-#### `concept data::List`
 
 #### `class data::list`
 
@@ -195,6 +229,8 @@ For a value `z` of type `data::list<X>`:
 #### `<<`
 
 Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list<X>`.
+
+### `data/ordered_sequence.hpp`
 <!-- 
 ## Mathematics
 

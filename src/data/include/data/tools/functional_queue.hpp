@@ -199,7 +199,7 @@ namespace data {
     
     template <Stack stack, typename element> requires SequenceOf<stack, element>
     typename functional_queue<stack, element>::retrieved functional_queue<stack, element>::operator [] (uint32 i) const {
-        if (i >= size ()) throw exception {} << "index " << i << " called on queue of size " << size ();
+        if (i >= size ()) throw empty_sequence_exception {};
         uint32 left = Left.size ();
         if (i >= left) return Right[Right.size () - (i - left) - 1];
         return Left[i];

@@ -74,6 +74,7 @@ namespace data {
         
         linked_stack from (uint32 n) const;
         
+        elem &operator [] (size_t n);
         const elem &operator [] (size_t n) const;
         
         using iterator = sequence_iterator<const linked_stack<elem>>;
@@ -233,7 +234,12 @@ namespace data {
     
     template <Element elem>
     const elem inline &linked_stack<elem>::operator [] (size_t n) const {
-        return from (n).first ();
+        return drop (*this, n).first ();
+    }
+    
+    template <Element elem>
+    elem inline &linked_stack<elem>::operator [] (size_t n) {
+        return drop (*this, n).first ();
     }
     
     template <Element elem>
