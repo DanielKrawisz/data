@@ -62,6 +62,8 @@ add_library (data_net STATIC
   net/HTTP_client.cpp
   net/HTTP_server.cpp
   net/email.cpp
+  
+  tools/rate_limiter.cpp
 )
 
 target_compile_features (data_net PUBLIC cxx_std_23)
@@ -87,7 +89,6 @@ add_library (data STATIC
 
   #io/run.cpp
   io/wait_for_enter.cpp
-  tools/rate_limiter.cpp
   io/log.cpp
 )
 
