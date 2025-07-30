@@ -13,8 +13,8 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CA
 
 project (
   data
-  VERSION 0.1.0
-  DESCRIPTION "wrappers and high-level programming constructs in c++"
+  VERSION 0.0.30
+  DESCRIPTION "functinal data structures, wrappers, and other high-level programming constructs in c++"
   LANGUAGES CXX
 )
 
