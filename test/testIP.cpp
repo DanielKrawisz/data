@@ -188,6 +188,11 @@ namespace data::net::IP {
                 EXPECT_EQ (v4.valid (), version == 4) << v4;
 
                 EXPECT_EQ (bytes (Address), *encoding::hex::read (Bytes));
+                if (v6.valid ()) {
+                    EXPECT_EQ (v6.address (), Address);
+                } else {
+                    EXPECT_EQ (v4.address (), Address);
+                }
 
             }
         };
@@ -277,7 +282,7 @@ namespace data::net {
             net::URL URL;
 
             data::ASCII Scheme;
-            maybe<data::UTF8> Authority;
+            maybe<net::authority> Authority;
             data::ASCII Path;
             maybe<data::ASCII> Query;
             maybe<data::UTF8> Fragment;
@@ -517,6 +522,12 @@ namespace data::net {
         EXPECT_FALSE (no.user_name_pass ());
         EXPECT_FALSE (no.query_map ());
 
+    }
+
+    TEST (IPTest, TestEndpoint) {
+        IP::TCP::endpoint e {"tcp://0.0.0.0:1234"};
+        EXPECT_EQ (e.address (), "0.0.0.0");
+        EXPECT_EQ (e.port (), 1234);
     }
 
 }

@@ -47,6 +47,8 @@ namespace data::net {
 
     uint16 default_port (const protocol &);
 
+    // the path is the part of the URL including and after 
+    // the first '/' and before the first '?'. 
     struct path;
 
     std::ostream &operator << (std::ostream &, const path &);
@@ -271,7 +273,7 @@ namespace data::encoding::percent {
         maybe<data::UTF8> user_info () const;
         maybe<data::UTF8> host () const;
         maybe<data::ASCII> port () const;
-        maybe<data::UTF8> authority () const;
+        maybe<net::authority> authority () const;
         net::target target () const;
         net::path path () const;
         maybe<data::ASCII> query () const; // the part after ? and before #
@@ -455,6 +457,23 @@ namespace data::net::IP::TCP {
         IP::address address () const;
         uint16 port () const;
 
+        uint16 port_number () const {
+            return port ();
+        }
+
+        data::UTF8 authority () const {
+            return *static_cast<const URL *> (this)->authority ();
+        }
+
+        data::UTF8 host () const {
+            return *static_cast<const URL *> (this)->host ();
+        }
+        
+        void user_info () const = delete;
+        void domain_name () const = delete;
+        void query () const = delete;
+        void fragment () const = delete;
+
         // we use asio for the backend of some of this stuff.
         operator asio::ip::tcp::endpoint () const;
     };
@@ -482,6 +501,14 @@ namespace data::net {
 
     bool inline operator == (const port &a, const port &b) {
         return case_insensitive_equal (a, b);
+    }
+
+    bool inline operator == (const authority &a, const authority &b) {
+        return static_cast<const UTF8 &> (a) == static_cast<const UTF8 &> (b);
+    }
+
+    bool inline operator == (const target &a, const target &b) {
+        return static_cast<const UTF8 &> (a) == static_cast<const UTF8 &> (b);
     }
 
     std::ostream inline &IP::operator << (std::ostream &o, const IP::address &x) {
@@ -603,7 +630,7 @@ namespace data::encoding::percent {
         return net::path {x};
     }
 
-    maybe<data::UTF8> inline URI::authority () const {
+    maybe<net::authority> inline URI::authority () const {
         string_view x = authority (*this);
         if (x.data () == nullptr) return {};
         return decode (x);
@@ -648,9 +675,9 @@ namespace data::net::IP::TCP {
     inline endpoint::endpoint (const std::string &x) : URL {x} {}
 
     bool inline endpoint::valid () const {
-        return URL::valid () && this->protocol () == protocol::TCP && bool (this->port_number ()) &&
-            bool (static_cast<const URL *> (this)->address ()) && !bool (this->user_info ()) &&
-            !bool (this->fragment ()) && !bool (this->query ());
+        return URL::valid () && this->protocol () == protocol::TCP && bool (static_cast<const URL *> (this)->port_number ()) &&
+            bool (static_cast<const URL *> (this)->address ()) && !bool (static_cast<const URL *> (this)->user_info ()) &&
+            !bool (static_cast<const URL *> (this)->fragment ()) && !bool (static_cast<const URL *> (this)->query ());
     }
 
     IP::address inline endpoint::address () const {
@@ -658,7 +685,7 @@ namespace data::net::IP::TCP {
     }
 
     uint16 inline endpoint::port () const {
-        return *this->port_number ();
+        return *static_cast<const URL *> (this)->port_number ();
     }
 
     inline endpoint::operator asio::ip::tcp::endpoint () const {
