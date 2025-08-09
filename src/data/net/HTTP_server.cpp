@@ -107,7 +107,6 @@ namespace data::net::HTTP {
     void server::sessions::add (ptr<session> x) {
         std::lock_guard<std::mutex> lock (Mtx);
         Sessions.insert (x);
-        std::cout << "sessions is now of size " << Sessions.size () << std::endl;
     }
 
     void server::sessions::remove (ptr<session> x) {
