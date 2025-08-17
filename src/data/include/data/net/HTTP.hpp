@@ -13,7 +13,7 @@
 #include <data/async.hpp>
 #include <data/tools.hpp>
 #include <data/cross.hpp>
-#include <data/net/asio/session.hpp>
+#include <data/net/asio/stream.hpp>
 #include <data/net/JSON.hpp>
 #include <data/net/URL.hpp>
 

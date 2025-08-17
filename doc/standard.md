@@ -30,7 +30,7 @@ Naming conventions:
 
 Equivalant to `std::same_as`.
 
-#### `concept ImplicitlyConvertible`
+#### `concept data::ImplicitlyConvertible`
 
 Eqivalent to `std::convertible_to`.
 
@@ -40,19 +40,19 @@ Implicitly or explicitly convertable.
 
 #### `concept data::ExplicitlyConvertible`
 
-Explicitly convertible but not implicitly convertable.
+Explicitly convertible but *not* implicitly convertable.
 
 #### `concept data::Element`
 
-Suitable to be an element in a data structure. References are allowed. 
+Suitable as an element in a data structure. References are allowed. 
 
 `template <typename Type> concept Element = std::is_constructible_v<Type, Type>;`
 
-#### `typename unref`
+#### `typename data::unref`
 
 Equivalent to `std::remove_reference_t`.
 
-#### `typename unconst`
+#### `typename data::unconst`
 
 Equivalent to `std::remove_const_t`.
 
@@ -68,13 +68,23 @@ Equivalent to `std::totally_ordered`.
 
 ### `data/valid.hpp`
 
+#### `valid`
+
 #### `data::valid`
 
 `valid` takes a value of any type and returns bool. 
 
 * For pointers, `nullptr` is `false`. Otherwise it dereferences the pointer and calls `valid` on the value. 
-* For a class `X`, `valid` looks for `X::valid const () -> bool` and calls that. Otherwise it returns `true`.
 * For floating points, `valid` checks for `NaN` and returns `false`. Otherwise returns `true`.
+* For a class `X`, `valid` looks for `X::valid const () -> bool` and calls that. Otherwise it returns `true`.
+
+### `data/maybe.hpp`
+
+#### `typename maybe<X>`
+
+### `data/either.hpp`
+
+#### `typename either<X...>`
 
 ## Functional Data Structures
 
@@ -231,7 +241,19 @@ For a value `z` of type `data::list<X>`:
 Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list<X>`.
 
 ### `data/ordered_sequence.hpp`
-<!-- 
+
+## Arrays, sequences, data
+
+### `data/bytes.hpp`
+
+#### `typename data::bytes`
+
+### `data/string.hpp`
+
+#### `typename data::string`
+
+Just like `std::string` except that when you print it, `"` are included as delimiters. 
+
 ## Mathematics
 
 ### `data/math/infinite.hpp`
@@ -243,4 +265,25 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 ### `data/math/integral.hpp`
 
 Numbers that work the same as built-in integral types but with more sizes. 
--->
+
+#### `typename data::byte`
+
+#### `typename data::uint8`
+
+#### `typename data::int8`
+
+#### `typename data::uint16`
+
+#### `typename data::int16`
+
+#### `typename data::uint16_big`
+
+#### `typename data::int16_big`
+
+#### `typename data::uint16_little`
+
+#### `typename data::int16_little`
+
+## Synchronized and Asynchronized
+
+### `data/async.hpp`

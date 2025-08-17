@@ -34,8 +34,19 @@ add_library (data_numbers STATIC
 target_compile_features (data_numbers PUBLIC cxx_std_23)
 set_target_properties (data_numbers PROPERTIES CXX_EXTENSIONS ON)
 
-target_include_directories (data_numbers PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories (data_numbers PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+target_include_directories (
+  data_numbers
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_include_directories (
+  data_numbers
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 
 target_link_libraries (
   data_numbers
@@ -53,12 +64,12 @@ add_library (data_net STATIC
   net/URL.cpp
 
   async.cpp
-  net/beast/beast.cpp
+  net/beast/http.cpp
   net/HTTP.cpp
   net/REST.cpp
   net/JSON.cpp
   net/TCP.cpp
-  net/websocket.cpp
+  #net/websocket.cpp
   net/HTTP_client.cpp
   net/HTTP_server.cpp
   net/email.cpp

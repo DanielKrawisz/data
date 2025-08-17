@@ -16,6 +16,7 @@
 
 namespace data {
 
+    // we use awaitable for all coroutines.
     template <typename X> using awaitable = boost::asio::awaitable<X>;
     using exec = boost::asio::any_io_executor;
 
@@ -54,18 +55,6 @@ namespace data {
             }, use_future  // This turns the coroutine into a std::future
         ).get ();  // Block and get the result
 
-    }
-
-    template <typename fun, typename... args>
-    requires std::regular_invocable<fun, args...>
-    auto asynced (exec ex, fun &&f, args &&...a) -> awaitable<decltype (std::invoke (std::forward<fun> (f), std::forward<args> (a)...))>
-    {
-        co_return co_await boost::asio::post (
-            boost::asio::bind_executor (ex,
-                [f = std::forward<fun> (f), ... a = std::forward<args> (a)]() { return std::invoke (f, a...); }
-            ),
-            boost::asio::use_awaitable
-        );
     }
 
     using milliseconds = std::chrono::milliseconds;

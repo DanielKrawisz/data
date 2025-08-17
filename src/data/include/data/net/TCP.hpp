@@ -18,23 +18,15 @@ namespace data::net::IP {
 
 namespace data::net::IP::TCP {
 
-    // open a TCP connection.
-    void open (asio::io_context &, endpoint, asio::error_handler, close_handler, interaction<string_view, const string &>);
+    // NOTE: these are not yet thread safe.
 
-    class server : std::enable_shared_from_this<server> {
-        asio::io_context& IO;
-        asio::ip::tcp::acceptor Acceptor;
-        maybe<asio::ip::tcp::socket> Socket;
-        interaction<string_view, const string &> Interact;
-        
-        void accept ();
-        
-    public:
-        server (asio::io_context &io, uint16 port, interaction<string_view, const string &> interact);
-    };
-    
-    inline server::server (asio::io_context &io, uint16 port, interaction<string_view, const string &> interact):
-        IO {io}, Acceptor {io, asio::ip::tcp::endpoint (asio::ip::tcp::v4 (), port)}, Socket {}, Interact {interact} {}
+    // open a TCP connection.
+    // curry this with the endpoint and then we have an open method that can be used
+    // with serialized and JSON and whatever.
+    awaitable<ptr<out_stream<byte_slice>>> open (endpoint, close_handler, interaction<bytes, byte_slice>);
+
+    // the same thing but it works with strings instead of bytes.
+    awaitable<ptr<out_stream<string_view>>> open (endpoint, close_handler, interaction<string, string_view>);
     
 }
 
