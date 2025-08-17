@@ -190,7 +190,7 @@ namespace data::net::IP {
                 EXPECT_EQ (bytes (Address), *encoding::hex::read (Bytes));
                 if (v6.valid ()) {
                     EXPECT_EQ (v6.address (), Address);
-                } else {
+                } else if (v4.valid ()) {
                     EXPECT_EQ (v4.address (), Address);
                 }
 

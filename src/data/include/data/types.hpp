@@ -66,6 +66,7 @@ namespace data {
     using string_view = std::basic_string_view<char>;
 
     template <typename X, typename Y = X> using pair = std::pair<X, Y>;
+    template <typename X, typename Y> using expected = std::expected<X, Y>;
 
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
