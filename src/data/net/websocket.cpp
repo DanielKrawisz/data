@@ -2,9 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <data/net/stream.hpp>
 #include <data/net/websocket.hpp>
-#include <data/net/async/message_queue.hpp>
-#include <data/net/async/wait_for_message.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
@@ -22,8 +21,7 @@ namespace data::net::websocket {
 
     template <typename stream>
     struct socket final :
-        async::write_stream<const string &>,
-        async::read_stream<string_view>,
+        data::net::socket<byte_slice, const bytes &>,
         std::enable_shared_from_this<socket<stream>> {
 
         ptr<stream> Socket;
@@ -38,7 +36,7 @@ namespace data::net::websocket {
         socket (ptr<stream> socket, handler<asio::error> errors, close_handler on_close) :
             Socket {socket}, OnError {errors}, OnClose {on_close}, Buffer {}, Closed {false} {}
 
-        void write (const string &x, function<void ()> on_complete) final override {
+        void write (const bytes &x, function<void ()> on_complete) final override {
             Socket->async_write (asio::buffer (x.data (), x.size ()),
                 [self = this->shared_from_this (), on_complete] (const asio::error& error, size_t bytes_transferred) -> void {
                     if (error == beast::websocket::error::closed) self->close ();
@@ -64,16 +62,17 @@ namespace data::net::websocket {
             return closed;
         }
 
-        void read_result(function<void (string_view)> handle,beast::error_code error, std::size_t bytes_transfered) {
+        void read_result (function<void (byte_slice)> handle, beast::error_code error, std::size_t bytes_transfered) {
             if (error == beast::websocket::error::closed) close ();
             else if (error) OnError (error);
 
-            handle (boost::beast::buffers_to_string(Buffer.data()));
-            Buffer.consume(bytes_transfered);
+            handle (byte_slice {(const byte *) Buffer.data (), Buffer.size ()});
+            Buffer.consume (bytes_transfered);
         }
-        void read (function<void (string_view)> handle) final override {
-            Buffer.clear();
-            Socket->async_read (Buffer,boost::beast::bind_front_handler(&socket::read_result,this->shared_from_this (), handle));
+
+        void read (function<void (byte_slice)> handle) final override {
+            Buffer.clear ();
+            Socket->async_read (Buffer, boost::beast::bind_front_handler (&socket::read_result, this->shared_from_this (), handle));
         }
     };
 
@@ -81,7 +80,7 @@ namespace data::net::websocket {
         asio::io_context &io,
         const URL &url,
         asio::error_handler error_handler,
-        interaction<string_view, const string &> interact,
+        interaction<byte_slice, const bytes &> interact,
         close_handler closed) {
         // These objects perform our I/O
         ptr<insecure_stream> ws = std::make_shared<insecure_stream> (io);
@@ -111,14 +110,15 @@ namespace data::net::websocket {
 
         ptr<socket<insecure_stream>> ss {new socket<insecure_stream> {ws, error_handler, closed}};
 
-        ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                                        (new async::message_queue<const string &>{
-                        std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+        ptr<session<const bytes &>> zz {
+            static_cast<session<const bytes &> *>
+                (new async::message_queue<const bytes &> {
+                    std::static_pointer_cast<write_socket<const bytes &>> (ss)})};
 
-        async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
-                                             [xx = interact (zz)] (string_view z) -> void {
-                                                 return xx (z);
-                                             });
+        async::wait_for_message<byte_slice> (std::static_pointer_cast<read_socket<byte_slice>> (ss),
+            [xx = interact (zz)] (byte_slice z) -> void {
+                return xx (z);
+            });
     }
 
     void secure_open (
@@ -126,9 +126,9 @@ namespace data::net::websocket {
         const URL &url,
         HTTP::SSL &ssl,
         asio::error_handler error_handler,
-        interaction<string_view, const string &> interact,
+        interaction<byte_slice, const bytes &> interact,
         close_handler closed) {
-// These objects perform our I/O
+        // These objects perform our I/O
         ptr<secure_stream> ws = std::make_shared<secure_stream> (io, ssl);
 
         asio::ip::tcp::resolver resolver (io);
@@ -145,6 +145,7 @@ namespace data::net::websocket {
                             static_cast<int>(::ERR_get_error ()),
                             io::error::get_ssl_category ()),
                     "Failed to set SNI Hostname");
+
         // Update the host_ string. This will provide the value of the
         // Host HTTP header during the WebSocket handshake.
         // See https://tools.ietf.org/html/rfc7230#section-5.4
@@ -166,14 +167,14 @@ namespace data::net::websocket {
 
         ptr<socket<secure_stream>> ss {new socket<secure_stream> {ws, error_handler, closed}};
 
-        ptr<session<const string &>> zz {static_cast<session<const string &> *>
-                                         (new async::message_queue<const string &> {
-                        std::static_pointer_cast<async::write_stream<const string &>> (ss)})};
+        ptr<session<const bytes &>> zz {static_cast<session<const bytes &> *>
+                (new async::message_queue<const bytes &> {
+            std::static_pointer_cast<write_socket<const bytes &>> (ss)})};
 
-        async::wait_for_message<string_view> (std::static_pointer_cast<async::read_stream<string_view>> (ss),
-                                             [xx = interact (zz)] (string_view z) -> void {
-                                                 return xx (z);
-                                             });
+        async::wait_for_message<byte_slice> (std::static_pointer_cast<read_socket<byte_slice>> (ss),
+            [xx = interact (zz)] (byte_slice z) -> void {
+                return xx (z);
+            });
     }
 
     void open (
@@ -182,7 +183,7 @@ namespace data::net::websocket {
         HTTP::SSL *ssl,
         asio::error_handler error_handler,
         close_handler closed,
-        interaction<string_view, const string &> interact) {
+        interaction<byte_slice, const bytes &> interact) {
 
         if (url.protocol () != protocol::WS && url.protocol () != protocol::WSS)
             throw exception {} << "protocol " << url.protocol () << " is not websockets";
@@ -207,7 +208,7 @@ namespace data::net::websocket {
         HTTP::SSL &ssl,
         asio::error_handler error_handler,
         close_handler closed,
-        interaction<string_view, const string &> interact) {
+        interaction<byte_slice, const bytes &> interact) {
 
         if (url.protocol () != protocol::WSS) throw exception {} << "expected protocol WSS, but got " << url.protocol ();
 
@@ -227,7 +228,7 @@ namespace data::net::websocket {
         const URL &url,
         asio::error_handler error_handler,
         close_handler closed,
-        interaction<string_view, const string &> interact) {
+        interaction<byte_slice, const bytes &> interact) {
 
         if (url.protocol () != protocol::WS) throw exception {} << "expected protocol WS, but got " << url.protocol ();
 

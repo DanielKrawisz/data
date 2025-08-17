@@ -7,7 +7,7 @@
 
 #include <data/net/URL.hpp>
 #include <data/net/HTTP.hpp>
-#include <data/net/asio/session.hpp>
+#include <data/net/asio/stream.hpp>
 
 namespace data::net::websocket {
 
@@ -18,7 +18,7 @@ namespace data::net::websocket {
         HTTP::SSL *,
         asio::error_handler error_handler,
         close_handler,
-        interaction<string_view, const string &>);
+        interaction<byte_slice, const bytes &>);
 
     void open_secure (
         asio::io_context &,
@@ -26,14 +26,14 @@ namespace data::net::websocket {
         HTTP::SSL &,
         asio::error_handler error_handler,
         close_handler,
-        interaction<string_view, const string &>);
+        interaction<byte_slice, const bytes &>);
 
     void open_insecure (
         asio::io_context &,
         const URL &,
         asio::error_handler error_handler,
         close_handler,
-        interaction<string_view, const string &>);
+        interaction<byte_slice, const bytes &>);
     
 }
 

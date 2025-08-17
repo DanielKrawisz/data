@@ -10,6 +10,7 @@
 #include <data/encoding/ascii.hpp>
 #include <data/maybe.hpp>
 #include <data/tools.hpp>
+#include <data/net/asio/TCP.hpp>
 
 // Implementation of a URL as described in RFC3986
 // https://www.rfc-editor.org/rfc/rfc3986
@@ -159,8 +160,6 @@ namespace data::net {
 
     };
 }
-
-#include <data/net/asio/socket.hpp>
 
 namespace data::net::IP {
 

@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <data/async.hpp>
 #include <data/net/HTTP.hpp>
-#include <data/net/asio/session.hpp>
-#include <data/net/beast/beast.hpp>
+#include <data/net/asio/stream.hpp>
+#include <data/net/beast/http.hpp>
 #include <unordered_set>
 
 namespace data::net::HTTP::beast {

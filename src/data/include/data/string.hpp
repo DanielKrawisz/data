@@ -5,8 +5,8 @@
 #ifndef DATA_STRING
 #define DATA_STRING
 
-#include "stack.hpp"
-#include "bytes.hpp"
+#include <data/stack.hpp>
+#include <data/bytes.hpp>
 
 namespace data {
 

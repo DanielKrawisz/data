@@ -1,5 +1,5 @@
-#ifndef DATA_NET_HTTP_BEAST
-#define DATA_NET_HTTP_BEAST
+#ifndef DATA_NET_HTTP_BEAST_HTTP
+#define DATA_NET_HTTP_BEAST_HTTP
 
 // Copyright (c) 2021 Katrina Knight
 // Copyright (c) 2021 Daniel Krawisz
@@ -13,6 +13,7 @@
 
 #include <data/net/HTTP.hpp>
 
+// we use this for HTTP.
 namespace data::net::HTTP::beast {
     using namespace boost::beast;            // from <boost/beast.hpp>
     namespace net = boost::asio;            // from <boost/asio.hpp>
