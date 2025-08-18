@@ -123,8 +123,8 @@ namespace data::net::HTTP {
             make authorization (const ASCII &) const;
 
             make body (const bytes &, const content &content_type = "application/octet-stream") const;
-            make body (const JSON &j) const;
-            make body (const std::string &u) const;
+            make body (const JSON &j, const content &content_type = "application/json") const;
+            make body (const std::string &u, const content &content_type = "text/plain") const;
 
             make add_headers (dispatch<HTTP::header, ASCII>) const;
 
@@ -133,6 +133,7 @@ namespace data::net::HTTP {
 
             maybe<HTTP::method> Method;
 
+            maybe<pctstr> Target {};
             maybe<pctstr> Path {};
             maybe<pctstr> Query {};
             maybe<pctstr> Fragment {};
@@ -217,12 +218,12 @@ namespace data::net::HTTP {
         return static_cast<ASCII> (*this) == static_cast<ASCII> (content (ttt));
     }
 
-    request::make inline request::make::body (const JSON &j) const {
-        return body (bytes (string {j.dump ()}), "application/json");
+    request::make inline request::make::body (const JSON &j, const content &content_type) const {
+        return body (bytes (string {j.dump ()}), content_type);
     }
 
-    request::make inline request::make::body (const std::string &u) const {
-        return body (bytes (string (u)), "text/plain");
+    request::make inline request::make::body (const std::string &u, const content &content_type) const {
+        return body (bytes (string (u)), content_type);
     }
 
 }
