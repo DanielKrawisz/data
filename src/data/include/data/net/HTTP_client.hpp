@@ -24,7 +24,7 @@ namespace data::net::HTTP {
     private:
         ptr<HTTP::SSL> SSL;
         tools::rate_limiter Rate;
-        ptr<session> Session;
+        ptr<stream> Session;
     };
         
     inline client::client (const HTTP::REST &rest, tools::rate_limiter rate) :

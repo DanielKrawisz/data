@@ -4,27 +4,29 @@
 
 #include <data/net/TCP.hpp>
 #include <data/net/asio/TCP.hpp>
-#include <iostream>
+#include <boost/asio/strand.hpp>
 
 namespace data::net::IP::TCP {
 
-    ptr<asio::tcp_stream> connect (exec ec, const endpoint &p, close_handler on_close) {
+    ptr<stream> connect (exec ec, const endpoint &p, close_handler on_close) {
 
         ptr<asio::ip::tcp::socket> x {new asio::ip::tcp::socket (ec)};
         asio::error error;
         x->connect (asio::ip::tcp::endpoint (p), error);
 
         if (error) throw exception {error};
-        return ptr<asio::tcp_stream> {new asio::tcp_stream {x, on_close}};
+        return ptr<stream> {new stream {x, on_close}};
     }
 
-    ptr<out_stream<byte_slice>> open (
-        exec ec,
-        endpoint end,
+    awaitable<ptr<out_stream<byte_slice>>> open::operator () (
         close_handler on_close,
         interaction<bytes, byte_slice> interact) {
 
-        auto tcp_stream = std::static_pointer_cast<stream<bytes, byte_slice>> (connect (ec, end, on_close));
+        auto ec = co_await asio::this_coro::executor;
+
+        auto tcp_stream = std::static_pointer_cast<net::stream<bytes, byte_slice>> (
+            ThreadSafe ? connect (asio::make_strand (ec), Endpoint, on_close) : connect (ec, Endpoint, on_close));
+
         auto out = std::static_pointer_cast<out_stream<byte_slice>> (tcp_stream);
 
         spawn (ec, [
@@ -38,7 +40,7 @@ namespace data::net::IP::TCP {
             }
         });
 
-        return out;
+        co_return out;
 
     }
 
