@@ -164,11 +164,13 @@ namespace data::net::HTTP {
         maybe<content> content_type () const;
     };
 
-    struct session {
-        virtual bool is_open () = 0;
-        virtual void close () = 0;
-        virtual awaitable<response> request (const HTTP::request &) = 0;
-        virtual ~session () {}
+    struct stream : net::stream<response, const request &> {
+        awaitable<response> request (const HTTP::request &req) {
+            co_await this->send (req);
+            co_return co_await this->receive ();
+        }
+
+        virtual ~stream () {}
     };
 
     enum version {
@@ -177,22 +179,23 @@ namespace data::net::HTTP {
         version_3
     };
 
+    // thread safe.
     // we only support 1.1 now.
-    awaitable<ptr<session>> connect (version, const authority &host_or_endpoint, SSL * = nullptr);
+    awaitable<ptr<stream>> connect (version, const authority &host_or_endpoint, SSL * = nullptr);
 
-    struct exception : std::exception {
+    // an exception class provided for the user, not thrown by anything here.
+    struct exception : data::exception {
         request Request;
         maybe<response> Response;
-        string Error;
 
         exception (const request &req, const response &res, const string &w) :
-            Request {req}, Response {res}, Error {w} {}
+        Request {req}, Response {res} {
+            *this << w;
+        }
 
         exception (const request &req, const string &w) :
-            Request {req}, Response {}, Error {w} {}
-
-        const char *what () const noexcept override {
-            return Error.c_str ();
+        Request {req}, Response {} {
+            *this << w;
         }
     };
 

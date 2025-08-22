@@ -146,8 +146,9 @@ namespace data::net::HTTP {
 }
 
 namespace data::net::HTTP::beast {
-    template <typename stream>
-    awaitable<void> connect (stream &x, const authority &host_or_endpoint, bool use_ssl) {
+    template <typename beast_stream>
+    awaitable<void> connect (beast_stream &x, const authority &host_or_endpoint, bool use_ssl) {
+
         get_lowest_layer (x).expires_after (std::chrono::seconds (30));
 
         maybe<IP::TCP::endpoint> maybe_endpoint = host_or_endpoint.endpoint ();
@@ -175,28 +176,17 @@ namespace data::net::HTTP::beast {
         co_await x.async_handshake (asio::ssl::stream_base::client, asio::use_awaitable);
     }
 
-    template <typename Stream>
-    asio::awaitable<response> send_http_request (Stream &stream, const request &req, flat_buffer &buffer) {
-
-        response res;
-
-        co_await http::async_write (stream, req, asio::use_awaitable);
-        co_await http::async_read (stream, buffer, res, asio::use_awaitable);
-
-        co_return res;
-    }
-
-    template <typename stream>
-    struct session : HTTP::session {
-        stream Stream;
+    template <typename beast_stream>
+    struct session final : HTTP::stream {
+        beast_stream Stream;
         flat_buffer Buffer; // (Must persist between reads)
 
-        session (stream &&x): Stream {std::move (x)} {}
+        session (beast_stream &&x): Stream {std::move (x)} {}
 
         awaitable<void> start (const authority &host_or_endpoint);
 
-        virtual bool is_open () final override {
-            return get_lowest_layer (Stream).socket ().is_open ();
+        virtual bool closed () final override {
+            return !get_lowest_layer (Stream).socket ().is_open ();
         }
 
         virtual void close () final override {
@@ -205,10 +195,24 @@ namespace data::net::HTTP::beast {
             get_lowest_layer (Stream).socket ().close (ec);
         }
 
-        virtual awaitable<HTTP::response> request (const HTTP::request &req) final override {
-            co_return from (co_await send_http_request (Stream, to (req), Buffer));
+        virtual awaitable<void> send (const HTTP::request &req) final override {
+            boost::system::error_code ec;
+            co_await http::async_write (Stream, to (req), asio::redirect_error (asio::use_awaitable, ec));
+            if (ec) throw asio::exception {ec};
         }
 
+        virtual awaitable<HTTP::response> receive () final override {
+            boost::system::error_code ec;
+            response res;
+            co_await http::async_read (Stream, Buffer, res, asio::redirect_error (asio::use_awaitable, ec));
+
+            if (ec) {
+                close ();
+                throw asio::exception {ec};
+            }
+
+            co_return HTTP::response {from (res)};
+        }
     };
 
     template <> awaitable<void> session<tcp_stream>::start (const authority &host_or_endpoint) {
@@ -224,19 +228,19 @@ namespace data::net::HTTP::beast {
 namespace data::net::HTTP {
 
     // async HTTP call
-    awaitable<ptr<session>> connect (version v, const authority &host_or_endpoint, SSL *ssl) {
+    awaitable<ptr<stream>> connect (version v, const authority &host_or_endpoint, SSL *ssl) {
         if (v != version_1_1) throw data::exception {} << "Only version 1.1 supported.";
 
         if (bool (ssl)) {
-            auto z = new beast::session<beast::ssl_stream<beast::tcp_stream>>
-                {std::move (beast::ssl_stream<beast::tcp_stream> {beast::net::make_strand (co_await asio::this_coro::executor), *ssl})};
+            auto z = new beast::session<boost::beast::ssl_stream<boost::beast::tcp_stream>>
+                {std::move (beast::ssl_stream<boost::beast::tcp_stream> {beast::net::make_strand (co_await asio::this_coro::executor), *ssl})};
             co_await z->start (host_or_endpoint);
-            co_return ptr<session> {static_cast<session *> (z)};
+            co_return ptr<stream> {static_cast<stream *> (z)};
         } else {
             auto z = new beast::session<beast::tcp_stream>
-                {std::move (beast::tcp_stream {beast::net::make_strand (co_await asio::this_coro::executor)})};
+                {std::move (boost::beast::tcp_stream {beast::net::make_strand (co_await asio::this_coro::executor)})};
             co_await z->start (host_or_endpoint);
-            co_return ptr<session> {static_cast<session *> (z)};
+            co_return ptr<stream> {static_cast<stream *> (z)};
         }
     }
 

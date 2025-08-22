@@ -16,15 +16,16 @@ namespace data::net {
 
     template <typename message>
     struct out_stream {
-        // this should return awaitable<error>
-        virtual awaitable<bool> send (message) = 0;
+        // throw data::exception on failure.
+        virtual awaitable<void> send (message) = 0;
         virtual void close () = 0;
         virtual ~out_stream () {}
     };
 
     template <typename message>
     struct in_stream {
-        virtual awaitable<maybe<message>> receive () = 0;
+        // throw data::exception on failure.
+        virtual awaitable<message> receive () = 0;
         virtual bool closed () = 0;
         virtual ~in_stream () {}
     };
