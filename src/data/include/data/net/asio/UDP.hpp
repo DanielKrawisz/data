@@ -5,12 +5,12 @@
 #ifndef DATA_NET_ASIO_UDP
 #define DATA_NET_ASIO_UDP
 
-#include <data/net/stream.hpp>
+#include <data/net/asio/stream.hpp>
 #include <boost/asio/ip/udp.hpp>
 
-namespace data::net::asio {
+namespace data::net::IP::UDP {
 
-    using udp_stream = stream<ip::tcp::socket>;
+    using stream = asio::byte_stream<asio::ip::tcp::socket>;
 
 }
 

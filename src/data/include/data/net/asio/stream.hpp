@@ -7,6 +7,7 @@
 
 #include <data/net/stream.hpp>
 #include <data/bytes.hpp>
+#include <data/string.hpp>
 #include <boost/asio.hpp>
 
 namespace data::net::asio {
@@ -32,8 +33,19 @@ namespace data::net::asio {
         { stream.async_read_some (buffer (m), use_awaitable) } -> Same<awaitable<size_t>>;
     };
 
-    // TODO: create a thread safe version of this.
-    template <AsyncWriteStream X> requires AsyncReadStream<X, bytes>
+    template <AsyncWriteStream X, typename bytes, typename byte_slice> requires AsyncReadStream<X, bytes> class stream;
+
+    template <AsyncWriteStream X> using byte_stream = stream<X, bytes, byte_slice>;
+    template <AsyncWriteStream X> using char_stream = stream<X, string, string_view>;
+
+    struct exception : data::exception {
+        error Error;
+        exception (error ec): Error {ec} {
+            *this << "Operation failed because: " << ec;
+        }
+    };
+
+    template <AsyncWriteStream X, typename bytes, typename byte_slice> requires AsyncReadStream<X, bytes>
     class stream final : public net::stream<bytes, byte_slice> {
 
         ptr<X> Stream;
@@ -49,7 +61,7 @@ namespace data::net::asio {
         stream (ptr<X> socket, close_handler on_close) :
             Stream {socket}, OnClose {on_close}, Closed {!Stream->is_open ()}, Buffer (buffer_size) {}
 
-        awaitable<bool> send (byte_slice x) final override {
+        awaitable<void> send (byte_slice x) final override {
             error ec;
             std::size_t n = co_await async_write (
                 *Stream,
@@ -57,8 +69,10 @@ namespace data::net::asio {
                 asio::redirect_error (asio::use_awaitable, ec)
             );
 
-            if (ec) close ();
-            co_return !bool (ec);
+            if (ec) {
+                throw exception {ec};
+                close ();
+            }
         }
 
         void close () final override {
@@ -77,7 +91,7 @@ namespace data::net::asio {
             return closed;
         }
 
-        awaitable<maybe<bytes>> receive () final override {
+        awaitable<bytes> receive () final override {
             error ec;
             // if there is no error, bytes_transferred should always be greater than zero.
             // if bytes_read == buffer_size, we cannot know if there are more bytes on their
@@ -86,12 +100,16 @@ namespace data::net::asio {
 
             if (ec) {
                 close ();
-                co_return maybe<bytes> {};
+                throw exception {ec};
             }
 
             bytes b (bytes_read);
             std::copy (Buffer.begin (), Buffer.begin () + bytes_read, b.begin ());
             co_return b;
+        }
+
+        ~stream () {
+            close ();
         }
     };
 

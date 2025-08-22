@@ -8,9 +8,9 @@
 #include <data/net/asio/stream.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-namespace data::net::asio {
+namespace data::net::IP::TCP {
 
-    using tcp_stream = stream<ip::tcp::socket>;
+    using stream = asio::byte_stream<asio::ip::tcp::socket>;
 
 }
 

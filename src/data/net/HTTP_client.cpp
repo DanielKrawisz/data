@@ -7,7 +7,7 @@
 namespace data::net::HTTP {
 
     awaitable<response> client::operator () (const request &r) {
-        if (Session.get () == nullptr || !Session->is_open ())
+        if (Session.get () == nullptr || Session->closed ())
             Session = co_await connect (version_1_1, REST.Host, SSL.get ());
 
         std::chrono::milliseconds wait = Rate.get_time ();

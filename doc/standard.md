@@ -244,6 +244,10 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 ## Arrays, sequences, data
 
+### `data/cross.hpp`
+
+### `data/array.hpp`
+
 ### `data/bytes.hpp`
 
 #### `typename data::bytes`
@@ -254,15 +258,7 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 Just like `std::string` except that when you print it, `"` are included as delimiters. 
 
-## Mathematics
-
-### `data/math/infinite.hpp`
-
-### `data/abs.hpp`
-
-### `data/norm.hpp`
-
-### `data/math/integral.hpp`
+### `data/math/numbers.hpp`
 
 Numbers that work the same as built-in integral types but with more sizes. 
 
@@ -283,6 +279,68 @@ Numbers that work the same as built-in integral types but with more sizes.
 #### `typename data::uint16_little`
 
 #### `typename data::int16_little`
+
+#### `typename data::uint32`
+
+#### `typename data::int32`
+
+#### `typename data::uint32_big`
+
+#### `typename data::int32_big`
+
+#### `typename data::uint32_little`
+
+#### `typename data::int32_little`
+
+#### `typename data::uint64`
+
+#### `typename data::int64`
+
+#### `typename data::uint64_big`
+
+#### `typename data::int64_big`
+
+#### `typename data::uint64_little`
+
+#### `typename data::int64_little`
+
+#### `typename data::uint128`
+
+#### `typename data::int128`
+
+#### `typename data::uint128_big`
+
+#### `typename data::int128_big`
+
+#### `typename data::uint128_little`
+
+#### `typename data::int128_little`
+
+#### `typename data::uint160`
+
+#### `typename data::int160`
+
+#### `typename data::uint160_big`
+
+#### `typename data::int160_big`
+
+#### `typename data::uint160_little`
+
+#### `typename data::int160_little`
+
+### data/hash.hpp
+
+Provides a set of hash functions. 
+
+## Mathematics
+
+### `data/math/infinite.hpp`
+
+### `data/abs.hpp`
+
+### `data/norm.hpp`
+
+### `data/math/integral.hpp`
 
 ## Synchronized and Asynchronized
 

@@ -11,8 +11,12 @@
 namespace data::crypto {
 
     // supported hash functions.
+
     digest160 SHA1 (byte_slice);
     digest160 SHA1 (string_view);
+
+    digest128 MD5 (byte_slice);
+    digest128 MD5 (string_view);
 
     digest224 SHA2_224 (byte_slice);
     digest224 SHA2_224 (string_view);
@@ -95,6 +99,10 @@ namespace data::crypto {
 
     digest160 inline SHA1 (string_view b) {
         return SHA1 (byte_slice {(const byte *) (b.data ()), b.size ()});
+    }
+
+    digest128 inline MD5 (string_view b) {
+        return MD5 (byte_slice {(const byte *) (b.data ()), b.size ()});
     }
 
     digest224 inline SHA2_224 (string_view b) {
