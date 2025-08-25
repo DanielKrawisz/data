@@ -86,6 +86,20 @@ Equivalent to `std::totally_ordered`.
 
 #### `typename either<X...>`
 
+### `data/async.hpp`
+
+#### `typename awaitable<X>`
+
+Same as `asio::awaitable`.
+
+#### `concept Awaitable<X>`
+
+Satisfied by any awaitable type.
+
+#### `synced`
+
+Run a coroutine, wait for it to complete, and return the result.
+
 ## Functional Data Structures
 
 The data library supports three data structures:
