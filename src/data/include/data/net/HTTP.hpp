@@ -97,6 +97,14 @@ namespace data::net::HTTP {
         bool operator == (type) const;
     };
 
+    // NOTE: we only support version 1.1
+    enum version {
+        version_1,
+        version_1_1,
+        version_2,
+        version_3
+    };
+
     struct request {
         method Method;
 
@@ -129,6 +137,8 @@ namespace data::net::HTTP {
             make add_headers (dispatch<HTTP::header, ASCII>) const;
 
         private:
+
+            version Version {version_1_1};
             using pctstr = encoding::percent::string;
 
             maybe<HTTP::method> Method;
@@ -171,12 +181,6 @@ namespace data::net::HTTP {
         }
 
         virtual ~stream () {}
-    };
-
-    enum version {
-        version_1_1,
-        version_2,
-        version_3
     };
 
     // thread safe.
