@@ -48,7 +48,8 @@ namespace data::net::HTTP {
 
         if (!bool (Method)) throw data::exception {} << "Method is not set";
         if (!bool (Target) && !bool (Path)) throw data::exception {} << "Path is not set";
-        if (!bool (Body)) {
+
+        if (bool (Body)) {
             for (auto &[h, setting] : Headers) if (h == header::content_type) goto content_type_set;
             throw data::exception {} << "there is a body but content-type is not set";
         }
@@ -57,7 +58,7 @@ namespace data::net::HTTP {
         // check for host, required in version 1.1.
         if (Version == version_1_1) {
             for (auto &[h, setting] : Headers) if (h == header::host) goto host_set;
-            throw data::exception {} << "there is a body but content-type is not set";
+            throw data::exception {} << "Host is not set, required in version 1.1";
         }
         host_set:
 
