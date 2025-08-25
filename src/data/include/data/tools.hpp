@@ -54,7 +54,7 @@ namespace data {
             map = map.insert (key, {val}, [] (list<V> old_value, list<V> new_value) {
                 return old_value + new_value;
             });
-        map;
+        return map;
     }
 
     template <typename X, Proposition<X> F>
