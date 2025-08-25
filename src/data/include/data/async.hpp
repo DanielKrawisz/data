@@ -28,7 +28,7 @@ namespace data {
         struct is_awaitable<awaitable<X>> : std::true_type {};
     }
 
-    template <typename X> concept is_awaitable = meta::is_awaitable<X>::value;
+    template <typename X> concept Awaitable = meta::is_awaitable<X>::value;
 
     // spawn a coroutine and rethrow all exceptions.
     template<typename Coroutine>
@@ -45,15 +45,20 @@ namespace data {
     // a member function pointer, the second argument must be a pointer to the object.
     template <typename fun, typename... args>
     requires std::regular_invocable<fun, args...> && requires (fun f, args... a) {
-        { std::invoke (std::forward<fun> (f), std::forward<args> (a)...) } -> is_awaitable<>;
+        { std::invoke (std::forward<fun> (f), std::forward<args> (a)...) } -> Awaitable<>;
     } auto synced (fun &&f, args &&...a) {
         using namespace boost::asio;
         boost::asio::io_context ioc;
-        return co_spawn (ioc.get_executor (),
+        auto future = co_spawn (ioc.get_executor (),
             [&]() -> decltype (std::invoke (std::forward<fun> (f), std::forward<args> (a)...)) {
                 co_return co_await std::invoke (std::forward<fun> (f), std::forward<args> (a)...);
             }, use_future  // This turns the coroutine into a std::future
-        ).get ();  // Block and get the result
+        );
+
+        // here the coroutine gets run.
+        ioc.run ();
+
+        return future.get (); // Block and get the result
 
     }
 

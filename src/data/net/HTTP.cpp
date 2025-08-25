@@ -68,11 +68,13 @@ namespace data::net::HTTP {
             targ = *Target;
         } else {
             std::stringstream target_stream;
-            target_stream << *Path;
-            if (bool (Query)) target_stream << "?" << *Query;
-            if (bool (Fragment)) target_stream << "#" << *Fragment;
+            target_stream << static_cast<std::string> (*Path);
+            if (bool (Query)) target_stream << "?" << static_cast<std::string> (*Query);
+            if (bool (Fragment)) target_stream << "#" << static_cast<std::string> (*Fragment);
             targ = net::target {target_stream.str ()};
         }
+
+        if (!targ.valid () || targ == "") throw data::exception {} << "invalid target " << targ;
 
         return request {*Method, targ, Headers, bool (Body) ? *Body : bytes {}};
 
