@@ -74,18 +74,13 @@ namespace data::net::HTTP {
             targ = net::target {target_stream.str ()};
         }
 
-        if (!targ.valid () || targ == "") throw data::exception {} << "invalid target " << targ;
+        if (!targ.valid () || targ == net::target {}) throw data::exception {} << "invalid target " << targ;
 
         return request {*Method, targ, Headers, bool (Body) ? *Body : bytes {}};
 
     }
 
-    maybe<content> request::content_type () const {
-        for (auto [h, val]: Headers) if (h == header::content_type) return content {val};
-        return {};
-    }
-
-    maybe<content> response::content_type () const {
+    maybe<content> message::content_type () const {
         for (auto [h, val]: Headers) if (h == header::content_type) return content {val};
         return {};
     }

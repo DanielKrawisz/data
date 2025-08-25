@@ -34,6 +34,11 @@ namespace data::net::HTTP {
         using enum boost::beast::http::field;
         using ASCII::ASCII;
         header (boost::beast::http::field);
+
+        bool operator == (const header &h) const {
+            return case_insensitive_equal (*this, h);
+        }
+
         bool operator == (boost::beast::http::field x) const {
             return *this == header {x};
         }
@@ -105,16 +110,24 @@ namespace data::net::HTTP {
         version_3
     };
 
-    struct request {
+    struct message {
+        dispatch<header, ASCII> Headers {};
+        bytes Body;
+
+        maybe<content> content_type () const;
+
+        message (dispatch<header, ASCII> headers = {}, bytes body = {}):
+            Headers {headers}, Body {body} {}
+    };
+
+    struct request : message {
         method Method;
 
         // the remaining part of the url starting with the path.
         net::target Target;
 
-        // additional headers.
-        dispatch<header, ASCII> Headers;
-
-        bytes Body;
+        request (method m, const net::target &targ, dispatch<header, ASCII> headers = {}, bytes body = {}):
+            message {headers, body}, Method {m}, Target {targ} {}
 
         struct make {
             operator request () const;
@@ -158,20 +171,14 @@ namespace data::net::HTTP {
 
         domain_name host () const;
 
-        maybe<content> content_type () const;
-
     };
 
-    struct response {
+    struct response : message {
         status Status {0};
-        dispatch<header, ASCII> Headers {};
-        bytes Body {};
 
         response () {}
         response (status x, dispatch<header, ASCII> headers = {}, bytes body = {}):
-            Status {x}, Headers {headers}, Body {body} {}
-
-        maybe<content> content_type () const;
+            message {headers, body}, Status {x} {}
     };
 
     struct stream : net::stream<response, const request &> {
