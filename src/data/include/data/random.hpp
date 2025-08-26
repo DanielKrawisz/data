@@ -1,9 +1,9 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CRYPTO_RANDOM
-#define DATA_CRYPTO_RANDOM
+#ifndef DATA_RANDOM
+#define DATA_RANDOM
 
 #include <data/iterable.hpp>
 #include <data/bytes.hpp>
@@ -12,17 +12,18 @@
 #include <random>
 #include <chrono>
 
-namespace data::crypto {
-    
+namespace data {
+
+    template <typename engine> concept URBG = std::uniform_random_bit_generator<engine>;
+
     struct entropy : reader<byte> {
-        
-        // std::uniform_entropy_bit_generator concept.
+
         using result_type = byte;
-        
+
         constexpr static byte min () {
             return 0;
         }
-        
+
         constexpr static byte max () {
             return 255;
         }
@@ -50,13 +51,13 @@ namespace data::crypto {
         e.read ((byte *) (&x), sizeof (x));
         return e;
     }
-    
+
     struct entropy_sum final : entropy {
         ptr<entropy> Left;
         ptr<entropy> Right;
 
         entropy_sum (ptr<entropy> left, ptr<entropy> right): Left {left}, Right {right} {}
-        
+
         void read (byte *b, size_t x) final override {
             Left->read (b, x);
             bytes c;
@@ -65,7 +66,7 @@ namespace data::crypto {
             arithmetic::bit_xor<byte> (c.data () + x, c.data (), c.data (), b);
         }
     };
-    
+
     // ask the user to type random characters into a keyboard.
     struct user_entropy final : entropy {
         std::string UserMessageAsk;
@@ -76,23 +77,23 @@ namespace data::crypto {
 
         bytes Input;
         size_t Position;
-        
+
         user_entropy (const std::string &ask, const std::string &ask_more, const std::string &confirm, std::ostream &out, std::istream &in) :
-            UserMessageAsk {ask}, UserMessageAskMore {ask_more}, UserMessageConfirm {confirm}, Cout {out}, Cin {in}, Input {}, Position {0} {}
-        
+        UserMessageAsk {ask}, UserMessageAskMore {ask_more}, UserMessageConfirm {confirm}, Cout {out}, Cin {in}, Input {}, Position {0} {}
+
         void read (byte *, size_t x) final override;
     };
-    
+
     // the famous one-time pad.
     struct fixed_entropy final : entropy {
         bytes Entropy;
         int Position;
-        
+
         fixed_entropy (byte_slice b) : Entropy {b}, Position {0} {}
-        
+
         void read (byte *b, size_t x) final override {
             if (x > Entropy.size () - Position) throw entropy::fail {};
-            
+
             for (int i = 0; i < x; i++) {
                 b[i] = Entropy[i + Position];
                 Position++;
@@ -100,7 +101,12 @@ namespace data::crypto {
         }
     };
 
-    template <std::uniform_random_bit_generator engine>
+    // TODO replace this with something good.
+    using random_engine = std::default_random_engine;
+
+    random_engine& get_random_engine ();
+
+    template <URBG engine>
     struct std_random final : entropy {
 
         engine Engine;

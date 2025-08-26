@@ -1,26 +1,64 @@
-#note: we should get rid of types.cpp and replace it with random.hpp and random.cpp. 
-add_library (data_core STATIC 
-  types.cpp
+# everything
+add_library (data STATIC)
+
+# functional data structures
+add_library (core INTERFACE)
+
+# arrays, strings, bits etc
+add_library (arr STATIC)
+
+# this is not ready yet because we would like
+# to remove the dependency on GMP.
+# add_library (hash STATIC)
+
+# numbers, like it says
+add_library (numbers STATIC)
+
+# networking
+add_library (net STATIC)
+
+target_include_directories (
+  core
+
+  INTERFACE
+
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+# arr stands for array.
+target_sources (
+  arr
+
+  PRIVATE
+
+  random.cpp
+
   encoding/hex.cpp
   encoding/utf8.cpp
   string.cpp
   encoding/base64.cpp
 )
 
-target_compile_features (data_core PUBLIC cxx_std_23)
-set_target_properties (data_core PROPERTIES CXX_EXTENSIONS ON)
-
-target_include_directories (data_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories (data_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+target_compile_features (arr PUBLIC cxx_std_23)
+set_target_properties (arr PROPERTIES CXX_EXTENSIONS ON)
 
 target_link_libraries (
-  data_core
+  arr
+
   PUBLIC
+
   Boost::boost
   ctre
+  core
 )
 
-add_library (data_numbers STATIC
+target_sources (
+  numbers
+
+  PRIVATE
 
   math/number/gmp/mpq.cpp
   math/number/gmp/N.cpp
@@ -31,27 +69,16 @@ add_library (data_numbers STATIC
 
 )
 
-target_compile_features (data_numbers PUBLIC cxx_std_23)
-set_target_properties (data_numbers PROPERTIES CXX_EXTENSIONS ON)
+target_compile_features (numbers PUBLIC cxx_std_23)
+set_target_properties (numbers PROPERTIES CXX_EXTENSIONS ON)
 
-target_include_directories (
-  data_numbers
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-target_include_directories (
-  data_numbers
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
 
 target_link_libraries (
-  data_numbers
+  numbers
+
   PUBLIC
-  data_core
+
+  arr
   Boost::boost
   GMP::GMP
   rotella
@@ -59,7 +86,10 @@ target_link_libraries (
   ctre
 )
 
-add_library (data_net STATIC
+target_sources (
+  net
+
+  PRIVATE
 
   net/URL.cpp
 
@@ -77,24 +107,23 @@ add_library (data_net STATIC
   tools/rate_limiter.cpp
 )
 
-target_compile_features (data_net PUBLIC cxx_std_23)
-set_target_properties (data_net PROPERTIES CXX_EXTENSIONS ON)
-
-target_include_directories (data_net PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories (data_net PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+target_compile_features (net PUBLIC cxx_std_23)
+set_target_properties (net PROPERTIES CXX_EXTENSIONS ON)
 
 target_link_libraries (
-  data_net
+  net
   PUBLIC
-  data_core
+  arr
   Boost::boost
   nlohmann_json::nlohmann_json
   taocpp::pegtl
 )
 
-add_library (data STATIC
+target_sources (
+  data
 
-  crypto/random.cpp
+  PRIVATE
+
   crypto/secret_share.cpp
   crypto/block.cpp
 
@@ -104,15 +133,16 @@ add_library (data STATIC
 )
 
 configure_file (include/data/version.hpp.in generated/data/version.hpp)
-target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories (data PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
 target_link_libraries (
   data
+
   PUBLIC
-  data_numbers
-  data_net
-  data_core
+
+  net
+  numbers
+  arr
+
   Boost::boost
   Boost::chrono
   Boost::thread
@@ -147,7 +177,7 @@ install (
 )
 
 install (
-  TARGETS data data_numbers data_net data_core nlohmann_json argh rotella milewski gmpxx sv
+  TARGETS data numbers net arr core nlohmann_json argh rotella milewski gmpxx sv
   EXPORT DataTargets
   ARCHIVE
 )

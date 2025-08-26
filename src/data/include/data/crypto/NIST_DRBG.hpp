@@ -5,7 +5,7 @@
 #ifndef DATA_CRYPTO_NIST_DRBG
 #define DATA_CRYPTO_NIST_DRBG
 
-#include <data/crypto/random.hpp>
+#include <data/random.hpp>
 #include <data/numbers.hpp>
 #include <cryptopp/drbg.h>
 

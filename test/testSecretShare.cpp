@@ -12,10 +12,10 @@
 namespace data {
     
     TEST(SecretShareTest, TestSecretShare) {
-        ptr<crypto::entropy> entropy = std::static_pointer_cast<crypto::entropy> (std::make_shared<crypto::fixed_entropy>
+        ptr<entropy> ent = std::static_pointer_cast<entropy> (std::make_shared<fixed_entropy>
             (byte_slice (bytes (string ("atehulak,rc.TjmleoTHReseSRCjt")))));
         
-        crypto::NIST::DRBG random {crypto::NIST::DRBG::HMAC, {*entropy, bytes {}, 302}};
+        crypto::NIST::DRBG random {crypto::NIST::DRBG::HMAC, {*ent, bytes {}, 302}};
         
         for (byte total = 1; total <= 5; total++) for (byte threshold = 1; threshold <= total; threshold++) {
             
