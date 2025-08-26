@@ -42,7 +42,7 @@ file(TO_CMAKE_PATH "$ENV{GMP_DIR}" _GMP_DIR)
 include(FindPackageHandleStandardArgs)
 
   find_path(GMP_INCLUDE_DIR
-            NAMES gmp.h
+            NAMES gmp.h gmpxx.h
             HINTS ENV GMP_INC_DIR
                   ENV GMP_DIR
                   $ENV{GMP_DIR}/include
