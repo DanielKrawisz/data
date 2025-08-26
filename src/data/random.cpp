@@ -1,8 +1,17 @@
-#include <data/crypto/random.hpp>
+#include <data/random.hpp>
+
 #include <data/tools/lazy_writer.hpp>
 #include <data/string.hpp>
 
-namespace data::crypto {
+#include <chrono>
+
+namespace data {
+    random_engine& get_random_engine () {
+        static random_engine Engine;
+        static bool Seeded = false;
+        if (!Seeded) Engine.seed (std::chrono::system_clock::now ().time_since_epoch ().count ());
+        return Engine;
+    }
 
     uint32 select_index_by_weight (cross<double> weights, entropy &r) {
         double total = 0;
@@ -57,5 +66,5 @@ namespace data::crypto {
             Cout << UserMessageAskMore << std::endl;
         }
     }
-
+    
 }

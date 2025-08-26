@@ -46,7 +46,8 @@ namespace data::math::number {
         explicit operator double () const;
         
         explicit operator uint64 () const;
-        
+
+        // TODO get rid of these and put them in Z instead.
         explicit N_bytes (const math::N &);
         explicit operator math::N () const;
 
@@ -76,7 +77,8 @@ namespace data::math::number {
         static Z_bytes zero (size_t size = 0);
         
         explicit operator int64 () const;
-        
+
+        // TODO get rid of these and put them in Z instead.
         explicit Z_bytes (const Z &);
         explicit operator Z () const;
         

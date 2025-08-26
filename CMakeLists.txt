@@ -14,13 +14,14 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CA
 project (
   data
   VERSION 0.0.30
-  DESCRIPTION "functinal data structures, wrappers, and other high-level programming constructs in c++"
+  DESCRIPTION "functinal data structures, mathematics, cryptography, networking, wrappers, and other high-level programming constructs in c++"
   LANGUAGES CXX
 )
 
 set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# required for pretty much everything.
 find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
 # if we do not have boost
 #   * linux:
@@ -29,15 +30,15 @@ find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
 #     * `./b2`
 #     * `sudo ./b2 install`
 
+find_package (GMP REQUIRED)
+# if we do not have GMP
+#   * on linux, `sudo apt-get install libgmp3-dev`
+
 add_definitions ("-DHAS_BOOST")
 
 find_package (OpenSSL REQUIRED Crypto SSL)
 # if we do not have openssl
 #   * on linux, `sudo apt-get install libssl-dev`
-
-find_package (GMP REQUIRED)
-# if we do not have GMP
-#   * on linux, `sudo apt-get install libgmp3-dev`
 
 find_package (pegtl REQUIRED)
 # If we do not have PegTL
