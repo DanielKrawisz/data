@@ -1,13 +1,13 @@
-// Copyright (c) 2019-2022 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CRYPTO_DIGEST
-#define DATA_CRYPTO_DIGEST
+#ifndef DATA_DIGEST
+#define DATA_DIGEST
 
 #include <data/math/number/bounded.hpp>
 
-namespace data::crypto {
+namespace data {
     
     template <size_t s>
     struct digest : public math::uint_little<s, byte> {
