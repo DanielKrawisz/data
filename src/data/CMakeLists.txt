@@ -74,6 +74,7 @@ target_link_libraries (
 
   PUBLIC
 
+  core
   Boost::log_setup
   Boost::log
   argh
@@ -84,11 +85,11 @@ target_link_libraries (
 
   INTERFACE
 
+  string
   OpenSSL::SSL
   OpenSSL::Crypto
   PkgConfig::cryptopp
   sv
-  string
 )
 
 target_sources (
