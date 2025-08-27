@@ -59,6 +59,30 @@ namespace data::math::number::GMP {
     bool operator == (const uint64 &, const N &);
     std::weak_ordering operator <=> (const uint64 &, const N &);
 
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool operator == (const Z &, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const Z &, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool operator == (const N &, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const N &, const uint<r, size, word> &);
+
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    bool operator == (const Z &, const Z_bytes<r, c, word> &);
+
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
+    bool operator == (const N &, const N_bytes<r, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const N &, const N_bytes<r, word> &);
+
     Z operator - (const N &);
     Z operator - (const Z &);
 
@@ -153,18 +177,6 @@ namespace data::math::number::GMP {
     N &operator >>= (N &, int);
 
     Z &operator ^= (Z &, uint32 n);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (const Z &, const sint<r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z &, const sint<r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (const N &, const uint<r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const N &, const uint<r, size, word> &);
 }
 
 namespace data::math {
@@ -589,6 +601,26 @@ namespace data::math::number::GMP {
 
     template <endian::order r, size_t size, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const N &a, const uint<r, size, word> &b) {
+        return a <=> N (b);
+    }
+
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    bool inline operator == (const Z &a, const Z_bytes<r, c, word> &b) {
+        return a == Z (b);
+    }
+
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const Z &a, const Z_bytes<r, c, word> &b) {
+        return a <=> Z (b);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    bool inline operator == (const N &a, const N_bytes<r, word> &b) {
+        return a == N (b);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const N &a, const N_bytes<r, word> &b) {
         return a <=> N (b);
     }
 
