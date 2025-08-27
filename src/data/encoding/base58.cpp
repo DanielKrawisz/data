@@ -6,9 +6,18 @@
 #include <data/math/number/bytes.hpp>
 #include <data/encoding/digits.hpp>
 
-using nat = data::math::N;
-
 namespace data::encoding::base58 {
+
+    maybe<bytes> read (const string_view s) {
+        // we take two steps with different numbers because it's a lot faster.
+        auto n = decode<N> (s);
+        if (!bool (n)) return {};
+        return {bytes (N_bytes_big (*n))};
+    }
+
+    string write (byte_slice b) {
+        return encode<N> (N (N_bytes_big::read (b)));
+    }
     
     // TODO it should be possible to compare decimal strings 
     // with basic functions in math::arithmetic.
@@ -135,7 +144,7 @@ namespace data::encoding::base58 {
     }
 
     string string::read (const std::string &x) {
-        return encode (nat {x});
+        return encode (N {x});
     }
 
 }
@@ -154,8 +163,8 @@ namespace data::math {
                 static_cast<unsigned int> (encoding::base58::digit (w[last]))};
         }
 
-        division<nat> div = math::divide<nat> {}
-            (*decode<nat> (w), math::nonzero {nat {static_cast<uint64> (x)}});
+        division<N> div = math::divide<N> {}
+            (*decode<N> (w), math::nonzero {N {static_cast<uint64> (x)}});
         return division<base58_uint, unsigned int> {encoding::base58::encode (div.Quotient), static_cast<unsigned int> (uint64 (div.Remainder))};
     }
 }

@@ -246,7 +246,7 @@ namespace data {
         
         EXPECT_EQ (stupid_big, big);
         EXPECT_EQ (stupid_little, little);
-        
+
         Z Z_big = Z (big);
         Z Z_little = Z (little);
         
@@ -263,8 +263,8 @@ namespace data {
 
     TEST (ZBytesTest, TestZBytesToZ) {
 
-        Z_Bytes_to_Z (-1);
         Z_Bytes_to_Z (0);
+        Z_Bytes_to_Z (-1);
         Z_Bytes_to_Z (1);
         Z_Bytes_to_Z (3);
         Z_Bytes_to_Z (-3);

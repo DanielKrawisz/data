@@ -1,6 +1,10 @@
 // Copyright (c) 2021 Katrina Knight
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_LOG_HPP
+#define DATA_LOG_HPP
+
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -11,8 +15,6 @@
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/severity_channel_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
-#ifndef DATA_LOG_HPP
-#define DATA_LOG_HPP
 
 namespace data::log {
     namespace logging = boost::log;
@@ -21,6 +23,7 @@ namespace data::log {
     namespace expr = boost::log::expressions;
     namespace attrs = boost::log::attributes;
     namespace keywords = boost::log::keywords;
+
     enum severity_level {
         normal,
         notification,
@@ -28,11 +31,12 @@ namespace data::log {
         error,
         critical
     };
-    std::ostream& operator<< (std::ostream& strm, severity_level level);
+
+    std::ostream &operator << (std::ostream &strm, severity_level level);
 
     typedef src::severity_channel_logger_mt <
-    severity_level,     // the type of the severity level
-    std::string         // the type of the channel name
+        severity_level,     // the type of the severity level
+        std::string         // the type of the channel name
     > my_logger_mt;
 
 
@@ -49,4 +53,5 @@ void init_logging(std::string filename);
 void testLog();
 
 }
+
 #endif //DATA_LOG_HPP

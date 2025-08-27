@@ -13,7 +13,7 @@ add_executable (unit_tests
     testMaybeEither.cpp
     testStore.cpp
     testException.cpp
-    testIntegerFormat.cpp
+    integer_format.cpp
     testLinkedStack.cpp
     testList.cpp
     testOrderedList.cpp
@@ -44,7 +44,7 @@ add_executable (unit_tests
     testCarry.cpp
     testNBytes.cpp
     testRoot.cpp
-    testZBytes.cpp
+    Z_bytes.cpp
     testAbs.cpp
     testBounded.cpp
     testBase58.cpp
@@ -57,7 +57,7 @@ add_executable (unit_tests
     testBitcoinNumbers.cpp
     testExtendedEuclidian.cpp
     testEratosthenes.cpp
-    testPower.cpp
+    power.cpp
     testCaylayDickson.cpp
     testModular.cpp
     testAlgebra.cpp
@@ -75,7 +75,7 @@ add_executable (unit_tests
 )
 
 target_link_libraries (unit_tests
-  PRIVATE data gtest_main gmock)
+  PRIVATE data sv gtest_main gmock)
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)

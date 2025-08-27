@@ -7,8 +7,8 @@
 #include "gtest/gtest.h"
 
 namespace data {
-    template <typename N> void test_power_case (string_view base, string_view exp, string_view expected) {
-        EXPECT_EQ ((pow (N {base}, N {exp})), N {expected});
+    template <typename NN> void test_power_case (const string &base, const string &exp, const string &expected) {
+        EXPECT_EQ ((pow (NN (N {base}), N (N {exp}))), NN {N (expected)});
     }
 
     template <typename N> void test_power () {
@@ -16,7 +16,7 @@ namespace data {
         test_power_case<N> ("2", "100", "1267650600228229401496703205376");
     }
 
-    TEST (TestPower, TestPower) {
+    TEST (PowerTest, TestPower) {
 
         test_power<N> ();
         test_power<N_bytes_little> ();

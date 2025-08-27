@@ -1,10 +1,7 @@
 # data
-Tools and high-level programming constructs in c++. 
+Tools and high-level programming constructs in c++. See [the standard](doc/standard.md) for all supported features and how to use them. 
 
 ## Features 
-
-`#include <data\data.hpp>` to gain all usable features. See `data.hpp` for 
-how to use all features. 
 
   * Functional data structures
     * stack

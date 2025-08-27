@@ -30,11 +30,11 @@ find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
 #     * `./b2`
 #     * `sudo ./b2 install`
 
+add_definitions ("-DHAS_BOOST")
+
 find_package (GMP REQUIRED)
 # if we do not have GMP
 #   * on linux, `sudo apt-get install libgmp3-dev`
-
-add_definitions ("-DHAS_BOOST")
 
 find_package (OpenSSL REQUIRED Crypto SSL)
 # if we do not have openssl
