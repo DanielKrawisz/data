@@ -203,7 +203,7 @@ install (
 )
 
 install (
-  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella milewski gmpxx sv
+  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella milewski sv
   EXPORT DataTargets
   ARCHIVE
 )
