@@ -4,12 +4,63 @@
 
 #include <data/concepts.hpp>
 #include <data/numbers.hpp>
+#include <data/math.hpp>
 #include "gtest/gtest.h"
 namespace data::math {
     invert_mod<uint64, uint64> pm {};
 }
 
 namespace data {
+
+    template <typename A, typename B> requires requires (const N &n, uint64 u) {
+        {n == u};
+        {n <=> u};
+        {u == n};
+        {u <=> n};/*
+        {n + u};
+        {n - u};
+        {n * u};
+        {n / u};
+        {n % u};
+        {u + n};
+        {u - n};
+        {u * n};
+        {u / n};
+        {u % n};
+        {n += u};
+        {n -= u};
+        {n *= u};
+        {n /= u};*/
+    } struct test_number_conversion {};
+
+    TEST (NumbersTest, TestNumberConversion) {
+        test_number_conversion<N, Z> {};
+        test_number_conversion<Z, N> {};
+        test_number_conversion<N, uint64> {};
+        test_number_conversion<N, int64> {};
+        test_number_conversion<Z, uint64> {};
+        test_number_conversion<Z, int64> {};
+        test_number_conversion<N, N_bytes_little> {};
+        test_number_conversion<N, Z_bytes_little> {};
+        test_number_conversion<Z, N_bytes_little> {};
+        test_number_conversion<Z, Z_bytes_little> {};
+        test_number_conversion<N, uint256> {};
+        test_number_conversion<N, int256> {};
+        test_number_conversion<Z, uint256> {};
+        test_number_conversion<Z, int256> {};
+        test_number_conversion<N_bytes_little, Z_bytes_little> {};
+        test_number_conversion<Z_bytes_little, N_bytes_little> {};
+        test_number_conversion<N_bytes_little, uint64> {};
+        test_number_conversion<N_bytes_little, int64> {};
+        test_number_conversion<Z_bytes_little, uint64> {};
+        test_number_conversion<Z_bytes_little, int64> {};
+        test_number_conversion<N_bytes_little, uint256> {};
+        test_number_conversion<N_bytes_little, int256> {};
+        test_number_conversion<Z_bytes_little, uint256> {};
+        test_number_conversion<Z_bytes_little, int256> {};
+        test_number_conversion<uint256, int256> {};
+        test_number_conversion<int256, uint256> {};
+    }
     
     template <integral NN> requires requires (const NN &a) {
         { square (a) } -> ImplicitlyConvertible<NN>;
