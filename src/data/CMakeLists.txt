@@ -1,21 +1,23 @@
 # everything
-add_library (data STATIC)
+add_library (data INTERFACE)
 
-# functional data structures
+# functional data structures, arrays
 add_library (core INTERFACE)
 
-# arrays, strings, bits etc
-add_library (arr STATIC)
+add_library (io STATIC)
 
-# this is not ready yet because we would like
-# to remove the dependency on GMP.
-# add_library (hash STATIC)
+# strings, bits etc
+add_library (string STATIC)
+
+add_library (hash INTERFACE)
 
 # numbers, like it says
 add_library (numbers STATIC)
 
 # networking
 add_library (net STATIC)
+
+add_library (crypto STATIC)
 
 target_include_directories (
   core
@@ -28,9 +30,8 @@ target_include_directories (
   $<INSTALL_INTERFACE:include>
 )
 
-# arr stands for array.
 target_sources (
-  arr
+  string
 
   PRIVATE
 
@@ -42,17 +43,52 @@ target_sources (
   encoding/base64.cpp
 )
 
-target_compile_features (arr PUBLIC cxx_std_23)
-set_target_properties (arr PROPERTIES CXX_EXTENSIONS ON)
+target_compile_features (string PUBLIC cxx_std_23)
+set_target_properties (string PROPERTIES CXX_EXTENSIONS ON)
 
 target_link_libraries (
-  arr
+  string
 
   PUBLIC
 
   Boost::boost
   ctre
   core
+)
+
+target_sources (
+  io
+
+  PRIVATE
+
+  #io/run.cpp
+  io/wait_for_enter.cpp
+  io/log.cpp
+)
+
+target_compile_features (io PUBLIC cxx_std_23)
+set_target_properties (io PROPERTIES CXX_EXTENSIONS ON)
+
+target_link_libraries (
+  io
+
+  PUBLIC
+
+  Boost::log_setup
+  Boost::log
+  argh
+)
+
+target_link_libraries (
+  hash
+
+  INTERFACE
+
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  PkgConfig::cryptopp
+  sv
+  string
 )
 
 target_sources (
@@ -72,13 +108,12 @@ target_sources (
 target_compile_features (numbers PUBLIC cxx_std_23)
 set_target_properties (numbers PROPERTIES CXX_EXTENSIONS ON)
 
-
 target_link_libraries (
   numbers
 
   PUBLIC
 
-  arr
+  string
   Boost::boost
   GMP::GMP
   rotella
@@ -112,61 +147,51 @@ set_target_properties (net PROPERTIES CXX_EXTENSIONS ON)
 
 target_link_libraries (
   net
+
   PUBLIC
-  arr
-  Boost::boost
+
+  string
+  Boost::chrono
+  Boost::thread
   nlohmann_json::nlohmann_json
   taocpp::pegtl
 )
 
 target_sources (
-  data
+  crypto
 
   PRIVATE
 
   crypto/secret_share.cpp
   crypto/block.cpp
-
-  #io/run.cpp
-  io/wait_for_enter.cpp
-  io/log.cpp
 )
 
-configure_file (include/data/version.hpp.in generated/data/version.hpp)
+target_compile_features (crypto PUBLIC cxx_std_23)
+set_target_properties (crypto PROPERTIES CXX_EXTENSIONS ON)
+
+target_link_libraries (
+  crypto
+
+  PUBLIC
+
+  hash
+)
 
 target_link_libraries (
   data
 
-  PUBLIC
+  INTERFACE
 
+  crypto
   net
   numbers
-  arr
+  io
 
-  Boost::boost
-  Boost::chrono
-  Boost::thread
-  Boost::log_setup
-  Boost::log
-  OpenSSL::SSL
-  OpenSSL::Crypto
-  PkgConfig::cryptopp
-  nlohmann_json::nlohmann_json
-  GMP::GMP
-  taocpp::pegtl
-  argh
-  rotella
-  gmpxx
-  sv
-  ctre
 )
 
+configure_file (include/data/version.hpp.in generated/data/version.hpp)
+
 get_target_property (OUT data LINK_LIBRARIES)
-
-# Set C++ version
-
-target_compile_features (data PUBLIC cxx_std_23)
-set_target_properties (data PROPERTIES CXX_EXTENSIONS ON)
 
 include (GNUInstallDirs)
 
@@ -177,7 +202,7 @@ install (
 )
 
 install (
-  TARGETS data numbers net arr core nlohmann_json argh rotella milewski gmpxx sv
+  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella milewski gmpxx sv
   EXPORT DataTargets
   ARCHIVE
 )

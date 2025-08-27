@@ -15,7 +15,8 @@
 #include <data/divide.hpp>
 #include <data/increment.hpp>
 #include <data/math/algebra.hpp>
-#include <data/arithmetic/negativity.hpp>
+#include <data/math/number/bytes/Z.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include <data/encoding/hex.hpp>
 
 #include <string>
@@ -152,6 +153,18 @@ namespace data::math::number::GMP {
     N &operator >>= (N &, int);
 
     Z &operator ^= (Z &, uint32 n);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool operator == (const Z &, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const Z &, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool operator == (const N &, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const N &, const uint<r, size, word> &);
 }
 
 namespace data::math {
@@ -306,7 +319,26 @@ namespace data::math::number::GMP {
         explicit operator int64 () const;
         explicit operator double () const;
 
-        static Z make (uint64);
+        template <endian::order r, negativity c, std::unsigned_integral word>
+        explicit Z (const Z_bytes<r, c, word> &);
+
+        template <endian::order r, std::unsigned_integral word>
+        explicit Z (const N_bytes<r, word> &);
+
+        template <endian::order r, negativity c, std::unsigned_integral word>
+        explicit operator Z_bytes<r, c, word> () const;
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        explicit Z (const bounded<true, r, size, word> &x): Z {Z_bytes<r, negativity::twos, word> {x}} {}
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        explicit Z (const bounded<false, r, size, word> &x): Z {N_bytes<r, word> {x}} {}
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        explicit operator bounded<true, r, size, word> () const {
+            return bounded<true, r, size, word> (Z_bytes<r, negativity::twos, word> (*this));
+        }
+
     };
 
     // implementation of naturals given an implementation of integers.
@@ -339,6 +371,25 @@ namespace data::math::number::GMP {
 
         explicit operator uint64 () const;
         explicit operator int32 () const;
+
+        template <endian::order r, std::unsigned_integral word>
+        explicit N (const N_bytes<r, word> &n) : Value {n} {}
+
+        template <endian::order r, std::unsigned_integral word>
+        explicit operator N_bytes<r, word> () const;
+
+        template <endian::order r, negativity c, std::unsigned_integral word>
+        explicit operator Z_bytes<r, c, word> () const {
+            return Z_bytes<r, c, word> (N_bytes<r, word> (*this));
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        explicit N (const bounded<false, r, size, word> &x): N {N_bytes<r, word> (x)} {}
+
+        template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+        explicit operator bounded<u, r, size, word> () const {
+            return bounded<u, r, size, word> (N_bytes<r, word> (*this));
+        }
 
     };
 
@@ -519,6 +570,150 @@ namespace data::math::number::GMP {
 
     uint64 inline operator % (const Z &a, uint64 b) {
         return uint64 (a % N (b));
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool inline operator == (const Z &a, const sint<r, size, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool inline operator == (const N &a, const uint<r, size, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const Z &a, const sint<r, size, word> &b) {
+        return a <=> Z (b);
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::weak_ordering inline operator <=> (const N &a, const uint<r, size, word> &b) {
+        return a <=> N (b);
+    }
+
+    constexpr int inline endian_boost_to_GMP (endian::order r) {
+        return r == endian::order::big ? 1 : -1;
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    Z::Z (const N_bytes<r, word> &z) {
+        mpz_init (MPZ);
+        mpz_import (
+            MPZ,
+            z.size (),
+            endian_boost_to_GMP (r),
+            sizeof (word),
+            // TODO this may not be true in the future.
+            endian_boost_to_GMP (endian::order::native),
+            0, // number of unused bits in each element.
+            z.data ());
+    }
+
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    Z::Z (const Z_bytes<r, c, word> &z) {
+        mpz_init (MPZ);
+        if (data::is_negative (z)) {
+            *this = std::move (Z (-z));
+            // this negates the value of the number.
+            MPZ[0]._mp_size = -MPZ[0]._mp_size;
+            return;
+        }
+
+        mpz_import (
+            MPZ,
+            z.size (),
+            endian_boost_to_GMP (r),
+            sizeof (word),
+            // TODO this may not be true in the future.
+            endian_boost_to_GMP (endian::order::native),
+            0, // number of unused bits in each element.
+            z.data ());
+    }
+
+    // TODO use mpz_export
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    Z::operator Z_bytes<r, c, word> () const {
+        if (data::is_negative (*this))
+            return -Z_bytes<r, c, word> (-(*this));
+
+        // the new number.
+        Z_bytes<r, c, word> nn {};
+        size_t n_size = mpz_size (MPZ);
+
+        if (n_size == 0) return nn;
+
+        if constexpr (sizeof (word) == sizeof (GMP::gmp_uint)) {
+            nn.resize (n_size + 1);
+            std::copy (begin (), end (), nn.words ().begin ());
+        } else if (sizeof (word) < sizeof (GMP::gmp_uint)) {
+            nn.resize (n_size * (sizeof (GMP::gmp_uint) / sizeof (word)) + 1);
+            auto nit = nn.words ().begin ();
+            for (const GMP::gmp_uint &limb : *this) {
+                GMP::gmp_uint z = limb;
+                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
+                    *nit = static_cast<word> (z & std::numeric_limits<word>::max ());
+                    nit++;
+                    z >>= (sizeof (word) * 8);
+                }
+            }
+        } else if (sizeof (word) > sizeof (GMP::gmp_uint)) {
+            nn.resize (n_size / (sizeof (GMP::gmp_uint) / sizeof (word)) + 1);
+            auto nit = nn.words ().begin ();
+            auto b = begin ();
+            while (b != end ()) {
+                *nit = 0;
+                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
+                    *nit += static_cast<word> (*b) << (i * sizeof (GMP::gmp_uint) * 8);
+                    b++;
+                }
+                nit++;
+            }
+        } else throw exception {} << "unhandled case in Z -> Z_bytes (this is impossible)";
+
+        // set last digit to zero.
+        *(nn.words ().end () - 1) = 0;
+
+        return trim (nn);
+    }
+
+    // TODO use mpz_export
+    template <endian::order r, std::unsigned_integral word>
+    N::operator N_bytes<r, word> () const {
+        // the new number.
+        N_bytes<r, word> nn {};
+        size_t n_size = mpz_size (Value.MPZ);
+        if (n_size == 0) return nn;
+
+        if constexpr (sizeof (word) == sizeof (GMP::gmp_uint)) {
+            nn.resize (n_size);
+            std::copy (Value.begin (), Value.end (), nn.words ().begin ());
+        } else if (sizeof (word) < sizeof (GMP::gmp_uint)) {
+            nn.resize (n_size * (sizeof (GMP::gmp_uint) / sizeof (word)));
+            auto x = nn.words ().begin ();
+            for (const GMP::gmp_uint &limb : Value) {
+                GMP::gmp_uint z = limb;
+                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
+                    *x = static_cast<word> (z & std::numeric_limits<word>::max ());
+                    x++;
+                    z >>= (sizeof (word) * 8);
+                }
+            }
+        } else if (sizeof (word) > sizeof (GMP::gmp_uint)) {
+            nn.resize (n_size / (sizeof (GMP::gmp_uint) / sizeof (word)));
+            auto nit = nn.words ().begin ();
+            auto b = Value.begin ();
+            while (b != Value.end ()) {
+                *nit = 0;
+                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
+                    *nit += static_cast<word> (*b) << (i * sizeof (GMP::gmp_uint) * 8);
+                    b++;
+                }
+                nit++;
+            }
+        } else throw exception {} << "unhandled case in N -> N_bytes (this is impossible)";
+
+        return trim (nn);
     }
 
 }

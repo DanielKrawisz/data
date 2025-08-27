@@ -5,10 +5,13 @@
 #ifndef DATA_MATH_NUMBER_BYTES_BYTES
 #define DATA_MATH_NUMBER_BYTES_BYTES
 
-#include <data/math/number/gmp/mpz.hpp>
 #include <data/bytes.hpp>
 
 namespace data::math::number {
+
+    // TODO we want a new concept for unsigned_integral that
+    // will include std::unsigned_integral as well as our boost
+    // endian unsigned numbers and our bounded numbers.
     
     // an implementation of the natural numbers that is
     // encoded as a big or little endian sequence of bytes. 
@@ -114,12 +117,6 @@ namespace data::math::number {
     
     template <endian::order r, negativity c, std::unsigned_integral word>
     std::weak_ordering operator <=> (const Z_bytes<r, c, word> &, int64);
-    
-    template <endian::order r, std::unsigned_integral word>
-    bool operator == (const N_bytes<r, word> &, const math::N &);
-
-    template <endian::order r, negativity c, std::unsigned_integral word>
-    bool operator == (const Z_bytes<r, c, word> &, const math::Z &);
     
     // bit negate
     template <endian::order r, std::unsigned_integral word>

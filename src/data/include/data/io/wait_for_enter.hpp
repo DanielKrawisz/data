@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <optional>
-#include "../maybe.hpp"
+#include <data/maybe.hpp>
 
 namespace data {
     /// @brief Waits for user to press enter, printing message again if anything other is pressed
@@ -20,13 +20,13 @@ namespace data {
     /// @param message question to ask user
     /// @param default_value default value to return if enter pressed or no terminal
     /// @return true if yes, false otherwise.
-    bool get_user_yes_or_no (std::string message ,maybe<bool> default_value=false);
+    bool get_user_yes_or_no (std::string message, maybe<bool> default_value = false);
 
     /// @brief Gets a password from the user
     /// @param message message to ask user for password
     /// @param mask masking character to use
     /// @return password returned
-    std::string get_user_password (std::string message, char mask='*');
+    std::string get_user_password (std::string message, char mask = '*');
 
     /// @brief reads a decimal number from the user
     /// @param question question to ask the user.

@@ -13,8 +13,8 @@
 #include <data/divide.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
-#include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/digits.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/string.hpp>
 
 // base 58 is a format for writing natural numbers using
@@ -50,12 +50,7 @@ namespace data::encoding::base58 {
         return {read_base<N> (s, 58, digit)};
     }
 
-    maybe<bytes> inline read (const string_view s) {
-        // we take two steps with different numbers because it's a lot faster.
-        auto n = decode<math::N> (s);
-        if (!bool (n)) return {};
-        return {bytes (math::number::N_bytes<endian::big, byte> (*n))};
-    }
+    maybe<bytes> read (const string_view s);
 
     struct string;
 
@@ -232,10 +227,6 @@ namespace data::encoding::base58 {
         auto w = encoding::write_base<N> (n, characters ());
         if (w == "") return string {};
         return string {w};
-    }
-
-    string inline write (byte_slice b) {
-        return encode<math::N> (math::N (math::number::N_bytes<endian::big, byte>::read (b)));
     }
 
     bool inline operator == (const string &n, uint64 x) {

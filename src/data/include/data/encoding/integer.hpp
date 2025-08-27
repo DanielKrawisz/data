@@ -13,7 +13,7 @@
 
 #include <data/encoding/invalid.hpp>
 #include <data/arithmetic/negativity.hpp>
-#include <data/math/number/bytes/bytes.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 
 #include <data/string.hpp>
 
@@ -35,14 +35,20 @@ namespace data::encoding {
         maybe<math::N_bytes<r, word>> read (string_view s);
         
         template <endian::order r, std::unsigned_integral word>
-        std::ostream &write (std::ostream &, const math::number::N_bytes<r, word> &);
+        std::ostream &write (std::ostream &, const math::N_bytes<r, word> &);
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        std::ostream &write (std::ostream &o, const math::uint<r, x, word> &);
         
         // a decimal string inherets from string but is
         // a big number that supports standard numerical operations. 
         struct string;
         
         template <endian::order r, std::unsigned_integral word>
-        string write (const math::number::N_bytes<r, word> &z);
+        string write (const math::N_bytes<r, word> &);
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        string write (const math::uint<r, x, word> &);
         
     }
     
@@ -50,29 +56,35 @@ namespace data::encoding {
 
         static constexpr ctll::fixed_string pattern {"0|(-?[1-9][0-9]*)"};
 
-        constexpr bool valid (string_view s);
-        constexpr bool nonzero (string_view s);
-        constexpr bool positive (string_view s);
-        constexpr bool negative (string_view s);
-        constexpr math::signature sign (string_view s);
+        constexpr bool valid (string_view);
+        constexpr bool nonzero (string_view);
+        constexpr bool positive (string_view);
+        constexpr bool negative (string_view);
+        constexpr math::signature sign (string_view);
 
         template <endian::order r, std::unsigned_integral word>
-        maybe<math::Z_bytes<r, word>> read (string_view s);
+        maybe<math::Z_bytes<r, word>> read (string_view);
 
         using negativity = math::negativity;
 
         template <endian::order r, std::unsigned_integral word>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::twos, word> &z);
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::twos, word> &);
 
         template <endian::order r, std::unsigned_integral word>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::BC, word> &z);
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::BC, word> &);
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        std::ostream &write (std::ostream &o, const math::sint<r, x, word> &);
 
         // a decimal string inherets from string but is
         // a big number that supports standard numerical operations.
         struct string;
 
         template <endian::order r, negativity c, std::unsigned_integral word>
-        string write (const math::number::Z_bytes<r, c, word> &z);
+        string write (const math::number::Z_bytes<r, c, word> &);
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        string write (const math::sint<r, x, word> &);
         
     }
     
@@ -752,6 +764,18 @@ namespace data::encoding::decimal {
     };
     
     signed_decimal::string operator - (const string &);
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::ostream &write (std::ostream &o, const math::uint<r, x, word> &n) {
+        return write (o, math::N_bytes<r, word> (n));
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    string write (const math::uint<r, x, word> &n) {
+        std::stringstream ss;
+        write (ss, n);
+        return string {ss.str ()};
+    }
     
 }
 
@@ -828,13 +852,25 @@ namespace data::encoding::signed_decimal {
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, negativity::BC, word> &z) {
         if (is_zero (z)) return w << "0";
         if (is_negative (z)) w << "-";
-        return decimal::write (w, math::number::N_bytes<r, word>::read (abs (z)));
+        return decimal::write (w, math::N_bytes<r, word>::read (abs (z)));
     }
     
     template <endian::order r, negativity n, std::unsigned_integral word>
     string inline write (const math::number::Z_bytes<r, n, word> &z) {
         std::stringstream ss;
         write (ss, z);
+        return string {ss.str ()};
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::ostream inline &write (std::ostream &o, const math::sint<r, x, word> &z) {
+        return write (o, math::number::Z_bytes<r, negativity::twos, word> (z));
+    }
+
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    string inline write (const math::sint<r, x, word> &n) {
+        std::stringstream ss;
+        write (ss, n);
         return string {ss.str ()};
     }
 }

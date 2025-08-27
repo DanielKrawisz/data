@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 
 namespace data::math::number {
@@ -63,21 +64,21 @@ namespace data::math {
     division<uint<r, x, word>, uint<r, x, word>> inline divide<uint<r, x, word>, uint<r, x, word>>::operator ()
     (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         auto d = divide<N_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
-        return {uint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
+        return {uint<r, x, word> (d.Quotient), uint<r, x, word> (d.Remainder)};
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     division<sint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, sint<r, x, word>>::operator ()
     (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
         auto d = divide<Z_bytes<r, word>, Z_bytes<r, word>> {} (v, nonzero<Z_bytes<r, word>> {z.Value});
-        return {sint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
+        return {sint<r, x, word> (d.Quotient), uint<r, x, word> (d.Remainder)};
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     division<sint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, uint<r, x, word>>::operator ()
     (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         auto d = divide<Z_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
-        return {sint<r, x, word> {d.Quotient}, uint<r, x, word> {d.Remainder}};
+        return {sint<r, x, word> (d.Quotient), uint<r, x, word> (d.Remainder)};
     }
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>

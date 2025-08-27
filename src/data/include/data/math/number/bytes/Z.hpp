@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BYTES_Z
 #define DATA_MATH_NUMBER_BYTES_Z
 
-#include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
 
 namespace data::math::number {
@@ -40,16 +40,12 @@ namespace data::math::number {
         explicit N_bytes (const std::string &x): N_bytes {read (x)} {}
         
         operator N_bytes<endian::opposite (r), word> () const;
-        
+
         template <negativity c>
         explicit operator Z_bytes<r, c, word> () const;
         explicit operator double () const;
         
         explicit operator uint64 () const;
-
-        // TODO get rid of these and put them in Z instead.
-        explicit N_bytes (const math::N &);
-        explicit operator math::N () const;
 
         N_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
 
@@ -77,10 +73,6 @@ namespace data::math::number {
         static Z_bytes zero (size_t size = 0);
         
         explicit operator int64 () const;
-
-        // TODO get rid of these and put them in Z instead.
-        explicit Z_bytes (const Z &);
-        explicit operator Z () const;
         
         Z_bytes &trim ();
 
@@ -112,9 +104,6 @@ namespace data::math::number {
         
         explicit operator int64 () const;
         explicit operator size_t () const;
-        
-        explicit Z_bytes (const Z &);
-        explicit operator Z () const;
 
         Z_bytes &trim ();
 
@@ -690,16 +679,6 @@ namespace data::math::number {
         return a == Z_bytes<r, cl, word> (b);
     }
 
-    template <endian::order r, std::unsigned_integral word>
-    bool inline operator == (const N_bytes<r, word> &a, const math::N &b) {
-        return math::N (a) == b;
-    }
-
-    template <endian::order r, negativity c, std::unsigned_integral word>
-    bool inline operator == (const Z_bytes<r, c, word> &a, const math::Z &b) {
-        return math::Z (a) == b;
-    }
-
     template <endian::order r, negativity cl, negativity cr, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const Z_bytes<r, cl, word> &a, const Z_bytes<r, cl, word> &b) {
         return a <=> Z_bytes<r, cl, word> (b);
@@ -1023,7 +1002,8 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word>::operator uint64 () const {
-        if (*this > N_bytes {std::numeric_limits<uint64>::max ()}) throw std::invalid_argument {"value too big"};
+        if (*this > N_bytes {std::numeric_limits<uint64>::max ()})
+            throw std::invalid_argument {"value too big"};
 
         endian::integral<false, endian::little, 8> xx {0};
         std::copy (this->words ().begin (),
@@ -1035,8 +1015,11 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word>::operator int64 () const {
-        if (*this > std::numeric_limits<int64>::max ()) throw std::invalid_argument {"value too big"};
-        if (*this < std::numeric_limits<int64>::min ()) throw std::invalid_argument {"value too small"};
+        if (*this > std::numeric_limits<int64>::max ())
+            throw std::invalid_argument {"value too big"};
+
+        if (*this < std::numeric_limits<int64>::min ())
+            throw std::invalid_argument {"value too small"};
 
         endian::integral<true, endian::little, 8> xx {0};
         std::copy (this->words ().begin (),
@@ -1222,82 +1205,6 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator * (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
         return trim (times (trim (a), trim (b)));
-    }
-
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word>::N_bytes (const math::N &n) : N_bytes {} {
-        size_t n_size = mpz_size (n.Value.MPZ);
-
-        if (n_size == 0) return;
-
-        if constexpr (sizeof (word) == sizeof (GMP::gmp_uint)) {
-            this->resize (n_size);
-            std::copy (n.Value.begin (), n.Value.end (), this->words ().begin ());
-        } else if (sizeof (word) < sizeof (GMP::gmp_uint)) {
-            this->resize (n_size * (sizeof (GMP::gmp_uint) / sizeof (word)));
-            auto x = this->words ().begin ();
-            for (const GMP::gmp_uint &limb : n.Value) {
-                GMP::gmp_uint z = limb;
-                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
-                    *x = static_cast<word> (z & std::numeric_limits<word>::max ());
-                    x++;
-                    z >>= (sizeof (word) * 8);
-                }
-            }
-        } else if (sizeof (word) > sizeof (GMP::gmp_uint)) {
-            this->resize (n_size / (sizeof (GMP::gmp_uint) / sizeof (word)));
-            auto x = this->words ().begin ();
-            auto b = n.Value.begin ();
-            while (b != n.Value.end ()) {
-                *x = 0;
-                for (int i = 0; i < sizeof (GMP::gmp_uint) / sizeof (word); i++) {
-                    *x += static_cast<word> (*b) << (i * sizeof (GMP::gmp_uint) * 8);
-                    b++;
-                }
-                x++;
-            }
-        } else throw exception {} << "unhandled case in N -> N_bytes";
-
-        this->trim ();
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word>::Z_bytes (const Z &z) {
-        auto x = Z_bytes<r, negativity::twos, word> (N_bytes<r, word> {data::abs (z)});
-        *this = z < 0 ? -x : x;
-        this->trim ();
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word>::Z_bytes (const Z &z) {
-        *this = Z_bytes<r, negativity::BC, word> (N_bytes<r, word> {data::abs (z)});
-        if (z < 0) *this = -*this;
-        this->trim ();
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word>::operator math::N () const {
-        math::N n {};
-
-        mpz_import (n.Value.MPZ, this->size (), r == endian::little ? -1 : 1, sizeof (word), 0, 0, this->data ());
-
-        return n;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word>::operator Z () const {
-        math::N x = math::N (data::abs (*this));
-        return data::is_negative (*this) ? -x : Z (x);
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word>::operator Z () const {
-        if (data::is_negative (*this)) return -Z (-(*this));
-
-        N_bytes<r, word> n;
-        n.resize (this->size ());
-        std::copy (this->begin (), this->end (), n.begin ());
-        return math::N (n).Value;
     }
 
     template <endian::order r, std::unsigned_integral word>

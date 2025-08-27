@@ -5,13 +5,12 @@
 #ifndef DATA_ARITHMETIC_COMPLEMENTARY
 #define DATA_ARITHMETIC_COMPLEMENTARY
 
-#include <data/cross.hpp>
+#include <data/bytes.hpp>
 #include <data/arithmetic/negativity.hpp>
+#include <data/encoding/endian.hpp>
 
 // these functions will not trim the input or result.
 
-// TODO replace all views with const slices.
-// bytestring& can be replaced with slices.
 namespace data::arithmetic {
 
     // provide a zero of a given size.

@@ -10,7 +10,8 @@
 #include <data/abs.hpp>
 #include <data/sign.hpp>
 #include <data/divide.hpp>
-#include <data/math/number/bytes/Z.hpp>
+#include <data/encoding/hex.hpp>
+#include <data/math/number/bytes/bytes.hpp>
 
 namespace data::math::number {
     
@@ -337,34 +338,33 @@ namespace data::math {
 }
 
 namespace data::encoding::decimal {
+    constexpr bool valid (string_view s);
 
     struct string;
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    string write (const math::uint<r, x, word> &);
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::ostream &write (std::ostream &o, const math::uint<r, x, word> &);
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    std::ostream inline &write (std::ostream &o, const math::uint<r, x, word> &n) {
-        return o << write (n);
-    }
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    string write (const math::uint<r, x, word> &);
 
 }
 
 namespace data::encoding::signed_decimal {
+    constexpr bool valid (string_view s);
 
     struct string;
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    string write (const math::sint<r, x, word> &);
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    std::ostream &write (std::ostream &o, const math::sint<r, x, word> &);
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    std::ostream &write (std::ostream &o, const math::sint<r, x, word> &z) {
-        return o << write (z);
-    }
+    template <endian::order r, size_t x, std::unsigned_integral word>
+    string write (const math::sint<r, x, word> &);
 
 }
 
 namespace data::encoding::hexidecimal {
+    constexpr bool valid (string_view s);
 
     template <endian::order r, std::unsigned_integral word, size_t x>
     std::ostream &write (std::ostream &, const oriented<r, word, x> &, hex_case q = hex_case::lower);
@@ -384,30 +384,18 @@ namespace data::math::number {
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
     std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
-    
+
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     bool operator == (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
-    
+
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     std::weak_ordering operator <=> (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
-    
+
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     bool operator == (const uint<r, size, word> &, const N_bytes<o, word> &);
-    
+
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     std::weak_ordering operator <=> (const uint<r, size, word> &, const N_bytes<o, word> &);
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (const sint<r, size, word> &, const Z &);
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const sint<r, size, word> &, const Z &);
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (const uint<r, size, word> &, const math::N &);
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const uint<r, size, word> &, const math::N &);
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     std::weak_ordering operator <=> (const uint<r, x, word> &a, int64 b);
@@ -604,10 +592,7 @@ namespace data::math::number {
         static N_bytes<r, word> modulus ();
         
         operator N_bytes<r, word> () const;
-        
-        explicit operator math::N () const {
-            return math::N (N_bytes<r, word> (*this));
-        }
+        bounded (const N_bytes<r, word> &);
         
         explicit operator double () const;
 
@@ -633,13 +618,15 @@ namespace data::math::number {
             return n;
         }
 
+        // TODO take care of this somewhere else
+        /*
         explicit bounded (const math::N &n): bounded {N_bytes<r, word> (n)} {}
         constexpr explicit bounded (const N_bytes<r, word> &n) : bounded {} {
             if (n.size () <= size) std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
             else if (N_bytes<r, word> (n) <= N_bytes<r, word> {max ()})
                 std::copy (n.words ().begin (), n.words ().begin () + size, this->begin ());
             else throw std::invalid_argument {"N_bytes too big"};
-        }
+        }*/
 
         explicit operator uint64 () const {
             if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
@@ -678,10 +665,6 @@ namespace data::math::number {
         division<bounded> divide (const bounded &) const;
         
         operator Z_bytes<r, negativity::twos, word> () const;
-        
-        explicit operator Z () const {
-            return Z (Z_bytes<r, negativity::twos, word> (*this));
-        }
         
         explicit bounded (slice<word, size>);
         
@@ -754,16 +737,6 @@ namespace data::math::number {
         return (a <=> b) == 0;
     }
     
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool inline operator == (const sint<r, size, word> &a, const Z &b) {
-        return (a <=> b) == 0;
-    }
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool inline operator == (const uint<r, size, word> &a, const math::N &b) {
-        return (a <=> b) == 0;
-    }
-    
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const sint<r, size, word> &a, const Z_bytes<o, negativity::twos, word> &b) {
         return Z_bytes<r, negativity::twos, word> (a) <=> b;
@@ -774,16 +747,6 @@ namespace data::math::number {
         return Z_bytes<r, negativity::twos, word> (a) <=> b;
     }
     
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const sint<r, size, word> &a, const Z &b) {
-        return Z (a) <=> b;
-    }
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const uint<r, size, word> &a, const math::N &b) {
-        return math::N (a) <=> b;
-    }
-    
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
     std::weak_ordering inline operator <=> (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
         return a <=> bounded<y, o, z, word> (b);
@@ -792,15 +755,15 @@ namespace data::math::number {
     template <data::endian::order r, size_t size, std::unsigned_integral word>
     std::ostream inline &operator << (std::ostream &o, const uint<r, size, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
-        else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, math::N (n));
-        return o;
+        if (o.flags () & std::ios::dec) return encoding::decimal::write (o, n);
+        throw exception {} << "Try to write a uint with invalid flags";
     }
 
     template <data::endian::order r, size_t size, std::unsigned_integral word>
     std::ostream inline &operator << (std::ostream &o, const sint<r, size, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
-        if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, Z (n));
-        return o;
+        if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, n);
+        throw exception {} << "Try to write a uint with invalid flags";
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -1148,7 +1111,7 @@ namespace data::math {
 }
 
 namespace data::math::number {
-    
+
     template <endian::order r, size_t size, std::unsigned_integral word>
     bounded<false, r, size, word>::bounded (string_view x) {
         if (encoding::decimal::valid (x) || encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
@@ -1520,6 +1483,14 @@ namespace data::math::number {
     bounded<is_signed, r, size, word> inline &operator >>= (bounded<is_signed, r, size, word> &n, int i) {
         (i < 0 ? shift_left<r, size, word> : shift_right<r, size, word>) (n, i, data::is_negative (n));
         return n; 
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bounded<false, r, size, word>::bounded (const N_bytes<r, word> &n) {
+        auto nt = trim (n);
+        if (nt.size () > size) throw exception {} << "too big";
+        auto nx = extend (n, size);
+        std::copy (nx.begin (), nx.end (), this->begin ());
     }
     
 }
