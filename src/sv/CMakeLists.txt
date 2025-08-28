@@ -1,4 +1,8 @@
-add_library (sv OBJECT
+add_library (
+  sv
+
+  STATIC
+
   utiltime.cpp
   fs.cpp
   crypto/chacha20.cpp
@@ -10,14 +14,18 @@ add_library (sv OBJECT
   support/cleanse.cpp
 )
 
-target_include_directories (sv PUBLIC
+target_include_directories (
+  sv
+  PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 
 target_link_libraries (
   sv
+
   PUBLIC
+
   Boost::boost
   Boost::chrono
 )
