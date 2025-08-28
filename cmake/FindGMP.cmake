@@ -12,20 +12,21 @@ function(define_imported_target library headers)
     IMPORTED_LOCATION ${library}
     INTERFACE_INCLUDE_DIRECTORIES ${headers}
   )
-  set(GMP_FOUND 1 CACHE INTERNAL "GMP found" FORCE)
-  set(GMP_LIBRARIES ${library}
+
+  set (GMP_FOUND 1 CACHE INTERNAL "GMP found" FORCE)
+  set (GMP_LIBRARIES ${library}
       CACHE STRING "Path to gmp library" FORCE)
-  set(GMP_INCLUDES ${headers}
+  set (GMP_INCLUDES ${headers}
       CACHE STRING "Path to gmp headers" FORCE)
-  mark_as_advanced(FORCE GMP_LIBRARIES)
-  mark_as_advanced(FORCE GMP_INCLUDES)
-endfunction()
+  mark_as_advanced (FORCE GMP_LIBRARIES)
+  mark_as_advanced (FORCE GMP_INCLUDES)
+endfunction ()
 
 # Accepting user-provided paths and reusing cached values
 if (GMP_LIBRARIES AND GMP_INCLUDES)
-  define_imported_target(${GMP_LIBRARIES} ${GMP_INCLUDES})
-  return()
-endif()
+  define_imported_target (${GMP_LIBRARIES} ${GMP_INCLUDES})
+  return ()
+endif ()
 
 set(QUIET_ARG)
 if(GMP_FIND_QUIETLY)

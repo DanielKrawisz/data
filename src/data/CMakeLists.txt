@@ -156,6 +156,8 @@ target_link_libraries (
   Boost::thread
   nlohmann_json::nlohmann_json
   taocpp::pegtl
+  OpenSSL::SSL
+  OpenSSL::Crypto
 )
 
 target_sources (
