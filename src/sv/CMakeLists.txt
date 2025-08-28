@@ -32,9 +32,10 @@ target_link_libraries (
 
 include (GNUInstallDirs)
 
-install (DIRECTORY
+install (
+  DIRECTORY
   include/sv
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install (TARGETS sv

@@ -8,7 +8,8 @@ endif ()
 option (OPTIONAL_TESTS "Build optional Tests" OFF)
 include (GoogleTest)
 
-add_executable (unit_tests
+add_executable (
+    unit_tests
     # These tests only require data_core. 
     testMaybeEither.cpp
     testStore.cpp
