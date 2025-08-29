@@ -68,7 +68,8 @@ namespace data::net::HTTP {
             targ = *Target;
         } else {
             std::stringstream target_stream;
-            target_stream << static_cast<std::string> (*Path);
+            if (bool (Path)) target_stream << "/";
+            else target_stream << static_cast<std::string> (*Path);
             if (bool (Query)) target_stream << "?" << static_cast<std::string> (*Query);
             if (bool (Fragment)) target_stream << "#" << static_cast<std::string> (*Fragment);
             targ = net::target {target_stream.str ()};
