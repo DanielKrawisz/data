@@ -11,18 +11,20 @@ PATH_SUFFIXES include/data
 )
 
 find_library(DATA_LIBRARY NAMES data
-HINTS ENV DATA_LIB_DIR
-ENV DATA_DIR
-$ENV{DATA_DIR}/lib
-PATH_SUFFIXES lib/data
-DOC "Path to the Data library"
+  HINTS ENV DATA_LIB_DIR
+  ENV DATA_DIR
+  $ENV{DATA_DIR}/lib
+  PATH_SUFFIXES lib/data
+  DOC "Path to the Data library"
 )
+
 message(STATUS "${DATA_INCLUDE_DIR}")
 if(DATA_INCLUDE_DIR)
     file(READ "${DATA_INCLUDE_DIR}/data/version.hpp" ver)
     string(REGEX MATCH "#define DATA_VERSION \"([0-9*.]*)\"" _ ${ver})
     set(DATA_VERSION ${CMAKE_MATCH_1})
 endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Data
   FOUND_VAR DATA_FOUND
