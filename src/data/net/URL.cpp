@@ -5,6 +5,7 @@
 #include <boost/algorithm/string.hpp>
 #include <data/net/URL.hpp>
 #include <data/net/TCP.hpp>
+#include <data/net/REST.hpp>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -190,27 +191,6 @@ namespace data::net {
         return {IP::TCP::endpoint {*addr, port}};
     }
 
-    namespace {
-        std::string write_params (dispatch<UTF8, UTF8> params) {
-            std::stringstream q;
-
-            auto i = params.begin ();
-            
-            if (i != params.end ()) {
-
-                while (true) {
-                    q << encoding::percent::encode ((*i).Key, ":#[]@=&") << "=" <<
-                        encoding::percent::encode ((*i).Value, ":#[]@=&");
-                    i++;
-                    if (i == params.end ()) break;
-                    q << "&";
-                }
-            }
-
-            return q.str ();
-        }
-    }
-
     protocol::operator name () const {
         string self = *this;
 
@@ -237,6 +217,54 @@ namespace data::net {
 
     }
 
+    target::make::operator target () const {
+
+        std::stringstream targ;
+
+        if (bool (Path)) targ << static_cast<std::string> (*Path);
+        if (bool (Query)) targ << "?" << static_cast<std::string> (*Query);
+        if (bool (Fragment)) targ << "#" << static_cast<std::string> (*Fragment);
+
+        return targ.str ();
+
+    }
+
+    target::make target::make::query (const ASCII &q) const {
+        if (bool (Query))
+            throw exception {"URL error: query already set."};
+
+        make m = *this;
+        m.Query = std::make_shared<pctstr> (q);
+        return m;
+    }
+
+    target::make target::make::fragment (const UTF8 &u) const {
+        if (bool (Fragment))
+            throw exception {"URL error: fragment already set."};
+
+        make m = *this;
+        m.Fragment = std::make_shared<pctstr> (encoding::percent::encode (u, ":#[]@=&"));
+        return m;
+    }
+
+    target::make target::make::query_map (dispatch<UTF8, UTF8> p) const {
+        if (bool (Query))
+            throw exception {"URL error: query already set."};
+
+        make m = *this;
+        m.Query = std::make_shared<pctstr> (HTTP::REST::encode_form_data (p));
+        return m;
+    }
+
+    target::make target::make::path (const net::path &p) const {
+        if (Path != nullptr && *Path != pctstr {""})
+            throw exception {"URL error: path already set."};
+
+        make m = *this;
+        m.Path = std::make_shared<pctstr> (p);
+        return m;
+    }
+
     URL::make::operator URL () const {
         if (!Protocol) throw exception {"invalid URI; no protocol given"};
 
@@ -251,9 +279,7 @@ namespace data::net {
             if (Port) url << ":" << static_cast<std::string> (*Port);
         }
 
-        if (Path) url << static_cast<std::string> (*Path);
-        if (Query) url << "?" << static_cast<std::string> (*Query);
-        if (Fragment) url << "#" << static_cast<std::string> (*Fragment);
+        if (Target) url << static_cast<std::string> (net::target (*Target));
 
         URL u {url.str ()};
 
@@ -263,41 +289,59 @@ namespace data::net {
 
     }
 
+    URL::make URL::make::path (const net::path &p) const {
+        std::cout << "  adding path " << p << std::endl;
+        make m = *this;
+        if (!bool (m.Target)) m.Target = std::make_shared<target::make> ();
+        *m.Target = m.Target->path (p);
+        return m;
+    }
+
+    URL::make URL::make::target (const net::target &t) const {
+        if (bool (Target))
+            throw data::exception {} << "URL error: target already set";
+
+        make m = *this;
+        m.Target = std::make_shared<target::make> (target::make {t});
+        return m;
+    }
+
+    URL::make URL::make::query_map (dispatch<UTF8, UTF8> d) const {
+        make m = *this;
+        if (!bool (m.Target)) m.Target = std::make_shared<target::make> ();
+        *m.Target = m.Target->query_map (d);
+        return m;
+    }
+
+    URL::make URL::make::query (const ASCII &q) const {
+        make m = *this;
+        if (!bool (m.Target)) m.Target = std::make_shared<target::make> ();
+        *m.Target = m.Target->query (q);
+        return m;
+    }
+
+    URL::make URL::make::fragment (const UTF8 &f) const {
+        make m = *this;
+        if (!bool (m.Target)) m.Target = std::make_shared<target::make> ();
+        *m.Target = m.Target->fragment (f);
+        return m;
+    }
+
     URL::make URL::make::protocol (const net::protocol &p) const {
-        if (Protocol != nullptr) throw exception {"URL error: protocol already set."};
-        if (!p.valid ()) throw exception {"URL error: invalid protocol."};
+        if (bool (Protocol))
+            throw exception {"URL error: protocol already set."};
+
+        if (!p.valid ())
+            throw exception {"URL error: invalid protocol."};
 
         make m = *this;
         m.Protocol = std::make_shared<pctstr> (p);
         return m;
     }
 
-    URL::make URL::make::query_map (list<entry<UTF8, UTF8>> p) const {
-        if (Query != nullptr) throw exception {"URL error: query already set."};
-
-        make m = *this;
-        m.Query = std::make_shared<pctstr> (write_params (p));
-        return m;
-    }
-
-    URL::make URL::make::query (const ASCII &q) const {
-        if (Query != nullptr) throw exception {"URL error: query already set."};
-
-        make m = *this;
-        m.Query = std::make_shared<pctstr> (q);
-        return m;
-    }
-
-    URL::make URL::make::fragment (const UTF8 &u) const {
-        if (Fragment != nullptr) throw exception {"URL error: fragment already set."};
-
-        make m = *this;
-        m.Fragment = std::make_shared<pctstr> (encoding::percent::encode (u, ":#[]@=&"));
-        return m;
-    }
-
     URL::make URL::make::port (const uint16 &u) const {
-        if (Port != nullptr) throw exception {"URL error: port already set."};
+        if (bool (Port))
+            throw exception {"URL error: port already set."};
 
         make m = *this;
         m.Port = std::make_shared<pctstr> (net::port {u});
@@ -356,15 +400,6 @@ namespace data::net {
         if (m.UserInfo != nullptr) throw exception {"URL error: user info already set."};
 
         m.UserInfo = std::make_shared<pctstr> (encoding::percent::encode (info, "/@?#"));
-        return m;
-    }
-
-    URL::make URL::make::path (const net::path &p) const {
-        if (Path != nullptr && *Path != pctstr {""}) 
-            throw exception {"URL error: path already set."};
-
-        make m = *this;
-        m.Path = std::make_shared<pctstr> (p);
         return m;
     }
 
@@ -617,7 +652,7 @@ namespace data {
     template <typename Rule> struct domain_action : pegtl::nothing<Rule> {};
 
     template <> struct domain_action<pegtl::domain_label> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, data::list<std::string> &labels) {
             labels = labels << in.string ();
         }
@@ -625,15 +660,17 @@ namespace data {
 
     template <typename Rule> struct make_uri_action : pegtl::nothing<Rule> {};
 
+    template <typename Rule> struct make_target_action : pegtl::nothing<Rule> {};
+
     template <> struct make_uri_action<pegtl::scheme> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
             if (m.Protocol == nullptr) m.Protocol = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
     template <> struct make_uri_action<pegtl::user_info_at> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
             if (m.UserInfo == nullptr)
                 m.UserInfo = std::make_shared<encoding::percent::string> (in.begin (), in.begin () + in.size () - 1);
@@ -641,51 +678,91 @@ namespace data {
     };
 
     template <> struct make_uri_action<pegtl::host> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
             if (m.Host == nullptr) m.Host = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
     template <> struct make_uri_action<pegtl::port> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
             if (m.Port == nullptr) m.Port = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
+    template <> struct make_target_action<pegtl::path_after_authority> {
+        template <typename Input>
+        static void apply (const Input& in, net::target::make &m) {
+            if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
     template <> struct make_uri_action<pegtl::path_after_authority> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
+            if (!bool (m.Target)) m.Target = std::make_shared<net::target::make> ();
+            if (m.Target->Path == nullptr) m.Target->Path = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_target_action<pegtl::path_absolute> {
+        template <typename Input>
+        static void apply (const Input& in, net::target::make &m) {
             if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
     template <> struct make_uri_action<pegtl::path_absolute> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
+            if (!bool (m.Target)) m.Target = std::make_shared<net::target::make> ();
+            if (m.Target->Path == nullptr) m.Target->Path = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_target_action<pegtl::path_rootless> {
+        template <typename Input>
+        static void apply (const Input& in, net::target::make &m) {
             if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
     template <> struct make_uri_action<pegtl::path_rootless> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
-            if (m.Path == nullptr) m.Path = std::make_shared<encoding::percent::string> (in.string ());
+            if (!bool (m.Target)) m.Target = std::make_shared<net::target::make> ();
+            if (m.Target->Path == nullptr) m.Target->Path = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
-    template <> struct make_uri_action<pegtl::query> {
-        template <typename Input >
-        static void apply (const Input& in, net::URL::make &m) {
+    template <> struct make_target_action<pegtl::query> {
+        template <typename Input>
+        static void apply (const Input& in, net::target::make &m) {
             if (m.Query == nullptr) m.Query = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
-    template <> struct make_uri_action<pegtl::fragment> {
-        template <typename Input >
+    template <> struct make_uri_action<pegtl::query> {
+        template <typename Input>
         static void apply (const Input& in, net::URL::make &m) {
+            if (!bool (m.Target)) m.Target = std::make_shared<net::target::make> ();
+            if (m.Target->Query == nullptr) m.Target->Query = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_target_action<pegtl::fragment> {
+        template <typename Input>
+        static void apply (const Input& in, net::target::make &m) {
             if (m.Fragment == nullptr) m.Fragment = std::make_shared<encoding::percent::string> (in.string ());
+        }
+    };
+
+    template <> struct make_uri_action<pegtl::fragment> {
+        template <typename Input>
+        static void apply (const Input& in, net::URL::make &m) {
+            if (!bool (m.Target)) m.Target = std::make_shared<net::target::make> ();;
+            if (m.Target->Fragment == nullptr) m.Target->Fragment = std::make_shared<encoding::percent::string> (in.string ());
         }
     };
 
@@ -693,6 +770,12 @@ namespace data {
         make m {};
         tao::pegtl::memory_input<> in (*this, "uri");
         return tao::pegtl::parse<pegtl::uri_whole, make_uri_action> (in, m) ? m : make {};
+    }
+
+    net::target::make net::target::read () const {
+        make m {};
+        tao::pegtl::memory_input<> in (*this, "uri");
+        return tao::pegtl::parse<pegtl::target_whole, make_target_action> (in, m) ? m : make {};
     }
 
     net::URL::make net::URL::make::authority (const UTF8 &x) const {
@@ -708,7 +791,7 @@ namespace data {
     template <typename Rule> struct read_scheme_action : pegtl::nothing<Rule> {};
 
     template <> struct read_scheme_action<pegtl::scheme> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -724,7 +807,7 @@ namespace data {
     template <typename Rule> struct read_authority_action : pegtl::nothing<Rule> {};
 
     template <> struct read_authority_action<pegtl::authority> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -740,7 +823,7 @@ namespace data {
     template <typename Rule> struct read_user_info_action : pegtl::nothing<Rule> {};
 
     template <> struct read_user_info_action<pegtl::user_info_at> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -756,7 +839,7 @@ namespace data {
     template <typename Rule> struct read_host_action : pegtl::nothing<Rule> {};
 
     template <> struct read_host_action<pegtl::host> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -772,7 +855,7 @@ namespace data {
     template <typename Rule> struct read_port_action : pegtl::nothing<Rule> {};
 
     template <> struct read_port_action<pegtl::port> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -788,21 +871,21 @@ namespace data {
     template <typename Rule> struct read_path_action : pegtl::nothing<Rule> {};
 
     template <> struct read_path_action<pegtl::path_after_authority> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
     };
 
     template <> struct read_path_action<pegtl::path_absolute> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
     };
 
     template <> struct read_path_action<pegtl::path_rootless> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -826,7 +909,7 @@ namespace data {
     template <typename Rule> struct read_query_action : pegtl::nothing<Rule> {};
 
     template <> struct read_query_action<pegtl::query> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -842,7 +925,7 @@ namespace data {
     template <typename Rule> struct read_fragment_action : pegtl::nothing<Rule> {};
 
     template <> struct read_fragment_action<pegtl::fragment> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
@@ -858,21 +941,21 @@ namespace data {
     template <typename Rule> struct read_ip_address_action : pegtl::nothing<Rule> {};
 
     template <> struct read_ip_address_action<pegtl::ipv4> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
     };
 
     template <> struct read_ip_address_action<pegtl::ipv6> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
     };
 
     template <> struct read_ip_address_action<pegtl::ip_future> {
-        template <typename Input >
+        template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }

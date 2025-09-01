@@ -6,24 +6,23 @@
 
 namespace data::net::HTTP {
         
-    UTF8 REST::encode_form_data (list<entry<UTF8, UTF8>> form_data) {
-        std::stringstream newBody;
+    encoding::percent::string REST::encode_form_data (dispatch<UTF8, UTF8> params) {
+        std::stringstream q;
 
-        auto it = form_data.begin ();
+        auto i = params.begin ();
 
-        if (it != form_data.end ()) {
+        if (i != params.end ()) {
 
             while (true) {
-                newBody << std::string (it->Key) << "=" << it->Value;
-
-                it++;
-                if (it == form_data.end ()) break;
-
-                newBody << "&";
+                q << encoding::percent::encode ((*i).Key, ":#[]@=&") << "=" <<
+                encoding::percent::encode ((*i).Value, ":#[]@=&");
+                i++;
+                if (i == params.end ()) break;
+                q << "&";
             }
         }
-            
-        return newBody.str ();
+
+        return q.str ();
     }
 
     HTTP::request::make REST::operator () (const HTTP::request::make &r) const {

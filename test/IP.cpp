@@ -282,7 +282,7 @@ namespace data::net {
             net::URL URL;
 
             data::ASCII Scheme;
-            maybe<net::authority> Authority;
+            maybe<data::UTF8> Authority;
             data::ASCII Path;
             maybe<data::ASCII> Query;
             maybe<data::UTF8> Fragment;
@@ -302,7 +302,8 @@ namespace data::net {
         // valid URLs.
         for (const positive_test_case &tt : list<positive_test_case> {{
                 "ftp://ftp.is.co.za/rfc/rfc1808.txt",
-                "ftp", {"ftp.is.co.za"}, "/rfc/rfc1808.txt", {}, {},
+                "ftp", {"ftp.is.co.za"},
+                "/rfc/rfc1808.txt", {}, {},
                 {}, "ftp.is.co.za", {}, {},
                 {}, "ftp", {"ftp.is.co.za"}, {}
             }, {
@@ -312,7 +313,8 @@ namespace data::net {
                 {}, "http", {"www.ietf.org"}, {}
             }, {
                 "ldap://[2001:db8::7]/c=GB?objectClass?one",
-                "ldap", "[2001:db8::7]", "/c=GB", "objectClass?one", {},
+                "ldap", "[2001:db8::7]", "/c=GB",
+                "objectClass?one", {},
                 {}, "[2001:db8::7]", {}, {},
                 {}, "ldap", {}, {"2001:db8::7"}
             }, {
@@ -322,12 +324,14 @@ namespace data::net {
                 {}, "mailto", {}, {}
             }, {
                 "news:comp.infosystems.www.servers.unix",
-                "news", {}, "comp.infosystems.www.servers.unix", {}, {},
+                "news", {},
+                "comp.infosystems.www.servers.unix", {}, {},
                 {}, {}, {}, {},
                 {}, "news", {}, {}
             }, {
                 "tel:+1-816-555-1212",
-                "tel", {}, "+1-816-555-1212", {}, {}, {}, {}, {}, {},
+                "tel", {},
+                "+1-816-555-1212", {}, {}, {}, {}, {}, {},
                 {}, "tel", {}, {}
             }, {
                 "telnet://192.0.2.16:80/",
@@ -341,7 +345,8 @@ namespace data::net {
                 {}, "urn", {}, {}
             }, {
                 "foo://example.com:8042/over/there?name=ferret&size=long#nose",
-                "foo", "example.com:8042", "/over/there", "name=ferret&size=long", "nose",
+                "foo", "example.com:8042",
+                "/over/there", "name=ferret&size=long", "nose",
                 {}, "example.com", "8042", {{{"name", "ferret"}, {"size", "long"}}},
                 {8042}, "8042", {"example.com"}, {}
             }, {
@@ -361,7 +366,8 @@ namespace data::net {
                 {8080}, "8080", {"example.org"}, {}
             }, {
                 "ftp://example.com/resource?param1=value1&param2=value2",
-                "ftp", "example.com", "/resource", "param1=value1&param2=value2", {},
+                "ftp", "example.com", "/resource",
+                "param1=value1&param2=value2", {},
                 {}, "example.com", {}, {{{"param1", "value1"}, {"param2", "value2"}}},
                 {}, "ftp", {"example.com"}, {}
             }, {
@@ -458,14 +464,16 @@ namespace data::net {
         EXPECT_EQ (URL {"http://example.com"}, URL (URL::make {}.protocol ("http").domain_name ("example.com")));
         EXPECT_EQ (URL {"http://example.com"}, URL (URL::make {}.scheme ("http").authority ("example.com")));
 
-        EXPECT_EQ (URL {"http://example.com/test?query"},
-            URL (URL::make {}.protocol ("http").path ("/test").domain_name ("example.com").query ("query")));
+        URL url_example_A {"http://example.com/test?query"};
+        auto url_example_A_remade = URL (URL::make {}.protocol ("http").path ("/test").domain_name ("example.com").query ("query"));
+        EXPECT_EQ (url_example_A, url_example_A_remade) << "Expected " << url_example_A << " to equal " << url_example_A_remade;
 
         EXPECT_EQ (URL {"http://example.com/test?query"}, URL (URL::make {"http://example.com"}.query ("query").path ("/test")));
 
-        EXPECT_EQ (URL {"zoom://moop:zoop@something.nothing:4321?weem=peen&zap=bap#floop"},
-            URL (URL::make {}.user_name_pass ("moop", "zoop").query_map ({{"weem", "peen"}, {"zap", "bap"}}).protocol
-                ("zoom").fragment ("floop").domain_name ("something.nothing").port (4321)));
+        URL url_example_C {"zoom://moop:zoop@something.nothing:4321?weem=peen&zap=bap#floop"};
+        URL url_example_C_remade = URL (URL::make {}.user_name_pass ("moop", "zoop").query_map ({{"weem", "peen"}, {"zap", "bap"}}).protocol
+        ("zoom").fragment ("floop").domain_name ("something.nothing").port (4321));
+        EXPECT_EQ (url_example_C, url_example_C_remade) << "Expected " << url_example_C << " to equal " << url_example_C_remade;;
 
     }
 

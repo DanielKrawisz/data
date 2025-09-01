@@ -47,7 +47,6 @@ namespace data::net::HTTP {
         if (Version != version_1_1) throw data::exception {} << "Only version 1.1 is supported.";
 
         if (!bool (Method)) throw data::exception {} << "Method is not set";
-        if (!bool (Target) && !bool (Path)) throw data::exception {} << "Path is not set";
 
         if (bool (Body)) {
             for (auto &[h, setting] : Headers) if (h == header::content_type) goto content_type_set;
@@ -62,20 +61,10 @@ namespace data::net::HTTP {
         }
         host_set:
 
-        net::target targ;
+        net::target targ = net::target (bool (Target.Path) ? Target : Target.path ("/"));
 
-        if (bool (Target)) {
-            targ = *Target;
-        } else {
-            std::stringstream target_stream;
-            if (bool (Path)) target_stream << "/";
-            else target_stream << static_cast<std::string> (*Path);
-            if (bool (Query)) target_stream << "?" << static_cast<std::string> (*Query);
-            if (bool (Fragment)) target_stream << "#" << static_cast<std::string> (*Fragment);
-            targ = net::target {target_stream.str ()};
-        }
-
-        if (!targ.valid () || targ == net::target {}) throw data::exception {} << "invalid target " << targ;
+        if (!targ.valid ())
+            throw data::exception {} << "invalid target " << targ;
 
         return request {*Method, targ, Headers, bool (Body) ? *Body : bytes {}};
 
@@ -94,30 +83,38 @@ namespace data::net::HTTP {
     }
 
     request::make request::make::target (const net::target &p) const {
-        if (bool (Target) || bool (Path) || bool (Query) || bool (Fragment)) throw data::exception {"target already set"};
+        if (bool (Target.Path) || bool (Target.Query) || bool (Target.Fragment)) throw data::exception {"target already set"};
         auto r = *this;
-        r.Target = p;
+        r.Target = net::target::make (p);
         return r;
     }
 
     request::make request::make::path (const net::path &p) const {
-        if (bool (Path) || bool (Target)) throw data::exception {"path already set"};
+        if (bool (Target.Path)) throw data::exception {"path already set"};
         auto r = *this;
-        r.Path = p;
+        r.Target.Path = std::make_shared<pctstr> (p);
         return r;
     }
 
     request::make request::make::query (const ASCII &p) const {
-        if (bool (Query) || bool (Target)) throw data::exception {"query already set"};
+        if (bool (Target.Query)) throw data::exception {"query already set"};
         auto r = *this;
-        r.Query = encoding::percent::encode (p);
+        r.Target.Query = std::make_shared<pctstr> (encoding::percent::encode (p));
+        return r;
+    }
+
+    request::make request::make::query_map (dispatch<UTF8, UTF8> q) const {
+        auto r = *this;
+        r.Target = r.Target.query_map (q);
         return r;
     }
 
     request::make request::make::fragment (const UTF8 &p) const {
-        if (bool (Query) || bool (Target)) throw data::exception {"query already set"};
+        if (bool (Target.Fragment))
+            throw data::exception {"query already set"};
+
         auto r = *this;
-        r.Query = encoding::percent::encode (p);
+        r.Target.Fragment = std::make_shared<pctstr> (encoding::percent::encode (p));
         return r;
     }
 

@@ -138,6 +138,7 @@ namespace data::net::HTTP {
             make target (const target &) const;
             make path (const net::path &) const;
             make query (const ASCII &) const;
+            make query_map (dispatch<UTF8, UTF8>) const;
             make fragment (const UTF8 &) const;
             make host (const UTF8 &) const;
             make user_agent (const ASCII &) const;
@@ -156,10 +157,7 @@ namespace data::net::HTTP {
 
             maybe<HTTP::method> Method;
 
-            maybe<pctstr> Target {};
-            maybe<pctstr> Path {};
-            maybe<pctstr> Query {};
-            maybe<pctstr> Fragment {};
+            target::make Target;
 
             dispatch<HTTP::header, ASCII> Headers;
 
