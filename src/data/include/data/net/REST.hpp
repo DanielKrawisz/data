@@ -34,7 +34,7 @@ namespace data::net::HTTP {
 
         HTTP::request::make operator () (const HTTP::request::make &r) const;
 
-        static UTF8 encode_form_data (form form_data);
+        static encoding::percent::string encode_form_data (form);
         
     };
     

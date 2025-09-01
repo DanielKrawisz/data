@@ -71,7 +71,7 @@ add_executable (
     testEllipticCurve.cpp
     testLog.cpp
     testArgsParser.cpp
-    testIP.cpp
+    IP.cpp
     testEmail.cpp
 )
 

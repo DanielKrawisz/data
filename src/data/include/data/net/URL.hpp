@@ -6,10 +6,7 @@
 #ifndef DATA_NET_URL
 #define DATA_NET_URL
 
-#include <ctre.hpp>
-#include <data/encoding/ascii.hpp>
-#include <data/maybe.hpp>
-#include <data/tools.hpp>
+#include <data/net/URL/percent.hpp>
 #include <data/net/asio/TCP.hpp>
 
 // Implementation of a URL as described in RFC3986
@@ -48,8 +45,8 @@ namespace data::net {
 
     uint16 default_port (const protocol &);
 
-    // the path is the part of the URL including and after 
-    // the first '/' and before the first '?'. 
+    // the path is the part of the URL including and after
+    // the first '/' and before the first '?'.
     struct path;
 
     std::ostream &operator << (std::ostream &, const path &);
@@ -196,133 +193,66 @@ namespace data::net::IP {
     };
 }
 
-// RFC3986 defines certain reserved characters which
-// denote the structure of a URI. Percent encoding
-// ensures that arbitrary UTF8 strings can be included
-// in a URL without affecting the structure of the URL.
-//
-// A UTF8 character is percent encoded as "%" followed
-// by the hexidecimal value of the encoded character.
-//
-// Control characters and non-ASCII characters are
-// required to be percent encoded. Other characetrs
-// may optionally be percent encoded.
-namespace data::encoding::percent {
+namespace data::net {
+    // A path must begin with '/' but '/' is not
+    // necessarily a delimiter. path must be a
+    // percent-encoded string because a delimeter
+    // character may be percent encoded, which would
+    // change structure of the path if it were
+    // decoded. Thus, two paths can be percent
+    // equal without being equal.
+    struct path : encoding::percent::string {
+        using encoding::percent::string::string;
+        path (list<UTF8>, char delim = '/');
+        list<UTF8> read (char delim = '/') const;
 
-    bool valid (string_view input);
-
-    constexpr const char *Reserved = ":/?#[]@!$&'()*+,;=";
-    constexpr const char *Delimiters = ":/?#[]@";
-    constexpr const char *Subdelimiters = "!$&'()*+,;=";
-
-    bool inline is_reserved (char c) {
-        return strchr (Reserved, c) != nullptr;
-    }
-
-    // encode the string, ensuring that the given characters are encoded.
-    std::string encode (const data::UTF8 &, const data::ASCII &required = "");
-
-    bool equivalent (const std::string &, const std::string &);
-
-    // a %-encoded string.
-    struct string;
-
-    // decode back to UTF8.
-    maybe<data::UTF8> decode (string_view);
-
-    struct string : data::ASCII {
-        using data::ASCII::ASCII;
-
-        string (const data::ASCII &x) : data::ASCII {x} {}
-
-        // If a character is reserved, then its percent-encoded
-        // form is unequal to its non-encoded form. Otherwise
-        // they are treated as equal.
-        bool operator == (const string &x) const {
-            return equivalent (*this, x);
-        }
-
-        bool valid () const {
-            return percent::valid (*this);
-        }
+        static bool valid (string_view);
+        bool valid () const;
     };
 
-    // https://www.ietf.org/rfc/rfc3986.txt
-    // A URI is a universal resource indicator, as opposed to locator.
-    // the URI may not enable you to retrieve the document but it will
-    // uniquely specify the document.
-    struct URI : string {
+    // same with target, which includes path.
+    struct target : encoding::percent::string {
+        static bool valid (string_view);
 
-        static string_view scheme (string_view);
-        static string_view authority (string_view);
-        static string_view path (string_view);
-        static string_view query (string_view);
-        static string_view fragment (string_view);
+        using encoding::percent::string::string;
 
-        static string_view user_info (string_view);
-        static string_view host (string_view);
-        static string_view port (string_view);
-
-        static string_view address (string_view);
-
-        // everything from the path to the end.
-        static string_view target (string_view);
-
-        data::ASCII scheme () const;
-        maybe<data::UTF8> user_info () const;
-        maybe<data::UTF8> host () const;
-        maybe<data::ASCII> port () const;
-        maybe<net::authority> authority () const;
-        net::target target () const;
         net::path path () const;
-        maybe<data::ASCII> query () const; // the part after ? and before #
-        maybe<data::UTF8> fragment () const; // the part after the #
+
+        maybe<ASCII> query () const; // the part after ? and before #
+        maybe<dispatch<UTF8, UTF8>> query_map () const;
+
+        maybe<UTF8> fragment () const; // the part after the #
 
         bool valid () const;
 
-        using string::string;
-        URI (const string &x) : string {x} {}
+        // make a target bit by bit.
+        struct make {
+            operator target () const;
 
-        URI (const data::ASCII &protocol, const data::UTF8 &user_utya,
-             const data::UTF8 &host, const data::ASCII &port, const net::path &path,
-             const data::UTF8 &query, const data::UTF8 &fragment);
+            make () {}
+            explicit make (const target &);
 
-        // convert to a standard equivalent form in which all hex digits are upper case,
-        // scheme and host are lower case, and only required digits are hex-encoded.
-        // this is used to test equality of URLs.
-        URI normalize () const;
+            make path (const net::path &) const;
+
+            make query_map (dispatch<UTF8, UTF8>) const;
+            make query (const ASCII &) const;
+
+            make fragment (const UTF8 &) const;
+
+            using pctstr = encoding::percent::string;
+
+            // we use pointers here instead of maybes
+            // so that we don't copy these over and over
+            // as we add more elements.
+            ptr<pctstr> Path;
+            ptr<pctstr> Query;
+            ptr<pctstr> Fragment;
+
+        };
+
+        make read () const;
 
     };
-    /* funny mnemonic to remember which parts of a URL can be percent encoded.
-
-        "Ugly Hippos Push Strange Quests, Possibly Even Frightening Frilly Unicorns!" 🦄
-
-        Each word stands for a part of a URL:
-
-        Ugly → Userinfo (username:password@)
-
-        Hippos → Host (only percent-encoded for IPv6 literals in some contexts — usually not encoded)
-
-        Push → Path
-
-        Strange → Search (query string)
-
-        Quests → Query (alt word for search—helps reinforce)
-
-        Possibly → Port (rarely encoded; mostly numeric, but technically valid)
-
-        Even → Encoded path segments
-
-        Frightening → Fragment
-
-        Frilly → (for double “F” mnemonic)
-
-        Unicorns → (Unifying idea — "URLs are weird but lovable")
-    */
-
-}
-
-namespace data::net {
 
     struct URL : encoding::percent::URI {
 
@@ -376,7 +306,7 @@ namespace data::net {
 
             make user_info (const UTF8 &info) const;
 
-            // insecure
+            // insecure for web
             make user_name_pass (const UTF8 &username, const UTF8 &pass) const;
 
             make authority (const UTF8 &) const;
@@ -397,46 +327,11 @@ namespace data::net {
             ptr<pctstr> Host;
             ptr<pctstr> Port;
 
-            ptr<pctstr> Path;
-            ptr<pctstr> Query;
-            ptr<pctstr> Fragment;
+            ptr<target::make> Target;
         };
-
-        static ASCII write_path (list<UTF8>);
 
     private:
         make read () const;
-    };
-
-    // path must be a percent encoded string because
-    // since percent encoding is optional, it is possible
-    // that a delimeter character is percent encoded,
-    // which would change structure of the path if it
-    // were decoded.
-    struct path : encoding::percent::string {
-        using encoding::percent::string::string;
-        path (list<UTF8>, char delim = '/');
-        list<UTF8> read (char delim = '/') const;
-
-        static bool valid (string_view);
-        bool valid () const;
-    };
-
-    // same with target, which includes path.
-    struct target : encoding::percent::string {
-        static bool valid (string_view);
-
-        using encoding::percent::string::string;
-
-        net::path path () const;
-
-        maybe<ASCII> query () const; // the part after ? and before #
-        maybe<dispatch<UTF8, UTF8>> query_map () const;
-
-        maybe<UTF8> fragment () const; // the part after the #
-
-        bool valid () const;
-
     };
 }
 
@@ -554,6 +449,8 @@ namespace data::net {
 
     inline URL::make::make (const URL &u) : make {u.read ()} {}
 
+    inline target::make::make (const target &t) : make {t.read ()} {}
+
     bool inline operator == (const URL &a, const URL &b) {
         return static_cast<string> (a.normalize ()) == static_cast<string> (b.normalize ());
     }
@@ -605,66 +502,6 @@ namespace data::net {
     bool inline authority::valid () const {
         return valid (encoding::percent::encode (*this));
     }
-}
-
-namespace data::encoding::percent {
-
-    bool inline operator == (const URI &a, const URI &b) {
-        return static_cast<string> (a.normalize ()) == static_cast<string> (b.normalize ());
-    }
-
-    std::ostream inline &operator << (std::ostream &o, const URI &u) {
-        return o << static_cast<string> (u);
-    }
-
-    data::ASCII inline URI::scheme () const {
-        string_view x = scheme (*this);
-        if (x.data () == nullptr) throw exception {} << "invalid URI " << *this;
-        return data::ASCII {x};
-    }
-
-    net::path inline URI::path () const {
-        string_view x = path (*this);
-        if (x.data () == nullptr) throw exception {} << "invalid URI " << *this;
-        return net::path {x};
-    }
-
-    maybe<net::authority> inline URI::authority () const {
-        string_view x = authority (*this);
-        if (x.data () == nullptr) return {};
-        return decode (x);
-    }
-
-    maybe<data::UTF8> inline URI::user_info () const {
-        string_view x = user_info (*this);
-        if (x.data () == nullptr) return {};
-        return decode (x);
-    }
-
-    maybe<data::UTF8> inline URI::host () const {
-        string_view x = host (*this);
-        if (x.data () == nullptr) return {};
-        return decode (x);
-    }
-
-    maybe<data::ASCII> inline URI::port () const {
-        string_view x = port (*this);
-        if (x.data () == nullptr) return {};
-        return data::ASCII {x};
-    }
-
-    maybe<data::ASCII> inline URI::query () const {
-        string_view x = query (*this);
-        if (x.data () == nullptr) return {};
-        return {data::ASCII {x}};
-    }
-
-    maybe<data::UTF8> inline URI::fragment () const {
-        string_view x = fragment (*this);
-        if (x.data () == nullptr) return {};
-        return decode (x);
-    }
-
 }
 
 namespace data::net::IP::TCP {
