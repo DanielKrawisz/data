@@ -151,7 +151,6 @@ namespace data::net::HTTP {
             make add_headers (dispatch<HTTP::header, ASCII>) const;
 
         private:
-
             version Version {version_1_1};
             using pctstr = encoding::percent::string;
 
