@@ -14,8 +14,8 @@ namespace data::net::HTTP {
         if (i != params.end ()) {
 
             while (true) {
-                q << encoding::percent::encode ((*i).Key, ":#[]@=&") << "=" <<
-                encoding::percent::encode ((*i).Value, ":#[]@=&");
+                q << static_cast<std::string> (encoding::percent::encode ((*i).Key, ":#[]@=&")) << "=" <<
+                    static_cast<std::string> (encoding::percent::encode ((*i).Value, ":#[]@=&"));
                 i++;
                 if (i == params.end ()) break;
                 q << "&";
