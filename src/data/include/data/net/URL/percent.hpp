@@ -8,7 +8,6 @@
 
 #include <data/encoding/ascii.hpp>
 #include <data/maybe.hpp>
-#include <data/tools.hpp>
 
 // RFC3986 defines certain reserved characters which
 // denote the structure of a URI. Percent encoding

@@ -4,10 +4,10 @@ add_library (data INTERFACE)
 # functional data structures, arrays
 add_library (core INTERFACE)
 
-add_library (io STATIC)
-
 # strings, bits etc
 add_library (string STATIC)
+
+add_library (io STATIC)
 
 add_library (hash INTERFACE)
 
@@ -205,7 +205,7 @@ install (
 )
 
 install (
-  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella milewski sv
+  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella sv
   EXPORT DataTargets
   ARCHIVE
 )

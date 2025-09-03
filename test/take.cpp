@@ -2,7 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/tools.hpp"
+#include "data/stack.hpp"
+#include "data/list.hpp"
+#include "data/cross.hpp"
+#include "data/ordered_sequence.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -12,6 +15,8 @@ namespace data {
         using list = X;
     };
 
+    // priority_queue does not have take and drop because iterating through the queue is not
+    // as fast as these other things.
     using test_cases = ::testing::Types<stack<int>, list<int>, cross<int>, ordered_sequence<int>>;
 
     TYPED_TEST_SUITE (take_test, test_cases);

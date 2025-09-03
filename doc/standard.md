@@ -22,7 +22,47 @@ Naming conventions:
 * Types, functions, and member functions are written `like_this`.
 * Namespaces may have any format style.
 
-## Basics
+## Core
+
+Core is a headers-only library focused on functional data structures.
+
+The data library supports the following data structures:
+
+* stack
+* list
+* ordered_sequence
+* tree
+* map
+* set
+
+A set of member functions is provided to work with them, as well as functions
+with the same name that can be found by argument dependent lookup. 
+
+The functional data structures library has the following includes:
+
+* `data/concepts.hpp`
+* `data/ordered.hpp`
+* `data/valid.hpp`
+* `data/maybe.hpp`
+* `data/sequence.hpp`
+* `data/stack.hpp`
+* `data/list.hpp`
+* `data/ordered_sequence.hpp`
+* `data/tree.hpp`
+* `data/set.hpp`
+* `data/map.hpp`
+* `data/dispatch.hpp`
+<!--
+* `data/transpose.hpp`
+* `data/map_thread`
+* `data/cycle.hpp`
+* `data/container.hpp`
+* `data/remove.hpp`
+* `data/erase.hpp`
+* `data/select.hpp`
+* `data/replace.hpp`
+* `data/for_each.hpp`
+-->
 
 ### `data/concepts.hpp`
 
@@ -86,52 +126,6 @@ Equivalent to `std::totally_ordered`.
 
 #### `typename either<X...>`
 
-### `data/async.hpp`
-
-#### `typename awaitable<X>`
-
-Same as `asio::awaitable`.
-
-#### `concept Awaitable<X>`
-
-Satisfied by any awaitable type.
-
-#### `synced`
-
-Run a coroutine, wait for it to complete, and return the result.
-
-## Functional Data Structures
-
-The data library supports three data structures:
-
-* stack
-* list
-* ordered_sequence
-
-A set of member functions is provided to work with them, as well as functions
-with the same name that can be found by argument dependent lookup. 
-
-The functional data structures library has the following includes:
-
-* `data/sequence.hpp`
-* `data/stack.hpp`
-* `data/list.hpp`
-* `data/ordered_sequence.hpp`
-<!--
-* `data/transpose.hpp`
-* `data/map_thread`
-* `data/cycle.hpp`
-* `data/tree.hpp`
-* `data/container.hpp`
-* `data/set.hpp`
-* `data/map.hpp`
-* `data/remove.hpp`
-* `data/erase.hpp`
-* `data/select.hpp`
-* `data/replace.hpp`
-* `data/for_each.hpp`
--->
-
 ### `data/sequence.hpp`
 
 #### `concept data::Sequence`
@@ -161,8 +155,6 @@ A `List` is both a `Stack` and a `Queue`.
 #### `data::reverse`
 
 ### `data/stack.hpp`
-
-A `Stack` is a `Sequence`.
 
 #### `class data::stack`
 
@@ -210,7 +202,7 @@ If `X` is a reference, `first (zz) -> X`, otherwise `first (z) -> const X &`.
 
 #### `rest`
 
-Return the rest of the sack after the first element.
+Return the rest of the stack after the first element.
 
 `rest (z) -> data::stack<X>`
 
@@ -222,21 +214,27 @@ Return the stack with a new element prepended.
 
 #### `take`
 
-For a `size_t n`, take the first `n` elements of `z`. 
+For `size_t n`, take the first `n` elements of `z`. 
 
 If `n > size (z)` return the whole stack. 
 
 #### `drop`
 
-For a `size_t n`, drop the first `n` elements of `z`. 
+For `size_t n`, drop the first `n` elements of `z`. 
 
 If `n > size (z)` return an empty stack. 
 
 #### `reverse`
 
+#### `join`
+
 #### `sort`
 
 #### `sorted`
+
+#### `values`
+
+#### `contains`
 
 ### `data/list.hpp`
 
@@ -254,9 +252,111 @@ For a value `z` of type `data::list<X>`:
 
 Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list<X>`.
 
+#### `empty`
+
+#### `size`
+
+#### `first`
+
+#### `rest`
+
+#### `prepend`
+
+#### `append`
+
+#### `take`
+
+#### `drop`
+
+#### `reverse`
+
+#### `join`
+
+#### `sort`
+
+#### `sorted`
+
+#### `values`
+
+#### `contains`
+
 ### `data/ordered_sequence.hpp`
 
-## Arrays, sequences, data
+#### `class data::ordered_sequence`
+
+#### `<<`
+
+#### `empty`
+
+#### `size`
+
+#### `first`
+
+#### `rest`
+
+#### `insert`
+
+#### `take`
+
+#### `drop`
+
+#### `merge`
+
+#### `sort`
+
+#### `sorted`
+
+#### `values`
+
+### `data/priority_queue.hpp`
+
+#### `class data::priority_queue`
+
+#### `<<`
+
+#### `empty`
+
+#### `size`
+
+#### `first`
+
+#### `rest`
+
+#### `insert`
+
+#### `merge`
+
+#### `sort`
+
+#### `sorted`
+
+#### `values`
+
+#### `contains`
+
+### `data/tree.hpp`
+
+#### `class data::tree`
+
+#### `root`
+
+#### `right`
+
+#### `left`
+
+### `data/map.hpp`
+
+#### `class data::map`
+
+#### `insert`
+
+#### `contains`
+
+### `data/set.hpp`
+
+#### `class data::set`
+
+## String
 
 ### `data/cross.hpp`
 
@@ -271,7 +371,7 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 #### `typename data::string`
 
 Just like `std::string` except that when you print it, `"` are included as delimiters. 
-
+<!--
 ### `data/math/numbers.hpp`
 
 Numbers that work the same as built-in integral types but with more sizes. 
@@ -341,6 +441,13 @@ Numbers that work the same as built-in integral types but with more sizes.
 #### `typename data::uint160_little`
 
 #### `typename data::int160_little`
+-->
+
+## Numbers
+
+## Hash
+
+A library providing a number of cryptographic hash functions. 
 
 ### data/hash.hpp
 
@@ -356,6 +463,18 @@ Provides a set of hash functions.
 
 ### `data/math/integral.hpp`
 
-## Synchronized and Asynchronized
+## Net
 
 ### `data/async.hpp`
+
+#### `typename awaitable<X>`
+
+Same as `asio::awaitable`.
+
+#### `concept Awaitable<X>`
+
+Satisfied by any awaitable type.
+
+#### `synced`
+
+Run a coroutine, wait for it to complete, and return the result.

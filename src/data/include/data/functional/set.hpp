@@ -1,9 +1,9 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_SET
-#define DATA_SET
+#ifndef DATA_FUNCTIONAL_SET
+#define DATA_FUNCTIONAL_SET
 
 #include <data/container.hpp>
 

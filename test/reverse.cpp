@@ -2,8 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/tools.hpp"
+#include "data/list.hpp"
+#include "data/stack.hpp"
 #include "data/array.hpp"
+#include "data/tools.hpp"
 #include "gtest/gtest.h"
 #include <iostream>
 
@@ -20,7 +22,7 @@ namespace data {
         EXPECT_TRUE (reverse (l) == r);
     }
 
-    TEST (ReverseTest, TestReverse) {
+    TEST (Reverse, Reverse) {
         
         test_reverse<list<int>> ();
         test_reverse<stack<int>> ();

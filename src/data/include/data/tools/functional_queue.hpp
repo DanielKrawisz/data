@@ -167,13 +167,13 @@ namespace data {
 
     template <Stack stack, typename element> requires SequenceOf<stack, element>
     inline functional_queue<stack, element>::functional_queue (stack l, stack r) : Left {l}, Right {r} {}
-    
+
     template <Stack stack, typename element> requires SequenceOf<stack, element>
     inline functional_queue<stack, element>::functional_queue () : Left {}, Right {} {}
     
     template <Stack stack, typename element> requires SequenceOf<stack, element>
     inline functional_queue<stack, element>::functional_queue (const element &x) : Left {x}, Right {} {}
-    
+
     template <Stack stack, typename element> requires SequenceOf<stack, element>
     inline functional_queue<stack, element>::functional_queue (stack l) : Left {l}, Right {} {}
     

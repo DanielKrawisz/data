@@ -1,12 +1,13 @@
-// Copyright (c) 2019-2020 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MAP
-#define DATA_MAP
+#ifndef DATA_FUNCTIONAL_MAP
+#define DATA_FUNCTIONAL_MAP
 
 #include <data/concepts.hpp>
 #include <data/functional/set.hpp>
+#include <data/container.hpp>
 #include <data/indexed.hpp>
 #include <data/ordered.hpp>
     

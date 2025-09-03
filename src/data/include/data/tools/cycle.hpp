@@ -8,6 +8,11 @@
 #include <data/functional/list.hpp>
     
 namespace data::tool {
+
+    template <List list, typename X> requires SequenceOf<list, X> struct cycle;
+
+    template <List list, typename X> bool empty (cycle<list, X>);
+    template <List list, typename X> size_t size (cycle<list, X>);
     
     template <List list, typename X> requires SequenceOf<list, X>
     struct cycle {
@@ -42,6 +47,14 @@ namespace data::tool {
     template <List list, typename X> requires SequenceOf<list, X>
     std::ostream &operator << (std::ostream &o, const cycle<list, X> n) {
         return o << "cycle" << n.Cycle;
+    }
+
+    template <List list, typename X> bool empty (cycle<list, X> x) {
+        return empty (x.Cycle);
+    }
+
+    template <List list, typename X> size_t size (cycle<list, X> x) {
+        return size (x.Cycle);
     }
     
     template <List list, typename X> requires SequenceOf<list, X>

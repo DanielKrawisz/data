@@ -2,7 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/tools.hpp>
+#include <data/map.hpp>
+#include <data/set.hpp>
 #include <data/numbers.hpp>
 #include "gtest/gtest.h"
 

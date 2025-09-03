@@ -5,7 +5,7 @@
 #ifndef DATA_TOOLS_BASE_MAP
 #define DATA_TOOLS_BASE_MAP
 
-#include <data/tools.hpp>
+#include <data/functional/map.hpp>
 
 namespace data {
 

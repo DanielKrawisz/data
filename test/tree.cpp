@@ -4,8 +4,9 @@
 
 #include <data/string.hpp>
 #include <data/numbers.hpp>
-#include <data/tools.hpp>
+#include <data/tree.hpp>
 #include <data/tools/binary_search_tree.hpp>
+#include <data/tools/rb.hpp>
 #include "gtest/gtest.h"
 
 namespace data {

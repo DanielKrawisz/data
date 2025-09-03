@@ -8,6 +8,7 @@
 
 #include <data/net/URL/percent.hpp>
 #include <data/net/asio/TCP.hpp>
+#include <data/dispatch.hpp>
 
 // Implementation of a URL as described in RFC3986
 // https://www.rfc-editor.org/rfc/rfc3986

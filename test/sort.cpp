@@ -2,7 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/tools.hpp>
+#include <data/stack.hpp>
+#include <data/list.hpp>
+#include <data/ordered_sequence.hpp>
+#include <data/priority_queue.hpp>
+#include <data/cross.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
@@ -37,6 +41,11 @@ namespace data {
         list oB {4, 3, 5, 1, 3, 2};
         list oC {33, 24};
         list oD {3, 5, 4};
+
+        EXPECT_EQ (sort (oA), oA);
+        EXPECT_EQ (sort (oB), oB);
+        EXPECT_EQ (sort (oC), oC);
+        EXPECT_EQ (sort (oD), oD);
         
         stack<int> sA {1, 2, 3, 4, 5};
         stack<int> sB {1, 2, 3, 3, 4, 5};
@@ -57,7 +66,7 @@ namespace data {
         EXPECT_TRUE (neBA);
     }
     
-    TEST (SortTest, TestOrderedStack) {
+    TEST (SortTest, TestSortedList) {
 
         test_sorted_list<ordered_sequence<int>> ();
         test_sorted_list<priority_queue<int>> ();

@@ -205,6 +205,10 @@ namespace data::RB {
         return t.empty ();
     }
 
+    template <typename V, typename T> size_t inline size (const tree<V, T> &t) {
+        return t.size ();
+    }
+
     // now let's talk about how to check whether a tree is balanced.
     template <Sortable V, functional::buildable_tree<colored<V>> T>
     color inline root_color (T t) {
