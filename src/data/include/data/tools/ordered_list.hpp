@@ -7,6 +7,7 @@
 
 #include <concepts>
 #include <data/reverse.hpp>
+#include <data/take.hpp>
     
 namespace data::tool {
 
@@ -118,6 +119,10 @@ namespace data::tool {
     }
 
     template <Stack stack, Sortable elem> ordered_stack<stack, elem> inline values (ordered_stack<stack, elem> x) {
+        return x;
+    }
+
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> inline sort (ordered_stack<stack, elem> x) {
         return x;
     }
 

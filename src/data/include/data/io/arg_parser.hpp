@@ -5,7 +5,10 @@
 #ifndef DATA_IO_ARG_PARSER
 #define DATA_IO_ARG_PARSER
 
-#include <data/tools.hpp>
+#include <data/maybe.hpp>
+#include <data/list.hpp>
+#include <data/set.hpp>
+#include <data/map.hpp>
 #include <data/string.hpp>
 #include <argh.h>
 

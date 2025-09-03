@@ -3,7 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/string.hpp"
-#include "data/tools.hpp"
+#include "data/cross.hpp"
+#include "data/list.hpp"
+#include "data/ordered_sequence.hpp"
+#include "data/priority_queue.hpp"
+#include "data/set.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -11,7 +15,7 @@ namespace data {
 
     static_assert (const_iterable<cross<string>>);
 
-    TEST (ContainsTest, TestContains) {
+    TEST (Contains, Contains) {
         
         EXPECT_TRUE (contains (stack<string> {"a", "b", "c", "d"}, "a"));
         EXPECT_FALSE (contains (stack<string> {"a", "b", "c", "d"}, "f"));
@@ -28,9 +32,13 @@ namespace data {
         EXPECT_TRUE (contains (set<string> {"a", "b", "c", "d"}, "a"));
         EXPECT_FALSE (contains (set<string> {"a", "b", "c", "d"}, "f"));
 
+        //EXPECT_TRUE (contains (priority_queue<string> {"a", "b", "c", "d"}, "a"));
+        //EXPECT_FALSE (contains (priority_queue<string> {"a", "b", "c", "d"}, "f"));
+
         // contains works differently with map. 
         //EXPECT_TRUE (contains (map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a"));
         //EXPECT_FALSE (contains (map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "f"));
+        // TODO
 /*
         EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "c")), (stack<string> {"a", "b", "d"}));
         EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "f")), (stack<string> {"a", "b", "c", "d"}));

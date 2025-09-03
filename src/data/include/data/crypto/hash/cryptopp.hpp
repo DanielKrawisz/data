@@ -8,7 +8,7 @@
 #include "functions.hpp"
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/ripemd.h"
-#include "cryptopp/md5.h"
+//#include "cryptopp/md5.h"
 #include "cryptopp/sha.h"
 #include "cryptopp/sha3.h"
 
@@ -45,7 +45,7 @@ namespace data::crypto::hash {
     struct SHA1 : CryptoPP::writer<CryptoPP::SHA1, 20> {};
 #endif
 
-    struct MD5 : CryptoPP::writer<CryptoPP::MD5, 16> {};
+    //struct MD5 : CryptoPP::writer<CryptoPP::MD5, 16> {};
 
     template <> struct RIPEMD<16> : CryptoPP::writer<CryptoPP::RIPEMD128, 16> {};
 

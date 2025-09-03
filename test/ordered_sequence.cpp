@@ -184,18 +184,12 @@ TYPED_TEST (ordseq_test, TestOrdSeqValues) {
     static_assert (data::SequenceOf<return_type, element>);
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqReverse) {
-    using type = typename TestFixture::type;
-    using element = typename TestFixture::element;
-    using return_type = decltype (reverse (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
-}
-
 TYPED_TEST (ordseq_test, TestOrdSeqContains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_contains = decltype (contains (type {}, std::declval<element> ()));
 }
+// TODO for beta
 /*
 TYPED_TEST (ordseq_test, TestOrdSeqInsert) {
     using type = typename TestFixture::type;

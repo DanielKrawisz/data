@@ -17,18 +17,20 @@ add_executable (
     integer_format.cpp
     testLinkedStack.cpp
     testList.cpp
-    testOrderedList.cpp
-    testTake.cpp
-    testReverse.cpp
-    testContains.cpp
-    testFunctionalInterfaces.cpp
+    ordered_sequence.cpp
     testCircularQueue.cpp
-    testSort.cpp
-    testTree.cpp
+    empty.cpp
+    functional_interfaces.cpp
+    take.cpp
+    reverse.cpp
+    contains.cpp
+    sort.cpp
+    tree.cpp
     testSet.cpp
-    testMap.cpp
-    testPriorityQueue.cpp
+    map.cpp
+    priority_queue.cpp
     testForEach.cpp
+
     testBytes.cpp
     testHex.cpp
     testBase64.cpp
@@ -63,7 +65,7 @@ add_executable (
     testModular.cpp
     testAlgebra.cpp
     testPolynomial.cpp
-    testNumberTheory.cpp
+    number_theory.cpp
     testGeometry.cpp
     testHash.cpp
     testSymmetricCrypto.cpp

@@ -5,6 +5,7 @@
 #ifndef DATA_BINARY_SEARCH_TREE
 #define DATA_BINARY_SEARCH_TREE
 
+#include <data/functional/map.hpp>
 #include <data/tools/linked_tree.hpp>
 #include <data/ordered_sequence.hpp>
 

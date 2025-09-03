@@ -10,7 +10,7 @@
 #include <data/math/field.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/math/algebra.hpp>
-#include <data/tools.hpp>
+#include <data/set.hpp>
 
 namespace data::math {
     template <auto P, typename N = decltype (P)> struct prime_field;

@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_ROOT
 #define DATA_MATH_ROOT
 
-#include <data/tools.hpp>
+#include <data/set.hpp>
 
 namespace data::math {
 

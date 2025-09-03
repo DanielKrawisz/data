@@ -290,7 +290,6 @@ namespace data::net {
     }
 
     URL::make URL::make::path (const net::path &p) const {
-        std::cout << "  adding path " << p << std::endl;
         make m = *this;
         if (!bool (m.Target)) m.Target = std::make_shared<target::make> ();
         *m.Target = m.Target->path (p);

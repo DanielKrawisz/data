@@ -5,7 +5,9 @@
 #ifndef DATA_MATH_NUMBER_ERATOSTHENES
 #define DATA_MATH_NUMBER_ERATOSTHENES
 
-#include <data/tools.hpp>
+#include <data/stack.hpp>
+#include <data/set.hpp>
+#include <data/priority_queue.hpp>
 #include <data/math/number/prime.hpp>
 
 namespace data::math::number {
@@ -42,7 +44,7 @@ namespace data::math::number {
             }
         };
         
-        using heap = tool::priority_queue<linked_tree<entry>, entry>;
+        using heap = priority_queue<entry>;
         heap Sieve;
         
         eratosthenes (stack<prime<N>> p, N m, heap sieve) : Primes {p}, Next {m}, Sieve {sieve} {}
