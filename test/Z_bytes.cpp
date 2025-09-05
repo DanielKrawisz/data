@@ -8,7 +8,7 @@
 
 namespace data {
 
-    TEST (ZBytesTest, TestZBytesToHexString) {
+    TEST (ZBytes, ZBytesToHexString) {
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big::read ("0")), std::string ("0x"));
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big::read ("-1")), std::string ("0xff"));
@@ -60,7 +60,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestStringToZBytes) {
+    TEST (ZBytes, StringToZBytes) {
         
         EXPECT_NO_THROW (Z_bytes_big {});
         EXPECT_NO_THROW (Z_bytes_big {N {}});
@@ -82,7 +82,7 @@ namespace data {
         
     }
     
-    TEST (ZBytesTest, TestZeroSize) {
+    TEST (ZBytes, ZeroSize) {
         
         EXPECT_EQ (Z_bytes_big::read ("0x").size (), 0);
         EXPECT_EQ (Z_bytes_big::read ("0x00").size (), 1);
@@ -94,7 +94,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestZeroAndNegativeZBytes) {
+    TEST (ZBytes, ZeroAndNegativeZBytes) {
         
         EXPECT_EQ (Z_bytes_big::read ("0x"), Z_bytes_big {0});
         EXPECT_EQ (Z_bytes_big::read ("0x00"), Z_bytes_big {0});
@@ -119,7 +119,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestZToZBytes) {
+    TEST (ZBytes, ZToZBytes) {
         
         EXPECT_EQ (Z_bytes_big {Z::read ("1")}, Z_bytes_big::read ("1"));
         EXPECT_EQ (Z_bytes_little {Z::read ("1")}, Z_bytes_little::read ("1"));
@@ -134,7 +134,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestZBytesIncrement) {
+    TEST (ZBytes, ZBytesIncrement) {
         
         auto zb0 = Z_bytes_big::read ("0x");
         auto zb1 = Z_bytes_big::read ("0x00");
@@ -154,7 +154,7 @@ namespace data {
         
     }
     
-    TEST (ZBytesTest, TestZBytesDecrement) {
+    TEST (ZBytes, ZBytesDecrement) {
         
         auto zb0 = Z_bytes_big::read ("0x");
         auto zb1 = Z_bytes_big::read ("0x00");
@@ -174,7 +174,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestZBytesToString) {
+    TEST (ZBytes, ZBytesToString) {
         
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big::read ("1")), std::string {"1"});
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_little::read ("1")), std::string {"1"});
@@ -261,7 +261,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestZBytesToZ) {
+    TEST (ZBytesTest, ZBytesToZ) {
 
         Z_Bytes_to_Z (0);
         Z_Bytes_to_Z (-1);
@@ -278,7 +278,7 @@ namespace data {
         
     }
 
-    TEST (ZBytesTest, TestZBytesOnesAndTwos) {
+    TEST (ZBytes, ZBytesOnesAndTwos) {
 
         EXPECT_EQ (Z_bytes_big (Z_bytes_BC_big (Z_bytes_big {1145})), Z_bytes_big {1145});
         EXPECT_EQ (Z_bytes_big (Z_bytes_BC_big (Z_bytes_big {916})), Z_bytes_big {916});
@@ -297,7 +297,7 @@ namespace data {
         EXPECT_EQ (Z_bytes_BC_little (Z_bytes_little (Z_bytes_BC_little {229})), Z_bytes_BC_little {229});
     }
 
-    TEST (ZBytesTest, TestZBytesZero) {
+    TEST (ZBytes, ZBytesZero) {
         list<string> ones_zeros {"0", "0x", "0x00", "0x0000"};
         list<string> twos_zeros {"0", "0x", "0x00", "0x0000", "0x80", "0x8000"};
 

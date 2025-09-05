@@ -14,41 +14,41 @@
 namespace data::tool {
 
     template <typename element>
-    concept prioritized = requires (const element &a, const element &b) {
+    concept prioritized = Element<element> && requires (const element &a, const element &b) {
         {a <= b} -> ImplicitlyConvertible<bool>;
     };
     
     template <functional::tree tree, prioritized element> struct priority_queue;
 
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> operator & (priority_queue<tree, element> a, priority_queue<tree, element> b);
+    bool empty (const priority_queue<tree, element> x);
 
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> operator | (priority_queue<tree, element> a, priority_queue<tree, element> b);
+    size_t size (const priority_queue<tree, element> x);
+
+    template <functional::tree tree, prioritized element>
+    priority_queue<tree, element> insert (const priority_queue<tree, element> x, inserted<element>);
+
+    template <functional::tree tree, prioritized element>
+    ordered_sequence<element> values (const priority_queue<tree, element> pq);
     
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> operator ^ (priority_queue<tree, element> a, priority_queue<tree, element> b);
+    priority_queue<tree, element> merge (const priority_queue<tree, element> a, const priority_queue<tree, element> b);
 
-    template <functional::tree tree, prioritized element> 
+    template <functional::tree tree, prioritized element>
+    priority_queue<tree, element> operator & (const priority_queue<tree, element> a, const priority_queue<tree, element> b);
+
+    template <functional::tree tree, prioritized element>
+    priority_queue<tree, element> operator | (const priority_queue<tree, element> a, const priority_queue<tree, element> b);
+
+    template <functional::tree tree, prioritized element>
+    priority_queue<tree, element> operator ^ (const priority_queue<tree, element> a, const priority_queue<tree, element> b);
+
+    template <functional::tree tree, prioritized element>
     priority_queue<tree, element> operator << (const priority_queue<tree, element> p, inserted<element> elem);
 
     template <functional::tree tree, prioritized element>
     priority_queue<tree, element> operator <<= (priority_queue<tree, element> &p, inserted<element> elem);
-
-    template <functional::tree tree, prioritized element>
-    ordered_sequence<element> values (priority_queue<tree, element> pq);
-    
-    template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> take (priority_queue<tree, element> x, size_t size);
-
-    template <functional::tree tree, prioritized element>
-    bool empty (priority_queue<tree, element> x);
-
-    template <functional::tree tree, prioritized element>
-    size_t size (priority_queue<tree, element> x);
-    
-    template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> merge (priority_queue<tree, element> a, priority_queue<tree, element> b);
     
     template <functional::tree tree, prioritized element>
     struct priority_queue {
@@ -70,10 +70,10 @@ namespace data::tool {
             for (int i = init.size () - 1; i >= 0; i--) *this = insert (*(init.begin () + i));
         }
         
-        template <typename list> requires SequenceOf<list, element>
+        template <typename list> requires Sequence<list, element>
         priority_queue insert (list l) const;
         
-        template <typename list> requires SequenceOf<list, element> 
+        template <typename list> requires Sequence<list, element>
         priority_queue (list l);
 
         template <Sequence X> requires std::equality_comparable_with<element, decltype (std::declval<X> ().first ())>
@@ -107,7 +107,7 @@ namespace data::tool {
     };
 
     template <functional::tree tree, prioritized element>
-    size_t size (priority_queue<tree, element> x) {
+    size_t size (const priority_queue<tree, element> x) {
         return x.size ();
     }
     
@@ -122,7 +122,7 @@ namespace data::tool {
     }
 
     template <functional::tree tree, prioritized element>
-    ordered_sequence<element> values (priority_queue<tree, element> pq) {
+    ordered_sequence<element> values (const priority_queue<tree, element> pq) {
         stack<element> vals;
 
         while (!empty (pq)) {
@@ -134,37 +134,22 @@ namespace data::tool {
     }
     
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> take (priority_queue<tree, element> x, size_t size) {
-        if (size > data::size (x)) return x;
-        priority_queue<tree, element> n;
-
-        int i = 0;
-        while (i < size) {
-            n = insert (n, x.first ());
-            x = x.rest ();
-            i++;
-        }
-
-        return n;
-    }
-    
-    template <functional::tree tree, prioritized element>
-    bool inline empty (priority_queue<tree, element> x) {
+    bool inline empty (const priority_queue<tree, element> x) {
         return x.empty ();
     }
 
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> inline sort (priority_queue<tree, element> x) {
+    priority_queue<tree, element> inline sort (const priority_queue<tree, element> x) {
         return x;
     }
     
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> inline merge (priority_queue<tree, element> a, priority_queue<tree, element> b) {
+    priority_queue<tree, element> inline merge (const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
         return priority_queue<tree, element>::merge (a, b);
     }
 
     template <functional::tree tree, prioritized element>
-    priority_queue<tree, element> inline operator & (priority_queue<tree, element> a, priority_queue<tree, element> b) {
+    priority_queue<tree, element> inline operator & (const priority_queue<tree, element> a, const priority_queue<tree, element> b) {
         return merge (a, b);
     }
     
@@ -202,14 +187,14 @@ namespace data::tool {
     }
     
     template <functional::tree tree, typename element> requires prioritized<element>
-    template <typename list> requires SequenceOf<list, element>
+    template <typename list> requires Sequence<list, element>
     priority_queue<tree, element> priority_queue<tree, element>::insert (list l) const {
         if (l.empty ()) return *this;
         return insert (l.first ()).insert (l.rest ());
     }
     
     template <functional::tree tree, typename element> requires prioritized<element>
-    template <typename list> requires SequenceOf<list, element> 
+    template <typename list> requires Sequence<list, element>
     inline priority_queue<tree, element>::priority_queue (list l) : priority_queue {priority_queue {}.insert (l)} {}
     
     template <functional::tree tree, typename element> requires prioritized<element>

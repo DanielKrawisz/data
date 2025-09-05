@@ -13,7 +13,8 @@
 namespace data {
     template <typename elem> using vector = std::vector<elem>;
 
-    static_assert (const_iterable<cross<string>>);
+    static_assert (ConstIterable<cross<string>>);
+    static_assert (!ConstIterable<priority_queue<string>>);
 
     TEST (Contains, Contains) {
         
@@ -35,30 +36,37 @@ namespace data {
         //EXPECT_TRUE (contains (priority_queue<string> {"a", "b", "c", "d"}, "a"));
         //EXPECT_FALSE (contains (priority_queue<string> {"a", "b", "c", "d"}, "f"));
 
+        // TODO tree
+
         // contains works differently with map. 
         //EXPECT_TRUE (contains (map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a"));
         //EXPECT_FALSE (contains (map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "f"));
-        // TODO
-/*
+    }
+
+    TEST (Contains, Erase) {
+
         EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "c")), (stack<string> {"a", "b", "d"}));
         EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "f")), (stack<string> {"a", "b", "c", "d"}));
 
         EXPECT_EQ ((erase (list<string> {"a", "b", "c", "d"}, "c")), (list<string> {"a", "b", "d"}));
         EXPECT_EQ ((erase (list<string> {"a", "b", "c", "d"}, "f")), (list<string> {"a", "b", "c", "d"}));
 
-        EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "c")), (set<string> {"a", "b", "d"}));
-        EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "f")), (set<string> {"a", "b", "c", "d"}));
+        //EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "c")), (ordered_sequence<string> {"a", "b", "d"}));
+        //EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "f")), (ordered_sequence<string> {"a", "b", "c", "d"}));
 
-        EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "c")), (ordered_sequence<string> {"a", "b", "d"}));
-        EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "f")), (ordered_sequence<string> {"a", "b", "c", "d"}));
+        //EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "c")), (set<string> {"a", "b", "d"}));
+        //EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "f")), (set<string> {"a", "b", "c", "d"}));
 
         // TODO map
 
-        EXPECT_EQ ((remove (stack<string> {"a", "b", "c", "d"}, 0)), (stack<string> {"b", "c", "d"}));
-        EXPECT_EQ ((remove (stack<string> {"a", "b", "c", "d"}, 5)), (stack<string> {"a", "b", "c", "d"}));
+    }
 
-        EXPECT_EQ ((remove (list<string> {"a", "b", "c", "d"}, 0)), (list<string> {"b", "c", "d"}));
-        EXPECT_EQ ((remove (list<string> {"a", "b", "c", "d"}, 5)), (list<string> {"a", "b", "c", "d"}));*/
+    TEST (Contains, Remove) {
+        //EXPECT_EQ ((remove (stack<string> {"a", "b", "c", "d"}, 0)), (stack<string> {"b", "c", "d"}));
+        //EXPECT_EQ ((remove (stack<string> {"a", "b", "c", "d"}, 5)), (stack<string> {"a", "b", "c", "d"}));
+
+        //EXPECT_EQ ((remove (list<string> {"a", "b", "c", "d"}, 0)), (list<string> {"b", "c", "d"}));
+        //EXPECT_EQ ((remove (list<string> {"a", "b", "c", "d"}, 5)), (list<string> {"a", "b", "c", "d"}));
 
         //EXPECT_EQ ((remove (ordered_sequence<string> {"a", "b", "c", "d"}, 0)), (ordered_sequence<string> {"b", "c", "d"}));
         //EXPECT_EQ ((remove (ordered_sequence<string> {"a", "b", "c", "d"}, 5)), (ordered_sequence<string> {"a", "b", "c", "d"}));

@@ -36,15 +36,23 @@ namespace data {
     }
 
     template <typename X, typename E> 
-    concept Container = SequenceOf<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
+    concept Container = Sequence<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
+
+    template <typename X> requires interface::has_values_method<X>
+    auto values (const X &x) {
+        return x.values ();
+    }
 
     template <typename X, typename E>
+    requires (!Sequence<X>) && (Container<X, E> || (ConstIterable<X> && requires (const X x, const E e) {
+        { *x.begin () == e } -> Same<bool>;
+    }))
     bool inline contains (const X &x, const E &e) {
         if constexpr (requires () {
             { x.contains (e) } -> Same<bool>;
         }) {
             return x.contains (e);
-        } else if constexpr (interface::has_rest_method<X> && requires () {
+        } else if constexpr (has_rest_method<X> && requires () {
             { x.first () == e } -> Same<bool>;
         }) {
             auto xx = x;
@@ -53,35 +61,22 @@ namespace data {
                 xx = rest (xx);
             }
             return false;
-        } if constexpr (const_iterable<X>) {
+        } if constexpr (ConstIterable<X>) {
             return std::find (x.begin (), x.end (), e) != x.end ();
         } else {
             throw "cannot construct contains method";
         }
     }
-
-    template <typename X> requires interface::has_values_method<X>
-    auto values (const X &x) {
-        return x.values ();
-    }
     
-    template <typename X, typename element> requires interface::has_insert_method<X, element>
-    X insert (const X &x, element e) {
-        return x.insert (e);
-    }
-    
+    // we already have a remove for Pendable types.
     template <typename X, typename E> 
     X remove (const X &x, const E &e) {
         if constexpr (requires () {
             { x.remove (e) } -> ImplicitlyConvertible<const X>;
         }) {
             return x.remove (e);
-        } else if constexpr (interface::has_rest_method<X> && requires () {
-            { x.first () == e } -> Same<bool>;
-        }) {
-            functional::remove (x, e);
         } else {
-            throw "cannot construct remove method";
+            throw data::exception {} << "cannot construct remove method";
         }
     }
 

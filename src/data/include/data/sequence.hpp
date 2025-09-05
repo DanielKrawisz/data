@@ -13,27 +13,34 @@
 
 namespace data {
     
-    namespace interface {
+    template <typename list>
+    concept has_first_method = requires (list x) {
+        { x.first () } -> Reference<> ;
+    };
         
-        template <typename list> 
-        concept has_first_method = requires (list x) {
-            { x.first () } -> Reference<> ;
-        };
-        
-        template <typename list> 
-        concept has_rest_method = requires (list x) {
-            { x.rest () } -> ImplicitlyConvertible<const list>;
-        };
-        
-    }
-    
-    template <typename L>
-    concept Sequence = requires (const L x) {
-        { data::empty (x) } -> Same<bool>;
-    } && interface::has_rest_method<L> && interface::has_first_method<L>;
+    template <typename list>
+    concept has_rest_method = requires (list x) {
+        { x.rest () } -> ImplicitlyConvertible<const list>;
+    };
 
-    template <typename L, typename elem>
-    concept SequenceOf = Sequence<L> && ImplicitlyConvertible<decltype (std::declval<L> ().first ()), inserted<elem>>;
+    template <typename L, typename = void>
+    struct first_return {
+        using type = void;
+    };
+
+    template <typename L>
+    struct first_return<L, std::void_t<decltype (std::declval<L> ().first ())>> {
+        using type = unref<decltype (std::declval<L> ().first ())>;
+    };
+
+    template <typename L>
+    using first_return_type = typename first_return<L>::type;
+
+    template <typename L, typename elem = first_return_type<L>>
+    concept Sequence = (!Same<elem, void>) && requires (const L x) {
+        { data::empty (x) } -> Same<bool>;
+    } && has_rest_method<L> && has_first_method<L> &&
+        ImplicitlyConvertible<elem, inserted<elem>>;
 
     // may be thrown when calling first on an empty sequence;
     struct empty_sequence_exception : std::logic_error {
@@ -52,7 +59,7 @@ namespace data {
             }
         };
         
-        template <interface::has_rest_method X> struct rest<X> {
+        template <has_rest_method X> struct rest<X> {
             X operator () (const X &x) {
                 return x.rest ();
             }
@@ -64,35 +71,37 @@ namespace data {
         
     }
 
-    template <typename X> requires interface::has_first_method<const X>
+    template <typename X> requires has_first_method<const X>
     decltype (auto) inline first (const X &x) {
         return x.first ();
     }
 
-    template <typename X> requires interface::has_first_method<const X>
+    template <typename X> requires has_first_method<const X>
     decltype (auto) inline first (X &x) {
         return x.first ();
     }
 
-    template <typename X> requires interface::has_first_method<X>
+    template <typename X> requires has_first_method<X>
     const auto inline rest (const X &x) {
         return x.rest ();
     }
 
-    template <typename X> requires interface::has_first_method<X>
+    template <typename X> requires has_first_method<X>
     const auto inline rest (X const *const x) {
         if (x == nullptr) return nullptr;
         return x->rest ();
     }
+
+    template <typename list, typename element>
+    requires Sequence<list> && requires (const list x, const element e) {
+        { x.first () == e } -> Same<bool>;
+    } bool contains (const list &x, const element &e) {
+        if (data::empty (x)) return false;
+        if (data::first (x) == e) return true;
+        return contains (data::rest (x), e);
+    }
     
     namespace functional {
-        template <typename list, typename element> requires Sequence<list> && requires (const list x, const element e) {
-            { x.first () == e } -> Same<bool>;
-        } bool contains (const list &x, const element &e) {
-            if (data::empty (x)) return false;
-            if (data::first (x) == e) return true;
-            return contains (data::rest (x), e);
-        }
 
         template <Sequence L> 
         std::ostream &write (std::ostream &o, L n) {

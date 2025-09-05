@@ -39,8 +39,13 @@ namespace data::interface {
 
 namespace data {
 
-    template <interface::has_root_method X> 
-    inline const decltype (std::declval<const X> ().root ()) root (const X &x) {
+    template <typename X> requires interface::has_root_method<const X>
+    decltype (auto) inline root (const X &x) {
+        return x.root ();
+    }
+
+    template <typename X> requires interface::has_root_method<const X>
+    decltype (auto) inline root (X &x) {
         return x.root ();
     }
     

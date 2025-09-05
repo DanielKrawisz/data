@@ -15,14 +15,14 @@ namespace data {
         return merge_sort (x);
     }
 
-    template <iterable X> 
+    template <Iterable X>
     X sort (const X &x) {
         auto z = x;
         std::sort (z.begin (), z.end ());
         return z;
     }
 
-    template <iterable X> 
+    template <Iterable X>
     bool inline sorted (const X &x) {
         return std::is_sorted (x.begin (), x.end ());
     }

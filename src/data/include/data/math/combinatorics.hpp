@@ -5,9 +5,9 @@
 #ifndef DATA_COMBINATORICS
 #define DATA_COMBINATORICS
 
+#include <data/stack.hpp>
 #include <data/math/permutation.hpp>
 #include <data/math/figurate.hpp>
-#include <data/stack.hpp>
 
 namespace data {
 
@@ -174,13 +174,16 @@ namespace data {
             if (a.size () == 0) return {};
             if (a.size () == 1) return {std::list<entry<elem, elem>> {entry<elem, elem> {first (a), first (b)}}};
             list<std::list<entry<elem, elem>>> x;
-            for (int i = 0; i < b.size (); i++) {
+            // TODO we had an error here where the wrong remove () function was selected because
+            // i was defined as an int rather than size_t. This is unstable, we should ensure
+            // that the correct remove method is selected].
+            for (size_t i = 0; i < b.size (); i++) {
                 entry<elem, elem> fst {a.first (), b[i]};
                 x = x + for_each ([fst] (const std::list<entry<elem, elem>> &x) -> std::list<entry<elem, elem>> {
                     auto z = x;
                     z.push_front (fst);
                     return z;
-                }, rules (rest (a), remove_index (b, i)));
+                }, rules (rest (a), remove (b, i)));
             }
             return x;
         }

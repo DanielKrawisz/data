@@ -6,7 +6,7 @@
 #include "data/tools.hpp"
 #include "gtest/gtest.h"
 
-TEST (PriorityQueueTest, TestPriorityQueue) {
+TEST (PriorityQueue, PriorityQueue) {
     using namespace data;
     
     using pq = priority_queue<int>;
@@ -30,21 +30,28 @@ data::string *const, const data::string *, const data::string *const>;
 
 TYPED_TEST_SUITE (prique_test, prique_test_cases);
 
-TYPED_TEST (prique_test, TestPriQueEmpty) {
+TYPED_TEST (prique_test, PriQueValid) {
+    using type = typename TestFixture::type;
+    auto is_valid = valid (type {});
+    static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
+    EXPECT_TRUE (is_valid);
+}
+
+TYPED_TEST (prique_test, PriQueEmpty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (prique_test, TestPriQueSize) {
+TYPED_TEST (prique_test, PriQueSize) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>);
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (prique_test, TestPriQueFirst) {
+TYPED_TEST (prique_test, PriQueFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     EXPECT_THROW (first (type {}), data::empty_sequence_exception);
@@ -63,25 +70,25 @@ TYPED_TEST (prique_test, TestPriQueFirst) {
     }
 }
 
-TYPED_TEST (prique_test, TestPriQueRest) {
+TYPED_TEST (prique_test, PriQueRest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (prique_test, TestPriQueValues) {
+TYPED_TEST (prique_test, PriQueValues) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
+    static_assert (data::Sequence<return_type, element>);
 }
-// TODO for beta
-/*
-TYPED_TEST (prique_test, TestPriQueContains) {
+
+TYPED_TEST (prique_test, PriQueContains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_contains = decltype (contains (type {}, std::declval<element> ()));
-}*/
+}
+// TODO for beta
 /*
 TYPED_TEST (prique_test, TestPriQueInsert) {
     using type = typename TestFixture::type;

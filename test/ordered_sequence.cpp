@@ -8,8 +8,8 @@
 
 namespace data {
 
-    TEST (OrderedListTest, TestOrderedSequenceInterfaces) {
-        // We had some trouble defining SequenceOf properly and these are some 
+    TEST (OrderedList, OrderedSequenceInterfaces) {
+        // We had some trouble defining Sequence properly and these are some
         // tests that helped to make it work right. 
         static_assert (Same<decltype (std::declval<ordered_sequence<int>> ().first ()), const int &>);
         static_assert (Same<decltype (std::declval<const ordered_sequence<int>> ().first ()), const int &>);
@@ -49,13 +49,13 @@ namespace data {
         static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<string *>> ().first ()), string *>);
         static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<const string *>> ().first ()), const string *>);
 
-        static_assert (SequenceOf<ordered_sequence<int>, int>);
-        static_assert (SequenceOf<ordered_sequence<int *>, int *>);
-        static_assert (SequenceOf<ordered_sequence<const int *>, const int *>);
-        static_assert (SequenceOf<ordered_sequence<int *const>, int *const>);
-        static_assert (SequenceOf<ordered_sequence<const int *const>, const int *const>);
-        static_assert (SequenceOf<ordered_sequence<int &>, int &>);
-        static_assert (SequenceOf<ordered_sequence<const int &>, const int &>);
+        static_assert (Sequence<ordered_sequence<int>, int>);
+        static_assert (Sequence<ordered_sequence<int *>, int *>);
+        static_assert (Sequence<ordered_sequence<const int *>, const int *>);
+        static_assert (Sequence<ordered_sequence<int *const>, int *const>);
+        static_assert (Sequence<ordered_sequence<const int *const>, const int *const>);
+        static_assert (Sequence<ordered_sequence<int &>, int &>);
+        static_assert (Sequence<ordered_sequence<const int &>, const int &>);
 
         static_assert (Container<ordered_sequence<int>, int>);
         static_assert (Container<ordered_sequence<int *>, int *>);
@@ -75,7 +75,7 @@ namespace data {
 
     }
 
-    TEST (OrderedListTest, TestOrderedList) {
+    TEST (OrderedList, OrderedList) {
 
         ordered_sequence<int> a {{1}};
         ordered_sequence<int> b {{1, 2}};
@@ -134,21 +134,28 @@ using ordseq_test_cases = ::testing::Types<
 
 TYPED_TEST_SUITE (ordseq_test, ordseq_test_cases);
 
-TYPED_TEST (ordseq_test, TestOrdSeqEmpty) {
+TYPED_TEST (ordseq_test, OrdSeqValid) {
+    using type = typename TestFixture::type;
+    auto is_valid = valid (type {});
+    static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
+    EXPECT_TRUE (is_valid);
+}
+
+TYPED_TEST (ordseq_test, OrdSeqEmpty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqSize) {
+TYPED_TEST (ordseq_test, OrdSeqSize) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqFirst) {
+TYPED_TEST (ordseq_test, OrdSeqFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     EXPECT_THROW (first (type {}), data::empty_sequence_exception);
@@ -171,17 +178,17 @@ TYPED_TEST (ordseq_test, TestOrdSeqFirst) {
     }
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqRest) {
+TYPED_TEST (ordseq_test, OrdSeqRest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqValues) {
+TYPED_TEST (ordseq_test, OrdSeqValues) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
+    static_assert (data::Sequence<return_type, element>);
 }
 
 TYPED_TEST (ordseq_test, TestOrdSeqContains) {
@@ -191,7 +198,7 @@ TYPED_TEST (ordseq_test, TestOrdSeqContains) {
 }
 // TODO for beta
 /*
-TYPED_TEST (ordseq_test, TestOrdSeqInsert) {
+TYPED_TEST (ordseq_test, OrdSeqInsert) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_insert = decltype (insert (type {}, std::declval<element> ()));
@@ -200,25 +207,25 @@ TYPED_TEST (ordseq_test, TestOrdSeqInsert) {
     using has_rshift_equals = decltype (stack >>= std::declval<element> ());
 }*/
 /*
-TYPED_TEST (ordseq_test, TestOrdSeqTakeDrop) {
+TYPED_TEST (ordseq_test, OrdSeqTakeDrop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
 }*/
 
-TYPED_TEST (ordseq_test, TestOrdSeqSort) {
+TYPED_TEST (ordseq_test, OrdSeqSort) {
     using type = typename TestFixture::type;
     //(void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
 /*
-TYPED_TEST (ordseq_test, TestOrdSeqMerge) {
+TYPED_TEST (ordseq_test, OrdSeqMerge) {
     using type = typename TestFixture::type;
     (void) merge (type {}, type {});
     (void) (type {} & type {});
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqSelect) {
+TYPED_TEST (ordseq_test, OrdSeqSelect) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (contains (type {}, std::declval<element> ()));

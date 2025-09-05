@@ -10,7 +10,7 @@
 
 namespace data {
 
-    TEST (ListTest, TestListInterfaces) {
+    TEST (List, ListInterfaces) {
         static_assert (Same<decltype (std::declval<const list<int>> ().first ()), const int &>);
         static_assert (Same<decltype (std::declval<const list<const int>> ().first ()), const int &>);
 
@@ -69,7 +69,7 @@ namespace data {
 
     void accept_stack_of_string_views (list<string_view>) {}
 
-    TEST (ListTest, TestListConvert) {
+    TEST (List, ListConvert) {
         list<string> test {{"1", "2", "3", "4"}};
 
         accept_stack_of_string_views (test);
@@ -80,7 +80,7 @@ namespace data {
 
     }
 
-    TEST (ListTest, TestListRotate) {
+    TEST (List, ListRotate) {
 
         list<string> test {"1", "2", "3", "4"};
         list<string> rl {"2", "3", "4", "1"};
@@ -91,7 +91,7 @@ namespace data {
 
     }
 
-    TEST (ListTest, TestListOrdering) {
+    TEST (List, ListOrdering) {
 
         list<int> l0 {};
         list<int> l1 {1};
@@ -111,7 +111,7 @@ namespace data {
 
     }
 
-    TEST (ListTest, TestListConstruct) {
+    TEST (List, ListConstruct) {
 
         list<int> l {1, 2, 3};
         list<int> r {};
@@ -155,21 +155,28 @@ using list_test_cases = ::testing::Types<
 
 TYPED_TEST_SUITE (list_test, list_test_cases);
 
-TYPED_TEST (list_test, TestListEmpty) {
+TYPED_TEST (list_test, ListValid) {
+    using type = typename TestFixture::type;
+    auto is_valid = valid (type {});
+    static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
+    EXPECT_TRUE (is_valid);
+}
+
+TYPED_TEST (list_test, ListEmpty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (list_test, TestListSize) {
+TYPED_TEST (list_test, ListSize) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (list_test, TestListFirst) {
+TYPED_TEST (list_test, ListFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     EXPECT_THROW (first (type {}), data::empty_sequence_exception);
@@ -192,33 +199,33 @@ TYPED_TEST (list_test, TestListFirst) {
     }
 }
 
-TYPED_TEST (list_test, TestListRest) {
+TYPED_TEST (list_test, ListRest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (list_test, TestListValues) {
+TYPED_TEST (list_test, ListValues) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
+    static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (list_test, TestListReverse) {
+TYPED_TEST (list_test, ListReverse) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (reverse (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
+    static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (list_test, TestStackContains) {
+TYPED_TEST (list_test, ListContains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);
 }
 
-TYPED_TEST (list_test, TestListPrepend) {
+TYPED_TEST (list_test, ListPrepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_prepend = decltype (prepend (type {}, std::declval<element> ()));
@@ -227,7 +234,7 @@ TYPED_TEST (list_test, TestListPrepend) {
     using has_rshift_equals = decltype (list >>= std::declval<element> ());
 }
 
-TYPED_TEST (list_test, TestListAppepend) {
+TYPED_TEST (list_test, ListAppepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_append = decltype (append (type {}, std::declval<element> ()));
@@ -236,38 +243,38 @@ TYPED_TEST (list_test, TestListAppepend) {
     using has_lshift_equals = decltype (list <<= std::declval<element> ());
 }
 
-TYPED_TEST (list_test, TestListTakeDrop) {
+TYPED_TEST (list_test, ListTakeDrop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
 }
 
-TYPED_TEST (list_test, TestListJoin) {
+TYPED_TEST (list_test, ListJoin) {
     using type = typename TestFixture::type;
     (void) join (type {}, type {});
     (void) (type {} + type {});
 }
 
-TYPED_TEST (list_test, TestListSort) {
+TYPED_TEST (list_test, ListSort) {
     using type = typename TestFixture::type;
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
 // TODO for beta
 /*
-TYPED_TEST (list_test, TestStackRemove) {
+TYPED_TEST (list_test, ListRemove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (remove (type {}, size_t {0}));
 }
 
-TYPED_TEST (list_test, TestStackErase) {
+TYPED_TEST (list_test, ListErase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (erase (type {}, std::declval<element> ()));
 }*/
 /*
-TYPED_TEST (list_test, TestStackSelect) {
+TYPED_TEST (list_test, ListSelect) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (select (type {}, [] (const auto &&) {
@@ -275,7 +282,7 @@ TYPED_TEST (list_test, TestStackSelect) {
     }));
 }
 
-TYPED_TEST (stack_test, TestStackReplace) {
+TYPED_TEST (stack_test, ListReplace) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (replace (type {}, replacements {}));

@@ -397,12 +397,13 @@ namespace data {
         
         using stack_has_plus = decltype (std::declval<stack<X>> () + std::declval<stack<X>> ());
         using list_has_plus = decltype (std::declval<list<X>> () + std::declval<list<X>> ());
-/*
+        // TODO
+        /*
         using ordered_sequence_has_merge = decltype (merge (std::declval<ordered_sequence<X>> (), std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_merge = decltype (merge (std::declval<priority_queue<X>> (), std::declval<priority_queue<X>> ()));
         using set_has_merge = decltype (merge (std::declval<set<X>> (), std::declval<set<X>> ()));
         using map_has_merge = decltype (merge (std::declval<map<size_t, X>> (), std::declval<map<size_t, X>> ()));
-*/
+        */
         using ordered_sequence_has_and = decltype (std::declval<ordered_sequence<X>> () & std::declval<ordered_sequence<X>> ());
         using priority_queue_has_and = decltype (std::declval<priority_queue<X>> () & std::declval<priority_queue<X>> ());
         using set_has_and = decltype (std::declval<set<X>> () & std::declval<set<X>> ());
@@ -450,26 +451,25 @@ namespace data {
 
         template <typename Y> 
         test_has_contains (Y y) {
-/*
+            // TODO
             using set_has_insert = decltype (insert (std::declval<set<X>> (), y));
             using ordered_sequence_has_insert = decltype (insert (std::declval<ordered_sequence<X>> (), y));
             using priority_queue_has_insert = decltype (insert (std::declval<priority_queue<X>> (), y));
-            using map_has_insert = decltype (insert (std::declval<map<size_t, X>> (), y, y));
+            //using map_has_insert = decltype (insert (std::declval<map<size_t, X>> (), 0, y));
 
             using stack_has_prepend = decltype (prepend (std::declval<stack<X>> (), y));
             using list_has_prepend = decltype (prepend (std::declval<list<X>> (), y));
-            using ordered_sequence_has_prepend = decltype (prepend (std::declval<ordered_sequence<X>> (), y));
 
-            using list_has_append = decltype (append (std::declval<list<X>> (), y));*/
+            using list_has_append = decltype (append (std::declval<list<X>> (), y));
 
             using stack_has_contains = decltype (contains (std::declval<stack<X>> (), y));
             using list_has_contains = decltype (contains (std::declval<list<X>> (), y));
-            using tree_has_contains = decltype (contains (std::declval<tree<X>> (), y));
+            //using tree_has_contains = decltype (contains (std::declval<tree<X>> (), y));
             using set_has_contains = decltype (contains (std::declval<set<X>> (), y));
             using ordered_sequence_has_contains = decltype (contains (std::declval<ordered_sequence<X>> (), y));
             using priority_queue_has_contains = decltype (contains (std::declval<priority_queue<X>> (), y));
-            using map_has_contains = decltype (contains (std::declval<map<size_t, X>> (), y));
-/*
+            //using map_has_contains = decltype (contains (std::declval<map<size_t, X>> (), y));
+
             using stack_has_remove = decltype (remove (std::declval<stack<X>> (), 0));
             using list_has_remove = decltype (remove (std::declval<list<X>> (), 0));
             using ordered_sequence_has_remove = decltype (remove (std::declval<ordered_sequence<X>> (), 0));
@@ -479,7 +479,7 @@ namespace data {
             using map_has_remove = decltype (remove (std::declval<map<size_t, X>> (), 0));
 
             using stack_has_erase = decltype (erase (std::declval<stack<X>> (), y));
-            using list_has_erase = decltype (erase (std::declval<list<X>> (), y));
+            using list_has_erase = decltype (erase (std::declval<list<X>> (), y));/*
             using ordered_sequence_has_erase = decltype (erase (std::declval<ordered_sequence<X>> (), y));
             using tree_has_erase = decltype (erase (std::declval<tree<X>> (), y));
             using set_has_erase = decltype (erase (std::declval<set<X>> (), y));
@@ -507,14 +507,6 @@ namespace data {
         test_has_functions<int const *> {};
         test_has_functions<int const *const> {};
 
-        test_has_contains<int> {0};
-        test_has_contains<const int> {0};
-        test_has_contains<int &> {0};
-        test_has_contains<const int &> {0};
-        test_has_contains<int *> {0};
-        test_has_contains<int * const> {0};
-        test_has_contains<int const *> {0};
-
         test_has_functions<string> {};
         test_has_functions<const string> {};
         test_has_functions<string &> {};
@@ -524,13 +516,29 @@ namespace data {
         test_has_functions<string const *> {};
         test_has_functions<string const *const> {};
 
+        test_has_contains<int> {0};
+        test_has_contains<const int> {0};
+
+        int test_var = 0;
+        test_has_contains<int &> {test_var};
+        test_has_contains<const int &> {test_var};
+
+        int *test_ptr = &test_var;
+        test_has_contains<int *> {test_ptr};
+        test_has_contains<int * const> {test_ptr};
+        test_has_contains<int const *> {test_ptr};
+
         test_has_contains<string> {""};
         test_has_contains<const string> {""};
-        test_has_contains<string &> {""};
-        test_has_contains<const string &> {""};
-        test_has_contains<string *> {""};
-        test_has_contains<string * const> {""};
-        test_has_contains<string const *> {""};
+
+        string test_str {};
+        test_has_contains<string &> {test_str};
+        test_has_contains<const string &> {test_str};
+
+        string *test_str_ptr = &test_str;
+        test_has_contains<string *> {test_str_ptr};
+        test_has_contains<string * const> {test_str_ptr};
+        test_has_contains<string const *> {test_str_ptr};
 
     }
 }

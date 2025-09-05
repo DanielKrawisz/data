@@ -56,8 +56,8 @@ namespace data::net::HTTP {
             session (sessions &x, asio::ip::tcp::socket &&socket, request_handler handler) :
                 Sessions {x}, Socket (std::move (socket)), Handler (std::move (handler)) {}
 
-            // Read an HTTP request from the socket
-            awaitable<void> read ();
+            // Read and respond to an HTTP request from the socket
+            awaitable<void> respond ();
 
             void close () {
                 Socket.cancel ();

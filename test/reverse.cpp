@@ -11,7 +11,7 @@
 
 namespace data {
 
-    static_assert(iterable<array<int, 3>>);
+    static_assert (Iterable<array<int, 3>>);
     
     template <typename list> void test_reverse () {
         list l {1, 2, 3};

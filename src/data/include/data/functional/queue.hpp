@@ -56,6 +56,17 @@ namespace data::functional {
         if (data::empty (b)) return a;
         return join_queue (append (a, first (b)), rest (b));
     }
+
+    template <Queue list, typename elem>
+    list erase_queue (const list &x, const elem &e) {
+        list left {};
+        list right = x;
+        while (!empty (right)) {
+            if (first (right) != e) left = append (left, first (right));
+            right = rest (right);
+        }
+        return left;
+    }
     
     template <Queue L> requires Ordered<decltype (std::declval<const L> ().first ())>
     L merge_queue (const L &a, const L &b, const L &n = {}) {

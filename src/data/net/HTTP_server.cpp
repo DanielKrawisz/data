@@ -53,7 +53,7 @@ namespace data::net::HTTP {
             auto ex = co_await asio::this_coro::executor;
 
             spawn (ex, [sess] () -> awaitable<void> {
-                co_await sess->read ();
+                co_await sess->respond ();
                 sess->Self = nullptr;
                 co_return;
             });
@@ -69,7 +69,7 @@ namespace data::net::HTTP {
         co_return true;
     }
 
-    awaitable<void> server::session::read () {
+    awaitable<void> server::session::respond () {
         while (true) {
             beast::flat_buffer buff;
             beast::request req;

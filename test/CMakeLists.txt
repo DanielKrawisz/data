@@ -11,21 +11,21 @@ include (GoogleTest)
 add_executable (
     unit_tests
     # These tests only require data_core. 
-    testMaybeEither.cpp
+    maybe_either.cpp
     testStore.cpp
     testException.cpp
     integer_format.cpp
-    testLinkedStack.cpp
-    testList.cpp
+    linked_stack.cpp
+    list.cpp
     ordered_sequence.cpp
     testCircularQueue.cpp
-    empty.cpp
+    tree.cpp
     functional_interfaces.cpp
+    empty.cpp
     take.cpp
     reverse.cpp
     contains.cpp
     sort.cpp
-    tree.cpp
     testSet.cpp
     map.cpp
     priority_queue.cpp
@@ -38,7 +38,7 @@ add_executable (
     testStream.cpp
 
     testPermutation.cpp
-    testCombinatorics.cpp
+    combinatorics.cpp
     testEndian.cpp
     testSign.cpp
     testBitShift.cpp

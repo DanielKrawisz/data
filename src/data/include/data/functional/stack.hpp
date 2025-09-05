@@ -40,9 +40,9 @@ namespace data {
         return x.prepend (e);
     }
 
-    template <typename L>
-    concept Stack = std::default_initializable<L> && Sequence<const L> && 
-        interface::has_prepend_method<const L, decltype (std::declval<const L> ().first ())>;
+    template <typename L, typename elem = first_return_type<L>>
+    concept Stack = std::default_initializable<L> && Sequence<const L, elem> &&
+        interface::has_prepend_method<const L, elem>;
 
     template <Stack list> list reverse (const list &);
 }
@@ -68,8 +68,16 @@ namespace data::functional {
         return prepend (join_stack (rest (a), b), first (a));
     }
 
-    template <Stack list>
-    list remove_stack (const list &);
+    template <Stack list, typename elem>
+    list erase_stack (const list &x, const elem &e) {
+        list left {};
+        list right = x;
+        while (!empty (right)) {
+            if (first (right) != e) left = prepend (left, first (right));
+            right = rest (right);
+        }
+        return reverse (left);
+    }
 
     template <Stack L> requires Ordered<decltype (std::declval<L> ().first ())>
     L merge_stack (const L &a, const L &b) {
@@ -153,7 +161,7 @@ namespace data::functional {
     inline bool stack_node<X, Y>::contains (X x) const {
         if (x == First) return true;
         
-        return data::functional::contains (Rest, x);
+        return data::contains (Rest, x);
     }
 
 }
