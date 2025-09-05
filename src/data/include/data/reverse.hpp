@@ -41,7 +41,7 @@ namespace data {
         return x.reverse ();
     }
 
-    template <iterable X> 
+    template <Iterable X>
     X reverse (const X &x) {
         auto z = x;
         std::reverse (z.begin (), z.end ());

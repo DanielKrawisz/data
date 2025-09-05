@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/combinatorics.hpp"
+#include "data/math/combinatorics.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
 
-    TEST (CombinatoricsTest, TestFactorial) {
+    TEST (Combinatorics, Factorial) {
 
         EXPECT_THROW (math::factorial<int> (-1), math::negative_factorial);
         EXPECT_EQ (math::factorial<int> (0), 1);
@@ -19,7 +19,7 @@ namespace data {
 
     }
 
-    TEST (CombinatoricsTest, TestBinomial) {
+    TEST (Combinatorics, Binomial) {
 
         EXPECT_EQ (math::binomial<int> (0, 0), 1);
         EXPECT_EQ (math::binomial<int> (1, 0), 1);
@@ -41,7 +41,7 @@ namespace data {
 
     }
 
-    TEST (CombinatoricsTest, TestMultichoose) {
+    TEST (Combinatorics, Multichoose) {
 
         EXPECT_THROW (math::multichoose<int> (0, 0), math::negative_factorial);
         EXPECT_THROW (math::multichoose<int> (0, 1), math::negative_factorial);
@@ -61,7 +61,7 @@ namespace data {
 
     }
 
-    TEST (CombinatoricsTest, TestPolytopic) {
+    TEST (Combinatorics, Polytopic) {
 
         // zeroth polytopic number for any dimension is zero.
         EXPECT_EQ (math::polytopic_number<int> (0, 0), 0);
@@ -103,7 +103,7 @@ namespace data {
         EXPECT_EQ (pp.size (), p.size<size_t> ());
     }
 
-    TEST (CombinatoricsTest, TestPermutations) {
+    TEST (Combinatorics, Permutations) {
 
         permutations_test_case (stack<int> {});
         permutations_test_case (stack<int> {1});
@@ -130,7 +130,7 @@ namespace data {
         EXPECT_EQ (ppi, pp.end ());
     }
 
-    TEST (CombinatoricsTest, TestSublists) {
+    TEST (Combinatorics, Sublists) {
 
         sublists_test_case (stack<int> {}, 0);
         sublists_test_case (stack<int> {}, 1);
@@ -176,7 +176,7 @@ namespace data {
         EXPECT_EQ (ppi, pp.end ());
     }
 
-    TEST (CombinatoricsTest, TestPartitions) {
+    TEST (Combinatorics, Partitions) {
 
         partitions_test_case (stack<int> {}, math::nonzero<size_t> {1}, math::nonzero<size_t> {1});
         partitions_test_case (stack<int> {1}, math::nonzero<size_t> {1}, math::nonzero<size_t> {1});

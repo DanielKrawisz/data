@@ -90,6 +90,7 @@ namespace data::RB {
 
     template <typename V, typename T> bool empty (const tree<V, T> &t);
     template <typename V, typename T> size_t size (const tree<V, T> &t);
+    template <typename V, typename T> tree<V, T> insert (const tree<V, T> &, inserted<V>);
 
     template <Sortable V, functional::buildable_tree<colored<V>> T> struct tree;
 

@@ -9,7 +9,7 @@
 
 namespace data::encoding::percent {
 
-    TEST (IPTest, TestPercentEncoding) {
+    TEST (IP, PercentEncoding) {
 
         struct positive_test_case {
             data::UTF8 Valid;
@@ -73,7 +73,7 @@ namespace data::encoding::percent {
     }
 
     // this test has to do with finding the right == operator in gcc vs clang.
-    TEST (IPTest, TestPercentEncodedStringEqual) {
+    TEST (IP, PercentEncodedStringEqual) {
         // when we have an std::string and a percent encoded string, we should choose regular string ==
         // when we have a percent encoded string and a path, we should choose percent encoding equal. 
 
@@ -106,7 +106,7 @@ namespace data::encoding::percent {
 
 namespace data::net::IP {
 
-    TEST (IPTest, TestIPFormats) {
+    TEST (IP, IPFormats) {
 
         EXPECT_EQ (protocol {"FTP"}, protocol {"ftp"});
         EXPECT_EQ (domain_name {"news.cat.web"}, domain_name {"NEWS.cAt.WEB"});
@@ -117,7 +117,7 @@ namespace data::net::IP {
 
     }
 
-    TEST (IPTest, TestDomainNameFormat) {
+    TEST (IP, DomainNameFormat) {
 
         struct test_case {
             domain_name DomainName;
@@ -155,7 +155,7 @@ namespace data::net::IP {
     std::regex ip_v6_regex {"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};
 
     // https://en.wikipedia.org/wiki/Module:IPAddress/testcases
-    TEST (IPTest, TestIPAddressFormat) {
+    TEST (IP, IPAddressFormat) {
 
         struct test_case {
             address Address;
@@ -275,7 +275,7 @@ namespace data::net::IP {
 
 namespace data::net {
 
-    TEST (IPTest, TestURLFormat) {
+    TEST (IP, URLFormat) {
 
         struct positive_test_case {
 
@@ -458,7 +458,7 @@ namespace data::net {
 
     }
 
-    TEST (IPTest, TestMakeURL) {
+    TEST (IP, MakeURL) {
 
         EXPECT_EQ (URL {"http://example.com"}, URL (URL::make {"http://example.com"}));
         EXPECT_EQ (URL {"http://example.com"}, URL (URL::make {}.protocol ("http").domain_name ("example.com")));
@@ -477,7 +477,7 @@ namespace data::net {
 
     }
 
-    TEST (IPTest, TestURLEqual) {
+    TEST (IP, URLEqual) {
         struct test_equal {
             URL Left;
             URL Right;
@@ -520,7 +520,7 @@ namespace data::net {
 
     }
 
-    TEST (IPTest, TestURLParameters) {
+    TEST (IP, URLParameters) {
         URL yes {"fnorp://zeep:zoop@moop.pim.pom?weep=warp&beep=boop"};
         URL no {"fnorp://zeep:zoop:zap@moop.pim.pom?weep&boop"};
 
@@ -532,7 +532,7 @@ namespace data::net {
 
     }
 
-    TEST (IPTest, TestEndpoint) {
+    TEST (IP, Endpoint) {
         IP::TCP::endpoint e {"tcp://0.0.0.0:1234"};
         EXPECT_EQ (e.address (), "0.0.0.0");
         EXPECT_EQ (e.port (), 1234);

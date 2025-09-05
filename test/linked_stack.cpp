@@ -10,8 +10,8 @@
 
 namespace data {
 
-    TEST (LinkedStackTest, TestStackInterfaces) {
-        // We had some trouble defining SequenceOf properly and these are some 
+    TEST (LinkedStack, StackInterfaces) {
+        // We had some trouble defining Sequence properly and these are some
         // tests that helped to make it work right. 
         static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
         static_assert (Same<decltype (std::declval<const stack<int>> ().first ()), const int &>);
@@ -51,13 +51,13 @@ namespace data {
         static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<string *>> ().first ()), string *>);
         static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<const string *>> ().first ()), const string *>);
 
-        static_assert (SequenceOf<stack<int>, int>);
-        static_assert (SequenceOf<stack<int *>, int *>);
-        static_assert (SequenceOf<stack<const int *>, const int *>);
-        static_assert (SequenceOf<stack<int *const>, int *const>);
-        static_assert (SequenceOf<stack<const int *const>, const int *const>);
-        static_assert (SequenceOf<stack<int &>, int &>);
-        static_assert (SequenceOf<stack<const int &>, const int &>);
+        static_assert (Sequence<stack<int>, int>);
+        static_assert (Sequence<stack<int *>, int *>);
+        static_assert (Sequence<stack<const int *>, const int *>);
+        static_assert (Sequence<stack<int *const>, int *const>);
+        static_assert (Sequence<stack<const int *const>, const int *const>);
+        static_assert (Sequence<stack<int &>, int &>);
+        static_assert (Sequence<stack<const int &>, const int &>);
 
         static_assert (Stack<stack<int>>);
         static_assert (Stack<stack<int *>>);
@@ -105,7 +105,7 @@ namespace data {
 
     }
 
-    TEST (LinkedStackTest, TestLinkedStack1) {
+    TEST (LinkedStack, LinkedStack1) {
         
         EXPECT_TRUE (stack<int> {} == stack<int> ());
         
@@ -123,7 +123,7 @@ namespace data {
     // Functional data structures don't have to be c++ 
     // containers so we also have a version of functional
     // linked list for references. 
-    TEST (LinkedStackTest, TestLinkedStackR) {
+    TEST (LinkedStack, LinkedStackR) {
         
         int One = 1;
         int Zero = 0;
@@ -146,7 +146,7 @@ namespace data {
         
     }
 
-    TEST (LinkedStackTest, TestLinkedStackConstruct) {
+    TEST (LinkedStack, LinkedStackConstruct) {
     
         stack<int> l {1, 2, 3};
         stack<int> r {};
@@ -253,40 +253,40 @@ namespace data {
     }
 }
 
-template <typename X> struct stack_test : ::testing::Test {
+template <typename X> struct Stack : ::testing::Test {
     using type = data::stack<X>;
     using element = X;
 };
 
-using stack_test_cases = ::testing::Types<
+using Stack_cases = ::testing::Types<
     int, const int, int &, const int &, int *, int *const, const int *, const int *const, 
     data::string, const data::string, data::string &, const data::string &, data::string *, 
     data::string *const, const data::string *, const data::string *const>;
 
-TYPED_TEST_SUITE (stack_test, stack_test_cases);
+TYPED_TEST_SUITE (Stack, Stack_cases);
 
-TYPED_TEST (stack_test, TestStackValid) {
+TYPED_TEST (Stack, StackValid) {
     using type = typename TestFixture::type;
-    auto is_valid = empty (type {});
+    auto is_valid = valid (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
     EXPECT_TRUE (is_valid);
 }
 
-TYPED_TEST (stack_test, TestStackEmpty) {
+TYPED_TEST (Stack, StackEmpty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (stack_test, TestStackSize) {
+TYPED_TEST (Stack, StackSize) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (stack_test, TestStackFirst) {
+TYPED_TEST (Stack, StackFirst) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
 
@@ -323,33 +323,33 @@ TYPED_TEST (stack_test, TestStackFirst) {
     }
 }
 
-TYPED_TEST (stack_test, TestStackRest) {
+TYPED_TEST (Stack, StackRest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (stack_test, TestStackValues) {
+TYPED_TEST (Stack, StackValues) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
+    static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (stack_test, TestStackReverse) {
+TYPED_TEST (Stack, StackReverse) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (reverse (type {}));
-    static_assert (data::SequenceOf<return_type, element>);
+    static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (stack_test, TestStackContains) {
+TYPED_TEST (Stack, StackContains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);
 }
 
-TYPED_TEST (stack_test, TestStackPrepend) {
+TYPED_TEST (Stack, StackPrepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (prepend (type {}, std::declval<element> ()));
@@ -359,37 +359,38 @@ TYPED_TEST (stack_test, TestStackPrepend) {
     static_assert (data::Same<return_type, type>);
 }
 
-TYPED_TEST (stack_test, TestStackTakeDrop) {
+TYPED_TEST (Stack, StackTakeDrop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
 }
 
-TYPED_TEST (stack_test, TestStackJoin) {
+TYPED_TEST (Stack, StackJoin) {
     using type = typename TestFixture::type;
     (void) join (type {}, type {});
     (void) (type {} + type {});
 }
 
-TYPED_TEST (stack_test, TestStackSort) {
+TYPED_TEST (Stack, StackSort) {
     using type = typename TestFixture::type;
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
-/*
-TYPED_TEST (stack_test, TestStackRemove) {
+
+TYPED_TEST (Stack, StackRemove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (remove (type {}, size_t {0}));
 }
-
-TYPED_TEST (stack_test, TestStackErase) {
+// TODO
+/*
+TYPED_TEST (Stack, StackErase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (erase (type {}, std::declval<element> ()));
 }*/
 /*
-TYPED_TEST (stack_test, TestStackSelect) {
+TYPED_TEST (Stack, TestStackSelect) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (select (type {}, [] (const auto &&) {
@@ -397,7 +398,7 @@ TYPED_TEST (stack_test, TestStackSelect) {
     }));
 }
 
-TYPED_TEST (stack_test, TestStackReplace) {
+TYPED_TEST (Stack, TestStackReplace) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (replace (type {}, replacements {}));

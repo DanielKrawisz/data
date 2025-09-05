@@ -54,7 +54,7 @@ namespace data {
         
         template <typename map, typename key>
         concept has_keys_method = requires (map x) {
-            { x.keys () } -> SequenceOf<const key &>;
+            { x.keys () } -> Sequence<const key &>;
         };
         
     }

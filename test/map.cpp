@@ -9,7 +9,7 @@
 
 namespace data {
     
-    TEST (MapTest, TestMapInterface) {
+    TEST (Map, MapInterface) {
         
         static_assert (functional::map<map<uint32, int>>);
         static_assert (functional::map<map<uint32, int *>>);
@@ -29,7 +29,7 @@ namespace data {
         
     }
 
-    TEST (MapTest, TestOrderedSetInterface) {
+    TEST (Map, OrderedSetInterface) {
 
         static_assert (OrderedSet<set<int>>);
         static_assert (OrderedSet<set<int *>>);
@@ -41,7 +41,7 @@ namespace data {
         
     }
     
-    TEST (MapTest, TestMapEqual) {
+    TEST (Map, MapEqual) {
         
         map<int, int> m1 {{2, 1}, {3, 5}, {1, 7}};
         map<int, int> m2 {{3, 5}, {2, 1}, {1, 7}};
@@ -75,14 +75,14 @@ namespace data {
         EXPECT_TRUE (m4v != v1);
     }
     
-    TEST (MapTest, TestMapEmpty) {
+    TEST (Map, MapEmpty) {
         int i = 3;
         map<int, int*> m {{0, &i}};
         EXPECT_EQ (m[0], &i);
         EXPECT_EQ (m.contains (1), nullptr);
     }
     
-    TEST (MapTest, TestRemoveFromMap) {
+    TEST (Map, RemoveFromMap) {
         
         map<int, int> m1 {{2, 1}, {3, 5}, {1, 7}};
         map<int, int> m2 {{2, 1}, {1, 7}};
@@ -92,7 +92,7 @@ namespace data {
         EXPECT_EQ (m1r2, m2);
     }
     
-    TEST (MapTest, TestIterate) {
+    TEST (Map, Iterate) {
         map<int, int> empty_map {};
         
         EXPECT_EQ (empty_map.begin (), empty_map.end ());
@@ -112,7 +112,7 @@ namespace data {
         
     }
 
-    TEST (MapTest, TestInsert) {
+    TEST (Map, Insert) {
         using key_already_exists = map<int, int>::key_already_exists;
 
         // it is not ok to insert the same key into a map twice

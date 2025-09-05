@@ -26,15 +26,20 @@ namespace data {
     }
     
     template <Pendable list>
-    list join (const list &a, const list &b) {
+    list inline join (const list &a, const list &b) {
         if constexpr (Queue<list>) return functional::join_queue (a, b);
         else return functional::join_stack (a, b);
     }
 
-
     template <Pendable list>
-    list inline remove_index (const list &l, size_t x) {
+    list inline remove (const list &l, size_t x) {
         return join (take (l, x), drop (l, x + 1));
+    }
+
+    template <Pendable list, typename elem>
+    list inline erase (const list &x, elem e) {
+        if constexpr (Queue<list>) return functional::erase_queue (x, e);
+        else return functional::erase_stack (x, e);
     }
 }
 
@@ -45,9 +50,6 @@ namespace data::functional {
         if constexpr (Queue<list>) return functional::merge_queue (a, b);
         else return functional::merge_stack (a, b);
     }
-    
-    template <Pendable list, typename elem>
-    list remove (const list &l, elem x);
 
 }
 

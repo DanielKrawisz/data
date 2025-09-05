@@ -15,9 +15,9 @@ namespace data::tool {
     struct ordered_stack;
     
     // merge two stacks together. 
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> operator & (ordered_stack<stack, elem>, ordered_stack<stack, elem>);
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> operator | (ordered_stack<stack, elem>, ordered_stack<stack, elem>);
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> operator ^ (ordered_stack<stack, elem>, ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> operator & (const ordered_stack<stack, elem>, const ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> operator | (const ordered_stack<stack, elem>, const ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> operator ^ (const ordered_stack<stack, elem>, const ordered_stack<stack, elem>);
 
     // print a stack
     template <Stack stack, Sortable elem>
@@ -25,11 +25,12 @@ namespace data::tool {
         { o << e } -> Same<std::ostream &>;
     } std::ostream &operator << (std::ostream &o, const ordered_stack<stack, elem> &l);
 
-    template <Stack stack, Sortable elem> bool empty (ordered_stack<stack, elem>);
-    template <Stack stack, Sortable elem> size_t size (ordered_stack<stack, elem>);
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> values (ordered_stack<stack, elem>);
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> take (ordered_stack<stack, elem>, size_t size);
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> merge (ordered_stack<stack, elem>, ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> bool empty (const ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> size_t size (const ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> insert (const ordered_stack<stack, elem>, inserted<elem>);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> values (const ordered_stack<stack, elem>);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> take (const ordered_stack<stack, elem>, size_t size);
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> merge (const ordered_stack<stack, elem>, const ordered_stack<stack, elem>);
 
     template <Stack stack, Sortable elem>
     struct ordered_stack {
@@ -86,7 +87,7 @@ namespace data::tool {
 
         ordered_stack remove (size_t index) const {
             if (index >= Stack.size ()) return *this;
-            return ordered_stack {data::take (Stack, size) + data::drop (Stack, size).rest ()};
+            return ordered_stack {data::take (Stack, index) + data::drop (Stack, index).rest ()};
         }
 
         template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
@@ -110,31 +111,31 @@ namespace data::tool {
         }
     };
 
-    template <Stack stack, Sortable elem> bool inline empty (ordered_stack<stack, elem> x) {
+    template <Stack stack, Sortable elem> bool inline empty (const ordered_stack<stack, elem> x) {
         return x.Stack.empty ();
     }
 
-    template <Stack stack, Sortable elem> size_t inline size (ordered_stack<stack, elem> x) {
+    template <Stack stack, Sortable elem> size_t inline size (const ordered_stack<stack, elem> x) {
         return x.Stack.size ();
     }
 
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> inline values (ordered_stack<stack, elem> x) {
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> inline values (const ordered_stack<stack, elem> x) {
         return x;
     }
 
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> inline sort (ordered_stack<stack, elem> x) {
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> inline sort (const ordered_stack<stack, elem> x) {
         return x;
     }
 
     template <Stack stack, Sortable elem> 
     ordered_stack<stack, elem> inline 
-    operator & (ordered_stack<stack, elem> a, ordered_stack<stack, elem> b) {
+    operator & (const ordered_stack<stack, elem> a, const ordered_stack<stack, elem> b) {
         return a.merge (b);
     }
 
     template <Stack stack, Sortable elem> 
     ordered_stack<stack, elem> inline 
-    merge (ordered_stack<stack, elem> a, ordered_stack<stack, elem> b) {
+    merge (const ordered_stack<stack, elem> a, const ordered_stack<stack, elem> b) {
         return a.merge (b);
     }
 
@@ -146,7 +147,7 @@ namespace data::tool {
         return o;
     }
 
-    template <Stack stack, Sortable elem> ordered_stack<stack, elem> take (ordered_stack<stack, elem> x, size_t size) {
+    template <Stack stack, Sortable elem> ordered_stack<stack, elem> take (const ordered_stack<stack, elem> x, size_t size) {
         return x.take (size);
     }
     

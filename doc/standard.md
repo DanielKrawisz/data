@@ -130,31 +130,26 @@ Equivalent to `std::totally_ordered`.
 
 #### `concept data::Sequence`
 
-A type `seq` is a `data::Sequence` if it supports `seq::size`, `seq::first`, and `seq::rest`.
+A type `seq` satisfies `data::Sequence<seq>` if it supports `seq::size`, `seq::first`, and `seq::rest`.
 
-#### `concept data::SequenceOf`
+A type `elem` satisfies `data::Sequence<seq, elem>` if `data::Sequence<seq>` 
+and the type returned by `seq::first` can be implicitly converted to `elem`.
+
+#### `data::drop`
+
+### `data/stack.hpp`
 
 #### `concept data::Stack`
 
 Defined in `data/stack.hpp`, `data/list.hpp`, `data/ordered_sequence.hpp`
 
-A type `X` supporting `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. 
+For a type `X`, `data::Stack<X>` is true if `X` supports `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. 
 
 For a value `x` of `X`, `x.prepend (x.first ()) -> X`.
 
-#### `data::drop`
-
-#### `concept data::Queue`
-
-#### `concept data::List`
-
-#### `data::take`
-
-A `List` is both a `Stack` and a `Queue`. 
-
-#### `data::reverse`
-
-### `data/stack.hpp`
+For a type `elem`, `data::Stack<X, elem>` is true if `data::Stack<X>`, 
+the type returned by `X::first` can be converted to `elem` and for a
+type `e` of `elem`, `x.prepend (x.first ()) -> X`.
 
 #### `class data::stack`
 
@@ -236,7 +231,21 @@ If `n > size (z)` return an empty stack.
 
 #### `contains`
 
+#### `remove`
+
+#### `erase`
+
 ### `data/list.hpp`
+
+#### `concept data::Queue`
+
+#### `concept data::List`
+
+#### `data::take`
+
+A `List` is both a `Stack` and a `Queue`. 
+
+#### `data::reverse`
 
 #### `class data::list`
 
@@ -270,6 +279,10 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `reverse`
 
+#### `rotate_right`
+
+#### `rotate_left`
+
 #### `join`
 
 #### `sort`
@@ -279,6 +292,10 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 #### `values`
 
 #### `contains`
+
+#### `remove`
+
+#### `erase`
 
 ### `data/ordered_sequence.hpp`
 
@@ -308,6 +325,12 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `values`
 
+#### `contains`
+
+#### `remove`
+
+#### `erase`
+
 ### `data/priority_queue.hpp`
 
 #### `class data::priority_queue`
@@ -334,6 +357,10 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `contains`
 
+#### `remove`
+
+#### `erase`
+
 ### `data/tree.hpp`
 
 #### `class data::tree`
@@ -343,6 +370,8 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 #### `right`
 
 #### `left`
+
+#### `contains`
 
 ### `data/map.hpp`
 
@@ -355,6 +384,18 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 ### `data/set.hpp`
 
 #### `class data::set`
+
+## Mathematics
+
+Another headers-only library.
+
+### `data/math/infinite.hpp`
+
+### `data/math/figurate.hpp`
+
+### `data/math/permutation.hpp`
+
+### `data/math/combinatorics.hpp`
 
 ## String
 
@@ -452,16 +493,6 @@ A library providing a number of cryptographic hash functions.
 ### data/hash.hpp
 
 Provides a set of hash functions. 
-
-## Mathematics
-
-### `data/math/infinite.hpp`
-
-### `data/abs.hpp`
-
-### `data/norm.hpp`
-
-### `data/math/integral.hpp`
 
 ## Net
 

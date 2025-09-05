@@ -10,15 +10,15 @@
 
 namespace data {
     
-    template <typename X, typename elem = unref<unconst<decltype (*std::declval<X> ().begin ())>>>
-    concept const_iterable = std::ranges::input_range<X> && requires (const X x) {
-        { *x.begin () } -> ImplicitlyConvertible<const elem>;
+    template <typename X>
+    concept ConstIterable = std::ranges::input_range<X> && requires (const X x) {
+        { *x.begin () };
         { x.end () };
     };
     
-    template <typename X, typename elem = decltype (*std::declval<const X> ().begin ())>
-    concept iterable = const_iterable<X, elem> && std::ranges::output_range<X, elem> && requires () {
-        typename X::iterator;
+    template <typename X>
+    concept Iterable = ConstIterable<X> && requires (X o, const X i) {
+        { *o.begin () = *i.begin ()};
     };
     
     // used to represent the end of a data structure. 

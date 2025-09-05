@@ -8,14 +8,14 @@
 
 namespace data {
 
-    TEST (MaybeEitherTest, TestEither) {
+    TEST (MaybeEither, Either) {
 
         either<void> mono {};
         mono.get<void> ();
 
     }
 
-    TEST (MaybeEitherTest, TestMaybeInt) {
+    TEST (MaybeEither, MaybeInt) {
 
         int x = 10;
         maybe<int> no {};
@@ -28,7 +28,7 @@ namespace data {
 
     }
 
-    TEST (MaybeEitherTest, TestMaybeRef) {
+    TEST (MaybeEither, MaybeRef) {
 
         int x = 10;
         maybe<int &> no {};

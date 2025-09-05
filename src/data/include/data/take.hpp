@@ -29,14 +29,15 @@ namespace data {
         return functional::take_stack (l, size);
     }
 
-    template <iterable T> 
+    template <Iterable T>
     T take (const T &n, size_t size) {
         if (size > data::size (n)) {
             auto z = n;
             return z;
         }
         
-        // note: we don't actually know that we can make something of a given size like this. 
+        // NOTE: we don't actually know that we can make something of a given size like this.
+        // this works for std::vectors and things like that.
         T z (size);
         std::copy (n.begin (), n.begin () + size, z.begin ());
         return z;

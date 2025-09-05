@@ -48,7 +48,7 @@ namespace data::tool {
             return map_set {Map.insert (k, unit {}, [] (const unit &a, const unit &b) {return a;})};
         }
         
-        template <typename list> requires SequenceOf<list, key>
+        template <typename list> requires Sequence<list, key>
         map_set insert (list keys) const {
             if (keys.empty ()) return *this;
             return insert (keys.first ()).insert (keys.rest ());
@@ -75,7 +75,7 @@ namespace data::tool {
         
         explicit map_set (M m) : Map (m) {}
         
-        template <typename list> requires SequenceOf<list, key>
+        template <typename list> requires Sequence<list, key>
         explicit map_set (list keys) : Map {} {
             *this = insert (keys);
         }

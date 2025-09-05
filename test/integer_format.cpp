@@ -7,7 +7,7 @@
 
 namespace data::encoding {
 
-    TEST (IntegerFormatTest, TestIntegerFormat) {
+    TEST (IntegerFormat, IntegerFormat) {
         
         EXPECT_FALSE (decimal::valid (""));
         EXPECT_TRUE (decimal::valid ("0"));
@@ -48,7 +48,7 @@ namespace data::encoding {
         
     }
     
-    TEST (IntegerFormatTest, TestWriteNumbersN) {
+    TEST (IntegerFormat, WriteNumbersN) {
         
         EXPECT_EQ (encoding::decimal::write (N_bytes_big {1}), std::string {"1"});
         EXPECT_EQ (encoding::decimal::write (N_bytes_big {11}), std::string {"11"});
@@ -85,7 +85,7 @@ namespace data::encoding {
 
     }
 
-    TEST (IntegerFormatTest, TestWriteNumbersZ) {
+    TEST (IntegerFormat, WriteNumbersZ) {
 
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big {1}), std::string {"1"});
         EXPECT_EQ (encoding::signed_decimal::write (Z_bytes_big {11}), std::string {"11"});
@@ -165,7 +165,7 @@ namespace data::encoding {
         
     }
 
-    TEST (IntegerFormatTest, TestReadHex) {
+    TEST (IntegerFormat, ReadHex) {
 
         std::string hex_string {"0x0001020304"};
 

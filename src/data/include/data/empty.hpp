@@ -25,14 +25,14 @@ namespace data {
         template <typename X> struct is_empty {};
         
         template <typename X> 
-        requires interface::has_empty_method<const X> || interface::has_size_method<const X> || const_iterable<X>
+        requires interface::has_empty_method<const X> || interface::has_size_method<const X> || ConstIterable<X>
         struct is_empty<X> {
             bool operator () (const X &x) {
                 if constexpr (interface::has_empty_method<const X>) {
                     return x.empty ();
                 } else if constexpr (interface::has_size_method<const X>) {
                     return x.size () == 0;
-                } else if constexpr (const_iterable<X>) {
+                } else if constexpr (ConstIterable<X>) {
                     return std::empty (x);
                 }
             }
