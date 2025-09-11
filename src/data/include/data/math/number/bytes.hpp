@@ -55,6 +55,30 @@ namespace data::math::number {
         if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, Z (n));
         return o;
     }
+
+    template <endian::order r, std::unsigned_integral word>
+    std::istream &operator >> (std::istream &i, N_bytes<r, word> &n) {
+        encoding::natural::string x;
+        i >> x;
+        try {
+            n = N_bytes<r, word>::read (x);
+        } catch (...) {
+            i.setstate (std::ios::failbit);
+        }
+        return i;
+    }
+    
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    std::istream &operator >> (std::istream &i, Z_bytes<r, c, word> &n) {
+        encoding::integer::string x;
+        i >> x;
+        try {
+            n = Z_bytes<r, c, word>::read (x);
+        } catch (...) {
+            i.setstate (std::ios::failbit);
+        }
+        return i;
+    }
     
     template <endian::order r, std::unsigned_integral word> inline
     N_bytes<r, word>::operator double () const {
@@ -106,7 +130,6 @@ namespace data::encoding::natural {
     
     template <endian::order r, std::unsigned_integral word>
     maybe<math::N_bytes<r, word>> inline read (string_view s) {
-
         if (!valid (s)) return {};
 
         if (hexidecimal::valid (s)) {

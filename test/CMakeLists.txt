@@ -10,7 +10,8 @@ include (GoogleTest)
 
 add_executable (
     unit_tests
-    # These tests only require data_core. 
+    # These tests only require data_core for the components being tested. 
+    # other components may be used for the tests themselves. 
     maybe_either.cpp
     testStore.cpp
     testException.cpp
@@ -30,16 +31,24 @@ add_executable (
     map.cpp
     priority_queue.cpp
     testForEach.cpp
+    map_schema.cpp
 
+    testPermutation.cpp
+    combinatorics.cpp
+
+    # string 
     testBytes.cpp
     testHex.cpp
     testBase64.cpp
     testAscii.cpp
     testStream.cpp
-
-    testPermutation.cpp
-    combinatorics.cpp
     testEndian.cpp
+    testBounded.cpp
+
+    # hash
+    testHash.cpp
+
+    # numbers
     testSign.cpp
     testBitShift.cpp
     testN.cpp
@@ -49,7 +58,6 @@ add_executable (
     testRoot.cpp
     Z_bytes.cpp
     testAbs.cpp
-    testBounded.cpp
     testBase58.cpp
     testNumbers.cpp
     testStringNumbers.cpp
@@ -66,15 +74,20 @@ add_executable (
     testAlgebra.cpp
     testPolynomial.cpp
     number_theory.cpp
+
+    # crypto 
     testGeometry.cpp
-    testHash.cpp
     testSymmetricCrypto.cpp
     testSecretShare.cpp
     testEllipticCurve.cpp
-    testLog.cpp
-    testArgsParser.cpp
+
+    # net
     IP.cpp
     testEmail.cpp
+
+    # io
+    testLog.cpp
+    testArgsParser.cpp
 )
 
 target_link_libraries (unit_tests

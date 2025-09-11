@@ -397,6 +397,8 @@ Another headers-only library.
 
 ### `data/math/combinatorics.hpp`
 
+### `data/math/polynomial.hpp`
+
 ## String
 
 ### `data/cross.hpp`

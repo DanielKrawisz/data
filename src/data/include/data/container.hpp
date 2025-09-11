@@ -64,7 +64,7 @@ namespace data {
         } if constexpr (ConstIterable<X>) {
             return std::find (x.begin (), x.end (), e) != x.end ();
         } else {
-            throw "cannot construct contains method";
+            throw exception {} << "cannot construct contains method";
         }
     }
     

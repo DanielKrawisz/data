@@ -3,6 +3,29 @@
 #include <data/stream.hpp>
 
 namespace data {
+    // TODO we have another instance of skip_whitespace somewhere. 
+    std::istream &skip_whitespace (std::istream &i) {
+        while (true) {
+            int c = i.peek ();
+            if (c < 0 || !std::isspace (static_cast<unsigned char> (c))) break;
+            i.get ();
+        }
+
+        return i;
+    }
+
+    std::istream &operator >> (std::istream &i, string &x) {
+        skip_whitespace (i);
+        int first = i.peek ();
+        
+        if (first < 0 || static_cast<char> (first) != '"') {
+            i.setstate (std::ios::failbit);
+            return i;
+        }
+        
+        return i >> std::quoted (x);
+    }
+
     string::operator bytes () const {
         bytes b (this->size ());
         std::copy (begin (), end (), b.data ());
