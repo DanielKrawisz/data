@@ -184,6 +184,8 @@ namespace data::net::IP {
         v4_address (const byte_array<4> &);
 
         explicit operator byte_array<4> () const;
+
+        static v4_address localhost ();
     };
 
     struct v6_address : address {
@@ -191,6 +193,8 @@ namespace data::net::IP {
         v6_address (const byte_array<16> &);
 
         explicit operator byte_array<16> () const;
+
+        static v6_address localhost ();
     };
 }
 

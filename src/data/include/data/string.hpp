@@ -46,6 +46,9 @@ namespace data {
         return static_cast<const std::string &> (a) <=> static_cast<const std::string &> (b);
     }
 
+    std::ostream &operator << (std::ostream &o, const string &x);
+    std::istream &operator >> (std::istream &i, string &x);
+
     std::ostream inline &operator << (std::ostream &o, const string &x) {
         return o << "\"" << static_cast<std::string> (x) << "\"";
     }

@@ -303,6 +303,141 @@ namespace data::encoding {
         }
     
     }
+
+    // TODO we have another instance of skip_whitespace somewhere. 
+    std::istream &skip_whitespace (std::istream &i) {
+        while (true) {
+            int c = i.peek ();
+            if (c < 0 || !std::isspace (static_cast<unsigned char> (c))) break;
+            i.get ();
+        }
+
+        return i;
+    }
+    
+    bool inline is_hex_char (char x) {
+        return x >= '0' && x <= '0' || x >= 'a' && x <= 'f' || x >= 'A' && x <= 'F';
+    }
+
+    std::istream &read_hex (std::istream &i, std::string &str) {
+        while (true) {
+            int c1 = i.peek ();
+            
+            if (c1 < 0 || !is_hex_char (static_cast<char> (c1))) return i;
+            
+            i.get ();
+            int c2 = i.peek ();
+            
+            if (c2 < 0 || !is_hex_char (static_cast<char> (c2))) {
+                i.setstate (std::ios::failbit);
+                return i;
+            }
+
+            str.push_back (static_cast<char> (c1));
+            str.push_back (static_cast<char> (c2));
+        }
+    }
+
+    std::istream &read_dec_nonzero (std::istream &i, std::string &str) {
+        
+        int first = i.peek ();
+        if (first < 0) {
+            i.setstate (std::ios::failbit);
+            return i;
+        }
+
+        if (static_cast<char> (first) < '1' || static_cast<char> (first) > '9') {
+            i.setstate (std::ios::failbit);
+            return i;
+        }
+
+        str.push_back (static_cast<char> (first));
+        i.get ();
+
+        while (true) {
+            int c = i.peek (); 
+            if (c < 0 || static_cast<char> (c) < '0' || static_cast<char> (c) > '9') break;
+            str.push_back (static_cast<char> (c));
+            i.get ();
+        }
+
+        return i;
+
+    }
+
+    std::istream &read_nat (std::istream &i, std::string &str) {
+        skip_whitespace (i);
+        int first = i.peek ();
+
+        // there must be a first character. 
+        if (first < 0) {
+            i.setstate (std::ios::failbit);
+            return i;
+        }
+        
+        if (static_cast<char> (first) == '0') {
+            i.get ();
+            int second = i.peek ();
+            if (static_cast<char> (second) != 'x') {
+                str.push_back ('0');
+                return i;
+            }
+
+            i.get ();
+
+            return read_hex (i, str);
+        }
+
+        return read_dec_nonzero (i, str);
+    }
+
+    std::istream &read_int (std::istream &i, std::string &str) {
+        
+        skip_whitespace (i);
+        int first = i.peek ();
+        if (first < 0) {
+            i.setstate (std::ios::failbit);
+            return i;
+        }
+
+        if (static_cast<char> (first) == '-') {
+            i.get ();
+            str.push_back ('-');
+            int second = i.peek ();
+
+            if (second < 0) {
+                i.setstate (std::ios::failbit);
+                return i;
+            }
+            
+            if (static_cast<char> (second) == '0') {
+                str.push_back ('0');
+                return i;
+            }
+
+            return read_dec_nonzero (i, str);
+        }
+
+        return read_nat (i, str);
+    }
+
+    namespace natural {
+        std::istream &operator >> (std::istream &i, string &x) {
+            std::string nat;
+            read_nat (i, nat);
+            if (bool (i)) x = nat;
+            return i;
+        }
+    }
+
+    namespace integer {
+        std::istream &operator >> (std::istream &i, string &x) {
+            std::string nat;
+            read_int (i, nat);
+            if (bool (i)) x = nat;
+            return i;
+        }
+    }
     
 }
 

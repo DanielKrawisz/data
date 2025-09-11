@@ -414,6 +414,18 @@ namespace data::math::number {
 
     template <endian::order r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> trim (const Z_bytes<r, c, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
+    std::ostream &operator << (std::ostream &o, const N_bytes<r, word> &n);
+    
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    std::ostream &operator << (std::ostream &o, const Z_bytes<r, c, word> &n);
+
+    template <endian::order r, std::unsigned_integral word>
+    std::istream &operator >> (std::istream &o, N_bytes<r, word> &n);
+    
+    template <endian::order r, negativity c, std::unsigned_integral word>
+    std::istream &operator >> (std::istream &o, Z_bytes<r, c, word> &n);
     
 }
 

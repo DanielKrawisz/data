@@ -425,6 +425,24 @@ namespace data::encoding {
         integer<negativity::twos, cx> &operator &= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
         
     }
+
+    namespace natural {
+        // a string representation of a natural number (dec or hexidecimal)
+        struct string : data::string {
+            using data::string::string;
+        };
+
+        std::istream &operator >> (std::istream &, string &);
+    }
+
+    namespace integer {
+        // a string representation of an integer (hexidecimal or dec with an optional -);
+        struct string : data::string {
+            using data::string::string;
+        };
+
+        std::istream &operator >> (std::istream &, string &);
+    }
 }
 
 namespace data::hex {

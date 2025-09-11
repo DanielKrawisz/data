@@ -548,6 +548,10 @@ namespace data::math::number::GMP {
         return a <=> b == 0;
     }
 
+    bool inline operator == (const int64 &a, const Z &b) {
+        return b == a;
+    }
+
     std::weak_ordering inline operator <=> (const Z &a, const Z &b) {
         auto cmp = mpz_cmp (a.MPZ, b.MPZ);
         return cmp < 0 ? std::weak_ordering::less :
