@@ -91,6 +91,11 @@ namespace data::RB {
     template <typename V, typename T> bool empty (const tree<V, T> &t);
     template <typename V, typename T> size_t size (const tree<V, T> &t);
     template <typename V, typename T> tree<V, T> insert (const tree<V, T> &, inserted<V>);
+    
+    template <typename V, typename T, typename already_exists> 
+    requires requires (already_exists f, const V &old_v, const V &new_v) {
+        { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
+    } tree<V, T> merge (const tree<V, T> &, const tree<V, T> &, already_exists f);
 
     template <Sortable V, functional::buildable_tree<colored<V>> T> struct tree;
 
@@ -208,6 +213,23 @@ namespace data::RB {
 
     template <typename V, typename T> size_t inline size (const tree<V, T> &t) {
         return t.size ();
+    }
+    
+    template <typename V, typename T> tree<V, T> operator & (const tree<V, T> &a, const tree<V, T> &b) {
+        return merge (a, b, [] (const V &old_v, const V &new_v) -> V {
+            if (old_v == new_v) return old_v;
+            throw exception {} << "cannot merge because of inequivalent values";
+        });
+    }
+
+    template <typename V, typename T, typename already_exists> 
+    requires requires (already_exists f, const V &old_v, const V &new_v) {
+        { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
+    } tree<V, T> merge (const tree<V, T> &a, const tree<V, T> &b, already_exists f) {
+        // note: a faster version of this function is possible. 
+        auto n = a;
+        for (const auto &v : b) n = n.insert (v, f);
+        return n;
     }
 
     // now let's talk about how to check whether a tree is balanced.

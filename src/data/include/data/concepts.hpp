@@ -66,6 +66,8 @@ namespace data {
 
     template <typename Type> inline constexpr bool is_effectively_const_v = is_effectively_const<Type>::value;
     
+    // && and & types are effectively const because you cannot change the 
+    // reference itself. You can change the value pointed to by the reference.
     template <typename Type> struct is_effectively_const<Type &> : std::true_type {};
     template <typename Type> struct is_effectively_const<Type &&> : std::true_type {};
     template <typename Type> struct is_effectively_const<const Type> : std::true_type {};
