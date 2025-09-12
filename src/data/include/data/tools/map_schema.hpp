@@ -205,10 +205,10 @@ namespace data::schema::rule {
     template <typename X, typename ...context> struct validate<blank<optional<X>>, context...> {
         using result = maybe<typename validate<X, context...>::result>;
 
-        //template <String string>
+        template <String string>
         result operator () (data::map<string, string> m, const map<blank<optional<X>>> &r);
 
-        //template <String string>
+        template <String string>
         result operator () (const std::map<string, string> &m, const map<blank<optional<X>>> &r);
     };
 
@@ -232,7 +232,7 @@ namespace data::schema::rule {
 
     template <typename ...X, typename ...context> struct validate<blank<any<X...>>, context...> {
         using result = either<typename validate<X, context...>::result...>;
-        //template <String string>
+        template <String string>
         result operator () (data::map<string, string> m, const map<blank<any<X...>>> &r);
     };
 
@@ -301,7 +301,7 @@ namespace data::schema {
     };
 
     // we work with data::map or std::map.
-    template <typename ...context, typename X>
+    template <typename ...context, rule::String string, typename X>
     typename rule::validate<X, context...>::result validate (map<string, string> m, const rule::map<X> &r);
 
     template <typename ...context, typename X>
@@ -358,7 +358,7 @@ namespace data::schema::rule {
     }
 
     template <typename X, typename ...context> 
-    //template <String string>
+    template <String string>
     typename validate<blank<optional<X>>, context...>::result inline
     validate<blank<optional<X>>, context...>::operator () (data::map<string, string> m, const map<blank<optional<X>>> &r) {
         try {
@@ -442,7 +442,7 @@ namespace data::schema::rule {
 }
 
 namespace data::schema {
-    template <typename ...context, typename X>
+    template <typename ...context, rule::String string, typename X>
     typename rule::validate<X, context...>::result inline validate (map<string, string> m, const rule::map<X> &r) {
         return rule::validate<X, context...> {} (m, r);
     }
@@ -564,7 +564,7 @@ namespace data::schema::rule {
 
     // check that the map has no other elements than those given. 
     struct none_else {
-        //template <String string>
+        template <String string>
         void operator () (data::map<string, string> m, const set<data::string> &x) {
             auto z = m.begin ();
             auto n = x.begin ();
@@ -583,11 +583,9 @@ namespace data::schema::rule {
             }
         }
 
-        //template <String string>
+        template <String string>
         void operator () (std::map<string, string>, const set<data::string> &);
     };
-
-    //template <String string> void none_else (data::map<string, string>);
 
     template <typename X>
     template <typename Map>

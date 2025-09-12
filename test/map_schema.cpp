@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "data/encoding/unicode.hpp"
 #include "data/tools/map_schema.hpp"
 #include "data/math.hpp"
 #include "gtest/gtest.h"
@@ -127,7 +128,7 @@ namespace data::schema {
 
     TEST (MapSchema, Read) {
 
-        map<string, string> test_map {
+        map<UTF8, UTF8> test_map {
             {"A", "23"}, 
             {"B", "129"}, 
             {"C", "-3"},
