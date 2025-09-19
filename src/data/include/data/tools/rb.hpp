@@ -204,7 +204,17 @@ namespace data::RB {
 
     template <typename V, typename T>
     std::ostream inline &operator << (std::ostream &o, const tree<V, T> &t) {
-        return o << t.values ();
+        o << "{";
+        auto i = t.begin ();
+        if (i != t.end ()) {
+            o << *i;
+            while (true) {
+                i++;
+                if (i == t.end ()) break;
+                o << ", " << *i;
+            }
+        }
+        return o << "}";
     }
     
     template <typename V, typename T> bool inline empty (const tree<V, T> &t) {
@@ -215,7 +225,7 @@ namespace data::RB {
         return t.size ();
     }
     
-    template <typename V, typename T> tree<V, T> operator & (const tree<V, T> &a, const tree<V, T> &b) {
+    template <typename V, typename T> tree<V, T> operator | (const tree<V, T> &a, const tree<V, T> &b) {
         return merge (a, b, [] (const V &old_v, const V &new_v) -> V {
             if (old_v == new_v) return old_v;
             throw exception {} << "cannot merge because of inequivalent values";
@@ -229,6 +239,14 @@ namespace data::RB {
         // note: a faster version of this function is possible. 
         auto n = a;
         for (const auto &v : b) n = n.insert (v, f);
+        return n;
+    }
+
+    template <typename V, typename T> tree<V, T> operator & (const tree<V, T> &a, const tree<V, T> &b) {
+        tree<V, T> n {};
+        for (const auto &v : b) if (a.contains (v)) n = n.insert (v, [] (const V &old_v, const V &new_v) -> V {
+            throw exception {} << "This cannot really happen";
+        });
         return n;
     }
 

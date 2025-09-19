@@ -39,7 +39,6 @@ namespace data::schema::rule {
 
     template <typename ...X> struct any;
 
-    // here is some stuff that says how optional composes.
     template <typename X> struct apply_optional;
 
     template <typename X> struct apply_optional<only<X>> {
@@ -161,39 +160,6 @@ namespace data::schema::rule {
         map<result> operator () (const map<any<X...>> &, const map<any<Y...>> &);
     };
 
-    template <> struct map<empty> {};
-
-    template <> struct map<blank> {
-        map () {}
-        map (map<empty>) {}
-    };
-
-    template <typename X> struct map<value<X>> {
-        string Key;
-    };
-
-    template <typename X> struct map<only<X>> : map<X> {
-        using map<X>::map;
-        map (const map<X> &m): map<X> {m} {}
-    };
-
-    template <typename X, typename ...Y> struct map<all<X, Y...>> : tuple<map<X>, map<Y>...> {
-        using parent = tuple<map<X>, map<Y>...>;
-        using tuple<map<X>, map<Y>...>::tuple;
-        map (parent &&p): parent {p} {}
-    };
-
-    template <typename X, typename ...Y> struct map<any<X, Y...>> : tuple<map<X>, map<Y>...> {
-        using parent = tuple<map<X>, map<Y>...>;
-        using tuple<map<X>, map<Y>...>::tuple;
-        map (parent &&p): parent {p} {}
-    };
-
-    template <typename X> struct map<optional<X>> : map<X> {
-        using map<X>::map;
-        map (const map<X> &m): map<X> {m} {}
-    };
-
     // now we know how to create rules. Next follows some stuff the user doesn't
     // need to read that is for validating rules.
     template <typename X, typename ...context> struct validate;
@@ -227,18 +193,14 @@ namespace data::schema::rule {
         result operator () (const std::map<string, string> &m, const map<value<X>> &r);
     };
 
-    template <typename X, typename ...context> struct validate<only<X>, context...> {
-        using result = typename validate<X, context...>::result;
-
-        template <typename Map>
-        result operator () (const Map &m, const map<only<X>> &r);
-    };
-
     template <typename X, typename ...context> struct validate<optional<X>, context...> {
         using result = maybe<typename validate<X, context...>::result>;
 
-        template <typename Map>
-        result operator () (const Map &m, const map<optional<X>> &r);
+        template <String string>
+        result operator () (const data::map<string, string> &m, const map<optional<X>> &r);
+
+        template <String string>
+        result operator () (const std::map<string, string> &m, const map<optional<X>> &r);
     };
 
     template <typename ...X, typename ...context> struct validate<all<X...>, context...> {
@@ -255,11 +217,59 @@ namespace data::schema::rule {
 
     };
 
+    template <typename X, typename ...context> struct validate<only<X>, context...> {
+        using result = typename validate<X, context...>::result;
+
+        template <typename Map>
+        result operator () (const Map &m, const map<only<X>> &r);
+    };
+
+    template <> struct map<empty> {};
+
+    template <> struct map<blank> {
+        map () {}
+        map (map<empty>) {}
+    };
+
+    template <typename X> struct map<value<X>> {
+        string Key;
+    };
+
+    template <typename X> struct map<only<X>> : map<X> {
+        using map<X>::map;
+        map (const map<X> &m): map<X> {m} {}
+    };
+
+    template <typename X, typename ...Y> struct map<all<X, Y...>> : tuple<map<X>, map<Y>...> {
+        using parent = tuple<map<X>, map<Y>...>;
+        using tuple<map<X>, map<Y>...>::tuple;
+        map (parent &&p): parent {p} {}
+
+        // map rule all is valid if no operand
+        // has a same key as any other operand.
+        bool valid () const;
+    };
+
+    template <typename X, typename ...Y> struct map<any<X, Y...>> : tuple<map<X>, map<Y>...> {
+        using parent = tuple<map<X>, map<Y>...>;
+        using tuple<map<X>, map<Y>...>::tuple;
+        map (parent &&p): parent {p} {}
+        // map rule all is valid if no operand
+        // has a same key as any other operand.
+        bool valid () const;
+    };
+
+    template <typename X> struct map<optional<X>> : map<X> {
+        using map<X>::map;
+        map (const map<X> &m): map<X> {m} {}
+    };
+
 }
 
 namespace data::schema {
 
     // here begins an easy user interface.
+
     typename rule::map<rule::empty> empty ();
 
     // make a rule that says a map has a given key.
@@ -277,10 +287,11 @@ namespace data::schema::rule {
     // use the * operator to make a rule optional.
     template <typename X> map<typename apply_optional<only<X>>::result> operator * (const map<only<X>> &);
 
+    // NOTE these two operators have a reversed meaning from what the ought to be.
     // use the & operator to combine two map rules.
     template <typename X, typename Y> map<typename intersect<X, Y>::result> operator & (const map<X> &, const map<Y> &);
 
-    // use the & operator to combine two map rules.
+    // use the | make alternatives.
     template <typename X, typename Y> map<typename unite<X, Y>::result> operator | (const map<X> &, const map<Y> &);
 }
 
@@ -291,10 +302,10 @@ namespace data::schema {
 
     struct mismatch {};
 
-    // thrown when a map has keys that are not provided by the schema.
-    struct unknown_key : mismatch {
+    // thrown when the value could not be read.
+    struct invalid_value : mismatch {
         data::string Key;
-        unknown_key (const data::string &k) : mismatch {}, Key {k} {}
+        invalid_value (const data::string &k) : mismatch {}, Key {k} {}
     };
 
     // thrown when a key was expected that was not available.
@@ -303,10 +314,18 @@ namespace data::schema {
         missing_key (const data::string &k) : mismatch {}, Key {k} {}
     };
 
-    // thrown when the value could not be read.
-    struct invalid_value : mismatch {
+    // thrown when a key is present which is only valid in some alternative
+    // rule that doesn't match the whole map or when an optional expression
+    // is partially matched.
+    struct incomplete_match : mismatch {
         data::string Key;
-        invalid_value (const data::string &k) : mismatch {}, Key {k} {}
+        incomplete_match (const data::string &k): mismatch {}, Key {k} {}
+    };
+
+    // thrown when a map has keys that are not provided by the schema.
+    struct unknown_key : mismatch {
+        data::string Key;
+        unknown_key (const data::string &k) : mismatch {}, Key {k} {}
     };
 
     // we work with data::map or std::map.
@@ -330,6 +349,7 @@ namespace data::schema {
     typename rule::validate<X, context...>::result inline validate (map<string, string> m, const rule::map<X> &r) {
         return rule::validate<X, context...> {} (m, r);
     }
+    // we don't really support std::map yet.
 /*
     template <typename ...context, typename X>
     typename rule::validate<X, context...>::result inline validate (const std::map<string, string> &m, const rule::map<X> &r) {
@@ -367,30 +387,115 @@ namespace data::schema::rule {
     typename validate<value<X>, context...>::result inline
     validate<value<X>, context...>::operator () (data::map<string, string> m, const map<value<X>> &r) {
         const string *v = m.contains (r.Key);
-        if (bool (v)) {
-            maybe<X> x = encoding::read<X, context...> {} (*v);
-            if (!bool (x)) throw invalid_value {*v};
-
-            return *x;
-        }
-        throw missing_key {data::string (r.Key)};
+        if (!bool (v)) throw missing_key {data::string (r.Key)};
+        maybe<X> x = encoding::read<X, context...> {} (*v);
+        if (!bool (x)) throw invalid_value {*v};
+        return *x;
     }
 
-    template <typename X, typename ...context>
-    template <typename Map>
-    typename validate<optional<X>, context...>::result inline
-    validate<optional<X>, context...>::operator () (const Map &m, const map<optional<X>> &r) {
-        try {
-            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
-        } catch (const mismatch &) {
-            return {};
-        }
-    }
-
+    // NOTE: we should be able to get rid of get_rule by
+    // making context... first in validate.
     template <typename X> struct get_rule;
 
     template <typename X> struct get_rule<map<X>> {
         using type = X;
+    };
+
+    template <typename X>
+    struct get_keys {
+        set<data::string> operator () (const map<X> &) const {
+            return {};
+        }
+    };
+
+    template <typename X>
+    struct get_keys<value<X>> {
+        set<data::string> operator () (const map<value<X>> &x) const {
+            return {x.Key};
+        }
+    };
+
+    template <typename X>
+    struct get_keys<optional<X>> {
+        set<data::string> operator () (const map<optional<X>> &x) const {
+            return get_keys<X> {} (static_cast<const map<X> &> (x));
+        }
+    };
+
+    template <typename X>
+    struct get_keys<only<X>> {
+        set<data::string> operator () (const map<only<X>> &x) const {
+            return get_keys<X> {} (static_cast<const map<X> &> (x));
+        }
+    };
+
+    template <typename ...X>
+    struct get_keys<all<X...>> {
+        set<data::string> operator () (const map<all<X...>> &x) const {
+            return std::apply ([] (auto &&...elems) {
+                return (get_keys<typename get_rule<unconst<unref<decltype (elems)>>>::type> {} (elems) | ...);
+            }, static_cast<const tuple<map<X>...> &> (x));
+        }
+    };
+
+    template <typename ...X>
+    struct get_keys<any<X...>> {
+        set<data::string> operator () (const map<any<X...>> &x) const {
+            return std::apply ([] (auto &&...elems) {
+                return (get_keys<typename get_rule<unconst<unref<decltype (elems)>>>::type> {} (elems) | ...);
+            }, static_cast<const tuple<map<X>...> &> (x));
+        }
+    };
+
+    template <typename X, typename ...context>
+    template <String string>
+    typename validate<optional<X>, context...>::result inline
+    validate<optional<X>, context...>::operator () (const data::map<string, string> &m, const map<optional<X>> &r) {
+        try {
+            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
+        } catch (const mismatch &) {}
+        // if the match fails, the map may not contain any keys
+        // of the sub rule.
+        for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
+            if (m.contains (k)) throw incomplete_match {k};
+        return {};
+    }
+
+    template <typename X, typename ...context>
+    template <String string>
+    typename validate<optional<X>, context...>::result inline
+    validate<optional<X>, context...>::operator () (const std::map<string, string> &m, const map<optional<X>> &r) {
+        try {
+            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
+        } catch (const mismatch &) {}
+        // if the match fails, the map may not contain any keys
+        // of the sub rule.
+        for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
+            if (m.find (k) != m.end ()) throw mismatch {k};
+        return {};
+    }
+
+    // get all keys from other indices that do not appear in the given index.
+    template <typename ...X> struct get_alternative_keys {
+        template <size_t index, size_t recursive_index = 0>
+        set<data::string> operator () (const map<any<X...>> &r, const set<data::string> &x = {}) {
+            using tuple_type = tuple<map<X>...>;
+            constexpr const size_t tuple_size = std::tuple_size_v<tuple_type>;
+            if constexpr (recursive_index < tuple_size) {
+                using rule_type = get_rule<unconst<unref<decltype (std::get<recursive_index> (r))>>>::type;
+                set<string> these_keys = get_keys<rule_type> {} (std::get<recursive_index> (r));
+                set<string> next_keys;
+                if constexpr (index == recursive_index) {
+                    next_keys = x;
+                    for (const string &y : these_keys) next_keys = next_keys.remove (y);
+                } else {
+                    next_keys = x | these_keys;
+                }
+                return operator ()<index, recursive_index + 1> (r, next_keys);
+            } else {
+                return x;
+            }
+        }
     };
 
     template <typename ...X, typename ...context>
@@ -403,58 +508,88 @@ namespace data::schema::rule {
         }, static_cast<const tuple_type &> (r));
     }
 
+
+    template <size_t index, typename Map, typename ...X> struct has_no_unused_alternatives;
+
+    template <size_t index, String string, typename ...X>
+    struct has_no_unused_alternatives<index, data::map<string, string>, X...> {
+        void operator () (const data::map<string, string> &m, const map<any<X...>> &r) const {
+            for (const data::string &k: get_alternative_keys<X...> {}.template operator ()<index> (r))
+                if (m.contains (k)) throw incomplete_match {k};
+        }
+    };
+
+    template <size_t index, String string, typename ...X>
+    struct has_no_unused_alternatives<index, std::map<string, string>, X...> {
+        void operator () (const std::map<string, string> &m, const map<any<X...>> &r) const {
+            for (const data::string &k: get_alternative_keys<X...> {}.template operator ()<index> (r))
+                if (m.find (k) != m.end ()) throw incomplete_match {k};
+        }
+    };
+
     template <typename ...X, typename ...context>
     template <typename Map, size_t index>
     typename validate<any<X...>, context...>::result
     validate<any<X...>, context...>::operator () (const Map &m, const map<any<X...>> &r) {
         using tuple_type = tuple<map<X>...>;
         constexpr const size_t tuple_size = std::tuple_size_v<tuple_type>;
+        using rule_type = typename get_rule<std::tuple_element_t<index, tuple_type>>::type;
+        struct validate_alternative {
+            result operator () (const Map &m, const map<any<X...>> &r) {
+                result res {std::in_place_index<index>,
+                    validate<rule_type, context...> {}
+                    (m, std::get<index> (static_cast<const tuple_type &> (r)))};
+                has_no_unused_alternatives<index, Map, X...> {} (m, r);
+                return res;
+            }
+        };
+
+        result res;
         if constexpr (index + 1 < tuple_size) {
             try {
-                return result {std::in_place_index<index>,
-                    validate<typename get_rule<std::tuple_element_t<index, tuple_type>>::type, context...> {}
-                    (m, std::get<index> (static_cast<const tuple_type &> (r)))};
+                return validate_alternative {} (m, r);
             } catch (const mismatch &) {
                 return operator ()<Map, index + 1> (m, r);
             }
-        } if constexpr (index + 1 == tuple_size) {
-            return result {std::in_place_index<index>,
-                validate<typename get_rule<std::tuple_element_t<index, tuple_type>>::type, context...> {}
-                (m, std::get<index> (static_cast<const tuple_type &> (r)))};
+        } else if constexpr (index + 1 == tuple_size) {
+            return validate_alternative {} (m, r);
         } else {
             throw data::exception {} << "Invalid index parameter";
         }
+
     }
 
-    template <typename X, typename ...context> struct validate_exact {
-        template <typename Map>
-        typename validate<X, context...>::result operator () (const Map &m, const map<X> &r, set<string> &) {
-            return validate<X, context...> {} (m, r);
-        }
-    };
-
-    template <typename X, typename ...context> struct validate_exact<value<X>, context...> {
-        template <typename Map>
-        typename validate<value<X>, context...>::result operator () (const Map &m, const map<value<X>> &r, set<string> &x) {
-            x = x.insert (r.Key);
-            return validate<value<X>, context...> {} (m, r);
-        }
-    };
-
-    template <typename X, typename ...context> struct validate_exact<optional<X>, context...> {
-        template <typename Map>
-        typename validate<optional<X>, context...>::result operator () (const Map &m, const map<optional<X>> &r, set<string> &x) {
-            using result = validate<optional<X>, context...>::result;
-            set<string> next = x;
-            try {
-                result res {validate_exact<X, context...> {} (m, static_cast<map<X>> (r), next)};
-                x = next;
-                return res;
-            } catch (const mismatch &) {
-                return {};
+    template <typename ...X>
+    struct tuple_rule_valid {
+        template <size_t index = 0>
+        bool operator () (const tuple<map<X>...> &m, const set<string> &x = {}) {
+            constexpr const size_t tuple_size = std::tuple_size_v<tuple<map<X>...>>;
+            if constexpr (index < tuple_size) {
+                using rule_type = get_rule<unconst<unref<decltype (std::get<index> (m))>>>::type;
+                set<string> next_keys = get_keys<rule_type> {} (std::get<index> (m));
+                auto intersection = x & next_keys;
+                if (!data::empty (intersection)) return false;
+                return operator ()<index + 1> (m, x | next_keys);
             }
+
+            return true;
         }
     };
+
+    template <typename X, typename ...Y>
+    bool inline map<all<X, Y...>>::valid () const {
+        if (!std::apply ([] (auto &&...elems) -> bool {
+            return (data::valid (elems) && ...);
+        }, static_cast<const std::tuple<map<X>, map<Y>...>> (*this))) return false;
+        return tuple_rule_valid<X, Y...> {} (static_cast<const tuple<map<X>, map<Y>...>&> (*this), {});
+    }
+
+    template <typename X, typename ...Y>
+    bool inline map<any<X, Y...>>::valid () const {
+        return std::apply ([] (auto &&...elems) -> bool {
+            return (data::valid (elems) && ...);
+        }, static_cast<const std::tuple<map<X>, map<Y>...>> (*this));
+    }
 
     // check that the map has no other elements than those given.
     struct none_else {
@@ -481,57 +616,12 @@ namespace data::schema::rule {
         void operator () (std::map<string, string>, const set<data::string> &);
     };
 
-    template <typename ...X, typename ...context> struct validate_exact<any<X...>, context...> {
-        template <typename Map, size_t index = 0>
-        typename validate<any<X...>, context...>::result operator () (const Map &m, const map<any<X...>> &r, set<string> &x) {
-            using result = validate<any<X...>, context...>::result;
-            using tuple_type = tuple<map<X>...>;
-            constexpr const size_t tuple_size = std::tuple_size_v<tuple_type>;
-            using rule_type = get_rule<std::tuple_element_t<index, tuple_type>>::type;
-            if constexpr (index + 1 < tuple_size) {
-                try {
-                    set<string> next = x;
-                    result res {std::in_place_index<index>,
-                        validate_exact<rule_type, context...> {} (m, std::get<index> (static_cast<const tuple_type &> (r)), next)};
-                    none_else {} (m, next);
-                    x = next;
-                    return res;
-                } catch (const mismatch &) {
-                    return operator () <Map, index + 1> (m, r, x);
-                }
-            } if constexpr (index + 1 == tuple_size) {
-                set<string> next = x;
-                result res {std::in_place_index<index>,
-                    validate_exact<rule_type, context...> {} (m, std::get<index> (static_cast<const tuple_type &> (r)), next)};
-                none_else {} (m, next);
-                x = next;
-                return res;
-            } else {
-                throw data::exception {} << "Invalid index parameter";
-            }
-        }
-    };
-
-    template <typename ...X, typename ...context> struct validate_exact<all<X...>, context...> {
-        template <typename Map>
-        typename validate<all<X...>, context...>::result
-        operator () (const Map &m, const map<all<X...>> &r, set<string> &x) {
-            using tuple_type = tuple<map<X>...>;
-            using result = validate<all<X...>, context...>::result;
-            return std::apply ([&m, &x] (auto &&...elems) -> result {
-                return result {validate_exact<typename get_rule<unconst<unref<decltype (elems)>>>::type, context...> {} (m, elems, x)...};
-            }, static_cast<const tuple_type &> (r));
-        }
-    };
-
-    // TODO this has to work differently.
     template <typename X, typename ...context> 
     template <typename Map>
     typename validate<only<X>, context...>::result inline
     validate<only<X>, context...>::operator () (const Map &m, const map<only<X>> &r) {
-        set<string> keys;
-        auto val = validate_exact<X, context...> {} (m, +r, keys);
-        none_else {} (m, keys);
+        auto val = validate<X, context...> {} (m, +r);
+        none_else {} (m, get_keys<only<X>> {} (r));
         return val;
     }
 
