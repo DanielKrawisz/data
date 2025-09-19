@@ -6,6 +6,7 @@
 #define DATA_EITHER
 
 #include <data/meta.hpp>
+#include <data/valid.hpp>
 
 namespace data {
 
@@ -17,7 +18,7 @@ namespace data {
 
     // either works just like std::variant except that it is less wordy
     // and can take references and void as subtypes.
-    template <typename... X> struct either : std::variant<wrapped<X>...> {
+    template <typename... X> struct either : public std::variant<wrapped<X>...> {
         using parent = std::variant<wrapped<X>...>;
         using parent::variant;
         constexpr either (parent &&x) : parent {x} {}
@@ -28,8 +29,16 @@ namespace data {
             return writer<meta::replace<X, meta::rule<void, std::monostate>>...> {} (o, *this);
         }
 
+        template <typename F>
+        constexpr auto visit (F&& f) const {
+            return std::visit (std::forward<F> (f), static_cast<const either<wrapped<X>...>> (*this));
+        }
+
         constexpr bool valid () const {
-            return !this->valueless_by_exception ();
+            if (this->valueless_by_exception ()) return false;
+            return this->visit ([] (auto &&val) {
+                return data::valid (val);
+            });
         }
 
         template <typename Z>
