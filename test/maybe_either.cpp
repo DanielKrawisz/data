@@ -13,6 +13,15 @@ namespace data {
         either<void> mono {};
         mono.get<void> ();
 
+        struct invalid {
+            bool valid () const {
+                return false;
+            }
+        };
+
+        either<invalid> inv {invalid {}};
+        EXPECT_FALSE (data::valid (inv));
+
     }
 
     TEST (MaybeEither, MaybeInt) {

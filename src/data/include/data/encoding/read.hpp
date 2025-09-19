@@ -8,6 +8,7 @@
 #include <data/concepts.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/maybe.hpp>
+#include <data/encoding/base64.hpp>
 
 namespace data::encoding {
 
@@ -63,6 +64,13 @@ namespace data::encoding {
             auto x = read<T> {} (z);
             if (!bool (x)) return {};
             return {boost::endian::endian_arithmetic<Order, T, n_bits, Align> {*x}};
+        }
+    };
+
+    // assume bytes is encoded in base 64 by default.
+    template <> struct read<bytes> {
+        maybe<bytes> operator () (string_view x) const {
+            return base64::read (x);
         }
     };
 }
