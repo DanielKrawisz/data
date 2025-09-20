@@ -217,6 +217,8 @@ namespace data::schema {
         EXPECT_NO_THROW ((validate<> (map_ABC, and_A_opt_B_C)));
         EXPECT_THROW ((validate<> (map_AB, and_A_opt_B_C)), incomplete_match);
 
+        auto or_A_B_C = one_key_A | one_key_B | one_key_C;
+
     }
 
     TEST (MapSchema, Validate) {

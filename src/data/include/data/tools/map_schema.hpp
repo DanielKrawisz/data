@@ -685,7 +685,6 @@ namespace data::schema::rule {
     template <typename ...X, typename Y>
     map<typename intersect<all<X...>, Y>::result> inline intersect<all<X...>, Y>::operator () (const map<all<X...>> &a, const map<Y> &b) {
         using tuple_type_A = tuple<map<X>...>;
-        using tuple_type_cat = tuple<map<X>..., map<Y>>;
         return map<result> {std::tuple_cat (static_cast<tuple_type_A> (a), tuple<map<Y>> (b))};
     }
 
@@ -714,6 +713,20 @@ namespace data::schema::rule {
     map<typename unite<only<X>, only<Y>>::result> inline
     unite<only<X>, only<Y>>::operator () (const map<only<X>> &a, const map<only<Y>> &b) {
         return map<result> {unite<X, Y> {} (static_cast<const map<X> &> (a), static_cast<const map<Y> &> (b))};
+    }
+
+    template <typename ...X, typename Y>
+    map<typename unite<any<X...>, Y>::result> inline
+    unite<any<X...>, Y>::operator () (const map<any<X...>> &a, const map<Y> &b) {
+        using tuple_type_A = tuple<map<X>...>;
+        return map<result> {std::tuple_cat (static_cast<tuple_type_A> (a), tuple<map<Y>> (b))};
+    }
+
+    template <typename X, typename ...Y>
+    map<typename unite<X, any<Y...>>::result> inline
+    unite<X, any<Y...>>::operator () (const map<X> &a, const map<any<Y...>> &b) {
+        using tuple_type_B = tuple<map<Y>...>;
+        return map<result> {std::tuple_cat (tuple<map<X>> (a), static_cast<tuple_type_B> (b))};
     }
 
 }
