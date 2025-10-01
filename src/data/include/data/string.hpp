@@ -49,6 +49,8 @@ namespace data {
     std::ostream &operator << (std::ostream &o, const string &x);
     std::istream &operator >> (std::istream &i, string &x);
 
+    std::istream &skip_whitespace (std::istream &i);
+
     std::ostream inline &operator << (std::ostream &o, const string &x) {
         return o << "\"" << static_cast<std::string> (x) << "\"";
     }
