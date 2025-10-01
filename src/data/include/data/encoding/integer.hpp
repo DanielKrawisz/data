@@ -111,7 +111,7 @@ namespace data::encoding {
 
         template <hex::letter_case cx> struct string : data::string {
             string () : string {"0x"} {}
-            explicit string (const std::string &x) : data::string {hexidecimal::valid (x) ? x : ""} {}
+            explicit string (string_view x) : data::string {hexidecimal::valid (x) ? x : string_view {}} {}
             constexpr bool valid () const {
                 return hexidecimal::valid (*this);
             }
@@ -407,7 +407,7 @@ namespace data::encoding {
         integer<negativity::twos, cx> operator / (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<negativity::nones, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
         
         template <hex::letter_case cx> 
         integer<negativity::twos, cx> &operator += (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
@@ -934,7 +934,7 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case cx>
     struct complemented_string<negativity::nones, cx> : string<cx> {
         using string<cx>::string;
-        complemented_string (const string<cx> &x): string<cx> {x} {}
+        complemented_string (string_view x): string<cx> {x} {}
         complemented_string (uint64);
         explicit complemented_string (const math::N &);
 
@@ -968,7 +968,7 @@ namespace data::encoding::hexidecimal {
 
         using complemented_string<c, cx>::complemented_string;
         
-        static integer read (const std::string &);
+        static integer read (string_view);
         
         integer &operator += (const integer &);
         integer &operator -= (const integer &);
@@ -1935,7 +1935,7 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case zz>
     inline complemented_string<negativity::nones, zz>::complemented_string (uint64 x):
         complemented_string {write_int<negativity::nones, zz> {} (x)} {
-        *this = trim<negativity::nones, zz> (*this);
+        static_cast<std::string &> (*this) = trim<negativity::nones, zz> (*this);
     }
     
     template <negativity c, hex::letter_case cx>

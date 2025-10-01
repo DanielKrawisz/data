@@ -211,7 +211,7 @@ namespace data::math::number {
         test_BC_complement () {}
     };
     
-    TEST (TwosComplementTest, TestTwosComplement) {
+    TEST (BitcoinNumbers, BitcoinNumbers) {
         test_BC_complement<hex_int_BC> {};
         test_BC_complement<Z_bytes_BC_big> {};
         test_BC_complement<Z_bytes_BC_little> {};

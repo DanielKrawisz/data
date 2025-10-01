@@ -248,7 +248,7 @@ namespace data::encoding::hexidecimal {
         };
 
         template <negativity n, hex::letter_case zz> struct read_dec_integer {
-            integer<n, zz> operator () (const data::string &x) {
+            integer<n, zz> operator () (string_view x) {
                 if (decimal::valid (x)) {
                     integer<negativity::nones, zz> z {write<zz> (*decimal::read<endian::little, byte> (x))};
                     return math::number::trim (integer<n, zz> {math::number::extend (z, z.size () + 2)});
@@ -264,7 +264,7 @@ namespace data::encoding::hexidecimal {
         };
 
         template <hex::letter_case zz> struct read_dec_integer<negativity::nones, zz> {
-            integer<negativity::nones, zz> operator () (const data::string &x) {
+            integer<negativity::nones, zz> operator () (string_view x) {
                 auto np = decimal::read<endian::little, byte> (x);
                 if (!np) throw exception {} << "invalid number string: " << x;
                 return integer<negativity::nones, zz> {write<zz> (*np)};
@@ -279,7 +279,7 @@ namespace data::encoding::hexidecimal {
     }
 
     template <negativity n, hex::letter_case zz>
-    integer<n, zz> integer<n, zz>::read (const std::string &x) {
+    integer<n, zz> integer<n, zz>::read (string_view x) {
         if (hexidecimal::valid (x)) return integer<n, zz> {x};
         return read_dec_integer<n, zz> {} (x);
     }
