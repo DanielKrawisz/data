@@ -62,10 +62,10 @@ add_executable (
     testNumbers.cpp
     testStringNumbers.cpp
     testDecimal.cpp
-    testHexidecimal.cpp
+    hexidecimal.cpp
     testInfinite.cpp
     testDivision.cpp
-    testBitcoinNumbers.cpp
+    Bitcoin_numbers.cpp
     testExtendedEuclidian.cpp
     testEratosthenes.cpp
     power.cpp

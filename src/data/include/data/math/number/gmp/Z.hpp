@@ -15,13 +15,13 @@ namespace data::encoding::hexidecimal {
     template <math::negativity n, hex_case zz> integer<n, zz> inline write (const math::Z &z) {
         std::stringstream ss;
         write (ss, z, zz, n);
-        return integer<n, zz> {ss.str ().c_str ()};
+        return integer<n, zz> {ss.str ()};
     }
 
     template <hex_case zz> integer<negativity::nones, zz> inline write (const math::N &n) {
         std::stringstream ss;
         write (ss, n, zz);
-        return integer<negativity::nones, zz> {ss.str ().c_str ()};
+        return integer<negativity::nones, zz> {ss.str ()};
     }
 
 }
@@ -31,7 +31,7 @@ namespace data::encoding::signed_decimal {
     string inline write (const math::Z &n) {
         std::stringstream ss;
         write (ss, n);
-        return string {ss.str ().c_str ()};
+        return string {ss.str ()};
     }
     
 }
@@ -41,7 +41,7 @@ namespace data::encoding::decimal {
     string inline write (const math::N &n) {
         std::stringstream ss;
         write (ss, n);
-        return string {ss.str ().c_str ()};
+        return string {ss.str ()};
     }
 
 }
