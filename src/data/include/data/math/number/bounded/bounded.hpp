@@ -10,7 +10,6 @@
 #include <data/abs.hpp>
 #include <data/sign.hpp>
 #include <data/divide.hpp>
-#include <data/string.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 
 namespace data::math::number {
@@ -663,7 +662,7 @@ namespace data::math::number {
         constexpr explicit bounded (slice<const word, size> &x) : oriented<r, word, size> {x} {}
         
         explicit bounded (const char *x): bounded {read (string_view {x, std::strlen (x)})} {}
-        explicit bounded (const data::string &s): bounded {read (s)} {}
+        explicit bounded (const std::string &s): bounded {read (s)} {}
         explicit bounded (string_view s);
         static bounded read (string_view x) {
             return bounded {x};
