@@ -378,7 +378,6 @@ namespace data::arithmetic {
 
     template <endian::order r, negativity c, std::integral word>
     bytestring<word> &trim (bytestring<word> &x) {
-
         auto w = words<r> (x);
         size_t min_size = minimal_size<c> (w);
         if (min_size == size (w)) return x;
@@ -397,7 +396,7 @@ namespace data::arithmetic {
 
         if (new_size < size (w)) {
             size_t min_size = minimal_size<c> (w);
-            if (new_size < min_size) throw std::invalid_argument {"cannot extend smaller than minimal size"};
+            if (new_size < min_size) throw exception {} << "cannot extend smaller than minimal size";
             return extend<r, c> (trim<r, c> (x), new_size);
         }
 
