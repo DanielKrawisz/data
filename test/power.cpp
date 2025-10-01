@@ -16,7 +16,7 @@ namespace data {
         test_power_case<N> ("2", "100", "1267650600228229401496703205376");
     }
 
-    TEST (PowerTest, TestPower) {
+    TEST (Power, Power) {
 
         test_power<N> ();
         test_power<N_bytes_little> ();

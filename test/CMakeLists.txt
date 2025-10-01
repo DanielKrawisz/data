@@ -22,10 +22,10 @@ add_executable (
     testCircularQueue.cpp
     tree.cpp
     functional_interfaces.cpp
-    empty.cpp
+    empty.cpp                    # Contains commented test cases
     take.cpp
     reverse.cpp
-    contains.cpp
+    contains.cpp                 # Contains commented test cases
     sort.cpp
     testSet.cpp
     map.cpp
@@ -50,23 +50,23 @@ add_executable (
 
     # numbers
     testSign.cpp
-    testBitShift.cpp
+    bit_ops.cpp                  # Contains commented test cases
     testN.cpp
     testZ.cpp
     testCarry.cpp
-    testNBytes.cpp
+    N_bytes.cpp
     testRoot.cpp
     Z_bytes.cpp
-    testAbs.cpp
+    abs.cpp
     testBase58.cpp
-    testNumbers.cpp
+    numbers.cpp
     testStringNumbers.cpp
     testDecimal.cpp
     hexidecimal.cpp
     testInfinite.cpp
-    testDivision.cpp
+    division.cpp                 # note: contains no tests for bounded numbers!
     Bitcoin_numbers.cpp
-    testExtendedEuclidian.cpp
+    extended_euclidian.cpp
     testEratosthenes.cpp
     power.cpp
     testCaylayDickson.cpp

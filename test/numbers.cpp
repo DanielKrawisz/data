@@ -33,7 +33,7 @@ namespace data {
         {n /= u};*/
     } struct test_number_conversion {};
 
-    TEST (NumbersTest, TestNumberConversion) {
+    TEST (Numbers, NumberConversion) {
         test_number_conversion<N, Z> {};
         test_number_conversion<Z, N> {};
         test_number_conversion<N, uint64> {};
@@ -192,7 +192,7 @@ namespace data {
     template <typename ZZ>
     struct test_signed_number_system : test_signed_number<ZZ> {};
     
-    TEST (NumbersTest, TestNumberSystem) {
+    TEST (Numbers, NumberSystem) {
 
         test_number_system<N, Z> {"N"};
 

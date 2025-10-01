@@ -64,7 +64,7 @@ namespace data::math {
 
     }
 
-    TEST (NumberTheoryTest, TestTotient) {
+    TEST (NumberTheory, Totient) {
 
         EXPECT_EQ (number::totient<N> (nonzero<N> {1}, e), N {1});
         EXPECT_EQ (number::totient<N> (nonzero<N> {2}, e), N {1});
@@ -105,7 +105,7 @@ namespace data::math {
         power_mod_test_case (N {65537}, N {2}, N {32768}, N {1});
     }
 
-    TEST (NumberTheoryTest, TestPowerMod) {
+    TEST (NumberTheory, PowerMod) {
         test_power_mod<N> ();
         test_power_mod<N_bytes_little> ();
         test_power_mod<N_bytes_big> ();
@@ -122,7 +122,7 @@ namespace data::math {
         test_power_mod<hex_uint> ();
     }
 
-    TEST (NumberTheoryTest, TestPrimitiveRoot) {
+    TEST (NumberTheory, PrimitiveRoot) {
         EXPECT_EQ ((*number::primitive_root<N> (nonzero<N> {761}, e)), N {6});
     }
 
@@ -866,7 +866,7 @@ namespace data::math {
         }
     }
 
-    TEST (NumberTheoryTest, Test17BitPrimes) {
+    TEST (NumberTheory, Test17BitPrimes) {
         for (const auto &[prime, root] : cryptosystems_17_bit) {
             auto fact = number::factorize<uint64> (nonzero {prime}, e64);
             EXPECT_EQ ((fact.size ()), 1);
@@ -875,7 +875,7 @@ namespace data::math {
         }
     }
 
-    TEST (NumberTheoryTest, TestDiffieHelman) {
+    TEST (NumberTheory, DiffieHelman) {
         {
             byte alice_secret = 180;
             byte bob_secret = 200;
@@ -892,7 +892,7 @@ namespace data::math {
         }
     }
 
-    TEST (NumberTheoryTest, TestIES) {
+    TEST (NumberTheory, IES) {
         {
             // note: for prime p, there must be another number x such that secret_key * x = 1 mod p.
             uint32 random_number = 101;

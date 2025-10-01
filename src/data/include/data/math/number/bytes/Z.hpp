@@ -34,9 +34,11 @@ namespace data::math::number {
         static N_bytes zero (size_t size = 0);
         
         N_bytes () : oriented<r, word> {} {}
-        
-        N_bytes (const uint64 x);
-        
+
+        // construct from any number literal
+        template <std::signed_integral I> N_bytes (I);
+        template <std::unsigned_integral I> N_bytes (I);
+
         explicit N_bytes (string_view x): N_bytes {read (x)} {}
         explicit N_bytes (slice<const word> x): N_bytes {read (x)} {}
         
@@ -56,16 +58,14 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word> struct Z_bytes<r, negativity::twos, word> : oriented<r, word> {
         
         Z_bytes () : oriented<r, word> {} {}
-        
-        Z_bytes (int64 x);
-        Z_bytes (uint64);
-        Z_bytes (int32);
-        Z_bytes (uint32);
 
+        // construct from any number literal.
+        template <std::integral I> Z_bytes (I);
+        
         // string constructors.
         static Z_bytes read (string_view x);
         static Z_bytes read (slice<const word> x);
-        explicit Z_bytes (string_view x): Z_bytes {read (x)} {}
+        explicit Z_bytes (string_view x) : Z_bytes {read (x)} {}
         explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
         
         operator Z_bytes<endian::opposite (r), negativity::twos, word> () const;
@@ -92,11 +92,11 @@ namespace data::math::number {
         Z_bytes () : oriented<r, word> {} {}
         
         Z_bytes (bool);
-        Z_bytes (int64 x);
-        Z_bytes (uint64);
-        Z_bytes (int32);
-        Z_bytes (uint32);
 
+        // construct from any number literal.
+        template <std::signed_integral I> Z_bytes (I);
+        template <std::unsigned_integral I> Z_bytes (I);
+        
         // string constructors.
         static Z_bytes read (string_view x);
         static Z_bytes read (slice<const word> x);
@@ -417,14 +417,6 @@ namespace data::math::number {
     Z_bytes<r, c, word> inline &operator >>= (Z_bytes<r, c, word> &x, int64 i) {
         return x = x >> i;
     }
-
-    template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, negativity::BC, word>::Z_bytes (int64 x):
-        Z_bytes {Z_bytes (Z_bytes<r, negativity::twos, word> {x})} {}
-
-    template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, negativity::BC, word>::Z_bytes (int32 x):
-        Z_bytes {Z_bytes (Z_bytes<r, negativity::twos, word> {x})} {}
     
     // check if the number is negative, and then do bit shift on the absolute value.
     template <endian::order r, std::unsigned_integral word>
@@ -518,7 +510,7 @@ namespace data::math {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> abs<Z_bytes<r, word>>::operator ()
-    (const Z_bytes<r, word> &x) {
+        (const Z_bytes<r, word> &x) {
         if (data::is_zero (x)) return number::N_bytes<r, word> {};
         number::Z_bytes<r, negativity::twos, word> z = data::is_negative (x) ? -x : x;
         auto n = number::N_bytes<r, word>::zero (z.size ());
@@ -860,119 +852,81 @@ namespace data::math::number {
         std::copy (this->words ().begin (), this->words ().end (), n.words ().begin ());
         return n.trim ();
     }
-    
-    template <endian::order r, std::unsigned_integral word> inline
-    N_bytes<r, word>::N_bytes (const uint64 x) : oriented<r, word> {} {
-        if constexpr (sizeof (uint64) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
+
+    template <std::integral I, typename ZZ, typename word>
+    void initialize_bytes (I x, ZZ &n) {
+        if constexpr (sizeof (I) <= sizeof (word)) {
+            n.resize (1);
+            *n.begin () = x;
+        } else if constexpr (sizeof (I) % sizeof (word) != 0) {
+            throw exception {} << "We do not know how to handle this case; init value size is " << sizeof (I) << " and word size is " << sizeof (word);
         } else {
-            this->resize (sizeof (uint64) / sizeof (word));
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
+            n.resize (sizeof (I) / sizeof (word));
+            data::arithmetic::Words<boost::endian::order::native, word> w {
+                slice<word> {(word*) (&x), sizeof (I) / sizeof (word)}};
+            std::copy (w.begin (), w.end (), n.words ().begin ());
         }
-
-        this->trim ();
-    }
-    
-    template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, negativity::twos, word>::Z_bytes (int64 x) : oriented<r, word> {} {
-        if constexpr (sizeof (int64) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
-        } else {
-            this->resize (sizeof (int64) / sizeof (word));
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (int64) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
-        }
-
-        this->trim ();
-    }
-
-    template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, negativity::twos, word>::Z_bytes (int32 x) : oriented<r, word> {} {
-        if constexpr (sizeof (int32) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
-        } else {
-            this->resize (sizeof (int32) / sizeof (word));
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (int32) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
-        }
-
-        this->trim ();
+        n.trim ();
     }
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word>::Z_bytes (uint64 x) : oriented<r, word> {} {
-        if constexpr (sizeof (uint64) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
-        } else {
-            this->resize (sizeof (uint64) / sizeof (word) + 1);
-
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
-        }
-
-        this->trim ();
+    template <std::signed_integral I> inline
+    N_bytes<r, word>::N_bytes (I x) {
+        if (x < 0) throw exception {} << "Unsigned type cannot be less than zero";
+        initialize_bytes<I, N_bytes<r, word>, word> (x, *this);
     }
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word>::Z_bytes (uint32 x) : oriented<r, word> {} {
-        if constexpr (sizeof (uint32) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
-        } else {
-            this->resize (sizeof (uint32) / sizeof (word) + 1);
-
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (uint32) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
-        }
-        this->trim ();
+    template <std::unsigned_integral I> inline
+    N_bytes<r, word>::N_bytes (I x) {
+        initialize_bytes<I, N_bytes<r, word>, word> (x, *this);
     }
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word>::Z_bytes (uint64 x) : oriented<r, word> {} {
-        if constexpr (sizeof (uint64) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
+    template <std::integral I> inline
+    Z_bytes<r, negativity::twos, word>::Z_bytes (I x) {
+        initialize_bytes<I, Z_bytes<r, negativity::twos, word>, word> (x, *this);
+    }
+
+    template <std::unsigned_integral I, typename ZZ, typename word>
+    void initialize_bytes_BC (I x, ZZ &n, bool sign_bit = false) {
+        if constexpr (sizeof (I) <= sizeof (word)) {
+            n.resize (2);
+            *n.words().begin () = x;
+        } else if constexpr (sizeof (I) % sizeof (word) != 0) {
+            throw exception {} << "We do not know how to handle this case; init value size is " << sizeof (I) << " and word size is " << sizeof (word);
         } else {
-            this->resize (sizeof (uint64) / sizeof (word) + 1);
-
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
+            n.resize (sizeof (I) / sizeof (word) + 1);
+            data::arithmetic::Words<boost::endian::order::native, word> w {
+                slice<word> {(word*) (&x), sizeof (I) / sizeof (word)}};
+            std::copy (w.begin (), w.end (), n.words ().begin ());
         }
 
-        this->trim ();
+        *(n.words ().end () - 1) = sign_bit ?
+            static_cast<word> (std::numeric_limits<std::make_signed_t<word>>::min ()):
+            0;
+
+        n.trim ();
     }
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word>::Z_bytes (uint32 x) : oriented<r, word> {} {
-        if constexpr (sizeof (uint32) <= sizeof (word)) {
-            this->resize (1);
-            *this->begin () = x;
-        } else {
-            this->resize (sizeof (uint32) / sizeof (word) + 1);
+    template <std::signed_integral I> inline
+    Z_bytes<r, negativity::BC, word>::Z_bytes (I x) {
+        using U = std::make_unsigned_t<I>;
+        if (x == std::numeric_limits<I>::min ())
+            initialize_bytes_BC<U, Z_bytes<r, negativity::BC, word>, word>
+                (static_cast<U> (x), *this, true);
+        else if (x < 0)
+            initialize_bytes_BC<U, Z_bytes<r, negativity::BC, word>, word>
+                (static_cast<U> (-x), *this, true);
+        else initialize_bytes_BC<U, Z_bytes<r, negativity::BC, word>, word>
+                (static_cast<U> (x), *this, false);
+    }
 
-            data::arithmetic::Words<boost::endian::order::native, word> n {
-                slice<word> {(word*) (&x), sizeof (uint32) / sizeof (word)}};
-
-            std::copy (n.begin (), n.end (), this->words ().begin ());
-        }
-        this->trim ();
+    template <endian::order r, std::unsigned_integral word>
+    template <std::unsigned_integral I> inline
+    Z_bytes<r, negativity::BC, word>::Z_bytes (I x) {
+        initialize_bytes_BC<I, Z_bytes<r, negativity::BC, word>, word> (x, *this, false);
     }
 
     template <endian::order r, std::unsigned_integral word> inline
@@ -1014,7 +968,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word>::operator uint64 () const {
         if (*this > N_bytes {std::numeric_limits<uint64>::max ()})
-            throw std::invalid_argument {"value too big"};
+            throw exception {} << "value too big";
 
         endian::integral<false, endian::little, 8> xx {0};
         std::copy (this->words ().begin (),

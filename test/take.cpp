@@ -21,7 +21,7 @@ namespace data {
 
     TYPED_TEST_SUITE (take_test, test_cases);
 
-    TYPED_TEST (take_test, TestTake) {
+    TYPED_TEST (take_test, Take) {
 
         using list = typename TestFixture::list;
         
@@ -39,7 +39,7 @@ namespace data {
         EXPECT_EQ (c3r, c3e);
     }
     
-    TYPED_TEST (take_test, TestDrop) {
+    TYPED_TEST (take_test, Drop) {
 
         using list = typename TestFixture::list;
         
