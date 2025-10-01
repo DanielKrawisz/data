@@ -5,6 +5,7 @@
 #include <data/numbers.hpp>
 #include <data/encoding/digits.hpp>
 #include <boost/algorithm/string.hpp>
+#include <data/encoding/integer.hpp>
 #include <data/io/exception.hpp>
 
 namespace data::math::number::GMP {
@@ -18,8 +19,7 @@ namespace data::math::number::GMP {
     
     Z Z_read_N_data (string_view x) {
         if (encoding::decimal::valid (x)) {
-            string s {x};
-            return Z_read_N_gmp (s);
+            return Z_read_N_gmp (x);
         } 
         
         if (encoding::hexidecimal::valid (x)) {
@@ -196,7 +196,7 @@ namespace data::math::number::GMP {
     //N::N (bytes_view x, endian::order o) : Value {read_bytes (x, o).Value} {}
     
     void N_write_big (bytes &b, const N &n) {
-        b = *data::encoding::hex::read (data::encoding::hexidecimal::write<hex_case::lower> (n).substr (2));
+        b = *data::encoding::hex::read (string_view (data::encoding::hexidecimal::write<hex_case::lower> (n)).substr (2));
     }
     
     void N_write_little (bytes &b, const N &n) {
@@ -257,5 +257,19 @@ namespace data::math::number::GMP {
 
         o << &n.Value.MPZ;
         return o;
+    }
+
+    std::istream &operator >> (std::istream &i, Z &z) {
+        encoding::integer::string x;
+        i >> x;
+        if (i) z = Z {x};
+        return i;
+    }
+
+    std::istream &operator >> (std::istream &i, N &n) {
+        encoding::natural::string x;
+        i >> x;
+        if (i) n = N {x};
+        return i;
     }
 }
