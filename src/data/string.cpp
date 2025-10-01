@@ -3,7 +3,6 @@
 #include <data/stream.hpp>
 
 namespace data {
-    // TODO we have another instance of skip_whitespace somewhere. 
     std::istream &skip_whitespace (std::istream &i) {
         while (true) {
             int c = i.peek ();
