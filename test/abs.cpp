@@ -7,7 +7,7 @@
 #include <data/version.hpp>
 namespace data {
     
-    TEST (AbsTest, TestDecrement) {
+    TEST (Abs, Decrement) {
 
         int_big<9> ib9 {0};
         int_big<10> ib10 {0};
@@ -60,9 +60,9 @@ namespace data {
         test_case_negative (int64 g, int64 e): test_case_negative<X> {g, e}, test_case_negative<P...> {g, e} {}
     };
     
-    TEST (AbsTest, TestNegative) {
+    TEST (Abs, Negative) {
         
-        using test_case = test_case_negative<int64, Z, Z_bytes_little, Z_bytes_big, 
+        using test_case = test_case_negative<int64, Z, Z_bytes_little, Z_bytes_big,
             Z_bytes_BC_little, Z_bytes_BC_big,
             int_big<9>, int_big<10>, int_big<11>, int_big<20>, 
             int_little<9>, int_little<10>, int_little<11>, int_little<20>, 
@@ -93,7 +93,7 @@ namespace data {
         test_case_abs (int64 g, uint64 e): test_case_abs<Z, N> {g, e}, test_case_abs<P...> {g, e} {}
     };
     
-    TEST (AbsTest, TestAbs) {
+    TEST (Abs, Abs) {
         
         using test_case = test_case_abs<
             int64, uint64, Z, N,

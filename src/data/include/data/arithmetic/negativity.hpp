@@ -28,7 +28,7 @@ namespace data::arithmetic {
     
     std::ostream inline &operator << (std::ostream &o, negativity c) {
         switch (c) {
-            default: return o << "none's negativity";
+            default: return o << "none's complement";
             // case negativity::ones: return o << "one's complement";
             case negativity::twos: return o << "two's complement";
             case negativity::BC: return o << "Bitcoin sign-and-magnetude";

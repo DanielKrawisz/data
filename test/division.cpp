@@ -94,7 +94,7 @@ namespace data {
         }
     };
 
-    TEST (DivisionTest, TestDivision) {
+    TEST (Division, Division) {
 
         test_division_integer<Z, N> {};
 

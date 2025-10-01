@@ -78,7 +78,7 @@ namespace data::math::number {
 
     }
 
-    TEST (NBytesTest, TestNBytesToN) {
+    TEST (NBytes, NBytesToN) {
 
         N_Bytes_to_N<uint64> (0);
         N_Bytes_to_N<uint64> (1);
@@ -99,7 +99,7 @@ namespace data::math::number {
 
     }
 
-    TEST (NBytesTest, TestStringToNBytes) {
+    TEST (NBytes, StringToNBytes) {
 
         EXPECT_THROW ((N_bytes<endian::big, byte>::read ("")), exception);
         EXPECT_THROW ((N_bytes<endian::big, byte>::read ("a")), exception);
@@ -196,7 +196,7 @@ namespace data::math::number {
         
     }
 
-    TEST (NBytesTest, TestNBytesToHexString) {
+    TEST (NBytes, NBytesToHexString) {
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big, byte> {"0"}), std::string {"0x"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big, byte> {"127"}), std::string {"0x7f"});
@@ -208,7 +208,7 @@ namespace data::math::number {
         
     }
     
-    TEST (NBytesTest, TestZeroSize) {
+    TEST (NBytes, ZeroSize) {
         
         EXPECT_EQ ((N_bytes<endian::big, byte> {"0x"}.size ()), 0);
         EXPECT_EQ ((N_bytes<endian::big, byte> {"0x00"}.size ()), 1);
@@ -220,7 +220,7 @@ namespace data::math::number {
         
     }
     
-    TEST (NBytesTest, TestZeroAndNegativeNBytes) {
+    TEST (NBytes, ZeroAndNegativeNBytes) {
         
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x")), (N_bytes<endian::big, byte> {0}));
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x00")), (N_bytes<endian::big, byte> {0}));
@@ -243,7 +243,7 @@ namespace data::math::number {
         EXPECT_EQ ((N_bytes<endian::little, byte> {math::N (x)}), (N_bytes<endian::little, byte>::read (x)));
     }
     
-    TEST (NBytesTest, TestNToNBytes) {
+    TEST (NBytes, NToNBytes) {
 
         test_N_to_N_bytes ("0");
         test_N_to_N_bytes ("1");
@@ -266,7 +266,7 @@ namespace data::math::number {
         }
     };
     
-    TEST (NBytesTest, TestNBitShift) {
+    TEST (NBytes, NBitShift) {
         EXPECT_EQ ((N_bytes<endian::big, byte> {"1"} << 1), (N_bytes<endian::big, byte> {"2"}));
         EXPECT_EQ ((N_bytes<endian::little, byte> {"1"} << 1), (N_bytes<endian::little, byte> {"2"}));
         EXPECT_EQ ((N_bytes<endian::big, byte> {"2"} >> 1), (N_bytes<endian::big, byte> {"1"}));
@@ -288,7 +288,7 @@ namespace data::math::number {
         EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {"5704566599993321"}), std::string {"5704566599993321"});
     }
     
-    TEST (NBytesTest, TestNBytesToString) {
+    TEST (NBytes, NBytesToString) {
         
         test_N_Bytes_to_string_decimal<endian::big, byte> ();
         test_N_Bytes_to_string_decimal<endian::little, byte> ();
@@ -316,7 +316,7 @@ namespace data::math::number {
         
     }
     
-    TEST (NBytesTest, TestIncrement) {
+    TEST (NBytes, Increment) {
         
         auto nl0 = N_bytes<endian::big, byte>::read ("0x");
         auto nl1 = N_bytes<endian::big, byte>::read ("0x00");
