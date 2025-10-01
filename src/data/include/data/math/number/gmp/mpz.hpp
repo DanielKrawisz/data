@@ -196,14 +196,6 @@ namespace data::math {
     using Z = number::GMP::Z;
     using N = number::GMP::N;
 
-    template <> struct negate<Z> {
-        Z operator () (const Z &);
-    };
-
-    template <> struct negate<N> {
-        Z operator () (const N &);
-    };
-
     template <> struct abs<Z> {
         N operator () (const Z &);
     };

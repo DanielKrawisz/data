@@ -402,7 +402,7 @@ namespace data::math {
     }
 
     division<Z, N> inline divide<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
-        return number::integer_divide (a, b.Value);
+        return number::integer_natural_divide (a, b.Value);
     }
 
     division<Z, N> inline divide<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {

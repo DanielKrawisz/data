@@ -67,13 +67,13 @@ add_executable (
     division.cpp                 # note: contains no tests for bounded numbers!
     Bitcoin_numbers.cpp
     extended_euclidian.cpp
-    testEratosthenes.cpp
+    testEratosthenes.cpp         # TODO typed test
     power.cpp
     testCaylayDickson.cpp
     testModular.cpp
     testAlgebra.cpp
     testPolynomial.cpp
-    number_theory.cpp
+    number_theory.cpp            # TODO typed tests
 
     # crypto 
     testGeometry.cpp

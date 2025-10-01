@@ -81,7 +81,7 @@ namespace data::math::number {
         
         Z_bytes &trim ();
 
-        Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}
+        Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}\
 
     };
     

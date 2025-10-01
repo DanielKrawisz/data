@@ -204,8 +204,10 @@ namespace data::encoding {
         string operator << (const string &, int);
         string operator >> (const string &, int);
         
+        signed_decimal::string operator ~ (const string &);
         string operator | (const string &, const string &);
         string operator & (const string &, const string &);
+        signed_decimal::string operator ^ (const string &, const string &);
         
         string operator / (const string &, const string &);
         string operator % (const string &, const string &);
@@ -233,8 +235,10 @@ namespace data::encoding {
         string operator << (const string &, int);
         string operator >> (const string &, int);
         
+        string operator ~ (const string &);
         string operator | (const string &, const string &);
         string operator & (const string &, const string &);
+        string operator ^ (const string &, const string &);
         
         string operator / (const string &, const string &);
         
@@ -242,6 +246,7 @@ namespace data::encoding {
         string operator - (const string &n, const decimal::string &x);
         string operator * (const string &n, const decimal::string &x);
         string operator | (const string &n, const decimal::string &x);
+        string operator ^ (const string &n, const decimal::string &x);
         string operator & (const string &n, const decimal::string &x);
         string operator / (const string &n, const decimal::string &x);
 
@@ -249,6 +254,7 @@ namespace data::encoding {
         string operator - (const decimal::string &n, const string &x);
         string operator * (const decimal::string &n, const string &x);
         string operator | (const decimal::string &n, const string &x);
+        string operator ^ (const decimal::string &n, const string &x);
         string operator & (const decimal::string &n, const string &x);
         string operator / (const decimal::string &n, const string &x);
         
@@ -259,6 +265,7 @@ namespace data::encoding {
         string &operator *= (string &n, const decimal::string &x);
         string &operator |= (string &n, const decimal::string &x);
         string &operator &= (string &n, const decimal::string &x);
+        string &operator ^= (string &n, const string &x);
         string &operator /= (string &n, const decimal::string &x);
         string &operator %= (string &n, const decimal::string &x);
         
@@ -270,6 +277,7 @@ namespace data::encoding {
         // a big number that supports standard numerical operations.
         template <negativity, hex::letter_case cx> struct integer;
 
+        // comparison
         template <negativity cl, negativity cr, hex::letter_case cx>
         bool operator == (const integer<cl, cx> &a, const integer<cr, cx> &b);
         
@@ -309,6 +317,7 @@ namespace data::encoding {
         template <hex::letter_case cx>
         std::weak_ordering operator <=> (const integer<negativity::BC, cx> &, int64);
         
+        // increment and decrement
         template <hex::letter_case cx>
         integer<negativity::nones, cx> &operator ++ (integer<negativity::nones, cx> &);
         
@@ -333,6 +342,7 @@ namespace data::encoding {
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator -- (integer<c, cx> &, int);
         
+        // basic arithmetic
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator + (const integer<c, cx> &, const integer<c, cx> &);
         
@@ -341,6 +351,54 @@ namespace data::encoding {
         
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator * (const integer<c, cx> &, const integer<c, cx> &);
+
+        // power
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> operator ^
+            (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> &operator ^=
+            (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+
+        // division
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator / (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> &operator /= (const integer<c, cx> &, const integer<c, cx> &);
+
+        // mod
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> operator % (const integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> &operator % (const integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> &operator %= (integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
+
+        // bit operations
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator ~ (const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator ~ (const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator ^
+        (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator ^
+            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator ^=
+            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
         
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator | (const integer<c, cx> &, const integer<c, cx> &);
@@ -349,17 +407,18 @@ namespace data::encoding {
         integer<c, cx> operator & (const integer<c, cx> &, const integer<c, cx> &);
 
         template <negativity c, hex::letter_case cx>
-        integer<c, cx> operator / (const integer<c, cx> &, const integer<c, cx> &);
-
-        template <negativity c, hex::letter_case cx>
-        integer<c, cx> &operator /= (const integer<c, cx> &, const integer<c, cx> &);
-
-        template <negativity c, hex::letter_case cx>
         integer<c, cx> operator | (const integer<c, cx> &, uint64);
 
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator & (const integer<c, cx> &, uint64);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> &operator |= (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> &operator &= (const integer<c, cx> &, const integer<c, cx> &);
         
+        // bit shift
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator << (const integer<c, cx> &, int);
         
@@ -374,13 +433,8 @@ namespace data::encoding {
         
         template <hex::letter_case cx> 
         integer<negativity::BC, cx> operator - (const integer<negativity::BC, cx> &);
-        
-        template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator ~ (const integer<negativity::twos, cx> &);
-        
-        template <hex::letter_case cx> integer<negativity::twos, cx> operator ^
-            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
 
+        // bool operations
         template <hex::letter_case cx>
         integer<negativity::BC, cx> operator ! (const integer<negativity::BC, cx> &);
 
@@ -390,6 +444,7 @@ namespace data::encoding {
         template <hex::letter_case cx> integer<negativity::BC, cx> operator ||
             (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
         
+        // special cases
         template <hex::letter_case cx> 
         integer<negativity::twos, cx> operator + (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
         
@@ -419,9 +474,6 @@ namespace data::encoding {
 
         template <hex::letter_case cx>
         integer<negativity::nones, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
-
-        template <hex::letter_case cx>
-        integer<negativity::nones, cx> operator % (const integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
         
         template <hex::letter_case cx> 
         integer<negativity::twos, cx> &operator += (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
@@ -437,9 +489,6 @@ namespace data::encoding {
         
         template <hex::letter_case cx> 
         integer<negativity::twos, cx> &operator &= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
-
-        template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
         
     }
 
@@ -507,14 +556,6 @@ namespace data::math {
     template <> struct abs<dec_int> {
         dec_uint operator () (const dec_int &);
     };
-
-    template <> struct negate<dec_uint> {
-        dec_int operator () (const dec_uint &);
-    };
-
-    template <> struct negate<dec_int> {
-        dec_int operator () (const dec_int &);
-    };
     
     template <hex_case zz> struct abs<hex::uint<zz>> {
         hex::uint<zz> operator () (const hex::uint<zz> &);
@@ -525,18 +566,6 @@ namespace data::math {
     };
     
     template <hex_case zz> struct abs<hex::intBC<zz>> {
-        hex::intBC<zz> operator () (const hex::intBC<zz> &);
-    };
-
-    template <hex_case zz> struct negate<hex::uint<zz>> {
-        hex::int2<zz> operator () (const hex::uint<zz> &);
-    };
-
-    template <hex_case zz> struct negate<hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &);
-    };
-
-    template <hex_case zz> struct negate<hex::intBC<zz>> {
         hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
 
@@ -664,6 +693,34 @@ namespace data::math {
     template <hex_case zz>
     struct divide<hex::intBC<zz>, int> {
         division<hex::intBC<zz>, int> operator () (const hex::intBC<zz> &, const nonzero<int> &);
+    };
+
+    template <> struct bit_xor<dec_uint> {
+        dec_int operator () (const dec_uint &, const dec_uint &);
+    };
+
+    template <> struct bit_xor<dec_int> {
+        dec_int operator () (const dec_int &, const dec_int &);
+    };
+
+    template <hex_case zz>
+    struct bit_xor<hex::uint<zz>> {
+        hex::int2<zz> operator () (const hex::uint<zz> &, const hex::uint<zz> &);
+    };
+
+    template <hex_case zz>
+    struct bit_xor<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &, const hex::int2<zz> &);
+    };
+
+    template <hex_case zz>
+    struct bit_xor<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz>
+    struct bit_not<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
     
 }
