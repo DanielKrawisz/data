@@ -15,13 +15,13 @@ namespace data::encoding::hexidecimal {
     template <math::negativity n, hex_case zz> integer<n, zz> inline write (const math::Z &z) {
         std::stringstream ss;
         write (ss, z, zz, n);
-        return integer<n, zz> {ss.str ()};
+        return integer<n, zz> {ss.str ().c_str ()};
     }
 
     template <hex_case zz> integer<negativity::nones, zz> inline write (const math::N &n) {
         std::stringstream ss;
         write (ss, n, zz);
-        return integer<negativity::nones, zz> {ss.str ()};
+        return integer<negativity::nones, zz> {ss.str ().c_str ()};
     }
 
 }
@@ -31,7 +31,7 @@ namespace data::encoding::signed_decimal {
     string inline write (const math::Z &n) {
         std::stringstream ss;
         write (ss, n);
-        return string {ss.str ()};
+        return string {ss.str ().c_str ()};
     }
     
 }
@@ -41,7 +41,7 @@ namespace data::encoding::decimal {
     string inline write (const math::N &n) {
         std::stringstream ss;
         write (ss, n);
-        return string {ss.str ()};
+        return string {ss.str ().c_str ()};
     }
 
 }
@@ -190,13 +190,6 @@ namespace data::math::number::GMP {
     Z inline &operator >>= (Z &a, int x) {
         __gmp_binary_rshift::eval (a.MPZ, a.MPZ, x);
         return a;
-    }
-    bool inline operator == (const N &a, const N &b) {
-        return a.Value == b.Value;
-    }
-
-    auto inline operator <=> (const N &a, const N &b) -> decltype (std::declval<Z> () <=> std::declval<Z> ()) {
-        return a.Value <=> b.Value;
     }
 
     N inline operator + (const N &a, const N &b) {

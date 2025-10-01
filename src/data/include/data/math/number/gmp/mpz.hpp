@@ -48,40 +48,50 @@ namespace data::math::number::GMP {
     struct N;
 
     bool operator == (const Z &, const Z &);
-    std::weak_ordering operator <=> (const Z &, const Z &);
-
-    bool operator == (const int64 &, const Z &);
-    std::weak_ordering operator <=> (const int64 &, const Z &);
+    std::strong_ordering operator <=> (const Z &, const Z &);
 
     bool operator == (const N &, const N &);
-    std::weak_ordering operator <=> (const N &, const N &);
+    std::strong_ordering operator <=> (const N &, const N &);
 
-    bool operator == (const uint64 &, const N &);
-    std::weak_ordering operator <=> (const uint64 &, const N &);
+    template <std::integral I> bool operator == (const N &, I);
+    template <std::integral I> bool operator == (I, const N &);
+
+    template <std::integral I> bool operator == (const Z &, I);
+    template <std::integral I> bool operator == (I, const Z &);
+
+    template <std::signed_integral I> std::strong_ordering operator <=> (const N &, I);
+    template <std::signed_integral I> std::strong_ordering operator <=> (I, const N &);
+    template <std::unsigned_integral I> std::strong_ordering operator <=> (const N &, I);
+    template <std::unsigned_integral I> std::strong_ordering operator <=> (I, const N &);
+
+    template <std::signed_integral I> std::strong_ordering operator <=> (const Z &, I);
+    template <std::signed_integral I> std::strong_ordering operator <=> (I, const Z &);
+    template <std::unsigned_integral I> std::strong_ordering operator <=> (const Z &, I);
+    template <std::unsigned_integral I> std::strong_ordering operator <=> (I, const Z &);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
     bool operator == (const Z &, const sint<r, size, word> &);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z &, const sint<r, size, word> &);
+    std::strong_ordering operator <=> (const Z &, const sint<r, size, word> &);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
     bool operator == (const N &, const uint<r, size, word> &);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const N &, const uint<r, size, word> &);
+    std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
 
     template <endian::order r, negativity c, std::unsigned_integral word>
     bool operator == (const Z &, const Z_bytes<r, c, word> &);
 
     template <endian::order r, negativity c, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
+    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
 
     template <endian::order r, std::unsigned_integral word>
     bool operator == (const N &, const N_bytes<r, word> &);
 
     template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const N &, const N_bytes<r, word> &);
+    std::strong_ordering operator <=> (const N &, const N_bytes<r, word> &);
 
     Z operator - (const N &);
     Z operator - (const Z &);
@@ -152,6 +162,9 @@ namespace data::math::number::GMP {
 
     std::ostream &operator << (std::ostream &o, const Z &n);
     std::ostream &operator << (std::ostream &o, const N &n);
+
+    std::istream &operator >> (std::istream &i, Z &z);
+    std::istream &operator >> (std::istream &i, N &n);
 
     Z &operator += (Z &, const Z &);
     Z &operator -= (Z &, const Z &);
@@ -294,10 +307,10 @@ namespace data::math::number::GMP {
         Z ();
         ~Z ();
 
-        Z (uint64);
-        Z (int64);
-        Z (uint32);
-        Z (int32);
+        // We need these to ensure that we can accept
+        // any number literal.
+        template <std::signed_integral I> Z (I);
+        template <std::unsigned_integral I> Z (I);
 
         static Z read (string_view x);
 
@@ -359,10 +372,13 @@ namespace data::math::number::GMP {
 
         N () : Value {} {}
 
-        N (uint64);
-        N (int64);
-        N (uint32);
-        N (int32);
+        // need all of these to ensure that we can work with number
+        // literals.
+
+        // We need these to ensure that we can accept
+        // any number literal.
+        template <std::signed_integral I> N (I);
+        template <std::unsigned_integral I> N (I);
 
         explicit N (const Z &z) : Value {z} {}
         explicit N (Z &&z) : Value {z} {}
@@ -444,36 +460,21 @@ namespace data::math::number::GMP {
         mpz_clear (MPZ);
     }
 
-    inline Z::Z (int64 n) : MPZ {} {
-        mpz_init_set_si (MPZ, n);
+    template <std::signed_integral I> Z::Z (I x): MPZ {} {
+        mpz_init_set_si (MPZ, x);
     }
 
-    inline Z::Z (int32 n) : MPZ {} {
-        mpz_init_set_si (MPZ, n);
+    template <std::unsigned_integral I> Z::Z (I x): MPZ {} {
+        mpz_init_set_ui (MPZ, x);
     }
 
-    inline Z::Z (uint64 n) : MPZ {} {
-        mpz_init_set_ui (MPZ, n);
+    template <std::signed_integral I> N::N (I x): Value {} {
+        if (x < 0) throw exception {} << "N cannot be less than zero";
+        mpz_init_set_si (Value.MPZ, x);
     }
 
-    inline Z::Z (uint32 n) : MPZ {} {
-        mpz_init_set_ui (MPZ, n);
-    }
-
-    inline N::N (int64 n) : Value {} {
-        mpz_init_set_si (Value.MPZ, n);
-    }
-
-    inline N::N (int32 n) : Value {} {
-        mpz_init_set_si (Value.MPZ, n);
-    }
-
-    inline N::N (uint64 n) : Value {} {
-        mpz_init_set_ui (Value.MPZ, n);
-    }
-
-    inline N::N (uint32 n) : Value {} {
-        mpz_init_set_ui (Value.MPZ, n);
+    template <std::unsigned_integral I> N::N (I x): Value {} {
+        mpz_init_set_ui (Value.MPZ, x);
     }
 
     inline Z::Z (const Z &n) {
@@ -544,24 +545,92 @@ namespace data::math::number::GMP {
         return a <=> b == 0;
     }
 
-    bool inline operator == (const Z &a, int64 b) {
+    bool inline operator == (const N &a, const N &b) {
         return a <=> b == 0;
     }
 
-    bool inline operator == (const int64 &a, const Z &b) {
-        return b == a;
+    template <std::integral I> bool inline operator == (const N &a, I b) {
+        return a <=> b == 0;
     }
 
-    std::weak_ordering inline operator <=> (const Z &a, const Z &b) {
+    template <std::integral I> bool inline operator == (I a, const N &b) {
+        return a <=> b == 0;
+    }
+
+    template <std::integral I> bool inline operator == (const Z & a, I b) {
+        return a <=> b == 0;
+    }
+
+    template <std::integral I> bool inline operator == (I a, const Z &b) {
+        return a <=> b == 0;
+    }
+
+    std::strong_ordering inline operator <=> (const N &a, const N &b) {
+        auto cmp = mpz_cmp (a.Value.MPZ, b.Value.MPZ);
+        return cmp < 0 ? std::strong_ordering::less :
+            cmp > 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    std::strong_ordering inline operator <=> (const Z &a, const Z &b) {
         auto cmp = mpz_cmp (a.MPZ, b.MPZ);
-        return cmp < 0 ? std::weak_ordering::less :
-            cmp > 0 ? std::weak_ordering::greater : std::weak_ordering::equivalent;
+        return cmp < 0 ? std::strong_ordering::less :
+            cmp > 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
     }
 
-    std::weak_ordering inline operator <=> (const Z &a, int64 b) {
+    template <std::signed_integral I>
+    std::strong_ordering inline operator <=> (const Z &a, I b) {
         auto cmp = mpz_cmp_si (a.MPZ, b);
-        return cmp < 0 ? std::weak_ordering::less :
-            cmp > 0 ? std::weak_ordering::greater : std::weak_ordering::equivalent;
+        return cmp < 0 ? std::strong_ordering::less :
+            cmp > 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::signed_integral I>
+    std::strong_ordering inline operator <=> (I a, const Z &b) {
+        auto cmp = mpz_cmp_si (b.MPZ, a);
+        return cmp > 0 ? std::strong_ordering::less :
+            cmp < 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::unsigned_integral I>
+    std::strong_ordering inline operator <=> (const Z &a, I b) {
+        auto cmp = mpz_cmp_ui (a.MPZ, b);
+        return cmp < 0 ? std::strong_ordering::less :
+        cmp > 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::unsigned_integral I>
+    std::strong_ordering inline operator <=> (I a, const Z &b) {
+        auto cmp = mpz_cmp_ui (b.MPZ, a);
+        return cmp > 0 ? std::strong_ordering::less :
+        cmp < 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::signed_integral I>
+    std::strong_ordering inline operator <=> (const N &a, I b) {
+        auto cmp = mpz_cmp_si (a.Value.MPZ, b);
+        return cmp < 0 ? std::strong_ordering::less :
+        cmp > 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::signed_integral I>
+    std::strong_ordering inline operator <=> (I a, const N &b) {
+        auto cmp = mpz_cmp_si (b.Value.MPZ, a);
+        return cmp > 0 ? std::strong_ordering::less :
+        cmp < 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::unsigned_integral I>
+    std::strong_ordering inline operator <=> (const N &a, I b) {
+        auto cmp = mpz_cmp_ui (a.Value.MPZ, b);
+        return cmp < 0 ? std::strong_ordering::less :
+        cmp > 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
+    }
+
+    template <std::unsigned_integral I>
+    std::strong_ordering inline operator <=> (I a, const N &b) {
+        auto cmp = mpz_cmp_ui (b.Value.MPZ, a);
+        return cmp > 0 ? std::strong_ordering::less :
+        cmp < 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
     }
 
     Z inline operator / (const Z &a, const Z& b) {
@@ -599,12 +668,12 @@ namespace data::math::number::GMP {
     }
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const Z &a, const sint<r, size, word> &b) {
+    std::strong_ordering inline operator <=> (const Z &a, const sint<r, size, word> &b) {
         return a <=> Z (b);
     }
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const N &a, const uint<r, size, word> &b) {
+    std::strong_ordering inline operator <=> (const N &a, const uint<r, size, word> &b) {
         return a <=> N (b);
     }
 
@@ -614,7 +683,7 @@ namespace data::math::number::GMP {
     }
 
     template <endian::order r, negativity c, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const Z &a, const Z_bytes<r, c, word> &b) {
+    std::strong_ordering inline operator <=> (const Z &a, const Z_bytes<r, c, word> &b) {
         return a <=> Z (b);
     }
 
@@ -624,7 +693,7 @@ namespace data::math::number::GMP {
     }
 
     template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const N &a, const N_bytes<r, word> &b) {
+    std::strong_ordering inline operator <=> (const N &a, const N_bytes<r, word> &b) {
         return a <=> N (b);
     }
 
