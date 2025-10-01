@@ -108,11 +108,11 @@ namespace data {
         return math::bit_not<A> {} (x);
     }
 
-    template <typename A, typename B> constexpr A inline bit_and (const A &x, const A &y) {
+    template <typename A, typename B> constexpr auto inline bit_and (const A &x, const B &y) {
         return math::bit_and<A, B> {} (x, y);
     }
 
-    template <typename A, typename B> constexpr A inline bit_or (const A &x, const A &y) {
+    template <typename A, typename B> constexpr auto inline bit_or (const A &x, const B &y) {
         return math::bit_or<A, B> {} (x, y);
     }
 

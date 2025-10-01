@@ -13,37 +13,89 @@
 #include <data/io/exception.hpp>
 
 namespace data {
+    // As long as we have constructors for int, long, and long long
+    // then the compiler will never be confused by a valid number literal.
+    template <typename N> concept NumberConstructable =
+        requires () {
+            { N {0} };
+            // the maximum integer that can be represented accurately by a double.
+            { N {9007199254740992} };
+        } && requires (int x) {
+            { N {x} };
+        } && requires (long x) {
+            { N {x} };
+        } && requires (long long x) {
+            { N {x} };
+        };
 
-    // a proto_integral type is starting to look like a number.
-    // It can be assigned from a integer literal, has a concept
-    // of being signed or unsigned.
-    template <typename X> concept proto_integral =
-        Ordered<X> && requires {
-            { X (0) };
-        } && requires (const X &n) {
-            { is_zero (n) } -> Same<bool>;
-            { is_positive (n) } -> Same<bool>;
-            { is_negative (n) } -> Same<bool>;
-            { sign (n) };
+    template <typename N> concept UnsignedNumberConstructable =
+        NumberConstructable<N> && requires () {
+            { N {0u} };
+            { N {9007199254740992u} };
+        } && requires (unsigned int x) {
+            { N {x} };
+        } && requires (unsigned long x) {
+            { N {x} };
+        } && requires (unsigned long long x) {
+            { N {x} };
+        };
+
+    template <typename N, typename M> concept comparable_to =
+        requires (const N &n, const M &m) {
+            { n == m } -> Same<bool>;
+            { n != m } -> Same<bool>;
+            { n > m } -> Same<bool>;
+            { n < m } -> Same<bool>;
+            { n >= m } -> Same<bool>;
+            { n <= m } -> Same<bool>;
+            { m == n } -> Same<bool>;
+            { m != n } -> Same<bool>;
+            { m > n } -> Same<bool>;
+            { m < n } -> Same<bool>;
+            { m > n } -> Same<bool>;
+            { m <= n } -> Same<bool>;
+            { m >= n } -> Same<bool>;
+        };
+
+    template <typename X> concept NumberComparable =
+        Ordered<X> &&
+        comparable_to<X, int> &&
+        comparable_to<X, long> &&
+        comparable_to<X, long long>;
+
+    template <typename X> concept UnsignedNumberComparable =
+        NumberComparable<X> &&
+        comparable_to<X, unsigned int> &&
+        comparable_to<X, unsigned long> &&
+        comparable_to<X, unsigned long long>;
+
+    template <typename X> concept incrementable =
+        requires (const X &n) {
             { increment (n) };
+            { decrement (n) };
         } && requires (X &n) {
             { ++n } -> Same<X &>;
             { n++ } -> Same<X>;
             { --n } -> Same<X &>;
             { n++ } -> Same<X>;
-        } && requires (const X &a) {
-            {a == 0} -> Same<bool>;
-            {a != 0} -> Same<bool>;
-            {a > 0} -> Same<bool>;
-            {a < 0} -> Same<bool>;
-            {a >= 0} -> Same<bool>;
-            {a <= 0} -> Same<bool>;
         };
 
+    // a proto_integral type is starting to look like a number.
+    // It can be assigned from a integer literal, has a concept
+    // of being signed or unsigned.
+    template <typename X> concept proto_integral =
+        NumberComparable<X> && std::default_initializable<X> &&
+        requires (const X &n) {
+            { is_zero (n) } -> Same<bool>;
+            { is_positive (n) } -> Same<bool>;
+            { is_negative (n) } -> Same<bool>;
+            { sign (n) };
+        } && incrementable<X>;
+
+    // NOTE: these definitions don't make sense anymore.
     template <typename A> concept signed_proto_integral =
         proto_integral<A> && signed_type<A> && requires (const A &n) {
             { negate (abs (n)) } -> Same<A>;
-            { decrement (n) } -> Same<A>;
         };
 
     template <typename A> concept unsigned_proto_integral =
@@ -58,18 +110,7 @@ namespace data {
             { abs (a) } -> Same<N>;
         } && requires (const N &a) {
             { negate (a) } -> Same<Z>;
-        } && requires (const Z &a, const N &b) {
-            {a == b} -> Same<bool>;
-            {a < b} -> Same<bool>;
-            {a > b} -> Same<bool>;
-            {a <= b} -> Same<bool>;
-            {a >= b} -> Same<bool>;
-            {b == a} -> Same<bool>;
-            {b < a} -> Same<bool>;
-            {b > a} -> Same<bool>;
-            {b <= a} -> Same<bool>;
-            {b >= a} -> Same<bool>;
-        };
+        } && comparable_to<Z, N>;
 
     // bit_integral has bit operations.
     template <typename X> concept bit_integral =

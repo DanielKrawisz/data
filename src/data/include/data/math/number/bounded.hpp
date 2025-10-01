@@ -11,6 +11,7 @@
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
 
@@ -29,14 +30,9 @@ namespace data::math::number {
         return a / sint<r, x, word> (b);
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator % (const uint<r, x, word> &a, const uint<r, x, word> &b) {
-        return data::divide<uint<r, x, word>> (a, nonzero<uint<r, x, word>> {b}).Remainder;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator % (const sint<r, x, word> &a, const uint<r, x, word> &b) {
-        return data::divide<sint<r, x, word>> (a, nonzero<sint<r, x, word>> {sint<r, x, word> (b)}).Remainder;
+    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+        return data::divide<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b}).Remainder;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -79,23 +75,20 @@ namespace data::math::number {
 namespace data::math {
     template <endian::order r, size_t x, std::unsigned_integral word>
     division<uint<r, x, word>, uint<r, x, word>> inline divide<uint<r, x, word>, uint<r, x, word>>::operator ()
-    (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        auto d = divide<N_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
-        return {uint<r, x, word> (d.Quotient), uint<r, x, word> (d.Remainder)};
+        (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
+        return number::natural_divide (v, z.Value);
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    division<sint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, sint<r, x, word>>::operator ()
-    (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
-        auto d = divide<Z_bytes<r, word>, Z_bytes<r, word>> {} (v, nonzero<Z_bytes<r, word>> {z.Value});
-        return {sint<r, x, word> (d.Quotient), uint<r, x, word> (d.Remainder)};
+    division<sint<r, x, word>, sint<r, x, word>> inline divide<sint<r, x, word>, sint<r, x, word>>::operator ()
+        (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
+        return number::integer_divide (v, z.Value);
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    division<sint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, uint<r, x, word>>::operator ()
-    (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        auto d = divide<Z_bytes<r, word>, N_bytes<r, word>> {} (v, nonzero<N_bytes<r, word>> {z.Value});
-        return {sint<r, x, word> (d.Quotient), uint<r, x, word> (d.Remainder)};
+    division<uint<r, x, word>, uint<r, x, word>> inline divide<sint<r, x, word>, uint<r, x, word>>::operator ()
+        (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
+        return number::natural_divide (uint<r, x, word> (v), z.Value);
     }
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>

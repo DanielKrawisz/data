@@ -2,6 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "data/math/number/division.hpp"
+#include "data/math/number/bytes.hpp"
 #include "data/numbers.hpp"
 #include "gtest/gtest.h"
 
@@ -36,8 +38,7 @@ namespace data {
             << "expected " << numerator << " % " << denominator << " -> " << remainder << " but got " << div.Remainder;
     }
 
-    template <typename N>
-    requires ring_integral<N>
+    template <ring_integral N>
     struct test_division_natural {
         test_division_natural () {
 
@@ -52,13 +53,12 @@ namespace data {
         }
     };
 
-    template <typename Z, typename N = Z>
-    requires ring_integral_system<Z, N>
-    struct test_division_integer_natural : test_division_natural<N> {
+    template <ring_integral Z, ring_integral N = Z>
+    struct test_division_integer_natural {
         test_division_integer_natural () {
 
-            EXPECT_THROW (math::number::integer_divide (Z {0}, N {0}), math::division_by_zero);
-            EXPECT_THROW (math::number::integer_divide (Z {1}, N {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_natural_divide (Z {0}, N {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_natural_divide (Z {1}, N {0}), math::division_by_zero);
 
             test_division_integer_natural_case<Z, N> (Z {0}, N {1}, Z {0}, N {0});
             test_division_integer_natural_case<Z, N> (Z {1}, N {1}, Z {1}, N {0});
@@ -71,9 +71,8 @@ namespace data {
         }
     };
 
-    template <typename Z, typename N = Z>
-    requires ring_integral_system<Z, N>
-    struct test_division_integer : test_division_integer_natural<Z, N> {
+    template <ring_integral Z, ring_integral N = Z>
+    struct test_division_integer {
         test_division_integer () {
 
             EXPECT_THROW (math::number::integer_divide (Z {0}, Z {0}), math::division_by_zero);
@@ -94,33 +93,73 @@ namespace data {
         }
     };
 
-    TEST (Division, Division) {
+    template <ring_integral N>
+    struct unsigned_division_test : ::testing::Test {
+        using natural = N;
+    };
 
+    template <ring_integral Z>
+    struct signed_division_test : ::testing::Test {
+        using integer = Z;
+    };
+
+    template <typename tuple>
+    struct division_test : ::testing::Test {
+        using natural = typename std::tuple_element<1, tuple>::type;
+        using integer = typename std::tuple_element<0, tuple>::type;
+    };
+
+    using unsigned_test_cases = ::testing::Types<
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big>;
+
+    using signed_test_cases = ::testing::Types<
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        math::Z_bytes_BC<endian::big, unsigned short>,
+        math::Z_bytes_BC<endian::little, unsigned int>,
+        math::Z_bytes_BC<endian::big, unsigned long>,
+        math::Z_bytes_BC<endian::little, unsigned long long>,
+        hex_int_BC>;
+
+    using test_cases = ::testing::Types<
+        tuple<Z, N>,
+        tuple<Z_bytes_little, N_bytes_little>,
+        tuple<Z_bytes_big, N_bytes_big>,
+        tuple<math::Z_bytes<endian::little, unsigned short>, math::N_bytes<endian::little, unsigned short>>,
+        tuple<math::Z_bytes<endian::big, unsigned int>, math::N_bytes<endian::big, unsigned int>>,
+        tuple<math::Z_bytes<endian::little, unsigned long>, math::N_bytes<endian::little, unsigned long>>,
+        tuple<math::Z_bytes<endian::big, unsigned long long>, math::N_bytes<endian::big, unsigned long long>>,
+        tuple<dec_int, dec_uint>,
+        tuple<hex_int, hex_uint>>;
+
+    TYPED_TEST_SUITE (unsigned_division_test, unsigned_test_cases);
+    TYPED_TEST_SUITE (signed_division_test, signed_test_cases);
+    TYPED_TEST_SUITE (division_test, test_cases);
+
+    TYPED_TEST (unsigned_division_test, TestType) {
+        using N = typename TestFixture::natural;
+
+        test_division_natural<N> {};
+    }
+
+    TYPED_TEST (signed_division_test, TestType) {
+        using Z = typename TestFixture::integer;
+
+        test_division_natural<Z> {};
+        test_division_integer<Z> {};
+    }
+
+    TYPED_TEST (division_test, TestType) {
+        using N = typename TestFixture::natural;
+        using Z = typename TestFixture::integer;
+
+        test_division_natural<N> {};
+        test_division_integer_natural<Z, N> {};
         test_division_integer<Z, N> {};
-
-        test_division_integer<Z_bytes_big, N_bytes_big> {};
-        test_division_integer<Z_bytes_little, N_bytes_little> {};
-
-        test_division_integer<Z_bytes_BC_little> {};
-        test_division_integer<Z_bytes_BC_big> {};
-
-        test_division_integer<math::Z_bytes<endian::big, short unsigned>, math::N_bytes<endian::big, short unsigned>> {};
-        test_division_integer<math::Z_bytes<endian::little, short unsigned>, math::N_bytes<endian::little, short unsigned>> {};
-
-        test_division_integer<math::Z_bytes_BC<endian::big, short unsigned>> {};
-        test_division_integer<math::Z_bytes_BC<endian::little, short unsigned>> {};
-
-        test_division_integer<math::Z_bytes<endian::big, unsigned>, math::N_bytes<endian::big, unsigned>> {};
-        test_division_integer<math::Z_bytes<endian::little, unsigned>, math::N_bytes<endian::little, unsigned>> {};
-
-        test_division_integer<math::Z_bytes_BC<endian::big, unsigned>> {};
-        test_division_integer<math::Z_bytes_BC<endian::little, unsigned>> {};
-
-        test_division_integer<dec_int, dec_uint> {};
-        test_division_integer<hex_int, hex_uint> {};
-        test_division_natural<base58_uint> {};
-
-        test_division_integer<hex_int_BC> {};
     }
 
 }
