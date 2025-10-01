@@ -42,8 +42,8 @@ namespace data {
     
     TEST (BoundedTest, BoundedReadString) {
         
-        EXPECT_THROW (u8b::read ("-1"), std::invalid_argument);
-        EXPECT_THROW (u8l::read ("-1"), std::invalid_argument);
+        EXPECT_THROW (u8b::read ("-1"), exception);
+        EXPECT_THROW (u8l::read ("-1"), exception);
 
         auto a = s8b::read ("0xffffffffffffffff");
         auto b = s8b::read ("-1");
@@ -53,23 +53,23 @@ namespace data {
         EXPECT_EQ (a, b);
         EXPECT_EQ (c, d);
         
-        EXPECT_THROW (u8b::read ("0x01"), std::invalid_argument);
-        EXPECT_THROW (u8l::read ("0x01"), std::invalid_argument);
+        EXPECT_THROW (u8b::read ("0x01"), exception);
+        EXPECT_THROW (u8l::read ("0x01"), exception);
 
-        EXPECT_THROW (u8b::read ("-0x0000000000000001"), std::invalid_argument);
-        EXPECT_THROW (u8l::read ("-0x0000000000000001"), std::invalid_argument);
+        EXPECT_THROW (u8b::read ("-0x0000000000000001"), exception);
+        EXPECT_THROW (u8l::read ("-0x0000000000000001"), exception);
 
         EXPECT_EQ (s8b::read ("0xffffffffffffffff"), s8b::read ("-1"));
         EXPECT_EQ (s8l::read ("0xffffffffffffffff"), s8l::read ("-1"));
         
-        EXPECT_THROW (s8b::read ("-0xffffffffffffffff"), std::invalid_argument);
-        EXPECT_THROW (s8l::read ("-0xffffffffffffffff"), std::invalid_argument);
+        EXPECT_THROW (s8b::read ("-0xffffffffffffffff"), exception);
+        EXPECT_THROW (s8l::read ("-0xffffffffffffffff"), exception);
         
-        EXPECT_THROW (u8b::read ("0x000000000000000001"), std::invalid_argument);
-        EXPECT_THROW (u8l::read ("0x000000000000000001"), std::invalid_argument);
+        EXPECT_THROW (u8b::read ("0x000000000000000001"), exception);
+        EXPECT_THROW (u8l::read ("0x000000000000000001"), exception);
         
-        EXPECT_THROW (s8b::read ("0x000000000000000001"), std::invalid_argument);
-        EXPECT_THROW (s8l::read ("0x000000000000000001"), std::invalid_argument);
+        EXPECT_THROW (s8b::read ("0x000000000000000001"), exception);
+        EXPECT_THROW (s8l::read ("0x000000000000000001"), exception);
         
         EXPECT_EQ (u11l::read ("0xaabbccddeeff0011223344"), u11l ("4433221100ffeeddccbbaa"));
         EXPECT_EQ (u11b::read ("0xaabbccddeeff0011223344"), u11b ("aabbccddeeff0011223344"));

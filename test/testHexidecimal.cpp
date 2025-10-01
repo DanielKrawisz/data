@@ -1333,7 +1333,7 @@ namespace data {
                     N zero = N::read (hex_zero (i));
                     EXPECT_EQ (N {}, zero);
                 } else {
-                    EXPECT_THROW (N::read (hex_zero (i)), std::invalid_argument);
+                    EXPECT_THROW (N::read (hex_zero (i)), exception);
                 }
             }
         }

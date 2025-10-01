@@ -10,6 +10,7 @@
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/extended_euclidian.hpp>
+#include <data/encoding/integer.hpp>
 
 namespace data::math::number {
 
@@ -56,6 +57,22 @@ namespace data::math::number {
     template <endian::order r, size_t size, std::unsigned_integral word>
     inline bounded<true, r, size, word>::operator double () const {
         return double (Z (Z_bytes<r, negativity::twos, word> (*this)));
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::istream &operator >> (std::istream &i, bounded<true, r, size, word> &z) {
+        encoding::integer::string x;
+        i >> x;
+        if (i) z = bounded<true, r, size, word> {x};
+        return i;
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::istream &operator >> (std::istream &i, bounded<false, r, size, word> &n) {
+        encoding::natural::string x;
+        i >> x;
+        if (i) n = bounded<false, r, size, word> {x};
+        return i;
     }
 }
 
