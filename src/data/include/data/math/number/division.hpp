@@ -65,15 +65,8 @@ namespace data::math::number {
         return result;
     }
 
-    template <typename Z, typename N>
-    requires unsigned_ring_integral<Z> && unsigned_ring_integral<N>
-    division<Z, N> inline integer_divide (const Z &Dividend, const N &Divisor) {
-        return natural_divide<Z, N> (Dividend, Divisor);
-    }
-
-    template <typename Z, typename N>
-    requires ring_integral_system<Z, N> && unsigned_ring_integral<N>
-    division<Z, N> integer_divide (const Z &Dividend, const N &Divisor) {
+    template <ring_integral Z, ring_integral N>
+    division<Z, N> integer_natural_divide (const Z &Dividend, const N &Divisor) {
         division<N> d {natural_divide<N> (data::abs (Dividend), Divisor)};
 
         if (d.Remainder == 0) return {Dividend < 0 ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
@@ -83,9 +76,10 @@ namespace data::math::number {
         return {Z (d.Quotient), d.Remainder};
     }
 
-    template <typename Z, typename N = decltype (data::abs (std::declval<Z> ()))>
-    requires ring_integral_system<Z, N>
-    division<Z, N> integer_divide (const Z &Dividend, const Z &Divisor) {
+    template <ring_integral Z>
+    division<Z, decltype (data::abs (std::declval<Z> ()))> integer_divide (const Z &Dividend, const Z &Divisor) {
+        using N = decltype (data::abs (std::declval<Z> ()));
+
         // first we divide the absolute values.
         N divisor = data::abs (Divisor);
         division<N> d {natural_divide<N> (data::abs (Dividend), divisor)};
@@ -95,7 +89,12 @@ namespace data::math::number {
         // if y -> -y, then x == -q y + r
         // if x -> -x and y -> -y, then x = q y - r;
 
-        if (d.Remainder == 0) return {data::sign (Divisor) * data::sign (Dividend) == negative ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
+        if (d.Remainder == 0)
+            return {
+                data::sign (Divisor) * data::sign (Dividend) == negative ?
+                    data::negate (Z (d.Quotient)):
+                    Z (d.Quotient),
+                d.Remainder};
 
         if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient + 1): Z (-(d.Quotient + 1)), divisor - d.Remainder};
 

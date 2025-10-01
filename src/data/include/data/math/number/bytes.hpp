@@ -374,7 +374,7 @@ namespace data::math {
     division<Z_bytes<r, word>, N_bytes<r, word>> inline
     divide<Z_bytes<r, word>, N_bytes<r, word>>::operator ()
         (const Z_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
-        return number::integer_divide (a, b.Value);
+        return number::integer_natural_divide (a, b.Value);
     }
 
     template <endian::order r, std::unsigned_integral word>

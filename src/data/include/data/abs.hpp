@@ -11,7 +11,7 @@
 
 namespace data {
 
-    // we determine whether a type is siged or not based on whether
+    // we determine whether a type is signed or not based on whether
     // the negate function returns the same or different type.
     template <typename A> constexpr auto negate (const A &);
 
@@ -110,12 +110,6 @@ namespace data {
 // default behavior is to use the operators.
 namespace data::math {
 
-    template <std::floating_point A> struct negate<A> {
-        constexpr A operator () (const A &x) const {
-            return -x;
-        }
-    };
-
     template <std::floating_point A> struct abs<A> {
         constexpr A operator () (const A &x) const {
             return x < 0 ? -x : x;
@@ -134,15 +128,18 @@ namespace data::math {
         }
     };
 
-    template <std::unsigned_integral A> struct negate<A> {
+    template <std::signed_integral A> struct negate<A> {
         constexpr A operator () (const A &x) const {
+            if (x == std::numeric_limits<A>::min ()) throw exception {} << "invalid negate value " << x;
             return -x;
         }
     };
 
-    template <std::signed_integral A> struct negate<A> {
-        constexpr A operator () (const A &x) const {
-            if (x == std::numeric_limits<A>::min ()) throw exception {} << "invalid negate value " << x;
+    template <typename A>
+    requires (!std::signed_integral<A>) && requires (const A &x) {
+        { -x };
+    } struct negate<A> {
+        constexpr auto operator () (const A &x) {
             return -x;
         }
     };
