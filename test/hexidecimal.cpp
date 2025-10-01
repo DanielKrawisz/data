@@ -101,7 +101,7 @@ namespace data::math::number {
         }
     };
     
-    TEST (HexidecimalTest, TestHexidecimalSignMinTrim) {
+    TEST (Hexidecimal, HexidecimalSignMinTrim) {
 
         hex_test_case<negativity::nones> ("0x", "0x", zero);
         hex_test_case<negativity::twos> ("0x", "0x", zero);
@@ -300,7 +300,7 @@ namespace data::math::number {
         }
     };
 
-    TEST (HexidecimalTest, TestHexBitAnd) {
+    TEST (Hexidecimal, HexBitAnd) {
 
         test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x", "0x"};
         test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0x01", "0x01", "0x01"};
@@ -310,7 +310,7 @@ namespace data::math::number {
 
     }
     
-    TEST (HexidecimalTest, TestHexBitOr) {
+    TEST (Hexidecimal, HexBitOr) {
 
         test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x", "0x"};
         test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0x01", "0x01", "0x01"};
@@ -490,7 +490,7 @@ namespace data::math::number {
         }
     };
 
-    TEST (HexidecimalTest, TestHexBitXor) {
+    TEST (Hexidecimal, HexBitXor) {
 
         test_bit_negate<negativity::nones, negativity::twos> {"0x", "0xff"};
         test_bit_xor<negativity::nones, negativity::twos> {"0x", "0x", "0x"};
@@ -604,7 +604,7 @@ namespace data::math::number {
         test_increment_fixed (hex<negativity::BC> given, hex<negativity::BC> expected) {}
     };
 
-    TEST (HexidecimalTest, TestHexidecimalIncrement) {
+    TEST (Hexidecimal, HexidecimalIncrement) {
 
         test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x01"};
         test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x00", "0x01"};
@@ -696,7 +696,7 @@ namespace data::math::number {
         test_negation (string initial, string expected) {}
     };
 
-    TEST (HexidecimalTest, TestNegation) {
+    TEST (Hexidecimal, Negation) {
         
         test_negation<negativity::BC> {"0x", "0x"};
         test_negation<negativity::BC> {"0x00", "0x"};
@@ -812,7 +812,7 @@ namespace data::math::number {
         }
     }
 
-    TEST (HexidecimalTest, TestHexidecimalComparisons) {
+    TEST (Hexidecimal, HexidecimalComparisons) {
         std::vector<string> values {
             "0x", "0x00", "0x0000", "0x80", "0x8000", "0x01", "0x0001", 
             "0xff", "0xffff", "0x0080", "0x81", "0x8001", "0x00ff", 
@@ -889,7 +889,7 @@ namespace data::math::number {
 
     // test conversions between negativity ones and twos.
     // we try to convert the second number into the first.
-    TEST (HexidecimalTest, TestComplementTwosAndBC) {
+    TEST (Hexidecimal, ComplementTwosAndBC) {
 
         test_negativity_twos_to_BC ("0x", "0x");
         test_negativity_twos_to_BC ("0x00", "0x");
@@ -978,7 +978,7 @@ namespace data::math::number {
         }
     };
 
-    TEST (HexidecimalTest, TestHexidecimalBitShift) {
+    TEST (Hexidecimal, HexidecimalBitShift) {
 
         test_bit_shift<negativity::nones, negativity::twos, negativity::BC> ("0x", 0, "0x", "0x");
         test_bit_shift<negativity::nones, negativity::twos, negativity::BC> ("0x", 1, "0x", "0x");
@@ -1043,8 +1043,7 @@ namespace data::math::number {
         }
     };
 
-    TEST (HexidecimalTest, TestHexidecimalPlus) {
-
+    TEST (Hexidecimal, Plus) {
         test_plus<negativity::nones, negativity::twos, negativity::BC> ("0x", "0x", "0x");
         
         test_plus<negativity::nones, negativity::twos, negativity::BC> ("0", "0", "0");
@@ -1116,7 +1115,7 @@ namespace data::math::number {
         test_minus_bytes (string left, string right, string expected) {}
     };
 
-    TEST (HexidecimalTest, TestHexidecimalMinus) {
+    TEST (Hexidecimal, HexidecimalMinus) {
 
         test_minus<negativity::nones, negativity::twos, negativity::BC> ("0x", "0x", "0x");
 
@@ -1182,7 +1181,7 @@ namespace data::math::number {
         test_times (string left, string right, string expected) {}
     };
 
-    TEST (HexidecimalTest, TestHexidecimalTimes) {
+    TEST (Hexidecimal, HexidecimalTimes) {
         
         test_times<negativity::nones, negativity::twos, negativity::BC> ("0", "0", "0");
         test_times<negativity::nones, negativity::twos, negativity::BC> ("0", "1", "0");
@@ -1226,12 +1225,12 @@ namespace data::math::number {
         }
     };
 
-    TEST (HexidecimalTest, TestHexidecimalDivide) {
+    TEST (Hexidecimal, HexidecimalDivide) {
         test_divide<negativity::nones, negativity::twos, negativity::BC> ("0", "1", "0", "0");
         test_divide<negativity::nones, negativity::twos, negativity::BC> ("1", "1", "1", "0");
     }
 
-    TEST (HexidecimalTest, TestHexidecimalOnes) {
+    TEST (Hexidecimal, HexidecimalOnes) {
         using hex_uint = data::hex::uint<hex_case::lower>;
         using hex_int2 = data::hex::int2<hex_case::lower>;
         
@@ -1389,7 +1388,7 @@ namespace data {
         }
     };
 
-    TEST (HexidecimalTest, TestHexReadZero) {
+    TEST (Hexidecimal, HexReadZero) {
 
         list<size_t> sizes {0, 1, 2, 5, 9, 10, 11, 20};
 
@@ -1553,7 +1552,7 @@ namespace data {
         }
     }
 
-    TEST (HexidecimalTest, TestHexReadAndWriteBytes) {
+    TEST (Hexidecimal, HexReadAndWriteBytes) {
         list<string> cases {
             "0x", "0x00", "0x0000", "0xc0", "0xff", "0x00ff", "0xffff",
             "0x80", "0x8000", "0x0080", "0x01", "0x0001", "0x81", "0x8001"};
