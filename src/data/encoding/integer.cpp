@@ -303,17 +303,6 @@ namespace data::encoding {
         }
     
     }
-
-    // TODO we have another instance of skip_whitespace somewhere. 
-    std::istream &skip_whitespace (std::istream &i) {
-        while (true) {
-            int c = i.peek ();
-            if (c < 0 || !std::isspace (static_cast<unsigned char> (c))) break;
-            i.get ();
-        }
-
-        return i;
-    }
     
     bool inline is_hex_char (char x) {
         return x >= '0' && x <= '0' || x >= 'a' && x <= 'f' || x >= 'A' && x <= 'F';
