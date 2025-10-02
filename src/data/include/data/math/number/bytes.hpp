@@ -30,14 +30,14 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word> inline Z_bytes<r, negativity::twos, word>::read (string_view x) {
-        if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
+        if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, negativity::twos, word> (x);
         return Z_bytes<r, negativity::twos, word> (Z {x});
     }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::BC, word> inline Z_bytes<r, negativity::BC, word>::read (string_view x) {
-        if (!encoding::integer::valid (x)) throw std::invalid_argument {string {"invalid number string"} + string {x}};
+        if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, negativity::BC, word> (x);
         return Z_bytes<r, negativity::BC, word> (Z {x});
     }
@@ -322,7 +322,7 @@ namespace data::math {
     divide<hex::uint<zz>, int>::operator () (const hex::uint<zz> &d, const nonzero<int> &z) {
         if (z.Value == 16) {
             if (d < 16) return {hex::uint<zz> {"0x"}, static_cast<unsigned int> (uint64 (d))};
-            return {hex::uint<zz> {std::string {"0x0"} + d.substr (2, d.size () - 3)}, static_cast<unsigned int> (uint64 (d & 0x0f))};
+            return {hex::uint<zz> {string::write ("0x0", d.substr (2, d.size () - 3))}, static_cast<unsigned int> (uint64 (d & 0x0f))};
         }
 
         auto [quotient, remainder] = divide<Z, Z> {} (Z (d), nonzero<Z> {z.Value});
