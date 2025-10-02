@@ -37,7 +37,8 @@ namespace data::math::number {
         
         N_bytes (const uint64 x);
         
-        explicit N_bytes (const std::string &x): N_bytes {read (x)} {}
+        explicit N_bytes (string_view x): N_bytes {read (x)} {}
+        explicit N_bytes (slice<const word> x): N_bytes {read (x)} {}
         
         operator N_bytes<endian::opposite (r), word> () const;
 
@@ -46,6 +47,7 @@ namespace data::math::number {
         explicit operator double () const;
         
         explicit operator uint64 () const;
+        explicit operator int64 () const;
 
         N_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
 
@@ -59,14 +61,17 @@ namespace data::math::number {
         Z_bytes (uint64);
         Z_bytes (int32);
         Z_bytes (uint32);
-        
+
+        // string constructors.
         static Z_bytes read (string_view x);
         static Z_bytes read (slice<const word> x);
-        explicit Z_bytes (const std::string &x): Z_bytes {read (x)} {}
-        explicit Z_bytes (const char *x) : Z_bytes {std::string {x}} {}
+        explicit Z_bytes (string_view x): Z_bytes {read (x)} {}
+        explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
         
         operator Z_bytes<endian::opposite (r), negativity::twos, word> () const;
         operator Z_bytes<r, negativity::BC, word> () const;
+
+        explicit operator N_bytes<r, word> () const;
         
         explicit operator double () const;
         
@@ -91,12 +96,18 @@ namespace data::math::number {
         Z_bytes (uint64);
         Z_bytes (int32);
         Z_bytes (uint32);
-        
+
+        // string constructors.
         static Z_bytes read (string_view x);
         static Z_bytes read (slice<const word> x);
         explicit Z_bytes (string_view x): Z_bytes {read (x)} {}
-        explicit Z_bytes (const std::string &x): Z_bytes {read (x)} {}
-        explicit Z_bytes (const char *x) : Z_bytes {std::string {x}} {}
+        explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
+
+        // we need this constructor because the compiler gets confused
+        // with the bool constructor when we try to use string literals.
+        Z_bytes (const char *x): Z_bytes {string_view {x, std::strlen (x)}} {}
+
+        explicit operator N_bytes<r, word> () const;
         
         explicit operator double () const;
         
