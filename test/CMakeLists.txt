@@ -49,6 +49,7 @@ add_executable (
     testHash.cpp
 
     # numbers
+    numbers.cpp
     testSign.cpp
     bit_ops.cpp                  # Contains commented test cases
     testN.cpp
@@ -59,7 +60,6 @@ add_executable (
     Z_bytes.cpp
     abs.cpp
     testBase58.cpp
-    numbers.cpp
     string_numbers.cpp
     testDecimal.cpp
     hexidecimal.cpp
