@@ -8,7 +8,7 @@
 
 namespace data {
 
-    TEST (ExceptionTest, TestException) {
+    TEST (Exception, Exception) {
         try {
             throw (exception {} << "Hi " << 26 << " love love love");
         } catch (std::exception &ex) {

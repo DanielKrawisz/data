@@ -24,7 +24,7 @@ namespace data {
         }
     };
 
-    TEST (StoreTest, TestStore) {
+    TEST (Store, Store) {
 
         fwipz Twoozy;
         Twoozy.zoob_q<int> ([] (int i) -> int {
