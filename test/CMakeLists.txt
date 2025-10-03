@@ -60,7 +60,7 @@ add_executable (
     abs.cpp
     testBase58.cpp
     numbers.cpp
-    testStringNumbers.cpp
+    string_numbers.cpp
     testDecimal.cpp
     hexidecimal.cpp
     testInfinite.cpp
