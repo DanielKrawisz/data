@@ -11,7 +11,7 @@ namespace data::arithmetic {
     
     enum class negativity {
         nones = 0,
-        // ones = 1
+        ones = 1,
         twos = 2,
         BC = 3
     };
