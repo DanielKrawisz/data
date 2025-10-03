@@ -72,6 +72,9 @@ namespace data::encoding {
 
         using negativity = math::negativity;
 
+        template <std::signed_integral I>
+        std::ostream &write (std::ostream &, I);
+
         template <endian::order r, std::unsigned_integral word>
         std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::twos, word> &);
 
@@ -81,9 +84,12 @@ namespace data::encoding {
         template <endian::order r, size_t x, std::unsigned_integral word>
         std::ostream &write (std::ostream &o, const math::sint<r, x, word> &);
 
-        // a decimal string inherets from string but is
+        // a signed decimal string inherets from string but is
         // a big number that supports standard numerical operations.
         struct string;
+
+        template <std::signed_integral I>
+        string write (I);
 
         template <endian::order r, negativity c, std::unsigned_integral word>
         string write (const math::number::Z_bytes<r, c, word> &);
@@ -828,7 +834,15 @@ namespace data::encoding::signed_decimal {
         string () : data::string {"0"} {};
         explicit string (const std::string &x) : data::string {signed_decimal::valid (x) ? x : ""} {}
         explicit string (std::string &&x) : data::string {x} {}
-        string (int64);
+        explicit string (const char *x): string {string_view {x, std::strlen (x)}} {}
+        explicit string (string_view x):
+            data::string {signed_decimal::valid (x) ? x : string_view {nullptr, 0}} {}
+
+        // We need these to ensure that we can accept
+        // any number literal.
+        template <std::signed_integral I> string (I x): data::string {write (x)} {}
+        template <std::unsigned_integral I> string (I x): data::string {decimal::string {x}} {}
+
         explicit string (const math::Z &);
         
         bool valid () const {
@@ -884,6 +898,18 @@ namespace data::encoding::signed_decimal {
         explicit operator int64 () const;
         //explicit operator math::Z () const;
     };
+
+    template <std::signed_integral I>
+    string inline write (I x) {
+        std::stringstream ss;
+        write (ss, x);
+        return string {ss.str ()};
+    }
+
+    template <std::signed_integral I>
+    std::ostream inline &write (std::ostream &o, I x) {
+        return o << std::dec << x;
+    }
     
     template <endian::order r, std::unsigned_integral word>
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, negativity::twos, word> &z) {

@@ -182,9 +182,6 @@ namespace data::encoding {
     
     namespace signed_decimal {
         
-        // x is automatically converted to GMP.
-        string::string (int64 x) : string {write (x)} {}
-        
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
         std::strong_ordering operator <=> (const string &m, const string &n) {
@@ -197,7 +194,7 @@ namespace data::encoding {
             return na != nb ? na <=> nb :
                 na == math::negative && nb == math::negative ? 
                 decimal::N_compare (string_view {n.data () + 1, n.size () - 1}, string_view {m.data () + 1, m.size () - 1}) :
-                decimal::N_compare (string_view {m.data (), m.size ()}, string_view {n.data (), n.size ()});
+                decimal::N_compare (string_view (m), string_view (n));
             
         }
         
