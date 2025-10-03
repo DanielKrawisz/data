@@ -55,19 +55,18 @@ namespace data::encoding::base58 {
         return characters[remainder];
     }
     
-    string &operator ++ (string &x) {
-        if (!x.valid ()) throw exception {} << "invalid base 58 string: " << x;
-        char remainder = N_increment (x);
-        if (remainder == '1') return x;
+    string &string::operator ++ () {
+        if (!this->valid ()) throw exception {} << "invalid base 58 string: " << *this;
+        char remainder = N_increment (*this);
+        if (remainder == '1') return *this;
         string new_x;
-        new_x.resize (x.size () + 1);
+        new_x.resize (this->size () + 1);
         new_x[0] = remainder;
-        std::copy (x.begin (), x.end (), new_x.begin () + 1);
-        return x = new_x;
+        std::copy (this->begin (), this->end (), new_x.begin () + 1);
+        return *this = new_x;
     }
     
     void N_decrement (string &x) {
-        if (!x.valid ()) throw exception {} << "invalid base 58 string: " << x;
         auto characters = base58::characters ();
         
         auto i = x.rbegin ();
@@ -85,15 +84,15 @@ namespace data::encoding::base58 {
         }
     }
     
-    string &operator -- (string &x) {
-        if (!x.valid ()) throw exception {} << "invalid base 58 string: " << x;
-        if (x == "1") return x;
-        if (x == "2") return x = string {"1"};
+    string &string::operator -- () {
+        if (!this->valid ()) throw exception {} << "invalid base 58 string: " << *this;
+        if (*this == "1") return *this;
+        if (*this == "2") return *this = string {"1"};
             
-        N_decrement (x);
+        N_decrement (*this);
         
-        if (!valid (x)) return x = string {x.substr (1)};
-        return x;
+        if (!this->valid ()) return *this = string {this->substr (1)};
+        return *this;
     }
     
     string operator + (const string &m, const string &n) {
@@ -143,7 +142,7 @@ namespace data::encoding::base58 {
         return encode (read_base<N_bytes_little> (m, 58, &digit) >> i);
     }
 
-    string string::read (const std::string &x) {
+    string string::read (string_view x) {
         return encode (N {x});
     }
 

@@ -9,7 +9,6 @@
 
 #include <ctre.hpp>
 
-#include <data/encoding/invalid.hpp>
 #include <data/divide.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
@@ -23,9 +22,7 @@
 // confusingly, in base 58 '1' means zero.
 namespace data::encoding::base58 {
 
-    const std::string Format {"base58"};
-
-    std::string inline characters () {
+    data::string inline characters () {
         return "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     }
 
@@ -61,10 +58,12 @@ namespace data::encoding::base58 {
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.
     std::strong_ordering operator <=> (const string &, const string &);
-    bool operator == (const string &, uint64);
 
-    string &operator ++ (string &);
-    string &operator -- (string &);
+    template <std::integral I> bool operator == (const string &, I);
+    template <std::integral I> bool operator == (I, const string &);
+
+    template <std::integral I> std::strong_ordering operator <=> (const string &, I);
+    template <std::integral I> std::strong_ordering operator <=> (I, const string &);
 
     string operator ++ (string &, int);
     string operator -- (string &, int);
@@ -86,36 +85,47 @@ namespace data::encoding::base58 {
     string operator / (const string &, const string &);
     string operator % (const string &, const string &);
 
-    string &operator <<= (string &, int);
-    string &operator >>= (string &, int);
-
-    string &operator |= (string &, const string &);
-    string &operator &= (string &, const string &);
-
-    string &operator += (string &, uint64);
-    string &operator -= (string &, uint64);
-    string &operator *= (string &, uint64);
-
-    string &operator += (string &, const string &);
-    string &operator -= (string &, const string &);
-    string &operator *= (string &, const string &);
-
-    string &operator /= (string &, const string &);
-    string &operator %= (string &, const string &);
+    string operator | (const string &, const string &);
+    string operator & (const string &, const string &);
 
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.
     struct string : data::string {
+
+        string &operator ++ ();
+        string &operator -- ();
+
+        string &operator <<= (int);
+        string &operator >>= (int);
+
+        string &operator |= (const string &);
+        string &operator &= (const string &);
+
+        string &operator += (uint64);
+        string &operator -= (uint64);
+        string &operator *= (uint64);
+
+        string &operator += (const string &);
+        string &operator -= (const string &);
+        string &operator *= (const string &);
+
+        string &operator /= (const string &);
+        string &operator %= (const string &);
+
         string ();
-        string (const std::string &x);
-        string (uint64);
+        string (string_view x);
+
+        template <std::integral I> string (I x);
+
+        string (const char *lit): string {string_view {lit, std::strlen (lit)}} {}
+
         explicit string (const math::N &n): string {encode<math::N> (n)} {}
 
         bool valid () const {
             return base58::valid (*this);
         }
 
-        static string read (const std::string &);
+        static string read (string_view);
 
         explicit operator uint64 () const;
         
@@ -130,6 +140,10 @@ namespace data::encoding::base58 {
         //division<string, uint64> divide (uint64) const;
         //division<string> divide (const string&) const;
 
+    private:
+        string (std::string &&x): data::string {x} {};
+
+        friend struct math::divide<string, int>;
     };
 
 }
@@ -229,8 +243,20 @@ namespace data::encoding::base58 {
         return string {w};
     }
 
-    bool inline operator == (const string &n, uint64 x) {
-        return n == string {x};
+    template <std::integral I> bool inline operator == (const string &b, I x) {
+        return b == string {x};
+    }
+
+    template <std::integral I> bool inline operator == (I x, const string &b) {
+        return string {x} == b;
+    }
+
+    template <std::integral I> std::strong_ordering inline operator <=> (const string &b, I x) {
+        return b <=> string {x};
+    }
+
+    template <std::integral I> std::strong_ordering inline operator <=> (I x, const string &b) {
+        return string {x} <=> b;
     }
 
     string inline operator + (const string &n, uint64 x) {
@@ -257,31 +283,31 @@ namespace data::encoding::base58 {
         return n;
     }
 
-    string inline &operator += (string &a, const string& n) {
-        return a = a + n;
+    string inline &string::operator += (const string &n) {
+        return *this = *this + n;
     }
 
-    string inline &operator -= (string &a, const string& n) {
-        return a = a - n;
+    string inline &string::operator -= (const string &n) {
+        return *this = *this - n;
     }
 
-    string inline &operator *= (string &a, const string& n) {
-        return a = a * n;
+    string inline &string::operator *= (const string &n) {
+        return *this = *this * n;
     }
 
-    string inline &operator <<= (string &a, int i) {
-        return a = a << i;
+    string inline &string::operator <<= (int i) {
+        return *this = *this << i;
     }
 
-    string inline &operator >>= (string &a, int i) {
-        return a = a >> i;
+    string inline &string::operator >>= (int i) {
+        return *this = *this >> i;
     }
 
     inline string::string () : data::string {"1"} {}
 
-    inline string::string (const std::string &x) : data::string {base58::valid (x) ? x : ""} {}
+    inline string::string (string_view x) : data::string {base58::valid (x) ? x : string_view {nullptr, 0}} {}
 
-    inline string::string (uint64 x) : string {encode (math::N {x})} {}
+    template <std::integral I> string::string (I x): string {encode (math::N {x})} {}
 
     string inline operator / (const string &x, const string &y) {
         return math::divide<string, string> {} (x, math::nonzero {y}).Quotient;
@@ -291,12 +317,12 @@ namespace data::encoding::base58 {
         return math::divide<string, string> {} (x, math::nonzero {y}).Remainder;
     }
 
-    string inline &operator /= (string &x, const string &y) {
-        return x = x / y;
+    string inline &string::operator /= (const string &y) {
+        return *this = *this / y;
     }
 
-    string inline &operator %= (string &x, const string &y) {
-        return x = x % y;
+    string inline &string::operator %= (const string &y) {
+        return *this = *this % y;
     }
 
 }
