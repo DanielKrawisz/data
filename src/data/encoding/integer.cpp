@@ -195,7 +195,7 @@ namespace data::encoding {
                 na == math::negative && nb == math::negative ? 
                 decimal::N_compare (string_view {n.data () + 1, n.size () - 1}, string_view {m.data () + 1, m.size () - 1}) :
                 decimal::N_compare (string_view (m), string_view (n));
-            
+
         }
         
         string &operator ++ (string &x) {

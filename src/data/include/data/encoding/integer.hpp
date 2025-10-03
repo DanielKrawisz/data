@@ -419,6 +419,9 @@ namespace data::encoding {
 
         template <hex::letter_case cx>
         integer<negativity::nones, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> operator % (const integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
         
         template <hex::letter_case cx> 
         integer<negativity::twos, cx> &operator += (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
@@ -434,6 +437,9 @@ namespace data::encoding {
         
         template <hex::letter_case cx> 
         integer<negativity::twos, cx> &operator &= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
         
     }
 
@@ -1482,6 +1488,11 @@ namespace data::encoding::hexidecimal {
     integer<negativity::twos, cx> inline &operator &=
         (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
         return n &= integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    }
+
+    template <hex::letter_case cx> integer<negativity::nones, cx> inline
+    &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x) {
+        return n = n % x;
     }
 
     template <negativity c, hex::letter_case cx>
