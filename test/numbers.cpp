@@ -140,18 +140,22 @@ namespace data {
         test_signed_number () {
 
             ZZ zz_zero {0};
-            EXPECT_EQ (Z (zz_zero), Z (0));
+            ZZ zz_minus_one {-1};
 
-            EXPECT_EQ (math::number::decrement<ZZ> {} (zz_zero), ZZ {-1});
+            // convert to Z
+            EXPECT_EQ (Z (zz_zero), Z (0));
+            EXPECT_EQ (Z (zz_minus_one), Z (-1));
+
+            EXPECT_EQ (math::number::decrement<ZZ> {} (zz_zero), zz_minus_one);
 
             EXPECT_EQ (math::number::increment<ZZ> {} (zz_zero), ZZ {1});
-            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {-1}), zz_zero);
+            EXPECT_EQ (math::number::increment<ZZ> {} (zz_minus_one), zz_zero);
 
             EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {0xffu}), ZZ {0x100u});
 
             EXPECT_EQ (-zz_zero, zz_zero);
-            EXPECT_EQ (-ZZ {1}, ZZ {-1});
-            EXPECT_EQ (-ZZ {-1}, ZZ {1});
+            EXPECT_EQ (-ZZ {1}, zz_minus_one);
+            EXPECT_EQ (-zz_minus_one, ZZ {1});
         }
     };
 
@@ -199,15 +203,15 @@ namespace data {
         test_number_system<N_bytes_little, Z_bytes_little> {"N_bytes_little"};
         test_number_system<N_bytes_big, Z_bytes_big> {"N_bytes_big"};
 
+        test_signed_number_system<Z_bytes_BC_little> {};
+        test_signed_number_system<Z_bytes_BC_big> {};
+
         test_unsigned_number<base58_uint> {};
 
         test_number_system<dec_uint, dec_int> {};
         test_number_system<hex_uint, hex_int> {};
 
         test_signed_number_system<hex_int_BC> {};
-
-        test_signed_number_system<Z_bytes_BC_little> {};
-        test_signed_number_system<Z_bytes_BC_big> {};
 
     }
     
