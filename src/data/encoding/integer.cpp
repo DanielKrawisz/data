@@ -89,7 +89,7 @@ namespace data::encoding {
             
             N_decrement (x);
             
-            if (!valid (x)) return x = string {x.substr (1)};
+            if (!valid (x)) return x = string {string_view (x).substr (1)};
             return x;
         }
         
@@ -138,7 +138,7 @@ namespace data::encoding {
             // we need this optimization because we use divide to convert to N.
             if (x == 10) {
                 int last = n.size () - 1;
-                return division<string, N> {n.size () == 1 ? string {} : string (n.substr (0, last)), N (digit (n[last]))};
+                return division<string, N> {n.size () == 1 ? string {} : string (string_view (n).substr (0, last)), N (digit (n[last]))};
             }
             
             division<N> div = math::number::natural_divide (N {n}, x);
@@ -203,7 +203,7 @@ namespace data::encoding {
         
         string &operator ++ (string &x) {
             if (is_negative (x)) {
-                auto z = decimal::string {x.substr (1)};
+                auto z = decimal::string {string_view (x).substr (1)};
                 return x = -string {--z};
             }
             
@@ -221,7 +221,7 @@ namespace data::encoding {
                 return x = string {--z};
             }
             
-            auto z = decimal::string {x.substr (1)};
+            auto z = decimal::string {string_view (x).substr (1)};
             return x = -string {++z};
         }
         
