@@ -952,16 +952,13 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    // we need signed versions of integer to have constructors for
-    // int64 whereas the unsigned version can only support uint64.
     template <negativity c, hex::letter_case cx>
     struct complemented_string : string<cx> {
         using string<cx>::string;
+
+        template <std::integral I> complemented_string (I);
+
         complemented_string (const string<cx> &x): string<cx> {x} {}
-        complemented_string (int64);
-        complemented_string (uint64);
-        complemented_string (int32 i) : complemented_string {static_cast<int64> (i)} {}
-        complemented_string (uint32 u) : complemented_string {static_cast<uint64> (u)} {}
         explicit complemented_string (const math::Z &);
 
         explicit operator int64 () const;
@@ -991,8 +988,9 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case cx>
     struct complemented_string<negativity::nones, cx> : string<cx> {
         using string<cx>::string;
-        complemented_string (string_view x): string<cx> {x} {}
-        complemented_string (uint64);
+
+        template <std::integral I> complemented_string (I);
+
         explicit complemented_string (const math::N &);
 
         explicit operator integer<negativity::twos, cx> () const;
@@ -1024,7 +1022,8 @@ namespace data::encoding::hexidecimal {
     struct integer : complemented_string<c, cx> {
 
         using complemented_string<c, cx>::complemented_string;
-        
+
+        // try to read either a hex string or a dec string.
         static integer read (string_view);
         
         integer &operator += (const integer &);
@@ -1750,7 +1749,7 @@ namespace data::math {
     }
     
     dec_uint inline abs<dec_int>::operator () (const dec_int &x) {
-        if (is_negative<dec_int> {} (x)) return dec_uint {x.substr (1)};
+        if (is_negative<dec_int> {} (x)) return dec_uint {string_view (x).substr (1)};
         return dec_uint {x};
     }
     
@@ -1923,10 +1922,20 @@ namespace data::encoding::hexidecimal {
     }
     
     namespace {
-        template <hex::letter_case cx, bool is_signed, endian::order r, size_t size> 
-        string<cx> write_arith (const endian::integral<is_signed, r, size> &z) {
+        // NOTE: we write a built-in type to a hex string number by converting to
+        // an endian::integral type, writing with extra zeros, possibly negating it
+        // and then trimming the result. This would be much more efficient if we
+        // just figured out how big the number would be beforehand. Do we really
+        // need to bother making this work better though? I don't think so.
+        template <hex::letter_case cx, bool is_signed, size_t size>
+        string<cx> write_arith (const endian::integral<is_signed, endian::big, size> &z) {
             std::stringstream ss;
-            ss << "0x";
+            if constexpr (is_signed) {
+                if (z < 0) ss << "0xff";
+                else ss << "0x00";
+            } else {
+                ss << "0x00";
+            }
             hex::write (ss, z, cx);
             return string<cx> {ss.str ()};
         }
@@ -1934,42 +1943,52 @@ namespace data::encoding::hexidecimal {
         template <negativity c, hex::letter_case zz> struct write_int;
         
         template <hex::letter_case zz> struct write_int<negativity::nones, zz> {
-            integer<negativity::nones, zz> operator () (int64 i) {
+            template <std::signed_integral I>
+            integer<negativity::nones, zz> operator () (I i) {
                 if (i < 0) throw exception {} << "attempt to construct natural number from negative int " << i;
-                return operator () (static_cast<uint64> (i));
+                return operator () (static_cast<std::make_unsigned_t<I>> (i));
             }
 
-            integer<negativity::nones, zz> operator () (uint64 i) {
+            template <std::unsigned_integral I>
+            integer<negativity::nones, zz> operator () (I i) {
                 return integer<negativity::nones, zz>
-                    {write_arith<zz, false, endian::big, 8> (endian::integral<false, endian::big, 8> {i})};
+                    {write_arith<zz, false, sizeof (I)>
+                        (endian::integral<false, endian::big, sizeof (I)> {i})};
             }
         };
         
         template <hex::letter_case zz> struct write_int<negativity::twos, zz> {
-            integer<negativity::twos, zz> operator () (uint64 i) {
-                return integer<negativity::nones, zz>
-                    {write_arith<zz, false, endian::big, 8> (endian::integral<false, endian::big, 8> {i})};
+            template <std::signed_integral I>
+            integer<negativity::twos, zz> operator () (I i) {
+                return integer<negativity::twos, zz>
+                    {write_arith<zz, true, sizeof (I)>
+                        (endian::integral<true, endian::big, sizeof (I)> {i})};
             }
 
-            integer<negativity::twos, zz> operator () (int64 i) {
+            template <std::unsigned_integral I>
+            integer<negativity::twos, zz> operator () (I i) {
                 return integer<negativity::twos, zz>
-                    {write_arith<zz, true, endian::big, 8> (endian::integral<true, endian::big, 8> {i})};
+                {write_arith<zz, false, sizeof (I)>
+                    (endian::integral<false, endian::big, sizeof (I)> {i})};
             }
         };
         
         template <hex::letter_case zz> struct write_int<negativity::BC, zz> {
-            integer<negativity::BC, zz> operator () (uint64 i) {
-                return write_uint (i);
-            }
-
-            integer<negativity::BC, zz> operator () (int64 i) {
-                return i < 0 ? -write_uint (static_cast<uint64> (-i)) : write_uint (static_cast<uint64> (i));
+            template <std::signed_integral I>
+            integer<negativity::BC, zz> operator () (I i) {
+                using U = std::make_unsigned_t<I>;
+                if (i == std::numeric_limits<int64>::min ())
+                    return -operator () (static_cast<U> (i));
+                return i < 0 ?
+                    -operator () (static_cast<U> (-i)) :
+                    operator () (static_cast<U> (i));
             }
             
-        private:
-            integer<negativity::BC, zz> write_uint (uint64 i) {
+            template <std::unsigned_integral I>
+            integer<negativity::BC, zz> operator () (I i) {
                 return integer<negativity::BC, zz>
-                    {write_arith<zz, false, endian::big, 8> (endian::integral<false, endian::big, 8> {i})};
+                    {write_arith<zz, false, sizeof (I)>
+                        (endian::integral<false, endian::big, sizeof (I)> {i})};
             } 
         };
 
@@ -1993,19 +2012,16 @@ namespace data::encoding::hexidecimal {
     }
 
     template <negativity c, hex::letter_case zz>
-    inline complemented_string<c, zz>::complemented_string (int64 x): complemented_string {write_int<c, zz> {} (x)} {
-        *this = trim<c, zz> (*this);
-    }
-
-    template <negativity c, hex::letter_case zz>
-    inline complemented_string<c, zz>::complemented_string (uint64 x): complemented_string {write_int<c, zz> {} (x)} {
-        *this = trim<c, zz> (*this);
+    template <std::integral I>
+    inline complemented_string<c, zz>::complemented_string (I x): complemented_string {write_int<c, zz> {} (x)} {
+        static_cast<string<zz> &> (*this) = trim<c, zz> (*this);
     }
 
     template <hex::letter_case zz>
-    inline complemented_string<negativity::nones, zz>::complemented_string (uint64 x):
+    template <std::integral I>
+    inline complemented_string<negativity::nones, zz>::complemented_string (I x):
         complemented_string {write_int<negativity::nones, zz> {} (x)} {
-        static_cast<std::string &> (*this) = trim<negativity::nones, zz> (*this);
+        static_cast<string<zz> &> (*this) = trim<negativity::nones, zz> (*this);
     }
     
     template <negativity c, hex::letter_case cx>
