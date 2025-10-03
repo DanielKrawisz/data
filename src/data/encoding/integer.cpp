@@ -16,9 +16,6 @@ namespace data::encoding {
     
     namespace decimal {
         
-        // x is automatically converted to GMP.
-        string::string (uint64 x) : string {write (x)} {}
-        
         // TODO it should be possible to compare decimal strings 
         // with basic functions in math::arithmetic.
         std::strong_ordering N_compare (string_view a, string_view b) {

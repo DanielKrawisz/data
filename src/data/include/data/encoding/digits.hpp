@@ -17,7 +17,7 @@ namespace data::encoding {
         
         stack<char> dig {};
         N x = n;
-        while (x > 0u) {
+        while (x > 0) {
             division<N> d = math::number::natural_divide (x, base);
             dig >>= digits[(uint64) (d.Remainder)];
             x = d.Quotient;

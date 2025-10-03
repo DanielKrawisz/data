@@ -51,7 +51,7 @@ namespace data::math {
         
     }
     
-    TEST (StringNumbersTest, TestInvalidStringNumbers) {
+    TEST (StringNumbers, InvalidStringNumbers) {
         
         dec_uint d {""};
         dec_int s {""};
@@ -92,7 +92,7 @@ namespace data::math {
 
 namespace data::encoding {
     
-    TEST (StringNumbersTest, TestConstructStringNumbers) {
+    TEST (StringNumbers, ConstructStringNumbers) {
         
         EXPECT_EQ (dec_uint {}, "0");
         EXPECT_EQ (dec_int {}, "0");
@@ -116,7 +116,7 @@ namespace data::encoding {
         
     }
     
-    TEST (StringNumbersTest, TestAddStringNumbers) {
+    TEST (StringNumbers, AddStringNumbers) {
         
         EXPECT_EQ (dec_uint {1u} + dec_uint {2}, "3");
         EXPECT_EQ (dec_int {1} + dec_int {2}, "3");
@@ -134,7 +134,7 @@ namespace data::encoding {
         
     }
     
-    TEST (StringNumbersTest, TestSubtractStringNumbers) {
+    TEST (StringNumbers, SubtractStringNumbers) {
 
         auto dec_minus_result = dec_uint {2} - dec_uint {1};
         EXPECT_EQ (dec_minus_result, "1");

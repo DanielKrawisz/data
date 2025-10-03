@@ -11,7 +11,6 @@
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <data/encoding/invalid.hpp>
 #include <data/arithmetic/negativity.hpp>
 #include <data/math/number/gmp/mpz.hpp>
 
@@ -33,6 +32,9 @@ namespace data::encoding {
         
         template <endian::order r, std::unsigned_integral word>
         maybe<math::N_bytes<r, word>> read (string_view s);
+
+        template <std::unsigned_integral I>
+        std::ostream &write (std::ostream &, I);
         
         template <endian::order r, std::unsigned_integral word>
         std::ostream &write (std::ostream &, const math::N_bytes<r, word> &);
@@ -43,6 +45,9 @@ namespace data::encoding {
         // a decimal string inherets from string but is
         // a big number that supports standard numerical operations. 
         struct string;
+
+        template <std::unsigned_integral I>
+        string write (I);
         
         template <endian::order r, std::unsigned_integral word>
         string write (const math::N_bytes<r, word> &);
@@ -735,7 +740,15 @@ namespace data::encoding::decimal {
         
         explicit string (const std::string &x);
         explicit string (std::string &&x);
-        string (uint64);
+        explicit string (const char *x): string {string_view {x, std::strlen (x)}} {}
+        explicit string (string_view x):
+            data::string {decimal::valid (x) ? x : string_view {nullptr, 0}} {}
+
+        // We need these to ensure that we can accept
+        // any number literal.
+        template <std::signed_integral I> string (I);
+        template <std::unsigned_integral I> string (I);
+
         explicit string (const math::N &);
         
         bool valid () const {
@@ -783,13 +796,25 @@ namespace data::encoding::decimal {
     
     signed_decimal::string operator - (const string &);
 
+    template <std::unsigned_integral I>
+    string inline write (I x) {
+        std::stringstream ss;
+        write (ss, x);
+        return string {ss.str ()};
+    }
+
+    template <std::unsigned_integral I>
+    std::ostream inline &write (std::ostream &o, I x) {
+        return o << std::dec << x;
+    }
+
     template <endian::order r, size_t x, std::unsigned_integral word>
-    std::ostream &write (std::ostream &o, const math::uint<r, x, word> &n) {
+    std::ostream inline &write (std::ostream &o, const math::uint<r, x, word> &n) {
         return write (o, math::N_bytes<r, word> (n));
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    string write (const math::uint<r, x, word> &n) {
+    string inline write (const math::uint<r, x, word> &n) {
         std::stringstream ss;
         write (ss, n);
         return string {ss.str ()};
@@ -1023,7 +1048,7 @@ namespace data::encoding::hexidecimal {
 namespace data::encoding::decimal {
         
     const std::string inline &characters () {
-        static string Dec {"0123456789"};
+        static std::string Dec {"0123456789"};
         return Dec;
     }
     
@@ -1042,6 +1067,14 @@ namespace data::encoding::decimal {
     constexpr uint32 inline digits (string_view s) {
         return valid (s) ? s.size () : 0;
     }
+
+    template <std::signed_integral I>
+    inline string::string (I x): string {write (static_cast <std::make_unsigned_t<I>> (x))} {
+        if (x < 0) throw exception {} << "decimal string cannot be negative";
+    }
+
+    template <std::unsigned_integral I>
+    inline string::string (I x) : string {write (x)} {}
     
     inline string::string () : data::string {"0"} {}
         
