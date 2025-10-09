@@ -143,40 +143,40 @@ namespace data {
 
 }
 
-template <typename X> struct list_test : ::testing::Test {
+template <typename X> struct List : ::testing::Test {
     using type = data::list<X>;
     using element = X;
 };
 
-using list_test_cases = ::testing::Types<
+using List_cases = ::testing::Types<
     int, const int, int &, const int &, int *, int *const, const int *, const int *const, 
     data::string, const data::string, data::string &, const data::string &, data::string *, 
     data::string *const, const data::string *, const data::string *const>;
 
-TYPED_TEST_SUITE (list_test, list_test_cases);
+TYPED_TEST_SUITE (List, List_cases);
 
-TYPED_TEST (list_test, ListValid) {
+TYPED_TEST (List, Valid) {
     using type = typename TestFixture::type;
     auto is_valid = valid (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
     EXPECT_TRUE (is_valid);
 }
 
-TYPED_TEST (list_test, ListEmpty) {
+TYPED_TEST (List, Empty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (list_test, ListSize) {
+TYPED_TEST (List, ListSize) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (list_test, ListFirst) {
+TYPED_TEST (List, First) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     EXPECT_THROW (first (type {}), data::empty_sequence_exception);
@@ -199,33 +199,33 @@ TYPED_TEST (list_test, ListFirst) {
     }
 }
 
-TYPED_TEST (list_test, ListRest) {
+TYPED_TEST (List, Rest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (list_test, ListValues) {
+TYPED_TEST (List, Values) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
     static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (list_test, ListReverse) {
+TYPED_TEST (List, Reverse) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (reverse (type {}));
     static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (list_test, ListContains) {
+TYPED_TEST (List, Contains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);
 }
 
-TYPED_TEST (list_test, ListPrepend) {
+TYPED_TEST (List, Prepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_prepend = decltype (prepend (type {}, std::declval<element> ()));
@@ -234,7 +234,7 @@ TYPED_TEST (list_test, ListPrepend) {
     using has_rshift_equals = decltype (list >>= std::declval<element> ());
 }
 
-TYPED_TEST (list_test, ListAppepend) {
+TYPED_TEST (List, Appepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_append = decltype (append (type {}, std::declval<element> ()));
@@ -243,38 +243,38 @@ TYPED_TEST (list_test, ListAppepend) {
     using has_lshift_equals = decltype (list <<= std::declval<element> ());
 }
 
-TYPED_TEST (list_test, ListTakeDrop) {
+TYPED_TEST (List, TakeDrop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
 }
 
-TYPED_TEST (list_test, ListJoin) {
+TYPED_TEST (List, Join) {
     using type = typename TestFixture::type;
     (void) join (type {}, type {});
     (void) (type {} + type {});
 }
 
-TYPED_TEST (list_test, ListSort) {
+TYPED_TEST (List, Sort) {
     using type = typename TestFixture::type;
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
 // TODO for beta
 /*
-TYPED_TEST (list_test, ListRemove) {
+TYPED_TEST (List, ListRemove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (remove (type {}, size_t {0}));
 }
 
-TYPED_TEST (list_test, ListErase) {
+TYPED_TEST (List, ListErase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (erase (type {}, std::declval<element> ()));
 }*/
 /*
-TYPED_TEST (list_test, ListSelect) {
+TYPED_TEST (List, ListSelect) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (select (type {}, [] (const auto &&) {

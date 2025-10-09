@@ -142,15 +142,15 @@ namespace data {
             { a - b } -> ImplicitlyConvertible<X>;
         } && requires (const X &n) {
             { div_2 (n) } -> ImplicitlyConvertible<X>;
-            { n + 1 } -> ImplicitlyConvertible<X>;
-            { n - 1 } -> ImplicitlyConvertible<X>;
+            //{ n + 1 } -> ImplicitlyConvertible<X>;
+            //{ n - 1 } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
             { a += b } -> Same<X &>;
             { a -= b } -> Same<X &>;
-        } && requires (X &a) {
+        } /*&& requires (X &a) {
             { a += 1 } -> Same<X &>;
             { a -= 1 } -> Same<X &>;
-        };
+        }*/;
 
     template <typename A> concept signed_group_integral = group_integral<A> && signed_proto_integral<A>;
     template <typename A> concept unsigned_group_integral = group_integral<A> && unsigned_proto_integral<A>;
@@ -175,12 +175,12 @@ namespace data {
             { a * b } -> ImplicitlyConvertible<X>;
         } && requires (const X &n) {
             { mul_2 (n) } -> ImplicitlyConvertible<X>;
-            { n * 1 } -> ImplicitlyConvertible<X>;
+            //{ n * 1 } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
             { a *= b } -> Same<X &>;
-        } && requires (X &a) {
+        } /*&& requires (X &a) {
             { a *= 1 } -> Same<X &>;
-        };
+        }*/;
 
     template <typename A> concept signed_ring_integral =
         ring_integral<A> && signed_type<A>;

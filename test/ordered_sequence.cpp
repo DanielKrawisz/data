@@ -122,40 +122,40 @@ namespace data {
 
 }
 
-template <typename X> struct ordseq_test : ::testing::Test {
+template <typename X> struct OrdSeq : ::testing::Test {
     using type = data::ordered_sequence<X>;
     using element = X;
 };
 
-using ordseq_test_cases = ::testing::Types<
+using OrdSeq_cases = ::testing::Types<
     int, const int, int &, const int &, int *, int *const, const int *, const int *const, 
     data::string, const data::string, data::string &, const data::string &, data::string *, 
     data::string *const, const data::string *, const data::string *const>;
 
-TYPED_TEST_SUITE (ordseq_test, ordseq_test_cases);
+TYPED_TEST_SUITE (OrdSeq, OrdSeq_cases);
 
-TYPED_TEST (ordseq_test, OrdSeqValid) {
+TYPED_TEST (OrdSeq, Valid) {
     using type = typename TestFixture::type;
     auto is_valid = valid (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
     EXPECT_TRUE (is_valid);
 }
 
-TYPED_TEST (ordseq_test, OrdSeqEmpty) {
+TYPED_TEST (OrdSeq, Empty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (ordseq_test, OrdSeqSize) {
+TYPED_TEST (OrdSeq, Size) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (ordseq_test, OrdSeqFirst) {
+TYPED_TEST (OrdSeq, First) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     EXPECT_THROW (first (type {}), data::empty_sequence_exception);
@@ -178,27 +178,27 @@ TYPED_TEST (ordseq_test, OrdSeqFirst) {
     }
 }
 
-TYPED_TEST (ordseq_test, OrdSeqRest) {
+TYPED_TEST (OrdSeq, Rest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (ordseq_test, OrdSeqValues) {
+TYPED_TEST (OrdSeq, Values) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
     static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (ordseq_test, TestOrdSeqContains) {
+TYPED_TEST (OrdSeq, Contains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_contains = decltype (contains (type {}, std::declval<element> ()));
 }
 // TODO for beta
 /*
-TYPED_TEST (ordseq_test, OrdSeqInsert) {
+TYPED_TEST (OrdSeq, Insert) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_insert = decltype (insert (type {}, std::declval<element> ()));
@@ -207,25 +207,25 @@ TYPED_TEST (ordseq_test, OrdSeqInsert) {
     using has_rshift_equals = decltype (stack >>= std::declval<element> ());
 }*/
 /*
-TYPED_TEST (ordseq_test, OrdSeqTakeDrop) {
+TYPED_TEST (OrdSeq, Drop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
 }*/
 
-TYPED_TEST (ordseq_test, OrdSeqSort) {
+TYPED_TEST (OrdSeq, Sort) {
     using type = typename TestFixture::type;
     //(void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
 /*
-TYPED_TEST (ordseq_test, OrdSeqMerge) {
+TYPED_TEST (OrdSeq, Merge) {
     using type = typename TestFixture::type;
     (void) merge (type {}, type {});
     (void) (type {} & type {});
 }
 
-TYPED_TEST (ordseq_test, OrdSeqSelect) {
+TYPED_TEST (OrdSeq, Select) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (contains (type {}, std::declval<element> ()));

@@ -50,7 +50,7 @@ namespace data::math::number {
         eratosthenes (stack<prime<N>> p, N m, heap sieve) : Primes {p}, Next {m}, Sieve {sieve} {}
         
         static heap insert_prime (heap sieve, N prime) {
-            return sieve.insert (entry {prime, prime * 2});
+            return sieve.insert (entry {prime, prime * 2u});
         }; 
         
         eratosthenes step () const ;
@@ -71,7 +71,7 @@ namespace data::math::number {
 
         prime<N> operator [] (N n) {
             if (n == 0) return first ();
-            return rest ()[n - 1];
+            return rest ()[n - 1u];
         }
 
     private:
@@ -112,8 +112,9 @@ namespace data::math::number {
     template <typename N>
     eratosthenes<N> eratosthenes<N>::step () const {
         heap q = Sieve;
-        if (test_next_prime (Next, q)) return {Primes >> prime<N> {Next, prime<N>::certain}, Next + 1, insert_prime (q, Next)};
-        else return {Primes, Next + 1, q};
+        if (test_next_prime (Next, q))
+            return {Primes >> prime<N> {Next, prime<N>::certain}, Next + 1u, insert_prime (q, Next)};
+        else return {Primes, Next + 1u, q};
     }
 
     template <typename N>

@@ -46,50 +46,62 @@ namespace data::math::number {
 
     // comparison
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    bool operator == (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
+    constexpr bool operator == (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const sint<r, size, word> &, const sint<r, size, word> &);
+    constexpr std::strong_ordering operator <=> (const sint<r, size, word> &, const sint<r, size, word> &);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const uint<r, size, word> &, const uint<r, size, word> &);
+    constexpr std::strong_ordering operator <=> (const uint<r, size, word> &, const uint<r, size, word> &);
 
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
+    constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
+
+    template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr bool operator == (I, const bounded<u, r, size, word> &);
+
+    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr bool operator == (const bounded<u, r, size, word> &, I);
+
+    template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr std::strong_ordering operator <=> (I x, const bounded<u, r, size, word> &);
+
+    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr std::strong_ordering operator <=> (const bounded<u, r, size, word> &, I x);
 
     // bit operations
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator ~ (const bounded<u, r, x, word> &);
+    constexpr bounded<u, r, x, word> operator ~ (const bounded<u, r, x, word> &);
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator ^ (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
+    constexpr bounded<u, r, x, word> operator ^ (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator & (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
+    constexpr bounded<u, r, x, word> operator & (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator | (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
+    constexpr bounded<u, r, x, word> operator | (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
 
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> operator << (const bounded<u, r, size, word> &, int);
+    constexpr bounded<u, r, size, word> operator << (const bounded<u, r, size, word> &, int);
 
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> operator >> (const bounded<u, r, size, word> &, int);
+    constexpr bounded<u, r, size, word> operator >> (const bounded<u, r, size, word> &, int);
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator &= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    constexpr bounded<u, r, size, word> &operator &= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator |= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    constexpr bounded<u, r, size, word> &operator |= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator ^= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    constexpr bounded<u, r, size, word> &operator ^= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator <<= (bounded<u, r, size, word> &, int);
+    constexpr bounded<u, r, size, word> &operator <<= (bounded<u, r, size, word> &, int);
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator >>= (bounded<u, r, size, word> &, int);
+    constexpr bounded<u, r, size, word> &operator >>= (bounded<u, r, size, word> &, int);
     
     // increment and decrement
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
@@ -104,37 +116,146 @@ namespace data::math::number {
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
     bounded<u, r, size, word> &operator -- (bounded<u, r, size, word> &);
     
-    // arithmetic
+    // basic arithmetic
+
+    // negate
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator - (const bounded<u, r, x, word> &);
+    constexpr bounded<u, r, x, word> operator - (const bounded<u, r, x, word> &);
+
+    // plus
+    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr bounded<u, r, size, word> operator + (const bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> operator + (const bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    constexpr bounded<u, r, size, word> &operator += (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+
+    // minus
+    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr bounded<u, r, size, word> operator - (const bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> operator - (const bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    constexpr bounded<u, r, size, word> &operator -= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
+    // times
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> operator * (const bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
-
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator -= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    sint<r, size, word> &operator -= (sint<r, size, word> &, const uint<r, size, word> &);
+    constexpr bounded<u, r, size, word> operator * (const bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator += (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    constexpr bounded<u, r, size, word> &operator *= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    sint<r, size, word> &operator += (sint<r, size, word> &, const uint<r, size, word> &);
-    
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> &operator *= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
+    // bit arithmetic with built-in types.
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    sint<r, size, word> &operator *= (sint<r, size, word> &, const uint<r, size, word> &);
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> operator & (const uint<r, size, word> &, I);
 
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> operator & (I, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> operator & (const sint<r, size, word> &, I);
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> operator & (I, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> &operator &= (uint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> &operator &= (sint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> operator ^ (const uint<r, size, word> &, I);
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> operator ^ (I, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> operator ^ (const sint<r, size, word> &, I);
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> operator ^ (I, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> &operator ^= (uint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> &operator ^= (sint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> operator | (const uint<r, size, word> &, I);
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> operator | (I, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> operator | (const sint<r, size, word> &, I);
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> operator | (I, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> &operator |= (uint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> &operator |= (sint<r, size, word> &, I);
+
+    // basic arithmetic with built-in types.
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> operator + (const uint<r, size, word> &, I);
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> operator + (I, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> operator + (const sint<r, size, word> &, I);
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> operator + (I, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> &operator += (uint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> &operator += (sint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> operator - (const uint<r, size, word> &, I);
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> operator - (I, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> operator - (const sint<r, size, word> &, I);
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> operator - (I, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> &operator -= (uint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> &operator -= (sint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> operator * (const uint<r, size, word> &, I);
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> operator * (I, const uint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> operator * (const sint<r, size, word> &, I);
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> operator * (I, const sint<r, size, word> &);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> &operator *= (uint<r, size, word> &, I);
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> &operator *= (sint<r, size, word> &, I);
+
+    // mod and divide
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     bounded<u, r, x, word> operator / (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
 
@@ -188,79 +309,88 @@ namespace data::math {
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct inverse<plus<number::bounded<u, r, x, word>>, number::bounded<u, r, x, word>> {
-        number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &a, const number::bounded<u, r, x, word> &b);
+        constexpr number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &a, const number::bounded<u, r, x, word> &b);
     };
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct abs<uint<r, x, word>> {
-        uint<r, x, word> operator () (const uint<r, x, word> &);
+        constexpr uint<r, x, word> operator () (const uint<r, x, word> &);
     };
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct abs<sint<r, x, word>> {
-        sint<r, x, word> operator () (const sint<r, x, word> &);
+        constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
     };
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct quadrance<number::bounded<u, r, x, word>> {
-        number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &z) {
+        constexpr number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &z) {
             return z * z;
         }
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct sign<uint<r, x, word>> {
-        signature operator () (const uint<r, x, word> &);
+        constexpr signature operator () (const uint<r, x, word> &);
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct sign<sint<r, x, word>> {
-        signature operator () (const sint<r, x, word> &);
+        constexpr signature operator () (const sint<r, x, word> &);
     };
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct re<number::bounded<u, r, x, word>> {
-        number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &);
+        constexpr number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &n) {
+            return n;
+        }
     };
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct im<number::bounded<u, r, x, word>> {
-        number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &);
+        constexpr number::bounded<u, r, x, word> operator () (const number::bounded<u, r, x, word> &) {
+            return 0;
+        }
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct conjugate<sint<r, x, word>> {
-        sint<r, x, word> operator () (const sint<r, x, word> &);
+        constexpr sint<r, x, word> operator () (const sint<r, x, word> &n) {
+            return n;
+        }
     };
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct inner<number::bounded<u, r, x, word>> {
-        number::bounded<u, r, x, word> & operator () (const number::bounded<u, r, x, word> &, const number::bounded<u, r, x, word> &);
+        constexpr number::bounded<u, r, x, word> operator ()
+        (const number::bounded<u, r, x, word> &a, const number::bounded<u, r, x, word> &b) {
+            return a * b;
+        }
     };
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     struct is_zero<number::bounded<u, r, x, word>> {
-        bool operator () (const number::bounded<u, r, x, word> &);
+        constexpr bool operator () (const number::bounded<u, r, x, word> &);
     };
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct is_negative<uint<r, x, word>> {
-        bool operator () (const uint<r, x, word> &);
+        constexpr bool operator () (const uint<r, x, word> &);
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct is_negative<sint<r, x, word>> {
-        bool operator () (const sint<r, x, word> &);
+        constexpr bool operator () (const sint<r, x, word> &);
     };
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct is_positive<uint<r, x, word>> {
-        bool operator () (const uint<r, x, word> &);
+        constexpr bool operator () (const uint<r, x, word> &);
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     struct is_positive<sint<r, x, word>> {
-        bool operator () (const sint<r, x, word> &);
+        constexpr bool operator () (const sint<r, x, word> &);
     };
 
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -280,14 +410,18 @@ namespace data::math {
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>
     struct bit_xor<number::bounded<a, r, x, word>, number::bounded<a, r, x, word>> {
-        number::bounded<a, r, x, word> operator () (
-            const number::bounded<a, r, x, word> &,
-            const number::bounded<a, r, x, word> &);
+        constexpr number::bounded<a, r, x, word> operator () (
+            const number::bounded<a, r, x, word> &m,
+            const number::bounded<a, r, x, word> &n) {
+            number::bounded<a, r, x, word> result;
+            arithmetic::bit_xor<word> (result.end (), result.begin (), m.begin (), n.begin ());
+            return result;
+        }
     };
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
     struct plus_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>> {
-        uint<r, x, word> operator () (
+        constexpr uint<r, x, word> operator () (
             const number::bounded<a, r, x, word> &,
             const number::bounded<b, r, x, word> &,
             const nonzero<uint<r, x, word>> &);
@@ -295,14 +429,14 @@ namespace data::math {
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>
     struct square_mod<number::bounded<a, r, x, word>, uint<r, x, word>> {
-        uint<r, x, word> operator () (
+        constexpr uint<r, x, word> operator () (
             const number::bounded<a, r, x, word> &,
             const nonzero<uint<r, x, word>> &);
     };
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
     struct times_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>> {
-        uint<r, x, word> operator () (
+        constexpr uint<r, x, word> operator () (
             const number::bounded<a, r, x, word> &,
             const number::bounded<b, r, x, word> &,
             const nonzero<uint<r, x, word>> &);
@@ -310,7 +444,7 @@ namespace data::math {
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
     struct pow_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>> {
-        uint<r, x, word> operator () (
+        constexpr uint<r, x, word> operator () (
             const number::bounded<a, r, x, word> &,
             const number::bounded<b, r, x, word> &,
             const nonzero<uint<r, x, word>> &);
@@ -318,7 +452,7 @@ namespace data::math {
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>
     struct invert_mod<number::bounded<a, r, x, word>, uint<r, x, word>> {
-        maybe<uint<r, x, word>> operator () (
+        constexpr maybe<uint<r, x, word>> operator () (
             const number::bounded<a, r, x, word> &,
             const nonzero<uint<r, x, word>> &);
     };
@@ -368,52 +502,52 @@ namespace data::math::number {
     // automatic conversion to unsigned.
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator ^ (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator ^ (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) ^ uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator & (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator & (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) & uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator | (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator | (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) | uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator + (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator + (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) + uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator - (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator - (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) - uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator * (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator * (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) * uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator / (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator / (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) / uint<r, x, word> (m);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator % (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+    constexpr uint<r, x, word> inline operator % (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
         return uint<r, x, word> (n) % uint<r, x, word> (m);
     }
 
     // here we have some arithmetic with other number types.
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    bool operator == (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
+    constexpr bool operator == (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
+    constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
 
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     bool operator == (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
@@ -426,80 +560,6 @@ namespace data::math::number {
 
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     std::weak_ordering operator <=> (const uint<r, size, word> &, const N_bytes<o, word> &);
-
-    template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (I, const bounded<u, r, size, word> &);
-
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
-    bool operator == (const bounded<u, r, size, word> &, I);
-
-    template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering operator <=> (I x, const bounded<u, r, size, word> &);
-
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
-    std::strong_ordering operator <=> (const bounded<u, r, size, word> &, I x);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const uint<r, x, word> &a, int64 b);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const sint<r, x, word> &a, int64 b);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const uint<r, x, word> &a, uint64 b);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const sint<r, x, word> &a, uint64 b);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const uint<r, x, word> &a, int32 b);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const sint<r, x, word> &a, int32 b);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    uint<r, size, word> operator | (const uint<r, size, word> &, uint64);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    uint<r, size, word> operator & (const uint<r, size, word> &, uint64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> operator + (const uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> operator + (const sint<r, x, word> &, int64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> operator - (const uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> operator - (const sint<r, x, word> &, int64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> operator * (const uint<r, x, word> &, uint64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> operator * (const sint<r, x, word> &, int64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> operator & (const uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline operator & (const sint<r, x, word> &z, int64 u) {
-        return z & sint<r, x, word> {u};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> operator | (const uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> operator | (const sint<r, x, word> &, int64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> operator ^ (const uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> operator ^ (const sint<r, x, word> &, int64);
     
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> operator / (const uint<r, x, word> &, uint64);
@@ -512,42 +572,6 @@ namespace data::math::number {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint64 operator % (const sint<r, x, word> &, uint64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> &operator += (uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> &operator += (sint<r, x, word> &, int64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> &operator -= (uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> &operator -= (sint<r, x, word> &, int64);
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> &operator *= (uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> &operator *= (sint<r, x, word> &, int64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> &operator &= (uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> &operator &= (sint<r, x, word> &, int64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> &operator |= (uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> &operator |= (sint<r, x, word> &, int64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> &operator ^= (uint<r, x, word> &, uint64);
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> &operator ^= (sint<r, x, word> &, int64);
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     uint<r, x, word> &operator /= (uint<r, x, word> &, uint64);
@@ -571,7 +595,7 @@ namespace data::math::number {
     sint<r, x, word> &operator /= (sint<r, x, word> &, int64);
 
     template <endian::order r, size_t size, std::unsigned_integral word>
-    struct bounded<false, r, size, word> : oriented<r, word, size> {
+    struct bounded<false, r, size, word> : public oriented<r, word, size> {
         
         constexpr bounded () : oriented<r, word, size> () {
             for (word &w : *this) w = 0;
@@ -604,7 +628,8 @@ namespace data::math::number {
         explicit operator double () const;
 
         // we can implicitly convert to any bigger bounded number, signed or unsigned.
-        template <bool x, size_t bigger> requires (bigger > size)
+        template <bool x, size_t bigger>
+        requires (bigger > size)
         operator bounded<x, r, bigger, word> () const {
             bounded<x, r, bigger, word> n {0};
             std::copy (this->words ().begin (), this->words ().end (), n.words ().begin ());
@@ -619,12 +644,29 @@ namespace data::math::number {
         }
 
         // we can explicitly convert to a smaller number.
-        template <bool x, size_t smaller> requires (smaller < size)
+        template <bool x, size_t smaller>
+        requires (smaller < size)
         explicit operator bounded<x, r, smaller, word> () const {
             bounded<x, r, smaller, word> n;
             std::copy (this->words ().begin (), this->words ().begin () + smaller, n.words ().begin ());
             return n;
         }
+
+        template <bool x, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) > size * sizeof (word))
+        operator bounded<x, r, u, w> () const;
+
+        template <size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) == size * sizeof (word))
+        operator bounded<false, r, u, w> () const;
+
+        template <size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) == size * sizeof (word))
+        explicit operator bounded<true, r, u, w> () const;
+
+        template <bool x, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) < size * sizeof (word))
+        explicit operator bounded<x, r, u, w> () const;
 
         explicit operator uint64 () const {
             if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
@@ -640,7 +682,7 @@ namespace data::math::number {
     };
     
     template <endian::order r, size_t size, std::unsigned_integral word>
-    struct bounded<true, r, size, word> : oriented<r, word, size> {
+    struct bounded<true, r, size, word> : public oriented<r, word, size> {
         
         constexpr bounded () : oriented<r, word, size> {} {
             for (word &w : *this) w = 0;
@@ -706,23 +748,39 @@ namespace data::math::number {
             std::copy (this->begin (), this->begin () + smaller, n.begin ());
             return n;
         }
+
+        template <bool x, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) > size * sizeof (word))
+        operator bounded<x, r, u, w> () const;
+
+        template <size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) == size * sizeof (word))
+        operator bounded<true, r, u, w> () const;
+
+        template <size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) == size * sizeof (word))
+        explicit operator bounded<false, r, u, w> () const;
+
+        template <bool x, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (word) < size * sizeof (word))
+        explicit operator bounded<x, r, u, w> () const;
         
     };
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline operator ~ (const bounded<u, r, x, word> &n) {
+    constexpr bounded<u, r, x, word> inline operator ~ (const bounded<u, r, x, word> &n) {
         auto z = n;
         arithmetic::bit_negate<word> (z.end (), z.begin (), z.begin ());
         return z;
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    bool inline operator == (const bounded<x, r, n, word> &a, const bounded<y, o, z, word> &b) {
+    constexpr bool inline operator == (const bounded<x, r, n, word> &a, const bounded<y, o, z, word> &b) {
         return (a <=> b) == 0;
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    bool inline operator == (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
+    constexpr bool inline operator == (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
         return (a <=> b) == 0;
     }
     
@@ -737,22 +795,22 @@ namespace data::math::number {
     }
 
     template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bool inline operator == (I x, const bounded<u, r, size, word> &y) {
+    constexpr bool inline operator == (I x, const bounded<u, r, size, word> &y) {
         return (x <=> y) == 0;
     }
 
     template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
-    bool inline operator == (const bounded<u, r, size, word> &x, I y) {
+    constexpr bool inline operator == (const bounded<u, r, size, word> &x, I y) {
         return (x <=> y) == 0;
     }
 
     template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering inline operator <=> (I x, const bounded<u, r, size, word> &n) {
+    constexpr std::strong_ordering inline operator <=> (I x, const bounded<u, r, size, word> &n) {
         return bounded<u, r, size, word> {x} <=> n;
     }
 
     template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
-    std::strong_ordering inline operator <=> (const bounded<u, r, size, word> &n, I x) {
+    constexpr std::strong_ordering inline operator <=> (const bounded<u, r, size, word> &n, I x) {
         return n <=> bounded<u, r, size, word> {x};
     }
     
@@ -767,7 +825,7 @@ namespace data::math::number {
     }
     
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
+    constexpr std::weak_ordering inline operator <=> (const bounded<x, r, n, word> &a, const endian::integral<y, o, z> &b) {
         return a <=> bounded<y, o, z, word> (b);
     }
 
@@ -783,11 +841,6 @@ namespace data::math::number {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, n);
         throw exception {} << "Try to write a uint with invalid flags";
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator * (const uint<r, x, word> &a, uint64 b) {
-        return a * uint<r, x, word> (b);
     }
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
@@ -822,6 +875,186 @@ namespace data::math::number {
     template <bool u, endian::order r, size_t z, std::unsigned_integral word>
     bounded<u, r, z, word> inline &operator %= (bounded<u, r, z, word> &a, const bounded<u, r, z, word> &b) {
         return a = a % b;
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline operator & (const uint<r, size, word> &z, I x) {
+        return z & uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> inline operator & (I x, const uint<r, size, word> &z) {
+        return z & uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline operator & (const sint<r, size, word> &z, I x) {
+        return z & sint<r, size, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> inline operator & (I x, const sint<r, size, word> &z) {
+        return z & sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline &operator &= (uint<r, size, word> &z, I x) {
+        return z &= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline &operator &= (sint<r, size, word> &z, I x) {
+        return z &= sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline operator ^ (const uint<r, size, word> &z, I x) {
+        return z ^ uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> inline operator ^ (I x, const uint<r, size, word> &z) {
+        return z ^ uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline operator ^ (const sint<r, size, word> &z, I x) {
+        return z ^ sint<r, size, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> inline operator ^ (I x, const sint<r, size, word> &z) {
+        return z ^ sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline &operator ^= (uint<r, size, word> &z, I x) {
+        return z ^= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline &operator ^= (sint<r, size, word> &z, I x) {
+        return z ^= sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline operator | (const uint<r, size, word> &z, I x) {
+        return z | uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> inline operator | (I x, const uint<r, size, word> &z) {
+        return z | uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline operator | (const sint<r, size, word> &z, I x) {
+        return z | sint<r, size, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> inline operator | (I x, const sint<r, size, word> &z) {
+        return z | sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline &operator |= (uint<r, size, word> &z, I x) {
+        return z |= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline &operator |= (sint<r, size, word> &z, I x) {
+        return z |= sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline operator + (const uint<r, size, word> &z, I x) {
+        return z + uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> inline operator + (I x, const uint<r, size, word> &z) {
+        return z + uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline operator + (const sint<r, size, word> &z, I x) {
+        return z + sint<r, size, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> inline operator + (I x, const sint<r, size, word> &z) {
+        return z + sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline &operator += (uint<r, size, word> &z, I x) {
+        return z += uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline &operator += (sint<r, size, word> &z, I x) {
+        return z += sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline operator - (const uint<r, size, word> &z, I x) {
+        return z - uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> inline operator - (I x, const uint<r, size, word> &z) {
+        return uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)} - z;
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline operator - (const sint<r, size, word> &z, I x) {
+        return z - sint<r, size, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> inline operator - (I x, const sint<r, size, word> &z) {
+        return sint<r, size, word> {x} - z;
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline &operator -= (uint<r, size, word> &z, I x) {
+        return z -= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline &operator -= (sint<r, size, word> &z, I x) {
+        return z -= sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline operator * (const uint<r, size, word> &z, I x) {
+        return z * uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <std::integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr uint<r, size, word> inline operator * (I x, const uint<r, size, word> &z) {
+        return z * uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline operator * (const sint<r, size, word> &z, I x) {
+        return z * sint<r, size, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
+    constexpr sint<r, size, word> inline operator * (I x, const sint<r, size, word> &z) {
+        return z * sint<r, size, word> {x};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr uint<r, size, word> inline &operator *= (uint<r, size, word> &z, I x) {
+        return z *= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
+    constexpr sint<r, size, word> inline &operator *= (sint<r, size, word> &z, I x) {
+        return z *= sint<r, size, word> {x};
     }
 
 }
@@ -894,7 +1127,7 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const sint<r, size, word> &a, const sint<r, size, word> &b) {
+    constexpr std::strong_ordering operator <=> (const sint<r, size, word> &a, const sint<r, size, word> &b) {
         bool na = data::is_negative (a);
         bool nb = data::is_negative (b);
         if (na == nb) return arithmetic::compare<negativity::nones> (a.words (), b.words ());
@@ -902,12 +1135,12 @@ namespace data::math::number {
     }
     
     template <endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering inline operator <=> (const uint<r, size, word> &a, const uint<r, size, word> &b) {
+    constexpr std::strong_ordering inline operator <=> (const uint<r, size, word> &a, const uint<r, size, word> &b) {
         return arithmetic::compare<negativity::nones> (a.words (), b.words ());
     }
 
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    std::strong_ordering inline operator <=> (const bounded<x, r, n, word> &a, const bounded<y, o, z, word> &b) {
+    constexpr std::strong_ordering inline operator <=> (const bounded<x, r, n, word> &a, const bounded<y, o, z, word> &b) {
         if constexpr (x && !y) {
             if (a < 0) return std::strong_ordering::less;
             return arithmetic::compare<negativity::nones> (a.words (), b.words ());
@@ -916,82 +1149,17 @@ namespace data::math::number {
             return arithmetic::compare<negativity::nones> (a.words (), b.words ());
         } else throw exception {} << "undefined method bounded <=> bounded";
     }
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    uint<r, size, word> inline operator | (const uint<r, size, word> &a, uint64 b) {
-        return a | uint<r, size, word> (b);
-    }
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    uint<r, size, word> inline operator & (const uint<r, size, word> &a, uint64 b) {
-        return a & uint<r, size, word> (b);
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline operator + (const sint<r, x, word> &a, int64 b) {
-        return a + sint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline operator - (const sint<r, x, word> &a, int64 b) {
-        return a - sint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline operator * (const sint<r, x, word> &a, int64 b) {
-        return a * sint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline &operator += (uint<r, x, word> &a, uint64 b) {
-        return a += uint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline &operator += (sint<r, x, word> &a, int64 b) {
-        return a += sint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline &operator -= (uint<r, x, word> &a, uint64 b) {
-        return a -= uint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline &operator -= (sint<r, x, word> &a, int64 b) {
-        return a -= sint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline &operator *= (uint<r, x, word> &a, uint64 b) {
-        return a *= uint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline &operator *= (sint<r, x, word> &a, int64 b) {
-        return a *= sint<r, x, word> (b);
-    }
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<is_signed, r, size, word> inline operator << (const bounded<is_signed, r, size, word> &z, int i) {
+    constexpr bounded<is_signed, r, size, word> inline operator << (const bounded<is_signed, r, size, word> &z, int i) {
         auto n = z;
         return n <<= i;
     }
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<is_signed, r, size, word> inline operator >> (const bounded<is_signed, r, size, word> &z, int i) {
+    constexpr bounded<is_signed, r, size, word> inline operator >> (const bounded<is_signed, r, size, word> &z, int i) {
         auto n = z;
         return n >>= i;
-    }
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool inline operator == (const uint<r, size, word> &a, uint64 b) {
-        return a == uint<r, size, word> {b};
-    }
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool inline operator == (const sint<r, size, word> &a, int64 b) {
-        return a == sint<r, size, word> {b};
     }
     
 }
@@ -999,52 +1167,52 @@ namespace data::math::number {
 namespace data::math {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    math::signature inline sign<math::uint<r, x, word>>::operator () (const math::uint<r, x, word> &z) {
+    constexpr math::signature inline sign<math::uint<r, x, word>>::operator () (const math::uint<r, x, word> &z) {
         return arithmetic::nones::sign (z.words ());
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    math::signature inline sign<math::sint<r, x, word>>::operator () (const math::sint<r, x, word> &z) {
+    constexpr math::signature inline sign<math::sint<r, x, word>>::operator () (const math::sint<r, x, word> &z) {
         return arithmetic::twos::sign (z.words ());
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    bool inline is_positive<uint<r, x, word>>::operator () (const uint<r, x, word> &n) {
+    constexpr bool inline is_positive<uint<r, x, word>>::operator () (const uint<r, x, word> &n) {
         return !data::is_zero (n);
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    bool inline is_positive<sint<r, x, word>>::operator () (const sint<r, x, word> &n) {
+    constexpr bool inline is_positive<sint<r, x, word>>::operator () (const sint<r, x, word> &n) {
         return !data::is_negative (n) && !data::is_zero (n);
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    bool inline is_negative<uint<r, x, word>>::operator () (const uint<r, x, word> &n) {
+    constexpr bool inline is_negative<uint<r, x, word>>::operator () (const uint<r, x, word> &n) {
         return false;
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    bool inline is_negative<sint<r, x, word>>::operator () (const sint<r, x, word> &z) {
+    constexpr bool inline is_negative<sint<r, x, word>>::operator () (const sint<r, x, word> &z) {
         return arithmetic::sign_bit (z.words ());
     }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bool inline is_zero<number::bounded<u, r, x, word>>::operator () (const number::bounded<u, r, x, word> &z) {
+    constexpr bool inline is_zero<number::bounded<u, r, x, word>>::operator () (const number::bounded<u, r, x, word> &z) {
         return arithmetic::is_zero (z.words ());
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline abs<uint<r, x, word>>::operator () (const uint<r, x, word> &z) {
+    constexpr uint<r, x, word> inline abs<uint<r, x, word>>::operator () (const uint<r, x, word> &z) {
         return z;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline abs<sint<r, x, word>>::operator () (const sint<r, x, word> &z) {
+    constexpr sint<r, x, word> inline abs<sint<r, x, word>>::operator () (const sint<r, x, word> &z) {
         return z < 0 ? -z : z;
     }
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    number::bounded<u, r, x, word> inline inverse<plus<number::bounded<u, r, x, word>>, number::bounded<u, r, x, word>>::operator () (
+    constexpr number::bounded<u, r, x, word> inline inverse<plus<number::bounded<u, r, x, word>>, number::bounded<u, r, x, word>>::operator () (
         const number::bounded<u, r, x, word> &a,
         const number::bounded<u, r, x, word> &b) {
         return b - a;
@@ -1080,14 +1248,14 @@ namespace data::math::number {
     }
  
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline operator ^ (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> inline operator ^ (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         bounded<u, r, x, word> z {};
         arithmetic::bit_xor<word> (z.end (), z.begin (), a.begin (), b.begin ());
         return z;
     }
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> inline operator & (const bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
+    constexpr bounded<u, r, size, word> inline operator & (const bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
         bounded<u, r, size, word> x;
         arithmetic::bit_and<word>
             (x.words ().end (), x.words ().begin (), a.words ().begin (), b.words ().begin ());
@@ -1095,7 +1263,7 @@ namespace data::math::number {
     }
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> inline operator | (const bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
+    constexpr bounded<u, r, size, word> inline operator | (const bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
         bounded<u, r, size, word> x;
         arithmetic::bit_or<word>
             (x.words ().end (), x.words ().begin (), a.words ().begin (), b.words ().begin ());
@@ -1103,66 +1271,24 @@ namespace data::math::number {
     }
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> inline &operator &= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
+    constexpr bounded<u, r, size, word> inline &operator &= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
         arithmetic::bit_and<word> (a.words ().end (), a.words ().begin (),
             const_cast<const bounded<u, r, size, word> &> (a).words ().begin (), b.words ().begin ());
         return a;
     }
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> inline &operator |= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
+    constexpr bounded<u, r, size, word> inline &operator |= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
         arithmetic::bit_or<word> (a.words ().end (), a.words ().begin (),
             const_cast<const bounded<u, r, size, word> &> (a).words ().begin (), b.words ().begin ());
         return a;
     }
     
     template <bool u, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<u, r, size, word> inline &operator ^= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
+    constexpr bounded<u, r, size, word> inline &operator ^= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
         arithmetic::bit_xor<word> (a.words ().end (), a.words ().begin (),
             const_cast<const bounded<u, r, size, word> &> (a).words ().begin (), b.words ().begin ());
         return a;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, int64 b) {
-        if (b < 0) return std::weak_ordering::greater;
-        return a <=> uint<r, x, word> {static_cast<uint64> (b)};
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int64 b) {
-        return a <=> sint<r, x, word> {b};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, uint64 b) {
-        return a <=> uint<r, x, word> {b};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, uint64 b) {
-        return a <=> uint<r, x, word> {b};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, int32 b) {
-        if (b < 0) return std::weak_ordering::greater;
-        return a <=> uint<r, x, word> {static_cast<uint32> (b)};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, int32 b) {
-        return a <=> sint<r, x, word> {b};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const uint<r, x, word> &a, uint32 b) {
-        return a <=> uint<r, x, word> {b};
-    }
-
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    std::weak_ordering inline operator <=> (const sint<r, x, word> &a, uint32 b) {
-        return a <=> uint<r, x, word> {b};
     }
 
     template <endian::order r, size_t size, std::unsigned_integral word>
@@ -1273,20 +1399,15 @@ namespace data::math::number {
         return z;
     }
     
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    uint<r, size, word> inline operator + (const uint<r, size, word> &a, uint64 b) {
-        return a + bounded<false, r, size, word> {b};
-    }
-    
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline operator - (const bounded<u, r, x, word> &n) {
+    constexpr bounded<u, r, x, word> inline operator - (const bounded<u, r, x, word> &n) {
         bounded<u, r, x, word> z;
         arithmetic::bit_negate<word> (z.words ().end (), z.words ().begin (), n.words ().begin ());
         return ++z;
     }
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator + (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> operator + (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         bounded<u, r, x, word> z {};
         auto i = z.words ().begin ();
         auto j = a.words ().begin ();
@@ -1296,7 +1417,7 @@ namespace data::math::number {
     }
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> operator - (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> operator - (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         bounded<u, r, x, word> z {};
         auto i = z.words ().begin ();
         auto j = a.words ().begin ();
@@ -1306,7 +1427,7 @@ namespace data::math::number {
     }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> &operator += (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> &operator += (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x, word> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
@@ -1315,7 +1436,7 @@ namespace data::math::number {
     }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> &operator -= (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> &operator -= (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         auto awb = a.words ().begin ();
         auto cawb = const_cast<const bounded<u, r, x, word> &> (a).words ().begin ();
         auto bwb = b.words ().begin ();
@@ -1324,20 +1445,15 @@ namespace data::math::number {
     }
     
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline operator * (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> inline operator * (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         bounded<u, r, x, word> z {};
         auto w = z.words ();
         arithmetic::times (w, a.words (), b.words ());
         return z;
     }
     
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    uint<r, size, word> inline operator - (const uint<r, size, word> &a, uint64 b) {
-        return a - bounded<false, r, size, word> {b};
-    }
-    
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline &operator *= (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> inline &operator *= (bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return a = a * b;
     }
     
@@ -1385,26 +1501,26 @@ namespace data::math::number {
     
     namespace {
         template <endian::order r, size_t size, std::unsigned_integral word>
-        void shift_right (bytes_array<word, size> &n, uint32 i, byte fill) {
+        constexpr void shift_right (bytes_array<word, size> &n, uint32 i, byte fill) {
             if (r == endian::big) arithmetic::bit_shift_right<word> (n.rbegin (), n.rend (), i, fill);
             else arithmetic::bit_shift_right<word> (n.begin (), n.end (), i, fill);
         }
         
         template <endian::order r, size_t size, std::unsigned_integral word>
-        void shift_left (bytes_array<word, size> &n, uint32 i, byte fill) {
+        constexpr void shift_left (bytes_array<word, size> &n, uint32 i, byte fill) {
             if (r == endian::big) arithmetic::bit_shift_left<word> (n.begin (), n.end (), i, fill);
             else arithmetic::bit_shift_left<word> (n.rbegin (), n.rend (), i, fill);
         }
     }
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<is_signed, r, size, word> inline &operator <<= (bounded<is_signed, r, size, word> &n, int i) {
+    constexpr bounded<is_signed, r, size, word> inline &operator <<= (bounded<is_signed, r, size, word> &n, int i) {
         (i < 0 ? shift_right<r, size, word> : shift_left<r, size, word>) (n, i, data::is_negative (n));
         return n; 
     }
     
     template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
-    bounded<is_signed, r, size, word> inline &operator >>= (bounded<is_signed, r, size, word> &n, int i) {
+    constexpr bounded<is_signed, r, size, word> inline &operator >>= (bounded<is_signed, r, size, word> &n, int i) {
         (i < 0 ? shift_left<r, size, word> : shift_right<r, size, word>) (n, i, data::is_negative (n));
         return n; 
     }

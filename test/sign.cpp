@@ -46,7 +46,7 @@ namespace data {
         
     };
     
-    TEST (SignTest, TestSign) {
+    TEST (Sign, Sign) {
 
         test_Z_sign<double> ();
 

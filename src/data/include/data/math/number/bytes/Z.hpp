@@ -188,11 +188,6 @@ namespace data::math::number {
         return Z_bytes<r, negativity::twos, word> (a) ^ b;
     }
     
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word> inline operator ^ (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        return Z_bytes<r, negativity::twos, word> (a) ^ Z_bytes<r, negativity::twos, word> (b);
-    }
-    
     template <endian::order r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> inline operator & (const N_bytes<r, word> &a, const Z_bytes<r, c, word> &b) {
         return Z_bytes<r, c, word> (a) & b;
@@ -796,6 +791,16 @@ namespace data::math::number {
     Z_bytes<r, c, word> operator | (const Z_bytes<r, c, word> &a, const Z_bytes<r, c, word> &b) {
         return arithmetic::trim<r, c, word> (arithmetic::bit_or<r, c, word> (a, b));
     }
+
+    template <endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> operator ^ (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
+        if (a.size () < b.size ()) return b ^ a;
+        auto bt = extend (b, a.size ());
+        auto x = N_bytes<r, word>::zero (a.size ());
+        arithmetic::bit_xor<word> (x.end (), x.begin (), a.begin (),
+            const_cast<const N_bytes<r, word> &> (bt).begin ());
+        return x.trim ();
+    }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word> operator ^ (const Z_bytes<r, negativity::twos, word> &a, const Z_bytes<r, negativity::twos, word> &b) {
@@ -805,6 +810,21 @@ namespace data::math::number {
         arithmetic::bit_xor<word> (x.end (), x.begin (), a.begin (),
             const_cast<const Z_bytes<r, negativity::twos, word> &> (bt).begin ());
         return x.trim ();
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator ^= (Z_bytes<r, negativity::twos, word> &a, const Z_bytes<r, negativity::twos, word> &b) {
+        if (a.size () < b.size ()) a = extend (a, b.size ());
+        auto bt = extend (b, a.size ());
+        arithmetic::bit_xor<word> (a.end (), a.begin (), a.begin (), b.begin ());
+        return a.trim ();
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> &operator ^= (N_bytes<r, word> &a, const N_bytes<r, word> &b) {
+        if (a.size () < b.size ()) a = extend (a, b.size ());
+        arithmetic::bit_xor<word> (a.end (), a.begin (), a.begin (), b.begin ());
+        return a.trim ();
     }
     
     template <endian::order r, std::unsigned_integral word>

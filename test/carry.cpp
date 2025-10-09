@@ -62,7 +62,7 @@ namespace data {
         else if (typeName == "unsigned long long") RunTest<unsigned long long> (params);
     }
 
-    TEST (CarryTest, TestAddWithCarry) {
+    TEST (Carry, AddWithCarry) {
         unsigned int temp;
         unsigned int num1 = 10;
         unsigned int num2 = 20;
@@ -127,7 +127,7 @@ namespace data {
         else if (typeName == "unsigned long long") RunTest<unsigned long long> (params);
     }
 
-    TEST (CarryTest, TestSubtractWithCarry) {
+    TEST (Carry, SubtractWithCarry) {
         unsigned int temp;
         unsigned int num1 = 20;
         unsigned int num2 = 10;

@@ -103,83 +103,40 @@ namespace data {
         }
     };
 
-    TEST (TestModular, TestModularArithmetic) {
+    template <typename X>
+    struct Modular : ::testing::Test {
+        using number = X;
+    };
 
-        test_modular<byte> ();
-        test_modular<uint16> ();
-        test_modular<uint32> ();
-        test_modular<uint64> ();
+    using test_cases = ::testing::Types<
+        byte, int8,
+        uint16, uint16_little, uint16_big,
+        int16, int16_little, int16_big,
+        uint32, uint32_little, uint32_big,
+        int32, int32_little, int32_big,
+        uint64, uint64_little, uint64_big,
+        int64, int64_little, int64_big/*,
+        uint80, uint80_little, uint80_big,
+        int80, int80_little, int80_big,
+        uint128, uint128_little, uint128_big,
+        int128, int128_little, int128_big,
+        uint160, uint160_little, uint160_big,
+        int160, int160_little, int160_big,
+        uint224, uint224_little, uint224_big,
+        int224, int224_little, int224_big,
+        uint256, uint256_little, uint256_big,
+        int256, int256_little, int256_big,
+        uint320, uint320_little, uint320_big,
+        int320, int320_little, int320_big,
+        uint448, uint448_little, uint448_big,
+        int448, int448_little, int448_big,
+        uint512, uint512_little, uint512_big,
+        int512, int512_little, int512_big*/>;
 
-        test_modular<int8> ();
-        test_modular<int16> ();
-        test_modular<int32> ();
-        test_modular<int64> ();
+    TYPED_TEST_SUITE (Modular, test_cases);
 
-        test_modular<uint8_little> ();
-        test_modular<uint16_little> ();
-        test_modular<uint32_little> ();
-        test_modular<uint64_little> ();
-
-        test_modular<int8_little> ();
-        test_modular<int16_little> ();
-        test_modular<int32_little> ();
-        test_modular<int64_little> ();
-
-        test_modular<uint8_big> ();
-        test_modular<uint16_big> ();
-        test_modular<uint32_big> ();
-        test_modular<uint64_big> ();
-
-        test_modular<int8_big> ();
-        test_modular<int16_big> ();
-        test_modular<int32_big> ();
-        test_modular<int64_big> ();
-
-        /*
-
-        test_modular<uint_big<9>> {};
-        test_modular<uint_little<9>> {};
-        test_modular<uint_big<10>> {};
-        test_modular<uint_little<10>> {};
-        test_modular<uint_big<11>> {};
-        test_modular<uint_little<11>> {};
-        test_modular<uint_big<12>> {};
-        test_modular<uint_little<12>> {};
-
-        test_modular<uint_big<5, short unsigned int>> {};
-        test_modular<uint_little<5, short unsigned int>> {};
-        test_modular<uint_big<6, short unsigned int>> {};
-        test_modular<uint_little<6, short unsigned int>> {};
-        test_modular<uint_big<7, short unsigned int>> {};
-        test_modular<uint_little<7, short unsigned int>> {};
-        test_modular<uint_big<8, short unsigned int>> {};
-        test_modular<uint_little<8, short unsigned int>> {};
-        test_modular<uint_big<3, unsigned int>> {};
-        test_modular<uint_little<3, unsigned int>> {};
-        test_modular<uint_big<4, unsigned int>> {};
-        test_modular<uint_little<4, unsigned int>> {};
-        test_modular<uint_big<5, unsigned int>> {};
-        test_modular<uint_little<5, unsigned int>> {};
-        test_modular<uint_big<6, unsigned int>> {};
-        test_modular<uint_little<6, unsigned int>> {};
-
-        // TODO bigger words
-        test_modular<uint_big<2, long unsigned int>> {};
-        test_modular<uint_little<2, long unsigned int>> {};
-        test_modular<uint_big<3, long unsigned int>> {};
-        test_modular<uint_little<3, long unsigned int>> {};
-        test_modular<uint_big<4, long unsigned int>> {};
-        test_modular<uint_little<4, long unsigned int>> {};
-        test_modular<uint_big<5, long unsigned int>> {};
-        test_modular<uint_little<5, long unsigned int>> {};
-        test_modular<uint_big<1, long long unsigned int>> {};
-        test_modular<uint_little<1, long long unsigned int>> {};
-        test_modular<uint_big<2, long long unsigned int>> {};
-        test_modular<uint_little<2, long long unsigned int>> {};
-        test_modular<uint_big<3, long long unsigned int>> {};
-        test_modular<uint_little<3, long long unsigned int>> {};
-        test_modular<uint_big<4, long long unsigned int>> {};
-        test_modular<uint_little<4, long long unsigned int>> {};*/
+    TYPED_TEST (Modular, TestType) {
+        test_modular<typename TestFixture::number> ();
     }
 
 }

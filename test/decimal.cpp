@@ -42,7 +42,7 @@ namespace data {
 
     }
 
-    TEST (DecimalTest, TestDecToHex) {
+    TEST (Decimal, DecToHex) {
 
         test_dec_to_hex ("0");
         test_dec_to_hex ("1");
@@ -235,7 +235,7 @@ namespace data {
         // TODO bounded numbers here.
     }
 
-    TEST (DecimalTest, TestDecimalIncrement) {
+    TEST (Decimal, DecimalIncrement) {
 
         test_decrement_unsigned ("0", "0");
 
@@ -250,7 +250,7 @@ namespace data {
         
     }
 
-    TEST (DecimalTest, TestDecimalUInt) {
+    TEST (Decimal, DecimalUInt) {
 
         EXPECT_EQ (dec_int {0}, dec_int {"0"});
         EXPECT_EQ (dec_uint {"4"} & dec_uint {"1"}, dec_uint {"0"});
@@ -331,7 +331,7 @@ namespace data {
         // TODO test bounded numbers
     }
     
-    TEST (DecimalTest, TestDecimalAdd) {
+    TEST (Decimal, DecimalAdd) {
 
         test_add_unsigned ("0", "0", "0");
         test_add_unsigned ("0", "1", "1");
@@ -426,7 +426,7 @@ namespace data {
 
     }
     
-    TEST (DecimalTest, TestDecimalSubtract) {
+    TEST (Decimal, DecimalSubtract) {
 
         test_subtract_unsigned ("0", "0", "0");
         test_subtract_signed ("0", "0", "0");
@@ -521,7 +521,7 @@ namespace data {
         // TODO test bounded numbers
     }
     
-    TEST (DecimalTest, TestDecimalMultiply) {
+    TEST (Decimal, DecimalMultiply) {
 
         test_multiply_unsigned ("0", "0", "0");
         test_multiply_unsigned ("0", "1", "0");

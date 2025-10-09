@@ -108,7 +108,7 @@ namespace data {
         EXPECT_EQ (e7, -x);
     };
 
-    TEST (CaylayDicksonTest, TestComplex) {
+    TEST (CaylayDickson, Complex) {
 
         // rational complexes
         test_complex<QC> (QC {0}, QC {1}, QC::I ());

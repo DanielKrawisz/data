@@ -92,11 +92,11 @@ namespace data {
 
         using words_type = arithmetic::Words<r, word>;
 
-        words_type words () {
+        constexpr words_type words () {
             return words_type {slice<word> (*this)};
         }
 
-        const words_type words () const {
+        constexpr const words_type words () const {
             return words_type {slice<word> (*const_cast<oriented*> (this))};
         }
     };

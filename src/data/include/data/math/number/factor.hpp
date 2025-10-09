@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_FACTOR
 
 #include <data/list.hpp>
+#include <data/math/number/division.hpp>
 #include <data/math/polynomial.hpp>
 #include <data/math/number/eratosthenes.hpp>
 

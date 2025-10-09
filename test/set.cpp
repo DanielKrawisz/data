@@ -8,7 +8,7 @@
 
 namespace data {
 
-    TEST (SetTest, TestSetEmpty) {
+    TEST (Set, Empty) {
         set<int> a;
         set<string> b;
         set<Z> c;
@@ -19,5 +19,7 @@ namespace data {
         set<const Z> cx;
         set<const N> dx;
     }
+
+    // TODO a lot more tests are needed here.
 
 }
