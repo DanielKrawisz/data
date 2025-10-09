@@ -40,7 +40,7 @@ namespace data {
     using zl = math::number::Z_bytes<data::endian::little, math::negativity::twos, byte>;
     using zb = math::number::Z_bytes<data::endian::big, math::negativity::twos, byte>;
     
-    TEST (BoundedTest, BoundedReadString) {
+    TEST (Bounded, ReadString) {
         
         EXPECT_THROW (u8b::read ("-1"), exception);
         EXPECT_THROW (u8l::read ("-1"), exception);
@@ -76,7 +76,7 @@ namespace data {
         
     }
     
-    TEST (BoundedTest, Bounded01) {
+    TEST (Bounded, ZeroOne) {
         
         EXPECT_EQ (N (u8b (0)), N (0));
         EXPECT_EQ (N (u8b (1)), N (1));
@@ -136,7 +136,7 @@ namespace data {
         
     }
     
-    TEST (BoundedTest, BoundedMinMax) {
+    TEST (Bounded, MinMax) {
         
         EXPECT_TRUE (u8b::max () > u8b::min ());
         EXPECT_TRUE (u8l::max () > u8l::min ());
@@ -164,7 +164,7 @@ namespace data {
         
     }
     
-    TEST (BoundedTest, BoundedSign) {
+    TEST (Bounded, Sign) {
         
         EXPECT_FALSE (s8b {0} < 0);
         EXPECT_FALSE (s8b {1} < 0);
@@ -208,7 +208,7 @@ namespace data {
         
     }
     
-    TEST (BoundedTest, BoundedNegativeTest) {
+    TEST (Bounded, Negative) {
         
         EXPECT_EQ (-s8b::read ("1"), s8b::read ("-1"));
         EXPECT_EQ (-s8b::read ("-1"), s8b::read ("1"));
@@ -258,7 +258,7 @@ namespace data {
         
     }
     
-    TEST (BoundedTest, BoundedReadWriteString) {
+    TEST (Bounded, ReadWriteString) {
 
         test_bounded_read_write_string<true, endian::big, 9> ("0x00000000ffffffffff");
         test_bounded_read_write_string<true, endian::little, 9> ("0x00000000ffffffffff");
@@ -296,7 +296,7 @@ namespace data {
 
     }
 
-    TEST (BoundedTest, BoundedArithmetic) {
+    TEST (Bounde, Arithmetic) {
 
         test_bounded_arithmetic<true, endian::big, 9> ();
         test_bounded_arithmetic<true, endian::little, 9> ();

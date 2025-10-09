@@ -92,14 +92,14 @@ namespace data::math {
     }
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> square_mod<number::bounded<a, r, x, word>, uint<r, x, word>>::operator () (
+    constexpr uint<r, x, word> square_mod<number::bounded<a, r, x, word>, uint<r, x, word>>::operator () (
         const number::bounded<a, r, x, word> &m,
         const nonzero<uint<r, x, word>> &q) {
         return times_mod<number::bounded<a, r, x, word>, number::bounded<a, r, x, word>, uint<r, x, word>> {} (m, m, q);
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline plus_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
+    constexpr uint<r, x, word> inline plus_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const number::bounded<a, r, x, word> &m,
         const number::bounded<b, r, x, word> &n,
         const nonzero<uint<r, x, word>> &q) {
@@ -108,7 +108,7 @@ namespace data::math {
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline times_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
+    constexpr uint<r, x, word> inline times_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const number::bounded<a, r, x, word> &m,
         const number::bounded<b, r, x, word> &n,
         const nonzero<uint<r, x, word>> &q) {
@@ -119,7 +119,7 @@ namespace data::math {
     }
 
     template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline pow_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
+    constexpr uint<r, x, word> inline pow_mod<number::bounded<a, r, x, word>, number::bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const number::bounded<a, r, x, word> &m,
         const number::bounded<b, r, x, word> &n,
         const nonzero<uint<r, x, word>> &q) {
@@ -130,7 +130,7 @@ namespace data::math {
     }
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>
-    maybe<uint<r, x, word>> invert_mod<number::bounded<a, r, x, word>, uint<r, x, word>>::operator () (
+    constexpr maybe<uint<r, x, word>> invert_mod<number::bounded<a, r, x, word>, uint<r, x, word>>::operator () (
         const number::bounded<a, r, x, word> &q,
         const nonzero<uint<r, x, word>> &mod) {
         auto invt = number::natural_invert_mod (

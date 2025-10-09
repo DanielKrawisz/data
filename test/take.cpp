@@ -11,7 +11,7 @@
 namespace data {
     template <typename elem> using vector = std::vector<elem>;
 
-    template <typename X> struct take_test : ::testing::Test {
+    template <typename X> struct Take : ::testing::Test {
         using list = X;
     };
 
@@ -19,9 +19,9 @@ namespace data {
     // as fast as these other things.
     using test_cases = ::testing::Types<stack<int>, list<int>, cross<int>, ordered_sequence<int>>;
 
-    TYPED_TEST_SUITE (take_test, test_cases);
+    TYPED_TEST_SUITE (Take, test_cases);
 
-    TYPED_TEST (take_test, Take) {
+    TYPED_TEST (Take, Take) {
 
         using list = typename TestFixture::list;
         
@@ -39,7 +39,7 @@ namespace data {
         EXPECT_EQ (c3r, c3e);
     }
     
-    TYPED_TEST (take_test, Drop) {
+    TYPED_TEST (Take, Drop) {
 
         using list = typename TestFixture::list;
         

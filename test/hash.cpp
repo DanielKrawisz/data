@@ -10,6 +10,8 @@
 
 namespace data::crypto {
 
+    // TODO include MD5
+
     struct SHA_test_case {
         string Test;
         string ExpectedSHA1;
@@ -30,7 +32,7 @@ namespace data::crypto {
         }
     };
 
-    TEST (HashTest, TestSHA) {
+    TEST (Hash, SHA) {
 
         // from https://www.di-mgt.com.au/sha_testvectors.html
         for (const auto &test_case : list<SHA_test_case> {
@@ -101,7 +103,7 @@ namespace data::crypto {
     }
 
     // from https://rosettacode.org/wiki/RIPEMD-160
-    TEST (HashTest, TestRIPEMD) {
+    TEST (Hash, RIPEMD) {
 
         RIPEMD_test_case ("", "9c1185a5c5e9fc54612808977ee8f548b2258d31");
         RIPEMD_test_case ("a", "0bdc9d2d256b3ee9daae347be6f4dc835a467ffe");
@@ -114,14 +116,14 @@ namespace data::crypto {
 
     }
 
-    TEST (HashTest, TestBitcoinHash) {
+    TEST (Hash, BitcoinHash) {
         bytes test = *encoding::hex::read ("00010203fdfeff");
         digest256 expected {"be586c8b20dee549bdd66018c7a79e2b67bb88b7c7d428fa4c970976d2bec5ba"};
 
         EXPECT_EQ (Bitcoin_256 (test), expected);
     }
 
-    TEST (HashTest, TestHashWriter) {
+    TEST (Hash, HashWriter) {
 
         hash::RIPEMD<20> RIPEMD_160_hash_writer;
         hash::SHA2<32> SHA_2_256_hash_writer;

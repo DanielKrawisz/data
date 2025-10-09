@@ -94,17 +94,17 @@ namespace data {
     };
 
     template <ring_integral N>
-    struct unsigned_division_test : ::testing::Test {
+    struct UnsignedDivision : ::testing::Test {
         using natural = N;
     };
 
     template <ring_integral Z>
-    struct signed_division_test : ::testing::Test {
+    struct SignedDivision : ::testing::Test {
         using integer = Z;
     };
 
     template <typename tuple>
-    struct division_test : ::testing::Test {
+    struct Division : ::testing::Test {
         using natural = typename std::tuple_element<1, tuple>::type;
         using integer = typename std::tuple_element<0, tuple>::type;
     };
@@ -136,24 +136,24 @@ namespace data {
         tuple<dec_int, dec_uint>,
         tuple<hex_int, hex_uint>>;
 
-    TYPED_TEST_SUITE (unsigned_division_test, unsigned_test_cases);
-    TYPED_TEST_SUITE (signed_division_test, signed_test_cases);
-    TYPED_TEST_SUITE (division_test, test_cases);
+    TYPED_TEST_SUITE (UnsignedDivision, unsigned_test_cases);
+    TYPED_TEST_SUITE (SignedDivision, signed_test_cases);
+    TYPED_TEST_SUITE (Division, test_cases);
 
-    TYPED_TEST (unsigned_division_test, TestType) {
+    TYPED_TEST (UnsignedDivision, TestType) {
         using N = typename TestFixture::natural;
 
         test_division_natural<N> {};
     }
 
-    TYPED_TEST (signed_division_test, TestType) {
+    TYPED_TEST (SignedDivision, TestType) {
         using Z = typename TestFixture::integer;
 
         test_division_natural<Z> {};
         test_division_integer<Z> {};
     }
 
-    TYPED_TEST (division_test, TestType) {
+    TYPED_TEST (Division, TestType) {
         using N = typename TestFixture::natural;
         using Z = typename TestFixture::integer;
 

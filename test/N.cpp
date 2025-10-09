@@ -8,7 +8,7 @@
 
 namespace data {
     
-    TEST (NTest, TestStringToN) {
+    TEST (N, StringToN) {
         
         EXPECT_THROW (N {""}, exception);
         EXPECT_THROW (N {"a"}, exception);
@@ -41,7 +41,7 @@ namespace data {
         
     }
 
-    TEST (NTest, TestNToHexString) {
+    TEST (N, NToHexString) {
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {"0"}), std::string {"0x"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N {"127"}), std::string {"0x7f"});
@@ -49,7 +49,7 @@ namespace data {
         
     }
     
-    TEST (NTest, TestNNegativeHex) {
+    TEST (N, NNegativeHex) {
         
         EXPECT_NE (N {"0x8000000000000000000000000000000000000000000000000000000000000000"}, N (0));
         EXPECT_NE (N {"0x80000000000000000000000000000000000000000000000000000000000000"}, N (0));
@@ -62,7 +62,7 @@ namespace data {
         
     }
     
-    TEST (NTest, TestMultiply) {
+    TEST (N, Multiply) {
         
         EXPECT_TRUE (N {0} * N {0} == N {0});
         EXPECT_TRUE (N {1} * N {0} == N {0});
@@ -83,7 +83,7 @@ namespace data {
         
     }
     
-    TEST (NTest, TestShift) {
+    TEST (N, Shift) {
         
         EXPECT_TRUE (N {1} >>  1 == N {"0x00000000000000000000"});
         EXPECT_TRUE (N {1} <<  1 == N {"0x00000000000000000002"});
@@ -95,11 +95,11 @@ namespace data {
         
     template<endian::order r> using N_bytes = math::number::N_bytes<r, byte>;
     
-    TEST (NTest, TestN) {
+    TEST (N, N) {
         
         // parameters from https://en.bitcoin.it/wiki/Secp256k1
         
-        N p = (N {1} << 256) - (N {1} << 32) - (N {1} << 9) - (N {1} << 8) - (N {1} << 7) - (N {1} << 6) - (N {1} << 4) - 1;
+        N p = (N {1u} << 256) - (N {1u} << 32) - (N {1u} << 9) - (N {1u} << 8) - (N {1u} << 7) - (N {1u} << 6) - (N {1u} << 4) - 1u;
         
         std::string p_hex = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F";
         std::string p_dec = "115792089237316195423570985008687907853269984665640564039457584007908834671663";
@@ -145,7 +145,7 @@ namespace data {
         
     }
     
-    TEST (NTest, TestNRemainder) {
+    TEST (N, NRemainder) {
         
         EXPECT_EQ (N ("26959946667150639794667015087019630673637144422540572481103610249215") % 1, N (0));
         
@@ -180,7 +180,7 @@ namespace data {
             N ("464826666675011030942534742879648804717881800388630560019027762917"), N {58});
     }
     
-    TEST (NTest, TestAKS) {
+    TEST (N, AKS) {
         math::number::AKS<N> aks {};
         
         EXPECT_FALSE (aks.is_prime (N {"0"}).valid ());

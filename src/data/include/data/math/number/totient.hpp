@@ -12,7 +12,7 @@ namespace data::math::number {
 
     template <typename N> nonzero<N> inline totient (nonzero<N> n, eratosthenes<N> &e) {
         return nonzero<N> {fold ([] (const N &n, const power<prime<N>, N> &p) -> N {
-            return n * data::pow<N, N> (p.Base.Prime.Value, p.Exponent - 1) * (p.Base.Prime.Value - 1);
+            return n * data::pow<N, N> (p.Base.Prime.Value, p.Exponent - 1u) * (p.Base.Prime.Value - 1u);
         }, N {1}, factorize<N> (n, e))};
     }
 

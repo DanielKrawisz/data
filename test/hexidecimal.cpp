@@ -625,8 +625,6 @@ namespace data::math::number {
         test_increment<negativity::BC> {"0x7f", "0x0080"};
         test_increment<negativity::BC> {"0x8080", "0xff"};
 
-        // TODO need to test that decrement 0 is 0 for unsigned numbers.
-
     }
 
     template <typename N> struct test_negation_number {

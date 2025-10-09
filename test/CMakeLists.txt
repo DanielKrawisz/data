@@ -13,69 +13,71 @@ add_executable (
     # These tests only require data_core for the components being tested. 
     # other components may be used for the tests themselves. 
     maybe_either.cpp
-    testStore.cpp
-    testException.cpp
-    integer_format.cpp
-    linked_stack.cpp
-    list.cpp
-    ordered_sequence.cpp
-    testCircularQueue.cpp
-    tree.cpp
+    store.cpp
+    exception.cpp
+    linked_stack.cpp             # TODO: contains commented tests
+    list.cpp                     # TODO: contains commented tests
+    ordered_sequence.cpp         # TODO: contains commented tests
+    circular_queue.cpp           # TODO: contains commented tests
+    tree.cpp                     # TODO: contains commented tests
     functional_interfaces.cpp
-    empty.cpp                    # Contains commented test cases
+    empty.cpp                    # TODO: Contains commented test cases
     take.cpp
     reverse.cpp
-    contains.cpp                 # Contains commented test cases
+    contains.cpp                 # TODO: Contains commented test cases
     sort.cpp
-    testSet.cpp
-    map.cpp
-    priority_queue.cpp
-    testForEach.cpp
+    set.cpp                      # TODO: Need to test each function more precisely, like in list
+    map.cpp                      # TODO: Need to test each function more precisely, like in list
+    priority_queue.cpp           # TODO: Contains commented test cases
+    testForEach.cpp              # TODO: contains commented test cases.
     map_schema.cpp
 
-    testPermutation.cpp
+    permutation.cpp              # TODO: Need to test each function more precisely, like in list
     combinatorics.cpp
 
     # string 
-    testBytes.cpp
+    integer_format.cpp
+    bytes.cpp
     testHex.cpp
     testBase64.cpp
     testAscii.cpp
     testStream.cpp
     testEndian.cpp
-    testBounded.cpp
+    bounded.cpp                  # TODO: should be typed test
 
     # hash
-    testHash.cpp
+    hash.cpp
 
     # numbers
-    numbers.cpp
-    testSign.cpp
-    bit_ops.cpp                  # Contains commented test cases
-    testN.cpp
-    testZ.cpp
-    testCarry.cpp
-    N_bytes.cpp
-    testRoot.cpp
-    Z_bytes.cpp
-    abs.cpp
-    testBase58.cpp
-    string_numbers.cpp
-    testDecimal.cpp
+    decimal.cpp                  # TODO: need to include bounded numbers.
     hexidecimal.cpp
-    testInfinite.cpp
-    division.cpp                 # note: contains no tests for bounded numbers!
-    Bitcoin_numbers.cpp
+    base58.cpp
+    N.cpp
+    Z.cpp
+    carry.cpp
+    N_bytes.cpp
+    Z_bytes.cpp
+    numbers.cpp                  # TODO: need a typed test suite.
+    sign.cpp                     # TODO: Contains commented test cases and should be a typed test
+    abs.cpp                      # TODO: should be a typed test.
+    bit_ops.cpp                  # TODO: Contains commented test cases and should be a typed test
+    roots.cpp                    # TODO: should be a typed test.
+    string_numbers.cpp
+    infinite.cpp                 # TODO: should be a typed test.
+    division.cpp
+    Bitcoin_numbers.cpp          # TODO: should be a typed test.
+    power.cpp                    # TODO: should be a typed test.
     extended_euclidian.cpp
-    testEratosthenes.cpp         # TODO typed test
-    power.cpp
-    testCaylayDickson.cpp
-    testModular.cpp
+    Eratosthenes.cpp
+    prime_factor.cpp
+    number_theory.cpp            # TODO: make typed tests
+    Caylay_Dickson.cpp
+    modular.cpp
     testAlgebra.cpp
     testPolynomial.cpp
-    number_theory.cpp            # TODO typed tests
 
     # crypto 
+    # random_primes.cpp
     testGeometry.cpp
     testSymmetricCrypto.cpp
     testSecretShare.cpp

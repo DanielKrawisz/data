@@ -11,64 +11,100 @@
 
 namespace data {
     
-    // TODO we don't even use this.
-    template<bool is_signed, data::endian::order o, size_t size> 
-    using bounded = data::math::number::bounded<is_signed, o, size, byte>;
-    
-    template <typename Z>
-    void test_bit_negate () {
+    template <typename Z> void test_bit_negate () {
         EXPECT_EQ (~Z (0), Z (-1)) << "expected ~" << Z (0) << " to equal " << Z (-1);
         EXPECT_EQ (~Z (-1), Z (0)) << "expected ~" << Z (-1) << " to equal " << Z (0);
     }
+
+    template <typename X>
+    struct BitNegate : ::testing::Test {
+        using number = X;
+    };
+
+    using bit_negate_test_cases = ::testing::Types<
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int256, int256_little, int256_big,
+        int512, int512_little, int512_big,
+        Z_bytes_little, Z_bytes_big,
+        math::Z_bytes<endian::little, unsigned short>,
+        math::Z_bytes<endian::little, unsigned int>,
+        math::Z_bytes<endian::little, unsigned long>,
+        math::Z_bytes<endian::little, unsigned long long>,
+        hex_int>;
+
+    TYPED_TEST_SUITE (BitNegate, bit_negate_test_cases);
     
-    TEST (BitOps, BitNegate) {
-        
-        test_bit_negate<Z_bytes_big> ();
-        test_bit_negate<Z_bytes_little> ();
-        test_bit_negate<int_big<9>> ();
-        test_bit_negate<int_big<10>> ();
-        test_bit_negate<int_big<11>> ();
-        test_bit_negate<int_big<12>> ();
-        test_bit_negate<int_little<9>> ();
-        test_bit_negate<int_little<10>> ();
-        test_bit_negate<int_little<11>> ();
-        test_bit_negate<int_little<12>> ();
-        test_bit_negate<int_big<5, short unsigned int>> ();
-        test_bit_negate<int_big<6, short unsigned int>> ();
-        test_bit_negate<int_big<7, short unsigned int>> ();
-        test_bit_negate<int_big<8, short unsigned int>> ();
-        test_bit_negate<int_little<5, short unsigned int>> ();
-        test_bit_negate<int_little<6, short unsigned int>> ();
-        test_bit_negate<int_little<7, short unsigned int>> ();
-        test_bit_negate<int_little<8, short unsigned int>> ();
-        test_bit_negate<int_big<3, unsigned int>> ();
-        test_bit_negate<int_big<4, unsigned int>> ();
-        test_bit_negate<int_big<5, unsigned int>> ();
-        test_bit_negate<int_big<6, unsigned int>> ();
-        test_bit_negate<int_little<3, unsigned int>> ();
-        test_bit_negate<int_little<4, unsigned int>> ();
-        test_bit_negate<int_little<5, unsigned int>> ();
-        test_bit_negate<int_little<6, unsigned int>> ();
+    TYPED_TEST (BitNegate, BitNegate) {
+        using X = typename TestFixture::number;
+        test_bit_negate<X> ();
+    }
 
-        // TODO add bigger words here
+    template <typename Z> void test_bit_xor_unsigned () {
+        EXPECT_EQ ((bit_xor (Z (0), Z (0))), Z (0));
+        EXPECT_EQ ((bit_xor (Z (1), Z (1))), Z (0));
+        EXPECT_EQ ((bit_xor (Z (1), Z (2))), Z (3));
+    }
 
-        test_bit_negate<int_big<2, long unsigned int>> ();
-        test_bit_negate<int_big<3, long unsigned int>> ();
-        test_bit_negate<int_big<4, long unsigned int>> ();
-        test_bit_negate<int_big<5, long unsigned int>> ();
-        test_bit_negate<int_little<2, long unsigned int>> ();
-        test_bit_negate<int_little<3, long unsigned int>> ();
-        test_bit_negate<int_little<4, long unsigned int>> ();
-        test_bit_negate<int_little<5, long unsigned int>> ();
-        test_bit_negate<int_big<1, long long unsigned int>> ();
-        test_bit_negate<int_big<2, long long unsigned int>> ();
-        test_bit_negate<int_big<3, long long unsigned int>> ();
-        test_bit_negate<int_big<4, long long unsigned int>> ();
-        test_bit_negate<int_little<1, long long unsigned int>> ();
-        test_bit_negate<int_little<2, long long unsigned int>> ();
-        test_bit_negate<int_little<3, long long unsigned int>> ();
-        test_bit_negate<int_little<4, long long unsigned int>> ();
-        
+    template <typename Z> void test_bit_and_unsigned () {
+        EXPECT_EQ ((bit_and (Z (0), Z (0))), Z (0));
+        EXPECT_EQ ((bit_and (Z (1), Z (1))), Z (1));
+        EXPECT_EQ ((bit_and (Z (1), Z (2))), Z (0));
+    }
+
+    template <typename Z> void test_bit_or_unsigned () {
+        EXPECT_EQ ((bit_or (Z (0), Z (0))), Z (0));
+        EXPECT_EQ ((bit_or (Z (1), Z (1))), Z (1));
+        EXPECT_EQ ((bit_or (Z (1), Z (2))), Z (3));
+    }
+
+    template <typename X>
+    struct BitArithmetic : ::testing::Test {
+        using number = X;
+    };
+
+    // number types required to have bit xor:
+    //   * natural numbers
+    //   * numbers with complement 2
+    using bit_arith_test_cases = ::testing::Types<
+        //N, dec_uint, hex_uint, base58_uint,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int256, int256_little, int256_big,
+        int512, int512_little, int512_big,
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big,
+        uint160, uint160_little, uint160_big,
+        uint256, uint256_little, uint256_big,
+        uint512, uint512_little, uint512_big,
+        Z_bytes_little, Z_bytes_big,
+        N_bytes_little, N_bytes_big,
+        math::Z_bytes<endian::little, unsigned short>,
+        math::Z_bytes<endian::little, unsigned int>,
+        math::Z_bytes<endian::little, unsigned long>,
+        math::Z_bytes<endian::little, unsigned long long>,
+        math::N_bytes<endian::little, unsigned short>,
+        math::N_bytes<endian::little, unsigned int>,
+        math::N_bytes<endian::little, unsigned long>,
+        math::N_bytes<endian::little, unsigned long long>>;
+
+    TYPED_TEST_SUITE (BitArithmetic, bit_arith_test_cases);
+
+    TYPED_TEST (BitArithmetic, BitXor) {
+        test_bit_xor_unsigned<typename TestFixture::number> ();
+    }
+
+    TYPED_TEST (BitArithmetic, BitOr) {
+        test_bit_xor_unsigned<typename TestFixture::number> ();
+    }
+
+    TYPED_TEST (BitArithmetic, BitAnd) {
+        test_bit_xor_unsigned<typename TestFixture::number> ();
     }
     
     template <typename X> void test_bit_shift_bounded () {
@@ -252,7 +288,7 @@ namespace data {
     }
 
     // Test that numbers get extended to perform bit ops if necessary.
-    TEST (BitOpsTest, BitAndOrXor) {
+    TEST (BitOpsTest, BitAndOr) {
 
 
 

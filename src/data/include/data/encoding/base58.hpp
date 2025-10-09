@@ -77,6 +77,7 @@ namespace data::encoding::base58 {
 
     string operator & (const string &, const string &);
     string operator | (const string &, const string &);
+    string operator ^ (const string &, const string &);
 
     string operator + (const string &, uint64 x);
     string operator - (const string &, uint64 x);
@@ -84,9 +85,6 @@ namespace data::encoding::base58 {
 
     string operator / (const string &, const string &);
     string operator % (const string &, const string &);
-
-    string operator | (const string &, const string &);
-    string operator & (const string &, const string &);
 
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.
@@ -100,6 +98,7 @@ namespace data::encoding::base58 {
 
         string &operator |= (const string &);
         string &operator &= (const string &);
+        string &operator ^= (const string &);
 
         string &operator += (uint64);
         string &operator -= (uint64);
@@ -180,6 +179,10 @@ namespace data::math {
 
     template <> struct divide<base58_uint, int> {
         division<base58_uint, unsigned int> operator () (const base58_uint &w, nonzero<int> x);
+    };
+
+    template <> struct bit_xor<base58_uint> {
+        base58_uint operator () (const base58_uint &, const base58_uint &);
     };
 
 }
