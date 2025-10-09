@@ -199,7 +199,7 @@ namespace data {
     
 }
 
-template <typename X> struct tree_test : ::testing::Test {
+template <typename X> struct Tree : ::testing::Test {
     using type = data::tree<X>;
     using element = X;
 };
@@ -209,30 +209,30 @@ int, const int, int &, const int &, int *, int *const, const int *, const int *c
 data::string, const data::string, data::string &, const data::string &, data::string *,
 data::string *const, const data::string *, const data::string *const>;
 
-TYPED_TEST_SUITE (tree_test, Tree_cases);
+TYPED_TEST_SUITE (Tree, Tree_cases);
 
-TYPED_TEST (tree_test, TreeValid) {
+TYPED_TEST (Tree, Valid) {
     using type = typename TestFixture::type;
     auto is_valid = valid (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
     EXPECT_TRUE (is_valid);
 }
 
-TYPED_TEST (tree_test, TreeEmpty) {
+TYPED_TEST (Tree, Empty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (tree_test, TreeSize) {
+TYPED_TEST (Tree, Size) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>);
     EXPECT_EQ (empty_size, 0);
 }
 /*
-TYPED_TEST (tree_test, TreeRoot) {
+TYPED_TEST (Tree, Root) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
 
@@ -263,20 +263,20 @@ TYPED_TEST (tree_test, TreeRoot) {
     }
 }*/
 
-TYPED_TEST (tree_test, TreeLeft) {
+TYPED_TEST (Tree, Left) {
     using type = typename TestFixture::type;
     using return_type = decltype (left (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
 
-TYPED_TEST (tree_test, TreeRight) {
+TYPED_TEST (Tree, Right) {
     using type = typename TestFixture::type;
     using return_type = decltype (right (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 /*
-TYPED_TEST (tree_test, TreeContains) {
+TYPED_TEST (Tree, Contains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);

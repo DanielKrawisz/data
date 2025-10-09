@@ -78,7 +78,7 @@ namespace data {
         
     };
     
-    TEST (RootsTest, TestRoots) {
+    TEST (Roots, Roots) {
 
         test_root_N<N> ();
         test_root_N<N_bytes_little> ();

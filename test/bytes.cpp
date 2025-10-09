@@ -48,7 +48,7 @@ namespace data {
         EXPECT_EQ (a, ~b);
     }
     
-    TEST (BytesTest, TestBitNegate) {
+    TEST (Bytes, BitNegate) {
 
         string initial {"00000000111111110101010100110011"};
         string expected {"11111111000000001010101011001100"};
@@ -87,7 +87,7 @@ namespace data {
         EXPECT_EQ (a & b, c);
     }
     
-    TEST (BytesTest, TestByteArrayBitAnd) {
+    TEST (Bytes, ByteArrayBitAnd) {
         string a {"11001100010111000101100110101100"};
         string b {"11110000101001011100101010010011"};
         string e {"11000000000001000100100010000000"};
@@ -114,7 +114,7 @@ namespace data {
         EXPECT_EQ (a | b, c);
     }
     
-    TEST (BytesTest, TestByteArrayBitOr) {
+    TEST (Bytes, ByteArrayBitOr) {
         string a {"11001100010111000101100110101100"};
         string b {"11110000101001011100101010010011"};
         string e {"11111100111111011101101110111111"};
@@ -142,7 +142,7 @@ namespace data {
         EXPECT_EQ (a ^ b, c);
     }
     
-    TEST (BytesTest, TestByteArrayXor) {
+    TEST (Bytes, ByteArrayXor) {
         string a {"11001100010111000101100110101100"};
         string b {"11110000101001011100101010010011"};
         string e {"00111100111110011001001100111111"};
@@ -186,7 +186,7 @@ namespace data {
         EXPECT_EQ (wrc.size (), wrc.end () - wrc.begin ());
     }
 
-    TEST (BytesTest, TestWords) {
+    TEST (Bytes, Words) {
         string initial {"00000000111111110101010100110011"};
 
         test_words (bytes_from_bits<byte> (initial));
@@ -224,7 +224,7 @@ namespace data {
         // TODO add bigger words.
     }
     
-    TEST (BytesTest, TestBitShift) {
+    TEST (Bytes, BitShift) {
         
         string x    {"11001100010111000101100110101100"};
         string e0l  {"11001100010111000101100110101100"};
@@ -252,7 +252,7 @@ namespace data {
         
     } 
     
-    TEST (BytesTest, TestSliceBytes) {
+    TEST (Bytes, SliceBytes) {
         maybe<bytes> x = encoding::hex::read ("00");
         EXPECT_TRUE (bool (x));
         auto a = *x;

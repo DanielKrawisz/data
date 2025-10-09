@@ -18,7 +18,7 @@ namespace data::arithmetic {
 
     template <typename sen, std::input_iterator it>
     requires std::sentinel_for<sen, it>
-    bool equal (sen z, it i, it j) {
+    constexpr bool equal (sen z, it i, it j) {
         while (i != z) {
             if (*i != *j) return false;
             i++;
@@ -29,7 +29,7 @@ namespace data::arithmetic {
 
     template <typename sen, std::input_iterator it>
     requires std::sentinel_for<sen, it>
-    bool greater (sen z, it i, it j) {
+    constexpr bool greater (sen z, it i, it j) {
         while (i != z) {
             if (*i > *j) return true;
             i++;
@@ -40,7 +40,7 @@ namespace data::arithmetic {
 
     template <typename sen, std::input_iterator it>
     requires std::sentinel_for<sen, it>
-    bool less (sen z, it i, it j) {
+    constexpr bool less (sen z, it i, it j) {
         while (i != z) {
             if (*i < *j) return true;
             i++;
@@ -51,7 +51,7 @@ namespace data::arithmetic {
 
     template <typename sen, std::input_iterator it>
     requires std::sentinel_for<sen, it>
-    std::strong_ordering compare (sen z, it i, it j) {
+    constexpr std::strong_ordering compare (sen z, it i, it j) {
 
         while (i != z) {
             if (*i < *j) return std::strong_ordering::less;
@@ -65,7 +65,7 @@ namespace data::arithmetic {
 
     template <typename digit, typename sen, typename ito, std::input_iterator iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    void bit_negate (sen z, ito i, iti j) {
+    constexpr void bit_negate (sen z, ito i, iti j) {
         while (i != z) {
             *i = ~ *j;
             i++;
@@ -75,7 +75,7 @@ namespace data::arithmetic {
 
     template <typename digit, typename sen, typename ito, std::input_iterator iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    void bit_and (sen z, ito i, iti a, iti b) {
+    constexpr void bit_and (sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a & *b;
             i++;
@@ -86,7 +86,7 @@ namespace data::arithmetic {
 
     template <typename digit, typename sen, typename ito, std::input_iterator iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    void bit_or (sen z, ito i, iti a, iti b) {
+    constexpr void bit_or (sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a | *b;
             i++;
@@ -97,7 +97,7 @@ namespace data::arithmetic {
 
     template <typename digit, typename sen, typename ito, std::input_iterator iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    void bit_xor (sen z, ito i, iti a, iti b) {
+    constexpr void bit_xor (sen z, ito i, iti a, iti b) {
         while (i != z) {
             *i = *a ^ *b;
             i++;
@@ -114,7 +114,7 @@ namespace data::arithmetic {
     // We should iterate from little to big endian.
     template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
-    std::enable_if_t<has_twice<word>::value, void>
+    constexpr std::enable_if_t<has_twice<word>::value, void>
     shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
         using two_digits = typename twice<word>::type;
 
@@ -132,7 +132,7 @@ namespace data::arithmetic {
     // We should iterate from big to little endian.
     template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
-    std::enable_if_t<has_twice<word>::value, void>
+    constexpr std::enable_if_t<has_twice<word>::value, void>
     shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
         using two_digits = typename twice<word>::type;
 
@@ -151,7 +151,7 @@ namespace data::arithmetic {
     // We should iterate from little to big endian.
     template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
-    std::enable_if_t<!has_twice<word>::value, void>
+    constexpr std::enable_if_t<!has_twice<word>::value, void>
     shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
         constexpr static const uint16 digits = sizeof (word) * 8;
         word prev = fill >> (digits - amount);
@@ -168,7 +168,7 @@ namespace data::arithmetic {
     // We should iterate from big to little endian.
     template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
-    std::enable_if_t<!has_twice<word>::value, void>
+    constexpr std::enable_if_t<!has_twice<word>::value, void>
     shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
         constexpr static const uint16 digits = sizeof (word) * 8;
         word prev = fill << (digits - amount);
@@ -183,7 +183,7 @@ namespace data::arithmetic {
 
     template <std::unsigned_integral word, typename it, typename sen>
     requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
-    void bit_shift_left (it i, sen z, uint32 x, bool fill) {
+    constexpr void bit_shift_left (it i, sen z, uint32 x, bool fill) {
         size_t words = x / (8 * sizeof (decltype (*i)));
         uint32 bits = x % (8 * sizeof (decltype (*i)));
         word filler = fill ? ~0 : 0;
@@ -199,7 +199,7 @@ namespace data::arithmetic {
 
     template <std::unsigned_integral word, typename it, typename sen>
     requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
-    void bit_shift_right (it i, sen z, uint32 x, bool fill) {
+    constexpr void bit_shift_right (it i, sen z, uint32 x, bool fill) {
         size_t words = x / (8 * sizeof (decltype (*i)));
         uint32 bits = x % (8 * sizeof (decltype (*i)));
         word filler = fill ? ~0 : 0;
@@ -252,23 +252,23 @@ namespace data::arithmetic {
     template <typename X> using digit = std::remove_const_t<unref<decltype (std::declval<const X> ()[0])>>;
 
     template <range X>
-    size_t inline size (const X x) {
+    constexpr size_t inline size (const X x) {
         return x.end () - x.begin ();
     }
 
     template <range X>
-    bool inline sign_bit (X x) {
+    constexpr bool inline sign_bit (X x) {
         return (size (x) != 0) && (x[-1] & get_sign_bit<digit<X>>::value) != 0;
     }
 
     template <range X>
-    bool inline is_zero (const X x) {
+    constexpr bool inline is_zero (const X x) {
         for (const auto &d : x) if (d != 0) return false;
         return true;
     }
 
     template <negativity c, range X>
-    size_t minimal_size (X x) {
+    constexpr size_t minimal_size (X x) {
         if constexpr (c == negativity::nones) {
             int xsize = size (x);
 
@@ -325,22 +325,22 @@ namespace data::arithmetic {
 namespace data::arithmetic::nones {
 
     template <range X>
-    bool inline is_minimal (X x) {
+    constexpr bool inline is_minimal (X x) {
         return size (x) == 0 || x[-1] != 0;
     }
 
     template <range X>
-    bool inline is_positive (X x) {
+    constexpr bool inline is_positive (X x) {
         return !is_zero (x);
     }
 
     template <range X>
-    bool inline is_negative (X x) {
+    constexpr bool inline is_negative (X x) {
         return false;
     }
 
     template <range X>
-    math::signature inline sign (X x) {
+    constexpr math::signature inline sign (X x) {
         for (auto i = x.rbegin (); i != x.rend (); i++) if (*i != 0) return math::positive;
         return math::zero;
     }
@@ -350,7 +350,7 @@ namespace data::arithmetic::nones {
 namespace data::arithmetic::twos {
 
     template <range X>
-    bool is_minimal (X x) {
+    constexpr bool is_minimal (X x) {
         // minimal zero.
         if (size (x) == 0) return true;
         // numbers of one byte.
@@ -366,17 +366,17 @@ namespace data::arithmetic::twos {
     }
 
     template <range X>
-    bool inline is_positive (X x) {
+    constexpr bool inline is_positive (X x) {
         return !is_zero (x) && !sign_bit (x);
     }
 
     template <range X>
-    bool inline is_negative (X x) {
+    constexpr bool inline is_negative (X x) {
         return sign_bit (x);
     }
 
     template <range X>
-    math::signature sign (X x) {
+    constexpr math::signature sign (X x) {
         auto i = x.rbegin ();
         if (i == x.rend ()) return math::zero;
         if (*i & get_sign_bit<digit<X>>::value) return math::negative;
@@ -388,7 +388,7 @@ namespace data::arithmetic::twos {
     }
 
     template <range X>
-    bool inline is_negative_one (const X x) {
+    constexpr bool inline is_negative_one (const X x) {
         if (size (x) == 0) return false;
         for (const auto &d : x) if (d != max_unsigned<digit<X>>) return false;
         return true;
@@ -399,7 +399,7 @@ namespace data::arithmetic::twos {
 namespace data::arithmetic::BC {
 
     template <range X>
-    bool is_zero (X x) {
+    constexpr bool is_zero (X x) {
         auto i = x.rbegin ();
         auto e = x.rend ();
         if (i == e) return true;
@@ -412,7 +412,7 @@ namespace data::arithmetic::BC {
     }
 
     template <range X>
-    bool is_negative_zero (X x) {
+    constexpr bool is_negative_zero (X x) {
         auto i = x.rbegin ();
         auto e = x.rend ();
         if (i == e) return false;
@@ -425,12 +425,12 @@ namespace data::arithmetic::BC {
     }
 
     template <range X>
-    bool inline is_positive_zero (X x) {
+    constexpr bool inline is_positive_zero (X x) {
         return arithmetic::is_zero (x);
     }
 
     template <range X>
-    bool is_minimal (X x) {
+    constexpr bool is_minimal (X x) {
         // minimal zero.
         return (size (x) == 0) ||
             // numbers without an initial 00 or 80.
@@ -440,17 +440,17 @@ namespace data::arithmetic::BC {
     }
 
     template <range X>
-    bool inline is_positive (X x) {
+    constexpr bool inline is_positive (X x) {
         return !sign_bit (x) && !is_positive_zero (x);
     }
 
     template <range X>
-    bool inline is_negative (X x) {
+    constexpr bool inline is_negative (X x) {
         return sign_bit (x) && !is_negative_zero (x);
     }
 
     template <range X>
-    math::signature sign (X x) {
+    constexpr math::signature sign (X x) {
         auto i = x.rbegin ();
         if (i == x.rend ()) return math::zero;
         math::signature nonzero = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
@@ -463,7 +463,7 @@ namespace data::arithmetic::BC {
     }
 
     template <range X>
-    bool inline cast_to_bool (X x) {
+    constexpr bool inline cast_to_bool (X x) {
         return !is_zero (x);
     }
 
@@ -472,7 +472,7 @@ namespace data::arithmetic::BC {
 namespace data::arithmetic {
 
     template <negativity c, range X>
-    std::strong_ordering compare (X a, X b) {
+    constexpr std::strong_ordering compare (X a, X b) {
         if constexpr (c == negativity::nones) {
 
             auto za = size (a);

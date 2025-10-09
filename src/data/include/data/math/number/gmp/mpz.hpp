@@ -25,6 +25,10 @@ namespace data::math::number::GMP {
     
     typedef mp_limb_t gmp_uint;
     typedef mp_limb_signed_t gmp_int;
+
+    // this is an impediment to working on Windows but we need it for now.
+    static_assert (sizeof (gmp_uint) == 8);
+    static_assert (sizeof (gmp_int) == 8);
     
     const __mpz_struct MPZInvalid = __mpz_struct {0, 0, nullptr};
     
@@ -104,21 +108,44 @@ namespace data::math::number::GMP {
     N operator - (const N &, const N &);
     N operator * (const N &, const N &);
 
-    Z operator + (int64, const Z &);
-    Z operator - (int64, const Z &);
-    Z operator * (int64, const Z &);
+    template <std::integral I> Z operator + (I, const Z &);
+    template <std::integral I> Z operator + (const Z &, I);
 
-    N operator + (uint64, const N &);
-    N operator - (uint64, const N &);
-    N operator * (uint64, const N &);
+    template <std::integral I> Z operator - (I, const Z &);
+    template <std::integral I> Z operator - (const Z &, I);
 
-    Z operator + (const Z &, int64);
-    Z operator - (const Z &, int64);
-    Z operator * (const Z &, int64);
+    template <std::signed_integral I> Z operator * (I, const Z &);
+    template <std::signed_integral I> Z operator * (const Z &, I);
 
-    N operator + (const N &, uint64);
-    N operator - (const N &, uint64);
-    N operator * (const N &, uint64);
+    template <std::unsigned_integral I> Z operator * (I, const Z &);
+    template <std::unsigned_integral I> Z operator * (const Z &, I);
+
+    template <std::signed_integral I> Z operator + (I, const N &);
+    template <std::signed_integral I> Z operator + (const N &, I);
+
+    template <std::signed_integral I> Z operator - (I, const N &);
+    template <std::signed_integral I> Z operator - (const N &, I);
+
+    template <std::signed_integral I> Z operator * (I, const N &);
+    template <std::signed_integral I> Z operator * (const N &, I);
+
+    template <std::unsigned_integral I> N operator + (I, const N &);
+    template <std::unsigned_integral I> N operator + (const N &, I);
+
+    template <std::unsigned_integral I> N operator - (I, const N &);
+    template <std::unsigned_integral I> N operator - (const N &, I);
+
+    template <std::unsigned_integral I> N operator * (I, const N &);
+    template <std::unsigned_integral I> N operator * (const N &, I);
+
+    template <std::unsigned_integral I> N operator & (I, const N &);
+    template <std::unsigned_integral I> N operator & (const N &, I);
+
+    template <std::unsigned_integral I> N operator ^ (I, const N &);
+    template <std::unsigned_integral I> N operator ^ (const N &, I);
+
+    template <std::unsigned_integral I> N operator | (I, const N &);
+    template <std::unsigned_integral I> N operator | (const N &, I);
 
     Z operator / (const Z &, const Z &);
     N operator / (const N &, const N &);
@@ -182,6 +209,7 @@ namespace data::math::number::GMP {
 
     N &operator &= (N &, const N &);
     N &operator |= (N &, const N &);
+    N &operator ^= (N &, const N &);
 
     Z &operator <<= (Z &, int);
     Z &operator >>= (Z &, int);
@@ -266,6 +294,10 @@ namespace data::math {
     };
 
     template <> struct inner<N> {
+        N operator () (const N &, const N &);
+    };
+
+    template <> struct bit_xor<N> {
         N operator () (const N &, const N &);
     };
 
@@ -837,14 +869,5 @@ namespace data::math {
         return a * b;
     }
 }
-
-#undef __GMP_DEFINE_UNARY_FUNCTION
-#undef __GMP_DEFINE_UNARY_TYPE_FUNCTION
-#undef __GMP_DEFINE_BINARY_FUNCTION
-#undef __GMPP_DEFINE_BINARY_FUNCTION
-#undef __GMPNN_DEFINE_BINARY_FUNCTION
-#undef __GMPNS_DEFINE_BINARY_FUNCTION
-#undef __GMPN_DEFINE_BINARY_FUNCTION
-#undef __GMPND_DEFINE_BINARY_FUNCTION
 
 #endif

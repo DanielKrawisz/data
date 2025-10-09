@@ -10,7 +10,7 @@ namespace data {
 
     template <Ordered X> using permutation = math::permutation<X>;
     
-    TEST (PermutationTest, TestCycle) {
+    TEST (Permutation, Cycle) {
         using ucycle = cycle<uint32>;
         
         ucycle c {};
@@ -57,7 +57,7 @@ namespace data {
         
     }
     
-    TEST (PermutationTest, TestPermutation) {
+    TEST (Permutation, Permutation) {
         using perm = permutation<uint32>;
         
         perm invalid1 {{1, 2, 1}};

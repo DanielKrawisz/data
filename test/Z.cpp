@@ -7,7 +7,7 @@
 
 namespace data {
     
-    TEST (ZTest, TestZToHexString) {
+    TEST (Z, ZToHexString) {
         
         string Zh_0 = encoding::hexidecimal::write<math::negativity::twos, hex_case::lower> (Z {"0"});
         EXPECT_EQ (Zh_0, std::string {"0x"});
@@ -35,7 +35,7 @@ namespace data {
         
     }
     
-    TEST (ZTest, TestStringToZ) {
+    TEST (Z, StringToZ) {
         
         EXPECT_THROW (Z {""}, exception);
         EXPECT_THROW (Z {"-0x01"}, exception);

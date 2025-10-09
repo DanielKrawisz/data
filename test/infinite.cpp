@@ -56,7 +56,7 @@ namespace data {
         EXPECT_EQ (inf {0}, X {0});
     }
 
-    TEST (InfiniteTest, TestInfinite) {
+    TEST (Infinite, Infinite) {
 
         test_unsigned_infinite<byte> ();
         test_signed_infinite<char> ();

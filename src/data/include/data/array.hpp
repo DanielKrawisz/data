@@ -24,29 +24,29 @@ namespace data {
     template <size_t size> byte_array<size> read_byte_array (const hex_string &h);
 
     template <typename X, size_t... sizes>
-    bool operator == (const array<X, sizes...> &a, const array<X, sizes... > &b);
+    constexpr bool operator == (const array<X, sizes...> &a, const array<X, sizes... > &b);
 
     template <typename X, size_t... sizes>
-    auto operator <=> (const array<X, sizes...> &a, const array<X, sizes... > &b) -> decltype (*a.begin () <=> *b.begin ());
+    constexpr auto operator <=> (const array<X, sizes...> &a, const array<X, sizes... > &b) -> decltype (*a.begin () <=> *b.begin ());
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator ~ (const bytes_array<word, size> &b);
+    constexpr bytes_array<word, size> operator ~ (const bytes_array<word, size> &b);
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator ^ (const bytes_array<word, size> &, const bytes_array<word, size> &);
+    constexpr bytes_array<word, size> operator ^ (const bytes_array<word, size> &, const bytes_array<word, size> &);
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator & (const bytes_array<word, size> &, const bytes_array<word, size> &);
+    constexpr bytes_array<word, size> operator & (const bytes_array<word, size> &, const bytes_array<word, size> &);
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator | (const bytes_array<word, size> &, const bytes_array<word, size> &);
+    constexpr bytes_array<word, size> operator | (const bytes_array<word, size> &, const bytes_array<word, size> &);
 
     // bit shift
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i);
+    constexpr bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i);
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
+    constexpr bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i);
 
     // write
     template <std::integral word, size_t... sizes>
@@ -248,7 +248,7 @@ namespace data {
     }
 
     template <typename X, size_t... sizes>
-    bool inline operator == (const array<X, sizes...> &a, const array<X, sizes... > &b) {
+    constexpr bool inline operator == (const array<X, sizes...> &a, const array<X, sizes... > &b) {
         auto i = a.begin ();
         auto j = b.begin ();
         while (i != a.end ()) {
@@ -260,7 +260,7 @@ namespace data {
     }
 
     template <typename X, size_t... sizes>
-    auto operator <=> (const array<X, sizes...> &a, const array<X, sizes... > &b) -> decltype (*a.begin () <=> *b.begin ()) {
+    constexpr auto operator <=> (const array<X, sizes...> &a, const array<X, sizes... > &b) -> decltype (*a.begin () <=> *b.begin ()) {
         auto i = a.begin ();
         auto j = b.begin ();
 
@@ -403,7 +403,7 @@ namespace data {
     }
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i) {
+    constexpr bytes_array<word, size> operator << (const bytes_array<word, size> &b, int32 i) {
         bytes_array<word, size> n (b);
         if (i < 0) arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_right (-i, false);
         else arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_left (i, false);
@@ -411,7 +411,7 @@ namespace data {
     }
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i) {
+    constexpr bytes_array<word, size> operator >> (const bytes_array<word, size> &b, int32 i) {
         bytes_array<word, size> n (b);
         if (i < 0) arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_left (-i, false);
         else arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_right (i, false);
@@ -419,28 +419,28 @@ namespace data {
     }
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
+    constexpr bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator ^ (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+    constexpr bytes_array<word, size> operator ^ (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_xor<word> (n.end (), n.begin (), a.begin (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator & (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+    constexpr bytes_array<word, size> operator & (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_and<word> (n.end (), n.begin (), a.begin (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
-    bytes_array<word, size> operator | (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+    constexpr bytes_array<word, size> operator | (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_or<word> (n.end (), n.begin (), a.begin (), b.begin ());
         return n;

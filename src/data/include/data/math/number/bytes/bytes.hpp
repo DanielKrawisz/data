@@ -113,11 +113,18 @@ namespace data::math::number {
     
     // bit xor
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word> operator ^ (const N_bytes<r, word> &, const N_bytes<r, word> &);
+    N_bytes<r, word> operator ^ (const N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> &operator ^= (N_bytes<r, word> &, const N_bytes<r, word> &);
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word> operator ^
         (const Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
+
+    template <endian::order r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator ^=
+        (Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word> operator ^ (const Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
@@ -572,12 +579,23 @@ namespace data::math {
 
     template <endian::order r, std::unsigned_integral word>
     struct bit_xor<math::N_bytes<r, word>> {
-        math::Z_bytes<r, word> operator () (const math::N_bytes<r, word> &, const math::N_bytes<r, word> &);
+        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &a, const math::N_bytes<r, word> &b) {
+            return a ^ b;
+        }
+    };
+
+    template <endian::order r, std::unsigned_integral word>
+    struct bit_not<math::N_bytes<r, word>> {
+        math::Z_bytes<r, word> operator () (const math::N_bytes<r, word> &n) {
+            return ~n;
+        }
     };
 
     template <endian::order r, std::unsigned_integral word>
     struct bit_xor<math::Z_bytes<r, word>> {
-        math::Z_bytes<r, word> operator () (const math::Z_bytes<r, word> &, const math::Z_bytes<r, word> &);
+        math::Z_bytes<r, word> operator () (const math::Z_bytes<r, word> &a, const math::Z_bytes<r, word> &b) {
+            return a ^ b;
+        }
     };
 
     template <endian::order r, std::unsigned_integral word>

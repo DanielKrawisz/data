@@ -6,29 +6,43 @@
 #include "gtest/gtest.h"
 
 // We test that number types work like Bitcoin numbers. 
-namespace data::math::number {
+namespace data {
+    // TODO Bitcoin bit logic does not work perfectly with
+    // the number system. Nevertheless, we test it here.
     template <typename Z> requires requires (const Z &z) {
-        {is_minimal (z)} -> std::same_as<bool>;
+        { bit_not (z) } -> ImplicitlyConvertible<Z>;
+    } && requires (const Z &a, const Z &b) {
+        { bit_xor (a, b) } -> ImplicitlyConvertible<Z>;
+        { bit_or (a, b) } -> ImplicitlyConvertible<Z>;
+        { bit_and (a, b) } -> ImplicitlyConvertible<Z>;
+        { a | b } -> ImplicitlyConvertible<Z>;
+        { a & b } -> ImplicitlyConvertible<Z>;
+    } struct test_bit_logic {
+        test_bit_logic () {}
+    };
+
+    template <typename Z> requires requires (const Z &z) {
+        { math::number::is_minimal (z) } -> Same<bool>;
     } struct test_minimal {
         test_minimal () {
 
-            EXPECT_TRUE (is_minimal (Z {string {"0x"}}));
-            EXPECT_FALSE (is_minimal (Z {string {"0x00"}}));
-            EXPECT_TRUE (is_minimal (Z {string {"0x01"}}));
-            EXPECT_FALSE (is_minimal (Z {string {"0x0001"}}));
-            EXPECT_TRUE (is_minimal (Z {string {"0x81"}}));
-            EXPECT_FALSE (is_minimal (Z {string {"0x8001"}}));
+            EXPECT_TRUE (math::number::is_minimal (Z {string {"0x"}}));
+            EXPECT_FALSE (math::number::is_minimal (Z {string {"0x00"}}));
+            EXPECT_TRUE (math::number::is_minimal (Z {string {"0x01"}}));
+            EXPECT_FALSE (math::number::is_minimal (Z {string {"0x0001"}}));
+            EXPECT_TRUE (math::number::is_minimal (Z {string {"0x81"}}));
+            EXPECT_FALSE (math::number::is_minimal (Z {string {"0x8001"}}));
         }
     };
     
     template <typename Z> requires requires (const Z &z) {
-        { data::is_zero (z) } -> std::same_as<bool>;
-        { data::is_positive_zero (z) } -> std::same_as<bool>;
-        { data::is_negative_zero (z) } -> std::same_as<bool>;
+        { is_zero (z) } -> Same<bool>;
+        { is_positive_zero (z) } -> Same<bool>;
+        { is_negative_zero (z) } -> Same<bool>;
     } && requires (const Z &a, const Z &b) {
-        { data::identical (a, b) } -> std::same_as<bool>;
+        { identical (a, b) } -> Same<bool>;
     } && requires (size_t size, bool negative) {
-        { Z::zero (size, negative) } -> std::same_as<Z>;
+        { Z::zero (size, negative) } -> Same<Z>;
     } struct test_zero {
         test_zero () {
 
@@ -47,7 +61,7 @@ namespace data::math::number {
     };
 
     template <typename Z> requires requires (const Z &z) {
-        { -z } -> std::same_as<Z>;
+        { -z } -> Same<Z>;
     } struct test_negate : virtual test_zero<Z> {
         test_negate () {
 
@@ -78,7 +92,7 @@ namespace data::math::number {
     };
 
     template <typename Z> requires requires (const Z &z) {
-        { data::abs (z) } -> std::convertible_to<Z>;
+        { abs (z) } -> std::convertible_to<Z>;
     } struct test_abs : virtual test_zero<Z> {
         test_abs () {
 
@@ -101,8 +115,8 @@ namespace data::math::number {
     };
 
     template <typename Z> requires requires (const Z &z) {
-        { increment<Z> {} (z) } -> std::same_as<Z>;
-        { decrement<Z> {} (z) } -> std::same_as<Z>;
+        { increment (z) } -> Same<Z>;
+        { decrement (z) } -> Same<Z>;
     } struct test_increment_and_decrement {
         test_increment_and_decrement () {
 
@@ -125,11 +139,11 @@ namespace data::math::number {
             Z given = Z::read (from);
             Z expected = Z::read (to);
 
-            Z incremented = increment<Z> {} (given);
-            Z decremented = decrement<Z> {} (expected);
+            Z incremented = increment (given);
+            Z decremented = decrement (expected);
 
-            EXPECT_TRUE (is_minimal (incremented));
-            EXPECT_TRUE (is_minimal (decremented));
+            EXPECT_TRUE (math::number::is_minimal (incremented));
+            EXPECT_TRUE (math::number::is_minimal (decremented));
 
             EXPECT_EQ (expected, incremented);
             EXPECT_EQ (given, decremented);
@@ -138,12 +152,12 @@ namespace data::math::number {
     
     // adequetly tested in hexidecimal tests
     template <typename Z> requires requires (const Z &a, const Z &b) {
-        {a == b} -> std::same_as<bool>;
-        {a != b} -> std::same_as<bool>;
-        {a < b} -> std::same_as<bool>;
-        {a > b} -> std::same_as<bool>;
-        {a <= b} -> std::same_as<bool>;
-        {a >= b} -> std::same_as<bool>;
+        {a == b} -> Same<bool>;
+        {a != b} -> Same<bool>;
+        {a < b} -> Same<bool>;
+        {a > b} -> Same<bool>;
+        {a <= b} -> Same<bool>;
+        {a >= b} -> Same<bool>;
     } struct test_compare {
         test_compare () {}
     };
@@ -159,10 +173,10 @@ namespace data::math::number {
     
     // anything other than zero is true. All types of zeros are false.
     template <typename Z> requires requires (const Z &a, const Z &b) {
-        { a && b } -> std::same_as<Z>;
-        { a || b } -> std::same_as<Z>;
+        { a && b } -> Same<Z>;
+        { a || b } -> Same<Z>;
     } && requires (const Z &a) {
-        { !a } -> std::same_as<Z>;
+        { !a } -> Same<Z>;
     } struct test_logic : virtual test_zero<Z> {
         test_logic () {
 
@@ -191,11 +205,11 @@ namespace data::math::number {
 
     // adequetly tested elsewhere
     template <typename Z> requires requires (const Z &a, const Z &b) {
-        { a + b } -> std::same_as<Z>;
-        { a - b } -> std::same_as<Z>;
-        { a * b } -> std::same_as<Z>;
-        { a / b } -> std::same_as<Z>;
-        { a % b } -> std::same_as<Z>;
+        { a + b } -> Same<Z>;
+        { a - b } -> Same<Z>;
+        { a * b } -> Same<Z>;
+        { a / b } -> Same<Z>;
+        { a % b } -> Same<Z>;
     } struct test_arithmetic {
         test_arithmetic () {
 
@@ -203,18 +217,18 @@ namespace data::math::number {
     };
 
     template <typename Z>
-    struct test_BC_complement :
+    struct test_BC : test_bit_logic<Z>,
         test_minimal<Z>, test_negate<Z>, test_abs<Z>,
         test_increment_and_decrement<Z>,
         test_arithmetic<Z>, test_min_max<Z>,
         test_logic<Z>, test_compare<Z> {
-        test_BC_complement () {}
+        test_BC () {}
     };
     
     TEST (BitcoinNumbers, BitcoinNumbers) {
-        test_BC_complement<hex_int_BC> {};
-        test_BC_complement<Z_bytes_BC_big> {};
-        test_BC_complement<Z_bytes_BC_little> {};
+        test_BC<hex_int_BC> {};
+        test_BC<Z_bytes_BC_big> {};
+        test_BC<Z_bytes_BC_little> {};
     }
     
 }

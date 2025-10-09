@@ -35,29 +35,29 @@ namespace data {
         EXPECT_EQ (primes, expected);
     }
 
-    TEST (EratosthenesTest, First100Primes) {
-        
-        eratosthenes_test<uint64> ();
-        eratosthenes_test<uint64_little> ();
-        eratosthenes_test<uint64_big> ();
-        eratosthenes_test<uint80> ();
-        eratosthenes_test<uint80_little> ();
-        eratosthenes_test<uint80_big> ();
-        eratosthenes_test<uint128> ();
-        eratosthenes_test<uint128_little> ();
-        eratosthenes_test<uint128_big> ();
-        eratosthenes_test<N> ();
-        eratosthenes_test<N_bytes_little> ();
-        eratosthenes_test<N_bytes_big> ();
-        eratosthenes_test<dec_uint> ();
-        eratosthenes_test<hex_uint> ();
-        eratosthenes_test<base58_uint> ();
-        eratosthenes_test<uint128> ();
-        eratosthenes_test<uint160> ();
-        eratosthenes_test<uint256> ();
-        eratosthenes_test<uint512> ();
-        //eratosthenes_test<CryptoPP::Integer> ();
-        
+    template <typename X>
+    struct Eratosthenes : ::testing::Test {
+        using number = X;
+    };
+
+    // TODO should be able to work with
+    // Z, Z_bytes, etc but not intX types.
+    using test_cases = ::testing::Types<
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big,
+        uint160, uint256, uint512,
+        N, N_bytes_little, N_bytes_big,
+        math::N_bytes<endian::little, unsigned short>,
+        math::N_bytes<endian::little, unsigned int>,
+        math::N_bytes<endian::little, unsigned long>,
+        math::N_bytes<endian::little, unsigned long long>,
+        dec_uint, hex_uint, base58_uint>;
+
+    TYPED_TEST_SUITE (Eratosthenes, test_cases);
+
+    TYPED_TEST (Eratosthenes, TestType) {
+        eratosthenes_test<typename TestFixture::number> ();
     }
 
 }

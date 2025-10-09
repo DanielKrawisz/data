@@ -18,7 +18,7 @@ namespace data::math {
     using Zl2 = Z_bytes_BC_little;
 
     template <typename tuple>
-    struct extended_euclidian_test : ::testing::Test {
+    struct ExtendedEuclidian : ::testing::Test {
         using natural = typename std::tuple_element<1, tuple>::type;
         using integer = typename std::tuple_element<0, tuple>::type;
     };
@@ -59,9 +59,9 @@ namespace data::math {
         tuple<hex_int, hex_uint>,
         tuple<hex_int_BC, hex_int_BC>>;
 
-    TYPED_TEST_SUITE (extended_euclidian_test, test_cases);
+    TYPED_TEST_SUITE (ExtendedEuclidian, test_cases);
 
-    TYPED_TEST (extended_euclidian_test, TestType) {
+    TYPED_TEST (ExtendedEuclidian, TestType) {
         using N = typename TestFixture::natural;
         using Z = typename TestFixture::integer;
 

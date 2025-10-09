@@ -132,6 +132,12 @@ namespace data::encoding {
             if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
             return decimal::write (math::N_bytes<endian::little, byte>::read (m) | math::N_bytes<endian::little, byte>::read (n));
         }
+
+        string operator ^ (const string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid decimal string: " << n;
+            return decimal::write (math::N_bytes<endian::little, byte>::read (m) ^ math::N_bytes<endian::little, byte>::read (n));
+        }
         
         division<string, N> divide (const string &n, const N &x) {
             if (x == 0) throw math::division_by_zero {};

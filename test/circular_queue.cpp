@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 namespace data::tools {
 
-    TEST (CircularQueueTest, TestInitialize) {
+    TEST (CircularQueue, Initialize) {
         circular_queue<int> queue (5);
         queue.set (5);
         auto n = queue.get ();

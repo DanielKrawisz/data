@@ -207,7 +207,7 @@ namespace data::encoding {
         signed_decimal::string operator ~ (const string &);
         string operator | (const string &, const string &);
         string operator & (const string &, const string &);
-        signed_decimal::string operator ^ (const string &, const string &);
+        string operator ^ (const string &, const string &);
         
         string operator / (const string &, const string &);
         string operator % (const string &, const string &);
@@ -389,8 +389,12 @@ namespace data::encoding {
         integer<negativity::twos, cx> operator ~ (const integer<negativity::nones, cx> &);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator ^
+        integer<negativity::nones, cx> operator ^
         (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator ^=
+        (integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
 
         template <hex::letter_case cx>
         integer<negativity::twos, cx> operator ^
@@ -696,31 +700,31 @@ namespace data::math {
     };
 
     template <> struct bit_xor<dec_uint> {
-        dec_int operator () (const dec_uint &, const dec_uint &);
-    };
-
-    template <> struct bit_xor<dec_int> {
-        dec_int operator () (const dec_int &, const dec_int &);
+        dec_uint operator () (const dec_uint &, const dec_uint &);
     };
 
     template <hex_case zz>
     struct bit_xor<hex::uint<zz>> {
-        hex::int2<zz> operator () (const hex::uint<zz> &, const hex::uint<zz> &);
+        hex::uint<zz> operator () (const hex::uint<zz> &a, const hex::uint<zz> &b) {
+            return a ^ b;
+        }
     };
 
     template <hex_case zz>
     struct bit_xor<hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &, const hex::int2<zz> &);
-    };
-
-    template <hex_case zz>
-    struct bit_xor<hex::intBC<zz>> {
-        hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
+        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
+            return a ^ b;
+        }
     };
 
     template <hex_case zz>
     struct bit_not<hex::intBC<zz>> {
         hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz>
+    struct bit_xor<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
     };
     
 }
@@ -835,6 +839,7 @@ namespace data::encoding::decimal {
         
         string &operator |= (const string &);
         string &operator &= (const string &);
+        string &operator ^= (const string &);
 
         string &operator /= (const string &);
         string &operator %= (const string &);
@@ -2426,7 +2431,7 @@ namespace data::encoding::hexidecimal {
         }
         
         template <negativity c, hex::letter_case zz>
-        integer<c, zz> bit_or(const integer<c, zz> &a, const integer<c, zz> &b) {
+        integer<c, zz> bit_or (const integer<c, zz> &a, const integer<c, zz> &b) {
             if (a.size () < b.size ()) return bit_or (b, a);
             integer<c, zz> n {};
             n.resize (a.size ());
@@ -2729,10 +2734,15 @@ namespace data::encoding::hexidecimal {
     integer<c, zz> inline operator & (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (bit_and (a, b));
     }
+
+    template <hex::letter_case zz>
+    integer<negativity::nones, zz> inline operator ^ (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
+        return math::number::trim (bit_xor (a, b));
+    }
     
     template <hex::letter_case zz> 
     integer<negativity::twos, zz> inline
-    operator^(const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
+    operator ^ (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
         return math::number::trim (bit_xor (a, b));
     }
     
@@ -2819,6 +2829,7 @@ namespace data::math {
         // we can't really reach here. 
         return true;
     }
+
 }
 
 namespace data::math::number {
