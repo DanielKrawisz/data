@@ -12,13 +12,6 @@ namespace data::math {
 
     template <typename R> bool operator == (const octonion<R> &, const octonion<R> &);
 
-    template <typename q> struct inner<octonion<q>, octonion<q>> :
-        inner<cayley_dickson<quaternion<q>>, cayley_dickson<quaternion<q>>> {};
-
-    template <typename q> struct quadrance<octonion<q>> : quadrance<cayley_dickson<quaternion<q>>> {};
-
-    template <typename q> struct norm<octonion<q>> : norm<cayley_dickson<quaternion<q>>> {};
-
     template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x);
 
     template <typename R>
@@ -36,9 +29,6 @@ namespace data::math {
         octonion (R r, R i, R j, R k, R l, R m, R n, R o) :
             octonion {com {r, i}, com {j, k}, com {l, m}, com {n, o}} {}
         octonion (oct &&o) : oct {o} {}
-
-        template <typename RR> requires ImplicitlyConvertible<RR, R>
-        octonion (const RR &x) : cayley_dickson<ham> {com {x}} {}
         
         static octonion E0 () {
             static octonion e0 {1, 0, 0, 0, 0, 0, 0, 0};
@@ -111,69 +101,66 @@ namespace data::math {
     template <typename R> bool inline operator == (const octonion<R> &a, const octonion<R> &b) {
         return static_cast<cayley_dickson<quaternion<R>>> (a) == static_cast<cayley_dickson<quaternion<R>>> (b);
     }
-    
-    template <typename R> struct conjugate<octonion<R>> {
-        octonion<R> operator () (const octonion<R> &x) {
-            return {conjugate<cayley_dickson<quaternion<R>>> {} (x)};
-        }
-    };
-    
-    template <typename R>
-    struct inverse<plus<octonion<R>>, octonion<R>> {
-        octonion<R> operator () (const octonion<R> &a, const octonion<R> &b) {
-            return b - a;
-        }
-    };
-
-    template <typename q>
-    struct times<octonion<q>> {
-        octonion<q> operator () (const octonion<q> &a, const octonion<q> &b) {
-            return a * b;
-        }
-
-        nonzero<octonion<q>> operator () (const nonzero<octonion<q>> &a, const nonzero<octonion<q>> &b) {
-            return a * b;
-        }
-    };
-
-    template <typename q>
-    struct inverse<times<octonion<q>>, octonion<q>> : inverse<times<q>, q> {
-        nonzero<octonion<q>> operator () (const nonzero<octonion<q>> &a, const nonzero<octonion<q>> &b) {
-            return b / a;
-        }
-    };
-
-    template <typename q>
-    struct divide<octonion<q>, octonion<q>> {
-        octonion<q> operator () (const octonion<q> &a, const nonzero<octonion<q>> &b) {
-            if (b == 0) throw division_by_zero {};
-            return a / b.Value;
-        }
-    };
-
-    template <typename q> struct re<octonion<q>> : re<cayley_dickson<quaternion<q>>> {};
-
-    template <typename q> struct im<octonion<q>> : im<cayley_dickson<quaternion<q>>> {};
-
-    template <typename q>
-    struct divide<octonion<q>, quaternion<q>> {
-        octonion<q> operator () (const octonion<q> &a, const nonzero<quaternion<q>> &b);
-    };
-
-    template <typename q>
-    struct divide<octonion<q>, complex<q>> {
-        octonion<q> operator () (const octonion<q> &a, const nonzero<complex<q>> &b);
-    };
-
-    template <typename q>
-    struct divide<octonion<q>, q> {
-        octonion<q> operator () (const octonion<q> &a, const nonzero<q> &b);
-    };
 
     template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x) {
-        return o << "(" << x.Re << " + k" << x.Im << ")";
+        return o << "(" << ev (x) << " + k" << od (x) << ")";
     }
-    
+
+    namespace def {
+
+        template <typename R>
+        struct inverse<plus<octonion<R>>, octonion<R>> {
+            octonion<R> operator () (const octonion<R> &a, const octonion<R> &b) {
+                return b - a;
+            }
+        };
+
+        template <typename q>
+        struct times<octonion<q>> {
+            octonion<q> operator () (const octonion<q> &a, const octonion<q> &b) {
+                return a * b;
+            }
+
+            nonzero<octonion<q>> operator () (const nonzero<octonion<q>> &a, const nonzero<octonion<q>> &b) {
+                return a * b;
+            }
+        };
+
+        template <typename q>
+        struct inverse<times<octonion<q>>, octonion<q>> : inverse<times<q>, q> {
+            nonzero<octonion<q>> operator () (const nonzero<octonion<q>> &a, const nonzero<octonion<q>> &b) {
+                return b / a;
+            }
+        };
+
+        template <typename q>
+        struct divide<octonion<q>, octonion<q>> {
+            octonion<q> operator () (const octonion<q> &a, const nonzero<octonion<q>> &b) {
+                if (b == 0) throw division_by_zero {};
+                return a / b.Value;
+            }
+        };
+
+        template <typename q> struct ev<octonion<q>> : ev<cayley_dickson<quaternion<q>>> {};
+
+        template <typename q> struct od<octonion<q>> : od<cayley_dickson<quaternion<q>>> {};
+
+        template <typename q>
+        struct divide<octonion<q>, quaternion<q>> {
+            octonion<q> operator () (const octonion<q> &a, const nonzero<quaternion<q>> &b);
+        };
+
+        template <typename q>
+        struct divide<octonion<q>, complex<q>> {
+            octonion<q> operator () (const octonion<q> &a, const nonzero<complex<q>> &b);
+        };
+
+        template <typename q>
+        struct divide<octonion<q>, q> {
+            octonion<q> operator () (const octonion<q> &a, const nonzero<q> &b);
+        };
+
+    }
 }
 
 namespace data::math::linear {

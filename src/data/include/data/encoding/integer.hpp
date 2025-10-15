@@ -31,13 +31,13 @@ namespace data::encoding {
         constexpr uint32 digits (string_view s);
         
         template <endian::order r, std::unsigned_integral word>
-        maybe<math::N_bytes<r, word>> read (string_view s);
+        maybe<N_bytes<r, word>> read (string_view s);
 
         template <std::unsigned_integral I>
         std::ostream &write (std::ostream &, I);
         
         template <endian::order r, std::unsigned_integral word>
-        std::ostream &write (std::ostream &, const math::N_bytes<r, word> &);
+        std::ostream &write (std::ostream &, const N_bytes<r, word> &);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         std::ostream &write (std::ostream &o, const math::uint<r, x, word> &);
@@ -50,7 +50,7 @@ namespace data::encoding {
         string write (I);
         
         template <endian::order r, std::unsigned_integral word>
-        string write (const math::N_bytes<r, word> &);
+        string write (const N_bytes<r, word> &);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         string write (const math::uint<r, x, word> &);
@@ -65,21 +65,19 @@ namespace data::encoding {
         constexpr bool nonzero (string_view);
         constexpr bool positive (string_view);
         constexpr bool negative (string_view);
-        constexpr math::signature sign (string_view);
+        constexpr math::sign sign (string_view);
 
         template <endian::order r, std::unsigned_integral word>
-        maybe<math::Z_bytes<r, word>> read (string_view);
-
-        using negativity = math::negativity;
+        maybe<N_bytes<r, word>> read (string_view);
 
         template <std::signed_integral I>
         std::ostream &write (std::ostream &, I);
 
         template <endian::order r, std::unsigned_integral word>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::twos, word> &);
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, neg::twos, word> &);
 
         template <endian::order r, std::unsigned_integral word>
-        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::BC, word> &);
+        std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, neg::BC, word> &);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         std::ostream &write (std::ostream &o, const math::sint<r, x, word> &);
@@ -91,7 +89,7 @@ namespace data::encoding {
         template <std::signed_integral I>
         string write (I);
 
-        template <endian::order r, negativity c, std::unsigned_integral word>
+        template <endian::order r, neg c, std::unsigned_integral word>
         string write (const math::number::Z_bytes<r, c, word> &);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
@@ -131,21 +129,19 @@ namespace data::encoding {
         template <hex::letter_case cx, endian::order r, std::unsigned_integral word>
         string<cx> write (const oriented<r, word> &z);
 
-        using negativity = math::negativity;
-
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         bool is_minimal (const string<cx> &);
 
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         bool is_negative (const string<cx> &);
 
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         size_t minimal_size (const string<cx> &);
 
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         string<cx> extend (const string<cx> &, size_t);
 
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         string<cx> trim (const string<cx> &);
         
     }
@@ -161,7 +157,7 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r, std::unsigned_integral word> maybe<math::N_bytes<r, word>> read (string_view s);
+        template <endian::order r, std::unsigned_integral word> maybe<N_bytes<r, word>> read (string_view s);
         
     }
     
@@ -180,7 +176,7 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r, math::negativity c, std::unsigned_integral word>
+        template <endian::order r, neg c, std::unsigned_integral word>
         maybe<math::number::Z_bytes<r, c, word>> read (string_view s);
         
     }
@@ -211,6 +207,22 @@ namespace data::encoding {
         
         string operator / (const string &, const string &);
         string operator % (const string &, const string &);
+
+        template <std::unsigned_integral I> string operator | (const string &, I);
+        template <std::unsigned_integral I> string operator & (const string &, I);
+        template <std::unsigned_integral I> string operator ^ (const string &, I);
+
+        template <std::unsigned_integral I> string operator | (I, const string &);
+        template <std::unsigned_integral I> string operator & (I, const string &);
+        template <std::unsigned_integral I> string operator ^ (I, const string &);
+
+        template <std::signed_integral I> signed_decimal::string operator | (const string &, I);
+        template <std::signed_integral I> signed_decimal::string operator & (const string &, I);
+        template <std::signed_integral I> signed_decimal::string operator ^ (const string &, I);
+
+        template <std::signed_integral I> signed_decimal::string operator | (I, const string &);
+        template <std::signed_integral I> signed_decimal::string operator & (I, const string &);
+        template <std::signed_integral I> signed_decimal::string operator ^ (I, const string &);
         
     }
     
@@ -239,6 +251,14 @@ namespace data::encoding {
         string operator | (const string &, const string &);
         string operator & (const string &, const string &);
         string operator ^ (const string &, const string &);
+
+        template <std::integral I> string operator | (const string &, I);
+        template <std::integral I> string operator & (const string &, I);
+        template <std::integral I> string operator ^ (const string &, I);
+
+        template <std::integral I> string operator | (I, const string &);
+        template <std::integral I> string operator & (I, const string &);
+        template <std::integral I> string operator ^ (I, const string &);
         
         string operator / (const string &, const string &);
         
@@ -275,224 +295,287 @@ namespace data::encoding {
 
         // a hexidecimal integer inherets from string but is
         // a big number that supports standard numerical operations.
-        template <negativity, hex::letter_case cx> struct integer;
+        template <neg, hex::letter_case cx> struct integer;
 
         // comparison
-        template <negativity cl, negativity cr, hex::letter_case cx>
+        template <neg cl, neg cr, hex::letter_case cx>
         bool operator == (const integer<cl, cx> &a, const integer<cr, cx> &b);
         
         template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+        std::weak_ordering operator <=> (const integer<neg::nones, cx> &, const integer<neg::nones, cx> &);
         
         template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
+        std::weak_ordering operator <=> (const integer<neg::twos, cx> &, const integer<neg::twos, cx> &);
         
         template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+        std::weak_ordering operator <=> (const integer<neg::BC, cx> &, const integer<neg::BC, cx> &);
 
-        template <negativity c, hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::nones, cx> &, const integer<c, cx> &);
+        template <neg c, hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<neg::nones, cx> &, const integer<c, cx> &);
 
-        template <negativity c, hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<c, cx> &, const integer<negativity::nones, cx> &);
+        template <neg c, hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<c, cx> &, const integer<neg::nones, cx> &);
 
-        template <negativity cl, negativity cr, hex::letter_case cx>
+        template <neg cl, neg cr, hex::letter_case cx>
         std::weak_ordering operator <=> (const integer<cl, cx> &, const integer<cr, cx> &);
 
         template <hex::letter_case cx>
-        bool operator == (const integer<negativity::nones, cx> &, uint64);
+        bool operator == (const integer<neg::nones, cx> &, uint64);
 
         template <hex::letter_case cx>
-        bool operator == (const integer<negativity::twos, cx> &, int64);
+        bool operator == (const integer<neg::twos, cx> &, int64);
 
         template <hex::letter_case cx>
-        bool operator == (const integer<negativity::BC, cx> &, int64);
+        bool operator == (const integer<neg::BC, cx> &, int64);
 
         template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::nones, cx> &, uint64);
+        std::weak_ordering operator <=> (const integer<neg::nones, cx> &, uint64);
 
         template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::twos, cx> &, int64);
+        std::weak_ordering operator <=> (const integer<neg::twos, cx> &, int64);
 
         template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<negativity::BC, cx> &, int64);
+        std::weak_ordering operator <=> (const integer<neg::BC, cx> &, int64);
         
         // increment and decrement
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator ++ (integer<negativity::nones, cx> &);
+        integer<neg::nones, cx> &operator ++ (integer<neg::nones, cx> &);
         
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> &operator ++ (integer<negativity::twos, cx> &);
+        integer<neg::twos, cx> &operator ++ (integer<neg::twos, cx> &);
         
         template <hex::letter_case cx>
-        integer<negativity::BC, cx> &operator ++ (integer<negativity::BC, cx> &);
+        integer<neg::BC, cx> &operator ++ (integer<neg::BC, cx> &);
         
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator -- (integer<negativity::nones, cx> &);
+        integer<neg::nones, cx> &operator -- (integer<neg::nones, cx> &);
         
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> &operator -- (integer<negativity::twos, cx> &);
+        integer<neg::twos, cx> &operator -- (integer<neg::twos, cx> &);
         
         template <hex::letter_case cx>
-        integer<negativity::BC, cx> &operator -- (integer<negativity::BC, cx> &);
+        integer<neg::BC, cx> &operator -- (integer<neg::BC, cx> &);
         
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator ++ (integer<c, cx> &, int);
         
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator -- (integer<c, cx> &, int);
         
         // basic arithmetic
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator + (const integer<c, cx> &, const integer<c, cx> &);
         
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator - (const integer<c, cx> &, const integer<c, cx> &);
         
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator * (const integer<c, cx> &, const integer<c, cx> &);
 
-        // power
-        template <hex::letter_case cx>
-        integer<negativity::BC, cx> operator ^
-            (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
-
-        template <hex::letter_case cx>
-        integer<negativity::BC, cx> &operator ^=
-            (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
-
         // division
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator / (const integer<c, cx> &, const integer<c, cx> &);
 
-        template <negativity c, hex::letter_case cx>
+        template <hex::letter_case cx>
+        integer<neg::twos, cx> operator / (const integer<neg::twos, cx> &, const integer<neg::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<neg::twos, cx> operator / (const integer<neg::nones, cx> &, const integer<neg::twos, cx> &);
+
+        template <neg c, hex::letter_case cx>
         integer<c, cx> &operator /= (const integer<c, cx> &, const integer<c, cx> &);
 
         // mod
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> operator % (const integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::nones, cx> operator % (const integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::nones, cx> &operator %= (integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::BC, cx> &operator % (const integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
+        integer<neg::BC, cx> &operator % (const integer<neg::BC, cx> &n, const integer<neg::BC, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::BC, cx> &operator %= (integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
+        integer<neg::BC, cx> &operator %= (integer<neg::BC, cx> &n, const integer<neg::BC, cx> &x);
 
         // bit operations
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator ~ (const integer<negativity::twos, cx> &);
+        integer<neg::twos, cx> operator ~ (const integer<neg::twos, cx> &);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator ~ (const integer<negativity::nones, cx> &);
+        integer<neg::twos, cx> operator ~ (const integer<neg::nones, cx> &);
 
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> operator ^
-        (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+        integer<neg::nones, cx> operator ^
+        (const integer<neg::nones, cx> &, const integer<neg::nones, cx> &);
 
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator ^=
-        (integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+        integer<neg::nones, cx> &operator ^=
+        (integer<neg::nones, cx> &, const integer<neg::nones, cx> &);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator ^
-            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
+        integer<neg::twos, cx> operator ^
+            (const integer<neg::twos, cx> &, const integer<neg::twos, cx> &);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> &operator ^=
-            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
+        integer<neg::twos, cx> &operator ^=
+            (const integer<neg::twos, cx> &, const integer<neg::twos, cx> &);
         
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator | (const integer<c, cx> &, const integer<c, cx> &);
 
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator & (const integer<c, cx> &, const integer<c, cx> &);
 
-        template <negativity c, hex::letter_case cx>
-        integer<c, cx> operator | (const integer<c, cx> &, uint64);
-
-        template <negativity c, hex::letter_case cx>
-        integer<c, cx> operator & (const integer<c, cx> &, uint64);
-
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> &operator |= (const integer<c, cx> &, const integer<c, cx> &);
 
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> &operator &= (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<neg::nones, cx> operator | (const integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<neg::nones, cx> operator & (const integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<neg::nones, cx> operator ^ (const integer<neg::nones, cx> &, I);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<neg::nones, cx> operator | (I, const integer<neg::nones, cx> &);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<neg::nones, cx> operator & (I, const integer<neg::nones, cx> &);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<neg::nones, cx> operator ^ (I, const integer<neg::nones, cx> &);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<neg::twos, cx> operator | (const integer<neg::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<neg::twos, cx> operator & (const integer<neg::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<neg::twos, cx> operator ^ (const integer<neg::twos, cx> &, I);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<neg::twos, cx> operator | (I, const integer<neg::twos, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<neg::twos, cx> operator & (I, const integer<neg::twos, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<neg::twos, cx> operator ^ (I, const integer<neg::twos, cx> &);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<neg::twos, cx> operator | (const integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<neg::twos, cx> operator & (const integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<neg::twos, cx> operator ^ (const integer<neg::nones, cx> &, I);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<neg::twos, cx> operator | (I, const integer<neg::nones, cx> &);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<neg::twos, cx> operator & (I, const integer<neg::nones, cx> &);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<neg::twos, cx> operator ^ (I, const integer<neg::nones, cx> &);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<neg::nones, cx> &operator |= (integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<neg::nones, cx> &operator &= (integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<neg::nones, cx> &operator ^= (integer<neg::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<neg::twos, cx> &operator |= (integer<neg::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<neg::twos, cx> &operator &= (integer<neg::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<neg::twos, cx> &operator ^= (integer<neg::twos, cx> &, I);
         
         // bit shift
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator << (const integer<c, cx> &, int);
         
-        template <negativity c, hex::letter_case cx>
+        template <neg c, hex::letter_case cx>
         integer<c, cx> operator >> (const integer<c, cx> &, int);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator - (const integer<negativity::nones, cx> &);
+        integer<neg::twos, cx> operator - (const integer<neg::nones, cx> &);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator - (const integer<negativity::twos, cx> &);
+        integer<neg::twos, cx> operator - (const integer<neg::twos, cx> &);
         
         template <hex::letter_case cx> 
-        integer<negativity::BC, cx> operator - (const integer<negativity::BC, cx> &);
+        integer<neg::BC, cx> operator - (const integer<neg::BC, cx> &);
 
         // bool operations
         template <hex::letter_case cx>
-        integer<negativity::BC, cx> operator ! (const integer<negativity::BC, cx> &);
+        integer<neg::BC, cx> operator ! (const integer<neg::BC, cx> &);
 
-        template <hex::letter_case cx> integer<negativity::BC, cx> operator &&
-            (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+        template <hex::letter_case cx> integer<neg::BC, cx> operator &&
+            (const integer<neg::BC, cx> &, const integer<neg::BC, cx> &);
 
-        template <hex::letter_case cx> integer<negativity::BC, cx> operator ||
-            (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+        template <hex::letter_case cx> integer<neg::BC, cx> operator ||
+            (const integer<neg::BC, cx> &, const integer<neg::BC, cx> &);
         
         // special cases
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator + (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> operator + (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator - (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> operator - (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator * (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> operator * (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator + (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x);
+        integer<neg::twos, cx> operator + (const integer<neg::nones, cx> &n, const integer<neg::twos, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator - (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x);
+        integer<neg::twos, cx> operator - (const integer<neg::nones, cx> &n, const integer<neg::twos, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator * (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x);
+        integer<neg::twos, cx> operator * (const integer<neg::nones, cx> &n, const integer<neg::twos, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator | (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> operator | (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator & (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> operator & (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> operator / (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> operator / (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
 
         template <hex::letter_case cx>
-        integer<negativity::nones, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::nones, cx> operator % (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> &operator += (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> &operator += (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> &operator -= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> &operator -= (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> &operator *= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> &operator *= (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> &operator |= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> &operator |= (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
-        integer<negativity::twos, cx> &operator &= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+        integer<neg::twos, cx> &operator &= (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
     }
 
@@ -516,41 +599,46 @@ namespace data::encoding {
 }
 
 namespace data::hex {
-    template <hex_case zz> using uint = encoding::hexidecimal::integer<math::negativity::nones, zz>;
-    template <hex_case zz> using int2 = encoding::hexidecimal::integer<math::negativity::twos, zz>;
-    template <hex_case zz> using intBC = encoding::hexidecimal::integer<math::negativity::BC, zz>;
-    template <math::negativity c, hex_case zz> using integer = encoding::hexidecimal::integer<c, zz>;
+    template <hex_case zz> using uint = encoding::hexidecimal::integer<neg::nones, zz>;
+    template <hex_case zz> using int2 = encoding::hexidecimal::integer<neg::twos, zz>;
+    template <hex_case zz> using intBC = encoding::hexidecimal::integer<neg::BC, zz>;
+    template <neg c, hex_case zz> using integer = encoding::hexidecimal::integer<c, zz>;
 }
 
 namespace data {
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
 
-    template<math::negativity a, hex_case b, math::negativity c, hex_case d>
+    template<neg a, hex_case b, neg c, hex_case d>
     bool identical (const hex::integer<a, b> &, const hex::integer<c, d> &);
+
+    template <hex_case zz>
+    struct make_signed<hex::intBC<zz>> {
+        using type = hex::intBC<zz>;
+    };
     
 }
 
-namespace data::math {
+namespace data::math::def {
 
     template <> struct sign<dec_uint> {
-        math::signature operator () (const dec_uint &);
+        math::sign operator () (const dec_uint &);
     };
 
     template <> struct sign<dec_int> {
-        math::signature operator () (const dec_int &);
+        math::sign operator () (const dec_int &);
     };
 
     template <hex_case zz> struct sign<hex::uint<zz>> {
-        math::signature operator () (const hex::uint<zz> &);
+        math::sign operator () (const hex::uint<zz> &);
     };
 
     template <hex_case zz> struct sign<hex::int2<zz>> {
-        math::signature operator () (const hex::int2<zz> &);
+        math::sign operator () (const hex::int2<zz> &);
     };
 
     template <hex_case zz> struct sign<hex::intBC<zz>> {
-        math::signature operator () (const hex::intBC<zz> &);
+        math::sign operator () (const hex::intBC<zz> &);
     };
     
     template <> struct abs<dec_uint> {
@@ -578,7 +666,7 @@ namespace data::math {
         nonzero<dec_int> operator () (const nonzero<dec_int> &, const nonzero<dec_int> &);
     };
 
-    template <negativity c, hex_case zz> struct times<hex::integer<c, zz>> {
+    template <neg c, hex_case zz> struct times<hex::integer<c, zz>> {
         hex::integer<c, zz> operator () (const hex::integer<c, zz> &, const hex::integer<c, zz> &);
         nonzero<hex::integer<c, zz>> operator () (const nonzero<hex::integer<c, zz>> &, const nonzero<hex::integer<c, zz>> &);
     };
@@ -631,7 +719,7 @@ namespace data::math {
         bool operator () (const hex::intBC<zz> &);
     };
     
-    template <negativity c, hex_case zz> struct is_positive<hex::integer<c, zz>> {
+    template <neg c, hex_case zz> struct is_positive<hex::integer<c, zz>> {
         bool operator () (const hex::integer<c, zz> &);
     };
     
@@ -643,88 +731,85 @@ namespace data::math {
         bool operator () (const hex::intBC<cx> &);
     };
 
-    template <> struct divide<dec_uint, dec_uint> {
+    template <> struct divmod<dec_uint, dec_uint> {
         division<dec_uint, dec_uint> operator () (const dec_uint &, const nonzero<dec_uint> &);
     };
 
-    template <> struct divide<dec_int, dec_int> {
+    template <> struct divmod<dec_int, dec_int> {
         division<dec_int, dec_uint> operator () (const dec_int &, const nonzero<dec_int> &);
     };
 
-    template <> struct divide<dec_int, dec_uint> {
+    template <> struct divmod<dec_int, dec_uint> {
         division<dec_int, dec_uint> operator () (const dec_int &, const nonzero<dec_uint> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::uint<zz>, hex::uint<zz>> {
+    template <hex_case zz> struct divmod<hex::uint<zz>, hex::uint<zz>> {
         division<hex::uint<zz>, hex::uint<zz>> operator () (const hex::uint<zz> &, const nonzero<hex::uint<zz>> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::int2<zz>, hex::int2<zz>> {
+    template <hex_case zz> struct divmod<hex::int2<zz>, hex::int2<zz>> {
         division<hex::int2<zz>, hex::uint<zz>> operator () (const hex::int2<zz> &, const nonzero<hex::int2<zz>> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::int2<zz>, hex::uint<zz>> {
+    template <hex_case zz> struct divmod<hex::int2<zz>, hex::uint<zz>> {
         division<hex::int2<zz>, hex::uint<zz>> operator () (const hex::int2<zz> &, const nonzero<hex::uint<zz>> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::intBC<zz>, hex::intBC<zz>> {
+    template <hex_case zz> struct divmod<hex::intBC<zz>, hex::intBC<zz>> {
         division<hex::intBC<zz>, hex::intBC<zz>> operator () (const hex::intBC<zz> &, const nonzero<hex::intBC<zz>> &);
     };
 
     // We have special cases for converting from string to N.
-    template <> struct divide<dec_uint, int> {
+    template <> struct divmod<dec_uint, int> {
         division<dec_uint, unsigned int> operator () (const dec_uint &, const nonzero<int> &);
     };
 
-    template <> struct divide<dec_int, int> {
+    template <> struct divmod<dec_int, int> {
         division<dec_int, unsigned int> operator () (const dec_int &, const nonzero<int> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::uint<zz>, int> {
+    template <hex_case zz> struct divmod<hex::uint<zz>, int> {
         division<hex::uint<zz>, unsigned int> operator () (const hex::uint<zz> &, const nonzero<int> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::int2<zz>, int> {
+    template <hex_case zz> struct divmod<hex::int2<zz>, int> {
         division<hex::int2<zz>, unsigned int> operator () (const hex::int2<zz> &, const nonzero<int> &);
     };
 
-    template <hex_case zz>
-    struct divide<hex::intBC<zz>, int> {
+    template <hex_case zz> struct divmod<hex::intBC<zz>, int> {
         division<hex::intBC<zz>, int> operator () (const hex::intBC<zz> &, const nonzero<int> &);
     };
 
     template <> struct bit_xor<dec_uint> {
-        dec_uint operator () (const dec_uint &, const dec_uint &);
+        dec_uint operator () (const dec_uint &a, const dec_uint &b);
     };
 
-    template <hex_case zz>
-    struct bit_xor<hex::uint<zz>> {
-        hex::uint<zz> operator () (const hex::uint<zz> &a, const hex::uint<zz> &b) {
-            return a ^ b;
-        }
+    template <hex_case zz> struct bit_xor<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &a, const hex::uint<zz> &b);
     };
 
-    template <hex_case zz>
-    struct bit_xor<hex::int2<zz>> {
-        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
-            return a ^ b;
-        }
+    template <hex_case zz> struct bit_xor<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b);
     };
 
-    template <hex_case zz>
-    struct bit_not<hex::intBC<zz>> {
+    template <hex_case zz> struct bit_not<hex::intBC<zz>> {
         hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
 
-    template <hex_case zz>
-    struct bit_xor<hex::intBC<zz>> {
+    template <hex_case zz> struct bit_xor<hex::intBC<zz>> {
         hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz> struct mul_2<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz> struct div_2<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz> struct mod_2<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
     
 }
@@ -757,11 +842,11 @@ namespace data::math::number {
         hex::uint<zz> operator () (const hex::uint<zz> &);
     };
 
-    template <math::negativity c, hex_case zz> struct increment<hex::integer<c, zz>> {
+    template <neg c, hex_case zz> struct increment<hex::integer<c, zz>> {
         hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
     };
 
-    template <math::negativity c, hex_case zz> struct decrement<hex::integer<c, zz>> {
+    template <neg c, hex_case zz> struct decrement<hex::integer<c, zz>> {
         hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
     };
 
@@ -822,7 +907,7 @@ namespace data::encoding::decimal {
         template <std::signed_integral I> string (I);
         template <std::unsigned_integral I> string (I);
 
-        explicit string (const math::N &);
+        explicit string (const N &);
         
         bool valid () const {
             return decimal::valid (*this);
@@ -855,12 +940,7 @@ namespace data::encoding::decimal {
         string &operator -= (uint64);
         string &operator *= (uint64);
 
-        //string operator & (uint64 u) const;
-
         string operator | (uint64) const;
-
-        string &operator &= (uint64);
-        string &operator |= (uint64);
 
         string &operator /= (uint64);
         
@@ -884,7 +964,7 @@ namespace data::encoding::decimal {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     std::ostream inline &write (std::ostream &o, const math::uint<r, x, word> &n) {
-        return write (o, math::N_bytes<r, word> (n));
+        return write (o, N_bytes<r, word> (n));
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -906,12 +986,14 @@ namespace data::encoding::signed_decimal {
         explicit string (string_view x):
             data::string {signed_decimal::valid (x) ? x : string_view {nullptr, 0}} {}
 
+        string (const decimal::string &x): data::string {x} {}
+
         // We need these to ensure that we can accept
         // any number literal.
         template <std::signed_integral I> string (I x): data::string {write (x)} {}
         template <std::unsigned_integral I> string (I x): data::string {decimal::string {x}} {}
 
-        explicit string (const math::Z &);
+        explicit string (const Z &);
         
         bool valid () const {
             return signed_decimal::valid (*this);
@@ -964,7 +1046,6 @@ namespace data::encoding::signed_decimal {
         
         explicit operator double () const;
         explicit operator int64 () const;
-        //explicit operator math::Z () const;
     };
 
     template <std::signed_integral I>
@@ -980,19 +1061,19 @@ namespace data::encoding::signed_decimal {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, negativity::twos, word> &z) {
+    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, neg::twos, word> &z) {
         if (data::is_negative (z)) w << "-";
         return decimal::write (w, data::abs (z));
     }
 
     template <endian::order r, std::unsigned_integral word>
-    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, negativity::BC, word> &z) {
+    std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, neg::BC, word> &z) {
         if (is_zero (z)) return w << "0";
         if (is_negative (z)) w << "-";
-        return decimal::write (w, math::N_bytes<r, word>::read (abs (z)));
+        return decimal::write (w, N_bytes<r, word>::read (abs (z)));
     }
     
-    template <endian::order r, negativity n, std::unsigned_integral word>
+    template <endian::order r, neg n, std::unsigned_integral word>
     string inline write (const math::number::Z_bytes<r, n, word> &z) {
         std::stringstream ss;
         write (ss, z);
@@ -1001,7 +1082,7 @@ namespace data::encoding::signed_decimal {
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     std::ostream inline &write (std::ostream &o, const math::sint<r, x, word> &z) {
-        return write (o, math::number::Z_bytes<r, negativity::twos, word> (z));
+        return write (o, math::number::Z_bytes<r, neg::twos, word> (z));
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
@@ -1014,17 +1095,17 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     struct complemented_string : string<cx> {
         using string<cx>::string;
 
         template <std::integral I> complemented_string (I);
 
         complemented_string (const string<cx> &x): string<cx> {x} {}
-        explicit complemented_string (const math::Z &);
+        explicit complemented_string (const Z &);
 
         explicit operator int64 () const;
-        explicit operator integer<negativity (-int (c) + 5), cx> () const;
+        explicit operator integer<neg (-int (c) + 5), cx> () const;
 
         static integer<c, cx> zero (size_t size = 0, bool negative = false);
 
@@ -1036,29 +1117,23 @@ namespace data::encoding::hexidecimal {
         integer<c, cx> &operator -= (int64);
         integer<c, cx> &operator *= (int64);
 
-        integer<c, cx> operator & (int64) const;
-        integer<c, cx> operator | (int64) const;
-
-        integer<c, cx> &operator &= (int64);
-        integer<c, cx> &operator |= (int64);
-
         integer<c, cx> &operator /= (int64);
 
-        explicit operator math::Z () const;
+        explicit operator Z () const;
     };
 
     template <hex::letter_case cx>
-    struct complemented_string<negativity::nones, cx> : string<cx> {
+    struct complemented_string<neg::nones, cx> : string<cx> {
         using string<cx>::string;
 
         template <std::integral I> complemented_string (I);
 
-        explicit complemented_string (const math::N &);
+        explicit complemented_string (const N &);
 
-        explicit operator integer<negativity::twos, cx> () const;
-        explicit operator integer<negativity::BC, cx> () const;
+        explicit operator integer<neg::twos, cx> () const;
+        explicit operator integer<neg::BC, cx> () const;
         explicit operator uint64 () const {
-            return uint64 (math::N (*this));
+            return uint64 (N (*this));
         }
 
         data::hex::uint<cx> operator + (uint64) const;
@@ -1069,18 +1144,12 @@ namespace data::encoding::hexidecimal {
         data::hex::uint<cx> &operator -= (uint64);
         data::hex::uint<cx> &operator *= (uint64);
 
-        data::hex::uint<cx> operator & (uint64) const;
-        data::hex::uint<cx> operator | (uint64) const;
-
-        data::hex::uint<cx> &operator &= (uint64);
-        data::hex::uint<cx> &operator |= (uint64);
-
         data::hex::uint<cx> &operator /= (uint64);
         data::hex::uint<cx> &operator %= (uint64);
 
     };
     
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     struct integer : complemented_string<c, cx> {
 
         using complemented_string<c, cx>::complemented_string;
@@ -1106,32 +1175,32 @@ namespace data::encoding::hexidecimal {
         
     };
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     bool inline is_minimal (const string<cx> &x) {
         return math::number::is_minimal (integer<c, cx> {x});
     }
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     bool inline is_negative (const string<cx> &x) {
         return is_negative (integer<c, cx> {x});
     }
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     size_t inline minimal_size (const string<cx> &x) {
         return math::number::minimal_size (integer<c, cx> {x});
     }
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     string<cx> inline extend (const string<cx> &x, size_t z) {
         return math::number::extend (integer<c, cx> {x}, z);
     }
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     string<cx> inline trim (const string<cx> &x) {
         return math::number::trim (integer<c, cx> {x});
     }
 
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     inline integer<c, zz>::operator bool () const {
         return !is_zero (*this);
     }
@@ -1246,6 +1315,30 @@ namespace data::encoding::decimal {
     string inline &string::operator %= (const string &z) {
         return *this = *this % z;
     }
+
+    template <std::unsigned_integral I> string inline operator | (const string &u, I x) {
+        return u | string {x};
+    }
+
+    template <std::unsigned_integral I> string inline operator & (const string &u, I x) {
+        return u & string {x};
+    }
+
+    template <std::unsigned_integral I> string inline operator ^ (const string &u, I x) {
+        return u ^ string {x};
+    }
+
+    template <std::unsigned_integral I> string inline operator | (I x, const string &u) {
+        return u | string {x};
+    }
+
+    template <std::unsigned_integral I> string inline operator & (I x, const string &u) {
+        return u & string {x};
+    }
+
+    template <std::unsigned_integral I> string inline operator ^ (I x, const string &u) {
+        return u ^ string {x};
+    }
     
 }
 
@@ -1267,7 +1360,7 @@ namespace data::encoding::signed_decimal {
         return valid (s) && s[0] != '-' && s[0] != '0';
     }
     
-    constexpr math::signature inline sign (string_view s) {
+    constexpr math::sign inline sign (string_view s) {
         if (!valid (s)) throw exception {} << "invalid decimal string: " << s;
         return s[0] == '-' ? math::negative : s[0] == '0' ? math::zero : math::positive;
     }
@@ -1337,15 +1430,15 @@ namespace data::encoding::signed_decimal {
     }
 
     string inline operator / (const string &v, const decimal::string &z) {
-        return math::divide<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Quotient;
+        return math::def::divmod<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Quotient;
     }
 
     string inline operator / (const string &v, const string &z) {
-        return math::divide<string, string> {} (v, math::nonzero<string> {z}).Quotient;
+        return math::def::divmod<string, string> {} (v, math::nonzero<string> {z}).Quotient;
     }
 
     decimal::string inline operator % (const string &v, const decimal::string &z) {
-        return math::divide<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Remainder;
+        return math::def::divmod<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Remainder;
     }
     
     string inline operator ++ (string &x, int) {
@@ -1435,140 +1528,135 @@ namespace data::encoding::hexidecimal {
         return string<cx> {ss.str ()};
     }
 
-    template <negativity cl, negativity cr, hex::letter_case cx>
+    template <neg cl, neg cr, hex::letter_case cx>
     bool inline operator == (const integer<cl, cx> &a, const integer<cr, cx> &b) {
         return (a <=> b) == 0;
     }
 
-    template <negativity c, hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<negativity::nones, cx> &a, const integer<c, cx> &b) {
+    template <neg c, hex::letter_case cx>
+    std::weak_ordering inline operator <=> (const integer<neg::nones, cx> &a, const integer<c, cx> &b) {
         return integer<c, cx> (a) <=> b;
     }
 
-    template <negativity c, hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<c, cx> &a, const integer<negativity::nones, cx> &b) {
+    template <neg c, hex::letter_case cx>
+    std::weak_ordering inline operator <=> (const integer<c, cx> &a, const integer<neg::nones, cx> &b) {
         return a <=> integer<c, cx> (b);
     }
 
-    template <negativity cl, negativity cr, hex::letter_case cx>
+    template <neg cl, neg cr, hex::letter_case cx>
     std::weak_ordering inline operator <=> (const integer<cl, cx> &a, const integer<cr, cx> &b) {
         return a <=> integer<cl, cx> (b);
     }
 
     template <hex::letter_case cx>
-    bool inline operator == (const integer<negativity::nones, cx> &x, uint64 u) {
-        return x == integer<negativity::nones, cx> {u};
+    bool inline operator == (const integer<neg::nones, cx> &x, uint64 u) {
+        return x == integer<neg::nones, cx> {u};
     }
 
     template <hex::letter_case cx>
-    bool inline operator == (const integer<negativity::twos, cx> &x, int64 u) {
-        return x == integer<negativity::twos, cx> {u};
+    bool inline operator == (const integer<neg::twos, cx> &x, int64 u) {
+        return x == integer<neg::twos, cx> {u};
     }
 
     template <hex::letter_case cx>
-    bool inline operator == (const integer<negativity::BC, cx> &x, int64 u) {
-        return x == integer<negativity::BC, cx> {u};
+    bool inline operator == (const integer<neg::BC, cx> &x, int64 u) {
+        return x == integer<neg::BC, cx> {u};
     }
 
     template <hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<negativity::nones, cx> &x, uint64 u) {
-        return x <=> integer<negativity::nones, cx> {u};
+    std::weak_ordering inline operator <=> (const integer<neg::nones, cx> &x, uint64 u) {
+        return x <=> integer<neg::nones, cx> {u};
     }
 
     template <hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<negativity::twos, cx> &x, int64 u) {
-        return x <=> integer<negativity::twos, cx> {u};
+    std::weak_ordering inline operator <=> (const integer<neg::twos, cx> &x, int64 u) {
+        return x <=> integer<neg::twos, cx> {u};
     }
 
     template <hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<negativity::BC, cx> &x, int64 u) {
-        return x <=> integer<negativity::BC, cx> {u};
+    std::weak_ordering inline operator <=> (const integer<neg::BC, cx> &x, int64 u) {
+        return x <=> integer<neg::BC, cx> {u};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline operator +
-        (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n + integer<negativity::twos, cx> {math::number::extend (m, m.size () + 2)};
+    integer<neg::twos, cx> inline operator +
+        (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n + integer<neg::twos, cx> {math::number::extend (m, m.size () + 2)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline operator -
-        (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n - integer<negativity::twos, cx> {math::number::extend (m, m.size () + 2)};
+    integer<neg::twos, cx> inline operator -
+        (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n - integer<neg::twos, cx> {math::number::extend (m, m.size () + 2)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline operator *
-        (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n * integer<negativity::twos, cx> {math::number::extend (m, m.size () + 2)};
+    integer<neg::twos, cx> inline operator *
+        (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n * integer<neg::twos, cx> {math::number::extend (m, m.size () + 2)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline operator |
-        (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n | integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline operator |
+        (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n | integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline operator &
-        (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n & integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline operator &
+        (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n & integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline operator /
-        (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n / integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline operator /
+        (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n / integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline &operator +=
-        (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n += integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline &operator +=
+        (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n += integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline &operator -=
-        (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n -= integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline &operator -=
+        (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n -= integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline &operator *=
-        (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n *= integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline &operator *=
+        (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n *= integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline &operator |=
-        (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n |= integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline &operator |=
+        (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n |= integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
     
     template <hex::letter_case cx> 
-    integer<negativity::twos, cx> inline &operator &=
-        (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &m) {
-        return n &= integer<negativity::twos, cx> {math::number::extend (m, m.size () + 1)};
+    integer<neg::twos, cx> inline &operator &=
+        (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &m) {
+        return n &= integer<neg::twos, cx> {math::number::extend (m, m.size () + 1)};
     }
 
-    template <hex::letter_case cx> integer<negativity::nones, cx> inline
-    &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x) {
+    template <hex::letter_case cx> integer<neg::nones, cx> inline
+    &operator %= (integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x) {
         return n = n % x;
     }
 
-    template <negativity c, hex::letter_case cx>
-    integer<c, cx> inline operator | (const integer<c, cx> &x, uint64 u) {
-        return x | integer<c, cx> (integer<negativity::nones, cx> {u});
-    }
-
-    template <negativity c, hex::letter_case cx>
-    integer<c, cx> inline operator & (const integer<c, cx> &x, uint64 u) {
-        return x & integer<c, cx> (integer<negativity::nones, cx> {u});
-    }
-
     template <hex::letter_case cx>
-    integer<negativity::twos, cx> inline operator - (const integer<negativity::nones, cx> &x) {
-        return -integer<negativity::twos, cx> (x);
+    integer<neg::twos, cx> inline operator - (const integer<neg::nones, cx> &x) {
+        return -integer<neg::twos, cx> (x);
+    }
+
+    template <hex::letter_case cx, std::unsigned_integral I>
+    integer<neg::nones, cx> inline operator & (const integer<neg::nones, cx> &u, I x) {
+        return u & integer<neg::nones, cx> {x};
     }
     
 } 
@@ -1615,7 +1703,7 @@ namespace data::encoding::integer {
         return negative (s) ? natural::digits (s.substr (1, s.size () - 1)) : natural::digits (s);
     }
     
-    template <endian::order r, math::negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     maybe<math::number::Z_bytes<r, c, word>> read (string_view s) {
 
         if (!valid (s)) return {};
@@ -1681,13 +1769,13 @@ namespace data::math::number {
         return --x;
     }
 
-    template <math::negativity c, hex_case zz>
+    template <neg c, hex_case zz>
     hex::integer<c, zz> inline increment<hex::integer<c, zz>>::operator () (const hex::integer<c, zz> &n) {
         auto x = n;
         return ++x;
     }
 
-    template <math::negativity c, hex_case zz>
+    template <neg c, hex_case zz>
     hex::integer<c, zz> inline decrement<hex::integer<c, zz>>::operator () (const hex::integer<c, zz> &n) {
         auto x = n;
         return --x;
@@ -1702,40 +1790,40 @@ namespace data::math::number {
 
 namespace data {
 
-    template<math::negativity a, hex_case b, math::negativity c, hex_case d>
+    template<neg a, hex_case b, neg c, hex_case d>
     bool inline identical (const hex::integer<a, b> &x, const hex::integer<c, d> &y) {
         return static_cast<std::string> (x) == static_cast<std::string> (y);
     }
 }
 
-namespace data::math {
+namespace data::math::def {
 
-    signature inline sign<dec_uint>::operator () (const dec_uint &n) {
+    math::sign inline sign<dec_uint>::operator () (const dec_uint &n) {
         if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
 
         return encoding::decimal::nonzero (n) ? math::positive : math::zero;
     }
 
-    signature inline sign<dec_int>::operator () (const dec_int &n) {
+    math::sign inline sign<dec_int>::operator () (const dec_int &n) {
         return encoding::signed_decimal::sign (n);
     }
 
     template <hex_case cx>
-    signature inline sign<hex::uint<cx>>::operator () (const hex::uint<cx> &x) {
+    math::sign inline sign<hex::uint<cx>>::operator () (const hex::uint<cx> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
 
         return data::is_zero (x) ? math::zero : math::positive;
     }
 
     template <hex_case cx>
-    signature inline sign<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
+    math::sign inline sign<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
 
         return data::is_negative (x) ? math::negative : data::is_zero (x) ? math::zero : math::positive;
     }
 
     template <hex_case cx>
-    math::signature inline sign<hex::intBC<cx>>::operator () (const hex::intBC<cx> &x) {
+    math::sign inline sign<hex::intBC<cx>>::operator () (const hex::intBC<cx> &x) {
         if (!x.valid ()) throw exception{} << "invalid hexidecimal string: " << x;
 
         return data::is_zero (x) ? math::zero : math::number::sign_bit_set (x) ? math::negative : math::positive;
@@ -1771,7 +1859,7 @@ namespace data::math {
         return encoding::signed_decimal::positive (n);
     }
 
-    template <negativity c, hex_case zz>
+    template <neg c, hex_case zz>
     bool inline is_positive<hex::integer<c, zz>>::operator () (const hex::integer<c, zz> &z) {
         return !is_negative<hex::integer<c, zz>> {} (z) && !is_zero<hex::integer<c, zz>> {} (z);
     }
@@ -1858,14 +1946,14 @@ namespace data::math {
         }
     };
 
-    template <negativity c, hex_case zz>
+    template <neg c, hex_case zz>
     struct identity<plus<hex::integer<c, zz>>, hex::integer<c, zz>> {
         hex::integer<c, zz> operator () () {
             return 0;
         }
     };
 
-    template <negativity c, hex_case zz>
+    template <neg c, hex_case zz>
     struct identity<times<hex::integer<c, zz>>, hex::integer<c, zz>> {
         hex::integer<c, zz> operator () () {
             return 1;
@@ -1892,19 +1980,33 @@ namespace data::math {
         }
     };
 
+    dec_uint inline bit_xor<dec_uint>::operator () (const dec_uint &a, const dec_uint &b) {
+        return a ^ b;
+    }
+
+    template <hex_case zz>
+    hex::uint<zz> inline bit_xor<hex::uint<zz>>::operator () (const hex::uint<zz> &a, const hex::uint<zz> &b) {
+        return a ^ b;
+    }
+
+    template <hex_case zz>
+    hex::int2<zz> inline bit_xor<hex::int2<zz>>::operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
+        return a ^ b;
+    }
+
 }
 
 
 namespace data::encoding::hexidecimal {
     
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     integer<c, cx> inline operator ++ (integer<c, cx> &x, int) {
         integer n = x;
         ++x;
         return n;
     }
     
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     integer<c, cx> inline operator -- (integer<c, cx> &x, int) {
         integer n = x;
         --x;
@@ -1912,75 +2014,75 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case cx>
-    integer<negativity::twos, cx> inline operator - (const integer<negativity::twos, cx> &n) {
+    integer<neg::twos, cx> inline operator - (const integer<neg::twos, cx> &n) {
         if (!n.valid ()) throw exception {} << "invalid hex string: " << n;
         auto x = ~n;
         return ++x;
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline &integer<c, zz>::operator += (const integer &i) {
         return *this = *this + i;
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline &integer<c, zz>::operator -= (const integer &i) {
         return *this = *this - i;
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline &integer<c, zz>::operator *= (const integer &i) {
         return *this = *this * i;
     }
 
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline complemented_string<c, zz>::operator + (int64 i) const {
         return integer<c, zz> {*this} + integer<c, zz> {i};
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline complemented_string<c, zz>::operator - (int64 i) const {
         return integer<c, zz> {*this} - integer<c, zz> {i};
     }
 
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline complemented_string<c, zz>::operator * (int64 i) const {
         return integer<c, zz> {*this} * integer<c, zz> {i};
     }
 
     template <hex::letter_case cx>
-    data::hex::uint<cx> inline complemented_string<negativity::nones, cx>::operator + (uint64 i) const {
+    data::hex::uint<cx> inline complemented_string<neg::nones, cx>::operator + (uint64 i) const {
         return data::hex::uint<cx> {*this} + data::hex::uint<cx> {i};
     }
 
     template <hex::letter_case cx>
-    data::hex::uint<cx> inline complemented_string<negativity::nones, cx>::operator - (uint64 i) const {
+    data::hex::uint<cx> inline complemented_string<neg::nones, cx>::operator - (uint64 i) const {
         return data::hex::uint<cx> {*this} - data::hex::uint<cx> {i};
     }
 
     template <hex::letter_case cx>
-    data::hex::uint<cx> inline complemented_string<negativity::nones, cx>::operator * (uint64 i) const {
+    data::hex::uint<cx> inline complemented_string<neg::nones, cx>::operator * (uint64 i) const {
         return data::hex::uint<cx> {*this} * data::hex::uint<cx> {i};
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline &integer<c, zz>::operator <<= (int i) {
         return *this = *this << i;
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline &integer<c, zz>::operator >>= (int i) {
         return *this = *this >> i;
     }
         
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline integer<c, zz>::operator / (const integer &x) const {
-        return math::divide<integer<c, zz>> {} (*this, math::nonzero {x}).Quotient;
+        return math::def::divmod<integer<c, zz>> {} (*this, math::nonzero {x}).Quotient;
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline integer<c, zz>::operator % (const integer &x) const {
-        return math::divide<integer<c, zz>> {} (*this, math::nonzero {x}).Remainder;
+        return math::def::divmod<integer<c, zz>> {} (*this, math::nonzero {x}).Remainder;
     }
     
     namespace {
@@ -2002,42 +2104,42 @@ namespace data::encoding::hexidecimal {
             return string<cx> {ss.str ()};
         }
         
-        template <negativity c, hex::letter_case zz> struct write_int;
+        template <neg c, hex::letter_case zz> struct write_int;
         
-        template <hex::letter_case zz> struct write_int<negativity::nones, zz> {
+        template <hex::letter_case zz> struct write_int<neg::nones, zz> {
             template <std::signed_integral I>
-            integer<negativity::nones, zz> operator () (I i) {
+            integer<neg::nones, zz> operator () (I i) {
                 if (i < 0) throw exception {} << "attempt to construct natural number from negative int " << i;
                 return operator () (static_cast<std::make_unsigned_t<I>> (i));
             }
 
             template <std::unsigned_integral I>
-            integer<negativity::nones, zz> operator () (I i) {
-                return integer<negativity::nones, zz>
+            integer<neg::nones, zz> operator () (I i) {
+                return integer<neg::nones, zz>
                     {write_arith<zz, false, sizeof (I)>
                         (endian::integral<false, endian::big, sizeof (I)> {i})};
             }
         };
         
-        template <hex::letter_case zz> struct write_int<negativity::twos, zz> {
+        template <hex::letter_case zz> struct write_int<neg::twos, zz> {
             template <std::signed_integral I>
-            integer<negativity::twos, zz> operator () (I i) {
-                return integer<negativity::twos, zz>
+            integer<neg::twos, zz> operator () (I i) {
+                return integer<neg::twos, zz>
                     {write_arith<zz, true, sizeof (I)>
                         (endian::integral<true, endian::big, sizeof (I)> {i})};
             }
 
             template <std::unsigned_integral I>
-            integer<negativity::twos, zz> operator () (I i) {
-                return integer<negativity::twos, zz>
+            integer<neg::twos, zz> operator () (I i) {
+                return integer<neg::twos, zz>
                 {write_arith<zz, false, sizeof (I)>
                     (endian::integral<false, endian::big, sizeof (I)> {i})};
             }
         };
         
-        template <hex::letter_case zz> struct write_int<negativity::BC, zz> {
+        template <hex::letter_case zz> struct write_int<neg::BC, zz> {
             template <std::signed_integral I>
-            integer<negativity::BC, zz> operator () (I i) {
+            integer<neg::BC, zz> operator () (I i) {
                 using U = std::make_unsigned_t<I>;
                 if (i == std::numeric_limits<int64>::min ())
                     return -operator () (static_cast<U> (i));
@@ -2047,33 +2149,33 @@ namespace data::encoding::hexidecimal {
             }
             
             template <std::unsigned_integral I>
-            integer<negativity::BC, zz> operator () (I i) {
-                return integer<negativity::BC, zz>
+            integer<neg::BC, zz> operator () (I i) {
+                return integer<neg::BC, zz>
                     {write_arith<zz, false, sizeof (I)>
                         (endian::integral<false, endian::big, sizeof (I)> {i})};
             } 
         };
 
-        template <hex::letter_case zz, negativity from, negativity to> struct cast_negativity;
+        template <hex::letter_case zz, neg from, neg to> struct cast_neg;
 
-        template <hex::letter_case zz> struct cast_negativity<zz, negativity::twos, negativity::BC> {
-            integer<negativity::BC, zz> operator () (const integer<negativity::twos, zz> &x) {
+        template <hex::letter_case zz> struct cast_neg<zz, neg::twos, neg::BC> {
+            integer<neg::BC, zz> operator () (const integer<neg::twos, zz> &x) {
                 return is_negative (x) ?
-                    -integer<negativity::BC, zz> (static_cast<string<zz>> (-x)):
-                    integer<negativity::BC, zz> (static_cast<string<zz>> (x));
+                    -integer<neg::BC, zz> (static_cast<string<zz>> (-x)):
+                    integer<neg::BC, zz> (static_cast<string<zz>> (x));
             }
         };
 
-        template <hex::letter_case zz> struct cast_negativity<zz, negativity::BC, negativity::twos> {
-            integer<negativity::twos, zz> operator () (const integer<negativity::BC, zz> &x) {
+        template <hex::letter_case zz> struct cast_neg<zz, neg::BC, neg::twos> {
+            integer<neg::twos, zz> operator () (const integer<neg::BC, zz> &x) {
                 return math::number::sign_bit_set (x) ?
-                    -integer<negativity::twos, zz> (static_cast<string<zz>> (-x)):
-                    integer<negativity::twos, zz> (static_cast<string<zz>> (x));
+                    -integer<neg::twos, zz> (static_cast<string<zz>> (-x)):
+                    integer<neg::twos, zz> (static_cast<string<zz>> (x));
             }
         };
     }
 
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     template <std::integral I>
     inline complemented_string<c, zz>::complemented_string (I x): complemented_string {write_int<c, zz> {} (x)} {
         static_cast<string<zz> &> (*this) = trim<c, zz> (*this);
@@ -2081,34 +2183,34 @@ namespace data::encoding::hexidecimal {
 
     template <hex::letter_case zz>
     template <std::integral I>
-    inline complemented_string<negativity::nones, zz>::complemented_string (I x):
-        complemented_string {write_int<negativity::nones, zz> {} (x)} {
-        static_cast<string<zz> &> (*this) = trim<negativity::nones, zz> (*this);
+    inline complemented_string<neg::nones, zz>::complemented_string (I x):
+        complemented_string {write_int<neg::nones, zz> {} (x)} {
+        static_cast<string<zz> &> (*this) = trim<neg::nones, zz> (*this);
     }
     
-    template <negativity c, hex::letter_case cx>
-    complemented_string<c, cx>::operator integer<negativity (-int (c) + 5), cx> () const {
-        return math::number::trim (cast_negativity<cx, c, negativity (-int (c) + 5)> {} (integer<c, cx> (*this)));
+    template <neg c, hex::letter_case cx>
+    complemented_string<c, cx>::operator integer<neg (-int (c) + 5), cx> () const {
+        return math::number::trim (cast_neg<cx, c, neg (-int (c) + 5)> {} (integer<c, cx> (*this)));
     }
 
     template <hex::letter_case cx>
-    inline complemented_string<negativity::nones, cx>::operator integer<negativity::twos, cx> () const {
-        return is_negative<negativity::twos, cx> (*this) ?
-            integer<negativity::twos, cx> (extend<negativity::nones, cx> (*this, this->size () + 2)):
-            integer<negativity::twos, cx> (static_cast<string<cx>> (*this));
+    inline complemented_string<neg::nones, cx>::operator integer<neg::twos, cx> () const {
+        return is_negative<neg::twos, cx> (*this) ?
+            integer<neg::twos, cx> (extend<neg::nones, cx> (*this, this->size () + 2)):
+            integer<neg::twos, cx> (static_cast<string<cx>> (*this));
     }
 
     template <hex::letter_case cx>
-    inline complemented_string<negativity::nones, cx>::operator integer<negativity::BC, cx> () const {
-        return is_negative<negativity::BC, cx> (*this) ?
-            integer<negativity::BC, cx> (extend<negativity::nones, cx> (*this, this->size () + 2)):
-            integer<negativity::BC, cx> (static_cast<string<cx>> (*this));
+    inline complemented_string<neg::nones, cx>::operator integer<neg::BC, cx> () const {
+        return is_negative<neg::BC, cx> (*this) ?
+            integer<neg::BC, cx> (extend<neg::nones, cx> (*this, this->size () + 2)):
+            integer<neg::BC, cx> (static_cast<string<cx>> (*this));
     }
 
-    template <negativity c, hex::letter_case cx>
+    template <neg c, hex::letter_case cx>
     integer<c, cx> complemented_string<c, cx>::zero (size_t size, bool negative) {
-        if constexpr (c == negativity::twos) {
-            if (negative) throw exception {} << "negativity ones has no negative zero";
+        if constexpr (c == neg::twos) {
+            if (negative) throw exception {} << "neg ones has no negative zero";
         } else {
             if (negative && size == 0) throw exception {} << "can't do negative zero with size zero";
         }
@@ -2126,12 +2228,12 @@ namespace data::encoding::hexidecimal {
         return integer<c, cx> {x};
     }
 
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline &integer<c, zz>::trim () {
         return *this = math::number::trim (*this);
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline integer<c, zz>::trim () const {
         return math::number::trim (*this);
     }
@@ -2199,57 +2301,63 @@ namespace data::math::number {
 namespace data::encoding::hexidecimal {
 
     template <hex::letter_case zz>
-    integer<negativity::BC, zz> operator ! (const integer<negativity::BC, zz> &x) {
+    integer<neg::BC, zz> operator ! (const integer<neg::BC, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         return bool (x) ?
-            integer<negativity::BC, zz> {std::string {"0x"}} :
-            integer<negativity::BC, zz> {std::string {"0x01"}};
+            integer<neg::BC, zz> {std::string {"0x"}} :
+            integer<neg::BC, zz> {std::string {"0x01"}};
     }
 
     template <hex::letter_case zz>
-    integer<negativity::BC, zz> operator &&
-        (const integer<negativity::BC, zz> &x, const integer<negativity::BC, zz> &y) {
+    integer<neg::BC, zz> operator &&
+        (const integer<neg::BC, zz> &x, const integer<neg::BC, zz> &y) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         if (!y.valid ()) throw exception {} << "invalid hexidecimal string: " << y;
         return bool (x) && bool (y) ?
-            integer<negativity::BC, zz> {std::string {"0x01"}} :
-            integer<negativity::BC, zz> {std::string {"0x"}};
+            integer<neg::BC, zz> {std::string {"0x01"}} :
+            integer<neg::BC, zz> {std::string {"0x"}};
     }
 
     template <hex::letter_case zz>
-    integer<negativity::BC, zz> operator ||
-        (const integer<negativity::BC, zz> &x, const integer<negativity::BC, zz> &y) {
+    integer<neg::BC, zz> operator ||
+        (const integer<neg::BC, zz> &x, const integer<neg::BC, zz> &y) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         if (!y.valid ()) throw exception {} << "invalid hexidecimal string: " << y;
         return bool (x) || bool (y) ?
-            integer<negativity::BC, zz> {std::string {"0x01"}} :
-            integer<negativity::BC, zz> {std::string {"0x"}};
+            integer<neg::BC, zz> {std::string {"0x01"}} :
+            integer<neg::BC, zz> {std::string {"0x"}};
+    }
+
+    template <neg nn, hex::letter_case zz>
+    integer<nn, zz> bit_not (const integer<nn, zz> &x) {
+        auto characters = hex::characters (zz);
+        integer<nn, zz> result {};
+        result.resize (x.size ());
+        for (int i = 2; i < x.size (); i++) result[i] = characters[0x0f & ~digit (x[i])];
+        return result;
     }
     
     template <hex::letter_case zz>
-    integer<negativity::twos, zz> operator ~ (const integer<negativity::twos, zz> &x) {
+    integer<neg::twos, zz> operator ~ (const integer<neg::twos, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        if (x == std::string {"0x"}) return integer<negativity::twos, zz> {std::string {"0xff"}};
-        
-        auto characters = hex::characters (zz);
-        integer<negativity::twos, zz> n {};
-        n.resize (x.size ());
-        for (int i = 2; i < x.size (); i++) n[i] = characters[0x0f & ~digit (x[i])];
-        
-        return n.trim ();
+        if (x == std::string {"0x"}) return integer<neg::twos, zz> {std::string {"0xff"}};
+        return bit_not (x).trim ();
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::BC, zz> operator - (const integer<negativity::BC, zz> &x) {
+    integer<neg::BC, zz> operator - (const integer<neg::BC, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        if (data::is_zero (x)) return integer<negativity::BC, zz> {"0x"};
+        if (data::is_zero (x)) return integer<neg::BC, zz> {"0x"};
 
-        integer<negativity::BC, zz> n = x;
+        integer<neg::BC, zz> n = x;
         auto d = digit (x[2]);
         n[2] = hex::characters (zz)[(d & 0x7) | (~d & 0x8)];
 
         return n.trim ();
     }
+
+    template <hex::letter_case zz>
+    string<zz> shift (const string<zz> &x, int i);
     
     namespace {
     
@@ -2421,7 +2529,7 @@ namespace data::encoding::hexidecimal {
         template <hex::letter_case zz>
         void times (string<zz> &out, const string<zz> &a, const string<zz> &b);
         
-        template <negativity c, hex::letter_case zz>
+        template <neg c, hex::letter_case zz>
         integer<c, zz> bit_and (const integer<c, zz> &a, const integer<c, zz> &b) {
             if (a.size () < b.size ()) return bit_and (b, a);
             integer<c, zz> n {};
@@ -2430,7 +2538,7 @@ namespace data::encoding::hexidecimal {
             return n;
         }
         
-        template <negativity c, hex::letter_case zz>
+        template <neg c, hex::letter_case zz>
         integer<c, zz> bit_or (const integer<c, zz> &a, const integer<c, zz> &b) {
             if (a.size () < b.size ()) return bit_or (b, a);
             integer<c, zz> n {};
@@ -2440,38 +2548,35 @@ namespace data::encoding::hexidecimal {
         }
         
         template <hex::letter_case zz> 
-        integer<negativity::twos, zz> bit_xor (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
+        integer<neg::twos, zz> bit_xor (const integer<neg::twos, zz> &a, const integer<neg::twos, zz> &b) {
             if (a.size () < b.size ()) return bit_xor (b, a);
-            integer<negativity::twos, zz> n {};
+            integer<neg::twos, zz> n {};
             n.resize (a.size ());
             bit_xor (n, a, math::number::extend (b, a.size ()));
             return n;
         }
         
         template <hex::letter_case zz> 
-        string<zz> shift (const string<zz> &x, int i);
-        
-        template <hex::letter_case zz> 
-        integer<negativity::nones, zz> inline bit_shift (const integer<negativity::nones, zz> &x, int i) {
-            return integer<negativity::nones, zz> {shift (x, i)};
+        integer<neg::nones, zz> inline bit_shift (const integer<neg::nones, zz> &x, int i) {
+            return integer<neg::nones, zz> {shift (x, i)};
         }
         
         template <hex::letter_case zz> 
-        integer<negativity::twos, zz> bit_shift (const integer<negativity::twos, zz> &x, int i);
+        integer<neg::twos, zz> bit_shift (const integer<neg::twos, zz> &x, int i);
         
         template <hex::letter_case zz> 
-        integer<negativity::BC, zz> inline bit_shift (const integer<negativity::BC, zz> &x, int i) {
-            return integer<negativity::BC, zz> (bit_shift (integer<negativity::twos, zz> (x), i));
+        integer<neg::BC, zz> inline bit_shift (const integer<neg::BC, zz> &x, int i) {
+            return integer<neg::BC, zz> (bit_shift (integer<neg::twos, zz> (x), i));
         }
         
-        template <negativity c, hex::letter_case zz> struct add;
+        template <neg c, hex::letter_case zz> struct add;
         
-        template <hex::letter_case zz> struct add<negativity::nones, zz> {
-            integer<negativity::nones, zz> operator () (
-                const integer<negativity::nones, zz> &a,
-                const integer<negativity::nones, zz> &b) {
-                if (a.size () < b.size ()) return add<negativity::nones, zz> {} (b, a);
-                integer<negativity::nones, zz> n {};
+        template <hex::letter_case zz> struct add<neg::nones, zz> {
+            integer<neg::nones, zz> operator () (
+                const integer<neg::nones, zz> &a,
+                const integer<neg::nones, zz> &b) {
+                if (a.size () < b.size ()) return add<neg::nones, zz> {} (b, a);
+                integer<neg::nones, zz> n {};
                 n.resize (a.size () + 2);
                 plus (n, a, math::number::extend (b, a.size ()));
                 return n;
@@ -2479,16 +2584,16 @@ namespace data::encoding::hexidecimal {
         };
         
         template <hex::letter_case zz> 
-        integer<negativity::nones, zz> minus (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
-            if (b > a) return integer<negativity::nones, zz> {};
+        integer<neg::nones, zz> minus (const integer<neg::nones, zz> &a, const integer<neg::nones, zz> &b) {
+            if (b > a) return integer<neg::nones, zz> {};
             // these numbers are both trimmed, so we can expect that the size of b is less than that of a. 
-            integer<negativity::nones, zz> n {};
+            integer<neg::nones, zz> n {};
             n.resize (a.size ());
             minus (n, a, math::number::extend (b, a.size ()));
             return n;
         }
         
-        template <negativity c, hex::letter_case zz> struct add {
+        template <neg c, hex::letter_case zz> struct add {
             integer<c, zz> operator () (
                 const integer<c, zz> &a, 
                 const integer<c, zz> &b) {
@@ -2541,18 +2646,18 @@ namespace data::encoding::hexidecimal {
         };
         
         template <hex::letter_case zz> 
-        integer<negativity::twos, zz> inline
-        minus (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
-            return add<negativity::twos, zz> {} (a, -b);
+        integer<neg::twos, zz> inline
+        minus (const integer<neg::twos, zz> &a, const integer<neg::twos, zz> &b) {
+            return add<neg::twos, zz> {} (a, -b);
         }
         
         template <hex::letter_case zz> 
-        integer<negativity::BC, zz> inline
-        minus (const integer<negativity::BC, zz> &a, const integer<negativity::BC, zz> &b) {
-            return add<negativity::BC, zz> {} (a, -b);
+        integer<neg::BC, zz> inline
+        minus (const integer<neg::BC, zz> &a, const integer<neg::BC, zz> &b) {
+            return add<neg::BC, zz> {} (a, -b);
         }
         
-        template <negativity c, hex::letter_case zz>
+        template <neg c, hex::letter_case zz>
         struct multiply {
             integer<c, zz> operator () (const integer<c, zz> &a, const integer<c, zz> &b) {
                 auto ar = abs (a);
@@ -2565,11 +2670,11 @@ namespace data::encoding::hexidecimal {
         };
         
         template <hex::letter_case zz> 
-        struct multiply<negativity::nones, zz> {
-            integer<negativity::nones, zz> operator () (
-                const integer<negativity::nones, zz> &a,
-                const integer<negativity::nones, zz> &b) {
-                integer<negativity::nones, zz> n;
+        struct multiply<neg::nones, zz> {
+            integer<neg::nones, zz> operator () (
+                const integer<neg::nones, zz> &a,
+                const integer<neg::nones, zz> &b) {
+                integer<neg::nones, zz> n;
                 n.resize (a.size () + b.size () - 2);
                 times (n, a, b);
                 return n;
@@ -2577,9 +2682,18 @@ namespace data::encoding::hexidecimal {
         };
         
     }
+
+    template <hex::letter_case zz>
+    integer<neg::BC, zz> bit_xor (const integer<neg::BC, zz> &a, const integer<neg::BC, zz> &b) {
+        if (a.size () < b.size ()) return bit_xor (b, a);
+        integer<neg::BC, zz> n {};
+        n.resize (a.size ());
+        bit_xor (n, a, math::number::extend (b, a.size ()));
+        return n;
+    }
     
     template <hex::letter_case zz> 
-    std::weak_ordering inline operator <=> (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
+    std::weak_ordering inline operator <=> (const integer<neg::nones, zz> &a, const integer<neg::nones, zz> &b) {
         if (!a.valid ()) throw exception {} << "invalid hexidecimal string: " << a;
         if (!b.valid ()) throw exception {} << "invalid hexidecimal string: " << b;
         
@@ -2587,7 +2701,7 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    std::weak_ordering operator <=> (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
+    std::weak_ordering operator <=> (const integer<neg::twos, zz> &a, const integer<neg::twos, zz> &b) {
 
         if (!a.valid ()) throw exception {} << "invalid hexidecimal string: " << a;
         if (!b.valid ()) throw exception {} << "invalid hexidecimal string: " << b;
@@ -2606,10 +2720,10 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    std::weak_ordering operator <=> (const integer<negativity::BC, zz> &a, const integer<negativity::BC, zz> &b) {
+    std::weak_ordering operator <=> (const integer<neg::BC, zz> &a, const integer<neg::BC, zz> &b) {
 
-        math::signature na = sign (a);
-        math::signature nb = sign (b);
+        math::sign na = sign (a);
+        math::sign nb = sign (b);
         
         if (na == math::zero) switch (nb) {
             case math::positive: return std::weak_ordering::less;
@@ -2632,12 +2746,12 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::nones, zz> &operator ++ (integer<negativity::nones, zz> &x) {
+    integer<neg::nones, zz> &operator ++ (integer<neg::nones, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         char remainder = N_increment (x);
         if (remainder != '0') {
-            integer<negativity::nones, zz> n {};
+            integer<neg::nones, zz> n {};
             n.resize (x.size () + 2);
             std::copy (x.begin () + 2, x.end (), n.begin () + 4);
             n[2] = '0';
@@ -2649,7 +2763,7 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::nones, zz> &operator -- (integer<negativity::nones, zz> &x) {
+    integer<neg::nones, zz> &operator -- (integer<neg::nones, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         if (is_zero (x)) return x;
@@ -2658,14 +2772,14 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::twos, zz> &operator ++ (integer<negativity::twos, zz> &x) {
+    integer<neg::twos, zz> &operator ++ (integer<neg::twos, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         bool neg = data::is_negative (x);
         char remainder = N_increment (x);
         
         if (!neg && (remainder != '0' || data::is_negative (x))) {
-            integer<negativity::twos, zz> n {};
+            integer<neg::twos, zz> n {};
             n.resize (x.size () + 2);
             std::copy (x.begin () + 2, x.end (), n.begin () + 4);
             n[2] = '0';
@@ -2677,26 +2791,26 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::twos, zz> &operator -- (integer<negativity::twos, zz> &x) {
+    integer<neg::twos, zz> &operator -- (integer<neg::twos, zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
-        if (x == std::string ("0x")) return x = integer<negativity::twos, zz> {"0xff"};
+        if (x == std::string ("0x")) return x = integer<neg::twos, zz> {"0xff"};
         x = math::number::extend (x, x.size () + 2);
         N_decrement (x);
         return x.trim ();
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::BC, zz> &operator ++ (integer<negativity::BC, zz> &x) {
+    integer<neg::BC, zz> &operator ++ (integer<neg::BC, zz> &x) {
 
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
-        if (is_negative (x)) return x = -math::number::decrement<integer<negativity::BC, zz>> {} (-x);
-        if (is_negative_zero (x)) return x = integer<negativity::BC, zz> {"0x01"};
+        if (is_negative (x)) return x = -math::number::decrement<integer<neg::BC, zz>> {} (-x);
+        if (is_negative_zero (x)) return x = integer<neg::BC, zz> {"0x01"};
         
         char remainder = N_increment (x);
         if (remainder != '0') {
-            integer<negativity::BC, zz> n;
+            integer<neg::BC, zz> n;
             n.resize (x.size () + 2);
             std::copy (x.begin () + 2, x.end (), n.begin () + 4);
 
@@ -2704,7 +2818,7 @@ namespace data::encoding::hexidecimal {
             n[3] = remainder;
             x = n;
         } else if (math::number::sign_bit_set (x)) {
-            integer<negativity::BC, zz> n;
+            integer<neg::BC, zz> n;
             n.resize (x.size () + 2);
             std::copy (x.begin () + 2, x.end (), n.begin () + 4);
 
@@ -2717,67 +2831,67 @@ namespace data::encoding::hexidecimal {
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::BC, zz> &operator -- (integer<negativity::BC, zz> &x) {
+    integer<neg::BC, zz> &operator -- (integer<neg::BC, zz> &x) {
 
-        if (is_zero (x)) return x = integer<negativity::BC, zz> {"0x81"};
-        if (is_negative (x)) return x = -math::number::increment<integer<negativity::BC, zz>> {} (-x);
+        if (is_zero (x)) return x = integer<neg::BC, zz> {"0x81"};
+        if (is_negative (x)) return x = -math::number::increment<integer<neg::BC, zz>> {} (-x);
         N_decrement (x);
         return x.trim ();
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator | (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (bit_or (a, b));
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator & (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (bit_and (a, b));
     }
 
     template <hex::letter_case zz>
-    integer<negativity::nones, zz> inline operator ^ (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
+    integer<neg::nones, zz> inline operator ^ (const integer<neg::nones, zz> &a, const integer<neg::nones, zz> &b) {
         return math::number::trim (bit_xor (a, b));
     }
     
     template <hex::letter_case zz> 
-    integer<negativity::twos, zz> inline
-    operator ^ (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
+    integer<neg::twos, zz> inline
+    operator ^ (const integer<neg::twos, zz> &a, const integer<neg::twos, zz> &b) {
         return math::number::trim (bit_xor (a, b));
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator << (const integer<c, zz> &x, int i) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         return math::number::trim (bit_shift (x, i));
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator >> (const integer<c, zz> &x, int i) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         return math::number::trim (bit_shift (x, -i));
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator + (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (add<c, zz> {} (math::number::trim (a), math::number::trim (b)));
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator - (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (minus (math::number::trim (a), math::number::trim (b)));
     }
     
-    template <negativity c, hex::letter_case zz>
+    template <neg c, hex::letter_case zz>
     integer<c, zz> inline operator * (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (multiply<c, zz> {} (math::number::trim (a), math::number::trim (b)));
     }
     
 }
 
-namespace data::math {
+namespace data::math::def {
     
     template <hex_case zz>
     bool is_positive_zero<hex::intBC<zz>>::operator () (const hex::intBC<zz> &z) {
@@ -2811,7 +2925,7 @@ namespace data::math {
     template <hex_case zz>
     bool inline is_negative<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        return number::sign_bit_set (x) && !data::is_negative_zero (x);
+        return math::number::sign_bit_set (x) && !data::is_negative_zero (x);
     }
     
     template <hex_case zz>
@@ -2828,6 +2942,34 @@ namespace data::math {
         
         // we can't really reach here. 
         return true;
+    }
+
+    template <hex_case zz>
+    hex::intBC<zz> inline bit_not<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
+        return encoding::hexidecimal::bit_not (x);
+    };
+
+    template <hex_case zz>
+    hex::intBC<zz> inline bit_xor<hex::intBC<zz>>::operator () (const hex::intBC<zz> &a, const hex::intBC<zz> &b) {
+        return encoding::hexidecimal::bit_xor (a, b);
+    }
+
+    template <hex_case zz>
+    hex::intBC<zz> mul_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
+        if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, 1)};
+        return hex::intBC<zz> {encoding::hexidecimal::shift (-x, 1)};
+    }
+
+    template <hex_case zz>
+    hex::intBC<zz> div_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
+        if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, -1)};
+        return hex::intBC<zz> {encoding::hexidecimal::shift (-x, -1)};
+    }
+
+    template <hex_case zz>
+    hex::intBC<zz> mod_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
+        if (x == 0) return 0;
+        return hex::intBC<zz> {encoding::hexidecimal::digit (string_view (x)[-1]) & 1};
     }
 
 }

@@ -8,7 +8,11 @@
 #include <data/math/nonnegative.hpp>
 #include <data/arithmetic.hpp>
 
-namespace data::math {
+// TODO make functions for identity and inverse in data::math
+
+// TODO we can enable these types to take functions as parameters
+
+namespace data::math::def {
 
     template <typename F, typename x> struct identity;
     template <typename F, typename x> struct inverse;
@@ -25,20 +29,20 @@ namespace data::math {
         }
     };
 
-    template <std::signed_integral X> struct inverse<plus<X>, X> {
+    template <std::integral X> struct inverse<plus<X>, X> {
         constexpr X operator () (X a, X b) {
             return b - a;
         }
     };
 
-    template <typename X> struct inverse<times<X>, nonzero<X>> {
-        constexpr nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
+    template <typename X> struct inverse<times<X>, math::nonzero<X>> {
+        constexpr math::nonzero<X> operator () (const math::nonzero<X> &a, const math::nonzero<X> &b) {
             return b / a;
         }
     };
 
-    template <typename X> struct identity<times<X>, nonzero<X>> {
-        constexpr nonzero<X> operator () () {
+    template <typename X> struct identity<times<X>, math::nonzero<X>> {
+        constexpr math::nonzero<X> operator () () {
             return 1;
         }
     };

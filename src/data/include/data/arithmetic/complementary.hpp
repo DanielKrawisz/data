@@ -583,8 +583,8 @@ namespace data::arithmetic::BC {
         auto wa = words<r> (a);
         auto wb = words<r> (b);
 
-        math::signature na = sign (wa);
-        math::signature nb = sign (wb);
+        math::sign na = sign (wa);
+        math::sign nb = sign (wb);
 
         if (na == math::zero) switch (nb) {
             case math::positive: return std::weak_ordering::less;

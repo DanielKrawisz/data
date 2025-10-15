@@ -63,20 +63,6 @@ namespace data::math {
     template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto operator <=> (const signed_limit<X> &, const Y &);
 
-    // extend sign to infinite types if the underlying type has a sign value defined for it. 
-    // for unsigned_limit, infinite value is assumed positive. 
-    template <typename X> requires requires {
-        typename sign<X>;
-    } struct sign<unsigned_limit<X>> {
-        constexpr signature operator () (const unsigned_limit<X> &x) const;
-    };
-
-    template <Ordered X> requires requires {
-        typename sign<X>;
-    } struct sign<signed_limit<X>> {
-        constexpr signature operator () (const signed_limit<X> &x) const;
-    };
-
     // Extend << to infinite extensions if the underlying type has << defined on it. 
     template <typename X> std::ostream &operator << (std::ostream &, const unsigned_limit<X> &x);
     template <Ordered X> std::ostream &operator << (std::ostream &, const signed_limit<X> &x);
@@ -179,6 +165,23 @@ namespace data::math {
     template <typename X> constexpr bool inline is_infinite (const signed_limit<X> &x) {
         return x.is_infinite ();
     }
+
+    namespace def {
+
+        // extend sign to infinite types if the underlying type has a sign value defined for it.
+        // for unsigned_limit, infinite value is assumed positive.
+        template <typename X> requires requires {
+            typename sign<X>;
+        } struct sign<math::unsigned_limit<X>> {
+            constexpr math::sign operator () (const math::unsigned_limit<X> &x) const;
+        };
+
+        template <Ordered X> requires requires {
+            typename sign<X>;
+        } struct sign<math::signed_limit<X>> {
+            constexpr math::sign operator () (const math::signed_limit<X> &x) const;
+        };
+    }
 }
 
 namespace data {
@@ -230,18 +233,6 @@ namespace data::math {
     constexpr auto inline operator <=> (const signed_limit<X> &a, const Y &b) {
         return a.finite () ? a.Value.template get<X> () <=> static_cast<X> (b) :
             a.Value.template get<bool> () ? signed_limit<X>::comparison::greater : signed_limit<X>::comparison::less;
-    }
-
-    template <typename X> requires requires {
-        typename sign<X>;
-    } constexpr signature inline sign<unsigned_limit<X>>::operator () (const unsigned_limit<X> &x) const {
-        return x.infinite () ? positive : data::sign (*x.Value);
-    }
-
-    template <Ordered X> requires requires {
-        typename sign<X>;
-    } constexpr signature inline sign<signed_limit<X>>::operator () (const signed_limit<X> &x) const {
-        return x.finite () ? data::sign (x.Value) : x.positive_infinite () ? positive : negative;
     }
 
     template <typename X> std::ostream inline &operator << (std::ostream &o, const unsigned_limit<X> &x) {
@@ -313,6 +304,23 @@ namespace data::math {
         return finite () ? signed_limit {-Value.template get<X> ()} : Value.template get<bool> ? negative_infinity () : infinity ();
     }
 }
+
+namespace data::math::def {
+
+    template <typename X> requires requires {
+        typename sign<X>;
+    } constexpr math::sign inline sign<math::unsigned_limit<X>>::operator () (const math::unsigned_limit<X> &x) const {
+        return x.infinite () ? math::positive : data::sign (*x.Value);
+    }
+
+    template <Ordered X> requires requires {
+        typename sign<X>;
+    } constexpr math::sign inline sign<math::signed_limit<X>>::operator () (const math::signed_limit<X> &x) const {
+        return x.finite () ? data::sign (x.Value) : x.positive_infinite () ? math::positive : math::negative;
+    }
+
+}
+
 
 #endif 
 

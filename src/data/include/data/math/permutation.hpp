@@ -12,18 +12,24 @@
 namespace data::math {
 
     template <Ordered elem> struct permutation;
+}
+
+namespace data::math::def {
 
     template <Ordered elem> struct identity<times<permutation<elem>>, permutation<elem>> {
-        permutation<elem> operator () ();
+        permutation<elem> operator () () const;
     };
 
     template <Ordered elem> struct inverse<times<permutation<elem>>, permutation<elem>> {
-        permutation<elem> operator () (const permutation<elem> &);
+        permutation<elem> operator () (const permutation<elem> &) const;
     };
 
     template <Ordered elem> struct sign<permutation<elem>> {
-        signature operator () (const permutation<elem> &);
+        math::sign operator () (const permutation<elem> &) const;
     };
+}
+
+namespace data::math {
 
     template <Ordered elem> struct permutation {
         using replacements = std::list<entry<elem, elem>>;
@@ -35,7 +41,7 @@ namespace data::math {
         static bool valid (const cycle &);
         static cycle inverse (const cycle &);
         static set<elem> elements (const cycle &);
-        static math::signature sign (const cycle &);
+        static math::sign sign (const cycle &);
         static replacements as_replacements (const cycle &);
 
         // the identity cycle is the same as all cycles
@@ -63,7 +69,7 @@ namespace data::math {
         
         bool valid () const;
         
-        math::signature sign () const;
+        math::sign sign () const;
         
         static permutation identity () {
             return permutation ();
@@ -103,15 +109,6 @@ namespace data::math {
     template <typename elem>
     std::ostream inline &operator << (std::ostream &o, const permutation<elem> &m) {
         return o << "permutation" << m.Cycles;
-    }
-    
-    template <Ordered elem>
-    permutation<elem> inline identity<times<permutation<elem>>, permutation<elem>>::operator () () {
-        return permutation<elem>::identity ();
-    }
-
-    template <Ordered elem> signature inline sign<permutation<elem>>::operator () (const permutation<elem> &p) {
-        return p.sign ();
     }
     
     template <Ordered elem>
@@ -250,15 +247,15 @@ namespace data::math {
     }
     
     template <Ordered elem>
-    math::signature permutation<elem>::sign () const {
+    math::sign permutation<elem>::sign () const {
         if (!valid ()) return math::zero;
-        return data::fold<math::signature> ([] (math::signature x, const cycle &c) -> math::signature {
+        return data::fold<math::sign> ([] (math::sign x, const cycle &c) -> math::sign {
             return x * permutation<elem>::sign (c);
         }, math::positive, Cycles);
     }
     
     template <Ordered elem>
-    math::signature permutation<elem>::sign (const cycle &c) {
+    math::sign permutation<elem>::sign (const cycle &c) {
         if (!c.valid ()) return math::zero;
         size_t nx = normalize (c).size ();
         return nx == 0 ? math::positive : nx % 2 == 0 ? math::negative : math::positive; 
@@ -277,6 +274,19 @@ namespace data::math {
             if (*it == e) return ++it == c.Cycle.end () ? c.Cycle.first () : *it;
         return e;
     }
+}
+
+namespace data::math::def {
+
+    template <Ordered elem>
+    permutation<elem> inline identity<times<permutation<elem>>, permutation<elem>>::operator () () const {
+        return permutation<elem>::identity ();
+    }
+
+    template <Ordered elem> math::sign inline sign<permutation<elem>>::operator () (const permutation<elem> &p) const {
+        return p.sign ();
+    }
+
 }
 
 #endif

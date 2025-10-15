@@ -15,8 +15,6 @@ namespace data {
         { bit_xor (a, b) } -> ImplicitlyConvertible<Z>;
         { bit_or (a, b) } -> ImplicitlyConvertible<Z>;
         { bit_and (a, b) } -> ImplicitlyConvertible<Z>;
-        { a | b } -> ImplicitlyConvertible<Z>;
-        { a & b } -> ImplicitlyConvertible<Z>;
     } struct test_bit_logic {
         test_bit_logic () {}
     };

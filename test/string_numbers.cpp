@@ -11,7 +11,7 @@ namespace data::math {
         
         EXPECT_THROW (data::sign (invalid), exception);
         
-        EXPECT_THROW (abs<N>{} (invalid), exception);
+        EXPECT_THROW (abs (invalid), exception);
         
         EXPECT_THROW (invalid++, exception);
         
@@ -57,14 +57,14 @@ namespace data::math {
         dec_int s {""};
         base58_uint b {""};
         hex_uint h0 {""};
-        hex_int_ones h1 {""};
+        hex_int h1 {""};
         hex_int_BC h2 {""};
         
         dec_uint dv {"1"};
         dec_int sv {"1"};
         base58_uint bv {"1"};
         hex_uint h0v {"1"};
-        hex_int_ones h1v {"1"};
+        hex_int h1v {"1"};
         hex_int_BC h2v {"1"};
         
         test_invalid (d, dv);
@@ -155,7 +155,7 @@ namespace data::encoding {
         
     }
     
-    TEST (StringNumbersTest, TestMultiplyStringNumbers) {
+    TEST (StringNumbers, MultiplyStringNumbers) {
 
         int a = 27;
         int b = 25;
@@ -193,7 +193,7 @@ namespace data::encoding {
         
     }
 
-    TEST (StringNumbersTest, TestDivideStringNumbers) {
+    TEST (StringNumbers, DivideStringNumbers) {
         
         uint64 num = 432;
         
@@ -205,17 +205,17 @@ namespace data::encoding {
         division<hex_uint, unsigned int>    hex_expected_15 {28, 12};
         division<base58_uint, unsigned int> b58_expected_57 {7, 33};
         
-        EXPECT_EQ (data::divide (dec_uint {num},    math::nonzero {10}),  dec_expected_10);
-        EXPECT_EQ (data::divide (hex_uint {num},    math::nonzero {16}),  hex_expected_16);
-        EXPECT_EQ (data::divide (base58_uint {num}, math::nonzero {58}),  b58_expected_58);
+        EXPECT_EQ (divmod (dec_uint {num},    math::nonzero {10}),  dec_expected_10);
+        EXPECT_EQ (divmod (hex_uint {num},    math::nonzero {16}),  hex_expected_16);
+        EXPECT_EQ (divmod (base58_uint {num}, math::nonzero {58}),  b58_expected_58);
 
-        EXPECT_EQ (data::divide (dec_uint {num},    math::nonzero {9}),   dec_expected_9);
-        EXPECT_EQ (data::divide (hex_uint {num},    math::nonzero {15}),  hex_expected_15);
-        EXPECT_EQ (data::divide (base58_uint {num}, math::nonzero {57}),  b58_expected_57);
+        EXPECT_EQ (divmod (dec_uint {num},    math::nonzero {9}),   dec_expected_9);
+        EXPECT_EQ (divmod (hex_uint {num},    math::nonzero {15}),  hex_expected_15);
+        EXPECT_EQ (divmod (base58_uint {num}, math::nonzero {57}),  b58_expected_57);
         
     }
 
-    TEST (StringNumbersTest, TestConvertStringNumbers) {
+    TEST (StringNumbers, ConvertStringNumbers) {
 
         EXPECT_EQ (static_cast<N> (dec_uint {1145}), N (1145));
         EXPECT_EQ (static_cast<N> (dec_uint {916}), N (916));

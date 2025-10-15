@@ -16,25 +16,20 @@ namespace data {
         test_power_case<N> ("2", "100", "1267650600228229401496703205376");
     }
 
-    TEST (Power, Power) {
+    template <typename X>
+    struct Power : ::testing::Test {
+        using number = X;
+    };
 
-        test_power<N> ();
-        test_power<Z> ();
-        test_power<N_bytes_little> ();
-        test_power<N_bytes_big> ();
-        test_power<Z_bytes_little> ();
-        test_power<Z_bytes_big> ();
-        test_power<Z_bytes_BC_little> ();
-        test_power<uint128> ();
-        test_power<uint160> ();
-        test_power<uint224> ();
-        test_power<uint256> ();
-        test_power<int128> ();
-        test_power<int160> ();
-        test_power<int224> ();
-        test_power<int256> ();
-        test_power<dec_uint> ();
-        test_power<base58_uint> ();
+    using power_test_cases = ::testing::Types<
+        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big, Z_bytes_BC_little, Z_bytes_BC_big,
+        uint128, int128, uint160, int160, uint224, int224, uint256, int256, dec_uint, base58_uint>;
+
+    TYPED_TEST_SUITE (Power, power_test_cases);
+
+    TYPED_TEST (Power, Power) {
+
+        test_power<typename TestFixture::number> ();
 
     }
 

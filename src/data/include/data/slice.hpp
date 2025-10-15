@@ -37,7 +37,7 @@ namespace data {
             return this->data ()[i];
         }
         
-        bool operator == (const slice<X> s) const {
+        constexpr bool operator == (const slice<X> s) const {
             if (this->data () == s.data ()) return true;
             if (this->size () != s.size ()) return false;
             for (int i = 0; i < this->size (); i++)
@@ -78,17 +78,17 @@ namespace data {
         using reverse_iterator = decltype (std::declval<std::span<X>> ().rbegin ());
         using const_reverse_iterator = decltype (std::declval<const std::span<X>> ().rbegin ());
 
-        iterator begin ();
-        iterator end ();
+        constexpr iterator begin ();
+        constexpr iterator end ();
 
-        const_iterator begin () const;
-        const_iterator end () const;
+        constexpr const_iterator begin () const;
+        constexpr const_iterator end () const;
 
-        reverse_iterator rbegin ();
-        reverse_iterator rend ();
+        constexpr reverse_iterator rbegin ();
+        constexpr reverse_iterator rend ();
 
-        const_reverse_iterator rbegin () const;
-        const_reverse_iterator rend () const;
+        constexpr const_reverse_iterator rbegin () const;
+        constexpr const_reverse_iterator rend () const;
 
     };
     
@@ -123,35 +123,35 @@ namespace data {
 
     };
 
-    template <typename X> slice<X>::iterator inline slice<X>::begin () {
+    template <typename X> constexpr slice<X>::iterator inline slice<X>::begin () {
         return std::span<X>::begin ();
     }
 
-    template <typename X> slice<X>::iterator inline slice<X>::end () {
+    template <typename X> constexpr slice<X>::iterator inline slice<X>::end () {
         return std::span<X>::end ();
     }
 
-    template <typename X> slice<X>::const_iterator inline slice<X>::begin () const {
+    template <typename X> constexpr slice<X>::const_iterator inline slice<X>::begin () const {
         return std::span<X>::begin ();
     }
 
-    template <typename X> slice<X>::const_iterator inline slice<X>::end () const {
+    template <typename X> constexpr slice<X>::const_iterator inline slice<X>::end () const {
         return std::span<X>::end ();
     }
 
-    template <typename X> slice<X>::reverse_iterator inline slice<X>::rbegin () {
+    template <typename X> constexpr slice<X>::reverse_iterator inline slice<X>::rbegin () {
         return std::span<X>::rbegin ();
     }
 
-    template <typename X> slice<X>::reverse_iterator inline slice<X>::rend () {
+    template <typename X> constexpr slice<X>::reverse_iterator inline slice<X>::rend () {
         return std::span<X>::rend ();
     }
 
-    template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rbegin () const {
+    template <typename X> constexpr slice<X>::const_reverse_iterator inline slice<X>::rbegin () const {
         return std::span<X>::rbegin ();
     }
 
-    template <typename X> slice<X>::const_reverse_iterator inline slice<X>::rend () const {
+    template <typename X> constexpr slice<X>::const_reverse_iterator inline slice<X>::rend () const {
         return std::span<X>::rend ();
     }
 

@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+// TODO use the regular inner function.
 #include <data/math/linear/inner.hpp>
 #include <data/math/algebra/symmetric_group.hpp>
 #include <data/math/algebra/finite_field.hpp>
@@ -13,7 +14,8 @@
 
 namespace data::math::linear {
     
-    template <typename F, typename op = plus<F>> requires group<F, op> struct test_group {
+    // TODO should be able to use the function here rather than the type.
+    template <typename F, typename op = def::plus<F>> requires group<F, op> struct test_group {
         test_group () {}
     }; 
     
@@ -28,32 +30,32 @@ namespace data::math::linear {
         test_group<cyclic_group<uint64 {7}>> {};
         test_group<cyclic_group<uint64 {8}>> {};
         
-        test_group<dihedral_group<uint64 {1}>, times<dihedral_group<uint64 {1}>>> {};
-        test_group<dihedral_group<uint64 {2}>, times<dihedral_group<uint64 {2}>>> {};
-        test_group<dihedral_group<uint64 {3}>, times<dihedral_group<uint64 {3}>>> {};
-        test_group<dihedral_group<uint64 {4}>, times<dihedral_group<uint64 {4}>>> {};
-        test_group<dihedral_group<uint64 {5}>, times<dihedral_group<uint64 {5}>>> {};
-        test_group<dihedral_group<uint64 {6}>, times<dihedral_group<uint64 {6}>>> {};
-        test_group<dihedral_group<uint64 {7}>, times<dihedral_group<uint64 {7}>>> {};
-        test_group<dihedral_group<uint64 {8}>, times<dihedral_group<uint64 {8}>>> {};
+        test_group<dihedral_group<uint64 {1}>, def::times<dihedral_group<uint64 {1}>>> {};
+        test_group<dihedral_group<uint64 {2}>, def::times<dihedral_group<uint64 {2}>>> {};
+        test_group<dihedral_group<uint64 {3}>, def::times<dihedral_group<uint64 {3}>>> {};
+        test_group<dihedral_group<uint64 {4}>, def::times<dihedral_group<uint64 {4}>>> {};
+        test_group<dihedral_group<uint64 {5}>, def::times<dihedral_group<uint64 {5}>>> {};
+        test_group<dihedral_group<uint64 {6}>, def::times<dihedral_group<uint64 {6}>>> {};
+        test_group<dihedral_group<uint64 {7}>, def::times<dihedral_group<uint64 {7}>>> {};
+        test_group<dihedral_group<uint64 {8}>, def::times<dihedral_group<uint64 {8}>>> {};
         
-        test_group<symmetric_group<uint64 {1}>, times<symmetric_group<uint64 {1}>>> {};
-        test_group<symmetric_group<uint64 {2}>, times<symmetric_group<uint64 {2}>>> {};
-        test_group<symmetric_group<uint64 {3}>, times<symmetric_group<uint64 {3}>>> {};
-        test_group<symmetric_group<uint64 {4}>, times<symmetric_group<uint64 {4}>>> {};
-        test_group<symmetric_group<uint64 {5}>, times<symmetric_group<uint64 {5}>>> {};
-        test_group<symmetric_group<uint64 {6}>, times<symmetric_group<uint64 {6}>>> {};
-        test_group<symmetric_group<uint64 {7}>, times<symmetric_group<uint64 {7}>>> {};
-        test_group<symmetric_group<uint64 {8}>, times<symmetric_group<uint64 {8}>>> {};
+        test_group<symmetric_group<uint64 {1}>, def::times<symmetric_group<uint64 {1}>>> {};
+        test_group<symmetric_group<uint64 {2}>, def::times<symmetric_group<uint64 {2}>>> {};
+        test_group<symmetric_group<uint64 {3}>, def::times<symmetric_group<uint64 {3}>>> {};
+        test_group<symmetric_group<uint64 {4}>, def::times<symmetric_group<uint64 {4}>>> {};
+        test_group<symmetric_group<uint64 {5}>, def::times<symmetric_group<uint64 {5}>>> {};
+        test_group<symmetric_group<uint64 {6}>, def::times<symmetric_group<uint64 {6}>>> {};
+        test_group<symmetric_group<uint64 {7}>, def::times<symmetric_group<uint64 {7}>>> {};
+        test_group<symmetric_group<uint64 {8}>, def::times<symmetric_group<uint64 {8}>>> {};
         
-        test_group<alternating_group<uint64 {1}>, times<alternating_group<uint64 {1}>>> {};
-        test_group<alternating_group<uint64 {2}>, times<alternating_group<uint64 {2}>>> {};
-        test_group<alternating_group<uint64 {3}>, times<alternating_group<uint64 {3}>>> {};
-        test_group<alternating_group<uint64 {4}>, times<alternating_group<uint64 {4}>>> {};
-        test_group<alternating_group<uint64 {5}>, times<alternating_group<uint64 {5}>>> {};
-        test_group<alternating_group<uint64 {6}>, times<alternating_group<uint64 {6}>>> {};
-        test_group<alternating_group<uint64 {7}>, times<alternating_group<uint64 {7}>>> {};
-        test_group<alternating_group<uint64 {8}>, times<alternating_group<uint64 {8}>>> {};
+        test_group<alternating_group<uint64 {1}>, def::times<alternating_group<uint64 {1}>>> {};
+        test_group<alternating_group<uint64 {2}>, def::times<alternating_group<uint64 {2}>>> {};
+        test_group<alternating_group<uint64 {3}>, def::times<alternating_group<uint64 {3}>>> {};
+        test_group<alternating_group<uint64 {4}>, def::times<alternating_group<uint64 {4}>>> {};
+        test_group<alternating_group<uint64 {5}>, def::times<alternating_group<uint64 {5}>>> {};
+        test_group<alternating_group<uint64 {6}>, def::times<alternating_group<uint64 {6}>>> {};
+        test_group<alternating_group<uint64 {7}>, def::times<alternating_group<uint64 {7}>>> {};
+        test_group<alternating_group<uint64 {8}>, def::times<alternating_group<uint64 {8}>>> {};
     }
     
     template <typename F> requires field<F> struct test_field {

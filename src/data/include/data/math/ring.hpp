@@ -10,17 +10,17 @@
 
 namespace data::math {
 
-    template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
+    template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
     concept ring = group<elem, plus> && requires () {
-        {math::identity<times, elem> {} ()} -> ImplicitlyConvertible<elem>;
+        { def::identity<times, elem> {} () } -> ImplicitlyConvertible<elem>;
     } && requires (const elem &a, elem &b) {
-        {times {} (a, b)} -> ImplicitlyConvertible<elem>;
+        { times {} (a, b) } -> ImplicitlyConvertible<elem>;
     };
 
-    template <typename elem, typename plus = plus<elem>, typename times = times<elem>>
+    template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
     concept integral_domain = ring<elem, plus, times> &&
     requires (const nonzero<elem> &a, const nonzero<elem> &b) {
-        {times {} (a, b)} -> ImplicitlyConvertible<nonzero<elem>>;
+        { times {} (a, b) } -> ImplicitlyConvertible<nonzero<elem>>;
     };
     
 }

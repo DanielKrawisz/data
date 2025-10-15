@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_FIGURATE
 #define DATA_MATH_FIGURATE
 
-#include <data/divide.hpp>
+#include <data/arithmetic.hpp>
 
 namespace data::math {
 
@@ -29,7 +29,7 @@ namespace data::math {
         if (m < k) return binomial (n, m);
         N z = 1;
         while (m < n) z *= ++m;
-        return divide<N, N> {} (z, factorial<N> (k)).Quotient;
+        return divide (z, factorial<N> (k));
     }
 
     template <typename N> constexpr N inline multichoose (const N &n, const N &r) {

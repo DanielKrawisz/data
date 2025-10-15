@@ -12,78 +12,78 @@
 namespace data::arithmetic {
 
     // add two numbers and return whether the carry bit was set.
-    template <std::unsigned_integral x> bool add_with_carry (x &result, x a, x b);
+    template <std::unsigned_integral x> constexpr bool add_with_carry (x &result, x a, x b);
 
     // add two numbers and return
-    template <std::unsigned_integral x> bool subtract_with_carry (x &result, x a, x b);
+    template <std::unsigned_integral x> constexpr bool subtract_with_carry (x &result, x a, x b);
 #if defined(FORCE_CARRY_FALLBACK) || !(defined(__linux__) && (defined(__clang__) || defined(__GNUC__)))
 
-    template <> bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
+    template <> constexpr bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
         result = a + b;
         return result < a;
     }
 
-    template <> bool inline subtract_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
+    template <> constexpr bool inline subtract_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
         result = a - b;
         return a < b;
     }
 
-    template <> bool inline add_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
+    template <> constexpr bool inline add_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
         result = a + b;
         return result < a;
     }
 
-    template <> bool inline subtract_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
+    template <> constexpr bool inline subtract_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
         result = a - b;
         return a < b;
     }
 
-    template <> bool inline add_with_carry<unsigned long long int>
+    template <> constexpr bool inline add_with_carry<unsigned long long int>
     (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
         result = a + b;
         return result < a;
     }
 
-    template <> bool inline subtract_with_carry<unsigned long long int>
+    template <> constexpr bool inline subtract_with_carry<unsigned long long int>
     (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
         result = a - b;
         return a < b;
     }
 #else
-    template <> bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
+    template <> constexpr bool inline add_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
         return __builtin_uadd_overflow (a, b, &result);
     }
 
-    template <> bool inline subtract_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
+    template <> constexpr bool inline subtract_with_carry<unsigned int> (unsigned int &result, unsigned int a, unsigned int b) {
         return __builtin_usub_overflow (a, b, &result);
     }
 
-    template <> bool inline add_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
+    template <> constexpr bool inline add_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
         return __builtin_uaddl_overflow (a, b, &result);
     }
 
-    template <> bool inline subtract_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
+    template <> constexpr bool inline subtract_with_carry<unsigned long int> (unsigned long int &result, unsigned long int a, unsigned long int b) {
         return __builtin_usubl_overflow (a, b, &result);
     }
 
-    template <> bool inline add_with_carry<unsigned long long int>
+    template <> constexpr bool inline add_with_carry<unsigned long long int>
     (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
         return __builtin_uaddll_overflow (a, b, &result);
     }
 
-    template <> bool inline subtract_with_carry<unsigned long long int>
+    template <> constexpr bool inline subtract_with_carry<unsigned long long int>
     (unsigned long long int &result, unsigned long long int a, unsigned long long int b) {
         return __builtin_usubll_overflow (a, b, &result);
     }
 #endif
-    template <> bool inline add_with_carry<unsigned short int> (unsigned short int &result, unsigned short int a, unsigned short int b) {
+    template <> constexpr bool inline add_with_carry<unsigned short int> (unsigned short int &result, unsigned short int a, unsigned short int b) {
         using twice = typename twice<unsigned short int>::type;
         twice r = static_cast<twice> (a) + static_cast<twice> (b);
         result = lesser_half (r);
         return greater_half (r) != 0;
     }
 
-    template <> bool inline
+    template <> constexpr bool inline
     subtract_with_carry<unsigned short int> (unsigned short int &result, unsigned short int a, unsigned short int b) {
         using twice = typename twice<unsigned short int>::type;
         twice r = static_cast<twice> (a) - static_cast<twice> (b);
@@ -91,14 +91,14 @@ namespace data::arithmetic {
         return greater_half (r) != 0;
     }
 
-    template <> bool inline add_with_carry<unsigned char> (unsigned char &result, unsigned char a, unsigned char b) {
+    template <> constexpr bool inline add_with_carry<unsigned char> (unsigned char &result, unsigned char a, unsigned char b) {
         using twice = typename twice<unsigned char>::type;
         twice r = static_cast<twice> (a) + static_cast<twice> (b);
         result = lesser_half (r);
         return greater_half (r) != 0;
     }
 
-    template <> bool inline subtract_with_carry<unsigned char> (unsigned char &result, unsigned char a, unsigned char b) {
+    template <> constexpr bool inline subtract_with_carry<unsigned char> (unsigned char &result, unsigned char a, unsigned char b) {
         using twice = typename twice<unsigned char>::type;
         twice r = static_cast<twice> (a) - static_cast<twice> (b);
         result = lesser_half (r);
@@ -108,7 +108,7 @@ namespace data::arithmetic {
     // make sure a and b can be iterated at least as far as i.
     template <std::unsigned_integral digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit add_with_carry (sen z, ito &i, iti &a, digit b) {
+    constexpr digit add_with_carry (sen z, ito &i, iti &a, digit b) {
 
         digit remainder = b;
 
@@ -123,7 +123,7 @@ namespace data::arithmetic {
 
     template <std::unsigned_integral digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit subtract_with_carry (sen z, ito &i, iti &a, digit b) {
+    constexpr digit subtract_with_carry (sen z, ito &i, iti &a, digit b) {
 
         digit remainder = b;
 
@@ -139,7 +139,7 @@ namespace data::arithmetic {
     // make sure a and b can be iterated at least as far as i.
     template <std::unsigned_integral digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit add_with_carry (sen z, ito &i, iti &a, iti &b) {
+    constexpr digit add_with_carry (sen z, ito &i, iti &a, iti &b) {
 
         digit remainder = 0;
 
@@ -157,7 +157,7 @@ namespace data::arithmetic {
 
     template <std::unsigned_integral digit, typename sen, typename ito, typename iti>
     requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit> && std::input_iterator<iti>
-    digit subtract_with_carry (sen z, ito &i, iti &a, iti &b) {
+    constexpr digit subtract_with_carry (sen z, ito &i, iti &a, iti &b) {
 
         digit remainder = 0;
 
@@ -177,13 +177,13 @@ namespace data::arithmetic {
         x Lesser;
         x Greater;
 
-        bool operator == (const multiply_result &n) const {
+        constexpr bool operator == (const multiply_result &n) const {
             return Lesser == n.Lesser && Greater == n.Greater;
         }
     };
 
     template <typename digit>
-    std::enable_if_t<has_twice<digit>::value, multiply_result<digit>>
+    constexpr std::enable_if_t<has_twice<digit>::value, multiply_result<digit>>
     multiply_with_carry (digit a, digit b) {
         using twice = typename twice<digit>::type;
         twice r = static_cast<twice> (a) * static_cast<twice> (b);
@@ -192,7 +192,7 @@ namespace data::arithmetic {
 
     // If twice<T> doesn't exist, emulate multiply with carry
     template <typename digit>
-    std::enable_if_t<!has_twice<digit>::value, multiply_result<digit>>
+    constexpr std::enable_if_t<!has_twice<digit>::value, multiply_result<digit>>
     multiply_with_carry (digit a, digit b) {
         constexpr static size_t half_size = sizeof (digit) / 2;
 

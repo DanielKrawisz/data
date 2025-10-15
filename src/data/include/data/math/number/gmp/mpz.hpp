@@ -12,7 +12,7 @@
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/arithmetic.hpp>
-#include <data/divide.hpp>
+#include <data/divmod.hpp>
 #include <data/increment.hpp>
 #include <data/math/algebra.hpp>
 #include <data/math/number/bytes/Z.hpp>
@@ -44,8 +44,8 @@ namespace data::math::number::GMP {
         return mpz._mp_d != nullptr;
     }
     
-    math::signature inline sign (const __mpz_struct &mpz) {
-        return !valid (mpz) ? zero : math::signature {static_cast<int8_t> (mpz_cmp_si (&mpz, 0))};
+    math::sign inline sign (const __mpz_struct &mpz) {
+        return !valid (mpz) ? zero : math::sign {static_cast<int8_t> (mpz_cmp_si (&mpz, 0))};
     }
 
     struct Z;
@@ -85,10 +85,10 @@ namespace data::math::number::GMP {
     template <endian::order r, size_t size, std::unsigned_integral word>
     std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
 
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     bool operator == (const Z &, const Z_bytes<r, c, word> &);
 
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     std::strong_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
 
     template <endian::order r, std::unsigned_integral word>
@@ -96,6 +96,9 @@ namespace data::math::number::GMP {
 
     template <endian::order r, std::unsigned_integral word>
     std::strong_ordering operator <=> (const N &, const N_bytes<r, word> &);
+
+    Z operator ~ (const N &);
+    Z operator ~ (const Z &);
 
     Z operator - (const N &);
     Z operator - (const Z &);
@@ -107,6 +110,14 @@ namespace data::math::number::GMP {
     N operator + (const N &, const N &);
     N operator - (const N &, const N &);
     N operator * (const N &, const N &);
+
+    Z operator | (const Z &, const Z &);
+    Z operator & (const Z &, const Z &);
+    Z operator ^ (const Z &, const Z &);
+
+    N operator | (const N &, const N &);
+    N operator & (const N &, const N &);
+    N operator ^ (const N &, const N &);
 
     template <std::integral I> Z operator + (I, const Z &);
     template <std::integral I> Z operator + (const Z &, I);
@@ -153,12 +164,6 @@ namespace data::math::number::GMP {
     Z operator / (const Z &, int64);
     N operator / (const N &, uint64);
 
-    Z operator | (const Z &, const Z &);
-    Z operator & (const Z &, const Z &);
-
-    N operator | (const N &, const N &);
-    N operator & (const N &, const N &);
-
     N operator % (const Z &, const Z &);
     N operator % (const Z &, const N &);
     N operator % (const N &, const N &);
@@ -184,9 +189,6 @@ namespace data::math::number::GMP {
     N operator << (const N &, int);
     N operator >> (const N &, int);
 
-    Z operator ^ (const Z &, uint32 n);
-    N operator ^ (const N &, uint32 n);
-
     std::ostream &operator << (std::ostream &o, const Z &n);
     std::ostream &operator << (std::ostream &o, const N &n);
 
@@ -204,25 +206,37 @@ namespace data::math::number::GMP {
     N &operator /= (N &, const N &);
     N &operator %= (N &, const N &);
 
+    template <std::unsigned_integral I> N &operator += (N &, I);
+    template <std::unsigned_integral I> N &operator -= (N &, I);
+    template <std::unsigned_integral I> N &operator *= (N &, I);
+    template <std::unsigned_integral I> N &operator /= (N &, I);
+    template <std::unsigned_integral I> N &operator %= (N &, I);
+
     Z &operator &= (Z &, const Z &);
     Z &operator |= (Z &, const Z &);
+    Z &operator ^= (Z &, const Z &);
 
     N &operator &= (N &, const N &);
     N &operator |= (N &, const N &);
     N &operator ^= (N &, const N &);
+
+    template <std::unsigned_integral I> N &operator &= (N &, I);
+    template <std::unsigned_integral I> N &operator |= (N &, I);
+    template <std::unsigned_integral I> N &operator ^= (N &, I);
 
     Z &operator <<= (Z &, int);
     Z &operator >>= (Z &, int);
 
     N &operator <<= (N &, int);
     N &operator >>= (N &, int);
-
-    Z &operator ^= (Z &, uint32 n);
 }
 
-namespace data::math {
-    using Z = number::GMP::Z;
-    using N = number::GMP::N;
+namespace data {
+    using Z = math::number::GMP::Z;
+    using N = math::number::GMP::N;
+}
+
+namespace data::math::def {
 
     template <> struct abs<Z> {
         N operator () (const Z &);
@@ -237,15 +251,15 @@ namespace data::math {
         nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
     };
 
-    template <> struct divide<N, N> {
+    template <> struct divmod<N, N> {
         division<N, N> operator () (const N &a, const nonzero<N> &b);
     };
 
-    template <> struct divide<Z, N> {
+    template <> struct divmod<Z, N> {
         division<Z, N> operator () (const Z &a, const nonzero<N> &b);
     };
 
-    template <> struct divide<Z, Z> {
+    template <> struct divmod<Z, Z> {
         division<Z, N> operator () (const Z &a, const nonzero<Z> &b);
     };
 
@@ -265,40 +279,12 @@ namespace data::math {
         Z operator () ();
     };
 
-    template <> struct quadrance<Z> {
-        Z operator () (const Z &);
-    };
-
-    template <> struct quadrance<N> {
-        N operator () (const N &);
-    };
-
-    template <> struct conjugate<Z> {
-        Z operator () (const Z &);
-    };
-
-    template <> struct re<N> {
-        N operator () (const N &);
-    };
-
-    template <> struct re<Z> {
-        Z operator () (const Z &);
-    };
-
-    template <> struct im<N> {
-        N operator () (const N &);
-    };
-
-    template <> struct im<Z> {
-        Z operator () (const Z &);
-    };
-
-    template <> struct inner<N> {
-        N operator () (const N &, const N &);
-    };
-
     template <> struct bit_xor<N> {
-        N operator () (const N &, const N &);
+        N operator () (const N &a, const N &b);
+    };
+
+    template <> struct bit_xor<Z> {
+        Z operator () (const Z &, const Z &);
     };
 
 }
@@ -351,11 +337,9 @@ namespace data::math::number::GMP {
 
         size_t size () const;
 
-        using index = uint32;
+        mp_limb_t &operator [] (size_t i);
 
-        mp_limb_t &operator [] (index i);
-
-        const mp_limb_t &operator [] (index i) const;
+        const mp_limb_t &operator [] (size_t i) const;
 
         mp_limb_t *begin ();
 
@@ -368,24 +352,24 @@ namespace data::math::number::GMP {
         explicit operator int64 () const;
         explicit operator double () const;
 
-        template <endian::order r, negativity c, std::unsigned_integral word>
+        template <endian::order r, neg c, std::unsigned_integral word>
         explicit Z (const Z_bytes<r, c, word> &);
 
         template <endian::order r, std::unsigned_integral word>
         explicit Z (const N_bytes<r, word> &);
 
-        template <endian::order r, negativity c, std::unsigned_integral word>
+        template <endian::order r, neg c, std::unsigned_integral word>
         explicit operator Z_bytes<r, c, word> () const;
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        explicit Z (const bounded<true, r, size, word> &x): Z {Z_bytes<r, negativity::twos, word> {x}} {}
+        explicit Z (const bounded<true, r, size, word> &x): Z {Z_bytes<r, neg::twos, word> {x}} {}
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         explicit Z (const bounded<false, r, size, word> &x): Z {N_bytes<r, word> {x}} {}
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         explicit operator bounded<true, r, size, word> () const {
-            return bounded<true, r, size, word> (Z_bytes<r, negativity::twos, word> (*this));
+            return bounded<true, r, size, word> (Z_bytes<r, neg::twos, word> (*this));
         }
 
     };
@@ -430,7 +414,7 @@ namespace data::math::number::GMP {
         template <endian::order r, std::unsigned_integral word>
         explicit operator N_bytes<r, word> () const;
 
-        template <endian::order r, negativity c, std::unsigned_integral word>
+        template <endian::order r, neg c, std::unsigned_integral word>
         explicit operator Z_bytes<r, c, word> () const {
             return Z_bytes<r, c, word> (N_bytes<r, word> (*this));
         }
@@ -449,29 +433,28 @@ namespace data::math::number::GMP {
 
 namespace data::encoding::decimal {
     struct string;
-    string write (const math::N &);
+    string write (const N &);
     
-    std::ostream &write (std::ostream &, const math::N &);
+    std::ostream &write (std::ostream &, const N &);
     
 }
 
 namespace data::encoding::hexidecimal {
-    using negativity = arithmetic::negativity;
-    template <negativity, hex_case> struct integer;
+    template <neg, hex_case> struct integer;
     
-    template <hex_case zz> integer<negativity::nones, zz> write (const math::N &);
-    template <negativity n, hex_case zz> integer<n, zz> write (const math::Z &);
+    template <hex_case zz> integer<neg::nones, zz> write (const N &);
+    template <neg n, hex_case zz> integer<n, zz> write (const Z &);
 
-    std::ostream &write (std::ostream &, const math::N &, hex_case = hex_case::lower);
-    std::ostream &write (std::ostream &, const math::Z &, hex_case = hex_case::lower, negativity = negativity::twos);
+    std::ostream &write (std::ostream &, const N &, hex_case = hex_case::lower);
+    std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, neg = neg::twos);
     
 }
 
 namespace data::encoding::signed_decimal {
     struct string;
-    string write (const math::Z &);
+    string write (const Z &);
     
-    std::ostream &write (std::ostream &, const math::Z &);
+    std::ostream &write (std::ostream &, const Z &);
 }
 
 namespace data::math::number::GMP {
@@ -524,12 +507,12 @@ namespace data::math::number::GMP {
         return GMP::size (MPZ[0]);
     }
 
-    mp_limb_t inline &Z::operator [] (Z::index i) {
+    mp_limb_t inline &Z::operator [] (size_t i) {
         if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
         return *(MPZ[0]._mp_d + i);
     }
 
-    const mp_limb_t inline &Z::operator [] (Z::index i) const {
+    const mp_limb_t inline &Z::operator [] (size_t i) const {
         if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
         return *(MPZ[0]._mp_d + i);
     }
@@ -552,17 +535,6 @@ namespace data::math::number::GMP {
 
     inline Z::operator double () const {
         return mpz_get_d (MPZ);
-    }
-
-    Z inline operator ^ (const Z &a, uint32 n) {
-        Z pow {};
-        mpz_pow_ui (pow.MPZ, a.MPZ, n);
-        return pow;
-    }
-
-    Z inline &operator ^= (Z &a, uint32 n) {
-        mpz_pow_ui (a.MPZ, a.MPZ, n);
-        return a;
     }
 
     bool inline operator == (const Z &a, const Z &b) {
@@ -657,8 +629,16 @@ namespace data::math::number::GMP {
         cmp < 0 ? std::strong_ordering::greater : std::strong_ordering::equivalent;
     }
 
-    Z inline operator / (const Z &a, const Z& b) {
-        return math::divide<Z, Z> {} (a, nonzero {b}).Quotient;
+    template <std::unsigned_integral I> N inline &operator /= (N &u, I x) {
+        return u &= N {x};
+    }
+
+    template <std::unsigned_integral I> N inline &operator %= (N &u, I x) {
+        return u &= N {x};
+    }
+
+    Z inline operator / (const Z &a, const Z &b) {
+        return def::divmod<Z, Z> {} (a, nonzero {b}).Quotient;
     }
 
     Z inline &operator /= (Z &a, const Z& z) {
@@ -701,12 +681,12 @@ namespace data::math::number::GMP {
         return a <=> N (b);
     }
 
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     bool inline operator == (const Z &a, const Z_bytes<r, c, word> &b) {
         return a == Z (b);
     }
 
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     std::strong_ordering inline operator <=> (const Z &a, const Z_bytes<r, c, word> &b) {
         return a <=> Z (b);
     }
@@ -739,7 +719,7 @@ namespace data::math::number::GMP {
             z.data ());
     }
 
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     Z::Z (const Z_bytes<r, c, word> &z) {
         mpz_init (MPZ);
         if (data::is_negative (z)) {
@@ -761,7 +741,7 @@ namespace data::math::number::GMP {
     }
 
     // TODO use mpz_export
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, neg c, std::unsigned_integral word>
     Z::operator Z_bytes<r, c, word> () const {
         if (data::is_negative (*this))
             return -Z_bytes<r, c, word> (-(*this));
@@ -847,7 +827,7 @@ namespace data::math::number::GMP {
 
 }
 
-namespace data::math {
+namespace data::math::def {
 
     Z inline identity<plus<Z>, Z>::operator () () {
         return 0;
@@ -867,6 +847,14 @@ namespace data::math {
 
     nonzero<Z> inline times<Z>::operator () (const nonzero<Z> &a, const nonzero<Z> &b) {
         return a * b;
+    }
+
+    N inline bit_xor<N>::operator () (const N &a, const N &b) {
+        return a ^ b;
+    }
+
+    Z inline bit_xor<Z>::operator () (const Z &a, const Z &b) {
+        return a ^ b;
     }
 }
 

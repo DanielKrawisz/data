@@ -47,7 +47,7 @@ namespace data::math::number {
             while (true) {
                 p = P.first ();
 
-                d = data::divide<N> (x, p.Prime);
+                d = divmod (x, p.Prime);
 
                 // in this case, the number itself must be prime.
                 if (d.Quotient < p.Prime.Value) {
@@ -68,7 +68,7 @@ namespace data::math::number {
             power<prime<N>, N> factor {p, 1};
 
             while (true) {
-                division<N> d = math::number::natural_divide (x, factor.Base.Prime.Value);
+                division<N> d = math::number::natural_divmod (x, factor.Base.Prime.Value);
                 if (d.Remainder != 0) break;
                 factor.Exponent++;
                 x = d.Quotient;
