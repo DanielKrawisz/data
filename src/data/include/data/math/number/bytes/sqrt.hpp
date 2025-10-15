@@ -16,7 +16,7 @@ namespace data::math {
         }
     };
     
-    template <endian::order r, negativity zz, std::unsigned_integral word, uint64 pow>
+    template <endian::order r, neg zz, std::unsigned_integral word, uint64 pow>
     struct root<number::Z_bytes<r, zz, word>, pow> {
         set<number::Z_bytes<r, zz, word>> operator () (const number::Z_bytes<r, zz, word> &z) {
             return set<number::Z_bytes<r, zz, word>> (root<Z, pow> {} (Z (z)));

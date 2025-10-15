@@ -11,11 +11,11 @@ namespace data::math::number {
 
     // Generic division algorithm.
     template <ring_integral N>
-    constexpr division<N> natural_divide (const N &Dividend, const N &Divisor) {
+    constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
         if (Divisor == 1) return {Dividend, 0u};
-        if (Divisor == 2) return {static_cast<N> (Dividend >> 1), static_cast<N> (Dividend & 1)};
+        if (Divisor == 2) return {div_2 (Dividend), mod_2 (Dividend)};
 
         N pow {1u};
         N exp {Divisor};
@@ -66,8 +66,8 @@ namespace data::math::number {
     }
 
     template <ring_integral Z, ring_integral N>
-    division<Z, N> integer_natural_divide (const Z &Dividend, const N &Divisor) {
-        division<N> d {natural_divide<N> (data::abs (Dividend), Divisor)};
+    division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
+        division<N> d {natural_divmod<N> (abs (Dividend), Divisor)};
 
         if (d.Remainder == 0) return {Dividend < 0 ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
 
@@ -77,12 +77,12 @@ namespace data::math::number {
     }
 
     template <ring_integral Z>
-    division<Z, decltype (data::abs (std::declval<Z> ()))> integer_divide (const Z &Dividend, const Z &Divisor) {
-        using N = decltype (data::abs (std::declval<Z> ()));
+    division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
+        using N = decltype (abs (std::declval<Z> ()));
 
         // first we divide the absolute values.
-        N divisor = data::abs (Divisor);
-        division<N> d {natural_divide<N> (data::abs (Dividend), divisor)};
+        N divisor = abs (Divisor);
+        division<N> d {natural_divmod<N> (abs (Dividend), divisor)};
 
         // given x == q y + r,
         // if x -> -x, then x == -q y - r

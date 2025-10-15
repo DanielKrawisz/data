@@ -36,23 +36,26 @@ namespace data::math {
     inline std::ostream &operator << (std::ostream &o, const dihedral_group<natural, N> &m) {
         return o << "dihedral<" << natural << ">{" << m.Value << ", " << m.Flip << "}";
     }
+
+    namespace def {
     
-    template <typename N, auto natural>
-    struct identity<
-        times<dihedral_group<natural, N>>,
-        dihedral_group<natural, N>>:
-            identity<times<N>, N> {
-        dihedral_group<natural, N> operator () () {
-            return {identity<times<N>, N>::value ()};
-        }
-    };
-    
-    template <typename N, auto natural>
-    struct inverse<times<dihedral_group<natural, N>>, dihedral_group<natural, N>> {
-        dihedral_group<natural, N> operator () (const dihedral_group<natural, N> &a, const dihedral_group<natural, N> &b) {
-            return b / a;
-        }
-    };
+        template <typename N, auto natural>
+        struct identity<
+            times<dihedral_group<natural, N>>,
+            dihedral_group<natural, N>>:
+                identity<times<N>, N> {
+            dihedral_group<natural, N> operator () () {
+                return {identity<times<N>, N>::value ()};
+            }
+        };
+
+        template <typename N, auto natural>
+        struct inverse<times<dihedral_group<natural, N>>, dihedral_group<natural, N>> {
+            dihedral_group<natural, N> operator () (const dihedral_group<natural, N> &a, const dihedral_group<natural, N> &b) {
+                return b / a;
+            }
+        };
+    }
     
 }
 

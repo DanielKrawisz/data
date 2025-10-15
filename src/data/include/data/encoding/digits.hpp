@@ -18,7 +18,7 @@ namespace data::encoding {
         stack<char> dig {};
         N x = n;
         while (x > 0) {
-            division<N> d = math::number::natural_divide (x, base);
+            division<N> d = math::number::natural_divmod (x, base);
             dig >>= digits[(uint64) (d.Remainder)];
             x = d.Quotient;
         }
@@ -35,7 +35,7 @@ namespace data::encoding {
         return o;
     }
     
-    template <integral N, typename f>
+    template <ring_integral N, typename f>
     N read_base (string_view s, uint32 base, f inverse_digits) {
 
         N n {0};

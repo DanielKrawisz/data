@@ -41,55 +41,57 @@ namespace data::math {
         return o << "f<" << P << "> {" << m.Value << "}";
     }
 
-    template <auto prime, typename N>
-    struct times<prime_field<prime, N>> {
-        constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &a, const prime_field<prime, N> &b) {
-            return a * b;
-        }
+    namespace def {
+        template <auto prime, typename N>
+        struct times<prime_field<prime, N>> {
+            constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &a, const prime_field<prime, N> &b) {
+                return a * b;
+            }
 
-        constexpr nonzero<prime_field<prime, N>> operator ()
-        (const nonzero<prime_field<prime, N>> &a, const nonzero<prime_field<prime, N>> &b) {
-            return nonzero<prime_field<prime, N>> {a.Value * b.Value};
-        }
-    };
-    
-    template <auto prime, typename N>
-    struct identity<plus<prime_field<prime, N>>,
-        prime_field<prime, N>>
-        : identity<plus<N>, N> {
-        prime_field<prime, N> operator () () {
-            return {identity<plus<N>, N>::value ()};
-        }
-    };
-    
-    template <auto prime, typename N>
-    struct identity<times<prime_field<prime, N>>, prime_field<prime, N>> : identity<times<N>, N> {
-        constexpr prime_field<prime, N> operator () () {
-            return {identity<times<N>, N>::value ()};
-        }
-    };
-    
-    template <auto prime, typename N>
-    struct inverse<plus<prime_field<prime, N>>, prime_field<prime, N>> {
-        constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &a, const prime_field<prime, N> &b) {
-            return b - a;
-        }
-    };
+            constexpr nonzero<prime_field<prime, N>> operator ()
+            (const nonzero<prime_field<prime, N>> &a, const nonzero<prime_field<prime, N>> &b) {
+                return nonzero<prime_field<prime, N>> {a.Value * b.Value};
+            }
+        };
 
-    template <auto prime, typename N>
-    struct inverse<times<prime_field<prime, N>>, prime_field<prime, N>> {
-        constexpr nonzero<prime_field<prime, N>> operator () (const nonzero<prime_field<prime, N>> &a, const nonzero<prime_field<prime, N>> &b) {
-            return b / a;
-        }
-    };
+        template <auto prime, typename N>
+        struct identity<plus<prime_field<prime, N>>,
+            prime_field<prime, N>>
+            : identity<plus<N>, N> {
+            prime_field<prime, N> operator () () {
+                return {identity<plus<N>, N>::value ()};
+            }
+        };
 
-    template <auto prime, typename N>
-    struct divide<prime_field<prime, N>, prime_field<prime, N>> {
-        constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &a, const nonzero<prime_field<prime, N>> &b) {
-            if (b == 0) throw division_by_zero {};
-            return a / b;
-        }
-    };
+        template <auto prime, typename N>
+        struct identity<times<prime_field<prime, N>>, prime_field<prime, N>> : identity<times<N>, N> {
+            constexpr prime_field<prime, N> operator () () {
+                return {identity<times<N>, N>::value ()};
+            }
+        };
+
+        template <auto prime, typename N>
+        struct inverse<plus<prime_field<prime, N>>, prime_field<prime, N>> {
+            constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &a, const prime_field<prime, N> &b) {
+                return b - a;
+            }
+        };
+
+        template <auto prime, typename N>
+        struct inverse<times<prime_field<prime, N>>, prime_field<prime, N>> {
+            constexpr nonzero<prime_field<prime, N>> operator () (const nonzero<prime_field<prime, N>> &a, const nonzero<prime_field<prime, N>> &b) {
+                return b / a;
+            }
+        };
+
+        template <auto prime, typename N>
+        struct divide<prime_field<prime, N>, prime_field<prime, N>> {
+            constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &a, const nonzero<prime_field<prime, N>> &b) {
+                if (b == 0) throw division_by_zero {};
+                return a / b;
+            }
+        };
+    }
     
     template <auto P, typename N>
     constexpr bool inline operator == (const prime_field<P, N> &a, const prime_field<P, N> &b) {

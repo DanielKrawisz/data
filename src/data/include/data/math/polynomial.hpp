@@ -6,7 +6,7 @@
 #define DATA_MATH_POLYNOMIAL
 
 #include <data/ordered_sequence.hpp>
-#include <data/divide.hpp>
+#include <data/divmod.hpp>
 #include <data/arithmetic.hpp>
 #include <data/math/field.hpp>
 
@@ -46,24 +46,8 @@ namespace data::math {
     template <ring A, typename N, char x>
     polynomial<A, N, x> operator * (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
-    // the other operations work if A is a ring, but for division we need A to be a field.
-    template <field A, typename N, char x>
-    struct divide<polynomial<A, N, x>> {
-        division<polynomial<A, N, x>> operator () (const polynomial<A, N, x>, const nonzero<polynomial<A, N, x>>);
-    };
-
     template <typename A, typename N, char x>
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p);
-
-    template <typename A, typename N, char x>
-    struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {
-        polynomial<A, N, x> operator () ();
-    };
-
-    template <typename A, typename N, char x>
-    struct identity<times<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<times<A>, A> {
-        polynomial<A, N, x> operator () ();
-    };
 
     template <char name> struct variable {};
 
@@ -189,15 +173,40 @@ namespace data::math {
         
         explicit polynomial (const terms t, void*) : Terms {t} {}
     };
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
-        return identity<plus<A>, A>::value ();
-    }
-    
-    template <typename A, typename N, char x>
-    polynomial<A, N, x> inline identity<times<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
-        return identity<times<A>, A>::value ();
+
+    namespace def {
+
+        // the other operations work if A is a ring, but for division we need A to be a field.
+        template <field A, typename N, char x>
+        struct divmod<polynomial<A, N, x>> {
+            division<polynomial<A, N, x>> operator () (const polynomial<A, N, x>, const nonzero<polynomial<A, N, x>>);
+        };
+
+        template <typename A, typename N, char x>
+        struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {
+            polynomial<A, N, x> operator () ();
+        };
+
+        template <typename A, typename N, char x>
+        struct identity<times<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<times<A>, A> {
+            polynomial<A, N, x> operator () ();
+        };
+
+        template <typename A, typename N, char x>
+        polynomial<A, N, x> inline identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
+            return identity<plus<A>, A>::value ();
+        }
+
+        template <typename A, typename N, char x>
+        polynomial<A, N, x> inline identity<times<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
+            return identity<times<A>, A>::value ();
+        }
+
+        template <field A, typename N, char x>
+        division<polynomial<A, N, x>> inline divmod<polynomial<A, N, x>>::operator ()
+        (const polynomial<A, N, x> a, const nonzero<polynomial<A, N, x>> b) {
+            return polynomial<A, N, x>::divide (a, b.Value);
+        }
     }
 
     template <char name>
@@ -208,12 +217,6 @@ namespace data::math {
     template <char name>
     std::ostream inline &operator << (std::ostream &o, const variable<name> &x) {
         return o << name;
-    }
-
-    template <field A, typename N, char x>
-    division<polynomial<A, N, x>> inline divide<polynomial<A, N, x>>::operator ()
-    (const polynomial<A, N, x> a, const nonzero<polynomial<A, N, x>> b) {
-        return polynomial<A, N, x>::divide (a, b.Value);
     }
 
     template <typename A, typename N, char x>
@@ -268,8 +271,7 @@ namespace data::math {
 
     template <ring A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::pow (const polynomial p, const N &n) {
-        return data::pow (p, n);
-        //throw 0;
+        return pow (p, n);
     }
 
     template <ring A, typename N, char x>

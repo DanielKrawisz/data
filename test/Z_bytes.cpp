@@ -222,16 +222,16 @@ namespace data {
         return x;
     }
     
-    template<endian::order r, math::negativity zz>
+    template<endian::order r, neg zz>
     Z Z_Bytes_to_Z_stupid (const math::number::Z_bytes<r, zz, byte> &z) {
         if (is_negative (z)) return -N_Bytes_to_N_stupid (data::abs (z));
         return N_Bytes_to_N_stupid (abs (z));
     }
     
-    template<endian::order r, math::negativity zz>
-    math::number::Z_bytes<r, zz, byte> Z_to_Z_Bytes_stupid (const math::Z &n) {
+    template<endian::order r, neg zz>
+    math::number::Z_bytes<r, zz, byte> Z_to_Z_Bytes_stupid (const Z &n) {
         return math::number::Z_bytes<r, zz, byte>::read
-            (encoding::hexidecimal::write<math::negativity::twos, hex_case::lower> (n));
+            (encoding::hexidecimal::write<neg::twos, hex_case::lower> (n));
     }
     
     template <typename in> void Z_Bytes_to_Z (in x) {
@@ -241,8 +241,8 @@ namespace data {
         Z_bytes_big big {x};
         Z_bytes_little little {x};
         
-        Z_bytes_big stupid_big = Z_to_Z_Bytes_stupid<endian::big, math::negativity::twos> (z);
-        Z_bytes_little stupid_little = Z_to_Z_Bytes_stupid<endian::little, math::negativity::twos> (z);
+        Z_bytes_big stupid_big = Z_to_Z_Bytes_stupid<endian::big, neg::twos> (z);
+        Z_bytes_little stupid_little = Z_to_Z_Bytes_stupid<endian::little, neg::twos> (z);
         
         EXPECT_EQ (stupid_big, big);
         EXPECT_EQ (stupid_little, little);

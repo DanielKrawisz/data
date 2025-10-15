@@ -37,13 +37,13 @@ namespace data::arithmetic {
 }
 
 namespace data {
+    using neg = arithmetic::negativity;
 
-    template <typename X> bool is_negative_zero (const X &x);
-    template <typename X> bool is_positive_zero (const X &x);
+    template <typename X> constexpr bool is_negative_zero (const X &x);
+    template <typename X> constexpr bool is_positive_zero (const X &x);
 }
 
-namespace data::math {
-    using negativity = arithmetic::negativity;
+namespace data::math::def {
 
     template <typename X> struct is_negative_zero;
     template <typename X> struct is_positive_zero;
@@ -52,12 +52,12 @@ namespace data::math {
 
 namespace data {
 
-    template <typename X> bool inline is_negative_zero (const X &x) {
-        return math::is_negative_zero<X> {} (x);
+    template <typename X> constexpr bool inline is_negative_zero (const X &x) {
+        return math::def::is_negative_zero<X> {} (x);
     }
 
-    template <typename X> bool inline is_positive_zero (const X &x) {
-        return math::is_positive_zero<X> {} (x);
+    template <typename X> constexpr bool inline is_positive_zero (const X &x) {
+        return math::def::is_positive_zero<X> {} (x);
     }
 
 }

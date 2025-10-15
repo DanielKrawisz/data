@@ -25,7 +25,7 @@ namespace data {
                     return valid (mpq._mp_den) && valid (mpq._mp_num);
                 }
                 
-                inline math::signature sign (const __mpq_struct &mpq) {
+                inline math::sign sign (const __mpq_struct &mpq) {
                     return !valid (mpq) ? zero : sign (mpq._mp_num) * sign (mpq._mp_den);
                 }
                 
@@ -98,7 +98,7 @@ namespace data {
                         return *this;
                     }
                     
-                    math::signature sign () {
+                    math::sign sign () {
                         return GMP::sign (MPQ);
                     }
                     

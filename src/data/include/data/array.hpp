@@ -132,35 +132,35 @@ namespace data {
         using reverse_iterator = slice<X, Size>::reverse_iterator;
         using const_reverse_iterator = slice<const X, Size>::reverse_iterator;;
 
-        iterator begin () {
+        constexpr iterator begin () {
             return slice<X, Size> (*this).begin ();
         }
 
-        iterator end () {
+        constexpr iterator end () {
             return slice<X, Size> (*this).end ();
         }
 
-        const_iterator begin () const {
+        constexpr const_iterator begin () const {
             return slice<const X, Size> (*this).begin ();
         }
 
-        const_iterator end () const {
+        constexpr const_iterator end () const {
             return slice<const X, Size> (*this).end ();
         }
 
-        reverse_iterator rbegin () {
+        constexpr reverse_iterator rbegin () {
             return slice<X, Size> (*this).rbegin ();
         }
 
-        reverse_iterator rend () {
+        constexpr reverse_iterator rend () {
             return slice<X, Size> (*this).rend ();
         }
 
-        const_reverse_iterator rbegin () const {
+        constexpr const_reverse_iterator rbegin () const {
             return slice<const X, Size> (*this).rbegin ();
         }
 
-        const_reverse_iterator rend () const {
+        constexpr const_reverse_iterator rend () const {
             return slice<const X, Size> (*this).rend ();
         }
     };

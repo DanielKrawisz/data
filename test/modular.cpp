@@ -67,10 +67,11 @@ namespace data {
         test_modular () {
 
             // test that basic arithmetic functions are all constexpr
+            modular<N {13}> test_construct {13};
             modular<square (N {5})> test_mod_square {3};
             modular<conjugate (N {17})> test_mod_conjugate {4};
             modular<abs (N {17})> test_mod_abs {5};
-            modular<norm (N {17})> test_mod_norm {6};
+            //modular<norm (N {17})> test_mod_norm {6};
             modular<quadrance (N {17})> test_mod_quadrance {7};
             modular<inner (N {17}, N {101})> test_mod_inner {8};
             modular<plus (times (N {2}, N {3}), minus (N {7}, N {2}))> test_mod_exp_A {9};

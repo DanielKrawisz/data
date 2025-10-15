@@ -77,7 +77,7 @@ namespace data::math::number::GMP {
     std::ostream &Z_write_dec (std::ostream &o, const Z &n) {
         if (n == 0) return o << "0";
         if (n < 0) return Z_write_dec (o << "-", -n);
-        return o << encoding::write_base<N> (abs<Z> {} (n), encoding::decimal::characters ());
+        return o << encoding::write_base<N> (abs (n), encoding::decimal::characters ());
     }
     
     std::ostream &N_write_dec (std::ostream &o, const N &n) {
@@ -89,7 +89,7 @@ namespace data::math::number::GMP {
 
 namespace data::encoding::decimal {
     
-    std::ostream &write (std::ostream &o, const math::N &n) {
+    std::ostream &write (std::ostream &o, const N &n) {
         return N_write_dec (o, n);
     }
     
@@ -97,16 +97,16 @@ namespace data::encoding::decimal {
 
 namespace data::encoding::hexidecimal {
     
-    std::ostream &write (std::ostream &o, const math::N &n, hex::letter_case q) {
+    std::ostream &write (std::ostream &o, const N &n, hex::letter_case q) {
         return write (o, math::number::N_bytes<endian::big, byte> (n));
     }
     
-    std::ostream &write (std::ostream &o, const math::Z &z, hex::letter_case q, negativity n) {
+    std::ostream &write (std::ostream &o, const Z &z, hex::letter_case q, neg n) {
 
         switch (n) {
-            case (negativity::nones): throw data::exception {} << "can't do " << n << ".";
-            case (negativity::twos): return write (o << "0x", math::number::Z_bytes<endian::big, negativity::twos, byte> (z), q);
-            case (negativity::BC): return write (o << "0x", math::number::Z_bytes<endian::big, negativity::BC, byte> (z), q);
+            case (neg::nones): throw data::exception {} << "can't do " << n << ".";
+            case (neg::twos): return write (o << "0x", math::number::Z_bytes<endian::big, neg::twos, byte> (z), q);
+            case (neg::BC): return write (o << "0x", math::number::Z_bytes<endian::big, neg::BC, byte> (z), q);
         }
         
         return o;
@@ -116,7 +116,7 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::signed_decimal {
     
-    std::ostream &write (std::ostream &o, const math::Z &n) {
+    std::ostream &write (std::ostream &o, const Z &n) {
         return Z_write_dec (o, n);
     }
     
@@ -127,7 +127,7 @@ namespace data::math::number::GMP {
     std::ostream &operator << (std::ostream &o, const Z &n) {
 
         if (o.flags () & std::ios::hex) {
-            encoding::hexidecimal::write (o, n, hex_case::lower, negativity::twos);
+            encoding::hexidecimal::write (o, n, hex_case::lower, neg::twos);
             return o;
         }
 

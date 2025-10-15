@@ -12,12 +12,6 @@ namespace data::math {
 
     template <typename R> bool operator == (const quaternion<R> &, const quaternion<R> &);
 
-    template <typename q> struct inner<quaternion<q>, quaternion<q>> : inner<cayley_dickson<complex<q>>, cayley_dickson<complex<q>>> {};
-
-    template <typename q> struct quadrance<quaternion<q>> : quadrance<cayley_dickson<complex<q>>> {};
-
-    template <typename q> struct norm<quaternion<q>> : norm<cayley_dickson<complex<q>>> {};
-
     template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x);
 
     template <typename R>
@@ -30,9 +24,6 @@ namespace data::math {
         quaternion (R r, R i, R j, R k) : quaternion {complex {r, i}, complex {j, k}} {}
         quaternion (const complex &x) : quaternion {x, complex {}} {}
         quaternion (hamiltonian &&c) : hamiltonian {c} {}
-
-        template <typename RR> requires ImplicitlyConvertible<RR, R>
-        quaternion (const RR &x) : cayley_dickson<complex> {complex {x}} {}
         
         static quaternion I () {
             static quaternion i {0, 1, 0, 0};
@@ -86,15 +77,15 @@ namespace data::math {
         return static_cast<cayley_dickson<complex<R>>> (a) == static_cast<cayley_dickson<complex<R>>> (b);
     }
 
-    template <typename q> struct re<quaternion<q>> : re<cayley_dickson<complex<q>>> {};
+    template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x) {
+        return o << "(" << ev (x) << " + j " << od (x) << ")";
+    }
+}
 
-    template <typename q> struct im<quaternion<q>> : im<cayley_dickson<complex<q>>> {};
-    
-    template <typename R> struct conjugate<quaternion<R>> {
-        quaternion<R> operator () (const quaternion<R>& x) {
-            return {conjugate<cayley_dickson<complex<R>>> {} (x)};
-        }
-    };
+namespace data::math::def {
+    template <typename q> struct ev<quaternion<q>> : ev<cayley_dickson<complex<q>>> {};
+
+    template <typename q> struct od<quaternion<q>> : od<cayley_dickson<complex<q>>> {};
     
     template <typename R>
     struct inverse<plus<quaternion<R>>, quaternion<R>> {
@@ -120,20 +111,16 @@ namespace data::math {
             return b / a;
         }
     };
-
-    template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x) {
-        return o << "(" << x.Re << " + j" << x.Im << ")";
-    }
     
 }
 
 namespace data::math::linear {
     
     template <typename q> 
-    struct dimensions<q, quaternion<q>> : dimensions<q, cayley_dickson<complex<q>>> {};
+    struct dimensions<q, math::quaternion<q>> : dimensions<q, math::cayley_dickson<complex<q>>> {};
 
     template <typename q>
-    struct dimensions<complex<q>, quaternion<q>> {
+    struct dimensions<math::complex<q>, quaternion<q>> {
         static constexpr dimension value = 2;
     };
     

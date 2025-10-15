@@ -155,9 +155,9 @@ namespace data::encoding::base58 {
 
 }
 
-namespace data::math {
+namespace data::math::def {
 
-    division<base58_uint, unsigned int> divide<base58_uint, int>::operator () (const base58_uint &w, nonzero<int> x) {
+    division<base58_uint, unsigned int> divmod<base58_uint, int>::operator () (const base58_uint &w, nonzero<int> x) {
         if (x == 0) throw math::division_by_zero {};
 
         // it is important to have this optimization.
@@ -169,7 +169,7 @@ namespace data::math {
                 static_cast<unsigned int> (encoding::base58::digit (w[last]))};
         }
 
-        division<N> div = math::divide<N> {}
+        division<N> div = divmod<N> {}
             (*decode<N> (w), math::nonzero {N {static_cast<uint64> (x)}});
         return division<base58_uint, unsigned int> {encoding::base58::encode (div.Quotient), static_cast<unsigned int> (uint64 (div.Remainder))};
     }

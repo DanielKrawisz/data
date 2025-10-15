@@ -36,6 +36,9 @@ namespace data::math {
     inline std::ostream &operator << (std::ostream &o, const data::math::symmetric_group<natural, N> &m) {
         return o << "symmetric<" << natural << ">{"<<static_cast<const data::math::permutation<data::math::number::modular<natural, N>> &> (m) <<"}";
     }
+}
+
+namespace data::math::def {
     
     template <auto natural, typename N>
     struct identity<

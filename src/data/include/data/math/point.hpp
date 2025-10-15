@@ -150,8 +150,8 @@ namespace data::math::space {
         static transformation flip (const exterior<X, order, dim> &, const exterior<X, dim - order, dim> &);
     };
 
-    template <field X, size_t dim> requires normed<X> &&
-    Ordered<decltype (data::norm (std::declval<X> ()))>
+    template <field X, size_t dim>
+    //requires normed<X> && Ordered<decltype (data::norm (std::declval<X> ()))>
     struct Euclidian : affine<X, dim> {
         template <size_t order> using simplex = affine<X, dim>::simplex;
 
@@ -254,7 +254,7 @@ namespace data::math::space {
     
 }
 
-namespace data::math {
+namespace data::math::def {
     template <field X, size_t dim, size_t order>
     struct inverse<plus<space::exterior<X, dim, order>>, space::exterior<X, dim, order>> {
         space::exterior<X, dim, order> operator () (const space::exterior<X, dim, order> &, const space::exterior<X, dim, order> &) const;

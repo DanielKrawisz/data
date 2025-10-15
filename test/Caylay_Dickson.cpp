@@ -3,10 +3,64 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "data/numbers.hpp"
+#include "data/math/fraction.hpp"
 #include "data/math.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
+
+    static_assert (Real<Z>);
+    static_assert (Real<Z_bytes_little>);
+    static_assert (Real<Z_bytes_big>);
+    static_assert (Real<Z_bytes_BC_little>);
+    static_assert (Real<Z_bytes_BC_big>);
+    static_assert (Real<int64>);
+    static_assert (Real<int128>);
+    static_assert (Real<int128_little>);
+    static_assert (Real<int128_big>);
+    static_assert (Real<dec_int>);
+    static_assert (Real<hex_int>);
+    static_assert (Real<hex_int_BC>);
+
+    static_assert (Complex<math::complex<Z>>);
+    static_assert (Complex<math::complex<Z_bytes_little>>);
+    static_assert (Complex<math::complex<Z_bytes_big>>);
+    static_assert (Complex<math::complex<Z_bytes_BC_little>>);
+    static_assert (Complex<math::complex<Z_bytes_BC_big>>);
+    static_assert (Complex<math::complex<int64>>);
+    static_assert (Complex<math::complex<int128>>);
+    static_assert (Complex<math::complex<int128_little>>);
+    static_assert (Complex<math::complex<int128_big>>);
+    static_assert (Complex<math::complex<dec_int>>);
+    static_assert (Complex<math::complex<hex_int>>);
+    static_assert (Complex<math::complex<hex_int_BC>>);
+
+    static_assert (Quaternionic<math::quaternion<Z>>);
+    static_assert (Quaternionic<math::quaternion<Z_bytes_little>>);
+    static_assert (Quaternionic<math::quaternion<Z_bytes_big>>);
+    static_assert (Quaternionic<math::quaternion<Z_bytes_BC_little>>);
+    static_assert (Quaternionic<math::quaternion<Z_bytes_BC_big>>);
+    static_assert (Quaternionic<math::quaternion<int64>>);
+    static_assert (Quaternionic<math::quaternion<int128>>);
+    static_assert (Quaternionic<math::quaternion<int128_little>>);
+    static_assert (Quaternionic<math::quaternion<int128_big>>);
+    static_assert (Quaternionic<math::quaternion<dec_int>>);
+    static_assert (Quaternionic<math::quaternion<hex_int>>);
+    static_assert (Quaternionic<math::quaternion<hex_int_BC>>);
+
+    static_assert (Octonionic<math::octonion<Z>>);
+    static_assert (Octonionic<math::octonion<Z_bytes_little>>);
+    static_assert (Octonionic<math::octonion<Z_bytes_big>>);
+    static_assert (Octonionic<math::octonion<Z_bytes_BC_little>>);
+    static_assert (Octonionic<math::octonion<Z_bytes_BC_big>>);
+    static_assert (Octonionic<math::octonion<int64>>);
+    static_assert (Octonionic<math::octonion<int128>>);
+    static_assert (Octonionic<math::octonion<int128_little>>);
+    static_assert (Octonionic<math::octonion<int128_big>>);
+    static_assert (Octonionic<math::octonion<dec_int>>);
+    static_assert (Octonionic<math::octonion<hex_int>>);
+    static_assert (Octonionic<math::octonion<hex_int_BC>>);
 
     template <typename X> void test_complex (X zero, X one, X i) {
         EXPECT_NE (zero, one);

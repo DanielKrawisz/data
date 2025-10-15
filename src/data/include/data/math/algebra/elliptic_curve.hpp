@@ -61,7 +61,7 @@ namespace data::math {
 
         struct compressed {
             field X;
-            signature YSign;
+            sign YSign;
         };
 
         struct compressed_point : unsigned_limit<compressed> {

@@ -39,9 +39,9 @@ namespace data::math::linear {
     template <typename F, typename V1, typename V2> struct contract;
 }
 
-namespace data::math {
+namespace data::math::def {
     
-    template <typename F, size_t... sizes> requires field<F>
+    template <math::field F, size_t... sizes>
     struct inverse<plus<array<F, sizes...>>, array<F, sizes...>> {
         array<F, sizes...> operator () (const array<F, sizes...> &a, const array<F, sizes...> &b) {
             return b - a;
