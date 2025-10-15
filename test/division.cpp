@@ -11,7 +11,7 @@ namespace data {
     template <typename N>
     void test_division_natural_case (const N &numerator, const N &denominator, const N &quotient, const N &remainder) {
 
-        auto div = divide (numerator, math::nonzero {denominator});
+        auto div = divmod (numerator, math::nonzero {denominator});
         EXPECT_EQ (div.Quotient, quotient)
             << "expected " << numerator << " / " << denominator << " -> " << quotient << " but got " << div.Quotient;
         EXPECT_EQ (div.Remainder, remainder)
@@ -21,7 +21,7 @@ namespace data {
     template <typename Z, typename N>
     void test_division_integer_case (const Z &numerator, const Z &denominator, const Z &quotient, const N &remainder) {
 
-        auto div = divide (numerator, math::nonzero {denominator});
+        auto div = divmod (numerator, math::nonzero {denominator});
         EXPECT_EQ (div.Quotient, quotient)
             << "expected " << numerator << " / " << denominator << " -> " << quotient << " but got " << div.Quotient;
         EXPECT_EQ (div.Remainder, remainder)
@@ -31,7 +31,7 @@ namespace data {
     template <typename Z, typename N>
     void test_division_integer_natural_case (const Z &numerator, const N &denominator, const Z &quotient, const N &remainder) {
 
-        auto div = divide (numerator, math::nonzero {denominator});
+        auto div = divmod (numerator, math::nonzero {denominator});
         EXPECT_EQ (div.Quotient, quotient)
             << "expected " << numerator << " / " << denominator << " -> " << quotient << " but got " << div.Quotient;
         EXPECT_EQ (div.Remainder, remainder)
@@ -42,8 +42,8 @@ namespace data {
     struct test_division_natural {
         test_division_natural () {
 
-            EXPECT_THROW (math::number::natural_divide (N {0}, N {0}), math::division_by_zero);
-            EXPECT_THROW (math::number::natural_divide (N {1}, N {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::natural_divmod (N {0}, N {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::natural_divmod (N {1}, N {0}), math::division_by_zero);
 
             test_division_natural_case<N> (N {0}, N {1}, N {0}, N {0});
             test_division_natural_case<N> (N {1}, N {1}, N {1}, N {0});
@@ -57,8 +57,8 @@ namespace data {
     struct test_division_integer_natural {
         test_division_integer_natural () {
 
-            EXPECT_THROW (math::number::integer_natural_divide (Z {0}, N {0}), math::division_by_zero);
-            EXPECT_THROW (math::number::integer_natural_divide (Z {1}, N {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_natural_divmod (Z {0}, N {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_natural_divmod (Z {1}, N {0}), math::division_by_zero);
 
             test_division_integer_natural_case<Z, N> (Z {0}, N {1}, Z {0}, N {0});
             test_division_integer_natural_case<Z, N> (Z {1}, N {1}, Z {1}, N {0});
@@ -75,8 +75,8 @@ namespace data {
     struct test_division_integer {
         test_division_integer () {
 
-            EXPECT_THROW (math::number::integer_divide (Z {0}, Z {0}), math::division_by_zero);
-            EXPECT_THROW (math::number::integer_divide (Z {1}, Z {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_divmod (Z {0}, Z {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_divmod (Z {1}, Z {0}), math::division_by_zero);
 
             test_division_integer_case<Z, N> (Z {0}, Z {1}, Z {0}, N {0});
             test_division_integer_case<Z, N> (Z {1}, Z {1}, Z {1}, N {0});

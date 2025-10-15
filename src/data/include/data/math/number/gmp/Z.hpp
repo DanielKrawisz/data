@@ -12,23 +12,23 @@
 
 namespace data::encoding::hexidecimal { 
     
-    template <math::negativity n, hex_case zz> integer<n, zz> inline write (const math::Z &z) {
+    template <neg n, hex_case zz> integer<n, zz> inline write (const Z &z) {
         std::stringstream ss;
         write (ss, z, zz, n);
         return integer<n, zz> {ss.str ()};
     }
 
-    template <hex_case zz> integer<negativity::nones, zz> inline write (const math::N &n) {
+    template <hex_case zz> integer<neg::nones, zz> inline write (const N &n) {
         std::stringstream ss;
         write (ss, n, zz);
-        return integer<negativity::nones, zz> {ss.str ()};
+        return integer<neg::nones, zz> {ss.str ()};
     }
 
 }
 
 namespace data::encoding::signed_decimal { 
     
-    string inline write (const math::Z &n) {
+    string inline write (const Z &n) {
         std::stringstream ss;
         write (ss, n);
         return string {ss.str ()};
@@ -38,7 +38,7 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::decimal {
 
-    string inline write (const math::N &n) {
+    string inline write (const N &n) {
         std::stringstream ss;
         write (ss, n);
         return string {ss.str ()};
@@ -84,6 +84,73 @@ namespace data::math::number::GMP {
         N diff;
         __gmp_binary_minus::eval (diff.Value.MPZ, (gmp_uint) x, n.Value.MPZ);
         return diff;
+    }
+
+    template <std::unsigned_integral I> N inline &operator += (N &u, I x) {
+        __gmp_binary_plus::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return u;
+    }
+
+    template <std::unsigned_integral I> N inline &operator -= (N &u, I x) {
+        if (u <= x) u = 0;
+        __gmp_binary_minus::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return u;
+    }
+
+    template <std::unsigned_integral I> N inline &operator *= (N &u, I x) {
+        __gmp_binary_multiplies::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return u;
+    }
+
+    template <std::unsigned_integral I> N operator & (I x, const N &u) {
+        N result;
+        __gmp_binary_and::eval (result.Value.MPZ, (gmp_uint) x, u.Value.MPZ);
+        return result;
+    }
+
+    template <std::unsigned_integral I> N operator & (const N &u, I x) {
+        N result;
+        __gmp_binary_and::eval (result.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return result;
+    }
+
+    template <std::unsigned_integral I> N operator ^ (I x, const N &u) {
+        N result;
+        __gmp_binary_xor::eval (result.Value.MPZ, (gmp_uint) x, u.Value.MPZ);
+        return result;
+    }
+
+    template <std::unsigned_integral I> N operator ^ (const N &u, I x) {
+        N result;
+        __gmp_binary_xor::eval (result.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return result;
+    }
+
+    template <std::unsigned_integral I> N operator | (I x, const N &u) {
+        N result;
+        __gmp_binary_ior::eval (result.Value.MPZ, (gmp_uint) x, u.Value.MPZ);
+        return result;
+    }
+
+    template <std::unsigned_integral I> N operator | (const N &u, I x) {
+        N result;
+        __gmp_binary_ior::eval (result.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return result;
+    }
+
+    template <std::unsigned_integral I> N inline &operator &= (N &u, I x) {
+        __gmp_binary_and::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return u;
+    }
+
+    template <std::unsigned_integral I> N inline &operator |= (N &u, I x) {
+        __gmp_binary_ior::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return u;
+    }
+
+    template <std::unsigned_integral I> N inline &operator ^= (N &u, I x) {
+        __gmp_binary_xor::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        return u;
     }
 
     template <std::integral I> Z inline operator + (const Z &n, I x) {
@@ -219,6 +286,11 @@ namespace data::math::number::GMP {
         __gmp_binary_ior::eval (a.MPZ, a.MPZ, b.MPZ);
         return a;
     }
+
+    Z inline &operator ^= (Z &a, const Z &b) {
+        __gmp_binary_xor::eval (a.MPZ, a.MPZ, b.MPZ);
+        return a;
+    }
     
     Z inline operator - (const Z &n) {
         Z z {n};
@@ -253,6 +325,12 @@ namespace data::math::number::GMP {
     Z inline operator | (const Z &a, const Z &b) {
         Z x;
         __gmp_binary_ior::eval (x.MPZ, a.MPZ, b.MPZ);
+        return x;
+    }
+
+    Z inline operator ^ (const Z &a, const Z &b) {
+        Z x;
+        __gmp_binary_xor::eval (x.MPZ, a.MPZ, b.MPZ);
         return x;
     }
     
@@ -320,43 +398,47 @@ namespace data::math::number::GMP {
 
     // bit operations
     N inline operator | (const N &a, const N &b) {
-        return N {a.Value | b};
+        return N {a.Value | b.Value};
     }
 
     N inline operator & (const N &a, const N &b) {
-        return N {a.Value & b};
+        return N {a.Value & b.Value};
     }
 
-    // divided by
+    N inline operator ^ (const N &a, const N &b) {
+        return N {a.Value ^ b.Value};
+    }
+
+    // divmodd by
     N inline operator / (const N &a, const N &b) {
         if (b == 0) throw division_by_zero {};
-        return N {divide<Z> {} (a.Value, nonzero {b.Value}).Quotient};
+        return N {def::divmod<Z> {} (a.Value, nonzero {b.Value}).Quotient};
     }
 
     Z inline operator / (const Z &a, const N &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<Z> {} (a, nonzero {b.Value}).Quotient;
+        return def::divmod<Z> {} (a, nonzero {b.Value}).Quotient;
     }
 
     N inline operator / (const N &a, uint64 b) {
         if (b == 0) throw division_by_zero {};
-        return N {divide<Z> {} (a.Value, nonzero {Z (b)}).Quotient};
+        return N {def::divmod<Z> {} (a.Value, nonzero {Z (b)}).Quotient};
     }
 
     // mod
     N inline operator % (const N &a, const N &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<N> {} (a, nonzero {b}).Remainder;
+        return def::divmod<N> {} (a, nonzero {b}).Remainder;
     }
 
     N inline operator % (const Z &a, const N &b) {
         if (b == 0) throw division_by_zero {};
-        return divide<Z> {} (a, nonzero {b.Value}).Remainder;
+        return def::divmod<Z> {} (a, nonzero {b.Value}).Remainder;
     }
 
     uint64 inline operator % (const N &a, uint64 b) {
         if (b == 0) throw division_by_zero {};
-        return uint64 (divide<Z> {} (a.Value, nonzero {Z (b)}).Remainder);
+        return uint64 (def::divmod<Z> {} (a.Value, nonzero {Z (b)}).Remainder);
     }
 
     // bit shift, which really just means
@@ -447,19 +529,6 @@ namespace data::math::number::GMP {
         return a;
     }
 
-    // exponential
-    N inline operator ^ (const N &a, const N &b) {
-        return data::pow<N, N> (a, b);
-    }
-
-    Z inline operator ^ (const Z &a, const N &b) {
-        return data::pow<Z, N> (a, b);
-    }
-
-    N inline operator ^ (const N &a, uint64 b) {
-        return data::pow<N, uint64> (a, b);
-    }
-
     bool inline operator == (const uint64 &u, const N &n) {
         return Z (u) == n.Value;
     }
@@ -473,7 +542,7 @@ namespace data::math::number::GMP {
     }
 }
 
-namespace data::math {
+namespace data::math::def {
 
     N inline abs<Z>::operator () (const Z &z) {
         return N {z < 0 ? -z : z};
@@ -483,16 +552,22 @@ namespace data::math {
         return n;
     }
 
-    division<N, N> inline divide<N, N>::operator () (const N &a, const nonzero<N> &b) {
-        return number::natural_divide (a, b.Value);
+    static_assert (proto_bit_number<N>);
+    static_assert (proto_bit_number<Z>);
+
+    static_assert (ring_integral<N>);
+    static_assert (ring_integral<Z>);
+
+    division<N, N> inline divmod<N, N>::operator () (const N &a, const nonzero<N> &b) {
+        return math::number::natural_divmod (a, b.Value);
     }
 
-    division<Z, N> inline divide<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
-        return number::integer_natural_divide (a, b.Value);
+    division<Z, N> inline divmod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
+        return math::number::integer_natural_divmod (a, b.Value);
     }
 
-    division<Z, N> inline divide<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
-        return number::integer_divide (a, b.Value);
+    division<Z, N> inline divmod<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
+        return math::number::integer_divmod (a, b.Value);
     }
 
 }

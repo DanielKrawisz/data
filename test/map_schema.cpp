@@ -4,7 +4,7 @@
 
 #include "data/encoding/unicode.hpp"
 #include "data/tools/map_schema.hpp"
-#include "data/math.hpp"
+#include "data/numbers.hpp"
 #include "gtest/gtest.h"
 
 namespace data::schema::rule {

@@ -13,12 +13,6 @@ namespace data::math {
 
     template <typename R> bool operator == (const complex<R> &, const complex<R> &);
 
-    template <typename q> struct inner<complex<q>, complex<q>> : inner<cayley_dickson<q>, cayley_dickson<q>> {};
-
-    template <typename q> struct quadrance<complex<q>> : quadrance<cayley_dickson<q>> {};
-
-    template <typename q> struct norm<complex<q>> : norm<cayley_dickson<q>> {};
-
     template <typename R> std::ostream &operator << (std::ostream &, const complex<R> &);
     
     template <typename R>
@@ -31,9 +25,6 @@ namespace data::math {
 
         using cayley_dickson<R>::cayley_dickson;
         complex (cayley_dickson<R> &&c) : cayley_dickson<R> {c} {}
-
-        template <typename RR> requires ImplicitlyConvertible<RR, R>
-        complex (const RR &x) : cayley_dickson<R> {R (x), R {0}} {}
         
         complex operator ~ () const {
             return cayley_dickson<R>::operator ~ ();
@@ -64,16 +55,16 @@ namespace data::math {
         }
     };
 
-    template <typename q> struct conjugate<complex<q>> {
-        complex<q> operator () (const complex<q> &x) {
-            return {conjugate<cayley_dickson<q>> {} (x)};
-        }
-    };
-    
+    template <typename R> std::ostream &operator << (std::ostream &o, const complex<R> &x) {
+        return o << "(" << x.Even << " + i " << x.Odd << ")";
+    }
+}
 
-    template <typename q> struct re<complex<q>> : re<cayley_dickson<q>> {};
+namespace data::math::def {
 
-    template <typename q> struct im<complex<q>> : im<cayley_dickson<q>> {};
+    template <typename q> struct ev<complex<q>> : ev<cayley_dickson<q>> {};
+
+    template <typename q> struct od<complex<q>> : od<cayley_dickson<q>> {};
     
     template <typename q>
     struct inverse<plus<complex<q>>, complex<q>> {
@@ -99,10 +90,6 @@ namespace data::math {
             return b / a;
         }
     };
-
-    template <typename R> std::ostream &operator << (std::ostream &o, const complex<R> &x) {
-        return o << "(" << x.Re << " + i" << x.Im << ")";
-    }
 
 }
 

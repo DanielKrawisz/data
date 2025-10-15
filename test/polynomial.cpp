@@ -67,7 +67,7 @@ struct test_polynomial {
         auto expected_quotient = X * Q {1, 3} + Q {2, 9};
         auto expected_remainder = Q {13, 9};
 
-        auto d = math::divide<poly> {} (P1, math::nonzero {P2});
+        auto d = divmod (P1, math::nonzero {P2});
         EXPECT_EQ (d.Quotient, expected_quotient);
         EXPECT_EQ (d.Remainder, expected_remainder);
     }
@@ -89,7 +89,7 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial<Z_bytes_BC_little> {};
     test_polynomial<Z_bytes_BC_big> {};
     test_polynomial<dec_int> {};
-    test_polynomial<hex_int_ones> {};
+    test_polynomial<hex_int> {};
     test_polynomial<hex_int_BC> {};
 
     test_polynomial<Q> {};
@@ -98,7 +98,7 @@ TEST (PolynomialTest, TestPolynomial) {
     test_polynomial<Q_BC_little> {};
     test_polynomial<Q_BC_big> {};
     test_polynomial<fraction<dec_int>> {};
-    test_polynomial<fraction<hex_int_ones>> {};
+    test_polynomial<fraction<hex_int>> {};
     test_polynomial<fraction<hex_int_BC>> {};
 /*
     test_polynomial<G> {};

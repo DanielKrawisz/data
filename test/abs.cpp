@@ -84,8 +84,8 @@ namespace data {
         test_case_abs (int64 g, uint64 e) {
             auto given = Z {g};
             auto expected = N {e};
-            auto abs = math::abs<Z> {} (given);
-            EXPECT_EQ (abs, expected) << "expected abs (" << given << ") -> " << abs << " to equal " << expected;
+            auto absolute = abs (given);
+            EXPECT_EQ (absolute, expected) << "expected abs (" << given << ") -> " << absolute << " to equal " << expected;
         }
     };
     

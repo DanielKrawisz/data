@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/numbers.hpp"
+#include "data/math/fraction.hpp"
+#include "data/math.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -31,14 +33,16 @@ namespace data {
         }
     };
 
+    // TODO typed test
+
     TEST (FractionTest, TestFraction) {
 
         //test_fraction<int64> {} ();
         test_fraction<Z> {} ();
         test_fraction<Z_bytes_little> {} ();
         test_fraction<Z_bytes_big> {} ();
-        test_fraction<Z_bytes_twos_big> {} ();
-        test_fraction<Z_bytes_twos_little> {} ();
+        test_fraction<Z_bytes_BC_big> {} ();
+        test_fraction<Z_bytes_BC_little> {} ();
         test_fraction<int_big<9>> {} ();
         test_fraction<int_little<9>> {} ();
         test_fraction<int_big<10>> {} ();
@@ -49,7 +53,7 @@ namespace data {
         test_fraction<int_little<12>> {} ();
         test_fraction<dec_int> {} ();
         test_fraction<hex_int> {} ();
-        test_fraction<hex_int_twos> {} ();
+        test_fraction<hex_int_BC> {} ();
 
     }
 

@@ -9,7 +9,7 @@
 #include <data/ordered.hpp>
 
 namespace data::math {
-    template <typename Q> concept rational = Ordered<Q> && field<Q, plus<Q>, times<Q>>;
+    template <typename Q> concept rational = Ordered<Q> && field<Q, def::plus<Q>, def::times<Q>>;
 }
 
 #endif

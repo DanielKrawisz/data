@@ -10,8 +10,8 @@
 namespace data::math::number {
 
     template<endian::order r, std::unsigned_integral word>
-    math::N N_Bytes_to_N_stupid (const math::number::N_bytes<r, word> &n) {
-        math::N x {0};
+    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, word> &n) {
+        N x {0};
 
         for (const word &b : n.words ().reverse ()) {
             x <<= (sizeof (word) * 8);
@@ -22,28 +22,28 @@ namespace data::math::number {
     }
 
     template<endian::order r, std::unsigned_integral word>
-    math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const math::N &n) {
+    math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const N &n) {
         auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
         size_t bytes_encoded = (hex_string.size () - 2) / 2;
 
         size_t bytes_extended = bytes_encoded % sizeof (word) == 0 ? bytes_encoded :
             ((bytes_encoded / sizeof (word)) + 1) * sizeof (word);
 
-        auto hex_resized = encoding::hexidecimal::extend<negativity::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
+        auto hex_resized = encoding::hexidecimal::extend<neg::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
 
         return math::number::N_bytes<r, word>::read (hex_resized);
     }
 
     template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
-    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, math::negativity::twos, word>;
-    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, math::negativity::BC, word>;
+    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, neg::twos, word>;
+    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, neg::BC, word>;
     template <std::unsigned_integral word> using Nb = math::number::N_bytes<endian::big, word>;
-    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, math::negativity::twos, word>;
-    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, math::negativity::BC, word>;
+    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, neg::twos, word>;
+    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, neg::BC, word>;
 
     template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
 
-        math::N n {x};
+        N n {x};
 
         Nb<word> big {x};
         Nl<word> little {x};
@@ -54,11 +54,11 @@ namespace data::math::number {
         EXPECT_EQ (stupid_big, big) << "expected " << std::hex << stupid_big << " to equal " << big << "; input = " << x;
         EXPECT_EQ (stupid_little, little) << "expected " << std::hex << stupid_little << " to equal " << little << "; input = " << x;
 
-        math::N N_big = math::N (big);
-        math::N N_little = math::N (little);
+        N N_big = N (big);
+        N N_little = N (little);
 
-        math::N N_big_stupid = N_Bytes_to_N_stupid<endian::big, word> (big);
-        math::N N_little_stupid = N_Bytes_to_N_stupid<endian::little, word> (little);
+        N N_big_stupid = N_Bytes_to_N_stupid<endian::big, word> (big);
+        N N_little_stupid = N_Bytes_to_N_stupid<endian::little, word> (little);
 
         EXPECT_EQ (N_big_stupid, N_big) << "expected " << std::hex << N_big_stupid << " to equal " << N_big << "; input = " << x;
         EXPECT_EQ (N_little_stupid, N_little) << "expected " << std::hex << N_little_stupid << " to equal " << N_little << "; input = " << x;
@@ -239,8 +239,8 @@ namespace data::math::number {
     }
 
     void test_N_to_N_bytes (string x) {
-        EXPECT_EQ ((N_bytes<endian::big, byte> {math::N (x)}), (N_bytes<endian::big, byte>::read (x)));
-        EXPECT_EQ ((N_bytes<endian::little, byte> {math::N (x)}), (N_bytes<endian::little, byte>::read (x)));
+        EXPECT_EQ ((N_bytes<endian::big, byte> {N (x)}), (N_bytes<endian::big, byte>::read (x)));
+        EXPECT_EQ ((N_bytes<endian::little, byte> {N (x)}), (N_bytes<endian::little, byte>::read (x)));
     }
     
     TEST (NBytes, NToNBytes) {
@@ -261,8 +261,8 @@ namespace data::math::number {
             EXPECT_EQ ((N_bytes<r, byte> (num) >> shift), (N_bytes<r, byte> (num) << -shift));
             EXPECT_EQ ((N_bytes<r, byte> (num) << shift), (N_bytes<r, byte> (num) >> -shift));
             EXPECT_EQ ((N_bytes<r, byte> (num) << shift >> shift), (N_bytes<r, byte> (num)));
-            EXPECT_EQ ((math::N (num) >> shift), (math::N (N_bytes<r, byte> (num) >> shift)));
-            EXPECT_EQ ((math::N (num) << shift), (math::N (N_bytes<r, byte> (num) << shift)));
+            EXPECT_EQ ((N (num) >> shift), (N (N_bytes<r, byte> (num) >> shift)));
+            EXPECT_EQ ((N (num) << shift), (N (N_bytes<r, byte> (num) << shift)));
         }
     };
     

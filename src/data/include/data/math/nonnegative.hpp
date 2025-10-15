@@ -91,13 +91,13 @@ namespace data::math {
 }
 
 namespace data {
-    template <math::has_sign_function R>
-    constexpr math::signature inline sign (const math::nonzero<R> &x) {
+    template <has_sign_function R>
+    constexpr math::sign inline sign (const math::nonzero<R> &x) {
         return sign (x.Value);
     }
     
-    template <math::has_sign_function R>
-    constexpr math::signature inline sign (const math::nonnegative<R> &x) {
+    template <has_sign_function R>
+    constexpr math::sign inline sign (const math::nonnegative<R> &x) {
         return sign (x.Value);
     }
 }

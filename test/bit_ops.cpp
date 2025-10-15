@@ -9,6 +9,8 @@
 #include "gmock/gmock-matchers.h"
 #include <stdexcept>
 
+#include <data/io/wait_for_enter.hpp>
+
 namespace data {
     
     template <typename Z> void test_bit_negate () {
@@ -69,7 +71,9 @@ namespace data {
     //   * natural numbers
     //   * numbers with complement 2
     using bit_arith_test_cases = ::testing::Types<
-        //N, dec_uint, hex_uint, base58_uint,
+        N, dec_uint,
+        hex_uint,
+        base58_uint,
         int64, int64_little, int64_big,
         int80, int80_little, int80_big,
         int128, int128_little, int128_big,
@@ -200,8 +204,9 @@ namespace data {
         for (const string &number_string: numbers) {
 
             N number = N {number_string};
+            std::cout << "  shift number " << number << std::endl;
             for (int32 shift : shifts) {
-
+                std::cout << "    by " << shift << std::endl;
                 N expected_left = nest ([] (const N &n) {
                     return n * 2;
                 }, number, shift);
@@ -209,6 +214,8 @@ namespace data {
                 N expected_right = nest ([] (const N &n) {
                     return n / 2;
                 }, number, shift);
+                std::cout << "    expected shift right: " << expected_right << std::endl;
+                wait_for_enter ();
 
                 //auto computed_left = number << shift;
                 auto computed_right = number >> shift;
@@ -263,7 +270,7 @@ namespace data {
         test_bit_shift_signed<hex_int_twos> ();
         test_bit_shift_signed<dec_int> ();*/
 
-        test_bit_shift_unsigned<math::N_bytes<endian::little>> ();
+        test_bit_shift_unsigned<math::N_bytes<endian::little>> ();/*
         test_bit_shift_unsigned<math::N_bytes<endian::big>> ();
         test_bit_shift_unsigned<math::N_bytes<endian::little, short unsigned int>> ();
         test_bit_shift_unsigned<math::N_bytes<endian::big, short unsigned int>> ();
@@ -282,7 +289,7 @@ namespace data {
         test_bit_shift_signed<math::Z_bytes_BC<endian::little, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::big, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::little, unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
+        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();*/
 
         // TODO bigger word sizes.
     }

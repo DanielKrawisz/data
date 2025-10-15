@@ -53,7 +53,7 @@ namespace data::math::number::euclidian {
                 Div {d}, BezoutS {s}, BezoutT {t} {}
             
             constexpr sequence operator / (const sequence &s) const {
-                division<N> div = natural_divide<N> (Div.Remainder, s.Div.Remainder);
+                division<N> div = natural_divmod<N> (Div.Remainder, s.Div.Remainder);
                 return {div,
                     static_cast<Z> (BezoutS - s.BezoutS * div.Quotient),
                     static_cast<Z> (BezoutT - s.BezoutT * div.Quotient)};
@@ -84,17 +84,17 @@ namespace data::math::number::euclidian {
 namespace data::math::number {
     template <ring_integral Z, ring_integral N>
     constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
-        maybe<decltype (divide<Z, N> {} (x, mod).Remainder)> {
+        maybe<decltype (divmod (x, mod).Remainder)> {
         if (mod.Value < 0) throw exception {} << "mod by negative number";
-        using return_type = decltype (divide<Z, N> {} (x, mod).Remainder);
+        using return_type = decltype (divmod (x, mod).Remainder);
         auto proof = number::euclidian::extended<return_type>::algorithm
-            (return_type (mod.Value), divide<Z, N> {} (x, mod).Remainder);
+            (return_type (mod.Value), divmod (x, mod).Remainder);
         if (proof.GCD != 1) return {};
-        return divide<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
+        return def::divmod<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
     }
 }
 
-namespace data::math {
+namespace data::math::def {
     template <typename Z, typename N>
     struct invert_mod {
         constexpr auto operator () (const Z &x, const nonzero<N> &mod) {

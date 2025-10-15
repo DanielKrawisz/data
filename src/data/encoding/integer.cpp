@@ -147,17 +147,17 @@ namespace data::encoding {
                 return division<string, N> {n.size () == 1 ? string {} : string (string_view (n).substr (0, last)), N (digit (n[last]))};
             }
             
-            division<N> div = math::number::natural_divide (N {n}, x);
+            division<N> div = math::number::natural_divmod (N {n}, x);
             
             return division<string, N> {decimal::write (div.Quotient), div.Remainder};
         }
         
         string operator / (const string &m, const string &x) {
-            return decimal::write (math::number::natural_divide (N {m}, N {x}).Quotient);
+            return decimal::write (math::number::natural_divmod (N {m}, N {x}).Quotient);
         }
         
         string operator % (const string &m, const string &x) {
-            return decimal::write (math::number::natural_divide (N {m}, N {x}).Remainder);
+            return decimal::write (math::number::natural_divmod (N {m}, N {x}).Remainder);
         }
         
         bool string::operator == (uint64 x) const {
@@ -194,8 +194,8 @@ namespace data::encoding {
             if (!m.valid ()) throw exception {} << "invalid hexidecimal string: " << m;
             if (!n.valid ()) throw exception {} << "invalid hexidecimal string: " << n;
             
-            math::signature na = sign (m);
-            math::signature nb = sign (n);
+            math::sign na = sign (m);
+            math::sign nb = sign (n);
             
             return na != nb ? na <=> nb :
                 na == math::negative && nb == math::negative ? 
@@ -430,17 +430,17 @@ namespace data::encoding {
     
 }
 
-namespace data::math {
+namespace data::math::def {
 
-    division<dec_uint, unsigned int> divide<dec_uint, int>::operator ()
+    division<dec_uint, unsigned int> divmod<dec_uint, int>::operator ()
         (const dec_uint &x, const nonzero<int> &y) {
         division<dec_uint, N> div = encoding::decimal::divide (x, N {y.Value});
         return division<dec_uint, unsigned int> {div.Quotient, static_cast<unsigned int> (uint64 (div.Remainder))};
     }
 
-    division<dec_int, unsigned int> divide<dec_int, int>::operator ()
+    division<dec_int, unsigned int> divmod<dec_int, int>::operator ()
         (const dec_int &x, const nonzero<int> &y) {
-        division<dec_uint, unsigned int> d = math::divide<dec_uint, int> {} (abs<dec_int> {} (x), y);
+        division<dec_uint, unsigned int> d = divmod<dec_uint, int> {} (abs<dec_int> {} (x), y);
         return division<dec_int, unsigned int> {x < 0 || y.Value < 0 ? -d.Quotient: dec_int {d.Quotient}, d.Remainder};
     }
 

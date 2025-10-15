@@ -55,7 +55,7 @@ namespace data::math {
         tuple<math::Z_bytes_BC<endian::little, unsigned int>, math::Z_bytes_BC<endian::little, unsigned int>>,
         tuple<math::Z_bytes_BC<endian::big, unsigned long>, math::Z_bytes_BC<endian::big, unsigned long>>,
         tuple<math::Z_bytes_BC<endian::little, unsigned long long>, math::Z_bytes_BC<endian::little, unsigned long long>>,
-        tuple<dec_int, dec_uint>,
+        //tuple<dec_int, dec_uint>,
         tuple<hex_int, hex_uint>,
         tuple<hex_int_BC, hex_int_BC>>;
 

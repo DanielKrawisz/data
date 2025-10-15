@@ -8,14 +8,19 @@
 #include <data/abs.hpp>
 #include <data/sign.hpp>
 #include <data/arithmetic.hpp>
-#include <data/divide.hpp>
+#include <data/divmod.hpp>
 #include <data/increment.hpp>
 #include <data/io/exception.hpp>
 
 namespace data {
+
+    // NOTE: this page is in an incomplete state of flux. We had
+    // an original design that didn't quite work and are in the
+    // midst of resolving it.
+
     // As long as we have constructors for int, long, and long long
     // then the compiler will never be confused by a valid number literal.
-    template <typename N> concept NumberConstructable =
+    template <typename N> concept BigNumberConstructableSigned =
         requires () {
             { N {0} };
             // the maximum integer that can be represented accurately by a double.
@@ -28,8 +33,8 @@ namespace data {
             { N {x} };
         };
 
-    template <typename N> concept UnsignedNumberConstructable =
-        NumberConstructable<N> && requires () {
+    template <typename N> concept BigNumberConstructable =
+        BigNumberConstructableSigned<N> && requires () {
             { N {0u} };
             { N {9007199254740992u} };
         } && requires (unsigned int x) {
@@ -57,14 +62,14 @@ namespace data {
             { m >= n } -> Same<bool>;
         };
 
-    template <typename X> concept NumberComparable =
+    template <typename X> concept NumberComparableSigned =
         Ordered<X> &&
         comparable_to<X, int> &&
         comparable_to<X, long> &&
         comparable_to<X, long long>;
 
-    template <typename X> concept UnsignedNumberComparable =
-        NumberComparable<X> &&
+    template <typename X> concept NumberComparable =
+        NumberComparableSigned<X> &&
         comparable_to<X, unsigned int> &&
         comparable_to<X, unsigned long> &&
         comparable_to<X, unsigned long long>;
@@ -83,64 +88,98 @@ namespace data {
     // a proto_integral type is starting to look like a number.
     // It can be assigned from a integer literal, has a concept
     // of being signed or unsigned.
-    template <typename X> concept proto_integral =
+    template <typename X> concept proto_number =
         NumberComparable<X> && std::default_initializable<X> &&
         requires (const X &n) {
             { is_zero (n) } -> Same<bool>;
             { is_positive (n) } -> Same<bool>;
             { is_negative (n) } -> Same<bool>;
-            { sign (n) };
+            { sign (n) } -> ImplicitlyConvertible<math::sign>;
         } && incrementable<X>;
 
-    // NOTE: these definitions don't make sense anymore.
-    template <typename A> concept signed_proto_integral =
-        proto_integral<A> && signed_type<A> && requires (const A &n) {
+    template <typename A> concept proto_integer =
+        proto_number<A> && Signed<A> && requires (const A &n) {
             { negate (abs (n)) } -> Same<A>;
         };
 
-    template <typename A> concept unsigned_proto_integral =
-        proto_integral<A> && unsigned_type<A> && requires (const A &n) {
+    template <typename A> concept proto_natural =
+        proto_number<A> && Unsigned<A> && requires (const A &n) {
             { digits_base_2 (n) } -> Same<size_t>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept proto_integral_system =
-        signed_proto_integral<Z> && proto_integral<N> && Convertible<N, Z> &&
+    template <typename Z, typename N = Z> concept proto_number_system =
+        proto_integer<Z> && proto_number<N> && Convertible<N, Z> &&
         requires (const Z &a) {
             { abs (a) } -> Same<N>;
         } && requires (const N &a) {
             { negate (a) } -> Same<Z>;
         } && comparable_to<Z, N>;
 
-    // bit_integral has bit operations.
-    template <typename X> concept bit_integral =
-        proto_integral<X> &&
-        requires (const X &a) {
-            {a << 1} -> ImplicitlyConvertible<X>;
-            {a >> 1} -> ImplicitlyConvertible<X>;
-            {a & 1} -> ImplicitlyConvertible<X>;
-            {a | 1} -> ImplicitlyConvertible<X>;
-        } && requires (X &a) {
-            {a <<= 1} -> Same<X &>;
-            {a >>= 1} -> Same<X &>;
-            {a &= 1} -> Same<X &>;
-            {a |= 1} -> Same<X &>;
+    template <typename NN> concept bit_algebraic =
+        requires (const NN &a, const NN &b) {
+            { a & b } -> ImplicitlyConvertible<NN>;
+            { a | b } -> ImplicitlyConvertible<NN>;
+            { a ^ b } -> ImplicitlyConvertible<NN>;
+        } && requires (NN &a, const NN &b) {
+            { a &= b } -> Same<NN &>;
+            { a |= b } -> Same<NN &>;
+            { a ^= b } -> Same<NN &>;
+        } && requires (const NN &a, int i) {
+            { a >> i } -> ImplicitlyConvertible<NN>;
+            { a << i } -> ImplicitlyConvertible<NN>;
+        } && requires (NN &a, int i) {
+            { a >>= i } -> Same<NN &>;
+            { a <<= i } -> Same<NN &>;
         };
 
-    template <typename A> concept signed_bit_integral = bit_integral<A> && signed_proto_integral<A>;
-    template <typename A> concept unsigned_bit_integral = bit_integral<A> && unsigned_proto_integral<A>;
+    template <typename X> concept proto_bit_number =
+        proto_number<X> && bit_algebraic<X>;
 
-    // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept bit_integral_system =
-        proto_integral_system<Z, N> && signed_bit_integral<Z> && bit_integral<N>;
+    template <typename X> concept bit_algebraic_signed =
+        requires (const X &a) {
+            { a & 1 } -> ImplicitlyConvertible<X>;
+            { a | 1 } -> ImplicitlyConvertible<X>;
+            { a ^ 1 } -> ImplicitlyConvertible<X>;
+            { 1 & a } -> ImplicitlyConvertible<X>;
+            { 1 | a } -> ImplicitlyConvertible<X>;
+            { 1 & a } -> ImplicitlyConvertible<X>;
+        } && requires (X &a) {
+            { a &= 1 } -> Same<X &>;
+            { a |= 1 } -> Same<X &>;
+            { a ^= 1 } -> Same<X &>;
+        };
+
+    template <typename X> concept bit_algebraic_unsigned =
+        requires (const X &a) {
+            { a & 1u } -> ImplicitlyConvertible<X>;
+            { a | 1u } -> ImplicitlyConvertible<X>;
+            { a ^ 1u } -> ImplicitlyConvertible<X>;
+            { 1u & a } -> ImplicitlyConvertible<X>;
+            { 1u | a } -> ImplicitlyConvertible<X>;
+            { 1u & a } -> ImplicitlyConvertible<X>;
+        } && requires (X &a) {
+            { a &= 1u } -> Same<X &>;
+            { a |= 1u } -> Same<X &>;
+            { a ^= 1u } -> Same<X &>;
+        };
+
+    template <typename X> concept proto_bit_unsigned =
+        proto_bit_number<X> && bit_algebraic_unsigned<X> && Unsigned<X>;
+
+    template <typename X> concept proto_bit_signed =
+        proto_bit_number<X> && bit_algebraic_signed<X> && Signed<X>;
 
     // group_integral has + and - operations.
     template <typename X> concept group_integral =
-        proto_integral<X> &&
+        proto_number<X> &&
         requires (const X &a, const X &b) {
             { a + b } -> ImplicitlyConvertible<X>;
             { a - b } -> ImplicitlyConvertible<X>;
         } && requires (const X &n) {
+            { div_2 (n) } -> ImplicitlyConvertible<X>;
+            { abs (n) };
+            { mod_2 (n) } -> ImplicitlyConvertible<X>;
             { div_2 (n) } -> ImplicitlyConvertible<X>;
             //{ n + 1 } -> ImplicitlyConvertible<X>;
             //{ n - 1 } -> ImplicitlyConvertible<X>;
@@ -152,12 +191,12 @@ namespace data {
             { a -= 1 } -> Same<X &>;
         }*/;
 
-    template <typename A> concept signed_group_integral = group_integral<A> && signed_proto_integral<A>;
-    template <typename A> concept unsigned_group_integral = group_integral<A> && unsigned_proto_integral<A>;
+    template <typename A> concept signed_group_integral = group_integral<A> && proto_integer<A>;
+    template <typename A> concept unsigned_group_integral = group_integral<A> && proto_natural<A>;
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N = Z> concept group_integral_system =
-        proto_integral_system<Z, N> && signed_group_integral<Z> && group_integral<N> &&
+        proto_number_system<Z, N> && signed_group_integral<Z> && group_integral<N> &&
         requires (const Z &a, const N &b) {
             { a + b } -> ImplicitlyConvertible<Z>;
             { a - b } -> ImplicitlyConvertible<Z>;
@@ -183,10 +222,10 @@ namespace data {
         }*/;
 
     template <typename A> concept signed_ring_integral =
-        ring_integral<A> && signed_type<A>;
+        ring_integral<A> && Signed<A>;
 
     template <typename A> concept unsigned_ring_integral =
-        proto_integral<A> && unsigned_type<A>;
+        ring_integral<A> && Unsigned<A>;
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N = Z> concept ring_integral_system =
@@ -198,7 +237,7 @@ namespace data {
         };
 
     template <typename X> concept integral =
-        bit_integral<X> && ring_integral<X> &&
+        bit_algebraic<X> && ring_integral<X> &&
         requires (const X &a, const X &b) {
             { a / b } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
@@ -211,16 +250,16 @@ namespace data {
         };
 
     template <typename A> concept signed_integral =
-        integral<A> && signed_ring_integral<A> && signed_bit_integral<A> &&
+        integral<A> && signed_ring_integral<A> && proto_bit_signed<A> &&
         requires (const A &a, const A &b) {
-            { divide (a, math::nonzero<A> {b}) } -> Same<division<A, to_unsigned<A>>>;
+            { divmod (a, math::nonzero<A> {b}) } -> Same<division<A, to_unsigned<A>>>;
         };
 
     template <typename A> concept unsigned_integral =
-        integral<A> && unsigned_ring_integral<A> && unsigned_bit_integral<A> &&
+        integral<A> && unsigned_ring_integral<A> && proto_bit_unsigned<A> &&
         requires (const A &a, const A &b) {
             { a % b} -> ImplicitlyConvertible<A>;
-            { divide (a, math::nonzero<A> {b}) } -> Same<division<A, A>>;
+            { divmod (a, math::nonzero<A> {b}) } -> Same<division<A, A>>;
         } && requires (A &a) {
             { a %= 1 } -> Same<A &>;
         };
@@ -232,33 +271,41 @@ namespace data {
             { a % b } -> ImplicitlyConvertible<N>;
             { a / b } -> ImplicitlyConvertible<Z>;
             { b / a } -> ImplicitlyConvertible<Z>;
-            { divide (a, math::nonzero<N> {b}) } -> Same<division<Z, N>>;
+            { divmod (a, math::nonzero<N> {b}) } -> Same<division<Z, N>>;
         };
 
 }
 
 namespace data::math {
     // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <bit_integral A> constexpr A inline bit_mul_2 (const A &x) {
+    template <proto_bit_number A> constexpr A inline bit_mul_2 (const A &x) {
         return x << 1;
     }
 
-    template <unsigned_bit_integral A> constexpr A inline bit_div_2 (const A &x) {
+    template <proto_bit_unsigned A> constexpr A inline bit_div_2 (const A &x) {
         return x >> 1;
     }
 
-    template <signed_bit_integral A> constexpr A inline bit_div_2 (const A &x) {
+    template <proto_bit_number A> constexpr A inline bit_mod_2 (const A &x) {
+        return abs (x) & 1;
+    }
+
+    template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
+        return x & 1u;
+    }
+
+    template <proto_bit_signed A> constexpr A inline bit_div_2 (const A &x) {
         return (data::is_negative (x) ? data::increment (x) : x) >> 1;
     }
 
     // we now define shifts in terms of mul_2 and div_2
-    template <group_integral A> constexpr A arithmatic_shift_right (const A &a, uint32 u) {
+    template <group_integral A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
         A x = a;
-        while (u-- > 0) x = data::mul_2 (x);
+        while (u-- > 0) x = mul_2 (x);
         return x;
     }
 
-    template <unsigned_group_integral A> constexpr A arithmatic_shift_left (const A &a, uint32 u) {
+    template <unsigned_group_integral A> constexpr A arithmetic_shift_left (const A &a, uint32 u) {
         A x = a;
         while (u-- > 0) x = data::div_2 (x);
         return x;
@@ -266,7 +313,7 @@ namespace data::math {
 
     // we now implement plus and minus in terms of bit operations.
     // this only works for complement one or two.
-    template <bit_integral A> constexpr A bit_plus (const A &a, const A &b) {
+    template <proto_bit_number A> constexpr A bit_plus (const A &a, const A &b) {
         A x = a;
         A c = b;
         while (c != 0) {
@@ -276,7 +323,7 @@ namespace data::math {
         return x;
     }
 
-    template <bit_integral A> constexpr A bit_minus (const A &a, const A &b) {
+    template <proto_bit_number A> constexpr A bit_minus (const A &a, const A &b) {
         A x = a;
         A c = b;
         while (c != 0) {
@@ -287,51 +334,74 @@ namespace data::math {
     }
 
     // for the rest of these, we need to know if A is signed or unsigned.
-    template <unsigned_group_integral A> constexpr A arithmatic_bit_and (const A &x, const A &y) {
+    template <unsigned_group_integral A> constexpr A arithmetic_bit_and (const A &x, const A &y) {
         if (x == 0) return 0;
         if (y == 0) return 0;
-        A rx = arithmatic_shift_right (x);
-        A ry = arithmatic_shift_right (y);
-        A digit = (x - arithmatic_shift_left (rx)) > 0 && (y - arithmatic_shift_left (ry)) > 0 ? 1 : 0;
-        return arithmatic_shift_left (arithmatic_bit_and (rx, ry)) + digit;
+        A rx = arithmetic_shift_right (x);
+        A ry = arithmetic_shift_right (y);
+        A digit = (x - arithmetic_shift_left (rx)) > 0 && (y - arithmetic_shift_left (ry)) > 0 ? 1 : 0;
+        return arithmetic_shift_left (arithmatic_bit_and (rx, ry)) + digit;
     }
 
-    template <unsigned_group_integral A> constexpr A algebraic_bit_or (const A &x, const A &y) {
+    template <unsigned_group_integral A> constexpr A arithmetic_bit_or (const A &x, const A &y) {
         if (x == 0) return 0;
         if (y == 0) return 0;
-        A rx = arithmatic_shift_right (x);
-        A ry = arithmatic_shift_right (y);
-        A digit = (x - arithmatic_shift_left (rx)) > 0 || (y - arithmatic_shift_left (ry)) > 0 ? 1 : 0;
-        return arithmatic_shift_left (arithmatic_bit_or (rx, ry)) + digit;
+        A rx = arithmetic_shift_right (x);
+        A ry = arithmetic_shift_right (y);
+        A digit = (x - arithmetic_shift_left (rx)) > 0 || (y - arithmetic_shift_left (ry)) > 0 ? 1 : 0;
+        return arithmetic_shift_left (arithmatic_bit_or (rx, ry)) + digit;
     }
 
-    template <bit_integral A> struct bit_shift_right<A> {
+    template <unsigned_group_integral A> constexpr A arithmetic_bit_xor (const A &x, const A &y);
+}
+
+namespace data::math::def {
+
+    template <proto_bit_number A> struct bit_shift_right<A> {
         constexpr auto operator () (const A &x, uint32 i) const {
             return x >> i;
         }
     };
 
-    template <bit_integral A> struct bit_shift_left<A> {
+    template <proto_bit_number A> struct bit_shift_left<A> {
         constexpr auto operator () (const A &x, uint32 i) const {
             return x << i;
         }
     };
 
-    template <bit_integral X> struct mul_2<X> {
+    template <proto_bit_number X> struct mul_2<X> {
         constexpr X operator () (const X &x) {
             return bit_mul_2 (x);
         }
     };
 
-    template <bit_integral X> struct div_2<X> {
+    template <proto_bit_number X> struct div_2<X> {
         constexpr X operator () (const X &x) {
             return bit_div_2 (x);
+        }
+    };
+
+    template <proto_bit_number X> struct mod_2<X> {
+        constexpr X operator () (const X &x) {
+            return bit_mod_2 (x);
         }
     };
 
     template <group_integral A, group_integral B> struct minus<A, B> {
         constexpr auto operator () (const A &x, const B &y) const {
             return x - y;
+        }
+    };
+
+    template <ring_integral A, ring_integral B> struct divide<A, B> {
+        constexpr auto operator () (const A &a, const nonzero<B> &b) const {
+            return divmod<A, B> {} (a, b).Quotient;
+        }
+    };
+
+    template <ring_integral A, ring_integral B> struct mod<A, B> {
+        constexpr auto operator () (const A &a, const nonzero<B> &b) const {
+            return divmod<A, B> {} (a, b).Remainder;
         }
     };
 }

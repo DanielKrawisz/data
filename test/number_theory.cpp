@@ -13,6 +13,35 @@
 #include "gtest/gtest.h"
 
 namespace data::math {
+/*
+    template <typename X>
+    struct NumberTheory : ::testing::Test {
+        using number = X;
+    };
+
+
+    using test_cases = ::testing::Types<
+        int64, int64_little, int64_big,
+        uint64, uint64_little, uint64_big,
+        int80, int80_little, int80_big,
+        uint80, uint80_little, uint80_big,
+        int128, int128_little, int128_big,
+        uint128, uint128_little, uint128_big,
+        int160, int256, int512,
+        uint160, uint256, uint512,
+        N, N_bytes_little, N_bytes_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        math::N_bytes<endian::little, unsigned short>,
+        math::N_bytes<endian::little, unsigned int>,
+        math::N_bytes<endian::little, unsigned long>,
+        math::N_bytes<endian::little, unsigned long long>,
+        math::Z_bytes<endian::little, unsigned short>,
+        math::Z_bytes<endian::little, unsigned int>,
+        math::Z_bytes<endian::little, unsigned long>,
+        math::Z_bytes<endian::little, unsigned long long>,
+        dec_uint, hex_uint, dec_int, hex_int, hex_int_BC>;
+    */
+
     number::eratosthenes<N> e {};
     number::primes<N> primes (e);
 

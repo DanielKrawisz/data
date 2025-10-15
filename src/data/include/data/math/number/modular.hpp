@@ -62,7 +62,7 @@ namespace data::math::number {
     
 }
 
-namespace data::math {
+namespace data::math::def {
     
     template <auto mod, typename X>
     struct identity<plus<number::modular<mod, X>>, number::modular<mod, X>>
@@ -75,7 +75,7 @@ namespace data::math {
     template <auto mod, typename X>
     struct inverse<plus<number::modular<mod, X>>, number::modular<mod, X>> {
         constexpr number::modular<mod, X> operator () (const number::modular<mod, X> &a, const number::modular<mod, X> &b) {
-            return data::minus_mod (b.Value, a.Value);
+            return minus_mod (b.Value, a.Value);
         }
     };
     

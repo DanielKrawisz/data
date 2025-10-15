@@ -9,7 +9,7 @@
 
 #include <ctre.hpp>
 
-#include <data/divide.hpp>
+#include <data/divmod.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/encoding/digits.hpp>
@@ -118,7 +118,7 @@ namespace data::encoding::base58 {
 
         string (const char *lit): string {string_view {lit, std::strlen (lit)}} {}
 
-        explicit string (const math::N &n): string {encode<math::N> (n)} {}
+        explicit string (const N &n): string {encode<N> (n)} {}
 
         bool valid () const {
             return base58::valid (*this);
@@ -128,9 +128,9 @@ namespace data::encoding::base58 {
 
         explicit operator uint64 () const;
         
-        explicit operator math::N () const {
+        explicit operator N () const {
             if (!valid ()) throw exception {} << "invalid base 58 number" << *this;
-            return *decode<math::N> (*this);
+            return *decode<N> (*this);
         }
 
         friend string operator "" _b58 (const char*, size_t);
@@ -142,7 +142,7 @@ namespace data::encoding::base58 {
     private:
         string (std::string &&x): data::string {x} {};
 
-        friend struct math::divide<string, int>;
+        friend struct math::def::divmod<string, int>;
     };
 
 }
@@ -151,10 +151,10 @@ namespace data {
     using base58_uint = encoding::base58::string;
 }
 
-namespace data::math {
+namespace data::math::def {
 
     template <> struct sign<base58_uint> {
-        signature operator () (const base58_uint &);
+        math::sign operator () (const base58_uint &);
     };
 
     template <> struct is_zero<base58_uint> {
@@ -173,11 +173,11 @@ namespace data::math {
         base58_uint operator () (const base58_uint &);
     };
 
-    template <> struct divide<base58_uint> {
+    template <> struct divmod<base58_uint> {
         division<base58_uint> operator () (const base58_uint &v, const nonzero<base58_uint> &z);
     };
 
-    template <> struct divide<base58_uint, int> {
+    template <> struct divmod<base58_uint, int> {
         division<base58_uint, unsigned int> operator () (const base58_uint &w, nonzero<int> x);
     };
 
@@ -200,9 +200,9 @@ namespace data::math::number {
 
 }
 
-namespace data::math {
+namespace data::math::def {
 
-    signature inline sign<base58_uint>::operator () (const base58_uint &u) {
+    math::sign inline sign<base58_uint>::operator () (const base58_uint &u) {
         if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string provided to sign: " << u;
         return encoding::base58::nonzero (u) ? math::positive : math::zero;
     }
@@ -226,13 +226,17 @@ namespace data::math {
         return false;
     }
     
-    division<base58_uint> inline divide<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
+    division<base58_uint> inline divmod<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
         // we have some extra lines here that shouldn't be necessary because the windows compiler gets confused here
         // for some reason. 
         N vn = v.operator N ();
         N zn = z.Value.operator N ();
-        division<N> d = divide<N> {} (vn, nonzero<N> {zn});
+        division<N> d = divmod<N> {} (vn, nonzero<N> {zn});
         return {encoding::base58::encode<N> (d.Quotient), encoding::base58::encode<N> (d.Remainder)};
+    }
+
+    base58_uint inline bit_xor<base58_uint>::operator () (const base58_uint &a, const base58_uint &b) {
+        return a ^ b;
     }
     
 }
@@ -310,14 +314,14 @@ namespace data::encoding::base58 {
 
     inline string::string (string_view x) : data::string {base58::valid (x) ? x : string_view {nullptr, 0}} {}
 
-    template <std::integral I> string::string (I x): string {encode (math::N {x})} {}
+    template <std::integral I> string::string (I x): string {encode (N {x})} {}
 
     string inline operator / (const string &x, const string &y) {
-        return math::divide<string, string> {} (x, math::nonzero {y}).Quotient;
+        return math::def::divmod<string, string> {} (x, math::nonzero {y}).Quotient;
     }
 
     string inline operator % (const string &x, const string &y) {
-        return math::divide<string, string> {} (x, math::nonzero {y}).Remainder;
+        return math::def::divmod<string, string> {} (x, math::nonzero {y}).Remainder;
     }
 
     string inline &string::operator /= (const string &y) {

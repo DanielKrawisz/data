@@ -49,6 +49,8 @@ add_executable (
     hash.cpp
 
     # numbers
+    numbers.cpp                  # TODO: need a typed test suite.
+    bit_ops.cpp                  # TODO: Contains commented test cases
     decimal.cpp                  # TODO: need to include bounded numbers.
     hexidecimal.cpp
     base58.cpp
@@ -57,11 +59,6 @@ add_executable (
     carry.cpp
     N_bytes.cpp
     Z_bytes.cpp
-    numbers.cpp                  # TODO: need a typed test suite.
-    sign.cpp                     # TODO: Contains commented test cases and should be a typed test
-    abs.cpp                      # TODO: should be a typed test.
-    bit_ops.cpp                  # TODO: Contains commented test cases and should be a typed test
-    roots.cpp                    # TODO: should be a typed test.
     string_numbers.cpp
     infinite.cpp                 # TODO: should be a typed test.
     division.cpp
@@ -71,10 +68,17 @@ add_executable (
     Eratosthenes.cpp
     prime_factor.cpp
     number_theory.cpp            # TODO: make typed tests
+
+    # math
+
     Caylay_Dickson.cpp
+    fraction.cpp                 # TODO: contains commented test cases and should be a typed test.
+    sign.cpp                     # TODO: Contains commented test cases and should be a typed test
+    abs.cpp                      # TODO: should be a typed test.
+    roots.cpp                    # TODO: should be a typed test.
     modular.cpp
-    testAlgebra.cpp
-    testPolynomial.cpp
+    #polynomial.cpp               # TODO: cases are commented out and should be a typed test.
+    algebra.cpp
 
     # crypto 
     # random_primes.cpp

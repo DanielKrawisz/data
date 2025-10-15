@@ -5,56 +5,49 @@
 #ifndef DATA_NORM
 #define DATA_NORM
 
-#include <data/complex.hpp>
+#include <data/arithmetic.hpp>
+#include <data/abs.hpp>
 
 namespace data {
 
+    // norm is supposed to return an ordered type that satisfies the triangle inequality.
     template <typename A> constexpr auto norm (const A &);
 
+    // quadrance generalizes the square function.
     template <typename A> constexpr auto quadrance (const A &);
 }
 
-namespace data::math {
+namespace data::math::def {
 
     template <typename X> struct norm;
     template <typename X> struct quadrance;
 
-    // if abs and quadrance are defined, then norm is abs quadrance.
-    template <typename X> requires requires (const X &x) {
-        { abs<X> {} (quadrance<X> {} (x)) };
-    } struct norm<X> {
-        constexpr auto operator () (const X &x) {
-            return abs<X> {} (quadrance<X> {} (x));
-        }
-    };
-
-    // for real values quadrance is just the square.
-    template <typename X> struct quadrance : square<X> {};
-
-    // if inner is defined, then quadrance x is inner x x.
-    template <typename X> requires (!data::real<X>) && requires (const X &x) {
-        { inner<X, X> {} (x) };
-    } struct quadrance<X> {
-        constexpr auto operator () (const X &x) {
-            return inner<X, X> {} (x, x);
-        }
-    };
 }
 
 namespace data {
 
     template <typename A> constexpr auto inline quadrance (const A &x) {
-        return math::quadrance<A> {} (x);
+        return math::def::quadrance<A> {} (x);
     }
 
     template <typename A> constexpr auto inline norm (const A &x) {
-        return math::norm<A> {} (x);
+        return math::def::norm<A> {} (x);
     }
 
     // NOTE: if abs is defined, then it must return the same type as norm.
-    template <typename F> concept normed = requires (const F &x) {
+    template <typename F> concept Normed = requires (const F &x) {
         { norm (x) };
     } && Ordered<decltype (norm (std::declval<F> ()))>;
+}
+
+namespace data::math::def {
+
+    template <std::integral X> struct norm<X> {
+        constexpr auto operator () (X x) {
+            return data::abs (x);
+        }
+    };
+
 }
 
 #endif

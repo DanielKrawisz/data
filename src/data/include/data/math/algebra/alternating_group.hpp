@@ -44,7 +44,7 @@ namespace data::math {
     
 }
 
-namespace data::math {
+namespace data::math::def {
     
     template <auto natural, typename N>
     struct identity<
