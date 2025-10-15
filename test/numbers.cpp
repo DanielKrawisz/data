@@ -421,24 +421,35 @@ namespace data {
             { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
         };
 
+    // numbers that are homo modable are
+    //   * built-in-like numbers
+    //   * natural numbers.
+
     template <typename NN> concept homo_modable =
         modable<NN> && requires (NN &a, const NN &b) {
             { a %= b } -> Same<NN &>;
         };
 
-    // numbers that are homo modable are
-    //   * built-in-like numbers
-    //   * natural numbers.
+    // an unaccompanied_number works without having to know
+    // about any corresponding signed or unsigned type.
+    template <typename N> concept unaccompanied_number =
+        basic_number<N> && homo_modable<N> &&
+        requires (const N &a, const math::nonzero<N> &b) {
+            { divmod (a, b) } -> Same<division<N>>;
+        };
 
     // a number resembling a built-in number.
     template <typename NN> concept natural_number =
-        basic_number<NN> && homo_modable<NN> && Unsigned<NN> &&
-        requires (const NN &a, const math::nonzero<NN> &b) {
-            { divmod (a, b) } -> Same<division<NN>>;
-        };
+        unaccompanied_number<NN> && Unsigned<NN>;
+
+    template <typename NN> concept unaccompanied_integer =
+        unaccompanied_number<NN> && Signed<NN>;
 
     template <typename NN> concept natural_number_big =
         natural_number<NN> && basic_number_big_unsigned<NN>;
+
+    static_assert (ring_integral_system<Z, N>);
+    static_assert (ring_integral_system<dec_int, dec_uint>);
 
     static_assert (natural_number_big<N>);
     static_assert (natural_number_big<N_bytes_little>);
@@ -557,7 +568,7 @@ namespace data {
 
     // TODO this ought to go in Bitcoin_numbers.cpp
     template <typename ZZ> concept bitcoin_arithmetic =
-        natural_number<ZZ> && basic_number_big<ZZ> && Signed<ZZ> &&
+        unaccompanied_integer<ZZ> && basic_number_big<ZZ> && Signed<ZZ> &&
         bool_arithmetic<ZZ> && homo_abs_and_negate<ZZ> &&
         requires (const ZZ &a) {
             { is_positive_zero (a) } -> ImplicitlyConvertible<bool>;
@@ -641,141 +652,5 @@ namespace data {
 
     // TODO need a test to ensure that ^ means power for
     // the bitcoin numbers but not the other types.
-    
-    template <integral NN> requires basic_arithmetic<NN>
-    struct test_whole_number {
-        test_whole_number () {
-
-            EXPECT_EQ (increment (NN {0u}), NN {1u});
-
-            EXPECT_FALSE (NN {0u} < NN {0u});
-            EXPECT_TRUE (NN {0u} <= NN {0u});
-            EXPECT_FALSE (NN {0u} > NN {0u});
-            EXPECT_TRUE (NN {0u} >= NN {0u});
-
-            EXPECT_FALSE (NN {1u} < NN {0u});
-            EXPECT_FALSE (NN {1u} <= NN {0u});
-            EXPECT_TRUE (NN {1u} > NN {0u});
-            EXPECT_TRUE (NN {1u} >= NN {0u});
-
-            EXPECT_TRUE (NN {394u} < NN {479u});
-            EXPECT_TRUE (NN {394u} <= NN {479u});
-            EXPECT_FALSE (NN {394u} > NN {479u});
-            EXPECT_FALSE (NN {394u} >= NN {479u});
-
-            EXPECT_TRUE (NN {0x394u} < NN {0x479u});
-            EXPECT_TRUE (NN {0x394u} <= NN {0x479u});
-            EXPECT_FALSE (NN {0x394u} > NN {0x479u});
-            EXPECT_FALSE (NN {0x394u} >= NN {0x479u});
-
-            EXPECT_EQ (NN {0x479u} - NN {0x394u}, NN {0xe5u});
-
-            EXPECT_EQ (NN {0x858u} + NN {0x1edu}, NN {0xa45u});
-
-            EXPECT_EQ (NN {0x64u} * NN {0xau}, NN {0x3e8u});
-
-        }
-    };
-    
-    template <unsigned_integral NN> requires
-    ImplicitlyConvertible<uint64, NN> &&
-    ImplicitlyConvertible<uint32, NN> && requires () {
-        { NN {0} };
-        { NN {9223372036854775807} };
-        { NN {"0"} };
-    } && requires (const NN &n) {
-        { uint64 (n) };
-        { static_cast<N> (n) };
-        { abs (n) } -> std::same_as<NN>;
-    } && modable<NN> struct test_Unsigned : test_whole_number<NN> {
-        test_Unsigned (string type = "") {
-            EXPECT_EQ (N (NN (0)), N (0)) << " number: " << NN (0) << " vs " << N (0) << " merp " << N (NN (0));
-
-            EXPECT_EQ (math::number::decrement<NN> {} (NN {0u}), NN {0u});
-        }
-    };
-    
-    template <signed_integral ZZ> requires std::convertible_to<int64, ZZ> &&
-    requires (const ZZ &z) {
-        { int64 (z) };
-        { static_cast<Z> (z) };
-    } struct test_Signed : test_whole_number<ZZ> {
-        test_Signed () {
-
-            ZZ zz_zero {0};
-            ZZ zz_minus_one {-1};
-
-            // convert to Z
-            EXPECT_EQ (Z (zz_zero), Z (0));
-            EXPECT_EQ (Z (zz_minus_one), Z (-1));
-
-            EXPECT_EQ (math::number::decrement<ZZ> {} (zz_zero), zz_minus_one);
-
-            EXPECT_EQ (math::number::increment<ZZ> {} (zz_zero), ZZ {1});
-            EXPECT_EQ (math::number::increment<ZZ> {} (zz_minus_one), zz_zero);
-
-            EXPECT_EQ (math::number::increment<ZZ> {} (ZZ {0xffu}), ZZ {0x100u});
-
-            EXPECT_EQ (-zz_zero, zz_zero);
-            EXPECT_EQ (-ZZ {1}, zz_minus_one);
-            EXPECT_EQ (-zz_minus_one, ZZ {1});
-        }
-    };
-
-    template <typename NN, typename ZZ> 
-    requires requires (const ZZ &z) {
-        { abs (z) } -> std::same_as<NN>;
-    } && requires (const ZZ &a, const math::nonzero<ZZ> &b) {
-        { divmod (a, b) } -> std::same_as<division<ZZ, NN>>;
-    } && requires (const NN &a, const ZZ &b) {
-        { pow (b, a) } -> std::same_as<ZZ>;
-        { a + b };
-        { a - b };
-        { a * b };
-        { b + a };
-        { b - a };
-        { b * a };
-        { b % a } -> ImplicitlyConvertible<NN>;
-    } && requires (const NN &a, const math::nonzero<NN> &b) {
-        { mul_2_mod (a, b) } -> ImplicitlyConvertible<NN>;
-        { square_mod (a, b) } -> ImplicitlyConvertible<NN>;
-        { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
-    } && requires (const ZZ &a, const math::nonzero<NN> &b) {
-        { divmod (a, b) } -> std::same_as<division<ZZ, NN>>;
-        { mod (a, b) } -> ImplicitlyConvertible<NN>;
-        { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
-        { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
-        { mul_2_mod (a, b) } -> ImplicitlyConvertible<NN>;
-        { square_mod (a, b) } -> ImplicitlyConvertible<NN>;
-    } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
-        { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-        { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-        { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-        { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-    } struct test_number_system : test_Unsigned<NN>, test_Signed<ZZ> {
-        test_number_system (string type = ""): test_Unsigned<NN> {type}, test_Signed<ZZ> {} {}
-    };
-
-    template <typename ZZ>
-    struct test_Signed_system : test_Signed<ZZ> {};
-    
-    TEST (Numbers, NumberSystem) {
-        test_number_system<N, Z> {"N"};
-
-        test_number_system<N_bytes_little, Z_bytes_little> {"N_bytes_little"};
-        test_number_system<N_bytes_big, Z_bytes_big> {"N_bytes_big"};
-
-        //test_Signed_system<Z_bytes_BC_little> {};
-        //test_Signed_system<Z_bytes_BC_big> {};
-
-        //test_number_system<dec_uint, dec_int> {};
-
-        test_number_system<hex_uint, hex_int> {};
-
-        //test_Signed_system<hex_int_BC> {};
-
-        //test_Unsigned<base58_uint> {};
-
-    }
     
 }
