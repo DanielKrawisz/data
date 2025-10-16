@@ -96,13 +96,13 @@ namespace data::math {
         } struct norm<fraction<Z, N>> {
             auto operator () (const fraction<Z, N> &);
         };
+
+        // a way of constructing fractions.
+        template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))> struct over;
     }
 
     template <typename Z, typename N>
     std::ostream &operator << (std::ostream &o, const fraction<Z, N> &x);
-
-    // a way of constructing fractions.
-    template <typename Z, typename N> struct over;
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     struct fraction {
@@ -136,7 +136,7 @@ namespace data::math {
 
         // only use this if your fraction is already in lowest terms.
         fraction (Z n, nonzero<N> d) : Numerator {n}, Denominator {d} {}
-        friend struct over<Z, N>;
+        friend struct def::over<Z, N>;
     };
 
 }
@@ -145,14 +145,14 @@ namespace data {
 
     template <typename Z, typename N>
     math::fraction<Z, N> inline over (const Z &numerator, const Z &denominator) {
-        return math::over<Z, N> {} (numerator, denominator);
+        return math::def::over<Z, N> {} (numerator, denominator);
     }
 
 }
 
-namespace data::math {
+namespace data::math::def {
 
-    template <Integer Z> struct over<Z, N> {
+    template <Integer Z, typename N> struct over<Z, N> {
         fraction<Z, N> operator () (const Z &numerator, const Z &denominator) {
             if (denominator == 0) throw division_by_zero {};
             if (numerator == 0) return fraction {Z {0}, nonzero<N> {N {1u}}};
@@ -163,24 +163,26 @@ namespace data::math {
         }
     };
 
-    template <Integer Z>
+    template <Integer Z, typename N>
     struct over<complex<Z>, N> {
-        using N = typename fraction<Z>::N;
         fraction<complex<Z>, N> operator () (const complex<Z> &numerator, const N &denominator);
         fraction<complex<Z>, N> operator () (const complex<Z> &numerator, const complex<Z> &denominator);
     };
 
-    template <Integer Z>
+    template <Integer Z, typename N>
     struct over<quaternion<Z>, N> {
         fraction<quaternion<Z>, N> operator () (const quaternion<Z> &numerator, const N &denominator);
         fraction<quaternion<Z>, N> operator () (const quaternion<Z> &numerator, const quaternion<Z> &denominator);
     };
 
-    template <Integer Z>
+    template <Integer Z, typename N>
     struct over<octonion<Z>, N> {
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const N &denominator);
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const octonion<Z> &denominator);
     };
+}
+
+namespace data::math {
 
     template <typename Z, typename N>
     std::ostream inline &operator << (std::ostream &o, const fraction<Z, N> &x) {
@@ -274,7 +276,7 @@ namespace data::math {
 
     template <typename Z, typename N>
     fraction<Z, N> inline operator + (const fraction<Z, N> &a, const fraction<Z, N> &b) {
-        return over<Z, N> {} (b.Numerator * a.Denominator.Value + a.Numerator * b.Denominator.Value,
+        return def::over<Z, N> {} (b.Numerator * a.Denominator.Value + a.Numerator * b.Denominator.Value,
             Z (a.Denominator.Value * b.Denominator.Value));
     }
 
@@ -288,7 +290,7 @@ namespace data::math {
         return fraction<Z> {a.Numerator * b.Numerator, Z (a.Denominator.Value * b.Denominator.Value)};
     }
 
-    template <integral_domain Z> fraction<Z, N> operator / (const fraction<Z, N> &a, const fraction<Z, N> &b) {
+    template <typename Z, typename N> fraction<Z, N> operator / (const fraction<Z, N> &a, const fraction<Z, N> &b) {
         return a * def::inverse<def::times<fraction<Z>>, fraction<Z>> {} (nonzero {b}).Value;
     }
 
