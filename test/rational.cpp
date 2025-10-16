@@ -24,8 +24,10 @@ namespace data {
 
     template <typename Q> void test_arithmetic () {}
 
-    template <Integer Z>
-    struct test_fraction {
+    template <Integer num, typename denum>
+    requires requires (const num &z, const num &n) {
+        { over<num, denum> (z, n) } -> Same<math::fraction<num, denum>>;
+    } struct test_fraction {
         void operator () () {
             using Q = math::fraction<Z>;
 
@@ -40,28 +42,46 @@ namespace data {
         }
     };
 
-    // TODO typed test
+    template <typename tuple>
+    struct RationalFraction : ::testing::Test {
+        using numerator = typename std::tuple_element<0, tuple>::type;
+        using denominator = typename std::tuple_element<1, tuple>::type;
+    };
 
-    TEST (FractionTest, TestFraction) {
+    using test_cases = ::testing::Types<
+        tuple<int64, int64>,
+        tuple<int64_little, int64_little>,
+        tuple<int64_big, int64_big>,
+        tuple<int80, int80>,
+        tuple<int80_little, int80_little>,
+        tuple<int80_big, int80_big>,
+        tuple<int128, int128>,
+        tuple<int128_little, int128_little>,
+        tuple<int128_big, int128_big>,
+        tuple<Z, N>,
+        tuple<Z_bytes_little, N_bytes_big>,
+        tuple<Z_bytes_big, N_bytes_big>,
+        tuple<Z_bytes_BC_little, Z_bytes_BC_little>,
+        tuple<Z_bytes_BC_big, Z_bytes_BC_big>,
+        tuple<math::Z_bytes<endian::little, unsigned short>, math::N_bytes<endian::little, unsigned short>>,
+        tuple<math::Z_bytes<endian::big, unsigned int>, math::N_bytes<endian::big, unsigned int>>,
+        tuple<math::Z_bytes<endian::little, unsigned long>, math::N_bytes<endian::little, unsigned long>>,
+        tuple<math::Z_bytes<endian::big, unsigned long long>, math::N_bytes<endian::big, unsigned long long>>,
+        tuple<math::Z_bytes_BC<endian::big, unsigned short>, math::Z_bytes_BC<endian::big, unsigned short>>,
+        tuple<math::Z_bytes_BC<endian::little, unsigned int>, math::Z_bytes_BC<endian::little, unsigned int>>,
+        tuple<math::Z_bytes_BC<endian::big, unsigned long>, math::Z_bytes_BC<endian::big, unsigned long>>,
+        tuple<math::Z_bytes_BC<endian::little, unsigned long long>, math::Z_bytes_BC<endian::little, unsigned long long>>,
+        tuple<dec_int, dec_uint>,
+        tuple<hex_int, hex_uint>,
+        tuple<hex_int_BC, hex_int_BC>>;
 
-        test_fraction<int64> {} ();
-        test_fraction<Z> {} ();
-        test_fraction<Z_bytes_little> {} ();
-        test_fraction<Z_bytes_big> {} ();
-        test_fraction<Z_bytes_BC_big> {} ();
-        test_fraction<Z_bytes_BC_little> {} ();
-        test_fraction<int_big<9>> {} ();
-        test_fraction<int_little<9>> {} ();
-        test_fraction<int_big<10>> {} ();
-        test_fraction<int_little<10>> {} ();
-        test_fraction<int_big<11>> {} ();
-        test_fraction<int_little<11>> {} ();
-        test_fraction<int_big<12>> {} ();
-        test_fraction<int_little<12>> {} ();
-        test_fraction<dec_int> {} ();
-        test_fraction<hex_int> {} ();
-        test_fraction<hex_int_BC> {} ();
+    TYPED_TEST_SUITE (RationalFraction, test_cases);
 
+    TYPED_TEST (RationalFraction, TestType) {
+        using denominator = typename TestFixture::denominator;
+        using numerator = typename TestFixture::numerator;
+
+        test_fraction<numerator, denominator> {} ();
     }
 
 }
