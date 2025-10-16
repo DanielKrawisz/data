@@ -44,7 +44,7 @@ namespace data::math {
     template <typename Z, typename N> fraction<Z, N> operator - (const fraction<Z, N> &, const fraction<Z, N> &);
     template <typename Z, typename N> fraction<Z, N> operator * (const fraction<Z, N> &, const fraction<Z, N> &);
 
-    template <typename Z, typename N> fraction<Z, N> operator / (const fraction<Z, N> &, const nonzero<fraction<Z, N>> &);
+    template <typename Z, typename N> fraction<Z, N> operator / (const fraction<Z, N> &, const fraction<Z, N> &);
 
     namespace def {
         template <Ordered Z, Ordered N> struct sign<fraction<Z, N>> {
@@ -152,7 +152,7 @@ namespace data {
 
 namespace data::math {
 
-    template <signed_integral Z> struct over<Z, N> {
+    template <Integer Z> struct over<Z, N> {
         fraction<Z, N> operator () (const Z &numerator, const Z &denominator) {
             if (denominator == 0) throw division_by_zero {};
             if (numerator == 0) return fraction {Z {0}, nonzero<N> {N {1u}}};
@@ -163,20 +163,20 @@ namespace data::math {
         }
     };
 
-    template <signed_integral Z>
+    template <Integer Z>
     struct over<complex<Z>, N> {
         using N = typename fraction<Z>::N;
         fraction<complex<Z>, N> operator () (const complex<Z> &numerator, const N &denominator);
         fraction<complex<Z>, N> operator () (const complex<Z> &numerator, const complex<Z> &denominator);
     };
 
-    template <signed_integral Z>
+    template <Integer Z>
     struct over<quaternion<Z>, N> {
         fraction<quaternion<Z>, N> operator () (const quaternion<Z> &numerator, const N &denominator);
         fraction<quaternion<Z>, N> operator () (const quaternion<Z> &numerator, const quaternion<Z> &denominator);
     };
 
-    template <signed_integral Z>
+    template <Integer Z>
     struct over<octonion<Z>, N> {
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const N &denominator);
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const octonion<Z> &denominator);
@@ -199,7 +199,7 @@ namespace data::math {
     template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
-    template <Ordered Z>
+    template <Ordered Z, Ordered N>
     auto inline operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y) {
         return x.Numerator * static_cast<Z> (y.Denominator.Value) <=> static_cast<Z> (y.Numerator * x.Denominator.Value);
     }
@@ -226,7 +226,7 @@ namespace data::math::def {
         nonzero<fraction<Z, N>> operator () (const nonzero<fraction<Z, N>> &x) const {
             if (x.Value.Numerator == 0) throw division_by_zero {};
             return nonzero {fraction<Z, N> {
-                Z (x.Value.Denominator.Value) * data::sign (x.Value.Numerator),
+                Z (x.Value.Denominator.Value) * static_cast<int> (data::sign (x.Value.Numerator)),
                 nonzero {data::abs (x.Value.Numerator)}}};
         }
 

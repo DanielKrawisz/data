@@ -139,25 +139,29 @@ namespace data {
 namespace data {
 
     static_assert (unsigned_integral<N>);
-    static_assert (integral_system<Z, N>);
+    static_assert (number_system<Z, N>);
 
     static_assert (unsigned_integral<N_bytes_little>);
     static_assert (unsigned_integral<N_bytes_big>);
 
-    static_assert (integral_system<Z_bytes_little, N_bytes_little>);
-    static_assert (integral_system<Z_bytes_big, N_bytes_big>);
-    static_assert (proto_number_system<Z_bytes_BC_little>);
-    static_assert (proto_number_system<Z_bytes_BC_big>);
+    static_assert (number_system<Z_bytes_little, N_bytes_little>);
+    static_assert (number_system<Z_bytes_big, N_bytes_big>);
+    static_assert (Integer<Z_bytes_BC_little>);
+    static_assert (Integer<Z_bytes_BC_big>);
+    static_assert (number_system<Z_bytes_BC_little>);
+    static_assert (number_system<Z_bytes_BC_big>);
+
+    static_assert (integral_system<int128, uint128>);
 
     static_assert (unsigned_integral<dec_uint>);
-    static_assert (integral_system<dec_int, dec_uint>);
+    static_assert (number_system<dec_int, dec_uint>);
 
     static_assert (unsigned_integral<hex_uint>);
-    static_assert (integral_system<hex_int, hex_uint>);
+    static_assert (number_system<hex_int, hex_uint>);
 
-    static_assert (proto_number_system<hex_int_BC>);
+    static_assert (Integer<hex_int_BC>);
 
-    //static_assert (unsigned_integral<base58_uint>);
+    static_assert (unsigned_integral<base58_uint>);
 
 }
 

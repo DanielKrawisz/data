@@ -265,32 +265,10 @@ namespace data {
         };
 
     template <typename N> concept basic_arithmetic_signed =
-        basic_arithmetic<N> /*&& requires (const N &a) {
-            { a + 0 } -> ImplicitlyConvertible<N>;
-            { a - 0 } -> ImplicitlyConvertible<N>;
-            { a * 0 } -> ImplicitlyConvertible<N>;
-            { 0 + a } -> ImplicitlyConvertible<N>;
-            { 0 - a } -> ImplicitlyConvertible<N>;
-            { 0 * a } -> ImplicitlyConvertible<N>;
-        } && requires (N &a) {
-            { a += 0 } -> Same<N &>;
-            { a -= 0 } -> Same<N &>;
-            { a *= 0 } -> Same<N &>;
-        }*/;
+        basic_arithmetic<N> && ring_algebraic_signed<N>;
 
     template <typename N> concept basic_arithmetic_unsigned =
-        basic_arithmetic<N> /*&& requires (const N &a) {
-            { a + 0u } -> ImplicitlyConvertible<N>;
-            { a - 0u } -> ImplicitlyConvertible<N>;
-            { a * 0u } -> ImplicitlyConvertible<N>;
-            { 0u + a } -> ImplicitlyConvertible<N>;
-            { 0u - a } -> ImplicitlyConvertible<N>;
-            { 0u * a } -> ImplicitlyConvertible<N>;
-        } && requires (N &a) {
-            { a += 0u } -> Same<N &>;
-            { a -= 0u } -> Same<N &>;
-            { a *= 0u } -> Same<N &>;
-        }*/;
+        basic_arithmetic<N> && ring_algebraic_unsigned<N>;
 
     // add division
     template <typename NN> concept basic_arithmetic_big_unsigned =
@@ -443,8 +421,8 @@ namespace data {
     template <typename NN> concept natural_number_big =
         natural_number<NN> && basic_number_big_unsigned<NN>;
 
-    static_assert (ring_integral_system<Z, N>);
-    static_assert (ring_integral_system<dec_int, dec_uint>);
+    static_assert (ring_number_system<Z, N>);
+    static_assert (ring_number_system<dec_int, dec_uint>);
 
     static_assert (natural_number_big<N>);
     static_assert (natural_number_big<N_bytes_little>);
@@ -528,7 +506,7 @@ namespace data {
     // TODO need a basic arithmetic system to say
     // that the result of adding a signed and unsigned number
     // will be signed, etc.
-    template <typename N, typename Z> concept number_system =
+    template <typename N, typename Z> concept pure_number_system =
         natural_number<N> && basic_number<Z> &&
         Unsigned<N> && Signed<Z> &&
         hetero_abs_and_negate<N, Z> && modable<Z, N> &&
@@ -543,11 +521,11 @@ namespace data {
         };
 
     template <typename N, typename Z> concept bytes_number_system =
-        number_system<N, Z> && bit_arithmetic<N> && complete_bit_arithmetic<Z> &&
+        pure_number_system<N, Z> && bit_arithmetic<N> && complete_bit_arithmetic<Z> &&
         bit_negate_arithmetic<N, Z>;
 
     static_assert (bytes_number_system<N, Z>);
-    static_assert (number_system<dec_uint, dec_int>);
+    static_assert (pure_number_system<dec_uint, dec_int>);
     static_assert (bytes_number_system<hex_uint, hex_int>);
     static_assert (bytes_number_system<N_bytes_little, Z_bytes_little>);
     static_assert (bytes_number_system<N_bytes_big, Z_bytes_big>);

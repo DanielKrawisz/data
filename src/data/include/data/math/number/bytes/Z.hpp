@@ -650,6 +650,14 @@ namespace data::math::def {
         arithmetic::bit_and<word> (bb.end (), bb.begin (), const_cast<const decltype (bb) &> (bb).begin (), a.begin ());
         return bb;
     }
+
+    template <endian::order r, std::unsigned_integral word>
+    math::Z_bytes_BC<r, word> inline div_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &z) {
+        if (z < 0) -data::div_2 (-z);
+        auto x = z;
+        x.words ().bit_shift_right (1);
+        return x.trim ();
+    }
     
 }
 
