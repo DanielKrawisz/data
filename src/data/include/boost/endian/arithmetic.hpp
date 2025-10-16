@@ -266,6 +266,46 @@ public:
         return this->value();
     }
 
+    BOOST_CONSTEXPR endian_arithmetic operator-() const BOOST_NOEXCEPT
+    {
+        return endian_arithmetic (-this->value());
+    }
+
+    template <std::integral I>
+    BOOST_CONSTEXPR auto operator+(I y) const BOOST_NOEXCEPT
+    {
+        auto result = this->value() + y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
+    template <std::integral I>
+    BOOST_CONSTEXPR auto operator-(I y) const BOOST_NOEXCEPT
+    {
+        auto result = this->value() - y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
+    template <std::integral I>
+    BOOST_CONSTEXPR auto operator*(I y) const BOOST_NOEXCEPT
+    {
+        auto result = this->value() * y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
+    template <std::integral I>
+    BOOST_CONSTEXPR auto operator/(I y) const BOOST_NOEXCEPT
+    {
+        auto result = this->value() / y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
+    template <std::integral I>
+    BOOST_CONSTEXPR auto operator%(I y) const BOOST_NOEXCEPT
+    {
+        auto result = this->value() % y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
     BOOST_CONSTEXPR endian_arithmetic& operator+=( T y ) BOOST_NOEXCEPT
     {
         *this = static_cast<T>( this->value() + y );
@@ -372,6 +412,7 @@ public:
 
         return is;
     }
+
 };
 
 } // namespace endian

@@ -110,9 +110,9 @@ namespace data {
     };
 
     using test_cases = ::testing::Types<
-        byte, int8,
-        uint16, uint16_little, uint16_big,
-        int16, int16_little, int16_big,
+        byte, int8, uint16, int16,
+        uint16_little, uint16_big,
+        int16_little, int16_big,
         uint32, uint32_little, uint32_big,
         int32, int32_little, int32_big,
         uint64, uint64_little, uint64_big,
