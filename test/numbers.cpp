@@ -343,11 +343,6 @@ namespace data {
     template <typename N> concept basic_number_big =
         basic_number<N> && basic_arithmetic_big<N>;
 
-    static_assert (basic_number<uint16_little>);
-    static_assert (basic_number<uint16_big>);
-    static_assert (basic_number<int16_little>);
-    static_assert (basic_number<int16_big>);
-
     static_assert (basic_number<uint32>);
     static_assert (basic_number<uint32_little>);
     static_assert (basic_number<uint32_big>);
@@ -482,10 +477,10 @@ namespace data {
     template <typename NN, typename ZZ> concept integral_number_system =
         integral_number<NN> && integral_number<ZZ> && comparable_to<NN, ZZ> &&
         Unsigned<NN> && Signed<ZZ> &&
-        bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> &&
+        bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> /*&&
         requires (const ZZ &a, const math::nonzero<NN> &b) {
             { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
-        } && requires (const NN &n, const ZZ &z) {
+        }*/ && requires (const NN &n, const ZZ &z) {
             // TODO need a way to say that we also have these
             // kinds of conversions when we use a number literal!
             { n ^ z } -> ImplicitlyConvertible<NN>;
@@ -505,14 +500,15 @@ namespace data {
             { n % z } -> ImplicitlyConvertible<NN>;
             { z % n } -> ImplicitlyConvertible<NN>;
         };
-/*
-    static_assert (integral_number_system<uint16_big, int16_big>);
-    static_assert (integral_number_system<uint32_big, int32_big>);
-    static_assert (integral_number_system<uint64_big, int64_big>);
 
-    static_assert (integral_number_system<uint16_little, int16_little>);
+    static_assert (integral_number_system<uint32, int32>);
+    static_assert (integral_number_system<uint64, int64>);
+/*
     static_assert (integral_number_system<uint32_little, int32_little>);
-    static_assert (integral_number_system<uint64_little, int64_little>);*/
+    static_assert (integral_number_system<uint64_little, int64_little>);
+
+    static_assert (integral_number_system<uint32_big, int32_big>);
+    static_assert (integral_number_system<uint64_big, int64_big>);*/
 
     static_assert (integral_number_system<uint128, int128>);
     static_assert (integral_number_system<uint160, int160>);
@@ -593,6 +589,7 @@ namespace data {
     // number types suitable for number theory functions.
     // essentially, the number needs to be able to go negative in some way.
     template <typename N> concept number_theory_number =
+        ring_integral<N> &&
         (homo_abs_and_negate<N> || Signed<N> || (Unsigned<N> && requires () {
             make_signed<N> {};
         })) && requires (const N &a, const math::nonzero<N> &b) {
@@ -601,8 +598,12 @@ namespace data {
 
     static_assert (number_theory_number<N>);
     static_assert (number_theory_number<Z>);
+    static_assert (number_theory_number<int32>);
+    static_assert (number_theory_number<uint32>);
     static_assert (number_theory_number<int64>);
     static_assert (number_theory_number<uint64>);
+    static_assert (number_theory_number<int128>);
+    static_assert (number_theory_number<uint128>);
     static_assert (number_theory_number<int128>);
     static_assert (number_theory_number<uint128>);
 

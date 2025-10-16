@@ -315,6 +315,51 @@ namespace data::math::def {
             return static_cast<X> (a ^ b);
         }
     };
+
+    template <std::integral X> struct mod<X> {
+        constexpr auto operator () (const X &x, const nonzero<X> &n) const {
+            return static_cast<X> (x % n.Value);
+        }
+    };
+
+    template <typename A, typename Mod> struct negate_mod {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
+            return x >= 0 && x < n.Value ?
+            data::mod (n.Value - x, n):
+            data::mod (n.Value - data::mod (x, n), n);
+        }
+    };
+
+    template <typename A, typename Mod> struct mul_2_mod {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
+            return data::mod (data::mul_2 (x), n);
+        }
+    };
+
+    template <typename A, typename B, typename Mod> struct plus_mod {
+        constexpr auto operator () (const A &x, const B &y, const math::nonzero<Mod> &n) const {
+            return data::mod (data::plus (x, y), n);
+        }
+    };
+
+    template <typename A, typename B, typename Mod> struct minus_mod {
+        constexpr auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
+            return data::mod (data::minus (x, y), n);
+        }
+    };
+
+    template <typename A, typename Mod> struct square_mod {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
+            return data::mod (data::square (x), n);
+        }
+    };
+
+    // note: should have a special case for integral that uses twice.
+    template <typename A, typename B, typename Mod> struct times_mod {
+        constexpr auto operator () (A a, B b, nonzero<Mod> n) {
+            return data::mod (a * b, n);
+        }
+    };
 }
 
 #endif

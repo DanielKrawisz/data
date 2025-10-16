@@ -86,9 +86,9 @@ namespace data::math::number {
     constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
         maybe<decltype (divmod (x, mod).Remainder)> {
         if (mod.Value < 0) throw exception {} << "mod by negative number";
-        using return_type = decltype (divmod (x, mod).Remainder);
-        auto proof = number::euclidian::extended<return_type>::algorithm
-            (return_type (mod.Value), divmod (x, mod).Remainder);
+        using remainder_type = decltype (divmod (x, mod).Remainder);
+        auto proof = number::euclidian::extended<remainder_type, Z>::algorithm
+            (remainder_type (mod.Value), divmod (x, mod).Remainder);
         if (proof.GCD != 1) return {};
         return def::divmod<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
     }
