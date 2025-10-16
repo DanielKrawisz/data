@@ -12,7 +12,7 @@
 
 namespace data::math::number::euclidian {
     template <ring_integral N, ring_integral Z = decltype (data::negate (std::declval<N> ()))>
-    requires ring_integral_system<Z, N> || Same<Z, N>
+    requires ring_number_system<Z, N> || Same<Z, N>
     struct extended;
 }
 
@@ -21,7 +21,8 @@ namespace data::math {
 }
 
 namespace data::math::number::euclidian {
-    template <ring_integral N, ring_integral Z> requires ring_integral_system<Z, N> || Same<Z, N>
+    template <ring_integral N, ring_integral Z>
+    requires ring_number_system<Z, N> || Same<Z, N>
     struct extended {
         N GCD;
         Z BezoutS;

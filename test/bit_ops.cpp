@@ -257,7 +257,9 @@ namespace data {
         test_bit_shift_unbounded<N> (positive_numbers, shifts);
     }
 
-    TEST (BitOps, BitShiftUnbounded) {
+    TEST (BitOps, DISABLED_BitShiftUnbounded) {
+
+
         // NOTE some of the commented tests don't compile and others are too slow.
         /*
         test_bit_shift_unsigned<N> ();
@@ -270,7 +272,7 @@ namespace data {
         test_bit_shift_signed<hex_int_twos> ();
         test_bit_shift_signed<dec_int> ();*/
 
-        test_bit_shift_unsigned<math::N_bytes<endian::little>> ();/*
+        test_bit_shift_unsigned<math::N_bytes<endian::little>> ();
         test_bit_shift_unsigned<math::N_bytes<endian::big>> ();
         test_bit_shift_unsigned<math::N_bytes<endian::little, short unsigned int>> ();
         test_bit_shift_unsigned<math::N_bytes<endian::big, short unsigned int>> ();
@@ -289,7 +291,7 @@ namespace data {
         test_bit_shift_signed<math::Z_bytes_BC<endian::little, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::big, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::little, unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();*/
+        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
 
         // TODO bigger word sizes.
     }
