@@ -231,6 +231,8 @@ namespace data::encoding {
         // all valid decimal strings are uniquely associated with
         // a natural number, so we can use a strong ordering. 
         std::strong_ordering operator <=> (const string &, const string &);
+        std::strong_ordering operator <=> (const decimal::string &, const string &);
+        std::strong_ordering operator <=> (const string &, const decimal::string &);
         
         string &operator ++ (string &);
         string &operator -- (string &);

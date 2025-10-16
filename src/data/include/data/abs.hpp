@@ -173,12 +173,18 @@ namespace data::math::def {
     template <std::signed_integral A> struct negate<A> {
         constexpr A operator () (const A &x) const {
             if (x == std::numeric_limits<A>::min ()) throw exception {} << "invalid negate value " << x;
-            return -x;
+            return static_cast<A> (-x);
+        }
+    };
+
+    template <std::unsigned_integral A> struct negate<A> {
+        constexpr A operator () (const A &x) const {
+            return static_cast<A> (-x);
         }
     };
 
     template <typename A>
-    requires (!std::signed_integral<A>) &&
+    requires (!std::integral<A>) &&
     requires (const A &x) {
         { -x };
     } struct negate<A> {
