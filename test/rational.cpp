@@ -4,20 +4,27 @@
 
 #include "data/numbers.hpp"
 #include "data/math/fraction.hpp"
-#include "data/math.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
 
     template <typename Q> void test_divide_by_zero () {
 
+        EXPECT_THROW (Q {1} / Q {0}, math::division_by_zero);
+
     }
 
-    template <typename Q> void test_lowest_terms () {}
+    template <typename Q> void test_lowest_terms () {
+
+        EXPECT_EQ (Q {14} / Q {6}, Q {7} / Q {3});
+
+    }
+
     template <typename Q> void test_compare () {}
+
     template <typename Q> void test_arithmetic () {}
 
-    template <math::ring Z>
+    template <Integer Z>
     struct test_fraction {
         void operator () () {
             using Q = math::fraction<Z>;
@@ -37,7 +44,7 @@ namespace data {
 
     TEST (FractionTest, TestFraction) {
 
-        //test_fraction<int64> {} ();
+        test_fraction<int64> {} ();
         test_fraction<Z> {} ();
         test_fraction<Z_bytes_little> {} ();
         test_fraction<Z_bytes_big> {} ();

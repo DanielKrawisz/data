@@ -100,26 +100,24 @@ namespace data::math {
     concept abs_unsigned =
         has_abs_unsigned<A>::value && !has_negate<A>;
 
-    template <typename A, typename = void>
-    struct has_make_signed : std::false_type {};
+    template <typename A>
+    concept has_make_signed = requires () {
+        typename make_signed<A>::type;
+    };
 
     template <typename A>
-    struct has_make_signed<A, std::void_t<typename make_signed<A>::type>> : std::true_type {};
-
-    template <typename A, typename = void>
-    struct has_make_unsigned : std::false_type {};
-
-    template <typename A>
-    struct has_make_unsigned<A, std::void_t<typename make_unsigned<A>::type>> : std::true_type {};
+    concept has_make_unsigned = requires () {
+        typename make_unsigned<A>::type;
+    };
 }
 
 namespace data {
 
     template <typename A> concept Signed =
-        Same<A, to_signed<A>> && (!Same<A, to_unsigned<A>> || !math::has_make_unsigned<A>::value);
+        Same<A, to_signed<A>> && (!Same<A, to_unsigned<A>> || !math::has_make_unsigned<A>);
 
     template <typename A> concept Unsigned =
-        Same<A, to_unsigned<A>> && (!Same<A, to_signed<A>> || !math::has_make_signed<A>::value);
+        Same<A, to_unsigned<A>> && (!Same<A, to_signed<A>> || !math::has_make_signed<A>);
 
     // this won't cover all possibilities. For some kinds of numbers, we will simply have to set these.
     template <math::abs_and_negate_signed X>
