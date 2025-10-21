@@ -204,9 +204,7 @@ namespace data {
         for (const string &number_string: numbers) {
 
             N number = N {number_string};
-            std::cout << "  shift number " << number << std::endl;
             for (int32 shift : shifts) {
-                std::cout << "    by " << shift << std::endl;
                 N expected_left = nest ([] (const N &n) {
                     return n * 2;
                 }, number, shift);
@@ -214,8 +212,6 @@ namespace data {
                 N expected_right = nest ([] (const N &n) {
                     return n / 2;
                 }, number, shift);
-                std::cout << "    expected shift right: " << expected_right << std::endl;
-                wait_for_enter ();
 
                 //auto computed_left = number << shift;
                 auto computed_right = number >> shift;
@@ -257,8 +253,8 @@ namespace data {
         test_bit_shift_unbounded<N> (positive_numbers, shifts);
     }
 
-    TEST (BitOps, DISABLED_BitShiftUnbounded) {
-
+    // TODO make this a typed test.
+    TEST (BitOps, BitShiftUnbounded) {
 
         // NOTE some of the commented tests don't compile and others are too slow.
         /*
