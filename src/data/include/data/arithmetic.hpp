@@ -12,9 +12,6 @@
 namespace data {
 
     // basic arithmetic
-    template <typename A> constexpr bool even (const A &);
-    template <typename A> constexpr bool odd (const A &);
-
     template <typename A, typename B> constexpr auto plus (const A &, const B &);
     template <typename A, typename B> constexpr auto minus (const A &, const B &);
     template <typename A, typename B> constexpr auto times (const A &, const B &);
@@ -27,6 +24,9 @@ namespace data {
 
     template <typename dividend, typename divisor>
     constexpr bool divides (const dividend &a, const math::nonzero<divisor> &b);
+
+    template <typename A> constexpr bool even (const A &);
+    template <typename A> constexpr bool odd (const A &);
 
     // modular arithmetic
     template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
@@ -82,14 +82,20 @@ namespace data {
     template <typename A, typename Mod = A> constexpr auto invert_mod (const A &, const math::nonzero<Mod> &);
 
     // count digits in a number.
-    template <typename A> size_t constexpr digits_base_2 (const A &);
+    template <typename A> size_t constexpr size_in_base_2 (const A &);
+
+    template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
+
+    template <typename A> constexpr auto mul_2 (const A &x) {
+        return mul_2_pow (x, 1);
+    }
 
 }
 
 namespace data::math::def {
-    template <typename A> struct digits_base_2;
+    template <typename A, uint32 base> struct size_in_base;
 
-    template <typename A> struct mul_2;
+    template <typename A> struct mul_2_pow;
     template <typename A> struct div_2;
     template <typename A> struct mod_2;
 
@@ -134,16 +140,16 @@ namespace data::math::def {
 
 namespace data {
 
-    template <typename A> constexpr size_t inline digits_base_2 (const A &x) {
-        return math::def::digits_base_2<A> {} (x);
+    template <typename A> constexpr size_t inline size_in_base_2 (const A &x) {
+        return math::def::size_in_base<A, 2> {} (x);
     }
 
     template <typename A> constexpr auto inline square (const A &x) {
         return math::def::square<A> {} (x);
     }
 
-    template <typename A> constexpr auto inline mul_2 (const A &x) {
-        return math::def::mul_2<A> {} (x);
+    template <typename A> constexpr auto inline mul_2_pow (const A &x, uint32 u) {
+        return math::def::mul_2_pow<A> {} (x, u);
     }
 
     template <typename A> constexpr auto inline div_2 (const A &x) {
@@ -290,8 +296,16 @@ namespace data::math::def {
     // we don't have a similar definition for bit xor because sometimes
     // people use ^ for power instead.
 
-    template <std::unsigned_integral X> struct digits_base_2<X> {
-        constexpr size_t operator () (X);
+    template <std::unsigned_integral X> struct size_in_base<X, 2> {
+        constexpr size_t operator () (X x) {
+            return std::bit_width (x);
+        }
+    };
+
+    template <std::signed_integral X> struct size_in_base<X, 2> {
+        constexpr size_t operator () (X x) {
+            return std::bit_width (static_cast<std::make_signed_t<X>> (x));
+        }
     };
 
     template <std::integral X> struct times<X, X> {

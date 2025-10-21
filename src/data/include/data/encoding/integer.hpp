@@ -802,8 +802,8 @@ namespace data::math::def {
         hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
     };
 
-    template <hex_case zz> struct mul_2<hex::intBC<zz>> {
-        hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    template <hex_case zz> struct mul_2_pow<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &, uint32 u);
     };
 
     template <hex_case zz> struct div_2<hex::intBC<zz>> {
@@ -1341,6 +1341,30 @@ namespace data::encoding::decimal {
     template <std::unsigned_integral I> string inline operator ^ (I x, const string &u) {
         return u ^ string {x};
     }
+
+    template <std::signed_integral I> inline signed_decimal::string operator | (const string &u, I x) {
+        return signed_decimal::string {u} | signed_decimal::string {x};
+    }
+
+    template <std::signed_integral I> inline signed_decimal::string operator & (const string &u, I x) {
+        return signed_decimal::string {u} & signed_decimal::string {x};
+    }
+
+    template <std::signed_integral I> inline signed_decimal::string operator ^ (const string &u, I x) {
+        return signed_decimal::string {u} ^ signed_decimal::string {x};
+    }
+
+    template <std::signed_integral I> inline signed_decimal::string operator | (I x, const string &u) {
+        return signed_decimal::string {u} | signed_decimal::string {x};
+    }
+
+    template <std::signed_integral I> inline signed_decimal::string operator & (I x, const string &u) {
+        return signed_decimal::string {u} & signed_decimal::string {x};
+    }
+
+    template <std::signed_integral I> inline signed_decimal::string operator ^ (I x, const string &u) {
+        return signed_decimal::string {u} ^ signed_decimal::string {x};
+    }
     
 }
 
@@ -1659,6 +1683,36 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case cx, std::unsigned_integral I>
     integer<neg::nones, cx> inline operator & (const integer<neg::nones, cx> &u, I x) {
         return u & integer<neg::nones, cx> {x};
+    }
+
+    template <hex::letter_case cx, std::signed_integral I>
+    integer<neg::twos, cx> inline operator | (const integer<neg::nones, cx> &x, I u) {
+        return integer<neg::twos, cx> {x} | integer<neg::twos, cx> {u};
+    }
+
+    template <hex::letter_case cx, std::signed_integral I>
+    integer<neg::twos, cx> inline operator & (const integer<neg::nones, cx> &x, I u) {
+        return integer<neg::twos, cx> {x} & integer<neg::twos, cx> {u};
+    }
+
+    template <hex::letter_case cx, std::signed_integral I>
+    integer<neg::twos, cx> inline operator ^ (const integer<neg::nones, cx> &x, I u) {
+        return integer<neg::twos, cx> {x} ^ integer<neg::twos, cx> {u};
+    }
+
+    template <std::signed_integral I, hex::letter_case cx>
+    integer<neg::twos, cx> inline operator | (I u, const integer<neg::nones, cx> &x) {
+        return integer<neg::twos, cx> {x} | integer<neg::twos, cx> {u};
+    }
+
+    template <std::signed_integral I, hex::letter_case cx>
+    integer<neg::twos, cx> inline operator & (I u, const integer<neg::nones, cx> &x) {
+        return integer<neg::twos, cx> {x} & integer<neg::twos, cx> {u};
+    }
+
+    template <std::signed_integral I, hex::letter_case cx>
+    integer<neg::twos, cx> inline operator ^ (I u, const integer<neg::nones, cx> &x) {
+        return integer<neg::twos, cx> {x} ^ integer<neg::twos, cx> {u};
     }
     
 } 
@@ -2557,6 +2611,15 @@ namespace data::encoding::hexidecimal {
             bit_xor (n, a, math::number::extend (b, a.size ()));
             return n;
         }
+
+        template <hex::letter_case zz>
+        integer<neg::nones, zz> bit_xor (const integer<neg::nones, zz> &a, const integer<neg::nones, zz> &b) {
+            if (a.size () < b.size ()) return bit_xor (b, a);
+            integer<neg::nones, zz> n {};
+            n.resize (a.size ());
+            bit_xor (n, a, math::number::extend (b, a.size ()));
+            return n;
+        }
         
         template <hex::letter_case zz> 
         integer<neg::nones, zz> inline bit_shift (const integer<neg::nones, zz> &x, int i) {
@@ -2957,15 +3020,15 @@ namespace data::math::def {
     }
 
     template <hex_case zz>
-    hex::intBC<zz> mul_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
-        if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, 1)};
-        return hex::intBC<zz> {encoding::hexidecimal::shift (-x, 1)};
+    hex::intBC<zz> mul_2_pow<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x, uint32 u) {
+        if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
+        return hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
     }
 
     template <hex_case zz>
     hex::intBC<zz> div_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
         if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, -1)};
-        return hex::intBC<zz> {encoding::hexidecimal::shift (-x, -1)};
+        return hex::intBC<zz> {encoding::hexidecimal::shift (x, -1)};
     }
 
     template <hex_case zz>

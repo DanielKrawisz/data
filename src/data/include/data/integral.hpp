@@ -120,7 +120,7 @@ namespace data {
 
     template <typename A> concept proto_unsigned =
         proto_number<A> && Unsigned<A> && requires (const A &n) {
-            { digits_base_2 (n) } -> Same<size_t>;
+            { size_in_base_2 (n) } -> Same<size_t>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
@@ -129,7 +129,7 @@ namespace data {
         requires (const Z &a) {
             { negate (abs (a)) } -> Same<Z>;
         } && requires (const N &a) {
-            { digits_base_2 (a) } -> Same<size_t>;
+            { size_in_base_2 (a) } -> Same<size_t>;
             { negate (a) };
         } && comparable_to<Z, N>;
 
@@ -384,8 +384,8 @@ namespace data {
 
 namespace data::math {
     // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <proto_bit_number A> constexpr A inline bit_mul_2 (const A &x) {
-        return x << 1;
+    template <proto_bit_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 u) {
+        return x << u;
     }
 
     template <proto_bit_unsigned A> constexpr A inline bit_div_2 (const A &x) {
@@ -475,9 +475,9 @@ namespace data::math::def {
         }
     };
 
-    template <proto_bit_number X> struct mul_2<X> {
-        constexpr X operator () (const X &x) {
-            return bit_mul_2 (x);
+    template <proto_bit_number X> struct mul_2_pow<X> {
+        constexpr X operator () (const X &x, uint32 pow) {
+            return bit_mul_2_pow (x, pow);
         }
     };
 

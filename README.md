@@ -1,5 +1,11 @@
 # data
-Tools and high-level programming constructs in c++. See [the standard](doc/standard.md) for all supported features and how to use them. 
+
+Tools and high-level programming constructs in c++. 
+
+See [the standard](doc/standard.md) for all supported features and how to use them. 
+The standard will be gradually improved as we work toward a beta version.
+
+Current version is 0.0.33 alpha.
 
 ## Features 
 
@@ -10,18 +16,18 @@ Tools and high-level programming constructs in c++. See [the standard](doc/stand
     * tree
     * map
     * set
+    * priority queue
   * Functional programming
     * reduce
     * fold
     * for_each
     * map_thread
   * Mathematical types
+    * signed and unsigned int types of every size.
     * natural numbers
     * integers
     * rational numbers
-    * complex rationals
-    * rational quaternions
-    * rational octonions
+    * Caylay-Dickson rationals (complex, quaternion, and octonion)
     * prime fields
     * polynomials
     * permutations
@@ -35,9 +41,7 @@ Tools and high-level programming constructs in c++. See [the standard](doc/stand
     * SHA
     * RIPEMD160
     * NIST_DRBG 
-  * concurrency
-    * golang-style communication channel. 
-  * networking in a functional style.
+  * networking in a functional style with coroutines.
     * URLs
     * TCP
     * HTTP
@@ -51,10 +55,11 @@ Tools and high-level programming constructs in c++. See [the standard](doc/stand
   * OpenSSL
   * Rotella's implementation of AKS. (included)
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions (included)
+  * nlohmann/json (included)
   * Google test
 
 # Requirements
-  * GCC v13
+  * GCC v13+
   * Boost 
   * OpenSSL 
   * Crypto++
@@ -67,7 +72,7 @@ Tools and high-level programming constructs in c++. See [the standard](doc/stand
   * `cmake --build build`
   * `cmake --install build`
 
-# Version 1 progress
+# For version 1:
 
 This library is an alpha product. This is what is planned for version 1.
   * functional RB map algorithms
@@ -75,6 +80,13 @@ This library is an alpha product. This is what is planned for version 1.
     * merge
     * interction
     * complements
+  * list works more like Mathematica's List. 
+    * inner
+    * outer
+    * flatten
+    * riffle
+    * partition
+  * use size_in_base in the division algorithm.
   * Polynomial algorithms
     * minimal polynomials.
     * irreducible polynomial.
@@ -96,14 +108,3 @@ This library is an alpha product. This is what is planned for version 1.
     * run external programs
     * thread safe (multithreaded async lock)
     * Arbitrary p2p protocols
-  * list works more like Mathematica's List. 
-    * inner
-    * outer
-    * flatten
-    * riffle
-    * partition
-
-Version 2 will focus on organization and documentation. 
-  * optimizatons
-    * use NTL to hide GMP. 
-    * use NTL integer exponentiation. 
