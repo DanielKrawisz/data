@@ -454,6 +454,15 @@ namespace data::math::number {
     Z_bytes<r, neg::twos, word> inline operator & (I x, const Z_bytes<r, neg::twos, word> &u) {
         return u & Z_bytes<r, neg::twos, word> {x};
     }
+
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> inline operator & (const N_bytes<r, word> &u, I x) {
+        return Z_bytes<r, neg::twos, word> {x} & Z_bytes<r, neg::twos, word> {u};}
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> inline operator & (I x, const N_bytes<r, word> &u) {
+        return Z_bytes<r, neg::twos, word> {x} & Z_bytes<r, neg::twos, word> {u};
+    }
     
 }
 
@@ -614,8 +623,8 @@ namespace data::math::def {
     }
 
     template <endian::order r, std::unsigned_integral word>
-    math::Z_bytes_BC<r, word> inline mul_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &a) {
-        return a << 1;
+    math::Z_bytes_BC<r, word> inline mul_2_pow<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &a, uint32 u) {
+        return a << u;
     }
 
     template <endian::order r, std::unsigned_integral word>
@@ -1217,7 +1226,6 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator << (const N_bytes<r, word> &x, int i) {
-        std::cout << "    ++ shift N_bytes by " << i << std::endl;
         return trim (i < 0 ?
             shift_right (trim (x), static_cast<uint32> (-i)) :
             shift_left (trim (x), (i + 7) / 8, static_cast<uint32> (i)));

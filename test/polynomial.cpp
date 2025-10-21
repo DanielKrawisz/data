@@ -80,7 +80,8 @@ struct test_polynomial_division : test_polynomial<Z> {
     }
 };
 
-TEST (PolynomialTest, TestPolynomial) {
+// TODO typed test
+TEST (Polynomial, Polynomial) {
     
     test_polynomial<Z> {};
 

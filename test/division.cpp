@@ -9,6 +9,32 @@
 
 namespace data {
     template <typename N>
+    void test_size_in_base_2 () {
+        // TODO
+    }
+
+    template <typename Z, typename N>
+    void test_div_mod_2_positive () {
+        EXPECT_EQ (div_2 (Z {0}), Z {0});
+        EXPECT_EQ (mod_2 (Z {0}), N {0});
+        EXPECT_EQ (div_2 (Z {1}), Z {0});
+        EXPECT_EQ (mod_2 (Z {1}), N {1});
+        EXPECT_EQ (div_2 (Z {2}), Z {1});
+        EXPECT_EQ (mod_2 (Z {2}), N {0});
+        EXPECT_EQ (div_2 (Z {3}), Z {1});
+        EXPECT_EQ (mod_2 (Z {3}), N {1});
+    }
+
+    template <typename Z, typename N>
+    void test_div_mod_2 () {
+        test_div_mod_2_positive<Z, N> ();
+        EXPECT_EQ (div_2 (Z {-1}), Z {-1});
+        EXPECT_EQ (mod_2 (Z {-1}), N {1});
+        EXPECT_EQ (div_2 (Z {-2}), Z {-1});
+        EXPECT_EQ (mod_2 (Z {-2}), N {0});
+    }
+
+    template <typename N>
     void test_division_natural_case (const N &numerator, const N &denominator, const N &quotient, const N &remainder) {
 
         auto div = divmod (numerator, math::nonzero {denominator});
@@ -140,20 +166,58 @@ namespace data {
     TYPED_TEST_SUITE (SignedDivision, signed_test_cases);
     TYPED_TEST_SUITE (Division, test_cases);
 
-    TYPED_TEST (UnsignedDivision, TestType) {
+    TYPED_TEST (UnsignedDivision, SizeInBase2) {
+        using N = typename TestFixture::natural;
+
+        test_size_in_base_2<N> ();
+    }
+
+    TYPED_TEST (SignedDivision, SizeInBase2) {
+        using Z = typename TestFixture::integer;
+
+        test_size_in_base_2<Z> ();
+    }
+
+    TYPED_TEST (Division, SizeInBase2) {
+        using N = typename TestFixture::natural;
+        using Z = typename TestFixture::integer;
+
+        test_size_in_base_2<N> ();
+    }
+
+    TYPED_TEST (UnsignedDivision, DivMod2) {
+        using N = typename TestFixture::natural;
+
+        test_div_mod_2_positive<N, N> ();
+    }
+
+    TYPED_TEST (SignedDivision, DivMod2) {
+        using Z = typename TestFixture::integer;
+
+        test_div_mod_2<Z, Z> ();
+    }
+
+    TYPED_TEST (Division, DivMod2) {
+        using N = typename TestFixture::natural;
+        using Z = typename TestFixture::integer;
+
+        test_div_mod_2<Z, N> ();
+    }
+
+    TYPED_TEST (UnsignedDivision, Division) {
         using N = typename TestFixture::natural;
 
         test_division_natural<N> {};
     }
 
-    TYPED_TEST (SignedDivision, TestType) {
+    TYPED_TEST (SignedDivision, Division) {
         using Z = typename TestFixture::integer;
 
         test_division_natural<Z> {};
         test_division_integer<Z> {};
     }
 
-    TYPED_TEST (Division, TestType) {
+    TYPED_TEST (Division, Division) {
         using N = typename TestFixture::natural;
         using Z = typename TestFixture::integer;
 

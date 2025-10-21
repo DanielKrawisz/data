@@ -654,8 +654,8 @@ namespace data::math::def {
     };
 
     template <endian::order r, std::unsigned_integral word>
-    struct mul_2<math::Z_bytes_BC<r, word>> {
-        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &);
+    struct mul_2_pow<math::Z_bytes_BC<r, word>> {
+        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &, uint32 u);
     };
 
     template <endian::order r, std::unsigned_integral word>
