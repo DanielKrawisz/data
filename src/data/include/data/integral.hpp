@@ -388,7 +388,7 @@ namespace data::math {
         return x << u;
     }
 
-    template <proto_bit_unsigned A> constexpr A inline bit_div_2 (const A &x) {
+    template <proto_bit_number A> constexpr A inline bit_div_2 (const A &x) {
         return x >> 1;
     }
 
@@ -398,10 +398,6 @@ namespace data::math {
 
     template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
         return x & 1u;
-    }
-
-    template <proto_bit_signed A> constexpr A inline bit_div_2 (const A &x) {
-        return (data::is_negative (x) ? data::increment (x) : x) >> 1;
     }
 
     // we now define shifts in terms of mul_2 and div_2

@@ -34,6 +34,15 @@ namespace data {
         EXPECT_EQ (mod_2 (Z {-2}), N {0});
     }
 
+    template <typename Z>
+    void test_div_mod_2_Bitcoin () {
+        test_div_mod_2_positive<Z, Z> ();
+        EXPECT_EQ (div_2 (Z {-1}), Z {0});
+        EXPECT_EQ (mod_2 (Z {-1}), Z {-1});
+        EXPECT_EQ (div_2 (Z {-2}), Z {-1});
+        EXPECT_EQ (mod_2 (Z {-2}), Z {0});
+    }
+
     template <typename N>
     void test_division_natural_case (const N &numerator, const N &denominator, const N &quotient, const N &remainder) {
 
@@ -119,6 +128,28 @@ namespace data {
         }
     };
 
+    template <ring_integral Z>
+    struct test_division_Bitcoin {
+        test_division_Bitcoin () {
+
+            EXPECT_THROW (math::number::integer_divmod (Z {0}, Z {0}), math::division_by_zero);
+            EXPECT_THROW (math::number::integer_divmod (Z {1}, Z {0}), math::division_by_zero);
+
+            test_division_integer_case<Z, Z> (Z {0}, Z {1}, Z {0}, Z {0});
+            test_division_integer_case<Z, Z> (Z {1}, Z {1}, Z {1}, Z {0});
+            test_division_integer_case<Z, Z> (Z {389}, Z {3}, Z {129}, Z {2});
+            test_division_integer_case<Z, Z> (Z {1145}, Z {916}, Z {1}, Z {229});
+            test_division_integer_case<Z, Z> (Z {-2}, Z {3}, Z {0}, Z {-1});
+            test_division_integer_case<Z, Z> (Z {2}, Z {-3}, Z {0}, Z {2});
+            test_division_integer_case<Z, Z> (Z {-2}, Z {-3}, Z {0}, Z {-2});
+            test_division_integer_case<Z, Z> (Z {-2}, Z {2}, Z {-1}, Z {0});
+            test_division_integer_case<Z, Z> (Z {-2}, Z {1}, Z {-2}, Z {0});
+            test_division_integer_case<Z, Z> (Z {2}, Z {-2}, Z {-1}, Z {0});
+            test_division_integer_case<Z, Z> (Z {-3}, Z {2}, Z {-2}, Z {-1});
+
+        }
+    };
+
     template <ring_integral N>
     struct UnsignedDivision : ::testing::Test {
         using natural = N;
@@ -126,6 +157,11 @@ namespace data {
 
     template <ring_integral Z>
     struct SignedDivision : ::testing::Test {
+        using integer = Z;
+    };
+
+    template <ring_integral Z>
+    struct BitcoinDivision : ::testing::Test {
         using integer = Z;
     };
 
@@ -143,7 +179,9 @@ namespace data {
     using signed_test_cases = ::testing::Types<
         int64, int64_little, int64_big,
         int80, int80_little, int80_big,
-        int128, int128_little, int128_big,
+        int128, int128_little, int128_big>;
+
+    using bitcoin_test_cases = ::testing::Types<
         Z_bytes_BC_little, Z_bytes_BC_big,
         math::Z_bytes_BC<endian::big, unsigned short>,
         math::Z_bytes_BC<endian::little, unsigned int>,
@@ -164,6 +202,7 @@ namespace data {
 
     TYPED_TEST_SUITE (UnsignedDivision, unsigned_test_cases);
     TYPED_TEST_SUITE (SignedDivision, signed_test_cases);
+    TYPED_TEST_SUITE (BitcoinDivision, bitcoin_test_cases);
     TYPED_TEST_SUITE (Division, test_cases);
 
     TYPED_TEST (UnsignedDivision, SizeInBase2) {
@@ -197,6 +236,12 @@ namespace data {
         test_div_mod_2<Z, Z> ();
     }
 
+    TYPED_TEST (BitcoinDivision, DivMod2) {
+        using Z = typename TestFixture::integer;
+
+        test_div_mod_2_Bitcoin<Z> ();
+    }
+
     TYPED_TEST (Division, DivMod2) {
         using N = typename TestFixture::natural;
         using Z = typename TestFixture::integer;
@@ -215,6 +260,13 @@ namespace data {
 
         test_division_natural<Z> {};
         test_division_integer<Z> {};
+    }
+
+    TYPED_TEST (BitcoinDivision, Division) {
+        using Z = typename TestFixture::integer;
+
+        test_division_natural<Z> {};
+        test_division_Bitcoin<Z> {};
     }
 
     TYPED_TEST (Division, Division) {

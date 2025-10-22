@@ -55,7 +55,6 @@ namespace data::math::number::euclidian {
             
             constexpr sequence operator / (const sequence &s) const {
                 division<N> div = natural_divmod<N> (Div.Remainder, s.Div.Remainder);
-                std::cout << "    We divide " << Div.Remainder << " by " << s.Div.Remainder << " and get " << div << std::endl;
                 return {div,
                     static_cast<Z> (BezoutS - s.BezoutS * div.Quotient),
                     static_cast<Z> (BezoutT - s.BezoutT * div.Quotient)};
@@ -65,7 +64,6 @@ namespace data::math::number::euclidian {
         
         // must provide prev.Div.Remainder > current.Div.Remainder.
         constexpr static extended loop (const sequence prev, const sequence current) {
-            std::cout << "  begin extended euclidian loop on " << prev.Div << " and " << current.Div << std::endl;
             sequence next = prev / current;
             if (next.Div.Remainder == 0) return extended {current.Div.Remainder, current.BezoutS, current.BezoutT};
             return loop (current, next);
@@ -73,15 +71,11 @@ namespace data::math::number::euclidian {
         
         // we know that a >= b
         constexpr static extended run (const N &a, const N &b) {
-            //return loop (sequence {{0, a}, Z {1}, Z {0}}, sequence {{0, b}, Z {0}, Z {1}});
-            auto result = loop (sequence {{0, a}, Z {1}, Z {0}}, sequence {{0, b}, Z {0}, Z {1}});
-            std::cout << " result is " << result.GCD << std::endl;
-            return result;
+            return loop (sequence {{0, a}, Z {1}, Z {0}}, sequence {{0, b}, Z {0}, Z {1}});
         }
         
     public:
         constexpr static extended algorithm (const N &a, const N &b) {
-            std::cout << " run extended euclidian on " << a << " and " << b << std::endl;
             return a < b ? run (b, a) : run (a, b);
         }
     };
