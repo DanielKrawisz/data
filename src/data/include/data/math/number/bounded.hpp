@@ -76,19 +76,19 @@ namespace data::math::def {
     template <endian::order r, size_t x, std::unsigned_integral word>
     division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
         (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return math::number::natural_divmod (v, z.Value);
+        return number::natural_divmod (v, z.Value);
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
-        return math::number::integer_divmod (v, z.Value);
+        return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (v, z.Value);
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
     division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return math::number::natural_divmod (uint<r, x, word> (v), z.Value);
+        return number::natural_divmod (uint<r, x, word> (v), z.Value);
     }
 
     template <bool a, endian::order r, size_t x, std::unsigned_integral word>

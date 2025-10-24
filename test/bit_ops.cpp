@@ -205,12 +205,11 @@ namespace data {
 
             N number = N {number_string};
             for (int32 shift : shifts) {
-                N expected_left = nest ([] (const N &n) {
-                    return n * 2;
-                }, number, shift);
+                N expected_left = number * pow (N {2}, shift);
 
-                N expected_right = nest ([] (const N &n) {
-                    return n / 2;
+                N expected_right = nest ([] (const N &n) -> N {
+                    auto qr = divmod (n, math::nonzero<N> {N {2}});
+                    return qr.Remainder < 0 ? qr.Quotient - 1u : qr.Quotient;
                 }, number, shift);
 
                 //auto computed_left = number << shift;
@@ -258,15 +257,16 @@ namespace data {
 
         // NOTE some of the commented tests don't compile and others are too slow.
         /*
-        test_bit_shift_unsigned<N> ();
         test_bit_shift_unsigned<hex_uint> ();
         test_bit_shift_unsigned<dec_uint> ();
         test_bit_shift_unsigned<base58_uint> ();
 
-        test_bit_shift_signed<Z> ();
         test_bit_shift_signed<hex_int> ();
         test_bit_shift_signed<hex_int_twos> ();
         test_bit_shift_signed<dec_int> ();*/
+
+        test_bit_shift_unsigned<N> ();
+        test_bit_shift_signed<Z> ();
 
         test_bit_shift_unsigned<math::N_bytes<endian::little>> ();
         test_bit_shift_unsigned<math::N_bytes<endian::big>> ();

@@ -806,6 +806,38 @@ namespace data::math::def {
         hex::intBC<zz> operator () (const hex::intBC<zz> &, uint32 u);
     };
 
+    template <> struct div_2<dec_uint> {
+        dec_uint operator () (const dec_uint &a);
+    };
+
+    template <> struct div_2<dec_int> {
+        dec_int operator () (const dec_int &a);
+    };
+
+    template <> struct mod_2<dec_uint> {
+        dec_uint operator () (const dec_uint &a);
+    };
+
+    template <> struct mod_2<dec_int> {
+        dec_int operator () (const dec_int &a);
+    };
+
+    template <hex_case zz> struct div_2<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct mod_2<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct div_2<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &);
+    };
+
+    template <hex_case zz> struct mod_2<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &);
+    };
+
     template <hex_case zz> struct div_2<hex::intBC<zz>> {
         hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
@@ -2048,6 +2080,42 @@ namespace data::math::def {
     template <hex_case zz>
     hex::int2<zz> inline bit_xor<hex::int2<zz>>::operator () (const hex::int2<zz> &a, const hex::int2<zz> &b) {
         return a ^ b;
+    }
+
+    dec_uint inline div_2<dec_uint>::operator () (const dec_uint &a) {
+        return bit_div_2_positive_mod (a);
+    }
+
+    dec_int inline div_2<dec_int>::operator () (const dec_int &a) {
+        return bit_div_2_positive_mod (a);
+    }
+
+    dec_uint inline mod_2<dec_uint>::operator () (const dec_uint &a) {
+        return bit_mod_2 (a);
+    }
+
+    dec_int inline mod_2<dec_int>::operator () (const dec_int &a) {
+        return bit_mod_2_positive_mod (a);
+    }
+
+    template <hex_case zz>
+    hex::uint<zz> inline div_2<hex::uint<zz>>::operator () (const hex::uint<zz> &x) {
+        return bit_div_2_positive_mod (x);
+    }
+
+    template <hex_case zz>
+    hex::uint<zz> inline mod_2<hex::uint<zz>>::operator () (const hex::uint<zz> &x) {
+        return bit_mod_2 (x);
+    }
+
+    template <hex_case zz>
+    hex::int2<zz> inline div_2<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
+        return bit_div_2_positive_mod (x);
+    }
+
+    template <hex_case zz>
+    hex::int2<zz> inline mod_2<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
+        return bit_mod_2_positive_mod (x);
     }
 
 }

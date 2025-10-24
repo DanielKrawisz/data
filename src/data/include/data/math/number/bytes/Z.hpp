@@ -5,6 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BYTES_Z
 #define DATA_MATH_NUMBER_BYTES_Z
 
+#include <data/arithmetic.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
 
@@ -628,12 +629,6 @@ namespace data::math::def {
     }
 
     template <endian::order r, std::unsigned_integral word>
-    math::Z_bytes_BC<r, word> inline mod_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x) {
-        if (data::is_zero (x)) return 0;
-        return *x.words ().begin () & 1;
-    }
-
-    template <endian::order r, std::unsigned_integral word>
     math::Z_bytes_BC<r, word> inline bit_xor<math::Z_bytes_BC<r, word>>::operator ()
     (const math::Z_bytes_BC<r, word> &a, const math::Z_bytes_BC<r, word> &b) {
         if (a.size () < b.size ()) return data::bit_xor (b, a);
@@ -661,8 +656,37 @@ namespace data::math::def {
     }
 
     template <endian::order r, std::unsigned_integral word>
-    math::Z_bytes_BC<r, word> inline div_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &z) {
-        return trim ((z < 0 ? data::increment (z): z) >> 1);
+    math::N_bytes<r, word> inline div_2<math::N_bytes<r, word>>::operator () (const math::N_bytes<r, word> &x) {
+        return bit_div_2_positive_mod (x);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    math::Z_bytes_BC<r, word> inline div_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x) {
+        return bit_div_2_negative_mod (x);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    math::Z_bytes<r, word> inline div_2<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x) {
+        return bit_div_2_positive_mod (x);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    math::N_bytes<r, word> inline mod_2<math::N_bytes<r, word>>::operator () (const math::N_bytes<r, word> &x) {
+        return bit_mod_2_positive_mod (x);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    math::Z_bytes_BC<r, word> inline mod_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x) {
+        if (data::is_zero (x)) return 0;
+        word z = *x.words ().begin () & 1;
+        return data::is_negative (x) ?
+            math::Z_bytes_BC<r, word> {-static_cast<std::make_signed_t<word>> (z)}:
+            math::Z_bytes_BC<r, word> {z};
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    math::Z_bytes<r, word> inline mod_2<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x) {
+        return bit_mod_2_positive_mod (x);
     }
     
 }
