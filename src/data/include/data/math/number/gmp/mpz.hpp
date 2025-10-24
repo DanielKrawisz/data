@@ -122,8 +122,11 @@ namespace data::math::number::GMP {
     template <std::integral I> Z operator + (I, const Z &);
     template <std::integral I> Z operator + (const Z &, I);
 
-    template <std::integral I> Z operator - (I, const Z &);
-    template <std::integral I> Z operator - (const Z &, I);
+    template <std::signed_integral I> Z operator - (I, const Z &);
+    template <std::signed_integral I> Z operator - (const Z &, I);
+
+    template <std::unsigned_integral I> Z operator - (I, const Z &);
+    template <std::unsigned_integral I> Z operator - (const Z &, I);
 
     template <std::signed_integral I> Z operator * (I, const Z &);
     template <std::signed_integral I> Z operator * (const Z &, I);
@@ -285,6 +288,22 @@ namespace data::math::def {
 
     template <> struct bit_xor<Z> {
         Z operator () (const Z &, const Z &);
+    };
+
+    template <> struct div_2<N> {
+        N operator () (const N &a);
+    };
+
+    template <> struct div_2<Z> {
+        Z operator () (const Z &a);
+    };
+
+    template <> struct mod_2<N> {
+        N operator () (const N &a);
+    };
+
+    template <> struct mod_2<Z> {
+        Z operator () (const Z &a);
     };
 
 }

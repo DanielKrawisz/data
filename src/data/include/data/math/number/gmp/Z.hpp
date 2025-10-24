@@ -153,15 +153,27 @@ namespace data::math::number::GMP {
         return u;
     }
 
-    template <std::integral I> Z inline operator + (const Z &n, I x) {
+    template <std::unsigned_integral I> Z inline operator + (const Z &n, I x) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, x);
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_uint) x);
         return sum;
     }
 
-    template <std::integral I> Z inline operator + (I x, const Z &n) {
+    template <std::unsigned_integral I> Z inline operator + (I x, const Z &n) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, x);
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_uint) x);
+        return sum;
+    }
+
+    template <std::signed_integral I> Z inline operator + (const Z &n, I x) {
+        Z sum;
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_int) x);
+        return sum;
+    }
+
+    template <std::signed_integral I> Z inline operator + (I x, const Z &n) {
+        Z sum;
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_int) x);
         return sum;
     }
 
@@ -189,15 +201,27 @@ namespace data::math::number::GMP {
         return sum;
     }
 
-    template <std::integral I> Z inline operator - (const Z &n, I x) {
+    template <std::signed_integral I> Z inline operator - (const Z &n, I x) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, x);
+        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, (gmp_int) x);
         return diff;
     }
 
-    template <std::integral I> Z inline operator - (I x, const Z &n) {
+    template <std::signed_integral I> Z inline operator - (I x, const Z &n) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, x, n.MPZ);
+        __gmp_binary_minus::eval (diff.MPZ, (gmp_int) x, n.MPZ);
+        return diff;
+    }
+
+    template <std::unsigned_integral I> Z inline operator - (const Z &n, I x) {
+        Z diff;
+        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, (gmp_uint) x);
+        return diff;
+    }
+
+    template <std::unsigned_integral I> Z inline operator - (I x, const Z &n) {
+        Z diff;
+        __gmp_binary_minus::eval (diff.MPZ, (gmp_uint) x, n.MPZ);
         return diff;
     }
 
@@ -552,22 +576,32 @@ namespace data::math::def {
         return n;
     }
 
-    static_assert (proto_bit_number<N>);
-    static_assert (proto_bit_number<Z>);
-
-    static_assert (ring_integral<N>);
-    static_assert (ring_integral<Z>);
-
     division<N, N> inline divmod<N, N>::operator () (const N &a, const nonzero<N> &b) {
-        return math::number::natural_divmod (a, b.Value);
+        return number::natural_divmod (a, b.Value);
     }
 
     division<Z, N> inline divmod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
-        return math::number::integer_natural_divmod (a, b.Value);
+        return number::integer_natural_divmod (a, b.Value);
     }
 
     division<Z, N> inline divmod<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
-        return math::number::integer_divmod (a, b.Value);
+        return number::integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (a, b.Value);
+    }
+
+    N inline div_2<N>::operator () (const N &a) {
+        return bit_div_2_positive_mod (a);
+    }
+
+    Z inline div_2<Z>::operator () (const Z &a) {
+        return bit_div_2_positive_mod (a);
+    }
+
+    N inline mod_2<N>::operator () (const N &a) {
+        return bit_mod_2_positive_mod (a);
+    }
+
+    Z inline mod_2<Z>::operator () (const Z &a) {
+        return bit_mod_2_positive_mod (a);
     }
 
 }

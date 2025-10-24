@@ -46,36 +46,12 @@ namespace data::math::def {
 
     template <typename dividend, typename divisor = dividend> struct divmod;
 
-    template <std::unsigned_integral X>
-    struct divmod<X, X> {
-        constexpr auto operator () (X dividend, math::nonzero<X> divisor) ->
-            division<decltype (dividend / divisor.Value), decltype (dividend % divisor.Value)> {
-            return {dividend / divisor.Value, dividend % divisor.Value};
-        }
-    };
-
-    template <std::signed_integral X, std::unsigned_integral Y>
-    struct divmod<X, Y> {
-        constexpr division<Y, Y> operator () (X dividend, math::nonzero<Y> divisor) {
-            auto quotient = static_cast<Y> (dividend / divisor.Value);
-            auto remainder = static_cast<Y> (dividend % divisor.Value);
-            if (remainder == 0) return {quotient, 0};
-            if (dividend < 0) return {static_cast<Y> (quotient - 1), static_cast<Y> (divisor.Value - remainder)};
-            return {quotient, remainder};
-        }
-    };
-
-    template <std::signed_integral X, std::signed_integral Y>
+    template <std::integral X, std::integral Y>
     struct divmod<X, Y> {
         constexpr auto operator () (X dividend, math::nonzero<Y> divisor) ->
         division<decltype (dividend / divisor.Value), decltype (dividend % divisor.Value)> {
-            auto quotient = dividend / divisor.Value;
-            auto remainder = dividend % divisor.Value;
-            if (remainder == 0) return {quotient, 0};
-            else if (dividend < 0) {
-                if (divisor.Value < 0) return {-quotient + 1, -divisor.Value + remainder};
-                else return {quotient - 1, divisor.Value + remainder};
-            } else return {quotient, remainder};
+            if (divisor.Value == 0) throw division_by_zero {};
+            return {dividend / divisor.Value, dividend % divisor.Value};
         }
     };
 

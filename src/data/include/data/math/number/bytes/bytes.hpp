@@ -659,13 +659,33 @@ namespace data::math::def {
     };
 
     template <endian::order r, std::unsigned_integral word>
+    struct div_2<math::N_bytes<r, word>> {
+        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &x);
+    };
+
+    template <endian::order r, std::unsigned_integral word>
     struct div_2<math::Z_bytes_BC<r, word>> {
-        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &);
+        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &x);
+    };
+
+    template <endian::order r, std::unsigned_integral word>
+    struct div_2<math::Z_bytes<r, word>> {
+        math::Z_bytes<r, word> operator () (const math::Z_bytes<r, word> &x);
+    };
+
+    template <endian::order r, std::unsigned_integral word>
+    struct mod_2<math::N_bytes<r, word>> {
+        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &x);
     };
 
     template <endian::order r, std::unsigned_integral word>
     struct mod_2<math::Z_bytes_BC<r, word>> {
         math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &x);
+    };
+
+    template <endian::order r, std::unsigned_integral word>
+    struct mod_2<math::Z_bytes<r, word>> {
+        math::Z_bytes<r, word> operator () (const math::Z_bytes<r, word> &x);
     };
 
     template <endian::order r, std::unsigned_integral word>

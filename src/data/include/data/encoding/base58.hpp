@@ -151,6 +151,19 @@ namespace data {
     using base58_uint = encoding::base58::string;
 }
 
+namespace data::math::number {
+
+    template <> struct increment<base58_uint> {
+        nonzero<base58_uint> operator () (const base58_uint &);
+    };
+
+    template <> struct decrement<base58_uint> {
+        base58_uint operator () (const nonzero<base58_uint> &);
+        base58_uint operator () (const base58_uint &);
+    };
+
+}
+
 namespace data::math::def {
 
     template <> struct sign<base58_uint> {
@@ -185,17 +198,16 @@ namespace data::math::def {
         base58_uint operator () (const base58_uint &, const base58_uint &);
     };
 
-}
-
-namespace data::math::number {
-
-    template <> struct increment<base58_uint> {
-        nonzero<base58_uint> operator () (const base58_uint &);
+    template <> struct div_2<base58_uint> {
+        base58_uint operator () (const base58_uint &u) {
+            return bit_div_2_positive_mod (u);
+        }
     };
 
-    template <> struct decrement<base58_uint> {
-        base58_uint operator () (const nonzero<base58_uint> &);
-        base58_uint operator () (const base58_uint &);
+    template <> struct mod_2<base58_uint> {
+        base58_uint operator () (const base58_uint &u) {
+            return bit_mod_2_positive_mod (u);
+        }
     };
 
 }

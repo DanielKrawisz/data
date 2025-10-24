@@ -453,6 +453,26 @@ namespace data {
                 const bounded<a, r, x, word> &,
                 const nonzero<uint<r, x, word>> &);
         };
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        struct div_2<uint<r, x, word>> {
+            constexpr uint<r, x, word> operator () (const uint<r, x, word> &);
+        };
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        struct mod_2<uint<r, x, word>> {
+            constexpr uint<r, x, word> operator () (const uint<r, x, word> &);
+        };
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        struct div_2<sint<r, x, word>> {
+            constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
+        };
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        struct mod_2<sint<r, x, word>> {
+            constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
+        };
     }
 
     namespace encoding::decimal {
@@ -1209,6 +1229,26 @@ namespace data {
             const bounded<u, r, x, word> &a,
             const bounded<u, r, x, word> &b) {
             return b - a;
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        constexpr uint<r, x, word> inline div_2<uint<r, x, word>>::operator () (const uint<r, x, word> &u) {
+            return bit_div_2_negative_mod (u);
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        constexpr uint<r, x, word> inline mod_2<uint<r, x, word>>::operator () (const uint<r, x, word> &u) {
+            return bit_mod_2_negative_mod (u);
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        constexpr sint<r, x, word> inline div_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
+            return bit_div_2_negative_mod (u);
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word>
+        constexpr sint<r, x, word> inline mod_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
+            return bit_mod_2_negative_mod (u);
         }
     }
 
