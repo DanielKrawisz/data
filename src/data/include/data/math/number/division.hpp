@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_DIVISION
 
 #include <data/integral.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
 
@@ -66,7 +67,7 @@ namespace data::math::number {
     }
 
     template <ring_integral Z, ring_integral N>
-    division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
+    constexpr division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
         division<N> d {natural_divmod<N> (abs (Dividend), Divisor)};
 
         if (d.Remainder == 0) return {Dividend < 0 ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
@@ -76,29 +77,47 @@ namespace data::math::number {
         return {Z (d.Quotient), d.Remainder};
     }
 
-    template <ring_integral Z>
-    division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
+    enum modulo_negative_divisor_convention {
+        // The remainder is always positive.
+        EUCLIDIAN_ALWAYS_POSITIVE,
+
+        // used in Bitcoin, c++, OpenSSL, Python3
+        TRUNCATE_TOWARD_ZERO,
+
+        PYTHON_2_FLOOR_DIV
+    };
+
+    template <modulo_negative_divisor_convention m, ring_integral Z>
+    constexpr division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
         using N = decltype (abs (std::declval<Z> ()));
 
         // first we divide the absolute values.
         N divisor = abs (Divisor);
         division<N> d {natural_divmod<N> (abs (Dividend), divisor)};
 
-        // given x == q y + r,
-        // if x -> -x, then x == -q y - r
-        // if y -> -y, then x == -q y + r
-        // if x -> -x and y -> -y, then x = q y - r;
-
         if (d.Remainder == 0)
-            return {
-                data::sign (Divisor) * data::sign (Dividend) == negative ?
-                    data::negate (Z (d.Quotient)):
-                    Z (d.Quotient),
-                d.Remainder};
+            return {data::sign (Divisor) * data::sign (Dividend) == negative ?
+                data::negate (Z (d.Quotient)):
+                Z (d.Quotient), 0};
 
-        if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient + 1): Z (-(d.Quotient + 1)), divisor - d.Remainder};
+        if constexpr (m == EUCLIDIAN_ALWAYS_POSITIVE) {
 
-        if (Divisor < 0) return {static_cast<Z> (-d.Quotient), static_cast<N> (d.Remainder)};
+            // given x == q y + r,
+            // if x -> -x, then x == -q y - r
+            // if y -> -y, then x == -q y + r
+            // if x -> -x and y -> -y, then x = q y - r;
+
+            if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient + 1): Z (-(d.Quotient + 1)), divisor - d.Remainder};
+
+            if (Divisor < 0) return {static_cast<Z> (-d.Quotient), static_cast<N> (d.Remainder)};
+        } else if constexpr (m == TRUNCATE_TOWARD_ZERO) {
+
+            if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient): Z (-(d.Quotient)), Z (-d.Remainder)};
+
+            if (Divisor < 0) return {static_cast<Z> (-d.Quotient), static_cast<N> (d.Remainder)};
+        } else if constexpr (m == PYTHON_2_FLOOR_DIV) {
+            throw method::unimplemented {"python 2 division"};
+        } else throw exception {} << "Invalid modulo convention";
 
         return {Z (d.Quotient), d.Remainder};
     }

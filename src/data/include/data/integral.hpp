@@ -5,11 +5,8 @@
 #ifndef DATA_MATH_INTEGRAL
 #define DATA_MATH_INTEGRAL
 
-#include <data/abs.hpp>
-#include <data/sign.hpp>
 #include <data/arithmetic.hpp>
 #include <data/divmod.hpp>
-#include <data/increment.hpp>
 #include <data/io/exception.hpp>
 
 namespace data {
@@ -32,160 +29,6 @@ namespace data {
     // NOTE: this page is in an incomplete state of flux. We had
     // an original design that didn't quite work and are in the
     // midst of resolving it.
-
-    // As long as we have constructors for int, long, and long long
-    // then the compiler will never be confused by a valid number literal.
-    template <typename N> concept BigNumberConstructableSigned =
-        requires () {
-            { N {0} };
-            // the maximum integer that can be represented accurately by a double.
-            { N {9007199254740992} };
-        } && requires (int x) {
-            { N {x} };
-        } && requires (long x) {
-            { N {x} };
-        } && requires (long long x) {
-            { N {x} };
-        };
-
-    // we don't have an unsigned signed version because in practice
-    // nothing would use it that doesn't also have signed.
-    template <typename N> concept BigNumberConstructable =
-        BigNumberConstructableSigned<N> && requires () {
-            { N {0u} };
-            { N {9007199254740992u} };
-        } && requires (unsigned int x) {
-            { N {x} };
-        } && requires (unsigned long x) {
-            { N {x} };
-        } && requires (unsigned long long x) {
-            { N {x} };
-        };
-
-    template <typename N, typename M> concept comparable_to =
-        requires (const N &n, const M &m) {
-            { n == m } -> Same<bool>;
-            { n != m } -> Same<bool>;
-            { n > m } -> Same<bool>;
-            { n < m } -> Same<bool>;
-            { n >= m } -> Same<bool>;
-            { n <= m } -> Same<bool>;
-            { m == n } -> Same<bool>;
-            { m != n } -> Same<bool>;
-            { m > n } -> Same<bool>;
-            { m < n } -> Same<bool>;
-            { m > n } -> Same<bool>;
-            { m <= n } -> Same<bool>;
-            { m >= n } -> Same<bool>;
-        };
-
-    template <typename X> concept NumberComparableSigned =
-        Ordered<X> &&
-        comparable_to<X, int> &&
-        comparable_to<X, long> &&
-        comparable_to<X, long long>;
-
-    template <typename X> concept NumberComparable =
-        NumberComparableSigned<X> &&
-        comparable_to<X, unsigned int> &&
-        comparable_to<X, unsigned long> &&
-        comparable_to<X, unsigned long long>;
-
-    template <typename X> concept incrementable =
-        requires (const X &n) {
-            { increment (n) };
-            { decrement (n) };
-        } && requires (X &n) {
-            { ++n } -> Same<X &>;
-            { n++ } -> Same<X>;
-            { --n } -> Same<X &>;
-            { n++ } -> Same<X>;
-        };
-
-    // a proto_integral type is starting to look like a number.
-    template <typename X> concept proto_number =
-        NumberComparable<X> && std::default_initializable<X> &&
-        requires (const X &n) {
-            { is_zero (n) } -> Same<bool>;
-            { is_positive (n) } -> Same<bool>;
-            { is_negative (n) } -> Same<bool>;
-            { sign (n) } -> ImplicitlyConvertible<math::sign>;
-            { abs (n) };
-        } && incrementable<X>;
-
-    template <typename A> concept proto_signed =
-        proto_number<A> && Signed<A> && requires (const A &n) {
-            { negate (abs (n)) } -> Same<A>;
-        };
-
-    template <typename A> concept proto_unsigned =
-        proto_number<A> && Unsigned<A> && requires (const A &n) {
-            { size_in_base_2 (n) } -> Same<size_t>;
-        };
-
-    // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept proto_integral_system =
-        proto_number<Z> && Signed<Z> && proto_number<N> && Convertible<N, Z> &&
-        requires (const Z &a) {
-            { negate (abs (a)) } -> Same<Z>;
-        } && requires (const N &a) {
-            { size_in_base_2 (a) } -> Same<size_t>;
-            { negate (a) };
-        } && comparable_to<Z, N>;
-
-    template <typename NN> concept bit_algebraic =
-        requires (const NN &a, const NN &b) {
-            { a & b } -> ImplicitlyConvertible<NN>;
-            { a | b } -> ImplicitlyConvertible<NN>;
-            { a ^ b } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a, const NN &b) {
-            { a &= b } -> Same<NN &>;
-            { a |= b } -> Same<NN &>;
-            { a ^= b } -> Same<NN &>;
-        } && requires (const NN &a, int i) {
-            { a >> i } -> ImplicitlyConvertible<NN>;
-            { a << i } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a, int i) {
-            { a >>= i } -> Same<NN &>;
-            { a <<= i } -> Same<NN &>;
-        };
-
-    template <typename X> concept proto_bit_number =
-        proto_number<X> && bit_algebraic<X>;
-
-    template <typename X> concept bit_algebraic_signed =
-        requires (const X &a) {
-            { a & 1 } -> ImplicitlyConvertible<X>;
-            { a | 1 } -> ImplicitlyConvertible<X>;
-            { a ^ 1 } -> ImplicitlyConvertible<X>;
-            { 1 & a } -> ImplicitlyConvertible<X>;
-            { 1 | a } -> ImplicitlyConvertible<X>;
-            { 1 & a } -> ImplicitlyConvertible<X>;
-        } && requires (X &a) {
-            { a &= 1 } -> Same<X &>;
-            { a |= 1 } -> Same<X &>;
-            { a ^= 1 } -> Same<X &>;
-        };
-
-    template <typename X> concept bit_algebraic_unsigned =
-        requires (const X &a) {
-            { a & 1u } -> ImplicitlyConvertible<X>;
-            { a | 1u } -> ImplicitlyConvertible<X>;
-            { a ^ 1u } -> ImplicitlyConvertible<X>;
-            { 1u & a } -> ImplicitlyConvertible<X>;
-            { 1u | a } -> ImplicitlyConvertible<X>;
-            { 1u & a } -> ImplicitlyConvertible<X>;
-        } && requires (X &a) {
-            { a &= 1u } -> Same<X &>;
-            { a |= 1u } -> Same<X &>;
-            { a ^= 1u } -> Same<X &>;
-        };
-
-    template <typename X> concept proto_bit_unsigned =
-        proto_bit_number<X> && bit_algebraic_unsigned<X> && Unsigned<X>;
-
-    template <typename X> concept proto_bit_signed =
-        proto_bit_number<X> && bit_algebraic_signed<X> && Signed<X>;
 
     // group_integral has + and - operations.
     // We have this concept because it is possible to define
@@ -383,22 +226,6 @@ namespace data {
 }
 
 namespace data::math {
-    // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <proto_bit_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 u) {
-        return x << u;
-    }
-
-    template <proto_bit_number A> constexpr A inline bit_div_2 (const A &x) {
-        return x >> 1;
-    }
-
-    template <proto_bit_number A> constexpr A inline bit_mod_2 (const A &x) {
-        return abs (x) & 1;
-    }
-
-    template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
-        return x & 1u;
-    }
 
     // we now define shifts in terms of mul_2 and div_2
     template <group_integral A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
@@ -474,18 +301,6 @@ namespace data::math::def {
     template <proto_bit_number X> struct mul_2_pow<X> {
         constexpr X operator () (const X &x, uint32 pow) {
             return bit_mul_2_pow (x, pow);
-        }
-    };
-
-    template <proto_bit_number X> struct div_2<X> {
-        constexpr X operator () (const X &x) {
-            return bit_div_2 (x);
-        }
-    };
-
-    template <proto_bit_number X> struct mod_2<X> {
-        constexpr X operator () (const X &x) {
-            return bit_mod_2 (x);
         }
     };
 

@@ -273,6 +273,7 @@ namespace data::math::def {
     struct divmod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
         using ue = boost::endian::endian_arithmetic<Order, T, n_bits, Align>;
         constexpr division<ue, ue> operator () (const ue &dividend, const nonzero<ue> &divisor) {
+            if (divisor.Value == 0) throw division_by_zero {};
             return {ue (dividend.value () / divisor.Value.value ()),
                 ue (dividend.value () % divisor.Value.value ())};
         }
@@ -371,6 +372,22 @@ namespace data::math::def {
             boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
             boost::endian::endian_arithmetic<Order, T, n_bits, Align> b) {
             return data::bit_xor (a.value (), b.value ());
+        }
+    };
+
+    template <endian::order Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct div_2<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
+            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
+            return data::div_2 (a.value ());
+        }
+    };
+
+    template <endian::order Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct mod_2<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
+            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
+            return data::mod_2 (a.value ());
         }
     };
 }

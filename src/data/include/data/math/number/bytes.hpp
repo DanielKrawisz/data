@@ -367,28 +367,28 @@ namespace data::math::def {
     division<N_bytes<r, word>, N_bytes<r, word>> inline
     divmod<N_bytes<r, word>, N_bytes<r, word>>::operator ()
         (const N_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
-        return math::number::natural_divmod (a, b.Value);
+        return number::natural_divmod (a, b.Value);
     }
 
     template <endian::order r, std::unsigned_integral word>
     division<Z_bytes<r, word>, N_bytes<r, word>> inline
     divmod<Z_bytes<r, word>, N_bytes<r, word>>::operator ()
         (const Z_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
-        return math::number::integer_natural_divmod (a, b.Value);
+        return number::integer_natural_divmod (a, b.Value);
     }
 
     template <endian::order r, std::unsigned_integral word>
     division<Z_bytes<r, word>, N_bytes<r, word>> inline
     divmod<Z_bytes<r, word>, Z_bytes<r, word>>::operator ()
         (const Z_bytes<r, word> &a, const nonzero<Z_bytes<r, word>> &b) {
-        return math::number::integer_divmod (a, b.Value);
+        return number::integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (a, b.Value);
     }
 
     template <endian::order r, std::unsigned_integral word>
     division<Z_bytes_BC<r, word>, Z_bytes_BC<r, word>> inline
     divmod<Z_bytes_BC<r, word>, Z_bytes_BC<r, word>>::operator ()
         (const Z_bytes_BC<r, word> &a, const nonzero<Z_bytes_BC<r, word>> &b) {
-        return math::number::integer_divmod (a, b.Value);
+        return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (a, b.Value);
     }
 }
 
