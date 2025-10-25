@@ -3088,21 +3088,22 @@ namespace data::math::def {
     }
 
     template <hex_case zz>
-    hex::intBC<zz> mul_2_pow<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x, uint32 u) {
+    hex::intBC<zz> inline mul_2_pow<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x, uint32 u) {
         if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
         return hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
     }
 
     template <hex_case zz>
-    hex::intBC<zz> div_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
-        if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, -1)};
-        return hex::intBC<zz> {encoding::hexidecimal::shift (x, -1)};
+    hex::intBC<zz> inline div_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
+        return x < 0 ? -hex::intBC<zz> {encoding::hexidecimal::shift (-x, -1)}:
+            hex::intBC<zz> {encoding::hexidecimal::shift (x, -1)};
     }
 
     template <hex_case zz>
-    hex::intBC<zz> mod_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
+    hex::intBC<zz> inline mod_2<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x) {
         if (x == 0) return 0;
-        return hex::intBC<zz> {encoding::hexidecimal::digit (string_view (x)[-1]) & 1};
+        signed char m = encoding::hexidecimal::digit (string_view (x)[x.size () - 1]) & 1;
+        return data::is_negative (x) ? hex::intBC<zz> {-m} : hex::intBC<zz> {m};
     }
 
 }

@@ -65,10 +65,10 @@ namespace data::math::def {
     division<hex::intBC<zz>, hex::intBC<zz>> inline
     divmod<hex::intBC<zz>, hex::intBC<zz>>::operator ()
         (const hex::intBC<zz> &v, const nonzero<hex::intBC<zz>> &z) {
-        auto d = divmod<Z, Z> {} (Z (Z_bytes_BC<endian::big> (v)), nonzero<Z> {Z (Z_bytes_BC<endian::big> (z.Value))});
+        auto d = data::divmod (Z_bytes_BC<endian::big> (v), nonzero {Z_bytes_BC<endian::big> (z.Value)});
         return {
-            encoding::hexidecimal::write<neg::BC, zz> (d.Quotient),
-            encoding::hexidecimal::write<neg::BC, zz> (d.Remainder)};
+            encoding::hexidecimal::write<zz> (d.Quotient),
+            encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 }
 
