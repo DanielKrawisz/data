@@ -71,8 +71,8 @@ add_executable (
 
     # math
 
-    rational.cpp                 # TODO: contains commented test cases and should be a typed test.
-    Caylay_Dickson.cpp
+    rational.cpp                 # TODO: all fractions should be NumberComparable
+    Caylay_Dickson.cpp           # TODO: contains commented test cases.
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
     abs.cpp                      # TODO: should be a typed test.
     roots.cpp                    # TODO: should be a typed test.

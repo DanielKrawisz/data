@@ -10,7 +10,7 @@
 #include <data/math/field.hpp>
 #include <data/math/module.hpp>
 
-namespace data {
+namespace data::math {
 
     template <typename A, typename B = A> constexpr auto inner (const A &, const B &);
 
@@ -28,6 +28,8 @@ namespace data {
     template <typename A> constexpr auto ev (const A &);
 
     template <typename A> constexpr auto od (const A &);
+
+    template <typename A> constexpr A imaginary_unit (uint32);
 
     template <typename A> concept quad_algebra =
         math::ring<A> && requires (const A &x, const A &y) {
@@ -85,7 +87,7 @@ namespace data::math::def {
     template <typename X> struct ev;
 }
 
-namespace data {
+namespace data::math {
     template <typename X>
     constexpr auto inline conjugate (const X &x) {
         return math::def::conjugate<X> {} (x);
@@ -110,23 +112,23 @@ namespace data::math::def {
 
     template <typename X> struct conjugate {
         constexpr X operator () (const X &x) {
-            return data::im (x) - X {data::re (x)};
+            return X {math::re (x)} - math::im (x);
         }
     };
 
     template <typename X, typename Y>
     struct inner {
         constexpr auto operator () (const X &x, const Y &y) {
-            return data::times (x, data::conjugate (y));
+            return data::times (x, math::conjugate (y));
         }
     };
 
     // if abs and inner are defined, then quadrance x is inner x x.
     template <typename X> requires requires (const X &x) {
-        { data::abs (data::re (data::inner (x, x))) };
+        { data::abs (math::re (math::inner (x, x))) };
     } struct quadrance<X> {
         constexpr auto operator () (const X &x) {
-            return data::abs (data::re (data::inner (x, x)));
+            return data::abs (math::re (math::inner (x, x)));
         }
     };
 

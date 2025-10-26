@@ -27,7 +27,8 @@ namespace data {
     template <Integer num, typename denum>
     requires requires (const num &z, const num &n) {
         { over<num, denum> (z, n) } -> Same<math::fraction<num, denum>>;
-    } struct test_fraction {
+    } //&& NumberComparable<math::fraction<num, denum>>
+    struct test_fraction {
         void operator () () {
             using Q = math::fraction<Z>;
 

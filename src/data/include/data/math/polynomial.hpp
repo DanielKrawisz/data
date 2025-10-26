@@ -9,6 +9,7 @@
 #include <data/divmod.hpp>
 #include <data/arithmetic.hpp>
 #include <data/math/field.hpp>
+#include <data/math/power.hpp>
 
 namespace data::math {
 
@@ -271,7 +272,7 @@ namespace data::math {
 
     template <ring A, typename N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::pow (const polynomial p, const N &n) {
-        return pow (p, n);
+        return binary_accumulate_pow (p, n);
     }
 
     template <ring A, typename N, char x>

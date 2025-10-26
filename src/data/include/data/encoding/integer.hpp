@@ -25,7 +25,7 @@ namespace data::encoding {
         static constexpr ctll::fixed_string pattern {"0|([1-9][0-9]*)"};
         
         const std::string &characters ();
-        constexpr char digit (char x);
+        constexpr unsigned char digit (char x);
         constexpr bool valid (string_view s);
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
@@ -1248,7 +1248,7 @@ namespace data::encoding::decimal {
         return Dec;
     }
     
-    constexpr char inline digit (char x) {
+    constexpr unsigned char inline digit (char x) {
         return x < '0' || x > '9' ? -1 : x - '0';
     }
         
