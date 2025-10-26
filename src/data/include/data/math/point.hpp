@@ -49,7 +49,7 @@ namespace data::math::space {
     // Hodge star
     template <field X, size_t dim, size_t order>
     requires requires (const X &x, const X &y) {
-        {x * data::inner (x, y)};
+        {x * inner (x, y)};
     } exterior<X, dim, dim - order> operator * (const exterior<X, dim, order> &);
 
     // generate a matrix that projects onto the subspace defined by the exterior object.
@@ -58,7 +58,7 @@ namespace data::math::space {
     linear::matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
 
     template <field X, size_t dim, size_t order> requires requires (const X &x, const X &y) {
-        {x * data::inner (x, y)};
+        {x * inner (x, y)};
     } auto operator * (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b);
 
     // specialization for scalar type.

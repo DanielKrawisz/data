@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_GMP_Z
 #define DATA_MATH_NUMBER_GMP_Z
 
-#include <data/power.hpp>
+#include <data/math/power.hpp>
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/math/number/division.hpp>

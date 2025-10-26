@@ -94,7 +94,10 @@ namespace data {
     using quat256 = math::quaternion<float64>;
     using oct256 = math::octonion<float32>;
     using oct512 = math::octonion<float64>;
-/*
+}
+
+namespace data::math {
+
     // Various kinds of real numbers.
     static_assert (Real<float32> && CompositionAlgebra<float32>);
     static_assert (Real<float64> && CompositionAlgebra<float64>);
@@ -213,9 +216,9 @@ namespace data {
     static_assert (Octonionic<math::octonion<fraction<Z_bytes_BC_big>>> &&
         CompositionAlgebra<math::octonion<fraction<Z_bytes_BC_big>>>);
 
-    static_assert (Qctonionic<math::octonion<fraction<Z>>> &&
+    static_assert (Octonionic<math::octonion<fraction<Z>>> &&
         CompositionAlgebra<math::octonion<fraction<Z>>>);
-
+/*
     static_assert (Complex<fraction<math::complex<Z_bytes_little>>> &&
         CompositionAlgebra<fraction<math::complex<Z_bytes_little>>>);
     static_assert (Complex<fraction<math::complex<Z_bytes_big>>> &&

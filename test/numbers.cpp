@@ -254,7 +254,7 @@ namespace data {
             { a * b } -> ImplicitlyConvertible<NN>;
             { a / b } -> ImplicitlyConvertible<NN>;
             { plus (a, b) } -> ImplicitlyConvertible<NN>;
-            //{ minus (a, b) } -> ImplicitlyConvertible<NN>;
+            { minus (a, b) } -> ImplicitlyConvertible<NN>;
             { times (a, b) } -> ImplicitlyConvertible<NN>;
             { pow (a, b) } -> ImplicitlyConvertible<NN>;
         } && requires (NN &a, const NN &b) {
@@ -307,9 +307,9 @@ namespace data {
         proto_number<N> && basic_arithmetic<N> &&
         requires (const N &a) {
             requires Same<decltype (abs (a)), decltype (quadrance (a))>;
-            { re (a) } -> Same<N>;
+            { math::re (a) } -> Same<N>;
         } && requires (const N &a, const N &b) {
-            { inner (a, b) } -> ImplicitlyConvertible<N>;
+            { math::inner (a, b) } -> ImplicitlyConvertible<N>;
         };
 
     template <typename N> concept basic_number_big_unsigned =

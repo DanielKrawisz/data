@@ -1515,7 +1515,7 @@ namespace data {
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         N_bytes<r, word> inline bounded<false, r, size, word>::modulus () {
-            return N_bytes<r, word> (max ()) + 1;
+            return N_bytes<r, word> (max ()) + 1u;
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>

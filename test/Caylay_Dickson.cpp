@@ -8,7 +8,9 @@
 #include "data/math.hpp"
 #include "gtest/gtest.h"
 
-namespace data {
+namespace data::math {
+
+    // TODO we need to be able to compare fractions and
 
     static_assert (Real<Z>);
     static_assert (Real<Z_bytes_little>);
@@ -23,49 +25,55 @@ namespace data {
     static_assert (Real<hex_int>);
     static_assert (Real<hex_int_BC>);
 
-    static_assert (Complex<math::complex<Z>>);
-    static_assert (Complex<math::complex<Z_bytes_little>>);
-    static_assert (Complex<math::complex<Z_bytes_big>>);
-    static_assert (Complex<math::complex<Z_bytes_BC_little>>);
-    static_assert (Complex<math::complex<Z_bytes_BC_big>>);
-    static_assert (Complex<math::complex<int64>>);
-    static_assert (Complex<math::complex<int128>>);
-    static_assert (Complex<math::complex<int128_little>>);
-    static_assert (Complex<math::complex<int128_big>>);
-    static_assert (Complex<math::complex<dec_int>>);
-    static_assert (Complex<math::complex<hex_int>>);
-    static_assert (Complex<math::complex<hex_int_BC>>);
+    static_assert (Complex<complex<Z>>);
+    static_assert (Complex<complex<Z_bytes_little>>);
+    static_assert (Complex<complex<Z_bytes_big>>);
+    static_assert (Complex<complex<Z_bytes_BC_little>>);
+    static_assert (Complex<complex<Z_bytes_BC_big>>);
+    static_assert (Complex<complex<int64>>);
+    static_assert (Complex<complex<int128>>);
+    static_assert (Complex<complex<int128_little>>);
+    static_assert (Complex<complex<int128_big>>);
+    static_assert (Complex<complex<dec_int>>);
+    static_assert (Complex<complex<hex_int>>);
+    static_assert (Complex<complex<hex_int_BC>>);
 
-    static_assert (Quaternionic<math::quaternion<Z>>);
-    static_assert (Quaternionic<math::quaternion<Z_bytes_little>>);
-    static_assert (Quaternionic<math::quaternion<Z_bytes_big>>);
-    static_assert (Quaternionic<math::quaternion<Z_bytes_BC_little>>);
-    static_assert (Quaternionic<math::quaternion<Z_bytes_BC_big>>);
-    static_assert (Quaternionic<math::quaternion<int64>>);
-    static_assert (Quaternionic<math::quaternion<int128>>);
-    static_assert (Quaternionic<math::quaternion<int128_little>>);
-    static_assert (Quaternionic<math::quaternion<int128_big>>);
-    static_assert (Quaternionic<math::quaternion<dec_int>>);
-    static_assert (Quaternionic<math::quaternion<hex_int>>);
-    static_assert (Quaternionic<math::quaternion<hex_int_BC>>);
+    static_assert (Quaternionic<quaternion<Z>>);
+    static_assert (Quaternionic<quaternion<Z_bytes_little>>);
+    static_assert (Quaternionic<quaternion<Z_bytes_big>>);
+    static_assert (Quaternionic<quaternion<Z_bytes_BC_little>>);
+    static_assert (Quaternionic<quaternion<Z_bytes_BC_big>>);
+    static_assert (Quaternionic<quaternion<int64>>);
+    static_assert (Quaternionic<quaternion<int128>>);
+    static_assert (Quaternionic<quaternion<int128_little>>);
+    static_assert (Quaternionic<quaternion<int128_big>>);
+    static_assert (Quaternionic<quaternion<dec_int>>);
+    static_assert (Quaternionic<quaternion<hex_int>>);
+    static_assert (Quaternionic<quaternion<hex_int_BC>>);
 
-    static_assert (Octonionic<math::octonion<Z>>);
-    static_assert (Octonionic<math::octonion<Z_bytes_little>>);
-    static_assert (Octonionic<math::octonion<Z_bytes_big>>);
-    static_assert (Octonionic<math::octonion<Z_bytes_BC_little>>);
-    static_assert (Octonionic<math::octonion<Z_bytes_BC_big>>);
-    static_assert (Octonionic<math::octonion<int64>>);
-    static_assert (Octonionic<math::octonion<int128>>);
-    static_assert (Octonionic<math::octonion<int128_little>>);
-    static_assert (Octonionic<math::octonion<int128_big>>);
-    static_assert (Octonionic<math::octonion<dec_int>>);
-    static_assert (Octonionic<math::octonion<hex_int>>);
-    static_assert (Octonionic<math::octonion<hex_int_BC>>);
+    static_assert (Octonionic<octonion<Z>>);
+    static_assert (Octonionic<octonion<Z_bytes_little>>);
+    static_assert (Octonionic<octonion<Z_bytes_big>>);
+    static_assert (Octonionic<octonion<Z_bytes_BC_little>>);
+    static_assert (Octonionic<octonion<Z_bytes_BC_big>>);
+    static_assert (Octonionic<octonion<int64>>);
+    static_assert (Octonionic<octonion<int128>>);
+    static_assert (Octonionic<octonion<int128_little>>);
+    static_assert (Octonionic<octonion<int128_big>>);
+    static_assert (Octonionic<octonion<dec_int>>);
+    static_assert (Octonionic<octonion<hex_int>>);
+    static_assert (Octonionic<octonion<hex_int_BC>>);
 
-    template <typename X> void test_complex (X zero, X one, X i) {
+    template <typename X>
+    // requires NumberComparable<X>
+    void test_complex (X zero, X one, X i) {
         EXPECT_NE (zero, one);
         EXPECT_NE (zero, i);
         EXPECT_NE (one, i);
+
+        EXPECT_EQ (~zero, zero);
+        EXPECT_EQ (~one, one);
+        EXPECT_EQ (~i, -i);
 
         EXPECT_EQ (zero * zero, zero);
         EXPECT_EQ (zero * one, zero);
@@ -76,10 +84,6 @@ namespace data {
         EXPECT_EQ (i * one, i);
         EXPECT_EQ (one * i, i);
         EXPECT_EQ (i * i, -one);
-
-        EXPECT_EQ (~zero, zero);
-        EXPECT_EQ (~one, one);
-        EXPECT_EQ (~i, -i);
     };
 
     template <typename X> void test_quaternion (X zero, X one, X i, X j) {
@@ -162,25 +166,127 @@ namespace data {
         EXPECT_EQ (e7, -x);
     };
 
-    TEST (CaylayDickson, Complex) {
+    using complex_test_cases = ::testing::Types<
+        complex64, complex128,
+        complex<fraction<Z>>,
+        complex<fraction<Z_bytes_little>>,
+        complex<fraction<Z_bytes_big>>,
+        complex<fraction<Z_bytes_BC_little>>,
+        complex<fraction<Z_bytes_BC_big>>,
+        complex<fraction<dec_int>>,
+        complex<fraction<hex_int>>,
+        complex<fraction<hex_int_BC>>,
+        complex<fraction<int64>>,/*
+        complex<fraction<int64_little>>,
+        complex<fraction<int64_big>>,*/
+        complex<fraction<int128>>,
+        complex<fraction<int128_little>>,
+        complex<fraction<int128_big>>/*,
+        fraction<complex<Z>>,
+        fraction<complex<Z_bytes_little>>,
+        fraction<complex<Z_bytes_big>>,
+        fraction<complex<Z_bytes_BC_little>>,
+        fraction<complex<Z_bytes_BC_big>>,
+        fraction<complex<int64>>,
+        fraction<complex<int64_little>>,
+        fraction<complex<int64_big>>,
+        fraction<complex<int128>>,
+        fraction<complex<int128_little>>,
+        fraction<complex<int128_big>>*/>;
 
-        // rational complexes
-        test_complex<QC> (QC {0}, QC {1}, QC::I ());
+    using quat_test_cases = ::testing::Types<
+        quat128, quat256,
+        quaternion<fraction<Z>>,
+        quaternion<fraction<Z_bytes_little>>,
+        quaternion<fraction<Z_bytes_big>>,
+        quaternion<fraction<Z_bytes_BC_little>>,
+        quaternion<fraction<Z_bytes_BC_big>>,
+        quaternion<fraction<dec_int>>,
+        quaternion<fraction<hex_int>>,
+        quaternion<fraction<hex_int_BC>>,
+        quaternion<fraction<int64>>,/*
+        quaternion<fraction<int64_little>>,
+        quaternion<fraction<int64_big>>,*/
+        quaternion<fraction<int128>>,
+        quaternion<fraction<int128_little>>,
+        quaternion<fraction<int128_big>>/*,
+        fraction<quaternion<Z>>,
+        fraction<quaternion<Z_bytes_little>>,
+        fraction<quaternion<Z_bytes_big>>,
+        fraction<quaternion<Z_bytes_BC_little>>,
+        fraction<quaternion<Z_bytes_BC_big>>,
+        fraction<quaternion<int64>>,
+        fraction<quaternion<int64_little>>,
+        fraction<quaternion<int64_big>>,
+        fraction<quaternion<int128>>,
+        fraction<quaternion<int128_little>>,
+        fraction<quaternion<int128_big>>*/>;
 
-        // rational quaternions
-        test_quaternion<QH> (QH {0}, QH {1}, QH::I (), QH::J ());
+    using oct_test_cases = ::testing::Types<
+        oct256, oct512,
+        octonion<fraction<Z>>,
+        octonion<fraction<Z_bytes_little>>,
+        octonion<fraction<Z_bytes_big>>,
+        octonion<fraction<Z_bytes_BC_little>>,
+        octonion<fraction<Z_bytes_BC_big>>,
+        octonion<fraction<dec_int>>,
+        octonion<fraction<hex_int>>,
+        octonion<fraction<hex_int_BC>>,
+        octonion<fraction<int64>>,/*
+        octonion<fraction<int64_little>>,
+        octonion<fraction<int64_big>>,*/
+        octonion<fraction<int128>>,
+        octonion<fraction<int128_little>>,
+        octonion<fraction<int128_big>>/*,
+        fraction<octonion<Z>>,
+        fraction<octonion<Z_bytes_little>>,
+        fraction<octonion<Z_bytes_big>>,
+        fraction<octonion<Z_bytes_BC_little>>,
+        fraction<octonion<Z_bytes_BC_big>>,
+        fraction<octonion<int64>>,
+        fraction<octonion<int64_little>>,
+        fraction<octonion<int64_big>>,
+        fraction<octonion<int128>>,
+        fraction<octonion<int128_little>>,
+        fraction<octonion<int128_big>>*/>;
+}
 
-        // rational octonions
-        test_octonion<QO> (QO {0}, QO {1}, QO::E1 (), QO::E2 (), QO::E4 ());
+namespace data {
 
-        // Caylay-Dickson floating points.
-        test_complex<complex64> (complex64 {0}, complex64 {1}, complex64::I ());
-        test_complex<complex128> (complex128 {0}, complex128 {1}, complex128::I ());
-        test_quaternion<quat128> (quat128 {0}, quat128 {1}, quat128::I (), quat128::J ());
-        test_quaternion<quat256> (quat256 {0}, quat256 {1}, quat256::I (), quat256::J ());
-        test_octonion<oct256> (oct256 {0}, oct256 {1}, oct256::E1 (), oct256::E2 (), oct256::E4 ());
-        test_octonion<oct512> (oct512 {0}, oct512 {1}, oct512::E1 (), oct512::E2 (), oct512::E4 ());
+    template <typename N>
+    struct Complex : ::testing::Test {
+        using complex = N;
+    };
 
+    TYPED_TEST_SUITE (Complex, math::complex_test_cases);
+
+    TYPED_TEST (Complex, Complex) {
+        using C = typename TestFixture::complex;
+        test_complex<C> (C {0}, C {1}, C::I ());
+    }
+
+    template <typename N>
+    struct Quaternion : ::testing::Test {
+        using quat = N;
+    };
+
+    TYPED_TEST_SUITE (Quaternion, math::quat_test_cases);
+
+    TYPED_TEST (Quaternion, Quaternion) {
+        using H = typename TestFixture::quat;
+        test_quaternion<H> (H {0}, H {1}, H::I (), H::J ());
+    }
+
+    template <typename N>
+    struct Octonion : ::testing::Test {
+        using oct = N;
+    };
+
+    TYPED_TEST_SUITE (Octonion, math::oct_test_cases);
+
+    TYPED_TEST (Octonion, Octonion) {
+        using O = typename TestFixture::oct;
+        test_octonion<O> (O {0}, O {1}, O::E1 (), O::E2 (), O::E4 ());
     }
 
 }

@@ -249,20 +249,35 @@ namespace data::math::number {
     Z_bytes<r, c, word> inline operator * (const N_bytes<r, word> &a, const Z_bytes<r, c, word> &b) {
         return Z_bytes<r, c, word> (a) * b;
     }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator + (const N_bytes<r, word> &a, uint64 b) {
-        return a + N_bytes<r, word> (b);
+
+    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    N_bytes<r, word> inline operator + (const N_bytes<r, word> &u, I x) {
+        return u + N_bytes<r, word> (x);
     }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator - (const N_bytes<r, word> &a, uint64 b) {
-        return a - N_bytes<r, word> (b);
+
+    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    N_bytes<r, word> inline operator - (const N_bytes<r, word> &u, I x) {
+        return u - N_bytes<r, word> (x);
     }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> inline operator * (const N_bytes<r, word> &a, uint64 b) {
-        return a * N_bytes<r, word> (b);
+
+    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    N_bytes<r, word> inline operator * (const N_bytes<r, word> &u, I x) {
+        return u * N_bytes<r, word> (x);
+    }
+
+    template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> inline operator + (I x, const N_bytes<r, word> &u) {
+        return u + N_bytes<r, word> (x);
+    }
+
+    template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> inline operator - (I x, const N_bytes<r, word> &u) {
+        return N_bytes<r, word> (x) - u;
+    }
+
+    template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
+    N_bytes<r, word> inline operator * (I x, const N_bytes<r, word> &u) {
+        return u * N_bytes<r, word> (x);
     }
     
     template <endian::order r, neg c, std::unsigned_integral word>

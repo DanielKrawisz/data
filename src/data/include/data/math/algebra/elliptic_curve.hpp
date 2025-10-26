@@ -9,7 +9,7 @@
 #include <data/math/number/modular.hpp>
 #include <data/math/field.hpp>
 #include <data/math/point.hpp>
-#include <data/power.hpp>
+#include <data/math/power.hpp>
 
 namespace data::math {
 

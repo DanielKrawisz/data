@@ -72,7 +72,7 @@ namespace data::math::number {
 
         if (d.Remainder == 0) return {Dividend < 0 ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
 
-        if (Dividend < 0) return {static_cast<Z> (-(d.Quotient + 1)), static_cast<N> (Divisor - d.Remainder)};
+        if (Dividend < 0) return {static_cast<Z> (-(d.Quotient + 1u)), static_cast<N> (Divisor - d.Remainder)};
 
         return {Z (d.Quotient), d.Remainder};
     }
@@ -107,7 +107,7 @@ namespace data::math::number {
             // if y -> -y, then x == -q y + r
             // if x -> -x and y -> -y, then x = q y - r;
 
-            if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient + 1): Z (-(d.Quotient + 1)), divisor - d.Remainder};
+            if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient + 1u): Z (-(d.Quotient + 1u)), divisor - d.Remainder};
 
             if (Divisor < 0) return {static_cast<Z> (-d.Quotient), static_cast<N> (d.Remainder)};
         } else if constexpr (m == TRUNCATE_TOWARD_ZERO) {
