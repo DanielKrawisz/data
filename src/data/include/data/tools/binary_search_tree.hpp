@@ -321,10 +321,20 @@ namespace data {
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
     requires interface::has_insert_method<tree, data::entry<const key, value>>
-    binary_search_map<key, value, tree> binary_search_map<key, value, tree>::operator & (binary_search_map x) const {
-        auto m = *this;
-        for (const auto &e : x) m = m.insert (e);
-        return m;
+    binary_search_map<key, value, tree> inline binary_search_map<key, value, tree>::operator | (binary_search_map x) const {
+        return static_cast<const tree &> (*this) | static_cast<const tree &> (x);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree> inline binary_search_map<key, value, tree>::operator & (binary_search_map x) const {
+        return static_cast<const tree &> (*this) & static_cast<const tree &> (x);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree> inline binary_search_map<key, value, tree>::operator ^ (binary_search_map x) const {
+        return static_cast<const tree &> (*this) ^ static_cast<const tree &> (x);
     }
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>

@@ -91,11 +91,16 @@ namespace data::RB {
     template <typename V, typename T> bool empty (const tree<V, T> &t);
     template <typename V, typename T> size_t size (const tree<V, T> &t);
     template <typename V, typename T> tree<V, T> insert (const tree<V, T> &, inserted<V>);
-    
-    template <typename V, typename T, typename already_exists> 
+
+    template <typename V, typename T, typename already_exists>
     requires requires (already_exists f, const V &old_v, const V &new_v) {
         { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
     } tree<V, T> merge (const tree<V, T> &, const tree<V, T> &, already_exists f);
+
+    template <typename V, typename T, typename already_exists>
+    requires requires (already_exists f, const V &old_v, const V &new_v) {
+        { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
+    } tree<V, T> intersect (const tree<V, T> &, const tree<V, T> &, already_exists f);
 
     template <Sortable V, functional::buildable_tree<colored<V>> T> struct tree;
 
@@ -232,6 +237,80 @@ namespace data::RB {
         });
     }
 
+    template <typename V, typename T> tree<V, T> operator & (const tree<V, T> &a, const tree<V, T> &b) {
+        return intersect (a, b, [] (const V &old_v, const V &new_v) -> V {
+            if (old_v == new_v) return old_v;
+            throw exception {} << "cannot intersect because of inequivalent values";
+        });
+    }
+
+    template <typename V, typename T> tree<V, T> operator ^ (const tree<V, T> &a, const tree<V, T> &b) {
+        auto i = a.begin ();
+        auto j = b.begin ();
+        tree<V, T> result;
+        while (true) {
+            if (i == a.end ()) {
+                while (j != b.end ()) {
+                    result = result.insert (*j);
+                    j++;
+                }
+                break;
+            }
+
+            if (j == b.end ()) {
+                while (i != a.end ()) {
+                    result = result.insert (*i);
+                    i++;
+                }
+                break;
+            }
+
+            if (*i < *j) {
+                result = result.insert (*i);
+                i++;
+            } else if (*j < *i) {
+                result = result.insert (*j);
+                j++;
+            } else {
+                i++;
+                j++;
+            }
+        }
+
+        return result;
+    }
+
+
+    template <typename V, typename T, typename already_exists>
+    requires requires (already_exists f, const V &old_v, const V &new_v) {
+        { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
+    } tree<V, T> intersect (const tree<V, T> &a, const tree<V, T> &b, already_exists f) {
+        auto i = a.begin ();
+        auto j = b.begin ();
+        tree<V, T> result;
+        while (true) {
+            if (i == a.end ()) {
+                break;
+            }
+
+            if (j == b.end ()) {
+                break;
+            }
+
+            if (*i < *j) {
+                i++;
+            } else if (*j < *i) {
+                j++;
+            } else {
+                result = result.insert (f (*i, *j));
+                i++;
+                j++;
+            }
+        }
+
+        return result;
+    }
+
     template <typename V, typename T, typename already_exists> 
     requires requires (already_exists f, const V &old_v, const V &new_v) {
         { f (old_v, new_v) } -> ImplicitlyConvertible<V>;
@@ -239,14 +318,6 @@ namespace data::RB {
         // note: a faster version of this function is possible. 
         auto n = a;
         for (const auto &v : b) n = n.insert (v, f);
-        return n;
-    }
-
-    template <typename V, typename T> tree<V, T> operator & (const tree<V, T> &a, const tree<V, T> &b) {
-        tree<V, T> n {};
-        for (const auto &v : b) if (a.contains (v)) n = n.insert (v, [] (const V &old_v, const V &new_v) -> V {
-            throw exception {} << "This cannot really happen";
-        });
         return n;
     }
 
