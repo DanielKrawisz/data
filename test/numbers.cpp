@@ -627,6 +627,29 @@ namespace data {
 
     }
 
+    template <typename Z, typename N = Z>
+    void test_throw_on_division_by_zero () {
+        EXPECT_THROW (Z {1} / Z {0}, math::division_by_zero);
+        EXPECT_THROW (Z {1} % N {0}, math::division_by_zero);
+    }
+
+    TEST (Numbers, ThrowOnDivisionByZero) {
+
+        test_throw_on_division_by_zero<Z, N> ();
+        test_throw_on_division_by_zero<N, N> ();
+        test_throw_on_division_by_zero<Z_bytes_little, N_bytes_little> ();
+        test_throw_on_division_by_zero<Z_bytes_big, N_bytes_big> ();
+        test_throw_on_division_by_zero<N_bytes_little, N_bytes_little> ();
+        test_throw_on_division_by_zero<N_bytes_big, N_bytes_big> ();
+        test_throw_on_division_by_zero<Z_bytes_BC_little> ();
+        test_throw_on_division_by_zero<Z_bytes_BC_big> ();
+        test_throw_on_division_by_zero<dec_uint> ();
+        test_throw_on_division_by_zero<hex_uint> ();
+        test_throw_on_division_by_zero<hex_int> ();
+        test_throw_on_division_by_zero<base58_uint> ();
+
+    }
+
     // TODO Need a decrement test for other kinds of numbers.
 
     // TODO need a test to ensure that ^ means power for

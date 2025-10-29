@@ -70,7 +70,6 @@ add_executable (
     number_theory.cpp            # TODO: make typed tests
 
     # math
-
     rational.cpp                 # TODO: all fractions should be NumberComparable
     Caylay_Dickson.cpp           # TODO: contains commented test cases.
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
