@@ -125,5 +125,21 @@ namespace data {
         })));
 
     }
+
+    TEST (Map, Merge) {
+        using key_already_exists = map<N, string>::key_already_exists;
+
+        map<N, string> A {{1, "hi"}, {2, "bye"}};
+        map<N, string> B {{2, "bye"}, {3, "Q"}};
+
+        map<N, string> ResultAnd {{2, "bye"}};
+        map<N, string> ResultOr {{1, "hi"}, {2, "bye"}, {3, "Q"}};
+        map<N, string> ResultXor {{1, "hi"}, {3, "Q"}};
+
+        EXPECT_EQ (A | B, ResultOr);
+        EXPECT_EQ (A ^ B, ResultXor);
+        EXPECT_EQ (A & B, ResultAnd);
+
+    }
 }
 

@@ -1349,7 +1349,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> inline operator %
     (const Z_bytes<r, neg::BC, word> &x, const Z_bytes<r, neg::BC, word> &j) {
-        return data::divmod<Z_bytes<r, neg::BC, word>> (x, nonzero<Z_bytes<r, neg::BC, word>> {j}).Remainder;
+        return data::divmod (x, nonzero {j}).Remainder;
     }
 
     template <endian::order r, std::unsigned_integral word>
