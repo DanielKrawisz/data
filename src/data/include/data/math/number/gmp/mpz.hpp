@@ -741,6 +741,8 @@ namespace data::math::number::GMP {
     template <endian::order r, neg c, std::unsigned_integral word>
     Z::Z (const Z_bytes<r, c, word> &z) {
         mpz_init (MPZ);
+        if (data::is_zero (z)) return;
+
         if (data::is_negative (z)) {
             *this = std::move (Z (-z));
             // this negates the value of the number.
