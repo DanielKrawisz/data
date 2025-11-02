@@ -387,17 +387,17 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 ## Mathematics
 
-Another headers-only library.
+A headers-only library for math concepts.
+
+* `data/math/infinite.hpp`
+* `data/math/figurate.hpp`
+* `data/math/combinatorics.hpp`
+* `data/math/permutation.hpp`
 
 ### `data/math/infinite.hpp`
-
 ### `data/math/figurate.hpp`
-
 ### `data/math/permutation.hpp`
-
 ### `data/math/combinatorics.hpp`
-
-### `data/math/polynomial.hpp`
 
 ## String
 
@@ -414,11 +414,19 @@ Another headers-only library.
 #### `typename data::string`
 
 Just like `std::string` except that when you print it, `"` are included as delimiters. 
+
+## Numbers
+
+Big numbers library that uses GMP
+
+* `data/encoding/endian.hpp`
+* `data/integral.hpp`
+* `data/numbers.hpp`
+
+### `data/integral.hpp`
+
+Numbers that work just like built-in types but with more sizes. 
 <!--
-### `data/math/numbers.hpp`
-
-Numbers that work the same as built-in integral types but with more sizes. 
-
 #### `typename data::byte`
 
 #### `typename data::uint8`
@@ -460,7 +468,7 @@ Numbers that work the same as built-in integral types but with more sizes.
 #### `typename data::uint64_little`
 
 #### `typename data::int64_little`
-
+-->
 #### `typename data::uint128`
 
 #### `typename data::int128`
@@ -484,9 +492,6 @@ Numbers that work the same as built-in integral types but with more sizes.
 #### `typename data::uint160_little`
 
 #### `typename data::int160_little`
--->
-
-## Numbers
 
 ## Hash
 
