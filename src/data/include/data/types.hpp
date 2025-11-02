@@ -59,8 +59,6 @@ namespace data {
 
     template <typename... X> using handler = std::function<void (X...)>;
 
-    template <typename... X> using tuple = std::tuple<X...>;
-
     template <typename X> using view = std::basic_string_view<X>;
 
     using string_view = std::basic_string_view<char>;
@@ -71,10 +69,19 @@ namespace data {
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
 
-    // TODO replace this with something good.
-    using random_engine = std::default_random_engine;
+    template <typename... X> using tuple = std::tuple<X...>;
 
-    random_engine& get_random_engine ();
+    // apply to each element of a tuple.
+    template <typename Tuple, typename F>
+    requires requires {
+        typename std::tuple_size<std::remove_cvref_t<Tuple>>::type;
+    } constexpr void for_each (Tuple &&t, F &&f) {
+        using U = std::remove_cvref_t<Tuple>;
+        constexpr std::size_t N = std::tuple_size_v<U>;
+        [&]<std::size_t... I> (std::index_sequence<I...>) {
+            (f(std::get<I> (std::forward<Tuple> (t))), ...);
+        } (std::make_index_sequence<N> {});
+    }
 
 }
 
