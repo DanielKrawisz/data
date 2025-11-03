@@ -16,32 +16,32 @@
 namespace data::math::number {
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
+    constexpr uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
         return a / uint<r, x, word> (b);
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
+    constexpr sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
         return a / sint<r, x, word> (b);
     }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+    constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return data::divmod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b}).Remainder;
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
+    constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
         return uint64 (a % uint<r, x, word> (b));
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>
-    uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
+    constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
         return uint64 (a % uint<r, x, word> (b));
     }
     
@@ -74,19 +74,19 @@ namespace data::math::number {
 
 namespace data::math::def {
     template <endian::order r, size_t x, std::unsigned_integral word>
-    division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
+    constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
         (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         return number::natural_divmod (v, z.Value);
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
+    constexpr division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
         return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (v, z.Value);
     }
 
     template <endian::order r, size_t x, std::unsigned_integral word>
-    division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
+    constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         return number::natural_divmod (uint<r, x, word> (v), z.Value);
     }

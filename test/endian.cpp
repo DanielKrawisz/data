@@ -7,7 +7,7 @@
 
 namespace data {
 
-    TEST (EndianTest, TestEndian) {
+    TEST (Endian, Endian) {
         uint32_little xla {33993};
         uint32_little xlb {834030483};
         uint32_little xlc {536903935};

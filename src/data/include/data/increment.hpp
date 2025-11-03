@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_INCREMENT
 #define DATA_MATH_NUMBER_INCREMENT
 
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 
 namespace data::math::number {
 

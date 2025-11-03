@@ -6,7 +6,7 @@
 #define DATA_MATH_CAYLEY_DICKSON
 
 #include <data/norm.hpp>
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 #include <data/math/field.hpp>
 #include <data/math/algebra/algebra.hpp>
 #include <data/math/linear/inner.hpp>

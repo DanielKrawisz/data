@@ -8,7 +8,7 @@
 #include <data/math/number/gmp/N.hpp>
 #include <data/math/number/gmp/mpq.hpp>
 #include <data/math/field.hpp>
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 
 namespace data {
     

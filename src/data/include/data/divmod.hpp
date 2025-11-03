@@ -5,7 +5,7 @@
 #ifndef DATA_DIVIDE
 #define DATA_DIVIDE
 
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 #include <data/abs.hpp>
 #include <data/arithmetic.hpp>
 #include <iostream> // required on windows

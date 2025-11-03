@@ -7,7 +7,7 @@
 
 #include <data/types.hpp>
 #include <data/maybe.hpp>
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/increment.hpp>

@@ -9,13 +9,13 @@
 #include "gmock/gmock-matchers.h"
 namespace data {
 
-    TEST (AsciiTests, AsciiConstruct) {
+    TEST (ASCII, Construct) {
         ASCII {"this should compile"};
         string a_string {"a string"};
         ASCII this_should_compile (a_string);
     }
 
-    TEST (AsciiTests, AsciiInvalidAscii) {
+    TEST (ASCII, Invalid) {
         char temp[] = "This is a test";
         temp[3] = -20;
         string temp2 = temp;
@@ -23,21 +23,21 @@ namespace data {
         ASSERT_FALSE (stringTest.valid ());
     }
 
-    TEST (AsciiTests, AsciiValidAscii) {
+    TEST (ASCII, Valid) {
         char temp[] = "This is a test";
         std::string temp2=temp;
         ASCII stringTest (temp2);
         ASSERT_TRUE (stringTest.valid ());
     }
 
-    TEST (AsciiTests, AsciiCastToBytes) {
+    TEST (ASCII, CastToBytes) {
         char temp[] = "This is a test";
         std::string temp2 = temp;
         ASCII stringTest (temp2);
         ASSERT_THAT (static_cast<data::bytes> (stringTest), ::testing::ElementsAre (84,104,105,115,32,105,115,32,97,32,116,101,115,116));
     }
 
-    TEST (AsciiTests, UnicodeToUTF8) {
+    TEST (ASCII, UnicodeToUTF8) {
         UTF8 expected {"Hello, World! Привет, мир!"};
         unicode test {U"Hello, World! Привет, мир!"};
 
