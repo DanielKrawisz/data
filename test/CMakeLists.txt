@@ -38,11 +38,11 @@ add_executable (
     # string 
     integer_format.cpp
     bytes.cpp
-    testHex.cpp
-    testBase64.cpp
-    testAscii.cpp
-    testStream.cpp
-    testEndian.cpp
+    hex.cpp
+    base64.cpp
+    ASCII.cpp
+    stream.cpp
+    endian.cpp
     bounded.cpp                  # TODO: should be typed test
 
     # hash

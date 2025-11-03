@@ -22,9 +22,9 @@ Naming conventions:
 * Types, functions, and member functions are written `like_this`.
 * Namespaces may have any format style.
 
-## Core
+## Functional Data Structures
 
-Core is a headers-only library focused on functional data structures.
+A headers-only library focused on functional data structures.
 
 The data library supports the following data structures:
 
@@ -34,6 +34,8 @@ The data library supports the following data structures:
 * tree
 * map
 * set
+* dispatch
+* permutation
 
 A set of member functions is provided to work with them, as well as functions
 with the same name that can be found by argument dependent lookup. 
@@ -52,6 +54,7 @@ The functional data structures library has the following includes:
 * `data/set.hpp`
 * `data/map.hpp`
 * `data/dispatch.hpp`
+* `data/math/permutation.hpp`
 <!--
 * `data/transpose.hpp`
 * `data/map_thread`
@@ -387,12 +390,18 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 ## Mathematics
 
-A headers-only library for math concepts.
+A headers-only library for mathematical structures.
 
 * `data/math/infinite.hpp`
+* `data/math/nonzero.hpp`
 * `data/math/figurate.hpp`
 * `data/math/combinatorics.hpp`
-* `data/math/permutation.hpp`
+* `data/math/polynomial.hpp`
+* `data/integral.hpp`
+* `data/math/prime.hpp`
+* `data/math/primitive_root.hpp`
+* `data/math/extended_euclidian.hpp`
+* `data/math/modular.hpp`
 
 ### `data/math/infinite.hpp`
 ### `data/math/figurate.hpp`
@@ -400,6 +409,11 @@ A headers-only library for math concepts.
 ### `data/math/combinatorics.hpp`
 
 ## String
+
+* `data/encoding/endian.hpp`
+* `data/cross.hpp`
+* `data/array.hpp`
+* `data/bytes.hpp`
 
 ### `data/cross.hpp`
 
@@ -414,19 +428,10 @@ A headers-only library for math concepts.
 #### `typename data::string`
 
 Just like `std::string` except that when you print it, `"` are included as delimiters. 
-
-## Numbers
-
-Big numbers library that uses GMP
-
-* `data/encoding/endian.hpp`
-* `data/integral.hpp`
-* `data/numbers.hpp`
-
+<!--
 ### `data/integral.hpp`
 
 Numbers that work just like built-in types but with more sizes. 
-<!--
 #### `typename data::byte`
 
 #### `typename data::uint8`
@@ -468,7 +473,6 @@ Numbers that work just like built-in types but with more sizes.
 #### `typename data::uint64_little`
 
 #### `typename data::int64_little`
--->
 #### `typename data::uint128`
 
 #### `typename data::int128`
@@ -493,13 +497,25 @@ Numbers that work just like built-in types but with more sizes.
 
 #### `typename data::int160_little`
 
+-->
 ## Hash
 
 A library providing a number of cryptographic hash functions. 
 
 ### data/hash.hpp
 
-Provides a set of hash functions. 
+Provides a set of hash functions from crypto++. 
+
+## Numbers
+
+Big numbers library that uses GMP and crypto++
+
+* `data/random.hpp`
+* `data/numbers.hpp`
+* `data/math/factor.hpp`
+* `data/math/random_prime.hpp`
+
+## Crypto
 
 ## Net
 

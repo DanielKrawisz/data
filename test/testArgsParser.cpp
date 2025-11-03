@@ -16,7 +16,7 @@ namespace data::io {
         complement
     };
 
-    TEST (ArgsParserTest, TestFlagsOptions) {
+    TEST (ArgsParser, FlagsOptions) {
         // a single flag.
         command<parameter> cmd {
             {{verb, "verb"}, {verb, "subject"}},

@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_ALGEBRA
 #define DATA_MATH_ALGEBRA
 
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 #include <data/arithmetic.hpp>
 
 // TODO make functions for identity and inverse in data::math

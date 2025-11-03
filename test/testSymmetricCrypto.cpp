@@ -87,7 +87,7 @@ namespace data::crypto {
     };
 
     // test for all hash functions we have
-    TEST (TestSymmetricCrypto, TestHMAC) {
+    TEST (SymmetricCrypto, HMAC) {
 
         // Note: should use the versions of the hash functions defined in data, not cryptopp.
         test_MACs<MAC::HMAC_writer<CryptoPP::SHA1, 20>> {MACMessage, MACAltered};
@@ -118,7 +118,7 @@ namespace data::crypto {
     };
 
     // can test with different sizes.
-    TEST (TestSymmetricCrypto, TestSHA3MAC) {
+    TEST (SymmetricCrypto, SHA3MAC) {
 
         test_SHA3MAC<16> {MACMessage, MACAltered};
         test_SHA3MAC<20> {MACMessage, MACAltered};
@@ -234,7 +234,7 @@ namespace data::crypto {
         test_block_ciphers_for<0, 0, 0> (c, m, k, msg);
     }
 
-    TEST (TestSymmetricCrypto, TestBlockCipher) {
+    TEST (SymmetricCrypto, BlockCipher) {
 
         test_block_ciphers (supported_ciphers, block_modes, kkk, bytes {string {""}});
         test_block_ciphers (supported_ciphers, block_modes, kkk, bytes {string {"a"}});
@@ -318,7 +318,7 @@ namespace data::crypto {
     };
 
     // can test with SHA3 and with all block ciphers using OFB
-    TEST (TestSymmetricCrypto, TestOneWayStream) {
+    TEST (SymmetricCrypto, OneWayStream) {
         test_output_feedback_stream<ciphers<Rijndael, Serpent, Twofish, RC6, MARS>, key_sizes<16, 20, 24, 28, 32, 40, 48, 56>> {};
         test_SHA3_stream<key_sizes<16, 20, 24, 28, 32, 40, 48, 56>> {};
     }

@@ -71,11 +71,10 @@ namespace data {
             modular<square (N {5})> test_mod_square {3};
             modular<math::conjugate (N {17})> test_mod_conjugate {4};
             modular<abs (N {17})> test_mod_abs {5};
-            //modular<norm (N {17})> test_mod_norm {6};
             modular<quadrance (N {17})> test_mod_quadrance {7};
             modular<math::inner (N {17}, N {101})> test_mod_inner {8};
-            modular<plus (times (N {2}, N {3}), minus (N {7}, N {2}))> test_mod_exp_A {9};
-            modular<N {2} * N {3} + (N {7} - N {2})> test_mod_exp_B {3};
+            modular<plus (times (N {2}, N {3}), minus (N {7}, N {2}))> test_mod_arith_A {9};
+            modular<N {2} * N {3} + (N {7} - N {2})> test_mod_arithB {3};
             modular<(N {13} / N {5}) % N {17}> test_mod_exp_C {3};
             modular<~(-N {13})> test_mod_exp_D {3};
             modular<bit_not (negate (N {13}))> test_mod_exp_E {3};

@@ -6,13 +6,13 @@
 
 namespace data::encoding {
 
-    TEST (Base64Test,TestFalse) {
+    TEST (Base64, False) {
         EXPECT_FALSE (encoding::base64::valid ("dGVzdFN0cmlZw==")) << "Shouldn't accept a string which isn't in the 4 boundary";
         EXPECT_FALSE (encoding::base64::valid ("dGVzdFN0c$luZw==")) << "Shouldn't allow invalid characters";
         EXPECT_FALSE (encoding::base64::valid ("dGVzdFN0=cmluZw=")) << "Shouldn't allow = mid-string";
     }
 
-    TEST (Base64Test, TestBase64) {
+    TEST (Base64, Base64) {
 
         std::string b64_string = "AQAAAAHbeKwnOkETYVtfwtW8JJBIhJiCAafbl3/"
         "u5W9z9b9xjLAAAABqRzBEAiApU0jJXbqi4M9n8u2ipEKv99bY3KJ2XQ1c0R2NPwt1gAIgcR2nnkvhO91U2808XPrV9Mnk9wm99rk9"

@@ -35,11 +35,11 @@ namespace data {
     struct half_of<T> : encoding::uint_by_size<sizeof (T) / 2> {
         using type = encoding::uint_by_size<sizeof (T) / 2>::type;
 
-        static type greater_half (T u) {
+        constexpr static type greater_half (T u) {
             return u >> sizeof (type) * 8;
         }
 
-        static type lesser_half (T u) {
+        constexpr static type lesser_half (T u) {
             return static_cast<T> (u & std::numeric_limits<type>::max ());
         }
     };
@@ -48,11 +48,11 @@ namespace data {
     struct half_of<T> : encoding::int_by_size<sizeof (T) / 2> {
         using type = encoding::int_by_size<sizeof (T) / 2>::type;
 
-        static type greater_half (T u) {
+        constexpr static type greater_half (T u) {
             return u >> sizeof (type) * 8;
         }
 
-        static type lesser_half (T u) {
+        constexpr static type lesser_half (T u) {
             return static_cast<T> (u & std::numeric_limits<type>::max ());
         }
     };
@@ -63,11 +63,11 @@ namespace data {
     struct half_of<unsigned __int128_t> : encoding::uint_by_size<8> {
         using type = encoding::uint_by_size<8>::type;
 
-        static type greater_half (__int128_t unsigned u) {
+        constexpr static type greater_half (__int128_t unsigned u) {
             return u >> sizeof (type) * 8;
         }
 
-        static type lesser_half (__int128_t unsigned u) {
+        constexpr static type lesser_half (__int128_t unsigned u) {
             return static_cast<__int128_t unsigned> (u & std::numeric_limits<type>::max ());
         }
     };
@@ -76,11 +76,11 @@ namespace data {
     struct half_of<__int128_t> : encoding::int_by_size<8> {
         using type = encoding::int_by_size<8>::type;
 
-        static type greater_half (__int128_t u) {
+        constexpr static type greater_half (__int128_t u) {
             return u >> sizeof (type) * 8;
         }
 
-        static type lesser_half (__int128_t u) {
+        constexpr static type lesser_half (__int128_t u) {
             return static_cast<__int128_t> (u & std::numeric_limits<type>::max ());
         }
     };
@@ -122,32 +122,32 @@ namespace data {
     };
     
     template <typename whole>
-    typename half_of<whole>::type greater_half (whole w) {
+    constexpr typename half_of<whole>::type greater_half (whole w) {
         return half_of<whole>::greater_half (w);
     };
     
     template <typename whole>
-    typename half_of<whole>::type lesser_half (whole w) {
+    constexpr typename half_of<whole>::type lesser_half (whole w) {
         return half_of<whole>::lesser_half (w);
     };
     
     template <typename half>
-    typename twice<half>::type inline combine (half greater, half lesser) {
+    constexpr typename twice<half>::type inline combine (half greater, half lesser) {
         return ((typename twice<half>::type) (greater) << (sizeof (half) * 8)) + lesser;
     };
     
     template <typename half>
-    typename twice<half>::type inline multiply (half a, half b, half r) {
+    constexpr typename twice<half>::type inline multiply (half a, half b, half r) {
         return (typename twice<half>::type) (a) * (typename twice<half>::type) (b) + (typename twice<half>::type) (r);
     };
     
     template <typename half>
-    typename twice<half>::type inline subtract (half a, half b, half r) {
+    constexpr typename twice<half>::type inline subtract (half a, half b, half r) {
         return r + a - b;
     };
     
     template <typename half>
-    typename twice<half>::type inline add (half a, half b, half r) {
+    constexpr typename twice<half>::type inline add (half a, half b, half r) {
         return (typename twice<half>::type) (a) + b + r;
     };
     

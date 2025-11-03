@@ -5,7 +5,7 @@
 #include "data/io/log.hpp"
 namespace data::log {
 
-    void init_logging(std::string filename) {
+    void init_logging (std::string filename) {
         boost::log::register_simple_formatter_factory< severity_level, char > ("Severity");
         logging::add_file_log
                 (
@@ -18,9 +18,7 @@ namespace data::log {
 
     }
 
-
-    std::ostream& operator<< (std::ostream &strm, severity_level level)
-    {
+    std::ostream &operator << (std::ostream &strm, severity_level level) {
         static const char* strings[] =
                 {
                         "normal",
@@ -40,9 +38,9 @@ namespace data::log {
 
 
 
-void testLog () {
-    DATA_LOG_CHANNEL ("temp", normal) << "Hello, world!";
-}
+    void testLog () {
+        DATA_LOG_CHANNEL ("temp", normal) << "Hello, world!";
+    }
 
 
 

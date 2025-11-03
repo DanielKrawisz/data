@@ -7,7 +7,7 @@
 
 #include <data/complex.hpp>
 #include <data/math/number/rational.hpp>
-#include <data/math/nonnegative.hpp>
+#include <data/math/nonzero.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/math/octonion.hpp>
 

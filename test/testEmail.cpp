@@ -4,7 +4,7 @@
 
 namespace data::net::email {
 
-    TEST (EmailTest, TestAddress) {
+    TEST (Email, Address) {
         for (const ASCII &addr : list<ASCII> {
             "example@email.com",
             "example.first.middle.lastname@email.com",
