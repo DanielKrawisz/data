@@ -74,7 +74,7 @@ namespace data {
             modular<quadrance (N {17})> test_mod_quadrance {7};
             modular<math::inner (N {17}, N {101})> test_mod_inner {8};
             modular<plus (times (N {2}, N {3}), minus (N {7}, N {2}))> test_mod_arith_A {9};
-            modular<N {2} * N {3} + (N {7} - N {2})> test_mod_arithB {3};
+            modular<N {2} * N {3} + (N {7} - N {2})> test_mod_arith_B {3};
             modular<(N {13} / N {5}) % N {17}> test_mod_exp_C {3};
             modular<~(-N {13})> test_mod_exp_D {3};
             modular<bit_not (negate (N {13}))> test_mod_exp_E {3};
@@ -115,7 +115,7 @@ namespace data {
         uint32, uint32_little, uint32_big,
         int32, int32_little, int32_big,
         uint64, uint64_little, uint64_big,
-        int64, int64_little, int64_big/*,
+        int64, int64_little, int64_big,
         uint80, uint80_little, uint80_big,
         int80, int80_little, int80_big,
         uint128, uint128_little, uint128_big,
@@ -125,7 +125,7 @@ namespace data {
         uint224, uint224_little, uint224_big,
         int224, int224_little, int224_big,
         uint256, uint256_little, uint256_big,
-        int256, int256_little, int256_big,
+        int256, int256_little, int256_big/*,
         uint320, uint320_little, uint320_big,
         int320, int320_little, int320_big,
         uint448, uint448_little, uint448_big,

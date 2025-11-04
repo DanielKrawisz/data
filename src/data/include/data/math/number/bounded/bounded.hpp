@@ -416,6 +416,15 @@ namespace data {
             }
         };
 
+        template <bool a, endian::order r, size_t x, std::unsigned_integral word>
+        struct bit_not<bounded<a, r, x, word>> {
+            constexpr bounded<a, r, x, word> operator () (const bounded<a, r, x, word> &m) {
+                bounded<a, r, x, word> result;
+                arithmetic::bit_negate<word> (result.end (), result.begin (), m.begin ());
+                return result;
+            }
+        };
+
         template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
         struct plus_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>> {
             constexpr uint<r, x, word> operator () (
@@ -705,10 +714,8 @@ namespace data {
                 for (word &w : *this) w = 0;
             }
 
-            constexpr bounded (const int64 &);
-            constexpr bounded (const int32 &);
-            constexpr bounded (uint64 x);
-            constexpr bounded (uint32);
+            template <std::signed_integral I> constexpr bounded (I);
+            template <std::unsigned_integral I> constexpr bounded (I);
 
             constexpr explicit bounded (slice<const word, size> &x) : oriented<r, word, size> {x} {}
 
@@ -1336,6 +1343,7 @@ namespace data {
                     for (int i = 0; i < indexes; i++) {
                         *b = x & std::numeric_limits<word>::max ();
                         x >>= (sizeof (word) * 8);
+                        b++;
                     }
                 } else {
                     slice<word> xx {(word*) (&x), indexes};
@@ -1363,60 +1371,51 @@ namespace data {
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<true, r, size, word>::bounded (uint64 x) : bounded {} {
-            if constexpr (sizeof (uint64) <= sizeof (word)) *this->words ().begin () = x;
-
+        template <std::unsigned_integral I>
+        constexpr bounded<true, r, size, word>::bounded (I x) : bounded {} {
+            if constexpr (sizeof (I) <= sizeof (word)) *this->words ().begin () = x;
             else {
+                constexpr size_t indexes = sizeof (I) / sizeof (word);
+                if consteval {
+                    auto b = this->words ().begin ();
+                    for (int i = 0; i < indexes; i++) {
+                        *b = x & std::numeric_limits<word>::max ();
+                        x >>= (sizeof (word) * 8);
+                        b++;
+                    }
+                } else {
+                    data::arithmetic::Words<boost::endian::order::native, word> n {
+                        slice<word> {(word*) (&x), indexes}};
 
-
-                data::arithmetic::Words<boost::endian::order::native, word> n {
-                    slice<word> {(word*) (&x), sizeof (uint64) / sizeof (word)}};
-
-                std::copy (n.begin (), n.end (), this->words ().begin ());
+                    std::copy (n.begin (), n.end (), this->words ().begin ());
+                }
             }
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<true, r, size, word>::bounded (const int32 &x) : oriented<r, word, size>
+        template <std::signed_integral I>
+        constexpr bounded<true, r, size, word>::bounded (I x) : oriented<r, word, size>
             {x < 0 ?
                 bytes_array<word, size>::filled (std::numeric_limits<word>::max ()) :
                 bytes_array<word, size>::filled (0x00)} {
 
-            if constexpr (sizeof (int32) <= sizeof (word)) {
+            if constexpr (sizeof (I) <= sizeof (word)) {
                 *this->words ().begin () = x;
             } else {
-                data::arithmetic::Words<boost::endian::order::native, word> n {
-                    slice<word> {(word*) (&x), sizeof (int32) / sizeof (word)}};
+                constexpr size_t indexes = sizeof (I) / sizeof (word);
+                if consteval {
+                    auto b = this->words ().begin ();
+                    for (int i = 0; i < indexes; i++) {
+                        *b = x & std::numeric_limits<word>::max ();
+                        x >>= (sizeof (word) * 8);
+                        b++;
+                    }
+                } else {
+                    data::arithmetic::Words<boost::endian::order::native, word> n {
+                        slice<word> {(word*) (&x), indexes}};
 
-                std::copy (n.begin (), n.end (), this->words ().begin ());
-            }
-        }
-
-        template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<true, r, size, word>::bounded (uint32 x) : bounded {} {
-            if constexpr (sizeof (uint32) <= sizeof (word)) {
-                *this->words ().begin () = x;
-            } else {
-                data::arithmetic::Words<boost::endian::order::native, word> n {
-                    slice<word> {(word*) (&x), sizeof (uint32) / sizeof (word)}};
-
-                std::copy (n.begin (), n.end (), this->words ().begin ());
-            }
-        }
-
-        template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<true, r, size, word>::bounded (const int64 &x) : oriented<r, word, size>
-            {x < 0 ?
-                bytes_array<word, size>::filled (std::numeric_limits<word>::max ()) :
-                bytes_array<word, size>::filled (0x00)} {
-
-            if constexpr (sizeof (int64) <= sizeof (word)) {
-                *this->words ().begin () = x;
-            } else {
-                data::arithmetic::Words<boost::endian::order::native, word> n {
-                    slice<word> {(word*) (&x), sizeof (int64) / sizeof (word)}};
-
-                std::copy (n.begin (), n.end (), this->words ().begin ());
+                    std::copy (n.begin (), n.end (), this->words ().begin ());
+                }
             }
         }
 
