@@ -265,8 +265,6 @@ namespace data::math::def {
     template <typename A, typename B = A> struct bit_and;
     template <typename A, typename B = A> struct bit_or;
     template <typename A, typename B = A> struct bit_xor;
-    template <typename A, typename B = A> struct bit_nand;
-    template <typename A, typename B = A> struct bit_nor;
     template <typename A> struct bit_shift_left;
     template <typename A> struct bit_shift_right;
 
@@ -293,6 +291,18 @@ namespace data::math::def {
 
     template <typename A, typename Mod = A> struct mul_2_mod;
     template <typename A, typename Mod = A> struct square_mod;
+
+    template <typename A, typename B = A> struct bit_nand {
+        auto operator () (const A &x, const B &y) {
+            return bit_or (bit_not (x), bit_not (x));
+        }
+    };
+
+    template <typename A, typename B = A> struct bit_nor {
+        auto operator () (const A &x, const B &y) {
+            return bit_and (bit_not (x), bit_not (x));
+        }
+    };
 }
 
 namespace data {
@@ -523,8 +533,10 @@ namespace data::math::def {
     template <typename A, typename Mod> struct negate_mod {
         constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
             return x >= 0 && x < n.Value ?
-            data::mod (n.Value - x, n):
-            data::mod (n.Value - data::mod (x, n), n);
+            // We need to cast to A here because of the endian arithmetic numbers.
+            // We should be able to get rid of that. TODO
+            data::mod (A (n.Value - x), n):
+            data::mod (A (n.Value - data::mod (x, n)), n);
         }
     };
 

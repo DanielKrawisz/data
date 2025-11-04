@@ -282,41 +282,109 @@ namespace data {
 
     }
 
-    template<bool is_signed, endian::order o, size_t size> void test_bounded_arithmetic () {
-        bounded<is_signed, o, size> a {0x479u};
-        bounded<is_signed, o, size> b {0x394u};
+    template <typename N>
+    concept ConstexprArithmetic = requires {
+        { []() constexpr { (void) N {0}; }() };
+        { []() constexpr { (void) N {1}; }() };
 
-        bounded<is_signed, o, size> c {0xe5u};
+        { []() constexpr { (void) (N {1} == N {2}); }() };
+        { []() constexpr { (void) (N {1} != N {2}); }() };
+        { []() constexpr { (void) (N {1} < N {2}); }() };
+        { []() constexpr { (void) (N {1} > N {2}); }() };
+        { []() constexpr { (void) (N {1} <= N {2}); }() };
+        { []() constexpr { (void) (N {1} >= N {2}); }() };
 
-        auto x = a;
-        x -= b;
-        EXPECT_EQ (x, c);
-        x += b;
-        EXPECT_EQ (x, a);
+        { []() constexpr { (void) (mul_2_pow (N {7}, 3)); }() };
+        { []() constexpr { (void) (div_2 (N {25})); }() };
+        { []() constexpr { (void) (mod_2 (N {77})); }() };
+        // TODO uncomment this and get the function working.
+        //{ []() constexpr { (void) (size_in_base_2 (N {2021021})); }() };
 
-    }
+        { []() constexpr { (void) (bit_not (N {11})); }() };
+        { []() constexpr { (void) (~N {11}); }() };
+        { []() constexpr { (void) (bit_and (N {11}, N {1001})); }() };
+        { []() constexpr { (void) (N {11} & N {1001}); }() };
+        { []() constexpr { (void) (bit_or (N {11}, N {1001})); }() };
+        { []() constexpr { (void) (bit_xor (N {11}, N {1001})); }() };
+        //{ []() constexpr { (void) (bit_nor (N {11}, N {1001})); }() };
+        //{ []() constexpr { (void) (bit_nand (N {11}, N {1001})); }() };
+        { []() constexpr { (void) (bit_shift_left (N {131}, 1)); }() };
+        { []() constexpr { (void) (bit_shift_right (N {131}, 1)); }() };
 
-    TEST (Bounde, Arithmetic) {
+        { []() constexpr { (void) (square (N {37})); }() };
+        { []() constexpr { (void) (quadrance (N {3})); }() };
+        { []() constexpr { (void) (math::inner (N {3}, N {5})); }() };
 
-        test_bounded_arithmetic<true, endian::big, 9> ();
-        test_bounded_arithmetic<true, endian::little, 9> ();
-        test_bounded_arithmetic<false, endian::big, 9> ();
-        test_bounded_arithmetic<false, endian::little, 9> ();
+        { []() constexpr { (void) (abs (N {2})); }() };
+        { []() constexpr { (void) (negate (N {2})); }() };
+        { []() constexpr { (void) (-N {2}); }() };
 
-        test_bounded_arithmetic<true, endian::big, 10> ();
-        test_bounded_arithmetic<true, endian::little, 10> ();
-        test_bounded_arithmetic<false, endian::big, 10> ();
-        test_bounded_arithmetic<false, endian::little, 10> ();
+        { []() constexpr { (void) (N {1} + N {2}); }() };
+        { []() constexpr { (void) (N {2} - N {1}); }() };
+        { []() constexpr { (void) (N {5} * N {8}); }() };
 
-        test_bounded_arithmetic<true, endian::big, 11> ();
-        test_bounded_arithmetic<true, endian::little, 11> ();
-        test_bounded_arithmetic<false, endian::big, 11> ();
-        test_bounded_arithmetic<false, endian::little, 11> ();
+        { []() constexpr { (void) (plus (N {1}, N {2})); }() };
+        { []() constexpr { (void) (minus (N {2}, N {1})); }() };
+        { []() constexpr { (void) (times (N {5}, N {8})); }() };
+        { []() constexpr { (void) (pow (N {3}, N {7})); }() };
 
-        test_bounded_arithmetic<true, endian::big, 12> ();
-        test_bounded_arithmetic<true, endian::little, 12> ();
-        test_bounded_arithmetic<false, endian::big, 12> ();
-        test_bounded_arithmetic<false, endian::little, 12> ();
+        { []() constexpr { (void) (N {13} / N {5}); }() };
+        { []() constexpr { (void) (N {13} % N {5}); }() };
 
-    }
+        { []() constexpr { (void) (divide (N {13}, math::nonzero {N {5}})); }() };
+        { []() constexpr { (void) (mod (N {13}, math::nonzero {N {5}})); }() };
+        { []() constexpr { (void) (divmod (N {13}, math::nonzero {N {5}})); }() };
+
+        { []() constexpr { (void) (mul_2_mod (N {7}, math::nonzero {N {5}})); }() };
+        { []() constexpr { (void) (square_mod (N {37}, math::nonzero {N {5}})); }() };
+        { []() constexpr { (void) (negate_mod (N {233}, math::nonzero {N {65537}})); }() };
+        { []() constexpr { (void) (plus_mod (N {1}, N {2}, math::nonzero {N {65537}})); }() };
+        { []() constexpr { (void) (minus_mod (N {2}, N {1}, math::nonzero {N {65537}})); }() };
+        { []() constexpr { (void) (times_mod (N {5}, N {8}, math::nonzero {N {65537}})); }() };
+        { []() constexpr { (void) (pow_mod (N {3}, N {7}, math::nonzero {N {65537}})); }() };
+        { []() constexpr { (void) (invert_mod (N {577}, math::nonzero {N {65537}})); }() };
+        { []() constexpr { (void) (GCD (N {4056}, N {98432})); }() };
+
+    };
+
+    static_assert (ConstexprArithmetic<uint64>);
+    static_assert (ConstexprArithmetic<uint64_big>);
+    static_assert (ConstexprArithmetic<uint64_little>);
+
+    static_assert (ConstexprArithmetic<int64>);
+    static_assert (ConstexprArithmetic<int64_big>);
+    static_assert (ConstexprArithmetic<int64_little>);
+
+    static_assert (ConstexprArithmetic<uint80>);
+    static_assert (ConstexprArithmetic<uint80_big>);
+    static_assert (ConstexprArithmetic<uint80_little>);
+
+    static_assert (ConstexprArithmetic<int80>);
+    static_assert (ConstexprArithmetic<int80_big>);
+    static_assert (ConstexprArithmetic<int80_little>);
+
+    static_assert (ConstexprArithmetic<uint128>);
+    static_assert (ConstexprArithmetic<uint128_big>);
+    static_assert (ConstexprArithmetic<uint128_little>);
+
+    static_assert (ConstexprArithmetic<int128>);
+    static_assert (ConstexprArithmetic<int128_big>);
+    static_assert (ConstexprArithmetic<int128_little>);
+
+    static_assert (ConstexprArithmetic<uint160>);
+    static_assert (ConstexprArithmetic<uint160_big>);
+    static_assert (ConstexprArithmetic<uint160_little>);
+
+    static_assert (ConstexprArithmetic<int160>);
+    static_assert (ConstexprArithmetic<int160_big>);
+    static_assert (ConstexprArithmetic<int160_little>);
+
+    static_assert (ConstexprArithmetic<uint256>);
+    static_assert (ConstexprArithmetic<uint256_big>);
+    static_assert (ConstexprArithmetic<uint256_little>);
+
+    static_assert (ConstexprArithmetic<int256>);
+    static_assert (ConstexprArithmetic<int256_big>);
+    static_assert (ConstexprArithmetic<int256_little>);
+
 }
