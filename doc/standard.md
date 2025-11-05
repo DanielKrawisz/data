@@ -75,7 +75,7 @@ Equivalant to `std::same_as`.
 
 #### `concept data::ImplicitlyConvertible`
 
-Eqivalent to `std::convertible_to`.
+For types `From` and `To`, `ImplicitlyConvertible<From, To>` if `From` is implicitly convertible to `To` excluding narrowing conversions. 
 
 #### `concept data::Convertible`
 
@@ -83,7 +83,7 @@ Implicitly or explicitly convertable.
 
 #### `concept data::ExplicitlyConvertible`
 
-Explicitly convertible but *not* implicitly convertable.
+For types `From` and `To`, `ExplicitlyConvertible<From, To>` is equivalent to `Convertible<From, To> && !ImplicitlyConvertible<From, To>`.
 
 #### `concept data::Element`
 
@@ -144,9 +144,9 @@ and the type returned by `seq::first` can be implicitly converted to `elem`.
 
 #### `concept data::Stack`
 
-Defined in `data/stack.hpp`, `data/list.hpp`, `data/ordered_sequence.hpp`
+Available from `data/stack.hpp`, `data/list.hpp`, `data/ordered_sequence.hpp`
 
-For a type `X`, `data::Stack<X>` is true if `X` supports `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. 
+For a type `X`, `data::Stack<X>` if `X` supports `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. 
 
 For a value `x` of `X`, `x.prepend (x.first ()) -> X`.
 
@@ -208,7 +208,15 @@ Return the rest of the stack after the first element.
 
 Return the stack with a new element prepended.
 
-`prepend (z) -> data::stack<X>`
+For a value `a` of type `elem`, 
+
+`prepend (z, a) -> data::stack<X>`.
+
+#### `>>`
+
+Return the stack with a new element prepended.
+
+`z >> a -> data::stack<X>`
 
 #### `take`
 
@@ -224,9 +232,15 @@ If `n > size (z)` return an empty stack.
 
 #### `reverse`
 
+Reverse a stack.
+
 #### `join`
 
+Join two stacks.
+
 #### `sort`
+
+Sort a stack. 
 
 #### `sorted`
 
@@ -242,7 +256,17 @@ If `n > size (z)` return an empty stack.
 
 #### `concept data::Queue`
 
+For a type `X`, `data::Queue<X>` if `X` supports `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::append`. 
+
+For a value `x` of `X`, `x.append (x.first ()) -> X`.
+
+For a type `elem`, `data::Queue<X, elem>` is true if `data::Queue<X>`, 
+the type returned by `X::first` can be converted to `elem` and for a
+type `e` of `elem`, `x.append (x.first ()) -> X`.
+
 #### `concept data::List`
+
+For a type `X`, `data::List<X>` if `data::Stack<X> && data::Queue<X>`. 
 
 #### `data::take`
 
@@ -305,6 +329,8 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 #### `class data::ordered_sequence`
 
 #### `<<`
+
+Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list<X>`.
 
 #### `empty`
 
@@ -409,6 +435,46 @@ A headers-only library for mathematical structures.
 * `data/math/primitive_root.hpp`
 * `data/math/modular.hpp`
 * `data/math/algebra/finite_field.hpp`
+
+### `data/math/infinite.hpp`
+
+#### `struct data::math::signed_limit`
+
+#### `struct data::math::unsigned_limit`
+
+#### `struct data::math::numeric_limits`
+
+### `data/math/nonzero.hpp`
+
+#### `struct data::math::nonzero`
+
+#### `struct data::math::nonnegative`
+
+### `data/math/figurate.hpp`
+
+### `data/math/combinatorics.hpp`
+
+### `data/integral.hpp`
+
+### `data/math/extended_euclidian.hpp`
+
+### `data/math/fraction.hpp`
+
+### `data/math/polynomial.hpp`
+
+### `data/math/complex.hpp`
+
+### `data/math/quaternion.hpp`
+
+### `data/math/octonion.hpp`
+
+### `data/math/prime.hpp`
+
+### `data/math/primitive_root.hpp`
+
+### `data/math/modular.hpp`
+
+### `data/math/algebra/finite_field.hpp`
 
 ## String
 

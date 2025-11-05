@@ -54,12 +54,24 @@ namespace data::math::number {
     template <auto mod, typename X> struct decrement<modular<mod, X>> {
         constexpr modular<mod, X> operator () (const modular<mod, X>);
     };
-
-    template <auto mod, typename X = decltype (mod)>
-    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<mod, X> &m) {
-        return o << m.Value;
-    }
     
+}
+
+namespace data::math {
+
+    template <auto mod, typename X>
+    struct numeric_limits<number::modular<mod, X>> {
+        constexpr static const number::modular<mod, X> Max {mod - 1};
+        constexpr static const number::modular<mod, X> Min {0};
+
+        constexpr static const number::modular<mod, X> &max () {
+            return Max;
+        }
+
+        constexpr static const number::modular<mod, X> &min () {
+            return Min;
+        }
+    };
 }
 
 namespace data::math::def {
@@ -82,6 +94,11 @@ namespace data::math::def {
 }
 
 namespace data::math::number {
+
+    template <auto mod, typename X = decltype (mod)>
+    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<mod, X> &m) {
+        return o << m.Value;
+    }
     
     template <auto mod, typename X>
     constexpr bool inline operator == (const modular<mod, X> &a, const modular<mod, X> &b) {

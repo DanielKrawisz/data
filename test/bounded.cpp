@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Katrina Swales
+// Copyright (c) 2019-2015 Katrina Swales and Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -346,6 +346,14 @@ namespace data {
         { []() constexpr { (void) (GCD (N {4056}, N {98432})); }() };
 
     };
+
+    static_assert (ConstexprArithmetic<uint32>);
+    static_assert (ConstexprArithmetic<uint32_big>);
+    static_assert (ConstexprArithmetic<uint32_little>);
+
+    static_assert (ConstexprArithmetic<int32>);
+    static_assert (ConstexprArithmetic<int32_big>);
+    static_assert (ConstexprArithmetic<int32_little>);
 
     static_assert (ConstexprArithmetic<uint64>);
     static_assert (ConstexprArithmetic<uint64_big>);

@@ -194,14 +194,14 @@ namespace data::math {
 
     template <endian::order Order, class T, std::size_t n_bits, boost::endian::align Align>
     struct numeric_limits<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr static boost::endian::endian_arithmetic<Order, T, n_bits, Align> Max {std::numeric_limits<T>::max ()};
-        constexpr static boost::endian::endian_arithmetic<Order, T, n_bits, Align> Min {std::numeric_limits<T>::min ()};
+        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> Max {std::numeric_limits<T>::max ()};
+        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> Min {std::numeric_limits<T>::min ()};
 
-        constexpr static boost::endian::endian_arithmetic<Order, T, n_bits, Align> &max () {
+        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &max () {
             return Max;
         }
 
-        constexpr static boost::endian::endian_arithmetic<Order, T, n_bits, Align> &min () {
+        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &min () {
             return Min;
         }
     };
