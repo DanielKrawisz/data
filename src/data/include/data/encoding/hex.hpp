@@ -108,6 +108,29 @@ namespace data::encoding::hex {
         else boost::algorithm::hex_lower (n.begin (), n.end (), output.begin ());
         return output;
     }
+
+    constexpr uint8_t from_hex_char (char c) {
+        if (c >= '0' && c <= '9') return static_cast<uint8_t>(c - '0');
+        if (c >= 'A' && c <= 'F') return static_cast<uint8_t>(c - 'A' + 10);
+        if (c >= 'a' && c <= 'f') return static_cast<uint8_t>(c - 'a' + 10);
+        throw std::invalid_argument ("invalid hex digit");
+    }
+
+    template <typename sen, typename iti, typename ito>
+    constexpr void decode (sen end, iti it, ito out) {
+        constexpr const size_t word_size = sizeof (unref<decltype (*out)>);
+        while (it != end) {
+            *out = 0;
+            for (int i = word_size * 8 - 4; i > 0; i -= 4) {
+                *out += from_hex_char (*it) << i;
+                it++;
+                if (it == end) throw std::runtime_error ("invalid hex length");
+            }
+            *out += from_hex_char (*it);
+            it++;
+            out++;
+        }
+    }
     
 }
 

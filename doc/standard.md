@@ -388,6 +388,8 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `class data::set`
 
+### `data/math/permutation.hpp`
+
 ## Mathematics
 
 A headers-only library for mathematical structures.
@@ -396,20 +398,21 @@ A headers-only library for mathematical structures.
 * `data/math/nonzero.hpp`
 * `data/math/figurate.hpp`
 * `data/math/combinatorics.hpp`
-* `data/math/polynomial.hpp`
 * `data/integral.hpp`
+* `data/math/extended_euclidian.hpp`
+* `data/math/fraction.hpp`
+* `data/math/polynomial.hpp`
+* `data/math/complex.hpp`
+* `data/math/quaternion.hpp`
+* `data/math/octonion.hpp`
 * `data/math/prime.hpp`
 * `data/math/primitive_root.hpp`
-* `data/math/extended_euclidian.hpp`
 * `data/math/modular.hpp`
-
-### `data/math/infinite.hpp`
-### `data/math/figurate.hpp`
-### `data/math/permutation.hpp`
-### `data/math/combinatorics.hpp`
+* `data/math/algebra/finite_field.hpp`
 
 ## String
 
+* `data/stream.hpp`
 * `data/encoding/endian.hpp`
 * `data/cross.hpp`
 * `data/array.hpp`

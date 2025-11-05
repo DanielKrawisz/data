@@ -120,10 +120,10 @@ namespace data::arithmetic {
     }
 
     template <endian::order r, typename digit>
-    constexpr void set_max_signed_ones (Words<r, digit> a) {
+    constexpr void set_max_signed_twos (Words<r, digit> a) {
         auto i = a.rbegin ();
         if (i == a.rend ()) return;
-        *i = max_signed_ones<digit>;
+        *i = max_signed_twos<digit>;
         while (true) {
             i++;
             if (i == a.rend ()) return;
@@ -132,10 +132,10 @@ namespace data::arithmetic {
     }
 
     template <endian::order r, typename digit>
-    constexpr void set_min_signed_ones (Words<r, digit> a) {
+    constexpr void set_min_signed_twos (Words<r, digit> a) {
         auto i = a.rbegin ();
         if (i == a.rend ()) return;
-        *i = min_unsigned_ones<digit>;
+        *i = min_signed_twos<digit>;
         while (true) {
             i++;
             if (i == a.rend ()) return;

@@ -17,7 +17,7 @@ namespace data::encoding::hex {
         bytes b (x.size () / 2);
 
         try {
-            boost::algorithm::unhex (x.begin (), x.end (), b.begin ());
+            decode (x.end (), x.begin (), b.begin ());
         } catch (boost::algorithm::hex_decode_error exception) {
             return {};
         }

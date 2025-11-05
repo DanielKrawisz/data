@@ -176,7 +176,7 @@ namespace data {
         if (!x.valid () || ((x.size () / 2) % sizeof (word) != 0)) throw encoding::invalid {encoding::hex::Format, x};
         if ((x.size () / 2) % sizeof (word) != 0) throw exception {} << "invalid hex string size";
         this->resize (x.size () / (sizeof (word) * 2));
-        boost::algorithm::unhex (x.begin (), x.end (), static_cast<byte *> (this->data ()));
+        encoding::hex::decode (x.end (), x.begin (), static_cast<byte *> (this->data ()));
     }
 
 }

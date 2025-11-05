@@ -450,7 +450,7 @@ namespace data {
         if (!x.valid () || ((x.size () % 2) != 0)) throw encoding::invalid {encoding::hex::Format, x};
         if ((x.size () / 2) != size) throw exception {} << "invalid hex string size";
         byte_array<size> T;
-        boost::algorithm::unhex (x.begin (), x.end (), T.data ());
+        encoding::hex::decode (x.end (), x.begin (), T.data ());
         return T;
     }
 
