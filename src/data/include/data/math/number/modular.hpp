@@ -36,11 +36,15 @@ namespace data::math::number {
     
     template <auto mod, typename X> struct modular {
         X Value;
-        
+
         template <typename... P>
         requires requires (P... p) {
             { X (p...) };
         } constexpr modular (P... p): Value {p...} {
+            Value %= mod;
+        }
+
+        constexpr modular (const X &v): Value {v} {
             Value %= mod;
         }
         

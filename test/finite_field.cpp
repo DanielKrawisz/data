@@ -20,7 +20,7 @@ namespace data {
     void test_prime_field () {
 
         // make the zero element for each prime field.
-        f2 f2_0 {0};
+        f2 f2_0 {N (0)};
         f3 f3_0 {0};
         f5 f5_0 {0};
         f7 f7_0 {0};
