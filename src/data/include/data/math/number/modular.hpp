@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2022 Daniel Krawisz
+// Copyright (c) 2019-202 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -37,9 +37,16 @@ namespace data::math::number {
     template <auto mod, typename X> struct modular {
         X Value;
         
-        template <typename... P> constexpr modular (P... p);
+        template <typename... P>
+        requires requires (P... p) {
+            { X (p...) };
+        } constexpr modular (P... p): Value {p...} {
+            Value %= mod;
+        }
         
-        bool valid () const;
+        constexpr bool valid () const {
+            return data::valid (Value) && Value >= 0 && Value < mod;;
+        }
 
         constexpr operator X () const {
             return Value;
@@ -54,11 +61,23 @@ namespace data::math::number {
     template <auto mod, typename X> struct decrement<modular<mod, X>> {
         constexpr modular<mod, X> operator () (const modular<mod, X>);
     };
+}
 
-    template <auto mod, typename X = decltype (mod)>
-    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<mod, X> &m) {
-        return o << m.Value;
-    }
+namespace data::math {
+
+    template <auto mod, typename X>
+    struct numeric_limits<number::modular<mod, X>> {
+        constexpr static const number::modular<mod, X> Max {mod - 1};
+        constexpr static const number::modular<mod, X> Min {0};
+
+        constexpr static const number::modular<mod, X> &max () {
+            return Max;
+        }
+
+        constexpr static const number::modular<mod, X> &min () {
+            return Min;
+        }
+    };
     
 }
 
@@ -75,13 +94,18 @@ namespace data::math::def {
     template <auto mod, typename X>
     struct inverse<plus<number::modular<mod, X>>, number::modular<mod, X>> {
         constexpr number::modular<mod, X> operator () (const number::modular<mod, X> &a, const number::modular<mod, X> &b) {
-            return minus_mod (b.Value, a.Value);
+            return minus_mod (b.Value, a.Value, nonzero {mod});
         }
     };
     
 }
 
 namespace data::math::number {
+
+    template <auto mod, typename X = decltype (mod)>
+    inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<mod, X> &m) {
+        return o << m.Value;
+    }
     
     template <auto mod, typename X>
     constexpr bool inline operator == (const modular<mod, X> &a, const modular<mod, X> &b) {
@@ -105,29 +129,18 @@ namespace data::math::number {
     
     template <auto mod, typename X>
     constexpr modular<mod, X> inline operator - (const modular<mod, X> &a, const modular<mod, X> &b) {
-        if (a.Value < b.Value) return modular<mod, X>::modulus () - (b.Value - a.Value);
-        return data::minus_mod (a.Value, b.Value, mod);
+        if (a.Value < b.Value) return mod - (b.Value - a.Value);
+        return data::minus_mod (a.Value, b.Value, nonzero {mod});
     }
     
     template <auto mod, typename X>
     constexpr modular<mod, X> inline operator - (const modular<mod, X> &a) {
-        return data::negate_mod (a.Value, mod);
+        return data::negate_mod (a.Value, nonzero {mod});
     }
     
     template <auto mod, typename X>
     constexpr modular<mod, X> inline operator ^ (const modular<mod, X> &a, const X &b) {
-        return data::pow_mod (a.Value, b, mod);
-    }
-    
-    template <auto mod, typename X>
-    template <typename... P>
-    constexpr inline modular<mod, X>::modular (P... p) : Value (p...) {
-        Value %= mod;
-    }
-    
-    template <auto mod, typename X>
-    bool inline modular<mod, X>::valid () const {
-        return Value >= 0 && Value < mod;
+        return data::pow_mod (a.Value, b, nonzero {mod});
     }
 
 }

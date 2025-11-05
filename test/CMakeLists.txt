@@ -31,7 +31,6 @@ add_executable (
     priority_queue.cpp           # TODO: Contains commented test cases
     testForEach.cpp              # TODO: contains commented test cases.
     map_schema.cpp
-
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     combinatorics.cpp
 
@@ -43,7 +42,7 @@ add_executable (
     ASCII.cpp
     stream.cpp
     endian.cpp
-    bounded.cpp                  # TODO: should be typed test
+    bounded.cpp                  # TODO: should be typed test, has commented sections
 
     # hash
     hash.cpp
@@ -75,8 +74,10 @@ add_executable (
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
     abs.cpp                      # TODO: should be a typed test.
     roots.cpp                    # TODO: should be a typed test.
-    modular.cpp
+    modular.cpp                  # TODO: cases are commented out.
+    limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
+    finite_field.cpp             # TODO: commented test cases
     algebra.cpp
 
     # crypto 

@@ -20,16 +20,17 @@ namespace data::math {
     
     template <auto P, typename N>
     struct prime_field : number::modular<P, N> {
+        using number::modular<P, N>::modular;
+        prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
+        prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
     
         constexpr prime_field operator + (const prime_field &) const;
         constexpr prime_field operator - (const prime_field &) const;
         constexpr prime_field operator * (const prime_field &) const;
         constexpr prime_field operator / (const prime_field &) const;
+        constexpr prime_field operator ~ () const;
         
         constexpr prime_field inverse () const;
-
-        template<typename... X>
-        constexpr prime_field (X... x) : number::modular<P, N> (x...) {}
         
     };
 
@@ -100,7 +101,9 @@ namespace data::math {
     
     template <auto P, typename N>
     constexpr prime_field<P, N> inline prime_field<P, N>::operator + (const prime_field<P, N> &e) const {
-        return {static_cast<const number::modular<P, N> &> (*this) + static_cast<const number::modular<P, N> &> (e)};
+        return prime_field<P, N> {
+            static_cast<const number::modular<P, N> &> (*this) +
+            static_cast<const number::modular<P, N> &> (e)};
     }
     
     template <auto P, typename N>
@@ -116,7 +119,7 @@ namespace data::math {
     template <auto P, typename N>
     constexpr prime_field<P, N> inline prime_field<P, N>::inverse () const {
         if (*this == prime_field {0}) throw division_by_zero {};
-        return prime_field {data::invert_mod<N> (this->Value, P)};
+        return prime_field {*data::invert_mod<N> (this->Value, nonzero {P})};
     }
     
     template <auto P, typename N>

@@ -636,16 +636,16 @@ namespace data {
 
             // The string can be a hex string or a representation of a number.
             //explicit bounded (const data::string &s): bounded {read (s)} {}
-            explicit bounded (const char *x): bounded {read (string_view {x, std::strlen (x)})} {}
-            explicit bounded (const string_view);
-            static bounded read (string_view x) {
+            constexpr explicit bounded (const char *x): bounded {string_view {x, std::strlen (x)}} {}
+            constexpr explicit bounded (const string_view);
+            constexpr static bounded read (string_view x) {
                 return bounded {x};
             }
 
             division<bounded> divmod (const bounded &) const;
 
-            static bounded max ();
-            static bounded min ();
+            constexpr static bounded max ();
+            constexpr static bounded min ();
             static N_bytes<r, word> modulus ();
 
             operator N_bytes<r, word> () const;
@@ -719,10 +719,10 @@ namespace data {
 
             constexpr explicit bounded (slice<const word, size> &x) : oriented<r, word, size> {x} {}
 
-            explicit bounded (const char *x): bounded {read (string_view {x, std::strlen (x)})} {}
+            constexpr explicit bounded (const char *x): bounded {string_view {x, std::strlen (x)}} {}
             explicit bounded (const std::string &s): bounded {read (s)} {}
-            explicit bounded (string_view s);
-            static bounded read (string_view x) {
+            constexpr explicit bounded (string_view s);
+            constexpr static bounded read (string_view x) {
                 return bounded {x};
             }
 
@@ -734,8 +734,8 @@ namespace data {
 
             explicit operator double () const;
 
-            static bounded max ();
-            static bounded min ();
+            constexpr static bounded max ();
+            constexpr static bounded min ();
 
             explicit operator int64 () const;
 
@@ -790,6 +790,27 @@ namespace data {
             explicit operator bounded<x, r, u, w> () const;
 
         };
+    }
+
+    namespace math {
+
+        template <bool is_signed, endian::order r, size_t size, std::unsigned_integral word>
+        struct numeric_limits<number::bounded<is_signed, r, size, word>> {
+            constexpr static const number::bounded<is_signed, r, size, word> Max = number::bounded<is_signed, r, size, word>::max ();
+            constexpr static const number::bounded<is_signed, r, size, word> Min = number::bounded<is_signed, r, size, word>::min ();
+
+            constexpr static const number::bounded<is_signed, r, size, word> &max () {
+                return Max;
+            }
+
+            constexpr static const number::bounded<is_signed, r, size, word> &min () {
+                return Min;
+            }
+        };
+
+    }
+
+    namespace math::number {
 
         template <bool u, endian::order r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> inline operator ~ (const bounded<u, r, x, word> &n) {
@@ -1261,27 +1282,29 @@ namespace data {
 
     namespace math::number {
 
+
         template <endian::order r, size_t size, std::unsigned_integral word>
-        bounded<false, r, size, word>::bounded (string_view x) {
-            if (encoding::decimal::valid (x) || encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                *this = bounded {N_bytes<r, word>::read (x)};
+        constexpr bounded<false, r, size, word>::bounded (string_view x) {
+            if (encoding::decimal::valid (x)) *this = bounded {N_bytes<r, word>::read (x)};
+            else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
+                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
+                encoding::hex::decode (x.end (), x.begin (), this->begin ());
             else throw data::exception {} << "invalid natural string \"" << x << "\"";
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        bounded<true, r, size, word>::bounded (string_view x) {
-            if (encoding::signed_decimal::valid (x) ||
-                encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
-                    *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
-            else if (encoding::hex::valid (x) && x.size () == 2 * size * sizeof (word))
-                boost::algorithm::unhex (x.begin (), x.end (), this->begin ());
+        constexpr bounded<true, r, size, word>::bounded (string_view x) {
+            if (encoding::signed_decimal::valid (x)) *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
+            else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
+                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
+                encoding::hex::decode (x.end (), x.begin (), this->begin ());
             else throw exception {} << "invalid integer string \"" << x << "\"";
         }
 
         template <endian::order o, size_t size, std::unsigned_integral word>
-        uint<o, size, word> bounded<false, o, size, word>::min () {
+        constexpr uint<o, size, word> bounded<false, o, size, word>::min () {
             bounded b {};
             for (int i = 0; i <= size; i++) b[i] = 0x00;
             return b;
@@ -1515,7 +1538,7 @@ namespace data {
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        uint<r, size, word> inline bounded<false, r, size, word>::max () {
+        constexpr uint<r, size, word> inline bounded<false, r, size, word>::max () {
             uint<r, size, word> n;
             arithmetic::set_max_unsigned (n.words ());
             return n;
@@ -1527,17 +1550,17 @@ namespace data {
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        sint<r, size, word> inline bounded<true, r, size, word>::max () {
-            uint<r, size, word> n;
-            arithmetic::set_max_signed_ones (n.words ());
-            return sint<r, size, word> (n);
+        constexpr sint<r, size, word> inline bounded<true, r, size, word>::max () {
+            sint<r, size, word> n;
+            arithmetic::set_max_signed_twos (n.words ());
+            return n;
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        sint<r, size, word> inline bounded<true, r, size, word>::min () {
-            uint<r, size, word> n;
-            arithmetic::set_min_signed_ones (n.words ());
-            return sint<r, size, word> (n);
+        constexpr sint<r, size, word> inline bounded<true, r, size, word>::min () {
+            sint<r, size, word> n;
+            arithmetic::set_min_signed_twos (n.words ());
+            return n;
         }
 
         namespace {

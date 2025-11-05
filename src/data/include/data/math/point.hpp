@@ -64,8 +64,8 @@ namespace data::math::space {
     // specialization for scalar type.
     template <field X, size_t dim> class exterior<X, dim, 0> {
         X Value;
-    public:
 
+    public:
         exterior (const X &x) : Value {x} {}
     };
 

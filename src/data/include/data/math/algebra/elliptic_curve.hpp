@@ -13,16 +13,17 @@
 
 namespace data::math {
 
-    // Not every elliptic curve can be expressed in Weierstrauss form, but those that can't are very much exceptions.
+    // Not every elliptic curve can be expressed in Weierstrauss
+    // form, but those that can't are very much the exception.
     template <field field> struct Weierstrauss {
         field A;
         field B;
 
-        bool valid () const;
+        constexpr bool valid () const;
 
-        bool operator == (const Weierstrauss &) const;
+        constexpr bool operator == (const Weierstrauss &) const;
 
-        field discriminant () const;
+        constexpr field discriminant () const;
 
         struct point;
         struct compressed_point;
@@ -113,13 +114,13 @@ namespace data::math {
     };
 
     template <field field>
-    bool inline Weierstrauss<field>::valid () const {
+    constexpr bool inline Weierstrauss<field>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
     template <field field>
-    field inline Weierstrauss<field>::discriminant () const {
+    constexpr field inline Weierstrauss<field>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }
 

@@ -244,8 +244,8 @@ namespace data::arithmetic {
     template <typename X> using sign_bit_of = get_sign_bit<X>::value;
 
     template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
-    template <typename digit> const digit max_signed_ones = get_limit<digit>::max_signed;
-    template <typename digit> const digit min_unsigned_ones = get_sign_bit<digit>::value;
+    template <typename digit> const digit max_signed_twos = get_limit<digit>::max_signed;
+    template <typename digit> const digit min_signed_twos = get_sign_bit<digit>::value;
 
     template <typename X> concept range = std::ranges::random_access_range<X>;
 
