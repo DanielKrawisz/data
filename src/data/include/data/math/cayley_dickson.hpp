@@ -28,12 +28,13 @@ namespace data::math {
         nda Even;
         nda Odd;
         
-        cayley_dickson () : Even {0}, Odd {0} {}
-        cayley_dickson (const nda &re, const nda &im) : Even {re}, Odd {im} {}
+        cayley_dickson () : Even (0), Odd (0) {}
+        cayley_dickson (const nda &re, const nda &im) : Even (re), Odd (im) {}
 
+        cayley_dickson (const nda &re): Even (re), Odd (0) {}
 
         template <typename NDA> requires ImplicitlyConvertible<NDA, nda>
-        cayley_dickson (NDA n): Even {n}, Odd {} {}
+        cayley_dickson (NDA n): Even (n), Odd (0) {}
         
         // conjugate
         cayley_dickson operator ~ () const;
