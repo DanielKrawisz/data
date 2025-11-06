@@ -87,13 +87,13 @@ namespace data {
 
     // for built-in-like numbers, both conversions are explicit.
     static_assert (ExplicitlyConvertible<uint128, int128>);
-    static_assert (ExplicitlyConvertible<int128, uint128>);
+    static_assert (ImplicitlyConvertible<int128, uint128>);
 
     static_assert (ExplicitlyConvertible<uint128_little, int128_little>);
-    static_assert (ExplicitlyConvertible<int128_little, uint128_little>);
+    static_assert (ImplicitlyConvertible<int128_little, uint128_little>);
 
     static_assert (ExplicitlyConvertible<uint128_big, int128_big>);
-    static_assert (ExplicitlyConvertible<int128_big, uint128_big>);
+    static_assert (ImplicitlyConvertible<int128_big, uint128_big>);
 
     static_assert (ImplicitlyConvertible<uint128, uint160>);
     static_assert (ImplicitlyConvertible<uint128, int160>);

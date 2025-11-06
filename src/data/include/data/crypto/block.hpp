@@ -6,7 +6,6 @@
 #define DATA_CRYPTO_BLOCK
 
 #include <data/crypto/block/writer.hpp>
-#include <data/numbers.hpp>
 
 namespace data::crypto {
 

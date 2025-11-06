@@ -84,7 +84,7 @@ add_executable (
     # random_primes.cpp
     testGeometry.cpp
     testSymmetricCrypto.cpp
-    testSecretShare.cpp
+    secret_share.cpp
     testEllipticCurve.cpp
 
     # net
