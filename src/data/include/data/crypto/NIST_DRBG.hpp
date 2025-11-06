@@ -6,7 +6,7 @@
 #define DATA_CRYPTO_NIST_DRBG
 
 #include <data/random.hpp>
-#include <data/numbers.hpp>
+#include <data/encoding/endian.hpp>
 #include <cryptopp/drbg.h>
 
 namespace data::crypto::NIST {
