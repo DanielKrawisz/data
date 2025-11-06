@@ -279,20 +279,35 @@ namespace data::math::number {
     N_bytes<r, word> inline operator * (I x, const N_bytes<r, word> &u) {
         return u * N_bytes<r, word> (x);
     }
-    
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> inline operator + (const Z_bytes<r, c, word> &a, int64 b) {
-        return a + Z_bytes<r, c, word> (b);
+
+    template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> inline operator + (const Z_bytes<r, neg, word> &z, I x) {
+        return z + Z_bytes<r, neg, word> {x};
     }
-    
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> inline operator - (const Z_bytes<r, c, word> &a, int64 b) {
-        return a - Z_bytes<r, c, word> (b);
+
+    template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> inline operator - (const Z_bytes<r, neg, word> &z, I x) {
+        return z - Z_bytes<r, neg, word> {x};
     }
-    
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> inline operator * (const Z_bytes<r, c, word> &a, int64 b) {
-        return a * Z_bytes<r, c, word> (b);
+
+    template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> inline operator * (const Z_bytes<r, neg, word> &z, I x) {
+        return z * Z_bytes<r, neg, word> {x};
+    }
+
+    template <std::integral I, endian::order r, neg neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> inline operator + (I x, const Z_bytes<r, neg, word> &z) {
+        return Z_bytes<r, neg, word> {x} + z;
+    }
+
+    template <std::integral I, endian::order r, neg neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> inline operator - (I x, const Z_bytes<r, neg, word> &z) {
+        return Z_bytes<r, neg, word> {x} - z;
+    }
+
+    template <std::integral I, endian::order r, neg neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> inline operator * (I x, const Z_bytes<r, neg, word> &z) {
+        return Z_bytes<r, neg, word> {x} * z;
     }
     
     template <endian::order r, std::unsigned_integral word>
