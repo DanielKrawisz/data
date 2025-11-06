@@ -271,7 +271,7 @@ namespace data::math::number {
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> &operator >>= (Z_bytes<r, c, word> &, int64);
 
-    // logical
+    // logical (only for Bitcoin style numbers)
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> operator ! (const Z_bytes<r, neg::BC, word> &);
 
@@ -350,15 +350,24 @@ namespace data::math::number {
 
     template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
     N_bytes<r, word> operator * (I, const N_bytes<r, word> &);
-    
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, int64);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, int64);
+    template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> operator + (const Z_bytes<r, neg, word> &, I);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, int64);
+    template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> operator - (const Z_bytes<r, neg, word> &, I);
+
+    template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> operator * (const Z_bytes<r, neg, word> &, I);
+
+    template <std::integral I, endian::order r, neg neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator + (I, const Z_bytes<r, neg, word> &);
+
+    template <std::integral I, endian::order r, neg neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator - (I, const Z_bytes<r, neg, word> &);
+
+    template <std::integral I, endian::order r, neg neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator * (I, const Z_bytes<r, neg, word> &);
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> &operator += (N_bytes<r, word> &, const N_bytes<r, word> &);
