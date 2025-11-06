@@ -136,37 +136,10 @@ namespace data {
         };
 
     template <typename NN> concept bit_arithmetic_big_unsigned =
-        bit_arithmetic<NN> && proto_bit_number<NN> && bit_algebraic_unsigned<NN> &&
-        requires (const NN &a) {
-            { a & 9007199254740992u } -> ImplicitlyConvertible<NN>;
-            { a | 9007199254740992u } -> ImplicitlyConvertible<NN>;
-            { a ^ 9007199254740992u } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992u & a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992u | a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992u ^ a } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a) {
-            { a &= 9007199254740992u } -> Same<NN &>;
-            { a |= 9007199254740992u } -> Same<NN &>;
-            { a ^= 9007199254740992u } -> Same<NN &>;
-        };
+        bit_arithmetic<NN> && proto_bit_number<NN> && bit_algebraic_unsigned_big<NN>;
 
     template <typename NN> concept bit_arithmetic_big_signed =
-        bit_arithmetic<NN> && proto_bit_number<NN> && bit_algebraic_signed<NN> &&
-        requires (const NN &a) {
-            { a & 9007199254740992 } -> ImplicitlyConvertible<NN>;
-            { a | 9007199254740992 } -> ImplicitlyConvertible<NN>;
-            { a ^ 9007199254740992 } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992 & a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992 | a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992 ^ a } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a) {
-            { a &= 0 } -> Same<NN &>;
-            { a |= 0 } -> Same<NN &>;
-            { a ^= 0 } -> Same<NN &>;
-            { a &= 9007199254740992 } -> Same<NN &>;
-            { a |= 9007199254740992 } -> Same<NN &>;
-            { a ^= 9007199254740992 } -> Same<NN &>;
-        };
+        bit_arithmetic<NN> && proto_bit_number<NN> && bit_algebraic_signed_big<NN>;
 
     template <typename NN> concept bit_arithmetic_big =
         bit_arithmetic_big_unsigned<NN> &&
@@ -272,32 +245,10 @@ namespace data {
 
     // add division
     template <typename NN> concept basic_arithmetic_big_unsigned =
-        basic_arithmetic_unsigned<NN> /*&& requires (const NN &a) {
-            { a + 9007199254740992u } -> ImplicitlyConvertible<NN>;
-            { a - 9007199254740992u } -> ImplicitlyConvertible<NN>;
-            { a * 9007199254740992u } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992u + a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992u - a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992u * a } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a) {
-            { a += 9007199254740992u } -> Same<NN &>;
-            { a -= 9007199254740992u } -> Same<NN &>;
-            { a *= 9007199254740992u } -> Same<NN &>;
-        }*/;
+        basic_arithmetic_unsigned<NN> && ring_algebraic_unsigned_big<NN>;
 
     template <typename NN> concept basic_arithmetic_big_signed =
-        basic_arithmetic_signed<NN> /*&& requires (const NN &a) {
-            { a + 9007199254740992 } -> ImplicitlyConvertible<NN>;
-            { a - 9007199254740992 } -> ImplicitlyConvertible<NN>;
-            { a * 9007199254740992 } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992 + a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992 - a } -> ImplicitlyConvertible<NN>;
-            { 9007199254740992 * a } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a) {
-            { a += 9007199254740992 } -> Same<NN &>;
-            { a -= 9007199254740992 } -> Same<NN &>;
-            { a *= 9007199254740992 } -> Same<NN &>;
-        }*/;
+        basic_arithmetic_signed<NN> && ring_algebraic_signed_big<NN>;
 
     template <typename NN> concept basic_arithmetic_big =
         basic_arithmetic_big_signed<NN> &&
@@ -453,31 +404,12 @@ namespace data {
     // versions together, you get the unsigned version.
     // TODO need to say how divide works.
     template <typename NN, typename ZZ> concept integral_number_system =
-        integral_number<NN> && integral_number<ZZ> && comparable_to<NN, ZZ> &&
-        Unsigned<NN> && Signed<ZZ> &&
-        bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> /*&&
-        requires (const ZZ &a, const math::nonzero<NN> &b) {
-            { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
-        }*/ && requires (const NN &n, const ZZ &z) {
-            // TODO need a way to say that we also have these
-            // kinds of conversions when we use a number literal!
-            { n ^ z } -> ImplicitlyConvertible<NN>;
-            { z ^ n } -> ImplicitlyConvertible<NN>;
-            { n | z } -> ImplicitlyConvertible<NN>;
-            { z | n } -> ImplicitlyConvertible<NN>;
-            { n & z } -> ImplicitlyConvertible<NN>;
-            { z & n } -> ImplicitlyConvertible<NN>;
-            { n + z } -> ImplicitlyConvertible<NN>;
-            { z + n } -> ImplicitlyConvertible<NN>;
-            { n - z } -> ImplicitlyConvertible<NN>;
-            { z - n } -> ImplicitlyConvertible<NN>;
-            { n * z } -> ImplicitlyConvertible<NN>;
-            { z * n } -> ImplicitlyConvertible<NN>;
-            { n / z } -> ImplicitlyConvertible<NN>;
-            { z / n } -> ImplicitlyConvertible<NN>;
-            { n % z } -> ImplicitlyConvertible<NN>;
-            { z % n } -> ImplicitlyConvertible<NN>;
-        };
+        integral_system<ZZ, NN> &&
+        integral_number<NN> && integral_number<ZZ> &&
+        comparable_to<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
+        bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> &&
+        bit_algebraic_unsigned_to<ZZ, NN> &&
+        ring_algebraic_unsigned_to<ZZ, NN>;
 
     static_assert (integral_number_system<uint32, int32>);
     static_assert (integral_number_system<uint64, int64>);
@@ -510,14 +442,13 @@ namespace data {
         natural_number<N> && basic_number<Z> &&
         Unsigned<N> && Signed<Z> &&
         hetero_abs_and_negate<N, Z> && modable<Z, N> &&
+        ring_algebraic_signed_to<N, Z> &&
         requires (const Z &a, const math::nonzero<N> &b) {
             { divmod (a, b) } -> Same<division<Z, N>>;
             { mod (a, b) } -> ImplicitlyConvertible<N>;
             { negate_mod (a, b) } -> ImplicitlyConvertible<N>;
-            { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<N>>;
         } && requires (const Z &a, const math::nonzero<Z> &b) {
             { divmod (a, b) } -> Same<division<Z, N>>;
-            { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<Z>>;
         };
 
     template <typename N, typename Z> concept bytes_number_system =
@@ -567,12 +498,10 @@ namespace data {
     // number types suitable for number theory functions.
     // essentially, the number needs to be able to go negative in some way.
     template <typename N> concept number_theory_number =
-        ring_integral<N> &&
+        ring_number<N> &&
         (homo_abs_and_negate<N> || Signed<N> || (Unsigned<N> && requires () {
             make_signed<N> {};
-        })) && requires (const N &a, const math::nonzero<N> &b) {
-            { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<N>>;
-        };
+        }));
 
     static_assert (number_theory_number<N>);
     static_assert (number_theory_number<Z>);
@@ -654,5 +583,5 @@ namespace data {
 
     // TODO need a test to ensure that ^ means power for
     // the bitcoin numbers but not the other types.
-    
+
 }

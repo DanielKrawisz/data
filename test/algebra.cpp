@@ -58,7 +58,7 @@ namespace data::math::linear {
         test_group<alternating_group<uint64 {8}>, def::times<alternating_group<uint64 {8}>>> {};
     }
     
-    template <typename F> requires field<F> struct test_field {
+    template <field F> struct test_field {
         test_field () {
 
             EXPECT_EQ (F {0} * F {0}, F {0});
@@ -70,21 +70,21 @@ namespace data::math::linear {
         }
     }; 
     
-    template <auto mod> using prime_field = math::prime_field<uint64 {mod}>;
+    template <auto mod> using prime_field = math::prime_field<mod>;
     
     TEST (AlgebraTest, TestField) {
         test_field<double> {};
         test_field<complex128> {};
         test_field<Q> {};
         test_field<QC> {};
-        test_field<prime_field<uint64 {2}>> {};
-        test_field<prime_field<uint64 {3}>> {};
-        test_field<prime_field<uint64 {5}>> {};
-        test_field<prime_field<uint64 {7}>> {};
-        test_field<prime_field<uint64 {11}>> {};
-        test_field<prime_field<uint64 {13}>> {};
-        test_field<prime_field<uint64 {17}>> {};
-        test_field<prime_field<uint64 {19}>> {};
+        test_field<prime_field<int64 {2}>> {};
+        test_field<prime_field<int64 {3}>> {};
+        test_field<prime_field<int64 {5}>> {};
+        test_field<prime_field<int64 {7}>> {};
+        test_field<prime_field<int64 {11}>> {};
+        test_field<prime_field<int64 {13}>> {};
+        test_field<prime_field<int64 {17}>> {};
+        test_field<prime_field<int64 {19}>> {};
     }
     
     template <typename F, typename V> requires space<F, V> struct test_vector_space {

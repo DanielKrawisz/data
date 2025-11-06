@@ -5,13 +5,14 @@
 #ifndef DATA_MATH_NUMBER_DIVISION
 #define DATA_MATH_NUMBER_DIVISION
 
+#include <data/increment.hpp>
 #include <data/integral.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
 
     // Generic division algorithm.
-    template <ring_integral N>
+    template <ring_number N>
     constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
@@ -66,7 +67,7 @@ namespace data::math::number {
         return result;
     }
 
-    template <ring_integral Z, ring_integral N>
+    template <ring_number Z, ring_number N>
     constexpr division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
         division<N> d {natural_divmod<N> (abs (Dividend), Divisor)};
 
@@ -87,7 +88,7 @@ namespace data::math::number {
         PYTHON_2_FLOOR_DIV
     };
 
-    template <modulo_negative_divisor_convention m, ring_integral Z>
+    template <modulo_negative_divisor_convention m, ring_number Z>
     constexpr division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
         using N = decltype (abs (std::declval<Z> ()));
 
@@ -107,7 +108,9 @@ namespace data::math::number {
             // if y -> -y, then x == -q y + r
             // if x -> -x and y -> -y, then x = q y - r;
 
-            if (Dividend < 0) return {Divisor < 0 ? Z (d.Quotient + 1u): Z (-(d.Quotient + 1u)), divisor - d.Remainder};
+            if (Dividend < 0) return {
+                Divisor < 0 ? d.Quotient + 1 : -(d.Quotient + 1),
+                divisor - d.Remainder};
 
             if (Divisor < 0) return {static_cast<Z> (-d.Quotient), static_cast<N> (d.Remainder)};
         } else if constexpr (m == TRUNCATE_TOWARD_ZERO) {

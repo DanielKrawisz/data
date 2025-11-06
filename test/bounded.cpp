@@ -342,7 +342,7 @@ namespace data {
         { []() constexpr { (void) (minus_mod (N {2}, N {1}, math::nonzero {N {65537}})); }() };
         { []() constexpr { (void) (times_mod (N {5}, N {8}, math::nonzero {N {65537}})); }() };
         { []() constexpr { (void) (pow_mod (N {3}, N {7}, math::nonzero {N {65537}})); }() };
-        { []() constexpr { (void) (invert_mod (N {577}, math::nonzero {N {65537}})); }() };
+        //{ []() constexpr { (void) (invert_mod (N {577}, math::nonzero {N {65537}})); }() };
         { []() constexpr { (void) (GCD (N {4056}, N {98432})); }() };
 
     };

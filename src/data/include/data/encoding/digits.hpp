@@ -35,7 +35,7 @@ namespace data::encoding {
         return o;
     }
     
-    template <ring_integral N, typename f>
+    template <ring_number N, typename f>
     N read_base (string_view s, uint32 base, f inverse_digits) {
 
         N n {0};

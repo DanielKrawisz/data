@@ -7,6 +7,12 @@
 
 #include <data/math/nonzero.hpp>
 
+namespace data {
+    template <typename N> auto increment (const N &n);
+    template <typename N> auto decrement (const math::nonzero<N> &n);
+    template <typename N> auto decrement (const N &n);
+}
+
 namespace data::math::number {
 
     template <typename N> struct increment;

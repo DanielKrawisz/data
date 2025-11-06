@@ -11,7 +11,7 @@
 #include <sstream>
 
 namespace data::math::number::euclidian {
-    template <ring_integral N, ring_integral Z = decltype (data::negate (std::declval<N> ()))>
+    template <ring_number N, ring_number Z = decltype (data::negate (std::declval<N> ()))>
     requires ring_number_system<Z, N> || Same<Z, N>
     struct extended;
 }
@@ -21,7 +21,7 @@ namespace data::math {
 }
 
 namespace data::math::number::euclidian {
-    template <ring_integral N, ring_integral Z>
+    template <ring_number N, ring_number Z>
     requires ring_number_system<Z, N> || Same<Z, N>
     struct extended {
         N GCD;
@@ -83,15 +83,15 @@ namespace data::math::number::euclidian {
 }
 
 namespace data::math::number {
-    template <ring_integral Z, ring_integral N>
+    template <ring_number_signed Z, ring_number N>
     constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
         maybe<decltype (divmod (x, mod).Remainder)> {
         if (mod.Value < 0) throw exception {} << "mod by negative number";
-        using remainder_type = decltype (divmod (x, mod).Remainder);
+        using remainder_type = decltype (integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (x, mod.Value).Remainder);
         auto proof = number::euclidian::extended<remainder_type, Z>::algorithm
-            (remainder_type (mod.Value), divmod (x, mod).Remainder);
+            (remainder_type (mod.Value), integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (x, mod.Value).Remainder);
         if (proof.GCD != 1) return {};
-        return def::divmod<decltype (proof.BezoutT), N> {} (proof.BezoutT, mod).Remainder;
+        return integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (proof.BezoutT, mod.Value).Remainder;
     }
 }
 

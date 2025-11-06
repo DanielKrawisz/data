@@ -77,7 +77,7 @@ add_executable (
     modular.cpp                  # TODO: cases are commented out.
     limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
-    #finite_field.cpp             # TODO: commented test cases
+    finite_field.cpp             # TODO: make typed test.
     algebra.cpp
 
     # crypto 
