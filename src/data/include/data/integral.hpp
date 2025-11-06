@@ -34,134 +34,39 @@ namespace data {
     // We have this concept because it is possible to define
     // multiplication in terms of addition.
 
-    template <typename X> concept group_algebraic =
-        requires (const X &a, const X &b) {
-            { a + b } -> ImplicitlyConvertible<X>;
-            { a - b } -> ImplicitlyConvertible<X>;
-        } && requires (const X &n) {
-            { div_2 (n) } -> ImplicitlyConvertible<X>;
-            { abs (n) };
-            { mod_2 (n) } -> ImplicitlyConvertible<X>;
-            { div_2 (n) } -> ImplicitlyConvertible<X>;
-        } && requires (X &a, const X &b) {
-            { a += b } -> Same<X &>;
-            { a -= b } -> Same<X &>;
-        };
-
-    template <typename X> concept group_algebraic_signed =
-        requires (const X &a) {
-            { a + 1 } -> ImplicitlyConvertible<X>;
-            { a - 1 } -> ImplicitlyConvertible<X>;/*
-            { 1 + a } -> ImplicitlyConvertible<X>;
-            { 1 - a } -> ImplicitlyConvertible<X>;*/
-        } && requires (X &a) {
-            { a += 1 } -> Same<X &>;
-            { a -= 1 } -> Same<X &>;
-        };
-
-    template <typename X> concept group_algebraic_unsigned =
-        requires (const X &a) {
-            { a + 1u } -> ImplicitlyConvertible<X>;
-            { a - 1u } -> ImplicitlyConvertible<X>;/*
-            { 1u + a } -> ImplicitlyConvertible<X>;
-            { 1u - a } -> ImplicitlyConvertible<X>;*/
-        } && requires (X &a) {
-            { a += 1u } -> Same<X &>;
-            { a -= 1u } -> Same<X &>;
-        };
-
-    template <typename X> concept group_integral =
-        proto_number<X> && group_algebraic<X>;
-
-    template <typename A> concept signed_group_integral =
-        group_integral<A> && proto_signed<A> && group_algebraic_signed<A>;
-
-    template <typename A> concept unsigned_group_integral =
-        group_integral<A> && proto_unsigned<A> && group_algebraic_unsigned<A>;
-
     // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept group_number_system =
-        proto_integral_system<Z, N> && group_integral<Z> && group_integral<N> &&
-        group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
-        requires (const Z &a, const N &b) {
-            { a + b } -> ImplicitlyConvertible<Z>;
-            { a - b } -> ImplicitlyConvertible<Z>;
-            { b + a } -> ImplicitlyConvertible<Z>;
-            { b - a } -> ImplicitlyConvertible<Z>;
-        } && requires (Z &a, const N &b) {
-            { a += b } -> Same<Z &>;
-            { a -= b } -> Same<Z &>;
-        };
 
-    template <typename Z, typename N = Z> concept group_integral_system =
-        proto_integral_system<Z, N> && group_integral<Z> && group_integral<N> &&
-        group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
-        requires (const Z &a, const N &b) {
-            { a + b } -> ImplicitlyConvertible<N>;
-            { a - b } -> ImplicitlyConvertible<N>;
-            { b + a } -> ImplicitlyConvertible<N>;
-            { b - a } -> ImplicitlyConvertible<N>;
-        } /*&& requires (Z &a, const N &b) {
-            { a += b } -> Same<Z &>;
-            { a -= b } -> Same<Z &>;
-        }*/;
-
-    // ring integral has * operations.
-    template <typename X> concept ring_integral =
-        group_integral<X> &&
-        requires (const X &a, const X &b) {
-            { a * b } -> ImplicitlyConvertible<X>;
-        } && requires (const X &n) {
+    // ring number has * operations.
+    template <typename X> concept ring_number =
+        group_number<X> && ring_algebraic_to<X, X> &&
+        requires (const X &n) {
             { mul_2 (n) } -> ImplicitlyConvertible<X>;
-        } && requires (X &a, const X &b) {
-            { a *= b } -> Same<X &>;
         };
 
-    template <typename X> concept ring_algebraic_signed =
-        group_algebraic_signed<X> &&
-        requires (const X &a) {
-            { a * 1 } -> ImplicitlyConvertible<X>;/*
-            { 1 * a } -> ImplicitlyConvertible<X>;*/
-        } && requires (X &a) {
-            { a *= 1 } -> Same<X &>;
-        };
+    template <typename A> concept ring_number_signed =
+        ring_number<A> && proto_signed<A> && ring_algebraic_signed<A>;
 
-    template <typename X> concept ring_algebraic_unsigned =
-        group_algebraic_unsigned<X> &&
-        requires (const X &a) {
-            { a * 1u } -> ImplicitlyConvertible<X>;/*
-            { 1u * a } -> ImplicitlyConvertible<X>;*/
-        } && requires (X &a) {
-            { a *= 1u } -> Same<X &>;
-        };
+    template <typename A> concept ring_number_unsigned =
+        ring_number<A> && proto_unsigned<A> && ring_algebraic_unsigned<A>;
 
-    template <typename A> concept signed_ring_integral =
-        ring_integral<A> && proto_signed<A> && ring_algebraic_signed<A>;
+    template <typename A> concept ring_number_signed_big =
+        ring_number_signed<A> && ring_algebraic_signed_big<A>;
 
-    template <typename A> concept unsigned_ring_integral =
-        ring_integral<A> && proto_unsigned<A> && ring_algebraic_unsigned<A>;
+    template <typename A> concept ring_number_unsigned_big =
+        ring_number_unsigned<A> && ring_algebraic_unsigned_big<A>;
 
-    // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N = Z> concept ring_integral_system =
         group_integral_system<Z, N> &&
         ring_algebraic_signed<Z> && ring_algebraic_unsigned<N> &&
-        requires (const Z &a, const N &b) {
-            { a * b } -> ImplicitlyConvertible<N>;
-        } /*&& requires (Z &a, const N &b) {
-            { a *= b } -> ImplicitlyConvertible<Z &>;
-        }*/;
+        ring_algebraic_to<N, Z>;
 
     template <typename Z, typename N = Z> concept ring_number_system =
         group_number_system<Z, N> &&
         ring_algebraic_signed<Z> && ring_algebraic_unsigned<N> &&
-        requires (const Z &a, const N &b) {
-            { a * b } -> ImplicitlyConvertible<Z>;
-        } && requires (Z &a, const N &b) {
-            { a *= b } -> ImplicitlyConvertible<Z &>;
-        };
+        ring_algebraic_to<Z, N>;
 
     template <typename Z> concept Integer =
-        signed_ring_integral<Z> &&
+        ring_number_signed<Z> &&
         requires (const Z &a, const Z &b) {
             { a / b } -> ImplicitlyConvertible<Z>;
         } && requires (Z &a, const Z &b) {
@@ -169,7 +74,7 @@ namespace data {
         };
 
     template <typename X> concept integral =
-        bit_algebraic<X> && ring_integral<X> &&
+        bit_algebraic<X> && ring_number<X> &&
         requires (const X &a, const X &b) {
             { a / b } -> ImplicitlyConvertible<X>;
         } && requires (X &a, const X &b) {
@@ -182,13 +87,13 @@ namespace data {
         };
 
     template <typename A> concept signed_integral =
-        integral<A> && signed_ring_integral<A> && proto_bit_signed<A> &&
+        integral<A> && ring_number_signed<A> && proto_bit_signed<A> &&
         requires (const A &a, const A &b) {
             { divmod (a, math::nonzero<A> {b}) } -> Same<division<A, to_unsigned<A>>>;
         };
 
     template <typename A> concept unsigned_integral =
-        integral<A> && unsigned_ring_integral<A> && proto_bit_unsigned<A> &&
+        integral<A> && ring_number_unsigned<A> && proto_bit_unsigned<A> &&
         requires (const A &a, const A &b) {
             { a % b} -> ImplicitlyConvertible<A>;
             { divmod (a, math::nonzero<A> {b}) } -> Same<division<A, A>>;
@@ -213,10 +118,10 @@ namespace data {
         };
 
     template <typename Z, typename N = Z> concept integral_system =
-        ring_integral_system<Z, N> &&
+        ring_integral_system<Z, N> && bit_algebraic_to<N, Z> &&
         integral<Z> && ring_algebraic_signed<Z> && bit_algebraic_signed<Z> &&
         integral<N> && ring_algebraic_unsigned<N> && bit_algebraic_unsigned<N> &&
-        //ImplicitlyConvertible<Z, N> &&
+        ImplicitlyConvertible<Z, N> &&
         requires (const Z &n) {
             { abs (n) } -> ImplicitlyConvertible<Z>;
         } && requires (const N &n) {
@@ -228,13 +133,13 @@ namespace data {
 namespace data::math {
 
     // we now define shifts in terms of mul_2 and div_2
-    template <group_integral A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
+    template <group_number A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
         A x = a;
         while (u-- > 0) x = mul_2 (x);
         return x;
     }
 
-    template <unsigned_group_integral A> constexpr A arithmetic_shift_left (const A &a, uint32 u) {
+    template <group_number_unsigned A> constexpr A arithmetic_shift_left (const A &a, uint32 u) {
         A x = a;
         while (u-- > 0) x = data::div_2 (x);
         return x;
@@ -263,7 +168,7 @@ namespace data::math {
     }
 
     // for the rest of these, we need to know if A is signed or unsigned.
-    template <unsigned_group_integral A> constexpr A arithmetic_bit_and (const A &x, const A &y) {
+    template <group_number_unsigned A> constexpr A arithmetic_bit_and (const A &x, const A &y) {
         if (x == 0) return 0;
         if (y == 0) return 0;
         A rx = arithmetic_shift_right (x);
@@ -272,7 +177,7 @@ namespace data::math {
         return arithmetic_shift_left (arithmatic_bit_and (rx, ry)) + digit;
     }
 
-    template <unsigned_group_integral A> constexpr A arithmetic_bit_or (const A &x, const A &y) {
+    template <group_number_unsigned A> constexpr A arithmetic_bit_or (const A &x, const A &y) {
         if (x == 0) return 0;
         if (y == 0) return 0;
         A rx = arithmetic_shift_right (x);
@@ -281,7 +186,7 @@ namespace data::math {
         return arithmetic_shift_left (arithmatic_bit_or (rx, ry)) + digit;
     }
 
-    template <unsigned_group_integral A> constexpr A arithmetic_bit_xor (const A &x, const A &y);
+    template <group_number_unsigned A> constexpr A arithmetic_bit_xor (const A &x, const A &y);
 }
 
 namespace data::math::def {
@@ -304,19 +209,19 @@ namespace data::math::def {
         }
     };
 
-    template <group_integral A, group_integral B> struct minus<A, B> {
+    template <group_number A, group_number B> struct minus<A, B> {
         constexpr auto operator () (const A &x, const B &y) const {
             return x - y;
         }
     };
 
-    template <ring_integral A, ring_integral B> struct divide<A, B> {
+    template <ring_number A, ring_number B> struct divide<A, B> {
         constexpr auto operator () (const A &a, const nonzero<B> &b) const {
             return divmod<A, B> {} (a, b).Quotient;
         }
     };
 
-    template <ring_integral A, ring_integral B> struct mod<A, B> {
+    template <ring_number A, ring_number B> struct mod<A, B> {
         constexpr auto operator () (const A &a, const nonzero<B> &b) const {
             return divmod<A, B> {} (a, b).Remainder;
         }

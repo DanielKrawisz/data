@@ -199,46 +199,244 @@ namespace data {
             { negate (a) };
         } && comparable_to<Z, N>;
 
+    template <typename A, typename B> concept bit_algebraic_to =
+        requires (const A &a, const B &b) {
+            { a & b } -> ImplicitlyConvertible<A>;
+            { a | b } -> ImplicitlyConvertible<A>;
+            { a ^ b } -> ImplicitlyConvertible<A>;
+            { b & a } -> ImplicitlyConvertible<A>;
+            { b | a } -> ImplicitlyConvertible<A>;
+            { b ^ a } -> ImplicitlyConvertible<A>;
+        } && requires (A &a, const B &b) {
+            { a &= b } -> Same<A &>;
+            { a |= b } -> Same<A &>;
+            { a ^= b } -> Same<A &>;
+        };
+
     template <typename NN> concept bit_algebraic =
-        requires (const NN &a, const NN &b) {
-            { a & b } -> ImplicitlyConvertible<NN>;
-            { a | b } -> ImplicitlyConvertible<NN>;
-            { a ^ b } -> ImplicitlyConvertible<NN>;
-        } && requires (NN &a, const NN &b) {
-            { a &= b } -> Same<NN &>;
-            { a |= b } -> Same<NN &>;
-            { a ^= b } -> Same<NN &>;
+        bit_algebraic_to<NN, NN>;
+
+    template <typename A, typename B> concept group_algebraic_to =
+        requires (const A &a, const B &b) {
+            { a + b } -> ImplicitlyConvertible<A>;
+            { a - b } -> ImplicitlyConvertible<A>;
+            { b + a } -> ImplicitlyConvertible<A>;
+            { b - a } -> ImplicitlyConvertible<A>;
+        } && requires (A &a, const B &b) {
+            { a += b } -> Same<A &>;
+            { a -= b } -> Same<A &>;
+        };
+
+    template <typename A, typename B> concept ring_algebraic_to =
+        group_algebraic_to<A, B> &&
+        requires (const A &a, const B &b) {
+            { a * b } -> ImplicitlyConvertible<A>;
+            { b * a } -> ImplicitlyConvertible<A>;
+        } && requires (A &a, const B &b) {
+            { a *= b } -> Same<A &>;
         };
 
     template <typename X> concept proto_bit_number =
         proto_number<X> && bit_algebraic<X>;
 
-    template <typename X> concept bit_algebraic_signed =
+    template <typename X, typename Y>
+    concept bit_algebraic_signed_to =
         requires (const X &a) {
-            { a & 1 } -> ImplicitlyConvertible<X>;
-            { a | 1 } -> ImplicitlyConvertible<X>;
-            { a ^ 1 } -> ImplicitlyConvertible<X>;
-            { 1 & a } -> ImplicitlyConvertible<X>;
-            { 1 | a } -> ImplicitlyConvertible<X>;
-            { 1 & a } -> ImplicitlyConvertible<X>;
-        } && requires (X &a) {
+            { a & 1 } -> ImplicitlyConvertible<Y>;
+            { a | 1 } -> ImplicitlyConvertible<Y>;
+            { a ^ 1 } -> ImplicitlyConvertible<Y>;
+            { 1 & a } -> ImplicitlyConvertible<Y>;
+            { 1 | a } -> ImplicitlyConvertible<Y>;
+            { 1 & a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept bit_algebraic_unsigned_to =
+        requires (const X &a) {
+            { a & 1u } -> ImplicitlyConvertible<Y>;
+            { a | 1u } -> ImplicitlyConvertible<Y>;
+            { a ^ 1u } -> ImplicitlyConvertible<Y>;
+            { 1u & a } -> ImplicitlyConvertible<Y>;
+            { 1u | a } -> ImplicitlyConvertible<Y>;
+            { 1u & a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept bit_algebraic_signed_big_to =
+        bit_algebraic_signed_to<X, Y> &&
+        requires (const X &a) {
+            { a & 9007199254740992 } -> ImplicitlyConvertible<Y>;
+            { a | 9007199254740992 } -> ImplicitlyConvertible<Y>;
+            { a ^ 9007199254740992 } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992 & a } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992 | a } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992 ^ a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept bit_algebraic_unsigned_big_to =
+        bit_algebraic_unsigned_to<X, Y> &&
+        requires (const X &a) {
+            { a & 9007199254740992u } -> ImplicitlyConvertible<Y>;
+            { a | 9007199254740992u } -> ImplicitlyConvertible<Y>;
+            { a ^ 9007199254740992u } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992u & a } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992u | a } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992u ^ a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X> concept bit_algebraic_signed =
+        bit_algebraic_signed_to<X, X> && requires (X &a) {
             { a &= 1 } -> Same<X &>;
             { a |= 1 } -> Same<X &>;
             { a ^= 1 } -> Same<X &>;
         };
 
     template <typename X> concept bit_algebraic_unsigned =
-        requires (const X &a) {
-            { a & 1u } -> ImplicitlyConvertible<X>;
-            { a | 1u } -> ImplicitlyConvertible<X>;
-            { a ^ 1u } -> ImplicitlyConvertible<X>;
-            { 1u & a } -> ImplicitlyConvertible<X>;
-            { 1u | a } -> ImplicitlyConvertible<X>;
-            { 1u & a } -> ImplicitlyConvertible<X>;
-        } && requires (X &a) {
+        bit_algebraic_unsigned_to<X, X> && requires (X &a) {
             { a &= 1u } -> Same<X &>;
             { a |= 1u } -> Same<X &>;
             { a ^= 1u } -> Same<X &>;
+        };
+
+    template <typename X> concept bit_algebraic_signed_big =
+        bit_algebraic_signed_big_to<X, X> &&
+        bit_algebraic_signed<X> &&
+        requires (X &a) {
+            { a &= 9007199254740992 } -> Same<X &>;
+            { a |= 9007199254740992 } -> Same<X &>;
+            { a ^= 9007199254740992 } -> Same<X &>;
+        };
+
+    template <typename X> concept bit_algebraic_unsigned_big =
+        bit_algebraic_unsigned_big_to<X, X> &&
+        bit_algebraic_unsigned<X> &&
+        requires (X &a) {
+            { a &= 9007199254740992u } -> Same<X &>;
+            { a |= 9007199254740992u } -> Same<X &>;
+            { a ^= 9007199254740992u } -> Same<X &>;
+        };
+
+    template <typename X, typename Y>
+    concept group_algebraic_signed_to =
+        requires (const X &a) {
+            { a + 1 } -> ImplicitlyConvertible<Y>;
+            { a - 1 } -> ImplicitlyConvertible<Y>;
+            { 1 + a } -> ImplicitlyConvertible<Y>;
+            { 1 - a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept group_algebraic_unsigned_to =
+        requires (const X &a) {
+            { a + 1u } -> ImplicitlyConvertible<Y>;
+            { a - 1u } -> ImplicitlyConvertible<Y>;
+            { 1u + a } -> ImplicitlyConvertible<Y>;
+            { 1u - a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept group_algebraic_signed_big_to =
+        group_algebraic_signed_to<X, Y> &&
+        requires (const X &a) {
+            { a + 9007199254740992 } -> ImplicitlyConvertible<Y>;
+            { a - 9007199254740992 } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992 + a } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992 - a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept group_algebraic_unsigned_big_to =
+        group_algebraic_unsigned_to<X, Y> &&
+        requires (const X &a) {
+            { a + 9007199254740992u } -> ImplicitlyConvertible<Y>;
+            { a - 9007199254740992u } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992u - a } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992u - a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X> concept group_algebraic_signed =
+        group_algebraic_signed_to<X, X> && requires (X &a) {
+            { a += 1 } -> Same<X &>;
+            { a -= 1 } -> Same<X &>;
+        };
+
+    template <typename X> concept group_algebraic_unsigned =
+        group_algebraic_unsigned_to<X, X> && requires (X &a) {
+            { a += 1u } -> Same<X &>;
+            { a -= 1u } -> Same<X &>;
+        };
+
+    template <typename X> concept group_algebraic_signed_big =
+        group_algebraic_signed_big_to<X, X> &&
+        group_algebraic_signed<X> &&
+        requires (X &a) {
+            { a += 9007199254740992 } -> Same<X &>;
+            { a -= 9007199254740992 } -> Same<X &>;
+        };
+
+    template <typename X> concept group_algebraic_unsigned_big =
+        group_algebraic_unsigned_big_to<X, X> &&
+        group_algebraic_unsigned<X> &&
+        requires (X &a) {
+            { a += 9007199254740992u } -> Same<X &>;
+            { a -= 9007199254740992u } -> Same<X &>;
+        };
+
+    template <typename X, typename Y>
+    concept ring_algebraic_signed_to =
+        group_algebraic_signed_to<X, Y> &&
+        requires (const X &a) {
+            { a * 1 } -> ImplicitlyConvertible<Y>;
+            { 1 * a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept ring_algebraic_unsigned_to =
+        group_algebraic_unsigned_to<X, Y> &&
+        requires (const X &a) {
+            { a * 1u } -> ImplicitlyConvertible<Y>;
+            { 1u * a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept ring_algebraic_signed_big_to =
+        ring_algebraic_signed_to<X, Y> &&
+        group_algebraic_signed_big_to<X, Y> &&
+        requires (const X &a) {
+            { a * 9007199254740992 } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992 * a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X, typename Y>
+    concept ring_algebraic_unsigned_big_to =
+        ring_algebraic_unsigned_to<X, Y> &&
+        group_algebraic_unsigned_big_to<X, Y> &&
+        requires (const X &a) {
+            { a * 9007199254740992u } -> ImplicitlyConvertible<Y>;
+            { 9007199254740992u * a } -> ImplicitlyConvertible<Y>;
+        };
+
+    template <typename X> concept ring_algebraic_signed =
+        ring_algebraic_signed_to<X, X> && requires (X &a) {
+            { a *= 1 } -> Same<X &>;
+        };
+
+    template <typename X> concept ring_algebraic_unsigned =
+        ring_algebraic_unsigned_to<X, X> && requires (X &a) {
+            { a *= 1u } -> Same<X &>;
+        };
+
+    template <typename X> concept ring_algebraic_signed_big =
+        ring_algebraic_signed_big_to<X, X> &&
+        ring_algebraic_signed<X> && requires (X &a) {
+            { a *= 9007199254740992 } -> Same<X &>;
+        };
+
+    template <typename X> concept ring_algebraic_unsigned_big =
+        ring_algebraic_unsigned_big_to<X, X> &&
+        ring_algebraic_unsigned<X> && requires (X &a) {
+            { a *= 9007199254740992u } -> Same<X &>;
         };
 
     template <typename X> concept proto_bit_unsigned =
@@ -246,6 +444,42 @@ namespace data {
 
     template <typename X> concept proto_bit_signed =
         proto_bit_number<X> && bit_algebraic_signed<X> && Signed<X>;
+
+    template <typename X> concept group_algebraic =
+        group_algebraic_to<X, X> &&
+        requires (const X &n) {
+            { div_2 (n) } -> ImplicitlyConvertible<X>;
+            { abs (n) };
+            { mod_2 (n) } -> ImplicitlyConvertible<X>;
+            { div_2 (n) } -> ImplicitlyConvertible<X>;
+        };
+
+    template <typename X> concept group_number =
+        proto_number<X> && group_algebraic<X>;
+
+    template <typename A> concept group_number_signed =
+        group_number<A> && proto_signed<A> && group_algebraic_signed<A>;
+
+    template <typename A> concept group_number_unsigned =
+        group_number<A> && proto_unsigned<A> && group_algebraic_unsigned<A>;
+
+    template <typename A> concept group_number_signed_big =
+        group_number_signed<A> && group_algebraic_signed_big<A>;
+
+    template <typename A> concept group_number_unsigned_big =
+        group_number_unsigned<A> && group_algebraic_unsigned_big<A>;
+
+    // a number system is more like what a mathematician would expect.
+    template <typename Z, typename N = Z> concept group_number_system =
+        proto_integral_system<Z, N> && group_number<Z> && group_number<N> &&
+        group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
+        group_algebraic_to<Z, N>;
+
+    // an integral system resembls a built in c++ number.
+    template <typename Z, typename N = Z> concept group_integral_system =
+        proto_integral_system<Z, N> && group_number<Z> && group_number<N> &&
+        group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
+        group_algebraic_to<N, Z>;
 
 }
 
