@@ -216,6 +216,24 @@ namespace data {
         test_prime_field<int128_big> ();
         test_prime_field<int160_big> ();
 
+        test_prime_field<uint32> ();
+        test_prime_field<uint64> ();
+        test_prime_field<uint80> ();
+        test_prime_field<uint128> ();
+        test_prime_field<uint160> ();
+
+        test_prime_field<uint32_little> ();
+        test_prime_field<uint64_little> ();
+        test_prime_field<uint80_little> ();
+        test_prime_field<uint128_little> ();
+        test_prime_field<uint160_little> ();
+
+        test_prime_field<uint32_big> ();
+        test_prime_field<uint64_big> ();
+        test_prime_field<uint80_big> ();
+        test_prime_field<uint128_big> ();
+        test_prime_field<uint160_big> ();
+
     }
     
 }
