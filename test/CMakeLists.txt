@@ -82,18 +82,18 @@ add_executable (
 
     # crypto 
     # random_primes.cpp
-    testGeometry.cpp
-    testSymmetricCrypto.cpp
+    geometry.cpp
+    symmetric_crypto.cpp
     secret_share.cpp
     testEllipticCurve.cpp
 
     # net
     IP.cpp
-    testEmail.cpp
+    email.cpp
 
     # io
     testLog.cpp
-    testArgsParser.cpp
+    args_parser.cpp
 )
 
 target_link_libraries (unit_tests
