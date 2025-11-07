@@ -309,6 +309,36 @@ namespace data::math::number {
     Z_bytes<r, neg, word> inline operator * (I x, const Z_bytes<r, neg, word> &z) {
         return Z_bytes<r, neg, word> {x} * z;
     }
+
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> inline operator + (const N_bytes<r, word> &u, I x) {
+        return Z_bytes<r, neg::twos, word> {u} + Z_bytes<r, neg::twos, word> {x};
+    }
+
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> inline operator - (const N_bytes<r, word> &u, I x) {
+        return Z_bytes<r, neg::twos, word> {u} - Z_bytes<r, neg::twos, word> {x};
+    }
+
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> inline operator * (const N_bytes<r, word> &u, I x) {
+        return Z_bytes<r, neg::twos, word> {u} * Z_bytes<r, neg::twos, word> {x};
+    }
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> inline operator + (I x, const N_bytes<r, word> &u) {
+        return Z_bytes<r, neg::twos, word> {x} + Z_bytes<r, neg::twos, word> {u};
+    }
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> inline operator - (I x, const N_bytes<r, word> &u) {
+        return Z_bytes<r, neg::twos, word> {x} - Z_bytes<r, neg::twos, word> {u};
+    }
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> inline operator * (I x, const N_bytes<r, word> &u) {
+        return Z_bytes<r, neg::twos, word> {x} * Z_bytes<r, neg::twos, word> {u};
+    }
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator ++ (N_bytes<r, word> &x, int) {

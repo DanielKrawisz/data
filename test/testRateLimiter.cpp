@@ -9,7 +9,7 @@
 
 namespace data {
     namespace tools {
-        TEST (RateLimiter, RateLimitLong) {
+        TEST (RateLimiter, Long) {
             rate_limiter limiter (3, 10);
             ASSERT_EQ (limiter.getTime (), 0);
             ASSERT_EQ (limiter.getTime (), 0);
@@ -28,7 +28,7 @@ namespace data {
             ASSERT_EQ (limiter.getTime (), 0);
         }
 
-        TEST (RateLimiter, RateLimitShort) {
+        TEST (RateLimiter, Short) {
             rate_limiter limiter (3, 10);
             ASSERT_EQ (limiter.getTime (), 0);
             ASSERT_EQ (limiter.getTime (), 0);

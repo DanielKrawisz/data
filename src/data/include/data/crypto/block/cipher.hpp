@@ -6,7 +6,7 @@
 #define DATA_CRYPTO_BLOCK_CIPHER
 
 #include <data/crypto/encrypted.hpp>
-#include <data/numbers.hpp>
+#include <data/bytes.hpp>
 
 namespace data::crypto {
 
