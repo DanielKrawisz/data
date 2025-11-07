@@ -351,6 +351,24 @@ namespace data::math::number {
     template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
     N_bytes<r, word> operator * (I, const N_bytes<r, word> &);
 
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> operator + (const N_bytes<r, word> &, I);
+
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> operator - (const N_bytes<r, word> &, I);
+
+    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, neg::twos, word> operator * (const N_bytes<r, word> &, I);
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> operator + (I, const N_bytes<r, word> &);
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> operator - (I, const N_bytes<r, word> &);
+
+    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
+    Z_bytes<r, neg::twos, word> operator * (I, const N_bytes<r, word> &);
+
     template <endian::order r, neg neg, std::unsigned_integral word, std::integral I>
     Z_bytes<r, neg, word> operator + (const Z_bytes<r, neg, word> &, I);
 

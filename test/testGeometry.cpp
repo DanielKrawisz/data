@@ -21,7 +21,7 @@ namespace data::math {
     static_assert (linear::space<Q, space::exterior<Q, 3, 3>>);
 
 
-    TEST (GeometryTest, TestScalarConstructor) {
+    TEST (Geometry, ScalarConstructor) {
         space::exterior<Q, 1, 0> {2};
         space::exterior<Q, 2, 0> {2};
         space::exterior<Q, 3, 0> {2};
