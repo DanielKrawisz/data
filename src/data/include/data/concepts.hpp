@@ -25,10 +25,35 @@ namespace data {
 
     template <typename From, typename To> inline constexpr bool is_implicitly_convertible_v = is_implicitly_convertible<From, To>::value;
 
-    template <typename From, typename To> concept ImplicitlyConvertible = std::is_convertible_v<From, To>;
+    // A => B is B || !A
+
+    template <typename From, typename To>
+    concept ImplicitlyConvertible =
+        std::is_convertible_v<From, To> /*&&
+        // if both are integers, then
+        //    * To is at least as big as From and has the same signedness
+        //    * To is bigger than From and is signed if From is signed.
+        ((!(std::integral<From> && std::integral<To>)) || (
+            // if From is signed, then To must also be signed and be at least as big as To.
+            ((!std::signed_integral<From>) || (std::signed_integral<To> && sizeof (To) >= sizeof (From))) &&
+            // if From is unsigend, then
+            ((!std::unsigned_integral<From>) || (
+                std::unsigned_integral<To> && sizeof (To) >= sizeof (From) ||
+                std::signed_integral<To> && sizeof (To) > sizeof (From)))
+
+        // if From is an integer and To is a floating point, then
+        )) && ((!(std::integral<From> && std::is_floating_point_v<To>)) || (sizeof (To) > sizeof (From))) &&
+
+        // If both are floating points then To must be at least as big as From
+        ((!(std::is_floating_point_v<From> && std::is_floating_point_v<To>)) || (sizeof (To) >= sizeof (From))) &&
+
+        // no floating points to integral types.
+        (!(std::is_floating_point_v<From> && std::is_integral_v<To>)) &&
+        // no enums to arithmetic types.
+        (!(std::is_enum_v<From> && std::is_arithmetic_v<To>))*/;
 
     template <typename From, typename To> concept ExplicitlyConvertible =
-        !is_implicitly_convertible_v<From, To> && requires (From from) {
+        !ImplicitlyConvertible<From, To> && requires (From from) {
             { To (from) };
         };
 
@@ -40,11 +65,13 @@ namespace data {
 
     template <typename Type, typename Argument>
     struct is_implicitly_constructible :
-        std::bool_constant<is_constructible_v<Type, Argument> && is_implicitly_convertible_v<Argument, Type>> {};
+        std::bool_constant<is_constructible_v<Type, Argument> &&
+        is_implicitly_convertible_v<Argument, Type>> {};
 
     template <typename Type, typename Argument>
     struct is_explicitly_constructible :
-        std::bool_constant<is_constructible_v<Type, Argument> && !is_implicitly_convertible_v<Argument, Type>> {};
+        std::bool_constant<is_constructible_v<Type, Argument> &&
+        !is_implicitly_convertible_v<Argument, Type>> {};
 
     template <typename Type, typename Argument> inline constexpr bool
     is_explicitly_constructible_v = is_explicitly_constructible<Type, Argument>::value;

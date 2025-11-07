@@ -906,15 +906,15 @@ namespace data::math {
 
     TEST (NumberTheory, DiffieHelman) {
         {
-            byte alice_secret = 180;
-            byte bob_secret = 200;
+            uint32 alice_secret = 180;
+            uint32 bob_secret = 200;
             for (const auto &[prime, root] : cryptosystems_9_bit)
                 EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, nonzero {prime}), bob_secret, nonzero {prime})),
                     (data::pow_mod (data::pow_mod (root, bob_secret, nonzero {prime}), alice_secret, nonzero {prime})));
         }
         {
-            uint16 alice_secret = 13030;
-            uint16 bob_secret = 29101;
+            uint64 alice_secret = 13030;
+            uint64 bob_secret = 29101;
             for (const auto &[prime, root] : cryptosystems_17_bit)
                 EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, nonzero {prime}), bob_secret, nonzero {prime})),
                     (data::pow_mod (data::pow_mod (root, bob_secret, nonzero {prime}), alice_secret, nonzero {prime})));
