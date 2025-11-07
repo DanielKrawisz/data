@@ -197,6 +197,12 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> operator & (I, const sint<r, size, word> &);
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> operator & (const sint<r, size, word> &, I);
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> operator & (I, const sint<r, size, word> &);
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> &operator &= (uint<r, size, word> &, I);
 
@@ -215,6 +221,12 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> operator ^ (I, const sint<r, size, word> &);
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> operator ^ (const sint<r, size, word> &, I);
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> operator ^ (I, const sint<r, size, word> &);
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> &operator ^= (uint<r, size, word> &, I);
 
@@ -232,6 +244,12 @@ namespace data {
 
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> operator | (I, const sint<r, size, word> &);
+
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> operator | (const sint<r, size, word> &, I);
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> operator | (I, const sint<r, size, word> &);
 
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> &operator |= (uint<r, size, word> &, I);
@@ -252,6 +270,12 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> operator + (I, const sint<r, size, word> &);
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> operator + (const sint<r, size, word> &, I);
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> operator + (I, const sint<r, size, word> &);
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> &operator += (uint<r, size, word> &, I);
 
@@ -270,6 +294,12 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> operator - (I, const sint<r, size, word> &);
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> operator - (const sint<r, size, word> &, I);
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> operator - (I, const sint<r, size, word> &);
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> &operator -= (uint<r, size, word> &, I);
 
@@ -287,6 +317,12 @@ namespace data {
 
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> operator * (I, const sint<r, size, word> &);
+
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> operator * (const sint<r, size, word> &, I);
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> operator * (I, const sint<r, size, word> &);
 
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> &operator *= (uint<r, size, word> &, I);
@@ -990,6 +1026,16 @@ namespace data {
             return z & sint<r, size, word> {x};
         }
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> inline operator & (const sint<r, size, word> &z, I x) {
+            return uint<r, size, word> (z) & x;
+        }
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> inline operator & (I x, const sint<r, size, word> &z) {
+            return x & uint<r, size, word> (z);
+        }
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> inline &operator &= (uint<r, size, word> &z, I x) {
             return z &= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
@@ -1018,6 +1064,16 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> inline operator ^ (I x, const sint<r, size, word> &z) {
             return z ^ sint<r, size, word> {x};
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> inline operator ^ (const sint<r, size, word> &z, I x) {
+            return uint<r, size, word> (z) ^ x;
+        }
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> inline operator ^ (I x, const sint<r, size, word> &z) {
+            return x ^ uint<r, size, word> (z);
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
@@ -1050,6 +1106,16 @@ namespace data {
             return z | sint<r, size, word> {x};
         }
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> inline operator | (const sint<r, size, word> &z, I x) {
+            return uint<r, size, word> (z) | x;
+        }
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> inline operator | (I x, const sint<r, size, word> &z) {
+            return x | uint<r, size, word> (z);
+        }
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> inline &operator |= (uint<r, size, word> &z, I x) {
             return z |= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
@@ -1078,6 +1144,16 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> inline operator + (I x, const sint<r, size, word> &z) {
             return z + sint<r, size, word> {x};
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> inline operator + (const sint<r, size, word> &z, I x) {
+            return uint<r, size, word> (z) + x;
+        }
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> inline operator + (I x, const sint<r, size, word> &z) {
+            return x + uint<r, size, word> (z);
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
@@ -1110,6 +1186,16 @@ namespace data {
             return sint<r, size, word> {x} - z;
         }
 
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> inline operator - (const sint<r, size, word> &z, I x) {
+            return uint<r, size, word> (z) - x;
+        }
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> inline operator - (I x, const sint<r, size, word> &z) {
+            return x - uint<r, size, word> (z);
+        }
+
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
         constexpr uint<r, size, word> inline &operator -= (uint<r, size, word> &z, I x) {
             return z -= uint<r, size, word> {static_cast<std::make_unsigned_t<I>> (x)};
@@ -1138,6 +1224,16 @@ namespace data {
         template <std::signed_integral I, endian::order r, size_t size, std::unsigned_integral word>
         constexpr sint<r, size, word> inline operator * (I x, const sint<r, size, word> &z) {
             return z * sint<r, size, word> {x};
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, size, word> inline operator * (const sint<r, size, word> &z, I x) {
+            return uint<r, size, word> (z) * x;
+        }
+
+        template <std::unsigned_integral I, endian::order r, size_t size, std::unsigned_integral word>
+        constexpr uint<r, size, word> inline operator * (I x, const sint<r, size, word> &z) {
+            return x * uint<r, size, word> (z);
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word, std::integral I>
