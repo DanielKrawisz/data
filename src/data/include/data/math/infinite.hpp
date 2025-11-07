@@ -81,8 +81,6 @@ namespace data::math {
         constexpr unsigned_limit operator + (const X &x) const;
         constexpr unsigned_limit operator * (const X &x) const;
 
-        using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
-
         maybe<X> Value;
 
     private:
@@ -214,7 +212,8 @@ namespace data::math {
 
     template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto inline operator <=> (const unsigned_limit<X> &a, const unsigned_limit<Y> &b) {
-        return b.finite () ? a <=> static_cast<X> (*b.Value) : a.infinite () ? X {0} <=> X {0} : unsigned_limit<X>::comparison::less;
+        return b.finite () ? a <=> static_cast<X> (*b.Value) : a.infinite () ? X {0} <=> X {0} :
+            decltype (std::declval<X> () <=> std::declval<X> ())::less;
     }
 
     template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
@@ -226,7 +225,7 @@ namespace data::math {
 
     template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto inline operator <=> (const unsigned_limit<X> &a, const Y &b) {
-        return a.infinite () ? unsigned_limit<X>::comparison::greater : *a.Value <=> static_cast<X> (b);
+        return a.infinite () ? decltype (std::declval<X> () <=> std::declval<X> ())::greater : *a.Value <=> static_cast<X> (b);
     }
 
     template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
