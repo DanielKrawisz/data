@@ -75,8 +75,10 @@ Equivalant to `std::same_as`.
 
 #### `concept data::ImplicitlyConvertible`
 
+Equivalent to `std::convertible_to`. 
+<!--
 For types `From` and `To`, `ImplicitlyConvertible<From, To>` if `From` is implicitly convertible to `To` excluding narrowing conversions. 
-
+-->
 #### `concept data::Convertible`
 
 Implicitly or explicitly convertable.
