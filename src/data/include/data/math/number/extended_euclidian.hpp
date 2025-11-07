@@ -11,8 +11,7 @@
 #include <sstream>
 
 namespace data::math::number::euclidian {
-    template <ring_number N, ring_number Z = decltype (data::negate (std::declval<N> ()))>
-    requires ring_number_system<Z, N> || Same<Z, N>
+    template <ring_number N, typename Z = decltype (data::negate (std::declval<N> ()))>
     struct extended;
 }
 
@@ -21,8 +20,7 @@ namespace data::math {
 }
 
 namespace data::math::number::euclidian {
-    template <ring_number N, ring_number Z>
-    requires ring_number_system<Z, N> || Same<Z, N>
+    template <ring_number N, typename Z>
     struct extended {
         N GCD;
         Z BezoutS;
