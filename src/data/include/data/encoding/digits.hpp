@@ -36,7 +36,7 @@ namespace data::encoding {
     }
     
     template <ring_number N, typename f>
-    N read_base (string_view s, uint32 base, f inverse_digits) {
+    constexpr N read_base (string_view s, uint32 base, f inverse_digits) {
 
         N n {0};
         N pow {1};

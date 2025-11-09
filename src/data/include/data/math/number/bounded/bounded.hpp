@@ -732,7 +732,13 @@ namespace data {
             static N_bytes<r, word> modulus ();
 
             operator N_bytes<r, word> () const;
-            bounded (const N_bytes<r, word> &);
+            constexpr bounded (const N_bytes<r, word> &);
+
+            template <endian::order o, neg neg, std::unsigned_integral w>
+            explicit operator Z_bytes<o, neg, w> () const;
+
+            template <endian::order o, neg neg, std::unsigned_integral w>
+            explicit bounded (const Z_bytes<o, neg, w> &);
 
             explicit operator double () const;
 
@@ -1426,27 +1432,6 @@ namespace data {
 
     namespace math::number {
 
-
-        template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<false, r, size, word>::bounded (string_view x) {
-            if (encoding::decimal::valid (x)) *this = bounded {N_bytes<r, word>::read (x)};
-            else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
-            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
-            else throw data::exception {} << "invalid natural string \"" << x << "\"";
-        }
-
-        template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<true, r, size, word>::bounded (string_view x) {
-            if (encoding::signed_decimal::valid (x)) *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
-            else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
-            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
-            else throw exception {} << "invalid integer string \"" << x << "\"";
-        }
-
         template <endian::order o, size_t size, std::unsigned_integral word>
         constexpr uint<o, size, word> bounded<false, o, size, word>::min () {
             bounded b {};
@@ -1734,7 +1719,7 @@ namespace data {
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
-        bounded<false, r, size, word>::bounded (const N_bytes<r, word> &n) {
+        constexpr bounded<false, r, size, word>::bounded (const N_bytes<r, word> &n) {
             auto nt = trim (n);
             if (nt.size () > size) throw exception {} << "too big";
             auto nx = extend (n, size);
