@@ -13,16 +13,62 @@
 
 namespace data::math {
 
+    template <typename curve> concept EllipticCurve =
+        field<typename curve::coordinate> && ring_number<typename curve::scalar> &&
+        requires (const curve &q) {
+            { q.discriminant () } -> Same<typename curve::coordinate>;
+        } && requires (typename space::affine<typename curve::coordinate, 2>::point &x) {
+            { curve::valid (x) } -> Same<bool>;
+            { curve::negate (x) } -> Same<typename space::affine<typename curve::coordinate, 2>::point>;
+        } && requires (typename space::affine<typename curve::coordinate, 2>::point &x,
+            typename space::affine<typename curve::coordinate, 2>::point &y) {
+            { curve::plus (x, y) } -> Same<unsigned_limit<typename space::affine<typename curve::coordinate, 2>::point>>;
+        } && requires (typename space::affine<typename curve::coordinate, 2>::point &x,
+            typename curve::scalar &y) {
+            { curve::times (x, y) } -> Same<typename space::affine<typename curve::coordinate, 2>::point>;
+        };
+
+    template <auto curve>
+    requires EllipticCurve<decltype (curve)>
+    struct elliptic_curve {
+        using coordinate = decltype (curve)::coordinate;
+        using scalar = decltype (curve)::scalar;
+
+        constexpr static coordinate discriminant () {
+            return curve.discriminant ();
+        }
+
+        constexpr static bool valid () {
+            return discriminant () != coordinate {};
+        }
+
+        struct point : unsigned_limit<typename space::affine<coordinate, 2>::point> {
+            point ();
+            point (const coordinate &x, const coordinate &y);
+
+            scalar x () const;
+            scalar y () const;
+
+            point operator - () const;
+            point operator + (const point &) const;
+            point operator - (const point &) const;
+
+            point operator * (const scalar &) const;
+            point operator / (const scalar &) const;
+        };
+    };
+
     // Not every elliptic curve can be expressed in Weierstrauss form, but those that can't are very much exceptions.
     template <field field> struct Weierstrauss {
+
         field A;
         field B;
 
-        bool valid () const;
+        constexpr bool valid () const;
 
-        bool operator == (const Weierstrauss &) const;
+        constexpr bool operator == (const Weierstrauss &) const;
 
-        field discriminant () const;
+        constexpr field discriminant () const;
 
         struct point;
         struct compressed_point;
@@ -113,13 +159,13 @@ namespace data::math {
     };
 
     template <field field>
-    bool inline Weierstrauss<field>::valid () const {
+    constexpr bool inline Weierstrauss<field>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
     template <field field>
-    field inline Weierstrauss<field>::discriminant () const {
+    constexpr field inline Weierstrauss<field>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }
 

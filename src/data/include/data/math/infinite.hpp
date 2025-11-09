@@ -83,6 +83,8 @@ namespace data::math {
 
         maybe<X> Value;
 
+        explicit operator X () const;
+
     private:
         // constructor for producing the infinite value.
         constexpr unsigned_limit (maybe<X> &&x, int) : Value {x} {}
@@ -106,6 +108,8 @@ namespace data::math {
         using comparison = decltype (std::declval<X> () <=> std::declval<X> ());
 
         signed_limit operator - () const;
+
+        explicit operator X () const;
 
         either<X, bool> Value;
     private:

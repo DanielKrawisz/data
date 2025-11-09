@@ -118,11 +118,12 @@ namespace data::encoding::hex {
 
     template <typename sen, typename iti, typename ito>
     constexpr void decode (sen end, iti it, ito out) {
-        constexpr const size_t word_size = sizeof (unref<decltype (*out)>);
+        using word_type = unconst<unref<decltype (*out)>>;
+        constexpr const size_t word_size = sizeof (word_type);
         while (it != end) {
             *out = 0;
             for (int i = word_size * 8 - 4; i > 0; i -= 4) {
-                *out += from_hex_char (*it) << i;
+                *out += word_type (from_hex_char (*it)) << i;
                 it++;
                 if (it == end) throw std::runtime_error ("invalid hex length");
             }

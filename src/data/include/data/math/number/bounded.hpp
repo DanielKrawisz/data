@@ -11,9 +11,57 @@
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/encoding/digits.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
+
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    constexpr bounded<false, r, size, word>::bounded (string_view x) {
+        if consteval {
+            if (encoding::decimal::valid (x))
+                // TODO it is possible that the number string is too big, but we won't know.
+                *this = encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit);
+            else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
+                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
+                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+        } else {
+            if (encoding::decimal::valid (x)) *this = bounded {N_bytes<r, word>::read (x)};
+            else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
+                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
+                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+            else throw data::exception {} << "invalid natural string \"" << x << "\"";
+        }
+    }
+
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    constexpr bounded<true, r, size, word>::bounded (string_view x) {
+        if consteval {
+            if (encoding::signed_decimal::valid (x)) {
+                // TODO it is possible that the number string is too big, but we won't know.
+                if (encoding::decimal::valid (x)) {
+                    *this = bounded<true, r, size, word> (
+                        encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit));
+                } else {
+                    *this = -bounded<true, r, size, word> (
+                        encoding::read_base<bounded<false, r, size, word>> (x.substr (1), 10, encoding::decimal::digit));
+                }
+            } else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
+                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
+                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+        } else {
+            if (encoding::signed_decimal::valid (x)) *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
+            else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
+                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+            else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
+                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+            else throw exception {} << "invalid integer string \"" << x << "\"";
+        }
+    }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {

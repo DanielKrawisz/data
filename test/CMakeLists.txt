@@ -79,13 +79,13 @@ add_executable (
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
     finite_field.cpp             # TODO: make typed test.
     algebra.cpp
+    geometry.cpp
 
     # crypto 
     # random_primes.cpp
-    geometry.cpp
     symmetric_crypto.cpp
     secret_share.cpp
-    testEllipticCurve.cpp
+    elliptic_curve.cpp
 
     # net
     IP.cpp
