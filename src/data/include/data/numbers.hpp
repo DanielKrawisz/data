@@ -73,56 +73,89 @@ namespace data {
     using uint160 = math::uint<endian::little, 5, uint32>;
     using  int160 = math::sint<endian::little, 5, uint32>;
 
+    using uint192 = math::uint<endian::little, 3, uint64>;
+    using  int192 = math::sint<endian::little, 3, uint64>;
+
     using uint224 = math::uint<endian::little, 7, uint32>;
     using  int224 = math::sint<endian::little, 7, uint32>;
 
     using uint256 = math::uint<endian::little, 4, uint64>;
     using  int256 = math::sint<endian::little, 4, uint64>;
 
+    using uint288 = math::uint<endian::little, 9, uint32>;
+    using  int288 = math::sint<endian::little, 9, uint32>;
+
     using uint320 = math::uint<endian::little, 5, uint64>;
     using  int320 = math::sint<endian::little, 5, uint64>;
+
+    using uint352 = math::uint<endian::little, 11, uint32>;
+    using  int352 = math::sint<endian::little, 11, uint32>;
+
+    using uint384 = math::uint<endian::little, 6, uint64>;
+    using  int384 = math::sint<endian::little, 6, uint64>;
+
+    using uint416 = math::uint<endian::little, 13, uint32>;
+    using  int416 = math::sint<endian::little, 13, uint32>;
 
     using uint448 = math::uint<endian::little, 7, uint64>;
     using  int448 = math::sint<endian::little, 7, uint64>;
 
+    using uint480 = math::uint<endian::little, 15, uint32>;
+    using  int480 = math::sint<endian::little, 15, uint32>;
+
     using uint512 = math::uint<endian::little, 8, uint64>;
     using  int512 = math::sint<endian::little, 8, uint64>;
+
+    using uint544 = math::uint<endian::little, 17, uint32>;
+    using  int544 = math::sint<endian::little, 17, uint32>;
 
     using  uint80_little = uint_little<10>;
     using uint128_little = uint_little<16>;
     using uint160_little = uint_little<20>;
+    using uint192_little = uint_little<24>;
     using uint224_little = uint_little<28>;
     using uint256_little = uint_little<32>;
     using uint320_little = uint_little<40>;
+    using uint384_little = uint_little<48>;
     using uint448_little = uint_little<56>;
     using uint512_little = uint_little<64>;
+    using uint544_little = uint_little<68>;
 
     using   int80_little = int_little<10>;
     using  int128_little = int_little<16>;
     using  int160_little = int_little<20>;
+    using  int192_little = int_little<24>;
     using  int224_little = int_little<28>;
     using  int256_little = int_little<32>;
     using  int320_little = int_little<40>;
+    using  int384_little = int_little<48>;
     using  int448_little = int_little<56>;
     using  int512_little = int_little<64>;
+    using  int544_little = int_little<68>;
 
     using  uint80_big = uint_big<10>;
     using uint128_big = uint_big<16>;
     using uint160_big = uint_big<20>;
+    using uint192_big = uint_big<24>;
     using uint224_big = uint_big<28>;
     using uint256_big = uint_big<32>;
     using uint320_big = uint_big<40>;
+    using uint384_big = uint_big<48>;
     using uint448_big = uint_big<56>;
     using uint512_big = uint_big<64>;
+    using uint544_big = uint_big<68>;
 
     using   int80_big = int_big<10>;
     using  int128_big = int_big<16>;
     using  int160_big = int_big<20>;
+    using  int192_big = int_big<24>;
     using  int224_big = int_big<28>;
     using  int256_big = int_big<32>;
     using  int320_big = int_big<40>;
+    using  int384_big = int_big<48>;
     using  int448_big = int_big<56>;
     using  int512_big = int_big<64>;
+    using  int544_big = int_big<68>;
     
     // string numbers. 
     using dec_uint = encoding::decimal::string;

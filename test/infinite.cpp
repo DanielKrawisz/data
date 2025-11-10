@@ -8,85 +8,99 @@
 
 namespace data {
 
-    template <typename X> void test_signed_infinite () {
-        using inf = math::signed_limit<X>;
+    template <typename N>
+    struct SignedInfinite : ::testing::Test {
+        using value = N;
+    };
+
+    template <typename Z>
+    struct UnsignedInfinite : ::testing::Test {
+        using value = Z;
+    };
+
+    using unsigned_test_cases = ::testing::Types<
+        byte,
+        uint32,
+        uint32_little,
+        uint32_big,
+        uint64,
+        uint64_little,
+        uint64_big,
+        N,
+        N_bytes_little,
+        N_bytes_big,
+        dec_uint,
+        hex_uint,
+        base58_uint>;
+
+    using signed_test_cases = ::testing::Types<
+        char,
+        int32,
+        int32_little,
+        int32_big,
+        int64,
+        int64_little,
+        int64_big,
+        double,
+        Z,
+        Z_bytes_little,
+        Z_bytes_big,
+        Z_bytes_BC_little,
+        dec_int,
+        hex_int,
+        hex_int_BC>;
+
+    TYPED_TEST_SUITE (UnsignedInfinite, unsigned_test_cases);
+    TYPED_TEST_SUITE (SignedInfinite, signed_test_cases);
+
+    TYPED_TEST (SignedInfinite, Infinite) {
+        using val = typename TestFixture::value;
+        using inf = math::signed_limit<val>;
 
         EXPECT_TRUE (inf::infinity () > inf::negative_infinity ());
         EXPECT_TRUE (inf::infinity () > inf {0});
-        EXPECT_TRUE (inf::infinity () > X {0});
+        EXPECT_TRUE (inf::infinity () > val {0});
 
         EXPECT_FALSE (inf::infinity () < inf::negative_infinity ());
         EXPECT_FALSE (inf::infinity () < inf {0});
-        EXPECT_FALSE (inf::infinity () < X {0});
+        EXPECT_FALSE (inf::infinity () < val {0});
 
         EXPECT_TRUE (inf::negative_infinity () < inf::infinity ());
         EXPECT_TRUE (inf {0} < inf::infinity ());
-        EXPECT_TRUE (X {0} < inf::infinity ());
+        EXPECT_TRUE (val {0} < inf::infinity ());
 
         EXPECT_FALSE (inf::negative_infinity () > inf::infinity ());
         EXPECT_FALSE (inf {0} > inf::infinity ());
-        EXPECT_FALSE (X {0} > inf::infinity ());
+        EXPECT_FALSE (val {0} > inf::infinity ());
 
         EXPECT_EQ (inf::infinity (), inf::infinity ());
         EXPECT_EQ (inf::negative_infinity (), inf::negative_infinity ());
         EXPECT_NE (inf::infinity (), inf::negative_infinity ());
         EXPECT_NE (inf::infinity (), inf {0});
-        EXPECT_NE (inf::infinity (), X {0});
-        EXPECT_EQ (inf {0}, X {0});
+        EXPECT_NE (inf::infinity (), val {0});
+        EXPECT_EQ (inf {0}, val {0});
     }
 
-    template <typename X> void test_unsigned_infinite () {
-        using inf = math::unsigned_limit<X>;
+    TYPED_TEST (UnsignedInfinite, Infinite) {
+        using val = typename TestFixture::value;
+        using inf = math::unsigned_limit<val>;
 
         EXPECT_TRUE (inf::infinity () > inf {0});
-        EXPECT_TRUE (inf::infinity () > X {0});
+        EXPECT_TRUE (inf::infinity () > val {0});
 
         EXPECT_FALSE (inf::infinity () < inf {0});
-        EXPECT_FALSE (inf::infinity () < X {0});
+        EXPECT_FALSE (inf::infinity () < val {0});
 
         EXPECT_TRUE (inf {0} < inf::infinity ());
-        EXPECT_TRUE (X {0} < inf::infinity ());
+        EXPECT_TRUE (val {0} < inf::infinity ());
 
         EXPECT_FALSE (inf {0} > inf::infinity ());
-        EXPECT_FALSE (X {0} > inf::infinity ());
+        EXPECT_FALSE (val {0} > inf::infinity ());
 
         EXPECT_EQ (inf::infinity (), inf::infinity ());
         EXPECT_NE (inf::infinity (), inf {0});
-        EXPECT_NE (inf::infinity (), X {0});
-        EXPECT_EQ (inf {0}, X {0});
-    }
-
-    TEST (Infinite, Infinite) {
-
-        test_unsigned_infinite<byte> ();
-        test_signed_infinite<char> ();
-        test_unsigned_infinite<uint32> ();
-        test_unsigned_infinite<uint32_little> ();
-        test_unsigned_infinite<uint32_big> ();
-        test_unsigned_infinite<uint64> ();
-        test_unsigned_infinite<uint64_little> ();
-        test_unsigned_infinite<uint64_big> ();
-        test_unsigned_infinite<int32> ();
-        test_signed_infinite<int32_little> ();
-        test_signed_infinite<int32_big> ();
-        test_signed_infinite<int64> ();
-        test_signed_infinite<int64_little> ();
-        test_signed_infinite<int64_big> ();
-        test_signed_infinite<double> ();
-        test_unsigned_infinite<N> ();
-        test_signed_infinite<Z> ();
-        test_signed_infinite<Z_bytes_little> ();
-        test_unsigned_infinite<N_bytes_little> ();
-        test_signed_infinite<Z_bytes_big> ();
-        test_unsigned_infinite<N_bytes_big> ();
-        test_signed_infinite<Z_bytes_BC_little> ();
-        test_unsigned_infinite<dec_uint> ();
-        test_unsigned_infinite<hex_uint> ();
-        test_signed_infinite<dec_int> ();
-        test_unsigned_infinite<base58_uint> ();
-        test_signed_infinite<hex_int> ();
-        test_signed_infinite<hex_int_BC> ();
-
+        EXPECT_NE (inf::infinity (), val {0});
+        EXPECT_EQ (inf {0}, val {0});
     }
 
 }
