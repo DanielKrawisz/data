@@ -63,6 +63,9 @@ namespace data::math {
     template <Ordered X, typename Y> requires ImplicitlyConvertible<Y, X>
     constexpr auto operator <=> (const signed_limit<X> &, const Y &);
 
+    template <typename R> unsigned_limit (const R &) -> unsigned_limit<R>;
+    template <typename R> signed_limit (const R &) -> signed_limit<R>;
+
     // Extend << to infinite extensions if the underlying type has << defined on it. 
     template <typename X> std::ostream &operator << (std::ostream &, const unsigned_limit<X> &x);
     template <Ordered X> std::ostream &operator << (std::ostream &, const signed_limit<X> &x);
@@ -120,12 +123,12 @@ namespace data::math {
 
     // NOTE: these values ought to be declared constexpr. This may be possible in c++23
     template <typename X> struct infinite<unsigned_limit<X>> {
-        static const inline unsigned_limit<X> Value {maybe<X> {}, 0};
+        constexpr static const inline unsigned_limit<X> Value {maybe<X> {}, 0};
     };
 
     template <typename X> struct infinite<signed_limit<X>> {
-        static const inline signed_limit<X> Positive {either<X, bool> {true}, 0};
-        static const inline signed_limit<X> Negative {either<X, bool> {false}, 0};
+        constexpr static const inline signed_limit<X> Positive {either<X, bool> {true}, 0};
+        constexpr static const inline signed_limit<X> Negative {either<X, bool> {false}, 0};
     };
 
     // for types that do not have a max and a min value, we use the infinite types.

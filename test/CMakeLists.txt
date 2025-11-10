@@ -80,12 +80,12 @@ add_executable (
     finite_field.cpp             # TODO: make typed test.
     algebra.cpp
     geometry.cpp
+    elliptic_curve.cpp
 
     # crypto 
     # random_primes.cpp
     symmetric_crypto.cpp
     secret_share.cpp
-    elliptic_curve.cpp
 
     # net
     IP.cpp
