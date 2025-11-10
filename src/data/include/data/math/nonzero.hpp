@@ -22,6 +22,13 @@ namespace data::math {
 
     template <typename R> constexpr nonzero<R> operator * (const nonzero<R> &m, const nonzero<R> &n);
 
+    template <typename R> nonzero (const R &) -> nonzero<R>;
+    template <typename R> nonnegative (const R &) -> nonnegative<R>;
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const nonnegative<R> &n);
+
+    template <typename R> std::ostream &operator << (std::ostream &o, const nonzero<R> &n);
+
     template <Ordered R> struct nonnegative {
         R Value;
         
@@ -80,13 +87,6 @@ namespace data::math {
             return Value == x;
         }
     };
-    
-    template <typename R>
-    nonzero (const R &) -> nonzero<R>;
-
-    template <typename R> std::ostream &operator << (std::ostream &o, const nonnegative<R> &n);
-
-    template <typename R> std::ostream &operator << (std::ostream &o, const nonzero<R> &n);
     
 }
 

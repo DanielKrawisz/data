@@ -670,6 +670,10 @@ namespace data {
         template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
         std::weak_ordering operator <=> (const uint<r, size, word> &, const N_bytes<o, word> &);
 
+        template <endian::order r, size_t size, std::unsigned_integral word,
+            endian::order o, neg neg, std::unsigned_integral w>
+        std::weak_ordering operator <=> (const uint<r, size, word> &, const Z_bytes<o, neg, w> &);
+
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint<r, x, word> operator / (const uint<r, x, word> &, uint64);
 
@@ -735,37 +739,23 @@ namespace data {
             constexpr bounded (const N_bytes<r, word> &);
 
             template <endian::order o, neg neg, std::unsigned_integral w>
-            explicit operator Z_bytes<o, neg, w> () const;
+            operator Z_bytes<o, neg, w> () const;
 
             template <endian::order o, neg neg, std::unsigned_integral w>
-            explicit bounded (const Z_bytes<o, neg, w> &);
+            explicit bounded (const Z_bytes<o, neg, w> &z);
 
             explicit operator double () const;
 
             // we can implicitly convert to any bigger bounded number, signed or unsigned.
-            template <bool x, size_t bigger>
-            requires (bigger > size)
-            operator bounded<x, r, bigger, word> () const {
-                bounded<x, r, bigger, word> n {0};
-                std::copy (this->words ().begin (), this->words ().end (), n.words ().begin ());
-                return n;
-            }
+            template <bool x, size_t bigger> requires (bigger > size)
+            operator bounded<x, r, bigger, word> () const;
 
             // we can explicitly convert to a signed bounded number of the same size.
-            explicit operator bounded<true, r, size, word> () const {
-                bounded<true, r, size, word> n;
-                std::copy (this->begin (), this->end (), n.begin ());
-                return n;
-            }
+            explicit operator bounded<true, r, size, word> () const;
 
             // we can explicitly convert to a smaller number.
-            template <bool x, size_t smaller>
-            requires (smaller < size)
-            explicit operator bounded<x, r, smaller, word> () const {
-                bounded<x, r, smaller, word> n;
-                std::copy (this->words ().begin (), this->words ().begin () + smaller, n.words ().begin ());
-                return n;
-            }
+            template <bool x, size_t smaller> requires (smaller < size)
+            explicit operator bounded<x, r, smaller, word> () const;
 
             template <bool x, size_t u, std::unsigned_integral w>
             requires (u * sizeof (word) > size * sizeof (word))
@@ -1724,6 +1714,111 @@ namespace data {
             if (nt.size () > size) throw exception {} << "too big";
             auto nx = extend (n, size);
             std::copy (nx.begin (), nx.end (), this->begin ());
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian::order o, neg neg, std::unsigned_integral w>
+        bounded<false, r, size, word>::operator Z_bytes<o, neg, w> () const {
+            constexpr const size_t size_in_bytes = sizeof (word) * size;
+            constexpr const auto div = divmod (size_in_bytes, sizeof (w));
+            constexpr const size_t new_size = div.Quotient + (div.Remainder == 0 ? 0 : 1);
+            Z_bytes<o, neg, w> z = Z_bytes<o, neg, w>::zero (new_size);
+            auto nn = this->words ().begin ();
+            auto zz = z.words ().begin ();
+            auto ne = this->words ().end ();
+            if constexpr (sizeof (word) == sizeof (w)) {
+                while (nn != ne) {
+                    *zz == *nn;
+                    zz++;
+                    nn++;
+                }
+            } else if constexpr (sizeof (word) > sizeof (w)) {
+                constexpr size_t factor = sizeof (word) / sizeof (w);
+                while (nn != ne) {
+                    auto digit = *nn;
+                    for (int i = 0; i < factor; i++) {
+                        *zz = (digit >> (i * sizeof (w) * 8)) & numeric_limits<decltype (digit)>::max ();
+                        zz++;
+                    }
+                    nn++;
+                }
+            } else {
+                constexpr size_t factor = sizeof (w) / sizeof (word);
+                while (true) {
+                    for (int i = 0; i < factor; i++) {
+                        if (nn == ne) goto done;
+                        *zz += *nn << (i * sizeof (word) * 8);
+                        nn++;
+                    }
+                    zz++;
+                }
+            }
+            done:
+            return z.trim ();
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian::order o, neg neg, std::unsigned_integral w>
+        bounded<false, r, size, word>::bounded (const Z_bytes<o, neg, w> &z): bounded {} {
+            if (is_negative (z) || z > max ()) throw exception {"invalid Z_bytes input to unsigned bounded"};
+            auto nn = this->words ().begin ();
+            auto zz = z.words ().begin ();
+            auto ne = this->words ().end ();
+            auto ze = z.words ().end ();
+            if constexpr (sizeof (word) == sizeof (w)) {
+                while (true) {
+                    if (nn == ne || zz == ze) return;
+                    *nn == *zz;
+                    zz++;
+                    nn++;
+                }
+            } else if constexpr (sizeof (word) > sizeof (w)) {
+                constexpr size_t factor = sizeof (word) / sizeof (w);
+                while (nn != ne) {
+                    for (int i = 0; i < factor; i++) {
+                        if (zz == ze) return;
+                        *nn += *zz << (i * sizeof (w) * 8);
+                        zz++;
+                    }
+                    nn++;
+                }
+            } else {
+                constexpr size_t factor = sizeof (w) / sizeof (word);
+                while (zz != ze) {
+                    for (int i = 0; i < factor; i++) {
+                        if (nn == ne) return;
+                        *nn = (*zz >> (i * sizeof (word) * 8)) & numeric_limits<decltype (*zz)>::max ();
+                        nn++;
+                    }
+                    zz++;
+                }
+            }
+        }
+
+        // we can implicitly convert to any bigger bounded number, signed or unsigned.
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <bool x, size_t bigger> requires (bigger > size)
+        bounded<false, r, size, word>::operator bounded<x, r, bigger, word> () const {
+            bounded<x, r, bigger, word> n {0};
+            std::copy (this->words ().begin (), this->words ().end (), n.words ().begin ());
+            return n;
+        }
+
+        // we can explicitly convert to a signed bounded number of the same size.
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        bounded<false, r, size, word>::operator bounded<true, r, size, word> () const {
+            bounded<true, r, size, word> n;
+            std::copy (this->begin (), this->end (), n.begin ());
+            return n;
+        }
+
+        // we can explicitly convert to a smaller number.
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <bool x, size_t smaller> requires (smaller < size)
+        bounded<false, r, size, word>::operator bounded<x, r, smaller, word> () const {
+            bounded<x, r, smaller, word> n;
+            std::copy (this->words ().begin (), this->words ().begin () + smaller, n.words ().begin ());
+            return n;
         }
 
     }

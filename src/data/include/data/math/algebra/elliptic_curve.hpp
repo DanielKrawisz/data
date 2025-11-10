@@ -18,21 +18,27 @@ namespace data::math {
         requires (const curve &q) {
             { q.discriminant () } -> Same<typename curve::coordinate>;
         } && requires (typename space::affine<typename curve::coordinate, 2>::point &x) {
-            { curve::valid (x) } -> Same<bool>;
             { curve::negate (x) } -> Same<typename space::affine<typename curve::coordinate, 2>::point>;
         } && requires (typename space::affine<typename curve::coordinate, 2>::point &x,
             typename space::affine<typename curve::coordinate, 2>::point &y) {
             { curve::plus (x, y) } -> Same<unsigned_limit<typename space::affine<typename curve::coordinate, 2>::point>>;
         } && requires (typename space::affine<typename curve::coordinate, 2>::point &x,
             typename curve::scalar &y) {
-            { curve::times (x, y) } -> Same<typename space::affine<typename curve::coordinate, 2>::point>;
+            { curve::times (x, y) } -> Same<unsigned_limit<typename space::affine<typename curve::coordinate, 2>::point>>;
         };
+
+    enum class parity : byte {
+        zero = 0x00,
+        even = 0x02,
+        odd = 0x03
+    };
 
     template <auto curve>
     requires EllipticCurve<decltype (curve)>
     struct elliptic_curve {
         using coordinate = decltype (curve)::coordinate;
         using scalar = decltype (curve)::scalar;
+        using projective_coordinate = unsigned_limit<coordinate>;
 
         constexpr static coordinate discriminant () {
             return curve.discriminant ();
@@ -42,27 +48,79 @@ namespace data::math {
             return discriminant () != coordinate {};
         }
 
-        struct point : unsigned_limit<typename space::affine<coordinate, 2>::point> {
-            point ();
-            point (const coordinate &x, const coordinate &y);
+        struct point;
 
-            scalar x () const;
-            scalar y () const;
+        // a point not including the infinite point.
+        struct affine_point {
+            constexpr bool valid () const;
+
+            constexpr affine_point (const coordinate &x, const coordinate &y): X {x}, Y {y} {}
+
+            // make a compressed point.
+            constexpr affine_point (const coordinate &x, math::parity y): X {x}, Y {y} {}
+
+            coordinate x () const;
+            coordinate y () const;
+
+            affine_point operator - () const;
+
+            point operator + (const point &) const;
+            point operator - (const point &) const;
+            point operator * (const scalar &) const;
+            point operator / (const scalar &) const;
+
+            math::parity parity () const;
+
+            bool compressed () const;
+            bool uncompressed () const;
+
+            point compress () const;
+            point decompress () const;
+
+            coordinate X;
+            either<coordinate, math::parity> Y;
+        };
+
+        struct point : unsigned_limit<affine_point> {
+            // the infinite point.
+            constexpr point ();
+
+            constexpr point (const coordinate &x, const coordinate &y);
+
+            // make a compressed point.
+            constexpr point (const coordinate &x, parity);
+
+            constexpr point (const affine_point &);
+
+            projective_coordinate x () const;
+            projective_coordinate y () const;
 
             point operator - () const;
             point operator + (const point &) const;
             point operator - (const point &) const;
 
-            point operator * (const scalar &) const;
-            point operator / (const scalar &) const;
+            math::parity parity () const;
+
+            bool compressed () const;
+            bool uncompressed () const;
+
+            point compress () const;
+            point decompress () const;
         };
     };
 
-    // Not every elliptic curve can be expressed in Weierstrauss form, but those that can't are very much exceptions.
-    template <field field> struct Weierstrauss {
+    // Not every elliptic curve can be expressed in Weierstrauss form,
+    // but those that can't are very much exceptions.
+    template <field field, ring_number N> struct Weierstrauss {
 
-        field A;
-        field B;
+        using coordinate = field;
+        using scalar = N;
+
+        scalar A;
+        scalar B;
+
+        constexpr Weierstrauss (const scalar &a, const scalar &b):
+            A {a}, B {b} {}
 
         constexpr bool valid () const;
 
@@ -70,6 +128,17 @@ namespace data::math {
 
         constexpr field discriminant () const;
 
+        using affine_point = space::affine<coordinate, 2>::point;
+        using point = unsigned_limit<affine_point>;
+
+        static affine_point negate (const affine_point &);
+        static point negate (const point &);
+        static point plus (const affine_point &, const affine_point &);
+        static point plus (const point &, const point &);
+        static point times (const affine_point &, const scalar &);
+        static point times (const point &, const scalar &);
+
+/*
         struct point;
         struct compressed_point;
         struct projective_vector;
@@ -155,20 +224,20 @@ namespace data::math {
             field x () const;
             field y () const;
             field z () const;
-        };
+        };*/
     };
 
-    template <field field>
-    constexpr bool inline Weierstrauss<field>::valid () const {
+    template <field field, ring_number N>
+    constexpr bool inline Weierstrauss<field, N>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
-    template <field field>
-    constexpr field inline Weierstrauss<field>::discriminant () const {
+    template <field field, ring_number N>
+    constexpr field inline Weierstrauss<field, N>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }
-
+/*
     template <field field>
     Weierstrauss<field>::point inline Weierstrauss<field>::point::operator * (const point &x) const {
         return Curve.multiply (*this, x);
@@ -262,7 +331,7 @@ namespace data::math {
         auto zzzzzz = zzz * zzz;
         return y () * y () == x () * x () * x () + A * x () * zzzz + B * zzzzzz;
     }
-/*
+
     template <field field>
     Weierstrauss<field>::point multiply (const point &a, const point &b) {
         if (is_infinite (a)) return b;
