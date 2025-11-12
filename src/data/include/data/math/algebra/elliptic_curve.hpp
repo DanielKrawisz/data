@@ -17,31 +17,28 @@ namespace data::math {
         field<typename curve::coordinate> && ring_number<typename curve::scalar> &&
         requires (const curve &q) {
             { q.discriminant () } -> Same<typename curve::coordinate>;
-        } && requires (typename space::affine<typename curve::coordinate, 2>::point &x) {
-            { curve::negate (x) } -> Same<typename space::affine<typename curve::coordinate, 2>::point>;
-        } && requires (typename space::affine<typename curve::coordinate, 2>::point &x,
-            typename space::affine<typename curve::coordinate, 2>::point &y) {
-            { curve::plus (x, y) } -> Same<unsigned_limit<typename space::affine<typename curve::coordinate, 2>::point>>;
-        } && requires (typename space::affine<typename curve::coordinate, 2>::point &x,
+        } && requires (typename space::vector<typename curve::coordinate, 2> &x) {
+            // whether the point is actually on the curve.
+            { curve::valid (x) } -> Same<bool>;
+            { curve::negate (x) } -> Same<typename space::vector<typename curve::coordinate, 2>>;
+        } && requires (typename space::vector<typename curve::coordinate, 2> &x,
+            typename space::vector<typename curve::coordinate, 2> &y) {
+            { curve::plus (x, y) } -> Same<unsigned_limit<typename space::vector<typename curve::coordinate, 2>>>;
+        } && requires (typename space::vector<typename curve::coordinate, 2> &x,
             typename curve::scalar &y) {
-            { curve::times (x, y) } -> Same<unsigned_limit<typename space::affine<typename curve::coordinate, 2>::point>>;
+            { curve::times (x, y) } -> Same<unsigned_limit<typename space::vector<typename curve::coordinate, 2>>>;
         };
 
-    enum class parity : byte {
-        zero = 0x00,
-        even = 0x02,
-        odd = 0x03
-    };
-
-    template <auto curve>
-    requires EllipticCurve<decltype (curve)>
+    template <auto Curve>
+    requires EllipticCurve<decltype (Curve)>
     struct elliptic_curve {
-        using coordinate = decltype (curve)::coordinate;
-        using scalar = decltype (curve)::scalar;
+        using curve = decltype (Curve);
+        using coordinate = curve::coordinate;
+        using scalar = curve::scalar;
         using projective_coordinate = unsigned_limit<coordinate>;
 
         constexpr static coordinate discriminant () {
-            return curve.discriminant ();
+            return Curve.discriminant ();
         }
 
         constexpr static bool valid () {
@@ -51,34 +48,30 @@ namespace data::math {
         struct point;
 
         // a point not including the infinite point.
-        struct affine_point {
+        struct affine_point : space::vector<typename curve::coordinate, 2> {
+
+            constexpr affine_point (const coordinate &x, const coordinate &y):
+                space::vector<typename curve::coordinate, 2> {x, y} {}
+
+            constexpr affine_point (const space::vector<typename curve::coordinate, 2> &p):
+                space::vector<typename curve::coordinate, 2> {p} {}
+
             constexpr bool valid () const;
 
-            constexpr affine_point (const coordinate &x, const coordinate &y): X {x}, Y {y} {}
+            constexpr coordinate x () const;
+            constexpr coordinate y () const;
 
-            // make a compressed point.
-            constexpr affine_point (const coordinate &x, math::parity y): X {x}, Y {y} {}
-
-            coordinate x () const;
-            coordinate y () const;
+            bool operator == (const affine_point &) const;
 
             affine_point operator - () const;
 
             point operator + (const point &) const;
             point operator - (const point &) const;
+
+            point operator + (const affine_point &) const;
+            point operator - (const affine_point &) const;
+
             point operator * (const scalar &) const;
-            point operator / (const scalar &) const;
-
-            math::parity parity () const;
-
-            bool compressed () const;
-            bool uncompressed () const;
-
-            point compress () const;
-            point decompress () const;
-
-            coordinate X;
-            either<coordinate, math::parity> Y;
         };
 
         struct point : unsigned_limit<affine_point> {
@@ -87,39 +80,34 @@ namespace data::math {
 
             constexpr point (const coordinate &x, const coordinate &y);
 
-            // make a compressed point.
-            constexpr point (const coordinate &x, parity);
-
             constexpr point (const affine_point &);
+
+            constexpr bool valid ();
 
             projective_coordinate x () const;
             projective_coordinate y () const;
 
+            bool operator == (const point &) const;
+
             point operator - () const;
             point operator + (const point &) const;
             point operator - (const point &) const;
-
-            math::parity parity () const;
-
-            bool compressed () const;
-            bool uncompressed () const;
-
-            point compress () const;
-            point decompress () const;
+            point operator * (const scalar &) const;
         };
     };
 
     // Not every elliptic curve can be expressed in Weierstrauss form,
     // but those that can't are very much exceptions.
-    template <field field, ring_number N> struct Weierstrauss {
+    // NOTE: this particular type is only good for prime field curves ATM.
+    template <ring_number N, field field> struct Weierstrauss {
 
         using coordinate = field;
         using scalar = N;
 
-        scalar A;
-        scalar B;
+        coordinate A;
+        coordinate B;
 
-        constexpr Weierstrauss (const scalar &a, const scalar &b):
+        constexpr Weierstrauss (const coordinate &a, const coordinate &b):
             A {a}, B {b} {}
 
         constexpr bool valid () const;
@@ -128,8 +116,10 @@ namespace data::math {
 
         constexpr field discriminant () const;
 
-        using affine_point = space::affine<coordinate, 2>::point;
+        using affine_point = space::vector<coordinate, 2>;
         using point = unsigned_limit<affine_point>;
+
+        constexpr static bool valid (const affine_point &);
 
         static affine_point negate (const affine_point &);
         static point negate (const point &);
@@ -227,14 +217,14 @@ namespace data::math {
         };*/
     };
 
-    template <field field, ring_number N>
-    constexpr bool inline Weierstrauss<field, N>::valid () const {
+    template <ring_number N, field field>
+    constexpr bool inline Weierstrauss<N, field>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
-    template <field field, ring_number N>
-    constexpr field inline Weierstrauss<field, N>::discriminant () const {
+    template <ring_number N, field field>
+    constexpr field inline Weierstrauss<N, field>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }
 /*
