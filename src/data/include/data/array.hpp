@@ -82,7 +82,7 @@ namespace data {
 
     // this array is a structural type and therefore can be
     // used as a non-type template parameter.
-    template <typename X, size_t z> struct array<X, z> {
+    template <std::default_initializable X, size_t z> struct array<X, z> {
         constexpr static size_t Size = z;
 
         X Values[Size];
@@ -165,7 +165,8 @@ namespace data {
         }
     };
 
-    template <typename X, size_t size, size_t... sizes> struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
+    template <std::default_initializable X, size_t size, size_t... sizes>
+    struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
         constexpr static size_t Size = size * array<X, sizes...>::Size;
 
         array ();
@@ -176,11 +177,12 @@ namespace data {
 
     };
 
-    template <typename X> struct array<X> {
+    template <std::default_initializable X> struct array<X> {
         constexpr static size_t Size = 1;
 
         X Value;
 
+        constexpr array (): Value {} {}
         constexpr array (const X &x): Value {x} {}
 
         array &operator = (const X &x) {
@@ -193,6 +195,14 @@ namespace data {
         constexpr array &operator = (X &&x) {
             Value = std::move (x);
             return *this;
+        }
+
+        constexpr X &operator [] () {
+            return Value;
+        }
+
+        constexpr const X &operator [] () const {
+            return Value;
         }
 
         constexpr operator X () const;
@@ -235,12 +245,12 @@ namespace data {
         {X {}};
     } constexpr array<X, A..., B...> operator * (const array<X, A..., C> &a, const array<X, C, B...> &b);
 
-    template <typename X, size_t size>
+    template <std::default_initializable X, size_t size>
     constexpr inline array<X, size>::array () {
         for (size_t index = 0; index < Size; index++) Values[index] = X {};
     }
 
-    template <typename X, size_t size>
+    template <std::default_initializable X, size_t size>
     constexpr inline array<X, size>::array (std::initializer_list<X> x) {
         if (x.size () != Size) throw exception {} << "out of range";
         size_t index = 0;
@@ -281,27 +291,27 @@ namespace data {
         return so_far;
     }
 
-    template <typename X, size_t size>
+    template <std::default_initializable X, size_t size>
     constexpr array<X, size> inline array<X, size>::filled (const X &z) {
         array n {};
         for (X &x: n.Values) x = z;
         return n;
     }
 
-    template <typename X, size_t size>
+    template <std::default_initializable X, size_t size>
     constexpr bool inline array<X, size>::valid () const {
         for (const X &x : *this) if (!data::valid (x)) return false;
         return true;
     }
 
-    template <typename X, size_t size>
+    template <std::default_initializable X, size_t size>
     constexpr X inline &array<X, size>::operator [] (size_t i) {
         if (Size == 0) throw std::out_of_range {"cross size 0"};
         if (i < 0 || i >= Size) return this->operator [] ((i + Size) % Size);
         return Values[i];
     }
 
-    template <typename X, size_t size>
+    template <std::default_initializable X, size_t size>
     constexpr const X inline &array<X, size>::operator [] (size_t i) const {
         if (Size == 0) throw std::out_of_range {"cross size 0"};
         if (i < 0 || i >= Size) return this->operator [] ((i + Size) % Size);
