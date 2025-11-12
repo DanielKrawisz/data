@@ -6,65 +6,70 @@
 #define DATA_CRYPTO_ELLIPTIC_CURVE
 
 #include <data/math/algebra/elliptic_curve.hpp>
+#include <data/math/algebra/finite_field.hpp>
 
 namespace data::crypto {
 
-    template <math::field field, typename N> struct elliptic_curve : math::Weierstrauss<field> {
-        // this representation does not have the infinite point.
-        // The infinite point is not available as a public key in cryptography.
-        // It only exists internally.
-        struct point : math::space::affine<field, 2>::point {
-            const elliptic_curve &Curve;
-            bool valid () const;
+    template <auto Curve,
+        math::elliptic_curve<Curve>::affine_point base,
+        math::elliptic_curve<Curve>::scalar order, // must be prime
+        uint32 cofactor> struct elliptic_curve : math::elliptic_curve<Curve> {
 
-            point operator * (const point &) const;
-            point operator ^ (const N &) const;
+        using scalar = math::elliptic_curve<Curve>::scalar;
 
-            operator typename math::Weierstrauss<field>::point () const;
+        // a public key
+        using affine_point = math::elliptic_curve<Curve>::affine_point;
+        using pubkey = affine_point;
 
-            field x () const;
-            field y () const;
+        constexpr static const affine_point Base = base;
+        constexpr static const scalar Order = order;
 
-        private:
-            point (const math::Weierstrauss<field>::point &);
+        constexpr static uint32 Cofactor = cofactor;
+
+        // a private key or part of a signature.
+        struct factor : math::nonzero<math::prime_field<order>> {
+            constexpr factor (const scalar &);
+
+            constexpr affine_point operator * (const affine_point &p) const {
+                return p * this->Value.Value;
+            }
+
+            constexpr affine_point to_public () const {
+                return *this * Base;
+            }
         };
 
-        point Base;
+        using secret = factor;
 
-        // order of Base. Must be prime.
-        N Order;
-
-        // Cofactor * Order = size of the whole group
-        uint32 Cofactor;
-
-        using secret = N;
-        using pubkey = point;
-
-        pubkey to_public (const secret &) const;
-
-        N invert (const N &) const;
-
-        // the point R is used in both encryption and signatures
-        // (but you should use a different set of keys for each)
-        point R (const N &random_k) const;
-
-        struct signature {
-            point R;
-            N S;
-        };
-
-        signature sign (const N &message, const secret &key, const N &random_k) const;
-        bool verify (const N &message, const signature &x, const pubkey &key) const;
-
-        struct encryption_parameters {
-            point R;
-            point Z;
-        };
-
-        encryption_parameters setup_encryption (const pubkey &p, const N &random_k) const;
+        // NOTE: this is the definition of a tweak, but faster algorithms are possible.
+        static affine_point inline tweak (const affine_point &p, const factor &x) {
+            return p + to_public (x);
+        }
 
     };
 
+    template <auto Curve,
+        math::elliptic_curve<Curve>::affine_point base,
+        math::elliptic_curve<Curve>::scalar order, // must be prime
+        uint32 cofactor> struct ECDSA : elliptic_curve<Curve, base, order, cofactor> {
+        using factor = elliptic_curve<Curve, base, order, cofactor>::factor;
+        using secret = elliptic_curve<Curve, base, order, cofactor>::factor;
+        using pubkey = elliptic_curve<Curve, base, order, cofactor>::factor;
+
+        struct signature {
+            factor R;
+            factor S;
+            bool valid () const;
+        };
+
+        // this will fail with a very small probability and
+        // then you have to try another ephemeral key.
+        signature sign (const factor &message, const secret &key, const factor &ephemeral) const;
+
+        bool verify (const factor &message, const signature &x, const pubkey &key) const;
+
+    };
+/*
     template <math::field field, typename N>
     elliptic_curve<field, N>::pubkey inline elliptic_curve<field, N>::to_public (const secret &x) const {
         return Base ^ x;
@@ -118,7 +123,7 @@ namespace data::crypto {
     template <math::field field, typename N>
     bool inline elliptic_curve<field, N>::point::valid () const {
         return math::Weierstrauss<field>::point (*this).valid ();
-    }
+    }*/
 
 }
 

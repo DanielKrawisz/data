@@ -11,6 +11,7 @@
 #include <data/sign.hpp>
 #include <data/divmod.hpp>
 #include <data/math/number/bytes/bytes.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data {
 
@@ -746,43 +747,19 @@ namespace data {
 
             explicit operator double () const;
 
-            // we can implicitly convert to any bigger bounded number, signed or unsigned.
-            template <bool x, size_t bigger> requires (bigger > size)
-            operator bounded<x, r, bigger, word> () const;
+            explicit operator uint64 () const;
 
-            // we can explicitly convert to a signed bounded number of the same size.
-            explicit operator bounded<true, r, size, word> () const;
+            // explicitly convert from a larger number.
+            template <bool x, endian::order o, size_t u, std::unsigned_integral w>
+            requires (u * sizeof (w) > size * sizeof (word))
+            explicit bounded (const bounded<x, o, u, w> &);
 
-            // we can explicitly convert to a smaller number.
-            template <bool x, size_t smaller> requires (smaller < size)
-            explicit operator bounded<x, r, smaller, word> () const;
-
-            template <bool x, size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) > size * sizeof (word))
-            operator bounded<x, r, u, w> () const;
-
-            template <size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) == size * sizeof (word))
-            operator bounded<false, r, u, w> () const;
-
-            template <size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) == size * sizeof (word))
-            explicit operator bounded<true, r, u, w> () const;
-
-            template <bool x, size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) < size * sizeof (word))
-            explicit operator bounded<x, r, u, w> () const;
-
-            explicit operator uint64 () const {
-                if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
-                uint64_little u {0};
-                if constexpr (size <= 8) {
-                    std::copy (this->words ().begin (), this->words ().end (), u.begin ());
-                } else if (*this > std::numeric_limits<uint64>::max ())
-                    throw data::exception {"Number is too big to cast to uint64"};
-                else std::copy (this->words ().begin (), this->words ().begin () + 8, u.begin ());
-                return uint64 (u);
-            }
+            // Implicitly convert from a smaller or equal size number of any sign.
+            // This means that we may convert negative numbers to positive.
+            // Bizarre, but this is how c++ works.
+            template <bool x, endian::order o, size_t u, std::unsigned_integral w>
+            requires (u * sizeof (w) <= size * sizeof (word))
+            bounded (const bounded<x, o, u, w> &);
 
         };
 
@@ -818,56 +795,27 @@ namespace data {
 
             explicit operator int64 () const;
 
-            constexpr explicit bounded (const Z_bytes<r, neg::twos, word> &z) {
-                if (z.size () <= size) {
-                    std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
-                    char leading = data::is_negative (z) ? 0xff : 0x00;
-                    for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
-                } else if (z <= Z_bytes<r, neg::twos, word> {max ()} && z >= Z_bytes<r, neg::twos, word> {min ()})
-                    std::copy (z.words ().begin (), z.words ().begin () + size, this->begin ());
-                else throw exception {} << "Z_bytes too big";
-            }
+            constexpr explicit bounded (const Z_bytes<r, neg::twos, word> &z);
 
-            // implicitly convert to a bigger signed size.
-            template <size_t bigger> requires (bigger > size)
-            operator bounded<true, r, bigger, word> () const {
-                bounded<true, r, bigger, word> n {*this < 0 ? -1 : 0};
-                std::copy (this->words().begin (), this->words ().end (), n.words ().begin ());
-                return n;
-            }
+            // Implicitly convert from a smaller or equal size signed number
+            template <endian::order o, size_t u, std::unsigned_integral w>
+            requires (u * sizeof (w) <= size * sizeof (word))
+            bounded (const bounded<true, o, u, w> &);
 
-            // implicitly convert to an unsigned number of the same size.
-            // bizare but this is how c++ works.
-            template <size_t any>
-            operator bounded<false, r, any, word> () const {
-                bounded<false, r, any, word> n {0};
-                std::copy (this->begin (), this->end (), n.begin ());
-                return n;
-            }
+            // Implicitly convert from a smaller unsigned number
+            template <endian::order o, size_t u, std::unsigned_integral w>
+            requires (u * sizeof (w) < size * sizeof (word))
+            bounded (const bounded<false, o, u, w> &);
 
-            // explicitly convert to smaller sizes.
-            template <bool x, size_t smaller> requires (smaller < size)
-            explicit operator bounded<true, r, smaller, word> () const {
-                bounded<true, r, smaller, word> n {*this < 0 ? -1 : 0};
-                std::copy (this->begin (), this->begin () + smaller, n.begin ());
-                return n;
-            }
+            // Explicitly convert from a greater size signed number.
+            template <endian::order o, size_t u, std::unsigned_integral w>
+            requires (u * sizeof (w) > size * sizeof (word))
+            explicit bounded (const bounded<true, o, u, w> &);
 
-            template <bool x, size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) > size * sizeof (word))
-            operator bounded<x, r, u, w> () const;
-
-            template <size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) == size * sizeof (word))
-            operator bounded<true, r, u, w> () const;
-
-            template <size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) == size * sizeof (word))
-            explicit operator bounded<false, r, u, w> () const;
-
-            template <bool x, size_t u, std::unsigned_integral w>
-            requires (u * sizeof (word) < size * sizeof (word))
-            explicit operator bounded<x, r, u, w> () const;
+            // Explicitly convert from an equal or greater size unsigned number.
+            template <endian::order o, size_t u, std::unsigned_integral w>
+            requires (u * sizeof (w) >= size * sizeof (word))
+            explicit bounded (const bounded<false, o, u, w> &);
 
         };
     }
@@ -1795,30 +1743,103 @@ namespace data {
             }
         }
 
-        // we can implicitly convert to any bigger bounded number, signed or unsigned.
         template <endian::order r, size_t size, std::unsigned_integral word>
-        template <bool x, size_t bigger> requires (bigger > size)
-        bounded<false, r, size, word>::operator bounded<x, r, bigger, word> () const {
-            bounded<x, r, bigger, word> n {0};
-            std::copy (this->words ().begin (), this->words ().end (), n.words ().begin ());
-            return n;
+        bounded<false, r, size, word>::operator uint64 () const {
+            if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
+            uint64_little u {0};
+            if constexpr (size <= 8) {
+                std::copy (this->words ().begin (), this->words ().end (), u.begin ());
+            } else if (*this > std::numeric_limits<uint64>::max ())
+                throw data::exception {"Number is too big to cast to uint64"};
+            else std::copy (this->words ().begin (), this->words ().begin () + 8, u.begin ());
+            return uint64 (u);
         }
 
-        // we can explicitly convert to a signed bounded number of the same size.
         template <endian::order r, size_t size, std::unsigned_integral word>
-        bounded<false, r, size, word>::operator bounded<true, r, size, word> () const {
-            bounded<true, r, size, word> n;
-            std::copy (this->begin (), this->end (), n.begin ());
-            return n;
+        constexpr bounded<true, r, size, word>::bounded (const Z_bytes<r, neg::twos, word> &z) {
+            if (z.size () <= size) {
+                std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
+                char leading = data::is_negative (z) ? 0xff : 0x00;
+                for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
+            } else if (z <= Z_bytes<r, neg::twos, word> {max ()} && z >= Z_bytes<r, neg::twos, word> {min ()})
+                std::copy (z.words ().begin (), z.words ().begin () + size, this->begin ());
+            else throw exception {} << "Z_bytes too big";
         }
 
-        // we can explicitly convert to a smaller number.
+        // explicitly convert from a larger number.
         template <endian::order r, size_t size, std::unsigned_integral word>
-        template <bool x, size_t smaller> requires (smaller < size)
-        bounded<false, r, size, word>::operator bounded<x, r, smaller, word> () const {
-            bounded<x, r, smaller, word> n;
-            std::copy (this->words ().begin (), this->words ().begin () + smaller, n.words ().begin ());
-            return n;
+        template <bool x, endian::order o, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (w) > size * sizeof (word))
+        bounded<false, r, size, word>::bounded (const bounded<x, o, u, w> &n): bounded {} {
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy (n.words ().begin (), n.words ().begin () + size, this->words ().begin ());
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+            } else {
+                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+            }
+        }
+
+        // Implicitly convert from a smaller or equal size number of any sign.
+        // This means that we may convert negative numbers to positive.
+        // Bizarre, but this is how c++ works.
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <bool x, endian::order o, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (w) <= size * sizeof (word))
+        bounded<false, r, size, word>::bounded (const bounded<x, o, u, w> &n): bounded {} {
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+            } else {
+                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+            }
+        }
+
+        // Implicitly convert from a smaller or equal size signed number
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian::order o, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (w) <= size * sizeof (word))
+        bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
+            } else throw method::unimplemented {"implicitly convert a smaller or equal sized signed number to a signed number."};
+        }
+
+        // Implicitly convert from a smaller unsigned number
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian::order o, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (w) < size * sizeof (word))
+        bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
+            } else throw method::unimplemented {"implicitly convert a smaller unsigned number to a signed number."};
+        }
+
+        // Explicitly convert from a greater size signed number.
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian::order o, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (w) > size * sizeof (word))
+        bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
+            } else throw method::unimplemented {"explicitly convert a greater sized signed number to a signed number."};
+        }
+
+        // Explicitly convert from an equal or greater size unsigned number.
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian::order o, size_t u, std::unsigned_integral w>
+        requires (u * sizeof (w) >= size * sizeof (word))
+        bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
+            } else throw method::unimplemented {"explicitly convert a greater or equal sized unsigned number to a signed number."};
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word,
+        endian::order o, neg neg, std::unsigned_integral w>
+        std::weak_ordering operator <=> (const uint<r, size, word> &a, const Z_bytes<o, neg, w> &b) {
+            throw method::unimplemented {"compare uint to Z_bytes"};
         }
 
     }

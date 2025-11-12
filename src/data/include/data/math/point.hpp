@@ -9,6 +9,7 @@
 #include <data/math/figurate.hpp>
 #include <data/math/linear/space.hpp>
 #include <data/math/algebra/algebra.hpp>
+#include <data/math/combinatorics.hpp>
 
 namespace data::math::linear {
 
@@ -26,25 +27,26 @@ namespace data::math::linear {
 namespace data::math::space {
 
     // the exterior algebra comprises scalars, vectors, asymmetric 2-tensors, etc.
-    template <field X, size_t dim, size_t order> struct exterior;
+    template <field X, size_t dim, size_t order>
+    requires (order <= dim)
+    struct exterior;
 
     template <field X, size_t dim> using scalar = exterior<X, dim, 0>;
     template <field X, size_t dim> using vector = exterior<X, dim, 1>;
-    // nonstandard terminology but it helps to remember what these things are.
-    template <field X, size_t dim> using planar = exterior<X, dim, 2>;
-    template <field X, size_t dim> using spacer = exterior<X, dim, 3>;
+    template <field X, size_t dim> using bivec = exterior<X, dim, 2>;
+    template <field X, size_t dim> using trivec = exterior<X, dim, 3>;
 
     // scalar multiplication
     template <field X, size_t dim, size_t u>
-    exterior <X, dim, u> operator * (const exterior<X, dim, u> &, const X &);
+    exterior<X, dim, u> operator * (const exterior<X, dim, u> &, const X &);
 
     // addition
     template <field X, size_t dim, size_t u>
-    exterior <X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
+    exterior<X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
 
     // exterior product
     template <field X, size_t dim, size_t A, size_t B>
-    exterior <X, dim, A + B> operator ^ (const exterior<X, dim, A> &, const exterior<X, dim, B> &);
+    exterior<X, dim, A + B> operator ^ (const exterior<X, dim, A> &, const exterior<X, dim, B> &);
 
     // Hodge star
     template <field X, size_t dim, size_t order>
@@ -62,37 +64,49 @@ namespace data::math::space {
     } auto operator * (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b);
 
     // specialization for scalar type.
-    template <field X, size_t dim> class exterior<X, dim, 0> {
-        X Value;
-    public:
+    template <field X, size_t dim> struct exterior<X, dim, 0> : array<X> {
+        using array<X>::array;
+        exterior ();
+    };
 
-        exterior (const X &x) : Value {x} {}
+    // specialization for vector type.
+    template <field X, size_t dim> struct exterior<X, dim, 1> : array<X, dim> {
+        using array<X, dim>::array;
+        exterior ();
     };
 
     namespace {
+        template<class X, size_t dim, size_t order, size_t... Is>
+        auto make_exterior_tuple (std::index_sequence<Is...>)
+            -> std::tuple<exterior<X, dim - Is - 1, order - 1>...>;
 
-        // Forward declaration
-        template <typename, size_t, size_t, typename> struct exterior_component_tuple;
-
-        // Specialization using index sequence
-        template <typename X, size_t dim, size_t order, size_t... is>
-        struct exterior_component_tuple<X, dim, order, std::index_sequence<is...>> {
-            using type = std::tuple<exterior<X, dim - is, order>...>;
+        template <field X, size_t dim, size_t order> struct exterior_parent {
+            using type = decltype (make_exterior_tuple<X, dim, order> (std::make_index_sequence<dim - order + 1> {}));
         };
 
-        template <typename X, size_t dim, size_t order>
-        using exterior_components = exterior_component_tuple<X, dim - 1, order - 1, std::make_index_sequence<dim - order + 1>>::type;
-
+        // inner function -- assume that indexes.size () - indexes_index == order.
         template <field X, size_t dim, size_t order>
-        array<X, binomial (dim, order)> flatten (const exterior_components<X, dim, order> &);
+        const X &get (const exterior<X, dim, order> &x, math::sign z, slice<size_t> indexes, int index_index) {
+            if constexpr (order == 0) {
+                return x.Value;
+            } else if constexpr (order == 1) {
+                return x[indexes[index_index] - index_index];
+            } else {
+                // TODO this won't really work, fix it.
+                return get (std::get<indexes[index_index] - index_index> (x),
+                    indexes[index_index] > indexes[index_index] + 1 ? -z : z,
+                    indexes, index_index + 1);
+            }
+        }
     }
 
-    template <field X, size_t dim, size_t order> class exterior {
-        array<X, binomial (dim, order)> Values;
+    template <field X, size_t dim, size_t order>
+    requires (order <= dim)
+    struct exterior : exterior_parent<X, dim, order>::type {
+        using exterior_parent<X, dim, order>::type::tuple;
+        exterior ();
 
-    public:
-        template <typename... Args>
-        exterior (Args &&...args) : Values {flatten<X, dim, order> (exterior_components<X, dim, order> {std::forward<Args> (args)...})} {}
+        // TODO retrieve value using [].
     };
 
     // affine geometry is like Euclid without circles.
@@ -113,41 +127,41 @@ namespace data::math::space {
 
         // whether a line contains a point, etc.
         template <size_t a, size_t b>
-        static bool contains (const simplex<a> &, const simplex<b> &);
+        constexpr static bool contains (const simplex<a> &, const simplex<b> &);
 
         // connect two points to make a line, etc.
         template <size_t a, size_t b>
-        static simplex<a + b> connect (const simplex<a> &, const simplex<b> &);
+        constexpr static simplex<a + b> connect (const simplex<a> &, const simplex<b> &);
 
         // we represent objects as exterior algebraic objects of one higher dimension.
         template <size_t order> struct simplex : data::math::space::exterior<X, dim + 1, order + 1> {
 
             // valid if nonzero and not parallel to the affine subspace.
-            bool valid () const;
+            constexpr bool valid () const;
 
             // subtract a simplex from a simplex and you get an exterior object.
             // (ie, point - point = vector.
-            exterior<X, order + 1, dim> operator - (const simplex &p) const;
+            constexpr exterior<X, dim, order + 1> operator - (const simplex &p) const;
 
             // and of course we can also invert the former operation.
-            simplex operator + (const exterior<X, order, dim> &v) const;
+            constexpr simplex operator + (const exterior<X, dim, order> &v) const;
         };
 
         struct transformation : linear::matrix<X, dim + 1, dim + 1> {
-            bool valid () const;
+            constexpr bool valid () const;
 
-            transformation operator * (const transformation &) const;
+            constexpr transformation operator * (const transformation &) const;
 
             template <size_t order>
-            simplex<order> operator * (const simplex<order> &) const;
+            constexpr simplex<order> operator * (const simplex<order> &) const;
         };
 
-        static transformation translation (const vector &);
-        static transformation scale (const X &);
+        constexpr static transformation translation (const vector &);
+        constexpr static transformation scale (const X &);
 
         // flip over the first exterior object, leave the other unchanged (must be linearly independent).
         template <size_t order>
-        static transformation flip (const exterior<X, order, dim> &, const exterior<X, dim - order, dim> &);
+        constexpr static transformation flip (const exterior<X, dim, order> &, const exterior<X, dim, dim - order> &);
     };
 
     template <field X, size_t dim>
@@ -330,14 +344,14 @@ namespace data::math::space {
     }
 
     template <field X, size_t dim>
-    bool affine<X, dim>::transformation::valid () const {
+    constexpr bool affine<X, dim>::transformation::valid () const {
         if (!invertable (*this) && (*this)[dim * dim - 1] != X {1}) return false;
         for (int index = dim * (dim - 1); index < dim * dim - 1; index++) if ((*this)[index] != X {0}) return false;
         return true;
     }
 
     template <field X, size_t dim> template <size_t order>
-    affine<X, dim>::transformation inline affine<X, dim>::flip (const exterior<X, order, dim> &a, const exterior<X, dim - order, dim> &b) {
+    constexpr affine<X, dim>::transformation inline affine<X, dim>::flip (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b) {
         return projector (b, a) - projector (a, b);
     }
 }
