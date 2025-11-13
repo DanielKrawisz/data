@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2024 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -68,20 +68,6 @@ namespace data {
 
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
-
-    template <typename... X> using tuple = std::tuple<X...>;
-
-    // apply to each element of a tuple.
-    template <typename Tuple, typename F>
-    requires requires {
-        typename std::tuple_size<std::remove_cvref_t<Tuple>>::type;
-    } constexpr void for_each (Tuple &&t, F &&f) {
-        using U = std::remove_cvref_t<Tuple>;
-        constexpr std::size_t N = std::tuple_size_v<U>;
-        [&]<std::size_t... I> (std::index_sequence<I...>) {
-            (f(std::get<I> (std::forward<Tuple> (t))), ...);
-        } (std::make_index_sequence<N> {});
-    }
 
 }
 
