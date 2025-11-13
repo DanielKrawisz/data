@@ -5,6 +5,7 @@
 #include "data/math/number/extended_euclidian.hpp"
 #include "data/math/number/bytes.hpp"
 #include "data/numbers.hpp"
+#include "data/tuple.hpp"
 #include "gtest/gtest.h"
 
 namespace data::math {

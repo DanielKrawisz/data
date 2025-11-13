@@ -1,28 +1,23 @@
-#ifndef DATA_MATH_LINEAR_MATRIX_HPP
-#define DATA_MATH_LINEAR_MATRIX_HPP
+// Copyright (c) 2025 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_MATH_LINEAR_MATRIX
+#define DATA_MATH_LINEAR_MATRIX
 
 #include <data/math/linear/space.hpp>
 
-namespace data::math {
-        
-        namespace linear {
-                
-            template <typename M, typename v1, typename v2, typename S>
-            struct matrix {
-                static const space<M, S> r1;
-                static const space<v1, S> r2;
-                static const space<v2, S> r3;
-                    
-                v2 multiply(M m, v1 v) const {
-                    return m * v;
-                }
-                    
-            };
-            
-        }
-    
-    }
-    
+namespace data::math::linear {
+
+    template <field X, size_t A, size_t B> using matrix = array<X, A, B>;
+
+    template <field X, size_t A, size_t B> X det (const matrix<X, A, B> &);
+    template <field X, size_t A> X det (const matrix<X, A, A> &);
+
+    template <field X, size_t A, size_t B> bool invertable (const matrix<X, A, B> &);
+    template <field X, size_t A> bool invertable (const matrix<X, A, A> &);
+    template <field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &);
+
 }
 
 #endif

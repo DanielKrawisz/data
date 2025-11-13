@@ -29,6 +29,7 @@ namespace data::math::def {
         }
     };
 
+    // what is the element that will take a to b?
     template <std::integral X> struct inverse<plus<X>, X> {
         constexpr X operator () (X a, X b) {
             return b - a;

@@ -427,16 +427,9 @@ A headers-only library for mathematical structures.
 * `data/math/figurate.hpp`
 * `data/math/combinatorics.hpp`
 * `data/integral.hpp`
-* `data/math/extended_euclidian.hpp`
-* `data/math/fraction.hpp`
-* `data/math/polynomial.hpp`
-* `data/math/complex.hpp`
-* `data/math/quaternion.hpp`
-* `data/math/octonion.hpp`
-* `data/math/prime.hpp`
-* `data/math/primitive_root.hpp`
 * `data/math/modular.hpp`
 * `data/math/algebra/finite_field.hpp`
+* `data/math/point.hpp`
 
 ### `data/math/infinite.hpp`
 
@@ -445,6 +438,8 @@ A headers-only library for mathematical structures.
 #### `struct data::math::unsigned_limit`
 
 #### `struct data::math::numeric_limits`
+
+#### `bool data::math::is_infinite`
 
 ### `data/math/nonzero.hpp`
 
@@ -457,22 +452,6 @@ A headers-only library for mathematical structures.
 ### `data/math/combinatorics.hpp`
 
 ### `data/integral.hpp`
-
-### `data/math/extended_euclidian.hpp`
-
-### `data/math/fraction.hpp`
-
-### `data/math/polynomial.hpp`
-
-### `data/math/complex.hpp`
-
-### `data/math/quaternion.hpp`
-
-### `data/math/octonion.hpp`
-
-### `data/math/prime.hpp`
-
-### `data/math/primitive_root.hpp`
 
 ### `data/math/modular.hpp`
 

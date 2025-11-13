@@ -6,6 +6,7 @@
 #include <data/map.hpp>
 #include <data/set.hpp>
 #include <data/encoding/read.hpp>
+#include <data/tuple.hpp>
 
 #ifndef DATA_SCHEMA_MAP
 #define DATA_SCHEMA_MAP

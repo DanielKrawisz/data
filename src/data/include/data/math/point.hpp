@@ -5,109 +5,9 @@
 #ifndef DATA_POINT
 #define DATA_POINT
 
-#include <data/types.hpp>
-#include <data/math/figurate.hpp>
-#include <data/math/linear/space.hpp>
-#include <data/math/algebra/algebra.hpp>
-#include <data/math/combinatorics.hpp>
-
-namespace data::math::linear {
-
-    template <field X, size_t A, size_t B> using matrix = array<X, A, B>;
-
-    template <field X, size_t A, size_t B> X det (const matrix<X, A, B> &);
-    template <field X, size_t A> X det (const matrix<X, A, A> &);
-
-    template <field X, size_t A, size_t B> bool invertable (const matrix<X, A, B> &);
-    template <field X, size_t A> bool invertable (const matrix<X, A, A> &);
-    template <field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &);
-
-};
+#include <data/math/linear/exterior.hpp>
 
 namespace data::math::space {
-
-    // the exterior algebra comprises scalars, vectors, asymmetric 2-tensors, etc.
-    template <field X, size_t dim, size_t order>
-    requires (order <= dim)
-    struct exterior;
-
-    template <field X, size_t dim> using scalar = exterior<X, dim, 0>;
-    template <field X, size_t dim> using vector = exterior<X, dim, 1>;
-    template <field X, size_t dim> using bivec = exterior<X, dim, 2>;
-    template <field X, size_t dim> using trivec = exterior<X, dim, 3>;
-
-    // scalar multiplication
-    template <field X, size_t dim, size_t u>
-    exterior<X, dim, u> operator * (const exterior<X, dim, u> &, const X &);
-
-    // addition
-    template <field X, size_t dim, size_t u>
-    exterior<X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
-
-    // exterior product
-    template <field X, size_t dim, size_t A, size_t B>
-    exterior<X, dim, A + B> operator ^ (const exterior<X, dim, A> &, const exterior<X, dim, B> &);
-
-    // Hodge star
-    template <field X, size_t dim, size_t order>
-    requires requires (const X &x, const X &y) {
-        {x * inner (x, y)};
-    } exterior<X, dim, dim - order> operator * (const exterior<X, dim, order> &);
-
-    // generate a matrix that projects onto the subspace defined by the exterior object.
-    // the second exterior object is left unchanged.
-    template <field X, size_t dim, size_t order>
-    linear::matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
-
-    template <field X, size_t dim, size_t order> requires requires (const X &x, const X &y) {
-        {x * inner (x, y)};
-    } auto operator * (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b);
-
-    // specialization for scalar type.
-    template <field X, size_t dim> struct exterior<X, dim, 0> : array<X> {
-        using array<X>::array;
-        exterior ();
-    };
-
-    // specialization for vector type.
-    template <field X, size_t dim> struct exterior<X, dim, 1> : array<X, dim> {
-        using array<X, dim>::array;
-        exterior ();
-    };
-
-    namespace {
-        template<class X, size_t dim, size_t order, size_t... Is>
-        auto make_exterior_tuple (std::index_sequence<Is...>)
-            -> std::tuple<exterior<X, dim - Is - 1, order - 1>...>;
-
-        template <field X, size_t dim, size_t order> struct exterior_parent {
-            using type = decltype (make_exterior_tuple<X, dim, order> (std::make_index_sequence<dim - order + 1> {}));
-        };
-
-        // inner function -- assume that indexes.size () - indexes_index == order.
-        template <field X, size_t dim, size_t order>
-        const X &get (const exterior<X, dim, order> &x, math::sign z, slice<size_t> indexes, int index_index) {
-            if constexpr (order == 0) {
-                return x.Value;
-            } else if constexpr (order == 1) {
-                return x[indexes[index_index] - index_index];
-            } else {
-                // TODO this won't really work, fix it.
-                return get (std::get<indexes[index_index] - index_index> (x),
-                    indexes[index_index] > indexes[index_index] + 1 ? -z : z,
-                    indexes, index_index + 1);
-            }
-        }
-    }
-
-    template <field X, size_t dim, size_t order>
-    requires (order <= dim)
-    struct exterior : exterior_parent<X, dim, order>::type {
-        using exterior_parent<X, dim, order>::type::tuple;
-        exterior ();
-
-        // TODO retrieve value using [].
-    };
 
     // affine geometry is like Euclid without circles.
     // technically, we do not have the full exterior algebra
@@ -266,18 +166,6 @@ namespace data::math::space {
         };
     };
     
-}
-
-namespace data::math::def {
-    template <field X, size_t dim, size_t order>
-    struct inverse<plus<space::exterior<X, dim, order>>, space::exterior<X, dim, order>> {
-        space::exterior<X, dim, order> operator () (const space::exterior<X, dim, order> &, const space::exterior<X, dim, order> &) const;
-    };
-
-    template <field X, size_t dim, size_t order>
-    struct conjugate<space::exterior<X, dim, order>> {
-        space::exterior<X, dim, dim - order> operator () (const space::exterior<X, dim, order> &) const;
-    };
 }
 
 namespace data::math::linear {
