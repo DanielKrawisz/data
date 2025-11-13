@@ -4,6 +4,7 @@
 
 #include "data/numbers.hpp"
 #include "data/math/fraction.hpp"
+#include "data/tuple.hpp"
 #include "gtest/gtest.h"
 
 namespace data {

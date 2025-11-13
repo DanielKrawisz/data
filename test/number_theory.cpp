@@ -10,6 +10,7 @@
 #include "data/math/number/factor.hpp"
 #include "data/math/number/totient.hpp"
 #include "data/math/number/primitive_root.hpp"
+#include "data/tuple.hpp"
 #include "gtest/gtest.h"
 
 namespace data::math {

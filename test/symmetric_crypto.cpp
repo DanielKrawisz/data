@@ -8,6 +8,7 @@
 #include <data/crypto/MAC/HMAC.hpp>
 #include <data/crypto/MAC/SHA3.hpp>
 #include <data/crypto/stream/one_way.hpp>
+#include <data/tuple.hpp>
 
 #include <type_traits>
 #include <cstddef>
