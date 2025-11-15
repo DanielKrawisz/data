@@ -52,6 +52,7 @@ namespace data::math {
         
         list<cycle> Cycles;
         explicit permutation (replacements);
+        explicit permutation (cross<elem>);
         
         explicit operator replacements () const {
             if (Cycles.empty ()) return replacements {};
@@ -96,6 +97,8 @@ namespace data::math {
         permutation operator * (const permutation &p) const {
             return permutation (compose (replacements (*this), replacements (p)));
         }
+
+        cross<elem> operator * (const cross<elem> &p) const;
         
         bool operator == (const permutation &p) const;
         
