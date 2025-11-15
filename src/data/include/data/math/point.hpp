@@ -168,22 +168,6 @@ namespace data::math::space {
     
 }
 
-namespace data::math::linear {
-
-    template <field X, size_t A, size_t B> X inline det (const matrix<X, A, B> &) {
-        return 0;
-    }
-
-    template <field X, size_t A, size_t B> bool inline invertable (const matrix<X, A, B> &) {
-        return false;
-    }
-
-    template <field X, size_t A> bool inline invertable (const matrix<X, A, A> &m) {
-        return det (m) != 0;
-    }
-
-}
-
 // NOTE: hereafter we use X {0} to represent the zero element of the field and X {1} to represent the unit.
 // this is not necessarilly correct for all fields but it ought to work in ordinary cases. To be perfect we
 // may need to be more careful in a later version.

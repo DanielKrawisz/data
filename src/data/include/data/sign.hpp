@@ -13,6 +13,7 @@ namespace data::math {
     enum sign : int8_t { zero = 0 , positive = 1 , negative = -1 };
 
     constexpr sign inline operator * (sign a, sign b);
+    constexpr sign inline operator - (sign a);
 
     std::ostream inline &operator << (std::ostream &o, sign x);
 }
@@ -65,7 +66,11 @@ namespace data {
 namespace data::math {
 
     constexpr sign inline operator * (sign a, sign b) {
-        return sign (int8_t (a) * int8_t (b));
+        return sign (int8 (a) * int8 (b));
+    }
+
+    constexpr sign inline operator - (sign a) {
+        return sign (int8 (-int8 (a)));
     }
     
     std::ostream inline &operator << (std::ostream &o, sign x) {

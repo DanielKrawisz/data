@@ -14,6 +14,7 @@ namespace data {
 
     // functional queue built using the list. 
     template <typename X> using list = functional_queue<data::stack<X>, X>;
+
 }
 
 #endif

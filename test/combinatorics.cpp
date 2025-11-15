@@ -96,20 +96,34 @@ namespace data {
 
     }
 
-    void permutations_test_case (stack<int> x) {
-        permutations<int> p {x};
-        list<list<int>> pp = static_cast<list<list<int>>> (p);
+    static_assert (std::forward_iterator<decltype (std::declval<const permutations<int>> ().begin ())>);
 
-        EXPECT_EQ (pp.size (), p.size<size_t> ());
+    void permutations_test_case (cross<int> x) {
+        permutations<int> p {x};
+
+        math::sign Sign = math::positive;
+
+        int count = 0;
+        for (auto i = p.begin (); i != p.end (); i++)
+            count++;
+
+        auto pp = static_cast<list<cross<int>>> (p);
+
+        size_t expected_size = p.count<size_t> ();
+        EXPECT_EQ (pp.size (), expected_size);
+
+        EXPECT_EQ (count, expected_size);
+
     }
 
     TEST (Combinatorics, Permutations) {
 
-        permutations_test_case (stack<int> {});
-        permutations_test_case (stack<int> {1});
-        permutations_test_case (stack<int> {1, 2});
-        permutations_test_case (stack<int> {1, 2, 3});
-        permutations_test_case (stack<int> {1, 2, 3, 4});
+        permutations_test_case (cross<int> {});
+        permutations_test_case (cross<int> {0});
+        permutations_test_case (cross<int> {0, 1});
+        permutations_test_case (cross<int> {0, 1, 2});
+        permutations_test_case (cross<int> {0, 1, 2, 3});
+        permutations_test_case (cross<int> {0, 1, 2, 3, 4});
 
     }
 
@@ -117,7 +131,7 @@ namespace data {
         sublists<int> p {x, size};
         list<stack<int>> pp = static_cast<list<stack<int>>> (p);
 
-        EXPECT_EQ (pp.size (), p.size<size_t> ());
+        EXPECT_EQ (pp.size (), p.count<size_t> ());
 
         auto pi = p.begin ();
         auto ppi = pp.begin ();
@@ -163,7 +177,7 @@ namespace data {
         partitions<int> p {x, size, offset};
         list<stack<int>> pp = static_cast<list<stack<int>>> (p);
 
-        EXPECT_EQ (pp.size (), p.size<size_t> ());
+        EXPECT_EQ (pp.size (), p.count<size_t> ());
 
         auto pi = p.begin ();
         auto ppi = pp.begin ();
