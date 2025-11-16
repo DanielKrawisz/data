@@ -9,6 +9,11 @@
 
 namespace data::math::space {
 
+    template <ring X, size_t dim> using scalar = exterior<X, dim, 0>;
+    template <ring X, size_t dim> using vector = exterior<X, dim, 1>;
+    template <ring X, size_t dim> using bivec = exterior<X, dim, 2>;
+    template <ring X, size_t dim> using trivec = exterior<X, dim, 3>;
+
     // affine geometry is like Euclid without circles.
     // technically, we do not have the full exterior algebra
     // available because we don't have the Hodge star without
@@ -22,8 +27,8 @@ namespace data::math::space {
         using plane = simplex<2>;
         using space = simplex<3>;
 
-        using vector = data::math::space::exterior<X, dim, 1>;
-        using planar = data::math::space::exterior<X, dim, 2>;
+        using vector = data::math::exterior<X, dim, 1>;
+        using planar = data::math::exterior<X, dim, 2>;
 
         // whether a line contains a point, etc.
         template <size_t a, size_t b>
@@ -34,7 +39,7 @@ namespace data::math::space {
         constexpr static simplex<a + b> connect (const simplex<a> &, const simplex<b> &);
 
         // we represent objects as exterior algebraic objects of one higher dimension.
-        template <size_t order> struct simplex : data::math::space::exterior<X, dim + 1, order + 1> {
+        template <size_t order> struct simplex : data::math::exterior<X, dim + 1, order + 1> {
 
             // valid if nonzero and not parallel to the affine subspace.
             constexpr bool valid () const;
@@ -47,7 +52,7 @@ namespace data::math::space {
             constexpr simplex operator + (const exterior<X, dim, order> &v) const;
         };
 
-        struct transformation : linear::matrix<X, dim + 1, dim + 1> {
+        struct transformation : matrix<X, dim + 1, dim + 1> {
             constexpr bool valid () const;
 
             constexpr transformation operator * (const transformation &) const;
@@ -118,7 +123,7 @@ namespace data::math::space {
         template <size_t a, size_t b>
         static bool contains (const simplex<a> &, const simplex<b> &);
 
-        struct transformation : linear::matrix<X, dim + 1, dim + 1> {
+        struct transformation : matrix<X, dim + 1, dim + 1> {
             // must be orthogonal
             bool valid () const;
 
@@ -130,7 +135,7 @@ namespace data::math::space {
     };
 
     template <field X, size_t dim> struct projective {
-        template <size_t order> using affine_exterior = space::template exterior<X, order, dim + 1>;
+        template <size_t order> using affine_exterior = data::math::template exterior<X, order, dim + 1>;
 
         template <size_t order>
         struct exterior : affine_exterior<order + 1> {
@@ -145,7 +150,7 @@ namespace data::math::space {
 
         // no finite value can appear before an infinite value.
         template <size_t order>
-        struct simplex : space::exterior<coordinate, order, dim> {
+        struct simplex : data::math::exterior<coordinate, order, dim> {
             bool valid () const;
         };
 

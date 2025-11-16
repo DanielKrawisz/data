@@ -136,7 +136,7 @@ namespace data {
     template <typename elem> requires requires (std::ostream &o, const elem &e) {
         { o << e } -> Same<std::ostream &>;
     } std::ostream inline &operator << (std::ostream &o, const linked_stack<elem> &x) {
-        return functional::write (o << "stack", x);
+        return functional::write (o << "stack ", x);
     }
     
     template <Element elem>

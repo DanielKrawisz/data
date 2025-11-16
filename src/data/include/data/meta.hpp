@@ -72,9 +72,13 @@ namespace data {
             using type = void;
         };
 
-    }
+        static_assert (Same<inserted<const int &>, const int &>);
 
-    static_assert (Same<inserted<const int &>, const int &>);
+        // strange but true
+        using intref = int &;
+        static_assert (Same<const intref &, int &>);
+
+    }
 
 }
 
@@ -113,6 +117,35 @@ namespace data::meta {
     template <typename X> struct setter<X &> {
         using type = const X &;
     };
+
+    // get type out of a parameter pack by index
+    template <std::size_t I, typename... Ts>
+    struct get_type;
+
+    template <typename T, typename... Ts>
+    struct get_type<0, T, Ts...> {
+        using type = T;
+    };
+
+    template <std::size_t I, typename T, typename... Ts>
+    struct get_type<I, T, Ts...> {
+        using type = typename get_type<I - 1, Ts...>::type;
+    };
+
+    // get value out of a parameter pack by index.
+    template <std::size_t I, auto... Ts>
+    struct get_value;
+
+    template <auto T, auto... Ts>
+    struct get_value<0, T, Ts...> {
+        constexpr static const auto value = T;
+    };
+
+    template <std::size_t I, auto T, auto... Ts>
+    struct get_value<I, T, Ts...> {
+        constexpr static const auto value = get_value<I - 1, Ts...>::value;
+    };
+
 
 }
 

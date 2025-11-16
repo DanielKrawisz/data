@@ -5,11 +5,13 @@
 #ifndef DATA_MATH_LINEAR_MATRIX
 #define DATA_MATH_LINEAR_MATRIX
 
+#include <data/meta.hpp>
 #include <data/math/combinatorics.hpp>
 #include <data/math/linear/space.hpp>
 
-namespace data::math::linear {
+namespace data::math {
 
+    template <field X, size_t A> using vector = array<X, A>;
     template <field X, size_t A, size_t B> using matrix = array<X, A, B>;
 
     template <field X, size_t A, size_t B> constexpr X det (const matrix<X, A, B> &);
@@ -24,7 +26,15 @@ namespace data::math::linear {
     }
 
     template <field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &x) {
+        auto Det = det (x);
+        if (Det = 0) throw division_by_zero {};
         return transpose (x) / det (x);
+    }
+
+    template <field X, size_t A> X tr (const matrix<X, A, A> &x) {
+        X result {};
+        for (size_t i = 0; i < A; i++) result += x[i, i];
+        return result;
     }
 
     template <field X, size_t A, size_t B> constexpr X inline det (const matrix<X, A, B> &m) {
@@ -32,8 +42,7 @@ namespace data::math::linear {
             return X {};
         else {
             cross<size_t> indices (A);
-            for (int i = 0; i < A; i++);
-            cross [i] = i;
+            for (int i = 0; i < A; i++) indices [i] = i;
             permutations<size_t> perm {indices};
 
             X Det {0};
@@ -48,12 +57,6 @@ namespace data::math::linear {
 
             return Det;
         }
-    }
-
-    template <field X, size_t A> X tr (const matrix<X, A, A> &x) {
-        X result {};
-        for (size_t i = 0; i < A; i++) result += x[i, i];
-        return result;
     }
 
 }

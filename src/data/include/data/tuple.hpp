@@ -19,6 +19,7 @@ namespace data {
 
     // apply F to each element of a tuple.
     template <Tuple T, typename F> constexpr void for_each (T &&t, F &&f);
+    template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t);
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
@@ -34,9 +35,22 @@ namespace data {
         } (std::make_index_sequence<N> {});
     }
 
+    template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t) {
+        using U = std::remove_cvref_t<T>;
+        constexpr std::size_t N = std::tuple_size_v<U>;
+        o << "{";
+        if constexpr (N != 0) {
+            [&]<std::size_t... I> (std::index_sequence<I...>) {
+                ((operator << (operator << (o, std::get<I> (std::forward<T> (t))), ", ")), ...);
+            } (std::make_index_sequence<N - 1> {});
+            o << std::get<N - 1> (std::forward<T> (t));
+        }
+        return o << "}";
+    }
+
     namespace {
 
-        template <std::size_t I, typename Tuple, typename F>
+        template <size_t I, typename Tuple, typename F>
         decltype (auto) tuple_apply_at_rec (Tuple &&t, F &&f, std::size_t idx) {
             if constexpr (I + 1 == std::tuple_size_v<std::remove_cvref_t<Tuple>>) {
                 // last index
