@@ -61,7 +61,9 @@ namespace data {
 
             stack<elem> operator * () const;
             bool operator == (const iterator &) const;
+            // preincrement
             iterator &operator ++ ();
+            // postincrement
             iterator operator ++ (int);
             iterator &operator += (uint32);
             iterator operator + (uint32);
@@ -70,7 +72,7 @@ namespace data {
             iterator (const sublists &ls, const cross<int> &);
 
         private:
-            sublists const *Sublists;
+            sublists Sublists;
             cross<int> Indices;
         };
 
@@ -102,7 +104,9 @@ namespace data {
 
             stack<elem> operator * () const;
             bool operator == (const iterator &) const;
+            // preincrement
             iterator &operator ++ ();
+            // postincrement
             iterator operator ++ (int);
             iterator &operator += (uint32);
             iterator operator + (uint32);
@@ -129,7 +133,9 @@ namespace data {
 
         bool operator == (const iterator &) const;
 
+        // preincrement
         iterator &operator ++ ();
+        // postincrement
         iterator operator ++ (int);
         iterator &operator += (uint32);
         iterator operator + (uint32);
@@ -279,7 +285,7 @@ namespace data {
         Sublists {nullptr}, Indices {} {}
 
     template <typename elem> inline sublists<elem>::iterator::iterator (const sublists &x, const cross<int> &i) :
-        Sublists {&x}, Indices {i} {}
+        Sublists {x}, Indices {i} {}
 
     template <typename elem> inline partitions<elem>::iterator::iterator ():
         Partitions {nullptr}, Index {0} {}
@@ -382,7 +388,7 @@ namespace data {
                 return *this;
             }
             Indices[i]++;
-            if (Indices[i] <= Sublists->List.size () - Indices.size () + i) {
+            if (Indices[i] <= Sublists.List.size () - Indices.size () + i) {
                 int j = Indices[i];
                 while (i < Indices.size () - 1) {
                     i++;
@@ -407,7 +413,7 @@ namespace data {
     template <typename elem> stack<elem> sublists<elem>::iterator::operator * () const {
         stack<elem> ls;
         for (int i = 0; i < Indices.size (); i++)
-            ls >>= Sublists->List[Indices[i]];
+            ls >>= Sublists.List[Indices[i]];
         return reverse (ls);
     }
 

@@ -316,22 +316,22 @@ namespace data::math {
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> inline &fraction<Z, N>::operator += (const fraction &f) {
-        return *this = (operator + (f));
+        return *this = *this + f;
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> inline &fraction<Z, N>::operator -= (const fraction &f) {
-        return *this = (operator - (f));
+        return *this = *this - f;
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> inline &fraction<Z, N>::operator *= (const fraction &f) {
-        return *this = (operator * (f));
+        return *this = *this * f;
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> inline &fraction<Z, N>::operator /= (const fraction &f) {
-        return *this = (operator / (f));
+        return *this = *this / f;
     }
 }
 

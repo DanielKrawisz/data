@@ -372,6 +372,8 @@ namespace data {
     template <typename NN> concept natural_number_big =
         natural_number<NN> && basic_number_big_unsigned<NN>;
 
+    static_assert (ring_number_signed<Z>);
+
     static_assert (ring_number_system<Z, N>);
     static_assert (ring_number_system<dec_int, dec_uint>);
 

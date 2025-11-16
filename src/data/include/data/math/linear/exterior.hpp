@@ -1,3 +1,4 @@
+
 // Copyright (c) 2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -10,15 +11,14 @@
 #include <data/math/field.hpp>
 #include <data/math/combinatorics.hpp>
 
-namespace data::math::space {
+namespace data::math {
 
     // the exterior algebra comprises scalars, vectors, asymmetric 2-tensors, etc.
     template <ring X, size_t dim, size_t order> requires (order <= dim) struct exterior;
 
-    template <ring X, size_t dim> using scalar = exterior<X, dim, 0>;
-    template <ring X, size_t dim> using vector = exterior<X, dim, 1>;
-    template <ring X, size_t dim> using bivec = exterior<X, dim, 2>;
-    template <ring X, size_t dim> using trivec = exterior<X, dim, 3>;
+    // negate
+    template <ring X, size_t dim, size_t u>
+    exterior<X, dim, u> operator - (const exterior<X, dim, u> &);
 
     // scalar multiplication
     template <ring X, size_t dim, size_t u>
@@ -27,6 +27,9 @@ namespace data::math::space {
     // addition
     template <ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
+
+    template <ring X, size_t dim, size_t u>
+    exterior<X, dim, u> operator - (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
 
     // exterior product
     template <ring X, size_t dim, size_t A, size_t B> requires (A + B <= dim)
@@ -40,47 +43,56 @@ namespace data::math::space {
 
     template <ring X, size_t dim, size_t order>
     X contract (const exterior<X, dim, order> &, const exterior<X, dim, dim - order> &);
+
+    // generate a matrix that projects onto the subspace defined by the exterior object.
+    // the second exterior object is left unchanged.
+    template <ring X, size_t dim, size_t order>
+    matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
+
+    template <ring X, size_t dim, size_t order>
+    requires requires (std::ostream &o, const X &x) {
+        { o << x };
+    } std::ostream &operator << (std::ostream &o, const exterior<X, dim, order> &x);
 }
 
 namespace data::math::def {
     // this turns exterior objects into additive groups.
     template <ring X, size_t dim, size_t order>
-    struct inverse<plus<space::exterior<X, dim, order>>, space::exterior<X, dim, order>> {
-        space::exterior<X, dim, order> operator () (const space::exterior<X, dim, order> &a, const space::exterior<X, dim, order> &b) const {
+    struct inverse<plus<exterior<X, dim, order>>, exterior<X, dim, order>> {
+        exterior<X, dim, order> operator () (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b) const {
             return b - a;
         }
     };
 
     // this means that an inner product is automatically defined on exterior objects.
     template <ring X, size_t dim, size_t order>
-    struct conjugate<space::exterior<X, dim, order>> {
-        space::exterior<X, dim, dim - order> operator () (const space::exterior<X, dim, order> &x) const {
+    struct conjugate<exterior<X, dim, order>> {
+        exterior<X, dim, dim - order> operator () (const exterior<X, dim, order> &x) const {
             return *x;
         }
     };
 }
 
-namespace data::math::space {
-
-    // generate a matrix that projects onto the subspace defined by the exterior object.
-    // the second exterior object is left unchanged.
-    template <ring X, size_t dim, size_t order>
-    linear::matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
+namespace data::math {
 
     // specialization for scalar type.
     template <ring X, size_t dim> struct exterior<X, dim, 0> : array<X> {
         using array<X>::array;
+        exterior (const array<X> &x) : array<X> {x} {}
+        exterior (array<X> &&x): array<X> {x} {}
     };
 
     // specialization for vector type.
     template <ring X, size_t dim> struct exterior<X, dim, 1> : array<X, dim> {
         using array<X, dim>::array;
+        exterior (const array<X, dim> &x) : array<X, dim> {x} {}
+        exterior (array<X, dim> &&x): array<X, dim> {x} {}
     };
 
     namespace {
         template<class X, size_t dim, size_t order, size_t... Is>
-        auto make_exterior_tuple (std::index_sequence<Is...>)
-        -> std::tuple<exterior<X, dim - Is - 1, order - 1>...>;
+        auto make_exterior_tuple (std::index_sequence<Is...>) ->
+            std::tuple<exterior<X, dim - Is - 1, order - 1>...>;
 
         template <ring X, size_t dim, size_t order> struct exterior_parent {
             using type = decltype (make_exterior_tuple<X, dim, order> (std::make_index_sequence<dim - order + 1> {}));
@@ -95,6 +107,85 @@ namespace data::math::space {
         template<class X> struct exterior_accessor;
 
         template <typename X> std::ostream &operator << (std::ostream &o, exterior_accessor<X> x);
+    }
+
+    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    struct exterior : exterior_parent<X, dim, order>::type {
+        using parent = exterior_parent<X, dim, order>::type;
+        using parent::tuple;
+
+        //explicit exterior (const tensor<X, dim, order> &x);
+        //explicit operator tensor<X, dim, order> () const;
+
+        // access an element as if it were a tensor.
+
+        // all arguments must be size_t.
+        template <typename ...sizes> requires (order == sizeof... (sizes))
+        constexpr X operator [] (sizes... indices) const;
+
+        // all arguments must be size_t.
+        template <typename ...sizes> requires (order == sizeof... (sizes))
+        constexpr exterior_accessor<X> operator [] (sizes... indices);
+
+        template <bool is_const,
+            typename val = std::conditional_t<is_const, const X, X>,
+            typename ex = std::conditional_t<is_const,
+                const exterior<X, dim, order> *,
+                exterior<X, dim, order> *>> struct it;
+
+        using iterator = it<false>;
+        using const_iterator = it<true>;
+
+        iterator begin ();
+        iterator end ();
+
+        const_iterator begin () const;
+        const_iterator end () const;
+
+    };
+
+    template <ring X, size_t dim, size_t order>
+    requires requires (std::ostream &o, const X &x) {
+        { o << x };
+    } std::ostream &operator << (std::ostream &o, const exterior<X, dim, order> &x) {
+        if constexpr (order == 0) {
+            return o << x[];
+        } else if constexpr (order == 1) {
+            o << "{";
+            auto i = x.begin ();
+            while (true) {
+                o << *i;
+                i++;
+                if (i == x.end ()) break;
+                o << ", ";
+            }
+            return o << "}";
+        } else {
+            return tuple_print (o, static_cast<const exterior<X, dim, order>::parent &> (x));
+        }
+    }
+
+    template <ring X, size_t dim, size_t order>
+    exterior<X, dim, order> inline operator - (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b) {
+        return a + -b;
+    }
+
+    template <ring X, size_t dim, size_t order>
+    exterior<X, dim, order> operator - (const exterior<X, dim, order> &x) {
+        if constexpr (order == 0) {
+            return exterior<X, dim, order> {-x.Value};
+        } else if constexpr (order == 1) {
+            return {-static_cast<const array<X, dim> &> (x)};
+        } else {
+            exterior<X, dim, order> result = x;
+            for_each (static_cast<exterior<X, dim, order>::parent &> (result), [] (auto &val) {
+                val = -val;
+            });
+            return result;
+        }
+    }
+
+    namespace {
 
         template<class X> struct exterior_accessor {
             X *Ptr;
@@ -138,6 +229,74 @@ namespace data::math::space {
         std::ostream &operator << (std::ostream &o, exterior_accessor<X> x) {
             return o << X (x);
         }
+    }
+
+    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <bool is_const, typename val, typename ex>
+    struct exterior<X, dim, order>::it {
+        using value_type = val;
+        using difference_type = int;
+
+        value_type &operator * () const;
+
+        value_type *operator -> () const {
+            return &operator * ();
+        }
+
+        bool operator == (const it &e) const {
+            return Exterior == e.Exterior && Indices == e.Indices;
+        }
+
+        it &operator ++ () {
+            Indices = rest (Indices);
+            if (size (Indices) == 0) Exterior = nullptr;
+            return *this;
+        }
+
+        it operator ++ (int) {
+            auto x = *this;
+            ++(*this);
+            return x;
+        }
+
+        // the end value
+        it (): Exterior {nullptr}, Indices {} {}
+
+        it (ex e): Exterior {e}, Indices {list<stack<size_t>> (sublists<size_t> {range<size_t> (0, dim - 1), order})} {}
+
+    private:
+        ex Exterior;
+        list<stack<size_t>> Indices;
+    };
+
+    // scalar multiplication
+    template <ring X, size_t dim, size_t u>
+    exterior<X, dim, u> operator * (const exterior<X, dim, u> &a, const X &b) {
+        exterior<X, dim, u> result;
+        auto ai = a.begin ();
+        for (auto ri = result.begin (); ri != result.end (); ri++) {
+            *ri = *ai * b;
+            ai++;
+        }
+        return result;
+    }
+
+    // addition
+    template <ring X, size_t dim, size_t u>
+    exterior<X, dim, u> operator + (const exterior<X, dim, u> &a, const exterior<X, dim, u> &b) {
+        exterior<X, dim, u> result;
+        auto ai = a.begin ();
+        auto bi = b.begin ();
+        auto re = result.end ();
+        for (auto ri = result.begin (); ri != re; ri++) {
+            *ri = *ai + *bi;
+            ai++;
+            bi++;
+        }
+        return result;
+    }
+
+    namespace {
 
         // we ensure that there are at least 2 arguments of size_t here but
         // that is necessarily true anyway since we have a special case for
@@ -149,127 +308,48 @@ namespace data::math::space {
         constexpr auto access_exterior (Self &&self, size_t a, size_t b, Sizes... sizes);
     }
 
+    // all arguments must be size_t.
     template <ring X, size_t dim, size_t order> requires (order <= dim)
-    struct exterior : exterior_parent<X, dim, order>::type {
-        using parent = exterior_parent<X, dim, order>::type;
-        using parent::tuple;
-
-        // all arguments must be size_t.
-        template <typename ...sizes> requires (order == sizeof... (sizes))
-        constexpr X operator [] (sizes... indices) const {
-            return access_exterior<order> (*this, indices...);
-        }
-
-        // all arguments must be size_t.
-        template <typename ...sizes> requires (order == sizeof... (sizes))
-        constexpr exterior_accessor<X> operator [] (sizes... indices) {
-            return access_exterior<order> (*this, indices...);
-        }
-
-        template <typename ex, typename val> struct ex_it;
-
-        using iterator = ex_it<exterior<X, dim, order>, X>;
-        using const_iterator = ex_it<const exterior<X, dim, order>, const X>;
-
-        iterator begin ();
-        iterator end ();
-
-        const_iterator begin () const;
-        const_iterator end () const;
-
-    };
-
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
-    template <typename ex, typename val>
-    struct exterior<X, dim, order>::ex_it {
-        using value_type = val;
-        using difference_type = int;
-
-        value_type &operator * () const;
-
-        value_type *operator -> () const {
-            return &operator * ();
-        }
-
-        bool operator == (const ex_it &e) const {
-            return Exterior == e.Exterior && It == e.It;
-        }
-
-        ex_it &operator ++ () {
-            It++;
-            return *this;
-        }
-
-        ex_it operator ++ (int) {
-            auto x = *this;
-            ++(*this);
-            return x;
-        }
-
-        ex_it (): Exterior {nullptr}, It {} {}
-        ex_it (ex *v, sublists<size_t>::iterator i):
-            Exterior {v}, It {i} {}
-
-    private:
-        ex *Exterior;
-        sublists<size_t>::iterator It;
-    };
-
-    // scalar multiplication
-    template <ring X, size_t dim, size_t u>
-    exterior<X, dim, u> operator * (const exterior<X, dim, u> &a, const X &b) {
-        exterior<X, dim, u> result;
-        auto ri = result.begin ();
-        auto ai = a.begin ();
-        while (ri != result.end ()) {
-            *ri = *ai * b;
-            ri++;
-            ai++;
-        }
-        return result;
+    template <typename ...sizes> requires (order == sizeof... (sizes))
+    constexpr X inline exterior<X, dim, order>::operator [] (sizes... indices) const {
+        return access_exterior<order> (*this, indices...);
     }
 
-    // addition
-    template <ring X, size_t dim, size_t u>
-    exterior<X, dim, u> operator + (const exterior<X, dim, u> &a, const exterior<X, dim, u> &b) {
-        exterior<X, dim, u> result;
-        auto ri = result.begin ();
-        auto ai = a.begin ();
-        auto bi = b.begin ();
-        while (ri != result.end ()) {
-            *ri = *ai + *bi;
-            ri++;
-            ai++;
-            bi++;
-        }
-        return result;
+    // all arguments must be size_t.
+    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <typename ...sizes> requires (order == sizeof... (sizes))
+    constexpr exterior_accessor<X> inline exterior<X, dim, order>::operator [] (sizes... indices) {
+        return access_exterior<order> (*this, indices...);
     }
 
     template <ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::iterator inline exterior<X, dim, order>::begin () {
-        return iterator {this, sublists<size_t> {range<size_t> (0, dim - 1), order}.begin ()};
+        return iterator {this};
     }
 
     template <ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::iterator inline exterior<X, dim, order>::end () {
-        return iterator {this, sublists<size_t> {range<size_t> (0, dim - 1), order}.end ()};
+        return iterator {};
     }
 
     template <ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::const_iterator inline exterior<X, dim, order>::begin () const {
-        return const_iterator {this, sublists<size_t> {range<size_t> (0, dim - 1), order}.begin ()};
+        return const_iterator {this};
     }
 
     template <ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::const_iterator inline exterior<X, dim, order>::end () const {
-        return const_iterator {this, sublists<size_t> {range<size_t> (0, dim - 1), order}.end ()};
+        return const_iterator {};
     }
 
     namespace {
 
         // x can be either a const exterior & or an exterior &.
         template <size_t order, class Self>
-        decltype (auto) exterior_get (Self &&x, slice<size_t> indices, int index_index = 0);
+        decltype (auto) exterior_get (Self &&x, slice<size_t> indices, size_t subtract = 0);
+
+        template <size_t order, class Self, class F>
+        void for_each (Self &&x, F &&f);
 
         template <typename it, typename sen>
         constexpr sign bubble_sort_with_signature (it begin, sen end);
@@ -307,12 +387,15 @@ namespace data::math::space {
         }
 
         list<size_t> complement (list<size_t> whole, list<size_t> part);
+
     }
 
+
     template <ring X, size_t dim, size_t order> requires (order <= dim)
-    template <typename ex, typename val>
-    exterior<X, dim, order>::ex_it<ex, val>::value_type inline &exterior<X, dim, order>::ex_it<ex, val>::operator * () const {
-        cross<size_t> indices {*It};
+    template <bool is_const, typename val, typename ex>
+    exterior<X, dim, order>::it<is_const, val, ex>::value_type inline
+    &exterior<X, dim, order>::it<is_const, val, ex>::operator * () const {
+        cross<size_t> indices = cross<size_t> (first (Indices));
         return exterior_get<order> (*Exterior, indices);
     }
 
@@ -384,11 +467,11 @@ namespace data::math::space {
     namespace {
 
         template <size_t order, class Self>
-        decltype (auto) exterior_get (Self &&x, slice<size_t> indices, int index_index) {
+        decltype (auto) exterior_get (Self &&x, slice<size_t> indices, size_t subtract) {
             if constexpr (order == 0)
                 return x[];
             else if constexpr (order == 1)
-                return x[indices[index_index] - index_index];
+                return x[indices[0] - subtract];
             else {
                 using tuple = unref<Self>::parent;
                 return apply_at (
@@ -398,10 +481,10 @@ namespace data::math::space {
                     [&](auto &&sub) -> decltype (auto) {
                         return exterior_get<order - 1> (
                             std::forward<decltype (sub)> (sub),
-                            indices,
-                            index_index + 1);
+                            indices.drop (1),
+                            indices[0] + 1);
                     },
-                    indices[index_index] - index_index);
+                    indices[0] - subtract);
             }
         }
 
@@ -434,6 +517,24 @@ namespace data::math::space {
                 if (last > *i) return false;
             } while (i != x.end ());
             return true;
+        }
+
+        template <size_t order, class Self, class F>
+        void for_each (Self &&x, F &&f) {
+            if constexpr (order == 0) {
+                f (x[]);
+            } else if constexpr (order == 1) {
+                for (auto &n : x) f (n);
+            } else {
+                using tuple = unref<Self>::parent;
+                data::for_each (
+                    static_cast<std::conditional_t<
+                        std::is_const_v<unref<Self>>, const tuple&, tuple&>
+                    > (x),
+                    [&](auto &&sub) {
+                        for_each<order - 1> (std::forward<decltype (sub)> (sub), std::forward<decltype (f)> (f));
+                    });
+            }
         }
     }
 }
