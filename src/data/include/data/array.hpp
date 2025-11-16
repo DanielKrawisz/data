@@ -64,7 +64,7 @@ namespace data {
     } constexpr array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> ImplicitlyConvertible<X>;
+        {x - y} -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x) {
@@ -169,11 +169,33 @@ namespace data {
     struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
         constexpr static size_t Size = size * array<X, sizes...>::Size;
 
-        array ();
-        array (std::initializer_list<array<X, sizes...>>);
+        array ():  array<X, Size> {} {}
+        array (std::initializer_list<array<X, sizes...>> z): array {} {
+            if (z.size () != size) throw exception {} << "invalid size " << z.size ();
+            int i = 0;
+            for (const array<X, sizes...> &a : z) {
+                std::copy (a.Values, a.Values + array<X, sizes...>::Size, this->Values + i);
+                i += array<X, sizes...>::Size;
+            }
+        }
 
-        slice<X, sizes...> &operator [] (size_t i);
-        slice<const X, sizes...> &operator [] (size_t i) const;
+        template <size_t size1>
+        static size_t get_index (size_t i) {
+            return i;
+        }
+
+        template <size_t size1, size_t size2, size_t ...remaining, typename ...Sizes>
+        static size_t get_index (size_t i, size_t j, Sizes... z) {
+            return i * array<X, size2, remaining...>::Size + get_index<size2, remaining...> (j, z...);
+        }
+
+        template <typename ...Sizes> X &operator [] (size_t i, Sizes... j) {
+            return this->Values[get_index<size, sizes...> (i, j...)];
+        }
+
+        template <typename ...Sizes> const X &operator [] (size_t i, Sizes... j) const {
+            return this->Values[get_index<size, sizes...> (i, j...)];
+        }
 
     };
 
@@ -332,6 +354,20 @@ namespace data {
         }
 
         return x;
+    }
+
+    template <typename X, size_t... sizes> requires requires (const X &x) {
+        {-x} -> ImplicitlyConvertible<X>;
+    } constexpr array<X, sizes...> operator - (const array<X, sizes...> &x) {
+        array<X, sizes...> result {};
+        auto xi = x.begin ();
+
+        for (auto ri = result.begin (); ri != result.end (); ri++) {
+            *ri = -*xi;
+            xi++;
+        }
+
+        return result;
     }
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {

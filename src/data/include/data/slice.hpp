@@ -68,8 +68,7 @@ namespace data {
             return slice<X, e - b> {this->data () + b, e - b};
         }
 
-        slice<X> drop (int32 b) const {
-            if (b < 0) throw data::exception {} << "I don't know what this would mean";
+        slice<X> drop (size_t b) const {
             return range (b, this->size ());
         }
 

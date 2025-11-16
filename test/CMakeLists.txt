@@ -78,6 +78,7 @@ add_executable (
     limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
     finite_field.cpp             # TODO: make typed test.
+    matrix.cpp
     algebra.cpp
     exterior.cpp
     elliptic_curve.cpp

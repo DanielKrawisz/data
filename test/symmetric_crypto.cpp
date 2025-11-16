@@ -13,32 +13,6 @@
 #include <type_traits>
 #include <cstddef>
 
-template <std::size_t I, typename... Ts>
-struct get_type;
-
-template <typename T, typename... Ts>
-struct get_type<0, T, Ts...> {
-    using type = T;
-};
-
-template <std::size_t I, typename T, typename... Ts>
-struct get_type<I, T, Ts...> {
-    using type = typename get_type<I - 1, Ts...>::type;
-};
-
-template <std::size_t I, auto... Ts>
-struct get_value;
-
-template <auto T, auto... Ts>
-struct get_value<0, T, Ts...> {
-    constexpr static const auto value = T;
-};
-
-template <std::size_t I, auto T, auto... Ts>
-struct get_value<I, T, Ts...> {
-    constexpr static const auto value = get_value<I - 1, Ts...>::value;
-};
-
 namespace data::crypto {
 
     // we don't test that things actually work, merely that all the functions are implemented and no errors are thrown.
@@ -221,8 +195,8 @@ namespace data::crypto {
         } else {
 
             auto key = std::get<key_index> (k);
-            auto key_size = get_value<key_index, key_sizes...>::value;
-            using cipher = typename get_type<cipher_index, cph...>::type;
+            auto key_size = meta::get_value<key_index, key_sizes...>::value;
+            using cipher = typename meta::get_type<cipher_index, cph...>::type;
             test_block_cipher<cipher> (std::get<mode_index> (m), key, mutate_key (key),
                 block_padding::PKCS_PADDING, block_padding::ONE_AND_ZEROS_PADDING, msg);
 
