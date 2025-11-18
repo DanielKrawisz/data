@@ -21,6 +21,11 @@ namespace data::math {
     template <field X, size_t A> matrix<X, A, A> transpose (const matrix<X, A, A> &);
     template <field X, size_t A> X tr (const matrix<X, A, A> &);
 
+    template<field X, size_t dim, size_t order>
+    using tensor = typename seq_to_array_params<
+            meta::repeat_value<dim, order>
+        >::template apply<X>;
+
     template <field X, size_t A, size_t B> constexpr bool inline invertable (const matrix<X, A, B> &x) {
         return det (x) != X {};
     }

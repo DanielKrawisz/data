@@ -7,6 +7,7 @@
 
 #include <type_traits>
 #include <concepts>
+#include <tuple>
 
 namespace data {
 
@@ -14,7 +15,15 @@ namespace data {
     // Sometimes I like to different types to pass on conversions from a sub-type and if I do
     // that I want to know which are explicit and which are implicit.
 
-    template <typename A, typename B> concept Same = std::same_as<A, B>;
+    namespace {
+        template <typename A, typename... B>
+        concept same_as_all = (std::same_as<A, B> && ...);
+    }
+
+    // check if any number of types are the same.
+    template <typename... T>
+    concept Same = sizeof...(T) == 0 || sizeof...(T) == 1 ||
+        same_as_all<std::tuple_element_t<0, std::tuple<T...>>, T...>;
 
     // types containing static members that say whether one type is constructible.
     template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
