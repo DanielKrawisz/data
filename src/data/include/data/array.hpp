@@ -15,7 +15,7 @@
 
 namespace data {
 
-    template <typename X, size_t... > struct array;
+    template <typename X, size_t...> struct array;
 
     template <std::integral word, size_t ...sizes> using bytes_array = array<word, sizes...>;
 
@@ -60,25 +60,29 @@ namespace data {
 
     // vector addition and subtraction.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> ImplicitlyConvertible<X>;
+        { x + y } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator + (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x - y} -> ImplicitlyConvertible<X>;
+        { x - y } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator - (const array<X, sizes...> &, const array<X, sizes...> &);
 
     template <typename X, size_t... sizes> requires requires (const X &x) {
-        {-x} -> ImplicitlyConvertible<X>;
+        { -x } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator - (const array<X, sizes...> &);
 
     // scalar multiplication and division.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x * y} -> ImplicitlyConvertible<X>;
+        { x * y } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x / y} -> ImplicitlyConvertible<X>;
+        { x / y } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
+
+    // matrix multiplication (also serves as a dot product for vectors)
+    template <typename X, size_t A, size_t... AA, size_t B, size_t... BB>
+    constexpr auto operator * (const array<X, A, AA...> &a, const array<X, B, BB...> &b);
 
     // this array is a structural type and therefore can be
     // used as a non-type template parameter.
@@ -259,13 +263,226 @@ namespace data {
 
     };
 
-    // multiplication operation good enough for an inner product and matrix multiplication
-    template <typename X, size_t... A, size_t C, size_t... B> requires requires (const X &x, const X &y) {
-        {x + y} -> ImplicitlyConvertible<X>;
-        {x * inner (x, y)} -> ImplicitlyConvertible<X>;
-    } && requires () {
-        {X {}};
-    } constexpr array<X, A..., B...> operator * (const array<X, A..., C> &a, const array<X, C, B...> &b);
+    // everything beyond this point is a complete mess.
+
+    template<class T>
+    struct array_info;
+
+    template<class X, size_t... Ds>
+    struct array_info<array<X, Ds...>> {
+        using dims = std::index_sequence<Ds...>;
+        using field = X;
+        constexpr static const size_t order = sizeof... (Ds);
+    };
+
+    template<class T>
+    struct make_array;
+
+    template<size_t... Ds>
+    struct make_array<std::index_sequence<Ds...>> {
+        constexpr static const array<size_t, sizeof...(Ds)> result {Ds...};
+    };
+
+    template <typename Seq>
+    struct seq_to_array_params;
+
+    template <size_t... Sizes>
+    struct seq_to_array_params<std::integer_sequence<size_t, Sizes...>> {
+        template <typename X>
+        using apply = array<X, Sizes...>;
+    };
+
+    struct contracted_indices {
+        size_t First;
+        size_t Second;
+    };
+
+    template <contracted_indices...>
+    struct unequal_contracted_indices;
+
+    template <>
+    struct unequal_contracted_indices<> {
+        constexpr static const bool value = true;
+    };
+
+    template <contracted_indices last>
+    struct unequal_contracted_indices<last> {
+        constexpr static const bool value = last.First != last.Second;
+    };
+
+    template <contracted_indices first, contracted_indices second, contracted_indices ...rest>
+    struct unequal_contracted_indices<first, second, rest...> {
+        constexpr static const bool value =
+            first.First != first.Second &&
+            first.First != second.First &&
+            first.Second != second.First && unequal_contracted_indices<second, rest...>::value;
+    };
+
+    // calculate an arbitrary contraction expression
+    //   contract<{a, b}, {c, d}...> {} (m1, m2...);
+    // the result is equivalent to the outer product of m1, m2 ...
+    // with index a contracted over with index b, index c contracted
+    // with index d, etc.
+    template <contracted_indices... contracted>
+    struct contract {
+
+        struct counter {
+            size_t Index;
+            size_t Limit;
+
+            friend std::ostream &operator << (std::ostream &o, const counter &c) {
+                o << "{" << c.Index << ": " << c.Limit << "}";
+                return o;
+            }
+        };
+
+        // the contraction is valid if none of the contracted indices are equal to one another
+        // if all the matrices are over the same field, and if each pair of contracted indices
+        // has the same dimension as its mate.
+        template <typename ...arrays>
+        requires (unequal_contracted_indices<contracted...>::value &&
+            Same<typename array_info<arrays>::field...> && (... && (
+                ( meta::get<typename meta::concat<typename array_info<arrays>::dims...>::type, contracted.First>::value ==
+                meta::get<typename meta::concat<typename array_info<arrays>::dims...>::type, contracted.Second>::value ))))
+        auto operator () (arrays... m) {
+
+            using index_limits = meta::concat<typename array_info<arrays>::dims...>::type;
+            auto index_limits_array = make_array<index_limits>::result;
+            constexpr const size_t total_input_indices = meta::count<index_limits>::result;
+            // all indices for all input matricies put together.
+            counter *input_indices[total_input_indices];
+            for (int i = 0; i < total_input_indices; i++) input_indices[i] = nullptr;
+
+            constexpr const size_t total_contracted_indices = sizeof... (contracted);
+            counter contract_indices[total_contracted_indices];
+
+            // initialize contract_indices and initialize the
+            // appropriate input_indices to point to them.
+            {
+                counter *next = contract_indices;
+                ([&] (contracted_indices contract) {
+                    *next = {0, index_limits_array[contract.First]};
+                    input_indices[contract.First] = next;
+                    input_indices[contract.Second] = next;
+                    next++;
+                } (contracted), ...);
+
+            }
+
+            // get underlying field
+            using field = std::tuple_element_t<0, std::tuple<typename array_info<arrays>::field...>>;
+
+            using result_index_limits = meta::remove_at<index_limits,
+                typename meta::sort<std::index_sequence<contracted.First..., contracted.Second...>>::result>::result;
+
+            constexpr const size_t total_result_indices = meta::count<result_index_limits>::result;
+            counter result_indices[total_result_indices];
+
+            // initialize the result_indices and initialize input_indices to point to
+            // the result indices, skipping those that are already initialized.
+            {
+                counter *next_result = result_indices;
+                counter **next_input = input_indices;
+                meta::for_each<result_index_limits> {} ([&](size_t limit) {
+                    *next_result = {0, limit};
+                    while (*next_input != nullptr) next_input++;
+                    *next_input = next_result;
+                    next_result++;
+                    next_input++;
+                });
+            }
+
+            // the return type is an array with the indices of input matrices
+            // without those marked to be contracted.
+            using return_type = seq_to_array_params<result_index_limits>::template apply<field>;
+
+            constexpr const size_t number_of_inputs = sizeof... (arrays);
+
+            return_type result {};
+
+            size_t result_index_counter = 0;
+            while (true) {
+
+                // retrieve the element of the result which
+                // corresponds to the state of result_indices.
+                field *contract_result;
+                {
+                    size_t result_index = 0;
+                    for (size_t i = 0; i < total_result_indices; i++) {
+                        result_index *= result_indices[i].Limit;
+                        result_index += result_indices[i].Index;
+                    }
+                    contract_result = result.Values + result_index;
+                }
+
+                // initialize this element to zero.
+                *contract_result = field {};
+
+                // reset contract indices
+                for (int i = 0; i < total_contracted_indices; i++)
+                    contract_indices[i].Index = 0;
+
+                size_t contract_index_counter = 0;
+                do {
+
+                    field multiplication_result {1};
+
+                    // for each input matrix, retrieve the value
+                    // corresponding to the input indices and
+                    // add it to the result.
+                    size_t input_index_counter = 0;
+                    ([&](const field *values, size_t order) {
+                        size_t value_index = 0;
+                        while (order > 0) {
+                            value_index *= input_indices[input_index_counter]->Limit;
+                            value_index += input_indices[input_index_counter]->Index;
+                            input_index_counter++;
+                            order--;
+                        }
+                        multiplication_result *= values[value_index];
+                    }(m.Values, array_info<decltype (m)>::order), ...);
+
+                    // add result to final
+                    *contract_result += multiplication_result;
+
+                    // increment contracted indices
+                    while (contract_index_counter != total_contracted_indices) {
+                        counter *contracted_counter = contract_indices + contract_index_counter;
+                        contracted_counter->Index++;
+                        if (contracted_counter->Index != contracted_counter->Limit) {
+                            contract_index_counter = 0;
+                            break;
+                        }
+
+                        contracted_counter->Index = 0;
+                        contract_index_counter++;
+                    }
+                } while (contract_index_counter != total_contracted_indices);
+
+                // increment result_indices.
+                while (true) {
+                    if (result_index_counter == total_result_indices)
+                        return result;
+
+                    counter *result_counter = result_indices + result_index_counter;
+                    result_counter->Index++;
+                    if (result_counter->Index != result_counter->Limit) {
+                        result_index_counter = 0;
+                        break;
+                    }
+
+                    result_counter->Index = 0;
+                    result_index_counter++;
+                }
+            }
+        }
+    };
+
+    // matrix multiplication (also serves as a dot product for vectors)
+    template <typename X, size_t A, size_t... AA, size_t B, size_t... BB>
+    constexpr auto inline operator * (const array<X, A, AA...> &a, const array<X, B, BB...> &b) {
+        return contract<{sizeof... (AA), sizeof... (AA) + 1}> {} (a, b);
+    }
 
     template <std::default_initializable X, size_t size>
     constexpr inline array<X, size>::array () {
@@ -409,23 +626,6 @@ namespace data {
         for (auto xi = x.begin (); xi != x.end (); xi++) {
             *xi = *ai / b;
             ai++;
-        }
-
-        return x;
-    }
-
-    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
-        {x + y} -> ImplicitlyConvertible<X>;
-        {x * y} -> ImplicitlyConvertible<X>;
-    } && requires () {
-        {X {0}};
-    } X operator * (const array<X, sizes...> &a, const array<X, sizes...> &b) {
-        X x {0};
-        auto bi = b.begin ();
-
-        for (auto ai = a.begin (); ai != a.end (); ai++) {
-            x += *ai * *bi;
-            bi++;
         }
 
         return x;
