@@ -114,8 +114,8 @@ namespace data::math {
         using parent = exterior_parent<X, dim, order>::type;
         using parent::tuple;
 
-        //explicit exterior (const tensor<X, dim, order> &x);
-        //explicit operator tensor<X, dim, order> () const;
+        explicit exterior (const tensor<X, dim, order> &x);
+        explicit operator tensor<X, dim, order> () const;
 
         // access an element as if it were a tensor.
 

@@ -18,7 +18,7 @@ namespace data {
         K Key;
         V Value;
         
-        entry (const K &k, const V &v) : Key (k), Value (v) {}
+        constexpr entry (const K &k, const V &v) : Key (k), Value (v) {}
         
         bool valid () const {
             return data::valid (Key) && data::valid (Value);
