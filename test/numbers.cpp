@@ -245,10 +245,14 @@ namespace data {
 
     // add division
     template <typename NN> concept basic_arithmetic_big_unsigned =
-        basic_arithmetic_unsigned<NN> && ring_algebraic_unsigned_big<NN>;
+        basic_arithmetic_unsigned<NN> &&
+        ring_algebraic_unsigned_big<NN> &&
+        BigNumberComparable<NN>;
 
     template <typename NN> concept basic_arithmetic_big_signed =
-        basic_arithmetic_signed<NN> && ring_algebraic_signed_big<NN>;
+        basic_arithmetic_signed<NN> &&
+        ring_algebraic_signed_big<NN> &&
+        BigNumberComparable<NN>;
 
     template <typename NN> concept basic_arithmetic_big =
         basic_arithmetic_big_signed<NN> &&
