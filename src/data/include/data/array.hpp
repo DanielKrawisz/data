@@ -84,6 +84,12 @@ namespace data {
     template <typename X, size_t A, size_t... AA, size_t B, size_t... BB>
     constexpr auto operator * (const array<X, A, AA...> &a, const array<X, B, BB...> &b);
 
+    template <typename X, size_t... A>
+    constexpr X inner (const array<X, A...> &a, const array<X, A...> &b);
+
+    template <typename X, size_t... A, size_t... B>
+    constexpr array<X, A..., B...> outer (const array<X, A...> &a, const array<X, B...> &b);
+
     // this array is a structural type and therefore can be
     // used as a non-type template parameter.
     template <std::default_initializable X, size_t z> struct array<X, z> {
