@@ -159,9 +159,8 @@ namespace data::math {
 
     }
 
-    // test euclidian transformations.
+    TEST (Exterior, ToTensorAndBack) {
 
-    // Key here is to test projective point <=> projective vector.
-
+    }
 
 }

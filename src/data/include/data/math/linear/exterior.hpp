@@ -46,8 +46,11 @@ namespace data::math {
 
     // generate a matrix that projects onto the subspace defined by the exterior object.
     // the second exterior object is left unchanged.
-    template <ring X, size_t dim, size_t order>
+    template <field X, size_t dim, size_t order>
     matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
+
+    template <field X, size_t dim, size_t order>
+    exterior<X, dim, order> antisymetrize (tensor<X, dim, order>);
 
     template <ring X, size_t dim, size_t order>
     requires requires (std::ostream &o, const X &x) {
@@ -74,6 +77,9 @@ namespace data::math::def {
 }
 
 namespace data::math {
+
+    // TODO an exterior<x, dim, order> object should extend symmetric_tensor<X, dim + order - 1, order>.
+    template <ring X, size_t dim, size_t order> requires (order <= dim) struct symmetric_tensor;
 
     // specialization for scalar type.
     template <ring X, size_t dim> struct exterior<X, dim, 0> : array<X> {
@@ -114,7 +120,6 @@ namespace data::math {
         using parent = exterior_parent<X, dim, order>::type;
         using parent::tuple;
 
-        explicit exterior (const tensor<X, dim, order> &x);
         explicit operator tensor<X, dim, order> () const;
 
         // access an element as if it were a tensor.

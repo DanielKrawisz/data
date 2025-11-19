@@ -296,12 +296,12 @@ namespace data::math {
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> inline fraction<Z, N>::operator + (const Z &z) const {
-        return operator + (fraction {z});
+        return *this + (fraction {z});
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> fraction<Z, N>::operator - (const Z &z) const {
-        return operator - (fraction {z});
+        return *this - (fraction {z});
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
@@ -311,7 +311,7 @@ namespace data::math {
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     fraction<Z, N> inline fraction<Z, N>::operator / (const Z &z) const {
-        return operator / (fraction {z});
+        return *this / (fraction {z});
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>

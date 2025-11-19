@@ -17,9 +17,11 @@ namespace data::math {
     template <field X, size_t A, size_t B> constexpr X det (const matrix<X, A, B> &);
 
     template <field X, size_t A, size_t B> constexpr bool invertable (const matrix<X, A, B> &);
-    template <field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &);
-    template <field X, size_t A> matrix<X, A, A> transpose (const matrix<X, A, A> &);
+    template <field X, size_t A> matrix<X, A, A> invert (const matrix<X, A, A> &);
+    template <field X, size_t A, size_t B> matrix<X, B, A> transpose (const matrix<X, A, B> &);
     template <field X, size_t A> X tr (const matrix<X, A, A> &);
+
+    template <field X, size_t A> matrix<X, A, A> identity ();
 
     template<field X, size_t dim, size_t order>
     using tensor = typename seq_to_array_params<
@@ -28,12 +30,6 @@ namespace data::math {
 
     template <field X, size_t A, size_t B> constexpr bool inline invertable (const matrix<X, A, B> &x) {
         return det (x) != X {};
-    }
-
-    template <field X, size_t A> matrix<X, A, A> inverse (const matrix<X, A, A> &x) {
-        auto Det = det (x);
-        if (Det = 0) throw division_by_zero {};
-        return transpose (x) / det (x);
     }
 
     template <field X, size_t A> X tr (const matrix<X, A, A> &x) {
@@ -62,6 +58,38 @@ namespace data::math {
 
             return Det;
         }
+    }
+
+    template <field X, size_t A> matrix<X, A, A> identity () {
+        matrix<X, A, A> I {};
+        for (int i = 0; i < A; i++) I[i, i] = X {1};
+        return I;
+    }
+
+    template <field X, size_t A, size_t B> matrix<X, B, A> inline transpose (const matrix<X, A, B> &x) {
+        matrix<X, B, A> result;
+        for (int i = 0; i < A; i++) for (int j = 0; j < B; j++) result[j, i] = x[i, j];
+        return result;
+    }
+
+    template <field X, size_t N> matrix<X, N, N> invert (const matrix<X, N, N> &A) {
+        matrix<X, N, N> I = identity<X, N> ();
+
+        matrix<X, N, N> M = I;
+        matrix<X, N, N> AM = A;
+        // we calculate successive coefficients of the characteristic polynomial here.
+        // the last one will be the det.
+        X c = -tr (A);
+
+        for (size_t k = 2; k <= N; k++) {
+            M = AM + I * c;
+            AM = A * M;
+            c = -tr (AM) / k;
+        }
+
+        if (c == 0) throw division_by_zero {};
+
+        return -M / c;
     }
 
 }
