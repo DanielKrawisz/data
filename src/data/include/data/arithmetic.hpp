@@ -139,14 +139,14 @@ namespace data {
             { m >= n } -> Same<bool>;
         };
 
-    template <typename X> concept NumberComparableSigned =
+    template <typename X> concept BigNumberComparableSigned =
         Ordered<X> &&
         comparable_to<X, int> &&
         comparable_to<X, long> &&
         comparable_to<X, long long>;
 
-    template <typename X> concept NumberComparable =
-        NumberComparableSigned<X> &&
+    template <typename X> concept BigNumberComparable =
+        BigNumberComparableSigned<X> &&
         comparable_to<X, unsigned int> &&
         comparable_to<X, unsigned long> &&
         comparable_to<X, unsigned long long>;
@@ -165,7 +165,7 @@ namespace data {
     // a proto_integral type is starting to look like a number.
     template <typename X> concept proto_number =
         std::default_initializable<X> && incrementable<X> &&
-        NumberComparable<X> && requires (const X &n) {
+        BigNumberComparable<X> && requires (const X &n) {
             { is_zero (n) } -> Same<bool>;
             { is_positive (n) } -> Same<bool>;
             { is_negative (n) } -> Same<bool>;

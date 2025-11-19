@@ -73,7 +73,7 @@ namespace data {
         }
 
         functional_queue operator >> (const element &e) const {
-            prepend (e);
+            return prepend (e);
         }
         
         functional_queue &operator >>= (const element &e) {

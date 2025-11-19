@@ -28,7 +28,9 @@ namespace data {
     template <Integer num, typename denum>
     requires requires (const num &z, const num &n) {
         { over<num, denum> (z, n) } -> Same<math::fraction<num, denum>>;
-    } //&& NumberComparable<math::fraction<num, denum>>
+    } /*&& BigNumberConstructable<math::fraction<num, denum>> &&
+    BigNumberComparable<math::fraction<num, denum>> &&
+    ring_algebraic_signed_big<math::fraction<num, denum>>*/
     struct test_fraction {
         void operator () () {
             using Q = math::fraction<Z>;

@@ -105,7 +105,7 @@ namespace data {
 
     }
 
-    TEST (LinkedStack, LinkedStack1) {
+    TEST (LinkedStack, LinkedStack) {
         
         EXPECT_TRUE (stack<int> {} == stack<int> ());
         
@@ -116,6 +116,12 @@ namespace data {
         EXPECT_TRUE (stack<int> (1).first () == 1);
         EXPECT_TRUE (stack<int> (1).rest () == stack<int> {});
         EXPECT_TRUE (stack<int> (1).size () == 1);
+
+        EXPECT_EQ (prepend (stack<int> {}, 1), stack<int> {1});
+        EXPECT_EQ (stack<int> {} >> 1, stack<int> {1});
+
+        EXPECT_EQ (prepend (stack<int> {0}, 1), (stack<int> {1, 0}));
+        EXPECT_EQ (stack<int> {0} >> 1, (stack<int> {1, 0}));
         
     }
 
@@ -382,13 +388,13 @@ TYPED_TEST (Stack, StackRemove) {
     using element = typename TestFixture::element;
     using has_select = decltype (remove (type {}, size_t {0}));
 }
-// TODO
-/*
+
 TYPED_TEST (Stack, StackErase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_select = decltype (erase (type {}, std::declval<element> ()));
-}*/
+    using has_erase = decltype (erase (type {}, std::declval<element> ()));
+}
+// TODO
 /*
 TYPED_TEST (Stack, TestStackSelect) {
     using type = typename TestFixture::type;

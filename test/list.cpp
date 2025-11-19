@@ -68,6 +68,51 @@ namespace data {
 
     }
 
+    TEST (List, ListConstruct) {
+
+        list<int> l {1, 2, 3};
+        list<int> r {};
+        list<int> a {1};
+        list<int> b {1, 2};
+
+        EXPECT_EQ (l.size (), 3);
+        EXPECT_EQ (r.size (), 0);
+        EXPECT_EQ (a.size (), 1);
+        EXPECT_EQ (b.size (), 2);
+        EXPECT_TRUE (l != r);
+        EXPECT_TRUE (l == r << 1 << 2 << 3);
+
+        int val[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        string zv [] {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+
+        list<int> {1, 2, 3, 4, 5, 6, 7};
+        list<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
+        list<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
+
+        list<string> {"1", "2", "3", "4", "5", "6", "7"};
+        list<string *> {zv, zv + 2, zv + 4, zv + 3, zv + 8, zv + 1};
+        list<string &> {zv[0], zv[1], zv[3], zv[7], zv[4], zv[5], zv[0]};
+
+        list<list<int>> {{1, 2, 3}, {4, 5}, {6}};
+        list<list<string>> {{"1", "2", "3"}, {"4", "5"}, {"6"}};
+
+    }
+
+    TEST (List, Pend) {
+
+        EXPECT_EQ (prepend (list<int> {}, 1), list<int> {1});
+        EXPECT_EQ (list<int> {} >> 1, list<int> {1});
+
+        EXPECT_EQ (prepend (list<int> {0}, 1), (list<int> {1, 0}));
+        EXPECT_EQ (list<int> {0} >> 1, (list<int> {1, 0}));
+
+        EXPECT_EQ (append (list<int> {}, 1), list<int> {1});
+        EXPECT_EQ (list<int> {} << 1, list<int> {1});
+
+        EXPECT_EQ (append (list<int> {0}, 1), (list<int> {0, 1}));
+        EXPECT_EQ (list<int> {0} << 1, (list<int> {0, 1}));
+    }
+
     void accept_stack_of_string_views (list<string_view>) {}
 
     TEST (List, ListConvert) {
@@ -109,36 +154,6 @@ namespace data {
         EXPECT_EQ (shuffle (l3, {1, 0, 2}), (list<int> {2, 1, 3}));
         EXPECT_EQ (shuffle (l3, {1, 2, 0}), (list<int> {3, 1, 2}));
         EXPECT_EQ (shuffle (l3, {2, 0, 1}), (list<int> {2, 3, 1}));
-
-    }
-
-    TEST (List, ListConstruct) {
-
-        list<int> l {1, 2, 3};
-        list<int> r {};
-        list<int> a {1};
-        list<int> b {1, 2};
-
-        EXPECT_EQ (l.size (), 3);
-        EXPECT_EQ (r.size (), 0);
-        EXPECT_EQ (a.size (), 1);
-        EXPECT_EQ (b.size (), 2);
-        EXPECT_TRUE (l != r);
-        EXPECT_TRUE (l == r << 1 << 2 << 3);
-
-        int val[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        string zv [] {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
-
-        list<int> {1, 2, 3, 4, 5, 6, 7};
-        list<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
-        list<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
-
-        list<string> {"1", "2", "3", "4", "5", "6", "7"};
-        list<string *> {zv, zv + 2, zv + 4, zv + 3, zv + 8, zv + 1};
-        list<string &> {zv[0], zv[1], zv[3], zv[7], zv[4], zv[5], zv[0]};
-
-        list<list<int>> {{1, 2, 3}, {4, 5}, {6}};
-        list<list<string>> {{"1", "2", "3"}, {"4", "5"}, {"6"}};
 
     }
 
@@ -261,8 +276,7 @@ TYPED_TEST (List, Sort) {
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
-// TODO for beta
-/*
+
 TYPED_TEST (List, ListRemove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
@@ -273,7 +287,7 @@ TYPED_TEST (List, ListErase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (erase (type {}, std::declval<element> ()));
-}*/
+}
 /*
 TYPED_TEST (List, ListSelect) {
     using type = typename TestFixture::type;
