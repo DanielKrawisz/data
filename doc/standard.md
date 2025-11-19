@@ -42,11 +42,15 @@ with the same name that can be found by argument dependent lookup.
 
 The functional data structures library has the following includes:
 
+* `data/tuple.hpp`
+* `data/meta.hpp`
 * `data/concepts.hpp`
 * `data/ordered.hpp`
 * `data/valid.hpp`
 * `data/maybe.hpp`
+* `data/either.hpp`
 * `data/sequence.hpp`
+* `data/fold.hpp`
 * `data/stack.hpp`
 * `data/list.hpp`
 * `data/ordered_sequence.hpp`
@@ -54,11 +58,10 @@ The functional data structures library has the following includes:
 * `data/set.hpp`
 * `data/map.hpp`
 * `data/dispatch.hpp`
-* `data/math/permutation.hpp`
 <!--
+* `data/cycle.hpp`
 * `data/transpose.hpp`
 * `data/map_thread`
-* `data/cycle.hpp`
 * `data/container.hpp`
 * `data/remove.hpp`
 * `data/erase.hpp`
@@ -71,14 +74,12 @@ The functional data structures library has the following includes:
 
 #### `concept data::Same`
 
-Equivalant to `std::same_as`.
+`Same<X...>` will be true if all types `X...` are identical.
 
 #### `concept data::ImplicitlyConvertible`
 
 Equivalent to `std::convertible_to`. 
-<!--
-For types `From` and `To`, `ImplicitlyConvertible<From, To>` if `From` is implicitly convertible to `To` excluding narrowing conversions. 
--->
+
 #### `concept data::Convertible`
 
 Implicitly or explicitly convertable.
@@ -300,7 +301,19 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `prepend`
 
+#### `>>`
+
+Return the stack with a new element prepended.
+
+`z >> a -> data::stack<X>`
+
 #### `append`
+
+#### `<<`
+
+Return the stack with a new element prepended.
+
+`z << a -> data::stack<X>`
 
 #### `take`
 
@@ -329,6 +342,8 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 ### `data/ordered_sequence.hpp`
 
 #### `class data::ordered_sequence`
+
+#### `==`
 
 #### `<<`
 
@@ -416,8 +431,6 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `class data::set`
 
-### `data/math/permutation.hpp`
-
 ## Mathematics
 
 A headers-only library for mathematical structures.
@@ -425,11 +438,13 @@ A headers-only library for mathematical structures.
 * `data/math/infinite.hpp`
 * `data/math/nonzero.hpp`
 * `data/math/figurate.hpp`
-* `data/math/combinatorics.hpp`
+* `data/math/permutation.hpp`
 * `data/integral.hpp`
 * `data/math/modular.hpp`
+* `data/math/fraction.hpp`
+* `data/math/polynomial.hpp`
 * `data/math/algebra/finite_field.hpp`
-* `data/math/point.hpp`
+* `data/math/algebra/elliptic_curve.hpp`
 
 ### `data/math/infinite.hpp`
 
@@ -449,7 +464,21 @@ A headers-only library for mathematical structures.
 
 ### `data/math/figurate.hpp`
 
-### `data/math/combinatorics.hpp`
+#### `template <typename N> constexpr nonzero<N> factorial (const N &n)`
+
+#### `template <typename N> constexpr N binomial (const N &n, const N &k)`
+
+#### `template <typename N> constexpr N inline multichoose (const N &n, const N &r)`
+
+#### `template <typename N> constexpr N inline polytopic_number (const N &r, const N &n)`
+
+#### `template <typename N> constexpr N inline triangular_number (const N &n)`
+
+#### `template <typename N> constexpr N inline tetrahedral_number (const N &n)`
+
+#### `template <typename N> constexpr N inline pentatope_number (const N &n)`
+
+### `data/math/permutation.hpp`
 
 ### `data/integral.hpp`
 
@@ -460,12 +489,23 @@ A headers-only library for mathematical structures.
 ## String
 
 * `data/stream.hpp`
+* `data/string.hpp`
+* `data/encoding/hex.hpp`
+* `data/encoding/base64.hpp`
 * `data/encoding/endian.hpp`
+* `data/encoding/integer.hpp`
 * `data/cross.hpp`
 * `data/array.hpp`
 * `data/bytes.hpp`
+* `data/math/combinatorics.hpp`
+* `data/math/linear.hpp`
+* `data/math/exterior.hpp`
+* `data/math/number/bytes.hpp`
+* `data/math/number/bounded.hpp`
 
 ### `data/cross.hpp`
+
+### `data/math/combinatorics.hpp`
 
 ### `data/array.hpp`
 
