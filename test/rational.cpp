@@ -27,13 +27,10 @@ namespace data {
 
     template <Integer num, typename denum>
     requires requires (const num &z, const num &n) {
-        { over<num, denum> (z, n) } -> Same<math::fraction<num, denum>>;
-    } /*&& BigNumberConstructable<math::fraction<num, denum>> &&
-    BigNumberComparable<math::fraction<num, denum>> &&
-    ring_algebraic_signed_big<math::fraction<num, denum>>*/
-    struct test_fraction {
+        { math::over<num, denum> (z, n) } -> Same<math::fraction<num, denum>>;
+    } && math::rational<math::fraction<num, denum>> struct test_fraction {
         void operator () () {
-            using Q = math::fraction<Z>;
+            using Q = math::fraction<num, denum>;
 
             EXPECT_TRUE (Q {0}.valid ());
             EXPECT_TRUE (Q {1}.valid ());
@@ -63,7 +60,7 @@ namespace data {
         tuple<int128_little, int128_little>,
         tuple<int128_big, int128_big>,
         tuple<Z, N>,
-        tuple<Z_bytes_little, N_bytes_big>,
+        tuple<Z_bytes_little, N_bytes_little>,
         tuple<Z_bytes_big, N_bytes_big>,
         tuple<Z_bytes_BC_little, Z_bytes_BC_little>,
         tuple<Z_bytes_BC_big, Z_bytes_BC_big>,

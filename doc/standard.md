@@ -42,13 +42,15 @@ with the same name that can be found by argument dependent lookup.
 
 The functional data structures library has the following includes:
 
-* `data/tuple.hpp`
-* `data/meta.hpp`
 * `data/concepts.hpp`
 * `data/ordered.hpp`
 * `data/valid.hpp`
+* `data/size.hpp`
+* `data/empty.hpp`
 * `data/maybe.hpp`
 * `data/either.hpp`
+* `data/tuple.hpp`
+* `data/meta.hpp`
 * `data/sequence.hpp`
 * `data/fold.hpp`
 * `data/stack.hpp`
@@ -439,12 +441,12 @@ A headers-only library for mathematical structures.
 * `data/math/nonzero.hpp`
 * `data/math/figurate.hpp`
 * `data/math/permutation.hpp`
-* `data/integral.hpp`
+* `data/sign.hpp`
+* `data/abs.hpp`
+* `data/divide.hpp`
+* `data/arithmetic.hpp`
 * `data/math/modular.hpp`
-* `data/math/fraction.hpp`
 * `data/math/polynomial.hpp`
-* `data/math/algebra/finite_field.hpp`
-* `data/math/algebra/elliptic_curve.hpp`
 
 ### `data/math/infinite.hpp`
 
@@ -486,22 +488,16 @@ A headers-only library for mathematical structures.
 
 ### `data/math/algebra/finite_field.hpp`
 
-## String
+## Arrays
 
+* `data/slice.hpp`
 * `data/stream.hpp`
-* `data/string.hpp`
-* `data/encoding/hex.hpp`
-* `data/encoding/base64.hpp`
-* `data/encoding/endian.hpp`
-* `data/encoding/integer.hpp`
 * `data/cross.hpp`
 * `data/array.hpp`
 * `data/bytes.hpp`
 * `data/math/combinatorics.hpp`
 * `data/math/linear.hpp`
 * `data/math/exterior.hpp`
-* `data/math/number/bytes.hpp`
-* `data/math/number/bounded.hpp`
 
 ### `data/cross.hpp`
 
@@ -512,6 +508,17 @@ A headers-only library for mathematical structures.
 ### `data/bytes.hpp`
 
 #### `typename data::bytes`
+
+## Strings
+
+* `data/string.hpp`
+* `data/encoding/hex.hpp`
+* `data/encoding/base64.hpp`
+* `data/encoding/endian.hpp`
+* `data/encoding/integer.hpp`
+* `data/integral.hpp`
+* `data/math/number/bytes.hpp`
+* `data/math/number/bounded.hpp`
 
 ### `data/string.hpp`
 

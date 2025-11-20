@@ -74,14 +74,14 @@ namespace data::math::def {
 
 namespace data::encoding::decimal {
 
-    inline string::string (const N &n) {
+    inline string::string (const N n) {
         *this = decimal::write (n);
     }
 }
 
 namespace data::encoding::signed_decimal {
 
-    inline string::string (const Z &n) {
+    inline string::string (const Z n) {
         *this = signed_decimal::write (n);
     }
 }
@@ -94,12 +94,12 @@ namespace data::encoding::hexidecimal {
     }
 
     template <hex::letter_case zz>
-    inline complemented_string<neg::nones, zz>::complemented_string (const N &n) {
+    inline complemented_string<neg::nones, zz>::complemented_string (const N n) {
         *this = write<zz> (n);
     }
 
     template <neg c, hex::letter_case zz>
-    inline complemented_string<c, zz>::complemented_string (const Z &n) {
+    inline complemented_string<c, zz>::complemented_string (const Z n) {
         *this = write<c, zz> (n);
     }
 }
