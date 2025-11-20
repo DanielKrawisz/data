@@ -19,7 +19,10 @@ namespace data::math {
 
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
     concept integral_domain = ring<elem, plus, times> &&
-    requires (const nonzero<elem> &a, const nonzero<elem> &b) {
+    requires {
+        elem {0};
+        elem {1};
+    } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
         { times {} (a, b) } -> ImplicitlyConvertible<nonzero<elem>>;
     };
     

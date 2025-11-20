@@ -427,6 +427,9 @@ namespace data {
             { a *= 1u } -> Same<X &>;
         };
 
+    template <typename X> concept ring_algebraic =
+        ring_algebraic_signed<X> && ring_algebraic_unsigned<X>;
+
     template <typename X> concept ring_algebraic_signed_big =
         ring_algebraic_signed_big_to<X, X> &&
         ring_algebraic_signed<X> && requires (X &a) {
@@ -438,6 +441,9 @@ namespace data {
         ring_algebraic_unsigned<X> && requires (X &a) {
             { a *= 9007199254740992u } -> Same<X &>;
         };
+
+    template <typename X> concept ring_algebraic_big =
+        ring_algebraic_signed_big<X> && ring_algebraic_unsigned_big<X>;
 
     template <typename X> concept proto_bit_unsigned =
         proto_bit_number<X> && bit_algebraic_unsigned<X> && Unsigned<X>;

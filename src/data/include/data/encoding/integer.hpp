@@ -1021,7 +1021,7 @@ namespace data::encoding::decimal {
         template <std::signed_integral I> string (I);
         template <std::unsigned_integral I> string (I);
 
-        explicit string (const N &);
+        explicit string (const N);
         
         bool valid () const {
             return decimal::valid (*this);
@@ -1107,7 +1107,7 @@ namespace data::encoding::signed_decimal {
         template <std::signed_integral I> string (I x): data::string {write (x)} {}
         template <std::unsigned_integral I> string (I x): data::string {decimal::string {x}} {}
 
-        explicit string (const Z &);
+        explicit string (const Z);
         
         bool valid () const {
             return signed_decimal::valid (*this);
@@ -1213,7 +1213,7 @@ namespace data::encoding::hexidecimal {
         template <std::integral I> complemented_string (I);
 
         complemented_string (const string<cx> &x): string<cx> {x} {}
-        explicit complemented_string (const Z &);
+        explicit complemented_string (const Z);
 
         explicit operator int64 () const;
         explicit operator integer<neg (-int (c) + 5), cx> () const;
@@ -1235,7 +1235,7 @@ namespace data::encoding::hexidecimal {
 
         template <std::integral I> complemented_string (I);
 
-        explicit complemented_string (const N &);
+        explicit complemented_string (const N);
 
         explicit operator integer<neg::twos, cx> () const;
         explicit operator integer<neg::BC, cx> () const;

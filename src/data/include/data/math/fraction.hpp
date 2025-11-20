@@ -21,30 +21,59 @@ namespace data::math {
     template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))>
     requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     struct fraction;
-}
-
-namespace data {
 
     // construct a fraction
     template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))>
     math::fraction<Z, N> inline over (const Z &numerator, const Z &denominator);
 
-}
-
-namespace data::math {
-
     template <typename Z, typename N>
-    bool operator == (const fraction<Z, N> &, const fraction<Z, N> &);
+    constexpr bool operator == (const fraction<Z, N> &, const fraction<Z, N> &);
 
     template <Ordered Z, Ordered N>
-    auto inline operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y);
+    constexpr auto operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool operator == (const fraction<Z> &, const ZZ &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool operator == (const ZZ &, const fraction<Z> &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr auto operator <=> (const fraction<Z> &, const ZZ &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr auto operator <=> (const ZZ &, const fraction<Z> &);
 
     template <typename Z, typename N> fraction<Z, N> operator - (const fraction<Z, N> &);
+
     template <typename Z, typename N> fraction<Z, N> operator + (const fraction<Z, N> &, const fraction<Z, N> &);
     template <typename Z, typename N> fraction<Z, N> operator - (const fraction<Z, N> &, const fraction<Z, N> &);
     template <typename Z, typename N> fraction<Z, N> operator * (const fraction<Z, N> &, const fraction<Z, N> &);
-
     template <typename Z, typename N> fraction<Z, N> operator / (const fraction<Z, N> &, const fraction<Z, N> &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator + (const fraction<Z> &, const ZZ &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator - (const fraction<Z> &, const ZZ &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator * (const fraction<Z> &, const ZZ &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator / (const fraction<Z> &, const ZZ &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator + (const ZZ &, const fraction<Z> &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator - (const ZZ &, const fraction<Z> &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator * (const ZZ &, const fraction<Z> &);
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> operator / (const ZZ &, const fraction<Z> &);
 
     namespace def {
         template <Ordered Z, Ordered N> struct sign<fraction<Z, N>> {
@@ -122,13 +151,6 @@ namespace data::math {
         template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
         fraction (ZZ n, ZZ d);
 
-        bool operator == (const Z &z) const;
-
-        fraction operator + (const Z &z) const;
-        fraction operator - (const Z &z) const;
-        fraction operator * (const Z &z) const;
-        fraction operator / (const Z &z) const;
-
         fraction &operator += (const fraction &f);
         fraction &operator -= (const fraction &f);
         fraction &operator *= (const fraction &f);
@@ -139,13 +161,9 @@ namespace data::math {
         friend struct def::over<Z, N>;
     };
 
-}
-
-namespace data {
-
     template <typename Z, typename N>
-    math::fraction<Z, N> inline over (const Z &numerator, const Z &denominator) {
-        return math::def::over<Z, N> {} (numerator, denominator);
+    fraction<Z, N> inline over (const Z &numerator, const Z &denominator) {
+        return def::over<Z, N> {} (numerator, denominator);
     }
 
 }
@@ -155,10 +173,10 @@ namespace data::math::def {
     template <Integer Z, typename N> struct over<Z, N> {
         fraction<Z, N> operator () (const Z &numerator, const Z &denominator) {
             if (denominator == 0) throw division_by_zero {};
-            if (numerator == 0) return fraction {Z {0}, nonzero<N> {N {1u}}};
+            if (numerator == 0) return fraction<Z, N> {Z {0}, nonzero<N> {N {1u}}};
             N dabs = data::abs (denominator);
             N gcd_ab = number::euclidian::extended<N>::algorithm (data::abs (numerator), dabs).GCD;
-            fraction x {numerator * (denominator < 0 ? -1 : 1) / Z (gcd_ab), nonzero<N> (dabs / gcd_ab)};
+            fraction<Z, N> x {Z (numerator * (denominator < 0 ? -1 : 1)) / Z (gcd_ab), nonzero<N> (dabs / gcd_ab)};
             return denominator < 0 ? -x: x;
         }
     };
@@ -195,15 +213,80 @@ namespace data::math {
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    inline fraction<Z, N>::fraction (ZZ n, ZZ d) : fraction (data::over<Z> (Z (n), Z (d))) {}
+    inline fraction<Z, N>::fraction (ZZ n, ZZ d) : fraction (over<Z> (Z (n), Z (d))) {}
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
     template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
+    template <typename Z, typename N>
+    constexpr bool inline operator == (const fraction<Z, N> &a, const fraction<Z, N> &b) {
+        return a <=> b == 0;
+    }
+
     template <Ordered Z, Ordered N>
-    auto inline operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y) {
+    constexpr auto inline operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y) {
         return x.Numerator * static_cast<Z> (y.Denominator.Value) <=> static_cast<Z> (y.Numerator * x.Denominator.Value);
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool inline operator == (const fraction<Z> &a, const ZZ &b) {
+        return a == fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool inline operator == (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} == b;
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr auto inline operator <=> (const fraction<Z> &a, const ZZ &b) {
+        return a <=> fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr auto inline operator <=> (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} <=> b;
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator + (const fraction<Z> &a, const ZZ &b) {
+        return a + fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator - (const fraction<Z> &a, const ZZ &b) {
+        return a - fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator * (const fraction<Z> &a, const ZZ &b) {
+        return a * fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator / (const fraction<Z> &a, const ZZ &b) {
+        return a / fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator + (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} + b;
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator - (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} - b;
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator * (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} * b;
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    fraction<Z> inline operator / (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} / b;
     }
 }
 
@@ -258,16 +341,6 @@ namespace data::math::def {
 namespace data::math {
 
     template <typename Z, typename N>
-    bool inline operator == (const fraction<Z, N> &a, const fraction<Z, N> &b) {
-        return a <=> b == 0;
-    }
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    bool inline fraction<Z, N>::operator == (const Z &z) const {
-        return *this == fraction {z};
-    }
-
-    template <typename Z, typename N>
     fraction<Z, N> inline operator - (const fraction<Z, N> &x) {
         auto z = x;
         z.Numerator = -z.Numerator;
@@ -287,31 +360,11 @@ namespace data::math {
 
     template <typename Z, typename N>
     fraction<Z, N> inline operator * (const fraction<Z, N> &a, const fraction<Z, N> &b) {
-        return fraction<Z> {a.Numerator * b.Numerator, Z (a.Denominator.Value * b.Denominator.Value)};
+        return fraction<Z> {Z (a.Numerator * b.Numerator), Z (a.Denominator.Value * b.Denominator.Value)};
     }
 
     template <typename Z, typename N> fraction<Z, N> operator / (const fraction<Z, N> &a, const fraction<Z, N> &b) {
         return a * def::inverse<def::times<fraction<Z>>, fraction<Z>> {} (nonzero {b}).Value;
-    }
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    fraction<Z, N> inline fraction<Z, N>::operator + (const Z &z) const {
-        return *this + (fraction {z});
-    }
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    fraction<Z, N> fraction<Z, N>::operator - (const Z &z) const {
-        return *this - (fraction {z});
-    }
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    fraction<Z, N> inline fraction<Z, N>::operator * (const Z &z) const {
-        return *this * fraction {z};
-    }
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    fraction<Z, N> inline fraction<Z, N>::operator / (const Z &z) const {
-        return *this / (fraction {z});
     }
 
     template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>

@@ -118,7 +118,7 @@ namespace data::encoding::base58 {
 
         string (const char *lit): string {string_view {lit, std::strlen (lit)}} {}
 
-        explicit string (const N &n): string {encode<N> (n)} {}
+        explicit string (const N n): string {encode<N> (n)} {}
 
         bool valid () const {
             return base58::valid (*this);

@@ -7,9 +7,14 @@
 
 #include <data/math/field.hpp>
 #include <data/ordered.hpp>
+#include <data/arithmetic.hpp>
 
 namespace data::math {
-    template <typename Q> concept rational = Ordered<Q> && field<Q, def::plus<Q>, def::times<Q>>;
+    template <typename Q> concept rational =
+        Ordered<Q> && field<Q, def::plus<Q>, def::times<Q>> &&
+        BigNumberConstructable<Q> &&
+        BigNumberComparable<Q> &&
+        ring_algebraic_big<Q>;
 }
 
 #endif
