@@ -7,11 +7,11 @@
 
 #include <data/valid.hpp>
 #include <data/math/number/division.hpp>
-#include <data/integral.hpp>
+#include <data/arithmetic.hpp>
 #include <sstream>
 
 namespace data::math::number::euclidian {
-    template <ring_number N, typename Z = decltype (data::negate (std::declval<N> ()))>
+    template <RingNumber N, typename Z = decltype (data::negate (std::declval<N> ()))>
     struct extended;
 }
 
@@ -20,7 +20,7 @@ namespace data::math {
 }
 
 namespace data::math::number::euclidian {
-    template <ring_number N, typename Z>
+    template <RingNumber N, typename Z>
     struct extended {
         N GCD;
         Z BezoutS;
@@ -81,7 +81,7 @@ namespace data::math::number::euclidian {
 }
 
 namespace data::math::number {
-    template <ring_number_signed Z, ring_number N>
+    template <ring_number_signed Z, RingNumber N>
     constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
         maybe<decltype (divmod (x, mod).Remainder)> {
         if (mod.Value < 0) throw exception {} << "mod by negative number";

@@ -5,6 +5,14 @@
 #ifndef DATA_MATH_NUMBER_BYTES_BYTES
 #define DATA_MATH_NUMBER_BYTES_BYTES
 
+#include <data/arithmetic/negativity.hpp>
+
+#include <data/math/group.hpp>
+
+#include <data/complex.hpp>
+
+#include <data/divmod.hpp>
+
 #include <data/bytes.hpp>
 
 namespace data::math::number {

@@ -93,6 +93,16 @@ namespace data {
         // explicit conversions
         template <typename X> requires ExplicitlyConvertible<elem, X>
         explicit operator linked_stack<X> () const;
+
+        template <typename F>
+        void for_each (F &&f) {
+            for (elem &x: *this) f (x);
+        }
+
+        template <typename F>
+        void for_each (F &&f) const {
+            for (const elem &x: *this) f (x);
+        }
         
     };
 

@@ -11,6 +11,9 @@
 
 namespace data::math {
     
+    // TODO tighten the constraints on these numbers.
+    // they should be comparable to zero at least.
+
     template <Ordered R> struct nonnegative;
     template <typename R> struct nonzero;
 

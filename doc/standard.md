@@ -2,7 +2,7 @@
 
 Daniel Krawisz
 
-## General Considerations
+## Introduction
 
 This document describes a standard for the `data` library. 
 
@@ -22,11 +22,24 @@ Naming conventions:
 * Types, functions, and member functions are written `like_this`.
 * Namespaces may have any format style.
 
-## Functional Data Structures
+## Table of Contents
 
-A headers-only library focused on functional data structures.
+* Core
+* String
+* Hash
+* Numbers
+* Crypto
+* Net
+* IO
 
-The data library supports the following data structures:
+## Core
+
+A headers-only library focused on 
+ * extending the functionality of certain std types
+ * functional data structures
+ * mathematics
+
+The data library supports the following functional data structures:
 
 * stack
 * list
@@ -35,7 +48,7 @@ The data library supports the following data structures:
 * map
 * set
 * dispatch
-* permutation
+* cycle
 
 A set of member functions is provided to work with them, as well as functions
 with the same name that can be found by argument dependent lookup. 
@@ -43,14 +56,21 @@ with the same name that can be found by argument dependent lookup.
 The functional data structures library has the following includes:
 
 * `data/concepts.hpp`
-* `data/ordered.hpp`
 * `data/valid.hpp`
-* `data/size.hpp`
-* `data/empty.hpp`
 * `data/maybe.hpp`
 * `data/either.hpp`
 * `data/tuple.hpp`
-* `data/meta.hpp`
+* `data/ordered.hpp`
+* `data/sign.hpp`
+* `data/abs.hpp`
+* `data/math/nonzero.hpp`
+* `data/divmod.hpp`
+* `data/arithmetic.hpp`
+* `data/math/figurate.hpp`
+* `data/math/infinite.hpp`
+* `data/math/modular.hpp`
+* `data/size.hpp`
+* `data/empty.hpp`
 * `data/sequence.hpp`
 * `data/fold.hpp`
 * `data/stack.hpp`
@@ -60,23 +80,23 @@ The functional data structures library has the following includes:
 * `data/set.hpp`
 * `data/map.hpp`
 * `data/dispatch.hpp`
-<!--
 * `data/cycle.hpp`
-* `data/transpose.hpp`
-* `data/map_thread`
-* `data/container.hpp`
-* `data/remove.hpp`
-* `data/erase.hpp`
-* `data/select.hpp`
-* `data/replace.hpp`
-* `data/for_each.hpp`
--->
+* `data/math/permutation.hpp`
+* `data/cross.hpp`
+* `data/math/combinatorics.hpp`
+* `data/array.hpp`
+* `data/math/linear.hpp`
+* `data/math/exterior.hpp`
 
 ### `data/concepts.hpp`
 
 #### `concept data::Same`
 
 `Same<X...>` will be true if all types `X...` are identical.
+
+#### `concept data::Unsame`
+
+`Unsame<X...>` will be true if all types `X...` are different.
 
 #### `concept data::ImplicitlyConvertible`
 
@@ -104,19 +124,7 @@ Equivalent to `std::remove_reference_t`.
 
 Equivalent to `std::remove_const_t`.
 
-### `data/ordered.hpp`
-
-#### `concept data::Sortable`
-
-A type `X`, is sortable if for values `const X a` and `const X b`, `a > b -> bool`
-
-#### `concept data::Ordered`
-
-Equivalent to `std::totally_ordered`. 
-
 ### `data/valid.hpp`
-
-#### `valid`
 
 #### `data::valid`
 
@@ -134,6 +142,98 @@ Equivalent to `std::totally_ordered`.
 
 #### `typename either<X...>`
 
+### `data/tuple.hpp`
+
+### `data/ordered.hpp`
+
+#### `concept data::Sortable`
+
+A type `X`, is sortable if for values `const X a` and `const X b`, `a > b -> bool`
+
+#### `concept data::Ordered`
+
+Equivalent to `std::totally_ordered`. 
+
+### `data/sign.hpp`
+
+#### `typename data::math::sign`
+
+#### `data::sign`
+
+#### `data::is_zero`
+
+#### `data::is_negative`
+
+#### `data::is_positive`
+
+#### `concept NumberComparable`
+
+### `data/abs.hpp`
+
+#### `data::abs`
+
+#### `data::negate`
+
+### `data/math/nonzero.hpp`
+
+#### `struct data::math::nonzero`
+
+#### `struct data::math::nonnegative`
+
+### `data/math/infinite.hpp`
+
+#### `struct data::math::signed_limit`
+
+#### `struct data::math::unsigned_limit`
+
+#### `struct data::math::numeric_limits`
+
+#### `bool data::math::is_infinite`
+
+### `data/divmod.hpp`
+
+### `data/arithmetic.hpp`
+
+We have two concepts of numbers, one which closely resembles 
+standard c++ number types, and the other is more like what
+a mathematician might expect. 
+
+#### `data::plus`
+
+#### `data::minus`
+
+#### `data::times`
+
+#### `concept WholeNumber`
+
+#### `concept TheoryNumber`
+
+### `data/math/figurate.hpp`
+
+#### `template <WholeNumber N> constexpr nonzero<N> factorial (const N &n)`
+
+#### `template <WholeNumber N> constexpr N binomial (const N &n, const N &k)`
+
+#### `template <WholeNumber N> constexpr N inline multichoose (const N &n, const N &r)`
+
+#### `template <WholeNumber N> constexpr N inline polytopic_number (const N &r, const N &n)`
+
+#### `template <WholeNumber N> constexpr N inline triangular_number (const N &n)`
+
+#### `template <WholeNumber N> constexpr N inline tetrahedral_number (const N &n)`
+
+#### `template <WholeNumber N> constexpr N inline pentatope_number (const N &n)`
+
+### `data/math/modular.hpp`
+
+### `data/size.hpp`
+
+#### `data::size`
+
+### `data/empty.hpp`
+
+#### `data::empty`
+
 ### `data/sequence.hpp`
 
 #### `concept data::Sequence`
@@ -144,6 +244,14 @@ A type `elem` satisfies `data::Sequence<seq, elem>` if `data::Sequence<seq>`
 and the type returned by `seq::first` can be implicitly converted to `elem`.
 
 #### `data::drop`
+
+### `data/fold.hpp`
+
+#### `data::fold`
+
+#### `data::nest`
+
+#### `data::reduce`
 
 ### `data/stack.hpp`
 
@@ -163,45 +271,43 @@ type `e` of `elem`, `x.prepend (x.first ()) -> X`.
 
 An implementation of `Stack` supporting `valid`, `empty`, `size`, `first`, `rest`, and `prepend` using argument-dependent lookup. 
 
-For a value `z` of type `const data::stack<X>`: 
-
-`for (X &x : z)` or `for (const X &x z)` will iterate over the stack. 
+For a value `z` of type `const data::stack<X>`:
 
 #### `valid`
 
-`valid (z)` is true iff for every element `x` of `z`, `data::valid (x)` is true. 
+`valid (z) -> bool`
 
-`valid (x) -> bool`
+`valid (z)` is true iff for every element `x` of `z`, `data::valid (x)` is true. 
 
 #### `==`
 
-Iff `X` has an equality operator, so does `data::stack<X>`
+Iff `const X` has an equality operator, so does `const data::stack<X>`
 
 #### `<<`
 
-Iff `X` has a function to write to an `std::ostream` via `<<` than so does `stack<X>`.
+Iff `const X` has a function to write to an `std::ostream` via `<<` than so does `const stack<X>`.
 
 #### `empty`
 
 Whether the stack is empty. 
 
-`empty (x) -> bool`
+`empty (z) -> bool`
 
 #### `size`
 
-Return the size of the list.
+Return the size of the stack.
 
 `size (z) -> size_t`
 
 #### `first`
 
-Return the first element of `z`. 
+Return the first element of a stack. 
 
-If `X` is a reference, `first (z) -> X`, otherwise `first (z) -> X &`.
+If `X` is a reference, `first (z) -> X`, otherwise `first (z) -> const X &`.
 
 For an element `zz` of type `data::stack<X>`
 
-If `X` is a reference, `first (zz) -> X`, otherwise `first (z) -> const X &`.
+If `X` is a reference, `first (zz) -> X`, otherwise `first (z) -> X &`.
 
 #### `rest`
 
@@ -222,6 +328,10 @@ For a value `a` of type `elem`,
 Return the stack with a new element prepended.
 
 `z >> a -> data::stack<X>`
+
+#### `stack<X>::begin` and `stack<X>::end`
+
+`for (const X &x : z)` or `for (X &x : zz)` will iterate over the stack. 
 
 #### `take`
 
@@ -249,6 +359,8 @@ Sort a stack.
 
 #### `sorted`
 
+Whether a stack is sorted. 
+
 #### `values`
 
 #### `contains`
@@ -275,8 +387,6 @@ For a type `X`, `data::List<X>` if `data::Stack<X> && data::Queue<X>`.
 
 #### `data::take`
 
-A `List` is both a `Stack` and a `Queue`. 
-
 #### `data::reverse`
 
 #### `class data::list`
@@ -285,37 +395,75 @@ An implementation of `data::List` supporting `empty`, `size`, `first`, `rest`, `
 
 For a value `z` of type `data::list<X>`: 
 
-`for (X &x : z)` or `for (const X &x z)` will iterate over the stack. 
+#### `valid`
 
-`z.valid ()` is true iff for every element `x` of `z`, `valid (x)` is true. 
+`valid (z) -> bool`
+
+`valid (z)` is true iff for every element `x` of `z`, `data::valid (x)` is true. 
+
+#### `==`
+
+Iff `const X` has an equality operator, so does `const data::list<X>`
 
 #### `<<`
 
-Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list<X>`.
+Iff `const X` has a function to write to an `std::ostream` via `<<` than so does `const list<X>`.
 
 #### `empty`
 
+Whether the list is empty. 
+
+`empty (z) -> bool`
+
 #### `size`
+
+Return the size of the list.
+
+`size (z) -> size_t`
 
 #### `first`
 
+Return the first element of a list. 
+
+If `X` is a reference, `first (z) -> X`, otherwise `first (z) -> const X &`.
+
+For an element `zz` of type `data::list<X>`
+
+If `X` is a reference, `first (zz) -> X`, otherwise `first (z) -> X &`.
+
 #### `rest`
+
+Return the rest of the list after the first element.
+
+`rest (z) -> data::list<X>`
 
 #### `prepend`
 
+Return the list with a new element prepended.
+
+`prepend (z, a) -> data::list<X>`
+
 #### `>>`
 
-Return the stack with a new element prepended.
+Return the list with a new element prepended.
 
-`z >> a -> data::stack<X>`
+`z >> a -> data::list<X>`
 
 #### `append`
 
+Return the list with a new element appended.
+
+`append (z, a) -> data::list<X>`
+
 #### `<<`
 
-Return the stack with a new element prepended.
+Return the list with a new element appended.
 
-`z << a -> data::stack<X>`
+`z << a -> data::list<X>`
+
+#### `stack<X>::begin` and `stack<X>::end`
+
+`for (const X &x : z)` or `for (X &x : zz)` will iterate over the stack. 
 
 #### `take`
 
@@ -433,71 +581,17 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `class data::set`
 
-## Mathematics
+### `data/map.hpp`
 
-A headers-only library for mathematical structures.
+#### `class data::map`
 
-* `data/math/infinite.hpp`
-* `data/math/nonzero.hpp`
-* `data/math/figurate.hpp`
-* `data/math/permutation.hpp`
-* `data/sign.hpp`
-* `data/abs.hpp`
-* `data/divide.hpp`
-* `data/arithmetic.hpp`
-* `data/math/modular.hpp`
-* `data/math/polynomial.hpp`
+### `data/dispatch.hpp`
 
-### `data/math/infinite.hpp`
+#### `class data::dispatch`
 
-#### `struct data::math::signed_limit`
-
-#### `struct data::math::unsigned_limit`
-
-#### `struct data::math::numeric_limits`
-
-#### `bool data::math::is_infinite`
-
-### `data/math/nonzero.hpp`
-
-#### `struct data::math::nonzero`
-
-#### `struct data::math::nonnegative`
-
-### `data/math/figurate.hpp`
-
-#### `template <typename N> constexpr nonzero<N> factorial (const N &n)`
-
-#### `template <typename N> constexpr N binomial (const N &n, const N &k)`
-
-#### `template <typename N> constexpr N inline multichoose (const N &n, const N &r)`
-
-#### `template <typename N> constexpr N inline polytopic_number (const N &r, const N &n)`
-
-#### `template <typename N> constexpr N inline triangular_number (const N &n)`
-
-#### `template <typename N> constexpr N inline tetrahedral_number (const N &n)`
-
-#### `template <typename N> constexpr N inline pentatope_number (const N &n)`
+### `data/cycle.hpp`
 
 ### `data/math/permutation.hpp`
-
-### `data/integral.hpp`
-
-### `data/math/modular.hpp`
-
-### `data/math/algebra/finite_field.hpp`
-
-## Arrays
-
-* `data/slice.hpp`
-* `data/stream.hpp`
-* `data/cross.hpp`
-* `data/array.hpp`
-* `data/bytes.hpp`
-* `data/math/combinatorics.hpp`
-* `data/math/linear.hpp`
-* `data/math/exterior.hpp`
 
 ### `data/cross.hpp`
 
@@ -505,27 +599,32 @@ A headers-only library for mathematical structures.
 
 ### `data/array.hpp`
 
-### `data/bytes.hpp`
+### `data/math/linear.hpp`
 
-#### `typename data::bytes`
+### `data/math/exterior.hpp`
 
 ## Strings
 
+* `data/slice.hpp`
+* `data/stream.hpp`
 * `data/string.hpp`
 * `data/encoding/hex.hpp`
 * `data/encoding/base64.hpp`
 * `data/encoding/endian.hpp`
 * `data/encoding/integer.hpp`
+* `data/bytes.hpp`
 * `data/integral.hpp`
-* `data/math/number/bytes.hpp`
-* `data/math/number/bounded.hpp`
 
 ### `data/string.hpp`
 
 #### `typename data::string`
 
+### `data/bytes.hpp`
+
+#### `typename data::bytes`
+
 Just like `std::string` except that when you print it, `"` are included as delimiters. 
-<!--
+
 ### `data/integral.hpp`
 
 Numbers that work just like built-in types but with more sizes. 
@@ -570,6 +669,7 @@ Numbers that work just like built-in types but with more sizes.
 #### `typename data::uint64_little`
 
 #### `typename data::int64_little`
+
 #### `typename data::uint128`
 
 #### `typename data::int128`
@@ -594,10 +694,21 @@ Numbers that work just like built-in types but with more sizes.
 
 #### `typename data::int160_little`
 
--->
+#### `typename data::uint256`
+
+#### `typename data::int256`
+
+#### `typename data::uint256_big`
+
+#### `typename data::int256_big`
+
+#### `typename data::uint256_little`
+
+#### `typename data::int256_little`
+
 ## Hash
 
-A library providing a number of cryptographic hash functions. 
+A library providing hash functions, including cryptographic hash functions.
 
 ### data/hash.hpp
 

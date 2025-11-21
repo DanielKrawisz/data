@@ -7,7 +7,6 @@
 
 #include <data/math/nonzero.hpp>
 #include <data/abs.hpp>
-#include <data/arithmetic.hpp>
 #include <iostream> // required on windows
 
 namespace data {

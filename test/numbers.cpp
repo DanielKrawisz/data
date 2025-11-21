@@ -247,12 +247,12 @@ namespace data {
     template <typename NN> concept basic_arithmetic_big_unsigned =
         basic_arithmetic_unsigned<NN> &&
         ring_algebraic_unsigned_big<NN> &&
-        BigNumberComparable<NN>;
+        NumberComparable<NN>;
 
     template <typename NN> concept basic_arithmetic_big_signed =
         basic_arithmetic_signed<NN> &&
         ring_algebraic_signed_big<NN> &&
-        BigNumberComparable<NN>;
+        NumberComparable<NN>;
 
     template <typename NN> concept basic_arithmetic_big =
         basic_arithmetic_big_signed<NN> &&
@@ -315,25 +315,6 @@ namespace data {
     static_assert (basic_number_big<hex_int>);
     static_assert (basic_number_big<hex_int_BC>);
 
-    // numbers resembling built-in types will have homo_abs_and_negate
-    template <typename N> concept homo_abs_and_negate =
-        requires (const N &n) {
-            { abs (n) } -> Same<N>;
-            { negate (n) } -> Same<N>;
-            { -n } -> Same<N>;
-        };
-
-    // number systems will use hetero.
-    template <typename N, typename Z> concept hetero_abs_and_negate =
-        requires (const N &n, const Z &z) {
-            { abs (n) } -> Same<N>;
-            { abs (z) } -> Same<N>;
-            { negate (n) } -> Same<Z>;
-            { negate (z) } -> Same<Z>;
-            { -n } -> Same<Z>;
-            { -z } -> Same<Z>;
-        };
-
     // a number does not necessarily have mod operations because
     // it may require an unsigned version of that number.
     template <typename ZZ, typename NN = ZZ> concept modable =
@@ -376,11 +357,6 @@ namespace data {
     template <typename NN> concept natural_number_big =
         natural_number<NN> && basic_number_big_unsigned<NN>;
 
-    static_assert (ring_number_signed<Z>);
-
-    static_assert (ring_number_system<Z, N>);
-    static_assert (ring_number_system<dec_int, dec_uint>);
-
     static_assert (natural_number_big<N>);
     static_assert (natural_number_big<N_bytes_little>);
     static_assert (natural_number_big<N_bytes_big>);
@@ -402,7 +378,7 @@ namespace data {
     // a number resembling a built-in number.
     template <typename NN> concept integral_number =
         complement_twos_number<NN> &&
-        homo_abs_and_negate<NN> && homo_modable<NN> &&
+        math::homo_abs_and_negate<NN> && homo_modable<NN> &&
         bit_negate_arithmetic<NN>;
 
     // for number types that resemble built in types, we enforce
@@ -410,7 +386,7 @@ namespace data {
     // versions together, you get the unsigned version.
     // TODO need to say how divide works.
     template <typename NN, typename ZZ> concept integral_number_system =
-        integral_system<ZZ, NN> &&
+        IntegralSystem<ZZ, NN> &&
         integral_number<NN> && integral_number<ZZ> &&
         comparable_to<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
         bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> &&
@@ -447,7 +423,7 @@ namespace data {
     template <typename N, typename Z> concept pure_number_system =
         natural_number<N> && basic_number<Z> &&
         Unsigned<N> && Signed<Z> &&
-        hetero_abs_and_negate<N, Z> && modable<Z, N> &&
+        math::hetero_abs_and_negate<N, Z> && modable<Z, N> &&
         ring_algebraic_signed_to<N, Z> &&
         requires (const Z &a, const math::nonzero<N> &b) {
             { divmod (a, b) } -> Same<division<Z, N>>;
@@ -480,7 +456,7 @@ namespace data {
     // TODO this ought to go in Bitcoin_numbers.cpp
     template <typename ZZ> concept bitcoin_arithmetic =
         unaccompanied_integer<ZZ> && basic_number_big<ZZ> && Signed<ZZ> &&
-        bool_arithmetic<ZZ> && homo_abs_and_negate<ZZ> &&
+        bool_arithmetic<ZZ> && math::homo_abs_and_negate<ZZ> &&
         requires (const ZZ &a) {
             { is_positive_zero (a) } -> ImplicitlyConvertible<bool>;
             { is_negative_zero (a) } -> ImplicitlyConvertible<bool>;
@@ -504,10 +480,9 @@ namespace data {
     // number types suitable for number theory functions.
     // essentially, the number needs to be able to go negative in some way.
     template <typename N> concept number_theory_number =
-        ring_number<N> &&
-        (homo_abs_and_negate<N> || Signed<N> || (Unsigned<N> && requires () {
-            make_signed<N> {};
-        }));
+        MultiplicativeNumber<N> && requires (const N &x) {
+            { negate (x) };
+        };
 
     static_assert (number_theory_number<N>);
     static_assert (number_theory_number<Z>);

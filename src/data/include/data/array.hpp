@@ -8,7 +8,7 @@
 #include <data/slice.hpp>
 #include <data/valid.hpp>
 #include <data/stream.hpp>
-#include <data/integral.hpp>
+#include <data/arithmetic.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/arithmetic/words.hpp>

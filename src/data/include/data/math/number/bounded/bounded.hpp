@@ -5,11 +5,6 @@
 #ifndef DATA_MATH_NUMBER_BOUNDED_BOUNDED
 #define DATA_MATH_NUMBER_BOUNDED_BOUNDED
 
-#include <data/concepts.hpp>
-#include <data/math/group.hpp>
-#include <data/complex.hpp>
-#include <data/sign.hpp>
-#include <data/divmod.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/io/unimplemented.hpp>
 
@@ -1516,16 +1511,14 @@ namespace data {
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         bounded<false, r, size, word>::operator N_bytes<r, word> () const {
-            N_bytes<r, word> n {};
-            n.resize (size);
+            auto n = N_bytes<r, word>::zero (size);
             std::copy (this->begin (), this->end (), n.begin ());
             return n;
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         bounded<true, r, size, word>::operator Z_bytes<r, neg::twos, word> () const {
-            Z_bytes<r, neg::twos, word> z {};
-            z.resize (size);
+            auto z = Z_bytes<r, neg::twos, word>::zero (size);
             std::copy (this->begin (), this->end (), z.begin ());
             return z;
         }

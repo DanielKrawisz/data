@@ -6,13 +6,13 @@
 #define DATA_MATH_NUMBER_DIVISION
 
 #include <data/increment.hpp>
-#include <data/integral.hpp>
+#include <data/arithmetic.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
 
     // Generic division algorithm.
-    template <ring_number N>
+    template <MultiplicativeNumber N>
     constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
@@ -67,7 +67,7 @@ namespace data::math::number {
         return result;
     }
 
-    template <ring_number Z, ring_number N>
+    template <MultiplicativeNumber Z, MultiplicativeNumber N>
     constexpr division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
         division<N> d {natural_divmod<N> (abs (Dividend), Divisor)};
 
@@ -88,7 +88,7 @@ namespace data::math::number {
         PYTHON_2_FLOOR_DIV
     };
 
-    template <modulo_negative_divisor_convention m, ring_number Z>
+    template <modulo_negative_divisor_convention m, MultiplicativeNumber Z>
     constexpr division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
         using N = decltype (abs (std::declval<Z> ()));
 

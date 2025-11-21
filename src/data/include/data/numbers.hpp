@@ -8,25 +8,13 @@
 // defines float32 and float64
 #include <data/float.hpp>
 
-#include <data/math/power.hpp>
-#include <data/math/number/extended_euclidian.hpp>
 
-// numbers of either endian of any size up to 64 bits
-// using boost. 
-#include <data/encoding/endian.hpp>
-
-#include <data/encoding/integer.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/gmp/gmp.hpp>
-#include <data/math/number/bounded.hpp>
-#include <data/math/number/bytes.hpp>
+#include <data/integral.hpp>
 
 #include <data/encoding/base58.hpp>
 #include <data/math/number/gmp/aks.hpp>
-
-// we have to include this so that everybody
-// has a definition of quadrance.
-#include <data/complex.hpp>
 
 #include <algorithm>
 
@@ -50,113 +38,6 @@ namespace data {
     
     using Z_bytes_BC_big = math::number::Z_bytes<endian::big, neg::BC, byte>;
     
-    // fixed size numbers of any size, similar to the 
-    // built-in types. 
-    template <size_t size, std::unsigned_integral word = byte>
-    using int_little = math::sint<endian::little, size, word>;
-    
-    template <size_t size, std::unsigned_integral word = byte>
-    using int_big = math::sint<endian::big, size, word>;
-    
-    template <size_t size, std::unsigned_integral word = byte>
-    using uint_little = math::uint<endian::little, size, word>;
-    
-    template <size_t size, std::unsigned_integral word = byte>
-    using uint_big = math::uint<endian::big, size, word>;
-
-    using  uint80 = math::uint<endian::little, 5, uint16>;
-    using   int80 = math::sint<endian::little, 5, uint16>;
-
-    using uint128 = math::uint<endian::little, 2, uint64>;
-    using  int128 = math::sint<endian::little, 2, uint64>;
-
-    using uint160 = math::uint<endian::little, 5, uint32>;
-    using  int160 = math::sint<endian::little, 5, uint32>;
-
-    using uint192 = math::uint<endian::little, 3, uint64>;
-    using  int192 = math::sint<endian::little, 3, uint64>;
-
-    using uint224 = math::uint<endian::little, 7, uint32>;
-    using  int224 = math::sint<endian::little, 7, uint32>;
-
-    using uint256 = math::uint<endian::little, 4, uint64>;
-    using  int256 = math::sint<endian::little, 4, uint64>;
-
-    using uint288 = math::uint<endian::little, 9, uint32>;
-    using  int288 = math::sint<endian::little, 9, uint32>;
-
-    using uint320 = math::uint<endian::little, 5, uint64>;
-    using  int320 = math::sint<endian::little, 5, uint64>;
-
-    using uint352 = math::uint<endian::little, 11, uint32>;
-    using  int352 = math::sint<endian::little, 11, uint32>;
-
-    using uint384 = math::uint<endian::little, 6, uint64>;
-    using  int384 = math::sint<endian::little, 6, uint64>;
-
-    using uint416 = math::uint<endian::little, 13, uint32>;
-    using  int416 = math::sint<endian::little, 13, uint32>;
-
-    using uint448 = math::uint<endian::little, 7, uint64>;
-    using  int448 = math::sint<endian::little, 7, uint64>;
-
-    using uint480 = math::uint<endian::little, 15, uint32>;
-    using  int480 = math::sint<endian::little, 15, uint32>;
-
-    using uint512 = math::uint<endian::little, 8, uint64>;
-    using  int512 = math::sint<endian::little, 8, uint64>;
-
-    using uint544 = math::uint<endian::little, 17, uint32>;
-    using  int544 = math::sint<endian::little, 17, uint32>;
-
-    using  uint80_little = uint_little<10>;
-    using uint128_little = uint_little<16>;
-    using uint160_little = uint_little<20>;
-    using uint192_little = uint_little<24>;
-    using uint224_little = uint_little<28>;
-    using uint256_little = uint_little<32>;
-    using uint320_little = uint_little<40>;
-    using uint384_little = uint_little<48>;
-    using uint448_little = uint_little<56>;
-    using uint512_little = uint_little<64>;
-    using uint544_little = uint_little<68>;
-
-    using   int80_little = int_little<10>;
-    using  int128_little = int_little<16>;
-    using  int160_little = int_little<20>;
-    using  int192_little = int_little<24>;
-    using  int224_little = int_little<28>;
-    using  int256_little = int_little<32>;
-    using  int320_little = int_little<40>;
-    using  int384_little = int_little<48>;
-    using  int448_little = int_little<56>;
-    using  int512_little = int_little<64>;
-    using  int544_little = int_little<68>;
-
-    using  uint80_big = uint_big<10>;
-    using uint128_big = uint_big<16>;
-    using uint160_big = uint_big<20>;
-    using uint192_big = uint_big<24>;
-    using uint224_big = uint_big<28>;
-    using uint256_big = uint_big<32>;
-    using uint320_big = uint_big<40>;
-    using uint384_big = uint_big<48>;
-    using uint448_big = uint_big<56>;
-    using uint512_big = uint_big<64>;
-    using uint544_big = uint_big<68>;
-
-    using   int80_big = int_big<10>;
-    using  int128_big = int_big<16>;
-    using  int160_big = int_big<20>;
-    using  int192_big = int_big<24>;
-    using  int224_big = int_big<28>;
-    using  int256_big = int_big<32>;
-    using  int320_big = int_big<40>;
-    using  int384_big = int_big<48>;
-    using  int448_big = int_big<56>;
-    using  int512_big = int_big<64>;
-    using  int544_big = int_big<68>;
-    
     // string numbers. 
     using dec_uint = encoding::decimal::string;
     using dec_int = encoding::signed_decimal::string;
@@ -173,13 +54,13 @@ namespace data {
 
     static_assert (Integer<long int>);
 
-    static_assert (unsigned_integral<N>);
+    static_assert (Natural<N>);
     static_assert (number_system<Z, N>);
 
     static_assert (Integer<Z>);
 
-    static_assert (unsigned_integral<N_bytes_little>);
-    static_assert (unsigned_integral<N_bytes_big>);
+    static_assert (Natural<N_bytes_little>);
+    static_assert (Natural<N_bytes_big>);
 
     static_assert (number_system<Z_bytes_little, N_bytes_little>);
     static_assert (number_system<Z_bytes_big, N_bytes_big>);
@@ -189,18 +70,16 @@ namespace data {
     static_assert (number_system<Z_bytes_BC_little>);
     static_assert (number_system<Z_bytes_BC_big>);
 
-    static_assert (integral_system<int128, uint128>);
-
-    static_assert (unsigned_integral<dec_uint>);
+    static_assert (Natural<dec_uint>);
     static_assert (number_system<dec_int, dec_uint>);
 
-    static_assert (unsigned_integral<hex_uint>);
+    static_assert (Natural<hex_uint>);
     static_assert (number_system<hex_int, hex_uint>);
 
     static_assert (Integer<hex_int_BC>);
     static_assert (number_system<hex_int_BC>);
 
-    static_assert (unsigned_integral<base58_uint>);
+    static_assert (Natural<base58_uint>);
 
 }
 

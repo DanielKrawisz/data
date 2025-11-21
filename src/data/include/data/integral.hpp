@@ -5,227 +5,176 @@
 #ifndef DATA_MATH_INTEGRAL
 #define DATA_MATH_INTEGRAL
 
-#include <data/arithmetic.hpp>
-#include <data/divmod.hpp>
+// numbers of either endian of any size up to 64 bits using boost.
+#include <data/encoding/endian.hpp>
+
+#include <data/encoding/integer.hpp>
+
+// bounded size numbers of any size (bigger than 64 bit)
+#include <data/math/number/bounded.hpp>
+#include <data/math/number/bytes.hpp>
+
 #include <data/io/exception.hpp>
 
 namespace data {
 
-    // We use two different concepts for numbers, one more
-    // alligend with c++ standards and the other more closely
-    // aligned with pure mathematics.
-
-    // For numbers resembling c++ built-in numbers, we use the
-    // word integral. These kinds of numbers satisfy
-    //   * mixing signed and unsigned versions result in unsigned.
-    //   * abs and negate return the same type as they were given.
-
-    // For numbers more closely resembling pure mathematics we
-    // use the word number.
-    //   * mixing signed and unsigned results in signed.
-    //   * abs on a signed number results in an unsigned number.
-    //   * negate on an unsigned number results in a signed number.
-
-    // NOTE: this page is in an incomplete state of flux. We had
-    // an original design that didn't quite work and are in the
-    // midst of resolving it.
-
-    // group_integral has + and - operations.
-    // We have this concept because it is possible to define
-    // multiplication in terms of addition.
-
-    // now we have two types that go together as signed and unsigned versions of each other.
-
-    // ring number has * operations.
-    template <typename X> concept ring_number =
-        group_number<X> && ring_algebraic_to<X, X> &&
-        requires (const X &n) {
-            { mul_2 (n) } -> ImplicitlyConvertible<X>;
-        };
-
-    template <typename A> concept ring_number_signed =
-        ring_number<A> && proto_signed<A> && ring_algebraic_signed<A>;
-
-    template <typename A> concept ring_number_unsigned =
-        ring_number<A> && proto_unsigned<A> && ring_algebraic_unsigned<A>;
-
-    template <typename A> concept ring_number_signed_big =
-        ring_number_signed<A> && ring_algebraic_signed_big<A>;
-
-    template <typename A> concept ring_number_unsigned_big =
-        ring_number_unsigned<A> && ring_algebraic_unsigned_big<A>;
-
-    template <typename Z, typename N = Z> concept ring_integral_system =
-        group_integral_system<Z, N> &&
-        ring_algebraic_signed<Z> && ring_algebraic_unsigned<N> &&
-        ring_algebraic_to<N, Z>;
-
-    template <typename Z, typename N = Z> concept ring_number_system =
-        group_number_system<Z, N> &&
-        ring_algebraic_signed<Z> && ring_algebraic_unsigned<N> &&
-        ring_algebraic_to<Z, N>;
-
-    template <typename Z> concept Integer =
-        ring_number_signed<Z> &&
-        requires (const Z &a, const Z &b) {
-            { a / b } -> ImplicitlyConvertible<Z>;
-        } && requires (Z &a, const Z &b) {
-            { a /= b } -> Same<Z &>;
-        };
-
-    template <typename X> concept integral =
-        bit_algebraic<X> && ring_number<X> &&
+    template <typename X> concept Integral =
+        WholeNumber<X> && bit_algebraic<X> &&
+        math::homo_abs_and_negate<X> &&
         requires (const X &a, const X &b) {
-            { a / b } -> ImplicitlyConvertible<X>;
-        } && requires (X &a, const X &b) {
-            { a /= b } -> Same<X &>;
-        } && requires (const X &a) {
-            { a / 1 } -> ImplicitlyConvertible<X>;
-            { a % 1 };
-        } && requires (X &a) {
-            { a /= 1 } -> Same<X &>;
+            { a % b} -> ImplicitlyConvertible<X>;
+            { divmod (a, math::nonzero<X> {b}) } -> Same<division<X, X>>;
+        } && requires {
+            { math::numeric_limits<X>::max () } -> ImplicitlyConvertible<X>;
+            { math::numeric_limits<X>::min () } -> ImplicitlyConvertible<X>;
         };
 
-    template <typename A> concept signed_integral =
-        integral<A> && ring_number_signed<A> && proto_bit_signed<A> &&
-        requires (const A &a, const A &b) {
-            { divmod (a, math::nonzero<A> {b}) } -> Same<division<A, to_unsigned<A>>>;
-        };
+    template <typename A> concept SignedIntegral =
+        Integral<A> && div_number_signed<A> && proto_bit_signed<A>;
 
-    template <typename A> concept unsigned_integral =
-        integral<A> && ring_number_unsigned<A> && proto_bit_unsigned<A> &&
-        requires (const A &a, const A &b) {
-            { a % b} -> ImplicitlyConvertible<A>;
-            { divmod (a, math::nonzero<A> {b}) } -> Same<division<A, A>>;
-        } && requires (A &a) {
-            { a %= 1 } -> Same<A &>;
-        };
+    template <typename A> concept UnsignedIntegral =
+        Integral<A> && div_number_unsigned<A> && proto_bit_unsigned<A>;
 
-    // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept number_system =
-        ring_number_system<Z, N> &&
-        ring_algebraic_signed<Z> &&
-        ring_algebraic_unsigned<N> &&
-        requires (const Z &n) {
-            { abs (n) } -> ImplicitlyConvertible<N>;
-        } && requires (const N &n) {
-            { negate (n) } -> ImplicitlyConvertible<Z>;
-        } && requires (const Z &a, const N &b) {
-            { a % b } -> ImplicitlyConvertible<N>;
-            { a / b } -> ImplicitlyConvertible<Z>;
-            { b / a } -> ImplicitlyConvertible<Z>;
-            { divmod (a, math::nonzero<N> {b}) } -> Same<division<Z, N>>;
-        };
-
-    template <typename Z, typename N = Z> concept integral_system =
-        ring_integral_system<Z, N> && bit_algebraic_to<N, Z> &&
-        integral<Z> && ring_algebraic_signed<Z> && bit_algebraic_signed<Z> &&
-        integral<N> && ring_algebraic_unsigned<N> && bit_algebraic_unsigned<N> &&
-        ImplicitlyConvertible<Z, N> &&
+    template <typename Z, typename N = Z> concept IntegralSystem =
+        MultiplicativeIntegralSystem<Z, N> && bit_algebraic_to<N, Z> &&
+        SignedIntegral<Z> && ring_algebraic_signed<Z> && bit_algebraic_signed<Z> &&
+        UnsignedIntegral<N> && ring_algebraic_unsigned<N> && bit_algebraic_unsigned<N> &&
         requires (const Z &n) {
             { abs (n) } -> ImplicitlyConvertible<Z>;
         } && requires (const N &n) {
             { negate (n) } -> ImplicitlyConvertible<N>;
         };
 
-}
+    // fixed size numbers of any size, similar to the
+    // built-in types.
+    template <size_t size, std::unsigned_integral word = byte>
+    using int_little = math::sint<endian::little, size, word>;
 
-namespace data::math {
+    template <size_t size, std::unsigned_integral word = byte>
+    using int_big = math::sint<endian::big, size, word>;
 
-    // we now define shifts in terms of mul_2 and div_2
-    template <group_number A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
-        A x = a;
-        while (u-- > 0) x = mul_2 (x);
-        return x;
-    }
+    template <size_t size, std::unsigned_integral word = byte>
+    using uint_little = math::uint<endian::little, size, word>;
 
-    template <group_number_unsigned A> constexpr A arithmetic_shift_left (const A &a, uint32 u) {
-        A x = a;
-        while (u-- > 0) x = data::div_2 (x);
-        return x;
-    }
+    template <size_t size, std::unsigned_integral word = byte>
+    using uint_big = math::uint<endian::big, size, word>;
 
-    // we now implement plus and minus in terms of bit operations.
-    // this only works for complement one or two.
-    template <proto_bit_number A> constexpr A bit_plus (const A &a, const A &b) {
-        A x = a;
-        A c = b;
-        while (c != 0) {
-            x ^= c;
-            c &= x <<= 1;
-        }
-        return x;
-    }
+    using  uint80 = math::uint<endian::little, 5, uint16>;
+    using   int80 = math::sint<endian::little, 5, uint16>;
 
-    template <proto_bit_number A> constexpr A bit_minus (const A &a, const A &b) {
-        A x = a;
-        A c = b;
-        while (c != 0) {
-            x ^= c;
-            c &= ~x <<= 1;
-        }
-        return x;
-    }
+    using uint128 = math::uint<endian::little, 2, uint64>;
+    using  int128 = math::sint<endian::little, 2, uint64>;
 
-    // for the rest of these, we need to know if A is signed or unsigned.
-    template <group_number_unsigned A> constexpr A arithmetic_bit_and (const A &x, const A &y) {
-        if (x == 0) return 0;
-        if (y == 0) return 0;
-        A rx = arithmetic_shift_right (x);
-        A ry = arithmetic_shift_right (y);
-        A digit = (x - arithmetic_shift_left (rx)) > 0 && (y - arithmetic_shift_left (ry)) > 0 ? 1 : 0;
-        return arithmetic_shift_left (arithmatic_bit_and (rx, ry)) + digit;
-    }
+    using uint160 = math::uint<endian::little, 5, uint32>;
+    using  int160 = math::sint<endian::little, 5, uint32>;
 
-    template <group_number_unsigned A> constexpr A arithmetic_bit_or (const A &x, const A &y) {
-        if (x == 0) return 0;
-        if (y == 0) return 0;
-        A rx = arithmetic_shift_right (x);
-        A ry = arithmetic_shift_right (y);
-        A digit = (x - arithmetic_shift_left (rx)) > 0 || (y - arithmetic_shift_left (ry)) > 0 ? 1 : 0;
-        return arithmetic_shift_left (arithmatic_bit_or (rx, ry)) + digit;
-    }
+    using uint192 = math::uint<endian::little, 3, uint64>;
+    using  int192 = math::sint<endian::little, 3, uint64>;
 
-    template <group_number_unsigned A> constexpr A arithmetic_bit_xor (const A &x, const A &y);
-}
+    using uint224 = math::uint<endian::little, 7, uint32>;
+    using  int224 = math::sint<endian::little, 7, uint32>;
 
-namespace data::math::def {
+    using uint256 = math::uint<endian::little, 4, uint64>;
+    using  int256 = math::sint<endian::little, 4, uint64>;
 
-    template <proto_bit_number A> struct bit_shift_right<A> {
-        constexpr auto operator () (const A &x, uint32 i) const {
-            return x >> i;
-        }
-    };
+    using uint288 = math::uint<endian::little, 9, uint32>;
+    using  int288 = math::sint<endian::little, 9, uint32>;
 
-    template <proto_bit_number A> struct bit_shift_left<A> {
-        constexpr auto operator () (const A &x, uint32 i) const {
-            return x << i;
-        }
-    };
+    using uint320 = math::uint<endian::little, 5, uint64>;
+    using  int320 = math::sint<endian::little, 5, uint64>;
 
-    template <proto_bit_number X> struct mul_2_pow<X> {
-        constexpr X operator () (const X &x, uint32 pow) {
-            return bit_mul_2_pow (x, pow);
-        }
-    };
+    using uint352 = math::uint<endian::little, 11, uint32>;
+    using  int352 = math::sint<endian::little, 11, uint32>;
 
-    template <group_number A, group_number B> struct minus<A, B> {
-        constexpr auto operator () (const A &x, const B &y) const {
-            return x - y;
-        }
-    };
+    using uint384 = math::uint<endian::little, 6, uint64>;
+    using  int384 = math::sint<endian::little, 6, uint64>;
 
-    template <ring_number A, ring_number B> struct divide<A, B> {
-        constexpr auto operator () (const A &a, const nonzero<B> &b) const {
-            return divmod<A, B> {} (a, b).Quotient;
-        }
-    };
+    using uint416 = math::uint<endian::little, 13, uint32>;
+    using  int416 = math::sint<endian::little, 13, uint32>;
 
-    template <ring_number A, ring_number B> struct mod<A, B> {
-        constexpr auto operator () (const A &a, const nonzero<B> &b) const {
-            return divmod<A, B> {} (a, b).Remainder;
-        }
-    };
+    using uint448 = math::uint<endian::little, 7, uint64>;
+    using  int448 = math::sint<endian::little, 7, uint64>;
+
+    using uint480 = math::uint<endian::little, 15, uint32>;
+    using  int480 = math::sint<endian::little, 15, uint32>;
+
+    using uint512 = math::uint<endian::little, 8, uint64>;
+    using  int512 = math::sint<endian::little, 8, uint64>;
+
+    using uint544 = math::uint<endian::little, 17, uint32>;
+    using  int544 = math::sint<endian::little, 17, uint32>;
+
+    using  uint80_little = uint_little<10>;
+    using uint128_little = uint_little<16>;
+    using uint160_little = uint_little<20>;
+    using uint192_little = uint_little<24>;
+    using uint224_little = uint_little<28>;
+    using uint256_little = uint_little<32>;
+    using uint320_little = uint_little<40>;
+    using uint384_little = uint_little<48>;
+    using uint448_little = uint_little<56>;
+    using uint512_little = uint_little<64>;
+    using uint544_little = uint_little<68>;
+
+    using   int80_little = int_little<10>;
+    using  int128_little = int_little<16>;
+    using  int160_little = int_little<20>;
+    using  int192_little = int_little<24>;
+    using  int224_little = int_little<28>;
+    using  int256_little = int_little<32>;
+    using  int320_little = int_little<40>;
+    using  int384_little = int_little<48>;
+    using  int448_little = int_little<56>;
+    using  int512_little = int_little<64>;
+    using  int544_little = int_little<68>;
+
+    using  uint80_big = uint_big<10>;
+    using uint128_big = uint_big<16>;
+    using uint160_big = uint_big<20>;
+    using uint192_big = uint_big<24>;
+    using uint224_big = uint_big<28>;
+    using uint256_big = uint_big<32>;
+    using uint320_big = uint_big<40>;
+    using uint384_big = uint_big<48>;
+    using uint448_big = uint_big<56>;
+    using uint512_big = uint_big<64>;
+    using uint544_big = uint_big<68>;
+
+    using   int80_big = int_big<10>;
+    using  int128_big = int_big<16>;
+    using  int160_big = int_big<20>;
+    using  int192_big = int_big<24>;
+    using  int224_big = int_big<28>;
+    using  int256_big = int_big<32>;
+    using  int320_big = int_big<40>;
+    using  int384_big = int_big<48>;
+    using  int448_big = int_big<56>;
+    using  int512_big = int_big<64>;
+    using  int544_big = int_big<68>;
+
+    static_assert (IntegralSystem<int64, uint64>);
+    static_assert (IntegralSystem<int64, uint64>);
+/*
+    static_assert (IntegralSystem<int32_little, uint32_little>);
+    static_assert (IntegralSystem<int64_little, uint64_little>);
+
+    static_assert (IntegralSystem<int32_big, uint32_big>);
+    static_assert (IntegralSystem<int64_big, uint64_big>);*/
+
+    static_assert (IntegralSystem<int128, uint128>);
+    static_assert (IntegralSystem<int160, uint160>);
+    static_assert (IntegralSystem<int256, uint256>);
+    static_assert (IntegralSystem<int512, uint512>);
+
+    static_assert (IntegralSystem<int128_big, uint128_big>);
+    static_assert (IntegralSystem<int160_big, uint160_big>);
+    static_assert (IntegralSystem<int256_big, uint256_big>);
+    static_assert (IntegralSystem<int512_big, uint512_big>);
+
+    static_assert (IntegralSystem<int128_little, uint128_little>);
+    static_assert (IntegralSystem<int160_little, uint160_little>);
+    static_assert (IntegralSystem<int256_little, uint256_little>);
+    static_assert (IntegralSystem<int512_little, uint512_little>);
 }
 
 #endif

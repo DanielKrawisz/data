@@ -11,58 +11,65 @@
 #include <data/math/number/extended_euclidian.hpp>
 
 namespace data::math::number {
-    // TODO modular must satisfy group_integral
-    template <auto mod, ring_number X = decltype (mod)> struct modular;
-    
-    template <auto mod, ring_number X = decltype (mod)>
-    constexpr std::weak_ordering operator <=> (const modular<mod, X> &, const modular<mod, X> &);
-    
-    template <auto mod, ring_number X = decltype (mod)>
-    constexpr bool operator == (const modular<mod, X> &, const modular<mod, X> &);
+    template <typename X> concept mod_base = RingNumber<X>;
 
-    template <auto mod, ring_number X = decltype (mod)>
+    // TODO modular must satisfy group_integral
+    template <auto mod, mod_base X = decltype (mod)> struct modular;
+    
+    template <auto mod, mod_base X = decltype (mod)>
+    constexpr auto operator <=> (const modular<mod, X> &, const modular<mod, X> &);
+    
+    template <auto mod, mod_base X = decltype (mod)>
+    constexpr bool operator == (const modular<mod, X> &, const modular<mod, X> &);
+/*
+    template <auto mod, std::integral I> constexpr bool operator == (const modular<mod> &, I);
+    template <std::integral I, auto mod> constexpr bool operator == (I, const modular<mod> &);
+    template <auto mod, std::integral I> constexpr auto operator <=> (const modular<mod> &, I);
+    template <std::integral I, auto mod> constexpr auto operator <=> (I, const modular<mod> &);
+*/
+    template <auto mod, mod_base X = decltype (mod)>
     modular<mod, X> &operator ++ (modular<mod, X> &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     modular<mod, X> &operator -- (modular<mod, X> &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     modular<mod, X> operator ++ (modular<mod, X> &, int);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     modular<mod, X> operator -- (modular<mod, X> &, int);
     
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator + (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator - (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator - (const modular<mod, X> &);
     
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator * (const modular<mod, X> &, const modular<mod, X> &);
     
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator ^ (const modular<mod, X> &, const modular<mod, X> &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr maybe<modular<mod, X>> invert (const modular<mod, X> &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator + (const modular<mod, X> &, const X &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator - (const modular<mod, X> &, const X &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator * (const modular<mod, X> &, const X &);
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     constexpr modular<mod, X> operator ^ (const modular<mod, X> &, const X &);
     
-    template <auto mod, ring_number X> struct modular {
+    template <auto mod, mod_base X> struct modular {
         X Value;
 
         template <typename... P>
@@ -86,11 +93,11 @@ namespace data::math::number {
         
     };
 
-    template <auto mod, ring_number X> struct increment<modular<mod, X>> {
+    template <auto mod, mod_base X> struct increment<modular<mod, X>> {
         constexpr modular<mod, X> operator () (const modular<mod, X> &);
     };
 
-    template <auto mod, ring_number X> struct decrement<modular<mod, X>> {
+    template <auto mod, mod_base X> struct decrement<modular<mod, X>> {
         constexpr modular<mod, X> operator () (const modular<mod, X> &);
     };
     
@@ -134,65 +141,81 @@ namespace data::math::def {
 
 namespace data::math::number {
 
-    template <auto mod, ring_number X = decltype (mod)>
+    template <auto mod, mod_base X = decltype (mod)>
     inline std::ostream &operator << (std::ostream &o, const data::math::number::modular<mod, X> &m) {
         return o << m.Value;
     }
     
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr bool inline operator == (const modular<mod, X> &a, const modular<mod, X> &b) {
         return a.Value == b.Value;
     }
 
-    template <auto mod, ring_number X>
-    constexpr std::weak_ordering inline operator <=> (const modular<mod, X> &a, const modular<mod, X> &b) {
+    template <auto mod, mod_base X>
+    constexpr auto inline operator <=> (const modular<mod, X> &a, const modular<mod, X> &b) {
         return a.Value <=> b.Value;
     }
+/*
+    template <auto mod, std::integral I> constexpr bool operator == (const modular<mod> &a, I b) {
+        return a.Value == b % mod;
+    }
+
+    template <std::integral I, auto mod> constexpr bool operator == (I a, const modular<mod> &b) {
+        return a % mod == b.Value;
+    }
+
+    template <auto mod, std::integral I> constexpr auto operator <=> (const modular<mod> &a, I b) {
+        return a.Value <=> b % mod;
+    }
+
+    template <std::integral I, auto mod> constexpr auto operator <=> (I a, const modular<mod> &b) {
+        return a % mod == b.Value;
+    }*/
     
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator + (const modular<mod, X> &a, const modular<mod, X> &b) {
         return data::plus_mod (a.Value, b.Value, nonzero {mod});
     }
     
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator * (const modular<mod, X> &a, const modular<mod, X> &b) {
         return data::times_mod (a.Value, b.Value, nonzero {mod});
     }
     
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator - (const modular<mod, X> &a, const modular<mod, X> &b) {
         if (a.Value < b.Value) return mod - (b.Value - a.Value);
         return data::minus_mod (a.Value, b.Value, nonzero {mod});
     }
     
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator - (const modular<mod, X> &a) {
         return data::negate_mod (a.Value, nonzero {mod});
     }
     
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator ^ (const modular<mod, X> &a, const X &b) {
         return data::pow_mod (a.Value, b, nonzero {mod});
     }
 
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr maybe<modular<mod, X>> invert (const modular<mod, X> &x) {
         auto proof = euclidian::extended<X, modular<mod, X>>::algorithm (mod, x.Value);
         if (proof.GCD != 1) return {};
         return proof.BezoutT;
     }
 
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline increment<modular<mod, X>>::operator () (const modular<mod, X> &x) {
         return x + modular<mod, X> {1};
     }
 
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline decrement<modular<mod, X>>::operator () (const modular<mod, X> &x) {
         return x - modular<mod, X> {1};
     }
 
-    template <auto mod, ring_number X>
+    template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator * (const modular<mod, X> &a, const X &b) {
         return a * modular<mod, X> {b};
     }

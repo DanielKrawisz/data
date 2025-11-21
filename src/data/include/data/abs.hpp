@@ -109,6 +109,25 @@ namespace data::math {
     concept has_make_unsigned = requires () {
         typename make_unsigned<A>::type;
     };
+
+    // numbers resembling built-in types will have homo_abs_and_negate
+    template <typename N> concept homo_abs_and_negate =
+    requires (const N &n) {
+        { abs (n) } -> Same<N>;
+        { negate (n) } -> Same<N>;
+        { -n } -> Same<N>;
+    };
+
+    // mathematical number systems will use hetero.
+    template <typename N, typename Z> concept hetero_abs_and_negate =
+    requires (const N &n, const Z &z) {
+        { abs (n) } -> Same<N>;
+        { abs (z) } -> Same<N>;
+        { negate (n) } -> Same<Z>;
+        { negate (z) } -> Same<Z>;
+        { -n } -> Same<Z>;
+        { -z } -> Same<Z>;
+    };
 }
 
 namespace data {
