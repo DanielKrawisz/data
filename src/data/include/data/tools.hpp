@@ -21,15 +21,12 @@
 #include <data/set.hpp>
 #include <data/priority_queue.hpp>
 
-#include <data/tools/cycle.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/tools/priority_queue.hpp>
 
 #include <data/fold.hpp>
 
 namespace data {
-    
-    template <typename X> using cycle = tool::cycle<list<X>, X>;
 
     template <typename X> using replacements = list<pair<X>>;
 

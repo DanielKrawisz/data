@@ -6,6 +6,7 @@
 #define DATA_MATH_PERMUTATION
 
 #include <list>
+#include <data/cycle.hpp>
 #include <data/for_each.hpp>
 #include <data/math/group.hpp>
 

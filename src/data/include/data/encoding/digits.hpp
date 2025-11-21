@@ -10,7 +10,7 @@
 
 namespace data::encoding {
     
-    template <integral N>
+    template <MultiplicativeNumber N>
     std::string write_base (const N &n, std::string digits) {
         N base {digits.size ()};
         if (base < 2) return "";
@@ -35,7 +35,7 @@ namespace data::encoding {
         return o;
     }
     
-    template <ring_number N, typename f>
+    template <MultiplicativeNumber N, typename f>
     constexpr N read_base (string_view s, uint32 base, f inverse_digits) {
 
         N n {0};

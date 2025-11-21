@@ -14,7 +14,10 @@ namespace data {
     
     // The cartesian product. 
     // it is the same as a vector with some slight improvements. 
-    template <typename X> struct cross : std::vector<X> {
+    // TODO: intead of using a vector, we need something
+    // that will lazily initilize the pointer so that
+    // the empty cross can be used in a constexpr expression.
+    template <std::default_initializable X> struct cross : std::vector<wrapped<X>> {
         constexpr cross ();
         explicit cross (size_t size);
         explicit cross (size_t size, X fill);
@@ -64,7 +67,7 @@ namespace data {
     template <typename X>
     std::ostream &operator << (std::ostream &o, const cross<X> &s);
 
-    template <typename X>
+    template <std::default_initializable X>
     X &cross<X>::operator [] (int i) {
         size_t size = this->size ();
         if (size == 0) throw std::out_of_range {"cross size 0"};
@@ -72,13 +75,13 @@ namespace data {
         return std::vector<X>::operator [] (i);
     }
 
-    template <typename X>
+    template <std::default_initializable X>
     bool cross<X>::valid () const {
         for (const X &x : *this) if (!data::valid (x)) return false;
         return true;
     }
 
-    template <typename X>
+    template <std::default_initializable X>
     const X &cross<X>::operator [] (int i) const {
         size_t size = this->size ();
         if (size == 0) throw std::out_of_range {"cross size 0"};
@@ -86,7 +89,7 @@ namespace data {
         return std::vector<X>::operator [] (i);
     }
     
-    template <typename X>
+    template <std::default_initializable X>
     std::ostream &operator << (std::ostream &o, const cross<X> &s) {
         auto b = s.begin ();
         o << "[";
@@ -98,21 +101,21 @@ namespace data {
         }
     }
     
-    template <typename X>
+    template <std::default_initializable X>
     constexpr inline cross<X>::cross () : std::vector<X> {} {}
     
-    template <typename X>
+    template <std::default_initializable X>
     inline cross<X>::cross (size_t size) : std::vector<X> (size) {}
     
-    template <typename X>
+    template <std::default_initializable X>
     inline cross<X>::cross (size_t size, X fill) : std::vector<X> (size) {
         for (auto it = std::vector<X>::begin (); it < std::vector<X>::end (); it++) *it = fill;
     }
     
-    template <typename X>
+    template <std::default_initializable X>
     inline cross<X>::cross (std::initializer_list<X> x) : std::vector<X> {x} {}
     
-    template <typename X>
+    template <std::default_initializable X>
     template<Sequence list>
     cross<X>::cross (list l) : cross {} {
         std::vector<X>::resize (data::size (l));
@@ -124,17 +127,17 @@ namespace data {
         }
     }
     
-    template <typename X>
+    template <std::default_initializable X>
     inline cross<X>::operator slice<X> () {
         return slice<X> (static_cast<std::vector<X> &> (*this));
     }
     
-    template <typename X>
+    template <std::default_initializable X>
     inline slice<X> cross<X>::range (int e) {
         return operator slice<X> ().range (e);
     }
     
-    template <typename X>
+    template <std::default_initializable X>
     inline slice<X> cross<X>::range (int b, int e) {
         return operator slice<X> ().range (e);
     }

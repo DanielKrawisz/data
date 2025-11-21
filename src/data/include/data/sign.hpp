@@ -5,8 +5,8 @@
 #ifndef DATA_MATH_SIGN
 #define DATA_MATH_SIGN
 
-#include <data/concepts.hpp>
 #include <data/types.hpp>
+#include <data/ordered.hpp>
 
 namespace data::math {
 
@@ -27,6 +27,39 @@ namespace data {
     template <typename X> constexpr bool is_positive (const X &x);
 
     template <typename X> constexpr bool is_negative (const X &x);
+
+    template <typename N, typename M> concept comparable_to =
+        requires (const N &n, const M &m) {
+            { n == m } -> Same<bool>;
+            { n != m } -> Same<bool>;
+            { n > m } -> Same<bool>;
+            { n < m } -> Same<bool>;
+            { n >= m } -> Same<bool>;
+            { n <= m } -> Same<bool>;
+            { m == n } -> Same<bool>;
+            { m != n } -> Same<bool>;
+            { m > n } -> Same<bool>;
+            { m < n } -> Same<bool>;
+            { m > n } -> Same<bool>;
+            { m <= n } -> Same<bool>;
+            { m >= n } -> Same<bool>;
+        };
+
+    template <typename X> concept NumberComparableSigned =
+        Ordered<X> && requires (const X &x) {
+            { sign (x) };
+            { is_zero (x) };
+            { is_positive (x) };
+            { is_negative (x) };
+        } && comparable_to<X, int> &&
+        comparable_to<X, long> &&
+        comparable_to<X, long long>;
+
+    template <typename X> concept NumberComparable =
+        NumberComparableSigned<X> &&
+        comparable_to<X, unsigned int> &&
+        comparable_to<X, unsigned long> &&
+        comparable_to<X, unsigned long long>;
 
 }
 

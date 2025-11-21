@@ -60,8 +60,7 @@ namespace data {
 
         void read (byte *b, size_t x) final override {
             Left->read (b, x);
-            bytes c;
-            c.resize (x);
+            bytes c (x);
             Right->read (c.data (), x);
             arithmetic::bit_xor<byte> (c.data () + x, c.data (), c.data (), b);
         }

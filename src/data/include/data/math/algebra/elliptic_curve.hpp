@@ -14,7 +14,7 @@
 namespace data::math {
 
     template <typename curve> concept EllipticCurve =
-        field<typename curve::coordinate> && ring_number<typename curve::scalar> &&
+        field<typename curve::coordinate> && RingNumber<typename curve::scalar> &&
         requires (const curve &q) {
             { q.discriminant () } -> Same<typename curve::coordinate>;
         } && requires (typename space::vector<typename curve::coordinate, 2> &x) {
@@ -99,7 +99,7 @@ namespace data::math {
     // Not every elliptic curve can be expressed in Weierstrauss form,
     // but those that can't are very much exceptions.
     // NOTE: this particular type is only good for prime field curves ATM.
-    template <ring_number N, field field> struct Weierstrauss {
+    template <RingNumber N, field field> struct Weierstrauss {
 
         using coordinate = field;
         using scalar = N;
@@ -217,13 +217,13 @@ namespace data::math {
         };*/
     };
 
-    template <ring_number N, field field>
+    template <RingNumber N, field field>
     constexpr bool inline Weierstrauss<N, field>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
-    template <ring_number N, field field>
+    template <RingNumber N, field field>
     constexpr field inline Weierstrauss<N, field>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }

@@ -5,7 +5,6 @@
 #ifndef DATA_NORM
 #define DATA_NORM
 
-#include <data/arithmetic.hpp>
 #include <data/abs.hpp>
 
 namespace data {

@@ -39,7 +39,7 @@ namespace data::encoding::base64 {
         
         const static uint32_t mask = 0x000000FF;
         
-        bytes b {};
+        std::vector<byte> b {};
 
         b.reserve (((source.length () / 4) * 3) - base64::padding (source));
 
@@ -80,7 +80,7 @@ namespace data::encoding::base64 {
             b.push_back ((value >> 0) & mask);
         }
 
-        return b;
+        return bytes {std::move (b)};
     }
     
     string write (byte_slice sourceBytes) {

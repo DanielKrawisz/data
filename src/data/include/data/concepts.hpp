@@ -15,15 +15,25 @@ namespace data {
     // Sometimes I like to different types to pass on conversions from a sub-type and if I do
     // that I want to know which are explicit and which are implicit.
 
-    namespace {
-        template <typename A, typename... B>
-        concept same_as_all = (std::same_as<A, B> && ...);
-    }
+    template <typename ...types> struct is_same;
+    template <> struct is_same<> : std::true_type {};
+    template <typename type> struct is_same<type> : std::true_type {};
+    template <typename type> struct is_same<type, type> : std::true_type {};
+    template <typename A, typename B> struct is_same<A, B> : std::false_type {};
+    template <typename A, typename B, typename ...types> struct is_same<A, B, types...> :
+        std::bool_constant<is_same<A, B>::value && is_same<B, types...>::value> {};
+
+    template <typename ...types> struct is_unsame;
+    template <> struct is_unsame<> : std::false_type {};
+    template <typename type> struct is_unsame<type> : std::false_type {};
+    template <typename type> struct is_unsame<type, type> : std::false_type {};
+    template <typename A, typename B> struct is_unsame<A, B> : std::true_type {};
+    template <typename A, typename B, typename ...types> struct is_unsame<A, B, types...> :
+        std::bool_constant<is_unsame<A, B>::value && is_unsame<A, types...>::value && is_unsame<B, types...>::value> {};
 
     // check if any number of types are the same.
-    template <typename... T>
-    concept Same = sizeof...(T) == 0 || sizeof...(T) == 1 ||
-        same_as_all<std::tuple_element_t<0, std::tuple<T...>>, T...>;
+    template <typename... T> concept Same = is_same<T...>::value;
+    template <typename... T> concept Unsame = is_unsame<T...>::value;
 
     // types containing static members that say whether one type is constructible.
     template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
