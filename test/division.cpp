@@ -74,7 +74,7 @@ namespace data {
             << "expected " << numerator << " % " << denominator << " -> " << remainder << " but got " << div.Remainder;
     }
 
-    template <ring_number N>
+    template <MultiplicativeNumber N>
     struct test_division_natural {
         test_division_natural () {
 
@@ -89,7 +89,7 @@ namespace data {
         }
     };
 
-    template <ring_number Z, ring_number N = Z>
+    template <MultiplicativeNumber Z, MultiplicativeNumber N = Z>
     struct test_division_integer_natural {
         test_division_integer_natural () {
 
@@ -107,7 +107,7 @@ namespace data {
         }
     };
 
-    template <ring_number Z, ring_number N = Z>
+    template <MultiplicativeNumber Z, MultiplicativeNumber N = Z>
     struct test_division_integer {
         test_division_integer () {
 
@@ -129,7 +129,7 @@ namespace data {
         }
     };
 
-    template <ring_number Z>
+    template <MultiplicativeNumber Z>
     struct test_division_signed {
         test_division_signed () {
 
@@ -147,17 +147,17 @@ namespace data {
         }
     };
 
-    template <ring_number N>
+    template <MultiplicativeNumber N>
     struct UnsignedDivision : ::testing::Test {
         using unsigned_int = N;
     };
 
-    template <ring_number Z>
+    template <MultiplicativeNumber Z>
     struct IntegerDivision : ::testing::Test {
         using integer = Z;
     };
 
-    template <ring_number Z>
+    template <MultiplicativeNumber Z>
     struct SignedDivision : ::testing::Test {
         using signed_int = Z;
     };

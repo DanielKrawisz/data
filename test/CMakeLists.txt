@@ -74,7 +74,7 @@ add_executable (
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
     abs.cpp                      # TODO: should be a typed test.
     roots.cpp                    # TODO: should be a typed test.
-    modular.cpp                  # TODO: cases are commented out.
+    modular.cpp                  # TODO: A condition is commented out.
     limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
     finite_field.cpp             # TODO: make typed test.

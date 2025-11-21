@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_CRYPTO_SEC
 #define DATA_MATH_CRYPTO_SEC
 
-#include <data/numbers.hpp>
+#include <data/integral.hpp>
 #include <data/math/algebra/finite_field.hpp>
 #include <data/crypto/elliptic_curve.hpp>
 

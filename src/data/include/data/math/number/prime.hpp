@@ -5,33 +5,35 @@
 #ifndef DATA_MATH_NUMBER_PRIME
 #define DATA_MATH_NUMBER_PRIME
 
-#include <data/integral.hpp>
+#include <data/arithmetic.hpp>
 #include <data/random.hpp>
 #include <iostream> // required by windows.
 
 namespace data::math::number {
-    template <integral N> struct prime;
+    // TODO: this constraint is too narrow
+    // because it requires bit operations.
+    template <WholeNumber N> struct prime;
 
-    template <typename N> struct eratosthenes;
-    template <typename N> struct primes;
-    template <typename N> struct AKS;
+    template <WholeNumber N> struct eratosthenes;
+    template <WholeNumber N> struct primes;
+    template <WholeNumber N> struct AKS;
 
-    template <typename N> struct factorization;
-    template <typename N> factorization<N> factorize (nonzero<N>, eratosthenes<N> &);
+    template <WholeNumber N> struct factorization;
+    template <WholeNumber N> factorization<N> factorize (nonzero<N>, eratosthenes<N> &);
 
-    template <typename N> factorization<N> operator * (const prime<N> &, const prime<N> &);
-    template <typename N> factorization<N> operator * (factorization<N>, factorization<N>);
+    template <WholeNumber N> factorization<N> operator * (const prime<N> &, const prime<N> &);
+    template <WholeNumber N> factorization<N> operator * (factorization<N>, factorization<N>);
 
     // test primality with Miller-Rabin + trial division. (This will rely on cryptopp or GMP)
-    template <typename N> prime<N> is_prime (entropy &, const N &, int rounds);
+    template <WholeNumber N> prime<N> is_prime (entropy &, const N &, int rounds);
 
     // Slower than Miller-Rabin but with 100% chance of success.
-    template <typename N> prime<N> generate_Maurer (entropy &);
+    template <WholeNumber N> prime<N> generate_Maurer (entropy &);
 
     // A number that is known to be prime.
     // So far eratosthenes is the only way
     // to construct this type.
-    template <integral N>
+    template <WholeNumber N>
     struct prime : nonzero<N> {
         enum likelihood {
             certain,
@@ -62,7 +64,7 @@ namespace data::math::number {
         friend prime<N> generate_Maurer<N> (entropy &);
     };
 
-    template <typename N>
+    template <WholeNumber N>
     std::ostream inline &operator << (std::ostream &o, const prime<N> &p) {
         return o << "prime {" << p.Prime << "}";
     }

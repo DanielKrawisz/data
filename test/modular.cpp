@@ -33,7 +33,9 @@ namespace data {
     }
 
     template <typename N, math::ring M>
-    requires requires { pow<M, int>; }
+    // TODO uncomment this later and make it work.
+    requires //RingNumber<M> &&
+    requires { pow<M, int>; }
     void test_suite () {
 
         EXPECT_EQ (M (N {0}), M {0});
@@ -63,7 +65,10 @@ namespace data {
 
     template <auto N> using modular = math::number::modular<N>;
 
-    template <typename N> struct test_modular {
+    template <RingNumber N>
+    requires requires {
+        typename math::numeric_limits<N>;
+    } struct test_modular {
         test_modular () {
 
             // test that basic arithmetic functions are all constexpr

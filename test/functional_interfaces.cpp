@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/tools.hpp>
+#include <data/cycle.hpp>
 #include <data/string.hpp>
 #include "gtest/gtest.h"
 

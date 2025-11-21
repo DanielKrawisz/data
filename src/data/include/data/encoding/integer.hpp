@@ -12,6 +12,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <data/arithmetic/negativity.hpp>
+// TODO need to get rid of this.
 #include <data/math/number/gmp/mpz.hpp>
 
 #include <data/string.hpp>
@@ -263,6 +264,7 @@ namespace data::encoding {
         template <std::integral I> string operator ^ (I, const string &);
         
         string operator / (const string &, const string &);
+        string operator % (const string &, const string &);
         
         string operator + (const string &n, const decimal::string &x);
         string operator - (const string &n, const decimal::string &x);
