@@ -5,6 +5,7 @@
 #include <data/tools.hpp>
 #include <data/cycle.hpp>
 #include <data/string.hpp>
+#include <data/replace.hpp>
 #include "gtest/gtest.h"
 
 static_assert (std::convertible_to<int &, const int &>);

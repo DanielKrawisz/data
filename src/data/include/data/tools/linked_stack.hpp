@@ -76,12 +76,18 @@ namespace data {
         
         elem &operator [] (size_t n);
         const elem &operator [] (size_t n) const;
+
+        using iterator = sequence_iterator<linked_stack<elem>>;
+        using sentinel = data::sentinel<linked_stack<elem>>;
         
-        using iterator = sequence_iterator<const linked_stack<elem>>;
-        using sentinel = data::sentinel<const linked_stack<elem>>;
+        using const_iterator = sequence_iterator<const linked_stack<elem>>;
+        using const_sentinel = data::sentinel<const linked_stack<elem>>;
+
+        iterator begin ();
+        sentinel end ();
         
-        iterator begin () const;
-        sentinel end () const;
+        const_iterator begin () const;
+        const_sentinel end () const;
         
         template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
         bool operator == (const X &x) const;
@@ -251,14 +257,24 @@ namespace data {
     elem inline &linked_stack<elem>::operator [] (size_t n) {
         return drop (*this, n).first ();
     }
-    
+
     template <Element elem>
-    linked_stack<elem>::iterator inline linked_stack<elem>::begin () const {
+    linked_stack<elem>::const_iterator inline linked_stack<elem>::begin () const {
+        return const_iterator {*this};
+    }
+
+    template <Element elem>
+    linked_stack<elem>::const_sentinel inline linked_stack<elem>::end () const {
+        return const_sentinel {*this};
+    }
+
+    template <Element elem>
+    linked_stack<elem>::iterator inline linked_stack<elem>::begin () {
         return iterator {*this};
     }
-    
+
     template <Element elem>
-    linked_stack<elem>::sentinel inline linked_stack<elem>::end () const {
+    linked_stack<elem>::sentinel inline linked_stack<elem>::end () {
         return sentinel {*this};
     }
     

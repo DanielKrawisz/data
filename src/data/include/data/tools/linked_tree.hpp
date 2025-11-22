@@ -21,6 +21,7 @@ namespace data {
         bool empty () const;
         
         const value &root () const;
+        value &root ();
 
         linked_tree left () const;
         linked_tree right () const;
@@ -88,6 +89,11 @@ namespace data {
     
     template <Element value>
     const value inline &linked_tree<value>::root () const {
+        return Node->Value;
+    }
+
+    template <Element value>
+    value inline &linked_tree<value>::root () {
         return Node->Value;
     }
     

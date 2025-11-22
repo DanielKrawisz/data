@@ -159,8 +159,8 @@ namespace data::RB {
             return u;
         }
 
-        struct iterator : binary_search_tree<colored<V>, T>::iterator {
-            using parent = binary_search_tree<colored<V>, T>::iterator;
+        struct iterator : binary_search_tree<colored<V>, T>::const_iterator {
+            using parent = binary_search_tree<colored<V>, T>::const_iterator;
             
             // all constructors of the parent class are available to the 
             // base class. We cannot use the standard method because we 
