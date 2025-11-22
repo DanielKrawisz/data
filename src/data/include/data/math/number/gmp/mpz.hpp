@@ -369,6 +369,9 @@ namespace data::math::number::GMP {
         const mp_limb_t *end () const;
 
         explicit operator int64 () const;
+        explicit operator int32 () const;
+        explicit operator uint64 () const;
+        explicit operator uint32 () const;
         explicit operator double () const;
 
         template <endian::order r, neg c, std::unsigned_integral word>
@@ -394,6 +397,7 @@ namespace data::math::number::GMP {
     };
 
     // implementation of naturals given an implementation of integers.
+    // TODO N can extend Z.
     struct N {
         Z Value;
 
@@ -424,8 +428,21 @@ namespace data::math::number::GMP {
             return double (Value);
         }
 
-        explicit operator uint64 () const;
-        explicit operator int32 () const;
+        explicit operator uint64 () const {
+            return uint64 (Value);
+        }
+
+        explicit operator uint32 () const {
+            return uint32 (Value);
+        }
+
+        explicit operator int64 () const {
+            return int64 (Value);
+        }
+
+        explicit operator int32 () const {
+            return int32 (Value);
+        }
 
         template <endian::order r, std::unsigned_integral word>
         explicit N (const N_bytes<r, word> &n) : Value {n} {}

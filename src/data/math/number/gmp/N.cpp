@@ -225,24 +225,30 @@ namespace data::math::number::GMP {
     }*/
         
     Z::operator int64 () const {
-        if (*this > std::numeric_limits<int64>::max ()) throw exception {"too big"};
-        if (*this < std::numeric_limits<int64>::min ()) throw exception {"too big"};
+        if (*this > std::numeric_limits<int64>::max ()) throw exception {"too low"};
+        if (*this < std::numeric_limits<int64>::min ()) throw exception {"too high"};
         return mpz_get_si (MPZ);
     } 
 
+    Z::operator int32 () const {
+        if (*this > std::numeric_limits<int32>::max ()) throw exception {"too low"};
+        if (*this < std::numeric_limits<int32>::min ()) throw exception {"too high"};
+        return mpz_get_si (MPZ);
+    }
+
+    Z::operator uint64 () const {
+        if (*this > std::numeric_limits<uint64>::max ()) throw exception {"too low"};
+        if (*this < std::numeric_limits<uint64>::min ()) throw exception {"too high"};
+        return mpz_get_ui (MPZ);
+    }
+
+    Z::operator uint32 () const {
+        if (*this > std::numeric_limits<uint32>::max ()) throw exception {"too low"};
+        if (*this < std::numeric_limits<uint32>::min ()) throw exception {"too high"};
+        return mpz_get_ui (MPZ);
+    }
+
     N::N (string_view x) : Value {GMP::N_read (x)} {}
-
-    N::operator uint64 () const {
-        if (__gmp_binary_greater::eval (Value.MPZ, static_cast<long unsigned int> (std::numeric_limits<uint64>::max ())))
-            throw exception {"too big"};
-        return mpz_get_ui (Value.MPZ);
-    }
-
-    N::operator int32 () const {
-        if (__gmp_binary_greater::eval (Value.MPZ, static_cast<long int> (std::numeric_limits<int32>::max ())))
-            throw exception {"too big"};
-        return mpz_get_si (Value.MPZ);
-    }
 
     std::ostream &operator << (std::ostream &o, const N &n) {
         if (o.flags () & std::ios::hex) {
