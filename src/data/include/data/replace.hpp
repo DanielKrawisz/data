@@ -1,0 +1,87 @@
+// Copyright (c) 2019-2025 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_REPLACE
+#define DATA_REPLACE
+
+// Implementations of data structures.
+#include <data/list.hpp>
+#include <data/tree.hpp>
+#include <data/map.hpp>
+#include <data/cycle.hpp>
+#include <data/cross.hpp>
+#include <data/array.hpp>
+
+namespace data {
+
+    // we can't use a map because we don't know if X is ordered.
+    template <typename X> using replacements = const list<pair<X>>;
+
+    template <typename X> stack<X> replace (const stack<X>, replacements<X>);
+    template <typename X> list<X> replace (const list<X>, replacements<X>);
+    template <typename X> tree<X> replace (const tree<X>, replacements<X>);
+    template <typename X> cycle<X> replace (const cycle<X>, replacements<X>);
+    template <typename K, typename V> map<K, V> replace (const map<K, V>, replacements<V>);
+    template <typename X> cross<X> replace (const cross<X> &, replacements<X>);
+    template <typename X, size_t ...sizes> array<X, sizes...> replace (const array<X, sizes...> &, replacements<X>);
+
+    template <typename X> cross<X> replace (const cross<X> &x, replacements<X> r) {
+        cross<X> result (x.size ());
+        for (size_t i = 0; i < x.size (); i++) {
+            bool replaced = false;
+            for (const pair<X> &rr : r) if (rr.first == x[i]) {
+                result[i] = rr.second;
+                replaced = true;
+                break;
+            }
+            if (!replaced) result[i] = x[i];
+        }
+        return result;
+    }
+
+    template <typename X, size_t ...sizes> array<X, sizes...> replace (const array<X, sizes...> &x, replacements<X> r) {
+        array<X, sizes...> result;
+        for (size_t i = 0; i < array<X, sizes...>::Size; i++) {
+            bool replaced = false;
+            for (const pair<X> &rr : r) if (rr.first == x.Values[i]) {
+                result.Values[i] = rr.second;
+                replaced = true;
+                break;
+            }
+            if (!replaced) result.Values[i] = x.Values[i];
+        }
+        return result;
+    }
+
+    template <typename X> tree<X> replace (const tree<X> x, replacements<X> r) {
+        if (empty (x)) return x;
+        for (const pair<X> &rr : r) if (root (x) == rr.first)
+            return tree<X> {rr.second, replace (left (x), r), replace (right (x), r)};
+        return tree<X> {root (x), replace (left (x), r), replace (right (x), r)};
+    }
+/*
+    template <typename X> stack<X> replace (const stack<X> x, replacements<X> r) {
+        stack<X> result = x;
+        for (auto &z : result) for (const pair<X> &rr : r) if (z == rr.first) z = rr.second;
+        return result;
+    }
+
+    template <typename X> list<X> replace (const list<X> x, replacements<X> r) {
+        list<X> result = x;
+        for (auto &z : result) for (const pair<X> &rr : r) if (z == rr.first) z = rr.second;
+        return result;
+    }
+
+    template <typename X> cycle<X> replace (const cycle<X> x, replacements<X> r) {
+        return cycle<X> {replace (x.Cycle, r)};
+    }
+
+    template <typename K, typename V> map<K, V> replace (const map<K, V> x, replacements<V> r) {
+        map<K, V> result = x;
+        for (auto &[key, value] : result) for (const pair<V> &rr : r) if (value == rr.first) value = rr.second;
+        return result;
+    }*/
+}
+
+#endif

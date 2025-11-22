@@ -27,13 +27,6 @@
 #include <data/fold.hpp>
 
 namespace data {
-
-    template <typename X> using replacements = list<pair<X>>;
-
-    template <typename X> stack<X> replace (stack<X>, replacements<X>);
-    template <typename X> list<X> replace (list<X>, replacements<X>);
-    template <typename X> tree<X> replace (tree<X>, replacements<X>);
-    template <typename K, typename V> map<K, V> replace (map<K, V>, replacements<V>);
     
     // Take a function fun and some lists {x, ...}, {y, ...}, {z, ...} ... and return {f (x, y, z, ...), ...}
     template <typename f, Sequence... Vals, typename f_result = decltype (std::declval<f> () (first (std::declval<Vals> ())...))>

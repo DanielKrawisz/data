@@ -147,7 +147,7 @@ namespace data::functional {
     template <Stack out, functional::tree in> 
     out values_infix (const in &t) {
         out o {};
-        functional::for_each_infix (t, [&o] (const decltype (std::declval<in> ().root ()) &x) -> void {
+        functional::for_each_infix (t, [&o] (const auto &x) -> void {
             o = prepend (o, x);
         });
         return reverse (o);
@@ -156,7 +156,7 @@ namespace data::functional {
     template <Stack out, functional::tree in> 
     out values_prefix (const in &t) {
         out o {};
-        functional::for_each_prefix (t, [&o] (const decltype (std::declval<in> ().root ()) &x) -> void {
+        functional::for_each_prefix (t, [&o] (const auto &x) -> void {
             o = prepend (o, x);
         });
         return reverse (o);
@@ -180,8 +180,8 @@ namespace data::functional {
 
         using iterator_category = std::forward_iterator_tag;
         using value_type        = unref<X>;
-        using reference         = const X &;
-        using pointer           = const value_type *;
+        using reference         = X &;
+        using pointer           = value_type *;
         using difference_type   = int;
 
         const T *Tree;

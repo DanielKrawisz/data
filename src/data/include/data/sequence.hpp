@@ -165,8 +165,8 @@ namespace data {
         sequence_iterator operator ++ (int);
         sequence_iterator &operator ++ ();
         
-        const reference operator * () const;
-        const pointer operator -> () const;
+        reference operator * () const;
+        pointer operator -> () const;
         
         bool operator == (const sequence_iterator i) const;
         
@@ -200,12 +200,12 @@ namespace data {
     }
     
     template <typename L>
-    const sequence_iterator<L>::reference inline sequence_iterator<L>::operator * () const {
+    sequence_iterator<L>::reference inline sequence_iterator<L>::operator * () const {
         return data::first (Next);
     }
 
     template <typename L>
-    const sequence_iterator<L>::pointer inline sequence_iterator<L>::operator -> () const {
+    sequence_iterator<L>::pointer inline sequence_iterator<L>::operator -> () const {
         return &data::first (Next);
     }
     

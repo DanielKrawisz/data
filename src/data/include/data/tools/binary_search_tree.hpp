@@ -56,11 +56,6 @@ namespace data {
 
         ordered_sequence<inserted<value>> values () const;
 
-        using iterator = functional::binary_search_iterator<value, tree>;
-
-        iterator begin () const;
-        iterator end () const;
-
         binary_search_tree insert (inserted<value> v) {
             return insert (v, &functional::keep_old<value>);
         }
@@ -72,6 +67,11 @@ namespace data {
         } binary_search_tree insert (inserted<value> v, already_exists f) const {
             return functional::insert (static_cast<const tree &> (*this), v, f);
         }
+
+        using const_iterator = functional::binary_search_iterator<const value, tree>;
+
+        const_iterator begin () const;
+        const_iterator end () const;
     };
 
     // we can use the above tree as the search tree with
@@ -260,13 +260,13 @@ namespace data {
     }
 
     template <Ordered value, functional::buildable_tree<value> tree>
-    binary_search_tree<value, tree>::iterator inline binary_search_tree<value, tree>::begin () const {
-        return iterator {this, *this};
+    binary_search_tree<value, tree>::const_iterator inline binary_search_tree<value, tree>::begin () const {
+        return const_iterator {this, *this};
     }
 
     template <Ordered value, functional::buildable_tree<value> tree>
-    binary_search_tree<value, tree>::iterator inline binary_search_tree<value, tree>::end () const {
-        return iterator {this, tree {}};
+    binary_search_tree<value, tree>::const_iterator inline binary_search_tree<value, tree>::end () const {
+        return const_iterator {this, tree {}};
     }
 
     template <Ordered value, functional::buildable_tree<value> tree, Ordered X, functional::buildable_tree<X> T>

@@ -10,6 +10,15 @@
 
 namespace data {
 
+    template <Pendable list> requires Ordered<decltype (std::declval<list> ().first ())>
+    list merge_sort (const list &x) {
+        size_t z = size (x);
+        if (z < 2) return x;
+
+        size_t half = z / 2;
+        return functional::merge (merge_sort (take (x, half)), merge_sort (drop (x, half)));
+    }
+
     template <Pendable L> requires Ordered<decltype (std::declval<L> ().first ())>
     L inline sort (const L &x) {
         return merge_sort (x);

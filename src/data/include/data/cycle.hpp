@@ -10,7 +10,7 @@
 
 namespace data {
 
-    template <typename X> using cycle = tool::cycle<list<X>, X>;
+    template <typename X> using cycle = tool::cycle<X, list<X>>;
 }
 
 #endif

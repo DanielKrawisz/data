@@ -402,12 +402,6 @@ TYPED_TEST (Stack, TestStackSelect) {
     using has_select = decltype (select (type {}, [] (const auto &&) {
         return true;
     }));
-}
-
-TYPED_TEST (Stack, TestStackReplace) {
-    using type = typename TestFixture::type;
-    using element = typename TestFixture::element;
-    using has_select = decltype (replace (type {}, replacements {}));
 }*/
 
         /*

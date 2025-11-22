@@ -29,6 +29,7 @@ add_executable (
     set.cpp                      # TODO: Need to test each function more precisely, like in list
     map.cpp                      # TODO: Need to test each function more precisely, like in list
     priority_queue.cpp           # TODO: Contains commented test cases
+    replace.cpp
     testForEach.cpp              # TODO: contains commented test cases.
     map_schema.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list

@@ -84,21 +84,6 @@ namespace data {
         
         template <typename A, typename ... M>
         static functional_queue make (const A x, M... m);
-        
-        using iterator = sequence_iterator<functional_queue>;
-        using sentinel = data::sentinel<functional_queue>;
-        
-        iterator begin () const {
-            return iterator {*this};
-        }
-        
-        sentinel end () const {
-            return sentinel {*this};
-        }
-
-        operator stack () const {
-            return join (Left, Right);
-        }
 
         template <typename X, typename Y, typename ... P>
         functional_queue append (X x, Y y, P... p) const;
@@ -124,6 +109,32 @@ namespace data {
         requires ExplicitlyConvertible<stack, Z> && ExplicitlyConvertible<element, E>
         explicit operator functional_queue<Z, E> () const {
             return functional_queue<Z, E> {Z (Left), Z (Right)};
+        }
+
+        using iterator = sequence_iterator<functional_queue>;
+        using sentinel = data::sentinel<functional_queue>;
+
+        iterator begin () {
+            return iterator {*this};
+        }
+
+        sentinel end () {
+            return sentinel {*this};
+        }
+
+        using const_iterator = sequence_iterator<const functional_queue>;
+        using const_sentinel = data::sentinel<const functional_queue>;
+
+        const_iterator begin () const {
+            return const_iterator {*this};
+        }
+
+        const_sentinel end () const {
+            return const_sentinel {*this};
+        }
+
+        operator stack () const {
+            return join (Left, Right);
         }
 
     private:
