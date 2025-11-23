@@ -19,21 +19,26 @@ namespace data {
         return functional::merge (merge_sort (take (x, half)), merge_sort (drop (x, half)));
     }
 
-    template <Pendable L> requires Ordered<decltype (std::declval<L> ().first ())>
-    L inline sort (const L &x) {
-        return merge_sort (x);
+    template <typename L>
+    L sort (const L &x) {
+        // TODO we need to uncomment that, but we have a problem because if a
+        // type does not have a ::first method then there is a compilation error.
+        if constexpr (Pendable<L>/* && Ordered<decltype (std::declval<L> ().first ())>*/) {
+            return merge_sort (x);
+        } else if constexpr (Iterable<L>) {
+            auto z = x;
+            std::sort (z.begin (), z.end ());
+            return z;
+        }
     }
 
-    template <Iterable X>
-    X sort (const X &x) {
-        auto z = x;
-        std::sort (z.begin (), z.end ());
-        return z;
-    }
-
-    template <Iterable X>
-    bool inline sorted (const X &x) {
-        return std::is_sorted (x.begin (), x.end ());
+    template <typename L>
+    bool sorted (const L &x) {
+        if constexpr (Sequence<L>/* && Ordered<decltype (std::declval<L> ().first ())>*/) {
+            return data::size (x) < 2 ? true : first (x) <= first (rest (x)) && sorted (rest (x));
+        } else if constexpr (Iterable<L>) {
+            return std::is_sorted (x.begin (), x.end ());
+        }
     }
 
 }
