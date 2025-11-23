@@ -6,6 +6,7 @@
 #define DATA_TOOLS_CYCLE
 
 #include <data/functional/list.hpp>
+#include <data/reverse.hpp>
     
 namespace data::tool {
 

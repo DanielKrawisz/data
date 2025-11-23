@@ -124,11 +124,6 @@ namespace data {
     list drop (const list &x, uint32 n) {
         return data::empty (x) || n == 0 ? x : drop (rest (x), n - 1);
     }
-    
-    template <Sequence L> requires Ordered<decltype (first (std::declval<const L> ()))>
-    bool sorted (const L &x) {
-        return size (x) < 2 ? true : first (x) <= first (rest (x)) && sorted (rest (x));
-    }
 
     template <Sequence X, Sequence Y> 
     requires std::equality_comparable_with<decltype (first (std::declval<const X> ())), decltype (first (std::declval<const Y> ()))>
@@ -140,9 +135,13 @@ namespace data {
                         data::rest (a) == data::rest (b);
     }
     
-    // iterator types for a sequence     
-    template <typename L>
-    struct sequence_iterator {
+    // iterator types for a sequence
+    template <typename L> struct sequence_iterator;
+
+    template <typename L> bool operator == (const sequence_iterator<L> &, const sentinel<L>);
+    template <typename L> bool operator == (const sequence_iterator<L> &, const sequence_iterator<L> &);
+
+    template <typename L> struct sequence_iterator {
 
         using iterator_category = std::forward_iterator_tag;
         using value_type        = unref<decltype (first (std::declval<const L> ()))>;
@@ -168,10 +167,7 @@ namespace data {
         reference operator * () const;
         pointer operator -> () const;
         
-        bool operator == (const sequence_iterator i) const;
-        
-        bool operator == (const sentinel<L> i) const;
-        bool operator != (const sentinel<L> i) const;
+        bool operator == (const sequence_iterator &i) const;
         
         int operator - (const sequence_iterator &i) const;
         
@@ -208,24 +204,17 @@ namespace data {
     sequence_iterator<L>::pointer inline sequence_iterator<L>::operator -> () const {
         return &data::first (Next);
     }
-    
-    template <typename L>
-    bool inline sequence_iterator<L>::operator == (const sequence_iterator i) const {
-        return Sequence == i.Sequence && Index == i.Index;
+
+    template <typename L> bool operator == (const sequence_iterator<L> &i, const sentinel<L> j) {
+        return i.Sequence == j.Structure && i.Index == data::size (*j.Structure);
+    }
+
+    template <typename L> bool operator == (const sequence_iterator<L> &i, const sequence_iterator<L> &j) {
+        return i.Sequence == j.Sequence && i.Index == j.Index;
     }
     
     template <typename L>
-    bool inline sequence_iterator<L>::operator == (const sentinel<L> i) const {
-        return Sequence == i.Structure && Index == data::size (*Sequence);
-    }
-    
-    template <typename L>
-    bool inline sequence_iterator<L>::operator != (const sentinel<L> i) const {
-        return !(*this == i);
-    }
-    
-    template <typename L>
-    int inline sequence_iterator<L>::operator - (const sequence_iterator& i) const {
+    int inline sequence_iterator<L>::operator - (const sequence_iterator &i) const {
         if (Sequence != i.Sequence) return 0;
         return static_cast<int> (Index) - i.Index;
     }

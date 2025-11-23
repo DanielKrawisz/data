@@ -11,6 +11,47 @@
 namespace data {
 
     TEST (LinkedStack, StackInterfaces) {
+
+        static_assert (Sequence<stack<int>, int>);
+        static_assert (Sequence<stack<int *>, int *>);
+        static_assert (Sequence<stack<const int *>, const int *>);
+        static_assert (Sequence<stack<int *const>, int *const>);
+        static_assert (Sequence<stack<const int *const>, const int *const>);
+        static_assert (Sequence<stack<int &>, int &>);
+        static_assert (Sequence<stack<const int &>, const int &>);
+
+        static_assert (Stack<stack<int>>);
+        static_assert (Stack<stack<int *>>);
+        static_assert (Stack<stack<const int *>>);
+        static_assert (Stack<stack<int *const>>);
+        static_assert (Stack<stack<const int *const>>);
+        static_assert (Stack<stack<int &>>);
+        static_assert (Stack<stack<const int &>>);
+
+        static_assert (Container<stack<int>, int>);
+        static_assert (Container<stack<int *>, int *>);
+        static_assert (Container<stack<const int *>, const int *>);
+        static_assert (Container<stack<int *const>, int *const>);
+        static_assert (Container<stack<const int *const>, const int *const>);
+        static_assert (Container<stack<int &>, int &>);
+        static_assert (Container<stack<const int &>, const int &>);
+
+        static_assert (ConstIterable<stack<int>>);
+        static_assert (ConstIterable<stack<int *>>);
+        static_assert (ConstIterable<stack<const int *>>);
+        static_assert (ConstIterable<stack<int *const>>);
+        static_assert (ConstIterable<stack<const int *const>>);
+        static_assert (ConstIterable<stack<int &>>);
+        static_assert (ConstIterable<stack<const int &>>);
+/*
+        static_assert (Iterable<stack<int>>);
+        static_assert (Iterable<stack<int *>>);
+        static_assert (Iterable<stack<const int *>>);
+        static_assert (Iterable<stack<int *const>>);
+        static_assert (Iterable<stack<const int *const>>);
+        static_assert (Iterable<stack<int &>>);
+        static_assert (Iterable<stack<const int &>>);*/
+
         // We had some trouble defining Sequence properly and these are some
         // tests that helped to make it work right. 
         static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
@@ -50,30 +91,6 @@ namespace data {
 
         static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<string *>> ().first ()), string *>);
         static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<const string *>> ().first ()), const string *>);
-
-        static_assert (Sequence<stack<int>, int>);
-        static_assert (Sequence<stack<int *>, int *>);
-        static_assert (Sequence<stack<const int *>, const int *>);
-        static_assert (Sequence<stack<int *const>, int *const>);
-        static_assert (Sequence<stack<const int *const>, const int *const>);
-        static_assert (Sequence<stack<int &>, int &>);
-        static_assert (Sequence<stack<const int &>, const int &>);
-
-        static_assert (Stack<stack<int>>);
-        static_assert (Stack<stack<int *>>);
-        static_assert (Stack<stack<const int *>>);
-        static_assert (Stack<stack<int *const>>);
-        static_assert (Stack<stack<const int *const>>);
-        static_assert (Stack<stack<int &>>);
-        static_assert (Stack<stack<const int &>>);
-
-        static_assert (Container<stack<int>, int>);
-        static_assert (Container<stack<int *>, int *>);
-        static_assert (Container<stack<const int *>, const int *>);
-        static_assert (Container<stack<int *const>, int *const>);
-        static_assert (Container<stack<const int *const>, const int *const>);
-        static_assert (Container<stack<int &>, int &>);
-        static_assert (Container<stack<const int &>, const int &>);
 
         static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
         static_assert (Same<decltype (std::declval<stack<int &>> ().first ()), int &>);

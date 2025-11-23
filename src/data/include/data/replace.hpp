@@ -60,7 +60,7 @@ namespace data {
             return tree<X> {rr.second, replace (left (x), r), replace (right (x), r)};
         return tree<X> {root (x), replace (left (x), r), replace (right (x), r)};
     }
-/*
+
     template <typename X> stack<X> replace (const stack<X> x, replacements<X> r) {
         stack<X> result = x;
         for (auto &z : result) for (const pair<X> &rr : r) if (z == rr.first) z = rr.second;
@@ -76,7 +76,7 @@ namespace data {
     template <typename X> cycle<X> replace (const cycle<X> x, replacements<X> r) {
         return cycle<X> {replace (x.Cycle, r)};
     }
-
+/*
     template <typename K, typename V> map<K, V> replace (const map<K, V> x, replacements<V> r) {
         map<K, V> result = x;
         for (auto &[key, value] : result) for (const pair<V> &rr : r) if (value == rr.first) value = rr.second;

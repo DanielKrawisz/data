@@ -14,11 +14,12 @@ namespace data {
     concept ConstIterable = std::ranges::input_range<X> && requires (const X x) {
         { *x.begin () };
         { x.end () };
+        { x.begin () == x.end () } -> Same<bool>;
     };
     
     template <typename X>
     concept Iterable = ConstIterable<X> && requires (X o, const X i) {
-        { *o.begin () = *i.begin ()};
+        { *o.begin () = *i.begin () };
     };
     
     // used to represent the end of a data structure. 

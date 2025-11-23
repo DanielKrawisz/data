@@ -43,8 +43,6 @@ namespace data {
     template <typename L, typename elem = first_return_type<L>>
     concept Stack = std::default_initializable<L> && Sequence<const L, elem> &&
         interface::has_prepend_method<const L, elem>;
-
-    template <Stack list> list reverse (const list &);
 }
 
 namespace data::functional { 

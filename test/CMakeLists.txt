@@ -20,7 +20,7 @@ add_executable (
     ordered_sequence.cpp         # TODO: contains commented tests
     circular_queue.cpp           # TODO: contains commented tests
     tree.cpp                     # TODO: contains commented tests
-    functional_interfaces.cpp
+    functional_interfaces.cpp    # TODO: contains commented tests
     empty.cpp                    # TODO: Contains commented test cases
     take.cpp
     reverse.cpp
