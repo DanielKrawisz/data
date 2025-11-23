@@ -83,6 +83,22 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 # ---------------------------------------------------------
+# User option: build tests
+# ---------------------------------------------------------
+option(PACKAGE_TESTS "Build the unit tests for this project" ON)
+
+if (PACKAGE_TESTS)
+    message (STATUS "Tests: enabled")
+else ()
+    message (STATUS "Tests: disabled")
+endif ()
+
+message (STATUS "To change this setting, reconfigure with:")
+message (STATUS "    cmake -DPACKAGE_TESTS=ON  ..   # build tests")
+message (STATUS "    cmake -DPACKAGE_TESTS=OFF ..   # skip building tests")
+message (STATUS "")
+
+# ---------------------------------------------------------
 # Concepts diagnostics depth (GCC/Clang only)
 # ---------------------------------------------------------
 include (CheckCXXCompilerFlag)
@@ -133,6 +149,7 @@ ENDIF ()
 
 include (FetchContent)
 cmake_policy (SET CMP0135 NEW)
+
 FetchContent_Declare (json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable (json)
 
@@ -143,10 +160,6 @@ FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regula
 FetchContent_MakeAvailable (ctre)
 
 # Check if GTests is installed. If not, install it
-
-option (PACKAGE_TESTS "Build the tests" ON)
-include (CTest)
-
 if (PACKAGE_TESTS)
   include (CTest)
   FetchContent_Declare (

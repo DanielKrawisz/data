@@ -136,6 +136,7 @@ namespace data {
     }
     
     // iterator types for a sequence
+    // TODO remove this.
     template <typename L> struct sequence_iterator;
 
     template <typename L> bool operator == (const sequence_iterator<L> &, const sentinel<L>);
@@ -144,7 +145,7 @@ namespace data {
     template <typename L> struct sequence_iterator {
 
         using iterator_category = std::forward_iterator_tag;
-        using value_type        = unref<decltype (first (std::declval<const L> ()))>;
+        using value_type        = unref<decltype (first (std::declval<L> ()))>;
         using difference_type   = int;
         using pointer           = value_type *;
         using reference         = value_type &;
@@ -166,8 +167,6 @@ namespace data {
         
         reference operator * () const;
         pointer operator -> () const;
-        
-        bool operator == (const sequence_iterator &i) const;
         
         int operator - (const sequence_iterator &i) const;
         

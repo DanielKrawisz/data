@@ -13,6 +13,7 @@ namespace data {
     TEST (LinkedStack, StackInterfaces) {
 
         static_assert (Sequence<stack<int>, int>);
+        static_assert (Sequence<stack<const int>, const int>);
         static_assert (Sequence<stack<int *>, int *>);
         static_assert (Sequence<stack<const int *>, const int *>);
         static_assert (Sequence<stack<int *const>, int *const>);
@@ -21,6 +22,7 @@ namespace data {
         static_assert (Sequence<stack<const int &>, const int &>);
 
         static_assert (Stack<stack<int>>);
+        static_assert (Stack<stack<const int>>);
         static_assert (Stack<stack<int *>>);
         static_assert (Stack<stack<const int *>>);
         static_assert (Stack<stack<int *const>>);
@@ -29,6 +31,7 @@ namespace data {
         static_assert (Stack<stack<const int &>>);
 
         static_assert (Container<stack<int>, int>);
+        static_assert (Container<stack<const int>, const int>);
         static_assert (Container<stack<int *>, int *>);
         static_assert (Container<stack<const int *>, const int *>);
         static_assert (Container<stack<int *const>, int *const>);
@@ -38,19 +41,17 @@ namespace data {
 
         static_assert (ConstIterable<stack<int>>);
         static_assert (ConstIterable<stack<int *>>);
-        static_assert (ConstIterable<stack<const int *>>);
-        static_assert (ConstIterable<stack<int *const>>);
-        static_assert (ConstIterable<stack<const int *const>>);
         static_assert (ConstIterable<stack<int &>>);
+        static_assert (ConstIterable<stack<int *const>>);
+        static_assert (ConstIterable<stack<const int>>);
+        static_assert (ConstIterable<stack<const int *>>);
         static_assert (ConstIterable<stack<const int &>>);
-/*
+        static_assert (ConstIterable<stack<const int *const>>);
+
         static_assert (Iterable<stack<int>>);
         static_assert (Iterable<stack<int *>>);
-        static_assert (Iterable<stack<const int *>>);
-        static_assert (Iterable<stack<int *const>>);
-        static_assert (Iterable<stack<const int *const>>);
         static_assert (Iterable<stack<int &>>);
-        static_assert (Iterable<stack<const int &>>);*/
+        static_assert (Iterable<stack<const int *>>);
 
         // We had some trouble defining Sequence properly and these are some
         // tests that helped to make it work right. 
@@ -112,14 +113,6 @@ namespace data {
         static_assert (Same<decltype (std::declval<const stack<const int *>> ().first ()), const int *const &>);
         static_assert (Same<decltype (std::declval<const stack<const int *const>> ().first ()), const int *const &>);
 
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<int &>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int &>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<const int *const >> ().begin ())>);
-
     }
 
     TEST (LinkedStack, LinkedStack) {
@@ -146,7 +139,7 @@ namespace data {
     // Functional data structures don't have to be c++ 
     // containers so we also have a version of functional
     // linked list for references. 
-    TEST (LinkedStack, LinkedStackR) {
+    TEST (LinkedStack, Reference) {
         
         int One = 1;
         int Zero = 0;

@@ -14,6 +14,7 @@ namespace data {
     TEST (List, Interfaces) {
 
         static_assert (Container<list<int>, int>);
+        static_assert (Container<list<const int>, const int>);
         static_assert (Container<list<int *>, int *>);
         static_assert (Container<list<const int *>, const int *>);
         static_assert (Container<list<int *const>, int *const>);
@@ -22,6 +23,7 @@ namespace data {
         static_assert (Container<list<const int &>, const int &>);
 
         static_assert (List<list<int>>);
+        static_assert (List<list<const int>>);
         static_assert (List<list<int *>>);
         static_assert (List<list<const int *>>);
         static_assert (List<list<int *const>>);
