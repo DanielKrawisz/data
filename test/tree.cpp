@@ -27,7 +27,6 @@ namespace data {
         static_assert (Container<tree<int>, int>);
         static_assert (Container<tree<int &>, int &>);
         static_assert (Container<tree<int *>, int *>);
-
         static_assert (Container<tree<const int>, const int>);
         static_assert (Container<tree<const int &>, const int &>);
         static_assert (Container<tree<const int *>, const int *>);
@@ -36,10 +35,10 @@ namespace data {
 /*
         static_assert (ConstIterable<tree<int>>);
         static_assert (ConstIterable<tree<int *>>);
+        static_assert (ConstIterable<tree<int &>>);
         static_assert (ConstIterable<tree<const int *>>);
         static_assert (ConstIterable<tree<int *const>>);
         static_assert (ConstIterable<tree<const int *const>>);
-        static_assert (ConstIterable<tree<int &>>);
         static_assert (ConstIterable<tree<const int &>>);*/
         
     }

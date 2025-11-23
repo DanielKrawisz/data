@@ -174,8 +174,12 @@ namespace data::functional {
     // an iterator for a tree that treats it as a binary search tree
     // since there are other ways that the elements of a tree could
     // be organized, we don't have any natural iterator for a tree.
+    template <Ordered X, tree<X> T> struct binary_search_iterator;
+
     template <Ordered X, tree<X> T>
-    struct binary_search_iterator {
+    bool operator == (const binary_search_iterator<X, T> &i, const binary_search_iterator<X, T> &j);
+
+    template <Ordered X, tree<X> T> struct binary_search_iterator {
         using sentinel = data::sentinel<T>;
 
         using iterator_category = std::forward_iterator_tag;
@@ -201,10 +205,6 @@ namespace data::functional {
 
         reference operator * () const;
         pointer operator -> () const;
-
-        bool operator == (const binary_search_iterator &i) const;
-
-        bool operator == (const sentinel i) const;
 
     private:
         void go_left ();
@@ -260,8 +260,8 @@ namespace data::functional {
     }
 
     template <Ordered X, tree<X> T>
-    bool inline binary_search_iterator<X, T>::operator == (const binary_search_iterator &i) const {
-        return Tree == i.Tree && Next == i.Next;
+    bool operator == (const binary_search_iterator<X, T> &i, const binary_search_iterator<X, T> &j) {
+        return j.Tree == i.Tree && j.Next == i.Next;
     }
 
     template <Ordered X, tree<X> T>

@@ -12,12 +12,13 @@ namespace data {
     TEST (Map, MapInterface) {
         
         static_assert (functional::map<map<uint32, int>>);
-        static_assert (functional::map<map<uint32, int *>>);
         static_assert (functional::map<map<uint32, int &>>);
+        static_assert (functional::map<map<uint32, int *>>);
 
         static_assert (functional::map<map<uint32, const int>>);
-        static_assert (functional::map<map<uint32, const int *>>);
         static_assert (functional::map<map<uint32, const int &>>);
+        static_assert (functional::map<map<uint32, const int *>>);
+        static_assert (functional::map<map<uint32, const int *const>>);
 
         static_assert (std::forward_iterator<map<uint32, int>::iterator>);
         static_assert (std::forward_iterator<map<uint32, int *>::iterator>);
@@ -26,6 +27,8 @@ namespace data {
         static_assert (std::forward_iterator<map<uint32, const int>::iterator>);
         static_assert (std::forward_iterator<map<uint32, const int *>::iterator>);
         static_assert (std::forward_iterator<map<uint32, const int &>::iterator>);
+
+        // TODO iterable and const iterable
         
     }
 

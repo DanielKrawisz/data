@@ -77,28 +77,50 @@ namespace data {
         elem &operator [] (size_t n);
         const elem &operator [] (size_t n) const;
 
-        using iterator = sequence_iterator<linked_stack<elem>>;
-        using sentinel = data::sentinel<linked_stack<elem>>;
-        
-        using const_iterator = sequence_iterator<const linked_stack<elem>>;
-        using const_sentinel = data::sentinel<const linked_stack<elem>>;
-
-        iterator begin ();
-        sentinel end ();
-        
-        const_iterator begin () const;
-        const_sentinel end () const;
-        
         template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
         bool operator == (const X &x) const;
 
-        // automatic conversions 
+        // automatic conversions
         template <typename X> requires ImplicitlyConvertible<elem, X>
         operator linked_stack<X> () const;
 
         // explicit conversions
         template <typename X> requires ExplicitlyConvertible<elem, X>
         explicit operator linked_stack<X> () const;
+
+        template <typename L, typename V>
+        struct it {
+
+            using value_type        = unref<V>;
+            using difference_type   = int;
+            using pointer           = value_type *;
+            using reference         = value_type &;
+            using iterator_category = std::forward_iterator_tag;
+
+            bool      operator == (const it &i) const;
+
+            reference operator *  () const;
+            pointer   operator -> () const;
+            it        &operator ++ ();    // pre-increment
+            it        operator ++ (int); // post-increment
+
+            it (): Stack {nullptr}, Next {nullptr} {}
+            it (L *st, next n): Stack {st}, Next {n} {}
+
+        private:
+            L *Stack;
+            next Next;
+        };
+
+        using iterator = it<linked_stack<elem>, elem>;
+        
+        using const_iterator = it<const linked_stack<elem>, const elem>;
+
+        iterator begin ();
+        iterator end ();
+        
+        const_iterator begin () const;
+        const_iterator end () const;
 
         template <typename F>
         void for_each (F &&f) {
@@ -129,7 +151,7 @@ namespace data {
     }
     
     // a bidirectional iterator in case you need one. 
-    // TODO this should go in sequence.hpp
+    // TODO this should go in functional/stack.hpp
     template <typename elem>
     class linked_stack_iterator : public sequence_iterator<linked_stack<elem>> {
         linked_stack<const linked_stack<elem> &> Prev;
@@ -260,22 +282,22 @@ namespace data {
 
     template <Element elem>
     linked_stack<elem>::const_iterator inline linked_stack<elem>::begin () const {
-        return const_iterator {*this};
+        return const_iterator {this, Next};
     }
 
     template <Element elem>
-    linked_stack<elem>::const_sentinel inline linked_stack<elem>::end () const {
-        return const_sentinel {*this};
+    linked_stack<elem>::const_iterator inline linked_stack<elem>::end () const {
+        return const_iterator {this, nullptr};
     }
 
     template <Element elem>
     linked_stack<elem>::iterator inline linked_stack<elem>::begin () {
-        return iterator {*this};
+        return iterator {this, Next};
     }
 
     template <Element elem>
-    linked_stack<elem>::sentinel inline linked_stack<elem>::end () {
-        return sentinel {*this};
+    linked_stack<elem>::iterator inline linked_stack<elem>::end () {
+        return iterator {this, nullptr};
     }
     
     template <typename elem>
@@ -326,6 +348,39 @@ namespace data {
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};
         return linked_stack<X> {rest ()}.prepend (X (first ()));
+    }
+
+    template <Element elem>
+    template <typename L, typename V>
+    bool inline linked_stack<elem>::it<L, V>::operator == (const it &i) const {
+        return Stack == i.Stack && Next == i.Next;
+    }
+
+    template <Element elem>
+    template <typename L, typename V>
+    linked_stack<elem>::it<L, V>::reference inline linked_stack<elem>::it<L, V>::operator * () const {
+        return Next->First;
+    }
+
+    template <Element elem>
+    template <typename L, typename V>
+    linked_stack<elem>::it<L, V>::pointer inline linked_stack<elem>::it<L, V>::operator -> () const {
+        return &Next->First;
+    }
+
+    template <Element elem>
+    template <typename L, typename V>
+    linked_stack<elem>::it<L, V> inline &linked_stack<elem>::it<L, V>::operator ++ () {
+        if (Next != nullptr) Next = Next->Rest.Next;
+        return *this;
+    }
+
+    template <Element elem>
+    template <typename L, typename V>
+    linked_stack<elem>::it<L, V> inline linked_stack<elem>::it<L, V>::operator ++ (int) {
+        it n = *this;
+        ++(*this);
+        return n;
     }
 
 }

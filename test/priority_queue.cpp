@@ -6,6 +6,10 @@
 #include "data/tools.hpp"
 #include "gtest/gtest.h"
 
+TEST (PriorityQueue, Interface) {
+    // should be const iterable.
+}
+
 TEST (PriorityQueue, PriorityQueue) {
     using namespace data;
     

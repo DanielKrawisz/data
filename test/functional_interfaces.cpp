@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/tools.hpp>
-#include <data/cycle.hpp>
-#include <data/string.hpp>
-#include <data/replace.hpp>
+#include "data/tools.hpp"
+#include "data/cycle.hpp"
+#include "data/string.hpp"
+#include "data/replace.hpp"
 #include "gtest/gtest.h"
 
 static_assert (std::convertible_to<int &, const int &>);
