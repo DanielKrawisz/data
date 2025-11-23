@@ -11,7 +11,7 @@
 
 namespace data {
 
-    TEST (List, ListInterfaces) {
+    TEST (List, Interfaces) {
 
         static_assert (Container<list<int>, int>);
         static_assert (Container<list<int *>, int *>);
@@ -77,7 +77,7 @@ namespace data {
 
     }
 
-    TEST (List, ListConstruct) {
+    TEST (List, Construct) {
 
         list<int> l {1, 2, 3};
         list<int> r {};
@@ -92,15 +92,16 @@ namespace data {
         EXPECT_TRUE (l == r << 1 << 2 << 3);
 
         int val[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        string zv [] {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
         list<int> {1, 2, 3, 4, 5, 6, 7};
         list<int *> {val, val + 2, val + 4, val + 3, val + 8, val + 1};
         list<int &> {val[0], val[1], val[3], val[7], val[4], val[5], val[0]};
 
+        const char *zv[] {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+
         list<string> {"1", "2", "3", "4", "5", "6", "7"};
-        list<string *> {zv, zv + 2, zv + 4, zv + 3, zv + 8, zv + 1};
-        list<string &> {zv[0], zv[1], zv[3], zv[7], zv[4], zv[5], zv[0]};
+        list<const char **> {zv, zv + 2, zv + 4, zv + 3, zv + 8, zv + 1};
+        list<const char *&> {zv[0], zv[1], zv[3], zv[7], zv[4], zv[5], zv[0]};
 
         list<list<int>> {{1, 2, 3}, {4, 5}, {6}};
         list<list<string>> {{"1", "2", "3"}, {"4", "5"}, {"6"}};
@@ -124,7 +125,7 @@ namespace data {
 
     void accept_stack_of_string_views (list<string_view>) {}
 
-    TEST (List, ListConvert) {
+    TEST (List, Convert) {
         list<string> test {{"1", "2", "3", "4"}};
 
         accept_stack_of_string_views (test);
@@ -135,7 +136,7 @@ namespace data {
 
     }
 
-    TEST (List, ListRotate) {
+    TEST (List, Rotate) {
 
         list<string> test {"1", "2", "3", "4"};
         list<string> rl {"2", "3", "4", "1"};
@@ -146,7 +147,7 @@ namespace data {
 
     }
 
-    TEST (List, ListOrdering) {
+    TEST (List, Ordering) {
 
         list<int> l0 {};
         list<int> l1 {1};

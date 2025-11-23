@@ -36,7 +36,12 @@ namespace data::interface {
 
 namespace data { 
     template <typename list, typename elem> requires interface::has_prepend_method<list, elem>
-    inline list prepend (const list &x, elem e) {
+    list inline prepend (const list x, const elem &e) {
+        return x.prepend (e);
+    }
+
+    template <typename list, typename elem> requires interface::has_prepend_method<list, elem>
+    list inline prepend (const list x, elem &e) {
         return x.prepend (e);
     }
 
