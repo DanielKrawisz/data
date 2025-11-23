@@ -35,7 +35,7 @@ add_executable (
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     combinatorics.cpp
 
-    # string 
+    # string
     integer_format.cpp
     bytes.cpp
     hex.cpp
@@ -84,7 +84,7 @@ add_executable (
     exterior.cpp
     elliptic_curve.cpp
 
-    # crypto 
+    # crypto
     # random_primes.cpp
     symmetric_crypto.cpp
     secret_share.cpp

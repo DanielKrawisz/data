@@ -143,7 +143,7 @@ namespace data {
 
         functional_queue (stack l, stack r);
         
-        static functional_queue check (const stack &l, const stack &r);
+        static functional_queue check (const stack l, const stack r);
         
         template <Stack Z, typename E> requires Sequence<Z, E> friend struct functional_queue;
     
@@ -217,9 +217,9 @@ namespace data {
     }
     
     template <Stack stack, typename element> requires Sequence<stack, element>
-    functional_queue<stack, element> functional_queue<stack, element>::check (const stack &l, const stack &r) {
+    functional_queue<stack, element> functional_queue<stack, element>::check (const stack l, const stack r) {
         if (l.empty ()) {
-            if (!r.empty ()) return functional_queue {data::reverse (r), stack {}};
+            if (!r.empty ()) return functional_queue {reverse (r), stack {}};
             return functional_queue {};
         } else return functional_queue (l, r);
     }
