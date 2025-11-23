@@ -25,27 +25,23 @@ namespace data {
     }*/
 
     // we had to rely on iterated because we get a segmentation fault if the list is too big for functional.
-    template <Stack list>
-    list reverse (const list &given) {
-        list g = given;
-        list r {};
-        while (data::size (g) > 0) {
-            r = prepend (r, first (g));
-            g = rest (g);
-        }
-        return r;
-    }
-
-    template <interface::has_reverse_method X> 
+    template <typename X>
     X reverse (const X &x) {
-        return x.reverse ();
-    }
-
-    template <Iterable X>
-    X reverse (const X &x) {
-        auto z = x;
-        std::reverse (z.begin (), z.end ());
-        return z;
+        if constexpr (interface::has_reverse_method<X>) {
+            return x.reverse ();
+        } else if constexpr (Stack<X>) {
+            X g = x;
+            X r {};
+            while (data::size (g) > 0) {
+                r = prepend (r, first (g));
+                g = rest (g);
+            }
+            return r;
+        } else if constexpr (Iterable<X>) {
+            auto z = x;
+            std::reverse (z.begin (), z.end ());
+            return z;
+        } else throw exception {} << "invalid reverse type";
     }
 
 }
