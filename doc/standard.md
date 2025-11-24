@@ -305,10 +305,6 @@ Return the first element of a stack.
 
 If `X` is a reference, `first (z) -> X`, otherwise `first (z) -> const X &`.
 
-For an element `zz` of type `data::stack<X>`
-
-If `X` is a reference, `first (zz) -> X`, otherwise `first (z) -> X &`.
-
 #### `rest`
 
 Return the rest of the stack after the first element.
@@ -331,19 +327,26 @@ Return the stack with a new element prepended.
 
 #### `stack<X>::begin` and `stack<X>::end`
 
-`for (const X &x : z)` or `for (X &x : zz)` will iterate over the stack. 
+`for (const X &x : z)` will iterate over the stack. Only const iteration is 
+supported because since two functional lists can share memory, non-const 
+iteration would be error prone.
+
+#### `stack<X>::operator []`
+
+For `size_t i`, return the `i`th element of the stack. 
 
 #### `take`
 
-For `size_t n`, take the first `n` elements of `z`. 
+For `size_t n`, take the first `n` elements of `z`. If `n > size (z)` return 
+the whole stack. 
 
-If `n > size (z)` return the whole stack. 
+`take (z, n) -> data::list<X>`
 
 #### `drop`
 
-For `size_t n`, drop the first `n` elements of `z`. 
+Drop the first `n` elements of `z`. If `n > size (z)` return an empty stack. 
 
-If `n > size (z)` return an empty stack. 
+`drop (z, n) -> data::list<X>`
 
 #### `reverse`
 
@@ -361,13 +364,15 @@ Sort a stack.
 
 Whether a stack is sorted. 
 
-#### `values`
-
 #### `contains`
+
+Whether a stack contains a given element. 
 
 #### `remove`
 
 #### `erase`
+
+#### `values`
 
 ### `data/list.hpp`
 
@@ -427,10 +432,6 @@ Return the first element of a list.
 
 If `X` is a reference, `first (z) -> X`, otherwise `first (z) -> const X &`.
 
-For an element `zz` of type `data::list<X>`
-
-If `X` is a reference, `first (zz) -> X`, otherwise `first (z) -> X &`.
-
 #### `rest`
 
 Return the rest of the list after the first element.
@@ -463,31 +464,45 @@ Return the list with a new element appended.
 
 #### `stack<X>::begin` and `stack<X>::end`
 
-`for (const X &x : z)` or `for (X &x : zz)` will iterate over the stack. 
+`for (const X &x : z)` will iterate over the stack. Only const iteration is 
+supported because since two lists can share memory, non-const iteration would
+be error prone.
 
 #### `take`
 
+`take (z, n) -> data::list<X>`
+
 #### `drop`
 
+`drop (z, n) -> data::list<X>`
+
 #### `reverse`
+
+Reverse a stack.
+
+#### `join`
+
+Join two stacks.
+
+#### `sort`
+
+Sort a stack. 
+
+#### `sorted`
+
+Whether a stack is sorted. 
 
 #### `rotate_right`
 
 #### `rotate_left`
-
-#### `join`
-
-#### `sort`
-
-#### `sorted`
-
-#### `values`
 
 #### `contains`
 
 #### `remove`
 
 #### `erase`
+
+#### `values`
 
 ### `data/ordered_sequence.hpp`
 
@@ -515,17 +530,25 @@ Iff `X` has a function to write to an `std::ostream` via `<<` than so does `list
 
 #### `merge`
 
+#### `operator |`
+
+Same as `merge`.
+
+#### `operator &`
+
+#### `operator ^`
+
 #### `sort`
 
 #### `sorted`
-
-#### `values`
 
 #### `contains`
 
 #### `remove`
 
 #### `erase`
+
+#### `values`
 
 ### `data/priority_queue.hpp`
 
