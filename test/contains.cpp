@@ -8,6 +8,7 @@
 #include "data/ordered_sequence.hpp"
 #include "data/priority_queue.hpp"
 #include "data/set.hpp"
+#include "data/remove.hpp"
 #include "gtest/gtest.h"
 
     template <typename elem> using vector = std::vector<elem>;
@@ -92,7 +93,7 @@
     }
 
     TEST (Contains, Remove) {
-/*
+
         EXPECT_EQ ((remove (stack<string> {"a", "b", "c", "d"}, 0)), (stack<string> {"b", "c", "d"}));
         EXPECT_EQ ((remove (stack<string> {"a", "b", "c", "d"}, 5)), (stack<string> {"a", "b", "c", "d"}));
 
@@ -103,10 +104,13 @@
         EXPECT_EQ ((remove (list<string> {"a", "b", "c", "d"}, 5)), (list<string> {"a", "b", "c", "d"}));
 
         EXPECT_EQ ((data::remove (list<string> {"a", "b", "c", "d"}, 0)), (list<string> {"b", "c", "d"}));
-        EXPECT_EQ ((data::remove (list<string> {"a", "b", "c", "d"}, 5)), (list<string> {"a", "b", "c", "d"}));*/
+        EXPECT_EQ ((data::remove (list<string> {"a", "b", "c", "d"}, 5)), (list<string> {"a", "b", "c", "d"}));
+/*
+        EXPECT_EQ ((remove (ordered_sequence<string> {"a", "b", "c", "d"}, 0)), (ordered_sequence<string> {"b", "c", "d"}));
+        EXPECT_EQ ((remove (ordered_sequence<string> {"a", "b", "c", "d"}, 5)), (ordered_sequence<string> {"a", "b", "c", "d"}));
 
-        //EXPECT_EQ ((remove (ordered_sequence<string> {"a", "b", "c", "d"}, 0)), (ordered_sequence<string> {"b", "c", "d"}));
-        //EXPECT_EQ ((remove (ordered_sequence<string> {"a", "b", "c", "d"}, 5)), (ordered_sequence<string> {"a", "b", "c", "d"}));
+        EXPECT_EQ ((data::remove (ordered_sequence<string> {"a", "b", "c", "d"}, 0)), (ordered_sequence<string> {"b", "c", "d"}));
+        EXPECT_EQ ((data::remove (ordered_sequence<string> {"a", "b", "c", "d"}, 5)), (ordered_sequence<string> {"a", "b", "c", "d"}));*/
 
         // TODO map
 

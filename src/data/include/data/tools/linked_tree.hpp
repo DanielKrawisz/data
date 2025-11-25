@@ -48,6 +48,7 @@ namespace data {
         
         std::ostream &write (std::ostream &o) const;
 
+        // TODO this should be lift and it shouldn't be a member function.
         linked_tree for_each (function<value (inserted<value>)> f) const {
             if (empty ()) return *this;
             auto r = root ();

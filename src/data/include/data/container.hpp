@@ -67,18 +67,6 @@ namespace data {
             throw exception {} << "cannot construct contains method";
         }
     }
-    
-    // we already have a remove for Pendable types.
-    template <typename X, typename E> 
-    X remove (const X &x, const E &e) {
-        if constexpr (requires () {
-            { x.remove (e) } -> ImplicitlyConvertible<const X>;
-        }) {
-            return x.remove (e);
-        } else {
-            throw data::exception {} << "cannot construct remove method";
-        }
-    }
 
 }
 

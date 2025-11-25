@@ -18,18 +18,20 @@ add_executable (
     circular_queue.cpp
     linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
     list.cpp                     # TODO: contains commented tests
+                                 #       can be both const and non const iterable (unofficially)
     ordered_sequence.cpp         # TODO: contains commented tests
     tree.cpp                     # TODO: contains commented tests
     functional_interfaces.cpp    # TODO: contains commented tests
     empty.cpp                    # TODO: Contains commented test cases
-    take.cpp
+    take.cpp                     # TODO: ensure we check the interface by argument lookup and in data::
     reverse.cpp
     contains.cpp                 # TODO: Contains commented test cases
     sort.cpp
     set.cpp                      # TODO: Need to test each function more precisely, like in list
     map.cpp                      # TODO: Need to test each function more precisely, like in list
     priority_queue.cpp           # TODO: Contains commented test cases
-    replace.cpp
+    for_each.cpp                 # TODO: contains commented test cases.
+    replace.cpp                  # TODO: contains commented test cases.
     lift.cpp                     # TODO: contains commented test cases.
     map_schema.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list

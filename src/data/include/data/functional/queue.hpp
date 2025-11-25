@@ -50,6 +50,9 @@ namespace data::functional {
     
     template <Queue list> 
     list take_queue (const list &x, size_t n, const list &z = {});
+
+    template <Queue list>
+    list remove_queue (const list &, size_t );
     
     template <Queue list>
     list join_queue (const list &a, const list &b) {
@@ -79,7 +82,17 @@ namespace data::functional {
     }
 
     template <Queue list>
-    list remove_queue (const list &);
+    list remove_queue (const list &ll, size_t e) {
+        list result;
+        list x = ll;
+        size_t i = 0;
+        while (!empty (x)) {
+            if (i != e) result <<= first (x);
+            x = rest (x);
+            i++;
+        }
+        return result;
+    }
     
 }
 

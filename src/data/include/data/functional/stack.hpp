@@ -61,6 +61,9 @@ namespace data::functional {
     // merges two stacks sorted by < into a single sorted stack.
     template <Stack L> requires Ordered<decltype (std::declval<L> ().first ())>
     L merge_stack (const L &a, const L &b);
+
+    template <Stack list>
+    list remove_stack (const list &ll, size_t e);
     
     template <typename times, typename L1, typename L2, typename plus, typename value>
     value inner (times t, L1 l1, L2 l2, plus p);

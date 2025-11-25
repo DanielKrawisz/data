@@ -633,6 +633,11 @@ Same as `merge`.
 
 ### `data/cross.hpp`
 
+#### `struct cross`
+
+Cross (for cross product) is an iterable fixed-size container of any size. 
+Cross resembles a vector with the ability to resize removed. 
+
 ### `data/math/combinatorics.hpp`
 
 ### `data/array.hpp`
