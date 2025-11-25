@@ -7,9 +7,14 @@
 #include "data/list.hpp"
 #include "data/array.hpp"
 #include "data/tree.hpp"
+#include "data/string.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
+
+    auto dinner = [] (int &i, const int &j) {
+        i = -i * j;
+    };
 
     TEST (ForEach, Cross) {
         int total = 0;
@@ -17,9 +22,16 @@ namespace data {
             total += i;
         };
 
-        for_each (sum, cross<int> {1, 2, 3});
+        cross<int> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+
+        total = 0;
+        for_each (dinner, x, cross<int> {3, 5, -4});
+        for_each (sum, x);
+
+        EXPECT_EQ (total, -1);
     }
 
     TEST (ForEach, Array) {
@@ -28,9 +40,16 @@ namespace data {
             total += i;
         };
 
-        for_each (sum, array<int, 3> {1, 2, 3});
+        array<int, 3> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+
+        total = 0;
+        for_each (dinner, x, array<int, 3> {3, 5, -4});
+        for_each (sum, x);
+
+        EXPECT_EQ (total, -1);
     }
 
     TEST (ForEach, Stack) {
@@ -39,9 +58,16 @@ namespace data {
             total += i;
         };
 
-        for_each (sum, stack<int> {1, 2, 3});
+        stack<int> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+
+        total = 0;
+        for_each (dinner, x, stack<int> {3, 5, -4});
+        for_each (sum, x);
+
+        EXPECT_EQ (total, -1);
     }
 
     TEST (ForEach, List) {
@@ -50,9 +76,11 @@ namespace data {
             total += i;
         };
 
-        for_each (sum, list<int> {1, 2, 3});
+        list<int> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+        // TODO need unconst and multiple inputs
     }
 
     TEST (ForEach, OrderedSequence) {
@@ -61,31 +89,24 @@ namespace data {
             total += i;
         };
 
-        for_each (sum, ordered_sequence<int> {1, 2, 3});
+        ordered_sequence<int> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+        // TODO multiple inputs
     }
-/*
-    TEST (ForEach, Tree) {
+
+    TEST (ForEach, Cycle) {
         int total = 0;
         auto sum = [&total] (const int &i) {
             total += i;
         };
 
-        for_each (sum, tree<int> {1, {2, {3}}, {4, {5}, {6, 7}});
-
-        EXPECT_EQ (total, 28);
-    }
-
-    TEST (ForEach, PriorityQueue) {
-        int total = 0;
-        auto sum = [&total] (const int &i) {
-            total += i;
-        };
-
-        for_each (sum, priority_queue<int> {1, 2, 3}, sum);
+        cycle<int> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+        // TODO need unconst and multiple inputs
     }
 
     TEST (ForEach, Set) {
@@ -94,20 +115,37 @@ namespace data {
             total += i;
         };
 
-        for_each (sum, set<int> {1, 2, 3}, sum);
+        set<int> x {1, 2, 3};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+        // TODO need multiple inputs
     }
+/*
+    TEST (ForEach, Tree) {
+        int total = 0;
+        auto sum = [&total] (const int &i) {
+            total += i;
+        };
 
+        tree<int> x {1, {2, {3}, {}}, {4, {5}, {6, {}, {7}}}};
+        for_each (sum, x);
+
+        EXPECT_EQ (total, 28);
+        // TODO need unconst and multiple inputs
+    }*/
+/*
     TEST (ForEach, Map) {
         int total = 0;
         auto sum = [&total] (const int &i) {
             total += i;
         };
 
-        for_each (sum, map<string, int> {{"A", 1}, {"B", 2}, {"C", 3}}, sum);
+        map<string, int> x {{"A", 1}, {"B", 2}, {"C", 3}};
+        for_each (sum, x);
 
         EXPECT_EQ (total, 6);
+        // TODO need unconst and multiple inputs
     }*/
 
 }

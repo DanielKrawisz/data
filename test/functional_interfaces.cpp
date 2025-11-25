@@ -9,6 +9,7 @@
 #include "data/cycle.hpp"
 #include "data/remove.hpp"
 #include "data/replace.hpp"
+#include "data/remove.hpp"
 #include "gtest/gtest.h"
 
 static_assert (std::convertible_to<int &, const int &>);

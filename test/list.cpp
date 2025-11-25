@@ -197,7 +197,7 @@ TYPED_TEST (List, Empty) {
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (List, ListSize) {
+TYPED_TEST (List, Size) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
@@ -262,7 +262,7 @@ TYPED_TEST (List, Prepend) {
     using has_rshift_equals = decltype (list >>= std::declval<element> ());
 }
 
-TYPED_TEST (List, Appepend) {
+TYPED_TEST (List, Append) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_append = decltype (append (type {}, std::declval<element> ()));
@@ -289,13 +289,13 @@ TYPED_TEST (List, Sort) {
     EXPECT_TRUE (sorted (type {}));
 }
 
-TYPED_TEST (List, ListRemove) {
+TYPED_TEST (List, Remove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (remove (type {}, size_t {0}));
 }
 
-TYPED_TEST (List, ListErase) {
+TYPED_TEST (List, Erase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_select = decltype (erase (type {}, std::declval<element> ()));

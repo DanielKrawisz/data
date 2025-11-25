@@ -283,28 +283,28 @@ using Stack_cases = ::testing::Types<
 
 TYPED_TEST_SUITE (Stack, Stack_cases);
 
-TYPED_TEST (Stack, StackValid) {
+TYPED_TEST (Stack, Valid) {
     using type = typename TestFixture::type;
     auto is_valid = valid (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
     EXPECT_TRUE (is_valid);
 }
 
-TYPED_TEST (Stack, StackEmpty) {
+TYPED_TEST (Stack, Empty) {
     using type = typename TestFixture::type;
     auto is_empty = empty (type {});
     static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
     EXPECT_TRUE (is_empty);
 }
 
-TYPED_TEST (Stack, StackSize) {
+TYPED_TEST (Stack, Size) {
     using type = typename TestFixture::type;
     auto empty_size = size (type {});
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
     EXPECT_EQ (empty_size, 0);
 }
 
-TYPED_TEST (Stack, StackFirst) {
+TYPED_TEST (Stack, First) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
 
@@ -341,33 +341,33 @@ TYPED_TEST (Stack, StackFirst) {
     }
 }
 
-TYPED_TEST (Stack, StackRest) {
+TYPED_TEST (Stack, Rest) {
     using type = typename TestFixture::type;
     using return_type = decltype (rest (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
 
-TYPED_TEST (Stack, StackValues) {
+TYPED_TEST (Stack, Values) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (values (type {}));
     static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (Stack, StackReverse) {
+TYPED_TEST (Stack, Reverse) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (reverse (type {}));
     static_assert (data::Sequence<return_type, element>);
 }
 
-TYPED_TEST (Stack, StackContains) {
+TYPED_TEST (Stack, Contains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);
 }
 
-TYPED_TEST (Stack, StackPrepend) {
+TYPED_TEST (Stack, Prepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using return_type = decltype (prepend (type {}, std::declval<element> ()));
@@ -377,31 +377,31 @@ TYPED_TEST (Stack, StackPrepend) {
     static_assert (data::Same<return_type, type>);
 }
 
-TYPED_TEST (Stack, StackTakeDrop) {
+TYPED_TEST (Stack, TakeDrop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
 }
 
-TYPED_TEST (Stack, StackJoin) {
+TYPED_TEST (Stack, Join) {
     using type = typename TestFixture::type;
     (void) join (type {}, type {});
     (void) (type {} + type {});
 }
 
-TYPED_TEST (Stack, StackSort) {
+TYPED_TEST (Stack, Sort) {
     using type = typename TestFixture::type;
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
 
-TYPED_TEST (Stack, StackRemove) {
+TYPED_TEST (Stack, Remove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_remove = decltype (remove (type {}, size_t {0}));
 }
 
-TYPED_TEST (Stack, StackErase) {
+TYPED_TEST (Stack, Erase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_erase = decltype (erase (type {}, std::declval<element> ()));
