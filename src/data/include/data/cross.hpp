@@ -12,8 +12,10 @@
 
 namespace data {
     
-    // The cartesian product. 
-    // it is the same as a vector with some slight improvements. 
+    // Cross (for cross product) is an iterable fixed-size container of any size.
+    // Cross resembles a vector with the ability to resize removed.
+    // Other improvements include: being able to index from the end with
+    // negative numbers as well as from the beginning.
     // TODO: intead of using a vector, we need something
     // that will lazily initilize the pointer so that
     // the empty cross can be used in a constexpr expression.
