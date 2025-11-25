@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <iterator>
-#include "data/container.hpp"
+#include "data/remove.hpp"
 #include "data/string.hpp"
 #include "data/numbers.hpp"
 #include "gtest/gtest.h"
@@ -398,7 +398,7 @@ TYPED_TEST (Stack, StackSort) {
 TYPED_TEST (Stack, StackRemove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_select = decltype (remove (type {}, size_t {0}));
+    using has_remove = decltype (remove (type {}, size_t {0}));
 }
 
 TYPED_TEST (Stack, StackErase) {
