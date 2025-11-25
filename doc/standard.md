@@ -646,7 +646,11 @@ Cross resembles a vector with the ability to resize removed.
 
 ### `data/math/exterior.hpp`
 
-## Strings
+## Bytes
+
+A library for working with sequences of data. 
+
+Requires compilation, no dependencies other than the standard library.
 
 * `data/slice.hpp`
 * `data/stream.hpp`
@@ -657,6 +661,8 @@ Cross resembles a vector with the ability to resize removed.
 * `data/encoding/integer.hpp`
 * `data/bytes.hpp`
 * `data/integral.hpp`
+* `data/random.hpp`
+* `data/async.hpp`
 
 ### `data/string.hpp`
 
@@ -762,7 +768,6 @@ Provides a set of hash functions from crypto++.
 
 Big numbers library using GMP and crypto++
 
-* `data/random.hpp`
 * `data/numbers.hpp`
 * `data/math/factor.hpp`
 * `data/math/random_prime.hpp`

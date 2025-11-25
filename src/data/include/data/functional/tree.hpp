@@ -143,6 +143,22 @@ namespace data::functional {
         for_each_prefix (data::left (t), f);
         for_each_prefix (data::right (t), f);
     }
+
+    template <typename tree, typename P>
+    void for_each_infix (tree &t, P f) {
+        if (data::empty (t)) return;
+        for_each_infix (data::left (t), f);
+        f (data::root (t));
+        for_each_infix (data::right (t), f);
+    }
+
+    template <typename tree, typename P>
+    void for_each_prefix (tree &t, P f) {
+        if (data::empty (t)) return;
+        f (data::root (t));
+        for_each_prefix (data::left (t), f);
+        for_each_prefix (data::right (t), f);
+    }
     
     template <Stack out, functional::tree in> 
     out values_infix (const in &t) {

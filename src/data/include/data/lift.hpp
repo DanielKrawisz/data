@@ -5,8 +5,12 @@
 #ifndef DATA_LIFT
 #define DATA_LIFT
 
-#include <data/tools.hpp>
 #include <data/function.hpp>
+#include <data/cycle.hpp>
+#include <data/list.hpp>
+#include <data/map.hpp>
+#include <data/cross.hpp>
+#include <data/array.hpp>
 
 namespace data {
     

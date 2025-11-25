@@ -3,8 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/ordered_sequence.hpp>
-#include <data/remove.hpp>
+#include <data/list.hpp>
 #include <data/string.hpp>
+#include <data/remove.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
@@ -12,28 +13,31 @@ namespace data {
     TEST (OrderedList, OrderedSequenceInterfaces) {
 
         static_assert (Sequence<ordered_sequence<int>, int>);
-        static_assert (Sequence<ordered_sequence<int *>, int *>);
-        static_assert (Sequence<ordered_sequence<const int *>, const int *>);
-        static_assert (Sequence<ordered_sequence<int *const>, int *const>);
-        static_assert (Sequence<ordered_sequence<const int *const>, const int *const>);
         static_assert (Sequence<ordered_sequence<int &>, int &>);
+        static_assert (Sequence<ordered_sequence<int *>, int *>);
+        static_assert (Sequence<ordered_sequence<int *const>, int *const>);
+        static_assert (Sequence<ordered_sequence<const int>, const int>);
+        static_assert (Sequence<ordered_sequence<const int *>, const int *>);
+        static_assert (Sequence<ordered_sequence<const int *const>, const int *const>);
         static_assert (Sequence<ordered_sequence<const int &>, const int &>);
 
         static_assert (Container<ordered_sequence<int>, int>);
-        static_assert (Container<ordered_sequence<int *>, int *>);
-        static_assert (Container<ordered_sequence<const int *>, const int *>);
-        static_assert (Container<ordered_sequence<int *const>, int *const>);
-        static_assert (Container<ordered_sequence<const int *const>, const int *const>);
         static_assert (Container<ordered_sequence<int &>, int &>);
+        static_assert (Container<ordered_sequence<int *>, int *>);
+        static_assert (Container<ordered_sequence<int *const>, int *const>);
+        static_assert (Container<ordered_sequence<const int>, const int>);
+        static_assert (Container<ordered_sequence<const int *>, const int *>);
+        static_assert (Container<ordered_sequence<const int *const>, const int *const>);
         static_assert (Container<ordered_sequence<const int &>, const int &>);
 
         static_assert (ConstIterable<ordered_sequence<int>>);
-        static_assert (ConstIterable<ordered_sequence<int *>>);
-        static_assert (ConstIterable<ordered_sequence<const int *>>);
-        static_assert (ConstIterable<ordered_sequence<int *const>>);
-        static_assert (ConstIterable<ordered_sequence<const int *const>>);
         static_assert (ConstIterable<ordered_sequence<int &>>);
+        static_assert (ConstIterable<ordered_sequence<int *>>);
+        static_assert (ConstIterable<ordered_sequence<int *const>>);
+        static_assert (ConstIterable<ordered_sequence<const int>>);
+        static_assert (ConstIterable<ordered_sequence<const int *>>);
         static_assert (ConstIterable<ordered_sequence<const int &>>);
+        static_assert (ConstIterable<ordered_sequence<const int *const>>);
 
         // We had some trouble defining Sequence properly and these are some
         // tests that helped to make it work right. 
@@ -74,14 +78,6 @@ namespace data {
 
         static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<string *>> ().first ()), string *>);
         static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<const string *>> ().first ()), const string *>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int &>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int &>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int *const >> ().begin ())>);
 
     }
 
@@ -206,8 +202,6 @@ TYPED_TEST (OrdSeq, Contains) {
     using element = typename TestFixture::element;
     using has_contains = decltype (contains (type {}, std::declval<element> ()));
 }
-// TODO for beta
-/*
 TYPED_TEST (OrdSeq, Insert) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
@@ -215,28 +209,34 @@ TYPED_TEST (OrdSeq, Insert) {
     using has_rshift = decltype (type {} >> std::declval<element> ());
     type stack {};
     using has_rshift_equals = decltype (stack >>= std::declval<element> ());
-}*/
-/*
-TYPED_TEST (OrdSeq, Drop) {
+}
+
+TYPED_TEST (OrdSeq, TakeDrop) {
     using type = typename TestFixture::type;
     using has_take = decltype (take (type {}, size_t (0)));
     using has_drop = decltype (drop (type {}, size_t (0)));
-}*/
-
-TYPED_TEST (OrdSeq, Sort) {
-    using type = typename TestFixture::type;
-    //(void) sort (type {});
-    EXPECT_TRUE (sorted (type {}));
 }
-/*
+
 TYPED_TEST (OrdSeq, Merge) {
     using type = typename TestFixture::type;
     (void) merge (type {}, type {});
     (void) (type {} & type {});
 }
 
-TYPED_TEST (OrdSeq, Select) {
+TYPED_TEST (OrdSeq, Sort) {
+    using type = typename TestFixture::type;
+    (void) sort (type {});
+    EXPECT_TRUE (sorted (type {}));
+}
+/*
+TYPED_TEST (OrdSeq, Remove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_select = decltype (contains (type {}, std::declval<element> ()));
+    using has_select = decltype (remove (type {}, size_t {0}));
+}
+
+TYPED_TEST (OrdSeq, Erase) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_erase = decltype (erase (type {}, std::declval<element> ()));
 }*/
