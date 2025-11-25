@@ -8,6 +8,20 @@
 
 namespace data {
 
+    TEST (Set, OrderedSet) {
+
+        static_assert (OrderedSet<set<int>>);
+        static_assert (OrderedSet<set<int &>>);
+        static_assert (OrderedSet<set<int *>>);
+        static_assert (OrderedSet<set<int *const>>);
+
+        static_assert (OrderedSet<set<const int>>);
+        static_assert (OrderedSet<set<const int &>>);
+        static_assert (OrderedSet<set<const int *>>);
+        static_assert (OrderedSet<set<const int *const>>);
+
+    }
+
     TEST (Set, Empty) {
         set<int> a;
         set<string> b;

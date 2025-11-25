@@ -7,7 +7,7 @@
 
 #include <list>
 #include <data/cycle.hpp>
-#include <data/for_each.hpp>
+#include <data/lift.hpp>
 #include <data/math/group.hpp>
 
 namespace data::math {
@@ -233,7 +233,7 @@ namespace data::math {
     template <Ordered elem>
     permutation<elem> inline
     permutation<elem>::inverse () const {
-        return permutation {for_each ([] (const cycle c) -> cycle {
+        return permutation {lift ([] (const cycle c) -> cycle {
             return permutation<elem>::inverse (c);
         }, normalize ().Cycles)};
     }
