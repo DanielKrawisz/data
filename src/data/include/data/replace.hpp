@@ -12,6 +12,7 @@
 #include <data/cycle.hpp>
 #include <data/cross.hpp>
 #include <data/array.hpp>
+#include <data/for_each.hpp>
 
 namespace data {
 
@@ -68,20 +69,32 @@ namespace data {
     }
 
     template <typename X> list<X> replace (const list<X> x, replacements<X> r) {
-        list<X> result = x;
-        for (auto &z : result) for (const pair<X> &rr : r) if (z == rr.first) z = rr.second;
+        list<X> result;
+        for (const X &z : x) {
+            for (const pair<X> &rr : r) if (z == rr.first) {
+                result <<= rr.second;
+                goto cont;
+            }
+            result <<= z;
+            cont:
+        }
         return result;
     }
 
     template <typename X> cycle<X> replace (const cycle<X> x, replacements<X> r) {
         return cycle<X> {replace (x.Cycle, r)};
     }
-/*
+
     template <typename K, typename V> map<K, V> replace (const map<K, V> x, replacements<V> r) {
         map<K, V> result = x;
-        for (auto &[key, value] : result) for (const pair<V> &rr : r) if (value == rr.first) value = rr.second;
+        for_each ([&r] (V &v) {
+            for (const pair<V> &rr : r) if (v == rr.first) {
+                v = rr.second;
+                return;
+            }
+        }, result);
         return result;
-    }*/
+    }
 }
 
 #endif

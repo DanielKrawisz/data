@@ -3,11 +3,28 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/string.hpp"
-#include "data/tools.hpp"
+#include "data/container.hpp"
+#include "data/priority_queue.hpp"
 #include "gtest/gtest.h"
 
-TEST (PriorityQueue, Interface) {
-    // should be const iterable.
+namespace data {
+    static_assert (Sequence<priority_queue<int>, int>);
+    static_assert (Sequence<priority_queue<int &>, int &>);
+    static_assert (Sequence<priority_queue<int *>, int *>);
+    static_assert (Sequence<priority_queue<int *const>, int *const>);
+    static_assert (Sequence<priority_queue<const int>, const int>);
+    static_assert (Sequence<priority_queue<const int *>, const int *>);
+    static_assert (Sequence<priority_queue<const int *const>, const int *const>);
+    static_assert (Sequence<priority_queue<const int &>, const int &>);
+
+    static_assert (Container<priority_queue<int>, int>);
+    static_assert (Container<priority_queue<int &>, int &>);
+    static_assert (Container<priority_queue<int *>, int *>);
+    static_assert (Container<priority_queue<int *const>, int *const>);
+    static_assert (Container<priority_queue<const int>, const int>);
+    static_assert (Container<priority_queue<const int *>, const int *>);
+    static_assert (Container<priority_queue<const int *const>, const int *const>);
+    static_assert (Container<priority_queue<const int &>, const int &>);
 }
 
 TEST (PriorityQueue, PriorityQueue) {

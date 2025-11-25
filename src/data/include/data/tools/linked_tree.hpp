@@ -48,21 +48,6 @@ namespace data {
         
         std::ostream &write (std::ostream &o) const;
 
-        // TODO this should be lift and it shouldn't be a member function.
-        linked_tree for_each (function<value (inserted<value>)> f) const {
-            if (empty ()) return *this;
-            auto r = root ();
-            value mutated = f (r);
-            if (mutated != r) return linked_tree {mutated, left ().for_each (f), right ().for_each (f)};
-            linked_tree ll = left ();
-            linked_tree mutated_left = ll.for_each (f);
-            if (ll.Node != mutated_left.Node) return linked_tree {r, mutated_left, right ().for_each (f)};
-            linked_tree rr = right ();
-            linked_tree mutated_right = rr.for_each (f);
-            if (rr.Node != mutated_right.Node) return linked_tree {r, ll, mutated_right};
-            return *this;
-        }
-
     private:
         next Node;
         size_t Size;

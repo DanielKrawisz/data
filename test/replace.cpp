@@ -27,7 +27,7 @@ namespace data {
         EXPECT_EQ ((replace (tree<int> {1}, {})), (tree<int> {1}));
         EXPECT_EQ ((replace (tree<int> {1}, {{1, 2}})), (tree<int> {2}));
     }
-/*
+
     TEST (Replace, Stack) {
         EXPECT_EQ ((replace (stack<int> {}, {})), (stack<int> {}));
         EXPECT_EQ ((replace (stack<int> {1}, {})), (stack<int> {1}));
@@ -47,7 +47,7 @@ namespace data {
         EXPECT_EQ ((replace (cycle<int> {1}, {})), (cycle<int> {1}));
         EXPECT_EQ ((replace (cycle<int> {1}, {{1, 2}})), (cycle<int> {2}));
         EXPECT_EQ ((replace (cycle<int> {1, 3}, {{1, 2}})), (cycle<int> {2, 3}));
-    }*/
+    }
 /*
     TEST (Replace, Map) {
         EXPECT_EQ ((replace (map<string, int> {}, {})), (map<string, int> {}));

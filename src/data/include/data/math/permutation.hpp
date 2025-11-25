@@ -7,6 +7,7 @@
 
 #include <list>
 #include <data/cycle.hpp>
+#include <data/set.hpp>
 #include <data/lift.hpp>
 #include <data/math/group.hpp>
 

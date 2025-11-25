@@ -121,16 +121,6 @@ namespace data {
         
         const_iterator begin () const;
         const_iterator end () const;
-
-        template <typename F>
-        void for_each (F &&f) {
-            for (elem &x: *this) f (x);
-        }
-
-        template <typename F>
-        void for_each (F &&f) const {
-            for (const elem &x: *this) f (x);
-        }
         
     };
 
