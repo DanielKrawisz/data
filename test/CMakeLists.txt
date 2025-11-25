@@ -15,10 +15,10 @@ add_executable (
     maybe_either.cpp
     store.cpp
     exception.cpp
-    linked_stack.cpp             # TODO: contains commented tests
+    circular_queue.cpp
+    linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
     list.cpp                     # TODO: contains commented tests
     ordered_sequence.cpp         # TODO: contains commented tests
-    circular_queue.cpp           # TODO: contains commented tests
     tree.cpp                     # TODO: contains commented tests
     functional_interfaces.cpp    # TODO: contains commented tests
     empty.cpp                    # TODO: Contains commented test cases
@@ -30,7 +30,7 @@ add_executable (
     map.cpp                      # TODO: Need to test each function more precisely, like in list
     priority_queue.cpp           # TODO: Contains commented test cases
     replace.cpp
-    testForEach.cpp              # TODO: contains commented test cases.
+    lift.cpp                     # TODO: contains commented test cases.
     map_schema.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     combinatorics.cpp

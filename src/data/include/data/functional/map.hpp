@@ -63,22 +63,22 @@ namespace data {
     std::ostream inline &operator << (std::ostream &o, const entry<K, V> &e) {
         return o << e.Key << ": " << e.Value;
     }
+
+    template <typename X,
+        typename key = decltype (std::declval<X> ().values ().first ().Key),
+        typename value = decltype (std::declval<X> ().values ().first ().Value)>
+    concept Map = Container<const X, const key> &&
+        Indexed<const X, const key, const value> &&
+        OrderedSet<const X, const entry<const key, value>> &&
+        interface::has_insert_key_value<const X, const key, value> &&
+        interface::has_insert_method<X, const entry<const key, value>> &&
+        interface::has_keys_method<const X, const key> &&
+        interface::has_remove_method<const X, const key> &&
+        std::default_initializable<X>;
     
     namespace functional {
-    
-        template <typename X, 
-            typename key = decltype (std::declval<X> ().values ().first ().Key),
-            typename value = decltype (std::declval<X> ().values ().first ().Value)>
-        concept map = Container<const X, const key> &&
-            indexed<const X, const key, const value> &&
-            OrderedSet<const X, const entry<const key, value>> &&
-            interface::has_insert_key_value<const X, const key, value> &&
-            interface::has_insert_method<X, const entry<const key, value>> &&
-            interface::has_keys_method<const X, const key> &&
-            interface::has_remove_method<const X, const key> && 
-            std::default_initializable<X>;
 
-        template <map M> 
+        template <Map M>
         std::ostream inline &write (std::ostream &o, const M &m) {
             return o << m.values ();
         }

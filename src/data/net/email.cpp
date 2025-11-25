@@ -148,21 +148,21 @@ namespace data::net::email {
             }
 
             if (ttt.size () > 0) {
-                si.To = for_each ([] (string_view x) -> address {
+                si.To = lift ([] (string_view x) -> address {
                     return address {x};
                 }, split (ttt.first (), ","));
                 ttt = ttt.rest ();
             }
 
             if (ccc.size () > 0) {
-                si.Cc = for_each ([] (string_view x) -> address {
+                si.Cc = lift ([] (string_view x) -> address {
                     return address {x};
                 }, split (ccc.first (), ","));
                 ccc = ccc.rest ();
             }
 
             if (bbb.size () > 0) {
-                si.Bcc = for_each ([] (string_view x) -> address {
+                si.Bcc = lift ([] (string_view x) -> address {
                     return address {x};
                 }, split (bbb.first (), ","));
                 bbb = bbb.rest ();
@@ -177,13 +177,13 @@ namespace data::net::email {
 
         if (i.data () != nullptr) si.MessageID = msg_id {i};
         if (s.data () != nullptr) si.Sender = address {s};
-        if (t.data () != nullptr) si.To = for_each ([] (string_view x) -> address {
+        if (t.data () != nullptr) si.To = lift ([] (string_view x) -> address {
                 return address {x};
             }, split (t, ","));
-        if (c.data () != nullptr) si.Cc = for_each ([] (string_view x) -> address {
+        if (c.data () != nullptr) si.Cc = lift ([] (string_view x) -> address {
                 return address {x};
             }, split (c, ","));
-        if (b.data () != nullptr) si.Bcc = for_each ([] (string_view x) -> address {
+        if (b.data () != nullptr) si.Bcc = lift ([] (string_view x) -> address {
                 return address {x};
             }, split (b, ","));
 
@@ -194,7 +194,7 @@ namespace data::net::email {
     maybe<list<address>> message::reply_to () const {
         string_view rt = reply_to (*this);
         if (rt.data () == nullptr) return {};
-        return for_each ([] (string_view x) -> address {
+        return lift ([] (string_view x) -> address {
             return address {x};
         }, split (rt, ","));
     }
@@ -202,7 +202,7 @@ namespace data::net::email {
     maybe<list<msg_id>> message::in_reply_to () const {
         string_view irt = in_reply_to (*this);
         if (irt.data () == nullptr) return {};
-        return for_each ([] (string_view x) -> msg_id {
+        return lift ([] (string_view x) -> msg_id {
             return msg_id {x};
         }, split (irt, ","));
     }
@@ -210,7 +210,7 @@ namespace data::net::email {
     maybe<list<msg_id>> message::references () const {
         string_view r = references (*this);
         if (r.data () == nullptr) return {};
-        return for_each ([] (string_view x) -> msg_id {
+        return lift ([] (string_view x) -> msg_id {
             return msg_id {x};
         }, split (r, ","));
     }
@@ -218,8 +218,8 @@ namespace data::net::email {
     list<list<ASCII>> message::keywords () const {
         list<string_view> kkk = keywords (*this);
         if (kkk.size () == 0) return {};
-        return for_each ([] (string_view k) -> list<ASCII> {
-            return for_each ([] (string_view x) -> ASCII {
+        return lift ([] (string_view k) -> list<ASCII> {
+            return lift ([] (string_view x) -> ASCII {
                 return ASCII {x};
             }, split (k, ","));
         }, kkk);

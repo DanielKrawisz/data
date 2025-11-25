@@ -26,7 +26,7 @@ namespace data::tool {
     
     // turn any map into a set. 
     template <typename M, typename K = decltype (std::declval<const M> ().values ().first ().Key)>
-    requires functional::map<M, std::remove_const_t<K>, unit>
+    requires Map<M, std::remove_const_t<K>, unit>
     struct map_set {
         using key = K;
         

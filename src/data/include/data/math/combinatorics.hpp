@@ -7,7 +7,7 @@
 
 #include <data/list.hpp>
 #include <data/stack.hpp>
-#include <data/for_each.hpp>
+#include <data/lift.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/math/figurate.hpp>
@@ -231,7 +231,7 @@ namespace data {
     template <typename elem> sublists<elem>::operator list<stack<elem>> () const {
         auto x = List;
         return reduce<list<stack<elem>>, list<list<stack<elem>>>> (&join<list<stack<elem>>>,
-            for_each ([x] (size_t size) -> list<stack<elem>> {
+            lift ([x] (size_t size) -> list<stack<elem>> {
                 return make (x, size);
             }, range (FromSize, ToSize)));
     }
@@ -248,7 +248,7 @@ namespace data {
         list<stack<elem>> x {};
         for (int ii = 0; ii <= a.size () - size; ii++) {
             const elem &e = a[ii];
-            x = x + for_each ([e] (stack<elem> y) -> stack<elem> {
+            x = x + lift ([e] (stack<elem> y) -> stack<elem> {
                 return prepend (y, e);
             }, make (drop (a, ii + 1), size - 1));
         }

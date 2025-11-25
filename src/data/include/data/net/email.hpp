@@ -8,7 +8,7 @@
 
 #include <data/stream.hpp>
 #include <data/net/URL.hpp>
-#include <data/for_each.hpp>
+#include <data/lift.hpp>
 
 // https://www.rfc-editor.org/rfc/rfc5322
 // https://www.rfc-editor.org/rfc/rfc6854
@@ -525,7 +525,7 @@ namespace data::net::email {
     }
 
     email::headers inline message::headers () const {
-        return for_each ([] (std::pair<string_view, string_view> x) -> email::header {
+        return lift ([] (std::pair<string_view, string_view> x) -> email::header {
             return email::header {email::field (x.first), ASCII (x.second)};
         }, headers (*this));
     }
@@ -535,7 +535,7 @@ namespace data::net::email {
     }
 
     list<ASCII> inline message::comments () const {
-        return for_each ([] (string_view x) -> ASCII {
+        return lift ([] (string_view x) -> ASCII {
             return ASCII {x};
         }, comments (*this));
     }
