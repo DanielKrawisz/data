@@ -4,7 +4,7 @@
 
 #include "data/math/number/eratosthenes.hpp"
 #include "data/numbers.hpp"
-#include "data/for_each.hpp"
+#include "data/lift.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -15,7 +15,7 @@ namespace data {
         
         using prime = math::number::prime<N>;
             
-        list<N> primes = for_each (
+        list<N> primes = lift (
             [] (const prime p) -> N {
                 return p.Prime.Value;
             }, 

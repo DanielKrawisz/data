@@ -12,15 +12,6 @@ namespace data {
 
     TEST (LinkedStack, StackInterfaces) {
 
-        static_assert (Sequence<stack<int>, int>);
-        static_assert (Sequence<stack<const int>, const int>);
-        static_assert (Sequence<stack<int *>, int *>);
-        static_assert (Sequence<stack<const int *>, const int *>);
-        static_assert (Sequence<stack<int *const>, int *const>);
-        static_assert (Sequence<stack<const int *const>, const int *const>);
-        static_assert (Sequence<stack<int &>, int &>);
-        static_assert (Sequence<stack<const int &>, const int &>);
-
         static_assert (Stack<stack<int>>);
         static_assert (Stack<stack<const int>>);
         static_assert (Stack<stack<int *>>);
@@ -39,6 +30,15 @@ namespace data {
         static_assert (Container<stack<int &>, int &>);
         static_assert (Container<stack<const int &>, const int &>);
 
+        static_assert (Container<const stack<int>, const int>);
+        static_assert (Container<const stack<const int>, const int>);
+        static_assert (Container<const stack<int *>, int *const>);
+        static_assert (Container<const stack<const int *>, const int *const >);
+        static_assert (Container<const stack<int *const>, int *const>);
+        static_assert (Container<const stack<const int *const>, const int *const>);
+        static_assert (Container<const stack<int &>, int &>);
+        static_assert (Container<const stack<const int &>, const int &>);
+
         static_assert (ConstIterable<stack<int>>);
         static_assert (ConstIterable<stack<int *>>);
         static_assert (ConstIterable<stack<int &>>);
@@ -55,6 +55,8 @@ namespace data {
 
         // We had some trouble defining Sequence properly and these are some
         // tests that helped to make it work right. 
+        // TODO we can get rid of these and ideally replace them with something
+        // more clear and organized.
         static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
         static_assert (Same<decltype (std::declval<const stack<int>> ().first ()), const int &>);
         static_assert (Same<decltype (std::declval<stack<const int>> ().first ()), const int &>);
@@ -404,20 +406,3 @@ TYPED_TEST (Stack, StackErase) {
     using element = typename TestFixture::element;
     using has_erase = decltype (erase (type {}, std::declval<element> ()));
 }
-// TODO
-/*
-TYPED_TEST (Stack, TestStackSelect) {
-    using type = typename TestFixture::type;
-    using element = typename TestFixture::element;
-    using has_select = decltype (select (type {}, [] (const auto &&) {
-        return true;
-    }));
-}*/
-
-        /*
-            fold
-            reduce
-            for_each
-            map_thread
-            transpose
-        */

@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_PRIMITIVE_ROOT
 #define DATA_MATH_NUMBER_PRIMITIVE_ROOT
 
-#include <data/for_each.hpp>
+#include <data/lift.hpp>
 #include <data/math/power.hpp>
 #include <data/math/number/totient.hpp>
 
@@ -62,12 +62,12 @@ namespace data::math::number {
     }
 
     template <typename N> primitive_roots<N>::primitive_roots (const nonzero<N> &p, eratosthenes<N> &e):
-        P {p}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
+        P {p}, Totient {totient<N> (p, e)}, PrimeFactors {lift ([] (const power<prime<N>, N> &p) {
             return p.Base;
         }, factorize<N> (Totient, e))} {}
 
     template <typename N> primitive_roots<N>::primitive_roots (const prime<N> &p, eratosthenes<N> &e):
-        P {p.Prime}, Totient {totient<N> (p, e)}, PrimeFactors {for_each ([] (const power<prime<N>, N> &p) {
+        P {p.Prime}, Totient {totient<N> (p, e)}, PrimeFactors {lift ([] (const power<prime<N>, N> &p) {
             return p.Base;
         }, factorize<N> (Totient, e))} {}
 

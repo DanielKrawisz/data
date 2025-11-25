@@ -4,7 +4,6 @@
 
 #include "data/math/number/factor.hpp"
 #include "data/numbers.hpp"
-#include "data/for_each.hpp"
 #include "gtest/gtest.h"
 
 namespace data::math::number {

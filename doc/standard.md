@@ -87,6 +87,10 @@ The functional data structures library has the following includes:
 * `data/array.hpp`
 * `data/math/linear.hpp`
 * `data/math/exterior.hpp`
+* `data/reverse.hpp`
+* `data/take.hpp`
+* `data/replace.hpp`
+* `data/lift.hpp`
 
 ### `data/concepts.hpp`
 
@@ -143,6 +147,8 @@ Equivalent to `std::remove_const_t`.
 #### `typename either<X...>`
 
 ### `data/tuple.hpp`
+
+#### `void for_each`
 
 ### `data/ordered.hpp`
 
@@ -206,7 +212,14 @@ a mathematician might expect.
 
 #### `concept WholeNumber`
 
-#### `concept TheoryNumber`
+Good enough for sieve of Eratosthenes. It means that we can perform all the
+usual mathematical operations up to multiplication not including negation.
+
+#### `concept RingNumber`
+
+Good enough for Euclidian algorithm. It means that we can perform all the usual
+mathematical operations up to multiplication including negation. However, 
+negation does not have to return the same type. 
 
 ### `data/math/figurate.hpp`
 
@@ -244,6 +257,8 @@ A type `elem` satisfies `data::Sequence<seq, elem>` if `data::Sequence<seq>`
 and the type returned by `seq::first` can be implicitly converted to `elem`.
 
 #### `data::drop`
+
+Given a `data::Sequence seq` and a `size_t n`, return the same type with the first `n` elements removed. 
 
 ### `data/fold.hpp`
 
@@ -651,6 +666,7 @@ Just like `std::string` except that when you print it, `"` are included as delim
 ### `data/integral.hpp`
 
 Numbers that work just like built-in types but with more sizes. 
+
 #### `typename data::byte`
 
 #### `typename data::uint8`
@@ -739,7 +755,7 @@ Provides a set of hash functions from crypto++.
 
 ## Numbers
 
-Big numbers library that uses GMP and crypto++
+Big numbers library using GMP and crypto++
 
 * `data/random.hpp`
 * `data/numbers.hpp`
