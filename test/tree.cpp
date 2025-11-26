@@ -306,9 +306,10 @@ TYPED_TEST (Tree, Right) {
     using return_type = decltype (right (type {}));
     static_assert (data::ImplicitlyConvertible<return_type, const type>);
 }
-/*
+
 TYPED_TEST (Tree, Contains) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     static_assert (data::ImplicitlyConvertible<decltype (contains (type {}, std::declval<element> ())), bool>);
-}*/
+    static_assert (data::ImplicitlyConvertible<decltype (data::contains (type {}, std::declval<element> ())), bool>);
+}

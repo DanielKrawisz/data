@@ -8,19 +8,45 @@
 
 namespace data {
 
-    TEST (Set, OrderedSet) {
+    static_assert (OrderedSet<set<int>, int>);
+    static_assert (OrderedSet<set<int &>, int &>);
+    static_assert (OrderedSet<set<int *>, int *>);
+    static_assert (OrderedSet<set<int *const>, int *const>);
 
-        static_assert (OrderedSet<set<int>>);
-        static_assert (OrderedSet<set<int &>>);
-        static_assert (OrderedSet<set<int *>>);
-        static_assert (OrderedSet<set<int *const>>);
+    static_assert (OrderedSet<set<const int>, const int>);
+    static_assert (OrderedSet<set<const int &>, const int &>);
+    static_assert (OrderedSet<set<const int *>, const int *>);
+    static_assert (OrderedSet<set<const int *const>, const int *const>);
 
-        static_assert (OrderedSet<set<const int>>);
-        static_assert (OrderedSet<set<const int &>>);
-        static_assert (OrderedSet<set<const int *>>);
-        static_assert (OrderedSet<set<const int *const>>);
+    static_assert (Sack<set<int>, int>);
+    static_assert (Sack<set<int &>, int &>);
+    static_assert (Sack<set<int *>, int *>);
+    static_assert (Sack<set<int *const>, int *const>);
 
-    }
+    static_assert (Sack<set<const int>, int>);
+    static_assert (Sack<set<const int &>, int &>);
+    static_assert (Sack<set<const int *>, const int *>);
+    static_assert (Sack<set<const int *const>, const int *const>);
+
+    static_assert (Sack<const set<int>, int>);
+    static_assert (Sack<const set<int &>, int &>);
+    static_assert (Sack<const set<int *>, int *const>);
+    static_assert (Sack<const set<int *const>, int *const>);
+
+    static_assert (Sack<const set<const int>, int>);
+    static_assert (Sack<const set<const int &>, int &>);
+    static_assert (Sack<const set<const int *>, const int *>);
+    static_assert (Sack<const set<const int *const>, const int *const>);
+
+    static_assert (ConstIterable<set<int>>);
+    static_assert (ConstIterable<set<int &>>);
+    static_assert (ConstIterable<set<int *>>);
+    static_assert (ConstIterable<set<int *const>>);
+
+    static_assert (ConstIterable<set<const int>>);
+    static_assert (ConstIterable<set<const int &>>);
+    static_assert (ConstIterable<set<const int *>>);
+    static_assert (ConstIterable<set<const int *const>>);
 
     TEST (Set, Empty) {
         set<int> a;

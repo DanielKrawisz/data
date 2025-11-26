@@ -17,7 +17,7 @@ add_executable (
     exception.cpp
     linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
     list.cpp                     # TODO: contains commented tests
-                                 #       can be both const and non const iterable (unofficially)
+                                 #       can be both const and unconst iterable (unofficially)
     ordered_sequence.cpp         # TODO: contains commented tests
     tree.cpp                     # TODO: contains commented tests
     functional_interfaces.cpp    # TODO: contains commented tests
@@ -31,6 +31,7 @@ add_executable (
     priority_queue.cpp           # TODO: Contains commented test cases
     for_each.cpp                 # TODO: contains commented test cases.
     replace.cpp                  # TODO: contains commented test cases.
+    select.cpp
     lift.cpp                     # TODO: contains commented test cases.
     map_schema.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
