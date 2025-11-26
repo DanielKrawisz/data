@@ -19,13 +19,44 @@ namespace data {
     // we can't use a map because we don't know if X is ordered.
     template <typename X> using replacements = const list<pair<X>>;
 
-    template <typename X> stack<X> replace (const stack<X>, replacements<X>);
-    template <typename X> list<X> replace (const list<X>, replacements<X>);
-    template <typename X> tree<X> replace (const tree<X>, replacements<X>);
-    template <typename X> cycle<X> replace (const cycle<X>, replacements<X>);
-    template <typename K, typename V> map<K, V> replace (const map<K, V>, replacements<V>);
-    template <typename X> cross<X> replace (const cross<X> &, replacements<X>);
-    template <typename X, size_t ...sizes> array<X, sizes...> replace (const array<X, sizes...> &, replacements<X>);
+    template           <typename X>
+    stack<X>           replace (const stack<X> &,           replacements<X>);
+
+    template           <typename X>
+    list<X>            replace (const list<X> &,            replacements<X>);
+
+    template           <typename X>
+    tree<X>            replace (const tree<X> &,            replacements<X>);
+
+    template           <typename X>
+    cycle<X>           replace (const cycle<X> &,           replacements<X>);
+
+    template           <typename K, typename V>
+    map<K, V>          replace (const map<K, V> &,          replacements<V>);
+
+    template           <typename X>
+    cross<X>           replace (const cross<X> &,           replacements<X>);
+
+    template           <typename X, size_t ...sizes>
+    array<X, sizes...> replace (const array<X, sizes...> &, replacements<X>);
+
+    template           <typename key, typename value>
+    map<key, value>    replace_part (   const map<key, value> &m, const key &k, value &&v);
+
+    template           <typename X>
+    stack<X>           replace_part (          const stack<X> &,     size_t ind,    X &&val);
+
+    template           <typename X>
+    list<X>            replace_part (           const list<X> &,     size_t ind,    X &&val);
+
+    template           <typename X>
+    cross<X>           replace_part (          const cross<X> &,     size_t ind,    X &&val);
+
+    template           <typename X, size_t ...sizes>
+    array<X, sizes...> replace_part (const array<X, sizes...> &,     size_t ind,    X &&val);
+
+    template           <typename key, typename value>
+    map<key, value>    replace_part (   const map<key, value> &m, const key &k, function<value (const value &)> f);
 
     template <typename X> cross<X> replace (const cross<X> &x, replacements<X> r) {
         cross<X> result (x.size ());
@@ -55,20 +86,20 @@ namespace data {
         return result;
     }
 
-    template <typename X> tree<X> replace (const tree<X> x, replacements<X> r) {
+    template <typename X> tree<X> replace (const tree<X> &x, replacements<X> r) {
         if (empty (x)) return x;
         for (const pair<X> &rr : r) if (root (x) == rr.first)
             return tree<X> {rr.second, replace (left (x), r), replace (right (x), r)};
         return tree<X> {root (x), replace (left (x), r), replace (right (x), r)};
     }
 
-    template <typename X> stack<X> replace (const stack<X> x, replacements<X> r) {
+    template <typename X> stack<X> replace (const stack<X> &x, replacements<X> r) {
         stack<X> result = x;
         for (auto &z : result) for (const pair<X> &rr : r) if (z == rr.first) z = rr.second;
         return result;
     }
 
-    template <typename X> list<X> replace (const list<X> x, replacements<X> r) {
+    template <typename X> list<X> replace (const list<X> &x, replacements<X> r) {
         list<X> result;
         for (const X &z : x) {
             for (const pair<X> &rr : r) if (z == rr.first) {
@@ -81,11 +112,11 @@ namespace data {
         return result;
     }
 
-    template <typename X> cycle<X> replace (const cycle<X> x, replacements<X> r) {
+    template <typename X> cycle<X> replace (const cycle<X> &x, replacements<X> r) {
         return cycle<X> {replace (x.Cycle, r)};
     }
 
-    template <typename K, typename V> map<K, V> replace (const map<K, V> x, replacements<V> r) {
+    template <typename K, typename V> map<K, V> replace (const map<K, V> &x, replacements<V> r) {
         map<K, V> result = x;
         for_each ([&r] (V &v) {
             for (const pair<V> &rr : r) if (v == rr.first) {
@@ -94,6 +125,18 @@ namespace data {
             }
         }, result);
         return result;
+    }
+
+    template <typename key, typename value>
+    map<key, value> inline replace_part (const map<key, value> &m, const key &k, value &&v) {
+        if (empty (m)) return m;
+        using node = RB::colored<data::entry<const key, value>>;
+        const node &r = m.root ();
+        if (k == r.Value.Key) return tree<node> {
+            node {r.Color, data::entry<const key, value> {k, v}},
+            m.left (), m.right ()};
+        if (k < r.Value.Key) return tree<node> {r, m.left (), replace_part (m.right (), k, v)};
+        else return tree<node> {r, replace_part (m.left (), k, v), m.right ()};
     }
 }
 

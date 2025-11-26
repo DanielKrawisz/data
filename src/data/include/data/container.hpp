@@ -43,11 +43,10 @@ namespace data {
         return x.values ();
     }
 
-    template <typename X, typename E>
-    requires (!Sequence<X>) && (Container<X, E> || (ConstIterable<X> && requires (const X x, const E e) {
-        { *x.begin () == e } -> Same<bool>;
-    }))
-    bool inline contains (const X &x, const E &e) {
+    // we have a contains method for sequences, so we have to
+    // specifically say not to use it.
+    template <typename X, typename E> requires (!Sequence<X>)
+    bool inline contains (const X &x, E &&e) {
         if constexpr (requires () {
             { x.contains (e) } -> Same<bool>;
         }) {

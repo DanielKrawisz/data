@@ -16,22 +16,46 @@ namespace data {
         RB::tree<data::entry<const K, V>,
             tree<RB::colored<data::entry<const K, V>>>>>;
 
-    template <typename K, typename V, Proposition<V> F>
-    map<K, V> select (map<K, V>, F fun);
+    template <typename K, typename V, typename E>
+    requires std::equality_comparable_with<K, E>
+    decltype (auto) inline contains (const map<K, V> &m, E &&v) {
+        return m.contains (v);
+    }
 
-    template <typename key, typename value>
-    map<key, value> replace_part (map<key, value> m, const key &k, const value &v);
+    template <typename K, typename V>
+    size_t size (const map<K, V> &);
 
-    template <typename K, typename V, Proposition<V> F>
-    map<K, V> select (map<K, V> m, F fun) {
+    template <typename K, typename V, typename E>
+    map<K, V> insert (const map<K, V> &m, const K &k, E &&v);
+
+    template <typename K, typename V, typename F>
+    map<K, V> select (const map<K, V> &, F &&fun);
+
+    template <typename K, typename V>
+    map<K, V> erase (const map<K, V> &, V &&v);
+
+    template <typename K, typename V>
+    size_t inline size (const map<K, V> &m) {
+        return m.size ();
+    }
+
+    template <typename K, typename V, typename F>
+    map<K, V> select (const map<K, V> &m, F &&fun) {
         map<K, V> selected;
         for (const auto &[key, value]: m) if (fun (value)) selected = selected.insert (key, value);
         return selected;
     }
 
-    template <typename key, typename value>
-    map<key, value> inline replace_part (map<key, value> m, const key &k, const value &v) {
-        return m.replace_part (k, v);
+    template <typename K, typename V>
+    map<K, V> inline erase (const map<K, V> &m, V &&e) {
+        return select (m, [&e] (const V &v) -> bool {
+            return e != v;
+        });
+    }
+
+    template <typename K, typename V, typename E>
+    map<K, V> inline insert (const map<K, V> &m, const K &k, E &&v) {
+        return m.insert (k, v);
     }
 
 }

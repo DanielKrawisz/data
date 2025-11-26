@@ -13,6 +13,9 @@
 
 namespace data::math {
 
+    // TODO there isn't any particular reason we need the element to be
+    // Ordered. It's just more convenient. We should get rid of this
+    // requirement.
     template <Ordered elem> struct permutation;
 }
 

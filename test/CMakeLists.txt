@@ -15,7 +15,6 @@ add_executable (
     maybe_either.cpp
     store.cpp
     exception.cpp
-    circular_queue.cpp
     linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
     list.cpp                     # TODO: contains commented tests
                                  #       can be both const and non const iterable (unofficially)
@@ -93,6 +92,7 @@ add_executable (
 
     # net
     IP.cpp
+    circular_queue.cpp
     email.cpp
 
     # io

@@ -202,6 +202,7 @@ TYPED_TEST (OrdSeq, Contains) {
     using element = typename TestFixture::element;
     using has_contains = decltype (contains (type {}, std::declval<element> ()));
 }
+
 TYPED_TEST (OrdSeq, Insert) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
@@ -209,6 +210,14 @@ TYPED_TEST (OrdSeq, Insert) {
     using has_rshift = decltype (type {} >> std::declval<element> ());
     type stack {};
     using has_rshift_equals = decltype (stack >>= std::declval<element> ());
+}
+
+TYPED_TEST (OrdSeq, Reverse) {
+    using type = typename TestFixture::type;
+    using element = typename TestFixture::element;
+    using has_reverse = decltype (reverse (type {}));
+    using has_data_reverse = decltype (data::reverse (type {}));
+    EXPECT_EQ (type {}, reverse (type {}));
 }
 
 TYPED_TEST (OrdSeq, TakeDrop) {
@@ -228,7 +237,7 @@ TYPED_TEST (OrdSeq, Sort) {
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
 }
-/*
+
 TYPED_TEST (OrdSeq, Remove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
@@ -239,4 +248,4 @@ TYPED_TEST (OrdSeq, Erase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_erase = decltype (erase (type {}, std::declval<element> ()));
-}*/
+}

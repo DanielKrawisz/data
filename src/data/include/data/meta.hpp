@@ -10,6 +10,13 @@
 #include <variant> // for std::monostate
 
 namespace data {
+    template <class X>
+    using ref_to_ptr =
+        std::conditional_t<
+            std::is_reference_v<X>,
+                std::add_pointer_t<std::remove_reference_t<X>>,
+                X>;
+
     namespace meta {
         // wrapper enables std types to use references and void.
         template <typename X> struct wrapper;
