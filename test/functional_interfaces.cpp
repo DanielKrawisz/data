@@ -18,22 +18,6 @@ static_assert (std::convertible_to<int &, const int &>);
 namespace data {
     
     TEST (FunctionalInterface, Sequence) {
-
-        static_assert (Stack<stack<int>>);
-        static_assert (Stack<stack<int *>>);
-        static_assert (Stack<stack<int &>>);
-        
-        static_assert (Stack<stack<const int>>);
-        static_assert (Stack<stack<const int *>>);
-        static_assert (Stack<stack<const int &>>);
-        
-        static_assert (Stack<stack<string>>);
-        static_assert (Stack<stack<string *>>);
-        static_assert (Stack<stack<string &>>);
-        
-        static_assert (Stack<stack<const string>>);
-        static_assert (Stack<stack<const string *>>);
-        static_assert (Stack<stack<const string &>>);
         
         static_assert (List<list<int>>);
         static_assert (List<list<int *>>);
@@ -50,6 +34,22 @@ namespace data {
         static_assert (List<list<const string>>);
         static_assert (List<list<const string *>>);
         static_assert (List<list<const string &>>);
+
+        static_assert (List<const list<int>>);
+        static_assert (List<const list<int *>>);
+        static_assert (List<const list<int &>>);
+
+        static_assert (List<const list<const int>>);
+        static_assert (List<const list<const int *>>);
+        static_assert (List<const list<const int &>>);
+
+        static_assert (List<const list<string>>);
+        static_assert (List<const list<string *>>);
+        static_assert (List<const list<string &>>);
+
+        static_assert (List<const list<const string>>);
+        static_assert (List<const list<const string *>>);
+        static_assert (List<const list<const string &>>);
         
         static_assert (Sequence<ordered_sequence<int>>);
         static_assert (Sequence<ordered_sequence<int *>>);
@@ -114,25 +114,27 @@ namespace data {
         static_assert (Container<priority_queue<const string>, const string>);
         static_assert (Container<priority_queue<const string *>, const string *>);
         static_assert (Container<priority_queue<const string &>, const string &>);
+        // TODO: these are not now true but we want them to be true eventually.
+/*
+        static_assert (Tree<priority_queue<int>, int>);
+        static_assert (Tree<priority_queue<int *>, int *>);
+        static_assert (Tree<priority_queue<int &>, int &>);
+
+        static_assert (Tree<priority_queue<const int>, const int>);
+        static_assert (Tree<priority_queue<const int *>, const int *>);
+        static_assert (Tree<priority_queue<const int &>, const int &>);
+
+        static_assert (Tree<priority_queue<string>, string>);
+        static_assert (Tree<priority_queue<string *>, string *>);
+        static_assert (Tree<priority_queue<string &>, string &>);
+
+        static_assert (Tree<priority_queue<const string>, const string>);
+        static_assert (Tree<priority_queue<const string *>, const string *>);
+        static_assert (Tree<priority_queue<const string &>, const string &>);*/
         
     }
 
     TEST (FunctionalInterface, Iterable) {
-
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<int &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const stack<int>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const stack<int *>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const stack<int &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<string>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<string *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const stack<string &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const stack<string>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const stack<string &>> ().begin ())>);
 
         static_assert (std::forward_iterator<decltype (std::declval<const list<int>> ().begin ())>);
         static_assert (std::forward_iterator<decltype (std::declval<const list<int *>> ().begin ())>);
@@ -331,7 +333,7 @@ namespace data {
         using ordered_sequence_has_empty = decltype (empty (std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_empty = decltype (empty (std::declval<priority_queue<X>> ()));
         using map_has_empty = decltype (empty (std::declval<map<size_t, X>> ()));
-        //using cycle_has_empty = decltype (empty (std::declval<cycle<X>> ()));
+        using cycle_has_empty = decltype (empty (std::declval<cycle<X>> ()));
         using dispatch_has_empty = decltype (empty (std::declval<dispatch<size_t, X>> ()));
     
         using stack_has_size = decltype (size (std::declval<stack<X>> ()));
@@ -340,8 +342,8 @@ namespace data {
         using set_has_size = decltype (size (std::declval<set<X>> ()));
         using ordered_sequence_has_size = decltype (size (std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_size = decltype (size (std::declval<priority_queue<X>> ()));
-        //using map_has_size = decltype (size (std::declval<map<size_t, X>> ()));
-        //using cycle_has_size = decltype (size (std::declval<cycle<X>> ()));
+        using map_has_size = decltype (size (std::declval<map<size_t, X>> ()));
+        using cycle_has_size = decltype (size (std::declval<cycle<X>> ()));
         using dispatch_has_size = decltype (size (std::declval<dispatch<size_t, X>> ()));
     
         // equality (only supported for types with their own == operator)
@@ -403,13 +405,12 @@ namespace data {
         
         using stack_has_plus = decltype (std::declval<stack<X>> () + std::declval<stack<X>> ());
         using list_has_plus = decltype (std::declval<list<X>> () + std::declval<list<X>> ());
-        // TODO
-        /*
+
         using ordered_sequence_has_merge = decltype (merge (std::declval<ordered_sequence<X>> (), std::declval<ordered_sequence<X>> ()));
         using priority_queue_has_merge = decltype (merge (std::declval<priority_queue<X>> (), std::declval<priority_queue<X>> ()));
         using set_has_merge = decltype (merge (std::declval<set<X>> (), std::declval<set<X>> ()));
         using map_has_merge = decltype (merge (std::declval<map<size_t, X>> (), std::declval<map<size_t, X>> ()));
-        */
+
         using ordered_sequence_has_and = decltype (std::declval<ordered_sequence<X>> () & std::declval<ordered_sequence<X>> ());
         using priority_queue_has_and = decltype (std::declval<priority_queue<X>> () & std::declval<priority_queue<X>> ());
         using set_has_and = decltype (std::declval<set<X>> () & std::declval<set<X>> ());
@@ -447,6 +448,8 @@ namespace data {
         using list_has_replace = decltype (replace (std::declval<list<X>> (), {}));
         using tree_has_replace = decltype (replace (std::declval<tree<X>> (), {}));
         using map_has_replace = decltype (replace (std::declval<map<size_t, X>> (), {}));
+
+        using map_has_contains = decltype (contains (std::declval<map<size_t, X>> (), size_t {0}));
     };
 
     template <typename X> bool doop (const X &) {
@@ -461,7 +464,7 @@ namespace data {
             using set_has_insert = decltype (insert (std::declval<set<X>> (), y));
             using ordered_sequence_has_insert = decltype (insert (std::declval<ordered_sequence<X>> (), y));
             using priority_queue_has_insert = decltype (insert (std::declval<priority_queue<X>> (), y));
-            //using map_has_insert = decltype (insert (std::declval<map<size_t, X>> (), 0, y));
+            using map_has_insert = decltype (insert (std::declval<map<size_t, X>> (), size_t {0}, y));
 
             using stack_has_prepend = decltype (prepend (std::declval<stack<X>> (), y));
             using list_has_prepend = decltype (prepend (std::declval<list<X>> (), y));
@@ -470,11 +473,10 @@ namespace data {
 
             using stack_has_contains = decltype (contains (std::declval<stack<X>> (), y));
             using list_has_contains = decltype (contains (std::declval<list<X>> (), y));
-            //using tree_has_contains = decltype (contains (std::declval<tree<X>> (), y));
+            using tree_has_contains = decltype (contains (std::declval<tree<X>> (), y));
             using set_has_contains = decltype (contains (std::declval<set<X>> (), y));
             using ordered_sequence_has_contains = decltype (contains (std::declval<ordered_sequence<X>> (), y));
             using priority_queue_has_contains = decltype (contains (std::declval<priority_queue<X>> (), y));
-            //using map_has_contains = decltype (contains (std::declval<map<size_t, X>> (), y));
 
             using stack_has_remove = decltype (remove (std::declval<stack<X>> (), 0));
             using list_has_remove = decltype (remove (std::declval<list<X>> (), 0));
@@ -497,7 +499,10 @@ namespace data {
             using ordered_sequence_has_select = decltype (select (std::declval<ordered_sequence<X>> (), &doop<y>));
             using priority_queue_has_select = decltype (select (std::declval<priority_queue<X>> (), &doop<y>));
             using map_has_select = decltype (select (std::declval<map<size_t, X>> (), &doop<y>));
-*/
+
+            using stack_has_replace_part = decltype (replace_part (std::declval<stack<X>> (), size_t {0}, y));
+            using list_has_replace_part = decltype (replace_part (std::declval<list<X>> (), size_t {0}, y));
+            using map_has_replace_part = decltype (replace_part (std::declval<map<size_t, X>> (), size_t {0}, y));*/
         }
 
     };

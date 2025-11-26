@@ -13,33 +13,57 @@ namespace data {
     
     // test whether these data structures satisfy the correct interfaces. 
     TEST (Tree, TreeInterfaces) {
+
+        static_assert (Tree<tree<int>, int &>);
+        static_assert (Tree<tree<int *>, int *>);
+        static_assert (Tree<tree<int &>, int &>);
+
+        static_assert (Tree<tree<const int>, const int &>);
+        static_assert (Tree<tree<const int *>, const int *>);
+        static_assert (Tree<tree<const int &>, const int &>);
+
+        static_assert (Tree<tree<string>, string &>);
+        static_assert (Tree<tree<string *>, string *>);
+        static_assert (Tree<tree<string &>, string &>);
+
+        static_assert (Tree<tree<const string>, const string &>);
+        static_assert (Tree<tree<const string *>, const string *>);
+        static_assert (Tree<tree<const string &>, const string &>);
+
+        static_assert (Tree<const tree<int>, const int &>);
+        static_assert (Tree<const tree<int *>, const int *>);
+        static_assert (Tree<const tree<int &>, const int &>);
+
+        static_assert (Tree<const tree<const int>, const int &>);
+        static_assert (Tree<const tree<const int *>, const int *>);
+        static_assert (Tree<const tree<const int &>, const int &>);
+
+        static_assert (Tree<const tree<string>, const string &>);
+        static_assert (Tree<const tree<string *>, const string *>);
+        static_assert (Tree<const tree<string &>, const string &>);
+
+        static_assert (Tree<const tree<const string>, const string &>);
+        static_assert (Tree<const tree<const string *>, const string *>);
+        static_assert (Tree<const tree<const string &>, const string &>);
         
         static_assert (functional::buildable_tree<tree<int>>);
         static_assert (functional::buildable_tree<tree<int &>>);
         static_assert (functional::buildable_tree<tree<int *>>);
+        static_assert (functional::buildable_tree<tree<int *const>>);
         
         static_assert (functional::buildable_tree<tree<const int>>);
         static_assert (functional::buildable_tree<tree<const int &>>);
         static_assert (functional::buildable_tree<tree<const int *>>);
-        static_assert (functional::buildable_tree<tree<int *const>>);
         static_assert (functional::buildable_tree<tree<const int *const>>);
 
         static_assert (Container<tree<int>, int>);
         static_assert (Container<tree<int &>, int &>);
         static_assert (Container<tree<int *>, int *>);
+        static_assert (Container<tree<int *const>, int *const>);
         static_assert (Container<tree<const int>, const int>);
         static_assert (Container<tree<const int &>, const int &>);
         static_assert (Container<tree<const int *>, const int *>);
-        static_assert (Container<tree<int *const>, int *const>);
         static_assert (Container<tree<const int *const>, const int *const>);
-/*
-        static_assert (ConstIterable<tree<int>>);
-        static_assert (ConstIterable<tree<int *>>);
-        static_assert (ConstIterable<tree<int &>>);
-        static_assert (ConstIterable<tree<const int *>>);
-        static_assert (ConstIterable<tree<int *const>>);
-        static_assert (ConstIterable<tree<const int *const>>);
-        static_assert (ConstIterable<tree<const int &>>);*/
         
     }
     

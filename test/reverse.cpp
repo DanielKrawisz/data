@@ -4,6 +4,7 @@
 
 #include "data/list.hpp"
 #include "data/stack.hpp"
+#include "data/ordered_sequence.hpp"
 #include "data/array.hpp"
 #include "data/cycle.hpp"
 #include "gtest/gtest.h"
@@ -30,6 +31,17 @@ namespace data {
         test_reverse<cross<int>> ();
         test_reverse<array<int, 3>> ();
         
+    }
+
+    TEST (Reverse, OrdSeq) {
+
+        ordered_sequence<int> l {1, 2, 3};
+        stack<int> r {3, 2, 1};
+
+        EXPECT_TRUE (l != r);
+
+        EXPECT_TRUE (reverse (l) == r);
+
     }
 
 }

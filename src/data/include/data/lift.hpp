@@ -5,82 +5,111 @@
 #ifndef DATA_LIFT
 #define DATA_LIFT
 
-#include <data/function.hpp>
-#include <data/cycle.hpp>
 #include <data/list.hpp>
+#include <data/tree.hpp>
 #include <data/map.hpp>
-#include <data/cross.hpp>
+#include <data/cycle.hpp>
 #include <data/array.hpp>
+#include <data/cross.hpp>
+#include <data/for_each.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data {
     
-    template <typename fun, typename input, 
-        typename element = std::remove_const_t<unref<decltype (std::declval<input> ().first ())>>,
-        typename output = decltype (std::declval<fun> () (std::declval<element> ()))>
-    requires functional::function<fun, output, element> && Sequence<input, element>
-    list<output> lift (const fun &f, const input &i) {
-        return fold ([&f] (list<output> q, element x) -> list<output> {
-            return append (q, f (x));
-        }, list<output> {}, i);
+    // Take a function fun and some lists {x, ...}, {y, ...}, {z, ...} ... and return {f (x, y, z, ...), ...}
+    template <typename F, Sequence Val, Sequence... Vals>
+    auto lift (F fun, Val list, Vals... lists) -> stack<decltype (fun (first (list), first (lists)...))>;
+
+    template <typename F, typename X, typename... Xs>
+    auto lift (F fun, const list<X> &ls, list<Xs>... lss) -> list<decltype (fun (first (ls), first (lss)...))>;
+
+    template <typename F, typename K, typename V, typename... Vs>
+    auto lift (F fun, const map<K, V> &m, map<K, Vs>... ms) -> map<K, decltype (fun (m[K {}], ms[K {}]...))>;
+
+    template <typename F, typename X, typename... Xs>
+    auto lift (F fun, const tree<X> &tr, tree<Xs>... trs) -> tree<decltype (fun (tr.root (), trs.root ()...))>;
+
+    template <typename F, typename X, typename... Xs>
+    auto lift (F fun, const cross<X> &vec, cross<Xs>... vecs) -> cross<decltype (fun (vec[0], vecs[0]...))>;
+
+    template <typename F, typename X, size_t ...sizes, typename... Xs>
+    auto lift (F fun, const array<X, sizes...> &arr, array<Xs, sizes...>... arrs) -> array<decltype (fun (arr[0], arrs[0]...)), sizes...>;
+
+    template <typename F, typename... Xs>
+    auto lift (F fun, cycle<Xs>... cycles) -> cycle<decltype (fun (cycles.head ()...))>;
+
+    template <typename F, Sequence Val, Sequence... Vals>
+    auto lift (F fun, Val list, Vals... lists) -> stack<decltype (fun (first (list), first (lists)...))> {
+        using result_type = decltype (fun (first (list), first (lists)...));
+        size_t sizes = data::size (list);
+        if (!((sizes == data::size (lists)) && ...)) throw exception {} << "unequal sizes";
+        function<stack<result_type> (F, Val, Vals...)> inner = [&inner] (F fun, Val list, Vals... lists) {
+            if (data::empty (list)) return stack<result_type> {};
+            result_type x = fun (data::first (list), data::first (lists)...);
+            return data::prepend (inner (fun, data::rest (list), data::rest (lists)...), x);
+        };
+        return inner (fun, list, lists...);
+
     }
 
-    template <typename fun, typename input,
-        typename key = decltype (std::declval<input> ().values ().first ().Key),
-        typename value = decltype (std::declval<input> ().values ().first ().Value),
-        typename output = decltype (std::declval<fun> () (std::declval<value> ()))>
-    requires Map<input, key, value>
-    map<key, output> inline lift (const fun &f, const input &i) {
-        map<key, output> m;
-        for (const auto &e : i) m = m.insert (e.Key, f (e.Value));
-        return m;
+    template <typename F, typename X, typename... Xs>
+    auto lift (F fun, const list<X> &ls, list<Xs>... lss) -> list<decltype (fun (first (ls), first (lss)...))> {
+        using result_type = decltype (fun (first (ls), first (lss)...));
+        list<result_type> result;
+        for_each ([&result, &fun] (const X &x, const Xs &...xs) {
+            result <<= fun (x, xs...);
+        }, ls, lss...);
+        return result;
     }
-    
-    template <typename fun, typename input, 
-        typename element = unref<decltype (std::declval<input> ().values ().first ())>,
-        typename output = decltype (std::declval<fun> () (std::declval<element> ()))>
-    requires functional::function<fun, output, element> && OrderedSet<input, element>
-    list<output> inline lift (const fun &f, const input &i) {
-        return fold ([&f] (list<output> q, element x) -> list<output> {
-            return append (q, f (x));
-        }, list<output> {}, i.values ());
+
+    template <typename F, typename... Xs>
+    auto inline lift (F fun, cycle<Xs>... cycles) -> cycle<decltype (fun (cycles.head ()...))> {
+        using result_type = decltype (fun (cycles.head ()...));
+        return cycle<result_type> {lift (fun, (cycles.Cycle)...)};
     }
-    /*
-    template <typename fun, typename input, 
-        typename element = unref<decltype(std::declval<input>().values().first())>,
-        typename output = unref<decltype(std::declval<fun>()(std::declval<element>()))>>
-    requires functional::function<fun, output, element> && functional::tree<input, element>
-    tree<output> inline lift (const fun& f, const input& i) {
-        if (empty (i)) return {};
-        return {f (root (i)), lift (f, left (i)), lift (f, right (i))};
-    }*/
-    
-    template <typename fun, typename element, 
-        typename output = unref<decltype (std::declval<fun> () (std::declval<element> ()))>>
-    requires functional::function<fun, output, element>
-    inline tree<output> lift (const fun &f, const tree<element> &t) {
-        if (empty (t)) return {};
-        
-        return {f (root (t)), lift (f, left (t)), lift (f, right (t))};
+
+    template <typename F, typename X, typename... Xs>
+    auto lift (F fun, const cross<X> &vec, cross<Xs>... vecs) -> cross<decltype (fun (vec[0], vecs[0]...))> {
+        using result_type = decltype (fun (vec[0], vecs[0]...));
+        size_t sizes = data::size (vec);
+        if (!((sizes == data::size (vecs)) && ...)) throw exception {} << "unequal sizes";
+        cross<result_type> res (sizes);
+        for_each_by ([&res, &fun] (size_t index, const X &x, const Xs &...xs) {
+            res[index] = fun (x, xs...);
+        }, vec, vecs...);
+        return res;
     }
-    
-    template <typename fun, typename element, 
-        typename output = unref<decltype (std::declval<fun> () (std::declval<element> ()))>>
-    requires functional::function<fun, output, element>
-    inline cross<output> lift (const fun &f, const cross<element> &i) {
-        cross<output> z;
-        z.resize (i.size ());
-        auto a = i.begin ();
-        auto b = z.begin ();
-        
-        while (a != i.end ()) {
-            *b = f(*a);
-            a++;
-            b++;
-        }
-        
-        return z;
+
+    template <typename F, typename X, size_t ...sizes, typename... Xs>
+    auto lift (F fun, const array<X, sizes...> &arr, array<Xs, sizes...>... arrs) -> array<decltype (fun (arr[0], arrs[0]...)), sizes...> {
+        using result_type = decltype (fun (arr[0], arrs[0]...));
+        array<result_type, sizes...> res;
+        for (size_t index = 0; index < array<result_type, sizes...>::Size; index++)
+            res[index] = fun (arr.Values[index], arrs.Values[index]...);
+        return res;
     }
-    
+
+    template <typename F, typename K, typename V, typename... Vs>
+    auto lift (F fun, const map<K, V> &m, map<K, Vs>... ms) -> map<K, decltype (fun (m[K {}], ms[K {}]...))> {
+        using result_type = decltype (fun (m[K {}], ms[K {}]...));
+        size_t sizes = data::size (m);
+        if (!((sizes == data::size (ms)) && ...)) throw exception {} << "unequal sizes";
+        if (sizeof...(ms) != 0) throw method::unimplemented {"lift maps with multiple inputs"};
+        map<K, result_type> result;
+        for (const auto &[key, val]: m) result = result.insert (key, fun (val));
+        return result;
+    }
+
+    template <typename F, typename X, typename... Xs>
+    auto lift (F fun, const tree<X> &tr, tree<Xs>... trs) -> tree<decltype (fun (tr.root (), trs.root ()...))> {
+        using result_type = decltype (fun (tr.root (), trs.root ()...));
+        size_t sizes = data::size (tr);
+        if (!((sizes == data::size (trs)) && ...)) throw exception {} << "unequal sizes";
+        if (sizeof...(trs) != 0) throw method::unimplemented {"lift tree with multiple inputs"};
+        if (empty (tr)) return tree<result_type> {};
+        return tree<result_type> {fun (tr.root ()), lift (std::forward<F> (fun), tr.left ()), lift (std::forward<F> (fun), tr.right ())};
+    }
+
 }
 
 #endif

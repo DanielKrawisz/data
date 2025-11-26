@@ -127,6 +127,9 @@ target_sources (
 
   PRIVATE
 
+  # this is first because it takes a really long time.
+  net/email.cpp
+
   net/URL.cpp
 
   async.cpp
@@ -138,7 +141,6 @@ target_sources (
   #net/websocket.cpp
   net/HTTP_client.cpp
   net/HTTP_server.cpp
-  net/email.cpp
   
   tools/rate_limiter.cpp
 )
