@@ -169,25 +169,34 @@ TYPED_TEST (Map, Valid) {
     using type = typename TestFixture::type;
     EXPECT_TRUE (valid (type {}));
     EXPECT_TRUE (data::valid (type {}));
+    EXPECT_TRUE (valid ((const type) {}));
+    EXPECT_TRUE (data::valid ((const type) {}));
 }
 
 TYPED_TEST (Map, Empty) {
     using type = typename TestFixture::type;
     EXPECT_TRUE (empty (type {}));
     EXPECT_TRUE (data::empty (type {}));
+    EXPECT_TRUE (empty ((const type) {}));
+    EXPECT_TRUE (data::empty ((const type) {}));
 }
 
 TYPED_TEST (Map, Size) {
     using type = typename TestFixture::type;
     EXPECT_EQ (size (type {}), 0);
     EXPECT_EQ (data::size (type {}), 0);
+    EXPECT_EQ (size ((const type) {}), 0);
+    EXPECT_EQ (data::size ((const type) {}), 0);
 }
 
 TYPED_TEST (Map, Insert) {
     using type = typename TestFixture::type;
     using value = typename TestFixture::value;
-    using has_insert = decltype (insert (type {}, 0, std::declval<value> ()));
-    using has_data_insert = decltype (data::insert (type {}, 0, std::declval<value> ()));
+    static_assert (data::Same<type,
+        decltype (insert (type {}, 0, std::declval<value> ())),
+        decltype (data::insert (type {}, 0, std::declval<value> ())),
+        decltype (insert ((const type) {}, 0, std::declval<value> ())),
+        decltype (data::insert ((const type) {}, 0, std::declval<value> ()))>);
 }
 
 TYPED_TEST (Map, Remove) {

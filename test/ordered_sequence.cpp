@@ -4,6 +4,7 @@
 
 #include <data/ordered_sequence.hpp>
 #include <data/list.hpp>
+#include <data/lift.hpp>
 #include <data/string.hpp>
 #include <data/remove.hpp>
 #include "gtest/gtest.h"
@@ -194,16 +195,16 @@ TYPED_TEST (OrdSeq, TakeDrop) {
     using has_drop = decltype (drop (type {}, size_t (0)));
 }
 
-TYPED_TEST (OrdSeq, Merge) {
-    using type = typename TestFixture::type;
-    (void) merge (type {}, type {});
-    (void) (type {} & type {});
-}
-
 TYPED_TEST (OrdSeq, Sort) {
     using type = typename TestFixture::type;
     (void) sort (type {});
     EXPECT_TRUE (sorted (type {}));
+}
+
+TYPED_TEST (OrdSeq, Merge) {
+    using type = typename TestFixture::type;
+    (void) merge (type {}, type {});
+    (void) (type {} & type {});
 }
 
 TYPED_TEST (OrdSeq, Remove) {

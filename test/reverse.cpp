@@ -10,18 +10,19 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
+template <typename list> void test_reverse () {
+    list l {1, 2, 3};
+    list r {3, 2, 1};
+
+    EXPECT_TRUE (l != r);
+
+    EXPECT_TRUE (reverse (l) == r);
+    EXPECT_TRUE (data::reverse (l) == r);
+}
+
 namespace data {
 
     static_assert (Iterable<array<int, 3>>);
-    
-    template <typename list> void test_reverse () {
-        list l {1, 2, 3};
-        list r {3, 2, 1};
-        
-        EXPECT_TRUE (l != r);
-        
-        EXPECT_TRUE (reverse (l) == r);
-    }
 
     TEST (Reverse, Reverse) {
         

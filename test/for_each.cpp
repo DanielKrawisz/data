@@ -93,6 +93,12 @@ namespace data {
 
         EXPECT_EQ (total, 6);
         // TODO need unconst and multiple inputs
+        /*
+        total = 0;
+        for_each (dinner, x, list<int> {3, 5, -4});
+        for_each (sum, x);
+
+        EXPECT_EQ (total, -1);*/
     }
 
     TEST (ForEach, OrderedSequence) {
@@ -106,6 +112,14 @@ namespace data {
 
         EXPECT_EQ (total, 6);
         // TODO multiple inputs
+/*
+        total = 0;
+        auto inner = [&total] (const int &i, const int &j) {
+            total += i * j;
+        };
+
+        for_each (inner, x, ordered_sequence<int> {3, 5, -4});
+        EXPECT_EQ (total, 1);*/
     }
 
     TEST (ForEach, Cycle) {
@@ -118,7 +132,7 @@ namespace data {
         for_each (sum, x);
 
         EXPECT_EQ (total, 6);
-        // TODO need unconst and multiple inputs
+        // TODO need unconst
     }
 
     TEST (ForEach, Tree) {
@@ -131,7 +145,6 @@ namespace data {
         for_each (sum, x);
 
         EXPECT_EQ (total, 28);
-        // TODO need unconst and multiple inputs
     }
 
     TEST (ForEach, Map) {
@@ -144,7 +157,6 @@ namespace data {
         for_each (sum, x);
 
         EXPECT_EQ (total, 6);
-        // TODO need unconst and multiple inputs
     }
 
 }
