@@ -9,203 +9,13 @@
 #include "data/cycle.hpp"
 #include "data/remove.hpp"
 #include "data/replace.hpp"
-#include "data/remove.hpp"
+#include "data/select.hpp"
 #include "gtest/gtest.h"
 
 static_assert (std::convertible_to<int &, const int &>);
 
 // test whether data structures satisfy the correct interfaces. 
 namespace data {
-    
-    TEST (FunctionalInterface, Sequence) {
-        
-        static_assert (List<list<int>>);
-        static_assert (List<list<int *>>);
-        static_assert (List<list<int &>>);
-        
-        static_assert (List<list<const int>>);
-        static_assert (List<list<const int *>>);
-        static_assert (List<list<const int &>>);
-        
-        static_assert (List<list<string>>);
-        static_assert (List<list<string *>>);
-        static_assert (List<list<string &>>);
-        
-        static_assert (List<list<const string>>);
-        static_assert (List<list<const string *>>);
-        static_assert (List<list<const string &>>);
-
-        static_assert (List<const list<int>>);
-        static_assert (List<const list<int *>>);
-        static_assert (List<const list<int &>>);
-
-        static_assert (List<const list<const int>>);
-        static_assert (List<const list<const int *>>);
-        static_assert (List<const list<const int &>>);
-
-        static_assert (List<const list<string>>);
-        static_assert (List<const list<string *>>);
-        static_assert (List<const list<string &>>);
-
-        static_assert (List<const list<const string>>);
-        static_assert (List<const list<const string *>>);
-        static_assert (List<const list<const string &>>);
-        
-        static_assert (Sequence<ordered_sequence<int>>);
-        static_assert (Sequence<ordered_sequence<int *>>);
-        static_assert (Sequence<ordered_sequence<int &>>);
-        
-        static_assert (Sequence<ordered_sequence<const int>>);
-        static_assert (Sequence<ordered_sequence<const int *>>);
-        static_assert (Sequence<ordered_sequence<const int &>>);
-        
-        static_assert (Sequence<ordered_sequence<string>>);
-        static_assert (Sequence<ordered_sequence<string *>>);
-        static_assert (Sequence<ordered_sequence<string &>>);
-        
-        static_assert (Sequence<ordered_sequence<const string>>);
-        static_assert (Sequence<ordered_sequence<const string *>>);
-        static_assert (Sequence<ordered_sequence<const string &>>);
-
-        static_assert (Container<ordered_sequence<int>, int>);
-        static_assert (Container<ordered_sequence<int *>, int *>);
-        static_assert (Container<ordered_sequence<int &>, int &>);
-        
-        static_assert (Container<ordered_sequence<const int>, const int>);
-        static_assert (Container<ordered_sequence<const int *>, const int *>);
-        static_assert (Container<ordered_sequence<const int &>, const int &>);
-        
-        static_assert (Container<ordered_sequence<string>, string>);
-        static_assert (Container<ordered_sequence<string *>, string *>);
-        static_assert (Container<ordered_sequence<string &>, string &>);
-        
-        static_assert (Container<ordered_sequence<const string>, const string>);
-        static_assert (Container<ordered_sequence<const string *>, const string *>);
-        static_assert (Container<ordered_sequence<const string &>, const string &>);
-        
-        static_assert (Sequence<priority_queue<int>>);
-        static_assert (Sequence<priority_queue<int *>>);
-        static_assert (Sequence<priority_queue<int &>>);
-        
-        static_assert (Sequence<priority_queue<const int>>);
-        static_assert (Sequence<priority_queue<const int *>>);
-        static_assert (Sequence<priority_queue<const int &>>);
-        
-        static_assert (Sequence<priority_queue<string>>);
-        static_assert (Sequence<priority_queue<string *>>);
-        static_assert (Sequence<priority_queue<string &>>);
-        
-        static_assert (Sequence<priority_queue<const string>>);
-        static_assert (Sequence<priority_queue<const string *>>);
-        static_assert (Sequence<priority_queue<const string &>>);
-        
-        static_assert (Container<priority_queue<int>, int>);
-        static_assert (Container<priority_queue<int *>, int *>);
-        static_assert (Container<priority_queue<int &>, int &>);
-        
-        static_assert (Container<priority_queue<const int>, const int>);
-        static_assert (Container<priority_queue<const int *>, const int *>);
-        static_assert (Container<priority_queue<const int &>, const int &>);
-        
-        static_assert (Container<priority_queue<string>, string>);
-        static_assert (Container<priority_queue<string *>, string *>);
-        static_assert (Container<priority_queue<string &>, string &>);
-        
-        static_assert (Container<priority_queue<const string>, const string>);
-        static_assert (Container<priority_queue<const string *>, const string *>);
-        static_assert (Container<priority_queue<const string &>, const string &>);
-        // TODO: these are not now true but we want them to be true eventually.
-/*
-        static_assert (Tree<priority_queue<int>, int>);
-        static_assert (Tree<priority_queue<int *>, int *>);
-        static_assert (Tree<priority_queue<int &>, int &>);
-
-        static_assert (Tree<priority_queue<const int>, const int>);
-        static_assert (Tree<priority_queue<const int *>, const int *>);
-        static_assert (Tree<priority_queue<const int &>, const int &>);
-
-        static_assert (Tree<priority_queue<string>, string>);
-        static_assert (Tree<priority_queue<string *>, string *>);
-        static_assert (Tree<priority_queue<string &>, string &>);
-
-        static_assert (Tree<priority_queue<const string>, const string>);
-        static_assert (Tree<priority_queue<const string *>, const string *>);
-        static_assert (Tree<priority_queue<const string &>, const string &>);*/
-        
-    }
-
-    TEST (FunctionalInterface, Iterable) {
-
-        static_assert (std::forward_iterator<decltype (std::declval<const list<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const list<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const list<int &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const list<const int>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const list<const int &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const list<string>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const list<string *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const list<string &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const list<const string>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const list<const string &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<int &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const ordered_sequence<int>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const ordered_sequence<int &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const int &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const ordered_sequence<const int>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const ordered_sequence<const int &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<string>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<string *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<string &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const string>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const string *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const ordered_sequence<const string &>> ().begin ())>);
-
-        static_assert (std::indirectly_readable<decltype (std::declval<const set<int>> ().begin ())>);
-        static_assert (std::indirectly_readable<decltype (std::declval<const set<int *>> ().begin ())>);
-        static_assert (std::indirectly_readable<decltype (std::declval<const set<int &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const set<int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<int &>> ().begin ())>);
-
-        static_assert (Reference<decltype (*std::declval<const set<int>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const set<int *>> ().begin ())>);
-        static_assert (Reference<decltype (*std::declval<const set<int &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const set<const int>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<const int *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<const int &>> ().begin ())>);
-
-        static_assert (Same<decltype (*std::declval<const set<int>> ().begin ()), const int &>);
-        static_assert (Same<decltype (*std::declval<const set<const int>> ().begin ()), const int &>);
-        
-        static_assert (Same<decltype (*std::declval<const set<int &>> ().begin ()), int &>);
-        static_assert (Same<decltype (*std::declval<const set<const int &>> ().begin ()), const int &>);
-
-        static_assert (Same<decltype (*std::declval<const set<int *>> ().begin ()), int *const &>);
-        static_assert (Same<decltype (*std::declval<const set<const int *>> ().begin ()), const int *const &>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const set<string>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<string *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<string &>> ().begin ())>);
-
-        static_assert (std::forward_iterator<decltype (std::declval<const set<const string>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<const string *>> ().begin ())>);
-        static_assert (std::forward_iterator<decltype (std::declval<const set<const string &>> ().begin ())>);
-
-    }
 
     TEST (FunctionalInterface, Values) {
 
@@ -325,27 +135,6 @@ namespace data {
 
     template <typename X> struct test_has_functions {
 
-        // basic container functions
-        using stack_has_empty = decltype (empty (std::declval<stack<X>> ()));
-        using list_has_empty = decltype (empty (std::declval<list<X>> ()));
-        using tree_has_empty = decltype (empty (std::declval<tree<X>> ()));
-        using set_has_empty = decltype (empty (std::declval<set<X>> ()));
-        using ordered_sequence_has_empty = decltype (empty (std::declval<ordered_sequence<X>> ()));
-        using priority_queue_has_empty = decltype (empty (std::declval<priority_queue<X>> ()));
-        using map_has_empty = decltype (empty (std::declval<map<size_t, X>> ()));
-        using cycle_has_empty = decltype (empty (std::declval<cycle<X>> ()));
-        using dispatch_has_empty = decltype (empty (std::declval<dispatch<size_t, X>> ()));
-    
-        using stack_has_size = decltype (size (std::declval<stack<X>> ()));
-        using list_has_size = decltype (size (std::declval<list<X>> ()));
-        using tree_has_size = decltype (size (std::declval<tree<X>> ()));
-        using set_has_size = decltype (size (std::declval<set<X>> ()));
-        using ordered_sequence_has_size = decltype (size (std::declval<ordered_sequence<X>> ()));
-        using priority_queue_has_size = decltype (size (std::declval<priority_queue<X>> ()));
-        using map_has_size = decltype (size (std::declval<map<size_t, X>> ()));
-        using cycle_has_size = decltype (size (std::declval<cycle<X>> ()));
-        using dispatch_has_size = decltype (size (std::declval<dispatch<size_t, X>> ()));
-    
         // equality (only supported for types with their own == operator)
         using stack_has_equal = decltype (equal (std::declval<stack<X>> (), std::declval<stack<X>> ()));
         using list_has_equal = decltype (equal (std::declval<list<X>> (), std::declval<list<X>> ()));
@@ -367,8 +156,29 @@ namespace data {
         using cycle_has_unequal = decltype (unequal (std::declval<cycle<X>> (), std::declval<cycle<X>> ()));
         using dispatch_has_unequal = decltype (unequal (std::declval<dispatch<size_t, X>> (), std::declval<dispatch<size_t, X>> ()));
 
-        // tree doesn't have a values method because it doesn't have an 
-        // iteration order. 
+        // basic container functions
+        using stack_has_empty = decltype (empty (std::declval<stack<X>> ()));
+        using list_has_empty = decltype (empty (std::declval<list<X>> ()));
+        using tree_has_empty = decltype (empty (std::declval<tree<X>> ()));
+        using set_has_empty = decltype (empty (std::declval<set<X>> ()));
+        using ordered_sequence_has_empty = decltype (empty (std::declval<ordered_sequence<X>> ()));
+        using priority_queue_has_empty = decltype (empty (std::declval<priority_queue<X>> ()));
+        using map_has_empty = decltype (empty (std::declval<map<size_t, X>> ()));
+        using cycle_has_empty = decltype (empty (std::declval<cycle<X>> ()));
+        using dispatch_has_empty = decltype (empty (std::declval<dispatch<size_t, X>> ()));
+    
+        using stack_has_size = decltype (size (std::declval<stack<X>> ()));
+        using list_has_size = decltype (size (std::declval<list<X>> ()));
+        using tree_has_size = decltype (size (std::declval<tree<X>> ()));
+        using set_has_size = decltype (size (std::declval<set<X>> ()));
+        using ordered_sequence_has_size = decltype (size (std::declval<ordered_sequence<X>> ()));
+        using priority_queue_has_size = decltype (size (std::declval<priority_queue<X>> ()));
+        using map_has_size = decltype (size (std::declval<map<size_t, X>> ()));
+        using cycle_has_size = decltype (size (std::declval<cycle<X>> ()));
+        using dispatch_has_size = decltype (size (std::declval<dispatch<size_t, X>> ()));
+
+        // tree doesn't have a values method because it doesn't have an
+        // iteration order.
         using stack_has_values = decltype (values (std::declval<stack<X>> ()));
         using list_has_values = decltype (values (std::declval<list<X>> ()));
         using ordered_sequence_has_values = decltype (values (std::declval<ordered_sequence<X>> ()));
@@ -448,6 +258,7 @@ namespace data {
         using list_has_replace = decltype (replace (std::declval<list<X>> (), {}));
         using tree_has_replace = decltype (replace (std::declval<tree<X>> (), {}));
         using map_has_replace = decltype (replace (std::declval<map<size_t, X>> (), {}));
+        using cycle_has_replace = decltype (replace (std::declval<cycle<X>> (), {}));
 
         using map_has_contains = decltype (contains (std::declval<map<size_t, X>> (), size_t {0}));
     };
@@ -481,18 +292,18 @@ namespace data {
             using stack_has_remove = decltype (remove (std::declval<stack<X>> (), 0));
             using list_has_remove = decltype (remove (std::declval<list<X>> (), 0));
             using ordered_sequence_has_remove = decltype (remove (std::declval<ordered_sequence<X>> (), 0));
-            using tree_has_remove = decltype (remove (std::declval<tree<X>> (), 0));
             using set_has_remove = decltype (remove (std::declval<set<X>> (), 0));
-            using priority_queue_has_remove = decltype (remove (std::declval<priority_queue<X>> (), 0));
             using map_has_remove = decltype (remove (std::declval<map<size_t, X>> (), 0));
 
+            // NOTE: these two functions should not exist, so why do they?
+            using tree_has_remove = decltype (remove (std::declval<tree<X>> (), 0));
+            using priority_queue_has_remove = decltype (remove (std::declval<priority_queue<X>> (), 0));
+
             using stack_has_erase = decltype (erase (std::declval<stack<X>> (), y));
-            using list_has_erase = decltype (erase (std::declval<list<X>> (), y));/*
+            using list_has_erase = decltype (erase (std::declval<list<X>> (), y));
             using ordered_sequence_has_erase = decltype (erase (std::declval<ordered_sequence<X>> (), y));
-            using tree_has_erase = decltype (erase (std::declval<tree<X>> (), y));
             using set_has_erase = decltype (erase (std::declval<set<X>> (), y));
-            using priority_queue_has_erase = decltype (erase (std::declval<priority_queue<X>> (), y));
-            using map_has_erase = decltype (erase (std::declval<map<size_t, X>> (), y));*/
+            using map_has_erase = decltype (erase (std::declval<map<size_t, X>> (), y));
 /*
             using list_has_select = decltype (select (std::declval<list<X>> (), &doop<y>));
             using set_has_select = decltype (select (std::declval<set<X>> (), &doop<y>));
@@ -502,7 +313,13 @@ namespace data {
 
             using stack_has_replace_part = decltype (replace_part (std::declval<stack<X>> (), size_t {0}, y));
             using list_has_replace_part = decltype (replace_part (std::declval<list<X>> (), size_t {0}, y));
-            using map_has_replace_part = decltype (replace_part (std::declval<map<size_t, X>> (), size_t {0}, y));*/
+            using map_has_replace_part = decltype (replace_part (std::declval<map<size_t, X>> (), size_t {0}, y));
+
+            using list_has_select = decltype (select (std::declval<list<X>> (), &doop<Y>));
+            using set_has_select = decltype (select (std::declval<set<X>> (), &doop<Y>));
+            using ordered_sequence_has_select = decltype (select (std::declval<ordered_sequence<X>> (), &doop<Y>));
+            using map_has_select = decltype (select (std::declval<map<size_t, X>> (), &doop<Y>));*/
+
         }
 
     };

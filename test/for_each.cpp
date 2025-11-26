@@ -70,6 +70,18 @@ namespace data {
         EXPECT_EQ (total, -1);
     }
 
+    TEST (ForEach, Set) {
+        int total = 0;
+        auto sum = [&total] (const int &i) {
+            total += i;
+        };
+
+        set<int> x {1, 2, 3};
+        for_each (sum, x);
+
+        EXPECT_EQ (total, 6);
+    }
+
     TEST (ForEach, List) {
         int total = 0;
         auto sum = [&total] (const int &i) {
@@ -108,19 +120,6 @@ namespace data {
         EXPECT_EQ (total, 6);
         // TODO need unconst and multiple inputs
     }
-
-    TEST (ForEach, Set) {
-        int total = 0;
-        auto sum = [&total] (const int &i) {
-            total += i;
-        };
-
-        set<int> x {1, 2, 3};
-        for_each (sum, x);
-
-        EXPECT_EQ (total, 6);
-        // TODO need multiple inputs
-    }
 /*
     TEST (ForEach, Tree) {
         int total = 0;
@@ -133,8 +132,8 @@ namespace data {
 
         EXPECT_EQ (total, 28);
         // TODO need unconst and multiple inputs
-    }*/
-/*
+    }
+
     TEST (ForEach, Map) {
         int total = 0;
         auto sum = [&total] (const int &i) {

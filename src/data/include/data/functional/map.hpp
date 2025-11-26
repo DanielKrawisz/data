@@ -6,7 +6,6 @@
 #define DATA_FUNCTIONAL_MAP
 
 #include <data/concepts.hpp>
-#include <data/functional/set.hpp>
 #include <data/container.hpp>
 #include <data/indexed.hpp>
 #include <data/ordered.hpp>

@@ -8,6 +8,7 @@
 #include <data/sequence.hpp>
 #include <data/iterable.hpp>
 #include <data/functional/list.hpp>
+#include <data/functional/tree.hpp>
 
 namespace data {
     
@@ -35,8 +36,21 @@ namespace data {
         
     }
 
+    template <typename X, typename E>
+    concept Set = (interface::has_size_method<X> && interface::has_contains_method<X, E>);
+
     template <typename X, typename E> 
-    concept Container = Sequence<X, E> || (interface::has_size_method<X> && interface::has_contains_method<X, E>);
+    concept Container = Sequence<X, E> || Set<X, E>;
+
+    template <typename X, typename E>
+    concept Sack = Container<X, E> && std::default_initializable<X> &&
+    interface::has_insert_method<X, E>;
+
+    template <typename X, typename element>
+    concept OrderedSet = Set<X, element> && interface::has_values_method<X> && std::totally_ordered<element>;
+
+    template <typename X, typename element>
+    concept Heap = Tree<X, element> && OrderedSet<X, element> && Sequence<X, element> && Sack<X, element>;
 
     template <typename X> requires interface::has_values_method<X>
     auto values (const X &x) {

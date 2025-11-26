@@ -24,7 +24,7 @@ namespace data {
     }
 
     template <Pendable list, typename elem>
-    list inline erase (const list &x, elem e) {
+    list inline erase (const list &x, const elem &e) {
         if constexpr (Queue<list>) return functional::erase_queue (x, e);
         else return functional::erase_stack (x, e);
     }

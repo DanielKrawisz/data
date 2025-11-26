@@ -81,6 +81,7 @@ namespace data::RB {
     T insert (const T t, inserted<V> v, already_equivalent);
 
     template <Sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
+    template <Sortable V, functional::buildable_tree<colored<V>> T> T erase (T t, const V &v);
 
     template <Sortable V, functional::buildable_tree<colored<V>> T> const unref<V> *contains (const T t, inserted<V> v);
     
@@ -91,6 +92,9 @@ namespace data::RB {
     template <typename V, typename T> bool empty (const tree<V, T> &t);
     template <typename V, typename T> size_t size (const tree<V, T> &t);
     template <typename V, typename T> tree<V, T> insert (const tree<V, T> &, inserted<V>);
+
+    template <typename V, typename T> tree<V, T> remove (const tree<V, T> &, inserted<V>);
+    template <typename V, typename T> tree<V, T> erase (const tree<V, T> &, inserted<V>);
 
     template <typename V, typename T, typename already_exists>
     requires requires (already_exists f, const V &old_v, const V &new_v) {

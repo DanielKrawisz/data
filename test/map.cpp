@@ -159,22 +159,22 @@ template <typename V> struct Map : ::testing::Test {
 };
 
 using Stack_cases = ::testing::Types<
-int, const int, int &, const int &, int *, int *const, const int *, const int *const,
-data::string, const data::string, data::string &, const data::string &, data::string *,
-data::string *const, const data::string *, const data::string *const>;
+    int, const int, int &, const int &, int *, int *const, const int *, const int *const,
+    data::string, const data::string, data::string &, const data::string &, data::string *,
+    data::string *const, const data::string *, const data::string *const>;
 
 TYPED_TEST_SUITE (Map, Stack_cases);
 
 TYPED_TEST (Map, Valid) {
     using type = typename TestFixture::type;
-    auto is_valid = valid (type {});
-    EXPECT_TRUE (is_valid);
+    EXPECT_TRUE (valid (type {}));
+    EXPECT_TRUE (data::valid (type {}));
 }
 
 TYPED_TEST (Map, Empty) {
     using type = typename TestFixture::type;
-    auto is_empty = empty (type {});
-    EXPECT_TRUE (is_empty);
+    EXPECT_TRUE (empty (type {}));
+    EXPECT_TRUE (data::empty (type {}));
 }
 
 TYPED_TEST (Map, Size) {
@@ -187,10 +187,26 @@ TYPED_TEST (Map, Insert) {
     using type = typename TestFixture::type;
     using value = typename TestFixture::value;
     using has_insert = decltype (insert (type {}, 0, std::declval<value> ()));
+    using has_data_insert = decltype (data::insert (type {}, 0, std::declval<value> ()));
+}
+
+TYPED_TEST (Map, Remove) {
+    using type = typename TestFixture::type;
+    using value = typename TestFixture::value;
+    (void) remove (type {}, 0);
+    (void) data::remove (type {}, 0);
+}
+
+TYPED_TEST (Map, Erase) {
+    using type = typename TestFixture::type;
+    using value = typename TestFixture::value;
+    using has_erase = decltype (erase (type {}, std::declval<value> ()));
+    using has_data_erase = decltype (data::erase (type {}, std::declval<value> ()));
 }
 
 TYPED_TEST (Map, ReplacePart) {
     using type = typename TestFixture::type;
     using value = typename TestFixture::value;
     using has_replace_part = decltype (replace_part (type {}, 0, std::declval<value> ()));
+    using has_data_erase = decltype (data::replace_part (type {}, 0, std::declval<value> ()));
 }

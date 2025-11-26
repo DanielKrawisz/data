@@ -17,14 +17,31 @@ namespace data {
     static_assert (Sequence<priority_queue<const int *const>, const int *const>);
     static_assert (Sequence<priority_queue<const int &>, const int &>);
 
-    static_assert (Container<priority_queue<int>, int>);
-    static_assert (Container<priority_queue<int &>, int &>);
-    static_assert (Container<priority_queue<int *>, int *>);
-    static_assert (Container<priority_queue<int *const>, int *const>);
-    static_assert (Container<priority_queue<const int>, const int>);
-    static_assert (Container<priority_queue<const int *>, const int *>);
-    static_assert (Container<priority_queue<const int *const>, const int *const>);
-    static_assert (Container<priority_queue<const int &>, const int &>);
+    static_assert (Sack<priority_queue<int>, int>);
+    static_assert (Sack<priority_queue<int &>, int &>);
+    static_assert (Sack<priority_queue<int *>, int *>);
+    static_assert (Sack<priority_queue<int *const>, int *const>);
+    static_assert (Sack<priority_queue<const int>, const int>);
+    static_assert (Sack<priority_queue<const int *>, const int *>);
+    static_assert (Sack<priority_queue<const int *const>, const int *const>);
+    static_assert (Sack<priority_queue<const int &>, const int &>);
+    // TODO: these should be true eventually.
+    /*
+    static_assert (Heap<priority_queue<int>, int>);
+    static_assert (Heap<priority_queue<int *>, int *>);
+    static_assert (Heap<priority_queue<int &>, int &>);
+
+    static_assert (Heap<priority_queue<const int>, const int>);
+    static_assert (Heap<priority_queue<const int *>, const int *>);
+    static_assert (Heap<priority_queue<const int &>, const int &>);
+
+    static_assert (Heap<priority_queue<string>, string>);
+    static_assert (Heap<priority_queue<string *>, string *>);
+    static_assert (Heap<priority_queue<string &>, string &>);
+
+    static_assert (Heap<priority_queue<const string>, const string>);
+    static_assert (Heap<priority_queue<const string *>, const string *>);
+    static_assert (Heap<priority_queue<const string &>, const string &>);*/
 }
 
 TEST (PriorityQueue, PriorityQueue) {
@@ -109,14 +126,10 @@ TYPED_TEST (PriQue, Contains) {
     using element = typename TestFixture::element;
     using has_contains = decltype (contains (type {}, std::declval<element> ()));
 }
-// TODO for beta
-/*
+
 TYPED_TEST (PriQue, Insert) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_insert = decltype (insert (type {}, std::declval<element> ()));
-    using has_rshift = decltype (type {} >> std::declval<element> ());
-    type stack {};
-    using has_rshift_equals = decltype (stack >>= std::declval<element> ());
-}*/
+}
 

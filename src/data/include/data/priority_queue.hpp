@@ -13,12 +13,6 @@ namespace data {
     // priority queue.
     template <typename X> using priority_queue = tool::priority_queue<tree<X>, X>;
 
-    template <typename X, Proposition<X> F>
-    ordered_sequence<X> select (const ordered_sequence<X> &, F fun);
-
-    template <typename X, Proposition<X> F>
-    priority_queue<X> select (const priority_queue<X> &, F fun);
-
 }
 
 #endif

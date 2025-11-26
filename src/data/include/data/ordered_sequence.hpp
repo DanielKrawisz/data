@@ -21,6 +21,13 @@ namespace data {
     template <typename elem, typename P>
     ordered_sequence<elem> select (const ordered_sequence<elem> &x, P &&satisfies);
 
+    template <typename elem, typename E>
+    ordered_sequence<elem> inline erase (const ordered_sequence<elem> &x, const E &v) {
+        return select (x, [&v] (const elem &e) -> bool {
+            return v != e;
+        });
+    }
+
     template <typename elem, typename P>
     ordered_sequence<elem> select (const ordered_sequence<elem> &x, P &&satisfies) {
         stack<const elem &> n;
@@ -28,13 +35,6 @@ namespace data {
         ordered_sequence<elem> r;
         for (const elem &e : n) r = r.insert (e);
         return r;
-    }
-
-    template <typename elem, typename E>
-    ordered_sequence<elem> inline erase (const ordered_sequence<elem> &x, const E &v) {
-        return select (x, [&v] (const elem &e) -> bool {
-            return v != e;
-        });
     }
     
 }

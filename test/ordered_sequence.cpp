@@ -10,76 +10,44 @@
 
 namespace data {
 
-    TEST (OrderedList, OrderedSequenceInterfaces) {
+    static_assert (Sequence<ordered_sequence<int>, int>);
+    static_assert (Sequence<ordered_sequence<int &>, int &>);
+    static_assert (Sequence<ordered_sequence<int *>, int *>);
+    static_assert (Sequence<ordered_sequence<int *const>, int *const>);
 
-        static_assert (Sequence<ordered_sequence<int>, int>);
-        static_assert (Sequence<ordered_sequence<int &>, int &>);
-        static_assert (Sequence<ordered_sequence<int *>, int *>);
-        static_assert (Sequence<ordered_sequence<int *const>, int *const>);
-        static_assert (Sequence<ordered_sequence<const int>, const int>);
-        static_assert (Sequence<ordered_sequence<const int *>, const int *>);
-        static_assert (Sequence<ordered_sequence<const int *const>, const int *const>);
-        static_assert (Sequence<ordered_sequence<const int &>, const int &>);
+    static_assert (Sequence<ordered_sequence<const int>, const int>);
+    static_assert (Sequence<ordered_sequence<const int *>, const int *>);
+    static_assert (Sequence<ordered_sequence<const int *const>, const int *const>);
+    static_assert (Sequence<ordered_sequence<const int &>, const int &>);
 
-        static_assert (Container<ordered_sequence<int>, int>);
-        static_assert (Container<ordered_sequence<int &>, int &>);
-        static_assert (Container<ordered_sequence<int *>, int *>);
-        static_assert (Container<ordered_sequence<int *const>, int *const>);
-        static_assert (Container<ordered_sequence<const int>, const int>);
-        static_assert (Container<ordered_sequence<const int *>, const int *>);
-        static_assert (Container<ordered_sequence<const int *const>, const int *const>);
-        static_assert (Container<ordered_sequence<const int &>, const int &>);
+    static_assert (Sack<ordered_sequence<int>, int>);
+    static_assert (Sack<ordered_sequence<int &>, int &>);
+    static_assert (Sack<ordered_sequence<int *>, int *>);
+    static_assert (Sack<ordered_sequence<int *const>, int *const>);
 
-        static_assert (ConstIterable<ordered_sequence<int>>);
-        static_assert (ConstIterable<ordered_sequence<int &>>);
-        static_assert (ConstIterable<ordered_sequence<int *>>);
-        static_assert (ConstIterable<ordered_sequence<int *const>>);
-        static_assert (ConstIterable<ordered_sequence<const int>>);
-        static_assert (ConstIterable<ordered_sequence<const int *>>);
-        static_assert (ConstIterable<ordered_sequence<const int &>>);
-        static_assert (ConstIterable<ordered_sequence<const int *const>>);
+    static_assert (Sack<ordered_sequence<const int>, const int>);
+    static_assert (Sack<ordered_sequence<const int &>, const int &>);
+    static_assert (Sack<ordered_sequence<const int *>, const int *>);
+    static_assert (Sack<ordered_sequence<const int *const>, const int *const>);
 
-        // We had some trouble defining Sequence properly and these are some
-        // tests that helped to make it work right. 
-        static_assert (Same<decltype (std::declval<ordered_sequence<int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int>> ().first ()), const int &>);
+    static_assert (Sack<const ordered_sequence<int>, int>);
+    static_assert (Sack<const ordered_sequence<int &>, int &>);
+    static_assert (Sack<const ordered_sequence<int *>, int *const>);
+    static_assert (Sack<const ordered_sequence<int *const>, int *const>);
 
-        static_assert (Same<decltype (std::declval<ordered_sequence<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int &>> ().first ()), const int &>);
+    static_assert (Sack<const ordered_sequence<const int>, const int>);
+    static_assert (Sack<const ordered_sequence<const int &>, const int &>);
+    static_assert (Sack<const ordered_sequence<const int *>, const int *>);
+    static_assert (Sack<const ordered_sequence<const int *const>, const int *const>);
 
-        static_assert (Same<decltype (std::declval<ordered_sequence<int *>> ().first ()), int *const &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<int *>> ().first ()), int *const &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const int *>> ().first ()), const int *const &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<const int *>> ().first ()), const int *const &>);
-
-        static_assert (Same<decltype (std::declval<ordered_sequence<string>> ().first ()), const string &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<string>> ().first ()), const string &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const string>> ().first ()), const string &>);
-
-        static_assert (Same<decltype (std::declval<ordered_sequence<string &>> ().first ()), string &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<string &>> ().first ()), string &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const string &>> ().first ()), const string &>);
-
-        static_assert (Same<decltype (std::declval<ordered_sequence<string *>> ().first ()), string *const &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<string *>> ().first ()), string *const &>);
-        static_assert (Same<decltype (std::declval<ordered_sequence<const string *>> ().first ()), const string *const &>);
-        static_assert (Same<decltype (std::declval<const ordered_sequence<const string *>> ().first ()), const string *const &>);
-    
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<int>> ().first ()), int>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<int &>> ().first ()), int>);
-
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<int *>> ().first ()), int *>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<const int *>> ().first ()), const int *>);
-
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<string>> ().first ()), const string &>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<string &>> ().first ()), const string &>);
-
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<string *>> ().first ()), string *>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const ordered_sequence<const string *>> ().first ()), const string *>);
-
-    }
+    static_assert (ConstIterable<ordered_sequence<int>>);
+    static_assert (ConstIterable<ordered_sequence<int &>>);
+    static_assert (ConstIterable<ordered_sequence<int *>>);
+    static_assert (ConstIterable<ordered_sequence<int *const>>);
+    static_assert (ConstIterable<ordered_sequence<const int>>);
+    static_assert (ConstIterable<ordered_sequence<const int *>>);
+    static_assert (ConstIterable<ordered_sequence<const int &>>);
+    static_assert (ConstIterable<ordered_sequence<const int *const>>);
 
     TEST (OrderedList, OrderedList) {
 

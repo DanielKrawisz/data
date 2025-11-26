@@ -5,19 +5,29 @@
 #ifndef DATA_SET
 #define DATA_SET
 
-#include <data/map.hpp>
+#include <data/tools/rb.hpp>
+#include <data/tree.hpp>
 
 namespace data {
-
 
     // set implemented as a map.
     template <typename X> using set = RB::tree<X, tree<RB::colored<X>>>;
 
-    template <typename X> set<X> merge (set<X>, set<X>);
-    template <typename X> set<X> remove (set<X>, const X &);
+    template <typename X> set<X> merge (const set<X> &, const set<X> &);
+    template <typename X> set<X> remove (const set<X> &, const X &);
+    template <typename X> set<X> erase (const set<X> &, const X &);
 
-    template <typename X, Proposition<X> F>
-    set<X> select (const set<X> &, F fun);
+    template <typename X> set<X> inline merge (const set<X> &x, const set<X> &e) {
+        return RB::merge (x, e);
+    }
+
+    template <typename X> set<X> inline remove (const set<X> &x, const X &e) {
+        return RB::remove (x, e);
+    }
+
+    template <typename X> set<X> inline erase (const set<X> &x, const X &e) {
+        return RB::erase (x, e);
+    }
 
 }
 

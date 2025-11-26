@@ -63,34 +63,14 @@
         EXPECT_FALSE (data::contains (priority_queue<string> {"a", "b", "c", "d"}, "f"));
 
         // TODO tree
+        // TODO cycle
 
         // contains works differently with map. 
         EXPECT_TRUE (contains (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a"));
         EXPECT_FALSE (contains (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "f"));
-    }
 
-    TEST (Contains, Erase) {
-
-        EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "c")), (stack<string> {"a", "b", "d"}));
-        EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "f")), (stack<string> {"a", "b", "c", "d"}));
-
-        EXPECT_EQ ((data::erase (stack<string> {"a", "b", "c", "d"}, "c")), (stack<string> {"a", "b", "d"}));
-        EXPECT_EQ ((data::erase (stack<string> {"a", "b", "c", "d"}, "f")), (stack<string> {"a", "b", "c", "d"}));
-
-        EXPECT_EQ ((erase (list<string> {"a", "b", "c", "d"}, "c")), (list<string> {"a", "b", "d"}));
-        EXPECT_EQ ((erase (list<string> {"a", "b", "c", "d"}, "f")), (list<string> {"a", "b", "c", "d"}));
-
-        EXPECT_EQ ((data::erase (list<string> {"a", "b", "c", "d"}, "c")), (list<string> {"a", "b", "d"}));
-        EXPECT_EQ ((data::erase (list<string> {"a", "b", "c", "d"}, "f")), (list<string> {"a", "b", "c", "d"}));
-
-        EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "c")), (ordered_sequence<string> {"a", "b", "d"}));
-        EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "f")), (ordered_sequence<string> {"a", "b", "c", "d"}));
-
-        //EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "c")), (set<string> {"a", "b", "d"}));
-        //EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "f")), (set<string> {"a", "b", "c", "d"}));
-
-        // TODO map
-
+        EXPECT_TRUE (data::contains (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a"));
+        EXPECT_FALSE (data::contains (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "f"));
     }
 
     TEST (Contains, Remove) {
@@ -113,7 +93,51 @@
         EXPECT_EQ ((data::remove (ordered_sequence<string> {"a", "b", "c", "d"}, 0)), (ordered_sequence<string> {"b", "c", "d"}));
         EXPECT_EQ ((data::remove (ordered_sequence<string> {"a", "b", "c", "d"}, 5)), (ordered_sequence<string> {"a", "b", "c", "d"}));
 
-        // TODO map
+        EXPECT_EQ ((remove (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a")),
+            (data::map<string, int> {{"b", 2}, {"c", 3}, {"d", 4}}));
+
+        EXPECT_EQ ((remove (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "f")),
+            (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}));
+
+        EXPECT_EQ ((data::remove (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a")),
+            (data::map<string, int> {{"b", 2}, {"c", 3}, {"d", 4}}));
+
+        EXPECT_EQ ((data::remove (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "f")),
+            (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}));
+
+    }
+
+    TEST (Contains, Erase) {
+
+        EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "c")), (stack<string> {"a", "b", "d"}));
+        EXPECT_EQ ((erase (stack<string> {"a", "b", "c", "d"}, "f")), (stack<string> {"a", "b", "c", "d"}));
+
+        EXPECT_EQ ((data::erase (stack<string> {"a", "b", "c", "d"}, "c")), (stack<string> {"a", "b", "d"}));
+        EXPECT_EQ ((data::erase (stack<string> {"a", "b", "c", "d"}, "f")), (stack<string> {"a", "b", "c", "d"}));
+
+        EXPECT_EQ ((erase (list<string> {"a", "b", "c", "d"}, "c")), (list<string> {"a", "b", "d"}));
+        EXPECT_EQ ((erase (list<string> {"a", "b", "c", "d"}, "f")), (list<string> {"a", "b", "c", "d"}));
+
+        EXPECT_EQ ((data::erase (list<string> {"a", "b", "c", "d"}, "c")), (list<string> {"a", "b", "d"}));
+        EXPECT_EQ ((data::erase (list<string> {"a", "b", "c", "d"}, "f")), (list<string> {"a", "b", "c", "d"}));
+
+        EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "c")), (ordered_sequence<string> {"a", "b", "d"}));
+        EXPECT_EQ ((erase (ordered_sequence<string> {"a", "b", "c", "d"}, "f")), (ordered_sequence<string> {"a", "b", "c", "d"}));
+
+        //EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "c")), (set<string> {"a", "b", "d"}));
+        //EXPECT_EQ ((erase (set<string> {"a", "b", "c", "d"}, "f")), (set<string> {"a", "b", "c", "d"}));
+
+        EXPECT_EQ ((erase (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, 1)),
+            (data::map<string, int> {{"b", 2}, {"c", 3}, {"d", 4}}));
+
+        EXPECT_EQ ((erase (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, 5)),
+            (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}));
+
+        EXPECT_EQ ((data::erase (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, 1)),
+            (data::map<string, int> {{"b", 2}, {"c", 3}, {"d", 4}}));
+
+        EXPECT_EQ ((data::erase (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, 5)),
+            (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}));
 
     }
 

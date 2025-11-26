@@ -29,6 +29,9 @@ namespace data {
     template <typename key, typename value, typename tree>
     binary_search_map<key, value, tree> insert (const binary_search_map<key, value, tree> &a, const key &k, const value &v);
 
+    template <typename key, typename value, typename tree>
+    binary_search_map<key, value, tree> remove (const binary_search_map<key, value, tree> &a, const key &k);
+
     // print to screen
     template <Ordered value, functional::buildable_tree<value> tree>
     std::ostream &operator << (std::ostream &, binary_search_tree<value, tree>);
@@ -460,6 +463,11 @@ namespace data {
         binary_search_map t;
         for (const auto &e : *this) if (e.Key != k) t = t.insert (e);
         return t;
+    }
+
+    template <typename key, typename value, typename tree>
+    binary_search_map<key, value, tree> inline remove (const binary_search_map<key, value, tree> &a, const key &k) {
+        return a.remove (k);
     }
 }
 
