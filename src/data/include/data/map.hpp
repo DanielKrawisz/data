@@ -31,8 +31,8 @@ namespace data {
     template <typename K, typename V, typename F>
     map<K, V> select (const map<K, V> &, F &&fun);
 
-    template <typename K, typename V>
-    map<K, V> erase (const map<K, V> &, V &&v);
+    template <typename K, typename V, typename E>
+    map<K, V> erase (const map<K, V> &, E &&v);
 
     template <typename K, typename V>
     size_t inline size (const map<K, V> &m) {
@@ -46,8 +46,8 @@ namespace data {
         return selected;
     }
 
-    template <typename K, typename V>
-    map<K, V> inline erase (const map<K, V> &m, V &&e) {
+    template <typename K, typename V, typename E>
+    map<K, V> inline erase (const map<K, V> &m, E &&e) {
         return select (m, [&e] (const V &v) -> bool {
             return e != v;
         });

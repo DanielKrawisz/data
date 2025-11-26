@@ -10,50 +10,46 @@
 
 namespace data {
 
-    TEST (LinkedStack, StackInterfaces) {
+    static_assert (Stack<stack<int>>);
+    static_assert (Stack<stack<const int>>);
+    static_assert (Stack<stack<int *>>);
+    static_assert (Stack<stack<const int *>>);
+    static_assert (Stack<stack<int *const>>);
+    static_assert (Stack<stack<const int *const>>);
+    static_assert (Stack<stack<int &>>);
+    static_assert (Stack<stack<const int &>>);
 
-        static_assert (Stack<stack<int>>);
-        static_assert (Stack<stack<const int>>);
-        static_assert (Stack<stack<int *>>);
-        static_assert (Stack<stack<const int *>>);
-        static_assert (Stack<stack<int *const>>);
-        static_assert (Stack<stack<const int *const>>);
-        static_assert (Stack<stack<int &>>);
-        static_assert (Stack<stack<const int &>>);
+    static_assert (Container<stack<int>, int>);
+    static_assert (Container<stack<const int>, const int>);
+    static_assert (Container<stack<int *>, int *>);
+    static_assert (Container<stack<const int *>, const int *>);
+    static_assert (Container<stack<int *const>, int *const>);
+    static_assert (Container<stack<const int *const>, const int *const>);
+    static_assert (Container<stack<int &>, int &>);
+    static_assert (Container<stack<const int &>, const int &>);
 
-        static_assert (Container<stack<int>, int>);
-        static_assert (Container<stack<const int>, const int>);
-        static_assert (Container<stack<int *>, int *>);
-        static_assert (Container<stack<const int *>, const int *>);
-        static_assert (Container<stack<int *const>, int *const>);
-        static_assert (Container<stack<const int *const>, const int *const>);
-        static_assert (Container<stack<int &>, int &>);
-        static_assert (Container<stack<const int &>, const int &>);
+    static_assert (Container<const stack<int>, const int>);
+    static_assert (Container<const stack<const int>, const int>);
+    static_assert (Container<const stack<int *>, int *const>);
+    static_assert (Container<const stack<const int *>, const int *const >);
+    static_assert (Container<const stack<int *const>, int *const>);
+    static_assert (Container<const stack<const int *const>, const int *const>);
+    static_assert (Container<const stack<int &>, int &>);
+    static_assert (Container<const stack<const int &>, const int &>);
 
-        static_assert (Container<const stack<int>, const int>);
-        static_assert (Container<const stack<const int>, const int>);
-        static_assert (Container<const stack<int *>, int *const>);
-        static_assert (Container<const stack<const int *>, const int *const >);
-        static_assert (Container<const stack<int *const>, int *const>);
-        static_assert (Container<const stack<const int *const>, const int *const>);
-        static_assert (Container<const stack<int &>, int &>);
-        static_assert (Container<const stack<const int &>, const int &>);
+    static_assert (ConstIterable<stack<int>>);
+    static_assert (ConstIterable<stack<int *>>);
+    static_assert (ConstIterable<stack<int &>>);
+    static_assert (ConstIterable<stack<int *const>>);
+    static_assert (ConstIterable<stack<const int>>);
+    static_assert (ConstIterable<stack<const int *>>);
+    static_assert (ConstIterable<stack<const int &>>);
+    static_assert (ConstIterable<stack<const int *const>>);
 
-        static_assert (ConstIterable<stack<int>>);
-        static_assert (ConstIterable<stack<int *>>);
-        static_assert (ConstIterable<stack<int &>>);
-        static_assert (ConstIterable<stack<int *const>>);
-        static_assert (ConstIterable<stack<const int>>);
-        static_assert (ConstIterable<stack<const int *>>);
-        static_assert (ConstIterable<stack<const int &>>);
-        static_assert (ConstIterable<stack<const int *const>>);
-
-        static_assert (Iterable<stack<int>>);
-        static_assert (Iterable<stack<int *>>);
-        static_assert (Iterable<stack<int &>>);
-        static_assert (Iterable<stack<const int *>>);
-
-    }
+    static_assert (Iterable<stack<int>>);
+    static_assert (Iterable<stack<int *>>);
+    static_assert (Iterable<stack<int &>>);
+    static_assert (Iterable<stack<const int *>>);
 
     TEST (LinkedStack, LinkedStack) {
         
@@ -221,6 +217,8 @@ using Stack_cases = ::testing::Types<
 
 TYPED_TEST_SUITE (Stack, Stack_cases);
 
+// TODO need to test both the data:: interface as well as lookup by function argument lookup.
+
 TYPED_TEST (Stack, Valid) {
     using type = typename TestFixture::type;
     auto is_valid = valid (type {});
@@ -324,23 +322,28 @@ TYPED_TEST (Stack, TakeDrop) {
 TYPED_TEST (Stack, Join) {
     using type = typename TestFixture::type;
     (void) join (type {}, type {});
+    (void) data::join (type {}, type {});
     (void) (type {} + type {});
 }
 
 TYPED_TEST (Stack, Sort) {
     using type = typename TestFixture::type;
-    (void) sort (type {});
+    EXPECT_EQ (sort (type {}), type {});
+    EXPECT_EQ (data::sort (type {}), type {});
     EXPECT_TRUE (sorted (type {}));
+    EXPECT_TRUE (data::sorted (type {}));
 }
 
 TYPED_TEST (Stack, Remove) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_remove = decltype (remove (type {}, size_t {0}));
+    (void) remove (type {}, size_t {0});
+    (void) remove (type {}, size_t {0});
 }
 
 TYPED_TEST (Stack, Erase) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
     using has_erase = decltype (erase (type {}, std::declval<element> ()));
+    using has_data_erase = decltype (data::erase (type {}, std::declval<element> ()));
 }

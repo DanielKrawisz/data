@@ -82,16 +82,15 @@ The core library has the following includes:
 * `data/map.hpp`
 * `data/dispatch.hpp`
 * `data/cycle.hpp`
-* `data/math/permutation.hpp`
 * `data/cross.hpp`
-* `data/math/combinatorics.hpp`
-* `data/array.hpp`
-* `data/math/linear.hpp`
-* `data/math/exterior.hpp`
 * `data/reverse.hpp`
 * `data/take.hpp`
 * `data/replace.hpp`
+* `data/select.hpp`
 * `data/lift.hpp`
+* `data/math/permutation.hpp`
+* `data/math/combinatorics.hpp`
+* `data/array.hpp`
 
 ### `data/concepts.hpp`
 

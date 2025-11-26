@@ -5,7 +5,7 @@ Tools and high-level programming constructs in c++.
 See [the standard](doc/standard.md) for all supported features and how to use them. 
 The standard will be gradually improved as we work toward a beta version.
 
-Current version is 0.0.33 alpha.
+Current version is 0.0.34 alpha.
 
 ## Features 
 

@@ -101,7 +101,7 @@ namespace data {
 
             reference operator *  () const;
             pointer   operator -> () const;
-            it        &operator ++ ();    // pre-increment
+            it       &operator ++ ();    // pre-increment
             it        operator ++ (int); // post-increment
 
             it (): Stack {nullptr}, Next {nullptr} {}
