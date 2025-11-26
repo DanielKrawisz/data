@@ -104,6 +104,9 @@
         EXPECT_EQ (size (data::priority_queue<int> {}), 0);
         EXPECT_EQ (size (data::priority_queue<int> {1}), 1);
 
+        EXPECT_EQ (data::size (data::priority_queue<int> {}), 0);
+        EXPECT_EQ (data::size (data::priority_queue<int> {1}), 1);
+
         EXPECT_EQ (size (data::map<int, int> {}), 0);
         EXPECT_EQ (size (data::map<int, int> {{1, 1}}), 1);
 

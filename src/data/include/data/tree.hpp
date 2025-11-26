@@ -12,7 +12,9 @@ namespace data {
     template <typename X> using tree = linked_tree<X>;
 
     template <typename X, typename E>
-    bool contains (const tree<X> &, const E &);
+    bool inline contains (const tree<X> &t, const E &e) {
+        return t.contains (X {e});
+    }
 
 }
 

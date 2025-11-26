@@ -236,9 +236,9 @@ template <typename X> struct Tree : ::testing::Test {
 };
 
 using Tree_cases = ::testing::Types<
-int, const int, int &, const int &, int *, int *const, const int *, const int *const,
-data::string, const data::string, data::string &, const data::string &, data::string *,
-data::string *const, const data::string *, const data::string *const>;
+    int, const int, int &, const int &, int *, int *const, const int *, const int *const,
+    data::string, const data::string, data::string &, const data::string &, data::string *,
+    data::string *const, const data::string *, const data::string *const>;
 
 TYPED_TEST_SUITE (Tree, Tree_cases);
 
@@ -262,7 +262,7 @@ TYPED_TEST (Tree, Size) {
     static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>);
     EXPECT_EQ (empty_size, 0);
 }
-/*
+
 TYPED_TEST (Tree, Root) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
@@ -292,7 +292,7 @@ TYPED_TEST (Tree, Root) {
         static_assert (data::Same<element &, return_type>);
         static_assert (data::Same<const element &, const_return_type>);
     }
-}*/
+}
 
 TYPED_TEST (Tree, Left) {
     using type = typename TestFixture::type;

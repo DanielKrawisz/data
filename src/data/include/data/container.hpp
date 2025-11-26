@@ -52,6 +52,21 @@ namespace data {
     template <typename X, typename element>
     concept Heap = Tree<X, element> && OrderedSet<X, element> && Sequence<X, element> && Sack<X, element>;
 
+    template <typename M> concept IterableSet =
+        ConstIterable<M> && Set<M, decltype (*std::declval<const M> ().begin ())>;
+
+    template <typename M> concept IterableStack =
+        ConstIterable<M> && Stack<M, decltype (*std::declval<const M> ().begin ())>;
+
+    template <typename M> concept IterableQueue =
+        ConstIterable<M> && Queue<M, decltype (*std::declval<const M> ().begin ())>;
+
+    template <typename M> concept IterableList =
+        ConstIterable<M> && List<M, decltype (*std::declval<const M> ().begin ())>;
+
+    template <typename M> concept IterableSack =
+        ConstIterable<M> && Sack<M, decltype (*std::declval<const M> ().begin ())>;
+
     template <typename X> requires interface::has_values_method<X>
     auto values (const X &x) {
         return x.values ();
