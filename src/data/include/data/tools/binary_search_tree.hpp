@@ -27,7 +27,7 @@ namespace data {
     bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, value, tree> &b);
 
     template <typename key, typename value, typename tree>
-    binary_search_map<key, value, tree> insert (binary_search_map<key, value, tree> a, const key &k, const value &v);
+    binary_search_map<key, value, tree> insert (const binary_search_map<key, value, tree> &a, const key &k, const value &v);
 
     // print to screen
     template <Ordered value, functional::buildable_tree<value> tree>
@@ -52,11 +52,11 @@ namespace data {
 
         bool valid () const;
 
-        const unref<value> *contains (inserted<value>) const;
+        ref_to_ptr<const value &> contains (inserted<value>) const;
 
         ordered_sequence<inserted<value>> values () const;
 
-        binary_search_tree insert (inserted<value> v) {
+        binary_search_tree insert (inserted<value> v) const {
             return insert (v, &functional::keep_old<value>);
         }
 
@@ -93,9 +93,12 @@ namespace data {
         binary_search_map (const tree &t): tree {t} {}
         binary_search_map (tree &&t): tree {t} {}
 
-        inserted<value> operator [] (inserted<key>) const;
+        const value &operator [] (inserted<key>) const;
+        value &operator [] (inserted<key>);
 
-        const unref<value> *contains (inserted<key>) const;
+        ref_to_ptr<const value &> contains (inserted<key>) const;
+        ref_to_ptr<value &> contains (inserted<key>);
+
         bool contains (const entry &e) const;
 
         binary_search_map insert (const key &k, const value &v) const {
@@ -118,25 +121,6 @@ namespace data {
             return static_cast<tree> (*this).insert (entry {k, v}, [f] (const entry &old_e, const entry &new_e) {
                 return entry {old_e.Key, f (old_e.Value, new_e.Value)};
             });
-        }
-
-        // NOTE: these next 3 functions assume that we have a for_each method.
-        binary_search_map replace (inserted<value> a, inserted<value> b) const {
-            return this->for_each ([a, b] (inserted<entry> x) -> entry {
-                return x.Value == a ? entry {x.Key, b} : x;
-            });
-        }
-
-        binary_search_map replace_part (const key &k, const value &v) const {
-            return binary_search_map {tree {this->for_each ([k, v] (inserted<entry> x) -> entry {
-                return x.Key == k ? entry {x.Key, v} : x;
-            })}};
-        }
-
-        binary_search_map replace_part (const key &k, function<value (const value &)> f) const {
-            return binary_search_map {tree {this->for_each ([k, f] (inserted<entry> x) -> entry {
-                return x.Key == k ? entry {x.Key, f (x.Value)} : x;
-            })}};
         }
 
         binary_search_map remove (const key &k) const;
@@ -247,16 +231,28 @@ namespace data {
     }
 
     template <Ordered value, functional::buildable_tree<value> tree>
-    const unref<value> inline *binary_search_tree<value, tree>::contains (inserted<value> v) const {
+    ref_to_ptr<const value &> inline binary_search_tree<value, tree>::contains (inserted<value> v) const {
         return functional::contains (*this, v);
     }
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
     requires interface::has_insert_method<tree, data::entry<const key, value>>
-    const unref<value> inline *binary_search_map<key, value, tree>::contains (inserted<key> k) const {
+    ref_to_ptr<const value &> inline binary_search_map<key, value, tree>::contains (inserted<key> k) const {
         if (data::empty (*this)) return nullptr;
         const auto &e = data::root (*this);
-        return e.Key == k ? &e.Value: k < e.Key ? data::left (*this).contains (k) : data::right (*this).contains (k);
+        return e.Key == k ? &e.Value: k < e.Key ? left (*this).contains (k) : right (*this).contains (k);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    ref_to_ptr<value &> inline binary_search_map<key, value, tree>::contains (inserted<key> k) {
+        if (data::empty (*this)) return nullptr;
+        // we have to use const_cast here because RB::tree cannot have
+        // non-const access since it is sorted. However, when
+        // we use entry<K, V>, changing the value of V does not change
+        // the sorting, so it's ok to change it.
+        auto &e = const_cast<data::entry<const key, value> &> (data::root (*this));
+        return e.Key == k ? &e.Value: k < e.Key ? left (*this).contains (k) : right (*this).contains (k);
     }
 
     template <Ordered value, functional::buildable_tree<value> tree>
@@ -385,8 +381,16 @@ namespace data {
 
     template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
     requires interface::has_insert_method<tree, data::entry<const key, value>>
-    inserted<value> binary_search_map<key, value, tree>::operator [] (inserted<key> k) const {
+    const value &binary_search_map<key, value, tree>::operator [] (inserted<key> k) const {
         const auto *v = contains (k);
+        if (!bool (v)) throw key_does_not_exist {};
+        return *v;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    value &binary_search_map<key, value, tree>::operator [] (inserted<key> k) {
+        auto *v = contains (k);
         if (!bool (v)) throw key_does_not_exist {};
         return *v;
     }

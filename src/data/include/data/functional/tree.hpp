@@ -40,46 +40,44 @@ namespace data::interface {
 namespace data {
 
     template <typename X> requires interface::has_root_method<const X>
-    decltype (auto) inline root (const X &x) {
+    decltype (auto) inline root (X &&x) {
         return x.root ();
+    }
+    
+    template <typename X>
+    inline X left (const X &x) {
+        return x;
     }
 
-    template <typename X> requires interface::has_root_method<const X>
-    decltype (auto) inline root (X &x) {
-        return x.root ();
-    }
-    
     template <typename X>
-    inline X left (const X &x) {
+    inline X right (const X &x) {
         return x;
     }
-    
+
     template <interface::has_left_method X>
-    inline X left (const X &x) {
+    X inline left (const X &x) {
         return x.left ();
     }
-    
-    template <typename X>
-    inline X right (const X &x) {
-        return x;
-    }
-    
+
     template <interface::has_right_method X>
-    inline X right (const X &x) {
+    X inline right (const X &x) {
         return x.right ();
     }
+
+    template <typename T, typename element = decltype (std::declval<T> ().root ())>
+    concept Tree =
+        interface::has_left_method<T> &&
+        interface::has_right_method<T> &&
+        interface::has_root_method<T> && requires (T t) {
+            { t.root () } -> ImplicitlyConvertible<element>;
+        };
+
 }
     
 namespace data::functional {
     
     template <typename T, typename element = decltype (std::declval<T> ().root ())>
-    concept tree =
-        interface::has_left_method<const T> && 
-        interface::has_right_method<const T> && 
-        interface::has_root_method<const T>;
-    
-    template <typename T, typename element = decltype (std::declval<T> ().root ())>
-    concept search_tree = tree<T, element> && Ordered<element>;
+    concept search_tree = Tree<const T, element> && Ordered<element>;
 
     template <typename T, typename X> requires search_tree<T, X>
     unref<X> inline *contains (const T t, X x) {
@@ -88,7 +86,7 @@ namespace data::functional {
     }
     
     template <typename T, typename element = decltype (std::declval<T> ().root ())>
-    concept buildable_tree = tree<T, element> && 
+    concept buildable_tree = Tree<T, element> &&
         interface::has_tree_constructor<T, element> && 
         std::default_initializable<T>;
 
@@ -160,7 +158,7 @@ namespace data::functional {
         for_each_prefix (data::right (t), f);
     }
     
-    template <Stack out, functional::tree in> 
+    template <Stack out, Tree in>
     out values_infix (const in &t) {
         out o {};
         functional::for_each_infix (t, [&o] (const auto &x) -> void {
@@ -169,7 +167,7 @@ namespace data::functional {
         return reverse (o);
     }
     
-    template <Stack out, functional::tree in> 
+    template <Stack out, Tree in>
     out values_prefix (const in &t) {
         out o {};
         functional::for_each_prefix (t, [&o] (const auto &x) -> void {
@@ -190,12 +188,12 @@ namespace data::functional {
     // an iterator for a tree that treats it as a binary search tree
     // since there are other ways that the elements of a tree could
     // be organized, we don't have any natural iterator for a tree.
-    template <Ordered X, tree<X> T> struct binary_search_iterator;
+    template <Ordered X, Tree<X> T> struct binary_search_iterator;
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     bool operator == (const binary_search_iterator<X, T> &i, const binary_search_iterator<X, T> &j);
 
-    template <Ordered X, tree<X> T> struct binary_search_iterator {
+    template <Ordered X, Tree<X> T> struct binary_search_iterator {
         using sentinel = data::sentinel<T>;
 
         using iterator_category = std::forward_iterator_tag;
@@ -226,7 +224,7 @@ namespace data::functional {
         void go_left ();
     };
 
-    template <data::functional::tree X, data::functional::tree Y> 
+    template <data::Tree X, data::Tree Y>
     requires std::equality_comparable_with<decltype (std::declval<X> ().root ()), decltype (std::declval<Y> ().root ())>
     bool inline tree_equal (const X &a, const X &b) {
         return &a == &b ? true :
@@ -236,7 +234,7 @@ namespace data::functional {
                         data::left (a) == data::left (b) && data::right (a) == data::right (b);
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     binary_search_iterator<X, T>
     binary_search_iterator<X, T>::operator ++ (int) {
         auto x = *this;
@@ -244,7 +242,7 @@ namespace data::functional {
         return x;
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     binary_search_iterator<X, T>
     &binary_search_iterator<X, T>::operator ++ () {
         if (Next.empty ()) return *this;
@@ -265,22 +263,22 @@ namespace data::functional {
         return *this;
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     binary_search_iterator<X, T>::reference inline binary_search_iterator<X, T>::operator * () const {
         return Next.root ();
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     binary_search_iterator<X, T>::pointer inline binary_search_iterator<X, T>::operator -> () const {
         return &Next.root ();
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     bool operator == (const binary_search_iterator<X, T> &i, const binary_search_iterator<X, T> &j) {
         return j.Tree == i.Tree && j.Next == i.Next;
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     void binary_search_iterator<X, T>::go_left () {
         if (Next.empty ()) return;
         while (!Next.left ().empty ()) {
@@ -289,10 +287,10 @@ namespace data::functional {
         }
     }
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     inline binary_search_iterator<X, T>::binary_search_iterator () : Tree {nullptr}, Next {}, Last {} {}
 
-    template <Ordered X, tree<X> T>
+    template <Ordered X, Tree<X> T>
     inline binary_search_iterator<X, T>::binary_search_iterator (const T *m, const T &n) : Tree {m}, Next {n}, Last {} {
         go_left ();
     }

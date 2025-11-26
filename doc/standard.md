@@ -39,7 +39,7 @@ A headers-only library focused on
  * functional data structures
  * mathematics
 
-The data library supports the following functional data structures:
+The core library supports the following functional data structures:
 
 * stack
 * list
@@ -53,9 +53,10 @@ The data library supports the following functional data structures:
 A set of member functions is provided to work with them, as well as functions
 with the same name that can be found by argument dependent lookup. 
 
-The functional data structures library has the following includes:
+The core library has the following includes:
 
 * `data/concepts.hpp`
+* `data/meta.hpp`
 * `data/valid.hpp`
 * `data/maybe.hpp`
 * `data/either.hpp`
@@ -96,11 +97,11 @@ The functional data structures library has the following includes:
 
 #### `concept data::Same`
 
-`Same<X...>` will be true if all types `X...` are identical.
+`Same<X...>` is true if all types `X...` are identical.
 
 #### `concept data::Unsame`
 
-`Unsame<X...>` will be true if all types `X...` are different.
+`Unsame<X...>` is true if all types `X...` are different.
 
 #### `concept data::ImplicitlyConvertible`
 
@@ -120,6 +121,10 @@ Suitable as an element in a data structure. References are allowed.
 
 `template <typename Type> concept Element = std::is_constructible_v<Type, Type>;`
 
+### `data/meta.hpp`
+
+Some metaprogramming functions. 
+
 #### `typename data::unref`
 
 Equivalent to `std::remove_reference_t`.
@@ -127,6 +132,11 @@ Equivalent to `std::remove_reference_t`.
 #### `typename data::unconst`
 
 Equivalent to `std::remove_const_t`.
+
+#### `typename data::ref_to_ptr`
+
+For a type `X`, `ref_to_ptr<X>` is a pointer preserving constness if `X` is a 
+reference. Otherwise, it is unchanged. 
 
 ### `data/valid.hpp`
 
@@ -142,13 +152,25 @@ Equivalent to `std::remove_const_t`.
 
 #### `typename maybe<X>`
 
+* Publicly extends `std::optional<X>`;
+* Adds no additional members, so pointers can safely be cast back to `std::optional<X>`.
+* Can hold references and void.
+
 ### `data/either.hpp`
 
 #### `typename either<X...>`
 
+* Publicly extends `std::variant<X...>`;
+* Adds no additional members, so pointers can safely be cast back to `std::variant<X...>`.
+* Can hold references and void.
+
 ### `data/tuple.hpp`
 
 #### `void for_each`
+
+Try to apply a function to every member of a tuple. 
+
+#### `void apply_at`
 
 ### `data/ordered.hpp`
 
@@ -642,15 +664,13 @@ Cross resembles a vector with the ability to resize removed.
 
 ### `data/array.hpp`
 
-### `data/math/linear.hpp`
-
-### `data/math/exterior.hpp`
-
 ## Bytes
 
 A library for working with sequences of data. 
 
 Requires compilation, no dependencies other than the standard library.
+
+NOTE: right now we actually use boost for some things but we can replace all of it easily. 
 
 * `data/slice.hpp`
 * `data/stream.hpp`

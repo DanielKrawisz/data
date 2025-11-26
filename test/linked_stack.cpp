@@ -53,68 +53,6 @@ namespace data {
         static_assert (Iterable<stack<int &>>);
         static_assert (Iterable<stack<const int *>>);
 
-        // We had some trouble defining Sequence properly and these are some
-        // tests that helped to make it work right. 
-        // TODO we can get rid of these and ideally replace them with something
-        // more clear and organized.
-        static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<const stack<int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<stack<const int>> ().first ()), const int &>);
-
-        static_assert (Same<decltype (std::declval<stack<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<const stack<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<stack<const int &>> ().first ()), const int &>);
-
-        static_assert (Same<decltype (std::declval<stack<int *>> ().first ()), int *&>);
-        static_assert (Same<decltype (std::declval<const stack<int *>> ().first ()), int *const &>);
-        static_assert (Same<decltype (std::declval<stack<const int *>> ().first ()), const int *&>);
-        static_assert (Same<decltype (std::declval<const stack<const int *>> ().first ()), const int *const &>);
-
-        static_assert (Same<decltype (std::declval<stack<string>> ().first ()), string &>);
-        static_assert (Same<decltype (std::declval<const stack<string>> ().first ()), const string &>);
-        static_assert (Same<decltype (std::declval<stack<const string>> ().first ()), const string &>);
-
-        static_assert (Same<decltype (std::declval<stack<string &>> ().first ()), string &>);
-        static_assert (Same<decltype (std::declval<const stack<string &>> ().first ()), string &>);
-        static_assert (Same<decltype (std::declval<stack<const string &>> ().first ()), const string &>);
-
-        static_assert (Same<decltype (std::declval<stack<string *>> ().first ()), string *&>);
-        static_assert (Same<decltype (std::declval<const stack<string *>> ().first ()), string *const &>);
-        static_assert (Same<decltype (std::declval<stack<const string *>> ().first ()), const string *&>);
-        static_assert (Same<decltype (std::declval<const stack<const string *>> ().first ()), const string *const &>);
-    
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<int>> ().first ()), int>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<int &>> ().first ()), int>);
-
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<int *>> ().first ()), int *>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<const int *>> ().first ()), const int *>);
-
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<string>> ().first ()), const string &>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<string &>> ().first ()), const string &>);
-
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<string *>> ().first ()), string *>);
-        static_assert (ImplicitlyConvertible<decltype (std::declval<const stack<const string *>> ().first ()), const string *>);
-
-        static_assert (Same<decltype (std::declval<stack<int>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<stack<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<stack<int *>> ().first ()), int *&>);
-        static_assert (Same<decltype (std::declval<stack<int *const>> ().first ()), int *const &>);
-                
-        static_assert (Same<decltype (std::declval<stack<const int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<stack<const int &>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<stack<const int *>> ().first ()), const int *&>);
-        static_assert (Same<decltype (std::declval<stack<const int *const>> ().first ()), const int *const &>);
-
-        static_assert (Same<decltype (std::declval<const stack<int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const stack<int &>> ().first ()), int &>);
-        static_assert (Same<decltype (std::declval<const stack<int *>> ().first ()), int *const &>);
-        static_assert (Same<decltype (std::declval<const stack<int *const>> ().first ()), int *const &>);
-        
-        static_assert (Same<decltype (std::declval<const stack<const int>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const stack<const int &>> ().first ()), const int &>);
-        static_assert (Same<decltype (std::declval<const stack<const int *>> ().first ()), const int *const &>);
-        static_assert (Same<decltype (std::declval<const stack<const int *const>> ().first ()), const int *const &>);
-
     }
 
     TEST (LinkedStack, LinkedStack) {

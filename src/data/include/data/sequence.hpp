@@ -72,12 +72,7 @@ namespace data {
     }
 
     template <typename X> requires has_first_method<const X>
-    decltype (auto) inline first (const X &x) {
-        return x.first ();
-    }
-
-    template <typename X> requires has_first_method<const X>
-    decltype (auto) inline first (X &x) {
+    decltype (auto) inline first (X &&x) {
         return x.first ();
     }
 

@@ -3,34 +3,52 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/map.hpp>
-#include <data/set.hpp>
+#include <data/replace.hpp>
 #include <data/numbers.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
-    
-    TEST (Map, MapInterface) {
-        
-        static_assert (Map<map<uint32, int>>);
-        static_assert (Map<map<uint32, int &>>);
-        static_assert (Map<map<uint32, int *>>);
 
-        static_assert (Map<map<uint32, const int>>);
-        static_assert (Map<map<uint32, const int &>>);
-        static_assert (Map<map<uint32, const int *>>);
-        static_assert (Map<map<uint32, const int *const>>);
+    static_assert (Map<map<uint32, int>>);
+    static_assert (Map<map<uint32, int &>>);
+    static_assert (Map<map<uint32, int *>>);
+    static_assert (Map<map<uint32, int *const>>);
 
-        static_assert (ConstIterable<map<uint32, int>>);
-        static_assert (ConstIterable<map<uint32, int *>>);
-        static_assert (ConstIterable<map<uint32, int &>>);
+    static_assert (Map<map<uint32, const int>>);
+    static_assert (Map<map<uint32, const int &>>);
+    static_assert (Map<map<uint32, const int *>>);
+    static_assert (Map<map<uint32, const int *const>>);
 
-        static_assert (ConstIterable<map<uint32, const int>>);
-        static_assert (ConstIterable<map<uint32, const int *>>);
-        static_assert (ConstIterable<map<uint32, const int &>>);
+    static_assert (ConstIterable<map<uint32, int>>);
+    static_assert (ConstIterable<map<uint32, int &>>);
+    static_assert (ConstIterable<map<uint32, int *>>);
+    static_assert (ConstIterable<map<uint32, int *const>>);
 
-        // TODO iterable and const iterable
-        
-    }
+    static_assert (ConstIterable<map<uint32, const int>>);
+    static_assert (ConstIterable<map<uint32, const int &>>);
+    static_assert (ConstIterable<map<uint32, const int *>>);
+    static_assert (ConstIterable<map<uint32, const int *const>>);
+
+    // here we ensure that the map has const and non-const accesors.
+    static_assert (Same<decltype (std::declval<map<uint32, int>> ().contains (0)), int *>);
+    static_assert (Same<decltype (std::declval<map<uint32, int &>> ().contains (0)), int *>);
+    static_assert (Same<decltype (std::declval<map<uint32, int *>> ().contains (0)), int **>);
+    static_assert (Same<decltype (std::declval<map<uint32, int *const>> ().contains (0)), int *const *>);
+
+    static_assert (Same<decltype (std::declval<map<uint32, const int>> ().contains (0)), const int *>);
+    static_assert (Same<decltype (std::declval<map<uint32, const int &>> ().contains (0)), const int *>);
+    static_assert (Same<decltype (std::declval<map<uint32, const int *>> ().contains (0)), const int **>);
+    static_assert (Same<decltype (std::declval<map<uint32, const int *const>> ().contains (0)), const int *const *>);
+
+    static_assert (Same<decltype (std::declval<const map<uint32, int>> ().contains (0)), const int *>);
+    static_assert (Same<decltype (std::declval<const map<uint32, int &>> ().contains (0)), int *>);
+    static_assert (Same<decltype (std::declval<const map<uint32, int *>> ().contains (0)), int *const *>);
+    static_assert (Same<decltype (std::declval<const map<uint32, int *const>> ().contains (0)), int *const *>);
+
+    static_assert (Same<decltype (std::declval<const map<uint32, const int>> ().contains (0)), const int *>);
+    static_assert (Same<decltype (std::declval<const map<uint32, const int &>> ().contains (0)), const int *>);
+    static_assert (Same<decltype (std::declval<const map<uint32, const int *>> ().contains (0)), const int *const *>);
+    static_assert (Same<decltype (std::declval<const map<uint32, const int *const>> ().contains (0)), const int *const *>);
     
     TEST (Map, MapEqual) {
         
@@ -134,3 +152,45 @@ namespace data {
     }
 }
 
+template <typename V> struct Map : ::testing::Test {
+    using type = data::map<int, V>;
+    using key = int;
+    using value = V;
+};
+
+using Stack_cases = ::testing::Types<
+int, const int, int &, const int &, int *, int *const, const int *, const int *const,
+data::string, const data::string, data::string &, const data::string &, data::string *,
+data::string *const, const data::string *, const data::string *const>;
+
+TYPED_TEST_SUITE (Map, Stack_cases);
+
+TYPED_TEST (Map, Valid) {
+    using type = typename TestFixture::type;
+    auto is_valid = valid (type {});
+    EXPECT_TRUE (is_valid);
+}
+
+TYPED_TEST (Map, Empty) {
+    using type = typename TestFixture::type;
+    auto is_empty = empty (type {});
+    EXPECT_TRUE (is_empty);
+}
+
+TYPED_TEST (Map, Size) {
+    using type = typename TestFixture::type;
+    EXPECT_EQ (size (type {}), 0);
+    EXPECT_EQ (data::size (type {}), 0);
+}
+
+TYPED_TEST (Map, Insert) {
+    using type = typename TestFixture::type;
+    using value = typename TestFixture::value;
+    using has_insert = decltype (insert (type {}, 0, std::declval<value> ()));
+}
+
+TYPED_TEST (Map, ReplacePart) {
+    using type = typename TestFixture::type;
+    using value = typename TestFixture::value;
+    using has_replace_part = decltype (replace_part (type {}, 0, std::declval<value> ()));
+}
