@@ -25,8 +25,7 @@ namespace data {
     static_assert (Sack<priority_queue<const int *>, const int *>);
     static_assert (Sack<priority_queue<const int *const>, const int *const>);
     static_assert (Sack<priority_queue<const int &>, const int &>);
-    // TODO: these should be true eventually.
-    /*
+/*
     static_assert (Heap<priority_queue<int>, int>);
     static_assert (Heap<priority_queue<int *>, int *>);
     static_assert (Heap<priority_queue<int &>, int &>);

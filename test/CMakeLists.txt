@@ -16,17 +16,25 @@ add_executable (
     store.cpp
     exception.cpp
     linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
+                                 #       ensure that we can use this type in a pure functional way.
     list.cpp                     # TODO: contains commented tests
                                  #       can be both const and unconst iterable (unofficially)
+                                 #       ensure that we can use this type in a pure functional way.
     ordered_sequence.cpp         # TODO: contains commented tests
+                                 #       ensure that we can use this type in a pure functional way.
     tree.cpp                     # TODO: contains commented tests
+                                 #       ensure that we can use this type in a pure functional way.
     set.cpp                      # TODO: Need to test each function more precisely, like in list
+                                 #       ensure that we can use this type in a pure functional way.
     map.cpp                      # TODO: Need to test each function more precisely, like in list
+                                 #       ensure that we can use this type in a pure functional way.
     priority_queue.cpp           # TODO: Contains commented test cases
+                                 #       ensure that we can use this type in a pure functional way.
     functional_interfaces.cpp    # TODO: contains commented tests
+                                 #       We can eventually get rid of this file entirely.
     empty.cpp                    # TODO: Contains commented test cases
     take.cpp                     # TODO: ensure we check the interface by argument lookup and in data::
-    reverse.cpp
+    reverse.cpp                  # TODO: Contains commented test cases
     contains.cpp                 # TODO: Contains commented test cases
     sort.cpp
     for_each.cpp                 # TODO: could be more thorough

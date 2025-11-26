@@ -13,20 +13,28 @@ namespace data {
     // set implemented as a map.
     template <typename X> using set = RB::tree<X, tree<RB::colored<X>>>;
 
+    template <typename X, typename E>
+    bool contains (const set<X> &, const E &);
+
     template <typename X> set<X> merge (const set<X> &, const set<X> &);
-    template <typename X> set<X> remove (const set<X> &, const X &);
-    template <typename X> set<X> erase (const set<X> &, const X &);
+    template <typename X, typename E> set<X> remove (const set<X> &, const E &);
+    template <typename X, typename E> set<X> erase (const set<X> &, const E &);
 
-    template <typename X> set<X> inline merge (const set<X> &x, const set<X> &e) {
-        return RB::merge (x, e);
+    template <typename X, typename E>
+    bool inline contains (const set<X> &x, const E &e) {
+        return contains (x, X {e});
     }
 
-    template <typename X> set<X> inline remove (const set<X> &x, const X &e) {
-        return RB::remove (x, e);
+    template <typename X> set<X> inline merge (const set<X> &a, const set<X> &b) {
+        return RB::merge (a, b);
     }
 
-    template <typename X> set<X> inline erase (const set<X> &x, const X &e) {
-        return RB::erase (x, e);
+    template <typename X, typename E> set<X> inline remove (const set<X> &x, const E &e) {
+        return RB::remove (x, X {e});
+    }
+
+    template <typename X, typename E> set<X> inline erase (const set<X> &x, const E &e) {
+        return RB::erase (x, X {e});
     }
 
 }

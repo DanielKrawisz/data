@@ -75,11 +75,13 @@ namespace data {
     
     template <Element value>
     const value inline &linked_tree<value>::root () const {
+        if (Node == nullptr) throw data::empty_sequence_exception {};
         return Node->Value;
     }
 
     template <Element value>
     value inline &linked_tree<value>::root () {
+        if (Node == nullptr) throw data::empty_sequence_exception {};
         return Node->Value;
     }
     

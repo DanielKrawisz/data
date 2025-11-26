@@ -4,8 +4,11 @@
 
 #include <iterator>
 #include "data/remove.hpp"
-#include "data/string.hpp"
 #include "data/numbers.hpp"
+#include "data/string.hpp"
+#include "data/replace.hpp"
+#include "data/lift.hpp"
+#include "data/iterable.hpp"
 #include "gtest/gtest.h"
 
 namespace data {
@@ -218,26 +221,30 @@ using Stack_cases = ::testing::Types<
 TYPED_TEST_SUITE (Stack, Stack_cases);
 
 // TODO need to test both the data:: interface as well as lookup by function argument lookup.
+// TODO we need to ensure that we can use this type in a pure functional way
 
 TYPED_TEST (Stack, Valid) {
     using type = typename TestFixture::type;
-    auto is_valid = valid (type {});
-    static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
-    EXPECT_TRUE (is_valid);
+    EXPECT_TRUE (valid (type {}));
+    EXPECT_TRUE (data::valid (type {}));
+    EXPECT_TRUE (valid ((const type) {}));
+    EXPECT_TRUE (data::valid ((const type) {}));
 }
 
 TYPED_TEST (Stack, Empty) {
     using type = typename TestFixture::type;
-    auto is_empty = empty (type {});
-    static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
-    EXPECT_TRUE (is_empty);
+    EXPECT_TRUE (empty (type {}));
+    EXPECT_TRUE (data::empty (type {}));
+    EXPECT_TRUE (empty ((const type) {}));
+    EXPECT_TRUE (data::empty ((const type) {}));
 }
 
 TYPED_TEST (Stack, Size) {
     using type = typename TestFixture::type;
-    auto empty_size = size (type {});
-    static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
-    EXPECT_EQ (empty_size, 0);
+    EXPECT_EQ (size (type {}), 0);
+    EXPECT_EQ (data::size (type {}), 0);
+    EXPECT_EQ (size ((const type) {}), 0);
+    EXPECT_EQ (data::size ((const type) {}), 0);
 }
 
 TYPED_TEST (Stack, First) {
@@ -249,6 +256,9 @@ TYPED_TEST (Stack, First) {
 
     EXPECT_THROW (first (z), data::empty_sequence_exception);
     EXPECT_THROW (first (cz), data::empty_sequence_exception);
+
+    EXPECT_THROW (data::first (z), data::empty_sequence_exception);
+    EXPECT_THROW (data::first (cz), data::empty_sequence_exception);
     
     using return_type = decltype (first (z));
     using const_return_type = decltype (first (cz));
@@ -279,8 +289,8 @@ TYPED_TEST (Stack, First) {
 
 TYPED_TEST (Stack, Rest) {
     using type = typename TestFixture::type;
-    using return_type = decltype (rest (type {}));
-    static_assert (data::ImplicitlyConvertible<return_type, const type>);
+    static_assert (data::ImplicitlyConvertible<decltype (rest (type {})), const type>);
+    static_assert (data::ImplicitlyConvertible<decltype (data::rest (type {})), const type>);
 }
 
 TYPED_TEST (Stack, Values) {
@@ -306,24 +316,31 @@ TYPED_TEST (Stack, Contains) {
 TYPED_TEST (Stack, Prepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using return_type = decltype (prepend (type {}, std::declval<element> ()));
+    static_assert (data::Same<type,
+        decltype (prepend (type {}, first (type {}))),
+        decltype (data::prepend (type {}, data::first (type {}))),
+        decltype (prepend ((const type) {}, first ((const type) {}))),
+        decltype (data::prepend ((const type) {}, data::first ((const type) {})))>);
+
     using has_rshift = decltype (type {} >> std::declval<element> ());
     type stack {};
     using has_rshift_equals = decltype (stack >>= std::declval<element> ());
-    static_assert (data::Same<return_type, type>);
 }
 
 TYPED_TEST (Stack, TakeDrop) {
     using type = typename TestFixture::type;
-    using has_take = decltype (take (type {}, size_t (0)));
-    using has_drop = decltype (drop (type {}, size_t (0)));
+    (void) take (type {}, size_t (0));
+    (void) drop (type {}, size_t (0));
 }
 
 TYPED_TEST (Stack, Join) {
     using type = typename TestFixture::type;
-    (void) join (type {}, type {});
-    (void) data::join (type {}, type {});
-    (void) (type {} + type {});
+    EXPECT_EQ ((join (type {}, type {})), type {});
+    EXPECT_EQ ((data::join (type {}, type {})), type {});
+    EXPECT_EQ ((join ((const type) {}, (const type) {})), (const type) {});
+    EXPECT_EQ ((data::join ((const type) {}, (const type) {})), (const type) {});
+    EXPECT_EQ (type {} + type {}, type {});
+    EXPECT_EQ ((const type) {} + (const type) {}, (const type) {});
 }
 
 TYPED_TEST (Stack, Sort) {
@@ -332,6 +349,10 @@ TYPED_TEST (Stack, Sort) {
     EXPECT_EQ (data::sort (type {}), type {});
     EXPECT_TRUE (sorted (type {}));
     EXPECT_TRUE (data::sorted (type {}));
+    EXPECT_EQ (sort ((const type) {}), (const type) {});
+    EXPECT_EQ (data::sort ((const type) {}), (const type) {});
+    EXPECT_TRUE (sorted ((const type) {}));
+    EXPECT_TRUE (data::sorted ((const type) {}));
 }
 
 TYPED_TEST (Stack, Remove) {

@@ -171,23 +171,26 @@ TYPED_TEST_SUITE (List, List_cases);
 
 TYPED_TEST (List, Valid) {
     using type = typename TestFixture::type;
-    auto is_valid = valid (type {});
-    static_assert (data::ImplicitlyConvertible<decltype (is_valid), bool>);
-    EXPECT_TRUE (is_valid);
+    EXPECT_TRUE (valid (type {}));
+    EXPECT_TRUE (data::valid (type {}));
+    EXPECT_TRUE (valid ((const type) {}));
+    EXPECT_TRUE (data::valid ((const type) {}));
 }
 
 TYPED_TEST (List, Empty) {
     using type = typename TestFixture::type;
-    auto is_empty = empty (type {});
-    static_assert (data::ImplicitlyConvertible<decltype (is_empty), bool>);
-    EXPECT_TRUE (is_empty);
+    EXPECT_TRUE (empty (type {}));
+    EXPECT_TRUE (data::empty (type {}));
+    EXPECT_TRUE (empty ((const type) {}));
+    EXPECT_TRUE (data::empty ((const type) {}));
 }
 
 TYPED_TEST (List, Size) {
     using type = typename TestFixture::type;
-    auto empty_size = size (type {});
-    static_assert (data::ImplicitlyConvertible<decltype (empty_size), size_t>); 
-    EXPECT_EQ (empty_size, 0);
+    EXPECT_EQ (size (type {}), 0);
+    EXPECT_EQ (data::size (type {}), 0);
+    EXPECT_EQ (size ((const type) {}), 0);
+    EXPECT_EQ (data::size ((const type) {}), 0);
 }
 
 TYPED_TEST (List, First) {
@@ -242,16 +245,26 @@ TYPED_TEST (List, Contains) {
 TYPED_TEST (List, Prepend) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_prepend = decltype (prepend (type {}, std::declval<element> ()));
+    static_assert (data::Same<type,
+        decltype (prepend (type {}, first (type {}))),
+        decltype (data::prepend (type {}, data::first (type {}))),
+        decltype (prepend ((const type) {}, first ((const type) {}))),
+        decltype (data::prepend ((const type) {}, data::first ((const type) {})))>);
+
     using has_rshift = decltype (type {} >> std::declval<element> ());
-    type list {};
-    using has_rshift_equals = decltype (list >>= std::declval<element> ());
+    type stack {};
+    using has_rshift_equals = decltype (stack >>= std::declval<element> ());
 }
 
 TYPED_TEST (List, Append) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    using has_append = decltype (append (type {}, std::declval<element> ()));
+    static_assert (data::Same<type,
+        decltype (append (type {}, first (type {}))),
+        decltype (data::append (type {}, data::first (type {}))),
+        decltype (append ((const type) {}, first ((const type) {}))),
+        decltype (data::append ((const type) {}, data::first ((const type) {})))>);
+
     using has_lshift = decltype (type {} << std::declval<element> ());
     type list {};
     using has_lshift_equals = decltype (list <<= std::declval<element> ());
@@ -265,8 +278,12 @@ TYPED_TEST (List, TakeDrop) {
 
 TYPED_TEST (List, Join) {
     using type = typename TestFixture::type;
-    (void) join (type {}, type {});
-    (void) (type {} + type {});
+    EXPECT_EQ ((join (type {}, type {})), type {});
+    EXPECT_EQ ((data::join (type {}, type {})), type {});
+    EXPECT_EQ ((join ((const type) {}, (const type) {})), (const type) {});
+    EXPECT_EQ ((data::join ((const type) {}, (const type) {})), (const type) {});
+    EXPECT_EQ (type {} + type {}, type {});
+    EXPECT_EQ ((const type) {} + (const type) {}, (const type) {});
 }
 
 TYPED_TEST (List, Sort) {

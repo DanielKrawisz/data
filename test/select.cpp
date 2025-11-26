@@ -31,13 +31,13 @@ namespace data {
     TEST (Select, OrderedSequence) {
         EXPECT_EQ ((select (ordered_sequence<int> {}, nonnegative)), (ordered_sequence<int> {}));
     }
-/*
-    TEST (Select, Set) {
-        EXPECT_EQ ((select (set<int> {}, nonnegative)), (set<int> {}));
-    }
 
     TEST (Select, Map) {
         EXPECT_EQ ((select (map<string, int> {}, nonnegative)), (map<string, int> {}));
+    }
+/*
+    TEST (Select, Set) {
+        EXPECT_EQ ((select (set<int> {}, nonnegative)), (set<int> {}));
     }
 
     TEST (Select, Cross) {

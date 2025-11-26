@@ -19,44 +19,44 @@ namespace data {
     // we can't use a map because we don't know if X is ordered.
     template <typename X> using replacements = const list<pair<X>>;
 
-    template           <typename X>
-    stack<X>           replace (const stack<X> &,           replacements<X>);
+    template <typename X>
+    stack<X> replace (const stack<X> &, replacements<X>);
 
-    template           <typename X>
-    list<X>            replace (const list<X> &,            replacements<X>);
+    template <typename X>
+    list<X> replace (const list<X> &, replacements<X>);
 
-    template           <typename X>
-    tree<X>            replace (const tree<X> &,            replacements<X>);
+    template <typename X>
+    tree<X> replace (const tree<X> &, replacements<X>);
 
-    template           <typename X>
-    cycle<X>           replace (const cycle<X> &,           replacements<X>);
+    template <typename X>
+    cycle<X> replace (const cycle<X> &,   replacements<X>);
 
-    template           <typename K, typename V>
-    map<K, V>          replace (const map<K, V> &,          replacements<V>);
+    template <typename K, typename V>
+    map<K, V> replace (const map<K, V> &, replacements<V>);
 
-    template           <typename X>
-    cross<X>           replace (const cross<X> &,           replacements<X>);
+    template <typename X>
+    cross<X> replace (const cross<X> &, replacements<X>);
 
-    template           <typename X, size_t ...sizes>
+    template <typename X, size_t ...sizes>
     array<X, sizes...> replace (const array<X, sizes...> &, replacements<X>);
 
-    template           <typename key, typename value>
-    map<key, value>    replace_part (   const map<key, value> &m, const key &k, value &&v);
+    template <typename key, typename value>
+    map<key, value> replace_part (const map<key, value> &m, const key &k, value &&v);
 
-    template           <typename X>
-    stack<X>           replace_part (          const stack<X> &,     size_t ind,    X &&val);
+    template <typename X>
+    stack<X>  replace_part (const stack<X> &, size_t ind, X &&val);
 
-    template           <typename X>
-    list<X>            replace_part (           const list<X> &,     size_t ind,    X &&val);
+    template <typename X>
+    list<X>   replace_part (const list<X> &, size_t ind, X &&val);
 
-    template           <typename X>
-    cross<X>           replace_part (          const cross<X> &,     size_t ind,    X &&val);
+    template <typename X>
+    cross<X>  replace_part (const cross<X> &, size_t ind, X &&val);
 
-    template           <typename X, size_t ...sizes>
-    array<X, sizes...> replace_part (const array<X, sizes...> &,     size_t ind,    X &&val);
+    template <typename X, size_t ...sizes>
+    array<X, sizes...> replace_part (const array<X, sizes...> &, size_t ind, X &&val);
 
-    template           <typename key, typename value>
-    map<key, value>    apply_at (   const map<key, value> &m, const key &k, function<value (const value &)> f);
+    template <typename key, typename value>
+    map<key, value> apply_at (const map<key, value> &m, const key &k, function<value (const value &)> f);
 
     template <typename X> cross<X> replace (const cross<X> &x, replacements<X> r) {
         cross<X> result (x.size ());

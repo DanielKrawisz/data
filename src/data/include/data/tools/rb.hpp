@@ -93,8 +93,8 @@ namespace data::RB {
     template <typename V, typename T> size_t size (const tree<V, T> &t);
     template <typename V, typename T> tree<V, T> insert (const tree<V, T> &, inserted<V>);
 
-    template <typename V, typename T> tree<V, T> remove (const tree<V, T> &, inserted<V>);
-    template <typename V, typename T> tree<V, T> erase (const tree<V, T> &, inserted<V>);
+    template <typename V, typename T, typename E> tree<V, T> remove (const tree<V, T> &, const E &);
+    template <typename V, typename T, typename E> tree<V, T> erase (const tree<V, T> &, const E &);
 
     template <typename V, typename T, typename already_exists>
     requires requires (already_exists f, const V &old_v, const V &new_v) {
@@ -143,7 +143,7 @@ namespace data::RB {
 
         ordered_sequence<const V &> values () const;
 
-        tree remove (inserted<V> v) const {
+        tree remove (const V &v) const {
             tree t;
             for (const auto &x : *this) if (x != v) t = t.insert (x);
             return t;
@@ -224,8 +224,16 @@ namespace data::RB {
         return t.size ();
     }
 
-    template <typename V, typename T> tree<V, T> insert (const tree<V, T> &t, inserted<V> j) {
+    template <typename V, typename T> tree<V, T> inline insert (const tree<V, T> &t, inserted<V> j) {
         return t.insert (t, j);
+    }
+
+    template <typename V, typename T, typename E> tree<V, T> inline remove (const tree<V, T> &t, const E &j) {
+        return t.remove (V {j});
+    }
+
+    template <typename V, typename T, typename E> tree<V, T> inline erase (const tree<V, T> &t, const E &j) {
+        return t.remove (V {j});
     }
     
     template <typename V, typename T> tree<V, T> operator | (const tree<V, T> &a, const tree<V, T> &b) {

@@ -11,25 +11,29 @@
 
 namespace data {
 
+    template <typename M> concept IterableMap =
+        ConstIterable<M> && Map<M,
+            decltype (std::declval<const M> ().begin ()->Key),
+            decltype (std::declval<const M> ().begin ()->Value)>;
+
     template <typename T, typename F>
     requires ConstIterable<T>
     T inline select (const T &x, F &&satisfies) {
         T result;
-        if constexpr (Queue<T>) {
+        if constexpr (IterableQueue<T>) {
             for (const auto &z : x) if (satisfies (z)) result <<= z;
             return result;
-        } else if constexpr (Stack<T> ) {
+        } else if constexpr (IterableStack<T> ) {
             for (const auto &z : x) if (satisfies (z)) result >>= z;
             return reverse (result);
-        } else if constexpr (Sack<T, decltype (*x.begin ())>) {
+        } else if constexpr (IterableSack<T>) {
             for (const auto &z : x) if (satisfies (z)) result = insert (result, z);
             return result;
         // TODO there is a problem here because x.begin ()->Key doesn't necessarily exist.
         // if it doesn't, then this function won't compile even if another case is ok.
-        /*
-        } else if constexpr (Map<T, decltype (x.begin ()->Key), decltype (x.begin ()->Value)>) {
+        } else if constexpr (IterableMap<T>) {
             for (const auto &[k, v] : x) if (satisfies (v)) result = insert (result, k, v);
-            return result;*/
+            return result;
         } else {
             list<decltype (*x.begin ())> satisfied;
             for (const auto &z : x) if (satisfies (z)) satisfied <<= z;
