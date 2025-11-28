@@ -127,52 +127,56 @@ namespace data::functional {
     }
     
     template <typename tree, typename P> 
-    void for_each_infix (const tree &t, P f) {
+    void for_each_infix (P f, const tree &t) {
         if (data::empty (t)) return;
-        for_each_infix (data::left (t), f);
-        f (data::root (t));
-        for_each_infix (data::right (t), f);
+        for_each_infix (f, data::left (t));
+        f (t.root ());
+        for_each_infix (f, data::right (t));
     }
     
     template <typename tree, typename P> 
-    void for_each_prefix (const tree &t, P f) {
+    void for_each_prefix (P f, const tree &t) {
         if (data::empty (t)) return;
-        f (data::root (t));
-        for_each_prefix (data::left (t), f);
-        for_each_prefix (data::right (t), f);
+        f (t.root ());
+        for_each_prefix (f, data::left (t));
+        for_each_prefix (f, data::right (t));
     }
 
     template <typename tree, typename P>
-    void for_each_infix (tree &t, P f) {
+    void for_each_infix (P f, tree &t) {
         if (data::empty (t)) return;
-        for_each_infix (data::left (t), f);
-        f (data::root (t));
-        for_each_infix (data::right (t), f);
+        auto l = t.left ();
+        for_each_infix (f, l);
+        f (t.root ());
+        auto r = t.right ();
+        for_each_infix (f, r);
     }
 
     template <typename tree, typename P>
-    void for_each_prefix (tree &t, P f) {
+    void for_each_prefix (P f, tree &t) {
         if (data::empty (t)) return;
-        f (data::root (t));
-        for_each_prefix (data::left (t), f);
-        for_each_prefix (data::right (t), f);
+        f (t.root ());
+        auto l = t.left ();
+        for_each_prefix (f, l);
+        auto r = t.right ();
+        for_each_prefix (f, r);
     }
     
     template <Stack out, Tree in>
     out values_infix (const in &t) {
         out o {};
-        functional::for_each_infix (t, [&o] (const auto &x) -> void {
+        for_each_infix ([&o] (const auto &x) -> void {
             o = prepend (o, x);
-        });
+        }, t);
         return reverse (o);
     }
     
     template <Stack out, Tree in>
     out values_prefix (const in &t) {
         out o {};
-        functional::for_each_prefix (t, [&o] (const auto &x) -> void {
+        for_each_prefix ([&o] (const auto &x) -> void {
             o = prepend (o, x);
-        });
+        }, t);
         return reverse (o);
     }
 

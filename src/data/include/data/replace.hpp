@@ -56,7 +56,7 @@ namespace data {
     array<X, sizes...> replace_part (const array<X, sizes...> &,     size_t ind,    X &&val);
 
     template           <typename key, typename value>
-    map<key, value>    replace_part (   const map<key, value> &m, const key &k, function<value (const value &)> f);
+    map<key, value>    apply_at (   const map<key, value> &m, const key &k, function<value (const value &)> f);
 
     template <typename X> cross<X> replace (const cross<X> &x, replacements<X> r) {
         cross<X> result (x.size ());
@@ -131,12 +131,26 @@ namespace data {
     map<key, value> inline replace_part (const map<key, value> &m, const key &k, value &&v) {
         if (empty (m)) return m;
         using node = RB::colored<data::entry<const key, value>>;
-        const node &r = m.root ();
-        if (k == r.Value.Key) return tree<node> {
+        using tree = linked_tree<node>;
+        const node &r = root (static_cast<const tree &> (m));
+        if (k == r.Value.Key) return tree {
             node {r.Color, data::entry<const key, value> {k, v}},
             m.left (), m.right ()};
-        if (k < r.Value.Key) return tree<node> {r, m.left (), replace_part (m.right (), k, v)};
-        else return tree<node> {r, replace_part (m.left (), k, v), m.right ()};
+        if (k > r.Value.Key) return tree {r, m.left (), replace_part (m.right (), k, v)};
+        else return tree {r, replace_part (m.left (), k, v), m.right ()};
+    }
+
+    template <typename key, typename value>
+    map<key, value> apply_at (const map<key, value> &m, const key &k, function<value (const value &)> f) {
+        if (empty (m)) return m;
+        using node = RB::colored<data::entry<const key, value>>;
+        using tree = linked_tree<node>;
+        const node &r = root (static_cast<const tree &> (m));
+        if (k == r.Value.Key) return tree {
+            node {r.Color, data::entry<const key, value> {k, f (r.Value.Value)}},
+            m.left (), m.right ()};
+        if (k > r.Value.Key) return tree {r, m.left (), apply_at (m.right (), k, f)};
+        else return tree {r, apply_at (m.left (), k, f), m.right ()};
     }
 }
 
