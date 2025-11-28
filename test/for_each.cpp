@@ -120,7 +120,7 @@ namespace data {
         EXPECT_EQ (total, 6);
         // TODO need unconst and multiple inputs
     }
-/*
+
     TEST (ForEach, Tree) {
         int total = 0;
         auto sum = [&total] (const int &i) {
@@ -133,7 +133,7 @@ namespace data {
         EXPECT_EQ (total, 28);
         // TODO need unconst and multiple inputs
     }
-
+/*
     TEST (ForEach, Map) {
         int total = 0;
         auto sum = [&total] (const int &i) {

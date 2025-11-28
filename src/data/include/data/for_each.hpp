@@ -80,15 +80,15 @@ namespace data {
         for_each (f, x.Cycle);
     }
 
-    template <typename F, typename K, typename V> void inline for_each (F&& f, map<K, V> &x) {
-        functional::for_each_infix ([&f] (RB::colored<entry<const K, V>> &v) {
-             f (v.Value.Value);
-        }, x);
-    }
-
     template <typename F, typename X> void for_each (F&& f, tree<X> &x) {
         functional::for_each_infix ([&f] (X &v) {
             f (v);
+        }, x);
+    }
+
+    template <typename F, typename K, typename V> void inline for_each (F&& f, map<K, V> &x) {
+        functional::for_each_infix ([&f] (entry<const K, V> &v) {
+             f (v.Value);
         }, x);
     }
 
@@ -124,8 +124,8 @@ namespace data {
     }
 
     template <typename F, typename K, typename V> void inline for_each_by (F&& f, map<K, V> &x) {
-        functional::for_each_infix ([&f] (RB::colored<entry<const K, V>> &v) {
-            f (v.Value.Key, v.Value.Value);
+        functional::for_each_infix ([&f] (entry<const K, V> &v) {
+            f (v.Key, v.Value);
         }, x);
     }
     
