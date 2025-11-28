@@ -199,16 +199,6 @@ namespace data::RB {
         iterator begin () const;
         iterator end () const;
 
-    protected:
-        // note: this function has quite a bad design. The point of it is to enable
-        // functions in RB map such as replace and replace_part. It also assumes
-        // that we are using linked_tree.
-        T for_each (function<V (inserted<V>)> f) const {
-            static_cast<const T &> (*this).for_each ([f] (inserted<colored<V>> cx) -> colored<V> {
-                return colored<V> {cx.Color, f (cx.Value)};
-            });
-        }
-
     };
 
     template <typename V, typename T>
@@ -232,6 +222,10 @@ namespace data::RB {
 
     template <typename V, typename T> size_t inline size (const tree<V, T> &t) {
         return t.size ();
+    }
+
+    template <typename V, typename T> tree<V, T> insert (const tree<V, T> &t, inserted<V> j) {
+        return t.insert (t, j);
     }
     
     template <typename V, typename T> tree<V, T> operator | (const tree<V, T> &a, const tree<V, T> &b) {

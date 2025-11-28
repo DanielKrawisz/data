@@ -55,4 +55,6 @@ namespace data {
         EXPECT_EQ ((replace (map<string, int> {{"A", 1}}, {{1, 2}})), (map<string, int> {{"A", 2}}));
     }*/
 
+    // TODO need test for replace_part and apply_at since I use those.
+
 }
