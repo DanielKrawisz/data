@@ -13,7 +13,7 @@ namespace data {
     // TODO tighten these constraints.
     template <typename x, typename f, Sequence l>
     x inline fold (f fun, x init, l ls) {
-        if (empty (ls)) return init;
+        if (data::empty (ls)) return init;
         return fold (fun, fun (init, first (ls)), rest (ls));
     }
     
@@ -25,7 +25,7 @@ namespace data {
     
     template <typename x, Sequence l>
     x inline reduce (function<x (const x&, const x&)> fun, l ls) {
-        if (empty (ls)) return x {};
+        if (data::empty (ls)) return x {};
         return fun (first (ls), reduce<x> (fun, rest (ls)));
     }
 

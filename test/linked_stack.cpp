@@ -51,7 +51,7 @@ namespace data {
     static_assert (Iterable<stack<int &>>);
     static_assert (Iterable<stack<const int *>>);
 
-    TEST (LinkedStack, LinkedStack) {
+    TEST (LinkedStack, Stack) {
         
         EXPECT_TRUE (stack<int> {} == stack<int> ());
         
@@ -98,7 +98,7 @@ namespace data {
         
     }
 
-    TEST (LinkedStack, LinkedStackConstruct) {
+    TEST (LinkedStack, Construct) {
     
         stack<int> l {1, 2, 3};
         stack<int> r {};
@@ -132,7 +132,7 @@ namespace data {
 
     }
     
-    TEST (LinkedStack, LinkedStackEqual) {
+    TEST (LinkedStack, Equal) {
         
         stack<int> t1 {2, 1, 3, 5, 1, 7};
         stack<int> t2 {2, 1, 3, 5, 1, 7};
@@ -155,7 +155,7 @@ namespace data {
     
     // There was a bug in which linked lists would be destroyed
     // if they were copied. This test ensures that this does not happen.
-    TEST (LinkedStack, LinkedStackCopy) {
+    TEST (LinkedStack, Copy) {
         stack<int> p;
         test_copy_stack (p, 7);
         EXPECT_EQ (p.size (), 7);
@@ -164,7 +164,7 @@ namespace data {
         EXPECT_EQ (p.rest ().first (), 6);
     }
     
-    TEST (LinkedStack, LinkedStackIteration) {
+    TEST (LinkedStack, Iteration) {
         
         stack<int> t {1, 2, 3};
         auto i = t.begin ();
@@ -185,7 +185,7 @@ namespace data {
 
     void accept_stack_of_string_views (stack<string_view>) {}
 
-    TEST (LinkedStack, LinkedStackConvert) {
+    TEST (LinkedStack, Convert) {
         stack<string> test {"1", "2", "3", "4"};
 
         accept_stack_of_string_views (test);
@@ -196,7 +196,7 @@ namespace data {
 
     }
 
-    TEST (LinkedStack, LinkedStackNumbers) {
+    TEST (LinkedStack, Numbers) {
         stack<Z_bytes_little> {};
         stack<Z_bytes_little> ();
         stack<Z_bytes_little> {1};

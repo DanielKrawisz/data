@@ -9,6 +9,7 @@
 #include <data/valid.hpp>
 #include <data/stream.hpp>
 #include <data/arithmetic.hpp>
+// TODO get rid of this.
 #include <data/encoding/hex.hpp>
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/arithmetic/words.hpp>

@@ -20,19 +20,19 @@ add_executable (
                                  #       can be both const and unconst iterable (unofficially)
     ordered_sequence.cpp         # TODO: contains commented tests
     tree.cpp                     # TODO: contains commented tests
+    set.cpp                      # TODO: Need to test each function more precisely, like in list
+    map.cpp                      # TODO: Need to test each function more precisely, like in list
+    priority_queue.cpp           # TODO: Contains commented test cases
     functional_interfaces.cpp    # TODO: contains commented tests
     empty.cpp                    # TODO: Contains commented test cases
     take.cpp                     # TODO: ensure we check the interface by argument lookup and in data::
     reverse.cpp
     contains.cpp                 # TODO: Contains commented test cases
     sort.cpp
-    set.cpp                      # TODO: Need to test each function more precisely, like in list
-    map.cpp                      # TODO: Need to test each function more precisely, like in list
-    priority_queue.cpp           # TODO: Contains commented test cases
-    for_each.cpp                 # TODO: contains commented test cases.
-    replace.cpp                  # TODO: contains commented test cases.
+    for_each.cpp                 # TODO: could be more thorough
+    replace.cpp
     select.cpp
-    lift.cpp                     # TODO: contains commented test cases.
+    lift.cpp                     # TODO: could be more thorough
     map_schema.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     combinatorics.cpp

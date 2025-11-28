@@ -48,12 +48,12 @@ namespace data {
         EXPECT_EQ ((replace (cycle<int> {1}, {{1, 2}})), (cycle<int> {2}));
         EXPECT_EQ ((replace (cycle<int> {1, 3}, {{1, 2}})), (cycle<int> {2, 3}));
     }
-/*
+
     TEST (Replace, Map) {
         EXPECT_EQ ((replace (map<string, int> {}, {})), (map<string, int> {}));
         EXPECT_EQ ((replace (map<string, int> {{"A", 1}}, {})), (map<string, int> {{"A", 1}}));
         EXPECT_EQ ((replace (map<string, int> {{"A", 1}}, {{1, 2}})), (map<string, int> {{"A", 2}}));
-    }*/
+    }
 
     // TODO need test for replace_part and apply_at since I use those.
 

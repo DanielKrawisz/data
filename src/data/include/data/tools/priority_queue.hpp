@@ -92,7 +92,7 @@ namespace data::tool {
             else return tree {right.root (), right.left (), merge (left, right.right ())};
         }
 
-        static bool contains (const tree &t, inserted<element> e) {
+        static bool contains (const tree &t, const inserted<element> e) {
             if (data::empty (t)) return false;
             const auto r = root (t);
             if (e == r) return true;
@@ -101,7 +101,7 @@ namespace data::tool {
             return contains (right (t), e);
         }
 
-        bool contains (inserted<element> e) const {
+        bool contains (const inserted<element> e) const {
             return contains (Tree, e);
         }
     };

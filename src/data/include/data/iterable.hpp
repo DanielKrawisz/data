@@ -51,8 +51,6 @@ namespace data {
         
         int operator - (const reverse_iterator &i) const;
     };
-
-    template <typename... its> struct product_range;
     
 }
 

@@ -87,9 +87,19 @@ namespace data {
     }
 
     template <typename F, typename K, typename V> void inline for_each (F&& f, map<K, V> &x) {
-        functional::for_each_infix ([&f] (entry<const K, V> &v) {
-             f (v.Value);
-        }, x);
+        if (data::empty (x)) return;
+
+        map<K, V> Left = left (x);
+        for_each (f, Left);
+
+        // we have to use const_cast here because RB::tree cannot have
+        // non-const access since it is sorted. However, when
+        // we use entry<K, V>, changing the value of V does not change
+        // the sorting, so it's ok to change it.
+        f (const_cast<data::entry<const K, V> &> (x.root ()).Value);
+
+        map<K, V> Right = right (x);
+        for_each (f, Right);
     }
 
     template <typename F, typename A, typename ...As>
@@ -124,9 +134,20 @@ namespace data {
     }
 
     template <typename F, typename K, typename V> void inline for_each_by (F&& f, map<K, V> &x) {
-        functional::for_each_infix ([&f] (entry<const K, V> &v) {
-            f (v.Key, v.Value);
-        }, x);
+        if (data::empty (x)) return;
+
+        map<K, V> Left = left (x);
+        for_each_by (f, Left);
+
+        // we have to use const_cast here because RB::tree cannot have
+        // non-const access since it is sorted. However, when
+        // we use entry<K, V>, changing the value of V does not change
+        // the sorting, so it's ok to change it.
+        auto r = const_cast<data::entry<const K, V> &> (x.root ());
+        f (r.Key, r.Value);
+
+        map<K, V> Right = right (x);
+        for_each_by (f, Right);
     }
     
 }
