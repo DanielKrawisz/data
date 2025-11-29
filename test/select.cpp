@@ -35,14 +35,14 @@ namespace data {
     TEST (Select, Map) {
         EXPECT_EQ ((select (map<string, int> {}, nonnegative)), (map<string, int> {}));
     }
-/*
+
     TEST (Select, Set) {
         EXPECT_EQ ((select (set<int> {}, nonnegative)), (set<int> {}));
     }
 
     TEST (Select, Cross) {
         EXPECT_EQ ((select (cross<int> {}, nonnegative)), (cross<int> {}));
-    }*/
+    }
 
 }
 
