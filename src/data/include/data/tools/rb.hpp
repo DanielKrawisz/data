@@ -225,7 +225,7 @@ namespace data::RB {
     }
 
     template <typename V, typename T> tree<V, T> inline insert (const tree<V, T> &t, inserted<V> j) {
-        return t.insert (t, j);
+        return t.insert (j);
     }
 
     template <typename V, typename T, typename E> tree<V, T> inline remove (const tree<V, T> &t, const E &j) {
