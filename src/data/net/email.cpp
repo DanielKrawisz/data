@@ -840,6 +840,8 @@ namespace data::net::email {
         bool valid () const {
             return This != "";
         }
+
+        bool operator == (const insert &) const;
     };
 
     insert insert_CLRF_before_whitespace (string_view line, uint32 limit) {

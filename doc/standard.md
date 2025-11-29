@@ -74,6 +74,7 @@ The core library has the following includes:
 * `data/empty.hpp`
 * `data/sequence.hpp`
 * `data/fold.hpp`
+* `data/iterable.hpp`
 * `data/stack.hpp`
 * `data/list.hpp`
 * `data/ordered_sequence.hpp`
@@ -289,11 +290,17 @@ Given a `data::Sequence seq` and a `size_t n`, return the same type with the fir
 
 #### `data::reduce`
 
+### `data/iterable.hpp`
+
+#### `concept ConstIterable`
+
+#### `concept Iterable`
+
+`Iterable` includes `ConstIterable`.
+
 ### `data/stack.hpp`
 
 #### `concept data::Stack`
-
-Available from `data/stack.hpp`, `data/list.hpp`, `data/ordered_sequence.hpp`
 
 For a type `X`, `data::Stack<X>` if `X` supports `X::empty`, `X::size`, `X::first`, `X::rest`, and `X::prepend`. 
 
@@ -305,7 +312,15 @@ type `e` of `elem`, `x.prepend (x.first ()) -> X`.
 
 #### `class data::stack`
 
-An implementation of `Stack` supporting `valid`, `empty`, `size`, `first`, `rest`, and `prepend` using argument-dependent lookup. 
+An implementation of `data::Stack` and `data::Iterable` supporting `valid`, 
+`empty`, `size`, `first`, `rest`, and `prepend` using argument-dependent 
+lookup. 
+
+`data::stack` is optimized to be used in a pure functional way, but we allow
+the user to cheat a bit with non-const access and iteration. This can be 
+convenient, but it is error-prone. 
+
+To force pure functional use, use `const data::stack<const X>`. 
 
 For a value `z` of type `const data::stack<X>`:
 
