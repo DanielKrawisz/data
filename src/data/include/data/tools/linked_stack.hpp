@@ -140,27 +140,6 @@ namespace data {
         return x.size ();
     }
     
-    // a bidirectional iterator in case you need one. 
-    // TODO this should go in functional/stack.hpp
-    template <typename elem>
-    class linked_stack_iterator : public sequence_iterator<linked_stack<elem>> {
-        linked_stack<const linked_stack<elem> &> Prev;
-        
-        linked_stack_iterator (const linked_stack<elem> &s, linked_stack<elem> n, int i, linked_stack<const linked_stack<elem> &> p) :
-            sequence_iterator<linked_stack<elem>> {s, n, i}, Prev {p} {}
-        
-    public:
-        linked_stack_iterator (): sequence_iterator<linked_stack<elem>> {}, Prev {} {}
-        
-        linked_stack_iterator operator ++ (int);
-        linked_stack_iterator &operator ++ ();
-        
-        linked_stack_iterator operator -- (int);
-        linked_stack_iterator &operator -- ();
-        
-        linked_stack_iterator (const linked_stack<elem> &s) : sequence_iterator<linked_stack<elem>> {s}, Prev {} {}
-    };
-    
     template <typename elem> requires requires (std::ostream &o, const elem &e) {
         { o << e } -> Same<std::ostream &>;
     } std::ostream inline &operator << (std::ostream &o, const linked_stack<elem> &x) {
@@ -288,36 +267,6 @@ namespace data {
     template <Element elem>
     linked_stack<elem>::iterator inline linked_stack<elem>::end () {
         return iterator {this, nullptr};
-    }
-    
-    template <typename elem>
-    linked_stack_iterator<elem> linked_stack_iterator<elem>::operator ++ (int) {
-        auto n = *this;
-        ++(*this);
-        return n;
-    }
-    
-    template <typename elem>
-    linked_stack_iterator<elem> linked_stack_iterator<elem>::operator -- (int) {
-        auto n = *this;
-        --(*this);
-        return n;
-    }
-    
-    template <typename elem>
-    linked_stack_iterator<elem> &linked_stack_iterator<elem>::operator ++ () {
-        Prev <<= sequence_iterator<linked_stack<elem>>::Next;
-        sequence_iterator<linked_stack<elem>>::operator ++ ();
-    }
-    
-    template <typename elem>
-    linked_stack_iterator<elem> &linked_stack_iterator<elem>::operator -- () {
-        if (data::empty (Prev)) return *this;
-        return *this = linked_stack_iterator {
-            *sequence_iterator<linked_stack<elem>>::Sequence, 
-            first (sequence_iterator<linked_stack<elem>>::Prev),
-            sequence_iterator<linked_stack<elem>>::Index - 1, 
-            rest (sequence_iterator<linked_stack<elem>>::Prev)};
     }
 
     template <Element elem>
