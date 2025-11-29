@@ -59,11 +59,11 @@ namespace data {
     static_assert (ConstIterable<list<const int *>>);
     static_assert (ConstIterable<list<const int *const>>);
     static_assert (ConstIterable<list<const int &>>);
-    /*
+
     static_assert (Iterable<list<int>>);
     static_assert (Iterable<list<int &>>);
     static_assert (Iterable<list<int *>>);
-    static_assert (Iterable<list<int *const>>);*/
+    static_assert (Iterable<list<const int *>>);
 
     TEST (List, Construct) {
 
@@ -153,6 +153,25 @@ namespace data {
         EXPECT_EQ (shuffle (l3, {1, 2, 0}), (list<int> {3, 1, 2}));
         EXPECT_EQ (shuffle (l3, {2, 0, 1}), (list<int> {2, 3, 1}));
 
+    }
+
+    void test_iterate (list<int> ll) {
+        int i = 0;
+        auto j = ll.begin ();
+        while (i < 4) {
+            EXPECT_EQ (i, *j);
+            i++;
+            j++;
+        }
+        EXPECT_EQ (j, ll.end ());
+    }
+
+    TEST (List, Iteration) {
+        test_iterate (list<int> {} << 0 << 1 << 2 << 3);
+        test_iterate (list<int> {0} << 1 << 2 << 3);
+        test_iterate (list<int> {0, 1} << 2 << 3);
+        test_iterate (list<int> {0, 1, 2} << 3);
+        test_iterate (list<int> {0, 1, 2, 3});
     }
 
 }

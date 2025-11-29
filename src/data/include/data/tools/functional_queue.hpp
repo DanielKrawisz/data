@@ -111,28 +111,6 @@ namespace data {
             return functional_queue<Z, E> {Z (Left), Z (Right)};
         }
 
-        using iterator = sequence_iterator<functional_queue>;
-        using sentinel = data::sentinel<functional_queue>;
-
-        iterator begin () {
-            return iterator {*this};
-        }
-
-        sentinel end () {
-            return sentinel {*this};
-        }
-
-        using const_iterator = sequence_iterator<const functional_queue>;
-        using const_sentinel = data::sentinel<const functional_queue>;
-
-        const_iterator begin () const {
-            return const_iterator {*this};
-        }
-
-        const_sentinel end () const {
-            return const_sentinel {*this};
-        }
-
         operator stack () const {
             return join (Left, Right);
         }
@@ -146,7 +124,70 @@ namespace data {
         static functional_queue check (const stack l, const stack r);
         
         template <Stack Z, typename E> requires Sequence<Z, E> friend struct functional_queue;
+
+        template <bool is_const>
+        struct it {
+
+            using value_type        = std::conditional_t<is_const, const unref<element>, unref<element>>;
+            using difference_type   = int;
+            using pointer           = value_type *;
+            using reference         = value_type &;
+            using iterator_category = std::forward_iterator_tag;
+
+            using left_it = std::conditional_t<is_const,
+                decltype (std::declval<const stack> ().begin ()),
+                decltype (std::declval<stack> ().begin ())>;
+
+            using left_sen = std::conditional_t<is_const,
+                decltype (std::declval<const stack> ().end ()),
+                decltype (std::declval<stack> ().end ())>;
+
+            bool      operator == (const it &i) const;
+
+            reference operator *  () const;
+            pointer   operator -> () const;
+            it       &operator ++ ();    // pre-increment
+            it        operator ++ (int); // post-increment
+
+        private:
+            struct reverse_node {
+                stack Last;
+                ptr<reverse_node> Previous;
+            };
+
+            const functional_queue<stack, element> *Queue;
+            left_it Left;
+            left_sen Lend;
+            ptr<reverse_node> Right;
+
+        public:
+            static ptr<reverse_node> unroll (stack, ptr<reverse_node> = nullptr);
+
+            it (): Queue {}, Left {}, Lend {}, Right {} {}
+            it (const functional_queue<stack, element> *q, left_it left, left_sen lend, ptr<reverse_node> right):
+                Queue {q}, Left {left}, Lend {lend}, Right {right} {}
+        };
     
+    public:
+
+        using iterator = it<false>;
+        using const_iterator = it<true>;
+
+        iterator begin () {
+            return iterator {this, Left.begin (), Left.end (), iterator::unroll (Right)};
+        }
+
+        iterator end () {
+            return iterator {this, Left.end (), Left.end (), nullptr};
+        }
+
+        const_iterator begin () const {
+            return const_iterator {this, Left.begin (), Left.end (), const_iterator::unroll (Right)};
+        }
+
+        const_iterator end () const {
+            return const_iterator {this, Left.end (), Left.end (), nullptr};
+        }
     };
 
     template <typename X, typename E>
@@ -266,7 +307,45 @@ namespace data {
     functional_queue<stack, element> inline functional_queue<stack, element>::make (const A x, M... m) {
         return make (m...).prepend (x);
     }
-    
+
+    template <Stack stack, typename element> requires Sequence<stack, element> template <bool is_const>
+    functional_queue<stack, element>::it<is_const> functional_queue<stack, element>::it<is_const>::operator ++ (int) {
+        it n = *this;
+        ++(*this);
+        return n;
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element> template <bool is_const>
+    functional_queue<stack, element>::it<is_const>::pointer functional_queue<stack, element>::it<is_const>::operator -> () const {
+        return &operator * ();
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element> template <bool is_const>
+    bool functional_queue<stack, element>::it<is_const>::operator == (const it &i) const {
+        return Queue == i.Queue && Left == i.Left && Lend == i.Lend && Right == i.Right;
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element> template <bool is_const>
+    ptr<typename functional_queue<stack, element>::it<is_const>::reverse_node>
+    functional_queue<stack, element>::it<is_const>::unroll (stack x, ptr<reverse_node> p) {
+        if (x.empty ()) return p;
+        return unroll (x.rest (), std::make_shared<reverse_node> (x, p));
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element> template <bool is_const>
+    functional_queue<stack, element>::it<is_const>::reference functional_queue<stack, element>::it<is_const>::operator * () const {
+        if (Left != Lend) return *Left;
+        if (Right != nullptr) return Right->Last.first ();
+        throw empty_sequence_exception {};
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element> template <bool is_const>
+    functional_queue<stack, element>::it<is_const> &functional_queue<stack, element>::it<is_const>::operator ++ () {
+        if (Left != Lend) Left++;
+        else if (Right != nullptr) Right = Right->Previous;
+        return *this;
+    }
+
 }
 
 #endif

@@ -102,15 +102,15 @@ namespace data::tool {
             return ordered_stack {data::functional::merge_stack (Stack, a.Stack)};
         }
         
-        using iterator = sequence_iterator<ordered_stack>;
-        using sentinel = data::sentinel<ordered_stack>;
+        using const_iterator = stack::const_iterator;
+        using const_sentinel = stack::const_iterator;
         
-        iterator begin () const {
-            return iterator {*this};
+        const_iterator begin () const {
+            return Stack.begin ();
         }
         
-        sentinel end () const {
-            return sentinel {*this};
+        const_sentinel end () const {
+            return Stack.end ();
         }
     };
 

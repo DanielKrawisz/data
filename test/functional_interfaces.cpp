@@ -174,6 +174,8 @@ namespace data {
         using cycle_has_size = decltype (size (std::declval<cycle<X>> ()));
         using dispatch_has_size = decltype (size (std::declval<dispatch<size_t, X>> ()));
 
+        // TODO functions for cycle
+
         // tree doesn't have a values method because it doesn't have an
         // iteration order.
         using stack_has_values = decltype (values (std::declval<stack<X>> ()));
