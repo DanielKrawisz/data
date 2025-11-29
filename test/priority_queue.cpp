@@ -25,7 +25,7 @@ namespace data {
     static_assert (Sack<priority_queue<const int *>, const int *>);
     static_assert (Sack<priority_queue<const int *const>, const int *const>);
     static_assert (Sack<priority_queue<const int &>, const int &>);
-/*
+
     static_assert (Heap<priority_queue<int>, int>);
     static_assert (Heap<priority_queue<int *>, int *>);
     static_assert (Heap<priority_queue<int &>, int &>);
@@ -40,7 +40,7 @@ namespace data {
 
     static_assert (Heap<priority_queue<const string>, const string>);
     static_assert (Heap<priority_queue<const string *>, const string *>);
-    static_assert (Heap<priority_queue<const string &>, const string &>);*/
+    static_assert (Heap<priority_queue<const string &>, const string &>);
 }
 
 TEST (PriorityQueue, PriorityQueue) {

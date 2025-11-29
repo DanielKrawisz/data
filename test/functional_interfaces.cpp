@@ -315,7 +315,7 @@ namespace data {
             using list_has_replace = decltype (replace (std::declval<list<X>> (), {{y, y}}));
             using tree_has_replace = decltype (replace (std::declval<tree<X>> (), {{y, y}}));
             using map_has_replace = decltype (replace (std::declval<map<size_t, X>> (), {{y, y}}));
-/*
+
             using stack_has_replace_part = decltype (replace_part (std::declval<stack<X>> (), size_t {0}, y));
             using list_has_replace_part = decltype (replace_part (std::declval<list<X>> (), size_t {0}, y));
             using map_has_replace_part = decltype (replace_part (std::declval<map<size_t, X>> (), size_t {0}, y));
@@ -325,7 +325,7 @@ namespace data {
             using set_has_select = decltype (select (std::declval<set<X>> (), &doop<y>));
             using ordered_sequence_has_select = decltype (select (std::declval<ordered_sequence<X>> (), &doop<y>));
             using priority_queue_has_select = decltype (select (std::declval<priority_queue<X>> (), &doop<y>));
-            using map_has_select = decltype (select (std::declval<map<size_t, X>> (), &doop<y>));*/
+            using map_has_select = decltype (select (std::declval<map<size_t, X>> (), &doop<y>));
 
         }
 
