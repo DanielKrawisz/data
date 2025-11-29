@@ -40,8 +40,8 @@ namespace data {
 
             // NOTE: we don't actually know that we can make something of a given size like this.
             // this works for std::vectors and things like that.
-            T z (size (x));
-            for_each ([] (auto &&a, const auto &&b) {
+            T z (data::size (x));
+            for_each ([] (auto &&a, auto &&b) {
                 a = b;
             }, z, x);
             return z;
