@@ -40,20 +40,20 @@ namespace data {
     template <typename X, size_t ...sizes>
     array<X, sizes...> replace (const array<X, sizes...> &, replacements<X>);
 
-    template <typename key, typename value>
-    map<key, value> replace_part (const map<key, value> &m, const key &k, value &&v);
+    template <typename key, typename value, typename E>
+    map<key, value> replace_at (const map<key, value> &m, const key &k, E &&v);
 
-    template <typename X>
-    stack<X>  replace_part (const stack<X> &, size_t ind, X &&val);
+    template <typename X, typename E>
+    stack<X> replace_at (const stack<X> &, size_t ind, E &&val);
 
-    template <typename X>
-    list<X>   replace_part (const list<X> &, size_t ind, X &&val);
+    template <typename X, typename E>
+    list<X> replace_at (const list<X> &, size_t ind, E &&val);
 
-    template <typename X>
-    cross<X>  replace_part (const cross<X> &, size_t ind, X &&val);
+    template <typename X, typename E>
+    cross<X> replace_at (const cross<X> &, size_t ind, E &&val);
 
     template <typename X, size_t ...sizes>
-    array<X, sizes...> replace_part (const array<X, sizes...> &, size_t ind, X &&val);
+    array<X, sizes...> replace_at (const array<X, sizes...> &, size_t ind, X &&val);
 
     template <typename key, typename value>
     map<key, value> apply_at (const map<key, value> &m, const key &k, function<value (const value &)> f);
@@ -127,8 +127,8 @@ namespace data {
         return result;
     }
 
-    template <typename key, typename value>
-    map<key, value> inline replace_part (const map<key, value> &m, const key &k, value &&v) {
+    template <typename key, typename value, typename E>
+    map<key, value> inline replace_at (const map<key, value> &m, const key &k, E &&v) {
         if (empty (m)) return m;
         using node = RB::colored<data::entry<const key, value>>;
         using tree = linked_tree<node>;
@@ -136,8 +136,8 @@ namespace data {
         if (k == r.Value.Key) return tree {
             node {r.Color, data::entry<const key, value> {k, v}},
             m.left (), m.right ()};
-        if (k > r.Value.Key) return tree {r, m.left (), replace_part (m.right (), k, v)};
-        else return tree {r, replace_part (m.left (), k, v), m.right ()};
+        if (k > r.Value.Key) return tree {r, m.left (), replace_at (m.right (), k, v)};
+        else return tree {r, replace_at (m.left (), k, v), m.right ()};
     }
 
     template <typename key, typename value>

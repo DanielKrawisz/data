@@ -47,10 +47,12 @@ namespace data {
     interface::has_insert_method<X, E>;
 
     template <typename X, typename element>
-    concept OrderedSet = Set<X, element> && interface::has_values_method<X> && std::totally_ordered<element>;
+    concept OrderedSet = Set<X, element> && interface::has_values_method<X> && Sortable<element>;
 
     template <typename X, typename element>
-    concept Heap = Tree<X, element> && OrderedSet<X, element> && Sequence<X, element> && Sack<X, element>;
+    concept Heap = Tree<X, element> && Set<X, element> &&
+        interface::has_values_method<X> && Prioritized<element> &&
+        Sequence<X, element> && Sack<X, element>;
 
     template <typename M> concept IterableSet =
         ConstIterable<M> && Set<M, decltype (*std::declval<const M> ().begin ())>;
