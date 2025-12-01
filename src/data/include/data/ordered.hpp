@@ -15,6 +15,12 @@ namespace data {
     template <typename X> concept Sortable = requires (const X &a, const X &b) {
         {a < b} -> ImplicitlyConvertible<bool>;
     };
+
+    // we use this in the priority queue.
+    template <typename element>
+    concept Prioritized = Element<element> && requires (const element &a, const element &b) {
+        {a <= b} -> ImplicitlyConvertible<bool>;
+    };
     
     template <typename X, typename Y> requires 
     requires (const X x, const X y) {

@@ -216,6 +216,6 @@ TYPED_TEST (Map, Erase) {
 TYPED_TEST (Map, ReplacePart) {
     using type = typename TestFixture::type;
     using value = typename TestFixture::value;
-    using has_replace_part = decltype (replace_part (type {}, 0, std::declval<value> ()));
-    using has_data_erase = decltype (data::replace_part (type {}, 0, std::declval<value> ()));
+    using has_replace_at = decltype (replace_at (type {}, 0, std::declval<value> ()));
+    using has_data_erase = decltype (data::replace_at (type {}, 0, std::declval<value> ()));
 }
