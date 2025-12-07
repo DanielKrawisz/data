@@ -68,8 +68,12 @@
 
         EXPECT_TRUE (data::contains (tree<string> {"a"}, "a"));
         EXPECT_FALSE (data::contains (tree<string> {}, "a"));
+/*
+        EXPECT_TRUE (contains (cycle<string> {"a"}, "a"));
+        EXPECT_FALSE (contains (cycle<string> {}, "a"));
 
-        // TODO cycle
+        EXPECT_TRUE (data::contains (cycle<string> {"a"}, "a"));
+        EXPECT_FALSE (data::contains (cycle<string> {}, "a"));*/
 
         // contains works differently with map. 
         EXPECT_TRUE (contains (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a"));

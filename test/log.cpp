@@ -9,8 +9,10 @@
 
 namespace data::log {
 
-    TEST (LogTest, TestLog) {
-        init_logging ("log_%N.log");
-        testLog ();
+    TEST (Log, Log) {
+        init ();
+        DATA_LOG_CHANNEL ("temp", normal) << "Hello, world!";
+        indent x {};
+        DATA_LOG_CHANNEL ("temp", normal) << "This line ought to be indented. ";
     }
 }
