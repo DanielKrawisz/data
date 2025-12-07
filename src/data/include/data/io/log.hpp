@@ -5,6 +5,7 @@
 #ifndef DATA_LOG_HPP
 #define DATA_LOG_HPP
 
+#include <data/types.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -17,14 +18,10 @@
 #include <boost/log/sources/record_ostream.hpp>
 
 namespace data::log {
-    namespace logging = boost::log;
-    namespace sinks = boost::log::sinks;
-    namespace src = boost::log::sources;
-    namespace expr = boost::log::expressions;
-    namespace attrs = boost::log::attributes;
-    namespace keywords = boost::log::keywords;
+    using namespace boost::log;
 
     enum severity_level {
+        debug,
         normal,
         notification,
         warning,
@@ -34,23 +31,101 @@ namespace data::log {
 
     std::ostream &operator << (std::ostream &strm, severity_level level);
 
-    typedef src::severity_channel_logger_mt <
+    // Define a logger type that supports:
+    //   * severity
+    //   * channels (std::string)
+    // The “_mt” at the end means “multi-threaded”, i.e. thread-safe.
+    // This logger attaches two attributes to each record:
+    //     - severity
+    //     - channel
+    typedef sources::severity_channel_logger_mt <
         severity_level,     // the type of the severity level
         std::string         // the type of the channel name
     > my_logger_mt;
 
-
+    // Define a global logger accessible everywhere through global_log::get().
+    // BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT is a Boost macro that:
+    //   * declares a function global_log::get()
+    //   * ensures the logger is constructed exactly once
+    //   * optionally initializes it with attributes
     BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(global_log, my_logger_mt) {
-    // Specify the channel name on construction, similarly as with the channel_logger
-    return
-    my_logger_mt(keywords::channel = "data"
-    );
-}
-    BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
-#define DATA_LOG_CHANNEL(channel,sev) BOOST_LOG_CHANNEL_SEV((data::log::global_log::get()),(channel),(data::log::severity_level::sev))
-#define DATA_LOG(sev) BOOST_LOG_SEV((data::log::global_log::get()),(data::log::severity_level::sev))
-void init_logging(std::string filename);
-void testLog();
+        // Construct the logger with the channel name "data".
+        // This means every record emitted through global_log
+        // will contain channel="data".
+        //
+        // The 'keywords::channel' keyword binds the channel attribute.
+        return my_logger_mt(keywords::channel = "data");
+    }
+
+    class initializer : public std::enable_shared_from_this<initializer> {
+        std::string Filename;
+        severity_level Level = severity_level::normal;
+
+    public:
+        initializer () = default;
+
+        ptr<initializer> filename (const std::string& fname) {
+            Filename = fname;
+            return shared_from_this ();
+        }
+
+        ptr<initializer> min_level (severity_level level) {
+            Level = level;
+            return shared_from_this ();
+        }
+
+        ~initializer ();
+    };
+
+    // call this before logging.
+    //   use ->filename (string) to set a filename to log into.
+    //   use ->min_level (severity_level)
+    ptr<initializer> inline init () {
+        return std::make_shared<initializer> ();
+    }
+
+    // a utility for adding indents to logs.
+    //   use indent abc {} to add indents to logs
+    //   that will step once abc is destructed.
+    class indent {
+    public:
+        explicit indent ();
+
+        ~indent ();
+
+        static unsigned depth ();
+
+    private:
+
+        // singleton to store default fill string
+        static indent &instance ();
+    };
+
+    std::string inline indent_string (unsigned int indent_depth) {
+        return std::string (indent_depth, ' ');
+    }
+
+// Declare an attribute keyword named "severity".
+// This lets you refer to the Severity attribute in formatters and filters.
+// The string "Severity" must match the name used inside Boost.Log records.
+// The type is your severity_level enum.
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
+
+// Convenience macro for logging with a specific channel + severity.
+// Example usage:
+//     DATA_LOG_CHANNEL("network", warning) << "Lost connection";
+// This expands to BOOST_LOG_CHANNEL_SEV(logger, channel, severity)
+#define DATA_LOG_CHANNEL(channel,sev) \
+    BOOST_LOG_CHANNEL_SEV((data::log::global_log::get()),(channel),(data::log::severity_level::sev)) << \
+        ::data::log::indent_string (::data::log::indent::depth ())
+
+// Convenience macro for logging with only a severity, using the default channel
+// the logger was created with ("data").
+// Example:
+//     DATA_LOG(error) << "File not found";
+#define DATA_LOG(sev) \
+    BOOST_LOG_SEV((data::log::global_log::get()),(data::log::severity_level::sev)) << \
+        ::data::log::indent_string (::data::log::indent::depth ())
 
 }
 

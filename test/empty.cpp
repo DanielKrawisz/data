@@ -55,11 +55,20 @@
         EXPECT_TRUE  (empty (data::map<int, int> {}));
         EXPECT_FALSE (empty (data::map<int, int> {{1, 1}}));
 
+        EXPECT_TRUE  (data::empty (data::map<int, int> {}));
+        EXPECT_FALSE (data::empty (data::map<int, int> {{1, 1}}));
+
         EXPECT_TRUE  (empty (data::cycle<int> {}));
         EXPECT_FALSE (empty (data::cycle<int> {1}));
 
+        EXPECT_TRUE  (data::empty (data::cycle<int> {}));
+        EXPECT_FALSE (data::empty (data::cycle<int> {1}));
+
         EXPECT_TRUE  (empty (data::dispatch<int, int> {}));
         EXPECT_FALSE (empty (data::dispatch<int, int> {{1, 1}}));
+
+        EXPECT_TRUE  (data::empty (data::dispatch<int, int> {}));
+        EXPECT_FALSE (data::empty (data::dispatch<int, int> {{1, 1}}));
 
         // TODO the reason we have to use data::empty is
         // that these types inheret from std types, which
@@ -110,11 +119,20 @@
         EXPECT_EQ (size (data::map<int, int> {}), 0);
         EXPECT_EQ (size (data::map<int, int> {{1, 1}}), 1);
 
+        EXPECT_EQ (data::size (data::map<int, int> {}), 0);
+        EXPECT_EQ (data::size (data::map<int, int> {{1, 1}}), 1);
+
         EXPECT_EQ (size (data::cycle<int> {}), 0);
         EXPECT_EQ (size (data::cycle<int> {1}), 1);
 
+        EXPECT_EQ (data::size (data::cycle<int> {}), 0);
+        EXPECT_EQ (data::size (data::cycle<int> {1}), 1);
+
         EXPECT_EQ (size (data::dispatch<int, int> {}), 0);
         EXPECT_EQ (size (data::dispatch<int, int> {{1, 1}}), 1);
+
+        EXPECT_EQ (data::size (data::dispatch<int, int> {}), 0);
+        EXPECT_EQ (data::size (data::dispatch<int, int> {{1, 1}}), 1);
 
         // TODO same problem here.
         EXPECT_EQ (data::size (data::cross<int> {}), 0);
