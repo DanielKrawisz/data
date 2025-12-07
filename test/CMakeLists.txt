@@ -105,7 +105,7 @@ add_executable (
     email.cpp
 
     # io
-    testLog.cpp
+    log.cpp
     args_parser.cpp
 )
 
