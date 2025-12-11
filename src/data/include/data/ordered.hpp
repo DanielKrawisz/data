@@ -18,7 +18,7 @@ namespace data {
 
     // we use this in the priority queue.
     template <typename element>
-    concept Prioritized = Element<element> && requires (const element &a, const element &b) {
+    concept Prioritized = Copyable<element> && requires (const element &a, const element &b) {
         {a <= b} -> ImplicitlyConvertible<bool>;
     };
     

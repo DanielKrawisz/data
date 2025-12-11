@@ -18,21 +18,26 @@ namespace data {
     template <typename ...types> struct is_same;
     template <> struct is_same<> : std::true_type {};
     template <typename type> struct is_same<type> : std::true_type {};
-    template <typename type> struct is_same<type, type> : std::true_type {};
-    template <typename A, typename B> struct is_same<A, B> : std::false_type {};
+
+    template <typename A, typename B> struct is_same<A, B> :
+        std::bool_constant<requires { requires std::same_as<A, B>; }> {};
+
     template <typename A, typename B, typename ...types> struct is_same<A, B, types...> :
         std::bool_constant<is_same<A, B>::value && is_same<B, types...>::value> {};
+
+    template <typename... T> concept Same = is_same<T...>::value;
 
     template <typename ...types> struct is_unsame;
     template <> struct is_unsame<> : std::false_type {};
     template <typename type> struct is_unsame<type> : std::false_type {};
-    template <typename type> struct is_unsame<type, type> : std::false_type {};
-    template <typename A, typename B> struct is_unsame<A, B> : std::true_type {};
+
+    template <typename A, typename B> struct is_unsame<A, B> :
+        std::bool_constant<requires { requires (!std::same_as<A, B>); }> {};
+
     template <typename A, typename B, typename ...types> struct is_unsame<A, B, types...> :
         std::bool_constant<is_unsame<A, B>::value && is_unsame<A, types...>::value && is_unsame<B, types...>::value> {};
 
     // check if any number of types are the same.
-    template <typename... T> concept Same = is_same<T...>::value;
     template <typename... T> concept Unsame = is_unsame<T...>::value;
 
     // types containing static members that say whether one type is constructible.
@@ -121,7 +126,7 @@ namespace data {
 
     template <typename Type> concept Const = is_effectively_const_v<Type>;
 
-    template <typename Type> concept Element = std::is_constructible_v<Type, Type>;
+    template <typename Type> concept Copyable = std::is_constructible_v<Type, Type>;
 
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
