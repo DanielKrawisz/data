@@ -10,6 +10,9 @@
 #include <cryptopp/drbg.h>
 
 namespace data::crypto::NIST {
+
+    template <std::derived_from<CryptoPP::HashTransformation> hash> struct Hash_DRBG;
+    template <typename hmac> struct HMAC_DRBG;
     
     struct DRBG final : entropy {
         // supported rngs
@@ -18,7 +21,7 @@ namespace data::crypto::NIST {
             Hash
         };
 
-        constexpr static uint32 DefaultBytesBeforeReseed = 0xffff;
+        constexpr static uint32 DefaultBytesBeforeReseed = 0xffffffff;
         
         uint32 BytesBeforeReseed;
         entropy &Entropy;
@@ -61,11 +64,14 @@ namespace data::crypto::NIST {
         }
 
         void read (byte* b, size_t x) final override {
-            if (BytesRemaining < x) {
+            while (BytesRemaining < x) {
+                Random->GenerateBlock (b, BytesRemaining);
+                b += BytesRemaining;
+                x -= BytesRemaining;
                 bytes entropy (SecurityStrength);
                 Entropy >> entropy;
                 Random->IncorporateEntropy (entropy.data (), entropy.size ());
-                BytesRemaining = BytesBeforeReseed - (x - BytesRemaining);
+                BytesRemaining = BytesBeforeReseed;
             }
 
             Random->GenerateBlock (b, x);

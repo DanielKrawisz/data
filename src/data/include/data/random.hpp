@@ -5,6 +5,7 @@
 #ifndef DATA_RANDOM
 #define DATA_RANDOM
 
+#include <cryptopp/rng.h>
 #include <data/iterable.hpp>
 #include <data/bytes.hpp>
 #include <data/size.hpp>
@@ -15,7 +16,9 @@
 namespace data {
 
     template <typename engine> concept URBG = std::uniform_random_bit_generator<engine>;
+    template <typename engine> concept RNG = std::uniform_random_bit_generator<engine> && std::derived_from<engine, reader<byte>>;
 
+    // satisfies concept RNG.
     struct entropy : reader<byte> {
 
         using result_type = byte;
@@ -28,6 +31,7 @@ namespace data {
             return 255;
         }
 
+        // get one byte.
         byte operator () () {
             byte b;
             *this >> b;
@@ -51,6 +55,19 @@ namespace data {
         e.read ((byte *) (&x), sizeof (x));
         return e;
     }
+
+    // convert any std engine type to an implementation of our concept.
+    template <URBG engine> struct std_random final : entropy {
+
+        engine Engine;
+
+        std_random () : std_random {std::chrono::system_clock::now ().time_since_epoch ().count ()} {}
+        std_random (data::uint64 seed);
+
+        void read (byte *b, size_t z) override {
+            for (int i = 0; i < z; i++) b[i] = Engine ();
+        }
+    };
 
     struct entropy_sum final : entropy {
         ptr<entropy> Left;
@@ -104,19 +121,6 @@ namespace data {
     using random_engine = std::default_random_engine;
 
     random_engine& get_random_engine ();
-
-    template <URBG engine>
-    struct std_random final : entropy {
-
-        engine Engine;
-
-        std_random () : std_random {std::chrono::system_clock::now ().time_since_epoch ().count ()} {}
-        std_random (data::uint64 seed);
-
-        void read (byte *b, size_t z) override {
-            for (int i = 0; i < z; i++) b[i] = Engine ();
-        }
-    };
 
     // combine two random sources via xor.
     struct linear_combination_random final : entropy {

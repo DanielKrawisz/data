@@ -54,6 +54,7 @@ namespace data::math::linear {
     }
 
     TEST (Matrix, Transpose) {
+
         EXPECT_EQ ((transpose
             (matrix<Q, 2, 3>
                 {{1, 4, 7},

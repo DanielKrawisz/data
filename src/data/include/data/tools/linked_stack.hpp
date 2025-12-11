@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Daniel Krawisz
+// Copyright (c) 2019-2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,7 +10,7 @@
     
 namespace data {
 
-    template <Element elem> class linked_stack;
+    template <Copyable elem> class linked_stack;
     
     template <typename elem> bool empty (const linked_stack<elem> &x);
     template <typename elem> size_t size (const linked_stack<elem> &x);
@@ -25,7 +25,7 @@ namespace data {
 
     template <typename elem> linked_stack<elem> values (const linked_stack<elem> &x);
 
-    template <Element elem>
+    template <Copyable elem>
     class linked_stack {
         
         using node = functional::stack_node<elem, linked_stack>;
@@ -146,175 +146,175 @@ namespace data {
         return functional::write (o << "stack ", x);
     }
     
-    template <Element elem>
+    template <Copyable elem>
     inline linked_stack<elem>::linked_stack (next n) : Next {n} {}
     
-    template <Element elem>
+    template <Copyable elem>
     constexpr inline linked_stack<elem>::linked_stack () : Next {nullptr} {}
     
-    template <Element elem>
+    template <Copyable elem>
     inline linked_stack<elem>::linked_stack (inserted<elem> e, const linked_stack &l) : linked_stack {std::make_shared<node> (e, l)} {}
     
-    template <Element elem>
+    template <Copyable elem>
     inline linked_stack<elem>::linked_stack (inserted<elem> e) : linked_stack {e, linked_stack {}} {}
     
     // if the list is empty, then this function
     // will dereference a nullptr. It is your
     // responsibility to check. 
-    template <Element elem>
+    template <Copyable elem>
     const elem inline &linked_stack<elem>::first () const {
         if (Next == nullptr) throw empty_sequence_exception {};
         return Next->First;
     }
     
-    template <Element elem>
+    template <Copyable elem>
     elem inline &linked_stack<elem>::first () {
         if (Next == nullptr) throw empty_sequence_exception {};
         return Next->First;
     }
     
-    template <Element elem>
+    template <Copyable elem>
     bool inline linked_stack<elem>::empty () const {
         return Next == nullptr;
     }
     
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem> inline linked_stack<elem>::rest () const {
         if (empty ()) return {};
         
         return Next->rest ();
     }
     
-    template <Element elem>
+    template <Copyable elem>
     inline bool linked_stack<elem>::valid () const {
         if (empty ()) return true;
         if (!data::valid (first ())) return false;
         return rest ().valid ();
     }
     
-    template <Element elem>
+    template <Copyable elem>
     bool inline linked_stack<elem>::contains (elem x) const {
         if (empty ()) return false;
             
         return Next->contains (x);
     }
     
-    template <Element elem>
+    template <Copyable elem>
     inline size_t linked_stack<elem>::size () const {
         if (empty ()) return 0;
             
         return Next->size ();
     }
     
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem> inline linked_stack<elem>::operator >> (inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem> inline linked_stack<elem>::prepend (inserted<elem> x) const {
         return linked_stack {x, *this};
     }
     
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem> inline &linked_stack<elem>::operator >>= (inserted<elem> x) {
         return *this = (prepend (x));
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename X, typename Y, typename ... P>
     linked_stack<elem> inline linked_stack<elem>::prepend (X x, Y y, P ... p) const {
         return prepend (x).prepend (y, p...);
     }
     
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem> inline linked_stack<elem>::operator ^ (linked_stack l) const {
         return prepend (l);
     }
     
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem> linked_stack<elem>::from (uint32 n) const {
         if (empty ()) return {};
         if (n == 0) return *this;
         return rest ().from (n - 1);
     }
     
-    template <Element elem>
+    template <Copyable elem>
     const elem inline &linked_stack<elem>::operator [] (size_t n) const {
         return drop (*this, n).first ();
     }
     
-    template <Element elem>
+    template <Copyable elem>
     elem inline &linked_stack<elem>::operator [] (size_t n) {
         return drop (*this, n).first ();
     }
 
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem>::const_iterator inline linked_stack<elem>::begin () const {
         return const_iterator {this, Next};
     }
 
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem>::const_iterator inline linked_stack<elem>::end () const {
         return const_iterator {this, nullptr};
     }
 
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem>::iterator inline linked_stack<elem>::begin () {
         return iterator {this, Next};
     }
 
-    template <Element elem>
+    template <Copyable elem>
     linked_stack<elem>::iterator inline linked_stack<elem>::end () {
         return iterator {this, nullptr};
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <Sequence X> requires std::equality_comparable_with<elem, decltype (std::declval<X> ().first ())>
     bool inline linked_stack<elem>::operator == (const X &x) const {
         return sequence_equal (*this, x);
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename X> requires ImplicitlyConvertible<elem, X>
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};
         return linked_stack<X> {rest ()}.prepend (X (first ()));
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename X> requires ExplicitlyConvertible<elem, X>
     inline linked_stack<elem>::operator linked_stack<X> () const {
         if (size () == 0) return linked_stack<X> {};
         return linked_stack<X> {rest ()}.prepend (X (first ()));
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename L, typename V>
     bool inline linked_stack<elem>::it<L, V>::operator == (const it &i) const {
         return Stack == i.Stack && Next == i.Next;
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename L, typename V>
     linked_stack<elem>::it<L, V>::reference inline linked_stack<elem>::it<L, V>::operator * () const {
         return Next->First;
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename L, typename V>
     linked_stack<elem>::it<L, V>::pointer inline linked_stack<elem>::it<L, V>::operator -> () const {
         return &Next->First;
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename L, typename V>
     linked_stack<elem>::it<L, V> inline &linked_stack<elem>::it<L, V>::operator ++ () {
         if (Next != nullptr) Next = Next->Rest.Next;
         return *this;
     }
 
-    template <Element elem>
+    template <Copyable elem>
     template <typename L, typename V>
     linked_stack<elem>::it<L, V> inline linked_stack<elem>::it<L, V>::operator ++ (int) {
         it n = *this;

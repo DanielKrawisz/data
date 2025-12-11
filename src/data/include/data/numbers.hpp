@@ -10,7 +10,7 @@
 
 
 #include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/gmp/gmp.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <data/integral.hpp>
 
 #include <data/encoding/base58.hpp>

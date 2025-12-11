@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_LINEAR_MATRIX
 #define DATA_MATH_LINEAR_MATRIX
 
-#include <data/meta.hpp>
+#include <data/transpose.hpp>
 #include <data/math/combinatorics.hpp>
 #include <data/math/linear/space.hpp>
 
@@ -67,9 +67,7 @@ namespace data::math {
     }
 
     template <field X, size_t A, size_t B> matrix<X, B, A> inline transpose (const matrix<X, A, B> &x) {
-        matrix<X, B, A> result;
-        for (int i = 0; i < A; i++) for (int j = 0; j < B; j++) result[j, i] = x[i, j];
-        return result;
+        return data::transpose<> (x);
     }
 
     template <field X, size_t N> matrix<X, N, N> invert (const matrix<X, N, N> &A) {
