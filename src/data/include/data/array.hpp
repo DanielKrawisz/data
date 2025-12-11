@@ -673,14 +673,19 @@ namespace data {
         for (int i = 0; i < N; i++) o << "{";
         array_for_each_by ([&] (const array<size_t, N> &indices, const X &x) {
             o << x;
+
             // count how many indices are at their limits.
+            size_t ended = 0;
             auto ll = limits.rbegin ();
             auto ii = indices.rbegin ();
-
-            size_t ended = 0;
-            while (ii != indices.rend () && *ii == *ll - 1) ended++;
+            while (ii != indices.rend () && *ii == *ll - 1) {
+                ended++;
+                ll++;
+                ii++;
+            }
 
             for (int i = 0; i < ended; i++) o << "}";
+
             if (ii != indices.rend ()) {
                 o << ", ";
                 for (int i = 0; i < ended; i++) o << "{";

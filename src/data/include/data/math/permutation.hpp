@@ -17,6 +17,11 @@ namespace data::math {
     // Ordered. It's just more convenient. We should get rid of this
     // requirement.
     template <Ordered elem> struct permutation;
+
+    template <Ordered elem> permutation<elem> operator * (const permutation<elem> &, const permutation<elem> &);
+
+    // inverse
+    template <Ordered elem> permutation<elem> operator ~ (const permutation<elem> &);
 }
 
 namespace data::math::def {
@@ -106,8 +111,6 @@ namespace data::math {
         cross<elem> operator * (const cross<elem> &p) const;
         
         bool operator == (const permutation &p) const;
-        
-        bool operator != (const permutation &p) const;
         
     private:
         explicit permutation (list<cycle> c) : Cycles {c} {}
@@ -247,11 +250,6 @@ namespace data::math {
         if (Cycles.size () != p.Cycles.size ()) return false;
         if (Cycles.size () == 0) return true;
         return permutation {} == operator * (p.inverse ());
-    }
-    
-    template <Ordered elem>
-    inline bool permutation<elem>::operator != (const permutation& p) const {
-        return !operator == (p);
     }
     
     template <Ordered elem>
