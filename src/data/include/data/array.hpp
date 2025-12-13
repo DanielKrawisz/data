@@ -56,8 +56,8 @@ namespace data {
     template <std::integral word, size_t... sizes>
     reader<word> &operator >> (reader<word> &, bytes_array<word, sizes...> &);
 
-    template <std::integral word, size_t size>
-    std::ostream &operator << (std::ostream &o, const array<word, size> &s);
+    template <std::integral word, size_t ...size>
+    std::ostream &operator << (std::ostream &o, const array<word, size...> &s);
 
     // vector addition and subtraction.
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
@@ -91,6 +91,8 @@ namespace data {
     template <typename X, size_t... A, size_t... B>
     constexpr array<X, A..., B...> outer (const array<X, A...> &a, const array<X, B...> &b);
 
+    template <typename F, typename X, size_t ...sizes> void array_for_each_by (F &&f, const array<X, sizes...> &);
+
     // this array is a structural type and therefore can be
     // used as a non-type template parameter.
     template <std::default_initializable X, size_t z> struct array<X, z> {
@@ -98,7 +100,7 @@ namespace data {
 
         X Values[Size];
 
-        constexpr array ();
+        constexpr array (); // fill with default value of X
         constexpr array (std::initializer_list<X> x);
         constexpr array (slice<const X, z> x) {
             std::copy (x.begin (), x.end (), this->begin ());
@@ -178,7 +180,8 @@ namespace data {
 
     template <std::default_initializable X, size_t size, size_t... sizes>
     struct array<X, size, sizes...> : public array<X, size * array<X, sizes...>::Size> {
-        constexpr static size_t Size = size * array<X, sizes...>::Size;
+        constexpr static const size_t Depth = sizeof... (sizes) + 1;
+        constexpr static const size_t Size = size * array<X, sizes...>::Size;
 
         array ():  array<X, Size> {} {}
         array (std::initializer_list<array<X, sizes...>> z): array {} {
@@ -190,22 +193,27 @@ namespace data {
             }
         }
 
-        template <size_t size1>
-        static size_t get_index (size_t i) {
-            return i;
+        template <size_t size1, size_t ...remaining, typename ...Sizes>
+        static size_t get_index (size_t n, size_t i, Sizes... z) {
+            if (i >= size1) throw exception {} << "array index " << i << " too big for size " << size1;
+            size_t next = n * size1 + i;
+            if constexpr (sizeof... (remaining) == 0) {
+                return next;
+            } else {
+                return get_index<sizes...> (next, z...);
+            }
         }
 
-        template <size_t size1, size_t size2, size_t ...remaining, typename ...Sizes>
-        static size_t get_index (size_t i, size_t j, Sizes... z) {
-            return i * array<X, size2, remaining...>::Size + get_index<size2, remaining...> (j, z...);
+        template <typename ...Sizes> requires (sizeof...(Sizes) == sizeof...(sizes))
+        X &operator [] (size_t i, Sizes ...j) {
+            auto index = get_index<size, sizes...> (0, i, j...);
+            return this->Values[index];
         }
 
-        template <typename ...Sizes> X &operator [] (size_t i, Sizes... j) {
-            return this->Values[get_index<size, sizes...> (i, j...)];
-        }
-
-        template <typename ...Sizes> const X &operator [] (size_t i, Sizes... j) const {
-            return this->Values[get_index<size, sizes...> (i, j...)];
+        template <typename ...Sizes> requires (sizeof...(Sizes) == sizeof...(sizes))
+        const X &operator [] (size_t i, Sizes ...j) const {
+            auto index = get_index<size, sizes...> (0, i, j...);
+            return this->Values[index];
         }
 
     };
@@ -272,8 +280,7 @@ namespace data {
 
     // everything beyond this point is a complete mess.
 
-    template<class T>
-    struct array_info;
+    template<class T> struct array_info;
 
     template<class X, size_t... Ds>
     struct array_info<array<X, Ds...>> {
@@ -349,13 +356,17 @@ namespace data {
         template <typename ...arrays>
         requires (unequal_contracted_indices<contracted...>::value &&
             Same<typename array_info<arrays>::field...> && (... && (
-                ( meta::get<typename meta::concat<typename array_info<arrays>::dims...>::type, contracted.First>::value ==
-                meta::get<typename meta::concat<typename array_info<arrays>::dims...>::type, contracted.Second>::value ))))
+                ( meta::get<meta::cat<typename array_info<arrays>::dims...>, contracted.First> ==
+                meta::get<meta::cat<typename array_info<arrays>::dims...>, contracted.Second> ))))
         auto operator () (arrays... m) {
 
-            using index_limits = meta::concat<typename array_info<arrays>::dims...>::type;
+            // iteration limits to all input indices.
+            using index_limits = meta::cat<typename array_info<arrays>::dims...>;
+
+            constexpr const size_t total_input_indices = meta::count<index_limits>;
+
             auto index_limits_array = make_array<index_limits>::result;
-            constexpr const size_t total_input_indices = meta::count<index_limits>::result;
+
             // all indices for all input matricies put together.
             counter *input_indices[total_input_indices];
             for (int i = 0; i < total_input_indices; i++) input_indices[i] = nullptr;
@@ -379,10 +390,10 @@ namespace data {
             // get underlying field
             using field = std::tuple_element_t<0, std::tuple<typename array_info<arrays>::field...>>;
 
-            using result_index_limits = meta::remove_at<index_limits,
-                typename meta::sort<std::index_sequence<contracted.First..., contracted.Second...>>::result>::result;
+            using result_index_limits = meta::remove<index_limits,
+                meta::sort<std::index_sequence<contracted.First..., contracted.Second...>>>;
 
-            constexpr const size_t total_result_indices = meta::count<result_index_limits>::result;
+            constexpr const size_t total_result_indices = meta::count<result_index_limits>;
             counter result_indices[total_result_indices];
 
             // initialize the result_indices and initialize input_indices to point to
@@ -498,7 +509,7 @@ namespace data {
 
     template <std::default_initializable X, size_t size>
     constexpr inline array<X, size>::array (std::initializer_list<X> x) {
-        if (x.size () != Size) throw exception {} << "out of range";
+        if (x.size () != Size) throw exception {} << "try to initialize array of size " << Size << " with initilizer of size " << x.size ();
         size_t index = 0;
         for (const X &xx : x) Values[index++] = xx;
     }
@@ -653,6 +664,29 @@ namespace data {
     template <std::integral word, size_t size>
     std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s) {
         return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
+    }
+
+    template <typename X, size_t ...size>
+    std::ostream &operator << (std::ostream &o, const array<X, size...> &s) {
+        constexpr static const size_t N = sizeof... (size);
+        array<size_t, N> limits {size...};
+        for (int i = 0; i < N; i++) o << "{";
+        array_for_each_by ([&] (const array<size_t, N> &indices, const X &x) {
+            o << x;
+            // count how many indices are at their limits.
+            auto ll = limits.rbegin ();
+            auto ii = indices.rbegin ();
+
+            size_t ended = 0;
+            while (ii != indices.rend () && *ii == *ll - 1) ended++;
+
+            for (int i = 0; i < ended; i++) o << "}";
+            if (ii != indices.rend ()) {
+                o << ", ";
+                for (int i = 0; i < ended; i++) o << "{";
+            }
+        }, s);
+        return o;
     }
 
     template <std::integral word, size_t size>

@@ -215,23 +215,40 @@ TYPED_TEST (List, Size) {
 TYPED_TEST (List, First) {
     using type = typename TestFixture::type;
     using element = typename TestFixture::element;
-    EXPECT_THROW (first (type {}), data::empty_sequence_exception);
 
-    using return_type = decltype (first (type {}));
+    type z {};
+    const type cz {};
 
-    EXPECT_THROW (type {}[size_t {0}], data::empty_sequence_exception);
+    EXPECT_THROW (first (z), data::empty_sequence_exception);
+    EXPECT_THROW (first (cz), data::empty_sequence_exception);
 
-    static_assert (data::Same<decltype (type {}[size_t {0}]), return_type>);
-    
-    static_assert (data::ImplicitlyConvertible<return_type, const element>);
+    EXPECT_THROW (data::first (z), data::empty_sequence_exception);
+    EXPECT_THROW (data::first (cz), data::empty_sequence_exception);
+
+    using return_type = decltype (first (z));
+    using const_return_type = decltype (first (cz));
+
+    EXPECT_THROW (z[size_t {0}], data::empty_sequence_exception);
+    EXPECT_THROW (cz[size_t {0}], data::empty_sequence_exception);
+
+    static_assert (data::Same<decltype (z[size_t {0}]), return_type>);
+    static_assert (data::Same<decltype (cz[size_t {0}]), const_return_type>);
+
+    static_assert (data::ImplicitlyConvertible<return_type, element>);
+    static_assert (data::ImplicitlyConvertible<const_return_type, const element>);
+
     static_assert (data::Reference<return_type>);
+    static_assert (data::Reference<const_return_type>);
 
     if constexpr (data::Reference<element>) {
         static_assert (data::Same<element, return_type>);
+        static_assert (data::Same<return_type, const_return_type>);
     } else if constexpr (data::Const<element>) {
         static_assert (data::Same<element &, return_type>);
+        static_assert (data::Same<return_type, const_return_type>);
     } else {
-        static_assert (data::Same<const element &, return_type>);
+        static_assert (data::Same<element &, return_type>);
+        static_assert (data::Same<const element &, const_return_type>);
     }
 }
 

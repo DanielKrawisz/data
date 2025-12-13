@@ -18,7 +18,6 @@ add_executable (
     linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
                                  #       ensure that we can use this type in a pure functional way.
     list.cpp                     # TODO: contains commented tests
-                                 #       can be both const and unconst iterable (unofficially)
                                  #       ensure that we can use this type in a pure functional way.
     ordered_sequence.cpp         # TODO: contains commented tests
                                  #       ensure that we can use this type in a pure functional way.
@@ -32,18 +31,19 @@ add_executable (
                                  #       ensure that we can use this type in a pure functional way.
     functional_interfaces.cpp    # TODO: contains commented tests
                                  #       We can eventually get rid of this file entirely.
-    empty.cpp                    # TODO: Contains commented test cases
+    empty.cpp                    # TODO: Contains notes
     take.cpp                     # TODO: ensure we check the interface by argument lookup and in data::
     reverse.cpp                  # TODO: Contains commented test cases
     contains.cpp                 # TODO: Contains commented test cases
     sort.cpp
+    get.cpp
     for_each.cpp                 # TODO: could be more thorough
     replace.cpp
     select.cpp
     lift.cpp                     # TODO: could be more thorough
-    map_schema.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     combinatorics.cpp
+    map_schema.cpp
 
     # string
     integer_format.cpp
