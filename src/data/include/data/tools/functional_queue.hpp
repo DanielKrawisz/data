@@ -52,13 +52,12 @@ namespace data {
         
         size_t size () const;
         bool valid () const;
-
-        // we have to use const stack since we do not provide
-        // non-const methods for first and []. 
-        using retrieved = decltype (std::declval<const stack> ().first ());
         
-        retrieved first () const;
-        retrieved operator [] (uint32 i) const;
+        const element &first () const;
+        element &first ();
+
+        const element &operator [] (uint32 i) const;
+        element &operator [] (uint32 i);
         
         functional_queue rest () const;
         
@@ -245,15 +244,28 @@ namespace data {
     }
     
     template <Stack stack, typename element> requires Sequence<stack, element>
-    typename functional_queue<stack, element>::retrieved inline functional_queue<stack, element>::first () const {
+    const element inline &functional_queue<stack, element>::first () const {
+        return Left.first ();
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element>
+    element inline &functional_queue<stack, element>::first () {
         return Left.first ();
     }
     
     template <Stack stack, typename element> requires Sequence<stack, element>
-    typename functional_queue<stack, element>::retrieved functional_queue<stack, element>::operator [] (uint32 i) const {
+    const element &functional_queue<stack, element>::operator [] (uint32 i) const {
         if (i >= size ()) throw empty_sequence_exception {};
-        uint32 left = Left.size ();
-        if (i >= left) return Right[Right.size () - (i - left) - 1];
+        uint32 left_size = Left.size ();
+        if (i >= left_size) return Right[Right.size () - (i - left_size) - 1];
+        return Left[i];
+    }
+
+    template <Stack stack, typename element> requires Sequence<stack, element>
+    element &functional_queue<stack, element>::operator [] (uint32 i) {
+        if (i >= size ()) throw empty_sequence_exception {};
+        uint32 left_size = Left.size ();
+        if (i >= left_size) return Right[Right.size () - (i - left_size) - 1];
         return Left[i];
     }
     

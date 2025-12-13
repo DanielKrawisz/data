@@ -21,7 +21,7 @@ Current version is 0.0.34 alpha.
     * reduce
     * fold
     * for_each
-    * map_thread
+    * lift
   * Mathematical types
     * signed and unsigned int types of every size.
     * natural numbers
@@ -83,8 +83,6 @@ This library is an alpha product. This is what is planned for version 1.
   * list works more like Mathematica's List. 
     * inner
     * outer
-    * flatten
-    * riffle
     * partition
   * use size_in_base in the division algorithm.
   * Polynomial algorithms
@@ -98,13 +96,15 @@ This library is an alpha product. This is what is planned for version 1.
     * Projective space
     * Hyperbolic space
     * infinite classes of compact Lie Groups (no exceptionals for now)
-  * More block cipher modes
-  * Stream ciphers, including block cyphers as stream ciphers.
-  * Elliptic curves (SEC and other standard curves)
-  * Rabin, ElGamal, and RSA signatures. 
   * Async: golang style channel
+  * crypto
+    * Better definitions of cryptographic algorithms, like hash functions, MACs, and block ciphers. 
+    * More block cipher modes
+    * Stream ciphers, including block cyphers as stream ciphers.
+    * Elliptic curves (SEC and other standard curves)
+    * Rabin, ElGamal, and RSA signatures. 
   * networking
     * websockets
     * run external programs
     * thread safe (multithreaded async lock)
-    * Arbitrary p2p protocols
+  * separate crypto and networking into separate libraries. 

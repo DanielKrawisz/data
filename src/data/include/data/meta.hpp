@@ -153,8 +153,11 @@ namespace data::meta {
         constexpr static const auto value = get_value<I - 1, Ts...>::value;
     };
 
+    // TODO this is pretty lazy since we could use integer_sequence
+    template <size_t ...sizes> using index_sequence = std::index_sequence<sizes...>;
+
     template <auto V, std::size_t... I>
-    constexpr auto repeat_value_impl (std::index_sequence<I...>)
+    constexpr auto repeat_value_impl (index_sequence<I...>)
         -> std::integer_sequence<decltype (V), ((void)I, V)...>;
 
     template <auto V, std::size_t N>
@@ -170,96 +173,148 @@ namespace data::meta {
         constexpr static const auto value = last_value<rest...>::value;
     };
 
-    template<class seq> struct count;
+    template<class seq> struct count_sequence;
 
-    template<size_t... I> struct count<std::index_sequence<I...>> {
-        constexpr static const size_t result = sizeof... (I);
+    template<size_t ...I> struct count_sequence<index_sequence<I...>> {
+        constexpr static const size_t value = sizeof... (I);
     };
 
+    template <typename sequence> constexpr static const size_t count = count_sequence<sequence>::value;
+
     template<class Seq, size_t I>
-    struct get;
+    struct get_sequence;
 
     template<size_t... Ns, size_t I>
-    struct get<std::index_sequence<Ns...>, I> {
+    struct get_sequence<index_sequence<Ns...>, I> {
         static constexpr size_t value = std::array<size_t, sizeof... (Ns)> {Ns...}[I];
     };
 
-    template<class... Seqs>
-    struct concat;
+    template <typename sequence, size_t i> constexpr static size_t get = get_sequence<sequence, i>::value;
 
-    template<>
-    struct concat<> {
-        using type = std::index_sequence<>;
+    template<class... Seqs> struct concat_sequence;
+
+    template <typename ...sequence> using cat = concat_sequence<sequence...>::result;
+
+    template<> struct concat_sequence<> {
+        using result = index_sequence<>;
     };
 
-    template<class S>
-    struct concat<S> {
-        using type = S;
+    template<class S> struct concat_sequence<S> {
+        using result = S;
     };
 
     template<size_t... A, size_t... B, class... Rest>
-    struct concat<std::index_sequence<A...>, std::index_sequence<B...>, Rest...> {
-        using type = typename concat<std::index_sequence<A..., B...>, Rest...>::type;
+    struct concat_sequence<index_sequence<A...>, index_sequence<B...>, Rest...> {
+        using result = cat<index_sequence<A..., B...>, Rest...>;
     };
 
     template<typename seq> struct for_each;
-    template<> struct for_each<std::index_sequence<>> {
+    template<> struct for_each<index_sequence<>> {
         template <typename F> void operator () (F &&f) {}
     };
 
     template<typename seq> struct for_each;
-    template<size_t first, size_t ...rest> struct for_each<std::index_sequence<first, rest...>> {
+    template<size_t first, size_t ...rest> struct for_each<index_sequence<first, rest...>> {
         template <typename F> void operator () (F &&f) {
             f (first);
-            for_each<std::index_sequence<rest...>> {} (f);
+            for_each<index_sequence<rest...>> {} (f);
         }
     };
 
-    template<class sequence, size_t index> struct prepend;
+    template<class sequence, size_t index> struct prepend_sequence;
 
-    template<size_t ...indices, size_t index> struct prepend<std::index_sequence<indices...>, index> {
-        using result = std::index_sequence<index, indices...>;
+    template <typename sequence, size_t i> using prepend = prepend_sequence<sequence, i>::result;
+
+    template<size_t ...indices, size_t index> struct prepend_sequence<index_sequence<indices...>, index> {
+        using result = index_sequence<index, indices...>;
     };
 
-    template<class sequence> struct sort;
+    template<class sequence, size_t index> struct take_sequence;
 
-    template<> struct sort<std::index_sequence<>> {
-        using result = std::index_sequence<>;
+    template <typename sequence, size_t i> using take = take_sequence<sequence, i>::result;
+
+    template<size_t ...indices> struct take_sequence<index_sequence<indices...>, 0> {
+        using result = index_sequence<>;
     };
 
-    template<size_t index> struct sort<std::index_sequence<index>> {
-        using result = std::index_sequence<index>;
+    template<size_t first, size_t ...indices, size_t index>
+    requires (index > 0)
+    struct take_sequence<index_sequence<first, indices...>, index> {
+        using result = prepend<take<index_sequence<indices...>, index - 1>, first>;
+    };
+
+    template<class sequence, size_t index> struct drop_sequence;
+
+    template <typename sequence, size_t i> using drop = drop_sequence<sequence, i>::result;
+
+    template<size_t ...indices> struct drop_sequence<index_sequence<indices...>, 0> {
+        using result = index_sequence<indices...>;
+    };
+
+    template<size_t first, size_t ...indices, size_t index>
+    requires (index > 0)
+    struct drop_sequence<index_sequence<first, indices...>, index> {
+        using result = drop<index_sequence<indices...>, index - 1>;
+    };
+
+    // data::meta::sort_sequence<std::integer_sequence<long unsigned int, 1, 2> >
+    template<class sequence> struct sort_sequence;
+
+    template <typename sequence> using sort = sort_sequence<sequence>::result;
+
+    template<> struct sort_sequence<index_sequence<>> {
+        using result = index_sequence<>;
+    };
+
+    template<size_t index> struct sort_sequence<index_sequence<index>> {
+        using result = index_sequence<index>;
     };
 
     template<size_t a, size_t b, size_t ...rest>
     requires (b < a)
-    struct sort<std::index_sequence<a, b, rest...>> {
-        using result = prepend<typename sort<std::index_sequence<a, rest...>>::result, b>::result;
+    struct sort_sequence<index_sequence<a, b, rest...>> {
+        using result = prepend<sort<index_sequence<a, rest...>>, b>;
     };
 
-    template<size_t a, size_t b, size_t ...rest> struct sort<std::index_sequence<a, b, rest...>> {
-        using result = prepend<typename sort<std::index_sequence<b, rest...>>::result, a>::result;
+    template<size_t a, size_t b, size_t ...rest> struct sort_sequence<index_sequence<a, b, rest...>> {
+        using result = prepend<sort<index_sequence<b, rest...>>, a>;
     };
 
     // (indices must be sorted)
-    template<class sequence, class remove_indices, size_t index = 0>
-    struct remove_at;
+    template<class sequence, class remove_indices, size_t index = 0> struct remove_sequence;
+
+    template <typename sequence, typename removed> using remove = remove_sequence<sequence, removed>::result;
 
     template<class sequence, size_t index>
-    struct remove_at<sequence, std::index_sequence<>, index> {
+    struct remove_sequence<sequence, index_sequence<>, index> {
         using result = sequence;
     };
 
     template<size_t next, size_t ...rest, size_t index, size_t ...remaining>
-    struct remove_at<std::index_sequence<next, rest...>, std::index_sequence<index, remaining...>, index> {
-        using result = remove_at<std::index_sequence<rest...>, std::index_sequence<remaining...>, index + 1>::result;
+    struct remove_sequence<index_sequence<next, rest...>, index_sequence<index, remaining...>, index> {
+        using result = typename remove_sequence<index_sequence<rest...>, index_sequence<remaining...>, index + 1>::result;
     };
 
     template<size_t next, size_t ...rest, size_t next_index, size_t ...remaining, size_t index>
-    struct remove_at<std::index_sequence<next, rest...>, std::index_sequence<next_index, remaining...>, index> {
-        using result = prepend<
-            typename remove_at<std::index_sequence<rest...>, std::index_sequence<next_index, remaining...>, index + 1>::result,
-            next>::result;
+    struct remove_sequence<index_sequence<next, rest...>, index_sequence<next_index, remaining...>, index> {
+        using result = prepend<typename remove_sequence<
+                index_sequence<rest...>,
+                index_sequence<next_index, remaining...>, index + 1>::result,
+            next>;
+    };
+
+    template<class sequence, class reversed = index_sequence<>> struct reverse_sequence;
+
+    template <typename sequence> using reverse = reverse_sequence<sequence>::result;
+
+    template <size_t ...reversed>
+    struct reverse_sequence<index_sequence<>, index_sequence<reversed...>> {
+        using result = index_sequence<reversed...>;
+    };
+
+    template <std::size_t first, size_t ...rest, size_t ...reversed>
+    struct reverse_sequence<index_sequence<first, rest...>, index_sequence<reversed...>> {
+        using result = reverse_sequence<index_sequence<rest...>, index_sequence<reversed..., first>>::result;
     };
 
 }
