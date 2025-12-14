@@ -300,7 +300,6 @@ namespace data::schema {
 
     // Next we describe how to validate rules. First come some errors which
     // may be thrown when there is a mismatch.
-
     struct mismatch {};
 
     // thrown when the value could not be read.

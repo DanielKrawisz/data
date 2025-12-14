@@ -210,7 +210,7 @@ namespace {
         EXPECT_EQ (testUint, 72623859790382856);
         reader >> testUint;
         EXPECT_EQ (testUint, 651345242494996240);
-        EXPECT_THROW (reader >> testUint,end_of_stream);
+        EXPECT_THROW (reader >> testUint, end_of_stream);
 
     }
     
@@ -221,7 +221,7 @@ namespace {
         EXPECT_EQ (testUint, 578437695752307201);
         reader >> testUint;
         EXPECT_EQ (testUint, 1157159078456920585);
-        EXPECT_THROW (reader >> testUint,end_of_stream);
+        EXPECT_THROW (reader >> testUint, end_of_stream);
     }
     
     TEST_F (Stream, ReadInt64Big) {

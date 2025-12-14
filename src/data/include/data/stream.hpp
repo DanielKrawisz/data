@@ -9,12 +9,8 @@
 #include <data/slice.hpp>
 
 namespace data {
-    static const std::string EndOfStreamError {"End of stream"};
-    
-    struct end_of_stream : std::exception {
-        const char *what () const noexcept final override {
-            return EndOfStreamError.c_str ();
-        }
+    struct end_of_stream : exception {
+        end_of_stream () : exception {"end of stream"} {}
     };
 
     template <std::integral word>

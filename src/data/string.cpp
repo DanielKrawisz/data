@@ -1,4 +1,4 @@
-
+#include <iomanip>
 #include <data/string.hpp>
 #include <data/stream.hpp>
 
@@ -56,23 +56,23 @@ namespace data {
 
         if (begin < 0) {
             int back_begin = static_cast<int> (size) + begin;
-            if (back_begin < 0) throw std::out_of_range
+            if (back_begin < 0) throw out_of_range
                 {write_error_string ("reading ", begin, " from the end of a string of size ", size)};
             else positive_begin = static_cast<size_t> (back_begin);
-        } else if (begin > size) throw std::out_of_range
+        } else if (begin > size) throw out_of_range
             {write_error_string ("reading ", begin, " from a string of size ", size)};
         else positive_begin = static_cast<size_t> (begin);
 
         if (end < 0) {
             int back_end = static_cast<int> (size) + end;
-            if (back_end < 0) throw std::out_of_range
+            if (back_end < 0) throw out_of_range
                 {write_error_string ("reading ", end, " from the end of a string of size ", size)};
             else positive_end = static_cast<size_t> (back_end);
-        } else if (end > size) throw std::out_of_range
+        } else if (end > size) throw out_of_range
             {write_error_string ("reading ", end, " from a string of size ", size)};
         else positive_end = static_cast<size_t> (end);
 
-        if (positive_begin > positive_end) throw std::out_of_range
+        if (positive_begin > positive_end) throw out_of_range
             {write_error_string ("attempt to read a string backwards from ", begin, " to ", end)};
 
         return x.substr (positive_begin, positive_end);

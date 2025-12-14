@@ -36,8 +36,8 @@ namespace data {
 
 namespace data::math {
 
-    struct division_by_zero : std::logic_error {
-        division_by_zero () : std::logic_error {"division by zero"} {}
+    struct division_by_zero : exception {
+        division_by_zero () : exception {"division by zero"} {}
     };
 }
 

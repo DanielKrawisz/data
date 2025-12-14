@@ -109,9 +109,9 @@ namespace data::crypto {
     template <typename...> struct ciphers {};
     ciphers<Rijndael, Serpent, Twofish, MARS, RC6> supported_ciphers {};
 
-    byte_array<block_size> IV1 = read_byte_array<block_size> (hex_string {"0123456789abcdef0369cf258be147ad"});
+    byte_array<block_size> IV1 = byte_array<block_size> (encoding::hex::fixed<block_size> {"0123456789abcdef0369cf258be147ad"});
 
-    byte_array<block_size> IV2 = read_byte_array<block_size> (hex_string {"abcdef01234567890000000000000000"});
+    byte_array<block_size> IV2 = byte_array<block_size> (encoding::hex::fixed<block_size> {"abcdef01234567890000000000000000"});
 
     // modes of operation that we support and that can be used as block ciphers.
     tuple<ECB<block_size>, CBC<block_size>> block_modes {{}, {IV1}};

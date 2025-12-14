@@ -31,6 +31,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include "core.h"
 #include <stdexcept>
+#include <data/io/exception.hpp>
 
 namespace utf8 {
     // Base for the exceptions that may be thrown from the library
@@ -264,7 +265,7 @@ namespace utf8 {
                          const octet_iterator &range_end) :
                it (octet_it), range_start (range_start), range_end (range_end) {
           if (it < range_start || it > range_end)
-              throw std::out_of_range ("Invalid utf-8 iterator position");
+              throw data::out_of_range ("Invalid utf-8 iterator position");
       }
 
       // the default "big three" are OK

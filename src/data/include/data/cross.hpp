@@ -72,7 +72,7 @@ namespace data {
     template <std::default_initializable X>
     X &cross<X>::operator [] (int i) {
         size_t size = this->size ();
-        if (size == 0) throw std::out_of_range {"cross size 0"};
+        if (size == 0) throw out_of_range {"cross size 0"};
         if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
         return std::vector<X>::operator [] (i);
     }
@@ -86,7 +86,7 @@ namespace data {
     template <std::default_initializable X>
     const X &cross<X>::operator [] (int i) const {
         size_t size = this->size ();
-        if (size == 0) throw std::out_of_range {"cross size 0"};
+        if (size == 0) throw out_of_range {"cross size 0"};
         if (i < 0 || i >= size) return this->operator [] ((i + size) % size);
         return std::vector<X>::operator [] (i);
     }

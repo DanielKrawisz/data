@@ -9,8 +9,6 @@
 #include <data/valid.hpp>
 #include <data/stream.hpp>
 #include <data/arithmetic.hpp>
-// TODO get rid of this.
-#include <data/encoding/hex.hpp>
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/arithmetic/words.hpp>
 
@@ -21,8 +19,6 @@ namespace data {
     template <std::integral word, size_t ...sizes> using bytes_array = array<word, sizes...>;
 
     template <size_t size> using byte_array = bytes_array<byte, size>;
-
-    template <size_t size> byte_array<size> read_byte_array (const hex_string &h);
 
     template <typename X, size_t... sizes>
     constexpr bool operator == (const array<X, sizes...> &a, const array<X, sizes... > &b);
@@ -662,9 +658,7 @@ namespace data {
     }
 
     template <std::integral word, size_t size>
-    std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s) {
-        return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
-    }
+    std::ostream &operator << (std::ostream &o, const bytes_array<word, size> &s);
 
     template <typename X, size_t ...size>
     std::ostream &operator << (std::ostream &o, const array<X, size...> &s) {
@@ -736,14 +730,6 @@ namespace data {
         bytes_array<word, size> n;
         arithmetic::bit_or<word> (n.end (), n.begin (), a.begin (), b.begin ());
         return n;
-    }
-
-    template <size_t size> byte_array<size> read_byte_array (const hex_string &x) {
-        if (!x.valid () || ((x.size () % 2) != 0)) throw encoding::invalid {encoding::hex::Format, x};
-        if ((x.size () / 2) != size) throw exception {} << "invalid hex string size";
-        byte_array<size> T;
-        encoding::hex::decode (x.end (), x.begin (), T.data ());
-        return T;
     }
 
 }
