@@ -7,9 +7,9 @@
 
 #include <data/cross.hpp>
 #include <data/array.hpp>
-#include <data/encoding/hex.hpp>
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/arithmetic/words.hpp>
+#include <data/encoding/hex.hpp>
 
 namespace data {
 
@@ -29,13 +29,10 @@ namespace data {
     template <std::integral word>
     bytestring<word> operator >> (const bytestring<word> &b, int32 i);
 
-    using hex_string = encoding::hex::string;
-
     template <std::integral word>
     struct bytestring : public cross<word> {
         using cross<word>::cross;
         bytestring (slice<const word> v);
-        bytestring (const hex_string &);
 
         operator slice<const word> () const;
 
@@ -172,13 +169,18 @@ namespace data {
         return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
     }
 
-    template <std::integral word> bytestring<word>::bytestring (const hex_string &x) {
-        if (!x.valid () || ((x.size () / 2) % sizeof (word) != 0)) throw encoding::invalid {encoding::hex::Format, x};
-        if ((x.size () / 2) % sizeof (word) != 0) throw exception {} << "invalid hex string size";
-        this->resize (x.size () / (sizeof (word) * 2));
-        encoding::hex::decode (x.end (), x.begin (), static_cast<byte *> (this->data ()));
-    }
+}
 
+namespace data::encoding::hex {
+
+    template <std::integral word> string::operator bytestring<word> () const {
+        if (!this->valid ()) throw invalid {} << ": " << *this;
+        if ((this->size () / 2) % sizeof (word) != 0)
+            throw invalid {} << ": invalid hex string size " << this->size () << " for word size " << sizeof (word);
+        bytestring<word> z (this->size () / (sizeof (word) * 2));
+        decode (this->end (), this->begin (), z.data ());
+        return z;
+    }
 }
 
 #endif

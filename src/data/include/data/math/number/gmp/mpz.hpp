@@ -544,12 +544,12 @@ namespace data::math::number::GMP {
     }
 
     mp_limb_t inline &Z::operator [] (size_t i) {
-        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
+        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw out_of_range {"Z"};
         return *(MPZ[0]._mp_d + i);
     }
 
     const mp_limb_t inline &Z::operator [] (size_t i) const {
-        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw std::out_of_range {"Z"};
+        if (static_cast<int> (i) >= MPZ[0]._mp_alloc) throw out_of_range {"Z"};
         return *(MPZ[0]._mp_d + i);
     }
 

@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 
+#include <data/encoding/hex.hpp>
 #include <data/bytes.hpp>
 
 namespace data::encoding::hex {
@@ -18,13 +19,13 @@ namespace data::encoding::hex {
 
         try {
             decode (x.end (), x.begin (), b.begin ());
-        } catch (boost::algorithm::hex_decode_error exception) {
+        } catch (invalid) {
             return {};
         }
 
         return b;
     }
-    
+
     void write_hex (string &output, byte_slice sourceBytes, letter_case q) {
         output.resize (sourceBytes.size ());
         if (q == letter_case::upper) boost::algorithm::hex (sourceBytes.begin (), sourceBytes.end (), output.begin ());

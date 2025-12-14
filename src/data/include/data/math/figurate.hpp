@@ -9,8 +9,8 @@
 
 namespace data::math {
 
-    struct negative_factorial: std::invalid_argument {
-        negative_factorial () : std::invalid_argument ("factorial of zero is undefined") {}
+    struct negative_factorial : exception {
+        negative_factorial () : exception {"factorial of zero is undefined"} {}
     };
 
     // TODO tighten these constraints

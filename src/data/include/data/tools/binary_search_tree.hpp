@@ -161,12 +161,12 @@ namespace data {
         iterator begin () const;
         iterator end () const;
 
-        struct key_does_not_exist : std::logic_error {
-            key_does_not_exist () : std::logic_error {"key does not exist"} {}
+        struct key_does_not_exist : exception {
+            key_does_not_exist () : exception {"key does not exist"} {}
         };
 
-        struct key_already_exists : std::logic_error {
-            key_already_exists () : std::logic_error {"key already exists"} {}
+        struct key_already_exists : exception {
+            key_already_exists () : exception {"key already exists"} {}
         };
 
     private:

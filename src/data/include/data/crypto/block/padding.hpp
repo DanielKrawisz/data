@@ -18,8 +18,8 @@ namespace data::crypto {
     using block_padding_scheme = CryptoPP::BlockPaddingSchemeDef::BlockPaddingScheme;
     using block_padding = CryptoPP::BlockPaddingSchemeDef;
 
-    struct invalid_padding : std::runtime_error {
-        invalid_padding (): std::runtime_error {"invalid padding detected"} {}
+    struct invalid_padding : exception {
+        invalid_padding (): exception {"invalid padding detected"} {}
     };
 
     bytes add_padding (block_padding_scheme, size_t block_size, const bytes &);

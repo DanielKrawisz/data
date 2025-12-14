@@ -41,18 +41,38 @@ namespace data {
             return *this;
         }
         
-        template <typename... X>
         exception () : Code {0}, Message {} {}
 
         exception (int code) : Code {code}, Message {} {}
         
-        template <typename... X>
         exception (const std::string &x) : Code {1}, Message {} {
             write (x);
         }
+
+        template <typename derived> struct base;
         
     private:
         std::string Message;
+    };
+
+    // more specific exceptions can derive from this and preserve the << operation.
+    template <typename derived>
+    struct exception::base : exception {
+        using exception::exception;
+
+        template <typename X>
+        derived &operator << (X x) {
+            write (x);
+            if (Code == 0) Code = 1;
+            return dynamic_cast<derived &> (*this);
+        }
+    };
+
+    struct out_of_range : exception::base<out_of_range> {
+        out_of_range (const std::string &msg = "") {
+            *this << "out of range";
+            if (msg != "") *this << ": " << msg;
+        }
     };
 }
 

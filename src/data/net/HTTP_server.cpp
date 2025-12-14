@@ -1,4 +1,5 @@
 
+#include <data/io/exception.hpp>
 #include <data/net/HTTP_server.hpp>
 
 namespace data::net::HTTP::beast {
@@ -28,15 +29,15 @@ namespace data::net::HTTP {
 
         // Open the acceptor
         Acceptor.open (endpoint.protocol (), ec);
-        if (ec) throw std::runtime_error ("Error opening acceptor: " + ec.message ());
+        if (ec) throw data::exception {} << "Error opening acceptor: " << ec.message ();
 
         // Bind to the endpoint
         Acceptor.bind (endpoint, ec);
-        if (ec) throw std::runtime_error ("Error binding acceptor: " + ec.message ());
+        if (ec) throw data::exception {} << "Error binding acceptor: " << ec.message ();
 
         // Start listening for connections
         Acceptor.listen (asio::socket_base::max_listen_connections, ec);
-        if (ec) throw std::runtime_error ("Error listening for connections: " + ec.message ());
+        if (ec) throw data::exception {} << "Error listening for connections: " << ec.message ();
     }
 
     awaitable<bool> server::accept () {

@@ -145,6 +145,14 @@ namespace data::encoding::base58 {
         friend struct math::def::divmod<string, int>;
     };
 
+    struct invalid : exception::base<invalid> {
+        invalid (const string &x, const string &fun = "") {
+            *this << "invalid base 58 string";
+            if (fun != "") *this << " in function " << fun;
+            *this << ": " << x;
+        }
+    };
+
 }
 
 namespace data {
@@ -215,12 +223,12 @@ namespace data::math::def {
 namespace data::math::def {
 
     math::sign inline sign<base58_uint>::operator () (const base58_uint &u) {
-        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string provided to sign: " << u;
+        if (!encoding::base58::valid (u)) throw encoding::base58::invalid {u, "sign"};
         return encoding::base58::nonzero (u) ? math::positive : math::zero;
     }
 
     base58_uint inline abs<base58_uint>::operator () (const base58_uint &u) {
-        if (!encoding::base58::valid (u)) throw exception {} << "invalid base 58 string provided to abs: " << u;
+        if (!encoding::base58::valid (u)) throw encoding::base58::invalid {u, "abs"};
         return u;
     }
 
@@ -229,12 +237,12 @@ namespace data::math::def {
     }
 
     bool inline is_zero<base58_uint>::operator () (const base58_uint &n) {
-        if (!encoding::base58::valid (n)) throw exception {} << "invalid base 58 string provided to is_zero: " << n;
+        if (!encoding::base58::valid (n)) throw encoding::base58::invalid {n, "is_zero"};
         return !encoding::base58::nonzero (n);
     }
 
     bool inline is_negative<base58_uint>::operator () (const base58_uint &n) {
-        if (!encoding::base58::valid (n)) throw exception {} << "invalid base 58 string provided to is_negative: " << n;
+        if (!encoding::base58::valid (n)) throw encoding::base58::invalid {n, "is_negative"};
         return false;
     }
     
