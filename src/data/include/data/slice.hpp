@@ -32,7 +32,7 @@ namespace data {
         using std::span<X>::span;
         
         constexpr X &operator [] (size_t i) const {
-            if (this->size () == 0) throw std::out_of_range {"slice size 0"};
+            if (this->size () == 0) throw out_of_range {"slice size 0"};
             if (i < 0 || i >= this->size ()) return this->operator [] ((i + this->size ()) % this->size ());
             return this->data ()[i];
         }
@@ -98,7 +98,7 @@ namespace data {
         slice (X *x): std::span<X, n> {x, n} {}
 
         constexpr X &operator [] (size_t i) const {
-            if (this->size () == 0) throw std::out_of_range {"slice size 0"};
+            if (this->size () == 0) throw out_of_range {"slice size 0"};
             if (i < 0 || i >= this->size ()) return this->operator [] ((i + this->size ()) % this->size ());
             return this->data ()[i];
         }

@@ -253,6 +253,7 @@ namespace data {
     } 
     
     TEST (Bytes, SliceBytes) {
+
         maybe<bytes> x = encoding::hex::read ("00");
         EXPECT_TRUE (bool (x));
         auto a = *x;

@@ -9,16 +9,14 @@
 #include <exception>
 #include <string>
 
+#include <data/io/exception.hpp>
 #include <data/types.hpp>
 
 namespace data::encoding {
-    class invalid : std::exception {
-        string_view String;
-        std::string Format;
+    class invalid : exception::base<invalid> {
     public:
-        invalid (std::string format, string_view str) : String {str}, Format {format} {}
-        const char* what () const noexcept final override {
-            return (std::string {"Invalid "} + Format + " string: " + std::string {String}).c_str ();
+        invalid (const std::string &format, const std::string &str) {
+            *this << "Invalid " << format << " string: " << str;
         }
     };
 }

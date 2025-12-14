@@ -5,6 +5,7 @@
 #ifndef DATA_SEQUENCE
 #define DATA_SEQUENCE
 
+#include <data/io/exception.hpp>
 #include <data/concepts.hpp>
 #include <data/empty.hpp>
 #include <data/function.hpp>
@@ -43,8 +44,8 @@ namespace data {
         ImplicitlyConvertible<elem, inserted<elem>>;
 
     // may be thrown when calling first on an empty sequence;
-    struct empty_sequence_exception : std::logic_error {
-        empty_sequence_exception (): std::logic_error {"first called on an empty sequence"} {}
+    struct empty_sequence_exception : exception {
+        empty_sequence_exception (): exception {"first called on an empty sequence"} {}
     };
     
     namespace meta {

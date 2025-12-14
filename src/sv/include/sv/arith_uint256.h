@@ -13,10 +13,11 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <data/io/exception.hpp>
 
-class uint_error : public std::runtime_error {
+class uint_error : public data::exception {
 public:
-    explicit uint_error (const std::string &str) : std::runtime_error(str) {}
+    explicit uint_error (const std::string &str) : data::exception (str) {}
 };
 
 /** Template base class for unsigned big integers. */

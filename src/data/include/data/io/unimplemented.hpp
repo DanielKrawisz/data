@@ -9,8 +9,8 @@
 
 namespace data::method { 
     
-    struct unimplemented : data::exception {
-        unimplemented (std::string func) : data::exception {} {
+    struct unimplemented : exception::base<unimplemented> {
+        unimplemented (std::string func) : exception::base<unimplemented> {} {
             *this << "method " << func << " not yet implemented";
         };
     };

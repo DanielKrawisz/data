@@ -14,6 +14,7 @@
 
 #include <data/encoding/invalid.hpp>
 #include <data/maybe.hpp>
+#include <data/array.hpp>
 #include <data/encoding/endian.hpp>
 
 namespace data {
@@ -66,6 +67,8 @@ namespace data::encoding::hex {
         bool valid () const {
             return hex::valid (*this);
         }
+
+        template <std::integral word> operator bytestring<word> () const;
     };
     
     template <std::ranges::range range> 
@@ -90,6 +93,8 @@ namespace data::encoding::hex {
         bool valid () const {
             return string::valid () && string::size () == 2 * n;
         }
+
+        operator byte_array<n> () const;
     };
     
     // write numbers as fixed size hex strings.
@@ -109,11 +114,15 @@ namespace data::encoding::hex {
         return output;
     }
 
+    struct invalid : exception::base<invalid> {
+        invalid (): exception::base<invalid> {"invalid hex"} {}
+    };
+
     constexpr uint8_t from_hex_char (char c) {
         if (c >= '0' && c <= '9') return static_cast<uint8_t>(c - '0');
         if (c >= 'A' && c <= 'F') return static_cast<uint8_t>(c - 'A' + 10);
         if (c >= 'a' && c <= 'f') return static_cast<uint8_t>(c - 'a' + 10);
-        throw std::invalid_argument ("invalid hex digit");
+        throw invalid {} << "; bad character " << c << " (" << (int64 (c)) << ")";
     }
 
     template <typename sen, typename iti, typename ito>
@@ -125,12 +134,19 @@ namespace data::encoding::hex {
             for (int i = word_size * 8 - 4; i > 0; i -= 4) {
                 *out += word_type (from_hex_char (*it)) << i;
                 it++;
-                if (it == end) throw std::runtime_error ("invalid hex length");
+                if (it == end) throw invalid {} << "; invalid length ";
             }
             *out += from_hex_char (*it);
             it++;
             out++;
         }
+    }
+
+    template <size_t n> fixed<n>::operator byte_array<n> () const {
+        if (!this->valid ()) throw invalid {} << ": " << *this;
+        byte_array<n> T;
+        encoding::hex::decode (this->end (), this->begin (), T.data ());
+        return T;
     }
     
 }
@@ -139,6 +155,11 @@ namespace data {
     
     using hex_case = encoding::hex::letter_case;
     using hex_string = encoding::hex::string;
+
+    template <std::integral word, size_t size>
+    std::ostream inline &operator << (std::ostream &o, const bytes_array<word, size> &s) {
+        return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
+    }
     
 }
 
