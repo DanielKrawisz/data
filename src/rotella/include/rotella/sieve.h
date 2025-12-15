@@ -22,7 +22,7 @@ class sieve {
 
     public:
         sieve(); /* constructor */
-        int isPrime(mpz_class r);
+        int isPrime (mpz_class r);
         ~sieve(); /* destructor */
 };
 

@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <data/crypto/one_way.hpp>
 
 /** A hasher class for HMAC-SHA-512. */
 class CHMAC_SHA512 {
@@ -17,14 +18,16 @@ private:
     CSHA512 inner;
 
 public:
-    static const size_t OUTPUT_SIZE = 64;
+    static const size_t Size = 64;
 
-    CHMAC_SHA512(const uint8_t *key, size_t keylen);
-    CHMAC_SHA512 &Write(const uint8_t *data, size_t len) {
-        inner.Write(data, len);
+    CHMAC_SHA512 (const data::byte *key, size_t keylen);
+
+    CHMAC_SHA512 &Update (const data::byte *data, size_t len) {
+        inner.Update (data, len);
         return *this;
     }
-    void Finalize(uint8_t hash[OUTPUT_SIZE]);
+
+    void Final (data::byte hash[Size]);
 };
 
 #endif // BITCOIN_CRYPTO_HMAC_SHA512_H

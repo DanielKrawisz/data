@@ -7,21 +7,24 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <data/crypto/one_way.hpp>
 
 /** A hasher class for RIPEMD-160. */
+// satisfies data::hash::Engine
 class CRIPEMD160 {
 private:
     uint32_t s[5];
-    uint8_t buf[64];
+    data::byte buf[64];
     uint64_t bytes;
 
 public:
-    static const size_t OUTPUT_SIZE = 20;
+    static const size_t Size = 20;
+    constexpr static const data::crypto::security Security = data::crypto::security::modern;
 
-    CRIPEMD160();
-    CRIPEMD160 &Write(const uint8_t *data, size_t len);
-    void Finalize(uint8_t hash[OUTPUT_SIZE]);
-    CRIPEMD160 &Reset();
+    CRIPEMD160 ();
+    CRIPEMD160 &Update (const data::byte *data, size_t len);
+    void Final (data::byte hash[Size]);
+    CRIPEMD160 &Restart ();
 };
 
 #endif // BITCOIN_CRYPTO_RIPEMD160_H
