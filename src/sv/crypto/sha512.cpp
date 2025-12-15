@@ -12,10 +12,10 @@
 namespace {
 /// Internal SHA-512 implementation.
 namespace sha512 {
-    inline uint64_t Ch(uint64_t x, uint64_t y, uint64_t z) {
+    inline uint64_t Ch (uint64_t x, uint64_t y, uint64_t z) {
         return z ^ (x & (y ^ z));
     }
-    inline uint64_t Maj(uint64_t x, uint64_t y, uint64_t z) {
+    inline uint64_t Maj (uint64_t x, uint64_t y, uint64_t z) {
         return (x & y) | (z & (x | y));
     }
     inline uint64_t Sigma0(uint64_t x) {
@@ -32,17 +32,17 @@ namespace sha512 {
     }
 
     /** One round of SHA-512. */
-    inline void Round(uint64_t a, uint64_t b, uint64_t c, uint64_t &d,
-                      uint64_t e, uint64_t f, uint64_t g, uint64_t &h,
-                      uint64_t k, uint64_t w) {
-        uint64_t t1 = h + Sigma1(e) + Ch(e, f, g) + k + w;
-        uint64_t t2 = Sigma0(a) + Maj(a, b, c);
+    inline void Round (uint64_t a, uint64_t b, uint64_t c, uint64_t &d,
+                       uint64_t e, uint64_t f, uint64_t g, uint64_t &h,
+                       uint64_t k, uint64_t w) {
+        uint64_t t1 = h + Sigma1 (e) + Ch (e, f, g) + k + w;
+        uint64_t t2 = Sigma0 (a) + Maj (a, b, c);
         d += t1;
         h = t1 + t2;
     }
 
     /** Initialize SHA-256 state. */
-    inline void Initialize(uint64_t *s) {
+    inline void Initialize (uint64_t *s) {
         s[0] = 0x6a09e667f3bcc908ull;
         s[1] = 0xbb67ae8584caa73bull;
         s[2] = 0x3c6ef372fe94f82bull;
@@ -84,7 +84,7 @@ namespace sha512 {
               w10 = ReadBE64(chunk + 80));
         Round(f, g, h, a, b, c, d, e, 0x550c7dc3d5ffb4e2ull,
               w11 = ReadBE64(chunk + 88));
-        Round(e, f, g, h, a, b, c, d, 0x72be5d74f27b896full,
+        Round (e, f, g, h, a, b, c, d, 0x72be5d74f27b896full,
               w12 = ReadBE64(chunk + 96));
         Round(d, e, f, g, h, a, b, c, 0x80deb1fe3b1696b1ull,
               w13 = ReadBE64(chunk + 104));
@@ -115,7 +115,7 @@ namespace sha512 {
               w9 += sigma1(w7) + w2 + sigma0(w10));
         Round(g, h, a, b, c, d, e, f, 0xb00327c898fb213full,
               w10 += sigma1(w8) + w3 + sigma0(w11));
-        Round(f, g, h, a, b, c, d, e, 0xbf597fc7beef0ee4ull,
+        Round (f, g, h, a, b, c, d, e, 0xbf597fc7beef0ee4ull,
               w11 += sigma1(w9) + w4 + sigma0(w12));
         Round(e, f, g, h, a, b, c, d, 0xc6e00bf33da88fc2ull,
               w12 += sigma1(w10) + w5 + sigma0(w13));
@@ -141,8 +141,8 @@ namespace sha512 {
         Round(c, d, e, f, g, h, a, b, 0x81c2c92e47edaee6ull,
               w6 += sigma1(w4) + w15 + sigma0(w7));
         Round(b, c, d, e, f, g, h, a, 0x92722c851482353bull,
-              w7 += sigma1(w5) + w0 + sigma0(w8));
-        Round(a, b, c, d, e, f, g, h, 0xa2bfe8a14cf10364ull,
+              w7 += sigma1(w5) + w0 + sigma0 (w8));
+        Round (a, b, c, d, e, f, g, h, 0xa2bfe8a14cf10364ull,
               w8 += sigma1(w6) + w1 + sigma0(w9));
         Round(h, a, b, c, d, e, f, g, 0xa81a664bbc423001ull,
               w9 += sigma1(w7) + w2 + sigma0(w10));
@@ -169,7 +169,7 @@ namespace sha512 {
               w3 += sigma1(w1) + w12 + sigma0(w4));
         Round(e, f, g, h, a, b, c, d, 0x391c0cb3c5c95a63ull,
               w4 += sigma1(w2) + w13 + sigma0(w5));
-        Round(d, e, f, g, h, a, b, c, 0x4ed8aa4ae3418acbull,
+        Round (d, e, f, g, h, a, b, c, 0x4ed8aa4ae3418acbull,
               w5 += sigma1(w3) + w14 + sigma0(w6));
         Round(c, d, e, f, g, h, a, b, 0x5b9cca4f7763e373ull,
               w6 += sigma1(w4) + w15 + sigma0(w7));
@@ -184,7 +184,7 @@ namespace sha512 {
         Round(f, g, h, a, b, c, d, e, 0x8cc702081a6439ecull,
               w11 += sigma1(w9) + w4 + sigma0(w12));
         Round(e, f, g, h, a, b, c, d, 0x90befffa23631e28ull,
-              w12 += sigma1(w10) + w5 + sigma0(w13));
+              w12 += sigma1(w10) + w5 + sigma0 (w13));
         Round(d, e, f, g, h, a, b, c, 0xa4506cebde82bde9ull,
               w13 += sigma1(w11) + w6 + sigma0(w14));
         Round(c, d, e, f, g, h, a, b, 0xbef9a3f7b2c67915ull,
@@ -222,7 +222,7 @@ namespace sha512 {
               w13 += sigma1(w11) + w6 + sigma0(w14));
         Round(c, d, e, f, g, h, a, b, 0x5fcb6fab3ad6faecull,
               w14 + sigma1(w12) + w7 + sigma0(w15));
-        Round(b, c, d, e, f, g, h, a, 0x6c44198c4a475817ull,
+        Round (b, c, d, e, f, g, h, a, 0x6c44198c4a475817ull,
               w15 + sigma1(w13) + w8 + sigma0(w0));
 
         s[0] += a;
@@ -241,11 +241,11 @@ namespace sha512 {
 
 ////// SHA-512
 
-CSHA512::CSHA512() : bytes(0) {
-    sha512::Initialize(s);
+CSHA512::CSHA512() : bytes (0) {
+    sha512::Initialize (s);
 }
 
-CSHA512 &CSHA512::Write(const uint8_t *data, size_t len) {
+CSHA512 &CSHA512::Update (const data::byte *data, size_t len) {
     const uint8_t *end = data + len;
     size_t bufsize = bytes % 128;
     if (bufsize && bufsize + len >= 128) {
@@ -256,38 +256,41 @@ CSHA512 &CSHA512::Write(const uint8_t *data, size_t len) {
         sha512::Transform(s, buf);
         bufsize = 0;
     }
+
     while (end >= data + 128) {
         // Process full chunks directly from the source.
-        sha512::Transform(s, data);
+        sha512::Transform (s, data);
         data += 128;
         bytes += 128;
     }
+
     if (end > data) {
         // Fill the buffer with what remains.
-        memcpy(buf + bufsize, data, end - data);
+        memcpy (buf + bufsize, data, end - data);
         bytes += end - data;
     }
+
     return *this;
 }
 
-void CSHA512::Finalize(uint8_t hash[OUTPUT_SIZE]) {
+void CSHA512::Final (data::byte hash[Size]) {
     static const uint8_t pad[128] = {0x80};
     uint8_t sizedesc[16] = {0x00};
-    WriteBE64(sizedesc + 8, bytes << 3);
-    Write(pad, 1 + ((239 - (bytes % 128)) % 128));
-    Write(sizedesc, 16);
-    WriteBE64(hash, s[0]);
-    WriteBE64(hash + 8, s[1]);
-    WriteBE64(hash + 16, s[2]);
-    WriteBE64(hash + 24, s[3]);
-    WriteBE64(hash + 32, s[4]);
-    WriteBE64(hash + 40, s[5]);
-    WriteBE64(hash + 48, s[6]);
-    WriteBE64(hash + 56, s[7]);
+    WriteBE64 (sizedesc + 8, bytes << 3);
+    Update (pad, 1 + ((239 - (bytes % 128)) % 128));
+    Update (sizedesc, 16);
+    WriteBE64 (hash, s[0]);
+    WriteBE64 (hash + 8, s[1]);
+    WriteBE64 (hash + 16, s[2]);
+    WriteBE64 (hash + 24, s[3]);
+    WriteBE64 (hash + 32, s[4]);
+    WriteBE64 (hash + 40, s[5]);
+    WriteBE64 (hash + 48, s[6]);
+    WriteBE64 (hash + 56, s[7]);
 }
 
-CSHA512 &CSHA512::Reset() {
+CSHA512 &CSHA512::Restart () {
     bytes = 0;
-    sha512::Initialize(s);
+    sha512::Initialize (s);
     return *this;
 }

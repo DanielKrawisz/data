@@ -11,27 +11,25 @@
 namespace data::crypto::MAC {
 
     // note: this is not really how you're supposed to use sha3 as a stream cipher.
-    template <size_t Size, size_t key_size>
-    struct SHA3_MAC_writer : message_writer<digest<Size>, byte> {
-        constexpr static size_t size = Size;
+    template <size_t size>
+    struct SHA3_MAC_writer : data::writer<byte> {
+        constexpr static size_t Size = size;
+        using digest = hash::digest<Size>;
 
+        digest &Digest;
         hash::SHA3<size> Hash;
-        symmetric_key<key_size> Key;
 
-        SHA3_MAC_writer (const symmetric_key<key_size> k) : Hash {}, Key {k} {
-            Hash.write (Key.data (), key_size);
+        SHA3_MAC_writer (digest &d, byte_slice k) : Digest {d}, Hash {} {
+            Hash.Update (k.data (), k.size ());
         }
 
         void write (const byte *b, size_t x) final override {
-            Hash.write (b, x);
+            Hash.Update (b, x);
         }
 
-        digest<size> complete () final override {
-            digest<size> d = Hash.complete ();
-            Hash.write (Key.data (), key_size);
-            return d;
+        ~SHA3_MAC_writer () {
+            Hash.Final (Digest.data ());
         }
-
     };
 
 }

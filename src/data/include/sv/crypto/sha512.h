@@ -7,21 +7,24 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include "data/crypto/one_way.hpp"
 
 /** A hasher class for SHA-512. */
+// satisfies data::hash::Engine
 class CSHA512 {
 private:
     uint64_t s[8];
-    uint8_t buf[128];
+    data::byte buf[128];
     uint64_t bytes;
 
 public:
-    static const size_t OUTPUT_SIZE = 64;
+    static const size_t Size = 64;
+    constexpr static const data::crypto::security Security = data::crypto::security::modern;
 
-    CSHA512();
-    CSHA512 &Write(const uint8_t *data, size_t len);
-    void Finalize(uint8_t hash[OUTPUT_SIZE]);
-    CSHA512 &Reset();
+    CSHA512 ();
+    CSHA512 &Update (const data::byte *data, size_t len);
+    void Final (data::byte hash[Size]);
+    CSHA512 &Restart ();
 };
 
 #endif // BITCOIN_CRYPTO_SHA512_H

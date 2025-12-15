@@ -13,27 +13,25 @@
 
 namespace data::crypto::MAC {
 
-    template <class Transform, size_t Size>
+    template <class Transform, size_t size>
     requires std::derived_from<Transform, CryptoPP::HashTransformation>
-    struct HMAC_writer : message_writer<digest<Size>, byte> {
-        constexpr static size_t size = Size;
+    struct HMAC_writer : writer<byte> {
+        constexpr static size_t Size = size;
+        using digest = hash::digest<Size>;
 
-        CryptoPP::HMAC<Transform> HMAC;
-
-        template <size_t key_size>
-        HMAC_writer (const symmetric_key<key_size> k) : HMAC {k.data (), key_size} {}
+        HMAC_writer (digest &d, byte_slice k) : Digest {d}, HMAC {k.data (), k.size ()} {}
 
         void write (const byte *b, size_t x) final override {
             HMAC.Update (b, x);
         }
 
-        digest<size> complete () final override {
-            digest<size> d;
-            HMAC.Final (d.data ());
-            HMAC.Restart ();
-            return d;
+        ~HMAC_writer () {
+            HMAC.Final (Digest.data ());
         }
 
+    private:
+        digest &Digest;
+        CryptoPP::HMAC<Transform> HMAC;
     };
 
 }

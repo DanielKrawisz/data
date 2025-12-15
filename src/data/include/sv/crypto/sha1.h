@@ -7,21 +7,24 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <data/crypto/one_way.hpp>
 
 /** A hasher class for SHA1. */
+// satisfies data::hash::Engine
 class CSHA1 {
 private:
     uint32_t s[5];
-    uint8_t buf[64];
+    data::byte buf[64];
     uint64_t bytes;
 
 public:
-    static const size_t OUTPUT_SIZE = 20;
+    static const size_t Size = 20;
+    constexpr static const data::crypto::security Security = data::crypto::security::depricated;
 
     CSHA1 ();
-    CSHA1 &Write (const uint8_t *data, size_t len);
-    void Finalize (uint8_t hash[OUTPUT_SIZE]);
-    CSHA1 &Reset ();
+    CSHA1 &Update (const data::byte *data, size_t len);
+    void Final (data::byte hash[Size]);
+    CSHA1 &Restart ();
 };
 
 #endif // BITCOIN_CRYPTO_SHA1_H

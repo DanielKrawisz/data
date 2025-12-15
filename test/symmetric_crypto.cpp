@@ -44,12 +44,16 @@ namespace data::crypto {
     const char *MACMessage = "This is a message that will be hashed using a secret key to produce a MAC. Thank you.";
     const char *MACAltered = "This is x message thxt will be hxshed using x secret key to produce x MAC. Thxnk you.";
 
-    template <typename w, size_t key_size> void test_MAC (const char *message1, const char *message2) {
-        w ww {std::get<symmetric_key<key_size>> (kkk)};
-        w wv {std::get<symmetric_key<key_size>> (kkk)};
-        ww << bytes (string {message1});
-        wv << bytes (string {message2});
-        EXPECT_NE (ww << end_message {}, wv << end_message {});
+    template <MAC::Writer w, size_t key_size> void test_MAC (const char *message1, const char *message2) {
+        typename w::digest D1;
+        typename w::digest D2;
+        {
+            w ww {D1, std::get<symmetric_key<key_size>> (kkk)};
+            w wv {D2, std::get<symmetric_key<key_size>> (kkk)};
+            ww << bytes (string {message1});
+            wv << bytes (string {message2});
+        }
+        EXPECT_NE (D1, D2);
     }
 
     template <typename w> struct test_MACs {
@@ -85,10 +89,10 @@ namespace data::crypto {
     // NOTE: this should be KMAC
     template <size_t size> struct test_SHA3MAC {
         test_SHA3MAC (const char *m1, const char *m2) {
-            test_MAC<MAC::SHA3_MAC_writer<size, 16>, 16> (m1, m2);
-            test_MAC<MAC::SHA3_MAC_writer<size, 20>, 20> (m1, m2);
-            test_MAC<MAC::SHA3_MAC_writer<size, 28>, 28> (m1, m2);
-            test_MAC<MAC::SHA3_MAC_writer<size, 32>, 32> (m1, m2);
+            test_MAC<MAC::SHA3_MAC_writer<size>, 16> (m1, m2);
+            test_MAC<MAC::SHA3_MAC_writer<size>, 20> (m1, m2);
+            test_MAC<MAC::SHA3_MAC_writer<size>, 28> (m1, m2);
+            test_MAC<MAC::SHA3_MAC_writer<size>, 32> (m1, m2);
         }
     };
 

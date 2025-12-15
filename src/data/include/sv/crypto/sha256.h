@@ -8,8 +8,10 @@
 #include <cstdint>
 #include <cstdlib>
 #include <string>
+#include <data/crypto/one_way.hpp>
 
 /** A hasher class for SHA-256. */
+// satisfies data::hash::Engine
 class CSHA256 {
 private:
     uint32_t s[8];
@@ -17,12 +19,13 @@ private:
     uint64_t bytes;
 
 public:
-    static const size_t OUTPUT_SIZE = 32;
+    static const size_t Size = 32;
+    constexpr static const data::crypto::security Security = data::crypto::security::modern;
 
     CSHA256 ();
-    CSHA256 &Write (const uint8_t *data, size_t len);
-    void Finalize (uint8_t hash[OUTPUT_SIZE]);
-    CSHA256 &Reset ();
+    CSHA256 &Update (const uint8_t *data, size_t len);
+    void Final (uint8_t hash[Size]);
+    CSHA256 &Restart ();
 };
 
 /**
