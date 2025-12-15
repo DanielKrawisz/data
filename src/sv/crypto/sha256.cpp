@@ -276,7 +276,7 @@ CSHA256::CSHA256 () : bytes (0) {
     sha256::Initialize (s);
 }
 
-CSHA256 &CSHA256::Write(const uint8_t *data, size_t len) {
+CSHA256 &CSHA256::Update (const uint8_t *data, size_t len) {
     const uint8_t *end = data + len;
     size_t bufsize = bytes % 64;
     if (bufsize && bufsize + len >= 64) {
@@ -287,26 +287,29 @@ CSHA256 &CSHA256::Write(const uint8_t *data, size_t len) {
         Transform (s, buf, 1);
         bufsize = 0;
     }
+
     if (end - data >= 64) {
         size_t blocks = (end - data) / 64;
         Transform (s, data, blocks);
         data += 64 * blocks;
         bytes += 64 * blocks;
     }
+
     if (end > data) {
         // Fill the buffer with what remains.
         memcpy (buf + bufsize, data, end - data);
         bytes += end - data;
     }
+
     return *this;
 }
 
-void CSHA256::Finalize (uint8_t hash[OUTPUT_SIZE]) {
+void CSHA256::Final (uint8_t hash[Size]) {
     static const uint8_t pad[64] = {0x80};
     uint8_t sizedesc[8];
     WriteBE64 (sizedesc, bytes << 3);
-    Write (pad, 1 + ((119 - (bytes % 64)) % 64));
-    Write (sizedesc, 8);
+    Update (pad, 1 + ((119 - (bytes % 64)) % 64));
+    Update (sizedesc, 8);
     WriteBE32 (hash, s[0]);
     WriteBE32 (hash + 4, s[1]);
     WriteBE32 (hash + 8, s[2]);
@@ -317,7 +320,7 @@ void CSHA256::Finalize (uint8_t hash[OUTPUT_SIZE]) {
     WriteBE32 (hash + 28, s[7]);
 }
 
-CSHA256 &CSHA256::Reset () {
+CSHA256 &CSHA256::Restart () {
     bytes = 0;
     sha256::Initialize (s);
     return *this;

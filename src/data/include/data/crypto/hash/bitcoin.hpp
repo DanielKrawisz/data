@@ -11,38 +11,54 @@ namespace data::crypto::hash {
     using namespace data;
     
     // Bitcoin hash 160 is difined to be RIPEMD_160 * SHA2_256
-    template<> struct Bitcoin<20> : message_writer<digest<20>, byte> {
+    template<> struct Bitcoin<20> {
 
-        SHA2<32> Writer;
+        SHA2<32> Engine;
         
-        constexpr static size_t size = 20;
+        constexpr static size_t Size = 20;
         
-        Bitcoin () : Writer {} {}
+        Bitcoin () : Engine {} {}
         
-        void write (const byte *b, size_t x) final override {
-            Writer.write (b, x);
+        Bitcoin<20> &Update (const byte *b, size_t x) {
+            Engine.Update (b, x);
+            return *this;
         }
         
-        digest<20> complete () final override {
-            return calculate<RIPEMD<20>> (Writer.complete ());
+        void Final (byte b[Size]) {
+            byte x[32];
+            Engine.Final (x);
+            CRIPEMD160 ().Update (x, 32).Final (b);
+        }
+
+        Bitcoin<20> &Restart () {
+            Engine.Restart ();
+            return *this;
         }
     };
     
     // Bitcoin hash 256 is difined to be SHA2_256 * SHA_256
-    template<> struct Bitcoin<32> : message_writer<digest<32>, byte> {
+    template<> struct Bitcoin<32> {
         
-        SHA2<32> Writer;
+        SHA2<32> Engine;
         
-        constexpr static size_t size = 32;
+        constexpr static size_t Size = 32;
         
-        Bitcoin () : Writer {} {}
+        Bitcoin () : Engine {} {}
         
-        void write (const byte *b, size_t x) final override {
-            Writer.write (b, x);
+        Bitcoin<32> &Update (const byte *b, size_t x) {
+            Engine.Update (b, x);
+            return *this;
         }
         
-        digest<32> complete () final override {
-            return calculate<SHA2<32>> (Writer.complete ());
+        void Final (byte b[Size]) {
+            byte x[32];
+            Engine.Final (x);
+            CSHA256 ().Update (x, 32).Final (b);
+        }
+
+        Bitcoin<32> &Restart () {
+            Engine.Restart ();
+            return *this;
         }
     };
 
@@ -50,11 +66,11 @@ namespace data::crypto::hash {
 
 namespace data::crypto {
 
-    digest160 inline Bitcoin_160 (byte_slice b) {
+    hash::digest160 inline Bitcoin_160 (byte_slice b) {
         return hash::calculate<hash::Bitcoin<20>> (b);
     }
 
-    digest256 inline Bitcoin_256 (byte_slice b) {
+    hash::digest256 inline Bitcoin_256 (byte_slice b) {
         return hash::calculate<hash::Bitcoin<32>> (b);
     }
 }

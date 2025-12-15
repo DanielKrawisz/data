@@ -12,52 +12,27 @@
 #include "sv/crypto/ripemd160.h"
 #include "sv/crypto/sha256.h"
 
-
-namespace data::crypto::hash::bitcoind {
-    template <class hash, size_t Size> 
-    struct writer : message_writer<digest<Size>, byte> {
-        constexpr static size_t size = Size;
-        
-        hash Hash;
-        
-        writer () : Hash {} {}
-        
-        void write (const byte *b, size_t x) final override {
-            Hash.Write (b, x);
-        }
-        
-        digest<size> complete () final override {
-            digest<size> d;
-            Hash.Finalize ((byte *) d.data ());
-            Hash.Reset ();
-            return d;
-        }
-        
-    };
-    
-}
-
 namespace data::crypto::hash {
     
-    struct SHA1 : bitcoind::writer<CSHA1, 20> {};
+    struct SHA1 : CSHA1 {};
     
-    template <> struct RIPEMD<20> : bitcoind::writer<CRIPEMD160, 20> {};
+    template <> struct RIPEMD<20> : CRIPEMD160 {};
     
-    template <> struct SHA2<32> : bitcoind::writer<CSHA256, 32> {};
+    template <> struct SHA2<32> : CSHA256 {};
     
 }
 
 namespace data::crypto {
 
-    digest160 inline SHA1 (byte_slice b) {
+    hash::digest160 inline SHA1 (byte_slice b) {
         return hash::calculate<hash::SHA1> (b);
     }
 
-    digest160 inline RIPEMD_160 (byte_slice b) {
+    hash::digest160 inline RIPEMD_160 (byte_slice b) {
         return hash::calculate<hash::RIPEMD<20>> (b);
     }
 
-    digest256 inline SHA2_256 (byte_slice b) {
+    hash::digest256 inline SHA2_256 (byte_slice b) {
         return hash::calculate<hash::SHA2<32>> (b);
     }
 

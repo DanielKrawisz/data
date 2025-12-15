@@ -9,7 +9,7 @@ add_library (string STATIC)
 
 add_library (io STATIC)
 
-add_library (hash INTERFACE)
+add_library (hash STATIC)
 
 # numbers, like it says
 add_library (numbers STATIC)
@@ -80,10 +80,29 @@ target_link_libraries (
   argh
 )
 
+target_sources (
+  hash
+
+  PRIVATE
+
+  ../sv/utiltime.cpp
+  ../sv/fs.cpp
+  ../sv/crypto/chacha20.cpp
+  ../sv/crypto/hmac_sha512.cpp
+  ../sv/crypto/ripemd160.cpp
+  ../sv/crypto/sha1.cpp
+  ../sv/crypto/sha256.cpp
+  ../sv/crypto/sha512.cpp
+  ../sv/support/cleanse.cpp
+)
+
+target_compile_features (hash PUBLIC cxx_std_23)
+set_target_properties (hash PROPERTIES CXX_EXTENSIONS ON)
+
 target_link_libraries (
   hash
 
-  INTERFACE
+  PUBLIC
 
   string
   OpenSSL::SSL
@@ -207,7 +226,7 @@ install (
 )
 
 install (
-  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella sv
+  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella
   EXPORT DataTargets
   ARCHIVE
 )

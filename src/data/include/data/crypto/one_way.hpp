@@ -9,31 +9,33 @@
 
 namespace data::crypto {
     
-    // one_way asserts that a non-invertable
-    // function exists which takes s to p. 
-    template <typename f, typename p, typename s>
-    concept one_way = functional::function<f, p, s>;
+    enum class security : byte {
+        none = 0,
+        weak = 1,
+        depricated = 2,
+        modern = 3
+    };
     
     // keypair is an assertion that to_public
     // is a non-invertable function between
     // sk and pk. 
     template <typename sk, typename pk> 
     concept keypair = requires (sk s) {
-        {to_public(s)} -> Same<pk>;
+        { to_public (s) } -> Same<pk>;
     };
     
     template <typename sk, typename pk, typename message, typename signature> 
     concept signature_scheme = keypair<sk, pk> && requires (message m, sk k) {
-        {sign(m, k)} -> Same<signature>;
+        { sign (m, k) } -> Same<signature>;
     } && requires (message m, signature x, pk k) {
-        {verify(m, x, k)} -> Same<bool>;
+        { verify (m, x, k) } -> Same<bool>;
     };
     
     template <typename sk, typename pk, typename message, typename encrypted> 
     concept encryption_scheme = keypair<sk, pk> && requires (message m, pk k) {
-        {encrypt(m, k)} -> Same<encrypted>;
+        { encrypt (m, k) } -> Same<encrypted>;
     } && requires (encrypted m, sk k) {
-        {decrypt(m, k)} -> Same<message>;
+        {decrypt (m, k) } -> Same<message>;
     };
     
 }

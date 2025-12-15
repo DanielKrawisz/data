@@ -50,7 +50,7 @@ namespace data::crypto {
     template <size_t block_size>
     one_way_stream<block_size> inline SHA3_stream (const byte_array<block_size> &IV) {
         return one_way_stream<block_size> {[] (const byte_array<block_size> &in) -> byte_array<block_size> {
-            digest<block_size> ddd = SHA3<block_size> (in);
+            hash::digest<block_size> ddd = SHA3<block_size> (in);
             return static_cast<byte_array<block_size>> (ddd);
         }, IV};
     }

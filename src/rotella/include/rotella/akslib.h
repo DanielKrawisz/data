@@ -14,7 +14,7 @@
 #include "aks.h"
 #include "sieve.h"
 
-int aks(mpz_class n);
+int aks (mpz_class n);
 
 #endif /* AKSLIB_H_ */
 
