@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_LOG_HPP
-#define DATA_LOG_HPP
+#ifndef DATA_IO_LOG
+#define DATA_IO_LOG
 
 #include <data/types.hpp>
 #include <boost/log/core.hpp>
@@ -54,7 +54,7 @@ namespace data::log {
         // will contain channel="data".
         //
         // The 'keywords::channel' keyword binds the channel attribute.
-        return my_logger_mt(keywords::channel = "data");
+        return my_logger_mt (keywords::channel = "data");
     }
 
     class initializer : public std::enable_shared_from_this<initializer> {
