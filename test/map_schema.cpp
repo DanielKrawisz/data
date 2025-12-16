@@ -4,7 +4,7 @@
 
 #include "data/encoding/unicode.hpp"
 #include "data/tools/map_schema.hpp"
-#include "data/numbers.hpp"
+#include "data/math.hpp"
 #include "gtest/gtest.h"
 
 namespace data::schema::rule {
@@ -17,22 +17,22 @@ namespace data::schema::rule {
     static_assert (Same<map<only<value<int>>>, decltype (-+key<int> ("abcd"))>);
     static_assert (Same<map<only<optional<value<int>>>>, decltype (*key<int> ("abcd"))>);
 
-    static_assert (Same<map<only<all<value<int>, value<int>>>>, decltype (key<int> ("A") & key<int> ("B"))>);
-    static_assert (Same<map<all<value<int>, value<int>>>, decltype (key<int> ("A") & +key<int> ("B"))>);
-    static_assert (Same<map<only<all<value<int>, optional<value<int>>>>>, decltype (key<int> ("A") & *key<int> ("B"))>);
-    static_assert (Same<map<all<value<int>, value<int>>>, decltype (+(key<int> ("A") & key<int> ("B")))>);
+    static_assert (Same<map<only<all<value<int>, value<int>>>>, decltype (key<int> ("A") && key<int> ("B"))>);
+    static_assert (Same<map<all<value<int>, value<int>>>, decltype (key<int> ("A") && +key<int> ("B"))>);
+    static_assert (Same<map<only<all<value<int>, optional<value<int>>>>>, decltype (key<int> ("A") && *key<int> ("B"))>);
+    static_assert (Same<map<all<value<int>, value<int>>>, decltype (+(key<int> ("A") && key<int> ("B")))>);
 
-    static_assert (Same<decltype (key<int> ("A") | key<int> ("B")),
+    static_assert (Same<decltype (key<int> ("A") || key<int> ("B")),
         map<only<any<value<int>, value<int>>>>>);
 
     static_assert (Same<map<only<all<value<int>, value<int>, value<int>>>>,
-        decltype (key<int> ("A") & key<int> ("B") & key<int> ("C"))>);
+        decltype (key<int> ("A") && key<int> ("B") && key<int> ("C"))>);
 
     static_assert (Same<map<only<all<value<int>, optional<value<int>>, optional<value<int>>>>>,
-        decltype (key<int> ("A") & *key<int> ("B") & *key<int> ("C"))>);
+        decltype (key<int> ("A") && *key<int> ("B") && *key<int> ("C"))>);
 
     static_assert (Same<map<only<all<value<int>, optional<all<value<int>, value<int>>>>>>,
-        decltype (key<int> ("A") & *(key<int> ("B") & key<int> ("C")))>);
+        decltype (key<int> ("A") && *(key<int> ("B") && key<int> ("C")))>);
 
     static_assert (Same<
         map<
@@ -46,10 +46,10 @@ namespace data::schema::rule {
                 >
             >
         >,
-        decltype (key<int> ("A") & *(key<int> ("B") & key<int> ("C")) & *key<int> ("D"))>);
+        decltype (key<int> ("A") && *(key<int> ("B") && key<int> ("C")) && *key<int> ("D"))>);
 
     // this should mean that the map has a C and either and A or a B and nothing else.
-    static_assert (Same<decltype ((key<int> ("A") | key<int> ("B")) & key<int> ("C")),
+    static_assert (Same<decltype ((key<int> ("A") || key<int> ("B")) && key<int> ("C")),
         map<only<all<any<value<int>, value<int>>, value<int>>>>>);
    
 }
@@ -61,10 +61,10 @@ namespace data::schema {
 
         EXPECT_TRUE (valid (empty ()));
         EXPECT_TRUE (valid (key<int> ("A")));
-        EXPECT_FALSE (valid (key<int> ("A") & key<int> ("A")));
-        EXPECT_TRUE (valid (key<int> ("A") & key<int> ("B")));
-        EXPECT_FALSE (valid (key<int> ("A") & (key<int> ("B") | key<int> ("A"))));
-        EXPECT_TRUE (valid (key<int> ("A") & key<int> ("B") | key<int> ("A") & key<int> ("C")));
+        EXPECT_FALSE (valid (key<int> ("A") && key<int> ("A")));
+        EXPECT_TRUE (valid (key<int> ("A") && key<int> ("B")));
+        EXPECT_FALSE (valid (key<int> ("A") && (key<int> ("B") || key<int> ("A"))));
+        EXPECT_TRUE (valid (key<int> ("A") && key<int> ("B") || key<int> ("A") && key<int> ("C")));
 
     }
 
@@ -110,7 +110,7 @@ namespace data::schema {
         ASSERT_NO_THROW (EXPECT_EQ (23, (validate<> (map_A, one_key_A))));
         EXPECT_THROW ((validate<> (map_B, one_key_A)), missing_key);
         EXPECT_THROW ((validate<> (map_AB, one_key_A)), unknown_key);
-        auto key_A_and_B = blank_key_A & blank_key_B;
+        auto key_A_and_B = blank_key_A && blank_key_B;
         EXPECT_THROW ((validate<> (map_empty, key_A_and_B)), missing_key);
         EXPECT_THROW ((validate<> (map_A, key_A_and_B)), missing_key);
         EXPECT_THROW ((validate<> (map_B, key_A_and_B)), missing_key);
@@ -134,13 +134,13 @@ namespace data::schema {
         EXPECT_NO_THROW (EXPECT_EQ (maybe<uint32> {23}, (validate<> (map_AB, optional_blank_key_A))));
 
         // match a map with A or a map with B.
-        auto key_A_or_key_B = -blank_key_A | -blank_key_B;
+        auto key_A_or_key_B = -blank_key_A || -blank_key_B;
         ASSERT_THROW ((validate<> (map_empty, key_A_or_key_B)), missing_key);
         ASSERT_NO_THROW ((validate<> (map_A, key_A_or_key_B)));
         EXPECT_NO_THROW ((validate<> (map_B, key_A_or_key_B)));
         EXPECT_THROW ((validate<> (map_AB, key_A_or_key_B)), incomplete_match);
 
-        auto key_A_opt_and_B = optional_key_A & blank_key_B;
+        auto key_A_opt_and_B = optional_key_A && blank_key_B;
         EXPECT_THROW ((validate<> (map_empty, key_A_opt_and_B)), missing_key);
         EXPECT_THROW ((validate<> (map_A, key_A_opt_and_B)), missing_key);
         EXPECT_NO_THROW ((validate<> (map_B, key_A_opt_and_B)));
@@ -153,14 +153,14 @@ namespace data::schema {
         auto one_key_C = key<uint32> ("C");
         auto optional_key_C = *one_key_C;
 
-        auto key_A_opt_and_key_B_opt = optional_key_A & optional_key_B;
+        auto key_A_opt_and_key_B_opt = optional_key_A && optional_key_B;
         EXPECT_NO_THROW ((validate<> (map_empty, key_A_opt_and_key_B_opt)));
         ASSERT_NO_THROW ((validate<> (map_A, key_A_opt_and_key_B_opt)));
         EXPECT_NO_THROW ((validate<> (map_B, key_A_opt_and_key_B_opt)));
         EXPECT_NO_THROW ((validate<> (map_AB, key_A_opt_and_key_B_opt)));
 
         // this ought to match a map with one key B, an empty map, or one with key A.
-        auto key_A_opt_or_key_B = optional_key_A | one_key_B;
+        auto key_A_opt_or_key_B = optional_key_A || one_key_B;
         EXPECT_NO_THROW ((validate<> (map_empty, key_A_opt_or_key_B)));
         EXPECT_NO_THROW ((validate<> (map_A, key_A_opt_or_key_B)));
         ASSERT_NO_THROW ((validate<> (map_B, key_A_opt_or_key_B)));
@@ -171,8 +171,8 @@ namespace data::schema {
 
         // basically, you either need to distribute any & operations
         // over | or you need to put the | at the end or it won't work.
-        auto test_proof_of_design_issue = (one_key_A | one_key_B) & one_key_C;
-        auto test_resolution_of_issue = one_key_C & (one_key_A | one_key_B);
+        auto test_proof_of_design_issue = (one_key_A || one_key_B) && one_key_C;
+        auto test_resolution_of_issue = one_key_C && (one_key_A || one_key_B);
 
         EXPECT_THROW ((validate<> (map_empty, test_proof_of_design_issue)), missing_key);
         EXPECT_THROW ((validate<> (map_A, test_proof_of_design_issue)), missing_key);
@@ -189,21 +189,21 @@ namespace data::schema {
         EXPECT_NO_THROW ((validate<> (map_BC, test_resolution_of_issue)));
 
         // must have all three.
-        auto and_A_B_C = one_key_A & one_key_B & one_key_C;
+        auto and_A_B_C = one_key_A && one_key_B && one_key_C;
         ASSERT_THROW ((validate<> (map_empty, and_A_B_C)), missing_key);
         EXPECT_THROW ((validate<> (map_A, and_A_B_C)), missing_key);
         EXPECT_THROW ((validate<> (map_AB, and_A_B_C)), missing_key);
         EXPECT_NO_THROW ((validate<> (map_ABC, and_A_B_C)));
 
         // must have A and B and may have C.
-        auto and_A_B_C_opt = one_key_A & one_key_B & optional_key_C;
+        auto and_A_B_C_opt = one_key_A && one_key_B && optional_key_C;
         ASSERT_THROW ((validate<> (map_empty, and_A_B_C)), missing_key);
         EXPECT_THROW ((validate<> (map_A, and_A_B_C)), missing_key);
         EXPECT_NO_THROW ((validate<> (map_AB, and_A_B_C_opt)));
         EXPECT_NO_THROW ((validate<> (map_ABC, and_A_B_C_opt)));
 
         // any map with A or a map with only B.
-        auto key_A_blank_or_key_B = blank_key_A | one_key_B;
+        auto key_A_blank_or_key_B = blank_key_A || one_key_B;
         ASSERT_THROW ((validate<> (map_empty, key_A_blank_or_key_B)), missing_key);
         EXPECT_NO_THROW ((validate<> (map_A, key_A_blank_or_key_B)));
         EXPECT_NO_THROW ((validate<> (map_B, key_A_blank_or_key_B)));
@@ -211,13 +211,13 @@ namespace data::schema {
         ASSERT_NO_THROW ((validate<> (map_AC, key_A_blank_or_key_B)));
 
         // must have key A and may optionally have B and C.
-        auto and_A_opt_B_C = one_key_A & *(one_key_B & one_key_C);
+        auto and_A_opt_B_C = one_key_A && *(one_key_B && one_key_C);
         ASSERT_NO_THROW ((validate<> (map_A, and_A_opt_B_C)));
         EXPECT_NO_THROW (validate<> (map_A, and_A_opt_B_C));
         EXPECT_NO_THROW ((validate<> (map_ABC, and_A_opt_B_C)));
         EXPECT_THROW ((validate<> (map_AB, and_A_opt_B_C)), incomplete_match);
 
-        auto or_A_B_C = one_key_A | one_key_B | one_key_C;
+        auto or_A_B_C = one_key_A || one_key_B || one_key_C;
 
     }
 
@@ -242,9 +242,9 @@ namespace data::schema {
 
         data::map<string, string> test_map {{"na", "Y"}, {"ne", "M"}, {"ty", "W"}};
 
-        auto test_schema = key<std::string> ("na") &
-            *(key<std::string> ("ty") &
-                *key<std::string> ("ne") &
+        auto test_schema = key<std::string> ("na") &&
+            *(key<std::string> ("ty") &&
+                *key<std::string> ("ne") &&
                 *key<std::string> ("co"));
 
         EXPECT_NO_THROW ((validate<> (test_map, test_schema)));
@@ -343,5 +343,10 @@ namespace data::schema {
             FAIL () << "mismatch caught";
         }
 
+    }
+
+    TEST (MapSchema, Default) {
+        EXPECT_EQ ((validate<> (map<string, string> {}, key<int> ("zoob", 13))), 13);
+        EXPECT_EQ ((validate<> (map<string, string> {{"zoob", "92"}}, key<int> ("zoob", 13))), 92);
     }
 }
