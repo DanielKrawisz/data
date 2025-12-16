@@ -1,15 +1,254 @@
 
+#ifndef DATA_SCHEMA_MAP
+#define DATA_SCHEMA_MAP
+/**
+ * @file map_schema.hpp
+ *
+ * Facilities for validating and decoding map-like string→string data
+ * structures (e.g. URL query parameters, form data, headers).
+ *
+ * A schema is expressed as a composable *rule*. Given a map and a rule,
+ * validation both checks structural correctness and decodes values into
+ * typed results.
+ *
+ * The core operation is:
+ *
+ *     validate (data::map<std::string, std::string>, rule)
+ *
+ * If validation succeeds, a value is returned whose type is determined
+ * entirely by the rule. If validation fails, an error is produced.
+ *
+ * TODO: this should also work on std::map but it doesn't yet.
+ *
+ * ---------------------------------------------------------------------
+ * Mental model
+ * ---------------------------------------------------------------------
+ *
+ * A rule is best understood as a *typed transducer*:
+ *
+ *     map<string, string>  →  typed C++ value
+ *
+ * Validation is not just a boolean check. If validation succeeds, the
+ * rule *produces a value* whose type is determined entirely by the rule
+ * expression itself.
+ *
+ * Conceptually:
+ *
+ *     input map
+ *         |
+ *         v
+ *     [ rule expression ]
+ *         |
+ *         v
+ *     decoded, strongly-typed result
+ *
+ * Rules can be composed to form larger schemas. Composition determines
+ * both the structural constraints on the map and the structure of the
+ * resulting C++ type.
+ *
+ * For example:
+ *
+ *     key<int> ("x") && key<int> ("y")
+ *
+ * can be visualized as:
+ *
+ *     key<int> ("x")        key<int> ("y")
+ *          |                      |
+ *          +--------- && ---------+
+ *                     |
+ *                     v
+ *                tuple<int, int>
+ *
+ * In this sense, rule operators are not merely logical combinators:
+ *
+ *   • &&   constructs product types (tuples)
+ *   • ||   constructs sum types (variants)
+ *   • *    constructs optional types
+ *   • -    enforces closed-world constraints on accepted keys
+ *
+ * The intent is that schemas can be read declaratively while remaining
+ * fully type-safe, with result types deduced at compile time from the
+ * rule expression.
+ *
+ * ---------------------------------------------------------------------
+ * Design notes
+ * ---------------------------------------------------------------------
+ *
+ * • Rules describe *both* structure and decoding.
+ * • Result types are determined statically by the rule expression.
+ * • Composition preserves meaning: schemas can be built bottom-up.
+ * • No implicit acceptance of unknown keys unless explicitly allowed.
+ *
+ * This allows map-like inputs (such as URL queries) to be validated
+ * declaratively while remaining fully type-safe.
+ *
+ * ---------------------------------------------------------------------
+ * Basic rules
+ * ---------------------------------------------------------------------
+ *
+ * empty ()
+ *   Match an empty map.
+ *   Result type: void
+ *
+ * key<X> ("name")
+ *   Require the presence of key "name" and parse its value as X.
+ *   Result type: X
+ *
+ * key<X> ("name", X default_value)
+ *   Optional key "name". If missing, default_value is supplied.
+ *   Result type: X
+ *
+ * ---------------------------------------------------------------------
+ * Rule modifiers
+ * ---------------------------------------------------------------------
+ *
+ * *rule
+ *   Make a rule optional.
+ *   Result type: maybe<result_of (rule)>
+ *
+ * -rule   (ONLY)
+ *   Restrict the map so that it may not contain keys other than those
+ *   explicitly mentioned in the rule.
+ *   Result type: same as rule
+ *
+ * +rule   (INVERT ONLY)
+ *   Invert the meaning of the ONLY restriction.
+ *   Result type: same as rule
+ *
+ * ---------------------------------------------------------------------
+ * Rule composition
+ * ---------------------------------------------------------------------
+ *
+ * ruleA && ruleB
+ *   The map must satisfy both rules.
+ *   Result type:
+ *     tuple<result_of (ruleA), result_of (ruleB)>
+ *
+ *   If either result is itself a tuple, it is flattened into the result
+ *   (behaves like a parameter pack).
+ *
+ *   Special case:
+ *     -ruleA && -ruleB  is equivalent to  -(ruleA && ruleB)
+ *
+ * ruleA || ruleB
+ *   The map must satisfy exactly one of the rules.
+ *   Result type:
+ *     std::variant<result_of(ruleA), result_of(ruleB)>
+ *
+ * ---------------------------------------------------------------------
+ * Closed vs open rules
+ * ---------------------------------------------------------------------
+ *
+ * Rules are *closed by default*. A rule describes a complete schema for
+ * the map, not a partial constraint.
+ *
+ * In particular:
+ *
+ *     key<X>("k")
+ *
+ * means that the map:
+ *   • contains the key "k"
+ *   • contains no other keys
+ *
+ * As a consequence:
+ *
+ *     -key<X>("k")
+ *
+ * does not further restrict the rule and has no additional effect.
+ *
+ * The '+' operator is used to *open* a rule:
+ *
+ *     +key<X>("k")
+ *
+ * means that the map must contain "k", but may contain additional keys
+ * beyond those mentioned in the rule.
+ *
+ * The '-' operator becomes meaningful primarily after rule composition,
+ * where it enforces that no keys other than those implied by the composed
+ * rule are present.
+ *
+ * ---------------------------------------------------------------------
+ * Examples
+ * ---------------------------------------------------------------------
+ *
+ * Example 1: Require an empty query
+ *
+ *     auto r = empty ();
+ *     validate (query, r);          // returns void
+ *
+ * Example 2: Required and optional keys
+ *
+ *     auto r =
+ *         key<int> ("page") &&
+ *         key<int> ("limit", 10);
+ *
+ *     // Result type: tuple<int, int>
+ *     auto [page, limit] = validate (query, r);
+ *
+ * Example 3: Optional rule
+ *
+ *     auto r = *key<std::string>("search");
+ *
+ *     // Result type: std::optional<std::string>
+ *     auto value = validate(query, r);
+ *
+ * Example 4: Allow other keys to be present
+ *
+ *     auto r = -(
+ *         key<int>("x") &&
+ *         key<int>("y")
+ *     );
+ *
+ *     // Map may contain values other than "x" and "y", which are ignored.
+ *     auto [x, y] = validate(query, r);
+ *
+ * Example 5: Alternatives
+ *
+ *     auto r =
+ *         key<int>("id") ||
+ *         key<std::string>("name");
+ *
+ *     // Result type: std::variant<int, std::string>
+ *     auto v = validate(query, r);
+ *
+ * ---------------------------------------------------------------------
+ * Reading values from strings
+ * ---------------------------------------------------------------------
+ *
+ * Rules that decode values (such as key<X> (...)) rely on a uniform
+ * conversion mechanism:
+ *
+ *     data::encoding::read<X> {} (std::string)
+ *
+ * This function object is responsible for converting a string into a
+ * value of type X. Users may provide template specializations of
+ * data::encoding::read<X> to define custom parsing behavior for their
+ * own types.
+ *
+ * The default behavior is:
+ *
+ *   1. For std::integral types, attempt conversion using std::from_chars
+ *   2. Attempt extraction using operator >> with an
+ *      std::istream
+ *   3. Attempt construction from a string
+ *
+ * Validation fails if none of these conversions succeed.
+ *
+ * This design keeps schema logic independent of parsing policy:
+ * schemas describe *what* is required, while data::encoding::read<X>
+ * defines *how* values of type X are obtained from strings.
+ *
+ */
+
 #include <data/maybe.hpp>
 #include <data/either.hpp>
 #include <data/concepts.hpp>
 #include <data/string.hpp>
 #include <data/map.hpp>
 #include <data/set.hpp>
-#include <data/encoding/read.hpp>
 #include <data/tuple.hpp>
-
-#ifndef DATA_SCHEMA_MAP
-#define DATA_SCHEMA_MAP
+#include <data/encoding/read.hpp>
+#include <data/io/log.hpp>
 
 namespace data::schema::rule {
 
@@ -35,6 +274,7 @@ namespace data::schema::rule {
 
     // specifies that a map has a given value.
     template <std::default_initializable X> struct value;
+    template <std::default_initializable X> struct default_value;
 
     template <typename ...X> struct all;
 
@@ -194,6 +434,16 @@ namespace data::schema::rule {
         result operator () (const std::map<string, string> &m, const map<value<X>> &r);
     };
 
+    template <typename X, typename ...context> struct validate<default_value<X>, context...> {
+        using result = X;
+
+        template <String string>
+        result operator () (data::map<string, string> m, const map<default_value<X>> &r);
+
+        template <String string>
+        result operator () (const std::map<string, string> &m, const map<default_value<X>> &r);
+    };
+
     template <typename X, typename ...context> struct validate<optional<X>, context...> {
         using result = maybe<typename validate<X, context...>::result>;
 
@@ -236,6 +486,11 @@ namespace data::schema::rule {
         string Key;
     };
 
+    template <typename X> struct map<default_value<X>> : map<value<X>> {
+        X Default;
+        map (const string &k, const X &def): map<value<X>> {k}, Default {def} {}
+    };
+
     template <typename X> struct map<only<X>> : map<X> {
         using map<X>::map;
         map (const map<X> &m): map<X> {m} {}
@@ -275,31 +530,34 @@ namespace data::schema {
 
     // make a rule that says a map has a given key.
     template <typename X> typename rule::map<rule::only<rule::value<X>>> key (const string &key);
+
+    // make a rule that says a map has a given key with a given default.
+    template <typename X> typename rule::map<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
 }
 
 namespace data::schema::rule {
 
-    // use the + operator to allow a rule to match with extra values.
-    template <typename X> map<typename apply_blank<X>::result> operator + (const map<X> &);
-
     // specifies that a rule cannot match additional unspecified values.
     template <typename X> map<typename apply_only<X>::result> operator - (const map<X> &);
+
+    // use the + operator to allow a rule to match with extra values.
+    template <typename X> map<typename apply_blank<X>::result> operator + (const map<X> &);
 
     // use the * operator to make a rule optional.
     template <typename X> map<typename apply_optional<only<X>>::result> operator * (const map<only<X>> &);
 
-    // NOTE these two operators have a reversed meaning from what the ought to be.
     // use the & operator to combine two map rules.
-    template <typename X, typename Y> map<typename intersect<X, Y>::result> operator & (const map<X> &, const map<Y> &);
+    template <typename X, typename Y> map<typename intersect<X, Y>::result> operator && (const map<X> &, const map<Y> &);
 
     // use the | make alternatives.
-    template <typename X, typename Y> map<typename unite<X, Y>::result> operator | (const map<X> &, const map<Y> &);
+    template <typename X, typename Y> map<typename unite<X, Y>::result> operator || (const map<X> &, const map<Y> &);
 }
 
 namespace data::schema {
 
     // Next we describe how to validate rules. First come some errors which
     // may be thrown when there is a mismatch.
+
     struct mismatch {};
 
     // thrown when the value could not be read.
@@ -343,6 +601,10 @@ namespace data::schema {
     // make a rule that says a map has a given key.
     template <typename X> typename rule::map<rule::only<rule::value<X>>> inline key (const string &key) {
         return rule::map<rule::only<rule::value<X>>> {rule::map<rule::value<X>> {key}};
+    }
+
+    template <typename X> typename rule::map<rule::only<rule::default_value<X>>> inline key (const string &key, const X &def) {
+        return rule::map<rule::only<rule::default_value<X>>> {rule::map<rule::default_value<X>> {key, def}};
     }
 
     template <typename ...context, rule::String string, typename X>
@@ -393,6 +655,17 @@ namespace data::schema::rule {
         return *x;
     }
 
+    template <typename X, typename ...context>
+    template <String string>
+    typename validate<default_value<X>, context...>::result inline
+    validate<default_value<X>, context...>::operator () (data::map<string, string> m, const map<default_value<X>> &r) {
+        const string *v = m.contains (r.Key);
+        if (!bool (v)) return r.Default;
+        maybe<X> x = encoding::read<X, context...> {} (*v);
+        if (!bool (x)) throw invalid_value {*v};
+        return *x;
+    }
+
     // NOTE: we should be able to get rid of get_rule by
     // making context... first in validate.
     template <typename X> struct get_rule;
@@ -419,6 +692,13 @@ namespace data::schema::rule {
     struct get_keys<optional<X>> {
         set<data::string> operator () (const map<optional<X>> &x) const {
             return get_keys<X> {} (static_cast<const map<X> &> (x));
+        }
+    };
+
+    template <typename X>
+    struct get_keys<default_value<X>> {
+        set<data::string> operator () (const map<default_value<X>> &x) const {
+            return {x.Key};
         }
     };
 
@@ -645,13 +925,13 @@ namespace data::schema::rule {
 
     template <typename X, typename Y> 
     map<typename intersect<X, Y>::result> inline
-    operator & (const map<X> &a, const map<Y> &b) {
+    operator && (const map<X> &a, const map<Y> &b) {
         return intersect<X, Y> {} (a, b);
     }
 
     template <typename X, typename Y> 
     map<typename unite<X, Y>::result> inline 
-    operator | (const map<X> &a, const map<Y> &b) {
+    operator || (const map<X> &a, const map<Y> &b) {
         return unite<X, Y> {} (a, b);
     }
 
