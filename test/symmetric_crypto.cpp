@@ -8,6 +8,7 @@
 #include <data/crypto/MAC/HMAC.hpp>
 #include <data/crypto/MAC/SHA3.hpp>
 #include <data/crypto/stream/one_way.hpp>
+#include <data/crypto/hash.hpp>
 #include <data/tuple.hpp>
 
 #include <type_traits>
@@ -56,7 +57,7 @@ namespace data::crypto {
         EXPECT_NE (D1, D2);
     }
 
-    template <typename w> struct test_MACs {
+    template <MAC::Writer w> struct test_MACs {
         test_MACs (const char *message, const char *altered) {
             test_MAC<w, 16> (message, altered);
             test_MAC<w, 20> (message, altered);
@@ -64,25 +65,45 @@ namespace data::crypto {
             test_MAC<w, 32> (message, altered);
         }
     };
+    template <hash::Engine e> void HMAC_test_case (
+        const bytes &key,
+        const string &msg,
+        const hash::digest<e::DigestSize> &result) {
+        bytes msg_bytes (msg);
+        auto got = MAC::calculate<MAC::HMAC_engine<e>> (key, msg_bytes);
+        EXPECT_EQ (got, result) << "HMAC key " << key << " and msg " << msg << "; expected " << result << "; got " << got;
+    }
 
     // test for all hash functions we have
     TEST (SymmetricCrypto, HMAC) {
 
-        // Note: should use the versions of the hash functions defined in data, not cryptopp.
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA1, 20>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::RIPEMD128, 16>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::RIPEMD160, 20>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::RIPEMD256, 32>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::RIPEMD320, 40>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA224, 28>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA256, 32>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA384, 48>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA512, 64>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA3_Final<16>, 16>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA3_Final<20>, 20>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA3_Final<32>, 32>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA3_Final<40>, 40>> {MACMessage, MACAltered};
-        test_MACs<MAC::HMAC_writer<CryptoPP::SHA3_Final<20>, 20>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA1>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<16>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<20>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<32>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<40>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<28>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<32>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<48>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<64>>>> {MACMessage, MACAltered};
+
+        HMAC_test_case<hash::SHA1> (bytes (20, 0x0b), "Hi There",
+            hash::digest<20> {"b617318655057264e28bc0b6fb378c8ef146be00"});
+
+        HMAC_test_case<hash::SHA1> (bytes (string ("Jefe")), "what do ya want for nothing?",
+            hash::digest<20> {"effcdf6ae5eb2fa2d27416d5f184df9c259a7c79"});
+
+        HMAC_test_case<hash::SHA1> (bytes (80, 0xaa), "Test Using Larger Than Block-Size Key - Hash Key First",
+            hash::digest<20> {"aa4ae5e15272d00e95705637ce8a3b55ed402112"});
+
+        HMAC_test_case<hash::SHA2<32>> (bytes (20, 0x0b), "Hi There",
+            hash::digest<32> {"b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"});
+
+        HMAC_test_case<hash::SHA2<32>> (bytes (string ("Jefe")), "what do ya want for nothing?",
+            hash::digest<32> {"5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"});
+
+        HMAC_test_case<hash::SHA2<32>> (bytes (string ("key")), "",
+            hash::digest<32> {"5d5d139563c95b5967b9bd9a8c9b233a9dedb45072794cd232dc1b74832607d0"});
 
     }
 
@@ -166,7 +187,7 @@ namespace data::crypto {
         const bytes &message) {};
 
     template <typename cipher, size_t key_size,
-        block_cipher_mode<cipher, block_size, key_size> mode>
+        BlockCipherMode<cipher, block_size, key_size> mode>
     void test_block_cipher (mode &m,
         const symmetric_key<key_size> &k1,
         const symmetric_key<key_size> &k2,
@@ -247,7 +268,7 @@ namespace data::crypto {
     template <typename X, typename x> struct test_output_feedback_stream;
 
     template <typename X, size_t x>
-    requires block_cipher<X, block_size, x>
+    requires BlockCipher<X, block_size, x>
     struct test_output_feedback_stream<ciphers<X>, key_sizes<x>> {
         test_output_feedback_stream () {
             output_feedback_stream<block_size, x, X> (IV1, std::get<symmetric_key<x>> (kkk)).crypt (0);

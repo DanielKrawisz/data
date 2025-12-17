@@ -54,40 +54,45 @@ namespace data::hash {
         W {};
     } && requires (W &w, const byte *b, size_t size) {
         { w.Update (b, size) };
-    } && requires (W &w, byte b[W::Size]) {
+    } && requires (W &w, byte b[W::DigestSize]) {
         { w.Final (b) };
     } && requires (W &w) {
         { w.Restart () };
     };
 
-    template <Engine W> digest<W::Size> calculate (byte_slice b) {
+    template <Engine W> digest<W::DigestSize> calculate (byte_slice b) {
         W w {};
         w.Update (b.data (), b.size ());
-        digest<W::Size> d;
+        digest<W::DigestSize> d;
         w.Final (d.data ());
         return d;
     }
 
-    template <Engine W> digest<W::Size> calculate (string_view b) {
+    template <Engine W> digest<W::DigestSize> calculate (string_view b) {
         W w {};
         w.Update ((byte *) b.data (), b.size ());
-        digest<W::Size> d;
+        digest<W::DigestSize> d;
         w.Final (d.data ());
         return d;
     }
 
     // given an engine, construct a writer.
     template <Engine engine> struct writer : data::writer<byte> {
-        using digest = hash::digest<engine::Size>;
-        writer (digest &d): Digest {d}, Hash {} {}
+        using digest = hash::digest<engine::DigestSize>;
+        writer (digest &d) noexcept: Digest {d}, Hash {} {}
 
-        void write (const byte *b, size_t bytes) final override {
+        void write (const byte *b, size_t bytes) noexcept final override {
             Hash.Update (b, bytes);
         }
 
         ~writer () {
             Hash.Final (Digest.data ());
         }
+
+        writer (const writer &) = delete;
+        writer &operator = (const writer&) = delete;
+        writer (writer&&) = delete;
+        writer &operator = (writer &&) = delete;
 
     private:
         digest &Digest;

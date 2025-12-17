@@ -13,7 +13,7 @@ namespace data::crypto {
     // a block cipher begins with a function and its invese which takes a key
     // and a block of fixed size and returns another fixed size block.
     template <typename cipher, size_t block_size, size_t key_size>
-    concept block_cipher = requires (
+    concept BlockCipher = requires (
         slice<byte, block_size> result,
         slice<const byte, block_size> block,
         const symmetric_key<key_size> &key) {
@@ -22,7 +22,7 @@ namespace data::crypto {
     };
 
     template <typename cipher, size_t block_size, size_t key_size>
-    requires block_cipher<cipher, block_size, key_size>
+    requires BlockCipher<cipher, block_size, key_size>
     byte_array<block_size> inline encrypt (const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
         byte_array<block_size> x;
         cipher::encrypt (x, key, block);
@@ -30,7 +30,7 @@ namespace data::crypto {
     }
 
     template <typename cipher, size_t block_size, size_t key_size>
-    requires block_cipher<cipher, block_size, key_size>
+    requires BlockCipher<cipher, block_size, key_size>
     byte_array<block_size> inline decrypt (const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
         byte_array<block_size> x;
         cipher::decrypt (x, key, block);

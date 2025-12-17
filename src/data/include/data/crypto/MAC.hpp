@@ -18,41 +18,46 @@ namespace data::crypto::MAC {
         W {k};
     } && requires (W &w, const byte *b, size_t size) {
         { w.Update (b, size) };
-    } && requires (W &w, byte b[W::Size]) {
+    } && requires (W &w, byte b[W::DigestSize]) {
         { w.Final (b) };
     } && requires (W &w) {
         { w.Restart () };
     };
 
-    template <size_t key_size, Writer W>
-    W::digest inline calculate (const symmetric_key<key_size> &k, byte_slice b) {
+    template <Writer W>
+    W::digest inline calculate (byte_slice key, byte_slice b) {
         typename W::digest Digest;
-        W {Digest, k}.write (b.data (), b.size ());
+        W {Digest, key}.write (b.data (), b.size ());
         return Digest;
     }
 
-    template <size_t key_size, Engine W>
-    hash::digest<W::Size> inline calculate (const symmetric_key<key_size> &k, byte_slice b) {
-        typename W::digest Digest;
-        W w {k};
+    template <Engine W>
+    hash::digest<W::DigestSize> inline calculate (byte_slice key, byte_slice b) {
+        hash::digest<W::DigestSize> Digest;
+        W w {key};
         w.Update (b.data (), b.size ());
-        hash::digest<W::Size> d;
+        hash::digest<W::DigestSize> d;
         w.Final (d.data ());
         return d;
     }
 
-    template <Engine W, size_t key_size>
+    template <Engine W>
     struct writer : data::writer<byte> {
-        using digest = hash::digest<W::Size>;
-        writer (digest &d, byte_slice key): Digest {d}, MAC {key} {}
+        using digest = hash::digest<W::DigestSize>;
+        writer (digest &d, byte_slice key) noexcept: Digest {d}, MAC {key} {}
 
-        void write (const byte *b, size_t bytes) final override {
+        void write (const byte *b, size_t bytes) noexcept final override {
             MAC.Update (b, bytes);
         }
 
         ~writer () {
             MAC.Final (Digest.data ());
         }
+
+        writer (const writer &) = delete;
+        writer &operator = (const writer &) = delete;
+        writer (writer&&) = delete;
+        writer &operator = (writer &&) = delete;
 
     private:
         digest &Digest;

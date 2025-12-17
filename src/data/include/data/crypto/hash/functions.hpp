@@ -68,10 +68,10 @@ namespace data::crypto::hash {
     
     // All of these satisfy hash::Engine.
     struct SHA1;
-    template <size_t size> struct RIPEMD;
-    template <size_t size> struct SHA2;
-    template <size_t size> struct SHA3;
-    template <size_t size> struct Bitcoin;
+    template <size_t digest_size> struct RIPEMD;
+    template <size_t digest_size> struct SHA2;
+    template <size_t digest_size> struct SHA3;
+    template <size_t digest_size> struct Bitcoin;
 
     template <> struct RIPEMD<16>;
     template <> struct RIPEMD<20>;

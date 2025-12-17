@@ -15,7 +15,8 @@ namespace data::crypto::hash {
 
         SHA2<32> Engine;
         
-        constexpr static size_t Size = 20;
+        constexpr static size_t DigestSize = 20;
+        constexpr static size_t BlockSize = 64;
         
         Bitcoin () : Engine {} {}
         
@@ -24,7 +25,7 @@ namespace data::crypto::hash {
             return *this;
         }
         
-        void Final (byte b[Size]) {
+        void Final (byte b[BlockSize]) {
             byte x[32];
             Engine.Final (x);
             CRIPEMD160 ().Update (x, 32).Final (b);
@@ -41,7 +42,8 @@ namespace data::crypto::hash {
         
         SHA2<32> Engine;
         
-        constexpr static size_t Size = 32;
+        constexpr static size_t DigestSize = 32;
+        constexpr static size_t BlockSize = 64;
         
         Bitcoin () : Engine {} {}
         
@@ -50,7 +52,7 @@ namespace data::crypto::hash {
             return *this;
         }
         
-        void Final (byte b[Size]) {
+        void Final (byte b[BlockSize]) {
             byte x[32];
             Engine.Final (x);
             CSHA256 ().Update (x, 32).Final (b);

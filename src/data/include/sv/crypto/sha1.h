@@ -18,12 +18,13 @@ private:
     uint64_t bytes;
 
 public:
-    static const size_t Size = 20;
+    constexpr static const size_t DigestSize = 20;
+    constexpr static const size_t BlockSize = 64;
     constexpr static const data::crypto::security Security = data::crypto::security::depricated;
 
     CSHA1 ();
     CSHA1 &Update (const data::byte *data, size_t len);
-    void Final (data::byte hash[Size]);
+    void Final (data::byte hash[DigestSize]);
     CSHA1 &Restart ();
 };
 

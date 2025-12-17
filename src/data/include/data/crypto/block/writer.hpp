@@ -41,7 +41,7 @@ namespace data::crypto {
     template <typename mode, typename cipher> using cryptopp_block_mode = typename CryptoPP::get_block_mode_type<mode, cipher>::type;
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     struct block_session final : session<byte> {
         using cryptopp_cipher_type = cryptopp_cipher_dir<cryptopp_cipher<cipher>, direction>;
         using cryptopp_mode_type = cryptopp_block_mode<mode, cipher>;
@@ -64,7 +64,7 @@ namespace data::crypto {
     };
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     struct block_writer final : message_writer<bytes, byte> {
         block_session<mode, cipher, block_size, key_size, direction> Session;
         buffer_writer Buffer;
@@ -82,25 +82,25 @@ namespace data::crypto {
     };
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     void inline block_session<mode, cipher, block_size, key_size, direction>::write (const byte *b, size_t size) {
         Filter->Put (b, size);
     }
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     void inline block_session<mode, cipher, block_size, key_size, direction>::complete () {
         Filter->MessageEnd ();
     }
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     inline block_session<mode, cipher, block_size, key_size, direction>::~block_session () {
         Filter->Detach ();
     }
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     inline block_session<mode, cipher, block_size, key_size, direction>::block_session
         (CryptoPP::BufferedTransformation *next_step, const mode &m, const symmetric_key<key_size> &k):
         Cipher {}, Mode {}, Filter {} {
@@ -117,7 +117,7 @@ namespace data::crypto {
 
     // note: this won't work.
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     void inline block_session<mode, cipher, block_size, key_size, direction>::update (const mode &m) {
         auto next_step = Filter->AttachedTransformation ();
         Filter->Detach ();
