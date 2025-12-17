@@ -25,8 +25,8 @@ namespace data {
 
         template <hash::Engine w>
         static void run (const string &test, const string &expected) {
-            hash::digest<w::Size> expected_digest {expected};
-            hash::digest<w::Size> result = hash::calculate<w> (bytes (test));
+            hash::digest<w::DigestSize> expected_digest {expected};
+            hash::digest<w::DigestSize> result = hash::calculate<w> (bytes (test));
             EXPECT_EQ (expected_digest, result) << "expected " << test << " to hash to " << expected_digest << " but got " << result;
         }
     };

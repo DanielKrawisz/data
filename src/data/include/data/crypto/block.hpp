@@ -10,7 +10,7 @@
 namespace data::crypto {
 
     template <typename cipher, size_t block_size, typename mode, size_t key_size>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     bytes encrypt (bytes msg, const mode &m, const symmetric_key<key_size> &k, block_padding_scheme p = block_padding::ONE_AND_ZEROS_PADDING) {
         // only PKCS and one and zeros are supported for this operation.
         if (p == block_padding::DEFAULT_PADDING) p = block_padding::ONE_AND_ZEROS_PADDING;
@@ -26,7 +26,7 @@ namespace data::crypto {
     }
 
     template <typename cipher, size_t block_size, typename mode, size_t key_size>
-    requires block_cipher_mode<mode, cipher, block_size, key_size>
+    requires BlockCipherMode<mode, cipher, block_size, key_size>
     bytes decrypt (bytes encrypted, const mode &m, const symmetric_key<key_size> &k, block_padding_scheme p) {
         if (p == block_padding::DEFAULT_PADDING) p = block_padding::ONE_AND_ZEROS_PADDING;
         else if (p != block_padding::ONE_AND_ZEROS_PADDING && p != block_padding::PKCS_PADDING)

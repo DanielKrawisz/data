@@ -18,12 +18,13 @@ private:
     uint64_t bytes;
 
 public:
-    static const size_t Size = 64;
+    constexpr static const size_t DigestSize = 64;
+    constexpr static const size_t BlockSize = 128;
     constexpr static const data::crypto::security Security = data::crypto::security::modern;
 
     CSHA512 ();
     CSHA512 &Update (const data::byte *data, size_t len);
-    void Final (data::byte hash[Size]);
+    void Final (data::byte hash[DigestSize]);
     CSHA512 &Restart ();
 };
 

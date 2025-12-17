@@ -52,45 +52,45 @@ namespace ripemd160 {
     }
 
     inline void R11 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f1(b, c, d), x, 0, r);
+                     uint32_t  e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f1 (b, c, d), x, 0, r);
     }
     inline void R21 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f2(b, c, d), x, 0x5A827999ul, r);
+                     uint32_t  e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f2 (b, c, d), x, 0x5A827999ul, r);
     }
     inline void R31(uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f3(b, c, d), x, 0x6ED9EBA1ul, r);
+                    uint32_t  e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f3 (b, c, d), x, 0x6ED9EBA1ul, r);
     }
     inline void R41 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f4 (b, c, d), x, 0x8F1BBCDCul, r);
+                     uint32_t  e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f4 (b, c, d), x, 0x8F1BBCDCul, r);
     }
-    inline void R51(uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f5 (b, c, d), x, 0xA953FD4Eul, r);
+    inline void R51 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
+                     uint32_t  e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f5 (b, c, d), x, 0xA953FD4Eul, r);
     }
 
-    inline void R12(uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f5 (b, c, d), x, 0x50A28BE6ul, r);
+    inline void R12 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
+                     uint32_t e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f5 (b, c, d), x, 0x50A28BE6ul, r);
     }
-    inline void R22(uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f4 (b, c, d), x, 0x5C4DD124ul, r);
+    inline void R22 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
+                     uint32_t e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f4 (b, c, d), x, 0x5C4DD124ul, r);
     }
-    inline void R32(uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f3 (b, c, d), x, 0x6D703EF3ul, r);
+    inline void R32 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
+                     uint32_t e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f3 (b, c, d), x, 0x6D703EF3ul, r);
     }
-    inline void R42(uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f2 (b, c, d), x, 0x7A6D76E9ul, r);
+    inline void R42 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
+                     uint32_t e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f2 (b, c, d), x, 0x7A6D76E9ul, r);
     }
     inline void R52 (uint32_t &a, uint32_t b, uint32_t &c, uint32_t d,
-                    uint32_t e, uint32_t x, int r) {
-        Round(a, b, c, d, e, f1 (b, c, d), x, 0, r);
+                     uint32_t e, uint32_t x, int r) {
+        Round (a, b, c, d, e, f1 (b, c, d), x, 0, r);
     }
 
     /** Perform a RIPEMD-160 transformation, processing a 64-byte chunk. */
@@ -106,95 +106,95 @@ namespace ripemd160 {
         uint32_t w12 = ReadLE32 (chunk + 48), w13 = ReadLE32 (chunk + 52),
                  w14 = ReadLE32 (chunk + 56), w15 = ReadLE32 (chunk + 60);
 
-        R11(a1, b1, c1, d1, e1, w0, 11);
-        R12(a2, b2, c2, d2, e2, w5, 8);
-        R11(e1, a1, b1, c1, d1, w1, 14);
-        R12(e2, a2, b2, c2, d2, w14, 9);
-        R11(d1, e1, a1, b1, c1, w2, 15);
-        R12(d2, e2, a2, b2, c2, w7, 9);
-        R11(c1, d1, e1, a1, b1, w3, 12);
-        R12(c2, d2, e2, a2, b2, w0, 11);
-        R11(b1, c1, d1, e1, a1, w4, 5);
-        R12(b2, c2, d2, e2, a2, w9, 13);
-        R11(a1, b1, c1, d1, e1, w5, 8);
-        R12(a2, b2, c2, d2, e2, w2, 15);
-        R11(e1, a1, b1, c1, d1, w6, 7);
-        R12(e2, a2, b2, c2, d2, w11, 15);
-        R11(d1, e1, a1, b1, c1, w7, 9);
-        R12(d2, e2, a2, b2, c2, w4, 5);
-        R11(c1, d1, e1, a1, b1, w8, 11);
-        R12(c2, d2, e2, a2, b2, w13, 7);
-        R11(b1, c1, d1, e1, a1, w9, 13);
-        R12(b2, c2, d2, e2, a2, w6, 7);
-        R11(a1, b1, c1, d1, e1, w10, 14);
-        R12(a2, b2, c2, d2, e2, w15, 8);
-        R11(e1, a1, b1, c1, d1, w11, 15);
-        R12(e2, a2, b2, c2, d2, w8, 11);
-        R11(d1, e1, a1, b1, c1, w12, 6);
-        R12(d2, e2, a2, b2, c2, w1, 14);
-        R11(c1, d1, e1, a1, b1, w13, 7);
-        R12(c2, d2, e2, a2, b2, w10, 14);
-        R11(b1, c1, d1, e1, a1, w14, 9);
-        R12(b2, c2, d2, e2, a2, w3, 12);
-        R11(a1, b1, c1, d1, e1, w15, 8);
-        R12(a2, b2, c2, d2, e2, w12, 6);
+        R11 (a1, b1, c1, d1, e1, w0, 11);
+        R12 (a2, b2, c2, d2, e2, w5, 8);
+        R11 (e1, a1, b1, c1, d1, w1, 14);
+        R12 (e2, a2, b2, c2, d2, w14, 9);
+        R11 (d1, e1, a1, b1, c1, w2, 15);
+        R12 (d2, e2, a2, b2, c2, w7, 9);
+        R11 (c1, d1, e1, a1, b1, w3, 12);
+        R12 (c2, d2, e2, a2, b2, w0, 11);
+        R11 (b1, c1, d1, e1, a1, w4, 5);
+        R12 (b2, c2, d2, e2, a2, w9, 13);
+        R11 (a1, b1, c1, d1, e1, w5, 8);
+        R12 (a2, b2, c2, d2, e2, w2, 15);
+        R11 (e1, a1, b1, c1, d1, w6, 7);
+        R12 (e2, a2, b2, c2, d2, w11, 15);
+        R11 (d1, e1, a1, b1, c1, w7, 9);
+        R12 (d2, e2, a2, b2, c2, w4, 5);
+        R11 (c1, d1, e1, a1, b1, w8, 11);
+        R12 (c2, d2, e2, a2, b2, w13, 7);
+        R11 (b1, c1, d1, e1, a1, w9, 13);
+        R12 (b2, c2, d2, e2, a2, w6, 7);
+        R11 (a1, b1, c1, d1, e1, w10, 14);
+        R12 (a2, b2, c2, d2, e2, w15, 8);
+        R11 (e1, a1, b1, c1, d1, w11, 15);
+        R12 (e2, a2, b2, c2, d2, w8, 11);
+        R11 (d1, e1, a1, b1, c1, w12, 6);
+        R12 (d2, e2, a2, b2, c2, w1, 14);
+        R11 (c1, d1, e1, a1, b1, w13, 7);
+        R12 (c2, d2, e2, a2, b2, w10, 14);
+        R11 (b1, c1, d1, e1, a1, w14, 9);
+        R12 (b2, c2, d2, e2, a2, w3, 12);
+        R11 (a1, b1, c1, d1, e1, w15, 8);
+        R12 (a2, b2, c2, d2, e2, w12, 6);
 
-        R21(e1, a1, b1, c1, d1, w7, 7);
-        R22(e2, a2, b2, c2, d2, w6, 9);
-        R21(d1, e1, a1, b1, c1, w4, 6);
-        R22(d2, e2, a2, b2, c2, w11, 13);
-        R21(c1, d1, e1, a1, b1, w13, 8);
-        R22(c2, d2, e2, a2, b2, w3, 15);
-        R21(b1, c1, d1, e1, a1, w1, 13);
-        R22(b2, c2, d2, e2, a2, w7, 7);
-        R21(a1, b1, c1, d1, e1, w10, 11);
-        R22(a2, b2, c2, d2, e2, w0, 12);
-        R21(e1, a1, b1, c1, d1, w6, 9);
-        R22(e2, a2, b2, c2, d2, w13, 8);
-        R21(d1, e1, a1, b1, c1, w15, 7);
-        R22(d2, e2, a2, b2, c2, w5, 9);
-        R21(c1, d1, e1, a1, b1, w3, 15);
-        R22(c2, d2, e2, a2, b2, w10, 11);
-        R21(b1, c1, d1, e1, a1, w12, 7);
-        R22(b2, c2, d2, e2, a2, w14, 7);
-        R21(a1, b1, c1, d1, e1, w0, 12);
-        R22(a2, b2, c2, d2, e2, w15, 7);
-        R21(e1, a1, b1, c1, d1, w9, 15);
-        R22(e2, a2, b2, c2, d2, w8, 12);
-        R21(d1, e1, a1, b1, c1, w5, 9);
-        R22(d2, e2, a2, b2, c2, w12, 7);
-        R21(c1, d1, e1, a1, b1, w2, 11);
-        R22(c2, d2, e2, a2, b2, w4, 6);
-        R21(b1, c1, d1, e1, a1, w14, 7);
-        R22(b2, c2, d2, e2, a2, w9, 15);
-        R21(a1, b1, c1, d1, e1, w11, 13);
-        R22(a2, b2, c2, d2, e2, w1, 13);
-        R21(e1, a1, b1, c1, d1, w8, 12);
-        R22(e2, a2, b2, c2, d2, w2, 11);
+        R21 (e1, a1, b1, c1, d1, w7, 7);
+        R22 (e2, a2, b2, c2, d2, w6, 9);
+        R21 (d1, e1, a1, b1, c1, w4, 6);
+        R22 (d2, e2, a2, b2, c2, w11, 13);
+        R21 (c1, d1, e1, a1, b1, w13, 8);
+        R22 (c2, d2, e2, a2, b2, w3, 15);
+        R21 (b1, c1, d1, e1, a1, w1, 13);
+        R22 (b2, c2, d2, e2, a2, w7, 7);
+        R21 (a1, b1, c1, d1, e1, w10, 11);
+        R22 (a2, b2, c2, d2, e2, w0, 12);
+        R21 (e1, a1, b1, c1, d1, w6, 9);
+        R22 (e2, a2, b2, c2, d2, w13, 8);
+        R21 (d1, e1, a1, b1, c1, w15, 7);
+        R22 (d2, e2, a2, b2, c2, w5, 9);
+        R21 (c1, d1, e1, a1, b1, w3, 15);
+        R22 (c2, d2, e2, a2, b2, w10, 11);
+        R21 (b1, c1, d1, e1, a1, w12, 7);
+        R22 (b2, c2, d2, e2, a2, w14, 7);
+        R21 (a1, b1, c1, d1, e1, w0, 12);
+        R22 (a2, b2, c2, d2, e2, w15, 7);
+        R21 (e1, a1, b1, c1, d1, w9, 15);
+        R22 (e2, a2, b2, c2, d2, w8, 12);
+        R21 (d1, e1, a1, b1, c1, w5, 9);
+        R22 (d2, e2, a2, b2, c2, w12, 7);
+        R21 (c1, d1, e1, a1, b1, w2, 11);
+        R22 (c2, d2, e2, a2, b2, w4, 6);
+        R21 (b1, c1, d1, e1, a1, w14, 7);
+        R22 (b2, c2, d2, e2, a2, w9, 15);
+        R21 (a1, b1, c1, d1, e1, w11, 13);
+        R22 (a2, b2, c2, d2, e2, w1, 13);
+        R21 (e1, a1, b1, c1, d1, w8, 12);
+        R22 (e2, a2, b2, c2, d2, w2, 11);
 
-        R31(d1, e1, a1, b1, c1, w3, 11);
-        R32(d2, e2, a2, b2, c2, w15, 9);
-        R31(c1, d1, e1, a1, b1, w10, 13);
-        R32(c2, d2, e2, a2, b2, w5, 7);
-        R31(b1, c1, d1, e1, a1, w14, 6);
-        R32(b2, c2, d2, e2, a2, w1, 15);
-        R31(a1, b1, c1, d1, e1, w4, 7);
-        R32(a2, b2, c2, d2, e2, w3, 11);
-        R31(e1, a1, b1, c1, d1, w9, 14);
-        R32(e2, a2, b2, c2, d2, w7, 8);
-        R31(d1, e1, a1, b1, c1, w15, 9);
-        R32(d2, e2, a2, b2, c2, w14, 6);
-        R31(c1, d1, e1, a1, b1, w8, 13);
-        R32(c2, d2, e2, a2, b2, w6, 6);
-        R31(b1, c1, d1, e1, a1, w1, 15);
-        R32(b2, c2, d2, e2, a2, w9, 14);
-        R31(a1, b1, c1, d1, e1, w2, 14);
-        R32(a2, b2, c2, d2, e2, w11, 12);
-        R31(e1, a1, b1, c1, d1, w7, 8);
-        R32(e2, a2, b2, c2, d2, w8, 13);
-        R31(d1, e1, a1, b1, c1, w0, 13);
-        R32(d2, e2, a2, b2, c2, w12, 5);
-        R31(c1, d1, e1, a1, b1, w6, 6);
+        R31 (d1, e1, a1, b1, c1, w3, 11);
+        R32 (d2, e2, a2, b2, c2, w15, 9);
+        R31 (c1, d1, e1, a1, b1, w10, 13);
+        R32 (c2, d2, e2, a2, b2, w5, 7);
+        R31 (b1, c1, d1, e1, a1, w14, 6);
+        R32 (b2, c2, d2, e2, a2, w1, 15);
+        R31 (a1, b1, c1, d1, e1, w4, 7);
+        R32 (a2, b2, c2, d2, e2, w3, 11);
+        R31 (e1, a1, b1, c1, d1, w9, 14);
+        R32 (e2, a2, b2, c2, d2, w7, 8);
+        R31 (d1, e1, a1, b1, c1, w15, 9);
+        R32 (d2, e2, a2, b2, c2, w14, 6);
+        R31 (c1, d1, e1, a1, b1, w8, 13);
+        R32 (c2, d2, e2, a2, b2, w6, 6);
+        R31 (b1, c1, d1, e1, a1, w1, 15);
+        R32 (b2, c2, d2, e2, a2, w9, 14);
+        R31 (a1, b1, c1, d1, e1, w2, 14);
+        R32 (a2, b2, c2, d2, e2, w11, 12);
+        R31 (e1, a1, b1, c1, d1, w7, 8);
+        R32 (e2, a2, b2, c2, d2, w8, 13);
+        R31 (d1, e1, a1, b1, c1, w0, 13);
+        R32 (d2, e2, a2, b2, c2, w12, 5);
+        R31 (c1, d1, e1, a1, b1, w6, 6);
         R32 (c2, d2, e2, a2, b2, w2, 14);
         R31 (b1, c1, d1, e1, a1, w13, 5);
         R32 (b2, c2, d2, e2, a2, w10, 13);
@@ -225,18 +225,18 @@ namespace ripemd160 {
         R42 (e2, a2, b2, c2, d2, w5, 6);
         R41 (d1, e1, a1, b1, c1, w3, 14);
         R42 (d2, e2, a2, b2, c2, w12, 9);
-        R41(c1, d1, e1, a1, b1, w7, 5);
-        R42(c2, d2, e2, a2, b2, w2, 12);
-        R41(b1, c1, d1, e1, a1, w15, 6);
-        R42(b2, c2, d2, e2, a2, w13, 9);
-        R41(a1, b1, c1, d1, e1, w14, 8);
-        R42(a2, b2, c2, d2, e2, w9, 12);
-        R41(e1, a1, b1, c1, d1, w5, 6);
-        R42(e2, a2, b2, c2, d2, w7, 5);
-        R41(d1, e1, a1, b1, c1, w6, 5);
-        R42(d2, e2, a2, b2, c2, w10, 15);
-        R41(c1, d1, e1, a1, b1, w2, 12);
-        R42(c2, d2, e2, a2, b2, w14, 8);
+        R41 (c1, d1, e1, a1, b1, w7, 5);
+        R42 (c2, d2, e2, a2, b2, w2, 12);
+        R41 (b1, c1, d1, e1, a1, w15, 6);
+        R42 (b2, c2, d2, e2, a2, w13, 9);
+        R41 (a1, b1, c1, d1, e1, w14, 8);
+        R42 (a2, b2, c2, d2, e2, w9, 12);
+        R41 (e1, a1, b1, c1, d1, w5, 6);
+        R42 (e2, a2, b2, c2, d2, w7, 5);
+        R41 (d1, e1, a1, b1, c1, w6, 5);
+        R42 (d2, e2, a2, b2, c2, w10, 15);
+        R41 (c1, d1, e1, a1, b1, w2, 12);
+        R42 (c2, d2, e2, a2, b2, w14, 8);
 
         R51 (b1, c1, d1, e1, a1, w4, 9);
         R52 (b2, c2, d2, e2, a2, w12, 8);
@@ -317,7 +317,7 @@ CRIPEMD160 &CRIPEMD160::Update (const uint8_t *data, size_t len) {
     return *this;
 }
 
-void CRIPEMD160::Final (data::byte hash[Size]) {
+void CRIPEMD160::Final (data::byte hash[DigestSize]) {
     static const uint8_t pad[64] = {0x80};
     uint8_t sizedesc[8];
     WriteLE64 (sizedesc, bytes << 3);
