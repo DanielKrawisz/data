@@ -31,7 +31,7 @@ namespace sha1 {
     inline uint32_t left (uint32_t x) { return (x << 1) | (x >> 31); }
 
     /** Initialize SHA-1 state. */
-    inline void Initialize(uint32_t *s) {
+    inline void Initialize (uint32_t *s) {
         s[0] = 0x67452301ul;
         s[1] = 0xEFCDAB89ul;
         s[2] = 0x98BADCFEul;
@@ -180,7 +180,7 @@ CSHA1 &CSHA1::Update (const data::byte *data, size_t len) {
     return *this;
 }
 
-void CSHA1::Final (uint8_t hash[Size]) {
+void CSHA1::Final (uint8_t hash[DigestSize]) {
     static const uint8_t pad[64] = {0x80};
     uint8_t sizedesc[8];
     WriteBE64 (sizedesc, bytes << 3);

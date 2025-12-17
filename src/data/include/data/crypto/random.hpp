@@ -11,6 +11,13 @@
 
 namespace data::crypto {
 
+    template <typename engine> concept DRBG =
+        RNG<engine> && requires (byte_slice b) {
+            { engine {b} };
+        } && requires (engine &e, byte_slice b) {
+            { e.reseed (b) } -> Same<e &>;
+        };
+
     template <typename engine> concept StrongRNG = RNG<engine> &&
         std::derived_from<engine, CryptoPP::RandomNumberGenerator>;
 

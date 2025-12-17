@@ -5,20 +5,23 @@
 #ifndef DATA_CRYPTO_HASH_CRYPTOPP
 #define DATA_CRYPTO_HASH_CRYPTOPP
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
 #include "functions.hpp"
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/ripemd.h"
-//#include "cryptopp/md5.h"
+#include "cryptopp/md5.h"
 #include "cryptopp/sha.h"
 #include "cryptopp/sha3.h"
 
 namespace data::crypto::hash::CryptoPP {
     using namespace ::CryptoPP;
     
-    template <class Transform, size_t size>
+    template <class Transform, size_t digest_size, size_t block_size>
     requires std::derived_from<Transform, HashTransformation>
     struct engine : Transform {
-        constexpr static size_t Size = size;
+        constexpr static size_t DigestSize = digest_size;
+        constexpr static size_t BlockSize = block_size;
         using Transform::Transform;
     };
     
@@ -27,32 +30,32 @@ namespace data::crypto::hash::CryptoPP {
 namespace data::crypto::hash {
     
 #ifndef USE_BITCOIND_HASH_FUNCTIONS
-    struct SHA1 : CryptoPP::engine<CryptoPP::SHA1, 20> {};
+    struct SHA1 : CryptoPP::engine<CryptoPP::SHA1, 20, 64> {};
 #endif
 
-    //struct MD5 : CryptoPP::engine<CryptoPP::MD5, 16> {};
+    struct MD5 : CryptoPP::engine<CryptoPP::Weak::MD5, 16, 64> {};
 
-    template <> struct RIPEMD<16> : CryptoPP::engine<CryptoPP::RIPEMD128, 16> {};
+    template <> struct RIPEMD<16> : CryptoPP::engine<CryptoPP::RIPEMD128, 16, 64> {};
 
 #ifndef USE_BITCOIND_HASH_FUNCTIONS
-    template <> struct RIPEMD<20> : CryptoPP::engine<CryptoPP::RIPEMD160, 20> {};
+    template <> struct RIPEMD<20> : CryptoPP::engine<CryptoPP::RIPEMD160, 20, 64> {};
 #endif
 
-    template <> struct RIPEMD<32> : CryptoPP::engine<CryptoPP::RIPEMD256, 32> {};
+    template <> struct RIPEMD<32> : CryptoPP::engine<CryptoPP::RIPEMD256, 32, 64> {};
 
-    template <> struct RIPEMD<40> : CryptoPP::engine<CryptoPP::RIPEMD320, 40> {};
+    template <> struct RIPEMD<40> : CryptoPP::engine<CryptoPP::RIPEMD320, 40, 64> {};
 
-    template <> struct SHA2<28> : CryptoPP::engine<CryptoPP::SHA224, 28> {};
+    template <> struct SHA2<28> : CryptoPP::engine<CryptoPP::SHA224, 28, 64> {};
 
 #ifndef USE_BITCOIND_HASH_FUNCTIONS
-    template <> struct SHA2<32> : CryptoPP::engine<CryptoPP::SHA256, 32> {};
+    template <> struct SHA2<32> : CryptoPP::engine<CryptoPP::SHA256, 32, 64> {};
 #endif
 
-    template <> struct SHA2<48> : CryptoPP::engine<CryptoPP::SHA384, 48> {};
+    template <> struct SHA2<48> : CryptoPP::engine<CryptoPP::SHA384, 48, 128> {};
 
-    template <> struct SHA2<64> : CryptoPP::engine<CryptoPP::SHA512, 64> {};
+    template <> struct SHA2<64> : CryptoPP::engine<CryptoPP::SHA512, 64, 128> {};
 
-    template <size_t size> struct SHA3 : CryptoPP::engine<CryptoPP::SHA3_Final<size>, size> {};
+    template <size_t size> struct SHA3 : CryptoPP::engine<CryptoPP::SHA3_Final<size>, size, 1600 - size * 2> {};
     
 }
 
