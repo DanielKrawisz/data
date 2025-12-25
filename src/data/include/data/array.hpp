@@ -732,6 +732,24 @@ namespace data {
         return n;
     }
 
+    template <std::integral word, size_t size>
+    constexpr bytes_array<word, size> &operator ^= (bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+        arithmetic::bit_xor<word> (a.end (), a.begin (), (const byte *) a.data (), b.data ());
+        return a;
+    }
+
+    template <std::integral word, size_t size>
+    constexpr bytes_array<word, size> &operator &= (bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+        arithmetic::bit_and<word> (a.end (), a.begin (), (const byte *) a.data (), b.data ());
+        return a;
+    }
+
+    template <std::integral word, size_t size>
+    constexpr bytes_array<word, size> &operator |= (bytes_array<word, size> &a, const bytes_array<word, size> &b) {
+        arithmetic::bit_or<word> (a.end (), a.begin (), (const byte *) a.data (), b.data ());
+        return a;
+    }
+
 }
 
 #endif

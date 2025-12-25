@@ -101,6 +101,7 @@ add_executable (
     # crypto
     # random_primes.cpp
     symmetric_crypto.cpp
+    NIST_DRBG.cpp
     secret_share.cpp
 
     # net

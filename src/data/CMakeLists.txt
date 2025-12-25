@@ -190,6 +190,16 @@ target_sources (
   crypto/block.cpp
 )
 
+target_link_libraries (
+  data
+
+  INTERFACE
+
+  numbers
+  io
+
+)
+
 target_compile_features (crypto PUBLIC cxx_std_23)
 set_target_properties (crypto PROPERTIES CXX_EXTENSIONS ON)
 
@@ -199,16 +209,7 @@ target_link_libraries (
   PUBLIC
 
   hash
-)
-
-target_link_libraries (
   data
-
-  INTERFACE
-
-  numbers
-  io
-
 )
 
 configure_file (include/data/version.hpp.in generated/data/version.hpp)

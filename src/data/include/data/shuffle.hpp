@@ -11,7 +11,7 @@
 namespace data {
 
     // randomly re-order a list using a random engine.
-    template <typename L, std::uniform_random_bit_generator engine>
+    template <typename L, random::RNG engine>
     L shuffle (const L x, engine &e) {
         if (data::size (x) < 2) return x;
         L q = x;
