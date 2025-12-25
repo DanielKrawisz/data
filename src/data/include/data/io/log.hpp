@@ -23,7 +23,7 @@ namespace data::log {
     enum severity_level {
         debug,
         normal,
-        notification,
+        note,
         warning,
         error,
         critical

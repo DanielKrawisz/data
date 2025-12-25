@@ -119,33 +119,33 @@ namespace data::crypto::cipher::block {
         CryptoPP::MARS::Decryption {key.data (), key_size}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void DES::encrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
+    void inline DES::encrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
         auto k = key;
         CryptoPP::DES::CorrectKeyParityBits (k.data ());
         //if (!CryptoPP::DES::CheckKey (k)) throw exception {} << "DES with weak key";
         CryptoPP::DES::Encryption {k.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void DES::decrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
+    void inline DES::decrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
         auto k = key;
         CryptoPP::DES::CorrectKeyParityBits (k.data ());
         //if (!CryptoPP::DES::CheckKey (k)) throw exception {} << "DES with weak key";
         CryptoPP::DES::Decryption {k.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TDA2::encrypt (block_out out, const symmetric_key<16> &k, block_in in) {
+    void inline TDA2::encrypt (block_out out, const symmetric_key<16> &k, block_in in) {
         CryptoPP::DES_EDE2::Encryption {k.data (), 16}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TDA2::decrypt (block_out out, const symmetric_key<16> &k, block_in in) {
+    void inline TDA2::decrypt (block_out out, const symmetric_key<16> &k, block_in in) {
         CryptoPP::DES_EDE2::Decryption {k.data (), 16}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TDA3::encrypt (block_out out, const symmetric_key<24> &k, block_in in) {
+    void inline TDA3::encrypt (block_out out, const symmetric_key<24> &k, block_in in) {
         CryptoPP::DES_EDE3::Encryption {k.data (), 24}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TDA3::decrypt (block_out out, const symmetric_key<24> &k, block_in in) {
+    void inline TDA3::decrypt (block_out out, const symmetric_key<24> &k, block_in in) {
         CryptoPP::DES_EDE3::Decryption {k.data (), 24}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 }

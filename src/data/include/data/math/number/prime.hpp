@@ -25,10 +25,10 @@ namespace data::math::number {
     template <WholeNumber N> factorization<N> operator * (factorization<N>, factorization<N>);
 
     // test primality with Miller-Rabin + trial division. (This will rely on cryptopp or GMP)
-    template <WholeNumber N> prime<N> is_prime (random::entropy &, const N &, int rounds);
+    template <WholeNumber N> prime<N> is_prime (random::source &, const N &, int rounds);
 
     // Slower than Miller-Rabin but with 100% chance of success.
-    template <WholeNumber N> prime<N> generate_Maurer (random::entropy &);
+    template <WholeNumber N> prime<N> generate_Maurer (random::source &);
 
     // A number that is known to be prime.
     // So far eratosthenes is the only way
@@ -60,8 +60,8 @@ namespace data::math::number {
         friend struct eratosthenes<N>;
         friend struct AKS<N>;
         friend factorization<N> factorize<N> (nonzero<N>, eratosthenes<N> &);
-        friend prime<N> is_prime<N> (random::entropy &, const N &, int rounds);
-        friend prime<N> generate_Maurer<N> (random::entropy &);
+        friend prime<N> is_prime<N> (random::source &, const N &, int rounds);
+        friend prime<N> generate_Maurer<N> (random::source &);
     };
 
     template <WholeNumber N>

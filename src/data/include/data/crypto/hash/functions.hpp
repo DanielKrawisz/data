@@ -30,6 +30,10 @@ namespace data::crypto {
     hash::digest384 SHA2_384 (string_view);
     hash::digest512 SHA2_512 (byte_slice);
     hash::digest512 SHA2_512 (string_view);
+    hash::digest224 SHA2_512_224 (byte_slice);
+    hash::digest224 SHA2_512_224 (string_view);
+    hash::digest256 SHA2_512_256 (byte_slice);
+    hash::digest256 SHA2_512_256 (string_view);
 
     template <size_t size> hash::digest<size> SHA3 (byte_slice);
     template <size_t size> hash::digest<size> SHA3 (string_view);
@@ -69,7 +73,7 @@ namespace data::crypto::hash {
     // All of these satisfy hash::Engine.
     struct SHA1;
     template <size_t digest_size> struct RIPEMD;
-    template <size_t digest_size> struct SHA2;
+    template <size_t ...> struct SHA2;
     template <size_t digest_size> struct SHA3;
     template <size_t digest_size> struct Bitcoin;
 
@@ -82,6 +86,15 @@ namespace data::crypto::hash {
     template <> struct SHA2<32>;
     template <> struct SHA2<48>;
     template <> struct SHA2<64>;
+    template <> struct SHA2<64, 28>;
+    template <> struct SHA2<64, 32>;
+
+    using SHA2_224 = SHA2<28>;
+    using SHA2_256 = SHA2<32>;
+    using SHA2_384 = SHA2<48>;
+    using SHA2_512 = SHA2<64>;
+    using SHA2_512_224 = SHA2<64, 28>;
+    using SHA2_512_256 = SHA2<64, 32>;
 
 }
 
@@ -109,6 +122,14 @@ namespace data::crypto {
 
     hash::digest512 inline SHA2_512 (string_view b) {
         return SHA2_512 (byte_slice {(const byte *) (b.data ()), b.size ()});
+    }
+
+    hash::digest224 inline SHA2_512_224 (string_view b) {
+        return SHA2_512_224 (byte_slice {(const byte *) (b.data ()), b.size ()});
+    }
+
+    hash::digest256 inline SHA2_512_256 (string_view b) {
+        return SHA2_512_256 (byte_slice {(const byte *) (b.data ()), b.size ()});
     }
 
     template <size_t size> hash::digest<size> SHA3 (string_view b) {

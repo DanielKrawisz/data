@@ -150,12 +150,12 @@ namespace data::io {
                 o >> m;
             }
         };
-
+/*
         template <std::derived_from<std::string> X> struct read_from_stream<X> {
             void operator () (std::istringstream &o, X &m) {
                 m = o.str ();
             }
-        };
+        };*/
 
     }
 

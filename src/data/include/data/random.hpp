@@ -11,7 +11,6 @@
 #include <data/size.hpp>
 #include <iostream>
 #include <random>
-#include <chrono>
 
 namespace data::random {
 
@@ -19,7 +18,7 @@ namespace data::random {
     template <typename engine> concept RNG = std::uniform_random_bit_generator<engine> && std::derived_from<engine, reader<byte>>;
 
     // satisfies concept RNG.
-    struct entropy : reader<byte> {
+    struct source : reader<byte> {
 
         using result_type = byte;
 
@@ -38,7 +37,7 @@ namespace data::random {
             return b;
         }
 
-        virtual ~entropy () {}
+        virtual ~source () {}
 
         // throw this when something goes wrong.
         struct fail : std::exception {
@@ -51,40 +50,37 @@ namespace data::random {
     };
 
     template <std::integral X>
-    entropy inline &operator >> (entropy &e, X &x) {
+    source inline &operator >> (source &e, X &x) {
         e.read ((byte *) (&x), sizeof (x));
         return e;
     }
 
-    // convert any std engine type to an implementation of our concept.
-    template <URBG engine> struct std_random final : entropy {
+    source inline &operator >> (source &e, bool &b) {
+        byte x;
+        e >> x;
+        b = x & 1 > 0;
+        return e;
+    }
 
-        engine Engine;
+    // the famous one-time pad.
+    struct fixed_entropy final : source {
+        bytes Entropy;
+        int Position;
 
-        std_random () : std_random {std::chrono::system_clock::now ().time_since_epoch ().count ()} {}
-        std_random (data::uint64 seed);
-
-        void read (byte *b, size_t z) override {
-            for (int i = 0; i < z; i++) b[i] = Engine ();
-        }
-    };
-
-    struct entropy_sum final : entropy {
-        ptr<entropy> Left;
-        ptr<entropy> Right;
-
-        entropy_sum (ptr<entropy> left, ptr<entropy> right): Left {left}, Right {right} {}
+        fixed_entropy (byte_slice b) : Entropy {b}, Position {0} {}
 
         void read (byte *b, size_t x) final override {
-            Left->read (b, x);
-            bytes c (x);
-            Right->read (c.data (), x);
-            arithmetic::bit_xor<byte> (c.data () + x, c.data (), c.data (), b);
+            if (x > Entropy.size () - Position) throw source::fail {};
+
+            for (int i = 0; i < x; i++) {
+                b[i] = Entropy[i + Position];
+                Position++;
+            }
         }
     };
 
     // ask the user to type random characters into a keyboard.
-    struct user_entropy final : entropy {
+    struct user_entropy final : source {
         std::string UserMessageAsk;
         std::string UserMessageAskMore;
         std::string UserMessageConfirm;
@@ -100,61 +96,112 @@ namespace data::random {
         void read (byte *, size_t x) final override;
     };
 
-    // the famous one-time pad.
-    struct fixed_entropy final : entropy {
-        bytes Entropy;
-        int Position;
+    template <typename engine> concept DRBG =
+        RNG<engine> && std::derived_from<engine, source> &&
+        requires (engine &e, byte_slice b) {
+            { e.reseed (b) };
+        } && requires {
+            engine::MinSeedLength;
+        };
 
-        fixed_entropy (byte_slice b) : Entropy {b}, Position {0} {}
-
-        void read (byte *b, size_t x) final override {
-            if (x > Entropy.size () - Position) throw entropy::fail {};
-
-            for (int i = 0; i < x; i++) {
-                b[i] = Entropy[i + Position];
-                Position++;
-            }
-        }
+    struct generator : source {
+        virtual void reseed (byte_slice) = 0;
+        virtual ~generator () {}
     };
 
-    // TODO replace this with something good.
-    using engine = std::default_random_engine;
+    // convert any std engine type to an implementation of our concept.
+    template <URBG engine> struct std_random final : generator {
 
-    engine& get ();
+        engine Engine;
 
-    // combine two random sources via xor.
-    struct linear_combination_random final : entropy {
-        size_t Ratio;
-        ptr<entropy> Cheap;
-        // get one secure byte for every Ratio cheap bytes and xor it with them.
-        ptr<entropy> Secure;
+        std_random () : generator {} {}
 
-        linear_combination_random (size_t r, ptr<entropy> cheap, ptr<entropy> secure) : Ratio {r}, Cheap {cheap}, Secure {secure} {}
+        std_random (uint64 u): std_random {byte_slice {(byte *) &u, 8}} {}
+
+        std_random (byte_slice b) : std_random {} {
+            reseed (b);
+        }
 
         void read (byte *b, size_t z) override {
-            if (current_cheap + z > Ratio) {
-                size_t until_next = z - ((current_cheap + z) - Ratio);
-                read (b, until_next);
-                *Secure >> current_secure;
-                current_cheap = 0;
-                read (b + until_next, z - until_next);
-            }
-
-            Cheap->read (b, z);
-            for (size_t t = 0; t < z; t++) b[t] ^= current_secure;
-            current_cheap += z;
+            for (int i = 0; i < z; i++) b[i] = Engine ();
         }
 
-    protected:
-        byte current_secure;
-        size_t current_cheap;
+        // TODO use the whole number if more than 8 bytes are provided.
+        void reseed (byte_slice b) override {
+            uint64 seed {0};
+            std::copy (b.begin (), b.begin () + (b.size () < 8 ? b.size () : 8), (byte *) &seed);
+            Engine.seed (seed);
+        }
+
+        constexpr const static size_t MinSeedLength = 8;
     };
 
-    template <> inline std_random<std::default_random_engine>::std_random (data::uint64 seed) : Engine {} {
-        Engine.seed (seed);
-    }
+    struct reseed_required : exception::base<reseed_required> {};
 
-    uint32 select_index_by_weight (cross<double>, entropy &r);
+    // satisfy DRBG concept
+    template <DRBG drbg, size_t min_seed_length = drbg::MinSeedLength>
+    struct automatic_reseed final : generator {
+        source &Source;
+        drbg Random;
+        size_t BytesBeforeReseed;
+        size_t BytesRemaining;
+
+        // NOTE: EntropySize is not the same thing as strength.
+        // The source we request ought to have a size that is
+        // at least as much as the strength, but depending on
+        // the quality of the source source, longer strings
+        // may be required.
+        size_t EntropySize;
+
+        static bytes get_seed (source &e, size_t source_size) {
+            bytes seed (source_size);
+            e >> seed;
+            return seed;
+        }
+
+        template <typename ...rest>
+        automatic_reseed (source &source, size_t bytes_before_reseed, rest &&...r):
+            Source {source}, Random {byte_slice (get_seed (source, min_seed_length)), std::forward<rest> (r)...},
+            BytesBeforeReseed {bytes_before_reseed},
+            BytesRemaining {0}, EntropySize {min_seed_length} {}
+
+        void read (byte *b, size_t size) final override {
+            if (BytesRemaining == 0) {
+                Random.reseed (get_seed (Source, EntropySize));
+                BytesRemaining = BytesBeforeReseed;
+            }
+
+            while (size > 0) {
+
+                try {
+                    while (BytesRemaining < size) {
+                        Random.read (b, BytesRemaining);
+                        b += BytesRemaining;
+                        size -= BytesRemaining;
+                        Random.reseed (get_seed (Source, EntropySize));
+                        BytesRemaining = BytesBeforeReseed;
+                    }
+
+                    Random.read (b, size);
+                    BytesRemaining -= size;
+                    size = 0;
+                } catch (reseed_required) {
+                    Random.reseed (get_seed (Source, EntropySize));
+                }
+            }
+        }
+
+        void reseed (byte_slice x) final override {
+            Random.reseed (x);
+        }
+    };
+
+    using default_casual_random = automatic_reseed<std_random<std::default_random_engine>>;
+
+    // NOTE: we do not actually implement this function.
+    source &get ();
+
+    uint32 select_index_by_weight (cross<double>, source &r);
 
 }
 

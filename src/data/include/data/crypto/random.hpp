@@ -5,39 +5,48 @@
 #ifndef DATA_CRYPTO_RANDOM
 #define DATA_CRYPTO_RANDOM
 
+#include <data/concepts.hpp>
 #include <data/random.hpp>
+#include <data/array.hpp>
+#include <data/slice.hpp>
+#include <data/crypto/NIST_DRBG.hpp>
 #include <cryptopp/osrng.h>
 #include <cryptopp/secblock.h>
 
-namespace data::crypto {
+namespace data::crypto::random {
+    using namespace data::random;
 
     template <typename engine> concept DRBG =
-        RNG<engine> && requires (byte_slice b) {
-            { engine {b} };
-        } && requires (engine &e, byte_slice b) {
-            { e.reseed (b) } -> Same<e &>;
+        data::random::RNG<engine> &&
+        std::derived_from<engine, source> &&
+        requires (engine &e, byte_slice b) {
+            { e.reseed (b) };
+        } && requires {
+            engine::MaxStrength;
         };
 
-    template <typename engine> concept StrongRNG = RNG<engine> &&
+    template <typename engine> concept RNG = RNG<engine> &&
         std::derived_from<engine, CryptoPP::RandomNumberGenerator>;
 
-    template <std::derived_from<CryptoPP::RandomNumberGenerator> RNG>
-    struct crypto_pp_secure_engine : public RNG {
+    template <std::derived_from<CryptoPP::RandomNumberGenerator> rng>
+    struct crypto_pp_secure_engine : source {
         void read (byte *b, size_t z) override {
-            this->GenerateBlock (b, z);
+            RNG.GenerateBlock (b, z);
         }
 
-        // forward constructors
-        using RNG::RNG;
+        rng RNG;
     };
-
-    using default_secure_random = crypto_pp_secure_engine<CryptoPP::AutoSeededRandomPool>;
 
     // Direct OS entropy (nonblocking)
     using OS_entropy = crypto_pp_secure_engine<CryptoPP::NonblockingRng>;
 
     // Direct OS entropy (may block)
     using OS_entropy_strong = crypto_pp_secure_engine<CryptoPP::BlockingRng>;
+
+    using default_secure_random = automatic_reseed<NIST::auto_generate_with_additional_entropy<NIST::HMAC_DRBG<hash::SHA2_256>>>;
+
+    // NOTE: we do not actually implement this function.
+    source &get ();
 
 }
 
