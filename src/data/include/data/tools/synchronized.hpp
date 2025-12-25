@@ -9,6 +9,7 @@
 
 namespace data {
 
+    // turn any type into a threadsafe type.
     template <typename X> class synchronized {
         X Value;
         std::shared_mutex Mut;

@@ -6,14 +6,8 @@
 #include <chrono>
 
 namespace data::random {
-    engine &get () {
-        static engine Engine;
-        static bool Seeded = false;
-        if (!Seeded) Engine.seed (std::chrono::system_clock::now ().time_since_epoch ().count ());
-        return Engine;
-    }
 
-    uint32 select_index_by_weight (cross<double> weights, entropy &r) {
+    uint32 select_index_by_weight (cross<double> weights, source &r) {
         double total = 0;
         for (double w : weights) total += w;
 
