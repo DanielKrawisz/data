@@ -66,6 +66,9 @@ namespace data::crypto {
         return hash::calculate<hash::SHA1> (b);
     }
 #endif
+    hash::digest128 inline MD5 (byte_slice b) {
+        return hash::calculate<hash::MD5> (b);
+    }
 
     hash::digest128 inline RIPEMD_128 (byte_slice b) {
         return hash::calculate<hash::RIPEMD<16>> (b);

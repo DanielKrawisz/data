@@ -32,7 +32,7 @@ namespace data {
     // shuffle using the default engine.
     template <typename L>
     L shuffle (const L x) {
-        return shuffle (x, get_random_engine ());
+        return shuffle (x, random::get ());
     }
 
     using ordering = cross<size_t>;

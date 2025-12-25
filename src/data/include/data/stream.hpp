@@ -51,8 +51,26 @@ namespace data {
         return r;
     }
 
-    template <typename W, typename word> concept Writer = Same<W, writer<word>> || std::derived_from<W, writer<word>>;
-    template <typename R, typename word> concept Reader = Same<R, reader<word>> || std::derived_from<R, reader<word>>;
+    template <typename W, typename word> concept Writer =
+        Same<W, writer<word> &> || std::derived_from<W, writer<word>>;
+
+    template <typename R, typename word> concept Reader =
+        Same<R, reader<word> &> || std::derived_from<R, reader<word>>;
+
+    template <typename W, typename d, typename word> concept Builder =
+        Writer<W, word> && requires (d &result) {
+            W {result};
+        };
+
+    template <typename result, typename word, Builder<result, word> builder,
+        std::invocable<builder &> F>
+    result build_with (F &&f) {
+        result r; {
+            builder b {r};
+            f (b);
+        }
+        return r;
+    }
 
     // a message writer has the concept of an end to a message.
     template <typename message, std::integral word>

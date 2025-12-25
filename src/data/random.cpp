@@ -5,9 +5,9 @@
 
 #include <chrono>
 
-namespace data {
-    random_engine& get_random_engine () {
-        static random_engine Engine;
+namespace data::random {
+    engine &get () {
+        static engine Engine;
         static bool Seeded = false;
         if (!Seeded) Engine.seed (std::chrono::system_clock::now ().time_since_epoch ().count ());
         return Engine;
@@ -48,23 +48,25 @@ namespace data {
         // ask the user for bytes.
         Cout << UserMessageAsk << std::endl;
 
-        lazy_bytes_writer w;
+        {
+            lazy_bytes_writer w {Input};
 
-        while (true) {
-            string input;
-            std::getline (Cin, input);
-            size_so_far += input.size ();
-            w.write ((byte*) input.data (), input.size ());
+            while (true) {
+                string input;
+                std::getline (Cin, input);
+                size_so_far += input.size ();
+                w.write ((byte*) input.data (), input.size ());
 
-            if (size_so_far >= required_size) {
-                Cout << UserMessageConfirm << std::endl;
-                Input = bytes (w);
-                std::copy (Input.data (), Input.data () + required_size, bb);
-                Position = required_size;
+                if (size_so_far >= required_size) break;
+
+                Cout << UserMessageAskMore << std::endl;
             }
-
-            Cout << UserMessageAskMore << std::endl;
         }
+
+        Cout << UserMessageConfirm << std::endl;
+        std::copy (Input.data (), Input.data () + required_size, bb);
+        Position = required_size;
+
     }
     
 }
