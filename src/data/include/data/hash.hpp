@@ -31,21 +31,19 @@ namespace data::hash {
     using digest512 = digest<64>;
 
     // provide a reference to a hash and it gets written to when the writer is destructed.
-    template <typename W> concept Writer = requires (typename W::digest &d) {
-        W {d};
-    } && data::Writer<W, byte>;
+    template <typename W> concept Writer = data::Builder<W, typename W::digest, byte>;
 
-    // calculate a hash using a hash writer.
-    template <Writer W> W::digest calculate (byte_slice b) {
-        typename W::digest d;
-        W {d}.write (b.data (), b.size ());
-        return d;
+    // calculate a hash using a hash builder.
+    template <Writer W> W::digest inline calculate (byte_slice b) {
+        return build_with<typename W::digest, byte, W> ([b] (W &w) {
+            w << b;
+        });
     }
 
-    template <Writer W> W::digest calculate (string_view b) {
-        typename W::digest d;
-        W {d}.write ((const byte *) b.data (), b.size ());
-        return d;
+    template <Writer W> W::digest inline calculate (string_view b) {
+        return build_with<typename W::digest, byte, W> ([b] (W &w) {
+            w.write ((byte *) b.data (), b.size ());
+        });
     }
 
     // Engine is a more primitive concept than Writer,

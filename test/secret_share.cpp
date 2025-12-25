@@ -11,8 +11,8 @@
 
 namespace data {
     
-    TEST(SecretShareTest, TestSecretShare) {
-        ptr<entropy> ent = std::static_pointer_cast<entropy> (std::make_shared<fixed_entropy>
+    TEST (SecretShareTest, TestSecretShare) {
+        ptr<random::entropy> ent = std::static_pointer_cast<random::entropy> (std::make_shared<random::fixed_entropy>
             (byte_slice (bytes (string ("atehulak,rc.TjmleoTHReseSRCjt")))));
         
         crypto::NIST::DRBG random {crypto::NIST::DRBG::HMAC, {*ent, bytes {}, 302}};

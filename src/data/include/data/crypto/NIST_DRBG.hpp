@@ -14,7 +14,7 @@ namespace data::crypto::NIST {
     template <std::derived_from<CryptoPP::HashTransformation> hash> struct Hash_DRBG;
     template <typename hmac> struct HMAC_DRBG;
     
-    struct DRBG final : entropy {
+    struct DRBG final : random::entropy {
         // supported rngs
         enum type {
             HMAC,
