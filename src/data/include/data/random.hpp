@@ -13,7 +13,7 @@
 #include <random>
 #include <chrono>
 
-namespace data {
+namespace data::random {
 
     template <typename engine> concept URBG = std::uniform_random_bit_generator<engine>;
     template <typename engine> concept RNG = std::uniform_random_bit_generator<engine> && std::derived_from<engine, reader<byte>>;
@@ -118,9 +118,9 @@ namespace data {
     };
 
     // TODO replace this with something good.
-    using random_engine = std::default_random_engine;
+    using engine = std::default_random_engine;
 
-    random_engine& get_random_engine ();
+    engine& get ();
 
     // combine two random sources via xor.
     struct linear_combination_random final : entropy {

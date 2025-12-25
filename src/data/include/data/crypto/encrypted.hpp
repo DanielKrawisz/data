@@ -44,7 +44,9 @@ namespace data::crypto {
     template <size_t block_size, size_t key_size>
     inline encrypted<block_size> encrypt
         (byte_slice b, encryption<block_size, key_size> e, const symmetric_key<key_size> &k, const initialization_vector<block_size> &iv) {
-        return {e (write_bytes (12 + b.size (), uint64_big {0}, uint64_big {b.size ()}, b, uint64_big {0}), k, iv), iv};
+        return {e (write ([&] (auto &w) {
+            w << uint64_big {0} << uint64_big {b.size ()} << b << uint64_big {0};
+        }), k, iv), iv};
     }
     
     struct decrypted;

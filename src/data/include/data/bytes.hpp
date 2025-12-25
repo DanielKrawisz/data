@@ -46,23 +46,24 @@ namespace data {
 
     namespace {
         template <typename X>
-        writer<byte> &write_to_writer (writer<byte> &w, X x) {
+        writer<byte> &write_to_writer (writer<byte> &w, X &&x) {
             return w << x;
         }
 
         template <typename X, typename... P>
-        writer<byte> &write_to_writer (writer<byte> &w, X x, P... p) {
-           return write_to_writer (write_to_writer (w, x), p...);
+        writer<byte> &write_to_writer (writer<byte> &w, X &&x, P &&...p) {
+           return write_to_writer (write_to_writer (w, std::forward<X> (x)), std::forward<P> (p)...);
         }
     }
 
     template <typename X, typename... P>
-    bytes write_bytes (size_t size, X x, P... p) {
+    bytes write_bytes (size_t size, X &&x, P &&...p) {
         bytes b (size);
         iterator_writer w (b.begin (), b.end ());
-        write_to_writer (w, x, p...);
+        write_to_writer (w, std::forward<X> (x), std::forward<X> (p)...);
         return b;
     }
+
 
     template <endian::order r, typename word, size_t ... sizes> struct oriented;
 
