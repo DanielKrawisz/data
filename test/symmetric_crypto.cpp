@@ -3,13 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "gtest/gtest.h"
-#include <data/crypto/block.hpp>
+#include <data/crypto/hash.hpp>
 #include <data/crypto/block/cryptopp.hpp>
+#include <data/crypto/block.hpp>
 #include <data/crypto/MAC/HMAC.hpp>
 #include <data/crypto/MAC/SHA3.hpp>
-#include <data/crypto/stream/one_way.hpp>
-#include <data/crypto/hash.hpp>
 #include <data/tuple.hpp>
+#include <data/io/log.hpp>
 
 #include <type_traits>
 #include <cstddef>
@@ -126,6 +126,240 @@ namespace data::crypto {
         test_SHA3MAC<32> {MACMessage, MACAltered};
 
     }
+}
+
+namespace data::crypto::cipher::block {
+
+    // Invalid key and block sizes for a given algorithm should
+    // fail to compile, and valid ones should succeed.
+
+    template <typename Cipher, size_t block_size, size_t key_size>
+    concept TestEncryptable = requires (bytes msg, symmetric_key<key_size> key) {
+        data::crypto::encrypt<Cipher, block_size> (msg, ECB<block_size> {}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::decrypt<Cipher, block_size> (msg, ECB<block_size> {}, key, padding_scheme::DEFAULT_PADDING);
+    } && requires (bytes msg, symmetric_key<key_size> key, byte_array<block_size> iv) {
+        data::crypto::encrypt<Cipher, block_size> (msg, CBC<block_size> {iv}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::decrypt<Cipher, block_size> (msg, CBC<block_size> {iv}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::encrypt<Cipher, block_size> (msg, CFB<block_size> {iv}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::decrypt<Cipher, block_size> (msg, CFB<block_size> {iv}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::encrypt<Cipher, block_size> (msg, OFB<block_size> {iv}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::decrypt<Cipher, block_size> (msg, OFB<block_size> {iv}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::encrypt<Cipher, block_size> (msg,
+            CTR<block_size, endian::little> {math::uint_little<block_size, byte> {iv}}, key, padding_scheme::DEFAULT_PADDING);
+        data::crypto::decrypt<Cipher, block_size> (msg,
+            CTR<block_size, endian::little> {math::uint_little<block_size, byte> {iv}}, key, padding_scheme::DEFAULT_PADDING);
+    };
+
+    static_assert (TestEncryptable<DES, 8, 7>);
+    static_assert (TestEncryptable<DES, 8, 8>);
+    static_assert (!TestEncryptable<DES, 16, 8>);
+    static_assert (!TestEncryptable<DES, 8, 16>);
+
+    static_assert (TestEncryptable<TripleDES, 8, 14>);
+    static_assert (TestEncryptable<TripleDES, 8, 16>);
+    static_assert (!TestEncryptable<TripleDES, 16, 16>);
+    static_assert (!TestEncryptable<TripleDES, 8, 32>);
+
+    static_assert (TestEncryptable<AES, 16, 16>);
+    static_assert (!TestEncryptable<AES, 16, 8>);
+    static_assert (!TestEncryptable<AES, 8, 16>);
+    static_assert (!TestEncryptable<AES, 16, 20>);
+    static_assert (TestEncryptable<AES, 16, 24>);
+    static_assert (TestEncryptable<AES, 16, 32>);
+    static_assert (!TestEncryptable<AES, 16, 56>);
+
+    static_assert (TestEncryptable<Serpent, 16, 16>);
+    static_assert (!TestEncryptable<Serpent, 16, 8>);
+    static_assert (!TestEncryptable<Serpent, 8, 16>);
+    static_assert (!TestEncryptable<Serpent, 16, 20>);
+    static_assert (TestEncryptable<Serpent, 16, 24>);
+    static_assert (TestEncryptable<Serpent, 16, 32>);
+    static_assert (!TestEncryptable<Serpent, 16, 56>);
+
+    static_assert (TestEncryptable<Twofish, 16, 16>);
+    static_assert (!TestEncryptable<Twofish, 16, 8>);
+    static_assert (!TestEncryptable<Twofish, 8, 16>);
+    static_assert (!TestEncryptable<Twofish, 16, 20>);
+    static_assert (TestEncryptable<Twofish, 16, 24>);
+    static_assert (TestEncryptable<Twofish, 16, 32>);
+    static_assert (!TestEncryptable<Twofish, 16, 56>);
+
+    static_assert (TestEncryptable<RC6, 16, 16>);
+    static_assert (!TestEncryptable<RC6, 16, 8>);
+    static_assert (!TestEncryptable<RC6, 8, 16>);
+    static_assert (!TestEncryptable<RC6, 16, 20>);
+    static_assert (TestEncryptable<RC6, 16, 24>);
+    static_assert (TestEncryptable<RC6, 16, 32>);
+    static_assert (!TestEncryptable<RC6, 16, 56>);
+
+    static_assert (TestEncryptable<MARS, 16, 16>);
+    static_assert (!TestEncryptable<MARS, 16, 8>);
+    static_assert (!TestEncryptable<MARS, 8, 16>);
+    static_assert (!TestEncryptable<MARS, 16, 20>);
+    static_assert (TestEncryptable<MARS, 16, 24>);
+    static_assert (TestEncryptable<MARS, 16, 32>);
+    static_assert (TestEncryptable<MARS, 16, 56>);
+
+    template <typename mode, size_t key_size> struct AES_test_case {
+        AES_test_case (string key, string IV, string plaintext, string ciphertext) {
+            byte_array<key_size> k {encoding::hex::fixed<key_size> (key)};
+            byte_array<16> iv {encoding::hex::fixed<16> (IV)};
+            DATA_LOG (normal) << "AES test case with key " << k;
+
+            {
+
+                byte_array<16> pt {encoding::hex::fixed<16> (plaintext)};
+                byte_array<16> ct {encoding::hex::fixed<16> (ciphertext)};
+
+                mode encryptor {iv};
+                DATA_LOG (normal) << "try to encrypt ";
+                EXPECT_EQ ((encrypt<AES, key_size, mode> (encryptor, k, pt)), ct);
+                mode decryptor {iv};
+
+                DATA_LOG (normal) << "try to decrypt";
+                auto decrypted = decrypt<AES, key_size, mode> (decryptor, k, ct);
+                EXPECT_EQ (decrypted, pt) << "Expected " << ct << " to decrypt to " <<
+                    pt << " using key " << k << " and IV " << iv << " but got " << decrypted;
+            }
+
+            {
+
+                DATA_LOG (normal) << "phase 2";
+                mode m {iv};
+                bytes pt = *encoding::hex::read (plaintext);
+
+                DATA_LOG (normal) << "try to encrypt";
+                // we test this against the function for encrypting whole messages rather than just blocks.
+                auto padded = data::crypto::encrypt<AES, 16> (pt, m, k);
+
+                // we should expect the encrypted message to have a whole block of padding.
+                EXPECT_EQ (padded.size (), pt.size () + 16);
+
+                DATA_LOG (normal) << "try to decrypt";
+                bytes ct = *encoding::hex::read (ciphertext);
+                EXPECT_EQ (ct, (take (padded, pt.size ())));
+
+                auto decrypted = data::crypto::decrypt<AES, 16> (padded, m, k);
+
+                EXPECT_EQ (pt, decrypted);
+
+            }
+        }
+    };
+
+    template <size_t key_size> struct AES_test_case<ECB<16>, key_size> {
+        AES_test_case (string key, string plaintext, string ciphertext) {
+            byte_array<key_size> k {encoding::hex::fixed<key_size> (key)};
+            {
+                byte_array<16> pt {encoding::hex::fixed<16> (plaintext)};
+                byte_array<16> ct {encoding::hex::fixed<16> (ciphertext)};
+                ECB<16> encryptor {};
+                EXPECT_EQ ((encrypt<AES, key_size, ECB<16>> (encryptor, k, pt)), ct);
+                ECB<16> decryptor {};
+                EXPECT_EQ ((decrypt<AES, key_size, ECB<16>> (decryptor, k, ct)), pt);
+            }
+
+            {
+
+                ECB<16> m {};
+                bytes pt = *encoding::hex::read (plaintext);
+
+                // we test this against the function for encrypting whole messages rather than just blocks.
+                auto padded = data::crypto::encrypt<AES, 16> (pt, m, k);
+
+                // we should expect the encrypted message to have a whole block of padding.
+                EXPECT_EQ (padded.size (), pt.size () + 16);
+
+                bytes ct = *encoding::hex::read (ciphertext);
+                EXPECT_EQ (ct, (take (padded, pt.size ())));
+
+                auto decrypted = data::crypto::decrypt<AES, 16> (padded, m, k);
+
+                EXPECT_EQ (pt, decrypted);
+
+            }
+        }
+    };
+
+    // A series of tests for each block mode with AES to test that the block modes are correct.
+    TEST (BlockCipher, AESECB) {
+
+        AES_test_case<ECB<16>, 16> {
+            "00000000000000000000000000000000",
+            "80000000000000000000000000000000",
+            "3ad78e726c1ec02b7ebfe92b23d9ec34"};
+
+        AES_test_case<ECB<16>, 24> {
+            "000000000000000000000000000000000000000000000000",
+            "80000000000000000000000000000000",
+            "6cd02513e8d4dc986b4afe087a60bd0c"};
+
+        AES_test_case<ECB<16>, 32> {
+            "0000000000000000000000000000000000000000000000000000000000000000",
+            "80000000000000000000000000000000",
+            "ddc6bf790c15760d8d9aeb6f9a75fd4e"};
+
+        AES_test_case<ECB<16>, 16> {
+            "edfdb257cb37cdf182c5455b0c0efebb",
+            "1695fe475421cace3557daca01f445ff",
+            "7888beae6e7a426332a7eaa2f808e637"};
+
+        AES_test_case<ECB<16>, 24> {
+            "61396c530cc1749a5bab6fbcf906fe672d0c4ab201af4554",
+            "60bcdb9416bac08d7fd0d780353740a5",
+            "24f40c4eecd9c49825000fcb4972647a"};
+
+        AES_test_case<ECB<16>, 32> {
+            "cc22da787f375711c76302bef0979d8eddf842829c2b99ef3dd04e23e54cc24b",
+            "ccc62c6b0a09a671d64456818db29a4d",
+            "df8634ca02b13a125b786e1dce90658b"};
+
+    }
+
+    TEST (BlockCipher, AESCBC) {
+        AES_test_case<CBC<16>, 16> {
+            "00000000000000000000000000000000",
+            "00000000000000000000000000000000",
+            "80000000000000000000000000000000",
+            "3ad78e726c1ec02b7ebfe92b23d9ec34"};
+
+        AES_test_case<CBC<16>, 24> {
+            "000000000000000000000000000000000000000000000000",
+            "00000000000000000000000000000000",
+            "80000000000000000000000000000000",
+            "6cd02513e8d4dc986b4afe087a60bd0c"};
+
+        AES_test_case<CBC<16>, 32> {
+            "0000000000000000000000000000000000000000000000000000000000000000",
+            "00000000000000000000000000000000",
+            "80000000000000000000000000000000",
+            "ddc6bf790c15760d8d9aeb6f9a75fd4e"};
+
+        AES_test_case<CBC<16>, 16> {
+            "1f8e4973953f3fb0bd6b16662e9a3c17",
+            "2fe2b333ceda8f98f4a99b40d2cd34a8",
+            "45cf12964fc824ab76616ae2f4bf0822",
+            "0f61c4d44c5147c03c195ad7e2cc12b2"};
+
+        AES_test_case<CBC<16>, 24> {
+            "ba75f4d1d9d7cf7f551445d56cc1a8ab2a078e15e049dc2c",
+            "531ce78176401666aa30db94ec4a30eb",
+            "c51fc276774dad94bcdc1d2891ec8668",
+            "70dd95a14ee975e239df36ff4aee1d5d"};
+
+        AES_test_case<CBC<16>, 32> {
+            "6ed76d2d97c69fd1339589523931f2a6cff554b15f738f21ec72dd97a7330907",
+            "851e8764776e6796aab722dbb644ace8",
+            "6282b8c05c5c1530b97d4816ca434762",
+            "6acc04142e100a65f51b97adf5172c41"};
+
+    }
+
+    // we don't have CTR because according to NIST, we cannot
+    // have automated tests for CTR because of the requirement
+    // to start with a unique value every time we use it.
+
+    // TODO get test cases with CTR using cryptopp
 
     // this is the only block size we use.
     constexpr const size_t block_size = 16;
@@ -141,12 +375,10 @@ namespace data::crypto {
     // modes of operation that we support and that can be used as block ciphers.
     tuple<ECB<block_size>, CBC<block_size>> block_modes {{}, {IV1}};
 
-    template <block_padding_scheme...> struct padding {};
-
     // we should be able to encrypt a message and decrypt it to the same thing.
     template <typename cipher, size_t key_size, typename mode>
-    void test_encrypt_and_decrypt (const mode &m, const symmetric_key<key_size> &key, block_padding_scheme p, const bytes &message) {
-        bytes decrypted = decrypt<cipher, block_size> (encrypt<cipher, block_size> (message, m, key, p), m, key, p);
+    void test_encrypt_and_decrypt (const mode &m, const symmetric_key<key_size> &key, padding_scheme p, const bytes &message) {
+        bytes decrypted = data::crypto::decrypt<cipher, block_size> (data::crypto::encrypt<cipher, block_size> (message, m, key, p), m, key, p);
         EXPECT_EQ (message, decrypted) << "tried to decrypt to " << message << " but got " << decrypted;
     };
 
@@ -154,10 +386,10 @@ namespace data::crypto {
     void test_encrypt_change_key (mode &m,
         const symmetric_key<key_size> &k1,
         const symmetric_key<key_size> &k2,
-        block_padding_scheme p, const bytes &message) {
+        padding_scheme p, const bytes &message) {
 
-        bytes en1 = encrypt<cipher, block_size> (message, m, k1, p);
-        bytes en2 = encrypt<cipher, block_size> (message, m, k2, p);
+        bytes en1 = data::crypto::encrypt<cipher, block_size> (message, m, k1, p);
+        bytes en2 = data::crypto::encrypt<cipher, block_size> (message, m, k2, p);
 
         EXPECT_NE (en1, en2);
 
@@ -167,10 +399,10 @@ namespace data::crypto {
     template <typename cipher, size_t key_size, typename mode>
     void test_encrypt_change_padding (mode &m,
         const symmetric_key<key_size> &key,
-        block_padding_scheme p1, block_padding_scheme p2, const bytes &message) {
+        padding_scheme p1, padding_scheme p2, const bytes &message) {
 
-        bytes en1 = encrypt<cipher, block_size> (message, m, key, p1);
-        bytes en2 = encrypt<cipher, block_size> (message, m, key, p2);
+        bytes en1 = data::crypto::encrypt<cipher, block_size> (message, m, key, p1);
+        bytes en2 = data::crypto::encrypt<cipher, block_size> (message, m, key, p2);
 
         EXPECT_NE (en1, en2);
 
@@ -182,17 +414,17 @@ namespace data::crypto {
     void test_block_cipher (mode &m,
         const symmetric_key<key_size> &k1,
         const symmetric_key<key_size> &k2,
-        block_padding_scheme p1,
-        block_padding_scheme p2,
+        padding_scheme p1,
+        padding_scheme p2,
         const bytes &message) {};
 
     template <typename cipher, size_t key_size,
-        BlockCipherMode<cipher, block_size, key_size> mode>
+        Mode<cipher, key_size> mode>
     void test_block_cipher (mode &m,
         const symmetric_key<key_size> &k1,
         const symmetric_key<key_size> &k2,
-        block_padding_scheme p1,
-        block_padding_scheme p2,
+        padding_scheme p1,
+        padding_scheme p2,
         const bytes &message) {
 
         test_encrypt_and_decrypt<cipher> (m, k1, p1, message);
@@ -223,7 +455,7 @@ namespace data::crypto {
             auto key_size = meta::get_value<key_index, key_sizes...>::value;
             using cipher = typename meta::get_type<cipher_index, cph...>::type;
             test_block_cipher<cipher> (std::get<mode_index> (m), key, mutate_key (key),
-                block_padding::PKCS_PADDING, block_padding::ONE_AND_ZEROS_PADDING, msg);
+                padding::PKCS_PADDING, padding::ONE_AND_ZEROS_PADDING, msg);
 
             test_block_ciphers_for<cipher_index, mode_index, key_index + 1> (c, m, k, msg);
         }
@@ -242,85 +474,4 @@ namespace data::crypto {
             bytes {string {"hi, this is a message that is definitely longer than a single block"}});
 
     }
-
-    template <size_t index, typename cipher, size_t block_size, typename mode, typename keys>
-    void run_from (mode &m, const keys &k, const std::string &message) {
-        test_encryption_mode<cipher, block_size> (m, std::get<index> (k), message);
-
-        constexpr size_t size = std::tuple_size<typename keys::parent>::value;
-        if constexpr (index >= size) run_from<index + 1, keys, cipher, mode> (m, k, message);
-    };
-
-    template <typename cipher, size_t block_size, typename mode, typename keys>
-    void run (mode &m, const keys &k, const std::string &message) {
-        return run_from<0, cipher, block_size> (m, k, message);
-    }
-
-    // for this test, we will encrypt and decrypt messages using a block cipher with padding.
-
-    // Here we test that we can change the IV and that decryption will fail.
-
-    // Here we test that we can change the padding scheme and that the decryption will fail when we use a MAC.
-
-    template <typename ...X> struct ciphers;
-    template <size_t ...x> struct key_sizes;
-
-    template <typename X, typename x> struct test_output_feedback_stream;
-
-    template <typename X, size_t x>
-    requires BlockCipher<X, block_size, x>
-    struct test_output_feedback_stream<ciphers<X>, key_sizes<x>> {
-        test_output_feedback_stream () {
-            output_feedback_stream<block_size, x, X> (IV1, std::get<symmetric_key<x>> (kkk)).crypt (0);
-        };
-    };
-
-    template <typename X, size_t x>
-    struct test_output_feedback_stream<ciphers<X>, key_sizes<x>> {
-        test_output_feedback_stream () {};
-    };
-
-    template <typename X, size_t a, size_t b, size_t ...x>
-    struct test_output_feedback_stream<ciphers<X>, key_sizes<a, b, x...>> :
-        test_output_feedback_stream<ciphers<X>, key_sizes<a>>,
-        test_output_feedback_stream<ciphers<X>, key_sizes<b, x...>> {
-        test_output_feedback_stream ():
-            test_output_feedback_stream<ciphers<X>, key_sizes<a>> {},
-            test_output_feedback_stream<ciphers<X>, key_sizes<b, x...>> {} {}
-    };
-
-    template <typename A, typename B, typename ...X, size_t ...x>
-    struct test_output_feedback_stream<ciphers<A, B, X...>, key_sizes<x...>> :
-        test_output_feedback_stream<ciphers<A>, key_sizes<x...>>,
-        test_output_feedback_stream<ciphers<B, X...>, key_sizes<x...>> {
-        test_output_feedback_stream ():
-            test_output_feedback_stream<ciphers<A>, key_sizes<x...>> {},
-            test_output_feedback_stream<ciphers<B, X...>, key_sizes<x...>> {} {}
-    };
-
-    template <typename x> struct test_SHA3_stream;
-
-    // right now we don't have different sized IVs, so we can only test key_size == block_size
-    template <size_t x> requires (x == block_size) struct test_SHA3_stream<key_sizes<x>> {
-        test_SHA3_stream () {
-            SHA3_stream<block_size> (IV1).crypt (0);
-        }
-    };
-
-    template <size_t x> struct test_SHA3_stream<key_sizes<x>> {
-        test_SHA3_stream () {}
-    };
-
-    template <size_t a, size_t b, size_t ...x>
-    struct test_SHA3_stream<key_sizes<a, b, x...>> :
-        test_SHA3_stream<key_sizes<a>>, test_SHA3_stream<key_sizes<b, x...>> {
-        test_SHA3_stream (): test_SHA3_stream<key_sizes<a>> {}, test_SHA3_stream<key_sizes<b, x...>> {} {}
-    };
-
-    // can test with SHA3 and with all block ciphers using OFB
-    TEST (SymmetricCrypto, OneWayStream) {
-        test_output_feedback_stream<ciphers<Rijndael, Serpent, Twofish, RC6, MARS>, key_sizes<16, 20, 24, 28, 32, 40, 48, 56>> {};
-        test_SHA3_stream<key_sizes<16, 20, 24, 28, 32, 40, 48, 56>> {};
-    }
-
 }
