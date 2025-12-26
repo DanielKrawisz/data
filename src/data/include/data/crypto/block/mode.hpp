@@ -5,81 +5,140 @@
 #ifndef DATA_CRYPTO_BLOCK_MODE
 #define DATA_CRYPTO_BLOCK_MODE
 
+#include <data/crypto/cipher.hpp>
 #include <data/crypto/block/cipher.hpp>
+#include <data/arithmetic/complementary.hpp>
+#include <data/io/log.hpp>
 
-namespace data::crypto {
+namespace data::crypto::cipher::block {
 
     // a block cipher mode takes a block cypher and defines an algorithm
     // that works on a series of blocks.
-    template <typename mode, typename cipher, size_t block_size, size_t key_size>
-    concept BlockCipherMode = BlockCipher<cipher, block_size, key_size> && requires (
+
+    template <typename mode, typename cipher, size_t key_size>
+    concept StandardMode = Cipher<cipher, mode::BlockSize, key_size> &&
+        requires (
             mode m,
-            slice<byte, block_size> result,
-            slice<const byte, block_size> block,
-            const symmetric_key<key_size> &key)
-        {
-            { m.template encrypt<cipher, key_size> (result, key, block) };
-            { m.template decrypt<cipher, key_size> (result, key, block) };
+            slice<byte, mode::BlockSize> result,
+            slice<const byte, mode::BlockSize> block,
+            const symmetric_key<key_size> &key
+        ) {
+            { m.template encrypt<key_size, cipher> (result, key, block) };
+            { m.template decrypt<key_size, cipher> (result, key, block) };
         };
 
+    template <typename mode, typename cipher, size_t key_size>
+    concept AsymmetricStreamableMode = Cipher<cipher, mode::BlockSize, key_size> &&
+        requires (mode m, const symmetric_key<key_size> &key) {
+            { m.template initialize<key_size, cipher> (key) };
+        } && requires (mode m, byte b) {
+            { m.encrypt (b) } -> Same<byte>;
+            { m.decrypt (b) } -> Same<byte>;
+        };
+
+    template <typename mode, typename cipher, size_t key_size>
+    concept SymmetricStreamableMode = Cipher<cipher, mode::BlockSize, key_size> &&
+        requires (mode m, const symmetric_key<key_size> &key) {
+            { m.template initialize<key_size, cipher> (key) };
+        } && requires (mode m, byte b) {
+            { m.crypt (b) } -> Same<byte>;
+        };
+
+    template <typename mode, typename cipher, size_t key_size>
+    concept StreamableMode =
+        AsymmetricStreamableMode<mode, cipher, key_size> ||
+        SymmetricStreamableMode<mode, cipher, key_size>;
+
+    template <typename mode, typename cipher, size_t key_size>
+    concept Mode =
+        StreamableMode<mode, cipher, key_size> ||
+        StandardMode<mode, cipher, key_size>;
+
+    // encrypt and decrypt whole blocks.
+    template <typename cipher, size_t key_size, StandardMode<cipher, key_size> mode>
+    byte_array<mode::BlockSize> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
+        byte_array<mode::BlockSize> x;
+        m.template encrypt<key_size, cipher> (x, key, block);
+        return x;
+    }
+
+    template <typename cipher, size_t key_size, StandardMode<cipher, key_size> mode>
+    byte_array<mode::BlockSize> inline decrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
+        byte_array<mode::BlockSize> x;
+        m.template decrypt<key_size, cipher> (x, key, block);
+        return x;
+    }
+
+    // encrypt and decrypt single blocks for streamable modes.
+    template <typename cipher, size_t key_size,
+        AsymmetricStreamableMode<cipher, key_size> mode>
+    byte_array<mode::BlockSize> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
+        byte_array<mode::BlockSize> ciphertext;
+        m.template initialize<key_size, cipher> (key);
+        for (size_t i = 0; i < mode::BlockSize; i++) ciphertext[i] = m.encrypt (block[i]);
+        return ciphertext;
+    }
+
+    template <typename cipher, size_t key_size, AsymmetricStreamableMode<cipher, key_size> mode>
+    byte_array<mode::BlockSize> inline decrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
+        byte_array<mode::BlockSize> plaintext;
+        m.template initialize<key_size, cipher> (key);
+        for (size_t i = 0; i < mode::BlockSize; i++) plaintext[i] = m.decrypt (block[i]);
+        return plaintext;
+    }
+
+    // encrypt and decrypt single blocks for streamable modes.
+    template <typename cipher, size_t key_size, SymmetricStreamableMode<cipher, key_size> mode>
+    byte_array<mode::BlockSize> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
+        byte_array<mode::BlockSize> result;
+        m.template initialize<key_size, cipher> (key);
+        for (size_t i = 0; i < mode::BlockSize; i++) result[i] = m.crypt (block[i]);
+        return result;
+    }
+
+    template <typename cipher, size_t key_size,
+        SymmetricStreamableMode<cipher, key_size> mode>
+    byte_array<mode::BlockSize> inline decrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
+        return encrypt<cipher> (m, key, block);
+    }
+
     // encrypt and decrypt using iterators.
-    template <typename cipher, typename mode, size_t key_size, typename out, std::input_iterator in, typename sen,
-        size_t block_size = decltype (*std::declval<in> ())::size>
-    requires BlockCipherMode<mode, cipher, block_size, key_size> &&
-        std::output_iterator<out, slice<byte, block_size>> &&
+    template <typename cipher, typename mode, size_t key_size, typename out, std::input_iterator in, typename sen>
+    requires Mode<mode, cipher, key_size> &&
+        std::output_iterator<out, slice<byte, mode::BlockSize>> &&
         std::sentinel_for<sen, in>
     void encrypt (mode &m, const symmetric_key<key_size> &key, out &o, in &i, const sen &x) {
         while (i != x) {
-            m.template encrypt<cipher, key_size> (*o, key, *i);
+            *o = encrypt (m, key, *i);
             i++;
             o++;
         }
     }
 
-    template <typename cipher, typename mode, size_t key_size, typename out, std::input_iterator in, typename sen,
-        size_t block_size = decltype (*std::declval<in> ())::size>
-    requires BlockCipherMode<mode, cipher, block_size, key_size> &&
-        std::output_iterator<out, slice<byte, block_size>> &&
+    template <typename cipher, typename mode, size_t key_size, typename out, std::input_iterator in, typename sen>
+    requires Mode<mode, cipher, key_size> &&
+        std::output_iterator<out, slice<byte, mode::BlockSize>> &&
         std::sentinel_for<sen, in>
     void decrypt (mode &m, const symmetric_key<key_size> &key, out &o, in &i, const sen &x) {
         while (i != x) {
-            m.template decrypt<cipher, key_size> (*o, key, *i);
+            *o = decrypt (m, key, *i);
             i++;
             o++;
         }
     }
 
-    // encrypt and decrypt single blocks.
-    template <typename cipher, typename mode, size_t key_size, size_t block_size>
-    requires BlockCipherMode<mode, cipher, block_size, key_size>
-    byte_array<block_size> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
-        byte_array<block_size> x;
-        m.template encrypt<cipher, key_size> (x, key, block);
-        return x;
-    }
-
-    template <typename cipher, typename mode, size_t key_size, size_t block_size>
-    requires BlockCipherMode<mode, cipher, block_size, key_size>
-    byte_array<block_size> inline decrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
-        byte_array<block_size> x;
-        m.template decrypt<cipher, key_size> (x, key, block);
-        return x;
-    }
-
     // encrypt and decrypt a whole message
-    template <typename cipher, typename mode, size_t key_size, size_t block_size>
-    requires BlockCipherMode<mode, cipher, block_size, key_size>
-    cross<byte_array<block_size>> encrypt (mode &m, const cross<byte_array<block_size>> &message, const symmetric_key<key_size> &k) {
-        cross<byte_array<block_size>> result;
+    template <typename cipher, size_t key_size, Mode<cipher, key_size> mode>
+    cross<byte_array<mode::BlockSize>> encrypt (mode &m, const cross<byte_array<mode::BlockSize>> &message, const symmetric_key<key_size> &k) {
+        cross<byte_array<mode::BlockSize>> result;
         result.resize (message.size ());
         encrypt (m, k, result.begin (), message.begin (), message.end ());
         return result;
     }
 
-    template <typename cipher, typename mode, size_t key_size, size_t block_size>
-    requires BlockCipherMode<mode, cipher, block_size, key_size>
-    cross<byte_array<block_size>> decrypt (mode &m, const cross<byte_array<block_size>> &encrypted, const symmetric_key<key_size> &k) {
-        cross<byte_array<block_size>> result;
+    template <typename cipher, size_t key_size, Mode<cipher, key_size> mode>
+    cross<byte_array<mode::BlockSize>> decrypt (mode &m, const cross<byte_array<mode::BlockSize>> &encrypted, const symmetric_key<key_size> &k) {
+        cross<byte_array<mode::BlockSize>> result;
         result.resize (encrypted.size ());
         decrypt (m, k, result.begin (), encrypted.begin (), encrypted.end ());
         return result;
@@ -101,7 +160,7 @@ namespace data::crypto {
 
     // The standard doesn't say whether the counter is big or little endian, so we support both.
     template <size_t block_size, endian::order r> struct mode_counter;
-    template <size_t block_size, endian::order r> using CTR = mode_output_feedback<block_size>;
+    template <size_t block_size, endian::order r> using CTR = mode_counter<block_size, r>;
 
     // The remaining modes are also authenticated.
     template <size_t block_size> struct mode_Galois_counter;
@@ -114,195 +173,117 @@ namespace data::crypto {
     template <size_t block_size> struct mode_offset_codebook;
     template <size_t block_size> using OCB = mode_offset_codebook<block_size>;
 
-
     template <size_t block_size> struct mode_electronic_code_book {
-        mode_electronic_code_book ();
+        mode_electronic_code_book () {}
+        constexpr const static size_t BlockSize = block_size;
 
         using block_in = slice<const byte, block_size>;
         using block_out = slice<byte, block_size>;
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void encrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        template <size_t key_size, Cipher<block_size, key_size> cipher>
+        void encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
+            cipher::encrypt (o, key, i);
+        }
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void decrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        template <size_t key_size, Cipher<block_size, key_size> cipher>
+        void decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
+            cipher::decrypt (o, key, i);
+        }
     };
 
     template <size_t block_size> struct mode_cipher_block_chain {
+        constexpr const static size_t BlockSize = block_size;
         initialization_vector<block_size> IV;
-        mode_cipher_block_chain (const initialization_vector<block_size> &);
+        mode_cipher_block_chain (const initialization_vector<block_size> &iv): IV {iv} {}
 
         using block_in = slice<const byte, block_size>;
         using block_out = slice<byte, block_size>;
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void encrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        template <size_t key_size, Cipher<block_size, key_size> cipher>
+        void encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
+            byte_array<block_size> xored;
+            arithmetic::bit_xor<byte> (xored.end (), xored.begin (), i.data (), (const byte *) (IV.data ()));
+            cipher::encrypt (o, key, xored);
+            std::copy (o.begin (), o.end (), IV.begin ());
+        }
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void decrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        template <size_t key_size, Cipher<block_size, key_size> cipher>
+        void decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
+            cipher::decrypt (o, key, i);
+            arithmetic::bit_xor<byte> (o.end (), o.begin (), o.data (), IV.data ());
+            std::copy (i.begin (), i.end (), IV.begin ());
+        }
     };
 
-    template <size_t block_size> struct mode_output_feedback {
-        initialization_vector<block_size> IV;
-        mode_output_feedback (const initialization_vector<block_size> &iv);
+    template <size_t block_size> struct streamable_base {
+        constexpr const static size_t BlockSize = block_size;
+        byte_array<block_size> IV {};
+        size_t Index {BlockSize};
 
-        using block_in = slice<const byte, block_size>;
-        using block_out = slice<byte, block_size>;
+        template <size_t key_size, Cipher<block_size, key_size> cipher>
+        void initialize (const symmetric_key<key_size> &key) {
+            cipher::encrypt (IV, key, IV);
+            Index = 0;
+        }
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void encrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        streamable_base (const initialization_vector<block_size> &iv): IV {iv} {}
+    };
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void decrypt (block_out, const symmetric_key<key_size> &key, block_in);
+    template <size_t block_size> struct mode_cipher_feedback : streamable_base<block_size> {
+        constexpr const static size_t BlockSize = block_size;
+        mode_cipher_feedback (const initialization_vector<block_size> &iv): streamable_base<block_size> {iv} {}
+
+        byte encrypt (byte b) {
+            byte result = this->IV[this->Index] ^= b;
+            this->Index++;
+            return result;
+        }
+
+        byte decrypt (byte b) {
+            byte result = this->IV[this->Index] ^ b;
+            this->IV[this->Index] = b;
+            this->Index++;
+            return result;
+        }
+    };
+
+    template <size_t block_size> struct mode_output_feedback : streamable_base<block_size> {
+
+        constexpr const static size_t BlockSize = block_size;
+        mode_output_feedback (const initialization_vector<block_size> &iv): streamable_base<block_size> {iv} {}
 
         // both operations are the same.
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void crypt (block_out, const symmetric_key<key_size> &key, block_in);
-
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        static byte_array<block_size> update (const symmetric_key<key_size> &key, const byte_array<block_size> &);
-    };
-
-    template <size_t block_size> struct mode_cipher_feedback {
-        initialization_vector<block_size> IV;
-        mode_cipher_feedback (const initialization_vector<block_size> &iv);
-
-        using block_in = slice<const byte, block_size>;
-        using block_out = slice<byte, block_size>;
-
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void encrypt (block_out, const symmetric_key<key_size> &key, block_in);
-
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void decrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        byte crypt (byte b) {
+            byte result = this->IV[this->Index] ^ b;
+            this->Index++;
+            return result;
+        }
     };
 
     // since there is no rule that says what endian
     // the counter should be, we allow both.
     template <size_t block_size, endian::order r>
-    struct mode_counter {
-        math::uint<r, block_size, byte> IV;
-        mode_counter (const math::uint<r, block_size, byte> &iv);
+    struct mode_counter : streamable_base<block_size> {
+        constexpr const static size_t BlockSize = block_size;
 
-        using block_in = slice<const byte, block_size>;
-        using block_out = slice<byte, block_size>;
+        math::uint<r, block_size, byte> Count;
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void encrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        mode_counter (const math::uint<r, block_size, byte> &iv) : streamable_base<block_size> {iv}, Count {iv} {}
 
-        template <typename cipher, size_t key_size>
-        requires BlockCipher<cipher, block_size, key_size>
-        void decrypt (block_out, const symmetric_key<key_size> &key, block_in);
+        // both operations are the same.
+        byte crypt (byte b) {
+            byte result = this->IV[this->Index] ^ b;
+            this->Index++;
+            if (this->Index == BlockSize) {
+                Count++;
+                this->IV = Count;
+            }
+            return result;
+        }
     };
 
-    template <size_t block_size>
-    inline mode_electronic_code_book<block_size>::mode_electronic_code_book () {}
+    template <size_t block_size, endian::order r> mode_counter (const math::uint<r, block_size, byte> &iv) -> mode_counter<block_size, r>;
 
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_electronic_code_book<block_size>::encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        cipher::encrypt (o, key, i);
-    }
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_electronic_code_book<block_size>::decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        cipher::decrypt (o, key, i);
-    }
-
-    template <size_t block_size>
-    inline mode_cipher_block_chain<block_size>::mode_cipher_block_chain (const initialization_vector<block_size> &iv) : IV {iv} {}
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_cipher_block_chain<block_size>::encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        cipher::encrypt (o, key, IV ^ i);
-        IV = o;
-    }
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_cipher_block_chain<block_size>::decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        cipher::decrypt (o, key, i);
-        o ^= IV;
-        IV = i;
-    }
-
-    template <size_t block_size>
-    inline mode_output_feedback<block_size>::mode_output_feedback (const initialization_vector<block_size> &iv) : IV {iv} {}
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_output_feedback<block_size>::encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        crypt (o, key, i);
-    }
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_output_feedback<block_size>::decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
-        crypt (o, key, i);
-    }
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    void inline mode_output_feedback<block_size>::crypt (block_out out, const symmetric_key<key_size> &key, block_in in) {
-        IV = update (key, IV);
-        out = in ^ IV;
-    }
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
-    byte_array<block_size> inline mode_output_feedback<block_size>::update (const symmetric_key<key_size> &key, const byte_array<block_size> &block) {
-        return crypto::encrypt<cipher, block_size, key_size> (key, block);
-    }
-
-    template <size_t block_size>
-    inline mode_cipher_feedback<block_size>::mode_cipher_feedback (const initialization_vector<block_size> &iv) : IV {iv} {}
-/*
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires block_cipher<cipher, block_size, key_size>
-    void inline mode_cipher_feedback<block_size>::encrypt (block_out, block_in, const symmetric_key<key_size> &key);
-
-    template <size_t block_size>
-    template <typename cipher, size_t key_size>
-    requires block_cipher<cipher, block_size, key_size>
-    void inline mode_cipher_feedback<block_size>::decrypt (block_out, block_in, const symmetric_key<key_size> &key);
-*/
-    template <size_t block_size, endian::order r>
-    inline mode_counter<block_size, r>::mode_counter (const math::uint<r, block_size, byte> &iv) : IV {iv} {}
-/*
-    template <size_t block_size, endian::order r>
-    template <typename cipher, size_t key_size>
-    requires block_cipher<cipher, block_size, key_size>
-    void inline mode_counter<block_size, r>::encrypt (block_out, block_in, const symmetric_key<key_size> &key);
-
-    template <size_t block_size, endian::order r>
-    template <typename cipher, size_t key_size>
-    requires block_cipher<cipher, block_size, key_size>
-    void inline mode_counter<block_size, r>::decrypt (block_out, block_in, const symmetric_key<key_size> &key);*/
-
-    // it seems like there is no reason that the const_cast should be necessary in the following functions.
-    // block_out is supposed to contain a non-const pointer.
 }
 
 #endif

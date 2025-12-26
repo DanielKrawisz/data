@@ -7,32 +7,61 @@
 
 #include <data/stream.hpp>
 #include <data/bytes.hpp>
+#include <data/crypto/block/mode.hpp>
 #include <data/io/exception.hpp>
 #include <cryptopp/filters.h>
 
-namespace data::crypto::CryptoPP {
+namespace data::crypto::cipher::block::CryptoPP {
     using namespace ::CryptoPP;
 }
 
-namespace data::crypto {
-    using block_padding_scheme = CryptoPP::BlockPaddingSchemeDef::BlockPaddingScheme;
-    using block_padding = CryptoPP::BlockPaddingSchemeDef;
+namespace data::crypto::cipher::block {
+    // padding scheme is the type, padding contains the values.
+    using padding_scheme = CryptoPP::BlockPaddingSchemeDef::BlockPaddingScheme;
+    using padding = CryptoPP::BlockPaddingSchemeDef;
 
     struct invalid_padding : exception {
         invalid_padding (): exception {"invalid padding detected"} {}
     };
 
-    bytes add_padding (block_padding_scheme, size_t block_size, const bytes &);
-    bytes remove_padding (block_padding_scheme, size_t block_size, const bytes &);
+    template <typename W, typename mode, size_t key_size>
+    concept Writer = data::Writer<W, byte> && requires (data::writer<byte> &out, const mode &m, const symmetric_key<key_size> &k, padding_scheme p) {
+        { W {out, m, k, p} };
+    };
+
+    template <typename cipher, size_t key_size, Mode<cipher, key_size> mode> struct encryptor {
+        encryptor (data::writer<byte> &out, const mode &m, const symmetric_key<key_size> &key, padding_scheme = padding::DEFAULT_PADDING);
+        ~encryptor ();
+
+        data::writer<byte> &Out;
+        mode Mode;
+        symmetric_key<key_size> Key;
+        padding_scheme Padding;
+        size_t BytesWritten;
+    };
+
+    template <typename cipher, size_t key_size, Mode<cipher, key_size> mode> struct decryptor {
+        decryptor (data::writer<byte> &out, const mode &m, const symmetric_key<key_size> &key, padding_scheme = padding::DEFAULT_PADDING);
+        ~decryptor ();
+
+        data::writer<byte> &Out;
+        mode Mode;
+        symmetric_key<key_size> Key;
+        padding_scheme Padding;
+        size_t BytesWritten;
+    };
+
+    bytes add_padding (padding_scheme, size_t block_size, const bytes &);
+    bytes remove_padding (padding_scheme, size_t block_size, const bytes &);
 
     struct add_padding_session final : out_session<byte> {
-        out_session<byte> &Next;
+        data::writer<byte> &Next;
 
         size_t BlockSize;
-        block_padding_scheme Padding;
+        padding_scheme Padding;
         size_t BytesWritten;
 
-        add_padding_session (out_session<byte> &next, size_t block_size, block_padding_scheme padding);
+        add_padding_session (out_session<byte> &next, size_t block_size, padding_scheme padding);
 
         void write (const byte *b, size_t size) final override;
 
@@ -52,19 +81,19 @@ namespace data::crypto {
         reader<byte> &Previous;
 
         size_t BlockSize;
-        block_padding_scheme Padding;
+        padding_scheme Padding;
         size_t BytesRead;
 
-        remove_padding_reader (reader<byte> &p, block_padding_scheme pp);
+        remove_padding_reader (reader<byte> &p, padding_scheme pp);
 
         void read (byte *b, size_t size) final override;
         void skip (size_t size) final override;
         void complete () final override;
     };
 
-    template <block_padding_scheme padding> struct pad;
+    template <padding_scheme padding> struct pad;
 
-    template <> struct pad<block_padding::NO_PADDING> {
+    template <> struct pad<padding::NO_PADDING> {
         reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read) {
             return r;
         }
@@ -74,27 +103,27 @@ namespace data::crypto {
         }
     };
 
-    template <> struct pad<block_padding::ZEROS_PADDING> {
-        writer<byte> &write (writer<byte> &w, size_t block_size, size_t &bytes_written);
-        reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read);
+    template <> struct pad<padding::ZEROS_PADDING> {
+        data::writer<byte> &write (data::writer<byte> &w, size_t block_size, size_t &bytes_written);
+        data::reader<byte> &read (data::reader<byte> &r, size_t block_size, size_t &bytes_read);
     };
 
-    template <> struct pad<block_padding::PKCS_PADDING> {
-        writer<byte> &write (writer<byte> &w, size_t block_size, size_t &bytes_written);
-        reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read);
+    template <> struct pad<padding::PKCS_PADDING> {
+        data::writer<byte> &write (data::writer<byte> &w, size_t block_size, size_t &bytes_written);
+        data::reader<byte> &read (data::reader<byte> &r, size_t block_size, size_t &bytes_read);
     };
 
-    template <> struct pad<block_padding::ONE_AND_ZEROS_PADDING> {
-        writer<byte> &write (writer<byte> &w, size_t block_size, size_t &bytes_written);
-        reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read);
+    template <> struct pad<padding::ONE_AND_ZEROS_PADDING> {
+        data::writer<byte> &write (data::writer<byte> &w, size_t block_size, size_t &bytes_written);
+        data::reader<byte> &read (data::reader<byte> &r, size_t block_size, size_t &bytes_read);
     };
 
-    template <> struct pad<block_padding::W3C_PADDING> {
-        writer<byte> &write (writer<byte> &w, size_t block_size, size_t &bytes_written);
-        reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read);
+    template <> struct pad<padding::W3C_PADDING> {
+        data::writer<byte> &write (data::writer<byte> &w, size_t block_size, size_t &bytes_written);
+        data::reader<byte> &read (data::reader<byte> &r, size_t block_size, size_t &bytes_read);
     };
 
-    inline add_padding_session::add_padding_session (out_session<byte> &next, size_t block_size, block_padding_scheme padding):
+    inline add_padding_session::add_padding_session (out_session<byte> &next, size_t block_size, padding_scheme padding):
         Next {next}, BlockSize {block_size}, Padding {padding}, BytesWritten {0} {}
 
     inline void add_padding_session::write (const byte *b, size_t size) {

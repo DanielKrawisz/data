@@ -15,7 +15,7 @@ namespace data::crypto {
     // You can use mode_output_feedback for some block cipher and you can use SHA3.
     template <size_t block_size> struct one_way_stream;
 
-    template <size_t block_size, size_t key_size, BlockCipher<block_size, key_size> cipher>
+    template <size_t block_size, size_t key_size, cipher::block::Cipher<block_size, key_size> cipher>
     one_way_stream<block_size> output_feedback_stream (
         const byte_array<block_size> &IV,
         const symmetric_key<key_size> &Key);
@@ -38,12 +38,12 @@ namespace data::crypto {
 
     };
 
-    template <size_t block_size, size_t key_size, BlockCipher<block_size, key_size> cipher>
+    template <size_t block_size, size_t key_size, cipher::block::Cipher<block_size, key_size> alg>
     one_way_stream<block_size> inline output_feedback_stream (
         const byte_array<block_size> &IV,
         const symmetric_key<key_size> &Key) {
         return one_way_stream<block_size> {[key = Key] (const byte_array<block_size> &in) -> byte_array<block_size> {
-            return mode_output_feedback<block_size>::template update<cipher, key_size> (key, in);
+            return cipher::block::OFB<block_size>::template update<alg, key_size> (key, in);
         }, IV};
     }
 

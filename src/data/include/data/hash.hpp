@@ -22,6 +22,10 @@
  *     * Engine                  — explicit stateful hash interface
  *     * calculate<Engine>       — one-shot hashing via Engine
  *     * writer<Engine>          — adapter from Engine to Writer
+ *     * write<Writer, F>        — Provide a function that operates on a Writer
+ *                                 and return the resulting digest.
+ *     * all<Writer, X...>       — Write a series of values to a hash writer
+ *                                 and return the result.
  *
  *  ---------------------------------------------------------------------------
  *  Design summary
@@ -253,6 +257,10 @@ namespace data::hash {
     template <size_t size>
     std::ostream inline &operator << (std::ostream &o, const digest<size> &s) {
         return o << encoding::hexidecimal::write (s);
+    }
+
+    template <Writer W, std::invocable<W &> F> W::digest inline write (F &&f) {
+        return build_with<W::digest, byte, W> (std::forward<F> (f));
     }
 
     template <Writer W, typename ...X> W::digest inline all (X &&...x) {
