@@ -5,6 +5,154 @@
 #ifndef DATA_HASH
 #define DATA_HASH
 
+/*
+ *  data/hash.hpp
+ *  --------------
+ *
+ *  This header defines the core abstractions for hash functions used throughout
+ *  the data::hash namespace.  These abstractions are intentionally generic and
+ *  are not limited to cryptographic hash functions; weak or non-cryptographic
+ *  hashes may also be modeled for testing, demonstration, or non-adversarial
+ *  use cases.
+ *
+ *  Overview:
+ *     * digest<size>            — fixed-size hash output value type
+ *     * Writer                  — RAII streaming hash interface
+ *     * calculate<Writer>       — one-shot hashing via Writer
+ *     * Engine                  — explicit stateful hash interface
+ *     * calculate<Engine>       — one-shot hashing via Engine
+ *     * writer<Engine>          — adapter from Engine to Writer
+ *
+ *  ---------------------------------------------------------------------------
+ *  Design summary
+ *  ---------------------------------------------------------------------------
+ *
+ *  Writer is the preferred, safe, user-facing abstraction. Finalization is
+ *  tied to scope, not method calls.
+ *
+ *  Engine exists for low-level and backend integration.
+ *
+ *  hash::calculate is defined in terms of Writers and Engines
+ *
+ *  This separation allows the library to support both simple hashing use cases
+ *  and advanced cryptographic constructions without forcing a single usage
+ *  style on all consumers. The design favors correctness, composability, and
+ *  clear ownership.
+ *
+ *  ---------------------------------------------------------------------------
+ *  Digest type
+ *  ---------------------------------------------------------------------------
+ *
+ *  The primary value type associated with hashing is:
+ *
+ *      data::hash::digest<size>
+ *
+ *  A data::hash::digest<size> represents a fixed-size hash output of `size`
+ *  bytes. It inherits from data::math::uint_little<size>, which behaves like a
+ *  built-in unsigned integer type with little-endian storage.  This allows
+ *  digests to be compared, copied, serialized, and manipulated using familiar
+ *  numeric semantics, while still representing raw hash output.
+ *
+ *  Hash functions are *not required* to return digest<size>, but it is the
+ *  standard return type used by this library.
+ *
+ *  ---------------------------------------------------------------------------
+ *  Hash Writer concept
+ *  ---------------------------------------------------------------------------
+ *
+ *  The primary user-facing abstraction for hashing is the Writer concept:
+ *
+ *      data::hash::Writer
+ *
+ *  A hash Writer models a streaming hash computation using RAII semantics.
+ *  It behaves like an output stream (it refines data::writer<byte>) and is
+ *  written to using operator<< or write () calls.
+ *
+ *  Key properties of a Writer W:
+ *
+ *  W is constructed with a reference to a W::digest
+ *  Bytes written to W contribute to the hash computation
+ *  The digest is finalized and written *exactly once*, when W is destroyed
+ *  W is typically non-copyable and non-movable, like std::ostream
+ *
+ *  Example usage:
+ *
+ *      data::hash::digest<32> d;
+ *      {
+ *          my_hash_writer w {d};
+ *          w << bytes1 << bytes2;
+ *      }   // digest finalized here
+ *      // d now contains the hash
+ *
+ *  This design deliberately avoids explicit `finalize()` or `reset()` calls.
+ *  Finalization is tied to object lifetime, which:
+ *
+ *  Prevents accidental reuse after finalization
+ *  Eliminates forgotten finalize/reset bugs
+ *  Matches standard C++ stream usage patterns
+ *  Encourages correct one-shot hashing by default
+ *
+ *  The Writer abstraction is intended to be the *natural* way users interact
+ *  with hash functions.
+ *
+ *  ---------------------------------------------------------------------------
+ *  hash::calculate<Writer>
+ *  ---------------------------------------------------------------------------
+ *
+ *  For convenience, the function:
+ *
+ *      data::hash::calculate<Writer> (bytes) -> Writer::digest
+ *
+ *  performs a complete hash computation using a Writer internally.
+ *
+ *  ---------------------------------------------------------------------------
+ *  Hash Engine abstraction
+ *  ---------------------------------------------------------------------------
+ *
+ *  In addition to Writer, this header defines a lower-level abstraction:
+ *
+ *      data::hash::Engine
+ *
+ *  An Engine represents a traditional stateful hash API with explicit control
+ *  over lifecycle:
+ *
+ *  Update (data, size)
+ *  Final (output)
+ *  Restart ()
+ *
+ *  Engines exist primarily to support protocol-level and backend integrations,
+ *  such as adapting libraries like Crypto++ which expose similar interfaces.
+ *
+ *  Engines are useful when:
+ *
+ *  A hash must be reused across multiple messages
+ *  Hashing is embedded inside a larger protocol state machine
+ *  Explicit restart/finalization boundaries are required
+ *  Interfacing with existing cryptographic libraries
+ *
+ *  Engines are intentionally *not* the primary user interface, as they are
+ *  easier to misuse (e.g. forgetting to finalize, reusing state incorrectly).
+ *  Instead, Engines are typically adapted into Writers, allowing higher-level
+ *  code to retain RAII safety while still leveraging lower-level implementations.
+ *
+ *  ---------------------------------------------------------------------------
+ *  data::hash::calculate<Engine>
+ *  ---------------------------------------------------------------------------
+ *
+ *  For convenience, we also have
+ *
+ *      data::hash::calculate<Engine> (bytes) -> Writer::digest
+ *
+ *  to perform a hash computation as a single function call.
+ *
+ *  ---------------------------------------------------------------------------
+ *  data::hash::writer<Engine>
+ *  ---------------------------------------------------------------------------
+ *
+ *  Construct a Writer from an Engine.
+ *
+ */
+
 #include <data/stream.hpp>
 #include <data/math/number/bounded.hpp>
 
@@ -88,8 +236,8 @@ namespace data::hash {
         }
 
         writer (const writer &) = delete;
-        writer &operator = (const writer&) = delete;
-        writer (writer&&) = delete;
+        writer &operator = (const writer &) = delete;
+        writer (writer &&) = delete;
         writer &operator = (writer &&) = delete;
 
     private:
@@ -105,6 +253,14 @@ namespace data::hash {
     template <size_t size>
     std::ostream inline &operator << (std::ostream &o, const digest<size> &s) {
         return o << encoding::hexidecimal::write (s);
+    }
+
+    template <Writer W, typename ...X> W::digest inline all (X &&...x) {
+        return build<W::digest, byte, W> (std::forward<X> (x)...);
+    }
+
+    template <Engine E, typename ...X> digest<E::DigestSize> inline all (X &&...x) {
+        return all<digest<E::DigestSize>, byte, writer<E>> (std::forward<X> (x)...);
     }
 
     

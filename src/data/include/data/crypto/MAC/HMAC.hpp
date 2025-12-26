@@ -3,16 +3,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CRYPTO_HMAC
-#define DATA_CRYPTO_HMAC
+#ifndef DATA_CRYPTO_MAC_HMAC
+#define DATA_CRYPTO_MAC_HMAC
 
 #include <data/crypto/hash.hpp>
 
-namespace data::crypto::MAC {
+namespace data::crypto {
 
     template <hash::Engine engine>
     requires requires { engine::BlockSize; }
-    struct HMAC_engine {
+    struct HMAC {
         constexpr static size_t BlockSize = engine::BlockSize;
         constexpr static size_t DigestSize = engine::DigestSize;
 
@@ -56,12 +56,12 @@ namespace data::crypto::MAC {
         }
     public:
 
-        HMAC_engine (byte_slice key) {
+        HMAC (byte_slice key) {
             pads_from_key (key);
             initialize ();
         }
 
-        HMAC_engine &Update (const byte *b, size_t x) {
+        HMAC &Update (const byte *b, size_t x) {
             inner.Update (b, x);
             return *this;
         }
@@ -73,7 +73,7 @@ namespace data::crypto::MAC {
             outer.Final (mac);
         }
 
-        HMAC_engine &Restart () {
+        HMAC &Restart () {
             inner.Restart ();
             outer.Restart ();
             initialize ();

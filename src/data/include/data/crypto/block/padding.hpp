@@ -25,14 +25,14 @@ namespace data::crypto {
     bytes add_padding (block_padding_scheme, size_t block_size, const bytes &);
     bytes remove_padding (block_padding_scheme, size_t block_size, const bytes &);
 
-    struct add_padding_session final : session<byte> {
-        session<byte> &Next;
+    struct add_padding_session final : out_session<byte> {
+        out_session<byte> &Next;
 
         size_t BlockSize;
         block_padding_scheme Padding;
         size_t BytesWritten;
 
-        add_padding_session (session<byte> &next, size_t block_size, block_padding_scheme padding);
+        add_padding_session (out_session<byte> &next, size_t block_size, block_padding_scheme padding);
 
         void write (const byte *b, size_t size) final override;
 
@@ -94,7 +94,7 @@ namespace data::crypto {
         reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read);
     };
 
-    inline add_padding_session::add_padding_session (session<byte> &next, size_t block_size, block_padding_scheme padding):
+    inline add_padding_session::add_padding_session (out_session<byte> &next, size_t block_size, block_padding_scheme padding):
         Next {next}, BlockSize {block_size}, Padding {padding}, BytesWritten {0} {}
 
     inline void add_padding_session::write (const byte *b, size_t size) {
