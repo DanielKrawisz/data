@@ -5,6 +5,7 @@
 #ifndef DATA_CRYPTO_BLOCK_CRYPTOPP
 #define DATA_CRYPTO_BLOCK_CRYPTOPP
 
+#include <data/crypto/block/cipher.hpp>
 #include <data/crypto/block/writer.hpp>
 #include <cryptopp/modes.h>
 
@@ -15,55 +16,60 @@
 #include <cryptopp/mars.h>
 #include <cryptopp/des.h>
 
-namespace data::crypto::CryptoPP {
+namespace data::crypto::cipher::block::CryptoPP {
     template <>
-    struct get_cipher_type<crypto::Rijndael> {
+    struct get_cipher_type<block::Rijndael> {
         using type = CryptoPP::Rijndael;
     };
 
     template <>
-    struct get_cipher_type<crypto::Serpent> {
+    struct get_cipher_type<block::Serpent> {
         using type = CryptoPP::Serpent;
     };
 
     template <>
-    struct get_cipher_type<crypto::Twofish> {
+    struct get_cipher_type<block::Twofish> {
         using type = CryptoPP::Twofish;
     };
 
     template <>
-    struct get_cipher_type<crypto::RC6> {
+    struct get_cipher_type<block::RC6> {
         using type = CryptoPP::RC6;
     };
 
     template <>
-    struct get_cipher_type<crypto::MARS> {
+    struct get_cipher_type<block::MARS> {
         using type = CryptoPP::MARS;
     };
 
     template <size_t block_size, typename cipher>
-    struct get_block_mode_type<crypto::ECB<block_size>, cipher> {
+    struct get_block_mode_type<block::ECB<block_size>, cipher> {
         using type = ECB_Mode<typename get_cipher_type<cipher>::type>;
     };
 
     template <size_t block_size, typename cipher>
-    struct get_block_mode_type<crypto::CBC<block_size>, cipher> {
+    struct get_block_mode_type<block::CBC<block_size>, cipher> {
         using type = CBC_Mode<typename get_cipher_type<cipher>::type>;
     };
 
     template <size_t block_size, typename cipher>
-    struct get_block_mode_type<crypto::CFB<block_size>, cipher> {
+    struct get_block_mode_type<block::CFB<block_size>, cipher> {
         using type = CFB_Mode<typename get_cipher_type<cipher>::type>;
     };
 
     template <size_t block_size, typename cipher>
-    struct get_block_mode_type<crypto::OFB<block_size>, cipher> {
+    struct get_block_mode_type<block::OFB<block_size>, cipher> {
         using type = OFB_Mode<typename get_cipher_type<cipher>::type>;
+    };
+
+    template <size_t block_size, typename cipher>
+    struct get_block_mode_type<block::CTR<block_size, endian::big>, cipher> {
+        using type = CTR_Mode<typename get_cipher_type<cipher>::type>;
     };
 
 }
 
-namespace data::crypto {
+namespace data::crypto::cipher::block {
 
     template <size_t key_size> requires (key_size >= 16 && key_size <= 32 && key_size % 8 == 0)
     void inline Rijndael::encrypt (Rijndael::block_out out, const symmetric_key<key_size> &key, Rijndael::block_in in) {

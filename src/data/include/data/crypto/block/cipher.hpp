@@ -8,12 +8,12 @@
 #include <data/crypto/encrypted.hpp>
 #include <data/bytes.hpp>
 
-namespace data::crypto {
+namespace data::crypto::cipher::block {
 
     // a block cipher begins with a function and its invese which takes a key
     // and a block of fixed size and returns another fixed size block.
     template <typename cipher, size_t block_size, size_t key_size>
-    concept BlockCipher = requires (
+    concept Cipher = requires (
         slice<byte, block_size> result,
         slice<const byte, block_size> block,
         const symmetric_key<key_size> &key) {
@@ -21,16 +21,14 @@ namespace data::crypto {
         { cipher::decrypt (result, key, block) };
     };
 
-    template <typename cipher, size_t block_size, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
+    template <size_t block_size, size_t key_size, Cipher<block_size, key_size> cipher>
     byte_array<block_size> inline encrypt (const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
         byte_array<block_size> x;
         cipher::encrypt (x, key, block);
         return x;
     }
 
-    template <typename cipher, size_t block_size, size_t key_size>
-    requires BlockCipher<cipher, block_size, key_size>
+    template <size_t block_size, size_t key_size, Cipher<block_size, key_size> cipher>
     byte_array<block_size> inline decrypt (const symmetric_key<key_size> &key, slice<const byte, block_size> block) {
         byte_array<block_size> x;
         cipher::decrypt (x, key, block);
@@ -48,7 +46,7 @@ namespace data::crypto {
     struct TripleDES;
 
     struct Rijndael {
-        static constexpr size_t BlockSize = 16;
+        constexpr static size_t BlockSize = 16;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<const byte, BlockSize>;
 
@@ -103,7 +101,7 @@ namespace data::crypto {
     };
 
     struct DES {
-        static constexpr size_t BlockSize = 16;
+        static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
 
@@ -119,7 +117,7 @@ namespace data::crypto {
     };
 
     struct TripleDES {
-        static constexpr size_t BlockSize = 16;
+        static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
 
