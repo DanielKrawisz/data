@@ -55,12 +55,8 @@ namespace data {
     }
 
     template <typename X, typename... P>
-    bytes write_all (X &&x, P &&...p) {
-        bytes b; {
-            lazy_bytes_writer w {b};
-            write_to_writer (w, std::forward<X> (x), std::forward<P> (p)...);
-        }
-        return b;
+    bytes inline write_all (X &&x, P &&...p) {
+        return build<bytes, byte, lazy_bytes_writer> (x, p...);
     }
 
 

@@ -42,7 +42,7 @@ namespace data::crypto {
 
     template <typename mode, typename cipher, size_t block_size, size_t key_size, dir direction>
     requires BlockCipherMode<mode, cipher, block_size, key_size>
-    struct block_session final : session<byte> {
+    struct block_session final : out_session<byte> {
         using cryptopp_cipher_type = cryptopp_cipher_dir<cryptopp_cipher<cipher>, direction>;
         using cryptopp_mode_type = cryptopp_block_mode<mode, cipher>;
         using cryptopp_algorithm_type = cryptopp_cipher_dir<cryptopp_mode_type, direction>;;

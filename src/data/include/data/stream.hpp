@@ -72,6 +72,28 @@ namespace data {
         return r;
     }
 
+    namespace {
+        template <typename X>
+        writer<byte> &write_to_writer (writer<byte> &w, X &&x) {
+            return w << x;
+        }
+
+        template <typename X, typename... P>
+        writer<byte> &write_to_writer (writer<byte> &w, X &&x, P &&...p) {
+            return write_to_writer (write_to_writer (w, std::forward<X> (x)), std::forward<P> (p)...);
+        }
+    }
+
+    template <typename result, typename word, Builder<result, word> builder,
+        typename ...X>
+    result build (X &&...x) {
+        result r; {
+            builder b {r};
+            write_to_writer (b, std::forward<X> (x)...);
+        }
+        return r;
+    }
+
     // a message writer has the concept of an end to a message.
     template <typename message, std::integral word>
     struct message_writer : virtual writer<word> {
@@ -88,14 +110,15 @@ namespace data {
 
     // a message writer has the concept of an end to a message.
     template <std::integral word>
-    struct session : virtual writer<word> {
+    struct out_session : virtual writer<word> {
         virtual void complete () = 0;
-        virtual ~session () {};
+        virtual ~out_session () {};
     };
 
+    // this ensures that every definition made with writer will work with write_session.
     template <std::integral word, typename T> requires requires (writer<word> &w, const T &x) {
         { w << x };
-    } session<word> &operator << (session<word> &w, const T &x) {
+    } out_session<word> &operator << (out_session<word> &w, const T &x) {
         static_cast<writer<word> &> (w) << x;
         return w;
     }
@@ -108,7 +131,7 @@ namespace data {
     }
 
     template <std::integral word>
-    session<word> inline &operator << (session<word> &w, end_message) {
+    out_session<word> inline &operator << (out_session<word> &w, end_message) {
         w.complete ();
         return w;
     }

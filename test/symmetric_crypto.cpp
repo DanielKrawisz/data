@@ -70,22 +70,22 @@ namespace data::crypto {
         const string &msg,
         const hash::digest<e::DigestSize> &result) {
         bytes msg_bytes (msg);
-        auto got = MAC::calculate<MAC::HMAC_engine<e>> (key, msg_bytes);
+        auto got = MAC::calculate<HMAC<e>> (key, msg_bytes);
         EXPECT_EQ (got, result) << "HMAC key " << key << " and msg " << msg << "; expected " << result << "; got " << got;
     }
 
     // test for all hash functions we have
     TEST (SymmetricCrypto, HMAC) {
 
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA1>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<16>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<20>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<32>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::RIPEMD<40>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<28>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<32>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<48>>>> {MACMessage, MACAltered};
-        test_MACs<MAC::writer<MAC::HMAC_engine<hash::SHA2<64>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::SHA1>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::RIPEMD<16>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::RIPEMD<20>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::RIPEMD<32>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::RIPEMD<40>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::SHA2<28>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::SHA2<32>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::SHA2<48>>>> {MACMessage, MACAltered};
+        test_MACs<MAC::writer<HMAC<hash::SHA2<64>>>> {MACMessage, MACAltered};
 
         HMAC_test_case<hash::SHA1> (bytes (20, 0x0b), "Hi There",
             hash::digest<20> {"b617318655057264e28bc0b6fb378c8ef146be00"});
