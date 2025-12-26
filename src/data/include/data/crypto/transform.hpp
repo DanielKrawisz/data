@@ -49,7 +49,7 @@ namespace data {
         return w;
     }
 
-    struct buffer_session final : session<byte> {
+    struct buffer_session final : out_session<byte> {
         list<bytes> Results;
         buffer_writer Writer;
 

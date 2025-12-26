@@ -66,8 +66,8 @@ namespace data::crypto::MAC {
 
     // attach a mack to every message.
     template <Engine W, size_t key_size>
-    struct append_MAC_writer final : data::session<byte> {
-        data::session<byte> &Output;
+    struct append_MAC_writer final : data::out_session<byte> {
+        data::out_session<byte> &Output;
         W MACEngine;
 
         void write (const byte *, size_t size) final override;
