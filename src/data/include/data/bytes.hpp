@@ -48,7 +48,7 @@ namespace data {
     bytes write_bytes (size_t size, X &&x, P &&...p) {
         bytes b (size);
         iterator_writer w (b.begin (), b.end ());
-        write_to_writer (w, std::forward<X> (x), std::forward<X> (p)...);
+        write_to_writer (w, std::forward<X> (x), std::forward<P> (p)...);
         return b;
     }
 

@@ -260,11 +260,11 @@ namespace data::hash {
     }
 
     template <Writer W, std::invocable<W &> F> W::digest inline write (F &&f) {
-        return build_with<W::digest, byte, W> (std::forward<F> (f));
+        return build_with<typename W::digest, byte, W> (std::forward<F> (f));
     }
 
     template <Writer W, typename ...X> W::digest inline all (X &&...x) {
-        return build<W::digest, byte, W> (std::forward<X> (x)...);
+        return build<typename W::digest, byte, W> (std::forward<X> (x)...);
     }
 
     template <Engine E, typename ...X> digest<E::DigestSize> inline all (X &&...x) {
