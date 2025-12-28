@@ -4,11 +4,11 @@
 
 namespace data::crypto::cipher::block {
 
-    void add_padding_session::complete () {
+    void add_padding_writer::complete () {
         switch (Padding) {
             case (padding::NO_PADDING): {
                 pad<padding::NO_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                return;
+                break;
             }
             case (padding::ZEROS_PADDING): {
                 pad<padding::ZEROS_PADDING> {}.write (Next, BlockSize, BytesWritten);
@@ -25,14 +25,13 @@ namespace data::crypto::cipher::block {
             case (padding::ONE_AND_ZEROS_PADDING):
             default: pad<padding::ONE_AND_ZEROS_PADDING> {}.write (Next, BlockSize, BytesWritten);
         }
-        Next.complete ();
     }
 
     void remove_padding_reader::complete () {
         switch (Padding) {
             case (padding::NO_PADDING): {
                 pad<padding::NO_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                return;
+                break;
             }
             case (padding::ZEROS_PADDING): {
                 pad<padding::ZEROS_PADDING> {}.read (Previous, BlockSize, BytesRead);
@@ -49,13 +48,13 @@ namespace data::crypto::cipher::block {
             case (padding::ONE_AND_ZEROS_PADDING):
             default: pad<padding::ONE_AND_ZEROS_PADDING> {}.read (Previous, BlockSize, BytesRead);
         }
-        Previous.complete ();
     }
 
     bytes add_padding (padding_scheme scheme, size_t block_size, const bytes &msg) {
-        buffer_session br;
-        add_padding_session w {br, block_size, scheme};
-        w << msg << end_message {};
+        buffer_session br;{
+            add_padding_writer w {br, block_size, scheme};
+            w << msg;
+        }
         return br.Results.first ();
     }
 

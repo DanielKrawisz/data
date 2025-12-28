@@ -5,7 +5,7 @@
 #ifndef DATA_CRYPTO_CIPHER
 #define DATA_CRYPTO_CIPHER
 
-#include <data/types.hpp>
+#include <data/array.hpp>
 
 namespace data::crypto::cipher {
 
@@ -16,6 +16,13 @@ namespace data::crypto::cipher {
 
     template <typename X> struct encryptor;
     template <typename Y> struct decryptor;
+
+    template <size_t key_size> using symmetric_key = byte_array<key_size>;
+
+    template <size_t block_size>
+    using initialization_vector = byte_array<block_size>;
+
+
 
 }
 

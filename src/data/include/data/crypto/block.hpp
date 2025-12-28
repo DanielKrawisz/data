@@ -109,11 +109,11 @@ namespace data::crypto {
             if (p == cipher::block::padding::NO_PADDING) {
                 cryptor << plaintext;
             } else {
-                cipher::block::add_padding_session padded {cryptor, Cipher::BlockSize, validate_padding<Mode> (Padding)};
-                padded << plaintext << end_message {};
-            }
+                cipher::block::add_padding_writer padded {cryptor, Cipher::BlockSize, validate_padding<Mode> (Padding)};
+                padded << plaintext;
+            } // padding added here
 
-        } //padding is added and result is written to here on destruction of writers.
+        } //result is written to here.
 
         return ciphertext;
     }
@@ -128,7 +128,6 @@ namespace data::crypto {
             cipher::block::cryptor<Cipher, mode_state<Mode, Cipher::BlockSize, v...>, key_size, cipher::decryption>
             cryptor {*this, k, lazy};
             cryptor << ciphertext;
-            if (p != cipher::block::padding::NO_PADDING) cryptor << end_message {};
         }
 
         return p == cipher::block::padding::NO_PADDING ?

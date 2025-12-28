@@ -32,19 +32,26 @@ namespace data::crypto::cipher::block {
     bytes add_padding (padding_scheme, size_t block_size, const bytes &);
     bytes remove_padding (padding_scheme, size_t block_size, const bytes &);
 
-    struct add_padding_session final : out_session<byte> {
-        data::out_session<byte> &Next;
+    struct add_padding_writer final : data::writer<byte> {
+        data::writer<byte> &Next;
 
         size_t BlockSize;
         padding_scheme Padding;
         size_t BytesWritten;
 
-        add_padding_session (out_session<byte> &next, size_t block_size, padding_scheme padding);
+        add_padding_writer (data::writer<byte> &next, size_t block_size, padding_scheme padding);
 
         void write (const byte *b, size_t size) final override;
 
+        ~add_padding_writer () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
         // add the padding.
-        void complete () final override;
+        void complete ();
     };
 
     struct remove_padding_reader final : in_session<byte> {
@@ -93,10 +100,10 @@ namespace data::crypto::cipher::block {
         data::reader<byte> &read (data::reader<byte> &r, size_t block_size, size_t &bytes_read);
     };
 
-    inline add_padding_session::add_padding_session (out_session<byte> &next, size_t block_size, padding_scheme padding):
+    inline add_padding_writer::add_padding_writer (data::writer<byte> &next, size_t block_size, padding_scheme padding):
         Next {next}, BlockSize {block_size}, Padding {padding}, BytesWritten {0} {}
 
-    inline void add_padding_session::write (const byte *b, size_t size) {
+    inline void add_padding_writer::write (const byte *b, size_t size) {
         Next.write (b, size);
         BytesWritten += size;
     }

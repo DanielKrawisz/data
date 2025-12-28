@@ -316,17 +316,13 @@ namespace data::crypto::cipher::block {
 */
     template <typename cipher, typename state, size_t key_size, direction dir> struct cryptor;
 
-    template <size_t key_size> struct cryptor_base : data::out_session<byte> {
+    template <size_t key_size> struct cryptor_base : data::writer<byte> {
         symmetric_key<key_size> Key;
         data::writer<byte> &Out;
         size_t Index;
 
         cryptor_base (const symmetric_key<key_size> &k, data::writer<byte> &next):
         Key {k}, Out {next}, Index {0} {}
-
-        void complete () final override {
-            if (Index != 0) throw exception {} << "complete called on incomplete message; message size must be a multiple of block size";
-        }
     };
 
     template <typename cipher, typename state, size_t key_size, direction dir>
@@ -359,6 +355,17 @@ namespace data::crypto::cipher::block {
                 }
             }
         }
+
+        ~cryptor () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
+        void complete () {
+            if (this->Index != 0) throw exception {} << "complete called on incomplete message; message size must be a multiple of block size";
+        }
     };
 
     template <typename cipher, typename state, size_t key_size, direction dir>
@@ -388,6 +395,15 @@ namespace data::crypto::cipher::block {
             }
             this->Out.write (result, size);
         }
+
+        ~cryptor () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
+        void complete () {}
     };
 
     template <typename cipher, typename state, size_t key_size, direction dir>
@@ -415,6 +431,15 @@ namespace data::crypto::cipher::block {
 
             this->Out.write (result, size);
         }
+
+        ~cryptor () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
+        void complete () {}
     };
 
     // encrypt and decrypt whole blocks.
