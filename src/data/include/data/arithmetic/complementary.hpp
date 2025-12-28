@@ -449,6 +449,16 @@ namespace data::arithmetic {
             slice<const word> (bt).begin ());
         return x;
     }
+
+    template <endian::order r, negativity c, std::integral word>
+    bytestring<word> bit_xor (slice<const word> a, slice<const word> b) {
+        if (a.size () < b.size ()) return bit_xor<r, c> (b, a);
+        auto bt = extend<r, c> (b, a.size ());
+        auto x = zero<r, word> (a.size ());
+        bit_xor<word> (x.end (), x.begin (), a.begin (),
+            slice<const word> (bt).begin ());
+        return x;
+    }
 }
 
 namespace data::arithmetic::nones {

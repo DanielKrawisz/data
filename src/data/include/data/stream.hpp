@@ -62,11 +62,11 @@ namespace data {
             W {result};
         };
 
-    template <typename result, typename word, Builder<result, word> builder,
-        std::invocable<builder &> F>
-    result build_with (F &&f) {
+    template <typename result, typename word, typename builder,
+        std::invocable<builder &> F, typename ...X>
+    result build_with (F &&f, X &&...x) {
         result r; {
-            builder b {r};
+            builder b {r, x...};
             f (b);
         }
         return r;

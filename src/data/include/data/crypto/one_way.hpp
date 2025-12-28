@@ -13,7 +13,10 @@ namespace data::crypto {
         none = 0,
         weak = 1,
         depricated = 2,
-        modern = 3
+        modern = 3,
+        encrypted = 4,
+        integrity = 8,
+        authenticated = 16
     };
     
     // keypair is an assertion that to_public

@@ -113,7 +113,7 @@ add_executable (
 )
 
 target_link_libraries (unit_tests
-  PRIVATE data gtest_main gmock)
+  PRIVATE net crypto data gtest_main gmock)
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)

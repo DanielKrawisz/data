@@ -8,7 +8,6 @@
 #include <data/crypto/cipher.hpp>
 #include <data/crypto/block/cipher.hpp>
 #include <data/arithmetic/complementary.hpp>
-#include <data/io/log.hpp>
 
 namespace data::crypto::cipher::block {
 
@@ -30,7 +29,7 @@ namespace data::crypto::cipher::block {
     template <typename mode, typename cipher, size_t key_size>
     concept AsymmetricStreamableMode = Cipher<cipher, mode::BlockSize, key_size> &&
         requires (mode m, const symmetric_key<key_size> &key) {
-            { m.template initialize<key_size, cipher> (key) };
+            { m.template initialize<cipher, key_size> (key) };
         } && requires (mode m, byte b) {
             { m.encrypt (b) } -> Same<byte>;
             { m.decrypt (b) } -> Same<byte>;
@@ -39,7 +38,7 @@ namespace data::crypto::cipher::block {
     template <typename mode, typename cipher, size_t key_size>
     concept SymmetricStreamableMode = Cipher<cipher, mode::BlockSize, key_size> &&
         requires (mode m, const symmetric_key<key_size> &key) {
-            { m.template initialize<key_size, cipher> (key) };
+            { m.template initialize<cipher, key_size> (key) };
         } && requires (mode m, byte b) {
             { m.crypt (b) } -> Same<byte>;
         };
@@ -74,7 +73,7 @@ namespace data::crypto::cipher::block {
         AsymmetricStreamableMode<cipher, key_size> mode>
     byte_array<mode::BlockSize> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
         byte_array<mode::BlockSize> ciphertext;
-        m.template initialize<key_size, cipher> (key);
+        m.template initialize<cipher, key_size> (key);
         for (size_t i = 0; i < mode::BlockSize; i++) ciphertext[i] = m.encrypt (block[i]);
         return ciphertext;
     }
@@ -82,7 +81,7 @@ namespace data::crypto::cipher::block {
     template <typename cipher, size_t key_size, AsymmetricStreamableMode<cipher, key_size> mode>
     byte_array<mode::BlockSize> inline decrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
         byte_array<mode::BlockSize> plaintext;
-        m.template initialize<key_size, cipher> (key);
+        m.template initialize<cipher, key_size> (key);
         for (size_t i = 0; i < mode::BlockSize; i++) plaintext[i] = m.decrypt (block[i]);
         return plaintext;
     }
@@ -91,7 +90,7 @@ namespace data::crypto::cipher::block {
     template <typename cipher, size_t key_size, SymmetricStreamableMode<cipher, key_size> mode>
     byte_array<mode::BlockSize> inline encrypt (mode &m, const symmetric_key<key_size> &key, slice<const byte, mode::BlockSize> block) {
         byte_array<mode::BlockSize> result;
-        m.template initialize<key_size, cipher> (key);
+        m.template initialize<cipher, key_size> (key);
         for (size_t i = 0; i < mode::BlockSize; i++) result[i] = m.crypt (block[i]);
         return result;
     }
@@ -220,7 +219,7 @@ namespace data::crypto::cipher::block {
         byte_array<block_size> IV {};
         size_t Index {BlockSize};
 
-        template <size_t key_size, Cipher<block_size, key_size> cipher>
+        template <typename cipher, size_t key_size>
         void initialize (const symmetric_key<key_size> &key) {
             cipher::encrypt (IV, key, IV);
             Index = 0;
@@ -284,6 +283,105 @@ namespace data::crypto::cipher::block {
 
     template <size_t block_size, endian::order r> mode_counter (const math::uint<r, block_size, byte> &iv) -> mode_counter<block_size, r>;
 
+    template <typename alg, size_t key_size, typename mode, cipher::direction direction> struct cryptor;
+
+    template <size_t key_size> struct cryptor_base : data::out_session<byte> {
+        symmetric_key<key_size> Key;
+        data::writer<byte> &Out;
+        size_t Index;
+
+        cryptor_base (const symmetric_key<key_size> &k, data::writer<byte> &next):
+        Key {k}, Out {next}, Index {0} {}
+
+        void complete () final override {
+            if (Index != 0) throw exception {} << "complete called on incomplete message; message size must be a multiple of block size";
+        }
+    };
+
+    template <typename alg, size_t key_size, StandardMode<alg, key_size> mode, cipher::direction direction>
+    struct cryptor<alg, key_size, mode, direction> : cryptor_base<key_size> {
+        mode Mode;
+        byte Plaintext[mode::BlockSize];
+
+        cryptor (const mode &m, const symmetric_key<key_size> &k, data::writer<byte> &next):
+            cryptor_base<key_size> {k, next}, Mode {m} {}
+
+        void write (const byte *b, size_t size) final override {
+            const byte *remaining = b;
+            size_t remaining_bytes = size;
+            while (remaining_bytes > 0) {
+
+                size_t bytes_to_copy = mode::BlockSize - this->Index > remaining_bytes ? remaining_bytes : mode::BlockSize - this->Index;
+                std::copy (remaining, remaining + bytes_to_copy, Plaintext + this->Index);
+                remaining += bytes_to_copy;
+                remaining_bytes -= bytes_to_copy;
+
+                this->Index += bytes_to_copy;
+                if (this->Index == mode::BlockSize) {
+                    if constexpr (direction == cipher::encryption) {
+                        this->Out << encrypt<alg> (Mode, this->Key, byte_slice {Plaintext, mode::BlockSize});
+                    } else {
+                        this->Out << decrypt<alg> (Mode, this->Key, byte_slice {Plaintext, mode::BlockSize});
+                    }
+                    this->Index = 0;
+                }
+            }
+        }
+    };
+
+    template <typename alg, size_t key_size, AsymmetricStreamableMode<alg, key_size> mode, cipher::direction direction>
+    struct cryptor<alg, key_size, mode, direction> : cryptor_base<key_size> {
+        mode Mode;
+
+        cryptor (const mode &m, const symmetric_key<key_size> &k, data::writer<byte> &next):
+        cryptor_base<key_size> {k, next}, Mode {m} {}
+
+        void write (const byte *b, size_t size) final override {
+            byte result[size];
+            size_t index = 0;
+            while (index != size) {
+
+                if (this->Index == 0) Mode.template initialize<alg> (this->Key);
+
+                if constexpr (direction == cipher::encryption) {
+                    result[index] = Mode.encrypt (*(b + index));
+                } else {
+                    result[index] = Mode.decrypt (*(b + index));
+                }
+
+                this->Index = (this->Index + 1) % mode::BlockSize;
+                index++;
+
+            }
+            this->Out.write (result, size);
+        }
+    };
+
+    template <typename alg, size_t key_size, SymmetricStreamableMode<alg, key_size> mode, cipher::direction direction>
+    struct cryptor<alg, key_size, mode, direction> : cryptor_base<key_size> {
+        mode Mode;
+
+        cryptor (const mode &m, const symmetric_key<key_size> &k, data::writer<byte> &next):
+            cryptor_base<key_size> {k, next}, Mode {m} {}
+
+        void write (const byte *b, size_t size) final override {
+
+            byte result[size];
+            size_t index = 0;
+            while (index != size) {
+
+                if (this->Index == 0) Mode.template initialize<alg> (this->Key);
+
+                result[index] = Mode.crypt (*(b + index));
+
+                this->Index = (this->Index + 1) % mode::BlockSize;
+                index++;
+
+            }
+
+            this->Out.write (result, size);
+        }
+    };
 }
 
 #endif

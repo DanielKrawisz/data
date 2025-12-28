@@ -1,4 +1,4 @@
-# everything
+# everything except crypto and net.
 add_library (data INTERFACE)
 
 # functional data structures, arrays
@@ -108,7 +108,7 @@ target_link_libraries (
   OpenSSL::SSL
   OpenSSL::Crypto
   PkgConfig::cryptopp
-  sv
+
 )
 
 target_sources (
@@ -206,8 +206,6 @@ target_link_libraries (
 
   INTERFACE
 
-  crypto
-  net
   numbers
   io
 
