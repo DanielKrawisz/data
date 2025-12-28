@@ -68,9 +68,8 @@ namespace data::crypto::cipher::stream {
 
     struct Panama : CryptoPP::PanamaCipher<CryptoPP::LittleEndian>::Encryption {
         constexpr static const security Security = security::modern;
-        template <size_t key_size> requires (key_size <= 32)
-        Panama (const symmetric_key<key_size> &key, const initialization_vector<32> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key_size, IV.data (), 32);
+        Panama (const symmetric_key<32> &key, const initialization_vector<32> &IV) {
+            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), 32, IV.data (), 32);
         }
     };
 }

@@ -529,6 +529,56 @@ namespace data::crypto::cipher {
         new_key[0] = ~new_key[0];
         return new_key;
     }
+
+    // Some stuff for testing ciphers with readers and writers.
+
+    constexpr const uint32_little Magic = 0x12345678;
+
+    struct message : string {
+        using string::string;
+    } msg1 {""}, msg2 {"msg2"},
+    msg3 {"this message is definitely longer than a single block if we are using a block cipher"};
+
+    writer<byte> inline &operator << (writer<byte> &w, const message &m) {
+        return w << Magic << uint32_little {static_cast<uint32> (m.size ())} << bytes (m);
+    }
+
+    reader<byte> inline &operator >> (reader<byte> &r, message &m) {
+        uint32_little magic;
+        r >> magic;
+        if (magic != Magic) throw exception {} << "Nope";
+        uint32_little size;
+        r >> size;
+        bytes result;
+        result.resize (size_t (uint32 (size)));
+        r >> result;
+        m = message (string (result));
+        return r;
+    }
+
+    template <typename E> void cipher_encrypt (E &e) {
+        e << msg1;
+        e << msg2;
+        e << msg3;
+    }
+
+    template <typename E> void cipher_decrypt (E &e) {
+        message result1;
+        message result2;
+        message result3;
+
+        e >> result1;
+        e >> result2;
+        e >> result3;
+
+        EXPECT_EQ (result1, msg1);
+        EXPECT_EQ (result2, msg2);
+        EXPECT_EQ (result3, msg3);
+    }
+
+    // TODO test change padding
+    // TODO test change key
+    // TODO test change MAC key
 }
 
 namespace data::crypto::cipher::block {
@@ -585,8 +635,7 @@ namespace data::crypto::cipher::block {
         try {
             bytes decrypted = data::crypto::decrypt (m, key, ciphertext);
             EXPECT_NE (plaintext, decrypted);
-        } catch (exception &) {
-        }
+        } catch (exception &) {}
     }
 
     template <typename cipher, padding_scheme padding, size_t key_size>
@@ -772,7 +821,7 @@ namespace data::crypto::cipher::block {
 
     paddings<padding::NO_PADDING, padding::ONE_AND_ZEROS_PADDING, padding::PKCS_PADDING> supported_padding {};
 
-    TEST (BlockCipher, Crypt) {
+    TEST (BlockCipher, EncryptDecrypt) {
 
         key_sizes<8, 16, 20, 24, 28, 32, 40, 48, 56> key_test_sizes {};
 
@@ -780,8 +829,18 @@ namespace data::crypto::cipher::block {
             bytes {string {"hi, this is a message that is definitely longer than a single block"}});
 
     }
+}
 
-    // TODO need to try encrypting and decrypting full messages with the session interface.
+namespace data::crypto::cipher::block {
+
+    TEST (BlockCipher, WriteRead) {
+
+        key_sizes<8, 16, 20, 24, 28, 32, 40, 48, 56> key_test_sizes {};
+
+        test_block_ciphers (supported_block_ciphers, supported_block_modes, key_test_sizes, supported_padding,
+            bytes {string {"hi, this is a message that is definitely longer than a single block"}});
+
+    }
 }
 
 namespace data::crypto::cipher {
@@ -789,7 +848,7 @@ namespace data::crypto::cipher {
     ciphers<stream::XChaCha20, stream::XSalsa20, stream::Salsa20,
         stream::HC128, stream::HC256, stream::Panama> supported_stream_ciphers {};
 
-    using IV_sizes = std::index_sequence<24, 24, 8, 16, 32, 0>;
+    using IV_sizes = std::index_sequence<24, 24, 8, 16, 32, 32>;
 
     template <typename alg, size_t key_size, typename IV>
     void stream_encrypt_and_decrypt (const symmetric_key<key_size> &key, const IV &iv, const bytes &message) {
@@ -819,32 +878,27 @@ namespace data::crypto::cipher {
     }
 
     template <size_t cipher_index, size_t key_index,
-        typename... cph, size_t... key_sizes, size_t ...iv_sizes>
+        typename... cph, size_t ...key_sizes, size_t ...iv_sizes>
     void test_stream_ciphers_for (ciphers<cph...> c, keys<key_sizes...> k, const bytes &msg, std::index_sequence<iv_sizes...> ivs) {
-        if constexpr (cipher_index >= sizeof...(cph)) return;
-        else if constexpr (key_index >= std::tuple_size<typename keys<key_sizes...>::parent>::value) {
+        if constexpr (cipher_index >= sizeof... (cph)) return;
+        else if constexpr (key_index >= sizeof... (key_sizes))
             test_stream_ciphers_for<cipher_index + 1, 0> (c, k, msg, ivs);
-        } else {
+        else {
 
             auto key = std::get<key_index> (k);
-            auto key_size = meta::get_value<key_index, key_sizes...>::value;
             using cipher = typename meta::get_type<cipher_index, cph...>::type;
             constexpr static const size_t iv_size = meta::get_value<cipher_index, iv_sizes...>::value;
 
-            if constexpr (iv_size == 0) {
-                test_stream_cipher<cipher> (key, mutate_key (key), bytes {}, msg);
-            } else {
-                byte_array<iv_size> iv;
-                std::copy (IV1.begin (), IV1.begin () + iv_size, iv.begin ());
-                test_stream_cipher<cipher> (key, mutate_key (key), iv, msg);
-            }
+            byte_array<iv_size> iv;
+            std::copy (IV1.begin (), IV1.begin () + iv_size, iv.begin ());
+            test_stream_cipher<cipher> (key, mutate_key (key), iv, msg);
 
             test_stream_ciphers_for<cipher_index, key_index + 1> (c, k, msg, ivs);
         }
     }
 
-    template <typename... cph, size_t... key_sizes, typename IV_sizes>
-    void test_stream_ciphers (ciphers<cph...> c, keys<key_sizes...> k, const bytes &msg, const IV_sizes &ivs) {
+    template <typename... cph, typename keys, typename IV_sizes>
+    void test_stream_ciphers (ciphers<cph...> c, keys k, const bytes &msg, const IV_sizes &ivs) {
         test_stream_ciphers_for<0, 0> (c, k, msg, ivs);
     }
 
