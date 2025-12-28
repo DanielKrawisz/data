@@ -9,7 +9,6 @@
 #include <data/get.hpp>
 #include <data/lift.hpp>
 #include <data/math/permutation.hpp>
-#include <data/io/log.hpp>
 
 namespace data {
 

@@ -29,6 +29,39 @@ namespace data::log {
         critical
     };
 
+    /*  --------------------------- START HERE -------------------------
+        Call init () to initialize logging. The type returned is a
+        temporary and initialization will take place at the ; at the end
+        of the line. If you don't call init, default values will be
+        selected. (print to screen, debug level)
+
+        Use
+
+            init ()->filename (string)
+
+        to set a filename to log into.
+
+        Use
+
+            init ()->min_security_level (severity_level)
+
+        to set the min security level.
+    */
+    auto init ();
+}
+
+    /*  ----------------------- Use this to log -----------------------
+        Convenience macro for logging with only a severity, using the
+        default channel the logger was created with ("data").
+        Example:
+        DATA_LOG (error) << "File not found";
+    */
+#define DATA_LOG(sev) \
+    BOOST_LOG_SEV((data::log::global_log::get ()),(data::log::severity_level::sev)) << \
+        ::data::log::indent_string (::data::log::indent::depth ())
+
+namespace data::log {
+
     std::ostream &operator << (std::ostream &strm, severity_level level);
 
     // Define a logger type that supports:
@@ -77,10 +110,7 @@ namespace data::log {
         ~initializer ();
     };
 
-    // call this before logging.
-    //   use ->filename (string) to set a filename to log into.
-    //   use ->min_level (severity_level)
-    ptr<initializer> inline init () {
+    auto inline init () {
         return std::make_shared<initializer> ();
     }
 
@@ -115,16 +145,8 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
 // Example usage:
 //     DATA_LOG_CHANNEL("network", warning) << "Lost connection";
 // This expands to BOOST_LOG_CHANNEL_SEV(logger, channel, severity)
-#define DATA_LOG_CHANNEL(channel,sev) \
+#define DATA_LOG_CHANNEL(channel, sev) \
     BOOST_LOG_CHANNEL_SEV((data::log::global_log::get()),(channel),(data::log::severity_level::sev)) << \
-        ::data::log::indent_string (::data::log::indent::depth ())
-
-// Convenience macro for logging with only a severity, using the default channel
-// the logger was created with ("data").
-// Example:
-//     DATA_LOG(error) << "File not found";
-#define DATA_LOG(sev) \
-    BOOST_LOG_SEV((data::log::global_log::get()),(data::log::severity_level::sev)) << \
         ::data::log::indent_string (::data::log::indent::depth ())
 
 }

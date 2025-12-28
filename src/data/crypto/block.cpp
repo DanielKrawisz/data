@@ -68,6 +68,7 @@ namespace data::crypto::cipher::block {
                 byte last = bb[bb.size () - 1];
                 // last is the expected number of padding digits.
                 // all padding digits must be equal to last.
+                if (last == 0) throw invalid_padding {};
                 if (last > bb.size ()) throw invalid_padding {};
                 for (int i = bb.size () - 2; i >= int64 (bb.size () - last); i--) if (bb[i] != last) throw invalid_padding {};
                 return take (bb, bb.size () - last);
@@ -78,7 +79,8 @@ namespace data::crypto::cipher::block {
                 if (bb.size () % block_size != 0) throw invalid_padding {};
                 uint32 padding_size = 1;
                 int i = bb.size () - 1;
-                while (bb[i] == 0) {
+                while (i > 0) {
+                    if (bb[i] != 0) break;
                     padding_size++;
                     i--;
                 }
@@ -132,8 +134,8 @@ namespace data::crypto::cipher::block {
     }
 
     data::writer<byte> &pad<padding::ONE_AND_ZEROS_PADDING>::write (data::writer<byte> &w, size_t block_size, size_t &bytes_written) {
+        // we always write at least one byte of padding.
         size_t bytes_to_write = block_size - (bytes_written % block_size);
-        if (bytes_to_write == 0) bytes_to_write = block_size;
         bytes_written += bytes_to_write;
         w << byte (0x80);
         for (int i = 1; i < bytes_to_write; i++) w << byte (0);

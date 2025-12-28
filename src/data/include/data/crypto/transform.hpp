@@ -10,6 +10,8 @@
 #include <data/list.hpp>
 #include <cryptopp/filters.h>
 
+// TODO it would be nice if we could get rid of this whole file.
+
 namespace data {
 
     struct buffer_writer final : reader<byte>, message_writer<bytes, byte>, CryptoPP::NotCopyable {
