@@ -248,7 +248,6 @@
 #include <data/set.hpp>
 #include <data/tuple.hpp>
 #include <data/encoding/read.hpp>
-#include <data/io/log.hpp>
 
 namespace data::schema::rule {
 

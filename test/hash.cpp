@@ -130,10 +130,9 @@ namespace data {
         EXPECT_EQ (hash::calculate<crypto::hash::MD5> (test), hash::digest<16> {expected});
         EXPECT_EQ (hash::calculate<hash::writer<crypto::hash::MD5>> (test), hash::digest<16> {expected});
 
-        hash::digest<16> result; {
-            hash::writer<crypto::hash::MD5> w {result};
+        hash::digest<16> result = build_with<hash::digest<16>, byte, hash::writer<crypto::hash::MD5>> ([&test] (auto &w) {
             w << test;
-        }
+        });
 
         EXPECT_EQ (result, hash::digest<16> {expected});
 
