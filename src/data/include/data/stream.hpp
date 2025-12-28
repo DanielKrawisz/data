@@ -17,7 +17,7 @@ namespace data {
     template <std::integral word>
     struct writer {
         virtual void write (const word *, size_t size) = 0;
-        virtual ~writer () {}
+        virtual ~writer () noexcept (false) {}
     };
 
     template <std::integral word>
@@ -36,7 +36,7 @@ namespace data {
     struct reader {
         virtual void read (word *, size_t size) = 0;
         virtual void skip (size_t size) = 0;
-        virtual ~reader () {}
+        virtual ~reader () noexcept (false) {}
     };
     
     template <std::integral word>
