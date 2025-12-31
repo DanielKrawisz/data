@@ -101,25 +101,27 @@ namespace data {
         virtual ~message_writer () {};
     };
 
-    template <typename message, std::integral word, typename T> requires requires (writer<word> &w, const T &x) {
+    // a message writer has the concept of an end to a message.
+    template <std::integral word> using out_session = message_writer<void, word>;
+
+    template <std::integral word>
+    struct in_session : virtual reader<word> {
+        virtual void complete () = 0;
+        virtual ~in_session () {};
+    };
+
+    // this ensures that every definition made with writer will work with message_reader (and writer).
+    template <typename X, std::integral word, typename T> requires requires (writer<word> &w, const T &x) {
         { w << x };
-    } message_writer<message, word> &operator << (message_writer<message, word> &w, const T &x) {
+    } message_writer<X, word> inline &operator << (message_writer<X, word> &w, const T &x) {
         static_cast<writer<word> &> (w) << x;
         return w;
     }
 
-    // a message writer has the concept of an end to a message.
-    template <std::integral word>
-    struct out_session : virtual writer<word> {
-        virtual void complete () = 0;
-        virtual ~out_session () {};
-    };
-
-    // this ensures that every definition made with writer will work with write_session.
-    template <std::integral word, typename T> requires requires (writer<word> &w, const T &x) {
-        { w << x };
-    } out_session<word> &operator << (out_session<word> &w, const T &x) {
-        static_cast<writer<word> &> (w) << x;
+    template <std::integral word, typename T> requires requires (reader<word> &w, T &x) {
+        { w >> x };
+    } in_session<word> inline &operator >> (in_session<word> &w, T &x) {
+        static_cast<reader<word> &> (w) >> x;
         return w;
     }
 
@@ -131,9 +133,8 @@ namespace data {
     }
 
     template <std::integral word>
-    out_session<word> inline &operator << (out_session<word> &w, end_message) {
-        w.complete ();
-        return w;
+    void inline operator >> (in_session<word> &w, end_message) {
+        return w.complete ();
     }
 
     // you have to know how big the string is going to be in

@@ -29,33 +29,11 @@ namespace data::crypto::cipher::block {
         { W {out, m, k, p} };
     };
 
-    template <typename cipher, size_t key_size, Mode<cipher, key_size> mode> struct encryptor {
-        encryptor (data::writer<byte> &out, const mode &m, const symmetric_key<key_size> &key, padding_scheme = padding::DEFAULT_PADDING);
-        ~encryptor ();
-
-        data::writer<byte> &Out;
-        mode Mode;
-        symmetric_key<key_size> Key;
-        padding_scheme Padding;
-        size_t BytesWritten;
-    };
-
-    template <typename cipher, size_t key_size, Mode<cipher, key_size> mode> struct decryptor {
-        decryptor (data::writer<byte> &out, const mode &m, const symmetric_key<key_size> &key, padding_scheme = padding::DEFAULT_PADDING);
-        ~decryptor ();
-
-        data::writer<byte> &Out;
-        mode Mode;
-        symmetric_key<key_size> Key;
-        padding_scheme Padding;
-        size_t BytesWritten;
-    };
-
     bytes add_padding (padding_scheme, size_t block_size, const bytes &);
     bytes remove_padding (padding_scheme, size_t block_size, const bytes &);
 
     struct add_padding_session final : out_session<byte> {
-        data::writer<byte> &Next;
+        data::out_session<byte> &Next;
 
         size_t BlockSize;
         padding_scheme Padding;
@@ -69,16 +47,8 @@ namespace data::crypto::cipher::block {
         void complete () final override;
     };
 
-    // a new type of reader that lets you say when a message is done in order to skip padding.
-    template <std::integral word>
-    struct message_reader : reader<word> {
-        virtual void complete () = 0;
-
-        virtual ~message_reader () {}
-    };
-
-    struct remove_padding_reader final : message_reader<byte> {
-        reader<byte> &Previous;
+    struct remove_padding_reader final : in_session<byte> {
+        in_session<byte> &Previous;
 
         size_t BlockSize;
         padding_scheme Padding;
