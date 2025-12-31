@@ -119,3 +119,10 @@ gtest_discover_tests (unit_tests)
 if (OPTIONAL_TESTS)
     add_subdirectory (optional)
 endif ()
+
+target_compile_options (unit_tests PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048>
+    $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048>
+    $<$<CXX_COMPILER_ID:AppleClang>:-ftemplate-depth=2048>
+    $<$<CXX_COMPILER_ID:MSVC>:/constexpr:depth2048>
+)

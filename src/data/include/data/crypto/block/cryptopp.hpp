@@ -6,7 +6,6 @@
 #define DATA_CRYPTO_BLOCK_CRYPTOPP
 
 #include <data/crypto/block/cipher.hpp>
-#include <data/crypto/block/writer.hpp>
 #include <cryptopp/modes.h>
 
 #include <cryptopp/rijndael.h>
@@ -15,6 +14,30 @@
 #include <cryptopp/rc6.h>
 #include <cryptopp/mars.h>
 #include <cryptopp/des.h>
+
+namespace data::crypto::cipher::block::CryptoPP {
+    using namespace ::CryptoPP;
+
+    // should conatin a typedef named type that returns the cryptopp type.
+    template <typename cipher> struct get_cipher_type;
+
+    // should conatin a typedef named type that returns the cryptopp type.
+    template <typename mode, typename cipher> struct get_block_mode_type;
+
+    template <typename T, CryptoPP::CipherDir Dir>
+    struct select_cipher_direction;
+
+    template <typename T>
+    struct select_cipher_direction<T, CryptoPP::ENCRYPTION> {
+        using type = typename T::Encryption;
+    };
+
+    template <typename T>
+    struct select_cipher_direction<T, CryptoPP::DECRYPTION> {
+        using type = typename T::Decryption;
+    };
+
+}
 
 namespace data::crypto::cipher::block::CryptoPP {
     template <>
@@ -40,31 +63,6 @@ namespace data::crypto::cipher::block::CryptoPP {
     template <>
     struct get_cipher_type<block::MARS> {
         using type = CryptoPP::MARS;
-    };
-
-    template <size_t block_size, typename cipher>
-    struct get_block_mode_type<block::ECB<block_size>, cipher> {
-        using type = ECB_Mode<typename get_cipher_type<cipher>::type>;
-    };
-
-    template <size_t block_size, typename cipher>
-    struct get_block_mode_type<block::CBC<block_size>, cipher> {
-        using type = CBC_Mode<typename get_cipher_type<cipher>::type>;
-    };
-
-    template <size_t block_size, typename cipher>
-    struct get_block_mode_type<block::CFB<block_size>, cipher> {
-        using type = CFB_Mode<typename get_cipher_type<cipher>::type>;
-    };
-
-    template <size_t block_size, typename cipher>
-    struct get_block_mode_type<block::OFB<block_size>, cipher> {
-        using type = OFB_Mode<typename get_cipher_type<cipher>::type>;
-    };
-
-    template <size_t block_size, typename cipher>
-    struct get_block_mode_type<block::CTR<block_size, endian::big>, cipher> {
-        using type = CTR_Mode<typename get_cipher_type<cipher>::type>;
     };
 
 }
@@ -120,6 +118,32 @@ namespace data::crypto::cipher::block {
     void inline MARS::decrypt (MARS::block_out out, const symmetric_key<key_size> &key, MARS::block_in in) {
         CryptoPP::MARS::Decryption {key.data (), key_size}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
+
+    void DES::encrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
+        //if (CryptoPP::DES::IsWeak (key)) throw exception {} << "DES with weak key";
+        CryptoPP::DES::Encryption {key.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+    }
+
+    void DES::decrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
+        //if (CryptoPP::DES::IsWeak (key)) throw exception {} << "DES with weak key";
+        CryptoPP::DES::Decryption {key.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+    }
+/*
+    void TripleDES::encrypt (block_out o, const symmetric_key<14> &key, block_in i) {}
+
+    void TripleDES::decrypt (block_out o, const symmetric_key<14> &key, block_in i) {}
+
+    void TripleDES::encrypt (block_out o, const symmetric_key<16> &key, block_in i) {}
+
+    void TripleDES::decrypt (block_out o, const symmetric_key<16> &key, block_in i) {}
+
+    void TripleDES::encrypt (block_out o, const symmetric_key<21> &key, block_in i) {}
+
+    void TripleDES::decrypt (block_out o, const symmetric_key<21> &key, block_in i) {}
+
+    void TripleDES::encrypt (block_out o, const symmetric_key<24> &key, block_in i) {}
+
+    void TripleDES::decrypt (block_out o, const symmetric_key<24> &key, block_in i) {}*/
 }
 
 #endif
