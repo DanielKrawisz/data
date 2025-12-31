@@ -1,6 +1,5 @@
 
 #include <data/crypto/block.hpp>
-#include <data/crypto/block/cryptopp.hpp>
 #include <data/crypto/transform.hpp>
 
 namespace data::crypto::cipher::block {
@@ -13,19 +12,20 @@ namespace data::crypto::cipher::block {
             }
             case (padding::ZEROS_PADDING): {
                 pad<padding::ZEROS_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                return;
+                break;
             }
             case (padding::PKCS_PADDING): {
                 pad<padding::PKCS_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                return;
+                break;
             }
             case (padding::W3C_PADDING): {
                 pad<padding::W3C_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                return;
+                break;
             }
             case (padding::ONE_AND_ZEROS_PADDING):
             default: pad<padding::ONE_AND_ZEROS_PADDING> {}.write (Next, BlockSize, BytesWritten);
         }
+        Next.complete ();
     }
 
     void remove_padding_reader::complete () {
@@ -36,19 +36,20 @@ namespace data::crypto::cipher::block {
             }
             case (padding::ZEROS_PADDING): {
                 pad<padding::ZEROS_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                return;
+                break;
             }
             case (padding::PKCS_PADDING): {
                 pad<padding::PKCS_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                return;
+                break;
             }
             case (padding::W3C_PADDING): {
                 pad<padding::W3C_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                return;
+                break;
             }
             case (padding::ONE_AND_ZEROS_PADDING):
             default: pad<padding::ONE_AND_ZEROS_PADDING> {}.read (Previous, BlockSize, BytesRead);
         }
+        Previous.complete ();
     }
 
     bytes add_padding (padding_scheme scheme, size_t block_size, const bytes &msg) {
