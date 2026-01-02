@@ -4,26 +4,19 @@
 
 namespace data::crypto::cipher::block {
 
-    void add_padding_writer::complete () {
-        switch (Padding) {
-            case (padding::NO_PADDING): {
-                pad<padding::NO_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                break;
-            }
-            case (padding::ZEROS_PADDING): {
-                pad<padding::ZEROS_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                break;
-            }
-            case (padding::PKCS_PADDING): {
-                pad<padding::PKCS_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                break;
-            }
-            case (padding::W3C_PADDING): {
-                pad<padding::W3C_PADDING> {}.write (Next, BlockSize, BytesWritten);
-                break;
-            }
+    data::writer<byte> &add_padding (data::writer<byte> &next, padding_scheme p, size_t block_size, size_t bytes_written) {
+
+        switch (p) {
+            case (padding::NO_PADDING):
+                return pad<padding::NO_PADDING> {}.write (next, block_size, bytes_written);
+            case (padding::ZEROS_PADDING):
+                return pad<padding::ZEROS_PADDING> {}.write (next, block_size, bytes_written);
+            case (padding::PKCS_PADDING):
+                return pad<padding::PKCS_PADDING> {}.write (next, block_size, bytes_written);
+            case (padding::W3C_PADDING):
+                return pad<padding::W3C_PADDING> {}.write (next, block_size, bytes_written);
             case (padding::ONE_AND_ZEROS_PADDING):
-            default: pad<padding::ONE_AND_ZEROS_PADDING> {}.write (Next, BlockSize, BytesWritten);
+            default: return pad<padding::ONE_AND_ZEROS_PADDING> {}.write (next, block_size, bytes_written);
         }
     }
 

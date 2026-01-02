@@ -68,6 +68,12 @@ namespace data::crypto::cipher::block {
         void complete () final override;
     };
 
+    data::writer<byte> &add_padding (data::writer<byte> &, padding_scheme, size_t block_size, size_t bytes_written);
+
+    void inline add_padding_writer::complete () {
+        add_padding (Next, Padding, BlockSize, BytesWritten);
+    }
+
     template <padding_scheme padding> struct pad;
 
     template <> struct pad<padding::NO_PADDING> {
