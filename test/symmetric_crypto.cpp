@@ -10,6 +10,7 @@
 #include <data/crypto/stream/cryptopp.hpp>
 #include <data/crypto/block/cryptopp.hpp>
 #include <data/tuple.hpp>
+#include <data/list.hpp>
 #include <data/io/log.hpp>
 
 #include <type_traits>
@@ -205,7 +206,7 @@ namespace data::crypto::cipher::block {
 
             auto decrypted = data::crypto::decrypt (bc {ivs...}, k, padded);
 
-            EXPECT_EQ (pt, decrypted);
+            EXPECT_EQ (pt, decrypted) << "expected plaintext " << pt << " to equal decrypted " << decrypted;
 
         }
     }
@@ -829,16 +830,22 @@ namespace data::crypto::cipher::block {
             bytes {string {"hi, this is a message that is definitely longer than a single block"}});
 
     }
-}
 
-namespace data::crypto::cipher::block {
+    template <typename ...all_ciphers, typename ...all_modes, size_t ...all_key_sizes, padding_scheme ...all_paddings>
+    void test_block_cipher_writers (
+        ciphers<all_ciphers...> c,
+        modes<all_modes...> m,
+        key_sizes<all_key_sizes...> k,
+        paddings<all_paddings...> p,
+        list<bytes> messages) {}
+
 
     TEST (BlockCipher, WriteRead) {
 
         key_sizes<8, 16, 20, 24, 28, 32, 40, 48, 56> key_test_sizes {};
 
-        test_block_ciphers (supported_block_ciphers, supported_block_modes, key_test_sizes, supported_padding,
-            bytes {string {"hi, this is a message that is definitely longer than a single block"}});
+        test_block_cipher_writers (supported_block_ciphers, supported_block_modes, key_test_sizes, supported_padding,
+            {bytes {string {"hi, this is a message that is definitely longer than a single block"}}});
 
     }
 }

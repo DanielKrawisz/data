@@ -15,41 +15,54 @@
 
 namespace data::crypto {
 
-    template <typename Cipher, cipher::block::mode mode, auto ...v> struct block_cipher;
+    template <typename Cipher, cipher::block::mode mode, auto ...mode_params> struct block_cipher;
 
-    template <typename Cipher, cipher::block::mode mode, auto ...v, size_t key_size>
+    template <typename Cipher, cipher::block::mode mode, auto ...mode_params, size_t key_size>
     requires cipher::block::Cipher<Cipher, key_size>
-    bytes encrypt (const block_cipher<Cipher, mode, v...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext);
+    bytes encrypt (const block_cipher<Cipher, mode, mode_params...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext);
 
-    template <typename Cipher, cipher::block::mode mode, auto ...v, size_t key_size>
+    template <typename Cipher, cipher::block::mode mode, auto ...mode_params, size_t key_size>
     requires cipher::block::Cipher<Cipher, key_size>
-    bytes decrypt (const block_cipher<Cipher, mode, v...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext);
+    bytes decrypt (const block_cipher<Cipher, mode, mode_params...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext);
+}
+
+namespace data::crypto::cipher {
+
+    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct encryptor<block_cipher<Cipher, mode, mode_params...>, key_size>;
+
+    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct decryptor<block_cipher<Cipher, mode, mode_params...>, key_size>;
+
+}
+
+namespace data::crypto {
 
     namespace {
-        template <cipher::block::mode mode, size_t block_size, auto ...v> struct get_mode_state {
-            using type = cipher::block::state<mode, block_size, v...>;
+        template <cipher::block::mode mode, size_t block_size, auto ...mode_params> struct get_mode_state {
+            using type = cipher::block::state<mode, block_size, mode_params...>;
         };
 
-        template <size_t block_size, auto ...v> struct get_mode_state<cipher::block::mode::ECB, block_size, v...> {
-            using type = cipher::block::state<cipher::block::mode::ECB, v...>;
+        template <size_t block_size> struct get_mode_state<cipher::block::mode::ECB, block_size> {
+            using type = cipher::block::state<cipher::block::mode::ECB>;
         };
 
-        template <cipher::block::mode mode, size_t block_size, auto ...v>
-        using mode_state = get_mode_state<mode, block_size, v...>::type;
+        template <cipher::block::mode mode, size_t block_size, auto ...mode_params>
+        using mode_state = get_mode_state<mode, block_size, mode_params...>::type;
     }
 
-    template <typename Cipher, cipher::block::mode Mode, auto ...v>
-    struct block_cipher : mode_state<Mode, Cipher::BlockSize, v...> {
+    template <typename Cipher, cipher::block::mode Mode, auto ...mode_params>
+    struct block_cipher : mode_state<Mode, Cipher::BlockSize, mode_params...> {
         cipher::block::padding_scheme Padding;
 
         template <typename T> requires requires (T t) {
-            mode_state<Mode, Cipher::BlockSize, v...> {t};
+            mode_state<Mode, Cipher::BlockSize, mode_params...> {t};
         }
         constexpr block_cipher (T &&x, cipher::block::padding_scheme p = cipher::block::padding::DEFAULT_PADDING):
-        mode_state<Mode, Cipher::BlockSize, v...> {std::forward<T> (x)}, Padding {p} {}
+        mode_state<Mode, Cipher::BlockSize, mode_params...> {std::forward<T> (x)}, Padding {p} {}
 
         constexpr block_cipher (cipher::block::padding_scheme p = cipher::block::padding::DEFAULT_PADDING):
-        mode_state<Mode, Cipher::BlockSize, v...> {}, Padding {p} {}
+        mode_state<Mode, Cipher::BlockSize, mode_params...> {}, Padding {p} {}
 
         template <size_t key_size> bytes encrypt (const symmetric_key<key_size> &k, byte_slice plaintext) const;
         template <size_t key_size> bytes decrypt (const symmetric_key<key_size> &k, byte_slice ciphertext) const;
@@ -59,20 +72,23 @@ namespace data::crypto {
         }
     };
 
-    template <typename Cipher, cipher::block::mode Mode, auto ...v>
-    std::ostream &operator << (std::ostream &, const block_cipher<Cipher, Mode, v...>);
+    template <typename Cipher, cipher::block::mode Mode, auto ...mode_params>
+    std::ostream &operator << (std::ostream &, const block_cipher<Cipher, Mode, mode_params...>);
 
-    template <typename Cipher, cipher::block::mode mode, auto ...v, size_t key_size>
+    template <typename Cipher, cipher::block::mode mode, auto ...mode_params, size_t key_size>
     requires cipher::block::Cipher<Cipher, key_size>
-    bytes inline encrypt (const block_cipher<Cipher, mode, v...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext) {
+    bytes inline encrypt (const block_cipher<Cipher, mode, mode_params...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext) {
         return algorithm.encrypt (key, plaintext);
     }
 
-    template <typename Cipher, cipher::block::mode mode, auto ...v, size_t key_size>
+    template <typename Cipher, cipher::block::mode mode, auto ...mode_params, size_t key_size>
     requires cipher::block::Cipher<Cipher, key_size>
-    bytes inline decrypt (const block_cipher<Cipher, mode, v...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext) {
+    bytes inline decrypt (const block_cipher<Cipher, mode, mode_params...> &algorithm, const symmetric_key<key_size> &key, const bytes &plaintext) {
         return algorithm.decrypt (key, plaintext);
     }
+}
+
+namespace data::crypto::cipher {
 
     // we require padding schemes that enable identification of the end
     // of the message. Valid padding schemes are ONE_AND_ZEROS_PADDING,
@@ -83,8 +99,8 @@ namespace data::crypto {
     cipher::block::padding_scheme inline validate_padding (cipher::block::padding_scheme p) {
         if (p == cipher::block::padding::DEFAULT_PADDING)
             return cipher::block::is_streamable (mode) ?
-                cipher::block::padding::NO_PADDING :
-                cipher::block::padding::ONE_AND_ZEROS_PADDING;
+            cipher::block::padding::NO_PADDING :
+            cipher::block::padding::ONE_AND_ZEROS_PADDING;
 
         if (cipher::block::is_streamable (mode) && p == cipher::block::padding::NO_PADDING)
             return p;
@@ -95,24 +111,63 @@ namespace data::crypto {
         return p;
     }
 
-    template <typename Cipher, cipher::block::mode Mode, auto ...v> template <size_t key_size>
-    bytes block_cipher<Cipher, Mode, v...>::encrypt (const symmetric_key<key_size> &k, byte_slice plaintext) const {
+    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct encryptor<block_cipher<Cipher, mode, mode_params...>, key_size> : data::writer<byte> {
+        cipher::block::cryptor<Cipher, mode_state<mode, Cipher::BlockSize, mode_params...>, key_size, cipher::encryption> Encryptor;
+        block::padding_scheme Padding;
+        size_t BytesWritten {0};
 
-        cipher::block::padding_scheme p = validate_padding<Mode> (Padding);
+        encryptor (
+            const block_cipher<Cipher, mode, mode_params...> &algorithm,
+            const symmetric_key<key_size> &k,
+            data::writer<byte> &next): Encryptor {algorithm, k, next}, Padding {validate_padding<mode> (algorithm.Padding)} {}
+
+        void write (const byte *b, size_t size) final override {
+            Encryptor.write (b, size);
+            BytesWritten += size;
+        }
+
+        ~encryptor () noexcept (false) {
+            if (std::uncaught_exceptions () == 0 && Padding != block::padding::NO_PADDING)
+                cipher::block::add_padding (Encryptor, Padding, Cipher::BlockSize, BytesWritten);
+        }
+    };
+
+    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct decryptor<block_cipher<Cipher, mode, mode_params...>, key_size> : data::reader<byte> {
+        cipher::block::cryptor<Cipher, mode_state<mode, Cipher::BlockSize, mode_params...>, key_size, cipher::decryption> Decryptor;
+        block::padding_scheme Padding;
+        size_t BytesRead {0};
+
+        decryptor (
+            const block_cipher<Cipher, mode, mode_params...> &algorithm,
+            const symmetric_key<key_size> &k, data::reader<byte> &prev):
+            Decryptor {algorithm, k, prev}, Padding {validate_padding<mode> (algorithm.padding)} {}
+
+        void read (byte *b, size_t size) final override {
+            Decryptor.read (b, size);
+            BytesRead += size;
+        }
+
+        // TODO this doesn't work because we don't use the number of bytes written.
+        ~decryptor () noexcept (false) {
+            if (std::uncaught_exceptions () == 0 && Padding != block::padding::NO_PADDING)
+                block::remove_padding_reader {Decryptor, Cipher::BlockSize, Padding};
+        }
+    };
+
+}
+
+namespace data::crypto {
+
+    template <typename Cipher, cipher::block::mode Mode, auto ...mode_params> template <size_t key_size>
+    bytes block_cipher<Cipher, Mode, mode_params...>::encrypt (const symmetric_key<key_size> &k, byte_slice plaintext) const {
         bytes ciphertext;
 
         {
             lazy_bytes_writer lazy {ciphertext};
-            cipher::block::cryptor<Cipher, mode_state<Mode, Cipher::BlockSize, v...>, key_size, cipher::encryption>
-            cryptor {*this, k, lazy};
-
-            if (p == cipher::block::padding::NO_PADDING) {
-                cryptor << plaintext;
-            } else {
-                cipher::block::add_padding_writer padded {cryptor, Cipher::BlockSize, validate_padding<Mode> (Padding)};
-                padded << plaintext;
-            } // padding added here
-
+            cipher::encryptor<block_cipher<Cipher, Mode, mode_params...>, key_size> cryptor {*this, k, lazy};
+            cryptor << plaintext;
         } //result is written to here.
 
         return ciphertext;
@@ -120,7 +175,7 @@ namespace data::crypto {
 
     template <typename Cipher, cipher::block::mode Mode, auto ...v> template <size_t key_size>
     bytes block_cipher<Cipher, Mode, v...>::decrypt (const symmetric_key<key_size> &k, byte_slice ciphertext) const {
-        auto p = validate_padding<Mode> (Padding);
+        auto p = cipher::validate_padding<Mode> (Padding);
 
         bytes plaintext;
         {
@@ -134,13 +189,6 @@ namespace data::crypto {
             plaintext :
             cipher::block::remove_padding (p, Cipher::BlockSize, plaintext);
     }
-}
-
-namespace data::crypto::cipher {
-
-    template <typename Cipher, cipher::block::mode mode, auto ...v> struct encryptor<block_cipher<Cipher, mode, v...>>;
-    template <typename Cipher, cipher::block::mode mode, auto ...v> struct decryptor<block_cipher<Cipher, mode, v...>>;
-
 }
 
 #endif
