@@ -5,6 +5,7 @@
 #ifndef DATA_CRYPTO_BLOCK_CIPHER
 #define DATA_CRYPTO_BLOCK_CIPHER
 
+#include <data/crypto/one_way.hpp>
 #include <data/crypto/encrypted.hpp>
 #include <data/bytes.hpp>
 
@@ -46,6 +47,7 @@ namespace data::crypto::cipher::block {
     struct TripleDES;
 
     struct Rijndael {
+        static constexpr security Security = security::modern;
         constexpr static size_t BlockSize = 16;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<const byte, BlockSize>;
@@ -57,6 +59,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct Serpent {
+        static constexpr security Security = security::modern;
         static constexpr size_t BlockSize = 16;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
@@ -68,6 +71,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct Twofish {
+        static constexpr security Security = security::modern;
         static constexpr size_t BlockSize = 16;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
@@ -79,6 +83,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct RC6 {
+        static constexpr security Security = security::modern;
         static constexpr size_t BlockSize = 16;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
@@ -90,6 +95,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct MARS {
+        static constexpr security Security = security::modern;
         static constexpr size_t BlockSize = 16;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
@@ -101,6 +107,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct DES {
+        static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
@@ -110,6 +117,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct TripleDES2 {
+        static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;
@@ -119,6 +127,7 @@ namespace data::crypto::cipher::block {
     };
 
     struct TripleDES3 {
+        static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
         using block_out = slice<byte, BlockSize>;

@@ -120,30 +120,34 @@ namespace data::crypto::cipher::block {
     }
 
     void DES::encrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
-        //if (CryptoPP::DES::IsWeak (key)) throw exception {} << "DES with weak key";
-        CryptoPP::DES::Encryption {key.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+        auto k = key;
+        CryptoPP::DES::CorrectKeyParityBits (k.data ());
+        //if (!CryptoPP::DES::CheckKey (k)) throw exception {} << "DES with weak key";
+        CryptoPP::DES::Encryption {k.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
     void DES::decrypt (DES::block_out out, const symmetric_key<8> &key, DES::block_in in) {
-        //if (CryptoPP::DES::IsWeak (key)) throw exception {} << "DES with weak key";
-        CryptoPP::DES::Decryption {key.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+        auto k = key;
+        CryptoPP::DES::CorrectKeyParityBits (k.data ());
+        //if (!CryptoPP::DES::CheckKey (k)) throw exception {} << "DES with weak key";
+        CryptoPP::DES::Decryption {k.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
-/*
-    void TripleDES::encrypt (block_out o, const symmetric_key<14> &key, block_in i) {}
 
-    void TripleDES::decrypt (block_out o, const symmetric_key<14> &key, block_in i) {}
+    void TripleDES2::encrypt (block_out out, const symmetric_key<16> &k, block_in in) {
+        CryptoPP::DES_EDE2::Encryption {k.data (), 16}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+    }
 
-    void TripleDES::encrypt (block_out o, const symmetric_key<16> &key, block_in i) {}
+    void TripleDES2::decrypt (block_out out, const symmetric_key<16> &k, block_in in) {
+        CryptoPP::DES_EDE2::Decryption {k.data (), 16}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+    }
 
-    void TripleDES::decrypt (block_out o, const symmetric_key<16> &key, block_in i) {}
+    void TripleDES3::encrypt (block_out out, const symmetric_key<24> &k, block_in in) {
+        CryptoPP::DES_EDE3::Encryption {k.data (), 24}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+    }
 
-    void TripleDES::encrypt (block_out o, const symmetric_key<21> &key, block_in i) {}
-
-    void TripleDES::decrypt (block_out o, const symmetric_key<21> &key, block_in i) {}
-
-    void TripleDES::encrypt (block_out o, const symmetric_key<24> &key, block_in i) {}
-
-    void TripleDES::decrypt (block_out o, const symmetric_key<24> &key, block_in i) {}*/
+    void TripleDES3::decrypt (block_out out, const symmetric_key<24> &k, block_in in) {
+        CryptoPP::DES_EDE3::Decryption {k.data (), 24}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
+    }
 }
 
 #endif
