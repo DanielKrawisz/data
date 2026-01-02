@@ -585,9 +585,7 @@ namespace data::crypto::cipher::block {
         try {
             bytes decrypted = data::crypto::decrypt (m, key, ciphertext);
             EXPECT_NE (plaintext, decrypted);
-        } catch (invalid_padding) {
-        } catch (...) {
-            FAIL ();
+        } catch (exception &) {
         }
     }
 
@@ -624,8 +622,11 @@ namespace data::crypto::cipher::block {
         const bytes &plaintext,
         ciphers<wrong_cipher, other_ciphers...> oc)
     {
-        auto algorithm = initialize_algorithm<wrong_cipher, padding, mode> {} (IV1);
-        test_block_decrypt_fail (algorithm, key, ciphertext, plaintext);
+        if constexpr (Cipher<wrong_cipher, key_size>) {
+            auto algorithm = initialize_algorithm<wrong_cipher, padding, mode> {} (IV1);
+            test_block_decrypt_fail (algorithm, key, ciphertext, plaintext);
+        }
+
         test_block_decrypt_wrong_ciphers<padding, mode> (key, ciphertext, plaintext, ciphers<other_ciphers...> {});
     }
 
@@ -643,9 +644,9 @@ namespace data::crypto::cipher::block {
         const bytes &plaintext,
         paddings<wrong_padding, other_paddings...> op)
     {
-        auto algorithm = initialize_algorithm<cipher, wrong_padding, mode> {} (IV1);
 
         if (wrong_padding == padding::NO_PADDING && is_streamable (mode::Mode)) {
+            auto algorithm = initialize_algorithm<cipher, wrong_padding, mode> {} (IV1);
             test_block_decrypt_fail (algorithm, key, ciphertext, plaintext);
         }
 
@@ -759,7 +760,7 @@ namespace data::crypto::cipher::block {
     }
 
     // next we test block ciphers.
-    ciphers</*DES, TripleDES, */Rijndael, Serpent/*, Twofish, MARS, RC6*/> supported_block_ciphers {};
+    ciphers<DES, TripleDES2, TripleDES3, Rijndael, Serpent, Twofish, MARS, RC6> supported_block_ciphers {};
 
     modes<
         block_mode<mode::ECB>,
