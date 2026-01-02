@@ -14,8 +14,8 @@ namespace data::crypto::cipher {
         decryption
     };
 
-    template <typename X> struct encryptor;
-    template <typename Y> struct decryptor;
+    template <typename X, auto ...> struct encryptor;
+    template <typename Y, auto ...> struct decryptor;
 
     template <size_t key_size> using symmetric_key = byte_array<key_size>;
 
