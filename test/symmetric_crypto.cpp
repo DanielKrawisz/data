@@ -540,11 +540,11 @@ namespace data::crypto::cipher {
     } msg1 {""}, msg2 {"msg2"},
     msg3 {"this message is definitely longer than a single block if we are using a block cipher"};
 
-    writer<byte> inline &operator << (writer<byte> &w, const message &m) {
+    data::writer<byte> inline &operator << (data::writer<byte> &w, const message &m) {
         return w << Magic << uint32_little {static_cast<uint32> (m.size ())} << bytes (m);
     }
 
-    reader<byte> inline &operator >> (reader<byte> &r, message &m) {
+    data::reader<byte> inline &operator >> (data::reader<byte> &r, message &m) {
         uint32_little magic;
         r >> magic;
         if (magic != Magic) throw exception {} << "Nope";
