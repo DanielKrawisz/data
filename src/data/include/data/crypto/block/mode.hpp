@@ -311,28 +311,38 @@ namespace data::crypto::cipher::block {
     };
 
 /*  -------------------------------------------------------------------
- *  SESSIONS FOR ENCRYPTING AND DECRYPTING
+ *  WRITERS AND READERS FOR ENCRYPTING AND DECRYPTING
  *  -------------------------------------------------------------------
 */
-    template <typename cipher, typename state, size_t key_size, direction dir> struct cryptor;
+    template <typename cipher, typename state, size_t key_size, direction dir> struct writer;
+    template <typename cipher, typename state, size_t key_size, direction dir> struct reader;
 
-    template <size_t key_size> struct cryptor_base : data::writer<byte> {
+    template <size_t key_size> struct writer_base : data::writer<byte> {
         symmetric_key<key_size> Key;
         data::writer<byte> &Out;
         size_t Index;
 
-        cryptor_base (const symmetric_key<key_size> &k, data::writer<byte> &next):
+        writer_base (const symmetric_key<key_size> &k, data::writer<byte> &next):
         Key {k}, Out {next}, Index {0} {}
+    };
+
+    template <size_t key_size> struct reader_base : data::writer<byte> {
+        symmetric_key<key_size> Key;
+        data::reader<byte> &In;
+        size_t Index;
+
+        reader_base (const symmetric_key<key_size> &k, data::reader<byte> &in):
+        Key {k}, In {in}, Index {0} {}
     };
 
     template <typename cipher, typename state, size_t key_size, direction dir>
     requires Cipher<cipher, key_size> && (!is_streamable (state::Mode))
-    struct cryptor<cipher, state, key_size, dir> : cryptor_base<key_size> {
+    struct writer<cipher, state, key_size, dir> : writer_base<key_size> {
         state State;
         byte Plaintext[cipher::BlockSize];
 
-        cryptor (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
-        cryptor_base<key_size> {k, next}, State {z} {}
+        writer (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
+        writer_base<key_size> {k, next}, State {z} {}
 
         void write (const byte *b, size_t size) final override {
             const byte *remaining = b;
@@ -356,7 +366,7 @@ namespace data::crypto::cipher::block {
             }
         }
 
-        ~cryptor () noexcept (false) {
+        ~writer () noexcept (false) {
             if (std::uncaught_exceptions () == 0) {
                 complete ();
             }
@@ -370,11 +380,11 @@ namespace data::crypto::cipher::block {
 
     template <typename cipher, typename state, size_t key_size, direction dir>
     requires Cipher<cipher, key_size> && (is_streamable_asymmetric (state::Mode))
-    struct cryptor<cipher, state, key_size, dir> : cryptor_base<key_size> {
+    struct writer<cipher, state, key_size, dir> : writer_base<key_size> {
         state State;
 
-        cryptor (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
-        cryptor_base<key_size> {k, next}, State {z} {}
+        writer (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
+        writer_base<key_size> {k, next}, State {z} {}
 
         void write (const byte *b, size_t size) final override {
             byte result[size];
@@ -396,7 +406,7 @@ namespace data::crypto::cipher::block {
             this->Out.write (result, size);
         }
 
-        ~cryptor () noexcept (false) {
+        ~writer () noexcept (false) {
             if (std::uncaught_exceptions () == 0) {
                 complete ();
             }
@@ -408,11 +418,11 @@ namespace data::crypto::cipher::block {
 
     template <typename cipher, typename state, size_t key_size, direction dir>
     requires Cipher<cipher, key_size> && (is_streamable_symmetric (state::Mode))
-    struct cryptor<cipher, state, key_size, dir> : cryptor_base<key_size> {
+    struct writer<cipher, state, key_size, dir> : writer_base<key_size> {
         state State;
 
-        cryptor (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
-        cryptor_base<key_size> {k, next}, State {z} {}
+        writer (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
+        writer_base<key_size> {k, next}, State {z} {}
 
         void write (const byte *b, size_t size) final override {
 
@@ -432,7 +442,125 @@ namespace data::crypto::cipher::block {
             this->Out.write (result, size);
         }
 
-        ~cryptor () noexcept (false) {
+        ~writer () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
+        void complete () {}
+    };
+
+    template <typename cipher, typename state, size_t key_size, direction dir>
+    requires Cipher<cipher, key_size> && (!is_streamable (state::Mode))
+    struct reader<cipher, state, key_size, dir> : reader_base<key_size> {
+        state State;
+        byte Plaintext[cipher::BlockSize];
+
+        reader (const state &z, const symmetric_key<key_size> &k, data::reader<byte> &next):
+        reader_base<key_size> {k, next}, State {z} {}
+
+        void read (byte *b, size_t size) final override {
+            const byte *remaining = b;
+            size_t remaining_bytes = size;
+            while (remaining_bytes > 0) {
+
+                size_t bytes_to_copy = cipher::BlockSize - this->Index > remaining_bytes ? remaining_bytes : cipher::BlockSize - this->Index;
+                std::copy (Plaintext + this->Index, Plaintext + this->Index + bytes_to_copy, remaining);
+                remaining += bytes_to_copy;
+                remaining_bytes -= bytes_to_copy;
+
+                this->Index += bytes_to_copy;
+                if (this->Index == cipher::BlockSize) {
+                    this->In >> byte_slice {Plaintext, cipher::BlockSize};
+                    if constexpr (dir == encryption) {
+                        this->In >> encrypt<cipher> (State, this->Key, byte_slice {Plaintext, cipher::BlockSize});
+                    } else {
+                        this->In >> decrypt<cipher> (State, this->Key, byte_slice {Plaintext, cipher::BlockSize});
+                    }
+                    this->Index = 0;
+                }
+            }
+        }
+
+        ~reader () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
+        void complete () {
+            if (this->Index != 0) throw exception {} << "complete called on incomplete message; message size must be a multiple of block size";
+        }
+    };
+
+    template <typename cipher, typename state, size_t key_size, direction dir>
+    requires Cipher<cipher, key_size> && (is_streamable_asymmetric (state::Mode))
+    struct reader<cipher, state, key_size, dir> : reader_base<key_size> {
+        state State;
+
+        reader (const state &z, const symmetric_key<key_size> &k, data::reader<byte> &next):
+        reader_base<key_size> {k, next}, State {z} {}
+
+        void read (byte *b, size_t size) final override {
+            byte result[size];
+            this->in.read (result, size);
+            size_t index = 0;
+            while (index != size) {
+
+                if (this->Index == 0) State.template initialize<cipher> (this->Key);
+
+                if constexpr (dir == encryption) {
+                    result[index] = State.encrypt (*(b + index));
+                } else {
+                    result[index] = State.decrypt (*(b + index));
+                }
+
+                this->Index = (this->Index + 1) % cipher::BlockSize;
+                index++;
+
+            }
+        }
+
+        ~reader () noexcept (false) {
+            if (std::uncaught_exceptions () == 0) {
+                complete ();
+            }
+        }
+
+    private:
+        void complete () {}
+    };
+
+    template <typename cipher, typename state, size_t key_size, direction dir>
+    requires Cipher<cipher, key_size> && (is_streamable_symmetric (state::Mode))
+    struct reader<cipher, state, key_size, dir> : reader_base<key_size> {
+        state State;
+
+        reader (const state &z, const symmetric_key<key_size> &k, data::reader<byte> &next):
+        reader_base<key_size> {k, next}, State {z} {}
+
+        void read (byte *b, size_t size) final override {
+
+            byte result[size];
+            this->In.read (result, size);
+
+            size_t index = 0;
+            while (index != size) {
+
+                if (this->Index == 0) State.template initialize<cipher> (this->Key);
+
+                result[index] = State.crypt (*(b + index));
+
+                this->Index = (this->Index + 1) % cipher::BlockSize;
+                index++;
+
+            }
+        }
+
+        ~reader () noexcept (false) {
             if (std::uncaught_exceptions () == 0) {
                 complete ();
             }
