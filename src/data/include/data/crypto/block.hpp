@@ -28,11 +28,11 @@ namespace data::crypto {
 
 namespace data::crypto::cipher {
 
-    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
-    struct encryptor<block_cipher<Cipher, mode, mode_params...>, key_size>;
+    template <direction dir, typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct reader<dir, block_cipher<Cipher, mode, mode_params...>, key_size>;
 
-    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
-    struct decryptor<block_cipher<Cipher, mode, mode_params...>, key_size>;
+    template <direction dir, typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct writer<dir, block_cipher<Cipher, mode, mode_params...>, key_size>;
 
 }
 
@@ -111,13 +111,13 @@ namespace data::crypto::cipher {
         return p;
     }
 
-    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
-    struct encryptor<block_cipher<Cipher, mode, mode_params...>, key_size> : data::writer<byte> {
-        cipher::block::cryptor<Cipher, mode_state<mode, Cipher::BlockSize, mode_params...>, key_size, cipher::encryption> Encryptor;
+    template <direction dir, typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct writer<dir, block_cipher<Cipher, mode, mode_params...>, key_size> : data::writer<byte> {
+        cipher::block::writer<Cipher, mode_state<mode, Cipher::BlockSize, mode_params...>, key_size, dir> Encryptor;
         block::padding_scheme Padding;
         size_t BytesWritten {0};
 
-        encryptor (
+        writer (
             const block_cipher<Cipher, mode, mode_params...> &algorithm,
             const symmetric_key<key_size> &k,
             data::writer<byte> &next): Encryptor {algorithm, k, next}, Padding {validate_padding<mode> (algorithm.Padding)} {}
@@ -127,19 +127,19 @@ namespace data::crypto::cipher {
             BytesWritten += size;
         }
 
-        ~encryptor () noexcept (false) {
+        ~writer () noexcept (false) {
             if (std::uncaught_exceptions () == 0 && Padding != block::padding::NO_PADDING)
                 cipher::block::add_padding (Encryptor, Padding, Cipher::BlockSize, BytesWritten);
         }
     };
 
-    template <typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
-    struct decryptor<block_cipher<Cipher, mode, mode_params...>, key_size> : data::reader<byte> {
-        cipher::block::cryptor<Cipher, mode_state<mode, Cipher::BlockSize, mode_params...>, key_size, cipher::decryption> Decryptor;
+    template <direction dir, typename Cipher, cipher::block::mode mode, size_t key_size, auto ...mode_params>
+    struct reader<dir, block_cipher<Cipher, mode, mode_params...>, key_size> : data::reader<byte> {
+        cipher::block::reader<Cipher, mode_state<mode, Cipher::BlockSize, mode_params...>, key_size, dir> Decryptor;
         block::padding_scheme Padding;
         size_t BytesRead {0};
 
-        decryptor (
+        reader (
             const block_cipher<Cipher, mode, mode_params...> &algorithm,
             const symmetric_key<key_size> &k, data::reader<byte> &prev):
             Decryptor {algorithm, k, prev}, Padding {validate_padding<mode> (algorithm.padding)} {}
@@ -150,7 +150,7 @@ namespace data::crypto::cipher {
         }
 
         // TODO this doesn't work because we don't use the number of bytes written.
-        ~decryptor () noexcept (false) {
+        ~reader () noexcept (false) {
             if (std::uncaught_exceptions () == 0 && Padding != block::padding::NO_PADDING)
                 block::remove_padding_reader {Decryptor, Cipher::BlockSize, Padding};
         }
@@ -166,7 +166,7 @@ namespace data::crypto {
 
         {
             lazy_bytes_writer lazy {ciphertext};
-            cipher::encryptor<block_cipher<Cipher, Mode, mode_params...>, key_size> cryptor {*this, k, lazy};
+            cipher::writer<cipher::encryption, block_cipher<Cipher, Mode, mode_params...>, key_size> cryptor {*this, k, lazy};
             cryptor << plaintext;
         } //result is written to here.
 
@@ -180,7 +180,7 @@ namespace data::crypto {
         bytes plaintext;
         {
             lazy_bytes_writer lazy {plaintext};
-            cipher::block::cryptor<Cipher, mode_state<Mode, Cipher::BlockSize, v...>, key_size, cipher::decryption>
+            cipher::block::writer<Cipher, mode_state<Mode, Cipher::BlockSize, v...>, key_size, cipher::decryption>
             cryptor {*this, k, lazy};
             cryptor << ciphertext;
         }

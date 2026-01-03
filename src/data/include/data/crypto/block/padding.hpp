@@ -77,11 +77,11 @@ namespace data::crypto::cipher::block {
     template <padding_scheme padding> struct pad;
 
     template <> struct pad<padding::NO_PADDING> {
-        reader<byte> &read (reader<byte> &r, size_t block_size, size_t &bytes_read) {
+        data::reader<byte> &read (data::reader<byte> &r, size_t block_size, size_t &bytes_read) {
             return r;
         }
 
-        writer<byte> &write (writer<byte> &w, size_t block_size, size_t &bytes_written) {
+        data::writer<byte> &write (data::writer<byte> &w, size_t block_size, size_t &bytes_written) {
             return w;
         }
     };
