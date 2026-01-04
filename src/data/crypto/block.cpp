@@ -20,26 +20,18 @@ namespace data::crypto::cipher::block {
         }
     }
 
-    void remove_padding_reader::complete () {
-        switch (Padding) {
-            case (padding::NO_PADDING): {
-                pad<padding::NO_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                break;
-            }
-            case (padding::ZEROS_PADDING): {
-                pad<padding::ZEROS_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                break;
-            }
-            case (padding::PKCS_PADDING): {
-                pad<padding::PKCS_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                break;
-            }
-            case (padding::W3C_PADDING): {
-                pad<padding::W3C_PADDING> {}.read (Previous, BlockSize, BytesRead);
-                break;
-            }
+    data::reader<byte> &skip_padding (data::reader<byte> &prev, padding_scheme p, size_t block_size, size_t bytes_read) {
+        switch (p) {
+            case (padding::NO_PADDING):
+                return pad<padding::NO_PADDING> {}.read (prev, block_size, bytes_read);
+            case (padding::ZEROS_PADDING):
+                return pad<padding::ZEROS_PADDING> {}.read (prev, block_size, bytes_read);
+            case (padding::PKCS_PADDING):
+                return pad<padding::PKCS_PADDING> {}.read (prev, block_size, bytes_read);
+            case (padding::W3C_PADDING):
+                return pad<padding::W3C_PADDING> {}.read (prev, block_size, bytes_read);
             case (padding::ONE_AND_ZEROS_PADDING):
-            default: pad<padding::ONE_AND_ZEROS_PADDING> {}.read (Previous, BlockSize, BytesRead);
+            default: return pad<padding::ONE_AND_ZEROS_PADDING> {}.read (prev, block_size, bytes_read);
         }
     }
 
