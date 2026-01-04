@@ -142,17 +142,23 @@ namespace data::crypto::cipher {
         reader (
             const block_cipher<Cipher, mode, mode_params...> &algorithm,
             const symmetric_key<key_size> &k, data::reader<byte> &prev):
-            Decryptor {algorithm, k, prev}, Padding {validate_padding<mode> (algorithm.padding)} {}
+            Decryptor {algorithm, k, prev}, Padding {validate_padding<mode> (algorithm.Padding)} {}
 
         void read (byte *b, size_t size) final override {
             Decryptor.read (b, size);
             BytesRead += size;
         }
 
+        // this could be done much more efficiently, but we don't want to think about it.
+        void skip (size_t size) final override {
+            byte skipped[size];
+            read (skipped, size);
+        }
+
         // TODO this doesn't work because we don't use the number of bytes written.
         ~reader () noexcept (false) {
             if (std::uncaught_exceptions () == 0 && Padding != block::padding::NO_PADDING)
-                block::remove_padding_reader {Decryptor, Cipher::BlockSize, Padding};
+                cipher::block::skip_padding (Decryptor, Padding, Cipher::BlockSize, BytesRead);
         }
     };
 

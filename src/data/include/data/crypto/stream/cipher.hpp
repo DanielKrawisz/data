@@ -5,17 +5,28 @@
 #ifndef DATA_CRYPTO_STREAM_CYPHER
 #define DATA_CRYPTO_STREAM_CYPHER
 
-#include <data/types.hpp>
+#include <data/bytes.hpp>
+#include <data/arithmetic/complementary.hpp>
 
-namespace data::crypto {
+namespace data::crypto::cipher::stream {
 
     // a block cipher mode takes a cipher to produce
     // a procedure that can be replied repeatedly to
     // encrypt or decrypt a whole message.
-    template <typename cipher>
-    concept stream_cipher = requires (cipher &y, byte in) {
-        { y.crypt (in) } -> Same<byte>;
+    template <typename cipher, size_t key_size> concept Cipher = requires (cipher &y, symmetric_key<key_size> k) {
+        { y.stream (k) } -> std::derived_from<data::reader<byte>>;
     };
+
+    // for stream ciphers, encrypt and decrypt are the same.
+    template <typename key_size, Cipher<key_size> cipher>
+    bytes inline crypt (const cipher &c, const symmetric_key<key_size> &k, bytes_view plaintext) {
+        auto x = c.stream (k);
+        bytes tor {};
+        tor.resize (plaintext.size ());
+        x >> tor;
+        arithmetic::bit_xor<byte> (tor.end (), tor.begin (), (const byte *) tor.data (), (const byte *) (plaintext.data ()));
+        return tor;
+    }
 
 }
 

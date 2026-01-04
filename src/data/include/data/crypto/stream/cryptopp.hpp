@@ -27,50 +27,95 @@
 
 namespace data::crypto::cipher::stream {
 
-    struct XChaCha20 : CryptoPP::XChaCha20::Encryption {
+    template <std::derived_from<CryptoPP::StreamTransformation> cppstream>
+    struct cryptopp_stream : data::reader<byte> {
+        cppstream Stream;
+        void read (byte *, size_t) final override;
+        ~cryptopp_stream () noexcept (false) {}
+    };
+
+    struct XChaCha20_stream : cryptopp_stream<CryptoPP::XChaCha20::Encryption> {
         constexpr static const security Security = security::modern;
-        XChaCha20 (const symmetric_key<32> &key, const initialization_vector<24> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), IV.data (), 24);
+        XChaCha20_stream (const symmetric_key<32> &key, const initialization_vector<24> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), iv.data (), 24);
+        }
+        ~XChaCha20_stream () noexcept (false) {}
+    };
+
+    struct XSalsa20_stream : cryptopp_stream<CryptoPP::XSalsa20::Encryption> {
+        constexpr static const security Security = security::modern;
+        XSalsa20_stream (const symmetric_key<32> &key, const initialization_vector<24> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), iv.data (), 24);
+        }
+        ~XSalsa20_stream () noexcept (false) {}
+    };
+
+    struct Salsa20_stream : cryptopp_stream<CryptoPP::Salsa20::Encryption> {
+        constexpr static const security Security = security::modern;
+        Salsa20_stream (const symmetric_key<32> &key, const initialization_vector<8> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), iv.data (), 8);
+        }
+
+        Salsa20_stream (const symmetric_key<16> &key, const initialization_vector<8> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), iv.data (), 8);
         }
     };
 
-    struct XSalsa20 : CryptoPP::XSalsa20::Encryption {
+    struct HC128_stream : cryptopp_stream<CryptoPP::HC128::Encryption> {
         constexpr static const security Security = security::modern;
-        XSalsa20 (const symmetric_key<32> &key, const initialization_vector<24> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), IV.data (), 24);
+        HC128_stream (const symmetric_key<16> &key, const initialization_vector<16> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), iv.data (), 16);
         }
     };
 
-    struct Salsa20 : CryptoPP::Salsa20::Encryption {
+    struct HC256_stream : cryptopp_stream<CryptoPP::HC256::Encryption> {
         constexpr static const security Security = security::modern;
-        Salsa20 (const symmetric_key<32> &key, const initialization_vector<8> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), IV.data (), 8);
-        }
-
-        Salsa20 (const symmetric_key<16> &key, const initialization_vector<8> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), IV.data (), 8);
+        HC256_stream (const symmetric_key<32> &key, const initialization_vector<32> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), iv.data (), 32);
         }
     };
 
-    struct HC128 : CryptoPP::HC128::Encryption {
+    struct Panama_stream : cryptopp_stream<CryptoPP::PanamaCipher<CryptoPP::LittleEndian>::Encryption> {
         constexpr static const security Security = security::modern;
-        HC128 (const symmetric_key<16> &key, const initialization_vector<16> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), IV.data (), 16);
+        Panama_stream (const symmetric_key<32> &key, const initialization_vector<32> &iv) {
+            this->Stream.SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), 32, iv.data (), 32);
         }
     };
 
-    struct HC256 : CryptoPP::HC256::Encryption {
+    struct XChaCha20 {
         constexpr static const security Security = security::modern;
-        HC256 (const symmetric_key<32> &key, const initialization_vector<32> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), key.size (), IV.data (), 32);
-        }
+        initialization_vector<24> IV;
+        XChaCha20_stream stream (const symmetric_key<32> &key);
     };
 
-    struct Panama : CryptoPP::PanamaCipher<CryptoPP::LittleEndian>::Encryption {
+    struct XSalsa20 {
         constexpr static const security Security = security::modern;
-        Panama (const symmetric_key<32> &key, const initialization_vector<32> &IV) {
-            this->SetKeyWithIV (reinterpret_cast<const CryptoPP::byte*> (key.data ()), 32, IV.data (), 32);
-        }
+        initialization_vector<24> IV;
+        XSalsa20_stream stream (const symmetric_key<32> &key);
+    };
+
+    struct Salsa20 {
+        constexpr static const security Security = security::modern;
+        initialization_vector<8> IV;
+        Salsa20_stream stream (const symmetric_key<32> &key);
+    };
+
+    struct HC128 {
+        constexpr static const security Security = security::modern;
+        initialization_vector<16> IV;
+        HC128_stream stream (const symmetric_key<32> &key);
+    };
+
+    struct HC256 {
+        constexpr static const security Security = security::modern;
+        initialization_vector<32> IV;
+        HC256_stream stream (const symmetric_key<32> &key);
+    };
+
+    struct Panama {
+        constexpr static const security Security = security::modern;
+        initialization_vector<32> IV;
+        Panama_stream stream (const symmetric_key<32> &key);
     };
 }
 
