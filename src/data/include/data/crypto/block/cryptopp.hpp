@@ -133,19 +133,19 @@ namespace data::crypto::cipher::block {
         CryptoPP::DES::Decryption {k.data (), 8}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TripleDES2::encrypt (block_out out, const symmetric_key<16> &k, block_in in) {
+    void TDA2::encrypt (block_out out, const symmetric_key<16> &k, block_in in) {
         CryptoPP::DES_EDE2::Encryption {k.data (), 16}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TripleDES2::decrypt (block_out out, const symmetric_key<16> &k, block_in in) {
+    void TDA2::decrypt (block_out out, const symmetric_key<16> &k, block_in in) {
         CryptoPP::DES_EDE2::Decryption {k.data (), 16}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TripleDES3::encrypt (block_out out, const symmetric_key<24> &k, block_in in) {
+    void TDA3::encrypt (block_out out, const symmetric_key<24> &k, block_in in) {
         CryptoPP::DES_EDE3::Encryption {k.data (), 24}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 
-    void TripleDES3::decrypt (block_out out, const symmetric_key<24> &k, block_in in) {
+    void TDA3::decrypt (block_out out, const symmetric_key<24> &k, block_in in) {
         CryptoPP::DES_EDE3::Decryption {k.data (), 24}.ProcessBlock (in.data (), const_cast<byte *> (out.data ()));
     }
 }

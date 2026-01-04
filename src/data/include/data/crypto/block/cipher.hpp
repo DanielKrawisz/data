@@ -39,12 +39,16 @@ namespace data::crypto::cipher::block {
     // Supported block ciphers.
     struct Rijndael;
     using AES = Rijndael;
+
+    // other AES candidates
     struct Serpent;
     struct Twofish;
     struct RC6;
     struct MARS;
+
     struct DES; // the original classic.
-    struct TripleDES;
+    struct TDA2; // triple DES with 2 keys
+    struct TDA3; // triple DES with 3 keys
 
     struct Rijndael {
         static constexpr security Security = security::modern;
@@ -116,7 +120,7 @@ namespace data::crypto::cipher::block {
         static void decrypt (block_out, const symmetric_key<8> &key, block_in);
     };
 
-    struct TripleDES2 {
+    struct TDA2 {
         static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
@@ -126,7 +130,7 @@ namespace data::crypto::cipher::block {
         static void decrypt (block_out, const symmetric_key<16> &key, block_in);
     };
 
-    struct TripleDES3 {
+    struct TDA3 {
         static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;

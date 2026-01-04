@@ -69,9 +69,14 @@ namespace data::crypto::cipher::block {
     };
 
     data::writer<byte> &add_padding (data::writer<byte> &, padding_scheme, size_t block_size, size_t bytes_written);
+    data::reader<byte> &skip_padding (data::reader<byte> &, padding_scheme, size_t block_size, size_t bytes_read);
 
     void inline add_padding_writer::complete () {
         add_padding (Next, Padding, BlockSize, BytesWritten);
+    }
+
+    void inline remove_padding_reader::complete () {
+        skip_padding (Previous, Padding, BlockSize, BytesRead);
     }
 
     template <padding_scheme padding> struct pad;

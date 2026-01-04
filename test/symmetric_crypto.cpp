@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "gtest/gtest.h"
+#include <data/random.hpp>
 #include <data/crypto/hash.hpp>
 #include <data/crypto/block.hpp>
 #include <data/crypto/MAC/HMAC.hpp>
@@ -136,8 +137,8 @@ namespace data::crypto::cipher::block {
     static_assert (TestEncryptable<DES, 8>);
     static_assert (!TestEncryptable<DES, 16>);
 
-    static_assert (TestEncryptable<TripleDES2, 16>);
-    static_assert (TestEncryptable<TripleDES3, 24>);
+    static_assert (TestEncryptable<TDA2, 16>);
+    static_assert (TestEncryptable<TDA3, 24>);
 
     static_assert (TestEncryptable<AES, 16>);
     static_assert (!TestEncryptable<AES, 8>);
@@ -535,51 +536,27 @@ namespace data::crypto::cipher {
 
     constexpr const uint32_little Magic = 0x12345678;
 
-    struct message : string {
+    struct typical_message : string {
         using string::string;
-    } msg1 {""}, msg2 {"msg2"},
-    msg3 {"this message is definitely longer than a single block if we are using a block cipher"};
+    };
 
-    data::writer<byte> inline &operator << (data::writer<byte> &w, const message &m) {
+    data::writer<byte> inline &operator << (data::writer<byte> &w, const typical_message &m) {
         return w << Magic << uint32_little {static_cast<uint32> (m.size ())} << bytes (m);
     }
 
-    data::reader<byte> inline &operator >> (data::reader<byte> &r, message &m) {
+    data::reader<byte> inline &operator >> (data::reader<byte> &r, typical_message &m) {
         uint32_little magic;
         r >> magic;
-        if (magic != Magic) throw exception {} << "Nope";
+        if (magic != Magic) throw exception {} << "We ought to find the magic number " << std::hex << Magic << " here, instead we got " << magic;
         uint32_little size;
         r >> size;
         bytes result;
         result.resize (size_t (uint32 (size)));
         r >> result;
-        m = message (string (result));
+        m = typical_message (string (result));
         return r;
     }
 
-    template <typename E> void cipher_encrypt (E &e) {
-        e << msg1;
-        e << msg2;
-        e << msg3;
-    }
-
-    template <typename E> void cipher_decrypt (E &e) {
-        message result1;
-        message result2;
-        message result3;
-
-        e >> result1;
-        e >> result2;
-        e >> result3;
-
-        EXPECT_EQ (result1, msg1);
-        EXPECT_EQ (result2, msg2);
-        EXPECT_EQ (result3, msg3);
-    }
-
-    // TODO test change padding
-    // TODO test change key
-    // TODO test change MAC key
 }
 
 namespace data::crypto::cipher::block {
@@ -804,13 +781,8 @@ namespace data::crypto::cipher::block {
         test_block_ciphers_for<0, 0, 0, 0> (message, c, m, k, p);
     }
 
-    template <typename... cph, typename... modes, size_t... key_sizes>
-    void test_block_ciphers (ciphers<cph...> c, tuple<modes...> m, keys<key_sizes...> k, const bytes &msg) {
-        test_block_ciphers_for<0, 0, 0> (c, m, k, msg);
-    }
-
     // next we test block ciphers.
-    ciphers<DES, TripleDES2, TripleDES3, Rijndael, Serpent, Twofish, MARS, RC6> supported_block_ciphers {};
+    ciphers<DES, TDA2, TDA3, Rijndael, Serpent, Twofish, MARS, RC6> supported_block_ciphers {};
 
     modes<
         block_mode<mode::ECB>,
@@ -831,21 +803,131 @@ namespace data::crypto::cipher::block {
 
     }
 
+    // do nothing if the configuration is not valid.
+    template <typename cipher, typename mode, padding_scheme padding, size_t key_size,
+        typename ...other_ciphers, typename ...other_modes, padding_scheme ...other_paddings>
+    void test_block_cipher_writers (
+        const symmetric_key<key_size> &k,
+        list<typical_message> msgs,
+        ciphers<other_ciphers...> oc,
+        modes<other_modes...> om,
+        paddings<other_paddings...> op) {};
+
+    template <typename cipher, typename mode, padding_scheme padding, size_t key_size,
+        typename ...other_ciphers, typename ...other_modes, padding_scheme ...other_paddings>
+    requires Cipher<cipher, key_size> && (is_streamable (mode::Mode) || padding != padding::NO_PADDING)
+    void test_block_cipher_writers (
+        const symmetric_key<key_size> &k,
+        list<typical_message> msgs,
+        ciphers<other_ciphers...> oc,
+        modes<other_modes...> om,
+        paddings<other_paddings...> op) {
+
+        data::random::std_random<std::default_random_engine> iv_generator {237};
+
+        using algorithm = block_cipher<cipher, mode::Mode>;
+        using encryptor = crypto::cipher::writer<encryption, algorithm, key_size>;
+        using decryptor = crypto::cipher::reader<decryption, algorithm, key_size>;
+
+        bytes encrypted = build_with<bytes, byte, lazy_bytes_writer> ([&] (auto &&w) {
+            for (const typical_message &m : msgs) {
+                initialization_vector<cipher::BlockSize> iv {};
+                iv_generator >> iv;
+                w << iv;
+                encryptor e {algorithm {iv}, k, w};
+                e << m;
+            }
+        });
+
+        iterator_reader r {encrypted.begin (), encrypted.end ()};
+
+        for (const typical_message &m : msgs) {
+            initialization_vector<cipher::BlockSize> iv {};
+            r >> iv;
+            decryptor d {algorithm {iv}, k, r};
+            typical_message tm;
+            d >> tm;
+            EXPECT_EQ (tm, m);
+        }
+
+    };
+
+    template <size_t cipher_index, size_t mode_index, size_t key_index, size_t padding_index,
+        typename first_cipher, typename ...rest_ciphers,
+        typename first_mode, typename ...rest_modes,
+        size_t first_key_size, size_t ...rest_key_sizes,
+        padding_scheme first_padding, padding_scheme ...rest_paddings>
+    void test_block_cipher_writers_for (
+        list<typical_message> msgs,
+        ciphers<first_cipher, rest_ciphers...>,
+        modes<first_mode, rest_modes...>,
+        key_sizes<first_key_size, rest_key_sizes...>,
+        paddings<first_padding, rest_paddings...>) {
+
+        if constexpr (cipher_index > sizeof... (rest_ciphers)) return;
+
+        else if constexpr (mode_index > sizeof... (rest_modes))
+            return test_block_cipher_writers_for<cipher_index + 1, 0, 0, 0> (msgs,
+                ciphers<rest_ciphers..., first_cipher> {},
+                modes<first_mode, rest_modes...> {},
+                key_sizes<first_key_size, rest_key_sizes...> {},
+                paddings<first_padding, rest_paddings...> {});
+
+        else if constexpr (key_index > sizeof... (rest_key_sizes))
+            return test_block_cipher_writers_for<cipher_index, mode_index + 1, 0, 0> (msgs,
+                ciphers<first_cipher, rest_ciphers...> {},
+                modes<rest_modes..., first_mode> {},
+                key_sizes<first_key_size, rest_key_sizes...> {},
+                paddings<first_padding, rest_paddings...> {});
+
+        else if constexpr (padding_index > sizeof... (rest_paddings))
+            return test_block_cipher_writers_for<cipher_index, mode_index, key_index + 1, 0> (msgs,
+                ciphers<first_cipher, rest_ciphers...> {},
+                modes<first_mode, rest_modes...> {},
+                key_sizes<rest_key_sizes..., first_key_size> {},
+                paddings<first_padding, rest_paddings...> {});
+
+        else {
+            auto key = std::get<symmetric_key<first_key_size>> (test_keys);
+
+            test_block_cipher_writers<first_cipher, first_mode, first_padding> (key, msgs,
+                ciphers<rest_ciphers...> {}, modes<rest_modes...> {}, paddings<rest_paddings...> {});
+
+            return test_block_cipher_writers_for<cipher_index, mode_index, key_index, padding_index + 1> (msgs,
+                ciphers<first_cipher, rest_ciphers...> {},
+                modes<first_mode, rest_modes...> {},
+                key_sizes<first_key_size, rest_key_sizes...> {},
+                paddings<rest_paddings..., first_padding> {});
+        }
+    };
+
     template <typename ...all_ciphers, typename ...all_modes, size_t ...all_key_sizes, padding_scheme ...all_paddings>
     void test_block_cipher_writers (
         ciphers<all_ciphers...> c,
         modes<all_modes...> m,
         key_sizes<all_key_sizes...> k,
         paddings<all_paddings...> p,
-        list<bytes> messages) {}
+        list<typical_message> msgs) {
+        test_block_cipher_writers_for<0, 0, 0, 0> (msgs, c, m, k, p);
+    }
 
+    // we only test modes that have a standard IV type.
+    // this ought to be good enough since all modes a
+    // are tested properly above.
+    modes<
+        block_mode<mode::CBC>,
+        block_mode<mode::OFB>,
+        block_mode<mode::CFB>> read_write_test_modes {};
 
     TEST (BlockCipher, WriteRead) {
 
         key_sizes<8, 16, 20, 24, 28, 32, 40, 48, 56> key_test_sizes {};
 
-        test_block_cipher_writers (supported_block_ciphers, supported_block_modes, key_test_sizes, supported_padding,
-            {bytes {string {"hi, this is a message that is definitely longer than a single block"}}});
+        test_block_cipher_writers (supported_block_ciphers, read_write_test_modes, key_test_sizes, supported_padding,
+            list<typical_message> {
+                typical_message {""},
+                typical_message {"abcde"},
+                typical_message {string {"hi, this is a message that is definitely longer than a single block"}}});
 
     }
 }
@@ -853,9 +935,12 @@ namespace data::crypto::cipher::block {
 namespace data::crypto::cipher {
 
     ciphers<stream::XChaCha20, stream::XSalsa20, stream::Salsa20,
-        stream::HC128, stream::HC256, stream::Panama> supported_stream_ciphers {};
+        stream::HC128, stream::HC256, stream::Panama,
+        block_cipher<block::AES, cipher::block::mode::OFB>,
+        block_cipher<block::AES, cipher::block::mode::CTR, endian::big>,
+        block_cipher<block::AES, cipher::block::mode::CTR, endian::little>> supported_stream_ciphers {};
 
-    using IV_sizes = std::index_sequence<24, 24, 8, 16, 32, 32>;
+    using IV_sizes = std::index_sequence<24, 24, 8, 16, 32, 32, 16, 16, 16>;
 
     template <typename alg, size_t key_size, typename IV>
     void stream_encrypt_and_decrypt (const symmetric_key<key_size> &key, const IV &iv, const bytes &message) {
@@ -920,6 +1005,6 @@ namespace data::crypto::cipher {
 
 }
 
-// TODO Stream ciphers from cryptopp
+// TODO DRBGs
 
 // TODO Keccak

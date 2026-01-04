@@ -285,6 +285,11 @@ namespace data::crypto::cipher::block {
             this->Index++;
             return result;
         }
+
+        byte next () {
+            return this->IV[this->Index++];
+        }
+
     };
 
     // since there is no rule that says what endian
@@ -301,6 +306,16 @@ namespace data::crypto::cipher::block {
         // both operations are the same.
         byte crypt (byte b) {
             byte result = this->IV[this->Index] ^ b;
+            this->Index++;
+            if (this->Index == this->BlockSize) {
+                Count++;
+                this->IV = Count;
+            }
+            return result;
+        }
+
+        byte next () {
+            byte result = this->IV[this->Index];
             this->Index++;
             if (this->Index == this->BlockSize) {
                 Count++;
@@ -326,7 +341,7 @@ namespace data::crypto::cipher::block {
         Key {k}, Out {next}, Index {0} {}
     };
 
-    template <size_t key_size> struct reader_base : data::writer<byte> {
+    template <size_t key_size> struct reader_base : data::reader<byte> {
         symmetric_key<key_size> Key;
         data::reader<byte> &In;
         size_t Index;
@@ -339,29 +354,29 @@ namespace data::crypto::cipher::block {
     requires Cipher<cipher, key_size> && (!is_streamable (state::Mode))
     struct writer<cipher, state, key_size, dir> : writer_base<key_size> {
         state State;
-        byte Plaintext[cipher::BlockSize];
+        byte Text[cipher::BlockSize];
 
         writer (const state &z, const symmetric_key<key_size> &k, data::writer<byte> &next):
         writer_base<key_size> {k, next}, State {z} {}
 
         void write (const byte *b, size_t size) final override {
+
             const byte *remaining = b;
             size_t remaining_bytes = size;
             while (remaining_bytes > 0) {
 
                 size_t bytes_to_copy = cipher::BlockSize - this->Index > remaining_bytes ? remaining_bytes : cipher::BlockSize - this->Index;
-                std::copy (remaining, remaining + bytes_to_copy, Plaintext + this->Index);
+                std::copy (remaining, remaining + bytes_to_copy, Text + this->Index);
                 remaining += bytes_to_copy;
                 remaining_bytes -= bytes_to_copy;
 
                 this->Index += bytes_to_copy;
                 if (this->Index == cipher::BlockSize) {
                     if constexpr (dir == encryption) {
-                        this->Out << encrypt<cipher> (State, this->Key, byte_slice {Plaintext, cipher::BlockSize});
+                        this->Out << encrypt<cipher> (State, this->Key, byte_slice {Text, cipher::BlockSize});
                     } else {
-                        this->Out << decrypt<cipher> (State, this->Key, byte_slice {Plaintext, cipher::BlockSize});
-                    }
-                    this->Index = 0;
+                        this->Out << decrypt<cipher> (State, this->Key, byte_slice {Text, cipher::BlockSize});
+                    } this->Index = 0;
                 }
             }
         }
@@ -387,6 +402,7 @@ namespace data::crypto::cipher::block {
         writer_base<key_size> {k, next}, State {z} {}
 
         void write (const byte *b, size_t size) final override {
+
             byte result[size];
             size_t index = 0;
             while (index != size) {
@@ -394,9 +410,9 @@ namespace data::crypto::cipher::block {
                 if (this->Index == 0) State.template initialize<cipher> (this->Key);
 
                 if constexpr (dir == encryption) {
-                    result[index] = State.encrypt (*(b + index));
+                    result[index] = State.encrypt (b[index]);
                 } else {
-                    result[index] = State.decrypt (*(b + index));
+                    result[index] = State.decrypt (b[index]);
                 }
 
                 this->Index = (this->Index + 1) % cipher::BlockSize;
@@ -432,7 +448,7 @@ namespace data::crypto::cipher::block {
 
                 if (this->Index == 0) State.template initialize<cipher> (this->Key);
 
-                result[index] = State.crypt (*(b + index));
+                result[index] = State.next () ^ b[index];
 
                 this->Index = (this->Index + 1) % cipher::BlockSize;
                 index++;
@@ -456,32 +472,40 @@ namespace data::crypto::cipher::block {
     requires Cipher<cipher, key_size> && (!is_streamable (state::Mode))
     struct reader<cipher, state, key_size, dir> : reader_base<key_size> {
         state State;
-        byte Plaintext[cipher::BlockSize];
+        byte Text[cipher::BlockSize];
 
         reader (const state &z, const symmetric_key<key_size> &k, data::reader<byte> &next):
         reader_base<key_size> {k, next}, State {z} {}
 
         void read (byte *b, size_t size) final override {
-            const byte *remaining = b;
+            byte *remaining = b;
             size_t remaining_bytes = size;
             while (remaining_bytes > 0) {
+                if (this->Index == 0) {
+                    this->In.read (Text, cipher::BlockSize);
+                    byte_array<cipher::BlockSize> crypted = dir == encryption ?
+                        encrypt<cipher> (State, this->Key, byte_slice {Text, cipher::BlockSize}):
+                        decrypt<cipher> (State, this->Key, byte_slice {Text, cipher::BlockSize});
+                    std::copy (crypted.begin (), crypted.end (), Text);
+                }
 
-                size_t bytes_to_copy = cipher::BlockSize - this->Index > remaining_bytes ? remaining_bytes : cipher::BlockSize - this->Index;
-                std::copy (Plaintext + this->Index, Plaintext + this->Index + bytes_to_copy, remaining);
+                size_t bytes_to_copy = (cipher::BlockSize - this->Index) > remaining_bytes ?
+                    remaining_bytes :
+                    (cipher::BlockSize - this->Index);
+
+                std::copy (Text + this->Index, Text + this->Index + bytes_to_copy, remaining);
                 remaining += bytes_to_copy;
                 remaining_bytes -= bytes_to_copy;
 
                 this->Index += bytes_to_copy;
-                if (this->Index == cipher::BlockSize) {
-                    this->In >> byte_slice {Plaintext, cipher::BlockSize};
-                    if constexpr (dir == encryption) {
-                        this->In >> encrypt<cipher> (State, this->Key, byte_slice {Plaintext, cipher::BlockSize});
-                    } else {
-                        this->In >> decrypt<cipher> (State, this->Key, byte_slice {Plaintext, cipher::BlockSize});
-                    }
-                    this->Index = 0;
-                }
+                this->Index %= cipher::BlockSize;
             }
+        }
+
+        // this could be done much more efficiently, but we don't want to think about it.
+        void skip (size_t size) final override {
+            byte skipped[size];
+            read (skipped, size);
         }
 
         ~reader () noexcept (false) {
@@ -506,22 +530,27 @@ namespace data::crypto::cipher::block {
 
         void read (byte *b, size_t size) final override {
             byte result[size];
-            this->in.read (result, size);
+            this->In.read (result, size);
             size_t index = 0;
             while (index != size) {
 
                 if (this->Index == 0) State.template initialize<cipher> (this->Key);
 
-                if constexpr (dir == encryption) {
-                    result[index] = State.encrypt (*(b + index));
-                } else {
-                    result[index] = State.decrypt (*(b + index));
-                }
+                if constexpr (dir == encryption)
+                    b[index] = State.encrypt (result[index]);
+                else
+                    b[index] = State.decrypt (result[index]);
 
                 this->Index = (this->Index + 1) % cipher::BlockSize;
                 index++;
 
             }
+        }
+
+        // this could be done much more efficiently, but we don't want to think about it.
+        void skip (size_t size) final override {
+            byte skipped[size];
+            read (skipped, size);
         }
 
         ~reader () noexcept (false) {
@@ -552,12 +581,18 @@ namespace data::crypto::cipher::block {
 
                 if (this->Index == 0) State.template initialize<cipher> (this->Key);
 
-                result[index] = State.crypt (*(b + index));
+                b[index] = State.next () ^ *(result + index);
 
                 this->Index = (this->Index + 1) % cipher::BlockSize;
                 index++;
 
             }
+        }
+
+        // this could be done much more efficiently, but we don't want to think about it.
+        void skip (size_t size) final override {
+            byte skipped[size];
+            read (skipped, size);
         }
 
         ~reader () noexcept (false) {
@@ -568,6 +603,41 @@ namespace data::crypto::cipher::block {
 
     private:
         void complete () {}
+    };
+
+    template <typename cipher, typename state, size_t key_size>
+    requires Cipher<cipher, key_size> && (is_streamable_symmetric (state::Mode))
+    struct stream : reader_base<key_size> {
+        state State;
+
+        stream (const state &z, const symmetric_key<key_size> &k, data::reader<byte> &next):
+        reader_base<key_size> {k, next}, State {z} {}
+
+        void read (byte *b, size_t size) final override {
+
+            byte result[size];
+            this->In.read (result, size);
+
+            size_t index = 0;
+            while (index != size) {
+
+                if (this->Index == 0) State.template initialize<cipher> (this->Key);
+
+                result[index] = State.next ();
+
+                this->Index = (this->Index + 1) % cipher::BlockSize;
+                index++;
+
+            }
+        }
+
+        // this could be done much more efficiently, but we don't want to think about it.
+        void skip (size_t size) final override {
+            byte skipped[size];
+            read (skipped, size);
+        }
+
+        ~stream () noexcept (false) {}
     };
 
     // encrypt and decrypt whole blocks.
