@@ -49,7 +49,8 @@ namespace data::crypto {
     const char *MACMessage = "This is a message that will be hashed using a secret key to produce a MAC. Thank you.";
     const char *MACAltered = "This is x message thxt will be hxshed using x secret key to produce x MAC. Thxnk you.";
 
-    template <MAC::Writer w, size_t key_size> void test_MAC (const char *message1, const char *message2) {
+    template <typename w, size_t key_size> requires MAC::Writer<w, key_size>
+    void test_MAC (const char *message1, const char *message2) {
         typename w::digest D1;
         typename w::digest D2;
         {
@@ -61,7 +62,7 @@ namespace data::crypto {
         EXPECT_NE (D1, D2);
     }
 
-    template <MAC::Writer w> struct test_MACs {
+    template <typename w> struct test_MACs {
         test_MACs (const char *message, const char *altered) {
             test_MAC<w, 16> (message, altered);
             test_MAC<w, 20> (message, altered);
@@ -69,13 +70,15 @@ namespace data::crypto {
             test_MAC<w, 32> (message, altered);
         }
     };
-    template <hash::Engine e> void HMAC_test_case (
-        const bytes &key,
+    template <hash::Engine e, size_t key_size> void HMAC_test_case (
+        const bytes &k,
         const string &msg,
         const hash::digest<e::DigestSize> &result) {
         bytes msg_bytes (msg);
+        symmetric_key<key_size> key;
+        std::copy (k.begin (), k.end (), key.begin ());
         auto got = MAC::calculate<HMAC<e>> (key, msg_bytes);
-        EXPECT_EQ (got, result) << "HMAC key " << key << " and msg " << msg << "; expected " << result << "; got " << got;
+        EXPECT_EQ (got, result) << "HMAC key " << k << " and msg " << msg << "; expected " << result << "; got " << got;
     }
 
     // test for all hash functions we have
@@ -91,22 +94,22 @@ namespace data::crypto {
         test_MACs<MAC::writer<HMAC<hash::SHA2<48>>>> {MACMessage, MACAltered};
         test_MACs<MAC::writer<HMAC<hash::SHA2<64>>>> {MACMessage, MACAltered};
 
-        HMAC_test_case<hash::SHA1> (bytes (20, 0x0b), "Hi There",
+        HMAC_test_case<hash::SHA1, 20> (bytes (20, 0x0b), "Hi There",
             hash::digest<20> {"b617318655057264e28bc0b6fb378c8ef146be00"});
 
-        HMAC_test_case<hash::SHA1> (bytes (string ("Jefe")), "what do ya want for nothing?",
+        HMAC_test_case<hash::SHA1, 4> (bytes (string ("Jefe")), "what do ya want for nothing?",
             hash::digest<20> {"effcdf6ae5eb2fa2d27416d5f184df9c259a7c79"});
 
-        HMAC_test_case<hash::SHA1> (bytes (80, 0xaa), "Test Using Larger Than Block-Size Key - Hash Key First",
+        HMAC_test_case<hash::SHA1, 80> (bytes (80, 0xaa), "Test Using Larger Than Block-Size Key - Hash Key First",
             hash::digest<20> {"aa4ae5e15272d00e95705637ce8a3b55ed402112"});
 
-        HMAC_test_case<hash::SHA2<32>> (bytes (20, 0x0b), "Hi There",
+        HMAC_test_case<hash::SHA2<32>, 20> (bytes (20, 0x0b), "Hi There",
             hash::digest<32> {"b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"});
 
-        HMAC_test_case<hash::SHA2<32>> (bytes (string ("Jefe")), "what do ya want for nothing?",
+        HMAC_test_case<hash::SHA2<32>, 4> (bytes (string ("Jefe")), "what do ya want for nothing?",
             hash::digest<32> {"5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"});
 
-        HMAC_test_case<hash::SHA2<32>> (bytes (string ("key")), "",
+        HMAC_test_case<hash::SHA2<32>, 3> (bytes (string ("key")), "",
             hash::digest<32> {"5d5d139563c95b5967b9bd9a8c9b233a9dedb45072794cd232dc1b74832607d0"});
 
     }
@@ -829,7 +832,7 @@ namespace data::crypto::cipher::block {
         using encryptor = crypto::cipher::writer<encryption, algorithm, key_size>;
         using decryptor = crypto::cipher::reader<decryption, algorithm, key_size>;
 
-        bytes encrypted = build_with<bytes, byte, lazy_bytes_writer> ([&] (auto &&w) {
+        bytes encrypted = build_with<bytes, lazy_bytes_writer> ([&] (auto &&w) {
             for (const typical_message &m : msgs) {
                 initialization_vector<cipher::BlockSize> iv {};
                 iv_generator >> iv;

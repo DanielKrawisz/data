@@ -7,6 +7,7 @@
 #define DATA_CRYPTO_MAC_HMAC
 
 #include <data/crypto/hash.hpp>
+#include <data/crypto/encrypted.hpp>
 
 namespace data::crypto {
 
@@ -23,23 +24,24 @@ namespace data::crypto {
         engine inner;
         engine outer;
 
-        void pads_from_key (byte_slice key) {
+        template <size_t key_size>
+        void pads_from_key (slice<const byte, key_size> key) {
             byte K[BlockSize];
 
             int begin_pad;
 
-            // If key.size () > block_size
+            // If key_size > block_size
             // hash the key
             // copy digest into K0
-            if (key.size () > BlockSize) {
+            if (key_size > BlockSize) {
                 engine g {};
-                g.Update (key.data (), key.size ());
+                g.Update (key.data (), key_size);
                 g.Final (K);
                 begin_pad = DigestSize;
             // else copy key into K0
             } else {
                 std::copy (key.begin (), key.end (), K);
-                begin_pad = key.size ();
+                begin_pad = key_size;
             }
             // zero pad the rest.
             for (int i = begin_pad; i < BlockSize; i++) K[i] = 0;
@@ -56,8 +58,9 @@ namespace data::crypto {
         }
     public:
 
-        HMAC (byte_slice key) {
-            pads_from_key (key);
+        template <size_t key_size>
+        HMAC (const symmetric_key<key_size> &key) {
+            pads_from_key<key_size> (key);
             initialize ();
         }
 

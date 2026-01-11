@@ -155,6 +155,7 @@
  *
  *  Construct a Writer from an Engine.
  *
+ *  ---------------------------------------------------------------------------
  */
 
 #include <data/stream.hpp>
@@ -187,13 +188,13 @@ namespace data::hash {
 
     // calculate a hash using a hash builder.
     template <Writer W> W::digest inline calculate (byte_slice b) {
-        return build_with<typename W::digest, byte, W> ([b] (W &w) {
+        return build_with<typename W::digest, W> ([b] (W &w) {
             w << b;
         });
     }
 
     template <Writer W> W::digest inline calculate (string_view b) {
-        return build_with<typename W::digest, byte, W> ([b] (W &w) {
+        return build_with<typename W::digest, W> ([b] (W &w) {
             w.write ((byte *) b.data (), b.size ());
         });
     }
@@ -259,16 +260,26 @@ namespace data::hash {
         return o << encoding::hexidecimal::write (s);
     }
 
-    template <Writer W, std::invocable<W &> F> W::digest inline write (F &&f) {
-        return build_with<typename W::digest, byte, W> (std::forward<F> (f));
+    template <Writer W, std::invocable<W &> F>
+    requires (!Serializable<F>)
+    W::digest inline write (F &&f) {
+        return build_with<typename W::digest, W> (std::forward<F> (f));
     }
 
-    template <Writer W, typename ...X> W::digest inline all (X &&...x) {
-        return build<typename W::digest, byte, W> (std::forward<X> (x)...);
+    template <Engine W, std::invocable<writer<W> &> F>
+    requires (!Serializable<F>)
+    digest<W::DigestSize> inline write (F &&f) {
+        return write<writer<W>> (std::forward<F> (f));
     }
 
-    template <Engine E, typename ...X> digest<E::DigestSize> inline all (X &&...x) {
-        return all<digest<E::DigestSize>, byte, writer<E>> (std::forward<X> (x)...);
+    template <Writer W, Serializable ...X>
+    W::digest inline write (X &&...x) {
+        return build<typename W::digest, W> (std::forward<X> (x)...);
+    }
+
+    template <Engine E, Serializable ...X>
+    digest<E::DigestSize> inline write (X &&...x) {
+        return write<writer<E>> (std::forward<X> (x)...);
     }
 
     

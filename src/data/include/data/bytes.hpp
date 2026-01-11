@@ -10,6 +10,7 @@
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/arithmetic/words.hpp>
 #include <data/encoding/hex.hpp>
+#include <data/tools/lazy_writer.hpp>
 
 namespace data {
 
@@ -44,13 +45,9 @@ namespace data {
         void bit_shift_right (uint32 x, bool fill = false);
     };
 
-    template <typename X, typename... P>
-    bytes write_bytes (size_t size, X &&x, P &&...p) {
-        bytes b (size);
-        iterator_writer w (b.begin (), b.end ());
-        write_to_writer (w, std::forward<X> (x), std::forward<P> (p)...);
-        return b;
-    }
+    using lazy_bytes_writer = lazy_writer<bytes, byte>;
+
+    using lazy_bytes_writer = lazy_writer<bytes, byte>;
 
     template <endian::order r, typename word, size_t ... sizes> struct oriented;
 

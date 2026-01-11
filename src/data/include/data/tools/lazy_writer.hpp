@@ -5,23 +5,28 @@
 #ifndef DATA_TOOLS_LAZY_WRITER
 #define DATA_TOOLS_LAZY_WRITER
 
-#include <data/bytes.hpp>
 #include <data/stack.hpp>
 #include <concepts>
 
 namespace data {
 
+    template <typename bytes>
+    concept moved_vector_constructible = requires (std::vector<unref<decltype (std::declval<bytes> ()[0])>> &&v) {
+            { bytes {std::move (v)} };
+        };
+
     // lazy writer can be used without knowing the size
     // of the data to be written beforehand.
-    template <std::integral word> class lazy_writer : public writer<word> {
-        bytestring<word> &Bytes;
+    template <moved_vector_constructible bytes, std::integral word = unref<decltype (std::declval<bytes> ()[0])>>
+    class lazy_writer : public writer<word> {
+        bytes &Bytes;
         size_t Capacity;
         stack<std::vector<word>> Parts;
 
     public:
         size_t TotalSize {0};
 
-        lazy_writer (bytestring<word> &b, size_t capacity = 1024 / sizeof (word)): Bytes {b}, Capacity {capacity}, Parts {} {
+        lazy_writer (bytes &b, size_t capacity = 1024 / sizeof (word)) noexcept: Bytes {b}, Capacity {capacity}, Parts {} {
             Parts >>= std::vector<word> {};
             Parts.first ().reserve (capacity);
         }
@@ -41,24 +46,38 @@ namespace data {
         }
 
         ~lazy_writer () {
-            Bytes.resize (TotalSize);
-            iterator_writer w {Bytes.begin (), Bytes.end ()};
-            for (const std::vector<word> &b : reverse (Parts)) w.write (b.data (), b.size ());
+            std::vector<word> v (TotalSize);
+            iterator_writer vv {v.begin (), v.end ()};
+            for (const std::vector<word> &b : reverse (Parts)) vv.write (b.data (), b.size ());
+            Bytes = bytes {std::move (v)};
         }
     };
 
-    using lazy_bytes_writer = lazy_writer<byte>;
+    template <moved_vector_constructible bytes>
+    bytes inline write () {
+        return bytes {};
+    }
 
-    template <std::invocable<lazy_bytes_writer &> F>
+    template <moved_vector_constructible bytes, typename F>
+    requires std::invocable<F, lazy_writer<bytes> &> && (!Serializable<F>)
     bytes inline write (F &&f) {
-        return build_with<bytes, byte, lazy_bytes_writer> (std::forward<F> (f));
+        return build_with<bytes, lazy_writer<bytes>> (std::forward<F> (f));
     }
 
-    template <typename X, typename... P>
-    bytes inline write_all (X &&x, P &&...p) {
-        return build<bytes, byte, lazy_bytes_writer> (x, p...);
+    template <moved_vector_constructible bytes, typename... P>
+    requires (Serializable<P> && ...) && (sizeof...(P) > 0)
+    bytes inline write (P &&...p) {
+        return build<bytes, lazy_writer<bytes>> (p...);
     }
 
+    template <moved_vector_constructible bytes, typename... P>
+    bytes inline write (size_t size, P &&...p) {
+        std::vector<byte> b (size);
+        iterator_writer w (b.begin (), b.end ());
+        write_to_writer (w, std::forward<P> (p)...);
+        if (w.Begin != w.End) throw exception {} << "failed to fill written data with the expected size.";
+        return b;
+    }
 
 }
 
