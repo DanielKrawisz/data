@@ -7,6 +7,7 @@
 #include "data/ordered_sequence.hpp"
 #include "data/array.hpp"
 #include "data/cycle.hpp"
+#include "data/cross.hpp"
 #include "gtest/gtest.h"
 #include <iostream>
 

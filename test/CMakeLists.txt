@@ -51,6 +51,7 @@ add_executable (
     # string
     integer_format.cpp
     bytes.cpp
+    write.cpp
     hex.cpp
     base64.cpp
     ASCII.cpp

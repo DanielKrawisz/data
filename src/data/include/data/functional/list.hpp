@@ -7,7 +7,6 @@
 
 #include <data/functional/stack.hpp>
 #include <data/functional/queue.hpp>
-#include <data/cross.hpp>
 
 namespace data {
     
