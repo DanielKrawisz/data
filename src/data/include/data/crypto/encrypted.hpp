@@ -16,8 +16,6 @@ namespace data::crypto {
     template <size_t block_size>
     using initialization_vector = byte_array<block_size>;
 
-
-    
 }
 
 #endif
