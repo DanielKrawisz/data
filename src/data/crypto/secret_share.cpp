@@ -8,8 +8,10 @@
 
 namespace data::crypto {
     
-    cross<secret_share> secret_share_split (CryptoPP::RandomNumberGenerator &rng, const bytes &b, byte max, byte threshold) {
+    cross<secret_share> secret_share_split (random::source &rand, const bytes &b, byte max, byte threshold) {
         using namespace CryptoPP;
+
+        random::to_crypto_pp_RNG rng {rand};
         
         ChannelSwitch *channelSwitch = NULL;
         VectorSource source (b, false, new SecretSharing (rng, threshold, max, channelSwitch = new ChannelSwitch));

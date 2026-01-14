@@ -6,7 +6,7 @@
 #define DATA_CRYPTO_SECRET_SHARE
 
 #include <data/crypto/NIST_DRBG.hpp>
-#include <cryptopp/drbg.h>
+#include <data/crypto/random.hpp>
 
 namespace data::crypto {
     
@@ -15,7 +15,7 @@ namespace data::crypto {
         bytes Data;
     };
     
-    cross<secret_share> secret_share_split (CryptoPP::RandomNumberGenerator &, const bytes &message, byte max, byte threshold);
+    cross<secret_share> secret_share_split (random::source &rng, const bytes &message, byte max, byte threshold);
     
     bytes secret_share_merge (cross<secret_share>, byte threshold);
     

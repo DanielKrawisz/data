@@ -100,8 +100,6 @@ namespace data::random {
         RNG<engine> && std::derived_from<engine, source> &&
         requires (engine &e, byte_slice b) {
             { e.reseed (b) };
-        } && requires {
-            engine::MinSeedLength;
         };
 
     struct generator : source {
@@ -133,13 +131,13 @@ namespace data::random {
             Engine.seed (seed);
         }
 
-        constexpr const static size_t MinSeedLength = 8;
+        constexpr const static size_t MinEntropyLength = 8;
     };
 
     struct reseed_required : exception::base<reseed_required> {};
 
     // satisfy DRBG concept
-    template <DRBG drbg, size_t min_seed_length = drbg::MinSeedLength>
+    template <DRBG drbg, size_t min_seed_length = drbg::MinEntropyLength>
     struct automatic_reseed final : generator {
         source &Source;
         drbg Random;

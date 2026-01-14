@@ -12,10 +12,8 @@
 namespace data {
     
     TEST (SecretShareTest, TestSecretShare) {
-        ptr<random::source> ent = std::static_pointer_cast<random::source> (std::make_shared<random::fixed_entropy>
-            (byte_slice (bytes (string ("atehulak,rc.TjmleoTHReseSRCjt")))));
         
-        crypto::NIST::drbg random {crypto::NIST::drbg::HMAC, {*ent, bytes {}, 302}};
+        crypto::NIST::HMAC_DRBG<crypto::hash::SHA2_256> random {bytes (string ("atehulak,rc.TjmleoTHReseSRCjt")), uint32_big {302}, bytes {}};
         
         for (byte total = 1; total <= 5; total++) for (byte threshold = 1; threshold <= total; threshold++) {
             
@@ -24,7 +22,7 @@ namespace data {
             random >> message;
             
             // split share 
-            cross<crypto::secret_share> shares = crypto::secret_share_split (*random.Random, message, total, threshold);
+            cross<crypto::secret_share> shares = crypto::secret_share_split (random, message, total, threshold);
             
             for (byte to_take = threshold; to_take <= std::min (static_cast<byte> (threshold + 2), total); to_take++) {
                 

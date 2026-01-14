@@ -705,6 +705,20 @@ namespace data {
     }
 
     template <std::integral word, size_t size>
+    constexpr bytes_array<word, size> &operator <<= (bytes_array<word, size> &n, int32 i) {
+        if (i < 0) arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_right (-i, false);
+        else arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_left (i, false);
+        return n;
+    }
+
+    template <std::integral word, size_t size>
+    constexpr bytes_array<word, size> &operator >>= (bytes_array<word, size> &n, int32 i) {
+        if (i < 0) arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_left (-i, false);
+        else arithmetic::Words<endian::big, word> (slice<word> (n)).bit_shift_right (i, false);
+        return n;
+    }
+
+    template <std::integral word, size_t size>
     constexpr bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
         arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
