@@ -141,8 +141,8 @@ namespace data::crypto::cipher::block {
     static_assert (TestEncryptable<DES, 8>);
     static_assert (!TestEncryptable<DES, 16>);
 
-    static_assert (TestEncryptable<TDA2, 16>);
-    static_assert (TestEncryptable<TDA3, 24>);
+    static_assert (TestEncryptable<TDEA2, 16>);
+    static_assert (TestEncryptable<TDEA3, 24>);
 
     static_assert (TestEncryptable<AES, 16>);
     static_assert (!TestEncryptable<AES, 8>);
@@ -786,7 +786,7 @@ namespace data::crypto::cipher::block {
     }
 
     // next we test block ciphers.
-    ciphers<DES, TDA2, TDA3, Rijndael, Serpent, Twofish, MARS, RC6> supported_block_ciphers {};
+    ciphers<DES, TDEA2, TDEA3, Rijndael, Serpent, Twofish, MARS, RC6> supported_block_ciphers {};
 
     modes<
         block_mode<mode::ECB>,

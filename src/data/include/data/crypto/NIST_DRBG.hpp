@@ -55,7 +55,7 @@ namespace data::crypto::NIST {
             bytes additional;
             additional.resize (MinEntropyLength);
             GenerateEntropy >> additional;
-            this->reseed (b, additional);
+            static_cast<drbg *> (this)->reseed (b, additional);
         }
     };
 
@@ -68,7 +68,7 @@ namespace data::crypto::NIST {
         Same<H, hash::SHA2_384> || Same<H, hash::SHA2_512> ||
         // TODO
         //Same<H, hash::SHA2_512_224> || Same<H, hash::SHA2_512_256> ||
-        Same<H, cipher::block::TDA3> ||
+        Same<H, cipher::block::TDEA3> ||
         Same<H, cipher::block::AES>;
 
     // Strengths of approved algorithms, as defined by NIST.
@@ -94,7 +94,8 @@ namespace data::crypto::NIST {
     template <> constexpr size_t inline strength<hash::SHA2_512> () {
         return 256;
     }
-    template <> constexpr size_t inline strength<cipher::block::TDA3, size_t {24}> () {
+
+    template <> constexpr size_t inline strength<cipher::block::TDEA3, size_t {21}> () {
         return 112;
     }
 
@@ -129,11 +130,19 @@ namespace data::crypto::NIST {
 
         virtual void reseed (byte_slice entropy, byte_slice additional) = 0;
 
-        void reseed (byte_slice entropy) final override {
+        void reseed (byte_slice entropy) override {
             return reseed (entropy, {});
         }
 
         virtual ~NIST_DRBG () {}
+
+        NIST_DRBG () {}
+
+        // not copyable
+        NIST_DRBG (const NIST_DRBG &) = delete;
+        NIST_DRBG &operator = (const NIST_DRBG &) = delete;
+        NIST_DRBG (NIST_DRBG &&) = delete;
+        NIST_DRBG &operator = (NIST_DRBG &&) = delete;
     };
 
     // Hash_DRBG derivation function.
@@ -145,7 +154,7 @@ namespace data::crypto::NIST {
 
         Hash_DRBG (byte_slice entropy, byte_slice nonce = {}, byte_slice personalization = {});
 
-        void reseed (byte_slice entropy, byte_slice additional) final override;
+        void reseed (byte_slice entropy, byte_slice additional = {}) final override;
 
         void generate (byte *b, size_t x, byte_slice additional = {}) final override;
 
@@ -156,23 +165,7 @@ namespace data::crypto::NIST {
     private:
         constexpr const static size_t Length = size_t (SeedBits / 8);
 
-        struct Hash : data::writer<byte> {
-            using digest = math::uint_big<Length, byte>;
-            Hash (digest &d): Digest {d} {}
-
-            void write (const byte *b, size_t size) final override {
-                Engine.Update (b, size);
-            }
-
-            ~Hash () {
-                Digest = 0;
-                Engine.Final (Digest.data () + (Length - H::DigestSize));
-            }
-
-        private:
-            digest &Digest;
-            H Engine;
-        };
+        struct Hash;
 
         void Hashgen (byte *, size_t);
 
@@ -187,7 +180,7 @@ namespace data::crypto::NIST {
 
         void generate (byte *b, size_t x, byte_slice additional = {}) final override;
 
-        void reseed (byte_slice entropy, byte_slice additional) final override;
+        void reseed (byte_slice entropy, byte_slice additional = {}) final override;
 
         HMAC_DRBG (byte_slice entropy, byte_slice nonce = {}, byte_slice personalization = {});
 
@@ -206,7 +199,7 @@ namespace data::crypto::NIST {
 
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r = endian::big>
     struct CTR_base : NIST_DRBG<C, key_size> {
-        constexpr const static size_t SeedLength = C::BlockSize + (Same<C, cipher::block::TDA3> ? 21 : key_size);
+        constexpr const static size_t SeedLength = C::BlockSize + (Same<C, cipher::block::TDEA3> ? 21 : key_size);
 
         math::uint<r, C::BlockSize, byte> V;
         symmetric_key<key_size> Key;
@@ -284,7 +277,7 @@ namespace data::crypto::NIST {
 
     template <hash::Engine H>
     Hash_DRBG<H>::Hash_DRBG (byte_slice entropy, byte_slice nonce, byte_slice personalization):
-        V {}, C {}, ReseedCounter {1} {
+        NIST_DRBG<H> {}, V {}, C {}, ReseedCounter {1} {
         // if seed is not at least size strength / 8, then it's not good enough.
         if (entropy.size () < this->MinEntropyLength)
             throw insufficient_entropy {} << "Not enough entropy provided to initialize Hash_DRBG for max strength " << this->MaxStrength <<
@@ -306,7 +299,7 @@ namespace data::crypto::NIST {
 
     template <hash::Engine H>
     HMAC_DRBG<H>::HMAC_DRBG (byte_slice entropy, byte_slice nonce, byte_slice personalization)
-    : Key {byte_array<Length>::filled (0x00)}, V {byte_array<Length>::filled (0x01)}, ReseedCounter {1} {
+    : NIST_DRBG<H> {}, Key {byte_array<Length>::filled (0x00)}, V {byte_array<Length>::filled (0x01)}, ReseedCounter {1} {
         if (entropy.size () < this->MinEntropyLength)
             throw insufficient_entropy {} << "Not enough entropy provided to initialize Hash_DRBG for max strength " << this->MaxStrength;
 
@@ -397,6 +390,25 @@ namespace data::crypto::NIST {
 
         this->ReseedCounter = 1;
     }
+
+    template <hash::Engine H>
+    struct Hash_DRBG<H>::Hash : data::writer<byte> {
+        using digest = math::uint_big<Length, byte>;
+        Hash (digest &d): Digest {d} {}
+
+        void write (const byte *b, size_t size) final override {
+            Engine.Update (b, size);
+        }
+
+        ~Hash () {
+            Digest = 0;
+            Engine.Final (Digest.data () + (Length - H::DigestSize));
+        }
+
+    private:
+        digest &Digest;
+        H Engine;
+    };
 
     template <hash::Engine H>
     void Hash_DRBG<H>::generate (byte *b, size_t size, byte_slice additional) {
@@ -524,9 +536,8 @@ namespace data::crypto::NIST {
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
     struct CTR_DRBG<key_size, C, true, r>::BCC_writer final : data::writer<byte> {
         using digest = hash::digest<C::BlockSize>;
-        digest &Digest;
+        digest &Output;
         symmetric_key<key_size> Key;
-        byte_array<C::BlockSize> Block;
         size_t Index;
 
         BCC_writer (digest &d);
@@ -536,9 +547,33 @@ namespace data::crypto::NIST {
         ~BCC_writer ();
     };
 
+    // NOTE: this function uses encryption in CTR mode.
+    // TODO make it work with what we already have for encryption.
+    template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
+    void CTR_base<key_size, C, r>::update (const byte_array<SeedLength> &provided) {
+        size_t remaining = SeedLength;
+
+        byte_array<SeedLength> Temp;
+        auto temp = Temp.data ();
+        while (remaining > 0) {
+            V++;
+            byte_array<C::BlockSize> output_block;
+            C::encrypt (output_block, Key, V);
+            size_t bytes_to_copy = std::min (remaining, C::BlockSize);
+            std::copy (output_block.begin (), output_block.begin () + bytes_to_copy, temp);
+            temp += bytes_to_copy;
+            remaining -= bytes_to_copy;
+        }
+
+        Temp ^= provided;
+        std::copy (Temp.begin (), Temp.begin () + key_size, Key.begin ());
+        std::copy (Temp.begin () + key_size, Temp.end (), V.begin ());
+    }
+
+    // input is required to be a multiple of block size.
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
     byte_array<CTR_DRBG<key_size, C, true, r>::CTR::SeedLength>
-    CTR_DRBG<key_size, C, true, r>::df (byte_slice b) {
+    CTR_DRBG<key_size, C, true, r>::df (byte_slice input) {
 
         byte_array<C::BlockSize> X;
         symmetric_key<key_size> K;
@@ -553,9 +588,10 @@ namespace data::crypto::NIST {
             uint32_big i = 0;
             byte_array<C::BlockSize - 4> zeros;
             while (true) {
+
                 auto bcc = hash::write<BCC_writer> (i, zeros,
-                    uint32_big {static_cast<uint32> (b.size ())},
-                    uint32_big {static_cast<uint32> (CTR::SeedLength)}, b);
+                    uint32_big {static_cast<uint32> (input.size ())},
+                    uint32_big {static_cast<uint32> (CTR::SeedLength)}, input);
 
                 size_t bytes_to_copy = remaining > C::BlockSize ? C::BlockSize : remaining;
                 std::copy (bcc.begin (), bcc.begin () + bytes_to_copy, temp);
@@ -575,50 +611,27 @@ namespace data::crypto::NIST {
         auto result = Result.data ();
 
         while (true) {
-            byte_array<C::BlockSize> x;
-            C::encrypt (x, K, X);
+            C::encrypt (X, K, X);
 
             size_t bytes_to_copy = remaining > C::BlockSize ? C::BlockSize : remaining;
-            std::copy (x.begin (), x.begin () + bytes_to_copy, result);
+            std::copy (X.begin (), X.begin () + bytes_to_copy, result);
             remaining -= bytes_to_copy;
             if (remaining == 0) return Result;
             result += bytes_to_copy;
-            X = x;
         }
-    }
-
-    template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
-    void CTR_base<key_size, C, r>::update (const byte_array<SeedLength> &provided) {
-        size_t remaining = SeedLength;
-
-        byte_array<SeedLength> Temp;
-        auto temp = Temp.data ();
-
-        while (remaining > 0) {
-            V++;
-            byte_array<C::BlockSize> output_block;
-            C::encrypt (output_block, Key, V);
-            size_t bytes_to_copy = std::min (remaining, C::BlockSize);
-            std::copy (output_block.begin (), output_block.begin () + bytes_to_copy, temp);
-            temp += bytes_to_copy;
-            remaining -= bytes_to_copy;
-        }
-
-        Temp ^= provided;
-        std::copy (Temp.begin (), Temp.begin () + key_size, Key.begin ());
-        std::copy (Temp.begin () + key_size, Temp.end (), V.begin ());
     }
 
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
     CTR_DRBG<key_size, C, true, r>::BCC_writer::BCC_writer (digest &d) :
-    Digest {d}, Key {}, Block {}, Index {0} {
+    Output {d}, Key {}, Index {0} {
+        Output = digest {};
         for (int i = 0; i < key_size; i++) Key[i] = i;
     }
 
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
     void CTR_DRBG<key_size, C, true, r>::BCC_writer::write (const byte *b, size_t remaining) {
 
-        if (remaining >= C::BlockSize - Index) {
+        while (remaining >= C::BlockSize - Index) {
 
             // These lines had to be added in to remove some compiler warnings.
             // The compiler keeps thinking these lines are unsafe, but they
@@ -627,7 +640,7 @@ namespace data::crypto::NIST {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 
-            arithmetic::bit_xor<byte> (Block.end (), Block.begin () + Index, b, (const byte *) (Block.data () + Index));
+            arithmetic::bit_xor<byte> (Output.end (), Output.begin () + Index, b, (const byte *) (Output.data () + Index));
 
 #pragma GCC diagnostic pop
 
@@ -638,11 +651,11 @@ namespace data::crypto::NIST {
 
             while (true) {
 
-                C::encrypt (Block, Key, Block);
+                C::encrypt (Output, Key, Output);
 
                 if (remaining < C::BlockSize) break;
 
-                arithmetic::bit_xor<byte> (Block.end (), Block.begin (), b, (const byte *) (Block.data ()));
+                arithmetic::bit_xor<byte> (Output.end (), Output.begin (), b, (const byte *) (Output.data ()));
 
                 remaining -= C::BlockSize;
                 b += C::BlockSize;
@@ -655,11 +668,12 @@ namespace data::crypto::NIST {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 
-        arithmetic::bit_xor<byte> (Block.begin () + Index + remaining, Block.begin () + Index, b, (const byte *) (Block.data () + Index));
+        arithmetic::bit_xor<byte> (Output.begin () + Index + remaining, Output.begin () + Index, b, (const byte *) (Output.data () + Index));
 
 #pragma GCC diagnostic pop
 
         Index += remaining;
+
     }
 
     // pad and write to Digest.
@@ -667,79 +681,6 @@ namespace data::crypto::NIST {
     CTR_DRBG<key_size, C, true, r>::BCC_writer::~BCC_writer () {
         cipher::block::pad<cipher::block::padding::ONE_AND_ZEROS_PADDING> {}.write (*this, C::BlockSize, Index);
     }
-    
-    // TODO get rid of this.
-    struct drbg final : random::source {
-        // supported rngs
-        enum type {
-            HMAC,
-            Hash
-        };
-
-        constexpr static uint32 DefaultBytesBeforeReseed = 0xffffffff;
-        
-        uint32 BytesBeforeReseed;
-        source &Entropy;
-        ::CryptoPP::NIST_DRBG* Random;
-        
-        constexpr static uint32 SecurityStrength = 16;
-
-        struct initialization {
-            source &Entropy;
-            bytes Personalization;
-            uint32_little Nonce;
-
-            initialization (source &e, const bytes &personalization = {}, uint32_little nonce = 0):
-                Entropy {e}, Personalization {personalization}, Nonce {nonce} {}
-        };
-        
-        drbg (type t, initialization i, uint32 bytes_before_reseed = DefaultBytesBeforeReseed) :
-            BytesBeforeReseed {bytes_before_reseed}, Entropy {i.Entropy}, Random {nullptr},
-            BytesRemaining {bytes_before_reseed} {
-                bytes entropy (SecurityStrength);
-                Entropy >> entropy;
-
-                if (t == HMAC) {
-                    Random = new ::CryptoPP::HMAC_DRBG
-                        (entropy.data (), data::size (entropy), i.Nonce.data (), data::size (i.Nonce),
-                            i.Personalization.data (), i.Personalization.size ());
-                } else if (t == Hash) {
-                    Random = new ::CryptoPP::Hash_DRBG
-                        (entropy.data (), data::size (entropy), i.Nonce.data (), data::size (i.Nonce),
-                            i.Personalization.data (), i.Personalization.size ());
-                } else throw exception {} << "Invalid NIST DRBG type";
-            }
-        
-        bool valid () const {
-            return Random != nullptr;
-        }
-        
-        ~drbg () {
-            delete Random;
-        }
-
-        void generate (byte* b, size_t x, const bytes &additional) {
-            while (BytesRemaining < x) {
-                Random->GenerateBlock (b, BytesRemaining);
-                b += BytesRemaining;
-                x -= BytesRemaining;
-                bytes entropy (SecurityStrength);
-                Entropy >> entropy;
-                Random->IncorporateEntropy (entropy.data (), entropy.size ());
-                BytesRemaining = BytesBeforeReseed;
-            }
-
-            Random->GenerateBlock (additional.data (), additional.size (), b, x);
-            BytesRemaining -= x;
-        }
-
-        void read (byte* b, size_t x) final override {
-            return generate (b, x, {});
-        }
-        
-    private:
-        uint32 BytesRemaining;
-    };
 
 }
 

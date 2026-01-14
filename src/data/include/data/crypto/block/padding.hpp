@@ -79,6 +79,13 @@ namespace data::crypto::cipher::block {
         skip_padding (Previous, Padding, BlockSize, BytesRead);
     }
 
+    bytes inline add_padding (padding_scheme scheme, size_t block_size, const bytes &msg) {
+        return build_with<bytes, lazy_bytes_writer> ([&](auto &&w){
+            add_padding_writer pp {w, block_size, scheme};
+            pp << msg;
+        });
+    }
+
     template <padding_scheme padding> struct pad;
 
     template <> struct pad<padding::NO_PADDING> {

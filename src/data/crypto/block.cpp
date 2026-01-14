@@ -1,6 +1,5 @@
 
 #include <data/crypto/block.hpp>
-#include <data/crypto/transform.hpp>
 
 namespace data::crypto::cipher::block {
 
@@ -33,14 +32,6 @@ namespace data::crypto::cipher::block {
             case (padding::ONE_AND_ZEROS_PADDING):
             default: return pad<padding::ONE_AND_ZEROS_PADDING> {}.read (prev, block_size, bytes_read);
         }
-    }
-
-    bytes add_padding (padding_scheme scheme, size_t block_size, const bytes &msg) {
-        buffer_session br;{
-            add_padding_writer w {br, block_size, scheme};
-            w << msg;
-        }
-        return br.Results.first ();
     }
 
     bytes remove_padding (padding_scheme scheme, size_t block_size, const bytes &bb) {
@@ -82,55 +73,54 @@ namespace data::crypto::cipher::block {
 
     data::writer<byte> &pad<padding::ZEROS_PADDING>::write (data::writer<byte> &w, size_t block_size, size_t &bytes_written) {
         size_t bytes_to_write = (block_size - (bytes_written % block_size)) % block_size;
-        bytes_written += bytes_to_write;
         for (int i = 0; i < bytes_to_write; i++) w << byte (0);
+        bytes_written += bytes_to_write;
         return w;
     }
 
     data::reader<byte> &pad<padding::ZEROS_PADDING>::read (data::reader<byte> &r, size_t block_size, size_t &bytes_read) {
         size_t bytes_to_read = (block_size - (bytes_read % block_size)) % block_size;
-        bytes_read += bytes_to_read;
         for (int i = 0; i < bytes_to_read; i++) {
             byte b;
             r >> b;
             if (b != 0) throw invalid_padding {};
         }
+        bytes_read += bytes_to_read;
         return r;
     }
 
     data::writer<byte> &pad<padding::PKCS_PADDING>::write (data::writer<byte> &w, size_t block_size, size_t &bytes_written) {
         size_t bytes_to_write = block_size - (bytes_written % block_size);
         if (bytes_to_write > 255) throw exception {} << "block size must be less than 256 for PKCS";
-        bytes_written += bytes_to_write;
         for (int i = 0; i < bytes_to_write; i++) w << byte (bytes_to_write);
+        bytes_written += bytes_to_write;
         return w;
     }
 
     data::reader<byte> &pad<padding::PKCS_PADDING>::read (data::reader<byte> &r, size_t block_size, size_t &bytes_read) {
         size_t bytes_to_read = block_size - (bytes_read % block_size);
         if (bytes_to_read > 255) throw exception {} << "block size must be less than 256 for PKCS";
-        bytes_read += bytes_to_read;
         for (int i = 0; i < bytes_to_read; i++) {
             byte b;
             r >> b;
             if (b != bytes_to_read) throw invalid_padding {};
         }
+        bytes_read += bytes_to_read;
         return r;
     }
 
     data::writer<byte> &pad<padding::ONE_AND_ZEROS_PADDING>::write (data::writer<byte> &w, size_t block_size, size_t &bytes_written) {
         // we always write at least one byte of padding.
         size_t bytes_to_write = block_size - (bytes_written % block_size);
-        bytes_written += bytes_to_write;
         w << byte (0x80);
         for (int i = 1; i < bytes_to_write; i++) w << byte (0);
+        bytes_written += bytes_to_write;
         return w;
     }
 
     data::reader<byte> &pad<padding::ONE_AND_ZEROS_PADDING>::read (data::reader<byte> &r, size_t block_size, size_t &bytes_read) {
         size_t bytes_to_read = block_size - (bytes_read % block_size);
         if (bytes_to_read == 0) bytes_to_read = block_size;
-        bytes_read += bytes_to_read;
         byte first;
         r >> first;
         if (first != 0x80) throw invalid_padding {};
@@ -139,26 +129,27 @@ namespace data::crypto::cipher::block {
             r >> b;
             if (b != 0) throw invalid_padding {};
         }
+        bytes_read += bytes_to_read;
         return r;
     }
 
     data::writer<byte> &pad<padding::W3C_PADDING>::write (data::writer<byte> &w, size_t block_size, size_t &bytes_written) {
         size_t bytes_to_write = (block_size - (bytes_written % block_size)) % block_size;
         if (bytes_to_write > 255) throw exception {} << "block size must be less than 256 for W3C";
-        bytes_written += bytes_to_write;
         for (int i = 0; i < bytes_to_write; i++) w << byte (bytes_to_write);
+        bytes_written += bytes_to_write;
         return w;
     }
 
     data::reader<byte> &pad<padding::W3C_PADDING>::read (data::reader<byte> &r, size_t block_size, size_t &bytes_read) {
         size_t bytes_to_read = (block_size - (bytes_read % block_size)) % block_size;
         if (bytes_to_read > 255) throw exception {} << "block size must be less than 256 for W3C";
-        bytes_read += bytes_to_read;
         for (int i = 0; i < bytes_to_read; i++) {
             byte b;
             r >> b;
             if (b != bytes_to_read) throw invalid_padding {};
         }
+        bytes_read += bytes_to_read;
         return r;
     }
 
