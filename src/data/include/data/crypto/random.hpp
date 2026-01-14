@@ -28,8 +28,9 @@ namespace data::crypto::random {
     template <typename engine> concept RNG = RNG<engine> &&
         std::derived_from<engine, CryptoPP::RandomNumberGenerator>;
 
+    // turn a cryptopp RNG into a random::source.
     template <std::derived_from<CryptoPP::RandomNumberGenerator> rng>
-    struct crypto_pp_secure_engine : source {
+    struct crypto_pp_secure_source : source {
         void read (byte *b, size_t z) override {
             RNG.GenerateBlock (b, z);
         }
@@ -37,11 +38,22 @@ namespace data::crypto::random {
         rng RNG;
     };
 
+    // turn a DRBG into a crypto pp RNG.
+    struct to_crypto_pp_RNG : CryptoPP::RandomNumberGenerator {
+        random::source &Rand;
+
+        to_crypto_pp_RNG (random::source &rand): Rand {rand} {}
+
+        void GenerateBlock (byte *output, size_t size) final override {
+            return Rand.read (output, size);
+        }
+    };
+
     // Direct OS entropy (nonblocking)
-    using OS_entropy = crypto_pp_secure_engine<CryptoPP::NonblockingRng>;
+    using OS_entropy = crypto_pp_secure_source<CryptoPP::NonblockingRng>;
 
     // Direct OS entropy (may block)
-    using OS_entropy_strong = crypto_pp_secure_engine<CryptoPP::BlockingRng>;
+    using OS_entropy_strong = crypto_pp_secure_source<CryptoPP::BlockingRng>;
 
     using default_secure_random = automatic_reseed<NIST::auto_generate_with_additional_entropy<NIST::HMAC_DRBG<hash::SHA2_256>>>;
 

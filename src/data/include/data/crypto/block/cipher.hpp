@@ -47,8 +47,8 @@ namespace data::crypto::cipher::block {
     struct MARS;
 
     struct DES; // the original classic.
-    struct TDA2; // triple DES with 2 keys
-    struct TDA3; // triple DES with 3 keys
+    struct TDEA2; // triple DES with 2 keys
+    struct TDEA3; // triple DES with 3 keys
 
     struct Rijndael {
         static constexpr security Security = security::modern;
@@ -118,9 +118,12 @@ namespace data::crypto::cipher::block {
 
         static void encrypt (block_out, const symmetric_key<8> &key, block_in);
         static void decrypt (block_out, const symmetric_key<8> &key, block_in);
+
+        static void encrypt (block_out, const symmetric_key<7> &key, block_in);
+        static void decrypt (block_out, const symmetric_key<7> &key, block_in);
     };
 
-    struct TDA2 {
+    struct TDEA2 {
         static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
@@ -128,9 +131,12 @@ namespace data::crypto::cipher::block {
 
         static void encrypt (block_out, const symmetric_key<16> &key, block_in);
         static void decrypt (block_out, const symmetric_key<16> &key, block_in);
+
+        static void encrypt (block_out, const symmetric_key<14> &key, block_in);
+        static void decrypt (block_out, const symmetric_key<14> &key, block_in);
     };
 
-    struct TDA3 {
+    struct TDEA3 {
         static constexpr security Security = security::depricated;
         static constexpr size_t BlockSize = 8;
         using block_in = slice<const byte, BlockSize>;
@@ -138,7 +144,54 @@ namespace data::crypto::cipher::block {
 
         static void encrypt (block_out, const symmetric_key<24> &key, block_in);
         static void decrypt (block_out, const symmetric_key<24> &key, block_in);
+
+        static void encrypt (block_out, const symmetric_key<21> &key, block_in);
+        static void decrypt (block_out, const symmetric_key<21> &key, block_in);
     };
+
+    inline void DES_set_parity (byte &b) {
+        // count bits excluding LSB
+        int ones = __builtin_popcount (b & 0xFE);
+        if ((ones & 1) == 0) b |= 0x01;
+        else b &= 0xFE;
+    }
+
+    template <size_t key_size>
+    symmetric_key<(key_size * 8) / 7> DES_expand_key (const symmetric_key<key_size> &k) {
+        symmetric_key<key_size> old_key = k;
+        symmetric_key<(key_size * 8) / 7> new_key;
+        for (int i = 0; i < (key_size * 8) / 7; i++) {
+            new_key[i] = old_key[0] & ~1;
+            DES_set_parity (new_key[i]);
+            old_key <<= 7;
+        }
+        return new_key;
+    }
+
+
+    void inline DES::encrypt (DES::block_out o, const symmetric_key<7> &key, DES::block_in i) {
+        encrypt (o, DES_expand_key (key), i);
+    }
+
+    void inline DES::decrypt (DES::block_out o, const symmetric_key<7> &key, DES::block_in i) {
+        decrypt (o, DES_expand_key (key), i);
+    }
+
+    void inline TDEA2::encrypt (TDEA2::block_out o, const symmetric_key<14> &key, TDEA2::block_in i) {
+        encrypt (o, DES_expand_key (key), i);
+    }
+
+    void inline TDEA2::decrypt (TDEA2::block_out o, const symmetric_key<14> &key, TDEA2::block_in i) {
+        decrypt (o, DES_expand_key (key), i);
+    }
+
+    void inline TDEA3::encrypt (TDEA3::block_out o, const symmetric_key<21> &key, TDEA3::block_in i) {
+        encrypt (o, DES_expand_key (key), i);
+    }
+
+    void inline TDEA3::decrypt (TDEA3::block_out o, const symmetric_key<21> &key, TDEA3::block_in i) {
+        decrypt (o, DES_expand_key (key), i);
+    }
 
 }
 

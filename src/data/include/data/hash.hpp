@@ -240,6 +240,7 @@ namespace data::hash {
             Hash.Final (Digest.data ());
         }
 
+        // non copyable
         writer (const writer &) = delete;
         writer &operator = (const writer &) = delete;
         writer (writer &&) = delete;
