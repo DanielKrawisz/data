@@ -15,6 +15,7 @@
 #include <data/integral.hpp>
 #include <data/tools/lazy_writer.hpp>
 #include <cryptopp/drbg.h>
+#include <data/io/wait_for_enter.hpp>
 
 namespace data::crypto::NIST {
 
@@ -318,7 +319,7 @@ namespace data::crypto::NIST {
     }
 
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
-    CTR_DRBG<key_size, C, true, r>::CTR_DRBG (byte_slice entropy, byte_slice personalization, byte_slice nonce):
+    CTR_DRBG<key_size, C, true, r>::CTR_DRBG (byte_slice entropy, byte_slice nonce, byte_slice personalization):
     CTR {} {
 
         if (entropy.size () < this->MinEntropyLength)
@@ -650,7 +651,6 @@ namespace data::crypto::NIST {
             Index = 0;
 
             while (true) {
-
                 C::encrypt (Output, Key, Output);
 
                 if (remaining < C::BlockSize) break;
@@ -673,7 +673,6 @@ namespace data::crypto::NIST {
 #pragma GCC diagnostic pop
 
         Index += remaining;
-
     }
 
     // pad and write to Digest.
