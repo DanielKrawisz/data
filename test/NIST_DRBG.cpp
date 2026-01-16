@@ -655,8 +655,22 @@ namespace data::crypto {
         }.run ();
 
         // with a personalization string
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<16, cipher::block::AES, false>> {
+            hex_string {"cee23de86a69c7ef57f6e1e12bd16e35e51624226fa19597bf93ec476a44b0f2"},
+            hex_string {"a2ef16f226ea324f23abd59d5e3c660561c25e73638fe21c87566e86a9e04c3e"}, hex_string {}, hex_string {},
+            hex_string {"2a76d71b329f449c98dc08fff1d205a2fbd9e4ade120c7611c225c984eac8531288dd3049"
+                "f3dc3bb3671501ab8fbf9ad49c86cce307653bd8caf29cb0cf07764"}
+        }.run ();
 
         // no reseed with additional input on generate.
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<16, cipher::block::AES, false>> {
+            hex_string {"6bd4f2ae649fc99350951ff0c5d460c1a9214154e7384975ee54b34b7cae0704"},
+            hex_string {},
+            hex_string {"ecd4893b979ac92db1894ae3724518a2f78cf2dbe2f6bbc6fda596df87c7a4ae"},
+            hex_string {"b23e9188687c88768b26738862c4791fa52f92502e1f94bf66af017c4228a0dc"},
+            hex_string {"5b2bf7a5c60d8ab6591110cbd61cd387b02de19784f496d1a109123d8b3562a5de2dd6d5"
+                "d1aef957a6c4f371cecd93c15799d82e34d6a0dba7e915a27d8e65f3"}
+        }.run ();
 
         // reseed before generate calls.
     }
@@ -670,8 +684,23 @@ namespace data::crypto {
         }.run ();
 
         // with a personalization string
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<24, cipher::block::AES, false>> {
+            hex_string {"d76697495add9baac8cfdf90e0a6f3381a52b2889f840a24cfc9606f97c49446202e70583fde09dc"},
+            hex_string {"d64e546523fb082b5e87bbe6b66a8e6a7940bb06ed17fe833c4e9bbb211396c227f83671c924240e"},
+            hex_string {}, hex_string {},
+            hex_string {"5693f68ec7a8d2631dee9d371503e05cbd5fb872506f040050b1d441a94"
+                "bd74ec06f24c1cc4363ece1d8b2295e74389b6dd8b1e5438bceab2f2bc2af5a9d8da8"}
+        }.run ();
 
         // no reseed with additional input on generate.
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<24, cipher::block::AES, false>> {
+            hex_string {"b895b891f039052821fbb4a889fced861b96c37e36a5f4f7aa208a2bf33a896fe7e29f3f6cf0041f"},
+            hex_string {},
+            hex_string {"8711df3931a9035905ebdf510b3ea3f344923b2f20a561709c0def03b9570be267e9765719a25d8a"},
+            hex_string {"03908b9fd56bad5a1645b688a4f9c2342bc0f81fed6f7449af14e92960d60127dda4e27487e77491"},
+            hex_string {"1385397b1a245bd06bbb4bcf651a52b2d30867d3e2f98e9c7a9ee959d2e1bbd63a10054f"
+                "c081cd22a7f3b65ed2f0b3a3deb389d2f336e50b359a6c3e83667fb1"}
+        }.run ();
 
         // reseed before generate calls.
     }
@@ -685,8 +714,31 @@ namespace data::crypto {
         }.run ();
 
         // with a personalization string
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<32, cipher::block::AES, false>> {
+            hex_string {"df5d73faa468649edda33b5cca79b0b05600419ccb7a879ddfec9db32ee494e5531b51de16a30f769262474c73bec010"},
+            hex_string {}, hex_string {}, hex_string {},
+            hex_string {"d1c07cd95af8a7f11012c84ce48bb8cb87189e99d40fccb1771c619bdf82ab2280b1dc2"
+                "f2581f39164f7ac0c510494b3a43c41b7db17514c87b107ae793e01c5"}
+        }.run ();
 
         // no reseed with additional input on generate.
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<32, cipher::block::AES, false>> {
+            hex_string {"f45e9d040c1456f1c7f26e7f146469fbe3973007fe037239ad57623046e7ec52221b22eec208b22ac4cf4ca8d6253874"},
+            hex_string {},
+            hex_string {"28819bc79b92fc8790ebdc99812cdcea5c96e6feab32801ec1851b9f46e80eb6800028e61fbccb6ccbe42b06bf5a0864"},
+            hex_string {"418ca848027e1b3c84d66717e6f31bf89684d5db94cd2d579233f716ac70ab66cc7b01a6f9ab8c7665fcc37dba4af1ad"},
+            hex_string {"4f11406bd303c104243441a8f828bf0293cb20ac39392061429c3f56c1f4262"
+                "39f8f0c687b69897a2c7c8c2b4fb520b62741ffdd29f038b7c82a9d00a890a3ed"}
+        }.run ();
+
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<32, cipher::block::AES, false>> {
+            hex_string {"0dd4d80062ecc0f359efbe7723020be9b88b550fe74088094069e74428395856f63eed4f5b0e7d1e006f0eaff74f638c"},
+            hex_string {"d2aa2ccd4bc6537e51f6550ab6d6294547bef3e971a7f128e4436f957de9982c93ee22110b0e40ab33a7d3dfa22f599d"},
+            hex_string {"0b081bab6c74d86b4a010e2ded99d14e0c9838f7c3d69afd64f1b66377d95cdcb7f6ec5358e3516034c3339ced7e1638"},
+            hex_string {"ca818f938ae0c7f4f507e4cfec10e7baf51fe34b89a502f754d2d2be7395120fe1fb013c67ac2500b3d17b735da09a6e"},
+            hex_string {"6808268b13e236f642c06deba2494496e7003c937ebf6f7cb7c9210"
+                "4ea090f18484aa075560d7844a06eb559948c93b26ae40f2db98ecb53ad593eb4c78f82b1"}
+        }.run ();
 
         // reseed before generate calls.
     }
@@ -700,8 +752,23 @@ namespace data::crypto {
         }.run ();
 
         // with a personalization string
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<16, cipher::block::AES>> {
+            hex_string {"e10bc28a0bfddfe93e7f5186e0ca0b3b"},
+            hex_string {"9ff477c18673840d"},
+            hex_string {"c980dedf9882ed4464a674967868f143"}, hex_string {}, hex_string {},
+            hex_string {"35b00df6269b6641fd4ccb354d56d851de7a77527e034d60c9e1a9e1525"
+                "a30ed361fded89d3dccb978d4e7a9e100ebf63062735b52831c6f0a1d3e1bdc5ebc72"}
+        }.run ();
 
         // no reseed with additional input on generate.
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<16, cipher::block::AES>> {
+            hex_string {"b408cefb5bc7157d3f26cb95a8b1d7ac"},
+            hex_string {"026c768fd577b92a"}, hex_string {},
+            hex_string {"5737ef81dee365b6dadb3feebf5d1084"},
+            hex_string {"3368a516b3431a3daaa60dc8743c8297"},
+            hex_string {"4e909ebb24147a0004063a5e47ee044fead610d62324bd0f963f756fb91361e8b87e3a"
+                "76a398143fe88130fe1b547b661a6480c711b739f18a9df3ae51d41bc9"}
+        }.run ();
 
         // reseed before generate calls.
     }
@@ -751,8 +818,22 @@ namespace data::crypto {
         }.run ();
 
         // with a personalization string
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<24, cipher::block::AES>> {
+            hex_string {"eb4553f7141bc10882f0a3741780a42df8bc38a7121d3b7e"},
+            hex_string {"6f347f9c1de84fd5341625ae8d6bf50c"},
+            hex_string {"5e2e73b86ca2f3150d53d23d590acbeedaaf91638bdc3f9d588e945af4bb6ea2"}, hex_string {}, hex_string {},
+            hex_string {"a1deb9a5aad608a587d61ce5e0d7c7dd449b8c87898354ad1add6e05"
+                "853873d279ebe4132fc236a42d8ff0dc3ace95d2cdf9d0b057117cb119ee7550ce03085c"}
+        }.run ();
 
         // no reseed with additional input on generate.
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<24, cipher::block::AES>> {
+            hex_string {"eb4553f7141bc10882f0a3741780a42df8bc38a7121d3b7e"},
+            hex_string {"6f347f9c1de84fd5341625ae8d6bf50c"},
+            hex_string {"5e2e73b86ca2f3150d53d23d590acbeedaaf91638bdc3f9d588e945af4bb6ea2"}, hex_string {}, hex_string {},
+            hex_string {"a1deb9a5aad608a587d61ce5e0d7c7dd449b8c87898354ad1add6e05"
+                "853873d279ebe4132fc236a42d8ff0dc3ace95d2cdf9d0b057117cb119ee7550ce03085c"}
+        }.run ();
 
         // reseed before generate calls.
     }
@@ -768,7 +849,25 @@ namespace data::crypto {
         // with a personalization string
 
         // no reseed with additional input on generate.
+        NIST_test_case_no_reseed<NIST::CTR_DRBG<32, cipher::block::AES>> {
+            hex_string {"6b536f8f4c5616a0c4e681825585724d522d37fc02a05564030872e0d6c3922f"},
+            hex_string {"0184417527ffdd3edddbb070957826c0"},
+            hex_string {"91e62a609b4db50c5e7ad7d09dc387dae9da6d2585bd3530389411cea7d2a40e"},
+            hex_string {"42f398bf2229976f9d97b0a5fc47d5c64b70fa5631abf28f2c6f91f78b7278d9"},
+            hex_string {"c624291eb039ad1724c9b0ba20b98421a7f0032f6c8c00f64794018ce5a5ed96"},
+            hex_string {"507e0b4f12c408d87052b79eb4879c925a918b0fcd812bbedc720a3d8be656"
+                "e40de900257f7a270dd6d8e7da50cdc20d744e94978d707b53f382aeb16488b122"}
+        }.run ();
 
         // reseed before generate calls.
+        NIST_test_case_no_pr<NIST::CTR_DRBG<32, cipher::block::AES>> {
+            hex_string {"5bb14bec3a2e435acab8b891f075107df387902cb2cd996021b1a1245d4ea2b5"},
+            hex_string {"12ac7f444e247f770d2f4d0a65fdab4e"},
+            hex_string {"2e957d53cba5a6b9b8a2ce4369bb885c0931788015b9fe5ac3c01a7ec5eacd70"},
+            hex_string {"19f30c84f6dbf1caf68cbec3d4bb90e5e8f5716eae8c1bbadaba99a2a2bd4eb2"},
+            hex_string {}, hex_string {},
+            hex_string {"b7dd8ac2c5eaa97c779fe46cc793b9b1e7b940c318d3b531744b42856f298264e45f9a0a"
+                "ca5da93e7f34f0ebc0ed0ea32c009e3e03cf01320c9a839807575405"}
+        }.run ();
     }
 }
