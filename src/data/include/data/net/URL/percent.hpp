@@ -32,6 +32,13 @@ namespace data::encoding::percent {
         return strchr (Reserved, c) != nullptr;
     }
 
+    bool inline is_unreserved (unsigned char c) {
+        return (c >= 'A' && c <= 'Z') ||
+        (c >= 'a' && c <= 'z') ||
+        (c >= '0' && c <= '9') ||
+        c == '-' || c == '.' || c == '_' || c == '~';
+    }
+
     // encode the string, ensuring that the given characters are encoded.
     std::string encode (const data::UTF8 &, const data::ASCII &required = "");
 

@@ -98,12 +98,14 @@ namespace data::encoding::percent {
         return a_iter == a.end () && b_iter == b.end ();
     }
 
+    constexpr const char *also_required = R"("%<>\^`{|})";
+
     std::string encode (const data::UTF8 &input, const data::ASCII &additional_chars) {
         std::ostringstream encoded;
         encoded << std::hex << std::uppercase;
 
-        for (const auto& ch : input) {
-            if (ch <= 0x20 || ch >= 0x7F || std::strchr (additional_chars.c_str (), ch) != nullptr)
+        for (const auto &ch : input) {
+            if (ch <= 0x20 || ch >= 0x7F || std::strchr (additional_chars.c_str (), ch) != nullptr || std::strchr (also_required, ch))
                 encoded << '%' << std::setw (2) << static_cast<int> (static_cast<unsigned char> (ch));
             else encoded << ch;
         }
