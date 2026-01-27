@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/encoding/unicode.hpp"
-#include "data/tools/map_schema.hpp"
+#include "data/tools/schema.hpp"
 #include "data/math.hpp"
 #include "gtest/gtest.h"
 
@@ -12,27 +12,27 @@ namespace data::schema::rule {
     static_assert (Same<map<empty>, decltype (-map<blank> {})>);
     static_assert (Same<map<blank>, decltype (+map<empty> {})>);
 
-    static_assert (Same<map<only<value<int>>>, decltype (key<int> ("abcd"))>);
-    static_assert (Same<map<value<int>>, decltype (+key<int> ("abcd"))>);
-    static_assert (Same<map<only<value<int>>>, decltype (-+key<int> ("abcd"))>);
-    static_assert (Same<map<only<optional<value<int>>>>, decltype (*key<int> ("abcd"))>);
+    static_assert (Same<map<only<value<int>>>, decltype (schema::map::key<int> ("abcd"))>);
+    static_assert (Same<map<value<int>>, decltype (+schema::map::key<int> ("abcd"))>);
+    static_assert (Same<map<only<value<int>>>, decltype (-+schema::map::key<int> ("abcd"))>);
+    static_assert (Same<map<only<optional<value<int>>>>, decltype (*schema::map::key<int> ("abcd"))>);
 
-    static_assert (Same<map<only<all<value<int>, value<int>>>>, decltype (key<int> ("A") && key<int> ("B"))>);
-    static_assert (Same<map<all<value<int>, value<int>>>, decltype (key<int> ("A") && +key<int> ("B"))>);
-    static_assert (Same<map<only<all<value<int>, optional<value<int>>>>>, decltype (key<int> ("A") && *key<int> ("B"))>);
-    static_assert (Same<map<all<value<int>, value<int>>>, decltype (+(key<int> ("A") && key<int> ("B")))>);
+    static_assert (Same<map<only<all<value<int>, value<int>>>>, decltype (schema::map::key<int> ("A") && schema::map::key<int> ("B"))>);
+    static_assert (Same<map<all<value<int>, value<int>>>, decltype (schema::map::key<int> ("A") && +schema::map::key<int> ("B"))>);
+    static_assert (Same<map<only<all<value<int>, optional<value<int>>>>>, decltype (schema::map::key<int> ("A") && *schema::map::key<int> ("B"))>);
+    static_assert (Same<map<all<value<int>, value<int>>>, decltype (+(schema::map::key<int> ("A") && schema::map::key<int> ("B")))>);
 
-    static_assert (Same<decltype (key<int> ("A") || key<int> ("B")),
+    static_assert (Same<decltype (schema::map::key<int> ("A") || schema::map::key<int> ("B")),
         map<only<any<value<int>, value<int>>>>>);
 
     static_assert (Same<map<only<all<value<int>, value<int>, value<int>>>>,
-        decltype (key<int> ("A") && key<int> ("B") && key<int> ("C"))>);
+        decltype (schema::map::key<int> ("A") && schema::map::key<int> ("B") && schema::map::key<int> ("C"))>);
 
     static_assert (Same<map<only<all<value<int>, optional<value<int>>, optional<value<int>>>>>,
-        decltype (key<int> ("A") && *key<int> ("B") && *key<int> ("C"))>);
+        decltype (schema::map::key<int> ("A") && *schema::map::key<int> ("B") && *schema::map::key<int> ("C"))>);
 
     static_assert (Same<map<only<all<value<int>, optional<all<value<int>, value<int>>>>>>,
-        decltype (key<int> ("A") && *(key<int> ("B") && key<int> ("C")))>);
+        decltype (schema::map::key<int> ("A") && *(schema::map::key<int> ("B") && schema::map::key<int> ("C")))>);
 
     static_assert (Same<
         map<
@@ -46,18 +46,17 @@ namespace data::schema::rule {
                 >
             >
         >,
-        decltype (key<int> ("A") && *(key<int> ("B") && key<int> ("C")) && *key<int> ("D"))>);
+        decltype (schema::map::key<int> ("A") && *(schema::map::key<int> ("B") && schema::map::key<int> ("C")) && *schema::map::key<int> ("D"))>);
 
     // this should mean that the map has a C and either and A or a B and nothing else.
-    static_assert (Same<decltype ((key<int> ("A") || key<int> ("B")) && key<int> ("C")),
+    static_assert (Same<decltype ((schema::map::key<int> ("A") || schema::map::key<int> ("B")) && schema::map::key<int> ("C")),
         map<only<all<any<value<int>, value<int>>, value<int>>>>>);
    
 }
 
-namespace data::schema {
+namespace data::schema::map {
 
-
-    TEST (MapSchema, Valid) {
+    TEST (Schema, Valid) {
 
         EXPECT_TRUE (valid (empty ()));
         EXPECT_TRUE (valid (key<int> ("A")));
@@ -221,7 +220,7 @@ namespace data::schema {
 
     }
 
-    TEST (MapSchema, Validate) {
+    TEST (Schema, ValidateMap) {
 
         try {
             test_map_validate<data::map<string, string>> ();
@@ -230,7 +229,7 @@ namespace data::schema {
             FAIL () << "Fail with unknown key " << err.Key;
         } catch (missing_key err) {
             FAIL () << "Fail with missing key " << err.Key;
-        } catch (invalid_value err) {
+        } catch (invalid_entry err) {
             FAIL () << "Fail with invalid value " << err.Key;
         } catch (incomplete_match err) {
             FAIL () << "Fail with incomplete match " << err.Key;
@@ -238,7 +237,7 @@ namespace data::schema {
 
     }
 
-    TEST (MapSchema, Optional) {
+    TEST (Schema, Optional) {
 
         data::map<string, string> test_map {{"na", "Y"}, {"ne", "M"}, {"ty", "W"}};
 
@@ -251,9 +250,9 @@ namespace data::schema {
 
     }
 
-    TEST (MapSchema, Read) {
+    TEST (Schema, Read) {
 
-        map<UTF8, UTF8> test_map {
+        data::map<UTF8, UTF8> test_map {
             {"A", "23"}, 
             {"B", "129"}, 
             {"C", "-3"},
@@ -271,12 +270,12 @@ namespace data::schema {
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("F"))), R"("true")");
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("G"))), "string with whitespace");
             
-            EXPECT_THROW ((validate<> (test_map, +key<string> ("E"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<string> ("E"))), invalid_entry);
             EXPECT_EQ ((validate<> (test_map, +key<string> ("F"))), "true");
             
             EXPECT_EQ (true, (validate<> (test_map, +key<bool> ("E"))));
-            EXPECT_THROW ((validate<> (test_map, +key<bool> ("B"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<bool> ("C"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<bool> ("B"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<bool> ("C"))), invalid_entry);
     
             EXPECT_EQ (23, (validate<> (test_map, +key<byte> ("A"))));
             EXPECT_EQ (23, (validate<> (test_map, +key<signed char> ("A"))));
@@ -292,7 +291,7 @@ namespace data::schema {
             EXPECT_EQ (23, (validate<> (test_map, +key<Z> ("A"))));
 
             EXPECT_EQ (129, (validate<> (test_map, +key<byte> ("B"))));
-            EXPECT_THROW ((validate<> (test_map, +key<signed char> ("B"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<signed char> ("B"))), invalid_entry);
             EXPECT_EQ (129, (validate<> (test_map, +key<uint32> ("B"))));
             EXPECT_EQ (129, (validate<> (test_map, +key<int32> ("B"))));
             EXPECT_EQ (129, (validate<> (test_map, +key<uint32_little> ("B"))));
@@ -304,21 +303,21 @@ namespace data::schema {
             EXPECT_EQ (129, (validate<> (test_map, +key<N> ("B"))));
             EXPECT_EQ (129, (validate<> (test_map, +key<Z> ("B"))));
 
-            EXPECT_THROW ((validate<> (test_map, +key<byte> ("C"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<byte> ("C"))), invalid_entry);
             EXPECT_EQ (-3, (validate<> (test_map, +key<signed char> ("C"))));
-            EXPECT_THROW ((validate<> (test_map, +key<uint32> ("C"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<uint32> ("C"))), invalid_entry);
             EXPECT_EQ (-3, (validate<> (test_map, +key<int32> ("C"))));
-            ASSERT_THROW ((validate<> (test_map, +key<uint32_little> ("C"))), invalid_value);
+            ASSERT_THROW ((validate<> (test_map, +key<uint32_little> ("C"))), invalid_entry);
             EXPECT_EQ (-3, (validate<> (test_map, +key<int32_little> ("C"))));
-            EXPECT_THROW ((validate<> (test_map, +key<uint128> ("C"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<uint128> ("C"))), invalid_entry);
             EXPECT_EQ (-3, (validate<> (test_map, +key<int128> ("C"))));
-            EXPECT_THROW ((validate<> (test_map, +key<N_bytes_little> ("C"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<N_bytes_little> ("C"))), invalid_entry);
             EXPECT_EQ (-3, (validate<> (test_map, +key<Z_bytes_little> ("C"))));
-            EXPECT_THROW ((validate<> (test_map, +key<N> ("C"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<N> ("C"))), invalid_entry);
             EXPECT_EQ (-3, (validate<> (test_map, +key<Z> ("C"))));
 
-            EXPECT_THROW ((validate<> (test_map, +key<byte> ("D"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<signed char> ("D"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<byte> ("D"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<signed char> ("D"))), invalid_entry);
             EXPECT_EQ (1255566, (validate<> (test_map, +key<uint32> ("D"))));
             EXPECT_EQ (1255566, (validate<> (test_map, +key<int32> ("D"))));
             EXPECT_EQ (1255566, (validate<> (test_map, +key<uint32_little> ("D"))));
@@ -330,26 +329,71 @@ namespace data::schema {
             EXPECT_EQ (1255566, (validate<> (test_map, +key<N> ("D"))));
             EXPECT_EQ (1255566, (validate<> (test_map, +key<Z> ("D"))));
 
-            EXPECT_THROW ((validate<> (test_map, +key<byte> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<signed char> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<uint32> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<int32> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<uint32_little> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<int32_little> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<uint128> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<int128> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<N_bytes_little> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<Z_bytes_little> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<N> ("E"))), invalid_value);
-            EXPECT_THROW ((validate<> (test_map, +key<Z> ("E"))), invalid_value);
+            EXPECT_THROW ((validate<> (test_map, +key<byte> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<signed char> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<uint32> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<int32> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<uint32_little> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<int32_little> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<uint128> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<int128> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<N_bytes_little> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<Z_bytes_little> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<N> ("E"))), invalid_entry);
+            EXPECT_THROW ((validate<> (test_map, +key<Z> ("E"))), invalid_entry);
         } catch (mismatch) {
             FAIL () << "mismatch caught";
         }
 
     }
 
-    TEST (MapSchema, Default) {
-        EXPECT_EQ ((validate<> (map<string, string> {}, key<int> ("zoob", 13))), 13);
-        EXPECT_EQ ((validate<> (map<string, string> {{"zoob", "92"}}, key<int> ("zoob", 13))), 92);
+    TEST (Schema, Default) {
+        EXPECT_EQ ((validate<> (data::map<string, string> {}, key<int> ("zoob", 13))), 13);
+        EXPECT_EQ ((validate<> (data::map<string, string> {{"zoob", "92"}}, key<int> ("zoob", 13))), 92);
+    }
+}
+
+namespace data::schema::list {
+
+    template <typename list> void test_list_validate () {
+
+        list empty_list {};
+        list list_1 {"1"};
+
+        EXPECT_NO_THROW (validate<> (empty_list, empty ()));
+
+        EXPECT_THROW ((validate<> (list_1, empty ())), end_of_sequence);
+
+        EXPECT_NO_THROW (validate<> (list_1, value<uint32> ()));
+        EXPECT_NO_THROW (validate<> (list_1, equal<uint32> (1)));
+        EXPECT_THROW (validate<> (list_1, equal<uint32> (2)), invalid_value_at);
+
+        //EXPECT_NO_THROW (validate<> (empty_list, value<uint32> (3)));
+        EXPECT_NO_THROW (validate<> (list_1, value<uint32> (3)));
+
+        list list_2 {"1", "2"};
+
+        EXPECT_THROW ((validate<> (list_2, value<uint32> ())), no_end_of_sequence);
+        EXPECT_THROW ((validate<> (list_2, value<uint32> (1))), no_end_of_sequence);
+        EXPECT_THROW ((validate<> (list_2, equal<uint32> (1))), no_end_of_sequence);
+
+    }
+
+    TEST (Schema, ValidateList) {
+
+        try {
+
+            test_list_validate<data::list<string>> ();
+            test_list_validate<data::stack<string>> ();
+            test_list_validate<data::cross<string>> ();
+
+        } catch (invalid_value_at err) {
+            FAIL () << "Fail with invalid value at " << err.Position;
+        } catch (end_of_sequence err) {
+            FAIL () << "Fail with premature end of sequence " << err.Position;
+        } catch (no_end_of_sequence err) {
+            FAIL () << "Fail with no end of sequence " << err.Position;
+        }
+
     }
 }

@@ -83,6 +83,7 @@ namespace data::RB {
     template <Sortable V, functional::buildable_tree<colored<V>> T> T remove (T t, const V &v);
     template <Sortable V, functional::buildable_tree<colored<V>> T> T erase (T t, const V &v);
 
+    // TODO: accept any v that is equality comparable with V.
     template <Sortable V, functional::buildable_tree<colored<V>> T> const unref<V> *contains (const T t, inserted<V> v);
     
     template <Sortable V, functional::buildable_tree<colored<V>> T> struct tree;

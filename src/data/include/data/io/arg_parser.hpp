@@ -147,14 +147,7 @@ existing programs while providing a solid foundation for future extensions.
 */
 
 #include <data/slice.hpp>
-#include <data/cross.hpp>
-#include <data/maybe.hpp>
-#include <data/list.hpp>
-#include <data/set.hpp>
-#include <data/map.hpp>
-#include <data/dispatch.hpp>
-#include <data/string.hpp>
-#include <data/encoding/read.hpp>
+#include <data/tools/schema.hpp>
 #include <regex>
 
 namespace data::io::args {
@@ -172,6 +165,28 @@ namespace data::io::args {
         template <typename X> void get (size_t, maybe<X> &) const;
     };
 
+    template <typename arg_rule, typename opt_rule>
+    struct command {
+        set<std::string> Flags;
+        schema::rule::list<arg_rule> Arguments;
+        schema::rule::map<opt_rule> Options;
+
+        command (
+            set<std::string> flags,
+            const schema::rule::list<arg_rule> &args,
+            const schema::rule::map<opt_rule> &opts):
+            Flags {flags}, Arguments {args}, Options {opts} {}
+    };
+
+    template<typename arg_rule, typename opt_rule>
+    command (set<std::string> flags, const schema::rule::list<arg_rule> &args, const schema::rule::map<opt_rule> &opts) -> command<arg_rule, opt_rule>;
+
+    template <typename arg_rule, typename opt_rule>
+    maybe<tuple<map<std::string, bool>,
+        typename schema::rule::validate<arg_rule>::result,
+        typename schema::rule::validate<opt_rule>::result>>
+    validate (const parsed &, const command<arg_rule, opt_rule> &);
+
     bool inline parsed::has (const std::string &x) const {
         return contains (Flags, x);
     }
@@ -187,6 +202,26 @@ namespace data::io::args {
         else x = {};
     }
 
+    template <typename arg_rule, typename opt_rule>
+    maybe<tuple<map<std::string, bool>,
+        typename schema::rule::validate<arg_rule>::result,
+        typename schema::rule::validate<opt_rule>::result>>
+    validate (const parsed &p, const command<arg_rule, opt_rule> &c) {
+
+        // TODO here we convert key to string in order to fit it into the contains
+        // function. However, it should be possible to say that contains takes
+        // anything equality comparable with contained type.
+        for (const auto &key : p.Flags) if (!c.Flags.contains (std::string (key))) return {};
+        map<std::string, bool> flags;
+
+        for (const auto &key : c.Flags) flags = flags.insert (key, bool (p.Flags.contains (key)));
+
+        try {
+            return {{flags, schema::validate (p.Arguments, c.Arguments), schema::validate (p.Options, c.Options)}};
+        } catch (const schema::mismatch) {
+            return {};
+        }
+    }
 }
 
 #endif

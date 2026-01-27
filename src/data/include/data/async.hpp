@@ -18,6 +18,7 @@ namespace data {
 
     // we use awaitable for all coroutines.
     template <typename X> using awaitable = boost::asio::awaitable<X>;
+
     using exec = boost::asio::any_io_executor;
 
     namespace meta {
