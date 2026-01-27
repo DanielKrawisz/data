@@ -25,6 +25,9 @@
     static_assert (data::ConstIterable<cross<string>>);
     static_assert (!data::ConstIterable<priority_queue<string>>);
 
+    // TODO test a case where a type contains a std::string and we try to
+    // test if it contains a string_view. We should be able to take any
+    // type equality comparable with the contained type.
     TEST (Contains, Contains) {
         
         EXPECT_TRUE (contains (stack<string> {"a", "b", "c", "d"}, "a"));
