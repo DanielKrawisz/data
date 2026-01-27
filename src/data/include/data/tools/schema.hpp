@@ -1,8 +1,8 @@
 
-#ifndef DATA_SCHEMA_MAP
-#define DATA_SCHEMA_MAP
+#ifndef DATA_TOOLS_SCHEMA
+#define DATA_TOOLS_SCHEMA
 /**
- * @file map_schema.hpp
+ * @file schema.hpp
  *
  * Facilities for validating and decoding map-like string→string data
  * structures (e.g. URL query parameters, form data, headers).
@@ -240,44 +240,277 @@
  *
  */
 
+#include <data/concepts.hpp>
 #include <data/maybe.hpp>
 #include <data/either.hpp>
-#include <data/concepts.hpp>
-#include <data/string.hpp>
-#include <data/map.hpp>
-#include <data/set.hpp>
 #include <data/tuple.hpp>
+#include <data/container.hpp>
+#include <data/stack.hpp>
+#include <data/list.hpp>
+#include <data/map.hpp>
+#include <data/dispatch.hpp>
+#include <data/set.hpp>
+#include <data/cross.hpp>
+#include <data/string.hpp>
 #include <data/encoding/read.hpp>
 
 namespace data::schema::rule {
 
-    // a schema for reading map-like data structures, such as
-    // command lines and HTTP forms.
+    // a schema for reading map-like data structures
+    // written as a string.
     template <typename X> struct map;
+
+    // a schema for list-like data structures.
+    template <typename X> struct list;
+
+    // a schema for reading map-like data structures that
+    // are presented with an ordering and possibly repeated keys
+    // such as an HTTP form and a command line. Not currently
+    // implemented, so just use map for now.
+    template <typename X> struct dispatch;
 
     // starting here, we have a lot of definitions that you don't
     // really need to read. Scroll down until the next note to
     // arrive at a natural interface for using the map.
 
-    // specifies that a map is empty.
+    // specifies that a data structure is empty.
     struct empty;
 
-    // specifies that a map can have anything.
+    // specifies that a data structure can have anything.
     struct blank;
 
     // specifies that a map may not have anything else.
     template <typename X> struct only;
 
+    // specifies that a data structure has a given value.
+    template <std::default_initializable X> struct value;
+
+    template <std::default_initializable X> struct default_value;
+
+    // specifies that the structure is equal to a given value.
+    template <typename X> struct equal;
+
+}
+
+namespace data::schema::map {
+    // make a rule for an empty map.
+    rule::map<rule::empty> empty ();
+
+    // make a rule for an a map that can have anything in it.
+    rule::map<rule::blank> blank ();
+
+    // make a rule that says a map has a given key.
+    template <typename X> rule::map<rule::only<rule::value<X>>> key (const string &key);
+
+    // make a rule that says a map has a given key with a given default.
+    template <typename X> rule::map<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
+}
+
+namespace data::schema::list {
+    // make a rule for an empty list.
+    rule::list<rule::empty> empty ();
+
+    // make a rule for a list with a single value.
+    template <typename X> rule::list<rule::value<X>> value ();
+
+    // make a rule for a list with a single value with default.
+    template <typename X> rule::list<rule::default_value<X>> value (const X &def);
+
+    // make a rule for a list with a single value that equals a given value.
+    template <typename X> rule::list<rule::equal<X>> equal (const X &val);
+}
+
+namespace data::schema::dispatch {
+    // make a rule for an empty dispatch.
+    rule::map<rule::empty> empty ();
+}
+
+// rules that modify other rules.
+namespace data::schema::rule {
+
     // match a rule or match its nonexistence.
     template <typename X> struct optional;
-
-    // specifies that a map has a given value.
-    template <std::default_initializable X> struct value;
-    template <std::default_initializable X> struct default_value;
 
     template <typename ...X> struct all;
 
     template <typename ...X> struct any;
+
+    template <typename ...X> struct sequence;
+
+    // specifies that a rule cannot match additional unspecified values.
+    template <typename X> auto operator - (const map<X> &);
+
+    // use the + operator to allow a rule to match with extra values.
+    template <typename X> auto operator + (const map<X> &);
+
+    // use the * operator to make a rule optional.
+    template <typename X> auto operator * (const map<only<X>> &);
+
+    // use the & operator to combine two map rules.
+    template <typename X, typename Y> auto operator && (const map<X> &, const map<Y> &);
+
+    // use the | make alternatives.
+    template <typename X, typename Y> auto operator || (const map<X> &, const map<Y> &);
+
+    // join two list schemas together.
+    template <typename X, typename Y> auto operator + (const list<X> &, const list<Y> &);
+
+    template <typename string> concept String = /*std::convertible_to<string, data::string> && */std::equality_comparable_with<data::string, string>;
+}
+
+namespace data::schema {
+
+    // Throw something that inherets from mismatch if validation fails.
+    struct mismatch {};
+
+    // If validation succeeds, return a logical type containing
+    // all parsed values.
+    template <typename ...context, rule::String string, typename X>
+    auto validate (data::map<string, string> m, const rule::map<X> &r);
+
+    template <typename ...context, rule::String string, typename X>
+    auto validate (const std::map<string, string> &m, const rule::map<X> &r);
+
+    template <typename ...context, rule::String string, typename X>
+    auto validate (data::list<string> m, const rule::list<X> &r);
+
+    template <typename ...context, rule::String string, typename X>
+    auto validate (data::stack<string> m, const rule::list<X> &r);
+
+    template <typename ...context, rule::String string, typename X>
+    auto validate (const data::cross<string> &m, const rule::list<X> &r);
+
+    // thrown when the value could not be read.
+    struct invalid_entry : mismatch {
+        data::string Key;
+        invalid_entry (const data::string &k) : mismatch {}, Key {k} {}
+    };
+
+    // thrown when a key was expected that was not available.
+    struct missing_key : mismatch {
+        data::string Key;
+        missing_key (const data::string &k) : mismatch {}, Key {k} {}
+    };
+
+    // thrown when a key is present which is only valid in some alternative
+    // rule that doesn't match the whole map or when an optional expression
+    // is partially matched.
+    struct incomplete_match : mismatch {
+        data::string Key;
+        incomplete_match (const data::string &k): mismatch {}, Key {k} {}
+    };
+
+    // thrown when a map has keys that are not provided by the schema.
+    struct unknown_key : mismatch {
+        data::string Key;
+        unknown_key (const data::string &k) : mismatch {}, Key {k} {}
+    };
+
+    struct invalid_value_at : mismatch {
+        size_t Position;
+        invalid_value_at (size_t pos) : mismatch {}, Position {pos} {}
+    };
+
+    struct end_of_sequence : mismatch {
+        size_t Position;
+        end_of_sequence (size_t pos) : mismatch {}, Position {pos} {}
+    };
+
+    struct no_end_of_sequence : mismatch {
+        size_t Position;
+        no_end_of_sequence (size_t pos) : mismatch {}, Position {pos} {}
+    };
+
+}
+
+namespace data::schema::rule {
+
+    template <> struct map<empty> {
+        map () {}
+        map (const map<blank> &) {}
+    };
+
+    template <> struct map<blank> {
+        map () {}
+        map (map<empty>) {}
+    };
+
+    template <typename X> struct map<value<X>> {
+        string Key;
+    };
+
+    template <typename X> struct map<default_value<X>> : map<value<X>> {
+        X Default;
+        map (const string &k, const X &def): map<value<X>> {k}, Default {def} {}
+    };
+
+    template <typename X> struct map<only<X>> : map<X> {
+        using map<X>::map;
+        map (const map<X> &m): map<X> {m} {}
+    };
+
+    template <typename X, typename ...Y> struct map<all<X, Y...>> : tuple<map<X>, map<Y>...> {
+        using parent = tuple<map<X>, map<Y>...>;
+        using tuple<map<X>, map<Y>...>::tuple;
+        map (parent &&p): parent {p} {}
+
+        // map rule all is valid if no operand
+        // has a same key as any other operand.
+        bool valid () const;
+    };
+
+    template <typename X, typename ...Y> struct map<any<X, Y...>> : tuple<map<X>, map<Y>...> {
+        using parent = tuple<map<X>, map<Y>...>;
+        using tuple<map<X>, map<Y>...>::tuple;
+        map (parent &&p): parent {p} {}
+        // map rule all is valid if no operand
+        // has a same key as any other operand.
+        bool valid () const;
+    };
+
+    template <typename X> struct map<optional<X>> : map<X> {
+        using map<X>::map;
+        map (const map<X> &m): map<X> {m} {}
+    };
+
+    template <> struct list<empty> {};
+
+    template <typename X> struct list<value<X>> {};
+
+    template <typename X> struct list<default_value<X>> {
+        X Default;
+    };
+
+    template <typename X> struct list<equal<X>> {
+        X Value;
+    };
+
+    template <> struct list<sequence<>> : list<empty> {};
+
+    template <typename X> struct list<sequence<X>> : list<X> {
+        using list<X>::list;
+    };
+
+    template <typename X, typename Y, typename ...Z> struct list<sequence<value<X>, Y, Z...>> :
+    protected list<value<X>>,
+    protected list<sequence<Y, Z...>> {
+        template <typename ...A>
+        list (A &&...a) : list<value<X>> {}, list<sequence<Y, Z...>> {a...} {}
+    };
+
+    template <typename X, typename Y, typename ...Z> struct list<sequence<default_value<X>, default_value<Y>, Z...>> :
+    protected list<default_value<X>>,
+    protected list<sequence<default_value<Y>, Z...>> {
+        template <typename ...A>
+        list (const X &x, const Y &y, A &&...a) : list<default_value<X>> {x}, list<sequence<default_value<Y>, Z...>> {y, a...} {}
+    };
+
+    template <typename X, typename Y, typename ...Z> struct list<sequence<equal<X>, Y, Z...>> :
+    protected list<equal<X>>,
+    protected list<sequence<Y, Z...>> {
+        template <typename ...A>
+        list (const X &x, A &&...a) : list<equal<X>> {x}, list<sequence<Y, Z...>> {a...} {}
+    };
 
     template <typename X> struct apply_optional;
 
@@ -400,27 +633,89 @@ namespace data::schema::rule {
         map<result> operator () (const map<any<X...>> &, const map<any<Y...>> &);
     };
 
-    // now we know how to create rules. Next follows some stuff the user doesn't
-    // need to read that is for validating rules.
-    template <typename X, typename ...context> struct validate;
+    template <typename X, typename Y> struct join;
 
-    template <typename string> concept String = std::convertible_to<string, data::string> && std::equality_comparable_with<data::string, string>;
-
-    template <typename ...context> struct validate<empty, context...> {
-        using result = void;
-
-        template <String string>
-        result operator () (data::map<string, string> m, map<empty> r);
-
-        template <String string>
-        result operator () (const std::map<string, string> &m, map<empty> r);
+    template <typename ...X, typename ...Y> struct join<sequence<X...>, sequence<Y...>> {
+        using result = sequence<X..., Y...>;
+        result operator () (const list<sequence<X...>> &, const list<sequence<Y...>> &);
     };
 
-    template <typename ...context> struct validate<blank, context...> {
-        using result = void;
+    template <typename X, typename ...Y> struct join<X, sequence<Y...>> {
+        using result = sequence<X, Y...>;
+        result operator () (const list<X> &, const list<sequence<Y...>> &);
+    };
 
-        template <typename Map>
-        result operator () (const Map &m, map<blank> r);
+    template <typename ...X, typename Y> struct join<sequence<X...>, Y> {
+        using result = sequence<X..., Y>;
+        result operator () (const list<sequence<X...>> &, const list<Y> &);
+    };
+
+    template <typename Y> struct join<empty, Y> {
+        using result = Y;
+        result operator () (const list<empty> &, const list<Y> &);
+    };
+
+    template <typename X> struct join<X, empty> {
+        using result = X;
+        result operator () (const list<X> &, const list<empty> &);
+    };
+
+    // specifies that a rule cannot match additional unspecified values.
+    template <typename X> auto inline operator - (const map<X> &m) {
+        return map<typename apply_only<X>::result> {m};
+    }
+
+    // use the + operator to allow a rule to match with extra values.
+    template <typename X> auto inline operator + (const map<X> &m) {
+        return map<typename apply_blank<X>::result> {m};
+    }
+
+    // use the * operator to make a rule optional.
+    template <typename X> auto inline operator * (const map<only<X>> &m) {
+        return map<typename apply_optional<only<X>>::result> {m};
+    }
+
+    // use the & operator to combine two map rules.
+    template <typename X, typename Y> auto inline operator && (const map<X> &a, const map<Y> &b) {
+        return intersect<X, Y> {} (a, b);
+    }
+
+    // use the | make alternatives.
+    template <typename X, typename Y> auto inline operator || (const map<X> &a, const map<Y> &b) {
+        return unite<X, Y> {} (a, b);
+    }
+
+    // join two list schemas together.
+    template <typename X, typename Y> auto inline operator + (const list<X> &a, const list<Y> &b) {
+        return join<X, Y> {} (a, b);
+    }
+
+}
+
+namespace data::schema::rule {
+
+    template <typename X, typename ...context> struct validate;
+
+    using unit = std::monostate;
+
+    template <typename ...context> struct validate<blank, context...> {
+        using result = unit;
+
+        template <typename any>
+        result operator () (const any &m, map<blank> r);
+    };
+
+    template <typename ...context> struct validate<empty, context...> {
+        using result = unit;
+
+        template <Iterable seq>
+        result operator () (const seq &x, const list<empty> &r);
+
+        template <String string>
+        result operator () (data::map<string, string> m, const map<empty> &r);
+
+        template <String string>
+        result operator () (const std::map<string, string> &m, const map<empty> &r);
     };
 
     template <typename X, typename ...context> struct validate<value<X>, context...> {
@@ -431,6 +726,10 @@ namespace data::schema::rule {
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<value<X>> &r);
+
+        template <Iterable seq> result operator () (const seq &x, const list<value<X>> &r);
+
+        template <typename iterator> result sequence (iterator i, const list<value<X>> &r, size_t index);
     };
 
     template <typename X, typename ...context> struct validate<default_value<X>, context...> {
@@ -441,6 +740,24 @@ namespace data::schema::rule {
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<default_value<X>> &r);
+
+        template <Iterable seq> result operator () (const seq &x, const list<default_value<X>> &r);
+
+        template <typename iterator> result sequence (iterator i, const list<default_value<X>> &r, size_t index);
+    };
+
+    template <typename X, typename ...context> struct validate<equal<X>, context...> {
+        using result = unit;
+
+        template <String string>
+        result operator () (data::map<string, string> m, const map<equal<X>> &r);
+
+        template <String string>
+        result operator () (const std::map<string, string> &m, const map<equal<X>> &r);
+
+        template <Iterable seq> result operator () (const seq &x, const list<equal<X>> &r);
+
+        template <typename iterator> result sequence (iterator i, const list<equal<X>> &r, size_t index);
     };
 
     template <typename X, typename ...context> struct validate<optional<X>, context...> {
@@ -451,6 +768,12 @@ namespace data::schema::rule {
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<optional<X>> &r);
+    };
+
+    template <typename ...X, typename ...context> struct validate<sequence<X...>, context...> {
+        using result = tuple<typename validate<X, context>::result...>;
+
+        template <IterableSequence seq> result operator () (const seq &x, const list<sequence<X...>> &r);
     };
 
     template <typename ...X, typename ...context> struct validate<all<X...>, context...> {
@@ -474,123 +797,9 @@ namespace data::schema::rule {
         result operator () (const Map &m, const map<only<X>> &r);
     };
 
-    template <> struct map<empty> {};
-
-    template <> struct map<blank> {
-        map () {}
-        map (map<empty>) {}
-    };
-
-    template <typename X> struct map<value<X>> {
-        string Key;
-    };
-
-    template <typename X> struct map<default_value<X>> : map<value<X>> {
-        X Default;
-        map (const string &k, const X &def): map<value<X>> {k}, Default {def} {}
-    };
-
-    template <typename X> struct map<only<X>> : map<X> {
-        using map<X>::map;
-        map (const map<X> &m): map<X> {m} {}
-    };
-
-    template <typename X, typename ...Y> struct map<all<X, Y...>> : tuple<map<X>, map<Y>...> {
-        using parent = tuple<map<X>, map<Y>...>;
-        using tuple<map<X>, map<Y>...>::tuple;
-        map (parent &&p): parent {p} {}
-
-        // map rule all is valid if no operand
-        // has a same key as any other operand.
-        bool valid () const;
-    };
-
-    template <typename X, typename ...Y> struct map<any<X, Y...>> : tuple<map<X>, map<Y>...> {
-        using parent = tuple<map<X>, map<Y>...>;
-        using tuple<map<X>, map<Y>...>::tuple;
-        map (parent &&p): parent {p} {}
-        // map rule all is valid if no operand
-        // has a same key as any other operand.
-        bool valid () const;
-    };
-
-    template <typename X> struct map<optional<X>> : map<X> {
-        using map<X>::map;
-        map (const map<X> &m): map<X> {m} {}
-    };
-
 }
 
-namespace data::schema {
-
-    // here begins an easy user interface.
-
-    typename rule::map<rule::empty> empty ();
-
-    // make a rule that says a map has a given key.
-    template <typename X> typename rule::map<rule::only<rule::value<X>>> key (const string &key);
-
-    // make a rule that says a map has a given key with a given default.
-    template <typename X> typename rule::map<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
-}
-
-namespace data::schema::rule {
-
-    // specifies that a rule cannot match additional unspecified values.
-    template <typename X> map<typename apply_only<X>::result> operator - (const map<X> &);
-
-    // use the + operator to allow a rule to match with extra values.
-    template <typename X> map<typename apply_blank<X>::result> operator + (const map<X> &);
-
-    // use the * operator to make a rule optional.
-    template <typename X> map<typename apply_optional<only<X>>::result> operator * (const map<only<X>> &);
-
-    // use the & operator to combine two map rules.
-    template <typename X, typename Y> map<typename intersect<X, Y>::result> operator && (const map<X> &, const map<Y> &);
-
-    // use the | make alternatives.
-    template <typename X, typename Y> map<typename unite<X, Y>::result> operator || (const map<X> &, const map<Y> &);
-}
-
-namespace data::schema {
-
-    // Next we describe how to validate rules. First come some errors which
-    // may be thrown when there is a mismatch.
-
-    struct mismatch {};
-
-    // thrown when the value could not be read.
-    struct invalid_value : mismatch {
-        data::string Key;
-        invalid_value (const data::string &k) : mismatch {}, Key {k} {}
-    };
-
-    // thrown when a key was expected that was not available.
-    struct missing_key : mismatch {
-        data::string Key;
-        missing_key (const data::string &k) : mismatch {}, Key {k} {}
-    };
-
-    // thrown when a key is present which is only valid in some alternative
-    // rule that doesn't match the whole map or when an optional expression
-    // is partially matched.
-    struct incomplete_match : mismatch {
-        data::string Key;
-        incomplete_match (const data::string &k): mismatch {}, Key {k} {}
-    };
-
-    // thrown when a map has keys that are not provided by the schema.
-    struct unknown_key : mismatch {
-        data::string Key;
-        unknown_key (const data::string &k) : mismatch {}, Key {k} {}
-    };
-
-    // we work with data::map or std::map.
-    template <typename ...context, rule::String string, typename X>
-    typename rule::validate<X, context...>::result validate (map<string, string> m, const rule::map<X> &r);
-
-    template <typename ...context, typename X>
-    typename rule::validate<X, context...>::result validate (const std::map<string, string> &m, const rule::map<X> &r);
+namespace data::schema::map {
 
     // this is the end of the user interface. Next comes definitions of functions.
     typename rule::map<rule::empty> inline empty () {
@@ -605,64 +814,214 @@ namespace data::schema {
     template <typename X> typename rule::map<rule::only<rule::default_value<X>>> inline key (const string &key, const X &def) {
         return rule::map<rule::only<rule::default_value<X>>> {rule::map<rule::default_value<X>> {key, def}};
     }
+}
+
+namespace data::schema::list {
+    // make a rule for an empty list.
+    rule::list<rule::empty> inline empty () {
+        return rule::list<rule::empty> {};
+    }
+
+    // make a rule for a list with a single value.
+    template <typename X> rule::list<rule::value<X>> inline value () {
+        return rule::list<rule::value<X>> {};
+    }
+
+    // make a rule for a list with a single value with default.
+    template <typename X> rule::list<rule::default_value<X>> inline value (const X &def) {
+        return rule::list<rule::default_value<X>> {def};
+    }
+
+    // make a rule for a list with a single value that equals a given value.
+    template <typename X> rule::list<rule::equal<X>> inline equal (const X &val) {
+        return rule::list<rule::equal<X>> {val};
+    }
+}
+
+namespace data::schema {
 
     template <typename ...context, rule::String string, typename X>
-    typename rule::validate<X, context...>::result inline validate (map<string, string> m, const rule::map<X> &r) {
+    auto inline validate (data::map<string, string> m, const rule::map<X> &r) {
         return rule::validate<X, context...> {} (m, r);
     }
+
     // we don't really support std::map yet.
-/*
-    template <typename ...context, typename X>
-    typename rule::validate<X, context...>::result inline validate (const std::map<string, string> &m, const rule::map<X> &r) {
+    template <typename ...context, rule::String string, typename X>
+    auto inline validate (const std::map<string, string> &m, const rule::map<X> &r) {
         return rule::validate<X, context...> {} (m, r);
-    }*/
+    }
+
+    template <typename ...context, rule::String string, typename X>
+    auto inline validate (data::list<string> m, const rule::list<X> &r) {
+        return rule::validate<X, context...> {} (m, r);
+    }
+
+    template <typename ...context, rule::String string, typename X>
+    auto inline validate (data::stack<string> m, const rule::list<X> &r) {
+        return rule::validate<X, context...> {} (m, r);
+    }
+
+    template <typename ...context, rule::String string, typename X>
+    auto inline validate (const data::cross<string> &m, const rule::list<X> &r) {
+        return rule::validate<X, context...> {} (m, r);
+    }
 }
 
 namespace data::schema::rule {
 
-    template <typename ...context> 
-    template <String string>
-    typename validate<empty, context...>::result inline 
-    validate<empty, context...>::operator () (data::map<string, string> m, map<empty> r) {
+    template <typename ...context> template <Iterable seq>
+    typename validate<empty, context...>::result
+    validate<empty, context...>::operator () (const seq &x, const list<empty> &r) {
+        auto b = x.begin ();
+        if (b == x.end ()) return {};
+        else throw end_of_sequence {0};
+    }
+
+    template <typename ...context> template <String string>
+    typename validate<empty, context...>::result
+    validate<empty, context...>::operator () (data::map<string, string> m, const map<empty> &r) {
         auto b = m.begin ();
-        if (b == m.end ()) return;
+        if (b == m.end ()) return {};
         else throw unknown_key {data::string (b->Key)};
     }
 
-    template <typename ...context>
-    template <String string>
-    typename validate<empty, context...>::result inline
-    validate<empty, context...>::operator () (const std::map<string, string> &m, map<empty> r) {
+    template <typename ...context> template <String string>
+    typename validate<empty, context...>::result
+    validate<empty, context...>::operator () (const std::map<string, string> &m, const map<empty> &r) {
         auto b = m.begin ();
-        if (b == m.end ()) return;
-        else throw unknown_key {data::string (b->first)};
+        if (b == m.end ()) return {};
+        else throw unknown_key {b->first};
     }
 
-    template <typename ...context> 
-    template <typename Map>
+    template <typename ...context> template <typename any>
     typename validate<blank, context...>::result inline
-    validate<blank, context...>::operator () (const Map &m, map<blank> r) {}
+    validate<blank, context...>::operator () (const any &m, map<blank> r) {
+        return {};
+    }
 
-    template <typename X, typename ...context>
-    template <String string>
+    template <typename X, typename ...context> template <String string>
     typename validate<value<X>, context...>::result inline
     validate<value<X>, context...>::operator () (data::map<string, string> m, const map<value<X>> &r) {
         const string *v = m.contains (r.Key);
         if (!bool (v)) throw missing_key {data::string (r.Key)};
         maybe<X> x = encoding::read<X, context...> {} (*v);
-        if (!bool (x)) throw invalid_value {*v};
+        if (!bool (x)) throw invalid_entry {*v};
         return *x;
     }
 
-    template <typename X, typename ...context>
-    template <String string>
+    template <typename X, typename ...context> template <String string>
+    typename validate<value<X>, context...>::result inline
+    validate<value<X>, context...>::operator () (const std::map<string, string> &m, const map<value<X>> &r) {
+        auto v = m.find (r.Key);
+        if (v == m.end ()) throw missing_key {data::string (r.Key)};
+        maybe<X> x = encoding::read<X, context...> {} (v->second);
+        if (!bool (x)) throw invalid_entry {r.Key};
+        return *x;
+    }
+
+    template <typename X, typename ...context> template <String string>
     typename validate<default_value<X>, context...>::result inline
     validate<default_value<X>, context...>::operator () (data::map<string, string> m, const map<default_value<X>> &r) {
         const string *v = m.contains (r.Key);
         if (!bool (v)) return r.Default;
         maybe<X> x = encoding::read<X, context...> {} (*v);
-        if (!bool (x)) throw invalid_value {*v};
+        if (!bool (x)) throw invalid_entry {*v};
         return *x;
+    }
+
+    template <typename X, typename ...context> template <typename iterator>
+    typename validate<value<X>, context...>::result inline
+    validate<value<X>, context...>::sequence (iterator i, const list<value<X>> &r, size_t index) {
+        maybe<X> x = encoding::read<X, context...> {} (*i);
+        if (!bool (x)) throw invalid_value_at {index};
+        return *x;
+    }
+
+    template <typename X, typename ...context> template <typename iterator>
+    typename validate<default_value<X>, context...>::result inline
+    validate<default_value<X>, context...>::sequence (iterator i, const list<default_value<X>> &r, size_t index) {
+        maybe<X> x = encoding::read<X, context...> {} (*i);
+        if (!bool (x)) return r.Default;
+        return *x;
+    }
+
+    template <typename X, typename ...context> template <typename iterator>
+    typename validate<equal<X>, context...>::result inline
+    validate<equal<X>, context...>::sequence (iterator i, const list<equal<X>> &r, size_t index) {
+        maybe<X> x = encoding::read<X, context...> {} (*i);
+        if (!bool (x) || *x != r.Value) throw invalid_value_at {index};
+        return unit {};
+    }
+
+    template <typename X, typename ...context> template <Iterable seq>
+    typename validate<value<X>, context...>::result inline
+    validate<value<X>, context...>::operator () (const seq &x, const list<value<X>> &r) {
+        if (x.size () == 0) throw end_of_sequence {0};
+        if (x.size () > 1) throw no_end_of_sequence {1};
+        return sequence (x.begin (), r, 0);
+    }
+
+    template <typename X, typename ...context> template <Iterable seq>
+    typename validate<default_value<X>, context...>::result inline
+    validate<default_value<X>, context...>::operator () (const seq &x, const list<default_value<X>> &r) {
+        if (x.size () == 0) throw end_of_sequence {0};
+        if (x.size () > 1) throw no_end_of_sequence {1};
+        return sequence (x.begin (), r, 0);
+    }
+
+    template <typename X, typename ...context> template <Iterable seq>
+    typename validate<equal<X>, context...>::result inline
+    validate<equal<X>, context...>::operator () (const seq &x, const list<equal<X>> &r) {
+        if (x.size () == 0) throw end_of_sequence {0};
+        if (x.size () > 1) throw no_end_of_sequence {1};
+        return sequence (x.begin (), r, 0);
+    }
+
+    template <std::size_t Z, typename SeqIt, typename... X>
+    struct validate_sequence;
+
+    template <std::size_t Z, typename SeqIt>
+    struct validate_sequence<Z, SeqIt> {
+        template <typename ...context>
+        static auto apply (SeqIt& it, SeqIt end, const list<sequence<>> &schema) {
+            return std::tuple<> {};
+        }
+    };
+
+    template <std::size_t Z, typename SeqIt, typename Head, typename... Tail>
+    struct validate_sequence<Z, SeqIt, Head, Tail...> {
+
+        template <typename ...context>
+        static auto apply (SeqIt &it, SeqIt end, const list<sequence<Head, Tail...>>& schema) {
+            if (it == end) throw end_of_sequence {Z};
+
+            // validate current element
+            auto value = validate<Head, context...> {} (it, static_cast<const list<Head> &> (schema), Z);
+
+            ++it;
+
+            // recurse
+            auto tail = validate_sequence<Z + 1, SeqIt, Tail...>::template
+                apply<context...> (it, end, static_cast<const list<sequence<Tail...>> &> (schema));
+
+            return std::tuple_cat (
+                std::make_tuple (std::move (value)),
+                std::move (tail)
+            );
+        }
+    };
+
+    template <typename ...X, typename ...context> template <IterableSequence seq>
+    typename validate<sequence<X...>, context...>::result
+    validate<sequence<X...>, context...>::operator () (const seq &x, const list<sequence<X...>> &r) {
+        auto it  = x.begin ();
+        auto end = x.end ();
+
+        auto result = validate_sequence<0, decltype (it), X...>::template apply<context...> (it, end, r);
+
+        if (it != end) throw no_end_of_sequence {};
+
+        return result;
     }
 
     // NOTE: we should be able to get rid of get_rule by
@@ -750,7 +1109,7 @@ namespace data::schema::rule {
         // if the match fails, the map may not contain any keys
         // of the sub rule.
         for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
-            if (m.find (k) != m.end ()) throw mismatch {k};
+            if (m.find (k) != m.end ()) throw incomplete_match {k};
         return {};
     }
 
@@ -902,36 +1261,6 @@ namespace data::schema::rule {
         auto val = validate<X, context...> {} (m, +r);
         none_else {} (m, get_keys<only<X>> {} (r));
         return val;
-    }
-
-    template <typename X> 
-    map<typename apply_blank<X>::result> inline
-    operator + (const map<X> &m) {
-        return map<typename apply_blank<X>::result> {m};
-    }
-
-    template <typename X>
-    map<typename apply_only<X>::result> inline
-    operator - (const map<X> &m) {
-        return map<typename apply_only<X>::result> {m};
-    }
-
-    template <typename X> 
-    map<typename apply_optional<only<X>>::result> inline
-    operator * (const map<only<X>> &m) {
-        return map<typename apply_optional<only<X>>::result> {m};
-    }
-
-    template <typename X, typename Y> 
-    map<typename intersect<X, Y>::result> inline
-    operator && (const map<X> &a, const map<Y> &b) {
-        return intersect<X, Y> {} (a, b);
-    }
-
-    template <typename X, typename Y> 
-    map<typename unite<X, Y>::result> inline 
-    operator || (const map<X> &a, const map<Y> &b) {
-        return unite<X, Y> {} (a, b);
     }
 
     template <typename X, typename Y>

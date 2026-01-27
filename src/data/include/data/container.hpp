@@ -54,6 +54,9 @@ namespace data {
         interface::has_values_method<X> && Prioritized<element> &&
         Sequence<X, element> && Sack<X, element>;
 
+    template <typename M> concept IterableSequence =
+        ConstIterable<M> && Sequence<M, decltype (*std::declval<const M> ().begin ())>;
+
     template <typename M> concept IterableSet =
         ConstIterable<M> && Set<M, decltype (*std::declval<const M> ().begin ())>;
 
