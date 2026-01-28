@@ -1,4 +1,5 @@
 // Copyright (c) 2021 Katrina Knight
+// Copyright (c) 2025 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,25 +30,30 @@ namespace data::log {
         critical
     };
 
-    /*  --------------------------- START HERE -------------------------
-        Call init () to initialize logging. The type returned is a
-        temporary and initialization will take place at the ; at the end
-        of the line. If you don't call init, default values will be
-        selected. (print to screen, debug level)
+    struct options {
+        // where to write logs. If blank, only display to the screen.
+        std::string filename = "";
+
+        // minimum level to log.
+        severity_level threshold = severity_level::normal;
+
+        // always true if filename == ""
+        bool print_to_screen = true;
+    };
+
+    void init (options = {});
+
+    /*  ----------------------------------------------------------------
+        Call init () to initialize logging.
 
         Use
 
-            init ()->filename (string)
+            init ({
+                .filename           = file to store logs (optinal)
+                .min_security_level = minimum level to log
+            });
 
-        to set a filename to log into.
-
-        Use
-
-            init ()->min_security_level (severity_level)
-
-        to set the min security level.
     */
-    auto init ();
 }
 
     /*  ----------------------- Use this to log -----------------------
@@ -88,30 +94,6 @@ namespace data::log {
         //
         // The 'keywords::channel' keyword binds the channel attribute.
         return my_logger_mt (keywords::channel = "data");
-    }
-
-    class initializer : public std::enable_shared_from_this<initializer> {
-        std::string Filename;
-        severity_level Level = severity_level::normal;
-
-    public:
-        initializer () = default;
-
-        ptr<initializer> filename (const std::string& fname) {
-            Filename = fname;
-            return shared_from_this ();
-        }
-
-        ptr<initializer> min_level (severity_level level) {
-            Level = level;
-            return shared_from_this ();
-        }
-
-        ~initializer ();
-    };
-
-    auto inline init () {
-        return std::make_shared<initializer> ();
     }
 
     // a utility for adding indents to logs.
