@@ -259,7 +259,8 @@ namespace data::schema {
             {"C", "-3"},
             {"D", "1255566"}, 
             {"E", "true"}, 
-            {"F", "\"true\""}
+            {"F", "\"true\""},
+            {"G", "string with whitespace"}
         }; 
 
         try {
@@ -267,6 +268,8 @@ namespace data::schema {
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("A"))), "23");
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("B"))), "129");
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("C"))), "-3");
+            EXPECT_EQ ((validate<> (test_map, +key<std::string> ("F"))), R"("true")");
+            EXPECT_EQ ((validate<> (test_map, +key<std::string> ("G"))), "string with whitespace");
             
             EXPECT_THROW ((validate<> (test_map, +key<string> ("E"))), invalid_value);
             EXPECT_EQ ((validate<> (test_map, +key<string> ("F"))), "true");
