@@ -195,6 +195,7 @@ target_sources (
   #io/run.cpp
   io/wait_for_enter.cpp
   io/log.cpp
+  io/arg_parser.cpp
   io/random.cpp
 )
 
@@ -209,7 +210,6 @@ target_link_libraries (
   crypto
   Boost::log_setup
   Boost::log
-  argh
 )
 
 configure_file (include/data/version.hpp.in generated/data/version.hpp)
@@ -225,7 +225,7 @@ install (
 )
 
 install (
-  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella
+  TARGETS data crypto net numbers hash io string core nlohmann_json rotella
   EXPORT DataTargets
   ARCHIVE
 )
