@@ -1,20 +1,16 @@
 #include <iomanip>
 #include <data/string.hpp>
 #include <data/stream.hpp>
+#include <data/encoding/read.hpp>
 
 namespace data {
-    std::istream &skip_whitespace (std::istream &i) {
-        while (true) {
-            int c = i.peek ();
-            if (c < 0 || !std::isspace (static_cast<unsigned char> (c))) break;
-            i.get ();
-        }
 
-        return i;
+    std::ostream &operator << (std::ostream &o, const string &x) {
+        return o << "\"" << static_cast<std::string> (x) << "\"";
     }
 
     std::istream &operator >> (std::istream &i, string &x) {
-        skip_whitespace (i);
+        i >> std::ws;
         int first = i.peek ();
         
         if (first < 0 || static_cast<char> (first) != '"') {

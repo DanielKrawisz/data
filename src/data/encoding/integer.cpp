@@ -9,6 +9,7 @@
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
+#include <data/encoding/read.hpp>
 #include <data/io/unimplemented.hpp>
 #include <algorithm>
 
@@ -355,7 +356,7 @@ namespace data::encoding {
     }
 
     std::istream &read_nat (std::istream &i, std::string &str) {
-        skip_whitespace (i);
+        i >> std::ws;
         int first = i.peek ();
 
         // there must be a first character. 
@@ -381,8 +382,8 @@ namespace data::encoding {
     }
 
     std::istream &read_int (std::istream &i, std::string &str) {
-        
-        skip_whitespace (i);
+        i >> std::ws;
+
         int first = i.peek ();
         if (first < 0) {
             i.setstate (std::ios::failbit);
