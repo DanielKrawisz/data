@@ -117,7 +117,7 @@ namespace data::crypto::NIST {
     constexpr const static size_t MaxBytesPerRequest = size_t (1) << 16;
     constexpr const static size_t MaxRequestsPerReseed = size_t (1) << 48;
 
-    // base class for all NIST drbgs.
+    // base class for NIST drbgs (except CTR_DRBG with no derivation function).
     template <Approved X, auto ...P> struct NIST_DRBG : random::generator {
 
         constexpr const static size_t MaxStrength = strength<X, P...> ();
@@ -220,12 +220,12 @@ namespace data::crypto::NIST {
     struct CTR_DRBG;
 
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
-    struct CTR_DRBG<key_size, C, true, r> final : CTR_base<key_size, C, r> {
+    struct CTR_DRBG<key_size, C, true, r> : CTR_base<key_size, C, r> {
         using CTR = CTR_base<key_size, C, r>;
 
         CTR_DRBG (byte_slice entropy, byte_slice nonce, byte_slice personalization = {});
 
-        void reseed (byte_slice entropy, byte_slice additional) final override;
+        void reseed (byte_slice entropy, byte_slice additional = {}) final override;
 
         ~CTR_DRBG () {}
 
@@ -239,8 +239,10 @@ namespace data::crypto::NIST {
 
     };
 
+    struct insufficient_entropy : exception::base<insufficient_entropy> {};
+
     template <size_t key_size, cipher::block::Cipher<key_size> C, endian::order r>
-    struct CTR_DRBG<key_size, C, false, r> final : CTR_base<key_size, C, r> {
+    struct CTR_DRBG<key_size, C, false, r> : CTR_base<key_size, C, r> {
         using CTR = CTR_base<key_size, C, r>;
 
         CTR_DRBG (byte_slice entropy, byte_slice additional = {}): CTR {} {
@@ -250,7 +252,7 @@ namespace data::crypto::NIST {
         void reseed (byte_slice entropy, byte_slice additional) final override {
 
             if (entropy.size () < this->MinEntropyLength)
-                throw exception {} << "Not enough entropy provided to reseed Hash_DRBG for max strength " << this->MaxStrength;
+                throw insufficient_entropy {} << "Not enough entropy provided to reseed Hash_DRBG for max strength " << this->MaxStrength;
 
             if (entropy.size () > MaxEntropyLength)
                 throw exception {} << "Max length exceeded for entropy to reseed Hash_DRBG";
@@ -273,8 +275,6 @@ namespace data::crypto::NIST {
         }
 
     };
-
-    struct insufficient_entropy : exception::base<insufficient_entropy> {};
 
     template <hash::Engine H>
     Hash_DRBG<H>::Hash_DRBG (byte_slice entropy, byte_slice nonce, byte_slice personalization):
@@ -362,7 +362,7 @@ namespace data::crypto::NIST {
     void HMAC_DRBG<H>::reseed (byte_slice entropy, byte_slice additional) {
 
         if (entropy.size () < this->MinEntropyLength)
-            throw exception {} << "Not enough entropy provided to reseed Hash_DRBG for max strength " << this->MaxStrength;
+            throw insufficient_entropy {} << "Not enough entropy provided to reseed Hash_DRBG for max strength " << this->MaxStrength;
 
         if (entropy.size () > MaxEntropyLength)
             throw exception {} << "Max length exceeded for entropy to reseed Hash_DRBG";
@@ -379,7 +379,7 @@ namespace data::crypto::NIST {
     void CTR_DRBG<key_size, C, true, r>::reseed (byte_slice entropy, byte_slice additional) {
 
         if (entropy.size () < this->MinEntropyLength)
-            throw exception {} << "Not enough entropy provided to reseed Hash_DRBG for max strength " << this->MaxStrength;
+            throw insufficient_entropy {} << "Not enough entropy provided to reseed Hash_DRBG for max strength " << this->MaxStrength;
 
         if (entropy.size () > MaxEntropyLength)
             throw exception {} << "Max length exceeded for entropy to reseed Hash_DRBG";

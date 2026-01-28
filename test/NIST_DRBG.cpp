@@ -27,10 +27,10 @@ namespace data::crypto {
         size_t bad_bytes = good_bytes - 1;
 
         EXPECT_THROW ((R {bytes (bad_bytes), byte_slice {}}), NIST::insufficient_entropy);
-        EXPECT_NO_THROW ((R {bytes (good_bytes), byte_slice {}}));/*
+        EXPECT_NO_THROW ((R {bytes (good_bytes), byte_slice {}}));
         R r {bytes (good_bytes), byte_slice {}};
         EXPECT_THROW (r.reseed (bytes (bad_bytes)), NIST::insufficient_entropy);
-        EXPECT_NO_THROW (r.reseed (bytes (good_bytes)));*/
+        EXPECT_NO_THROW (r.reseed (bytes (good_bytes)));
     }
 
     TEST (NIST_DRBG, MaxStrength) {
