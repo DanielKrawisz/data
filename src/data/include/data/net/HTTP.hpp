@@ -28,6 +28,9 @@ namespace data::net::HTTP {
     std::ostream &operator << (std::ostream &, const response &);
     std::istream &operator >> (std::istream &, response &);
 
+    writer<byte> &operator << (writer<byte> &, const request &);
+    writer<byte> &operator << (writer<byte> &, const response &);
+
     using SSL = asio::ssl::context;
 
     struct header : ASCII {
@@ -168,6 +171,11 @@ namespace data::net::HTTP {
 
         domain_name host () const;
 
+        operator bytes () const {
+            std::stringstream ss;
+            ss << *this;
+            return bytes (string (ss.str ()));
+        }
     };
 
     struct response : message {
@@ -176,6 +184,12 @@ namespace data::net::HTTP {
         response () {}
         response (status x, dispatch<header, ASCII> headers = {}, bytes body = {}):
             message {headers, body}, Status {x} {}
+
+        operator bytes () const {
+            std::stringstream ss;
+            ss << *this;
+            return bytes (string (ss.str ()));
+        }
     };
 
     struct stream : net::stream<response, const request &> {
@@ -235,6 +249,14 @@ namespace data::net::HTTP {
 
     request::make inline request::make::body (const std::string &u, const content &content_type) const {
         return body (bytes (string (u)), content_type);
+    }
+
+    writer<byte> inline &operator << (writer<byte> &w, const request &r) {
+        return w << bytes (r);
+    }
+
+    writer<byte> inline &operator << (writer<byte> &w, const response &r) {
+        return w << bytes (r);
     }
 
 }

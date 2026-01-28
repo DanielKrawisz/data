@@ -40,6 +40,13 @@ namespace data::encoding {
             } 
             return {};
         }
+
+        maybe<X> operator () (std::istringstream &ss) const {
+            X x;
+            ss >> x;
+            if (bool (ss)) return x;
+            return {};
+        }
     };
 
     template <> struct read<bool> {
@@ -54,6 +61,14 @@ namespace data::encoding {
             if (lower == "on") return true;
             if (lower == "off") return false;
             return {};
+        }
+
+        maybe<bool> operator () (std::istringstream &ss) const {
+            ss >> std::ws;
+            std::string word;
+            ss >> word;
+            if (!ss) return {};
+            return operator () (word);
         }
     };
 
@@ -71,6 +86,19 @@ namespace data::encoding {
     template <> struct read<bytes> {
         maybe<bytes> operator () (string_view x) const {
             return base64::read (x);
+        }
+    };
+
+    // read all the way to the end of the string.
+    template <> struct read<std::string> {
+        maybe<std::string> operator () (string_view x) const {
+            return std::string (x.begin (), x.end ());
+        }
+
+        maybe<std::string> operator () (std::istringstream &ss) const {
+            std::string rest;
+            std::getline (ss, rest, '\0');
+            return rest;
         }
     };
 }
