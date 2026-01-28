@@ -5,53 +5,187 @@
 #ifndef DATA_IO_ARG_PARSER
 #define DATA_IO_ARG_PARSER
 
+/*
+------------------------------------------------------------------------------
+ Command-line argument parsing: design, scope, and rationale
+------------------------------------------------------------------------------
+
+Overview
+--------
+
+This module provides a *minimal, deterministic* command-line argument parser.
+It does not attempt to support every command-line convention in existence
+because it is impossible to separate syntax from meaning in command-line
+arguments in general. No argument parser can satisfy everybody. Instead we
+define a particular format that ought to be ok unless you are very particular
+and we leave interpretation and validation to higher layers
+
+
+Argument model
+--------------
+
+The command line is received exactly as provided to
+`main(int argc, char** argv)`. Each argument is treated as an opaque string.
+
+Arguments are classified into three categories:
+
+  1. Flags
+  2. Options
+  3. Positional arguments
+
+The program name (`argv[0]`) is always included and is treated as positional
+argument at index 0.
+
+
+Grammar
+-------
+
+The accepted grammar is intentionally simple and unambiguous:
+
+  * Long flag:
+        --name
+    where `name` matches [A-Za-z][A-Za-z0-9_-]*
+
+  * Long option:
+        --name=value
+    where `name` matches [A-Za-z][A-Za-z0-9_-]* and `value` is any string
+
+  * Abbreviated flags:
+        -abcd
+    equivalent to the individual flags `-a`, `-b`, `-c`, `-d`
+    (no values are permitted in abbreviated form)
+
+  * Positional argument:
+        anything that does not match one of the above forms
+
+No other forms are recognized. In particular:
+
+  * `--name value` is not a key/value pair. Instead it would be interpreted
+    as a flag called `name` and a positional argument `value`.
+  * `-a=value` is not an option. Again, this would be treated as a
+    positional argument.
+  * other unrecognized forms are treated as positional arguments
+
+This keeps lexing independent of meaning or schema.
+
+
+Uniqueness and repetition
+-------------------------
+
+Each flag or option name may appear *at most once*.
+
+  * Repeated flags are not allowed
+  * Repeated options are not allowed
+  * Mixed forms (e.g. `-a` and `--a`) are considered the same name and are not
+    allowed together
+
+This restriction aligns with the zero-copy design of the parser (arguments and
+values are stored as `string_view` into argv) and avoids policy decisions about
+overrides, ordering, or value equality. Programs that require repetition or
+aggregation should implement that behavior at a higher semantic layer.
+
+
+Data representation
+-------------------
+
+Parsed arguments are stored in an `io::args::parsed` object, constructed as:
+
+    io::args::parsed args (argc, argv);
+
+Internally, the parsed representation consists of:
+
+  * Flags
+        A set of flag names that were present.
+
+  * Options
+        A map from option name to its associated value.
+
+  * Arguments
+        A vector of positional arguments, in order.
+        Index 0 always contains the program name.
+
+
+Interface
+---------
+
+The primary interface exposed to users of this parser consists of:
+
+  * `bool has (std::string_view name) const`
+        Returns true if the given flag or option name is present.
+
+  * `get<X> (std::string_view key, maybe<X> value)`
+        Search options for key, try to read as an X.
+  * `get<X> (size_t index, maybe<X> value)`
+        Search for an argument at position index and try to read as an X.
+
+Value interpretation is performed via:
+
+    encoding::read<X> {} (string_view)
+
+This function is responsible for converting a string into type `X` and is
+expected to throw on failure. The argument parser itself does not perform type
+checking or semantic validation.
+
+
+Separation of concerns
+----------------------
+
+This module performs *lexical classification only*.
+
+It does not:
+  * infer user intent
+  * validate argument combinations
+  * enforce schemas
+  * assign meaning to positional arguments
+  * interpret quoting or escaping
+
+Those concerns are intentionally deferred to higher-level schema and validation
+systems. This keeps the parser predictable, testable, and compatible with
+existing programs while providing a solid foundation for future extensions.
+
+------------------------------------------------------------------------------
+*/
+
+#include <data/slice.hpp>
+#include <data/cross.hpp>
 #include <data/maybe.hpp>
 #include <data/list.hpp>
 #include <data/set.hpp>
 #include <data/map.hpp>
+#include <data/dispatch.hpp>
 #include <data/string.hpp>
 #include <data/encoding/read.hpp>
-#include <argh.h>
+#include <regex>
 
-namespace data::io {
+namespace data::io::args {
 
-    struct arg_parser {
+    struct parsed {
+        parsed (int arg_count, const char *const arg_value[]);
 
-        argh::parser Parser;
-        arg_parser (int arg_count, const char *const arg_values[]);
+        set<string_view> Flags;
+        map<string_view, string_view> Options;
+        cross<string_view> Arguments;
 
         bool has (const std::string &) const;
 
         template <typename X> void get (const std::string &, maybe<X> &) const;
-        template <typename X> void get (uint32, maybe<X> &) const;
-        template <typename X> void get (uint32, const std::string &, maybe<X> &) const;
-
-        list<char const * const> Arguments;
+        template <typename X> void get (size_t, maybe<X> &) const;
     };
 
-    inline arg_parser::arg_parser (int arg_count, const char* const arg_values[]) : Parser {arg_count, arg_values}, Arguments {} {
-        for (int i = 0; i < arg_count; i++) Arguments <<= arg_values [i];
+    bool inline parsed::has (const std::string &x) const {
+        return contains (Flags, x);
     }
 
-    bool inline arg_parser::has (const std::string &x) const {
-        return Parser[x];
+    template <typename X> void inline parsed::get (const std::string &z, maybe<X> &x) const {
+        auto v = contains (Options, z);
+        if (v) x = encoding::read<X> {} (*v);
+        else x = {};
     }
 
-    template <typename X> void inline arg_parser::get (const std::string &option, maybe<X> &m) const {
-        if (auto opt = Parser (option); opt) m = encoding::read<X> {} (opt);
-        return;
+    template <typename X> void inline parsed::get (size_t z, maybe<X> &x) const {
+        if (Arguments.size () > z) x = encoding::read<X> {} (Arguments[z]);
+        else x = {};
     }
-
-    template <typename X> void inline arg_parser::get (uint32 index, maybe<X> &m) const {
-        if (auto positional = Parser (index); positional) m = encoding::read<X> {} (positional);
-        return;
-    }
-
-    template <typename X> void inline arg_parser::get (uint32 index, const std::string &option, maybe<X> &m) const {
-        if (auto positional = Parser (index); positional) m = encoding::read<X> {} (positional);
-        else if (auto opt = Parser (option); opt) m = encoding::read<X> {} (opt);
-    }
-
 
 }
 

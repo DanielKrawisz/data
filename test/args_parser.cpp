@@ -3,16 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/io/arg_parser.hpp"
+#include "data/io/exception.hpp"
 #include "gtest/gtest.h"
 
-namespace data::io {
+namespace data::io::args {
 
-    arg_parser parse (const std::vector<const char*> &v) {
-        return arg_parser {static_cast<int> (v.size ()), v.data ()};
+    parsed parse (const std::vector<const char*> &v) {
+        return parsed {static_cast<int> (v.size ()), v.data ()};
     }
-
-    // we are working on a new version of the arg parser.
-    // the following are tests that must work in the new version.
 
     TEST (Args, LongFlag1) {
         auto parsed = parse ({"/prog", "--verbose"});
@@ -35,6 +33,18 @@ namespace data::io {
         parsed.get ("output", file);
         EXPECT_TRUE (file.has_value ());
         EXPECT_EQ (*file, "file.txt");
+    }
+
+    // not a key value, but a flag and positional.
+    TEST (Args, NotKeyValue) {
+        auto parsed = parse ({"/prog", "--output", "file.txt"});
+
+        maybe<std::string> file;
+        parsed.get ("output", file);
+        EXPECT_FALSE (file.has_value ());
+
+        parsed.get (1, file);
+        EXPECT_TRUE (file.has_value ());
     }
 
     TEST (Args, GetByKeySuccessInt) {
@@ -100,30 +110,60 @@ namespace data::io {
         EXPECT_FALSE (v.has_value ());
     }
 
-    TEST (Args, PositionalPreferredOverKey) {
-        auto parsed = parse ({"/prog", "7", "--count=42"});
+    TEST (Args, FlagOptionPos) {
+        auto parsed1 = parse ({"/prog", "123", "--zoob=noob", "--bervose"});
+        auto parsed2 = parse ({"/prog", "--zoob=noob", "123", "--bervose"});
+        auto parsed3 = parse ({"/prog", "--zoob=noob", "--bervose", "123"});
 
-        maybe<int> v;
-        parsed.get<int> (1, "count", v);
-        EXPECT_TRUE (v.has_value ());
-        EXPECT_EQ (*v, 7);
+        maybe<int> v1;
+        parsed1.get<int> (1, v1);
+        EXPECT_TRUE (v1.has_value ());
+
+        maybe<int> v2;
+        parsed2.get<int> (1, v2);
+        EXPECT_TRUE (v2.has_value ());
+
+        maybe<int> v3;
+        parsed3.get<int> (1, v3);
+        EXPECT_TRUE (v3.has_value ());
+
+        EXPECT_EQ (*v1, *v2);
+        EXPECT_EQ (*v2, *v3);
     }
 
-    TEST (Args, KeyUsedIfPositionMissing) {
-        auto parsed = parse ({"/prog", "--count=42"});
+    // tests with abbeviated flags
+    TEST (Args, ShortFlag1) {
+        auto parsed = parse ({"/prog", "-abc"});
 
-        maybe<int> v;
-        parsed.get<int> (1, "count", v);
-        EXPECT_TRUE (v.has_value ());
-        EXPECT_EQ (*v, 42);
+        EXPECT_TRUE (parsed.has ("a"));
+        EXPECT_TRUE (parsed.has ("b"));
+        EXPECT_FALSE (parsed.has ("d"));
     }
 
-    TEST (Args, InvalidPositionalBlocksKeyFallback) {
-        auto parsed = parse ({"/prog", "abc", "--count=42"});
+    TEST (Args, ShortFlag2) {
+        auto parsed = parse ({"/prog", "-ab", "-cd"});
 
-        maybe<int> v;
-        parsed.get<int> (1, "count", v);
-        EXPECT_FALSE (v.has_value ());
+        EXPECT_TRUE (parsed.has ("a"));
+        EXPECT_TRUE (parsed.has ("b"));
+        EXPECT_TRUE (parsed.has ("d"));
+    }
+
+    // this is really a positional argument, not a key value.
+    TEST (Args, ShortWithValue) {
+        auto parsed = parse ({"/prog", "-o=file.txt"});
+
+        maybe<std::string> what;
+
+        parsed.get ("o", what);
+        EXPECT_FALSE (what.has_value ());
+
+        parsed.get (1, what);
+        EXPECT_TRUE (what.has_value ());
+    }
+
+    TEST (Args, Repetitions) {
+        EXPECT_THROW ((parse ({"/prog", "-ab", "--a"})), exception);
+        EXPECT_THROW ((parse ({"/prog", "--option=value", "--option=value"})), exception);
     }
 
 }
