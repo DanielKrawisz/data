@@ -7,8 +7,6 @@ add_library (core INTERFACE)
 # strings, bits etc
 add_library (string STATIC)
 
-add_library (io STATIC)
-
 add_library (hash STATIC)
 
 # numbers, like it says
@@ -18,6 +16,8 @@ add_library (numbers STATIC)
 add_library (net STATIC)
 
 add_library (crypto STATIC)
+
+add_library (io STATIC)
 
 target_include_directories (
   core
@@ -57,27 +57,42 @@ target_link_libraries (
 )
 
 target_sources (
-  io
+  numbers
 
   PRIVATE
 
-  #io/run.cpp
-  io/wait_for_enter.cpp
-  io/log.cpp
+  math/number/gmp/mpq.cpp
+  math/number/gmp/N.cpp
+  math/number/gmp/aks.cpp
+  math/number/gmp/sqrt.cpp
+  encoding/base58.cpp
+  encoding/integer.cpp
+
 )
 
-target_compile_features (io PUBLIC cxx_std_23)
-set_target_properties (io PROPERTIES CXX_EXTENSIONS ON)
+target_compile_features (numbers PUBLIC cxx_std_23)
+set_target_properties (numbers PROPERTIES CXX_EXTENSIONS ON)
 
 target_link_libraries (
-  io
+  numbers
 
   PUBLIC
 
-  core
-  Boost::log_setup
-  Boost::log
-  argh
+  string
+  Boost::boost
+  GMP::GMP
+  rotella
+  gmpxx
+  ctre
+)
+
+target_link_libraries (
+  data
+
+  INTERFACE
+
+  numbers
+
 )
 
 target_sources (
@@ -109,36 +124,6 @@ target_link_libraries (
   OpenSSL::Crypto
   PkgConfig::cryptopp
 
-)
-
-target_sources (
-  numbers
-
-  PRIVATE
-
-  math/number/gmp/mpq.cpp
-  math/number/gmp/N.cpp
-  math/number/gmp/aks.cpp
-  math/number/gmp/sqrt.cpp
-  encoding/base58.cpp
-  encoding/integer.cpp
-
-)
-
-target_compile_features (numbers PUBLIC cxx_std_23)
-set_target_properties (numbers PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  numbers
-
-  PUBLIC
-
-  string
-  Boost::boost
-  GMP::GMP
-  rotella
-  gmpxx
-  ctre
 )
 
 target_sources (
@@ -190,16 +175,6 @@ target_sources (
   crypto/block.cpp
 )
 
-target_link_libraries (
-  data
-
-  INTERFACE
-
-  numbers
-  io
-
-)
-
 target_compile_features (crypto PUBLIC cxx_std_23)
 set_target_properties (crypto PROPERTIES CXX_EXTENSIONS ON)
 
@@ -210,6 +185,31 @@ target_link_libraries (
 
   hash
   data
+)
+
+target_sources (
+  io
+
+  PRIVATE
+
+  #io/run.cpp
+  io/wait_for_enter.cpp
+  io/log.cpp
+  io/random.cpp
+)
+
+target_compile_features (io PUBLIC cxx_std_23)
+set_target_properties (io PROPERTIES CXX_EXTENSIONS ON)
+
+target_link_libraries (
+  io
+
+  PUBLIC
+
+  crypto
+  Boost::log_setup
+  Boost::log
+  argh
 )
 
 configure_file (include/data/version.hpp.in generated/data/version.hpp)

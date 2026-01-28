@@ -63,11 +63,11 @@ namespace data::random {
     }
 
     // the famous one-time pad.
-    struct fixed_entropy final : source {
+    struct one_time_pad final : source {
         bytes Entropy;
         int Position;
 
-        fixed_entropy (byte_slice b) : Entropy {b}, Position {0} {}
+        one_time_pad (byte_slice b) : Entropy {b}, Position {0} {}
 
         void read (byte *b, size_t x) final override {
             if (x > Entropy.size () - Position) throw source::fail {};
@@ -75,6 +75,26 @@ namespace data::random {
             for (int i = 0; i < x; i++) {
                 b[i] = Entropy[i + Position];
                 Position++;
+            }
+        }
+    };
+
+    // this type exists to enable a mode with absolutely
+    // deterministic RNG starting a given seed. This is
+    // not what we would want with ordinary use of the
+    // program. It would be used to produce a
+    // replicatable condition for testing.
+    struct fixed_entropy final : source {
+        bytes String;
+        size_t Index;
+        fixed_entropy (const bytes &b): String {b}, Index {0} {}
+        void read (byte *result, size_t remaining) final override {
+            while (remaining > 0) {
+                size_t bytes_to_copy = remaining > (String.size () - Index) ? (String.size () - Index) : remaining;
+                std::copy (String.begin () + Index, String.begin () + Index + bytes_to_copy, result);
+                result += bytes_to_copy;
+                remaining -= bytes_to_copy;
+                if (Index == String.size ()) Index = 0;
             }
         }
     };

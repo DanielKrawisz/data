@@ -85,7 +85,7 @@ endif ()
 # ---------------------------------------------------------
 # User option: build tests
 # ---------------------------------------------------------
-option(PACKAGE_TESTS "Build the unit tests for this project" ON)
+option (PACKAGE_TESTS "Build the unit tests for this project" ON)
 
 if (PACKAGE_TESTS)
     message (STATUS "Tests: enabled")

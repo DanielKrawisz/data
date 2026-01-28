@@ -14,23 +14,24 @@
 #include <boost/log/attributes/mutable_constant.hpp>
 #include <boost/log/expressions.hpp>
 
-#include "data/io/log.hpp"
+#include <data/io/log.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::log {
 
     // Thread-local depth counter
     thread_local unsigned IndentDepth = 0;
 
-    initializer::~initializer () {
+    void init (options o) {
 
         auto core = boost::log::core::get ();
-        core->set_filter (severity >= Level);
+        core->set_filter (severity >= o.threshold);
 
         // Register a simple formatter for the severity_level enum
         // This allows Boost.Log to convert severity_level values to strings automatically
         register_simple_formatter_factory<severity_level, char> ("Severity");
 
-        if (Filename.empty ()) {
+        if (o.filename.empty ()) {
             // Use std::cout instead of a file
             auto sink = boost::make_shared<sinks::text_ostream_backend> ();
             sink->add_stream (boost::shared_ptr<std::ostream> (&std::cout, boost::null_deleter ()));
@@ -57,9 +58,13 @@ namespace data::log {
             core::get ()->add_sink (sync_sink);
         } else {
 
+            if (o.print_to_screen) {
+                throw data::method::unimplemented {"printing logs to screen and writing to file"};
+            }
+
             // Add a file sink for logging
             add_file_log (
-                keywords::file_name = Filename,
+                keywords::file_name = o.filename,
                 keywords::rotation_size = 10 * 1024 * 1024,
                 keywords::time_based_rotation = sinks::file::rotation_at_time_point (0, 0, 0),
                 keywords::format = "[%Channel%] [%Severity%] %Message%");
