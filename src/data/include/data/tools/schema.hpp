@@ -294,35 +294,35 @@ namespace data::schema::rule {
 
 namespace data::schema::map {
     // make a rule for an empty map.
-    rule::map<rule::empty> empty ();
+    constexpr rule::map<rule::empty> empty ();
 
     // make a rule for an a map that can have anything in it.
-    rule::map<rule::blank> blank ();
+    constexpr rule::map<rule::blank> blank ();
 
     // make a rule that says a map has a given key.
-    template <typename X> rule::map<rule::only<rule::value<X>>> key (const string &key);
+    template <typename X> constexpr rule::map<rule::only<rule::value<X>>> key (const string &key);
 
     // make a rule that says a map has a given key with a given default.
-    template <typename X> rule::map<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
+    template <typename X> constexpr rule::map<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
 }
 
 namespace data::schema::list {
     // make a rule for an empty list.
-    rule::list<rule::empty> empty ();
+    constexpr rule::list<rule::empty> empty ();
 
     // make a rule for a list with a single value.
-    template <typename X> rule::list<rule::value<X>> value ();
+    template <typename X> constexpr rule::list<rule::value<X>> value ();
 
     // make a rule for a list with a single value with default.
-    template <typename X> rule::list<rule::default_value<X>> value (const X &def);
+    template <typename X> constexpr rule::list<rule::default_value<X>> value (const X &def);
 
     // make a rule for a list with a single value that equals a given value.
-    template <typename X> rule::list<rule::equal<X>> equal (const X &val);
+    template <typename X> constexpr rule::list<rule::equal<X>> equal (const X &val);
 }
 
 namespace data::schema::dispatch {
     // make a rule for an empty dispatch.
-    rule::map<rule::empty> empty ();
+    constexpr rule::map<rule::empty> empty ();
 }
 
 // rules that modify other rules.
@@ -338,22 +338,22 @@ namespace data::schema::rule {
     template <typename ...X> struct sequence;
 
     // specifies that a rule cannot match additional unspecified values.
-    template <typename X> auto operator - (const map<X> &);
+    template <typename X> constexpr auto operator - (const map<X> &);
 
     // use the + operator to allow a rule to match with extra values.
-    template <typename X> auto operator + (const map<X> &);
+    template <typename X> constexpr auto operator + (const map<X> &);
 
     // use the * operator to make a rule optional.
-    template <typename X> auto operator * (const map<only<X>> &);
+    template <typename X> constexpr auto operator * (const map<only<X>> &);
 
     // use the & operator to combine two map rules.
-    template <typename X, typename Y> auto operator && (const map<X> &, const map<Y> &);
+    template <typename X, typename Y> constexpr auto operator && (const map<X> &, const map<Y> &);
 
     // use the | make alternatives.
-    template <typename X, typename Y> auto operator || (const map<X> &, const map<Y> &);
+    template <typename X, typename Y> constexpr auto operator || (const map<X> &, const map<Y> &);
 
     // join two list schemas together.
-    template <typename X, typename Y> auto operator + (const list<X> &, const list<Y> &);
+    template <typename X, typename Y> constexpr auto operator + (const list<X> &, const list<Y> &);
 
     template <typename string> concept String = /*std::convertible_to<string, data::string> && */std::equality_comparable_with<data::string, string>;
 }
@@ -383,13 +383,13 @@ namespace data::schema {
     // thrown when the value could not be read.
     struct invalid_entry : mismatch {
         data::string Key;
-        invalid_entry (const data::string &k) : mismatch {}, Key {k} {}
+        constexpr invalid_entry (const data::string &k) : mismatch {}, Key {k} {}
     };
 
     // thrown when a key was expected that was not available.
     struct missing_key : mismatch {
         data::string Key;
-        missing_key (const data::string &k) : mismatch {}, Key {k} {}
+        constexpr missing_key (const data::string &k) : mismatch {}, Key {k} {}
     };
 
     // thrown when a key is present which is only valid in some alternative
@@ -397,28 +397,28 @@ namespace data::schema {
     // is partially matched.
     struct incomplete_match : mismatch {
         data::string Key;
-        incomplete_match (const data::string &k): mismatch {}, Key {k} {}
+        constexpr incomplete_match (const data::string &k): mismatch {}, Key {k} {}
     };
 
     // thrown when a map has keys that are not provided by the schema.
     struct unknown_key : mismatch {
         data::string Key;
-        unknown_key (const data::string &k) : mismatch {}, Key {k} {}
+        constexpr unknown_key (const data::string &k) : mismatch {}, Key {k} {}
     };
 
     struct invalid_value_at : mismatch {
         size_t Position;
-        invalid_value_at (size_t pos) : mismatch {}, Position {pos} {}
+        constexpr invalid_value_at (size_t pos) : mismatch {}, Position {pos} {}
     };
 
     struct end_of_sequence : mismatch {
         size_t Position;
-        end_of_sequence (size_t pos) : mismatch {}, Position {pos} {}
+        constexpr end_of_sequence (size_t pos) : mismatch {}, Position {pos} {}
     };
 
     struct no_end_of_sequence : mismatch {
         size_t Position;
-        no_end_of_sequence (size_t pos) : mismatch {}, Position {pos} {}
+        constexpr no_end_of_sequence (size_t pos) : mismatch {}, Position {pos} {}
     };
 
 }
@@ -426,13 +426,13 @@ namespace data::schema {
 namespace data::schema::rule {
 
     template <> struct map<empty> {
-        map () {}
-        map (const map<blank> &) {}
+        constexpr map () {}
+        constexpr map (const map<blank> &) {}
     };
 
     template <> struct map<blank> {
-        map () {}
-        map (map<empty>) {}
+        constexpr map () {}
+        constexpr map (map<empty>) {}
     };
 
     template <typename X> struct map<value<X>> {
@@ -441,18 +441,18 @@ namespace data::schema::rule {
 
     template <typename X> struct map<default_value<X>> : map<value<X>> {
         X Default;
-        map (const string &k, const X &def): map<value<X>> {k}, Default {def} {}
+        constexpr map (const string &k, const X &def): map<value<X>> {k}, Default {def} {}
     };
 
     template <typename X> struct map<only<X>> : map<X> {
         using map<X>::map;
-        map (const map<X> &m): map<X> {m} {}
+        constexpr map (const map<X> &m): map<X> {m} {}
     };
 
     template <typename X, typename ...Y> struct map<all<X, Y...>> : tuple<map<X>, map<Y>...> {
         using parent = tuple<map<X>, map<Y>...>;
         using tuple<map<X>, map<Y>...>::tuple;
-        map (parent &&p): parent {p} {}
+        constexpr map (parent &&p): parent {p} {}
 
         // map rule all is valid if no operand
         // has a same key as any other operand.
@@ -462,7 +462,7 @@ namespace data::schema::rule {
     template <typename X, typename ...Y> struct map<any<X, Y...>> : tuple<map<X>, map<Y>...> {
         using parent = tuple<map<X>, map<Y>...>;
         using tuple<map<X>, map<Y>...>::tuple;
-        map (parent &&p): parent {p} {}
+        constexpr map (parent &&p): parent {p} {}
         // map rule all is valid if no operand
         // has a same key as any other operand.
         bool valid () const;
@@ -470,7 +470,7 @@ namespace data::schema::rule {
 
     template <typename X> struct map<optional<X>> : map<X> {
         using map<X>::map;
-        map (const map<X> &m): map<X> {m} {}
+        constexpr map (const map<X> &m): map<X> {m} {}
     };
 
     template <> struct list<empty> {};
@@ -485,31 +485,34 @@ namespace data::schema::rule {
         X Value;
     };
 
-    template <> struct list<sequence<>> : list<empty> {};
+    template <typename>
+    struct is_default : std::false_type {};
 
-    template <typename X> struct list<sequence<X>> : list<X> {
-        using list<X>::list;
-    };
+    template <typename T>
+    struct is_default<default_value<T>> : std::true_type {};
 
-    template <typename X, typename Y, typename ...Z> struct list<sequence<value<X>, Y, Z...>> :
-    protected list<value<X>>,
-    protected list<sequence<Y, Z...>> {
-        template <typename ...A>
-        list (A &&...a) : list<value<X>> {}, list<sequence<Y, Z...>> {a...} {}
-    };
+    template <typename...>
+    struct defaults_trail : std::true_type {};
 
-    template <typename X, typename Y, typename ...Z> struct list<sequence<default_value<X>, default_value<Y>, Z...>> :
-    protected list<default_value<X>>,
-    protected list<sequence<default_value<Y>, Z...>> {
-        template <typename ...A>
-        list (const X &x, const Y &y, A &&...a) : list<default_value<X>> {x}, list<sequence<default_value<Y>, Z...>> {y, a...} {}
-    };
+    template <typename X, typename Y, typename... Z>
+    struct defaults_trail<X, Y, Z...>
+        : std::bool_constant<
+            !(is_default<X>::value && !is_default<Y>::value)
+            && defaults_trail<Y, Z...>::value
+        > {};
 
-    template <typename X, typename Y, typename ...Z> struct list<sequence<equal<X>, Y, Z...>> :
-    protected list<equal<X>>,
-    protected list<sequence<Y, Z...>> {
-        template <typename ...A>
-        list (const X &x, A &&...a) : list<equal<X>> {x}, list<sequence<Y, Z...>> {a...} {}
+    template <typename... X>
+    struct list<sequence<X...>> {
+        static_assert (
+            defaults_trail<X...>::value,
+            "default_value must be at the end or followed only by default_value"
+        );
+
+        using tuple_type = std::tuple<list<X>...>;
+        tuple_type rules;
+
+        constexpr list (X... xs)
+            : rules (std::move (xs)...) {}
     };
 
     template <typename X> struct apply_optional;
@@ -552,141 +555,144 @@ namespace data::schema::rule {
 
     template <typename X, typename Y> struct intersect {
         using result = all<X, Y>;
-        map<result> operator () (const map<X> &, const map<Y> &);
+        constexpr map<result> operator () (const map<X> &, const map<Y> &) const;
     };
 
     // intersect anything with empty is itself
     template <typename Y> struct intersect<empty, Y> {
         using result = Y;
-        map<result> operator () (map<empty> a, const map<Y> &b);
+        constexpr map<result> operator () (map<empty> a, const map<Y> &b) const;
     };
 
     template <typename X> struct intersect<X, empty> {
         using result = X;
-        map<result> operator () (const map<X> &a, map<empty> b);
+        constexpr map<result> operator () (const map<X> &a, map<empty> b) const;
     };
 
     template <typename Y> struct intersect<blank, Y> {
         using result = apply_blank<Y>::result;
-        map<result> operator () (map<blank> a, const map<Y> &b);
+        constexpr map<result> operator () (map<blank> a, const map<Y> &b) const;
     };
 
     template <typename X> struct intersect<X, blank> {
         using result = apply_blank<X>::result;
-        map<result> operator () (const map<X> &a, map<blank> b);
+        constexpr map<result> operator () (const map<X> &a, map<blank> b) const;
     };
 
     template <typename X, typename Y> struct intersect<only<X>, only<Y>> {
         using result = only<typename intersect<X, Y>::result>;
-        map<result> operator () (const map<only<X>> &, const map<only<Y>> &);
+        constexpr map<result> operator () (const map<only<X>> &, const map<only<Y>> &) const;
     };
 
     template <typename X, typename Y> struct intersect<only<X>, Y> {
         using result = intersect<X, Y>::result;
-        map<result> operator () (const map<only<X>> &a, const map<Y> &b);
+        constexpr map<result> operator () (const map<only<X>> &a, const map<Y> &b) const;
     };
 
     template <typename X, typename Y> struct intersect<X, only<Y>> {
         using result = intersect<X, Y>::result;
-        map<result> operator () (const map<X> &a, const map<only<Y>> &b);
+        constexpr map<result> operator () (const map<X> &a, const map<only<Y>> &b) const;
     };
 
     template <typename ...X, typename ...Y> struct intersect<all<X...>, all<Y...>> {
         using result = all<X..., Y...>;
-        map<result> operator () (const map<all<X...>> &, const map<all<Y...>> &);
+        constexpr map<result> operator () (const map<all<X...>> &, const map<all<Y...>> &) const;
     };
 
     template <typename ...X, typename Y> struct intersect<all<X...>, Y> {
         using result = all<X..., Y>;
-        map<result> operator () (const map<all<X...>> &, const map<Y> &);
+        constexpr map<result> operator () (const map<all<X...>> &, const map<Y> &) const;
     };
 
     template <typename X, typename ...Y> struct intersect<X, all<Y...>> {
         using result = all<X, Y...>;
-        map<result> operator () (const map<X> &, const map<all<Y...>> &);
+        constexpr map<result> operator () (const map<X> &, const map<all<Y...>> &) const;
     };
 
     template <typename X, typename Y> struct unite;
 
     template <typename X, typename Y> struct unite<only<X>, only<Y>> {
         using result = only<typename unite<X, Y>::result>;
-        map<result> operator () (const map<only<X>> &, const map<only<Y>> &);
+        constexpr map<result> operator () (const map<only<X>> &, const map<only<Y>> &) const;
     };
 
     template <typename X, typename Y> struct unite {
         using result = any<X, Y>;
-        map<result> operator () (const map<X> &, const map<Y> &);
+        constexpr map<result> operator () (const map<X> &, const map<Y> &) const;
     };
 
     template <typename ...X, typename Y> struct unite<any<X...>, Y> {
         using result = any<X..., Y>;
-        map<result> operator () (const map<any<X...>> &, const map<Y> &);
+        constexpr map<result> operator () (const map<any<X...>> &, const map<Y> &) const;
     };
 
     template <typename X, typename ...Y> struct unite<X, any<Y...>> {
         using result = any<X, Y...>;
-        map<result> operator () (const map<X> &, const map<any<Y...>> &);
+        constexpr map<result> operator () (const map<X> &, const map<any<Y...>> &) const;
     };
 
     template <typename ...X, typename ...Y> struct unite<any<X...>, any<Y...>> {
         using result = any<X..., Y...>;
-        map<result> operator () (const map<any<X...>> &, const map<any<Y...>> &);
+        constexpr map<result> operator () (const map<any<X...>> &, const map<any<Y...>> &) const;
     };
 
-    template <typename X, typename Y> struct join;
+    template <typename X, typename Y> struct join {
+        using result = sequence<X, Y>;
+        constexpr list<result> operator () (const list<X> &, const list<Y> &) const;
+    };
 
     template <typename ...X, typename ...Y> struct join<sequence<X...>, sequence<Y...>> {
         using result = sequence<X..., Y...>;
-        result operator () (const list<sequence<X...>> &, const list<sequence<Y...>> &);
+        constexpr list<result> operator () (const list<sequence<X...>> &, const list<sequence<Y...>> &) const;
     };
 
     template <typename X, typename ...Y> struct join<X, sequence<Y...>> {
         using result = sequence<X, Y...>;
-        result operator () (const list<X> &, const list<sequence<Y...>> &);
+        constexpr list<result> operator () (const list<X> &, const list<sequence<Y...>> &) const;
     };
 
     template <typename ...X, typename Y> struct join<sequence<X...>, Y> {
         using result = sequence<X..., Y>;
-        result operator () (const list<sequence<X...>> &, const list<Y> &);
+        constexpr list<result> operator () (const list<sequence<X...>> &, const list<Y> &) const;
     };
 
     template <typename Y> struct join<empty, Y> {
         using result = Y;
-        result operator () (const list<empty> &, const list<Y> &);
+        constexpr list<result> operator () (const list<empty> &, const list<Y> &) const;
     };
 
     template <typename X> struct join<X, empty> {
         using result = X;
-        result operator () (const list<X> &, const list<empty> &);
+        constexpr list<result> operator () (const list<X> &, const list<empty> &) const;
     };
 
     // specifies that a rule cannot match additional unspecified values.
-    template <typename X> auto inline operator - (const map<X> &m) {
+    template <typename X> constexpr auto inline operator - (const map<X> &m) {
         return map<typename apply_only<X>::result> {m};
     }
 
     // use the + operator to allow a rule to match with extra values.
-    template <typename X> auto inline operator + (const map<X> &m) {
+    template <typename X> constexpr auto inline operator + (const map<X> &m) {
         return map<typename apply_blank<X>::result> {m};
     }
 
     // use the * operator to make a rule optional.
-    template <typename X> auto inline operator * (const map<only<X>> &m) {
+    template <typename X> constexpr auto inline operator * (const map<only<X>> &m) {
         return map<typename apply_optional<only<X>>::result> {m};
     }
 
     // use the & operator to combine two map rules.
-    template <typename X, typename Y> auto inline operator && (const map<X> &a, const map<Y> &b) {
+    template <typename X, typename Y> constexpr auto inline operator && (const map<X> &a, const map<Y> &b) {
         return intersect<X, Y> {} (a, b);
     }
 
     // use the | make alternatives.
-    template <typename X, typename Y> auto inline operator || (const map<X> &a, const map<Y> &b) {
+    template <typename X, typename Y> constexpr auto inline operator || (const map<X> &a, const map<Y> &b) {
         return unite<X, Y> {} (a, b);
     }
 
     // join two list schemas together.
-    template <typename X, typename Y> auto inline operator + (const list<X> &a, const list<Y> &b) {
+    template <typename X, typename Y> constexpr auto inline operator + (const list<X> &a, const list<Y> &b) {
         return join<X, Y> {} (a, b);
     }
 
@@ -802,38 +808,38 @@ namespace data::schema::rule {
 namespace data::schema::map {
 
     // this is the end of the user interface. Next comes definitions of functions.
-    typename rule::map<rule::empty> inline empty () {
+    constexpr typename rule::map<rule::empty> inline empty () {
         return rule::map<rule::empty> {};
     }
 
     // make a rule that says a map has a given key.
-    template <typename X> typename rule::map<rule::only<rule::value<X>>> inline key (const string &key) {
+    template <typename X> constexpr typename rule::map<rule::only<rule::value<X>>> inline key (const string &key) {
         return rule::map<rule::only<rule::value<X>>> {rule::map<rule::value<X>> {key}};
     }
 
-    template <typename X> typename rule::map<rule::only<rule::default_value<X>>> inline key (const string &key, const X &def) {
+    template <typename X> constexpr typename rule::map<rule::only<rule::default_value<X>>> inline key (const string &key, const X &def) {
         return rule::map<rule::only<rule::default_value<X>>> {rule::map<rule::default_value<X>> {key, def}};
     }
 }
 
 namespace data::schema::list {
     // make a rule for an empty list.
-    rule::list<rule::empty> inline empty () {
+    constexpr rule::list<rule::empty> inline empty () {
         return rule::list<rule::empty> {};
     }
 
     // make a rule for a list with a single value.
-    template <typename X> rule::list<rule::value<X>> inline value () {
+    template <typename X> constexpr rule::list<rule::value<X>> inline value () {
         return rule::list<rule::value<X>> {};
     }
 
     // make a rule for a list with a single value with default.
-    template <typename X> rule::list<rule::default_value<X>> inline value (const X &def) {
+    template <typename X> constexpr rule::list<rule::default_value<X>> inline value (const X &def) {
         return rule::list<rule::default_value<X>> {def};
     }
 
     // make a rule for a list with a single value that equals a given value.
-    template <typename X> rule::list<rule::equal<X>> inline equal (const X &val) {
+    template <typename X> constexpr rule::list<rule::equal<X>> inline equal (const X &val) {
         return rule::list<rule::equal<X>> {val};
     }
 }
@@ -1151,17 +1157,19 @@ namespace data::schema::rule {
 
     template <size_t index, String string, typename ...X>
     struct has_no_unused_alternatives<index, data::map<string, string>, X...> {
-        void operator () (const data::map<string, string> &m, const map<any<X...>> &r) const {
+        unit operator () (const data::map<string, string> &m, const map<any<X...>> &r) const {
             for (const data::string &k: get_alternative_keys<X...> {}.template operator ()<index> (r))
                 if (m.contains (k)) throw incomplete_match {k};
+            return unit {};
         }
     };
 
     template <size_t index, String string, typename ...X>
     struct has_no_unused_alternatives<index, std::map<string, string>, X...> {
-        void operator () (const std::map<string, string> &m, const map<any<X...>> &r) const {
+        unit operator () (const std::map<string, string> &m, const map<any<X...>> &r) const {
             for (const data::string &k: get_alternative_keys<X...> {}.template operator ()<index> (r))
                 if (m.find (k) != m.end ()) throw incomplete_match {k};
+            return unit {};
         }
     };
 
@@ -1264,77 +1272,123 @@ namespace data::schema::rule {
     }
 
     template <typename X, typename Y>
-    map<typename intersect<X, Y>::result> inline intersect<X, Y>::operator () (const map<X> &a, const map<Y> &b) {
+    constexpr map<typename intersect<X, Y>::result> inline
+    intersect<X, Y>::operator () (const map<X> &a, const map<Y> &b) const {
         return map<typename intersect::result> {a, b};
     }
 
     template <typename X, typename Y>
-    map<typename intersect<only<X>, only<Y>>::result> inline
-    intersect<only<X>, only<Y>>::operator () (const map<only<X>> &a, const map<only<Y>> &b) {
+    constexpr map<typename intersect<only<X>, only<Y>>::result> inline
+    intersect<only<X>, only<Y>>::operator () (const map<only<X>> &a, const map<only<Y>> &b) const {
         return map<result> {intersect<X, Y> {} (static_cast<const map<X> &> (a), static_cast<const map<Y> &> (b))};
     }
 
     template <typename X, typename Y>
-    map<typename intersect<only<X>, Y>::result> inline intersect<only<X>, Y>::operator () (const map<only<X>> &a, const map<Y> &b) {
+    constexpr map<typename intersect<only<X>, Y>::result> inline
+    intersect<only<X>, Y>::operator () (const map<only<X>> &a, const map<Y> &b) const {
         return map<result> {static_cast<const map<X> &> (a), b};
     }
 
     template <typename X, typename Y>
-    map<typename intersect<X, only<Y>>::result> inline intersect<X, only<Y>>::operator () (const map<X> &a, const map<only<Y>> &b) {
+    constexpr map<typename intersect<X, only<Y>>::result> inline
+    intersect<X, only<Y>>::operator () (const map<X> &a, const map<only<Y>> &b) const {
         return map<result> {a, static_cast<const map<X> &> (b)};
     }
 
     template <typename ...X, typename ...Y>
-    map<typename intersect<all<X...>, all<Y...>>::result> inline intersect<all<X...>, all<Y...>>::operator ()
-        (const map<all<X...>> &a, const map<all<Y...>> &b) {
+    constexpr map<typename intersect<all<X...>, all<Y...>>::result> inline
+    intersect<all<X...>, all<Y...>>::operator ()
+        (const map<all<X...>> &a, const map<all<Y...>> &b) const {
         return map<result> {std::tuple_cat (a, b)};
     }
 
     template <typename ...X, typename Y>
-    map<typename intersect<all<X...>, Y>::result> inline intersect<all<X...>, Y>::operator () (const map<all<X...>> &a, const map<Y> &b) {
+    constexpr map<typename intersect<all<X...>, Y>::result> inline
+    intersect<all<X...>, Y>::operator () (const map<all<X...>> &a, const map<Y> &b) const {
         using tuple_type_A = tuple<map<X>...>;
         return map<result> {std::tuple_cat (static_cast<tuple_type_A> (a), tuple<map<Y>> (b))};
     }
 
     template <typename X, typename ...Y>
-    map<typename intersect<X, all<Y...>>::result> inline intersect<X, all<Y...>>::operator () (const map<X> &a, const map<all<Y...>> &b) {
+    constexpr map<typename intersect<X, all<Y...>>::result> inline
+    intersect<X, all<Y...>>::operator () (const map<X> &a, const map<all<Y...>> &b) const {
         using tuple_type_B = tuple<map<Y>...>;
         return map<result> {std::tuple_cat (tuple<map<X>> (a), static_cast<tuple_type_B> (b))};
     }
 
     template <typename Y>
-    map<typename intersect<empty, Y>::result> inline intersect<empty, Y>::operator () (map<empty> a, const map<Y> &b) {
+    constexpr map<typename intersect<empty, Y>::result> inline
+    intersect<empty, Y>::operator () (map<empty> a, const map<Y> &b) const {
         return b;
     }
 
     template <typename X>
-    map<typename intersect<X, empty>::result> inline intersect<X, empty>::operator () (const map<X> &a, map<empty> b) {
+    constexpr map<typename intersect<X, empty>::result> inline
+    intersect<X, empty>::operator () (const map<X> &a, map<empty> b) const {
         return a;
     }
 
     template <typename X, typename Y> 
-    map<typename unite<X, Y>::result> inline unite<X, Y>::operator () (const map<X> &a, const map<Y> &b) {
+    constexpr map<typename unite<X, Y>::result> inline
+    unite<X, Y>::operator () (const map<X> &a, const map<Y> &b) const {
         return map<result> {a, b};
     }
 
     template <typename X, typename Y>
-    map<typename unite<only<X>, only<Y>>::result> inline
-    unite<only<X>, only<Y>>::operator () (const map<only<X>> &a, const map<only<Y>> &b) {
+    constexpr map<typename unite<only<X>, only<Y>>::result> inline
+    unite<only<X>, only<Y>>::operator () (const map<only<X>> &a, const map<only<Y>> &b) const {
         return map<result> {unite<X, Y> {} (static_cast<const map<X> &> (a), static_cast<const map<Y> &> (b))};
     }
 
     template <typename ...X, typename Y>
-    map<typename unite<any<X...>, Y>::result> inline
-    unite<any<X...>, Y>::operator () (const map<any<X...>> &a, const map<Y> &b) {
+    constexpr map<typename unite<any<X...>, Y>::result> inline
+    unite<any<X...>, Y>::operator () (const map<any<X...>> &a, const map<Y> &b) const {
         using tuple_type_A = tuple<map<X>...>;
         return map<result> {std::tuple_cat (static_cast<tuple_type_A> (a), tuple<map<Y>> (b))};
     }
 
     template <typename X, typename ...Y>
-    map<typename unite<X, any<Y...>>::result> inline
-    unite<X, any<Y...>>::operator () (const map<X> &a, const map<any<Y...>> &b) {
+    constexpr map<typename unite<X, any<Y...>>::result> inline
+    unite<X, any<Y...>>::operator () (const map<X> &a, const map<any<Y...>> &b) const {
         using tuple_type_B = tuple<map<Y>...>;
         return map<result> {std::tuple_cat (tuple<map<X>> (a), static_cast<tuple_type_B> (b))};
+    }
+
+
+    template <typename X, typename Y>
+    constexpr list<typename join<X, Y>::result> inline
+    join<X, Y>::operator () (const list<X> &, const list<Y> &) const {
+        throw 0;
+    }
+
+    template <typename ...X, typename ...Y>
+    constexpr list<typename join<sequence<X...>, sequence<Y...>>::result> inline
+    join<sequence<X...>, sequence<Y...>>::operator () (const list<sequence<X...>> &, const list<sequence<Y...>> &) const {
+        throw 0;
+    }
+
+    template <typename X, typename ...Y>
+    constexpr list<typename join<X, sequence<Y...>>::result> inline
+    join<X, sequence<Y...>>::operator () (const list<X> &, const list<sequence<Y...>> &) const {
+        return 0;
+    }
+
+    template <typename ...X, typename Y>
+    constexpr list<typename join<sequence<X...>, Y>::result> inline
+    join<sequence<X...>, Y>::operator () (const list<sequence<X...>> &, const list<Y> &) const {
+        return 0;
+    }
+
+    template <typename Y>
+    constexpr list<typename join<empty, Y>::result> inline
+    join<empty, Y>::operator () (const list<empty> &, const list<Y> &) const {
+        return 0;
+    }
+
+    template <typename X>
+    constexpr list<typename join<X, empty>::result>
+    join<X, empty>::operator () (const list<X> &, const list<empty> &) const {
+        return 0;
     }
 
 }
