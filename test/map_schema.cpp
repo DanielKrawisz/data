@@ -355,6 +355,13 @@ namespace data::schema::map {
 
 namespace data::schema::list {
 
+    static_assert (requires {
+        value<uint32> (1);
+        value<uint32> (1) + value<uint32> (2);
+        value<uint32> () + value<uint32> (1);
+        equal<uint32> (1) + value<uint32> (2);
+    });
+
     template <typename list> void test_list_validate () {
 
         list empty_list {};
@@ -368,7 +375,7 @@ namespace data::schema::list {
         EXPECT_NO_THROW (validate<> (list_1, equal<uint32> (1)));
         EXPECT_THROW (validate<> (list_1, equal<uint32> (2)), invalid_value_at);
 
-        //EXPECT_NO_THROW (validate<> (empty_list, value<uint32> (3)));
+        EXPECT_NO_THROW (validate<> (empty_list, value<uint32> (3)));
         EXPECT_NO_THROW (validate<> (list_1, value<uint32> (3)));
 
         list list_2 {"1", "2"};
