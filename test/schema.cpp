@@ -378,11 +378,15 @@ namespace data::schema::list {
         EXPECT_NO_THROW (validate<> (empty_list, value<uint32> (3)));
         EXPECT_NO_THROW (validate<> (list_1, value<uint32> (3)));
 
+        // test invalid value with default (should fail, default values only work if there is no value at all).
+
         list list_2 {"1", "2"};
 
         EXPECT_THROW ((validate<> (list_2, value<uint32> ())), no_end_of_sequence);
         EXPECT_THROW ((validate<> (list_2, value<uint32> (1))), no_end_of_sequence);
         EXPECT_THROW ((validate<> (list_2, equal<uint32> (1))), no_end_of_sequence);
+
+        // need tests with default values
 
     }
 

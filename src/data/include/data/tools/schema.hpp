@@ -735,7 +735,8 @@ namespace data::schema::rule {
 
         template <Iterable seq> result operator () (const seq &x, const list<value<X>> &r);
 
-        template <typename iterator> result sequence (iterator i, const list<value<X>> &r, size_t index);
+        template <typename iterator, typename sen>
+        result sequence (iterator &i, sen s, const list<value<X>> &r, size_t index);
     };
 
     template <typename X, typename ...context> struct validate<default_value<X>, context...> {
@@ -749,7 +750,8 @@ namespace data::schema::rule {
 
         template <Iterable seq> result operator () (const seq &x, const list<default_value<X>> &r);
 
-        template <typename iterator> result sequence (iterator i, const list<default_value<X>> &r, size_t index);
+        template <typename iterator, typename sen>
+        result sequence (iterator &i, sen s, const list<default_value<X>> &r, size_t index);
     };
 
     template <typename X, typename ...context> struct validate<equal<X>, context...> {
@@ -763,7 +765,8 @@ namespace data::schema::rule {
 
         template <Iterable seq> result operator () (const seq &x, const list<equal<X>> &r);
 
-        template <typename iterator> result sequence (iterator i, const list<equal<X>> &r, size_t index);
+        template <typename iterator, typename sen>
+        result sequence (iterator &i, sen s, const list<equal<X>> &r, size_t index);
     };
 
     template <typename X, typename ...context> struct validate<optional<X>, context...> {
@@ -935,27 +938,33 @@ namespace data::schema::rule {
         return *x;
     }
 
-    template <typename X, typename ...context> template <typename iterator>
+    template <typename X, typename ...context> template <typename iterator, typename sen>
     typename validate<value<X>, context...>::result inline
-    validate<value<X>, context...>::sequence (iterator i, const list<value<X>> &r, size_t index) {
+    validate<value<X>, context...>::sequence (iterator &i, sen s, const list<value<X>> &r, size_t index) {
+        if (i == s) throw end_of_sequence {index};
         maybe<X> x = encoding::read<X, context...> {} (*i);
         if (!bool (x)) throw invalid_value_at {index};
+        i++;
         return *x;
     }
 
-    template <typename X, typename ...context> template <typename iterator>
+    template <typename X, typename ...context> template <typename iterator, typename sen>
     typename validate<default_value<X>, context...>::result inline
-    validate<default_value<X>, context...>::sequence (iterator i, const list<default_value<X>> &r, size_t index) {
+    validate<default_value<X>, context...>::sequence (iterator &i, sen s, const list<default_value<X>> &r, size_t index) {
+        if (i == s) return r.Default;
         maybe<X> x = encoding::read<X, context...> {} (*i);
-        if (!bool (x)) return r.Default;
+        if (!bool (x)) throw invalid_value_at {index};
+        i++;
         return *x;
     }
 
-    template <typename X, typename ...context> template <typename iterator>
+    template <typename X, typename ...context> template <typename iterator, typename sen>
     typename validate<equal<X>, context...>::result inline
-    validate<equal<X>, context...>::sequence (iterator i, const list<equal<X>> &r, size_t index) {
+    validate<equal<X>, context...>::sequence (iterator &i, sen s, const list<equal<X>> &r, size_t index) {
+        if (i == s) throw end_of_sequence {index};
         maybe<X> x = encoding::read<X, context...> {} (*i);
         if (!bool (x) || *x != r.Value) throw invalid_value_at {index};
+        i++;
         return unit {};
     }
 
@@ -964,15 +973,16 @@ namespace data::schema::rule {
     validate<value<X>, context...>::operator () (const seq &x, const list<value<X>> &r) {
         if (x.size () == 0) throw end_of_sequence {0};
         if (x.size () > 1) throw no_end_of_sequence {1};
-        return sequence (x.begin (), r, 0);
+        auto i = x.begin ();
+        return sequence (i, x.end (), r, 0);
     }
 
     template <typename X, typename ...context> template <Iterable seq>
     typename validate<default_value<X>, context...>::result inline
     validate<default_value<X>, context...>::operator () (const seq &x, const list<default_value<X>> &r) {
-        if (x.size () == 0) throw end_of_sequence {0};
         if (x.size () > 1) throw no_end_of_sequence {1};
-        return sequence (x.begin (), r, 0);
+        auto i = x.begin ();
+        return sequence (i, x.end (), r, 0);
     }
 
     template <typename X, typename ...context> template <Iterable seq>
@@ -980,7 +990,8 @@ namespace data::schema::rule {
     validate<equal<X>, context...>::operator () (const seq &x, const list<equal<X>> &r) {
         if (x.size () == 0) throw end_of_sequence {0};
         if (x.size () > 1) throw no_end_of_sequence {1};
-        return sequence (x.begin (), r, 0);
+        auto i = x.begin ();
+        return sequence (i, x.end (), r, 0);
     }
 
     template <std::size_t Z, typename SeqIt, typename... X>
@@ -999,12 +1010,8 @@ namespace data::schema::rule {
 
         template <typename ...context>
         static auto apply (SeqIt &it, SeqIt end, const list<sequence<Head, Tail...>>& schema) {
-            if (it == end) throw end_of_sequence {Z};
-
             // validate current element
-            auto value = validate<Head, context...> {} (it, static_cast<const list<Head> &> (schema), Z);
-
-            ++it;
+            auto value = validate<Head, context...> {} (it, end, static_cast<const list<Head> &> (schema), Z);
 
             // recurse
             auto tail = validate_sequence<Z + 1, SeqIt, Tail...>::template
