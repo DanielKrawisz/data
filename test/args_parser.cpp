@@ -166,13 +166,13 @@ namespace data::io::args {
         EXPECT_THROW ((parse ({"/prog", "--option=value", "--option=value"})), exception);
     }
 
-    TEST (ArgsParser, FlagPresent) {
+    TEST (Args, FlagPresent) {
 
         const char *argv[] = {"/test", "--verbose"};
 
         parsed p {2, argv};
 
-        command schema {set<std::string> {"verbose"}, schema::list::empty (), schema::map::empty ()};
+        command schema {set<std::string> {"verbose"}, schema::list::value<std::string> (), schema::map::empty ()};
 
         EXPECT_TRUE (bool (validate (p, schema)));
     }

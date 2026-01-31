@@ -46,7 +46,7 @@ add_executable (
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     transpose.cpp
     combinatorics.cpp
-    map_schema.cpp
+    schema.cpp
 
     # string
     integer_format.cpp
