@@ -241,6 +241,7 @@
  */
 
 #include <data/concepts.hpp>
+#include <data/meta.hpp>
 #include <data/maybe.hpp>
 #include <data/either.hpp>
 #include <data/tuple.hpp>
@@ -310,6 +311,9 @@ namespace data::schema::list {
     // make a rule for an empty list.
     constexpr rule::list<rule::empty> empty ();
 
+    // make a rule for an a map that can have anything in it.
+    constexpr rule::list<rule::blank> blank ();
+
     // make a rule for a list with a single value.
     template <typename X> constexpr rule::list<rule::value<X>> value ();
 
@@ -345,6 +349,8 @@ namespace data::schema::rule {
 
     // use the * operator to make a rule optional.
     template <typename X> constexpr auto operator * (const map<only<X>> &);
+
+    template <typename X> constexpr auto operator * (const list<X> &);
 
     // use the & operator to combine two map rules.
     template <typename X, typename Y> constexpr auto operator && (const map<X> &, const map<Y> &);
@@ -486,36 +492,52 @@ namespace data::schema::rule {
     };
 
     template <typename>
+    struct is_optional : std::false_type {};
+
+    template <typename T>
+    struct is_optional<optional<T>> : std::true_type {};
+
+    template <typename>
     struct is_default : std::false_type {};
 
     template <typename T>
     struct is_default<default_value<T>> : std::true_type {};
 
     template <typename...>
-    struct defaults_trail : std::true_type {};
+    struct trail : std::true_type {};
 
     template <typename X, typename Y, typename... Z>
-    struct defaults_trail<X, Y, Z...>
+    struct trail<X, Y, Z...>
         : std::bool_constant<
-            !(is_default<X>::value && !is_default<Y>::value)
-            && defaults_trail<Y, Z...>::value
+            !(is_optional<X>::value && !is_optional<Y>::value) &&
+            !(is_default<X>::value && !(is_default<Y>::value || is_optional<Y>::value)) &&
+            trail<Y, Z...>::value
         > {};
 
     template <typename... X>
     struct list<sequence<X...>> {
         static_assert (
-            defaults_trail<X...>::value,
-            "default_value must be at the end or followed only by default_value"
+            trail<X...>::value,
+            "optional must be at the end or followed by optional. default_value must be at the end or followed only by default_value or optional"
         );
 
         using tuple_type = std::tuple<list<X>...>;
-        tuple_type rules;
+        tuple_type Rules;
 
         constexpr list (X... xs)
-            : rules (std::move (xs)...) {}
+            : Rules (std::move (xs)...) {}
+
+        constexpr list (tuple_type &&rules): Rules {rules} {}
     };
 
-    template <typename X> struct apply_optional;
+    template <typename X> struct list<optional<X>> : list<X> {
+        using list<X>::list;
+        constexpr list (const list<X> &m): list<X> {m} {}
+    };
+
+    template <typename X> struct apply_optional {
+        using result = optional<X>;
+    };
 
     template <typename X> struct apply_optional<only<X>> {
         using result = only<optional<X>>;
@@ -681,6 +703,10 @@ namespace data::schema::rule {
         return map<typename apply_optional<only<X>>::result> {m};
     }
 
+    template <typename X> constexpr auto inline operator * (const list<X> &m) {
+        return list<typename apply_optional<X>::result> {m};
+    }
+
     // use the & operator to combine two map rules.
     template <typename X, typename Y> constexpr auto inline operator && (const map<X> &a, const map<Y> &b) {
         return intersect<X, Y> {} (a, b);
@@ -777,12 +803,17 @@ namespace data::schema::rule {
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<optional<X>> &r);
+
+        template <Iterable seq> result operator () (const seq &x, const list<optional<X>> &r);
+
+        template <typename iterator, typename sen>
+        result sequence (iterator &i, sen s, const list<optional<X>> &r, size_t index);
     };
 
     template <typename ...X, typename ...context> struct validate<sequence<X...>, context...> {
-        using result = tuple<typename validate<X, context>::result...>;
+        using result = tuple<typename validate<X, context...>::result...>;
 
-        template <IterableSequence seq> result operator () (const seq &x, const list<sequence<X...>> &r);
+        template <Iterable seq> result operator () (const seq &x, const list<sequence<X...>> &r);
     };
 
     template <typename ...X, typename ...context> struct validate<all<X...>, context...> {
@@ -914,7 +945,7 @@ namespace data::schema::rule {
         const string *v = m.contains (r.Key);
         if (!bool (v)) throw missing_key {data::string (r.Key)};
         maybe<X> x = encoding::read<X, context...> {} (*v);
-        if (!bool (x)) throw invalid_entry {*v};
+        if (!bool (x)) throw invalid_entry {data::string (r.Key)};
         return *x;
     }
 
@@ -986,6 +1017,25 @@ namespace data::schema::rule {
     }
 
     template <typename X, typename ...context> template <Iterable seq>
+    typename validate<optional<X>, context...>::result
+    validate<optional<X>, context...>::operator () (const seq &x, const list<optional<X>> &r) {
+        if (x.size () > 1) throw no_end_of_sequence {1};
+        auto i = x.begin ();
+        return sequence (i, x.end (), r, 0);
+    }
+
+    template <typename X, typename ...context> template <typename iterator, typename sen>
+    typename validate<optional<X>, context...>::result
+    validate<optional<X>, context...>::sequence (iterator &i, sen s, const list<optional<X>> &r, size_t index) {
+        using result_type = validate<X, context...>::result;
+        if (i == s) return {};
+        maybe<result_type> x = encoding::read<result_type, context...> {} (*i);
+        if (!bool (x)) throw invalid_value_at {index};
+        i++;
+        return x;
+    }
+
+    template <typename X, typename ...context> template <Iterable seq>
     typename validate<equal<X>, context...>::result inline
     validate<equal<X>, context...>::operator () (const seq &x, const list<equal<X>> &r) {
         if (x.size () == 0) throw end_of_sequence {0};
@@ -994,45 +1044,51 @@ namespace data::schema::rule {
         return sequence (i, x.end (), r, 0);
     }
 
-    template <std::size_t Z, typename SeqIt, typename... X>
-    struct validate_sequence;
+    template <std::size_t Z, typename ...X>
+    struct validate_sequence {
 
-    template <std::size_t Z, typename SeqIt>
-    struct validate_sequence<Z, SeqIt> {
-        template <typename ...context>
-        static auto apply (SeqIt& it, SeqIt end, const list<sequence<>> &schema) {
-            return std::tuple<> {};
-        }
-    };
+        template <typename ...context, typename iterator, typename senital>
+        static auto apply (iterator &it, senital end, const list<sequence<X...>>& schema) {
 
-    template <std::size_t Z, typename SeqIt, typename Head, typename... Tail>
-    struct validate_sequence<Z, SeqIt, Head, Tail...> {
-
-        template <typename ...context>
-        static auto apply (SeqIt &it, SeqIt end, const list<sequence<Head, Tail...>>& schema) {
             // validate current element
-            auto value = validate<Head, context...> {} (it, end, static_cast<const list<Head> &> (schema), Z);
+            auto value = validate<typename meta::get_type<Z, X...>::type, context...> {}.sequence (it, end, std::get<Z> (schema.Rules), Z);
 
-            // recurse
-            auto tail = validate_sequence<Z + 1, SeqIt, Tail...>::template
-                apply<context...> (it, end, static_cast<const list<sequence<Tail...>> &> (schema));
+            if constexpr (Z + 1 == sizeof... (X)) {
+                return std::make_tuple (std::move (value));
+            } else {
+                // recurse
+                auto tail = validate_sequence<Z + 1, X...>::template apply<context...> (it, end, schema);
 
-            return std::tuple_cat (
-                std::make_tuple (std::move (value)),
-                std::move (tail)
-            );
+                return std::tuple_cat (
+                    std::make_tuple (std::move (value)),
+                    std::move (tail)
+                );
+            }
         }
     };
 
-    template <typename ...X, typename ...context> template <IterableSequence seq>
+    template <std::size_t Z>
+    struct validate_sequence<Z> {
+
+        template <typename ...context, typename iterator, typename senital>
+        static auto apply (iterator &it, senital end, const list<sequence<>>& schema) {
+            return tuple<> {};
+        }
+    };
+
+    template <typename ...X, typename ...context> template <Iterable seq>
     typename validate<sequence<X...>, context...>::result
     validate<sequence<X...>, context...>::operator () (const seq &x, const list<sequence<X...>> &r) {
         auto it  = x.begin ();
         auto end = x.end ();
 
-        auto result = validate_sequence<0, decltype (it), X...>::template apply<context...> (it, end, r);
+        auto result = validate_sequence<0, X...>::template apply<context...> (it, end, r);
 
-        if (it != end) throw no_end_of_sequence {};
+        // NOTE this is not actually correct. If we had a
+        // pattern that represented several list entries,
+        // we would not correctly point out where we expected
+        // the sequence to end.
+        if (it != end) throw no_end_of_sequence {sizeof... (X)};
 
         return result;
     }
@@ -1098,8 +1154,7 @@ namespace data::schema::rule {
         }
     };
 
-    template <typename X, typename ...context>
-    template <String string>
+    template <typename X, typename ...context> template <String string>
     typename validate<optional<X>, context...>::result inline
     validate<optional<X>, context...>::operator () (const data::map<string, string> &m, const map<optional<X>> &r) {
         try {
@@ -1108,12 +1163,11 @@ namespace data::schema::rule {
         // if the match fails, the map may not contain any keys
         // of the sub rule.
         for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
-            if (m.contains (k)) throw incomplete_match {k};
+            if (m.contains (k)) throw incomplete_match {data::string (k)};
         return {};
     }
 
-    template <typename X, typename ...context>
-    template <String string>
+    template <typename X, typename ...context> template <String string>
     typename validate<optional<X>, context...>::result inline
     validate<optional<X>, context...>::operator () (const std::map<string, string> &m, const map<optional<X>> &r) {
         try {
@@ -1122,7 +1176,7 @@ namespace data::schema::rule {
         // if the match fails, the map may not contain any keys
         // of the sub rule.
         for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
-            if (m.find (k) != m.end ()) throw incomplete_match {k};
+            if (m.find (k) != m.end ()) throw incomplete_match {data::string (k)};
         return {};
     }
 
@@ -1254,11 +1308,11 @@ namespace data::schema::rule {
             while (z != m.end ()) {
                 // if we are at the end of the list of allowed keys,
                 // then there must be keys in the map that aren't allowed.
-                if (n == x.end ()) throw unknown_key {z->Key};
+                if (n == x.end ()) throw unknown_key {data::string (z->Key)};
 
                 if (z->Key > *n) n++;
                 else {
-                    if (z->Key != *n) throw unknown_key {z->Key};
+                    if (z->Key != *n) throw unknown_key {data::string (z->Key)};
                     n++;
                     z++;
                 }
@@ -1266,7 +1320,23 @@ namespace data::schema::rule {
         }
 
         template <String string>
-        void operator () (std::map<string, string>, const set<data::string> &);
+        void operator () (const std::map<string, string> &m, const set<data::string> &x) {
+            auto z = m.begin ();
+            auto n = x.begin ();
+
+            while (z != m.end ()) {
+                // if we are at the end of the list of allowed keys,
+                // then there must be keys in the map that aren't allowed.
+                if (n == x.end ()) throw unknown_key {data::string (z->first)};
+
+                if (z->first > *n) n++;
+                else {
+                    if (z->first != *n) throw unknown_key {data::string (z->first)};
+                    n++;
+                    z++;
+                }
+            }
+        }
     };
 
     template <typename X, typename ...context> 
@@ -1361,41 +1431,40 @@ namespace data::schema::rule {
         return map<result> {std::tuple_cat (tuple<map<X>> (a), static_cast<tuple_type_B> (b))};
     }
 
-
-    template <typename X, typename Y>
-    constexpr list<typename join<X, Y>::result> inline
-    join<X, Y>::operator () (const list<X> &, const list<Y> &) const {
-        throw 0;
-    }
-
-    template <typename ...X, typename ...Y>
-    constexpr list<typename join<sequence<X...>, sequence<Y...>>::result> inline
-    join<sequence<X...>, sequence<Y...>>::operator () (const list<sequence<X...>> &, const list<sequence<Y...>> &) const {
-        throw 0;
-    }
-
-    template <typename X, typename ...Y>
-    constexpr list<typename join<X, sequence<Y...>>::result> inline
-    join<X, sequence<Y...>>::operator () (const list<X> &, const list<sequence<Y...>> &) const {
-        return 0;
-    }
-
-    template <typename ...X, typename Y>
-    constexpr list<typename join<sequence<X...>, Y>::result> inline
-    join<sequence<X...>, Y>::operator () (const list<sequence<X...>> &, const list<Y> &) const {
-        return 0;
-    }
-
     template <typename Y>
     constexpr list<typename join<empty, Y>::result> inline
-    join<empty, Y>::operator () (const list<empty> &, const list<Y> &) const {
-        return 0;
+    join<empty, Y>::operator () (const list<empty> &a, const list<Y> &b) const {
+        return b;
     }
 
     template <typename X>
     constexpr list<typename join<X, empty>::result>
-    join<X, empty>::operator () (const list<X> &, const list<empty> &) const {
-        return 0;
+    join<X, empty>::operator () (const list<X> &a, const list<empty> &b) const {
+        return a;
+    }
+
+    template <typename X, typename Y>
+    constexpr list<typename join<X, Y>::result> inline
+    join<X, Y>::operator () (const list<X> &a, const list<Y> &b) const {
+        return std::make_tuple (a, b);
+    }
+
+    template <typename ...X, typename ...Y>
+    constexpr list<typename join<sequence<X...>, sequence<Y...>>::result> inline
+    join<sequence<X...>, sequence<Y...>>::operator () (const list<sequence<X...>> &a, const list<sequence<Y...>> &b) const {
+        return std::tuple_cat (a.Rules, b.Rules);
+    }
+
+    template <typename X, typename ...Y>
+    constexpr list<typename join<X, sequence<Y...>>::result> inline
+    join<X, sequence<Y...>>::operator () (const list<X> &a, const list<sequence<Y...>> &b) const {
+        return std::tuple_cat (std::make_tuple (a), b.Rules);
+    }
+
+    template <typename ...X, typename Y>
+    constexpr list<typename join<sequence<X...>, Y>::result> inline
+    join<sequence<X...>, Y>::operator () (const list<sequence<X...>> &a, const list<Y> &b) const {
+        return std::tuple_cat (a.Rules, std::make_tuple (b));
     }
 
 }
