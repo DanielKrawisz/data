@@ -224,7 +224,7 @@ namespace data::schema::map {
 
         try {
             test_map_validate<data::map<string, string>> ();
-            //test_map_validate<std::map<string, string>> ();
+            test_map_validate<std::map<string, string>> ();
         } catch (unknown_key err) {
             FAIL () << "Fail with unknown key " << err.Key;
         } catch (missing_key err) {
@@ -376,9 +376,10 @@ namespace data::schema::list {
         EXPECT_THROW (validate<> (list_1, equal<uint32> (2)), invalid_value_at);
 
         EXPECT_NO_THROW (validate<> (empty_list, value<uint32> (3)));
+        EXPECT_NO_THROW (validate<> (empty_list, *value<uint32> ()));
         EXPECT_NO_THROW (validate<> (list_1, value<uint32> (3)));
 
-        // test invalid value with default (should fail, default values only work if there is no value at all).
+        EXPECT_THROW (validate<> (list_1, value<string> (data::string {"huuub"})), invalid_value_at);
 
         list list_2 {"1", "2"};
 
@@ -386,7 +387,21 @@ namespace data::schema::list {
         EXPECT_THROW ((validate<> (list_2, value<uint32> (1))), no_end_of_sequence);
         EXPECT_THROW ((validate<> (list_2, equal<uint32> (1))), no_end_of_sequence);
 
-        // need tests with default values
+        EXPECT_THROW ((validate<> (list_1, value<uint32> () + value<uint32> ())), end_of_sequence);
+        EXPECT_THROW ((validate<> (list_1, value<uint32> () + equal<uint32> (2))), end_of_sequence);
+
+        EXPECT_NO_THROW ((validate<> (list_1, value<uint32> () + *value<uint32> ())));
+        EXPECT_NO_THROW ((validate<> (list_1, value<uint32> () + value<uint32> (2))));
+
+        EXPECT_NO_THROW ((validate<> (list_2, value<uint32> () + value<uint32> ())));
+        EXPECT_NO_THROW ((validate<> (list_2, value<uint32> () + equal<uint32> (2))));
+        EXPECT_NO_THROW ((validate<> (list_2, value<uint32> () + *value<uint32> ())));
+
+        EXPECT_NO_THROW ((validate<> (empty_list, value<uint32> (3) + value<uint32> (4))));
+        EXPECT_NO_THROW ((validate<> (empty_list, *value<uint32> () + *value<uint32> ())));
+        EXPECT_NO_THROW ((validate<> (empty_list, value<uint32> (2) + *value<uint32> ())));
+
+        // need tests with blank.
 
     }
 
@@ -404,7 +419,11 @@ namespace data::schema::list {
             FAIL () << "Fail with premature end of sequence " << err.Position;
         } catch (no_end_of_sequence err) {
             FAIL () << "Fail with no end of sequence " << err.Position;
-        }
+        } catch (mismatch &) {
+            FAIL () << "unexpected mismatch caught...";
+        } catch (std::exception &e) {
+            FAIL () << "exception caught with msg " << e.what ();
+        }//
 
     }
 }
