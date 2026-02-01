@@ -182,9 +182,9 @@ namespace data::io::args {
     command (set<std::string> flags, const schema::rule::list<arg_rule> &args, const schema::rule::map<opt_rule> &opts) -> command<arg_rule, opt_rule>;
 
     template <typename arg_rule, typename opt_rule>
-    maybe<tuple<map<std::string, bool>,
+    tuple<map<std::string, bool>,
         typename schema::rule::validate<arg_rule>::result,
-        typename schema::rule::validate<opt_rule>::result>>
+        typename schema::rule::validate<opt_rule>::result>
     validate (const parsed &, const command<arg_rule, opt_rule> &);
 
     bool inline parsed::has (const std::string &x) const {
@@ -203,24 +203,22 @@ namespace data::io::args {
     }
 
     template <typename arg_rule, typename opt_rule>
-    maybe<tuple<map<std::string, bool>,
+    tuple<map<std::string, bool>,
         typename schema::rule::validate<arg_rule>::result,
-        typename schema::rule::validate<opt_rule>::result>>
+        typename schema::rule::validate<opt_rule>::result>
     validate (const parsed &p, const command<arg_rule, opt_rule> &c) {
 
         // TODO here we convert key to string in order to fit it into the contains
         // function. However, it should be possible to say that contains takes
         // anything equality comparable with contained type.
-        for (const auto &key : p.Flags) if (!c.Flags.contains (std::string (key))) return {};
+        for (const auto &key : p.Flags)
+          if (!c.Flags.contains (std::string (key))) return {};
+
         map<std::string, bool> flags;
 
         for (const auto &key : c.Flags) flags = flags.insert (key, bool (p.Flags.contains (key)));
 
-        try {
-            return {{flags, schema::validate (p.Arguments, c.Arguments), schema::validate (p.Options, c.Options)}};
-        } catch (const schema::mismatch) {
-            return {};
-        }
+        return {flags, schema::validate (p.Arguments, c.Arguments), schema::validate (p.Options, c.Options)};
     }
 }
 

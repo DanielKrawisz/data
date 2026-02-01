@@ -174,7 +174,7 @@ namespace data::io::args {
 
         command schema {set<std::string> {"verbose"}, schema::list::value<std::string> (), schema::map::empty ()};
 
-        EXPECT_TRUE (bool (validate (p, schema)));
+        EXPECT_NO_THROW (validate (p, schema));
     }
 
 }
