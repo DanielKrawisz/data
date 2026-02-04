@@ -93,8 +93,8 @@ target_sources (
 
   PRIVATE
 
-  math/number/gmp/mpq.cpp
   math/number/gmp/N.cpp
+  math/number/gmp/mpq.cpp
   math/number/gmp/aks.cpp
   math/number/gmp/sqrt.cpp
   encoding/base58.cpp
