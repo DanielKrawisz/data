@@ -1,23 +1,55 @@
 # everything except crypto and net.
 add_library (data INTERFACE)
+add_library (Data::data ALIAS data)
 
 # functional data structures, arrays
 add_library (core INTERFACE)
+add_library (Data::core ALIAS core)
 
 # strings, bits etc
 add_library (string STATIC)
+add_library (Data::string ALIAS string)
 
 add_library (hash STATIC)
+add_library (Data::hash ALIAS hash)
 
 # numbers, like it says
 add_library (numbers STATIC)
+add_library (Data::numbers ALIAS numbers)
 
 # networking
 add_library (net STATIC)
+add_library (Data::net ALIAS net)
 
 add_library (crypto STATIC)
+add_library (Data::crypto ALIAS crypto)
 
 add_library (io STATIC)
+add_library (Data::io ALIAS io)
+
+set_target_properties (string PROPERTIES
+  OUTPUT_NAME "data_string"
+)
+
+set_target_properties (numbers PROPERTIES
+  OUTPUT_NAME "data_numbers"
+)
+
+set_target_properties (hash PROPERTIES
+  OUTPUT_NAME "data_hash"
+)
+
+set_target_properties (net PROPERTIES
+  OUTPUT_NAME "data_net"
+)
+
+set_target_properties (crypto PROPERTIES
+  OUTPUT_NAME "data_crypto"
+)
+
+set_target_properties (io PROPERTIES
+  OUTPUT_NAME "data_io"
+)
 
 target_include_directories (
   core
@@ -51,9 +83,9 @@ target_link_libraries (
 
   PUBLIC
 
+  Data::core
   Boost::boost
   ctre
-  core
 )
 
 target_sources (
@@ -78,7 +110,7 @@ target_link_libraries (
 
   PUBLIC
 
-  string
+  Data::string
   Boost::boost
   GMP::GMP
   rotella
@@ -91,7 +123,7 @@ target_link_libraries (
 
   INTERFACE
 
-  numbers
+  Data::numbers
 
 )
 
@@ -119,7 +151,7 @@ target_link_libraries (
 
   PUBLIC
 
-  string
+  Data::string
   OpenSSL::SSL
   OpenSSL::Crypto
   PkgConfig::cryptopp
@@ -157,7 +189,7 @@ target_link_libraries (
 
   PUBLIC
 
-  string
+  Data::string
   Boost::chrono
   Boost::thread
   nlohmann_json::nlohmann_json
@@ -183,8 +215,8 @@ target_link_libraries (
 
   PUBLIC
 
-  hash
-  data
+  Data::hash
+  Data::data
 )
 
 target_sources (
@@ -207,14 +239,14 @@ target_link_libraries (
 
   PUBLIC
 
-  crypto
+  Data::crypto
   Boost::log_setup
   Boost::log
 )
 
 configure_file (include/data/version.hpp.in generated/data/version.hpp)
 
-get_target_property (OUT data LINK_LIBRARIES)
+get_target_property (OUT Data::data LINK_LIBRARIES)
 
 include (GNUInstallDirs)
 
