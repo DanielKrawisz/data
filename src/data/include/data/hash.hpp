@@ -52,8 +52,8 @@
  *      data::hash::digest<size>
  *
  *  A data::hash::digest<size> represents a fixed-size hash output of `size`
- *  bytes. It inherits from data::math::uint_little<size>, which behaves like a
- *  built-in unsigned integer type with little-endian storage.  This allows
+ *  bytes. It inherits from data::math::uint_big<size>, which behaves like a
+ *  built-in unsigned integer type with big-endian storage.  This allows
  *  digests to be compared, copied, serialized, and manipulated using familiar
  *  numeric semantics, while still representing raw hash output.
  *
@@ -166,11 +166,13 @@ namespace data::hash {
     // the type returned by a hash function.
     template <size_t s> struct digest;
 
-    template <size_t size> std::ostream inline &operator << (std::ostream &o, const digest<size> &s);
+    template <size_t size> std::ostream &operator << (std::ostream &o, const digest<size> &s);
+    template <size_t size> data::writer<byte> &operator << (data::writer<byte> &w, const digest<size> &s);
+    template <size_t size> data::reader<byte> &operator >> (data::reader<byte> &r, digest<size> &s);
     
-    template <size_t s> struct digest : public math::uint_little<s, byte> {
-        using math::uint_little<s, byte>::uint_little;
-        digest (const math::uint_little<s, byte> &u) : math::uint_little<s, byte> {u} {}
+    template <size_t s> struct digest : public math::uint_big<s, byte> {
+        using math::uint_big<s, byte>::uint_big;
+        digest (const math::uint_big<s, byte> &u) : math::uint_big<s, byte> {u} {}
         bool valid () const;
     };
 
@@ -281,6 +283,17 @@ namespace data::hash {
     template <Engine E, Serializable ...X>
     digest<E::DigestSize> inline write (X &&...x) {
         return write<writer<E>> (std::forward<X> (x)...);
+    }
+
+    template <size_t size>
+    data::writer<byte> inline &operator << (data::writer<byte> &w, const digest<size> &s) {
+        return w << slice<const byte> (s);
+    }
+
+    template <size_t size>
+    data::reader<byte> inline &operator >> (data::reader<byte> &r, digest<size> &s) {
+        r.read (s.data (), size);
+        return r;
     }
 
     
