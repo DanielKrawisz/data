@@ -89,7 +89,7 @@ namespace data::net::HTTP {
             // XML content.
             application_xml,
 
-            // Raw JavaScript code (rare in requests, common in responses).
+            // Raw JavaScript code.
             application_javascript,
 
             image_png,
