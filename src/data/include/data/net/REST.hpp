@@ -32,23 +32,23 @@ namespace data::net::HTTP {
         // if this is present, it will be put in the Authorization header.
         maybe<ASCII> Authorization;
 
-        HTTP::request::make operator () (const HTTP::request::make &r) const;
+        HTTP::request::make operator () (HTTP::method meth, const path &path) const;
 
         static encoding::percent::string encode_form_data (form);
         
     };
     
     HTTP::request::make inline REST::GET (path path) const {
-        return operator () (HTTP::request::make {}.method (method::get).path (Path + path));
+        return operator () (method::get, path);
     }
     
     HTTP::request::make inline REST::GET (path path, dispatch<UTF8, UTF8> params) const {
-        return operator () (HTTP::request::make {}.method (method::get).path (Path + path).query (encode_form_data (params)));
+        return operator () (method::get, path).query (encode_form_data (params));
     }
 
     HTTP::request::make inline REST::POST (path path, dispatch<UTF8, UTF8> params) const {
-        return operator () (HTTP::request::make {}.method (method::post).path (Path + path).body (bytes (encode_form_data (params)),
-            content::application_x_www_form_urlencoded));
+        return operator () (method::post, path).body (bytes (encode_form_data (params)),
+            content::application_x_www_form_urlencoded);
     }
 
     inline REST::REST (const ASCII &host):
