@@ -13,7 +13,6 @@
 #include <data/crypto/NIST_DRBG.hpp>
 #include <data/tuple.hpp>
 #include <data/list.hpp>
-#include <data/io/log.hpp>
 
 #include <type_traits>
 #include <cstddef>

@@ -16,6 +16,7 @@
 
 #include <data/io/log.hpp>
 #include <data/io/unimplemented.hpp>
+#include <data/cross.hpp>
 
 namespace data::log {
 
@@ -73,15 +74,18 @@ namespace data::log {
         add_common_attributes ();
     }
 
-    std::ostream &operator << (std::ostream &strm, severity_level level) {
-        static const char* strings[] = {
-            "normal",
-            "notification",
-            "warning",
-            "error",
-            "critical"};
+     static const cross<std::string> strings {
+        "debug",
+        "normal",
+        "note",
+        "warning",
+        "error",
+        "critical"
+    };
 
-        if (static_cast<std::size_t> (level) < sizeof (strings) / sizeof (*strings))
+    std::ostream &operator << (std::ostream &strm, severity_level level) {
+
+        if (static_cast<size_t> (level) < strings.size ())
             strm << strings[level];
         else
             strm << static_cast<int> (level);
