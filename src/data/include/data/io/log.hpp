@@ -21,7 +21,7 @@
 namespace data::log {
     using namespace boost::log;
 
-    enum severity_level {
+    enum severity_level : size_t {
         debug,
         normal,
         note,
