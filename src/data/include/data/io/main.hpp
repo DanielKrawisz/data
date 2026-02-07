@@ -22,6 +22,10 @@ namespace data {
     io::error catch_all (fun &&f, args &&...a) {
         try {
             return std::invoke (std::forward<fun> (f), std::forward<args> (a)...);
+        } catch (const method::unimplemented &m) {
+            return io::error {io::error::programmer_action, m.what ()};
+        } catch (const data::exception &x) {
+            return io::error {io::error::code {x.Code}, std::string {x.what ()}};
         } catch (const std::exception &x) {
             return io::error {io::error::unknown, x.what ()};
         } catch (...) {
@@ -39,7 +43,7 @@ int main (int arg_count, char **arg_values) {
 
     data::io::error err = data::catch_all (&data::main, data::slice<const char *const> {arg_values, arg_count});
 
-    if (bool (err)) DATA_LOG (critical) << "Fail: " << err;
+    if (bool (err)) DATA_LOG (error) << "Program exit with " << err;
 
     return err.Code;
 
