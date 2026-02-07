@@ -13,13 +13,13 @@
 namespace data {
 
     void signal_handler (int signal) noexcept;
-    io::error main (std::span<const char *const>) noexcept;
+    io::error main (std::span<const char *const>);
 
     // catch_all catches everything that could be thrown. 
     // The first argument can be a callable type or a member function pointer. If it's
     // a member function pointer, the second argument must be a pointer to the object.
     template <typename fun, typename ...args> requires std::regular_invocable<fun, args...>
-    io::error catch_all (fun &&f, args &&...a) {
+    io::error catch_all (fun &&f, args &&...a) noexcept {
         try {
             return std::invoke (std::forward<fun> (f), std::forward<args> (a)...);
         } catch (const method::unimplemented &m) {
@@ -31,8 +31,6 @@ namespace data {
         } catch (...) {
             return io::error {io::error::unknown};
         }
-
-        return io::error {};
     }
 
 }
@@ -43,7 +41,7 @@ int main (int arg_count, char **arg_values) {
 
     data::io::error err = data::catch_all (&data::main, data::slice<const char *const> {arg_values, arg_count});
 
-    if (bool (err)) DATA_LOG (error) << "Program exit with " << err;
+    if (bool (err)) std::cout << "Program exit with " << err << std::endl;
 
     return err.Code;
 
