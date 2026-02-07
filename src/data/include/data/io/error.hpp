@@ -48,16 +48,16 @@ namespace data::io {
 
     std::ostream inline &operator << (std::ostream &o, const error &e) {
         if (e.Code == error::ok) return o << "success";
-        o << "error!";
+        o << "error ";
         if (e.Message) o << " message: " << *e.Message << "; ";
-        o << "; Suggested action: ";
+        o << "; code " << static_cast<int> (e.Code);
         switch (e.Code) {
-            case 0: return o << "not an error";
-            case 2: return o << "try again";
-            case 3: return o << "user should resolve his invalid action";
-            case 4: return o << "summon administrator to resolve this issue";
-            case 5: return o << "call the programmer to fix this bug";
-            default: return o << "not enough information";
+            case 0: return o << "; not an error";
+            case 2: return o << "; try again";
+            case 3: return o << "; user should resolve his invalid action";
+            case 4: return o << "; summon administrator to resolve this issue";
+            case 5: return o << "; call the programmer to fix this bug";
+            default: return o;
         }
     }
 

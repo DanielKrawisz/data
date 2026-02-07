@@ -41,7 +41,7 @@ namespace data {
             return *this;
         }
         
-        exception () : Code {0}, Message {} {}
+        exception () : Code {1}, Message {} {}
 
         exception (int code) : Code {code}, Message {} {}
         
