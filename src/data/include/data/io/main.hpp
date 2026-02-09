@@ -28,6 +28,8 @@ namespace data {
             return io::error {io::error::code {x.Code}, std::string {x.what ()}};
         } catch (const std::exception &x) {
             return io::error {io::error::unknown, x.what ()};
+        } catch (int i) {
+            return io::error {io::error::code {i}};
         } catch (...) {
             return io::error {io::error::unknown};
         }
@@ -41,7 +43,24 @@ int main (int arg_count, char **arg_values) {
 
     data::io::error err = data::catch_all (&data::main, data::slice<const char *const> {arg_values, arg_count});
 
-    if (bool (err)) std::cout << "Program exit with " << err << std::endl;
+    if (bool (err)) {
+        std::cout << "Program exited normally with error code " << static_cast<int> (err.Code) << "." << std::endl;
+        if (err.Message) std::cout << "Error message was " << *err.Message << "." << std::endl;
+        if (static_cast<int> (err.Code) <= 5 && static_cast<int> (err.Code) > 0) {
+            std::cout << "General advice to resolve this error: ";
+
+            [] (data::io::error::code code, std::ostream &o) -> std::ostream & {
+                switch (code) {
+                    case 0: return o << "not an error";
+                    case 2: return o << "try again";
+                    case 3: return o << "user should resolve his invalid action";
+                    case 4: return o << "summon administrator to resolve this issue";
+                    case 5: return o << "call the programmer to fix this bug";
+                    default: return o << "none";
+                }
+            } (err.Code, std::cout) << "." << std::endl;
+        }
+    }
 
     return err.Code;
 

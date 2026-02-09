@@ -42,7 +42,7 @@ namespace data::io {
         error () : Code {0}, Message {} {}
         error (code code) : Code {code}, Message {} {}
         error (code code, const string &err): Code {code}, Message {err} {}
-        error (const string &err): Code {5}, Message {err} {}
+        error (const string &err): Code {6}, Message {err} {}
         operator bool () const {return bool (Message) || Code != ok; }
     };
 
@@ -50,7 +50,8 @@ namespace data::io {
         if (e.Code == error::ok) return o << "success";
         o << "error ";
         if (e.Message) o << "message: " << *e.Message << "; ";
-        o << "code " << static_cast<int> (e.Code) << ": ";
+        o << "code " << static_cast<int> (e.Code);
+        if (static_cast<int> (e.Code) <= 5) o << "; this is  ";
         switch (e.Code) {
             case 0: return o << "not an error";
             case 2: return o << "try again";
