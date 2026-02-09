@@ -353,13 +353,13 @@ namespace data::schema::rule {
     template <typename X> constexpr auto operator * (const list<X> &);
 
     // use the & operator to combine two map rules.
-    template <typename X, typename Y> constexpr auto operator && (const map<X> &, const map<Y> &);
+    template <typename X, typename Y> auto operator && (const map<X> &, const map<Y> &);
 
     // use the | make alternatives.
-    template <typename X, typename Y> constexpr auto operator || (const map<X> &, const map<Y> &);
+    template <typename X, typename Y> auto operator || (const map<X> &, const map<Y> &);
 
     // join two list schemas together.
-    template <typename X, typename Y> constexpr auto operator + (const list<X> &, const list<Y> &);
+    template <typename X, typename Y> auto operator + (const list<X> &, const list<Y> &);
 
     template <typename string> concept String = /*std::convertible_to<string, data::string> && */std::equality_comparable_with<data::string, string>;
 }
@@ -708,17 +708,17 @@ namespace data::schema::rule {
     }
 
     // use the & operator to combine two map rules.
-    template <typename X, typename Y> constexpr auto inline operator && (const map<X> &a, const map<Y> &b) {
+    template <typename X, typename Y> auto inline operator && (const map<X> &a, const map<Y> &b) {
         return intersect<X, Y> {} (a, b);
     }
 
     // use the | make alternatives.
-    template <typename X, typename Y> constexpr auto inline operator || (const map<X> &a, const map<Y> &b) {
+    template <typename X, typename Y> auto inline operator || (const map<X> &a, const map<Y> &b) {
         return unite<X, Y> {} (a, b);
     }
 
     // join two list schemas together.
-    template <typename X, typename Y> constexpr auto inline operator + (const list<X> &a, const list<Y> &b) {
+    template <typename X, typename Y> auto inline operator + (const list<X> &a, const list<Y> &b) {
         return join<X, Y> {} (a, b);
     }
 
