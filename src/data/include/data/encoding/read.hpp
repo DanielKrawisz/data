@@ -37,7 +37,7 @@ namespace data::encoding {
                 try {
                     return X {z};
                 } catch (...) {}
-            } 
+            }
             return {};
         }
 
