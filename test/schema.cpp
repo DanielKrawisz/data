@@ -5,6 +5,8 @@
 #include "data/encoding/unicode.hpp"
 #include "data/tools/schema.hpp"
 #include "data/math.hpp"
+#include "data/net/URL.hpp"
+#include "data/net/JSON.hpp"
 #include "gtest/gtest.h"
 
 namespace data::schema::rule {
@@ -269,14 +271,18 @@ namespace data::schema::map {
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("C"))), "-3");
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("F"))), R"("true")");
             EXPECT_EQ ((validate<> (test_map, +key<std::string> ("G"))), "string with whitespace");
-            
+
             EXPECT_THROW ((validate<> (test_map, +key<string> ("E"))), invalid_entry);
             EXPECT_EQ ((validate<> (test_map, +key<string> ("F"))), "true");
-            
+
             EXPECT_EQ (true, (validate<> (test_map, +key<bool> ("E"))));
             EXPECT_THROW ((validate<> (test_map, +key<bool> ("B"))), invalid_entry);
             EXPECT_THROW ((validate<> (test_map, +key<bool> ("C"))), invalid_entry);
-    
+
+            EXPECT_NO_THROW (validate<> (test_map, +key<JSON> ("A")));
+            EXPECT_NO_THROW (validate<> (test_map, +key<JSON> ("E")));
+            EXPECT_NO_THROW (validate<> (test_map, +key<JSON> ("F")));
+
             EXPECT_EQ (23, (validate<> (test_map, +key<byte> ("A"))));
             EXPECT_EQ (23, (validate<> (test_map, +key<signed char> ("A"))));
             EXPECT_EQ (23, (validate<> (test_map, +key<uint32> ("A"))));
@@ -351,6 +357,43 @@ namespace data::schema::map {
         EXPECT_EQ ((validate<> (data::map<string, string> {}, key<int> ("zoob", 13))), 13);
         EXPECT_EQ ((validate<> (data::map<string, string> {{"zoob", "92"}}, key<int> ("zoob", 13))), 92);
     }
+
+    // this test has to do with a specific application that didn't work.
+    TEST (Schema, Endpoint) {
+
+        auto endpoint_schema = schema::map::key<net::domain_name> ("domain") ||
+            schema::map::key<net::IP::TCP::endpoint> ("endpoint") ||
+            (schema::map::key<net::IP::address> ("ip_address") && *schema::map::key<uint32> ("port"));
+
+        auto optional_endpoint_schema = *endpoint_schema;
+
+        data::map<UTF8, UTF8> ip_port_input {
+            {"ip_address", "123.23.3.2"},
+            {"port", "4567"}
+        };
+
+        data::map<UTF8, UTF8> ip_input {
+            {"ip_address", "123.23.3.2"}
+        };
+
+        data::map<UTF8, UTF8> endpoint_input {
+            {"endpoint", "123.23.3.2:4567"}
+        };
+
+        data::map<UTF8, UTF8> domain_input {
+            {"domain", "zoob.com"}
+        };
+
+        try {
+            EXPECT_NO_THROW (validate (ip_port_input, endpoint_schema));
+            EXPECT_NO_THROW (validate (ip_input, endpoint_schema));
+            EXPECT_NO_THROW (validate (endpoint_input, endpoint_schema));
+            EXPECT_NO_THROW (validate (domain_input, endpoint_schema));
+        } catch (mismatch) {
+            FAIL () << "mismatch caught";
+        }
+
+    }
 }
 
 namespace data::schema::list {
@@ -423,7 +466,7 @@ namespace data::schema::list {
             FAIL () << "unexpected mismatch caught...";
         } catch (std::exception &e) {
             FAIL () << "exception caught with msg " << e.what ();
-        }//
+        }
 
     }
 }

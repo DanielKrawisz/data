@@ -117,6 +117,9 @@ namespace data::net::IP {
 
     }
 
+    // TODO maximum size of the label is 63 characters.
+    // TODO maximum total length is 253 characters
+    // RFC 1035
     TEST (IP, DomainNameFormat) {
 
         struct test_case {
@@ -135,17 +138,22 @@ namespace data::net::IP {
 
             {"example..com", false},  // consecutive periods
             {"-example.com", false},  // starts with a hyphen
-            {"example-.com", true},  // ends with a hyphen
+            {"example-.com", false},  // ends with a hyphen
             {"example..co.uk", false},  // consecutive periods
             {"example._com", false},  // starts with an underscore
             {"example_.com", false},  // ends with an underscore
             {".example.com", false},  // starts with a period
             {"example.com.", false},  // ends with a period
         }) {
+            std::stringstream ss {t.DomainName};
+            domain_name parsed {};
+            ss >> parsed;
             if (t.ExpectValid) {
                 EXPECT_TRUE (t.DomainName.valid ()) << "expected " << t.DomainName << " to be a valid domain, but it is not.";
+                EXPECT_TRUE (bool (ss)) << "expected to be able to read " << t.DomainName << " as a domain name.";
             } else {
                 EXPECT_FALSE (t.DomainName.valid ()) << "expected " << t.DomainName << " to be an invalid domain, but it is valid.";
+                EXPECT_FALSE (bool (ss)) << "expected not to be able to read " << t.DomainName << " as a domain name.";
             }
         }
 
@@ -154,6 +162,7 @@ namespace data::net::IP {
     std::regex ip_v4_regex {"(((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4})"};
     std::regex ip_v6_regex {"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};
 
+    // TODO try out the >> format with these.
     // https://en.wikipedia.org/wiki/Module:IPAddress/testcases
     TEST (IP, IPAddressFormat) {
 
@@ -166,6 +175,15 @@ namespace data::net::IP {
 
                 if (Version == 4) EXPECT_TRUE (std::regex_match (Address, ip_v4_regex));
                 else if (Version == 6) EXPECT_TRUE (std::regex_match (Address, ip_v6_regex));
+
+                address parsed;
+                std::stringstream ss {Address};
+                EXPECT_NO_THROW (ss >> parsed);
+                if (Version == 4 || Version == 6) {
+                    EXPECT_TRUE (bool (ss)) << "Expected to be able to parse " << Address << " as an IP address but failed.";
+                } else {
+                    EXPECT_FALSE (bool (ss)) << "Expected not to be able to parse " << Address << " as an IP address but succeeded.";
+                }
 
                 EXPECT_EQ (Address.valid (), Version >= 0)
                     << "Address " << Address << " is" << (Version >= 0 ? " " : " not ") << "expected to be valid; version = " << Version;

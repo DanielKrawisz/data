@@ -23,7 +23,7 @@ namespace data {
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
-    constexpr decltype (auto) apply_at (T &&t, F &&f, int i);
+    constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i);
 
     // apply to each element of a tuple.
     template <Tuple T, typename F>
@@ -31,7 +31,7 @@ namespace data {
         using U = std::remove_cvref_t<T>;
         constexpr std::size_t N = std::tuple_size_v<U>;
         [&]<std::size_t... I> (std::index_sequence<I...>) {
-            (f(std::get<I> (std::forward<T> (t))), ...);
+            (f (std::get<I> (std::forward<T> (t))), ...);
         } (std::make_index_sequence<N> {});
     }
 
@@ -51,7 +51,7 @@ namespace data {
     namespace {
 
         template <size_t I, typename Tuple, typename F>
-        decltype (auto) tuple_apply_at_rec (Tuple &&t, F &&f, std::size_t idx) {
+        decltype (auto) tuple_apply_at_rec (Tuple &&t, F &&f, size_t idx) {
             if constexpr (I + 1 == std::tuple_size_v<std::remove_cvref_t<Tuple>>) {
                 // last index
                 if (idx == I) return std::forward<F> (f) (std::get<I> (t));
@@ -66,7 +66,7 @@ namespace data {
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
-    constexpr decltype (auto) apply_at (T &&t, F &&f, int i) {
+    constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i) {
         return tuple_apply_at_rec<0> (t, std::forward<F> (f), i);
     }
 }

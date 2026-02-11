@@ -2,13 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <tao/pegtl/istream_input.hpp>
 #include <boost/algorithm/string.hpp>
 #include <data/net/URL.hpp>
 #include <data/net/TCP.hpp>
 #include <data/net/REST.hpp>
+#include <data/tools/parse.hpp>
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <regex>
 
 namespace data {
 
@@ -508,8 +511,8 @@ namespace pegtl {
     using namespace tao::pegtl;
 
     // Rules for parsing domain names
-    struct domain_label : seq<alnum, star<sor<one<'-'>, alnum>>> {};
-    struct domain_name : seq<domain_label, star<one<'.'>, domain_label>> {};
+    struct domain_label : seq<plus<alnum>, star<seq<one<'-'>, plus<alnum>>>> {};
+    struct domain_name : seq<domain_label, star<seq<one<'.'>, domain_label>>> {};
     struct domain_name_whole : seq<bof, domain_name, eof> {};
 
     struct gen_delim : sor<one<':'>, one<'/'>, one<'?'>, one<'#'>, one<'['>, one<']'>, one<'@'>> {};
@@ -543,7 +546,7 @@ namespace pegtl {
 
     struct scheme : seq<alpha, star<sor<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
 
-    struct whole_scheme : seq<eof, scheme, eof> {};
+    struct whole_scheme : seq<bof, scheme, eof> {};
 
     struct user_info : plus<sor<unreserved, percent_encoded, sub_delim, one<':'>>> {};
 
@@ -583,6 +586,8 @@ namespace pegtl {
 
     struct ipv6_whole : seq<ipv6, eof> {};
 
+    struct ip_address : sor<ipv6, ipv4> {};
+
     struct ip_address_whole : seq<sor<ipv6, ipv4>, eof> {};
 
     struct host : sor<ip_literal, ipv4, reg_name> {};
@@ -592,6 +597,8 @@ namespace pegtl {
     struct port : star<digit> {};
 
     struct authority : seq<opt<user_info_at>, host, opt<seq<one<':'>, port>>> {};
+
+    struct endpoint : seq<ip_address, one<':'>, port> {};
 
     struct authority_whole : seq<bof, authority, eof> {};
 
@@ -812,6 +819,11 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::authority &p) {
+            p = net::authority {std::string_view (in)};
+        }
     };
 
     string_view encoding::percent::URI::authority (string_view x) {
@@ -860,6 +872,13 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::port &p) {
+            auto view = std::string_view (in);
+            p.resize (view.size ());
+            std::copy (view.begin (), view.end (), p.begin ());
+        }
     };
 
     string_view encoding::percent::URI::port (string_view x) {
@@ -874,7 +893,11 @@ namespace data {
     template <> struct read_path_action<pegtl::path_after_authority> {
         template <typename Input>
         static void apply (const Input& in, string_view &x) {
-            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+            x = string_view {std::string_view (in)};
+        }
+        template <typename Input>
+        static void apply (const Input& in, net::path &m) {
+            m = net::path {std::string_view (in)};
         }
     };
 
@@ -883,12 +906,22 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::path &m) {
+            m = net::path {std::string_view (in)};
+        }
     };
 
     template <> struct read_path_action<pegtl::path_rootless> {
         template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+
+        template <typename Input>
+        static void apply (const Input& in, net::path &m) {
+            m = net::path {std::string_view (in)};
         }
     };
 
@@ -946,6 +979,11 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::IP::address &x) {
+            x = net::IP::address {std::string_view (in)};
+        }
     };
 
     template <> struct read_ip_address_action<pegtl::ipv6> {
@@ -953,12 +991,22 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::IP::address &x) {
+            x = net::IP::address {std::string_view (in)};
+        }
     };
 
     template <> struct read_ip_address_action<pegtl::ip_future> {
         template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+
+        template <typename Input>
+        static void apply (const Input& in, net::IP::address &x) {
+            x = net::IP::address {std::string_view (in)};
         }
     };
 
@@ -1061,11 +1109,384 @@ namespace data {
         return net::IP::TCP::endpoint {*a, *p};
     }
 
+    template <typename Rule> struct read_uri_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_uri_action<pegtl::uri> {
+        template <typename Input>
+        static void apply (const Input& in, net::URL &m) {
+            m = net::URL {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_protocol_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_protocol_action<pegtl::scheme> {
+        template <typename Input>
+        static void apply (const Input& in, net::protocol &m) {
+            m = net::protocol {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_domain_name_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_protocol_action<pegtl::domain_name> {
+        template <typename Input>
+        static void apply (const Input& in, net::domain_name &m) {
+            m = net::domain_name {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_target_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_target_action<pegtl::target> {
+        template <typename Input>
+        static void apply (const Input& in, net::target &m) {
+            m = net::target {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_endpoint_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_target_action<pegtl::endpoint> {
+        template <typename Input>
+        static void apply (const Input& in, net::IP::TCP::endpoint &m) {
+            m = net::IP::TCP::endpoint {std::string_view (in)};
+        }
+    };
+
+    struct read_domain_machine {
+        enum class phase {
+            start_label,
+            in_label,
+            after_dot,
+            dead
+        };
+
+        phase p = phase::start_label;
+
+        char last = ' ';
+
+        std::size_t label_len = 0;
+        std::size_t total_len = 0;
+
+        bool any_label = false;
+
+        bool possible () const {
+            return p != phase::dead;
+        }
+
+        bool valid () const {
+            return any_label && p == phase::in_label && last != '-';
+        }
+
+        read_domain_machine step (std::string_view prefix, char c) const {
+            read_domain_machine next = *this;
+            next.total_len++;
+
+            if (next.total_len > 253) {
+                next.p = phase::dead;
+                return next;
+            }
+
+            auto is_alnum = [](char x) {
+                return std::isalnum (static_cast<unsigned char> (x));
+            };
+
+            switch (p) {
+                case phase::start_label:
+                    if (is_alnum (c)) {
+                        next.p = phase::in_label;
+                        next.label_len = 1;
+                        next.any_label = true;
+                    } else {
+                        next.p = phase::dead;
+                    }
+                    break;
+
+                case phase::in_label:
+                    if (is_alnum (c)) {
+                        if (++next.label_len > 63)
+                            next.p = phase::dead;
+                    } else if (c == '-') {
+                        if (++next.label_len > 63)
+                            next.p = phase::dead;
+                    } else if (c == '.') {
+                        if (!is_alnum (prefix[prefix.size () - 1]))
+                            next.p = phase::dead;
+                        else {
+                            next.p = phase::after_dot;
+                            next.label_len = 0;
+                        }
+                    } else {
+                        next.p = phase::dead;
+                    }
+                    break;
+
+                case phase::after_dot:
+                    if (is_alnum (c)) {
+                        next.p = phase::in_label;
+                        next.label_len = 1;
+                    } else {
+                        next.p = phase::dead;
+                    }
+                    break;
+
+                case phase::dead:
+                    break;
+            }
+
+            next.last = c;
+            return next;
+        }
+    };
+
+    std::istream &net::operator >> (std::istream &i, net::domain_name &dom) {
+        read_domain_machine m {};
+        auto result = parse::read_token (i, m);
+        if (i) dom = net::domain_name {result};
+        return i;
+    }
+
+    struct read_port_machine {
+        std::uint32_t value = 0;
+        std::size_t digits = 0;
+        bool dead = false;
+
+        bool possible () const {
+            return !dead;
+        }
+
+        bool valid () const {
+            return !dead && digits > 0 && value <= 65535;
+        }
+
+        read_port_machine step (std::string_view prefix, char c) const {
+            read_port_machine next = *this;
+
+            if (!std::isdigit (static_cast<unsigned char> (c))) {
+                next.dead = true;
+                return next;
+            }
+
+            if (digits == 5) {
+                next.dead = true;
+                return next;
+            }
+
+            next.value = value * 10 + (c - '0');
+            next.digits++;
+
+            if (next.value > 65535) {
+                next.dead = true;
+            }
+
+            return next;
+        }
+    };
+
+    std::istream &net::operator >> (std::istream &i, net::port &p) {
+        read_port_machine m {};
+        auto result = parse::read_token (i, m);
+        if (i) p = net::port {static_cast<uint16> (m.value)};
+        return i;
+    }
+
+    struct read_ipv4_machine {
+        int octet = 0;
+        int octet_digits = 0;
+        int octets_seen = 0;
+        bool dead = false;
+
+        bool possible () const {
+            return !dead;
+        }
+
+        bool valid () const {
+            return !dead &&
+            octets_seen == 3 &&
+            octet_digits > 0 &&
+            octet <= 255;
+        }
+
+        read_ipv4_machine step (std::string_view, char c) const {
+            read_ipv4_machine next = *this;
+
+            if (std::isdigit(static_cast<unsigned char>(c))) {
+                if (octet_digits == 3) {
+                    next.dead = true;
+                    return next;
+                }
+
+                next.octet = octet * 10 + (c - '0');
+                next.octet_digits++;
+
+                if (next.octet > 255) {
+                    next.dead = true;
+                }
+                return next;
+            }
+
+            if (c == '.') {
+                if (octet_digits == 0 || octet > 255 || octets_seen == 3) {
+                    next.dead = true;
+                    return next;
+                }
+
+                next.octets_seen++;
+                next.octet = 0;
+                next.octet_digits = 0;
+                return next;
+            }
+
+            next.dead = true;
+            return next;
+        }
+    };
+
+    struct read_ipv6_machine {
+        int groups = 0;
+        int group_digits = 0;
+        bool saw_double_colon = false;
+        bool last_colon = false;
+        bool dead = false;
+        bool in_ipv4 = false;
+        read_ipv4_machine ipv4;
+
+        bool possible () const {
+            return !dead;
+        }
+
+        bool valid () const {
+            if (dead) return false;
+            if (in_ipv4) return ipv4.valid ();
+            if (last_colon && !saw_double_colon) return false;
+            return saw_double_colon || groups == 7;
+        }
+
+        read_ipv6_machine step(std::string_view prefix, char c) const {
+            read_ipv6_machine next = *this;
+
+            if (in_ipv4) {
+                next.ipv4 = ipv4.step (prefix, c);
+                if (!next.ipv4.possible())
+                    next.dead = true;
+                return next;
+            }
+
+            auto is_hex = [] (char x) {
+                return std::isxdigit (static_cast<unsigned char> (x));
+            };
+
+            if (is_hex (c)) {
+                if (group_digits == 4) {
+                    next.dead = true;
+                    return next;
+                }
+                next.group_digits++;
+                next.last_colon = false;
+                return next;
+            }
+
+            if (c == ':') {
+                if (last_colon) {
+                    if (saw_double_colon) {
+                        next.dead = true;
+                        return next;
+                    }
+                    next.saw_double_colon = true;
+                    next.last_colon = false;
+                    return next;
+                }
+
+                if (group_digits == 0 && prefix.size () > 0) {
+                    next.dead = true;
+                    return next;
+                }
+
+                next.groups++;
+                next.group_digits = 0;
+                next.last_colon = true;
+
+                if (next.groups > 7) {
+                    next.dead = true;
+                }
+                return next;
+            }
+
+            if (c == '.') {
+                if (group_digits == 0) {
+                    next.dead = true;
+                    return next;
+                }
+
+                // switch to IPv4 mode
+                next.in_ipv4 = true;
+
+                // We have already read some hex digits,
+                // but IPv4 expects decimal digits.
+                // So those digits must all be decimal.
+                for (size_t i = prefix.size() - group_digits; i < prefix.size(); ++i) {
+                    next.ipv4 = next.ipv4.step(prefix.substr(0, i), prefix[i]);
+                    if (!next.ipv4.possible()) {
+                        next.dead = true;
+                        return next;
+                    }
+                }
+
+                // now feed '.'
+                next.ipv4 = next.ipv4.step(prefix, c);
+                if (!next.ipv4.possible())
+                    next.dead = true;
+
+                return next;
+            }
+
+            next.dead = true;
+            return next;
+        }
+    };
+
+    using read_ip_machine =
+        parse::machine::alternatives<
+            read_ipv4_machine,
+            read_ipv6_machine>;
+
+
+    std::regex ip_v4_regex {"(((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4})"};
+    std::regex ip_v6_regex {"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};
+
+    std::istream &net::IP::operator >> (std::istream &i, net::IP::address &addr) {
+        read_ip_machine m {};
+        auto result = parse::read_token (i, m);
+
+        // we have ths here because read_ip_machine is not the best atm
+        if (!std::regex_match (result, ip_v4_regex) && ! std::regex_match (result, ip_v6_regex))
+            i.setstate (std::ios::failbit);
+
+        if (i) addr = net::IP::address {result};
+        return i;
+    }
+
+    using read_endpoint_machine =
+        parse::machine::sequence<
+            read_ip_machine,
+            parse::machine::exactly<':'>,
+            read_port_machine
+        >;
+
+    std::istream &net::IP::TCP::operator >> (std::istream &i, net::IP::TCP::endpoint &ep) {
+        read_endpoint_machine m {};
+        auto result = parse::read_token (i, m);
+        if (i) ep = net::IP::TCP::endpoint {result};
+        return i;
+    }
+
+
 }
 
 namespace data::net::IP {
 
-    // read the ip address as a series of bites.
+    // write the ip address as a series of bites.
     address::operator bytes () const {
         auto v = version ();
         if (v == -1) return {};

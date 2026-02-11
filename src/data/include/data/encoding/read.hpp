@@ -30,12 +30,14 @@ namespace data::encoding {
             }) {
                 std::stringstream ss {std::string {z}};
                 ss >> x;
-                if (bool (ss)) return x;
+                if (!ss) return {};
+                return x;
             } else if constexpr (requires () {
                 { X {z} };
             }) {
                 try {
-                    return X {z};
+                    X x {z};
+                    if (!valid (x)) return {};
                 } catch (...) {}
             }
             return {};
