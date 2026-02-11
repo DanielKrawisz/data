@@ -33,6 +33,7 @@ namespace data::net {
     struct domain_name;
 
     std::ostream &operator << (std::ostream &, const domain_name &);
+    std::istream &operator >> (std::istream &, domain_name &);
 
     bool operator == (const domain_name &, const domain_name &);
 
@@ -41,6 +42,7 @@ namespace data::net {
     struct port;
 
     std::ostream &operator << (std::ostream &, const port &);
+    std::istream &operator >> (std::istream &, port &);
 
     bool operator == (const port &, const port &);
 
@@ -73,6 +75,7 @@ namespace data::net::IP {
     struct address;
 
     std::ostream &operator << (std::ostream &, const address &);
+    std::istream &operator >> (std::istream &, address &);
 
     bool operator == (const address &, const address &);
 
@@ -84,6 +87,7 @@ namespace data::net::IP::TCP {
     struct endpoint;
 
     std::ostream &operator << (std::ostream &, const endpoint &);
+    std::istream &operator >> (std::istream &, endpoint &);
 
     bool operator == (const endpoint &, const endpoint &);
 
