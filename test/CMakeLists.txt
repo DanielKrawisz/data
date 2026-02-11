@@ -49,6 +49,7 @@ add_executable (
     schema.cpp
 
     # string
+    parse.cpp
     integer_format.cpp
     bytes.cpp
     write.cpp

@@ -153,9 +153,8 @@ namespace data::net::HTTP::beast {
         maybe<IP::TCP::endpoint> maybe_endpoint = host_or_endpoint.endpoint ();
 
         if (bool (maybe_endpoint)) {
-            cross<asio::ip::tcp::endpoint> results {{asio::ip::tcp::endpoint (*maybe_endpoint)}};
-
-            co_await get_lowest_layer (x).async_connect (results, asio::use_awaitable);
+            std::cout << "try to connect to " << *maybe_endpoint << std::endl;
+            co_await get_lowest_layer (x).async_connect (asio::ip::tcp::endpoint (*maybe_endpoint), asio::use_awaitable);
         } else {
             maybe<domain_name> maybe_host = host_or_endpoint.host ();
 
@@ -236,6 +235,7 @@ namespace data::net::HTTP {
             co_await z->start (host_or_endpoint);
             co_return ptr<stream> {static_cast<stream *> (z)};
         } else {
+            std::cout << " connect via http to " << host_or_endpoint << std::endl;
             auto z = new beast::session<beast::tcp_stream>
                 {std::move (boost::beast::tcp_stream {beast::net::make_strand (co_await asio::this_coro::executor)})};
             co_await z->start (host_or_endpoint);
