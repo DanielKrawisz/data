@@ -7,7 +7,7 @@
 #include <data/net/URL.hpp>
 #include <data/net/TCP.hpp>
 #include <data/net/REST.hpp>
-#include <data/tools/parse.hpp>
+#include <data/parse/URL.hpp>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -1247,45 +1247,8 @@ namespace data {
         return i;
     }
 
-    struct read_port_machine {
-        std::uint32_t value = 0;
-        std::size_t digits = 0;
-        bool dead = false;
-
-        bool possible () const {
-            return !dead;
-        }
-
-        bool valid () const {
-            return !dead && digits > 0 && value <= 65535;
-        }
-
-        read_port_machine step (std::string_view prefix, char c) const {
-            read_port_machine next = *this;
-
-            if (!std::isdigit (static_cast<unsigned char> (c))) {
-                next.dead = true;
-                return next;
-            }
-
-            if (digits == 5) {
-                next.dead = true;
-                return next;
-            }
-
-            next.value = value * 10 + (c - '0');
-            next.digits++;
-
-            if (next.value > 65535) {
-                next.dead = true;
-            }
-
-            return next;
-        }
-    };
-
     std::istream &net::operator >> (std::istream &i, net::port &p) {
-        read_port_machine m {};
+        parse::URL::port m {};
         auto result = parse::read_token (i, m);
         if (i) p = net::port {static_cast<uint16> (m.value)};
         return i;
@@ -1425,8 +1388,8 @@ namespace data {
                 // We have already read some hex digits,
                 // but IPv4 expects decimal digits.
                 // So those digits must all be decimal.
-                for (size_t i = prefix.size() - group_digits; i < prefix.size(); ++i) {
-                    next.ipv4 = next.ipv4.step(prefix.substr(0, i), prefix[i]);
+                for (size_t i = prefix.size () - group_digits; i < prefix.size (); ++i) {
+                    next.ipv4 = next.ipv4.step (prefix.substr (0, i), prefix[i]);
                     if (!next.ipv4.possible()) {
                         next.dead = true;
                         return next;
@@ -1434,8 +1397,8 @@ namespace data {
                 }
 
                 // now feed '.'
-                next.ipv4 = next.ipv4.step(prefix, c);
-                if (!next.ipv4.possible())
+                next.ipv4 = next.ipv4.step (prefix, c);
+                if (!next.ipv4.possible ())
                     next.dead = true;
 
                 return next;
@@ -1447,10 +1410,9 @@ namespace data {
     };
 
     using read_ip_machine =
-        parse::machine::alternatives<
+        parse::alternatives<
             read_ipv4_machine,
             read_ipv6_machine>;
-
 
     std::regex ip_v4_regex {"(((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4})"};
     std::regex ip_v6_regex {"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};
@@ -1468,10 +1430,10 @@ namespace data {
     }
 
     using read_endpoint_machine =
-        parse::machine::sequence<
+        parse::sequence<
             read_ip_machine,
-            parse::machine::exactly<':'>,
-            read_port_machine
+            parse::exactly<':'>,
+            parse::URL::port
         >;
 
     std::istream &net::IP::TCP::operator >> (std::istream &i, net::IP::TCP::endpoint &ep) {
