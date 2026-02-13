@@ -2,16 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/tools/parse.hpp"
-#include "data/encoding/hex.hpp"
+#include <data/parse/exactly.hpp>
 #include "gtest/gtest.h"
 #include <regex>
 
 namespace data::parse {
 
     TEST (Parse, Basics) {
-
-        using namespace machine;
 
         EXPECT_FALSE (accept<invalid> (""));
         EXPECT_FALSE (accept<invalid> ("a"));
@@ -41,8 +38,6 @@ namespace data::parse {
 
     TEST (Parse, Optional) {
 
-        using namespace machine;
-
         EXPECT_TRUE  (accept<optional<invalid>> (""));
         EXPECT_FALSE (accept<optional<invalid>> (" "));
         EXPECT_FALSE (accept<optional<invalid>> ("a"));
@@ -51,7 +46,7 @@ namespace data::parse {
         EXPECT_TRUE  (accept<optional<any>> ("a"));
         EXPECT_TRUE  (accept<optional<any>> ("abc"));
 
-        using opt_a = optional<exactly<'a'>>;
+        using opt_a = optional<one<'a'>>;
 
         EXPECT_TRUE  (accept<opt_a> (""));      // zero case
         EXPECT_TRUE  (accept<opt_a> ("a"));     // one case
@@ -61,7 +56,7 @@ namespace data::parse {
         EXPECT_FALSE (accept<opt_a> ("ab"));
         EXPECT_FALSE (accept<opt_a> ("ba"));
 
-        using opt_opt_a = optional<optional<exactly<'a'>>>;
+        using opt_opt_a = optional<optional<one<'a'>>>;
 
         EXPECT_TRUE  (accept<opt_opt_a> (""));
         EXPECT_TRUE  (accept<opt_opt_a> ("a"));
@@ -70,17 +65,15 @@ namespace data::parse {
 
     TEST (Parse, Sequence) {
 
-        using namespace machine;
-
         EXPECT_TRUE  ((accept<sequence<any, any>> ("")));
         EXPECT_TRUE  ((accept<sequence<any, any>> ("a")));
         EXPECT_TRUE  ((accept<sequence<any, any>> ("abc")));
 
-        EXPECT_FALSE ((accept<sequence<exactly<'a'>, exactly<'b'>>> ("")));
-        EXPECT_FALSE ((accept<sequence<exactly<'a'>, exactly<'b'>>> ("a")));
-        EXPECT_TRUE  ((accept<sequence<exactly<'a'>, exactly<'b'>>> ("ab")));
-        EXPECT_FALSE ((accept<sequence<exactly<'a'>, exactly<'b'>>> ("abc")));
-        EXPECT_FALSE ((accept<sequence<exactly<'a'>, exactly<'b'>>> ("b")));
+        EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("")));
+        EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("a")));
+        EXPECT_TRUE  ((accept<sequence<one<'a'>, one<'b'>>> ("ab")));
+        EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("abc")));
+        EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("b")));
 
         using P = sequence<exactly<>, exactly<'a'>>;
 
@@ -90,8 +83,7 @@ namespace data::parse {
 
         using seq_ab_c = sequence<
             exactly<'a','b'>,
-            exactly<'c'>
-        >;
+            exactly<'c'>>;
 
         EXPECT_FALSE (accept<seq_ab_c> (""));
         EXPECT_TRUE  (accept<seq_ab_c> ("abc"));
@@ -103,8 +95,7 @@ namespace data::parse {
 
         using seq_a_bc = sequence<
             exactly<'a'>,
-            exactly<'b','c'>
-        >;
+            exactly<'b','c'>>;
 
         EXPECT_FALSE (accept<seq_a_bc> (""));
         EXPECT_TRUE  (accept<seq_a_bc> ("abc"));
@@ -150,16 +141,14 @@ namespace data::parse {
 
     TEST (Parse, Alternatives) {
 
-        using namespace machine;
-
         EXPECT_FALSE ((accept<alternatives<invalid, invalid>> ("")));
         EXPECT_FALSE ((accept<alternatives<invalid, invalid>> ("a")));
 
-        EXPECT_FALSE ((accept<alternatives<exactly<'a'>, exactly<'b'>>> ("")));
-        EXPECT_TRUE  ((accept<alternatives<exactly<'a'>, exactly<'b'>>> ("a")));
-        EXPECT_TRUE  ((accept<alternatives<exactly<'a'>, exactly<'b'>>> ("b")));
-        EXPECT_FALSE ((accept<alternatives<exactly<'a'>, exactly<'b'>>> ("ab")));
-        EXPECT_FALSE ((accept<alternatives<exactly<'a'>, exactly<'b'>>> ("c")));
+        EXPECT_FALSE ((accept<alternatives<one<'a'>, one<'b'>>> ("")));
+        EXPECT_TRUE  ((accept<alternatives<one<'a'>, one<'b'>>> ("a")));
+        EXPECT_TRUE  ((accept<alternatives<one<'a'>, one<'b'>>> ("b")));
+        EXPECT_FALSE ((accept<alternatives<one<'a'>, one<'b'>>> ("ab")));
+        EXPECT_FALSE ((accept<alternatives<one<'a'>, one<'b'>>> ("c")));
 
         using O = alternatives<
             exactly<'a','b','c'>,
@@ -169,6 +158,8 @@ namespace data::parse {
         EXPECT_TRUE  (accept<O> ("abd"));
         EXPECT_TRUE  (accept<O> ("abc"));
         EXPECT_FALSE (accept<O> ("abe"));
+
+        // this case won't work now but we need to get it to work.
 /*
         using P = sequence<
             alternatives<
@@ -185,18 +176,16 @@ namespace data::parse {
 
     TEST (Parse, Repeated) {
 
-        using namespace machine;
-
         EXPECT_TRUE  (accept<star<any>> (""));
         EXPECT_TRUE  (accept<star<any>> ("a"));
         EXPECT_TRUE  (accept<star<any>> ("abc"));
 
-        EXPECT_TRUE  (accept<star<exactly<'a'>>> (""));
-        EXPECT_TRUE  (accept<star<exactly<'a'>>> ("a"));
-        EXPECT_TRUE  (accept<star<exactly<'a'>>> ("aaaa"));
-        EXPECT_FALSE (accept<star<exactly<'a'>>> ("b"));
-        EXPECT_FALSE (accept<star<exactly<'a'>>> ("aaab"));
-        EXPECT_FALSE (accept<star<exactly<'a'>>> ("baaa"));
+        EXPECT_TRUE  (accept<star<one<'a'>>> (""));
+        EXPECT_TRUE  (accept<star<one<'a'>>> ("a"));
+        EXPECT_TRUE  (accept<star<one<'a'>>> ("aaaa"));
+        EXPECT_FALSE (accept<star<one<'a'>>> ("b"));
+        EXPECT_FALSE (accept<star<one<'a'>>> ("aaab"));
+        EXPECT_FALSE (accept<star<one<'a'>>> ("baaa"));
 
         EXPECT_TRUE  ((accept<star<exactly<>>> ("")));
         EXPECT_TRUE  ((accept<plus<exactly<>>> ("")));
@@ -271,34 +260,20 @@ namespace data::parse {
         EXPECT_FALSE (accept<U> (""));
         EXPECT_FALSE (accept<U> ("aaaa"));
         EXPECT_TRUE  (accept<U> ("aaaaa"));
-/*
-        using R = repeated<repeated<exactly<'a'>>, 2>;
-
-        EXPECT_TRUE (accept<R> (""));
-        EXPECT_TRUE (accept<R> ("a"));
-        EXPECT_TRUE (accept<R> ("aaaa"));*/
     }
 
     TEST (Parse, Backtrack) {
-
-        using namespace machine;
 
         using M = sequence<
             repeated<exactly<'a','b','c','d'>>,
             exactly<'a','b','d'>>;
 
+        EXPECT_TRUE (accept<M> ("abcdabd"));
+
         EXPECT_TRUE  (accept<M> ("abcdabcdabcdabd"));
         EXPECT_FALSE (accept<M> ("abcdabcdabcdab"));
         EXPECT_FALSE (accept<M> ("abcdabcdabcdabx"));
-/*
-        using N = sequence<
-            repeated<exactly<'a','b'>>,
-            exactly<'a'>>;
 
-        EXPECT_TRUE  (accept<N> ("aba"));
-        EXPECT_TRUE  (accept<N> ("ababa"));
-        EXPECT_FALSE (accept<N> ("abab"));
-*/
         using Q = sequence<
             repeated<exactly<'a','b'>>,
             exactly<'b'>
@@ -307,16 +282,36 @@ namespace data::parse {
         EXPECT_TRUE  (accept<Q> ("abb"));
         EXPECT_TRUE  (accept<Q> ("abababb"));
         EXPECT_FALSE (accept<Q> ("ababab"));
-/*
-        using R = sequence<
-            repeated<exactly<'a','a'>>,
-            exactly<'a'>
-        >;
 
-        EXPECT_TRUE  (accept<R> ("aaa"));
-        EXPECT_TRUE  (accept<R> ("aaaaa"));
-        EXPECT_FALSE (accept<R> (""));
-        EXPECT_FALSE (accept<R> ("aa"));*/
+    }
 
+    TEST (Parse, Exactly) {
+
+        EXPECT_TRUE  ((accept<exactly<>> ("")));
+        EXPECT_FALSE ((accept<exactly<>> ("a")));
+
+        EXPECT_TRUE  ((accept<exactly<'a'>> ("a")));
+        EXPECT_FALSE ((accept<exactly<'a'>> ("b")));
+
+        EXPECT_TRUE  ((accept<exactly<'a','b','c'>> ("abc")));
+        EXPECT_FALSE ((accept<exactly<'a','b','c'>> ("ab")));
+        EXPECT_FALSE ((accept<exactly<'a','b','c'>> ("abcd")));
+
+        EXPECT_TRUE  ((accept<exactly<u8'a'>> ("a")));
+        EXPECT_TRUE  ((accept<exactly<U'a'>> ("a")));
+
+        EXPECT_TRUE  ((accept<exactly<'a', u8'b', U'c'>> ("abc")));
+
+        EXPECT_TRUE  ((accept<exactly<U'é'>> (u8"é")));
+        EXPECT_FALSE ((accept<exactly<U'é'>> ("e")));
+
+        EXPECT_TRUE  ((accept<exactly<U'𐍈'>> (u8"𐍈")));
+        EXPECT_FALSE ((accept<exactly<U'𐍈'>> (u8"x")));
+
+        EXPECT_TRUE  ((accept<exactly<'a', U'é', 'z'>> (u8"aéz")));
+        EXPECT_FALSE ((accept<exactly<'a', U'é', 'z'>> (u8"aez")));
+
+        EXPECT_TRUE  ((accept<exactly<U'é', U'ø'>> (u8"éø")));
+        EXPECT_FALSE ((accept<exactly<U'é', U'ø'>> (u8"éa")));
     }
 }

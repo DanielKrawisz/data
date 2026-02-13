@@ -1,6 +1,6 @@
 
-#ifndef DATA_TOOLS_SCHEMA
-#define DATA_TOOLS_SCHEMA
+#ifndef DATA_PARSE_CONTROL
+#define DATA_PARSE_CONTROL
 
 #include <data/concepts.hpp>
 #include <data/tuple.hpp>
@@ -30,8 +30,9 @@ namespace data::parse {
         while (true) {
             int p = in.peek ();
             if (p == traits::eof ()) {
-                if (!state.valid ())
+                if (!state.valid ()) {
                     in.setstate (std::ios::failbit);
+                }
                 return buf;
             }
 
@@ -39,8 +40,13 @@ namespace data::parse {
             State next = state.step (buf, c);
 
             if (!next.possible ()) {
-                if (!next.valid ())
+                if (!next.valid ()) {
                     in.setstate (std::ios::failbit);
+                } else {
+                    in.get ();
+                    buf.push_back (c);
+                }
+
                 return buf;
             }
 
@@ -51,18 +57,20 @@ namespace data::parse {
     }
 
     template <Machine State>
-    bool accept (const std::string &x) {
-        std::stringstream ss {x};
+    bool inline accept (std::stringstream &ss) {
         State state {};
         read_token (ss, state);
-        // if the string was accepted, the stream should
-        // not be in an error state and should be at eof.
-        return bool (ss) && ss.eof ();
+        return bool (ss);
     }
 
-}
+    template <Machine State> bool inline accept (const std::string &x) {
+        std::stringstream ss {x};
+        return accept<State> (ss) && ss.peek () == std::char_traits<char>::eof ();
+    }
 
-namespace data::parse::machine {
+    template <Machine State> bool inline accept (const std::u8string &x) {
+        return accept<State> (std::string (reinterpret_cast<const char*> (x.data ()), x.size ()));
+    }
 
     struct invalid {
 
@@ -94,37 +102,6 @@ namespace data::parse::machine {
         }
     };
 
-    template <char... Cs>
-    struct exactly {
-        static constexpr char pattern[] = { Cs... };
-        static constexpr std::size_t N = sizeof...(Cs);
-
-        std::size_t pos = 0;
-        bool dead = false;
-
-        bool possible () const {
-            return !dead;
-        }
-
-        bool valid () const {
-            return !dead && pos == N;
-        }
-
-        exactly step (string_view, char c) const {
-            exactly next = *this;
-
-            if (pos >= N || c != pattern[pos]) {
-                next.dead = true;
-                return next;
-            }
-
-            next.pos++;
-            return next;
-        }
-    };
-
-    template <char c> using one = exactly<c>;
-
     template <Machine sub, size_t max>
     struct max_size {
         sub Sub;
@@ -144,8 +121,45 @@ namespace data::parse::machine {
 
     };
 
+    template <Machine...> struct sequence;
+
+    using empty = sequence<>;
+
+    template <Machine M>
+    struct sequence<M> {
+        M machine;
+
+        bool possible () const {
+            return machine.possible ();
+        }
+
+        bool valid () const {
+            return machine.valid ();
+        }
+
+        sequence step (string_view prefix, char c) const {
+            return sequence {machine.step (prefix, c)};
+        }
+    };
+
+    template <> struct sequence<> {
+        bool Valid = true;
+
+        bool possible () const {
+            return false;
+        }
+
+        bool valid () const {
+            return Valid;
+        }
+
+        sequence step (string_view prefix, char c) const {
+            return sequence {false};
+        }
+    };
+
     template <Machine M, Machine... Ms>
-    struct sequence {
+    struct sequence<M, Ms...> {
         tuple<M, Ms...> machines;
         size_t active = 0;
 
@@ -238,7 +252,7 @@ namespace data::parse::machine {
                 // if we do not have the minimum required number of repetitions, the
                 // pattern is valid if we have read no characters on the current iteration
                 // and the sub machine is valid (meaning it accepts the empty string.)
-                bool (last) && *last == 0 && read == 0 && repetitions < max;
+                bool (last) && *last == 0 && read == 0 && repetitions <= max;
         }
 
         repeated step (string_view prefix, char c) const;
@@ -252,52 +266,85 @@ namespace data::parse::machine {
     template <Machine M, Machine... Ms>
     sequence<M, Ms...>
     sequence<M, Ms...>::step (string_view prefix, char c) const {
+
         sequence next = *this;
 
-        if (!possible ()) return next;
-
-        if (apply_at (next.machines,
-            [&](auto &m) -> bool {
-                ++next.read;
-                auto pre = prefix.substr (next.accepted, prefix.size () - next.accepted);
-                m = m.step (pre, c);
-                if (m.valid ()) next.last = next.read;
-                return m.possible ();
-            }, next.active)) return next;
+        size_t replay = 0;
 
         while (true) {
+
+            // try to apply the char to the current sequence.
+            if (apply_at (next.machines,
+                [&](auto &m) -> bool {
+
+                    // we never do this in the initial round of the loop.
+                    for (int i = 0; i < replay; i++) {
+                        ++next.read;
+                        if (!next.possible ()) return true;
+
+                        // we drop the characters accepted by previous
+                        // patterns in this sequence.
+                        m = m.step (prefix.substr (next.accepted, i), prefix[next.accepted + i]);
+
+                        bool is_valid = m.valid ();
+                        if (is_valid) next.last = next.read;
+
+                        // if it not possible to advance the pattern, then
+                        // we have to replay variables.
+                        if (!m.possible ()) return false;
+                    }
+
+                    // advance the number of characters read.
+                    // this will invalidate the pattern if it was valid.
+                    ++next.read;
+
+                    // if it not possible to accept another character,
+                    // then we stop and return an invalid pattern.
+                    if (!next.possible ()) return true;
+
+                    m = m.step (prefix.substr (next.accepted, prefix.size () - next.accepted), c);
+                    bool is_valid = m.valid ();
+                    // We note where the pattern is last valid so that
+                    // we can later replay chars if we need to.
+                    if (is_valid) next.last = next.read;
+                    // if it is impossible to add more characters and
+                    // the sub pattern is not valid, then we have to
+                    // replay the current character and maybe some earlier
+                    // ones to the next machine. Otherwise we can continue.
+                    return m.possible () ? true : is_valid;
+                }, next.active)) return next;
+
             // if there was no last valid state, then we
-            // make the next state invalid and return.
+            // invalidate this pattern and return.
             if (!bool (next.last)) {
                 next.active = sizeof... (Ms) + 1;
                 return next;
             }
 
-            ++next.active;
             next.accepted = *next.last;
+
+            // increment active index.
+            ++next.active;
+
+            // In this case we have to be done because
+            // we are at the end of the sequence.
+            if (next.active > sizeof... (Ms)) return next;
+
+            // revert the number of read characters to the number of accepted characters.
+            // we have to replay from here through the prefix.
             next.read = next.accepted;
 
-            if (!next.possible ()) return next;
+            // in this case, the latest character has been accepted by the previous
+            // pattern, so we stop here. (can this really happen now?)
+            if (next.accepted > prefix.size ()) return next;
 
-            if (apply_at (next.machines,
-                [&](auto &m) -> bool {
-                    if (!m.valid ()) next.last = maybe<int> {};
+            replay = prefix.size () - next.accepted;
 
-                    for (int i = next.accepted; i < prefix.size (); i++) {
-                        ++next.read;
-                        auto pre = prefix.substr (next.accepted, i - next.accepted);
-                        m = m.step (pre, prefix[i]);
-                        if (m.valid ()) next.last = next.read;
-                        if (!m.possible ()) return false;
-                    }
-
-                    ++next.read;
-
-                    auto pre = prefix.substr (next.accepted, prefix.size () - next.accepted);
-                    m = m.step (pre, c);
-                    if (m.valid ()) next.last = next.read;
-                    return m.possible ();
-                }, next.active)) return next;
+            // we now set the last point appropriately.
+            apply_at (next.machines,
+                [&](auto &m) {
+                    next.last = m.valid () ? maybe<int> {0} : maybe<int> {};
+                }, next.active);
         }
     }
 
@@ -305,16 +352,14 @@ namespace data::parse::machine {
     requires (min <= max)
     repeated<Sub, min, max> repeated<Sub, min, max>::step (string_view prefix, char c) const {
 
-        if (!possible ()) return *this;
-
         repeated next = *this;
 
         while (true) {
+
             ++next.read;
             if (!next.possible ()) return next;
 
-            auto pre = prefix.substr (next.previously_accepted, prefix.size () - next.previously_accepted);
-            next.machine = next.machine.step (pre, c);
+            next.machine = next.machine.step (prefix.substr (next.previously_accepted, prefix.size () - next.previously_accepted), c);
 
             if (next.machine.valid ()) next.last = next.read;
 
@@ -332,6 +377,8 @@ namespace data::parse::machine {
             next.last = next.machine.valid () ? maybe<size_t> {0} : maybe<size_t> {};
             next.read = 0;
 
+            // in this case, the char was accepted and
+            if (next.previously_accepted > prefix.size ()) return next;
             // replay all characters from the last valid state until now.
             for (int i = next.previously_accepted; i < prefix.size (); i++) {
                 ++next.read;
