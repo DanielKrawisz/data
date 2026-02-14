@@ -23,7 +23,7 @@ namespace data::parse {
             >...
         >;
 
-    template <char c> using one = exactly<c>;
+    template <auto c> struct one : exactly<c> {};
 
 }
 

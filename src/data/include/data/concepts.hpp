@@ -11,10 +11,6 @@
 
 namespace data {
 
-    // the main purpose of this file is to create concepts for implicit and explicit conversions.
-    // Sometimes I like to different types to pass on conversions from a sub-type and if I do
-    // that I want to know which are explicit and which are implicit.
-
     template <typename ...types> struct is_same;
     template <> struct is_same<> : std::true_type {};
     template <typename type> struct is_same<type> : std::true_type {};
@@ -25,6 +21,7 @@ namespace data {
     template <typename A, typename B, typename ...types> struct is_same<A, B, types...> :
         std::bool_constant<is_same<A, B>::value && is_same<B, types...>::value> {};
 
+    // works like std::same_as but can take any number of parameters.
     template <typename... T> concept Same = is_same<T...>::value;
 
     template <typename ...types> struct is_unsame;
@@ -40,7 +37,6 @@ namespace data {
     // check if any number of types are the same.
     template <typename... T> concept Unsame = is_unsame<T...>::value;
 
-    // types containing static members that say whether one type is constructible.
     template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
     template <typename Type, typename Argument> inline constexpr bool is_constructible_v = std::is_constructible<Type, Argument>::value;
     template <typename Type, typename Argument> concept ConstructibleFrom = std::constructible_from<Type, Argument>;
@@ -49,11 +45,14 @@ namespace data {
 
     template <typename From, typename To> inline constexpr bool is_implicitly_convertible_v = is_implicitly_convertible<From, To>::value;
 
-    // A => B is B || !A
-
+    // std::convertible_to means implicitly convertible.
+    // we define concepts for implicit conversions, explicit conversions, or either.
     template <typename From, typename To>
     concept ImplicitlyConvertible =
         std::is_convertible_v<From, To> /*&&
+        // this stuff is all commented out because I changed my mind and
+        // didn't want it but I didn't want to lose all the work I spent
+        // making it.
         // if both are integers, then
         //    * To is at least as big as From and has the same signedness
         //    * To is bigger than From and is signed if From is signed.
@@ -87,6 +86,11 @@ namespace data {
             { To (from) };
         };
 
+    template <typename Type> concept Copyable = std::is_constructible_v<Type, Type>;
+
+    // is a reference type.
+    template <typename Type> concept Reference = std::is_reference_v<Type>;
+
     template <typename Type, typename Argument>
     struct is_implicitly_constructible :
         std::bool_constant<is_constructible_v<Type, Argument> &&
@@ -111,8 +115,6 @@ namespace data {
 
     template <typename Type> concept member_function_pointer = std::is_member_function_pointer_v<Type>;
 
-    template <typename Type> concept Reference = std::is_reference_v<Type>;
-
     template <typename Type> struct is_effectively_const : std::false_type {};
 
     template <typename Type> inline constexpr bool is_effectively_const_v = is_effectively_const<Type>::value;
@@ -124,13 +126,15 @@ namespace data {
     template <typename Type> struct is_effectively_const<const Type> : std::true_type {};
     template <typename Type> struct is_effectively_const<Type *const> : std::true_type {};
 
+    // any type beginning with const and any reference or rvalue reference.
     template <typename Type> concept Const = is_effectively_const_v<Type>;
-
-    template <typename Type> concept Copyable = std::is_constructible_v<Type, Type>;
 
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
 
 }
+
+#define REQUIRE_CONSTEXPR(EXPR) \
+    [&]() constexpr { (void)(EXPR); } ()
 
 #endif

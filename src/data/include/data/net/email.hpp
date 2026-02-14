@@ -20,15 +20,20 @@ namespace data::net::email {
     struct message;
     struct header;
 
+    std::istream &operator >> (std::istream &, address &);
+    std::istream &operator >> (std::istream &, mailbox &);
+    std::istream &operator >> (std::istream &, message &);
+    std::istream &operator >> (std::istream &, header &);
+
     writer<byte> &operator << (writer<byte> &, const address &);
     writer<byte> &operator << (writer<byte> &, const mailbox &);
     writer<byte> &operator << (writer<byte> &, const message &);
     writer<byte> &operator << (writer<byte> &, const header &);
 
-    reader<byte> &operator >> (reader<byte> &, const address &);
-    reader<byte> &operator >> (reader<byte> &, const mailbox &);
-    reader<byte> &operator >> (reader<byte> &, const message &);
-    reader<byte> &operator >> (reader<byte> &, const header &);
+    reader<byte> &operator >> (reader<byte> &, address &);
+    reader<byte> &operator >> (reader<byte> &, mailbox &);
+    reader<byte> &operator >> (reader<byte> &, message &);
+    reader<byte> &operator >> (reader<byte> &, header &);
 
     struct address : ASCII {
         using ASCII::ASCII;
@@ -573,6 +578,7 @@ namespace data::net::email {
     inline resent_bcc::resent_bcc (list<address> x) : header {field::resent_bcc, string_join (riffle (x, ", "))} {}
 
     inline received::received (const string &token, const date_time &time): header {field::received, token + "; " + time} {}
+
 }
 
 

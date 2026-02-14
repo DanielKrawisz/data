@@ -19,6 +19,7 @@ namespace data::net {
     struct URL;
 
     std::ostream &operator << (std::ostream &, const URL &);
+    std::istream &operator >> (std::istream &, URL &);
 
     bool operator == (const URL &, const URL &);
 
@@ -26,6 +27,7 @@ namespace data::net {
     struct protocol;
 
     std::ostream &operator << (std::ostream &, const protocol &);
+    std::istream &operator >> (std::istream &, protocol &);
 
     bool operator == (const protocol &, const protocol &);
 
@@ -53,11 +55,13 @@ namespace data::net {
     struct path;
 
     std::ostream &operator << (std::ostream &, const path &);
+    std::istream &operator >> (std::istream &, path &);
 
     // the path all the way to the end.
     struct target;
 
     std::ostream &operator << (std::ostream &, const target &);
+    std::istream &operator >> (std::istream &, target &);
 
     bool operator == (const target &, const target &);
 
@@ -65,6 +69,7 @@ namespace data::net {
     struct authority;
 
     std::ostream &operator << (std::ostream &, const authority &);
+    std::istream &operator >> (std::istream &, authority &);
 
     bool operator == (const authority &, const authority &);
 
