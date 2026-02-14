@@ -65,11 +65,11 @@ namespace data::parse::IP {
             return (saw_double_colon && groups < 7) || groups == 7;
         }
 
-        constexpr int step (std::string_view prefix, char c) {
+        constexpr void step (std::string_view prefix, char c) {
             if (in_ipv4) {
                 ipv4.step (prefix.substr (ipv4_start, prefix.size () - ipv4_start), c);
                 if (!ipv4.possible () && !ipv4.valid ()) dead = true;
-                return 1;
+                return;
             }
 
             auto is_hex = [] (char x) {
@@ -79,7 +79,7 @@ namespace data::parse::IP {
             if (is_hex (c)) {
                 if (group_digits == 4) {
                     dead = true;
-                    return 1;
+                    return;
                 }
 
                 group_digits++;
@@ -88,23 +88,24 @@ namespace data::parse::IP {
                 if (prefix.size () == 1 && last_colon) dead = true;
 
                 last_colon = false;
-                return 1;
+                return;
             }
 
             if (c == ':') {
                 if (last_colon) {
                     if (saw_double_colon) {
                         dead = true;
-                        return 1;
+                        return;
                     }
+
                     saw_double_colon = true;
                     last_colon = false;
-                    return 1;
+                    return;
                 }
 
                 if (group_digits == 0 && prefix.size () > 0) {
                     dead = true;
-                    return 1;
+                    return;
                 }
 
                 groups++;
@@ -114,13 +115,14 @@ namespace data::parse::IP {
                 if (groups > 7 || saw_double_colon && groups > 6) {
                     dead = true;
                 }
-                return 1;
+
+                return;
             }
 
             if (c == '.') {
                 if (group_digits == 0) {
                     dead = true;
-                    return 1;
+                    return;
                 }
 
                 if (!saw_double_colon) {
@@ -142,16 +144,16 @@ namespace data::parse::IP {
                     ipv4.step (prefix.substr (ipv4_start, i - ipv4_start), prefix[i]);
                     if (!ipv4.possible ()) {
                         dead = true;
-                        return 1;
+                        return;
                     }
                 }
 
                 // now feed '.'
-                return ipv4.step (prefix.substr (ipv4_start, prefix.size () - ipv4_start), c);
+                ipv4.step (prefix.substr (ipv4_start, prefix.size () - ipv4_start), c);
+                return;
             }
 
             dead = true;
-            return 1;
         }
     };
 
