@@ -14,65 +14,64 @@ namespace data::parse::UTF8 {
         bool consumed = false;
         bool ok = true;
 
-        bool possible () const {
+        constexpr bool possible () const {
             return ok && !consumed;
         }
 
-        bool valid () const {
+        constexpr bool valid () const {
             return ok && consumed;
         }
 
-        predicate step (string_view, char c) const {
+        constexpr int step (string_view, char c) {
 
-            predicate next = *this;
             unsigned char uc = static_cast<unsigned char>(c);
 
             if (!ok || consumed) {
-                next.ok = false;
-                return next;
+                ok = false;
+                return 1;
             }
 
             // First byte
             if (seen == 0) {
                 if ((uc & 0x80) == 0x00) {
                     // 1-byte ASCII
-                    next.codepoint = uc;
-                    next.consumed = Predicate {} (next.codepoint);
-                    next.ok = next.consumed;
-                    return next;
+                    codepoint = uc;
+                    consumed = Predicate {} (codepoint);
+                    ok = consumed;
+                    return 1;
                 } else if ((uc & 0xE0) == 0xC0) {
-                    next.codepoint = uc & 0x1F;
-                    next.expected = 2;
+                    codepoint = uc & 0x1F;
+                    expected = 2;
                 } else if ((uc & 0xF0) == 0xE0) {
-                    next.codepoint = uc & 0x0F;
-                    next.expected = 3;
+                    codepoint = uc & 0x0F;
+                    expected = 3;
                 } else if ((uc & 0xF8) == 0xF0) {
-                    next.codepoint = uc & 0x07;
-                    next.expected = 4;
+                    codepoint = uc & 0x07;
+                    expected = 4;
                 } else {
-                    next.ok = false;
-                    return next;
+                    ok = false;
+                    return 1;
                 }
 
-                next.seen = 1;
-                return next;
+                seen = 1;
+                return 1;
             }
 
             // Continuation byte
             if ((uc & 0xC0) != 0x80) {
-                next.ok = false;
-                return next;
+                ok = false;
+                return 1;
             }
 
-            next.codepoint = (next.codepoint << 6) | (uc & 0x3F);
-            ++next.seen;
+            codepoint = (codepoint << 6) | (uc & 0x3F);
+            ++seen;
 
-            if (next.seen == next.expected) {
-                next.consumed = Predicate {} (next.codepoint);
-                next.ok = next.consumed;
+            if (seen == expected) {
+                consumed = Predicate {} (codepoint);
+                ok = consumed;
             }
 
-            return next;
+            return 1;
         }
     };
 
@@ -121,20 +120,20 @@ namespace data::parse::UTF8 {
         }
     };
 
-    using any             = predicate<valid_utf8>;
+    struct any             : predicate<valid_utf8> {};
 
-    using printable       = predicate<printable_utf8>;
+    struct printable       : predicate<printable_utf8> {};
 
     template <uint32_t Min, uint32_t Max>
-    using range           = predicate<in_range<Min, Max>>;
+    struct range           : predicate<in_range<Min, Max>> {};
 
-    using ascii           = range<0x00, 0x7F>;
+    struct ascii           : range<0x00, 0x7F> {};
 
-    using printable_ascii = range<0x20, 0x7E>;
+    struct printable_ascii : range<0x20, 0x7E> {};
 
-    using digit           = range<'0', '9'>;
+    struct digit           : range<'0', '9'> {};
 
-    using alpha           = predicate<either<in_range<'A', 'Z'>, in_range<'a', 'z'>>>;
+    struct alpha           : predicate<either<in_range<'A', 'Z'>, in_range<'a', 'z'>>> {};
 
 }
 

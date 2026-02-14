@@ -3,6 +3,7 @@
 #define DATA_PARSE_URL
 
 #include <data/parse/hex.hpp>
+#include <data/parse/IP.hpp>
 
 namespace data::parse::URL {
 
@@ -18,7 +19,7 @@ namespace data::parse::URL {
         }
     };
 
-    using unreserved = predicate<is_unreserved>;
+    struct unreserved : predicate<is_unreserved> {};
 
     struct is_gen_delim {
         bool operator () (uint32 c) const {
@@ -47,85 +48,74 @@ namespace data::parse::URL {
 
     using is_reserved = either<is_gen_delim, is_sub_delim>;
 
-    using gen_delims = predicate<is_gen_delim>;
-    using sub_delims = predicate<is_sub_delim>;
-    using reserved = predicate<is_reserved>;
+    struct gen_delim : predicate<is_gen_delim> {};
+    struct sub_delim : predicate<is_sub_delim> {};
+    struct reserved : predicate<is_reserved> {};
 
-    using pct_encoded =
+    struct pct :
         sequence<
             one<'%'>,
             hex_digit,
-            hex_digit>;
+            hex_digit> {};
 
-    using pchar =
+    struct pchar :
         alternatives<
             unreserved,
-            pct_encoded,
-            sub_delims,
+            pct,
+            sub_delim,
             one<':'>,
-            one<'@'>>;
+            one<'@'>> {};
 
-    using segment    = star<pchar>;
-    using segment_nz = plus<pchar>;
+    struct segment    : star<pchar> {};
+    struct segment_nz : plus<pchar> {};
 
-    using path_abempty = star<sequence<one<'/'>, segment>>;
+    struct segment_nz_nc : plus<alternatives<unreserved, pct, sub_delim, one<'@'>>> {};
 
-    using path_absolute = sequence<one<'/'>, optional<sequence<segment_nz, star<sequence<one<'/'>, segment>>>>>;
+    struct path_abempty : star<sequence<one<'/'>, segment>> {};
 
-    using query_char = alternatives<pchar, one<'/'>, one<'?'>>;
+    struct path_rootless : alternatives<segment_nz, path_abempty> {};
 
-    using query = star<query_char>;
+    struct path_absolute : sequence<one<'/'>, optional<sequence<segment_nz, star<sequence<one<'/'>, segment>>>>> {};
 
-    using domain_label = max_size<sequence<plus<alnum>, star<sequence<hyphen, plus<alnum>>>>, 63>;
+    struct path_after_authority : path_abempty {};
 
-    using domain_name = max_size<sequence<domain_label, repeated<sequence<dot, domain_label>>>, 253>;
+    struct reg_name : star<alternatives<unreserved, pct, sub_delim>> {};
 
-    using fragment = star<query_char>;
+    struct scheme : sequence<alpha, star<alternatives<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
 
-    using userinfo =
-        star<
-            alternatives<
-                unreserved,
-                pct_encoded,
-                sub_delims,
-                one<':'>>>;
+    struct query_char : alternatives<pchar, one<'/'>, one<'?'>> {};
 
-    struct port {
-        std::uint32_t value = 0;
-        std::size_t digits = 0;
-        bool dead = false;
+    struct query : star<query_char> {};
 
-        bool possible () const {
-            return !dead;
-        }
+    struct fragment : star<query_char> {};
 
-        bool valid () const {
-            return !dead && digits > 0 && value <= 65535;
-        }
+    struct domain_label : max_size<sequence<plus<alnum>, star<sequence<hyphen, plus<alnum>>>>, 63> {};
 
-        port step (std::string_view prefix, char c) const {
-            port next = *this;
+    struct domain_name : max_size<sequence<domain_label, repeated<sequence<dot, domain_label>>>, 253> {};
 
-            if (!std::isdigit (static_cast<unsigned char> (c))) {
-                next.dead = true;
-                return next;
-            }
+    struct userinfo : star<alternatives<
+        unreserved,
+        pct,
+        sub_delim,
+        one<':'>>> {};
 
-            if (digits == 5) {
-                next.dead = true;
-                return next;
-            }
+    struct ip_future : sequence<one<'v'>, plus<hex>, one<'.'>, plus<alternatives<unreserved, sub_delim, one<':'>>>> {};
 
-            next.value = value * 10 + (c - '0');
-            next.digits++;
+    struct ip_literal : sequence<one<'['>, alternatives<IP::V6, ip_future>, one<']'>> {};
 
-            if (next.value > 65535) {
-                next.dead = true;
-            }
+    struct host : alternatives<ip_literal, IP::V4, reg_name> {};
 
-            return next;
-        }
-    };
+    struct authority : sequence<optional<sequence<userinfo, one<'@'>>>, host, optional<sequence<one<':'>, IP::port>>> {};
+
+    struct path : alternatives<path_after_authority, path_absolute, path_rootless> {};
+
+    struct hierarchical : alternatives<sequence<exactly<'/', '/'>, authority, path_after_authority>, path_absolute, path_rootless> {};
+
+    struct target : sequence<alternatives<path_after_authority, path_absolute, path_rootless>,
+        optional<sequence<one<'?'>, query>>,
+        optional<sequence<one<'#'>, fragment>>> {};
+
+    struct uri : sequence<scheme, one<':'>, hierarchical, optional<sequence<one<'?'>, query>>, optional<sequence<one<'#'>, fragment>>> {};
 }
 
 #endif

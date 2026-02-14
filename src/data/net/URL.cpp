@@ -1154,295 +1154,34 @@ namespace data {
         }
     };
 
-    struct read_domain_machine {
-        enum class phase {
-            start_label,
-            in_label,
-            after_dot,
-            dead
-        };
-
-        phase p = phase::start_label;
-
-        char last = ' ';
-
-        std::size_t label_len = 0;
-        std::size_t total_len = 0;
-
-        bool any_label = false;
-
-        bool possible () const {
-            return p != phase::dead;
-        }
-
-        bool valid () const {
-            return any_label && p == phase::in_label && last != '-';
-        }
-
-        read_domain_machine step (std::string_view prefix, char c) const {
-            read_domain_machine next = *this;
-            next.total_len++;
-
-            if (next.total_len > 253) {
-                next.p = phase::dead;
-                return next;
-            }
-
-            auto is_alnum = [](char x) {
-                return std::isalnum (static_cast<unsigned char> (x));
-            };
-
-            switch (p) {
-                case phase::start_label:
-                    if (is_alnum (c)) {
-                        next.p = phase::in_label;
-                        next.label_len = 1;
-                        next.any_label = true;
-                    } else {
-                        next.p = phase::dead;
-                    }
-                    break;
-
-                case phase::in_label:
-                    if (is_alnum (c)) {
-                        if (++next.label_len > 63)
-                            next.p = phase::dead;
-                    } else if (c == '-') {
-                        if (++next.label_len > 63)
-                            next.p = phase::dead;
-                    } else if (c == '.') {
-                        if (!is_alnum (prefix[prefix.size () - 1]))
-                            next.p = phase::dead;
-                        else {
-                            next.p = phase::after_dot;
-                            next.label_len = 0;
-                        }
-                    } else {
-                        next.p = phase::dead;
-                    }
-                    break;
-
-                case phase::after_dot:
-                    if (is_alnum (c)) {
-                        next.p = phase::in_label;
-                        next.label_len = 1;
-                    } else {
-                        next.p = phase::dead;
-                    }
-                    break;
-
-                case phase::dead:
-                    break;
-            }
-
-            next.last = c;
-            return next;
-        }
-    };
-
     std::istream &net::operator >> (std::istream &i, net::domain_name &dom) {
-        read_domain_machine m {};
+        parse::URL::domain_name m {};
         auto result = parse::read_token (i, m);
         if (i) dom = net::domain_name {result};
         return i;
     }
 
     std::istream &net::operator >> (std::istream &i, net::port &p) {
-        parse::URL::port m {};
+        parse::IP::port m {};
         auto result = parse::read_token (i, m);
         if (i) p = net::port {static_cast<uint16> (m.value)};
         return i;
     }
 
-    struct read_ipv4_machine {
-        int octet = 0;
-        int octet_digits = 0;
-        int octets_seen = 0;
-        bool dead = false;
-
-        bool possible () const {
-            return !dead;
-        }
-
-        bool valid () const {
-            return !dead &&
-            octets_seen == 3 &&
-            octet_digits > 0 &&
-            octet <= 255;
-        }
-
-        read_ipv4_machine step (std::string_view, char c) const {
-            read_ipv4_machine next = *this;
-
-            if (std::isdigit(static_cast<unsigned char>(c))) {
-                if (octet_digits == 3) {
-                    next.dead = true;
-                    return next;
-                }
-
-                next.octet = octet * 10 + (c - '0');
-                next.octet_digits++;
-
-                if (next.octet > 255) {
-                    next.dead = true;
-                }
-                return next;
-            }
-
-            if (c == '.') {
-                if (octet_digits == 0 || octet > 255 || octets_seen == 3) {
-                    next.dead = true;
-                    return next;
-                }
-
-                next.octets_seen++;
-                next.octet = 0;
-                next.octet_digits = 0;
-                return next;
-            }
-
-            next.dead = true;
-            return next;
-        }
-    };
-
-    struct read_ipv6_machine {
-        int groups = 0;
-        int group_digits = 0;
-        bool saw_double_colon = false;
-        bool last_colon = false;
-        bool dead = false;
-        bool in_ipv4 = false;
-        read_ipv4_machine ipv4;
-
-        bool possible () const {
-            return !dead;
-        }
-
-        bool valid () const {
-            if (dead) return false;
-            if (in_ipv4) return ipv4.valid ();
-            if (last_colon && !saw_double_colon) return false;
-            return saw_double_colon || groups == 7;
-        }
-
-        read_ipv6_machine step(std::string_view prefix, char c) const {
-            read_ipv6_machine next = *this;
-
-            if (in_ipv4) {
-                next.ipv4 = ipv4.step (prefix, c);
-                if (!next.ipv4.possible())
-                    next.dead = true;
-                return next;
-            }
-
-            auto is_hex = [] (char x) {
-                return std::isxdigit (static_cast<unsigned char> (x));
-            };
-
-            if (is_hex (c)) {
-                if (group_digits == 4) {
-                    next.dead = true;
-                    return next;
-                }
-                next.group_digits++;
-                next.last_colon = false;
-                return next;
-            }
-
-            if (c == ':') {
-                if (last_colon) {
-                    if (saw_double_colon) {
-                        next.dead = true;
-                        return next;
-                    }
-                    next.saw_double_colon = true;
-                    next.last_colon = false;
-                    return next;
-                }
-
-                if (group_digits == 0 && prefix.size () > 0) {
-                    next.dead = true;
-                    return next;
-                }
-
-                next.groups++;
-                next.group_digits = 0;
-                next.last_colon = true;
-
-                if (next.groups > 7) {
-                    next.dead = true;
-                }
-                return next;
-            }
-
-            if (c == '.') {
-                if (group_digits == 0) {
-                    next.dead = true;
-                    return next;
-                }
-
-                // switch to IPv4 mode
-                next.in_ipv4 = true;
-
-                // We have already read some hex digits,
-                // but IPv4 expects decimal digits.
-                // So those digits must all be decimal.
-                for (size_t i = prefix.size () - group_digits; i < prefix.size (); ++i) {
-                    next.ipv4 = next.ipv4.step (prefix.substr (0, i), prefix[i]);
-                    if (!next.ipv4.possible()) {
-                        next.dead = true;
-                        return next;
-                    }
-                }
-
-                // now feed '.'
-                next.ipv4 = next.ipv4.step (prefix, c);
-                if (!next.ipv4.possible ())
-                    next.dead = true;
-
-                return next;
-            }
-
-            next.dead = true;
-            return next;
-        }
-    };
-
-    using read_ip_machine =
-        parse::alternatives<
-            read_ipv4_machine,
-            read_ipv6_machine>;
-
-    std::regex ip_v4_regex {"(((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4})"};
-    std::regex ip_v6_regex {"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};
-
     std::istream &net::IP::operator >> (std::istream &i, net::IP::address &addr) {
-        read_ip_machine m {};
+        parse::IP::address m {};
         auto result = parse::read_token (i, m);
-
-        // we have ths here because read_ip_machine is not the best atm
-        if (!std::regex_match (result, ip_v4_regex) && ! std::regex_match (result, ip_v6_regex))
-            i.setstate (std::ios::failbit);
 
         if (i) addr = net::IP::address {result};
         return i;
     }
 
-    using read_endpoint_machine =
-        parse::sequence<
-            read_ip_machine,
-            parse::exactly<':'>,
-            parse::URL::port
-        >;
-
     std::istream &net::IP::TCP::operator >> (std::istream &i, net::IP::TCP::endpoint &ep) {
-        read_endpoint_machine m {};
+        parse::IP::endpoint m {};
         auto result = parse::read_token (i, m);
         if (i) ep = net::IP::TCP::endpoint {result};
         return i;
     }
-
 
 }
 
