@@ -86,6 +86,8 @@ target_link_libraries (
   Data::core
   Boost::boost
   ctre
+  Boost::log_setup
+  Boost::log
 )
 
 target_sources (
