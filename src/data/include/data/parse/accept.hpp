@@ -5,6 +5,7 @@
 #include <data/concepts.hpp>
 #include <data/types.hpp>
 #include <istream>
+#include <data/io/log.hpp>
 
 namespace data::parse {
 
@@ -18,7 +19,7 @@ namespace data::parse {
         { [] (const M &m) constexpr { return m.possible (); } (m) } -> Same<bool>;
     } && requires (M &m, string_view v, char c) {
         // return the amount of backtracking required.
-        { [] (M &m, string_view v, char c) constexpr { return m.step (v, c); } (m, v, c) } -> Same<int>;
+        { [] (M &m, string_view v, char c) constexpr { return m.step (v, c); } (m, v, c) };
     };
 
     // NOTE: because PEGTL is a stateless parser, you can't use it
@@ -53,9 +54,11 @@ namespace data::parse {
 
     template <Machine State>
     constexpr string_view read_token (const char *in, State &state) {
+        DATA_LOG (normal) << "try to match string " << in;
         size_t i = 0;
         char c;
         while ((c = in[i]) != '\0') {
+            DATA_LOG (normal) << "read char " << c;
             state.step (string_view {in, i}, c);
             i++;
             if (!state.possible ()) break;

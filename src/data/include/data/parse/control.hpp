@@ -39,23 +39,9 @@ namespace data::parse {
     template <Machine... Ms> struct alternatives {
         std::tuple<Ms...> machines;
 
-        std::size_t active = 0;
-
-        constexpr bool possible () const {
-            if (active >= sizeof... (Ms)) return false;
-            return apply_at (machines, [] (const auto &x) -> bool {
-                return x.possible ();
-            }, active);
-        }
-
-        constexpr bool valid () const {
-            if (active >= sizeof... (Ms)) return false;
-            return apply_at (machines, [] (const auto &x) -> bool {
-                return x.valid ();
-            }, active);
-        }
-
-        constexpr int step (string_view prefix, char c);
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr void step (string_view prefix, char c);
 
     };
 
@@ -64,36 +50,18 @@ namespace data::parse {
         sub Sub;
         size_t Size;
 
-        constexpr bool possible () const {
-            return Sub.possible () && Size <= max;
-        }
-
-        constexpr bool valid () const {
-            return Sub.valid () && Size <= max;
-        }
-
-        constexpr int step (string_view prefix, char c) {
-            Size++;
-            int backtrack = Sub.step (prefix, c);
-            return Size <= max ? backtrack : 0;
-        }
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr void step (string_view prefix, char c);
 
     };
 
     template <Machine M> struct sequence<M> {
         M machine;
 
-        constexpr bool possible () const {
-            return machine.possible ();
-        }
-
-        constexpr bool valid () const {
-            return machine.valid ();
-        }
-
-        constexpr int step (string_view prefix, char c) {
-            return machine.step (prefix, c);
-        }
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr void step (string_view prefix, char c);
     };
 
     template <> struct sequence<> {
@@ -107,9 +75,8 @@ namespace data::parse {
             return Valid;
         }
 
-        constexpr int step (string_view prefix, char c) {
+        constexpr void step (string_view prefix, char c) {
             Valid = false;
-            return 0;
         }
     };
 
@@ -147,7 +114,7 @@ namespace data::parse {
             return true;
         }
 
-        constexpr int step (string_view prefix, char c);
+        constexpr void step (string_view prefix, char c);
     };
 
     template <Machine Sub, size_t min, size_t max>
@@ -187,7 +154,7 @@ namespace data::parse {
                 bool (last) && *last == 0 && read == 0 && repetitions <= max;
         }
 
-        constexpr int step (string_view prefix, char c);
+        constexpr void step (string_view prefix, char c);
 
     };
 
@@ -215,12 +182,74 @@ namespace data::parse {
         return 1;
     }
 
+    template <Machine M>
+    constexpr bool sequence<M>::possible () const {
+        return machine.possible ();
+    }
+
+    template <Machine M>
+    constexpr bool sequence<M>::valid () const {
+        return machine.valid ();
+    }
+
+    template <Machine M>
+    constexpr void sequence<M>::step (string_view prefix, char c) {
+        return machine.step (prefix, c);
+    }
+
+    // the machine is possible if any sub machine is possible.
+    template <Machine... Ms>
+    constexpr bool inline alternatives<Ms...>::possible () const {
+        log::indent qqq {};
+        DATA_LOG (normal) << "alternatives: test possible";
+        for (int i = 0; i < sizeof... (Ms); i++)
+            if (apply_at (machines, [] (const auto &m) { return m.possible (); }, i)) return true;
+        return false;
+    }
+
+    // and valid if any sub machine is valid.
+    template <Machine... Ms>
+    constexpr bool inline alternatives<Ms...>::valid () const {
+        log::indent qqq {};
+        DATA_LOG (normal) << "alternatives: test valid";
+        for (int i = 0; i < sizeof... (Ms); i++)
+            if (apply_at (machines, [] (const auto &m) { return m.valid (); }, i)) return true;
+        return false;
+    }
+
+    template <Machine... Ms>
+    constexpr void alternatives<Ms...>::step (string_view prefix, char c) {
+        log::indent qqq {};
+        DATA_LOG (normal) << "alternatives: read char " << c;
+        for_each (machines, [&] (auto &m) { m.step (prefix, c); });
+    }
+
+    template <Machine sub, size_t max>
+    constexpr bool inline max_size<sub, max>::possible () const {
+        return Sub.possible () && Size <= max;
+    }
+
+    template <Machine sub, size_t max>
+    constexpr bool inline max_size<sub, max>::valid () const {
+        return Sub.valid () && Size <= max;
+    }
+
+    template <Machine sub, size_t max>
+    constexpr void inline max_size<sub, max>::step (string_view prefix, char c) {
+        Size++;
+        Sub.step (prefix, c);
+    }
+
     // TODO we incorrectly always return 1 here. In this commit,
     // we are ignoring the return value of step. We will get all
     // current tests working and then use the return value correctly.
     template <Machine M, Machine... Ms>
-    constexpr int sequence<M, Ms...>::step (string_view prefix, char c) {
+    constexpr void sequence<M, Ms...>::step (string_view prefix, char c) {
         size_t replay = 0;
+        log::indent qqq {};
+        DATA_LOG (normal) << "sequence: read char " << c << "; active index is " << active << "; number of machines is " << (sizeof ...(Ms)) + 1;
+
+        if (active > sizeof ... (Ms)) return;
 
         while (true) {
 
@@ -267,13 +296,13 @@ namespace data::parse {
                     // replay the current character and maybe some earlier
                     // ones to the next machine. Otherwise we can continue.
                     return m.possible () ? true : is_valid;
-                }, active)) return 1;
+                }, active)) return;
 
             // if there was no last valid state, then we
             // invalidate this pattern and return.
             if (!bool (last)) {
                 active = sizeof... (Ms) + 1;
-                return 1;
+                return;
             }
 
             accepted = *last;
@@ -283,7 +312,7 @@ namespace data::parse {
 
             // In this case we have to be done because
             // we are at the end of the sequence.
-            if (active > sizeof... (Ms)) return 1;
+            if (active > sizeof... (Ms)) return;
 
             // revert the number of read characters to the number of accepted characters.
             // we have to replay from here through the prefix.
@@ -291,7 +320,7 @@ namespace data::parse {
 
             // in this case, the latest character has been accepted by the previous
             // pattern, so we stop here. (can this really happen now?)
-            if (accepted > prefix.size ()) return 1;
+            if (accepted > prefix.size ()) return;
 
             replay = prefix.size () - accepted;
 
@@ -307,14 +336,12 @@ namespace data::parse {
     // we are ignoring the return value of step. We will get all
     // current tests working and then use the return value correctly.
     template <Machine Sub, size_t min, size_t max> requires (min <= max)
-    constexpr int repeated<Sub, min, max>::step (string_view prefix, char c) {
+    constexpr void repeated<Sub, min, max>::step (string_view prefix, char c) {
         while (true) {
 
             ++read;
-            if (!possible ()) return 1;
+            if (!possible ()) return;
 
-            // TODO: we incorrectly ignore the value returned by step
-            // here. We will take it into account in the next commit.
             machine.step (prefix.substr (previously_accepted, prefix.size () - previously_accepted), c);
 
             if (machine.valid ()) last = read;
@@ -322,7 +349,7 @@ namespace data::parse {
             // if it is possible to add more characters, then we are done
             // because we have no more. If the sub machine was never
             // valid, then we are in an invalid state and can't increment.
-            if (machine.possible () || !bool (last)) return 1;
+            if (machine.possible () || !bool (last)) return;
 
             ++repetitions;
 
@@ -334,48 +361,16 @@ namespace data::parse {
             read = 0;
 
             // in this case, the char was accepted and
-            if (previously_accepted > prefix.size ()) return 1;
+            if (previously_accepted > prefix.size ()) return;
             // replay all characters from the last valid state until now.
             for (int i = previously_accepted; i < prefix.size (); i++) {
                 ++read;
-                if (!possible ()) return 1;
+                if (!possible ()) return;
 
-                // TODO: we incorrectly ignore the value returned by step
-                // here. We will take it into account in the next commit.
                 machine.step (prefix.substr (previously_accepted, i - previously_accepted), prefix[i]);
                 if (machine.valid ()) last = read;
             }
         }
-    }
-
-    // TODO we incorrectly always return 1 here. In this commit,
-    // we are ignoring the return value of step. We will get all
-    // current tests working and then use the return value correctly.
-    template <Machine... Ms>
-    constexpr int alternatives<Ms...>::step (string_view prefix, char c) {
-        if (active >= sizeof... (Ms)) return 1;
-
-        if (apply_at (machines,
-            [&](auto &m) -> bool {
-                m.step (prefix, c);
-                return m.possible () ? true : m.valid ();
-            }, active)) return 1;
-
-        while (++active < sizeof... (Ms)) {
-            if (apply_at (machines,
-                [&](auto &m) -> bool {
-                    for (int i = 1; i <= prefix.size (); i++) {
-                        m.step (prefix.substr (0, i - 1), prefix[i - 1]);
-                        if (!m.possible ()) return false;
-                    }
-
-                    m.step (prefix, c);
-
-                    return m.possible () ? true : m.valid ();
-                }, active)) return 1;
-        }
-
-        return 1;
     }
 
 }

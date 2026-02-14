@@ -60,15 +60,10 @@ namespace data::parse::ASCII {
             return machine.possible () && value < max;
         }
 
-        constexpr int step (std::string_view x, char c) {
+        constexpr void step (std::string_view x, char c) {
             // First, let dec_nat decide if this character is valid as a digit
-            int accepted = machine.step (x, c);
-            if (!possible () && !valid ()) return 0;
-
-            // Update running value
-            value = value * 10 + (c - '0');
-            if (value > max) return 0;
-            return 1;
+            machine.step (x, c);
+            if (possible ()) value = value * 10 + (c - '0');
         }
     };
 

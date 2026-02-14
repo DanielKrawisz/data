@@ -22,13 +22,13 @@ namespace data::parse::UTF8 {
             return ok && consumed;
         }
 
-        constexpr int step (string_view, char c) {
+        constexpr void step (string_view, char c) {
 
             unsigned char uc = static_cast<unsigned char>(c);
 
             if (!ok || consumed) {
                 ok = false;
-                return 1;
+                return;
             }
 
             // First byte
@@ -38,7 +38,7 @@ namespace data::parse::UTF8 {
                     codepoint = uc;
                     consumed = Predicate {} (codepoint);
                     ok = consumed;
-                    return 1;
+                    return;
                 } else if ((uc & 0xE0) == 0xC0) {
                     codepoint = uc & 0x1F;
                     expected = 2;
@@ -50,17 +50,17 @@ namespace data::parse::UTF8 {
                     expected = 4;
                 } else {
                     ok = false;
-                    return 1;
+                    return;
                 }
 
                 seen = 1;
-                return 1;
+                return;
             }
 
             // Continuation byte
             if ((uc & 0xC0) != 0x80) {
                 ok = false;
-                return 1;
+                return;
             }
 
             codepoint = (codepoint << 6) | (uc & 0x3F);
@@ -70,8 +70,6 @@ namespace data::parse::UTF8 {
                 consumed = Predicate {} (codepoint);
                 ok = consumed;
             }
-
-            return 1;
         }
     };
 

@@ -7,6 +7,13 @@
 #include <regex>
 
 namespace data::parse {
+/*
+    template <Machine m> bool test_case (const std::string &s) {
+        bool result1 = accept<m> (s.c_str ());
+        std::stringstream ss {s};
+        bool result2 = accept<m> (ss);
+
+    }*/
 
     TEST (Parse, Basics) {
 
@@ -18,14 +25,6 @@ namespace data::parse {
         EXPECT_TRUE  (accept<any> ("a"));
         EXPECT_TRUE  (accept<any> ("abc"));
         EXPECT_TRUE  (accept<any> (" "));
-
-        EXPECT_TRUE  (accept<exactly<>> (""));
-        EXPECT_FALSE (accept<exactly<>> ("a"));
-
-        EXPECT_FALSE (accept<exactly<'a'>> (""));
-        EXPECT_TRUE  (accept<exactly<'a'>> ("a"));
-        EXPECT_FALSE (accept<exactly<'a'>> ("aa"));
-        EXPECT_FALSE (accept<exactly<'a'>> ("b"));
 
         EXPECT_TRUE  ((accept<max_size<any, 0>> ("")));
         EXPECT_FALSE ((accept<max_size<any, 0>> ("a")));
@@ -61,6 +60,7 @@ namespace data::parse {
         EXPECT_TRUE  (accept<opt_opt_a> (""));
         EXPECT_TRUE  (accept<opt_opt_a> ("a"));
         EXPECT_FALSE (accept<opt_opt_a> ("aa"));
+
     }
 
     TEST (Parse, Sequence) {
@@ -160,7 +160,6 @@ namespace data::parse {
         EXPECT_FALSE (accept<O> ("abe"));
 
         // this case won't work now but we need to get it to work.
-/*
         using P = sequence<
             alternatives<
                 exactly<'a','b','c'>,
@@ -171,7 +170,43 @@ namespace data::parse {
 
         EXPECT_TRUE  (accept<P> ("abcd"));
         EXPECT_TRUE  (accept<P> ("abd"));
-        EXPECT_FALSE (accept<P> ("abc"));*/
+        EXPECT_FALSE (accept<P> ("abc"));
+
+        using prefix_alt_a = alternatives<exactly<'a', 'b'>, exactly<'a', 'b', 'c'>>;
+        using prefix_alt_b = alternatives<exactly<'a', 'b', 'c'>, exactly<'a', 'b'>>;
+
+        EXPECT_TRUE  ((accept<prefix_alt_a> ("ab")));
+        EXPECT_TRUE  ((accept<prefix_alt_a> ("abc")));
+        EXPECT_FALSE ((accept<prefix_alt_a> ("abcd")));
+        EXPECT_FALSE ((accept<prefix_alt_a> ("a")));
+        EXPECT_FALSE ((accept<prefix_alt_a> ("")));
+
+        EXPECT_TRUE  ((accept<prefix_alt_b> ("ab")));
+        EXPECT_TRUE  ((accept<prefix_alt_b> ("abc")));
+        EXPECT_FALSE ((accept<prefix_alt_b> ("abcd")));
+        EXPECT_FALSE ((accept<prefix_alt_b> ("a")));
+        EXPECT_FALSE ((accept<prefix_alt_b> ("")));
+
+        using empty_alt = alternatives<exactly<'a'>, exactly<>>;
+
+        EXPECT_TRUE  ((accept<empty_alt>("")));
+        EXPECT_TRUE  ((accept<empty_alt>("a")));
+        EXPECT_FALSE ((accept<empty_alt>("aa")));
+        EXPECT_FALSE ((accept<empty_alt>("b")));
+
+        using optional_overlap = alternatives<exactly<'a', 'b', 'c'>, optional<exactly<'a', 'b', 'c'>>>;
+
+        EXPECT_TRUE  ((accept<optional_overlap> ("")));
+        EXPECT_TRUE  ((accept<optional_overlap> ("abc")));
+        EXPECT_FALSE ((accept<optional_overlap> ("abcabc")));
+        EXPECT_FALSE ((accept<optional_overlap> ("ab")));
+
+        using shared_prefix = alternatives<exactly<'a', 'b'>, exactly<'a', 'c'>>;
+
+        EXPECT_TRUE  ((accept<shared_prefix>("ab")));
+        EXPECT_TRUE  ((accept<shared_prefix>("ac")));
+        EXPECT_FALSE ((accept<shared_prefix>("a")));
+        EXPECT_FALSE ((accept<shared_prefix>("ad")));
     }
 
     TEST (Parse, Repeated) {
@@ -290,8 +325,10 @@ namespace data::parse {
         EXPECT_TRUE  ((accept<exactly<>> ("")));
         EXPECT_FALSE ((accept<exactly<>> ("a")));
 
-        EXPECT_TRUE  ((accept<exactly<'a'>> ("a")));
-        EXPECT_FALSE ((accept<exactly<'a'>> ("b")));
+        EXPECT_FALSE (accept<exactly<'a'>> (""));
+        EXPECT_TRUE  (accept<exactly<'a'>> ("a"));
+        EXPECT_FALSE (accept<exactly<'a'>> ("aa"));
+        EXPECT_FALSE (accept<exactly<'a'>> ("b"));
 
         EXPECT_TRUE  ((accept<exactly<'a','b','c'>> ("abc")));
         EXPECT_FALSE ((accept<exactly<'a','b','c'>> ("ab")));
@@ -393,29 +430,29 @@ namespace data::parse {
 
     TEST (Parse, IPV6) {
 
-        EXPECT_TRUE((accept<IP::V6>("::")));
-        EXPECT_TRUE((accept<IP::V6>("::1")));
-        EXPECT_TRUE((accept<IP::V6>("::ffff:192.168.0.1")));
-        EXPECT_TRUE((accept<IP::V6>("0:0:0:0:0:ffff:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6>("::")));
+        EXPECT_TRUE  ((accept<IP::V6>("::1")));
+        EXPECT_TRUE  ((accept<IP::V6>("::ffff:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6>("0:0:0:0:0:ffff:192.168.0.1")));
 
-        EXPECT_TRUE((accept<IP::V6>("2001:db8::192.0.2.33")));
-        EXPECT_TRUE((accept<IP::V6>("::192.168.0.1")));
-        EXPECT_TRUE((accept<IP::V6>("::ffff:0:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6>("2001:db8::192.0.2.33")));
+        EXPECT_TRUE  ((accept<IP::V6>("::192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6>("::ffff:0:192.168.0.1")));
 
-        EXPECT_TRUE((accept<IP::V6>("1:2:3:4:5:6:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6>("1:2:3:4:5:6:192.168.0.1")));
 
-        EXPECT_FALSE((accept<IP::V6>("1:2:3:4:5:6:7:192.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6>("1:2:3:4:5:6:7:192.168.0.1")));
 
-        EXPECT_FALSE((accept<IP::V6>("1:2:3:4:5:192.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6>("1:2:3:4:5:192.168.0.1")));
 
-        EXPECT_FALSE((accept<IP::V6>("::ffff:256.168.0.1")));
-        EXPECT_FALSE((accept<IP::V6>("::ffff:192.168.0")));
-        EXPECT_FALSE((accept<IP::V6>("::ffff:192.168.0.01")));
+        EXPECT_FALSE ((accept<IP::V6>("::ffff:256.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6>("::ffff:192.168.0")));
+        EXPECT_FALSE ((accept<IP::V6>("::ffff:192.168.0.01")));
 
-        EXPECT_FALSE((accept<IP::V6>("192.168.0.1::")));
-        EXPECT_FALSE((accept<IP::V6>("1:2:192.168.0.1:3")));
+        EXPECT_FALSE ((accept<IP::V6>("192.168.0.1::")));
+        EXPECT_FALSE ((accept<IP::V6>("1:2:192.168.0.1:3")));
 
-        EXPECT_FALSE((accept<IP::V6>("::ffff::192.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6>("::ffff::192.168.0.1")));
 
         EXPECT_FALSE ((accept<IP::V6> ("AB:02:3008:8CFD::02:3008:8CFD:02")));
         EXPECT_FALSE ((accept<IP::V6> (":0002:3008:8CFD:00AB:0002:3008:8CFD")));
