@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/parse/exactly.hpp>
+#include <data/parse/URL.hpp>
 #include "gtest/gtest.h"
 #include <regex>
 
@@ -314,4 +314,111 @@ namespace data::parse {
         EXPECT_TRUE  ((accept<exactly<U'é', U'ø'>> (u8"éø")));
         EXPECT_FALSE ((accept<exactly<U'é', U'ø'>> (u8"éa")));
     }
+
+    TEST (Parse, MaxValue) {
+
+        EXPECT_TRUE ((accept<IP::V4_number> ("0")));
+        EXPECT_TRUE ((accept<IP::V4_number> ("1")));
+        EXPECT_TRUE ((accept<IP::V4_number> ("9")));
+        EXPECT_TRUE ((accept<IP::V4_number> ("10")));
+        EXPECT_TRUE ((accept<IP::V4_number> ("99")));
+        EXPECT_TRUE ((accept<IP::V4_number> ("100")));
+        EXPECT_TRUE ((accept<IP::V4_number> ("255")));
+
+        EXPECT_FALSE ((accept<IP::V4_number> ("")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("00")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("01")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("001")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("000")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("256")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("300")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("999")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("a")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("1a")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("a1")));
+        EXPECT_FALSE ((accept<IP::V4_number> ("-1")));
+
+        EXPECT_TRUE ((accept<IP::port> ("0")));
+        EXPECT_TRUE ((accept<IP::port> ("1")));
+        EXPECT_TRUE ((accept<IP::port> ("80")));
+        EXPECT_TRUE ((accept<IP::port> ("443")));
+        EXPECT_TRUE ((accept<IP::port> ("65535")));
+
+        EXPECT_FALSE ((accept<IP::port> ("65536")));
+        EXPECT_FALSE ((accept<IP::port> ("70000")));
+        EXPECT_FALSE ((accept<IP::port> ("99999")));
+        EXPECT_FALSE ((accept<IP::port> ("00")));
+        EXPECT_FALSE ((accept<IP::port> ("01")));
+        EXPECT_FALSE ((accept<IP::port> ("0001")));
+
+        EXPECT_FALSE ((accept<IP::port> ("4294967296"))); // large overflow path
+        EXPECT_FALSE ((accept<IP::port> ("18446744073709551616")));
+    }
+
+    TEST (Parse, IPV4) {
+
+        EXPECT_TRUE((accept<IP::V4>("0.0.0.0")));
+        EXPECT_TRUE((accept<IP::V4>("1.2.3.4")));
+        EXPECT_TRUE((accept<IP::V4>("127.0.0.1")));
+        EXPECT_TRUE((accept<IP::V4>("192.168.0.1")));
+        EXPECT_TRUE((accept<IP::V4>("255.255.255.255")));
+        EXPECT_TRUE((accept<IP::V4>("10.20.30.40")));
+
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.4.5")));
+        EXPECT_FALSE((accept<IP::V4>(".1.2.3")));
+        EXPECT_FALSE((accept<IP::V4>("1..2.3")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.")));
+        EXPECT_FALSE((accept<IP::V4>("01.2.3.4")));
+        EXPECT_FALSE((accept<IP::V4>("1.02.3.4")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.003.4")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.04")));
+
+        EXPECT_FALSE((accept<IP::V4>("256.0.0.1")));
+        EXPECT_FALSE((accept<IP::V4>("1.256.0.1")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.256.1")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.256")));
+        EXPECT_FALSE((accept<IP::V4>("999.1.1.1")));
+        EXPECT_FALSE((accept<IP::V4>("a.b.c.d")));
+        EXPECT_FALSE((accept<IP::V4>("1.a.3.4")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.a.4")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.a")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.4a")));
+        EXPECT_FALSE((accept<IP::V4>("00.0.0.0")));
+        EXPECT_FALSE((accept<IP::V4>("0.00.0.0")));
+        EXPECT_FALSE((accept<IP::V4>("0.0.00.0")));
+        EXPECT_FALSE((accept<IP::V4>("0.0.0.00")));
+        EXPECT_FALSE((accept<IP::V4>("1.2.3.4.")));
+        EXPECT_FALSE((accept<IP::V4>(".1.2.3.4")));
+    }
+
+    TEST (Parse, IPV6) {
+
+        EXPECT_TRUE((accept<IP::V6>("::")));
+        EXPECT_TRUE((accept<IP::V6>("::1")));
+        EXPECT_TRUE((accept<IP::V6>("::ffff:192.168.0.1")));
+        EXPECT_TRUE((accept<IP::V6>("0:0:0:0:0:ffff:192.168.0.1")));
+
+        EXPECT_TRUE((accept<IP::V6>("2001:db8::192.0.2.33")));
+        EXPECT_TRUE((accept<IP::V6>("::192.168.0.1")));
+        EXPECT_TRUE((accept<IP::V6>("::ffff:0:192.168.0.1")));
+
+        EXPECT_TRUE((accept<IP::V6>("1:2:3:4:5:6:192.168.0.1")));
+
+        EXPECT_FALSE((accept<IP::V6>("1:2:3:4:5:6:7:192.168.0.1")));
+
+        EXPECT_FALSE((accept<IP::V6>("1:2:3:4:5:192.168.0.1")));
+
+        EXPECT_FALSE((accept<IP::V6>("::ffff:256.168.0.1")));
+        EXPECT_FALSE((accept<IP::V6>("::ffff:192.168.0")));
+        EXPECT_FALSE((accept<IP::V6>("::ffff:192.168.0.01")));
+
+        EXPECT_FALSE((accept<IP::V6>("192.168.0.1::")));
+        EXPECT_FALSE((accept<IP::V6>("1:2:192.168.0.1:3")));
+
+        EXPECT_FALSE((accept<IP::V6>("::ffff::192.168.0.1")));
+
+        EXPECT_FALSE ((accept<IP::V6> ("AB:02:3008:8CFD::02:3008:8CFD:02")));
+        EXPECT_FALSE ((accept<IP::V6> (":0002:3008:8CFD:00AB:0002:3008:8CFD")));
+    }
+
 }

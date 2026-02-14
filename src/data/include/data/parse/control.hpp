@@ -2,159 +2,114 @@
 #ifndef DATA_PARSE_CONTROL
 #define DATA_PARSE_CONTROL
 
-#include <data/concepts.hpp>
+#include <data/parse/accept.hpp>
 #include <data/tuple.hpp>
 #include <data/maybe.hpp>
 
 namespace data::parse {
-    template <typename M>
-    concept Machine = std::default_initializable<M> && requires (const M &m) {
-        // whether the pattern is valid as it is.
-        { m.valid () } -> Same<bool>;
-        // whether characters could be added to make a valid pattern.
-        { m.possible () } -> Same<bool>;
-    } && requires (const M &m, string_view v, char c) {
-        { m.step (v, c) } -> Same<M>;
-    };
 
-    // NOTE: because PEGTL is a stateless parser, you can't use it
-    // to recognize a token, such as a URL. We realized this once
-    // we got to this point. In theory we could build up the entire
-    // URL library using state machines like we have below, but we
-    // haven't got around to that yet.
-    template <Machine State>
-    std::string read_token (std::istream &in, State &state) {
-        using traits = std::char_traits<char>;
-        std::string buf;
-
-        while (true) {
-            int p = in.peek ();
-            if (p == traits::eof ()) {
-                if (!state.valid ()) {
-                    in.setstate (std::ios::failbit);
-                }
-                return buf;
-            }
-
-            char c = traits::to_char_type (p);
-            State next = state.step (buf, c);
-
-            if (!next.possible ()) {
-                if (!next.valid ()) {
-                    in.setstate (std::ios::failbit);
-                } else {
-                    in.get ();
-                    buf.push_back (c);
-                }
-
-                return buf;
-            }
-
-            in.get ();
-            buf.push_back (c);
-            state = std::move (next);
-        }
-    }
-
-    template <Machine State>
-    bool inline accept (std::stringstream &ss) {
-        State state {};
-        read_token (ss, state);
-        return bool (ss);
-    }
-
-    template <Machine State> bool inline accept (const std::string &x) {
-        std::stringstream ss {x};
-        return accept<State> (ss) && ss.peek () == std::char_traits<char>::eof ();
-    }
-
-    template <Machine State> bool inline accept (const std::u8string &x) {
-        return accept<State> (std::string (reinterpret_cast<const char*> (x.data ()), x.size ()));
-    }
-
+    // accept no string (even the empty string)
     struct invalid {
-
-        bool possible () const {
-            return false;
-        }
-
-        bool valid () const {
-            return false;
-        }
-
-        invalid step (string_view, char c) const {
-            return *this;
-        }
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr int step (string_view, char c);
     };
 
+    // accept every string.
     struct any {
-
-        bool possible () const {
-            return true;
-        }
-
-        bool valid () const {
-            return true;
-        }
-
-        any step (string_view, char c) const {
-            return *this;
-        }
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr int step (string_view, char c);
     };
 
-    template <Machine sub, size_t max>
-    struct max_size {
+    // accept a sequence of patterns.
+    template <Machine...> struct sequence;
+
+    // accept the empty string
+    using empty = sequence<>;
+
+    template <Machine Sub, size_t min = 0, size_t max = std::numeric_limits<size_t>::max ()>
+    requires (min <= max) struct repeated;
+
+    template <Machine sub> struct optional : repeated<sub, 0, 1> {};
+    template <Machine sub> struct plus : repeated<sub, 1> {};
+    template <Machine sub> struct star : repeated<sub> {};
+    template <size_t size, typename m> struct rep : repeated<m, size, size> {};
+
+    template <Machine... Ms> struct alternatives {
+        std::tuple<Ms...> machines;
+
+        std::size_t active = 0;
+
+        constexpr bool possible () const {
+            if (active >= sizeof... (Ms)) return false;
+            return apply_at (machines, [] (const auto &x) -> bool {
+                return x.possible ();
+            }, active);
+        }
+
+        constexpr bool valid () const {
+            if (active >= sizeof... (Ms)) return false;
+            return apply_at (machines, [] (const auto &x) -> bool {
+                return x.valid ();
+            }, active);
+        }
+
+        constexpr int step (string_view prefix, char c);
+
+    };
+
+    // accept a string with a given max size (in chars)
+    template <Machine sub, size_t max> struct max_size {
         sub Sub;
         size_t Size;
 
-        bool possible () const {
+        constexpr bool possible () const {
             return Sub.possible () && Size <= max;
         }
 
-        bool valid () const {
+        constexpr bool valid () const {
             return Sub.valid () && Size <= max;
         }
 
-        max_size step (string_view prefix, char c) const {
-            return max_size {Sub.step (prefix, c), Size + 1};
+        constexpr int step (string_view prefix, char c) {
+            Size++;
+            int backtrack = Sub.step (prefix, c);
+            return Size <= max ? backtrack : 0;
         }
 
     };
 
-    template <Machine...> struct sequence;
-
-    using empty = sequence<>;
-
-    template <Machine M>
-    struct sequence<M> {
+    template <Machine M> struct sequence<M> {
         M machine;
 
-        bool possible () const {
+        constexpr bool possible () const {
             return machine.possible ();
         }
 
-        bool valid () const {
+        constexpr bool valid () const {
             return machine.valid ();
         }
 
-        sequence step (string_view prefix, char c) const {
-            return sequence {machine.step (prefix, c)};
+        constexpr int step (string_view prefix, char c) {
+            return machine.step (prefix, c);
         }
     };
 
     template <> struct sequence<> {
         bool Valid = true;
 
-        bool possible () const {
+        constexpr bool possible () const {
             return false;
         }
 
-        bool valid () const {
+        constexpr bool valid () const {
             return Valid;
         }
 
-        sequence step (string_view prefix, char c) const {
-            return sequence {false};
+        constexpr int step (string_view prefix, char c) {
+            Valid = false;
+            return 0;
         }
     };
 
@@ -173,11 +128,11 @@ namespace data::parse {
         // the number of characters that have been read.
         size_t read = 0;
 
-        bool possible () const {
+        constexpr bool possible () const {
             return active <= sizeof... (Ms);
         }
 
-        bool valid () const {
+        constexpr bool valid () const {
             // if the active index is past the end of the sequence, then
             // the pattern is valid if we have accepted the same number
             // of characters that we have read.
@@ -185,40 +140,17 @@ namespace data::parse {
 
             // the pattern is valid if the active machine is valid and every subsequent machine is also valid.
             for (size_t i = active; i <= sizeof... (Ms); i++)
-                if (!apply_at (machines, [] (const auto &m) -> bool {
+                if (!apply_at (machines, [&] (const auto &m) -> bool {
                     return m.valid ();
                 }, i)) return false;
 
             return true;
         }
 
-        sequence step (string_view prefix, char c) const;
+        constexpr int step (string_view prefix, char c);
     };
 
-    template <Machine... Ms> struct alternatives {
-        std::tuple<Ms...> machines;
-
-        std::size_t active = 0;
-
-        bool possible () const {
-            if (active >= sizeof... (Ms)) return false;
-            return apply_at (machines, [] (const auto &x) -> bool {
-                return x.possible ();
-            }, active);
-        }
-
-        bool valid () const {
-            if (active >= sizeof... (Ms)) return false;
-            return apply_at (machines, [] (const auto &x) -> bool {
-                return x.valid ();
-            }, active);
-        }
-
-        alternatives step (string_view prefix, char c) const;
-
-    };
-
-    template <Machine Sub, size_t min = 0, size_t max = std::numeric_limits<size_t>::max ()>
+    template <Machine Sub, size_t min, size_t max>
     requires (min <= max)
     struct repeated {
         Sub machine;
@@ -235,11 +167,11 @@ namespace data::parse {
         // the size of the prefix that was accepted by previous iterations.
         size_t previously_accepted = 0;
 
-        bool possible () const {
+        constexpr bool possible () const {
             return repetitions < max && machine.possible ();
         }
 
-        bool valid () const {
+        constexpr bool valid () const {
             return
                 // if the sub machine is valid then we can increment the
                 // number of repetitions if necessary, so the whole pattern
@@ -255,39 +187,60 @@ namespace data::parse {
                 bool (last) && *last == 0 && read == 0 && repetitions <= max;
         }
 
-        repeated step (string_view prefix, char c) const;
+        constexpr int step (string_view prefix, char c);
 
     };
 
-    template <Machine sub> using optional = repeated<sub, 0, 1>;
-    template <Machine sub> using plus = repeated<sub, 1>;
-    template <Machine sub> using star = repeated<sub>;
+    constexpr bool inline invalid::possible () const {
+        return false;
+    }
 
+    constexpr bool inline invalid::valid () const {
+        return false;
+    }
+
+    constexpr int inline invalid::step (string_view, char c) {
+        return 0;
+    }
+
+    constexpr bool inline any::possible () const {
+        return true;
+    }
+
+    constexpr bool inline any::valid () const {
+        return true;
+    }
+
+    constexpr int inline any::step (string_view, char c) {
+        return 1;
+    }
+
+    // TODO we incorrectly always return 1 here. In this commit,
+    // we are ignoring the return value of step. We will get all
+    // current tests working and then use the return value correctly.
     template <Machine M, Machine... Ms>
-    sequence<M, Ms...>
-    sequence<M, Ms...>::step (string_view prefix, char c) const {
-
-        sequence next = *this;
-
+    constexpr int sequence<M, Ms...>::step (string_view prefix, char c) {
         size_t replay = 0;
 
         while (true) {
 
             // try to apply the char to the current sequence.
-            if (apply_at (next.machines,
+            if (apply_at (machines,
                 [&](auto &m) -> bool {
 
                     // we never do this in the initial round of the loop.
                     for (int i = 0; i < replay; i++) {
-                        ++next.read;
-                        if (!next.possible ()) return true;
+                        ++read;
+                        if (!possible ()) return true;
 
                         // we drop the characters accepted by previous
                         // patterns in this sequence.
-                        m = m.step (prefix.substr (next.accepted, i), prefix[next.accepted + i]);
+                        // TODO: we incorrectly ignore the value returned by step
+                        // here. We will take it into account in the next commit.
+                        m.step (prefix.substr (accepted, i), prefix[accepted + i]);
 
                         bool is_valid = m.valid ();
-                        if (is_valid) next.last = next.read;
+                        if (is_valid) last = read;
 
                         // if it not possible to advance the pattern, then
                         // we have to replay variables.
@@ -296,127 +249,133 @@ namespace data::parse {
 
                     // advance the number of characters read.
                     // this will invalidate the pattern if it was valid.
-                    ++next.read;
+                    ++read;
 
                     // if it not possible to accept another character,
                     // then we stop and return an invalid pattern.
-                    if (!next.possible ()) return true;
+                    if (!possible ()) return true;
 
-                    m = m.step (prefix.substr (next.accepted, prefix.size () - next.accepted), c);
+                    // TODO: we incorrectly ignore the value returned by step
+                    // here. We will take it into account in the next commit.
+                    m.step (prefix.substr (accepted, prefix.size () - accepted), c);
                     bool is_valid = m.valid ();
                     // We note where the pattern is last valid so that
                     // we can later replay chars if we need to.
-                    if (is_valid) next.last = next.read;
+                    if (is_valid) last = read;
                     // if it is impossible to add more characters and
                     // the sub pattern is not valid, then we have to
                     // replay the current character and maybe some earlier
                     // ones to the next machine. Otherwise we can continue.
                     return m.possible () ? true : is_valid;
-                }, next.active)) return next;
+                }, active)) return 1;
 
             // if there was no last valid state, then we
             // invalidate this pattern and return.
-            if (!bool (next.last)) {
-                next.active = sizeof... (Ms) + 1;
-                return next;
+            if (!bool (last)) {
+                active = sizeof... (Ms) + 1;
+                return 1;
             }
 
-            next.accepted = *next.last;
+            accepted = *last;
 
             // increment active index.
-            ++next.active;
+            ++active;
 
             // In this case we have to be done because
             // we are at the end of the sequence.
-            if (next.active > sizeof... (Ms)) return next;
+            if (active > sizeof... (Ms)) return 1;
 
             // revert the number of read characters to the number of accepted characters.
             // we have to replay from here through the prefix.
-            next.read = next.accepted;
+            read = accepted;
 
             // in this case, the latest character has been accepted by the previous
             // pattern, so we stop here. (can this really happen now?)
-            if (next.accepted > prefix.size ()) return next;
+            if (accepted > prefix.size ()) return 1;
 
-            replay = prefix.size () - next.accepted;
+            replay = prefix.size () - accepted;
 
             // we now set the last point appropriately.
-            apply_at (next.machines,
+            apply_at (machines,
                 [&](auto &m) {
-                    next.last = m.valid () ? maybe<int> {0} : maybe<int> {};
-                }, next.active);
+                    last = m.valid () ? maybe<int> {0} : maybe<int> {};
+                }, active);
         }
     }
 
-    template <Machine Sub, size_t min, size_t max>
-    requires (min <= max)
-    repeated<Sub, min, max> repeated<Sub, min, max>::step (string_view prefix, char c) const {
-
-        repeated next = *this;
-
+    // TODO we incorrectly always return 1 here. In this commit,
+    // we are ignoring the return value of step. We will get all
+    // current tests working and then use the return value correctly.
+    template <Machine Sub, size_t min, size_t max> requires (min <= max)
+    constexpr int repeated<Sub, min, max>::step (string_view prefix, char c) {
         while (true) {
 
-            ++next.read;
-            if (!next.possible ()) return next;
+            ++read;
+            if (!possible ()) return 1;
 
-            next.machine = next.machine.step (prefix.substr (next.previously_accepted, prefix.size () - next.previously_accepted), c);
+            // TODO: we incorrectly ignore the value returned by step
+            // here. We will take it into account in the next commit.
+            machine.step (prefix.substr (previously_accepted, prefix.size () - previously_accepted), c);
 
-            if (next.machine.valid ()) next.last = next.read;
+            if (machine.valid ()) last = read;
 
             // if it is possible to add more characters, then we are done
             // because we have no more. If the sub machine was never
             // valid, then we are in an invalid state and can't increment.
-            if (next.machine.possible () || !bool (next.last)) return next;
+            if (machine.possible () || !bool (last)) return 1;
 
-            ++next.repetitions;
+            ++repetitions;
 
-            next.previously_accepted += *next.last;
+            previously_accepted += *last;
 
-            next.machine = Sub {};
+            machine = Sub {};
 
-            next.last = next.machine.valid () ? maybe<size_t> {0} : maybe<size_t> {};
-            next.read = 0;
+            last = machine.valid () ? maybe<size_t> {0} : maybe<size_t> {};
+            read = 0;
 
             // in this case, the char was accepted and
-            if (next.previously_accepted > prefix.size ()) return next;
+            if (previously_accepted > prefix.size ()) return 1;
             // replay all characters from the last valid state until now.
-            for (int i = next.previously_accepted; i < prefix.size (); i++) {
-                ++next.read;
-                if (!next.possible ()) return next;
-                next.machine = next.machine.step (prefix.substr (next.previously_accepted, i - next.previously_accepted), prefix[i]);
-                if (next.machine.valid ()) next.last = next.read;
+            for (int i = previously_accepted; i < prefix.size (); i++) {
+                ++read;
+                if (!possible ()) return 1;
+
+                // TODO: we incorrectly ignore the value returned by step
+                // here. We will take it into account in the next commit.
+                machine.step (prefix.substr (previously_accepted, i - previously_accepted), prefix[i]);
+                if (machine.valid ()) last = read;
             }
         }
     }
 
+    // TODO we incorrectly always return 1 here. In this commit,
+    // we are ignoring the return value of step. We will get all
+    // current tests working and then use the return value correctly.
     template <Machine... Ms>
-    alternatives<Ms...>
-    alternatives<Ms...>::step (string_view prefix, char c) const {
-        alternatives next = *this;
+    constexpr int alternatives<Ms...>::step (string_view prefix, char c) {
+        if (active >= sizeof... (Ms)) return 1;
 
-        if (next.active >= sizeof... (Ms)) return next;
-
-        if (apply_at (next.machines,
+        if (apply_at (machines,
             [&](auto &m) -> bool {
-                m = m.step (prefix, c);
+                m.step (prefix, c);
                 return m.possible () ? true : m.valid ();
-            }, next.active)) return next;
+            }, active)) return 1;
 
-        while (++next.active < sizeof... (Ms)) {
-            if (apply_at (next.machines,
+        while (++active < sizeof... (Ms)) {
+            if (apply_at (machines,
                 [&](auto &m) -> bool {
                     for (int i = 1; i <= prefix.size (); i++) {
-                        m = m.step (prefix.substr (0, i - 1), prefix[i - 1]);
+                        m.step (prefix.substr (0, i - 1), prefix[i - 1]);
                         if (!m.possible ()) return false;
                     }
 
-                    m = m.step (prefix, c);
+                    m.step (prefix, c);
 
                     return m.possible () ? true : m.valid ();
-                }, next.active)) return next;
+                }, active)) return 1;
         }
 
-        return next;
+        return 1;
     }
 
 }

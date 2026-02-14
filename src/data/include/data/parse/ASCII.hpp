@@ -15,28 +15,63 @@ namespace data::parse::ASCII {
 
     using is_digit        = in_range<'0', '9'>;
 
-    using is_alpha        = either<in_range<'a', 'z'>, in_range<'A', 'Z'>>;
+    using is_lower        = in_range<'a', 'z'>;
+
+    using is_upper        = in_range<'A', 'Z'>;
+
+    using is_alpha        = either<is_lower, is_upper>;
 
     using is_alnum        = either<is_digit, is_alpha>;
 
-    using any             = UTF8::ascii;
-    using printable       = UTF8::printable_ascii;
-    using digit           = UTF8::digit;
+    struct any             : UTF8::ascii {};
+    struct printable       : UTF8::printable_ascii {};
+    struct digit           : UTF8::digit {};
 
     template <uint32_t Min, uint32_t Max>
-    using range           = UTF8::range<Min, Max>;
+    struct range           : UTF8::range<Min, Max> {};
 
-    using lower           = range<'a', 'z'>;
+    struct lower           : range<'a', 'z'> {};
 
-    using upper           = range<'A', 'Z'>;
+    struct upper           : range<'A', 'Z'> {};
 
-    using alpha           = predicate<is_alpha>;
+    struct alpha           : predicate<is_alpha> {};
 
-    using alnum           = predicate<is_alnum>;
+    struct alnum           : predicate<is_alnum> {};
 
-    using hyphen          = one<'-'>;
+    struct hyphen          : one<'-'> {};
 
-    using dot             = one<'.'>;
+    struct dot             : one<'.'> {};
+
+    struct dec_nat         : alternatives<one<'0'>, sequence<range<'1', '9'>, star<digit>>> {};
+
+    template <auto max> requires std::unsigned_integral<decltype (max)>
+    struct max_value_number {
+
+        dec_nat machine;
+
+        // Running value
+        decltype (max) value = 0;
+
+        constexpr bool valid () const {
+            return machine.valid () && value <= max;
+        }
+
+        constexpr bool possible () const {
+            return machine.possible () && value < max;
+        }
+
+        constexpr int step (std::string_view x, char c) {
+            // First, let dec_nat decide if this character is valid as a digit
+            int accepted = machine.step (x, c);
+            if (!possible () && !valid ()) return 0;
+
+            // Update running value
+            value = value * 10 + (c - '0');
+            if (value > max) return 0;
+            return 1;
+        }
+    };
+
 
 }
 
