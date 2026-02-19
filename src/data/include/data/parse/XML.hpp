@@ -9,47 +9,6 @@ namespace data::parse::XML {
 
     template <typename X> using predicate = UTF8::predicate<X>;
 
-    struct is_xml_name_start_char {
-        constexpr bool operator () (uint32_t c) const {
-            return
-            c == ':' ||
-            c == '_' ||
-            (c >= 'A' && c <= 'Z') ||
-            (c >= 'a' && c <= 'z') ||
-
-            (c >= 0xC0    && c <= 0xD6) ||
-            (c >= 0xD8    && c <= 0xF6) ||
-            (c >= 0xF8    && c <= 0x2FF) ||
-            (c >= 0x370   && c <= 0x37D) ||
-            (c >= 0x37F   && c <= 0x1FFF) ||
-            (c >= 0x200C  && c <= 0x200D) ||
-            (c >= 0x2070  && c <= 0x218F) ||
-            (c >= 0x2C00  && c <= 0x2FEF) ||
-            (c >= 0x3001  && c <= 0xD7FF) ||
-            (c >= 0xF900  && c <= 0xFDCF) ||
-            (c >= 0xFDF0  && c <= 0xFFFD) ||
-            (c >= 0x10000 && c <= 0xEFFFF);
-        }
-    };
-
-    struct is_xml_name_char {
-        constexpr bool operator () (uint32_t c) const {
-            return
-            is_xml_name_start_char {} (c) ||
-            c == '-' ||
-            c == '.' ||
-            (c >= '0' && c <= '9') ||
-            c == 0xB7 ||
-            (c >= 0x0300 && c <= 0x036F) ||
-            (c >= 0x203F && c <= 0x2040);
-        }
-    };
-
-    struct Name :
-        sequence<
-            predicate<is_xml_name_start_char>,
-            star<predicate<is_xml_name_char>>> {};
-
     struct is_xml_char {
         constexpr bool operator () (uint32_t c) {
             return c == 0x9  ||
@@ -61,23 +20,54 @@ namespace data::parse::XML {
         }
     };
 
-    struct is_xml_comment_except_dash {
-        constexpr bool operator () (uint32_t c) {
-            return is_xml_char {} (c) && c != 0x2D;          // exclude '-'
+    struct is_xml_name_start_char {
+        constexpr bool operator () (uint32_t c) const {
+            return
+                c == ':' ||
+                c == '_' ||
+                (c >= 'A' && c <= 'Z') ||
+                (c >= 'a' && c <= 'z') ||
+
+                (c >= 0xC0    && c <= 0xD6) ||
+                (c >= 0xD8    && c <= 0xF6) ||
+                (c >= 0xF8    && c <= 0x2FF) ||
+                (c >= 0x370   && c <= 0x37D) ||
+                (c >= 0x37F   && c <= 0x1FFF) ||
+                (c >= 0x200C  && c <= 0x200D) ||
+                (c >= 0x2070  && c <= 0x218F) ||
+                (c >= 0x2C00  && c <= 0x2FEF) ||
+                (c >= 0x3001  && c <= 0xD7FF) ||
+                (c >= 0xF900  && c <= 0xFDCF) ||
+                (c >= 0xFDF0  && c <= 0xFFFD) ||
+                (c >= 0x10000 && c <= 0xEFFFF);
         }
     };
 
-    struct is_xml_char_except_question {
+    struct is_xml_name_char {
         constexpr bool operator () (uint32_t c) const {
-            return is_xml_char {} (c) && c != 0x3F; // '?'
+            return
+                is_xml_name_start_char {} (c) ||
+                c == '-' ||
+                c == '.' ||
+                (c >= '0' && c <= '9') ||
+                c == 0xB7 ||
+                (c >= 0x0300 && c <= 0x036F) ||
+                (c >= 0x203F && c <= 0x2040);
         }
     };
 
-    struct is_xml_char_except_gt {
-        constexpr bool operator () (uint32_t c) const {
-            return is_xml_char {} (c) && c != 0x3E; // '>'
-        }
-    };
+    struct Name :
+        sequence<
+            predicate<is_xml_name_start_char>,
+            star<predicate<is_xml_name_char>>> {};
+
+    struct comment_unit : predicate<is_xml_char> {};
+
+    struct Comment :
+        sequence<
+            exactly<'<','!','-','-'>,
+            until<star<comment_unit>,
+                '-','-'>, one<'>'>> {};
 
     struct is_xml_space {
         constexpr bool operator () (uint32_t c) const {
@@ -156,19 +146,6 @@ namespace data::parse::XML {
         }
     };
 
-    struct comment_unit :
-        alternatives<
-            predicate<is_xml_comment_except_dash>,
-            sequence<
-                one<'-'>,
-                predicate<is_xml_comment_except_dash>>> {};
-
-    struct Comment :
-        sequence<
-            exactly<'<','!','-','-'>,
-            star<comment_unit>,
-            exactly<'-','-','>'>> {};
-
     struct S : plus<predicate<is_xml_space>> {};
 
     struct EntityRef :
@@ -188,48 +165,36 @@ namespace data::parse::XML {
                         one<']'>,
                         predicate<is_xml_chardata_char>>>>> {};
 
-    struct CharData : star<chardata_unit> {};
+    struct CharData :
+        //complement<
+            star<chardata_unit>
+        // , contains<exactly<']',']','>'>>>
+        {};
 
-    struct cdata_unit :
-        alternatives<
-            predicate<is_xml_char>,
-            sequence<
-                one<']'>,
-                alternatives<
-                    predicate<is_xml_char>,
-                    sequence<
-                        one<']'>,
-                        predicate<is_xml_char>>>>> {};
+    struct cdata_unit : predicate<is_xml_char> {};
 
     struct CDSect :
         sequence<
             exactly<'<','!','[','C','D','A','T','A','['>,
-            star<cdata_unit>,
-            exactly<']',']','>'>> {};
+            until<star<cdata_unit>,
+                ']',']','>'>> {};
 
-    struct pi_unit : alternatives<
-        predicate<is_xml_char_except_question>,
-        sequence<
-            one<'?'>,
-            predicate<is_xml_char_except_gt>>> {};
-
-    struct pi_content : star<pi_unit> {};
+    struct pi_unit : predicate<is_xml_char> {};
 
     struct pi_target :
-    // complement<
-        Name
-    // exactly<'x','m','l'>>
-    {};
+        complement<
+            Name,
+            exactly<'x','m','l'>> {};
 
     struct PI :
         sequence<
             exactly<'<','?'>,
             pi_target, // TODO this must not match 'xml'
-            optional<
+            alternatives<
                 sequence<
                     S,
-                    pi_content>>,
-            exactly<'?','>'>> {};
+                    until<star<pi_unit>, '?','>'>>,
+                exactly<'?','>'>>> {};
 
     struct Digit : ASCII::digit {};
 

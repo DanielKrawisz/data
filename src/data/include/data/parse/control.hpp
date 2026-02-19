@@ -218,13 +218,95 @@ namespace data::parse {
 
         repeated () {}
 
-        ~repeated () {
+        constexpr ~repeated () {
             delete machine;
         }
 
         repeated (const repeated &) = delete;
         repeated (repeated &&) = delete;
 
+    };
+
+    template <typename X, typename Y>
+    struct complement {
+        X x;
+        Y y;
+
+        constexpr void step (std::string_view sv, char c) {
+            x.step (sv, c);
+            y.step (sv, c);
+        }
+
+        constexpr bool possible () const {
+            return x.possible ();
+        }
+
+        constexpr bool valid () const {
+            return x.valid () && !y.valid ();
+        }
+    };
+
+    template <typename X, char... Y>
+    struct until {
+        X unit;
+
+        static constexpr char term[] = { Y... };
+        static constexpr size_t N = sizeof...(Y);
+
+        size_t k = 0;        // prefix matched
+        bool halted = false;
+
+        constexpr void step (std::string_view sv, char c) {
+            if (halted) {
+                k = 0; // invalidate pattern
+                return;
+            }
+
+            if (c == term[k]) {
+                k++;
+                if (k == N) halted = true;
+            } else if (k == 0) unit.step (sv, c);
+            else {
+
+                //std::cout << "until: replay char " << sv[i] << " at " << i << std::endl;
+                for (size_t i = sv.size () - k; i < sv.size (); i++) {
+                    k = 0;
+                    unit.step (sv.substr (0, i), sv[i]);
+                    if (!unit.possible ()) return;
+
+                    for (size_t j = i + 1; j < sv.size (); j++) {
+                        if (sv[j] == term[k]) k++;
+                        else goto cont;
+                    }
+
+                    if (c == term[k]) {
+                        k++;
+
+                        return;
+                    }
+
+                    cont:
+                }
+
+                k = 0;
+
+                if (c == term[k]) {
+                    k++;
+                    return;
+                } else unit.step (sv, c);
+            }
+
+
+        }
+
+        constexpr bool possible () const {
+            return !halted && unit.possible ();
+        }
+
+        constexpr bool valid () const {
+            // Valid if we halted exactly at terminator
+            return halted && k == N;
+        }
     };
 
     constexpr bool inline invalid::possible () const {
