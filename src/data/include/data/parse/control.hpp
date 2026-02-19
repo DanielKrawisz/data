@@ -23,30 +23,46 @@ namespace data::parse {
     };
 
     // accept a sequence of patterns.
-    template <Machine...> struct sequence;
+    template <typename...> struct sequence;
 
     // accept the empty string
     using empty = sequence<>;
 
-    template <Machine Sub, size_t min = 0, size_t max = std::numeric_limits<size_t>::max ()>
+    template <typename Sub, size_t min = 0, size_t max = std::numeric_limits<size_t>::max ()>
     requires (min <= max) struct repeated;
 
-    template <Machine sub> struct optional : repeated<sub, 0, 1> {};
-    template <Machine sub> struct plus : repeated<sub, 1> {};
-    template <Machine sub> struct star : repeated<sub> {};
+    template <typename sub> struct optional : repeated<sub, 0, 1> {};
+    template <typename sub> struct plus : repeated<sub, 1> {};
+    template <typename sub> struct star : repeated<sub> {};
     template <size_t size, typename m> struct rep : repeated<m, size, size> {};
 
-    template <Machine... Ms> struct alternatives {
-        std::tuple<Ms...> machines;
+    template <typename... Ms> class alternatives {
+        mutable std::tuple<Ms*...> machines {};
 
+    public:
         constexpr bool possible () const;
         constexpr bool valid () const;
         constexpr void step (string_view prefix, char c);
 
+        ~alternatives () {
+            for_each (machines, [] (auto m) {
+                if (m != nullptr) delete m;
+            });
+        }
+
+        alternatives (): machines {} {
+
+            for_each (machines, [] (auto m) {
+                m = nullptr;
+            });
+        }
+
+        alternatives (const alternatives &) = delete;
+        alternatives (alternatives &&) = delete;
     };
 
     // accept a string with a given max size (in chars)
-    template <Machine sub, size_t max> struct max_size {
+    template <typename sub, size_t max> struct max_size {
         sub Sub;
         size_t Size;
 
@@ -56,7 +72,7 @@ namespace data::parse {
 
     };
 
-    template <Machine M> struct sequence<M> {
+    template <typename M> struct sequence<M> {
         M machine;
 
         constexpr bool possible () const;
@@ -80,14 +96,18 @@ namespace data::parse {
         }
     };
 
-    template <Machine M, Machine... Ms>
-    struct sequence<M, Ms...> {
-        tuple<M, Ms...> machines;
+    template <typename M, typename... Ms>
+    class sequence<M, Ms...> {
+        // if we tried to instantiate all of these at once,
+        // we would have an infinite value.
+        mutable tuple<M*, Ms*...> machines {};
+
+        // the index of machines that is currently active.
         size_t active = 0;
 
         // the last size of accepted characters that was valid so far.
         // if empty, then there is no size that is valid.
-        maybe<size_t> last = std::get<0> (machines).valid () ? maybe<int> {0} : maybe<int> {};
+        maybe<size_t> last {};
 
         // the number of characters that have been accepted by the previous machines.
         size_t accepted = 0;
@@ -95,38 +115,78 @@ namespace data::parse {
         // the number of characters that have been read.
         size_t read = 0;
 
+    public:
         constexpr bool possible () const {
-            return active <= sizeof... (Ms);
+
+            // The sequence is possible if, of the machines at
+            // or past the active one, at least one is possible
+            // and the rest are either valid or possible.
+
+            log::indent p {};
+
+            bool at_least_one_possible = false;
+            for (size_t i = active; i <= sizeof... (Ms); i++)
+                if (!apply_at (machines, [&] (auto &m) -> bool {
+                    if (m == nullptr) m = new unref<decltype (*m)> {};
+
+                    if (m->possible ()) {
+                        at_least_one_possible = true;
+                        return true;
+                    }
+
+                    return m->valid ();
+                }, i)) return false;
+            return at_least_one_possible;
         }
 
         constexpr bool valid () const {
+
             // if the active index is past the end of the sequence, then
             // the pattern is valid if we have accepted the same number
             // of characters that we have read.
-            if (!possible ()) return accepted == read;
+            if (active > sizeof... (Ms)) {
+                return read == 0;
+            }
 
             // the pattern is valid if the active machine is valid and every subsequent machine is also valid.
             for (size_t i = active; i <= sizeof... (Ms); i++)
-                if (!apply_at (machines, [&] (const auto &m) -> bool {
-                    return m.valid ();
+                if (!apply_at (machines, [&] (auto &m) -> bool {
+                    if (m == nullptr) m = new unref<decltype (*m)> {};
+                    bool is_valid = m->valid ();
+                    return is_valid;
                 }, i)) return false;
 
             return true;
         }
 
         constexpr void step (string_view prefix, char c);
+
+        sequence () {
+            auto &m = std::get<0> (machines);
+            m = new M {};
+            if (m->valid ()) last = size_t {0};
+        }
+
+        ~sequence () {
+            if (active <= sizeof... (Ms)) apply_at (machines, [] (auto &m) {
+                delete m;
+            }, active);
+        }
+
+        sequence (const sequence &) = delete;
+        sequence (sequence &&) = delete;
     };
 
-    template <Machine Sub, size_t min, size_t max>
+    template <typename Sub, size_t min, size_t max>
     requires (min <= max)
     struct repeated {
-        Sub machine;
+        Sub *machine = new Sub {};
 
         // number of repetitions matched so far.
         size_t repetitions = 0;
 
         // characters accepted so far in the current iteration.
-        maybe<size_t> last = machine.valid () ? maybe<size_t> {0} : maybe<size_t> {};
+        maybe<size_t> last = machine->valid () ? maybe<size_t> {0} : maybe<size_t> {};
 
         // the characters we have read so far in the current iteration.
         size_t read = 0;
@@ -135,7 +195,7 @@ namespace data::parse {
         size_t previously_accepted = 0;
 
         constexpr bool possible () const {
-            return repetitions < max && machine.possible ();
+            return repetitions < max && machine->possible ();
         }
 
         constexpr bool valid () const {
@@ -155,6 +215,15 @@ namespace data::parse {
         }
 
         constexpr void step (string_view prefix, char c);
+
+        repeated () {}
+
+        ~repeated () {
+            delete machine;
+        }
+
+        repeated (const repeated &) = delete;
+        repeated (repeated &&) = delete;
 
     };
 
@@ -182,59 +251,63 @@ namespace data::parse {
         return 1;
     }
 
-    template <Machine M>
+    template <typename M>
     constexpr bool sequence<M>::possible () const {
         return machine.possible ();
     }
 
-    template <Machine M>
+    template <typename M>
     constexpr bool sequence<M>::valid () const {
         return machine.valid ();
     }
 
-    template <Machine M>
+    template <typename M>
     constexpr void sequence<M>::step (string_view prefix, char c) {
         return machine.step (prefix, c);
     }
 
     // the machine is possible if any sub machine is possible.
-    template <Machine... Ms>
+    template <typename... Ms>
     constexpr bool inline alternatives<Ms...>::possible () const {
-        log::indent qqq {};
-        DATA_LOG (normal) << "alternatives: test possible";
         for (int i = 0; i < sizeof... (Ms); i++)
-            if (apply_at (machines, [] (const auto &m) { return m.possible (); }, i)) return true;
+            if (apply_at (machines, [] (auto &m) {
+                if (m == nullptr) m = new unref<decltype (*m)> {};
+                return m->possible ();
+            }, i)) return true;
         return false;
     }
 
     // and valid if any sub machine is valid.
-    template <Machine... Ms>
+    template <typename... Ms>
     constexpr bool inline alternatives<Ms...>::valid () const {
-        log::indent qqq {};
-        DATA_LOG (normal) << "alternatives: test valid";
         for (int i = 0; i < sizeof... (Ms); i++)
-            if (apply_at (machines, [] (const auto &m) { return m.valid (); }, i)) return true;
+            if (apply_at (machines, [] (auto &m) {
+                if (m == nullptr) m = new unref<decltype (*m)> {};
+                return m->valid ();
+            }, i)) return true;
         return false;
     }
 
-    template <Machine... Ms>
+    template <typename... Ms>
     constexpr void alternatives<Ms...>::step (string_view prefix, char c) {
-        log::indent qqq {};
-        DATA_LOG (normal) << "alternatives: read char " << c;
-        for_each (machines, [&] (auto &m) { m.step (prefix, c); });
+        for_each (machines, [&] (auto &m) {
+            log::indent q {};
+            if (m == nullptr) m = new unref<decltype (*m)> {};
+            m->step (prefix, c);
+        });
     }
 
-    template <Machine sub, size_t max>
+    template <typename sub, size_t max>
     constexpr bool inline max_size<sub, max>::possible () const {
         return Sub.possible () && Size <= max;
     }
 
-    template <Machine sub, size_t max>
+    template <typename sub, size_t max>
     constexpr bool inline max_size<sub, max>::valid () const {
         return Sub.valid () && Size <= max;
     }
 
-    template <Machine sub, size_t max>
+    template <typename sub, size_t max>
     constexpr void inline max_size<sub, max>::step (string_view prefix, char c) {
         Size++;
         Sub.step (prefix, c);
@@ -243,17 +316,20 @@ namespace data::parse {
     // TODO we incorrectly always return 1 here. In this commit,
     // we are ignoring the return value of step. We will get all
     // current tests working and then use the return value correctly.
-    template <Machine M, Machine... Ms>
+    template <typename M, typename... Ms>
     constexpr void sequence<M, Ms...>::step (string_view prefix, char c) {
+        log::indent vvvvv {};
         size_t replay = 0;
-        log::indent qqq {};
-        DATA_LOG (normal) << "sequence: read char " << c << "; active index is " << active << "; number of machines is " << (sizeof ...(Ms)) + 1;
 
-        if (active > sizeof ... (Ms)) return;
+        if (active > sizeof ... (Ms)) {
+            ++read; // we have to do this in order to make the pattern invalid.
+            return;
+        }
 
         while (true) {
 
             // try to apply the char to the current sequence.
+
             if (apply_at (machines,
                 [&](auto &m) -> bool {
 
@@ -266,14 +342,13 @@ namespace data::parse {
                         // patterns in this sequence.
                         // TODO: we incorrectly ignore the value returned by step
                         // here. We will take it into account in the next commit.
-                        m.step (prefix.substr (accepted, i), prefix[accepted + i]);
+                        m->step (prefix.substr (accepted, i), prefix[accepted + i]);
 
-                        bool is_valid = m.valid ();
-                        if (is_valid) last = read;
+                        if (m->valid ()) last = read;
 
                         // if it not possible to advance the pattern, then
                         // we have to replay variables.
-                        if (!m.possible ()) return false;
+                        if (!m->possible ()) return false;
                     }
 
                     // advance the number of characters read.
@@ -281,21 +356,23 @@ namespace data::parse {
                     ++read;
 
                     // if it not possible to accept another character,
-                    // then we stop and return an invalid pattern.
-                    if (!possible ()) return true;
+                    // then we stop and continue.
+                    if (!m->possible ()) return false;
 
-                    // TODO: we incorrectly ignore the value returned by step
-                    // here. We will take it into account in the next commit.
-                    m.step (prefix.substr (accepted, prefix.size () - accepted), c);
-                    bool is_valid = m.valid ();
+                    m->step (prefix.substr (accepted, prefix.size () - accepted), c);
+
+                    bool is_valid = m->valid ();
                     // We note where the pattern is last valid so that
                     // we can later replay chars if we need to.
-                    if (is_valid) last = read;
+                    if (is_valid) {
+                        last = read;
+                    }
+
                     // if it is impossible to add more characters and
                     // the sub pattern is not valid, then we have to
                     // replay the current character and maybe some earlier
                     // ones to the next machine. Otherwise we can continue.
-                    return m.possible () ? true : is_valid;
+                    return m->possible () ? true : is_valid;
                 }, active)) return;
 
             // if there was no last valid state, then we
@@ -305,7 +382,9 @@ namespace data::parse {
                 return;
             }
 
-            accepted = *last;
+            accepted += *last;
+
+            apply_at (machines, [&](auto &m) { delete m; }, active);
 
             // increment active index.
             ++active;
@@ -316,7 +395,7 @@ namespace data::parse {
 
             // revert the number of read characters to the number of accepted characters.
             // we have to replay from here through the prefix.
-            read = accepted;
+            read = 0;
 
             // in this case, the latest character has been accepted by the previous
             // pattern, so we stop here. (can this really happen now?)
@@ -327,7 +406,8 @@ namespace data::parse {
             // we now set the last point appropriately.
             apply_at (machines,
                 [&](auto &m) {
-                    last = m.valid () ? maybe<int> {0} : maybe<int> {};
+                    m = new unref<decltype (*m)> {};
+                    last = m->valid () ? maybe<int> {0} : maybe<int> {};
                 }, active);
         }
     }
@@ -335,29 +415,30 @@ namespace data::parse {
     // TODO we incorrectly always return 1 here. In this commit,
     // we are ignoring the return value of step. We will get all
     // current tests working and then use the return value correctly.
-    template <Machine Sub, size_t min, size_t max> requires (min <= max)
+    template <typename Sub, size_t min, size_t max> requires (min <= max)
     constexpr void repeated<Sub, min, max>::step (string_view prefix, char c) {
         while (true) {
 
             ++read;
             if (!possible ()) return;
 
-            machine.step (prefix.substr (previously_accepted, prefix.size () - previously_accepted), c);
+            machine->step (prefix.substr (previously_accepted, prefix.size () - previously_accepted), c);
 
-            if (machine.valid ()) last = read;
+            if (machine->valid ()) last = read;
 
             // if it is possible to add more characters, then we are done
             // because we have no more. If the sub machine was never
             // valid, then we are in an invalid state and can't increment.
-            if (machine.possible () || !bool (last)) return;
+            if (machine->possible () || !bool (last)) return;
 
             ++repetitions;
 
             previously_accepted += *last;
 
-            machine = Sub {};
+            delete machine;
+            machine = new Sub {};
 
-            last = machine.valid () ? maybe<size_t> {0} : maybe<size_t> {};
+            last = machine->valid () ? maybe<size_t> {0} : maybe<size_t> {};
             read = 0;
 
             // in this case, the char was accepted and
@@ -367,8 +448,8 @@ namespace data::parse {
                 ++read;
                 if (!possible ()) return;
 
-                machine.step (prefix.substr (previously_accepted, i - previously_accepted), prefix[i]);
-                if (machine.valid ()) last = read;
+                machine->step (prefix.substr (previously_accepted, i - previously_accepted), prefix[i]);
+                if (machine->valid ()) last = read;
             }
         }
     }
