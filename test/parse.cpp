@@ -513,8 +513,8 @@ namespace data::parse {
 
         // ----- Multiple terminators (stop at first) -----
 
-        EXPECT_FALSE  ((accept<U1>("aaaxyzxyz")));
-        EXPECT_FALSE  ((accept<U1>("xyzxyz")));
+        EXPECT_FALSE  ((accept<U1> ("aaaxyzxyz")));
+        EXPECT_FALSE  ((accept<U1> ("xyzxyz")));
 
 
         // ----- Terminator at beginning -----
@@ -526,9 +526,9 @@ namespace data::parse {
 
         using U2 = until<repeated<one<'a'>>, 'a','a','b'>;
 
-        EXPECT_TRUE  ((accept<U2>("aaab")));
-        EXPECT_TRUE  ((accept<U2>("aaaab")));   // overlap case
-        EXPECT_FALSE ((accept<U2>("aaaaa")));   // never completes "aab")
+        EXPECT_TRUE  ((accept<U2> ("aaab")));
+        EXPECT_TRUE  ((accept<U2> ("aaaab")));   // overlap case
+        EXPECT_FALSE ((accept<U2> ("aaaaa")));   // never completes "aab")
 
 
         // ----- Single-character terminator -----
@@ -555,60 +555,60 @@ namespace data::parse {
 
         // ----- Simple detection -----
 
-        EXPECT_TRUE  ((accept<U5>("abc")));
-        EXPECT_TRUE  ((accept<U5>("xabc")));
-        EXPECT_TRUE  ((accept<U5>("xyzabc")));
-        EXPECT_TRUE  ((accept<U5>("aaaaabc")));
+        EXPECT_TRUE  ((accept<U5> ("abc")));
+        EXPECT_TRUE  ((accept<U5> ("xabc")));
+        EXPECT_TRUE  ((accept<U5> ("xyzabc")));
+        EXPECT_TRUE  ((accept<U5> ("aaaaabc")));
 
 
         // ----- No terminator -----
 
-        EXPECT_FALSE ((accept<U5>("")));
-        EXPECT_FALSE ((accept<U5>("a")));
-        EXPECT_FALSE ((accept<U5>("ab")));
-        EXPECT_FALSE ((accept<U5>("abcd")));     // "abc" must appear as substring
-        EXPECT_FALSE ((accept<U5>("xyz")));      // never saw "abc")
+        EXPECT_FALSE ((accept<U5> ("")));
+        EXPECT_FALSE ((accept<U5> ("a")));
+        EXPECT_FALSE ((accept<U5> ("ab")));
+        EXPECT_FALSE ((accept<U5> ("abcd")));     // "abc" must appear as substring
+        EXPECT_FALSE ((accept<U5> ("xyz")));      // never saw "abc")
 
 
         // ----- Terminator in the middle -----
 
-        EXPECT_FALSE ((accept<U5>("zzabczz")));
-        EXPECT_FALSE ((accept<U5>("aabcxabc")));   // first abc should terminate
+        EXPECT_FALSE ((accept<U5> ("zzabczz")));
+        EXPECT_FALSE ((accept<U5> ("aabcxabc")));   // first abc should terminate
 
 
         // ----- Overlapping prefix cases -----
 
-        EXPECT_TRUE  ((accept<U5>("aabc")));       // overlap: first 'a' restarts prefix
-        EXPECT_TRUE  ((accept<U5>("aaabc")));      // deeper overlap
-        EXPECT_TRUE  ((accept<U5>("abababc")));    // repeated prefix fragments
+        EXPECT_TRUE  ((accept<U5> ("aabc")));       // overlap: first 'a' restarts prefix
+        EXPECT_TRUE  ((accept<U5> ("aaabc")));      // deeper overlap
+        EXPECT_TRUE  ((accept<U5> ("abababc")));    // repeated prefix fragments
 
-        EXPECT_FALSE ((accept<U5>("aaab")));       // never completes full "abc"
-        EXPECT_FALSE ((accept<U5>("ababab")));     // prefix keeps restarting
+        EXPECT_FALSE ((accept<U5> ("aaab")));       // never completes full "abc"
+        EXPECT_FALSE ((accept<U5> ("ababab")));     // prefix keeps restarting
 
 
         // ----- Partial prefix at end -----
 
-        EXPECT_FALSE ((accept<U5>("za")));
-        EXPECT_FALSE ((accept<U5>("zab")));
-        EXPECT_FALSE ((accept<U5>("zzab")));
+        EXPECT_FALSE ((accept<U5> ("za")));
+        EXPECT_FALSE ((accept<U5> ("zab")));
+        EXPECT_FALSE ((accept<U5> ("zzab")));
 
 
         // ----- Multiple occurrences -----
 
-        EXPECT_FALSE ((accept<U5>("abcabc")));
-        EXPECT_FALSE ((accept<U5>("zzabcabc")));
-        EXPECT_TRUE  ((accept<U5>("ababc")));   // first full "abc" ends it
+        EXPECT_FALSE ((accept<U5> ("abcabc")));
+        EXPECT_FALSE ((accept<U5> ("zzabcabc")));
+        EXPECT_TRUE  ((accept<U5> ("ababc")));   // first full "abc" ends it
 
         // ----- Prefix broken and restarted -----
 
-        EXPECT_TRUE  ((accept<U5>("abxabc")));   // first attempt fails, second succeeds
-        EXPECT_FALSE ((accept<U5>("abxab")));    // never completes
+        EXPECT_TRUE  ((accept<U5> ("abxabc")));   // first attempt fails, second succeeds
+        EXPECT_FALSE ((accept<U5> ("abxab")));    // never completes
 
 
         // ----- Terminator at very end -----
 
-        EXPECT_TRUE  ((accept<U5>("zzzabc")));
-        EXPECT_FALSE ((accept<U5>("zzzab")));
+        EXPECT_TRUE  ((accept<U5> ("zzzabc")));
+        EXPECT_FALSE ((accept<U5> ("zzzab")));
 
 
     }
