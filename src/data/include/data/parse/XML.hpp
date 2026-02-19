@@ -165,11 +165,7 @@ namespace data::parse::XML {
                         one<']'>,
                         predicate<is_xml_chardata_char>>>>> {};
 
-    struct CharData :
-        //complement<
-            star<chardata_unit>
-        // , contains<exactly<']',']','>'>>>
-        {};
+    struct CharData : complement<star<chardata_unit>, contains<any, ']',']','>'>> {};
 
     struct cdata_unit : predicate<is_xml_char> {};
 
