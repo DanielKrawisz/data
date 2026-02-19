@@ -556,7 +556,7 @@ namespace data::parse {
         // ----- Simple detection -----
 
         EXPECT_TRUE  ((accept<U5>("abc")));
-        EXPECT_TRUE  ((accept<U5>("xabc")));/*
+        EXPECT_TRUE  ((accept<U5>("xabc")));
         EXPECT_TRUE  ((accept<U5>("xyzabc")));
         EXPECT_TRUE  ((accept<U5>("aaaaabc")));
 
@@ -572,8 +572,8 @@ namespace data::parse {
 
         // ----- Terminator in the middle -----
 
-        EXPECT_TRUE  ((accept<U5>("zzabczz")));
-        EXPECT_TRUE  ((accept<U5>("aabcxabc")));   // first abc should terminate
+        EXPECT_FALSE ((accept<U5>("zzabczz")));
+        EXPECT_FALSE ((accept<U5>("aabcxabc")));   // first abc should terminate
 
 
         // ----- Overlapping prefix cases -----
@@ -595,16 +595,9 @@ namespace data::parse {
 
         // ----- Multiple occurrences -----
 
-        EXPECT_TRUE  ((accept<U5>("abcabc")));
-        EXPECT_TRUE  ((accept<U5>("zzabcabc")));
+        EXPECT_FALSE ((accept<U5>("abcabc")));
+        EXPECT_FALSE ((accept<U5>("zzabcabc")));
         EXPECT_TRUE  ((accept<U5>("ababc")));   // first full "abc" ends it
-
-
-        // ----- Prefix immediately followed by noise -----
-
-        EXPECT_TRUE  ((accept<U5>("abcx")));
-        EXPECT_TRUE  ((accept<U5>("abcXYZ")));
-
 
         // ----- Prefix broken and restarted -----
 
@@ -615,7 +608,7 @@ namespace data::parse {
         // ----- Terminator at very end -----
 
         EXPECT_TRUE  ((accept<U5>("zzzabc")));
-        EXPECT_FALSE ((accept<U5>("zzzab")));*/
+        EXPECT_FALSE ((accept<U5>("zzzab")));
 
 
     }
@@ -951,8 +944,7 @@ namespace data::parse {
         EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
         EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
 
-        // TODO we cannot pass this test now.
-        //EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]]>oops]]></a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]]>oops]]></a>") );
         EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]</a>") );
         EXPECT_FALSE ( accept<XML::document> ("<a><![cdata[test]]></a>") );
 

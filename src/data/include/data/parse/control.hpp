@@ -309,6 +309,54 @@ namespace data::parse {
         }
     };
 
+    template <typename X, char... Y>
+    struct contains {
+        X unit;
+
+        static constexpr char term[] = { Y... };
+        static constexpr size_t N = sizeof...(Y);
+
+        size_t k = 0;        // prefix matched
+
+        constexpr void step (std::string_view sv, char c) {
+            unit.step (sv, c);
+
+            if (k == N) return;
+
+            if (c == term[k]) {
+                k++;
+                return;
+            }
+
+            for (size_t i = sv.size () - k; i < sv.size (); i++) {
+                k = 0;
+
+                for (size_t j = i + 1; j < sv.size (); j++) {
+                    if (sv[j] == term[k]) k++;
+                    else goto cont;
+                }
+
+                if (c == term[k]) {
+                    k++;
+
+                    return;
+                }
+
+                cont:
+            }
+
+        }
+
+        constexpr bool possible () const {
+            return unit.possible ();
+        }
+
+        constexpr bool valid () const {
+            // Valid if we halted exactly at terminator
+            return k == N && unit.valid ();
+        }
+    };
+
     constexpr bool inline invalid::possible () const {
         return false;
     }
