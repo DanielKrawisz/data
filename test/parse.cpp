@@ -3,17 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/parse/URL.hpp>
+#include <data/parse/XML.hpp>
+#include <data/parse/JSON.hpp>
 #include "gtest/gtest.h"
 #include <regex>
 
 namespace data::parse {
-/*
-    template <Machine m> bool test_case (const std::string &s) {
-        bool result1 = accept<m> (s.c_str ());
-        std::stringstream ss {s};
-        bool result2 = accept<m> (ss);
-
-    }*/
 
     TEST (Parse, Basics) {
 
@@ -63,6 +58,46 @@ namespace data::parse {
 
     }
 
+    TEST (Parse, SequenceAB) {
+        {
+            sequence<one<'a'>, one<'b'>> r {};
+            EXPECT_FALSE ((r.valid ()));
+            EXPECT_TRUE ((r.possible ()));
+
+            r.step (string_view {}, 'b');
+            EXPECT_FALSE ((r.valid ()));
+            EXPECT_FALSE ((r.possible ()));
+        }
+        {
+            sequence<one<'a'>, one<'b'>> r {};
+            char str[] = "aa";
+
+            r.step (string_view {str, 0}, 'a');
+            EXPECT_FALSE ((r.valid ()));
+            EXPECT_TRUE ((r.possible ()));
+            r.step (string_view {str, 1}, 'a');
+            EXPECT_FALSE ((r.valid ()));
+            EXPECT_FALSE ((r.possible ()));
+        }
+        {
+            sequence<one<'a'>, one<'b'>> r {};
+            char str[] = "abc";
+
+            r.step (string_view {str, 0}, 'a');
+            EXPECT_FALSE ((r.valid ()));
+            EXPECT_TRUE ((r.possible ()));
+            r.step (string_view {str, 1}, 'b');
+            EXPECT_TRUE ((r.valid ()));
+            EXPECT_FALSE ((r.possible ()));
+            r.step (string_view {str, 2}, 'c');
+            EXPECT_FALSE ((r.valid ()));
+            EXPECT_FALSE ((r.possible ()));
+        }
+
+
+
+    }
+
     TEST (Parse, Sequence) {
 
         EXPECT_TRUE  ((accept<sequence<any, any>> ("")));
@@ -72,6 +107,7 @@ namespace data::parse {
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("")));
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("a")));
         EXPECT_TRUE  ((accept<sequence<one<'a'>, one<'b'>>> ("ab")));
+        EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("aa")));
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("abc")));
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("b")));
 
@@ -137,6 +173,22 @@ namespace data::parse {
         EXPECT_TRUE  ((accept<sequence<optional<exactly<'a'>>, exactly<'b'>>> ("ab")));
         EXPECT_FALSE ((accept<sequence<optional<exactly<'a'>>, exactly<'b'>>> ("a")));
         EXPECT_FALSE ((accept<sequence<optional<exactly<'a'>>, exactly<'b'>>> ("bb")));
+    }
+
+    TEST (Parse, OptionalSequence) {
+        using test_case = sequence<
+            optional<one<'a'>>,
+            optional<one<'b'>>,
+            optional<one<'c'>>>;
+
+            EXPECT_TRUE ((accept<test_case> ("")));
+            EXPECT_TRUE ((accept<test_case> ("a")));
+            EXPECT_TRUE ((accept<test_case> ("b")));
+            EXPECT_TRUE ((accept<test_case> ("c")));
+            EXPECT_TRUE ((accept<test_case> ("ab")));
+            EXPECT_TRUE ((accept<test_case> ("ac")));
+            EXPECT_TRUE ((accept<test_case> ("bc")));
+            EXPECT_TRUE ((accept<test_case> ("abc")));
     }
 
     TEST (Parse, Alternatives) {
@@ -394,68 +446,394 @@ namespace data::parse {
 
     TEST (Parse, IPV4) {
 
-        EXPECT_TRUE((accept<IP::V4>("0.0.0.0")));
-        EXPECT_TRUE((accept<IP::V4>("1.2.3.4")));
-        EXPECT_TRUE((accept<IP::V4>("127.0.0.1")));
-        EXPECT_TRUE((accept<IP::V4>("192.168.0.1")));
-        EXPECT_TRUE((accept<IP::V4>("255.255.255.255")));
-        EXPECT_TRUE((accept<IP::V4>("10.20.30.40")));
+        EXPECT_TRUE  ((accept<IP::V4> ("0.0.0.0")));
+        EXPECT_TRUE  ((accept<IP::V4> ("1.2.3.4")));
+        EXPECT_TRUE  ((accept<IP::V4> ("127.0.0.1")));
+        EXPECT_TRUE  ((accept<IP::V4> ("192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V4> ("255.255.255.255")));
+        EXPECT_TRUE  ((accept<IP::V4> ("10.20.30.40")));
 
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.4.5")));
-        EXPECT_FALSE((accept<IP::V4>(".1.2.3")));
-        EXPECT_FALSE((accept<IP::V4>("1..2.3")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.")));
-        EXPECT_FALSE((accept<IP::V4>("01.2.3.4")));
-        EXPECT_FALSE((accept<IP::V4>("1.02.3.4")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.003.4")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.04")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.4.5")));
+        EXPECT_FALSE ((accept<IP::V4> (".1.2.3")));
+        EXPECT_FALSE ((accept<IP::V4> ("1..2.3")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.")));
+        EXPECT_FALSE ((accept<IP::V4> ("01.2.3.4")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.02.3.4")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.003.4")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.04")));
 
-        EXPECT_FALSE((accept<IP::V4>("256.0.0.1")));
-        EXPECT_FALSE((accept<IP::V4>("1.256.0.1")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.256.1")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.256")));
-        EXPECT_FALSE((accept<IP::V4>("999.1.1.1")));
-        EXPECT_FALSE((accept<IP::V4>("a.b.c.d")));
-        EXPECT_FALSE((accept<IP::V4>("1.a.3.4")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.a.4")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.a")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.4a")));
-        EXPECT_FALSE((accept<IP::V4>("00.0.0.0")));
-        EXPECT_FALSE((accept<IP::V4>("0.00.0.0")));
-        EXPECT_FALSE((accept<IP::V4>("0.0.00.0")));
-        EXPECT_FALSE((accept<IP::V4>("0.0.0.00")));
-        EXPECT_FALSE((accept<IP::V4>("1.2.3.4.")));
-        EXPECT_FALSE((accept<IP::V4>(".1.2.3.4")));
+        EXPECT_FALSE ((accept<IP::V4> ("256.0.0.1")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.256.0.1")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.256.1")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.256")));
+        EXPECT_FALSE ((accept<IP::V4> ("999.1.1.1")));
+        EXPECT_FALSE ((accept<IP::V4> ("a.b.c.d")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.a.3.4")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.a.4")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.a")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.4a")));
+        EXPECT_FALSE ((accept<IP::V4> ("00.0.0.0")));
+        EXPECT_FALSE ((accept<IP::V4> ("0.00.0.0")));
+        EXPECT_FALSE ((accept<IP::V4> ("0.0.00.0")));
+        EXPECT_FALSE ((accept<IP::V4> ("0.0.0.00")));
+        EXPECT_FALSE ((accept<IP::V4> ("1.2.3.4.")));
+        EXPECT_FALSE ((accept<IP::V4> (".1.2.3.4")));
     }
 
     TEST (Parse, IPV6) {
 
-        EXPECT_TRUE  ((accept<IP::V6>("::")));
-        EXPECT_TRUE  ((accept<IP::V6>("::1")));
-        EXPECT_TRUE  ((accept<IP::V6>("::ffff:192.168.0.1")));
-        EXPECT_TRUE  ((accept<IP::V6>("0:0:0:0:0:ffff:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6> ("::")));
+        EXPECT_TRUE  ((accept<IP::V6> ("::1")));
+        EXPECT_TRUE  ((accept<IP::V6> ("::ffff:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6> ("0:0:0:0:0:ffff:192.168.0.1")));
 
-        EXPECT_TRUE  ((accept<IP::V6>("2001:db8::192.0.2.33")));
-        EXPECT_TRUE  ((accept<IP::V6>("::192.168.0.1")));
-        EXPECT_TRUE  ((accept<IP::V6>("::ffff:0:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6> ("2001:db8::192.0.2.33")));
+        EXPECT_TRUE  ((accept<IP::V6> ("::192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6> ("::ffff:0:192.168.0.1")));
 
-        EXPECT_TRUE  ((accept<IP::V6>("1:2:3:4:5:6:192.168.0.1")));
+        EXPECT_TRUE  ((accept<IP::V6> ("1:2:3:4:5:6:192.168.0.1")));
 
-        EXPECT_FALSE ((accept<IP::V6>("1:2:3:4:5:6:7:192.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6> ("1:2:3:4:5:6:7:192.168.0.1")));
 
-        EXPECT_FALSE ((accept<IP::V6>("1:2:3:4:5:192.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6> ("1:2:3:4:5:192.168.0.1")));
 
-        EXPECT_FALSE ((accept<IP::V6>("::ffff:256.168.0.1")));
-        EXPECT_FALSE ((accept<IP::V6>("::ffff:192.168.0")));
-        EXPECT_FALSE ((accept<IP::V6>("::ffff:192.168.0.01")));
+        EXPECT_FALSE ((accept<IP::V6> ("::ffff:256.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6> ("::ffff:192.168.0")));
+        EXPECT_FALSE ((accept<IP::V6> ("::ffff:192.168.0.01")));
 
-        EXPECT_FALSE ((accept<IP::V6>("192.168.0.1::")));
-        EXPECT_FALSE ((accept<IP::V6>("1:2:192.168.0.1:3")));
+        EXPECT_FALSE ((accept<IP::V6> ("192.168.0.1::")));
+        EXPECT_FALSE ((accept<IP::V6> ("1:2:192.168.0.1:3")));
 
-        EXPECT_FALSE ((accept<IP::V6>("::ffff::192.168.0.1")));
+        EXPECT_FALSE ((accept<IP::V6> ("::ffff::192.168.0.1")));
 
         EXPECT_FALSE ((accept<IP::V6> ("AB:02:3008:8CFD::02:3008:8CFD:02")));
         EXPECT_FALSE ((accept<IP::V6> (":0002:3008:8CFD:00AB:0002:3008:8CFD")));
+    }
+
+    TEST (Parse, JSON) {
+        // ===== JSON::value Tests =====
+
+        // ----- Literals -----
+        EXPECT_TRUE  ( accept<JSON::value> ("null") );
+        EXPECT_TRUE  ( accept<JSON::value> ("true") );
+        EXPECT_TRUE  ( accept<JSON::value> ("false") );
+
+        EXPECT_FALSE ( accept<JSON::value> ("nul") );
+        EXPECT_FALSE ( accept<JSON::value> ("True") );
+        EXPECT_FALSE ( accept<JSON::value> ("FALSE") );
+
+
+        // ----- Numbers -----
+        EXPECT_TRUE  ( accept<JSON::value> ("0") );
+        EXPECT_TRUE  ( accept<JSON::value> ("-0") );
+        EXPECT_TRUE  ( accept<JSON::value> ("123") );
+        EXPECT_TRUE  ( accept<JSON::value> ("-123") );
+        EXPECT_TRUE  ( accept<JSON::value> ("3.14") );
+        EXPECT_TRUE  ( accept<JSON::value> ("-3.14") );
+        EXPECT_TRUE  ( accept<JSON::value> ("1e10") );
+        EXPECT_TRUE  ( accept<JSON::value> ("1E10") );
+        EXPECT_TRUE  ( accept<JSON::value> ("-1e-10") );
+        EXPECT_TRUE  ( accept<JSON::value> ("1.5e+8") );
+
+        EXPECT_FALSE ( accept<JSON::value> ("01") );        // leading zero
+        EXPECT_FALSE ( accept<JSON::value> ("--1") );
+        EXPECT_FALSE ( accept<JSON::value> ("1.") );
+        EXPECT_FALSE ( accept<JSON::value> (".5") );
+        EXPECT_FALSE ( accept<JSON::value> ("1e") );
+        EXPECT_FALSE ( accept<JSON::value> ("e10") );
+
+
+        // ----- Strings -----
+        EXPECT_TRUE  ( accept<JSON::value> ("\"\"") );
+        EXPECT_TRUE  ( accept<JSON::value> ("\"hello\"") );
+        EXPECT_TRUE  ( accept<JSON::value> ("\"hello world\"") );
+        EXPECT_TRUE  ( accept<JSON::value> ("\"with \\\"escape\\\"\"") );
+        EXPECT_TRUE  ( accept<JSON::value> ("\"line\\nbreak\"") );
+        EXPECT_TRUE  ( accept<JSON::value> ("\"unicode \\u1234\"") );
+
+        EXPECT_FALSE ( accept<JSON::value> ("\"unterminated") );
+        EXPECT_FALSE ( accept<JSON::value> ("unterminated\"") );
+        EXPECT_FALSE ( accept<JSON::value> ("\"bad \\escape\"") );
+        EXPECT_FALSE ( accept<JSON::value> ("\"bad \\u12\"") );
+
+
+        // ----- Arrays -----
+        EXPECT_TRUE  ( accept<JSON::value> ("[]") );
+        EXPECT_TRUE  ( accept<JSON::value> ("[1]") );
+        EXPECT_TRUE  ( accept<JSON::value> ("[1,2,3]") );
+        EXPECT_TRUE  ( accept<JSON::value> ("[true,false,null]") );
+        EXPECT_TRUE  ( accept<JSON::value> ("[\"a\",\"b\",\"c\"]") );
+        EXPECT_TRUE  ( accept<JSON::value> ("[[1,2],[3,4]]") );
+        EXPECT_TRUE  ( accept<JSON::value> ("[{\"a\":1},{\"b\":2}]") );
+
+        EXPECT_FALSE ( accept<JSON::value> ("[") );
+        EXPECT_FALSE ( accept<JSON::value> ("]") );
+        EXPECT_FALSE ( accept<JSON::value> ("[1,]") );      // trailing comma
+        EXPECT_FALSE ( accept<JSON::value> ("[,1]") );
+        EXPECT_FALSE ( accept<JSON::value> ("[1 2]") );
+
+
+        // ----- Objects -----
+        EXPECT_TRUE  ( accept<JSON::value> ("{}") );
+        EXPECT_TRUE  ( accept<JSON::value> ("{\"a\":1}") );
+        EXPECT_TRUE  ( accept<JSON::value> ("{\"a\":1,\"b\":2}") );
+        EXPECT_TRUE  ( accept<JSON::value> ("{\"nested\":{\"x\":10}}") );
+        EXPECT_TRUE  ( accept<JSON::value> ("{\"arr\":[1,2,3]}") );
+        EXPECT_TRUE  ( accept<JSON::value> ("{\"mix\":{\"a\":[true,false,null]}}") );
+
+        EXPECT_FALSE ( accept<JSON::value> ("{") );
+        EXPECT_FALSE ( accept<JSON::value> ("}") );
+        EXPECT_FALSE ( accept<JSON::value> ("{\"a\"}") );           // missing colon
+        EXPECT_FALSE ( accept<JSON::value> ("{\"a\":}") );          // missing value
+        EXPECT_FALSE ( accept<JSON::value> ("{a:1}") );             // key not string
+        EXPECT_FALSE ( accept<JSON::value> ("{\"a\":1,}") );        // trailing comma
+        EXPECT_FALSE ( accept<JSON::value> ("{,\"a\":1}") );
+
+
+        // ----- Deep Recursion Smoke Tests -----
+        EXPECT_TRUE  ( accept<JSON::value> (
+            "{\"a\":[{\"b\":[{\"c\":[{\"d\":null}]}]}]}"
+        ));
+
+        EXPECT_TRUE  ( accept<JSON::value> (
+            "[[[[[{\"x\":0}]]]]]"
+        ));
+
+        EXPECT_FALSE ( accept<JSON::value> (
+            "{\"a\":[{\"b\":[{\"c\":[{\"d\":null}]}]}]"  // missing closing brace
+        ));
+
+    }
+
+    TEST (Parse, XML) {
+        // ===== XML::document Tests =====
+
+        // ----- Minimal Documents -----
+        EXPECT_TRUE  ( accept<XML::document> ("<a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a/>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("") );
+        EXPECT_FALSE ( accept<XML::document> ("<a>") );
+        EXPECT_FALSE ( accept<XML::document> ("</a>") );
+
+
+        // ----- Simple Text Content -----
+        EXPECT_TRUE  ( accept<XML::document> ("<a>hello</a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>123</a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>hello world</a>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<a><</a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>></a>") );
+
+
+        // ----- Nested Elements -----
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b></b></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b><c></c></b></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<root><a/><b/><c/></root>") );
+
+
+        // ----- Mismatched Tags (Allowed by recognizer) -----
+        // Since we are NOT verifying matching names, these should pass
+        EXPECT_TRUE  ( accept<XML::document> ("<a></b>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b></c></d>") );
+
+
+        // ----- Attributes -----
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"1\"></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x='1'></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x='\"'></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"'\"></a>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<a x=\"\"\"></a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a x='''></a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a x=\"<\"></a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a x=\"&\"></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"&amp;\"></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"1\" y='2'></a>") );
+
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"1\" y=\"2\"></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"value\"/>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"1\"><b y=\"2\"/></a>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<a x=1></a>") );          // missing quotes
+        EXPECT_FALSE ( accept<XML::document> ("<a x=\"1></a>") );        // unterminated string
+        EXPECT_FALSE ( accept<XML::document> ("<a x=></a>") );           // missing value
+
+
+        // ----- Comments -----
+        EXPECT_TRUE  ( accept<XML::document> ("<!-- comment --><a/>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><!-- inside --></a>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<!-- unclosed <a/>") );
+        EXPECT_FALSE ( accept<XML::document> ("<!-- bad -- comment --><a/>") );
+
+
+        // ----- XML Declaration (if supported) -----
+        EXPECT_TRUE  ( accept<XML::document> ("<?xml version=\"1.0\"?><a/>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<?xml version=\"1.0\" encoding=\"UTF-8\"?><a></a>") );
+
+
+        // ----- Mixed Content -----
+        EXPECT_TRUE  ( accept<XML::document> ("<a>text<b/>more</a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b/>text<c/></a>") );
+
+
+        // ----- Deep Nesting -----
+        EXPECT_TRUE  ( accept<XML::document> (
+            "<a><b><c><d><e></e></d></c></b></a>"
+        ));
+
+        EXPECT_TRUE  ( accept<XML::document> (
+            "<root><a><b/><c><d/><e/></c></a></root>"
+        ));
+
+
+        // ----- Structural Failures -----
+        EXPECT_FALSE ( accept<XML::document> ("<a/><b/>") );     // multiple roots (if you enforce single root)
+        EXPECT_FALSE ( accept<XML::document> ("<a></a></b>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<a><b></b>") );    // missing closing outer
+        EXPECT_FALSE ( accept<XML::document> ("<a/></") );        // incomplete tag
+        EXPECT_FALSE ( accept<XML::document> ("<>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a x=\"1\"") );    // incomplete start tag
+
+        // =========================
+        // XML Declaration
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<?xml version=\"1.0\"?><a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<?xml version=\"1.0\" encoding=\"UTF-8\"?><a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>   <a></a>") );
+
+        // TODO this test fails because Pi declarations do not reject xml as a name.
+        // we need to have a new pattern type that says a result must not match
+        // a certain string.
+        //EXPECT_FALSE ( accept<XML::document> ("<?xml?><a></a>") );                     // missing required attributes
+        EXPECT_FALSE ( accept<XML::document> ("<?xml version=\"1.0\"><a></a>") );      // missing ?>
+        EXPECT_FALSE ( accept<XML::document> ("<?xml version=\"1.0\"?>") );            // no root element
+
+
+
+        // =========================
+        // Comments – standalone
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<!-- comment --><a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a></a><!-- comment -->") );
+        EXPECT_TRUE  ( accept<XML::document> ("<!-- one --><!-- two --><a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<!-- one --><a></a><!-- two -->") );
+
+
+        // =========================
+        // Comments inside content
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<a><!-- comment --></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>text<!-- comment --></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><!-- one --><!-- two --></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>text<!-- one -->more<!-- two --></a>") );
+
+
+        // =========================
+        // Invalid comment forms
+        // =========================
+
+        EXPECT_FALSE ( accept<XML::document> ("<a><!-- bad -- comment --></a>") );     // contains "--"
+        EXPECT_FALSE ( accept<XML::document> ("<a><!-- bad ---></a>") );               // malformed ending
+        EXPECT_FALSE ( accept<XML::document> ("<a><!--></a>") );                       // unclosed
+        EXPECT_FALSE ( accept<XML::document> ("<a><!-----></a>") );                    // invalid "--" sequence
+
+
+
+        // =========================
+        // Raw '&' in text (should be invalid XML)
+        // =========================
+
+        EXPECT_FALSE ( accept<XML::document> ("<a>&</a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a>Tom & Jerry</a>") );
+
+
+        // =========================
+        // Entity references
+        // =========================
+
+        EXPECT_TRUE ( accept<XML::document> ("<a>&amp;</a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a>&lt;</a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a>&gt;</a>") );
+
+
+        // =========================
+        // Numeric character references
+        // =========================
+
+        EXPECT_TRUE ( accept<XML::document> ("<a>&#65;</a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a>&#x41;</a>") );
+
+        // =========================
+        // CDATA sections
+        // =========================
+/*
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[ raw <xml> ]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[test]]></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]]>oops]]></a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]</a>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a><![cdata[test]]></a>") );
+
+        // =========================
+        // Processing instructions
+        // =========================
+
+        EXPECT_TRUE ( accept<XML::document> ("<a><?pi?></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><?pi test?></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><?pi   test?></a>") );
+
+        EXPECT_FALSE ( accept<XML::document> ("<a><?xml test?></a>") );   // forbidden target
+        EXPECT_TRUE  ( accept<XML::document> ("<a><?xmltest?></a>") );   // ok
+        EXPECT_FALSE ( accept<XML::document> ("<a><?pi test></a>") );     // missing ?>
+*/
+        // =========================
+        // Mismatched tags
+        // =========================
+        // NOTE our recognizer cannot reject these.
+/*
+        EXPECT_FALSE ( accept<XML::document> ("<a></b>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a><b></a></b>") );
+*/
+
+        // =========================
+        // Multiple root elements (should fail)
+        // =========================
+
+        EXPECT_FALSE ( accept<XML::document> ("<a></a><b></b>") );
+
+
+        // =========================
+        // Edge whitespace cases
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("   <a></a>   ") );
+        EXPECT_TRUE  ( accept<XML::document> ("\n\t<a></a>\r") );
+
+
+        // =========================
+        // Nested elements
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b></b></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b><c></c></b></a>") );
+
+
+
+    }
+
+    TEST (Parse, URL) {
+
     }
 
 }

@@ -2,7 +2,7 @@
 #ifndef DATA_PARSE_ASCII
 #define DATA_PARSE_ASCII
 
-#include <data/parse/UTF8.hpp>
+#include <data/parse/unicode.hpp>
 #include <data/parse/exactly.hpp>
 
 namespace data::parse::ASCII {
@@ -23,12 +23,22 @@ namespace data::parse::ASCII {
 
     using is_alnum        = either<is_digit, is_alpha>;
 
+    struct is_whitespace {
+        constexpr bool operator () (uint32_t c) const noexcept {
+            return
+                (c >= 0x0009 && c <= 0x000D) ||
+                c == 0x0020;
+        }
+    };
+
     struct any             : UTF8::ascii {};
     struct printable       : UTF8::printable_ascii {};
     struct digit           : UTF8::digit {};
 
     template <uint32_t Min, uint32_t Max>
     struct range           : UTF8::range<Min, Max> {};
+
+    struct whitespace      : predicate<is_whitespace> {};
 
     struct lower           : range<'a', 'z'> {};
 
@@ -41,6 +51,8 @@ namespace data::parse::ASCII {
     struct hyphen          : one<'-'> {};
 
     struct dot             : one<'.'> {};
+
+    struct quote           : one<'"'> {};
 
     struct dec_nat         : alternatives<one<'0'>, sequence<range<'1', '9'>, star<digit>>> {};
 
