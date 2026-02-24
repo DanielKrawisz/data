@@ -677,6 +677,29 @@ namespace data::parse {
 
         EXPECT_FALSE ((accept<IP::V6> ("AB:02:3008:8CFD::02:3008:8CFD:02")));
         EXPECT_FALSE ((accept<IP::V6> (":0002:3008:8CFD:00AB:0002:3008:8CFD")));
+
+        EXPECT_TRUE ((accept<IP::V6> ("2001:db8::1")));
+    }
+
+    TEST (Parse, Endpoint) {
+
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("127.0.0.1:80")));
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("0.0.0.0:0")));
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("255.255.255.255:65535")));
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("[2001:db8::1]:443")));
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("[::1]:8080")));
+
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("192.168.1.1:1")));
+        EXPECT_TRUE  ((accept<TCP::endpoint> ("192.168.1.1:65535")));
+
+        EXPECT_FALSE ((accept<TCP::endpoint> ("127.0.0.1")));
+        EXPECT_FALSE ((accept<TCP::endpoint> ("127.0.0.1:")));
+        EXPECT_FALSE ((accept<TCP::endpoint> ("127.0.0.1:abc")));
+        EXPECT_FALSE ((accept<TCP::endpoint> ("256.0.0.1:80")));
+        EXPECT_FALSE ((accept<TCP::endpoint> ("127.0.0.1:65536")));
+        EXPECT_FALSE ((accept<TCP::endpoint> ("2001:db8::1:80")));  // missing brackets
+        EXPECT_FALSE ((accept<TCP::endpoint> ("[2001:db8::1]")));
+        EXPECT_FALSE ((accept<TCP::endpoint> ("example.com:80")));  // domain not allowed
     }
 
     TEST (Parse, JSON) {
@@ -989,12 +1012,99 @@ namespace data::parse {
         EXPECT_TRUE  ( accept<XML::document> ("<a><b></b></a>") );
         EXPECT_TRUE  ( accept<XML::document> ("<a><b><c></c></b></a>") );
 
+    }
 
+    TEST (Parse, Authority) {
 
+        EXPECT_TRUE  ((accept<URL::authority> ("example.com")));
+        EXPECT_TRUE  ((accept<URL::authority> ("example.com:80")));
+        //EXPECT_TRUE  ((accept<URL::authority> ("user@example.com")));
+        //EXPECT_TRUE  ((accept<URL::authority> ("user:pass@example.com")));
+        //EXPECT_TRUE  ((accept<URL::authority> ("user@example.com:443")));
+        EXPECT_TRUE  ((accept<URL::authority> ("127.0.0.1")));
+        EXPECT_TRUE  ((accept<URL::authority> ("127.0.0.1:8080")));
+        EXPECT_TRUE  ((accept<URL::authority> ("[2001:db8::1]")));
+        EXPECT_TRUE  ((accept<URL::authority> ("[2001:db8::1]:443")));
+        //EXPECT_TRUE  ((accept<URL::authority> ("user@[2001:db8::1]:443")));
+        EXPECT_TRUE  ((accept<URL::authority> ("xn--d1acpjx3f.xn--p1ai")));
+
+        EXPECT_TRUE  ((accept<URL::authority> ("a-b.c_d~e")));
+        //EXPECT_TRUE  ((accept<URL::authority> ("user%20name@example.com")));
+
+        EXPECT_FALSE ((accept<URL::authority> ("example.com:")));
+        EXPECT_FALSE ((accept<URL::authority> ("example.com:abc")));
+        EXPECT_FALSE ((accept<URL::authority> ("user@")));
+        EXPECT_FALSE ((accept<URL::authority> ("@example.com")));
+        EXPECT_FALSE ((accept<URL::authority> ("example.com:80:90")));
+        EXPECT_FALSE ((accept<URL::authority> ("[2001:db8::1")));
+        EXPECT_FALSE ((accept<URL::authority> ("2001:db8::1"))); // missing brackets
+        EXPECT_FALSE ((accept<URL::authority> ("exa mple.com")));
+
+        EXPECT_TRUE  ((accept<URL::authority> ("userexample.com")));
+        EXPECT_FALSE ((accept<URL::authority> ("user@@example.com")));
+        EXPECT_FALSE ((accept<URL::authority> ("example.com::80")));
+        EXPECT_FALSE ((accept<URL::authority> ("user@host:80:90")));
+        EXPECT_FALSE ((accept<URL::authority> ("user@host:")));
+        EXPECT_FALSE ((accept<URL::authority> ("host:080a")));
+    }
+
+    TEST (Parse, Target) {
+
+        EXPECT_TRUE  ((accept<URL::target> ("/")));
+        EXPECT_TRUE  ((accept<URL::target> ("/index.html")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a/b/c")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a/b?x=1")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a/b?x=1&y=2")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a/b#frag")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a/b?x=1#frag")));
+        EXPECT_TRUE  ((accept<URL::target> ("*"))); // if supporting OPTIONS *
+        EXPECT_TRUE  ((accept<URL::target> ("")));  // if empty path allowed
+/*
+        EXPECT_TRUE  ((accept<URL::target> ("/a%20b")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a/b/")));
+        EXPECT_TRUE  ((accept<URL::target> ("/a//b")));
+
+        EXPECT_FALSE ((accept<URL::target> ("http://example.com")));
+        EXPECT_FALSE ((accept<URL::target> ("//example.com")));
+        EXPECT_FALSE ((accept<URL::target> ("?x=1")));   // if path required
+        EXPECT_FALSE ((accept<URL::target> ("#frag")));  // if path required*/
     }
 
     TEST (Parse, URL) {
 
+        EXPECT_TRUE  ((accept<URL::URI> ("http://example.com")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://example.com/")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://example.com:80/")));
+        //EXPECT_TRUE  ((accept<URL::URI> ("http://user@example.com/")));
+        //EXPECT_TRUE  ((accept<URL::URI> ("http://user:pass@example.com:8080/path")));
+        EXPECT_TRUE  ((accept<URL::URI> ("https://example.com/a/b?x=1#frag")));
+        EXPECT_TRUE  ((accept<URL::URI> ("ftp://example.com/resource")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://127.0.0.1:8000/")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://[2001:db8::1]/")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://[2001:db8::1]:443/path")));
+
+        EXPECT_TRUE  ((accept<URL::URI> ("http://example.com/%7Euser")));
+        EXPECT_TRUE  ((accept<URL::URI> ("scheme+ext://example.com")));
+
+        //EXPECT_FALSE ((accept<URL::URI> ("http:///example.com")));
+        //EXPECT_FALSE ((accept<URL::URI> ("http://:80")));
+        EXPECT_FALSE ((accept<URL::URI> ("http://[2001:db8::1")));
+        EXPECT_FALSE ((accept<URL::URI> ("://example.com")));
+        EXPECT_FALSE ((accept<URL::URI> ("http://exa mple.com")));
+
+        EXPECT_TRUE ((accept<URL::path_abempty> ("//u:abc")));
+
+        EXPECT_FALSE ((accept<URL::path_absolute> ("//u:abc")));
+
+        EXPECT_FALSE ((accept<URL::path_absolute> ("//example.com:abc")));
+
+        EXPECT_FALSE ((accept<URL::path_rootless> ("//u:abc")));
+
+        EXPECT_FALSE ((accept<URL::hierarchical> ("//u:abc")));
+
+        EXPECT_FALSE ((accept<URL::hierarchical> ("//example.com:abc")));
+
+        EXPECT_FALSE ((accept<URL::URI> ("http://example.com:abc")));
     }
 
 }

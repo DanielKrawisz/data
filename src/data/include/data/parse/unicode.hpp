@@ -106,7 +106,6 @@ namespace data::parse::UTF8 {
     template <uint32_t Val>
     struct equal_to {
         bool operator () (uint32_t cp) const {
-            log::indent v {};
             return cp == Val;
         }
     };
@@ -121,36 +120,36 @@ namespace data::parse::UTF8 {
     struct is_whitespace {
         constexpr bool operator () (uint32_t c) const noexcept {
             return
-            // ASCII whitespace
-            (c >= 0x0009 && c <= 0x000D) ||
-            c == 0x0020 ||
+                // ASCII whitespace
+                (c >= 0x0009 && c <= 0x000D) ||
+                c == 0x0020 ||
 
-            // Next line
-            c == 0x0085 ||
+                // Next line
+                c == 0x0085 ||
 
-            // Non-breaking space
-            c == 0x00A0 ||
+                // Non-breaking space
+                c == 0x00A0 ||
 
-            // Ogham space mark
-            c == 0x1680 ||
+                // Ogham space mark
+                c == 0x1680 ||
 
-            // En quad .. hair space
-            (c >= 0x2000 && c <= 0x200A) ||
+                // En quad .. hair space
+                (c >= 0x2000 && c <= 0x200A) ||
 
-            // Line separator
-            c == 0x2028 ||
+                // Line separator
+                c == 0x2028 ||
 
-            // Paragraph separator
-            c == 0x2029 ||
+                // Paragraph separator
+                c == 0x2029 ||
 
-            // Narrow no-break space
-            c == 0x202F ||
+                // Narrow no-break space
+                c == 0x202F ||
 
-            // Medium mathematical space
-            c == 0x205F ||
+                // Medium mathematical space
+                c == 0x205F ||
 
-            // Ideographic space
-            c == 0x3000;
+                // Ideographic space
+                c == 0x3000;
         }
     };
 

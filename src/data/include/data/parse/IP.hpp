@@ -159,8 +159,6 @@ namespace data::parse::IP {
 
     struct address : alternatives<V6, V4> {};
 
-    using endpoint = parse::sequence<address, exactly<':'>, port>;
-
 }
 
 #endif

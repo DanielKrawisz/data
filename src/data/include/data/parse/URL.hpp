@@ -12,10 +12,10 @@ namespace data::parse::URL {
     struct is_unreserved {
         bool operator () (uint32 c) const {
             return is_alnum {} (c) ||
-            c == '-' ||
-            c == '.' ||
-            c == '_' ||
-            c == '~';
+                c == '-' ||
+                c == '.' ||
+                c == '_' ||
+                c == '~';
         }
     };
 
@@ -61,8 +61,8 @@ namespace data::parse::URL {
     struct pchar :
         alternatives<
             unreserved,
-            pct,
             sub_delim,
+            pct,
             one<':'>,
             one<'@'>> {};
 
@@ -73,13 +73,13 @@ namespace data::parse::URL {
 
     struct path_abempty : star<sequence<one<'/'>, segment>> {};
 
-    struct path_rootless : alternatives<segment_nz, path_abempty> {};
+    struct path_rootless : sequence<segment_nz, path_abempty> {};
 
     struct path_absolute : sequence<one<'/'>, optional<sequence<segment_nz, star<sequence<one<'/'>, segment>>>>> {};
 
     struct path_after_authority : path_abempty {};
 
-    struct reg_name : star<alternatives<unreserved, pct, sub_delim>> {};
+    struct reg_name : star<alternatives<unreserved, sub_delim, pct>> {};
 
     struct scheme : sequence<alpha, star<alternatives<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
 
@@ -105,7 +105,7 @@ namespace data::parse::URL {
 
     struct host : alternatives<ip_literal, IP::V4, reg_name> {};
 
-    struct authority : sequence<optional<sequence<userinfo, one<'@'>>>, host, optional<sequence<one<':'>, IP::port>>> {};
+    struct authority : sequence</*optional<sequence<userinfo, one<'@'>>>, */host, optional<sequence<one<':'>, IP::port>>> {};
 
     struct path : alternatives<path_after_authority, path_absolute, path_rootless> {};
 
@@ -115,7 +115,13 @@ namespace data::parse::URL {
         optional<sequence<one<'?'>, query>>,
         optional<sequence<one<'#'>, fragment>>> {};
 
-    struct uri : sequence<scheme, one<':'>, hierarchical, optional<sequence<one<'?'>, query>>, optional<sequence<one<'#'>, fragment>>> {};
+    struct URI : sequence<scheme, one<':'>, hierarchical, optional<sequence<one<'?'>, query>>, optional<sequence<one<'#'>, fragment>>> {};
+}
+
+namespace data::parse::TCP {
+
+    struct endpoint : sequence<alternatives<URL::ip_literal, IP::V4>, exactly<':'>, IP::port> {};
+
 }
 
 #endif
