@@ -1018,23 +1018,23 @@ namespace data::parse {
 
         EXPECT_TRUE  ((accept<URL::authority> ("example.com")));
         EXPECT_TRUE  ((accept<URL::authority> ("example.com:80")));
-        //EXPECT_TRUE  ((accept<URL::authority> ("user@example.com")));
-        //EXPECT_TRUE  ((accept<URL::authority> ("user:pass@example.com")));
-        //EXPECT_TRUE  ((accept<URL::authority> ("user@example.com:443")));
+        EXPECT_TRUE  ((accept<URL::authority> ("user@example.com")));
+        EXPECT_TRUE  ((accept<URL::authority> ("user:pass@example.com")));
+        EXPECT_TRUE  ((accept<URL::authority> ("user@example.com:443")));
         EXPECT_TRUE  ((accept<URL::authority> ("127.0.0.1")));
         EXPECT_TRUE  ((accept<URL::authority> ("127.0.0.1:8080")));
         EXPECT_TRUE  ((accept<URL::authority> ("[2001:db8::1]")));
         EXPECT_TRUE  ((accept<URL::authority> ("[2001:db8::1]:443")));
-        //EXPECT_TRUE  ((accept<URL::authority> ("user@[2001:db8::1]:443")));
+        EXPECT_TRUE  ((accept<URL::authority> ("user@[2001:db8::1]:443")));
         EXPECT_TRUE  ((accept<URL::authority> ("xn--d1acpjx3f.xn--p1ai")));
 
         EXPECT_TRUE  ((accept<URL::authority> ("a-b.c_d~e")));
-        //EXPECT_TRUE  ((accept<URL::authority> ("user%20name@example.com")));
+        EXPECT_TRUE  ((accept<URL::authority> ("user%20name@example.com")));
 
         EXPECT_FALSE ((accept<URL::authority> ("example.com:")));
         EXPECT_FALSE ((accept<URL::authority> ("example.com:abc")));
-        EXPECT_FALSE ((accept<URL::authority> ("user@")));
-        EXPECT_FALSE ((accept<URL::authority> ("@example.com")));
+        EXPECT_TRUE  ((accept<URL::authority> ("user@")));
+        EXPECT_TRUE  ((accept<URL::authority> ("@example.com")));
         EXPECT_FALSE ((accept<URL::authority> ("example.com:80:90")));
         EXPECT_FALSE ((accept<URL::authority> ("[2001:db8::1")));
         EXPECT_FALSE ((accept<URL::authority> ("2001:db8::1"))); // missing brackets
@@ -1067,7 +1067,8 @@ namespace data::parse {
         EXPECT_FALSE ((accept<URL::target> ("http://example.com")));
         EXPECT_FALSE ((accept<URL::target> ("//example.com")));
         EXPECT_FALSE ((accept<URL::target> ("?x=1")));   // if path required
-        EXPECT_FALSE ((accept<URL::target> ("#frag")));  // if path required*/
+        EXPECT_FALSE ((accept<URL::target> ("#frag")));  // if path required
+        */
     }
 
     TEST (Parse, URL) {
@@ -1075,8 +1076,8 @@ namespace data::parse {
         EXPECT_TRUE  ((accept<URL::URI> ("http://example.com")));
         EXPECT_TRUE  ((accept<URL::URI> ("http://example.com/")));
         EXPECT_TRUE  ((accept<URL::URI> ("http://example.com:80/")));
-        //EXPECT_TRUE  ((accept<URL::URI> ("http://user@example.com/")));
-        //EXPECT_TRUE  ((accept<URL::URI> ("http://user:pass@example.com:8080/path")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://user@example.com/")));
+        EXPECT_TRUE  ((accept<URL::URI> ("http://user:pass@example.com:8080/path")));
         EXPECT_TRUE  ((accept<URL::URI> ("https://example.com/a/b?x=1#frag")));
         EXPECT_TRUE  ((accept<URL::URI> ("ftp://example.com/resource")));
         EXPECT_TRUE  ((accept<URL::URI> ("http://127.0.0.1:8000/")));
@@ -1086,8 +1087,10 @@ namespace data::parse {
         EXPECT_TRUE  ((accept<URL::URI> ("http://example.com/%7Euser")));
         EXPECT_TRUE  ((accept<URL::URI> ("scheme+ext://example.com")));
 
-        //EXPECT_FALSE ((accept<URL::URI> ("http:///example.com")));
-        //EXPECT_FALSE ((accept<URL::URI> ("http://:80")));
+        // this is valid because host can be empty.
+        EXPECT_TRUE  ((accept<URL::URI> ("http:///example.com")));
+
+        EXPECT_TRUE  ((accept<URL::URI> ("http://:80")));
         EXPECT_FALSE ((accept<URL::URI> ("http://[2001:db8::1")));
         EXPECT_FALSE ((accept<URL::URI> ("://example.com")));
         EXPECT_FALSE ((accept<URL::URI> ("http://exa mple.com")));

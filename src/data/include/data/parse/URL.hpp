@@ -105,7 +105,10 @@ namespace data::parse::URL {
 
     struct host : alternatives<ip_literal, IP::V4, reg_name> {};
 
-    struct authority : sequence</*optional<sequence<userinfo, one<'@'>>>, */host, optional<sequence<one<':'>, IP::port>>> {};
+    struct authority :
+        alternatives<
+            sequence<userinfo, one<'@'>, host, optional<sequence<one<':'>, IP::port>>>,
+            sequence<host, optional<sequence<one<':'>, IP::port>>>> {};
 
     struct path : alternatives<path_after_authority, path_absolute, path_rootless> {};
 
