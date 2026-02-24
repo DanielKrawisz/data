@@ -6,7 +6,6 @@
 #include <data/types.hpp>
 #include <istream>
 #include <iostream>
-#include <data/io/log.hpp>
 
 namespace data::parse {
 
@@ -55,13 +54,13 @@ namespace data::parse {
 
     template <Machine State>
     constexpr string_view read_token (const char *in, State &state) {
-        log::indent x {};
         size_t i = 0;
         char c;
         while ((c = in[i]) != '\0') {
             state.step (string_view {in, i}, c);
             i++;
-            if (!state.possible ()) break;
+            auto state_is_possible = state.possible ();
+            if (!state_is_possible) break;
         }
 
         return state.valid () ? string_view {in, i} : string_view {nullptr, 0};

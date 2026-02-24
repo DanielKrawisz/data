@@ -1171,13 +1171,33 @@ namespace data {
     std::istream &net::IP::operator >> (std::istream &i, net::IP::address &addr) {
         parse::IP::address m {};
         auto result = parse::read_token (i, m);
-
         if (i) addr = net::IP::address {result};
         return i;
     }
 
+    std::istream &net::operator >> (std::istream &i, net::URL &u) {
+        parse::URL::URI m {};
+        auto result = parse::read_token (i, m);
+        if (i) u = net::URL {result};
+        return i;
+    }
+
+    std::istream &net::operator >> (std::istream &i, net::authority &a) {
+        parse::URL::authority m {};
+        auto result = parse::read_token (i, m);
+        if (i) a = net::authority {result};
+        return i;
+    }
+
+    std::istream &net::operator >> (std::istream &i, net::target &targ) {
+        parse::URL::target m {};
+        auto result = parse::read_token (i, m);
+        if (i) targ = net::target {result};
+        return i;
+    }
+
     std::istream &net::IP::TCP::operator >> (std::istream &i, net::IP::TCP::endpoint &ep) {
-        parse::IP::endpoint m {};
+        parse::TCP::endpoint m {};
         auto result = parse::read_token (i, m);
         if (i) ep = net::IP::TCP::endpoint {result};
         return i;

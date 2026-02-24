@@ -117,14 +117,12 @@ namespace data::parse {
 
     public:
         constexpr bool possible () const {
-
             // The sequence is possible if, of the machines at
             // or past the active one, at least one is possible
             // and the rest are either valid or possible.
 
-            log::indent p {};
-
             bool at_least_one_possible = false;
+
             for (size_t i = active; i <= sizeof... (Ms); i++)
                 if (!apply_at (machines, [&] (auto &m) -> bool {
                     if (m == nullptr) m = new unref<decltype (*m)> {};
@@ -136,11 +134,11 @@ namespace data::parse {
 
                     return m->valid ();
                 }, i)) return false;
+
             return at_least_one_possible;
         }
 
         constexpr bool valid () const {
-
             // if the active index is past the end of the sequence, then
             // the pattern is valid if we have accepted the same number
             // of characters that we have read.
@@ -421,7 +419,6 @@ namespace data::parse {
     template <typename... Ms>
     constexpr void alternatives<Ms...>::step (string_view prefix, char c) {
         for_each (machines, [&] (auto &m) {
-            log::indent q {};
             if (m == nullptr) m = new unref<decltype (*m)> {};
             m->step (prefix, c);
         });
@@ -448,7 +445,6 @@ namespace data::parse {
     // current tests working and then use the return value correctly.
     template <typename M, typename... Ms>
     constexpr void sequence<M, Ms...>::step (string_view prefix, char c) {
-        log::indent vvvvv {};
         size_t replay = 0;
 
         if (active > sizeof ... (Ms)) {
