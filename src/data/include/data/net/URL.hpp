@@ -150,6 +150,8 @@ namespace data::net {
     struct authority : UTF8 {
         using UTF8::UTF8;
 
+        static string_view user_info (string_view);
+
         authority (const domain_name &d);
         authority (const IP::address &ad);
 
@@ -161,6 +163,8 @@ namespace data::net {
         maybe<UTF8> host () const;
         maybe<ASCII> port () const;
         maybe<uint16> port_number () const;
+
+        maybe<data::UTF8> user_info () const;
 
         static bool valid (string_view);
         bool valid () const;
@@ -351,14 +355,14 @@ namespace data::net {
 
 namespace data::net::IP::TCP {
 
-    struct endpoint : URL {
+    struct endpoint : authority {
 
-        endpoint () : URL {} {}
-        endpoint (const IP::address &addr, uint16 port);
+        endpoint (): authority {} {}
+        endpoint (const IP::address &addr, uint16 port): authority {addr, port} {}
 
         // input endpoint as a string.
-        endpoint (const char *x);
-        endpoint (const std::string &x);
+        endpoint (const char *x): authority {x} {}
+        endpoint (const std::string &x): authority {x} {}
 
         bool valid () const;
 
@@ -368,19 +372,6 @@ namespace data::net::IP::TCP {
         uint16 port_number () const {
             return port ();
         }
-
-        data::UTF8 authority () const {
-            return *static_cast<const URL *> (this)->authority ();
-        }
-
-        data::UTF8 host () const {
-            return *static_cast<const URL *> (this)->host ();
-        }
-        
-        void user_info () const = delete;
-        void domain_name () const = delete;
-        void query () const = delete;
-        void fragment () const = delete;
 
         // we use asio for the backend of some of this stuff.
         operator asio::ip::tcp::endpoint () const;
@@ -474,7 +465,7 @@ namespace data::net {
     }
 
     bool inline IP::TCP::operator == (const IP::TCP::endpoint &a, const IP::TCP::endpoint &b) {
-        return static_cast<string> (a) == static_cast<string> (b.normalize ());
+        return static_cast<string> (a) == static_cast<string> (b);
     }
 
     std::ostream inline &IP::TCP::operator << (std::ostream &o, const IP::TCP::endpoint &u) {
@@ -516,26 +507,27 @@ namespace data::net {
     bool inline authority::valid () const {
         return valid (encoding::percent::encode (*this));
     }
+
+    maybe<data::UTF8> inline authority::user_info () const {
+        string_view x = user_info (*this);
+        if (x.data () == nullptr) return {};
+        return data::UTF8 {x};
+    }
 }
 
 namespace data::net::IP::TCP {
 
-    inline endpoint::endpoint (const IP::address &addr, uint16 port) : URL {URL::make {}.protocol ("tcp").address (addr).port (port)} {}
-    inline endpoint::endpoint (const char *x) : URL {x} {}
-    inline endpoint::endpoint (const std::string &x) : URL {x} {}
-
     bool inline endpoint::valid () const {
-        return URL::valid () && this->protocol () == protocol::TCP && bool (static_cast<const URL *> (this)->port_number ()) &&
-            bool (static_cast<const URL *> (this)->address ()) && !bool (static_cast<const URL *> (this)->user_info ()) &&
-            !bool (static_cast<const URL *> (this)->fragment ()) && !bool (static_cast<const URL *> (this)->query ());
+        return authority::valid () && bool (static_cast<const authority *> (this)->port_number ()) &&
+            bool (static_cast<const authority *> (this)->address ()) && !bool (static_cast<const authority *> (this)->user_info ());
     }
 
     IP::address inline endpoint::address () const {
-        return *static_cast<const URL *> (this)->address ();
+        return *static_cast<const authority *> (this)->address ();
     }
 
     uint16 inline endpoint::port () const {
-        return *static_cast<const URL *> (this)->port_number ();
+        return *static_cast<const authority *> (this)->port_number ();
     }
 
     inline endpoint::operator asio::ip::tcp::endpoint () const {

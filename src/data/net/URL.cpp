@@ -849,6 +849,13 @@ namespace data {
         return sub.substr (0, sub.size () - 1);
     }
 
+    string_view net::authority::user_info (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "user_info");
+        if (!tao::pegtl::parse<pegtl::authority_whole, read_user_info_action> (in, sub)) return {};
+        return sub.substr (0, sub.size () - 1);
+    }
+
     template <typename Rule> struct read_host_action : pegtl::nothing<Rule> {};
 
     template <> struct read_host_action<pegtl::host> {
@@ -1071,7 +1078,7 @@ namespace data {
         string_view sub;
         tao::pegtl::memory_input<> in (*this, "port");
         if (!tao::pegtl::parse<pegtl::authority_whole, read_port_action> (in, sub))
-            throw data::exception {"invalid authority"};
+            return {};
         if (sub.data () == nullptr) return {};
         return ASCII {sub};
     }
