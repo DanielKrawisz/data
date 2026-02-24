@@ -909,6 +909,62 @@ namespace data::schema {
 
 namespace data::schema::rule {
 
+    // a special attribute saying that separate branches of an
+    // any expression
+    template <typename X> struct branch_isolated;
+
+    template <typename X> struct map<branch_isolated<X>> : map<X> {
+        using map<X>::map;
+        constexpr map (const map<X> &m): map<X> {m} {}
+    };
+
+    template <typename X, typename ...context> struct validate<branch_isolated<value<X>>, context...> {
+        using result = typename validate<value<X>, context...>::result;
+
+        template <typename Map>
+        result operator () (const Map &m, const map<branch_isolated<value<X>>> &r) {
+            return validate<value<X>, context...> {} (m, static_cast<const map<value<X>> &> (r));
+        }
+    };
+
+    template <typename X, typename ...context> struct validate<branch_isolated<default_value<X>>, context...> {
+        using result = typename validate<default_value<X>, context...>::result;
+
+        template <typename Map>
+        result operator () (const Map &m, const map<branch_isolated<default_value<X>>> &r) {
+            return validate<default_value<X>, context...> {} (m, static_cast<const map<default_value<X>> &> (r));
+        }
+    };
+
+    template <typename X, typename ...context> struct validate<branch_isolated<optional<X>>, context...> {
+        using result = typename validate<optional<X>, context...>::result;
+
+        template <String string>
+        result operator () (const data::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys = {});
+
+        template <String string>
+        result operator () (const std::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys = {});
+    };
+
+    // NOTE: these next two are incorrect.
+    template <typename ...X, typename ...context> struct validate<branch_isolated<any<X...>>, context...> {
+        using result = typename validate<any<X...>, context...>::result;
+
+        template <typename Map>
+        result operator () (const Map &m, const map<branch_isolated<any<X...>>> &r) {
+            return validate<any<X...>, context...> {} (m, static_cast<const map<any<X...>> &> (r));
+        }
+    };
+
+    template <typename ...X, typename ...context> struct validate<branch_isolated<all<X...>>, context...> {
+        using result = typename validate<all<X...>, context...>::result;
+
+        template <typename Map>
+        result operator () (const Map &m, const map<branch_isolated<all<X...>>> &r) {
+            return validate<all<X...>, context...> {} (m, static_cast<const map<all<X...>> &> (r));
+        }
+    };
+
     template <typename ...context> template <Iterable seq>
     typename validate<empty, context...>::result
     validate<empty, context...>::operator () (const seq &x, const list<empty> &r) {
@@ -965,8 +1021,26 @@ namespace data::schema::rule {
         const string *v = m.contains (r.Key);
         if (!bool (v)) return r.Default;
         maybe<X> x = encoding::read<X, context...> {} (*v);
-        if (!bool (x)) throw invalid_entry {*v};
+        if (!bool (x)) throw invalid_entry {r.Key};
         return *x;
+    }
+
+    template <typename X, typename ...context> template <String string>
+    typename validate<optional<X>, context...>::result inline
+    validate<optional<X>, context...>::operator () (const data::map<string, string> &m, const map<optional<X>> &r) {
+        try {
+            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
+        } catch (const mismatch &) {}
+        return {};
+    }
+
+    template <typename X, typename ...context> template <String string>
+    typename validate<optional<X>, context...>::result inline
+    validate<optional<X>, context...>::operator () (const std::map<string, string> &m, const map<optional<X>> &r) {
+        try {
+            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
+        } catch (const mismatch &) {}
+        return {};
     }
 
     template <typename X, typename ...context> template <typename iterator, typename sen>
@@ -1155,29 +1229,41 @@ namespace data::schema::rule {
     };
 
     template <typename X, typename ...context> template <String string>
-    typename validate<optional<X>, context...>::result inline
-    validate<optional<X>, context...>::operator () (const data::map<string, string> &m, const map<optional<X>> &r) {
+    typename validate<branch_isolated<optional<X>>, context...>::result inline
+    validate<branch_isolated<optional<X>>, context...>::operator ()
+    (const data::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys) {
         try {
             return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
         } catch (const mismatch &) {}
         // if the match fails, the map may not contain any keys
         // of the sub rule.
         for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
-            if (m.contains (k)) throw incomplete_match {data::string (k)};
+            if (!allowed_keys.contains (k) && m.contains (k)) throw incomplete_match {data::string (k)};
         return {};
     }
 
     template <typename X, typename ...context> template <String string>
-    typename validate<optional<X>, context...>::result inline
-    validate<optional<X>, context...>::operator () (const std::map<string, string> &m, const map<optional<X>> &r) {
+    typename validate<branch_isolated<optional<X>>, context...>::result inline
+    validate<branch_isolated<optional<X>>, context...>::operator ()
+    (const std::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys) {
         try {
             return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
         } catch (const mismatch &) {}
         // if the match fails, the map may not contain any keys
         // of the sub rule.
         for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
-            if (m.find (k) != m.end ()) throw incomplete_match {data::string (k)};
+            if (!allowed_keys.contains (k) && m.find (k) != m.end ()) throw incomplete_match {data::string (k)};
         return {};
+    }
+
+    template <typename ...X, typename ...context>
+    template <typename Map>
+    typename validate<all<X...>, context...>::result inline
+    validate<all<X...>, context...>::operator () (const Map &m, const map<all<X...>> &r) {
+        using tuple_type = tuple<map<X>...>;
+        return std::apply ([&m] (auto &&...elems) -> result {
+            return result {validate<typename get_rule<unconst<unref<decltype (elems)>>>::type, context...> {} (m, elems)...};
+        }, static_cast<const tuple_type &> (r));
     }
 
     // get all keys from other indices that do not appear in the given index.
@@ -1196,22 +1282,12 @@ namespace data::schema::rule {
                 } else {
                     next_keys = x | these_keys;
                 }
-                return operator ()<index, recursive_index + 1> (r, next_keys);
+                return operator () <index, recursive_index + 1> (r, next_keys);
             } else {
                 return x;
             }
         }
     };
-
-    template <typename ...X, typename ...context>
-    template <typename Map>
-    typename validate<all<X...>, context...>::result inline
-    validate<all<X...>, context...>::operator () (const Map &m, const map<all<X...>> &r) {
-        using tuple_type = tuple<map<X>...>;
-        return std::apply ([&m] (auto &&...elems) -> result {
-            return result {validate<typename get_rule<unconst<unref<decltype (elems)>>>::type, context...> {} (m, elems)...};
-        }, static_cast<const tuple_type &> (r));
-    }
 
 
     template <size_t index, typename Map, typename ...X> struct has_no_unused_alternatives;
@@ -1234,6 +1310,7 @@ namespace data::schema::rule {
         }
     };
 
+    // this should go along with branch_isolated
     template <typename ...X, typename ...context>
     template <typename Map, size_t index>
     typename validate<any<X...>, context...>::result
@@ -1241,6 +1318,7 @@ namespace data::schema::rule {
         using tuple_type = tuple<map<X>...>;
         constexpr const size_t tuple_size = std::tuple_size_v<tuple_type>;
         using rule_type = typename get_rule<std::tuple_element_t<index, tuple_type>>::type;
+
         struct validate_alternative {
             result operator () (const Map &m, const map<any<X...>> &r) {
                 result res {std::in_place_index<index>,
@@ -1302,6 +1380,7 @@ namespace data::schema::rule {
     struct none_else {
         template <String string>
         void operator () (data::map<string, string> m, const set<data::string> &x) {
+
             auto z = m.begin ();
             auto n = x.begin ();
 
@@ -1343,8 +1422,8 @@ namespace data::schema::rule {
     template <typename Map>
     typename validate<only<X>, context...>::result inline
     validate<only<X>, context...>::operator () (const Map &m, const map<only<X>> &r) {
-        auto val = validate<X, context...> {} (m, +r);
         none_else {} (m, get_keys<only<X>> {} (r));
+        auto val = validate<branch_isolated<X>, context...> {} (m, map<branch_isolated<X>> {+r});
         return val;
     }
 

@@ -109,7 +109,7 @@ namespace data::schema::map {
 
         EXPECT_THROW ((validate<> (map_empty, one_key_A)), missing_key);
         ASSERT_NO_THROW (EXPECT_EQ (23, (validate<> (map_A, one_key_A))));
-        EXPECT_THROW ((validate<> (map_B, one_key_A)), missing_key);
+        EXPECT_THROW ((validate<> (map_B, one_key_A)), unknown_key);
         EXPECT_THROW ((validate<> (map_AB, one_key_A)), unknown_key);
         auto key_A_and_B = blank_key_A && blank_key_B;
         EXPECT_THROW ((validate<> (map_empty, key_A_and_B)), missing_key);
@@ -211,14 +211,25 @@ namespace data::schema::map {
         EXPECT_THROW ((validate<> (map_AB, key_A_blank_or_key_B)), mismatch);
         ASSERT_NO_THROW ((validate<> (map_AC, key_A_blank_or_key_B)));
 
+        auto opt_A_or_B = *(one_key_A || one_key_B);
+        ASSERT_NO_THROW ((validate<> (map_empty, opt_A_or_B)));
+        ASSERT_NO_THROW ((validate<> (map_A, opt_A_or_B)));
+        ASSERT_NO_THROW ((validate<> (map_B, opt_A_or_B)));
+        EXPECT_THROW ((validate<> (map_AB, opt_A_or_B)), incomplete_match);
+
         // must have key A and may optionally have B and C.
         auto and_A_opt_B_C = one_key_A && *(one_key_B && one_key_C);
         ASSERT_NO_THROW ((validate<> (map_A, and_A_opt_B_C)));
         EXPECT_NO_THROW (validate<> (map_A, and_A_opt_B_C));
         EXPECT_NO_THROW ((validate<> (map_ABC, and_A_opt_B_C)));
-        EXPECT_THROW ((validate<> (map_AB, and_A_opt_B_C)), incomplete_match);
+        EXPECT_NO_THROW ((validate<> (map_AB, and_A_opt_B_C)));
 
         auto or_A_B_C = one_key_A || one_key_B || one_key_C;
+        ASSERT_THROW ((validate<> (map_empty, or_A_B_C)), missing_key);
+        ASSERT_NO_THROW ((validate<> (map_A, or_A_B_C)));
+        ASSERT_NO_THROW ((validate<> (map_B, or_A_B_C)));
+
+        auto por_ABC = +or_A_B_C;
 
     }
 
@@ -239,17 +250,130 @@ namespace data::schema::map {
 
     }
 
+    TEST (Schema, Default) {
+        EXPECT_EQ ((validate<> (data::map<string, string> {}, key<int> ("zoob", 13))), 13);
+        EXPECT_EQ ((validate<> (data::map<string, string> {{"zoob", "92"}}, key<int> ("zoob", 13))), 92);
+    }
+
     TEST (Schema, Optional) {
 
-        data::map<string, string> test_map {{"na", "Y"}, {"ne", "M"}, {"ty", "W"}};
+        data::map<string, string> test_map_A {{"na", "Y"}, {"ne", "M"}, {"ty", "W"}};
+        data::map<string, string> test_map_B {{"na", "Y"}};
 
         auto test_schema = key<std::string> ("na") &&
             *(key<std::string> ("ty") &&
                 *key<std::string> ("ne") &&
                 *key<std::string> ("co"));
 
-        EXPECT_NO_THROW ((validate<> (test_map, test_schema)));
+        EXPECT_NO_THROW ((validate<> (test_map_A, test_schema)));
+        EXPECT_NO_THROW ((validate<> (test_map_B, test_schema)));
 
+    }
+
+    TEST (Schema, Or) {
+
+        using map = data::map<std::string, std::string>;
+
+        auto test_A = key<std::string> ("a") && key<std::string> ("b");
+
+        // Here we test that unknown key gets thrown first out of other possible errors.
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"d", "D"}}, test_A)), unknown_key);
+/*
+        // We want to use this to test that both keys can be present when we don't use only.
+        auto test_B = +(key<std::string> ("a") || key<std::string> ("b"));
+
+        EXPECT_NO_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_B)));
+
+        auto test_C = key<std::string> ("a") || key<std::string> ("b");
+
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_C)), unknown_key);
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_C)), incomplete_match);
+
+        auto test_D = key<std::string> ("a") && (key<std::string> ("b") || key<std::string> ("c"))
+            || key<std::string> ("d") && (key<std::string> ("e") || key<std::string> ("f"));
+
+        EXPECT_NO_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}}, test_D)));
+        EXPECT_NO_THROW ((validate<> (map {{"a", "A"}, {"c", "C"}}, test_D)));
+        EXPECT_NO_THROW ((validate<> (map {{"d", "D"}, {"e", "E"}}, test_D)));
+        EXPECT_NO_THROW ((validate<> (map {{"d", "D"}, {"f", "F"}}, test_D)));
+
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}, {"g", "G"}}, test_D)), unknown_key);
+
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}}, test_D)), incomplete_match);*/
+
+
+    }
+
+    // this test has to do with a specific application that didn't work.
+    TEST (Schema, Endpoint) {
+
+        auto endpoint_schema = schema::map::key<net::domain_name> ("domain") ||
+        schema::map::key<net::IP::TCP::endpoint> ("endpoint") ||
+        (schema::map::key<net::IP::address> ("ip_address") && *schema::map::key<uint32> ("port"));
+
+        data::map<UTF8, UTF8> empty_input {};
+
+        data::map<UTF8, UTF8> ip_port_input {
+            {"ip_address", "123.23.3.2"},
+            {"port", "4567"}
+        };
+
+        data::map<UTF8, UTF8> ip_input {
+            {"ip_address", "123.23.3.2"}
+        };
+
+        data::map<UTF8, UTF8> endpoint_input {
+            {"endpoint", "123.23.3.2:4567"}
+        };
+
+        data::map<UTF8, UTF8> domain_input {
+            {"domain", "zoob.com"}
+        };
+
+        data::map<UTF8, UTF8> authority_input {
+            {"authority", "localhost:8888"}
+        };
+
+        try {
+            EXPECT_THROW ((validate (empty_input, endpoint_schema)), missing_key);
+            EXPECT_NO_THROW (validate (ip_port_input, endpoint_schema));
+            EXPECT_NO_THROW (validate (ip_input, endpoint_schema));
+            EXPECT_NO_THROW (validate (endpoint_input, endpoint_schema));
+            EXPECT_NO_THROW (validate (domain_input, endpoint_schema));
+        } catch (mismatch) {
+            FAIL () << "mismatch caught";
+        }
+
+        auto optional_endpoint_schema = *endpoint_schema;
+
+        try {
+            EXPECT_NO_THROW ((validate (empty_input, optional_endpoint_schema)));
+            EXPECT_NO_THROW (validate (ip_port_input, optional_endpoint_schema));
+            EXPECT_NO_THROW (validate (ip_input, optional_endpoint_schema));
+            EXPECT_NO_THROW (validate (endpoint_input, optional_endpoint_schema));
+            EXPECT_NO_THROW (validate (domain_input, optional_endpoint_schema));
+        } catch (mismatch) {
+            FAIL () << "mismatch caught";
+        }
+
+        auto alternate_schema = schema::map::key<net::IP::TCP::endpoint> ("endpoint") ||
+            schema::map::key<uint32> ("port", 8000) && (
+                schema::map::key<net::IP::address> ("ip_address") ||
+                schema::map::key<net::authority> ("authority") ||
+                schema::map::key<net::domain_name> ("domain", "localhost"));
+
+        try {
+            validate (empty_input, alternate_schema);
+            validate (endpoint_input, alternate_schema);
+            validate (ip_port_input, alternate_schema);
+            validate (authority_input, alternate_schema);
+            validate (ip_input, alternate_schema);
+            validate (domain_input, alternate_schema);
+        } catch (incomplete_match m) {
+            FAIL () << "caught incomplete match at " << m.Key;
+        } catch (mismatch m) {
+            FAIL () << "caught mismatch";
+        }
     }
 
     TEST (Schema, Read) {
@@ -347,48 +471,6 @@ namespace data::schema::map {
             EXPECT_THROW ((validate<> (test_map, +key<Z_bytes_little> ("E"))), invalid_entry);
             EXPECT_THROW ((validate<> (test_map, +key<N> ("E"))), invalid_entry);
             EXPECT_THROW ((validate<> (test_map, +key<Z> ("E"))), invalid_entry);
-        } catch (mismatch) {
-            FAIL () << "mismatch caught";
-        }
-
-    }
-
-    TEST (Schema, Default) {
-        EXPECT_EQ ((validate<> (data::map<string, string> {}, key<int> ("zoob", 13))), 13);
-        EXPECT_EQ ((validate<> (data::map<string, string> {{"zoob", "92"}}, key<int> ("zoob", 13))), 92);
-    }
-
-    // this test has to do with a specific application that didn't work.
-    TEST (Schema, Endpoint) {
-
-        auto endpoint_schema = schema::map::key<net::domain_name> ("domain") ||
-            schema::map::key<net::IP::TCP::endpoint> ("endpoint") ||
-            (schema::map::key<net::IP::address> ("ip_address") && *schema::map::key<uint32> ("port"));
-
-        auto optional_endpoint_schema = *endpoint_schema;
-
-        data::map<UTF8, UTF8> ip_port_input {
-            {"ip_address", "123.23.3.2"},
-            {"port", "4567"}
-        };
-
-        data::map<UTF8, UTF8> ip_input {
-            {"ip_address", "123.23.3.2"}
-        };
-
-        data::map<UTF8, UTF8> endpoint_input {
-            {"endpoint", "123.23.3.2:4567"}
-        };
-
-        data::map<UTF8, UTF8> domain_input {
-            {"domain", "zoob.com"}
-        };
-
-        try {
-            EXPECT_NO_THROW (validate (ip_port_input, endpoint_schema));
-            EXPECT_NO_THROW (validate (ip_input, endpoint_schema));
-            EXPECT_NO_THROW (validate (endpoint_input, endpoint_schema));
-            EXPECT_NO_THROW (validate (domain_input, endpoint_schema));
         } catch (mismatch) {
             FAIL () << "mismatch caught";
         }

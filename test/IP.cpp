@@ -147,13 +147,17 @@ namespace data::net::IP {
         }) {
             std::stringstream ss {t.DomainName};
             domain_name parsed {};
-            ss >> parsed;
+            EXPECT_NO_THROW (ss >> parsed);
+
             if (t.ExpectValid) {
                 EXPECT_TRUE (t.DomainName.valid ()) << "expected " << t.DomainName << " to be a valid domain, but it is not.";
                 EXPECT_TRUE (bool (ss)) << "expected to be able to read " << t.DomainName << " as a domain name.";
+                EXPECT_TRUE (ss.peek () == std::char_traits<char>::eof ());
+                EXPECT_EQ (parsed, t.DomainName);
             } else {
                 EXPECT_FALSE (t.DomainName.valid ()) << "expected " << t.DomainName << " to be an invalid domain, but it is valid.";
-                EXPECT_FALSE (bool (ss)) << "expected not to be able to read " << t.DomainName << " as a domain name.";
+                EXPECT_TRUE (!bool (ss) || ss.peek () != std::char_traits<char>::eof ()) <<
+                    "expected not to be able to read " << t.DomainName << " as a domain name.";
             }
         }
 
@@ -179,10 +183,14 @@ namespace data::net::IP {
                 address parsed;
                 std::stringstream ss {Address};
                 EXPECT_NO_THROW (ss >> parsed);
+
                 if (Version == 4 || Version == 6) {
                     EXPECT_TRUE (bool (ss)) << "Expected to be able to parse " << Address << " as an IP address but failed.";
+                    EXPECT_TRUE (bool (ss));
+                    EXPECT_TRUE (ss.peek () == std::char_traits<char>::eof ());
                 } else {
                     EXPECT_FALSE (bool (ss)) << "Expected not to be able to parse " << Address << " as an IP address but succeeded.";
+                    EXPECT_TRUE (!bool (ss) || ss.peek () != std::char_traits<char>::eof ());
                 }
 
                 EXPECT_EQ (Address.valid (), Version >= 0)
@@ -415,6 +423,12 @@ namespace data::net {
 
             EXPECT_TRUE (tt.URL.valid ()) << "expected " << tt.URL << " to be a valid URL.";
 
+            URL parsed;
+            std::stringstream ss {tt.URL};
+            EXPECT_NO_THROW (ss >> parsed);
+            EXPECT_TRUE (bool (ss));
+            EXPECT_TRUE (ss.peek () == std::char_traits<char>::eof ());
+
             EXPECT_EQ (tt.URL.scheme (), tt.Scheme);
             EXPECT_EQ (tt.URL.authority (), tt.Authority) << "incorrect authority retrieved for " << tt.URL;
             EXPECT_EQ (tt.URL.path (), tt.Path);
@@ -469,7 +483,6 @@ namespace data::net {
         for (const negative_test_case &tt : list<negative_test_case> {
             {"https//example.org"},                 // (Malformed scheme)
             {"https&:/example.org"},                 // (Malformed scheme)
-          //{"http://example.com:65536"},           // (Invalid port number)
         }) {
             EXPECT_FALSE (tt.URL.valid ()) << "expected " << tt.URL << " to be an invalid URL.";
         }
