@@ -200,12 +200,12 @@ namespace data::net::IP {
                 EXPECT_EQ (version, Version) << "expected " << Address << " to be version " << Version;
 
                 uint16 port = 666;
-                
+
                 std::stringstream v6_format;
                 std::stringstream v4_format;
                 
-                v6_format << "tcp://[" << static_cast<std::string> (Address) << "]:" << port;
-                v4_format << "tcp://" << static_cast<std::string> (Address) << ":" << port;
+                v6_format << "[" << static_cast<std::string> (Address) << "]:" << port;
+                v4_format << "" << static_cast<std::string> (Address) << ":" << port;
 
                 TCP::endpoint v6 {v6_format.str ()};
                 TCP::endpoint v4 {v4_format.str ()};
@@ -564,7 +564,7 @@ namespace data::net {
     }
 
     TEST (IP, Endpoint) {
-        IP::TCP::endpoint e {"tcp://0.0.0.0:1234"};
+        IP::TCP::endpoint e {"0.0.0.0:1234"};
         EXPECT_EQ (e.address (), "0.0.0.0");
         EXPECT_EQ (e.port (), 1234);
     }
