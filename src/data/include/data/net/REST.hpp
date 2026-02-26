@@ -23,8 +23,7 @@ namespace data::net::HTTP {
         REST (const ASCII &);
         REST (const ASCII &, const path &);
 
-        // a host is either a domain name or an IP address.
-        ASCII Host;
+        authority Host;
 
         // the part of the path that is common to the whole API.
         path Path;
