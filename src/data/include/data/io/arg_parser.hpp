@@ -182,10 +182,7 @@ namespace data::io::args {
     command (set<std::string> flags, const schema::rule::list<arg_rule> &args, const schema::rule::map<opt_rule> &opts) -> command<arg_rule, opt_rule>;
 
     template <typename arg_rule, typename opt_rule>
-    tuple<map<std::string, bool>,
-        typename schema::rule::validate<arg_rule>::result,
-        typename schema::rule::validate<opt_rule>::result>
-    validate (const parsed &, const command<arg_rule, opt_rule> &);
+    auto validate (const parsed &, const command<arg_rule, opt_rule> &);
 
     bool inline parsed::has (const std::string &x) const {
         return contains (Flags, x);
@@ -203,22 +200,26 @@ namespace data::io::args {
     }
 
     template <typename arg_rule, typename opt_rule>
-    tuple<map<std::string, bool>,
-        typename schema::rule::validate<arg_rule>::result,
-        typename schema::rule::validate<opt_rule>::result>
-    validate (const parsed &p, const command<arg_rule, opt_rule> &c) {
+    auto validate (const parsed &p, const command<arg_rule, opt_rule> &c) {
+
+        struct result {
+            map<std::string, bool> Flags;
+            typename schema::rule::validate<arg_rule>::result Arguments;
+            typename schema::rule::validate<opt_rule>::result Options;
+        };
 
         // TODO here we convert key to string in order to fit it into the contains
         // function. However, it should be possible to say that contains takes
         // anything equality comparable with contained type.
         for (const auto &key : p.Flags)
-          if (!c.Flags.contains (std::string (key))) return {};
+            if (!c.Flags.contains (std::string (key)))
+                return result {{}, {}, {}};
 
         map<std::string, bool> flags;
 
         for (const auto &key : c.Flags) flags = flags.insert (key, bool (p.Flags.contains (key)));
 
-        return {flags, schema::validate (p.Arguments, c.Arguments), schema::validate (p.Options, c.Options)};
+        return result {flags, schema::validate (p.Arguments, c.Arguments), schema::validate (p.Options, c.Options)};
     }
 }
 
