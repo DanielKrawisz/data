@@ -257,7 +257,7 @@ include (GNUInstallDirs)
 
 # copy include directory into install destination
 install (
-  DIRECTORY include/
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
