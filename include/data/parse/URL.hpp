@@ -91,7 +91,7 @@ namespace data::parse::URL {
 
     struct domain_label : max_size<sequence<plus<alnum>, star<sequence<hyphen, plus<alnum>>>>, 63> {};
 
-    struct domain_name : max_size<sequence<domain_label, repeated<sequence<dot, domain_label>>>, 253> {};
+    struct domain_name : max_size<sequence<domain_label, star<sequence<dot, domain_label>>>, 253> {};
 
     struct userinfo : star<alternatives<
         unreserved,

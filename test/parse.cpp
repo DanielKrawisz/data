@@ -261,7 +261,20 @@ namespace data::parse {
         EXPECT_FALSE ((accept<shared_prefix>("ad")));
     }
 
-    TEST (Parse, Repeated) {
+    TEST (Parse, Least) {
+
+        EXPECT_TRUE  ((accept<least<exactly<>, 10>> ("")));
+
+        using O = least<exactly<'a'>, 1>;
+
+        EXPECT_FALSE (accept<O> (""));
+        EXPECT_TRUE  (accept<O> ("a"));
+        EXPECT_TRUE  (accept<O> ("aaaa"));
+        EXPECT_FALSE (accept<O> ("b"));
+        EXPECT_FALSE (accept<O> ("aaab"));
+    }
+
+    TEST (Parse, Star) {
 
         EXPECT_TRUE  (accept<star<any>> (""));
         EXPECT_TRUE  (accept<star<any>> ("a"));
@@ -275,16 +288,26 @@ namespace data::parse {
         EXPECT_FALSE (accept<star<one<'a'>>> ("baaa"));
 
         EXPECT_TRUE  ((accept<star<exactly<>>> ("")));
-        EXPECT_TRUE  ((accept<plus<exactly<>>> ("")));
-        EXPECT_TRUE  ((accept<repeated<exactly<>, 10>> ("")));
+    }
 
-        EXPECT_TRUE  (accept<repeated<invalid>> (""));
+    TEST (Parse, Plus) {
+
+        EXPECT_TRUE  ((accept<plus<exactly<>>> ("")));
+        EXPECT_TRUE  ((accept<plus<exactly<>>> ("")));
         EXPECT_FALSE ((accept<plus<invalid>> ("")));
-        EXPECT_FALSE (accept<repeated<invalid>> (" "));
-        EXPECT_FALSE (accept<repeated<invalid>> ("a"));
 
         EXPECT_FALSE ((accept<plus<invalid>> ("")));
         EXPECT_FALSE ((accept<plus<invalid>> ("a")));
+
+    }
+
+    TEST (Parse, Repeated) {
+
+        EXPECT_TRUE  ((accept<repeated<exactly<>, 10>> ("")));
+
+        EXPECT_TRUE  (accept<repeated<invalid>> (""));
+        EXPECT_FALSE (accept<repeated<invalid>> (" "));
+        EXPECT_FALSE (accept<repeated<invalid>> ("a"));
 
         using M = sequence<
             repeated<exactly<'a'>>,
@@ -308,14 +331,6 @@ namespace data::parse {
         EXPECT_FALSE (accept<N> ("aab"));
         EXPECT_FALSE (accept<N> ("baa"));
 
-        using O = repeated<exactly<'a'>, 1>;
-
-        EXPECT_FALSE (accept<O> (""));
-        EXPECT_TRUE  (accept<O> ("a"));
-        EXPECT_TRUE  (accept<O> ("aaaa"));
-        EXPECT_FALSE (accept<O> ("b"));
-        EXPECT_FALSE (accept<O> ("aaab"));
-
         using P = repeated<exactly<'a'>, 0, 3>;
 
         EXPECT_TRUE  (accept<P> (""));
@@ -335,7 +350,7 @@ namespace data::parse {
         EXPECT_FALSE (accept<Q> ("aaaab"));
         EXPECT_FALSE (accept<Q> ("a"));
 
-        using S = repeated<exactly<'a'>, 3, 3>;
+        using S = repeated<exactly<'a'>, 3>;
 
         EXPECT_FALSE (accept<S> (""));
         EXPECT_FALSE (accept<S> ("aa"));
