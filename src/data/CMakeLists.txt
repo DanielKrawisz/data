@@ -58,7 +58,7 @@ target_include_directories (
 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
@@ -246,7 +246,10 @@ target_link_libraries (
   Boost::log
 )
 
-configure_file (include/data/version.hpp.in generated/data/version.hpp)
+configure_file (
+    ${PROJECT_SOURCE_DIR}/include/data/version.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
+)
 
 get_target_property (OUT Data::data LINK_LIBRARIES)
 
