@@ -51,6 +51,9 @@ namespace data {
     template <Tuple T, typename F>
     constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i);
 
+    template <Tuple T, typename F>
+    constexpr auto lift (const T &t, F &&f);
+
     // print a tuple to the screen if each element also supports printing with <<
     template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t);
 
