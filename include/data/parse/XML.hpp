@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_PARSE_XML
 #define DATA_PARSE_XML
@@ -146,6 +149,7 @@ namespace data::parse::XML {
         }
     };
 
+    // required whitespace
     struct S : plus<predicate<is_xml_space>> {};
 
     struct EntityRef :
@@ -169,7 +173,7 @@ namespace data::parse::XML {
 
     struct cdata_unit : predicate<is_xml_char> {};
 
-    struct CDSect :
+    struct CData :
         sequence<
             exactly<'<','!','[','C','D','A','T','A','['>,
             until<star<cdata_unit>,
@@ -284,7 +288,7 @@ namespace data::parse::XML {
                     alternatives<
                         element,
                         Reference,
-                        CDSect,
+                        CData,
                         PI,
                         Comment>,
                     optional<CharData>>>> {};

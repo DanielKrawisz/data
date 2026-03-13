@@ -1,4 +1,6 @@
-
+// Copyright (c) 2026 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_PARSE_BASE64
 #define DATA_PARSE_BASE64

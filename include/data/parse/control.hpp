@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// Copyright (c) 2026 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DATA_PARSE_CONTROL
 #define DATA_PARSE_CONTROL
@@ -9,18 +15,10 @@
 namespace data::parse {
 
     // accept no string (even the empty string)
-    struct invalid {
-        constexpr bool possible () const;
-        constexpr bool valid () const;
-        constexpr int step (string_view, char c);
-    };
+    struct invalid;
 
     // accept every string.
-    struct any {
-        constexpr bool possible () const;
-        constexpr bool valid () const;
-        constexpr int step (string_view, char c);
-    };
+    struct any;
 
     // accept a sequence of patterns.
     template <typename...> struct sequence;
@@ -45,6 +43,36 @@ namespace data::parse {
     template <typename sub> struct plus : least<sub, 1> {};
     template <typename sub> struct star : least<sub, 0> {};
 
+    // run each alternative in parallel. If more than one is
+    // valid, the first valid one is accepted.
+    template <typename... Ms> class alternatives;
+
+    // accept a string with a given max size (in chars)
+    template <typename sub, size_t max> struct max_size;
+
+    // must match X and must not match Y.
+    template <typename X, typename Y> struct complement;
+
+    // Match X ending in Y. (Thus Y must be part of X)
+    template <typename X, char y, char... Y> struct until;
+
+    // must match X and must contain Y as a substring.
+    template <typename X, char... Y> struct contains;
+
+    // accept no string (even the empty string)
+    struct invalid {
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr int step (string_view, char c);
+    };
+
+    // accept every string.
+    struct any {
+        constexpr bool possible () const;
+        constexpr bool valid () const;
+        constexpr int step (string_view, char c);
+    };
+
     template <typename... Ms> class alternatives {
         mutable std::tuple<Ms*...> machines {};
 
@@ -60,7 +88,6 @@ namespace data::parse {
         }
 
         alternatives (): machines {} {
-
             for_each (machines, [] (auto m) {
                 m = nullptr;
             });
@@ -125,46 +152,9 @@ namespace data::parse {
         size_t read = 0;
 
     public:
-        constexpr bool possible () const {
-            // The sequence is possible if, of the machines at
-            // or past the active one, at least one is possible
-            // and the rest are either valid or possible.
+        constexpr bool possible () const;
 
-            bool at_least_one_possible = false;
-
-            for (size_t i = active; i <= sizeof... (Ms); i++)
-                if (!apply_at (machines, [&] (auto &m) -> bool {
-                    if (m == nullptr) m = new unref<decltype (*m)> {};
-
-                    if (m->possible ()) {
-                        at_least_one_possible = true;
-                        return true;
-                    }
-
-                    return m->valid ();
-                }, i)) return false;
-
-            return at_least_one_possible;
-        }
-
-        constexpr bool valid () const {
-            // if the active index is past the end of the sequence, then
-            // the pattern is valid if we have accepted the same number
-            // of characters that we have read.
-            if (active > sizeof... (Ms)) {
-                return read == 0;
-            }
-
-            // the pattern is valid if the active machine is valid and every subsequent machine is also valid.
-            for (size_t i = active; i <= sizeof... (Ms); i++)
-                if (!apply_at (machines, [&] (auto &m) -> bool {
-                    if (m == nullptr) m = new unref<decltype (*m)> {};
-                    bool is_valid = m->valid ();
-                    return is_valid;
-                }, i)) return false;
-
-            return true;
-        }
+        constexpr bool valid () const;
 
         constexpr void step (string_view prefix, char c);
 
@@ -252,41 +242,40 @@ namespace data::parse {
         }
     };
 
-    template <typename X, char... Y>
-    struct until {
-        X unit;
+    // match X ending with Y.
+    template <typename X, char y, char... Y> struct until {
+        X Sub;
 
-        static constexpr char term[] = { Y... };
-        static constexpr size_t N = sizeof...(Y);
+        static constexpr char term[] = { y, Y... };
+        static constexpr size_t N = sizeof...(Y) + 1;
 
-        size_t k = 0;        // prefix matched
-        bool halted = false;
+        size_t Index = 0;        // prefix matched
+        bool Halted = false;
 
         constexpr void step (std::string_view sv, char c) {
-            if (halted) {
-                k = 0; // invalidate pattern
+            if (Halted) {
+                Index = 0; // invalidate pattern
                 return;
             }
 
-            if (c == term[k]) {
-                k++;
-                if (k == N) halted = true;
-            } else if (k == 0) unit.step (sv, c);
+            Sub.step (sv, c);
+
+            if (c == term[Index]) {
+                Index++;
+                if (Index == N) Halted = true;
+            } //else Index = 0;
             else {
 
-                //std::cout << "until: replay char " << sv[i] << " at " << i << std::endl;
-                for (size_t i = sv.size () - k; i < sv.size (); i++) {
-                    k = 0;
-                    unit.step (sv.substr (0, i), sv[i]);
-                    if (!unit.possible ()) return;
+                for (size_t i = sv.size () - Index; i < sv.size (); i++) {
+                    Index = 0;
 
                     for (size_t j = i + 1; j < sv.size (); j++) {
-                        if (sv[j] == term[k]) k++;
+                        if (sv[j] == term[Index]) Index++;
                         else goto cont;
                     }
 
-                    if (c == term[k]) {
-                        k++;
+                    if (c == term[Index]) {
+                        Index++;
 
                         return;
                     }
@@ -294,24 +283,23 @@ namespace data::parse {
                     cont:
                 }
 
-                k = 0;
+                Index = 0;
 
-                if (c == term[k]) {
-                    k++;
+                if (c == term[Index]) {
+                    Index++;
                     return;
-                } else unit.step (sv, c);
+                }
             }
-
 
         }
 
         constexpr bool possible () const {
-            return !halted && unit.possible ();
+            return !Halted && Sub.possible ();
         }
 
         constexpr bool valid () const {
             // Valid if we halted exactly at terminator
-            return halted && k == N;
+            return Halted && Index == N && Sub.valid ();
         }
     };
 
@@ -448,9 +436,49 @@ namespace data::parse {
         Sub.step (prefix, c);
     }
 
-    // TODO we incorrectly always return 1 here. In this commit,
-    // we are ignoring the return value of step. We will get all
-    // current tests working and then use the return value correctly.
+    template <typename M, typename... Ms>
+    constexpr bool sequence<M, Ms...>::possible () const {
+        // The sequence is possible if, of the machines at
+        // or past the active one, at least one is possible
+        // and the rest are either valid or possible.
+
+        bool at_least_one_possible = false;
+
+        for (size_t i = active; i <= sizeof... (Ms); i++)
+            if (!apply_at (machines, [&] (auto &m) -> bool {
+                if (m == nullptr) m = new unref<decltype (*m)> {};
+
+                           if (m->possible ()) {
+                               at_least_one_possible = true;
+                               return true;
+                           }
+
+                           return m->valid ();
+            }, i)) return false;
+
+        return at_least_one_possible;
+    }
+
+    template <typename M, typename... Ms>
+    constexpr bool sequence<M, Ms...>::valid () const {
+        // if the active index is past the end of the sequence, then
+        // the pattern is valid if we have accepted the same number
+        // of characters that we have read.
+        if (active > sizeof... (Ms)) {
+            return read == 0;
+        }
+
+        // the pattern is valid if the active machine is valid and every subsequent machine is also valid.
+        for (size_t i = active; i <= sizeof... (Ms); i++)
+            if (!apply_at (machines, [&] (auto &m) -> bool {
+                if (m == nullptr) m = new unref<decltype (*m)> {};
+                           bool is_valid = m->valid ();
+                           return is_valid;
+            }, i)) return false;
+
+        return true;
+    }
+
     template <typename M, typename... Ms>
     constexpr void sequence<M, Ms...>::step (string_view prefix, char c) {
         size_t replay = 0;
