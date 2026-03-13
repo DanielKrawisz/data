@@ -516,7 +516,56 @@ namespace data::parse {
     TEST (Parse, Until) {
         // ----- Basic sentinel detection -----
 
-        using U1 = until<repeated<one<'a'>>, 'x','y','z'>;
+        using O1 = until<repeated<one<'a'>>, 'x','y','z'>;
+
+        EXPECT_FALSE ((accept<O1> ("aaaxyz")));   // normal case
+        EXPECT_FALSE ((accept<O1> ("xyz")));      // terminator immediately
+        EXPECT_FALSE ((accept<O1> ("aaaaxyz")));  // longer prefix
+
+        EXPECT_FALSE ((accept<O1> ("aaaa")));     // no terminator
+        EXPECT_FALSE ((accept<O1> ("aaaxy")));    // partial terminator
+
+
+        // ----- Multiple terminators (stop at first) -----
+
+        EXPECT_FALSE  ((accept<O1> ("aaaxyzxyz")));
+        EXPECT_FALSE  ((accept<O1> ("xyzxyz")));
+
+
+        // ----- Terminator at beginning -----
+
+        EXPECT_FALSE  ((accept<O1> ("xyzabc")));
+
+
+        // ----- Overlapping prefix handling -----
+
+        using O2 = until<repeated<one<'a'>>, 'a','a','b'>;
+
+        EXPECT_FALSE ((accept<O2> ("aaab")));
+        EXPECT_FALSE ((accept<O2> ("aaaab")));   // overlap case
+        EXPECT_FALSE ((accept<O2> ("aaaaa")));   // never completes "aab")
+
+
+        // ----- Single-character terminator -----
+
+        using O3 = until<repeated<one<'a'>>, 'z'>;
+
+        EXPECT_FALSE ((accept<O3> ("aaaz")));
+        EXPECT_FALSE ((accept<O3> ("z")));
+        EXPECT_FALSE ((accept<O3> ("aaaa")));
+
+
+        // ----- Terminator longer pattern -----
+
+        using O4 = until<repeated<one<'b'>>, '1','2','3','4'>;
+
+        EXPECT_FALSE ((accept<O4> ("bbb1234")));
+        EXPECT_FALSE ((accept<O4> ("bbb123")));
+        EXPECT_FALSE ((accept<O4> ("bbbb")));
+
+        // ----- Basic sentinel detection -----
+
+        using U1 = until<repeated<ASCII::alpha>, 'x','y','z'>;
 
         EXPECT_TRUE  ((accept<U1> ("aaaxyz")));   // normal case
         EXPECT_TRUE  ((accept<U1> ("xyz")));      // terminator immediately
@@ -539,7 +588,7 @@ namespace data::parse {
 
         // ----- Overlapping prefix handling -----
 
-        using U2 = until<repeated<one<'a'>>, 'a','a','b'>;
+        using U2 = until<repeated<ASCII::alpha>, 'a','a','b'>;
 
         EXPECT_TRUE  ((accept<U2> ("aaab")));
         EXPECT_TRUE  ((accept<U2> ("aaaab")));   // overlap case
@@ -548,7 +597,7 @@ namespace data::parse {
 
         // ----- Single-character terminator -----
 
-        using U3 = until<repeated<one<'a'>>, 'z'>;
+        using U3 = until<repeated<ASCII::alpha>, 'z'>;
 
         EXPECT_TRUE  ((accept<U3> ("aaaz")));
         EXPECT_TRUE  ((accept<U3> ("z")));
@@ -557,7 +606,7 @@ namespace data::parse {
 
         // ----- Terminator longer pattern -----
 
-        using U4 = until<repeated<one<'b'>>, '1','2','3','4'>;
+        using U4 = until<repeated<ASCII::alnum>, '1','2','3','4'>;
 
         EXPECT_TRUE  ((accept<U4> ("bbb1234")));
         EXPECT_FALSE ((accept<U4> ("bbb123")));
@@ -624,7 +673,6 @@ namespace data::parse {
 
         EXPECT_TRUE  ((accept<U5> ("zzzabc")));
         EXPECT_FALSE ((accept<U5> ("zzzab")));
-
 
     }
 
@@ -833,9 +881,25 @@ namespace data::parse {
         EXPECT_TRUE  ( accept<XML::document> ("<a>></a>") );
 
 
-        // ----- Nested Elements -----
+        // =========================
+        // Self-closing tags
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<a/>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a x=\"1\"/>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><b/></a>") );
+
+
+        // =========================
+        // Nested elements
+        // =========================
+
         EXPECT_TRUE  ( accept<XML::document> ("<a><b></b></a>") );
         EXPECT_TRUE  ( accept<XML::document> ("<a><b><c></c></b></a>") );
+
+        EXPECT_TRUE ( accept<XML::document> ("<a><b><c/></b></a>") );
+        EXPECT_TRUE ( accept<XML::document> ("<a><b><c/><d/></b></a>") );
+
         EXPECT_TRUE  ( accept<XML::document> ("<root><a/><b/><c/></root>") );
 
 
@@ -877,13 +941,30 @@ namespace data::parse {
         EXPECT_TRUE  ( accept<XML::document> ("<a><b/>text<c/></a>") );
 
 
+        // =========================
         // ----- Deep Nesting -----
+        // =========================
+
         EXPECT_TRUE  ( accept<XML::document> (
             "<a><b><c><d><e></e></d></c></b></a>"
         ));
 
         EXPECT_TRUE  ( accept<XML::document> (
             "<root><a><b/><c><d/><e/></c></a></root>"
+        ));
+
+        EXPECT_TRUE  ( accept<XML::document> (
+            "<root>"
+            "  <level1>"
+            "    <level2>"
+            "      <level3>"
+            "        <level4>"
+            "          <level5></level5>"
+            "        </level4>"
+            "      </level3>"
+            "    </level2>"
+            "  </level1>"
+            "</root>"
         ));
 
 
@@ -908,7 +989,11 @@ namespace data::parse {
         EXPECT_FALSE ( accept<XML::document> ("<?xml version=\"1.0\"><a></a>") );      // missing ?>
         EXPECT_FALSE ( accept<XML::document> ("<?xml version=\"1.0\"?>") );            // no root element
 
+
+        // =========================
         // ----- Comments -----
+        // =========================
+
         EXPECT_TRUE  ( accept<XML::document> ("<!-- comment --><a/>") );
         EXPECT_TRUE  ( accept<XML::document> ("<a><!-- inside --></a>") );
 
@@ -945,6 +1030,14 @@ namespace data::parse {
         EXPECT_FALSE ( accept<XML::document> ("<a><!-----></a>") );                    // invalid "--" sequence
 
 
+        // =========================
+        // Comments in various positions
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<!-- comment --><a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a></a><!-- comment -->") );
+        EXPECT_TRUE  ( accept<XML::document> ("<!-- before --><a></a><!-- after -->") );
+
 
         // =========================
         // Raw '&' in text (should be invalid XML)
@@ -970,46 +1063,57 @@ namespace data::parse {
         EXPECT_TRUE ( accept<XML::document> ("<a>&#65;</a>") );
         EXPECT_TRUE ( accept<XML::document> ("<a>&#x41;</a>") );
 
+
         // =========================
         // CDATA sections
         // =========================
 
         EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[ raw <xml> ]]></a>") );
         EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[test]]></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[]]]x]]></a>") );
 
         EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]]>oops]]></a>") );
         EXPECT_FALSE ( accept<XML::document> ("<a><![CDATA[test]</a>") );
         EXPECT_FALSE ( accept<XML::document> ("<a><![cdata[test]]></a>") );
 
+
+        // =========================
+        // CDATA with nested XML-like content
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[<xml><tag/></xml>]]></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><![CDATA[<b>&stuff</b>]]></a>") );
+
+
         // =========================
         // Processing instructions
         // =========================
 
-        EXPECT_TRUE ( accept<XML::document> ("<a><?pi?></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><?pi test?></a>") );
-        EXPECT_TRUE ( accept<XML::document> ("<a><?pi   test?></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><?pi?></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><?pi test?></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><?pi   test?></a>") );
 
         EXPECT_FALSE ( accept<XML::document> ("<a><?xml test?></a>") );   // forbidden target
-        EXPECT_TRUE  ( accept<XML::document> ("<a><?xmltest?></a>") );   // ok
+        EXPECT_TRUE  ( accept<XML::document> ("<a><?xmltest?></a>") );    // ok
         EXPECT_FALSE ( accept<XML::document> ("<a><?pi test></a>") );     // missing ?>
+
 
         // =========================
         // Mismatched tags
         // =========================
-        // NOTE our recognizer cannot reject these.
-        //EXPECT_FALSE ( accept<XML::document> ("<a></b>") );
-        //EXPECT_FALSE ( accept<XML::document> ("<a><b></a></b>") );
-
+/*      NOTE: the current system is incapable of rejecting these.
+        EXPECT_FALSE ( accept<XML::document> ("<a></b>") );
+        EXPECT_FALSE ( accept<XML::document> ("<a><b></a></b>") );
+*/
         // =========================
         // Multiple root elements (should fail)
         // =========================
 
-        EXPECT_FALSE ( accept<XML::document> ("<a></a><b></b>") );
+        EXPECT_FALSE  ( accept<XML::document> ("<a></a><b></b>") );
 
 
         // =========================
@@ -1021,11 +1125,19 @@ namespace data::parse {
 
 
         // =========================
-        // Nested elements
+        // Text content with special chars
         // =========================
 
-        EXPECT_TRUE  ( accept<XML::document> ("<a><b></b></a>") );
-        EXPECT_TRUE  ( accept<XML::document> ("<a><b><c></c></b></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>&lt;tag&gt;</a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a>&amp;&lt;&gt;&quot;&apos;</a>") );
+
+        // =========================
+        // Processing instructions in various positions
+        // =========================
+
+        EXPECT_TRUE  ( accept<XML::document> ("<?pi?><a></a>") );
+        EXPECT_TRUE  ( accept<XML::document> ("<a><?pi?></a>") );
+
 
     }
 
@@ -1083,7 +1195,7 @@ namespace data::parse {
         EXPECT_FALSE ((accept<URL::target> ("//example.com")));
         EXPECT_FALSE ((accept<URL::target> ("?x=1")));   // if path required
         EXPECT_FALSE ((accept<URL::target> ("#frag")));  // if path required
-        */
+*/
     }
 
     TEST (Parse, URL) {
