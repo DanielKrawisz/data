@@ -28,13 +28,22 @@ namespace data::parse {
     // accept the empty string
     using empty = sequence<>;
 
-    template <typename Sub, size_t min = 0, size_t max = std::numeric_limits<size_t>::max ()>
-    requires (min <= max) struct repeated;
+    template <typename Sub, size_t ...> struct repeated;
+
+    template <typename Sub, size_t min, size_t max> requires (min <= max) struct repeated<Sub, min, max>;
+
+    template <typename Sub, size_t exactly> struct repeated<Sub, exactly> : repeated<Sub, exactly, exactly> {};
+
+    constexpr const size_t unlimited = std::numeric_limits<size_t>::max ();
+
+    template <typename Sub> struct repeated<Sub> : repeated<Sub, 0, unlimited> {};
+
+    template <typename sub, size_t max> struct most : repeated<sub, 0, max> {};
+    template <typename sub, size_t min> struct least : repeated<sub, min, unlimited> {};
 
     template <typename sub> struct optional : repeated<sub, 0, 1> {};
-    template <typename sub> struct plus : repeated<sub, 1> {};
-    template <typename sub> struct star : repeated<sub> {};
-    template <size_t size, typename m> struct rep : repeated<m, size, size> {};
+    template <typename sub> struct plus : least<sub, 1> {};
+    template <typename sub> struct star : least<sub, 0> {};
 
     template <typename... Ms> class alternatives {
         mutable std::tuple<Ms*...> machines {};
@@ -175,9 +184,8 @@ namespace data::parse {
         sequence (sequence &&) = delete;
     };
 
-    template <typename Sub, size_t min, size_t max>
-    requires (min <= max)
-    struct repeated {
+    template <typename Sub, size_t min, size_t max> requires (min <= max)
+    struct repeated<Sub, min, max> {
         Sub *machine = new Sub {};
 
         // number of repetitions matched so far.

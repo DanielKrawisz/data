@@ -12,22 +12,11 @@ namespace data::parse::IP {
 
     struct V4_number : max_value_number<uint16 (255)> {};
 
-    struct V4 : sequence<V4_number, rep<3, sequence<dot, V4_number>>> {};
+    struct V4 : sequence<V4_number, repeated<sequence<dot, V4_number>, 3>> {};
 
     struct hextet : repeated<hex, 1, 4> {};
 
     struct ls32 : alternatives<sequence<hextet, one<':'>, hextet>, V4> {};
-/*
-    struct ipv6 : alternatives<
-        sequence<rep<6, sequence<hextet, one<':'>>>, ls32>,
-        sequence<exactly<':', ':'>, rep<5, sequence<hextet, one<':'>>>, ls32>,
-        sequence<optional<hextet>, exactly<':', ':'>, rep<4, sequence<hextet, one<':'>>>, ls32>,
-        sequence<optional<sequence<hextet, optional<sequence<one<':'>, hextet>>>>, exactly<':', ':'>, rep<3, sequence<hextet, one<':'>>>, ls32>,
-        sequence<optional<sequence<hextet, rep<2, optional<sequence<one<':'>, hextet>>>>>, exactly<':', ':'>, rep<2, sequence<hextet, one<':'>>>, ls32>,
-        sequence<optional<sequence<hextet, rep<3, optional<sequence<one<':'>, hextet>>>>>, exactly<':', ':'>, sequence<hextet, one<':'>>, ls32>,
-        sequence<optional<sequence<hextet, rep<4, optional<sequence<one<':'>, hextet>>>>>, exactly<':', ':'>, ls32>,
-        sequence<optional<sequence<hextet, rep<5, optional<sequence<one<':'>, hextet>>>>>, exactly<':', ':'>, hextet>,
-        sequence<optional<sequence<hextet, rep<6, optional<sequence<one<':'>, hextet>>>>>, exactly<':', ':'>>> {};*/
 
     struct V6 {    // Number of completed 16-bit groups (i.e., how many ':' separators we've finalized)
         int groups = 0;

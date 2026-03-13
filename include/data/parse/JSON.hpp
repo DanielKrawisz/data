@@ -74,7 +74,7 @@ namespace data::parse::JSON {
                 one<'r'>,
                 one<'t'>>> {};
 
-    struct unicode_escape : sequence<exactly<'\\', 'u'>, rep<4, ASCII::hex>> {};
+    struct unicode_escape : sequence<exactly<'\\', 'u'>, repeated<ASCII::hex, 4>> {};
 
     struct string_char : alternatives<unescaped_char, escaped_char, unicode_escape> {};
 

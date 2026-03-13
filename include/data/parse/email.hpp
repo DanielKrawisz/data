@@ -20,11 +20,7 @@ namespace data::parse::email {
     struct atom : repeated<atext, 1, 255> {};
 
     // dot-atom-text = atom *("." atom)
-    struct dot_atom_text_tail :
-        repeated<
-            sequence<one<'.'>, atom>,
-            0, 254
-        > {};
+    struct dot_atom_text_tail : most<sequence<one<'.'>, atom>, 254> {};
 
     struct dot_atom_text :
         sequence<atom, dot_atom_text_tail> {};
