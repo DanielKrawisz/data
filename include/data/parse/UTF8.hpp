@@ -3,7 +3,6 @@
 #define DATA_PARSE_UTF8_RANGES
 
 #include <data/parse/exactly.hpp>
-#include <iostream>
 
 namespace data::parse::UTF8 {
 

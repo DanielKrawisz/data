@@ -5,6 +5,33 @@
 #ifndef DATA_TUPLE
 #define DATA_TUPLE
 
+/*
+ *    Utility functions for std::tuple
+ *
+ *    We define data::tuple as std::tuple and provide utility functions for
+ *    working with tuples.
+ *
+ *    ---------------------------------------------------------------------------
+ *    for_each (tuple, f) -> void
+ *    ---------------------------------------------------------------------------
+ *
+ *    Apply a function f to each element of a tuple. If the tuple type is
+ *    non-const, then f may modify the tuple.
+ *
+ *    ---------------------------------------------------------------------------
+ *    apply_at (tuple, f, i) -> return type of f
+ *    ---------------------------------------------------------------------------
+ *
+ *    Apply a function f to position i of a tuple. If the tuple type is non-const
+ *    then the function may modify the tuple.
+ *
+ *    ---------------------------------------------------------------------------
+ *    lift (const tuple, f) -> tuple
+ *    ---------------------------------------------------------------------------
+ *
+ *    Make a new tuple out of f applied to each of its elements.
+ */
+
 #include <data/types.hpp>
 #include <data/io/exception.hpp>
 
@@ -19,11 +46,13 @@ namespace data {
 
     // apply F to each element of a tuple.
     template <Tuple T, typename F> constexpr void for_each (T &&t, F &&f);
-    template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t);
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
     constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i);
+
+    // print a tuple to the screen if each element also supports printing with <<
+    template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t);
 
     // apply to each element of a tuple.
     template <Tuple T, typename F>
