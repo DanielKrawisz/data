@@ -14,6 +14,9 @@ namespace data {
     template <typename value> bool empty (linked_tree<value> x);
     template <typename value> size_t size (linked_tree<value> x);
 
+    template <typename V, std::equality_comparable_with<V> X>
+    bool operator == (const linked_tree<V> &, const linked_tree<X> &);
+
     template <Copyable value> struct linked_tree {
         using node = functional::tree_node<value, linked_tree>;
         using next = ptr<node>;
@@ -36,9 +39,6 @@ namespace data {
         linked_tree ();
         linked_tree (inserted<value> v, linked_tree l, linked_tree r);
         linked_tree (inserted<value> v);
-        
-        template <typename X> requires std::equality_comparable_with<value, X>
-        bool operator == (const data::linked_tree<X> &x) const;
 
         template <typename X> requires ImplicitlyConvertible<value, X>
         operator linked_tree<X> () const;
@@ -48,7 +48,6 @@ namespace data {
         
         std::ostream &write (std::ostream &o) const;
 
-    private:
         next Node;
         size_t Size;
     };
@@ -125,14 +124,13 @@ namespace data {
         return right ().write (left ().write (o << "{" << root () << ", ") << ", ") << "}";
     }
 
-    template <Copyable value>
-    template <typename X> requires std::equality_comparable_with<value, X>
-    bool linked_tree<value>::operator == (const data::linked_tree<X> &x) const {
-        if (Node == x.Node) return true;
-        if (Node == nullptr || x.Node == nullptr) return false;
-        if (root () != x.root ()) return false;
-        if (left () != x.left ()) return false;
-        return right () == x.right ();
+    template <typename V, std::equality_comparable_with<V> X>
+    bool operator == (const linked_tree<V> &a, const linked_tree<X> &b) {
+        if ((void *) a.Node.get () == (void *) b.Node.get ()) return true;
+        if (a.Node == nullptr || b.Node == nullptr) return false;
+        if (a.root () != b.root ()) return false;
+        if (a.left () != b.left ()) return false;
+        return a.right () == b.right ();
     }
 
     template <Copyable value>

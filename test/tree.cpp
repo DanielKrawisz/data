@@ -12,7 +12,7 @@
 namespace data {
     
     // test whether these data structures satisfy the correct interfaces. 
-    TEST (Tree, TreeInterfaces) {
+    TEST (Tree, Interfaces) {
 
         static_assert (Tree<tree<int>, int &>);
         static_assert (Tree<tree<int *>, int *>);
@@ -67,7 +67,7 @@ namespace data {
         
     }
     
-    TEST (Tree, TreeSize) {
+    TEST (Tree, Size) {
 
         tree<int> t0 = tree<int> {};
         tree<int> t1 = tree<int> {6};
@@ -91,7 +91,7 @@ namespace data {
 
     }
     
-    TEST (Tree, TreeEqual) {
+    TEST (Tree, Equal) {
         
         tree<int> t1 {1, tree<int> {2, tree<int> {3}, tree<int> {}}, tree<int> {4}};
         tree<int> t2 {1, tree<int> {2, tree<int> {3}, tree<int> {}}, tree<int> {4}};
@@ -127,7 +127,7 @@ namespace data {
         p = new_tree;
     }
     
-    TEST (TreeTest, TestLinkedTreeCopy) {
+    TEST (Tree, TestLinkedTreeCopy) {
         tree<int> p;
         test_copy_linked_tree (p, 7);
         EXPECT_EQ (p.size (), 7);
@@ -137,7 +137,7 @@ namespace data {
 
     void accept_tree_of_string_views (linked_tree<string_view>) {}
 
-    TEST (TreeTest, TestLinkedTreeConvert) {
+    TEST (Tree, TestLinkedTreeConvert) {
         linked_tree<string> test {"1", 
             linked_tree<string> {"2"}, 
             linked_tree<string> {"3", linked_tree<string> {"4"}, linked_tree<string> {}}};
@@ -148,6 +148,20 @@ namespace data {
 
         EXPECT_EQ (linked_tree<N> (test), numbers);
 
+    }
+
+    TEST (Tree, Comparison) {
+        (void) (tree<int> {} == tree<const int> {});
+        (void) (tree<int> {} == tree<int &> {});
+        (void) (tree<int> {} == tree<const int &> {});
+
+        (void) (tree<const int> {} == tree<int> {});
+        (void) (tree<int &> {} == tree<int> {});
+        (void) (tree<const int &> {} == tree<int> {});
+
+        (void) (tree<int *> {} == tree<int * const> {});
+        (void) (tree<int *> {} == tree<int const*> {});
+        (void) (tree<int *> {} == tree<int const* const> {});
     }
 
     template <typename X>

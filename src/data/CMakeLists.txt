@@ -302,5 +302,7 @@ install (FILES
 
 set (CPACK_PACKAGE_VENDOR "Daniel Krawisz")
 set (CPACK_PACKAGE_CONTACT "email@example.com")
-set (CPACK_PACKAGE_DESCRIPTION "data")
+set (CPACK_PACKAGE_DESCRIPTION "WhatsOnChain API")
 include (CPack)
+
+include(GNUInstallDirs)

@@ -19,12 +19,13 @@ namespace data {
 
     // the two trees are considered to be equal if they have
     // the same elements even if they are not the same tree.
-    template <Ordered value, functional::buildable_tree<value> tree, Ordered X, functional::buildable_tree<X> T>
-    requires std::equality_comparable_with<value, X>
+    template <Ordered value, functional::buildable_tree<value> tree,
+        std::equality_comparable_with<value> X, functional::buildable_tree<X> T>
     bool operator == (const binary_search_tree<value, tree> &a, const data::binary_search_tree<X, T> &b);
 
-    template <typename key, std::equality_comparable value, typename tree>
-    bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, value, tree> &b);
+    template <typename key, std::equality_comparable value, typename tree,
+        std::equality_comparable_with<value> X, typename T>
+    bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, X, T> &b);
 
     template <typename key, typename value, typename tree>
     binary_search_map<key, value, tree> insert (const binary_search_map<key, value, tree> &a, const key &k, const value &v);
@@ -268,8 +269,8 @@ namespace data {
         return const_iterator {this, tree {}};
     }
 
-    template <Ordered value, functional::buildable_tree<value> tree, Ordered X, functional::buildable_tree<X> T>
-    requires std::equality_comparable_with<value, X>
+    template <Ordered value, functional::buildable_tree<value> tree,
+        std::equality_comparable_with<value> X, functional::buildable_tree<X> T>
     bool operator == (const binary_search_tree<value, tree> &a, const data::binary_search_tree<X, T> &b) {
         if (a.size () != b.size ()) return false;
         auto bb = b.begin ();
@@ -284,8 +285,9 @@ namespace data {
         for (const auto &p : init) *this = insert (p);
     }
 
-    template <typename key, std::equality_comparable value, typename tree>
-    bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, value, tree> &b) {
+    template <typename key, std::equality_comparable value, typename tree,
+        std::equality_comparable_with<value> X, typename T>
+    bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, X, T> &b) {
         if (a.size () != b.size ()) return false;
         auto bi = b.begin ();
         for (auto ai = a.begin (); ai != a.end (); ai++) if (ai->Key != bi->Key || ai->Value != bi->Value) return false;

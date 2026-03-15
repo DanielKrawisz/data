@@ -174,6 +174,24 @@ namespace data {
         test_iterate (list<int> {0, 1, 2, 3});
     }
 
+    // test that equality operations are defined for different kinds of list.
+    TEST (List, Comparison) {
+        (void) (list<int> {} == list<const int> {});
+        (void) (list<int> {} == list<int &> {});
+        (void) (list<int> {} == list<const int &> {});
+
+        (void) (list<const int> {} == list<int> {});
+        (void) (list<int &> {} == list<int> {});
+        (void) (list<const int &> {} == list<int> {});
+
+        (void) (list<int *> {} == list<int * const> {});
+        (void) (list<int *> {} == list<int const*> {});
+        (void) (list<int *> {} == list<int const* const> {});
+/*
+        (void) (list<list<int>> {} == list<list<int &>> {});
+        (void) (list<list<int>> {} == list<list<const int &>> {});*/
+    }
+
 }
 
 template <typename X> struct List : ::testing::Test {

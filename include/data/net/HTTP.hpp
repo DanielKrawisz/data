@@ -167,17 +167,9 @@ namespace data::net::HTTP {
         };
 
         // host is required and the value must be an authority
-        bool valid () const {
-            uint32 count = 0;
-            for (const auto &[header, value]: this->Headers)
-                if (header == boost::beast::http::field::host) count++;
-            return count == 1;
-        }
+        bool valid () const;
 
-        authority host () const {
-            for (const auto &[header, value]: this->Headers)
-                if (header == boost::beast::http::field::host) return value;
-        }
+        authority host () const;
 
         operator bytes () const {
             std::stringstream ss;

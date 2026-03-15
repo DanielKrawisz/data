@@ -19,12 +19,6 @@ namespace data::net::HTTP {
         return o << "HTTP response {status: " << r.Status << ", headers: " << r.Headers << ", body: " << r.Body << "}";
     }
 
-    list<ASCII> get_headers (dispatch<header, ASCII> x, header n) {
-        list<ASCII> z;
-        for (const auto &[h, v] : x) if (h == n) z <<= v;
-        return z;
-    }
-
     ASCII write_content_type (content::type x) {
         switch (x) {
             case content::text_plain: return "text/plain";
@@ -71,8 +65,21 @@ namespace data::net::HTTP {
     }
 
     maybe<content> message::content_type () const {
-        for (auto [h, val]: Headers) if (h == header::content_type) return content {val};
+        maybe<const ASCII &> ct = get_value (Headers, header {header::content_type});
+        if (ct) return content {*ct};
         return {};
+    }
+
+    // host is required and the value must be an authority
+    bool request::valid () const {
+        auto h = host ();
+        return h.valid () && h != authority {};
+    }
+
+    authority request::host () const {
+        maybe<const ASCII &> auth = get_value (Headers, header {header::host});
+        if (!auth) return {};
+        return authority {*auth};
     }
 
     request::make request::make::method (const HTTP::method &m) const {
@@ -127,18 +134,18 @@ namespace data::net::HTTP {
     request::make request::make::body (const bytes &b, const content &content_type) const {
         if (bool (Body)) throw data::exception {"body is already set"};
 
-        auto r = add_headers ({entry<header, ASCII> {header::content_type, content_type}});
+        auto r = add_headers ({entry<const header, ASCII> {header::content_type, content_type}});
 
         r.Body = b;
         return r;
     }
 
     request::make request::make::host (const UTF8 &u) const {
-        return add_headers ({entry<header, ASCII> {header::host, encoding::percent::encode (u)}});
+        return add_headers ({entry<const header, ASCII> {header::host, encoding::percent::encode (u)}});
     }
 
     request::make request::make::authorization (const ASCII &a) const {
-        return add_headers ({entry<header, ASCII> {header::authorization, a}});
+        return add_headers ({entry<const header, ASCII> {header::authorization, a}});
     }
 
 

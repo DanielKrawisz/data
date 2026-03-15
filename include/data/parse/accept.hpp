@@ -31,6 +31,9 @@ namespace data::parse {
     template <Directive State> constexpr bool accept (const std::string &x);
     template <Directive State> constexpr bool accept (const std::u8string &x);
 
+    template <typename stack, Directive D, template <Directive> class rule>
+    bool parse (std::istream &, stack &);
+
     // NOTE: because PEGTL is a stateless parser, you can't use it
     // to recognize a token, such as a URL. We realized this once
     // we got to this point. In theory we could build up the entire

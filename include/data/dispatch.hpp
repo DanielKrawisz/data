@@ -10,13 +10,40 @@
 
 namespace data {
 
-    template <typename K, typename V> using dispatch = list<entry<K, V>>;
+    template <typename K, typename V> using dispatch = list<entry<const K, V>>;
+
+    // get all values
+    template <typename K, typename V>
+    list<const V &> get_values (const dispatch<K, V> &, const K &);
+
+    // expect only one value; if more than one is present, return nothing.
+    template <typename K, typename V>
+    maybe<const V &> get_value (const dispatch<K, V> &, const K &);
 
     template <typename K, typename V>
-    map<K, list<V>> dispatch_to_map (dispatch<K, V> d) {
-        map<K, list<V>> map;
+    map<K, list<const V &>> to_map (dispatch<K, V> d);
+
+    // expect only one value; if more than one is present, return nothing.
+    template <typename K, typename V>
+    maybe<const V &> get_value (const dispatch<K, V> &d, const K &k) {
+        list<const V &> vals = get_values (d, k);
+        if (vals.size () == 1) return vals[0];
+        return {};
+    }
+
+    // get all values
+    template <typename K, typename V>
+    list<const V &> get_values (const dispatch<K, V> &d, const K &k) {
+        list<const V &> v;
+        for (const auto &[key, value]: d) if (key == k) v <<= value;
+        return v;
+    }
+
+    template <typename K, typename V>
+    map<K, list<const V &>> to_map (dispatch<K, V> d) {
+        map<K, list<const V &>> map;
         for (const auto &[key, val] : d)
-            map = map.insert (key, {val}, [] (list<V> old_value, list<V> new_value) {
+            map = map.insert (key, {val}, [] (list<const V &> old_value, list<const V &> new_value) {
                 return old_value + new_value;
             });
         return map;

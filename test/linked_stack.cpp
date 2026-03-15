@@ -206,6 +206,24 @@ namespace data {
         stack<Z_bytes_little> (1);
         stack<Z_bytes_little> {1, 2};
     }
+
+    // test that equality operations are defined for different kinds of stacks.
+    TEST (LinkedStack, Comparison) {
+        (void) (stack<int> {} == stack<const int> {});
+        (void) (stack<int> {} == stack<int &> {});
+        (void) (stack<int> {} == stack<const int &> {});
+
+        (void) (stack<const int> {} == stack<int> {});
+        (void) (stack<int &> {} == stack<int> {});
+        (void) (stack<const int &> {} == stack<int> {});
+
+        (void) (stack<int *> {} == stack<int * const> {});
+        (void) (stack<int *> {} == stack<int const*> {});
+        (void) (stack<int *> {} == stack<int const* const> {});
+/*
+        (void) (stack<stack<int>> {} == stack<stack<int &>> {});
+        (void) (stack<stack<int>> {} == stack<stack<const int &>> {});*/
+    }
 }
 
 template <typename X> struct Stack : ::testing::Test {
