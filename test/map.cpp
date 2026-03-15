@@ -5,6 +5,7 @@
 #include <data/map.hpp>
 #include <data/replace.hpp>
 #include <data/numbers.hpp>
+#include <data/dispatch.hpp>
 #include "gtest/gtest.h"
 
 namespace data {
@@ -150,6 +151,36 @@ namespace data {
         EXPECT_EQ (A & B, ResultAnd);
 
     }
+
+    TEST (Map, Comparison) {
+        (void) (map<int, int> {} == map<int, const int> {});
+        (void) (map<int, int> {} == map<int, int &> {});
+        (void) (map<int, int> {} == map<int, const int &> {});
+
+        (void) (map<int, const int> {} == map<int, int> {});
+        (void) (map<int, int &> {} == map<int, int> {});
+        (void) (map<int, const int &> {} == map<int, int> {});
+
+        (void) (map<int, int *> {} == map<int, int * const> {});
+        (void) (map<int, int *> {} == map<int, int const*> {});
+        (void) (map<int, int *> {} == map<int, int const* const> {});
+
+        (void) (map<int, string> {} == map<int, string &> {});
+
+        (void) (map<int, list<int>> {} == map<int, list<int &>> {});
+        (void) (map<int, list<string>> {} == map<int, list<string &>> {});
+/*
+        (void) (map<int, list<int>> {} == map<int, list<const int &>> {});
+        (void) (map<int, list<string>> {} == map<int, list<const string &>> {});*/
+    }
+/*
+    TEST (Map, Dispatch) {
+        dispatch<int, string> empty {};
+        EXPECT_EQ (to_map (empty), (map<int, list<string>> {}));
+
+        EXPECT_EQ ((get_value (empty, 0)), (maybe<string> {}));
+        EXPECT_EQ ((get_values (empty, 0)), (list<string> {}));
+    }*/
 }
 
 template <typename V> struct Map : ::testing::Test {

@@ -470,7 +470,7 @@ namespace data::net {
         for (const string_view &e : z) {
             list<string_view> p = split (e, "=");
             if (p.size () != 2) return {};
-            params = params << entry<UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
+            params = params << entry<const UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
         }
 
         return params;
@@ -1057,7 +1057,7 @@ namespace data {
         return ASCII {sub};
     }
 
-    maybe<list<entry<UTF8, UTF8>>> net::target::query_map () const {
+    maybe<dispatch<UTF8, UTF8>> net::target::query_map () const {
         maybe<ASCII> q = query ();
 
         if (!bool (q)) return {};

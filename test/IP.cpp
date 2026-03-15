@@ -316,7 +316,7 @@ namespace data::net {
             maybe<data::UTF8> UserInfo;
             maybe<data::UTF8> Host;
             maybe<data::ASCII> Port;
-            maybe<list<entry<data::UTF8, data::UTF8>>> QueryMap;
+            maybe<dispatch<data::UTF8, data::UTF8>> QueryMap;
 
             maybe<uint16> PortNumber;
             data::ASCII PortDNS;

@@ -11,6 +11,16 @@
 #include <data/ordered.hpp>
     
 namespace data {
+    template <Ordered K, typename V> struct entry;
+
+    template <Ordered K, typename V>
+    bool operator == (const entry<K, V> &l, const entry<K, V> &r);
+
+    template <Ordered K, typename V>
+    auto operator <=> (const entry<K, V> &l, const entry<K, V> &r);
+
+    template <typename K, typename V>
+    std::ostream &operator << (std::ostream &o, const entry<K, V> &e);
 
     template <Ordered K, typename V>
     struct entry {
@@ -30,19 +40,17 @@ namespace data {
         const V &value () const {
             return Value;
         }
+
+        template <typename X> requires ImplicitlyConvertible<V, X>
+        operator entry<K, X> () const {
+            return entry<K, X> {Key, Value};
+        }
+
+        template <typename X> requires ExplicitlyConvertible<V, X>
+        explicit operator entry<K, X> () const {
+            return entry<K, X> {Key, X (Value)};
+        }
     };
-
-    // equal if the keys are equal.
-    // NOTE this totally breaks some things.
-    template <Ordered K, typename V>
-    bool operator == (const entry<K, V> &l, const entry<K, V> &r) {
-        return l.Key == r.Key;
-    }
-
-    template <Ordered K, typename V>
-    auto operator <=> (const entry<K, V> &l, const entry<K, V> &r) {
-        return l.Key <=> r.Key;
-    }
     
     namespace interface {
     
@@ -56,11 +64,6 @@ namespace data {
             { x.keys () } -> Sequence<const key &>;
         };
         
-    }
-
-    template <typename K, typename V> 
-    std::ostream inline &operator << (std::ostream &o, const entry<K, V> &e) {
-        return o << e.Key << ": " << e.Value;
     }
 
     template <typename X,
@@ -82,6 +85,23 @@ namespace data {
             return o << m.values ();
         }
 
+    }
+
+    // equal if the keys are equal.
+    // NOTE this totally breaks some things.
+    template <Ordered K, typename V>
+    bool inline operator == (const entry<K, V> &l, const entry<K, V> &r) {
+        return l.Key == r.Key;
+    }
+
+    template <Ordered K, typename V>
+    auto inline operator <=> (const entry<K, V> &l, const entry<K, V> &r) {
+        return l.Key <=> r.Key;
+    }
+
+    template <typename K, typename V>
+    std::ostream inline &operator << (std::ostream &o, const entry<K, V> &e) {
+        return o << e.Key << ": " << e.Value;
     }
 
 }
