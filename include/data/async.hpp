@@ -13,6 +13,7 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/use_future.hpp>
 #include <boost/asio/bind_executor.hpp>
+#include <boost/asio/detached.hpp>
 
 namespace data {
 
@@ -41,33 +42,83 @@ namespace data {
             });
     }
 
-    // sync takes an async function and arguments and runs as an ordinary sync function.
-    // the first argument can be a callable type or a member function pointer. If it's
-    // a member function pointer, the second argument must be a pointer to the object.
+    // synced turns an async function and makes it work synchronously.
+
+    // to be more precise, synced can take any function that returns an
+    // awaitable type and waits for it to complete.
+
+    // synced can take either a function or a member function pointer.
+    // in the second case, the second argument must be a pointer to the
+    // object with the member function.
+
+    // the pattern
+    //    synced ([&] {return some_expression; });
+    // works and that's usually a lot easier than getting a member function
+    // pointer and a this pointer.
+    template <typename fun, typename... args>
+    requires std::regular_invocable<fun, args...> && requires (fun f, args... a) {
+        { std::invoke (std::forward<fun> (f), std::forward<args> (a)...) } -> Awaitable<>;
+    } auto synced (fun &&f, args &&...a);
+
+    using millisecond = std::chrono::milliseconds;
+
+    // wait for a given amount of time.
+    awaitable<void> sleep (std::chrono::milliseconds duration);
+
     template <typename fun, typename... args>
     requires std::regular_invocable<fun, args...> && requires (fun f, args... a) {
         { std::invoke (std::forward<fun> (f), std::forward<args> (a)...) } -> Awaitable<>;
     } auto synced (fun &&f, args &&...a) {
         using namespace boost::asio;
+
+        // Deduce the awaitable type returned by invoking f(args...)
+        using awaitable_t = decltype (std::invoke (std::forward<fun> (f), std::forward<args> (a)...));
+
+        // Extract the value type that the awaitable produces when co_awaited
+        using result_t = typename awaitable_t::value_type;
+
         boost::asio::io_context ioc;
-        auto future = co_spawn (ioc.get_executor (),
-            [&]() -> decltype (std::invoke (std::forward<fun> (f), std::forward<args> (a)...)) {
-                co_return co_await std::invoke (std::forward<fun> (f), std::forward<args> (a)...);
-            }, use_future  // This turns the coroutine into a std::future
+
+        // We use std::promise/std::future instead of asio::use_future because:
+        // - use_future requires the result type to be default-constructible
+        // - promise allows us to support non-default-constructible types
+        std::promise<result_t> p;
+        auto fut = p.get_future ();
+
+        // Spawn a coroutine onto the io_context executor.
+        // This coroutine will:
+        //   1. invoke the async function
+        //   2. co_await its result
+        //   3. forward the result (or exception) into the promise
+        co_spawn (
+            ioc.get_executor (),
+                  [&]() -> awaitable<void> {
+                      try {
+                          if constexpr (std::is_void_v<result_t>) {
+                              // If the async function returns void, just await it
+                              // and signal completion via set_value()
+                              co_await std::invoke (std::forward<fun> (f), std::forward<args> (a)...);
+                              p.set_value ();
+                          } else {
+                              // Otherwise, await the result and store it in the promise
+                              p.set_value (co_await std::invoke (std::forward<fun> (f), std::forward<args> (a)...));
+                          }
+                      } catch (...) {
+                          // Propagate exceptions across the async → sync boundary
+                          p.set_exception (std::current_exception ());
+                      }
+                  },
+                  detached // We do not use asio completion tokens; promise handles result
         );
 
-        // here the coroutine gets run.
+        // Run the event loop until all work (our coroutine) is complete.
+        // This blocks the current thread, making the function synchronous.
         ioc.run ();
 
-        return future.get (); // Block and get the result
-
+        // Extract the result from the future.
+        // This will rethrow any exception set above.
+        return fut.get ();
     }
-
-    using milliseconds = std::chrono::milliseconds;
-
-    // wait for a given amount of time.
-    awaitable<void> sleep (std::chrono::milliseconds duration);
-
 }
 
 #endif

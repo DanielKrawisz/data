@@ -14,8 +14,8 @@ namespace data::net::HTTP {
 
         HTTP::REST REST;
         
-        client (const HTTP::REST &rest, tools::rate_limiter rate = {});
-        client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate = {});
+        client (const HTTP::REST &rest, rate_limiter rate = {});
+        client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, rate_limiter rate = {});
 
         awaitable<response> operator () (const request &r);
         awaitable<response> GET (path path, dispatch<UTF8, UTF8> params = {});
@@ -23,17 +23,17 @@ namespace data::net::HTTP {
 
     private:
         ptr<HTTP::SSL> SSL;
-        tools::rate_limiter Rate;
+        rate_limiter Rate;
         ptr<stream> Session;
     };
         
-    inline client::client (const HTTP::REST &rest, tools::rate_limiter rate) :
+    inline client::client (const HTTP::REST &rest, rate_limiter rate) :
         client {std::make_shared<HTTP::SSL> (HTTP::SSL::tlsv12_client), rest, rate} {
             SSL->set_default_verify_paths ();
             SSL->set_verify_mode (asio::ssl::verify_peer);
         }
 
-    inline client::client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, tools::rate_limiter rate) :
+    inline client::client (ptr<HTTP::SSL> ssl, const HTTP::REST &rest, rate_limiter rate) :
         REST {rest}, SSL {ssl}, Rate {rate}, Session {} {}
     
     awaitable<response> inline client::GET (path path, dispatch<UTF8, UTF8> params) {

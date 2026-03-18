@@ -4,29 +4,29 @@
 
 #include "data/tools/rate_limiter.hpp"
 
-namespace data::tools {
+namespace data {
 
-    milliseconds rate_limiter::get_time () {
-        if (m_queue.size == 0) return milliseconds {0};
+    millisecond rate_limiter::get_time () {
+        if (m_queue.size == 0) return millisecond {0};
 
         std::scoped_lock lock (*mutex);
 
         using namespace std::chrono;
-        if (m_duration == milliseconds {0}) return milliseconds {0};
+        if (m_duration == millisecond {0}) return millisecond {0};
             
-        milliseconds now = duration_cast<milliseconds> (system_clock::now ().time_since_epoch ());
+        millisecond now = duration_cast<millisecond> (system_clock::now ().time_since_epoch ());
                     
-        milliseconds lastSent = m_queue.get ();
+        millisecond lastSent = m_queue.get ();
             
         if (now - lastSent < m_duration) {
-            milliseconds wait_name = m_duration - (now - lastSent);
+            millisecond wait_name = m_duration - (now - lastSent);
             m_queue.set (now + wait_name);
             return wait_name;
         }
 
         m_queue.set (now);
 
-        return milliseconds {0};
+        return millisecond {0};
     }
 }
 
