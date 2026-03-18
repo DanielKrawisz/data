@@ -1389,6 +1389,9 @@ namespace data::schema::rule {
                 // then there must be keys in the map that aren't allowed.
                 if (n == x.end ()) throw unknown_key {data::string (z->Key)};
 
+                // TODO we get a warning here that we can resolve by ensuring
+                // that data::string has an explicit comparison <=> defined
+                // with an std string.
                 if (z->Key > *n) n++;
                 else {
                     if (z->Key != *n) throw unknown_key {data::string (z->Key)};

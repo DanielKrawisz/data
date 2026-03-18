@@ -105,6 +105,9 @@ add_executable (
     NIST_DRBG.cpp
     secret_share.cpp
 
+    #async
+    async.cpp
+
     # net
     IP.cpp
     circular_queue.cpp
