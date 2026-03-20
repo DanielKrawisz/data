@@ -53,6 +53,10 @@ namespace data::schema::rule {
     // this should mean that the map has a C and either and A or a B and nothing else.
     static_assert (Same<decltype ((schema::map::key<int> ("A") || schema::map::key<int> ("B")) && schema::map::key<int> ("C")),
         map<only<all<any<value<int>, value<int>>, value<int>>>>>);
+
+    static_assert (Same<decltype (*schema::map::keys<int> ("A")), map<only<values<int, 0>>>>);
+
+    //static_assert (Same<decltype (*schema::dispatch::keys<int> ("A")), map<only<values<int, 0>>>>);
    
 }
 
@@ -238,6 +242,7 @@ namespace data::schema::map {
         try {
             test_map_validate<data::map<string, string>> ();
             test_map_validate<std::map<string, string>> ();
+            test_map_validate<data::dispatch<string, string>> ();
         } catch (unknown_key err) {
             FAIL () << "Fail with unknown key " << err.Key;
         } catch (missing_key err) {
@@ -270,18 +275,17 @@ namespace data::schema::map {
 
     }
 
-    TEST (Schema, Or) {
-
-        using map = data::map<std::string, std::string>;
+    template <typename map> void test_or () {
 
         auto test_A = key<std::string> ("a") && key<std::string> ("b");
 
         // Here we test that unknown key gets thrown first out of other possible errors.
         EXPECT_THROW ((validate<> (map {{"a", "A"}, {"d", "D"}}, test_A)), unknown_key);
-/*
+
         // We want to use this to test that both keys can be present when we don't use only.
         auto test_B = +(key<std::string> ("a") || key<std::string> ("b"));
 
+        /*
         EXPECT_NO_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_B)));
 
         auto test_C = key<std::string> ("a") || key<std::string> ("b");
@@ -300,7 +304,17 @@ namespace data::schema::map {
         EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}, {"g", "G"}}, test_D)), unknown_key);
 
         EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}}, test_D)), incomplete_match);*/
+    }
 
+    TEST (Schema, Or) {
+
+        try {
+            test_or<data::map<std::string, std::string>> ();
+            test_or<std::map<std::string, std::string>> ();
+            //test_or<data::dispatch<std::string, std::string>> ();
+        } catch (const mismatch &) {
+            FAIL () << "";
+        }
 
     }
 
