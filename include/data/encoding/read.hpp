@@ -8,6 +8,7 @@
 #include <data/concepts.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/maybe.hpp>
+#include <data/either.hpp>
 #include <data/encoding/base64.hpp>
 
 namespace data::encoding {
@@ -103,6 +104,23 @@ namespace data::encoding {
             return rest;
         }
     };
+
+    template <typename ...X> struct read<either<X...>> {
+        maybe<either<X...>> operator () (string_view) const;
+    };
+
+    template<typename... X>
+    maybe<either<X...>> read<either<X...>>::operator () (string_view str) const {
+        maybe<either<X...>> result;
+
+        // Fold with short-circuiting via || trick
+        ([&] (const auto &r) { if (r) {
+            result = either<X...> {*r};
+            return true;
+        } else return false; } (read<X> {} (str)) || ...);
+
+        return result;
+    }
 }
 
 #endif

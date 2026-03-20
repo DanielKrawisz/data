@@ -25,7 +25,7 @@ namespace data::math::number {
         }
 
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (N {x});
-        throw exception {} << "invalid number string" << x;
+        throw exception {} << "invalid number string " << x;
     }
     
     template <endian::order r, std::unsigned_integral word>
