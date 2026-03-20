@@ -286,6 +286,9 @@ namespace data::schema::rule {
     // specifies that a data structure has a given value.
     template <std::default_initializable X> struct value;
 
+    // specifies that a data structure has a certain number of values.
+    template <std::default_initializable X, size_t min, size_t max = std::numeric_limits<size_t>::max ()> struct values;
+
     template <std::default_initializable X> struct default_value;
 
     // specifies that the structure is equal to a given value.
@@ -305,6 +308,9 @@ namespace data::schema::map {
 
     // make a rule that says a map has a given key with a given default.
     template <typename X> constexpr rule::map<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
+
+    // A rule allowing multiple keys (at least one).
+    template <typename X> constexpr rule::map<rule::only<rule::values<X, 1>>> keys (const string &key);
 }
 
 namespace data::schema::list {
@@ -325,8 +331,20 @@ namespace data::schema::list {
 }
 
 namespace data::schema::dispatch {
-    // make a rule for an empty dispatch.
-    constexpr rule::map<rule::empty> empty ();
+    // make a rule for an empty map.
+    constexpr rule::dispatch<rule::empty> empty ();
+
+    // make a rule for an a map that can have anything in it.
+    constexpr rule::dispatch<rule::blank> blank ();
+
+    // make a rule that says a map has a given key.
+    template <typename X> constexpr rule::dispatch<rule::only<rule::value<X>>> key (const string &key);
+
+    // make a rule that says a map has a given key with a given default.
+    template <typename X> constexpr rule::dispatch<rule::only<rule::default_value<X>>> key (const string &key, const X &def);
+
+    // make a rule that says a map has a given key.
+    template <typename X> constexpr rule::dispatch<rule::only<rule::values<X, 1>>> keys (const string &key);
 }
 
 // rules that modify other rules.
@@ -348,7 +366,7 @@ namespace data::schema::rule {
     template <typename X> constexpr auto operator + (const map<X> &);
 
     // use the * operator to make a rule optional.
-    template <typename X> constexpr auto operator * (const map<only<X>> &);
+    template <typename X> constexpr auto operator * (const map<X> &);
 
     template <typename X> constexpr auto operator * (const list<X> &);
 
@@ -360,6 +378,21 @@ namespace data::schema::rule {
 
     // join two list schemas together.
     template <typename X, typename Y> auto operator + (const list<X> &, const list<Y> &);
+
+    // specifies that a rule cannot match additional unspecified values.
+    template <typename X> constexpr auto operator - (const dispatch<X> &);
+
+    // use the + operator to allow a rule to match with extra values.
+    template <typename X> constexpr auto operator + (const dispatch<X> &);
+
+    // use the * operator to make a rule optional.
+    template <typename X> constexpr auto operator * (const dispatch<X> &);
+
+    // use the & operator to combine two dispatch rules.
+    template <typename X, typename Y> auto operator && (const dispatch<X> &, const dispatch<Y> &);
+
+    // use the | make alternatives.
+    template <typename X, typename Y> auto operator || (const dispatch<X> &, const dispatch<Y> &);
 
     template <typename string> concept String = /*std::convertible_to<string, data::string> && */std::equality_comparable_with<data::string, string>;
 }
@@ -376,6 +409,9 @@ namespace data::schema {
 
     template <typename ...context, rule::String string, typename X>
     auto validate (const std::map<string, string> &m, const rule::map<X> &r);
+
+    template <typename ...context, rule::String string, typename X>
+    auto validate (data::dispatch<string, string> m, const rule::map<X> &r);
 
     template <typename ...context, rule::String string, typename X>
     auto validate (data::list<string> m, const rule::list<X> &r);
@@ -396,6 +432,11 @@ namespace data::schema {
     struct missing_key : mismatch {
         data::string Key;
         constexpr missing_key (const data::string &k) : mismatch {}, Key {k} {}
+    };
+
+    struct too_many_keys : mismatch {
+        data::string Key;
+        constexpr too_many_keys (const data::string &k) : mismatch {}, Key {k} {}
     };
 
     // thrown when a key is present which is only valid in some alternative
@@ -443,6 +484,24 @@ namespace data::schema::rule {
 
     template <typename X> struct map<value<X>> {
         string Key;
+    };
+
+    template <typename X, size_t min, size_t max> struct map<values<X, min, max>> {
+        string Key;
+        constexpr map (const string &k): Key {k} {}
+        template <size_t n, size_t x>
+        constexpr map (const map<values<X, n, x>> &m): Key {m.Key} {}
+    };
+
+    template <typename X> struct dispatch<value<X>> {
+        string Key;
+    };
+
+    template <typename X, size_t min, size_t max> struct dispatch<values<X, min, max>> {
+        string Key;
+        constexpr dispatch (const string &k): Key {k} {}
+        template <size_t n, size_t x>
+        constexpr dispatch (const dispatch<values<X, n, x>> &m): Key {m.Key} {}
     };
 
     template <typename X> struct map<default_value<X>> : map<value<X>> {
@@ -539,8 +598,12 @@ namespace data::schema::rule {
         using result = optional<X>;
     };
 
+    template <typename X, size_t max> struct apply_optional<values<X, 1, max>> {
+        using result = values<X, 0, max>;
+    };
+
     template <typename X> struct apply_optional<only<X>> {
-        using result = only<optional<X>>;
+        using result = only<typename apply_optional<X>::result>;
     };
 
     // here is some stuff that says how blank composes.
@@ -699,12 +762,16 @@ namespace data::schema::rule {
     }
 
     // use the * operator to make a rule optional.
-    template <typename X> constexpr auto inline operator * (const map<only<X>> &m) {
-        return map<typename apply_optional<only<X>>::result> {m};
+    template <typename X> constexpr auto inline operator * (const map<X> &m) {
+        return map<typename apply_optional<X>::result> {m};
     }
 
     template <typename X> constexpr auto inline operator * (const list<X> &m) {
         return list<typename apply_optional<X>::result> {m};
+    }
+
+    template <typename X> constexpr auto inline operator * (const dispatch<X> &m) {
+        return dispatch<typename apply_optional<X>::result> {m};
     }
 
     // use the & operator to combine two map rules.
@@ -714,6 +781,14 @@ namespace data::schema::rule {
 
     // use the | make alternatives.
     template <typename X, typename Y> auto inline operator || (const map<X> &a, const map<Y> &b) {
+        return unite<X, Y> {} (a, b);
+    }
+
+    template <typename X, typename Y> auto inline operator && (const dispatch<X> &a, const dispatch<Y> &b) {
+        return intersect<X, Y> {} (a, b);
+    }
+
+    template <typename X, typename Y> auto inline operator || (const dispatch<X> &a, const dispatch<Y> &b) {
         return unite<X, Y> {} (a, b);
     }
 
@@ -735,6 +810,9 @@ namespace data::schema::rule {
 
         template <typename any>
         result operator () (const any &m, map<blank> r);
+
+        template <typename any>
+        result operator () (const any &m, dispatch<blank> r);
     };
 
     template <typename ...context> struct validate<empty, context...> {
@@ -748,6 +826,9 @@ namespace data::schema::rule {
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<empty> &r);
+
+        template <String string>
+        result operator () (data::dispatch<string, string> m, const map<empty> &r);
     };
 
     template <typename X, typename ...context> struct validate<value<X>, context...> {
@@ -759,10 +840,26 @@ namespace data::schema::rule {
         template <String string>
         result operator () (const std::map<string, string> &m, const map<value<X>> &r);
 
+        template <String string>
+        result operator () (data::dispatch<string, string> m, const map<value<X>> &r);
+
         template <Iterable seq> result operator () (const seq &x, const list<value<X>> &r);
 
         template <typename iterator, typename sen>
         result sequence (iterator &i, sen s, const list<value<X>> &r, size_t index);
+    };
+
+    template <typename X, size_t min, size_t max, typename ...context> struct validate<values<X, min, max>, context...> {
+        using result = list<X>;
+
+        template <String string>
+        result operator () (data::map<string, string> m, const map<values<X, min, max>> &r);
+
+        template <String string>
+        result operator () (const std::map<string, string> &m, const map<values<X, min, max>> &r);
+
+        template <String string>
+        result operator () (data::dispatch<string, string> m, const map<values<X, min, max>> &r);
     };
 
     template <typename X, typename ...context> struct validate<default_value<X>, context...> {
@@ -773,6 +870,9 @@ namespace data::schema::rule {
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<default_value<X>> &r);
+
+        template <String string>
+        result operator () (data::dispatch<string, string> m, const map<default_value<X>> &r);
 
         template <Iterable seq> result operator () (const seq &x, const list<default_value<X>> &r);
 
@@ -799,7 +899,10 @@ namespace data::schema::rule {
         using result = maybe<typename validate<X, context...>::result>;
 
         template <String string>
-        result operator () (const data::map<string, string> &m, const map<optional<X>> &r);
+        result operator () (data::map<string, string> m, const map<optional<X>> &r);
+
+        template <String string>
+        result operator () (data::dispatch<string, string> m, const map<optional<X>> &r);
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<optional<X>> &r);
@@ -854,6 +957,10 @@ namespace data::schema::map {
     template <typename X> constexpr typename rule::map<rule::only<rule::default_value<X>>> inline key (const string &key, const X &def) {
         return rule::map<rule::only<rule::default_value<X>>> {rule::map<rule::default_value<X>> {key, def}};
     }
+
+    template <typename X> constexpr typename rule::map<rule::only<rule::values<X, 1>>> inline keys (const string &key) {
+        return rule::map<rule::only<rule::values<X, 1>>> {rule::map<rule::values<X, 1>> {key}};
+    }
 }
 
 namespace data::schema::list {
@@ -882,6 +989,11 @@ namespace data::schema {
 
     template <typename ...context, rule::String string, typename X>
     auto inline validate (data::map<string, string> m, const rule::map<X> &r) {
+        return rule::validate<X, context...> {} (m, r);
+    }
+
+    template <typename ...context, rule::String string, typename X>
+    auto inline validate (data::dispatch<string, string> m, const rule::map<X> &r) {
         return rule::validate<X, context...> {} (m, r);
     }
 
@@ -940,7 +1052,10 @@ namespace data::schema::rule {
         using result = typename validate<optional<X>, context...>::result;
 
         template <String string>
-        result operator () (const data::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys = {});
+        result operator () (data::map<string, string> m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys = {});
+
+        template <String string>
+        result operator () (data::dispatch<string, string> m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys = {});
 
         template <String string>
         result operator () (const std::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys = {});
@@ -983,6 +1098,14 @@ namespace data::schema::rule {
 
     template <typename ...context> template <String string>
     typename validate<empty, context...>::result
+    validate<empty, context...>::operator () (data::dispatch<string, string> m, const map<empty> &r) {
+        auto b = m.begin ();
+        if (b == m.end ()) return {};
+        else throw unknown_key {data::string (b->Key)};
+    }
+
+    template <typename ...context> template <String string>
+    typename validate<empty, context...>::result
     validate<empty, context...>::operator () (const std::map<string, string> &m, const map<empty> &r) {
         auto b = m.begin ();
         if (b == m.end ()) return {};
@@ -1007,12 +1130,38 @@ namespace data::schema::rule {
 
     template <typename X, typename ...context> template <String string>
     typename validate<value<X>, context...>::result inline
+    validate<value<X>, context...>::operator () (data::dispatch<string, string> m, const map<value<X>> &r) {
+        auto v = get_values (m, r.Key);
+        if (data::size (v) > 1) throw too_many_keys {data::string (r.Key)};
+        if (data::size (v) == 0) throw missing_key {data::string (r.Key)};
+        maybe<X> x = encoding::read<X, context...> {} (data::first (v));
+        if (!bool (x)) throw invalid_entry {data::string (r.Key)};
+        return *x;
+    }
+
+    template <typename X, typename ...context> template <String string>
+    typename validate<value<X>, context...>::result inline
     validate<value<X>, context...>::operator () (const std::map<string, string> &m, const map<value<X>> &r) {
         auto v = m.find (r.Key);
         if (v == m.end ()) throw missing_key {data::string (r.Key)};
         maybe<X> x = encoding::read<X, context...> {} (v->second);
         if (!bool (x)) throw invalid_entry {r.Key};
         return *x;
+    }
+
+    template <typename X, size_t min, size_t max, typename ...context> template <String string>
+    typename validate<values<X, min, max>, context...>::result
+    validate<values<X, min, max>, context...>::operator () (data::dispatch<string, string> m, const map<values<X, min, max>> &r) {
+        auto v = get_values (m, r.Key);
+        if (data::size (v) < min) throw missing_key {data::string (r.Key)};
+        if (data::size (v) > max) throw too_many_keys {data::string (r.Key)};
+        list<X> res;
+        for (const auto &z : v) {
+            maybe<X> x = encoding::read<X, context...> {} (z);
+            if (!bool (x)) throw invalid_entry {r.Key};
+            res <<= *x;
+        }
+        return res;
     }
 
     template <typename X, typename ...context> template <String string>
@@ -1026,8 +1175,28 @@ namespace data::schema::rule {
     }
 
     template <typename X, typename ...context> template <String string>
+    typename validate<default_value<X>, context...>::result inline
+    validate<default_value<X>, context...>::operator () (data::dispatch<string, string> m, const map<default_value<X>> &r) {
+        auto v = get_values (m, r.Key);
+        if (data::size (v) > 1) throw too_many_keys {r.Key};
+        if (data::size (v) == 0) return r.Default;
+        maybe<X> x = encoding::read<X, context...> {} (data::first (v));
+        if (!bool (x)) throw invalid_entry {r.Key};
+        return *x;
+    }
+
+    template <typename X, typename ...context> template <String string>
     typename validate<optional<X>, context...>::result inline
-    validate<optional<X>, context...>::operator () (const data::map<string, string> &m, const map<optional<X>> &r) {
+    validate<optional<X>, context...>::operator () (data::map<string, string> m, const map<optional<X>> &r) {
+        try {
+            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
+        } catch (const mismatch &) {}
+        return {};
+    }
+
+    template <typename X, typename ...context> template <String string>
+    typename validate<optional<X>, context...>::result inline
+    validate<optional<X>, context...>::operator () (data::dispatch<string, string> m, const map<optional<X>> &r) {
         try {
             return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
         } catch (const mismatch &) {}
@@ -1231,7 +1400,7 @@ namespace data::schema::rule {
     template <typename X, typename ...context> template <String string>
     typename validate<branch_isolated<optional<X>>, context...>::result inline
     validate<branch_isolated<optional<X>>, context...>::operator ()
-    (const data::map<string, string> &m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys) {
+    (data::map<string, string> m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys) {
         try {
             return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
         } catch (const mismatch &) {}
@@ -1240,6 +1409,20 @@ namespace data::schema::rule {
         for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
             if (!allowed_keys.contains (k) && m.contains (k)) throw incomplete_match {data::string (k)};
         return {};
+    }
+
+    template <typename X, typename ...context> template <String string>
+    typename validate<branch_isolated<optional<X>>, context...>::result inline
+    validate<branch_isolated<optional<X>>, context...>::operator ()
+    (data::dispatch<string, string> m, const map<branch_isolated<optional<X>>> &r, set<string> allowed_keys) {
+        try {
+            return {validate<X, context...> {} (m, static_cast<map<X>> (r))};
+        } catch (const mismatch &) {}
+        // if the match fails, the map may not contain any keys
+        // of the sub rule.
+        for (const string &k: get_keys<X> {} (static_cast<map<X>> (r)))
+            if (!allowed_keys.contains (k) && get_values (m, k).size () != 0) throw incomplete_match {data::string (k)};
+            return {};
     }
 
     template <typename X, typename ...context> template <String string>
@@ -1302,6 +1485,15 @@ namespace data::schema::rule {
     };
 
     template <size_t index, String string, typename ...X>
+    struct has_no_unused_alternatives<index, data::dispatch<string, string>, X...> {
+        unit operator () (const data::dispatch<string, string> &m, const map<any<X...>> &r) const {
+            for (const data::string &k: get_alternative_keys<X...> {}.template operator ()<index> (r))
+                if (get_values (m, k).size () != 0) throw incomplete_match {k};
+                return unit {};
+        }
+    };
+
+    template <size_t index, String string, typename ...X>
     struct has_no_unused_alternatives<index, std::map<string, string>, X...> {
         unit operator () (const std::map<string, string> &m, const map<any<X...>> &r) const {
             for (const data::string &k: get_alternative_keys<X...> {}.template operator ()<index> (r))
@@ -1315,8 +1507,11 @@ namespace data::schema::rule {
     template <typename Map, size_t index>
     typename validate<any<X...>, context...>::result
     validate<any<X...>, context...>::operator () (const Map &m, const map<any<X...>> &r) {
+
         using tuple_type = tuple<map<X>...>;
+
         constexpr const size_t tuple_size = std::tuple_size_v<tuple_type>;
+
         using rule_type = typename get_rule<std::tuple_element_t<index, tuple_type>>::type;
 
         struct validate_alternative {
@@ -1411,9 +1606,35 @@ namespace data::schema::rule {
                 // then there must be keys in the map that aren't allowed.
                 if (n == x.end ()) throw unknown_key {data::string (z->first)};
 
+                // TODO we get a warning here that we can resolve by ensuring
+                // that data::string has an explicit comparison <=> defined
+                // with an std string.
                 if (z->first > *n) n++;
                 else {
                     if (z->first != *n) throw unknown_key {data::string (z->first)};
+                    n++;
+                    z++;
+                }
+            }
+        }
+
+        template <String string>
+        void operator () (data::dispatch<string, string> m, const set<data::string> &x) {
+            auto keys = data::get_keys (m);
+            auto z = keys.begin ();
+            auto n = x.begin ();
+
+            while (z != keys.end ()) {
+                // if we are at the end of the list of allowed keys,
+                // then there must be keys in the map that aren't allowed.
+                if (n == x.end ()) throw unknown_key {data::string (*z)};
+
+                // TODO we get a warning here that we can resolve by ensuring
+                // that data::string has an explicit comparison <=> defined
+                // with an std string.
+                if (*z > *n) n++;
+                else {
+                    if (*z != *n) throw unknown_key {data::string (*z)};
                     n++;
                     z++;
                 }
