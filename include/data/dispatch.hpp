@@ -14,12 +14,12 @@ namespace data {
     template <typename K, typename V> using dispatch = list<entry<const K, V>>;
 
     // get all values for a given key
-    template <typename K, typename V>
-    list<const V &> get_values (const dispatch<K, V>, const K &);
+    template <typename K, typename V, std::equality_comparable_with<K> L>
+    list<const V &> get_values (const dispatch<K, V>, const L &);
 
     // expect only one value; if more than one is present, return nothing.
-    template <typename K, typename V>
-    maybe<const V &> get_value (const dispatch<K, V>, const K &);
+    template <typename K, typename V, std::equality_comparable_with<K> L>
+    maybe<const V &> get_value (const dispatch<K, V>, const L &);
 
     template <typename K, typename V>
     map<K, list<const V &>> to_map (const dispatch<K, V> d);
@@ -28,16 +28,16 @@ namespace data {
     set<const K &> get_keys (const dispatch<K, V>);
 
     // expect only one value; if more than one is present, return nothing.
-    template <typename K, typename V>
-    maybe<const V &> get_value (const dispatch<K, V> d, const K &k) {
+    template <typename K, typename V, std::equality_comparable_with<K> L>
+    maybe<const V &> get_value (const dispatch<K, V> d, const L &k) {
         list<const V &> vals = get_values (d, k);
         if (vals.size () == 1) return vals[0];
         return {};
     }
 
     // get all values
-    template <typename K, typename V>
-    list<const V &> get_values (const dispatch<K, V> d, const K &k) {
+    template <typename K, typename V, std::equality_comparable_with<K> L>
+    list<const V &> get_values (const dispatch<K, V> d, const L &k) {
         list<const V &> v;
         for (const auto &[key, value]: d) if (key == k) v <<= value;
         return v;

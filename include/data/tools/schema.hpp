@@ -425,7 +425,8 @@ namespace data::schema {
     // thrown when the value could not be read.
     struct invalid_entry : mismatch {
         data::string Key;
-        constexpr invalid_entry (const data::string &k) : mismatch {}, Key {k} {}
+        data::string Value;
+        constexpr invalid_entry (const data::string &k, const data::string &v) : mismatch {}, Key {k}, Value {v} {}
     };
 
     // thrown when a key was expected that was not available.
@@ -1124,7 +1125,7 @@ namespace data::schema::rule {
         const string *v = m.contains (r.Key);
         if (!bool (v)) throw missing_key {data::string (r.Key)};
         maybe<X> x = encoding::read<X, context...> {} (*v);
-        if (!bool (x)) throw invalid_entry {data::string (r.Key)};
+        if (!bool (x)) throw invalid_entry {data::string (r.Key), data::string (*v)};
         return *x;
     }
 
@@ -1135,7 +1136,7 @@ namespace data::schema::rule {
         if (data::size (v) > 1) throw too_many_keys {data::string (r.Key)};
         if (data::size (v) == 0) throw missing_key {data::string (r.Key)};
         maybe<X> x = encoding::read<X, context...> {} (data::first (v));
-        if (!bool (x)) throw invalid_entry {data::string (r.Key)};
+        if (!bool (x)) throw invalid_entry {data::string (r.Key), data::string (data::first (v))};
         return *x;
     }
 
@@ -1145,7 +1146,7 @@ namespace data::schema::rule {
         auto v = m.find (r.Key);
         if (v == m.end ()) throw missing_key {data::string (r.Key)};
         maybe<X> x = encoding::read<X, context...> {} (v->second);
-        if (!bool (x)) throw invalid_entry {r.Key};
+        if (!bool (x)) throw invalid_entry {r.Key, data::string (v->second)};
         return *x;
     }
 
@@ -1170,7 +1171,7 @@ namespace data::schema::rule {
         const string *v = m.contains (r.Key);
         if (!bool (v)) return r.Default;
         maybe<X> x = encoding::read<X, context...> {} (*v);
-        if (!bool (x)) throw invalid_entry {r.Key};
+        if (!bool (x)) throw invalid_entry {r.Key, *v};
         return *x;
     }
 
@@ -1181,7 +1182,7 @@ namespace data::schema::rule {
         if (data::size (v) > 1) throw too_many_keys {r.Key};
         if (data::size (v) == 0) return r.Default;
         maybe<X> x = encoding::read<X, context...> {} (data::first (v));
-        if (!bool (x)) throw invalid_entry {r.Key};
+        if (!bool (x)) throw invalid_entry {data::string (r.Key), data::string (data::first (v))};
         return *x;
     }
 
