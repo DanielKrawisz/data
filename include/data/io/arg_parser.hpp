@@ -72,18 +72,9 @@ This keeps lexing independent of meaning or schema.
 Uniqueness and repetition
 -------------------------
 
-Each flag or option name may appear *at most once*.
+Each option name may appear as many times as needed.
 
-  * Repeated flags are not allowed
-  * Repeated options are not allowed
-  * Mixed forms (e.g. `-a` and `--a`) are considered the same name and are not
-    allowed together
-
-This restriction aligns with the zero-copy design of the parser (arguments and
-values are stored as `string_view` into argv) and avoids policy decisions about
-overrides, ordering, or value equality. Programs that require repetition or
-aggregation should implement that behavior at a higher semantic layer.
-
+Flags, however, are not allowed to be repeated.
 
 Data representation
 -------------------
@@ -156,17 +147,23 @@ namespace data::io::args {
         parsed (int arg_count, const char *const arg_value[]);
 
         set<string_view> Flags;
-        map<string_view, string_view> Options;
+        dispatch<string_view, string_view> Options;
         cross<string_view> Arguments;
 
+        // whether a flag is present
         bool has (const std::string &) const;
 
+        // get the value of a particular option. If there is more than one
+        // value for the same option, none is read.
         template <typename X> void get (const std::string &, maybe<X> &) const;
+
         template <typename X> void get (size_t, maybe<X> &) const;
     };
 
+    // a schema used to check and read the command line arguments.
     template <typename arg_rule, typename opt_rule>
     struct command {
+        // the set of allowed flags.
         set<std::string> Flags;
         schema::rule::list<arg_rule> Arguments;
         schema::rule::map<opt_rule> Options;
@@ -189,7 +186,7 @@ namespace data::io::args {
     }
 
     template <typename X> void inline parsed::get (const std::string &z, maybe<X> &x) const {
-        auto v = contains (Options, z);
+        auto v = get_value (Options, string_view (z));
         if (v) x = encoding::read<X> {} (*v);
         else x = {};
     }

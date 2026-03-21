@@ -20,18 +20,15 @@ namespace data::io::args {
 
             if (std::regex_match (arg_value[i], m, option_re)) {
                 std::string_view key {m[1].first, static_cast<size_t> (m[1].length ())};
-                if (Options.contains (key)) throw exception {} << "alreahy have key " << key;
                 // --name=value
-                Options = Options.insert (key, std::string_view {m[2].first, static_cast<size_t> (m[2].length ())});
+                Options <<= {key, std::string_view {m[2].first, static_cast<size_t> (m[2].length ())}};
             } else if (std::regex_match (arg_value[i], m, flag_re)) {
                 // --name
                 std::string_view q {m[1].first, static_cast<size_t> (m[1].length ())};
-                if (Flags.contains (q)) throw exception {} << "already have flag " << q;
                 Flags = Flags.insert (q);
             } else if (std::regex_match (arg_value[i], m, ab_flag_re)) {
                 for (int i = 0; i < m[1].length (); i++) {
                     std::string_view q {m[1].first + i, 1};
-                    if (Flags.contains (q)) throw exception {} << "already have flag " << q;
                     Flags = Flags.insert (q);
                 }
             } else {

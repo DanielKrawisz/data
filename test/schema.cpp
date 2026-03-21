@@ -242,7 +242,10 @@ namespace data::schema::map {
         try {
             test_map_validate<data::map<string, string>> ();
             test_map_validate<std::map<string, string>> ();
+            test_map_validate<data::map<std::string, std::string>> ();
+            test_map_validate<std::map<std::string, std::string>> ();
             test_map_validate<data::dispatch<string, string>> ();
+            test_map_validate<data::dispatch<std::string, std::string>> ();
         } catch (unknown_key err) {
             FAIL () << "Fail with unknown key " << err.Key;
         } catch (missing_key err) {
