@@ -1112,7 +1112,7 @@ namespace data::schema::rule {
         for (const auto &z : v) {
             maybe<X> x = encoding::read<X, context...> {} (z);
             if (!bool (x)) throw invalid_entry {data::string (r.Key), data::string (z)};
-            res <<= *x;
+            res >>= *x;
         }
         return data::reverse (res);
     }
@@ -1321,6 +1321,13 @@ namespace data::schema::rule {
     template <typename X>
     struct get_keys<value<X>> {
         set<data::string> operator () (const map<value<X>> &x) const {
+            return {x.Key};
+        }
+    };
+
+    template <typename X, size_t min, size_t max>
+    struct get_keys<values<X, min, max>> {
+        set<data::string> operator () (const map<values<X, min, max>> &x) const {
             return {x.Key};
         }
     };
@@ -1717,6 +1724,11 @@ namespace data::schema::rule {
 
         template <typename X>
         map<value<X>> operator () (const map<value<X>> &x) {
+            return x;
+        }
+
+        template <typename X, size_t min, size_t max>
+        map<values<X, min, max>> operator () (const map<values<X, min, max>> &x) {
             return x;
         }
 
