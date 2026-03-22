@@ -10,6 +10,7 @@
 
 namespace data {
 
+    // something that can be move-constructed via a vector.
     template <typename bytes>
     concept moved_vector_constructible = requires (std::vector<unref<decltype (std::declval<bytes> ()[0])>> &&v) {
             { bytes {std::move (v)} };
@@ -53,11 +54,32 @@ namespace data {
         }
     };
 
+    /*
+     * use write<result> to write some data with a lazy writer.
+     *
+     *     write an empty result
+     *         write<result> ();
+     *
+     *     provide a function that takes a Writer as an argument and
+     *     the result will be this funciton applied to a lazy_bytes_writer
+     *         write<result> (function that takes a writer);
+     *
+     *     Provide a series of serializable values and write them in
+     *     sequence to the result.
+     *         write<result> (series, of, serializable, values...);
+     *
+     *     Put a size first if you know how big the sequence will be.
+     *     (size_t is not serializable so there is no confusing here.)
+     *         write<result> (size_t, series, of, serializable, values...);
+     *
+     */
+
     template <moved_vector_constructible bytes>
     bytes inline write () {
         return bytes {};
     }
 
+    // apply function provided with a writer that will write the result.
     template <moved_vector_constructible bytes, typename F>
     requires std::invocable<F, lazy_writer<bytes> &> && (!Serializable<F>)
     bytes inline write (F &&f) {
