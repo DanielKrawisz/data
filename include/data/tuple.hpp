@@ -44,28 +44,19 @@ namespace data {
         typename std::tuple_size<std::remove_cvref_t<T>>::type;
     };
 
-    // apply F to each element of a tuple.
-    template <Tuple T, typename F> constexpr void for_each (T &&t, F &&f);
+    // apply F to each respective element of the given tuples.
+    template <typename F, Tuple T, Tuple ...Ts> constexpr void for_each (F &&f, T &&t, Ts &&...ts);
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
     constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i);
 
-    template <Tuple T, typename F>
-    constexpr auto lift (const T &t, F &&f);
+    // create a tuple out of the result of f applied to each element of t.
+    template <typename F, typename ...X>
+    constexpr auto lift (F &&f, const tuple<X...> &t) -> tuple<decltype (f (std::declval<X> ()))...>;
 
     // print a tuple to the screen if each element also supports printing with <<
     template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t);
-
-    // apply to each element of a tuple.
-    template <Tuple T, typename F>
-    constexpr void for_each (T &&t, F &&f) {
-        using U = std::remove_cvref_t<T>;
-        constexpr std::size_t N = std::tuple_size_v<U>;
-        [&]<std::size_t... I> (std::index_sequence<I...>) {
-            (f (std::get<I> (std::forward<T> (t))), ...);
-        } (std::make_index_sequence<N> {});
-    }
 
     template <Tuple T> std::ostream &tuple_print (std::ostream &o, T &&t) {
         using U = std::remove_cvref_t<T>;
@@ -94,12 +85,54 @@ namespace data {
                 else return tuple_apply_at_rec<I + 1, Tuple, F> (t, std::forward<F> (f), idx);
             }
         }
+
+        template <std::size_t... Is, typename F, typename T, typename... Ts>
+        constexpr void for_each_impl (std::index_sequence<Is...>, F &&f, T &&t, Ts &&...ts) {
+            auto call_at_index = [&](auto I) {
+                f (std::get<I> (std::forward<T> (t)),
+                  std::get<I> (std::forward<Ts> (ts))...);
+            };
+
+            (call_at_index (std::integral_constant<std::size_t, Is> {}), ...);
+        }
+
+        template <typename F, typename... X, std::size_t... Is>
+        constexpr auto lift_impl (F &&f, const tuple<X...> &t, std::index_sequence<Is...>)
+            -> tuple<decltype (f (std::declval<X> ()))...> {
+            return tuple<decltype (f (std::declval<X> ()))...> {
+                f (std::get<Is> (t))...
+            };
+        }
+    }
+
+    // apply F to each respective element of the given tuples
+    template <typename F, Tuple T, Tuple... Ts>
+    constexpr void for_each (F &&f, T &&t, Ts &&...ts)
+    {
+        constexpr std::size_t N =
+        std::tuple_size_v<std::remove_cvref_t<T>>;
+
+        static_assert(((std::tuple_size_v<std::remove_cvref_t<Ts>> == N) && ...),
+            "All tuples must have the same size");
+
+        for_each_impl (std::make_index_sequence<N> {}, std::forward<F> (f),
+            std::forward<T> (t),
+            std::forward<Ts>(ts)...);
     }
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
     constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i) {
         return tuple_apply_at_rec<0> (t, std::forward<F> (f), i);
+    }
+
+    template <typename F, typename... X>
+    constexpr auto lift(F&& f, const tuple<X...>& t)
+    -> tuple<decltype(f(std::declval<X>()))...>
+    {
+        return lift_impl(std::forward<F>(f),
+                         t,
+                         std::index_sequence_for<X...>{});
     }
 }
 

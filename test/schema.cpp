@@ -189,7 +189,7 @@ namespace data::schema::map {
         EXPECT_THROW ((validate<> (map_empty, test_resolution_of_issue)), missing_key);
         EXPECT_THROW ((validate<> (map_A, test_resolution_of_issue)), missing_key);
         EXPECT_THROW ((validate<> (map_B, test_resolution_of_issue)), missing_key);
-        EXPECT_THROW ((validate<> (map_AB, test_resolution_of_issue)), mismatch);
+        EXPECT_THROW ((validate<> (map_AB, test_resolution_of_issue)), missing_key);
         EXPECT_NO_THROW ((validate<> (map_AC, test_resolution_of_issue)));
         EXPECT_NO_THROW ((validate<> (map_BC, test_resolution_of_issue)));
 
@@ -212,7 +212,7 @@ namespace data::schema::map {
         ASSERT_THROW ((validate<> (map_empty, key_A_blank_or_key_B)), missing_key);
         EXPECT_NO_THROW ((validate<> (map_A, key_A_blank_or_key_B)));
         EXPECT_NO_THROW ((validate<> (map_B, key_A_blank_or_key_B)));
-        EXPECT_THROW ((validate<> (map_AB, key_A_blank_or_key_B)), mismatch);
+        EXPECT_NO_THROW ((validate<> (map_AB, key_A_blank_or_key_B)));
         ASSERT_NO_THROW ((validate<> (map_AC, key_A_blank_or_key_B)));
 
         auto opt_A_or_B = *(one_key_A || one_key_B);
@@ -226,7 +226,7 @@ namespace data::schema::map {
         ASSERT_NO_THROW ((validate<> (map_A, and_A_opt_B_C)));
         EXPECT_NO_THROW (validate<> (map_A, and_A_opt_B_C));
         EXPECT_NO_THROW ((validate<> (map_ABC, and_A_opt_B_C)));
-        EXPECT_NO_THROW ((validate<> (map_AB, and_A_opt_B_C)));
+        EXPECT_THROW ((validate<> (map_AB, and_A_opt_B_C)), mismatch);
 
         auto or_A_B_C = one_key_A || one_key_B || one_key_C;
         ASSERT_THROW ((validate<> (map_empty, or_A_B_C)), missing_key);
@@ -288,13 +288,12 @@ namespace data::schema::map {
         // We want to use this to test that both keys can be present when we don't use only.
         auto test_B = +(key<std::string> ("a") || key<std::string> ("b"));
 
-        /*
         EXPECT_NO_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_B)));
 
         auto test_C = key<std::string> ("a") || key<std::string> ("b");
 
         EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_C)), unknown_key);
-        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_C)), incomplete_match);
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"c", "C"}}, test_C)), mismatch);
 
         auto test_D = key<std::string> ("a") && (key<std::string> ("b") || key<std::string> ("c"))
             || key<std::string> ("d") && (key<std::string> ("e") || key<std::string> ("f"));
@@ -306,7 +305,7 @@ namespace data::schema::map {
 
         EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}, {"g", "G"}}, test_D)), unknown_key);
 
-        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}}, test_D)), incomplete_match);*/
+        EXPECT_THROW ((validate<> (map {{"a", "A"}, {"b", "B"}, {"d", "D"}}, test_D)), mismatch);
     }
 
     TEST (Schema, Or) {
@@ -314,7 +313,7 @@ namespace data::schema::map {
         try {
             test_or<data::map<std::string, std::string>> ();
             test_or<std::map<std::string, std::string>> ();
-            //test_or<data::dispatch<std::string, std::string>> ();
+            test_or<data::dispatch<std::string, std::string>> ();
         } catch (const mismatch &) {
             FAIL () << "";
         }

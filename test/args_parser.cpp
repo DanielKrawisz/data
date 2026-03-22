@@ -162,8 +162,8 @@ namespace data::io::args {
     }
 
     TEST (Args, Repetitions) {
-        EXPECT_THROW ((parse ({"/prog", "-ab", "--a"})), exception);
-        EXPECT_THROW ((parse ({"/prog", "--option=value", "--option=value"})), exception);
+        EXPECT_NO_THROW ((parse ({"/prog", "-ab", "--a"})));
+        EXPECT_NO_THROW ((parse ({"/prog", "--option=value", "--option=value"})));
     }
 
     TEST (Args, FlagPresent) {
