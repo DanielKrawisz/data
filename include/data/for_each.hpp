@@ -112,12 +112,12 @@ namespace data {
     template <typename F, typename A, typename ...As>
     requires ConstIterable<A> && Indexed<A, size_t> &&
         (ConstIterable<As> && ...) && (Indexed<As, size_t> && ...)
-    void for_each (F &&f, As &&...as);
+    void for_each (F &&f, A &&a, As &&...as);
 
     template <size_t depth, typename F, typename A, typename ...As>
     requires ConstIterable<A> && Indexed<A, size_t> &&
         (ConstIterable<As> && ...) && (Indexed<As, size_t> && ...)
-    void for_each (F &&f, As &&...as);
+    void for_each (F &&f, A &&a, As &&...as);
 
     template <typename F, typename X> void for_each (F &&f, const tree<X> &);
     template <typename F, typename X> void for_each (F &&f, const cycle<X> &);
