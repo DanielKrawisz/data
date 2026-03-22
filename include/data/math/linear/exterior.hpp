@@ -183,9 +183,9 @@ namespace data::math {
             return {-static_cast<const array<X, dim> &> (x)};
         } else {
             exterior<X, dim, order> result = x;
-            for_each (static_cast<exterior<X, dim, order>::parent &> (result), [] (auto &val) {
+            for_each ([] (auto &val) {
                 val = -val;
-            });
+            }, static_cast<exterior<X, dim, order>::parent &> (result));
             return result;
         }
     }

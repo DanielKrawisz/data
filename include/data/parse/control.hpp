@@ -82,15 +82,15 @@ namespace data::parse {
         constexpr void step (string_view prefix, char c);
 
         ~alternatives () {
-            for_each (machines, [] (auto m) {
+            for_each ([] (auto m) {
                 if (m != nullptr) delete m;
-            });
+            }, machines);
         }
 
         alternatives (): machines {} {
-            for_each (machines, [] (auto m) {
+            for_each ([] (auto m) {
                 m = nullptr;
-            });
+            }, machines);
         }
 
         alternatives (const alternatives &) = delete;
@@ -414,10 +414,10 @@ namespace data::parse {
 
     template <typename... Ms>
     constexpr void alternatives<Ms...>::step (string_view prefix, char c) {
-        for_each (machines, [&] (auto &m) {
+        for_each ([&] (auto &m) {
             if (m == nullptr) m = new unref<decltype (*m)> {};
             m->step (prefix, c);
-        });
+        }, machines);
     }
 
     template <typename sub, size_t max>

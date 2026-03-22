@@ -124,6 +124,13 @@ namespace data {
         
     };
 
+    template <typename elem> const elem &last (const linked_stack<elem> &x) {
+        if (size (x) == 0) throw empty_sequence_exception {};
+        linked_stack<elem> y = x;
+        while (size (y) > 1) y = rest (y);
+        return first (y);
+    }
+
     template <typename elem> linked_stack<elem> operator + (linked_stack<elem> a, linked_stack<elem> b) {
         return join (a, b);
     }

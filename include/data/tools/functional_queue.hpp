@@ -187,7 +187,16 @@ namespace data {
         const_iterator end () const {
             return const_iterator {this, Left.end (), Left.end (), nullptr};
         }
+
+        const element &last () const {
+            if (Right.size () != 0) return Right.first ();
+            return data::last (Left);
+        }
     };
+
+    template <typename X, typename E> const E &last (const functional_queue<X, E> &x) {
+        return x.last ();
+    }
 
     template <typename X, typename E>
     functional_queue<X, E> inline operator + (const functional_queue<X, E> a, const functional_queue<X, E> b) {
