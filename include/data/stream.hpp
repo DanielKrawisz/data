@@ -63,11 +63,16 @@ namespace data {
     template <typename R, typename word> concept Reader =
         Same<R, reader<word> &> || std::derived_from<R, reader<word>>;
 
+    // A Builder is a writer that takes a type to be built.
+    // the type is written to and available on destruction.
     template <typename W, typename d, typename word> concept Builder =
         Writer<W, word> && requires (d &result) {
             W {result};
         };
 
+    // build_with takes a Builder as a type parameter and
+    // constructs the builder and returns the value that
+    // the builder writes to on destruction.
     template <typename result, typename builder,
         std::invocable<builder &> F, typename ...X>
     result build_with (F &&f, X &&...x) {
