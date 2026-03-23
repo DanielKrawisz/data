@@ -10,6 +10,9 @@
 #include <stdlib.h>
 
 namespace data::net::HTTP {
+
+    // manage a remote connection to a server and abstract requests
+    // as function calls. The connection is closed on destruction.
     struct client {
 
         HTTP::REST REST;
@@ -22,8 +25,13 @@ namespace data::net::HTTP {
         awaitable<response> POST (path path, dispatch<UTF8, UTF8> form_data = {});
 
     private:
+        // optional. If not present we use http.
         ptr<HTTP::SSL> SSL;
+
+        // optional.
         rate_limiter Rate;
+
+        // TODO add a timer to close the session if we wait too long.
         ptr<stream> Session;
     };
         
