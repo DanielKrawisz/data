@@ -8,6 +8,7 @@
 #include <data/arithmetic.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace data::math::number {
     
@@ -78,7 +79,9 @@ namespace data::math::number {
         
         static Z_bytes zero (size_t size = 0);
         
-        explicit operator int64 () const;
+        // cast to any signed built in type
+        template <std::signed_integral I>
+        explicit operator I () const;
         
         Z_bytes &trim ();
 
@@ -114,8 +117,9 @@ namespace data::math::number {
         
         static Z_bytes zero (size_t size = 0, bool negative = false);
         
-        explicit operator int64 () const;
-        explicit operator size_t () const;
+        // cast to any signed integral type.
+        template <std::signed_integral I>
+        explicit operator I () const;
 
         Z_bytes &trim ();
 
@@ -487,9 +491,6 @@ namespace data::math::number {
     (Z_bytes<r, neg::BC, word> &a, const Z_bytes<r, neg::BC, word> &b) {
         return a = a % b;
     }
-/*
-    template <endian::order r, std::unsigned_integral word>
-    uint64 &operator %= (N_bytes<r, word> &, uint64);*/
 
     template <endian::order r, neg c, std::unsigned_integral word>
     uint64 &operator %= (Z_bytes<r, c, word> &a, uint64 b) {
@@ -1078,7 +1079,8 @@ namespace data::math::number {
             n.resize (2);
             *n.words().begin () = x;
         } else if constexpr (sizeof (I) % sizeof (word) != 0) {
-            throw exception {} << "We do not know how to handle this case; init value size is " << sizeof (I) << " and word size is " << sizeof (word);
+            throw exception {} << "We do not know how to handle this case; init value size is " <<
+                sizeof (I) << " and word size is " << sizeof (word);
         } else {
             n.resize (sizeof (I) / sizeof (word) + 1);
             data::arithmetic::Words<boost::endian::order::native, word> w {
@@ -1163,39 +1165,37 @@ namespace data::math::number {
     } 
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word>::operator int64 () const {
-        if (*this > std::numeric_limits<int64>::max ())
+    template <std::signed_integral I>
+    Z_bytes<r, neg::twos, word>::operator I () const {
+
+        if (*this > std::numeric_limits<I>::max ())
             throw std::invalid_argument {"value too big"};
 
-        if (*this < std::numeric_limits<int64>::min ())
+        if (*this < std::numeric_limits<I>::min ())
             throw std::invalid_argument {"value too small"};
 
-        endian::integral<true, endian::little, 8> xx {0};
-        std::copy (this->words ().begin (),
-            this->words ().begin () + std::min (static_cast<size_t> (8),
-            this->size ()), xx.begin ());
+        if (this->size () == 0) return 0;
 
-        return int64 (xx);
+        if constexpr (Same<word, byte>) {
+            endian::integral<true, endian::little, sizeof (I)> xx {0};
+
+            std::copy (this->words ().begin (),
+                this->words ().begin () +
+                    std::min (static_cast<size_t> (sizeof (I)),
+                        this->size ()),
+                xx.begin ());
+
+            return I (xx);
+        } else if constexpr (Same<I, word>) {
+            return this->words () [0];
+        } else throw method::unimplemented {"Z_bytes to signed integral"};
     } 
     
-    template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, neg::BC, word>::operator int64 () const {
-        return int64 (Z_bytes<r, neg::twos, word> (*this));
+    template <endian::order r, std::unsigned_integral word>
+    template <std::signed_integral I>
+    inline Z_bytes<r, neg::BC, word>::operator I () const {
+        return I (Z_bytes<r, neg::twos, word> (*this));
     } 
-
-    template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, neg::BC, word>::operator size_t () const {
-        if (data::is_negative (*this)) throw std::invalid_argument {"negative value"};
-        if (*this > std::numeric_limits<size_t>::max ()) throw std::invalid_argument {"value too big"};
-
-        constexpr const size_t size = sizeof (std::declval<size_t> ());
-
-        endian::integral<false, endian::little, size> xx {0};
-        std::copy (this->words ().begin (),
-            this->words ().begin () + std::min (size, this->size ()), xx.begin ());
-
-        return size_t (xx);
-    }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word>::operator Z_bytes<endian::opposite (r), neg::twos, word> () const {
