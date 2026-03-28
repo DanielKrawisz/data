@@ -168,6 +168,15 @@ namespace data {
 
         }
     };
+
+    template <typename Z> requires requires (const Z &z, uint32 u) {
+        { z << u } -> std::convertible_to<Z>;
+        { z >> u } -> std::convertible_to<Z>;
+    } struct test_shift {
+        test_shift () {
+
+        }
+    };
     
     // anything other than zero is true. All types of zeros are false.
     template <typename Z> requires requires (const Z &a, const Z &b) {
@@ -219,7 +228,8 @@ namespace data {
         test_minimal<Z>, test_negate<Z>, test_abs<Z>,
         test_increment_and_decrement<Z>,
         test_arithmetic<Z>, test_min_max<Z>,
-        test_logic<Z>, test_compare<Z> {
+        test_logic<Z>, test_compare<Z>,
+        test_shift<Z> {
         test_BC () {}
     };
     

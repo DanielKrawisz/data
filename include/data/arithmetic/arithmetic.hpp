@@ -451,14 +451,21 @@ namespace data::arithmetic::BC {
 
     template <range X>
     constexpr math::sign sign (X x) {
+        // an empty number is zero.
         auto i = x.rbegin ();
         if (i == x.rend ()) return math::zero;
-        math::sign nonzero = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
-        if (*i & ~get_sign_bit<digit<X>>::value) return nonzero;
+
+        // get the sign bit.
+        math::sign sign_bit = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
+
+        // if there are digits other than the sign bit in the last byte,
+        // then the number is non-zero.
+        if (*i & ~get_sign_bit<digit<X>>::value) return sign_bit;
+
         while (true) {
             i++;
             if (i == x.rend ()) return math::zero;
-            if (*i != 0) return nonzero;
+            if (*i != 0) return sign_bit;
         }
     }
 
