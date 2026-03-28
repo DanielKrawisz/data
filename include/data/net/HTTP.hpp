@@ -201,6 +201,10 @@ namespace data::net::HTTP {
         virtual ~stream () {}
     };
 
+    ptr<SSL> inline get_SSL () {
+        return std::make_shared<net::HTTP::SSL> (net::HTTP::SSL::tlsv13_client);
+    };
+
     // thread safe.
     // we only support 1.1 now.
     awaitable<ptr<stream>> connect (version, const authority &host_or_endpoint, SSL * = nullptr);

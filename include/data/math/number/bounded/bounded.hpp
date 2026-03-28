@@ -718,7 +718,7 @@ namespace data {
             constexpr explicit bounded (slice<const word, size> x);
 
             // The string can be a hex string or a representation of a number.
-            //explicit bounded (const data::string &s): bounded {read (s)} {}
+            // explicit bounded (const data::string &s): bounded {read (s)} {}
             constexpr explicit bounded (const char *x): bounded {string_view {x, std::strlen (x)}} {}
             constexpr explicit bounded (const string_view);
             constexpr static bounded read (string_view x) {
