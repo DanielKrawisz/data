@@ -207,6 +207,25 @@ namespace data {
     // functional queue built using the list. 
     template <typename X> using list = functional_queue<data::stack<X>, X>;
 
+    template <typename X>
+    requires requires (X a, X b) {
+        { a + b } -> Same<X>;
+    } list<X> inline accumulate (const list<X> lll) {
+        list<X> acc;
+        X tot {0};
+        for (const X &x : lll) acc << (tot += x);
+        return acc;
+    }
+
+    template <typename X>
+    requires requires (X a, X b) {
+        { a + b } -> Same<X>;
+    } X inline total (const list<X> lll) {
+        X tot {0};
+        for (const X &x : lll) tot += x;
+        return tot;
+    }
+
 }
 
 #endif
