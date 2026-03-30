@@ -92,13 +92,13 @@ namespace data {
         return x;
     }
 
-    template <typename X> auto flatten (stack<X>);
-    template <typename X> auto flatten (list<X>);
+    template <typename X> auto flatten (const stack<X>);
+    template <typename X> auto flatten (const list<X>);
     template <typename X> auto flatten (const cross<X> &b);
     template <typename X, size_t... size> array<X, array<X, size...>::Size> flatten (const array<X, size...> &);
 
-    template <size_t depth, typename X> auto flatten (stack<X>);
-    template <size_t depth, typename X> auto flatten (list<X>);
+    template <size_t depth, typename X> auto flatten (const stack<X>);
+    template <size_t depth, typename X> auto flatten (const list<X>);
     template <size_t depth, typename X> auto flatten (const cross<X> &);
     template <size_t depth, typename X, size_t... size> auto flatten (const array<X, size...> &);
 
@@ -107,6 +107,22 @@ namespace data {
         template <typename Container, typename Inner>
         struct get_depth_same {
             static constexpr size_t value = 0;
+        };
+
+        // specialize for list
+        template <typename X, typename Y>
+        struct get_depth_same<list<X>, list<Y>> {
+            static constexpr size_t value = 1 + get_depth_same<list<X>, Y>::value;
+        };
+
+        template <typename X, typename Y>
+        struct get_depth_same<stack<X>, stack<Y>> {
+            static constexpr size_t value = 1 + get_depth_same<stack<X>, Y>::value;
+        };
+
+        template <typename X, typename Y>
+        struct get_depth_same<cross<X>, cross<Y>> {
+            static constexpr size_t value = 1 + get_depth_same<cross<X>, Y>::value;
         };
 
         // Specialization for when Container<X> contains the same Container type
@@ -138,6 +154,12 @@ namespace data {
             using type = flatten_result<Container<X>, Y, depth - 1>::type;
         };
 
+        template <typename X, typename Y, size_t depth>
+        requires (depth > 0)
+        struct flatten_result<list<X>, list<Y>, depth> {
+            using type = typename flatten_result<list<X>, Y, depth - 1>::type;
+        };
+
         // Helper alias
         template <typename T, size_t depth>
         using flatten_result_type = typename flatten_result<T, T, depth>::type;
@@ -158,11 +180,11 @@ namespace data {
         };
     }
 
-    template <typename X> auto inline flatten (stack<X> x) {
+    template <typename X> auto inline flatten (const stack<X> x) {
         return data::flatten<get_depth<stack<X>> - 1> (x);
     }
 
-    template <typename X> auto inline flatten (list<X> x) {
+    template <typename X> auto inline flatten (const list<X> x) {
         return data::flatten<get_depth<list<X>> - 1> (x);
     }
 
@@ -170,15 +192,15 @@ namespace data {
         return data::flatten<get_depth<cross<X>> - 1> (x);
     }
 
-    template <size_t depth, typename X> auto flatten (stack<X> x) {
+    template <size_t depth, typename X> auto flatten (const stack<X> x) {
         flatten_result_type<stack<X>, depth> result;
         for_each<depth> ([&result] (auto &&n) {
-            result <<= n;
+            result >>= n;
         }, x);
-        return result;
+        return reverse (result);
     }
 
-    template <size_t depth, typename X> auto flatten (list<X> x) {
+    template <size_t depth, typename X> auto flatten (const list<X> x) {
         flatten_result_type<list<X>, depth> result;
         for_each<depth> ([&result] (auto &&n) {
             result <<= n;
@@ -189,7 +211,7 @@ namespace data {
     template <size_t depth, typename X> auto flatten (const cross<X> &x) {
         flatten_result_type<cross<X>, depth> result;
         for_each<depth> ([&result] (auto &&n) {
-            result <<= n;
+            result.push_back (n);
         }, x);
         return result;
     }
