@@ -1661,7 +1661,8 @@ namespace data {
         template <endian::order o, neg neg, std::unsigned_integral w>
         bounded<false, r, size, word>::operator Z_bytes<o, neg, w> () const {
             constexpr const size_t size_in_bytes = sizeof (word) * size;
-            constexpr const auto div = divmod (size_in_bytes, sizeof (w));
+            constexpr const size_t size_of_word = sizeof (w);
+            constexpr const auto div = data::divmod (size_in_bytes, nonzero {size_of_word});
             constexpr const size_t new_size = div.Quotient + (div.Remainder == 0 ? 0 : 1);
             Z_bytes<o, neg, w> z = Z_bytes<o, neg, w>::zero (new_size);
             auto nn = this->words ().begin ();

@@ -11,7 +11,11 @@ namespace data {
     cross<int> a {};
     stack<int> b {};
     list<int> c {};
-/*
+
+    static_assert (get_depth<stack<int>> == 1);
+    static_assert (get_depth<list<int>> == 1);
+    static_assert (get_depth<cross<int>> == 1);
+
     static_assert (Same<decltype (flatten (a)), decltype (a)>);
     static_assert (Same<decltype (flatten (b)), decltype (b)>);
     static_assert (Same<decltype (flatten (c)), decltype (c)>);
@@ -63,7 +67,7 @@ namespace data {
     static_assert (Same<decltype (flatten (j)), cross<stack<int>>>);
     static_assert (Same<decltype (flatten (k)), stack<list<int>>>);
     static_assert (Same<decltype (flatten (l)), list<cross<int>>>);
-
+/*
     array<int, 2> a1 {};
 
     static_assert (Same<decltype (flatten (a1)), array<int, 2>>);
