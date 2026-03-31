@@ -1662,12 +1662,18 @@ namespace data {
         bounded<false, r, size, word>::operator Z_bytes<o, neg, w> () const {
             constexpr const size_t size_in_bytes = sizeof (word) * size;
             constexpr const size_t size_of_word = sizeof (w);
+            // how many times does the new word size fit into the size of the bounded number?
             constexpr const auto div = data::divmod (size_in_bytes, nonzero {size_of_word});
-            constexpr const size_t new_size = div.Quotient + (div.Remainder == 0 ? 0 : 1);
+            // we always add one to the size in case the bounded number would
+            // be interpreted as a negative were it to be copied directly into
+            // a Z_bytes of the same size.
+            constexpr const size_t new_size = size_in_bytes / size_of_word + 1;
+
             Z_bytes<o, neg, w> z = Z_bytes<o, neg, w>::zero (new_size);
             auto nn = this->words ().begin ();
             auto zz = z.words ().begin ();
             auto ne = this->words ().end ();
+
             if constexpr (sizeof (word) == sizeof (w)) {
                 while (nn != ne) {
                     *zz == *nn;
@@ -1702,7 +1708,9 @@ namespace data {
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <endian::order o, neg neg, std::unsigned_integral w>
         bounded<false, r, size, word>::bounded (const Z_bytes<o, neg, w> &z): bounded {} {
-            if (is_negative (z) || z > max ()) throw exception {"invalid Z_bytes input to unsigned bounded"};
+
+            if (is_negative (z)) throw exception {"invalid negative Z_bytes input to unsigned bounded"};
+            if (z > max ()) throw exception {"invalid too big Z_bytes input to unsigned bounded"};
             auto nn = this->words ().begin ();
             auto zz = z.words ().begin ();
             auto ne = this->words ().end ();
@@ -1768,9 +1776,9 @@ namespace data {
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (), n.words ().begin () + size, this->words ().begin ());
             } else if constexpr (sizeof (w) < sizeof (word)) {
-                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+                throw method::unimplemented {"explicitly convert bounded to smaller bounded A"};
             } else {
-                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+                throw method::unimplemented {"explicitly convert bounded to smaller bounded B"};
             }
         }
 
@@ -1784,9 +1792,9 @@ namespace data {
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
             } else if constexpr (sizeof (w) < sizeof (word)) {
-                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+                throw method::unimplemented {"implicitly convert bounded to bigger bounded A"};
             } else {
-                throw method::unimplemented {"explicitly convert bounded to smaller bounded"};
+                throw method::unimplemented {"implicitly convert bounded to bigger bounded B"};
             }
         }
 
@@ -1832,8 +1840,8 @@ namespace data {
 
         template <endian::order r, size_t size, std::unsigned_integral word,
         endian::order o, neg neg, std::unsigned_integral w>
-        std::weak_ordering operator <=> (const uint<r, size, word> &a, const Z_bytes<o, neg, w> &b) {
-            throw method::unimplemented {"compare uint to Z_bytes"};
+        std::weak_ordering inline operator <=> (const uint<r, size, word> &a, const Z_bytes<o, neg, w> &b) {
+            return Z_bytes<o, neg, w> (a) <=> b;;
         }
 
     }
