@@ -1657,90 +1657,191 @@ namespace data {
             std::copy (nx.begin (), nx.end (), this->begin ());
         }
 
+        namespace {
+            template <std::unsigned_integral wb, std::unsigned_integral wl, typename ita, typename sena, typename itb, typename senb>
+            requires (sizeof (wb) >= sizeof (wl))
+            std::weak_ordering uz_cmp (ita &a, const sena &ae, itb &b, const senb &be) {
+                size_t current_pos = 0;
+                int last_pos_a = -1;
+                int last_pos_b = -1;
+                wb last_val_a = 0;
+                wb last_val_b = 0;
+
+                constexpr int factor = sizeof (wb) / sizeof (wl);
+
+                while (a != ae || b != be) {
+                    wb val_a {0};
+                    wb val_b {0};
+
+                    if (a != ae) {
+                        val_a = *a;
+                        a++;
+                    }
+
+                    if (b != be) {
+                        for (int i = 0; i < factor; i++) {
+                            if (b == be) break;
+                            val_b |= wb (*b) << (i * sizeof (wl) * 8);
+                            b++;
+                        }
+                    }
+
+                    if (val_a != 0) {
+                        last_val_a = val_a;
+                        last_pos_a = current_pos;
+                    }
+
+                    if (val_b != 0) {
+                        last_val_b = val_b;
+                        last_pos_b = current_pos;
+                    }
+
+                    current_pos++;
+                }
+
+                if (last_pos_a > last_pos_b) return std::weak_ordering::greater;
+                if (last_pos_a < last_pos_b) return std::weak_ordering::less;
+                if (last_val_a > last_val_b) return std::weak_ordering::greater;
+                if (last_val_a < last_val_b) return std::weak_ordering::less;
+                return std::weak_ordering::equivalent;
+            }
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word,
+        endian::order o, neg neg, std::unsigned_integral w>
+        std::weak_ordering inline operator <=> (const uint<r, size, word> &a, const Z_bytes<o, neg, w> &b) {
+            if (b < 0) return std::weak_ordering::greater;
+
+            auto ai = a.words ().begin ();
+            auto bi = b.words ().begin ();
+
+            if constexpr (sizeof (w) > sizeof (word))
+                return 0 <=> uz_cmp<w, word> (bi, b.words ().end (), ai, a.words ().end ());
+
+            else return uz_cmp<word, w> (ai, a.words ().end (), bi, b.words ().end ());
+
+        }
+
+        // convert bounded to Z_bytes
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <endian::order o, neg neg, std::unsigned_integral w>
         bounded<false, r, size, word>::operator Z_bytes<o, neg, w> () const {
+
             constexpr const size_t size_in_bytes = sizeof (word) * size;
             constexpr const size_t size_of_word = sizeof (w);
-            // how many times does the new word size fit into the size of the bounded number?
-            constexpr const auto div = data::divmod (size_in_bytes, nonzero {size_of_word});
-            // we always add one to the size in case the bounded number would
+
+            // we add one to the size in case the bounded number would
             // be interpreted as a negative were it to be copied directly into
             // a Z_bytes of the same size.
             constexpr const size_t new_size = size_in_bytes / size_of_word + 1;
 
             Z_bytes<o, neg, w> z = Z_bytes<o, neg, w>::zero (new_size);
-            auto nn = this->words ().begin ();
-            auto zz = z.words ().begin ();
-            auto ne = this->words ().end ();
 
-            if constexpr (sizeof (word) == sizeof (w)) {
-                while (nn != ne) {
-                    *zz == *nn;
-                    zz++;
-                    nn++;
-                }
-            } else if constexpr (sizeof (word) > sizeof (w)) {
-                constexpr size_t factor = sizeof (word) / sizeof (w);
-                while (nn != ne) {
-                    auto digit = *nn;
-                    for (int i = 0; i < factor; i++) {
-                        *zz = (digit >> (i * sizeof (w) * 8)) & numeric_limits<decltype (digit)>::max ();
-                        zz++;
+            auto src = this->words().begin();
+            auto src_end = this->words().end();
+            auto dst = z.words().begin();
+
+            if constexpr (sizeof(word) == sizeof(w)) {
+                std::copy(src, src_end, dst);
+
+            } else if constexpr (sizeof(word) < sizeof(w)) {
+                // Pack smaller → larger
+                constexpr size_t src_bits = sizeof(word) * 8;
+                constexpr size_t dst_bits = sizeof(w) * 8;
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != z.words().end()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w(*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
                     }
-                    nn++;
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min(acc_bits, dst_bits);
                 }
+
             } else {
-                constexpr size_t factor = sizeof (w) / sizeof (word);
-                while (true) {
-                    for (int i = 0; i < factor; i++) {
-                        if (nn == ne) goto done;
-                        *zz += *nn << (i * sizeof (word) * 8);
-                        nn++;
+                // Split larger → smaller
+                constexpr size_t src_bits = sizeof(word) * 8;
+                constexpr size_t dst_bits = sizeof(w) * 8;
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != z.words().end()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word(*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
                     }
-                    zz++;
+
+                    *dst++ = w(acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min(acc_bits, dst_bits);
                 }
             }
-            done:
-            return z.trim ();
+
+            return z.trim (); // trim to minimal representation.
         }
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <endian::order o, neg neg, std::unsigned_integral w>
-        bounded<false, r, size, word>::bounded (const Z_bytes<o, neg, w> &z): bounded {} {
+        bounded<false, r, size, word>::bounded (const Z_bytes<o, neg, w> &z): bounded {0} {
 
             if (is_negative (z)) throw exception {"invalid negative Z_bytes input to unsigned bounded"};
             if (z > max ()) throw exception {"invalid too big Z_bytes input to unsigned bounded"};
-            auto nn = this->words ().begin ();
-            auto zz = z.words ().begin ();
-            auto ne = this->words ().end ();
-            auto ze = z.words ().end ();
-            if constexpr (sizeof (word) == sizeof (w)) {
-                while (true) {
-                    if (nn == ne || zz == ze) return;
-                    *nn == *zz;
-                    zz++;
-                    nn++;
-                }
-            } else if constexpr (sizeof (word) > sizeof (w)) {
-                constexpr size_t factor = sizeof (word) / sizeof (w);
-                while (nn != ne) {
-                    for (int i = 0; i < factor; i++) {
-                        if (zz == ze) return;
-                        *nn += *zz << (i * sizeof (w) * 8);
-                        zz++;
+
+            // we know that zz is in the right range now.
+
+            auto src = z.words().begin();
+            auto src_end = z.words().end();
+            auto dst = this->words().begin();
+
+            if constexpr (sizeof (w) == sizeof (word)) {
+                std::copy(src, src_end, dst);
+
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                // Pack smaller → larger
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words().end()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word(*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
                     }
-                    nn++;
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min(acc_bits, dst_bits);
                 }
+
             } else {
-                constexpr size_t factor = sizeof (w) / sizeof (word);
-                while (zz != ze) {
-                    for (int i = 0; i < factor; i++) {
-                        if (nn == ne) return;
-                        *nn = (*zz >> (i * sizeof (word) * 8)) & numeric_limits<decltype (*zz)>::max ();
-                        nn++;
+                // Split larger → smaller
+                constexpr size_t src_bits = sizeof(w) * 8;
+                constexpr size_t dst_bits = sizeof(word) * 8;
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words().end()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w(*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
                     }
-                    zz++;
+
+                    *dst++ = word(acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min(acc_bits, dst_bits);
                 }
             }
         }
@@ -1772,13 +1873,53 @@ namespace data {
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <bool x, endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) > size * sizeof (word))
-        bounded<false, r, size, word>::bounded (const bounded<x, o, u, w> &n): bounded {} {
+        bounded<false, r, size, word>::bounded (const bounded<x, o, u, w> &n): bounded {0} {
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (), n.words ().begin () + size, this->words ().begin ());
             } else if constexpr (sizeof (w) < sizeof (word)) {
-                throw method::unimplemented {"explicitly convert bounded to smaller bounded A"};
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
             } else {
-                throw method::unimplemented {"explicitly convert bounded to smaller bounded B"};
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = word (acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
             }
         }
 
@@ -1788,14 +1929,62 @@ namespace data {
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <bool x, endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) <= size * sizeof (word))
-        bounded<false, r, size, word>::bounded (const bounded<x, o, u, w> &n): bounded {} {
+        bounded<false, r, size, word>::bounded (const bounded<x, o, u, w> &n): bounded {0} {
+
             if constexpr (sizeof (w) == sizeof (word)) {
-                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
+                std::copy (n.words ().begin (),
+                    n.words ().end (),
+                    this->words ().begin ());
+
             } else if constexpr (sizeof (w) < sizeof (word)) {
-                throw method::unimplemented {"implicitly convert bounded to bigger bounded A"};
+                // Pack smaller source words into larger destination words
+                constexpr size_t src_bits = sizeof(w) * 8;
+                constexpr size_t dst_bits = sizeof(word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+
             } else {
-                throw method::unimplemented {"implicitly convert bounded to bigger bounded B"};
+                // Split larger source words into smaller destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = word (acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
             }
+
         }
 
         // Implicitly convert from a smaller or equal size signed number
@@ -1803,9 +1992,82 @@ namespace data {
         template <endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) <= size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+
             if constexpr (sizeof (w) == sizeof (word)) {
-                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
-            } else throw method::unimplemented {"implicitly convert a smaller or equal sized signed number to a signed number."};
+                std::copy (n.words ().begin (),
+                    n.words ().end (),
+                    this->words ().begin ());
+
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                // Pack smaller → larger
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+
+            } else {
+                // Split larger → smaller (still possible if word sizes differ)
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = word (acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+            }
+
+            // Precise sign extraction
+            constexpr size_t total_bits = u * sizeof (w) * 8;
+            constexpr size_t sign_index = total_bits - 1;
+
+            size_t word_index = sign_index / (sizeof (w) * 8);
+            size_t bit_index  = sign_index % (sizeof (w) * 8);
+
+            bool negative = (n.words ()[word_index] >> bit_index) & 1;
+
+            if (negative) {
+                // Fill remaining destination words with 1s
+                size_t used_words =
+                (total_bits + sizeof (word)*8 - 1) / (sizeof(word)*8);
+
+                auto dst = this->words ().begin ();
+                std::advance(dst, used_words);
+
+                for (; dst != this->words ().end (); ++dst) {
+                    *dst = ~word {0};
+                }
+            }
         }
 
         // Implicitly convert from a smaller unsigned number
@@ -1814,8 +2076,58 @@ namespace data {
         requires (u * sizeof (w) < size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
             if constexpr (sizeof (w) == sizeof (word)) {
-                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
-            } else throw method::unimplemented {"implicitly convert a smaller unsigned number to a signed number."};
+                std::copy (n.words().begin (),
+                    n.words ().end (),
+                    this->words ().begin ());
+
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                // Pack smaller source words into larger destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+
+            } else {
+                // Split larger source words into smaller destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = word (acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+            }
         }
 
         // Explicitly convert from a greater size signed number.
@@ -1824,8 +2136,58 @@ namespace data {
         requires (u * sizeof (w) > size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
             if constexpr (sizeof (w) == sizeof (word)) {
-                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
-            } else throw method::unimplemented {"explicitly convert a greater sized signed number to a signed number."};
+                std::copy (n.words ().begin (),
+                    n.words ().begin () + size,
+                    this->words ().begin ());
+
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                // Pack smaller source words into larger destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word(*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+
+            } else {
+                // Split larger source words into smaller destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = word (acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+            }
         }
 
         // Explicitly convert from an equal or greater size unsigned number.
@@ -1834,14 +2196,58 @@ namespace data {
         requires (u * sizeof (w) >= size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
             if constexpr (sizeof (w) == sizeof (word)) {
-                std::copy (n.words ().begin (), n.words ().end (), this->words ().begin ());
-            } else throw method::unimplemented {"explicitly convert a greater or equal sized unsigned number to a signed number."};
-        }
+                std::copy (n.words ().begin (),
+                    n.words ().begin() + size,
+                    this->words ().begin ());
 
-        template <endian::order r, size_t size, std::unsigned_integral word,
-        endian::order o, neg neg, std::unsigned_integral w>
-        std::weak_ordering inline operator <=> (const uint<r, size, word> &a, const Z_bytes<o, neg, w> &b) {
-            return Z_bytes<o, neg, w> (a) <=> b;;
+            } else if constexpr (sizeof (w) < sizeof (word)) {
+                // Pack smaller source words into larger destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                word acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words().end ()) {
+                    while (acc_bits < dst_bits && src != src_end) {
+                        acc |= (word (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = acc;
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+
+            } else {
+                // Split larger source words into smaller destination words
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
+
+                auto src = n.words ().begin ();
+                auto src_end = n.words ().end ();
+                auto dst = this->words ().begin ();
+
+                w acc = 0;
+                size_t acc_bits = 0;
+
+                while (dst != this->words ().end ()) {
+                    if (acc_bits < dst_bits && src != src_end) {
+                        acc |= (w (*src) << acc_bits);
+                        acc_bits += src_bits;
+                        ++src;
+                    }
+
+                    *dst++ = word (acc);
+                    acc >>= dst_bits;
+                    acc_bits -= std::min (acc_bits, dst_bits);
+                }
+            }
         }
 
     }
