@@ -282,6 +282,90 @@ namespace data {
 
     }
 
+    template <typename A, typename B>
+    void test_convert_number (const string &x) {
+        A a {x};
+        B b {x};
+
+        auto ab = A (b);
+
+        EXPECT_EQ (a, ab) << "Expected " << a << " == " << ab;
+
+        auto ba = B (a);
+
+        EXPECT_EQ (ba, b) << "Expected " << ba << " == " << b;
+        EXPECT_EQ (a, A (ba));
+        EXPECT_EQ (b, B (ab));
+    }
+
+    TEST (Bounded, Conversions) {
+        for (const string &x : cross<std::string> {"0", "1", "2", "177777777", "17777777777777777777777777"}) {
+
+            test_convert_number<uint256, int256> (x);
+
+            test_convert_number<uint256, uint256_little> (x);
+            test_convert_number<uint256, uint256_big> (x);
+
+            test_convert_number<int256, int256_little> (x);
+            test_convert_number<int256, int256_big> (x);
+
+            test_convert_number<uint256, int256_little> (x);
+            test_convert_number<uint256, int256_big> (x);
+
+            test_convert_number<int256, uint256_little> (x);
+            test_convert_number<int256, uint256_big> (x);
+
+            test_convert_number<uint256, uint160> (x);
+            test_convert_number<uint160, uint256> (x);
+
+            test_convert_number<uint256, int160> (x);
+            test_convert_number<uint160, int256> (x);
+
+            test_convert_number<uint256, uint160_little> (x);
+            test_convert_number<uint160, uint256_little> (x);
+
+            test_convert_number<uint256, int160_big> (x);
+            test_convert_number<uint160, int256_big> (x);
+
+            test_convert_number<uint256, Z_bytes_BC_big> (x);
+            test_convert_number<uint256, Z_bytes_BC_little> (x);
+
+            test_convert_number<uint256, Z_bytes_big> (x);
+            test_convert_number<uint256, Z_bytes_little> (x);
+
+            test_convert_number<uint256, math::Z_bytes<endian::big, uint64>> (x);
+            test_convert_number<uint256, math::Z_bytes<endian::little, uint64>> (x);
+
+            test_convert_number<uint256, math::Z_bytes_BC<endian::big, uint64>> (x);
+            test_convert_number<uint256, math::Z_bytes_BC<endian::little, uint64>> (x);
+
+            test_convert_number<uint256_little, Z_bytes_BC_big> (x);
+            test_convert_number<uint256_little, Z_bytes_BC_little> (x);
+
+            test_convert_number<uint256_little, Z_bytes_big> (x);
+            test_convert_number<uint256_little, Z_bytes_little> (x);
+
+            test_convert_number<uint256_big, Z_bytes_BC_big> (x);
+            test_convert_number<uint256_big, Z_bytes_BC_little> (x);
+
+            test_convert_number<uint256_big, Z_bytes_big> (x);
+            test_convert_number<uint256_big, Z_bytes_little> (x);
+
+            test_convert_number<uint256_little, math::Z_bytes<endian::big, uint64>> (x);
+            test_convert_number<uint256_little, math::Z_bytes<endian::little, uint64>> (x);
+
+            test_convert_number<uint256_little, math::Z_bytes_BC<endian::big, uint64>> (x);
+            test_convert_number<uint256_little, math::Z_bytes_BC<endian::little, uint64>> (x);
+
+            test_convert_number<uint256_big, math::Z_bytes<endian::big, uint64>> (x);
+            test_convert_number<uint256_big, math::Z_bytes<endian::little, uint64>> (x);
+
+            test_convert_number<uint256_big, math::Z_bytes_BC<endian::big, uint64>> (x);
+            test_convert_number<uint256_big, math::Z_bytes_BC<endian::little, uint64>> (x);
+
+        }
+    }
+
     template <typename N>
     concept ConstexprArithmetic = requires {
         { []() constexpr { (void) N {0}; }() };
