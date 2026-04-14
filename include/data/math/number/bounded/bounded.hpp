@@ -1737,51 +1737,51 @@ namespace data {
 
             Z_bytes<o, neg, w> z = Z_bytes<o, neg, w>::zero (new_size);
 
-            auto src = this->words().begin();
-            auto src_end = this->words().end();
-            auto dst = z.words().begin();
+            auto src = this->words ().begin ();
+            auto src_end = this->words ().end ();
+            auto dst = z.words ().begin ();
 
-            if constexpr (sizeof(word) == sizeof(w)) {
+            if constexpr (sizeof (word) == sizeof (w)) {
                 std::copy(src, src_end, dst);
 
-            } else if constexpr (sizeof(word) < sizeof(w)) {
+            } else if constexpr (sizeof (word) < sizeof (w)) {
                 // Pack smaller → larger
-                constexpr size_t src_bits = sizeof(word) * 8;
-                constexpr size_t dst_bits = sizeof(w) * 8;
+                constexpr size_t src_bits = sizeof (word) * 8;
+                constexpr size_t dst_bits = sizeof (w) * 8;
 
                 w acc = 0;
                 size_t acc_bits = 0;
 
                 while (dst != z.words().end()) {
                     while (acc_bits < dst_bits && src != src_end) {
-                        acc |= (w(*src) << acc_bits);
+                        acc |= (w (*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
 
                     *dst++ = acc;
                     acc >>= dst_bits;
-                    acc_bits -= std::min(acc_bits, dst_bits);
+                    acc_bits -= std::min (acc_bits, dst_bits);
                 }
 
             } else {
                 // Split larger → smaller
-                constexpr size_t src_bits = sizeof(word) * 8;
-                constexpr size_t dst_bits = sizeof(w) * 8;
+                constexpr size_t src_bits = sizeof (word) * 8;
+                constexpr size_t dst_bits = sizeof (w) * 8;
 
                 word acc = 0;
                 size_t acc_bits = 0;
 
-                while (dst != z.words().end()) {
+                while (dst != z.words ().end ()) {
                     if (acc_bits < dst_bits && src != src_end) {
-                        acc |= (word(*src) << acc_bits);
+                        acc |= (word (*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
 
                     *dst++ = w(acc);
                     acc >>= dst_bits;
-                    acc_bits -= std::min(acc_bits, dst_bits);
+                    acc_bits -= std::min (acc_bits, dst_bits);
                 }
             }
 
@@ -1812,16 +1812,16 @@ namespace data {
                 word acc = 0;
                 size_t acc_bits = 0;
 
-                while (dst != this->words().end()) {
+                while (dst != this->words ().end ()) {
                     while (acc_bits < dst_bits && src != src_end) {
-                        acc |= (word(*src) << acc_bits);
+                        acc |= (word (*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
 
                     *dst++ = acc;
                     acc >>= dst_bits;
-                    acc_bits -= std::min(acc_bits, dst_bits);
+                    acc_bits -= std::min (acc_bits, dst_bits);
                 }
 
             } else {
@@ -1832,16 +1832,16 @@ namespace data {
                 w acc = 0;
                 size_t acc_bits = 0;
 
-                while (dst != this->words().end()) {
+                while (dst != this->words ().end ()) {
                     if (acc_bits < dst_bits && src != src_end) {
                         acc |= (w(*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
 
-                    *dst++ = word(acc);
+                    *dst++ = word (acc);
                     acc >>= dst_bits;
-                    acc_bits -= std::min(acc_bits, dst_bits);
+                    acc_bits -= std::min (acc_bits, dst_bits);
                 }
             }
         }
@@ -1938,8 +1938,8 @@ namespace data {
 
             } else if constexpr (sizeof (w) < sizeof (word)) {
                 // Pack smaller source words into larger destination words
-                constexpr size_t src_bits = sizeof(w) * 8;
-                constexpr size_t dst_bits = sizeof(word) * 8;
+                constexpr size_t src_bits = sizeof (w) * 8;
+                constexpr size_t dst_bits = sizeof (word) * 8;
 
                 auto src = n.words ().begin ();
                 auto src_end = n.words ().end ();
@@ -2059,7 +2059,7 @@ namespace data {
             if (negative) {
                 // Fill remaining destination words with 1s
                 size_t used_words =
-                (total_bits + sizeof (word)*8 - 1) / (sizeof(word)*8);
+                    (total_bits + sizeof (word)*8 - 1) / (sizeof(word)*8);
 
                 auto dst = this->words ().begin ();
                 std::advance(dst, used_words);
@@ -2154,7 +2154,7 @@ namespace data {
 
                 while (dst != this->words ().end ()) {
                     while (acc_bits < dst_bits && src != src_end) {
-                        acc |= (word(*src) << acc_bits);
+                        acc |= (word (*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
@@ -2197,7 +2197,7 @@ namespace data {
         bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
-                    n.words ().begin() + size,
+                    n.words ().begin () + size,
                     this->words ().begin ());
 
             } else if constexpr (sizeof (w) < sizeof (word)) {
@@ -2212,7 +2212,7 @@ namespace data {
                 word acc = 0;
                 size_t acc_bits = 0;
 
-                while (dst != this->words().end ()) {
+                while (dst != this->words ().end ()) {
                     while (acc_bits < dst_bits && src != src_end) {
                         acc |= (word (*src) << acc_bits);
                         acc_bits += src_bits;
