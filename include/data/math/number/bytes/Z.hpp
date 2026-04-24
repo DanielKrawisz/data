@@ -1406,6 +1406,28 @@ namespace data::math::number {
     uint64 inline operator % (const Z_bytes<r, c, word> &x, uint64 j) {
         return uint64 (data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Remainder);
     }
+
+    template <endian::order r, std::unsigned_integral word>
+    writer<word> inline &operator << (writer<word> &w, const N_bytes<r, word> &n) {
+        return w << static_cast<const bytestring<word> &> (n);
+    }
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    writer<word> inline &operator << (writer<word> &w, const Z_bytes<r, c, word> &n) {
+        return w << static_cast<const bytestring<word> &> (n);
+    }
+
+    template <endian::order r, std::unsigned_integral word>
+    reader<word> inline &operator >> (reader<word> &rr, N_bytes<r, word> &n) {
+        rr.read (n.data (), n.size ());
+        return rr;
+    }
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    reader<word> inline &operator >> (reader<word> &rr, Z_bytes<r, c, word> &n) {
+        rr.read (n.data (), n.size ());
+        return rr;
+    }
 }
 
 #endif

@@ -72,6 +72,10 @@ namespace data {
             return range (b, this->size ());
         }
 
+        slice<X> take (size_t b) const {
+            return range (0, b);
+        }
+
         using iterator = decltype (std::declval<std::span<X>> ().begin ());
         using const_iterator = decltype (std::declval<const std::span<X>> ().begin ());
         using reverse_iterator = decltype (std::declval<std::span<X>> ().rbegin ());

@@ -7,6 +7,10 @@
 #include <data/math/algebra/finite_field.hpp>
 #include <data/numbers.hpp>
 
+namespace data::math {
+
+}
+
 namespace data::crypto {
 
     struct secp192k1 {

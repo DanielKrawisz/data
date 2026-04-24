@@ -524,6 +524,18 @@ namespace data::math::number {
     template <endian::order r, neg c, std::unsigned_integral word>
     std::istream &operator >> (std::istream &o, Z_bytes<r, c, word> &n);
 
+    template <endian::order r, std::unsigned_integral word>
+    writer<word> &operator << (writer<word> &o, const N_bytes<r, word> &n);
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    writer<word> &operator << (writer<word> &o, const Z_bytes<r, c, word> &n);
+
+    template <endian::order r, std::unsigned_integral word>
+    reader<word> &operator >> (reader<word> &o, N_bytes<r, word> &n);
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    reader<word> &operator >> (reader<word> &o, Z_bytes<r, c, word> &n);
+
     template <endian::order r, neg c, std::unsigned_integral word>
     struct increment<Z_bytes<r, c, word>> {
         Z_bytes<r, c, word> operator () (const Z_bytes<r, c, word> &);
