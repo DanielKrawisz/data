@@ -18,8 +18,6 @@
 //  partial specialization to correctly extend the sign when cover integer size
 //  differs from endian representation size.
 
-// TODO: When a compiler supporting constexpr becomes available, try possible uses.
-
 #ifndef BOOST_ENDIAN_ARITHMETIC_HPP
 #define BOOST_ENDIAN_ARITHMETIC_HPP
 
@@ -411,6 +409,43 @@ public:
         }
 
         return is;
+    }
+
+    // conversions
+    template<std::integral U>
+    requires (
+        // smaller -> larger always implicit
+        (sizeof (U) > sizeof (T))
+
+        ||
+
+        // same-size signed -> unsigned implicit
+        (sizeof (U) == sizeof (T)
+        && std::signed_integral<T>
+        && std::unsigned_integral<U>)
+    )
+    BOOST_CONSTEXPR operator endian_arithmetic<Order, U, sizeof (U) * 8, Align> () const
+    {
+        return U (value ());
+    }
+
+
+    // ------------------------------
+    // Explicit conversions otherwise
+    // ------------------------------
+    template<std::integral U>
+    requires (
+        !(
+            (sizeof(U) > sizeof(T))
+            ||
+            (sizeof(U)==sizeof(T)
+            && std::signed_integral<T>
+            && std::unsigned_integral<U>)
+        )
+    )
+    BOOST_CONSTEXPR explicit operator endian_arithmetic<Order, U, sizeof (U) * 8, Align> () const
+    {
+        return U (value ());
     }
 
 };
