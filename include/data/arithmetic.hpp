@@ -840,7 +840,7 @@ namespace data::math {
     }
 
     template <proto_bit_number A> constexpr A inline bit_mod_2_positive_mod (const A &x) {
-        return abs (x) & 1;
+        return abs (x) & 1u;
     }
 
     template <proto_bit_number A> constexpr A inline bit_mod_2_negative_mod (const A &x) {

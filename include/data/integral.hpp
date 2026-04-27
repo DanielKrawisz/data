@@ -153,13 +153,10 @@ namespace data {
     using  int544_big = int_big<68>;
 
     static_assert (IntegralSystem<int64, uint64>);
-    static_assert (IntegralSystem<int64, uint64>);
-/*
-    static_assert (IntegralSystem<int32_little, uint32_little>);
+
     static_assert (IntegralSystem<int64_little, uint64_little>);
 
-    static_assert (IntegralSystem<int32_big, uint32_big>);
-    static_assert (IntegralSystem<int64_big, uint64_big>);*/
+    static_assert (IntegralSystem<int64_big, uint64_big>);
 
     static_assert (IntegralSystem<int128, uint128>);
     static_assert (IntegralSystem<int160, uint160>);
