@@ -172,9 +172,10 @@ namespace data {
     template <typename Z> requires requires (const Z &z, uint32 u) {
         { z << u } -> std::convertible_to<Z>;
         { z >> u } -> std::convertible_to<Z>;
-    } struct test_shift {
-        test_shift () {
-
+    } struct test_bit_shift {
+        test_bit_shift () {
+            EXPECT_EQ (Z::read ("0x") << 0, Z::read ("0x"));
+            EXPECT_EQ (Z::read ("0x") >> 0, Z::read ("0x"));
         }
     };
     
@@ -220,6 +221,12 @@ namespace data {
     } struct test_arithmetic {
         test_arithmetic () {
 
+            EXPECT_EQ (Z::read ("0x") + Z::read ("0x"), Z::read ("0x"));
+            EXPECT_EQ (Z::read ("0x") - Z::read ("0x"), Z::read ("0x"));
+            EXPECT_EQ (Z::read ("0x") * Z::read ("0x"), Z::read ("0x"));
+
+            EXPECT_EQ (Z::read ("0x") * Z::read ("0x01"), Z::read ("0x"));
+            EXPECT_EQ (Z::read ("0x") / Z::read ("0x01"), Z::read ("0x"));
         }
     };
 
@@ -229,7 +236,7 @@ namespace data {
         test_increment_and_decrement<Z>,
         test_arithmetic<Z>, test_min_max<Z>,
         test_logic<Z>, test_compare<Z>,
-        test_shift<Z> {
+        test_bit_shift<Z> {
         test_BC () {}
     };
     

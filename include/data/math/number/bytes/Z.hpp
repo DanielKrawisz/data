@@ -47,13 +47,13 @@ namespace data::math::number {
         operator N_bytes<endian::opposite (r), word> () const;
 
         template <neg c>
-        explicit operator Z_bytes<r, c, word> () const;
+        operator Z_bytes<r, c, word> () const;
         explicit operator double () const;
         
         explicit operator uint64 () const;
         explicit operator int64 () const;
 
-        N_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
+        explicit N_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
 
     };
     
@@ -85,7 +85,7 @@ namespace data::math::number {
         
         Z_bytes &trim ();
 
-        Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}\
+        explicit Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}\
 
     };
     
@@ -749,7 +749,20 @@ namespace data::math::def {
     math::Z_bytes<r, word> inline mod_2<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x) {
         return bit_mod_2_positive_mod (x);
     }
-    
+
+    template <endian::order r, std::unsigned_integral word>
+    struct bit_shift_right<math::Z_bytes_BC<r, word>> {
+        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &x, uint32 i) const {
+            return x >> i;
+        }
+    };
+
+    template <endian::order r, std::unsigned_integral word>
+    struct bit_shift_left<math::Z_bytes_BC<r, word>> {
+        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &x, uint32 i) const {
+            return x << i;
+        }
+    };
 }
 
 // finally come functions that can be implemented in terms of the low
@@ -783,12 +796,12 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline extend (const N_bytes<r, word> &x, size_t size) {
-        return arithmetic::extend<r, neg::nones, word> (x, size);
+        return N_bytes<r, word> (std::move (arithmetic::extend<r, neg::nones, word> (x, size)));
     }
     
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> inline extend (const Z_bytes<r, c, word> &x, size_t size) {
-        return arithmetic::extend<r, c, word> (x, size);
+        return Z_bytes<r, c, word> (std::move (arithmetic::extend<r, c, word> (x, size)));
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -879,12 +892,12 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline N_bytes<r, word>::zero (size_t size) {
-        return arithmetic::zero<r, word> (size);
+        return N_bytes<r, word> (std::move (arithmetic::zero<r, word> (size)));
     }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> inline Z_bytes<r, neg::twos, word>::zero (size_t size) {
-        return arithmetic::zero<r, word> (size);
+        return Z_bytes<r, neg::twos, word> (std::move (arithmetic::zero<r, word> (size)));
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -938,28 +951,30 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator & (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        return arithmetic::trim<r, neg::nones, word> (arithmetic::bit_and<r, neg::nones, word> (a, b));
+        return N_bytes<r, word> (std::move (arithmetic::trim<r, neg::nones, word> (arithmetic::bit_and<r, neg::nones, word> (a, b))));
     }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator & (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
-        return arithmetic::trim<r, neg::twos, word> (arithmetic::bit_and<r, neg::twos, word> (a, b));
+        return Z_bytes<r, neg::twos, word> (std::move (arithmetic::trim<r, neg::twos, word> (arithmetic::bit_and<r, neg::twos, word> (a, b))));
     }
     
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> operator | (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        return arithmetic::trim<r, neg::nones, word> (arithmetic::bit_or<r, neg::nones, word> (a, b));
+        return N_bytes<r, word> (std::move (arithmetic::trim<r, neg::nones, word> (arithmetic::bit_or<r, neg::nones, word> (a, b))));
     }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator | (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
-        return arithmetic::trim<r, neg::twos, word> (arithmetic::bit_or<r, neg::twos, word> (a, b));
+        return Z_bytes<r, neg::twos, word> (std::move (arithmetic::trim<r, neg::twos, word> (arithmetic::bit_or<r, neg::twos, word> (a, b))));
     }
 
     // bit xor
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> operator ^ (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        if (a.size () < b.size ()) return b ^ a;
+        if (a.size () < b.size ())
+            return b ^ a;
+
         auto bt = extend (b, a.size ());
         auto x = N_bytes<r, word>::zero (a.size ());
         arithmetic::bit_xor<word> (x.end (), x.begin (), a.begin (),
@@ -969,7 +984,9 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator ^ (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
-        if (a.size () < b.size ()) return b ^ a;
+        if (a.size () < b.size ())
+            return b ^ a;
+
         auto bt = extend (b, a.size ());
         auto x = Z_bytes<r, neg::twos, word>::zero (a.size ());
         arithmetic::bit_xor<word> (x.end (), x.begin (), a.begin (),
@@ -979,7 +996,9 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> &operator ^= (Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
-        if (a.size () < b.size ()) a = extend (a, b.size ());
+        if (a.size () < b.size ())
+            a = extend (a, b.size ());
+
         auto bt = extend (b, a.size ());
         arithmetic::bit_xor<word> (a.end (), a.begin (), a.begin (), b.begin ());
         return a.trim ();
@@ -1044,7 +1063,9 @@ namespace data::math::number {
             n.resize (1);
             *n.begin () = x;
         } else if constexpr (sizeof (I) % sizeof (word) != 0) {
-            throw exception {} << "We do not know how to handle this case; init value size is " << sizeof (I) << " and word size is " << sizeof (word);
+            throw exception {} <<
+                "We do not know how to handle this case; init value size is " <<
+                sizeof (I) << " and word size is " << sizeof (word);
         } else {
             n.resize (sizeof (I) / sizeof (word));
             data::arithmetic::Words<boost::endian::order::native, word> w {
@@ -1125,12 +1146,12 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline trim (const N_bytes<r, word> &n) {
-        return arithmetic::trim<r, neg::nones, word> (n);
+        return N_bytes<r, word> (std::move (arithmetic::trim<r, neg::nones, word> (n)));
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> inline trim (const Z_bytes<r, c, word> &z) {
-        return arithmetic::trim<r, c, word> (z);
+        return Z_bytes<r, c, word> (std::move (arithmetic::trim<r, c, word> (z)));
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -1286,13 +1307,13 @@ namespace data::math::number {
 
         template <endian::order r, std::unsigned_integral word>
         N_bytes<r, word> inline plus (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-            return arithmetic::nones::plus<r, word> (a, b);
+            return N_bytes<r, word> (std::move (arithmetic::nones::plus<r, word> (a, b)));
         }
 
         template <endian::order r, std::unsigned_integral word>
         N_bytes<r, word> inline minus (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
             if (b > a) return N_bytes<r, word>::zero ();
-            return arithmetic::nones::minus<r, word> (a, b);
+            return N_bytes<r, word> (std::move (arithmetic::nones::minus<r, word> (a, b)));
         }
 
         template <endian::order r, std::unsigned_integral word>

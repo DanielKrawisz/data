@@ -77,15 +77,22 @@ namespace data {
     static_assert (ImplicitlyConvertible<N, Z>);
     static_assert (ImplicitlyConvertible<N_bytes_little, Z_bytes_little>);
     static_assert (ImplicitlyConvertible<N_bytes_big, Z_bytes_big>);
+    static_assert (ImplicitlyConvertible<math::N_bytes<endian::little, unsigned short>, math::Z_bytes<endian::little, unsigned short>>);
+    static_assert (ImplicitlyConvertible<math::N_bytes<endian::big, unsigned short>, math::Z_bytes<endian::big, unsigned short>>);
 
     // however, the opposite conversion cannot be implicit.
-    static_assert (ExplicitlyConvertible<Z, N>);/*
+    static_assert (ExplicitlyConvertible<Z, N>);
     static_assert (ExplicitlyConvertible<Z_bytes_little, N_bytes_little>);
     static_assert (ExplicitlyConvertible<Z_bytes_big, N_bytes_big>);
-    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::little, unsigned short>, N_bytes<endian::little, unsigned short>>);
-    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::big, unsigned short>, N_bytes<endian::big, unsigned short>>);*/
+    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::little, unsigned short>, math::N_bytes<endian::little, unsigned short>>);
+    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::big, unsigned short>, math::N_bytes<endian::big, unsigned short>>);
 
-    // for built-in-like numbers, both conversions are explicit.
+    static_assert (ExplicitlyConvertible<uint64_big, int64_big>);
+    static_assert (ImplicitlyConvertible<int64_big, uint64_big>);
+
+    static_assert (ExplicitlyConvertible<uint64_little, int64_little>);
+    static_assert (ImplicitlyConvertible<int64_little, uint64_little>);
+
     static_assert (ExplicitlyConvertible<uint128, int128>);
     static_assert (ImplicitlyConvertible<int128, uint128>);
 
