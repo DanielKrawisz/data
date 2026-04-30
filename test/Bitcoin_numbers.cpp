@@ -176,6 +176,24 @@ namespace data {
         test_bit_shift () {
             EXPECT_EQ (Z::read ("0x") << 0, Z::read ("0x"));
             EXPECT_EQ (Z::read ("0x") >> 0, Z::read ("0x"));
+
+            EXPECT_EQ (Z::read ("0x01") << 0, Z::read ("0x01"));
+            EXPECT_EQ (Z::read ("0x01") >> 0, Z::read ("0x01"));
+
+            EXPECT_EQ (Z::read ("0x81") << 0, Z::read ("0x81"));
+            EXPECT_EQ (Z::read ("0x81") >> 0, Z::read ("0x81"));
+
+            EXPECT_EQ (Z::read ("0x01") << 1, Z::read ("0x02"));
+            EXPECT_EQ (Z::read ("0x01") >> 1, Z::read ("0x"));
+
+            EXPECT_EQ (Z::read ("0x81") << 1, Z::read ("0x82"));
+            EXPECT_EQ (Z::read ("0x81") >> 1, Z::read ("0x"));
+
+            EXPECT_EQ (Z::read ("0x02") << 1, Z::read ("0x04"));
+            EXPECT_EQ (Z::read ("0x02") >> 1, Z::read ("0x01"));
+
+            EXPECT_EQ (Z::read ("0x82") << 1, Z::read ("0x84"));
+            EXPECT_EQ (Z::read ("0x82") >> 1, Z::read ("0x81"));
         }
     };
     
