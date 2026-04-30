@@ -2872,7 +2872,7 @@ namespace data::encoding::hexidecimal {
         
         template <hex::letter_case zz> 
         integer<neg::BC, zz> inline bit_shift (const integer<neg::BC, zz> &x, int i) {
-            return integer<neg::BC, zz> (bit_shift (integer<neg::twos, zz> (x), i));
+            return integer<neg::BC, zz> (write<zz> (data::bit_shift (math::number::Z_bytes<endian::big, neg::BC, byte>::read (x), i)));
         }
         
         template <neg c, hex::letter_case zz> struct add;

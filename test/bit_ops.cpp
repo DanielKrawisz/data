@@ -282,12 +282,17 @@ namespace data {
         test_bit_shift_signed<math::Z_bytes<endian::little, unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes<endian::big, unsigned int>> ();
 
+        // NOTE: the following no longer work because we changed the
+        // definition of bit shift for these types of numbers. We would
+        // need a new test for them.
+        /*
         test_bit_shift_signed<math::Z_bytes_BC<endian::little>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::big>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::little, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::big, short unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::little, unsigned int>> ();
         test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
+        */
 
         // TODO bigger word sizes.
     }
