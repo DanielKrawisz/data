@@ -40,7 +40,8 @@ namespace data {
         test_div_mod_2_positive<Z, Z> ();
         EXPECT_EQ (div_2 (Z {-1}), Z {0});
         EXPECT_EQ (mod_2 (Z {-1}), Z {-1});
-        EXPECT_EQ (div_2 (Z {-2}), Z {-1});
+        auto result_div_2 = div_2 (Z {-2});
+        EXPECT_EQ (result_div_2, Z {-1}) << "expected div_2 (" << Z {-2} << ") -> " << Z {-1} << " but got " << result_div_2;
         EXPECT_EQ (mod_2 (Z {-2}), Z {0});
     }
 

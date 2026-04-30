@@ -461,13 +461,28 @@ namespace data::math::number {
     
     // check if the number is negative, and then do bit shift on the absolute value.
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> inline operator << (const Z_bytes<r, neg::BC, word> &x, int i) {
-        return Z_bytes<r, neg::BC, word> (Z_bytes<r, neg::twos, word> (x) << i);
+    Z_bytes<r, neg::BC, word> operator << (const Z_bytes<r, neg::BC, word> &x, int n) {
+        if (n < 0) return x >> -n;
+        if (n == 0) return x;
+        if (is_zero (x)) return Z_bytes<r, neg::BC, word> {};
+
+        bool neg = is_negative (x);
+        Z_bytes<r, neg::BC, word> result = neg ? -x : x;
+        result = extend (result, result.size () + ((n + 7) / 8));
+        result.words ().bit_shift_left (static_cast<uint32> (n));
+        return neg ? -result : result;
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> inline operator >> (const Z_bytes<r, neg::BC, word> &x, int i) {
-        return Z_bytes<r, neg::BC, word> (Z_bytes<r, neg::twos, word> (x) >> i);
+    Z_bytes<r, neg::BC, word> operator >> (const Z_bytes<r, neg::BC, word> &x, int n) {
+        if (n < 0) return x << -n;
+        if (n == 0) return x;
+        if (is_zero (x)) return Z_bytes<r, neg::BC, word> {};
+
+        bool neg = is_negative (x);
+        Z_bytes<r, neg::BC, word> result = neg ? -x : x;
+        result.words ().bit_shift_right (static_cast<uint32> (n));
+        return neg ? -result : result;
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -723,7 +738,7 @@ namespace data::math::def {
 
     template <endian::order r, std::unsigned_integral word>
     math::Z_bytes_BC<r, word> inline div_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x) {
-        return bit_div_2_negative_mod (x);
+        return x >> 1;
     }
 
     template <endian::order r, std::unsigned_integral word>
@@ -955,17 +970,17 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator & (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
+    Z_bytes<r, neg::twos, word> inline operator & (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
         return Z_bytes<r, neg::twos, word> (std::move (arithmetic::trim<r, neg::twos, word> (arithmetic::bit_and<r, neg::twos, word> (a, b))));
     }
     
     template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> operator | (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
+    N_bytes<r, word> inline operator | (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
         return N_bytes<r, word> (std::move (arithmetic::trim<r, neg::nones, word> (arithmetic::bit_or<r, neg::nones, word> (a, b))));
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator | (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
+    Z_bytes<r, neg::twos, word> inline operator | (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
         return Z_bytes<r, neg::twos, word> (std::move (arithmetic::trim<r, neg::twos, word> (arithmetic::bit_or<r, neg::twos, word> (a, b))));
     }
 
@@ -1029,15 +1044,14 @@ namespace data::math::number {
     }
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator +
+    Z_bytes<r, neg::BC, word> inline operator +
     (const Z_bytes<r, neg::BC, word> &a, const Z_bytes<r, neg::BC, word> &b) {
         return arithmetic::trim<r, neg::BC, word> (arithmetic::BC::plus<r, word> (trim (a), trim (b)));
     }
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator *
-    (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b)
-    {
+    (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
         bool an = data::is_negative (a);
         bool bn = data::is_negative (b);
         if ((an && bn) || (!an && !bn)) return Z_bytes<r, neg::twos, word> (data::abs (a) * data::abs (b));
@@ -1045,13 +1059,12 @@ namespace data::math::number {
     }
 
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator * (const Z_bytes<r, neg::BC, word> &a, const Z_bytes<r, neg::BC, word> &b)
-    {
+    Z_bytes<r, neg::BC, word> inline operator * (const Z_bytes<r, neg::BC, word> &a, const Z_bytes<r, neg::BC, word> &b) {
         return arithmetic::trim<r, neg::BC, word> (arithmetic::BC::times<r, word> (trim (a), trim (b)));
     }
     
     template <endian::order r, std::unsigned_integral word> template<neg c>
-    N_bytes<r, word>::operator Z_bytes<r, c, word> () const {
+    inline N_bytes<r, word>::operator Z_bytes<r, c, word> () const {
         Z_bytes<r, c, word> n = Z_bytes<r, c, word>::zero (this->size () + 1);
         std::copy (this->words ().begin (), this->words ().end (), n.words ().begin ());
         return n.trim ();
