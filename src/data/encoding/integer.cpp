@@ -6,6 +6,8 @@
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
 #include <data/math/number/gmp/Z.hpp>
+// ideally we would get rid of this.
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
@@ -283,7 +285,8 @@ namespace data::encoding {
         }
         
         string::operator double () const {
-            return double (N {*this});
+            // TODO we need a different way of doing this.
+            return double (Z (*this));
         }
     
         string operator - (const string &n) {

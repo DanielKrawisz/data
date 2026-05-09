@@ -7,9 +7,14 @@
 
 #include <data/encoding/integer.hpp>
 #include <data/math/number/bytes/Z.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/division.hpp>
 
 #include <data/encoding/digits.hpp>
+
+// TODO it should be possible to get rid of this whole file and
+// put it in bytes/Z.hpp, or alternately to get rid of Z.hpp
+// and put it here.
 
 namespace data::math::number {
     
@@ -28,28 +33,28 @@ namespace data::math::number {
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (N {x});
         throw exception {} << "invalid number string " << x;
     }
-    
+
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> inline Z_bytes<r, neg::twos, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::twos, word> (x);
         return Z_bytes<r, neg::twos, word> (Z {x});
     }
-    
+
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> inline Z_bytes<r, neg::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::BC, word> (x);
         return Z_bytes<r, neg::BC, word> (Z {x});
     }
-    
+
     template <endian::order r, std::unsigned_integral word>
     std::ostream inline &operator << (std::ostream &o, const N_bytes<r, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, N (n));
         return o;
     }
-    
+
     template <endian::order r, neg c, std::unsigned_integral word>
     std::ostream inline &operator << (std::ostream &o, const Z_bytes<r, c, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
@@ -149,8 +154,8 @@ namespace data::encoding::hexidecimal {
     template <neg n, hex::letter_case cx, std::integral I>
     string<cx> write (I x) {
         if constexpr (n == neg::nones)
-            return write<cx> (math::number::N_bytes<endian::big, byte> {x});
-        else return write<cx> (math::number::Z_bytes<endian::big, n, byte> {x});
+            return write<cx> (math::number::N_bytes<endian::big> {x});
+        else return write<cx> (math::number::Z_bytes<endian::big, n> {x});
     }
 
     template <hex::letter_case zz>
@@ -161,6 +166,20 @@ namespace data::encoding::hexidecimal {
         std::copy (o->begin (), o->end (), n.begin ());
         n = n << i;
         return write<zz> (math::number::extend (n, n.size () + 1));
+    }
+
+    template <neg n, hex::letter_case cx>
+    template <endian::order e> inline complemented_string<n, cx>::operator math::number::Z_bytes<e, n, byte> () const {
+        auto result = math::number::Z_bytes<e, n, byte>::zero (this->size () / 2 - 1);
+        hex::decode (this->end (), this->begin () + 2, result.words ().rbegin ());
+        return result;
+    }
+
+    template <hex::letter_case cx>
+    template <endian::order e> inline complemented_string<neg::nones, cx>::operator math::number::N_bytes<e, byte> () const {
+        auto result = math::number::N_bytes<e, byte>::zero (this->size () / 2 - 1);
+        hex::decode (this->end (), this->begin () + 2, result.words ().rbegin ());
+        return result;
     }
     
     namespace {
@@ -334,6 +353,7 @@ namespace data::math::def {
         }
 
         auto [quotient, remainder] = divmod<Z, Z> {} (Z (d), nonzero<Z> {z.Value});
+
         return division<hex::uint<zz>, unsigned int> {hex::uint<zz> {data::abs (quotient)}, static_cast<unsigned int> (uint64 (remainder))};
     }
 

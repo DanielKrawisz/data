@@ -118,25 +118,30 @@ namespace data::encoding::hex {
         invalid (): exception::base<invalid> {"invalid hex"} {}
     };
 
-    constexpr uint8_t from_hex_char (char c) {
+    constexpr uint8_t from_char (char c) {
         if (c >= '0' && c <= '9') return static_cast<uint8_t>(c - '0');
         if (c >= 'A' && c <= 'F') return static_cast<uint8_t>(c - 'A' + 10);
         if (c >= 'a' && c <= 'f') return static_cast<uint8_t>(c - 'a' + 10);
         throw invalid {} << "; bad character " << c << " (" << (int64 (c)) << ")";
     }
 
-    template <typename sen, typename iti, typename ito>
+    // first is the end iterator, then its corresponding input iterator and finally the output iterator.
+    template <typename sen, std::input_iterator iti, typename ito>
+    requires std::sentinel_for<sen, iti>
     constexpr void decode (sen end, iti it, ito out) {
         using word_type = unconst<unref<decltype (*out)>>;
         constexpr const size_t word_size = sizeof (word_type);
         while (it != end) {
             *out = 0;
+
             for (int i = word_size * 8 - 4; i > 0; i -= 4) {
-                *out += word_type (from_hex_char (*it)) << i;
+                *out += word_type (from_char (*it)) << i;
                 it++;
+                // hex string length must be even, so we don't expect the end here.
                 if (it == end) throw invalid {} << "; invalid length ";
             }
-            *out += from_hex_char (*it);
+
+            *out += from_char (*it);
             it++;
             out++;
         }

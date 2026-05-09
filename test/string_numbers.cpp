@@ -476,7 +476,11 @@ namespace data::encoding {
         EXPECT_EQ (static_cast<N> (hex_uint {916}), N (916));
         EXPECT_EQ (static_cast<N> (hex_uint {229}), N (229));
 
-        EXPECT_EQ (static_cast<Z> (hex_int {1145}), Z (1145));
+        std::cout <<"test one" << std::endl;
+        auto z1 = Z (hex_int {1145});
+        EXPECT_EQ (z1, Z (1145));
+        std::cout << "test two" << std::endl;
+        EXPECT_EQ (Z (hex_int {1145}), Z (1145));
         EXPECT_EQ (static_cast<Z> (hex_int {916}), Z (916));
         EXPECT_EQ (static_cast<Z> (hex_int {229}), Z (229));
 

@@ -8,14 +8,13 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-//#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/exception.hpp>
 
 namespace data::math::number {
-
 
     template <endian::order r, size_t size, std::unsigned_integral word>
     constexpr bounded<false, r, size, word>::bounded (string_view x) {

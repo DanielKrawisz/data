@@ -17,7 +17,7 @@
 #include <data/math/algebra.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/bounded/bounded.hpp>
-#include <data/encoding/hex.hpp>
+#include <data/encoding/integer.hpp>
 
 #include <string>
 
@@ -343,8 +343,10 @@ namespace data::math::number::GMP {
 
         static Z read (string_view x);
 
-        //Z (const std::string &x);
         Z (string_view);
+        Z (const dec_int &u): Z {string_view (u)} {}
+        Z (const dec_uint &u): Z {string_view (u)} {}
+        template <neg n, hex_case zz> Z (const hex::integer<n, zz> &);
 
         Z (const Z &n);
 
@@ -373,6 +375,10 @@ namespace data::math::number::GMP {
         explicit operator uint64 () const;
         explicit operator uint32 () const;
         explicit operator double () const;
+
+        explicit operator dec_int () const;
+        template <hex_case zz> explicit operator hex::int2<zz> () const;
+        template <hex_case zz> explicit operator hex::intBC<zz> () const;
 
         template <endian::order r, neg c, std::unsigned_integral word>
         explicit Z (const Z_bytes<r, c, word> &);
@@ -415,6 +421,8 @@ namespace data::math::number::GMP {
         explicit N (Z &&z) : Value {z} {}
 
         N (string_view);
+        N (const dec_uint &u): N {string_view (u)} {}
+        template <hex_case zz> N (const hex::uint<zz> &u): N {string_view (u)} {}
 
         operator Z () const {
             return Value;
@@ -443,6 +451,10 @@ namespace data::math::number::GMP {
         explicit operator int32 () const {
             return int32 (Value);
         }
+
+        explicit operator dec_uint () const;
+        explicit operator dec_int () const;
+        template <neg n, hex_case zz> explicit operator hex::integer<n, zz> () const;
 
         template <endian::order r, std::unsigned_integral word>
         explicit N (const N_bytes<r, word> &n) : Value {n} {}
@@ -503,11 +515,11 @@ namespace data::math::number::GMP {
         mpz_clear (MPZ);
     }
 
-    template <std::signed_integral I> Z::Z (I x): MPZ {} {
+    template <std::signed_integral I> Z::Z (I x): Z {} {
         mpz_init_set_si (MPZ, x);
     }
 
-    template <std::unsigned_integral I> Z::Z (I x): MPZ {} {
+    template <std::unsigned_integral I> Z::Z (I x): Z {} {
         mpz_init_set_ui (MPZ, x);
     }
 
@@ -520,8 +532,7 @@ namespace data::math::number::GMP {
         mpz_init_set_ui (Value.MPZ, x);
     }
 
-    inline Z::Z (const Z &n) {
-        mpz_init (MPZ);
+    inline Z::Z (const Z &n) : Z {} {
         mpz_set (MPZ, n.MPZ);
     }
 
@@ -742,8 +753,7 @@ namespace data::math::number::GMP {
     }
 
     template <endian::order r, std::unsigned_integral word>
-    Z::Z (const N_bytes<r, word> &z) {
-        mpz_init (MPZ);
+    Z::Z (const N_bytes<r, word> &z) : Z {} {
         mpz_import (
             MPZ,
             z.size (),
@@ -756,8 +766,8 @@ namespace data::math::number::GMP {
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
-    Z::Z (const Z_bytes<r, c, word> &z) {
-        mpz_init (MPZ);
+    Z::Z (const Z_bytes<r, c, word> &z) : Z {} {
+
         if (data::is_zero (z)) return;
 
         if (data::is_negative (z)) {

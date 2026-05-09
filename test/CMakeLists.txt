@@ -10,8 +10,8 @@ include (GoogleTest)
 
 add_executable (
     unit_tests
-    # These tests only require data_core for the components being tested. 
-    # other components may be used for the tests themselves. 
+    # These tests only require data_core for the components being tested.
+    # other components may be used for the tests themselves.
     maybe_either.cpp
     store.cpp
     exception.cpp
@@ -119,7 +119,7 @@ add_executable (
 )
 
 target_link_libraries (unit_tests
-  PRIVATE io net crypto data gtest_main gmock)
+  PRIVATE net io crypto numbers gtest_main gmock)
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)

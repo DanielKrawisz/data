@@ -16,6 +16,7 @@
 
 namespace data::arithmetic {
 
+    // NOTE: there is an inconsistent ordering of variables in this file.
     template <std::input_iterator it, std::sentinel_for<it> sen>
     constexpr bool equal (it i, sen z, it j) {
         while (i != z) {
@@ -112,6 +113,8 @@ namespace data::arithmetic {
             b++;
         }
     }
+
+    // TODO continue to adjust the parameters to be closer to those above.
 
     // bit shift operations are defined in terms of big-endian numbers.
     // but really they are operations to powers of 2 ignoring sign,
