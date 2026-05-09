@@ -7,7 +7,6 @@
 #include <data/crypto/hash.hpp>
 #include <data/crypto/block.hpp>
 #include <data/crypto/MAC/HMAC.hpp>
-#include <data/crypto/MAC/SHA3.hpp>
 #include <data/crypto/stream/cryptopp.hpp>
 #include <data/crypto/block/cryptopp.hpp>
 #include <data/crypto/NIST_DRBG.hpp>
