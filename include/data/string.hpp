@@ -46,6 +46,10 @@ namespace data {
         return static_cast<const std::string &> (a) <=> static_cast<const std::string &> (b);
     }
 
+    std::strong_ordering inline operator <=> (const string &a, const std::string &b) {
+        return static_cast<const std::string &> (a) <=> b;
+    }
+
     std::ostream &operator << (std::ostream &o, const string &x);
     std::istream &operator >> (std::istream &i, string &x);
 

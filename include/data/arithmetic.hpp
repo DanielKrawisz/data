@@ -658,6 +658,55 @@ namespace data {
         };
 }
 
+namespace data::math {
+
+    // we extend std::numeric_limits for more types of numbers.
+    template <typename X> struct numeric_limits;
+
+    template <std::integral X> struct numeric_limits<X> {
+        constexpr static const X Max = std::numeric_limits<X>::max ();
+        constexpr static const X Min = std::numeric_limits<X>::min ();
+
+        constexpr static const X &max () {
+            return Max;
+        }
+
+        constexpr static const X &min () {
+            return Min;
+        }
+    };
+}
+
+namespace data {
+
+    template <typename X> concept Integral =
+        WholeNumber<X> && bit_algebraic<X> &&
+        math::homo_abs_and_negate<X> &&
+        requires (const X &a, const X &b) {
+            { a % b} -> ImplicitlyConvertible<X>;
+            { divmod (a, math::nonzero<X> {b}) } -> Same<division<X, X>>;
+        } && requires {
+            { math::numeric_limits<X>::max () } -> ImplicitlyConvertible<X>;
+            { math::numeric_limits<X>::min () } -> ImplicitlyConvertible<X>;
+        };
+
+    template <typename A> concept SignedIntegral =
+        Integral<A> && div_number_signed<A> && proto_bit_signed<A>;
+
+    template <typename A> concept UnsignedIntegral =
+        Integral<A> && div_number_unsigned<A> && proto_bit_unsigned<A>;
+
+    template <typename Z, typename N = Z> concept IntegralSystem =
+        MultiplicativeIntegralSystem<Z, N> && bit_algebraic_to<N, Z> &&
+        SignedIntegral<Z> && ring_algebraic_signed<Z> && bit_algebraic_signed<Z> &&
+        UnsignedIntegral<N> && ring_algebraic_unsigned<N> && bit_algebraic_unsigned<N> &&
+        requires (const Z &n) {
+            { abs (n) } -> ImplicitlyConvertible<Z>;
+        } && requires (const N &n) {
+            { negate (n) } -> ImplicitlyConvertible<N>;
+        };
+}
+
 namespace data::math::def {
     template <typename A, uint32 base> struct size_in_base;
 

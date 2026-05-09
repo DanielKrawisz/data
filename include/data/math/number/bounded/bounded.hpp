@@ -1722,6 +1722,32 @@ namespace data {
 
         }
 
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        bounded<false, r, size, word>::operator uint64 () const {
+            if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
+            uint64_little u {0};
+            if constexpr (size <= 8) {
+                std::copy (this->words ().begin (), this->words ().end (), u.begin ());
+            } else if (*this > std::numeric_limits<uint64>::max ())
+                throw data::exception {"Number is too big to cast to uint64"};
+            else std::copy (this->words ().begin (), this->words ().begin () + 8, u.begin ());
+            return uint64 (u);
+        }
+
+        template <endian::order r, size_t size, std::unsigned_integral word>
+        constexpr bounded<true, r, size, word>::bounded (const Z_bytes<r, neg::twos, word> &z) {
+            if (z.size () <= size) {
+                std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
+                char leading = data::is_negative (z) ? 0xff : 0x00;
+                for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
+            } else if (z <= Z_bytes<r, neg::twos, word> {max ()} && z >= Z_bytes<r, neg::twos, word> {min ()})
+                std::copy (z.words ().begin (), z.words ().begin () + size, this->begin ());
+            else throw exception {} << "Z_bytes too big";
+        }
+
+        // the following functions are AI generated. They are very similar and
+        // could likely be mostly replaced by a single function.
+
         // convert bounded to Z_bytes
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <endian::order o, neg neg, std::unsigned_integral w>
@@ -1752,7 +1778,7 @@ namespace data {
                 w acc = 0;
                 size_t acc_bits = 0;
 
-                while (dst != z.words().end()) {
+                while (dst != z.words ().end ()) {
                     while (acc_bits < dst_bits && src != src_end) {
                         acc |= (w (*src) << acc_bits);
                         acc_bits += src_bits;
@@ -1760,8 +1786,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
 
             } else {
@@ -1779,7 +1805,7 @@ namespace data {
                         ++src;
                     }
 
-                    *dst++ = w(acc);
+                    *dst++ = w (acc);
                     acc >>= dst_bits;
                     acc_bits -= std::min (acc_bits, dst_bits);
                 }
@@ -1820,8 +1846,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
 
             } else {
@@ -1834,7 +1860,7 @@ namespace data {
 
                 while (dst != this->words ().end ()) {
                     if (acc_bits < dst_bits && src != src_end) {
-                        acc |= (w(*src) << acc_bits);
+                        acc |= (w (*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
@@ -1844,29 +1870,6 @@ namespace data {
                     acc_bits -= std::min (acc_bits, dst_bits);
                 }
             }
-        }
-
-        template <endian::order r, size_t size, std::unsigned_integral word>
-        bounded<false, r, size, word>::operator uint64 () const {
-            if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
-            uint64_little u {0};
-            if constexpr (size <= 8) {
-                std::copy (this->words ().begin (), this->words ().end (), u.begin ());
-            } else if (*this > std::numeric_limits<uint64>::max ())
-                throw data::exception {"Number is too big to cast to uint64"};
-            else std::copy (this->words ().begin (), this->words ().begin () + 8, u.begin ());
-            return uint64 (u);
-        }
-
-        template <endian::order r, size_t size, std::unsigned_integral word>
-        constexpr bounded<true, r, size, word>::bounded (const Z_bytes<r, neg::twos, word> &z) {
-            if (z.size () <= size) {
-                std::copy (z.words ().begin (), z.words ().end (), this->words ().begin ());
-                char leading = data::is_negative (z) ? 0xff : 0x00;
-                for (int i = z.size (); i < size; i++) this->words ()[i] = leading;
-            } else if (z <= Z_bytes<r, neg::twos, word> {max ()} && z >= Z_bytes<r, neg::twos, word> {min ()})
-                std::copy (z.words ().begin (), z.words ().begin () + size, this->begin ());
-            else throw exception {} << "Z_bytes too big";
         }
 
         // explicitly convert from a larger number.
@@ -1895,8 +1898,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
             } else {
                 constexpr size_t src_bits = sizeof (w) * 8;
@@ -1956,8 +1959,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
 
             } else {
@@ -2018,8 +2021,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
 
             } else {
@@ -2062,7 +2065,7 @@ namespace data {
                     (total_bits + sizeof (word)*8 - 1) / (sizeof(word)*8);
 
                 auto dst = this->words ().begin ();
-                std::advance(dst, used_words);
+                std::advance (dst, used_words);
 
                 for (; dst != this->words ().end (); ++dst) {
                     *dst = ~word {0};
@@ -2100,8 +2103,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
 
             } else {
@@ -2220,8 +2223,8 @@ namespace data {
                     }
 
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
+                    acc = 0;
+                    acc_bits = 0;
                 }
 
             } else {

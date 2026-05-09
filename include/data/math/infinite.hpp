@@ -131,22 +131,6 @@ namespace data::math {
         constexpr static const inline signed_limit<X> Negative {either<X, bool> {false}, 0};
     };
 
-    // for types that do not have a max and a min value, we use the infinite types.
-    template <typename X> struct numeric_limits;
-
-    template <std::integral X> struct numeric_limits<X> {
-        constexpr static const X Max = std::numeric_limits<X>::max ();
-        constexpr static const X Min = std::numeric_limits<X>::min ();
-
-        constexpr static const X &max () {
-            return Max;
-        }
-
-        constexpr static const X &min () {
-            return Min;
-        }
-    };
-
     template <typename X> constexpr bool inline is_infinite (const X &) {
         return false;
     }
