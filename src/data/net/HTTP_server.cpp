@@ -1,5 +1,5 @@
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <data/net/HTTP_server.hpp>
 
 namespace data::net::HTTP::beast {

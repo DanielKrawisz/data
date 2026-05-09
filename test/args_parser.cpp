@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "data/io/arg_parser.hpp"
-#include "data/io/exception.hpp"
+#include "data/exception.hpp"
 #include "gtest/gtest.h"
 
 namespace data::io::args {

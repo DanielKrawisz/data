@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 class uint_error : public data::exception {
 public:

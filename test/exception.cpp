@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/types.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include "gtest/gtest.h"
 
 namespace data {

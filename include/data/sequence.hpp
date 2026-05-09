@@ -5,7 +5,7 @@
 #ifndef DATA_SEQUENCE
 #define DATA_SEQUENCE
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <data/concepts.hpp>
 #include <data/empty.hpp>
 #include <data/function.hpp>

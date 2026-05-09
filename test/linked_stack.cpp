@@ -4,6 +4,9 @@
 
 #include <iterator>
 #include "data/remove.hpp"
+// TODO Right now numbers provides N and Z as well as Z_bytes and N_bytes
+// we don't like this because N has a dependency and Z_bytes does not.
+// We need a way to get Z_bytes without including N and Z.
 #include "data/numbers.hpp"
 #include "data/string.hpp"
 #include "data/replace.hpp"

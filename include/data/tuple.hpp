@@ -33,7 +33,7 @@
  */
 
 #include <data/types.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data {
 
