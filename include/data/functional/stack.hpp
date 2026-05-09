@@ -16,7 +16,7 @@
 #include <data/function.hpp>
 #include <data/size.hpp>
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data::interface {
     

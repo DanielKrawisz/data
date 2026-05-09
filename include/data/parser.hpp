@@ -6,7 +6,7 @@
 #define DATA_PARSER
 
 #include <data/stream.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data {
 

@@ -9,7 +9,7 @@
 #include <exception>
 #include <string>
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <data/types.hpp>
 
 namespace data::encoding {

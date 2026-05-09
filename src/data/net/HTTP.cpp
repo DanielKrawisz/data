@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/net/beast/http.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <boost/asio/ssl/error.hpp>
 #include <boost/asio/ssl/stream.hpp>
 #include <boost/asio/strand.hpp>

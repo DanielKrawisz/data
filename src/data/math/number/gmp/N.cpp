@@ -6,7 +6,7 @@
 #include <data/encoding/digits.hpp>
 #include <boost/algorithm/string.hpp>
 #include <data/encoding/integer.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data::math::number::GMP {
     

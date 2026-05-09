@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/io/error.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <data/io/unimplemented.hpp>
 #include <data/io/log.hpp>
 

@@ -7,7 +7,7 @@
 
 #include <span>
 #include <data/tools/index_iterator.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data::meta {
 

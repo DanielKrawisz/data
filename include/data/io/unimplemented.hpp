@@ -5,7 +5,7 @@
 #ifndef DATA_IO_UNIMPLEMENTED
 #define DATA_IO_UNIMPLEMENTED
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data::method { 
     

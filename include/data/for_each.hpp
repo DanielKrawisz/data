@@ -97,7 +97,7 @@
  *  -------------------------------------------------------------------------
  */
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <data/iterable.hpp>
 #include <data/indexed.hpp>
 #include <data/cycle.hpp>

@@ -14,7 +14,7 @@
 #include <data/math/number/bounded.hpp>
 #include <data/math/number/bytes.hpp>
 
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data {
 

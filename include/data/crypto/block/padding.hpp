@@ -8,7 +8,7 @@
 #include <data/stream.hpp>
 #include <data/bytes.hpp>
 #include <data/crypto/block/mode.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <cryptopp/filters.h>
 
 namespace data::crypto::cipher::block::CryptoPP {

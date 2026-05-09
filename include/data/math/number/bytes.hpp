@@ -24,6 +24,7 @@ namespace data::math::number {
             } else throw exception {} << "invalid hex string size " << x.size () << "; " << x;
         }
 
+        // TODO N_bytes should not depend on N.
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (N {x});
         throw exception {} << "invalid number string " << x;
     }

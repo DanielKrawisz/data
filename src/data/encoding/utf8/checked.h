@@ -31,7 +31,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include "core.h"
 #include <stdexcept>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace utf8 {
     // Base for the exceptions that may be thrown from the library
