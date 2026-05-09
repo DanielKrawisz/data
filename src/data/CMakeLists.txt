@@ -10,6 +10,7 @@ add_library (Data::core ALIAS core)
 add_library (string STATIC)
 add_library (Data::string ALIAS string)
 
+# hash functions, including cryptographic
 add_library (hash STATIC)
 add_library (Data::hash ALIAS hash)
 

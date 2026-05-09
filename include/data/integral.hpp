@@ -18,33 +18,6 @@
 
 namespace data {
 
-    template <typename X> concept Integral =
-        WholeNumber<X> && bit_algebraic<X> &&
-        math::homo_abs_and_negate<X> &&
-        requires (const X &a, const X &b) {
-            { a % b} -> ImplicitlyConvertible<X>;
-            { divmod (a, math::nonzero<X> {b}) } -> Same<division<X, X>>;
-        } && requires {
-            { math::numeric_limits<X>::max () } -> ImplicitlyConvertible<X>;
-            { math::numeric_limits<X>::min () } -> ImplicitlyConvertible<X>;
-        };
-
-    template <typename A> concept SignedIntegral =
-        Integral<A> && div_number_signed<A> && proto_bit_signed<A>;
-
-    template <typename A> concept UnsignedIntegral =
-        Integral<A> && div_number_unsigned<A> && proto_bit_unsigned<A>;
-
-    template <typename Z, typename N = Z> concept IntegralSystem =
-        MultiplicativeIntegralSystem<Z, N> && bit_algebraic_to<N, Z> &&
-        SignedIntegral<Z> && ring_algebraic_signed<Z> && bit_algebraic_signed<Z> &&
-        UnsignedIntegral<N> && ring_algebraic_unsigned<N> && bit_algebraic_unsigned<N> &&
-        requires (const Z &n) {
-            { abs (n) } -> ImplicitlyConvertible<Z>;
-        } && requires (const N &n) {
-            { negate (n) } -> ImplicitlyConvertible<N>;
-        };
-
     // fixed size numbers of any size, similar to the
     // built-in types.
     template <size_t size, std::unsigned_integral word = byte>

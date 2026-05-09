@@ -14,11 +14,10 @@
  * The core operation is:
  *
  *     validate (data::map<std::string, std::string>, rule)
+ *     validate (std::map<std::string, std::string>, rule)
  *
  * If validation succeeds, a value is returned whose type is determined
  * entirely by the rule. If validation fails, an error is produced.
- *
- * TODO: this should also work on std::map but it doesn't yet.
  *
  * ---------------------------------------------------------------------
  * Mental model
@@ -1619,9 +1618,6 @@ namespace data::schema::rule {
                 // then there must be keys in the map that aren't allowed.
                 if (n == x.end ()) throw unknown_key {data::string (z->Key)};
 
-                // TODO we get a warning here that we can resolve by ensuring
-                // that data::string has an explicit comparison <=> defined
-                // with an std string.
                 if (z->Key > *n) n++;
                 else {
                     if (z->Key != *n) throw unknown_key {data::string (z->Key)};
@@ -1641,9 +1637,6 @@ namespace data::schema::rule {
                 // then there must be keys in the map that aren't allowed.
                 if (n == x.end ()) throw unknown_key {data::string (z->first)};
 
-                // TODO we get a warning here that we can resolve by ensuring
-                // that data::string has an explicit comparison <=> defined
-                // with an std string.
                 if (z->first > *n) n++;
                 else {
                     if (z->first != *n) throw unknown_key {data::string (z->first)};
@@ -1664,9 +1657,6 @@ namespace data::schema::rule {
                 // then there must be keys in the map that aren't allowed.
                 if (n == x.end ()) throw unknown_key {data::string (*z)};
 
-                // TODO we get a warning here that we can resolve by ensuring
-                // that data::string has an explicit comparison <=> defined
-                // with an std string.
                 if (*z > *n) n++;
                 else {
                     if (*z != *n) throw unknown_key {data::string (*z)};
