@@ -19,7 +19,7 @@ namespace data::math::number {
     
     // an implementation of the natural numbers that is
     // encoded as a big or little endian sequence of bytes. 
-    template <endian::order, std::unsigned_integral> struct N_bytes;
+    template <endian::order, std::unsigned_integral = byte> struct N_bytes;
 
     template <endian::order r, std::unsigned_integral word> struct increment<N_bytes<r, word>> {
         nonzero<N_bytes<r, word>> operator () (const N_bytes<r, word> &);
@@ -34,7 +34,7 @@ namespace data::math::number {
     // and the sign-and-magnetude system used in Bitcoin. N_bytes works
     // as the absolute value of the two's complement types. Bitcoin numbers
     // work as their own number system without a type for the naturals.
-    template <endian::order, neg, std::unsigned_integral> struct Z_bytes;
+    template <endian::order, neg, std::unsigned_integral = byte> struct Z_bytes;
 }
 
 namespace data::math {

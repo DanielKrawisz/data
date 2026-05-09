@@ -68,8 +68,6 @@ target_sources (
 
   PRIVATE
 
-  random.cpp
-
   encoding/hex.cpp
   encoding/utf8.cpp
   string.cpp
@@ -86,6 +84,7 @@ target_link_libraries (
 
   Data::core
   Boost::boost
+  nlohmann_json::nlohmann_json
   ctre
   Boost::log_setup
   Boost::log
@@ -195,7 +194,6 @@ target_link_libraries (
   Data::string
   Boost::chrono
   Boost::thread
-  nlohmann_json::nlohmann_json
   taocpp::pegtl
   OpenSSL::SSL
   OpenSSL::Crypto

@@ -9,11 +9,25 @@
 
 namespace data::math {
 
+    // TODO tighten these constraints
+    template <WholeNumber N> constexpr nonzero<N> factorial (const N &n);
+    template <WholeNumber N> constexpr nonzero<N> rising_power (const N &n, const N &);
+    template <WholeNumber N> constexpr nonzero<N> falling_power (const N &n, const N &);
+
+    template <WholeNumber N> constexpr N binomial (const N &n, const N &k);
+    template <WholeNumber N> constexpr N inline multichoose (const N &n, const N &r);
+
+    template <WholeNumber N> constexpr N inline polytopic_number (const N &r, const N &n);
+    template <WholeNumber N> constexpr N inline triangular_number (const N &n);
+    template <WholeNumber N> constexpr N inline tetrahedral_number (const N &n);
+    template <WholeNumber N> constexpr N inline pentatope_number (const N &n);
+
+    template <WholeNumber N> constexpr N Sterling (const N &n, const N &k);
+
     struct negative_factorial : exception {
         negative_factorial () : exception {"factorial of zero is undefined"} {}
     };
 
-    // TODO tighten these constraints
     template <WholeNumber N> constexpr nonzero<N> factorial (const N &n) {
         if (n < 0) throw negative_factorial {};
         if (n < 2) return nonzero<N> {1};

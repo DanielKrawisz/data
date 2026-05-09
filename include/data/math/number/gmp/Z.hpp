@@ -685,6 +685,45 @@ namespace data::math::number::GMP {
         __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, (long unsigned int) (u));
         return n;
     }
+
+    inline N::operator dec_uint () const {
+        return encoding::decimal::write (*this);
+    }
+
+    inline N::operator dec_int () const {
+        return encoding::signed_decimal::write (this->Value);
+    }
+
+    inline Z::operator dec_int () const {
+        return encoding::signed_decimal::write (*this);
+    }
+
+    template <neg n, hex_case zz> inline N::operator encoding::hexidecimal::integer<n, zz> () const {
+        return encoding::hexidecimal::write<n, zz> (this->Value);
+    }
+
+    template <hex_case zz> inline Z::operator encoding::hexidecimal::integer<neg::twos, zz> () const {
+        return encoding::hexidecimal::write<neg::twos, zz> (*this);
+    }
+
+    template <hex_case zz> inline Z::operator encoding::hexidecimal::integer<neg::BC, zz> () const {
+        return encoding::hexidecimal::write<neg::BC, zz> (*this);
+    }
+
+    // TODO this is kind of absurd. We should not have to convert to _bytes form.
+    template <neg n, hex_case zz> inline Z::Z (const hex::integer<n, zz> &u) : Z {} {
+        // TODO fix this back up to the way it was.
+        if constexpr (n == neg::nones) *this = Z::read (string_view (u));
+        else if constexpr (n == neg::twos) {
+            auto mag = ~u;
+            if (is_negative (u)) *this = -(Z::read (string_view (mag)) + 1);
+            else *this = Z::read (string_view (u));
+        } else if (is_zero (u)) *this = Z ();
+        else if (is_negative (u)) {
+            auto mag = -u;
+            *this = -Z::read (string_view (mag));
+        } else *this = Z::read (string_view (u));
+    }
 }
 
 namespace data::math::def {
@@ -748,38 +787,6 @@ namespace data::math::def {
         return {
             encoding::hexidecimal::write<zz> (d.Quotient),
             encoding::hexidecimal::write<zz> (d.Remainder)};
-    }
-}
-
-namespace data::encoding::decimal {
-
-    inline string::string (const N n) {
-        *this = decimal::write (n);
-    }
-}
-
-namespace data::encoding::signed_decimal {
-
-    inline string::string (const Z n) {
-        *this = signed_decimal::write (n);
-    }
-}
-
-namespace data::encoding::hexidecimal {
-
-    template <neg c, hex::letter_case cx> inline complemented_string<c, cx>::operator Z () const {
-        if constexpr (c == neg::twos) return Z {string_view (*this)};
-        else return Z (math::Z_bytes_BC<endian::big, byte>::read (*this));
-    }
-
-    template <hex::letter_case zz>
-    inline complemented_string<neg::nones, zz>::complemented_string (const N n) {
-        *this = write<zz> (n);
-    }
-
-    template <neg c, hex::letter_case zz>
-    inline complemented_string<c, zz>::complemented_string (const Z n) {
-        *this = write<c, zz> (n);
     }
 }
 

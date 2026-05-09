@@ -12,8 +12,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include <data/arithmetic/negativity.hpp>
-// TODO need to get rid of this.
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/bounded/bounded.hpp>
+#include <data/math/number/bytes/Z.hpp>
 
 #include <data/string.hpp>
 
@@ -1013,8 +1013,6 @@ namespace data::encoding::decimal {
         // any number literal.
         template <std::signed_integral I> string (I);
         template <std::unsigned_integral I> string (I);
-
-        explicit string (const N);
         
         bool valid () const {
             return decimal::valid (*this);
@@ -1099,8 +1097,6 @@ namespace data::encoding::signed_decimal {
         // any number literal.
         template <std::signed_integral I> string (I x): data::string {write (x)} {}
         template <std::unsigned_integral I> string (I x): data::string {decimal::string {x}} {}
-
-        explicit string (const Z);
         
         bool valid () const {
             return signed_decimal::valid (*this);
@@ -1204,9 +1200,9 @@ namespace data::encoding::hexidecimal {
         using string<cx>::string;
 
         complemented_string (const string<cx> &x): string<cx> {x} {}
-        explicit complemented_string (const Z);
 
         explicit operator integer<neg (-int (n) + 5), cx> () const;
+        template <endian::order e> explicit operator math::number::Z_bytes<e, n, byte> () const;
 
         static integer<n, cx> zero (size_t size = 0, bool negative = false);
 
@@ -1215,21 +1211,16 @@ namespace data::encoding::hexidecimal {
         integer<n, cx> &operator *= (int64);
 
         integer<n, cx> &operator /= (int64);
-
-        explicit operator Z () const;
     };
 
     template <hex::letter_case cx>
     struct complemented_string<neg::nones, cx> : string<cx> {
         using string<cx>::string;
 
-        explicit complemented_string (const N);
-
         explicit operator integer<neg::twos, cx> () const;
         explicit operator integer<neg::BC, cx> () const;
-        explicit operator uint64 () const {
-            return uint64 (N (*this));
-        }
+
+        template <endian::order e> explicit operator math::number::N_bytes<e, byte> () const;
 
         data::hex::uint<cx> &operator += (uint64);
         data::hex::uint<cx> &operator -= (uint64);
@@ -1243,7 +1234,7 @@ namespace data::encoding::hexidecimal {
     template <neg c, hex::letter_case cx>
     struct integer : complemented_string<c, cx> {
 
-        template <std::integral I> integer (I x): integer {hexidecimal::write<c, cx> (x)} {}
+        template <std::integral I> integer (I x): integer {read (hexidecimal::write<c, cx> (x))} {}
 
         using complemented_string<c, cx>::complemented_string;
 
@@ -1604,7 +1595,9 @@ namespace data::encoding::hexidecimal {
     }
         
     constexpr hex::letter_case inline read_case (string_view s) {
-        return ctre::match<upper_case_pattern> (s) ? hex_case::upper : ctre::match<lower_case_pattern> (s) ? hex_case::lower : hex_case::unknown;
+        return ctre::match<upper_case_pattern> (s) ?
+            hex_case::upper : ctre::match<lower_case_pattern> (s) ?
+                hex_case::lower : hex_case::unknown;
     }
     
     constexpr char inline digit (char x) {
@@ -2369,7 +2362,6 @@ namespace data::math::def {
 
 }
 
-
 namespace data::encoding::hexidecimal {
     
     template <neg c, hex::letter_case cx>
@@ -2448,7 +2440,7 @@ namespace data::encoding::hexidecimal {
         }
         
         template <neg c, hex::letter_case zz> struct write_int;
-        
+
         template <hex::letter_case zz> struct write_int<neg::nones, zz> {
             template <std::signed_integral I>
             integer<neg::nones, zz> operator () (I i) {

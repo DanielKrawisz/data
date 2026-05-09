@@ -957,9 +957,10 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator ~ (const Z_bytes<r, neg::twos, word> &x) {
-        auto z = extend (x, x.size () + 1);
-        arithmetic::bit_negate<word> (z.words ().begin (), z.words ().end (), z.words ().begin ());
-        return trim (z);
+        auto z = trim (x);
+        if (is_zero (z)) z = extend (z, 1);
+        arithmetic::bit_negate<word> (z.begin (), z.end (), z.begin ());
+        return z;
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -969,7 +970,8 @@ namespace data::math::number {
     
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> inline operator & (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
-        return Z_bytes<r, neg::twos, word> (std::move (arithmetic::trim<r, neg::twos, word> (arithmetic::bit_and<r, neg::twos, word> (a, b))));
+        return Z_bytes<r, neg::twos, word>
+            (std::move (arithmetic::trim<r, neg::twos, word> (arithmetic::bit_and<r, neg::twos, word> (a, b))));
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -1011,14 +1013,15 @@ namespace data::math::number {
             a = extend (a, b.size ());
 
         auto bt = extend (b, a.size ());
-        arithmetic::bit_xor<word> (a.end (), a.begin (), a.begin (), b.begin ());
+        arithmetic::bit_xor<word> (a.begin (), a.end (), a.begin (), bt.begin ());
         return a.trim ();
     }
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> &operator ^= (N_bytes<r, word> &a, const N_bytes<r, word> &b) {
         if (a.size () < b.size ()) a = extend (a, b.size ());
-        arithmetic::bit_xor<word> (a.end (), a.begin (), a.begin (), b.begin ());
+        auto bt = extend (b, a.size ());
+        arithmetic::bit_xor<word> (a.begin (), a.end (), a.begin (), bt.begin ());
         return a.trim ();
     }
     
