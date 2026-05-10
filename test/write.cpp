@@ -16,7 +16,6 @@ namespace data {
 
         // write a list of bytes
         EXPECT_EQ (write<bytes> (), bytes {});
-        std::cout << " error case: " << std::endl;
         EXPECT_EQ ((write<bytes> (byte (0x76))), bytes {0x76});
         EXPECT_EQ ((write<bytes> (byte (0x76), byte (0x01))), (bytes {0x76, 0x01}));
         EXPECT_EQ ((write<bytes> (byte (0x76), uint32_little (12))), (bytes {0x76, 0x0c, 0x00, 0x00, 0x00}));
