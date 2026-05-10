@@ -12,7 +12,7 @@
 #include <data/array.hpp>
 #include <data/cross.hpp>
 #include <data/for_each.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 
 namespace data {
     
@@ -94,7 +94,7 @@ namespace data {
         using result_type = decltype (fun (m[K {}], ms[K {}]...));
         size_t sizes = data::size (m);
         if (!((sizes == data::size (ms)) && ...)) throw exception {} << "unequal sizes";
-        if (sizeof...(ms) != 0) throw method::unimplemented {"lift maps with multiple inputs"};
+        if (sizeof...(ms) != 0) throw unimplemented {"lift maps with multiple inputs"};
         map<K, result_type> result;
         for (const auto &[key, val]: m) result = result.insert (key, fun (val));
         return result;
@@ -105,7 +105,7 @@ namespace data {
         using result_type = decltype (fun (tr.root (), trs.root ()...));
         size_t sizes = data::size (tr);
         if (!((sizes == data::size (trs)) && ...)) throw exception {} << "unequal sizes";
-        if (sizeof...(trs) != 0) throw method::unimplemented {"lift tree with multiple inputs"};
+        if (sizeof...(trs) != 0) throw unimplemented {"lift tree with multiple inputs"};
         if (empty (tr)) return tree<result_type> {};
         return tree<result_type> {fun (tr.root ()), lift (std::forward<F> (fun), tr.left ()), lift (std::forward<F> (fun), tr.right ())};
     }

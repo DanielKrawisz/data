@@ -4,7 +4,6 @@
 
 #include <data/io/error.hpp>
 #include <data/exception.hpp>
-#include <data/io/unimplemented.hpp>
 #include <data/io/log.hpp>
 
 #include <span>
@@ -22,7 +21,7 @@ namespace data {
     io::error catch_all (fun &&f, args &&...a) noexcept {
         try {
             return std::invoke (std::forward<fun> (f), std::forward<args> (a)...);
-        } catch (const method::unimplemented &m) {
+        } catch (const unimplemented &m) {
             return io::error {io::error::programmer_action, m.what ()};
         } catch (const data::exception &x) {
             return io::error {io::error::code {x.Code}, std::string {x.what ()}};

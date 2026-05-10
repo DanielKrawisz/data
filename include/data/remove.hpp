@@ -8,7 +8,6 @@
 #include <data/reverse.hpp>
 #include <data/container.hpp>
 #include <data/for_each.hpp>
-#include <data/io/unimplemented.hpp>
 
 namespace data {
 
@@ -44,7 +43,7 @@ namespace data {
         } else if constexpr (Stack<X>) {
             return functional::remove_stack (x, e);
         } else if constexpr (Iterable<X>) {
-            throw method::unimplemented {"Remove from iterable"};
+            throw unimplemented {"Remove from iterable"};
         } else {
             throw data::exception {} << "cannot construct remove method";
         }

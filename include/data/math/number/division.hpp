@@ -7,7 +7,7 @@
 
 #include <data/increment.hpp>
 #include <data/arithmetic.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 
 namespace data::math::number {
 
@@ -119,7 +119,7 @@ namespace data::math::number {
 
             if (Divisor < 0) return {static_cast<Z> (-d.Quotient), static_cast<N> (d.Remainder)};
         } else if constexpr (m == PYTHON_2_FLOOR_DIV) {
-            throw method::unimplemented {"python 2 division"};
+            throw unimplemented {"python 2 division"};
         } else throw exception {} << "Invalid modulo convention";
 
         return {Z (d.Quotient), d.Remainder};

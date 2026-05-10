@@ -6,7 +6,7 @@
 #define DATA_MATH_NUMBER_BOUNDED_BOUNDED
 
 #include <data/math/number/bytes/bytes.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 
 namespace data {
 
@@ -1724,7 +1724,7 @@ namespace data {
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         bounded<false, r, size, word>::operator uint64 () const {
-            if constexpr (!Same<word, byte>) throw data::exception {"unimplemented function"};
+            if constexpr (!Same<word, byte>) throw unimplemented {"bounded operator uint64"};
             uint64_little u {0};
             if constexpr (size <= 8) {
                 std::copy (this->words ().begin (), this->words ().end (), u.begin ());

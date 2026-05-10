@@ -15,7 +15,7 @@
 #include <boost/log/expressions.hpp>
 
 #include <data/io/log.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 #include <data/cross.hpp>
 
 namespace data::log {
@@ -59,9 +59,8 @@ namespace data::log {
             core::get ()->add_sink (sync_sink);
         } else {
 
-            if (o.print_to_screen) {
-                throw data::method::unimplemented {"printing logs to screen and writing to file"};
-            }
+            if (o.print_to_screen)
+                throw unimplemented {"printing logs to screen and writing to file"};
 
             // Add a file sink for logging
             add_file_log (

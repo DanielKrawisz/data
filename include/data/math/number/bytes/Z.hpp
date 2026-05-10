@@ -8,7 +8,7 @@
 #include <data/arithmetic.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 
 namespace data::math::number {
     
@@ -1222,7 +1222,7 @@ namespace data::math::number {
             return I (xx);
         } else if constexpr (Same<I, word>) {
             return this->words () [0];
-        } else throw method::unimplemented {"Z_bytes to signed integral"};
+        } else throw unimplemented {"Z_bytes to signed integral"};
     } 
     
     template <endian::order r, std::unsigned_integral word>
