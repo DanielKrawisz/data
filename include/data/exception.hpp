@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Daniel Krawisz
+// Copyright (c) 2021-2026 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -159,6 +159,12 @@ namespace data {
             *this << "out of range";
             if (msg != "") *this << ": " << msg;
         }
+    };
+
+    struct unimplemented : exception::base<unimplemented> {
+        unimplemented (std::string func) : exception::base<unimplemented> {} {
+            *this << "method " << func << " not yet implemented";
+        };
     };
 }
 

@@ -10,7 +10,7 @@
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
 #include <data/encoding/read.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 #include <algorithm>
 
 namespace data::encoding {

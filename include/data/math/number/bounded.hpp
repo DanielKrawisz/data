@@ -12,7 +12,7 @@
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/exception.hpp>
 
 namespace data::math::number {
 
