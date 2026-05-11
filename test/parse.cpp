@@ -58,47 +58,45 @@ namespace data::parse {
 
     }
 
-    TEST (Parse, SequenceAB) {
-        {
-            sequence<one<'a'>, one<'b'>> r {};
-            EXPECT_FALSE ((r.valid ()));
-            EXPECT_TRUE ((r.possible ()));
+    TEST (Parse, SequenceAB1) {
+        sequence<one<'a'>, one<'b'>> r {};
+        EXPECT_FALSE ((r.valid ()));
+        EXPECT_TRUE ((r.possible ()));
 
-            r.step (string_view {}, 'b');
-            EXPECT_FALSE ((r.valid ()));
-            EXPECT_FALSE ((r.possible ()));
-        }
-        {
-            sequence<one<'a'>, one<'b'>> r {};
-            char str[] = "aa";
+        r.step (string_view {}, 'b');
+        EXPECT_FALSE ((r.valid ()));
+        EXPECT_FALSE ((r.possible ()));
+    }
 
-            r.step (string_view {str, 0}, 'a');
-            EXPECT_FALSE ((r.valid ()));
-            EXPECT_TRUE ((r.possible ()));
-            r.step (string_view {str, 1}, 'a');
-            EXPECT_FALSE ((r.valid ()));
-            EXPECT_FALSE ((r.possible ()));
-        }
-        {
-            sequence<one<'a'>, one<'b'>> r {};
-            char str[] = "abc";
+    TEST (Parse, SequenceAB2) {
+        sequence<one<'a'>, one<'b'>> r {};
+        char str[] = "aa";
 
-            r.step (string_view {str, 0}, 'a');
-            EXPECT_FALSE ((r.valid ()));
-            EXPECT_TRUE ((r.possible ()));
-            r.step (string_view {str, 1}, 'b');
-            EXPECT_TRUE ((r.valid ()));
-            EXPECT_FALSE ((r.possible ()));
-            r.step (string_view {str, 2}, 'c');
-            EXPECT_FALSE ((r.valid ()));
-            EXPECT_FALSE ((r.possible ()));
-        }
+        r.step (string_view {str, 0}, 'a');
+        EXPECT_FALSE ((r.valid ()));
+        EXPECT_TRUE ((r.possible ()));
+        r.step (string_view {str, 1}, 'a');
+        EXPECT_FALSE ((r.valid ()));
+        EXPECT_FALSE ((r.possible ()));
+    }
 
+    TEST (Parse, SequenceAB3) {
+        sequence<one<'a'>, one<'b'>> r {};
+        char str[] = "abc";
 
+        r.step (string_view {str, 0}, 'a');
+        EXPECT_FALSE ((r.valid ()));
+        EXPECT_TRUE ((r.possible ()));
+        r.step (string_view {str, 1}, 'b');
+        EXPECT_TRUE ((r.valid ()));
+        EXPECT_FALSE ((r.possible ()));
+        r.step (string_view {str, 2}, 'c');
+        EXPECT_FALSE ((r.valid ()));
+        EXPECT_FALSE ((r.possible ()));
 
     }
 
-    TEST (Parse, Sequence) {
+    TEST (Parse, Sequence1) {
 
         EXPECT_TRUE  ((accept<sequence<any, any>> ("")));
         EXPECT_TRUE  ((accept<sequence<any, any>> ("a")));
@@ -110,6 +108,10 @@ namespace data::parse {
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("aa")));
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("abc")));
         EXPECT_FALSE ((accept<sequence<one<'a'>, one<'b'>>> ("b")));
+
+    }
+
+    TEST (Parse, Sequence2) {
 
         using P = sequence<exactly<>, exactly<'a'>>;
 
@@ -153,6 +155,10 @@ namespace data::parse {
         EXPECT_FALSE (accept<seq_ab_cd> ("abxd"));
         EXPECT_FALSE (accept<seq_ab_cd> ("xbcd"));
         EXPECT_FALSE (accept<seq_ab_cd> ("aecd"));
+
+    }
+
+    TEST (Parse, Sequence3) {
 
         using seq_abc = sequence<
             exactly<'a'>,
@@ -1105,10 +1111,10 @@ namespace data::parse {
         // =========================
         // Mismatched tags
         // =========================
-/*      NOTE: the current system is incapable of rejecting these.
-        EXPECT_FALSE ( accept<XML::document> ("<a></b>") );
-        EXPECT_FALSE ( accept<XML::document> ("<a><b></a></b>") );
-*/
+        //NOTE: the current system is incapable of rejecting these.
+        //EXPECT_FALSE ( accept<XML::document> ("<a></b>") );
+        //EXPECT_FALSE ( accept<XML::document> ("<a><b></a></b>") );
+
         // =========================
         // Multiple root elements (should fail)
         // =========================

@@ -5,6 +5,7 @@
 #ifndef DATA_PARSE_EXACTLY
 #define DATA_PARSE_EXACTLY
 
+#include <data/parse/sequence.hpp>
 #include <data/parse/unicode.hpp>
 
 namespace data::parse {
