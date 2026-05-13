@@ -460,7 +460,7 @@ namespace data {
                 const bounded<a, r, x, word> &m,
                 const bounded<a, r, x, word> &n) {
                 bounded<a, r, x, word> result;
-                arithmetic::bit_xor<word> (result.end (), result.begin (), m.begin (), n.begin ());
+                arithmetic::bit_xor<word> (result.begin (), result.end (), m.begin (), n.begin ());
                 return result;
             }
         };
@@ -469,7 +469,7 @@ namespace data {
         struct bit_not<bounded<a, r, x, word>> {
             constexpr bounded<a, r, x, word> operator () (const bounded<a, r, x, word> &m) {
                 bounded<a, r, x, word> result;
-                arithmetic::bit_negate<word> (result.end (), result.begin (), m.begin ());
+                arithmetic::bit_negate<word> (result.begin (), result.end (), m.begin ());
                 return result;
             }
         };
@@ -838,7 +838,7 @@ namespace data {
         template <bool u, endian::order r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> inline operator ~ (const bounded<u, r, x, word> &n) {
             auto z = n;
-            arithmetic::bit_negate<word> (z.end (), z.begin (), z.begin ());
+            arithmetic::bit_negate<word> (z.begin (), z.end (), z.begin ());
             return z;
         }
 
@@ -1375,7 +1375,7 @@ namespace data {
         template <bool u, endian::order r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> inline operator ^ (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
             bounded<u, r, x, word> z {};
-            arithmetic::bit_xor<word> (z.end (), z.begin (), a.begin (), b.begin ());
+            arithmetic::bit_xor<word> (z.begin (), z.end (), a.begin (), b.begin ());
             return z;
         }
 
@@ -1383,7 +1383,7 @@ namespace data {
         constexpr bounded<u, r, size, word> inline operator & (const bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
             bounded<u, r, size, word> x;
             arithmetic::bit_and<word>
-                (x.words ().end (), x.words ().begin (), a.words ().begin (), b.words ().begin ());
+                (x.words ().begin (), x.words ().end (), a.words ().begin (), b.words ().begin ());
             return x;
         }
 
@@ -1391,28 +1391,25 @@ namespace data {
         constexpr bounded<u, r, size, word> inline operator | (const bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
             bounded<u, r, size, word> x;
             arithmetic::bit_or<word>
-                (x.words ().end (), x.words ().begin (), a.words ().begin (), b.words ().begin ());
+                (x.words ().begin (), x.words ().end (), a.words ().begin (), b.words ().begin ());
             return x;
         }
 
         template <bool u, endian::order r, size_t size, std::unsigned_integral word>
         constexpr bounded<u, r, size, word> inline &operator &= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
-            arithmetic::bit_and<word> (a.words ().end (), a.words ().begin (),
-                const_cast<const bounded<u, r, size, word> &> (a).words ().begin (), b.words ().begin ());
+            arithmetic::bit_and<word> (a.words ().begin (), a.words ().end (), a.words ().begin (), b.words ().begin ());
             return a;
         }
 
         template <bool u, endian::order r, size_t size, std::unsigned_integral word>
         constexpr bounded<u, r, size, word> inline &operator |= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
-            arithmetic::bit_or<word> (a.words ().end (), a.words ().begin (),
-                const_cast<const bounded<u, r, size, word> &> (a).words ().begin (), b.words ().begin ());
+            arithmetic::bit_or<word> (a.words ().begin (), a.words ().end (), a.words ().begin (), b.words ().begin ());
             return a;
         }
 
         template <bool u, endian::order r, size_t size, std::unsigned_integral word>
         constexpr bounded<u, r, size, word> inline &operator ^= (bounded<u, r, size, word> &a, const bounded<u, r, size, word> &b) {
-            arithmetic::bit_xor<word> (a.words ().end (), a.words ().begin (),
-                const_cast<const bounded<u, r, size, word> &> (a).words ().begin (), b.words ().begin ());
+            arithmetic::bit_xor<word> (a.words ().begin (), a.words ().end (), a.words ().begin (), b.words ().begin ());
             return a;
         }
 
@@ -1526,7 +1523,7 @@ namespace data {
         template <bool u, endian::order r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> inline operator - (const bounded<u, r, x, word> &n) {
             bounded<u, r, x, word> z;
-            arithmetic::bit_negate<word> (z.words ().end (), z.words ().begin (), n.words ().begin ());
+            arithmetic::bit_negate<word> (z.words ().begin (), z.words ().end (), n.words ().begin ());
             return ++z;
         }
 

@@ -223,7 +223,7 @@ namespace data::crypto::cipher::block {
         requires Cipher<cipher, key_size> && (block_size == cipher::BlockSize)
         void encrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
             byte_array<block_size> xored;
-            arithmetic::bit_xor<byte> (xored.end (), xored.begin (), i.data (), (const byte *) (IV.data ()));
+            arithmetic::bit_xor<byte> (xored.begin (), xored.end (), i.data (), IV.data ());
             cipher::encrypt (o, key, xored);
             std::copy (o.begin (), o.end (), IV.begin ());
         }
@@ -232,7 +232,7 @@ namespace data::crypto::cipher::block {
         requires Cipher<cipher, key_size> && (block_size == cipher::BlockSize)
         void decrypt (block_out o, const symmetric_key<key_size> &key, block_in i) {
             cipher::decrypt (o, key, i);
-            arithmetic::bit_xor<byte> (o.end (), o.begin (), o.data (), IV.data ());
+            arithmetic::bit_xor<byte> (o.begin (), o.end (), o.data (), IV.data ());
             std::copy (i.begin (), i.end (), IV.begin ());
         }
     };

@@ -435,8 +435,7 @@ namespace data::arithmetic {
         if (a.size () < b.size ()) return bit_and<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
         auto x = zero<r, word> (a.size ());
-        bit_and<word> (x.end (), x.begin (), a.begin (),
-            slice<const word> (bt).begin ());
+        bit_and<word> (x.begin (), x.end (), a.begin (), bt.begin ());
         return x;
     }
 
@@ -445,8 +444,7 @@ namespace data::arithmetic {
         if (a.size () < b.size ()) return bit_or<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
         auto x = zero<r, word> (a.size ());
-        bit_or<word> (x.end (), x.begin (), a.begin (),
-            slice<const word> (bt).begin ());
+        bit_or<word> (x.begin (), x.end (), a.begin (), bt.begin ());
         return x;
     }
 
@@ -455,8 +453,7 @@ namespace data::arithmetic {
         if (a.size () < b.size ()) return bit_xor<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
         auto x = zero<r, word> (a.size ());
-        bit_xor<word> (x.end (), x.begin (), a.begin (),
-            slice<const word> (bt).begin ());
+        bit_xor<word> (x.begin (), x.end (), a.begin (), bt.begin ());
         return x;
     }
 }
