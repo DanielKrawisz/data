@@ -2717,7 +2717,7 @@ namespace data::encoding::hexidecimal {
             encoding::hex::decode (a.end (), a.begin () + 2, a_d.begin ());
             encoding::hex::decode (b.end (), b.begin () + 2, b_d.begin ());
             
-            arithmetic::bit_and<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            arithmetic::bit_and<byte> (out_d.begin (), out_d.end (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
@@ -2734,7 +2734,7 @@ namespace data::encoding::hexidecimal {
             encoding::hex::decode (a.end (), a.begin () + 2, a_d.begin ());
             encoding::hex::decode (b.end (), b.begin () + 2, b_d.begin ());
             
-            arithmetic::bit_or<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            arithmetic::bit_or<byte> (out_d.begin (), out_d.end (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin() + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
@@ -2751,7 +2751,7 @@ namespace data::encoding::hexidecimal {
             encoding::hex::decode (a.end (), a.begin () + 2, a_d.begin ());
             encoding::hex::decode (b.end (), b.begin () + 2, b_d.begin ());
             
-            arithmetic::bit_xor<byte> (out_d.end (), out_d.begin (), a_d.begin (), b_d.begin ());
+            arithmetic::bit_xor<byte> (out_d.begin (), out_d.end (), a_d.begin (), b_d.begin ());
             
             if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
             else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);

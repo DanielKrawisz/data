@@ -641,7 +641,7 @@ namespace data::crypto::NIST {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 
-            arithmetic::bit_xor<byte> (Output.end (), Output.begin () + Index, b, (const byte *) (Output.data () + Index));
+            arithmetic::bit_xor<byte> (Output.begin () + Index, Output.end (), b, Output.data () + Index);
 
 #pragma GCC diagnostic pop
 
@@ -655,7 +655,7 @@ namespace data::crypto::NIST {
 
                 if (remaining < C::BlockSize) break;
 
-                arithmetic::bit_xor<byte> (Output.end (), Output.begin (), b, (const byte *) (Output.data ()));
+                arithmetic::bit_xor<byte> (Output.begin (), Output.end (), b, Output.data ());
 
                 remaining -= C::BlockSize;
                 b += C::BlockSize;
@@ -668,7 +668,7 @@ namespace data::crypto::NIST {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 
-        arithmetic::bit_xor<byte> (Output.begin () + Index + remaining, Output.begin () + Index, b, (const byte *) (Output.data () + Index));
+        arithmetic::bit_xor<byte> (Output.begin () + Index, Output.begin () + Index + remaining, b, Output.data () + Index);
 
 #pragma GCC diagnostic pop
 

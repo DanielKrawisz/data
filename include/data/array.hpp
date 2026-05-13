@@ -721,46 +721,46 @@ namespace data {
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> operator ~ (const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        arithmetic::bit_negate<word> (n.end (), n.begin (), b.begin ());
+        arithmetic::bit_negate<word> (n.begin (), n.end (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> operator ^ (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        arithmetic::bit_xor<word> (n.end (), n.begin (), a.begin (), b.begin ());
+        arithmetic::bit_xor<word> (n.begin (), n.end (), a.begin (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> operator & (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        arithmetic::bit_and<word> (n.end (), n.begin (), a.begin (), b.begin ());
+        arithmetic::bit_and<word> (n.begin (), n.end (), a.begin (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> operator | (const bytes_array<word, size> &a, const bytes_array<word, size> &b) {
         bytes_array<word, size> n;
-        arithmetic::bit_or<word> (n.end (), n.begin (), a.begin (), b.begin ());
+        arithmetic::bit_or<word> (n.begin (), n.end (), a.begin (), b.begin ());
         return n;
     }
 
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> &operator ^= (bytes_array<word, size> &a, const bytes_array<word, size> &b) {
-        arithmetic::bit_xor<word> (a.end (), a.begin (), (const byte *) a.data (), b.data ());
+        arithmetic::bit_xor<word> (a.begin (), a.end (), a.data (), b.data ());
         return a;
     }
 
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> &operator &= (bytes_array<word, size> &a, const bytes_array<word, size> &b) {
-        arithmetic::bit_and<word> (a.end (), a.begin (), (const byte *) a.data (), b.data ());
+        arithmetic::bit_and<word> (a.begin (), a.end (), a.data (), b.data ());
         return a;
     }
 
     template <std::integral word, size_t size>
     constexpr bytes_array<word, size> &operator |= (bytes_array<word, size> &a, const bytes_array<word, size> &b) {
-        arithmetic::bit_or<word> (a.end (), a.begin (), (const byte *) a.data (), b.data ());
+        arithmetic::bit_or<word> (a.begin (), a.end (), a.data (), b.data ());
         return a;
     }
 

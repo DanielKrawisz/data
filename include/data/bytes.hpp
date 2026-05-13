@@ -100,7 +100,7 @@ namespace data {
 
     template <std::integral word>
     bytestring<word> inline &bytestring<word>::bit_negate () {
-        arithmetic::bit_negate<word> (this->end (), this->begin (), this->begin ());
+        arithmetic::bit_negate<word> (this->begin (), this->end (), this->begin ());
         return *this;
     }
 

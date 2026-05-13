@@ -695,7 +695,7 @@ namespace data::math::def {
     template <endian::order r, std::unsigned_integral word>
     math::Z_bytes_BC<r, word> inline bit_not<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x) {
         auto a = x;
-        arithmetic::bit_negate<word> (a.end (), a.begin (), x.begin ());
+        arithmetic::bit_negate<word> (a.begin (), a.end (), x.begin ());
         return a;
     }
 
@@ -709,7 +709,7 @@ namespace data::math::def {
     (const math::Z_bytes_BC<r, word> &a, const math::Z_bytes_BC<r, word> &b) {
         if (a.size () < b.size ()) return data::bit_xor (b, a);
         auto bb = extend (b, a.size ());
-        arithmetic::bit_xor<word> (bb.end (), bb.begin (), const_cast<const decltype (bb) &> (bb).begin (), a.begin ());
+        arithmetic::bit_xor<word> (bb.begin (), bb.end (), bb.begin (), a.begin ());
         return bb;
     }
 
@@ -718,7 +718,7 @@ namespace data::math::def {
     (const math::Z_bytes_BC<r, word> &a, const math::Z_bytes_BC<r, word> &b) {
         if (a.size () < b.size ()) return data::bit_or (b, a);
         auto bb = extend (b, a.size ());
-        arithmetic::bit_or<word> (bb.end (), bb.begin (), const_cast<const decltype (bb) &> (bb).begin (), a.begin ());
+        arithmetic::bit_or<word> (bb.begin (), bb.end (), bb.begin (), a.begin ());
         return bb;
     }
 
@@ -727,7 +727,7 @@ namespace data::math::def {
     (const math::Z_bytes_BC<r, word> &a, const math::Z_bytes_BC<r, word> &b) {
         if (a.size () < b.size ()) return data::bit_and (b, a);
         auto bb = extend (b, a.size ());
-        arithmetic::bit_and<word> (bb.end (), bb.begin (), const_cast<const decltype (bb) &> (bb).begin (), a.begin ());
+        arithmetic::bit_and<word> (bb.begin (), bb.end (), bb.begin (), a.begin ());
         return bb;
     }
 
@@ -960,7 +960,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator ~ (const Z_bytes<r, neg::twos, word> &x) {
         auto z = extend (x, x.size () + 1);
-        arithmetic::bit_negate<word> (z.words ().end (), z.words ().begin (), z.words ().begin ());
+        arithmetic::bit_negate<word> (z.words ().begin (), z.words ().end (), z.words ().begin ());
         return trim (z);
     }
     
@@ -992,8 +992,7 @@ namespace data::math::number {
 
         auto bt = extend (b, a.size ());
         auto x = N_bytes<r, word>::zero (a.size ());
-        arithmetic::bit_xor<word> (x.end (), x.begin (), a.begin (),
-            const_cast<const N_bytes<r, word> &> (bt).begin ());
+        arithmetic::bit_xor<word> (x.begin (), x.end (), a.begin (), bt.begin ());
         return x.trim ();
     }
     
@@ -1004,8 +1003,7 @@ namespace data::math::number {
 
         auto bt = extend (b, a.size ());
         auto x = Z_bytes<r, neg::twos, word>::zero (a.size ());
-        arithmetic::bit_xor<word> (x.end (), x.begin (), a.begin (),
-            const_cast<const Z_bytes<r, neg::twos, word> &> (bt).begin ());
+        arithmetic::bit_xor<word> (x.begin (), x.end (), a.begin (), bt.begin ());
         return x.trim ();
     }
 

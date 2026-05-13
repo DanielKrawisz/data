@@ -16,9 +16,8 @@
 
 namespace data::arithmetic {
 
-    template <typename sen, std::input_iterator it>
-    requires std::sentinel_for<sen, it>
-    constexpr bool equal (sen z, it i, it j) {
+    template <std::input_iterator it, std::sentinel_for<it> sen>
+    constexpr bool equal (it i, sen z, it j) {
         while (i != z) {
             if (*i != *j) return false;
             i++;
@@ -27,9 +26,8 @@ namespace data::arithmetic {
         return true;
     }
 
-    template <typename sen, std::input_iterator it>
-    requires std::sentinel_for<sen, it>
-    constexpr bool greater (sen z, it i, it j) {
+    template <std::input_iterator it, std::sentinel_for<it> sen>
+    constexpr bool greater (it i, sen z, it j) {
         while (i != z) {
             if (*i > *j) return true;
             i++;
@@ -38,9 +36,8 @@ namespace data::arithmetic {
         return false;
     }
 
-    template <typename sen, std::input_iterator it>
-    requires std::sentinel_for<sen, it>
-    constexpr bool less (sen z, it i, it j) {
+    template <std::input_iterator it, std::sentinel_for<it> sen>
+    constexpr bool less (it i, sen z, it j) {
         while (i != z) {
             if (*i < *j) return true;
             i++;
@@ -49,9 +46,8 @@ namespace data::arithmetic {
         return false;
     }
 
-    template <typename sen, std::input_iterator it>
-    requires std::sentinel_for<sen, it>
-    constexpr std::strong_ordering compare (sen z, it i, it j) {
+    template <std::input_iterator it, std::sentinel_for<it> sen>
+    constexpr std::strong_ordering compare (it i, sen z, it j) {
 
         while (i != z) {
             if (*i < *j) return std::strong_ordering::less;
@@ -63,19 +59,24 @@ namespace data::arithmetic {
         return std::strong_ordering::equal;
     }
 
-    template <typename digit, typename sen, typename ito, std::input_iterator iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    constexpr void bit_negate (sen z, ito i, iti j) {
-        while (i != z) {
-            *i = ~ *j;
+    template <typename digit,
+        std::output_iterator<digit> ito,
+        std::sentinel_for<ito> sen,
+        std::input_iterator iti>
+    constexpr void bit_negate (ito o, sen z, iti i) {
+        while (o != z) {
+            *o = ~ *i;
+            o++;
             i++;
-            j++;
         }
     }
 
-    template <typename digit, typename sen, typename ito, std::input_iterator iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    constexpr void bit_and (sen z, ito i, iti a, iti b) {
+    template <typename digit,
+        std::output_iterator<digit> ito,
+        std::sentinel_for<ito> sen,
+        std::input_iterator ita,
+        std::input_iterator itb>
+    constexpr void bit_and (ito i, sen z, ita a, itb b) {
         while (i != z) {
             *i = *a & *b;
             i++;
@@ -84,9 +85,12 @@ namespace data::arithmetic {
         }
     }
 
-    template <typename digit, typename sen, typename ito, std::input_iterator iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    constexpr void bit_or (sen z, ito i, iti a, iti b) {
+    template <typename digit,
+        std::output_iterator<digit> ito,
+        std::sentinel_for<ito> sen,
+        std::input_iterator ita,
+        std::input_iterator itb>
+    constexpr void bit_or (ito i, sen z, ita a, itb b) {
         while (i != z) {
             *i = *a | *b;
             i++;
@@ -95,9 +99,12 @@ namespace data::arithmetic {
         }
     }
 
-    template <typename digit, typename sen, typename ito, std::input_iterator iti>
-    requires std::sentinel_for<sen, ito> && std::output_iterator<ito, digit>
-    constexpr void bit_xor (sen z, ito i, iti a, iti b) {
+    template <typename digit,
+        std::output_iterator<digit> ito,
+        std::sentinel_for<ito> sen,
+        std::input_iterator ita,
+        std::input_iterator itb>
+    constexpr void bit_xor (ito i, sen z, ita a, itb b) {
         while (i != z) {
             *i = *a ^ *b;
             i++;
@@ -493,7 +500,7 @@ namespace data::arithmetic {
                 ai++;
             }
 
-            return arithmetic::compare (a.rend (), ai, b.rbegin ());
+            return arithmetic::compare (ai, a.rend (), b.rbegin ());
         } else {
 
             math::sign sga;
