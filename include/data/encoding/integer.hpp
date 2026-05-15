@@ -127,6 +127,9 @@ namespace data::encoding {
             }
         };
 
+        template <neg c, hex::letter_case cx, std::integral I>
+        string<cx> write (I);
+
         template <hex::letter_case cx, endian::order r, std::unsigned_integral word>
         string<cx> write (const oriented<r, word> &z);
 
@@ -331,23 +334,11 @@ namespace data::encoding {
         template <neg cl, neg cr, hex::letter_case cx>
         std::weak_ordering operator <=> (const integer<cl, cx> &, const integer<cr, cx> &);
 
-        template <hex::letter_case cx>
-        bool operator == (const integer<neg::nones, cx> &, uint64);
+        template <neg n, hex::letter_case cx, std::integral I>
+        bool operator == (const integer<n, cx> &, I);
 
-        template <hex::letter_case cx>
-        bool operator == (const integer<neg::twos, cx> &, int64);
-
-        template <hex::letter_case cx>
-        bool operator == (const integer<neg::BC, cx> &, int64);
-
-        template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<neg::nones, cx> &, uint64);
-
-        template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<neg::twos, cx> &, int64);
-
-        template <hex::letter_case cx>
-        std::weak_ordering operator <=> (const integer<neg::BC, cx> &, int64);
+        template <neg n, hex::letter_case cx, std::integral I>
+        std::weak_ordering operator <=> (const integer<n, cx> &, I);
         
         // increment and decrement
         template <hex::letter_case cx>
@@ -1208,25 +1199,22 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    template <neg c, hex::letter_case cx>
+    template <neg n, hex::letter_case cx>
     struct complemented_string : string<cx> {
         using string<cx>::string;
-
-        template <std::integral I> complemented_string (I);
 
         complemented_string (const string<cx> &x): string<cx> {x} {}
         explicit complemented_string (const Z);
 
-        explicit operator int64 () const;
-        explicit operator integer<neg (-int (c) + 5), cx> () const;
+        explicit operator integer<neg (-int (n) + 5), cx> () const;
 
-        static integer<c, cx> zero (size_t size = 0, bool negative = false);
+        static integer<n, cx> zero (size_t size = 0, bool negative = false);
 
-        integer<c, cx> &operator += (int64);
-        integer<c, cx> &operator -= (int64);
-        integer<c, cx> &operator *= (int64);
+        integer<n, cx> &operator += (int64);
+        integer<n, cx> &operator -= (int64);
+        integer<n, cx> &operator *= (int64);
 
-        integer<c, cx> &operator /= (int64);
+        integer<n, cx> &operator /= (int64);
 
         explicit operator Z () const;
     };
@@ -1234,8 +1222,6 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case cx>
     struct complemented_string<neg::nones, cx> : string<cx> {
         using string<cx>::string;
-
-        template <std::integral I> complemented_string (I);
 
         explicit complemented_string (const N);
 
@@ -1257,6 +1243,8 @@ namespace data::encoding::hexidecimal {
     template <neg c, hex::letter_case cx>
     struct integer : complemented_string<c, cx> {
 
+        template <std::integral I> integer (I x): integer {hexidecimal::write<c, cx> (x)} {}
+
         using complemented_string<c, cx>::complemented_string;
 
         // try to read either a hex string or a dec string.
@@ -1274,6 +1262,7 @@ namespace data::encoding::hexidecimal {
         
         explicit operator double () const;
         explicit operator bool () const;
+        template <std::integral I> explicit operator I () const;
         
         integer &trim ();
         integer trim () const;
@@ -1689,34 +1678,16 @@ namespace data::encoding::hexidecimal {
         return a <=> integer<cl, cx> (b);
     }
 
-    template <hex::letter_case cx>
-    bool inline operator == (const integer<neg::nones, cx> &x, uint64 u) {
-        return x == integer<neg::nones, cx> {u};
+    template <neg n, hex::letter_case cx, std::integral I>
+    bool inline operator == (const integer<n, cx> &i, I x) {
+        return (i <=> x) == 0;
     }
 
-    template <hex::letter_case cx>
-    bool inline operator == (const integer<neg::twos, cx> &x, int64 u) {
-        return x == integer<neg::twos, cx> {u};
-    }
-
-    template <hex::letter_case cx>
-    bool inline operator == (const integer<neg::BC, cx> &x, int64 u) {
-        return x == integer<neg::BC, cx> {u};
-    }
-
-    template <hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<neg::nones, cx> &x, uint64 u) {
-        return x <=> integer<neg::nones, cx> {u};
-    }
-
-    template <hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<neg::twos, cx> &x, int64 u) {
-        return x <=> integer<neg::twos, cx> {u};
-    }
-
-    template <hex::letter_case cx>
-    std::weak_ordering inline operator <=> (const integer<neg::BC, cx> &x, int64 u) {
-        return x <=> integer<neg::BC, cx> {u};
+    template <neg n, hex::letter_case cx, std::integral I>
+    std::weak_ordering inline operator <=> (const integer<n, cx> &i, I x) {
+        if constexpr (n == neg::nones && std::signed_integral<I>)
+            if (x < 0) return std::weak_ordering::greater;
+        return i <=> integer<n, cx> {x};
     }
     
     template <hex::letter_case cx> 
@@ -1949,7 +1920,82 @@ namespace data::encoding::hexidecimal {
     integer<neg::BC, cx> inline operator * (I x, const integer<neg::BC, cx> &z) {
         return integer<neg::BC, cx> {x} * z;
     }
-    
+
+    template <neg n, hex::letter_case cx>
+    template <std::integral I>
+    integer<n, cx>::operator I () const {
+
+        size_t min_size = minimal_size<n> (*this);
+        size_t min_size_bytes = min_size / 2 - 1;
+
+        if (min_size_bytes == 0) return 0;
+
+        constexpr const size_t max_size_bytes = sizeof (I);
+
+        if (is_positive (*this)) {
+            if (min_size_bytes > max_size_bytes)
+                throw out_of_range {"hexidecimal number "} << *this;
+
+            I var;
+
+            // we read the string number from the point
+            // that the information actually begins.
+            auto result = std::from_chars (
+                this->data () + this->size () - min_size + 2,
+                this->data () + this->size (),
+                var, 16);
+
+            if (result.ec != std::errc {} || result.ptr != this->data () + this->size ())
+                throw out_of_range {"hexidecimal number "} << *this;
+
+            return var;
+        }
+
+        // now we know that the number is negative.
+        // if the type to be returned is unsigned, then we know it can't fit.
+        if constexpr (std::unsigned_integral<I>)
+            throw out_of_range {"hexidecimal number "} << *this;
+
+        // handle special case in which a sign-and-magnitude number
+        // has a negative value of the form "ffff..."
+        if constexpr (n == neg::BC) {
+            if (min_size_bytes > max_size_bytes + 1 ||
+                min_size_bytes == max_size_bytes + 1 &&
+                ((*this)[2] != '8' || (*this)[3] != '0'))
+                throw out_of_range {"hexidecimal number "} << *this;
+        } else if (min_size_bytes > max_size_bytes)
+            throw out_of_range {"hexidecimal number "} << *this;
+
+        // We'll parse into the corresponding unsigned type first.
+        using U = std::make_unsigned_t<I>;
+
+        U magnitude {};
+
+        auto result = std::from_chars (
+            this->data () + this->size () - std::min (min_size_bytes, max_size_bytes) * 2,
+            this->data () + this->size (),
+            magnitude,
+            16);
+
+        if (result.ec != std::errc {} || result.ptr != this->data () + this->size ())
+            throw out_of_range {"hexidecimal number "} << *this;
+
+        if constexpr (n == neg::twos)
+            return static_cast<I> (magnitude);
+
+        // now we need to determine if the sign bit is going to appear.
+        // this happens if the number of bytes represented by the string
+        // is greater than the size of the number type.
+        if ((this->size () / 2 - 1) > max_size_bytes) {
+            I val = static_cast<I> (magnitude);
+            if (val < 0) return val;
+            return -val;
+        }
+
+        // remove sign bit and negate.
+        return -static_cast<I> (magnitude & ~(U (0x80) << ((min_size_bytes - 1) * 8)));
+    }
+
 } 
 
 namespace data::encoding::natural {
@@ -1963,7 +2009,7 @@ namespace data::encoding::natural {
     }
     
     constexpr bool inline nonzero (string_view s) {
-        return valid (s) && ! ctre::match<zero_pattern> (s);
+        return valid (s) && !ctre::match<zero_pattern> (s);
     }
     
     constexpr uint32 inline digits (string_view s) {
@@ -2470,19 +2516,6 @@ namespace data::encoding::hexidecimal {
                     integer<neg::twos, zz> (static_cast<string<zz>> (x));
             }
         };
-    }
-
-    template <neg c, hex::letter_case zz>
-    template <std::integral I>
-    inline complemented_string<c, zz>::complemented_string (I x): complemented_string {write_int<c, zz> {} (x)} {
-        static_cast<string<zz> &> (*this) = trim<c, zz> (*this);
-    }
-
-    template <hex::letter_case zz>
-    template <std::integral I>
-    inline complemented_string<neg::nones, zz>::complemented_string (I x):
-        complemented_string {write_int<neg::nones, zz> {} (x)} {
-        static_cast<string<zz> &> (*this) = trim<neg::nones, zz> (*this);
     }
     
     template <neg c, hex::letter_case cx>
