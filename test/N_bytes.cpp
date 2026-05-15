@@ -78,6 +78,33 @@ namespace data::math::number {
 
     }
 
+    TEST (NBytes, Construct) {
+        EXPECT_EQ ((bytes (N_bytes_big {byte (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (N_bytes_big {int8 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (N_bytes_big {int64 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0)})), (bytes {}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {byte (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (N_bytes_big {int8 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (N_bytes_big {int64 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (1)})), (bytes {0x01}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {byte (0x80)})), (bytes {0x80}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x80)})), (bytes {0x80}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {byte (0xff)})), (bytes {0xff}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0xff)})), (bytes {0xff}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x0100)})), (bytes {0x01, 0x00}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x0100)})), (bytes {0x01, 0x00}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x0102)})), (bytes {0x01, 0x02}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x0102)})), (bytes {0x01, 0x02}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x8003)})), (bytes {0x80, 0x03}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x8003)})), (bytes {0x80, 0x03}));
+    }
+
     TEST (NBytes, NBytesToN) {
 
         N_Bytes_to_N<uint64> (0);
