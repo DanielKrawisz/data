@@ -38,8 +38,7 @@ namespace data::math::number {
         N_bytes () : oriented<r, word> {} {}
 
         // construct from any number literal
-        template <std::signed_integral I> N_bytes (I);
-        template <std::unsigned_integral I> N_bytes (I);
+        template <std::integral I> N_bytes (I);
 
         explicit N_bytes (string_view x): N_bytes {read (x)} {}
         explicit N_bytes (slice<const word> x): N_bytes {read (x)} {}
@@ -98,8 +97,7 @@ namespace data::math::number {
         Z_bytes (bool);
 
         // construct from any number literal.
-        template <std::signed_integral I> Z_bytes (I);
-        template <std::unsigned_integral I> Z_bytes (I);
+        template <std::integral I> Z_bytes (I);
         
         // string constructors.
         static Z_bytes read (string_view x);
@@ -1068,83 +1066,142 @@ namespace data::math::number {
         return n.trim ();
     }
 
-    template <std::integral I, typename ZZ, typename word>
-    void initialize_bytes (I x, ZZ &n) {
-        if constexpr (sizeof (I) <= sizeof (word)) {
-            n.resize (1);
-            *n.begin () = x;
+    // set a number to the value of a built-in type using a minimal representation.
+    template <std::integral I, neg n, typename ZZ, std::unsigned_integral word>
+    void initialize_bytes (I i, ZZ &z) {
+        if constexpr (n == neg::nones && std::signed_integral<I>)
+            if (i < 0) throw out_of_range {} << "write negative value to unsigned type " << i;
+
+        if (i == 0) return;
+
+        using X = std::make_signed_t<word>;
+        using U = std::make_unsigned_t<I>;
+
+        // sign bit is always zero other than when n == BC and i is negative.
+        word sign_bit;
+
+        // x contains information that can be copied directly into the result.
+        // for n == BC, we need to take the absolute value before we can copy.
+        // for other cases, x is the same as i.
+        I x;
+
+        if constexpr (n == neg::BC && std::signed_integral<I>) {
+            if (i > 0) {
+                sign_bit = 0;
+                x = i;
+            } else {
+                sign_bit = static_cast<word> (numeric_limits<X>::min ());
+                x = i == static_cast<I> (numeric_limits<std::make_signed_t<I>>::min ()) ? i : -i;
+            }
+        } else {
+            sign_bit = 0;
+            x = i;
+        };
+
+        if constexpr (sizeof (I) < sizeof (word)) {
+            z.resize (1);
+
+            if constexpr (n == neg::BC)
+                // cast to unsigned and then to word.
+                *z.words ().begin () = sign_bit | static_cast<word> (static_cast<U> (x));
+            else if constexpr (std::signed_integral<I>)
+                // cast to signed then to word
+                *z.words ().begin () = static_cast<word> (static_cast<X> (x));
+            else *z.words ().begin () = static_cast<word> (x);
+
+        } else if constexpr (sizeof (I) == sizeof (word)) {
+            // the size of the number to initialize.
+            size_t number_size;
+
+            // we need to resize to 2 in the following cases:
+            //   * n == BC and I is signed and equal to min value.
+            //   * n is signed and I is unsigned and bigger than the max value if it were signed.
+            if constexpr (n != neg::nones && std::unsigned_integral<I>)
+                number_size = x > static_cast<I> (numeric_limits<std::make_signed_t<I>>::max ()) ? 2 : 1;
+            else if constexpr (n == neg::BC)
+                number_size = x == static_cast<I> (numeric_limits<std::make_signed_t<I>>::min ()) ? 2 : 1;
+            else number_size = 1;
+
+            z.resize (number_size);
+            *z.words ().begin () = static_cast<word> (x);
+
+            if constexpr (n == neg::BC) *(z.words ().end () - 1) |= sign_bit;
+
         } else if constexpr (sizeof (I) % sizeof (word) != 0) {
+            // should not really happen.
             throw exception {} <<
                 "We do not know how to handle this case; init value size is " <<
                 sizeof (I) << " and word size is " << sizeof (word);
+        } else if constexpr (Same<word, byte>) {
+
+            U mag;
+
+            if constexpr (n == neg::twos && std::signed_integral<I>)
+                mag = static_cast<U> (x < 0 ? ~x : x);
+            else mag = static_cast<U> (x);
+
+            size_t width = std::bit_width (mag);
+
+            // the number of bytes to copy from the input.
+            size_t words_to_copy = (width + (sizeof (word) * 8 - 1)) / (sizeof (word) * 8);
+
+            // the size of the number to initialize.
+            size_t number_size;
+
+            if constexpr (n == neg::nones) number_size = words_to_copy;
+            else number_size = width / (sizeof (word) * 8) + 1;
+
+            z.resize (number_size);
+
+            endian::integral<std::signed_integral<I>, endian::little, sizeof (x)> e {x};
+
+            std::copy (e.begin (), e.begin () + words_to_copy, z.words ().begin ());
+
+            // fill the remaining with ffff if the number is negative.
+            if constexpr (n == neg::twos) {
+                if (x < 0) for (auto w = z.words ().begin () + words_to_copy; w != z.words ().end (); w++)
+                    *w = static_cast<word> (X {-1});
+            // set sign bit
+            } else if constexpr (n == neg::BC)
+                *(z.words ().end () - 1) |= sign_bit;
+
+        // the general case, not perfectly efficient but good enough.
         } else {
-            n.resize (sizeof (I) / sizeof (word));
+
+            // this case could be more efficient and not use trim
+            // just like the above case but we don't bother.
+            if constexpr (n == neg::BC) {
+                z.resize (sizeof (I) / sizeof (word) + 1);
+
+                *(z.words ().end () - 1) = sign_bit;
+            } else {
+                z.resize (sizeof (I) / sizeof (word));
+            }
+
             data::arithmetic::Words<boost::endian::order::native, word> w {
                 slice<word> {(word*) (&x), sizeof (I) / sizeof (word)}};
-            std::copy (w.begin (), w.end (), n.words ().begin ());
+            std::copy (w.begin (), w.end (), z.words ().begin ());
+
+            z.trim ();
         }
-        n.trim ();
     }
 
     template <endian::order r, std::unsigned_integral word>
-    template <std::signed_integral I> inline
+    template <std::integral I> inline
     N_bytes<r, word>::N_bytes (I x) {
-        if (x < 0) throw exception {} << "Unsigned type cannot be less than zero";
-        initialize_bytes<I, N_bytes<r, word>, word> (x, *this);
-    }
-
-    template <endian::order r, std::unsigned_integral word>
-    template <std::unsigned_integral I> inline
-    N_bytes<r, word>::N_bytes (I x) {
-        initialize_bytes<I, N_bytes<r, word>, word> (x, *this);
+        initialize_bytes<I, neg::nones, N_bytes<r, word>, word> (x, *this);
     }
 
     template <endian::order r, std::unsigned_integral word>
     template <std::integral I> inline
     Z_bytes<r, neg::twos, word>::Z_bytes (I x) {
-        initialize_bytes<I, Z_bytes<r, neg::twos, word>, word> (x, *this);
-    }
-
-    template <std::unsigned_integral I, typename ZZ, typename word>
-    void initialize_bytes_BC (I x, ZZ &n, bool sign_bit = false) {
-        if constexpr (sizeof (I) <= sizeof (word)) {
-            n.resize (2);
-            *n.words().begin () = x;
-        } else if constexpr (sizeof (I) % sizeof (word) != 0) {
-            throw exception {} << "We do not know how to handle this case; init value size is " <<
-                sizeof (I) << " and word size is " << sizeof (word);
-        } else {
-            n.resize (sizeof (I) / sizeof (word) + 1);
-            data::arithmetic::Words<boost::endian::order::native, word> w {
-                slice<word> {(word*) (&x), sizeof (I) / sizeof (word)}};
-            std::copy (w.begin (), w.end (), n.words ().begin ());
-        }
-
-        *(n.words ().end () - 1) = sign_bit ?
-            static_cast<word> (std::numeric_limits<std::make_signed_t<word>>::min ()):
-            0;
-
-        n.trim ();
+        initialize_bytes<I, neg::twos, Z_bytes<r, neg::twos, word>, word> (x, *this);
     }
 
     template <endian::order r, std::unsigned_integral word>
-    template <std::signed_integral I> inline
+    template <std::integral I> inline
     Z_bytes<r, neg::BC, word>::Z_bytes (I x) {
-        using U = std::make_unsigned_t<I>;
-        if (x == std::numeric_limits<I>::min ())
-            initialize_bytes_BC<U, Z_bytes<r, neg::BC, word>, word>
-                (static_cast<U> (x), *this, true);
-        else if (x < 0)
-            initialize_bytes_BC<U, Z_bytes<r, neg::BC, word>, word>
-                (static_cast<U> (-x), *this, true);
-        else initialize_bytes_BC<U, Z_bytes<r, neg::BC, word>, word>
-                (static_cast<U> (x), *this, false);
-    }
-
-    template <endian::order r, std::unsigned_integral word>
-    template <std::unsigned_integral I> inline
-    Z_bytes<r, neg::BC, word>::Z_bytes (I x) {
-        initialize_bytes_BC<I, Z_bytes<r, neg::BC, word>, word> (x, *this, false);
+        initialize_bytes<I, neg::BC, Z_bytes<r, neg::BC, word>, word> (x, *this);
     }
 
     template <endian::order r, std::unsigned_integral word> inline

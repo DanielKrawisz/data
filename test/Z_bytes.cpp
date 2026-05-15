@@ -8,6 +8,84 @@
 
 namespace data {
 
+    TEST (ZBytes, Construct) {
+        // positive numbers
+        EXPECT_EQ ((bytes (Z_bytes_big {byte (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int8 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int64 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0)})), (bytes {}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {byte (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int8 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int64 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (1)})), (bytes {0x01}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {byte (0x80)})), (bytes {0x00, 0x80}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0x80)})), (bytes {0x00, 0x80}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {byte (0xff)})), (bytes {0x00, 0xff}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0xff)})), (bytes {0x00, 0xff}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {uint16 (0x0100)})), (bytes {0x01, 0x00}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0x0100)})), (bytes {0x01, 0x00}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {uint16 (0x0102)})), (bytes {0x01, 0x02}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0x0102)})), (bytes {0x01, 0x02}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {uint16 (0x8003)})), (bytes {0x00, 0x80, 0x03}));
+        EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0x8003)})), (bytes {0x00, 0x80, 0x03}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {byte (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int8 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int64 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (0)})), (bytes {}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {byte (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int8 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int64 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (1)})), (bytes {0x01}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {byte (0x80)})), (bytes {0x00, 0x80}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (0x80)})), (bytes {0x00, 0x80}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {byte (0xff)})), (bytes {0x00, 0xff}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (0xff)})), (bytes {0x00, 0xff}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint16 (0x0100)})), (bytes {0x01, 0x00}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (0x0100)})), (bytes {0x01, 0x00}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint16 (0x0102)})), (bytes {0x01, 0x02}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (0x0102)})), (bytes {0x01, 0x02}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint16 (0x8003)})), (bytes {0x00, 0x80, 0x03}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {uint64 (0x8003)})), (bytes {0x00, 0x80, 0x03}));
+
+        // negatives
+        EXPECT_EQ ((bytes (Z_bytes_big {int8 (-1)})), (bytes {0xff}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int16 (-1)})), (bytes {0xff}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int64 (-1)})), (bytes {0xff}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int8 (-1)})), (bytes {0x81}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int16 (-1)})), (bytes {0x81}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int64 (-1)})), (bytes {0x81}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {int8 (-127)})), (bytes {0x81}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int16 (-127)})), (bytes {0x81}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int64 (-127)})), (bytes {0x81}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int8 (-127)})), (bytes {0xff}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int16 (-127)})), (bytes {0xff}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int64 (-127)})), (bytes {0xff}));
+
+        EXPECT_EQ ((bytes (Z_bytes_big {int8 (-128)})), (bytes {0x80}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int16 (-128)})), (bytes {0x80}));
+        EXPECT_EQ ((bytes (Z_bytes_big {int64 (-128)})), (bytes {0x80}));
+
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int8 (-128)})), (bytes {0x80, 0x80}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int16 (-128)})), (bytes {0x80, 0x80}));
+        EXPECT_EQ ((bytes (Z_bytes_BC_big {int64 (-128)})), (bytes {0x80, 0x80}));
+    }
+
     TEST (ZBytes, ZBytesToHexString) {
         
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (Z_bytes_big::read ("0")), std::string ("0x"));
