@@ -7,8 +7,9 @@
 
 // We test that number types work like Bitcoin numbers. 
 namespace data {
-    // TODO Bitcoin bit logic does not work perfectly with
-    // the number system. Nevertheless, we test it here.
+    // NOTE: Bitcoin bit logic is not a numeric function
+    // (in other words, it operates on byte strings rather
+    // than on numbers). Nevertheless, we test it here.
     template <typename Z> requires requires (const Z &z) {
         { bit_not (z) } -> ImplicitlyConvertible<Z>;
     } && requires (const Z &a, const Z &b) {
@@ -55,6 +56,35 @@ namespace data {
             EXPECT_FALSE (data::identical (Z::zero (1), Z::zero (2)));
             EXPECT_FALSE (data::identical (Z::zero (2), Z::zero (2, true)));
 
+        }
+    };
+
+    template <typename Z> requires requires (const uint64 u) {
+        {Z {u}};
+    } && requires (const uint32 u) {
+        {Z {u}};
+    } && requires (const uint16 u) {
+        {Z {u}};
+    } && requires (const byte u) {
+        {Z {u}};
+    } && requires (const int64 z) {
+        {Z {z}};
+    } && requires (const int32 z) {
+        {Z {z}};
+    } && requires (const int16 z) {
+        {Z {z}};
+    } && requires (const int8 z) {
+        {Z {z}};
+    } struct test_construct {
+        test_construct () {
+            EXPECT_EQ (Z (byte   (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (int8   (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (uint16 (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (int16  (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (uint32 (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (int32  (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (uint64 (0)), Z::read ("0x"));
+            EXPECT_EQ (Z (int64  (0)), Z::read ("0x"));
         }
     };
 
@@ -249,15 +279,22 @@ namespace data {
     };
 
     template <typename Z>
-    struct test_BC : test_bit_logic<Z>,
-        test_minimal<Z>, test_negate<Z>, test_abs<Z>,
+    struct test_BC :
+        test_bit_logic<Z>,
+        test_minimal<Z>,
+        test_construct<Z>,
+        test_negate<Z>,
+        test_abs<Z>,
         test_increment_and_decrement<Z>,
-        test_arithmetic<Z>, test_min_max<Z>,
-        test_logic<Z>, test_compare<Z>,
+        test_arithmetic<Z>,
+        test_min_max<Z>,
+        test_logic<Z>,
+        test_compare<Z>,
         test_bit_shift<Z> {
         test_BC () {}
     };
     
+    // TODO make typed test.
     TEST (BitcoinNumbers, BitcoinNumbers) {
         test_BC<hex_int_BC> {};
         test_BC<Z_bytes_BC_big> {};
