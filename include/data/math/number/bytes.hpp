@@ -146,6 +146,13 @@ namespace data::encoding::natural {
 
 namespace data::encoding::hexidecimal {
 
+    template <neg n, hex::letter_case cx, std::integral I>
+    string<cx> write (I x) {
+        if constexpr (n == neg::nones)
+            return write<cx> (math::number::N_bytes<endian::big, byte> {x});
+        else return write<cx> (math::number::Z_bytes<endian::big, n, byte> {x});
+    }
+
     template <hex::letter_case zz>
     string<zz> shift (const string<zz> &x, int i) {
         auto o = read<endian::big, byte> (x);

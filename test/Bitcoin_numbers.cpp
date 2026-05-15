@@ -85,6 +85,113 @@ namespace data {
             EXPECT_EQ (Z (int32  (0)), Z::read ("0x"));
             EXPECT_EQ (Z (uint64 (0)), Z::read ("0x"));
             EXPECT_EQ (Z (int64  (0)), Z::read ("0x"));
+
+            EXPECT_EQ (Z (byte   (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (int8   (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (uint16 (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (int16  (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (uint32 (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (int32  (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (uint64 (1)), Z::read ("0x01"));
+            EXPECT_EQ (Z (int64  (1)), Z::read ("0x01"));
+
+            EXPECT_EQ (Z (int8   (-1)), Z::read ("0x81"));
+            EXPECT_EQ (Z (int16  (-1)), Z::read ("0x81"));
+            EXPECT_EQ (Z (int32  (-1)), Z::read ("0x81"));
+            EXPECT_EQ (Z (int64  (-1)), Z::read ("0x81"));
+
+            EXPECT_EQ (Z (byte   (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (int8   (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (uint16 (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (int16  (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (uint32 (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (int32  (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (uint64 (127)), Z::read ("0x7f"));
+            EXPECT_EQ (Z (int64  (127)), Z::read ("0x7f"));
+
+            EXPECT_EQ (Z (int8   (-127)), Z::read ("0xff"));
+            EXPECT_EQ (Z (int16  (-127)), Z::read ("0xff"));
+            EXPECT_EQ (Z (int32  (-127)), Z::read ("0xff"));
+            EXPECT_EQ (Z (int64  (-127)), Z::read ("0xff"));
+
+            EXPECT_EQ (Z (byte   (128)), Z::read ("0x0080"));
+            EXPECT_EQ (Z (uint16 (128)), Z::read ("0x0080"));
+            EXPECT_EQ (Z (int16  (128)), Z::read ("0x0080"));
+            EXPECT_EQ (Z (uint32 (128)), Z::read ("0x0080"));
+            EXPECT_EQ (Z (int32  (128)), Z::read ("0x0080"));
+            EXPECT_EQ (Z (uint64 (128)), Z::read ("0x0080"));
+            EXPECT_EQ (Z (int64  (128)), Z::read ("0x0080"));
+
+            EXPECT_EQ (Z (int8   (-128)), Z::read ("0x8080"));
+            EXPECT_EQ (Z (int16  (-128)), Z::read ("0x8080"));
+            EXPECT_EQ (Z (int32  (-128)), Z::read ("0x8080"));
+            EXPECT_EQ (Z (int64  (-128)), Z::read ("0x8080"));
+
+            EXPECT_EQ (Z (int16  (-130)), Z::read ("0x8082"));
+            EXPECT_EQ (Z (int32  (-130)), Z::read ("0x8082"));
+            EXPECT_EQ (Z (int64  (-130)), Z::read ("0x8082"));
+
+            EXPECT_EQ (Z (byte   (255)), Z::read ("0x00ff"));
+            EXPECT_EQ (Z (uint16 (255)), Z::read ("0x00ff"));
+            EXPECT_EQ (Z (int16  (255)), Z::read ("0x00ff"));
+            EXPECT_EQ (Z (uint32 (255)), Z::read ("0x00ff"));
+            EXPECT_EQ (Z (int32  (255)), Z::read ("0x00ff"));
+            EXPECT_EQ (Z (uint64 (255)), Z::read ("0x00ff"));
+            EXPECT_EQ (Z (int64  (255)), Z::read ("0x00ff"));
+
+            EXPECT_EQ (Z (int16  (-255)), Z::read ("0x80ff"));
+            EXPECT_EQ (Z (int32  (-255)), Z::read ("0x80ff"));
+            EXPECT_EQ (Z (int64  (-255)), Z::read ("0x80ff"));
+
+            EXPECT_EQ (Z (uint16 (256)), Z::read ("0x0100"));
+            EXPECT_EQ (Z (int16  (256)), Z::read ("0x0100"));
+            EXPECT_EQ (Z (uint32 (256)), Z::read ("0x0100"));
+            EXPECT_EQ (Z (int32  (256)), Z::read ("0x0100"));
+            EXPECT_EQ (Z (uint64 (256)), Z::read ("0x0100"));
+            EXPECT_EQ (Z (int64  (256)), Z::read ("0x0100"));
+
+            EXPECT_EQ (Z (int16  (-256)), Z::read ("0x8100"));
+            EXPECT_EQ (Z (int32  (-256)), Z::read ("0x8100"));
+            EXPECT_EQ (Z (int64  (-256)), Z::read ("0x8100"));
+
+            EXPECT_EQ (Z (uint16 (32767)), Z::read ("0x7fff"));
+            EXPECT_EQ (Z (int16  (32767)), Z::read ("0x7fff"));
+            EXPECT_EQ (Z (uint32 (32767)), Z::read ("0x7fff"));
+            EXPECT_EQ (Z (int32  (32767)), Z::read ("0x7fff"));
+            EXPECT_EQ (Z (uint64 (32767)), Z::read ("0x7fff"));
+            EXPECT_EQ (Z (int64  (32767)), Z::read ("0x7fff"));
+
+            EXPECT_EQ (Z (int16  (-32767)), Z::read ("0xffff"));
+            EXPECT_EQ (Z (int32  (-32767)), Z::read ("0xffff"));
+            EXPECT_EQ (Z (int64  (-32767)), Z::read ("0xffff"));
+
+            EXPECT_EQ (Z (uint16 (32768)), Z::read ("0x008000"));
+            EXPECT_EQ (Z (uint32 (32768)), Z::read ("0x008000"));
+            EXPECT_EQ (Z (int32  (32768)), Z::read ("0x008000"));
+            EXPECT_EQ (Z (uint64 (32768)), Z::read ("0x008000"));
+            EXPECT_EQ (Z (int64  (32768)), Z::read ("0x008000"));
+
+            EXPECT_EQ (Z (int16  (-32768)), Z::read ("0x808000"));
+            EXPECT_EQ (Z (int32  (-32768)), Z::read ("0x808000"));
+            EXPECT_EQ (Z (int64  (-32768)), Z::read ("0x808000"));
+
+            EXPECT_EQ (Z (uint16 (65535)), Z::read ("0x00ffff"));
+            EXPECT_EQ (Z (uint32 (65535)), Z::read ("0x00ffff"));
+            EXPECT_EQ (Z (int32  (65535)), Z::read ("0x00ffff"));
+            EXPECT_EQ (Z (uint64 (65535)), Z::read ("0x00ffff"));
+            EXPECT_EQ (Z (int64  (65535)), Z::read ("0x00ffff"));
+
+            EXPECT_EQ (Z (int32  (-65535)), Z::read ("0x80ffff"));
+            EXPECT_EQ (Z (int64  (-65535)), Z::read ("0x80ffff"));
+
+            EXPECT_EQ (Z (uint32 (65536)), Z::read ("0x010000"));
+            EXPECT_EQ (Z (int32  (65536)), Z::read ("0x010000"));
+            EXPECT_EQ (Z (uint64 (65536)), Z::read ("0x010000"));
+            EXPECT_EQ (Z (int64  (65536)), Z::read ("0x010000"));
+
+            EXPECT_EQ (Z (int32  (-65536)), Z::read ("0x810000"));
+            EXPECT_EQ (Z (int64  (-65536)), Z::read ("0x810000"));
+
         }
     };
 
