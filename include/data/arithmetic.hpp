@@ -12,7 +12,6 @@
 #include <data/abs.hpp>
 #include <data/increment.hpp>
 #include <data/divmod.hpp>
-#include <data/math/infinite.hpp>
 
 namespace data {
 
