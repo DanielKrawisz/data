@@ -731,14 +731,18 @@ namespace data {
             constexpr static bounded min ();
             static N_bytes<r, word> modulus ();
 
+            // result will be minimal.
             operator N_bytes<r, word> () const;
+
             constexpr bounded (const N_bytes<r, word> &);
 
-            template <endian::order o, neg neg, std::unsigned_integral w>
-            operator Z_bytes<o, neg, w> () const;
-
+            // throw if out of bounds.
             template <endian::order o, neg neg, std::unsigned_integral w>
             explicit bounded (const Z_bytes<o, neg, w> &z);
+
+            // result will not be minimal.
+            template <endian::order o, neg neg, std::unsigned_integral w>
+            explicit operator Z_bytes<o, neg, w> () const;
 
             explicit operator double () const;
 
@@ -779,6 +783,7 @@ namespace data {
 
             division<bounded> divmod (const bounded &) const;
 
+            // result will be minimal.
             operator Z_bytes<r, neg::twos, word> () const;
 
             explicit bounded (slice<word, size>);
@@ -1506,6 +1511,7 @@ namespace data {
             std::copy (x.begin (), x.end (), this->begin ());
         }
 
+        // result is not minimum size.
         template <endian::order r, size_t size, std::unsigned_integral word>
         bounded<false, r, size, word>::operator N_bytes<r, word> () const {
             auto n = N_bytes<r, word>::zero (size);
@@ -1513,6 +1519,7 @@ namespace data {
             return n;
         }
 
+        // result is non-minimal.
         template <endian::order r, size_t size, std::unsigned_integral word>
         bounded<true, r, size, word>::operator Z_bytes<r, neg::twos, word> () const {
             auto z = Z_bytes<r, neg::twos, word>::zero (size);
