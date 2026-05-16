@@ -710,19 +710,24 @@ namespace data::math::number::GMP {
         return encoding::hexidecimal::write<neg::BC, zz> (*this);
     }
 
-    // TODO this is kind of absurd. We should not have to convert to _bytes form.
     template <neg n, hex_case zz> inline Z::Z (const hex::integer<n, zz> &u) : Z {} {
-        // TODO fix this back up to the way it was.
-        if constexpr (n == neg::nones) *this = Z::read (string_view (u));
-        else if constexpr (n == neg::twos) {
-            auto mag = ~u;
-            if (is_negative (u)) *this = -(Z::read (string_view (mag)) + 1);
-            else *this = Z::read (string_view (u));
-        } else if (is_zero (u)) *this = Z ();
-        else if (is_negative (u)) {
-            auto mag = -u;
-            *this = -Z::read (string_view (mag));
-        } else *this = Z::read (string_view (u));
+        // takes care of negative zero.
+        if (is_zero (u)) return;
+
+        // takes care of neg::nones.
+        if (is_positive (u)) *this = Z::read (string_view (u));
+
+        // the number is negative and n is either twos or BC.
+        // Z (string_view) takes dec numbers with a possible
+        // minus sign, or a positive hex number. This whole
+        // constructor is problematic now.
+
+        // for neg::twos, we bit negate the string, read it, add one, and negate the result.
+        else if constexpr (n == neg::twos)
+            *this = -(Z::read (string_view (~u)) + 1);
+
+        // for neg::BC, we negate the string, read it, and negate the result.
+        else *this = -Z::read (string_view (-u));
     }
 }
 

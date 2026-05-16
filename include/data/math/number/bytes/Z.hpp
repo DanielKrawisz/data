@@ -5,7 +5,6 @@
 #ifndef DATA_MATH_NUMBER_BYTES_Z
 #define DATA_MATH_NUMBER_BYTES_Z
 
-#include <data/arithmetic.hpp>
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
 #include <data/exception.hpp>
