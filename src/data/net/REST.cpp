@@ -25,9 +25,9 @@ namespace data::net::HTTP {
         return q.str ();
     }
 
-    HTTP::request::make REST::operator () (const HTTP::request::make &r) const {
-        auto rr = r.host (Host);
-        if (bool (Authorization)) rr = rr.authorization (*Authorization);
+    HTTP::request::make REST::operator () (HTTP::method meth, const path &path) const {
+        auto rr = HTTP::request::make {}.method (meth).path (Path + path).host (Host);
+        if (bool (Authorization)) return rr.authorization (*Authorization);
         return rr;
     }
 }

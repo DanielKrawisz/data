@@ -35,8 +35,7 @@ namespace data {
             ASSERT_EQ (limiter.getTime (), 0);
             long time1 = limiter.getTime ();
             ASSERT_GT (time1, 9);
-            std::cout << time1 << std::endl;
-            sleep(1);
+            sleep (1);
             long time2 = limiter.getTime ();
 
             ASSERT_LT (time2, time1);

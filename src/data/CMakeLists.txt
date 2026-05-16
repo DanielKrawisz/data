@@ -1,23 +1,56 @@
-# everything
+# everything except crypto and net.
 add_library (data INTERFACE)
+add_library (Data::data ALIAS data)
 
 # functional data structures, arrays
 add_library (core INTERFACE)
+add_library (Data::core ALIAS core)
 
 # strings, bits etc
 add_library (string STATIC)
+add_library (Data::string ALIAS string)
 
-add_library (io STATIC)
-
-add_library (hash INTERFACE)
+# hash functions, including cryptographic
+add_library (hash STATIC)
+add_library (Data::hash ALIAS hash)
 
 # numbers, like it says
 add_library (numbers STATIC)
+add_library (Data::numbers ALIAS numbers)
 
 # networking
 add_library (net STATIC)
+add_library (Data::net ALIAS net)
 
 add_library (crypto STATIC)
+add_library (Data::crypto ALIAS crypto)
+
+add_library (io STATIC)
+add_library (Data::io ALIAS io)
+
+set_target_properties (string PROPERTIES
+  OUTPUT_NAME "data_string"
+)
+
+set_target_properties (numbers PROPERTIES
+  OUTPUT_NAME "data_numbers"
+)
+
+set_target_properties (hash PROPERTIES
+  OUTPUT_NAME "data_hash"
+)
+
+set_target_properties (net PROPERTIES
+  OUTPUT_NAME "data_net"
+)
+
+set_target_properties (crypto PROPERTIES
+  OUTPUT_NAME "data_crypto"
+)
+
+set_target_properties (io PROPERTIES
+  OUTPUT_NAME "data_io"
+)
 
 target_include_directories (
   core
@@ -26,7 +59,7 @@ target_include_directories (
 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
@@ -34,8 +67,6 @@ target_sources (
   string
 
   PRIVATE
-
-  random.cpp
 
   encoding/hex.cpp
   encoding/utf8.cpp
@@ -51,45 +82,12 @@ target_link_libraries (
 
   PUBLIC
 
+  Data::core
   Boost::boost
+  nlohmann_json::nlohmann_json
   ctre
-  core
-)
-
-target_sources (
-  io
-
-  PRIVATE
-
-  #io/run.cpp
-  io/wait_for_enter.cpp
-  io/log.cpp
-)
-
-target_compile_features (io PUBLIC cxx_std_23)
-set_target_properties (io PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  io
-
-  PUBLIC
-
-  core
   Boost::log_setup
   Boost::log
-  argh
-)
-
-target_link_libraries (
-  hash
-
-  INTERFACE
-
-  string
-  OpenSSL::SSL
-  OpenSSL::Crypto
-  PkgConfig::cryptopp
-  sv
 )
 
 target_sources (
@@ -97,8 +95,8 @@ target_sources (
 
   PRIVATE
 
-  math/number/gmp/mpq.cpp
   math/number/gmp/N.cpp
+  math/number/gmp/mpq.cpp
   math/number/gmp/aks.cpp
   math/number/gmp/sqrt.cpp
   encoding/base58.cpp
@@ -114,12 +112,52 @@ target_link_libraries (
 
   PUBLIC
 
-  string
+  Data::string
   Boost::boost
   GMP::GMP
   rotella
   gmpxx
   ctre
+)
+
+target_link_libraries (
+  data
+
+  INTERFACE
+
+  Data::numbers
+
+)
+
+target_sources (
+  hash
+
+  PRIVATE
+
+  ../sv/utiltime.cpp
+  ../sv/fs.cpp
+  ../sv/crypto/chacha20.cpp
+  ../sv/crypto/hmac_sha512.cpp
+  ../sv/crypto/ripemd160.cpp
+  ../sv/crypto/sha1.cpp
+  ../sv/crypto/sha256.cpp
+  ../sv/crypto/sha512.cpp
+  ../sv/support/cleanse.cpp
+)
+
+target_compile_features (hash PUBLIC cxx_std_23)
+set_target_properties (hash PROPERTIES CXX_EXTENSIONS ON)
+
+target_link_libraries (
+  hash
+
+  PUBLIC
+
+  Data::string
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  PkgConfig::cryptopp
+
 )
 
 target_sources (
@@ -153,10 +191,9 @@ target_link_libraries (
 
   PUBLIC
 
-  string
+  Data::string
   Boost::chrono
   Boost::thread
-  nlohmann_json::nlohmann_json
   taocpp::pegtl
   OpenSSL::SSL
   OpenSSL::Crypto
@@ -179,35 +216,52 @@ target_link_libraries (
 
   PUBLIC
 
-  hash
+  Data::hash
+  Data::data
 )
 
-target_link_libraries (
-  data
-
-  INTERFACE
-
-  crypto
-  net
-  numbers
+target_sources (
   io
 
+  PRIVATE
+
+  #io/run.cpp
+  io/wait_for_enter.cpp
+  io/log.cpp
+  io/arg_parser.cpp
+  io/random.cpp
 )
 
-configure_file (include/data/version.hpp.in generated/data/version.hpp)
+target_compile_features (io PUBLIC cxx_std_23)
+set_target_properties (io PROPERTIES CXX_EXTENSIONS ON)
 
-get_target_property (OUT data LINK_LIBRARIES)
+target_link_libraries (
+  io
+
+  PUBLIC
+
+  Data::crypto
+  Boost::log_setup
+  Boost::log
+)
+
+configure_file (
+    ${PROJECT_SOURCE_DIR}/include/data/version.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
+)
+
+get_target_property (OUT Data::data LINK_LIBRARIES)
 
 include (GNUInstallDirs)
 
 # copy include directory into install destination
 install (
-  DIRECTORY include/
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install (
-  TARGETS data crypto net numbers hash io string core nlohmann_json argh rotella sv
+  TARGETS data crypto net numbers hash io string core nlohmann_json rotella
   EXPORT DataTargets
   ARCHIVE
 )
@@ -247,5 +301,7 @@ install (FILES
 
 set (CPACK_PACKAGE_VENDOR "Daniel Krawisz")
 set (CPACK_PACKAGE_CONTACT "email@example.com")
-set (CPACK_PACKAGE_DESCRIPTION "data")
+set (CPACK_PACKAGE_DESCRIPTION "WhatsOnChain API")
 include (CPack)
+
+include(GNUInstallDirs)

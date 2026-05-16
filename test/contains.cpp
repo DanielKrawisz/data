@@ -25,6 +25,9 @@
     static_assert (data::ConstIterable<cross<string>>);
     static_assert (!data::ConstIterable<priority_queue<string>>);
 
+    // TODO test a case where a type contains a std::string and we try to
+    // test if it contains a string_view. We should be able to take any
+    // type equality comparable with the contained type.
     TEST (Contains, Contains) {
         
         EXPECT_TRUE (contains (stack<string> {"a", "b", "c", "d"}, "a"));
@@ -68,8 +71,12 @@
 
         EXPECT_TRUE (data::contains (tree<string> {"a"}, "a"));
         EXPECT_FALSE (data::contains (tree<string> {}, "a"));
+/*
+        EXPECT_TRUE (contains (cycle<string> {"a"}, "a"));
+        EXPECT_FALSE (contains (cycle<string> {}, "a"));
 
-        // TODO cycle
+        EXPECT_TRUE (data::contains (cycle<string> {"a"}, "a"));
+        EXPECT_FALSE (data::contains (cycle<string> {}, "a"));*/
 
         // contains works differently with map. 
         EXPECT_TRUE (contains (data::map<string, int> {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}}, "a"));

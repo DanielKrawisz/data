@@ -6,7 +6,7 @@ namespace data::net::HTTP::beast {
     template <typename msg> dispatch<header, ASCII> read_headers (const msg &m) {
         dispatch<header, ASCII> x;
         for (const auto &field : m)
-            x <<= entry<header, ASCII> {header {field.name_string ()}, ASCII {field.value ()}};
+            x <<= entry<const header, ASCII> {header {field.name_string ()}, ASCII {field.value ()}};
         return x;
     }
 

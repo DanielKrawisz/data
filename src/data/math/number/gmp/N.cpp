@@ -6,14 +6,14 @@
 #include <data/encoding/digits.hpp>
 #include <boost/algorithm/string.hpp>
 #include <data/encoding/integer.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 
 namespace data::math::number::GMP {
     
     Z Z_read_N_gmp (string_view s) {
         Z z {};
-        //mpz_init(z.MPZ);
-        mpz_set_str (z.MPZ, std::string {s}.c_str (), 0);
+        // we need this line to work like this because string_view doesn't guarantee null termination.
+        mpz_set_str (z.MPZ, std::string (s).c_str (), 0);
         return z;
     }
     
@@ -55,8 +55,7 @@ namespace data::math::number::GMP {
     }
     
     Z Z_read_hex (string_view x) {
-
-        if (encoding::hexidecimal::zero (x)) return Z {0};
+        if (encoding::hexidecimal::zero (x)) return Z {};
 
         if (encoding::integer::negative (x)) {
             std::stringstream ss;
@@ -104,7 +103,10 @@ namespace data::encoding::hexidecimal {
     std::ostream &write (std::ostream &o, const Z &z, hex::letter_case q, neg n) {
 
         switch (n) {
-            case (neg::nones): throw data::exception {} << "can't do " << n << ".";
+            case (neg::nones): {
+                if (::data::is_negative (z)) throw exception {} << "can't do " << neg::nones << ".";
+                return write (o << "0x", math::number::N_bytes<endian::big, byte> (N (z)), q);
+            }
             case (neg::twos): return write (o << "0x", math::number::Z_bytes<endian::big, neg::twos, byte> (z), q);
             case (neg::BC): return write (o << "0x", math::number::Z_bytes<endian::big, neg::BC, byte> (z), q);
         }

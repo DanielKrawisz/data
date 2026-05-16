@@ -2,13 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <tao/pegtl/istream_input.hpp>
 #include <boost/algorithm/string.hpp>
 #include <data/net/URL.hpp>
 #include <data/net/TCP.hpp>
 #include <data/net/REST.hpp>
+#include <data/parse/URL.hpp>
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <regex>
 
 namespace data {
 
@@ -98,12 +101,14 @@ namespace data::encoding::percent {
         return a_iter == a.end () && b_iter == b.end ();
     }
 
+    constexpr const char *also_required = R"("%<>\^`{|})";
+
     std::string encode (const data::UTF8 &input, const data::ASCII &additional_chars) {
         std::ostringstream encoded;
         encoded << std::hex << std::uppercase;
 
-        for (const auto& ch : input) {
-            if (ch <= 0x20 || ch >= 0x7F || std::strchr (additional_chars.c_str (), ch) != nullptr)
+        for (const auto &ch : input) {
+            if (ch <= 0x20 || ch >= 0x7F || std::strchr (additional_chars.c_str (), ch) != nullptr || std::strchr (also_required, ch))
                 encoded << '%' << std::setw (2) << static_cast<int> (static_cast<unsigned char> (ch));
             else encoded << ch;
         }
@@ -465,7 +470,7 @@ namespace data::net {
         for (const string_view &e : z) {
             list<string_view> p = split (e, "=");
             if (p.size () != 2) return {};
-            params = params << entry<UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
+            params = params << entry<const UTF8, UTF8> {*encoding::percent::decode (p[0]), *encoding::percent::decode (p[1])};
         }
 
         return params;
@@ -506,8 +511,8 @@ namespace pegtl {
     using namespace tao::pegtl;
 
     // Rules for parsing domain names
-    struct domain_label : seq<alnum, star<sor<one<'-'>, alnum>>> {};
-    struct domain_name : seq<domain_label, star<one<'.'>, domain_label>> {};
+    struct domain_label : seq<plus<alnum>, star<seq<one<'-'>, plus<alnum>>>> {};
+    struct domain_name : seq<domain_label, star<seq<one<'.'>, domain_label>>> {};
     struct domain_name_whole : seq<bof, domain_name, eof> {};
 
     struct gen_delim : sor<one<':'>, one<'/'>, one<'?'>, one<'#'>, one<'['>, one<']'>, one<'@'>> {};
@@ -541,7 +546,7 @@ namespace pegtl {
 
     struct scheme : seq<alpha, star<sor<alnum, one<'+'>, one<'-'>, one<'.'>>>> {};
 
-    struct whole_scheme : seq<eof, scheme, eof> {};
+    struct whole_scheme : seq<bof, scheme, eof> {};
 
     struct user_info : plus<sor<unreserved, percent_encoded, sub_delim, one<':'>>> {};
 
@@ -581,6 +586,8 @@ namespace pegtl {
 
     struct ipv6_whole : seq<ipv6, eof> {};
 
+    struct ip_address : sor<ipv6, ipv4> {};
+
     struct ip_address_whole : seq<sor<ipv6, ipv4>, eof> {};
 
     struct host : sor<ip_literal, ipv4, reg_name> {};
@@ -590,6 +597,8 @@ namespace pegtl {
     struct port : star<digit> {};
 
     struct authority : seq<opt<user_info_at>, host, opt<seq<one<':'>, port>>> {};
+
+    struct endpoint : seq<ip_address, one<':'>, port> {};
 
     struct authority_whole : seq<bof, authority, eof> {};
 
@@ -810,6 +819,11 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::authority &p) {
+            p = net::authority {std::string_view (in)};
+        }
     };
 
     string_view encoding::percent::URI::authority (string_view x) {
@@ -832,6 +846,13 @@ namespace data {
         string_view sub;
         tao::pegtl::memory_input<> in (x, "user_info");
         if (!tao::pegtl::parse<pegtl::uri_whole, read_user_info_action> (in, sub)) return {};
+        return sub.substr (0, sub.size () - 1);
+    }
+
+    string_view net::authority::user_info (string_view x) {
+        string_view sub;
+        tao::pegtl::memory_input<> in (x, "user_info");
+        if (!tao::pegtl::parse<pegtl::authority_whole, read_user_info_action> (in, sub)) return {};
         return sub.substr (0, sub.size () - 1);
     }
 
@@ -858,6 +879,13 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::port &p) {
+            auto view = std::string_view (in);
+            p.resize (view.size ());
+            std::copy (view.begin (), view.end (), p.begin ());
+        }
     };
 
     string_view encoding::percent::URI::port (string_view x) {
@@ -872,7 +900,11 @@ namespace data {
     template <> struct read_path_action<pegtl::path_after_authority> {
         template <typename Input>
         static void apply (const Input& in, string_view &x) {
-            x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+            x = string_view {std::string_view (in)};
+        }
+        template <typename Input>
+        static void apply (const Input& in, net::path &m) {
+            m = net::path {std::string_view (in)};
         }
     };
 
@@ -881,12 +913,22 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::path &m) {
+            m = net::path {std::string_view (in)};
+        }
     };
 
     template <> struct read_path_action<pegtl::path_rootless> {
         template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+
+        template <typename Input>
+        static void apply (const Input& in, net::path &m) {
+            m = net::path {std::string_view (in)};
         }
     };
 
@@ -944,6 +986,11 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::IP::address &x) {
+            x = net::IP::address {std::string_view (in)};
+        }
     };
 
     template <> struct read_ip_address_action<pegtl::ipv6> {
@@ -951,12 +998,22 @@ namespace data {
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
         }
+
+        template <typename Input>
+        static void apply (const Input& in, net::IP::address &x) {
+            x = net::IP::address {std::string_view (in)};
+        }
     };
 
     template <> struct read_ip_address_action<pegtl::ip_future> {
         template <typename Input>
         static void apply (const Input& in, string_view &x) {
             x = string_view {&*in.begin (), static_cast<size_t> (in.end () - in.begin ())};
+        }
+
+        template <typename Input>
+        static void apply (const Input& in, net::IP::address &x) {
+            x = net::IP::address {std::string_view (in)};
         }
     };
 
@@ -1000,7 +1057,7 @@ namespace data {
         return ASCII {sub};
     }
 
-    maybe<list<entry<UTF8, UTF8>>> net::target::query_map () const {
+    maybe<dispatch<UTF8, UTF8>> net::target::query_map () const {
         maybe<ASCII> q = query ();
 
         if (!bool (q)) return {};
@@ -1021,7 +1078,7 @@ namespace data {
         string_view sub;
         tao::pegtl::memory_input<> in (*this, "port");
         if (!tao::pegtl::parse<pegtl::authority_whole, read_port_action> (in, sub))
-            throw data::exception {"invalid authority"};
+            return {};
         if (sub.data () == nullptr) return {};
         return ASCII {sub};
     }
@@ -1059,11 +1116,105 @@ namespace data {
         return net::IP::TCP::endpoint {*a, *p};
     }
 
+    template <typename Rule> struct read_uri_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_uri_action<pegtl::uri> {
+        template <typename Input>
+        static void apply (const Input& in, net::URL &m) {
+            m = net::URL {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_protocol_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_protocol_action<pegtl::scheme> {
+        template <typename Input>
+        static void apply (const Input& in, net::protocol &m) {
+            m = net::protocol {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_domain_name_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_protocol_action<pegtl::domain_name> {
+        template <typename Input>
+        static void apply (const Input& in, net::domain_name &m) {
+            m = net::domain_name {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_target_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_target_action<pegtl::target> {
+        template <typename Input>
+        static void apply (const Input& in, net::target &m) {
+            m = net::target {std::string_view (in)};
+        }
+    };
+
+    template <typename Rule> struct read_endpoint_action : pegtl::nothing<Rule> {};
+
+    template <> struct read_target_action<pegtl::endpoint> {
+        template <typename Input>
+        static void apply (const Input& in, net::IP::TCP::endpoint &m) {
+            m = net::IP::TCP::endpoint {std::string_view (in)};
+        }
+    };
+
+    std::istream &net::operator >> (std::istream &i, net::domain_name &dom) {
+        parse::URL::domain_name m {};
+        auto result = parse::read_token (i, m);
+        if (i) dom = net::domain_name {result};
+        return i;
+    }
+
+    std::istream &net::operator >> (std::istream &i, net::port &p) {
+        parse::IP::port m {};
+        auto result = parse::read_token (i, m);
+        if (i) p = net::port {static_cast<uint16> (m.value)};
+        return i;
+    }
+
+    std::istream &net::IP::operator >> (std::istream &i, net::IP::address &addr) {
+        parse::IP::address m {};
+        auto result = parse::read_token (i, m);
+        if (i) addr = net::IP::address {result};
+        return i;
+    }
+
+    std::istream &net::operator >> (std::istream &i, net::URL &u) {
+        parse::URL::URI m {};
+        auto result = parse::read_token (i, m);
+        if (i) u = net::URL {result};
+        return i;
+    }
+
+    std::istream &net::operator >> (std::istream &i, net::authority &a) {
+        parse::URL::authority m {};
+        auto result = parse::read_token (i, m);
+        if (i) a = net::authority {result};
+        return i;
+    }
+
+    std::istream &net::operator >> (std::istream &i, net::target &targ) {
+        parse::URL::target m {};
+        auto result = parse::read_token (i, m);
+        if (i) targ = net::target {result};
+        return i;
+    }
+
+    std::istream &net::IP::TCP::operator >> (std::istream &i, net::IP::TCP::endpoint &ep) {
+        parse::TCP::endpoint m {};
+        auto result = parse::read_token (i, m);
+        if (i) ep = net::IP::TCP::endpoint {result};
+        return i;
+    }
+
 }
 
 namespace data::net::IP {
 
-    // read the ip address as a series of bites.
+    // write the ip address as a series of bites.
     address::operator bytes () const {
         auto v = version ();
         if (v == -1) return {};

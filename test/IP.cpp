@@ -117,6 +117,9 @@ namespace data::net::IP {
 
     }
 
+    // TODO maximum size of the label is 63 characters.
+    // TODO maximum total length is 253 characters
+    // RFC 1035
     TEST (IP, DomainNameFormat) {
 
         struct test_case {
@@ -135,17 +138,26 @@ namespace data::net::IP {
 
             {"example..com", false},  // consecutive periods
             {"-example.com", false},  // starts with a hyphen
-            {"example-.com", true},  // ends with a hyphen
+            {"example-.com", false},  // ends with a hyphen
             {"example..co.uk", false},  // consecutive periods
             {"example._com", false},  // starts with an underscore
             {"example_.com", false},  // ends with an underscore
             {".example.com", false},  // starts with a period
             {"example.com.", false},  // ends with a period
         }) {
+            std::stringstream ss {t.DomainName};
+            domain_name parsed {};
+            EXPECT_NO_THROW (ss >> parsed);
+
             if (t.ExpectValid) {
                 EXPECT_TRUE (t.DomainName.valid ()) << "expected " << t.DomainName << " to be a valid domain, but it is not.";
+                EXPECT_TRUE (bool (ss)) << "expected to be able to read " << t.DomainName << " as a domain name.";
+                EXPECT_TRUE (ss.peek () == std::char_traits<char>::eof ());
+                EXPECT_EQ (parsed, t.DomainName);
             } else {
                 EXPECT_FALSE (t.DomainName.valid ()) << "expected " << t.DomainName << " to be an invalid domain, but it is valid.";
+                EXPECT_TRUE (!bool (ss) || ss.peek () != std::char_traits<char>::eof ()) <<
+                    "expected not to be able to read " << t.DomainName << " as a domain name.";
             }
         }
 
@@ -154,6 +166,7 @@ namespace data::net::IP {
     std::regex ip_v4_regex {"(((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4})"};
     std::regex ip_v6_regex {"((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"};
 
+    // TODO try out the >> format with these.
     // https://en.wikipedia.org/wiki/Module:IPAddress/testcases
     TEST (IP, IPAddressFormat) {
 
@@ -167,6 +180,19 @@ namespace data::net::IP {
                 if (Version == 4) EXPECT_TRUE (std::regex_match (Address, ip_v4_regex));
                 else if (Version == 6) EXPECT_TRUE (std::regex_match (Address, ip_v6_regex));
 
+                address parsed;
+                std::stringstream ss {Address};
+                EXPECT_NO_THROW (ss >> parsed);
+
+                if (Version == 4 || Version == 6) {
+                    EXPECT_TRUE (bool (ss)) << "Expected to be able to parse " << Address << " as an IP address but failed.";
+                    EXPECT_TRUE (bool (ss));
+                    EXPECT_TRUE (ss.peek () == std::char_traits<char>::eof ());
+                } else {
+                    EXPECT_FALSE (bool (ss)) << "Expected not to be able to parse " << Address << " as an IP address but succeeded.";
+                    EXPECT_TRUE (!bool (ss) || ss.peek () != std::char_traits<char>::eof ());
+                }
+
                 EXPECT_EQ (Address.valid (), Version >= 0)
                     << "Address " << Address << " is" << (Version >= 0 ? " " : " not ") << "expected to be valid; version = " << Version;
 
@@ -174,12 +200,12 @@ namespace data::net::IP {
                 EXPECT_EQ (version, Version) << "expected " << Address << " to be version " << Version;
 
                 uint16 port = 666;
-                
+
                 std::stringstream v6_format;
                 std::stringstream v4_format;
                 
-                v6_format << "tcp://[" << static_cast<std::string> (Address) << "]:" << port;
-                v4_format << "tcp://" << static_cast<std::string> (Address) << ":" << port;
+                v6_format << "[" << static_cast<std::string> (Address) << "]:" << port;
+                v4_format << "" << static_cast<std::string> (Address) << ":" << port;
 
                 TCP::endpoint v6 {v6_format.str ()};
                 TCP::endpoint v4 {v4_format.str ()};
@@ -290,7 +316,7 @@ namespace data::net {
             maybe<data::UTF8> UserInfo;
             maybe<data::UTF8> Host;
             maybe<data::ASCII> Port;
-            maybe<list<entry<data::UTF8, data::UTF8>>> QueryMap;
+            maybe<dispatch<data::UTF8, data::UTF8>> QueryMap;
 
             maybe<uint16> PortNumber;
             data::ASCII PortDNS;
@@ -397,6 +423,12 @@ namespace data::net {
 
             EXPECT_TRUE (tt.URL.valid ()) << "expected " << tt.URL << " to be a valid URL.";
 
+            URL parsed;
+            std::stringstream ss {tt.URL};
+            EXPECT_NO_THROW (ss >> parsed);
+            EXPECT_TRUE (bool (ss));
+            EXPECT_TRUE (ss.peek () == std::char_traits<char>::eof ());
+
             EXPECT_EQ (tt.URL.scheme (), tt.Scheme);
             EXPECT_EQ (tt.URL.authority (), tt.Authority) << "incorrect authority retrieved for " << tt.URL;
             EXPECT_EQ (tt.URL.path (), tt.Path);
@@ -451,7 +483,6 @@ namespace data::net {
         for (const negative_test_case &tt : list<negative_test_case> {
             {"https//example.org"},                 // (Malformed scheme)
             {"https&:/example.org"},                 // (Malformed scheme)
-          //{"http://example.com:65536"},           // (Invalid port number)
         }) {
             EXPECT_FALSE (tt.URL.valid ()) << "expected " << tt.URL << " to be an invalid URL.";
         }
@@ -533,7 +564,7 @@ namespace data::net {
     }
 
     TEST (IP, Endpoint) {
-        IP::TCP::endpoint e {"tcp://0.0.0.0:1234"};
+        IP::TCP::endpoint e {"0.0.0.0:1234"};
         EXPECT_EQ (e.address (), "0.0.0.0");
         EXPECT_EQ (e.port (), 1234);
     }

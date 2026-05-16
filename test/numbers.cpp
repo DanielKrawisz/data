@@ -77,15 +77,22 @@ namespace data {
     static_assert (ImplicitlyConvertible<N, Z>);
     static_assert (ImplicitlyConvertible<N_bytes_little, Z_bytes_little>);
     static_assert (ImplicitlyConvertible<N_bytes_big, Z_bytes_big>);
+    static_assert (ImplicitlyConvertible<math::N_bytes<endian::little, unsigned short>, math::Z_bytes<endian::little, unsigned short>>);
+    static_assert (ImplicitlyConvertible<math::N_bytes<endian::big, unsigned short>, math::Z_bytes<endian::big, unsigned short>>);
 
     // however, the opposite conversion cannot be implicit.
-    static_assert (ExplicitlyConvertible<Z, N>);/*
+    static_assert (ExplicitlyConvertible<Z, N>);
     static_assert (ExplicitlyConvertible<Z_bytes_little, N_bytes_little>);
     static_assert (ExplicitlyConvertible<Z_bytes_big, N_bytes_big>);
-    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::little, unsigned short>, N_bytes<endian::little, unsigned short>>);
-    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::big, unsigned short>, N_bytes<endian::big, unsigned short>>);*/
+    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::little, unsigned short>, math::N_bytes<endian::little, unsigned short>>);
+    static_assert (ExplicitlyConvertible<math::Z_bytes<endian::big, unsigned short>, math::N_bytes<endian::big, unsigned short>>);
 
-    // for built-in-like numbers, both conversions are explicit.
+    static_assert (ExplicitlyConvertible<uint64_big, int64_big>);
+    static_assert (ImplicitlyConvertible<int64_big, uint64_big>);
+
+    static_assert (ExplicitlyConvertible<uint64_little, int64_little>);
+    static_assert (ImplicitlyConvertible<int64_little, uint64_little>);
+
     static_assert (ExplicitlyConvertible<uint128, int128>);
     static_assert (ImplicitlyConvertible<int128, uint128>);
 
@@ -559,6 +566,64 @@ namespace data {
         test_throw_on_division_by_zero<base58_uint> ();
 
     }
+
+    template <typename X>
+    void test_literal_comparisons () {
+        EXPECT_EQ (X {6} == 6, true);
+        EXPECT_EQ (X {6} != 6, false);
+        EXPECT_EQ (X {6} <  6, false);
+        EXPECT_EQ (X {6} <= 6, true);
+        EXPECT_EQ (X {6} >  6, false);
+        EXPECT_EQ (X {6} >= 6, true);
+
+        EXPECT_EQ (X {5} == 6, false);
+        EXPECT_EQ (X {5} != 6, true);
+        EXPECT_EQ (X {5} <  6, true);
+        EXPECT_EQ (X {5} <= 6, true);
+        EXPECT_EQ (X {5} >  6, false);
+        EXPECT_EQ (X {5} >= 6, false);
+    }
+
+    template <typename X, typename Y>
+    void test_pair_comparisons () {
+        EXPECT_EQ (X {6} == Y{6}, true);
+        EXPECT_EQ (X {6} != Y{6}, false);
+        EXPECT_EQ (X {6} <  Y{6}, false);
+        EXPECT_EQ (X {6} <= Y{6}, true);
+        EXPECT_EQ (X {6} >  Y{6}, false);
+        EXPECT_EQ (X {6} >= Y{6}, true);
+
+        EXPECT_EQ (X {5} == Y{6}, false);
+        EXPECT_EQ (X {5} != Y{6}, true);
+        EXPECT_EQ (X {5} <  Y{6}, true);
+        EXPECT_EQ (X {5} <= Y{6}, true);
+        EXPECT_EQ (X {5} >  Y{6}, false);
+        EXPECT_EQ (X {5} >= Y{6}, false);
+
+        EXPECT_EQ (X {7} == Y{6}, false);
+        EXPECT_EQ (X {7} != Y{6}, true);
+        EXPECT_EQ (X {7} <  Y{6}, false);
+        EXPECT_EQ (X {7} <= Y{6}, false);
+        EXPECT_EQ (X {7} >  Y{6}, true);
+        EXPECT_EQ (X {7} >= Y{6}, true);
+    }
+
+    template <typename... Types>
+    void run_comparison_tests() {
+        // Literal comparisons
+        (test_literal_comparisons<Types>(), ...);
+
+        // Pairwise comparisons (all combinations)
+        ([]<typename X, typename... Ys>() {
+            (test_pair_comparisons<X, Ys>(), ...);
+        }.template operator()<Types, Types...>(), ...);
+    }
+/*
+    TEST (Numbers, Comparisons) {
+        run_comparison_tests<Z_bytes_BC_big, uint256, N, N_bytes_little, N_bytes_big,
+            uint160_little, uint160_big, uint160, uint256_little, uint256_big,
+            Z, Z_bytes_little, Z_bytes_big, Z_bytes_BC_little> ();
+    }*/
 
     // TODO Need a decrement test for other kinds of numbers.
 

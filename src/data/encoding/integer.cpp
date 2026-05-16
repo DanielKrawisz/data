@@ -6,10 +6,13 @@
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
 #include <data/math/number/gmp/Z.hpp>
+// ideally we would get rid of this.
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
-#include <data/io/unimplemented.hpp>
+#include <data/encoding/read.hpp>
+#include <data/exception.hpp>
 #include <algorithm>
 
 namespace data::encoding {
@@ -282,7 +285,8 @@ namespace data::encoding {
         }
         
         string::operator double () const {
-            return double (N {*this});
+            // TODO we need a different way of doing this.
+            return double (Z (*this));
         }
     
         string operator - (const string &n) {
@@ -355,7 +359,7 @@ namespace data::encoding {
     }
 
     std::istream &read_nat (std::istream &i, std::string &str) {
-        skip_whitespace (i);
+        i >> std::ws;
         int first = i.peek ();
 
         // there must be a first character. 
@@ -381,8 +385,8 @@ namespace data::encoding {
     }
 
     std::istream &read_int (std::istream &i, std::string &str) {
-        
-        skip_whitespace (i);
+        i >> std::ws;
+
         int first = i.peek ();
         if (first < 0) {
             i.setstate (std::ios::failbit);

@@ -10,15 +10,14 @@ include (GoogleTest)
 
 add_executable (
     unit_tests
-    # These tests only require data_core for the components being tested. 
-    # other components may be used for the tests themselves. 
+    # These tests only require data_core for the components being tested.
+    # other components may be used for the tests themselves.
     maybe_either.cpp
     store.cpp
     exception.cpp
     linked_stack.cpp             # TODO: ensure we check the interface by argument lookup and in data::
                                  #       ensure that we can use this type in a pure functional way.
     list.cpp                     # TODO: contains commented tests
-                                 #       can be both const and unconst iterable (unofficially)
                                  #       ensure that we can use this type in a pure functional way.
     ordered_sequence.cpp         # TODO: contains commented tests
                                  #       ensure that we can use this type in a pure functional way.
@@ -32,22 +31,28 @@ add_executable (
                                  #       ensure that we can use this type in a pure functional way.
     functional_interfaces.cpp    # TODO: contains commented tests
                                  #       We can eventually get rid of this file entirely.
-    empty.cpp                    # TODO: Contains commented test cases
+    empty.cpp                    # TODO: Contains notes
     take.cpp                     # TODO: ensure we check the interface by argument lookup and in data::
     reverse.cpp                  # TODO: Contains commented test cases
     contains.cpp                 # TODO: Contains commented test cases
     sort.cpp
+    get.cpp
     for_each.cpp                 # TODO: could be more thorough
     replace.cpp
     select.cpp
     lift.cpp                     # TODO: could be more thorough
-    map_schema.cpp
+    transpose.cpp
+    flatten.cpp
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
+    transpose.cpp
     combinatorics.cpp
+    schema.cpp
 
     # string
+    parse.cpp
     integer_format.cpp
     bytes.cpp
+    write.cpp
     hex.cpp
     base64.cpp
     ASCII.cpp
@@ -97,7 +102,11 @@ add_executable (
     # crypto
     # random_primes.cpp
     symmetric_crypto.cpp
+    NIST_DRBG.cpp
     secret_share.cpp
+
+    #async
+    async.cpp
 
     # net
     IP.cpp
@@ -105,14 +114,21 @@ add_executable (
     email.cpp
 
     # io
-    testLog.cpp
+    log.cpp
     args_parser.cpp
 )
 
 target_link_libraries (unit_tests
-  PRIVATE data gtest_main gmock)
+  PRIVATE net io crypto numbers gtest_main gmock)
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)
     add_subdirectory (optional)
 endif ()
+
+target_compile_options (unit_tests PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048>
+    $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048>
+    $<$<CXX_COMPILER_ID:AppleClang>:-ftemplate-depth=2048>
+    $<$<CXX_COMPILER_ID:MSVC>:/constexpr:depth2048>
+)

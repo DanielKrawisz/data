@@ -978,24 +978,23 @@ namespace data::math::number {
 
     TEST (Hexidecimal, HexidecimalBitShift) {
 
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x", 0, "0x", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x", 1, "0x", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x", 21, "0x", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x01", 0, "0x01", "0x01");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x01", 1, "0x02", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x01", 2, "0x04", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x01", 5, "0x0020", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x01", 17, "0x020000", "0x00");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 1, "0x0600", "0x0180");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 2, "0x0c00", "0x00c0");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 8, "0x030000", "0x03");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 9, "0x060000", "0x01");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 16, "0x03000000", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 17, "0x06000000", "0x");
-        test_bit_shift<neg::nones, neg::twos, neg::BC> ("0x0300", 18, "0x0c000000", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x", 0, "0x", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x", 1, "0x", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x", 21, "0x", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x01", 0, "0x01", "0x01");
+        test_bit_shift<neg::nones, neg::twos> ("0x01", 1, "0x02", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x01", 2, "0x04", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x01", 5, "0x0020", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x01", 17, "0x020000", "0x00");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 1, "0x0600", "0x0180");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 2, "0x0c00", "0x00c0");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 8, "0x030000", "0x03");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 9, "0x060000", "0x01");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 16, "0x03000000", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 17, "0x06000000", "0x");
+        test_bit_shift<neg::nones, neg::twos> ("0x0300", 18, "0x0c000000", "0x");
         test_bit_shift<neg::nones> ("0xff", 1, "0x01fe", "0x7f");
         test_bit_shift<neg::twos> ("0xff", 1, "0xfe", "0xff");
-        test_bit_shift<neg::BC> ("0xff", 1, "0x80fe", "0xc0");
 
     }
     

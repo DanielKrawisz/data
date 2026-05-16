@@ -11,7 +11,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CA
 # ---------------------------------------------------------
 project (
   data
-  VERSION 0.0.34
+  VERSION 0.0.35
   DESCRIPTION "functinal data structures, mathematics, cryptography, networking, wrappers, and other high-level programming constructs in c++"
   LANGUAGES CXX
 )
@@ -85,7 +85,7 @@ endif ()
 # ---------------------------------------------------------
 # User option: build tests
 # ---------------------------------------------------------
-option(PACKAGE_TESTS "Build the unit tests for this project" ON)
+option (PACKAGE_TESTS "Build the unit tests for this project" ON)
 
 if (PACKAGE_TESTS)
     message (STATUS "Tests: enabled")
@@ -152,9 +152,6 @@ cmake_policy (SET CMP0135 NEW)
 
 FetchContent_Declare (json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable (json)
-
-FetchContent_Declare (argh URL https://github.com/adishavit/argh/archive/refs/tags/v1.3.2.zip)
-FetchContent_MakeAvailable (argh)
 
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.zip)
 FetchContent_MakeAvailable (ctre)

@@ -1,0 +1,140 @@
+// Copyright (c) 2024 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_CONCEPTS
+#define DATA_CONCEPTS
+
+#include <type_traits>
+#include <concepts>
+#include <tuple>
+
+namespace data {
+
+    template <typename ...types> struct is_same;
+    template <> struct is_same<> : std::true_type {};
+    template <typename type> struct is_same<type> : std::true_type {};
+
+    template <typename A, typename B> struct is_same<A, B> :
+        std::bool_constant<requires { requires std::same_as<A, B>; }> {};
+
+    template <typename A, typename B, typename ...types> struct is_same<A, B, types...> :
+        std::bool_constant<is_same<A, B>::value && is_same<B, types...>::value> {};
+
+    // works like std::same_as but can take any number of parameters.
+    template <typename... T> concept Same = is_same<T...>::value;
+
+    template <typename ...types> struct is_unsame;
+    template <> struct is_unsame<> : std::false_type {};
+    template <typename type> struct is_unsame<type> : std::false_type {};
+
+    template <typename A, typename B> struct is_unsame<A, B> :
+        std::bool_constant<requires { requires (!std::same_as<A, B>); }> {};
+
+    template <typename A, typename B, typename ...types> struct is_unsame<A, B, types...> :
+        std::bool_constant<is_unsame<A, B>::value && is_unsame<A, types...>::value && is_unsame<B, types...>::value> {};
+
+    // check if any number of types are the same.
+    template <typename... T> concept Unsame = is_unsame<T...>::value;
+
+    template <typename Type, typename Argument> using is_constructible = std::is_constructible<Type, Argument>;
+    template <typename Type, typename Argument> inline constexpr bool is_constructible_v = std::is_constructible<Type, Argument>::value;
+    template <typename Type, typename Argument> concept ConstructibleFrom = std::constructible_from<Type, Argument>;
+
+    template <typename From, typename To> using is_implicitly_convertible = std::is_convertible<From, To>;
+
+    template <typename From, typename To> inline constexpr bool is_implicitly_convertible_v = is_implicitly_convertible<From, To>::value;
+
+    // std::convertible_to means implicitly convertible.
+    // we define concepts for implicit conversions, explicit conversions, or either.
+    template <typename From, typename To>
+    concept ImplicitlyConvertible =
+        std::is_convertible_v<From, To> /*&&
+        // this stuff is all commented out because I changed my mind and
+        // didn't want it but I didn't want to lose all the work I spent
+        // making it.
+        // if both are integers, then
+        //    * To is at least as big as From and has the same signedness
+        //    * To is bigger than From and is signed if From is signed.
+        ((!(std::integral<From> && std::integral<To>)) || (
+            // if From is signed, then To must also be signed and be at least as big as To.
+            ((!std::signed_integral<From>) || (std::signed_integral<To> && sizeof (To) >= sizeof (From))) &&
+            // if From is unsigend, then
+            ((!std::unsigned_integral<From>) || (
+                std::unsigned_integral<To> && sizeof (To) >= sizeof (From) ||
+                std::signed_integral<To> && sizeof (To) > sizeof (From)))
+
+        // if From is an integer and To is a floating point, then
+        )) && ((!(std::integral<From> && std::is_floating_point_v<To>)) || (sizeof (To) > sizeof (From))) &&
+
+        // If both are floating points then To must be at least as big as From
+        ((!(std::is_floating_point_v<From> && std::is_floating_point_v<To>)) || (sizeof (To) >= sizeof (From))) &&
+
+        // no floating points to integral types.
+        (!(std::is_floating_point_v<From> && std::is_integral_v<To>)) &&
+        // no enums to arithmetic types.
+        (!(std::is_enum_v<From> && std::is_arithmetic_v<To>))*/;
+
+    template <typename From, typename To> concept ExplicitlyConvertible =
+        !ImplicitlyConvertible<From, To> && requires (From from) {
+            { To (from) };
+        };
+
+    // here convertible to means either explicit or implicit.
+    template <typename From, typename To> concept Convertible =
+        std::convertible_to<From, To> || requires (From from) {
+            { To (from) };
+        };
+
+    template <typename Type> concept Copyable = std::is_constructible_v<Type, Type>;
+
+    // is a reference type.
+    template <typename Type> concept Reference = std::is_reference_v<Type>;
+
+    template <typename Type, typename Argument>
+    struct is_implicitly_constructible :
+        std::bool_constant<is_constructible_v<Type, Argument> &&
+        is_implicitly_convertible_v<Argument, Type>> {};
+
+    template <typename Type, typename Argument>
+    struct is_explicitly_constructible :
+        std::bool_constant<is_constructible_v<Type, Argument> &&
+        !is_implicitly_convertible_v<Argument, Type>> {};
+
+    template <typename Type, typename Argument> inline constexpr bool
+    is_explicitly_constructible_v = is_explicitly_constructible<Type, Argument>::value;
+
+    template <typename Type, typename Argument> inline constexpr bool
+    is_implicitly_constructible_v = is_implicitly_constructible<Type, Argument>::value;
+
+    template <typename Type, typename Argument>
+    concept explicitly_constructible_from = is_explicitly_constructible<Type, Argument>::value;
+
+    template <typename Type, typename Argument>
+    concept implicitly_constructible_from = is_implicitly_constructible<Type, Argument>::value;
+
+    template <typename Type> concept member_function_pointer = std::is_member_function_pointer_v<Type>;
+
+    template <typename Type> struct is_effectively_const : std::false_type {};
+
+    template <typename Type> inline constexpr bool is_effectively_const_v = is_effectively_const<Type>::value;
+    
+    // && and & types are effectively const because you cannot change the 
+    // reference itself. You can change the value pointed to by the reference.
+    template <typename Type> struct is_effectively_const<Type &> : std::true_type {};
+    template <typename Type> struct is_effectively_const<Type &&> : std::true_type {};
+    template <typename Type> struct is_effectively_const<const Type> : std::true_type {};
+    template <typename Type> struct is_effectively_const<Type *const> : std::true_type {};
+
+    // any type beginning with const and any reference or rvalue reference.
+    template <typename Type> concept Const = is_effectively_const_v<Type>;
+
+    template <typename X> using unref = std::remove_reference_t<X>;
+    template <typename X> using unconst = std::remove_const_t<X>;
+
+}
+
+#define REQUIRE_CONSTEXPR(EXPR) \
+    [&]() constexpr { (void)(EXPR); } ()
+
+#endif

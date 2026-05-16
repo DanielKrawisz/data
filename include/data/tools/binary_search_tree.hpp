@@ -1,0 +1,477 @@
+// Copyright (c) 2024 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_BINARY_SEARCH_TREE
+#define DATA_BINARY_SEARCH_TREE
+
+#include <data/functional/map.hpp>
+#include <data/tools/linked_tree.hpp>
+#include <data/ordered_sequence.hpp>
+
+namespace data {
+
+    template <Ordered value, functional::buildable_tree<value> tree> struct binary_search_tree;
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    struct binary_search_map;
+
+    // the two trees are considered to be equal if they have
+    // the same elements even if they are not the same tree.
+    template <Ordered value, functional::buildable_tree<value> tree,
+        std::equality_comparable_with<value> X, functional::buildable_tree<X> T>
+    bool operator == (const binary_search_tree<value, tree> &a, const data::binary_search_tree<X, T> &b);
+
+    template <typename key, std::equality_comparable value, typename tree,
+        std::equality_comparable_with<value> X, typename T>
+    bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, X, T> &b);
+
+    template <typename key, typename value, typename tree>
+    binary_search_map<key, value, tree> insert (const binary_search_map<key, value, tree> &a, const key &k, const value &v);
+
+    template <typename key, typename value, typename tree>
+    binary_search_map<key, value, tree> remove (const binary_search_map<key, value, tree> &a, const key &k);
+
+    // print to screen
+    template <Ordered value, functional::buildable_tree<value> tree>
+    std::ostream &operator << (std::ostream &, binary_search_tree<value, tree>);
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    std::ostream &operator << (std::ostream &, binary_search_map<key, value, tree>);
+
+    // we use a buildable tree to create a search tree.
+    template <Ordered value, functional::buildable_tree<value> tree>
+    struct binary_search_tree : tree {
+        binary_search_tree ();
+        binary_search_tree (std::initializer_list<wrapped<value>> x);
+        binary_search_tree (const tree &);
+        binary_search_tree (tree &&);
+
+        binary_search_tree left () const;
+        binary_search_tree right () const;
+
+        static bool sorted (binary_search_tree);
+
+        bool valid () const;
+
+        ref_to_ptr<const value &> contains (inserted<value>) const;
+
+        ordered_sequence<inserted<value>> values () const;
+
+        binary_search_tree insert (inserted<value> v) const {
+            return insert (v, &functional::keep_old<value>);
+        }
+
+        // if we have equivalent elements in the tree, the default behavior is to keep the old one.
+        // however, you could also use functional::replace_new.
+        template <typename already_exists> requires requires (already_exists f, const value &old_v, const value &new_v) {
+            { f (old_v, new_v) } -> ImplicitlyConvertible<value>;
+        } binary_search_tree insert (inserted<value> v, already_exists f) const {
+            return functional::insert (static_cast<const tree &> (*this), v, f);
+        }
+
+        using const_iterator = functional::binary_search_iterator<const value, tree>;
+
+        const_iterator begin () const;
+        const_iterator end () const;
+    };
+
+    // we can use the above tree as the search tree with
+    // insert method that we need to make the binary search map.
+    // we can also use the rb::tree defined in rb.hpp, which
+    // uses a balanced insert method.
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    struct binary_search_map : tree {
+        using entry = data::entry<const key, value>;
+
+        bool valid () const {
+            for (const auto &e : *this) if (!data::valid (e)) return false;
+            return true;
+        }
+
+        binary_search_map ();
+        binary_search_map (std::initializer_list<entry>);
+        binary_search_map (const tree &t): tree {t} {}
+        binary_search_map (tree &&t): tree {t} {}
+
+        const value &operator [] (inserted<key>) const;
+        value &operator [] (inserted<key>);
+
+        ref_to_ptr<const value &> contains (inserted<key>) const;
+        ref_to_ptr<value &> contains (inserted<key>);
+
+        bool contains (const entry &e) const;
+
+        binary_search_map insert (const key &k, const value &v) const {
+            return insert (k, v, &default_key_already_exists);
+        }
+
+        binary_search_map insert (const entry &e) const {
+            return insert (e.Key, e.Value);
+        }
+
+        binary_search_map operator << (const entry &) const;
+        binary_search_map operator <<= (const entry &);
+
+        // try to insert something and call a function if it already exists.
+        // (so that the user can decide whether he wants to replace it or not or combine them or whatever)
+        // if a key already exists, the default behavior is to throw an exception.
+        template <typename already_exists> requires requires (already_exists f, const value &old_v, const value &new_v) {
+            { f (old_v, new_v) } -> ImplicitlyConvertible<value>;
+        } binary_search_map insert (const key &k, const value &v, already_exists f) const {
+            return static_cast<tree> (*this).insert (entry {k, v}, [f] (const entry &old_e, const entry &new_e) {
+                return entry {old_e.Key, f (old_e.Value, new_e.Value)};
+            });
+        }
+
+        binary_search_map remove (const key &k) const;
+
+        ordered_sequence<const key &> keys () const;
+
+        ordered_sequence<const entry &> values () const;
+
+        template <typename X, typename T>
+        requires ImplicitlyConvertible<value, X>
+        operator binary_search_map<key, X, T> () const;
+
+        template <typename X, typename T>
+        requires ExplicitlyConvertible<value, X>
+        explicit operator binary_search_map<key, X, T> () const;
+
+        binary_search_map operator & (binary_search_map x) const;
+        binary_search_map operator | (binary_search_map x) const;
+        binary_search_map operator ^ (binary_search_map x) const;
+
+        struct iterator : tree::iterator {
+            using tree::iterator::iterator;
+
+            using value_type = entry;
+
+            // pre increment
+            iterator &operator ++ ();
+
+            // post increment
+            iterator operator ++ (int);
+
+            bool operator == (const iterator i) const;
+        };
+
+        iterator begin () const;
+        iterator end () const;
+
+        struct key_does_not_exist : exception {
+            key_does_not_exist () : exception {"key does not exist"} {}
+        };
+
+        struct key_already_exists : exception {
+            key_already_exists () : exception {"key already exists"} {}
+        };
+
+    private:
+        static const value &default_key_already_exists (const value & old_v, const value & new_v);
+    };
+    
+    template <Ordered key, typename value, typename tree>
+    bool inline empty (binary_search_map<key, value, tree> x) {
+        return x.empty ();
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    inline binary_search_tree<value, tree>::binary_search_tree (): tree {} {}
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    inline binary_search_map<key, value, tree>::binary_search_map (): tree {} {}
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    inline binary_search_tree<value, tree>::binary_search_tree (const tree &t): tree {t} {}
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    inline binary_search_tree<value, tree>::binary_search_tree (tree &&t): tree {t} {}
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    binary_search_tree<value, tree> inline binary_search_tree<value, tree>::left () const {
+        return static_cast<const tree *> (this)->left ();
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    binary_search_tree<value, tree> inline binary_search_tree<value, tree>::right () const {
+        return static_cast<const tree *> (this)->right ();
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    bool inline binary_search_tree<value, tree>::valid () const {
+        return tree::valid () && sorted (*this);
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    inline binary_search_tree<value, tree>::binary_search_tree (std::initializer_list<wrapped<value>> init) {
+        for (const wrapped<value> z : init) *this = this->insert (z);
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    ordered_sequence<inserted<value>> inline binary_search_tree<value, tree>::values () const {
+        stack<inserted<value>> st;
+        for (inserted<value> v : *this) st <<= v;
+        return ordered_sequence<inserted<value>> {reverse (st)};
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    bool binary_search_tree<value, tree>::sorted (binary_search_tree x) {
+        if (data::empty (x)) return true;
+
+        auto z = x.begin ();
+        auto last = z;
+        z++;
+        for (; z != x.end (); z++) {
+            if (!(*last < *z)) return false;
+            last = z;
+        }
+
+        return true;
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    ref_to_ptr<const value &> inline binary_search_tree<value, tree>::contains (inserted<value> v) const {
+        return functional::contains (*this, v);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    ref_to_ptr<const value &> inline binary_search_map<key, value, tree>::contains (inserted<key> k) const {
+        if (data::empty (*this)) return nullptr;
+        const auto &e = data::root (*this);
+        return e.Key == k ? &e.Value: k < e.Key ? left (*this).contains (k) : right (*this).contains (k);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    ref_to_ptr<value &> inline binary_search_map<key, value, tree>::contains (inserted<key> k) {
+        if (data::empty (*this)) return nullptr;
+        // we have to use const_cast here because RB::tree cannot have
+        // non-const access since it is sorted. However, when
+        // we use entry<K, V>, changing the value of V does not change
+        // the sorting, so it's ok to change it.
+        auto &e = const_cast<data::entry<const key, value> &> (data::root (*this));
+        return e.Key == k ? &e.Value: k < e.Key ? left (*this).contains (k) : right (*this).contains (k);
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    binary_search_tree<value, tree>::const_iterator inline binary_search_tree<value, tree>::begin () const {
+        return const_iterator {this, *this};
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    binary_search_tree<value, tree>::const_iterator inline binary_search_tree<value, tree>::end () const {
+        return const_iterator {this, tree {}};
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree,
+        std::equality_comparable_with<value> X, functional::buildable_tree<X> T>
+    bool operator == (const binary_search_tree<value, tree> &a, const data::binary_search_tree<X, T> &b) {
+        if (a.size () != b.size ()) return false;
+        auto bb = b.begin ();
+        for (auto ab = a.begin (); ab != a.end (); ab++) if (*ab != *bb) return false;
+        else bb++;
+        return true;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    inline binary_search_map<key, value, tree>::binary_search_map (std::initializer_list<entry> init) : tree {} {
+        for (const auto &p : init) *this = insert (p);
+    }
+
+    template <typename key, std::equality_comparable value, typename tree,
+        std::equality_comparable_with<value> X, typename T>
+    bool operator == (const binary_search_map<key, value, tree> &a, const binary_search_map<key, X, T> &b) {
+        if (a.size () != b.size ()) return false;
+        auto bi = b.begin ();
+        for (auto ai = a.begin (); ai != a.end (); ai++) if (ai->Key != bi->Key || ai->Value != bi->Value) return false;
+        else bi++;
+        return true;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    bool inline binary_search_map<key, value, tree>::contains (const data::entry<const key, value> &e) const {
+        const value *v = contains (e.Key);
+        return bool (v) ? *v == e.Value : false;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    template <typename X, typename T> requires ImplicitlyConvertible<value, X>
+    binary_search_map<key, value, tree>::operator binary_search_map<key, X, T> () const {
+        binary_search_map<key, X, T> m;
+        for (const auto &e : *this) m = m.insert (e);
+        return m;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    template <typename X, typename T> requires ExplicitlyConvertible<value, X>
+    binary_search_map<key, value, tree>::operator binary_search_map<key, X, T> () const {
+        binary_search_map<key, X, T> m;
+        for (const auto &e : *this) m = m.insert (e);
+        return m;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree> inline binary_search_map<key, value, tree>::operator | (binary_search_map x) const {
+        return static_cast<const tree &> (*this) | static_cast<const tree &> (x);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree> inline binary_search_map<key, value, tree>::operator & (binary_search_map x) const {
+        return static_cast<const tree &> (*this) & static_cast<const tree &> (x);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree> inline binary_search_map<key, value, tree>::operator ^ (binary_search_map x) const {
+        return static_cast<const tree &> (*this) ^ static_cast<const tree &> (x);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    const value inline &binary_search_map<key, value, tree>::default_key_already_exists (const value &, const value &) {
+        throw key_already_exists {};
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    ordered_sequence<const key &> binary_search_map<key, value, tree>::keys () const {
+        stack<const key &> kk {};
+
+        for (const entry &e : *this) kk >>= e.Key;
+
+        ordered_sequence<const key &> x {};
+        for (const auto &k : data::reverse (kk)) x = x >> k;
+        return x;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    ordered_sequence<const data::entry<const key, value> &>
+    binary_search_map<key, value, tree>::values () const {
+        stack<const entry &> k {};
+        for (const entry &e : *this) k >>= e;
+        // revese the order of the elements
+        // we have to do this instead of using the reverse method
+        // to avoid a seg fault and I'm not sure why that happens.
+        stack<const entry &> kk {};
+        for (const entry &e : k) kk >>= e;
+        return ordered_sequence<const entry &> {kk};
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree>::iterator inline
+    binary_search_map<key, value, tree>::begin () const {
+        return iterator {this, *this};
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree>::iterator inline
+    binary_search_map<key, value, tree>::end () const {
+        return iterator {this, tree {}};
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    const value &binary_search_map<key, value, tree>::operator [] (inserted<key> k) const {
+        const auto *v = contains (k);
+        if (!bool (v)) throw key_does_not_exist {};
+        return *v;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    value &binary_search_map<key, value, tree>::operator [] (inserted<key> k) {
+        auto *v = contains (k);
+        if (!bool (v)) throw key_does_not_exist {};
+        return *v;
+    }
+
+    template <Ordered value, functional::buildable_tree<value> tree>
+    std::ostream &operator << (std::ostream &o, binary_search_tree<value, tree> t) {
+        o << "{";
+
+        auto i = t.begin ();
+        if (i != t.end ()) {
+            o << *i;
+
+            while (true) {
+                i++;
+                if (i == t.end ()) break;
+                o << ", " << *i;
+            }
+        }
+
+        return o << "}";
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    std::ostream &operator << (std::ostream &o, binary_search_map<key, value, tree> m) {
+        o << "{";
+
+        auto i = m.begin ();
+        if (i != m.end ()) {
+            o << *i;
+
+            while (true) {
+                i++;
+                if (i == m.end ()) break;
+                o << ", " << *i;
+            }
+        }
+
+        return o << "}";
+    }
+
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree>::iterator inline binary_search_map<key, value, tree>::iterator::operator ++ (int) {
+        auto x = *this;
+        ++(*this);
+        return x;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree>::iterator inline &binary_search_map<key, value, tree>::iterator::operator ++ () {
+        ++static_cast<tree::iterator &> (*this);
+        return *this;
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    bool inline binary_search_map<key, value, tree>::iterator::operator == (const iterator i) const {
+        return static_cast<const tree::iterator &> (*this) == static_cast<const tree::iterator &> (i);
+    }
+
+    template <Ordered key, typename value, functional::search_tree<data::entry<const key, value>> tree>
+    requires interface::has_insert_method<tree, data::entry<const key, value>>
+    binary_search_map<key, value, tree> binary_search_map<key, value, tree>::remove (const key &k) const {
+        binary_search_map t;
+        for (const auto &e : *this) if (e.Key != k) t = t.insert (e);
+        return t;
+    }
+
+    template <typename key, typename value, typename tree>
+    binary_search_map<key, value, tree> inline remove (const binary_search_map<key, value, tree> &a, const key &k) {
+        return a.remove (k);
+    }
+}
+
+#endif
+

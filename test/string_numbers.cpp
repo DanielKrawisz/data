@@ -92,7 +92,7 @@ namespace data::math {
 
 namespace data::encoding {
     
-    TEST (StringNumbers, ConstructStringNumbers) {
+    TEST (StringNumbers, Construct) {
         
         EXPECT_EQ (dec_uint {}, "0");
         EXPECT_EQ (dec_int {}, "0");
@@ -115,8 +115,246 @@ namespace data::encoding {
         EXPECT_EQ (base58_uint {27u}, "U");
         
     }
+
+    template <neg n, std::signed_integral I> void test_hex_to_built_in (const char *val, I expected) {
+        try {
+            I result = I (hexidecimal::integer<n, hex_case::lower> (val));
+            EXPECT_EQ (result, expected) <<
+                "expected string " << val << " " << n << " -> " << int64 (expected) << " but got " << int64 (result);
+        } catch (...) {
+            FAIL () << "expected string " << val << " " << n << " -> " << int64 (expected) << " but threw instead.";
+        }
+    }
+
+    template <neg n, std::unsigned_integral I> void test_hex_to_built_in (const char *val, I expected) {
+        try {
+            I result = I (hexidecimal::integer<n, hex_case::lower> (val));
+            EXPECT_EQ (result, expected) <<
+            "expected string " << val << " " << n << " -> " << uint64 (expected) << " but got " << uint64 (result);
+        } catch (...) {
+            FAIL () << "expected string " << val << " " << n << " -> " << int64 (expected) << " but threw instead.";
+        }
+    }
+
+    // throw out_of_range instead
+    template <neg n, std::integral I> void test_hex_to_built_in (const char *val) {
+        EXPECT_THROW (I (hexidecimal::integer<n, hex_case::lower> (val)), out_of_range) <<
+            "expected string " << val << " " << n << " to throw ";
+    }
+
+    TEST (StringNumbers, HexToBuiltIn) {
+
+        // first let's test zero. That's a good place to start!
+        test_hex_to_built_in<neg::nones, byte> ("0x", 0);
+        test_hex_to_built_in<neg::twos, byte> ("0x", 0);
+        test_hex_to_built_in<neg::BC, byte> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, int8> ("0x", 0);
+        test_hex_to_built_in<neg::twos, int8> ("0x", 0);
+        test_hex_to_built_in<neg::BC, int8> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, uint16> ("0x", 0);
+        test_hex_to_built_in<neg::twos, uint16> ("0x", 0);
+        test_hex_to_built_in<neg::BC, uint16> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, int16> ("0x", 0);
+        test_hex_to_built_in<neg::twos, int16> ("0x", 0);
+        test_hex_to_built_in<neg::BC, int16> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, uint32> ("0x", 0);
+        test_hex_to_built_in<neg::twos, uint32> ("0x", 0);
+        test_hex_to_built_in<neg::BC, uint32> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, int32> ("0x", 0);
+        test_hex_to_built_in<neg::twos, int32> ("0x", 0);
+        test_hex_to_built_in<neg::BC, int32> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, uint64> ("0x", 0);
+        test_hex_to_built_in<neg::twos, uint64> ("0x", 0);
+        test_hex_to_built_in<neg::BC, uint64> ("0x", 0);
+
+        test_hex_to_built_in<neg::nones, int64> ("0x", 0);
+        test_hex_to_built_in<neg::twos, int64> ("0x", 0);
+        test_hex_to_built_in<neg::BC, int64> ("0x", 0);
+
+        // minimal representations of 1
+        test_hex_to_built_in<neg::nones, byte> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, byte> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, byte> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, int8> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, int8> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, int8> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, uint16> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, uint16> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, uint16> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, int16> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, int16> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, int16> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, uint32> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, uint32> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, uint32> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, int32> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, int32> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, int32> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, uint64> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, uint64> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, uint64> ("0x01", 1);
+
+        test_hex_to_built_in<neg::nones, int64> ("0x01", 1);
+        test_hex_to_built_in<neg::twos, int64> ("0x01", 1);
+        test_hex_to_built_in<neg::BC, int64> ("0x01", 1);
+
+        // representations of 1 that are bigger than the size of the number to be returned (should be ok)
+        test_hex_to_built_in<neg::nones, byte> ("0x0001", 1);
+        test_hex_to_built_in<neg::twos, byte> ("0x0001", 1);
+        test_hex_to_built_in<neg::BC, byte> ("0x0001", 1);
+
+        test_hex_to_built_in<neg::nones, int8> ("0x000001", 1);
+        test_hex_to_built_in<neg::twos, int8> ("0x000001", 1);
+        test_hex_to_built_in<neg::BC, int8> ("0x000001", 1);
+
+        test_hex_to_built_in<neg::nones, uint16> ("0x000001", 1);
+        test_hex_to_built_in<neg::twos, uint16> ("0x000001", 1);
+        test_hex_to_built_in<neg::BC, uint16> ("0x000001", 1);
+
+        test_hex_to_built_in<neg::nones, int16> ("0x00000001", 1);
+        test_hex_to_built_in<neg::twos, int16> ("0x00000001", 1);
+        test_hex_to_built_in<neg::BC, int16> ("0x00000001", 1);
+
+        test_hex_to_built_in<neg::nones, uint32> ("0x0000000001", 1);
+        test_hex_to_built_in<neg::twos, uint32> ("0x0000000001", 1);
+        test_hex_to_built_in<neg::BC, uint32> ("0x0000000001", 1);
+
+        test_hex_to_built_in<neg::nones, int32> ("0x000000000001", 1);
+        test_hex_to_built_in<neg::twos, int32> ("0x000000000001", 1);
+        test_hex_to_built_in<neg::BC, int32> ("0x000000000001", 1);
+
+        test_hex_to_built_in<neg::nones, uint64> ("0x000000000000000001", 1);
+        test_hex_to_built_in<neg::twos, uint64> ("0x000000000000000001", 1);
+        test_hex_to_built_in<neg::BC, uint64> ("0x000000000000000001", 1);
+
+        test_hex_to_built_in<neg::nones, int64> ("0x00000000000000000001", 1);
+        test_hex_to_built_in<neg::twos, int64> ("0x00000000000000000001", 1);
+        test_hex_to_built_in<neg::BC, int64> ("0x00000000000000000001", 1);
+
+        // maximum int values
+        test_hex_to_built_in<neg::nones, byte> ("0x7f", 0x7f);
+        test_hex_to_built_in<neg::twos, byte> ("0x7f", 0x7f);
+        test_hex_to_built_in<neg::BC, byte> ("0x7f", 0x7f);
+
+        test_hex_to_built_in<neg::nones, int8> ("0x7f", 0x7f);
+        test_hex_to_built_in<neg::twos, int8> ("0x7f", 0x7f);
+        test_hex_to_built_in<neg::BC, int8> ("0x7f", 0x7f);
+
+        test_hex_to_built_in<neg::nones, uint16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<neg::twos, uint16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<neg::BC, uint16> ("0x7fff", 0x7fff);
+
+        test_hex_to_built_in<neg::nones, int16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<neg::twos, int16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<neg::BC, int16> ("0x7fff", 0x7fff);
+
+        test_hex_to_built_in<neg::nones, uint32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::twos, uint32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::BC, uint32> ("0x7fffffff", 0x7fffffff);
+
+        test_hex_to_built_in<neg::nones, int32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::twos, int32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::BC, int32> ("0x7fffffff", 0x7fffffff);
+
+        test_hex_to_built_in<neg::nones, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::twos, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::BC, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+
+        test_hex_to_built_in<neg::nones, int64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::twos, int64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::BC, int64>   ("0x7fffffffffffffff", 0x7fffffffffffffff);
+
+        test_hex_to_built_in<neg::nones, byte> ("0x007f", 0x7f);
+        test_hex_to_built_in<neg::twos, byte> ("0x007f", 0x7f);
+        test_hex_to_built_in<neg::BC, byte> ("0x007f", 0x7f);
+
+        test_hex_to_built_in<neg::nones, int8> ("0x00007f", 0x7f);
+        test_hex_to_built_in<neg::twos, int8> ("0x00007f", 0x7f);
+        test_hex_to_built_in<neg::BC, int8> ("0x00007f", 0x7f);
+
+        test_hex_to_built_in<neg::nones, uint16> ("0x0000007fff", 0x7fff);
+        test_hex_to_built_in<neg::twos, uint16> ("0x0000007fff", 0x7fff);
+        test_hex_to_built_in<neg::BC, uint16> ("0x0000007fff", 0x7fff);
+
+        test_hex_to_built_in<neg::nones, int16> ("0x000000007fff", 0x7fff);
+        test_hex_to_built_in<neg::twos, int16> ("0x000000007fff", 0x7fff);
+        test_hex_to_built_in<neg::BC, int16> ("0x000000007fff", 0x7fff);
+
+        test_hex_to_built_in<neg::nones, uint32> ("0x00000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::twos, uint32> ("0x00000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::BC, uint32> ("0x00000000007fffffff", 0x7fffffff);
+
+        test_hex_to_built_in<neg::nones, int32> ("0x0000000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::twos, int32> ("0x0000000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<neg::BC, int32> ("0x0000000000007fffffff", 0x7fffffff);
+
+        test_hex_to_built_in<neg::nones, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::twos, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::BC, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
+
+        test_hex_to_built_in<neg::nones, int64> ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::twos, int64> ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<neg::BC, int64>   ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
+
+        // BC negative zero.
+        test_hex_to_built_in<neg::BC, byte>   ("0x80", 0);
+        test_hex_to_built_in<neg::BC, int8>   ("0x80", 0);
+        test_hex_to_built_in<neg::BC, uint16> ("0x80", 0);
+        test_hex_to_built_in<neg::BC, int16>  ("0x80", 0);
+        test_hex_to_built_in<neg::BC, uint32> ("0x80", 0);
+        test_hex_to_built_in<neg::BC, int32>  ("0x80", 0);
+        test_hex_to_built_in<neg::BC, uint64> ("0x80", 0);
+        test_hex_to_built_in<neg::BC, int64>  ("0x80", 0);
+
+        test_hex_to_built_in<neg::BC, byte>   ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, int8>   ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, uint16> ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, int16>  ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, uint32> ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, int32>  ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, uint64> ("0x8000000000", 0);
+        test_hex_to_built_in<neg::BC, int64>  ("0x8000000000", 0);
+
+        // BC special case.
+        test_hex_to_built_in<neg::BC, byte>   ("0x8080");
+        test_hex_to_built_in<neg::BC, int8>   ("0x8080", 0x80);
+
+        test_hex_to_built_in<neg::BC, uint16> ("0x808000");
+        test_hex_to_built_in<neg::BC, int16>  ("0x808000", 0x8000);
+
+        test_hex_to_built_in<neg::BC, uint32> ("0x8080000000");
+        test_hex_to_built_in<neg::BC, int32>  ("0x8080000000", 0x80000000);
+
+        test_hex_to_built_in<neg::BC, uint64> ("0x808000000000000000");
+        test_hex_to_built_in<neg::BC, int64>  ("0x808000000000000000", 0x8000000000000000);
+
+        test_hex_to_built_in<neg::twos, byte>   ("0x8080");
+        test_hex_to_built_in<neg::twos, int8>   ("0x8080");
+
+        test_hex_to_built_in<neg::twos, uint16> ("0x808000");
+        test_hex_to_built_in<neg::twos, int16>  ("0x808000");
+
+        test_hex_to_built_in<neg::twos, uint32> ("0x8080000000");
+        test_hex_to_built_in<neg::twos, int32>  ("0x8080000000");
+
+        test_hex_to_built_in<neg::twos, uint64> ("0x808000000000000000");
+        test_hex_to_built_in<neg::twos, int64>  ("0x808000000000000000");
+
+    }
     
-    TEST (StringNumbers, AddStringNumbers) {
+    TEST (StringNumbers, Add) {
         
         EXPECT_EQ (dec_uint {1u} + dec_uint {2}, "3");
         EXPECT_EQ (dec_int {1} + dec_int {2}, "3");
@@ -134,7 +372,7 @@ namespace data::encoding {
         
     }
     
-    TEST (StringNumbers, SubtractStringNumbers) {
+    TEST (StringNumbers, Subtract) {
 
         auto dec_minus_result = dec_uint {2} - dec_uint {1};
         EXPECT_EQ (dec_minus_result, "1");
@@ -155,7 +393,7 @@ namespace data::encoding {
         
     }
     
-    TEST (StringNumbers, MultiplyStringNumbers) {
+    TEST (StringNumbers, Multiply) {
 
         int a = 27;
         int b = 25;
@@ -193,7 +431,7 @@ namespace data::encoding {
         
     }
 
-    TEST (StringNumbers, DivideStringNumbers) {
+    TEST (StringNumbers, Divide) {
         
         uint64 num = 432;
         
@@ -204,42 +442,50 @@ namespace data::encoding {
         division<dec_uint, unsigned int>    dec_expected_9 {48, 0};
         division<hex_uint, unsigned int>    hex_expected_15 {28, 12};
         division<base58_uint, unsigned int> b58_expected_57 {7, 33};
-        
+
         EXPECT_EQ (divmod (dec_uint {num},    math::nonzero {10}),  dec_expected_10);
         EXPECT_EQ (divmod (hex_uint {num},    math::nonzero {16}),  hex_expected_16);
         EXPECT_EQ (divmod (base58_uint {num}, math::nonzero {58}),  b58_expected_58);
 
         EXPECT_EQ (divmod (dec_uint {num},    math::nonzero {9}),   dec_expected_9);
+
+        auto hex_a = hex_uint {num};
+        auto hex_b = math::nonzero {15};
+
+        EXPECT_EQ (divmod (hex_a, hex_b),  hex_expected_15);
         EXPECT_EQ (divmod (hex_uint {num},    math::nonzero {15}),  hex_expected_15);
         EXPECT_EQ (divmod (base58_uint {num}, math::nonzero {57}),  b58_expected_57);
         
     }
 
-    TEST (StringNumbers, ConvertStringNumbers) {
+    TEST (StringNumbers, Convert) {
 
-        EXPECT_EQ (static_cast<N> (dec_uint {1145}), N (1145));
-        EXPECT_EQ (static_cast<N> (dec_uint {916}), N (916));
-        EXPECT_EQ (static_cast<N> (dec_uint {229}), N (229));
+        EXPECT_EQ (N (dec_uint {1145}), N (1145));
+        EXPECT_EQ (N (dec_uint {916}), N (916));
+        EXPECT_EQ (N (dec_uint {229}), N (229));
 
-        EXPECT_EQ (static_cast<Z> (dec_int {1145}), Z (1145));
-        EXPECT_EQ (static_cast<Z> (dec_int {916}), Z (916));
-        EXPECT_EQ (static_cast<Z> (dec_int {229}), Z (229));
+        EXPECT_EQ (Z (dec_int {1145}), Z (1145));
+        EXPECT_EQ (Z (dec_int {916}), Z (916));
+        EXPECT_EQ (Z (dec_int {229}), Z (229));
 
-        EXPECT_EQ (static_cast<N> (base58_uint {1145}), N (1145));
-        EXPECT_EQ (static_cast<N> (base58_uint {916}), N (916));
-        EXPECT_EQ (static_cast<N> (base58_uint {229}), N (229));
+        EXPECT_EQ (N (base58_uint {1145}), N (1145));
+        EXPECT_EQ (N (base58_uint {916}), N (916));
+        EXPECT_EQ (N (base58_uint {229}), N (229));
 
-        EXPECT_EQ (static_cast<N> (hex_uint {1145}), N (1145));
-        EXPECT_EQ (static_cast<N> (hex_uint {916}), N (916));
-        EXPECT_EQ (static_cast<N> (hex_uint {229}), N (229));
+        EXPECT_EQ (N (hex_uint {1145}), N (1145));
+        EXPECT_EQ (N (hex_uint {916}), N (916));
+        EXPECT_EQ (N (hex_uint {229}), N (229));
 
-        EXPECT_EQ (static_cast<Z> (hex_int {1145}), Z (1145));
-        EXPECT_EQ (static_cast<Z> (hex_int {916}), Z (916));
-        EXPECT_EQ (static_cast<Z> (hex_int {229}), Z (229));
+        auto z1 = Z (hex_int {1145});
+        EXPECT_EQ (z1, Z (1145));
 
-        EXPECT_EQ (static_cast<Z> (hex_int_BC {1145}), Z (1145));
-        EXPECT_EQ (static_cast<Z> (hex_int_BC {916}), Z (916));
-        EXPECT_EQ (static_cast<Z> (hex_int_BC {229}), Z (229));
+        EXPECT_EQ (Z (hex_int {1145}), Z (1145));
+        EXPECT_EQ (Z (hex_int {916}), Z (916));
+        EXPECT_EQ (Z (hex_int {229}), Z (229));
+
+        EXPECT_EQ (Z (hex_int_BC {1145}), Z (1145));
+        EXPECT_EQ (Z (hex_int_BC {916}), Z (916));
+        EXPECT_EQ (Z (hex_int_BC {229}), Z (229));
 
     }
 }

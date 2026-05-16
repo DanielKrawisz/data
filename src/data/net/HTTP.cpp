@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/net/beast/http.hpp>
-#include <data/io/exception.hpp>
+#include <data/exception.hpp>
 #include <boost/asio/ssl/error.hpp>
 #include <boost/asio/ssl/stream.hpp>
 #include <boost/asio/strand.hpp>
@@ -17,12 +17,6 @@ namespace data::net::HTTP {
 
     std::ostream &operator << (std::ostream &o, const response &r) {
         return o << "HTTP response {status: " << r.Status << ", headers: " << r.Headers << ", body: " << r.Body << "}";
-    }
-
-    list<ASCII> get_headers (dispatch<header, ASCII> x, header n) {
-        list<ASCII> z;
-        for (const auto &[h, v] : x) if (h == n) z <<= v;
-        return z;
     }
 
     ASCII write_content_type (content::type x) {
@@ -71,8 +65,21 @@ namespace data::net::HTTP {
     }
 
     maybe<content> message::content_type () const {
-        for (auto [h, val]: Headers) if (h == header::content_type) return content {val};
+        maybe<const ASCII &> ct = get_value (Headers, header {header::content_type});
+        if (ct) return content {*ct};
         return {};
+    }
+
+    // host is required and the value must be an authority
+    bool request::valid () const {
+        auto h = host ();
+        return h.valid () && h != authority {};
+    }
+
+    authority request::host () const {
+        maybe<const ASCII &> auth = get_value (Headers, header {header::host});
+        if (!auth) return {};
+        return authority {*auth};
     }
 
     request::make request::make::method (const HTTP::method &m) const {
@@ -127,18 +134,18 @@ namespace data::net::HTTP {
     request::make request::make::body (const bytes &b, const content &content_type) const {
         if (bool (Body)) throw data::exception {"body is already set"};
 
-        auto r = add_headers ({entry<header, ASCII> {header::content_type, content_type}});
+        auto r = add_headers ({entry<const header, ASCII> {header::content_type, content_type}});
 
         r.Body = b;
         return r;
     }
 
     request::make request::make::host (const UTF8 &u) const {
-        return add_headers ({entry<header, ASCII> {header::host, encoding::percent::encode (u)}});
+        return add_headers ({entry<const header, ASCII> {header::host, encoding::percent::encode (u)}});
     }
 
     request::make request::make::authorization (const ASCII &a) const {
-        return add_headers ({entry<header, ASCII> {header::authorization, a}});
+        return add_headers ({entry<const header, ASCII> {header::authorization, a}});
     }
 
 
@@ -153,9 +160,7 @@ namespace data::net::HTTP::beast {
         maybe<IP::TCP::endpoint> maybe_endpoint = host_or_endpoint.endpoint ();
 
         if (bool (maybe_endpoint)) {
-            cross<asio::ip::tcp::endpoint> results {{asio::ip::tcp::endpoint (*maybe_endpoint)}};
-
-            co_await get_lowest_layer (x).async_connect (results, asio::use_awaitable);
+            co_await get_lowest_layer (x).async_connect (asio::ip::tcp::endpoint (*maybe_endpoint), asio::use_awaitable);
         } else {
             maybe<domain_name> maybe_host = host_or_endpoint.host ();
 

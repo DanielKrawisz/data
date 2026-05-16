@@ -8,10 +8,9 @@
 #include "data/encoding/endian.hpp"
 #include "gtest/gtest.h"
 
-namespace data::crypto {
+namespace data {
 
     // TODO include MD5
-
     struct SHA_test_case {
         string Test;
         string ExpectedSHA1;
@@ -24,10 +23,10 @@ namespace data::crypto {
         string ExpectedSHA3_384;
         string ExpectedSHA3_512;
 
-        template <hash::writer w>
+        template <hash::Engine w>
         static void run (const string &test, const string &expected) {
-            digest<w::size> expected_digest {expected};
-            digest<w::size> result = hash::calculate<w> (bytes (test));
+            hash::digest<w::DigestSize> expected_digest {expected};
+            hash::digest<w::DigestSize> result = hash::calculate<w> (bytes (test));
             EXPECT_EQ (expected_digest, result) << "expected " << test << " to hash to " << expected_digest << " but got " << result;
         }
     };
@@ -85,21 +84,30 @@ namespace data::crypto {
                 "afebb2ef542e6579c50cad06d2e578f9f8dd6881d7dc824d26360feebf18a4fa"
                     "73e3261122948efcfd492e74e82e2189ed0fb440d187f382270cb455f21dd185"}}) {
 
-            SHA_test_case::run<hash::SHA1> (test_case.Test, test_case.ExpectedSHA1);
-            SHA_test_case::run<hash::SHA2<28>> (test_case.Test, test_case.ExpectedSHA2_224);
-            SHA_test_case::run<hash::SHA2<32>> (test_case.Test, test_case.ExpectedSHA2_256);
-            SHA_test_case::run<hash::SHA2<48>> (test_case.Test, test_case.ExpectedSHA2_384);
-            SHA_test_case::run<hash::SHA2<64>> (test_case.Test, test_case.ExpectedSHA2_512);
-            SHA_test_case::run<hash::SHA3<28>> (test_case.Test, test_case.ExpectedSHA3_224);
-            SHA_test_case::run<hash::SHA3<32>> (test_case.Test, test_case.ExpectedSHA3_256);
-            SHA_test_case::run<hash::SHA3<48>> (test_case.Test, test_case.ExpectedSHA3_384);
-            SHA_test_case::run<hash::SHA3<64>> (test_case.Test, test_case.ExpectedSHA3_512);
+            SHA_test_case::run<crypto::hash::SHA1> (test_case.Test, test_case.ExpectedSHA1);
+            SHA_test_case::run<crypto::hash::SHA2<28>> (test_case.Test, test_case.ExpectedSHA2_224);
+            SHA_test_case::run<crypto::hash::SHA2<32>> (test_case.Test, test_case.ExpectedSHA2_256);
+            SHA_test_case::run<crypto::hash::SHA2<48>> (test_case.Test, test_case.ExpectedSHA2_384);
+            SHA_test_case::run<crypto::hash::SHA2<64>> (test_case.Test, test_case.ExpectedSHA2_512);
+            SHA_test_case::run<crypto::hash::SHA3<28>> (test_case.Test, test_case.ExpectedSHA3_224);
+            SHA_test_case::run<crypto::hash::SHA3<32>> (test_case.Test, test_case.ExpectedSHA3_256);
+            SHA_test_case::run<crypto::hash::SHA3<48>> (test_case.Test, test_case.ExpectedSHA3_384);
+            SHA_test_case::run<crypto::hash::SHA3<64>> (test_case.Test, test_case.ExpectedSHA3_512);
         }
 
     }
 
-    void RIPEMD_test_case (string test, string dig) {
-        EXPECT_EQ (RIPEMD_160 (test), digest<20> {dig});
+    void RIPEMD_test_case (std::string test, string dig) {
+        EXPECT_EQ (crypto::RIPEMD_160 (test), hash::digest<20> {dig});
+        EXPECT_EQ (hash::calculate<crypto::hash::RIPEMD<20>> (test), hash::digest<20> {dig});
+        EXPECT_EQ (hash::calculate<hash::writer<crypto::hash::RIPEMD<20>>> (test), hash::digest<20> {dig});
+
+        hash::digest<20> result; {
+            hash::writer<crypto::hash::RIPEMD<20>> w {result};
+            w << test;
+        }
+
+        EXPECT_EQ (result, hash::digest<20> {dig});
     }
 
     // from https://rosettacode.org/wiki/RIPEMD-160
@@ -116,35 +124,43 @@ namespace data::crypto {
 
     }
 
-    TEST (Hash, BitcoinHash) {
-        bytes test = *encoding::hex::read ("00010203fdfeff");
-        digest256 expected {"be586c8b20dee549bdd66018c7a79e2b67bb88b7c7d428fa4c970976d2bec5ba"};
+    void MD5_test_case (std::string test, string expected) {
 
-        EXPECT_EQ (Bitcoin_256 (test), expected);
+        EXPECT_EQ (crypto::MD5 (test), hash::digest<16> {expected});
+        EXPECT_EQ (hash::calculate<crypto::hash::MD5> (test), hash::digest<16> {expected});
+        EXPECT_EQ (hash::calculate<hash::writer<crypto::hash::MD5>> (test), hash::digest<16> {expected});
+
+        hash::digest<16> result = build_with<hash::digest<16>, hash::writer<crypto::hash::MD5>> ([&test] (auto &w) {
+            w << test;
+        });
+
+        EXPECT_EQ (result, hash::digest<16> {expected});
+
     }
 
-    TEST (Hash, HashWriter) {
+    TEST (Hash, MD5) {
 
-        hash::RIPEMD<20> RIPEMD_160_hash_writer;
-        hash::SHA2<32> SHA_2_256_hash_writer;
-        hash::Bitcoin<20> bitcoin_20_hash_writer;
-        hash::Bitcoin<32> bitcoin_32_hash_writer;
+        MD5_test_case ("", "d41d8cd98f00b204e9800998ecf8427e");
+        MD5_test_case ("a", "0cc175b9c0f1b6a831c399e269772661");
+        MD5_test_case ("abc", "900150983cd24fb0d6963f7d28e17f72");
+        MD5_test_case ("message digest", "f96b697d7cb7938d525a2f31aaf161d0");
 
-        RIPEMD_160_hash_writer << byte_slice {} << end_message {};
-        SHA_2_256_hash_writer << byte_slice {} << end_message {};
-        bitcoin_20_hash_writer << byte_slice {} << end_message {};
-        bitcoin_32_hash_writer << byte_slice {} << end_message {};
+        MD5_test_case ("abcdefghijklmnopqrstuvwxyz",
+            "c3fcd3d76192e4007dfb496cca67e13b");
 
-        RIPEMD_160_hash_writer << uint32_little {3} << end_message {};
-        SHA_2_256_hash_writer << uint32_little {3} << end_message {};
-        bitcoin_20_hash_writer << uint32_little {3} << end_message {};
-        bitcoin_32_hash_writer << uint32_little {3} << end_message {};
+        MD5_test_case ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            "d174ab98d277d9f5a5611c2c9f419d9f");
 
-        RIPEMD_160_hash_writer << byte (89) << end_message {};
-        SHA_2_256_hash_writer << byte (89) << end_message {};
-        bitcoin_20_hash_writer << byte (89) << end_message {};
-        bitcoin_32_hash_writer << byte (89) << end_message {};
+        MD5_test_case ("12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+            "57edf4a22be3c955ac49da2e2107b67a");
 
+    }
+
+    TEST (Hash, BitcoinHash) {
+        bytes test = *encoding::hex::read ("00010203fdfeff");
+        hash::digest256 expected {"be586c8b20dee549bdd66018c7a79e2b67bb88b7c7d428fa4c970976d2bec5ba"};
+
+        EXPECT_EQ (crypto::Bitcoin_256 (test), expected);
     }
 
 }

@@ -13,39 +13,36 @@ namespace data {
 
     void wait_for_enter (std::string message) {
         do {
-            std::cout << '\n' << message;
+            if (message != "") std::cout << '\n' << message;
         } while (std::cin.get () != '\n');
     }
 
     bool get_user_yes_or_no (std::string message, maybe<bool> default_value) {
-                std::string input;
-                while (true) {
-                    std::cout << message << " (";
-                    std::cout << ((default_value.has_value () && default_value.value ()) ? "Y":"y");
-                    std::cout << "/";
-                    std::cout << ((default_value.has_value () && !default_value.value ()) ? "N":"n");
-                    std::cout << ")" << std::endl;
-                    std::getline (std::cin,input);
+        std::string input;
+        while (true) {
+            std::cout << message << " (";
+            std::cout << ((default_value.has_value () && default_value.value ()) ? "Y":"y");
+            std::cout << "/";
+            std::cout << ((default_value.has_value () && !default_value.value ()) ? "N":"n");
+            std::cout << ")" << std::endl;
+            std::getline (std::cin,input);
 
-                    if (input.length () > 0){
-                        char answer = std::tolower (input[0]);
-                        if (answer =='y' || answer =='n')
-                            return answer=='y';
-                        continue;
-                    }
+            if (input.length () > 0) {
+                char answer = std::tolower (input[0]);
+                if (answer =='y' || answer =='n') return answer=='y';
+                continue;
+            }
 
-                    if (default_value.has_value ())
-                        return default_value.value ();
-                }
+            if (default_value.has_value ()) return default_value.value ();
         }
+    }
 
     std::string get_user_password (std::string message, char mask) {
         struct termios term, original;
         std::string password;
 
         // Get current terminal settings
-        if (tcgetattr (STDIN_FILENO, &term) != 0)
-            return "";
+        if (tcgetattr (STDIN_FILENO, &term) != 0) return "";
 
         original = term;
         // Unset ECHO flag

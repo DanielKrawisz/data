@@ -1,0 +1,126 @@
+// Copyright (c) 2015 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_ENCODING_READ
+#define DATA_ENCODING_READ
+
+#include <data/concepts.hpp>
+#include <data/encoding/endian.hpp>
+#include <data/maybe.hpp>
+#include <data/either.hpp>
+#include <data/encoding/base64.hpp>
+
+namespace data::encoding {
+
+    // read values from a serialized format.
+    template <typename X, typename ...context> struct read;
+
+    // this says that by default, context doesn't matter.
+    template <typename X, typename context, typename ...contexts> struct read<X, context, contexts...> : read<X, contexts...> {};
+
+    // The default read function.
+    template <std::default_initializable X> struct read<X> {
+        maybe<X> operator () (string_view z) const {
+            X x;
+            if constexpr (std::integral<X>) {
+                auto [ptr, ec] = std::from_chars (z.data (), z.data () + z.size (), x);
+                if (ec == std::errc {}) return x;
+            } else if constexpr (requires (std::istream &ss) {
+                { ss >> x };
+            }) {
+                std::stringstream ss {std::string {z}};
+                ss >> x;
+                if (!ss) return {};
+                return x;
+            } else if constexpr (requires () {
+                { X {z} };
+            }) {
+                try {
+                    X x {z};
+                    if (!valid (x)) return {};
+                } catch (...) {}
+            }
+            return {};
+        }
+
+        maybe<X> operator () (std::istringstream &ss) const {
+            X x;
+            ss >> x;
+            if (bool (ss)) return x;
+            return {};
+        }
+    };
+
+    template <> struct read<bool> {
+        maybe<bool> operator () (string_view x) const {
+            if (x == "0") return false;
+            if (x == "1") return true;
+            string lower = to_lower (std::string {x});
+            if (lower == "true") return true;
+            if (lower == "false") return false;
+            if (lower == "yes") return true;
+            if (lower == "no") return false;
+            if (lower == "on") return true;
+            if (lower == "off") return false;
+            return {};
+        }
+
+        maybe<bool> operator () (std::istringstream &ss) const {
+            ss >> std::ws;
+            std::string word;
+            ss >> word;
+            if (!ss) return {};
+            return operator () (word);
+        }
+    };
+
+    // not sure why this is necessary, but I can't get the default >> to error. 
+    template <endian::order Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct read<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+        maybe<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> operator () (string_view z) const {
+            auto x = read<T> {} (z);
+            if (!bool (x)) return {};
+            return {boost::endian::endian_arithmetic<Order, T, n_bits, Align> {*x}};
+        }
+    };
+
+    // assume bytes is encoded in base 64 by default.
+    template <> struct read<bytes> {
+        maybe<bytes> operator () (string_view x) const {
+            return base64::read (x);
+        }
+    };
+
+    // read all the way to the end of the string.
+    template <> struct read<std::string> {
+        maybe<std::string> operator () (string_view x) const {
+            return std::string (x.begin (), x.end ());
+        }
+
+        maybe<std::string> operator () (std::istringstream &ss) const {
+            std::string rest;
+            std::getline (ss, rest, '\0');
+            return rest;
+        }
+    };
+
+    template <typename ...X> struct read<either<X...>> {
+        maybe<either<X...>> operator () (string_view) const;
+    };
+
+    template<typename... X>
+    maybe<either<X...>> read<either<X...>>::operator () (string_view str) const {
+        maybe<either<X...>> result;
+
+        // Fold with short-circuiting via || trick
+        ([&] (const auto &r) { if (r) {
+            result = either<X...> {*r};
+            return true;
+        } else return false; } (read<X> {} (str)) || ...);
+
+        return result;
+    }
+}
+
+#endif

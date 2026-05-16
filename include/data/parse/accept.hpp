@@ -1,0 +1,101 @@
+// Copyright (c) 2026 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef DATA_PARSE_ACCEPT
+#define DATA_PARSE_ACCEPT
+
+#include <data/concepts.hpp>
+#include <data/types.hpp>
+#include <istream>
+#include <iostream>
+
+namespace data::parse {
+
+    template <typename M>
+    concept Directive = requires {
+        { [] () constexpr { return M {}; } () };
+    } && requires (const M &m) {
+        // whether the pattern is valid as it is.
+        { [] (const M &m) constexpr { return m.valid (); } (m) } -> Same<bool>;
+        // whether characters could be added to make a valid pattern.
+        { [] (const M &m) constexpr { return m.possible (); } (m) } -> Same<bool>;
+    } && requires (M &m, string_view v, char c) {
+        // return the amount of backtracking required.
+        { [] (M &m, string_view v, char c) constexpr { return m.step (v, c); } (m, v, c) };
+    };
+
+    // whether a string is accepted by a given machine. At the end of the
+    // string, the machine should have entered a valid halt state.
+    template <Directive State> bool accept (std::stringstream &ss);
+    template <Directive State> constexpr bool accept (const std::string &x);
+    template <Directive State> constexpr bool accept (const std::u8string &x);
+
+    template <typename stack, Directive D, template <Directive> class rule>
+    bool parse (std::istream &, stack &);
+
+    // NOTE: because PEGTL is a stateless parser, you can't use it
+    // to recognize a token, such as a URL. We realized this once
+    // we got to this point. In theory we could build up the entire
+    // URL library using state machines like we have below, but we
+    // haven't got around to that yet.
+    template <Directive State>
+    std::string read_token (std::istream &in, State &state) {
+        using traits = std::char_traits<char>;
+        std::string buf;
+
+        // TODO backtracking.
+        while (true) {
+            int p = in.peek ();
+            if (p == traits::eof ()) break;
+
+            char c = traits::to_char_type (p);
+            state.step (buf, c);
+
+            in.get ();
+            buf.push_back (c);
+
+            if (!state.possible ()) break;
+        }
+
+        if (!state.valid ())
+            in.setstate (std::ios::failbit);
+
+        return buf;
+    }
+
+    template <Directive State>
+    constexpr string_view read_token (const char *in, State &state) {
+        size_t i = 0;
+        char c;
+        while ((c = in[i]) != '\0') {
+            state.step (string_view {in, i}, c);
+            i++;
+            auto state_is_possible = state.possible ();
+            if (!state_is_possible) break;
+        }
+
+        return state.valid () ? string_view {in, i} : string_view {nullptr, 0};
+    }
+
+    template <Directive State>
+    bool inline accept (std::stringstream &ss) {
+        State state {};
+        read_token (ss, state);
+        return bool (ss);
+    }
+
+    template <Directive State> constexpr bool inline accept (const std::string &x) {
+        State state {};
+        string_view result = read_token (x.data (), state);
+        return result.size () == x.size () && result.data () != nullptr;
+    }
+
+    template <Directive State> constexpr bool inline accept (const std::u8string &x) {
+        State state {};
+        string_view result = read_token (reinterpret_cast<const char*> (x.data ()), state);
+        return result.size () == x.size () && result.data () != nullptr;
+    }
+}
+
+#endif
