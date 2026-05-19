@@ -77,8 +77,8 @@ namespace data::math::number {
         
         static Z_bytes zero (size_t size = 0);
         
-        // cast to any signed built in type
-        template <std::signed_integral I>
+        // cast to any built in type
+        template <std::integral I>
         explicit operator I () const;
         
         Z_bytes &trim ();
@@ -114,8 +114,8 @@ namespace data::math::number {
         
         static Z_bytes zero (size_t size = 0, bool negative = false);
         
-        // cast to any signed integral type.
-        template <std::signed_integral I>
+        // cast to any built-in type.
+        template <std::integral I>
         explicit operator I () const;
 
         Z_bytes &trim ();
@@ -1256,7 +1256,7 @@ namespace data::math::number {
     } 
     
     template <endian::order r, std::unsigned_integral word>
-    template <std::signed_integral I>
+    template <std::integral I>
     Z_bytes<r, neg::twos, word>::operator I () const {
 
         if (*this > std::numeric_limits<I>::max ())
@@ -1268,7 +1268,7 @@ namespace data::math::number {
         if (this->size () == 0) return 0;
 
         if constexpr (Same<word, byte>) {
-            endian::integral<true, endian::little, sizeof (I)> xx {0};
+            endian::integral<std::signed_integral<I>, endian::little, sizeof (I)> xx {0};
 
             std::copy (this->words ().begin (),
                 this->words ().begin () +
@@ -1283,9 +1283,41 @@ namespace data::math::number {
     } 
     
     template <endian::order r, std::unsigned_integral word>
-    template <std::signed_integral I>
+    template <std::integral I>
     inline Z_bytes<r, neg::BC, word>::operator I () const {
-        return I (Z_bytes<r, neg::twos, word> (*this));
+
+        if (*this > std::numeric_limits<I>::max ())
+            throw std::invalid_argument {"value too big"};
+
+        if (*this < std::numeric_limits<I>::min ())
+            throw std::invalid_argument {"value too small"};
+
+        if (this->size () == 0) return 0;
+
+        bool neg = is_negative (*this);
+
+        Z_bytes neg_if;
+        if (neg) neg_if = -*this;
+
+        const Z_bytes &mag = neg ? neg_if : *this;
+
+        I result;
+
+        if constexpr (Same<word, byte>) {
+            endian::integral<std::signed_integral<I>, endian::little, sizeof (I)> xx {0};
+
+            std::copy (this->words ().begin (),
+                this->words ().begin () +
+                    std::min (static_cast<size_t> (sizeof (I)),
+                        this->size ()),
+                xx.begin ());
+
+            result = I (xx);
+        } else if constexpr (Same<I, word>) {
+            result = mag->words () [0];
+        } else throw unimplemented {"Z_bytes to signed integral"};
+
+        return neg ? -result : result;
     } 
     
     template <endian::order r, std::unsigned_integral word>
