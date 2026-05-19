@@ -107,12 +107,10 @@ namespace data {
 
     // apply F to each respective element of the given tuples
     template <typename F, Tuple T, Tuple... Ts>
-    constexpr void for_each (F &&f, T &&t, Ts &&...ts)
-    {
-        constexpr std::size_t N =
-        std::tuple_size_v<std::remove_cvref_t<T>>;
+    constexpr void for_each (F &&f, T &&t, Ts &&...ts) {
+        constexpr std::size_t N = std::tuple_size_v<std::remove_cvref_t<T>>;
 
-        static_assert(((std::tuple_size_v<std::remove_cvref_t<Ts>> == N) && ...),
+        static_assert (((std::tuple_size_v<std::remove_cvref_t<Ts>> == N) && ...),
             "All tuples must have the same size");
 
         for_each_impl (std::make_index_sequence<N> {}, std::forward<F> (f),
@@ -122,17 +120,13 @@ namespace data {
 
     // apply a function to a part of a tuple and return the result.
     template <Tuple T, typename F>
-    constexpr decltype (auto) apply_at (T &&t, F &&f, size_t i) {
+    constexpr decltype (auto) inline apply_at (T &&t, F &&f, size_t i) {
         return tuple_apply_at_rec<0> (t, std::forward<F> (f), i);
     }
 
     template <typename F, typename... X>
-    constexpr auto lift(F&& f, const tuple<X...>& t)
-    -> tuple<decltype(f(std::declval<X>()))...>
-    {
-        return lift_impl(std::forward<F>(f),
-                         t,
-                         std::index_sequence_for<X...>{});
+    constexpr auto inline lift (F&& f, const tuple<X...> &t) -> tuple<decltype (f (std::declval<X>()))...> {
+        return lift_impl (std::forward<F> (f), t, std::index_sequence_for<X...> {});
     }
 }
 
