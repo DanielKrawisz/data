@@ -66,16 +66,6 @@ namespace data::math::number {
     constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
     }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
-        return a / uint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
-        return a / sint<r, x, word> (b);
-    }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {

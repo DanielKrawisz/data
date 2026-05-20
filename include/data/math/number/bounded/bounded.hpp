@@ -441,17 +441,20 @@ namespace data {
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct divmod<uint<r, x, word>, uint<r, x, word>> {
-            constexpr division<uint<r, x, word>, uint<r, x, word>> operator () (const uint<r, x, word> &, const nonzero<uint<r, x, word>> &);
+            constexpr division<uint<r, x, word>, uint<r, x, word>>
+            operator () (const uint<r, x, word> &, const nonzero<uint<r, x, word>> &);
         };
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct divmod<sint<r, x, word>, sint<r, x, word>> {
-            constexpr division<sint<r, x, word>, sint<r, x, word>> operator () (const sint<r, x, word> &, const nonzero<sint<r, x, word>> &);
+            constexpr division<sint<r, x, word>, sint<r, x, word>>
+            operator () (const sint<r, x, word> &, const nonzero<sint<r, x, word>> &);
         };
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct divmod<sint<r, x, word>, uint<r, x, word>> {
-            constexpr division<uint<r, x, word>, uint<r, x, word>> operator () (const sint<r, x, word> &, const nonzero<uint<r, x, word>> &);
+            constexpr division<uint<r, x, word>, uint<r, x, word>>
+            operator () (const sint<r, x, word> &, const nonzero<uint<r, x, word>> &);
         };
 
         template <bool a, endian::order r, size_t x, std::unsigned_integral word>
@@ -670,11 +673,11 @@ namespace data {
             endian::order o, neg neg, std::unsigned_integral w>
         std::weak_ordering operator <=> (const uint<r, size, word> &, const Z_bytes<o, neg, w> &);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> operator / (const uint<r, x, word> &, uint64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, x, word> operator / (const uint<r, x, word> &, I);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> operator / (const sint<r, x, word> &, int64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, x, word> operator / (const sint<r, x, word> &, I);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint64 operator % (const uint<r, x, word> &, uint64);
@@ -682,11 +685,11 @@ namespace data {
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint64 operator % (const sint<r, x, word> &, uint64);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> &operator /= (uint<r, x, word> &, uint64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, x, word> &operator /= (uint<r, x, word> &, I);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> &operator /= (sint<r, x, word> &, int64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, x, word> &operator /= (sint<r, x, word> &, I);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint<r, x, word> &operator %= (uint<r, x, word> &, uint64);
@@ -696,12 +699,6 @@ namespace data {
 
         template <bool u, endian::order r, size_t z, std::unsigned_integral word>
         constexpr bounded<u, r, z, word> &operator %= (bounded<u, r, z, word> &, const bounded<u, r, z, word> &);
-
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> &operator /= (uint<r, x, word> &, uint64);
-
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> &operator /= (sint<r, x, word> &, int64);
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         struct bounded<false, r, size, word> : public oriented<r, word, size> {
@@ -930,13 +927,13 @@ namespace data {
             return n;
         }
 
-        template <endian::order r, size_t z, std::unsigned_integral word>
-        constexpr uint<r, z, word> inline &operator /= (uint<r, z, word> &a, uint64 b) {
+        template <endian::order r, size_t z, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, z, word> inline &operator /= (uint<r, z, word> &a, I b) {
             return a = a / b;
         }
 
-        template <endian::order r, size_t z, std::unsigned_integral word>
-        constexpr sint<r, z, word> inline &operator /= (sint<r, z, word> &a, int64 b) {
+        template <endian::order r, size_t z, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, z, word> inline &operator /= (sint<r, z, word> &a, I b) {
             return a = a / b;
         }
 
@@ -1188,6 +1185,16 @@ namespace data {
         template <endian::order r, size_t size, std::unsigned_integral word, std::signed_integral I>
         constexpr sint<r, size, word> inline &operator *= (sint<r, size, word> &z, I x) {
             return z *= sint<r, size, word> {x};
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
+            return a / uint<r, x, word> (b);
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
+            return a / sint<r, x, word> (b);
         }
 
     }
