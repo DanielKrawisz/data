@@ -11,7 +11,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CA
 # ---------------------------------------------------------
 project (
   data
-  VERSION 0.0.35
+  VERSION 0.0.36
   DESCRIPTION "functinal data structures, mathematics, cryptography, networking, wrappers, and other high-level programming constructs in c++"
   LANGUAGES CXX
 )
