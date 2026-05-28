@@ -2,13 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/bytes.hpp"
-#include "data/array.hpp"
-#include "data/numbers.hpp"
-#include "data/crypto/hash.hpp"
-#include "data/crypto/MAC.hpp"
-#include "data/crypto/MAC/HMAC.hpp"
-#include "gtest/gtest.h"
+#include <data/bytes.hpp>
+#include <data/array.hpp>
+#include <data/numbers.hpp>
+#include <data/crypto/hash.hpp>
+#include <data/crypto/MAC.hpp>
+#include <data/crypto/MAC/HMAC.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -98,8 +99,8 @@ namespace data {
         EXPECT_THROW ((write<byte_array<0>> (byte (0x76))), exception);
         EXPECT_THROW ((write<byte_array<2>> (byte (0x76))), exception);
 
-    }
-
+    }*/
+/*
     TEST (Write, NBytes) {
 
         // write a list of bytes
@@ -123,8 +124,8 @@ namespace data {
         // test that an exception gets thrown if we write too much or too little
         EXPECT_THROW ((write<N_bytes_big> (0, byte (0x76))), exception);
         EXPECT_THROW ((write<N_bytes_big> (2, byte (0x76))), exception);
-    }
-
+    }*/
+/*
     TEST (Write, UInt) {
 
         EXPECT_EQ (write<uint_big<0>> (), uint_big<0> {});

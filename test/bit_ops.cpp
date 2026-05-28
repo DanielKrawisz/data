@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/numbers.hpp>
-#include <data/list.hpp>
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gmock/gmock-matchers.h"
 #include <stdexcept>
 
-#include <data/io/wait_for_enter.hpp>
+#include <data/numbers.hpp>
+#include <data/list.hpp>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace data {
     

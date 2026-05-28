@@ -11,8 +11,6 @@
 
 #include <data/tools/lazy_writer.hpp>
 
-#include <data/io/log.hpp>
-
 namespace data::crypto {
 
     template <typename Cipher, cipher::block::mode mode, auto ...mode_params> struct block_cipher;

@@ -4,7 +4,8 @@
 
 #include <data/types.hpp>
 #include <data/exception.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
 

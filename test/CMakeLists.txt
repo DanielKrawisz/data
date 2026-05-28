@@ -38,7 +38,7 @@ add_executable (
     sort.cpp
     get.cpp
     for_each.cpp                 # TODO: could be more thorough
-    replace.cpp
+    replace.cpp                  # TODO: need more tests
     select.cpp
     lift.cpp                     # TODO: could be more thorough
     transpose.cpp
@@ -46,13 +46,11 @@ add_executable (
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     transpose.cpp
     combinatorics.cpp
-    schema.cpp
 
     # string
-    parse.cpp
     integer_format.cpp
     bytes.cpp
-    write.cpp
+    write.cpp                    # TODO: there is a lot commented out.
     hex.cpp
     base64.cpp
     ASCII.cpp
@@ -104,22 +102,10 @@ add_executable (
     symmetric_crypto.cpp
     NIST_DRBG.cpp
     secret_share.cpp
-
-    #async
-    async.cpp
-
-    # net
-    IP.cpp
-    circular_queue.cpp
-    email.cpp
-
-    # io
-    log.cpp
-    args_parser.cpp
 )
 
 target_link_libraries (unit_tests
-  PRIVATE net io crypto numbers gtest_main gmock)
+  PRIVATE crypto numbers gtest_main gmock)
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)

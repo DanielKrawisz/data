@@ -10,6 +10,7 @@
 #include "data/set.hpp"
 #include "data/list.hpp"
 #include "data/select.hpp"
+
 #include "gtest/gtest.h"
 
 namespace data {

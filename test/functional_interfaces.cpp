@@ -11,6 +11,7 @@
 #include "data/replace.hpp"
 #include "data/select.hpp"
 #include "data/lift.hpp"
+
 #include "gtest/gtest.h"
 
 static_assert (std::convertible_to<int &, const int &>);

@@ -2,14 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/list.hpp"
-#include "data/stack.hpp"
-#include "data/ordered_sequence.hpp"
-#include "data/array.hpp"
-#include "data/cycle.hpp"
-#include "data/cross.hpp"
-#include "gtest/gtest.h"
 #include <iostream>
+
+#include <data/list.hpp>
+#include <data/stack.hpp>
+#include <data/ordered_sequence.hpp>
+#include <data/array.hpp>
+#include <data/cycle.hpp>
+#include <data/cross.hpp>
+
+#include <gtest/gtest.h>
 
 template <typename list> void test_reverse () {
     list l {1, 2, 3};

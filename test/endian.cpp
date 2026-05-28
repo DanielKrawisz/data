@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/encoding/endian.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace data {
 

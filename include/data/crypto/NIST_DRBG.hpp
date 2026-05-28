@@ -15,7 +15,6 @@
 #include <data/integral.hpp>
 #include <data/tools/lazy_writer.hpp>
 #include <cryptopp/drbg.h>
-#include <data/io/wait_for_enter.hpp>
 
 namespace data::crypto::NIST {
 
