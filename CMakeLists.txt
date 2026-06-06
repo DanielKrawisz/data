@@ -114,7 +114,7 @@ endif ()
 # ---------------------------------------------------------
 
 # required for pretty much everything.
-find_package (Boost 1.86 COMPONENTS thread chrono log_setup log REQUIRED)
+find_package (Boost 1.88 COMPONENTS thread chrono log_setup log REQUIRED)
 # if we do not have boost
 #   * linux:
 #     * go to the boost website, download and extract the latest version.

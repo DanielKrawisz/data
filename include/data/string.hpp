@@ -10,6 +10,9 @@
 
 namespace data {
 
+    // functions of string:
+    //   * easily convertible to bytes
+
     // the only difference between data::string and std::string is that
     // data::string prints with "" around it.
     struct string : std::string {
