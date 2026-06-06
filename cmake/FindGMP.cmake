@@ -5,12 +5,11 @@
 #  GMP_LIBRARIES_DIR     - directory where the GMP libraries are located
 #  GMP_LIBRARIES         - Link these to use GMP
 
+if (TARGET GMP::GMP)
+  return ()
+endif ()
 
 function (define_imported_target library headers)
-  #if we already have GMP, skip the function.
-  if (TARGET GMP::GMP)
-    return ()
-  endif ()
 
   add_library (GMP::GMP UNKNOWN IMPORTED)
   set_target_properties (GMP::GMP PROPERTIES
@@ -71,7 +70,7 @@ include (FindPackageHandleStandardArgs)
     if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
       set (GMP_LIBRARIES ${GMP_LIBRARY_DEBUG})
     else ()
-      set(GMP_LIBRARIES ${GMP_LIBRARY_RELEASE})
+      set (GMP_LIBRARIES ${GMP_LIBRARY_RELEASE})
     endif ()
 
   # Attempt to load a user-defined configuration for GMP if couldn't be found
@@ -87,3 +86,14 @@ if (GMP_FOUND)
 elseif (GMP_FIND_REQUIRED)
   message (FATAL_ERROR "Required Gmp library not found")
 endif ()
+
+message(STATUS "==== Dumping GMP::GMP target properties ====")
+
+  get_property(_props TARGET GMP::GMP PROPERTY PROPERTY_NAMES)
+
+  foreach(_prop ${_props})
+    get_target_property(_val GMP::GMP ${_prop})
+    message(STATUS "${_prop} = ${_val}")
+  endforeach()
+
+  message(STATUS "===========================================")
