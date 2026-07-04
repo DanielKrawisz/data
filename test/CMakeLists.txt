@@ -5,7 +5,6 @@ if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
 
-option (OPTIONAL_TESTS "Build optional Tests" OFF)
 include (GoogleTest)
 
 add_executable (
@@ -104,8 +103,8 @@ add_executable (
     secret_share.cpp
 )
 
-target_link_libraries (unit_tests
-  PRIVATE crypto numbers gtest_main gmock)
+target_link_libraries (unit_tests PRIVATE crypto numbers gtest_main gmock)
+
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)

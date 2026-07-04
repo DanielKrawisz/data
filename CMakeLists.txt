@@ -150,9 +150,6 @@ ENDIF ()
 include (FetchContent)
 cmake_policy (SET CMP0135 NEW)
 
-FetchContent_Declare (json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-FetchContent_MakeAvailable (json)
-
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.zip)
 FetchContent_MakeAvailable (ctre)
 

@@ -69,7 +69,6 @@ target_link_libraries (
 
   Data::core
   Boost::boost
-  nlohmann_json::nlohmann_json
   ctre
   Boost::log_setup
   Boost::log
@@ -182,7 +181,7 @@ install (
 )
 
 install (
-  TARGETS data crypto numbers hash string core nlohmann_json rotella
+  TARGETS data crypto numbers hash string core rotella
   EXPORT DataTargets
   ARCHIVE
 )
