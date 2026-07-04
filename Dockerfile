@@ -1,7 +1,7 @@
 # use this command to run the docker file with tests
 #   docker build -f Dockerfile.test -t test .
 
-FROM gigamonkey/gigamonkey-base-dev:v2.3
+FROM gigamonkey/gigamonkey-base-dev:v2.3.1
 
 WORKDIR /home/data
 COPY . .
