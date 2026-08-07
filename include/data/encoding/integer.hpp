@@ -1201,6 +1201,7 @@ namespace data::encoding::hexidecimal {
 
         complemented_string (const string<cx> &x): string<cx> {x} {}
 
+        // TODO this operator must be replaced with a conversion function.
         explicit operator integer<neg (-int (n) + 5), cx> () const;
         template <endian::order e> explicit operator math::number::Z_bytes<e, n, byte> () const;
 
@@ -2510,6 +2511,7 @@ namespace data::encoding::hexidecimal {
         };
     }
     
+    // TODO this function must be replaced with a conversion function.
     template <neg c, hex::letter_case cx>
     complemented_string<c, cx>::operator integer<neg (-int (c) + 5), cx> () const {
         return math::number::trim (cast_neg<cx, c, neg (-int (c) + 5)> {} (integer<c, cx> (*this)));

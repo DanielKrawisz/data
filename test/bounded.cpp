@@ -17,30 +17,30 @@ namespace data {
     template<bool is_signed, endian::order o, size_t size> 
     using bounded = math::number::bounded<is_signed, o, size, byte>;
     
-    using u8l = bounded<false, data::endian::little, 8>;
-    using u8b = bounded<false, data::endian::big, 8>;
-    using s8l = bounded<true, data::endian::little, 8>;
-    using s8b  = bounded<true, data::endian::big, 8>;
+    using u8l = bounded<false, endian::little, 8>;
+    using u8b = bounded<false, endian::big, 8>;
+    using s8l = bounded<true, endian::little, 8>;
+    using s8b  = bounded<true, endian::big, 8>;
     
-    using u9l = bounded<false, data::endian::little, 9>;
-    using u9b = bounded<false, data::endian::big, 9>;
-    using s9l = bounded<true, data::endian::little, 9>;
-    using s9b  = bounded<true, data::endian::big, 9>;
+    using u9l = bounded<false, endian::little, 9>;
+    using u9b = bounded<false, endian::big, 9>;
+    using s9l = bounded<true, endian::little, 9>;
+    using s9b  = bounded<true, endian::big, 9>;
     
-    using u10l = bounded<false, data::endian::little, 10>;
-    using u10b = bounded<false, data::endian::big, 10>;
-    using s10l = bounded<true, data::endian::little, 10>;
-    using s10b  = bounded<true, data::endian::big, 10>;
+    using u10l = bounded<false, endian::little, 10>;
+    using u10b = bounded<false, endian::big, 10>;
+    using s10l = bounded<true, endian::little, 10>;
+    using s10b  = bounded<true, endian::big, 10>;
     
-    using u11l = bounded<false, data::endian::little, 11>;
-    using u11b = bounded<false, data::endian::big, 11>;
-    using s11l = bounded<true, data::endian::little, 11>;
-    using s11b  = bounded<true, data::endian::big, 11>;
+    using u11l = bounded<false, endian::little, 11>;
+    using u11b = bounded<false, endian::big, 11>;
+    using s11l = bounded<true, endian::little, 11>;
+    using s11b  = bounded<true, endian::big, 11>;
     
-    using nl = math::number::N_bytes<data::endian::little, byte>;
-    using nb = math::number::N_bytes<data::endian::big, byte>;
-    using zl = math::number::Z_bytes<data::endian::little, neg::twos, byte>;
-    using zb = math::number::Z_bytes<data::endian::big, neg::twos, byte>;
+    using nl = math::number::N_bytes<endian::little, byte>;
+    using nb = math::number::N_bytes<endian::big, byte>;
+    using zl = math::number::Z_bytes<endian::little, neg::twos, byte>;
+    using zb = math::number::Z_bytes<endian::big, neg::twos, byte>;
     
     TEST (Bounded, ReadString) {
         
@@ -286,6 +286,7 @@ namespace data {
 
     template <typename A, typename B>
     void test_convert_number (const string &x) {
+
         A a {x};
         B b {x};
 

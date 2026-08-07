@@ -36,16 +36,28 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> inline Z_bytes<r, neg::twos, word>::read (string_view x) {
-        if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::twos, word> (x);
-        return Z_bytes<r, neg::twos, word> (Z {x});
+
+        if (!encoding::integer::valid (x))
+            throw exception {} << "invalid number string \"" << x << "\"";
+
+        if (encoding::hexidecimal::valid (x))
+            return *encoding::integer::read<r, neg::twos, word> (x);
+
+        Z z {x};
+
+        // NOTE: The line below is choosing some constructor
+        // of Z_bytes rather than the conversion operator.
+        // TODO replace this with a conversion function call.
+        auto zb = z.operator Z_bytes<r, neg::twos, word> ();
+
+        return zb;
     }
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> inline Z_bytes<r, neg::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::BC, word> (x);
-        return Z_bytes<r, neg::BC, word> (Z {x});
+        return Z {x}.operator Z_bytes<r, neg::BC, word> ();
     }
 
     template <endian::order r, std::unsigned_integral word>

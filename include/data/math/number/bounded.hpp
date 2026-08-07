@@ -44,6 +44,11 @@ namespace data::math::number {
                 if (encoding::decimal::valid (x)) {
                     *this = bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit));
+
+                    // if the result was negative then clearly the string was too big clearly, but
+                    // we could have still strings that are too big that we don't catch this way.
+                    if (*this < 0)
+                        throw exception {} << "integer string \"" << x << "\" is too big for the given number type";
                 } else {
                     *this = -bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x.substr (1), 10, encoding::decimal::digit));
@@ -53,7 +58,11 @@ namespace data::math::number {
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
                 encoding::hex::decode (x.end (), x.begin (), this->begin ());
         } else {
-            if (encoding::signed_decimal::valid (x)) *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
+            if (encoding::signed_decimal::valid (x)) {
+                auto zb = Z_bytes<r, neg::twos, word>::read (x);
+                // TODO this operation should be replaced by a conversion function call.
+                *this = bounded {zb};
+            }
             else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
                 encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)

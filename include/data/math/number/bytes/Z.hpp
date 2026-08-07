@@ -65,7 +65,9 @@ namespace data::math::number {
         // string constructors.
         static Z_bytes read (string_view x);
         static Z_bytes read (slice<const word> x);
+
         explicit Z_bytes (string_view x) : Z_bytes {read (x)} {}
+
         explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
         
         operator Z_bytes<endian::opposite (r), neg::twos, word> () const;
@@ -83,7 +85,7 @@ namespace data::math::number {
         
         Z_bytes &trim ();
 
-        explicit Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}\
+        explicit Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}
 
     };
     
@@ -118,16 +120,16 @@ namespace data::math::number {
         template <std::integral I>
         explicit operator I () const;
 
-        Z_bytes &trim ();
-
-        Z_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
-
         explicit operator bool () const {
             return !data::is_zero (*this);
         }
 
         operator Z_bytes<endian::opposite (r), neg::BC, word> () const;
         operator Z_bytes<r, neg::twos, word> () const;
+
+        Z_bytes &trim ();
+
+        Z_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
     };
 
     // increment and decrement
@@ -355,6 +357,7 @@ namespace data::math::number {
         return z;
     }
     
+    // TODO these next several operations could be more optimized.
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline &operator += (N_bytes<r, word> &x, const N_bytes<r, word> &n) {
         return x = x + n;
@@ -1024,41 +1027,36 @@ namespace data::math::number {
         return a.trim ();
     }
     
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator +
-    (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
+    template <endian::order r, neg c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &a, const Z_bytes<r, c, word> &b) {
 
-        bool an = data::is_negative (a);
-        bool bn = data::is_negative (b);
-        auto ax = data::abs (a);
-        auto bx = data::abs (b);
+        if constexpr (c == neg::twos) {
+            bool an = data::is_negative (a);
+            bool bn = data::is_negative (b);
+            auto ax = data::abs (a);
+            auto bx = data::abs (b);
 
-        if (!an && !bn) return Z_bytes<r, neg::twos, word> (ax + bx);
-        if (an && bn) return -(ax + bx);
+            if (!an && !bn) return Z_bytes<r, neg::twos, word> (ax + bx);
+            if (an && bn) return -(ax + bx);
 
-        return ax > bx ?
-            (an ? -(ax - bx) : Z_bytes<r, neg::twos, word> (ax - bx)) :
-            (an ? Z_bytes<r, neg::twos, word> (bx - ax) : -(bx - ax));
+            return ax > bx ?
+                (an ? -(ax - bx) : Z_bytes<r, neg::twos, word> (ax - bx)) :
+                (an ? Z_bytes<r, neg::twos, word> (bx - ax) : -(bx - ax));
+        } else if constexpr (c == neg::BC) {
+            return arithmetic::trim<r, neg::BC, word> (arithmetic::BC::plus<r, word> (trim (a), trim (b)));
+        } else throw exception {} << "invalid neg " << c;
     }
     
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> inline operator +
-    (const Z_bytes<r, neg::BC, word> &a, const Z_bytes<r, neg::BC, word> &b) {
-        return arithmetic::trim<r, neg::BC, word> (arithmetic::BC::plus<r, word> (trim (a), trim (b)));
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator *
-    (const Z_bytes<r, neg::twos, word> &a, const Z_bytes<r, neg::twos, word> &b) {
-        bool an = data::is_negative (a);
-        bool bn = data::is_negative (b);
-        if ((an && bn) || (!an && !bn)) return Z_bytes<r, neg::twos, word> (data::abs (a) * data::abs (b));
-        return -(data::abs (a) * data::abs (b));
-    }
-
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> inline operator * (const Z_bytes<r, neg::BC, word> &a, const Z_bytes<r, neg::BC, word> &b) {
-        return arithmetic::trim<r, neg::BC, word> (arithmetic::BC::times<r, word> (trim (a), trim (b)));
+    template <endian::order r, neg c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &a, const Z_bytes<r, c, word> &b) {
+        if constexpr (c == neg::twos) {
+            bool an = data::is_negative (a);
+            bool bn = data::is_negative (b);
+            if ((an && bn) || (!an && !bn)) return Z_bytes<r, neg::twos, word> (data::abs (a) * data::abs (b));
+            return -(data::abs (a) * data::abs (b));
+        } else if constexpr (c == neg::BC) {
+            return arithmetic::trim<r, neg::BC, word> (arithmetic::BC::times<r, word> (trim (a), trim (b)));
+        } else throw exception {} << "invalid neg " << c;
     }
     
     template <endian::order r, std::unsigned_integral word> template<neg c>
@@ -1162,6 +1160,9 @@ namespace data::math::number {
             // fill the remaining with ffff if the number is negative.
             if constexpr (n == neg::twos) {
                 if (x < 0) for (auto w = z.words ().begin () + words_to_copy; w != z.words ().end (); w++)
+                    // there is a warning from gcc 15.2 that needs to be resolved which says that
+                    // we write more bytes than can fit here. This would happen if word is bigger
+                    // than the type of w.
                     *w = static_cast<word> (X {-1});
             // set sign bit
             } else if constexpr (n == neg::BC)

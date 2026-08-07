@@ -57,9 +57,6 @@ add_executable (
     endian.cpp
     bounded.cpp                  # TODO: should be typed test, has commented sections
 
-    # hash
-    hash.cpp
-
     # numbers
     numbers.cpp                  # TODO: need a typed test suite.
     bit_ops.cpp                  # TODO: Contains commented test cases
@@ -95,6 +92,9 @@ add_executable (
     algebra.cpp
     exterior.cpp
     elliptic_curve.cpp
+
+    # hash
+    hash.cpp
 
     # crypto
     # random_primes.cpp

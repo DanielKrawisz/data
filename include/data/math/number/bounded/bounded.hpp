@@ -738,6 +738,7 @@ namespace data {
             explicit bounded (const Z_bytes<o, neg, w> &z);
 
             // result will not be minimal.
+            // TODO replace with a conversion function.
             template <endian::order o, neg neg, std::unsigned_integral w>
             explicit operator Z_bytes<o, neg, w> () const;
 
@@ -781,6 +782,7 @@ namespace data {
             division<bounded> divmod (const bounded &) const;
 
             // result will be minimal.
+            // TODO replace with a conversion function.
             operator Z_bytes<r, neg::twos, word> () const;
 
             explicit bounded (slice<word, size>);
@@ -1760,6 +1762,7 @@ namespace data {
         // could likely be mostly replaced by a single function.
 
         // convert bounded to Z_bytes
+        // TODO replace this with a conversion function.
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <endian::order o, neg neg, std::unsigned_integral w>
         bounded<false, r, size, word>::operator Z_bytes<o, neg, w> () const {
@@ -1779,7 +1782,7 @@ namespace data {
             auto dst = z.words ().begin ();
 
             if constexpr (sizeof (word) == sizeof (w)) {
-                std::copy(src, src_end, dst);
+                std::copy (src, src_end, dst);
 
             } else if constexpr (sizeof (word) < sizeof (w)) {
                 // Pack smaller → larger
@@ -2149,6 +2152,7 @@ namespace data {
         template <endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) > size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
                     n.words ().begin () + size,
@@ -2209,6 +2213,7 @@ namespace data {
         template <endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) >= size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
+
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
                     n.words ().begin () + size,

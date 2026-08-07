@@ -397,7 +397,7 @@ namespace data::math::number::GMP {
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         explicit operator bounded<true, r, size, word> () const {
-            return bounded<true, r, size, word> (Z_bytes<r, neg::twos, word> (*this));
+            return bounded<true, r, size, word> (this->operator Z_bytes<r, neg::twos, word> ());
         }
 
     };
@@ -791,6 +791,7 @@ namespace data::math::number::GMP {
     // TODO use mpz_export
     template <endian::order r, neg c, std::unsigned_integral word>
     Z::operator Z_bytes<r, c, word> () const {
+
         if (data::is_negative (*this))
             return -Z_bytes<r, c, word> (-(*this));
 

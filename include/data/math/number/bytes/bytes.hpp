@@ -315,13 +315,8 @@ namespace data::math::number {
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
     
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator *
-        (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
-
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator *
-        (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
+    template <endian::order r, neg c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
     
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
