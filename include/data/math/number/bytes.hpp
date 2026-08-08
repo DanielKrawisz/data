@@ -44,11 +44,7 @@ namespace data::math::number {
             return *encoding::integer::read<r, neg::twos, word> (x);
 
         Z z {x};
-
-        // NOTE: The line below is choosing some constructor
-        // of Z_bytes rather than the conversion operator.
-        // TODO replace this with a conversion function call.
-        auto zb = z.operator Z_bytes<r, neg::twos, word> ();
+        auto zb = convert<Z_bytes<r, neg::twos, word>> (z);
 
         return zb;
     }

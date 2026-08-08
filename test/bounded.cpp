@@ -7,6 +7,7 @@
 #include <data/types.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/bounded/bounded.hpp>
+#include <data/arithmetic.hpp>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -285,7 +286,7 @@ namespace data {
     }
 
     template <typename A, typename B>
-    void test_convert_number (const string &x) {
+    void test_convert_bounded (const string &x) {
 
         A a {x};
         B b {x};
@@ -302,6 +303,54 @@ namespace data {
     }
 
     TEST (Bounded, Conversions) {
+        for (const string &x : cross<std::string> {"0", "1", "2", "177777777", "17777777777777777777777777"}) {
+
+            test_convert_bounded<uint256, int256> (x);
+
+            test_convert_bounded<uint256, uint256_little> (x);
+            test_convert_bounded<uint256, uint256_big> (x);
+
+            test_convert_bounded<int256, int256_little> (x);
+            test_convert_bounded<int256, int256_big> (x);
+
+            test_convert_bounded<uint256, int256_little> (x);
+            test_convert_bounded<uint256, int256_big> (x);
+
+            test_convert_bounded<int256, uint256_little> (x);
+            test_convert_bounded<int256, uint256_big> (x);
+
+            test_convert_bounded<uint256, uint160> (x);
+            test_convert_bounded<uint160, uint256> (x);
+
+            test_convert_bounded<uint256, int160> (x);
+            test_convert_bounded<uint160, int256> (x);
+
+            test_convert_bounded<uint256, uint160_little> (x);
+            test_convert_bounded<uint160, uint256_little> (x);
+
+            test_convert_bounded<uint256, int160_big> (x);
+            test_convert_bounded<uint160, int256_big> (x);
+        }
+    }
+
+    template <typename A, typename B>
+    void test_convert_number (const string &x) {
+
+        A a {x};
+        B b {x};
+
+        auto ab = math::convert<A> (b);
+
+        EXPECT_EQ (a, ab) << "Expected " << a << " == " << ab;
+
+        auto ba = math::convert<B> (a);
+
+        EXPECT_EQ (ba, b) << "Expected " << ba << " == " << b;
+        EXPECT_EQ (a, math::convert<A> (ba));
+        EXPECT_EQ (b, math::convert<B> (ab));
+    }
+
+    TEST (Bounded, UnboundedConversions) {
         for (const string &x : cross<std::string> {"0", "1", "2", "177777777", "17777777777777777777777777"}) {
 
             test_convert_number<uint256, int256> (x);

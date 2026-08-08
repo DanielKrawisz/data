@@ -534,6 +534,35 @@ namespace data {
         struct mod_2<sint<r, x, word>> {
             constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
         };
+
+        // throws if the conversion is not possible due to input being too big
+        // for the result or if the input is negative and the result is unsigned.
+        template <bool a, endian::order r, size_t x, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>> {
+            number::bounded<a, r, x, w> operator () (const number::bounded<b, o, y, u> &) const;
+        };
+
+        // result will not be minimal.
+        template <endian::order r, neg c, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::Z_bytes<r, c, w>, number::bounded<b, o, y, u>> {
+            number::Z_bytes<r, c, w> operator () (const number::bounded<b, o, y, u> &) const;
+        };
+
+        // result will be minimal, throws if input is negative.
+        template <endian::order r, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::N_bytes<r, w>, number::bounded<b, o, y, u>> {
+            number::N_bytes<r, w> operator () (const number::bounded<b, o, y, u> &) const;
+        };
+
+        // throws if input is too big or if the input is negative and the result is unsigned.
+        template <endian::order r, neg c, std::unsigned_integral w,
+        bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::bounded<b, o, y, u>, number::Z_bytes<r, c, w>> {
+            number::bounded<b, o, y, u> operator () (const number::Z_bytes<r, c, w> &) const;
+        };
     }
 
     namespace encoding::decimal {
@@ -729,6 +758,8 @@ namespace data {
             static N_bytes<r, word> modulus ();
 
             // result will be minimal.
+            // TODO this conversion is not as general as it ought to be.
+            // it should be put into a conversion operator.
             operator N_bytes<r, word> () const;
 
             constexpr bounded (const N_bytes<r, word> &);
@@ -738,7 +769,7 @@ namespace data {
             explicit bounded (const Z_bytes<o, neg, w> &z);
 
             // result will not be minimal.
-            // TODO replace with a conversion function.
+            // TODO why not? That doesn't really make sense. It should be minimal.
             template <endian::order o, neg neg, std::unsigned_integral w>
             explicit operator Z_bytes<o, neg, w> () const;
 
@@ -782,7 +813,6 @@ namespace data {
             division<bounded> divmod (const bounded &) const;
 
             // result will be minimal.
-            // TODO replace with a conversion function.
             operator Z_bytes<r, neg::twos, word> () const;
 
             explicit bounded (slice<word, size>);
@@ -1374,6 +1404,40 @@ namespace data {
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr sint<r, x, word> inline mod_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
             return bit_mod_2_negative_mod (u);
+        }
+
+        template <bool a, endian::order r, size_t x, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::bounded<a, r, x, w> inline convert<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>>::operator ()
+            (const number::bounded<b, o, y, u> &z) const {
+            return number::bounded<a, r, x, w> (z);
+        }
+
+        template <endian::order r, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::N_bytes<r, w> inline convert<number::N_bytes<r, w>, number::bounded<b, o, y, u>>::operator ()
+            (const number::bounded<b, o, y, u> &z) const {
+            if constexpr (!b) return math::convert<number::N_bytes<r, w>> (z.operator number::N_bytes<o, u> ());
+            else return z.operator number::Z_bytes<r, neg::twos, w> ().operator number::N_bytes<r, w>;
+        }
+
+        template <endian::order r, neg c, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::Z_bytes<r, c, w> inline convert<number::Z_bytes<r, c, w>, number::bounded<b, o, y, u>>::operator ()
+            (const number::bounded<b, o, y, u> &z) const {
+            // if z is unsigned, first convert to N_bytes, then to Z_bytes.
+            if constexpr (!b) return math::convert<number::N_bytes<r, w>> (z).operator number::Z_bytes<r, c, w> ();
+            else if constexpr (c == neg::twos) return z.operator number::Z_bytes<r, neg::twos, w> ();
+            else return z.operator number::Z_bytes<r, neg::twos, w> ().operator number::Z_bytes<r, c, w> ();
+        }
+
+        template <endian::order r, neg c, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::bounded<b, o, y, u> inline
+        convert<number::bounded<b, o, y, u>, number::Z_bytes<r, c, w>>::operator ()
+        (const number::Z_bytes<r, c, w> &z) const {
+            if constexpr (!b || c == neg::twos) return number::bounded<b, o, y, u> {z};
+            return number::bounded<b, o, y, u> {math::convert<number::Z_bytes<r, neg::twos, w>> (z)};
         }
     }
 

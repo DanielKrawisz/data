@@ -306,6 +306,11 @@ namespace data::math::def {
         Z operator () (const Z &a);
     };
 
+    template <endian::order r, neg c, std::unsigned_integral word>
+    struct convert<number::Z_bytes<r, c, word>, Z> {
+        number::Z_bytes<r, c, word> operator () (const Z &) const;
+    };
+
 }
 
 namespace data::math::number {

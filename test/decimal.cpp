@@ -28,8 +28,11 @@ namespace data {
         EXPECT_EQ (x, nlxx) << std::hex << "expected " << x << " to equal " << nbxx;
         EXPECT_EQ (x, nbxx) << std::hex << "expected " << x << " to equal " << nbxx;
 
-        EXPECT_EQ (nlx, N_bytes_little (nbx));
-        EXPECT_EQ (nbx, N_bytes_big (nlx));
+        auto nbxl = math::convert<N_bytes_little> (nbx);
+        EXPECT_EQ (nlx, nbxl) << "expected " << nlx << " == " << nbxl;
+
+        auto nlxb = math::convert<N_bytes_big> (nlx);
+        EXPECT_EQ (nbx, nlxb) << "expected " << nbx << " == " << nlxb;
 
         auto nxh = encoding::hexidecimal::write<hex_case::lower> (nx);
 

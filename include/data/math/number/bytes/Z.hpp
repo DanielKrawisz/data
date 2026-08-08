@@ -23,7 +23,6 @@ namespace data::math::number {
         // for example, "0x00" and "0x" are both representations of zero
         // but different strings of bytes.
         static N_bytes read (string_view x);
-        //explicit N_bytes (const std::string &);
 
         // read in the number as a string of bytes.
         static N_bytes read (slice<const word> x);
@@ -41,8 +40,6 @@ namespace data::math::number {
 
         explicit N_bytes (string_view x): N_bytes {read (x)} {}
         explicit N_bytes (slice<const word> x): N_bytes {read (x)} {}
-        
-        operator N_bytes<endian::opposite (r), word> () const;
 
         template <neg c>
         operator Z_bytes<r, c, word> () const;
@@ -55,7 +52,8 @@ namespace data::math::number {
 
     };
     
-    template <endian::order r, std::unsigned_integral word> struct Z_bytes<r, neg::twos, word> : oriented<r, word> {
+    template <endian::order r, std::unsigned_integral word>
+    struct Z_bytes<r, neg::twos, word> : oriented<r, word> {
         
         Z_bytes () : oriented<r, word> {} {}
 
@@ -70,7 +68,6 @@ namespace data::math::number {
 
         explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
         
-        operator Z_bytes<endian::opposite (r), neg::twos, word> () const;
         operator Z_bytes<r, neg::BC, word> () const;
 
         explicit operator N_bytes<r, word> () const;
@@ -90,7 +87,8 @@ namespace data::math::number {
     };
     
     // for little endian, these are an implementation of bitcoin numbers.
-    template <endian::order r, std::unsigned_integral word> struct Z_bytes<r, neg::BC, word> : oriented<r, word> {
+    template <endian::order r, std::unsigned_integral word>
+    struct Z_bytes<r, neg::BC, word> : oriented<r, word> {
 
         //explicit Z_bytes (const std::string &);
         Z_bytes () : oriented<r, word> {} {}
@@ -778,6 +776,144 @@ namespace data::math::def {
             return x << i;
         }
     };
+
+    // convert between any two types of N_bytes
+    template <endian::order ToEndian, std::unsigned_integral ToWord,
+        endian::order FromEndian, std::unsigned_integral FromWord>
+    number::N_bytes<ToEndian, ToWord>
+    convert<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>>::operator ()
+    (const number::N_bytes<FromEndian, FromWord> &from) const {
+        number::N_bytes<ToEndian, ToWord> result;
+
+        constexpr std::size_t from_bits = sizeof (FromWord) * CHAR_BIT;
+        constexpr std::size_t to_bits   = sizeof (ToWord) * CHAR_BIT;
+
+        const auto trimmed = trim (from);
+        const auto source = trimmed.words ();
+
+        if constexpr (to_bits == from_bits) {
+            result.resize (source.size ());
+
+            auto dst = result.words ().begin();
+
+            for (const auto word : source)
+                *dst++ = static_cast<ToWord> (word);
+        } else if constexpr (to_bits > from_bits) {
+            constexpr std::size_t words_per_destination = to_bits / from_bits;
+
+            result.resize (
+                (source.size () + words_per_destination - 1)
+                / words_per_destination
+            );
+
+            auto dst = result.words ().begin ();
+
+            ToWord value = 0;
+            std::size_t shift = 0;
+
+            for (const auto word : source) {
+                value |= static_cast<ToWord> (word) << shift;
+                shift += from_bits;
+
+                if (shift == to_bits) {
+                    *dst++ = value;
+                    value = 0;
+                    shift = 0;
+                }
+            }
+
+            if (shift != 0)
+                *dst = value;
+        } else {
+            constexpr std::size_t words_per_source = from_bits / to_bits;
+
+            result.resize (source.size () * words_per_source);
+
+            auto dst = result.words ().begin ();
+
+            for (const auto word : source) {
+                FromWord value = word;
+
+                for (std::size_t i = 0; i < words_per_source; ++i) {
+                    *dst++ = static_cast<ToWord> (value);
+                    value >>= to_bits;
+                }
+            }
+        }
+
+        return result.trim ();
+    }
+
+    // convert between any two types of Z_bytes
+    template <endian::order ToEndian, neg ToNeg, std::unsigned_integral ToWord,
+        endian::order FromEndian, neg FromNeg, std::unsigned_integral FromWord>
+    number::Z_bytes<ToEndian, ToNeg, ToWord>
+    convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>>::operator ()
+        (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const {
+
+        if constexpr (ToNeg != FromNeg)
+            return math::convert<number::Z_bytes<ToEndian, ToNeg, ToWord>> (from.operator number::Z_bytes<FromEndian, ToNeg, FromWord> ());
+
+        number::Z_bytes<ToEndian, ToNeg, ToWord> result;
+
+        constexpr std::size_t from_bits = sizeof (FromWord) * CHAR_BIT;
+        constexpr std::size_t to_bits   = sizeof (ToWord) * CHAR_BIT;
+
+        const auto trimmed = trim (from);
+        const auto source = trimmed.words ();
+
+        if constexpr (to_bits == from_bits) {
+            result.resize (source.size ());
+
+            auto dst = result.words ().begin();
+
+            for (const auto word : source)
+                *dst++ = static_cast<ToWord> (word);
+        } else if constexpr (to_bits > from_bits) {
+            constexpr std::size_t words_per_destination = to_bits / from_bits;
+
+            result.resize (
+                (source.size () + words_per_destination - 1)
+                / words_per_destination
+            );
+
+            auto dst = result.words ().begin ();
+
+            ToWord value = 0;
+            std::size_t shift = 0;
+
+            for (const auto word : source) {
+                value |= static_cast<ToWord> (word) << shift;
+                shift += from_bits;
+
+                if (shift == to_bits) {
+                    *dst++ = value;
+                    value = 0;
+                    shift = 0;
+                }
+            }
+
+            if (shift != 0)
+                *dst = value;
+        } else {
+            constexpr std::size_t words_per_source = from_bits / to_bits;
+
+            result.resize (source.size () * words_per_source);
+
+            auto dst = result.words ().begin ();
+
+            for (const auto word : source) {
+                FromWord value = word;
+
+                for (std::size_t i = 0; i < words_per_source; ++i) {
+                    *dst++ = static_cast<ToWord> (value);
+                    value >>= to_bits;
+                }
+            }
+        }
+
+        return result.trim ();
+    }
 }
 
 // finally come functions that can be implemented in terms of the low
@@ -1322,14 +1458,6 @@ namespace data::math::number {
     } 
     
     template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word>::operator Z_bytes<endian::opposite (r), neg::twos, word> () const {
-        Z_bytes<endian::opposite (r), neg::twos, word> n;
-        n.resize (this->size ());
-        std::copy (this->words ().begin (), this->words ().end (), n.begin ());
-        return n;
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
     inline Z_bytes<r, neg::twos, word>::operator Z_bytes<r, neg::BC, word> () const {
         if (data::is_negative (*this)) return -Z_bytes<r, neg::BC, word> (data::abs (*this));
         return Z_bytes<r, neg::BC, word> (data::abs (*this)).trim ();
@@ -1455,14 +1583,6 @@ namespace data::math::number {
         return trim (i < 0 ?
             shift_left (trim (x), (-i + 7) / 8, static_cast<uint32> (-i)) :
             shift_right (trim (x), static_cast<uint32> (i)));
-    }
-    
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word>::operator N_bytes<endian::opposite (r), word> () const {
-        N_bytes<endian::opposite (r), word> z;
-        z.resize (this->size ());
-        std::copy (this->rbegin (), this->rend (), z.begin ());
-        return z;
     }
     
     template <endian::order r, std::unsigned_integral word>

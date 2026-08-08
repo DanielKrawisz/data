@@ -657,6 +657,9 @@ namespace data {
 
 namespace data::math {
 
+    // convert from one number type to another.
+    template <typename A, typename B> A convert (const B &);
+
     // we extend std::numeric_limits for more types of numbers.
     template <typename X> struct numeric_limits;
 
@@ -758,6 +761,8 @@ namespace data::math::def {
             return bit_and (bit_not (x), bit_not (x));
         }
     };
+
+    template <typename A, typename B> struct convert;
 }
 
 namespace data {
@@ -892,6 +897,10 @@ namespace data::math {
     template <proto_bit_number A> constexpr A inline bit_mod_2_negative_mod (const A &x) {
         auto m = abs (x) & 1;
         return is_negative (x) ? -m : m;
+    }
+
+    template <typename A, typename B> A inline convert (const B &x) {
+        return def::convert<A, B> {} (x);
     }
 }
 

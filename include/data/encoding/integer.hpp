@@ -312,6 +312,9 @@ namespace data::encoding {
         // a big number that supports standard numerical operations.
         template <neg, hex::letter_case cx> struct integer;
 
+        template <neg c, hex::letter_case x> integer<c, hex::letter_case::upper> to_upper (const integer<c, x> &);
+        template <neg c, hex::letter_case x> integer<c, hex::letter_case::lower> to_lower (const integer<c, x> &);
+
         // comparison
         template <neg cl, neg cr, hex::letter_case cx>
         bool operator == (const integer<cl, cx> &a, const integer<cr, cx> &b);
@@ -918,6 +921,11 @@ namespace data::math::def {
     template <hex_case zz> struct mod_2<hex::intBC<zz>> {
         hex::intBC<zz> operator () (const hex::intBC<zz> &);
     };
+
+    template <neg c, hex_case z, neg n, hex_case zz>
+    struct convert<hex::integer<c, z>, hex::integer<n, zz>> {
+        hex::integer<c, z> operator () (const hex::integer<n, zz> &) const;
+    };
     
 }
 
@@ -995,7 +1003,7 @@ namespace data::math::number {
     
     template <hex_case cx> 
     hex::intBC<cx> trim (const hex::intBC<cx> &);
-    
+
 }
 
 namespace data::encoding::decimal {
@@ -1201,7 +1209,7 @@ namespace data::encoding::hexidecimal {
 
         complemented_string (const string<cx> &x): string<cx> {x} {}
 
-        // TODO this operator must be replaced with a conversion function.
+        // TODO move into convert function.
         explicit operator integer<neg (-int (n) + 5), cx> () const;
         template <endian::order e> explicit operator math::number::Z_bytes<e, n, byte> () const;
 
@@ -1218,6 +1226,7 @@ namespace data::encoding::hexidecimal {
     struct complemented_string<neg::nones, cx> : string<cx> {
         using string<cx>::string;
 
+        // TODO move into convert function.
         explicit operator integer<neg::twos, cx> () const;
         explicit operator integer<neg::BC, cx> () const;
 
@@ -2361,6 +2370,17 @@ namespace data::math::def {
         return bit_mod_2_positive_mod (x);
     }
 
+    template <neg c, hex_case z, neg n, hex_case zz>
+    hex::integer<c, z> convert<hex::integer<c, z>, hex::integer<n, zz>>::operator () (const hex::integer<n, zz> &i) const {
+        hex::integer<c, zz> result;
+
+        if constexpr (c == n) result = i;
+        else result = static_cast<const encoding::hexidecimal::complemented_string<n, zz> &> (i).operator hex::integer<c, zz> ();
+
+        if constexpr (z == hex_case::upper) return to_upper (result);
+        else return to_lower (result);
+    }
+
 }
 
 namespace data::encoding::hexidecimal {
@@ -2511,7 +2531,6 @@ namespace data::encoding::hexidecimal {
         };
     }
     
-    // TODO this function must be replaced with a conversion function.
     template <neg c, hex::letter_case cx>
     complemented_string<c, cx>::operator integer<neg (-int (c) + 5), cx> () const {
         return math::number::trim (cast_neg<cx, c, neg (-int (c) + 5)> {} (integer<c, cx> (*this)));
@@ -2561,7 +2580,26 @@ namespace data::encoding::hexidecimal {
     integer<c, zz> inline integer<c, zz>::trim () const {
         return math::number::trim (*this);
     }
-    
+
+    template <neg c, hex::letter_case x> integer<c, hex::letter_case::upper> to_upper (const integer<c, x> &i) {
+        integer<c, hex::letter_case::upper> j;
+        j.resize (i.size ());
+        std::transform (i.begin (), i.end (), j.begin (),
+            [] (unsigned char n) {
+                return std::toupper (n);
+            });
+        return j;
+    }
+
+    template <neg c, hex::letter_case x> integer<c, hex::letter_case::lower> to_lower (const integer<c, x> &i) {
+        integer<c, hex::letter_case::lower> j;
+        j.resize (i.size ());
+        std::transform (i.begin (), i.end (), j.begin (),
+            [] (unsigned char n) {
+                return std::tolower (n);
+            });
+        return j;
+    }
 }
 
 namespace data::math::number {

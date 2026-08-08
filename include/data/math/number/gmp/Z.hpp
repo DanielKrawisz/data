@@ -793,6 +793,11 @@ namespace data::math::def {
             encoding::hexidecimal::write<zz> (d.Quotient),
             encoding::hexidecimal::write<zz> (d.Remainder)};
     }
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
+        return z.operator number::Z_bytes<r, c, word> ();
+    }
 }
 
 
