@@ -86,7 +86,12 @@ namespace data {
         EXPECT_EQ (decrement (Zb2<unsigned>::read (g)), Zb2<unsigned>::read (e));
 
         EXPECT_EQ (decrement (Zl2<unsigned long>::read (g)), Zl2<unsigned long>::read (e));
-        EXPECT_EQ (decrement (Zb2<unsigned long>::read (g)), Zb2<unsigned long>::read (e));
+
+        auto zb2ule = Zb2<unsigned long>::read (e);
+        auto zb2ulg = Zb2<unsigned long>::read (g);
+        auto zb2uld = decrement (zb2ulg);
+
+        EXPECT_EQ (zb2uld, zb2ule) << "expected decrement (" << zb2ulg << ") -> " << zb2ule << " but got " << zb2uld;
 
         EXPECT_EQ (decrement (Zl2<unsigned long long>::read (g)), Zl2<unsigned long long>::read (e));
         EXPECT_EQ (decrement (Zb2<unsigned long long>::read (g)), Zb2<unsigned long long>::read (e));
@@ -101,7 +106,12 @@ namespace data {
         EXPECT_EQ (decrement (ZbBC<unsigned>::read (g)), ZbBC<unsigned>::read (e));
 
         EXPECT_EQ (decrement (ZlBC<unsigned long>::read (g)), ZlBC<unsigned long>::read (e));
-        EXPECT_EQ (decrement (ZbBC<unsigned long>::read (g)), ZbBC<unsigned long>::read (e));
+
+        auto zbBCule = ZbBC<unsigned long>::read (e);
+        auto zbBCulg = ZbBC<unsigned long>::read (g);
+        auto zbBCuld = decrement (zbBCulg);
+
+        EXPECT_EQ (zbBCuld, zbBCule) << "expected decrement (" << zbBCulg << ") -> " << zbBCule << " but got " << zbBCuld;
 
         EXPECT_EQ (decrement (ZlBC<unsigned long long>::read (g)), ZlBC<unsigned long long>::read (e));
         EXPECT_EQ (decrement (ZbBC<unsigned long long>::read (g)), ZbBC<unsigned long long>::read (e));
@@ -174,24 +184,29 @@ namespace data {
         EXPECT_EQ (increment (ZlBC<unsigned>::read (g)), ZlBC<unsigned>::read (e));
         EXPECT_EQ (increment (ZbBC<unsigned>::read (g)), ZbBC<unsigned>::read (e));
 
-        auto zl2e = Zl2<unsigned long>::read (e);
-        auto zl2g = Zl2<unsigned long>::read (g);
-        auto zl2i = increment (zl2g);
+        auto zl2ule = Zl2<unsigned long>::read (e);
+        auto zl2ulg = Zl2<unsigned long>::read (g);
+        auto zl2uli = increment (zl2ulg);
 
-        EXPECT_EQ (zl2i, zl2e);
+        EXPECT_EQ (zl2uli, zl2ule);
 
-        auto zb2e = Zb2<unsigned long>::read (e);
-        auto zb2g = Zb2<unsigned long>::read (g);
-        auto zb2i = increment (zb2g);
+        auto zb2ule = Zb2<unsigned long>::read (e);
+        auto zb2ulg = Zb2<unsigned long>::read (g);
+        auto zb2uli = increment (zb2ulg);
 
-        EXPECT_EQ (zb2i, zb2e);
+        EXPECT_EQ (zb2uli, zb2ule) << "expected increment (" << zb2ulg << ") -> " << zb2ule << " but got " << zb2uli;
 
-        auto zlBCe = ZlBC<unsigned long>::read (e);
-        auto zlBCg = ZlBC<unsigned long>::read (g);
-        auto zlBCi = increment (zlBCg);
+        auto zlBCule = ZlBC<unsigned long>::read (e);
+        auto zlBCulg = ZlBC<unsigned long>::read (g);
+        auto zlBCuli = increment (zlBCulg);
 
-        EXPECT_EQ (zlBCi, zlBCe);
-        EXPECT_EQ (increment (ZbBC<unsigned long>::read (g)), ZbBC<unsigned long>::read (e));
+        EXPECT_EQ (zlBCuli, zlBCule) << "expected increment (" << zlBCulg << ") -> " << zlBCule << " but got " << zlBCuli;
+
+        auto zbBCule = ZlBC<unsigned long>::read (e);
+        auto zbBCulg = ZlBC<unsigned long>::read (g);
+        auto zbBCuli = increment (zbBCulg);
+
+        EXPECT_EQ (zbBCuli, zbBCule) << "expected increment (" << zbBCulg << ") -> " << zbBCule << " but got " << zbBCuli;
 
         EXPECT_EQ (increment (Zl2<unsigned long long>::read (g)), Zl2<unsigned long long>::read (e));
         EXPECT_EQ (increment (Zb2<unsigned long long>::read (g)), Zb2<unsigned long long>::read (e));
