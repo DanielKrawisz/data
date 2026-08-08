@@ -798,7 +798,7 @@ namespace data::math::number::GMP {
     Z::operator Z_bytes<r, c, word> () const {
 
         if (data::is_negative (*this))
-            return -Z_bytes<r, c, word> (-(*this));
+            return -convert<Z_bytes<r, c, word>> (-(*this));
 
         // the new number.
         Z_bytes<r, c, word> nn {};

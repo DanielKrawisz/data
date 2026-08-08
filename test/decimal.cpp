@@ -328,10 +328,22 @@ namespace data {
         EXPECT_EQ (ZbBC<unsigned>::read (l) + ZbBC<unsigned>::read (r), ZbBC<unsigned>::read (e));
 
         EXPECT_EQ (Zl2<unsigned long>::read (l) + Zl2<unsigned long>::read (r), Zl2<unsigned long>::read (e));
-        EXPECT_EQ (Zb2<unsigned long>::read (l) + Zb2<unsigned long>::read (r), Zb2<unsigned long>::read (e));
+
+        auto zb2ull = Zb2<unsigned long>::read (l);
+        auto zb2ulr = Zb2<unsigned long>::read (r);
+        auto zb2ule = Zb2<unsigned long>::read (e);
+        auto zb2ula = zb2ull + zb2ulr;
+
+        EXPECT_EQ (zb2ula, zb2ule) << "expected " << zb2ull << " + " << zb2ulr << " -> " << zb2ule << " but got " << zb2ula;
 
         EXPECT_EQ (ZlBC<unsigned long>::read (l) + ZlBC<unsigned long>::read (r), ZlBC<unsigned long>::read (e));
-        EXPECT_EQ (ZbBC<unsigned long>::read (l) + ZbBC<unsigned long>::read (r), ZbBC<unsigned long>::read (e));
+
+        auto zbBCull = ZbBC<unsigned long>::read (l);
+        auto zbBCulr = ZbBC<unsigned long>::read (r);
+        auto zbBCule = ZbBC<unsigned long>::read (e);
+        auto zbBCula = zbBCull + zbBCulr;
+
+        EXPECT_EQ (zbBCula, zbBCule) << "expected " << zbBCull << " + " << zbBCulr << " -> " << zbBCule << " but got " << zbBCula;
 
         EXPECT_EQ (Zl2<unsigned long long>::read (l) + Zl2<unsigned long long>::read (r), Zl2<unsigned long long>::read (e));
         EXPECT_EQ (Zb2<unsigned long long>::read (l) + Zb2<unsigned long long>::read (r), Zb2<unsigned long long>::read (e));

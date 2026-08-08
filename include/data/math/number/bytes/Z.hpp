@@ -468,7 +468,7 @@ namespace data::math::number {
         Z_bytes<r, neg::BC, word> result = neg ? -x : x;
         result = extend (result, result.size () + ((n + 7) / 8));
         result.words ().bit_shift_left (static_cast<uint32> (n));
-        return neg ? -result : result.trim ();
+        return neg ? -result : trim (result);
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -480,7 +480,7 @@ namespace data::math::number {
         bool neg = is_negative (x);
         Z_bytes<r, neg::BC, word> result = neg ? -x : x;
         result.words ().bit_shift_right (static_cast<uint32> (n));
-        return neg ? -result : result.trim ();
+        return neg ? -result : trim (result);
     }
     
     template <endian::order r, std::unsigned_integral word>
@@ -803,7 +803,7 @@ namespace data::math::def {
 
             result.resize (
                 (source.size () + words_per_destination - 1)
-                / words_per_destination
+                    / words_per_destination
             );
 
             auto dst = result.words ().begin ();
@@ -841,7 +841,7 @@ namespace data::math::def {
             }
         }
 
-        return result.trim ();
+        return trim (result);
     }
 
     // convert between any two types of Z_bytes
@@ -874,7 +874,7 @@ namespace data::math::def {
 
             result.resize (
                 (source.size () + words_per_destination - 1)
-                / words_per_destination
+                    / words_per_destination
             );
 
             auto dst = result.words ().begin ();
@@ -912,7 +912,7 @@ namespace data::math::def {
             }
         }
 
-        return result.trim ();
+        return trim (result);
     }
 }
 

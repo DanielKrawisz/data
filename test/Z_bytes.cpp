@@ -198,7 +198,7 @@ namespace data {
     }
 
     TEST (ZBytes, ZToZBytes) {
-        
+
         EXPECT_EQ (Z_bytes_big {Z::read ("1")}, Z_bytes_big {1});
         EXPECT_EQ (Z_bytes_little {Z::read ("1")}, Z_bytes_little {1});
         EXPECT_EQ (Z_bytes_big {Z::read ("23")}, Z_bytes_big {23});

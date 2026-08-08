@@ -43,10 +43,7 @@ namespace data::math::number {
         if (encoding::hexidecimal::valid (x))
             return *encoding::integer::read<r, neg::twos, word> (x);
 
-        Z z {x};
-        auto zb = convert<Z_bytes<r, neg::twos, word>> (z);
-
-        return zb;
+        return convert<Z_bytes<r, neg::twos, word>> (Z {x});
     }
 
     template <endian::order r, std::unsigned_integral word>
