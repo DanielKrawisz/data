@@ -1678,7 +1678,7 @@ namespace data::encoding::hexidecimal {
 
     template <neg cl, neg cr, hex::letter_case cx>
     std::weak_ordering inline operator <=> (const integer<cl, cx> &a, const integer<cr, cx> &b) {
-        return a <=> integer<cl, cx> (b);
+        return a <=> math::convert<integer<cl, cx>> (b);
     }
 
     template <neg n, hex::letter_case cx, std::integral I>

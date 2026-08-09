@@ -18,6 +18,7 @@
 #include <data/math/number/bytes/Z.hpp>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/encoding/base58.hpp>
 
 #include <string>
 
@@ -428,6 +429,7 @@ namespace data::math::number::GMP {
         N (string_view);
         N (const dec_uint &u): N {string_view (u)} {}
         template <hex_case zz> N (const hex::uint<zz> &u): N {string_view (u)} {}
+        N (const base58_uint &u);
 
         operator Z () const {
             return Value;
@@ -879,6 +881,11 @@ namespace data::math::number::GMP {
         return trim (nn);
     }
 
+    inline N::N (const base58_uint &u): Value {} {
+        if (!u.valid ()) throw exception {} << "invalid base 58 number" << *this;
+        *this = *encoding::base58::decode<N> (u);
+    }
+
 }
 
 namespace data::math::def {
@@ -910,6 +917,12 @@ namespace data::math::def {
     Z inline bit_xor<Z>::operator () (const Z &a, const Z &b) {
         return a ^ b;
     }
+}
+
+namespace data::encoding::base58 {
+
+    template <std::integral I> inline string::string (I x): string {encode (N {x})} {}
+
 }
 
 #endif

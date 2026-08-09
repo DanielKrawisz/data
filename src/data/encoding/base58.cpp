@@ -4,9 +4,11 @@
 
 #include <data/numbers.hpp>
 #include <data/math/number/bytes.hpp>
+#include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {
+    string::string (const N n): string {encode<N> (n)} {}
 
     maybe<bytes> read (const string_view s) {
         // we take two steps with different numbers because it's a lot faster.
@@ -156,6 +158,15 @@ namespace data::encoding::base58 {
 }
 
 namespace data::math::def {
+
+    division<base58_uint> divmod<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
+        // we have some extra lines here that shouldn't be necessary because the windows compiler gets confused here
+        // for some reason.
+        N vn = N (v);
+        N zn = N (z.Value);
+        division<N> d = divmod<N> {} (vn, nonzero<N> {zn});
+        return {encoding::base58::encode<N> (d.Quotient), encoding::base58::encode<N> (d.Remainder)};
+    }
 
     division<base58_uint, unsigned int> divmod<base58_uint, int>::operator () (const base58_uint &w, nonzero<int> x) {
         if (x == 0) throw math::division_by_zero {};

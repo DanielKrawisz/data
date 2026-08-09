@@ -13,7 +13,7 @@
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/encoding/digits.hpp>
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/arithmetic.hpp>
 #include <data/string.hpp>
 
 // base 58 is a format for writing natural numbers using
@@ -85,6 +85,19 @@ namespace data::encoding::base58 {
 
     string operator / (const string &, const string &);
     string operator % (const string &, const string &);
+}
+
+namespace data::math::number::GMP {
+    struct Z;
+    struct N;
+}
+
+namespace data {
+    using Z = math::number::GMP::Z;
+    using N = math::number::GMP::N;
+}
+
+namespace data::encoding::base58 {
 
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.
@@ -112,13 +125,15 @@ namespace data::encoding::base58 {
         string &operator %= (const string &);
 
         string ();
-        string (string_view x);
 
         template <std::integral I> string (I x);
 
-        string (const char *lit): string {string_view {lit, std::strlen (lit)}} {}
+        explicit string (string_view x);
+        explicit string (const std::string &x): string {string_view (x)} {}
 
-        explicit string (const N n): string {encode<N> (n)} {}
+        explicit string (const char *lit): string {string_view {lit, std::strlen (lit)}} {}
+
+        explicit string (const N n);
 
         bool valid () const {
             return base58::valid (*this);
@@ -127,11 +142,6 @@ namespace data::encoding::base58 {
         static string read (string_view);
 
         explicit operator uint64 () const;
-        
-        explicit operator N () const {
-            if (!valid ()) throw exception {} << "invalid base 58 number" << *this;
-            return *decode<N> (*this);
-        }
 
         friend string operator ""_b58 (const char*, size_t);
         friend string operator ""_b58 (unsigned long long int);
@@ -140,13 +150,13 @@ namespace data::encoding::base58 {
         //division<string> divide (const string&) const;
 
     private:
-        string (std::string &&x): data::string {x} {};
+        explicit string (std::string &&x): data::string {x} {};
 
         friend struct math::def::divmod<string, int>;
     };
 
     struct invalid : exception::base<invalid> {
-        invalid (const string &x, const string &fun = "") {
+        invalid (const std::string &x, const std::string &fun = "") {
             *this << "invalid base 58 string";
             if (fun != "") *this << " in function " << fun;
             *this << ": " << x;
@@ -245,15 +255,6 @@ namespace data::math::def {
         if (!encoding::base58::valid (n)) throw encoding::base58::invalid {n, "is_negative"};
         return false;
     }
-    
-    division<base58_uint> inline divmod<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
-        // we have some extra lines here that shouldn't be necessary because the windows compiler gets confused here
-        // for some reason. 
-        N vn = v.operator N ();
-        N zn = z.Value.operator N ();
-        division<N> d = divmod<N> {} (vn, nonzero<N> {zn});
-        return {encoding::base58::encode<N> (d.Quotient), encoding::base58::encode<N> (d.Remainder)};
-    }
 
     base58_uint inline bit_xor<base58_uint>::operator () (const base58_uint &a, const base58_uint &b) {
         return a ^ b;
@@ -333,8 +334,6 @@ namespace data::encoding::base58 {
     inline string::string () : data::string {"1"} {}
 
     inline string::string (string_view x) : data::string {base58::valid (x) ? x : string_view {nullptr, 0}} {}
-
-    template <std::integral I> string::string (I x): string {encode (N {x})} {}
 
     string inline operator / (const string &x, const string &y) {
         return math::def::divmod<string, string> {} (x, math::nonzero {y}).Quotient;
