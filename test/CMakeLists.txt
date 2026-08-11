@@ -46,7 +46,7 @@ add_executable (
     select.cpp
     lift.cpp                     # TODO: could be more thorough
     transpose.cpp
-    flatten.cpp
+    flatten.cpp                  # TODO: contains commented tests
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     transpose.cpp
     combinatorics.cpp

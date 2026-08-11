@@ -4,6 +4,7 @@
 
 #include <boost/bind/bind.hpp>
 #include "data/net/TCP.hpp"
+
 #include "gtest/gtest.h"
 
 namespace data::net::IP::TCP {

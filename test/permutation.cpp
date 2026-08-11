@@ -4,6 +4,7 @@
 
 #include <data/math/permutation.hpp>
 #include <data/math/algebra/cyclic_group.hpp>
+
 #include <gtest/gtest.h>
 
 namespace data {

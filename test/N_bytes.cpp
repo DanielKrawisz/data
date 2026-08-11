@@ -4,8 +4,8 @@
 
 #include <data/numbers.hpp>
 #include <data/list.hpp>
-#include "gtest/gtest.h"
-#include <iostream>
+
+#include <gtest/gtest.h>
 
 namespace data::math::number {
 

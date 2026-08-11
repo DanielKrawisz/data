@@ -2,16 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/numbers.hpp"
+#include <data/numbers.hpp>
 
 #include <data/math/power.hpp>
 #include <data/math/number/eratosthenes.hpp>
 
-#include "data/math/number/factor.hpp"
-#include "data/math/number/totient.hpp"
-#include "data/math/number/primitive_root.hpp"
-#include "data/tuple.hpp"
-#include "gtest/gtest.h"
+#include <data/math/number/factor.hpp>
+#include <data/math/number/totient.hpp>
+#include <data/math/number/primitive_root.hpp>
+#include <data/tuple.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
 /*

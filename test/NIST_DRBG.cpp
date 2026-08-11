@@ -2,14 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "gtest/gtest.h"
 #include <data/crypto/NIST_DRBG.hpp>
 #include <data/crypto/block/cryptopp.hpp>
 #include <data/tuple.hpp>
 #include <data/list.hpp>
 
-#include <type_traits>
-#include <cstddef>
+#include <gtest/gtest.h>
 
 namespace data::crypto {
 

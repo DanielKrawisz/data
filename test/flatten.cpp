@@ -4,6 +4,7 @@
 
 #include <data/flatten.hpp>
 #include <data/list.hpp>
+
 #include <gtest/gtest.h>
 
 namespace data {

@@ -2,8 +2,6 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <iterator>
-
 #include <data/remove.hpp>
 // TODO Right now numbers provides N and Z as well as Z_bytes and N_bytes
 // we don't like this because N has a dependency and Z_bytes does not.

@@ -2,10 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "gtest/gtest.h"
 #include <data/crypto/elliptic_curve.hpp>
 #include <data/math/algebra/finite_field.hpp>
 #include <data/numbers.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
 

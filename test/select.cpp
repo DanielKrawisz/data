@@ -2,16 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/string.hpp"
-#include "data/ordered_sequence.hpp"
-#include "data/cycle.hpp"
-#include "data/priority_queue.hpp"
-#include "data/map.hpp"
-#include "data/set.hpp"
-#include "data/list.hpp"
-#include "data/select.hpp"
+#include <data/string.hpp>
+#include <data/ordered_sequence.hpp>
+#include <data/cycle.hpp>
+#include <data/priority_queue.hpp>
+#include <data/map.hpp>
+#include <data/set.hpp>
+#include <data/list.hpp>
+#include <data/select.hpp>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace data {
 

@@ -2,10 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/math/number/eratosthenes.hpp"
-#include "data/numbers.hpp"
-#include "data/lift.hpp"
-#include "gtest/gtest.h"
+#include <data/math/number/eratosthenes.hpp>
+#include <data/numbers.hpp>
+#include <data/lift.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
     
