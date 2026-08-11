@@ -188,6 +188,11 @@ namespace data::crypto::cipher::block {
  *  BLOCK CIPHER STATES
  *  -------------------------------------------------------------------
 */
+
+// NOTE: we use many variable length arrays down here. This is a c++ GNU
+// extension. We have to check for size == 0 because an empty variable
+// length array is illegal. It would be better to stick to standard c++
+// in the future.
     template <> struct state<mode::ECB> {
         constexpr static const mode Mode = mode::ECB;
         state () {}
@@ -403,6 +408,8 @@ namespace data::crypto::cipher::block {
 
         void write (const byte *b, size_t size) final override {
 
+            if (size == 0) return;
+
             byte result[size];
             size_t index = 0;
             while (index != size) {
@@ -441,6 +448,8 @@ namespace data::crypto::cipher::block {
         writer_base<key_size> {k, next}, State {z} {}
 
         void write (const byte *b, size_t size) final override {
+
+            if (size == 0) return;
 
             byte result[size];
             size_t index = 0;
@@ -504,6 +513,7 @@ namespace data::crypto::cipher::block {
 
         // this could be done much more efficiently, but we don't want to think about it.
         void skip (size_t size) final override {
+            if (size == 0) return;
             byte skipped[size];
             read (skipped, size);
         }
@@ -529,6 +539,8 @@ namespace data::crypto::cipher::block {
         reader_base<key_size> {k, next}, State {z} {}
 
         void read (byte *b, size_t size) final override {
+            if (size == 0) return;
+
             byte result[size];
             this->In.read (result, size);
             size_t index = 0;
@@ -549,6 +561,7 @@ namespace data::crypto::cipher::block {
 
         // this could be done much more efficiently, but we don't want to think about it.
         void skip (size_t size) final override {
+            if (size == 0) return;
             byte skipped[size];
             read (skipped, size);
         }
@@ -572,7 +585,7 @@ namespace data::crypto::cipher::block {
         reader_base<key_size> {k, next}, State {z} {}
 
         void read (byte *b, size_t size) final override {
-
+            if (size == 0) return;
             byte result[size];
             this->In.read (result, size);
 
@@ -591,6 +604,7 @@ namespace data::crypto::cipher::block {
 
         // this could be done much more efficiently, but we don't want to think about it.
         void skip (size_t size) final override {
+            if (size == 0) return;
             byte skipped[size];
             read (skipped, size);
         }
@@ -614,7 +628,7 @@ namespace data::crypto::cipher::block {
         reader_base<key_size> {k, next}, State {z} {}
 
         void read (byte *b, size_t size) final override {
-
+            if (size == 0) return;
             byte result[size];
             this->In.read (result, size);
 
@@ -633,6 +647,7 @@ namespace data::crypto::cipher::block {
 
         // this could be done much more efficiently, but we don't want to think about it.
         void skip (size_t size) final override {
+            if (size == 0) return;
             byte skipped[size];
             read (skipped, size);
         }
