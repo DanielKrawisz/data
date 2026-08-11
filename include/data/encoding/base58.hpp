@@ -16,6 +16,8 @@
 #include <data/arithmetic.hpp>
 #include <data/string.hpp>
 
+#include <data/math/number/gmp/mpz.hpp>
+
 // base 58 is a format for writing natural numbers using
 // 58 digits that are easily distinguished by the human
 // eye. Numbers are written in big endian. Somewhat

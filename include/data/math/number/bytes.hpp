@@ -5,10 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BYTES
 #define DATA_MATH_NUMBER_BYTES
 
-#include <data/encoding/integer.hpp>
-#include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/gmp/mpz.hpp>
-#include <data/math/number/division.hpp>
+#include <data/math/number/gmp/Z.hpp>
 
 #include <data/encoding/digits.hpp>
 

@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
@@ -91,11 +91,13 @@ namespace data::math::number {
         return uint64 (a % uint<r, x, word> (b));
     }
     
+    // TODO need N_bytes constructor that takes bounded.
     template <endian::order r, size_t size, std::unsigned_integral word>
     inline bounded<false, r, size, word>::operator double () const {
         return double (N (N_bytes<r, word> (*this)));
     }
     
+    // TODO need Z_bytes constructor that takes bounded.
     template <endian::order r, size_t size, std::unsigned_integral word>
     inline bounded<true, r, size, word>::operator double () const {
         return double (Z (Z_bytes<r, neg::twos, word> (*this)));

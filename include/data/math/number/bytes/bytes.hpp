@@ -15,6 +15,8 @@
 
 #include <data/bytes.hpp>
 
+#include <data/math/number/gmp/mpz.hpp>
+
 namespace data::math::number {
     
     // an implementation of the natural numbers that is
@@ -761,6 +763,18 @@ namespace data::math::def {
         endian::order FromEndian, neg FromNeg, std::unsigned_integral FromWord>
     struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>> {
         number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const;
+    };
+
+    // convert from N_bytes to Z_bytes
+    template <endian::order ToEndian, neg ToNeg, std::unsigned_integral ToWord,
+        endian::order FromEndian, std::unsigned_integral FromWord>
+    struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::N_bytes<FromEndian, FromWord>> {
+        number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
+    };
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    struct convert<number::Z_bytes<r, c, word>, Z> {
+        number::Z_bytes<r, c, word> operator () (const Z &) const;
     };
     
 }

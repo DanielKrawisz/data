@@ -5,7 +5,7 @@
 #ifndef DATA_MATH_NUMBER_GMP_MPQ
 #define DATA_MATH_NUMBER_GMP_MPQ
 
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/gmp/Z.hpp>
 
 namespace data {
     

@@ -759,7 +759,7 @@ namespace data {
 
             // result will be minimal.
             // TODO this conversion is not as general as it ought to be.
-            // it should be put into a conversion operator.
+            // it should be in a constructor.
             operator N_bytes<r, word> () const;
 
             constexpr bounded (const N_bytes<r, word> &);
@@ -775,6 +775,8 @@ namespace data {
 
             explicit operator double () const;
 
+            // TODO we ought to be able to explicitly convert to
+            // any built-in type.
             explicit operator uint64 () const;
 
             // explicitly convert from a larger number.
@@ -1426,7 +1428,7 @@ namespace data {
         number::Z_bytes<r, c, w> inline convert<number::Z_bytes<r, c, w>, number::bounded<b, o, y, u>>::operator ()
             (const number::bounded<b, o, y, u> &z) const {
             // if z is unsigned, first convert to N_bytes, then to Z_bytes.
-            if constexpr (!b) return math::convert<number::N_bytes<r, w>> (z).operator number::Z_bytes<r, c, w> ();
+            if constexpr (!b) return math::convert<number::Z_bytes<r, c, w>> (math::convert<number::N_bytes<r, w>> (z));
             else if constexpr (c == neg::twos) return z.operator number::Z_bytes<r, neg::twos, w> ();
             else return z.operator number::Z_bytes<r, neg::twos, w> ().operator number::Z_bytes<r, c, w> ();
         }
