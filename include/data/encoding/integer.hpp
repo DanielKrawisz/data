@@ -227,6 +227,9 @@ namespace data::encoding {
         template <std::signed_integral I> signed_decimal::string operator | (I, const string &);
         template <std::signed_integral I> signed_decimal::string operator & (I, const string &);
         template <std::signed_integral I> signed_decimal::string operator ^ (I, const string &);
+
+        template <std::integral I> std::strong_ordering operator <=> (const string &, I);
+        template <std::integral I> bool operator == (const string &, I);
         
     }
     
@@ -1042,9 +1045,6 @@ namespace data::encoding::decimal {
         string &operator /= (const string &);
         string &operator %= (const string &);
         
-        bool operator == (uint64) const;
-        std::strong_ordering operator <=> (uint64) const;
-        
         string operator + (uint64) const;
         string operator - (uint64) const;
         string operator * (uint64) const;
@@ -1457,6 +1457,14 @@ namespace data::encoding::decimal {
 
     template <std::signed_integral I> inline signed_decimal::string operator ^ (I x, const string &u) {
         return signed_decimal::string {u} ^ signed_decimal::string {x};
+    }
+
+    template <std::integral I> std::strong_ordering inline operator <=> (const string &a, I b) {
+        return a <=> string {b};
+    }
+
+    template <std::integral I> bool inline operator == (const string &a, I b) {
+        return a == string {b};
     }
     
 }

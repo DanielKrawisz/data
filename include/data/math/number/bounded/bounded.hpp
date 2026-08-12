@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_BOUNDED_BOUNDED
 
 #include <data/math/number/bytes/bytes.hpp>
+
 #include <data/exception.hpp>
 
 namespace data {

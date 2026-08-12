@@ -12,16 +12,9 @@ add_library (Data::core ALIAS core)
 add_library (string STATIC)
 add_library (Data::string ALIAS string)
 
-# hash functions, including cryptographic
-add_library (hash STATIC)
-add_library (Data::hash ALIAS hash)
-
 # numbers, like it says
 add_library (numbers STATIC)
 add_library (Data::numbers ALIAS numbers)
-
-add_library (crypto STATIC)
-add_library (Data::crypto ALIAS crypto)
 
 set_target_properties (string PROPERTIES
   OUTPUT_NAME "data_string"
@@ -29,14 +22,6 @@ set_target_properties (string PROPERTIES
 
 set_target_properties (numbers PROPERTIES
   OUTPUT_NAME "data_numbers"
-)
-
-set_target_properties (hash PROPERTIES
-  OUTPUT_NAME "data_hash"
-)
-
-set_target_properties (crypto PROPERTIES
-  OUTPUT_NAME "data_crypto"
 )
 
 target_include_directories (
@@ -75,10 +60,6 @@ target_link_libraries (
   Boost::log_setup
   Boost::log
 )
-
-set_property(TARGET string PROPERTY CXX_MODULE_STD ON)
-get_target_property(STRING_MODULE_STD string CXX_MODULE_STD)
-message(STATUS "string CXX_MODULE_STD = ${STRING_MODULE_STD}")
 
 target_sources (
   numbers
@@ -119,58 +100,6 @@ target_link_libraries (
 
 )
 
-target_sources (
-  hash
-
-  PRIVATE
-
-  ../sv/utiltime.cpp
-  ../sv/fs.cpp
-  ../sv/crypto/chacha20.cpp
-  ../sv/crypto/hmac_sha512.cpp
-  ../sv/crypto/ripemd160.cpp
-  ../sv/crypto/sha1.cpp
-  ../sv/crypto/sha256.cpp
-  ../sv/crypto/sha512.cpp
-  ../sv/support/cleanse.cpp
-)
-
-target_compile_features (hash PUBLIC cxx_std_23)
-set_target_properties (hash PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  hash
-
-  PUBLIC
-
-  Data::string
-  OpenSSL::SSL
-  OpenSSL::Crypto
-  PkgConfig::cryptopp
-
-)
-
-target_sources (
-  crypto
-
-  PRIVATE
-
-  crypto/secret_share.cpp
-  crypto/block.cpp
-)
-
-target_compile_features (crypto PUBLIC cxx_std_23)
-set_target_properties (crypto PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  crypto
-
-  PUBLIC
-
-  Data::hash
-  Data::data
-)
-
 configure_file (
     ${PROJECT_SOURCE_DIR}/include/data/version.hpp.in
     ${CMAKE_CURRENT_BINARY_DIR}/generated/data/version.hpp
@@ -187,7 +116,7 @@ install (
 )
 
 install (
-  TARGETS data crypto numbers hash string core rotella
+  TARGETS data numbers string core rotella
   EXPORT DataTargets
   ARCHIVE
 )

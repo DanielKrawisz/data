@@ -12,7 +12,6 @@ add_executable (
     # we put these first even though they don't belong here because
     # they take such a long time.
     modular.cpp                  # TODO: A condition is commented out.
-    symmetric_crypto.cpp
 
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
@@ -96,16 +95,7 @@ add_executable (
     matrix.cpp
     algebra.cpp
     exterior.cpp
-    elliptic_curve.cpp
-
-    # hash
-    hash.cpp
-
-    # crypto
-    # random_primes.cpp
-    #symmetric_crypto.cpp
-    NIST_DRBG.cpp
-    secret_share.cpp
+    #elliptic_curve.cpp
 )
 
 target_link_libraries (unit_tests PRIVATE crypto numbers gtest_main gmock)

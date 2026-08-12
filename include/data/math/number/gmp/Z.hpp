@@ -262,7 +262,7 @@ namespace data::math::number {
         return a <=> b == 0;
     }
 
-    template <std::integral I> bool inline operator == (const Z & a, I b) {
+    template <std::integral I> bool inline operator == (const Z &a, I b) {
         return a <=> b == 0;
     }
 

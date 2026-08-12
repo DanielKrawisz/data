@@ -2,10 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/types.hpp>
-#include <data/exception.hpp>
-
 #include <gtest/gtest.h>
+
+#include <data/types.hpp>
+
+#include <data/exception.hpp>
 
 namespace data {
 

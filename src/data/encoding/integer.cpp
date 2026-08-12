@@ -12,8 +12,8 @@
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
 #include <data/encoding/read.hpp>
+
 #include <data/exception.hpp>
-#include <algorithm>
 
 namespace data::encoding {
     
@@ -161,14 +161,6 @@ namespace data::encoding {
         
         string operator % (const string &m, const string &x) {
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Remainder);
-        }
-        
-        bool string::operator == (uint64 x) const {
-            return *this == string {x};
-        }
-        
-        std::strong_ordering string::operator <=> (uint64 x) const {
-            return *this <=> string {x};
         }
         
         string::operator double () const {

@@ -7,6 +7,7 @@
 
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
+
 #include <data/exception.hpp>
 
 namespace data::math::number {

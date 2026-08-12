@@ -10,11 +10,11 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CA
 # Enable modules
 # ---------------------------------------------------------
 
-set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+set (CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
     "d0edc3af-4c50-42ea-a356-e2862fe7a444"
 )
 
-set(CMAKE_CXX_MODULE_STD ON)
+set (CMAKE_CXX_MODULE_STD ON)
 
 # ---------------------------------------------------------
 #  Project info
@@ -29,8 +29,8 @@ project (
 set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
-set(CMAKE_CXX_MODULE_STD ON)
+set (CMAKE_CXX_SCAN_FOR_MODULES ON)
+set (CMAKE_CXX_MODULE_STD ON)
 
 # ---------------------------------------------------------
 #  Build type setup (default to Debug for single-config)
