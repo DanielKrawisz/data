@@ -8,7 +8,7 @@
 #include <data/encoding/integer.hpp>
 #include <data/exception.hpp>
 
-namespace data::math::number::GMP {
+namespace data::math::number {
     
     Z Z_read_N_gmp (string_view s) {
         Z z {};
@@ -124,7 +124,7 @@ namespace data::encoding::signed_decimal {
     
 }
 
-namespace data::math::number::GMP {
+namespace data::math::number {
         
     std::ostream &operator << (std::ostream &o, const Z &n) {
 
@@ -250,7 +250,7 @@ namespace data::math::number::GMP {
         return mpz_get_ui (MPZ);
     }
 
-    N::N (string_view x) : Value {GMP::N_read (x)} {}
+    N::N (string_view x) : Value {N_read (x)} {}
 
     std::ostream &operator << (std::ostream &o, const N &n) {
         if (o.flags () & std::ios::hex) {

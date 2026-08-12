@@ -7,6 +7,16 @@ endif ()
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake" CACHE STRING "Modules for CMake" FORCE)
 
 # ---------------------------------------------------------
+# Enable modules
+# ---------------------------------------------------------
+
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+    "d0edc3af-4c50-42ea-a356-e2862fe7a444"
+)
+
+set(CMAKE_CXX_MODULE_STD ON)
+
+# ---------------------------------------------------------
 #  Project info
 # ---------------------------------------------------------
 project (
@@ -18,6 +28,9 @@ project (
 
 set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(CMAKE_CXX_MODULE_STD ON)
 
 # ---------------------------------------------------------
 #  Build type setup (default to Debug for single-config)
@@ -153,6 +166,8 @@ cmake_policy (SET CMP0135 NEW)
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.zip)
 FetchContent_MakeAvailable (ctre)
 
+add_subdirectory (src bin)
+
 # Check if GTests is installed. If not, install it
 if (PACKAGE_TESTS)
   include (CTest)
@@ -166,5 +181,3 @@ if (PACKAGE_TESTS)
   enable_testing ()
   add_subdirectory (test)
 endif ()
-
-add_subdirectory (src bin)

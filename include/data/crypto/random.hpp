@@ -5,13 +5,14 @@
 #ifndef DATA_CRYPTO_RANDOM
 #define DATA_CRYPTO_RANDOM
 
+#include <cryptopp/osrng.h>
+#include <cryptopp/secblock.h>
+
 #include <data/concepts.hpp>
 #include <data/random.hpp>
 #include <data/array.hpp>
 #include <data/slice.hpp>
 #include <data/crypto/NIST_DRBG.hpp>
-#include <cryptopp/osrng.h>
-#include <cryptopp/secblock.h>
 
 namespace data::crypto::random {
     using namespace data::random;

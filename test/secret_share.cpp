@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/crypto/secret_share.hpp>
-#include <data/crypto/NIST_DRBG.hpp>
-#include <data/encoding/hex.hpp>
 #include <data/string.hpp>
+#include <data/encoding/hex.hpp>
+#include <data/crypto/NIST_DRBG.hpp>
+#include <data/crypto/secret_share.hpp>
 
 #include <gtest/gtest.h>
 

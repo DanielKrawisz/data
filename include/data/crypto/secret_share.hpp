@@ -5,7 +5,6 @@
 #ifndef DATA_CRYPTO_SECRET_SHARE
 #define DATA_CRYPTO_SECRET_SHARE
 
-#include <data/crypto/NIST_DRBG.hpp>
 #include <data/crypto/random.hpp>
 
 namespace data::crypto {

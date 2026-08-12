@@ -16,7 +16,7 @@
 #include <data/arithmetic.hpp>
 #include <data/string.hpp>
 
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/types.hpp>
 
 // base 58 is a format for writing natural numbers using
 // 58 digits that are easily distinguished by the human
@@ -87,19 +87,6 @@ namespace data::encoding::base58 {
 
     string operator / (const string &, const string &);
     string operator % (const string &, const string &);
-}
-
-namespace data::math::number::GMP {
-    struct Z;
-    struct N;
-}
-
-namespace data {
-    using Z = math::number::GMP::Z;
-    using N = math::number::GMP::N;
-}
-
-namespace data::encoding::base58 {
 
     // base58 strings are really natural numbers, so we
     // can define standard math operations on them.

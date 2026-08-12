@@ -7,6 +7,8 @@
 
 #include <gtest/gtest.h>
 
+import std;
+
 namespace data {
 
     TEST (MaybeEither, Either) {

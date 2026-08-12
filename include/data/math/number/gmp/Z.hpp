@@ -5,9 +5,6 @@
 #ifndef DATA_MATH_NUMBER_GMP_Z
 #define DATA_MATH_NUMBER_GMP_Z
 
-#include <gmp.h>
-#include <gmpxx.h>
-
 #include <data/math/power.hpp>
 #include <data/math/number/gmp/mpz.hpp>
 #include <data/math/number/division.hpp>
@@ -16,56 +13,7 @@
 #include <data/encoding/integer.hpp>
 #include <data/encoding/base58.hpp>
 
-namespace data::math::number::GMP {
-
-    typedef mp_limb_t gmp_uint;
-    typedef mp_limb_signed_t gmp_int;
-
-    // this is an impediment to working on Windows but we need it for now.
-    static_assert (sizeof (gmp_uint) == 8);
-    static_assert (sizeof (gmp_int) == 8);
-
-    const __mpz_struct MPZInvalid = __mpz_struct {0, 0, nullptr};
-
-    bool inline equal (const __mpz_struct &a, const __mpz_struct &b) {
-        return a._mp_alloc == b._mp_alloc && a._mp_size == b._mp_size && a._mp_d == b._mp_d;
-    }
-
-    uint32 inline size (const __mpz_struct &a) {
-        return a._mp_alloc;
-    }
-
-    bool inline valid (const __mpz_struct &mpz) {
-        return mpz._mp_d != nullptr;
-    }
-
-    math::sign inline sign (const __mpz_struct &mpz) {
-        return !valid (mpz) ? zero : math::sign {static_cast<int8_t> (mpz_cmp_si (&mpz, 0))};
-    }
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (const Z &, const sint<r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const Z &, const sint<r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    bool operator == (const N &, const uint<r, size, word> &);
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    bool operator == (const Z &, const Z_bytes<r, c, word> &);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
-
-    template <endian::order r, std::unsigned_integral word>
-    bool operator == (const N &, const N_bytes<r, word> &);
-
-    template <endian::order r, std::unsigned_integral word>
-    std::strong_ordering operator <=> (const N &, const N_bytes<r, word> &);
+namespace data::math::number {
 
     struct Z final {
         mpz_t MPZ;
@@ -219,7 +167,7 @@ namespace data::math::number::GMP {
     };
 
 }
-namespace data::math::number::GMP {
+namespace data::math::number {
 
     inline Z::Z () {
         mpz_init (MPZ);
@@ -471,12 +419,12 @@ namespace data::math::number::GMP {
         mpz_import (
             MPZ,
             z.size (),
-                    endian_boost_to_GMP (r),
-                    sizeof (word),
-                    // TODO this may not be true in the future.
-                    endian_boost_to_GMP (endian::order::native),
-                    0, // number of unused bits in each element.
-                    z.data ());
+                endian_boost_to_GMP (r),
+                sizeof (word),
+                // TODO this may not be true in the future.
+                endian_boost_to_GMP (endian::order::native),
+                0, // number of unused bits in each element.
+                z.data ());
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
@@ -494,12 +442,12 @@ namespace data::math::number::GMP {
         mpz_import (
             MPZ,
             z.size (),
-                    endian_boost_to_GMP (r),
-                    sizeof (word),
-                    // TODO this may not be true in the future.
-                    endian_boost_to_GMP (endian::order::native),
-                    0, // number of unused bits in each element.
-                    z.data ());
+                endian_boost_to_GMP (r),
+                sizeof (word),
+                // TODO this may not be true in the future.
+                endian_boost_to_GMP (endian::order::native),
+                0, // number of unused bits in each element.
+                z.data ());
     }
 
     // TODO use mpz_export
@@ -668,218 +616,218 @@ namespace data::encoding::decimal {
 
 }
 
-namespace data::math::number::GMP {
+namespace data::math::number {
 
     template <std::unsigned_integral I> N inline operator + (const N &n, I x) {
         N sum;
-        __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::unsigned_integral I> N inline operator + (I x, const N &n) {
         N sum;
-        __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_plus::eval (sum.Value.MPZ, n.Value.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::unsigned_integral I> N inline operator * (const N &n, I x) {
         N sum;
-        __gmp_binary_multiplies::eval (sum.Value.MPZ, n.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_multiplies::eval (sum.Value.MPZ, n.Value.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::unsigned_integral I> N inline operator * (I x, const N &n) {
         N sum;
-        __gmp_binary_multiplies::eval (sum.Value.MPZ, n.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_multiplies::eval (sum.Value.MPZ, n.Value.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::unsigned_integral I> N inline operator - (const N &n, I x) {
         if (n <= x) return 0;
         N diff;
-        __gmp_binary_minus::eval (diff.Value.MPZ, n.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_minus::eval (diff.Value.MPZ, n.Value.MPZ, (GMP::gmp_uint) x);
         return diff;
     }
 
     template <std::unsigned_integral I> N inline operator - (I x, const N &n) {
         if (x <= n) return 0;
         N diff;
-        __gmp_binary_minus::eval (diff.Value.MPZ, (gmp_uint) x, n.Value.MPZ);
+        __gmp_binary_minus::eval (diff.Value.MPZ, (GMP::gmp_uint) x, n.Value.MPZ);
         return diff;
     }
 
     template <std::unsigned_integral I> N inline &operator += (N &u, I x) {
-        __gmp_binary_plus::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_plus::eval (u.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return u;
     }
 
     template <std::unsigned_integral I> N inline &operator -= (N &u, I x) {
         if (u <= x) u = 0;
-        __gmp_binary_minus::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_minus::eval (u.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return u;
     }
 
     template <std::unsigned_integral I> N inline &operator *= (N &u, I x) {
-        __gmp_binary_multiplies::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_multiplies::eval (u.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return u;
     }
 
     template <std::unsigned_integral I> N operator & (I x, const N &u) {
         N result;
-        __gmp_binary_and::eval (result.Value.MPZ, (gmp_uint) x, u.Value.MPZ);
+        __gmp_binary_and::eval (result.Value.MPZ, (GMP::gmp_uint) x, u.Value.MPZ);
         return result;
     }
 
     template <std::unsigned_integral I> N operator & (const N &u, I x) {
         N result;
-        __gmp_binary_and::eval (result.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_and::eval (result.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return result;
     }
 
     template <std::unsigned_integral I> N operator ^ (I x, const N &u) {
         N result;
-        __gmp_binary_xor::eval (result.Value.MPZ, (gmp_uint) x, u.Value.MPZ);
+        __gmp_binary_xor::eval (result.Value.MPZ, (GMP::gmp_uint) x, u.Value.MPZ);
         return result;
     }
 
     template <std::unsigned_integral I> N operator ^ (const N &u, I x) {
         N result;
-        __gmp_binary_xor::eval (result.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_xor::eval (result.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return result;
     }
 
     template <std::unsigned_integral I> N operator | (I x, const N &u) {
         N result;
-        __gmp_binary_ior::eval (result.Value.MPZ, (gmp_uint) x, u.Value.MPZ);
+        __gmp_binary_ior::eval (result.Value.MPZ, (GMP::gmp_uint) x, u.Value.MPZ);
         return result;
     }
 
     template <std::unsigned_integral I> N operator | (const N &u, I x) {
         N result;
-        __gmp_binary_ior::eval (result.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_ior::eval (result.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return result;
     }
 
     template <std::unsigned_integral I> N inline &operator &= (N &u, I x) {
-        __gmp_binary_and::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_and::eval (u.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return u;
     }
 
     template <std::unsigned_integral I> N inline &operator |= (N &u, I x) {
-        __gmp_binary_ior::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_ior::eval (u.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return u;
     }
 
     template <std::unsigned_integral I> N inline &operator ^= (N &u, I x) {
-        __gmp_binary_xor::eval (u.Value.MPZ, u.Value.MPZ, (gmp_uint) x);
+        __gmp_binary_xor::eval (u.Value.MPZ, u.Value.MPZ, (GMP::gmp_uint) x);
         return u;
     }
 
     template <std::unsigned_integral I> Z inline operator + (const Z &n, I x) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_uint) x);
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::unsigned_integral I> Z inline operator + (I x, const Z &n) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_uint) x);
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator + (const Z &n, I x) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_int) x);
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator + (I x, const Z &n) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (gmp_int) x);
+        __gmp_binary_plus::eval (sum.MPZ, n.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator * (const Z &n, I x) {
         Z sum;
-        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (gmp_int) x);
+        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator * (I x, const Z &n) {
         Z sum;
-        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (gmp_int) x);
+        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::unsigned_integral I> Z inline operator * (const Z &n, I x) {
         Z sum;
-        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (gmp_uint) x);
+        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::unsigned_integral I> Z inline operator * (I x, const Z &n) {
         Z sum;
-        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (gmp_uint) x);
+        __gmp_binary_multiplies::eval (sum.MPZ, n.MPZ, (GMP::gmp_uint) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator - (const Z &n, I x) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, (gmp_int) x);
+        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, (GMP::gmp_int) x);
         return diff;
     }
 
     template <std::signed_integral I> Z inline operator - (I x, const Z &n) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, (gmp_int) x, n.MPZ);
+        __gmp_binary_minus::eval (diff.MPZ, (GMP::gmp_int) x, n.MPZ);
         return diff;
     }
 
     template <std::unsigned_integral I> Z inline operator - (const Z &n, I x) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, (gmp_uint) x);
+        __gmp_binary_minus::eval (diff.MPZ, n.MPZ, (GMP::gmp_uint) x);
         return diff;
     }
 
     template <std::unsigned_integral I> Z inline operator - (I x, const Z &n) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, (gmp_uint) x, n.MPZ);
+        __gmp_binary_minus::eval (diff.MPZ, (GMP::gmp_uint) x, n.MPZ);
         return diff;
     }
 
     template <std::signed_integral I> Z inline operator + (const N &n, I x) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.Value.MPZ, (gmp_int) x);
+        __gmp_binary_plus::eval (sum.MPZ, n.Value.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator + (I x, const N &n) {
         Z sum;
-        __gmp_binary_plus::eval (sum.MPZ, n.Value.MPZ, (gmp_int) x);
+        __gmp_binary_plus::eval (sum.MPZ, n.Value.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator * (const N &n, I x) {
         Z sum;
-        __gmp_binary_multiplies::eval (sum.MPZ, n.Value.MPZ, (gmp_int) x);
+        __gmp_binary_multiplies::eval (sum.MPZ, n.Value.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator * (I x, const N &n) {
         Z sum;
-        __gmp_binary_multiplies::eval (sum.MPZ, n.Value.MPZ, (gmp_int) x);
+        __gmp_binary_multiplies::eval (sum.MPZ, n.Value.MPZ, (GMP::gmp_int) x);
         return sum;
     }
 
     template <std::signed_integral I> Z inline operator - (const N &n, I x) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, n.Value.MPZ, (gmp_int) x);
+        __gmp_binary_minus::eval (diff.MPZ, n.Value.MPZ, (GMP::gmp_int) x);
         return diff;
     }
 
     template <std::signed_integral I> Z inline operator - (I x, const N &n) {
         Z diff;
-        __gmp_binary_minus::eval (diff.MPZ, (gmp_int) x, n.Value.MPZ);
+        __gmp_binary_minus::eval (diff.MPZ, (GMP::gmp_int) x, n.Value.MPZ);
         return diff;
     }
     
@@ -1258,7 +1206,7 @@ namespace data::math::number {
     }
 }
 
-namespace data::math::number::GMP {
+namespace data::math::number {
 
     N inline &operator += (N &n, const N &z) {
         __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, z.Value.MPZ);
@@ -1276,18 +1224,18 @@ namespace data::math::number::GMP {
         return n;
     }
 
-    N inline &operator += (N &n, const GMP::Z &z) {
+    N inline &operator += (N &n, const Z &z) {
         __gmp_binary_plus::eval (n.Value.MPZ, n.Value.MPZ, z.MPZ);
         return n;
     }
 
-    N inline &operator -= (N &n, const GMP::Z &z) {
+    N inline &operator -= (N &n, const Z &z) {
         if (n <= z) n = 0;
         else __gmp_binary_minus::eval (n.Value.MPZ, n.Value.MPZ, z.MPZ);
         return n;
     }
 
-    N inline &operator *= (N &n, const GMP::Z &z) {
+    N inline &operator *= (N &n, const Z &z) {
         __gmp_binary_multiplies::eval (n.Value.MPZ, n.Value.MPZ, z.MPZ);
         return n;
     }

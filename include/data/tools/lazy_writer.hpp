@@ -5,8 +5,9 @@
 #ifndef DATA_TOOLS_LAZY_WRITER
 #define DATA_TOOLS_LAZY_WRITER
 
-#include <data/stack.hpp>
 #include <concepts>
+#include <data/stack.hpp>
+#include <data/stream.hpp>
 
 namespace data {
 

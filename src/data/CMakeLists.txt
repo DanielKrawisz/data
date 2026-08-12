@@ -1,3 +1,5 @@
+
+
 # everything except crypto and net.
 add_library (data INTERFACE)
 add_library (Data::data ALIAS data)
@@ -73,6 +75,10 @@ target_link_libraries (
   Boost::log_setup
   Boost::log
 )
+
+set_property(TARGET string PROPERTY CXX_MODULE_STD ON)
+get_target_property(STRING_MODULE_STD string CXX_MODULE_STD)
+message(STATUS "string CXX_MODULE_STD = ${STRING_MODULE_STD}")
 
 target_sources (
   numbers

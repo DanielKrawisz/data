@@ -196,7 +196,7 @@ namespace data::encoding::hexidecimal {
         template <endian::order r, neg c>
         using bytes_type = get_bytes_type<r, c>::value;
         
-        using nat = math::number::GMP::N;
+        using nat = math::number::N;
         
         template <hex::letter_case zz>
         inline nat read_num (const integer<neg::nones, zz> &n) {

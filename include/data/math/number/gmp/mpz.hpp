@@ -6,6 +6,10 @@
 #define DATA_MATH_NUMBER_GMP_MPZ
 
 #include <compare>
+#include <string>
+
+#include <gmp.h>
+#include <gmpxx.h>
 
 #include <data/sign.hpp>
 #include <data/abs.hpp>
@@ -17,177 +21,59 @@
 #include <data/arithmetic.hpp>
 
 #include <data/encoding/hex.hpp>
-#include <data/arithmetic/negativity.hpp>
 
-#include <string>
+#include <data/math/number/types.hpp>
 
 namespace data::math::number::GMP {
 
-    struct Z;
-    struct N;
+    typedef mp_limb_t gmp_uint;
+    typedef mp_limb_signed_t gmp_int;
 
-    bool operator == (const Z &, const Z &);
-    std::strong_ordering operator <=> (const Z &, const Z &);
+    // this is an impediment to working on Windows but we need it for now.
+    static_assert (sizeof (gmp_uint) == 8);
+    static_assert (sizeof (gmp_int) == 8);
 
-    bool operator == (const N &, const N &);
-    std::strong_ordering operator <=> (const N &, const N &);
+    const __mpz_struct MPZInvalid = __mpz_struct {0, 0, nullptr};
 
-    template <std::integral I> bool operator == (const N &, I);
-    template <std::integral I> bool operator == (I, const N &);
+    bool inline equal (const __mpz_struct &a, const __mpz_struct &b) {
+        return a._mp_alloc == b._mp_alloc && a._mp_size == b._mp_size && a._mp_d == b._mp_d;
+    }
 
-    template <std::integral I> bool operator == (const Z &, I);
-    template <std::integral I> bool operator == (I, const Z &);
+    uint32 inline size (const __mpz_struct &a) {
+        return a._mp_alloc;
+    }
 
-    template <std::signed_integral I> std::strong_ordering operator <=> (const N &, I);
-    template <std::signed_integral I> std::strong_ordering operator <=> (I, const N &);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (const N &, I);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (I, const N &);
+    bool inline valid (const __mpz_struct &mpz) {
+        return mpz._mp_d != nullptr;
+    }
 
-    template <std::signed_integral I> std::strong_ordering operator <=> (const Z &, I);
-    template <std::signed_integral I> std::strong_ordering operator <=> (I, const Z &);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (const Z &, I);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (I, const Z &);
+    math::sign inline sign (const __mpz_struct &mpz) {
+        return !valid (mpz) ? zero : math::sign {static_cast<int8_t> (mpz_cmp_si (&mpz, 0))};
+    }
 
-    Z operator ~ (const N &);
-    Z operator ~ (const Z &);
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool operator == (const Z &, const sint<r, size, word> &);
 
-    Z operator - (const N &);
-    Z operator - (const Z &);
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::strong_ordering operator <=> (const Z &, const sint<r, size, word> &);
 
-    Z operator + (const Z &, const Z &);
-    Z operator - (const Z &, const Z &);
-    Z operator * (const Z &, const Z &);
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    bool operator == (const N &, const uint<r, size, word> &);
 
-    N operator + (const N &, const N &);
-    N operator - (const N &, const N &);
-    N operator * (const N &, const N &);
+    template <endian::order r, size_t size, std::unsigned_integral word>
+    std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
 
-    Z operator | (const Z &, const Z &);
-    Z operator & (const Z &, const Z &);
-    Z operator ^ (const Z &, const Z &);
+    template <endian::order r, neg c, std::unsigned_integral word>
+    bool operator == (const Z &, const Z_bytes<r, c, word> &);
 
-    N operator | (const N &, const N &);
-    N operator & (const N &, const N &);
-    N operator ^ (const N &, const N &);
+    template <endian::order r, neg c, std::unsigned_integral word>
+    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
 
-    template <std::integral I> Z operator + (I, const Z &);
-    template <std::integral I> Z operator + (const Z &, I);
+    template <endian::order r, std::unsigned_integral word>
+    bool operator == (const N &, const N_bytes<r, word> &);
 
-    template <std::signed_integral I> Z operator - (I, const Z &);
-    template <std::signed_integral I> Z operator - (const Z &, I);
-
-    template <std::unsigned_integral I> Z operator - (I, const Z &);
-    template <std::unsigned_integral I> Z operator - (const Z &, I);
-
-    template <std::signed_integral I> Z operator * (I, const Z &);
-    template <std::signed_integral I> Z operator * (const Z &, I);
-
-    template <std::unsigned_integral I> Z operator * (I, const Z &);
-    template <std::unsigned_integral I> Z operator * (const Z &, I);
-
-    template <std::signed_integral I> Z operator + (I, const N &);
-    template <std::signed_integral I> Z operator + (const N &, I);
-
-    template <std::signed_integral I> Z operator - (I, const N &);
-    template <std::signed_integral I> Z operator - (const N &, I);
-
-    template <std::signed_integral I> Z operator * (I, const N &);
-    template <std::signed_integral I> Z operator * (const N &, I);
-
-    template <std::unsigned_integral I> N operator + (I, const N &);
-    template <std::unsigned_integral I> N operator + (const N &, I);
-
-    template <std::unsigned_integral I> N operator - (I, const N &);
-    template <std::unsigned_integral I> N operator - (const N &, I);
-
-    template <std::unsigned_integral I> N operator * (I, const N &);
-    template <std::unsigned_integral I> N operator * (const N &, I);
-
-    template <std::unsigned_integral I> N operator & (I, const N &);
-    template <std::unsigned_integral I> N operator & (const N &, I);
-
-    template <std::unsigned_integral I> N operator ^ (I, const N &);
-    template <std::unsigned_integral I> N operator ^ (const N &, I);
-
-    template <std::unsigned_integral I> N operator | (I, const N &);
-    template <std::unsigned_integral I> N operator | (const N &, I);
-
-    Z operator / (const Z &, const Z &);
-    N operator / (const N &, const N &);
-
-    Z operator / (const Z &, int64);
-    N operator / (const N &, uint64);
-
-    N operator % (const Z &, const Z &);
-    N operator % (const Z &, const N &);
-    N operator % (const N &, const N &);
-
-    uint64 operator % (const Z &, uint64);
-    uint64 operator % (const N &, uint64);
-
-    Z &operator ++ (Z &);
-    Z &operator -- (Z &);
-
-    Z operator ++ (Z &, int);
-    Z operator -- (Z &, int);
-
-    N &operator ++ (N &);
-    N &operator -- (N &);
-
-    N operator ++ (N &, int);
-    N operator -- (N &, int);
-
-    Z operator << (const Z &, int);
-    Z operator >> (const Z &, int);
-
-    N operator << (const N &, int);
-    N operator >> (const N &, int);
-
-    std::ostream &operator << (std::ostream &o, const Z &n);
-    std::ostream &operator << (std::ostream &o, const N &n);
-
-    std::istream &operator >> (std::istream &i, Z &z);
-    std::istream &operator >> (std::istream &i, N &n);
-
-    Z &operator += (Z &, const Z &);
-    Z &operator -= (Z &, const Z &);
-    Z &operator *= (Z &, const Z &);
-    Z &operator /= (Z &, const Z &);
-
-    N &operator += (N &, const N &);
-    N &operator -= (N &, const N &);
-    N &operator *= (N &, const N &);
-    N &operator /= (N &, const N &);
-    N &operator %= (N &, const N &);
-
-    template <std::unsigned_integral I> N &operator += (N &, I);
-    template <std::unsigned_integral I> N &operator -= (N &, I);
-    template <std::unsigned_integral I> N &operator *= (N &, I);
-    template <std::unsigned_integral I> N &operator /= (N &, I);
-    template <std::unsigned_integral I> N &operator %= (N &, I);
-
-    Z &operator &= (Z &, const Z &);
-    Z &operator |= (Z &, const Z &);
-    Z &operator ^= (Z &, const Z &);
-
-    N &operator &= (N &, const N &);
-    N &operator |= (N &, const N &);
-    N &operator ^= (N &, const N &);
-
-    template <std::unsigned_integral I> N &operator &= (N &, I);
-    template <std::unsigned_integral I> N &operator |= (N &, I);
-    template <std::unsigned_integral I> N &operator ^= (N &, I);
-
-    Z &operator <<= (Z &, int);
-    Z &operator >>= (Z &, int);
-
-    N &operator <<= (N &, int);
-    N &operator >>= (N &, int);
-}
-
-namespace data {
-    using Z = math::number::GMP::Z;
-    using N = math::number::GMP::N;
+    template <endian::order r, std::unsigned_integral word>
+    std::strong_ordering operator <=> (const N &, const N_bytes<r, word> &);
 }
 
 namespace data::math::def {
@@ -278,32 +164,5 @@ namespace data::math::number {
         N operator () (const N &);
     };
 }
-
-namespace data::encoding::decimal {
-    struct string;
-    string write (const N &);
-    
-    std::ostream &write (std::ostream &, const N &);
-    
-}
-
-namespace data::encoding::hexidecimal {
-    template <neg, hex_case> struct integer;
-    
-    template <hex_case zz> integer<neg::nones, zz> write (const N &);
-    template <neg n, hex_case zz> integer<n, zz> write (const Z &);
-
-    std::ostream &write (std::ostream &, const N &, hex_case = hex_case::lower);
-    std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, neg = neg::twos);
-    
-}
-
-namespace data::encoding::signed_decimal {
-    struct string;
-    string write (const Z &);
-    
-    std::ostream &write (std::ostream &, const Z &);
-}
-
 
 #endif

@@ -5,11 +5,12 @@
 #ifndef DATA_CRYPTO_BLOCK_PADDING
 #define DATA_CRYPTO_BLOCK_PADDING
 
+#include <cryptopp/filters.h>
+
 #include <data/stream.hpp>
 #include <data/bytes.hpp>
 #include <data/crypto/block/mode.hpp>
 #include <data/exception.hpp>
-#include <cryptopp/filters.h>
 
 namespace data::crypto::cipher::block::CryptoPP {
     using namespace ::CryptoPP;

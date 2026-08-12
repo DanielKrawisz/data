@@ -5,6 +5,10 @@
 #ifndef DATA_CRYPTO_NIST_DRBG
 #define DATA_CRYPTO_NIST_DRBG
 
+#include <cryptopp/drbg.h>
+
+#include <data/tools/lazy_writer.hpp>
+#include <data/integral.hpp>
 #include <data/bytes.hpp>
 #include <data/random.hpp>
 #include <data/crypto/hash.hpp>
@@ -12,9 +16,6 @@
 #include <data/crypto/MAC/HMAC.hpp>
 #include <data/crypto/block/cipher.hpp>
 #include <data/crypto/block/padding.hpp>
-#include <data/integral.hpp>
-#include <data/tools/lazy_writer.hpp>
-#include <cryptopp/drbg.h>
 
 namespace data::crypto::NIST {
 

@@ -15,7 +15,7 @@
 
 #include <data/bytes.hpp>
 
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/types.hpp>
 
 namespace data::math::number {
     
