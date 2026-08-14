@@ -141,24 +141,9 @@ find_package (GMP REQUIRED)
 # if we do not have GMP
 #   * on linux, `sudo apt-get install libgmp3-dev`
 
-find_package (OpenSSL REQUIRED Crypto SSL)
-# if we do not have openssl
-#   * on linux, `sudo apt-get install libssl-dev`
-
-find_package (pegtl REQUIRED)
-# If we do not have PegTL
-#   * on linux, `sudo apt-get install tao-pegtl-dev`
-
 find_package (PkgConfig REQUIRED)
 # If we do not have PkgConfig
 #   * on linux, `sudo apt-get install pkg-config`
-
-IF (WIN32)
-  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
-ELSE ()
-  pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
-  # If we do not have crypto++, `sudo apt install libcrypto++-dev`
-ENDIF ()
 
 include (FetchContent)
 cmake_policy (SET CMP0135 NEW)
