@@ -15,6 +15,8 @@
 
 #include <data/bytes.hpp>
 
+#include <data/math/number/types.hpp>
+
 namespace data::math::number {
     
     // an implementation of the natural numbers that is
@@ -315,13 +317,8 @@ namespace data::math::number {
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
     
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator *
-        (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
-
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator *
-        (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
+    template <endian::order r, neg c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
     
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
@@ -752,6 +749,32 @@ namespace data::math::def {
     template <endian::order r, std::unsigned_integral word>
     struct bit_and<math::Z_bytes_BC<r, word>> {
         math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &a, const math::Z_bytes_BC<r, word> &b);
+    };
+
+    // convert between any two types of N_bytes
+    template <endian::order ToEndian, std::unsigned_integral ToWord,
+        endian::order FromEndian, std::unsigned_integral FromWord>
+    struct convert<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>> {
+        number::N_bytes<ToEndian, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
+    };
+
+    // convert between any two types of Z_bytes
+    template <endian::order ToEndian, neg ToNeg, std::unsigned_integral ToWord,
+        endian::order FromEndian, neg FromNeg, std::unsigned_integral FromWord>
+    struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>> {
+        number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const;
+    };
+
+    // convert from N_bytes to Z_bytes
+    template <endian::order ToEndian, neg ToNeg, std::unsigned_integral ToWord,
+        endian::order FromEndian, std::unsigned_integral FromWord>
+    struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::N_bytes<FromEndian, FromWord>> {
+        number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
+    };
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    struct convert<number::Z_bytes<r, c, word>, Z> {
+        number::Z_bytes<r, c, word> operator () (const Z &) const;
     };
     
 }

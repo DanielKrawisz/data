@@ -12,6 +12,7 @@
 #include <data/array.hpp>
 #include <data/cross.hpp>
 #include <data/for_each.hpp>
+
 #include <data/exception.hpp>
 
 namespace data {

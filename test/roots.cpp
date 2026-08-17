@@ -3,7 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/math.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
     

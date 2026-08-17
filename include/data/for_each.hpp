@@ -97,7 +97,6 @@
  *  -------------------------------------------------------------------------
  */
 
-#include <data/exception.hpp>
 #include <data/iterable.hpp>
 #include <data/indexed.hpp>
 #include <data/cycle.hpp>
@@ -106,6 +105,7 @@
 #include <data/set.hpp>
 #include <data/array.hpp>
 #include <data/get.hpp>
+#include <data/exception.hpp>
 
 namespace data {
 

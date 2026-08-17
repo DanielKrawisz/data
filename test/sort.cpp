@@ -7,7 +7,8 @@
 #include <data/ordered_sequence.hpp>
 #include <data/priority_queue.hpp>
 #include <data/cross.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
     

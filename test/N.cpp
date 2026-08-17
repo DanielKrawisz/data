@@ -4,7 +4,8 @@
 
 #include <data/numbers.hpp>
 #include <data/math/number/bytes.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
     

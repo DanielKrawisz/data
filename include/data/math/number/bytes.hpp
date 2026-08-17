@@ -5,10 +5,7 @@
 #ifndef DATA_MATH_NUMBER_BYTES
 #define DATA_MATH_NUMBER_BYTES
 
-#include <data/encoding/integer.hpp>
-#include <data/math/number/bytes/Z.hpp>
-#include <data/math/number/gmp/mpz.hpp>
-#include <data/math/number/division.hpp>
+#include <data/math/number/gmp/Z.hpp>
 
 #include <data/encoding/digits.hpp>
 
@@ -36,16 +33,21 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> inline Z_bytes<r, neg::twos, word>::read (string_view x) {
-        if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
-        if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::twos, word> (x);
-        return Z_bytes<r, neg::twos, word> (Z {x});
+
+        if (!encoding::integer::valid (x))
+            throw exception {} << "invalid number string \"" << x << "\"";
+
+        if (encoding::hexidecimal::valid (x))
+            return *encoding::integer::read<r, neg::twos, word> (x);
+
+        return convert<Z_bytes<r, neg::twos, word>> (Z {x});
     }
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> inline Z_bytes<r, neg::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::BC, word> (x);
-        return Z_bytes<r, neg::BC, word> (Z {x});
+        return Z {x}.operator Z_bytes<r, neg::BC, word> ();
     }
 
     template <endian::order r, std::unsigned_integral word>
@@ -194,7 +196,7 @@ namespace data::encoding::hexidecimal {
         template <endian::order r, neg c>
         using bytes_type = get_bytes_type<r, c>::value;
         
-        using nat = math::number::GMP::N;
+        using nat = math::number::N;
         
         template <hex::letter_case zz>
         inline nat read_num (const integer<neg::nones, zz> &n) {

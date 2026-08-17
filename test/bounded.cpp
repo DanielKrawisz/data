@@ -5,40 +5,41 @@
 #include <data/types.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/bounded/bounded.hpp>
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gmock/gmock-matchers.h"
-#include <stdexcept>
+#include <data/arithmetic.hpp>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace data {
     
     template<bool is_signed, endian::order o, size_t size> 
     using bounded = math::number::bounded<is_signed, o, size, byte>;
     
-    using u8l = bounded<false, data::endian::little, 8>;
-    using u8b = bounded<false, data::endian::big, 8>;
-    using s8l = bounded<true, data::endian::little, 8>;
-    using s8b  = bounded<true, data::endian::big, 8>;
+    using u8l = bounded<false, endian::little, 8>;
+    using u8b = bounded<false, endian::big, 8>;
+    using s8l = bounded<true, endian::little, 8>;
+    using s8b  = bounded<true, endian::big, 8>;
     
-    using u9l = bounded<false, data::endian::little, 9>;
-    using u9b = bounded<false, data::endian::big, 9>;
-    using s9l = bounded<true, data::endian::little, 9>;
-    using s9b  = bounded<true, data::endian::big, 9>;
+    using u9l = bounded<false, endian::little, 9>;
+    using u9b = bounded<false, endian::big, 9>;
+    using s9l = bounded<true, endian::little, 9>;
+    using s9b  = bounded<true, endian::big, 9>;
     
-    using u10l = bounded<false, data::endian::little, 10>;
-    using u10b = bounded<false, data::endian::big, 10>;
-    using s10l = bounded<true, data::endian::little, 10>;
-    using s10b  = bounded<true, data::endian::big, 10>;
+    using u10l = bounded<false, endian::little, 10>;
+    using u10b = bounded<false, endian::big, 10>;
+    using s10l = bounded<true, endian::little, 10>;
+    using s10b  = bounded<true, endian::big, 10>;
     
-    using u11l = bounded<false, data::endian::little, 11>;
-    using u11b = bounded<false, data::endian::big, 11>;
-    using s11l = bounded<true, data::endian::little, 11>;
-    using s11b  = bounded<true, data::endian::big, 11>;
+    using u11l = bounded<false, endian::little, 11>;
+    using u11b = bounded<false, endian::big, 11>;
+    using s11l = bounded<true, endian::little, 11>;
+    using s11b  = bounded<true, endian::big, 11>;
     
-    using nl = math::number::N_bytes<data::endian::little, byte>;
-    using nb = math::number::N_bytes<data::endian::big, byte>;
-    using zl = math::number::Z_bytes<data::endian::little, neg::twos, byte>;
-    using zb = math::number::Z_bytes<data::endian::big, neg::twos, byte>;
+    using nl = math::number::N_bytes<endian::little, byte>;
+    using nb = math::number::N_bytes<endian::big, byte>;
+    using zl = math::number::Z_bytes<endian::little, neg::twos, byte>;
+    using zb = math::number::Z_bytes<endian::big, neg::twos, byte>;
     
     TEST (Bounded, ReadString) {
         
@@ -283,7 +284,8 @@ namespace data {
     }
 
     template <typename A, typename B>
-    void test_convert_number (const string &x) {
+    void test_convert_bounded (const string &x) {
+
         A a {x};
         B b {x};
 
@@ -299,6 +301,54 @@ namespace data {
     }
 
     TEST (Bounded, Conversions) {
+        for (const string &x : cross<std::string> {"0", "1", "2", "177777777", "17777777777777777777777777"}) {
+
+            test_convert_bounded<uint256, int256> (x);
+
+            test_convert_bounded<uint256, uint256_little> (x);
+            test_convert_bounded<uint256, uint256_big> (x);
+
+            test_convert_bounded<int256, int256_little> (x);
+            test_convert_bounded<int256, int256_big> (x);
+
+            test_convert_bounded<uint256, int256_little> (x);
+            test_convert_bounded<uint256, int256_big> (x);
+
+            test_convert_bounded<int256, uint256_little> (x);
+            test_convert_bounded<int256, uint256_big> (x);
+
+            test_convert_bounded<uint256, uint160> (x);
+            test_convert_bounded<uint160, uint256> (x);
+
+            test_convert_bounded<uint256, int160> (x);
+            test_convert_bounded<uint160, int256> (x);
+
+            test_convert_bounded<uint256, uint160_little> (x);
+            test_convert_bounded<uint160, uint256_little> (x);
+
+            test_convert_bounded<uint256, int160_big> (x);
+            test_convert_bounded<uint160, int256_big> (x);
+        }
+    }
+
+    template <typename A, typename B>
+    void test_convert_number (const string &x) {
+
+        A a {x};
+        B b {x};
+
+        auto ab = math::convert<A> (b);
+
+        EXPECT_EQ (a, ab) << "Expected " << a << " == " << ab;
+
+        auto ba = math::convert<B> (a);
+
+        EXPECT_EQ (ba, b) << "Expected " << ba << " == " << b;
+        EXPECT_EQ (a, math::convert<A> (ba));
+        EXPECT_EQ (b, math::convert<B> (ab));
+    }
+
+    TEST (Bounded, UnboundedConversions) {
         for (const string &x : cross<std::string> {"0", "1", "2", "177777777", "17777777777777777777777777"}) {
 
             test_convert_number<uint256, int256> (x);

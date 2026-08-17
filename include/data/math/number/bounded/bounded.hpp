@@ -6,6 +6,7 @@
 #define DATA_MATH_NUMBER_BOUNDED_BOUNDED
 
 #include <data/math/number/bytes/bytes.hpp>
+
 #include <data/exception.hpp>
 
 namespace data {
@@ -441,17 +442,20 @@ namespace data {
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct divmod<uint<r, x, word>, uint<r, x, word>> {
-            constexpr division<uint<r, x, word>, uint<r, x, word>> operator () (const uint<r, x, word> &, const nonzero<uint<r, x, word>> &);
+            constexpr division<uint<r, x, word>, uint<r, x, word>>
+            operator () (const uint<r, x, word> &, const nonzero<uint<r, x, word>> &);
         };
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct divmod<sint<r, x, word>, sint<r, x, word>> {
-            constexpr division<sint<r, x, word>, sint<r, x, word>> operator () (const sint<r, x, word> &, const nonzero<sint<r, x, word>> &);
+            constexpr division<sint<r, x, word>, sint<r, x, word>>
+            operator () (const sint<r, x, word> &, const nonzero<sint<r, x, word>> &);
         };
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct divmod<sint<r, x, word>, uint<r, x, word>> {
-            constexpr division<uint<r, x, word>, uint<r, x, word>> operator () (const sint<r, x, word> &, const nonzero<uint<r, x, word>> &);
+            constexpr division<uint<r, x, word>, uint<r, x, word>>
+            operator () (const sint<r, x, word> &, const nonzero<uint<r, x, word>> &);
         };
 
         template <bool a, endian::order r, size_t x, std::unsigned_integral word>
@@ -530,6 +534,35 @@ namespace data {
         template <endian::order r, size_t x, std::unsigned_integral word>
         struct mod_2<sint<r, x, word>> {
             constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
+        };
+
+        // throws if the conversion is not possible due to input being too big
+        // for the result or if the input is negative and the result is unsigned.
+        template <bool a, endian::order r, size_t x, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>> {
+            number::bounded<a, r, x, w> operator () (const number::bounded<b, o, y, u> &) const;
+        };
+
+        // result will not be minimal.
+        template <endian::order r, neg c, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::Z_bytes<r, c, w>, number::bounded<b, o, y, u>> {
+            number::Z_bytes<r, c, w> operator () (const number::bounded<b, o, y, u> &) const;
+        };
+
+        // result will be minimal, throws if input is negative.
+        template <endian::order r, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::N_bytes<r, w>, number::bounded<b, o, y, u>> {
+            number::N_bytes<r, w> operator () (const number::bounded<b, o, y, u> &) const;
+        };
+
+        // throws if input is too big or if the input is negative and the result is unsigned.
+        template <endian::order r, neg c, std::unsigned_integral w,
+        bool b, endian::order o, size_t y, std::unsigned_integral u>
+        struct convert<number::bounded<b, o, y, u>, number::Z_bytes<r, c, w>> {
+            number::bounded<b, o, y, u> operator () (const number::Z_bytes<r, c, w> &) const;
         };
     }
 
@@ -670,11 +703,11 @@ namespace data {
             endian::order o, neg neg, std::unsigned_integral w>
         std::weak_ordering operator <=> (const uint<r, size, word> &, const Z_bytes<o, neg, w> &);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> operator / (const uint<r, x, word> &, uint64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, x, word> operator / (const uint<r, x, word> &, I);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> operator / (const sint<r, x, word> &, int64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, x, word> operator / (const sint<r, x, word> &, I);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint64 operator % (const uint<r, x, word> &, uint64);
@@ -682,11 +715,11 @@ namespace data {
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint64 operator % (const sint<r, x, word> &, uint64);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> &operator /= (uint<r, x, word> &, uint64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, x, word> &operator /= (uint<r, x, word> &, I);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> &operator /= (sint<r, x, word> &, int64);
+        template <endian::order r, size_t x, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, x, word> &operator /= (sint<r, x, word> &, I);
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint<r, x, word> &operator %= (uint<r, x, word> &, uint64);
@@ -696,12 +729,6 @@ namespace data {
 
         template <bool u, endian::order r, size_t z, std::unsigned_integral word>
         constexpr bounded<u, r, z, word> &operator %= (bounded<u, r, z, word> &, const bounded<u, r, z, word> &);
-
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> &operator /= (uint<r, x, word> &, uint64);
-
-        template <endian::order r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> &operator /= (sint<r, x, word> &, int64);
 
         template <endian::order r, size_t size, std::unsigned_integral word>
         struct bounded<false, r, size, word> : public oriented<r, word, size> {
@@ -732,6 +759,8 @@ namespace data {
             static N_bytes<r, word> modulus ();
 
             // result will be minimal.
+            // TODO this conversion is not as general as it ought to be.
+            // it should be in a constructor.
             operator N_bytes<r, word> () const;
 
             constexpr bounded (const N_bytes<r, word> &);
@@ -741,11 +770,14 @@ namespace data {
             explicit bounded (const Z_bytes<o, neg, w> &z);
 
             // result will not be minimal.
+            // TODO why not? That doesn't really make sense. It should be minimal.
             template <endian::order o, neg neg, std::unsigned_integral w>
             explicit operator Z_bytes<o, neg, w> () const;
 
             explicit operator double () const;
 
+            // TODO we ought to be able to explicitly convert to
+            // any built-in type.
             explicit operator uint64 () const;
 
             // explicitly convert from a larger number.
@@ -930,13 +962,13 @@ namespace data {
             return n;
         }
 
-        template <endian::order r, size_t z, std::unsigned_integral word>
-        constexpr uint<r, z, word> inline &operator /= (uint<r, z, word> &a, uint64 b) {
+        template <endian::order r, size_t z, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, z, word> inline &operator /= (uint<r, z, word> &a, I b) {
             return a = a / b;
         }
 
-        template <endian::order r, size_t z, std::unsigned_integral word>
-        constexpr sint<r, z, word> inline &operator /= (sint<r, z, word> &a, int64 b) {
+        template <endian::order r, size_t z, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, z, word> inline &operator /= (sint<r, z, word> &a, I b) {
             return a = a / b;
         }
 
@@ -1190,6 +1222,16 @@ namespace data {
             return z *= sint<r, size, word> {x};
         }
 
+        template <endian::order r, size_t x, std::unsigned_integral word, std::unsigned_integral I>
+        constexpr uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
+            return a / uint<r, x, word> (b);
+        }
+
+        template <endian::order r, size_t x, std::unsigned_integral word, std::integral I>
+        constexpr sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
+            return a / sint<r, x, word> (b);
+        }
+
     }
     
     namespace encoding::hexidecimal {
@@ -1365,6 +1407,40 @@ namespace data {
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr sint<r, x, word> inline mod_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
             return bit_mod_2_negative_mod (u);
+        }
+
+        template <bool a, endian::order r, size_t x, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::bounded<a, r, x, w> inline convert<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>>::operator ()
+            (const number::bounded<b, o, y, u> &z) const {
+            return number::bounded<a, r, x, w> (z);
+        }
+
+        template <endian::order r, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::N_bytes<r, w> inline convert<number::N_bytes<r, w>, number::bounded<b, o, y, u>>::operator ()
+            (const number::bounded<b, o, y, u> &z) const {
+            if constexpr (!b) return math::convert<number::N_bytes<r, w>> (z.operator number::N_bytes<o, u> ());
+            else return z.operator number::Z_bytes<r, neg::twos, w> ().operator number::N_bytes<r, w>;
+        }
+
+        template <endian::order r, neg c, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::Z_bytes<r, c, w> inline convert<number::Z_bytes<r, c, w>, number::bounded<b, o, y, u>>::operator ()
+            (const number::bounded<b, o, y, u> &z) const {
+            // if z is unsigned, first convert to N_bytes, then to Z_bytes.
+            if constexpr (!b) return math::convert<number::Z_bytes<r, c, w>> (math::convert<number::N_bytes<r, w>> (z));
+            else if constexpr (c == neg::twos) return z.operator number::Z_bytes<r, neg::twos, w> ();
+            else return z.operator number::Z_bytes<r, neg::twos, w> ().operator number::Z_bytes<r, c, w> ();
+        }
+
+        template <endian::order r, neg c, std::unsigned_integral w,
+            bool b, endian::order o, size_t y, std::unsigned_integral u>
+        number::bounded<b, o, y, u> inline
+        convert<number::bounded<b, o, y, u>, number::Z_bytes<r, c, w>>::operator ()
+        (const number::Z_bytes<r, c, w> &z) const {
+            if constexpr (!b || c == neg::twos) return number::bounded<b, o, y, u> {z};
+            return number::bounded<b, o, y, u> {math::convert<number::Z_bytes<r, neg::twos, w>> (z)};
         }
     }
 
@@ -1753,6 +1829,7 @@ namespace data {
         // could likely be mostly replaced by a single function.
 
         // convert bounded to Z_bytes
+        // TODO replace this with a conversion function.
         template <endian::order r, size_t size, std::unsigned_integral word>
         template <endian::order o, neg neg, std::unsigned_integral w>
         bounded<false, r, size, word>::operator Z_bytes<o, neg, w> () const {
@@ -1772,7 +1849,7 @@ namespace data {
             auto dst = z.words ().begin ();
 
             if constexpr (sizeof (word) == sizeof (w)) {
-                std::copy(src, src_end, dst);
+                std::copy (src, src_end, dst);
 
             } else if constexpr (sizeof (word) < sizeof (w)) {
                 // Pack smaller → larger
@@ -2142,6 +2219,7 @@ namespace data {
         template <endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) > size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
                     n.words ().begin () + size,
@@ -2202,6 +2280,7 @@ namespace data {
         template <endian::order o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) >= size * sizeof (word))
         bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
+
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
                     n.words ().begin () + size,

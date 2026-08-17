@@ -7,7 +7,8 @@
 #include <data/string.hpp>
 #include <data/numbers.hpp>
 #include <data/shuffle.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
 

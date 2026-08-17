@@ -4,7 +4,8 @@
 
 #include <data/set.hpp>
 #include <data/numbers.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
 

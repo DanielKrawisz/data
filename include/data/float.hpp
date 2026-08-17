@@ -5,6 +5,7 @@
 #ifndef DATA_FLOAT
 #define DATA_FLOAT
 
+#include <climits>
 #include <data/complex.hpp>
 #include <data/math/algebra.hpp>
 

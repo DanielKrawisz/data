@@ -3,7 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/numbers.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 // We test that number types work like Bitcoin numbers. 
 namespace data {

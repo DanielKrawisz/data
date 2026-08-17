@@ -5,11 +5,14 @@ if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy (VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
 
-option (OPTIONAL_TESTS "Build optional Tests" OFF)
 include (GoogleTest)
 
 add_executable (
     unit_tests
+    # we put these first even though they don't belong here because
+    # they take such a long time.
+    modular.cpp                  # TODO: A condition is commented out.
+
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
     maybe_either.cpp
@@ -38,30 +41,25 @@ add_executable (
     sort.cpp
     get.cpp
     for_each.cpp                 # TODO: could be more thorough
-    replace.cpp
+    replace.cpp                  # TODO: need more tests
     select.cpp
     lift.cpp                     # TODO: could be more thorough
     transpose.cpp
-    flatten.cpp
+    flatten.cpp                  # TODO: contains commented tests
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
     transpose.cpp
     combinatorics.cpp
-    schema.cpp
 
     # string
-    parse.cpp
     integer_format.cpp
     bytes.cpp
-    write.cpp
+    write.cpp                    # TODO: there is a lot commented out.
     hex.cpp
     base64.cpp
     ASCII.cpp
     stream.cpp
     endian.cpp
     bounded.cpp                  # TODO: should be typed test, has commented sections
-
-    # hash
-    hash.cpp
 
     # numbers
     numbers.cpp                  # TODO: need a typed test suite.
@@ -90,36 +88,18 @@ add_executable (
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
     abs.cpp                      # TODO: should be a typed test.
     roots.cpp                    # TODO: should be a typed test.
-    modular.cpp                  # TODO: A condition is commented out.
+    #modular.cpp                  # TODO: A condition is commented out.
     limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
     finite_field.cpp             # TODO: make typed test.
     matrix.cpp
     algebra.cpp
     exterior.cpp
-    elliptic_curve.cpp
-
-    # crypto
-    # random_primes.cpp
-    symmetric_crypto.cpp
-    NIST_DRBG.cpp
-    secret_share.cpp
-
-    #async
-    async.cpp
-
-    # net
-    IP.cpp
-    circular_queue.cpp
-    email.cpp
-
-    # io
-    log.cpp
-    args_parser.cpp
+    #elliptic_curve.cpp
 )
 
-target_link_libraries (unit_tests
-  PRIVATE net io crypto numbers gtest_main gmock)
+target_link_libraries (unit_tests PRIVATE crypto numbers gtest_main gmock)
+
 gtest_discover_tests (unit_tests)
 
 if (OPTIONAL_TESTS)

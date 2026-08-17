@@ -194,9 +194,7 @@ namespace data {
 
     template <typename Z, typename N = Z> concept proto_number_system =
         proto_system<Z, N> && ImplicitlyConvertible<N, Z> &&
-        // NOTE: this clause should be uncommented, but the numbers
-        // don't work right ATM so we need to fix them.
-        //ExplicitlyConvertible<Z, N> &&
+        Convertible<Z, N> &&
         math::hetero_abs_and_negate<N, Z>;
 
     // here we look at types with bit operations defined on them.
@@ -414,11 +412,11 @@ namespace data {
 
     template <typename X, typename Y>
     concept div_algebraic_unsigned_to =
-        ring_algebraic_unsigned_to<X, Y> /*&&
+        ring_algebraic_unsigned_to<X, Y> &&
         requires (const X &a) {
             { a / 1u } -> ImplicitlyConvertible<Y>;
-            { 1u / a } -> ImplicitlyConvertible<Y>;
-        }*/;
+            //{ 1u / a } -> ImplicitlyConvertible<Y>;
+        };
 
     template <typename X, typename Y>
     concept group_algebraic_signed_big_to =
@@ -629,16 +627,16 @@ namespace data {
     template <typename Z> concept WholeNumber =
         div_number<Z> && requires (const Z &a, const Z &b) {
             { a % b };
-            // NOTE this should be uncommented.
-            //{ divmod (a, b) };
+            { divmod (a, math::nonzero {b}) };
         } && (Signed<Z> || Unsigned<Z>);
 
     template <typename Z> concept Integer =
         WholeNumber<Z> && RingNumber<Z> && div_number_signed<Z>;
 
-    // TODO require homo modable.
     template <typename Z> concept Natural =
-        WholeNumber<Z> && div_number_unsigned<Z>;
+        WholeNumber<Z> && div_number_unsigned<Z> && requires (const Z &a, const Z &b) {
+            { a % b } -> Same<Z>;
+        };
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N = Z> concept number_system =
@@ -658,6 +656,9 @@ namespace data {
 }
 
 namespace data::math {
+
+    // convert from one number type to another.
+    template <typename A, typename B> A convert (const B &);
 
     // we extend std::numeric_limits for more types of numbers.
     template <typename X> struct numeric_limits;
@@ -760,6 +761,8 @@ namespace data::math::def {
             return bit_and (bit_not (x), bit_not (x));
         }
     };
+
+    template <typename A, typename B> struct convert;
 }
 
 namespace data {
@@ -894,6 +897,10 @@ namespace data::math {
     template <proto_bit_number A> constexpr A inline bit_mod_2_negative_mod (const A &x) {
         auto m = abs (x) & 1;
         return is_negative (x) ? -m : m;
+    }
+
+    template <typename A, typename B> A inline convert (const B &x) {
+        return def::convert<A, B> {} (x);
     }
 }
 

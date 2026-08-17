@@ -8,7 +8,7 @@
 #include <data/numbers.hpp>
 #include <data/math.hpp>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace data;
 

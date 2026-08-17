@@ -9,10 +9,10 @@
 #include <limits>
 #include <type_traits>
 #include <sstream>
-#include <data/exception.hpp>
 #include <data/slice.hpp>
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/tools/index_iterator.hpp>
+#include <data/exception.hpp>
 
 namespace data::arithmetic {
     

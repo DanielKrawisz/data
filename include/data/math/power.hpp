@@ -5,7 +5,7 @@
 #ifndef DATA_POWER
 #define DATA_POWER
 
-#include <data/integral.hpp>
+#include <data/arithmetic.hpp>
 #include <data/math/ring.hpp>
 
 namespace data::math {

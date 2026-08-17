@@ -2,14 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/encoding/base58.hpp"
-#include "data/encoding/hex.hpp"
-#include "data/math/number/gmp/Z.hpp"
-#include "data/encoding/invalid.hpp"
+#include <data/encoding/base58.hpp>
+#include <data/encoding/hex.hpp>
+#include <data/math/number/gmp/Z.hpp>
+#include <data/encoding/invalid.hpp>
 #include <data/numbers.hpp>
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gmock/gmock-matchers.h"
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace data::encoding {
     

@@ -7,6 +7,7 @@
 
 #include <data/increment.hpp>
 #include <data/arithmetic.hpp>
+
 #include <data/exception.hpp>
 
 namespace data::math::number {

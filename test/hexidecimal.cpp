@@ -4,8 +4,8 @@
 
 #include <data/numbers.hpp>
 #include <data/list.hpp>
-#include <data/io/wait_for_enter.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data::math::number {
     
@@ -836,7 +836,7 @@ namespace data::math::number {
         // BC converted to twos should be equal (but not identical);
         EXPECT_EQ (b, t) << "expected " << b << " to equal " << t << " ; converted to twos: " << hex<neg::twos> (t);
 
-        auto tb = static_cast <std::string> (hex<neg::BC> (t));
+        auto tb = static_cast <std::string> (convert<hex<neg::BC>> (t));
         auto bb = static_cast <std::string> (b);
         EXPECT_EQ (tb, bb) << "expected " << tb << " to equal " << bb;
 
@@ -863,7 +863,7 @@ namespace data::math::number {
 
         EXPECT_EQ (b, t) << "expected " << b << " to equal " << t;
 
-        auto bt = static_cast <std::string> (hex<neg::twos> (b));
+        auto bt = static_cast <std::string> (convert<hex<neg::twos>> (b));
         auto tt = static_cast <std::string> (t);
         EXPECT_EQ (bt, tt) << "expected " << bt << " === " << tt;
 

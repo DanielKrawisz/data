@@ -537,7 +537,7 @@ namespace data::arithmetic::twos {
         return na ? std::strong_ordering::less : std::strong_ordering::greater;
     }
 
-    // we extend the number once with every increment, which will get very
+    // TODO we extend the number once with every increment, which will get very
     // inefficient if you don't trim regularly. It should be possible to
     // extend only when we need to, but we don't right now.
     template <endian::order r, std::integral word>

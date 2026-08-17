@@ -5,12 +5,13 @@
 #ifndef DATA_SEQUENCE
 #define DATA_SEQUENCE
 
-#include <data/exception.hpp>
 #include <data/concepts.hpp>
 #include <data/empty.hpp>
 #include <data/function.hpp>
 #include <data/ordered.hpp>
 #include <data/iterable.hpp>
+
+#include <data/exception.hpp>
 
 namespace data {
     

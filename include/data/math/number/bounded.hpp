@@ -8,10 +8,11 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/gmp/Z.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
+
 #include <data/exception.hpp>
 
 namespace data::math::number {
@@ -44,6 +45,11 @@ namespace data::math::number {
                 if (encoding::decimal::valid (x)) {
                     *this = bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit));
+
+                    // if the result was negative then clearly the string was too big clearly, but
+                    // we could have still strings that are too big that we don't catch this way.
+                    if (*this < 0)
+                        throw exception {} << "integer string \"" << x << "\" is too big for the given number type";
                 } else {
                     *this = -bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x.substr (1), 10, encoding::decimal::digit));
@@ -53,7 +59,11 @@ namespace data::math::number {
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
                 encoding::hex::decode (x.end (), x.begin (), this->begin ());
         } else {
-            if (encoding::signed_decimal::valid (x)) *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
+            if (encoding::signed_decimal::valid (x)) {
+                auto zb = Z_bytes<r, neg::twos, word>::read (x);
+                // TODO this operation should be replaced by a conversion function call.
+                *this = bounded {zb};
+            }
             else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
                 encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
@@ -65,16 +75,6 @@ namespace data::math::number {
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
-        return a / uint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
-        return a / sint<r, x, word> (b);
     }
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
@@ -92,11 +92,13 @@ namespace data::math::number {
         return uint64 (a % uint<r, x, word> (b));
     }
     
+    // TODO need N_bytes constructor that takes bounded.
     template <endian::order r, size_t size, std::unsigned_integral word>
     inline bounded<false, r, size, word>::operator double () const {
         return double (N (N_bytes<r, word> (*this)));
     }
     
+    // TODO need Z_bytes constructor that takes bounded.
     template <endian::order r, size_t size, std::unsigned_integral word>
     inline bounded<true, r, size, word>::operator double () const {
         return double (Z (Z_bytes<r, neg::twos, word> (*this)));

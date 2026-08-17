@@ -5,11 +5,11 @@
 #ifndef DATA_ENCODING_READ
 #define DATA_ENCODING_READ
 
+#include <data/encoding/base64.hpp>
 #include <data/concepts.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/maybe.hpp>
 #include <data/either.hpp>
-#include <data/encoding/base64.hpp>
 
 namespace data::encoding {
 
