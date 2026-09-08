@@ -14,8 +14,10 @@
 #include <data/math/number/types.hpp>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/math/number/bytes/Z.hpp>
-// TODO we should get rid of this and use NTL's native function.
-#include <data/math/power.hpp>
+
+#include <data/math/number/prime.hpp>
+#include <data/math/root.hpp>
+
 #include <NTL/ZZ.h>
 
 namespace NTL {
@@ -63,7 +65,10 @@ namespace data::math::number {
 
         // We need these to ensure that we can accept
         // any number literal.
-        template <std::integral I> Z (I u);
+        template <std::integral I> Z (I u): Value {
+            NTL::import_bin (
+                slice<const std::make_unsigned_t<I>> {(const std::make_unsigned_t<I> *) (&u), 1},
+                endian::order::little, endian::order::native, arithmetic::negativity::ones)} {}
 
         static Z read (string_view x);
 
@@ -113,13 +118,15 @@ namespace data::math::number {
 
         N () : Value {} {}
 
-        // need all of these to ensure that we can work with number
-        // literals.
+        template <std::unsigned_integral I> N (I u): Value {
+            NTL::import_bin (
+                slice<const I> {(const I *) (&u), 1},
+                endian::order::little, endian::order::native, arithmetic::negativity::ones)} {}
 
-        // We need these to ensure that we can accept
-        // any number literal.
-        template <std::unsigned_integral I> N (I u): Value {NTL::conv<NTL::ZZ> (u)} {}
-        template <std::signed_integral I> N (I u): Value {NTL::conv<NTL::ZZ> (u)} {
+        template <std::signed_integral I> N (I u): Value {
+            NTL::import_bin (
+                slice<const std::make_unsigned_t<I>> {(const std::make_unsigned_t<I> *) (&u), 1},
+                endian::order::little, endian::order::native, arithmetic::negativity::ones)} {
             if (u < 0) throw exception {} << "cannot instantiate N with negative number " << u;
         }
 
@@ -132,8 +139,8 @@ namespace data::math::number {
         }
 
         N (string_view);
-        N (const dec_uint &u): N {string_view (u)} {}
-        template <hex_case zz> N (const hex::uint<zz> &u): N {string_view (u)} {}
+        N (const dec_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <hex_case zz> N (const hex::uint<zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         N (const base58_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         template <endian::order r, std::unsigned_integral word>
@@ -176,35 +183,76 @@ namespace data::math::number {
         explicit N (NTL::ZZ &&);
         NTL::ZZ Value;
     };
+}
 
-/*
-    ZZ read (const encoding::signed_decimal::string &u) {
-        if (!u.valid ()) throw exception {} << "Invalid decimal string";
-        if (u[0] == '-') return -conv<NTL::ZZ> (u.c_str () + 1);
-        return conv<NTL::ZZ> (u.c_str ());
-    }
+namespace data::math {
 
-    template <arithmetic::negativity neg, hex_case x>
-    ZZ inline read (const encoding::hexidecimal::integer<neg, x> &u) {
-        if (!u.valid ()) throw exception {} << "Invalid hexidecimal string";
-        bytes decoded = *encoding::hex::read (string_view (u).substr (2));
-        return import_bin<byte> (byte_slice (decoded), endian::order::little, endian::order::native, neg);
-    }
+    template <uint64 pow> struct root<N, pow> {
+        set<N> operator () (const N &n);
+    };
 
-    ZZ inline read (const encoding::base58::string &u) {
-        if (!u.valid ()) throw exception {} << "Invalid base58 string";
-        *encoding::base58::decode<ZZ> (u);
-    }
-
-    template <std::integral I>
-    ZZ inline read_integral (I x) {
-        return import_bin ((const std::make_unsigned<I> *) (&x), 1, 1, endian::order::native, arithmetic::negativity::ones);
-    }*/
+    template <uint64 pow> struct root<Z, pow> {
+        set<Z> operator () (const Z &z);
+    };
 
 }
 
-#include <data/math/number/prime.hpp>
-#include <data/math/root.hpp>
+namespace data::math::number {
+
+    template <> struct AKS<N> {
+        prime<N> is_prime (const N n);
+    };
+
+    template struct AKS<N>;
+
+    // pre increment
+    N inline &operator ++ (N &a) {
+        ++a.Value;
+        return a;
+    }
+
+    N inline &operator -- (N &a) {
+        if (a != 0) --a.Value;
+        return a;
+    }
+
+    Z inline &operator ++ (Z &a) {
+        ++a.Value;
+        return a;
+    }
+
+    Z inline &operator -- (Z &a) {
+        --a.Value;
+        return a;
+    }
+
+    // post increment
+    N inline operator ++ (N &a, int) {
+        auto b = a;
+        ++a;
+        return b;
+    }
+
+    N inline operator -- (N &a, int) {
+        if (a == 0) return a;
+        auto b = a;
+        --a;
+        return b;
+    }
+
+    Z inline operator ++ (Z &n, int) {
+        Z z = n;
+        ++ (n);
+        return z;
+    }
+
+    Z inline operator -- (Z &n, int) {
+        Z z = n;
+        ++ (n);
+        return z;
+    }
+
+}
 
 namespace data::math::number::NTL {
 
@@ -217,29 +265,61 @@ namespace data::math::number::NTL {
 
 namespace data::math::number {
 
-    template <> struct AKS<N> {
-        prime<N> is_prime (const N n) {
-            return NTL::aks_is_prime (n) ? prime<N> {n, prime<N>::certain} : prime<N> {};
-        }
-    };
-
-    template struct AKS<N>;
+    prime<N> inline AKS<N>::is_prime (const N n) {
+        return NTL::aks_is_prime (n) ? prime<N> {n, prime<N>::certain} : prime<N> {};
+    }
 
 }
 
 namespace data::math {
 
-    template <uint64 pow> struct root<N, pow> {
-        set<N> operator () (const N &n) {
-            return number::NTL::root (n, pow);
-        }
-    };
+    template <uint64 pow>
+    set<N> root<N, pow>::operator () (const N &n) {
+        return number::NTL::root (n, pow);
+    }
 
-    template <uint64 pow> struct root<Z, pow> {
-        set<Z> operator () (const Z &z) {
-            return number::NTL::root (z, pow);
-        }
-    };
+    template <uint64 pow>
+    set<Z> root<Z, pow>::operator () (const Z &z) {
+        return number::NTL::root (z, pow);
+    }
+
+}
+
+namespace NTL {
+
+    template <data::arithmetic::negativity neg, data::hex_case cc>
+    void inline conv (ZZ &x, const data::encoding::hexidecimal::integer<neg, cc> &u) {
+        if (!u.valid ()) throw data::exception {} << "Invalid hexidecimal string";
+        x = data::math::number::NTL::import_bin<data::byte> (data::byte_slice (*data::encoding::hex::read (data::string_view (u).substr (2))),
+            data::endian::order::little, data::endian::order::native, neg);
+    }
+
+    template <data::endian::order r, data::arithmetic::negativity neg, std::unsigned_integral word>
+    void inline conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &u) {
+        x = data::math::number::NTL::import_bin<word> (data::slice<const word> (u), r, data::endian::order::native, neg);
+    }
+
+    template <data::endian::order r, std::unsigned_integral word>
+    void inline conv (ZZ &x, const data::math::number::N_bytes<r, word> &u) {
+        x = data::math::number::NTL::import_bin<word> (
+            data::slice<const word> (u), r,
+            data::endian::order::native,
+            data::arithmetic::negativity::nones);
+    }
+
+    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    void inline conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &u) {
+        x = data::math::number::NTL::import_bin<word> (
+            data::slice<const word> (u), r, data::endian::order::native,
+            is_signed ? data::arithmetic::negativity::ones : data::arithmetic::negativity::nones);
+    }
+
+    template <bool is_signed, data::endian::order r, std::size_t size>
+    void inline conv (ZZ &x, const data::endian::integral<is_signed, r, size> &u) {
+        x = data::math::number::NTL::import_bin<data::byte> (
+            data::slice<const data::byte> (u), data::endian::order::native, r,
+            is_signed ? data::arithmetic::negativity::ones : data::arithmetic::negativity::nones);
+    }
 
 }
 

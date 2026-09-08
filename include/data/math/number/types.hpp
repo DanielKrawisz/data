@@ -8,6 +8,7 @@
 #include <data/arithmetic.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/arithmetic/negativity.hpp>
+#include <data/math/power.hpp>
 
 // Basic number types.
 namespace data::math::number {
@@ -168,10 +169,16 @@ namespace data::encoding::integer {
 
 }
 
-// increment and decrement.
 namespace data::math::number {
 
+    // read from and write to streams.
+    std::ostream &operator << (std::ostream &o, const Z &n);
+    std::ostream &operator << (std::ostream &o, const N &n);
 
+    std::istream &operator >> (std::istream &i, Z &z);
+    std::istream &operator >> (std::istream &i, N &n);
+
+    // increment and decrement.
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> &operator ++ (N_bytes<r, word> &);
 
@@ -465,6 +472,48 @@ namespace data::math::number {
     Z operator ~ (const N &);
     Z operator ~ (const Z &);
 
+    Z operator | (const Z &, const Z &);
+    Z operator & (const Z &, const Z &);
+    Z operator ^ (const Z &, const Z &);
+
+    N operator | (const N &, const N &);
+    N operator & (const N &, const N &);
+    N operator ^ (const N &, const N &);
+
+    Z operator << (const Z &, int);
+    Z operator >> (const Z &, int);
+
+    N operator << (const N &, int);
+    N operator >> (const N &, int);
+
+    template <std::unsigned_integral I> N operator ^ (I, const N &);
+    template <std::unsigned_integral I> N operator ^ (const N &, I);
+
+    template <std::unsigned_integral I> N operator & (I, const N &);
+    template <std::unsigned_integral I> N operator & (const N &, I);
+
+    template <std::unsigned_integral I> N operator | (I, const N &);
+    template <std::unsigned_integral I> N operator | (const N &, I);
+
+    Z &operator &= (Z &, const Z &);
+    Z &operator |= (Z &, const Z &);
+    Z &operator ^= (Z &, const Z &);
+
+    N &operator &= (N &, const N &);
+    N &operator |= (N &, const N &);
+    N &operator ^= (N &, const N &);
+
+    template <std::unsigned_integral I> N &operator &= (N &, I);
+    template <std::unsigned_integral I> N &operator |= (N &, I);
+    template <std::unsigned_integral I> N &operator ^= (N &, I);
+
+    Z &operator <<= (Z &, int);
+    Z &operator >>= (Z &, int);
+
+    N &operator <<= (N &, int);
+    N &operator >>= (N &, int);
+
+    // arithmetic
     Z operator - (const N &);
     Z operator - (const Z &);
 
@@ -475,14 +524,6 @@ namespace data::math::number {
     N operator + (const N &, const N &);
     N operator - (const N &, const N &);
     N operator * (const N &, const N &);
-
-    Z operator | (const Z &, const Z &);
-    Z operator & (const Z &, const Z &);
-    Z operator ^ (const Z &, const Z &);
-
-    N operator | (const N &, const N &);
-    N operator & (const N &, const N &);
-    N operator ^ (const N &, const N &);
 
     template <std::integral I> Z operator + (I, const Z &);
     template <std::integral I> Z operator + (const Z &, I);
@@ -517,15 +558,6 @@ namespace data::math::number {
     template <std::unsigned_integral I> N operator * (I, const N &);
     template <std::unsigned_integral I> N operator * (const N &, I);
 
-    template <std::unsigned_integral I> N operator & (I, const N &);
-    template <std::unsigned_integral I> N operator & (const N &, I);
-
-    template <std::unsigned_integral I> N operator ^ (I, const N &);
-    template <std::unsigned_integral I> N operator ^ (const N &, I);
-
-    template <std::unsigned_integral I> N operator | (I, const N &);
-    template <std::unsigned_integral I> N operator | (const N &, I);
-
     Z operator / (const Z &, const Z &);
     N operator / (const N &, const N &);
 
@@ -538,18 +570,6 @@ namespace data::math::number {
 
     uint64 operator % (const Z &, uint64);
     uint64 operator % (const N &, uint64);
-
-    Z operator << (const Z &, int);
-    Z operator >> (const Z &, int);
-
-    N operator << (const N &, int);
-    N operator >> (const N &, int);
-
-    std::ostream &operator << (std::ostream &o, const Z &n);
-    std::ostream &operator << (std::ostream &o, const N &n);
-
-    std::istream &operator >> (std::istream &i, Z &z);
-    std::istream &operator >> (std::istream &i, N &n);
 
     Z &operator += (Z &, const Z &);
     Z &operator -= (Z &, const Z &);
@@ -567,24 +587,6 @@ namespace data::math::number {
     template <std::unsigned_integral I> N &operator *= (N &, I);
     template <std::unsigned_integral I> N &operator /= (N &, I);
     template <std::unsigned_integral I> N &operator %= (N &, I);
-
-    Z &operator &= (Z &, const Z &);
-    Z &operator |= (Z &, const Z &);
-    Z &operator ^= (Z &, const Z &);
-
-    N &operator &= (N &, const N &);
-    N &operator |= (N &, const N &);
-    N &operator ^= (N &, const N &);
-
-    template <std::unsigned_integral I> N &operator &= (N &, I);
-    template <std::unsigned_integral I> N &operator |= (N &, I);
-    template <std::unsigned_integral I> N &operator ^= (N &, I);
-
-    Z &operator <<= (Z &, int);
-    Z &operator >>= (Z &, int);
-
-    N &operator <<= (N &, int);
-    N &operator >>= (N &, int);
 
 }
 
@@ -653,6 +655,24 @@ namespace data::math::def {
 
     template <> struct mod_2<Z> {
         Z operator () (const Z &a);
+    };
+
+    template <group_number Exp>
+    struct pow<N, Exp> {
+        N operator () (const N &x, const Exp &y);
+    };
+
+    template <group_number Exp>
+    struct pow<Z, Exp> {
+        Z operator () (const Z &x, const Exp &y);
+    };
+
+    template <group_number Exp> struct pow_mod<N, Exp, N> {
+        N operator () (const N &x, const Exp &y, const nonzero<N> &z);
+    };
+
+    template <group_number Exp> struct pow_mod<Z, Exp, N> {
+        N operator () (const Z &x, const Exp &y, const nonzero<N> &z);
     };
 
 }
