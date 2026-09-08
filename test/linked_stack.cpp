@@ -189,12 +189,12 @@ namespace data {
         for (const int &x : t) (void) x;
     }
 
-    void accept_stack_of_string_views (stack<string_view>) {}
+    void accept_stack_of_Zs (stack<Z>) {}
 
     TEST (LinkedStack, Convert) {
-        stack<string> test {"1", "2", "3", "4"};
+        stack<uint32> test {1, 2, 3, 4};
 
-        accept_stack_of_string_views (test);
+        accept_stack_of_Zs (test);
 
         stack<N> numbers {1u, 2u, 3u, 4u};
 

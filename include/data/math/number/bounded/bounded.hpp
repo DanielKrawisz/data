@@ -246,16 +246,6 @@ namespace data {
         template <bool u, endian::order r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> operator % (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
 
-        // write
-        template <data::endian::order r, size_t x, std::unsigned_integral word>
-        std::ostream &operator << (std::ostream &s, const uint<r, x, word> &n);
-
-        template <data::endian::order r, size_t x, std::unsigned_integral word>
-        std::ostream &operator << (std::ostream &s, const sint<r, x, word> &n);
-
-        template <bool u, data::endian::order r, size_t x, std::unsigned_integral word>
-        std::istream &operator >> (std::istream &i, const bounded<u, r, x, word> &n);
-
         // declarations of standard functions.
     }
 

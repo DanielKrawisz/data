@@ -201,7 +201,7 @@ namespace data {
 
         for (const string &number_string: numbers) {
 
-            N number = N {number_string};
+            N number = N::read (number_string);
             for (int32 shift : shifts) {
                 N expected_left = number * pow (N {2}, shift);
 

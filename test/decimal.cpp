@@ -9,7 +9,7 @@
 namespace data {
     void test_dec_to_hex (const string &x) {
 
-        N nx {x};
+        N nx = N::read (x);
 
         EXPECT_EQ (x, encoding::decimal::write (nx));
 

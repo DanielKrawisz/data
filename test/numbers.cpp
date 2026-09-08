@@ -14,14 +14,14 @@ namespace data {
 
     // TODO make sure the functions we use are all defined!
     template <typename N> concept can_use_string_literals = requires () {
-            { N {"0"} };
-            { N {"9007199254740992"} };
+            { N::read ("0") };
+            { N::read ("9007199254740992") };
         };
 
     template <typename N> concept has_string_constructor = requires (const std::string &x) {
-            { N {x} };
+            { N::read (x) };
         } && requires (const data::string &x) {
-            { N {x} };
+            { N::read (x) };
         };
 
     template <typename N> concept has_bytes_constructor = requires (slice<const byte> x) {

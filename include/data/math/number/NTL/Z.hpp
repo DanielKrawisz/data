@@ -72,8 +72,6 @@ namespace data::math::number {
 
         static Z read (string_view x);
 
-        Z (string_view);
-
         Z (const dec_int &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         Z (const dec_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         template <neg n, hex_case zz> Z (const hex::integer<n, zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
@@ -107,8 +105,8 @@ namespace data::math::number {
             return bounded<true, r, size, word> (this->operator Z_bytes<r, neg::twos, word> ());
         }
 
-        explicit Z (const NTL::ZZ &u);
-        explicit Z (NTL::ZZ &&u);
+        explicit Z (const NTL::ZZ &z): Value {z} {}
+        explicit Z (NTL::ZZ &&z): Value {z} {}
 
         NTL::ZZ Value;
     };
@@ -138,7 +136,7 @@ namespace data::math::number {
             if (Value < 0) throw exception {} << "cannot instantiate N with negative number " << Value;
         }
 
-        N (string_view);
+        static N read (string_view);
         N (const dec_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         template <hex_case zz> N (const hex::uint<zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         N (const base58_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
@@ -179,8 +177,8 @@ namespace data::math::number {
             return bounded<u, r, size, word> (N_bytes<r, word> (*this));
         }
 
-        explicit N (const NTL::ZZ &);
-        explicit N (NTL::ZZ &&);
+        explicit N (const NTL::ZZ &z): Value {z} {}
+        explicit N (NTL::ZZ &&z): Value {z} {}
         NTL::ZZ Value;
     };
 }
@@ -252,6 +250,128 @@ namespace data::math::number {
         return z;
     }
 
+    Z inline operator - (const N &a) {
+        return Z (-a.Value);
+    }
+
+    Z inline operator - (const Z &a) {
+        return Z (-a.Value);
+    }
+
+    Z inline operator + (const Z &a, const Z &b) {
+        return Z (a.Value + b.Value);
+    }
+
+    Z inline operator - (const Z &a, const Z &b) {
+        return Z (a.Value - b.Value);
+    }
+
+    Z inline operator * (const Z &a, const Z &b) {
+        return Z (a.Value * b.Value);
+    }
+
+    N inline operator + (const N &a, const N &b) {
+        return N (a.Value + b.Value);
+    }
+
+    N inline operator - (const N &a, const N &b) {
+        if (a.Value <= b.Value) return N ();
+        return N (a.Value - b.Value);
+    }
+
+    N inline operator * (const N &a, const N &b) {
+        return N (a.Value * b.Value);
+    }
+
+    Z inline &operator += (Z &a, const Z &b) {
+        a.Value += b.Value;
+        return a;
+    }
+
+    Z inline &operator -= (Z &a, const Z &b) {
+        a.Value -= b.Value;
+        return a;
+    }
+
+    Z inline &operator *= (Z &a, const Z &b) {
+        a.Value *= b.Value;
+        return a;
+    }
+
+    N inline &operator += (N &a, const N &b) {
+        a.Value += b.Value;
+        return a;
+    }
+
+    N inline &operator -= (N &a, const N &b) {
+        if (a.Value <= b.Value) a = N ();
+        else a.Value -= b.Value;
+        return a;
+    }
+
+    N inline &operator *= (N &a, const N &b) {
+        a.Value *= b.Value;
+        return a;
+    }
+
+    Z inline operator / (const Z &a, const Z &b) {
+        if (b == 0) throw division_by_zero {};
+        return def::divmod<Z, Z> {} (a, nonzero {b}).Quotient;
+    }
+
+    N inline operator / (const N &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return def::divmod<N, N> {} (a, nonzero {b}).Quotient;
+    }
+
+    N inline operator % (const Z &a, const Z &b) {
+        if (b == 0) throw division_by_zero {};
+        return def::divmod<Z, Z> {} (a, nonzero {b}).Remainder;
+    }
+
+    N inline operator % (const Z &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return def::divmod<Z, N> {} (a, nonzero {b}).Remainder;
+    }
+
+    N inline operator % (const N &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        return def::divmod<N, N> {} (a, nonzero {b}).Remainder;
+    }
+
+    Z inline &operator /= (Z &a, const Z &b) {
+        if (b == 0) throw division_by_zero {};
+        a.Value = def::divmod<Z, Z> {} (a, nonzero {b}).Quotient.Value;
+    }
+
+    N inline &operator %= (N &a, const N &b) {
+        if (b == 0) throw division_by_zero {};
+        a.Value = def::divmod<N, N> {} (a, nonzero {b}).Remainder.Value;
+    }
+
+}
+
+namespace data::math::def {
+
+    N inline abs<Z>::operator () (const Z &n) {
+        return N (NTL::abs (n.Value));
+    }
+
+    N inline abs<N>::operator () (const N &n) {
+        return N (NTL::abs (n.Value));
+    }
+
+    division<N, N> inline divmod<N, N>::operator () (const N &a, const nonzero<N> &b) {
+        division<N, N> result {};
+        NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
+        return result;
+    }
+
+    division<Z, N> inline divmod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
+        division<Z, N> result {};
+        NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
+        return result;
+    }
 }
 
 namespace data::math::number::NTL {

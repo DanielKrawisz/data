@@ -112,12 +112,12 @@ namespace data {
         EXPECT_EQ (list<int> {0} << 1, (list<int> {0, 1}));
     }
 
-    void accept_stack_of_string_views (list<string_view>) {}
+    void accept_stack_of_Zs (list<Z>) {}
 
     TEST (List, Convert) {
-        list<string> test {{"1", "2", "3", "4"}};
+        list<uint32> test {{1, 2, 3, 4}};
 
-        accept_stack_of_string_views (test);
+        accept_stack_of_Zs (test);
 
         list<N> numbers {1, 2, 3, 4};
 

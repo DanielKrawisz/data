@@ -170,7 +170,7 @@ namespace data::encoding {
         }
         
         string string::read (string_view x) {
-            return decimal::write (N {x});
+            return decimal::write (N::read (x));
         }
     
         signed_decimal::string operator - (const string &x) {

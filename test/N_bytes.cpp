@@ -43,7 +43,7 @@ namespace data::math::number {
 
     template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
 
-        N n {x};
+        N n = N::read (x);
 
         Nb<word> big {x};
         Nl<word> little {x};
@@ -107,12 +107,12 @@ namespace data::math::number {
 
     TEST (NBytes, NBytesToN) {
 
-        N_Bytes_to_N<uint64> (0);
-        N_Bytes_to_N<uint64> (1);
-        N_Bytes_to_N<uint64> (3);
-        N_Bytes_to_N<uint64> (767);
-        N_Bytes_to_N<uint64> (7439);
-        N_Bytes_to_N<uint64> (10920960978709);
+        N_Bytes_to_N<string> ("0");
+        N_Bytes_to_N<string> ("1");
+        N_Bytes_to_N<string> ("3");
+        N_Bytes_to_N<string> ("767");
+        N_Bytes_to_N<string> ("7439");
+        N_Bytes_to_N<string> ("10920960978709");
 
         N_Bytes_to_N<string> ("0x0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
                                 "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
@@ -266,8 +266,8 @@ namespace data::math::number {
     }
 
     void test_N_to_N_bytes (string x) {
-        EXPECT_EQ ((N_bytes<endian::big, byte> {N (x)}), (N_bytes<endian::big, byte>::read (x)));
-        EXPECT_EQ ((N_bytes<endian::little, byte> {N (x)}), (N_bytes<endian::little, byte>::read (x)));
+        EXPECT_EQ ((N_bytes<endian::big, byte> {N::read (x)}), (N_bytes<endian::big, byte>::read (x)));
+        EXPECT_EQ ((N_bytes<endian::little, byte> {N::read (x)}), (N_bytes<endian::little, byte>::read (x)));
     }
     
     TEST (NBytes, NToNBytes) {
@@ -288,8 +288,8 @@ namespace data::math::number {
             EXPECT_EQ ((N_bytes<r, byte> (num) >> shift), (N_bytes<r, byte> (num) << -shift));
             EXPECT_EQ ((N_bytes<r, byte> (num) << shift), (N_bytes<r, byte> (num) >> -shift));
             EXPECT_EQ ((N_bytes<r, byte> (num) << shift >> shift), (N_bytes<r, byte> (num)));
-            EXPECT_EQ ((N (num) >> shift), (N (N_bytes<r, byte> (num) >> shift)));
-            EXPECT_EQ ((N (num) << shift), (N (N_bytes<r, byte> (num) << shift)));
+            EXPECT_EQ ((N::read (num) >> shift), (N (N_bytes<r, byte> (num) >> shift)));
+            EXPECT_EQ ((N::read (num) << shift), (N (N_bytes<r, byte> (num) << shift)));
         }
     };
     

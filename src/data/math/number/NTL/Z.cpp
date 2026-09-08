@@ -15,6 +15,21 @@ namespace NTL {
     }
 }
 
+namespace data::math::def {
+    division<Z, N> divmod<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
+        division<Z, N> result {};
+        NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
+
+        if (result.Remainder.Value < 0) {
+            NTL::ZZ abs_b = NTL::abs (b.Value.Value);
+            result.Remainder.Value += abs_b;
+            result.Quotient.Value += (b.Value.Value > 0) ? -1 : 1;
+        }
+
+        return result;
+    }
+}
+
 namespace data::math::number::NTL {
 
     template <std::unsigned_integral U>

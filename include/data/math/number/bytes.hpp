@@ -31,7 +31,7 @@ namespace data::math::number {
         }
 
         // TODO N_bytes should not depend on N.
-        if (encoding::decimal::valid (x)) return N_bytes<r, word> (N {x});
+        if (encoding::decimal::valid (x)) return N_bytes<r, word> (N::read (x));
         throw exception {} << "invalid number string " << x;
     }
 
@@ -44,14 +44,14 @@ namespace data::math::number {
         if (encoding::hexidecimal::valid (x))
             return *encoding::integer::read<r, neg::twos, word> (x);
 
-        return convert<Z_bytes<r, neg::twos, word>> (Z {x});
+        return convert<Z_bytes<r, neg::twos, word>> (Z::read (x));
     }
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> inline Z_bytes<r, neg::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, neg::BC, word> (x);
-        return Z {x}.operator Z_bytes<r, neg::BC, word> ();
+        return Z::read (x).operator Z_bytes<r, neg::BC, word> ();
     }
 
     template <endian::order r, std::unsigned_integral word>

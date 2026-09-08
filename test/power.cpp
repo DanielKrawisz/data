@@ -9,7 +9,7 @@
 
 namespace data {
     template <typename NN> void test_power_case (const string &base, const string &exp, const string &expected) {
-        EXPECT_EQ ((pow (NN (N {base}), N (N {exp}))), NN {N (expected)});
+        EXPECT_EQ ((pow (NN (N::read (base)), N (N::read (exp)))), NN {N::read (expected)});
     }
 
     template <typename N> void test_power () {

@@ -152,7 +152,7 @@ namespace data::encoding::base58 {
     }
 
     string string::read (string_view x) {
-        return encode (N {x});
+        return encode (N::read (x));
     }
 
 }

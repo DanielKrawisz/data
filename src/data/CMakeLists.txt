@@ -120,6 +120,7 @@ target_link_libraries (
   Data::string
   Boost::boost
   GMP::GMP
+  PkgConfig::NTL
   rotella
   gmpxx
   ctre

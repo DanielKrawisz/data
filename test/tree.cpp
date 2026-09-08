@@ -136,14 +136,14 @@ namespace data {
         EXPECT_EQ (p.right ().size (), 0);
     }
 
-    void accept_tree_of_string_views (linked_tree<string_view>) {}
+    void accept_tree_of_Zz (linked_tree<Z>) {}
 
     TEST (Tree, TestLinkedTreeConvert) {
-        linked_tree<string> test {"1", 
-            linked_tree<string> {"2"}, 
-            linked_tree<string> {"3", linked_tree<string> {"4"}, linked_tree<string> {}}};
+        linked_tree<uint32> test {1,
+            linked_tree<uint32> {2},
+            linked_tree<uint32> {3, linked_tree<uint32> {4}, linked_tree<uint32> {}}};
 
-        accept_tree_of_string_views (test);
+        accept_tree_of_Zz (test);
 
         linked_tree<N> numbers {1, linked_tree<N> {2}, linked_tree<N> {3, linked_tree<N> {4}, linked_tree<N> {}}};
 

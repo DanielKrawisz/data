@@ -410,7 +410,7 @@ namespace data {
     
     template <typename in> void Z_Bytes_to_Z (in x) {
         
-        Z z {x};
+        Z z = Z::read (x);
         
         Z_bytes_big big {x};
         Z_bytes_little little {x};
@@ -437,16 +437,16 @@ namespace data {
 
     TEST (ZBytesTest, ZBytesToZ) {
 
-        Z_Bytes_to_Z (0);
-        Z_Bytes_to_Z (-1);
-        Z_Bytes_to_Z (1);
-        Z_Bytes_to_Z (3);
-        Z_Bytes_to_Z (-3);
-        Z_Bytes_to_Z (229);
-        Z_Bytes_to_Z (767);
-        Z_Bytes_to_Z (916);
-        Z_Bytes_to_Z (1145);
-        Z_Bytes_to_Z (-1145);
+        Z_Bytes_to_Z ("0");
+        Z_Bytes_to_Z ("-1");
+        Z_Bytes_to_Z ("1");
+        Z_Bytes_to_Z ("3");
+        Z_Bytes_to_Z ("-3");
+        Z_Bytes_to_Z ("229");
+        Z_Bytes_to_Z ("767");
+        Z_Bytes_to_Z ("916");
+        Z_Bytes_to_Z ("1145");
+        Z_Bytes_to_Z ("-1145");
         Z_Bytes_to_Z ("0x0f00000a00aabbccddeeffffffffffffffff");
         Z_Bytes_to_Z ("0xf000000a00aabbccddeeffffffffffffffff");
         
