@@ -19,101 +19,6 @@
 
 namespace data::math::number {
     
-    // an implementation of the natural numbers that is
-    // encoded as a big or little endian sequence of bytes. 
-    template <endian::order, std::unsigned_integral = byte> struct N_bytes;
-
-    template <endian::order r, std::unsigned_integral word> struct increment<N_bytes<r, word>> {
-        nonzero<N_bytes<r, word>> operator () (const N_bytes<r, word> &);
-    };
-
-    template <endian::order r, std::unsigned_integral word> struct decrement<N_bytes<r, word>> {
-        N_bytes<r, word> operator () (const nonzero<N_bytes<r, word>> &);
-        N_bytes<r, word> operator () (const N_bytes<r, word> &);
-    };
-    
-    // similar implementation of the integers. We have two's complement
-    // and the sign-and-magnetude system used in Bitcoin. N_bytes works
-    // as the absolute value of the two's complement types. Bitcoin numbers
-    // work as their own number system without a type for the naturals.
-    template <endian::order, neg, std::unsigned_integral = byte> struct Z_bytes;
-}
-
-namespace data::math {
-
-    template <endian::order r, std::unsigned_integral word = byte>
-    using N_bytes = number::N_bytes<r, word>;
-
-    template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes = number::Z_bytes<r, neg::twos, word>;
-
-    template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes_BC = number::Z_bytes<r, neg::BC, word>;
-
-}
-
-namespace data::math::number {
-
-    // pre-increment and decreement
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> &operator ++ (N_bytes<r, word> &);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> &operator ++ (Z_bytes<r, c, word> &);
-
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> &operator -- (N_bytes<r, word> &);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> &operator -- (Z_bytes<r, c, word> &);
-
-    // post-increment and decrement
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> operator ++ (N_bytes<r, word> &, int);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> operator ++ (Z_bytes<r, c, word> &, int);
-
-    template <endian::order r, std::unsigned_integral word>
-    N_bytes<r, word> operator -- (N_bytes<r, word> &, int);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    Z_bytes<r, c, word> operator -- (Z_bytes<r, c, word> &, int);
-    
-    // comparisons
-    template <endian::order r, std::unsigned_integral word>
-    bool operator == (const N_bytes<r, word> &, const N_bytes<r, word> &);
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    bool operator == (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
-
-    template <endian::order r, neg cl, neg cr, std::unsigned_integral word>
-    bool operator == (const Z_bytes<r, cl, word> &, const Z_bytes<r, cr, word> &);
-    
-    template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const N_bytes<r, word> &, const N_bytes<r, word> &);
-    
-    template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
-    
-    template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
-
-    template <endian::order r, neg cl, neg cr, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, cl, word> &, const Z_bytes<r, cl, word> &);
-    
-    template <endian::order r, std::unsigned_integral word>
-    bool operator == (const N_bytes<r, word> &, uint64);
-    
-    template <endian::order r, neg c, std::unsigned_integral word>
-    bool operator == (const Z_bytes<r, c, word> &, int64);
-    
-    template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const N_bytes<r, word> &, uint64);
-    
-    template <endian::order r, neg c, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, c, word> &, int64);
-    
     // bit negate
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> operator ~ (const N_bytes<r, word> &);
@@ -777,21 +682,6 @@ namespace data::math::def {
         number::Z_bytes<r, c, word> operator () (const Z &) const;
     };
     
-}
-
-namespace data {
-
-    template <endian::order a, std::unsigned_integral word>
-    struct make_signed<math::Z_bytes_BC<a, word>> {
-        using type = math::Z_bytes_BC<a, word>;
-    };
-    
-    template <endian::order a, endian::order b, std::unsigned_integral word>
-    bool identical (const math::number::N_bytes<a, word> &, const math::number::N_bytes<b, word> &);
-
-    template <endian::order a, neg b, endian::order c, neg d, std::unsigned_integral word>
-    bool identical (const math::number::Z_bytes<a, b, word> &, const math::number::Z_bytes<c, d, word> &);
-
 }
 
 namespace data::math::number {

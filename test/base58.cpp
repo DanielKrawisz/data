@@ -4,7 +4,6 @@
 
 #include <data/encoding/base58.hpp>
 #include <data/encoding/hex.hpp>
-#include <data/math/number/gmp/Z.hpp>
 #include <data/encoding/invalid.hpp>
 #include <data/numbers.hpp>
 

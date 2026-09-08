@@ -9,11 +9,15 @@
 #include <data/float.hpp>
 
 #include <data/math/number/bytes/Z.hpp>
+#ifdef BIGNUM_GMP
 #include <data/math/number/gmp/Z.hpp>
+#include <data/math/number/gmp/aks.hpp>
+#include <data/encoding/base58.hpp>
+#else
+#include <data/math/number/NTL/Z.hpp>
+#endif
 #include <data/integral.hpp>
 
-#include <data/encoding/base58.hpp>
-#include <data/math/number/gmp/aks.hpp>
 
 #include <algorithm>
 

@@ -5,7 +5,11 @@
 #ifndef DATA_MATH_NUMBER_BYTES
 #define DATA_MATH_NUMBER_BYTES
 
+#ifdef BIGNUM_GMP
 #include <data/math/number/gmp/Z.hpp>
+#else
+#include <data/math/number/NTL/Z.hpp>
+#endif
 
 #include <data/encoding/digits.hpp>
 

@@ -6,6 +6,7 @@
 #include <data/numbers.hpp>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/arithmetic.hpp>
+#include <data/math/power.hpp>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

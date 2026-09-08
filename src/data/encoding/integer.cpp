@@ -5,9 +5,11 @@
 #include <data/encoding/integer.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
+#ifdef BIGNUM_GMP
 #include <data/math/number/gmp/Z.hpp>
-// ideally we would get rid of this.
-#include <data/math/number/gmp/mpz.hpp>
+#else
+#include <data/math/number/NTL/Z.hpp>
+#endif
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>

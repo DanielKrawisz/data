@@ -6,7 +6,11 @@
 #define DATA_MATH_NUMBER_BYTES_SQRT
 
 #include <data/math/number/bytes.hpp>
+#ifdef BIGNUM_GMP
 #include <data/math/number/gmp/sqrt.hpp>
+#else
+#include <data/math/number/NTL/Z.hpp>
+#endif
 
 namespace data::math {
     template <endian::order r, std::unsigned_integral word, uint64 pow>

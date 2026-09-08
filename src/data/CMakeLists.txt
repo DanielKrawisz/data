@@ -61,18 +61,52 @@ target_link_libraries (
   Boost::log
 )
 
+set(BIGNUM_BACKEND "NTL" CACHE STRING "Big-number backend")
+set_property(CACHE BIGNUM_BACKEND PROPERTY STRINGS GMP NTL)
+
+if(BIGNUM_BACKEND STREQUAL "GMP")
+
+    target_sources(numbers PRIVATE
+        math/number/gmp/N.cpp
+    )
+
+    target_compile_definitions(numbers PUBLIC
+        BIGNUM_GMP
+    )
+
+elseif(BIGNUM_BACKEND STREQUAL "NTL")
+
+    target_sources(numbers PRIVATE
+        math/number/NTL/Z.cpp
+    )
+
+    target_compile_definitions(numbers PRIVATE
+        BIGNUM_NTL
+    )
+
+else()
+
+    message(FATAL_ERROR
+        "BIGNUM_BACKEND must be GMP or NTL"
+    )
+
+endif()
+
 target_sources (
   numbers
 
   PRIVATE
 
-  math/number/gmp/N.cpp
   math/number/gmp/mpq.cpp
   math/number/gmp/aks.cpp
   math/number/gmp/sqrt.cpp
   encoding/base58.cpp
   encoding/integer.cpp
 
+)
+
+target_include_directories(numbers PUBLIC
+    /home/stag/local/ntl/include
 )
 
 target_compile_features (numbers PUBLIC cxx_std_23)

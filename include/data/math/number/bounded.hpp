@@ -8,7 +8,11 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
+#ifdef BIGNUM_GMP
 #include <data/math/number/gmp/Z.hpp>
+#else
+#include <data/math/number/NTL/Z.hpp>
+#endif
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>

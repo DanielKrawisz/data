@@ -47,7 +47,6 @@ add_executable (
     transpose.cpp
     flatten.cpp                  # TODO: contains commented tests
     permutation.cpp              # TODO: Need to test each function more precisely, like in list
-    transpose.cpp
     combinatorics.cpp
 
     # string

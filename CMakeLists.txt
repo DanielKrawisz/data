@@ -151,6 +151,8 @@ cmake_policy (SET CMP0135 NEW)
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.zip)
 FetchContent_MakeAvailable (ctre)
 
+pkg_check_modules(NTL REQUIRED IMPORTED_TARGET ntl)
+
 add_subdirectory (src bin)
 
 # Check if GTests is installed. If not, install it
