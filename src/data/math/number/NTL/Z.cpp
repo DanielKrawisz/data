@@ -124,3 +124,24 @@ namespace data::math::number {
         return N_read_dec (x);
     }
 }
+
+namespace data::encoding::decimal {
+
+    string write (const N &x) {
+        std::stringstream ss;
+        ss << x.Value;
+        return string {ss.str ()};
+    }
+
+
+}
+
+namespace data::encoding::signed_decimal {
+
+    string write (const Z &x) {
+        std::stringstream ss;
+        ss << x.Value;
+        return string {ss.str ()};
+    }
+}
+

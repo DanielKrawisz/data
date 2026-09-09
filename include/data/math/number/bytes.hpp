@@ -174,6 +174,20 @@ namespace data::encoding::hexidecimal {
         return write<zz> (math::number::extend (n, n.size () + 1));
     }
 
+    template <hex_case zz, endian::order r, std::unsigned_integral word>
+    integer<neg::nones, zz> write (const math::number::N_bytes<r, word> &z) {
+        std::stringstream ss;
+        write (ss, static_cast<const oriented<r, word> &> (z), zz);
+        return integer<neg::nones, zz> {ss.str ()};
+    }
+
+    template <hex_case zz, endian::order r, neg n, std::unsigned_integral word>
+    integer<n, zz> write (const math::number::Z_bytes<r, n, word> &z) {
+        std::stringstream ss;
+        write (ss, static_cast<const oriented<r, word> &> (z), zz);
+        return integer<n, zz> {ss.str ()};
+    }
+
     template <neg n, hex::letter_case cx>
     template <endian::order e> inline complemented_string<n, cx>::operator math::number::Z_bytes<e, n, byte> () const {
         auto result = math::number::Z_bytes<e, n, byte>::zero (this->size () / 2 - 1);

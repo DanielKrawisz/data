@@ -105,6 +105,7 @@ namespace data::encoding::decimal {
 
     template <endian::order r, std::unsigned_integral word>
     std::ostream inline &write (std::ostream &o, const N_bytes<r, word> &n);
+
     constexpr bool valid (string_view s);
 
 }
@@ -928,6 +929,11 @@ namespace data::math::def {
 
     template <group_number Exp> struct pow_mod<Z, Exp, N> {
         N operator () (const Z &x, const Exp &y, const nonzero<N> &z);
+    };
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    struct convert<number::Z_bytes<r, c, word>, Z> {
+        number::Z_bytes<r, c, word> operator () (const Z &) const;
     };
 
 }

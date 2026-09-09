@@ -465,11 +465,6 @@ namespace data::math::def {
     struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::N_bytes<FromEndian, FromWord>> {
         number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
     };
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    struct convert<number::Z_bytes<r, c, word>, Z> {
-        number::Z_bytes<r, c, word> operator () (const Z &) const;
-    };
     
 }
 

@@ -554,6 +554,17 @@ namespace data::math::def {
         division<Z, N> result = divmod<Z, Z> {} (Z (a), nonzero {Z (b.Value)});
         return division<hex::intBC<zz>, hex::intBC<zz>> {hex::intBC<zz> (result.Quotient), hex::intBC<zz> (result.Remainder)};
     }
+
+    template <endian::order r, neg c, std::unsigned_integral word>
+    number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
+        return number::Z_bytes<r, c, word> (z);
+    }
+}
+
+namespace data::encoding::hexidecimal {
+    std::ostream inline &write (std::ostream &o, const math::number::N &n, hex::letter_case x) {
+        return write (o, static_cast<const oriented<endian::big, byte> &> (N_bytes<endian::big, byte> (n)), x);
+    }
 }
 
 namespace data::math::number::NTL {

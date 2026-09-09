@@ -117,7 +117,7 @@ namespace data::encoding {
         maybe<oriented<r, word>> read (string_view s);
 
         template <endian::order r, std::unsigned_integral word>
-        std::ostream inline &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q);
+        std::ostream &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q);
 
         template <hex::letter_case cx> struct string : data::string {
             string () : string {"0x"} {}
@@ -147,6 +147,16 @@ namespace data::encoding {
 
         template <neg c, hex::letter_case cx>
         string<cx> trim (const string<cx> &);
+
+        // a hexidecimal integer inherets from string but is
+        // a big number that supports standard numerical operations.
+        template <neg, hex::letter_case cx> struct integer;
+
+        template <hex_case zz, endian::order r, std::unsigned_integral word>
+        integer<neg::nones, zz> write (const math::number::N_bytes<r, word> &);
+
+        template <hex_case zz, endian::order r, neg n, std::unsigned_integral word>
+        integer<n, zz> write (const math::number::Z_bytes<r, n, word> &);
         
     }
     
@@ -310,10 +320,6 @@ namespace data::encoding {
     }
     
     namespace hexidecimal {
-
-        // a hexidecimal integer inherets from string but is
-        // a big number that supports standard numerical operations.
-        template <neg, hex::letter_case cx> struct integer;
 
         template <neg c, hex::letter_case x> integer<c, hex::letter_case::upper> to_upper (const integer<c, x> &);
         template <neg c, hex::letter_case x> integer<c, hex::letter_case::lower> to_lower (const integer<c, x> &);
