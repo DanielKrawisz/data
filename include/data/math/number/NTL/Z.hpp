@@ -41,6 +41,9 @@ namespace NTL {
     template <bool is_signed, data::endian::order r, std::size_t size>
     void conv (ZZ &x, const data::endian::integral<is_signed, r, size> &u);
 
+    template <std::unsigned_integral I> void conv (I &x, const ZZ &u);
+    void conv (long long int &x, const ZZ &u);
+
 }
 
 
@@ -61,7 +64,7 @@ namespace data::math::number::NTL {
 namespace data::math::number {
     struct Z final {
 
-        Z ();
+        Z () : Value {} {}
 
         // We need these to ensure that we can accept
         // any number literal.
@@ -89,8 +92,13 @@ namespace data::math::number {
         explicit Z (const bounded<false, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         template <std::integral I>
-        explicit operator I () const;
-        explicit operator double () const;
+        explicit operator I () const {
+            return conv<I> (Value);
+        }
+
+        explicit operator double () const {
+            return conv<double> (Value);
+        }
 
         explicit operator dec_int () const;
         template <hex_case zz> explicit operator hex::int2<zz> () const;
@@ -155,10 +163,14 @@ namespace data::math::number {
             return Value >= 0;
         }
 
-        explicit operator double () const;
-
         template <std::integral I>
-        explicit operator I () const;
+        explicit operator I () const {
+            return conv<I> (Value);
+        }
+
+        explicit operator double () const {
+            return conv<double> (Value);
+        }
 
         explicit operator dec_uint () const;
         explicit operator dec_int () const;
@@ -248,6 +260,14 @@ namespace data::math::number {
         Z z = n;
         ++ (n);
         return z;
+    }
+
+    bool inline operator == (const Z &a, const Z &b) {
+        return a.Value == b.Value;
+    }
+
+    bool inline operator == (const N &a, const N &b) {
+        return a.Value == b.Value;
     }
 
     Z inline operator - (const N &a) {
@@ -349,6 +369,50 @@ namespace data::math::number {
         a.Value = def::divmod<N, N> {} (a, nonzero {b}).Remainder.Value;
     }
 
+    uint64 inline operator % (const Z &x, uint64 u) {
+        return uint64 (x / N (u));
+    }
+
+    uint64 inline operator % (const N &x, uint64 u) {
+        return uint64 (x / N (u));
+    }
+
+    Z inline operator << (const Z &z, int x) {
+        return Z (z.Value << x);
+    }
+
+    Z inline operator >> (const Z &z, int x) {
+        return Z (z.Value >> x);
+    }
+
+    N inline operator << (const N &z, int x) {
+        return N (z.Value << x);
+    }
+
+    N inline operator >> (const N &z, int x) {
+        return N (z.Value >> x);
+    }
+
+    Z inline &operator <<= (Z &z, int x) {
+        z.Value <<= x;
+        return z;
+    }
+
+    Z inline &operator >>= (Z &z, int x) {
+        z.Value >>= x;
+        return z;
+    }
+
+    N inline &operator <<= (N &z, int x) {
+        z.Value <<= x;
+        return z;
+    }
+
+    N inline &operator >>= (N &z, int x) {
+        z.Value >>= x;
+        return z;
+    }
+
 }
 
 namespace data::math::def {
@@ -371,6 +435,33 @@ namespace data::math::def {
         division<Z, N> result {};
         NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
         return result;
+    }
+
+    template <hex_case zz>
+    division<hex::uint<zz>, hex::uint<zz>> inline
+    divmod<hex::uint<zz>, hex::uint<zz>>::operator () (
+        const hex::uint<zz> &a,
+        const nonzero<hex::uint<zz>> &b) {
+        division<N, N> result = divmod<N, N> {} (N (a), nonzero {N (b.Value)});
+        return division<hex::uint<zz>, hex::uint<zz>> {hex::uint<zz> (result.Quotient), hex::uint<zz> (result.Remainder)};
+    }
+
+    template <hex_case zz>
+    division<hex::int2<zz>, hex::uint<zz>> inline
+    divmod<hex::int2<zz>, hex::int2<zz>>::operator () (
+        const hex::int2<zz> &a,
+        const nonzero<hex::int2<zz>> &b) {
+        division<Z, N> result = divmod<Z, Z> {} (Z (a), nonzero {Z (b.Value)});
+        return division<hex::int2<zz>, hex::uint<zz>> {hex::int2<zz> (result.Quotient), hex::uint<zz> (result.Remainder)};
+    }
+
+    template <hex_case zz>
+    division<hex::intBC<zz>, hex::intBC<zz>> inline
+    divmod<hex::intBC<zz>, hex::intBC<zz>>::operator () (
+        const hex::intBC<zz> &a,
+        const nonzero<hex::intBC<zz>> &b) {
+        division<Z, N> result = divmod<Z, Z> {} (Z (a), nonzero {Z (b.Value)});
+        return division<hex::intBC<zz>, hex::intBC<zz>> {hex::intBC<zz> (result.Quotient), hex::intBC<zz> (result.Remainder)};
     }
 }
 
@@ -431,14 +522,125 @@ namespace NTL {
     void inline conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &u) {
         x = data::math::number::NTL::import_bin<word> (
             data::slice<const word> (u), r, data::endian::order::native,
-            is_signed ? data::arithmetic::negativity::ones : data::arithmetic::negativity::nones);
+            is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
     }
 
     template <bool is_signed, data::endian::order r, std::size_t size>
     void inline conv (ZZ &x, const data::endian::integral<is_signed, r, size> &u) {
         x = data::math::number::NTL::import_bin<data::byte> (
             data::slice<const data::byte> (u), data::endian::order::native, r,
-            is_signed ? data::arithmetic::negativity::ones : data::arithmetic::negativity::nones);
+            is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
+    }
+
+}
+
+namespace data::math::number::NTL {
+
+    template <std::unsigned_integral U>
+    static ZZ import_bin (
+        slice<const U> input,
+        // the ordering of the overall array.
+        endian::order word_order,
+        // the ordering of each value in the array.
+        endian::order byte_order,
+        arithmetic::negativity neg
+    ) {
+
+        if (input.size () == 0) return ZZ ();
+
+        if (word_order == endian::order::little &&
+            neg == arithmetic::negativity::nones &&
+            sizeof (U) == sizeof (unsigned char) &&
+            (byte_order == endian::order::native || sizeof (unsigned char) == 1))
+            return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size ());
+
+        if (word_order != endian::order::big || word_order != endian::order::little)
+            throw std::invalid_argument ("invalid word order");
+
+        if (byte_order != endian::order::big || byte_order != endian::order::little)
+            throw std::invalid_argument ("invalid byte order");
+
+        // deal with negative numbers.
+        if (neg == arithmetic::negativity::twos) {
+            if (word_order == endian::order::big) {
+                if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::big, const U> {input})) {
+                    const auto magnitude =
+                    arithmetic::twos::negate<endian::order::big, U> (input);
+
+                    return -import_bin (
+                        slice<const U> (magnitude.data (), magnitude.size ()),
+                        word_order,
+                        byte_order,
+                        arithmetic::negativity::nones);
+                }
+            } else {
+                if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::little, const U> {input})) {
+                    const auto magnitude =
+                    arithmetic::twos::negate<endian::order::little, U> (input);
+
+                    return -import_bin (
+                        slice<const U> (magnitude.data (), magnitude.size ()),
+                        word_order,
+                        byte_order,
+                        arithmetic::negativity::nones);
+                }
+            }
+        } else if (neg == arithmetic::negativity::BC) {
+            if (word_order == endian::order::big) {
+                if (arithmetic::BC::is_negative (arithmetic::Words<endian::big, const U> {input})) {
+                    const auto magnitude =
+                    arithmetic::BC::negate<endian::big, U> (input);
+
+                    return -import_bin (
+                        slice<const U> (magnitude.data (), magnitude.size ()),
+                        word_order,
+                        byte_order,
+                        arithmetic::negativity::nones
+                    );
+                }
+            } else {
+                if (arithmetic::BC::is_negative (arithmetic::Words<endian::little, const U> {input})) {
+                    const auto magnitude =
+                    arithmetic::BC::negate<endian::little, U> (input);
+
+                    return -import_bin (
+                        slice<const U> (magnitude.data (), magnitude.size ()),
+                        word_order,
+                        byte_order,
+                        arithmetic::negativity::nones
+                    );
+                }
+            }
+        }
+
+        // If everything is little endian then we can simply cast
+        // the array to a byte array.
+        if (word_order == endian::order::little &&
+            (byte_order == endian::order::little ||
+            (sizeof (U) == sizeof (unsigned char) && sizeof (unsigned char) == 1))) {
+            return ZZFromBytes (
+                reinterpret_cast<const unsigned char *> (input.data ()),
+                input.size () * sizeof (U));
+            }
+
+            bytestring<U> bytes (input.size ());
+
+        if (word_order == endian::order::little) {
+            for (size_t i = 0; i < input.size (); ++i)
+                bytes[i] = input[i];
+        } else {
+            for (size_t i = 0; i < input.size (); ++i)
+                bytes[i] = input[input.size () - i - 1];
+        }
+
+        if (byte_order != endian::order::little && sizeof (U) > 1) {
+            for (U &x : bytes)
+                x = boost::endian::endian_reverse<U> (x);
+        }
+
+        return ZZFromBytes (
+            reinterpret_cast<const unsigned char *> (bytes.data ()),
+                            bytes.size () * sizeof (U));
     }
 
 }

@@ -351,7 +351,7 @@ namespace data::encoding::integer {
 namespace data::math::def {
 
     template <hex_case zz>
-    division<hex::uint<zz>, unsigned int> inline
+    division<hex::uint<zz>, unsigned int>
     divmod<hex::uint<zz>, int>::operator () (const hex::uint<zz> &d, const nonzero<int> &z) {
         if (z.Value == 16) {
             if (d < 16) return {hex::uint<zz> {"0x"}, static_cast<unsigned int> (uint64 (d))};
@@ -364,7 +364,7 @@ namespace data::math::def {
     }
 
     template <hex_case zz>
-    division<hex::int2<zz>, unsigned int> inline
+    division<hex::int2<zz>, unsigned int>
     divmod<hex::int2<zz>, int>::operator () (const hex::int2<zz> &d, const nonzero<int> &z) {
         if (z.Value == 16) {
             if (d < 0) {
@@ -381,7 +381,7 @@ namespace data::math::def {
     }
 
     template <hex_case zz>
-    division<hex::intBC<zz>, int> inline
+    division<hex::intBC<zz>, int>
     divmod<hex::intBC<zz>, int>::operator () (const hex::intBC<zz> &d, const nonzero<int> &z) {
         if (z.Value == 16) {
             if (d < 0) {

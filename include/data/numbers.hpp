@@ -8,6 +8,7 @@
 // defines float32 and float64
 #include <data/float.hpp>
 
+#include <data/integral.hpp>
 #include <data/math/number/bytes/Z.hpp>
 #ifdef BIGNUM_GMP
 #include <data/math/number/gmp/Z.hpp>
@@ -16,8 +17,8 @@
 #else
 #include <data/math/number/NTL/Z.hpp>
 #endif
-#include <data/integral.hpp>
-
+#include <data/math/number/bytes.hpp>
+#include <data/math/number/bounded.hpp>
 
 #include <algorithm>
 

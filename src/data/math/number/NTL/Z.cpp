@@ -1,5 +1,7 @@
 
 #include <data/math/number/NTL/Z.hpp>
+#include <data/math/number/bytes.hpp>
+#include <data/math/number/bounded.hpp>
 
 namespace NTL {
 
@@ -30,113 +32,95 @@ namespace data::math::def {
     }
 }
 
-namespace data::math::number::NTL {
+namespace data::math::number {
 
-    template <std::unsigned_integral U>
-    static ZZ import_bin (
-        slice<const U> input,
-        // the ordering of the overall array.
-        endian::order word_order,
-        // the ordering of each value in the array.
-        endian::order byte_order,
-        arithmetic::negativity neg
-    ) {
-
-        if (input.size () == 0) return ZZ ();
-
-        if (word_order == endian::order::little &&
-            neg == arithmetic::negativity::nones &&
-            sizeof (U) == sizeof (unsigned char) &&
-            (byte_order == endian::order::native || sizeof (unsigned char) == 1))
-            return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size ());
-
-        if (word_order != endian::order::big || word_order != endian::order::little)
-            throw std::invalid_argument ("invalid word order");
-
-        if (byte_order != endian::order::big || byte_order != endian::order::little)
-            throw std::invalid_argument ("invalid byte order");
-
-        // deal with negative numbers.
-        if (neg == arithmetic::negativity::twos) {
-            if (word_order == endian::order::big) {
-                if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::big, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::twos::negate<endian::order::big, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones);
-                }
-            } else {
-                if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::little, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::twos::negate<endian::order::little, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones);
-                }
-            }
-        } else if (neg == arithmetic::negativity::BC) {
-            if (word_order == endian::order::big) {
-                if (arithmetic::BC::is_negative (arithmetic::Words<endian::big, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::BC::negate<endian::big, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones
-                    );
-                }
-            } else {
-                if (arithmetic::BC::is_negative (arithmetic::Words<endian::little, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::BC::negate<endian::little, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones
-                    );
-                }
-            }
+    std::strong_ordering operator <=> (const Z &a, const Z &b) {
+        switch (NTL::compare(a.Value, b.Value)) {
+            case -1: return std::strong_ordering::less;
+            case  1: return std::strong_ordering::greater;
+            default: return std::strong_ordering::equal;
         }
-
-        // If everything is little endian then we can simply cast
-        // the array to a byte array.
-        if (word_order == endian::order::little &&
-            (byte_order == endian::order::little ||
-                (sizeof (U) == sizeof (unsigned char) && sizeof (unsigned char) == 1))) {
-            return ZZFromBytes (
-                reinterpret_cast<const unsigned char *> (input.data ()),
-                input.size () * sizeof (U));
-        }
-
-        bytestring<U> bytes (input.size ());
-
-        if (word_order == endian::order::little) {
-            for (size_t i = 0; i < input.size (); ++i)
-                bytes[i] = input[i];
-        } else {
-            for (size_t i = 0; i < input.size (); ++i)
-                bytes[i] = input[input.size () - i - 1];
-        }
-
-        if (byte_order != endian::order::little && sizeof (U) > 1) {
-            for (U &x : bytes)
-                x = boost::endian::endian_reverse<U> (x);
-        }
-
-        return ZZFromBytes (
-            reinterpret_cast<const unsigned char *> (bytes.data ()),
-            bytes.size () * sizeof (U));
     }
 
+    std::strong_ordering operator <=> (const N &a, const N &b) {
+        switch (NTL::compare(a.Value, b.Value)) {
+            case -1: return std::strong_ordering::less;
+            case  1: return std::strong_ordering::greater;
+            default: return std::strong_ordering::equal;
+        }
+    }
+
+    std::ostream &operator << (std::ostream &o, const N &n) {
+        if (o.flags () & std::ios::hex) {
+            encoding::hexidecimal::write (o, n);
+            return o;
+        }
+
+        if (o.flags () & std::ios::dec) {
+            encoding::decimal::write (o, n);
+            return o;
+        }
+
+        throw exception {} << "invalid encoding";
+    }
+
+    std::ostream &operator << (std::ostream &o, const Z &n) {
+        if (o.flags () & std::ios::hex) {
+            encoding::hexidecimal::write (o, n);
+            return o;
+        }
+
+        if (o.flags () & std::ios::dec) {
+            encoding::signed_decimal::write (o, n);
+            return o;
+        }
+
+        throw exception {} << "invalid encoding";
+    }
+
+    std::istream &operator >> (std::istream &i, Z &z) {
+        encoding::integer::string x;
+        i >> x;
+        if (i) z = Z::read (x);
+        return i;
+    }
+
+    std::istream &operator >> (std::istream &i, N &n) {
+        encoding::natural::string x;
+        i >> x;
+        if (i) n = N::read (x);
+        return i;
+    }
+
+    // for these next 4 functions, we already know that the string is valid.
+    Z inline Z_read_dec (string_view x) {
+        if (x[0] == '-') return -Z (NTL::conv<NTL::ZZ> (std::string {x}.c_str () + 1));
+        return Z (NTL::conv<NTL::ZZ> (std::string {x}.c_str ()));
+    }
+
+    Z inline Z_read_hex (string_view x) {
+        return Z (NTL::import_bin<byte> (byte_slice (*encoding::hex::read (x.substr (2))),
+            endian::order::little, endian::order::native, arithmetic::negativity::twos));
+    }
+
+    N inline N_read_hex (string_view x) {
+        return N (NTL::import_bin<byte> (byte_slice (*encoding::hex::read (x.substr (2))),
+            endian::order::little, endian::order::native, arithmetic::negativity::nones));
+    }
+
+    N inline N_read_dec (string_view x) {
+        return N (NTL::conv<NTL::ZZ> (std::string {x}.c_str ()));
+    }
+
+    Z Z::read (string_view s) {
+        if (!encoding::integer::valid (s)) throw exception {} << "invalid number string " << s;
+        if (encoding::hexidecimal::valid (s)) return Z_read_hex (s);
+        return Z_read_dec (s);
+    }
+
+    N N::read (string_view x) {
+        if (!encoding::natural::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
+        if (encoding::hexidecimal::valid (x)) return N_read_hex (x);
+        return N_read_dec (x);
+    }
 }
