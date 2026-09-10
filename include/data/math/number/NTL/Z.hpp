@@ -504,6 +504,28 @@ namespace data::math::number {
         return result;
     }
 
+    template <std::integral I> bool inline operator == (const N &a, I b) {
+        if constexpr (std::signed_integral<I>) {
+            if (b < 0) return false;
+            return a == N (std::make_unsigned_t<I> (b));
+        } else return a == N (b);
+    }
+
+    template <std::integral I> bool inline operator == (const Z &a, I b) {
+        return a == Z (b);
+    }
+
+    template <std::integral I> std::strong_ordering inline operator <=> (const N &a, I b) {
+        if constexpr (std::signed_integral<I>) {
+            if (b < 0) return std::strong_ordering::greater;
+            return a <=> N (std::make_unsigned_t<I> (b));
+        } else return a <=> N (b);
+    }
+
+    template <std::integral I> std::strong_ordering inline operator <=> (const Z &a, I b) {
+        return a <=> Z (b);
+    }
+
 }
 
 namespace data::math::def {

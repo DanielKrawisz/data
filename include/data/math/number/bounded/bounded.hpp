@@ -13,8 +13,6 @@ namespace data {
 
     namespace math::number {
 
-        // basic arithmetic
-
         // negate
         template <bool u, endian::order r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> operator - (const bounded<u, r, x, word> &);

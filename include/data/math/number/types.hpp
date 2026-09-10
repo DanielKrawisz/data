@@ -371,14 +371,18 @@ namespace data {
 
 namespace data::math::number {
 
-    // equality and comparison.
+    /*************************************************************/
+    /*                 equality and comparison.                  */
+    /*************************************************************/
+
+    // For N, Z
     bool operator == (const Z &, const Z &);
     std::strong_ordering operator <=> (const Z &, const Z &);
 
     bool operator == (const N &, const N &);
     std::strong_ordering operator <=> (const N &, const N &);
 
-    // comparisons
+    // N_bytes, Z_bytes
     template <endian::order r, std::unsigned_integral word>
     bool operator == (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
@@ -400,7 +404,7 @@ namespace data::math::number {
     template <endian::order r, neg cl, neg cr, std::unsigned_integral word>
     std::weak_ordering operator <=> (const Z_bytes<r, cl, word> &, const Z_bytes<r, cl, word> &);
 
-    // comparison
+    // bounded
     template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
     constexpr bool operator == (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
@@ -438,41 +442,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     std::strong_ordering operator <=> (const N &, const N_bytes<r, word> &);
 
-    // comparisons with built-in types.
-    template <std::integral I> bool operator == (const N &, I);
-    template <std::integral I> bool operator == (I, const N &);
-
-    template <std::integral I> bool operator == (const Z &, I);
-    template <std::integral I> bool operator == (I, const Z &);
-
-    template <std::signed_integral I> std::strong_ordering operator <=> (const N &, I);
-    template <std::signed_integral I> std::strong_ordering operator <=> (I, const N &);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (const N &, I);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (I, const N &);
-
-    template <std::signed_integral I> std::strong_ordering operator <=> (const Z &, I);
-    template <std::signed_integral I> std::strong_ordering operator <=> (I, const Z &);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (const Z &, I);
-    template <std::unsigned_integral I> std::strong_ordering operator <=> (I, const Z &);
-
-    template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
-    constexpr bool operator == (I, const bounded<u, r, size, word> &);
-
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
-    constexpr bool operator == (const bounded<u, r, size, word> &, I);
-
-    template <std::integral I, bool u, endian::order r, size_t size, std::unsigned_integral word>
-    constexpr std::strong_ordering operator <=> (I x, const bounded<u, r, size, word> &);
-
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
-    constexpr std::strong_ordering operator <=> (const bounded<u, r, size, word> &, I x);
-
-    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    constexpr bool operator == (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
-
-    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
-
+    // Equality of _bytes types with bounded
     template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
     bool operator == (const sint<r, size, word> &, const Z_bytes<o, neg::twos, word> &);
 
@@ -489,6 +459,22 @@ namespace data::math::number {
     endian::order o, neg neg, std::unsigned_integral w>
     std::weak_ordering operator <=> (const uint<r, size, word> &, const Z_bytes<o, neg, w> &);
 
+    // comparisons with endian integral types.
+    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
+    constexpr bool operator == (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
+
+    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
+    constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
+
+    // comparisons with built-in types.
+    template <std::integral I> bool operator == (const N &, I);
+
+    template <std::integral I> bool operator == (const Z &, I);
+
+    template <std::integral I> std::strong_ordering operator <=> (const N &, I);
+
+    template <std::integral I> std::strong_ordering operator <=> (const Z &, I);
+
     // TODO: these ought to use a std::integral type parameter.
     template <endian::order r, std::unsigned_integral word>
     bool operator == (const N_bytes<r, word> &, uint64);
@@ -502,7 +488,17 @@ namespace data::math::number {
     template <endian::order r, neg c, std::unsigned_integral word>
     std::weak_ordering operator <=> (const Z_bytes<r, c, word> &, int64);
 
-    // bit operations
+    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr bool operator == (const bounded<u, r, size, word> &, I);
+
+    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    constexpr std::strong_ordering operator <=> (const bounded<u, r, size, word> &, I x);
+
+    /*************************************************************/
+    /*                      bit operations                       */
+    /*************************************************************/
+
+    // bit negate
     Z operator ~ (const N &);
     Z operator ~ (const Z &);
 
@@ -547,7 +543,7 @@ namespace data::math::number {
     N &operator <<= (N &, int);
     N &operator >>= (N &, int);
 
-    // bit operations
+    // bit operations for bounded types.
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> operator ~ (const bounded<u, r, x, word> &);
 
@@ -767,7 +763,10 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> operator || (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
 
-    // arithmetic
+
+    /*************************************************************/
+    /*                        Arithmetic                         */
+    /*************************************************************/
 
     // negation
     Z operator - (const N &);
@@ -781,37 +780,26 @@ namespace data::math::number {
     N operator - (const N &, const N &);
     N operator * (const N &, const N &);
 
-    template <std::integral I> Z operator + (I, const Z &);
     template <std::integral I> Z operator + (const Z &, I);
 
-    template <std::signed_integral I> Z operator - (I, const Z &);
     template <std::signed_integral I> Z operator - (const Z &, I);
 
-    template <std::unsigned_integral I> Z operator - (I, const Z &);
     template <std::unsigned_integral I> Z operator - (const Z &, I);
 
-    template <std::signed_integral I> Z operator * (I, const Z &);
     template <std::signed_integral I> Z operator * (const Z &, I);
 
-    template <std::unsigned_integral I> Z operator * (I, const Z &);
     template <std::unsigned_integral I> Z operator * (const Z &, I);
 
-    template <std::signed_integral I> Z operator + (I, const N &);
     template <std::signed_integral I> Z operator + (const N &, I);
 
-    template <std::signed_integral I> Z operator - (I, const N &);
     template <std::signed_integral I> Z operator - (const N &, I);
 
-    template <std::signed_integral I> Z operator * (I, const N &);
     template <std::signed_integral I> Z operator * (const N &, I);
 
-    template <std::unsigned_integral I> N operator + (I, const N &);
     template <std::unsigned_integral I> N operator + (const N &, I);
 
-    template <std::unsigned_integral I> N operator - (I, const N &);
     template <std::unsigned_integral I> N operator - (const N &, I);
 
-    template <std::unsigned_integral I> N operator * (I, const N &);
     template <std::unsigned_integral I> N operator * (const N &, I);
 
     Z operator / (const Z &, const Z &);
