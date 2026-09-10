@@ -1,7 +1,6 @@
 
 #include <data/math/number/NTL/Z.hpp>
-#include <data/math/number/bytes.hpp>
-#include <data/math/number/bounded.hpp>
+#include <data/encoding/integer.hpp>
 
 namespace NTL {
 
@@ -142,6 +141,26 @@ namespace data::encoding::signed_decimal {
         std::stringstream ss;
         ss << x.Value;
         return string {ss.str ()};
+    }
+}
+
+namespace data::encoding::hexidecimal {
+
+    std::ostream inline &write (std::ostream &o, const math::number::Z &n, hex::letter_case x, arithmetic::negativity neg) {
+        switch (neg) {
+            case arithmetic::negativity::nones: {
+                if (n < 0) throw exception {} << "cannot write negative number with neg = nones";
+                return write (o, static_cast<const oriented<endian::big, byte> &> (
+                    math::number::N_bytes<endian::big, byte> (N (n.Value))), x);
+            }
+            case arithmetic::negativity::twos:
+                return write (o, static_cast<const oriented<endian::big, byte> &> (
+                    math::number::Z_bytes<endian::big, arithmetic::negativity::twos, byte> (n)), x);
+            case arithmetic::negativity::BC:
+                return write (o, static_cast<const oriented<endian::big, byte> &> (
+                    math::number::Z_bytes<endian::big, arithmetic::negativity::twos, byte> (n)), x);
+            default: throw exception {} << "invalid negativity";
+        }
     }
 }
 

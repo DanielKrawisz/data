@@ -526,6 +526,42 @@ namespace data::math::number {
         return a <=> Z (b);
     }
 
+    template <std::integral I> Z inline operator + (const Z &a, I b) {
+        return a + Z (b);
+    }
+
+    template <std::integral I> Z inline operator - (const Z &a, I b) {
+        return a - Z (b);
+    }
+
+    template <std::integral I> Z inline operator * (const Z &a, I b) {
+        return a * Z (b);
+    }
+
+    template <std::signed_integral I> Z inline operator + (const N &a, I b) {
+        return a + Z (b);
+    }
+
+    template <std::signed_integral I> Z inline operator - (const N &a, I b) {
+        return a - Z (b);
+    }
+
+    template <std::signed_integral I> Z inline operator * (const N &a, I b) {
+        return a * Z (b);
+    }
+
+    template <std::unsigned_integral I> N inline operator + (const N &a, I b) {
+        return a + N (b);
+    }
+
+    template <std::unsigned_integral I> N inline operator - (const N &a, I b) {
+        return a - N (b);
+    }
+
+    template <std::unsigned_integral I> N inline operator * (const N &a, I b) {
+        return a * N (b);
+    }
+
 }
 
 namespace data::math::def {
@@ -581,11 +617,51 @@ namespace data::math::def {
     number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
         return number::Z_bytes<r, c, word> (z);
     }
+
+    N inline div_2<N>::operator () (const N &a) {
+        return bit_div_2_unsigned (a);
+    }
+
+    Z inline div_2<Z>::operator () (const Z &a) {
+        return bit_div_2_signed (a);
+    }
+
+    N inline mod_2<N>::operator () (const N &a) {
+        return NTL::IsOdd (a.Value) ? N (1): N ();
+    }
+
+    Z inline mod_2<Z>::operator () (const Z &a) {
+        return NTL::IsOdd (a.Value) ? Z (1): Z ();
+    }
+}
+
+namespace data::encoding::decimal {
+    std::ostream inline &write (std::ostream &o, const math::number::N &n) {
+        return o << n.Value;
+    }
+}
+
+namespace data::encoding::signed_decimal {
+    std::ostream inline &write (std::ostream &o, const math::number::Z &n) {
+        return o << n.Value;
+    }
 }
 
 namespace data::encoding::hexidecimal {
     std::ostream inline &write (std::ostream &o, const math::number::N &n, hex::letter_case x) {
-        return write (o, static_cast<const oriented<endian::big, byte> &> (N_bytes<endian::big, byte> (n)), x);
+        return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::N_bytes<endian::big, byte> (n)), x);
+    }
+
+    template <neg n, hex_case zz>
+    integer<n, zz> write (const Z &x) {
+        std::stringstream ss;
+        switch (zz) {
+            case hex_case::lower:
+                write (ss, x, hex::letter_case::lower, n);
+            case hex_case::upper:
+                write (ss, x, hex::letter_case::upper, n);
+        }
+        return integer<neg::twos, zz> {ss.str ()};
     }
 }
 

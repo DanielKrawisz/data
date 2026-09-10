@@ -742,7 +742,7 @@ namespace data::math::def {
 
     template <endian::order r, std::unsigned_integral word>
     math::N_bytes<r, word> inline div_2<math::N_bytes<r, word>>::operator () (const math::N_bytes<r, word> &x) {
-        return bit_div_2_positive_mod (x);
+        return bit_div_2_unsigned (x);
     }
 
     template <endian::order r, std::unsigned_integral word>
@@ -752,7 +752,7 @@ namespace data::math::def {
 
     template <endian::order r, std::unsigned_integral word>
     math::Z_bytes<r, word> inline div_2<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x) {
-        return bit_div_2_positive_mod (x);
+        return bit_div_2_signed (x);
     }
 
     template <endian::order r, std::unsigned_integral word>

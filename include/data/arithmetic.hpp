@@ -878,11 +878,11 @@ namespace data::math {
         return x << u;
     }
 
-    template <proto_number A> constexpr A inline bit_div_2_positive_mod (const A &x) {
+    template <proto_number A> constexpr A inline bit_div_2_unsigned (const A &x) {
         return x >> 1;
     }
 
-    template <proto_number A> constexpr A inline bit_div_2_negative_mod (const A &x) {
+    template <proto_number A> constexpr A inline bit_div_2_signed (const A &x) {
         return (x < 0 ? increment (x) : x) >> 1;
     }
 
@@ -962,7 +962,7 @@ namespace data::math::def {
 
     template <std::signed_integral X> struct size_in_base<X, 2> {
         constexpr size_t operator () (X x) {
-            return std::bit_width (static_cast<std::make_signed_t<X>> (x));
+            return std::bit_width (static_cast<std::make_signed_t<X>> (x)) + 1;
         }
     };
 
@@ -1037,13 +1037,13 @@ namespace data::math::def {
 
     template <std::signed_integral X> struct div_2<X> {
         constexpr X operator () (X x) {
-            return bit_div_2_negative_mod (x);
+            return bit_div_2_signed (x);
         }
     };
 
     template <std::unsigned_integral X> struct div_2<X> {
         constexpr X operator () (X x) {
-            return bit_div_2_positive_mod (x);
+            return bit_div_2_unsigned (x);
         }
     };
 

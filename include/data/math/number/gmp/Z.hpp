@@ -1159,11 +1159,11 @@ namespace data::math::def {
     }
 
     N inline div_2<N>::operator () (const N &a) {
-        return bit_div_2_positive_mod (a);
+        return bit_div_2_unsigned (a);
     }
 
     Z inline div_2<Z>::operator () (const Z &a) {
-        return bit_div_2_positive_mod (a);
+        return bit_div_2_signed (a);
     }
 
     N inline mod_2<N>::operator () (const N &a) {
@@ -1173,6 +1173,9 @@ namespace data::math::def {
     Z inline mod_2<Z>::operator () (const Z &a) {
         return bit_mod_2_positive_mod (a);
     }
+
+    // TODO sign
+    // TODO power
 
 }
 

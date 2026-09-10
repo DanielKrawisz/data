@@ -1180,22 +1180,22 @@ namespace data {
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint<r, x, word> inline div_2<uint<r, x, word>>::operator () (const uint<r, x, word> &u) {
-            return bit_div_2_negative_mod (u);
+            return bit_div_2_unsigned (u);
         }
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr uint<r, x, word> inline mod_2<uint<r, x, word>>::operator () (const uint<r, x, word> &u) {
-            return bit_mod_2_negative_mod (u);
+            return bit_mod_2_positive_mod (u);
         }
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr sint<r, x, word> inline div_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
-            return bit_div_2_negative_mod (u);
+            return bit_div_2_signed (u);
         }
 
         template <endian::order r, size_t x, std::unsigned_integral word>
         constexpr sint<r, x, word> inline mod_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
-            return bit_mod_2_negative_mod (u);
+            return data::abs (u) & 1;
         }
 
         template <bool a, endian::order r, size_t x, std::unsigned_integral w,

@@ -782,13 +782,9 @@ namespace data::math::number {
 
     template <std::integral I> Z operator + (const Z &, I);
 
-    template <std::signed_integral I> Z operator - (const Z &, I);
+    template <std::integral I> Z operator - (const Z &, I);
 
-    template <std::unsigned_integral I> Z operator - (const Z &, I);
-
-    template <std::signed_integral I> Z operator * (const Z &, I);
-
-    template <std::unsigned_integral I> Z operator * (const Z &, I);
+    template <std::integral I> Z operator * (const Z &, I);
 
     template <std::signed_integral I> Z operator + (const N &, I);
 

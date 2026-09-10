@@ -2349,11 +2349,11 @@ namespace data::math::def {
     }
 
     dec_uint inline div_2<dec_uint>::operator () (const dec_uint &a) {
-        return bit_div_2_positive_mod (a);
+        return bit_div_2_unsigned (a);
     }
 
     dec_int inline div_2<dec_int>::operator () (const dec_int &a) {
-        return bit_div_2_positive_mod (a);
+        return bit_div_2_signed (a);
     }
 
     dec_uint inline mod_2<dec_uint>::operator () (const dec_uint &a) {
@@ -2366,7 +2366,7 @@ namespace data::math::def {
 
     template <hex_case zz>
     hex::uint<zz> inline div_2<hex::uint<zz>>::operator () (const hex::uint<zz> &x) {
-        return bit_div_2_positive_mod (x);
+        return bit_div_2_unsigned (x);
     }
 
     template <hex_case zz>
@@ -2376,7 +2376,7 @@ namespace data::math::def {
 
     template <hex_case zz>
     hex::int2<zz> inline div_2<hex::int2<zz>>::operator () (const hex::int2<zz> &x) {
-        return bit_div_2_positive_mod (x);
+        return bit_div_2_signed (x);
     }
 
     template <hex_case zz>
