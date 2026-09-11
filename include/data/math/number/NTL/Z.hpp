@@ -807,38 +807,6 @@ namespace data::math::def {
         return result;
     }
 
-    template <hex_case zz>
-    division<hex::uint<zz>, hex::uint<zz>> inline
-    divmod<hex::uint<zz>, hex::uint<zz>>::operator () (
-        const hex::uint<zz> &a,
-        const nonzero<hex::uint<zz>> &b) {
-        division<N, N> result = divmod<N, N> {} (N (a), nonzero {N (b.Value)});
-        return division<hex::uint<zz>, hex::uint<zz>> {hex::uint<zz> (result.Quotient), hex::uint<zz> (result.Remainder)};
-    }
-
-    template <hex_case zz>
-    division<hex::int2<zz>, hex::uint<zz>> inline
-    divmod<hex::int2<zz>, hex::int2<zz>>::operator () (
-        const hex::int2<zz> &a,
-        const nonzero<hex::int2<zz>> &b) {
-        division<Z, N> result = divmod<Z, Z> {} (Z (a), nonzero {Z (b.Value)});
-        return division<hex::int2<zz>, hex::uint<zz>> {hex::int2<zz> (result.Quotient), hex::uint<zz> (result.Remainder)};
-    }
-
-    template <hex_case zz>
-    division<hex::intBC<zz>, hex::intBC<zz>> inline
-    divmod<hex::intBC<zz>, hex::intBC<zz>>::operator () (
-        const hex::intBC<zz> &a,
-        const nonzero<hex::intBC<zz>> &b) {
-        division<Z, N> result = divmod<Z, Z> {} (Z (a), nonzero {Z (b.Value)});
-        return division<hex::intBC<zz>, hex::intBC<zz>> {hex::intBC<zz> (result.Quotient), hex::intBC<zz> (result.Remainder)};
-    }
-
-    template <endian::order r, neg c, std::unsigned_integral word>
-    number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
-        return number::Z_bytes<r, c, word> (z);
-    }
-
     N inline div_2<N>::operator () (const N &a) {
         return bit_div_2_unsigned (a);
     }
@@ -891,6 +859,14 @@ namespace data::math::def {
         return a ^ b;
     }
 
+    Z inline times<Z>::operator () (const Z &a, const Z &b) {
+        return a * b;
+    }
+
+    nonzero<Z> inline times<Z>::operator () (const nonzero<Z> &a, const nonzero<Z> &b) {
+        return nonzero {a.Value * b.Value};
+    }
+
     // TODO other mod operations.
 }
 
@@ -920,7 +896,21 @@ namespace data::encoding::hexidecimal {
             case hex_case::upper:
                 write (ss, x, hex::letter_case::upper, n);
         }
-        return integer<neg::twos, zz> {ss.str ()};
+
+        return integer<n, zz> {ss.str ()};
+    }
+
+    template <hex_case zz>
+    integer<neg::nones, zz> write (const N &x) {
+        std::stringstream ss;
+        switch (zz) {
+            case hex_case::lower:
+                write (ss, x, hex::letter_case::lower);
+            case hex_case::upper:
+                write (ss, x, hex::letter_case::upper);
+        }
+
+        return integer<neg::nones, zz> {ss.str ()};
     }
 }
 
@@ -1021,6 +1011,14 @@ namespace NTL {
     void inline conv (data::endian::integral<is_signed, r, size> &x, const ZZ &u) {
         data::math::number::NTL::export_bin<data::byte> (data::slice<data::byte> (x), u, r, data::endian::order::native,
             is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
+    }
+
+    void inline conv (data::encoding::signed_decimal::string &x, const ZZ &u) {
+        x = data::encoding::signed_decimal::write (data::math::number::Z (u));
+    }
+
+    void inline conv (data::encoding::decimal::string &x, const ZZ &u) {
+        x = data::encoding::decimal::write (data::math::number::N (u));
     }
 
 }
