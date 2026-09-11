@@ -24,7 +24,7 @@ namespace data::math::def {
         if (result.Remainder.Value < 0) {
             NTL::ZZ abs_b = NTL::abs (b.Value.Value);
             result.Remainder.Value += abs_b;
-            result.Quotient.Value += (b.Value.Value > 0) ? -1 : 1;
+            result.Quotient.Value -= 1;
         }
 
         return result;
@@ -121,6 +121,29 @@ namespace data::math::number {
         if (!encoding::natural::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return N_read_hex (x);
         return N_read_dec (x);
+    }
+
+    Z operator & (const Z &a, const Z &b) {
+        bool a_is_positive = is_positive (a);
+        bool b_is_positive = is_positive (b);
+        if (a_is_positive && b_is_positive) return Z (a.Value & b.Value);
+        if (!a_is_positive && !b_is_positive) return ~(~a | ~b);
+        if (!b_is_positive) return a - (a & ~b);
+        return b - (~a & b);
+    }
+
+    Z operator | (const Z &a, const Z &b) {
+        bool a_is_positive = is_positive (a);
+        bool b_is_positive = is_positive (b);
+        if (a_is_positive && b_is_positive) return Z (a.Value | b.Value);
+        return ~(~a & ~b);
+    }
+
+    Z inline operator ^ (const Z &a, const Z &b) {
+        bool a_is_positive = is_positive (a);
+        bool b_is_positive = is_positive (b);
+        if (a_is_positive && b_is_positive) return Z (a.Value ^ b.Value);
+        return (~a & b) | (a & ~b);
     }
 }
 

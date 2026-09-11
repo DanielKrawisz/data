@@ -8,14 +8,18 @@
 #include <data/slice.hpp>
 #include <data/arithmetic/negativity.hpp>
 #include <data/arithmetic.hpp>
+
 #include <data/encoding/integer.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/encoding/base58.hpp>
+
+#include <data/math/power.hpp>
+
 #include <data/math/number/types.hpp>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/math/number/bytes/Z.hpp>
-
 #include <data/math/number/prime.hpp>
+
 #include <data/math/root.hpp>
 
 #include <NTL/ZZ.h>
@@ -93,6 +97,17 @@ namespace data::math::number::NTL {
         if (::NTL::sign (x) >= 0) return NumBits (x) + 1;
         return NumBits (abs (x) - 1) + 1;
     }
+
+    template <typename T>
+    concept compatible =
+        std::integral<T> &&
+        (sizeof(T) < sizeof(long) ||
+        std::same_as<T, long>);
+
+    template <typename T>
+    concept noncompatible =
+        std::integral<T> &&
+        !compatible<T>;
 
 }
 
@@ -304,6 +319,27 @@ namespace data::math::number {
         return z;
     }
 
+    nonzero<N> inline increment<N>::operator () (const N &n) {
+        return nonzero<N> {n + 1u};
+    }
+
+    Z inline increment<Z>::operator () (const Z &z) {
+        return z + 1;
+    }
+
+    Z inline decrement<Z>::operator () (const Z &z) {
+        return z - 1;
+    }
+
+    N inline decrement<N>::operator () (const nonzero<N> &n) {
+        return n.Value - 1u;
+    }
+
+    N inline decrement<N>::operator () (const N &n) {
+        if (n == 0) return 0;
+        return n - 1u;
+    }
+
     bool inline operator == (const Z &a, const Z &b) {
         return a.Value == b.Value;
     }
@@ -504,15 +540,22 @@ namespace data::math::number {
         return result;
     }
 
+    // TODO For operations involving std::integral, NTL has many
+    // built-in operations defined with ZZ and long. Thus, we
+    // would need special cases for long long and unsigned long,
+    // but for other cases we would not need to promote to N or
+    // Z to perform these operations.
     template <std::integral I> bool inline operator == (const N &a, I b) {
-        if constexpr (std::signed_integral<I>) {
+        if constexpr (NTL::compatible<I>) return a.Value == long (b);
+        else if constexpr (std::signed_integral<I>) {
             if (b < 0) return false;
             return a == N (std::make_unsigned_t<I> (b));
         } else return a == N (b);
     }
 
     template <std::integral I> bool inline operator == (const Z &a, I b) {
-        return a == Z (b);
+        if constexpr (NTL::compatible<I>) return a.Value == long (b);
+        else return a == Z (b);
     }
 
     template <std::integral I> std::strong_ordering inline operator <=> (const N &a, I b) {
@@ -527,39 +570,217 @@ namespace data::math::number {
     }
 
     template <std::integral I> Z inline operator + (const Z &a, I b) {
-        return a + Z (b);
+        if constexpr (NTL::compatible<I>) return Z (a.Value + long (b));
+        else return a + Z (b);
     }
 
     template <std::integral I> Z inline operator - (const Z &a, I b) {
-        return a - Z (b);
+        if constexpr (NTL::compatible<I>) return Z (a.Value - long (b));
+        else return a - Z (b);
     }
 
     template <std::integral I> Z inline operator * (const Z &a, I b) {
-        return a * Z (b);
+        if constexpr (NTL::compatible<I>) return Z (a.Value * long (b));
+        else return a * Z (b);
     }
 
     template <std::signed_integral I> Z inline operator + (const N &a, I b) {
-        return a + Z (b);
+        if constexpr (NTL::compatible<I>) return Z (a.Value + long (b));
+        else return a + Z (b);
     }
 
     template <std::signed_integral I> Z inline operator - (const N &a, I b) {
-        return a - Z (b);
+        if constexpr (NTL::compatible<I>) return Z (a.Value - long (b));
+        else return a - Z (b);
     }
 
     template <std::signed_integral I> Z inline operator * (const N &a, I b) {
-        return a * Z (b);
+        if constexpr (NTL::compatible<I>) return Z (a.Value * long (b));
+        else return a * Z (b);
     }
 
     template <std::unsigned_integral I> N inline operator + (const N &a, I b) {
-        return a + N (b);
+        if constexpr (NTL::compatible<I>) return N (a.Value + long (b));
+        else return a + N (b);
     }
 
     template <std::unsigned_integral I> N inline operator - (const N &a, I b) {
-        return a - N (b);
+        if constexpr (NTL::compatible<I>) return N (a.Value - long (b));
+        else return a - N (b);
     }
 
     template <std::unsigned_integral I> N inline operator * (const N &a, I b) {
-        return a * N (b);
+        if constexpr (NTL::compatible<I>) return N (a.Value * long (b));
+        else return a * N (b);
+    }
+
+    Z inline operator ~ (const N &x) {
+        return Z (-x.Value - 1);
+    }
+
+    Z inline operator ~ (const Z &x) {
+        return Z (-x.Value - 1);
+    }
+
+    N inline operator | (const N &a, const N &b) {
+        return N (a.Value | b.Value);
+    }
+
+    N inline operator & (const N &a, const N &b) {
+        return N (a.Value & b.Value);
+    }
+
+    N inline operator ^ (const N &a, const N &b) {
+        return N (a.Value & b.Value);
+    }
+
+    template <std::unsigned_integral I> N inline operator ^ (const N &a, I b) {
+        if constexpr (NTL::compatible<I>) return N (a.Value ^ long (b));
+        else return a ^ N (b);
+    }
+
+    template <std::unsigned_integral I> N inline operator & (const N &a, I b) {
+        if constexpr (NTL::compatible<I>) return N (a.Value & long (b));
+        else return a & N (b);
+    }
+
+    template <std::unsigned_integral I> N inline operator | (const N &a, I b) {
+        if constexpr (NTL::compatible<I>) return N (a.Value | long (b));
+        else return a | N (b);
+    }
+
+    Z inline &operator &= (Z &a, const Z &b) {
+        return a = a & b;
+    }
+
+    Z inline &operator |= (Z &a, const Z &b) {
+        return a = a | b;
+    }
+
+    Z inline &operator ^= (Z &a, const Z &b) {
+        return a = a ^ b;
+    }
+
+    N inline &operator &= (N &a, const N &b) {
+        return a = a & b;
+    }
+
+    N inline &operator |= (N &a, const N &b) {
+        return a = a | b;
+    }
+
+    N inline &operator ^= (N &a, const N &b) {
+        return a = a ^ b;
+    }
+
+    template <std::unsigned_integral I> N inline &operator &= (N &a, I b) {
+        return a = a & N (b);
+    }
+
+    template <std::unsigned_integral I> N inline &operator |= (N &a, I b) {
+        return a = a | N (b);
+    }
+
+    template <std::unsigned_integral I> N inline &operator ^= (N &a, I b) {
+        return a = a ^ N (b);
+    }
+
+    template <std::integral I> Z inline &operator &= (Z &a, I b) {
+        return a = a & Z (b);
+    }
+
+    template <std::integral I> Z inline &operator |= (Z &a, I b) {
+        return a = a | Z (b);
+    }
+
+    template <std::integral I> Z inline &operator ^= (Z &a, I b) {
+        return a = a ^ Z (b);
+    }
+
+    template <std::unsigned_integral I> N inline &operator += (N &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value += long (b);
+        else a.Value += N (b).Value;
+        return a;
+    }
+
+    template <std::unsigned_integral I> N inline &operator -= (N &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value -= long (b);
+        else a.Value -= N (b).Value;
+        return a;
+    }
+
+    template <std::unsigned_integral I> N inline &operator *= (N &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value *= long (b);
+        else a.Value *= N (b).Value;
+        return a;
+    }
+
+    template <std::unsigned_integral I> N inline &operator /= (N &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value /= long (b);
+        else a.Value /= N (b).Value;
+        return a;
+    }
+
+    template <std::unsigned_integral I> N inline &operator %= (N &a, I b) {
+        a.Value %= N (b).Value;
+        return a;
+    }
+
+    template <std::integral I> Z inline &operator += (Z &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value += long (b);
+        else a.Value += Z (b).Value;
+        return a;
+    }
+
+    template <std::integral I> Z inline &operator -= (Z &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value -= long (b);
+        else a.Value -= Z (b).Value;
+        return a;
+    }
+
+    template <std::integral I> Z inline &operator *= (Z &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value *= long (b);
+        else a.Value *= Z (b).Value;
+        return a;
+    }
+
+    template <std::integral I> Z inline &operator /= (Z &a, I b) {
+        if constexpr (NTL::compatible<I>) a.Value /= long (b);
+        else {
+            a.Value /= Z (b).Value;
+            if (b < 0) a.Value--;
+        }
+        return a;
+    }
+
+    template <std::integral I> Z inline operator / (const Z &a, I b) {
+        if constexpr (NTL::compatible<I> && std::unsigned_integral<I>)
+            return Z (a.Value / long (b));
+        else return a / Z (b);
+    }
+
+    template <std::unsigned_integral I> N inline operator / (const N &a, I b) {
+        if constexpr (NTL::compatible<I>)
+            return N (a.Value / long (b));
+        else return a / N (b);
+    }
+
+    template <std::signed_integral I> Z inline operator / (const N &a, I b) {
+        if constexpr (NTL::compatible<I>)
+            return Z (a.Value / long (b));
+        else return Z (a) / Z (b);
+    }
+
+    template <std::unsigned_integral I> I inline operator % (const Z &a, I b) {
+        if constexpr (NTL::compatible<I>)
+            return I (N (a.Value % long (b)));
+        else return I (a % N (b));
+    }
+
+    template <std::unsigned_integral I> I inline operator % (const N &a, I b) {
+        if constexpr (NTL::compatible<I>)
+            return I (N (a.Value % long (b)));
+        else return I (a % N (b));
     }
 
 }
@@ -633,6 +854,44 @@ namespace data::math::def {
     Z inline mod_2<Z>::operator () (const Z &a) {
         return NTL::IsOdd (a.Value) ? Z (1): Z ();
     }
+
+    template <group_number Exp>
+    N inline pow<N, Exp>::operator () (const N &x, const Exp &y) {
+        if constexpr (number::NTL::compatible<Exp>)
+            return N (NTL::power (x.Value, long (y)));
+        else return math::binary_accumulate_pow (x, y);
+    }
+
+    template <group_number Exp>
+    Z inline pow<Z, Exp>::operator () (const Z &x, const Exp &y) {
+        if constexpr (number::NTL::compatible<Exp>)
+            return Z (NTL::power (x.Value, long (y)));
+        else return math::binary_accumulate_pow (x, y);
+    }
+
+    template <group_number Exp>
+    N inline pow_mod<N, Exp, N>::operator () (const N &x, const Exp &y, const nonzero<N> &z) {
+        if constexpr (Same<Exp, Z> || Same<Exp, N>)
+            return N (NTL::PowerMod (x.Value, y.Value, z.Value.Value));
+        else return math::binary_accumulate_pow_mod (x, y, z);
+    }
+
+    template <group_number Exp>
+    N inline pow_mod<Z, Exp, N>::operator () (const Z &x, const Exp &y, const nonzero<N> &z) {
+        if constexpr (Same<Exp, Z> || Same<Exp, N>)
+            return N (NTL::PowerMod (x.Value, y.Value, z.Value.Value));
+        else return math::binary_accumulate_pow_mod (x, y, z);
+    }
+
+    N inline bit_xor<N>::operator () (const N &a, const N &b) {
+        return a ^ b;
+    }
+
+    Z inline bit_xor<Z>::operator () (const Z &a, const Z &b) {
+        return a ^ b;
+    }
+
+    // TODO other mod operations.
 }
 
 namespace data::encoding::decimal {

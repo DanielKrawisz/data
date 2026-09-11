@@ -516,13 +516,10 @@ namespace data::math::number {
     N operator << (const N &, int);
     N operator >> (const N &, int);
 
-    template <std::unsigned_integral I> N operator ^ (I, const N &);
     template <std::unsigned_integral I> N operator ^ (const N &, I);
 
-    template <std::unsigned_integral I> N operator & (I, const N &);
     template <std::unsigned_integral I> N operator & (const N &, I);
 
-    template <std::unsigned_integral I> N operator | (I, const N &);
     template <std::unsigned_integral I> N operator | (const N &, I);
 
     Z &operator &= (Z &, const Z &);
@@ -536,6 +533,10 @@ namespace data::math::number {
     template <std::unsigned_integral I> N &operator &= (N &, I);
     template <std::unsigned_integral I> N &operator |= (N &, I);
     template <std::unsigned_integral I> N &operator ^= (N &, I);
+
+    template <std::integral I> Z &operator &= (Z &, I);
+    template <std::integral I> Z &operator |= (Z &, I);
+    template <std::integral I> Z &operator ^= (Z &, I);
 
     Z &operator <<= (Z &, int);
     Z &operator >>= (Z &, int);
@@ -801,15 +802,16 @@ namespace data::math::number {
     Z operator / (const Z &, const Z &);
     N operator / (const N &, const N &);
 
-    Z operator / (const Z &, int64);
-    N operator / (const N &, uint64);
+    template <std::integral I> Z operator / (const Z &, I);
+    template <std::unsigned_integral I> N operator / (const N &, I);
+    template <std::signed_integral I> Z operator / (const N &, I);
 
     N operator % (const Z &, const Z &);
     N operator % (const Z &, const N &);
     N operator % (const N &, const N &);
 
-    uint64 operator % (const Z &, uint64);
-    uint64 operator % (const N &, uint64);
+    template <std::unsigned_integral I> I operator % (const Z &, I);
+    template <std::unsigned_integral I> I operator % (const N &, I);
 
     Z &operator += (Z &, const Z &);
     Z &operator -= (Z &, const Z &);
@@ -827,6 +829,11 @@ namespace data::math::number {
     template <std::unsigned_integral I> N &operator *= (N &, I);
     template <std::unsigned_integral I> N &operator /= (N &, I);
     template <std::unsigned_integral I> N &operator %= (N &, I);
+
+    template <std::integral I> Z &operator += (Z &, I);
+    template <std::integral I> Z &operator -= (Z &, I);
+    template <std::integral I> Z &operator *= (Z &, I);
+    template <std::integral I> Z &operator /= (Z &, I);
 
 }
 

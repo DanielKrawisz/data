@@ -16,6 +16,11 @@
 // TODO it should be possible to get rid of this whole file and
 // put it in bytes/Z.hpp, or alternately to get rid of Z.hpp
 // and put it here.
+namespace data::encoding::base58 {
+
+    template <std::integral I> inline string::string (I x): string {encode (N {x})} {}
+
+}
 
 namespace data::math::number {
     
