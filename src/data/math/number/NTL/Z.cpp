@@ -18,6 +18,7 @@ namespace NTL {
 
 namespace data::math::def {
     division<Z, N> divmod<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
+        if (b.Value == 0) throw math::division_by_zero {};
         division<Z, N> result {};
         NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
 
@@ -169,20 +170,14 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    std::ostream inline &write (std::ostream &o, const math::number::Z &n, hex::letter_case x, arithmetic::negativity neg) {
-        switch (neg) {
-            case arithmetic::negativity::nones: {
-                if (n < 0) throw exception {} << "cannot write negative number with neg = nones";
-                return write (o, static_cast<const oriented<endian::big, byte> &> (
-                    math::number::N_bytes<endian::big, byte> (N (n.Value))), x);
-            }
-            case arithmetic::negativity::twos:
-                return write (o, static_cast<const oriented<endian::big, byte> &> (
-                    math::number::Z_bytes<endian::big, arithmetic::negativity::twos, byte> (n)), x);
-            case arithmetic::negativity::BC:
-                return write (o, static_cast<const oriented<endian::big, byte> &> (
-                    math::number::Z_bytes<endian::big, arithmetic::negativity::twos, byte> (n)), x);
-            default: throw exception {} << "invalid negativity";
+    std::ostream &write (std::ostream &o, const math::number::Z &z, hex::letter_case x, neg n) {
+        switch (n) {
+            case neg::twos:
+                return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::Z_bytes<endian::big, neg::twos, byte> (z)), x);
+            case neg::BC:
+                return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::Z_bytes<endian::big, neg::BC, byte> (z)), x);
+            default:
+                return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::N_bytes<endian::big, byte> (N (z))), x);
         }
     }
 }

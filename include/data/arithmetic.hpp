@@ -994,6 +994,7 @@ namespace data::math::def {
 
     template <std::integral X> struct mod<X> {
         constexpr auto operator () (const X &x, const nonzero<X> &n) const {
+            if (n.Value < 1) throw non_positive_mod {};
             return static_cast<X> (x % n.Value);
         }
     };
@@ -1158,6 +1159,7 @@ namespace data::math::def {
 
     template <MultiplicativeNumber A, MultiplicativeNumber B> struct mod<A, B> {
         constexpr auto operator () (const A &a, const nonzero<B> &b) const {
+            if (b.Value < 1) throw math::non_positive_mod {};
             return divmod<A, B> {} (a, b).Remainder;
         }
     };

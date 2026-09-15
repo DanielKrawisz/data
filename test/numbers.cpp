@@ -520,6 +520,22 @@ namespace data {
         Z_bytes_BC_little, Z_bytes_BC_big,
         dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
 
+    template <typename X> struct BigNumbers : ::testing::Test {
+        using N = X;
+    };
+
+    using big_numbers = ::testing::Types<
+        uint80, int80, int80_little, uint80_little, int80_big, uint80_big,
+        uint128, int128, int128_little, uint128_little, int128_big, uint128_big,
+        uint160, int160, int160_little, uint160_little, int160_big, uint160_big,
+        uint224, int224, int224_little, uint224_little, int224_big, uint224_big,
+        uint256, int256, int256_little, uint256_little, int256_big, uint256_big,
+        uint384, int384, int384_little, uint384_little, int384_big, uint384_big,
+        uint512, int512, int512_little, uint512_little, int512_big, uint512_big,
+        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
+
     template <typename X> struct Naturals : ::testing::Test {
         using N = X;
     };
@@ -556,6 +572,8 @@ namespace data {
 
     TYPED_TEST_SUITE (Numbers, numbers);
 
+    TYPED_TEST_SUITE (BigNumbers, big_numbers);
+
     TYPED_TEST_SUITE (Naturals, naturals);
 
     TYPED_TEST_SUITE (Integers, integers);
@@ -585,14 +603,24 @@ namespace data {
         EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
 
-    TYPED_TEST (Numbers, DivisionByZero) {
+    TYPED_TEST (BigNumbers, DivisionByZero) {
         using Z = typename TestFixture::N;
         EXPECT_THROW (Z {1} / Z {0}, math::division_by_zero);
     }
 
-    TYPED_TEST (Numbers, ModByZero) {
+    TYPED_TEST (Numbers, DivisionByZero) {
+        using Z = typename TestFixture::N;
+        EXPECT_THROW (divide (Z {1}, math::nonzero {Z {0}}), math::division_by_zero);
+    }
+
+    TYPED_TEST (BigNumbers, ModByZero) {
         using N = typename TestFixture::N;
         EXPECT_THROW (N {1} % abs (N {0}), math::non_positive_mod);
+    }
+
+    TYPED_TEST (Numbers, ModByZero) {
+        using N = typename TestFixture::N;
+        EXPECT_THROW ((mod (N {1}, math::nonzero {abs (N {0})})), math::non_positive_mod);
     }
 
     TYPED_TEST (Integers, NoNegativePowers) {
@@ -636,6 +664,24 @@ namespace data {
     TYPED_TEST (IntegersNegMod, NegativeDivide) {
         using Z = typename TestFixture::Z;
         EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {-3}})).Remainder, Z (-2));
+    }
+
+    TYPED_TEST (Naturals, Mod) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (N {23} % N {5}, N {3});
+        EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
+    }
+
+    TYPED_TEST (IntegersPosMod, Mod) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (N {23} % abs (N {5}), abs (N {3}));
+        EXPECT_EQ ((mod (N {23}, math::nonzero {abs (N {5})})), abs (N {3}));
+    }
+
+    TYPED_TEST (IntegersNegMod, Mod) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (N {23} % N {5}, N {3});
+        EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
     }
 
     using integers_twos = ::testing::Types<

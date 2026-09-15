@@ -83,7 +83,7 @@ namespace data::math::number {
 
     template <bool u, endian::order r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        return data::divmod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b}).Remainder;
+        return data::mod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b});
     }
     
     template <endian::order r, size_t x, std::unsigned_integral word>

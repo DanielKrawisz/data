@@ -468,12 +468,10 @@ namespace data::math::number {
     }
 
     Z inline operator / (const Z &a, const Z &b) {
-        if (b == 0) throw division_by_zero {};
         return def::divmod<Z, Z> {} (a, nonzero {b}).Quotient;
     }
 
     N inline operator / (const N &a, const N &b) {
-        if (b == 0) throw division_by_zero {};
         return def::divmod<N, N> {} (a, nonzero {b}).Quotient;
     }
 
@@ -493,13 +491,14 @@ namespace data::math::number {
     }
 
     Z inline &operator /= (Z &a, const Z &b) {
-        if (b == 0) throw division_by_zero {};
         a.Value = def::divmod<Z, Z> {} (a, nonzero {b}).Quotient.Value;
+        return a;
     }
 
     N inline &operator %= (N &a, const N &b) {
         if (b < 0) throw non_positive_mod {};
         a.Value = def::divmod<N, N> {} (a, nonzero {b}).Remainder.Value;
+        return a;
     }
 
     uint64 inline operator % (const Z &x, uint64 u) {
@@ -852,12 +851,14 @@ namespace data::math::def {
 
     division<N, N> inline divmod<N, N>::operator () (const N &a, const nonzero<N> &b) {
         division<N, N> result {};
+        if (b.Value == 0) throw math::division_by_zero {};
         NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
         return result;
     }
 
     division<Z, N> inline divmod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
         division<Z, N> result {};
+        if (b.Value == 0) throw math::division_by_zero {};
         NTL::DivRem (result.Quotient.Value, result.Remainder.Value, a.Value, b.Value.Value);
         return result;
     }
@@ -1077,19 +1078,21 @@ namespace data::math::number::NTL {
         if (neg == arithmetic::negativity::twos) {
             if (word_order == endian::order::big) {
                 if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::big, const U> {input})) {
+
                     const auto magnitude =
-                    arithmetic::twos::negate<endian::order::big, U> (input);
+                        arithmetic::twos::negate<endian::order::big, U> (input);
 
                     return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
+                        slice<const U> (magnitude),
                         word_order,
                         byte_order,
                         arithmetic::negativity::nones);
+
                 }
             } else {
                 if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::little, const U> {input})) {
                     const auto magnitude =
-                    arithmetic::twos::negate<endian::order::little, U> (input);
+                        arithmetic::twos::negate<endian::order::little, U> (input);
 
                     return -import_bin (
                         slice<const U> (magnitude.data (), magnitude.size ()),
@@ -1102,7 +1105,7 @@ namespace data::math::number::NTL {
             if (word_order == endian::order::big) {
                 if (arithmetic::BC::is_negative (arithmetic::Words<endian::big, const U> {input})) {
                     const auto magnitude =
-                    arithmetic::BC::negate<endian::big, U> (input);
+                        arithmetic::BC::negate<endian::big, U> (input);
 
                     return -import_bin (
                         slice<const U> (magnitude.data (), magnitude.size ()),
@@ -1114,7 +1117,7 @@ namespace data::math::number::NTL {
             } else {
                 if (arithmetic::BC::is_negative (arithmetic::Words<endian::little, const U> {input})) {
                     const auto magnitude =
-                    arithmetic::BC::negate<endian::little, U> (input);
+                        arithmetic::BC::negate<endian::little, U> (input);
 
                     return -import_bin (
                         slice<const U> (magnitude.data (), magnitude.size ()),
@@ -1190,7 +1193,7 @@ namespace data::math::number::NTL {
 
         const size_t capacity = output.size () * bits;
 
-        size_t required =
+        size_t required = sign == 0 ? 0:
             neg == arithmetic::negativity::nones
                 ? NumBits (x)
                 : bit_width (x);
