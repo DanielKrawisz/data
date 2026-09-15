@@ -31,8 +31,6 @@ namespace data::math::number {
     template <WholeNumber N> prime<N> generate_Maurer (random::source &);
 
     // A number that is known to be prime.
-    // So far eratosthenes is the only way
-    // to construct this type.
     template <WholeNumber N>
     struct prime : nonzero<N> {
         enum likelihood {
@@ -52,6 +50,10 @@ namespace data::math::number {
 
         bool operator == (const prime &p) const {
             return Prime == p.Prime;
+        }
+
+        operator bool () const {
+            return valid ();
         }
 
     private:

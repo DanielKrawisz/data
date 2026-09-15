@@ -675,6 +675,10 @@ namespace data::math {
             return Min;
         }
     };
+
+    struct non_positive_mod : exception {
+        non_positive_mod () : exception {"mod by non-positive"} {}
+    };
 }
 
 namespace data {

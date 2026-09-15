@@ -134,6 +134,10 @@ namespace boost::endian {
         r.read (x.data (), n_bits / 8);
         return r;
     }
+
+    std::ostream inline &operator << (std::ostream &o, const order &r) {
+        return o << (r == order::big ? "big endian" : "little endian");
+    }
 }
 
 namespace data::meta {

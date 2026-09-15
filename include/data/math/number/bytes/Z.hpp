@@ -1652,52 +1652,62 @@ namespace data::math::number {
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator / (const N_bytes<r, word> &x, const N_bytes<r, word> &j) {
+        if (j == 0) throw math::division_by_zero {};
         return data::divmod<N_bytes<r, word>> (x, nonzero<N_bytes<r, word>> {j}).Quotient;
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, const Z_bytes<r, c, word> &j) {
+        if (j == 0) throw math::division_by_zero {};
         return data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {j}).Quotient;
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, const N_bytes<r, word> &j) {
+        if (j == 0) throw math::division_by_zero {};
         return data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Quotient;
     }
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator / (const N_bytes<r, word> &x, uint64 j) {
+        if (j == 0) throw math::division_by_zero {};
         return data::divmod<N_bytes<r, word>> (x, nonzero<N_bytes<r, word>> {N_bytes<r, word> {j}}).Quotient;
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
     Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, int64 j) {
+        if (j == 0) throw math::division_by_zero {};
         return data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Quotient;
     }
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator % (const N_bytes<r, word> &x, const N_bytes<r, word> &j) {
+        if (j < 1) throw math::non_positive_mod {};
         return data::divmod<N_bytes<r, word>> (x, nonzero<N_bytes<r, word>> {j}).Remainder;
     }
 
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline operator % (const Z_bytes<r, neg::twos, word> &x, const N_bytes<r, word> &j) {
+        if (j < 1) throw math::non_positive_mod {};
         return data::divmod (x, nonzero<N_bytes<r, word>> {j}).Remainder;
     }
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::BC, word> inline operator %
     (const Z_bytes<r, neg::BC, word> &x, const Z_bytes<r, neg::BC, word> &j) {
+        if (j < 1) throw math::non_positive_mod {};
         return data::divmod (x, nonzero {j}).Remainder;
     }
 
     template <endian::order r, std::unsigned_integral word>
     uint64 inline operator % (const N_bytes<r, word> &x, uint64 j) {
+        if (j < 1) throw math::non_positive_mod {};
         return uint64 (data::divmod<N_bytes<r, word>> (x, nonzero<N_bytes<r, word>> {N_bytes<r, word> {j}}).Remainder);
     }
 
     template <endian::order r, neg c, std::unsigned_integral word>
     uint64 inline operator % (const Z_bytes<r, c, word> &x, uint64 j) {
+        if (j < 1) throw math::non_positive_mod {};
         return uint64 (data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Remainder);
     }
 

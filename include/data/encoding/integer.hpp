@@ -1575,14 +1575,17 @@ namespace data::encoding::signed_decimal {
     }
 
     string inline operator / (const string &v, const decimal::string &z) {
+        if (z == 0) throw math::division_by_zero {};
         return math::def::divmod<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Quotient;
     }
 
     string inline operator / (const string &v, const string &z) {
+        if (z == 0) throw math::division_by_zero {};
         return math::def::divmod<string, string> {} (v, math::nonzero<string> {z}).Quotient;
     }
 
     decimal::string inline operator % (const string &v, const decimal::string &z) {
+        if (z < 2) throw math::non_positive_mod {};
         return math::def::divmod<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Remainder;
     }
     
@@ -2153,8 +2156,8 @@ namespace data {
 namespace data::math::def {
 
     math::sign inline sign<dec_uint>::operator () (const dec_uint &n) {
-        if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
-
+        if (!encoding::decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return encoding::decimal::nonzero (n) ? math::positive : math::zero;
     }
 
@@ -2164,52 +2167,58 @@ namespace data::math::def {
 
     template <hex_case cx>
     math::sign inline sign<hex::uint<cx>>::operator () (const hex::uint<cx> &x) {
-        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-
+        if (!x.valid ())
+            throw exception {} << "invalid hexidecimal string: " << x;
         return data::is_zero (x) ? math::zero : math::positive;
     }
 
     template <hex_case cx>
     math::sign inline sign<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
-        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-
+        if (!x.valid ())
+            throw exception {} << "invalid hexidecimal string: " << x;
         return data::is_negative (x) ? math::negative : data::is_zero (x) ? math::zero : math::positive;
     }
 
     template <hex_case cx>
     math::sign inline sign<hex::intBC<cx>>::operator () (const hex::intBC<cx> &x) {
-        if (!x.valid ()) throw exception{} << "invalid hexidecimal string: " << x;
-
+        if (!x.valid ())
+            throw exception {} << "invalid hexidecimal string: " << x;
         return data::is_zero (x) ? math::zero : math::number::sign_bit_set (x) ? math::negative : math::positive;
     }
     
     bool inline is_zero<dec_uint>::operator () (const dec_uint &n) {
-        if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+        if (!encoding::decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return !encoding::decimal::nonzero (n);
     }
     
     bool inline is_negative<dec_uint>::operator () (const dec_uint &n) {
-        if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+        if (!encoding::decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return false;
     }
     
     bool inline is_positive<dec_uint>::operator () (const dec_uint &n) {
-        if (!encoding::decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+        if (!encoding::decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return encoding::decimal::nonzero (n);
     }
     
     bool inline is_zero<dec_int>::operator () (const dec_int &n) {
-        if (!encoding::signed_decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+        if (!encoding::signed_decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return !encoding::signed_decimal::nonzero (n);
     }
     
     bool inline is_negative<dec_int>::operator () (const dec_int &n) {
-        if (!encoding::signed_decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+        if (!encoding::signed_decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return encoding::signed_decimal::negative (n);
     }
     
     bool inline is_positive<dec_int>::operator () (const dec_int &n) {
-        if (!encoding::signed_decimal::valid (n)) throw exception {} << "invalid decimal string: " << n;
+        if (!encoding::signed_decimal::valid (n))
+            throw exception {} << "invalid decimal string: " << n;
         return encoding::signed_decimal::positive (n);
     }
 
@@ -2221,7 +2230,6 @@ namespace data::math::def {
     template <hex_case cx> 
     bool inline is_zero<hex::uint<cx>>::operator () (const hex::uint<cx> &z) {
         if (!z.valid ()) throw exception {} << "invalid hex integer: " << z;
-        
         for (auto digit = z.begin () + 2; digit != z.end (); digit++) if (*digit != '0') return false;
         return true;
     }
@@ -2229,7 +2237,6 @@ namespace data::math::def {
     template <hex_case cx> 
     bool inline is_zero<hex::int2<cx>>::operator () (const hex::int2<cx> &z) {
         if (!z.valid ()) throw exception {} << "invalid hex integer: " << z;
-        
         for (auto digit = z.begin () + 2; digit != z.end (); digit++) if (*digit != '0') return false;
         return true;
     }
@@ -2241,8 +2248,8 @@ namespace data::math::def {
     
     template <hex_case cx> 
     bool inline is_negative<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
-        if (!x.valid ()) throw exception {} << "invalid hex integer: " << x;
-        
+        if (!x.valid ())
+            throw exception {} << "invalid hex integer: " << x;
         if (x.size () < 3) return false;
         return encoding::hexidecimal::digit (x[2]) > 7;
     }
@@ -2447,11 +2454,13 @@ namespace data::encoding::hexidecimal {
         
     template <neg c, hex::letter_case zz>
     integer<c, zz> inline integer<c, zz>::operator / (const integer &x) const {
+        if (x == 0) throw math::division_by_zero {};
         return math::def::divmod<integer<c, zz>> {} (*this, math::nonzero {x}).Quotient;
     }
     
     template <neg c, hex::letter_case zz>
     integer<c, zz> inline integer<c, zz>::operator % (const integer &x) const {
+        if (x < 1) throw math::non_positive_mod {};
         return math::def::divmod<integer<c, zz>> {} (*this, math::nonzero {x}).Remainder;
     }
     

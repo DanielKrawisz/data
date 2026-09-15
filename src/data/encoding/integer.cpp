@@ -158,10 +158,12 @@ namespace data::encoding {
         }
         
         string operator / (const string &m, const string &x) {
+            if (x == 0) throw math::division_by_zero {};
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Quotient);
         }
         
         string operator % (const string &m, const string &x) {
+            if (x < 1) throw math::non_positive_mod {};
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Remainder);
         }
         

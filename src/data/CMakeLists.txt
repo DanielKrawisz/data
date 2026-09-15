@@ -68,6 +68,9 @@ if(BIGNUM_BACKEND STREQUAL "GMP")
 
     target_sources(numbers PRIVATE
         math/number/gmp/N.cpp
+        math/number/gmp/mpq.cpp
+        math/number/gmp/aks.cpp
+        math/number/gmp/sqrt.cpp
     )
 
     target_compile_definitions(numbers PUBLIC
@@ -78,6 +81,7 @@ elseif(BIGNUM_BACKEND STREQUAL "NTL")
 
     target_sources(numbers PRIVATE
         math/number/NTL/Z.cpp
+        math/number/NTL/GMP.cpp
     )
 
     target_compile_definitions(numbers PRIVATE
@@ -97,9 +101,6 @@ target_sources (
 
   PRIVATE
 
-  math/number/gmp/mpq.cpp
-  math/number/gmp/aks.cpp
-  math/number/gmp/sqrt.cpp
   encoding/base58.cpp
   encoding/integer.cpp
 

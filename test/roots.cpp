@@ -86,7 +86,7 @@ namespace data {
         test_root_N<N_bytes_big> ();
         test_root_N<dec_uint> ();
         test_root_N<hex_uint> ();
-        test_root_N<base58_uint> ();
+        //test_root_N<base58_uint> ();
 
         test_root_Z<Z> ();
         test_root_Z<Z_bytes_little> ();

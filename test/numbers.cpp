@@ -338,10 +338,9 @@ namespace data {
             { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
         };
 
-    // numbers that are homo modable are
+    // numbers that are homo modable (can be modded with itself) are
     //   * built-in-like numbers
     //   * natural numbers.
-
     template <typename NN> concept homo_modable =
         modable<NN> && requires (NN &a, const NN &b) {
             { a %= b } -> Same<NN &>;
@@ -503,130 +502,166 @@ namespace data {
     static_assert (number_theory_number<int128>);
     static_assert (number_theory_number<uint128>);
 
-    template <typename N>
-    void test_default_is_zero () {
+    template <typename X> struct Numbers : ::testing::Test {
+        using N = X;
+    };
+
+    using numbers = ::testing::Types<
+        uint32, int32, int32_little, uint32_little, int32_big, uint32_big,
+        uint64, int64, int64_little, uint64_little, int64_big, uint64_big,
+        uint80, int80, int80_little, uint80_little, int80_big, uint80_big,
+        uint128, int128, int128_little, uint128_little, int128_big, uint128_big,
+        uint160, int160, int160_little, uint160_little, int160_big, uint160_big,
+        uint224, int224, int224_little, uint224_little, int224_big, uint224_big,
+        uint256, int256, int256_little, uint256_little, int256_big, uint256_big,
+        uint384, int384, int384_little, uint384_little, int384_big, uint384_big,
+        uint512, int512, int512_little, uint512_little, int512_big, uint512_big,
+        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
+
+    template <typename X> struct Naturals : ::testing::Test {
+        using N = X;
+    };
+
+    using naturals = ::testing::Types<
+        uint32, uint32_little, uint32_big,
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big,
+        uint160, uint160_little, uint160_big,
+        uint224, uint224_little, uint224_big,
+        uint256, uint256_little, uint256_big,
+        uint384, uint384_little, uint384_big,
+        uint512, uint512_little, uint512_big,
+        N, N_bytes_little, N_bytes_big, dec_uint, hex_uint, base58_uint>;
+
+    template <typename X> struct Integers : ::testing::Test {
+        using Z = X;
+    };
+
+    using integers = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC>;
+
+    TYPED_TEST_SUITE (Numbers, numbers);
+
+    TYPED_TEST_SUITE (Naturals, naturals);
+
+    TYPED_TEST_SUITE (Integers, integers);
+
+    TYPED_TEST (Numbers, DefaultIsZero) {
+        using N = typename TestFixture::N;
         EXPECT_EQ (N {}, N {0});
     }
 
-    TEST (Numbers, DefaultIsZero) {
-
-        test_default_is_zero<N> ();
-        test_default_is_zero<Z> ();
-        test_default_is_zero<N_bytes_little> ();
-        test_default_is_zero<N_bytes_big> ();
-        test_default_is_zero<Z_bytes_little> ();
-        test_default_is_zero<Z_bytes_big> ();
-        test_default_is_zero<Z_bytes_BC_little> ();
-        test_default_is_zero<Z_bytes_BC_big> ();
-        test_default_is_zero<uint128> ();
-        test_default_is_zero<int128> ();
-        test_default_is_zero<dec_int> ();
-        test_default_is_zero<dec_uint> ();
-        test_default_is_zero<hex_int> ();
-        test_default_is_zero<hex_uint> ();
-        test_default_is_zero<hex_int_BC> ();
-        test_default_is_zero<base58_uint> ();
-
+    TYPED_TEST (Numbers, IncrementIsOne) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (increment (N {}), N {1});
     }
 
-    template <typename N>
-    void test_natural_decrement_zero_is_zero () {
+    TYPED_TEST (Numbers, DecrementOneIsZero) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (decrement (N {1}), N {0});
+    }
+
+    TYPED_TEST (Naturals, DecrementZeroIsZero) {
+        using N = typename TestFixture::N;
         EXPECT_EQ (decrement (N {0}), N {0});
     }
 
-    TEST (Numbers, DecrementZeroIsZero) {
-
-        test_natural_decrement_zero_is_zero<N> ();
-        test_natural_decrement_zero_is_zero<N_bytes_little> ();
-        test_natural_decrement_zero_is_zero<N_bytes_big> ();
-        test_natural_decrement_zero_is_zero<dec_uint> ();
-        test_natural_decrement_zero_is_zero<hex_uint> ();
-        test_natural_decrement_zero_is_zero<base58_uint> ();
-
+    TYPED_TEST (Integers, DecrementZeroIsNegOne) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
 
-    template <typename Z, typename N = Z>
-    void test_throw_on_division_by_zero () {
+    TYPED_TEST (Numbers, DivisionByZero) {
+        using Z = typename TestFixture::N;
         EXPECT_THROW (Z {1} / Z {0}, math::division_by_zero);
-        EXPECT_THROW (Z {1} % N {0}, math::division_by_zero);
     }
 
-    TEST (Numbers, ThrowOnDivisionByZero) {
-
-        test_throw_on_division_by_zero<Z, N> ();
-        test_throw_on_division_by_zero<N, N> ();
-        test_throw_on_division_by_zero<Z_bytes_little, N_bytes_little> ();
-        test_throw_on_division_by_zero<Z_bytes_big, N_bytes_big> ();
-        test_throw_on_division_by_zero<N_bytes_little, N_bytes_little> ();
-        test_throw_on_division_by_zero<N_bytes_big, N_bytes_big> ();
-        test_throw_on_division_by_zero<Z_bytes_BC_little> ();
-        test_throw_on_division_by_zero<Z_bytes_BC_big> ();
-        test_throw_on_division_by_zero<dec_uint> ();
-        test_throw_on_division_by_zero<hex_uint> ();
-        test_throw_on_division_by_zero<hex_int> ();
-        test_throw_on_division_by_zero<base58_uint> ();
-
+    TYPED_TEST (Numbers, ModByZero) {
+        using N = typename TestFixture::N;
+        EXPECT_THROW (N {1} % abs (N {0}), math::non_positive_mod);
     }
 
-    template <typename X>
-    void test_literal_comparisons () {
-        EXPECT_EQ (X {6} == 6, true);
-        EXPECT_EQ (X {6} != 6, false);
-        EXPECT_EQ (X {6} <  6, false);
-        EXPECT_EQ (X {6} <= 6, true);
-        EXPECT_EQ (X {6} >  6, false);
-        EXPECT_EQ (X {6} >= 6, true);
-
-        EXPECT_EQ (X {5} == 6, false);
-        EXPECT_EQ (X {5} != 6, true);
-        EXPECT_EQ (X {5} <  6, true);
-        EXPECT_EQ (X {5} <= 6, true);
-        EXPECT_EQ (X {5} >  6, false);
-        EXPECT_EQ (X {5} >= 6, false);
+    TYPED_TEST (Integers, NoNegativePowers) {
+        using Z = typename TestFixture::Z;
+        EXPECT_THROW (pow (Z {2}, -Z {1}), math::negative_power);
     }
 
-    template <typename X, typename Y>
-    void test_pair_comparisons () {
-        EXPECT_EQ (X {6} == Y{6}, true);
-        EXPECT_EQ (X {6} != Y{6}, false);
-        EXPECT_EQ (X {6} <  Y{6}, false);
-        EXPECT_EQ (X {6} <= Y{6}, true);
-        EXPECT_EQ (X {6} >  Y{6}, false);
-        EXPECT_EQ (X {6} >= Y{6}, true);
+    using integers_neg_mod = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
 
-        EXPECT_EQ (X {5} == Y{6}, false);
-        EXPECT_EQ (X {5} != Y{6}, true);
-        EXPECT_EQ (X {5} <  Y{6}, true);
-        EXPECT_EQ (X {5} <= Y{6}, true);
-        EXPECT_EQ (X {5} >  Y{6}, false);
-        EXPECT_EQ (X {5} >= Y{6}, false);
+    using integers_pos_mod = ::testing::Types<
+        Z, Z_bytes_little, Z_bytes_big,
+        dec_int, hex_int>;
 
-        EXPECT_EQ (X {7} == Y{6}, false);
-        EXPECT_EQ (X {7} != Y{6}, true);
-        EXPECT_EQ (X {7} <  Y{6}, false);
-        EXPECT_EQ (X {7} <= Y{6}, false);
-        EXPECT_EQ (X {7} >  Y{6}, true);
-        EXPECT_EQ (X {7} >= Y{6}, true);
+    template <typename X> struct IntegersPosMod : ::testing::Test {
+        using Z = X;
+    };
+
+    template <typename X> struct IntegersNegMod : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersPosMod, integers_pos_mod);
+    TYPED_TEST_SUITE (IntegersNegMod, integers_neg_mod);
+
+    TYPED_TEST (IntegersPosMod, NegativeDivide) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {-3}})).Remainder, Z (1));
     }
 
-    template <typename... Types>
-    void run_comparison_tests() {
-        // Literal comparisons
-        (test_literal_comparisons<Types>(), ...);
-
-        // Pairwise comparisons (all combinations)
-        ([]<typename X, typename... Ys>() {
-            (test_pair_comparisons<X, Ys>(), ...);
-        }.template operator()<Types, Types...>(), ...);
+    TYPED_TEST (IntegersNegMod, NegativeDivide) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {-3}})).Remainder, Z (-2));
     }
-/*
-    TEST (Numbers, Comparisons) {
-        run_comparison_tests<Z_bytes_BC_big, uint256, N, N_bytes_little, N_bytes_big,
-            uint160_little, uint160_big, uint160, uint256_little, uint256_big,
-            Z, Z_bytes_little, Z_bytes_big, Z_bytes_BC_little> ();
-    }*/
 
-    // TODO Need a decrement test for other kinds of numbers.
+    using integers_twos = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        dec_int, hex_int>;
+
+    using integers_BC = ::testing::Types<
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
+
+    template <typename X> struct IntegersTwos : ::testing::Test {
+        using Z = X;
+    };
+
+    template <typename X> struct IntegersBC : ::testing::Test {
+        using Z = X;
+    };
 
     // TODO need a test to ensure that ^ means power for
     // the bitcoin numbers but not the other types.

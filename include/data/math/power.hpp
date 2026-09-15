@@ -10,6 +10,10 @@
 
 namespace data::math {
 
+    struct negative_power : exception {
+        negative_power (): exception {"cannot take a negative power"} {}
+    };
+
     // essentially a fold expression in which the bits of
     // the number become the sequence of inputs for each round.
     template <typename N, typename A, group_number B>
@@ -41,13 +45,13 @@ namespace data::math {
 
     template <typename A, group_number B>
     constexpr A inline binary_accumulate_pow (const A &x, const B &y) {
-        if (y < 0) throw exception {} << "cannot take a negative power";
+        if (y < 0) throw negative_power {};
         return binary_accumulate<A, A, B> {&times<A, A>, &square<A>} (A {1}, x, y);
     }
 
     template <typename A, group_number B, group_number Mod>
     constexpr A inline binary_accumulate_times_mod (const A &x, const B &y, const nonzero<Mod> &z) {
-        if (z.Value < 0) throw exception {} << "cannot mod by a negative number";
+        if (z.Value < 0) throw non_positive_mod {};
         if (y < 0) return -binary_accumulate_times_mod (x, -y, z);
         return binary_accumulate<Mod, A, B> {[z] (const Mod &a, const A &b) -> A {
             return plus_mod<Mod, A, Mod> (a, b, z);
@@ -69,7 +73,7 @@ namespace data::math {
     template <typename A, group_number B, group_number Mod>
     constexpr auto inline binary_accumulate_pow_mod (const A &x, const B &y, const nonzero<Mod> &z) -> decltype (abs (z.Value)) {
         if (z.Value < 0) throw exception {} << "cannot mod by a negative number";
-        if (y < 0) throw exception {} << "cannot take a negative power";
+        if (y < 0) throw negative_power {};
         return binary_accumulate<Mod, A, B> {[z] (const Mod &a, const A &b) {
             return data::times_mod<Mod, A, Mod> (a, b, z);
         }, [z] (const A &a) {
@@ -79,7 +83,7 @@ namespace data::math {
 
     template <typename A, group_number B, group_number_unsigned Mod>
     constexpr auto inline binary_accumulate_pow_mod (const A &x, const B &y, const nonzero<Mod> &z) -> decltype (abs (z.Value)) {
-        if (y < 0) throw exception {} << "cannot take a negative power";
+        if (y < 0) throw negative_power {};
         return binary_accumulate<Mod, A, B> {[z] (const Mod &a, const A &b) {
             return times_mod<Mod, A, Mod> (a, b, z);
         }, [z] (const A &a) {

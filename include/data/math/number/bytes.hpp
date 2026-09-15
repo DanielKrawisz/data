@@ -16,11 +16,6 @@
 // TODO it should be possible to get rid of this whole file and
 // put it in bytes/Z.hpp, or alternately to get rid of Z.hpp
 // and put it here.
-namespace data::encoding::base58 {
-
-    template <std::integral I> inline string::string (I x): string {encode (N {x})} {}
-
-}
 
 namespace data::math::number {
     
@@ -335,6 +330,12 @@ namespace data::encoding::hexidecimal {
         if (hexidecimal::valid (x)) return integer<n, zz> {x};
         return read_dec_integer<n, zz> {} (x);
     }
+
+    template <hex::letter_case cx>
+    integer<neg::nones, cx> inline operator % (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x) {
+        N mod = Z {n} % N {x};
+        return write<cx> (mod);
+    }
     
 }
 
@@ -365,6 +366,11 @@ namespace data::encoding::integer {
         return ss.str ();
     }
     
+}
+namespace data::encoding::base58 {
+
+    template <std::integral I> inline string::string (I x): string {encode (N {x})} {}
+
 }
 
 namespace data::math::def {
@@ -451,20 +457,6 @@ namespace data::math::def {
             encoding::decimal::write (d.Remainder)};
     }
 
-    division<dec_int, dec_uint> inline divmod<dec_int, dec_uint>::operator () (const dec_int &v, const nonzero<dec_uint> &z) {
-        auto d = divmod<Z, N> {} (Z (v), nonzero<N> {N (z.Value)});
-        return {
-            encoding::signed_decimal::write (d.Quotient),
-            encoding::decimal::write (d.Remainder)};
-    }
-
-    division<dec_int, dec_uint> inline divmod<dec_int, dec_int>::operator () (const dec_int &v, const nonzero<dec_int> &z) {
-        auto d = divmod<Z, Z> {} (Z {v}, nonzero<Z> {Z {z.Value}});
-        return {
-            encoding::signed_decimal::write (d.Quotient),
-            encoding::decimal::write (d.Remainder)};
-    }
-
     template <hex_case zz>
     division<hex::uint<zz>, hex::uint<zz>> inline
     divmod<hex::uint<zz>, hex::uint<zz>>::operator ()
@@ -508,6 +500,44 @@ namespace data::math::def {
     template <endian::order r, neg c, std::unsigned_integral word>
     number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
         return z.operator number::Z_bytes<r, c, word> ();
+    }
+
+    template <neg c, hex_case zz>
+    hex::integer<c, zz> inline times<hex::integer<c, zz>>::operator ()
+    (const hex::integer<c, zz> &a, const hex::integer<c, zz> &b) {
+        if constexpr (c == neg::nones)
+            return encoding::hexidecimal::write<neg::nones, zz> (Z (a) * Z (b));
+        else return encoding::hexidecimal::write<c, zz> (Z (a) * Z (b));
+    }
+
+    template <neg c, hex_case zz>
+    nonzero<hex::integer<c, zz>> inline times<hex::integer<c, zz>>::operator ()
+    (const nonzero<hex::integer<c, zz>> &a, const nonzero<hex::integer<c, zz>> &b) {
+        if constexpr (c == neg::nones)
+            return nonzero {encoding::hexidecimal::write<neg::nones, zz> (Z (a.Value) * Z (b.Value))};
+        else return nonzero {encoding::hexidecimal::write<c, zz> (Z (a.Value) * Z (b.Value))};
+    }
+
+    dec_int inline times<dec_int, dec_int>::operator () (const dec_int &a, const dec_int &b) {
+        return encoding::signed_decimal::write (Z (a) * Z (b));
+    }
+
+    nonzero<dec_int> inline times<dec_int, dec_int>::operator () (const nonzero<dec_int> &a, const nonzero<dec_int> &b) {
+        return nonzero {encoding::signed_decimal::write (Z (a.Value) * Z (b.Value))};
+    }
+
+    division<dec_int, dec_uint> inline divmod<dec_int, dec_uint>::operator () (const dec_int &v, const nonzero<dec_uint> &z) {
+        auto d = divmod<Z, N> {} (Z (v), nonzero<N> {N (z.Value)});
+        return {
+            encoding::signed_decimal::write (d.Quotient),
+            encoding::decimal::write (d.Remainder)};
+    }
+
+    division<dec_int, dec_uint> inline divmod<dec_int, dec_int>::operator () (const dec_int &v, const nonzero<dec_int> &z) {
+        auto d = divmod<Z, Z> {} (Z {v}, nonzero<Z> {Z {z.Value}});
+        return {
+            encoding::signed_decimal::write (d.Quotient),
+            encoding::decimal::write (d.Remainder)};
     }
 }
 

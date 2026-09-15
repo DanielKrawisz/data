@@ -24,93 +24,6 @@
 
 #include <NTL/ZZ.h>
 
-namespace NTL {
-
-    template <std::unsigned_integral I> void conv (ZZ &, const I &);
-
-    void conv (ZZ &, const long long int &);
-
-    template <bool is_signed, data::endian::order r, std::size_t size>
-    void conv (ZZ &, const data::endian::integral<is_signed, r, size> &);
-
-    void conv (ZZ &x, const data::encoding::decimal::string &);
-
-    void conv (ZZ &x, const data::encoding::signed_decimal::string &);
-
-    template <data::arithmetic::negativity neg, data::hex_case cc>
-    void conv (ZZ &x, const data::encoding::hexidecimal::integer<neg, cc> &);
-
-    void conv (ZZ &x, const data::encoding::base58::string &);
-
-    template <data::endian::order r, data::arithmetic::negativity neg, std::unsigned_integral word>
-    void conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &);
-
-    template <data::endian::order r, std::unsigned_integral word>
-    void conv (ZZ &x, const data::math::number::N_bytes<r, word> &);
-
-    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
-    void conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &);
-
-    template <std::unsigned_integral I> void conv (I &, const ZZ &);
-
-    void conv (long long int &, const ZZ &);
-
-    void conv (data::encoding::decimal::string &, const ZZ &);
-
-    void conv (data::encoding::signed_decimal::string &, const ZZ &);
-
-    void conv (data::encoding::base58::string &, const ZZ &);
-
-    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
-    void conv (data::math::number::bounded<is_signed, r, size, word> &, const ZZ &);
-
-    template <bool is_signed, data::endian::order r, std::size_t size>
-    void conv (data::endian::integral<is_signed, r, size> &, const ZZ &);
-
-}
-
-namespace data::math::number::NTL {
-    using namespace ::NTL;
-
-    template <std::unsigned_integral U>
-    ZZ import_bin (
-        data::slice<const U> data,
-        // the ordering of the overall array.
-        endian::order order = endian::order::little,
-        // the ordering of each value in the array.
-        endian::order e = endian::order::native,
-        arithmetic::negativity neg = arithmetic::negativity::nones
-    );
-
-    template <std::unsigned_integral U>
-    void export_bin (
-        data::slice<U> output,
-        const ZZ &,
-        // the ordering of the overall array.
-        endian::order word_order = endian::order::little,
-        // the ordering of each value in the array.
-        endian::order byte_order = endian::order::native,
-        arithmetic::negativity neg = arithmetic::negativity::twos
-    );
-
-    size_t inline bit_width (const ZZ &x) {
-        if (::NTL::sign (x) >= 0) return NumBits (x) + 1;
-        return NumBits (abs (x) - 1) + 1;
-    }
-
-    template <typename T>
-    concept compatible =
-        std::integral<T> &&
-        (sizeof(T) < sizeof(long) ||
-        std::same_as<T, long>);
-
-    template <typename T>
-    concept noncompatible =
-        std::integral<T> &&
-        !compatible<T>;
-
-}
-
 namespace data::math::number {
     struct Z final {
 
@@ -252,14 +165,144 @@ namespace data::math::number {
     };
 }
 
+namespace NTL {
+
+    template <std::unsigned_integral I> void conv (ZZ &, const I &);
+
+    void conv (ZZ &, const long long int &);
+
+    template <bool is_signed, data::endian::order r, std::size_t size>
+    void conv (ZZ &, const data::endian::integral<is_signed, r, size> &);
+
+    void conv (ZZ &x, const data::encoding::decimal::string &);
+
+    void conv (ZZ &x, const data::encoding::signed_decimal::string &);
+
+    template <data::arithmetic::negativity neg, data::hex_case cc>
+    void conv (ZZ &x, const data::encoding::hexidecimal::integer<neg, cc> &);
+
+    void conv (ZZ &x, const data::encoding::base58::string &);
+
+    template <data::endian::order r, data::arithmetic::negativity neg, std::unsigned_integral word>
+    void conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &);
+
+    template <data::endian::order r, std::unsigned_integral word>
+    void conv (ZZ &x, const data::math::number::N_bytes<r, word> &);
+
+    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    void conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &);
+
+    template <std::unsigned_integral I> void conv (I &, const ZZ &);
+
+    void conv (long long int &, const ZZ &);
+
+    void conv (data::encoding::decimal::string &, const ZZ &);
+
+    void conv (data::encoding::signed_decimal::string &, const ZZ &);
+
+    void conv (data::encoding::base58::string &, const ZZ &);
+
+    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    void conv (data::math::number::bounded<is_signed, r, size, word> &, const ZZ &);
+
+    template <bool is_signed, data::endian::order r, std::size_t size>
+    void conv (data::endian::integral<is_signed, r, size> &, const ZZ &);
+
+}
+/*
+namespace data::math::def {
+
+    template <typename A> struct div_2;
+    template <typename A> struct mod_2;
+
+    template <typename A> struct square;
+
+    template <typename A, typename Mod = A> struct negate_mod;
+
+    template <typename A, typename Mod = A> struct invert_mod;
+    template <typename A, typename B = A, typename Mod = B> struct plus_mod;
+    template <typename A, typename B = A, typename Mod = B> struct minus_mod;
+
+    template <typename A, typename B = A, typename Mod = B> struct times_mod;
+
+    template <typename A, typename Mod = A> struct mul_2_mod;
+    template <typename A, typename Mod = A> struct square_mod;
+}*/
+
+namespace data::math::number::NTL {
+    using namespace ::NTL;
+
+    template <std::unsigned_integral U>
+    ZZ import_bin (
+        data::slice<const U> data,
+        // the ordering of the overall array.
+        endian::order order = endian::order::little,
+        // the ordering of each value in the array.
+        endian::order e = endian::order::native,
+        arithmetic::negativity neg = arithmetic::negativity::nones
+    );
+
+    template <std::unsigned_integral U>
+    void export_bin (
+        data::slice<U> output,
+        const ZZ &,
+        // the ordering of the overall array.
+        endian::order word_order = endian::order::little,
+        // the ordering of each value in the array.
+        endian::order byte_order = endian::order::native,
+        arithmetic::negativity neg = arithmetic::negativity::twos
+    );
+
+    size_t inline bit_width (const ZZ &x) {
+        if (::NTL::sign (x) >= 0) return NumBits (x) + 1;
+        return NumBits (abs (x) - 1) + 1;
+    }
+
+    template <typename T>
+    concept compatible =
+        std::integral<T> &&
+        (sizeof(T) < sizeof(long) ||
+        std::same_as<T, long>);
+
+    template <typename T>
+    concept noncompatible =
+        std::integral<T> &&
+        !compatible<T>;
+}
+
+namespace data::math::number::NTL {
+
+    bool AKS_is_prime (const N &);
+
+    set<N> roots (const N &, uint64 pow);
+    set<Z> roots (const Z &, uint64 pow);
+
+}
+
 namespace data::math {
 
     template <uint64 pow> struct root<N, pow> {
-        set<N> operator () (const N &n);
+        set<N> operator () (const N &n) {
+            return number::NTL::roots (n, pow);
+        }
     };
 
     template <uint64 pow> struct root<Z, pow> {
-        set<Z> operator () (const Z &z);
+        set<Z> operator () (const Z &n) {
+            return number::NTL::roots (n, pow);
+        }
+    };
+
+    template <Integer X, uint64 pow> struct root<X, pow> {
+        set<X> operator () (const X &n) {
+            return set<X> (root<Z, pow> (convert<Z> (n)));
+        }
+    };
+
+    template <Natural X, uint64 pow> struct root<X, pow> {
+        set<X> operator () (const X &n) {
+            return set<X> (root<N, pow> (convert<N> (n)));
+        }
     };
 
 }
@@ -267,10 +310,22 @@ namespace data::math {
 namespace data::math::number {
 
     template <> struct AKS<N> {
-        prime<N> is_prime (const N n);
+        prime<N> is_prime (const N &n) {
+            if (NTL::AKS_is_prime (n))
+                return prime<N> {n, prime<N>::certain};
+            return prime<N> {};
+        }
     };
 
     template struct AKS<N>;
+
+    template <WholeNumber X> struct AKS {
+        prime<X> is_prime (const X &n) {
+            if (AKS<N>::is_prime (convert<N> (abs (n))))
+                return prime<X> {n, prime<N>::certain};
+            else return prime<X> {};
+        }
+    };
 
     // pre increment
     N inline &operator ++ (N &a) {
@@ -423,17 +478,17 @@ namespace data::math::number {
     }
 
     N inline operator % (const Z &a, const Z &b) {
-        if (b == 0) throw division_by_zero {};
+        if (b < 1) throw non_positive_mod {};
         return def::divmod<Z, Z> {} (a, nonzero {b}).Remainder;
     }
 
     N inline operator % (const Z &a, const N &b) {
-        if (b == 0) throw division_by_zero {};
+        if (b < 1) throw non_positive_mod {};
         return def::divmod<Z, N> {} (a, nonzero {b}).Remainder;
     }
 
     N inline operator % (const N &a, const N &b) {
-        if (b == 0) throw division_by_zero {};
+        if (b < 1) throw non_positive_mod {};
         return def::divmod<N, N> {} (a, nonzero {b}).Remainder;
     }
 
@@ -443,7 +498,7 @@ namespace data::math::number {
     }
 
     N inline &operator %= (N &a, const N &b) {
-        if (b == 0) throw division_by_zero {};
+        if (b < 0) throw non_positive_mod {};
         a.Value = def::divmod<N, N> {} (a, nonzero {b}).Remainder.Value;
     }
 
@@ -914,37 +969,6 @@ namespace data::encoding::hexidecimal {
     }
 }
 
-namespace data::math::number::NTL {
-
-    bool aks_is_prime (const Z &);
-
-    set<N> root (const N &n, uint32 p);
-    set<Z> root (const Z &n, uint32 p);
-
-}
-
-namespace data::math::number {
-
-    prime<N> inline AKS<N>::is_prime (const N n) {
-        return NTL::aks_is_prime (n) ? prime<N> {n, prime<N>::certain} : prime<N> {};
-    }
-
-}
-
-namespace data::math {
-
-    template <uint64 pow>
-    set<N> root<N, pow>::operator () (const N &n) {
-        return number::NTL::root (n, pow);
-    }
-
-    template <uint64 pow>
-    set<Z> root<Z, pow>::operator () (const Z &z) {
-        return number::NTL::root (z, pow);
-    }
-
-}
-
 namespace NTL {
 
     template <data::arithmetic::negativity neg, data::hex_case cc>
@@ -1043,10 +1067,10 @@ namespace data::math::number::NTL {
             (byte_order == endian::order::native || sizeof (unsigned char) == 1))
             return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size ());
 
-        if (word_order != endian::order::big || word_order != endian::order::little)
+        if (word_order != endian::order::big && word_order != endian::order::little)
             throw std::invalid_argument ("invalid word order");
 
-        if (byte_order != endian::order::big || byte_order != endian::order::little)
+        if (byte_order != endian::order::big && byte_order != endian::order::little)
             throw std::invalid_argument ("invalid byte order");
 
         // deal with negative numbers.
@@ -1181,15 +1205,19 @@ namespace data::math::number::NTL {
         if (required > capacity)
             throw exception {} << "integer does not fit";
 
-        auto *bytes = reinterpret_cast<unsigned char *> (output.data ());
-        const size_t nbytes = output.size () * sizeof (U);
-        const unsigned char fill = ::NTL::sign (x) < 0 ? 0xff : 0x00;
+        {
 
-        std::fill (bytes, bytes + nbytes, fill);
+            auto *output_bytes = reinterpret_cast<unsigned char *> (output.data ());
+            const size_t nbytes = output.size () * sizeof (U);
+            const unsigned char fill = ::NTL::sign (x) < 0 ? 0xff : 0x00;
 
-        BytesFromZZ (bytes, abs, nbytes);
+            std::fill (output_bytes, output_bytes + nbytes, fill);
 
-        for (U &u : output) u = boost::endian::little_to_native<U> (u);
+            BytesFromZZ (output_bytes, abs, nbytes);
+        }
+
+        if (byte_order != endian::order::little && sizeof (U) > 1)
+            for (U &x : output) x = boost::endian::endian_reverse<U> (x);
 
         // if x is negative, apply the appropriate negativity function.
         if (sign < 0) {

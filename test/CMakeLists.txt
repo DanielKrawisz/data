@@ -61,7 +61,41 @@ add_executable (
     bounded.cpp                  # TODO: should be typed test, has commented sections
 
     # numbers
+    NTL.cpp
     numbers.cpp                  # TODO: need a typed test suite.
+    bit_ops.cpp                  # TODO: Contains commented test cases
+    decimal.cpp                  # TODO: need to include bounded numbers.
+    hexidecimal.cpp
+    base58.cpp
+    N.cpp
+    Z.cpp
+    carry.cpp
+    N_bytes.cpp
+    Z_bytes.cpp
+    string_numbers.cpp
+    infinite.cpp                 # TODO: should be a typed test.
+    division.cpp
+    Bitcoin_numbers.cpp          # TODO: should be a typed test.
+    power.cpp                    # TODO: should be a typed test.
+    extended_euclidian.cpp
+    Eratosthenes.cpp
+    prime_factor.cpp
+    number_theory.cpp            # TODO: make typed tests
+
+    # math
+    rational.cpp                 # TODO: all fractions should be NumberComparable
+    Caylay_Dickson.cpp           # TODO: contains commented test cases.
+    sign.cpp                     # TODO: Contains commented test cases and should be a typed test
+    abs.cpp                      # TODO: should be a typed test.
+    roots.cpp                    # TODO: should be a typed test.
+    #modular.cpp                  # TODO: A condition is commented out.
+    limits.cpp                   # TODO: cases are commented out.
+    polynomial.cpp               # TODO: cases are commented out and should be a typed test.
+    finite_field.cpp             # TODO: make typed test.
+    matrix.cpp
+    algebra.cpp
+    exterior.cpp
+    #elliptic_curve.cpp
     bit_ops.cpp                  # TODO: Contains commented test cases
     decimal.cpp                  # TODO: need to include bounded numbers.
     hexidecimal.cpp
