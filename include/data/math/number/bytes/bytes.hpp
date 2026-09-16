@@ -400,6 +400,8 @@ namespace data::math::def {
         math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &);
     };
 
+    // N_bytes and Z_bytes (two's) will use the default mul_2_pow but
+    // Z_bytes_BC will not because it does not satisfy bit_number.
     template <endian::order r, std::unsigned_integral word>
     struct mul_2_pow<math::Z_bytes_BC<r, word>> {
         math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &, uint32 u);

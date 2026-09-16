@@ -22,7 +22,7 @@ namespace data::math::number {
     template <endian::order r, std::unsigned_integral word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
         if (!encoding::natural::valid (x))
-            throw exception {} << "invalid number string " << x;
+            throw exception {} << "invalid number string A " << x;
 
         if (encoding::hexidecimal::valid (x)) {
             if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) {
@@ -32,14 +32,14 @@ namespace data::math::number {
 
         // TODO N_bytes should not depend on N.
         if (encoding::decimal::valid (x)) return N_bytes<r, word> (N::read (x));
-        throw exception {} << "invalid number string " << x;
+        throw exception {} << "invalid number string B " << x;
     }
 
     template <endian::order r, std::unsigned_integral word>
     Z_bytes<r, neg::twos, word> inline Z_bytes<r, neg::twos, word>::read (string_view x) {
 
         if (!encoding::integer::valid (x))
-            throw exception {} << "invalid number string \"" << x << "\"";
+            throw exception {} << "invalid number string C \"" << x << "\"";
 
         if (encoding::hexidecimal::valid (x))
             return *encoding::integer::read<r, neg::twos, word> (x);
@@ -306,14 +306,14 @@ namespace data::encoding::hexidecimal {
                     return math::number::trim (-integer<n, zz> {math::number::extend (z, z.size () + 2)});
                 }
 
-                throw exception {} << "invalid number string: " << x;
+                throw exception {} << "invalid number string: D " << x;
             }
         };
 
         template <hex::letter_case zz> struct read_dec_integer<neg::nones, zz> {
             integer<neg::nones, zz> operator () (string_view x) {
                 auto np = decimal::read<endian::little, byte> (x);
-                if (!np) throw exception {} << "invalid number string: " << x;
+                if (!np) throw exception {} << "invalid number string: E " << x;
                 return integer<neg::nones, zz> {write<zz> (*np)};
             }
         };
@@ -332,9 +332,13 @@ namespace data::encoding::hexidecimal {
     }
 
     template <hex::letter_case cx>
+    integer<neg::nones, cx> inline operator % (const integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x) {
+        return write<cx> (N {n} % N {x});
+    }
+
+    template <hex::letter_case cx>
     integer<neg::nones, cx> inline operator % (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x) {
-        N mod = Z {n} % N {x};
-        return write<cx> (mod);
+        return write<cx> (Z {n} % N {x});
     }
     
 }

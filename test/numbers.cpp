@@ -502,6 +502,9 @@ namespace data {
     static_assert (number_theory_number<int128>);
     static_assert (number_theory_number<uint128>);
 
+    // next we have typed test suites. We have several sets of numbers
+    // that we use. The first contains all number types.
+
     template <typename X> struct Numbers : ::testing::Test {
         using N = X;
     };
@@ -520,38 +523,25 @@ namespace data {
         Z_bytes_BC_little, Z_bytes_BC_big,
         dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
 
-    template <typename X> struct BigNumbers : ::testing::Test {
-        using N = X;
-    };
+    TYPED_TEST_SUITE (Numbers, numbers);
 
-    using big_numbers = ::testing::Types<
-        uint80, int80, int80_little, uint80_little, int80_big, uint80_big,
-        uint128, int128, int128_little, uint128_little, int128_big, uint128_big,
-        uint160, int160, int160_little, uint160_little, int160_big, uint160_big,
-        uint224, int224, int224_little, uint224_little, int224_big, uint224_big,
-        uint256, int256, int256_little, uint256_little, int256_big, uint256_big,
-        uint384, int384, int384_little, uint384_little, int384_big, uint384_big,
-        uint512, int512, int512_little, uint512_little, int512_big, uint512_big,
-        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big,
-        Z_bytes_BC_little, Z_bytes_BC_big,
-        dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
+    TYPED_TEST (Numbers, DefaultIsZero) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (N {}, N {0});
+    }
 
-    template <typename X> struct Naturals : ::testing::Test {
-        using N = X;
-    };
+    TYPED_TEST (Numbers, IncrementIsOne) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (increment (N {}), N {1});
+    }
 
-    using naturals = ::testing::Types<
-        uint32, uint32_little, uint32_big,
-        uint64, uint64_little, uint64_big,
-        uint80, uint80_little, uint80_big,
-        uint128, uint128_little, uint128_big,
-        uint160, uint160_little, uint160_big,
-        uint224, uint224_little, uint224_big,
-        uint256, uint256_little, uint256_big,
-        uint384, uint384_little, uint384_big,
-        uint512, uint512_little, uint512_big,
-        N, N_bytes_little, N_bytes_big, dec_uint, hex_uint, base58_uint>;
+    TYPED_TEST (Numbers, DecrementOneIsZero) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (decrement (N {1}), N {0});
+    }
 
+    // signed vs unsigned numbers differ in how
+    // decrement works.
     template <typename X> struct Integers : ::testing::Test {
         using Z = X;
     };
@@ -570,28 +560,25 @@ namespace data {
         Z_bytes_BC_little, Z_bytes_BC_big,
         dec_int, hex_int, hex_int_BC>;
 
-    TYPED_TEST_SUITE (Numbers, numbers);
+    template <typename X> struct Naturals : ::testing::Test {
+        using N = X;
+    };
 
-    TYPED_TEST_SUITE (BigNumbers, big_numbers);
+    using naturals = ::testing::Types<
+        uint32, uint32_little, uint32_big,
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big,
+        uint160, uint160_little, uint160_big,
+        uint224, uint224_little, uint224_big,
+        uint256, uint256_little, uint256_big,
+        uint384, uint384_little, uint384_big,
+        uint512, uint512_little, uint512_big,
+        N, N_bytes_little, N_bytes_big, dec_uint, hex_uint, base58_uint>;
 
     TYPED_TEST_SUITE (Naturals, naturals);
 
     TYPED_TEST_SUITE (Integers, integers);
-
-    TYPED_TEST (Numbers, DefaultIsZero) {
-        using N = typename TestFixture::N;
-        EXPECT_EQ (N {}, N {0});
-    }
-
-    TYPED_TEST (Numbers, IncrementIsOne) {
-        using N = typename TestFixture::N;
-        EXPECT_EQ (increment (N {}), N {1});
-    }
-
-    TYPED_TEST (Numbers, DecrementOneIsZero) {
-        using N = typename TestFixture::N;
-        EXPECT_EQ (decrement (N {1}), N {0});
-    }
 
     TYPED_TEST (Naturals, DecrementZeroIsZero) {
         using N = typename TestFixture::N;
@@ -602,6 +589,93 @@ namespace data {
         using Z = typename TestFixture::Z;
         EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
+
+    // next we take on bit operations.
+    // TODO
+
+    TYPED_TEST (Numbers, BitAnd) {
+        using N = typename TestFixture::N;
+    }
+
+    TYPED_TEST (Numbers, BitOr) {
+        using N = typename TestFixture::N;
+    }
+
+    TYPED_TEST (Numbers, BitXor) {
+        using N = typename TestFixture::N;
+    }
+
+    TYPED_TEST (Numbers, LeftShiftIsMul2Pow) {
+        using N = typename TestFixture::N;
+        N test_val_1 {1};
+        EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 << 1, mul_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 << 2, mul_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 << 3, mul_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 << 5, mul_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
+        N test_val_2 {1025973};
+        EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 << 3, mul_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+    }
+
+    // big numbers are numbers that are not built-in and not boost::endian::arithmetic.
+    // (they're all bigger than those numbers.)
+    template <typename X> struct BigNumbers : ::testing::Test {
+        using N = X;
+    };
+
+    using big_numbers = ::testing::Types<
+        uint80, int80, int80_little, uint80_little, int80_big, uint80_big,
+        uint128, int128, int128_little, uint128_little, int128_big, uint128_big,
+        uint160, int160, int160_little, uint160_little, int160_big, uint160_big,
+        uint224, int224, int224_little, uint224_little, int224_big, uint224_big,
+        uint256, int256, int256_little, uint256_little, int256_big, uint256_big,
+        uint384, int384, int384_little, uint384_little, int384_big, uint384_big,
+        uint512, int512, int512_little, uint512_little, int512_big, uint512_big,
+        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
+
+    TYPED_TEST_SUITE (BigNumbers, big_numbers);
+
+    using integers_twos = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        dec_int, hex_int>;
+
+    using integers_BC = ::testing::Types<
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
+
+    template <typename X> struct IntegersTwos : ::testing::Test {
+        using Z = X;
+    };
+
+    template <typename X> struct IntegersBC : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersTwos, integers_twos);
+
+    TYPED_TEST_SUITE (IntegersBC, integers_BC);
+
+    // TODO need a test to ensure that ^ means power for
+    // the bitcoin numbers but not the other types.
 
     TYPED_TEST (BigNumbers, DivisionByZero) {
         using Z = typename TestFixture::N;
@@ -626,6 +700,16 @@ namespace data {
     TYPED_TEST (Integers, NoNegativePowers) {
         using Z = typename TestFixture::Z;
         EXPECT_THROW (pow (Z {2}, -Z {1}), math::negative_power);
+    }
+
+    TYPED_TEST (Numbers, DivMod) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {3}})), (division {Z (3), abs (Z (1))}));
+    }
+
+    TYPED_TEST (Integers, DivMod) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {-3}})), (division {Z (-3), abs (Z (1))}));
     }
 
     using integers_neg_mod = ::testing::Types<
@@ -656,14 +740,16 @@ namespace data {
     TYPED_TEST_SUITE (IntegersPosMod, integers_pos_mod);
     TYPED_TEST_SUITE (IntegersNegMod, integers_neg_mod);
 
-    TYPED_TEST (IntegersPosMod, NegativeDivide) {
+    TYPED_TEST (IntegersNegMod, DivMod) {
         using Z = typename TestFixture::Z;
-        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {-3}})).Remainder, Z (1));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {3}})), (division {Z (-3), Z (-1)}));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {-3}})), (division {Z (3), Z (-1)}));
     }
 
-    TYPED_TEST (IntegersNegMod, NegativeDivide) {
+    TYPED_TEST (IntegersPosMod, DivMod) {
         using Z = typename TestFixture::Z;
-        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {-3}})).Remainder, Z (-2));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {3}})), (division {Z (-4), abs (Z (2))}));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {-3}})), (division {Z (4), abs (Z (2))}));
     }
 
     TYPED_TEST (Naturals, Mod) {
@@ -683,33 +769,5 @@ namespace data {
         EXPECT_EQ (N {23} % N {5}, N {3});
         EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
     }
-
-    using integers_twos = ::testing::Types<
-        int32, int32_little, int32_big,
-        int64, int64_little, int64_big,
-        int80, int80_little, int80_big,
-        int128, int128_little, int128_big,
-        int160, int160_little, int160_big,
-        int224, int224_little, int224_big,
-        int256, int256_little, int256_big,
-        int384, int384_little, int384_big,
-        int512, int512_little, int512_big,
-        Z, Z_bytes_little, Z_bytes_big,
-        dec_int, hex_int>;
-
-    using integers_BC = ::testing::Types<
-        Z_bytes_BC_little, Z_bytes_BC_big,
-        hex_int_BC>;
-
-    template <typename X> struct IntegersTwos : ::testing::Test {
-        using Z = X;
-    };
-
-    template <typename X> struct IntegersBC : ::testing::Test {
-        using Z = X;
-    };
-
-    // TODO need a test to ensure that ^ means power for
-    // the bitcoin numbers but not the other types.
 
 }

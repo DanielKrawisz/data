@@ -209,6 +209,7 @@ namespace NTL {
     void conv (data::endian::integral<is_signed, r, size> &, const ZZ &);
 
 }
+// TODO we need to fill these in. Right now we are using defaults.
 /*
 namespace data::math::def {
 
@@ -560,7 +561,7 @@ namespace data::math::number {
 
         constexpr size_t bits = sizeof (word) * 8;
 
-        size_t size = (NTL::bit_width (this->Value) + bits - 1) / bits;
+        size_t size = is_zero (*this) ? 0 : (NTL::bit_width (this->Value) + bits - 1) / bits;
 
         if constexpr (c == neg::BC) {
             if (NTL::sign (this->Value) < 0 &&
@@ -940,18 +941,17 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
     std::ostream inline &write (std::ostream &o, const math::number::N &n, hex::letter_case x) {
-        return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::N_bytes<endian::big, byte> (n)), x);
+        auto nb = math::number::N_bytes<endian::big, byte> (n);
+        return write<endian::big, byte> (o, static_cast<const oriented<endian::big, byte> &> (nb), x);
     }
 
     template <neg n, hex_case zz>
     integer<n, zz> write (const Z &x) {
         std::stringstream ss;
-        switch (zz) {
-            case hex_case::lower:
-                write (ss, x, hex::letter_case::lower, n);
-            case hex_case::upper:
-                write (ss, x, hex::letter_case::upper, n);
-        }
+        if constexpr (zz == hex_case::lower)
+            write (ss, x, hex::letter_case::lower, n);
+        else
+            write (ss, x, hex::letter_case::upper, n);
 
         return integer<n, zz> {ss.str ()};
     }
@@ -959,12 +959,10 @@ namespace data::encoding::hexidecimal {
     template <hex_case zz>
     integer<neg::nones, zz> write (const N &x) {
         std::stringstream ss;
-        switch (zz) {
-            case hex_case::lower:
-                write (ss, x, hex::letter_case::lower);
-            case hex_case::upper:
-                write (ss, x, hex::letter_case::upper);
-        }
+        if constexpr (zz == hex_case::lower)
+            write (ss, x, hex::letter_case::lower);
+        else
+            write (ss, x, hex::letter_case::upper);
 
         return integer<neg::nones, zz> {ss.str ()};
     }
@@ -1193,6 +1191,7 @@ namespace data::math::number::NTL {
 
         const size_t capacity = output.size () * bits;
 
+        // Determine that the minimal size is enough given the buffer.
         size_t required = sign == 0 ? 0:
             neg == arithmetic::negativity::nones
                 ? NumBits (x)

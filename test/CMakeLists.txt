@@ -10,8 +10,9 @@ include (GoogleTest)
 add_executable (
     unit_tests
     # we put these first even though they don't belong here because
-    # they take such a long time.
+    # they take such a long time so we want to get them started first.
     modular.cpp                  # TODO: A condition is commented out.
+    finite_field.cpp             # TODO: make typed test.
 
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
@@ -62,7 +63,7 @@ add_executable (
 
     # numbers
     NTL.cpp
-    numbers.cpp                  # TODO: need a typed test suite.
+    numbers.cpp                  # TODO: We have some typed test suites, but we need more.
     bit_ops.cpp                  # TODO: Contains commented test cases
     decimal.cpp                  # TODO: need to include bounded numbers.
     hexidecimal.cpp
@@ -91,7 +92,7 @@ add_executable (
     #modular.cpp                  # TODO: A condition is commented out.
     limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out and should be a typed test.
-    finite_field.cpp             # TODO: make typed test.
+    #finite_field.cpp             # TODO: make typed test.
     matrix.cpp
     algebra.cpp
     exterior.cpp

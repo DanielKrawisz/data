@@ -156,7 +156,6 @@ namespace data::encoding::decimal {
         return string {ss.str ()};
     }
 
-
 }
 
 namespace data::encoding::signed_decimal {
@@ -170,14 +169,20 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    std::ostream &write (std::ostream &o, const math::number::Z &z, hex::letter_case x, neg n) {
+    std::ostream &write (std::ostream &o, const math::number::Z &zz, hex::letter_case x, neg n) {
         switch (n) {
-            case neg::twos:
-                return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::Z_bytes<endian::big, neg::twos, byte> (z)), x);
-            case neg::BC:
-                return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::Z_bytes<endian::big, neg::BC, byte> (z)), x);
-            default:
-                return write (o, static_cast<const oriented<endian::big, byte> &> (math::number::N_bytes<endian::big, byte> (N (z))), x);
+            case neg::twos:{
+                auto z = math::number::Z_bytes<endian::little, neg::twos, byte> (zz);
+                return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (z), x);
+            }
+            case neg::BC: {
+                auto z = math::number::Z_bytes<endian::little, neg::BC, byte> (zz);
+                return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (z), x);
+            }
+            default: {
+                auto n = math::number::N_bytes<endian::little, byte> (N (zz));
+                return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (n), x);
+            }
         }
     }
 }

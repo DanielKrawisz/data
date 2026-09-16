@@ -1394,11 +1394,8 @@ namespace data::math::number {
     }
 
     template <endian::order r, std::unsigned_integral word> inline
-    Z_bytes<r, neg::BC, word>::Z_bytes (bool b) : oriented<r, word> {} {
-        if (b) {
-            this->resize (1);
-            (*this)[0] = 1;
-        }
+    Z_bytes<r, neg::BC, word>::Z_bytes (bool b): Z_bytes<r, neg::BC, word> {} {
+        if (b) this->push_back (1);
     }
 
     template <endian::order r, std::unsigned_integral word>

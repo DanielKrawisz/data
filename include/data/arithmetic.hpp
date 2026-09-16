@@ -631,7 +631,7 @@ namespace data {
         } && (Signed<Z> || Unsigned<Z>);
 
     template <typename Z> concept Integer =
-        WholeNumber<Z> && RingNumber<Z> && div_number_signed<Z>;
+        div_number<Z> && RingNumber<Z> && div_number_signed<Z>;
 
     template <typename Z> concept Natural =
         WholeNumber<Z> && div_number_unsigned<Z> && requires (const Z &a, const Z &b) {

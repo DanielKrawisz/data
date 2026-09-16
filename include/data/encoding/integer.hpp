@@ -473,14 +473,20 @@ namespace data::encoding {
         integer<c, cx> &operator /= (const integer<c, cx> &, const integer<c, cx> &);
 
         // mod
-        template <hex::letter_case cx>
-        integer<neg::nones, cx> operator % (const integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x);
+        template <neg n, hex::letter_case cx>
+        integer<neg::nones, cx> operator % (const integer<neg::nones, cx> &, const integer<neg::nones, cx> &);
 
         template <hex::letter_case cx>
         integer<neg::nones, cx> &operator %= (integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x);
 
         template <hex::letter_case cx>
-        integer<neg::BC, cx> &operator % (const integer<neg::BC, cx> &n, const integer<neg::BC, cx> &x);
+        integer<neg::nones, cx> operator % (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<neg::nones, cx> &operator %= (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<neg::BC, cx> operator % (const integer<neg::BC, cx> &n, const integer<neg::BC, cx> &x);
 
         template <hex::letter_case cx>
         integer<neg::BC, cx> &operator %= (integer<neg::BC, cx> &n, const integer<neg::BC, cx> &x);
@@ -645,9 +651,6 @@ namespace data::encoding {
         
         template <hex::letter_case cx> 
         integer<neg::twos, cx> operator / (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
-
-        template <hex::letter_case cx>
-        integer<neg::nones, cx> operator % (const integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
         
         template <hex::letter_case cx> 
         integer<neg::twos, cx> &operator += (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x);
@@ -1265,7 +1268,6 @@ namespace data::encoding::hexidecimal {
         integer &operator >>= (int i);
         
         integer operator / (const integer &x) const;
-        integer operator % (const integer &x) const;
         
         explicit operator double () const;
         explicit operator bool () const;
@@ -1778,6 +1780,16 @@ namespace data::encoding::hexidecimal {
 
     template <hex::letter_case cx> integer<neg::nones, cx> inline
     &operator %= (integer<neg::nones, cx> &n, const integer<neg::nones, cx> &x) {
+        return n = n % x;
+    }
+
+    template <hex::letter_case cx> integer<neg::nones, cx> inline
+    &operator %= (integer<neg::twos, cx> &n, const integer<neg::nones, cx> &x) {
+        return n = n % x;
+    }
+
+    template <hex::letter_case cx> integer<neg::BC, cx> inline
+    &operator %= (integer<neg::BC, cx> &n, const integer<neg::BC, cx> &x) {
         return n = n % x;
     }
 
@@ -2457,11 +2469,11 @@ namespace data::encoding::hexidecimal {
         if (x == 0) throw math::division_by_zero {};
         return math::def::divmod<integer<c, zz>> {} (*this, math::nonzero {x}).Quotient;
     }
-    
-    template <neg c, hex::letter_case zz>
-    integer<c, zz> inline integer<c, zz>::operator % (const integer &x) const {
-        if (x < 1) throw math::non_positive_mod {};
-        return math::def::divmod<integer<c, zz>> {} (*this, math::nonzero {x}).Remainder;
+
+    template <hex::letter_case zz>
+    integer<neg::BC, zz> inline operator % (const integer<neg::BC, zz> &v, const integer<neg::BC, zz> &z) {
+        using Z = math::number::Z_bytes<endian::order::little, neg::BC, byte>;
+        return encoding::hexidecimal::write<zz> (data::mod (Z (v), math::nonzero<Z> {Z (z)}));
     }
     
     namespace {
@@ -3351,7 +3363,7 @@ namespace data::math::def {
     template <hex_case zz>
     hex::intBC<zz> inline mul_2_pow<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x, uint32 u) {
         if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
-        return hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
+        return hex::intBC<zz> {encoding::hexidecimal::shift (x, u)};
     }
 
     template <hex_case zz>

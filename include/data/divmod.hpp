@@ -32,6 +32,8 @@ namespace data {
             return Quotient == d.Quotient && Remainder == d.Remainder;
         }
     };
+
+    template <typename Z, typename N> division (const Z &, const N &) -> division<Z, N>;
 }
 
 namespace data::math {
