@@ -25,7 +25,7 @@ namespace data::math::def {
         if (result.Remainder.Value < 0) {
             NTL::ZZ abs_b = NTL::abs (b.Value.Value);
             result.Remainder.Value += abs_b;
-            result.Quotient.Value -= 1;
+            result.Quotient.Value += 1;
         }
 
         return result;
@@ -124,26 +124,29 @@ namespace data::math::number {
         return N_read_dec (x);
     }
 
+    // ZZ only does bit operations on positive numbers, so we
+    // take more general bit operations and reduce them to
+    // operations on positive numbers based on various identities.
     Z operator & (const Z &a, const Z &b) {
-        bool a_is_positive = is_positive (a);
-        bool b_is_positive = is_positive (b);
-        if (a_is_positive && b_is_positive) return Z (a.Value & b.Value);
-        if (!a_is_positive && !b_is_positive) return ~(~a | ~b);
-        if (!b_is_positive) return a - (a & ~b);
+        bool a_is_non_negative = !is_negative (a);
+        bool b_is_non_negative = !is_negative (b);
+        if (a_is_non_negative && b_is_non_negative) return Z (a.Value & b.Value);
+        if (!a_is_non_negative && !b_is_non_negative) return ~(~a | ~b);
+        if (!b_is_non_negative) return a - (a & ~b);
         return b - (~a & b);
     }
 
     Z operator | (const Z &a, const Z &b) {
-        bool a_is_positive = is_positive (a);
-        bool b_is_positive = is_positive (b);
-        if (a_is_positive && b_is_positive) return Z (a.Value | b.Value);
+        bool a_is_non_negative = !is_negative (a);
+        bool b_is_non_negative = !is_negative (b);
+        if (a_is_non_negative && b_is_non_negative) return Z (a.Value | b.Value);
         return ~(~a & ~b);
     }
 
-    Z inline operator ^ (const Z &a, const Z &b) {
-        bool a_is_positive = is_positive (a);
-        bool b_is_positive = is_positive (b);
-        if (a_is_positive && b_is_positive) return Z (a.Value ^ b.Value);
+    Z operator ^ (const Z &a, const Z &b) {
+        bool a_is_non_negative = !is_negative (a);
+        bool b_is_non_negative = !is_negative (b);
+        if (a_is_non_negative && b_is_non_negative) return Z (a.Value ^ b.Value);
         return (~a & b) | (a & ~b);
     }
 }

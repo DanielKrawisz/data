@@ -213,6 +213,8 @@ namespace NTL {
 /*
 namespace data::math::def {
 
+    sign
+
     template <typename A> struct div_2;
     template <typename A> struct mod_2;
 
@@ -228,6 +230,8 @@ namespace data::math::def {
 
     template <typename A, typename Mod = A> struct mul_2_mod;
     template <typename A, typename Mod = A> struct square_mod;
+
+    template <typename A> struct divides;
 }*/
 
 namespace data::math::number::NTL {
@@ -515,6 +519,7 @@ namespace data::math::number {
     }
 
     Z inline operator >> (const Z &z, int x) {
+        if (is_negative (z)) return ~Z ((~z).Value >> x);
         return Z (z.Value >> x);
     }
 

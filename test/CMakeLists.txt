@@ -13,6 +13,7 @@ add_executable (
     # they take such a long time so we want to get them started first.
     modular.cpp                  # TODO: A condition is commented out.
     finite_field.cpp             # TODO: make typed test.
+    exterior.cpp
 
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
@@ -95,7 +96,7 @@ add_executable (
     #finite_field.cpp             # TODO: make typed test.
     matrix.cpp
     algebra.cpp
-    exterior.cpp
+    #exterior.cpp
     #elliptic_curve.cpp
 )
 

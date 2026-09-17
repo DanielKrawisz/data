@@ -530,6 +530,18 @@ namespace data {
         EXPECT_EQ (N {}, N {0});
     }
 
+    TYPED_TEST (Numbers, Multiply) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (N {0} * N {0}, N {0});
+        EXPECT_EQ (N {0} * N {1}, N {0});
+        EXPECT_EQ (N {1} * N {0}, N {0});
+        EXPECT_EQ (N {0} * N {2}, N {0});
+        EXPECT_EQ (N {2} * N {0}, N {0});
+        EXPECT_EQ (N {1} * N {1}, N {1});
+        EXPECT_EQ (N {1} * N {2}, N {0});
+        EXPECT_EQ (N {2} * N {1}, N {0});
+    }
+
     TYPED_TEST (Numbers, IncrementIsOne) {
         using N = typename TestFixture::N;
         EXPECT_EQ (increment (N {}), N {1});
@@ -591,21 +603,26 @@ namespace data {
     }
 
     // next we take on bit operations.
-    // TODO
 
     TYPED_TEST (Numbers, BitAnd) {
         using N = typename TestFixture::N;
+        EXPECT_EQ (Z (5) & Z (2), Z (0));
+        EXPECT_EQ (Z (6) & Z (3), Z (2));
     }
 
     TYPED_TEST (Numbers, BitOr) {
         using N = typename TestFixture::N;
+        EXPECT_EQ (Z (5) | Z (2), Z (7));
+        EXPECT_EQ (Z (6) | Z (3), Z (7));
     }
 
     TYPED_TEST (Numbers, BitXor) {
         using N = typename TestFixture::N;
+        EXPECT_EQ (Z (5) ^ Z (2), Z (7));
+        EXPECT_EQ (Z (6) ^ Z (3), Z (5));
     }
 
-    TYPED_TEST (Numbers, LeftShiftIsMul2Pow) {
+    TYPED_TEST (Numbers, PositiveLeftShiftIsMul2Pow) {
         using N = typename TestFixture::N;
         N test_val_1 {1};
         EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
@@ -616,6 +633,81 @@ namespace data {
         EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
         EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
         N test_val_2 {1025973};
+        EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 << 3, mul_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+    }
+
+    // TODO right shift
+
+    template <typename X> struct IntegersTwos : ::testing::Test {
+        using Z = X;
+    };
+
+    using integers_twos = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        dec_int, hex_int>;
+
+    TYPED_TEST_SUITE (IntegersTwos, integers_twos);
+
+    // TODO bit operations on negative numbers and
+    // and bit negate.
+
+    using integers_BC = ::testing::Types<
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
+
+    template <typename X> struct IntegersBC : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersBC, integers_BC);
+
+    TYPED_TEST (IntegersBC, BitAnd) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (5) & Z (3), Z (1));
+        EXPECT_EQ (Z (6) & -Z (3), Z (2));
+        EXPECT_EQ (-Z (6) & -Z (3), -Z (2));
+    }
+
+    TYPED_TEST (IntegersBC, BitOr) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (5) | Z (2), -Z (7));
+        EXPECT_EQ (Z (6) | -Z (3), -Z (7));
+        EXPECT_EQ (-Z (4) | -Z (1), -Z (5));
+    }
+
+    TYPED_TEST (IntegersBC, BitXor) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (5) ^ Z (2), -Z (7));
+        EXPECT_EQ (Z (6) ^ -Z (3), -Z (5));
+        EXPECT_EQ (-Z (4) ^ -Z (1), Z (5));
+    }
+
+    TYPED_TEST (IntegersBC, LeftShiftIsDiv2Pow) {
+        using N = typename TestFixture::Z;
+        N test_val_1 {-1};
+        EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 << 1, mul_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 << 2, mul_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 << 3, mul_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 << 5, mul_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
+        N test_val_2 {-1025973};
         EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
         EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
         EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
@@ -644,38 +736,6 @@ namespace data {
         dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
 
     TYPED_TEST_SUITE (BigNumbers, big_numbers);
-
-    using integers_twos = ::testing::Types<
-        int32, int32_little, int32_big,
-        int64, int64_little, int64_big,
-        int80, int80_little, int80_big,
-        int128, int128_little, int128_big,
-        int160, int160_little, int160_big,
-        int224, int224_little, int224_big,
-        int256, int256_little, int256_big,
-        int384, int384_little, int384_big,
-        int512, int512_little, int512_big,
-        Z, Z_bytes_little, Z_bytes_big,
-        dec_int, hex_int>;
-
-    using integers_BC = ::testing::Types<
-        Z_bytes_BC_little, Z_bytes_BC_big,
-        hex_int_BC>;
-
-    template <typename X> struct IntegersTwos : ::testing::Test {
-        using Z = X;
-    };
-
-    template <typename X> struct IntegersBC : ::testing::Test {
-        using Z = X;
-    };
-
-    TYPED_TEST_SUITE (IntegersTwos, integers_twos);
-
-    TYPED_TEST_SUITE (IntegersBC, integers_BC);
-
-    // TODO need a test to ensure that ^ means power for
-    // the bitcoin numbers but not the other types.
 
     TYPED_TEST (BigNumbers, DivisionByZero) {
         using Z = typename TestFixture::N;
@@ -769,5 +829,7 @@ namespace data {
         EXPECT_EQ (N {23} % N {5}, N {3});
         EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
     }
+
+    // TODO power throws for negative values.
 
 }

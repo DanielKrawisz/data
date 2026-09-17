@@ -61,6 +61,7 @@ namespace data {
         return mod_2 (x) == 1;
     }
 
+    // TODO make this the default but enable specializations.
     template <typename dividend, typename divisor>
     constexpr bool inline divides (const dividend &a, const math::nonzero<divisor> &b) {
         return divide (a, b) == 0;
